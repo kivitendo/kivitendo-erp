@@ -118,6 +118,15 @@
      <th align="right" nowrap><translate>Charge number</translate></th>
      <td><input name="chargenumber" size="30"></td>
     </tr>
+
+    <tr>
+     <th align="right" nowrap><translate>Best Before</translate></th>
+     <td>
+       <input name="bestbefore" id="bestbefore" size="11" title="[% myconfig_dateformat %]">
+       <input type="button" name="b_bestbefore" id="bestbefore_trigger" value="?">
+     </td>
+    </tr>
+
     <tr>
      <th align="right" nowrap><translate>EAN</translate></th>
      <td><input name="ean" size="30"></td>
@@ -129,6 +138,17 @@
    <input type="submit" class="submit" name="action" value="<translate>Continue</translate>">
   </p>
  </form>
+
+ <script type="text/javascript">
+   <!--
+     Calendar.setup( {
+     inputField : "bestbefore",
+     ifFormat :"[% myconfig_jsc_dateformat %]",
+     align : "BR",
+     button : "bestbefore_trigger"
+     });
+   //-->
+ </script>
 
 </body>
 </html>

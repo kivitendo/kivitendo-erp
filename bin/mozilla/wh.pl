@@ -164,12 +164,13 @@ sub transfer_or_removal_prepare_contents {
 
   $form->show_generic_error($locale->text("The source warehouse does not contain any bins.")) if (0 == scalar @{ $warehouse->{BINS} });
 
-  map { $form->{"l_$_"} = 'Y' } qw(parts_id qty warehouseid binid partnumber partdescription bindescription chargenumber partunit ean);
+  map { $form->{"l_$_"} = 'Y' } qw(parts_id qty warehouseid binid partnumber partdescription bindescription chargenumber bestbefore partunit ean);
 
   $form->{sort} = 'bindescription';
   my @contents  = WH->get_warehouse_report("warehouse_id" => $form->{warehouse_id},
                                            "bin_id"       => $form->{bin_id},
                                            "chargenumber" => $form->{chargenumber},
+                                           "bestbefore"   => $form->{bestbefore},
                                            "partnumber"   => $form->{partnumber},
                                            "ean"          => $form->{ean},
                                            "description"  => $form->{description});
@@ -219,7 +220,7 @@ sub transfer_parts {
 
   $form->show_generic_error($locale->text("The source warehouse does not contain any bins.")) if (0 == scalar @{ $warehouse->{BINS} });
 
-  map { $form->{"l_$_"} = 'Y' } qw(parts_id qty warehouseid binid partnumber partdescription bindescription chargenumber partunit);
+  map { $form->{"l_$_"} = 'Y' } qw(parts_id qty warehouseid binid partnumber partdescription bindescription chargenumber bestbefore partunit);
 
   $form->{sort} = 'bindescription';
   my @contents  = WH->get_warehouse_report("warehouse_id" => $form->{warehouse_id});
@@ -243,12 +244,12 @@ sub transfer_parts {
       'transfer_type_id' => $form->{transfer_type_id},
     };
 
-    map { $transfer->{$_} = $form->{"${_}_${row}"} } qw(src_bin_id chargenumber parts_id qty dst_warehouse_id dst_bin_id);
+    map { $transfer->{$_} = $form->{"${_}_${row}"} } qw(src_bin_id chargenumber bestbefore parts_id qty dst_warehouse_id dst_bin_id);
 
     my $entry;
 
     foreach (@contents) {
-      if (($_->{binid} == $transfer->{src_bin_id}) && ($_->{parts_id} == $transfer->{parts_id}) && ($_->{chargenumber} eq $transfer->{chargenumber})) {
+      if (($_->{binid} == $transfer->{src_bin_id}) && ($_->{parts_id} == $transfer->{parts_id}) && ($_->{chargenumber} eq $transfer->{chargenumber}) && $_->{bestbefore} eq $transfer->{bestbefore}) {
         $entry = $_;
         last;
       }
@@ -441,6 +442,7 @@ sub create_assembly {
     'dst_warehouse_id' => $form->{warehouse_id},
     'dst_bin_id'       => $form->{bin_id},
     'chargenumber'     => $form->{chargenumber},
+    'bestbefore'       => $form->{bestbefore},
     'assembly_id'      => $form->{parts_id},
     'qty'              => $form->{qty},
     'unit'             => $form->{unit},
@@ -455,7 +457,7 @@ sub create_assembly {
     $form->show_generic_error($ret, 'back_button' => 1);
   }
 
-  delete @{$form}{qw(parts_id partnumber description qty unit chargenumber comment)};
+  delete @{$form}{qw(parts_id partnumber description qty unit chargenumber bestbefore comment)};
 
   $form->{saved_message} = $locale->text('The assembly has been created.');
   $form->{trans_type}    = 'assembly';
@@ -487,6 +489,7 @@ sub transfer_stock {
     'dst_warehouse_id' => $form->{warehouse_id},
     'dst_bin_id'       => $form->{bin_id},
     'chargenumber'     => $form->{chargenumber},
+    'bestbefore'       => $form->{bestbefore},
     'parts_id'         => $form->{parts_id},
     'qty'              => $form->{qty},
     'unit'             => $form->{unit},
@@ -495,7 +498,7 @@ sub transfer_stock {
 
   WH->transfer($transfer);
 
-  delete @{$form}{qw(parts_id partnumber description qty unit chargenumber comment)};
+  delete @{$form}{qw(parts_id partnumber description qty unit chargenumber bestbefore comment)};
 
   $form->{saved_message} = $locale->text('The parts have been stocked.');
   $form->{trans_type}    = 'stock';
@@ -546,7 +549,7 @@ sub remove_parts {
 
   $form->show_generic_error($locale->text("The warehouse does not contain any bins.")) if (0 == scalar @{ $warehouse->{BINS} });
 
-  map { $form->{"l_$_"} = 'Y' } qw(parts_id qty warehouseid binid partnumber partdescription bindescription chargenumber partunit);
+  map { $form->{"l_$_"} = 'Y' } qw(parts_id qty warehouseid binid partnumber partdescription bindescription chargenumber bestbefore partunit);
 
   $form->{sort} = 'bindescription';
   my @contents  = WH->get_warehouse_report("warehouse_id" => $form->{warehouse_id});
@@ -570,12 +573,12 @@ sub remove_parts {
       'transfer_type_id' => $form->{transfer_type_id},
     };
 
-    map { $transfer->{$_} = $form->{"${_}_${row}"} } qw(src_bin_id chargenumber parts_id qty);
+    map { $transfer->{$_} = $form->{"${_}_${row}"} } qw(src_bin_id chargenumber bestbefore parts_id qty);
 
     my $entry;
 
     foreach (@contents) {
-      if (($_->{binid} == $transfer->{src_bin_id}) && ($_->{parts_id} == $transfer->{parts_id}) && ($_->{chargenumber} eq $transfer->{chargenumber})) {
+      if (($_->{binid} == $transfer->{src_bin_id}) && ($_->{parts_id} == $transfer->{parts_id}) && ($_->{chargenumber} eq $transfer->{chargenumber}) && ($_->{bestbefore} eq $transfer->{bestbefore})) {
         $entry = $_;
         last;
       }
@@ -654,10 +657,10 @@ sub generate_journal {
   $form->{sort}  ||= 'date';
 
   my %filter;
-  my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber partdescription chargenumber trans_type comment qty employee oe_id projectnumber);
+  my @columns = qw(trans_id date warehouse_from bin_from warehouse_to bin_to partnumber partdescription chargenumber bestbefore trans_type comment qty employee oe_id projectnumber);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore);
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
@@ -672,7 +675,7 @@ sub generate_journal {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber qty_op qty qty_unit fromdate todate);
+  push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit fromdate todate);
 
   my %column_defs = (
     'date'            => { 'text' => $locale->text('Date'), },
@@ -686,6 +689,7 @@ sub generate_journal {
     'partnumber'      => { 'text' => $locale->text('Part Number'), },
     'partdescription' => { 'text' => $locale->text('Description'), },
     'chargenumber'    => { 'text' => $locale->text('Charge Number'), },
+    'bestbefore'      => { 'text' => $locale->text('Best Before'), },
     'qty'             => { 'text' => $locale->text('Qty'), },
     'employee'        => { 'text' => $locale->text('Employee'), },
     'projectnumber'   => { 'text' => $locale->text('Project Number'), },
@@ -777,8 +781,10 @@ sub report {
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
-  $form->{fokus}   = "partnumber";
-  $form->{onload} .= "focus();";
+  $form->{jsscript} = 1;
+
+#  $form->{fokus}   = "partnumber";
+#  $form->{onload} .= "focus();";
   $form->{title}   = $locale->text("Report about wareouse contents");
 
   $form->header();
@@ -804,10 +810,10 @@ sub generate_report {
   my $sort_col     = $form->{sort};
 
   my %filter;
-  my @columns = qw(warehousedescription bindescription partnumber partdescription chargenumber qty stock_value);
+  my @columns = qw(warehousedescription bindescription partnumber partdescription chargenumber bestbefore qty stock_value);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore);
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
@@ -824,7 +830,7 @@ sub generate_report {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber qty_op qty qty_unit l_warehousedescription l_bindescription);
+  push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit l_warehousedescription l_bindescription);
   push @hidden_variables, qw(include_empty_bins subtotal);
 
   my %column_defs = (
@@ -833,6 +839,7 @@ sub generate_report {
     'partnumber'           => { 'text' => $locale->text('Part Number'), },
     'partdescription'      => { 'text' => $locale->text('Description'), },
     'chargenumber'         => { 'text' => $locale->text('Charge Number'), },
+    'bestbefore'           => { 'text' => $locale->text('Best Before'), },
     'qty'                  => { 'text' => $locale->text('Qty'), },
     'stock_value'          => { 'text' => $locale->text('Stock value'), },
   );

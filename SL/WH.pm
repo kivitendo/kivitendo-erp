@@ -73,9 +73,10 @@ sub transfer {
 
   my ($now)     = selectrow_query($form, $dbh, qq|SELECT current_date|);
 
-  $query = qq|INSERT INTO inventory (warehouse_id, bin_id, parts_id, chargenumber, oe_id, orderitems_id, shippingdate,
+  $query = qq|INSERT INTO inventory (warehouse_id, bin_id, parts_id, chargenumber, bestbefore,
+                                     oe_id, orderitems_id, shippingdate,
                                      employee_id, project_id, trans_id, trans_type_id, comment, qty)
-              VALUES (?, ?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, ?, ?, ?, ?)|;
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, ?, ?, ?, ?)|;
 
   $sth   = prepare_query($form, $dbh, $query);
 
@@ -90,7 +91,7 @@ sub transfer {
     $direction |= 1 if ($transfer->{src_warehouse_id} && $transfer->{src_bin_id});
     $direction |= 2 if ($transfer->{dst_warehouse_id} && $transfer->{dst_bin_id});
 
-    push @values, conv_i($transfer->{parts_id}), "$transfer->{chargenumber}", conv_i($transfer->{oe_id}), conv_i($transfer->{orderitems_id});
+    push @values, conv_i($transfer->{parts_id}), "$transfer->{chargenumber}", conv_date($transfer->{bestbefore}), conv_i($transfer->{oe_id}), conv_i($transfer->{orderitems_id});
     push @values, $transfer->{shippingdate} eq 'current_date' ? $now : conv_date($transfer->{shippingdate}), $form->{login}, conv_i($transfer->{project_id}), $trans_id;
 
     if ($transfer->{transfer_type_id}) {
@@ -131,7 +132,7 @@ sub transfer_assembly {
 
   my $self     = shift;
   my %params   = @_;
-  Common::check_params(\%params, qw(assembly_id dst_warehouse_id login qty unit dst_bin_id chargenumber comment));
+  Common::check_params(\%params, qw(assembly_id dst_warehouse_id login qty unit dst_bin_id chargenumber bestbefore comment));
 
 #  my $maxcreate=WH->check_assembly_max_create(assembly_id =>$params{'assembly_id'}, dbh => $my_dbh);
 
@@ -163,8 +164,8 @@ sub transfer_assembly {
   my $sth_part_qty_assembly = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
 
   # Hier wird das prepared Statement für die Schleife über alle Lagerplätze vorbereitet
-  my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, comment, employee_id, qty, trans_id, trans_type_id)
-                           VALUES (?, ?, ?, ?, ?,(SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
+  my $transferPartSQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore, comment, employee_id, qty, trans_id, trans_type_id)
+                           VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
                            (SELECT id FROM transfer_type WHERE direction = 'out' AND description = 'used'))|;
   my $sthTransferPartSQL   = prepare_query($form, $dbh, $transferPartSQL);
 
@@ -191,15 +192,15 @@ sub transfer_assembly {
       next; # die weiteren Überprüfungen sind unnötig, daher das nächste elemente prüfen (genaue Ausgabe, was noch fehlt)
     }
 
-    # Eine kurze Vorabfrage, um den Lagerplatz und die Chargennummber zu bestimmen
+    # Eine kurze Vorabfrage, um den Lagerplatz, Chargennummer und die Mindesthaltbarkeit zu bestimmen
     # Offen: Die Summe über alle Lagerplätze wird noch nicht gebildet
     # Gelöst: Wir haben vorher schon die Abfrage durchgeführt, ob wir fertigen können.
     # Noch besser gelöst: Wir laufen durch alle benötigten Waren zum Fertigen und geben eine Rückmeldung an den Benutzer was noch fehlt
     # und lösen den Rest dann so wie bei xplace im Barcode-Programm
     # S.a. Kommentar im bin/mozilla-Code mb übernimmt und macht das in ordentlich
 
-    my $tempquery = qq|SELECT SUM(qty), bin_id, chargenumber   FROM inventory  
-                       WHERE warehouse_id = ? AND parts_id = ?  GROUP BY bin_id, chargenumber having SUM(qty)>0|;
+    my $tempquery = qq|SELECT SUM(qty), bin_id, chargenumber, bestbefore   FROM inventory  
+                       WHERE warehouse_id = ? AND parts_id = ?  GROUP BY bin_id, chargenumber, bestbefore having SUM(qty)>0|;
     my $tempsth   = prepare_execute_query($form, $dbh, $tempquery, $params{dst_warehouse_id}, $currentPart_ID);
 
     # Alle Werte zu dem einzelnen Artikel, die wir später auslagern
@@ -208,6 +209,7 @@ sub transfer_assembly {
     while (my $temphash_ref = $tempsth->fetchrow_hashref()) {
       my $temppart_bin_id       = $temphash_ref->{bin_id}; # kann man hier den quelllagerplatz beim verbauen angeben?
       my $temppart_chargenumber = $temphash_ref->{chargenumber};
+      my $temppart_bestbefore   = $temphash_ref->{bestbefore};
       my $temppart_qty          = $temphash_ref->{sum};
 
       if ($tmpPartsQTY > $temppart_qty) {  # wir haben noch mehr waren zum wegbuchen. 
@@ -218,7 +220,7 @@ sub transfer_assembly {
                                             # Dieser Wert IST und BLEIBT positiv!! Hilfe. 
                                             # Liegt das daran, dass dieser Wert aus einem SQL-Statement stammt?
         do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, 
-                     $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' .
+                     $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
                      $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
 
         # hier ist noch ein fehler am besten mit definierten erzeugnissen debuggen 02/2009 jb
@@ -228,24 +230,24 @@ sub transfer_assembly {
       } else { # okay, wir haben weniger oder gleich Waren die wir wegbuchen müssen, wir können also aufhören
         $tmpPartsQTY *=-1;
         do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id},
-                     $temppart_bin_id, $temppart_chargenumber, 'Verbraucht für ' .
+                     $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
                      $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $tmpPartsQTY);
         last; # beendet die schleife (springt zum letzten element)
       }
-    }  # ende while SELECT SUM(qty), bin_id, chargenumber   FROM inventory  WHERE warehouse_id
+    }  # ende while SELECT SUM(qty), bin_id, chargenumber, bestbefore   FROM inventory  WHERE warehouse_id
   } #ende while select parts_id,qty from assembly where id = ?
   if ($kannNichtFertigen) {
     return $kannNichtFertigen;
   }
 
   # soweit alles gut. Jetzt noch die wirkliche Lagerbewegung für das Erzeugnis ausführen ...
-  my $transferAssemblySQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, 
+  my $transferAssemblySQL = qq|INSERT INTO inventory (parts_id, warehouse_id, bin_id, chargenumber, bestbefore,
                                                       comment, employee_id, qty, trans_id, trans_type_id)
-                               VALUES (?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
+                               VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
                                (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'stock'))|;
   my $sthTransferAssemblySQL   = prepare_query($form, $dbh, $transferAssemblySQL);
   do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id}, 
-               $params{dst_bin_id}, $params{chargenumber}, $params{comment}, $params{login}, $params{qty});
+               $params{dst_bin_id}, $params{chargenumber}, $params{bestbefore}, $params{comment}, $params{login}, $params{qty});
   $dbh->commit();
 
   $main::lxdebug->leave_sub();
@@ -292,6 +294,11 @@ sub get_warehouse_journal {
   if ($filter{chargenumber}) {
     push @filter_ary, "i1.chargenumber ILIKE ?";
     push @filter_vars, '%' . $filter{chargenumber} . '%';
+  }
+
+  if ($form->{bestbefore}) {
+    push @filter_ary, "?::DATE = i1.bestbefore::DATE";
+    push @filter_vars, $form->{bestbefore};
   }
 
   if ($form->{fromdate}) {
@@ -344,6 +351,7 @@ sub get_warehouse_journal {
      "partdescription"      => "p.description",
      "bindescription"       => "b.description",
      "chargenumber"         => "i1.chargenumber",
+     "bestbefore"           => "i1.bestbefore",
      "warehousedescription" => "w.description",
      "partunit"             => "p.unit",
      "bin_from"             => "b1.description",
@@ -512,6 +520,7 @@ SQL
 #  - partsid      - will return matches with this parts_id only
 #  - description  - will return only matches where the given string is a substring of the description
 #  - chargenumber - will return only matches where the given string is a substring of the chargenumber
+#  - bestbefore   - will return only matches with this bestbefore date
 #  - ean          - will return only matches where the given string is a substring of the ean as stored in the table parts (article)
 #  - charge_ids   - must be an arrayref. will return contents with these ids only
 #  - expires_in   - will only return matches that expire within the given number of days
@@ -574,6 +583,12 @@ sub get_warehouse_report {
     push @filter_ary,  "i.chargenumber ILIKE ?";
     push @filter_vars, '%' . $filter{chargenumber} . '%';
   }
+
+  if ($form->{bestbefore}) {
+    push @filter_ary, "?::DATE = i.bestbefore::DATE";
+    push @filter_vars, $form->{bestbefore};
+  }
+
   if ($filter{ean}) {
     push @filter_ary,  "p.ean ILIKE ?";
     push @filter_vars, '%' . $filter{ean} . '%';
@@ -616,6 +631,7 @@ sub get_warehouse_report {
      "bindescription"       => "b.description",
      "binid"                => "b.id",
      "chargenumber"         => "i.chargenumber",
+     "bestbefore"           => "i.bestbefore",
      "ean"                  => "p.ean",
      "chargeid"             => "c.id",
      "warehousedescription" => "w.description",
@@ -810,12 +826,12 @@ $main::lxdebug->enter_sub();
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh();
 
-  my $query = qq| SELECT SUM(qty), bin_id, chargenumber  FROM inventory where parts_id = ? AND warehouse_id = ? GROUP BY bin_id, chargenumber|;
+  my $query = qq| SELECT SUM(qty), bin_id, chargenumber, bestbefore  FROM inventory where parts_id = ? AND warehouse_id = ? GROUP BY bin_id, chargenumber, bestbefore|;
 
   my $sth_QTY      = prepare_execute_query($form, $dbh, $query, ,$params{parts_id}, $params{warehouse_id}); #info: aufruf an DBUtils.pm
 
   my $max_qty_parts = 0; #Initialisierung mit 0
-  while (my $ref = $sth_QTY->fetchrow_hashref()) {  # wir laufen über alle chargen und Lagerorte (s.a. SQL-Query oben)
+  while (my $ref = $sth_QTY->fetchrow_hashref()) {  # wir laufen über alle Haltbarkeiten, chargen und Lagerorte (s.a. SQL-Query oben)
     $max_qty_parts += $ref->{sum};
   }
 

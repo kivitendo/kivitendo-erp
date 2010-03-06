@@ -76,6 +76,11 @@ sub select_part {
     $has_charge = 1;
     map { $_->{has_charge} = 1; } @parts;
   }
+  my $has_bestbefore = 0;
+  if (defined($parts[0]->{bestbefore})) {
+    $has_bestbefore = 1;
+    map { $_->{has_bestbefore} = 1; } @parts;
+  }
   my $has_ean = 0;
   if (defined($parts[0]->{ean})) {
     $has_ean = 1;
@@ -92,6 +97,7 @@ sub select_part {
                                      "nextsub"          => "select_part_internal",
                                      "callback_sub"     => $callback_sub,
                                      "has_charge"       => $has_charge,
+                                     "has_bestbefore"   => $has_bestbefore,
                                      "has_ean"          => $has_ean,
                                      "remap_parts_id"   => $remap_parts_id,
                                      "remap_partnumber" => $remap_partnumber });

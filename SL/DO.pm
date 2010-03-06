@@ -258,8 +258,8 @@ sub save {
   my $h_item = prepare_query($form, $dbh, $q_item);
 
   my $q_item_stock =
-    qq|INSERT INTO delivery_order_items_stock (delivery_order_item_id, qty, unit, warehouse_id, bin_id, chargenumber)
-       VALUES (?, ?, ?, ?, ?, ?)|;
+    qq|INSERT INTO delivery_order_items_stock (delivery_order_item_id, qty, unit, warehouse_id, bin_id, chargenumber, bestbefore)
+       VALUES (?, ?, ?, ?, ?, ?, ?)|;
   my $h_item_stock = prepare_query($form, $dbh, $q_item_stock);
 
   my $in_out       = $form->{type} =~ /^sales/ ? 'out' : 'in';
@@ -309,7 +309,7 @@ sub save {
 
     foreach my $sinfo (@{ $stock_info }) {
       @values = ($item_id, $sinfo->{qty}, $sinfo->{unit}, conv_i($sinfo->{warehouse_id}),
-                 conv_i($sinfo->{bin_id}), $sinfo->{chargenumber});
+                 conv_i($sinfo->{bin_id}), $sinfo->{chargenumber}, conv_date($sinfo->{bestbefore}));
       do_statement($form, $h_item_stock, $q_item_stock, @values);
     }
 
@@ -693,7 +693,7 @@ sub retrieve {
     my $in_out = $form->{type} =~ /^sales/ ? 'out' : 'in';
 
     $query =
-      qq|SELECT qty, unit, bin_id, warehouse_id, chargenumber
+      qq|SELECT qty, unit, bin_id, warehouse_id, chargenumber, bestbefore
          FROM delivery_order_items_stock
          WHERE delivery_order_item_id = ?|;
     my $sth = prepare_query($form, $dbh, $query);
@@ -792,7 +792,7 @@ sub order_details {
     qw(runningnumber number description longdescription qty unit
        partnotes serialnumber reqdate projectnumber
        si_runningnumber si_number si_description
-       si_warehouse si_bin si_chargenumber si_qty si_unit);
+       si_warehouse si_bin si_chargenumber si_bestbefore si_qty si_unit);
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays);
 
@@ -875,6 +875,7 @@ sub order_details {
         push @{ $form->{TEMPLATE_ARRAYS}{si_warehouse}[$position-1] },     $bin_wh->{warehouse};
         push @{ $form->{TEMPLATE_ARRAYS}{si_bin}[$position-1] },           $bin_wh->{bin};
         push @{ $form->{TEMPLATE_ARRAYS}{si_chargenumber}[$position-1] },  $si->{chargenumber};
+        push @{ $form->{TEMPLATE_ARRAYS}{si_bestbefore}[$position-1] },    $si->{bestbefore};
         push @{ $form->{TEMPLATE_ARRAYS}{si_qty}[$position-1] },           $form->format_amount($myconfig, $si->{qty} * 1);
         push @{ $form->{TEMPLATE_ARRAYS}{si_unit}[$position-1] },          $si->{unit};
       }
@@ -944,16 +945,16 @@ sub get_item_availability {
   my $myconfig  = \%main::myconfig;
 
   my $query     =
-    qq|SELECT i.warehouse_id, i.bin_id, i.chargenumber, SUM(qty) AS qty, i.parts_id,
+    qq|SELECT i.warehouse_id, i.bin_id, i.chargenumber, i.bestbefore, SUM(qty) AS qty, i.parts_id,
          w.description AS warehousedescription,
          b.description AS bindescription
        FROM inventory i
        LEFT JOIN warehouse w ON (i.warehouse_id = w.id)
        LEFT JOIN bin b       ON (i.bin_id       = b.id)
        WHERE (i.parts_id IN (| . join(', ', ('?') x scalar(@parts_ids)) . qq|))
-       GROUP BY i.warehouse_id, i.bin_id, i.chargenumber, i.parts_id, w.description, b.description
+       GROUP BY i.warehouse_id, i.bin_id, i.chargenumber, i.bestbefore, i.parts_id, w.description, b.description
        HAVING SUM(qty) > 0
-       ORDER BY LOWER(w.description), LOWER(b.description), LOWER(i.chargenumber)
+       ORDER BY LOWER(w.description), LOWER(b.description), LOWER(i.chargenumber), i.bestbefore
 |;
   my $contents = selectall_hashref_query($form, $form->get_standard_dbh($myconfig), $query, @parts_ids);
 
@@ -991,7 +992,8 @@ sub check_stock_availability {
     foreach my $row (@contents) {
       next if (($row->{bin_id}       != $sinfo->{bin_id}) ||
                ($row->{warehouse_id} != $sinfo->{warehouse_id}) ||
-               ($row->{chargenumber} ne $sinfo->{chargenumber}));
+               ($row->{chargenumber} ne $sinfo->{chargenumber}) ||
+               ($row->{bestbefore}   ne $sinfo->{bestbefore}));
 
       $found       = 1;
 
@@ -1039,6 +1041,7 @@ sub transfer_in_out {
       "${prefix}_warehouse_id" => $request->{warehouse_id},
       "${prefix}_bin_id"       => $request->{bin_id},
       'chargenumber'           => $request->{chargenumber},
+      'bestbefore'             => $request->{bestbefore},
       'qty'                    => $request->{qty},
       'unit'                   => $request->{unit},
       'oe_id'                  => $form->{id},

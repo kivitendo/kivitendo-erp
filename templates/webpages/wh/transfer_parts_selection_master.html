@@ -66,6 +66,7 @@
      <th class="listheading"><translate>Part Number</translate></th>
      <th class="listheading"><translate>Part Description</translate></th>
      <th class="listheading"><translate>Charge Number</translate></th>
+     <th class="listheading"><translate>Best Before</translate></th>
      <th class="listheading"><translate>EAN</translate></th>
      <th class="listheading"><translate>Available qty</translate></th>
      <th class="listheading" colspan="2"><translate>Transfer qty</translate></th>
@@ -79,11 +80,13 @@
      <input type="hidden" name="partnumber_[% loop.count %]" value="[% HTML.escape(row.partnumber) %]">
      <input type="hidden" name="partdescription_[% loop.count %]" value="[% HTML.escape(row.partdescription) %]">
      <input type="hidden" name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]">
+     <input type="hidden" name="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]">
      <input type="hidden" name="ean_[% loop.count %]" value="[% HTML.escape(row.ean) %]">
      <td>[% HTML.escape(row.bindescription) %]</td>
      <td>[% HTML.escape(row.partnumber) %]</td>
      <td>[% HTML.escape(row.partdescription) %]</td>
      <td>[% HTML.escape(row.chargenumber) %]</td>
+     <td>[% HTML.escape(row.bestbefore) %]</td>
      <td>[% HTML.escape(row.ean) %]</td>
      <td>[% HTML.escape(row.qty) %]</td>
      <td><input name="qty_[% loop.count %]" size="8" style="text-align: right"></td>

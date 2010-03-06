@@ -20,6 +20,9 @@
      [% IF has_charge %]
      <th class="listheading"><translate>Charge number</translate></th>
      [% END %]
+     [% IF has_bestbefore %]
+     <th class="listheading"><translate>Best Before</translate></th>
+     [% END %]
      [% IF has_ean %]
      <th class="listheading"><translate>EAN</translate></th>
      [% END %]
@@ -47,6 +50,13 @@
       <input type="hidden" name="new_charge_id_[% loop.count %]" value="[% HTML.escape(part.charge_id) %]">
       <input type="hidden" name="new_chargenumber_[% loop.count %]" value="[% HTML.escape(part.chargenumber) %]">
       [% HTML.escape(part.chargenumber) %]
+     </td>
+     [% END %]
+     [% IF has_bestbefore %]
+     <td>
+      <input type="hidden" name="new_bestbefore_id_[% loop.count %]" value="[% HTML.escape(part.bestbefore_id) %]">
+      <input type="hidden" name="new_bestbefore_[% loop.count %]" value="[% HTML.escape(part.bestbefore) %]">
+      [% HTML.escape(part.bestbefore) %]
      </td>
      [% END %]
      [% IF has_ean %]

@@ -92,6 +92,7 @@
      <th class="listheading"><translate>Warehouse</translate></th>
      <th class="listheading"><translate>Bin</translate></th>
      <th class="listheading"><translate>Charge Number</translate></th>
+     <th class="listheading"><translate>Best Before</translate></th>
      <th align="right" class="listheading"><translate>Qty</translate></th>
      <th align="right" class="listheading"><translate>Unit</translate></th>
     </tr>
@@ -105,6 +106,7 @@
      <td>[% HTML.escape(row.warehouse_description) %]</td>
      <td>[% HTML.escape(row.bin_description) %]</td>
      <td>[% HTML.escape(row.chargenumber) %]</td>
+     <td>[% HTML.escape(row.bestbefore) %]</td>
      <td>[% HTML.escape(LxERP.format_amount(row.qty)) %]</td>
      <td>[% HTML.escape(row.unit) %]</td>
 
@@ -120,6 +122,12 @@
 
      <td><select name="bin_id_[% loop.count %]" id="bin_id_[% loop.count %]"></select></td>
      <td><input name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]"></td>
+
+     <td>
+       <input name="bestbefore_[% loop.count %]" id="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]" size="11" title="[% myconfig_dateformat %]">
+       <input type="button" name="b_bestbefore_[% loop.count %]" id="bestbefore_trigger_[% loop.count %]" value="?">
+     </td>
+
      <td><input name="qty_[% loop.count %]" size="12" value="[% HTML.escape(LxERP.format_amount(row.qty)) %]"></td>
 
      <td>
@@ -148,6 +156,21 @@
    [%- END %]
   </p>
  </form>
+
+ [%- IF NOT delivered %]
+  <script type="text/javascript">
+    <!--
+    [%- FOREACH row = STOCK_INFO %]
+    Calendar.setup( {
+      inputField : "bestbefore_[% loop.count %]",
+      ifFormat :"[% myconfig_jsc_dateformat %]",
+      align : "BR",
+      button : "bestbefore_trigger_[% loop.count %]"
+    });
+    [%- END %]
+    //-->
+  </script>
+  [%- END %]
 
 </body>
 </html>

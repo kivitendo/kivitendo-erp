@@ -1004,7 +1004,7 @@ sub update_stock_in {
 
   foreach my $i (1..$form->{rowcount}) {
     $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
-    push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(warehouse_id bin_id chargenumber qty unit) };
+    push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(warehouse_id bin_id chargenumber bestbefore qty unit) };
   }
 
   display_stock_in_form($stock_info);
@@ -1032,6 +1032,8 @@ sub display_stock_in_form {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
+
+  $form->{jsscript} = 1;
 
   $form->{title} = $locale->text('Stock');
 
@@ -1068,7 +1070,7 @@ sub set_stock_in {
 
     next if ($form->{"qty_$i"} <= 0);
 
-    push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(warehouse_id bin_id chargenumber qty unit) };
+    push @{ $stock_info }, { map { $_ => $form->{"${_}_${i}"} } qw(warehouse_id bin_id chargenumber bestbefore qty unit) };
   }
 
   $form->{stock} = YAML::Dump($stock_info);
@@ -1107,7 +1109,8 @@ sub stock_out_form {
       foreach my $sinfo (@{ $stock_info }) {
         next if (($row->{bin_id}       != $sinfo->{bin_id}) ||
                  ($row->{warehouse_id} != $sinfo->{warehouse_id}) ||
-                 ($row->{chargenumber} ne $sinfo->{chargenumber}));
+                 ($row->{chargenumber} ne $sinfo->{chargenumber}) ||
+                 ($row->{bestbefore}   ne $sinfo->{bestbefore}));
 
         map { $row->{"stock_$_"} = $sinfo->{$_} } qw(qty unit error);
       }
@@ -1147,6 +1150,7 @@ sub set_stock_out {
       'warehouse_id' => $form->{"warehouse_id_$i"},
       'bin_id'       => $form->{"bin_id_$i"},
       'chargenumber' => $form->{"chargenumber_$i"},
+      'bestbefore'   => $form->{"bestbefore_$i"},
       'qty'          => $form->{"qty_$i"},
       'unit'         => $form->{"unit_$i"},
       'row'          => $i,
@@ -1266,7 +1270,7 @@ sub transfer_out {
         $request->{parts_id} = $form->{"id_$i"};
         $request->{base_qty} = $request->{qty} * $units->{$request->{unit}}->{factor} / $base_unit_factor;
 
-        my $map_key          = join '--', ($form->{"id_$i"}, @{$request}{qw(warehouse_id bin_id chargenumber)});
+        my $map_key          = join '--', ($form->{"id_$i"}, @{$request}{qw(warehouse_id bin_id chargenumber bestbefore)});
 
         $request_map{$map_key}                 ||= $request;
         $request_map{$map_key}->{sum_base_qty} ||= 0;
@@ -1292,7 +1296,7 @@ sub transfer_out {
       my @contents     = DO->get_item_availability('parts_id' => \@part_ids);
 
       foreach my $inv (@contents) {
-        my $map_key = join '--', @{$inv}{qw(parts_id warehouse_id bin_id chargenumber)};
+        my $map_key = join '--', @{$inv}{qw(parts_id warehouse_id bin_id chargenumber bestbefore)};
 
         next unless ($request_map{$map_key});
 
@@ -1306,9 +1310,10 @@ sub transfer_out {
         my $pinfo = $part_info_map{$request->{parts_id}};
         my $binfo = $bin_info_map{$request->{bin_id}};
 
-        push @{ $form->{ERRORS} }, $locale->text("There is not enough available of '#1' at warehouse '#2', bin '#3', #4, for the transfer of #5.",
+        push @{ $form->{ERRORS} }, $locale->text("There is not enough available of '#1' at warehouse '#2', bin '#3', #4, #5, for the transfer of #6.",
                                                  $pinfo->{description}, $binfo->{warehouse_description}, $binfo->{bin_description},
                                                  $request->{chargenumber} ? $locale->text('chargenumber #1', $request->{chargenumber}) : $locale->text('no chargenumber'),
+                                                 $request->{bestbefore} ? $locale->text('bestbefore #1', $request->{bestbefore}) : $locale->text('no bestbefore'),
                                                  $form->format_amount_units('amount'      => $request->{sum_base_qty},
                                                                             'part_unit'   => $pinfo->{unit},
                                                                             'conv_units'  => 'convertible_not_smaller'));
