@@ -1,4 +1,4 @@
-<body>
+<body
 
  <form method=post name="search" action=[% script %]>
 
@@ -23,10 +23,6 @@
                  show_empty    = 1,
                  allow_textbox = 1,
                  -%]
-[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
-  { script => 'ct.pl', column => 'name', selector => 'input[name="customer"]', params => { vc => 'customer' } },
-]
-%]
       </td>
      </tr>
      <tr>
@@ -116,11 +112,11 @@
           <tr>
            <td align=right><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
            <td nowrap>Customer</td>
-           <td align=right><input name="l_netamount" class=checkbox type=checkbox value=Y></td>
+           <td align=right><input name="l_netamount" class=checkbox type=checkbox value="Y" checked></td>
            <td nowrap>Amount</td>
            <td align=right><input name="l_tax" class=checkbox type=checkbox value=Y></td>
            <td nowrap>Tax</td>
-           <td align=right><input name="l_amount" class=checkbox type=checkbox value=Y checked></td>
+           <td align=right><input name="l_amount" class=checkbox type=checkbox value="Y" checked></td>
            <td nowrap>Total</td>
           </tr>
           <tr>

@@ -131,6 +131,7 @@ $self->{texts} = {
   'Variable'                    => 'Variable',
   'Vendor details'              => 'Vendor details',
   'View warehouse content'      => 'View warehouse content',
+  'View/edit all employees sales documents' => 'View/edit all employees sales documents',
   'Warehouse management'        => 'Warehouse management',
   'You do not have the permissions to access this function.' => 'You do not have the permissions to access this function.',
   'Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure Lx-Office to use UTF-8 as well.' => 'Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure Lx-Office to use UTF-8 as well.',

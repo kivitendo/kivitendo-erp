@@ -5,6 +5,7 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
+  'alter_schema_only'           => 'alter_schema_only',
   'do_query'                    => 'do_query',
   'do_update'                   => 'do_update',
   'migrate_data'                => 'migrate_data',

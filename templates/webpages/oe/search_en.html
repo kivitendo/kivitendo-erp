@@ -1,4 +1,5 @@
 [%- USE HTML %]
+[%- USE T8 %]
 [%- SET vclabel = vc == 'customer' ? 'Customer' : 'Vendor' %]
 [%- SET vcnumberlabel = vc == 'customer' ? 'Customer Number' : 'Vendor Number' %]
 <body>
@@ -26,10 +27,6 @@
                  show_empty    = 1,
                  allow_textbox = 1,
                  -%]
-[% INCLUDE 'generic/autocomplete.html', AUTOCOMPLETES => [
-  { script => 'ct.pl', column => 'name', selector => 'input[name="' _ vc _ '"]', params => { vc => vc } },
-]
-%]
      </td>
     </tr>
 [%- IF ALL_DEPARTMENTS.size %]
@@ -104,9 +101,9 @@
      </td>
     </tr>
     <tr>
-     <th align="right">Order Date From</th>
+     <th align="right">[% IF is_order %][% 'Order Date' | $T8 %][% ELSE %][% 'Quotation Date' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>
-      <input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
+      <input name="transdatefrom" id="transdatefrom" size="11" title="[% dateformat | html %]" onBlur="check_right_date_format(this)">
       <input type="button" name="transdatefrom" id="trigger3" value="?">
      </td>
      <th align="right">Bis</th>
@@ -116,7 +113,7 @@
      </td>
     </tr>
     <tr>
-     <th align="right">Delivery Date From</th>
+     <th align="right">[% IF is_order %][% 'Delivery Date' | $T8 %][% ELSE %][% 'Valid until' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>
       <input name=reqdatefrom id=reqdatefrom size=11 title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
       <input type=button name=reqdatefrom id="trigger5" value=?>
@@ -170,7 +167,7 @@
         </td>
         <td>
          <input name="l_reqdate" id="l_reqdate" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_reqdate">Required by</label>
+         <label for="l_reqdate">[% IF is_order %][% 'Required by' | $T8 %][% ELSE %][% 'Valid until' | $T8 %][% END %]</label>
         </td>
        </tr>
        <tr>

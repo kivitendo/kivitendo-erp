@@ -179,6 +179,7 @@ $self->{texts} = {
   'Variable'                    => 'Variable',
   'Vendor details'              => 'Vendor details',
   'View warehouse content'      => 'View warehouse content',
+  'View/edit all employees sales documents' => 'View/edit all employees sales documents',
   'Warehouse management'        => 'Warehouse management',
   'Wrong Period'                => 'Wrong Period',
   'Year'                        => 'Year',

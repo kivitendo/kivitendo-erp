@@ -203,6 +203,7 @@ $self->{texts} = {
   'Vendors'                     => 'Vendors',
   'Version'                     => 'Version',
   'View warehouse content'      => 'View warehouse content',
+  'View/edit all employees sales documents' => 'View/edit all employees sales documents',
   'WHJournal'                   => 'WHJournal',
   'Warehouse'                   => 'Warehouse',
   'Warehouse content'           => 'Warehouse content',

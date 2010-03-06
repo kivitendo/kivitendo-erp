@@ -34,8 +34,13 @@
 
  <table>
   <tr>
+  [% IF is_customer %]
    <td align="right">Customer Number</td>
    <td>[% HTML.escape(customernumber) %]</td>
+  [% ELSE %]
+   <td align="right">Vendor Number</td>
+   <td>[% HTML.escape(vendornumber) %]</td>
+  [% END %]
   </tr>
 
   <tr>

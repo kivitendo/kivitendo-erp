@@ -181,6 +181,7 @@ $self->{texts} = {
   'Vendor details'              => 'Vendor details',
   'View SEPA export'            => 'View SEPA export',
   'View warehouse content'      => 'View warehouse content',
+  'View/edit all employees sales documents' => 'View/edit all employees sales documents',
   'Warehouse management'        => 'Warehouse management',
   'Yes'                         => 'Yes',
   'You do not have the permissions to access this function.' => 'You do not have the permissions to access this function.',

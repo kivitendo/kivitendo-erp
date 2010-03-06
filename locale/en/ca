@@ -162,6 +162,7 @@ $self->{texts} = {
   'USt-Konto'                   => 'USt-Konto',
   'Unknown dependency \'%s\'.'  => 'Unknown dependency \'%s\'.',
   'View warehouse content'      => 'View warehouse content',
+  'View/edit all employees sales documents' => 'View/edit all employees sales documents',
   'Warehouse management'        => 'Warehouse management',
   'YYYY'                        => 'YYYY',
   'Year'                        => 'Year',
