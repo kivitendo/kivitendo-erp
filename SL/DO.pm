@@ -740,7 +740,7 @@ sub order_details {
   my %oid = ('Pg'     => 'oid',
              'Oracle' => 'rowid');
 
-  my (@project_ids, %projectnumbers);
+  my (@project_ids, %projectnumbers, %projectdescriptions);
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
@@ -755,17 +755,20 @@ sub order_details {
   }
 
   if (@project_ids) {
-    $query = "SELECT id, projectnumber FROM project WHERE id IN (" .
+    $query = "SELECT id, projectnumber, description FROM project WHERE id IN (" .
       join(", ", map("?", @project_ids)) . ")";
     $sth = prepare_execute_query($form, $dbh, $query, @project_ids);
     while (my $ref = $sth->fetchrow_hashref()) {
       $projectnumbers{$ref->{id}} = $ref->{projectnumber};
+      $projectdescriptions{$ref->{id}} = $ref->{description};
     }
     $sth->finish();
   }
 
   $form->{"globalprojectnumber"} =
     $projectnumbers{$form->{"globalproject_id"}};
+  $form->{"globalprojectdescription"} =
+      $projectdescriptions{$form->{"globalproject_id"}};
 
   my $q_pg     = qq|SELECT p.partnumber, p.description, p.unit, a.qty, pg.partsgroup
                     FROM assembly a
@@ -790,7 +793,7 @@ sub order_details {
 
   my @arrays =
     qw(runningnumber number description longdescription qty unit
-       partnotes serialnumber reqdate projectnumber
+       partnotes serialnumber reqdate projectnumber projectdescription
        si_runningnumber si_number si_description
        si_warehouse si_bin si_chargenumber si_bestbefore si_qty si_unit);
 
@@ -832,6 +835,8 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}{serialnumber} },    $form->{"serialnumber_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{reqdate} },         $form->{"reqdate_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $projectnumbers{$form->{"project_id_$i"}};
+    push @{ $form->{TEMPLATE_ARRAYS}{projectdescription} },
+      $projectdescriptions{$form->{"project_id_$i"}};
 
     if ($form->{"assembly_$i"}) {
       $sameitem = "";

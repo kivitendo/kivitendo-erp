@@ -1001,7 +1001,7 @@ sub order_details {
   my %oid = ('Pg'     => 'oid',
              'Oracle' => 'rowid');
 
-  my (@project_ids, %projectnumbers);
+  my (@project_ids, %projectnumbers, %projectdescriptions);
 
   push(@project_ids, $form->{"globalproject_id"}) if ($form->{"globalproject_id"});
 
@@ -1033,16 +1033,18 @@ sub order_details {
   }
 
   if (@project_ids) {
-    $query = "SELECT id, projectnumber FROM project WHERE id IN (" .
+    $query = "SELECT id, projectnumber, description FROM project WHERE id IN (" .
       join(", ", map("?", @project_ids)) . ")";
     $sth = prepare_execute_query($form, $dbh, $query, @project_ids);
     while (my $ref = $sth->fetchrow_hashref()) {
       $projectnumbers{$ref->{id}} = $ref->{projectnumber};
+      $projectdescriptions{$ref->{id}} = $ref->{description};
     }
     $sth->finish();
   }
 
   $form->{"globalprojectnumber"} = $projectnumbers{$form->{"globalproject_id"}};
+  $form->{"globalprojectdescription"} = $projectdescriptions{$form->{"globalproject_id"}};
 
   $form->{discount} = [];
 
@@ -1055,7 +1057,7 @@ sub order_details {
     qw(runningnumber number description longdescription qty ship unit bin
        partnotes serialnumber reqdate sellprice listprice netprice
        discount p_discount discount_sub nodiscount_sub
-       linetotal  nodiscount_linetotal tax_rate projectnumber
+       linetotal  nodiscount_linetotal tax_rate projectnumber projectdescription
        price_factor price_factor_name partsgroup);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
@@ -1163,6 +1165,7 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} }, $form->format_amount($myconfig, $nodiscount_linetotal, 2);
 
       push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
+      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} }, $projectdescriptions{$form->{"project_id_$i"}});
 
       my ($taxamount, $taxbase);
       my $taxrate = 0;
