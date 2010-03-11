@@ -26,7 +26,14 @@ use File::Basename;
 use constant END_OF_REQUEST => "END-OF-REQUEST\n";
 
 sub pre_request_checks {
-  show_error('login/auth_db_unreachable') unless $::auth->session_tables_present;
+  if (!$::auth->session_tables_present) {
+    if ($::form->{script} eq 'admin.pl') {
+      ::run();
+      ::end_of_request();
+    } else {
+      show_error('login/auth_db_unreachable');
+    }
+  }
   $::auth->expire_sessions;
 }
 
