@@ -301,6 +301,7 @@ $self->{texts} = {
   'The parts for this delivery order have already been transferred in.' => 'The parts for this delivery order have already been transferred in.',
   'The parts for this delivery order have already been transferred out.' => 'The parts for this delivery order have already been transferred out.',
   'There is not enough available of \'#1\' at warehouse \'#2\', bin \'#3\', #4, #5, for the transfer of #6.' => 'There is not enough available of \'#1\' at warehouse \'#2\', bin \'#3\', #4, #5, for the transfer of #6.',
+  'There is not enough available of \'#1\' at warehouse \'#2\', bin \'#3\', #4, for the transfer of #5.' => 'There is not enough available of \'#1\' at warehouse \'#2\', bin \'#3\', #4, for the transfer of #5.',
   'To (email)'                  => 'To (email)',
   'Total'                       => 'Total',
   'Transaction description'     => 'Transaction description',

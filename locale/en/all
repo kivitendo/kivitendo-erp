@@ -1656,6 +1656,7 @@ $self->{texts} = {
   'There is at least one sales or purchase invoice for which Lx-Office recorded an inventory transaction with taxkeys even though no tax was recorded.' => '',
   'There is at least one transaction for which the user has chosen a logically wrong taxkey.' => '',
   'There is not enough available of \'#1\' at warehouse \'#2\', bin \'#3\', #4, #5, for the transfer of #6.' => '',
+  'There is not enough available of \'#1\' at warehouse \'#2\', bin \'#3\', #4, for the transfer of #5.' => '',
   'There is not enough left of \'#1\' in bin \'#2\' for the removal of #3.' => '',
   'There is nothing to do in this step.' => '',
   'Therefore there\'s no need to create the same article more than once if it is sold or bought in/from another tax zone.' => '',

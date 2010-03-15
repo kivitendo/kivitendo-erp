@@ -88,7 +88,7 @@ heißen.
    `apache postgresql libdbi-perl libdbd-pg-perl libpg-perl
 libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl
 libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl
-libtemplate-perl libxml-writer-perl'
+libtemplate-perl'
 
    Für Fedora Core benötigen Sie unter anderem diese Pakete:
 
@@ -113,12 +113,12 @@ benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 3 Installation des Programmpaketes
 **********************************
 
-Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.0.tgz) wird im
-Dokumentenverzeichnis des Webservers (z.B. `/var/www/html/',
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.1beta1.tgz) wird
+im Dokumentenverzeichnis des Webservers (z.B. `/var/www/html/',
 `/srv/www/htdocs' oder `/var/www/') entpackt:
 
    `cd /var/www
-tar xvzf lxoffice-erp-2.6.0.tgz'
+tar xvzf lxoffice-erp-2.6.1beta1.tgz'
 
    Verändern Sie evtl. noch den Namen des Verzeichnisses mit
 
@@ -139,6 +139,13 @@ Verzeichnisse auf einem Debian/Ubuntu-System:
 
    `chown -R www-data lx-office-erp/users lx-office-erp/spool
 lx-office-erp/webdav'
+
+   Weiterhin muss der Webserver-Benutzer im Verzeichnis `templates'
+Verzeichnisse für jeden neuen Benutzer, der in lx-office angelegt wird,
+anlegen dürfen:
+
+   `chgrp www-data lx-office-erp/templates; chmod g+w
+lx-office-erp/templates'
 
 4 Anpassung der PostgreSQL-Konfiguration
 ****************************************
@@ -170,6 +177,8 @@ Versionsnummer angepasst werden.
    Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und ist
 ein Neuanlegen eines weiteren Clusters nicht möglich, so kann Lx-Office
 mit ISO-8859-15 als Encoding betrieben werden.
+
+   Das Encoding einer Datenbank kann in `psql' mit `\l' geprüft werden.
 
 4.2 Änderungen an Konfigurationsdateien
 =======================================
@@ -219,7 +228,8 @@ create language 'plpgsql' handler plpgsql_call_handler lancompiler
 
    Bitte beachten Sie, dass der Pfad zur Datei `plpgsql.so' von
 Distribution zu Distribution verschiedlich sein kann. Bei Debian/Ubuntu
-befindet sie sich unter `/usr/lib/postgresql/lib/plpgsql.so'.
+befindet sie sich unter `/usr/lib/postgresql/lib/plpgsql.so', bei
+Ubuntu 9.10 unter `/usr/lib/postgresql/8.4/lib/plpgsql.so'.
 
 4.4 Datenbankbenutzer anlegen
 =============================
@@ -517,13 +527,14 @@ zugewiesen werden. Dazu gibt es zwei Möglichkeiten:
 7.6 Migration alter Installationen
 ==================================
 
-Wenn Lx-Office 2.6.0 über eine ältere Version installiert wird, in der
-die Benutzerdaten noch im Dateisystem im Verzeichnis `users' verwaltet
-wurden, so bietet Lx-Office die Möglichkeit, diese Benutzerdaten
-automatisch in die Authentifizierungsdatenbank zu übernehmen. Dies
-geschieht, wenn man sich nach dem Update der Installation das erste Mal
-im Administrationsbereich anmeldet. Findet Lx-Office die Datei
-`users/members', so wird der Migrationsprozess gestartet.
+Wenn Lx-Office 2.6.1 Beta 1 über eine ältere Version installiert wird,
+in der die Benutzerdaten noch im Dateisystem im Verzeichnis `users'
+verwaltet wurden, so bietet Lx-Office die Möglichkeit, diese
+Benutzerdaten automatisch in die Authentifizierungsdatenbank zu
+übernehmen. Dies geschieht, wenn man sich nach dem Update der
+Installation das erste Mal im Administrationsbereich anmeldet. Findet
+Lx-Office die Datei `users/members', so wird der Migrationsprozess
+gestartet.
 
    Der Migrationsprozess ist nahezu vollautomatisch. Alle Benutzerdaten
 können übernommen werden. Nach den Benutzerdaten bietet Lx-Office noch

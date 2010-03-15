@@ -1310,13 +1310,26 @@ sub transfer_out {
         my $pinfo = $part_info_map{$request->{parts_id}};
         my $binfo = $bin_info_map{$request->{bin_id}};
 
-        push @{ $form->{ERRORS} }, $locale->text("There is not enough available of '#1' at warehouse '#2', bin '#3', #4, #5, for the transfer of #6.",
-                                                 $pinfo->{description}, $binfo->{warehouse_description}, $binfo->{bin_description},
-                                                 $request->{chargenumber} ? $locale->text('chargenumber #1', $request->{chargenumber}) : $locale->text('no chargenumber'),
-                                                 $request->{bestbefore} ? $locale->text('bestbefore #1', $request->{bestbefore}) : $locale->text('no bestbefore'),
-                                                 $form->format_amount_units('amount'      => $request->{sum_base_qty},
-                                                                            'part_unit'   => $pinfo->{unit},
-                                                                            'conv_units'  => 'convertible_not_smaller'));
+        if ($main::show_best_before) {
+            push @{ $form->{ERRORS} }, $locale->text("There is not enough available of '#1' at warehouse '#2', bin '#3', #4, #5, for the transfer of #6.",
+                                                     $pinfo->{description},
+                                                     $binfo->{warehouse_description},
+                                                     $binfo->{bin_description},
+                                                     $request->{chargenumber} ? $locale->text('chargenumber #1', $request->{chargenumber}) : $locale->text('no chargenumber'),
+                                                     $request->{bestbefore} ? $locale->text('bestbefore #1', $request->{bestbefore}) : $locale->text('no bestbefore'),
+                                                     $form->format_amount_units('amount'      => $request->{sum_base_qty},
+                                                                                'part_unit'   => $pinfo->{unit},
+                                                                                'conv_units'  => 'convertible_not_smaller'));
+        } else {
+            push @{ $form->{ERRORS} }, $locale->text("There is not enough available of '#1' at warehouse '#2', bin '#3', #4, for the transfer of #5.",
+                                                     $pinfo->{description},
+                                                     $binfo->{warehouse_description},
+                                                     $binfo->{bin_description},
+                                                     $request->{chargenumber} ? $locale->text('chargenumber #1', $request->{chargenumber}) : $locale->text('no chargenumber'),
+                                                     $form->format_amount_units('amount'      => $request->{sum_base_qty},
+                                                                                'part_unit'   => $pinfo->{unit},
+                                                                                'conv_units'  => 'convertible_not_smaller'));
+        }
       }
     }
 

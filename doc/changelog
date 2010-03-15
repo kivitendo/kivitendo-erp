@@ -2,7 +2,7 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
-2009-11-5 - unstable stand release-2.6.0-340-g9e15903
+2010-03-08 - Release 2.6.1 Beta 1
 
   Größere neue Features:
 
@@ -181,14 +181,174 @@
 
   Liste gefixter Bugs aus dem Bugtracker:
 
-  922 940 1017 1024 1025 1028 1030 1031 1034 1035 1036 1037 1040 1043
-  1044 1046 1050 1051 1055 1057 1058 1072 1073 1077 1079 1081 1082
-  1095 1098 1100 1101 1108 1110 1118 1125 1127 1130 1133 1135 1136
-  1138 1144 1146 1147 1150 1151 1155 1164 1170 1173 1177 1186 1188
-  1190 1191 1195 1197 1198 1199 1200 1201 1209 1213 1243 1248 1250
-  1262 1284 1286 1287 1289 1290 1291 1294 1299 1311 1317 1326 1328
-  1331 1334 1335 1336 1339 1340 1341 1342 1343 1349 1350 1352 1354
-  1355 1356
+  - Bugfix 861: Aufruf einer Importmaske erzeugt php fehler
+  - Bugfix 922: DBD::Pg::st execute failed: ERROR:  relation "employee" does not exist at SL/DBUtils.pm line 126. Can't call method "dberror" on unblessed reference at SL/DBUtils.pm line 126.
+  - Bugfix 938: irreführende Fehlermeldung falls keine Lagerplätze angelegt sind ...
+  - Bugfix 940: Projektbuchungsauswahl defekt
+  - Bugfix 1017: Fehler beim übernehmen des Rabatts im Workflow Angebot->Kundenauftrag
+  - Bugfix 1019: Seit Update Rechnungserstellung mit Latex nicht mehr korrekt möglich
+  - Bugfix 1021: Falscher Steuersatz von 16 Prozent steht noch bei EG-Lieferungen
+  - Bugfix 1022: Nach Datenbankupdate von 2.4.3 auf 2.6.0 unstable erscheint In der Rechnungsmaske im Feld Kunde neben dem KundInnenname mit zwei Bindestrichen angehängt die Buchungsnummer dieses Kunden / dieser Kundin
+  - Bugfix 1023: CSV-Import wirft Fehlermeldungen wg falschem Pfad zur tmp
+  - Bugfix 1024: BEnutzerdaten bearbeiten: Auswahl von "Rechnung" bei Webdav-Zugriff wird ignoriert!
+  - Bugfix 1025: BenutzerInneneigenschaften für neue BenutzerInnen übernehmen nicht möglich
+  - Bugfix 1028: Fehlerhafter workflow von Bestellung in Lieferschein
+  - Bugfix 1030: Rechteverwaltungsfehler: Mitarbeiter mit Rechten fuer Lieferscheine darf diese nicht einsehen
+  - Bugfix 1031: Geaenderter Mitarbeitername taucht in Dropdown-Listen nicht auf
+  - Bugfix 1034: Verkaeufer wird nicht von Auftrag in Lieferschein uebernommen
+  - Bugfix 1035: "Steuer enthalten" ueberlebt nicht bei Workflow Auftrag -> Lieferschein -> Rechnung
+  - Bugfix 1037: Spracheinstellung ändern führt zu Perl-Fehler
+  - Bugfix 1040: Fehler beim Aufrufen existierender Lieferscheine aus Verkauf -> Bericht -> Lieferscheine
+  - Bugfix 1043: Druckvorschau kann Datei "invoice." nicht finden
+  - Bugfix 1044: Typo in "Kontodaten bearbeiten"
+  - Bugfix 1046: Variable fuer Bearbeiter wird bei Workflow nicht neu gesetzt
+  - Bugfix 1047: Bearbeitungshistorie
+  - Bugfix 1049: HTML-Vorlagen mit Endung .html werden nicht erkannt
+  - Bugfix 1050: Beim Buchen von Zahlungseingängen werden offene Rechnungen nur angezeigt, wenn die Währung richtig eingestellt ist
+  - Bugfix 1051: Division by 0
+  - Bugfix 1052: Bei der Lagerverwaltung werden an einigen Stellen die Umlaute in der deutschen Übersetzung nicht richtig dargestellt.
+  - Bugfix 1055: Lieferschein-Verkaeufer-Bug - Die Zweite
+  - Bugfix 1056: Workflow-Variable fuer Auftragsdatum ueberlebt Auftrag -> Lieferschein -> Rechnung nicht
+  - Bugfix 1057: Administrationsinterface: Mitarbeiter erscheinen Mehrfach in Gruppen und deren Listen
+  - Bugfix 1058: Auftragsnummer wird nicht gespeichert
+  - Bugfix 1059: Warenuebersicht (Stammdaten/Berichte/Waren) enthaelt falsche Mengen
+  - Bugfix 1060: Stringvergleich auf (Un-)Gleichheit in OpenOffice Vorlagen ermöglichen
+  - Bugfix 1064: Fehler im Dispatcher bei "Druckvorschau" Lieferschein
+  - Bugfix 1066: Bei Mahnungen kommt die %greeting%-Variable nicht im Druck
+  - Bugfix 1069: Benuter Sprachen
+  - Bugfix 1071: Buchungen anderer Jahre  werden in der Kontenübersicht nicht angezeigt
+  - Bugfix 1072: Proformarechnungen aus Auftraegen: Variablen werden zum Teil nicht exportiert
+  - Bugfix 1073: Fehler in online Doku "Dokumentenvorlagen und verfügbare Variablen"
+  - Bugfix 1075: ERP-Kundenbericht Bestandskunden mit boolscher Benutzerdefinierter Var. als Auswertungskriterium erzeugt Fehler
+  - Bugfix 1076: Mitarbeiter zu anderen Datenbanken erscheinen mit in Bearbeiter/Verkaeufer-Auswahllisten
+  - Bugfix 1077: templates/*.odt files don't get copied into user folder on creation through admin.pl
+  - Bugfix 1079: Rabatt falsch im Workflow Bestellung->Lieferschein->Einkaufsrechnung
+  - Bugfix 1080: Drucken über Drucker bringt Fehler
+  - Bugfix 1081: Bei Buchung einer Einkaufsrechnung geht das Rabatt verloren
+  - Bugfix 1082: Bei einem Lieferschein wird die Abteilung nicht mitgespeichert
+  - Bugfix 1095: Langtext wird bei Einkaufsrechnung nicht mitgespeichert
+  - Bugfix 1098: Beim aktualisieren eines Ansprechpartners erscheint "Syntaxerror bei cp_gender"
+  - Bugfix 1099: Druckausgabe OpenOffice: <%if innerhalb <%foreach
+  - Bugfix 1100: Inkonsistenz bei der Eingabe und Druckaufbereitung von Datumsfeldern
+  - Bugfix 1101: Historiensuchmaschine wirft Fehler
+  - Bugfix 1108: Suche nach Projekten
+  - Bugfix 1109: Berichtserstellung Auftraege mit Kriterium "Projekte": Sortierung erzeugt fehlerhafte Ausgabe
+  - Bugfix 1110: Auftrag als neu speichern
+  - Bugfix 1113: Lagerbewegungen einen Dokument zuordnen
+  - Bugfix 1115: Rundungsdifferenzen
+  - Bugfix 1116: Vorsteuer 7 % führt dazu, dass DATEV-Export scheitert
+  - Bugfix 1118: Bei "Nummernkreise und Standardkonten" wird unter "Verschiedes" die Gewichtseinheit nicht als Dropdownmenü angeboten
+  - Bugfix 1121: Firefox, kein update der Maske
+  - Bugfix 1122: Steuersatz "Kein (Kleinunternehmer)" fuer Lieferanten nach Par. 19 UStG fehlt
+  - Bugfix 1124: Bericht Waren
+  - Bugfix 1125: Lieferdatum aus Lieferscheinen
+  - Bugfix 1127: Kreditorenbuchungen werden aus den Lieferantenstammdaten nicht korrekt aufgerufen
+  - Bugfix 1130: Stammdaten -> Lieferanten -> Registerreiter Lieferungen: "Verkaufspreis" durch Einkaufspreis ersetzen
+  - Bugfix 1133: Dienstleistung ungÃ¼ltig setzen
+  - Bugfix 1135: Browserposition auf Seite bei Aktualisierung von Dokumenten (Rechnungen, Lieferscheine, etc.)
+  - Bugfix 1136: Kundenspezifische Rabatte funktionieren nicht richtig bei Auftrag und Angebot
+  - Bugfix 1138: Übersetzung der Einheiten auf Vorlagen funktioniert nicht
+  - Bugfix 1144: Mengen bei Einkaufs- und Verkaufsmasken
+  - Bugfix 1146: Verkauf -> Berichte -> Mahnungen : Auswahlkriterium "Naechste Mahnstufe" sollte "Aktuelle Mahnstufe" sein
+  - Bugfix 1147: Warenberichte mit Option "Vom Kunden bestellt": Links mit Auftragsnummern fuehren in Auftragsneuanlagen mit alten Feldeintraegen
+  - Bugfix 1150: lx-office lässt Buchungen auf ÜBERSCHRIFTEN im Kontenplan zu!
+  - Bugfix 1151: Verkauf -> Bericht -> Lieferschein -> neue Rechnung = Rabatt falsch
+  - Bugfix 1155: Null-Rechnungen in Berichten nicht sichtbar
+  - Bugfix 1160: Auswertung Waren
+  - Bugfix 1161: Konten erscheinen nicht / Saldenfehler
+  - Bugfix 1164: Zahlungsdatum wird beim Erstellen einer Rechnung immer gesetzt, auch wenn noch nichts bezahlt wurde
+  - Bugfix 1170: Teileinlagerungen, die nicht dem Lieferschein entsprechen
+  - Bugfix 1173: Usability: Detail-Haken loest Aktion aus
+  - Bugfix 1177: Feldbezeichnung "Bestellnummer des Kunden" in EK-Lieferscheinen
+  - Bugfix 1181: Gutschriftenerstellung aus Rechnung: Zahlungsausgaenge werden mit uebertragen
+  - Bugfix 1183: Warenanlage funktioniert nicht mehr
+  - Bugfix 1186: Preise in Berichten
+  - Bugfix 1188: Sortierung in Projektberichten veraendert Ergebnisse
+  - Bugfix 1190: GuV-Rechnung falsch bei EÜR und teilgezahlten Rechnungen
+  - Bugfix 1191: Update vom Freitag hat Benutzerdefinierte Variablen/Kundenverwaltung geschossen
+  - Bugfix 1194: WebDAV: Kein WebDAV-Ordner fuer Lieferscheine?
+  - Bugfix 1195: ERP Lieferanten und Kunden: Anfuehrungsstriche in y.B. Lieferantennamen nicht erlaubt, sollte aussortiert werden
+  - Bugfix 1197: OE - speichern mit unvollständiger Maske schlägt fehl
+  - Bugfix 1198: Usability, Erwartungskonformität und Einsatzbereiche: Firmenname vs Name vs Kundenname
+  - Bugfix 1199: Lieferantenauftragsaufruf aus Berichten: Falscher Lieferant wird eingetragen
+  - Bugfix 1200: Verzehnfachung der einfachen EK-Preise nach Abspeichern der EK-Rechnungen
+  - Bugfix 1201: Kreditorenbuchungen liefern beim Wiederaufruf eine Liste der Lieferanten im Dokumentkopf
+  - Bugfix 1209: Suchen nach CVar-Inhalten.
+  - Bugfix 1210: Schliessen eines Auftrages (!=abschliessen), den man aus einer Auswertung geoeffnet hat fuehrt nicht in dieselbe Auswertung zurueck
+  - Bugfix 1213: variablen in openoffice-vorlagen
+  - Bugfix 1214: Lieferant wird neu gesetzt beim Storno von Einkaufsrechnungen
+  - Bugfix 1215: Arraykonvertierungen?
+  - Bugfix 1229: SQL-Fehler, EK-R, ungültige Eingabesyntax für Typ date: »«
+  - Bugfix 1230: Fehler beim Datumseintrag bei Rechnungen, deren Zahlungskonditionen umgestellt werden
+  - Bugfix 1231: Artikelmengen weichen in Masken von einander ab
+  - Bugfix 1232: Strict-Cases: CSV-Export aus Auftragsberichten mit Projekteinschraenkung gibt alle Auftraege wieder, nicht nur die des Projektes
+  - Bugfix 1234: Strict-Cases: Bei der Erstellung einer Rechnung aus einem Auftrag heraus defaulten mehrere Feldbeschrifter und Buttons zurück in's Englische
+  - Bugfix 1235: Strict-Cases: Bei der Erstellung einer Rechnung aus einem Lieferschein heraus defaulten mehrere Feldbeschrifter und Buttons zurück in's Englische
+  - Bugfix 1238: SEPA-Fehler bei gemischten nationalen und internationalen Empfaengern.
+  - Bugfix 1239: Strict-Cases: Kontenuebersicht: Geht man in ein Kto rein, wirft LX einen Fehler
+  - Bugfix 1240: Strict-Cases: Rechnungsbuchung (Verkauf) schlaegt fehl
+  - Bugfix 1241: Strict-Cases: GuV schlaegt fehl
+  - Bugfix 1242: Strict-Cases: Bilanz schlaegt fehl
+  - Bugfix 1243: Datev-Export zunehmend fragil
+  - Bugfix 1244: Strict-Cases: Buchungsjournal hat es auch erwischt
+  - Bugfix 1245: Strict-Cases: Zahlungsbuchung in bestehender Kreditorenrechnung schlaegt fehl
+  - Bugfix 1246: Buchungsfehler mit aktueller Revision: mehrere Felder und Konten werden nach juengstem Update nicht bebucht
+  - Bugfix 1248: Probleme bei Berichte - Waren: kein Rechnungsdatum / Menge wird falsch mit 0 angegeben
+  - Bugfix 1249: Tippfehler bei Meldung SEPA ohne Konten
+  - Bugfix 1250: Default-Menge "0" bei Artikeln auf Einkaufsrechnungen
+  - Bugfix 1251: Anlegen von Datenbanken schlaegt fehl seit der letzten Reihe an Updates
+  - Bugfix 1252: Berechnung vom Ertrag nicht korrekt
+  - Bugfix 1253: DB-Upgrade Script die Zweite..noch Eines mit aehnlichem Fehler....
+  - Bugfix 1254: Kreditorenbuchungen: Steuerfreie Umsaetze lassen sich nicht buchen
+  - Bugfix 1256: Rechnung bearbeiten
+  - Bugfix 1257: Button "Gutschrift" nicht mehr in Rechnungen
+  - Bugfix 1258: Lager\Berichte\Lagerbuchungen: Die Art der Lagerbewegung wird in der CSV nicht ausgegeben
+  - Bugfix 1260: Rechnungen defaulten zu "Inland" nach erneutem Aufruf
+  - Bugfix 1261: EAN Auswahl
+  - Bugfix 1262: Bericht verkaufte Artikel + Storno
+  - Bugfix 1264: Suchenach Lieferantenauftrag/anfrage
+  - Bugfix 1265: Webdav-Zeile nicht mehr aktiv, Ordner wird auch nicht mehr angelegt
+  - Bugfix 1266: Beim sortieren nach Kriterien in Mahnungsberichten gehen Selektionskriterien verloren und alles wird angezeigt.
+  - Bugfix 1270: In Einkaufsmasken ist oftmals von "Verkäufer" statt "Einkäufer" die Rede
+  - Bugfix 1271: Übersetzungsfehler 'Gruppenzugehörigkeit' im Adminbereich
+  - Bugfix 1272: Strict-Cases: Kreditorenbuchungen lassen sich nicht ausbuchen
+  - Bugfix 1276: Installation auf Ubuntu 9.10 durchgegangen (mit git-clone), INSTALL.texi angepasst
+  - Bugfix 1278: Schalter Vertreter
+  - Bugfix 1279: Felder Benutzer und Password
+  - Bugfix 1284: Kundenrabatt geht verloren
+  - Bugfix 1286: Lieferschein als Vorlage fuer neuen Lieferschein verwenden: Artikel werden in neuer Maske als ausgelagert angezeigt
+  - Bugfix 1287: Verkaufsmasken: Neuer Auftrag, Zahlungskonditionen werden nicht ausgetragen wenn Kunde keine hinterlegt hat
+  - Bugfix 1288: Verkaufs-Workflow: Auftrag wird bei Rechnung aus Lieferschein nicht geschlossen
+  - Bugfix 1289: Gutschriften auf Rechnungen loesen Lagerbewegung aus
+  - Bugfix 1290: Stammdaten\Berichte\Waren: Auswahl "Gekaufte Waren": Spaltenueberschrift "Verkaufspreis", es handelt sich aber um den EK in der Anzeige
+  - Bugfix 1294: Unter Berichte - Angebote erscheint "Lieferdatum" obwohl damit "gültig bis" gemeint ist und "Auftragsdatum" statt "Angebotsdatum"
+  - Bugfix 1299: Aufruf von kreditorenbuchungen aus Stammdaten des jeweiligen Lieferanten resultiert in leerer Maske
+  - Bugfix 1311: Abteilungsfeld zu Ansprechpartnern wird nicht zurueckgesetzt
+  - Bugfix 1314: Ueberschreiben der internen Bemerkung bei (Angebot|Auftrag|Lieferschein|Rechnung)
+  - Bugfix 1317: Usability: Feld fuer Kommentare bei Lagerein- und Ausbuchungen in der Praxis zu kurz
+  - Bugfix 1322: Berichte / Kontoübersicht = leer
+  - Bugfix 1326: webdav-user Dateien enthalten Dublikate.
+  - Bugfix 1328: ap.amount und acc_trans.amount sind verschieden
+  - Bugfix 1329: AJAX-Suche: autom. erste Zeile aktiviert, "Enter" loest Auswahl aus
+  - Bugfix 1330: AJAX: Abschaltbarkeit erwünscht
+  - Bugfix 1331: Rechnungsbutton "Drucken & Buchen" bucht nur noch, loest keinen Druck mehr aus
+  - Bugfix 1332: Webdav-Links in aktueller Unstable kaputt
+  - Bugfix 1333: fehlerhafter Preis eines geänderten Artikels in einer Rechnung
+  - Bugfix 1334: Zusätzliches Ubuntu-Paket benötigt: libxml-writer-perl
+  - Bugfix 1335: Verkauf/Lieferschein: Button "Lieferadresse" -> dort eingetragene Adresse wird nicht übernommen
+  - Bugfix 1336: Details: Lieferantennummer nicht sichtbar in Details
+  - Bugfix 1338: Autom. Datenuebertrag Rechnungsadresse -> Lieferadresse
+  - Bugfix 1339: Vorlagen fuer Lieferschein
+  - Bugfix 1341: Gewicht (weight) und Mindestbestand (rop) 0 beim Import
+  - Bugfix 1342: Artikel als Shop-Artikel markieren beim Import von Waren
+  - Bugfix 1343: Speicherpfad bei Waren-Import parts.csv
+  - Bugfix 1349: Zahlungseingang buchen bei Kreditorenbuchungen bucht auf Wechselkurserträge
+  - Bugfix 1350: Kundendatenimport per CSV derzeit mehrfach defekt
+  - Bugfix 1352: Lieferant existiert nicht wenn Anzahl Lieferanten = Auswahllistenbegrenzung
+  - Bugfix 1353: Berechtigungen Lager -> Nur Ansicht: Menuepunkt wird nicht eingeblendet
+  - Bugfix 1355: Mahnungserstellung: Es wird der komplette Rechnungsbetrag angemahnt, nicht nur der Offene
+  - Bugfix 1356: Mahnungserstellung: In der Vorabübersicht die Rechnungsnummern zu Hyperlinks machen
+  - Bugfix 1359: Templates in UTF
 
 
 2009-06-02 - Version 2.6.0
