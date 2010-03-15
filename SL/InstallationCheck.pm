@@ -23,6 +23,7 @@ use strict;
   { "name" => "Template", "url" => "http://search.cpan.org/~abw/" },
   { "name" => "Digest::MD5", "url" => "http://search.cpan.org/~gaas/" },
   { "name" => "PDF::API2", "url" => "http://search.cpan.org/~areibens/" },
+  { "name" => "URI", "url" => "http://search.cpan.org/~gaas/" },
   { "name" => "XML::Writer", "url" => "http://search.cpan.org/~josephw/" },
   );
 
