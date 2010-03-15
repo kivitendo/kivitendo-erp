@@ -2608,7 +2608,7 @@ sub all_vc {
   my ($self, $myconfig, $table, $module) = @_;
 
   my $ref;
-  my $dbh = $self->get_standard_dbh($myconfig);
+  my $dbh = $self->get_standard_dbh;
 
   $table = $table eq "customer" ? "customer" : "vendor";
 
