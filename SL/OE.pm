@@ -667,7 +667,7 @@ sub retrieve {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my ($query, $query_add, @values, @ids, $sth);
 
