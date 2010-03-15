@@ -93,7 +93,7 @@ Diese Pakete können bei den unterschiedlichen Distributionen anders heißen.
 
 Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-@code{apache postgresql libdbi-perl libdbd-pg-perl libpg-perl libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl libtemplate-perl}
+@code{apache postgresql libdbi-perl libdbd-pg-perl libpg-perl libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl libtemplate-perl lib-uriperl libxml-simple-perl}
 
 Für Fedora Core benötigen Sie unter anderem diese Pakete:
 
@@ -101,7 +101,7 @@ Für Fedora Core benötigen Sie unter anderem diese Pakete:
 
 Für OpenSuSE benötigen Sie diese Pakete:
 
-@code{apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy perl-Template-Toolkit}
+@code{apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy perl-Template-Toolkit perl-URI perl-XML-Writer}
 
 Einige Module werden von Lx-Office benötigt, sind aber evtl. nicht als
 Distributionspakete vorhanden, und/oder nicht praktikabel zu installieren.
