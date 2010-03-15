@@ -245,6 +245,12 @@ sub end_request {
   $self->{calldepth} = 0;
 }
 
+sub log_time {
+  my $self = shift;
+  return 1 unless want_request_timer();
+  $self->_write("time", $self->get_request_time);
+}
+
 sub get_request_time {
   my $self = shift;
   return $self->want_request_timer && $self->{request_start} ? tv_interval($self->{request_start}) : undef;
