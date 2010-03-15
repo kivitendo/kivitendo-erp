@@ -1,7 +1,7 @@
 <html>
 <LINK REL="stylesheet" HREF="../css/lx-office-erp.css" TYPE="text/css" TITLE="Lx-Office stylesheet">
 <body>
-<?
+<?php
 /*
 Warenimport mit Browser nach Lx-Office ERP
 Henry Margies <h.margies@maxina.de>
@@ -134,7 +134,7 @@ if ($_POST["ok"]) {
 <br>
 <form name="import" method="post" enctype="multipart/form-data" action="partsB.php">
 <input type="hidden" name="MAX_FILE_SIZE" value="20000000">
-<input type="hidden" name="login" value="<?= $login ?>">
+<input type="hidden" name="login" value="<?php echo  $login ?>">
 <table>
 <tr><td><input type="submit" name="ok" value="Hilfe"></td><td></td></tr>
 <tr><td>Trennzeichen</td><td>
@@ -166,9 +166,9 @@ if ($_POST["ok"]) {
             <input type="Radio" name="ware" value="D">Dienstleistung
             <input type="Radio" name="ware" value="G">gemischt (Spalte 'art' vorhanden)</td></tr>
 <tr><td>Default Bugru<br></td><td><select name="bugru">
-<?    if ($bugrus) foreach ($bugrus as $bg) { ?>
-            <option value="<?= $bg["id"] ?>"><?= $bg["description"]."\n" ?>
-<?    } ?>
+<?php    if ($bugrus) foreach ($bugrus as $bg) { ?>
+            <option value="<?php echo  $bg["id"] ?>"><?php echo  $bg["description"]."\n" ?>
+<?php    } ?>
     </select>
     <input type="radio" name="bugrufix" value="0">nie<br>
     <input type="radio" name="bugrufix" value="1" checked>f&uuml;r alle Artikel verwenden
@@ -188,4 +188,4 @@ if ($_POST["ok"]) {
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>
-<? }; ?>
+<?php }; ?>
