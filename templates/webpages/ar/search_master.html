@@ -193,7 +193,7 @@
    Calendar.setup( { inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger1" });
    Calendar.setup( { inputField : "transdateto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
    $(document).ready(function(){
-    focus();
+    $('customer').focus();
     setupDateFormat('[% dateformat | html %]','<translate>Falsches Datumsformat!</translate>');
     setupPoints('[% numberformat | html %]','<translate>wrongformat</translate>');
    })
