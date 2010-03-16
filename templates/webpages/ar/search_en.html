@@ -1,4 +1,4 @@
-<body
+<body>
 
  <form method=post name="search" action=[% script %]>
 
@@ -188,16 +188,16 @@
    <br>
    <input class=submit type=submit name=action value="Continue">
   </form>
- </body>
  <script type="text/javascript">
  <!--
    Calendar.setup( { inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger1" });
    Calendar.setup( { inputField : "transdateto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
    $(document).ready(function(){
-    focus();
+    $('customer').focus();
     setupDateFormat('[% dateformat | html %]','Falsches Datumsformat!');
     setupPoints('[% numberformat | html %]','wrongformat');
    })
  //-->
  </script>
+ </body>
 </html>
