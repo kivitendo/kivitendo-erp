@@ -720,7 +720,7 @@ sub _prepare_html_template {
   my ($self, $file, $additional_params) = @_;
   my $language;
 
-  if (!defined(%main::myconfig) || !defined($main::myconfig{"countrycode"})) {
+  if (!%::myconfig || !$::myconfig{"countrycode"}) {
     $language = $main::language;
   } else {
     $language = $main::myconfig{"countrycode"};
