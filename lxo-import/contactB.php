@@ -1,7 +1,7 @@
 <html>
 <LINK REL="stylesheet" HREF="../css/lx-office-erp.css" TYPE="text/css" TITLE="Lx-Office stylesheet">
 <body>
-<?
+<?php
 /*
 Kontaktimport mit Browser nach Lx-Office ERP
 
@@ -265,4 +265,4 @@ echo $j." $file importiert.\n";} else {
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>
-<? }; ?>
+<?php }; ?>

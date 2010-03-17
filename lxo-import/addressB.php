@@ -1,7 +1,7 @@
 <html>
 <LINK REL="stylesheet" HREF="../css/lx-office-erp.css" TYPE="text/css" TITLE="Lx-Office stylesheet">
 <body>
-<?
+<?php
 /*
 Kunden- bzw. Lieferantenimport mit Browser nach Lx-Office ERP
 
@@ -237,7 +237,7 @@ echo $j." $file importiert.\n";
 <form name="import" method="post" enctype="multipart/form-data" action="addressB.php">
 <!--form name="import" method="post"  action="addressB.php"-->
 <input type="hidden" name="MAX_FILE_SIZE" value="2000000">
-<input type="hidden" name="login" value="<?= $login ?>">
+<input type="hidden" name="login" value="<?php echo  $login ?>">
 <table>
 <tr><td></td><td><input type="submit" name="ok" value="Hilfe"></td></tr>
 <tr><td>Zieltabelle</td><td><input type="radio" name="ziel" value="customer" checked>customer <input type="radio" name="ziel" value="vendor">vendor</td></tr>
@@ -264,4 +264,4 @@ echo $j." $file importiert.\n";
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>
-<? }; ?>
+<?php }; ?>

@@ -152,7 +152,7 @@ Achtung!! Die bestehenden BLZ-Daten werden zun&auml;chst gel&ouml;scht.
 <br>
 <form name="import" method="post" enctype="multipart/form-data" action="blz.php">
 <input type="hidden" name="MAX_FILE_SIZE" value="20000000">
-<input type="hidden" name="login" value="<?= $login ?>">
+<input type="hidden" name="login" value="<?php echo $login ?>">
 <table>
 <tr><td>Test</td><td><input type="checkbox" name="test" value="1">ja</td></tr>
 <tr><td>Daten</td><td><input type="file" name="Datei"></td></tr>

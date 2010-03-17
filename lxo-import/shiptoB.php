@@ -1,7 +1,7 @@
 <html>
 <LINK REL="stylesheet" HREF="../css/lx-office-erp.css" TYPE="text/css" TITLE="Lx-Office stylesheet">
 <body>
-<?
+<?php
 /*
 Lieferanschriftimport mit Browser nach Lx-Office ERP
 
@@ -230,4 +230,4 @@ if ($_POST["ok"] == "Import") {
 <tr><td></td><td><input type="submit" name="ok" value="Import"></td></tr>
 </table>
 </form>
-<? }; ?>
+<?php }; ?>
