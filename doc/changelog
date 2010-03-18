@@ -349,7 +349,7 @@
   - Bugfix 1355: Mahnungserstellung: Es wird der komplette Rechnungsbetrag angemahnt, nicht nur der Offene
   - Bugfix 1356: Mahnungserstellung: In der Vorabübersicht die Rechnungsnummern zu Hyperlinks machen
   - Bugfix 1359: Templates in UTF
-
+  - Bugfix 1374: Verkauf->Berichte->Rechnungen geht im Internet-Explorer nicht
 
 2009-06-02 - Version 2.6.0
 

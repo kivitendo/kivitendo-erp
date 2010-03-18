@@ -1268,7 +1268,6 @@ sub search {
   $form->all_vc(\%myconfig, "customer", "AR");
 
   $form->{title}    = $locale->text('AR Transactions');
-  $form->{fokus}    = "search.customer";
   $form->{jsscript} = 1;
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },

@@ -1,4 +1,4 @@
-<body
+<body>
 
  <form method=post name="search" action=[% script %]>
 
@@ -73,12 +73,12 @@
      <tr>
       <th align=right nowrap>Von</th>
       <td>
-       <input name=transdatefrom id=transdatefrom size=11 title="dateformat | html %]" onBlur=\"check_right_date_format(this)\">
+       <input name=transdatefrom id=transdatefrom size=11 title="[% dateformat | html %]" onBlur="check_right_date_format(this)">
        <input type=button name=transdatefrom id="trigger1" value=?>
       </td>
      <th align=right>bis</th>
      <td>
-      <input name=transdateto id=transdateto size=11 title="[% dateformat | html %]" onBlur=\"check_right_date_format(this)\">
+      <input name=transdateto id=transdateto size=11 title="[% dateformat | html %]" onBlur="check_right_date_format(this)">
       <input type=button name=transdateto name=transdateto id="trigger2" value=?>
      </td>
     </tr>
@@ -188,16 +188,16 @@
    <br>
    <input class=submit type=submit name=action value="Weiter">
   </form>
- </body>
  <script type="text/javascript">
  <!--
    Calendar.setup( { inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger1" });
    Calendar.setup( { inputField : "transdateto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
    $(document).ready(function(){
-    focus();
+    $('customer').focus();
     setupDateFormat('[% dateformat | html %]','Falsches Datumsformat!');
     setupPoints('[% numberformat | html %]','Falsches Format');
    })
  //-->
  </script>
+ </body>
 </html>
