@@ -42,8 +42,17 @@ use URI;
 
 use strict;
 
-my $framesize = ($ENV{HTTP_USER_AGENT} =~ /links/i) ? "240" : "190";
+my $framesize; 
 my $mainlevel;
+
+#my $framesize = ($ENV{HTTP_USER_AGENT} =~ /mobile/i) ? "130" : "190";
+if ($ENV{HTTP_USER_AGENT} =~ /mobile/i) {
+    $framesize = "130";
+} elsif ($ENV{HTTP_USER_AGENT} =~ /links/i) {
+    $framesize = "240";
+} else {
+    $framesize = "190";
+}
 
 1;
 

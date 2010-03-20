@@ -2743,7 +2743,7 @@ sub config {
   }
 
   $form->{STYLESHEETS} = [];
-  foreach my $item (qw(lx-office-erp.css Win2000.css)) {
+  foreach my $item (qw(lx-office-erp.css Win2000.css Mobile.css)) {
     push @{ $form->{STYLESHEETS} }, {
       'name'     => $item,
       'value'    => $item,
