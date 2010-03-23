@@ -62,50 +62,62 @@ Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil
 
 @itemize
 @item
+Archive::Zip
+@item
+Class::Accessor
+@item
+CGI::Ajax
+@item
 DBI
 @item
 DBD::Pg
 @item
-CGI::Ajax
-@item
-Class::Accessor
-@item
-Archive::Zip
-@item
-Text::Iconv
-@item
-Text::CSV_XS
+Email::Address
 @item
 IO::Wrap (aus dem Paket IO::Stringy)
 @item
-PDF::API2
+List::MoreUtils
 @item
-YAML
+PDF::API2
 @item
 Template
 @item
-List::MoreUtils
+Text::CSV_XS
 @item
-Email::Address
+Text::Iconv
+@item
+URI
+@item
+XML::Writer
+@item
+YAML
 @end itemize
 
-Diese Pakete können bei den unterschiedlichen Distributionen anders heißen.
+Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete hinzugekommen, @code{URI}
+und @code{XML::Writer} sind notwendig. Ohne startet Lx-Office nicht.
+
+@code{Email::Address} und @code{List::MoreUtils} sind schon länger feste
+Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert.  Beide sind auch
+in 2.6.1 weiterhin mit ausgeliefert, wurden in einer zukünftigen Version aber
+aus dem Paket entfernt werden. Es wird empfohlen diese Module zusammen mit den
+anderen als Bibliotheken zu installieren.
+
+@code{CGI::Ajax} ist nach wie vor in einer modifizierten Version mitgeliefert
+und braucht nicht nachinstalliert werden.
+
+Die zu installierenden Pakete können in den verschiedenen Distributionen unterschiedlich heißen.
 
 Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-@code{apache postgresql libdbi-perl libdbd-pg-perl libpg-perl libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl libtext-iconv-perl libyaml-perl libtext-csv-xs-perl libio-stringy-perl libtemplate-perl lib-uriperl libxml-simple-perl}
+@code{apache postgresql libarchive-zip-perl libclass-accessor-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl lib-uriperl libxml-writer-perl libyaml-perl}
 
-Für Fedora Core benötigen Sie unter anderem diese Pakete:
+Für Fedora Core benötigen Sie diese Pakete:
 
-@code{httpd postgresql-server perl-DBI perl-DBD-Pg}
+@code{httpd postgresql-server perl-Class-Accessor perl-DBI perl-DBD-Pg perl-Email-Address perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
 
 Für OpenSuSE benötigen Sie diese Pakete:
 
-@code{apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy perl-Template-Toolkit perl-URI perl-XML-Writer}
-
-Einige Module werden von Lx-Office benötigt, sind aber evtl. nicht als
-Distributionspakete vorhanden, und/oder nicht praktikabel zu installieren.
-In diesen Fällen liefert Lx-Office das Paket mit, und lädt es als Fallback.
+@code{apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
 
 Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
 benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
