@@ -78,6 +78,9 @@
  - Die Beschränkung in Lieferscheinen immer genau die Menge auszulagern, die
    angegeben wurde, wurde aufgehoben. Der Lieferschein ist nach der
    Lagerbuchung weiterhin nicht mehr editierbar, also Vorsicht.
+ - Für mobile Browser gibt es jetzt ein eigenes Stylesheet was große Bilder
+   entfernt, und die Framegrössen an die Dimensionen von mobilen Geräten
+   anpasst.
 
 
   Wichtige Änderungen für Administratoren:
@@ -348,8 +351,13 @@
   - Bugfix 1353: Berechtigungen Lager -> Nur Ansicht: Menuepunkt wird nicht eingeblendet
   - Bugfix 1355: Mahnungserstellung: Es wird der komplette Rechnungsbetrag angemahnt, nicht nur der Offene
   - Bugfix 1356: Mahnungserstellung: In der Vorabübersicht die Rechnungsnummern zu Hyperlinks machen
+  - Bugfix 1358: berichte -> waren -> top100 kaputt
   - Bugfix 1359: Templates in UTF
+  - Bugfix 1366: Datei lxoffice-erp-2.6.1beta1/doc/INSTALL.txt nicht in UTF8 kodiert!
+  - Bugfix 1368: Hinzufügen neuer Benutzer zu einer Gruppe durch Bearbeiten und Ändern einer bestehenden Benutzerin nicht möglich
   - Bugfix 1374: Verkauf->Berichte->Rechnungen geht im Internet-Explorer nicht
+  - Bugfix 1377: Kostenstellen werden bei Wiederaufruf im Buchungsdialog nicht angezeigt
+  - Bugfix 1382: Missing debian package in INSTALL
 
 2009-06-02 - Version 2.6.0
 
