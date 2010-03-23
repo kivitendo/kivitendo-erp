@@ -35,26 +35,14 @@
 #  2004-12-14 - New Optik - Marco Welter <mawe@linux-studio.de>
 #######################################################################
 
-my $menufile = "menu.ini";
+use strict;
+
 use SL::Menu;
 use Data::Dumper;
 use URI;
 
-use strict;
-
-my $framesize; 
+my $menufile = "menu.ini";
 my $mainlevel;
-
-#my $framesize = ($ENV{HTTP_USER_AGENT} =~ /mobile/i) ? "130" : "190";
-if ($ENV{HTTP_USER_AGENT} =~ /mobile/i) {
-    $framesize = "130";
-} elsif ($ENV{HTTP_USER_AGENT} =~ /links/i) {
-    $framesize = "240";
-} else {
-    $framesize = "190";
-}
-
-1;
 
 # end of main
 
@@ -66,6 +54,7 @@ sub display {
   my $callback   = $form->unescape($form->{callback});
   $callback      = URI->new($callback)->rel($callback) if $callback;
   $callback      = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
+  my $framesize  = _calc_framesize();
 
   $form->header;
 
@@ -89,8 +78,9 @@ sub display {
 sub acc_menu {
   $main::lxdebug->enter_sub();
 
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form      = $main::form;
+  my $locale    = $main::locale;
+  my $framesize = _calc_framesize();
 
   $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
@@ -237,3 +227,17 @@ sub section_menu {
   }
   $main::lxdebug->leave_sub();
 }
+
+sub _calc_framesize {
+  my $is_lynx_browser   = $ENV{HTTP_USER_AGENT} =~ /links/i;
+  my $is_mobile_browser = $ENV{HTTP_USER_AGENT} =~ /mobile/i;
+  my $is_mobile_style   = $::form->{stylesheet} =~ /mobile/i;
+
+  return  $is_mobile_browser && $is_mobile_style ?  130
+        : $is_lynx_browser                       ?  240
+        :                                           190;
+}
+
+1;
+
+__END__
