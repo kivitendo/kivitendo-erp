@@ -220,6 +220,7 @@ $self->{texts} = {
 };
 
 $self->{subs} = {
+  '_calc_framesize'             => '_calc_framesize',
   'acc_menu'                    => 'acc_menu',
   'display'                     => 'display',
   'section_menu'                => 'section_menu',
