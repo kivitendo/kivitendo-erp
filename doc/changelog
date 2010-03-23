@@ -2,7 +2,7 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
-2010-03-08 - Release 2.6.1
+2010-03-24 - Release 2.6.1
 
   Größere neue Features:
 
@@ -1569,5 +1569,5 @@
 
 # Local Variables:
 # mode: text
-# coding: iso-8859-15
+# coding: utf-8
 # End:
