@@ -965,6 +965,8 @@ sub display_rows {
                            '-values' => \@project_values,
                            '-labels' => \%project_labels,
                            '-default' => $form->{"project_id_$i"} ));
+    my $projectnumber_hidden = qq|
+    <input type="hidden" name="project_id_$i" value="$form->{"project_id_$i"}">|;
 
     my $copy2credit = 'onkeyup="copy_debit_to_credit()"' if $i == 1;
 
@@ -983,10 +985,14 @@ sub display_rows {
     $memo
     <td>$projectnumber</td>
 |;
-    }
+    } else {
     print qq|
     $source_hidden
     $memo_hidden
+    $projectnumber_hidden
+    |;
+    }
+    print qq|
   </tr>
 |;
   }
