@@ -1,13 +1,13 @@
 <html lang="en">
 <head>
-<title>Änderungen an Konfigurationsdateien - Lx-Office Installationsanleitung</title>
+<title>Ã„nderungen an Konfigurationsdateien - Lx-Office Installationsanleitung</title>
 <meta http-equiv="Content-Type" content="text/html">
 <meta name="description" content="Lx-Office Installationsanleitung">
 <meta name="generator" content="makeinfo 4.11">
 <link title="Top" rel="start" href="index.html#Top">
 <link rel="up" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration" title="Anpassung der PostgreSQL-Konfiguration">
-<link rel="prev" href="Zeichens_00e4tze_002fdie-Verwendung-von-UTF_002d8.html#Zeichens_00e4tze_002fdie-Verwendung-von-UTF_002d8" title="Zeichensätze/die Verwendung von UTF-8">
-<link rel="next" href="Erweiterung-f_00fcr-servergespeicherte-Prozeduren.html#Erweiterung-f_00fcr-servergespeicherte-Prozeduren" title="Erweiterung für servergespeicherte Prozeduren">
+<link rel="prev" href="Zeichens_00c3_00a4tze_002fdie-Verwendung-von-UTF_002d8.html#Zeichens_00c3_00a4tze_002fdie-Verwendung-von-UTF_002d8" title="ZeichensÃ¤tze/die Verwendung von UTF-8">
+<link rel="next" href="Erweiterung-f_00c3_00bcr-servergespeicherte-Prozeduren.html#Erweiterung-f_00c3_00bcr-servergespeicherte-Prozeduren" title="Erweiterung fÃ¼r servergespeicherte Prozeduren">
 <link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
@@ -25,41 +25,41 @@
 <body>
 <div class="node">
 <p>
-<a name="%c4nderungen-an-Konfigurationsdateien"></a>
-<a name="g_t_00c4nderungen-an-Konfigurationsdateien"></a>
-n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Erweiterung-f_00fcr-servergespeicherte-Prozeduren.html#Erweiterung-f_00fcr-servergespeicherte-Prozeduren">Erweiterung für servergespeicherte Prozeduren</a>,
-voriges:&nbsp;<a rel="previous" accesskey="p" href="Zeichens_00e4tze_002fdie-Verwendung-von-UTF_002d8.html#Zeichens_00e4tze_002fdie-Verwendung-von-UTF_002d8">Zeichensätze/die Verwendung von UTF-8</a>,
+<a name="%c3%84nderungen-an-Konfigurationsdateien"></a>
+<a name="g_t_00c3_0084nderungen-an-Konfigurationsdateien"></a>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Erweiterung-f_00c3_00bcr-servergespeicherte-Prozeduren.html#Erweiterung-f_00c3_00bcr-servergespeicherte-Prozeduren">Erweiterung fÃ¼r servergespeicherte Prozeduren</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="Zeichens_00c3_00a4tze_002fdie-Verwendung-von-UTF_002d8.html#Zeichens_00c3_00a4tze_002fdie-Verwendung-von-UTF_002d8">ZeichensÃ¤tze/die Verwendung von UTF-8</a>,
 aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration">Anpassung der PostgreSQL-Konfiguration</a>
 <hr>
 </div>
 
-<h3 class="section">4.2 Änderungen an Konfigurationsdateien</h3>
+<h3 class="section">4.2 Ã„nderungen an Konfigurationsdateien</h3>
 
 <p>In der Datei <code>postgresql.conf</code>, die je nach Distribution in
 verschiedenen Verzeichnissen liegen kann
 (z.B. <code>/var/lib/pgsql/data/</code> oder <code>/etc/postgresql/</code>, muss
-sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. Für
+sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. FÃ¼r
 PostgreSQL vor Version v8.0 lautete dieser Parameter
 
    <p><code>TCPIP_SOCKET = 1</code>
 
-   <p>Ab v8.0 wird das Verhalten hingegen über den neuen Parameter
+   <p>Ab v8.0 wird das Verhalten hingegen Ã¼ber den neuen Parameter
 <code>listen_address</code> gesteuert. Laufen PostgreSQL und Lx-Office auf
 demselben Rechner, so kann dort der Wert <code>localhost</code> verwendet
-werden. Andernfalls müssen Datenbankverbindungen auch von anderen
+werden. Andernfalls mÃ¼ssen Datenbankverbindungen auch von anderen
 Rechnern aus zugelassen werden, was mit dem Wert \<code>*</code> geschieht.
 
    <p>In der Datei <code>pg_hba.conf</code>, die im gleichen Verzeichnis wie die
-<code>postgresql.conf</code> zu finden sein sollte, müssen die
-Berichtigungen für den Zugriff geändert werden. Hier gibt es mehrere
-Möglichkeiten. Eine besteht darin, lokale Verbindungen immer
+<code>postgresql.conf</code> zu finden sein sollte, mÃ¼ssen die
+Berichtigungen fÃ¼r den Zugriff geÃ¤ndert werden. Hier gibt es mehrere
+MÃ¶glichkeiten. Eine besteht darin, lokale Verbindungen immer
 zuzulassen
 
    <p><code>local all all trust
 <br>
 host all all 127.0.0.1 255.0.0.0 trust</code>
 
-   <p>Besser ist es, für eine bestimmte Datenbank Zugriff nur per Passwort
+   <p>Besser ist es, fÃ¼r eine bestimmte Datenbank Zugriff nur per Passwort
 zuzulassen. Beispielsweise:
 
    <p><code>local   all         lxoffice                                           password

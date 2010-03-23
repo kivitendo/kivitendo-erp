@@ -1,27 +1,27 @@
-Neuer Mechanismus für SQL-Upgradedateien
+Neuer Mechanismus fÃ¼r SQL-Upgradedateien
 ----------------------------------------
 
-Der alte Mechanismus für SQL-Upgradescripte, der auf einer
-Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script für
-diese Versionsnummer sucht, schränkt sehr ein, z.B. was die parallele
+Der alte Mechanismus fÃ¼r SQL-Upgradescripte, der auf einer
+Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script fÃ¼r
+diese Versionsnummer sucht, schrÃ¤nkt sehr ein, z.B. was die parallele
 Entwicklung im stable- und unstable-Baum betrifft.
 
-Dieser Mechanismus wurde für Lx-Office 2.4.1 deutlich erweitert. Es
+Dieser Mechanismus wurde fÃ¼r Lx-Office 2.4.1 deutlich erweitert. Es
 werden weiterhin alle Scripte aus sql/Pg-upgrade
-ausgeführt. Zusätzlich gibt es aber ein zweites Verzeichnis,
+ausgefÃ¼hrt. ZusÃ¤tzlich gibt es aber ein zweites Verzeichnis,
 sql/Pg-upgrade2. In diesem Verzeichnis muss pro Datenbankupgrade eine
-Datei existieren, die neben den eigentlich auszuführenden SQL- oder
-Perl-Befehlen einige Kontrollinformationen enthält.
+Datei existieren, die neben den eigentlich auszufÃ¼hrenden SQL- oder
+Perl-Befehlen einige Kontrollinformationen enthÃ¤lt.
 
-Neu sind die Kontrollinformationen, die Abhängigkeiten und Prioritäten
-definieren können werden, sodass Datenbankscripte zwar in einer
-sicheren Reihenfolge ausgeführt werden (z.B. darf ein "ALTER TABLE"
-erst ausgeführt werden, wenn die Tabelle mit "CREATE TABLE" angelegt
+Neu sind die Kontrollinformationen, die AbhÃ¤ngigkeiten und PrioritÃ¤ten
+definieren kÃ¶nnen werden, sodass Datenbankscripte zwar in einer
+sicheren Reihenfolge ausgefÃ¼hrt werden (z.B. darf ein "ALTER TABLE"
+erst ausgefÃ¼hrt werden, wenn die Tabelle mit "CREATE TABLE" angelegt
 wurde), diese Reihenfolge aber so flexibel ist, dass man keine
 Versionsnummern mehr braucht.
 
 Lx-Office merkt sich dabei, welches der Upgradescripte in
-sql/Pg-upgrade2 bereits durchgeführt wurde und führt diese nicht
+sql/Pg-upgrade2 bereits durchgefÃ¼hrt wurde und fÃ¼hrt diese nicht
 erneut aus. Dazu dient die Tabelle "schema_info", die bei der
 Anmeldung automatisch angelegt wird.
 
@@ -29,114 +29,114 @@ Format der Kontrollinformationen
 --------------------------------
 
 Die Kontrollinformationen sollten sich am Anfang der jeweiligen
-Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthält,
+Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthÃ¤lt,
 hat dabei das folgende Format:
 
-Für SQL-Upgradedateien:
+FÃ¼r SQL-Upgradedateien:
 
 -- @key: value
 
 
-Für Perl-Upgradedateien:
+FÃ¼r Perl-Upgradedateien:
 
 # @key: value
 
 
 Leerzeichen vor "value" werden entfern.
 
-Die folgenden Schlüsselworte werden verarbeitet:
+Die folgenden SchlÃ¼sselworte werden verarbeitet:
 
-* tag: Wird zwingend benötigt. Dies ist der "Name" des
+* tag: Wird zwingend benÃ¶tigt. Dies ist der "Name" des
   Upgrades. Dieser "tag" kann von anderen Kontrolldateien in ihren
-  Abhängigkeiten verwendet werden (Schlüsselwort "depends"). Der "tag"
+  AbhÃ¤ngigkeiten verwendet werden (SchlÃ¼sselwort "depends"). Der "tag"
   ist auch der Name, der in der Datenbank eingetragen wird.
 
-  Normalerweise sollte die Kontrolldatei genau so heißen wie der
+  Normalerweise sollte die Kontrolldatei genau so heiÃŸen wie der
   "tag", nur mit der Endung ".sql" bzw. "pl".
 
   Ein Tag darf nur aus alphanumerischen Zeichen sowie den Zeichen _ -
   ( ) bestehen. Insbesondere sind Leerzeichen nicht erlaubt und
   sollten stattdessen mit Unterstrichen ersetzt werden.
 
-* description: Benötigt. Eine Beschreibung, was in diesem Update
+* description: BenÃ¶tigt. Eine Beschreibung, was in diesem Update
   passiert. Diese wird dem Benutzer beim eigentlichen Datenbankupdate
-  angezeigt. Während der Tag in englisch gehalten sein sollte, sollte
+  angezeigt. WÃ¤hrend der Tag in englisch gehalten sein sollte, sollte
   die Beschreibung auf Deutsch erfolgen.
 
 * depends: Optional. Eine mit Leerzeichen getrennte Liste von "tags",
-  von denen dieses Upgradescript abhängt. Lx-Office stellt sicher,
-  dass die in dieser Liste aufgeführten Scripte bereits durchgeführt
-  wurden, bevor dieses Script ausgeführt wird.
+  von denen dieses Upgradescript abhÃ¤ngt. Lx-Office stellt sicher,
+  dass die in dieser Liste aufgefÃ¼hrten Scripte bereits durchgefÃ¼hrt
+  wurden, bevor dieses Script ausgefÃ¼hrt wird.
 
-  Abhängigkeiten werden rekursiv betrachtet. Wenn also ein Script "b"
-  existiert, das von Änderungen in "a" abhängt, und eine neue
-  Kontrolldatei für "c" erstellt wird, die von Änderungen in "a" und
-  "b" abhängt, so genügt es, in "c" nur den Tag "b" als Abhängigkeit
+  AbhÃ¤ngigkeiten werden rekursiv betrachtet. Wenn also ein Script "b"
+  existiert, das von Ã„nderungen in "a" abhÃ¤ngt, und eine neue
+  Kontrolldatei fÃ¼r "c" erstellt wird, die von Ã„nderungen in "a" und
+  "b" abhÃ¤ngt, so genÃ¼gt es, in "c" nur den Tag "b" als AbhÃ¤ngigkeit
   zu definieren.
 
-  Es ist nicht erlaubt, sich selbst referenzierende Abhängigkeiten zu
+  Es ist nicht erlaubt, sich selbst referenzierende AbhÃ¤ngigkeiten zu
   definieren (z.B. "a" -> "b", "b" -> "c" und "c" -> "a").
 
 * priority: Optional. Ein Zahlenwert, der die Reihenfolge bestimmt, in
-  der Scripte ausgeführt werden, die die gleichen Abhängigkeitstiefen
+  der Scripte ausgefÃ¼hrt werden, die die gleichen AbhÃ¤ngigkeitstiefen
   besitzen. Fehlt dieser Parameter, so wird der Wert 1000 benutzt.
 
-  Dies ist reine Kosmetik. Für echte Reihenfolgen muss "depends"
-  benutzt werden. Lx-Office sortiert die auszuführenden Scripte zuerst
-  nach der Abhängigkeitstiefe (wenn "z" von "y" abhängt und "y" von
-  "x", so hat "z" eine Abhängigkeitstiefe von 2, "y" von 1 und "x" von
-  0. "x" würde hier zuerst ausgeführt, dann "y", dann "z"), dann nach
-  der Priorität und bei gleicher Priorität alphabetisch nach dem
+  Dies ist reine Kosmetik. FÃ¼r echte Reihenfolgen muss "depends"
+  benutzt werden. Lx-Office sortiert die auszufÃ¼hrenden Scripte zuerst
+  nach der AbhÃ¤ngigkeitstiefe (wenn "z" von "y" abhÃ¤ngt und "y" von
+  "x", so hat "z" eine AbhÃ¤ngigkeitstiefe von 2, "y" von 1 und "x" von
+  0. "x" wÃ¼rde hier zuerst ausgefÃ¼hrt, dann "y", dann "z"), dann nach
+  der PrioritÃ¤t und bei gleicher PrioritÃ¤t alphabetisch nach dem
   "tag".
 
 Hilfsscript dbupgrade2_tool.pl
 ------------------------------
 
-Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern, existiert
+Um die Arbeit mit den AbhÃ¤ngigkeiten etwas zu erleichtern, existiert
 ein Hilfsscript namens "scripts/dbupgrade2_tool.pl". Es muss aus dem
 Lx-Office-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
 liest alle Datenbankupgradescripte aus dem Verzeichnis sql/Pg-upgrade2
-aus. Es benutzt dafür die gleichen Methoden wie Lx-Office selber,
-sodass alle Fehlersituationen von der Kommandozeile überprüft werden
-können.
+aus. Es benutzt dafÃ¼r die gleichen Methoden wie Lx-Office selber,
+sodass alle Fehlersituationen von der Kommandozeile Ã¼berprÃ¼ft werden
+kÃ¶nnen.
 
-Wird dem Script kein weiterer Parameter übergeben, so wird nur eine
-Überprüfung der Felder und Abhängigkeiten vorgenommen. Man kann sich
+Wird dem Script kein weiterer Parameter Ã¼bergeben, so wird nur eine
+ÃœberprÃ¼fung der Felder und AbhÃ¤ngigkeiten vorgenommen. Man kann sich
 aber auch Informationen auf verschiedene Art ausgeben lassen:
 
 1. Listenform: "./scripts/dbupgrade2_tool.pl --list"
 
    Gibt eine Liste aller Scripte aus. Die Liste ist in der Reihenfolge
-   sortiert, in der Lx-Office die Scripte ausführen würde. Es werden
-   neben der Listenposition der Tag, die Abhängigkeitstiefe und die
-   Priorität ausgegeben.
+   sortiert, in der Lx-Office die Scripte ausfÃ¼hren wÃ¼rde. Es werden
+   neben der Listenposition der Tag, die AbhÃ¤ngigkeitstiefe und die
+   PrioritÃ¤t ausgegeben.
 
 2. Baumform: "./scripts/dbupgrade2_tool.pl --tree"
 
-   Listet alle Tags in Baumform basierend auf den Abhängigkeiten
+   Listet alle Tags in Baumform basierend auf den AbhÃ¤ngigkeiten
    auf. Die "Wurzelknoten" sind dabei die Scripte, von denen keine
-   anderen abhängen. Die Unterknoten sind Scripte, die beim
-   übergeordneten Script als Abhängigkeit eingetragen sind.
+   anderen abhÃ¤ngen. Die Unterknoten sind Scripte, die beim
+   Ã¼bergeordneten Script als AbhÃ¤ngigkeit eingetragen sind.
 
 3. Umgekehrte Baumform: "./scripts/dbupgrade2_tool.pl --rtree"
 
-   Listet alle Tags in Baumform basierend auf den Abhängigkeiten auf.
+   Listet alle Tags in Baumform basierend auf den AbhÃ¤ngigkeiten auf.
    Die "Wurzelknoten" sind dabei die Scripte mit der geringsten
-   Abhängigkeitstiefe. Die Unterknoten sind Scripte, die das
-   übergeordnete Script als Abhängigkeit eingetragen haben.
+   AbhÃ¤ngigkeitstiefe. Die Unterknoten sind Scripte, die das
+   Ã¼bergeordnete Script als AbhÃ¤ngigkeit eingetragen haben.
 
 4. Baumform mit Postscriptausgabe: "./scripts/dbupgrade2_tool.pl --graphviz"
 
-   Benötigt das Tool "graphviz", um mit seiner Hilfe die Baumform aus
+   BenÃ¶tigt das Tool "graphviz", um mit seiner Hilfe die Baumform aus
    3. in eine Postscriptdatei namens "db_dependencies.ps"
-   auszugeben. Dies ist vermutlich die übersichtlichste Form, weil
+   auszugeben. Dies ist vermutlich die Ã¼bersichtlichste Form, weil
    hierbei jeder Knoten nur einmal ausgegeben wird. Bei den
-   Textmodusbaumformen hingegen können Knoten und all ihre
-   Abhängigkeiten mehrfach ausgegeben werden.
+   Textmodusbaumformen hingegen kÃ¶nnen Knoten und all ihre
+   AbhÃ¤ngigkeiten mehrfach ausgegeben werden.
 
-5. Scripte, von denen kein anderes Script abhängt:
+5. Scripte, von denen kein anderes Script abhÃ¤ngt:
    "./scripts/dbupgrade2_tool.pl --nodeps"
 
    Listet die Tags aller Scripte auf, von denen keine anderen Scripte
-   abhängen.
+   abhÃ¤ngen.
 

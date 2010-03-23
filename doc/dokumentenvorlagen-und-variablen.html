@@ -1260,14 +1260,14 @@ td {
   ... &lt;%end%&gt;</code></p>
 
  <p>Anmerkung zum <code>&lt;%end%&gt;</code>: Der besseren
-  Verständlichkeit halber kann man nach dem <code>end</code> noch
-  beliebig weitere Wörter schreiben, um so zu markieren, welche
+  VerstÃ¤ndlichkeit halber kann man nach dem <code>end</code> noch
+  beliebig weitere WÃ¶rter schreiben, um so zu markieren, welche
   Anweisung (z.B. <code>if</code> oder <code>foreach</code>) damit
   abgeschlossen wird.</p>
 
  <p>Beispiel: Lautet der Beginn eines Blockes
    z.B. <code class="blue">&lt;%if type ==
-   &quot;sales_quotation&quot;%&gt;</code>, so könnte er mit
+   &quot;sales_quotation&quot;%&gt;</code>, so kÃ¶nnte er mit
   <code class="blue">&lt;%end%&gt;</code> genauso abgeschlossen werden
   wie mit
   <code class="blue">&lt;%end if%&gt;</code> oder auch
@@ -1290,33 +1290,33 @@ td {
   wird. Beispiel: <code class="blue">&lt;%if not
   cp_greeting%&gt;</code></p>
 
- <p>Zusätzlich zu dem einfachen Test, ob eine Variable gesetzt ist
-  oder nicht, bietet dieser Block auch die Möglichkeit, den Inhalt
+ <p>ZusÃ¤tzlich zu dem einfachen Test, ob eine Variable gesetzt ist
+  oder nicht, bietet dieser Block auch die MÃ¶glichkeit, den Inhalt
   einer Variablen mit einer festen Zeichenkette oder einer anderen
   Variablen zu vergleichen. Ob der Vergleich mit einer Zeichenkette
-  oder einer anderen Variablen vorgenommen wird, hängt davon ab, ob
-  die rechte Seite des Vergleichsoperators in Anführungszeichen
+  oder einer anderen Variablen vorgenommen wird, hÃ¤ngt davon ab, ob
+  die rechte Seite des Vergleichsoperators in AnfÃ¼hrungszeichen
   gesetzt wird (Vergleich mit Zeichenkette) oder nicht (Vergleich mit
   anderer Variablen). Zwei Beispiele, die beide Vergleiche zeigen:</p>
 
  <p><code class="blue">&lt;%if var1 == &quot;Wert&quot;%&gt;</code>
-  testet die Variable &quot;var1&quot; auf Übereinstimmung mit der
+  testet die Variable &quot;var1&quot; auf Ãœbereinstimmung mit der
   Zeichenkette &quot;Wert&quot;. Mittels &quot;!=&quot; anstelle von
-  &quot;==&quot; würde auf Ungleichheit getestet.</p>
+  &quot;==&quot; wÃ¼rde auf Ungleichheit getestet.</p>
 
  <p><code class="blue">&lt;%if var1 == var2%&gt;</code> testet die
-  Variable &quot;var1&quot; auf Übereinstimmung mit der Variablen
+  Variable &quot;var1&quot; auf Ãœbereinstimmung mit der Variablen
   &quot;var2&quot;. Mittels &quot;!=&quot; anstelle von &quot;==&quot;
-  würde auf Ungleichheit getestet.</p>
+  wÃ¼rde auf Ungleichheit getestet.</p>
 
- <p>Erfahrere Benutzer können neben der Tests auf (Un-)Gleichheit auch
-  Tests auf Übereinstimmung mit regulären Ausdrücken ohne
-  Berücksichtung der Groß- und Kleinschreibung durchführen. Dazu dient
+ <p>Erfahrere Benutzer kÃ¶nnen neben der Tests auf (Un-)Gleichheit auch
+  Tests auf Ãœbereinstimmung mit regulÃ¤ren AusdrÃ¼cken ohne
+  BerÃ¼cksichtung der GroÃŸ- und Kleinschreibung durchfÃ¼hren. Dazu dient
   dieselbe Syntax wie oben nur mit &quot;=~&quot; und &quot;!~&quot;
   als Vergleichsoperatoren.</p>
 
- <p>Beispiel für einen Test, ob die Variable &quot;intnotes&quot;
-  (interne Bemerkungen) das Wort &quot;schwierig&quot; enthält:
+ <p>Beispiel fÃ¼r einen Test, ob die Variable &quot;intnotes&quot;
+  (interne Bemerkungen) das Wort &quot;schwierig&quot; enthÃ¤lt:
   <code class="blue">&lt;%if intnotes =~
   &quot;schwierig&quot;%&gt;</code></p>
 

@@ -34,10 +34,10 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 
 <h2 class="chapter">8 OpenDocument-Vorlagen</h2>
 
-<p>Lx-Office unterstützt die Verwendung von Vorlagen im
+<p>Lx-Office unterstÃ¼tzt die Verwendung von Vorlagen im
 OpenDocument-Format, wie es OpenOffice.org ab Version 2
 erzeugt. Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als
-auch aus diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
+auch aus diesen direkt PDF-Dateien erzeugen.  Um die UnterstÃ¼tzung von
 OpenDocument-Vorlagen zu aktivieren muss in der Datei
 <code>config/lx-erp.conf</code> die Variable <code>$opendocument_templates</code>
 auf &lsquo;<samp><span class="samp">1</span></samp>&rsquo; stehen.  Dieses ist die Standardeinstellung.
@@ -45,37 +45,37 @@ auf &lsquo;<samp><span class="samp">1</span></samp>&rsquo; stehen.  Dieses ist d
    <p>Weiterhin muss in der Datei <code>config/lx-erp.conf</code> die Variable
 <code>$dbcharset</code> auf die Zeichenkodierung gesetzt werden, die auch
 bei der Speicherung der Daten in der Datenbank verwendet wird. Diese
-ist in den meisten Fällen "ISO-8859-15".
+ist in den meisten FÃ¤llen "ISO-8859-15".
 
-   <p>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
-weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
-OpenOffice.org benötigt. Soll dieses Feature genutzt werden, so muss
+   <p>WÃ¤hrend die Erzeugung von reinen OpenDocument-Dateien keinerlei
+weitere Software benÃ¶tigt, wird zur Umwandlung dieser Dateien in PDF
+OpenOffice.org benÃ¶tigt. Soll dieses Feature genutzt werden, so muss
 neben OpenOffice.org ab Version 2 auch der &ldquo;X virtual frame buffer&rdquo;
 (xvfb) installiert werden.  Bei Debian ist er im Paket &ldquo;xvfb&rdquo;
 enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
 
-   <p>Nach der Installation müssen in der Datei <code>config/lx-erp.conf</code>
+   <p>Nach der Installation mÃ¼ssen in der Datei <code>config/lx-erp.conf</code>
 zwei weitere Variablen angepasst werden:
-<code>$openofficeorg_writer_bin</code> muss den vollständigen Pfad zur
+<code>$openofficeorg_writer_bin</code> muss den vollstÃ¤ndigen Pfad zur
 OpenOffice.org Writer-Anwendung enthalten.  <code>$xvfb_bin</code> muss den
 Pfad zum &ldquo;X virtual frame buffer&rdquo; enthalten.
 
-   <p>Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
+   <p>ZusÃ¤tzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
 OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn
 die Variable <code>$openofficeorg_daemon</code> gesetzt ist, startet ein
 OpenOffice, das auch nach der Umwandlung des Dokumentes gestartet
 bleibt. Bei weiteren Umwandlungen wird dann diese laufende Instanz
 benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung deutlich
-reduziert wird, weil nicht für jedes Dokument ein OpenOffice gestartet
+reduziert wird, weil nicht fÃ¼r jedes Dokument ein OpenOffice gestartet
 werden muss. Der Nachteil ist, dass diese Methode Python und die
-Python-UNO-Bindings benötigt, die Bestandteil von OpenOffice 2 sind.
+Python-UNO-Bindings benÃ¶tigt, die Bestandteil von OpenOffice 2 sind.
 
-   <p>Ist <code>$openofficeorg_daemon</code> nicht gesetzt, so wird für jedes
+   <p>Ist <code>$openofficeorg_daemon</code> nicht gesetzt, so wird fÃ¼r jedes
 Dokument OpenOffice neu gestartet und die Konvertierung mit Hilfe
-eines Makros durchgeführt. Dieses Makro muss in der Dokumentenvorlage
+eines Makros durchgefÃ¼hrt. Dieses Makro muss in der Dokumentenvorlage
 enthalten sein und &ldquo;Standard.Conversion.ConvertSelfToPDF()&rdquo;
-heißen. Die Beispielvorlage &lsquo;<samp><span class="samp">templates/German-invoice.odt</span></samp>&rsquo;
-enthält ein solches Makro, das in jeder anderen Dokumentenvorlage
+heiÃŸen. Die Beispielvorlage &lsquo;<samp><span class="samp">templates/German-invoice.odt</span></samp>&rsquo;
+enthÃ¤lt ein solches Makro, das in jeder anderen Dokumentenvorlage
 ebenfalls enthalten sein muss.
 
    <p>Als letztes muss herausgefunden werden, welchen Namen OpenOffice.org
@@ -83,16 +83,16 @@ Writer dem Verzeichnis mit den Benutzereinstellungen gibt. Unter
 Debian ist dies momentan <code>~/.openoffice.org2</code>. Sollte der Name
 bei Ihrer OpenOffice.org-Installation anders sein, so muss das
 Verzeichnis <code>users/.openoffice.org2</code> entsprechend umbenannt
-werden. Ist der Name z.B. einfach nur <code>.openoffice</code>, so wäre
-folgender Befehl auszuführen:
+werden. Ist der Name z.B. einfach nur <code>.openoffice</code>, so wÃ¤re
+folgender Befehl auszufÃ¼hren:
 
    <p><code>mv users/.openoffice.org2 users/.openoffice</code>
 
    <p>Dieses Verzeichnis, wie auch das komplette <code>users</code>-Verzeichnis,
 muss vom Webserver beschreibbar sein. Dieses wurde in Schritt
 <code>Installation des Programmpakets</code> oben bereits erledigt, kann
-aber erneut überprüft werden, wenn die Konvertierung nach PDF
-fehlschlägt.
+aber erneut Ã¼berprÃ¼ft werden, wenn die Konvertierung nach PDF
+fehlschlÃ¤gt.
 
 <!--  -->
    </body></html>

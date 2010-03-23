@@ -1,12 +1,12 @@
 <html lang="en">
 <head>
-<title>Zeichensätze/die Verwendung von UTF-8 - Lx-Office Installationsanleitung</title>
+<title>ZeichensÃ¤tze/die Verwendung von UTF-8 - Lx-Office Installationsanleitung</title>
 <meta http-equiv="Content-Type" content="text/html">
 <meta name="description" content="Lx-Office Installationsanleitung">
 <meta name="generator" content="makeinfo 4.11">
 <link title="Top" rel="start" href="index.html#Top">
 <link rel="up" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration" title="Anpassung der PostgreSQL-Konfiguration">
-<link rel="next" href="_00c4nderungen-an-Konfigurationsdateien.html#g_t_00c4nderungen-an-Konfigurationsdateien" title="Änderungen an Konfigurationsdateien">
+<link rel="next" href="_00c3_0084nderungen-an-Konfigurationsdateien.html#g_t_00c3_0084nderungen-an-Konfigurationsdateien" title="Ã„nderungen an Konfigurationsdateien">
 <link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
@@ -24,14 +24,14 @@
 <body>
 <div class="node">
 <p>
-<a name="Zeichens%e4tze%2fdie-Verwendung-von-UTF-8"></a>
-<a name="Zeichens_00e4tze_002fdie-Verwendung-von-UTF_002d8"></a>
-n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="_00c4nderungen-an-Konfigurationsdateien.html#g_t_00c4nderungen-an-Konfigurationsdateien">Änderungen an Konfigurationsdateien</a>,
+<a name="Zeichens%c3%a4tze%2fdie-Verwendung-von-UTF-8"></a>
+<a name="Zeichens_00c3_00a4tze_002fdie-Verwendung-von-UTF_002d8"></a>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="_00c3_0084nderungen-an-Konfigurationsdateien.html#g_t_00c3_0084nderungen-an-Konfigurationsdateien">Ã„nderungen an Konfigurationsdateien</a>,
 aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration">Anpassung der PostgreSQL-Konfiguration</a>
 <hr>
 </div>
 
-<h3 class="section">4.1 Zeichensätze/die Verwendung von UTF-8</h3>
+<h3 class="section">4.1 ZeichensÃ¤tze/die Verwendung von UTF-8</h3>
 
 <p>Lx-Office kann komplett mit UTF-8 als Zeichensatz verwendet
 werden. Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in
@@ -39,7 +39,7 @@ Version 8.0 oder neuer benutzt werden, und der
 PostgreSQL-Datenbankcluster muss ebenfalls mit UTF-8 als Locale
 angelegt worden sein.
 
-   <p>Dieses ist kann überprüft werden: ist das Encoding der Datenbank
+   <p>Dieses ist kann Ã¼berprÃ¼ft werden: ist das Encoding der Datenbank
 &ldquo;template1&rdquo; &ldquo;UTF8&rdquo;, so kann auch Lx-Office mit UTF-8 betrieben
 werden. Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
 UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
@@ -47,16 +47,16 @@ Ubuntu kann dies z.B. mit dem folgenden Befehl getan werden:
 
    <p><code>pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2 clustername</code>
 
-   <p>Die Datenbankversionsnummer muss an die tatsächlich verwendete
+   <p>Die Datenbankversionsnummer muss an die tatsÃ¤chlich verwendete
 Versionsnummer angepasst werden.
 
-   <p>Unter anderen Distributionen gibt es ähnliche Methoden.
+   <p>Unter anderen Distributionen gibt es Ã¤hnliche Methoden.
 
    <p>Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und ist
-ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
+ein Neuanlegen eines weiteren Clusters nicht mÃ¶glich, so kann
 Lx-Office mit ISO-8859-15 als Encoding betrieben werden.
 
-   <p>Das Encoding einer Datenbank kann in <code>psql</code> mit <code>\l</code> geprüft werden.
+   <p>Das Encoding einer Datenbank kann in <code>psql</code> mit <code>\l</code> geprÃ¼ft werden.
 
    </body></html>
 

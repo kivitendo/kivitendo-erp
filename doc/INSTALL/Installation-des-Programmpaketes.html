@@ -5,7 +5,7 @@
 <meta name="description" content="Lx-Office Installationsanleitung">
 <meta name="generator" content="makeinfo 4.11">
 <link title="Top" rel="start" href="index.html#Top">
-<link rel="prev" href="Ben_00f6tigte-Software-und-Pakete.html#Ben_00f6tigte-Software-und-Pakete" title="Benötigte Software und Pakete">
+<link rel="prev" href="Ben_00c3_00b6tigte-Software-und-Pakete.html#Ben_00c3_00b6tigte-Software-und-Pakete" title="BenÃ¶tigte Software und Pakete">
 <link rel="next" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration" title="Anpassung der PostgreSQL-Konfiguration">
 <link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
 <meta http-equiv="Content-Style-Type" content="text/css">
@@ -26,7 +26,7 @@
 <p>
 <a name="Installation-des-Programmpaketes"></a>
 n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Anpassung-der-PostgreSQL_002dKonfiguration.html#Anpassung-der-PostgreSQL_002dKonfiguration">Anpassung der PostgreSQL-Konfiguration</a>,
-voriges:&nbsp;<a rel="previous" accesskey="p" href="Ben_00f6tigte-Software-und-Pakete.html#Ben_00f6tigte-Software-und-Pakete">Benötigte Software und Pakete</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="Ben_00c3_00b6tigte-Software-und-Pakete.html#Ben_00c3_00b6tigte-Software-und-Pakete">BenÃ¶tigte Software und Pakete</a>,
 aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 <hr>
 </div>
@@ -41,28 +41,28 @@ Dokumentenverzeichnis des Webservers (z.B. <code>/var/www/html/</code>,
 <br>
 tar xvzf lxoffice-erp-2.6.1beta1.tgz</code>
 
-   <p>Verändern Sie evtl. noch den Namen des Verzeichnisses mit
+   <p>VerÃ¤ndern Sie evtl. noch den Namen des Verzeichnisses mit
 
    <p><code>mv lxoffice-erp/ lx-erp/</code>
 
-   <p>Alternativ können Sie auch einen Alias in der Webserverkonfiguration
-benutzen, um auf das tatsächliche Installationsverzeichnis zu
+   <p>Alternativ kÃ¶nnen Sie auch einen Alias in der Webserverkonfiguration
+benutzen, um auf das tatsÃ¤chliche Installationsverzeichnis zu
 verweisen.
 
-   <p>Die Verzeichnisse <code>users</code>, <code>spool</code> und <code>webdav</code> müssen
-für den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
-restlichen Dateien müssen für diesen Benutzer lesbar sein. Der
+   <p>Die Verzeichnisse <code>users</code>, <code>spool</code> und <code>webdav</code> mÃ¼ssen
+fÃ¼r den Benutzer beschreibbar sein, unter dem der Webserver lÃ¤uft. Die
+restlichen Dateien mÃ¼ssen fÃ¼r diesen Benutzer lesbar sein. Der
 Benutzername ist bei verschiedenen Distributionen unterschiedlich
 (z.B. bei Debian/Ubuntu <code>www-data</code>, bei Fedora core <code>apache</code>
 oder bei OpenSuSE <code>wwwrun</code>).
 
-   <p>Der folgende Befehl ändert den Besitzer für die oben genannten
+   <p>Der folgende Befehl Ã¤ndert den Besitzer fÃ¼r die oben genannten
 Verzeichnisse auf einem Debian/Ubuntu-System:
 
    <p><code>chown -R www-data lx-office-erp/users lx-office-erp/spool lx-office-erp/webdav</code>
 
-   <p>Weiterhin muss der Webserver-Benutzer im Verzeichnis <code>templates</code> Verzeichnisse für
-jeden neuen Benutzer, der in lx-office angelegt wird, anlegen dürfen:
+   <p>Weiterhin muss der Webserver-Benutzer im Verzeichnis <code>templates</code> Verzeichnisse fÃ¼r
+jeden neuen Benutzer, der in lx-office angelegt wird, anlegen dÃ¼rfen:
 
    <p><code>chgrp www-data lx-office-erp/templates; chmod g+w lx-office-erp/templates</code>
 

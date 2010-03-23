@@ -1,21 +1,21 @@
 Lx-Office Style Guide
 ---------------------
 
-Die folgenden Regeln haben das Ziel, den Code möglichst gut les- und wartbar
-zu machen. Dazu gehört zum Einen, dass der Code einheitlich eingerückt ist,
+Die folgenden Regeln haben das Ziel, den Code mÃ¶glichst gut les- und wartbar
+zu machen. Dazu gehÃ¶rt zum Einen, dass der Code einheitlich eingerÃ¼ckt ist,
 aber auch, dass Mehrdeutigkeit so weit es geht vermieden wird (Stichworte
 "Klammern" oder "Hash-Keys").
 
 Diese Regeln sind keine Schikane, sondern erleichtern allen das Leben!
 
-Jeder, der einen Patch schickt, sollte seinen Code vorher überprüfen.
-Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
+Jeder, der einen Patch schickt, sollte seinen Code vorher Ã¼berprÃ¼fen.
+Einige der Regeln lassen sich automatisch Ã¼berprÃ¼fen, andere nicht.
 
 --------------------------------------------------------------------------
 
 1. Es werden keine echten iTabs sondern Leerzeichen verwendet.
 
-2. Die Einrückung beträgt zwei Leerzeichen.
+2. Die EinrÃ¼ckung betrÃ¤gt zwei Leerzeichen.
    Beispiel:
 
    foreach my $row (@data) {
@@ -34,7 +34,7 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
    }
 
 
-3. Öffnende geschweifte Klammern befinden sich auf der gleichen Zeile wie
+3. Ã–ffnende geschweifte Klammern befinden sich auf der gleichen Zeile wie
    der letzte Befehl.
    Beispiele:
 
@@ -48,12 +48,12 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
      ...
    }
 
-4. Schließende geschweifte Klammern sind so weit eingerückt wie der Befehl/
-   die öffnende schließende Klammer, die den Block gestartet hat, und nicht
+4. SchlieÃŸende geschweifte Klammern sind so weit eingerÃ¼ckt wie der Befehl/
+   die Ã¶ffnende schlieÃŸende Klammer, die den Block gestartet hat, und nicht
    auf der Ebene des Inhalts. Die gleichen Beispiele wie bei 3. gelten.
 
-5. Die Wörter "else" "elsif", "while" befinden sich auf der gleichen
-   Zeile wie schließende geschweifte Klammern.
+5. Die WÃ¶rter "else" "elsif", "while" befinden sich auf der gleichen
+   Zeile wie schlieÃŸende geschweifte Klammern.
    Beispiele:
 
    if ($form->{sum} > 1000) {
@@ -68,19 +68,19 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
      ...
    } until ($a > 0);
 
-6. Parameter von Funktionsaufrufen müssen mit runden Klammern versehen
+6. Parameter von Funktionsaufrufen mÃ¼ssen mit runden Klammern versehen
    werden. Davon nicht betroffen sind interne perl Funktionen,
-   und grep ähnliche Operatoren.
+   und grep Ã¤hnliche Operatoren.
 
    Beispiel:
 
    $main::lxdebug->message("Could not find file.");
    %options = map { $_ => 1 } grep { !/^#/ } @config_file;
 
-7. Verschiedene Klammern, Ihre Ausdrücke und Leerzeichen:
+7. Verschiedene Klammern, Ihre AusdrÃ¼cke und Leerzeichen:
 
   Generell gilt: Hashkeys und Arrayindices sollten _nicht_ durch Leerzeichen
-  abgesetzt werden. Logische Klammerungen ebensowenig, Blöcke schon.
+  abgesetzt werden. Logische Klammerungen ebensowenig, BlÃ¶cke schon.
 
 
   Beispiel:
@@ -98,15 +98,15 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
 8. Mehrzeilige Befehle
 
   8.1 Werden die Parameter eines Funktionsaufrufes auf mehrere Zeilen
-      aufgeteilt, so sollten diese bis zu der Spalte eingerückt werden,
+      aufgeteilt, so sollten diese bis zu der Spalte eingerÃ¼ckt werden,
       in der die ersten Funktionsparameter in der ersten Zeile stehen.
       Beispiel:
 
       $sth = $dbh->prepare("SELECT * FROM some_table WHERE col = ?",
                            $form->{some_col_value});
 
-  8.3 Ein Spezialfall ist der ternäre Oprator "?:", der am besten in einer
-      übersichtlichen Tabellenstruktur organisiert wird.
+  8.3 Ein Spezialfall ist der ternÃ¤re Oprator "?:", der am besten in einer
+      Ã¼bersichtlichen Tabellenstruktur organisiert wird.
 
       Beispiel:
 
@@ -117,12 +117,12 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
 9. Kommentare
 
   9.1 Kommentare, die alleine in einer Zeile stehen, sollten soweit wie der
-      Code eingerückt sein.
-  9.2 Seitliche hängende Kommentare sollten einheitlich formatiert werden.
+      Code eingerÃ¼ckt sein.
+  9.2 Seitliche hÃ¤ngende Kommentare sollten einheitlich formatiert werden.
 
-  9.3 Sämtliche Kommentare und Sonstiges im Quellcode ist bitte auf Englisch
-      zu verfassen. So wie ich keine Lust habe französischen Quelltext zu lesen,
-      sollte auch der Lx-Office Quelltext für nicht-Deutschsprachige lesbar sein.
+  9.3 SÃ¤mtliche Kommentare und Sonstiges im Quellcode ist bitte auf Englisch
+      zu verfassen. So wie ich keine Lust habe franzÃ¶sischen Quelltext zu lesen,
+      sollte auch der Lx-Office Quelltext fÃ¼r nicht-Deutschsprachige lesbar sein.
 
       Beispiel:
 
@@ -139,8 +139,8 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
       $i *= $const;  # do something crazy
       $i = $n;       # recover $i
 
-10. Hashkeys sollten nur in Anführungszeichen stehen, wenn die Interpolation
-    gewünscht ist.
+10. Hashkeys sollten nur in AnfÃ¼hrungszeichen stehen, wenn die Interpolation
+    gewÃ¼nscht ist.
 
     Beispiele:
 
@@ -148,19 +148,19 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
     $form->{"row_$i"} = $form->{"row_$i"} - 5;
     $some_hash{42}    = 54;
 
-11. Die maximale Zeilenlänge ist nicht bescränkt. Zeilenlängen <= 79
+11. Die maximale ZeilenlÃ¤nge ist nicht bescrÃ¤nkt. ZeilenlÃ¤ngen <= 79
     helfen unter bestimmten Bedingungen, aber wenn die Lesbarkeit unter
     kurzen Zeilen leidet (wie zum Biespiel in grossen Tabellen), dann
     ist Lesbarkeit vorzuziehen.
 
-    Als Beispiel sei print_options aus bin/mozilla/io.pl angeführt.
+    Als Beispiel sei print_options aus bin/mozilla/io.pl angefÃ¼hrt.
 
-12. Trailing Whitespace, d.h. Leerzeichen am Ende von Zeilen sind unerwünscht.
-    Sie führen zu unnötigen Whitespaceänderungen die diffs verfälschen.
+12. Trailing Whitespace, d.h. Leerzeichen am Ende von Zeilen sind unerwÃ¼nscht.
+    Sie fÃ¼hren zu unnÃ¶tigen WhitespaceÃ¤nderungen die diffs verfÃ¤lschen.
 
-    Emacs und vim haben beide recht einfache Methoden dafür:
+    Emacs und vim haben beide recht einfache Methoden dafÃ¼r:
     emacs kennt das Kommande nuke-trailing-whitespace,
-    vim macht das gleiche manuell über :%s/\s\+$//e, mit
+    vim macht das gleiche manuell Ã¼ber :%s/\s\+$//e, mit
       :au BufWritePre * :%s/\s\+$//e
     wird das an speichern gebunden.
 
@@ -168,8 +168,8 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
 
     In der Vergangenheit wurde versucht perltidy zu verwenden um einen
     einheitlichen Stil zu erlangen, es hat sich aber gezeigt, dass Perltidys
-    sehr eigenwilliges Verhaltes was Zeilenumbrüche angeht oftmals gut
-    formatierten Code zerstört. Für den Interessierten sind hier die perltidy
+    sehr eigenwilliges Verhaltes was ZeilenumbrÃ¼che angeht oftmals gut
+    formatierten Code zerstÃ¶rt. FÃ¼r den Interessierten sind hier die perltidy
     Optionen, die grob den beschriebenen Richtlinien entsprechen.
 
   -syn -i=2 -nt -pt=2 -sbt=2 -ci=2 -ibc -hsc -noll -nsts -nsfs -asc -dsm
@@ -181,12 +181,12 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
     Lx-Office bietet mit dem LXDebug Modul einen brauchbaren Trace/Debug
     Mechanismus, es gibt also keinen Grund nach STDERR zu schreiben.
 
-    Die LXDebug Methode "message" nimmt als ersten Paramter außerdem eine
-    Flagmaske, für die die Meldung angezeigt wird, wobei "0" immer angezeigt
+    Die LXDebug Methode "message" nimmt als ersten Paramter auÃŸerdem eine
+    Flagmaske, fÃ¼r die die Meldung angezeigt wird, wobei "0" immer angezeigt
     wird. Sollte Meldungen sollten nicht eingecheckt werden, und werden in den
-    meisten Fällen auch vom Repository zurückgewiesen.
+    meisten FÃ¤llen auch vom Repository zurÃ¼ckgewiesen.
 
-14. Alle neuen Module müssen use strict verwenden.
+14. Alle neuen Module mÃ¼ssen use strict verwenden.
 
     $form, $auth, $locale, $lxdebug, %myconfig sowie der Inhalt der lx-erp.conf
     werden derzeit aus dem main package importiert. Alle anderen Konstrukte

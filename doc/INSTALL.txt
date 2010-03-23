@@ -3,23 +3,23 @@ Table of Contents
 
 Inhalt der Anleitung
 1 Aktuelle Hinweise
-2 Benötigte Software und Pakete
+2 BenÃ¶tigte Software und Pakete
 3 Installation des Programmpaketes
 4 Anpassung der PostgreSQL-Konfiguration
-  4.1 Zeichensätze/die Verwendung von UTF-8
-  4.2 Änderungen an Konfigurationsdateien
-  4.3 Erweiterung für servergespeicherte Prozeduren
+  4.1 ZeichensÃ¤tze/die Verwendung von UTF-8
+  4.2 Ã„nderungen an Konfigurationsdateien
+  4.3 Erweiterung fÃ¼r servergespeicherte Prozeduren
   4.4 Datenbankbenutzer anlegen
 5 Apache-Konfiguration
 6 Benutzerauthentifizierung und Administratorpasswort
   6.1 Grundlagen zur Benutzerauthentifizierung
   6.2 Administratorpasswort
   6.3 Authentifizierungsdatenbank
-  6.4 Passwortüberprüfung
+  6.4 PasswortÃ¼berprÃ¼fung
   6.5 Name des Session-Cookies
   6.6 Anlegen der Authentifizierungsdatenbank
 7 Benutzer- und Gruppenverwaltung
-  7.1 Zusammenhänge
+  7.1 ZusammenhÃ¤nge
   7.2 Datenbanken anlegen
   7.3 Gruppen anlegen
   7.4 Benutzer anlegen
@@ -45,13 +45,13 @@ Aktuelle Installations- und Konfigurationshinweise gibt es:
 
    * im Lx-Office-Forum: `http://www.lx-office.org/forum/'
 
-2 Benötigte Software und Pakete
-*******************************
+2 BenÃ¶tigte Software und Pakete
+********************************
 
 Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache)
-und ein Datenbankserver (PostgreSQL) benötigt.
+und ein Datenbankserver (PostgreSQL) benÃ¶tigt.
 
-   Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht
+   ZusÃ¤tzlich benÃ¶tigt Lx-Office die folgenden Perl-Pakete, die nicht
 Bestandteil einer Standard-Perl-Installation sind:
 
    * DBI
@@ -80,33 +80,33 @@ Bestandteil einer Standard-Perl-Installation sind:
 
    * Email::Address
 
-   Diese Pakete können bei den unterschiedlichen Distributionen anders
-heißen.
+   Diese Pakete kÃ¶nnen bei den unterschiedlichen Distributionen anders
+heiÃŸen.
 
-   Für Debian oder Ubuntu benötigen Sie diese Pakete:
+   FÃ¼r Debian oder Ubuntu benÃ¶tigen Sie diese Pakete:
 
    `apache postgresql libdbi-perl libdbd-pg-perl libpg-perl
 libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl
-libtext-iconv-perl libyaml-perl libtext-csv-perl libio-stringy-perl
-libtemplate-perl'
+libtext-iconv-perl libyaml-perl libtext-csv-xs-perl libio-stringy-perl
+libtemplate-perl lib-uriperl libxml-simple-perl'
 
-   Für Fedora Core benötigen Sie unter anderem diese Pakete:
+   FÃ¼r Fedora Core benÃ¶tigen Sie unter anderem diese Pakete:
 
    `httpd postgresql-server perl-DBI perl-DBD-Pg'
 
-   Für OpenSuSE benötigen Sie diese Pakete:
+   FÃ¼r OpenSuSE benÃ¶tigen Sie diese Pakete:
 
    `apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip
 perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy
-perl-Template-Toolkit'
+perl-Template-Toolkit perl-URI perl-XML-Writer'
 
-   Einige Module werden von Lx-Office benötigt, sind aber evtl. nicht
+   Einige Module werden von Lx-Office benÃ¶tigt, sind aber evtl. nicht
 als Distributionspakete vorhanden, und/oder nicht praktikabel zu
-installieren.  In diesen Fällen liefert Lx-Office das Paket mit, und
-lädt es als Fallback.
+installieren.  In diesen FÃ¤llen liefert Lx-Office das Paket mit, und
+lÃ¤dt es als Fallback.
 
-   Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
-benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
+   Lx-Office enthÃ¤lt ein Script, mit dem Ã¼berprÃ¼ft werden kann, ob alle
+benÃ¶tigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 
    `./scripts/installation_check.pl'
 
@@ -120,29 +120,29 @@ im Dokumentenverzeichnis des Webservers (z.B. `/var/www/html/',
    `cd /var/www
 tar xvzf lxoffice-erp-2.6.1beta1.tgz'
 
-   Verändern Sie evtl. noch den Namen des Verzeichnisses mit
+   VerÃ¤ndern Sie evtl. noch den Namen des Verzeichnisses mit
 
    `mv lxoffice-erp/ lx-erp/'
 
-   Alternativ können Sie auch einen Alias in der Webserverkonfiguration
-benutzen, um auf das tatsächliche Installationsverzeichnis zu verweisen.
+   Alternativ kÃ¶nnen Sie auch einen Alias in der Webserverkonfiguration
+benutzen, um auf das tatsÃ¤chliche Installationsverzeichnis zu verweisen.
 
-   Die Verzeichnisse `users', `spool' und `webdav' müssen für den
-Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
-restlichen Dateien müssen für diesen Benutzer lesbar sein. Der
+   Die Verzeichnisse `users', `spool' und `webdav' mÃ¼ssen fÃ¼r den
+Benutzer beschreibbar sein, unter dem der Webserver lÃ¤uft. Die
+restlichen Dateien mÃ¼ssen fÃ¼r diesen Benutzer lesbar sein. Der
 Benutzername ist bei verschiedenen Distributionen unterschiedlich (z.B.
 bei Debian/Ubuntu `www-data', bei Fedora core `apache' oder bei
 OpenSuSE `wwwrun').
 
-   Der folgende Befehl ändert den Besitzer für die oben genannten
+   Der folgende Befehl Ã¤ndert den Besitzer fÃ¼r die oben genannten
 Verzeichnisse auf einem Debian/Ubuntu-System:
 
    `chown -R www-data lx-office-erp/users lx-office-erp/spool
 lx-office-erp/webdav'
 
    Weiterhin muss der Webserver-Benutzer im Verzeichnis `templates'
-Verzeichnisse für jeden neuen Benutzer, der in lx-office angelegt wird,
-anlegen dürfen:
+Verzeichnisse fÃ¼r jeden neuen Benutzer, der in lx-office angelegt wird,
+anlegen dÃ¼rfen:
 
    `chgrp www-data lx-office-erp/templates; chmod g+w
 lx-office-erp/templates'
@@ -152,15 +152,15 @@ lx-office-erp/templates'
 
 PostgreSQL muss auf verschiedene Weisen angepasst werden.
 
-4.1 Zeichensätze/die Verwendung von UTF-8
-=========================================
+4.1 ZeichensÃ¤tze/die Verwendung von UTF-8
+==========================================
 
 Lx-Office kann komplett mit UTF-8 als Zeichensatz verwendet werden.
 Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in Version 8.0
 oder neuer benutzt werden, und der PostgreSQL-Datenbankcluster muss
 ebenfalls mit UTF-8 als Locale angelegt worden sein.
 
-   Dieses ist kann überprüft werden: ist das Encoding der Datenbank
+   Dieses ist kann Ã¼berprÃ¼ft werden: ist das Encoding der Datenbank
 "template1" "UTF8", so kann auch Lx-Office mit UTF-8 betrieben werden.
 Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
 UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
@@ -169,43 +169,43 @@ Ubuntu kann dies z.B. mit dem folgenden Befehl getan werden:
    `pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2
 clustername'
 
-   Die Datenbankversionsnummer muss an die tatsächlich verwendete
+   Die Datenbankversionsnummer muss an die tatsÃ¤chlich verwendete
 Versionsnummer angepasst werden.
 
-   Unter anderen Distributionen gibt es ähnliche Methoden.
+   Unter anderen Distributionen gibt es Ã¤hnliche Methoden.
 
    Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und ist
-ein Neuanlegen eines weiteren Clusters nicht möglich, so kann Lx-Office
+ein Neuanlegen eines weiteren Clusters nicht mÃ¶glich, so kann Lx-Office
 mit ISO-8859-15 als Encoding betrieben werden.
 
-   Das Encoding einer Datenbank kann in `psql' mit `\l' geprüft werden.
+   Das Encoding einer Datenbank kann in `psql' mit `\l' geprÃ¼ft werden.
 
-4.2 Änderungen an Konfigurationsdateien
-=======================================
+4.2 Ã„nderungen an Konfigurationsdateien
+========================================
 
 In der Datei `postgresql.conf', die je nach Distribution in
 verschiedenen Verzeichnissen liegen kann (z.B. `/var/lib/pgsql/data/'
 oder `/etc/postgresql/', muss sichergestellt werden, dass
-TCP/IP-Verbindungen aktiviert sind. Für PostgreSQL vor Version v8.0
+TCP/IP-Verbindungen aktiviert sind. FÃ¼r PostgreSQL vor Version v8.0
 lautete dieser Parameter
 
    `TCPIP_SOCKET = 1'
 
-   Ab v8.0 wird das Verhalten hingegen über den neuen Parameter
+   Ab v8.0 wird das Verhalten hingegen Ã¼ber den neuen Parameter
 `listen_address' gesteuert. Laufen PostgreSQL und Lx-Office auf
 demselben Rechner, so kann dort der Wert `localhost' verwendet werden.
-Andernfalls müssen Datenbankverbindungen auch von anderen Rechnern aus
+Andernfalls mÃ¼ssen Datenbankverbindungen auch von anderen Rechnern aus
 zugelassen werden, was mit dem Wert \`*' geschieht.
 
    In der Datei `pg_hba.conf', die im gleichen Verzeichnis wie die
-`postgresql.conf' zu finden sein sollte, müssen die Berichtigungen für
-den Zugriff geändert werden. Hier gibt es mehrere Möglichkeiten. Eine
+`postgresql.conf' zu finden sein sollte, mÃ¼ssen die Berichtigungen fÃ¼r
+den Zugriff geÃ¤ndert werden. Hier gibt es mehrere MÃ¶glichkeiten. Eine
 besteht darin, lokale Verbindungen immer zuzulassen
 
    `local all all trust
 host all all 127.0.0.1 255.0.0.0 trust'
 
-   Besser ist es, für eine bestimmte Datenbank Zugriff nur per Passwort
+   Besser ist es, fÃ¼r eine bestimmte Datenbank Zugriff nur per Passwort
 zuzulassen. Beispielsweise:
 
    `local   all         lxoffice
@@ -213,12 +213,12 @@ zuzulassen. Beispielsweise:
 host    all         lxoffice      127.0.0.1         255.255.255.255
 password'
 
-4.3 Erweiterung für servergespeicherte Prozeduren
-=================================================
+4.3 Erweiterung fÃ¼r servergespeicherte Prozeduren
+==================================================
 
-In der Datenbank `template1' muss die Unterstützung für
-servergespeicherte Prozeduren eingerichet werden. Melden Sie sich dafür
-als Benutzer "postgres" an der Datenbank an, und führen Sie die
+In der Datenbank `template1' muss die UnterstÃ¼tzung fÃ¼r
+servergespeicherte Prozeduren eingerichet werden. Melden Sie sich dafÃ¼r
+als Benutzer "postgres" an der Datenbank an, und fÃ¼hren Sie die
 folgenden Kommandos aus:
 
    `create function plpgsql_call_handler () returns opaque as
@@ -236,20 +236,20 @@ Ubuntu 9.10 unter `/usr/lib/postgresql/8.4/lib/plpgsql.so'.
 
 Wenn Sie nicht den Datenbanksuperuser "postgres" zum Zugriff benutzen
 wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer anlegen. Ein
-Beispiel, wie Sie einen neuen Benutzer anlegen können:
+Beispiel, wie Sie einen neuen Benutzer anlegen kÃ¶nnen:
 
    `su - postgres
 createuser -d -P lxoffice'
 
-   Wenn Sie später einen Datenbankzugriff konfigurieren, verändern Sie
+   Wenn Sie spÃ¤ter einen Datenbankzugriff konfigurieren, verÃ¤ndern Sie
 den evtl. voreingestellten Benutzer "postgres" auf "lxoffice" bzw. den
-hier gewählten Benutzernamen.
+hier gewÃ¤hlten Benutzernamen.
 
 5 Apache-Konfiguration
 **********************
 
 Der Zugriff auf das Programmverzeichnis muss in der Apache
-Webserverkonfigurationsdatei `httpd.conf' eingestellt werden. Fügen Sie
+Webserverkonfigurationsdatei `httpd.conf' eingestellt werden. FÃ¼gen Sie
 den folgenden Abschnitt dieser Datei oder einer anderen Datei hinzu,
 die beim Starten des Webservers eingelesen wird:
 
@@ -272,7 +272,7 @@ Lx-Office-Archiv entpacket haben.
 ein Plus `+' gesetzt werden.
 
    Auf einigen Webservern werden manchmal die Grafiken und Style-Sheets
-nicht ausgeliefert. In solchen Fällen hat es oft geholfen, die folgende
+nicht ausgeliefert. In solchen FÃ¤llen hat es oft geholfen, die folgende
 Option in die Konfiguration aufzunehmen:
 
    `EnableSendfile Off'
@@ -280,27 +280,27 @@ Option in die Konfiguration aufzunehmen:
 6 Benutzerauthentifizierung und Administratorpasswort
 *****************************************************
 
-Informationen über die Einrichtung der Benutzerauthentifizierung, über
+Informationen Ã¼ber die Einrichtung der Benutzerauthentifizierung, Ã¼ber
 die Verwaltung von Gruppen und weitere Einstellungen
 
 6.1 Grundlagen zur Benutzerauthentifizierung
 ============================================
 
 Lx-Office verwaltet die Benutzerinformationen in einer Datenbank, die
-im folgenden "Authentifizierungsdatenbank" genannt wird. Für jeden
-Benutzer kann dort eine eigene Datenbank für die eigentlichen
-Finanzdaten hinterlegt sein. Diese beiden Datenbanken können, müssen
+im folgenden "Authentifizierungsdatenbank" genannt wird. FÃ¼r jeden
+Benutzer kann dort eine eigene Datenbank fÃ¼r die eigentlichen
+Finanzdaten hinterlegt sein. Diese beiden Datenbanken kÃ¶nnen, mÃ¼ssen
 aber nicht unterschiedlich sein.
 
-   Im einfachsten Fall gibt es für Lx-Office nur eine einzige Datenbank,
+   Im einfachsten Fall gibt es fÃ¼r Lx-Office nur eine einzige Datenbank,
 in der sowohl die Benutzerinformationen als auch die Daten abgelegt
 werden.
 
-   Zusätzlich ermöglicht es Lx-Office, dass die Benutzerpasswörter
+   ZusÃ¤tzlich ermÃ¶glicht es Lx-Office, dass die BenutzerpasswÃ¶rter
 entweder gegen die Authentifizierungsdatenbank oder gegen einen
-LDAP-Server überprüft werden.
+LDAP-Server Ã¼berprÃ¼ft werden.
 
-   Welche Art der Passwortüberprüfung Lx-Office benutzt und wie
+   Welche Art der PasswortÃ¼berprÃ¼fung Lx-Office benutzt und wie
 Lx-Office die Authentifizierungsdatenbank erreichen kann, wird in der
 Konfigurationsdatei `config/authentication.pl' festgelegt. Diese muss
 bei der Installation und bei einem Upgrade von einer Version vor v2.6.0
@@ -313,8 +313,8 @@ werden kann.
 
 Das Passwort, das zum Zugriff auf das Aministrationsinterface benutzt
 wird, wird ebenfalls in dieser Datei gespeichert. Es kann auch nur dort
-und nicht mehr im Administrationsinterface selber geändert werden. Der
-Parameter dazu heißt `$self->{admin_password}'.
+und nicht mehr im Administrationsinterface selber geÃ¤ndert werden. Der
+Parameter dazu heiÃŸt `$self->{admin_password}'.
 
 6.3 Authentifizierungsdatenbank
 ===============================
@@ -332,27 +332,27 @@ anzugeben:
    * `user' - Der Benutzername, mit dem sich Lx-Office beim
      Datenbankserver anmeldet (z.B. "postgres")
 
-   * `password' - Das Passwort für den Datenbankbenutzer
+   * `password' - Das Passwort fÃ¼r den Datenbankbenutzer
 
    Die Datenbank muss noch nicht existieren. Lx-Office kann sie
 automatisch anlegen (mehr dazu siehe unten).
 
-6.4 Passwortüberprüfung
-=======================
+6.4 PasswortÃ¼berprÃ¼fung
+=========================
 
-Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen die
+Lx-Office unterstÃ¼tzt PasswortÃ¼berprÃ¼fung auf zwei Arten: gegen die
 Authentifizierungsdatenbank und gegen einen externen LDAP- oder
 Active-Directory-Server. Welche davon benutzt wird, regelt der
 Parameter `$self->{module}'.
 
-   Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank
+   Sollen die BenutzerpasswÃ¶rter in der Authentifizierungsdatenbank
 gespeichert werden, so muss der Parameter `$self->{module}' den Wert
-`DB' enthalten. In diesem Fall können sowohl der Administrator als auch
-die Benutzer selber ihre Psaswörter in Lx-Office ändern.
+`DB' enthalten. In diesem Fall kÃ¶nnen sowohl der Administrator als auch
+die Benutzer selber ihre PsaswÃ¶rter in Lx-Office Ã¤ndern.
 
    Soll hingegen ein externer LDAP- oder Active-Directory-Server benutzt
 werden, so muss der Parameter `$self->{module}' auf `LDAP' gesetzt
-werden. In diesem Fall müssen zusätzliche Informationen über den
+werden. In diesem Fall mÃ¼ssen zusÃ¤tzliche Informationen Ã¼ber den
 LDAP-Server in `$self->{LDAP_config}' angegeben werden:
 
    * `host' - Der Rechnername oder die IP-Adresse des LDAP- oder
@@ -360,18 +360,18 @@ LDAP-Server in `$self->{LDAP_config}' angegeben werden:
 
    * `port' - Die Portnummer des LDAP-Servers; meist 389.
 
-   * `tls' - Wenn Verbindungsverschlüsselung gewünscht ist, so diesen
+   * `tls' - Wenn VerbindungsverschlÃ¼sselung gewÃ¼nscht ist, so diesen
      Wert auf `1' setzen, andernfalls auf `0' belassen
 
    * `attribute' - Das LDAP-Attribut, in dem der Benutzername steht,
-     den der Benutzer eingegeben hat. Für Active-Directory-Server   ist
-     dies meist `sAMAccountName', für andere LDAP-Server hingegen
+     den der Benutzer eingegeben hat. FÃ¼r Active-Directory-Server   ist
+     dies meist `sAMAccountName', fÃ¼r andere LDAP-Server hingegen
      `uid'. Diese Angabe ist zwingend erforderlich.
 
    * `base_dn' - Der Abschnitt des LDAP-Baumes, der durchsucht werden
      soll. Diese Angabe ist zwingend erforderlich.
 
-   * `filter' - Ein optionaler LDAP-Filter. Enthält dieser Filter das
+   * `filter' - Ein optionaler LDAP-Filter. EnthÃ¤lt dieser Filter das
      Wort `<%login%>', so wird dieses durch den vom Benutzer
      eingegebenen Benutzernamen ersetzt. Andernfalls wird der LDAP-Baum
      nach einem Element durchsucht, bei dem das oben angegebene Attribut
@@ -380,7 +380,7 @@ LDAP-Server in `$self->{LDAP_config}' angegeben werden:
    * `bind_dn' und `bind_password' - Wenn der LDAP-Server eine
      Anmeldung erfordert, bevor er durchsucht werden kann (z.B. ist
      dies bei   Active-Directory-Servern der Fall), so kann diese hier
-     angegeben werden. Für Active-Directory-Server kann als `bind_dn'
+     angegeben werden. FÃ¼r Active-Directory-Server kann als `bind_dn'
      entweder eine   komplette LDAP-DN wie z.B. `cn=Martin
      Mustermann,cn=Users,dc=firmendomain' auch nur der volle Name des
      Benutzers   eingegeben werden; in diesem Beispiel also `Martin
@@ -390,7 +390,7 @@ LDAP-Server in `$self->{LDAP_config}' angegeben werden:
 ============================
 
 Sollen auf einem Server mehrere Lx-Office-Installationen aufgesetzt
-werden, so müssen die Namen der Session-Cookies für alle Installationen
+werden, so mÃ¼ssen die Namen der Session-Cookies fÃ¼r alle Installationen
 unterschiedlich sein. Der Name des Cookies wird mit dem Parameter
 `$self->{cookie_name}' gesetzt.
 
@@ -410,8 +410,8 @@ das unter der folgenden URL erreichbar sein sollte:
 7 Benutzer- und Gruppenverwaltung
 *********************************
 
-Nach der Installation müssen Benutzer, Gruppen und Datenbanken angelegt
-werden.  Dieses geschieht im Administrationsmenü, das Sie unter
+Nach der Installation mÃ¼ssen Benutzer, Gruppen und Datenbanken angelegt
+werden.  Dieses geschieht im AdministrationsmenÃ¼, das Sie unter
 folgender URL finden:
 
    `http://localhost/lx-erp/admin.pl'
@@ -419,31 +419,31 @@ folgender URL finden:
    Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
 `config/authentication.pl' eingetragen haben.
 
-7.1 Zusammenhänge
-=================
+7.1 ZusammenhÃ¤nge
+==================
 
 Lx-Office verwendet eine Datenbank zum Speichern all seiner
 Informationen wie Kundendaten, Artikel, Angebote, Rechnungen etc. Um
-mit Lx-Office arbeiten zu können, muss eine Person einen
+mit Lx-Office arbeiten zu kÃ¶nnen, muss eine Person einen
 Benutzeraccount haben. Jedem Benutzeraccount wiederum wird genau eine
 Datenbank zugewiesen, mit der dieser Benutzer arbeiten kann. Es ist
-möglich und normal, dass mehreren Benutzern die selbe Datenbank
-zugewiesen wird, sodass sie alle mit den selben Daten arbeiten können.
+mÃ¶glich und normal, dass mehreren Benutzern die selbe Datenbank
+zugewiesen wird, sodass sie alle mit den selben Daten arbeiten kÃ¶nnen.
 
    Die Basisdaten der Benutzer, die in der Administration eingegeben
-werden können, werden in einer zweiten Datenbank gespeichert, der
-bereits erwähnten Authentifizierungsdatenbank. Diese ist also den
+werden kÃ¶nnen, werden in einer zweiten Datenbank gespeichert, der
+bereits erwÃ¤hnten Authentifizierungsdatenbank. Diese ist also den
 Produktivdaten enthaltenden Datenbanken vorgeschaltet. Pro
 Lx-Office-Installation gibt es nur eine Authentifizierungsdatenbank,
 aber beliebig viele Datenbanken mit Firmendaten.
 
    Lx-Office kann seinen Benutzern Zugriff auf bestimmte
 Funktionsbereiche erlauben oder verbieten. Wird der Zugriff nicht
-gestattet, so werden der entsprechenden Menüpunkte auch nicht
+gestattet, so werden der entsprechenden MenÃ¼punkte auch nicht
 angezeigt. Diese Rechte werden ebenfalls in der
 Authentifizierungsdatenbank gespeichert.
 
-   Um Rechte verteilen zu können, verwendet Lx-Office ein
+   Um Rechte verteilen zu kÃ¶nnen, verwendet Lx-Office ein
 Gruppen-Prinzip. Einer Gruppe kann der Zugriff auf bestimmte Bereiche
 erlaubt werden. Ein Benutzer wiederum kann Mitglied in einer oder
 mehrerer Gruppen sein. Der Benutzer hat Zugriff auf alle diejenigen
@@ -464,19 +464,19 @@ angelegt werden sollten, lautet:
 7.2 Datenbanken anlegen
 =======================
 
-Zuerst muss eine Datenbank angelegt werden. Verwenden Sie für den
+Zuerst muss eine Datenbank angelegt werden. Verwenden Sie fÃ¼r den
 Datenbankzugriff den vorhin angelegten Benutzer (in unseren Beispielen
 ist dies `lxoffice').
 
-   Wenn Sie für die Lx-Office-Installation nicht den europäischen
+   Wenn Sie fÃ¼r die Lx-Office-Installation nicht den europÃ¤ischen
 Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
-müssen Sie vor dem Anlegen der Datenbank in der Datei
+mÃ¼ssen Sie vor dem Anlegen der Datenbank in der Datei
 `config/lx-erp.conf' die Variable `$dbcharset' auf den Wert `UTF-8'
-setzen. Zusätzlich muss beim Anlegen der Datenbank `UTF-8 Unicode' als
-Schriftsatz ausgewählt werden.
+setzen. ZusÃ¤tzlich muss beim Anlegen der Datenbank `UTF-8 Unicode' als
+Schriftsatz ausgewÃ¤hlt werden.
 
    Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
-verwenden müssen, da diese Einstellungen momentan global in Lx-Office
+verwenden mÃ¼ssen, da diese Einstellungen momentan global in Lx-Office
 vorgenommen wird und nicht nach Datenbank unterschieden werden kann.
 Auch die Authentifizierungsdatenbank muss mit diesem Zeichensatz
 angelegt worden sein.
@@ -486,72 +486,72 @@ angelegt worden sein.
 
 Eine Gruppe wird in der Gruppenverwaltung angelegt. Ihr muss ein Name
 gegeben werden, eine Beschreibung ist hingegen optional. Nach dem
-Anlegen können Sie die verschiedenen Bereiche wählen, auf die
+Anlegen kÃ¶nnen Sie die verschiedenen Bereiche wÃ¤hlen, auf die
 Mitglieder dieser Gruppe Zugriff haben sollen.
 
-   Benutzergruppen sind unabhängig von Datenbanken, da sie in der
-Authentifizierungsdatenbank gespeichert werden. Sie gelten für alle
+   Benutzergruppen sind unabhÃ¤ngig von Datenbanken, da sie in der
+Authentifizierungsdatenbank gespeichert werden. Sie gelten fÃ¼r alle
 Datenbanken, die in dieser Installation verwaltet werden.
 
 7.4 Benutzer anlegen
 ====================
 
-Beim Anlegen von Benutzern werden für viele Parameter
+Beim Anlegen von Benutzern werden fÃ¼r viele Parameter
 Standardeinstellungen vorgenommen, die den Gepflogenheiten des
 deutschen Raumes entsprechen.
 
    Zwingend anzugeben sind der Loginname sowie die komplette
-Datenbankkonfiguration. Wenn die Passwortauthentifizierung über die
+Datenbankkonfiguration. Wenn die Passwortauthentifizierung Ã¼ber die
 Datenbank eingestellt ist, so kann hier auch das Benutzerpasswort
-gesetzt bzw. geändert werden. Ist hingegen die LDAP-Authentifizierung
+gesetzt bzw. geÃ¤ndert werden. Ist hingegen die LDAP-Authentifizierung
 aktiv, so ist das Passwort-Feld deaktiviert.
 
-   In der Datenbankkonfiguration müssen die Zugriffsdaten einer der eben
+   In der Datenbankkonfiguration mÃ¼ssen die Zugriffsdaten einer der eben
 angelegten Datenbanken eingetragen werden.
 
 7.5 Gruppenmitgliedschaften verwalten
 =====================================
 
-Nach dem Anlegen von Benutzern und Gruppen müssen Benutzer den Gruppen
-zugewiesen werden. Dazu gibt es zwei Möglichkeiten:
+Nach dem Anlegen von Benutzern und Gruppen mÃ¼ssen Benutzer den Gruppen
+zugewiesen werden. Dazu gibt es zwei MÃ¶glichkeiten:
 
-  1. In der Gruppenverwaltung wählt man eine Gruppe aus. Im folgenden
-     Dialog kann man dann einzeln die Benutzer der Gruppe hinzufügen.
+  1. In der Gruppenverwaltung wÃ¤hlt man eine Gruppe aus. Im folgenden
+     Dialog kann man dann einzeln die Benutzer der Gruppe hinzufÃ¼gen.
 
-  2. In der Gruppenverwaltung wählt man das Tool zur Verwaltung der
+  2. In der Gruppenverwaltung wÃ¤hlt man das Tool zur Verwaltung der
      Gruppenmitgliedschaft. Hier wird eine Matrix angezeigt, die alle im
-     System angelegten Gruppen und Benutzer enthält. Durch Setzen der
-     Häkchen wird der Benutzer in der ausgewählten Zeile der Gruppe in
-     der ausgewählten Spalte hinzugefügt.
+     System angelegten Gruppen und Benutzer enthÃ¤lt. Durch Setzen der
+     HÃ¤kchen wird der Benutzer in der ausgewÃ¤hlten Zeile der Gruppe in
+     der ausgewÃ¤hlten Spalte hinzugefÃ¼gt.
 
 7.6 Migration alter Installationen
 ==================================
 
-Wenn Lx-Office 2.6.1 Beta 1 über eine ältere Version installiert wird,
+Wenn Lx-Office 2.6.1 Beta 1 Ã¼ber eine Ã¤ltere Version installiert wird,
 in der die Benutzerdaten noch im Dateisystem im Verzeichnis `users'
-verwaltet wurden, so bietet Lx-Office die Möglichkeit, diese
+verwaltet wurden, so bietet Lx-Office die MÃ¶glichkeit, diese
 Benutzerdaten automatisch in die Authentifizierungsdatenbank zu
-übernehmen. Dies geschieht, wenn man sich nach dem Update der
+Ã¼bernehmen. Dies geschieht, wenn man sich nach dem Update der
 Installation das erste Mal im Administrationsbereich anmeldet. Findet
 Lx-Office die Datei `users/members', so wird der Migrationsprozess
 gestartet.
 
    Der Migrationsprozess ist nahezu vollautomatisch. Alle Benutzerdaten
-können übernommen werden. Nach den Benutzerdaten bietet Lx-Office noch
-die Möglichkeit an, dass automatisch eine Benutzergruppe angelegt wird.
-Dieser Gruppe wird Zugriff auf alle Funktionen von Lx-Office gewährt.
+kÃ¶nnen Ã¼bernommen werden. Nach den Benutzerdaten bietet Lx-Office noch
+die MÃ¶glichkeit an, dass automatisch eine Benutzergruppe angelegt wird.
+Dieser Gruppe wird Zugriff auf alle Funktionen von Lx-Office gewÃ¤hrt.
 Alle migrierten Benutzern werden Mitglied in dieser Gruppe. Damit wird
 das Verhalten von Lx-Office bis Version 2.4.3 inklusive
-wiederhergestellt, und die Benutzer können sich sofort wieder anmelden
+wiederhergestellt, und die Benutzer kÃ¶nnen sich sofort wieder anmelden
 und mit dem System arbeiten.
 
 8 OpenDocument-Vorlagen
 ***********************
 
-Lx-Office unterstützt die Verwendung von Vorlagen im
+Lx-Office unterstÃ¼tzt die Verwendung von Vorlagen im
 OpenDocument-Format, wie es OpenOffice.org ab Version 2 erzeugt.
 Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als auch aus
-diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
+diesen direkt PDF-Dateien erzeugen.  Um die UnterstÃ¼tzung von
 OpenDocument-Vorlagen zu aktivieren muss in der Datei
 `config/lx-erp.conf' die Variable `$opendocument_templates' auf `1'
 stehen.  Dieses ist die Standardeinstellung.
@@ -559,35 +559,35 @@ stehen.  Dieses ist die Standardeinstellung.
    Weiterhin muss in der Datei `config/lx-erp.conf' die Variable
 `$dbcharset' auf die Zeichenkodierung gesetzt werden, die auch bei der
 Speicherung der Daten in der Datenbank verwendet wird. Diese ist in den
-meisten Fällen "ISO-8859-15".
+meisten FÃ¤llen "ISO-8859-15".
 
-   Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
-weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
-OpenOffice.org benötigt. Soll dieses Feature genutzt werden, so muss
+   WÃ¤hrend die Erzeugung von reinen OpenDocument-Dateien keinerlei
+weitere Software benÃ¶tigt, wird zur Umwandlung dieser Dateien in PDF
+OpenOffice.org benÃ¶tigt. Soll dieses Feature genutzt werden, so muss
 neben OpenOffice.org ab Version 2 auch der "X virtual frame buffer"
 (xvfb) installiert werden.  Bei Debian ist er im Paket "xvfb"
 enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
 
-   Nach der Installation müssen in der Datei `config/lx-erp.conf' zwei
+   Nach der Installation mÃ¼ssen in der Datei `config/lx-erp.conf' zwei
 weitere Variablen angepasst werden: `$openofficeorg_writer_bin' muss
-den vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
+den vollstÃ¤ndigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
 `$xvfb_bin' muss den Pfad zum "X virtual frame buffer" enthalten.
 
-   Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
+   ZusÃ¤tzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
 OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn die
 Variable `$openofficeorg_daemon' gesetzt ist, startet ein OpenOffice,
 das auch nach der Umwandlung des Dokumentes gestartet bleibt. Bei
 weiteren Umwandlungen wird dann diese laufende Instanz benutzt. Der
 Vorteil ist, dass die Zeit zur Umwandlung deutlich reduziert wird, weil
-nicht für jedes Dokument ein OpenOffice gestartet werden muss. Der
+nicht fÃ¼r jedes Dokument ein OpenOffice gestartet werden muss. Der
 Nachteil ist, dass diese Methode Python und die Python-UNO-Bindings
-benötigt, die Bestandteil von OpenOffice 2 sind.
+benÃ¶tigt, die Bestandteil von OpenOffice 2 sind.
 
-   Ist `$openofficeorg_daemon' nicht gesetzt, so wird für jedes
+   Ist `$openofficeorg_daemon' nicht gesetzt, so wird fÃ¼r jedes
 Dokument OpenOffice neu gestartet und die Konvertierung mit Hilfe eines
-Makros durchgeführt. Dieses Makro muss in der Dokumentenvorlage
-enthalten sein und "Standard.Conversion.ConvertSelfToPDF()" heißen. Die
-Beispielvorlage `templates/German-invoice.odt' enthält ein solches
+Makros durchgefÃ¼hrt. Dieses Makro muss in der Dokumentenvorlage
+enthalten sein und "Standard.Conversion.ConvertSelfToPDF()" heiÃŸen. Die
+Beispielvorlage `templates/German-invoice.odt' enthÃ¤lt ein solches
 Makro, das in jeder anderen Dokumentenvorlage ebenfalls enthalten sein
 muss.
 
@@ -596,14 +596,14 @@ Writer dem Verzeichnis mit den Benutzereinstellungen gibt. Unter Debian
 ist dies momentan `~/.openoffice.org2'. Sollte der Name bei Ihrer
 OpenOffice.org-Installation anders sein, so muss das Verzeichnis
 `users/.openoffice.org2' entsprechend umbenannt werden. Ist der Name
-z.B. einfach nur `.openoffice', so wäre folgender Befehl auszuführen:
+z.B. einfach nur `.openoffice', so wÃ¤re folgender Befehl auszufÃ¼hren:
 
    `mv users/.openoffice.org2 users/.openoffice'
 
    Dieses Verzeichnis, wie auch das komplette `users'-Verzeichnis, muss
 vom Webserver beschreibbar sein. Dieses wurde in Schritt `Installation
-des Programmpakets' oben bereits erledigt, kann aber erneut überprüft
-werden, wenn die Konvertierung nach PDF fehlschlägt.
+des Programmpakets' oben bereits erledigt, kann aber erneut Ã¼berprÃ¼ft
+werden, wenn die Konvertierung nach PDF fehlschlÃ¤gt.
 
 9 Lx-Office ERP verwenden
 *************************

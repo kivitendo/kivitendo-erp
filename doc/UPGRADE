@@ -1,4 +1,4 @@
-Wichtige Hinweise zum Upgrade von älteren Versionen
+Wichtige Hinweise zum Upgrade von Ã¤lteren Versionen
 ===================================================
 
 
@@ -9,20 +9,20 @@ Upgrade auf v2.6.0
 
 Mit Version 2.6.0 wurde der Code zur Benutzerauthentifizierung neu
 geschrieben. Die Umstellung erfordert eine manuelle
-Konfiguration. Bestehende Benutzeraccounts können aber von Lx-Office
-automatisch übernommen werden.
+Konfiguration. Bestehende Benutzeraccounts kÃ¶nnen aber von Lx-Office
+automatisch Ã¼bernommen werden.
 
  Bevor Sie sich das erste mal einloggen
  --------------------------------------
 
 Kopieren Sie bitte die Datei "lx-erp.conf" und
 ggfs. "lx-erp-local.conf" in das neue Unterverzeichnis "config/". Die
-alte Datei im Lx-Office-Stammverzeichnis kann daraufhin gelöscht
+alte Datei im Lx-Office-Stammverzeichnis kann daraufhin gelÃ¶scht
 werdern.
 
-Als nächstes muss die neue datenbankgestützte Benutzerverwaltung
-konfiguriert werden. Die dafür notwendigen Einstellungen werden in der
-Datei "config/authentification.pl" vorgenommen, für die eine
+Als nÃ¤chstes muss die neue datenbankgestÃ¼tzte Benutzerverwaltung
+konfiguriert werden. Die dafÃ¼r notwendigen Einstellungen werden in der
+Datei "config/authentification.pl" vorgenommen, fÃ¼r die eine
 kommentierte Vorlage in "config/authentication.pl.default"
 bereitliegt.
 
@@ -41,7 +41,7 @@ wenn sich ein Benutzer erfolgreich anmeldet.
  Neue Perl-Module
  ----------------
 
-Mit Version 2.6.0 werden zusätzlich die folgenden Perl-Module benötigt,
+Mit Version 2.6.0 werden zusÃ¤tzlich die folgenden Perl-Module benÃ¶tigt,
 die bis Version 2.4.3 inklusive noch keine Voraussetzung waren:
 
 * Digest::MD5
@@ -53,26 +53,26 @@ Upgrade von v2.4.0 und neuer auf v2.4.3
 
 Ein Upgrade von v2.4.0 oder neuer auf v2.4.3 aus zwei Teilen: den
 Dateien (einfaches Entpacken und Kopieren in das
-Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
+Installationsverzeichnis genÃ¼gen) sowie dem Datenbankupgrade.
 
  Neue Variablen in der Datei lx-erp.conf
  ---------------------------------------
 
 Wenn Sie eine eigene Version der Konfigurationsdatei "lx-erp.conf"
 einsetzen und diese nicht mit der Standardkonfigurationsdatei
-überschreiben, so beachten Sie bitte, dass die folgenden neuen
-Variablen hinzugekommen sind und von Ihnen manuell ergänzt werden
+Ã¼berschreiben, so beachten Sie bitte, dass die folgenden neuen
+Variablen hinzugekommen sind und von Ihnen manuell ergÃ¤nzt werden
 sollten: $html2ps_bin, $ghostscript_bin, $pg_dump_exe und
 $pg_restore_exe. Die Variable '$jscalendar' kann hingegen entfernt
-werden, da sie nicht mehr benötigt wird.
+werden, da sie nicht mehr benÃ¶tigt wird.
 
-Die Standardwerte für diese Variablen finden Sie in der Datei
+Die Standardwerte fÃ¼r diese Variablen finden Sie in der Datei
 "lx-erp.conf.default".
 
- Neue Abhängigkeiten von Perl-Modulen
+ Neue AbhÃ¤ngigkeiten von Perl-Modulen
  ------------------------------------
 
-Bitte beachten Sie auch die Liste der benötigten Perl-Module am Anfang
+Bitte beachten Sie auch die Liste der benÃ¶tigten Perl-Module am Anfang
 der Datei "doc/INSTALL". Seit Version 2.4.0 sind die folgenden Module
 neu hinzugekommen:
 
@@ -84,7 +84,7 @@ neu hinzugekommen:
 - Time::HiRes
 - YAML
 
-Nach Möglichkeit sollten auch die aktuellen Versionen der
+Nach MÃ¶glichkeit sollten auch die aktuellen Versionen der
 Datenbankpakete "DBI" und "DBD::Pg" installiert werden.
 
  Datenbankupgrade
@@ -101,9 +101,9 @@ Upgrade von v2.4.0 auf 2.4.1 sowie von 2.4.1 auf 2.4.2
 
 Ein Upgrade von v2.4.0 auf v2.4.1 oder von v2.4.1 auf v2.4.2 besteht
 aus zwei Teilen: den Dateien (einfaches Entpacken und Kopieren in das
-Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
+Installationsverzeichnis genÃ¼gen) sowie dem Datenbankupgrade.
 
-Bitte beachten Sie auch die Liste der benötigten Perl-Module am Anfang
+Bitte beachten Sie auch die Liste der benÃ¶tigten Perl-Module am Anfang
 der Datei "doc/INSTALL". Besonders nach einem Upgrade auf 2.4.2 muss
 sichergestellt werden, dass das Modul "YAML" installiert ist.
 
@@ -121,11 +121,11 @@ Upgrade von v2.2.0 bis 2.2.2 auf 2.4.0
 ======================================
 
 Ein direktes Upgrade von den unmodifizierten Versionen 2.2.0, 2.2.1
-und 2.2.2 auf 2.4.0 ist möglich. Ein solches Upgrade besteht aus zwei
+und 2.2.2 auf 2.4.0 ist mÃ¶glich. Ein solches Upgrade besteht aus zwei
 Teilen: den Dateien (einfaches Entpacken und Kopieren in das
-Installationsverzeichnis genügen) sowie dem Datenbankupgrade.
+Installationsverzeichnis genÃ¼gen) sowie dem Datenbankupgrade.
 
-Bitte beachten Sie auch die Liste der benötigten Perl-Module am Anfang
+Bitte beachten Sie auch die Liste der benÃ¶tigten Perl-Module am Anfang
 der Datei "doc/INSTALL".
 
 Das Datenbankupgrade wird automatisch gestartet, wenn sich der erste
@@ -133,88 +133,88 @@ Benutzer nach dem Upgrade der Dateien an Lx-Office anmeldet.
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
-Das Datenbankupgrade enthält zwei interaktive Upgradepfade für neue
+Das Datenbankupgrade enthÃ¤lt zwei interaktive Upgradepfade fÃ¼r neue
 Features in Lx-Office 2.4.0: Einheiten sowie Buchungsgruppen.
 
 
 
-Einführung von Einheiten
+EinfÃ¼hrung von Einheiten
 ------------------------
 
 In Versionen von Lx-Office vor 2.4.0 konnte der Benutzer bei den
 Stammdaten aber auch in den Einkaufs- und Verkaufsdialogen beliebige
-Texte als "Einheit" angeben. Lx-Office 2.4.0 ändert dies nun. Der
-Administrator kann unter "System -> Einheiten -> Maßeinheiten" die bei
+Texte als "Einheit" angeben. Lx-Office 2.4.0 Ã¤ndert dies nun. Der
+Administrator kann unter "System -> Einheiten -> MaÃŸeinheiten" die bei
 Waren und Erzeugnissen verwendbaren und bei "System -> Einheiten ->
 Dienstleistungseinheiten" die bei Dienstleistungen verwendbaren
-Einheiten festlegen. Lx-Office 2.4.0 bringt bereits für beide Typen
+Einheiten festlegen. Lx-Office 2.4.0 bringt bereits fÃ¼r beide Typen
 einige Standardeinheiten mit.
 
-Einheiten können wiederum auf anderen Einheiten basieren. So ist
+Einheiten kÃ¶nnen wiederum auf anderen Einheiten basieren. So ist
 z.B. "kg" als das 1000fache der Einheit "g" definiert. Der Benutzer
 muss beim Anlegen von Artikeln in den Stammdaten eine Einheit aus
-einer Drop-Down-Liste auswählen. In den Einkaufs- und Verkaufsmasken
+einer Drop-Down-Liste auswÃ¤hlen. In den Einkaufs- und Verkaufsmasken
 werden dann dem Benutzer nur noch diejenigen Einheiten zur Auswahl
 angeboten, die sich in die in den Stammdaten hinterlegte Einheit
-umrechnen lassen. So würden z.B. für eine Ware, deren
+umrechnen lassen. So wÃ¼rden z.B. fÃ¼r eine Ware, deren
 Stammdateneinheit "kg" ist, nur die Einheiten "g", "kg", "t" zur
-Auswahl aufgelistet, nicht aber "Stück" oder "Tag", "Stunde".
+Auswahl aufgelistet, nicht aber "StÃ¼ck" oder "Tag", "Stunde".
 
 Das Datenbankupgrade muss nun alle im System verwendeten Einheiten in
 den Stammdaten sowie in den Einkaufs- und Verkaufsdaten so anpassen,
 dass dort nur noch Einheiten auftreten, die im System verwendet werden
-können. Da dies nur eingeschränkt automatisch möglich ist, werden dem
-Benutzer, der das Datenbankupgrade nach dem Login durchführt, einige
+kÃ¶nnen. Da dies nur eingeschrÃ¤nkt automatisch mÃ¶glich ist, werden dem
+Benutzer, der das Datenbankupgrade nach dem Login durchfÃ¼hrt, einige
 Masken angezeigt, in denen er neue Einheiten in der Datenbank anlegen
 kann, und in denen er "alte" Einheiten durch "neue" Einheiten ersetzen
 lassen kann.
 
-Zuletzt muss er noch für all die Waren, für die früher gar keine
+Zuletzt muss er noch fÃ¼r all die Waren, fÃ¼r die frÃ¼her gar keine
 Einheit eingetragen wurde, eine Standardeinheit getrennt nach Waren /
 Erzeugnissen und Dienstleistungen festlegen, die statt dessen
 eingesetzt wird.
 
 
-Einführung von Steuerzonen und Buchungsgruppen
+EinfÃ¼hrung von Steuerzonen und Buchungsgruppen
 ----------------------------------------------
 
 In den Versionen von Lx-Office vor 2.4.0 wurden bei Artikeln und
-Dienstleistungen jeweils ein Konto für Erlöse und ein Konto für den
-Aufwand hinterlegt. Über diese Konten wurde dann auch definiert
+Dienstleistungen jeweils ein Konto fÃ¼r ErlÃ¶se und ein Konto fÃ¼r den
+Aufwand hinterlegt. Ãœber diese Konten wurde dann auch definiert
 welcher Steuersatz zu berechnen ist. Wollte man einen Artikel mal mit
-und mal ohne Steuer verkaufen (Inland, Ausland), waren hierfür zwei
+und mal ohne Steuer verkaufen (Inland, Ausland), waren hierfÃ¼r zwei
 Artikel notwendig.
 
-In der Version 2.4.0 können nun bei jedem Artikel für die
-verschiedenen Fälle
+In der Version 2.4.0 kÃ¶nnen nun bei jedem Artikel fÃ¼r die
+verschiedenen FÃ¤lle
 - Inland
 - EU mit UStId
 - EU ohne UStId
-- Außerhalb EU
-verschiedene Erlös- und Aufwandskonten definiert werden. Dadurch
-werden dann auch jeweils die richtigen Steuersätze berechnet.
+- AuÃŸerhalb EU
+verschiedene ErlÃ¶s- und Aufwandskonten definiert werden. Dadurch
+werden dann auch jeweils die richtigen SteuersÃ¤tze berechnet.
 
 Damit jetzt nicht bei jedem Artikel mehrere Konten definiert werden
-müssen, werden alle Konten, die zu einer bestimmten Warengruppe
-gehören, in einer Buchungsgruppe zusammengefasst. Diese
-Buchungsgruppen werden zunächst unter "System" definiert und können
+mÃ¼ssen, werden alle Konten, die zu einer bestimmten Warengruppe
+gehÃ¶ren, in einer Buchungsgruppe zusammengefasst. Diese
+Buchungsgruppen werden zunÃ¤chst unter "System" definiert und kÃ¶nnen
 dann den Artikeln und Dienstleistungen zugewiesen werden.
 
 Beim Datenbankupdate werden aus der Datenbank alle Kombinationen von
-Erlös- und Aufwandskonten geholt, die bereits verwendet wurden. Für
-diese Kombinationen müssen im Upgradeprozess Buchungsgruppen angelegt
+ErlÃ¶s- und Aufwandskonten geholt, die bereits verwendet wurden. FÃ¼r
+diese Kombinationen mÃ¼ssen im Upgradeprozess Buchungsgruppen angelegt
 werden, indem man den einzelnen Kombinationen einen Namen zuweist. Die
-Konten für nicht Inland sind mit den Standardkonten vorbelegt, können
-aber vor dem Speichern geändert werden.
+Konten fÃ¼r nicht Inland sind mit den Standardkonten vorbelegt, kÃ¶nnen
+aber vor dem Speichern geÃ¤ndert werden.
 
 Diese neu angelegten Buchungsgruppen werden automatisch den
 vorhandenen Artikeln und Dienstleistungen zugewiesen.  Buchungsgruppen
-können genau wie vorher die Kontenzuordnung nachträglich nicht mehr
-geändert werden.
+kÃ¶nnen genau wie vorher die Kontenzuordnung nachtrÃ¤glich nicht mehr
+geÃ¤ndert werden.
 
-Möchte man in der Buchhaltung eine neue Kombination von Erlös- und
-Aufwandskonten für bestimmte Artikel und Waren verwenden, legt man
-zunächst die entsprechenden konnten (z.B. 8401 und 3401) an und
+MÃ¶chte man in der Buchhaltung eine neue Kombination von ErlÃ¶s- und
+Aufwandskonten fÃ¼r bestimmte Artikel und Waren verwenden, legt man
+zunÃ¤chst die entsprechenden konnten (z.B. 8401 und 3401) an und
 erstellt dann eine neue Buchungsgruppe mit diesen Konten.  Die
 Benennung der Buchungsgruppe kann frei erfolgen.
 
@@ -223,19 +223,19 @@ Auswahl dieser Buchungsgruppe automatisch alle Konten auf einen Schlag
 korrekt zugeordnet.
 
 Wird in einer Verkaufs- oder Einkaufsmaske eine andere Steuerzone als
-Inland ausgewählt, werden bei den Artikeln auch automatisch die
-anderen Erlös- und Aufwandskonten der Buchungsgruppe verwendet.
+Inland ausgewÃ¤hlt, werden bei den Artikeln auch automatisch die
+anderen ErlÃ¶s- und Aufwandskonten der Buchungsgruppe verwendet.
 
 Dokumentenvorlagen, Umbennante Vorlagenvariablen
 ------------------------------------------------
 
 Einige Variablen, die in Dokumentenvorlagen verwendet werden, mussten
-aufgrund von Namenskonflikten umbenannt werden. Dazu gehören:
+aufgrund von Namenskonflikten umbenannt werden. Dazu gehÃ¶ren:
 
 * Adress- und Kontaktinformationen des angemeldeten Mitarbeiters. Die
   Variablen "company", "address" und "businessnumber" haben alle einen
-  Präfix "employee_" bekommen und heißen nun "employee_company",
+  PrÃ¤fix "employee_" bekommen und heiÃŸen nun "employee_company",
   "employee_address" und "employee_businessnumber".
 
-Zu beachten ist außerdem, dass der Befehl <%include ...%> in
-Dokumentenvorlagen nicht mehr zur Verfügung steht.
+Zu beachten ist auÃŸerdem, dass der Befehl <%include ...%> in
+Dokumentenvorlagen nicht mehr zur VerfÃ¼gung steht.
