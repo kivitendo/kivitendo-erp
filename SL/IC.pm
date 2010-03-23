@@ -818,7 +818,7 @@ sub all_parts {
      ordnumber    => 'apoe.', make         => 'mm.',
      quonumber    => 'apoe.', model        => 'mm.',
      invnumber    => 'apoe.', partsgroup   => 'pg.',
-     lastcost     => ' ',
+     lastcost     => ' ',   , soldtotal    => ' ',
      factor       => 'pfac.',
      'SUM(ioi.qty)' => ' ',
      description  => 'p.',
