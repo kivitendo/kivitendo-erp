@@ -43,7 +43,10 @@ Folgende Kombinationen funktionieren nicht:
 
  * Apache 2.2.11 (Ubuntu) + mod_fcgid:
 
-Als Perl Backend wird das Modul FCGI.pm verwendet. Vorsicht: FCGI 0.70 enthält Fehler in der Behandlung von Unicode. Solange diese Probleme nicht behoben sind, muss auf die Vorgängerversion FCGI 0.68 ausgewichen werden.
+Als Perl Backend wird das Modul FCGI.pm verwendet. Vorsicht: FCGI 0.69 und
+höher ist extrem strict in der Behandlung von Unicode, und verweigert bestimmte
+Eingaben von Lx-Office. Solange diese Probleme nicht behoben sind, muss auf die
+Vorgängerversion FCGI 0.68 ausgewichen werden.
 
 
 =head2 Konfiguration des Webservers.
