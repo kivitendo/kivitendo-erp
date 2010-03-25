@@ -54,56 +54,73 @@ und ein Datenbankserver (PostgreSQL) benötigt.
    Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht
 Bestandteil einer Standard-Perl-Installation sind:
 
+   * Archive::Zip
+
+   * Class::Accessor
+
+   * CGI::Ajax
+
    * DBI
 
    * DBD::Pg
 
-   * CGI::Ajax
-
-   * Class::Accessor
-
-   * Archive::Zip
-
-   * Text::Iconv
-
-   * Text::CSV_XS
+   * Email::Address
 
    * IO::Wrap (aus dem Paket IO::Stringy)
 
-   * PDF::API2
+   * List::MoreUtils
 
-   * YAML
+   * PDF::API2
 
    * Template
 
-   * List::MoreUtils
+   * Text::CSV_XS
 
-   * Email::Address
+   * Text::Iconv
 
-   Diese Pakete können bei den unterschiedlichen Distributionen anders
-heißen.
+   * URI
+
+   * XML::Writer
+
+   * YAML
+
+   Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete hinzugekommen,
+`URI' und `XML::Writer' sind notwendig. Ohne startet Lx-Office nicht.
+
+   `Email::Address' und `List::MoreUtils' sind schon länger feste
+Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert.  Beide
+sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
+zukünftigen Version aber aus dem Paket entfernt werden. Es wird
+empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
+installieren.
+
+   `CGI::Ajax' ist nach wie vor in einer modifizierten Version
+mitgeliefert und braucht nicht nachinstalliert werden.
+
+   Die zu installierenden Pakete können in den verschiedenen
+Distributionen unterschiedlich heißen.
 
    Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-   `apache postgresql libdbi-perl libdbd-pg-perl libpg-perl
-libpdf-api2-perl libclass-accessor-perl libarchive-zip-perl
-libtext-iconv-perl libyaml-perl libtext-csv-xs-perl libio-stringy-perl
-libtemplate-perl lib-uriperl libxml-simple-perl'
+   `apache postgresql libarchive-zip-perl libclass-accessor-perl
+libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl
+libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl
+libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl lib-uriperl
+libxml-writer-perl libyaml-perl'
 
-   Für Fedora Core benötigen Sie unter anderem diese Pakete:
+   Für Fedora Core benötigen Sie diese Pakete:
 
-   `httpd postgresql-server perl-DBI perl-DBD-Pg'
+   `httpd postgresql-server perl-Class-Accessor perl-DBI perl-DBD-Pg
+perl-Email-Address perl-IO-stringy perl-List-MoreUtils perl-PDF-API2
+perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI
+perl-XML-Writer perl-YAML'
 
    Für OpenSuSE benötigen Sie diese Pakete:
 
-   `apache2 postgresql-server perl-DBI perl-DBD-Pg perl-Archive-Zip
-perl-Class-Accessor perl-Text-Iconv perl-Text-CSV_XS perl-IO-stringy
-perl-Template-Toolkit perl-URI perl-XML-Writer'
-
-   Einige Module werden von Lx-Office benötigt, sind aber evtl. nicht
-als Distributionspakete vorhanden, und/oder nicht praktikabel zu
-installieren.  In diesen Fällen liefert Lx-Office das Paket mit, und
-lädt es als Fallback.
+   `apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor
+perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy perl-List-MoreUtils
+perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv
+perl-URI perl-XML-Writer perl-YAML'
 
    Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
 benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
@@ -113,12 +130,12 @@ benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 3 Installation des Programmpaketes
 **********************************
 
-Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.1beta1.tgz) wird
-im Dokumentenverzeichnis des Webservers (z.B. `/var/www/html/',
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.1.tgz) wird im
+Dokumentenverzeichnis des Webservers (z.B. `/var/www/html/',
 `/srv/www/htdocs' oder `/var/www/') entpackt:
 
    `cd /var/www
-tar xvzf lxoffice-erp-2.6.1beta1.tgz'
+tar xvzf lxoffice-erp-2.6.1.tgz'
 
    Verändern Sie evtl. noch den Namen des Verzeichnisses mit
 
@@ -527,14 +544,13 @@ zugewiesen werden. Dazu gibt es zwei Möglichkeiten:
 7.6 Migration alter Installationen
 ==================================
 
-Wenn Lx-Office 2.6.1 Beta 1 über eine ältere Version installiert wird,
-in der die Benutzerdaten noch im Dateisystem im Verzeichnis `users'
-verwaltet wurden, so bietet Lx-Office die Möglichkeit, diese
-Benutzerdaten automatisch in die Authentifizierungsdatenbank zu
-übernehmen. Dies geschieht, wenn man sich nach dem Update der
-Installation das erste Mal im Administrationsbereich anmeldet. Findet
-Lx-Office die Datei `users/members', so wird der Migrationsprozess
-gestartet.
+Wenn Lx-Office 2.6.1 über eine ältere Version installiert wird, in der
+die Benutzerdaten noch im Dateisystem im Verzeichnis `users' verwaltet
+wurden, so bietet Lx-Office die Möglichkeit, diese Benutzerdaten
+automatisch in die Authentifizierungsdatenbank zu übernehmen. Dies
+geschieht, wenn man sich nach dem Update der Installation das erste Mal
+im Administrationsbereich anmeldet. Findet Lx-Office die Datei
+`users/members', so wird der Migrationsprozess gestartet.
 
    Der Migrationsprozess ist nahezu vollautomatisch. Alle Benutzerdaten
 können übernommen werden. Nach den Benutzerdaten bietet Lx-Office noch

@@ -304,6 +304,7 @@ $self->{subs} = {
   'H'                           => 'H',
   'NTI'                         => 'NTI',
   'Q'                           => 'Q',
+  '_calc_framesize'             => '_calc_framesize',
   '_post'                       => '_post',
   'acc_menu'                    => 'acc_menu',
   'add'                         => 'add',

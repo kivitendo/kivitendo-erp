@@ -4,6 +4,39 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v2.6.1
+==================
+
+ Vor dem Einloggen
+ -----------------
+
+Mit Version 2.6.1 wurden die Listen der benötigten Perl Module überarbeitet.
+Einige der vorher in den Abhängigkeiten gelisteten Module waren Coremodules
+(und damit in jeder Perldistribution vorhanden), oder ihrerseits Abhängigkeiten
+anderer benötigter Module. Durch die Überarbeitung hat sich die Liste deutlich
+geändert.
+
+Bitte führen sie vor dem ersten Aufrufen der einmal den folgenden Befehl im
+Lx-Office Verzeichnis aus:
+
+$ scripts/installation_check.pl
+
+Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
+der Installationsanweisung.
+
+Zumindest folgende Module sind neu benötigt:
+
+* URI
+* XML::Writer
+
+ Neue Konfigurationsvariablen
+ ----------------------------
+
+In der config/lx-erp.conf ist als neue Option $show_best_before hinzugekommen.
+Die Variable kontrolliert die Anzeige von Mindesthaltbarkeitsdaten. Sie ist
+standardmäßig deaktiviert.
+
+
 Upgrade auf v2.6.0
 ==================
 
@@ -44,7 +77,6 @@ wenn sich ein Benutzer erfolgreich anmeldet.
 Mit Version 2.6.0 werden zusätzlich die folgenden Perl-Module benötigt,
 die bis Version 2.4.3 inklusive noch keine Voraussetzung waren:
 
-* Digest::MD5
 * PDF::API2
 
 
