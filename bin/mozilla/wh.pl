@@ -434,6 +434,11 @@ sub create_assembly {
   if (!$form->{warehouse_id} || !$form->{bin_id}) {
     $form->error($locale->text('The warehouse or the bin is missing.'));
   }
+
+  if (!$main::show_best_before) {
+      $form->{bestbefore} = '';
+  }
+
   # WIESO war das nicht vorher schon ein %HASH?? ein hash ist ein hash! das hat mich mehr als eine Stunde gekostet herauszufinden. grr. jb 3.3.2009
   # Anm. jb 18.3. vielleicht auch nur meine unwissenheit in perl-datenstrukturen
   my %TRANSFER = (
