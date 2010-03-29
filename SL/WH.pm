@@ -209,7 +209,7 @@ sub transfer_assembly {
     while (my $temphash_ref = $tempsth->fetchrow_hashref()) {
       my $temppart_bin_id       = $temphash_ref->{bin_id}; # kann man hier den quelllagerplatz beim verbauen angeben?
       my $temppart_chargenumber = $temphash_ref->{chargenumber};
-      my $temppart_bestbefore   = $temphash_ref->{bestbefore};
+      my $temppart_bestbefore   = conv_date($temphash_ref->{bestbefore});
       my $temppart_qty          = $temphash_ref->{sum};
 
       if ($tmpPartsQTY > $temppart_qty) {  # wir haben noch mehr waren zum wegbuchen. 
@@ -247,7 +247,7 @@ sub transfer_assembly {
                                (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'stock'))|;
   my $sthTransferAssemblySQL   = prepare_query($form, $dbh, $transferAssemblySQL);
   do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id}, 
-               $params{dst_bin_id}, $params{chargenumber}, $params{bestbefore}, $params{comment}, $params{login}, $params{qty});
+               $params{dst_bin_id}, $params{chargenumber}, conv_date($params{bestbefore}), $params{comment}, $params{login}, $params{qty});
   $dbh->commit();
 
   $main::lxdebug->leave_sub();
