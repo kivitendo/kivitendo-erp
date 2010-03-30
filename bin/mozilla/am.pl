@@ -2532,6 +2532,8 @@ sub payment_header {
 . qq|</li>
   <li>| . $locale->text("&lt;%skonto_amount%&gt; -- The deductible amount")
 . qq|</li>
+  <li>| . $locale->text("&lt;%skonto_in_percent%&gt; -- The discount in percent")
+. qq|</li>
   <li>| . $locale->text("&lt;%total%&gt; -- Amount payable")
 . qq|</li>
   <li>| . $locale->text("&lt;%total_wo_skonto%&gt; -- Amount payable less discount")

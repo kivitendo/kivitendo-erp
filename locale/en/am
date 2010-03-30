@@ -10,6 +10,7 @@ $self->{texts} = {
   '&lt;%netto_date%&gt; -- Date the payment is due in full' => '&lt;%netto_date%&gt; -- Date the payment is due in full',
   '&lt;%skonto_amount%&gt; -- The deductible amount' => '&lt;%skonto_amount%&gt; -- The deductible amount',
   '&lt;%skonto_date%&gt; -- Date the payment is due with discount' => '&lt;%skonto_date%&gt; -- Date the payment is due with discount',
+  '&lt;%skonto_in_percent%&gt; -- The discount in percent' => '&lt;%skonto_in_percent%&gt; -- The discount in percent',
   '&lt;%terms_netto%&gt; -- The number of days for full payment' => '&lt;%terms_netto%&gt; -- The number of days for full payment',
   '&lt;%total%&gt; -- Amount payable' => '&lt;%total%&gt; -- Amount payable',
   '&lt;%total_wo_skonto%&gt; -- Amount payable less discount' => '&lt;%total_wo_skonto%&gt; -- Amount payable less discount',

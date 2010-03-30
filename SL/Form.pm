@@ -1813,6 +1813,7 @@ sub set_payment_options {
     $amounts{invtotal} = $self->{invtotal};
     $amounts{total}    = $self->{total};
   }
+  $amounts{skonto_in_percent} = 100.0 * $self->{percent_skonto};
 
   map { $amounts{$_} = $self->parse_amount($myconfig, $amounts{$_}) } keys %amounts;
 
@@ -1865,6 +1866,8 @@ sub set_payment_options {
   $self->{payment_terms} =~ s/<%bank_code%>/$self->{bank_code}/g;
 
   map { $self->{payment_terms} =~ s/<%${_}%>/$formatted_amounts{$_}/g; } keys %formatted_amounts;
+
+  $self->{skonto_in_percent} = $formatted_amounts{skonto_in_percent};
 
   $main::lxdebug->leave_sub();
 
