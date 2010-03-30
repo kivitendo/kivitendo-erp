@@ -10,6 +10,7 @@ $self->{texts} = {
   '&lt;%netto_date%&gt; -- Date the payment is due in full' => '&lt;%netto_date%&gt; -- Das Datum, bis die Rechnung in voller H&ouml;he bezahlt werden muss',
   '&lt;%skonto_amount%&gt; -- The deductible amount' => '&lt;%skonto_amount%&gt; -- Der abziehbare Skontobetrag',
   '&lt;%skonto_date%&gt; -- Date the payment is due with discount' => '&lt;%skonto_date%&gt; -- Das Datum, bis die Rechnung unter Abzug von Skonto bezahlt werden kann',
+  '&lt;%skonto_in_percent%&gt; -- The discount in percent' => '&lt;%skonto_in_percent%&gt; -- Skonto in Prozent',
   '&lt;%terms_netto%&gt; -- The number of days for full payment' => '&lt;%terms_netto%&gt; -- Die Anzahl Tage, bis die Rechnung in voller H&ouml;he bezahlt werden muss',
   '&lt;%total%&gt; -- Amount payable' => '&lt;%total%&gt; -- Noch zu bezahlender Betrag',
   '&lt;%total_wo_skonto%&gt; -- Amount payable less discount' => '&lt;%total_wo_skonto%&gt; -- Noch zu bezahlender Betrag abz&uuml;glich Skonto',
