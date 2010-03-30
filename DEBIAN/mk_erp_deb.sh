@@ -39,6 +39,7 @@ cp -a $SRC/image/* usr/share/lx-office-erp
 
 #Gitfiles löschen
 find . -name ".git*" -exec rm -rf {} \;
+find . -name ".dummy" -exec rm -rf {} \;
 
 #Rechte setzen
 chown -R www-data: usr/lib/lx-office-erp
