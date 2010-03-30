@@ -37,6 +37,9 @@ cp -a $SRC/xslt var/lib/lx-office-erp
 cp -a $SRC/doc usr/share/doc/lx-office-erp
 cp -a $SRC/image/* usr/share/lx-office-erp
 
+#Gitfiles löschen
+find . -name ".git*" -exec rm -rf {} \;
+
 #Rechte setzen
 chown -R www-data: usr/lib/lx-office-erp
 chown -R www-data: var/lib/lx-office-erp
