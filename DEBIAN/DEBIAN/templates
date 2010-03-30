@@ -1,0 +1,35 @@
+Template: lx-office-erp/admin-password-conf
+Type: boolean
+Default: true
+Description: Admin Passwort einrichten?
+ Es wird empfohlen, ein Admin Passwort fuer das Web-Frontend von LX-Office-ERP einzurichten (127.0.0.1/lx-erp/admin.pl).
+
+Template: lx-office-erp/admin-password
+Type: password
+Description: Neues Admin Passwort
+
+Template: lx-office-erp/admin-password2 
+Type: password
+Description: Bestaetigung
+ Bitte Admin-Passwort wiederholen.
+
+Template: lx-office-erp/password-mismatch
+Type: error
+Description: Keine Uebereinstimmung.
+ Sie haben keine uebereinstimmenden Passwoerter eingegeben. Bitte nochmals eingeben.
+
+Template: lx-office-erp/lx-office-erp-user-postgresql-password
+Type: password
+Description: Neues Passwort fuer Lx-Office-ERP Datenbank-Nutzer
+ Der neue Account des Lx-Office-ERP Datenbanknutzers ist zu schuetzen. Bitte ein neues
+ Passwort eingeben.
+
+Template: lx-office-erp/lx-office-erp-user-postgresql-password2
+Type: password
+Description: Bestaetigung
+ Bitte Datenbank-Passwort wiederholen.
+
+Template: lx-office-erp/password-empty
+Type: error
+Description: Fehlendes Kennwort
+ Sie müssen ein Datenbank-Kennwort vergeben!

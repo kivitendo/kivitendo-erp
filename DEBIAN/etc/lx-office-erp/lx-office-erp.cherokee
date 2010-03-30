@@ -1,0 +1,7 @@
+##
+## Virtual server for lx-office-erp
+##
+Directory /lx-office-erp {
+          Handler common
+	  DocumentRoot /usr/lib/lx-office-erp/
+}	  

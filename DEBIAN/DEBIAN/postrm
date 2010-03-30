@@ -1,0 +1,12 @@
+#!/bin/sh
+set -e
+echo "! Postrm $1 !"
+
+if [ "$1" = purge ] && [ -e /usr/share/debconf/confmodule ]; then
+    rm -rf /var/lib/lx-office-erp/templates/*
+    rm -rf /usr/lib/lx-office-erp/config/*
+    rm -rf /etc/apache*/conf.d/lx-office-erp*
+    rm -f /usr/lib/lx-office-erp/lxdbinst.sql
+	. /usr/share/debconf/confmodule
+	db_purge
+fi

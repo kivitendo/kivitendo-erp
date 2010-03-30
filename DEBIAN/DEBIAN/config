@@ -1,0 +1,80 @@
+#!/bin/sh
+
+set -e
+#set -x
+
+
+# Source debconf library
+. /usr/share/debconf/confmodule
+db_version 2.0
+
+STATE=1
+LASTSTATE=4
+while [ "$STATE" != 0 ] && [ "$STATE" -le "$LASTSTATE" ]; do
+    case "$STATE" in
+    1)
+	    db_set lx-office-erp/admin-password-conf true || true
+        db_input high lx-office-erp/admin-password-conf || true
+	    db_go || true
+            ;;
+	2)
+	    db_get lx-office-erp/admin-password-conf 
+            if [ "$RET" = "true" ]; then
+                db_input high lx-office-erp/admin-password || true
+				db_go || true
+				db_input high lx-office-erp/admin-password2 || true
+				db_go || true
+
+            fi
+           ;;
+	3)
+            db_get lx-office-erp/admin-password-conf 
+            if [ "$RET" = "true" ]; then
+                db_get lx-office-erp/admin-password || true
+                PASSPHRASE="$RET"
+                db_get lx-office-erp/admin-password2 || true
+                if [ "$RET" != "$PASSPHRASE" ]; then
+                    db_input high lx-office-erp/password-mismatch 
+                    db_reset lx-office-erp/admin-password || true
+                    db_reset lx-office-erp/admin-password2 || true
+                    db_fset lx-office-erp/admin-password seen false || true
+                    db_fset lx-office-erp/admin-password2 seen false || true
+                    STATE=1
+                fi
+            fi
+            ;;
+	4)
+	   db_input high lx-office-erp/lx-office-erp-user-postgresql-password || true
+	   db_go || true
+	   db_get lx-office-erp/lx-office-erp-user-postgresql-password || true
+	   POSTGRESQLPWD="$RET"
+	   if [ "#$POSTGRESQLPWD" != "#" ]; then
+		    db_input high lx-office-erp/lx-office-erp-user-postgresql-password2 || true
+	        db_go || true
+	        db_get lx-office-erp/lx-office-erp-user-postgresql-password2 || true
+            if [ "$RET" != "$POSTGRESQLPWD" ]; then
+					db_input high lx-office-erp/password-mismatch 
+					db_reset lx-office-erp/lx-office-erp-user-postgresql-password || true
+					db_reset lx-office-erp/lx-office-erp-user-postgresql-password2 || true
+					db_fset lx-office-erp/lx-office-erp-user-postgresql-password seen false || true
+					db_fset lx-office-erp/lx-office-erp-user-postgresql-password2 seen false || true
+					STATE=3
+		    fi
+	   else
+			db_input high lx-office-erp/password-empty || true
+	        db_go || true
+			db_reset lx-office-erp/lx-office-erp-user-postgresql-password || true
+			db_fset lx-office-erp/lx-office-erp-user-postgresql-password seen false || true
+			STATE=3
+	   fi
+
+	   ;;
+	
+    esac
+
+    if db_go; then
+        STATE=$(($STATE + 1))
+    else
+        STATE=$(($STATE - 1))
+    fi
+done

@@ -1,0 +1,9 @@
+#!/bin/sh
+#
+## shell script for lx-office-erp to start the login manager in a browser
+
+set -e
+
+/usr/bin/sensible-browser http://localhost/lx-office-erp/login.pl
+
+
