@@ -1,11 +1,11 @@
 #!/bin/sh
 #Nur für das Update von einer 2.6.0 nötig, da hier gnadenlos gelöscht wird
 set -e
-echo "! Preinst $1 !"
+echo " ! "`date`" Preinst $1 !" >> /tmp/lxo-erp.log
 if [ "$1" = "upgrade" ]; then
-echo "#!/bin/sh" > /var/lib/dpkg/info/lx-office-erp.postrm
-echo "set -e" >> /var/lib/dpkg/info/lx-office-erp.postrm
-echo "echo '! postrm2 $1 !'" >> /var/lib/dpkg/info/lx-office-erp.postrm
-chmod +x /var/lib/dpkg/info/lx-office-erp.postrm
+    echo "#!/bin/sh" > /var/lib/dpkg/info/lx-office-erp.postrm
+    echo "set -e" >> /var/lib/dpkg/info/lx-office-erp.postrm
+    echo "echo ' ! '`date`' postrm2 $1 !'" >> /var/lib/dpkg/info/lx-office-erp.postrm
+    chmod +x /var/lib/dpkg/info/lx-office-erp.postrm
 fi
 

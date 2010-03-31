@@ -1,0 +1,3 @@
+Extension pl {
+    Handler cgi
+}

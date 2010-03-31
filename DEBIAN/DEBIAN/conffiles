@@ -1,2 +1,3 @@
-/etc/apache2/conf.d/lx-office-erp.apache2.conf
-/usr/lib/lx-office-erp/config/lx-erp.conf
+/etc/lx-office-erp/lx-office-erp.apache2.conf
+/etc/lx-office-erp/lx-office-erp.cherokee
+/etc/lx-office-erp/lx-office-erp.cherokee.handler

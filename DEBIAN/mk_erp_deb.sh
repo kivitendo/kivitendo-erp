@@ -6,7 +6,7 @@ NR="0"
 #hier wurde das Git-Paket entpakt:
 SRC=/tmp/lx-office-erp
 #hier wird das Debian-Paket gebaut:
-DEST=/media/work/lx-office/lx-office-erp_$VER-$NR-all
+DEST=/tmp/lx-office/lx-office-erp_$VER-$NR-all
 
 mkdir -p $DEST
 cd $DEST
@@ -16,6 +16,7 @@ cp -a $SRC/DEBIAN/* .
 rm ./mk*.sh
 
 #Dateien kopieren:
+#aber keine fertigen Konfigurationen, nur *.default
 cp -a $SRC/SL usr/lib/lx-office-erp
 cp -a $SRC/bin usr/lib/lx-office-erp
 cp -a $SRC/js usr/lib/lx-office-erp
@@ -28,22 +29,25 @@ cp -a $SRC/t usr/lib/lx-office-erp
 cp -a $SRC/*.pl usr/lib/lx-office-erp
 cp $SRC/VERSION usr/lib/lx-office-erp
 cp $SRC/index.html usr/lib/lx-office-erp
-
+cp $SRC/config/lx-erp.conf  etc/lx-office-erp/lx-erp.conf.default
+cp $SRC/config/authentication.pl.default etc/lx-office-erp/
+cp $SRC/menu.ini usr/lib/lx-office-erp/menu.default
 cp -a $SRC/css var/lib/lx-office-erp
 cp -a $SRC/templates var/lib/lx-office-erp
 cp -a $SRC/users var/lib/lx-office-erp
 cp -a $SRC/xslt var/lib/lx-office-erp
 
-cp -a $SRC/doc usr/share/doc/lx-office-erp
-cp -a $SRC/image/* usr/share/lx-office-erp
+cp -a $SRC/doc/* usr/share/doc/lx-office-erp/
+cp -a $SRC/image/* usr/share/lx-office-erp/
 
-#Gitfiles löschen
+#Git- und dummy-files löschen
 find . -name ".git*" -exec rm -rf {} \;
 find . -name ".dummy" -exec rm -rf {} \;
 
 #Rechte setzen
 chown -R www-data: usr/lib/lx-office-erp
 chown -R www-data: var/lib/lx-office-erp
+chown -R www-data: etc/lx-office-erp
 
 #MD5 Summe bilden:
 find usr/ -name "*" -type f -exec md5sum {} \; > DEBIAN/md5sum
@@ -58,6 +62,7 @@ cat DEBIAN/control | sed --expression "s/Installed-Size: 0/Installed-Size: $SIZE
 mv DEBIAN/1.tmp DEBIAN/control
 cat DEBIAN/control | sed --expression "s/Version: 0/Version: $VER-$NR/g" > DEBIAN/1.tmp
 mv DEBIAN/1.tmp DEBIAN/control
+#Revisionsnummer evtl. von Hand eintragen
 
 #Paket bauen:
 cd ..

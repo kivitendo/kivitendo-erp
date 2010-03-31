@@ -8,9 +8,12 @@ set -e
 . /usr/share/debconf/confmodule
 db_version 2.0
 
+echo "! config $STATE !" >> /tmp/lxo-erp.log
+
 STATE=1
 LASTSTATE=4
 while [ "$STATE" != 0 ] && [ "$STATE" -le "$LASTSTATE" ]; do
+    echo "! config $STATE !" >> /tmp/lxo-erp.log
     case "$STATE" in
     1)
 	    db_set lx-office-erp/admin-password-conf true || true
@@ -28,7 +31,7 @@ while [ "$STATE" != 0 ] && [ "$STATE" -le "$LASTSTATE" ]; do
             fi
            ;;
 	3)
-            db_get lx-office-erp/admin-password-conf 
+        db_get lx-office-erp/admin-password-conf 
             if [ "$RET" = "true" ]; then
                 db_get lx-office-erp/admin-password || true
                 PASSPHRASE="$RET"
