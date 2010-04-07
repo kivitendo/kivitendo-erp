@@ -300,8 +300,9 @@ sub form_header {
 
   check_oe_access();
 
-  # Container for template variables. Unfortunately this has to be visible in form_footer too, so not my.
-  our %TMPL_VAR = ();
+  # Container for template variables. Unfortunately this has to be
+  # visible in form_footer too, so my at package level and not here.
+  %TMPL_VAR = ();
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
