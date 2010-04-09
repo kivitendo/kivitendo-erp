@@ -1788,12 +1788,6 @@ sub poso {
   };
 
   &prepare_order;
-
-  # format amounts
-  for my $i (1 .. $form->{rowcount} - 1) {
-    map { $form->{"${_}_$i"} =~ s/\"/&quot;/g } qw(partnumber description unit);
-  }
-
   &update;
 
   $main::lxdebug->leave_sub();
