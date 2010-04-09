@@ -1,0 +1,12 @@
+Debian-Paket erzeugen.
+
+ERP aus dem Git clonen:
+
+git clone git://lx-office.linet-services.de/lx-office-erp.git
+
+Die Datei mk_erp_deb.sh 
+In das neue Verzeichnis lx-office-erp wechsel und die Datei 
+DEBIAN/mk_erp_deb.sh mit einem Editor öffnen. Die Pfade: 
+SRC und DEST ggf. anpassen und wieder speichern.
+
+Die Datei DEBIAN/mk_erp_deb.sh ausführen. Fertig.
