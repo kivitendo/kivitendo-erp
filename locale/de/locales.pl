@@ -559,7 +559,7 @@ sub scanhtmlfile {
       }
 
       while ($line =~ m/\[\%            # Template-Start-Tag
-                        [\-~#]          # Whitespace-Unterdrückung
+                        [\-~#]*         # Whitespace-Unterdrückung
                         \s*             # Optional beliebig viele Whitespace
                         [\'\"]          # Anfang des zu übersetzenden Strings
                         (.*?)           # Der zu übersetzende String
@@ -567,10 +567,10 @@ sub scanhtmlfile {
                         \s*\|\s*        # Pipe-Zeichen mit optionalen Whitespace davor und danach
                         \$T8            # Filteraufruf
                         .*?             # Optionale Argumente für den Filter und Whitespaces
-                        [\-~#]          # Whitespace-Unterdrückung
+                        [\-~#]*         # Whitespace-Unterdrückung
                         \%\]            # Template-Ende-Tag
                        /ix) {
-        print "Found filter >>>$1<<<\n";
+#        print "Found filter >>>$1<<<\n";
         $cached{$_[0]}{all}{$1}  = 1;
         $cached{$_[0]}{html}{$1} = 1;
         $plugins{needed}->{T8}   = 1;
