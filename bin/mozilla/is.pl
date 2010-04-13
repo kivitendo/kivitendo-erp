@@ -263,6 +263,8 @@ sub prepare_invoice {
       (my $dec_qty)            = ($form->{"qty_$i"} =~ /\.(\d+)/);
       $dec_qty                 = length $dec_qty;
 
+      $form->{"lastcost_$i"}  = $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, $decimalplaces);
+
       $form->{"qty_$i"}        = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
       $form->{rowcount}        = $i;
@@ -544,7 +546,7 @@ sub update {
 
         $form->{creditremaining} -= $amount;
 
-        map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces) } qw(sellprice listprice);
+        map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces) } qw(sellprice listprice lastcost);
 
         $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
 

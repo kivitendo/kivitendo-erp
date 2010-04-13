@@ -283,6 +283,7 @@ sub prepare_order {
     $form->{"reqdate_$i"} ||= $form->{"deliverydate_$i"};
     $form->{"discount_$i"}  = $form->format_amount(\%myconfig, $form->{"discount_$i"} * ($format_discounts ? 100 : 1));
     $form->{"sellprice_$i"} = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
+    $form->{"lastcost_$i"}  = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
     $form->{"qty_$i"}       = $form->format_amount(\%myconfig, $form->{"qty_$i"});
   }
 
@@ -554,6 +555,8 @@ sub update {
     # select discount as customer_discount from customer
     $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{"$form->{vc}_discount"} * 100);
 
+    $form->{"lastcost_$i"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$i"});
+
     if ($rows) {
       $form->{"qty_$i"} = 1 unless ($form->parse_amount(\%myconfig, $form->{"qty_$i"}));
 
@@ -599,6 +602,7 @@ sub update {
         $form->{creditremaining} -= $amount;
 
         $form->{"sellprice_$i"} = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+        $form->{"lastcost_$i"}  = $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, $decimalplaces);
         $form->{"qty_$i"}       = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
         # get pricegroups for parts
@@ -1761,7 +1765,7 @@ sub poso {
   # reset
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered ordnumber);
 
-  # if purchase_order was generated from sales_order, use lastcost_$i as sellprice_$i
+  # if purchase_order was generated from sales_order, use  lastcost_$i as sellprice_$i
   if ( $form->{sales_order_to_purchase_order} ) {
     for my $i (1 .. $form->{rowcount}) {
       $form->{"sellprice_${i}"} = $form->format_amount(\%myconfig,$form->{"lastcost_${i}"});
@@ -1829,7 +1833,7 @@ sub delivery_order {
   delete @{$form}{qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal closed delivered)};
 
   for my $i (1 .. $form->{rowcount}) {
-    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount);
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice lastcost basefactor discount);
   }
 
   my %old_values = map { $_ => $form->{$_} } qw(customer_id oldcustomer customer vendor_id oldvendor vendor);
