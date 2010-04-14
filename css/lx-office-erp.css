@@ -211,6 +211,14 @@ body.menu {
 
 .listtotal, .listtotal td { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
 
+/* Verkaufsbericht */
+.listmainsortheader { font-size: 8pt; background-color: rgb(236,233,216); color: red; font-weight: bolder; padding-left: 10px; padding-top: 0px;}
+.listmainsortsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: red; font-weight: bolder; padding-left: 10px;}
+.listsubsortheader { font-size: 8pt; background-color: rgb(236,233,216); color: green; font-weight: bolder; padding-left: 20px}
+.listsubsortsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: green; font-weight: bolder; padding-left: 20px}
+.listsortdescription { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: normal; padding-left: 30px}
+
+
 .submit {
   font-family: Verdana, Arial, Helvetica;
   color: #000000;
