@@ -996,6 +996,7 @@ $self->{texts} = {
   'Missing amount'              => 'Fehlbetrag',
   'Missing parameter #1 in call to sub #2.' => 'Fehlernder Parameter \'#1\' in Funktionsaufruf \'#2\'.',
   'Missing parameter (at least one of #1) in call to sub #2.' => 'Fehlernder Parameter (mindestens einer aus \'#1\') in Funktionsaufruf \'#2\'.',
+  'Missing taxkeys in invoices with taxes.' => 'Fehlende Steuerschl&uuml;ssel in Rechnungen mit Steuern',
   'Mitarbeiter'                 => 'Mitarbeiter',
   'Mobile1'                     => 'Mobile 1',
   'Mobile2'                     => 'Mobile 2',

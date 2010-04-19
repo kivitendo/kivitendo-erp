@@ -67,6 +67,24 @@
        [%- END %]
       [%- END %]
 
+     [%- ELSIF problem.type == 'missing_taxkeys_in_invoices' %]
+      [%- IF problem.ar_problems.size %]
+       Verkaufsrechnungen
+       [%- FOREACH subproblem = problem.ar_problems %]
+        [%- UNLESS loop.first %], [%- END %]
+        <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
+       [%- END %]
+      [%- END %]
+
+      [%- IF problem.ap_problems.size %]
+       [%- IF problem.ar_problems.size %]; [%- END %]
+       Einkaufsrechnungen
+       [%- FOREACH subproblem = problem.ap_problems %]
+        [%- UNLESS loop.first %], [%- END %]
+        <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
+       [%- END %]
+      [%- END %]
+
      [%- ELSE %]
 
      <a href="[% problem.link %]">
@@ -100,6 +118,9 @@
 
      [%- ELSIF problem.type == 'invoice_inventory_with_taxkeys' %]
      Einkaufs- und Verkaufsrechnungen mit Warenbestandsbuchungen mit Steuerschlüsseln
+
+     [%- ELSIF problem.type == 'missing_taxkeys_in_invoices' %]
+     Fehlende Steuerschl&uuml;ssel in Rechnungen mit Steuern
 
      [%- END %]
     </td>
