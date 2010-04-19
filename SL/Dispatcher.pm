@@ -150,14 +150,14 @@ sub handle_request {
   pre_request_checks();
 
   eval {
+    $::form->error($::locale->text('System currently down for maintenance!')) if -e "$::userspath/nologin" && $script ne 'admin';
+
     if ($script eq 'login' or $script eq 'admin' or $script eq 'kopf') {
       $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";
       ::run($::auth->restore_session);
 
     } elsif ($action) {
       # copy from am.pl routines
-      $::form->error($::locale->text('System currently down for maintenance!')) if -e "$main::userspath/nologin" && $script ne 'admin';
-
       my $session_result = $::auth->restore_session;
 
       show_error('login/password_error', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
