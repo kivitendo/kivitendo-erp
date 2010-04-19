@@ -555,6 +555,20 @@ sub _get_request_uri {
   return $uri;
 }
 
+sub _add_to_request_uri {
+  my $self              = shift;
+
+  my $relative_new_path = shift;
+  my $request_uri       = shift || $self->_get_request_uri;
+  my $relative_new_uri  = URI->new($relative_new_path);
+  my @request_segments  = $request_uri->path_segments;
+
+  my $new_uri           = $request_uri->clone;
+  $new_uri->path_segments(@request_segments[0..scalar(@request_segments) - 2], $relative_new_uri->path_segments);
+
+  return $new_uri;
+}
+
 sub create_http_response {
   $main::lxdebug->enter_sub();
 
