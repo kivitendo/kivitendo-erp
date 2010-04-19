@@ -235,6 +235,7 @@ sub prepare_order {
     $form->{"reqdate_$i"} = $form->{"deliverydate_$i"} unless $form->{"reqdate_$i"};
 
     $form->{"sellprice_$i"} = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
+    $form->{"lastcost_$i"} = $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, $decimalplaces);
 
     (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
     $dec_qty = length $dec_qty;
@@ -374,6 +375,7 @@ sub update_delivery_order {
 
         $form->{"marge_price_factor_$i"} = $form->{item_list}->[0]->{price_factor};
         $form->{"sellprice_$i"}          = $form->format_amount(\%myconfig, $form->{"sellprice_$i"});
+        $form->{"lastcost_$i"}          = $form->format_amount(\%myconfig, $form->{"lastcost_$i"});
         $form->{"qty_$i"}                = $form->format_amount(\%myconfig, $form->{"qty_$i"});
       }
 
@@ -736,7 +738,7 @@ sub invoice {
       # und keinen anderen discount wert an $i ...
       $form->{"discount_$i"} ||= $form->{discount}*100; # ... nehmen wir den kundenrabatt
     }
-    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice basefactor);
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice lastcost basefactor);
   }
 
   $form->{type} = "invoice";
@@ -769,8 +771,13 @@ sub invoice {
     $form->{"deliverydate_$i"} = $form->{"reqdate_$i"}
       unless $form->{"deliverydate_$i"};
 
+
     $form->{"sellprice_$i"} =
       $form->format_amount(\%myconfig, $form->{"sellprice_$i"},
+                           $decimalplaces);
+
+    $form->{"lastcost_$i"} =
+      $form->format_amount(\%myconfig, $form->{"lastcost_$i"},
                            $decimalplaces);
 
     (my $dec_qty) = ($form->{"qty_$i"} =~ /\.(\d+)/);
