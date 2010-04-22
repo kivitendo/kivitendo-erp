@@ -570,11 +570,11 @@ sub scanhtmlfile {
                         [\-~#]*         # Whitespace-Unterdrückung
                         \%\]            # Template-Ende-Tag
                        /ix) {
-#        print "Found filter >>>$1<<<\n";
+#        print "Found filter '$1' in string '$line'\n";
         $cached{$_[0]}{all}{$1}  = 1;
         $cached{$_[0]}{html}{$1} = 1;
         $plugins{needed}->{T8}   = 1;
-        substr $line, $-[1], $+[0] - $-[0], '';
+        substr $line, $-[0], $+[0] - $-[0], '';
       }
 
       while ("" ne $line) {
