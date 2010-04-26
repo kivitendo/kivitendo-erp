@@ -1,0 +1,79 @@
+Table of Contents
+-----------------
+
+Inhalt der Anleitung
+1 Zusammenfassung
+2 Bedienung
+3 Exceltemplate Syntax
+4 Einschränkungen
+
+
+
+Zusammenfassung
+---------------
+
+Dieses Dokument beschreibt den Mechanismus, mit dem Exceltemplates abgearbeitet
+werden, und die Einschränkungen die damit einhergehen.
+
+
+
+Bedienung
+---------
+
+Der Excel Mechanismus muss in der Konfigurationsdatei aktiviert werden. Die
+Konfigurationsoption heißt:
+
+  $excel_templates = 1;
+
+Eine Excelvorlage kann dann unter dem Namen einer beliebigen anderen Vorlage mit
+der Endung .xls gespeichert werden. In den normalen Verkaufsmasken taucht nun
+"Excel" als auswählbares Format auf, und kann von da an bnutzt weren wie Latex
+oder OpenOffice Vorlagen.
+
+Der Sonderfall der Angebote aus der Kundenmaske ist ebenfalls eine
+Angebotsvorlage, und wird unter dem internen Namen der Angebote
+"sales_quotation.xls" gespeichert.
+
+
+
+Exceltemplate Syntax
+--------------------
+
+Einfache Syntax:  <<varname>>
+
+Wobei "<<" und ">>" die Delimiter sind. Da Excel auf festen Breiten besteht,
+kann der Tag künstlich verlängert werden, indem weitere "<" oder ">" gegefügt
+werden. Der Tag muss nicht symmetrisch sein.
+
+Beispiel: <<<<<varname>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Um die Limitierung der festen Breite zu reduzieren, können weitere Variablen in
+einem Block interpoliert werden. Whitespace wird dazwishen dann erhalten.
+
+Beispiel: <<<<<varname1 varname2   varname3>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+Die Variablen werden interpoliert, und linksbündig mit Leerzeichen auf die
+gewünschte Länge aufgefüllt. Ist der String zu lang, werden überzählige Zeichen
+abgeschnitten.
+
+Es ist ausserdem möglich Daten rechtsbündig darzustellen, wenn der Block mit
+einem Leerzeichen anfängt.
+
+Beispiel:  <<<<<<            varname>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+würde rechtsbündig triggern. Wenn bei rechtsbündiger Ausrichtung Text
+abgeschnitten werden muss, wird er vom linken Ende entfernt.
+
+
+
+Einschränkungen
+---------------
+
+Das Excelformat bis 2002 ist ein binäres Format, und kann nicht mit vertretbarem
+Aufwand editiert werden. Der Templatemechanismus beschränkt sich daher darauf,
+Textstellen _exakt_ durch einen anderen Text zu ersetzen.
+
+Aus dem gleichen Grund sind die Templatekonstrukte <% if %> und <% foreach %>
+nicht vorhanden. Der Delimiter <% %> kommt in den Headerinformationen evtl vor,
+deshalb wurde auf den sichereren "<<"/">>" gewechselt.
+

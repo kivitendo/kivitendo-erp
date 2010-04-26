@@ -2,6 +2,21 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
+
+
+
+
+
+
+
+
+
+  Kleinere neue Features und Detailverbesserungen:
+
+  - Druckvorlage optional auf Excel erweitert, um Variablen die sich nicht in foreach-Schleifen
+    befinden anzuzeigen (s.a.: doc/excel_templates.txt).
+
+
 2010-03-24 - Release 2.6.1
 
   Größere neue Features:
