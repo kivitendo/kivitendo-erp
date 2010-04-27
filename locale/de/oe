@@ -138,6 +138,7 @@ $self->{texts} = {
   'Error in row #1: The quantity you entered is bigger than the stocked quantity.' => 'Fehler in Zeile #1: Die angegebene Menge ist gr&ouml;&szlig;er als die vorhandene Menge.',
   'Ertrag'                      => 'Ertrag',
   'Ertrag prozentual'           => 'Ertrag prozentual',
+  'Excel'                       => 'Excel',
   'Exchangerate'                => 'Wechselkurs',
   'Exchangerate missing!'       => 'Es fehlt der Wechselkurs!',
   'Extended'                    => 'Gesamt',
