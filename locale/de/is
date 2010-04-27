@@ -111,6 +111,7 @@ $self->{texts} = {
   'Enter longdescription'       => 'Langtext eingeben',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',
   'Ertrag'                      => 'Ertrag',
+  'Excel'                       => 'Excel',
   'Exchangerate for payment missing!' => 'Es fehlt der Wechselkurs für die Bezahlung!',
   'Exchangerate missing!'       => 'Es fehlt der Wechselkurs!',
   'Extended'                    => 'Gesamt',

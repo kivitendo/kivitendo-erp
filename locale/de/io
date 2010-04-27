@@ -90,6 +90,7 @@ $self->{texts} = {
   'Enter longdescription'       => 'Langtext eingeben',
   'Error in database control file \'%s\': %s' => 'Fehler in Datenbankupgradekontrolldatei \'%s\': %s',
   'Ertrag'                      => 'Ertrag',
+  'Excel'                       => 'Excel',
   'Extended'                    => 'Gesamt',
   'Fax'                         => 'Fax',
   'Feb'                         => 'Feb',
