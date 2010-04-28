@@ -512,7 +512,7 @@ sub generate_pdf_content {
       my $col_idx = 0;
       foreach my $col_name (@visible_columns) {
         my $col = $row->{$col_name};
-        push @{ $data_row }, $self->_decode_text(join("\n", @{ $col->{data} }));
+        push @{ $data_row }, $self->_decode_text(join("\n", @{ $col->{data} || [] }));
 
         $column_props[$col_idx]->{justify} = 'right' if ($col->{align} eq 'right');
 
