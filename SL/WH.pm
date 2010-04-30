@@ -170,11 +170,11 @@ sub transfer_assembly {
   my $sthTransferPartSQL   = prepare_query($form, $dbh, $transferPartSQL);
 
   # der return-string für die fehlermeldung inkl. welche waren zum fertigen noch fehlen
-  my $kannNichtFertigen ="Für dieses Erzeugnis sind keine Einzelteile definiert.
-                          Dementsprechend kann auch nichts hergestellt werden";
 
+  my $kannNichtFertigen ="";  # Falls leer dann erfolgreich
+  my $schleife_durchlaufen=0; # Falls die Schleife nicht ausgeführt wird -> Keine Einzelteile definiert. Bessere Idee? jan
   while (my $hash_ref = $sth_part_qty_assembly->fetchrow_hashref()) { #Schleife für select parts_id,(...) from assembly
-    $kannNichtFertigen ="";  # Wieder auf erfolgreich setzen LEER == keine Fehlermeldung
+    $schleife_durchlaufen=1;  # Erzeugnis definiert
     my $partsQTY = $hash_ref->{qty} * $params{qty}; # benötigte teile * anzahl erzeugnisse
     my $currentPart_ID = $hash_ref->{parts_id};
 
@@ -236,6 +236,14 @@ sub transfer_assembly {
       }
     }  # ende while SELECT SUM(qty), bin_id, chargenumber, bestbefore   FROM inventory  WHERE warehouse_id
   } #ende while select parts_id,qty from assembly where id = ?
+
+  if ($schleife_durchlaufen==0){  # falls die schleife nicht durchlaufen wurde, wurden auch
+                                  # keine einzelteile definiert
+      $kannNichtFertigen ="Für dieses Erzeugnis sind keine Einzelteile definiert.
+                           Dementsprechend kann auch nichts hergestellt werden";
+ }
+  # gibt die Fehlermeldung zurück. A.) Keine Teile definiert
+  #                                B.) Artikel und Anzahl der fehlenden Teile/Dienstleistungen
   if ($kannNichtFertigen) {
     return $kannNichtFertigen;
   }

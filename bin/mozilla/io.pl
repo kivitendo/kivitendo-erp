@@ -1184,7 +1184,9 @@ sub print_options {
     (!$options{no_html}) ?
       opthash("html", $form->{DF}{html}, "HTML") : undef,
     ($main::opendocument_templates && !$options{no_opendocument}) ?
-      opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef;
+      opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef,
+    ($main::excel_templates && !$options{no_excel}) ?
+      opthash("excel",               $form->{DF}{excel},               $locale->text("Excel")) : undef;
 
   push @LANGUAGE_ID,
     map { opthash($_->{id}, ($_->{id} eq $form->{language_id} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{languages} }
@@ -1592,6 +1594,9 @@ sub print_form {
   } elsif ($form->{"format"} =~ /opendocument/) {
     $form->{opendocument} = 1;
     $extension            = 'odt';
+  } elsif ($form->{"format"} =~ /excel/) {
+    $form->{excel} = 1;
+    $extension            = 'xls';
   }
 
   my $email_extension = '_email' if (($form->{media} eq 'email') && (-f "$myconfig{templates}/$form->{formname}_email$form->{language}${printer_code}.${extension}"));

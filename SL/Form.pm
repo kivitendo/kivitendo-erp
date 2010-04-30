@@ -1178,6 +1178,10 @@ sub parse_template {
   } elsif ( $self->{"format"} =~ /elstertaxbird/i ) {
     $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
 
+  } elsif ( $self->{"format"} =~ /excel/i ) {
+    $template = ExcelTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $ext_for_format = 'xls';
+
   } elsif ( defined $self->{'format'}) {
     $self->error("Outputformat not defined. This may be a future feature: $self->{'format'}");
 
@@ -1385,6 +1389,7 @@ sub get_extension_for_format {
   my $extension = $self->{format} =~ /pdf/i          ? ".pdf"
                 : $self->{format} =~ /postscript/i   ? ".ps"
                 : $self->{format} =~ /opendocument/i ? ".odt"
+                : $self->{format} =~ /excel/i        ? ".xls"
                 : $self->{format} =~ /html/i         ? ".html"
                 :                                      "";
 

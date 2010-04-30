@@ -288,6 +288,49 @@ sub _check_trans_invoices_inventory_with_taxkeys {
   return 0;
 }
 
+# Problemfall: Verkaufsrechnungen, bei denen Steuern verbucht wurden, obwohl
+# kein Steuerschlüssel eingetragen ist.
+sub _check_missing_taxkeys_in_invoices {
+  $::lxdebug->enter_sub;
+
+  my $self        = shift;
+  my %params      = @_;
+  my $transaction = $params{transaction};
+  my $found_broken = 0;
+
+  $::lxdebug->leave_sub and return 0
+    if    !$transaction->[0]->{invoice};
+
+  my @sub_transactions = $self->_group_sub_transactions($transaction);
+
+  for my $sub_transaction (@sub_transactions) {
+    $::lxdebug->leave_sub and return 0
+      if    _is_split_transaction($sub_transaction)
+         || _is_simple_transaction($sub_transaction);
+
+    my $split_side_entries = _get_splitted_side($sub_transaction);
+    my $num_tax_rows;
+    my $num_taxed_rows;
+    for my $entry (@{ $split_side_entries }) {
+      my $is_tax = grep { m/(?:AP_tax|AR_tax)/ } keys %{ $entry->{chartlinks} };
+
+      $num_tax_rows++   if  $is_tax;
+      $num_taxed_rows++ if !$is_tax && $entry->{tax_key} != 0;
+    }
+
+    # now if this has tax rows but NO taxed rows, something is wrong.
+    if ($num_tax_rows > 0 && $num_taxed_rows == 0) {
+      $params{problem}->{type} = 'missing_taxkeys_in_invoices';
+      push @{ $self->{missing_taxkeys_in_invoices} ||= [] }, $params{problem};
+      $found_broken = 1;
+    }
+  }
+
+  $::lxdebug->leave_sub;
+
+  return $found_broken;
+}
+
 # Problemfall: Kreditorenbuchungen, bei denen mit Umsatzsteuerschlüsseln
 # gebucht wurde und Debitorenbuchungen, bei denen mit Vorsteuerschlüsseln
 # gebucht wurde.
@@ -623,8 +666,18 @@ sub analyze {
     unshift @problems, $problem;
   }
 
+  if (0 != scalar @{ $self->{missing_taxkeys_in_invoices} }) {
+    my $problem = {
+      'type'        => 'missing_taxkeys_in_invoices',
+      'ap_problems' => [ grep { $_->{data}->{module} eq 'ap' } @{ $self->{missing_taxkeys_in_invoices} } ],
+      'ar_problems' => [ grep { $_->{data}->{module} eq 'ar' } @{ $self->{missing_taxkeys_in_invoices} } ],
+    };
+    unshift @problems, $problem;
+  }
+
   $main::lxdebug->leave_sub();
 
+#  $::lxdebug->dump(0, 'problems:', \@problems);
 
   return @problems;
 }
