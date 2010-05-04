@@ -656,7 +656,7 @@ sub header {
       ? "$self->{title} - $self->{titlebar}"
       : $self->{titlebar};
     my $ajax = "";
-    foreach my $item (@ { $self->{AJAX} }) {
+    for my $item (@ { $self->{AJAX} || [] }) {
       $ajax .= $item->show_javascript();
     }
 
