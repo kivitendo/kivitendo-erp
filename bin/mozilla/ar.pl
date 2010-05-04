@@ -1127,7 +1127,6 @@ sub post {
   $form->{AR}{receivables} = $form->{ARselected};
   $form->{storno}          = 0;
 
-  $main::lxdebug->message(0, $form->{amount});
   $form->{id} = 0 if $form->{postasnew};
   $form->error($locale->text('Cannot post transaction!')) unless AR->post_transaction(\%myconfig, \%$form);
 
