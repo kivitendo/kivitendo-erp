@@ -675,7 +675,7 @@ sub item_selected {
   map {
     $form->{"${_}_$i"} =
       $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
-  } qw(sellprice listprice) if $form->{item} ne 'assembly';
+  } qw(sellprice listprice lastcost) if $form->{item} ne 'assembly';
 
   # get pricegroups for parts
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);

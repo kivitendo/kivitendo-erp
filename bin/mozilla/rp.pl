@@ -1660,8 +1660,8 @@ sub aging {
     'invnumber' => { 'text' => $locale->text('Invoice'), },
     'transdate' => { 'text' => $locale->text('Date'), },
     'duedate'   => { 'text' => $locale->text('Due'), },
-    'amount'        => { 'text' => $locale->text('Amount'), },
-    'open'       => { 'text' => $locale->text('Open'), },
+    'amount'    => { 'text' => $locale->text('Amount'), },
+    'open'      => { 'text' => $locale->text('Open'), },
   );
 
   my %column_alignment = ('statement' => 'center',
