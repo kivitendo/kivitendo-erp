@@ -242,7 +242,8 @@ sub search {
 | if $form->{selectdepartment};
 
   $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 1 });
+                                   "all" => 1},
+                                   "employees"    => "ALL_EMPLOYEES" );
 
   my %project_labels = ();
   my @project_values = ("");
@@ -255,6 +256,20 @@ sub search {
     NTI($cgi->popup_menu('-name' => "project_id",
                          '-values' => \@project_values,
                          '-labels' => \%project_labels));
+
+  my %employee_labels = ();
+  my @employee_values = ("");
+  foreach my $item (@{ $form->{"ALL_EMPLOYEES"} }) {
+    # value in Form "1234--Name" übergeben
+    my $id = "$item->{'id'}--$item->{'name'}";
+    push(@employee_values, "$id");
+    $employee_labels{$id} = $item->{"name"};
+  }
+
+  my $employeenumber =
+    NTI($cgi->popup_menu('-name' => "employee",
+                         '-values' => \@employee_values,
+                         '-labels' => \%employee_labels));
 
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
@@ -296,7 +311,7 @@ sub search {
 
 <form method=post action=gl.pl>
 
-<input type=hidden name=sort value=transdate>
+<input type=hidden name=sort value=datesort>
 
 <table width=100%>
   <tr>
@@ -329,6 +344,19 @@ sub search {
         </tr>
         <tr>
           <th align=right>| . $locale->text('From') . qq|</th>
+ <tr>
+    <th align=right>| . $locale->text('Employee') . qq|</th>
+    <td colspan=3>$employeenumber</td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('Date Sorting') . qq|</th>
+    <td colspan=3>
+    <input name=datesort class=radio type=radio value=gldate checked>&nbsp;| . $locale->text('Booking Date') . qq|
+    <input name=datesort class=radio type=radio value=transdate>&nbsp;| . $locale->text('Invoice Date') . qq|
+    </td>
+  </tr>
+  <tr>
+    <th align=right>| . $locale->text('From') . qq|</th>
           $button1
           <th align=right>| . $locale->text('To (time)') . qq|</th>
           $button2
@@ -357,7 +385,9 @@ sub search {
                     <td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
                     <td>| . $locale->text('ID') . qq|</td>
                     <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Date') . qq|</td>
+                    <td>| . $locale->text('Invoice Date') . qq|</td>
+                    <td align=right><input name="l_gldate" class=checkbox type=checkbox value=Y checked></td>
+                    <td>| . $locale->text('Booking Date') . qq|</td>
                     <td align=right><input name="l_reference" class=checkbox type=checkbox value=Y checked></td>
                     <td>| . $locale->text('Reference') . qq|</td>
                     <td align=right><input name="l_description" class=checkbox type=checkbox value=Y checked></td>
@@ -380,6 +410,8 @@ sub search {
                     <td>| . $locale->text('Subtotal') . qq|</td>
                     <td align=right><input name="l_projectnumbers" class=checkbox type=checkbox value=Y></td>
                     <td>| . $locale->text('Project Number') . qq|</td>
+                    <td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
+                    <td>| . $locale->text('Employee') . qq|</td>
                   </tr>
                 </table>
               </tr>
@@ -436,7 +468,26 @@ sub generate_report {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  report_generator_set_default_sort('transdate', 1);
+  # generate_report wird beim ersten Aufruf per Weiter-Knopf und POST mit der hidden Variablen sort mit Wert "datesort" (früher "transdate" als Defaultsortiervariable) übertragen
+
+  # <form method=post action=gl.pl>
+  # <input type=hidden name=sort value=datesort>    # form->{sort} setzen
+  # <input type=hidden name=nextsub value=generate_report>
+
+  # anhand von neuer Variable datesort wird jetzt $form->{sort} auf transdate oder gldate gesetzt
+  # damit ist die Hidden Variable "sort" wahrscheinlich sogar überflüssig
+
+  # ändert man die Sortierreihenfolge per Klick auf eine der Überschriften wird die Variable "sort" per GET übergeben, z.B. id,transdate, gldate, ...
+  # gl.pl?action=generate_report&employee=18383--Jan%20B%c3%bcren&datesort=transdate&category=X&l_transdate=Y&l_gldate=Y&l_id=Y&l_reference=Y&l_description=Y&l_source=Y&l_debit=Y&l_credit=Y&sort=gldate&sortdir=0
+
+  if ( $form->{sort} eq 'datesort' ) {   # sollte bei einem Post (Aufruf aus Suchmaske) immer wahr sein
+      # je nachdem ob in Suchmaske "transdate" oder "gldate" ausgesucht wurde erstes Suchergebnis entsprechend sortieren
+      $form->{sort} = $form->{datesort};
+  };
+
+  # was passiert hier?
+  report_generator_set_default_sort("$form->{datesort}", 1);
+#  report_generator_set_default_sort('transdate', 1);
 
   GL->all_transactions(\%myconfig, \%$form);
 
@@ -457,14 +508,18 @@ sub generate_report {
   my $ml = ($form->{ml} =~ /(A|E|Q)/) ? -1 : 1;
 
   my @columns = qw(
-    transdate      id               reference      description
-    notes          source           debit          debit_accno
+    gldate         transdate        id             reference      description
+    notes          source           debit          debit_accno   
     credit         credit_accno     debit_tax      debit_tax_accno
     credit_tax     credit_tax_accno projectnumbers balance
   );
 
-  my @hidden_variables = qw(accno source reference department description notes project_id datefrom dateto category l_subtotal);
+  # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
+  my @hidden_variables = qw(accno source reference department description notes project_id datefrom dateto employee datesort category l_subtotal);
   push @hidden_variables, map { "l_${_}" } @columns;
+  foreach ( @hidden_variables ) {
+      print URL "$_\n";
+  };
 
   my (@options, @date_options);
   push @options,      $locale->text('Account')     . " : $form->{accno} $form->{account_description}" if ($form->{accno});
@@ -472,7 +527,9 @@ sub generate_report {
   push @options,      $locale->text('Reference')   . " : $form->{reference}"                          if ($form->{reference});
   push @options,      $locale->text('Description') . " : $form->{description}"                        if ($form->{description});
   push @options,      $locale->text('Notes')       . " : $form->{notes}"                              if ($form->{notes});
-
+  push @options,      $locale->text('Employee')       . " : $form->{employee_name}"                              if ($form->{employee_name});
+  my $datesorttext = $form->{datesort} eq 'transdate' ? $locale->text('Invoice Date') :  $locale->text('Booking Date');
+  push @date_options,      "$datesorttext"                              if ($form->{datesort} and ($form->{datefrom} or $form->{dateto}));
   push @date_options, $locale->text('From'), $locale->date(\%myconfig, $form->{datefrom}, 1)          if ($form->{datefrom});
   push @date_options, $locale->text('Bis'),  $locale->date(\%myconfig, $form->{dateto},   1)          if ($form->{dateto});
   push @options,      join(' ', @date_options)                                                        if (scalar @date_options);
@@ -484,18 +541,23 @@ sub generate_report {
 
 
   my $callback = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
+  print URL $callback;
+  close URL;
 
   $form->{l_credit_accno}     = 'Y';
   $form->{l_debit_accno}      = 'Y';
   $form->{l_credit_tax}       = 'Y';
   $form->{l_debit_tax}        = 'Y';
+#  $form->{l_gldate}           = 'Y';  # Spalte mit gldate immer anzeigen
   $form->{l_credit_tax_accno} = 'Y';
+  $form->{l_datesort} = 'Y';
   $form->{l_debit_tax_accno}  = 'Y';
   $form->{l_balance}          = $form->{accno} ? 'Y' : '';
 
   my %column_defs = (
     'id'               => { 'text' => $locale->text('ID'), },
-    'transdate'        => { 'text' => $locale->text('Date'), },
+    'transdate'        => { 'text' => $locale->text('Invoice Date'), },
+    'gldate'           => { 'text' => $locale->text('Booking Date'), },
     'reference'        => { 'text' => $locale->text('Reference'), },
     'source'           => { 'text' => $locale->text('Source'), },
     'description'      => { 'text' => $locale->text('Description'), },
@@ -510,9 +572,10 @@ sub generate_report {
     'credit_tax_accno' => { 'text' => $locale->text('Credit Tax Account'), },
     'balance'          => { 'text' => $locale->text('Balance'), },
     'projectnumbers'   => { 'text' => $locale->text('Project Numbers'), },
+    'employee'         => { 'text' => $locale->text('Employee'), },
   );
 
-  foreach my $name (qw(id transdate reference description debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
+  foreach my $name (qw(id transdate gldate reference description debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
     my $sortname                = $name =~ m/accno/ ? 'accno' : $name;
     my $sortdir                 = $sortname eq $form->{sort} ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $callback . "&sort=$sortname&sortdir=$sortdir";
@@ -523,7 +586,7 @@ sub generate_report {
 
   my %column_alignment;
   map { $column_alignment{$_}     = 'right'  } qw(balance id debit credit debit_tax credit_tax balance);
-  map { $column_alignment{$_}     = 'center' } qw(reference debit_accno credit_accno debit_tax_accno credit_tax_accno);
+  map { $column_alignment{$_}     = 'center' } qw(transdate gldate reference debit_accno credit_accno debit_tax_accno credit_tax_accno);
   map { $column_alignment{$_}     = 'left' } qw(description source notes);
   map { $column_defs{$_}->{align} = $column_alignment{$_} } keys %column_alignment;
 
@@ -597,7 +660,7 @@ sub generate_report {
 
     map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes);
 
-    map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno source);
+    map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate gldate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno source);
 
     foreach my $col (qw(debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
       $row->{$col}->{link} = [ map { "${callback}&accno=" . E($_) } @{ $rows{$col} } ];

@@ -231,19 +231,22 @@ sub all_transactions {
     push(@apvalues, '%' . $form->{source} . '%');
   }
 
+  # default Datumseinschränkung falls nicht oder falsch übergeben (sollte nie passieren)
+  $form->{datesort} = 'transdate' unless $form->{datesort} =~ /^(transdate|gldate)$/;
+
   if ($form->{datefrom}) {
-    $glwhere .= " AND ac.transdate >= ?";
-    $arwhere .= " AND ac.transdate >= ?";
-    $apwhere .= " AND ac.transdate >= ?";
+    $glwhere .= " AND ac.$form->{datesort} >= ?";
+    $arwhere .= " AND ac.$form->{datesort} >= ?";
+    $apwhere .= " AND ac.$form->{datesort} >= ?";
     push(@glvalues, $form->{datefrom});
     push(@arvalues, $form->{datefrom});
     push(@apvalues, $form->{datefrom});
   }
 
   if ($form->{dateto}) {
-    $glwhere .= " AND ac.transdate <= ?";
-    $arwhere .= " AND ac.transdate <= ?";
-    $apwhere .= " AND ac.transdate <= ?";
+    $glwhere .= " AND ac.$form->{datesort} <= ?";
+    $arwhere .= " AND ac.$form->{datesort} <= ?";
+    $apwhere .= " AND ac.$form->{datesort} <= ?";
     push(@glvalues, $form->{dateto});
     push(@arvalues, $form->{dateto});
     push(@apvalues, $form->{dateto});
@@ -256,6 +259,19 @@ sub all_transactions {
     push(@glvalues, '%' . $form->{description} . '%');
     push(@arvalues, '%' . $form->{description} . '%');
     push(@apvalues, '%' . $form->{description} . '%');
+  }
+ 
+  if ($form->{employee} =~ /--/) {
+    ($form->{employee_id},$form->{employee_name}) = split(/--/,$form->{employee});
+    $query .= " AND o.employee_id = ?";
+    push @values, conv_i($form->{employee_id});
+  #if ($form->{employee_id}) {
+    $glwhere .= " AND g.employee_id = ? ";
+    $arwhere .= " AND a.employee_id = ? ";
+    $apwhere .= " AND a.employee_id = ? ";
+    push(@glvalues, conv_i($form->{employee_id}));
+    push(@arvalues, conv_i($form->{employee_id}));
+    push(@apvalues, conv_i($form->{employee_id}));
   }
 
   if ($form->{notes}) {
@@ -312,7 +328,7 @@ sub all_transactions {
         qq|SELECT SUM(ac.amount)
            FROM acc_trans ac
            LEFT JOIN chart c ON (ac.chart_id = c.id)
-           WHERE (c.accno = ?) AND (ac.transdate < ?)|;
+           WHERE (c.accno = ?) AND (ac.$form->{datesort} < ?)|;
       ($form->{balance}) = selectrow_query($form, $dbh, $query, $form->{accno}, conv_date($form->{datefrom}));
     }
   }
@@ -322,6 +338,7 @@ sub all_transactions {
   my %sort_columns =  (
     'id'           => [ qw(id)                   ],
     'transdate'    => [ qw(transdate id)         ],
+    'gldate'       => [ qw(gldate id)         ],
     'reference'    => [ qw(lower_reference id)   ],
     'description'  => [ qw(lower_description id) ],
     'accno'        => [ qw(accno transdate id)   ],
@@ -331,9 +348,10 @@ sub all_transactions {
     'source'          => { 'gl' => 'ac.source',     'arap' => 'ac.source',   },
     'description'     => { 'gl' => 'g.description', 'arap' => 'ct.name',     },
     );
-
+  
+  # sortdir = sort direction (ascending or descending)
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
-  my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : 'transdate';
+  my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : $form->{datesort};  # default used to be transdate
   my $sortorder = join ', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} };
 
   my %columns_for_sorting = ( 'gl' => '', 'arap' => '', );
@@ -347,8 +365,9 @@ sub all_transactions {
   $query =
     qq|SELECT
         ac.acc_trans_id, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
-        g.description, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, g.notes, t.chart_id
+        g.description, ac.transdate, ac.gldate, ac.source, ac.trans_id,
+        ac.amount, c.accno, g.notes, t.chart_id,
+        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{gl}
       FROM gl g, acc_trans ac $project_join, chart c
@@ -360,8 +379,9 @@ sub all_transactions {
       UNION
 
       SELECT ac.acc_trans_id, a.id, 'ar' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
-        ct.name, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, a.notes, t.chart_id
+        ct.name, ac.transdate, ac.gldate, ac.source, ac.trans_id,
+        ac.amount, c.accno, a.notes, t.chart_id,
+        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{arap}
       FROM ar a, acc_trans ac $project_join, customer ct, chart c
@@ -374,8 +394,9 @@ sub all_transactions {
       UNION
 
       SELECT ac.acc_trans_id, a.id, 'ap' AS type, a.invoice, a.invnumber, ac.taxkey, c.link,
-        ct.name, ac.transdate, ac.source, ac.trans_id,
-        ac.amount, c.accno, a.notes, t.chart_id
+        ct.name, ac.transdate, ac.gldate, ac.source, ac.trans_id,
+        ac.amount, c.accno, a.notes, t.chart_id,
+        CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{arap}
       FROM ap a, acc_trans ac $project_join, vendor ct, chart c
@@ -386,6 +407,7 @@ sub all_transactions {
         AND (a.id = ac.trans_id)
 
       ORDER BY $sortorder, acc_trans_id $sortdir|;
+#      ORDER BY gldate DESC, id DESC, acc_trans_id DESC
 
   my @values = (@glvalues, @arvalues, @apvalues);
 
