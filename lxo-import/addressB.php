@@ -116,7 +116,7 @@ $kunde_fld = array_keys($address);
 
 $f=fopen($dir.$file.".csv","r");
 $zeile=fgets($f,1200);
-$infld=split($trenner,strtolower($zeile));
+$infld=explode($trenner,strtolower($zeile));
 $first=true;
 $ok=true;
 foreach ($infld as $fld) {
