@@ -543,9 +543,9 @@ sub list_transactions {
     'description' => { 'text' => $locale->text('Description'), },
     'debit'       => { 'text' => $locale->text('Debit'), },
     'credit'      => { 'text' => $locale->text('Credit'), },
-    'gegenkonto'     => { 'text' => $locale->text('Gegenkonto'), },
-    'ustkonto'     => { 'text' => $locale->text('USt-Konto'), },
-    'balance'          => { 'text' => $locale->text('Balance'), },
+    'gegenkonto'  => { 'text' => $locale->text('Gegenkonto'), },
+    'ustkonto'    => { 'text' => $locale->text('USt-Konto'), },
+    'balance'     => { 'text' => $locale->text('Balance'), },
     'ustrate'     => { 'text' => $locale->text('Satz %'), },
  );
 

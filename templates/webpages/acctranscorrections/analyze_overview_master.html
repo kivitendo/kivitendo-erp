@@ -67,6 +67,24 @@
        [%- END %]
       [%- END %]
 
+     [%- ELSIF problem.type == 'missing_taxkeys_in_invoices' %]
+      [%- IF problem.ar_problems.size %]
+       <translate>Sales invoices</translate>
+       [%- FOREACH subproblem = problem.ar_problems %]
+        [%- UNLESS loop.first %], [%- END %]
+        <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
+       [%- END %]
+      [%- END %]
+
+      [%- IF problem.ap_problems.size %]
+       [%- IF problem.ar_problems.size %]; [%- END %]
+       <translate>Purchase invoices</translate>
+       [%- FOREACH subproblem = problem.ap_problems %]
+        [%- UNLESS loop.first %], [%- END %]
+        <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
+       [%- END %]
+      [%- END %]
+
      [%- ELSE %]
 
      <a href="[% problem.link %]">
@@ -100,6 +118,9 @@
 
      [%- ELSIF problem.type == 'invoice_inventory_with_taxkeys' %]
      <translate>Sales and purchase invoices with inventory transactions with taxkeys</translate>
+
+     [%- ELSIF problem.type == 'missing_taxkeys_in_invoices' %]
+     <translate>Missing taxkeys in invoices with taxes.</translate>
 
      [%- END %]
     </td>

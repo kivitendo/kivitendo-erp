@@ -159,6 +159,7 @@ sub display_row {
   );
   my @column_index = map { $_->{id} } grep { $_->{display} } @HEADER;
 
+
   # cache units
   my $all_units       = AM->retrieve_units(\%myconfig, $form);
 
@@ -209,7 +210,9 @@ sub display_row {
     my %column_data = ();
 
     # undo formatting
-    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(qty discount sellprice price_new price_old) unless ($form->{simple_save});
+    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } 
+      qw(qty discount sellprice lastcost price_new price_old) 
+        unless ($form->{simple_save});
 
 # unit begin
     $form->{"unit_old_$i"}      ||= $form->{"unit_$i"};
@@ -294,6 +297,7 @@ sub display_row {
       }
       $column_data{sellprice} = $cgi->textfield(-name => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value =>
                                                 $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces));
+
     }
     $column_data{discount}    = $cgi->textfield(-name => "discount_$i", -size => 3, -value => $form->format_amount(\%myconfig, $form->{"discount_$i"}));
     $column_data{linetotal}   = $form->format_amount(\%myconfig, $linetotal, 2);
@@ -338,7 +342,10 @@ sub display_row {
 
     map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) } qw(marge_absolut marge_percent);
 
-    push @ROW2, { value => sprintf qq|<font %s><b>%s</b> %s &nbsp;%s%% </font> &nbsp;<b>%s</b> %s &nbsp;<b>%s</b> %s|,
+    push @ROW2, { value => sprintf qq|
+         <font %s><b>%s</b> %s &nbsp;%s%% </font> 
+        &nbsp;<b>%s</b> %s 
+        &nbsp;<b>%s</b> <input size="5" name="lastcost_$i" value="%s">|,
                    $marge_color, $locale->text('Ertrag'),$form->{"marge_absolut_$i"}, $form->{"marge_percent_$i"},
                    $locale->text('LP'), $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2),
                    $locale->text('EK'), $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, 2) }
@@ -361,8 +368,8 @@ sub display_row {
     my @hidden_vars;
 
     if ($is_delivery_order) {
-      map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount);
-      push @hidden_vars, qw(sellprice discount price_factor_id);
+      map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
+      push @hidden_vars, qw(sellprice discount price_factor_id lastcost);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
     }
 
@@ -372,7 +379,7 @@ sub display_row {
           map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
                 income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
-                longdescription basefactor marge_absolut marge_percent marge_price_factor lastcost), @hidden_vars)
+                longdescription basefactor marge_absolut marge_percent marge_price_factor), @hidden_vars)
     );
 
     map { $form->{"${_}_base"} += $linetotal } (split(/ /, $form->{"taxaccounts_$i"}));
@@ -668,7 +675,7 @@ sub item_selected {
   map {
     $form->{"${_}_$i"} =
       $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces)
-  } qw(sellprice listprice) if $form->{item} ne 'assembly';
+  } qw(sellprice listprice lastcost) if $form->{item} ne 'assembly';
 
   # get pricegroups for parts
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
@@ -1177,7 +1184,9 @@ sub print_options {
     (!$options{no_html}) ?
       opthash("html", $form->{DF}{html}, "HTML") : undef,
     ($main::opendocument_templates && !$options{no_opendocument}) ?
-      opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef;
+      opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef,
+    ($main::excel_templates && !$options{no_excel}) ?
+      opthash("excel",               $form->{DF}{excel},               $locale->text("Excel")) : undef;
 
   push @LANGUAGE_ID,
     map { opthash($_->{id}, ($_->{id} eq $form->{language_id} ? 'selected' : ''), $_->{description}) } +{}, @{ $form->{languages} }
@@ -1585,6 +1594,9 @@ sub print_form {
   } elsif ($form->{"format"} =~ /opendocument/) {
     $form->{opendocument} = 1;
     $extension            = 'odt';
+  } elsif ($form->{"format"} =~ /excel/) {
+    $form->{excel} = 1;
+    $extension            = 'xls';
   }
 
   my $email_extension = '_email' if (($form->{media} eq 'email') && (-f "$myconfig{templates}/$form->{formname}_email$form->{language}${printer_code}.${extension}"));

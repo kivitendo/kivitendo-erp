@@ -486,3 +486,112 @@ sub project_selected {
 
 sub continue       { call_sub($main::form->{"nextsub"}); }
 
+
+1;
+
+__END__
+
+=head1 NAME
+
+bin/mozilla/arap.pl - helper routines for invoiceing frontend.
+
+=head1 SYNOPSIS
+
+nothing yet
+
+=head1 DESCRIPTION
+
+nothing yet
+
+=head1 FUNCTIONS
+
+=head2 check_name customer|vendor
+
+check_name was originally meant to update the selected customer or vendor. The
+way it does that has generted more hate than almost any other part of this
+software.
+
+What it does is:
+
+=over 4
+
+=item
+
+It checks if a vendor or customer is given. No failsafe, vendor fallback if
+$_[0] is something fancy.
+
+=item
+
+It assumes, that there is a field named customer or vendor in $form.
+
+=item
+
+It assumes, that this field is filled with name--id, and tries to split that.
+sql ledger uses that combination to get ids into the select keys.
+
+=item
+
+It looks for a field selectcustomer or selectvendor in $form. sql ledger used
+to store a copy of the html select in there. (again, don't ask)
+
+=item
+
+If this field exists, it looks for a field called oldcustomer or oldvendor, in
+which the old name--id string was stored in sql ledger, and compares those.
+
+=item
+
+if they don't match, it will set customer_id or vendor_id in $form, load the
+entry (which will clobber everything in $form named like a column in customer
+oder vendor) and return.
+
+=item
+
+If there was no select* entry, it assumes that vclimit was lower than the
+number of entries, and that an input field was generated. In that case the
+splitting is omitted (since users don't generally include ids in entered names)
+
+=item
+
+It looks for a *_id field, and combines it with the given input into a name--id
+entry and compares it to the old* entry. (Missing any of these will instantly
+break check_namea.
+
+=item
+
+If those do not match, $form->get_name is called to get matching results.
+get_name only matches by *number and name, not by id, don't try to get it to do
+so.
+
+=item
+
+The results are stored in $form>{name_list} but a count is returned, and
+checked.
+
+=item
+
+If only one result was found, *_id, * and old* are copied into $form, the entry
+is loaded (like above, clobbering)
+
+=item
+
+If there is more than one, a selection dialog is rendered
+
+=item
+
+If none is found, an error is generated.
+
+=back
+
+=head3 I built a customer/vendor box somewhere and it doesn't work, what's wrong?
+
+Make sure a select* field is given if and only if you render a select box. The
+actual contents are ignored, but recognition fails if not present.
+
+Make sure old* and *_id fields are set correctly (name--id form for old*). They
+are necessary in all steps and branches.
+
+Since get_customer and get_vendor clobber a lot of fields, make sure what
+changes exactly.
+
+=cut

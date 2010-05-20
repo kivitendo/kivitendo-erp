@@ -337,8 +337,9 @@ sub save {
       my $baseqty = $form->{"qty_$i"} * $basefactor;
 
       $form->{"marge_percent_$i"} = $form->parse_amount($myconfig, $form->{"marge_percent_$i"}) * 1;
-      $form->{"marge_total_$i"} = $form->parse_amount($myconfig, $form->{"marge_total_$i"}) * 1;
-      $form->{"lastcost_$i"} = $form->{"lastcost_$i"} * 1;
+      $form->{"marge_absolut_$i"} = $form->parse_amount($myconfig, $form->{"marge_absolut_$i"}) * 1;
+      
+      $form->{"lastcost_$i"} = $form->parse_amount($myconfig, $form->{"lastcost_$i"});
 
       # set values to 0 if nothing entered
       $form->{"discount_$i"} = $form->parse_amount($myconfig, $form->{"discount_$i"}) / 100;
@@ -428,7 +429,7 @@ sub save {
            $form->{"serialnumber_$i"}, $form->{"ship_$i"}, conv_i($pricegroup_id),
            $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
            $form->{"cusordnumber_$i"}, $form->{"subtotal_$i"} ? 't' : 'f',
-           $form->{"marge_percent_$i"}, $form->{"marge_total_$i"},
+           $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
            $form->{"lastcost_$i"},
            conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
            conv_i($form->{"marge_price_factor_$i"}));

@@ -1089,4 +1089,80 @@ sub get_bank_info {
   return $result;
 }
 
+sub parse_excel_file {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+  my $locale = $main::locale;
+
+  $form->{formname}   = 'sales_quotation';
+  $form->{type}   = 'sales_quotation';
+  $form->{format} = 'excel';
+  $form->{media}  = 'screen';
+  $form->{quonumber} = 1;
+
+
+  # $form->{"notes"} will be overridden by the customer's/vendor's "notes" field. So save it here.
+  $form->{ $form->{"formname"} . "notes" } = $form->{"notes"};
+
+  my $inv                  = "quo";
+  my $due                  = "req";
+  $form->{"${inv}date"} = $form->{transdate};
+  $form->{label}        = $locale->text('Quotation');
+  my $numberfld            = "sqnumber";
+  my $order                = 1;
+
+  # assign number
+  $form->{what_done} = $form->{formname};
+
+  map({ delete($form->{$_}); } grep(/^cp_/, keys(%{ $form })));
+
+  my $output_dateformat = $myconfig->{"dateformat"};
+  my $output_numberformat = $myconfig->{"numberformat"};
+  my $output_longdates = 1;
+
+  # map login user variables
+  map { $form->{"login_$_"} = $myconfig->{$_} } ("name", "email", "fax", "tel", "company");
+
+  # format item dates
+  for my $field (qw(transdate_oe deliverydate_oe)) {
+    map {
+      $form->{$field}[$_] = $locale->date($myconfig, $form->{$field}[$_], 1);
+    } 0 .. $#{ $form->{$field} };
+  }
+
+  if ($form->{shipto_id}) {
+    $form->get_shipto($myconfig);
+  }
+
+  $form->{notes} =~ s/^\s+//g;
+
+  $form->{templates} = $myconfig->{templates};
+
+  delete $form->{printer_command};
+
+  $form->get_employee_info($myconfig);
+
+  my ($cvar_date_fields, $cvar_number_fields) = CVar->get_field_format_list('module' => 'CT', 'prefix' => 'vc_');
+
+  if (scalar @{ $cvar_date_fields }) {
+    format_dates($output_dateformat, $output_longdates, @{ $cvar_date_fields });
+  }
+
+  while (my ($precision, $field_list) = each %{ $cvar_number_fields }) {
+    reformat_numbers($output_numberformat, $precision, @{ $field_list });
+  }
+
+  $form->{excel} = 1;
+  my $extension            = 'xls';
+
+  my $form->{IN}         = "$form->{formname}.${extension}";
+
+  delete $form->{OUT};
+
+  $form->parse_template($myconfig, $main::userspath);
+
+  $main::lxdebug->leave_sub();
+}
+
 1;

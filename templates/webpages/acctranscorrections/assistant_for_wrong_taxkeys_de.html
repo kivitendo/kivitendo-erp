@@ -130,7 +130,7 @@
   <!--
     function enable_fix_button_maybe() {
       var all_set = true;
-      $("[@name='fixes[].taxkey']").each(function () {
+      $("[name='fixes[].taxkey']").each(function () {
         var val = $(this).attr('value');
         if (val == '')
           all_set = false;

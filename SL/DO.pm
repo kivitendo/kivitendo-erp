@@ -277,11 +277,10 @@ sub save {
     }
     my $baseqty = $form->{"qty_$i"} * $basefactor;
 
-    $form->{"lastcost_$i"} *= 1;
-
     # set values to 0 if nothing entered
     $form->{"discount_$i"}  = $form->parse_amount($myconfig, $form->{"discount_$i"});
     $form->{"sellprice_$i"} = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
+    $form->{"lastcost_$i"} = $form->parse_amount($myconfig, $form->{"lastcost_$i"});
 
     $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
     my $linetotal    = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);

@@ -1871,7 +1871,7 @@ sub save {
       $form->{creditremaining} -= $amount;
 
       # redo number formatting, because invoice parse them!
-      map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}) } qw(weight listprice sellprice rop);
+      map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}) } qw(weight listprice sellprice lastcost rop);
     }
 
     $form->{"id_$i"} = $parts_id;
