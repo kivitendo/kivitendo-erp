@@ -398,7 +398,6 @@ sub get_warehouse_journal {
         ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_itime) );
 
   $where_clause = defined($where_clause) ? $where_clause : '';
-  $main::lxdebug->message(0, "where_clause = ".$where_clause);
   my $query =
   qq|SELECT DISTINCT $select{trans}
     FROM inventory i1
