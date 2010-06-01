@@ -99,7 +99,8 @@ sub transfer {
     } else {
       push @values, $transfer_types{$directions[$direction]}->{$transfer->{transfer_type}};
     }
-
+    
+    $transfer->{comment} = defined($transfer->{comment}) ? $transfer->{comment} : '';
     push @values, "$transfer->{comment}";
 
     my $qty = $transfer->{qty};
@@ -279,12 +280,12 @@ sub get_warehouse_journal {
   # filters
   my (@filter_ary, @filter_vars, $joins, %select_tokens, %select);
 
-  if ($filter{warehouse_id} ne '') {
+  if ($filter{warehouse_id}) {
     push @filter_ary, "w1.id = ? OR w2.id = ?";
     push @filter_vars, $filter{warehouse_id}, $filter{warehouse_id};
   }
 
-  if ($filter{bin_id} ne '') {
+  if ($filter{bin_id}) {
     push @filter_ary, "b1.id = ? OR b2.id = ?";
     push @filter_vars, $filter{bin_id}, $filter{bin_id};
   }
@@ -396,6 +397,8 @@ sub get_warehouse_journal {
   my $group_clause = join ", ", map { +/^l_/; "r_$'" }
         ( grep( { !/qty$/ and /^l_/ and $form->{$_} eq 'Y' } keys %$form), qw(l_parts_id l_partunit l_itime) );
 
+  $where_clause = defined($where_clause) ? $where_clause : '';
+  $main::lxdebug->message(0, "where_clause = ".$where_clause);
   my $query =
   qq|SELECT DISTINCT $select{trans}
     FROM inventory i1
