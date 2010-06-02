@@ -824,7 +824,7 @@ sub evaluate_rights_ary {
     }
   }
 
-  $main::lxdebug->enter_sub(2);
+  $main::lxdebug->leave_sub(2);
 
   return $value;
 }
@@ -858,7 +858,7 @@ sub _parse_rights_string {
       pop @stack;
 
       if (!@stack) {
-        $main::lxdebug->enter_sub(2);
+        $main::lxdebug->leave_sub(2);
         return 0;
       }
 
@@ -874,7 +874,7 @@ sub _parse_rights_string {
 
   my $result = ($access || (1 < scalar @stack)) ? 0 : evaluate_rights_ary($stack[0]);
 
-  $main::lxdebug->enter_sub(2);
+  $main::lxdebug->leave_sub(2);
 
   return $result;
 }
