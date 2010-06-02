@@ -1,18 +1,13 @@
 package SL::Auth;
 
-use constant OK              =>   0;
-use constant ERR_PASSWORD    =>   1;
-use constant ERR_BACKEND     => 100;
-
-use constant SESSION_OK      =>   0;
-use constant SESSION_NONE    =>   1;
-use constant SESSION_EXPIRED =>   2;
+use DBI;
 
 use Digest::MD5 qw(md5_hex);
 use IO::File;
 use Time::HiRes qw(gettimeofday);
 use List::MoreUtils qw(uniq);
 
+use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
 use SL::Auth::LDAP;
 
