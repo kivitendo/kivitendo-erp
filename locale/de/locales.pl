@@ -578,11 +578,14 @@ sub scanhtmlfile {
                         [\-~#]*         # Whitespace-Unterdrückung
                         \%\]            # Template-Ende-Tag
                        /ix) {
-#        print "Found filter '$1' in string '$line'\n";
-        $cached{$_[0]}{all}{$1}  = 1;
-        $cached{$_[0]}{html}{$1} = 1;
-        $plugins{needed}->{T8}   = 1;
-        substr $line, $-[0], $+[0] - $-[0], '';
+        my $string = $1;
+        print "Found filter >>>$string<<<\n" if $debug;
+        substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
+
+        $cached{$_[0]}{all}{$string}    = 1;
+        $cached{$_[0]}{html}{$string}   = 1;
+        $cached{$_[0]}{submit}{$string} = 1 if $PREMATCH =~ /$submitsearch/;
+        $plugins{needed}->{T8}          = 1;
       }
 
       while ("" ne $line) {
