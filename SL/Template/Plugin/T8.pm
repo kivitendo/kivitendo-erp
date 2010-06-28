@@ -18,7 +18,7 @@ sub init {
 
 sub filter {
   my ($self, $text, $args) = @_;
-  return $locale->text($text, @{ $args || [] });
+  return $locale->text($text, @{ $args || [] }) || $text;
 }
 
 return 'SL::Template::Plugin::T8';
