@@ -566,19 +566,27 @@ sub scanhtmlfile {
         $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator));
       }
 
-      while ($line =~ m/\[\%            # Template-Start-Tag
-                        [\-~#]*         # Whitespace-Unterdrückung
-                        \s*             # Optional beliebig viele Whitespace
-                        [\'\"]          # Anfang des zu übersetzenden Strings
-                        (.*?)           # Der zu übersetzende String
-                        [\'\"]          # Ende des zu übersetzenden Strings
-                        \s*\|\s*        # Pipe-Zeichen mit optionalen Whitespace davor und danach
-                        \$T8            # Filteraufruf
-                        .*?             # Optionale Argumente für den Filter und Whitespaces
-                        [\-~#]*         # Whitespace-Unterdrückung
-                        \%\]            # Template-Ende-Tag
+      while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
+                          LxERP\.t8\(   #   LxERP.t8(
+                          [\'\"]        #   Anfang des zu übersetzenden Strings
+                          (.*?)         #   Der zu übersetzende String
+                          [\'\"]        #   Ende des zu übersetzenden Strings
+                        |               # Start von Variante 2: [% '...' | $T8 %]
+                          \[\%          #   Template-Start-Tag
+                          [\-~#]*       #   Whitespace-Unterdrückung
+                          \s*           #   Optional beliebig viele Whitespace
+                          [\'\"]        #   Anfang des zu übersetzenden Strings
+                          (.*?)         #   Der zu übersetzende String
+                          [\'\"]        #   Ende des zu übersetzenden Strings
+                          \s*\|\s*      #   Pipe-Zeichen mit optionalen Whitespace davor und danach
+                          \$T8          #   Filteraufruf
+                          .*?           #   Optionale Argumente für den Filter
+                          \s*           #   Whitespaces
+                          [\-~#]*       #   Whitespace-Unterdrückung
+                          \%\]          #   Template-Ende-Tag
+                        )
                        /ix) {
-        my $string = $1;
+        my $string = $1 || $2;
         print "Found filter >>>$string<<<\n" if $debug;
         substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
 

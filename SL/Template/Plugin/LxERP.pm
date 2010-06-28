@@ -106,4 +106,10 @@ sub abs {
   return $var < 0 ? $var * -1 : $var;
 }
 
+sub t8 {
+  my ($self, $text, $args) = @_;
+  $self->{locale} ||= Locale->new($::myconfig{countrycode}, 'all');
+  return $self->{locale}->text($text, @{ $args || [] });
+}
+
 1;
