@@ -1198,7 +1198,7 @@ sub aging {
          AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
     FROM ${arap}, ${ct}
     WHERE ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null))
-      AND (${arap}.storno IS FALSE)
+      AND NOT COALESCE (${arap}.storno, 'f')
       AND (${arap}.${ct}_id = ${ct}.id)
       AND (${ct}.id = ?)
       AND (transdate <= (date $todate) $fromwhere )
