@@ -181,6 +181,13 @@
         </select>
        </td>
       </tr>
+      <tr>
+       <th align='right'><translate>Mandatory Departments</translate></th>
+       <td>
+        <input type='radio' name='mandatory_departments' value='0' [% IF !myc_mandatory_departments %] checked[% END %]> <translate>No</translate>
+        <input type='radio' name='mandatory_departments' value='1' [% IF  myc_mandatory_departments %] checked[% END %]> <translate>Yes</translate>
+       </td>
+      </tr>
 
       <input type="hidden" name="templates" value="[% HTML.escape(myc_templates) %]">
      </table>

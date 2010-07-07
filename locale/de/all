@@ -971,6 +971,7 @@ $self->{texts} = {
   'Make'                        => 'Lieferant',
   'Manage license keys'         => 'Lizenzschl&uuml;ssel verwalten',
   'Mandantennummer'             => 'Mandantennummer',
+  'Mandatory Departments'       => 'Benutzer muss Abteilungen vergeben',
   'Mar'                         => 'März',
   'March'                       => 'März',
   'Margins'                     => 'Seitenr&auml;nder',

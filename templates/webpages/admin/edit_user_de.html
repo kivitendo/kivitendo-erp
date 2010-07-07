@@ -181,6 +181,13 @@
         </select>
        </td>
       </tr>
+      <tr>
+       <th align='right'>Benutzer muss Abteilungen vergeben</th>
+       <td>
+        <input type='radio' name='mandatory_departments' value='0' [% IF !myc_mandatory_departments %] checked[% END %]> Nein
+        <input type='radio' name='mandatory_departments' value='1' [% IF  myc_mandatory_departments %] checked[% END %]> Ja
+       </td>
+      </tr>
 
       <input type="hidden" name="templates" value="[% HTML.escape(myc_templates) %]">
      </table>
