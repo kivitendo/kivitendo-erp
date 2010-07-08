@@ -253,16 +253,17 @@ document.getElementById("main_window").contentWindow.history.forward()
 <!-- ***************************************************************************  -->
 
 <!-- special buttons ( logout , print, open new window )
+The tooltips, like tooltip="Neues Fenster", do not appear in my Firefox/Prism browsers. Why?
 ****************************************************************************  -->
 <xsl:template name="specialbuttons">
-  <toolbarbutton image="image/icons/24x24/Batch Printing.png" tooltiptext="hallo" oncommand="PrintW(event)"/>
+  <toolbarbutton image="image/icons/24x24/Batch Printing.png" tooltip="Drucken" oncommand="PrintW(event)"/>
   <toolbarbutton image="image/icons/24x24/Neues Fenster.png" tooltip="Neues Fenster" link="menuXML.pl?action=display" target="_top" oncommand="openLinkNewWindow(event)"/>
   <toolbarbutton label="Logout" link="{/*//item[@id='Programm--Logout']/@link}" target="_top" oncommand="openLink(event)">
     <image src="image/icons/24x24/Programm--Logout.png" width="24" height="24" />
   </toolbarbutton>
 <toolbarseparator/>
- <toolbarbutton label="back" tooltiptext="hallo" oncommand="MyGoBack()"/>
-  <toolbarbutton label="forward" tooltip="Neues Fenster" oncommand="MyGoForward()"/>
+  <toolbarbutton image="image/icons/24x24/leftarrow_24.png" tooltip="Schritt zurück" oncommand="MyGoBack()"/>
+  <toolbarbutton image="image/icons/24x24/rightarrow_24.png" tooltip="Schritt vor" oncommand="MyGoForward()"/>
 </xsl:template>
 <!-- ***************************************************************************  -->
 
