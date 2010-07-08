@@ -11,8 +11,6 @@
 
 <form method="post" name="invoice" action="[% script %]">
 
-<p>[% saved_message %]</p>
-
 [%- FOREACH key = HIDDENS %]
 <input type="hidden" name="[% HTML.escape(key) %]" value="[% HTML.escape($key)  %]">
 [%- END %]
@@ -24,6 +22,8 @@
 <input type="hidden" name="lizenzen" value="[% lizenzen %]">
 
 <p><div class="listtop" width="100%">[% title %]</div></p>
+
+<p>[% saved_message %]</p>
 
 <table width="100%">
   <tr>

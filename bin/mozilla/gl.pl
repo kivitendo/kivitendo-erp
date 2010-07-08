@@ -1154,7 +1154,14 @@ sub form_header {
 <table width=100%>
   <tr>
     <th class=listtop>$form->{title}</th>
-  </tr>
+  </tr>| .
+
+  ($form->{saved_message} ? qq|
+  <tr>
+    <td>$form->{saved_message}</th>
+  </tr>| : '') .
+
+qq|
   <tr height="5"></tr>
   <tr>
     <td>
@@ -1601,6 +1608,12 @@ sub post {
 
   my $form     = $main::form;
   my $locale   = $main::locale;
+
+  if ($::myconfig{mandatory_departments} && !$form->{department}) {
+    $form->{saved_message} = $::locale->text('You have to specify a department.');
+    update();
+    exit;
+  }
 
   $form->{title}  = $locale->text("$form->{title} General Ledger Transaction");
   $form->{storno} = 0;

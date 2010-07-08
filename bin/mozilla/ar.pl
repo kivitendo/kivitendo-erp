@@ -1089,6 +1089,12 @@ sub post {
   $form->isblank("duedate",   $locale->text('Due Date missing!'));
   $form->isblank("customer",  $locale->text('Customer missing!'));
 
+  if ($myconfig{mandatory_departments} && !$form->{department}) {
+    $form->{saved_message} = $::locale->text('You have to specify a department.');
+    update();
+    exit;
+  }
+
   my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
   my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($form->date_closed($form->{"transdate"}, \%myconfig));

@@ -667,6 +667,12 @@ sub post {
     exit;
   }
 
+  if ($myconfig{mandatory_departments} && !$form->{department_id}) {
+    $form->{saved_message} = $::locale->text('You have to specify a department.');
+    update();
+    exit;
+  }
+
   remove_emptied_rows();
   &validate_items;
 

@@ -1871,6 +1871,7 @@ $self->{texts} = {
   'You have to create new Buchungsgruppen for all the combinations of inventory, income and expense accounts that have been used already.' => 'Sie m&uuml;ssen neue Buchungsgruppen f&uuml;r alle Kombinationen aus Inventar-, Erl&ouml;s- und Aufwandskonto, die bereits benutzt wurden.',
   'You have to enter a company name in your user preferences (see the "Program" menu, "Preferences").' => 'Sie müssen einen Firmennamen in Ihren Benutzereinstellungen angeben (siehe "Programm"-Menü, "Benuztereinstellungen).',
   'You have to fill in at least an account number, the bank code, the IBAN and the BIC.' => 'Sie müssen zumindest die Kontonummer, die Bankleitzahl, die IBAN und den BIC angeben.',
+  'You have to specify a department.' => 'Sie müssen eine Abteilung wählen.',
   'You have to specify an execution date for each antry.' => 'Sie müssen für jeden zu buchenden Eintrag ein Ausführungsdatum angeben.',
   'You must chose a user.'      => 'Sie m&uuml;ssen einen Benutzer ausw&auml;hlen.',
   'You will now be forwarded to the administration panel.' => 'Sie werden nun zum Administrationsbereich weitergeleitet.',
