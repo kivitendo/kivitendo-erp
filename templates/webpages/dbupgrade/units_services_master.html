@@ -1,4 +1,5 @@
-[% USE HTML %]<div class="listtop"><translate>Step 2 of 3: Services</translate></div>
+[%- USE T8 %]
+[% USE HTML %]<div class="listtop">[% 'Step 2 of 3: Services' | $T8 %]</div>
 
 <form name="Form" method="post" action="login.pl">
 
@@ -10,20 +11,14 @@
   <p>[% saved_message %]</p>
  [% END %]
 
- <div class="subsubheading"><translate>Add unit</translate></div>
+ <div class="subsubheading">[% 'Add unit' | $T8 %]</div>
 
  <p>
-  <translate>For each unit there's either no or exactly one base
-   unit. If you chose a base unit then you also have to chose a
-   factor. That way the new unit will be defined as a multiple of the
-   base unit. The base unit must be the &quot;smaller&quot; one. A
-   factor may not be less than 1. Therefore you may define
-   &quot;kg&quot; with the base unit &quot;g&quot; and a factor of
-   &quot;1&quot;, but not the other way round.</translate>
+  [% 'For each unit there's either no or exactly one base unit. If you chose a base unit then you also have to chose a factor. That way the new unit will be defined as a multiple of the base unit. The base unit must be the &quot;smaller&quot; one. A factor may not be less than 1. Therefore you may define &quot;kg&quot; with the base unit &quot;g&quot; and a factor of &quot;1&quot;, but not the other way round.' | $T8 %]
  </p>
 
  <p>
-  <translate>The following units exist already:</translate>
+  [% 'The following units exist already:' | $T8 %]
   [% FOREACH row = NEW_BASE_UNIT_DDBOX %][% IF row.name %][% HTML.escape(row.name) %][% UNLESS loop.last %]; [% END %][% END %][% END %]
  </p>
 
@@ -31,11 +26,11 @@
 
  <table>
   <tr>
-   <th align="right"><translate>Unit</translate></th>
+   <th align="right">[% 'Unit' | $T8 %]</th>
    <td><input name="new_name" size="20" maxlength="20"></td>
   </tr>
   <tr>
-   <th align="right"><translate>Base unit</translate></th>
+   <th align="right">[% 'Base unit' | $T8 %]</th>
    <td>
     <select name="new_base_unit">
      [% FOREACH row = NEW_BASE_UNIT_DDBOX %]<option [% row.selected %]>[% row.name %]</option>[% END %]
@@ -43,26 +38,26 @@
    </td>
   </tr>
   <tr>
-   <th align="right"><translate>Factor</translate></th>
+   <th align="right">[% 'Factor' | $T8 %]</th>
    <td><input name="new_factor"></td>
   </tr>
  </table>
 
- <input type="submit" onclick="document.Form.action2.value = 'add_unit'; document.Form.submit();" name="dummy" value="<translate>Add unit</translate>">
+ <input type="submit" onclick="document.Form.action2.value = 'add_unit'; document.Form.submit();" name="dummy" value="[% 'Add unit' | $T8 %]">
 
  <hr>
 
- <div class="subsubheading"><translate>Assign new units</translate></div>
+ <div class="subsubheading">[% 'Assign new units' | $T8 %]</div>
 
  <p>
-  <translate>The following units are unknown.</translate>
-  <translate>You have to chose which unit to save for each of them.</translate>
+  [% 'The following units are unknown.' | $T8 %]
+  [% 'You have to chose which unit to save for each of them.' | $T8 %]
  </p>
 
  <table>
   <tr>
-   <th class="listheading"><translate>Current unit</translate></th>
-   <th class="listheading"><translate>New unit</translate></th>
+   <th class="listheading">[% 'Current unit' | $T8 %]</th>
+   <th class="listheading">[% 'New unit' | $T8 %]</th>
   </tr>
 
   [% FOREACH row = UNKNOWN_PART_UNITS %]
@@ -80,7 +75,7 @@
   [% END %]
  </table>
 
- <input type="submit" onclick="document.Form.action2.value = 'assign_units'; document.Form.submit();" name="dummy" value="<translate>Assign units</translate>">
+ <input type="submit" onclick="document.Form.action2.value = 'assign_units'; document.Form.submit();" name="dummy" value="[% 'Assign units' | $T8 %]">
 
 </form>
 

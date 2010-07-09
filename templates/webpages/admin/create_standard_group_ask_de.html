@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
@@ -6,41 +7,41 @@
 
   <p>
 
-   Lx-Office wurde auf eine gruppenbasierte Benutzerzugriffsverwaltung umgestellt.
+   [% 'Lx-Office has been switched to group-based access restrictions.' | $T8 %]
 
-   Sie m&uuml;ssen mindestens eine Benutzergruppe anlegen, ihr Zugriff auf die verschiedenen Funktionsbereiche von Lx-Office gew&auml;hren und Benutzer dieser Gruppe zuordnen.
+   [% 'You have to create at least one group, grant it access to Lx-Office's functions and assign users to it.' | $T8 %]
 
-   Andernfalls haben alle Benutzer nur Zugriff auf ihre Benutzereinstellungen.
-
-  </p>
-
-  <p>
-
-   Im Rahmen dieser Benutzerdatenmigration kann Lx-Office eine solche Gruppe f&uuml;r Sie anlegen und allen Benutzern Zugriff auf alle Lx-Office-Funktionen gew&auml;hren.
-
-   Dieses entspricht dem Verhalten von Lx-Office vor Version 2.4.4.
+   [% 'Otherwise all users will only have access to their own settings.' | $T8 %]
 
   </p>
 
   <p>
 
-   Alternativ k&ouml;nnen Sie diesen Schritt &uuml;berspringen und selber Gruppen anlegen.
+   [% 'During this user migration Lx-Office can create such a group for you and grant all users access to all of Lx-Office's functions.' | $T8 %]
+
+   [% 'This corresponds to Lx-Office's behavior prior to version 2.4.4.' | $T8 %]
 
   </p>
 
   <p>
 
-   Wollen Sie, dass Lx-Office eine Gruppe mit Zugriff auf alle Funktionen anlegt?
+   [% 'Alternatively you can skip this step and create groups yourself.' | $T8 %]
 
-   Diese Gruppe wird &quot;Vollzugriff&quot; genannt.
+  </p>
+
+  <p>
+
+   [% 'Do you want Lx-Office to create a group for access to all functions?' | $T8 %]
+
+   [% 'This group will be called &quot;Full Access&quot;.' | $T8 %]
 
   </p>
 
   <input type="hidden" name="action" value="dispatcher">
 
   <p>
-   <input type="submit" class="submit" name="action_create_standard_group" value="Ja">
-   <input type="submit" class="submit" name="action_dont_create_standard_group" value="Nein">
+   <input type="submit" class="submit" name="action_create_standard_group" value="[% 'Yes' | $T8 %]">
+   <input type="submit" class="submit" name="action_dont_create_standard_group" value="[% 'No' | $T8 %]">
   </p>
 
  </form>

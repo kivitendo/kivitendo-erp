@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
  <form name="Form" method="post" action="admin.pl">
 
@@ -6,11 +7,11 @@
   <p>[% message %]</p>
   [% END %]
 
-  <div class="listtop">Gruppen bearbeiten</div>
+  <div class="listtop">[% 'Edit groups' | $T8 %]</div>
 
   <br>
 
-  <div class="listheading">Gruppen bearbeiten und l&ouml;schen</div>
+  <div class="listheading">[% 'Edit and delete a group' | $T8 %]</div>
 
   [% IF num_groups %]
   <p>
@@ -21,49 +22,49 @@
    </select>
   </p>
   [% ELSE %]
-  <p>Es wurden noch keine Gruppen angelegt.</p>
+  <p>[% 'No groups have been added yet.' | $T8 %]</p>
   [% END %]
 
   <p>
    [% IF num_groups %]
    <input type="hidden" name="edit_nextsub" value="edit_group">
    <input type="hidden" name="delete_nextsub" value="delete_group">
-   <input type="submit" class="submit" name="action" value="Bearbeiten">
-   <input type="submit" class="submit" name="action" value="Löschen">
+   <input type="submit" class="submit" name="action" value="[% 'Edit' | $T8 %]">
+   <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
    [% END %]
    <input type="hidden" name="back_nextsub" value="list_users">
-   <input type="submit" class="submit" name="action" value="Zurück">
+   <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
   </p>
  </form>
 
  <hr size="2" noshade>
 
- <div class="listheading">Gruppenzugehörigkeit</div>
+ <div class="listheading">[% 'Group membership' | $T8 %]</div>
 
- <p>Bearbeiten der Mitgliedschaft aller Benutzer in allen Gruppen:</p>
+ <p>[% 'Edit the membership of all users in all groups:' | $T8 %]</p>
 
  <form method="post" action="admin.pl">
   <p>
    <input type="hidden" name="edit_nextsub" value="edit_group_membership">
-   <input type="submit" class="submit" name="action" value="Bearbeiten">
+   <input type="submit" class="submit" name="action" value="[% 'Edit' | $T8 %]">
   </p>
 
  </form>
 
  <hr size="2" noshade>
 
- <div class="listheading">Neue Gruppe erfassen</div>
+ <div class="listheading">[% 'Add a new group' | $T8 %]</div>
 
  <form method="post" action="admin.pl">
   <p>
    <table border="0">
     <tr>
-     <td>Name:</td>
+     <td>[% 'Name' | $T8 %]:</td>
      <td><input name="name" maxlength="50"></td>
     </tr>
 
     <tr>
-     <td>Beschreibung:</td>
+     <td>[% 'Description' | $T8 %]:</td>
      <td><input name="description"></td>
     </tr>
    </table>
@@ -71,7 +72,7 @@
 
   <p>
    <input type="hidden" name="add_nextsub" value="add_group">
-   <input type="submit" class="submit" name="action" value="Erfassen">
+   <input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]">
   </p>
 
  </form>

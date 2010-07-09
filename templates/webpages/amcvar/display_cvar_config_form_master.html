@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body onload="document.Form.name.focus();">
 
  <style type="text/css">
@@ -13,7 +14,7 @@
   <p>
    <table>
     <tr>
-     <td align="right"><translate>Module</translate></td>
+     <td align="right">[% 'Module' | $T8 %]</td>
      <td>
       [%- INCLUDE generic/multibox.html
             name      = 'module',
@@ -24,17 +25,17 @@
     </tr>
 
     <tr>
-     <td align="right"><translate>Name</translate><sup><span class="small">(1)</span></sup></td>
+     <td align="right">[% 'Name' | $T8 %]<sup><span class="small">(1)</span></sup></td>
      <td><input name="name" value="[% HTML.escape(name) %]"></td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Description</translate><sup><span class="small">(2)</span></sup></td>
+     <td align="right">[% 'Description' | $T8 %]<sup><span class="small">(2)</span></sup></td>
      <td><input name="description" value="[% HTML.escape(description) %]"></td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Type</translate></td>
+     <td align="right">[% 'Type' | $T8 %]</td>
      <td>
       <select name="type">
        [%- FOREACH row = TYPES %]
@@ -45,44 +46,44 @@
     </tr>
 
     <tr>
-     <td align="right"><translate>Default value</translate><sup><span class="small">(3)</span></sup></td>
+     <td align="right">[% 'Default value' | $T8 %]<sup><span class="small">(3)</span></sup></td>
      <td><input name="default_value" value="[% HTML.escape(default_value) %]"></td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Options</translate><sup><span class="small">(4)</span></sup></td>
+     <td align="right">[% 'Options' | $T8 %]<sup><span class="small">(4)</span></sup></td>
      <td><input name="options" value="[% HTML.escape(options) %]"></td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Searchable</translate><sup><span class="small"></span></sup></td>
+     <td align="right">[% 'Searchable' | $T8 %]<sup><span class="small"></span></sup></td>
      <td>
       <input type="radio" name="searchable" id="searchable_1" value="1"[% IF searchable %] checked[% END %]>
-      <label for="searchable_1"><translate>Yes</translate></label>
+      <label for="searchable_1">[% 'Yes' | $T8 %]</label>
       <input type="radio" name="searchable" id="searchable_0" value="0"[% UNLESS searchable %] checked[% END %]>
-      <label for="searchable_0"><translate>No</translate></label>
+      <label for="searchable_0">[% 'No' | $T8 %]</label>
      </td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Includeable in reports</translate><sup><span class="small"></span></sup></td>
+     <td align="right">[% 'Includeable in reports' | $T8 %]<sup><span class="small"></span></sup></td>
      <td>
       <select name="inclusion">
-       <option value="no"[% UNLESS includeable %] selected[% END %]><translate>No</translate></option>
-       <option value="yes"[% IF includeable && !included_by_default %] selected[% END %]><translate>Yes</translate></option>
-       <option value="yes_default_on"[% IF included_by_default %] selected[% END %]><translate>Yes, included by default</translate></option>
+       <option value="no"[% UNLESS includeable %] selected[% END %]>[% 'No' | $T8 %]</option>
+       <option value="yes"[% IF includeable && !included_by_default %] selected[% END %]>[% 'Yes' | $T8 %]</option>
+       <option value="yes_default_on"[% IF included_by_default %] selected[% END %]>[% 'Yes, included by default' | $T8 %]</option>
       </select>
      </td>
     </tr>
 
     [%- IF module == 'IC' %]
     <tr>
-     <td align="right"><translate>Editable</translate><sup><span class="small">(5)</span></sup></td>
+     <td align="right">[% 'Editable' | $T8 %]<sup><span class="small">(5)</span></sup></td>
      <td>
       <input type="radio" name="flag_editable" id="flag_editable_1" value="1"[% IF flag_editable %] checked[% END %]>
-      <label for="flag_editable_1"><translate>Yes</translate></label>
+      <label for="flag_editable_1">[% 'Yes' | $T8 %]</label>
       <input type="radio" name="flag_editable" id="flag_editable_0" value="0"[% UNLESS flag_editable %] checked[% END %]>
-      <label for="flag_editable_0"><translate>No</translate></label>
+      <label for="flag_editable_0">[% 'No' | $T8 %]</label>
      </td>
     </tr>
     [%- END %]
@@ -92,71 +93,54 @@
   <input type="hidden" name="id" value="[% HTML.escape(id) %]">
 
   <p>
-   <input type="submit" name="action" value="<translate>Save</translate>">
+   <input type="submit" name="action" value="[% 'Save' | $T8 %]">
    [%- IF id %]
-   <input type="submit" name="action" value="<translate>Delete</translate>">
+   <input type="submit" name="action" value="[% 'Delete' | $T8 %]">
    [%- END %]
   </p>
 
   <hr>
 
-  <h3><translate>Annotations</translate></h3>
+  <h3>[% 'Annotations' | $T8 %]</h3>
 
   <p>
-   (1) <translate>The variable name must only consist of letters,
-    numbers and underscores. It must begin with a letter. Example:
-    send_christmas_present</translate>
+   (1) [% 'The variable name must only consist of letters, numbers and underscores. It must begin with a letter. Example: send_christmas_present' | $T8 %]
   </p>
 
   <p>
-   (2) <translate>The description is shown on the form. Chose
-    something short and descriptive.</translate>
+   (2) [% 'The description is shown on the form. Chose something short and descriptive.' | $T8 %]
   </p>
 
   <p>
-   (3) <translate>The default value depends on the variable type:</translate>
+   (3) [% 'The default value depends on the variable type:' | $T8 %]
    <br>
    <ul>
-    <li><translate>Text, text field and number variables: The default
-      value will be used as-is.</translate></li>
-    <li><translate>Boolean variables: If the default value is
-      non-empty then the checkbox will be checked by default and
-      unchecked otherwise.</translate></li>
-    <li><translate>Date and timestamp variables: If the default value
-      equals 'NOW' then the current date/current timestamp will be
-      used. Otherwise the default value is copied as-is.</translate></li>
+    <li>[% 'Text, text field and number variables: The default value will be used as-is.' | $T8 %]</li>
+    <li>[% 'Boolean variables: If the default value is non-empty then the checkbox will be checked by default and unchecked otherwise.' | $T8 %]</li>
+    <li>[% 'Date and timestamp variables: If the default value equals 'NOW' then the current date/current timestamp will be used. Otherwise the default value is copied as-is.' | $T8 %]</li>
    </ul>
   </p>
 
   <p>
-   (4) <translate>The available options depend on the varibale
-    type:</translate>
+   (4) [% 'The available options depend on the varibale type:' | $T8 %]
    <br>
    <ul>
-    <li><translate>Text variables: 'MAXLENGTH=n' sets the maximum
-      entry length to 'n'.</translate></li>
-    <li><translate>Text field variables: 'WIDTH=w HEIGHT=h' sets the
-      width and height of the text field. They default to 30 and 5
-      respectively.</translate></li>
-    <li><translate>Number variables: 'PRECISION=n' forces numbers to
-      be shown with exactly n decimal places.</translate></li>
-    <li><translate>Selection fields: The option field must contain the
-      available options for the selection. Options are separated by
-      '##', for example 'Early##Normal##Late'.</translate></li>
+    <li>[% 'Text variables: 'MAXLENGTH=n' sets the maximum entry length to 'n'.' | $T8 %]</li>
+    <li>[% 'Text field variables: 'WIDTH=w HEIGHT=h' sets the width and height of the text field. They default to 30 and 5 respectively.' | $T8 %]</li>
+    <li>[% 'Number variables: 'PRECISION=n' forces numbers to be shown with exactly n decimal places.' | $T8 %]</li>
+    <li>[% 'Selection fields: The option field must contain the available options for the selection. Options are separated by '##', for example 'Early##Normal##Late'.' | $T8 %]</li>
    </ul>
    <br>
-   <translate>Other values are ignored.</translate>
+   [% 'Other values are ignored.' | $T8 %]
   </p>
 
   [%- IF module == 'IC' %]
   <p>
    (5)
 
-   <translate>A variable marked as 'editable' can be changed in each
-    quotation, order, invoice etc.</translate>
+   [% 'A variable marked as 'editable' can be changed in each quotation, order, invoice etc.' | $T8 %]
 
-   <translate>Otherwise the variable is only available for
-    printing.</translate>
+   [% 'Otherwise the variable is only available for printing.' | $T8 %]
   </p>
   [%- END %]
 

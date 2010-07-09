@@ -1,25 +1,21 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
  <p>
-  <translate>There is at least one transaction for which the user has
-   chosen a logically wrong taxkey.</translate>
+  [% 'There is at least one transaction for which the user has chosen a logically wrong taxkey.' | $T8 %]
 
-  <translate>This means that the user has created an AP transaction
-   and chosen a taxkey for sales taxes, or that he has created an AR
-   transaction and chosen a taxkey for input taxes.</translate>
+  [% 'This means that the user has created an AP transaction and chosen a taxkey for sales taxes, or that he has created an AR transaction and chosen a taxkey for input taxes.' | $T8 %]
  </p>
 
  <p>
-  <translate>Lx-Office can fix these problems automatically.</translate>
+  [% 'Lx-Office can fix these problems automatically.' | $T8 %]
 
-  <translate>For AP transactions it will replace the sales taxkeys
-   with input taxkeys with the same tax rate.</translate>
+  [% 'For AP transactions it will replace the sales taxkeys with input taxkeys with the same tax rate.' | $T8 %]
 
-  <translate>For AR transactions it will replace the input taxkeys
-   with sales taxkeys with the same tax rate.</translate>
+  [% 'For AR transactions it will replace the input taxkeys with sales taxkeys with the same tax rate.' | $T8 %]
  </p>
 
  <form name="Form" action="acctranscorrections.pl" method="post">
@@ -27,8 +23,8 @@
   <p>
    <input type="hidden" name="action" value="fix_ap_ar_wrong_taxkeys">
    <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-   <input type="submit" class="submit" value="<translate>Fix transactions</translate>">
-   <input type="button" class="submit" onclick="history.back()" value="<translate>Back</translate>">
+   <input type="submit" class="submit" value="[% 'Fix transactions' | $T8 %]">
+   <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
   </p>
  </form>
 

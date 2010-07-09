@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <br/><div id='pjxdebugrequest'></div><br/>
@@ -18,10 +19,10 @@
   </colgroup>
 
   <tr class="coa_listheading">
-   <td class="coa_listheading_element"><translate>Account</translate></td>
-   <td colspan="3" class="coa_listheading_element"><translate>Description (Click on Description for details)</translate></td>
-   <td class="coa_listheading_element"><translate>Debit</translate></td>
-   <td class="coa_listheading_element"><translate>Credit</translate></td>
+   <td class="coa_listheading_element">[% 'Account' | $T8 %]</td>
+   <td colspan="3" class="coa_listheading_element">[% 'Description (Click on Description for details)' | $T8 %]</td>
+   <td class="coa_listheading_element">[% 'Debit' | $T8 %]</td>
+   <td class="coa_listheading_element">[% 'Credit' | $T8 %]</td>
   </tr>
 
   [% SET row_odd = '1' %][% FOREACH row = CA %]

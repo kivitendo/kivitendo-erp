@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %][% USE JavaScript %]<body[% UNLESS delivered %] onload="on_load();"[% END %]>
 
  [%- UNLESS delivered %]
@@ -61,15 +62,15 @@
   <p>
    <table>
     <tr>
-     <td>Artikelnummer</td>
+     <td>[% 'Part Number' | $T8 %]</td>
      <td>[% HTML.escape(PART_INFO.partnumber) %]</td>
     </tr>
     <tr>
-     <td>Beschreibung</td>
+     <td>[% 'Description' | $T8 %]</td>
      <td>[% HTML.escape(PART_INFO.description) %]</td>
     </tr>
     <tr>
-     <td>Menge laut Lieferschein</td>
+     <td>[% 'Qty according to delivery order' | $T8 %]</td>
      <td>[% HTML.escape(do_qty) %] [% HTML.escape(do_unit) %]</td>
     </tr>
    </table>
@@ -89,14 +90,14 @@
    <table>
     <tr class="listheading">
      <th class="listheading">&nbsp;</th>
-     <th class="listheading">Lager</th>
-     <th class="listheading">Lagerplatz</th>
-     <th class="listheading">Chargennummer</th>
+     <th class="listheading">[% 'Warehouse' | $T8 %]</th>
+     <th class="listheading">[% 'Bin' | $T8 %]</th>
+     <th class="listheading">[% 'Charge Number' | $T8 %]</th>
      [% IF conf_show_best_before %]
-     <th class="listheading">Mindesthaltbarkeit</th>
+     <th class="listheading">[% 'Best Before' | $T8 %]</th>
      [% END %]
-     <th align="right" class="listheading">Menge</th>
-     <th align="right" class="listheading">Einheit</th>
+     <th align="right" class="listheading">[% 'Qty' | $T8 %]</th>
+     <th align="right" class="listheading">[% 'Unit' | $T8 %]</th>
     </tr>
 
     [%- FOREACH row = STOCK_INFO %]
@@ -153,10 +154,10 @@
 
   <p>
    [%- IF delivered %]
-   <button type="button" class="submit" name="action" onclick="window.close()">Fenster Schlie&szlig;en</button>
+   <button type="button" class="submit" name="action" onclick="window.close()">[% 'Close Window' | $T8 %]</button>
    [%- ELSE %]
-   <input class="submit" type="submit" name="action" value="Erneuern">
-   <input class="submit" type="submit" name="action" value="Weiter">
+   <input class="submit" type="submit" name="action" value="[% 'Update' | $T8 %]">
+   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
    [%- END %]
   </p>
  </form>

@@ -181,6 +181,7 @@ $self->{texts} = {
   'Missing \'tag\' field.'      => 'Fehlendes Feld \'tag\'.',
   'Missing parameter #1 in call to sub #2.' => 'Fehlernder Parameter \'#1\' in Funktionsaufruf \'#2\'.',
   'Missing parameter (at least one of #1) in call to sub #2.' => 'Fehlernder Parameter (mindestens einer aus \'#1\') in Funktionsaufruf \'#2\'.',
+  'More than one #1 found matching, please be more specific.' => 'Mehr als ein #1 wurde gefunden, bitte geben Sie den Namen genauer an.',
   'More than one control file with the tag \'%s\' exist.' => 'Es gibt mehr als eine Kontrolldatei mit dem Tag \'%s\'.',
   'Name'                        => 'Name',
   'No'                          => 'Nein',

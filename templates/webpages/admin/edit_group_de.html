@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
  <form name="Form" method="post" action="admin.pl">
 
@@ -9,16 +10,16 @@
   <p>[% message %]</p>
   [% END %]
 
-  <div class="listtop">Gruppe bearbeiten [% HTML.escape(name) %]</div>
+  <div class="listtop">[% 'Edit group ' | $T8 %] [% HTML.escape(name) %]</div>
 
   <table width="100%">
    <tr>
     <td>
      <table>
       <tr class="listheading">
-       <td><b>Benutzer in<br>dieser Gruppe</b></td>
+       <td><b>[% 'Users in<br>this group' | $T8 %]</b></td>
        <td>&nbsp;</td>
-       <td><b>Benutzer nicht in dieser Gruppe</b></td>
+       <td><b>[% 'Users not in this group' | $T8 %]</b></td>
       </tr>
 
       <tr>
@@ -29,10 +30,10 @@
        </td>
 
        <td valign="center">
-        <input type="submit" class="submit" name="action" value="Zu Gruppe hinzufügen">
+        <input type="submit" class="submit" name="action" value="[% 'Add to group' | $T8 %]">
         <br>
         <br>
-        <input type="submit" class="submit" name="action" value="Aus Gruppe entfernen">
+        <input type="submit" class="submit" name="action" value="[% 'Remove from group' | $T8 %]">
        </td>
 
        <td valign="center">
@@ -44,7 +45,7 @@
 
       <tr>
        <td>
-        <input type="submit" class="submit" name="action" value="Zurück">
+        <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
        </td>
       </tr>
      </table>
@@ -53,7 +54,7 @@
 
      <table>
       <tr class="listheading">
-       <td colspan="2">Rechte bearbeiten</td>
+       <td colspan="2">[% 'Edit rights' | $T8 %]</td>
       </tr>
 
       [% FOREACH right = RIGHTS %]
@@ -72,9 +73,9 @@
       <tr>
        <td>
         <input type="hidden" name="save_nextsub" value="save_group">
-        <input type="submit" class="submit" name="action" value="Speichern">
+        <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
         &nbsp;
-        <input type="submit" class="submit" name="action" value="Zurück">
+        <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
        </td>
       </tr>
      </table>
@@ -83,25 +84,25 @@
 
      <table>
       <tr class="listheading">
-       <td colspan="2">Gruppe umbenennen</td>
+       <td colspan="2">[% 'Rename the group' | $T8 %]</td>
       </tr>
 
       <tr>
-       <td>Name:</td>
+       <td>[% 'Name' | $T8 %]:</td>
        <td><input name="name" maxlength="50" value="[% HTML.escape(name) %]"></td>
       </tr>
 
       <tr>
-       <td>Beschreibung:</td>
+       <td>[% 'Description' | $T8 %]:</td>
        <td><input name="description" value="[% HTML.escape(description) %]"></td>
       </tr>
 
       <tr>
        <td>
         <input type="hidden" name="save_nextsub" value="save_group">
-        <input type="submit" class="submit" name="action" value="Speichern">
+        <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
         &nbsp;
-        <input type="submit" class="submit" name="action" value="Zurück">
+        <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
        </td>
       </tr>
      </table>

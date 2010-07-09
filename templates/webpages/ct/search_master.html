@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body onload="fokus()">
 
  <form method="post" action="ct.pl" name="Form">
@@ -8,43 +9,43 @@
 
   <table>
    <tr>
-    <th align="right" nowrap>[% IF IS_CUSTOMER %]<translate>Customer Number</translate>[% ELSE %]<translate>Vendor Number</translate>[% END %]</th>
+    <th align="right" nowrap>[% IF IS_CUSTOMER %][% 'Customer Number' | $T8 %][% ELSE %][% 'Vendor Number' | $T8 %][% END %]</th>
     <td><input name="[% IF IS_CUSTOMER %]customer[% ELSE %]vendor[% END %]number" size="35"></td>
    </tr>
 
    <tr>
-    <th align="right" nowrap>[% IF IS_CUSTOMER %]<translate>Customer Name</translate>[%- ELSE %]<translate>Vendor Name</translate>[%- END %]</th>
+    <th align="right" nowrap>[% IF IS_CUSTOMER %][% 'Customer Name' | $T8 %][%- ELSE %][% 'Vendor Name' | $T8 %][%- END %]</th>
     <td><input name="name" size="35"></td>
    </tr>
 
    <tr>
-    <th align="right" nowrap><translate>Contact</translate></th>
+    <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
     <td><input name="contact" size="35"></td>
    </tr>
 
    <tr>
-    <th align="right" nowrap><translate>E-mail</translate></th>
+    <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
     <td><input name="email" size="35"></td>
    </tr>
    <tr>
-    <th align="right" nowrap><translate>Contact person (surname)</translate></th>
+    <th align="right" nowrap>[% 'Contact person (surname)' | $T8 %]</th>
     <td><input name="cp_name" size="35"></td>
    </tr>
    </tr>
-    <th align="right" nowrap><translate>Billing/shipping address (street)</translate></th>
+    <th align="right" nowrap>[% 'Billing/shipping address (street)' | $T8 %]</th>
     <td><input name="addr_street" size="35"></td>
    </tr>
  <tr>
-    <th align="right" nowrap><translate>Billing/shipping address (zipcode)</translate></th>
+    <th align="right" nowrap>[% 'Billing/shipping address (zipcode)' | $T8 %]</th>
     <td><input name="addr_zipcode" size="35"></td>
  </tr>
    <tr>
-    <th align="right" nowrap><translate>Billing/shipping address (city)</translate></th>
+    <th align="right" nowrap>[% 'Billing/shipping address (city)' | $T8 %]</th>
     <td><input name="addr_city" size="35"></td>
    </tr>
    [% IF SHOW_BUSINESS_TYPES %]
    <tr>
-    <th align="right" nowrap>[% IF IS_CUSTOMER %]<translate>Customer type</translate>[% ELSE %]<translate>Vendor type</translate>[% END %]</th>
+    <th align="right" nowrap>[% IF IS_CUSTOMER %][% 'Customer type' | $T8 %][% ELSE %][% 'Vendor type' | $T8 %][% END %]</th>
     <td>
      <select name="business_id"><option value=""></option>
       [% FOREACH bt = ALL_BUSINESS_TYPES %]<option value="[% HTML.escape(bt.id) %]">[% HTML.escape(bt.description) %]</option>[% END %]
@@ -58,92 +59,92 @@
    <tr>
     <td></td>
     <td>
-     <input name="status" class="radio" type="radio" value="all" checked> <translate>All</translate>
-     <input name="status" class="radio" type="radio" value="orphaned"> <translate>Orphaned</translate>
+     <input name="status" class="radio" type="radio" value="all" checked> [% 'All' | $T8 %]
+     <input name="status" class="radio" type="radio" value="orphaned"> [% 'Orphaned' | $T8 %]
     </td>
    </tr>
 
    <tr>
     <td></td>
-    <td><input name="obsolete" class="radio" type="radio" value="all"> <translate>All</translate>
-     <input name="obsolete" class="radio" type="radio" value="Y"> <translate>Obsolete</translate>
-     <input name="obsolete" class="radio" type="radio" value="N" checked> <translate>Not obsolete</translate>
+    <td><input name="obsolete" class="radio" type="radio" value="all"> [% 'All' | $T8 %]
+     <input name="obsolete" class="radio" type="radio" value="Y"> [% 'Obsolete' | $T8 %]
+     <input name="obsolete" class="radio" type="radio" value="N" checked> [% 'Not obsolete' | $T8 %]
     </td>
    </tr>
 
    <tr>
-    <th align="right" nowrap><translate>Include in Report</translate></th>
+    <th align="right" nowrap>[% 'Include in Report' | $T8 %]</th>
     <td>
      <table border="0">
       <tr>
        <td>
         <input name="l_id" id="l_id" type="checkbox" class="checkbox" value="Y">
-        <label for="l_id"><translate>ID</translate></label>
+        <label for="l_id">[% 'ID' | $T8 %]</label>
        </td>
        <td>
         <input name="l_[% db %]number" id="l_[% db %]number" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_[% db %]number">[% IF IS_CUSTOMER %]<translate>Customer Number</translate>[% ELSE %]<translate>Vendor Number</translate>[% END %]</label>
+        <label for="l_[% db %]number">[% IF IS_CUSTOMER %][% 'Customer Number' | $T8 %][% ELSE %][% 'Vendor Number' | $T8 %][% END %]</label>
        </td>
        <td>
         <input name="l_name" id="l_name" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_name">[% IF IS_CUSTOMER %]<translate>Customer Name</translate>[%- ELSE %]<translate>Vendor Name</translate>[%- END %]</label>
+        <label for="l_name">[% IF IS_CUSTOMER %][% 'Customer Name' | $T8 %][%- ELSE %][% 'Vendor Name' | $T8 %][%- END %]</label>
        </td>
        <td>
         <input name="l_street" id="l_street" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_street"><translate>Street</translate></label>
+        <label for="l_street">[% 'Street' | $T8 %]</label>
        </td>
       </tr>
 
       <tr>
        <td>
         <input name="l_contact" id="l_contact" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_contact"><translate>Contact</translate></label>
+        <label for="l_contact">[% 'Contact' | $T8 %]</label>
        </td>
        <td>
         <input name="l_phone" id="l_phone" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_phone"><translate>Phone</translate></label>
+        <label for="l_phone">[% 'Phone' | $T8 %]</label>
        </td>
        <td>
         <input name="l_fax" id="l_fax" type="checkbox" class="checkbox" value="Y">
-        <label for="l_fax"><translate>Fax</translate></label>
+        <label for="l_fax">[% 'Fax' | $T8 %]</label>
        </td>
        <td>
         <input name="l_zipcode" id="l_zipcode" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_zipcode"><translate>Zipcode</translate></label>
+        <label for="l_zipcode">[% 'Zipcode' | $T8 %]</label>
        </td>
       </tr>
 
       <tr>
        <td>
         <input name="l_taxnumber" id="l_taxnumber" type="checkbox" class="checkbox" value="Y">
-        <label for="l_taxnumber"><translate>Tax Number</translate></label>
+        <label for="l_taxnumber">[% 'Tax Number' | $T8 %]</label>
        </td>
        <td>
         <input name="l_email" id="l_email" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_email"><translate>E-mail</translate></label>
+        <label for="l_email">[% 'E-mail' | $T8 %]</label>
        </td>
        <td>
         <input name="l_business" id="l_business" type="checkbox" class="checkbox" value="Y">
-        <label for="l_business">[% IF IS_CUSTOMER %]<translate>Customer type</translate>[% ELSE %]<translate>Vendor type</translate>[% END %]</label>
+        <label for="l_business">[% IF IS_CUSTOMER %][% 'Customer type' | $T8 %][% ELSE %][% 'Vendor type' | $T8 %][% END %]</label>
        </td>
        <td>
         <input name="l_city" id="l_city" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_city"><translate>City</translate></label>
+        <label for="l_city">[% 'City' | $T8 %]</label>
       </td>
       </tr>
 
       <tr>
        <td>
         <input name="l_invnumber" id="l_invnumber" type="checkbox" class="checkbox" value="Y">
-        <label for="l_invnumber"><translate>Invoices</translate></label>
+        <label for="l_invnumber">[% 'Invoices' | $T8 %]</label>
        </td>
        <td>
         <input name="l_ordnumber" id="l_ordnumber" type="checkbox" class="checkbox" value="Y">
-        <label for="l_ordnumber">[% IF IS_CUSTOMER %]<translate>Sales Orders</translate>[% ELSE %]<translate>Purchase Orders</translate>[% END %]</label>
+        <label for="l_ordnumber">[% IF IS_CUSTOMER %][% 'Sales Orders' | $T8 %][% ELSE %][% 'Purchase Orders' | $T8 %][% END %]</label>
        </td>
        <td>
         <input name="l_quonumber" id="l_quonumber" type="checkbox" class="checkbox" value="Y">
-        <label for="l_quonumber">[% IF IS_CUSTOMER %]<translate>Quotations</translate>[% ELSE %]<translate>RFQs</translate>[% END %]</label>
+        <label for="l_quonumber">[% IF IS_CUSTOMER %][% 'Quotations' | $T8 %][% ELSE %][% 'RFQs' | $T8 %][% END %]</label>
        </td>
        <td>
        </td>
@@ -158,7 +159,7 @@
 
   <input type="hidden" name="nextsub" value="list_names">
 
-  <input type="submit" class="submit" name="action" value="<translate>Continue</translate>">
+  <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
  </form>
 
 </body>

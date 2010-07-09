@@ -1,12 +1,13 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]<body>
  [%- DEFAULT myconfig_dbhost = 'localhost' %]
 
  <center>
   <a class="nomobile" href="http://www.lx-office.org" target="_top"><img src="image/lx-office-erp.png" border="0"></a>
 
-  <h2 class="login">Version [% version %]</h2>
+  <h2 class="login">[% 'Version' | $T8 %] [% version %]</h2>
 
-  <p>Lizenziert für</p>
+  <p>[% 'Licensed to' | $T8 %]</p>
 
   <p>
    <b>
@@ -19,15 +20,15 @@
 
    <table border="0">
     <tr>
-     <th align="left">Benutzer</th>
+     <th align="left">[% 'User' | $T8 %]</th>
      <td>[% HTML.escape(myconfig_name) %]</td>
     </tr>
     <tr>
-     <th align="left">Datenbank</th>
+     <th align="left">[% 'Dataset' | $T8 %]</th>
      <td>[% HTML.escape(myconfig_dbname) %]</td>
     </tr>
     <tr>
-     <th align="left">Datenbankcomputer</th>
+     <th align="left">[% 'Database Host' | $T8 %]</th>
      <td>[% HTML.escape(myconfig_dbhost) %]</td>
     </tr>
     <tr>
@@ -40,9 +41,10 @@
    </table>
 
    <noscript>
-   [% INCLUDE  'generic/information_de.html'
-     title_information = 'Ihr Browser unterstützt im Moment kein Javascript!',
-     label_information = 'Die Bedienung von Lx-Office wurde an vielen Stellen mit Javascript verbessert. Obwohl es derzeit möglich ist, jeden Aspekt von Lx-Office auch ohne Javascript zu benutzen, empfehlen wir es. In einer zukünftigen Version wird Javascript eventuell notwendig sein um weitergehende Features zu benutzen.',
+   [%- SET information_template = 'generic/information_' _ LxERP.t8('master') _ '.html' %]
+   [% INCLUDE $information_template
+     title_information = LxERP.t8('Your browser does not currently support Javascript.'),
+     label_information = LxERP.t8('A lot of the usability of Lx-Office has been enhanced with javascript. Although it is currently possible to use every aspect of Lx-Office without javascript, we strongly recommend it. In a future version this may change and javascript may be necessary to access advanced features.'),
    %]
    </noscript>
  </center>

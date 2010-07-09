@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin" onload="document.getElementsByName('dbname')[0].focus(); ">
 
  <h2>[% title %]</h2>
@@ -11,25 +12,25 @@
   <input type="hidden" name="dbpasswd" value="[% HTML.escape(dbpasswd) %]">
 
   <p>
-   <translate>Please enter the name of the dataset you want to restore the backup in.</translate>
-   <translate>The dataset has to exist before a restoration can be started.</translate>
-   <translate>You can create a missing dataset by going back and chosing &quot;Create Dataset&quot;.</translate>
+   [% 'Please enter the name of the dataset you want to restore the backup in.' | $T8 %]
+   [% 'The dataset has to exist before a restoration can be started.' | $T8 %]
+   [% 'You can create a missing dataset by going back and chosing &quot;Create Dataset&quot;.' | $T8 %]
   </p>
 
   <p>
-   <translate>The backup you upload here has to be a file created with &quot;pg_dump -o -Ft&quot;.</translate>
-   <translate>It may optionally be compressed with &quot;gzip&quot;.</translate>
-   <translate>Files created by Lx-Office's &quot;Backup Dataset&quot; function are such files.</translate>
+   [% 'The backup you upload here has to be a file created with &quot;pg_dump -o -Ft&quot;.' | $T8 %]
+   [% 'It may optionally be compressed with &quot;gzip&quot;.' | $T8 %]
+   [% 'Files created by Lx-Office's &quot;Backup Dataset&quot; function are such files.' | $T8 %]
   </p>
 
   <table>
    <tr>
-    <td valign="top"><translate>Dataset name</translate></td>
+    <td valign="top">[% 'Dataset name' | $T8 %]</td>
     <td valign="top"><input name="new_dbname"></td>
    </tr>
 
    <tr>
-    <th valign="top"><translate>Multibyte Encoding</translate></th>
+    <th valign="top">[% 'Multibyte Encoding' | $T8 %]</th>
     <td>
      <select name="dbencoding">
       [% FOREACH row = DBENCODINGS %]<option value="[% HTML.escape(row.dbencoding) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
@@ -38,7 +39,7 @@
    </tr>
 
    <tr>
-    <td valign="top"><translate>Backup file</translate></td>
+    <td valign="top">[% 'Backup file' | $T8 %]</td>
     <td valign="top"><input type="file" accept="*" name="content"></td>
    </tr>
   </table>
@@ -49,7 +50,7 @@
 
   <br>
 
-  <input type="submit" class="submit" name="action" value="<translate>Continue</translate>">
+  <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
 
  </form>
 

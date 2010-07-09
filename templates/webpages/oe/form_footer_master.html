@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
   <tr>
@@ -7,15 +8,15 @@
           <td>
             <table>
               <tr>
-                <th align="left"><translate>Notes</translate></th>
-                <th align="left"><translate>Internal Notes</translate></th>
+                <th align="left">[% 'Notes' | $T8 %]</th>
+                <th align="left">[% 'Internal Notes' | $T8 %]</th>
               </tr>
               <tr valign="top">
                 <td>[% notes %]</td>
                 <td>[% intnotes %]</td>
               </tr>
               <tr>
-                <th align="right"><translate>Payment Terms</translate></th>
+                <th align="right">[% 'Payment Terms' | $T8 %]</th>
                 <td>
                       [%- INCLUDE 'generic/multibox.html'
                            name       = 'payment_id',
@@ -28,7 +29,7 @@
             </tr>
       [%- IF id && num_follow_ups %]
       <tr>
-       <td colspan="2">[% LxERP.format_string('<translate>There are #1 unfinished follow-ups of which #2 are due.</translate>', num_follow_ups, num_due_follow_ups) %]</td>
+       <td colspan="2">[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', num_follow_ups, num_due_follow_ups) %]</td>
       </tr>
       [%- END %]
       </table>
@@ -38,11 +39,11 @@
             <table>
 
             <tr>
-              <th  align="left"><translate>Ertrag</translate></th>
+              <th  align="left">[% 'Ertrag' | $T8 %]</th>
               <td align="right">[% LxERP.format_amount(marge_total, 2) %]</td>
             </tr>
             <tr>
-              <th  align="left"><translate>Ertrag prozentual</translate></th>
+              <th  align="left">[% 'Ertrag prozentual' | $T8 %]</th>
               <td align="right">[% LxERP.format_amount(marge_percent, 2) %]</td>
               <td>%</td>
             </tr>
@@ -54,18 +55,18 @@
 [%- END %]
           <td align="right">
 [%- IF taxaccounts %]
-            <input name="taxincluded" class="checkbox" type="checkbox" value="1"[% IF taxincluded %] checked[% END %]><b><translate>Tax Included</translate></b><br><br>
+            <input name="taxincluded" class="checkbox" type="checkbox" value="1"[% IF taxincluded %] checked[% END %]><b>[% 'Tax Included' | $T8 %]</b><br><br>
 [%- END %]
             <table>
 [%- IF NOT taxincluded %]
               <tr>
-                <th align='right'><translate>Subtotal</translate></th>
+                <th align='right'>[% 'Subtotal' | $T8 %]</th>
                 <td align='right'>[% LxERP.format_amount(invsubtotal, 2) %]</td>
               </tr>
 [%- END %]
               [% tax %]
               <tr>
-                <th align="right"><translate>Total</translate></th>
+                <th align="right">[% 'Total' | $T8 %]</th>
                 <td align="right">[% LxERP.format_amount(invtotal, 2) %]</td>
               </tr>
             </table>
@@ -113,44 +114,44 @@
 </table>
 
 [% label_edit %]<br>
-<input class="submit" type="submit" name="action" id="update_button" value="<translate>Update</translate>">
-<input class="submit" type="submit" name="action" value="<translate>Ship to</translate>">
-<input class="submit" type="submit" name="action" value="<translate>Print</translate>">
-<input class="submit" type="submit" name="action" value="<translate>E-mail</translate>">
-<input class="submit" type="submit" name="action" value="<translate>Save</translate>">
-<input class="submit" type="submit" name="action" value="<translate>Save and Close</translate>">
+<input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'Save' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'Save and Close' | $T8 %]">
 
 [%- IF id %]
-  <input type="button" class="submit" onclick="follow_up_window()" value="<translate>Follow-Up</translate>">
-  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %])" name="history" id="history" value="<translate>history</translate>">
+  <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
+  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %])" name="history" id="history" value="[% 'history' | $T8 %]">
 
   <br>[% label_workflow %]<br>
-  <input class="submit" type="submit" name="action" value="<translate>Save as new</translate>">
-  <input class="submit" type="submit" name="action" value="<translate>Delete</translate>">
+  <input class="submit" type="submit" name="action" value="[% 'Save as new' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
 
   [%- IF is_sales_quo %]
-    <input class="submit" type="submit" name="action" value="<translate>Sales Order</translate>">
+    <input class="submit" type="submit" name="action" value="[% 'Sales Order' | $T8 %]">
   [%- END %]
 
   [%- IF is_req_quo %]
-    <input class="submit" type="submit" name="action" value="<translate>Purchase Order</translate>">
+    <input class="submit" type="submit" name="action" value="[% 'Purchase Order' | $T8 %]">
   [%- END %]
 
   [%- IF is_sales_ord || is_pur_ord %]
-    <input class="submit" type="submit" name="action" value="<translate>Delivery Order</translate>">
+    <input class="submit" type="submit" name="action" value="[% 'Delivery Order' | $T8 %]">
   [%- END %]
 
-  <input class="submit" type="submit" name="action" value="<translate>Invoice</translate>">
+  <input class="submit" type="submit" name="action" value="[% 'Invoice' | $T8 %]">
 
   [%- IF is_sales_ord || is_pur_ord %]
     <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
     [%- IF is_sales_ord %]
-      <input class="submit" type="submit" name="action" value="<translate>Purchase Order</translate>">
-     <input class="submit" type="submit" name="action" value="<translate>Quotation</translate>">
+      <input class="submit" type="submit" name="action" value="[% 'Purchase Order' | $T8 %]">
+     <input class="submit" type="submit" name="action" value="[% 'Quotation' | $T8 %]">
     [%- ELSE %]
     [%- IF is_pur_ord %]
-      <input class="submit" type="submit" name="action" value="<translate>Sales Order</translate>">
-     <input class="submit" type="submit" name="action" value="<translate>Request for Quotation</translate>">
+      <input class="submit" type="submit" name="action" value="[% 'Sales Order' | $T8 %]">
+     <input class="submit" type="submit" name="action" value="[% 'Request for Quotation' | $T8 %]">
     [%- END %]
     [%- END %]
   [%- END %]

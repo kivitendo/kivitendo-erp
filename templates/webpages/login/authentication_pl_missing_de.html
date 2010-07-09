@@ -1,14 +1,15 @@
+[%- USE T8 %]
 <body>
 
- <p><b>Fehler!</b></p>
+ <p><b>[% 'Error!' | $T8 %]</b></p>
 
- <p>Die Konfigurationsdatei f&uuml;r die Authentifizierung &quot;config/authentication.pl&quot; wurde nicht gefunden. Diese Lx-Office-Installation wurde vermutlich noch nicht vollst&auml;ndig aktualisiert oder eingerichtet. Bitte wenden Sie sich an Ihren Administrator.</p>
+ <p>[% 'The authentication configuration file &quot;config/authentication.pl&quot; does not exist. This Lx-Office installation has probably not been updated correctly yet. Please contact your administrator.' | $T8 %]</p>
 
- <p>Wenn Sie selber die Aktualisierung bzw. Einrichtung &uuml;bernehmen wollen, so lesen Sie bitte die Datei &quot;doc/UPGRADE&quot; und folgen Sie den dort beschriebenen Schritten.</p>
+ <p>[% 'If you yourself want to upgrade the installation then please read the file &quot;doc/UPGRADE&quot; and follow the steps outlined in this file.' | $T8 %]</p>
 
  <p>
-  <a href="login.pl" target="_top">Anmeldung</a> |
-  <a href="admin.pl" target="_top">Administration</a>
+  <a href="login.pl" target="_top">[% 'Login' | $T8 %]</a> |
+  <a href="admin.pl" target="_top">[% 'Administration' | $T8 %]</a>
  </p>
 
 </body>

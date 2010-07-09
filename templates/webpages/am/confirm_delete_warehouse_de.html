@@ -1,10 +1,11 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
 
- <p>Wollen Sie dieses Lager wirklich l&ouml;schen?</p>
+ <p>[% 'Do you really want to delete this warehouse?' | $T8 %]</p>
 
- <p>Lager: [% HTML.escape(orig_description) %]</p>
+ <p>[% 'Warehouse' | $T8 %]: [% HTML.escape(orig_description) %]</p>
 
  <form action="am.pl" method="post">
 
@@ -13,8 +14,8 @@
   <input type="hidden" name="type" value="warehouse">
   <input type="hidden" name="confirmed" value="1">
 
-  <button type="button" class="submit" onclick="history.back()">Zurück</button>
-  <input type="submit" class="submit" name="action" value="Löschen">
+  <button type="button" class="submit" onclick="history.back()">[% 'Back' | $T8 %]</button>
+  <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
  </form>
 
 </body>

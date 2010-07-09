@@ -1,18 +1,19 @@
+[%- USE T8 %]
 [% USE HTML%]
 [% IF NOTHING_TO_DO %]
- <p>Es wurden keine Datenbanken ausgew&auml;hlt.</p>
+ <p>[% 'No datasets have been selected.' | $T8 %]</p>
 
  [% ELSE %]
 
  <hr>
 
- <p>Alle Datenbankupdates wurden eingespielt.</p>
+ <p>[% 'All database upgrades have been applied.' | $T8 %]</p>
 [% END %]
 
 <form method="post" action="admin.pl">
  <input type="hidden" name="nextsub" value="list_users">
 
- <input type="submit" name="action" value="Weiter">
+ <input type="submit" name="action" value="[% 'Continue' | $T8 %]">
 </form>
 
 </body>

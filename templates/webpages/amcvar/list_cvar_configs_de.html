@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  [% IF MESSAGE %]<p>[% MESSAGE %]</p>[% END %]
@@ -9,13 +10,13 @@
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
 
   <p>
-   Benutzerdefinierte Variablen für Modul
+   [% 'Custom variables for module' | $T8 %]
    [%- INCLUDE generic/multibox.html
          name      = 'module',
          id_key    = 'module',
          label_key = 'description',
          DATA      = MODULES %]
-   <input type="submit" class="submit" name="action_list_cvar_configs" value="Zeigen">
+   <input type="submit" class="submit" name="action_list_cvar_configs" value="[% 'Show' | $T8 %]">
   </p>
 
   <p>
@@ -23,13 +24,13 @@
     <tr>
      <td class="listheading" width="0%"></td>
      <td class="listheading" width="0%"></td>
-     <td class="listheading" width="20%">Name</td>
-     <td class="listheading" width="20%">Beschreibung</td>
-     <td class="listheading" width="20%">Typ</td>
-     <td class="listheading" width="20%">Durchsuchbar</td>
-     <td class="listheading" width="20%">In Berichten anzeigbar</td>
+     <td class="listheading" width="20%">[% 'Name' | $T8 %]</td>
+     <td class="listheading" width="20%">[% 'Description' | $T8 %]</td>
+     <td class="listheading" width="20%">[% 'Type' | $T8 %]</td>
+     <td class="listheading" width="20%">[% 'Searchable' | $T8 %]</td>
+     <td class="listheading" width="20%">[% 'Includeable in reports' | $T8 %]</td>
      [%- IF module == 'IC' %]
-     <td class="listheading" width="20%">Bearbeitbar</td>
+     <td class="listheading" width="20%">[% 'Editable' | $T8 %]</td>
      [%- END %]
     </tr>
 
@@ -60,28 +61,28 @@
 
      <td>
       [%- IF cfg.searchable %]
-      Ja
+      [% 'Yes' | $T8 %]
       [%- ELSE %]
-      Nein
+      [% 'No' | $T8 %]
       [%- END %]
      </td>
 
      <td>
       [%- IF cfg.included_by_default %]
-      Ja, standardm&auml;&szlig;ig an
+      [% 'Yes, included by default' | $T8 %]
       [%- ELSIF cfg.includeable %]
-      Ja
+      [% 'Yes' | $T8 %]
       [%- ELSE %]
-      Nein
+      [% 'No' | $T8 %]
       [%- END %]
      </td>
 
      [%- IF module == 'IC' %]
      <td>
       [%- IF cfg.flag_editable %]
-      Ja
+      [% 'Yes' | $T8 %]
       [%- ELSE %]
-      Nein
+      [% 'No' | $T8 %]
       [%- END %]
      </td>
      [%- END %]
@@ -93,7 +94,7 @@
   <hr height="3">
 
   <p>
-   <input type="submit" class="submit" name="action_add_cvar_config" value="Erfassen">
+   <input type="submit" class="submit" name="action_add_cvar_config" value="[% 'Add' | $T8 %]">
   </p>
  </form>
 

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <script type="text/javascript">
@@ -27,7 +28,7 @@
   <p>[% MESSAGE %]</p>
  [% END %]
 
- <div class="listtop" width="100%"><translate>Summen- und Saldenliste</translate> [% template_fromto %]</div>
+ <div class="listtop" width="100%">[% 'Summen- und Saldenliste' | $T8 %] [% template_fromto %]</div>
 
  [% IF TOP_INFO_TEXT %]
   <p>[% TOP_INFO_TEXT %]</p>
@@ -39,23 +40,23 @@
  <p>
   <table width="100%">
    <tr>
-     <th class="listheading" rowspan=2><translate>Account</translate></th>
-     <th class="listheading" rowspan=2><translate>Description</translate></th>
-     <th class="listheading" rowspan=2><translate>Last Transaction</translate></th>
-     <th class="listheading" colspan=2><translate>Starting Balance</translate></th>
-     <th class="listheading" colspan=2><translate>Sum for</translate> [% template_fromto %]</th>
-     <th class="listheading" colspan=2><translate>Sum per</translate> [% template_to %]</th>
-     <th class="listheading" colspan=2><translate>Saldo per</translate> [% template_to %]</th>
+     <th class="listheading" rowspan=2>[% 'Account' | $T8 %]</th>
+     <th class="listheading" rowspan=2>[% 'Description' | $T8 %]</th>
+     <th class="listheading" rowspan=2>[% 'Last Transaction' | $T8 %]</th>
+     <th class="listheading" colspan=2>[% 'Starting Balance' | $T8 %]</th>
+     <th class="listheading" colspan=2>[% 'Sum for' | $T8 %] [% template_fromto %]</th>
+     <th class="listheading" colspan=2>[% 'Sum per' | $T8 %] [% template_to %]</th>
+     <th class="listheading" colspan=2>[% 'Saldo per' | $T8 %] [% template_to %]</th>
    </tr>
    <tr>
-    <th class="listheading"><translate>Assets</translate></th>
-    <th class="listheading"><translate>Equity</translate></th>
-    <th class="listheading"><translate>Debit</translate></th>
-    <th class="listheading"><translate>Credit</translate></th>
-    <th class="listheading"><translate>Debit</translate></th>
-    <th class="listheading"><translate>Credit</translate></th>
-    <th class="listheading"><translate>Debit</translate></th>
-    <th class="listheading"><translate>Credit</translate></th>
+    <th class="listheading">[% 'Assets' | $T8 %]</th>
+    <th class="listheading">[% 'Equity' | $T8 %]</th>
+    <th class="listheading">[% 'Debit' | $T8 %]</th>
+    <th class="listheading">[% 'Credit' | $T8 %]</th>
+    <th class="listheading">[% 'Debit' | $T8 %]</th>
+    <th class="listheading">[% 'Credit' | $T8 %]</th>
+    <th class="listheading">[% 'Debit' | $T8 %]</th>
+    <th class="listheading">[% 'Credit' | $T8 %]</th>
    </tr>
    [% FOREACH row = ROWS %]
     [% IF row.IS_CONTROL %]
@@ -90,7 +91,7 @@
   </table>
  </p>
  [% ELSE %]
-  <p><translate>No data was found.</translate></p>
+  <p>[% 'No data was found.' | $T8 %]</p>
  [% END %]
 
  [% RAW_BOTTOM_INFO_TEXT %]

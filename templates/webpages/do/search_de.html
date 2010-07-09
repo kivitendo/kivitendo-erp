@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]<body onload="on_load();">
 
  [%- IF vc == 'customer' %]
@@ -29,7 +30,7 @@
   <p>
    <table>
     <tr>
-     <th align="right">[% IF is_customer %]Kunde[% ELSE %]Lieferant[% END %]</th>
+     <th align="right">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
      <td colspan="3">
       [%- UNLESS SHOW_VC_DROP_DOWN %]
       <input type="text" name="[% HTML.escape(vc) %]" class="fixed_width">
@@ -46,18 +47,18 @@
     </tr>
 
     <tr>
-     <th align="right">Lieferscheinnummer</th>
+     <th align="right">[% 'Delivery Order Number' | $T8 %]</th>
      <td colspan="3"><input name="donumber" class="fixed_width"></td>
     </tr>
 
     <tr>
-     <th align="right">Auftragsnummer</th>
+     <th align="right">[% 'Order Number' | $T8 %]</th>
      <td colspan="3"><input name="ordnumber" class="fixed_width"></td>
     </tr>
 
     [%- IF ALL_DEPARTMENTS.size %]
     <tr>
-     <th align="right" nowrap>Abteilung</th>
+     <th align="right" nowrap>[% 'Department' | $T8 %]</th>
      <td colspan="3">
       <select name="department" class="fixed_width">
        <option></option>
@@ -70,7 +71,7 @@
     [%- END %]
 
     <tr>
-     <th align="right">Bearbeiter</th>
+     <th align="right">[% 'Employee' | $T8 %]</th>
      <td>
       <select name="employee_id" class="fixed_width">
        <option></option>
@@ -83,7 +84,7 @@
 
     [%- IF is_customer %]
     <tr>
-     <th align="right">Verkäufer/in</th>
+     <th align="right">[% 'Salesman' | $T8 %]</th>
      <td>
       <select name="salesman_id" class="fixed_width">
        <option></option>
@@ -96,17 +97,17 @@
     [%- END %]
 
     <tr>
-     <th align="right">Vorgangsbezeichnung</th>
+     <th align="right">[% 'Transaction description' | $T8 %]</th>
      <td colspan="3"><input name="transaction_description" class="fixed_width"></td>
     </tr>
 
     <tr>
-     <th align="right">Bestellnummer des Kunden</th>
+     <th align="right">[% 'Customer Order Number' | $T8 %]</th>
      <td colspan="3"><input name="cusordnumber" class="fixed_width"></td>
     </tr>
 
     <tr>
-     <th align="right">Projektnummer</th>
+     <th align="right">[% 'Project Number' | $T8 %]</th>
      <td colspan="3">
       <select name="project_id" class="fixed_width">
        <option></option>
@@ -118,12 +119,12 @@
     </tr>
 
     <tr>
-     <th align="right">Von</th>
+     <th align="right">[% 'From' | $T8 %]</th>
      <td>
       <input name="transdatefrom" id="transdatefrom" size="11" title="[% myconfig_dateformat %]" onBlur="check_right_date_format(this)">
       <input type="button" name="transdatefrom_button" id="transdatefrom_trigger" value="?">
      </td>
-     <th align="right">bis</th>
+     <th align="right">[% 'Bis' | $T8 %]</th>
      <td>
       <input name="transdateto" id="transdateto" size="11" title="[% myconfig_dateformat %]" onBlur="check_right_date_format(this)">
       <input type="button" name="transdateto_button" id="transdateto_trigger" value="?">
@@ -131,92 +132,92 @@
     </tr>
 
     <tr>
-     <th align="right">In Bericht aufnehmen</th>
+     <th align="right">[% 'Include in Report' | $T8 %]</th>
      <td colspan="5">
       <table>
        <tr>
         <td>
          <input type="checkbox" name="open" value="1" id="open" checked>
-         <label for="open">Offen</label>
+         <label for="open">[% 'Open' | $T8 %]</label>
         </td>
         <td>
          <input type="checkbox" name="closed" value="1" id="closed">
-         <label for="closed">Geschlossen</label>
+         <label for="closed">[% 'Closed' | $T8 %]</label>
         </td>
        </tr>
 
        <tr>
         <td>
          <input name="notdelivered" id="notdelivered" class="checkbox" type="checkbox" value="1" checked>
-         <label for="notdelivered">Nicht geliefert</label>
+         <label for="notdelivered">[% 'Not delivered' | $T8 %]</label>
         </td>
         <td>
          <input name="delivered" id="delivered" class="checkbox" type="checkbox" value="1" checked>
-         <label for="delivered">Geliefert</label></td>
+         <label for="delivered">[% 'Delivered' | $T8 %]</label></td>
        </tr>
 
        <tr>
         <td>
          <input name="l_id" id="l_id" class="checkbox" type="checkbox" value="Y">
-         <label for="l_id">Buchungsnummer</label>
+         <label for="l_id">[% 'ID' | $T8 %]</label>
         </td>
 
         <td>
          <input name="l_donumber" id="l_donumber" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_donumber">Lieferscheinnummer</label>
+         <label for="l_donumber">[% 'Delivery Order Number' | $T8 %]</label>
         </td>
        </tr>
 
        <tr>
         <td>
          <input name="l_ordnumber" id="l_ordnumber" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_ordnumber">Auftragsnummer</label>
+         <label for="l_ordnumber">[% 'Order Number' | $T8 %]</label>
         </td>
 
         <td>
          <input name="l_cusordnumber" id="l_cusordnumber" class="checkbox" type="checkbox" value="Y">
-         <label for="l_cusordnumber">Bestellnummer des Kunden</label>
+         <label for="l_cusordnumber">[% 'Customer Order Number' | $T8 %]</label>
         </td>
        </tr>
 
        <tr>
         <td>
          <input name="l_transdate" id="l_transdate" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_transdate">Datum</label>
+         <label for="l_transdate">[% 'Date' | $T8 %]</label>
         </td>
 
         <td>
          <input name="l_name" id="l_name" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_name">[% IF is_customer %]Kunde[% ELSE %]Lieferant[% END %]</label>
+         <label for="l_name">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</label>
         </td>
        </tr>
 
        <tr>
         <td>
          <input name="l_employee" id="l_employee" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_employee">Bearbeiter</label>
+         <label for="l_employee">[% 'Employee' | $T8 %]</label>
         </td>
 
         <td>
          <input name="l_salesman" id="l_salesman" class="checkbox" type="checkbox" value="Y">
-         <label for="l_salesman">Verkäufer/in</label>
+         <label for="l_salesman">[% 'Salesman' | $T8 %]</label>
         </td>
 
         <td>
          <input name="l_shipvia" id="l_shipvia" class="checkbox" type="checkbox" value="Y">
-         <label for="l_shipvia">Transportmittel</label>
+         <label for="l_shipvia">[% 'Ship via' | $T8 %]</label>
         </td>
        </tr>
 
        <tr>
         <td>
          <input name="l_globalprojectnumber" id="l_globalprojectnumber" class="checkbox" type="checkbox" value="Y">
-         <label for="l_globalprojectnumber">Projektnummer</label>
+         <label for="l_globalprojectnumber">[% 'Project Number' | $T8 %]</label>
         </td>
 
         <td>
          <input name="l_transaction_description" id="l_transaction_description" class="checkbox" type="checkbox" value="Y">
-         <label for="l_transaction_description">Vorgangsbezeichnung</label>
+         <label for="l_transaction_description">[% 'Transaction description' | $T8 %]</label>
         </td>
        </tr>
 
@@ -233,7 +234,7 @@
    <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
    <input type="hidden" name="type" value="[% HTML.escape(type) %]">
 
-   <input class="submit" type="submit" name="action" value="Weiter">
+   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
 

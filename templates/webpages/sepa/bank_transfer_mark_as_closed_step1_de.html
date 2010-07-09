@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 <body>
 
@@ -5,11 +6,11 @@
 
  <form action="sepa.pl" method="post">
   <p>
-   Wollen Sie wirklich die folgenden SEPA-Exporte abschließen? Für Überweisungen, die noch nicht gebucht wurden, werden dann keine Zahlungen verbucht.
+   [% 'Do you really want to close the following SEPA exports? No payment will be recorded for bank transfers that haven't been marked as executed yet.' | $T8 %]
   </p>
 
   <p>
-   SEPA-Exporte:
+   [% 'SEPA exports:' | $T8 %]
    [%- FOREACH id = OPEN_EXPORT_IDS %]
     [%- UNLESS loop.first %], [%- END %]
     <input type="hidden" name="open_export_ids[]" value="[% HTML.escape(id) %]">
@@ -18,8 +19,8 @@
   </p>
 
   <p>
-   <input type="submit" class="submit" name="action_bank_transfer_mark_as_closed_step2" value="Abschließen">
-   <input type="button" class="submit" value="Zurück" onclick="history.back()">
+   <input type="submit" class="submit" name="action_bank_transfer_mark_as_closed_step2" value="[% 'Mark as closed' | $T8 %]">
+   <input type="button" class="submit" value="[% 'Back' | $T8 %]" onclick="history.back()">
   </p>
 
   <input type="hidden" name="action" value="dispatcher">

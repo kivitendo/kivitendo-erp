@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin" onload="document.getElementsByName('dbname')[0].focus(); ">
 
  <h2>[% title %]</h2>
@@ -11,25 +12,25 @@
   <input type="hidden" name="dbpasswd" value="[% HTML.escape(dbpasswd) %]">
 
   <p>
-   Bitte geben Sie den Namen der Datenbank ein, in der Sie die Sicherung wiederherstellen wollen.
-   Die Datenbank muss vor der Wiederherstellung bereits angelegt worden sein.
-   Sie k&ouml;nnen eine fehlende Datenbank erstellen, indem Sie jetzt zu&uuml;ck gehen und den Punkt &quot;Datenbank anlegen&quot; w&auml;hlen.
+   [% 'Please enter the name of the dataset you want to restore the backup in.' | $T8 %]
+   [% 'The dataset has to exist before a restoration can be started.' | $T8 %]
+   [% 'You can create a missing dataset by going back and chosing &quot;Create Dataset&quot;.' | $T8 %]
   </p>
 
   <p>
-   Die von Ihnen hochzuladende Sicherungsdatei muss mit dem Programm und den Parametern &quot;pg_dump -o -Ft&quot; erstellt worden sein.
-   Sie darf optional mit &quot;gzip&quot; komprimiert sein.
-   Dateien, die von Lx-Office' Funktion &quot;Datenbank sichern&quot; erstellt wurden, erf&uuml;llen diese Kriterien.
+   [% 'The backup you upload here has to be a file created with &quot;pg_dump -o -Ft&quot;.' | $T8 %]
+   [% 'It may optionally be compressed with &quot;gzip&quot;.' | $T8 %]
+   [% 'Files created by Lx-Office's &quot;Backup Dataset&quot; function are such files.' | $T8 %]
   </p>
 
   <table>
    <tr>
-    <td valign="top">Datenbankname</td>
+    <td valign="top">[% 'Dataset name' | $T8 %]</td>
     <td valign="top"><input name="new_dbname"></td>
    </tr>
 
    <tr>
-    <th valign="top">Schriftsatz</th>
+    <th valign="top">[% 'Multibyte Encoding' | $T8 %]</th>
     <td>
      <select name="dbencoding">
       [% FOREACH row = DBENCODINGS %]<option value="[% HTML.escape(row.dbencoding) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
@@ -38,7 +39,7 @@
    </tr>
 
    <tr>
-    <td valign="top">Sicherungsdatei</td>
+    <td valign="top">[% 'Backup file' | $T8 %]</td>
     <td valign="top"><input type="file" accept="*" name="content"></td>
    </tr>
   </table>
@@ -49,7 +50,7 @@
 
   <br>
 
-  <input type="submit" class="submit" name="action" value="Weiter">
+  <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
 
  </form>
 

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]<!-- <body> -->
 <!--  <form> -->
 <!--   <p> -->
@@ -11,8 +12,8 @@
      <td>
       <table>
        <tr valign="bottom">
-        <th align="left"><translate>Notes</translate></th>
-        <th align="left"><translate>Internal Notes</translate></th>
+        <th align="left">[% 'Notes' | $T8 %]</th>
+        <th align="left">[% 'Internal Notes' | $T8 %]</th>
        </tr>
 
        <tr valign="top">
@@ -29,13 +30,13 @@
   <hr size="3" noshade>
 
   [%- IF conf_webdav %]
-  <div class="listtop" align="left"><translate>Documents in the WebDAV repository</translate></div>
+  <div class="listtop" align="left">[% 'Documents in the WebDAV repository' | $T8 %]</div>
 
   <p>
    <table width="100%">
     <tr>
-     <td align="left" width="30%"><b><translate>File name</translate></b></td>
-     <td align="left" width="70%"><b><translate>WebDAV link</translate></b></td>
+     <td align="left" width="30%"><b>[% 'File name' | $T8 %]</b></td>
+     <td align="left" width="70%"><b>[% 'WebDAV link' | $T8 %]</b></td>
     </tr>
 
     [%- FOREACH file = WEBDAV %]
@@ -54,40 +55,40 @@
   <p>[% PRINT_OPTIONS %]</p>
 
   <p>
-   <translate>Edit the Delivery Order</translate><br>
+   [% 'Edit the Delivery Order' | $T8 %]<br>
    <input type="hidden" name="action" value="dispatcher">
-   <input class="submit" type="submit" name="action_update" id="update_button" value="<translate>Update</translate>">
+   <input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
    [%- UNLESS delivered %]
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action_ship_to" value="<translate>Ship to</translate>">
+   <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
    [%- END %]
    [%- END %]
-   <input class="submit" type="submit" name="action_print" value="<translate>Print</translate>">
-   <input class="submit" type="submit" name="action_e_mail" value="<translate>E-mail</translate>">
+   <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]">
+   <input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]">
    [%- UNLESS delivered %]
-   <input class="submit" type="submit" name="action_save" value="<translate>Save</translate>">
+   <input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]">
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action_transfer_out" value="<translate>Transfer out</translate>">
+   <input class="submit" type="submit" name="action_transfer_out" value="[% 'Transfer out' | $T8 %]">
    [%- ELSE %]
-   <input class="submit" type="submit" name="action_transfer_in" value="<translate>Transfer in</translate>">
+   <input class="submit" type="submit" name="action_transfer_in" value="[% 'Transfer in' | $T8 %]">
    [%- END %]
    [%- END %]
    [%- IF id %]
    [%- UNLESS closed %]
-   <input class="submit" type="submit" name="action_mark_closed" value="<translate>Mark closed</translate>">
+   <input class="submit" type="submit" name="action_mark_closed" value="[% 'Mark closed' | $T8 %]">
    [%- END %]
-   <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="<translate>history</translate>">
+   <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
    [%- END %]
   </p>
 
   [%- IF id %]
   <p>
-   <translate>Workflow Delivery Order</translate><br>
-   <input class="submit" type="submit" name="action_save_as_new" value="<translate>Save as new</translate>">
+   [% 'Workflow Delivery Order' | $T8 %]<br>
+   <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]">
    [% UNLESS delivered %]
-   <input class="submit" type="submit" name="action_delete" value="<translate>Delete</translate>">
+   <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
    [% END %]
-   <input class="submit" type="submit" name="action_invoice" value="<translate>Invoice</translate>">
+   <input class="submit" type="submit" name="action_invoice" value="[% 'Invoice' | $T8 %]">
   </p>
   [%- END %]
 

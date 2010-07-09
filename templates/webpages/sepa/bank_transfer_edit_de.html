@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 [% USE LxERP %]
 <body>
@@ -13,21 +14,21 @@
      [%- IF show_post_payments_button %]
       <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
      [%- END %]
-     <th class="listheading">Rechnung</th>
-     <th class="listheading">Lieferant</th>
-     <th class="listheading" colspan="2">Quellkonto</th>
-     <th class="listheading" colspan="2">Zielkonto</th>
-     <th class="listheading" align="right">Betrag</th>
-     <th class="listheading">Referenz</th>
-     <th class="listheading" align="right">Gewünschtes Ausführungsdatum</th>
-     <th class="listheading" align="right">Ausführungsdatum</th>
+     <th class="listheading">[% 'Invoice' | $T8 %]</th>
+     <th class="listheading">[% 'Vendor' | $T8 %]</th>
+     <th class="listheading" colspan="2">[% 'Source bank account' | $T8 %]</th>
+     <th class="listheading" colspan="2">[% 'Target bank account' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
+     <th class="listheading">[% 'Reference' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Requested execution date' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Execution date' | $T8 %]</th>
     </tr>
     <tr>
      <th class="listheading" colspan="[% IF show_post_payments_button %]3[% ELSE %]2[% END %]">&nbsp;</th>
-     <th class="listheading">IBAN</th>
-     <th class="listheading">BIC</th>
-     <th class="listheading">IBAN</th>
-     <th class="listheading">BIC</th>
+     <th class="listheading">[% 'IBAN' | $T8 %]</th>
+     <th class="listheading">[% 'BIC' | $T8 %]</th>
+     <th class="listheading">[% 'IBAN' | $T8 %]</th>
+     <th class="listheading">[% 'BIC' | $T8 %]</th>
      [%- IF show_post_payments_button %]
       <th class="listheading" colspan="3">&nbsp;</th>
       <th class="listheading">
@@ -65,7 +66,7 @@
        [%- IF item.executed %]
         [% HTML.escape(item.execution_date) %]
        [%- ELSIF item.export_closed %]
-        nicht ausgeführt
+        [% 'not executed' | $T8 %]
        [%- ELSE %]
         <input name="items[].execution_date" id="execution_date_[% loop.count %]" size="11"
                value="[% IF item.requested_execution_date %][% HTML.escape(item.requested_execution_date) %][% ELSE %][% HTML.escape(current_date) %][% END %]">
@@ -81,7 +82,7 @@
 
   [%- IF show_post_payments_button %]
   <p>
-   <input type="submit" class="submit" name="action_bank_transfer_post_payments" value="Zahlungen buchen">
+   <input type="submit" class="submit" name="action_bank_transfer_post_payments" value="[% 'Post payments' | $T8 %]">
   </p>
 
   <script type="text/javascript" src="js/jquery.js"></script>
@@ -124,7 +125,7 @@
 
   [%- ELSE %]
   <p>
-   <input type="submit" class="submit" name="action_bank_transfer_payment_list_as_pdf" value="Zahlungsliste als PDF">
+   <input type="submit" class="submit" name="action_bank_transfer_payment_list_as_pdf" value="[% 'Payment list as PDF' | $T8 %]">
   </p>
 
    [%- FOREACH item = export.items %]

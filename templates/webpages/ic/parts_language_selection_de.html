@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body onload="[% onload %]">
 
  <form name="Form">
@@ -6,7 +7,7 @@
 
   <div class="listtop">[% title %]</div>
 
-  <p>Bitte die Übersetzungen unten eintragen</p>
+  <p>[% 'Please insert your language values below' | $T8 %]</p>
 
   <p>
    <table>
@@ -32,7 +33,7 @@
   </p>
 
   <p>
-   <button type="button" onclick="languages_updated()">Übernehmen</button>
+   <button type="button" onclick="languages_updated()">[% 'Close' | $T8 %]</button>
   </p>
 
  </form>

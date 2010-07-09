@@ -1,7 +1,8 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
  <table width="100%">
   <tr>
-   <th class="listtop">[% IF title_information %][% title_information %][% ELSE %]<translate>Information</translate>[% END %]</th>
+   <th class="listtop">[% IF title_information %][% title_information %][% ELSE %][% 'Information' | $T8 %][% END %]</th>
   </tr>
   <tr height="5"></tr>
 

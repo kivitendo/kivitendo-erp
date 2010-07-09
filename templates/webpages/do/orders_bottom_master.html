@@ -1,6 +1,7 @@
+[%- USE T8 %]
 [% USE HTML %]
- <translate>New invoice</translate><br>
- <input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+ [% 'New invoice' | $T8 %]<br>
+ <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
  <input type="hidden" name="nextsub" value="invoice_multi">
  <input type="hidden" name="type" value="[% HTML.escape(type) %]">
  <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">

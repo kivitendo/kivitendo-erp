@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body [% IF onload %]onload="[% onload %]"[% END %]>
 
  <form action="[% HTML.escape(script) %]" method="post" name="Form">
@@ -18,14 +19,14 @@
    <tr>
     <td>
      [% IF no_parts_found %]
-     Es wurde kein Artikel gefunden, auf den die Suchparameter zutreffen.
+     [% 'No part was found matching the search parameters.' | $T8 %]
      [% IF allow_creation %]
-     Sie k&ouml;nnen jedoch einen neuen Artikel anlegen, der dann automatisch ausgew&auml;hlt wird.
+     [% 'However, you can create a new part which will then be selected.' | $T8 %]
      [% END %]
      [% ELSE %]
-     Bitte w&auml;hlen Sie einen Artikel aus der Liste aus.
+     [% 'Please select a part from the list below.' | $T8 %]
      [% IF allow_creation %]
-     Sie k&ouml;nnen auch einen neuen Artikel anlegen, der dann automatisch ausgew&auml;hlt wird.
+     [% 'Alternatively you can create a new part which will then be selected.' | $T8 %]
      [% END %]
      [% END %]
     </td>
@@ -44,7 +45,7 @@
 
       [% FOREACH part = PARTS %]
       <tr class="listrow[% IF loop.count % 2 %]1[% ELSE %]0[% END %]">
-       <td><button type="button" onclick="part_selected('[% loop.count %]')">auswählen</button></td>
+       <td><button type="button" onclick="part_selected('[% loop.count %]')">[% 'Select' | $T8 %]</button></td>
        <td>
         <input type="hidden" id="partsid_[% loop.count %]" name="partsid_[% loop.count %]" value="[% HTML.escape(part.id) %]">
         <input type="hidden" id="partnumber_[% loop.count %]" name="partnumber_[% loop.count %]" value="[% HTML.escape(part.partnumber) %]">
@@ -68,7 +69,7 @@
   </table>
 
   [% IF allow_creation %]
-  <p><input type="submit" name="action" value="Neue Ware"></p>
+  <p><input type="submit" name="action" value="[% 'New part' | $T8 %]"></p>
   [% END %]
 
  </form>

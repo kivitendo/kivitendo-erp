@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body onload="[% onload %]">
 
  <form name="Form">
@@ -10,7 +11,7 @@
   <table width="100%">
    <tr height="5"></tr>
 
-   <tr><td><translate>Please select a customer from the list below.</translate></td></tr>
+   <tr><td>[% 'Please select a customer from the list below.' | $T8 %]</td></tr>
 
    <tr>
     <td>

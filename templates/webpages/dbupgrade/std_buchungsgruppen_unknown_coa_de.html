@@ -1,4 +1,6 @@
-[% USE HTML %]<div class="listtop">Unbekannter Kontenrahmen</div>
+[%- USE T8 %]
+[%- USE LxERP %]
+[% USE HTML %]<div class="listtop">[% 'Unknown chart of accounts' | $T8 %]</div>
 
 <form name="Form" method="post" action="login.pl">
 
@@ -10,8 +12,8 @@
  [% END %]
 
  <p>
-  Hinweis:
-  Diese Installation benutzt einen unbekannten Kontenrahmen (&quot;[% HTML.escape(coa) %]&quot;). Dieses Datenbankupgrade kann die Standardbuchungsgruppen nicht automatisch anlegen.
+  [% 'Note' | $T8 %]:
+  [% LxERP.t8('This installation uses an unknown chart of accounts (&quot;#1&quot;). This database upgrade cannot create standard buchungsgruppen automatically.', coa) | html %]
  </p>
 
  <hr>

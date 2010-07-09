@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <form action="[% HTML.escape(script) %]" method="post">
@@ -6,13 +7,13 @@
 
   <table width="100%">
    <tr>
-    <th class="listtop"><translate>Load draft</translate></th>
+    <th class="listtop">[% 'Load draft' | $T8 %]</th>
    </tr>
    <tr height="5"></tr>
 
    <tr>
     <td>
-     <translate>The following drafts have been saved and can be loaded.</translate>
+     [% 'The following drafts have been saved and can be loaded.' | $T8 %]
     </td>
    </tr>
 
@@ -21,9 +22,9 @@
      <table>
       <tr>
        <th class="listheading">&nbsp;</th>
-       <th class="listheading"><translate>Date</translate></th>
-       <th class="listheading"><translate>Description</translate></th>
-       <th class="listheading"><translate>Employee</translate></th>
+       <th class="listheading">[% 'Date' | $T8 %]</th>
+       <th class="listheading">[% 'Description' | $T8 %]</th>
+       <th class="listheading">[% 'Employee' | $T8 %]</th>
       </tr>
 
       [% FOREACH row = DRAFTS %]
@@ -41,8 +42,8 @@
    <tr>
     <td>
      <input type="hidden" name="action" value="draft_action_dispatcher">
-     <input type="submit" class="submit" name="draft_action" value="<translate>Skip</translate>">
-     <input type="submit" class="submit" name="draft_action" value="<translate>Delete drafts</translate>">
+     <input type="submit" class="submit" name="draft_action" value="[% 'Skip' | $T8 %]">
+     <input type="submit" class="submit" name="draft_action" value="[% 'Delete drafts' | $T8 %]">
     </td>
    </tr>
   </table>

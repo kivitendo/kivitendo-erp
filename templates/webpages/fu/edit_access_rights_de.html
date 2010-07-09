@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 <body>
 
@@ -7,14 +8,14 @@
 
  <div class="listtop">[% title %]</div>
 
- <p>Erlaube den folgenden Benutzern Zugriff auf meine Wiedervorlagen:</p>
+ <p>[% 'Allow the following users access to my follow-ups:' | $T8 %]</p>
 
  <form action="fu.pl" method="post" name="Form">
   <p>
    <table>
     <tr>
-     <td class="listheading">Benutzer</td>
-     <td class="listheading">Zugriff erlauben</td>
+     <td class="listheading">[% 'User' | $T8 %]</td>
+     <td class="listheading">[% 'Allow access' | $T8 %]</td>
     </tr>
 
     [%- FOREACH row = EMPLOYEES %]
@@ -25,9 +26,9 @@
      <td>[% IF row.name %][% HTML.escape(row.name) %] ([% HTML.escape(row.login) %])[% ELSE %][% HTML.escape(row.login) %][% END %]</td>
      <td>
       <input type="radio" id="access_[% HTML.escape(row.id) %]_yes" name="access_[% HTML.escape(row.id) %]" value="1"[% IF row.access %] checked[% END %]>
-      <label for="access_[% HTML.escape(row.id) %]_yes">Ja</label>
+      <label for="access_[% HTML.escape(row.id) %]_yes">[% 'Yes' | $T8 %]</label>
       <input type="radio" id="access_[% HTML.escape(row.id) %]_no" name="access_[% HTML.escape(row.id) %]" value=""[% UNLESS row.access %] checked[% END %]>
-      <label for="access_[% HTML.escape(row.id) %]_no">Nein</label>
+      <label for="access_[% HTML.escape(row.id) %]_no">[% 'No' | $T8 %]</label>
      </td>
     </tr>
     [%- END %]
@@ -39,7 +40,7 @@
   <input type="hidden" name="save_nextsub" value="save_access_rights">
 
   <p>
-   <input type="submit" class="submit" name="action" value="Speichern">
+   <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
   </p>
 
  </form>

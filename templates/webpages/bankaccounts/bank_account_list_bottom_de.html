@@ -1,8 +1,9 @@
+[%- USE T8 %]
 [% USE HTML %]
  <form action="bankaccounts.pl" method="post">
   <p>
-   Neues Bankkonto<br>
-   <input type="submit" value="Erfassen">
+   [% 'New bank account' | $T8 %]<br>
+   <input type="submit" value="[% 'Add' | $T8 %]">
   </p>
 
   <input type="hidden" name="action" value="bank_account_add">

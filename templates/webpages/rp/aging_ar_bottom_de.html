@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %] <input type="hidden" name="rowcount" value="[% HTML.escape(row_idx) %]">
 
  [% PRINT_OPTIONS %]
@@ -10,10 +11,10 @@
  <input type="hidden" name="vendor" value="[% HTML.escape(vendor) %]">
  <input type="hidden" name="department" value="[% HTML.escape(department) %]">
 
- Sammelrechnung
+ [% 'Statement' | $T8 %]
  <br>
- <input class="submit" type="submit" name="action" value="Alle auswählen">
- <input class="submit" type="submit" name="action" value="Drucken">
- <input class="submit" type="submit" name="action" value="eMail">
+ <input class="submit" type="submit" name="action" value="[% 'Select all' | $T8 %]">
+ <input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]">
+ <input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
 
 </form>

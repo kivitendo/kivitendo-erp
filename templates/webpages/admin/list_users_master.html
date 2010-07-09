@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin" onload="">
 
  <form method="post" action="admin.pl">
@@ -7,13 +8,13 @@
   <p>
    <table width="100%">
     <tr>
-     <th class="listtop"><translate>Login</translate></th>
-     <th class="listtop"><translate>Name</translate></th>
-     <th class="listtop"><translate>Company</translate></th>
-     <th class="listtop"><translate>Driver</translate></th>
-     <th class="listtop"><translate>Host</translate></th>
-     <th class="listtop"><translate>Dataset</translate></th>
-     <th class="listtop"><translate>Templates</translate></th>
+     <th class="listtop">[% 'Login' | $T8 %]</th>
+     <th class="listtop">[% 'Name' | $T8 %]</th>
+     <th class="listtop">[% 'Company' | $T8 %]</th>
+     <th class="listtop">[% 'Driver' | $T8 %]</th>
+     <th class="listtop">[% 'Host' | $T8 %]</th>
+     <th class="listtop">[% 'Dataset' | $T8 %]</th>
+     <th class="listtop">[% 'Templates' | $T8 %]</th>
     </tr>
 
     [% FOREACH row = MEMBERS %]
@@ -33,35 +34,35 @@
   </p>
 
 
-  <input type="submit" class="submit" name="action" value="<translate>Add User</translate>">
-  <input type="submit" class="submit" name="action" value="<translate>Edit groups</translate>">
-  <input type="submit" class="submit" name="action" value="<translate>Pg Database Administration</translate>">
+  <input type="submit" class="submit" name="action" value="[% 'Add User' | $T8 %]">
+  <input type="submit" class="submit" name="action" value="[% 'Edit groups' | $T8 %]">
+  <input type="submit" class="submit" name="action" value="[% 'Pg Database Administration' | $T8 %]">
   [% IF LOCKED %]
-   <input type="submit" class="submit" name="action" value="<translate>Unlock System</translate>">
+   <input type="submit" class="submit" name="action" value="[% 'Unlock System' | $T8 %]">
    [% ELSE %]
-   <input type="submit" class="submit" name="action" value="<translate>Lock System</translate>">
+   <input type="submit" class="submit" name="action" value="[% 'Lock System' | $T8 %]">
   [% END %]
-  <input type="submit" class="submit" name="action" value="<translate>Logout</translate>">
+  <input type="submit" class="submit" name="action" value="[% 'Logout' | $T8 %]">
 
-  <p><translate>Click on login name to edit!</translate></p>
+  <p>[% 'Click on login name to edit!' | $T8 %]</p>
 
-  <p><translate>To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.</translate></p>
+  <p>[% 'To add a user to a group edit a name, change the login name and save. A new user with the same variables will then be saved under the new login name.' | $T8 %]</p>
  </form>
 
  <form method="post" action="login.pl">
 
-  <div class="listheading">Lx-Office ERP <translate>Login</translate></div>
+  <div class="listheading">Lx-Office ERP [% 'Login' | $T8 %]</div>
 
   <table border="0">
    <tr>
-    <th align="right"><translate>Name</translate></th>
+    <th align="right">[% 'Name' | $T8 %]</th>
     <td><input class="login" name="login"></td>
     <td>&nbsp;</td>
    </tr>
    <tr>
-    <th align="right"><translate>Password</translate></th>
+    <th align="right">[% 'Password' | $T8 %]</th>
     <td><input class="login" type="password" name="password"></td>
-    <td><input type="submit" name="action" value="<translate>Login</translate>"></td>
+    <td><input type="submit" name="action" value="[% 'Login' | $T8 %]"></td>
    </tr>
   </table>
 

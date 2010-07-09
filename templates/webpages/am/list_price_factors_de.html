@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  [% IF MESSAGE %]<p>[% MESSAGE %]</p>[% END %]
@@ -9,8 +10,8 @@
    <tr>
     <td class="listheading" width="0%"></td>
     <td class="listheading" width="0%"></td>
-    <td class="listheading" width="80%">Beschreibung</td>
-    <td class="listheading" width="20%">Faktor</td>
+    <td class="listheading" width="80%">[% 'Description' | $T8 %]</td>
+    <td class="listheading" width="20%">[% 'Factor' | $T8 %]</td>
    </tr>
 
    [% SET row_odd = '1' %][% FOREACH factor = PRICE_FACTORS %]
@@ -31,7 +32,7 @@
    <input type="hidden" name="type" value="price_factor">
    <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
 
-   <input type="submit" class="submit" name="action" value="Erfassen">
+   <input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]">
   </form>
  </p>
 

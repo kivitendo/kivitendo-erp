@@ -1,17 +1,18 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 
-<div class="listtop"><translate>Overdue sales quotations and requests for quotations</translate></div>
+<div class="listtop">[% 'Overdue sales quotations and requests for quotations' | $T8 %]</div>
 
 <p>
  <table width="100%">
   <tr>
-   <td class="listheading"><translate>Date</translate></td>
-   <td class="listheading"><translate>Valid until</translate></td>
-   <td class="listheading"><translate>Sales quotation</translate> / <translate>Request quotation</translate></td>
-   <td class="listheading"><translate>Customer</translate> / <translate>Vendor</translate></td>
-   <td class="listheading"><translate>Transaction description</translate></td>
-   <td class="listheading"><translate>Amount</translate></td>
-   <td class="listheading"><translate>Employee</translate></td>
+   <td class="listheading">[% 'Date' | $T8 %]</td>
+   <td class="listheading">[% 'Valid until' | $T8 %]</td>
+   <td class="listheading">[% 'Sales quotation' | $T8 %] / [% 'Request quotation' | $T8 %]</td>
+   <td class="listheading">[% 'Customer' | $T8 %] / [% 'Vendor' | $T8 %]</td>
+   <td class="listheading">[% 'Transaction description' | $T8 %]</td>
+   <td class="listheading">[% 'Amount' | $T8 %]</td>
+   <td class="listheading">[% 'Employee' | $T8 %]</td>
   </tr>
 
   [%- FOREACH row = QUOTATIONS %]
@@ -21,9 +22,9 @@
    <td>
     <a href="[% edit_url %]&vc=[% HTML.url(row.vc) %]&type=[% IF row.vc == 'customer' %]sales_quotation[% ELSE %]request_quotation[% END %]&id=[% HTML.url(row.id) %]">
      [% IF row.vc == 'customer' %]
-     <translate>Sales quotation</translate>
+     [% 'Sales quotation' | $T8 %]
      [% ELSE %]
-     <translate>Request quotation</translate>
+     [% 'Request quotation' | $T8 %]
      [% END %]
      [% HTML.escape(row.quonumber) %]
     </a>

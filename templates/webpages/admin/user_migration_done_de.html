@@ -1,16 +1,17 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
 
  <form method="post" action="admin.pl">
 
-  <p>Die folgenden Benutzer wurden in die Authentifizierungsdatenbank migriert:</p>
+  <p>[% 'The following users have been migrated into the authentication database:' | $T8 %]</p>
 
   <p>[% FOREACH row = MEMBERS %][% HTML.escape(row.login) %] [% END %]</p>
 
   <input type="hidden" name="nextsub" value="create_standard_group_ask">
 
-  <input type="submit" class="submit" name="action" value="Weiter">
+  <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
 
  </form>
 

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- IF PRICES.size %]
@@ -5,8 +6,8 @@
     <td>
       <table width=100%>
         <tr>
-          <th class="listheading">Preisgruppe</th>
-          <th class="listheading">Preis</th>
+          <th class="listheading">[% 'Preisklasse' | $T8 %]</th>
+          <th class="listheading">[% 'Preis' | $T8 %]</th>
         </tr>
 [%- FOREACH row = PRICES %]
         <tr>

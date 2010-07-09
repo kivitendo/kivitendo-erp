@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
@@ -8,7 +9,7 @@
  <p><div class="listtop">[% title %]</div></p>
 
  <form action="sepa.pl" method="post">
-  <p>1. Bitte wählen Sie das Bankkonto als Quelle für die Überweisungen aus:
+  <p>1. [% 'Please select the source bank account for the transfers:' | $T8 %]
    <br>
    [%- INCLUDE generic/multibox.html
          name      = 'bank_account.id',
@@ -19,14 +20,14 @@
   </p>
 
   <p>
-   2. Bitte überprüfen Sie die Kontoinformationen der Lieferanten:
+   2. [% 'Please Check the bank information for each vendor:' | $T8 %]
    <br>
    <table>
     <tr>
-     <th class="listheading">Lieferant</th>
-     <th class="listheading">IBAN</th>
-     <th class="listheading">BIC</th>
-     <th class="listheading">Bank</th>
+     <th class="listheading">[% 'Vendor' | $T8 %]</th>
+     <th class="listheading">[% 'IBAN' | $T8 %]</th>
+     <th class="listheading">[% 'BIC' | $T8 %]</th>
+     <th class="listheading">[% 'Bank' | $T8 %]</th>
     </tr>
 
     [%- FOREACH vbi = VENDOR_BANK_INFO %]
@@ -45,17 +46,17 @@
   </p>
 
   <p>
-   3. Geben Sie das jeweils gewünschte Ausführungsdatum an, oder lassen Sie das Feld leer für die schnellstmögliche Ausführung:
+   3. [% 'Enter the requested execution date or leave empty for the quickest possible execution:' | $T8 %]
    <br>
    <table>
     <tr>
-     <th class="listheading">Lieferant</th>
-     <th class="listheading">Rechnung</th>
-     <th class="listheading" align="right">Betrag</th>
-     <th class="listheading" align="right">offener Betrag</th>
-     <th class="listheading">Verwendungszweck</th>
-     <th class="listheading" align="right">Überweisungssumme</th>
-     <th class="listheading">Ausführungsdatum</th>
+     <th class="listheading">[% 'Vendor' | $T8 %]</th>
+     <th class="listheading">[% 'Invoice' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Open amount' | $T8 %]</th>
+     <th class="listheading">[% 'Purpose' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Bank transfer amount' | $T8 %]</th>
+     <th class="listheading">[% 'Execution date' | $T8 %]</th>
     </tr>
 
     [%- FOREACH bank_transfer = BANK_TRANSFERS %]
@@ -96,7 +97,7 @@
   </p>
 
   <p>
-   <input type="submit" class="submit" name="action_bank_transfer_create" value="Überweisung erstellen">
+   <input type="submit" class="submit" name="action_bank_transfer_create" value="[% 'Create bank transfer' | $T8 %]">
   </p>
 
   <input type="hidden" name="action" value="dispatcher">

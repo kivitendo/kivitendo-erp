@@ -1,7 +1,8 @@
+[%- USE T8 %]
 [% USE HTML %]
 <tr>
  <td>
-  <input type="button" id="cb_show_details" name="show_details" value='<translate>Show details</translate>'>
+  <input type="button" id="cb_show_details" name="show_details" value='[% 'Show details' | $T8 %]'>
   <script type="text/javascript">
    $('#cb_show_details').click(function(){ $('[id$="row2"]').toggle() });
   </script>

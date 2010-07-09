@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
@@ -9,60 +10,60 @@
   <p>
    <table>
     <tr class="listheading">
-     <th colspan="4">Nummernkreise</th>
+     <th colspan="4">[% 'Ranges of numbers' | $T8 %]</th>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Letzte Rechnungsnummer</th>
+     <th align="right" nowrap>[% 'Last Invoice Number' | $T8 %]</th>
      <td><input name="invnumber" size="10" value="[% HTML.escape(defaults_invnumber) %]"></td>
-     <th align="right" nowrap>Letzte Kundennummer</th>
+     <th align="right" nowrap>[% 'Last Customer Number' | $T8 %]</th>
      <td><input name="customernumber" size="10" value="[% HTML.escape(defaults_customernumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Letzte Gutschriftnummer</th>
+     <th align="right" nowrap>[% 'Last Credit Note Number' | $T8 %]</th>
      <td><input name="cnnumber" size="10" value="[% HTML.escape(defaults_cnnumber) %]"></td>
-     <th align="right" nowrap>Letzte Lieferantennummer</th>
+     <th align="right" nowrap>[% 'Last Vendor Number' | $T8 %]</th>
      <td><input name="vendornumber" size="10" value="[% HTML.escape(defaults_vendornumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Letzte Auftragsnummer</th>
+     <th align="right" nowrap>[% 'Last Sales Order Number' | $T8 %]</th>
      <td><input name="sonumber" size="10" value="[% HTML.escape(defaults_sonumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Letzte Lieferantenautragsnummer</th>
+     <th align="right" nowrap>[% 'Last Purchase Order Number' | $T8 %]</th>
      <td><input name="ponumber" size="10" value="[% HTML.escape(defaults_ponumber) %]"></td>
-     <th align="right" nowrap>Letzte Artikelnummer</th>
+     <th align="right" nowrap>[% 'Last Article Number' | $T8 %]</th>
      <td><input name="articlenumber" size="10" value="[% HTML.escape(defaults_articlenumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Letzte Angebotsnummer</th>
+     <th align="right" nowrap>[% 'Last Sales Quotation Number' | $T8 %]</th>
      <td><input name="sqnumber" size="10" value="[% HTML.escape(defaults_sqnumber) %]"></td>
-     <th align="right" nowrap>Letzte Dienstleistungsnr.</th>
+     <th align="right" nowrap>[% 'Last Service Number' | $T8 %]</th>
      <td><input name="servicenumber" size="10" value="[% HTML.escape(defaults_servicenumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Letzte Anfragenummer</th>
+     <th align="right" nowrap>[% 'Last RFQ Number' | $T8 %]</th>
      <td><input name="rfqnumber" size="10" value="[% HTML.escape(defaults_rfqnumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Letzte Lieferscheinnummer (Verkauf)</th>
+     <th align="right" nowrap>[% 'Last Sales Delivery Order Number' | $T8 %]</th>
      <td><input name="sdonumber" size="10" value="[% HTML.escape(defaults_sdonumber) %]"></td>
-     <th align="right" nowrap>Letzte Lieferscheinnummer (Einkauf)</th>
+     <th align="right" nowrap>[% 'Last Purchase Delivery Order Number' | $T8 %]</th>
      <td><input name="pdonumber" size="10" value="[% HTML.escape(defaults_pdonumber) %]"></td>
     </tr>
 
     <tr class="listheading">
-     <th colspan="4">Standardkonten</th>
+     <th colspan="4">[% 'Default Accounts' | $T8 %]</th>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Warenbestand</th>
+     <th align="right" nowrap>[% 'Inventory Account' | $T8 %]</th>
      <td colspan="3">
       <select name="inventory_accno">
        [%- FOREACH row = ACCNOS_IC %]
@@ -73,7 +74,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Erlöskonto</th>
+     <th align="right" nowrap>[% 'Revenue Account' | $T8 %]</th>
      <td colspan="3">
       <select name="income_accno">
        [%- FOREACH row = ACCNOS_IC_INCOME %]
@@ -84,7 +85,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Aufwandskonto</th>
+     <th align="right" nowrap>[% 'Expense Account' | $T8 %]</th>
      <td colspan="3">
       <select name="expense_accno">
        [%- FOREACH row = ACCNOS_IC_EXPENSE %]
@@ -95,7 +96,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Wechselkurserträge</th>
+     <th align="right" nowrap>[% 'Foreign Exchange Gain' | $T8 %]</th>
      <td colspan="3">
       <select name="fxgain_accno">
        [%- FOREACH row = ACCNOS_FX_GAIN %]
@@ -106,7 +107,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Wechselkursaufwendungen</th>
+     <th align="right" nowrap>[% 'Foreign Exchange Loss' | $T8 %]</th>
      <td colspan="3">
       <select name="fxloss_accno">
        [%- FOREACH row = ACCNOS_FX_LOSS %]
@@ -117,26 +118,26 @@
     </tr>
 
     <tr class="listheading">
-     <th colspan="4">Verschiedenes</th>
+     <th colspan="4">[% 'Miscellaneous' | $T8 %]</th>
     </tr>
 
     <tr>
-     <th align="right">Firmennummer</th>
+     <th align="right">[% 'Business Number' | $T8 %]</th>
      <td colspan="3"><input name="businessnumber" size="25" value="[% HTML.escape(defaults_businessnumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right">Jahresende (mm/dd)</th>
+     <th align="right">[% 'Year End' | $T8 %] (mm/dd)</th>
      <td colspan="3"><input name="yearend" size="5" value="[% HTML.escape(defaults_yearend) %]"></td>
     </tr>
 
     <tr>
-     <th align="right">W&auml;hrungen <sup>(1)</sup></th>
+     <th align="right">[% 'Currencies' | $T8 %] <sup>(1)</sup></th>
      <td colspan="3"><input name="curr" size="20" value="[% HTML.escape(defaults_curr) %]"></td>
     </tr>
 
     <tr>
-     <th align="right">Gewichtseinheit</th>
+     <th align="right">[% 'Weight unit' | $T8 %]</th>
  <!--    <td colspan="3"><input name="weightunit" size="20" maxlength="5" value="[% HTML.escape(defaults_weightunit) %]"></td> -->
      <td>
       [%- INCLUDE 'generic/multibox.html'
@@ -155,12 +156,12 @@
 
   <hr height="3" noshade>
 
-  <p><input type="submit" class="submit" name="action" value="Speichern"></p>
+  <p><input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]"></p>
 
   <hr height="3" noshade>
 
   <p>
-   (1) Geben Sie Ihre und weitere Währungen mit bis zu drei Buchstaben pro Währung und Währungen durch Doppelpunkte getrennt ein (z.B. EUR:USD:CAD)
+   (1) [% 'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies' | $T8 %]
   </p>
  </form>
 

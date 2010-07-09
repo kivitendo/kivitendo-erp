@@ -1,12 +1,13 @@
+[%- USE T8 %]
 [% USE HTML %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
  <p>
-  Die Probleme mit falschen Steuerschlüssel bei Kreditoren- und Debitorenbuchungen wurden behoben.
+  [% 'The wrong taxkeys for AP and AR transactions have been fixed.' | $T8 %]
 
-  Bitte wiederholen Sie die Analyse der Hauptbucheinträge, indem Sie auf diesen Button klicken:
+  [% 'Please re-run the analysis for broken general ledger entries by clicking this button:' | $T8 %]
  </p>
 
  <p>
@@ -14,7 +15,7 @@
 
    <input type="hidden" name="action" value="redirect">
    <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-   <input type="submit" value="Analyse wiederholen">
+   <input type="submit" value="[% 'Re-run analysis' | $T8 %]">
   </form>
  </p>
 

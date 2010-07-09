@@ -1,4 +1,5 @@
-[% USE HTML %]<div class="listtop">Schritt 3 von 3: Standardeinheiten</div>
+[%- USE T8 %]
+[% USE HTML %]<div class="listtop">[% 'Step 3 of 3: Default units' | $T8 %]</div>
 
 <form name="Form" method="post" action="login.pl">
 
@@ -7,13 +8,13 @@
  <input type="hidden" name="action2" value="">
 
  <p>
-  Es gibt noch Eintr&auml;ge in der Datenbank, f&uuml;r die keine Einheit zugeordnet ist.
-  Sie m&uuml;ssen eine Ma&szlig;- und eine Dienstleistungseinheit ausw&auml;hlen, die diesen Waren und Dienstleistungen, denen noch keine Einheit zugeordnet ist, zugeordnet wird.
+  [% 'There are still entries in the database for which no unit has been assigned.' | $T8 %]
+  [% 'You have to chose a dimension unit and a service unit which will then be assigned to those entries.' | $T8 %]
  </p>
 
  <table>
   <tr>
-   <td>Ma&szlig;einheit:</td>
+   <td>[% 'Dimension unit' | $T8 %]:</td>
    <td>
     <select name="default_dimension_unit">
      [% FOREACH row = DIMENSION_DDBOX %]<option>[% HTML.escape(row.name) %]</option>[% END %]
@@ -22,7 +23,7 @@
   </tr>
   <tr>
 
-   <td>Dienstleistungseinheit:</td>
+   <td>[% 'Service unit' | $T8 %]:</td>
    <td>
     <select name="default_service_unit">
      [% FOREACH row = SERVICE_DDBOX %]<option>[% HTML.escape(row.name) %]</option>[% END %]
@@ -31,6 +32,6 @@
   </tr>
  </table>
 
- <p><input type="submit" onclick="document.Form.action2.value = 'set_default'; document.Form.submit();" name="dummy" value="Einheiten zuweisen"></p>
+ <p><input type="submit" onclick="document.Form.action2.value = 'set_default'; document.Form.submit();" name="dummy" value="[% 'Assign units' | $T8 %]"></p>
 
 </form>

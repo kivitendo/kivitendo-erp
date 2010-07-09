@@ -1,18 +1,19 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
- <div class="listtop" width="100%"><translate>Carry over shipping address</translate></div>
+ <div class="listtop" width="100%">[% 'Carry over shipping address' | $T8 %]</div>
 
- <p><translate>You have entered or selected the following shipping address for this customer:</translate></p>
+ <p>[% 'You have entered or selected the following shipping address for this customer:' | $T8 %]</p>
 
  <p>
   <table>
    <tr>
-    <th align="right" valign="top"><translate>Name</translate>:</th>
+    <th align="right" valign="top">[% 'Name' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptoname) %]</td>
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>Department</translate>:</th>
+    <th align="right" valign="top">[% 'Department' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptodepartment_1) %]</td>
    </tr>
 
@@ -22,55 +23,55 @@
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>Street</translate>:</th>
+    <th align="right" valign="top">[% 'Street' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptostreet) %]</td>
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>Zipcode</translate>:</th>
+    <th align="right" valign="top">[% 'Zipcode' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptozipcode) %]</td>
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>City</translate>:</th>
+    <th align="right" valign="top">[% 'City' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptocity) %]</td>
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>Country</translate>:</th>
+    <th align="right" valign="top">[% 'Country' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptocountry) %]</td>
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>Contact</translate>:</th>
+    <th align="right" valign="top">[% 'Contact' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptocontact) %]</td>
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>Phone</translate>:</th>
+    <th align="right" valign="top">[% 'Phone' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptophone) %]</td>
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>Fax</translate>:</th>
+    <th align="right" valign="top">[% 'Fax' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptofax) %]</td>
    </tr>
 
    <tr>
-    <th align="right" valign="top"><translate>E-mail</translate>:</th>
+    <th align="right" valign="top">[% 'E-mail' | $T8 %]:</th>
     <td valign="top">[% HTML.escape(CFDD_shiptoemail) %]</td>
    </tr>
   </table>
  </p>
 
-  <translate>Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?</translate>
+  [% 'Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?' | $T8 %]
  </p>
 
  <form method="post" action="oe.pl">
 
   <p>
-   <input type="submit" name="action" value="<translate>Yes</translate>">&nbsp;
-   <input type="submit" name="action" value="<translate>No</translate>">
+   <input type="submit" name="action" value="[% 'Yes' | $T8 %]">&nbsp;
+   <input type="submit" name="action" value="[% 'No' | $T8 %]">
   </p>
 
   <input type="hidden" name="yes_nextsub" value="check_for_direct_delivery_yes">

@@ -1,33 +1,34 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
  <p>
-  <translate>The following transaction contains wrong taxes:</translate>
+  [% 'The following transaction contains wrong taxes:' | $T8 %]
   <a href="[% problem.link %]">
    [%- IF problem.data.module == 'ar' %]
-   <translate>AR Transaction</translate>
+   [% 'AR Transaction' | $T8 %]
    [%- ELSIF problem.data.module == 'ap' %]
-   <translate>AP Transaction</translate>
+   [% 'AP Transaction' | $T8 %]
    [%- ELSE %]
-   <translate>General Ledger Transaction</translate>
+   [% 'General Ledger Transaction' | $T8 %]
    [%- END %]
    [% HTML.escape(problem.data.reference) %]
   </a>
  </p>
 
- <p><translate>At the moment the transaction looks like this:</translate></p>
+ <p>[% 'At the moment the transaction looks like this:' | $T8 %]</p>
 
  <p>
   <table>
    <tr>
-    <th class="listheading"><translate>Account</translate></th>
-    <th class="listheading"><translate>Debit</translate></th>
-    <th class="listheading"><translate>Credit</translate></th>
-    <th class="listheading"><translate>Taxkey</translate></th>
-    <th class="listheading"><translate>Recorded Tax</translate></th>
-    <th class="listheading"><translate>Expected Tax</translate></th>
+    <th class="listheading">[% 'Account' | $T8 %]</th>
+    <th class="listheading">[% 'Debit' | $T8 %]</th>
+    <th class="listheading">[% 'Credit' | $T8 %]</th>
+    <th class="listheading">[% 'Taxkey' | $T8 %]</th>
+    <th class="listheading">[% 'Recorded Tax' | $T8 %]</th>
+    <th class="listheading">[% 'Expected Tax' | $T8 %]</th>
     <th class="listheading"></th>
    </tr>
 
@@ -71,8 +72,8 @@
   <p>
    <input type="hidden" name="action" value="delete_transaction">
    <input type="hidden" name="trans_id" value="[% HTML.escape(problem.data.trans_id) %]">
-   <input type="submit" class="submit" value="<translate>Delete transaction</translate>">
-   <input type="button" class="submit" onclick="history.back()" value="<translate>Back</translate>">
+   <input type="submit" class="submit" value="[% 'Delete transaction' | $T8 %]">
+   <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
   </p>
  </form>
 

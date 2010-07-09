@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
   <tr>
@@ -7,9 +8,9 @@
       <td>
        <table>
         <tr>
-         <th align="left">Bemerkungen</th>
-         <th align="left">interne Bemerkungen</th>
-         <th align="right">Zahlungskonditionen</th>
+         <th align="left">[% 'Notes' | $T8 %]</th>
+         <th align="left">[% 'Internal Notes' | $T8 %]</th>
+         <th align="right">[% 'Payment Terms' | $T8 %]</th>
         </tr>
         <tr valign="top">
          <td>
@@ -35,9 +36,7 @@
 [%- IF id && follow_ups.size %]
         <tr>
           <td colspan="2">
-            [%- LxERP.format_string('Es gibt #1 Wiedervorlage(n), von denen #2 fällig ist/sind.',
-                                     follow_ups.size, follow_ups_unfinished) | html
-            %]
+            [%- LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size, follow_ups_unfinished) | html %]
           <td>
         </tr>
 [%- END %]
@@ -46,11 +45,11 @@
       <td>
        <table>
         <tr>
-         <th  align=left>Ertrag</th>
+         <th  align=left>[% 'Ertrag' | $T8 %]</th>
          <td>[% LxERP.format_amount(marge_total, 2, 0) %]</td>
         </tr>
         <tr>
-         <th  align=left>Ertrag prozentual</th>
+         <th  align=left>[% 'Ertrag prozentual' | $T8 %]</th>
          <td>[% LxERP.format_amount(marge_percent, 2, 0) %] %</td>
         </tr>
         <input type=hidden name="marge_total" value="[% marge_total %]">
@@ -60,7 +59,7 @@
       <td align="right">
   [%- IF taxaccounts %]
        <input name="taxincluded" class="checkbox" type="checkbox" [% IF taxincluded %]checked[% END %]>
-       <b>Steuer im Preis inbegriffen</b>
+       <b>[% 'Tax Included' | $T8 %]</b>
        <br>
        <br>
   [%- END %]
@@ -68,7 +67,7 @@
 
 [%- UNLESS taxincluded %]
         <tr>
-         <th align="right">Zwischensumme</th>
+         <th align="right">[% 'Subtotal' | $T8 %]</th>
          <td align="right">[% LxERP.format_amount(invsubtotal, 2) %]</td>
        </tr>
 [%- END %]
@@ -92,7 +91,7 @@
 [%- END %]
 
         <tr>
-         <th align="right">Summe</th>
+         <th align="right">[% 'Total' | $T8 %]</th>
          <td align="right">[% LxERP.format_amount(invtotal, 2) %]</td>
         </tr>
        </table>
@@ -102,9 +101,11 @@
    </td>
   </tr>
 
-[% PROCESS 'webdav/_list_de.html' %]
+[% SET webdav_template = 'webdav/_list_' _ LxERP.t8('master') _ '.html' %]
+[% PROCESS $webdav_template %]
 
-[% PROCESS 'is/_payments_de.html' %]
+[% SET payments_template = 'is/_payments_' _ LxERP.t8('master') _ '.html' %]
+[% PROCESS $payments_template %]
 
   <tr>
     <td><hr size="3" noshade></td>
@@ -120,47 +121,47 @@
 
   [% IF id %]
 
-    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="Erneuern">
-    <input class="submit" type="submit" name="action" value="Lieferadresse">
-    <input class="submit" type="submit" name="action" value="Drucken">
-    <input class="submit" type="submit" name="action" value="eMail">
+    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
 [% IF  show_storno %]
-    <input class="submit" type="submit" name="action" value="Storno">
+    <input class="submit" type="submit" name="action" value="[% 'Storno' | $T8 %]">
 [% END %]
-    <input class="submit" type="submit" name="action" value="Zahlung buchen">
-    <input class="submit" type="submit" name="action" value="Als Vorlage verwenden">
+    <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Use As Template' | $T8 %]">
 
 [% IF id && !is_type_credit_note %]
-    <input class="submit" type="submit" name="action" value="Gutschrift">
+    <input class="submit" type="submit" name="action" value="[% 'Credit Note' | $T8 %]">
 [% END %]
 [% IF show_delete %]
-    <input class="submit" type="submit" name="action" value="Löschen">
-    <input class="submit" type="submit" name="action" value="Buchen">
+    <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
 [% END %]
 
   [%- UNLESS locked %]
-       <input class="submit" type="submit" name="action" value="Auftrag">
+       <input class="submit" type="submit" name="action" value="[% 'Order' | $T8 %]">
   [%- END %]
 
-    <input type="button" class="submit" onclick="follow_up_window()" value="Wiedervorlage">
+    <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
 
  [% ELSE # no id %]
    [% UNLESS locked %]
-      <input class="submit" type="submit" name="action" id="update_button" value="Erneuern">
-      <input class="submit" type="submit" name="action" value="Lieferadresse">
-      <input class="submit" type="submit" name="action" value="Druckvorschau">
-      <input class="submit" type="submit" name="action" value="eMail">
-      <input class="submit" type="submit" name="action" value="Drucken und Buchen">
-      <input class="submit" type="submit" name="action" value="Buchen">
-      <input class="submit" type="submit" name="action" value="Entwurf speichern">
+      <input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Preview' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Print and Post' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Save Draft' | $T8 %]">
    [%- END %]
  [% END # id %]
 
   [% IF id %]
       [%#- button for saving history %]
-      <input type="button" class="submit" onclick="set_history_window([% id | html %]);" name="history" id="history" value="Historie">
+      <input type="button" class="submit" onclick="set_history_window([% id | html %]);" name="history" id="history" value="[% 'history' | $T8 %]">
 
-      <input type="submit" class="submit" name="action" value="als bezahlt markieren">
+      <input type="submit" class="submit" name="action" value="[% 'mark as paid' | $T8 %]">
   [% END %]
 
 <input type="hidden" name="rowcount" value="[% rowcount %]">

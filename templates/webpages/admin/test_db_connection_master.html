@@ -1,17 +1,17 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
 
  [%- IF connection_ok %]
 
- <p><translate>The connection was established successfully.</translate></p>
+ <p>[% 'The connection was established successfully.' | $T8 %]</p>
 
  [%- ELSE %]
 
  <p>
-  <translate>The connection to the database could not be
-   established.</translate>
-  <translate>Error message from the database driver:</translate>
+  [% 'The connection to the database could not be established.' | $T8 %]
+  [% 'Error message from the database driver:' | $T8 %]
  </p>
 
  <p>[% HTML.escape(errstr) %]</p>
@@ -20,7 +20,7 @@
 
  <p>
   <form>
-   <input type="button" class="submit" onclick="window.close()" value="<translate>Close Window</translate>">
+   <input type="button" class="submit" onclick="window.close()" value="[% 'Close Window' | $T8 %]">
   </form>
  </p>
 

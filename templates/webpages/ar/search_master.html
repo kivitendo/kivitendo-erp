@@ -1,3 +1,4 @@
+[%- USE T8 %]
 <body>
 
  <form method=post name="search" action=[% script %]>
@@ -9,7 +10,7 @@
    <td>
     <table>
      <tr>
-      <th align=right><translate>Customer</translate></th>
+      <th align=right>[% 'Customer' | $T8 %]</th>
       <td colspan=3>
             [%- INCLUDE 'generic/multibox.html'
                  name          = 'customer',
@@ -26,7 +27,7 @@
       </td>
      </tr>
      <tr>
-      <th align=right nowrap><translate>Department</translate></th>
+      <th align=right nowrap>[% 'Department' | $T8 %]</th>
       <td>
             [%- INCLUDE 'generic/multibox.html'
                  name          = 'department',
@@ -40,23 +41,23 @@
       </td>
      </tr>
      <tr>
-      <th align=right nowrap><translate>Invoice Number</translate></th>
+      <th align=right nowrap>[% 'Invoice Number' | $T8 %]</th>
       <td colspan=3><input name=invnumber size=20></td>
      </tr>
      <tr>
-      <th align=right nowrap><translate>Order Number</translate></th>
+      <th align=right nowrap>[% 'Order Number' | $T8 %]</th>
       <td colspan=3><input name=ordnumber size=20></td>
      </tr>
      <tr>
-      <th align=right nowrap><translate>Transaction description</translate></th>
+      <th align=right nowrap>[% 'Transaction description' | $T8 %]</th>
       <td colspan=3><input name=transaction_description size=40></td>
      </tr>
      <tr>
-      <th align=right nowrap><translate>Notes</translate></th>
+      <th align=right nowrap>[% 'Notes' | $T8 %]</th>
       <td colspan=3><input name=notes size=40></td>
      </tr>
      <tr>
-      <th align="right"><translate>Project Number</translate></th>
+      <th align="right">[% 'Project Number' | $T8 %]</th>
       <td colspan="3">
             [%- INCLUDE 'generic/multibox.html'
                  name          =  'project_id',
@@ -71,15 +72,15 @@
       </td>
      </tr>
      <tr>
-      <th align=right nowrap><translate>From</translate></th>
+      <th align=right nowrap>[% 'From' | $T8 %]</th>
       <td>
        <input name=transdatefrom id=transdatefrom size=11 title="[% dateformat | html %]" onBlur="check_right_date_format(this)">
-       <input type=button name=transdatefrom id="trigger1" value=<translate>button</translate>>
+       <input type=button name=transdatefrom id="trigger1" value=[% 'button' | $T8 %]>
       </td>
-     <th align=right><translate>Bis</translate></th>
+     <th align=right>[% 'Bis' | $T8 %]</th>
      <td>
       <input name=transdateto id=transdateto size=11 title="[% dateformat | html %]" onBlur="check_right_date_format(this)">
-      <input type=button name=transdateto name=transdateto id="trigger2" value=<translate>button</translate>>
+      <input type=button name=transdateto name=transdateto id="trigger2" value=[% 'button' | $T8 %]>
      </td>
     </tr>
    <input type=hidden name=sort value=transdate>
@@ -90,89 +91,89 @@
      <td>
       <table>
        <tr>
-        <th align=right nowrap><translate>Include in Report</translate></th>
+        <th align=right nowrap>[% 'Include in Report' | $T8 %]</th>
         <td>
          <table width=100%>
           <tr>
            <td align=right><input name=open class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap><translate>Open</translate></td>
+           <td nowrap>[% 'Open' | $T8 %]</td>
            <td align=right><input name=closed class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Closed</translate></td>
+           <td nowrap>[% 'Closed' | $T8 %]</td>
           </tr>
           <tr>
            <td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>ID</translate></td>
+           <td nowrap>[% 'ID' | $T8 %]</td>
            <td align=right><input name="l_invnumber" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap><translate>Invoice Number</translate></td>
+           <td nowrap>[% 'Invoice Number' | $T8 %]</td>
            <td align=right><input name="l_ordnumber" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Order Number</translate></td>
+           <td nowrap>[% 'Order Number' | $T8 %]</td>
            <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap><translate>Invoice Date</translate></td>
+           <td nowrap>[% 'Invoice Date' | $T8 %]</td>
           </tr>
           <tr>
            <td align=right><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap><translate>Customer</translate></td>
+           <td nowrap>[% 'Customer' | $T8 %]</td>
            <td align=right><input name="l_netamount" class=checkbox type=checkbox value="Y" checked></td>
-           <td nowrap><translate>Amount</translate></td>
+           <td nowrap>[% 'Amount' | $T8 %]</td>
            <td align=right><input name="l_tax" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Tax</translate></td>
+           <td nowrap>[% 'Tax' | $T8 %]</td>
            <td align=right><input name="l_amount" class=checkbox type=checkbox value="Y" checked></td>
-           <td nowrap><translate>Total</translate></td>
+           <td nowrap>[% 'Total' | $T8 %]</td>
           </tr>
           <tr>
            <td align=right><input name="l_datepaid" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Date Paid</translate></td>
+           <td nowrap>[% 'Date Paid' | $T8 %]</td>
            <td align=right><input name="l_paid" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap><translate>Paid</translate></td>
+           <td nowrap>[% 'Paid' | $T8 %]</td>
            <td align=right><input name="l_duedate" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Due Date</translate></td>
+           <td nowrap>[% 'Due Date' | $T8 %]</td>
            <td align=right><input name="l_due" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Amount Due</translate></td>
+           <td nowrap>[% 'Amount Due' | $T8 %]</td>
           </tr>
           <tr>
            <td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Notes</translate></td>
+           <td nowrap>[% 'Notes' | $T8 %]</td>
            <td align=right><input name="l_salesman" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Salesperson</translate></td>
+           <td nowrap>[% 'Salesperson' | $T8 %]</td>
            <td align=right><input name="l_shippingpoint" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Shipping Point</translate></td>
+           <td nowrap>[% 'Shipping Point' | $T8 %]</td>
            <td align=right><input name="l_shipvia" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Ship via</translate></td>
+           <td nowrap>[% 'Ship via' | $T8 %]</td>
           </tr>
           <tr>
            <td align=right><input name="l_marge_total" class=checkbox type=checkbox value=Y></td>
-           <td nowrap> <translate>Ertrag</translate></td>
+           <td nowrap> [% 'Ertrag' | $T8 %]</td>
            <td align=right><input name="l_marge_percent" class=checkbox type=checkbox value=Y></td>
-           <td nowrap> <translate>Ertrag prozentual</translate></td>
+           <td nowrap> [% 'Ertrag prozentual' | $T8 %]</td>
            <td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Employee</translate></td>
+           <td nowrap>[% 'Employee' | $T8 %]</td>
           </tr>
           <tr>
            <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Subtotal</translate></td>
+           <td nowrap>[% 'Subtotal' | $T8 %]</td>
            <td align=right><input name="l_globalprojectnumber" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Project Number</translate></td>
+           <td nowrap>[% 'Project Number' | $T8 %]</td>
            <td align=right><input name="l_transaction_description" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Transaction description</translate></td>
+           <td nowrap>[% 'Transaction description' | $T8 %]</td>
           </tr>
           <tr>
-           <td colspan=4 align=left><b><translate>Customer</translate> </td>
+           <td colspan=4 align=left><b>[% 'Customer' | $T8 %] </td>
           </tr>
           <tr>
            <td align=right><input name="l_customernumber" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Customer Number</translate></td>
+           <td nowrap>[% 'Customer Number' | $T8 %]</td>
            <td align=right><input name="l_country" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Country</translate></td>
+           <td nowrap>[% 'Country' | $T8 %]</td>
            <td align=right><input name="l_ustid" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>USt-IdNr.</translate></td>
+           <td nowrap>[% 'USt-IdNr.' | $T8 %]</td>
            <td align=right><input name="l_taxzone" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Steuersatz</translate></td>
+           <td nowrap>[% 'Steuersatz' | $T8 %]</td>
           </tr>
           <tr>
            <td align=right><input name="l_payment_terms" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Payment Terms</translate></td>
+           <td nowrap>[% 'Payment Terms' | $T8 %]</td>
            <td align=right><input name="l_charts" class=checkbox type=checkbox value=Y></td>
-           <td nowrap><translate>Buchungskonto</translate></td>
+           <td nowrap>[% 'Buchungskonto' | $T8 %]</td>
           </tr>
          </table>
         </td>
@@ -186,7 +187,7 @@
    </table>
    <input type=hidden name=nextsub value=[% nextsub %]>
    <br>
-   <input class=submit type=submit name=action value="<translate>Continue</translate>">
+   <input class=submit type=submit name=action value="[% 'Continue' | $T8 %]">
   </form>
  <script type="text/javascript">
  <!--
@@ -194,8 +195,8 @@
    Calendar.setup( { inputField : "transdateto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
    $(document).ready(function(){
     $('customer').focus();
-    setupDateFormat('[% dateformat | html %]','<translate>Falsches Datumsformat!</translate>');
-    setupPoints('[% numberformat | html %]','<translate>wrongformat</translate>');
+    setupDateFormat('[% dateformat | html %]','[% 'Falsches Datumsformat!' | $T8 %]');
+    setupPoints('[% numberformat | html %]','[% 'wrongformat' | $T8 %]');
    })
  //-->
  </script>

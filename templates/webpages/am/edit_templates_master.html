@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listheading">[% title %]</div>
@@ -8,13 +9,13 @@
 
   [% IF SHOW_EDIT_OPTIONS %]
    <p>
-    <translate>Template</translate>
+    [% 'Template' | $T8 %]
     <select name="formname">
      [% FOREACH row = FORMNAME %]<option value="[% HTML.escape(row.value) %]" [% IF row.value == formname %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
     </select>
 
     [% IF LANGUAGE.size %]
-     <translate>Language</translate>
+     [% 'Language' | $T8 %]
      <select name="language">
       <option></option>
       [% FOREACH row = LANGUAGE %]<option value="[% HTML.escape(row.value) %]" [% IF row.value == language %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
@@ -22,7 +23,7 @@
     [% END %]
 
     [% IF PRINTER.size %]
-     <translate>Printer</translate>
+     [% 'Printer' | $T8 %]
      <select name="printer">
       <option></option>
       [% FOREACH row = PRINTER %]<option value="[% HTML.escape(row.value) %]" [% IF row.value == printer %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
@@ -31,7 +32,7 @@
 
     <input type="hidden" name="display_nextsub" value="display_template">
 
-    <input name="action" type="submit" class="submit" value="<translate>Display</translate>">
+    <input name="action" type="submit" class="submit" value="[% 'Display' | $T8 %]">
 
    </p>
 
@@ -43,7 +44,7 @@
   [% IF SHOW_CONTENT %]
    <p>
     <div class="listtop">
-     [% IF CAN_EDIT %]<translate>Edit file</translate>[% ELSE %]<translate>Display file</translate>[% END %] [% HTML.escape(display_filename) %]
+     [% IF CAN_EDIT %][% 'Edit file' | $T8 %][% ELSE %][% 'Display file' | $T8 %][% END %] [% HTML.escape(display_filename) %]
     </div>
    </p>
 
@@ -52,20 +53,20 @@
 
     <p>
      <input type="hidden" name="save_nextsub" value="save_template">
-     <input type="submit" name="action" value="<translate>Save</translate>">
-     <input type="button" onclick="history.back()" value="<translate>Back</translate>">
+     <input type="submit" name="action" value="[% 'Save' | $T8 %]">
+     <input type="button" onclick="history.back()" value="[% 'Back' | $T8 %]">
     </p>
 
     [% ELSE %]
 
     <input type="hidden" name="edit_nextsub" value="edit_template">
 
-    <p><input name="action" type="submit" class="submit" value="<translate>Edit</translate>"></p>
+    <p><input name="action" type="submit" class="submit" value="[% 'Edit' | $T8 %]"></p>
 
     <p><pre class="filecontent">[% HTML.escape(content) %]</pre></p>
 
     [% IF SHOW_SECOND_EDIT_BUTTON %]
-     <p><input name="action" type="submit" class="submit" value="<translate>Edit</translate>"></p>
+     <p><input name="action" type="submit" class="submit" value="[% 'Edit' | $T8 %]"></p>
     [% END %]
 
    [% END %] <!-- CAN_EDIT -->

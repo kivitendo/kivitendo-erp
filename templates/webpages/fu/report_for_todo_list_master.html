@@ -1,6 +1,7 @@
+[%- USE T8 %]
 [% USE HTML %]
 
-<div class="listtop"><translate>Unfinished follow-ups</translate></div>
+<div class="listtop">[% 'Unfinished follow-ups' | $T8 %]</div>
 
 <form action="fu.pl" method="post" name="TODOFollowUpsForm">
  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
@@ -10,11 +11,11 @@
   <table width="100%">
    <tr>
     <td class="listheading">&nbsp;</td>
-    <td class="listheading"><translate>Follow-Up Date</translate></td>
-    <td class="listheading"><translate>Created on</translate></td>
-    <td class="listheading"><translate>Subject</translate></td>
-    <td class="listheading"><translate>Reference</translate></td>
-    <td class="listheading"><translate>Created by</translate></td>
+    <td class="listheading">[% 'Follow-Up Date' | $T8 %]</td>
+    <td class="listheading">[% 'Created on' | $T8 %]</td>
+    <td class="listheading">[% 'Subject' | $T8 %]</td>
+    <td class="listheading">[% 'Reference' | $T8 %]</td>
+    <td class="listheading">[% 'Created by' | $T8 %]</td>
    </tr>
 
    [%- FOREACH row = FOLLOW_UPS %]
@@ -35,7 +36,7 @@
 
  <p>
   <input type="hidden" name="action" value="dispatcher">
-  <input type="submit" class="submit" name="action_finish" value="<translate>Finish</translate>">
-  <input type="submit" class="submit" name="action_delete" value="<translate>Delete</translate>">
+  <input type="submit" class="submit" name="action_finish" value="[% 'Finish' | $T8 %]">
+  <input type="submit" class="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
  </p>
 </form>

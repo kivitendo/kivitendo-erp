@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]<!-- <body> -->
 <!--  <form> -->
 <!--   <p> -->
@@ -11,8 +12,8 @@
      <td>
       <table>
        <tr valign="bottom">
-        <th align="left">Bemerkungen</th>
-        <th align="left">interne Bemerkungen</th>
+        <th align="left">[% 'Notes' | $T8 %]</th>
+        <th align="left">[% 'Internal Notes' | $T8 %]</th>
        </tr>
 
        <tr valign="top">
@@ -29,13 +30,13 @@
   <hr size="3" noshade>
 
   [%- IF conf_webdav %]
-  <div class="listtop" align="left">Dokumente im WebDAV-Repository</div>
+  <div class="listtop" align="left">[% 'Documents in the WebDAV repository' | $T8 %]</div>
 
   <p>
    <table width="100%">
     <tr>
-     <td align="left" width="30%"><b>Dateiname</b></td>
-     <td align="left" width="70%"><b>WebDAV-Link</b></td>
+     <td align="left" width="30%"><b>[% 'File name' | $T8 %]</b></td>
+     <td align="left" width="70%"><b>[% 'WebDAV link' | $T8 %]</b></td>
     </tr>
 
     [%- FOREACH file = WEBDAV %]
@@ -54,40 +55,40 @@
   <p>[% PRINT_OPTIONS %]</p>
 
   <p>
-   Lieferschein bearbeiten<br>
+   [% 'Edit the Delivery Order' | $T8 %]<br>
    <input type="hidden" name="action" value="dispatcher">
-   <input class="submit" type="submit" name="action_update" id="update_button" value="Erneuern">
+   <input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
    [%- UNLESS delivered %]
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action_ship_to" value="Lieferadresse">
+   <input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
    [%- END %]
    [%- END %]
-   <input class="submit" type="submit" name="action_print" value="Drucken">
-   <input class="submit" type="submit" name="action_e_mail" value="eMail">
+   <input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]">
+   <input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]">
    [%- UNLESS delivered %]
-   <input class="submit" type="submit" name="action_save" value="Speichern">
+   <input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]">
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action_transfer_out" value="Auslagern">
+   <input class="submit" type="submit" name="action_transfer_out" value="[% 'Transfer out' | $T8 %]">
    [%- ELSE %]
-   <input class="submit" type="submit" name="action_transfer_in" value="Einlagern">
+   <input class="submit" type="submit" name="action_transfer_in" value="[% 'Transfer in' | $T8 %]">
    [%- END %]
    [%- END %]
    [%- IF id %]
    [%- UNLESS closed %]
-   <input class="submit" type="submit" name="action_mark_closed" value="Als geschlossen markieren">
+   <input class="submit" type="submit" name="action_mark_closed" value="[% 'Mark closed' | $T8 %]">
    [%- END %]
-   <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="Historie">
+   <input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
    [%- END %]
   </p>
 
   [%- IF id %]
   <p>
-   Workflow Lieferschein<br>
-   <input class="submit" type="submit" name="action_save_as_new" value="als neu speichern">
+   [% 'Workflow Delivery Order' | $T8 %]<br>
+   <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]">
    [% UNLESS delivered %]
-   <input class="submit" type="submit" name="action_delete" value="Löschen">
+   <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
    [% END %]
-   <input class="submit" type="submit" name="action_invoice" value="Rechnung">
+   <input class="submit" type="submit" name="action_invoice" value="[% 'Invoice' | $T8 %]">
   </p>
   [%- END %]
 

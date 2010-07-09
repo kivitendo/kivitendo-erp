@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin">
 
   <h2>[% title %]</h2>
@@ -18,25 +19,25 @@
 
           <tr>
 
-           <th align="right"><translate>Host</translate></th>
+           <th align="right">[% 'Host' | $T8 %]</th>
            <td><input name="dbhost" size="25" value="[% HTML.escape(dbhost) %]"></td>
-           <th align="right"><translate>Port</translate></th>
+           <th align="right">[% 'Port' | $T8 %]</th>
            <td><input name="dbport" size="5" value="[% HTML.escape(dbport) %]"></td>
 
           </tr>
 
           <tr>
 
-           <th align="right"><translate>User</translate></th>
+           <th align="right">[% 'User' | $T8 %]</th>
            <td><input name="dbuser" size="10" value="[% HTML.escape(dbuser) %]"></td>
-           <th align="right"><translate>Password</translate></th>
+           <th align="right">[% 'Password' | $T8 %]</th>
            <td><input type="password" name="dbpasswd" size="10"></td>
 
           </tr>
 
           <tr>
 
-           <th align="right"><translate>Database template</translate></th>
+           <th align="right">[% 'Database template' | $T8 %]</th>
            <td colspan="3"><input name="dbdefault" size="10" value="[% HTML.escape(dbdefault) %]"></td>
 
           </tr>
@@ -51,21 +52,21 @@
 
       <br>
 
-      <input type="submit" class="submit" name="action" value="<translate>Create Dataset</translate>">
-      <input type="submit" class="submit" name="action" value="<translate>Update Dataset</translate>">
-      <input type="submit" class="submit" name="action" value="<translate>Delete Dataset</translate>">
+      <input type="submit" class="submit" name="action" value="[% 'Create Dataset' | $T8 %]">
+      <input type="submit" class="submit" name="action" value="[% 'Update Dataset' | $T8 %]">
+      <input type="submit" class="submit" name="action" value="[% 'Delete Dataset' | $T8 %]">
       [% IF ALLOW_DBBACKUP %]
-       <input type="submit" class="submit" name="action" value="<translate>Backup Dataset</translate>">
-       <input type="submit" class="submit" name="action" value="<translate>Restore Dataset</translate>">
+       <input type="submit" class="submit" name="action" value="[% 'Backup Dataset' | $T8 %]">
+       <input type="submit" class="submit" name="action" value="[% 'Restore Dataset' | $T8 %]">
       [% END %]
      </td>
     </tr>
    </table>
   </form>
 
-  <p><translate>This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!</translate></p>
+  <p>[% 'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!' | $T8 %]</p>
 
-  <p><translate>Leave host and port field empty unless you want to make a remote connection.</translate></p>
+  <p>[% 'Leave host and port field empty unless you want to make a remote connection.' | $T8 %]</p>
 
 </body>
 </html>

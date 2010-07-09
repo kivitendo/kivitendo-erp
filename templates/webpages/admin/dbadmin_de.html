@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin">
 
   <h2>[% title %]</h2>
@@ -18,25 +19,25 @@
 
           <tr>
 
-           <th align="right">Datenbankcomputer</th>
+           <th align="right">[% 'Host' | $T8 %]</th>
            <td><input name="dbhost" size="25" value="[% HTML.escape(dbhost) %]"></td>
-           <th align="right">Port</th>
+           <th align="right">[% 'Port' | $T8 %]</th>
            <td><input name="dbport" size="5" value="[% HTML.escape(dbport) %]"></td>
 
           </tr>
 
           <tr>
 
-           <th align="right">Benutzer</th>
+           <th align="right">[% 'User' | $T8 %]</th>
            <td><input name="dbuser" size="10" value="[% HTML.escape(dbuser) %]"></td>
-           <th align="right">Passwort</th>
+           <th align="right">[% 'Password' | $T8 %]</th>
            <td><input type="password" name="dbpasswd" size="10"></td>
 
           </tr>
 
           <tr>
 
-           <th align="right">Datenbankvorlage</th>
+           <th align="right">[% 'Database template' | $T8 %]</th>
            <td colspan="3"><input name="dbdefault" size="10" value="[% HTML.escape(dbdefault) %]"></td>
 
           </tr>
@@ -51,21 +52,21 @@
 
       <br>
 
-      <input type="submit" class="submit" name="action" value="Datenbank anlegen">
-      <input type="submit" class="submit" name="action" value="Datenbank aktualisieren">
-      <input type="submit" class="submit" name="action" value="Datenbank löschen">
+      <input type="submit" class="submit" name="action" value="[% 'Create Dataset' | $T8 %]">
+      <input type="submit" class="submit" name="action" value="[% 'Update Dataset' | $T8 %]">
+      <input type="submit" class="submit" name="action" value="[% 'Delete Dataset' | $T8 %]">
       [% IF ALLOW_DBBACKUP %]
-       <input type="submit" class="submit" name="action" value="Datenbank sichern">
-       <input type="submit" class="submit" name="action" value="Datenbank wiederherstellen">
+       <input type="submit" class="submit" name="action" value="[% 'Backup Dataset' | $T8 %]">
+       <input type="submit" class="submit" name="action" value="[% 'Restore Dataset' | $T8 %]">
       [% END %]
      </td>
     </tr>
    </table>
   </form>
 
-  <p>In diesem Schritt werden bestehende Datenbanken gesucht. Es werden noch keine &Auml;nderungen vorgenommen!</p>
+  <p>[% 'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!' | $T8 %]</p>
 
-  <p>F&uuml;r lokale Verbindungen "Rechner" und "Port" freilassen.</p>
+  <p>[% 'Leave host and port field empty unless you want to make a remote connection.' | $T8 %]</p>
 
 </body>
 </html>

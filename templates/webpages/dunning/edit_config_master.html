@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
@@ -9,17 +10,17 @@
    <tr height="5"></tr>
 
    <tr>
-    <th class="listheading"><translate>Dunning Level</translate></th>
-    <th class="listheading"><translate>Dunning Description</translate></th>
-    <th class="listheading"><translate>Active?</translate></th>
-    <th class="listheading"><translate>eMail Send?</translate></th>
-<!--     <th class="listheading"><translate>Auto Send?</translate></th>  -->
-    <th class="listheading"><translate>Create invoice?</translate></th>
-    <th class="listheading"><translate>Fristsetzung</translate></th>
-    <th class="listheading"><translate>Duedate +Days</translate></th>
-    <th class="listheading"><translate>Fee</translate></th>
-    <th class="listheading"><translate>Interest Rate</translate></th>
-    <th class="listheading"><translate>Template</translate></th>
+    <th class="listheading">[% 'Dunning Level' | $T8 %]</th>
+    <th class="listheading">[% 'Dunning Description' | $T8 %]</th>
+    <th class="listheading">[% 'Active?' | $T8 %]</th>
+    <th class="listheading">[% 'eMail Send?' | $T8 %]</th>
+<!--     <th class="listheading">[% 'Auto Send?' | $T8 %]</th>  -->
+    <th class="listheading">[% 'Create invoice?' | $T8 %]</th>
+    <th class="listheading">[% 'Fristsetzung' | $T8 %]</th>
+    <th class="listheading">[% 'Duedate +Days' | $T8 %]</th>
+    <th class="listheading">[% 'Fee' | $T8 %]</th>
+    <th class="listheading">[% 'Interest Rate' | $T8 %]</th>
+    <th class="listheading">[% 'Template' | $T8 %]</th>
    </tr>
 
    [% SET odd = '1' %][% USE DUNNING_it = Iterator(DUNNING) %][% FOREACH row = DUNNING_it %]
@@ -36,7 +37,7 @@
      <td>
       <input type="checkbox" name="email_[% DUNNING_it.count %]" value="1" [% IF row.email %]checked[% END %]>
       <button type="button" onclick="set_email_window('email_subject_[% DUNNING_it.count %]', 'email_body_[% DUNNING_it.count %]', 'email_attachment_[% DUNNING_it.count %]')">
-       <translate>L</translate></button>
+       [% 'L' | $T8 %]</button>
       <input type="hidden" name="email_body_[% DUNNING_it.count %]" value="[% HTML.escape(row.email_body) %]">
       <input type="hidden" name="email_subject_[% DUNNING_it.count %]" value="[% HTML.escape(row.email_subject) %]">
       <input type="hidden" name="email_attachment_[% DUNNING_it.count %]" value="[% HTML.escape(row.email_attachment) %]">
@@ -67,7 +68,7 @@
     <td>
      <input type="checkbox" name="email_[% rowcount %]" value="1" checked>
      <button type="button" onclick="set_email_window('email_subject_[% rowcount %]', 'email_body_[% rowcount %]', 'email_attachment_[% rowcount %]')">
-      <translate>L</translate></button>
+      [% 'L' | $T8 %]</button>
      <input type="hidden" name="email_body_[% rowcount %]">
      <input type="hidden" name="email_subject_[% rowcount %]">
      <input type="hidden" name="email_attachment_[% rowcount %]">
@@ -87,13 +88,11 @@
 
   <hr size="3" noshade>
 
-  <p><translate>If the automatic creation of invoices for fees and
-    interest is switched on for a dunning level then the following
-    accounts will be used for the invoice.</translate></p>
+  <p>[% 'If the automatic creation of invoices for fees and interest is switched on for a dunning level then the following accounts will be used for the invoice.' | $T8 %]</p>
 
   <table>
    <tr>
-    <th align="right"><translate>Account for fees</translate></th>
+    <th align="right">[% 'Account for fees' | $T8 %]</th>
     <td>
      <select name="AR_amount_fee">
       [% FOREACH row = SELECT_AR_AMOUNT %]<option value="[% HTML.escape(row.id) %]" [% IF row.AR_amount_fee_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
@@ -103,7 +102,7 @@
    </tr>
 
    <tr>
-    <th align="right"><translate>Account for interest</translate></th>
+    <th align="right">[% 'Account for interest' | $T8 %]</th>
     <td>
      <select name="AR_amount_interest">
       [% FOREACH row = SELECT_AR_AMOUNT %]<option value="[% HTML.escape(row.id) %]" [% IF row.AR_amount_interest_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
@@ -113,7 +112,7 @@
    </tr>
 
    <tr>
-    <th align="right"><translate>Record in</translate></th>
+    <th align="right">[% 'Record in' | $T8 %]</th>
     <td>
      <select name="AR">
       [% FOREACH row = SELECT_AR %]<option value="[% HTML.escape(row.id) %]" [% IF row.AR_selected %]selected[% END %]>[% HTML.escape(row.accno) %]--[% HTML.escape(row.description) %]</option>
@@ -127,7 +126,7 @@
 
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
 
-  <input class="submit" type="submit" name="action" value="<translate>Save</translate>">
+  <input class="submit" type="submit" name="action" value="[% 'Save' | $T8 %]">
 
  </form>
 </body>

@@ -1,20 +1,21 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <table width="100%">
   <tr>
     <td>
       <table width="100%">
         <tr class="listheading">
-          <th class="listheading">Lieferadresse</th>
-          <th class="listheading">Rechnung</th>
-          <th class="listheading">Auftrag</th>
-          <th class="listheading">Rechnungsdatum</th>
-          <th class="listheading">Beschreibung</th>
-          <th class="listheading">Menge</th>
-          <th class="listheading">Einheit</th>
+          <th class="listheading">[% 'Shipping Address' | $T8 %]</th>
+          <th class="listheading">[% 'Invoice' | $T8 %]</th>
+          <th class="listheading">[% 'Order' | $T8 %]</th>
+          <th class="listheading">[% 'Invdate' | $T8 %]</th>
+          <th class="listheading">[% 'Description' | $T8 %]</th>
+          <th class="listheading">[% 'Qty' | $T8 %]</th>
+          <th class="listheading">[% 'Unit' | $T8 %]</th>
 [%- IF is_customer %]
-          <th class="listheading">Verkaufspreis</th>
+          <th class="listheading">[% 'Sell Price' | $T8 %]</th>
 [%- ELSE %]
-          <th class="listheading">Einkaufspreis</th>
+          <th class="listheading">[% 'Last Cost' | $T8 %]</th>
 [%- END %]
         </tr>
 [%- FOREACH row = DELIVERY %]
@@ -36,5 +37,5 @@
 
      </table>
 [%- IF DELIVERY.size == 15 %]
-     <p>Diese Liste ist auf 15 Zeilen begrenzt. Wenn Sie eine vollständige Liste benötigen, erstellen Sie bitte einen Bericht.</p>
+     <p>[% 'This list is capped at 15 items to keep it fast. If you need a full list, please use reports.' | $T8 %]</p>
 [%- END %]

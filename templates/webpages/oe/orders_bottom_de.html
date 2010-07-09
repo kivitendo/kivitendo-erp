@@ -1,7 +1,8 @@
+[%- USE T8 %]
 [% USE HTML %]
  [%- IF SHOW_CONTINUE_BUTTON %]
- Neuer Auftrag<br>
- <input class="submit" type="submit" name="action" value="Weiter">
+ [% 'New sales order' | $T8 %]<br>
+ <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
  [%- END %]
  <input type="hidden" name="nextsub" value="edit">
  <input type="hidden" name="type" value="[% HTML.escape(type) %]">

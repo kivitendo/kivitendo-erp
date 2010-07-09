@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body onload="[% onload %]">
 
  <script type="text/javascript">
@@ -20,22 +21,22 @@
 
   <table width="100%">
    <tr>
-    <td valign="top">Betreff:</td>
+    <td valign="top">[% 'Subject:' | $T8 %]</td>
     <td valign="top"><input id="email_subject" name="email_subject" size="40" value="[% HTML.escape(email_subject) %]"></td>
    </tr>
 
    <tr>
-    <td valign="top">Text:</td>
+    <td valign="top">[% 'Body:' | $T8 %]</td>
     <td valign="top"><textarea id="email_body" name="email_body" rows="20" cols="70" wrap="soft">[% HTML.escape(email_body) %]</textarea></td>
    </tr>
 
    <tr>
-    <td valign="top">PDF anhängen</td>
+    <td valign="top">[% 'Attach PDF:' | $T8 %]</td>
     <td valign="top"><input id="email_attachment" type="checkbox" name="email_attachment" value="1" [% IF email_attachment %]checked[% END %]></td>
    </tr>
   </table>
 
-  <button type="button" onclick="email_updated()">Speichern und schlie&szlig;en</button>
+  <button type="button" onclick="email_updated()">[% 'Save and close' | $T8 %]</button>
 
  </form>
 </body>

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
  <form name="Form" method="post" action="admin.pl">
 
@@ -5,13 +6,13 @@
   <input type="hidden" name="group_id" value="[% HTML.escape(id) %]">
   <input type="hidden" name="confirmed" value="1">
 
-  <div class="listtop"><translate>Delete group</translate></div>
+  <div class="listtop">[% 'Delete group' | $T8 %]</div>
 
-  <p><translate>Do you really want to delete this group:</translate> [% name %] ?</p>
+  <p>[% 'Do you really want to delete this group:' | $T8 %] [% name %] ?</p>
 
   <input type="hidden" name="delete_nextsub" value="delete_group">
-  <input type="submit" class="submit" name="action" value="<translate>Delete</translate>">
-  <button type="button" onclick="history.back()"><translate>Back</translate></button>
+  <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
+  <button type="button" onclick="history.back()">[% 'Back' | $T8 %]</button>
 
  </form>
 

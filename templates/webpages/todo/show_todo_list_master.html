@@ -1,10 +1,11 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
- <div class="listtop" style="margin-bottom: 10px"><translate>Your TODO list</translate></div>
+ <div class="listtop" style="margin-bottom: 10px">[% 'Your TODO list' | $T8 %]</div>
 
  [%- IF !todo_list %]
  <p>
-  <translate>There are no items on your TODO list at the moment.</translate>
+  [% 'There are no items on your TODO list at the moment.' | $T8 %]
  </p>
 
  [%- ELSE %]

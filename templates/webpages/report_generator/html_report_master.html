@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <script type="text/javascript">
@@ -91,7 +92,7 @@
   </table>
  </p>
  [% ELSE %]
-  <p><translate>No data was found.</translate></p>
+  <p>[% 'No data was found.' | $T8 %]</p>
  [% END %]
 
  [% RAW_BOTTOM_INFO_TEXT %]
@@ -111,9 +112,9 @@
    <input type="hidden" name="action" value="report_generator_dispatcher">
 
    <p>
-    <translate>List export</translate><br>
-    [% IF ALLOW_PDF_EXPORT %]<input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')" value="<translate>Export as PDF</translate>">[% END %]
-    [% IF ALLOW_CSV_EXPORT %]<input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')" value="<translate>Export as CSV</translate>">[% END %]
+    [% 'List export' | $T8 %]<br>
+    [% IF ALLOW_PDF_EXPORT %]<input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')" value="[% 'Export as PDF' | $T8 %]">[% END %]
+    [% IF ALLOW_CSV_EXPORT %]<input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')" value="[% 'Export as CSV' | $T8 %]">[% END %]
    </p>
   </form>
  [% END %]

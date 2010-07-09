@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body onload="[% onload %]">
 
  <form name="Form">
@@ -11,7 +12,7 @@
    </tr>
    <tr height="5"></tr>
 
-   <tr><td>Bitte geben Sie die Abmessungen unten ein</td></tr>
+   <tr><td>[% 'Please insert object dimensions below.' | $T8 %]</td></tr>
 
    <tr>
     <td>
@@ -34,7 +35,7 @@
     </td>
    </tr>
   </table>
- <button type="button" onclick="calculate_qty()">Berechnen</button>
+ <button type="button" onclick="calculate_qty()">[% 'Calculate' | $T8 %]</button>
  </form>
 
  <script type="text/javascript">

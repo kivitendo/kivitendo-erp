@@ -1,11 +1,12 @@
+[%- USE T8 %]
 [% USE HTML %] <form method="post" action="ar.pl">
 
   <input name="callback" type="hidden" value="[% callback %]">
 
-  <translate>Create new</translate><br>
+  [% 'Create new' | $T8 %]<br>
 
-  <input class="submit" type="submit" name="action" value="<translate>AR Transaction</translate>">
-  <input class="submit" type="submit" name="action" value="<translate>Sales Invoice</translate>">
+  <input class="submit" type="submit" name="action" value="[% 'AR Transaction' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Sales Invoice' | $T8 %]">
 
  </form>
 

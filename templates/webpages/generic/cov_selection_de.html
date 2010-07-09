@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 <body[% IF onload %] onload="[% onload %]"[% END %]>
 
@@ -18,9 +19,9 @@
    <tr>
     <td>
      [%- IF !is_vendor %]
-      Bitte einen Endkunden aus der Liste auswählen
+      [% 'Please select a customer from the list below.' | $T8 %]
      [%- ELSE %]
-      Bitte einen Händler aus der Liste auswählen
+      [% 'Please select a vendor from the list below.' | $T8 %]
      [%- END %]
     </td>
    </tr>

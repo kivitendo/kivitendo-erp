@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 
 [%- IF show_buttons %]
@@ -5,9 +6,9 @@
  <input type="hidden" name="mode" value="multi">
 
  <p>
-  <input type="submit" class="submit" name="action_bank_transfer_download_sepa_xml" value="<translate>SEPA XML download</translate>">
-  <input type="submit" class="submit" name="action_bank_transfer_edit" value="<translate>Post payments</translate>">
-  <input type="submit" class="submit" name="action_bank_transfer_mark_as_closed_step1" value="<translate>Mark as closed</translate>">
+  <input type="submit" class="submit" name="action_bank_transfer_download_sepa_xml" value="[% 'SEPA XML download' | $T8 %]">
+  <input type="submit" class="submit" name="action_bank_transfer_edit" value="[% 'Post payments' | $T8 %]">
+  <input type="submit" class="submit" name="action_bank_transfer_mark_as_closed_step1" value="[% 'Mark as closed' | $T8 %]">
  </p>
 
  <script type="text/javascript" src="js/jquery.js"></script>

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 
 <input name="id" type="hidden" id="cvid" value="[% HTML.escape(id) %]">
@@ -8,25 +9,25 @@
 <input type="hidden" name="db" id="db" value="[% HTML.escape(db) %]">
 
 <br>
-  <input class="submit" type="submit" name="action" accesskey="s" value="Speichern">
-  <input class="submit" type="submit" name="action" accesskey="s" value="Speichern und schließen">
+  <input class="submit" type="submit" name="action" accesskey="s" value="[% 'Save' | $T8 %]">
+  <input class="submit" type="submit" name="action" accesskey="s" value="[% 'Save and Close' | $T8 %]">
   [%- IF is_customer %]
-  <input class="submit" type="submit" name="action" value="Speichern und Debitorenbuchung erfassen">
+  <input class="submit" type="submit" name="action" value="[% 'Save and AR Transaction' | $T8 %]">
   [%- ELSE %]
-  <input class="submit" type="submit" name="action" value="Speichern und Kreditorenbuchung erfassen">
+  <input class="submit" type="submit" name="action" value="[% 'Save and AP Transaction' | $T8 %]">
   [%- END %]
-  <input class="submit" type="submit" name="action" value="Speichern und Rechnung erfassen">
-  <input class="submit" type="submit" name="action" value="Speichern und Auftrag erfassen">
+  <input class="submit" type="submit" name="action" value="[% 'Save and Invoice' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Save and Order' | $T8 %]">
   [%- IF is_customer %]
-  <input class="submit" type="submit" name="action" value="Speichern und Angebot">
+  <input class="submit" type="submit" name="action" value="[% 'Save and Quotation' | $T8 %]">
   [%- ELSE %]
-  <input class="submit" type="submit" name="action" value="Speichern und Lieferantenanfrage">
+  <input class="submit" type="submit" name="action" value="[% 'Save and RFQ' | $T8 %]">
   [%- END %]
 [%- IF id AND is_orphaned %]
-  <input class="submit" type="submit" name="action" value="Löschen">
+  <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
 [%- END %]
 [%- IF id %]
-  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %]);" name="history" id="history" value="Historie">
+  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %]);" name="history" id="history" value="[% 'history' | $T8 %]">
 [%- END %]
 
   </form>

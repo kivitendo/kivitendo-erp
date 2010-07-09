@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 [% USE LxERP %]
 <body>
@@ -5,11 +6,11 @@
 
  <p>
   [%- IF module == 'ar' %]
-  [%- HTML.escape(LxERP.format_string('Wollen Sie wirklich die Debitorenbuchung #1 löschen?', reference)) %]
+  [%- LxERP.t8('Do you really want to delete AR transaction #1?', reference) | html %]
   [%- ELSIF module == 'ap' %]
-  [%- HTML.escape(LxERP.format_string('Wollen Sie wirklich die Kreditorenbuchung #1 löschen?', reference)) %]
+  [%- LxERP.t8('Do you really want to delete AP transaction #1?', reference) | html %]
   [%- ELSE %]
-  [%- HTML.escape(LxERP.format_string('Wollen Sie wirklich die Dialogbuchung #1 löschen?', reference)) %]
+  [%- LxERP.t8('Do you really want to delete GL transaction #1?', reference) | html %]
   [%- END %]
  </p>
 
@@ -24,8 +25,8 @@
    <input type="hidden" name="confirmation" value="1">
    <input type="hidden" name="action" value="delete_transaction">
 
-   <input type="submit" value="Ja">
-   <input type="button" onclick="history.back()" value="Nein">
+   <input type="submit" value="[% 'Yes' | $T8 %]">
+   <input type="button" onclick="history.back()" value="[% 'No' | $T8 %]">
   </form>
  </p>
 </body>

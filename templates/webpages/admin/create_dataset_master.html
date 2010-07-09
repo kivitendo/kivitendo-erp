@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin">
 
   <h2>[% title %]</h2>
@@ -5,25 +6,23 @@
   <form method="post" action="admin.pl">
 
    <p>
-    <translate>You can either create a new database or chose an
-     existing database.</translate>
-    <translate>In the latter case the tables needed by Lx-Office will
-     be created in that database.</translate>
+    [% 'You can either create a new database or chose an existing database.' | $T8 %]
+    [% 'In the latter case the tables needed by Lx-Office will be created in that database.' | $T8 %]
    </p>
 
    <table>
     <tr>
-     <th valign="top" align="right" nowrap><translate>Existing Datasets</translate></th>
+     <th valign="top" align="right" nowrap>[% 'Existing Datasets' | $T8 %]</th>
      <td valign="top">[% HTML.escape(dbsources) %]</td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Create Dataset</translate></th>
+     <th align="right" nowrap>[% 'Create Dataset' | $T8 %]</th>
      <td><input name="db"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Multibyte Encoding</translate></th>
+     <th align="right" nowrap>[% 'Multibyte Encoding' | $T8 %]</th>
      <td>
       [%- IF FORCE_DBENCODING %]
       <input type="hidden" name="encoding" value="[% HTML.escape(FORCE_DBENCODING) %]">
@@ -37,7 +36,7 @@
     </tr>
 
     <tr>
-     <th valign="top" align="right" nowrap><translate>Create Chart of Accounts</translate></th>
+     <th valign="top" align="right" nowrap>[% 'Create Chart of Accounts' | $T8 %]</th>
      <td>
       <select name="chart">
        [% FOREACH row = CHARTS %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>[% END %]
@@ -60,7 +59,7 @@
 
    <hr size="3" noshade>
 
-   <p><input type="submit" class="submit" name="action" value="<translate>Continue</translate>"></p>
+   <p><input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]"></p>
 
   </form>
 

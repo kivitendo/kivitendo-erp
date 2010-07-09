@@ -1,14 +1,13 @@
+[%- USE T8 %]
 [% USE HTML %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
  <p>
-  <translate>The wrong taxkeys for inventory transactions for sales
-   and purchase invoices have been fixed.</translate>
+  [% 'The wrong taxkeys for inventory transactions for sales and purchase invoices have been fixed.' | $T8 %]
 
-  <translate>Please re-run the analysis for broken general ledger
-   entries by clicking this button:</translate>
+  [% 'Please re-run the analysis for broken general ledger entries by clicking this button:' | $T8 %]
  </p>
 
  <p>
@@ -16,7 +15,7 @@
 
    <input type="hidden" name="action" value="redirect">
    <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-   <input type="submit" value="<translate>Re-run analysis</translate>">
+   <input type="submit" value="[% 'Re-run analysis' | $T8 %]">
   </form>
  </p>
 

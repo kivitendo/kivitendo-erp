@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE JavaScript %]<body>
 
  <form method="post" action="wh.pl">
@@ -7,12 +8,12 @@
 
   <div class="listtop">[% title %]</div>
 
-  <p>Entnahme aus Lager: [% warehouse_description %]</p>
+  <p>[% 'Removal from warehouse' | $T8 %]: [% warehouse_description %]</p>
 
   <p>
    <table>
     <tr>
-     <td>Grund der Entnahme ausw&auml;hlen:</td>
+     <td>[% 'Select type of removal' | $T8 %]:</td>
      <td>
       <select name="transfer_type_id">
        [%- FOREACH type = TRANSFER_TYPES %]<option value="[% HTML.escape(type.id) %]">[% HTML.escape(type.description) %]</option>[% END %]
@@ -21,7 +22,7 @@
     </tr>
 
     <tr>
-     <td>Optionaler Kommentar:</td>
+     <td>[% 'Optional comment' | $T8 %]:</td>
      <td><input name="comment" size="60"></td>
     </tr>
    </table>
@@ -30,16 +31,16 @@
   <p>
    <table>
     <tr>
-     <th class="listheading">Lagerplatz</th>
-     <th class="listheading">Artikelnummer</th>
-     <th class="listheading">Artikelbeschreibung</th>
-     <th class="listheading">Chargennummer</th>
+     <th class="listheading">[% 'Bin' | $T8 %]</th>
+     <th class="listheading">[% 'Part Number' | $T8 %]</th>
+     <th class="listheading">[% 'Part Description' | $T8 %]</th>
+     <th class="listheading">[% 'Charge Number' | $T8 %]</th>
      [% IF conf_show_best_before %]
-     <th class="listheading">Mindesthaltbarkeit</th>
+     <th class="listheading">[% 'Best Before' | $T8 %]</th>
      [% END %]
-     <th class="listheading">EAN</th>
-     <th class="listheading">Lagerbestand</th>
-     <th class="listheading">Entnahmemenge</th>
+     <th class="listheading">[% 'EAN' | $T8 %]</th>
+     <th class="listheading">[% 'Available qty' | $T8 %]</th>
+     <th class="listheading">[% 'Removal qty' | $T8 %]</th>
     </tr>
 
     [% FOREACH row = CONTENTS %]
@@ -80,7 +81,7 @@
   </p>
 
   <p>
-   <input type="submit" class="submit" name="action" value="Weiter">
+   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
 

@@ -1,5 +1,6 @@
-[% USE HTML %]<p><b><translate>Error</translate>:</b> [% message %]</p>
+[%- USE T8 %]
+[% USE HTML %]<p><b>[% 'Error' | $T8 %]:</b> [% message %]</p>
 
 <form>
-<input type="button" onclick="history.back()" value="<translate>Back</translate>">
+<input type="button" onclick="history.back()" value="[% 'Back' | $T8 %]">
 </form>

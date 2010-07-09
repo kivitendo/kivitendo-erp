@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
@@ -5,7 +6,7 @@
 
  <form action="sepa.pl" method="post">
   <p>
-   Bitte wählen Sie das Bankkonto als Quelle für die Überweisungen aus:
+   [% 'Please select the source bank account for the transfers:' | $T8 %]
    <br>
    [%- INCLUDE generic/multibox.html
          name      = 'bank_account.id',
@@ -19,12 +20,12 @@
    <table>
     <tr>
      <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
-     <th class="listheading">Lieferant</th>
-     <th class="listheading">Rechnung</th>
-     <th class="listheading" align="right">Betrag</th>
-     <th class="listheading" align="right">offener Betrag</th>
-     <th class="listheading">Verwendungszweck</th>
-     <th class="listheading" align="right">Überweisungssumme</th>
+     <th class="listheading">[% 'Vendor' | $T8 %]</th>
+     <th class="listheading">[% 'Invoice' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Open amount' | $T8 %]</th>
+     <th class="listheading">[% 'Purpose' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Bank transfer amount' | $T8 %]</th>
     </tr>
 
     [%- FOREACH invoice = INVOICES %]
@@ -68,12 +69,12 @@
 
   [%- IF show_vendor_bank_info_footnote %]
    <p>
-    <sup>(1)</sup> Für diesen Lieferanten wurden in seinen Stammdaten keine Kontodaten hinterlegt. Solange dies nicht geschehen ist, können Sie keine Überweisungen für den Lieferanten anlegen.
+    <sup>(1)</sup> [% 'No bank information has been entered in this vendor's master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
    </p>
   [%- END %]
 
   <p>
-   <input type="submit" class="submit" name="action_bank_transfer_create" value="Schritt 2">
+   <input type="submit" class="submit" name="action_bank_transfer_create" value="[% 'Step 2' | $T8 %]">
   </p>
 
   <input type="hidden" name="action" value="dispatcher">

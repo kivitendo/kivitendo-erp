@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <form action="[% HTML.escape(script) %]" method="post">
@@ -6,24 +7,24 @@
 
   <table width="100%">
    <tr>
-    <th class="listtop"><translate>Save draft</translate></th>
+    <th class="listtop">[% 'Save draft' | $T8 %]</th>
    </tr>
    <tr height="5"></tr>
 
    <tr>
-    <td><translate>Enter a description for this new draft.</translate></td>
+    <td>[% 'Enter a description for this new draft.' | $T8 %]</td>
    </tr>
 
    <tr>
     <td>
-    <translate>Description</translate>:
+    [% 'Description' | $T8 %]:
     <input name="draft_description">
     </td>
    </tr>
 
    <tr>
     <td>
-     <input type="submit" class="submit" name="action" value="<translate>Save draft</translate>">
+     <input type="submit" class="submit" name="action" value="[% 'Save draft' | $T8 %]">
     </td>
    </tr>
   </table>

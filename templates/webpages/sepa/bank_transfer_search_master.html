@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 <body>
 
@@ -7,73 +8,73 @@
   <p>
    <table>
     <tr>
-     <td align="right"><translate>Vendor</translate></td>
+     <td align="right">[% 'Vendor' | $T8 %]</td>
      <td><input name="f_vendor"></td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Invoice number</translate></td>
+     <td align="right">[% 'Invoice number' | $T8 %]</td>
      <td><input name="f_invnumber"></td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Export date from</translate></td>
+     <td align="right">[% 'Export date from' | $T8 %]</td>
      <td>
       <input name="f_export_date_from" id="f_export_date_from" size="11">
       <input type="button" name="f_export_date_from_trigger" id="f_export_date_from_trigger" value="?">
-      <translate>to (time)</translate>
+      [% 'to (time)' | $T8 %]
       <input name="f_export_date_to" id="f_export_date_to" size="11">
       <input type="button" name="f_export_date_to_trigger" id="f_export_date_to_trigger" value="?">
      </td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Requested execution date from</translate></td>
+     <td align="right">[% 'Requested execution date from' | $T8 %]</td>
      <td>
       <input name="f_requested_execution_date_from" id="f_requested_execution_date_from" size="11">
       <input type="button" name="f_requested_execution_date_from_trigger" id="f_requested_execution_date_from_trigger" value="?">
-      <translate>to (time)</translate>
+      [% 'to (time)' | $T8 %]
       <input name="f_requested_execution_date_to" id="f_requested_execution_date_to" size="11">
       <input type="button" name="f_requested_execution_date_to_trigger" id="f_requested_execution_date_to_trigger" value="?">
      </td>
     </tr>
 
     <tr>
-     <td align="right"><translate>Execution date from</translate></td>
+     <td align="right">[% 'Execution date from' | $T8 %]</td>
      <td>
       <input name="f_execution_date_from" id="f_execution_date_from" size="11">
       <input type="button" name="f_execution_date_from_trigger" id="f_execution_date_from_trigger" value="?">
-      <translate>to (time)</translate>
+      [% 'to (time)' | $T8 %]
       <input name="f_execution_date_to" id="f_execution_date_to" size="11">
       <input type="button" name="f_execution_date_to_trigger" id="f_execution_date_to_trigger" value="?">
      </td>
     </tr>
 
     <tr>
-     <td align="right" valign="top"><translate>Include in Report</translate></td>
+     <td align="right" valign="top">[% 'Include in Report' | $T8 %]</td>
      <td valign="top">
       <table>
        <tr>
         <td>
          <input type="checkbox" name="l_open" id="l_open" value="1" checked>
-         <label for="l_open"><translate>open</translate></label>
+         <label for="l_open">[% 'open' | $T8 %]</label>
         </td>
 
         <td>
          <input type="checkbox" name="l_closed" id="l_closed" value="1">
-         <label for="l_closed"><translate>closed</translate></label>
+         <label for="l_closed">[% 'closed' | $T8 %]</label>
         </td>
        </tr>
 
        <tr>
         <td>
          <input type="checkbox" name="l_not_executed" id="l_not_executed" value="1" checked>
-         <label for="l_not_executed"><translate>not yet executed</translate></label>
+         <label for="l_not_executed">[% 'not yet executed' | $T8 %]</label>
         </td>
 
         <td>
          <input type="checkbox" name="l_executed" id="l_executed" value="1" checked>
-         <label for="l_executed"><translate>executed</translate></label>
+         <label for="l_executed">[% 'executed' | $T8 %]</label>
         </td>
        </tr>
       </table>
@@ -85,7 +86,7 @@
 
   <p>
    <input type="hidden" name="action" value="dispatcher">
-   <input type="submit" class="submit" name="action_bank_transfer_list" value="<translate>Continue</translate>">
+   <input type="submit" class="submit" name="action_bank_transfer_list" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
 

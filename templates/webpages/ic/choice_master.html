@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
 <body>
@@ -11,8 +12,8 @@
   <p>
    <table>
     <tr class="listheading">
-     <th class="listheading" nowrap><translate>Part Number</translate></th>
-     <th class="listheading" nowrap><translate>Part Description</translate></th>
+     <th class="listheading" nowrap>[% 'Part Number' | $T8 %]</th>
+     <th class="listheading" nowrap>[% 'Part Description' | $T8 %]</th>
     </tr>
     <tr valign="top">
      <td><input type="text" name="partnumber" size="20"></td>
@@ -30,7 +31,7 @@
   [%- END %]
 
   <p>
-   <input class="submit" type="submit" name="action" value="<translate>list</translate>">
+   <input class="submit" type="submit" name="action" value="[% 'list' | $T8 %]">
   </p>
  </form>
 

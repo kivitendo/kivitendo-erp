@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
@@ -5,7 +6,7 @@
 
  <form action="sepa.pl" method="post">
   <p>
-   <translate>Please select the source bank account for the transfers:</translate>
+   [% 'Please select the source bank account for the transfers:' | $T8 %]
    <br>
    [%- INCLUDE generic/multibox.html
          name      = 'bank_account.id',
@@ -19,12 +20,12 @@
    <table>
     <tr>
      <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
-     <th class="listheading"><translate>Vendor</translate></th>
-     <th class="listheading"><translate>Invoice</translate></th>
-     <th class="listheading" align="right"><translate>Amount</translate></th>
-     <th class="listheading" align="right"><translate>Open amount</translate></th>
-     <th class="listheading"><translate>Purpose</translate></th>
-     <th class="listheading" align="right"><translate>Bank transfer amount</translate></th>
+     <th class="listheading">[% 'Vendor' | $T8 %]</th>
+     <th class="listheading">[% 'Invoice' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Open amount' | $T8 %]</th>
+     <th class="listheading">[% 'Purpose' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Bank transfer amount' | $T8 %]</th>
     </tr>
 
     [%- FOREACH invoice = INVOICES %]
@@ -68,14 +69,12 @@
 
   [%- IF show_vendor_bank_info_footnote %]
    <p>
-    <sup>(1)</sup> <translate>No bank information has been entered in
-     this vendor's master data entry. You cannot create bank transfers
-     unless you enter bank information.</translate>
+    <sup>(1)</sup> [% 'No bank information has been entered in this vendor's master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
    </p>
   [%- END %]
 
   <p>
-   <input type="submit" class="submit" name="action_bank_transfer_create" value="<translate>Step 2</translate>">
+   <input type="submit" class="submit" name="action_bank_transfer_create" value="[% 'Step 2' | $T8 %]">
   </p>
 
   <input type="hidden" name="action" value="dispatcher">

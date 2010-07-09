@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
  <script type="text/javascript" src="js/checkbox_utils.js"></script>
  <script type="text/javascript" src="js/common.js"></script>
@@ -5,34 +6,32 @@
 
  <div class="listtop" width="100%">[% title %]</div>
 
- <p><translate>The columns &quot;Dunning Duedate&quot;, &quot;Total
-   Fees&quot; and &quot;Interest&quot; show data for the previous
-   dunning created for this invoice.</translate></p>
+ <p>[% 'The columns &quot;Dunning Duedate&quot;, &quot;Total Fees&quot; and &quot;Interest&quot; show data for the previous dunning created for this invoice.' | $T8 %]</p>
 
  <form name="Form" method="post" action="dn.pl">
 
   <table width="100%">
-   <th class="listheading" colspan="2"><translate>Current / Next Level</translate></th>
+   <th class="listheading" colspan="2">[% 'Current / Next Level' | $T8 %]</th>
 
    <th class="listheading">
     <input type="checkbox" name="selectall_active" id="selectall_active" onclick="checkbox_check_all('selectall_active', 'active_', 1, [% rowcount %]);">
-    <label for="selectall_active"><translate>Active?</translate></label>
+    <label for="selectall_active">[% 'Active?' | $T8 %]</label>
    </th>
 
    <th class="listheading">
     <input type="checkbox" name="selectall_email" id="selectall_email" onclick="checkbox_check_all('selectall_email', 'email_', 1, [% rowcount %]);">
-    <label for="selectall_email"><translate>eMail?</translate></label>
+    <label for="selectall_email">[% 'eMail?' | $T8 %]</label>
    </th>
 
-   <th class="listheading"><translate>Customername</translate></th>
-   <th class="listheading"><translate>Invno.</translate></th>
-   <th class="listheading"><translate>Invdate</translate></th>
-   <th class="listheading"><translate>Inv. Duedate</translate></th>
-   <th class="listheading"><translate>Amount</translate></th>
-   <th class="listheading"><translate>Open Amount</translate></th>
-   <th class="listheading"><translate>Dunning Duedate</translate></th>
-   <th class="listheading"><translate>Total Fees</translate></th>
-   <th class="listheading"><translate>Interest</translate></th>
+   <th class="listheading">[% 'Customername' | $T8 %]</th>
+   <th class="listheading">[% 'Invno.' | $T8 %]</th>
+   <th class="listheading">[% 'Invdate' | $T8 %]</th>
+   <th class="listheading">[% 'Inv. Duedate' | $T8 %]</th>
+   <th class="listheading">[% 'Amount' | $T8 %]</th>
+   <th class="listheading">[% 'Open Amount' | $T8 %]</th>
+   <th class="listheading">[% 'Dunning Duedate' | $T8 %]</th>
+   <th class="listheading">[% 'Total Fees' | $T8 %]</th>
+   <th class="listheading">[% 'Interest' | $T8 %]</th>
 
    <!-- Ausgabe der einzelnen Zeilen -->
 
@@ -81,10 +80,10 @@
   <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
   <input name="nextsub" type="hidden" value="save_dunning">
 
-  <input type="hidden" name="action" value="<translate>Continue</translate>">
+  <input type="hidden" name="action" value="[% 'Continue' | $T8 %]">
 
-  <input type="submit" name="dummy" value="<translate>Continue</translate>"
-         [% UNLESS DEBUG_DUNNING %]onclick="this.disabled=true; this.value='<translate>The dunning process started</translate>'; document.Form.submit()"[% END %]>
+  <input type="submit" name="dummy" value="[% 'Continue' | $T8 %]"
+         [% UNLESS DEBUG_DUNNING %]onclick="this.disabled=true; this.value='[% 'The dunning process started' | $T8 %]'; document.Form.submit()"[% END %]>
 
  </form>
 </body>

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body [% IF onload %]onload="[% onload %]"[% END %]>
 
  [% IF saved_message %]
@@ -11,11 +12,11 @@
   <input type="hidden" name="type" value="warehouse">
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
 
-  <div class="listtop">[% IF id %]Lager bearbeiten[% ELSE %]Lager erfassen[% END %]</div>
+  <div class="listtop">[% IF id %][% 'Edit Warehouse' | $T8 %][% ELSE %][% 'Add Warehouse' | $T8 %][% END %]</div>
 
   <table border="0">
    <tr>
-    <td align="right">Beschreibung</td>
+    <td align="right">[% 'Description' | $T8 %]</td>
     <td>
      <input name="description" size="60" value="[% HTML.escape(description) %]">
      <input type="hidden" name="orig_description" value="[% HTML.escape(description) %]">
@@ -23,25 +24,25 @@
    </tr>
 
    <tr>
-    <td align="right">Ung&uuml;ltig</td>
+    <td align="right">[% 'Invalid' | $T8 %]</td>
     <td><input type="checkbox" name="invalid" value="1" [% IF invalid %]checked[% END %]></td>
    </tr>
 
    <tr>
-    <td align="right">Anzahl neuer Lagerpl&auml;tze</td>
+    <td align="right">[% 'Number of new bins' | $T8 %]</td>
     <td><input name="number_of_new_bins"></td>
    </tr>
 
    <tr>
-    <td align="right">Namenspr&auml;fix f&uuml;r die neuen Lagerpl&auml;tze</td>
-    <td><input name="prefix" value="Lagerplatz"></td>
+    <td align="right">[% 'Prefix for the new bins' names' | $T8 %]</td>
+    <td><input name="prefix" value="[% 'Bin' | $T8 %]"></td>
    </tr>
   </table>
 
   <p>
-   <input type="submit" class="submit" name="action" value="Speichern">
+   <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
    [%- IF id %][%- UNLESS in_use %]
-   <input type="submit" class="submit" name="action" value="Löschen">
+   <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
    [%- END %][%- END %]
   </p>
 
@@ -51,15 +52,15 @@
 
  <hr height="3">
 
- <div class="listtop">Lagerpl&auml;tze bearbeiten</div>
+ <div class="listtop">[% 'Edit Bins' | $T8 %]</div>
 
  [% UNLESS BINS.size %]
- <p>Es wurden zu diesem Lager noch keine Lagerpl&auml;tze angelegt.</p>
+ <p>[% 'No bins have been added to this warehouse yet.' | $T8 %]</p>
 
  [% ELSE %]
 
  <p>
-  Lagerpl&auml;tze, die bereits benutzt wurden, k&ouml;nnen nicht mehr gel&ouml;scht werden. Deswegen fehlt bei ihnen die Checkbox in der Spalte &quot;L&ouml;schen&quot;.
+  [% 'Bins that have been used in the past cannot be deleted anymore. For these bins there's no checkbox in the &quot;Delete&quot; column.' | $T8 %]
  </p>
 
  <form method="post" action="am.pl">
@@ -71,8 +72,8 @@
 
   <table border="0">
    <tr>
-    <th class="listheading">Löschen</th><th class="listheading">Beschreibung</th>
-    <th class="listheading">Löschen</th><th class="listheading">Beschreibung</th>
+    <th class="listheading">[% 'Delete' | $T8 %]</th><th class="listheading">[% 'Description' | $T8 %]</th>
+    <th class="listheading">[% 'Delete' | $T8 %]</th><th class="listheading">[% 'Description' | $T8 %]</th>
    </tr>
    [%- SET row_odd = '1' %]
    [%- USE bin_it = Iterator(BINS) %]
@@ -100,7 +101,7 @@
 
   <input type="hidden" name="rowcount" value="[% BINS.size %]">
 
-  <p><input type="submit" class="submit" name="action" value="Speichern"></p>
+  <p><input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]"></p>
  </form>
 
  [% END %]

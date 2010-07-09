@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
 <body>
@@ -23,36 +24,36 @@
     <td>
      <table>
       <tr>
-       <th align="right" nowrap>Artikelnummer</th>
+       <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
        <td><input name="partnumber" size="20"></td>
-       <th align="right" nowrap>EAN</th>
+       <th align="right" nowrap>[% 'EAN' | $T8 %]</th>
        <td><input name="ean" size="20"></td>
       </tr>
 
       <tr>
-       <th align="right" nowrap>Artikelbeschreibung</th>
+       <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
        <td colspan="3"><input name="description" size="40"></td>
       </tr>
 
       <tr>
-       <th align="right" nowrap>Warengruppe</th>
+       <th align="right" nowrap>[% 'Group' | $T8 %]</th>
        <td><input name="partsgroup" size="20"></td>
        [%- UNLESS is_service %]
-       <th align="right" nowrap>Seriennummer</th> <td><input name="serialnumber" size="20"></td>
+       <th align="right" nowrap>[% 'Serial Number' | $T8 %]</th> <td><input name="serialnumber" size="20"></td>
        [%- END %]
       </tr>
 
       [%- UNLESS is_service %]
       <tr>
-       <th align="right" nowrap>Lieferant</th> <td><input name="make" size="20"></td>
-       <th align="right" nowrap>Lieferanten-Art-Nr.</th> <td><input name="model" size="20"></td>
+       <th align="right" nowrap>[% 'Make' | $T8 %]</th> <td><input name="make" size="20"></td>
+       <th align="right" nowrap>[% 'Model' | $T8 %]</th> <td><input name="model" size="20"></td>
       </tr>
       [%- END %]
 
       <tr>
-       <th align="right" nowrap>Zeichnung</th>
+       <th align="right" nowrap>[% 'Drawing' | $T8 %]</th>
        <td><input name="drawing" size="20"></td>
-       <th align="right" nowrap>Mikrofilm</th>
+       <th align="right" nowrap>[% 'Microfiche' | $T8 %]</th>
        <td><input name="microfiche" size="20"></td>
       </tr>
 
@@ -62,8 +63,8 @@
       <tr>
        <td></td>
        <td colspan="3">
-        <input name="null" id="null_1" class="radio" type="radio" value="1" checked>&nbsp;<label for="null_1">Hauptartikelbezeichnung</label>
-        <input name="bom" id="bom" class="checkbox" type="checkbox" value="1">&nbsp;<label for="bom">Einzelteile</label>
+        <input name="null" id="null_1" class="radio" type="radio" value="1" checked>&nbsp;<label for="null_1">[% 'Top Level' | $T8 %]</label>
+        <input name="bom" id="bom" class="checkbox" type="checkbox" value="1">&nbsp;<label for="bom">[% 'Individual Items' | $T8 %]</label>
        </td>
       </tr>
       [%- END %]
@@ -72,17 +73,17 @@
        <td></td>
        <td colspan="3">
         <input name="itemstatus" id="itemstatus_active" class="radio" type="radio" value="active" checked>
-        <label for="itemstatus_active">Aktiv</label>
+        <label for="itemstatus_active">[% 'Active' | $T8 %]</label>
         [%- UNLESS is_service %]
         <input name="itemstatus" id="itemstatus_onhand" class="radio" type="radio" value="onhand">
-        <label for="itemstatus_onhand">Auf Lager</label>
+        <label for="itemstatus_onhand">[% 'On Hand' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_short" class="radio" type="radio" value="short">
-        <label for="itemstatus_short">Knapp</label>
+        <label for="itemstatus_short">[% 'Short' | $T8 %]</label>
         [%- END %]
         <input name="itemstatus" id="itemstatus_obsolete" class="radio" type="radio" value="obsolete">
-        <label for="itemstatus_obsolete">Ungültig</label>
+        <label for="itemstatus_obsolete">[% 'Obsolete' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_orphaned" class="radio" type="radio" value="orphaned">
-        <label for="itemstatus_orphaned">Nie benutzt</label>
+        <label for="itemstatus_orphaned">[% 'Orphaned' | $T8 %]</label>
        </td>
       </tr>
 
@@ -96,10 +97,10 @@
             <tr>
              [%- UNLESS is_assembly %]
              <td><input name="bought" id="bought" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="bought">Gekauft</label></td>
+             <td nowrap><label for="bought">[% 'Bought' | $T8 %]</label></td>
              [%- END %]
              <td><input name="sold" id="sold" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="sold">Verkauft</label></td>
+             <td nowrap><label for="sold">[% 'Sold' | $T8 %]</label></td>
             </tr>
 
             <tr>
@@ -109,10 +110,10 @@
             <tr>
              [%- UNLESS is_assembly %]
              <td><input name="onorder" id="onorder" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="onorder">Ist bestellt</label></td>
+             <td nowrap><label for="onorder">[% 'On Order' | $T8 %]</label></td>
              [%- END %]
              <td><input name="ordered" id="ordered" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="ordered">Vom Kunde bestellt</label></td>
+             <td nowrap><label for="ordered">[% 'Ordered' | $T8 %]</label></td>
             </tr>
 
             <tr>
@@ -122,10 +123,10 @@
             <tr>
              [%- UNLESS is_assembly %]
              <td><input name="rfq" id="rfq" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="rfq">Anfrage</label></td>
+             <td nowrap><label for="rfq">[% 'RFQ' | $T8 %]</label></td>
              [%- END %]
              <td><input name="quoted" id="quoted" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="quoted">Angeboten</label></td>
+             <td nowrap><label for="quoted">[% 'Quoted' | $T8 %]</label></td>
             </tr>
            </table>
           </td>
@@ -135,12 +136,12 @@
           <td>
            <table>
             <tr>
-             <th>Von</th>
+             <th>[% 'From' | $T8 %]</th>
              <td><input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(dateformat) %]"></td>
-             <td><input type="button" name="transdatefrom" id="trigger1" value="?"></td>
-             <th>Bis</th>
+             <td><input type="button" name="transdatefrom" id="trigger1" value="[% 'button' | $T8 %]"></td>
+             <th>[% 'To (time)' | $T8 %]</th>
              <td><input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(dateformat) %]"></td>
-             <td><input type="button" name="transdateto" name="transdateto" id="trigger2" value="?"></td>
+             <td><input type="button" name="transdateto" name="transdateto" id="trigger2" value="[% 'button' | $T8 %]"></td>
             </tr>
            </table>
           </td>
@@ -157,105 +158,105 @@
       </tr>
 
       <tr>
-       <th align="right" nowrap>In Bericht aufnehmen</th> <td colspan="3">
+       <th align="right" nowrap>[% 'Include in Report' | $T8 %]</th> <td colspan="3">
         <table>
          <tr>
           <td>
            <input name="l_partnumber" id="l_partnumber" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_partnumber">Artikelnummer</label>
+           <label for="l_partnumber">[% 'Part Number' | $T8 %]</label>
           </td>
           <td>
            <input name="l_description" id="l_description" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_description">Artikelbeschreibung</label>
+           <label for="l_description">[% 'Part Description' | $T8 %]</label>
           </td>
           [%- UNLESS is_service %]
           <td>
            <input name="l_serialnumber" id="l_serialnumber" class="checkbox" type="checkbox" value="Y">
-           <label for="l_serialnumber">Seriennummer</label>
+           <label for="l_serialnumber">[% 'Serial Number' | $T8 %]</label>
           </td>
           [%- END %]
           <td>
            <input name="l_unit" id="l_unit" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_unit">Maßeinheit</label>
+           <label for="l_unit">[% 'Unit of measure' | $T8 %]</label>
           </td>
          </tr>
 
          <tr>
           <td>
            <input name="l_listprice" id="l_listprice" class="checkbox" type="checkbox" value="Y">
-           <label for="l_listprice">Listenpreis</label>
+           <label for="l_listprice">[% 'List Price' | $T8 %]</label>
           </td>
           <td>
            <input name="l_sellprice" id="l_sellprice" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_sellprice">Verkaufspreis</label>
+           <label for="l_sellprice">[% 'Sell Price' | $T8 %]</label>
           </td>
           <td>
            <input name="l_lastcost" id="l_lastcost" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_lastcost">Einkaufspreis</label>
+           <label for="l_lastcost">[% 'Last Cost' | $T8 %]</label>
           </td>
           <td>
            <input name="l_linetotal" id="l_linetotal" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_linetotal">Zeilensumme</label>
+           <label for="l_linetotal">[% 'Line Total' | $T8 %]</label>
           </td>
          </tr>
 
          <tr>
           <td>
            <input name="l_priceupdate" id="l_priceupdate" class="checkbox" type="checkbox" value="Y">
-           <label for="l_priceupdate">Erneuert am</label>
+           <label for="l_priceupdate">[% 'Updated' | $T8 %]</label>
           </td>
           <td>
           <!-- auskommentiert fuer bug nummer 852 - ggf. fuer einen standardlagerplatz verwertet jb 18.5.09-->
            <!--input name="l_bin" id="l_bin" class="checkbox" type="checkbox" value="Y">
-           <label for="l_bin">Lagerplatz</label -->
+           <label for="l_bin">[% 'Bin' | $T8 %]</label -->
            <input name="l_deliverydate" id="l_deliverydate" class="checkbox" type="checkbox" value="Y">
-           <label for="l_deliverydate">Lieferdatum</label>
+           <label for="l_deliverydate">[% 'deliverydate' | $T8 %]</label>
           </td>
           <td>
            <input name="l_rop" id="l_rop" class="checkbox" type="checkbox" value="Y">
-           <label for="l_rop">Mindestlagerbestand</label>
+           <label for="l_rop">[% 'ROP' | $T8 %]</label>
           </td>
           <td>
            <input name="l_weight" id="l_weight" class="checkbox" type="checkbox" value="Y">
-           <label for="l_weight">Gewicht</label>
+           <label for="l_weight">[% 'Weight' | $T8 %]</label>
           </td>
          </tr>
 
          <tr>
           <td>
            <input name="l_image" id="l_image" class="checkbox" type="checkbox" value="Y">
-           <label for="l_image">Grafik</label>
+           <label for="l_image">[% 'Image' | $T8 %]</label>
           </td>
           <td>
            <input name="l_drawing" id="l_drawing" class="checkbox" type="checkbox" value="Y">
-           <label for="l_drawing">Zeichnung</label>
+           <label for="l_drawing">[% 'Drawing' | $T8 %]</label>
           </td>
           <td>
            <input name="l_microfiche" id="l_microfiche" class="checkbox" type="checkbox" value="Y">
-           <label for="l_microfiche">Mikrofilm</label>
+           <label for="l_microfiche">[% 'Microfiche' | $T8 %]</label>
           </td>
           <td>
            <input name="l_partsgroup" id="l_partsgroup" class="checkbox" type="checkbox" value="Y">
-           <label for="l_partsgroup">Warengruppe</label>
+           <label for="l_partsgroup">[% 'Group' | $T8 %]</label>
           </td>
          </tr>
 
          <tr>
           <td>
            <input name="l_transdate" id="l_transdate" class="checkbox" type="checkbox" value="Y">
-           <label for="l_transdate">Belegdatum</label>
+           <label for="l_transdate">[% 'Transdate' | $T8 %]</label>
           </td>
           <td>
            <input name="l_subtotal" id="l_subtotal" class="checkbox" type="checkbox" value="Y">
-           <label for="l_subtotal">Zwischensumme</label>
+           <label for="l_subtotal">[% 'Subtotal' | $T8 %]</label>
           </td>
           <td>
            <input name="l_soldtotal" id="l_soldtotal" class="checkbox" type="checkbox" value="Y">
-           <label for="l_soldtotal">Verkaufte Anzahl</label>
+           <label for="l_soldtotal">[% 'soldtotal' | $T8 %]</label>
           </td>
           <td>
            <input name="l_ean" id="l_ean" class="checkbox" type="checkbox" value="Y">
-           <label for="l_ean">EAN</label>
+           <label for="l_ean">[% 'EAN' | $T8 %]</label>
           </td>
          </tr>
 
@@ -277,8 +278,8 @@
   </script>
 
   <p>
-   <input class="submit" type="submit" name="action" value="Weiter">
-   <input class="submit" type="submit" name="action" value="Top 100">
+   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
+   <input class="submit" type="submit" name="action" value="[% 'TOP100' | $T8 %]">
   </p>
  </form>
 

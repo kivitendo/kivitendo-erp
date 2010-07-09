@@ -1,20 +1,21 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
  <p>
-  Es gibt mindestens eine Buchung, bei der ein logisch nicht passender Steuerschlüssel ausgewählt wurde.
+  [% 'There is at least one transaction for which the user has chosen a logically wrong taxkey.' | $T8 %]
 
-  Das bedeutet, dass ein Benutzer eine Kreditorenbuchung angelegt und in ihr einen Umsatzsteuer-Steuerschlüssel verwendet oder eine Debitorenbuchung mit Vorsteuer-Steuerschlüssel angelegt hat.
+  [% 'This means that the user has created an AP transaction and chosen a taxkey for sales taxes, or that he has created an AR transaction and chosen a taxkey for input taxes.' | $T8 %]
  </p>
 
  <p>
-  Lx-Office kann solche Probleme automatisch beheben.
+  [% 'Lx-Office can fix these problems automatically.' | $T8 %]
 
-  Bei Kreditorenbuchungen werden die Umsatzsteuer-Steuerschlüssel durch Vorsteuer-Steuerschlüssel mit demselben Steuersatz ersetzt.
+  [% 'For AP transactions it will replace the sales taxkeys with input taxkeys with the same tax rate.' | $T8 %]
 
-  Bei Debitorenbuchungen werden die Vorsteuer-Steuerschlüssel durch Umsatzsteuer-Steuerschlüssel mit demselben Steuersatz ersetzt.
+  [% 'For AR transactions it will replace the input taxkeys with sales taxkeys with the same tax rate.' | $T8 %]
  </p>
 
  <form name="Form" action="acctranscorrections.pl" method="post">
@@ -22,8 +23,8 @@
   <p>
    <input type="hidden" name="action" value="fix_ap_ar_wrong_taxkeys">
    <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-   <input type="submit" class="submit" value="Buchungen korrigieren">
-   <input type="button" class="submit" onclick="history.back()" value="Zurück">
+   <input type="submit" class="submit" value="[% 'Fix transactions' | $T8 %]">
+   <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
   </p>
  </form>
 

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body onload="fokus()">
 
 <form name="Form" method="post" action="[% script %]">
@@ -12,26 +13,26 @@
     <td>
       <table>
         <tr>
-          <th align="right" nowrap>An</th>
+          <th align="right" nowrap>[% 'To' | $T8 %]</th>
 
           <td><input name="email" size="30" value="[% HTML.escape(email) %]"></td>
         </tr>
         <tr>
-          <th align="right" nowrap>Cc</th>
+          <th align="right" nowrap>[% 'Cc' | $T8 %]</th>
           <td><input name="cc" size="30" value="[% HTML.escape(cc) %]"></td>
         </tr>
 [% IF SHOW_BCC %]
         <tr>
-          <th align="right" nowrap>Bcc</th>
+          <th align="right" nowrap>[% 'Bcc' | $T8 %]</th>
           <td><input name="bcc" size="30" value="[% HTML.escape(bcc) %]"></td>
         </tr>[% END %]
         <tr>
-          <th align="right" nowrap>Betreff</th>
+          <th align="right" nowrap>[% 'Subject' | $T8 %]</th>
 
           <td><input name="subject" size="30" value="[% HTML.escape(subject) %]"></td>
         </tr>
         <tr>
-          <th align="right" nowrap>Name des Anhangs</th>
+          <th align="right" nowrap>[% 'Attachment name' | $T8 %]</th>
           <td><input name="attachment_filename" size="30" value="[% HTML.escape(a_filename) %]"></td>
       </table>
     </td>
@@ -41,7 +42,7 @@
     <td>
       <table>
         <tr>
-          <th align="left" nowrap>Nachricht</th>
+          <th align="left" nowrap>[% 'Message' | $T8 %]</th>
         </tr>
         <tr>
           <td><textarea name="message" rows="15" cols="60" wrap="soft">[% HTML.escape(message) %]</textarea></td>
@@ -68,7 +69,7 @@
 <input type="hidden" name="nextsub" value="send_email">
 
 <br>
-<input name="action" class="submit" type="submit" value="Weiter">
+<input name="action" class="submit" type="submit" value="[% 'Continue' | $T8 %]">
 </form>
 
 </body>

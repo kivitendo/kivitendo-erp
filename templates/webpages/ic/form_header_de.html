@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
 <body onLoad="fokus()">
@@ -23,9 +24,9 @@
   <input name="original_partnumber" type="hidden" value="[% HTML.escape(original_partnumber) %]">
 
   <ul id="maintab" class="shadetabs">
-   <li class="selected"><a href="#" rel="master_data">Stammdaten</a></li>
+   <li class="selected"><a href="#" rel="master_data">[% 'Master Data' | $T8 %]</a></li>
    [%- IF CUSTOM_VARIABLES.size %]
-   <li><a href="#" rel="custom_variables">Benutzerdefinierte Variablen</a></li>
+   <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
    [%- END %]
   </ul>
 
@@ -43,11 +44,11 @@
            <td colspan="2">
             <table>
              <tr>
-              <th align="right">Artikelnummer</th>
+              <th align="right">[% 'Part Number' | $T8 %]</th>
               <td><input name="partnumber" value="[% HTML.escape(partnumber) %]" size="40"></td>
              </tr>
              <tr>
-              <th align="right">Artikelbeschreibung</th>
+              <th align="right">[% 'Part Description' | $T8 %]</th>
               <td>
                [%- IF description_area %]
                <textarea name="description" rows="[% HTML.escape(rows) %]" cols="40" wrap="soft">[% HTML.escape(description) %]</textarea>
@@ -57,12 +58,12 @@
               </td>
              </tr>
              <tr>
-               <th align="right">EAN-Code</th>
+               <th align="right">[% 'EAN-Code' | $T8 %]</th>
                <td><input name="ean" size="40" value="[% HTML.escape(ean) %]"></td>
              </tr>
              <tr>
               [%- IF all_partsgroup.size %]
-              <th align="right">Warengruppe</th>
+              <th align="right">[% 'Group' | $T8 %]</th>
               <td>
                [%- INCLUDE generic/multibox.html
                      name       = 'partsgroup',
@@ -80,7 +81,7 @@
 
              [%- IF BUCHUNGSGRUPPEN.size %]
              <tr>
-              <th align="right">Buchungsgruppe</th>
+              <th align="right">[% 'Buchungsgruppe' | $T8 %]</th>
               <td>
                [%- INCLUDE generic/multibox.html
                      name       = 'buchungsgruppen_id',
@@ -99,7 +100,7 @@
              <input type="hidden" name="IC" value="[% HTML.escape(IC_default) %]">
              [%- END %]
              <tr>
-              <th align="right">Zahlungskonditionen</th>
+              <th align="right">[% 'Payment Terms' | $T8 %]</th>
               <td>
                [%- INCLUDE generic/multibox.html
                      name       = 'payment_id',
@@ -117,7 +118,7 @@
 
           <tr>
            <td>
-            <button type="button" onclick="parts_language_selection_window('language_values')">Spracheinstellungen</button>
+            <button type="button" onclick="parts_language_selection_window('language_values')">[% 'Set Language Values' | $T8 %]</button>
            </td>
           </tr>
 
@@ -127,9 +128,9 @@
            <td>
             <table>
              <tr>
-              <th align="left">Bemerkungen</th>
+              <th align="left">[% 'Notes' | $T8 %]</th>
               [%- UNLESS is_service %]
-              <th align="left">Formel</th>
+              <th align="left">[% 'Formula' | $T8 %]</th>
               [%- END %]
              </tr>
              <tr>
@@ -139,7 +140,7 @@
               [%- UNLESS is_service %]
               <td>
                <ilayer>
-                <layer onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('Die Formeln m&uuml;ssen in der folgenden Syntax eingegeben werden:<br>Bei normalen Artikeln:<br>Variablenname = Variable Einheit;<br>Variablenname2 = Variable2 Einheit2;<br>...<br>###<br>Variable + Variable2 * ( Variable - Variable2 )<br>Variablennamen und Einheiten dürfen nur aus alphanumerischen Zeichen bestehen.<br>Es muss jeweils die Gesamte Zeile eingegeben werden')">
+                <layer onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('[% 'The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>' | $T8 %]')">
                  <textarea name="formel" rows="[% HTML.escape(notes_rows) %]" cols="30" wrap="soft">[% HTML.escape(formel) %]</textarea></layer></ilayer>
                </td>
               [%- END %]
@@ -153,32 +154,32 @@
         <td>
          <table>
           <tr>
-           <th align="right" nowrap="true">Erneuert am</th>
+           <th align="right" nowrap="true">[% 'Updated' | $T8 %]</th>
            <td>
             <input name="priceupdate" id="priceupdate" size="11"  title="[% HTML.escape(dateformat) %]" value="[% HTML.escape(priceupdate) %]" readonly>
            </td>
           </tr>
 
           <tr>
-           <th align="right" nowrap="true">Listenpreis</th>
+           <th align="right" nowrap="true">[% 'List Price' | $T8 %]</th>
            <td><input name="listprice" size="11" value="[% LxERP.format_amount(listprice, -2) %]"></td>
           </tr>
 
           <tr>
-           <th align="right" nowrap="true">Verkaufspreis</th>
+           <th align="right" nowrap="true">[% 'Sell Price' | $T8 %]</th>
            <td><input name="sellprice" size="11" value="[% LxERP.format_amount(sellprice, -2) %]"></td>
           </tr>
 
           [%- UNLESS is_assembly %]
           <tr>
-           <th align="right" nowrap="true">Einkaufspreis</th>
+           <th align="right" nowrap="true">[% 'Last Cost' | $T8 %]</th>
            <td><input name="lastcost" size="11" value="[% LxERP.format_amount(lastcost, -2) %]"></td>
           </tr>
           [%- END %]
 
           [%- IF ALL_PRICE_FACTORS.size %]
           <tr>
-           <th align="right">Preisfaktor</th>
+           <th align="right">[% 'Price Factor' | $T8 %]</th>
            <td>
             [%- INCLUDE generic/multibox.html
                   name       = 'price_factor_id',
@@ -193,7 +194,7 @@
           [%- END %]
 
           <tr>
-           <th align="right" nowrap="true">Einheit</th>
+           <th align="right" nowrap="true">[% 'Unit' | $T8 %]</th>
            <td>
             <input type="hidden" name="unit_changeable" value="[% HTML.escape(unit_changeable) %]">
             [%- UNLESS unit_changeable %]
@@ -212,7 +213,7 @@
 
         [%- UNLESS is_service %]
           <tr>
-           <th align="right" nowrap="true">Gewicht</th>
+           <th align="right" nowrap="true">[% 'Weight' | $T8 %]</th>
            <td>
             [%- IF is_assembly %]&nbsp;[% LxERP.format_amount(weight) %][%- END %]
             <input[% IF is_assembly %] type="hidden"[% END %] size="10" name="weight" value="[% LxERP.format_amount(weight) %]">
@@ -222,42 +223,42 @@
         [%- END %]
         [%- UNLESS is_service %]
           <tr>
-           <th align="right" nowrap>Auf Lager</th>
+           <th align="right" nowrap>[% 'On Hand' | $T8 %]</th>
            <th align="left" nowrap class="plus[% IF onhand > 0 %]1[% ELSE %]0[% END %]">&nbsp;[% LxERP.format_amount(onhand) %]</th>
           </tr>
           <tr>
-           <th align="right" nowrap="true">Mindestlagerbestand</th>
+           <th align="right" nowrap="true">[% 'ROP' | $T8 %]</th>
            <td><input name="rop" size="10" value="[% LxERP.format_amount(rop) %]"></td>
           </tr>
           <tr>
-           <th align="right" nowrap="true">Lagerplatz</th>
+           <th align="right" nowrap="true">[% 'Bin' | $T8 %]</th>
            <td><input name="bin" size="10" value="[% HTML.escape(bin) %]"></td>
           </tr>
           <tr>
-           <th align="right" nowrap="true">Verrechnungseinheit</th>
+           <th align="right" nowrap="true">[% 'Verrechnungseinheit' | $T8 %]</th>
            <td><input name="ve" size="10" value="[% HTML.escape(ve) %]"></td>
           </tr>
           <tr>
-           <th align="right" nowrap="true">Geschäftsvolumen</th>
+           <th align="right" nowrap="true">[% 'Business Volume' | $T8 %]</th>
            <td><input name="gv" size="10" value="[% LxERP.format_amount(gv) %]"></td>
           </tr>
           <tr>
-           <th align="right" nowrap><label for="not_discountable">Nicht rabattierfähig</label></th>
+           <th align="right" nowrap><label for="not_discountable">[% 'Not Discountable' | $T8 %]</label></th>
            <td><input class="checkbox" type="checkbox" name="not_discountable" id="not_discountable" value="1" [% IF not_discountable %]checked[% END %]></td>
           </tr>
         [%- END %]
         [%- IF id %]
           <tr>
-           <th align="right" nowrap="true"><label for="obsolete">Ungültig</label></th>
+           <th align="right" nowrap="true"><label for="obsolete">[% 'Obsolete' | $T8 %]</label></th>
            <td><input name="obsolete" id="obsolete" type="checkbox" class="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
           </tr>
         [%- END %]
           <tr>
-           <th align="right" nowrap><label for="shop">Hat eine Serienummer</label></th>
+           <th align="right" nowrap><label for="shop">[% 'Has serial number' | $T8 %]</label></th>
            <td><input class="checkbox" type="checkbox" name="has_sernumber" id="has_sernumber" value="1" [% IF has_sernumber %]checked[% END %]></td>
           </tr>
           <tr>
-           <th align="right" nowrap><label for="shop">Shopartikel</label></th>
+           <th align="right" nowrap><label for="shop">[% 'Shopartikel' | $T8 %]</label></th>
            <td><input class="checkbox" type="checkbox" name="shop" id="shop" value="1" [% IF shop %]checked[% END %]></td>
           </tr>
          </table>
@@ -273,13 +274,13 @@
      <td>
       <table>
        <tr>
-        <th align="right" nowrap>Grafik</th>
+        <th align="right" nowrap>[% 'Image' | $T8 %]</th>
         <td><input name="image" size="40" value="[% HTML.escape(image) %]"></td>
-        <th align="right" nowrap>Mikrofilm</th>
+        <th align="right" nowrap>[% 'Microfiche' | $T8 %]</th>
         <td><input name="microfiche" size="20" value="[% HTML.escape(microfiche) %]"></td>
        </tr>
        <tr>
-        <th align="right" nowrap>Zeichnung</th>
+        <th align="right" nowrap>[% 'Drawing' | $T8 %]</th>
         <td><input name="drawing" size="40" value="[% HTML.escape(drawing) %]"></td>
        </tr>
       </table>

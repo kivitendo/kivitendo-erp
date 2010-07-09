@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 
 [%- SET var_name = HTML.escape(name_prefix) _ "cvar_" _ HTML.escape(var.name) _ HTML.escape(name_postfix) -%]
@@ -7,7 +8,7 @@
 
 [%- ELSIF !var.valid %]
   [%- IF show_disabled_message %]
-<i><translate>Element disabled</translate></i>
+<i>[% 'Element disabled' | $T8 %]</i>
   [%- END %]
 
 [%- ELSIF var.type == 'bool' %]

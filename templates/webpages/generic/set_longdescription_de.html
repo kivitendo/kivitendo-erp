@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body onload="[% onload %]">
 
  <form name="Form">
@@ -6,11 +7,11 @@
 
   <div class="listtop">[% title %]</div>
 
-  <p>Bitte den Langtext eingeben</p>
+  <p>[% 'Please insert your longdescription below' | $T8 %]</p>
 
   <p><textarea id="longdescription" name="longdescription" rows="15" cols="45" wrap="soft">[% HTML.escape(longdescription) %]</textarea></p>
 
-  <p><input type="submit" onclick="longdescription_updated()" value="Übernehmen"></p>
+  <p><input type="submit" onclick="longdescription_updated()" value="[% 'Close' | $T8 %]"></p>
  </form>
 
  <script type="text/javascript">

@@ -1,25 +1,26 @@
+[%- USE T8 %]
 [%- USE LxERP %]
   <tr>
    <td>
     <table width="100%">
      <tr class="listheading">
 [% IF is_type_credit_note %]
-      <th colspan="6" class="listheading">Zahlungsausgänge</th>
+      <th colspan="6" class="listheading">[% 'Payments' | $T8 %]</th>
 [% ELSE %]
-      <th colspan="6" class="listheading">Zahlungseingänge</th>
+      <th colspan="6" class="listheading">[% 'Incoming Payments' | $T8 %]</th>
 [%- END %]
      </tr>
 
 
      <tr>
-      <th>Datum</th>
-      <th>Beleg</th>
-      <th>Memo</th>
-      <th>Betrag</th>
+      <th>[% 'Date' | $T8 %]</th>
+      <th>[% 'Source' | $T8 %]</th>
+      <th>[% 'Memo' | $T8 %]</th>
+      <th>[% 'Amount' | $T8 %]</th>
 [% IF show_exchangerate %]
-      <th>Wechselkurs.</th>
+      <th>[% 'Exch' | $T8 %]</th>
 [% END %]
-      <th>Konto</th>
+      <th>[% 'Account' | $T8 %]</th>
      </tr>
 
 
@@ -66,13 +67,13 @@
     <tr>
       <td></td>
       <td></td>
-      <td align="center">Summe</td>
+      <td align="center">[% 'Total' | $T8 %]</td>
       <td align="center">[% LxERP.foramt_amount(totalpaid, 2) | html %]</td>
     </tr>
     <tr>
       <td></td>
       <td></td>
-      <td align="center">Fehlbetrag</td>
+      <td align="center">[% 'Missing amount' | $T8 %]</td>
       <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
     </tr>
 

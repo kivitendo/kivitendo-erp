@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]<body>
 
  [%- IF delivered %]
@@ -21,24 +22,24 @@
   <p>
    <table>
     <tr>
-     <td><translate>Part Number</translate></td>
+     <td>[% 'Part Number' | $T8 %]</td>
      <td>[% HTML.escape(PART_INFO.partnumber) %]</td>
     </tr>
     <tr>
-     <td><translate>Description</translate></td>
+     <td>[% 'Description' | $T8 %]</td>
      <td>[% HTML.escape(PART_INFO.description) %]</td>
     </tr>
     <tr>
-     <td><translate>Qty according to delivery order</translate></td>
+     <td>[% 'Qty according to delivery order' | $T8 %]</td>
      <td>[% HTML.escape(do_qty) %] [% HTML.escape(do_unit) %]</td>
     </tr>
    </table>
   </p>
 
   [%- UNLESS WHCONTENTS.size %]
-  <p><translate>There are no items in stock.</translate></p>
+  <p>[% 'There are no items in stock.' | $T8 %]</p>
 
-  <p><button type="button" onclick="window.close()"><translate>Close Window</translate></button></p>
+  <p><button type="button" onclick="window.close()">[% 'Close Window' | $T8 %]</button></p>
 
   [%- ELSE %]
 
@@ -57,17 +58,17 @@
    <table>
     <tr class="listheading">
      <th class="listheading">&nbsp;</th>
-     <th class="listheading"><translate>Warehouse</translate></th>
-     <th class="listheading"><translate>Bin</translate></th>
-     <th class="listheading"><translate>Charge Number</translate></th>
+     <th class="listheading">[% 'Warehouse' | $T8 %]</th>
+     <th class="listheading">[% 'Bin' | $T8 %]</th>
+     <th class="listheading">[% 'Charge Number' | $T8 %]</th>
      [% IF conf_show_best_before %]
-     <th class="listheading"><translate>Best Before</translate></th>
+     <th class="listheading">[% 'Best Before' | $T8 %]</th>
      [% END %]
      [%- UNLESS delivered %]
-     <th align="right" class="listheading"><translate>Available qty</translate></th>
+     <th align="right" class="listheading">[% 'Available qty' | $T8 %]</th>
      [%- END %]
-     <th align="right" class="listheading"><translate>Qty</translate></th>
-     <th align="right" class="listheading"><translate>Unit</translate></th>
+     <th align="right" class="listheading">[% 'Qty' | $T8 %]</th>
+     <th align="right" class="listheading">[% 'Unit' | $T8 %]</th>
     </tr>
 
     [%- FOREACH row = WHCONTENTS %]
@@ -119,9 +120,9 @@
 
   <p>
    [%- IF delivered %]
-   <button type="button" class="submit" name="action" onclick="window.close()"><translate>Close Window</translate></button>
+   <button type="button" class="submit" name="action" onclick="window.close()">[% 'Close Window' | $T8 %]</button>
    [%- ELSE %]
-   <input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
    [%- END %]
   </p>
 

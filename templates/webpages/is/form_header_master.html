@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- SET follow_up_trans_info = invnumber _ ' (' _ customer_name _ ')' %]
@@ -30,7 +31,7 @@
     <td valign="top">
       <table>
         <tr>
-          <th align="right"><translate>Customer</translate></th>
+          <th align="right">[% 'Customer' | $T8 %]</th>
           <td>
             [%- INCLUDE 'generic/multibox.html'
                  name          = 'customer',
@@ -42,7 +43,7 @@
                  limit         = vclimit,
                  allow_textbox = 1,
                  onChange      = "document.getElementById('update_button').click();" -%]
-            <input type="button" value="<translate>Details (one letter abbreviation)</translate>" onclick="show_vc_details('[% HTML.escape(vc) %]')">
+            <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% HTML.escape(vc) %]')">
           </td>
           <input type="hidden" name="customer_klass" value="[% HTML.escape(customer_klass) %]">
           <input type="hidden" name="customer_id" value="[% HTML.escape(customer_id) %]">
@@ -51,7 +52,7 @@
         </tr>
 [%- IF ALL_CONTACTS.size %]
         <tr>
-          <th align="right"><translate>Contact Person</translate></th>
+          <th align="right">[% 'Contact Person' | $T8 %]</th>
           <td>
             [%- INCLUDE 'generic/multibox.html'
                  name       = 'cp_id',
@@ -65,7 +66,7 @@
 [%- END %]
 [%- IF ALL_SHIPTO.size %]
         <tr>
-          <th align="right"><translate>Shipping Address</translate></th>
+          <th align="right">[% 'Shipping Address' | $T8 %]</th>
           <td>
             [%- INCLUDE 'generic/multibox.html'
                  name       = 'shipto_id',
@@ -79,33 +80,33 @@
         </tr>
 [%- END %]
         <tr>
-          <td align="right"><translate>Credit Limit</translate></td>
+          <td align="right">[% 'Credit Limit' | $T8 %]</td>
           <td>
-            [% LxERP.format_amount(creditlimit, 0, '0') %]; <translate>Remaining</translate>
+            [% LxERP.format_amount(creditlimit, 0, '0') %]; [% 'Remaining' | $T8 %]
             <span class="plus[% IF is_credit_remaining_negativ %]0[% ELSE %]1[% END %]">[% LxERP.format_amount(creditremaining,0 ,'0') %]</span>
           </td>
         </tr>
 [%- IF max_dunning_level %]
         <tr>
-          <th align="right"><translate>Max. Dunning Level</translate>:</th>
+          <th align="right">[% 'Max. Dunning Level' | $T8 %]:</th>
           <td>
-            <b>[% max_dunning_level %]</b>; <translate>Dunning Amount</translate>: <b>[% LxERP.format_amount(dunning_amount,2) %]</b>
+            <b>[% max_dunning_level %]</b>; [% 'Dunning Amount' | $T8 %]: <b>[% LxERP.format_amount(dunning_amount,2) %]</b>
           </td>
         </tr>
 [%- END %]
 [%- IF business %]
         <tr>
-          <th align="right"><translate>Customer type</translate></th>
-          <td>[% business %]; <translate>Trade Discount</translate> [% LxERP.format_amount(tradediscount * 100) %] %</td>
+          <th align="right">[% 'Customer type' | $T8 %]</th>
+          <td>[% business %]; [% 'Trade Discount' | $T8 %] [% LxERP.format_amount(tradediscount * 100) %] %</td>
         </tr>
 [%- END %]
         <tr>
-          <th align="right" nowrap><translate>Record in</translate></th>
+          <th align="right" nowrap>[% 'Record in' | $T8 %]</th>
           <td colspan="3"><select name="AR" style="width:250px;">[% selectAR %]</select></td>
           <input type="hidden" name="selectAR" value="[% selectAR %]">
         </tr>
         <tr>
-          <th align="right"><translate>Steuersatz</translate></th>
+          <th align="right">[% 'Steuersatz' | $T8 %]</th>
           <td>
             [%- INCLUDE 'generic/multibox.html'
                  name       = 'taxzone_id'
@@ -121,7 +122,7 @@
         </tr>
 [%- IF all_departments %]
         <tr>
-          <th align="right" nowrap><translate>Department</translate></th>
+          <th align="right" nowrap>[% 'Department' | $T8 %]</th>
           <td colspan="3">
             [%- INCLUDE 'generic/multibox.html'
                  name       = 'department_id',
@@ -135,7 +136,7 @@
 [%- END %]
 [%- IF currencies %]
         <tr>
-          <th align="right"><translate>Currency</translate></th>
+          <th align="right">[% 'Currency' | $T8 %]</th>
           <td>[% currencies %]</td>
         </tr>
 [%- END %]
@@ -143,7 +144,7 @@
         <input type="hidden" name="fxloss_accno" value="[% fxloss_accno %]">
 [%- IF show_exchangerate %]
         <tr>
-          <th align="right"><translate>Exchangerate</translate></th>
+          <th align="right">[% 'Exchangerate' | $T8 %]</th>
           <td>
            [%- IF forex %]
             [% LxERP.format_amount(exchangerate, 2) %]
@@ -154,15 +155,15 @@
         </tr>
 [%- END %]
         <tr>
-          <th align="right" nowrap><translate>Shipping Point</translate></th>
+          <th align="right" nowrap>[% 'Shipping Point' | $T8 %]</th>
           <td colspan="3"><input size='35' name="shippingpoint" value="[% HTML.escape(shippingpoint) %]"></td>
         </tr>
         <tr>
-          <th align="right" nowrap><translate>Ship via</translate></th>
+          <th align="right" nowrap>[% 'Ship via' | $T8 %]</th>
           <td colspan="3"><input size='35' name="shipvia" value="[% HTML.escape(shipvia) %]"></td>
         </tr>
         <tr>
-          <th align="right"><translate>Transaction description</translate></th>
+          <th align="right">[% 'Transaction description' | $T8 %]</th>
           <td colspan="3"><input size='35' name="transaction_description" value="[% HTML.escape(transaction_description) %]"></td>
         </tr>
       </table>
@@ -170,7 +171,7 @@
     <td align="right" valign="top">
       <table>
         <tr>
-          <th align="right"><translate>Employee</translate></th>
+          <th align="right">[% 'Employee' | $T8 %]</th>
           <td>
             [%- INCLUDE 'generic/multibox.html'
                  name       = 'employee_id',
@@ -181,7 +182,7 @@
         </tr>
 [%- IF ALL_SALESMEN.size %]
         <tr>
-          <th align="right"><translate>Salesman</translate></th>
+          <th align="right">[% 'Salesman' | $T8 %]</th>
           <td>
             [%- INCLUDE 'generic/multibox.html'
                  name       = 'salesman_id',
@@ -195,72 +196,72 @@
 
 [%- IF is_type_credit_note %]
         <tr>
-          <th align="right" nowrap><translate>Credit Note Number</translate></th>
+          <th align="right" nowrap>[% 'Credit Note Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
         </tr>
         <tr>
-          <th align="right"><translate>Credit Note Date</translate></th>
+          <th align="right">[% 'Credit Note Date' | $T8 %]</th>
           <td nowrap>
             <input name="invdate" id="invdate" size="11" title="[% dateformat %]" value="[% invdate %]" onBlur="check_right_date_format(this)">
-            <input type="button" name="invdate_button" id="trigger1" value="<translate>button</translate>">
+            <input type="button" name="invdate_button" id="trigger1" value="[% 'button' | $T8 %]">
           </td>
         </tr>
 [%- ELSE %]
         <tr>
-          <th align="right" nowrap><translate>Invoice Number</translate></th>
+          <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
         </tr>
         <tr>
-          <th align="right"><translate>Invoice Date</translate></th>
+          <th align="right">[% 'Invoice Date' | $T8 %]</th>
           <td nowrap>
             <input name="invdate" id="invdate" size="11" title="[% dateformat %]" value="[% invdate %]" onBlur="check_right_date_format(this)">
-            <input type="button" name="invdate_button" id="trigger1" value="<translate>button</translate>">
+            <input type="button" name="invdate_button" id="trigger1" value="[% 'button' | $T8 %]">
           </td>
         </tr>
         <tr>
-          <th align="right"><translate>Due Date</translate></th>
+          <th align="right">[% 'Due Date' | $T8 %]</th>
           <td width="13">
             <input name="duedate" id="duedate" size="11" title="[% dateformat %]" value="[% duedate %]" onBlur="check_right_date_format(this)">
-            <input type="button" name="duedate_button" id="trigger2" value="<translate>button</translate>">
+            <input type="button" name="duedate_button" id="trigger2" value="[% 'button' | $T8 %]">
           </td>
         </tr>
         <tr>
-        <th align="right" nowrap><translate>Delivery Order Number</translate></th>
+        <th align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="donumber" value="[% HTML.escape(donumber) %]"></td>
         </tr>
         <tr>
-          <th align="right"><translate>Delivery Date</translate></th>
+          <th align="right">[% 'Delivery Date' | $T8 %]</th>
             <td width="13">
               <input name="deliverydate" id="deliverydate" size="11" title="[% dateformat %]" value="[% deliverydate %]" onBlur="check_right_date_format(this)">
-              <input type="button" name="deliverydate_button" id="trigger3" value="<translate>button</translate>">
+              <input type="button" name="deliverydate_button" id="trigger3" value="[% 'button' | $T8 %]">
             </td>
         </tr>
 [%- END %]
 
         <tr>
-          <th align="right" nowrap><translate>Order Number</translate></th>
+          <th align="right" nowrap>[% 'Order Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="ordnumber" value="[% HTML.escape(ordnumber) %]"></td>
         </tr>
         <tr>
-          <th align="right" nowrap><translate>Order Date</translate></th>
+          <th align="right" nowrap>[% 'Order Date' | $T8 %]</th>
           <td><input name="orddate" id="orddate" size="11" title="[% dateformat %]" value="[% orddate %]" onBlur="check_right_date_format(this)">
           <input type="button" name="b_orddate" id="trigger_orddate" value="?"></td>
         </tr>
         <tr>
-          <th align="right" nowrap><translate>Quotation Number</translate></th>
+          <th align="right" nowrap>[% 'Quotation Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="quonumber" value="[% HTML.escape(quonumber) %]"></td>
         </tr>
         <tr>
-          <th align="right" nowrap><translate>Quotation Date</translate></th>
+          <th align="right" nowrap>[% 'Quotation Date' | $T8 %]</th>
           <td><input name="quodate" id="quodate" size="11" title="[% dateformat %]" value="[% quodate %]" onBlur="check_right_date_format(this)">
            <input type="button" name="b_quodate" id="trigger_quodate" value="?"></td>
         </tr>
         <tr>
-          <th align="right" nowrap><translate>Customer Order Number</translate></th>
+          <th align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="cusordnumber" value="[% HTML.escape(cusordnumber) %]"></td>
         </tr>
         <tr>
-          <th align="right" nowrap><translate>Project Number</translate></th>
+          <th align="right" nowrap>[% 'Project Number' | $T8 %]</th>
           <td>
             [%- INCLUDE 'generic/multibox.html'
                  name       = 'globalproject_id',
@@ -301,12 +302,12 @@
 [% ELSIF resubmit %]
        document.invoice.submit();
 [% ELSIF creditwarning != '' %]
-       alert('<translate>Credit Limit exceeded!!!</translate>');
+       alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
 [% ELSE %]
        focus();
 [% END %]
-       setupDateFormat('[% dateformat %]', '<translate>Falsches Datumsformat!</translate>');
-       setupPoints('[% numberformat %]', '<translate>wrongformat</translate>');
+       setupDateFormat('[% dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
+       setupPoints('[% numberformat %]', '[% 'wrongformat' | $T8 %]');
      });
    //-->
   </script>

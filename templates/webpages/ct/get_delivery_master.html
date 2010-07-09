@@ -1,20 +1,21 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <table width="100%">
   <tr>
     <td>
       <table width="100%">
         <tr class="listheading">
-          <th class="listheading"><translate>Shipping Address</translate></th>
-          <th class="listheading"><translate>Invoice</translate></th>
-          <th class="listheading"><translate>Order</translate></th>
-          <th class="listheading"><translate>Invdate</translate></th>
-          <th class="listheading"><translate>Description</translate></th>
-          <th class="listheading"><translate>Qty</translate></th>
-          <th class="listheading"><translate>Unit</translate></th>
+          <th class="listheading">[% 'Shipping Address' | $T8 %]</th>
+          <th class="listheading">[% 'Invoice' | $T8 %]</th>
+          <th class="listheading">[% 'Order' | $T8 %]</th>
+          <th class="listheading">[% 'Invdate' | $T8 %]</th>
+          <th class="listheading">[% 'Description' | $T8 %]</th>
+          <th class="listheading">[% 'Qty' | $T8 %]</th>
+          <th class="listheading">[% 'Unit' | $T8 %]</th>
 [%- IF is_customer %]
-          <th class="listheading"><translate>Sell Price</translate></th>
+          <th class="listheading">[% 'Sell Price' | $T8 %]</th>
 [%- ELSE %]
-          <th class="listheading"><translate>Last Cost</translate></th>
+          <th class="listheading">[% 'Last Cost' | $T8 %]</th>
 [%- END %]
         </tr>
 [%- FOREACH row = DELIVERY %]
@@ -36,5 +37,5 @@
 
      </table>
 [%- IF DELIVERY.size == 15 %]
-     <p><translate>This list is capped at 15 items to keep it fast. If you need a full list, please use reports.</translate></p>
+     <p>[% 'This list is capped at 15 items to keep it fast. If you need a full list, please use reports.' | $T8 %]</p>
 [%- END %]

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<script type="text/javascript" src="js/FormManager.js" >
 /****************************************************
 * Form Dependency Manager- By Twey- http://www.twey.co.uk
@@ -33,20 +34,20 @@ window.onload = function() {
 
 <fieldset>
   <legend>
-    Grundeinstellungen
+    [% 'Main Preferences' | $T8 %]
   </legend>
   <table>
     <tr>
       <td>
         <label>
-          Kontonummer
+          [% 'Account Number' | $T8 %]
         </label></td>
         <td><input name="accno" size="20" value="[% HTML.escape(accno) %]"></td>
     </tr>
     <tr>
       <td>
         <label>
-          Beschreibung
+          [% 'Description' | $T8 %]
         </label>
       </td>
       <td><input name="description" size="40" value="[% HTML.escape(description) %]"></td>
@@ -54,7 +55,7 @@ window.onload = function() {
     <tr>
       <td>
         <label>
-          Kontentyp
+          [% 'Chart Type' | $T8 %]
 
         </label>
       </td>
@@ -63,76 +64,76 @@ window.onload = function() {
   </table>
 </fieldset>
 <fieldset class="DEPENDS ON charttype BEING A">
-  <legend>Kontoart</legend>
+  <legend>[% 'Account Type' | $T8 %]</legend>
   <select name="category" id="AccountType" class="DEPENDS ON charttype BEING A">
           [% select_category %]</select>
 </fieldset>
 
 [% IF ChartTypeIsAccount %]
 <fieldset class="DEPENDS ON charttype BEING A">
-  <legend>Buchungskonto in</legend>
+  <legend>[% 'Is this a summary account to record' | $T8 %]</legend>
     <input name="AR" type="checkbox" class="checkbox" value="AR" [% HTML.escape(AR) %]>
-    &nbsp;Verkauf
+    &nbsp;[% 'AR' | $T8 %]
     <input name="AP" type="checkbox" class="checkbox" value="AP" [% HTML.escape(AP) %]>
-    &nbsp;Einkauf
+    &nbsp;[% 'AP' | $T8 %]
     <input name="IC" type="checkbox" class="checkbox" value="IC" [% HTML.escape(IC) %]>
-    &nbsp;Inventar
+    &nbsp;[% 'Inventory' | $T8 %]
 </fieldset>
 
 <fieldset class="DEPENDS ON charttype BEING A">
-  <legend>In Aufklappmenü aufnehmen</legend>
-  <p style='font-weight:normal'>Dieser Block ist nur dann gültig, wenn das Konto KEIN Buchungskonto ist, und wenn ein gültiger Steuerschlüssel für das Konto existiert. Wird das Konto als Buchungskonto markiert, werden diese Einstellungen entfernt.</p>
+  <legend>[% 'Include in drop-down menus' | $T8 %]</legend>
+  <p style='font-weight:normal'>[% 'These will only be effective if the account is NOT a summary account AND there exists at least one taxkey. Setting the account as a summary account will erase these settings.' | $T8 %]</p>
   <table width="100%">
     <tr>
-      <th align="left">Forderungen</th>
-      <th align="left">Verbindlichkeiten</th>
-      <th align="left">Warenliste</th>
-      <th align="left">Dienstleistungen</th>
+      <th align="left">[% 'Receivables' | $T8 %]</th>
+      <th align="left">[% 'Payables' | $T8 %]</th>
+      <th align="left">[% 'Parts Inventory' | $T8 %]</th>
+      <th align="left">[% 'Service Items' | $T8 %]</th>
     </tr>
     <tr>
       <td>
         <input name="AR_amount" type="checkbox" class="checkbox" value="AR_amount"
           [% HTML.escape(AR_amount) %]>&nbsp;
-        Erlöskonto <br>
+        [% 'Revenue' | $T8 %] <br>
         <input name="AR_paid" type="checkbox" class="checkbox" value="AR_paid"
           [% HTML.escape(AR_paid) %]>&nbsp;
-        Zahlungseingang <br>
+        [% 'Receipt' | $T8 %] <br>
         <input name="AR_tax" type="checkbox" class="checkbox" value="AR_tax"
           [% HTML.escape(AR_tax) %]>&nbsp;
-        Steuer
+        [% 'Tax' | $T8 %]
       </td>
       <td>
         <input name="AP_amount" type="checkbox" class="checkbox" value="AP_amount"
           [% HTML.escape(AP_amount) %]>&nbsp;
-        Aufwand/Anlagen <br>
+        [% 'Expense/Asset' | $T8 %] <br>
         <input name="AP_paid" type="checkbox" class="checkbox" value="AP_paid"
           [% HTML.escape(AP_paid) %]>&nbsp;
-        Zahlungsausgang <br>
+        [% 'Payment' | $T8 %] <br>
         <input name="AP_tax" type="checkbox" class="checkbox" value="AP_tax"
             [% HTML.escape(AP_tax) %]>&nbsp;
-        Steuer
+        [% 'Tax' | $T8 %]
       </td>
       <td>
         <input name="IC_sale" type="checkbox" class="checkbox" value="IC_sale"
           [% HTML.escape(IC_sale) %]>&nbsp;
-        Erlöskonto <br>
+        [% 'Revenue' | $T8 %] <br>
         <input name="IC_cogs" type="checkbox" class="checkbox" value="IC_cogs"
           [% HTML.escape(IC_cogs) %]>&nbsp;
-        Aufwandskonto <br>
+        [% 'Expense' | $T8 %] <br>
         <input name="IC_taxpart" type="checkbox" class="checkbox" value="IC_taxpart"
           [% HTML.escape(IC_taxpart) %]>&nbsp;
-        Steuer
+        [% 'Tax' | $T8 %]
       </td>
       <td>
         <input name=IC_income type=checkbox class=checkbox value="IC_income"
           [% HTML.escape(IC_income) %]>&nbsp;
-        Erlöskonto <br>
+        [% 'Revenue' | $T8 %] <br>
         <input name=IC_expense type=checkbox class=checkbox value="IC_expense"
           [% HTML.escape(IC_expense) %]>&nbsp;
-        Aufwandskonto <br>
+        [% 'Expense' | $T8 %] <br>
         <input name=IC_taxservice type=checkbox class=checkbox value="IC_taxservice"
           [% HTML.escape(IC_taxservice) %]>&nbsp;
-        Steuer
+        [% 'Tax' | $T8 %]
       </td>
     </tr>
   </table>
@@ -140,17 +141,17 @@ window.onload = function() {
 
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>
-    Steuerautomatik und UStVA
+    [% 'Taxkeys and Taxreport Preferences' | $T8 %]
   </legend>
-  <p style='font-weight:normal'>Achtung: Steuerschlüssel brauchen ein gültiges "Gültig ab"-Datum und werden andernfalls ignoriert.</p>
+  <p style='font-weight:normal'>[% 'Note: Taxkeys must have a "valid from" date, and will not be in effect otherwise.' | $T8 %]</p>
 
             <table>
 [% IF account_exists %]
               <tr>
-                <th align="left">Steuerschlüssel</th>
-                <th align="left">Gültig ab</th>
-                <th align="left">UStVA</th>
-                <th align="left">Löschen ? </th>
+                <th align="left">[% 'Taxkey' | $T8 %]</th>
+                <th align="left">[% 'valid from' | $T8 %]</th>
+                <th align="left">[% 'pos_ustva' | $T8 %]</th>
+                <th align="left">[% 'delete' | $T8 %] ? </th>
               </tr>
 [% FOREACH tk = ACCOUNT_TAXKEYS %]
               <tr>
@@ -173,8 +174,7 @@ window.onload = function() {
 [% END %]
 [% ELSE %]
 <tr>
-  <td align="center" colspan="4"><p>Einstellungen sind nach
-  dem Speichern des Kontos verfügbar...</p>
+  <td align="center" colspan="4"><p>[% 'Save account first to insert taxkeys' | $T8 %]</p>
   </td>
 </tr>
 [% END %]
@@ -182,29 +182,29 @@ window.onload = function() {
 </fieldset>
 
 <fieldset class="DEPENDS ON charttype BEING A">
-  <legend>Sonstige Einstellungen</legend>
+  <legend>[% 'Report and misc. Preferences' | $T8 %]</legend>
   <table>
         <tr>
-          <th align="left">Einnahmen-/Überschussrechnung</th>
+          <th align="left">[% 'EUER' | $T8 %]</th>
           <td colspan="3"><select name="pos_eur">[% select_eur %]</select></td>
         </tr>
         <tr>
-          <th align="left">BWA</th>
+          <th align="left">[% 'BWA' | $T8 %]</th>
           <td colspan="3"><select name="pos_bwa">[% select_bwa %]</select></td>
         </tr>
         <!-- Diese Steuerfunktion hat keine Auswirkung in der Bilanz und wird erstmal deaktiviert. -->
         <!-- tr>
-          <th align="left">Bilanz</th>
+          <th align="left">[% 'Bilanz' | $T8 %]</th>
           <td colspan="3"><select name="pos_bilanz">[% select_bilanz %]</select></td>
         </tr -->
         <tr>
-          <th align="left">Datevexport</th>
+          <th align="left">[% 'Datevautomatik' | $T8 %]</th>
           <td colspan="3"><input name="datevautomatik" type="checkbox" class="checkbox" value="T" [% IF datevautomatik %]checked [% END %]></td>
         </tr>
         <tr>
-          <th align="left">Folgekonto</th>
+          <th align="left">[% 'Folgekonto' | $T8 %]</th>
           <td><select name="new_chart_id">[% selectnewaccount %]</select></td>
-          <th align="left">Gültig ab</th>
+          <th align="left">[% 'Valid from' | $T8 %]</th>
           <td><input name="valid_from" value="[% valid_from %]"></td>
         </tr>
   </table>

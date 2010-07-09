@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  [% IF saved_message %]
@@ -18,29 +19,22 @@
  </table>
 
  <p>
-  Einheiten haben entweder keine oder genau eine Basiseinheit, von der
-  sie ein Vielfaches sind. Wenn Sie eine Basiseinheit ausw&auml;hlen,
-  dann m&uuml;ssen Sie auch einen Faktor eingeben. Sie m&uuml;ssen
-  Einheiten als ein Vielfaches einer kleineren Einheit eingeben. So
-  ist die Definition von &quot;kg&quot; mit der Basiseinheit
-  &quot;g&quot; und dem Faktor 1000 zul&auml;ssig, die Definition von
-  &quot;g&quot; mit der Basiseinheit &quot;kg&quot; und dem Faktor
-  &quot;0,001&quot; hingegen nicht.
+  Einheiten haben entweder keine oder genau eine Basiseinheit, von der sie ein Vielfaches sind. Wenn Sie eine Basiseinheit ausw&auml;hlen, dann m&uuml;ssen Sie auch einen Faktor eingeben. Sie m&uuml;ssen Einheiten als ein Vielfaches einer kleineren Einheit eingeben. So ist die Definition von &quot;kg&quot; mit der Basiseinheit &quot;g&quot; und dem Faktor 1000 zul&auml;ssig, die Definition von &quot;g&quot; mit der Basiseinheit &quot;kg&quot; und dem Faktor &quot;0,001&quot; hingegen nicht.
  </p>
 
  <hr>
 
  <table width="100%">
-  <tr><th class="listtop"><translate>Add unit</translate></th></tr>
+  <tr><th class="listtop">[% 'Add unit' | $T8 %]</th></tr>
  </table>
 
  <table>
   <tr>
-   <th align="right"><translate>Unit</translate></th>
+   <th align="right">[% 'Unit' | $T8 %]</th>
    <td><input name="new_name" size="20" maxlength="20"></td>
   </tr>
   <tr>
-   <th align="right"><translate>Base unit</translate></th>
+   <th align="right">[% 'Base unit' | $T8 %]</th>
    <td>
     <select name="new_base_unit">
      [% FOREACH row = NEW_BASE_UNIT_DDBOX %]<option [% row.selected %]>[% row.name %]</option>[% END %]
@@ -48,7 +42,7 @@
    </td>
   </tr>
   <tr>
-   <th align="right"><translate>Factor</translate></th>
+   <th align="right">[% 'Factor' | $T8 %]</th>
    <td><input name="new_factor"></td>
   </tr>
 
@@ -56,44 +50,39 @@
    <tr>
     <th align="right">[% language.description %]</th>
     <td><input name="new_localized_[% language.id %]" size="20" maxlength="20"></td>
-    <th align="right"><translate>Plural</translate></th>
+    <th align="right">[% 'Plural' | $T8 %]</th>
     <td><input name="new_localized_plural_[% language.id %]" size="20" maxlength="20"></td>
    </tr>
   [% END %]
  </table>
 
- <input type="submit" class="submit" name="action" value="<translate>Add</translate>">
+ <input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]">
 
  <hr>
 
  <table width="100%">
-  <tr><th class="listtop"><translate>Edit units</translate></th></tr>
+  <tr><th class="listtop">[% 'Edit units' | $T8 %]</th></tr>
  </table>
 
  <p>
-  <translate>Units that have already been used (e.g. for parts and
-   services or in invoices or warehouse transactions) cannot be
-   changed.</translate>
+  [% 'Units that have already been used (e.g. for parts and services or in invoices or warehouse transactions) cannot be changed.' | $T8 %]
  </p>
 
  <p>
-  <translate>Units marked for deletion will be deleted upon
-   saving.</translate>
+  [% 'Units marked for deletion will be deleted upon saving.' | $T8 %]
  </p>
 
  <p>
-  <translate>You can declare different translations for singular and
-   plural for each unit (e.g. &quot;day&quot; and
-   &quot;days).</translate>
+  [% 'You can declare different translations for singular and plural for each unit (e.g. &quot;day&quot; and &quot;days).' | $T8 %]
  </p>
 
  <table>
   <tr>
-   <th class="listheading" width="32" align="center" valign="center"><img alt="<translate>up</translate>" src="image/up.png"><img alt="<translate>down</translate>" src="image/down.png"></th>
-   <th class="listheading"><translate>Delete</translate></th>
-   <th class="listheading"><translate>Unit</translate></th>
-   <th class="listheading"><translate>Base unit</translate></th>
-   <th class="listheading"><translate>Factor</translate></th>
+   <th class="listheading" width="32" align="center" valign="center"><img alt="[% 'up' | $T8 %]" src="image/up.png"><img alt="[% 'down' | $T8 %]" src="image/down.png"></th>
+   <th class="listheading">[% 'Delete' | $T8 %]</th>
+   <th class="listheading">[% 'Unit' | $T8 %]</th>
+   <th class="listheading">[% 'Base unit' | $T8 %]</th>
+   <th class="listheading">[% 'Factor' | $T8 %]</th>
    [% FOREACH language = LANGUAGES %]
     <th class="listheading">[% language.description %]</th>
    [% END %]
@@ -101,7 +90,7 @@
 
   [% FOREACH row = UNITS %]
    <tr>
-    <td width="32" align="center" valign="center">[% IF loop.first %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=up&name=[% HTML.url(row.name) %]"><img alt="<translate>up</translate>" src="image/up.png" border="0"></a>[% END %][% IF loop.last %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=down&name=[% HTML.url(row.name) %]"><img alt="<translate>down</translate>" src="image/down.png" border="0"></a>[% END %]</td>
+    <td width="32" align="center" valign="center">[% IF loop.first %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=up&name=[% HTML.url(row.name) %]"><img alt="[% 'up' | $T8 %]" src="image/up.png" border="0"></a>[% END %][% IF loop.last %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=down&name=[% HTML.url(row.name) %]"><img alt="[% 'down' | $T8 %]" src="image/down.png" border="0"></a>[% END %]</td>
     [% IF row.in_use %]
      <td>
       <input type="hidden" name="unchangeable_[% loop.count %]" value="1">
@@ -129,9 +118,9 @@
 
     [% FOREACH language = row.UNITLANGUAGES %]
      <td>
-      <translate>singular first char</translate>:
+      [% 'singular first char' | $T8 %]:
       <input name="localized_[% language.idx %]_[% language.language_id %]" value="[% HTML.escape(language.localized) %]" size="6" maxlength="20">
-      <translate>plural first char</translate>:
+      [% 'plural first char' | $T8 %]:
       <input name="localized_plural_[% language.idx %]_[% language.language_id %]" value="[% HTML.escape(language.localized_plural) %]" size="6" maxlength="20">
      </td>
     [% END %]
@@ -141,7 +130,7 @@
   [% END %]
  </table>
 
- <input type="submit" class="submit" name="action" value="<translate>Save</translate>">
+ <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
 
  </form>
 

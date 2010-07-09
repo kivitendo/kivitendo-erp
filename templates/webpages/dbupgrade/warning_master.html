@@ -1,13 +1,13 @@
-[% USE HTML %]<form name="Form" method="post" action="login.pl">
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+<form name="Form" method="post" action="login.pl">
 
  <input type="hidden" name="action" value="login">
 
  <p>
-  <translate>Lx-Office is about to update the
-   database <b>[% HTML.escape(dbname) %]</b>. You should create a
-   backup of the database before proceeding because the backup might not
-   be reversible.</translate>
+  [% LxERP.t8('Lx-Office is about to update the database <b>#1</b>. You should create a backup of the database before proceeding because the backup might not be reversible.', dbname) | html %]
  </p>
 
- <input type="submit" name="dummy" value="<translate>Continue</translate>">
+ <input type="submit" name="dummy" value="[% 'Continue' | $T8 %]">
 </form>

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<style type="text/css">@import url(js/jscalendar/calendar-win2k-1.css);</style>
 <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
 <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
@@ -9,7 +10,7 @@
 
   <table>
     <tr>
-      <th class ="listtop"><translate>history search engine</translate></th>
+      <th class ="listtop">[% 'history search engine' | $T8 %]</th>
       </th>
     </tr>
     <tr>
@@ -41,22 +42,22 @@
 
           var defaults = new Array('SAVED', 'DELETED', 'ADDED', 'PAYMENT POSTED', 'POSTED', 'POSTED AS NEW', 'SAVED FOR DUNNING', 'DUNNING STARTED', 'PRINTED');
           var translated = new Object();
-          translated['SAVED'] = '<translate>SAVED</translate>';
-          translated['DELETED'] = '<translate>DELETED</translate>';
-          translated['ADDED'] = '<translate>ADDED</translate>';
-          translated['PAYMENT POSTED'] = '<translate>PAYMENT POSTED</translate>';
-          translated['POSTED'] = '<translate>POSTED</translate>';
-          translated['POSTED AS NEW'] = '<translate>POSTED AS NEW</translate>'
-          translated['SAVED FOR DUNNING'] = '<translate>SAVED FOR DUNNING</translate>';
-          translated['DUNNING STARTED'] = '<translate>DUNNING STARTED</translate>';
-          translated['PRINTED'] = '<translate>PRINTED</translate>';
+          translated['SAVED'] = '[% 'SAVED' | $T8 %]';
+          translated['DELETED'] = '[% 'DELETED' | $T8 %]';
+          translated['ADDED'] = '[% 'ADDED' | $T8 %]';
+          translated['PAYMENT POSTED'] = '[% 'PAYMENT POSTED' | $T8 %]';
+          translated['POSTED'] = '[% 'POSTED' | $T8 %]';
+          translated['POSTED AS NEW'] = '[% 'POSTED AS NEW' | $T8 %]'
+          translated['SAVED FOR DUNNING'] = '[% 'SAVED FOR DUNNING' | $T8 %]';
+          translated['DUNNING STARTED'] = '[% 'DUNNING STARTED' | $T8 %]';
+          translated['PRINTED'] = '[% 'PRINTED' | $T8 %]';
 
           var jscalender = "<table valign=\"top\">"
-                  + "<tr><td colspan=\"2\"><b><translate>Period</translate>:&nbsp;</b></td></tr>"
-                  + "<tr><td><translate>from (time)</translate>:&nbsp;"
+                  + "<tr><td colspan=\"2\"><b>[% 'Period' | $T8 %]:&nbsp;</b></td></tr>"
+                  + "<tr><td>[% 'from (time)' | $T8 %]:&nbsp;"
                   + "<input name=\"fromdate\" id=\"fromdate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(fromdate) %]\">"
                   + "<input type=\"button\" name=\"fromdate\" id=\"trigger1\" value=\"?\">"
-                  + "&nbsp;</td><td><translate>to (time)</translate>:&nbsp;"
+                  + "&nbsp;</td><td>[% 'to (time)' | $T8 %]:&nbsp;"
                   + "<input name=\"todate\" id=\"todate\" size=\"11\" title=\"[% HTML.escape(myconfig_dateformat) %]\" value=\"[% HTML.escape(todate) %]\">"
                   + "<input type=\"button\" name=\"todate\" id=\"trigger2\" value=\"?\"></td></tr></table>";
           var mitarbeiter = "<table valign=\"top\">"
@@ -94,7 +95,7 @@
             }
             else {
               defaults.splice(remove,1);
-              document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b><translate>You've already chosen the following limitations:</translate></b><br>") : ("<br>")) + translated[last];
+              document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b>[% 'You've already chosen the following limitations:' | $T8 %]</b><br>") : ("<br>")) + translated[last];
               if(defaults.length > 0) {
                 document.getElementById('einschraenkungen').value += ((document.getElementById('einschraenkungen').value == "") ? ("") : (",")) + last;
                 tempString = "<select id='selectForm'><option></option>";
@@ -111,7 +112,7 @@
           }
 
           function resetAll() {
-            document.getElementById('selectTable').innerHTML = "<a href=\"javascript:addForm('INIT')\"><translate>Yes</translate>";
+            document.getElementById('selectTable').innerHTML = "<a href=\"javascript:addForm('INIT')\">[% 'Yes' | $T8 %]";
             document.getElementById('inputText').innerHTML = "";
           }
           //-->
@@ -119,24 +120,24 @@
         <table>
           <tr>
             <td>
-              <translate><b>What</b> do you want to look for?</translate>:
+              [% '<b>What</b> do you want to look for?' | $T8 %]:
             </td>
             <td>
               <select name="what2search" id="what2search">
-                <option name="Artikelnummer" value="Artikelnummer" id="Artikelnummer"><translate>Part Number</translate></option>
-                <option name="Kundennummer" value="Kundennummer" id="Kundennummer"><translate>Customer Number</translate></option>
-                <option name="Lieferantennummer" value="Lieferantennummer" id="Lieferantennummer"><translate>Vendor Number</translate></option>
-                <option name="Projektnummer" value="Projektnummer" id="Projektnummer"><translate>Project Number</translate></option>
-                <option name="Buchungsnummer" value="Buchungsnummer" id="Buchungsnummer"><translate>ID</translate></option>
-                <option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer"><translate>Incoming invoice number</translate></option>
-                <option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer"><translate>Sales invoice number</translate></option>
-                <option name="Mahnungsnummer" value="Mahnungsnummer" id="Mahnungsnummer"><translate>Dunning number</translate></option>
+                <option name="Artikelnummer" value="Artikelnummer" id="Artikelnummer">[% 'Part Number' | $T8 %]</option>
+                <option name="Kundennummer" value="Kundennummer" id="Kundennummer">[% 'Customer Number' | $T8 %]</option>
+                <option name="Lieferantennummer" value="Lieferantennummer" id="Lieferantennummer">[% 'Vendor Number' | $T8 %]</option>
+                <option name="Projektnummer" value="Projektnummer" id="Projektnummer">[% 'Project Number' | $T8 %]</option>
+                <option name="Buchungsnummer" value="Buchungsnummer" id="Buchungsnummer">[% 'ID' | $T8 %]</option>
+                <option name="Eingangsrechnungnummer" value="Eingangsrechnungnummer" id="Eingangsrechnungnummer">[% 'Incoming invoice number' | $T8 %]</option>
+                <option name="Ausgangsrechnungnummer" value="Ausgangsrechnungnummer" id="Ausgangsrechnungnummer">[% 'Sales invoice number' | $T8 %]</option>
+                <option name="Mahnungsnummer" value="Mahnungsnummer" id="Mahnungsnummer">[% 'Dunning number' | $T8 %]</option>
               </select>
             </td>
           </tr>
           <tr>
             <td>
-             <translate>What's the <b>term</b> you're looking for?</translate>
+             [% 'What's the <b>term</b> you're looking for?' | $T8 %]
             </td>
             <td>
               <input type="text" name="searchid" id="searchid" value="[% HTML.escape(searchid) %]">
@@ -144,13 +145,13 @@
           </tr>
           <tr>
             <td valign="top">
-             <translate>Do you want to <b>limit</b> your search?</translate>
+             [% 'Do you want to <b>limit</b> your search?' | $T8 %]
             </td>
             <td>
-              <table valign=\"top\" cellpadding=\"0\" marginheight=\"0\" marginwidth=\"0\" cellspacing=\"0\" topmargin=\"0\" leftmargin=\"0\">
+              <table valign="top" cellpadding="0" marginheight="0" marginwidth="0" cellspacing="0" topmargin="0" leftmargin="0">
                 <tr>
                   <td>
-                    <div id="selectTable"><a href="javascript:addForm('INIT')"><translate>Yes</translate></a></div>
+                    <div id="selectTable"><a href="javascript:addForm('INIT')">[% 'Yes' | $T8 %]</a></div>
                     <div id="inputText"></div>
                   </td>
                 </tr>
@@ -171,8 +172,8 @@
           </tr>
           <tr>
             <td colspan="6">
-              <input type="submit" class="submit" value="<translate>submit</translate>">
-              <input type="reset" class="submit" value="<translate>reset</translate>" onClick="javascript:resetAll();">
+              <input type="submit" class="submit" value="[% 'submit' | $T8 %]">
+              <input type="reset" class="submit" value="[% 'reset' | $T8 %]" onClick="javascript:resetAll();">
             </td>
             <td>
             </td>

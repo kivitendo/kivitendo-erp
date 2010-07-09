@@ -1,11 +1,12 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
   <tr>
     <td>
       <table>
         <tr>
-          <th class="listheading">Lieferant</th>
-          <th class="listheading">Lieferanten-Art-Nr.</th>
+          <th class="listheading">[% 'Make' | $T8 %]</th>
+          <th class="listheading">[% 'Model' | $T8 %]</th>
         </tr>
       [%- FOREACH row = MM_DATA %]
         <tr>

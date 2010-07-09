@@ -1,14 +1,15 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
 
  <table>
   <tr>
-   <th class="listheading"><translate>tax_taxkey</translate></th>
-   <th class="listheading"><translate>tax_taxdescription</translate></th>
-   <th class="listheading"><translate>tax_rate</translate></th>
-   <th class="listheading"><translate>taxnumber</translate></th>
-   <th class="listheading"><translate>account_description</translate></th>
+   <th class="listheading">[% 'tax_taxkey' | $T8 %]</th>
+   <th class="listheading">[% 'tax_taxdescription' | $T8 %]</th>
+   <th class="listheading">[% 'tax_rate' | $T8 %]</th>
+   <th class="listheading">[% 'taxnumber' | $T8 %]</th>
+   <th class="listheading">[% 'account_description' | $T8 %]</th>
   </tr>
 
   [% SET row_odd = '1' %][% FOREACH row = TAX %]
@@ -27,7 +28,7 @@
 
    <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
    <input type="hidden" name="type" value="tax">
-   <input class="submit" type="submit" name="action" value="<translate>Add</translate>">
+   <input class="submit" type="submit" name="action" value="[% 'Add' | $T8 %]">
   </form>
  </p>
 

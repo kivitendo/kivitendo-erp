@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
   <tr>
@@ -7,8 +8,8 @@
       <td>
        <table>
         <tr>
-         <th align="left"><translate>Notes</translate></th>
-         <th align="left"><translate>Internal Notes</translate></th>
+         <th align="left">[% 'Notes' | $T8 %]</th>
+         <th align="left">[% 'Internal Notes' | $T8 %]</th>
         </tr>
         <tr valign="top">
          <td>
@@ -21,9 +22,7 @@
 [%- IF id && follow_ups.size %]
         <tr>
           <td colspan="2">
-            [%- LxERP.format_string('<translate>There are #1 unfinished follow-ups of which #2 are due.</translate>',
-                                     follow_ups.size, follow_ups_unfinished) | html
-            %]
+            [%- LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size, follow_ups_unfinished) | html %]
           <td>
         </tr>
 [%- END %]
@@ -32,7 +31,7 @@
       <td align="right">
   [%- IF taxaccounts %]
        <input name="taxincluded" class="checkbox" type="checkbox" [% IF taxincluded %]checked[% END %]>
-       <b><translate>Tax Included</translate></b>
+       <b>[% 'Tax Included' | $T8 %]</b>
        <br>
        <br>
   [%- END %]
@@ -40,7 +39,7 @@
 
 [%- UNLESS taxincluded %]
         <tr>
-         <th align="right"><translate>Subtotal</translate></th>
+         <th align="right">[% 'Subtotal' | $T8 %]</th>
          <td align="right">[% LxERP.format_amount(invsubtotal, 2) %]</td>
        </tr>
 [%- END %]
@@ -64,7 +63,7 @@
 [%- END %]
 
         <tr>
-         <th align="right"><translate>Total</translate></th>
+         <th align="right">[% 'Total' | $T8 %]</th>
          <td align="right">[% LxERP.format_amount(invtotal, 2) %]</td>
         </tr>
        </table>
@@ -74,9 +73,11 @@
    </td>
   </tr>
 
-[% PROCESS 'webdav/_list_<translate>master</translate>.html' %]
+[% SET webdav_template = 'webdav/_list_' _ LxERP.t8('master') _ '.html' %]
+[% PROCESS $webdav_template %]
 
-[% PROCESS 'ir/_payments_<translate>master</translate>.html' %]
+[% SET payments_template = 'ir/_payments_' _ LxERP.t8('master') _ '.html' %]
+[% PROCESS $payments_template %]
 
   <tr>
     <td><hr size="3" noshade></td>
@@ -92,32 +93,32 @@
 
   [% IF id %]
 
-    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="<translate>Update</translate>">
+    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="[% 'Update' | $T8 %]">
 [% IF  show_storno %]
-    <input class="submit" type="submit" name="action" value="<translate>Storno</translate>">
+    <input class="submit" type="submit" name="action" value="[% 'Storno' | $T8 %]">
 [% END %]
-    <input class="submit" type="submit" name="action" value="<translate>Post Payment</translate>">
-    <input class="submit" type="submit" name="action" value="<translate>Use As Template</translate>">
+    <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Use As Template' | $T8 %]">
 
 [% IF show_delete %]
-    <input class="submit" type="submit" name="action" value="<translate>Delete</translate>">
+    <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
 [% END %]
 
-    <input type="button" class="submit" onclick="follow_up_window()" value="<translate>Follow-Up</translate>">
+    <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
 
  [% ELSE # no id %]
    [% UNLESS locked %]
-      <input class="submit" type="submit" name="action" id="update_button" value="<translate>Update</translate>">
-      <input class="submit" type="submit" name="action" value="<translate>Post</translate>">
-      <input class="submit" type="submit" name="action" value="<translate>Save Draft</translate>">
+      <input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Save Draft' | $T8 %]">
    [%- END %]
  [% END # id %]
 
   [% IF id %]
       [%#- button for saving history %]
-      <input type="button" class="submit" onclick="set_history_window([% id | html %]);" name="history" id="history" value="<translate>history</translate>">
+      <input type="button" class="submit" onclick="set_history_window([% id | html %]);" name="history" id="history" value="[% 'history' | $T8 %]">
 
-      <input type="submit" class="submit" name="action" value="<translate>mark as paid</translate>">
+      <input type="submit" class="submit" name="action" value="[% 'mark as paid' | $T8 %]">
   [% END %]
 
 <input type="hidden" name="rowcount" value="[% rowcount %]">

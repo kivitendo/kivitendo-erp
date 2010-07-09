@@ -1,33 +1,34 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
  <p>
-  Die folgende Buchung enthält falsche Steuern:
+  [% 'The following transaction contains wrong taxes:' | $T8 %]
   <a href="[% problem.link %]">
    [%- IF problem.data.module == 'ar' %]
-   Debitorenbuchung
+   [% 'AR Transaction' | $T8 %]
    [%- ELSIF problem.data.module == 'ap' %]
-   Kreditorenbuchung
+   [% 'AP Transaction' | $T8 %]
    [%- ELSE %]
-   Dialogbuchung
+   [% 'General Ledger Transaction' | $T8 %]
    [%- END %]
    [% HTML.escape(problem.data.reference) %]
   </a>
  </p>
 
- <p>Aktuell sieht die Buchung wie folgt aus:</p>
+ <p>[% 'At the moment the transaction looks like this:' | $T8 %]</p>
 
  <p>
   <table>
    <tr>
-    <th class="listheading">Konto</th>
-    <th class="listheading">Soll</th>
-    <th class="listheading">Haben</th>
-    <th class="listheading">Steuerschlüssel</th>
-    <th class="listheading">Gespeicherte Steuern</th>
-    <th class="listheading">Erwartete Steuern</th>
+    <th class="listheading">[% 'Account' | $T8 %]</th>
+    <th class="listheading">[% 'Debit' | $T8 %]</th>
+    <th class="listheading">[% 'Credit' | $T8 %]</th>
+    <th class="listheading">[% 'Taxkey' | $T8 %]</th>
+    <th class="listheading">[% 'Recorded Tax' | $T8 %]</th>
+    <th class="listheading">[% 'Expected Tax' | $T8 %]</th>
     <th class="listheading"></th>
    </tr>
 
@@ -71,8 +72,8 @@
   <p>
    <input type="hidden" name="action" value="delete_transaction">
    <input type="hidden" name="trans_id" value="[% HTML.escape(problem.data.trans_id) %]">
-   <input type="submit" class="submit" value="Buchung löschen">
-   <input type="button" class="submit" onclick="history.back()" value="Zurück">
+   <input type="submit" class="submit" value="[% 'Delete transaction' | $T8 %]">
+   <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
   </p>
  </form>
 

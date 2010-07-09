@@ -1,4 +1,5 @@
-[% USE HTML %]<div class="listtop">Schritt 3 von 3: Erzeugnisse</div>
+[%- USE T8 %]
+[% USE HTML %]<div class="listtop">[% 'Step 3 of 3: Assemblies' | $T8 %]</div>
 
 <form name="Form" method="post" action="login.pl">
 
@@ -10,39 +11,39 @@
   <p>[% saved_message %]</p>
  [% END %]
 
- <div class="subsubheading">Existierende Buchungsgruppen</div>
+ <div class="subsubheading">[% 'Existing Buchungsgruppen' | $T8 %]</div>
 
  <p>
-  Die folgenden Buchungsgruppen wurden bereits angelegt:
+  [% 'The following Buchungsgruppen have already been created:' | $T8 %]
   <br>
   <ul>
    [% FOREACH row = BUCHUNGSGRUPPEN %]
     <li>
      [% HTML.escape(row.description) %]:
-     Inventar: [% row.inventory_accno %];
+     [% 'Inventory' | $T8 %]: [% row.inventory_accno %];
 
-     Erl&ouml;skonto/Aufwandskonto
-     Inand: [% row.income_accno_0 %]/[% row.expense_accno_0 %];
+     [% 'Income accno' | $T8 %]/[% 'Expense accno' | $T8 %]
+     [% 'National' | $T8 %]: [% row.income_accno_0 %]/[% row.expense_accno_0 %];
 
-     Erl&ouml;skonto/Aufwandskonto
-     EU mit UstId-Nummer: [% row.income_accno_1 %]/[% row.expense_accno_1 %];
+     [% 'Income accno' | $T8 %]/[% 'Expense accno' | $T8 %]
+     [% 'EU with VAT ID' | $T8 %]: [% row.income_accno_1 %]/[% row.expense_accno_1 %];
 
-     Erl&ouml;skonto/Aufwandskonto
-     EU ohne UstId-Nummer: [% row.income_accno_2 %]/[% row.expense_accno_2 %];
+     [% 'Income accno' | $T8 %]/[% 'Expense accno' | $T8 %]
+     [% 'EU without VAT ID' | $T8 %]: [% row.income_accno_2 %]/[% row.expense_accno_2 %];
 
-     Erl&ouml;skonto/Aufwandskonto
-     Ausland: [% row.income_accno_3 %]/[% row.expense_accno_3 %]
+     [% 'Income accno' | $T8 %]/[% 'Expense accno' | $T8 %]
+     [% 'International' | $T8 %]: [% row.income_accno_3 %]/[% row.expense_accno_3 %]
     </li>
    [% END %]
   </ul>
  </p>
 
  [% FOREACH row = LIST %]
-  <div class="subsubheading">Neue Buchungsgruppe [% loop.count %]</div>
+  <div class="subsubheading">[% 'New Buchungsgruppe [% loop.count %]' | $T8 %]</div>
 
   <table>
    <tr>
-    <td>Beschreibung:</td>
+    <td>[% 'Description' | $T8 %]:</td>
     <td><input name="description_[% loop.count %]"></td>
    </tr>
 
@@ -50,7 +51,7 @@
     <input type="hidden" name="inventory_accno_id_[% loop.count %]" value="[% std_inventory_accno_id %]">
     [% ELSE %]
     <tr>
-     <td>Inventar:</td>
+     <td>[% 'Inventory' | $T8 %]:</td>
      <td>
       <select name="inventory_accno_id_[% loop.count %]">
        [% FOREACH acc_row = ACC_INVENTORY %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
@@ -60,7 +61,7 @@
    [% END %]
 
    <tr>
-    <td>Erl&ouml;skonto Inand:</td>
+    <td>[% 'Income accno' | $T8 %] [% 'National' | $T8 %]:</td>
     <td>
      <input type="hidden" name="income_accno_id_0_[% loop.count %]" value="[% HTML.escape(row.income_accno_id) %]">
      [% HTML.escape(row.income_accno) %]--[% HTML.escape(row.income_description) %]
@@ -68,7 +69,7 @@
    </tr>
 
    <tr>
-    <td>Aufwandskonto EU mit UstId-Nummer:</td>
+    <td>[% 'Expense accno' | $T8 %] [% 'EU with VAT ID' | $T8 %]:</td>
     <td>
      <select name="expense_accno_id_0_[% loop.count %]">
       [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
@@ -77,7 +78,7 @@
    </tr>
 
    <tr>
-    <td>Erl&ouml;skonto EU mit UstId-Nummer:</td>
+    <td>[% 'Income accno' | $T8 %] [% 'EU with VAT ID' | $T8 %]:</td>
     <td>
      <select name="income_accno_id_1_[% loop.count %]">
       [% FOREACH acc_row = ACC_INCOME %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
@@ -86,7 +87,7 @@
    </tr>
 
    <tr>
-    <td>Aufwandskonto EU mit UstId-Nummer:</td>
+    <td>[% 'Expense accno' | $T8 %] [% 'EU with VAT ID' | $T8 %]:</td>
     <td>
      <select name="expense_accno_id_1_[% loop.count %]">
       [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
@@ -95,7 +96,7 @@
    </tr>
 
    <tr>
-    <td>Erl&ouml;skonto EU ohne UstId-Nummer:</td>
+    <td>[% 'Income accno' | $T8 %] [% 'EU without VAT ID' | $T8 %]:</td>
     <td>
      <select name="income_accno_id_2_[% loop.count %]">
       [% FOREACH acc_row = ACC_INCOME %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
@@ -104,7 +105,7 @@
    </tr>
 
    <tr>
-    <td>Aufwandskonto EU ohne UstId-Nummer:</td>
+    <td>[% 'Expense accno' | $T8 %] [% 'EU without VAT ID' | $T8 %]:</td>
     <td>
      <select name="expense_accno_id_2_[% loop.count %]">
       [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
@@ -113,7 +114,7 @@
    </tr>
 
    <tr>
-    <td>Erl&ouml;skonto Ausland:</td>
+    <td>[% 'Income accno' | $T8 %] [% 'International' | $T8 %]:</td>
     <td>
      <select name="income_accno_id_3_[% loop.count %]">
       [% FOREACH acc_row = ACC_INCOME %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
@@ -122,7 +123,7 @@
    </tr>
 
    <tr>
-    <td>Aufwandskonto Ausland:</td>
+    <td>[% 'Expense accno' | $T8 %] [% 'International' | $T8 %]:</td>
     <td>
      <select name="expense_accno_id_3_[% loop.count %]">
       [% FOREACH acc_row = ACC_EXPENSE %]<option value="[% acc_row.id %]" [% acc_row.selected %]>[% HTML.escape(acc_row.accno) %]--[% HTML.escape(acc_row.description) %]</option>[% END %]
@@ -138,7 +139,7 @@
   <hr>
  [% END %]
 
- <input type="submit" name="dummy" value="Buchungsgruppe erfassen">
+ <input type="submit" name="dummy" value="[% 'Create Buchungsgruppen' | $T8 %]">
 
 </form>
 

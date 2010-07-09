@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]<body onload="on_load()">
 
  <script type="text/javascript" src="js/show_form_details.js"></script>
@@ -13,8 +14,8 @@
   <!--
       function on_load() {
         [% IF onload %][% onload %];[% END %]
-        setupDateFormat('[% myconfig_dateformat %]', 'Falsches Datumsformat!');
-        setupPoints('[% myconfig_numberformat %]', 'Falsches Format');
+        setupDateFormat('[% myconfig_dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
+        setupPoints('[% myconfig_numberformat %]', '[% 'wrongformat' | $T8 %]');
 
         [%- UNLESS delivered %]
         Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdate_trigger" });
@@ -104,7 +105,7 @@
        <tr>
         <input type="hidden" name="[% vc %]_id" value="[% HTML.escape(the_vc_id) %]">
         <input type="hidden" name="old[% vc %]" value="[% HTML.escape(the_oldvc) %]">
-        <th align="right">[% IF is_customer %]Kunde[% ELSE %]Lieferant[% END %]</th>
+        <th align="right">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
         <td>
          [%- UNLESS !delivered && SHOW_VC_DROP_DOWN %]
          <input type="text" value="[% HTML.escape(oldvcname) %]" name="[% HTML.escape(vc) %]"[% RO %]>
@@ -116,12 +117,12 @@
          </select>
          <input type="hidden" name="select[% vc %]" value="1">
          [%- END %]
-         <input type="button" value="D" onclick="show_vc_details('[% vc %]')">
+         <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% vc %]')">
         </td>
 
         [%- IF ALL_CONTACTS.size %]
         <tr>
-         <th align="right">Ansprechpartner</th>
+         <th align="right">[% 'Contact Person' | $T8 %]</th>
          <td>
           [%- IF delivered %]
           <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
@@ -144,7 +145,7 @@
 
         [%- IF ALL_SHIPTO.size %]
         <tr>
-         <th align="right">Lieferadresse</th>
+         <th align="right">[% 'Shipping Address' | $T8 %]</th>
          <td>
           [%- IF delivered %]
           <input type="hidden" name="shipto_id" value="[% HTML.escape(shipto_id) %]">
@@ -176,16 +177,16 @@
 
         [%- IF business %]
         <tr>
-         <th align="right">[% IF is_customer %]Kundentyp[% ELSE %]Lieferantentyp[% END %]</th>
+         <th align="right">[% IF is_customer %][% 'Customer type' | $T8 %][% ELSE %][% 'Vendor type' | $T8 %][% END %]</th>
          <td>[% HTML.escape(business) %]</td>
         </tr>
         [%- END %]
 
         [%- IF max_dunning_level %]
         <tr>
-         <th align="right">höchste Mahnstufe</th>
+         <th align="right">[% 'Max. Dunning Level' | $T8 %]</th>
          <td>
-          <b>[% HTML.escape(max_dunning_level) %]</b>; gemahnter Betrag:
+          <b>[% HTML.escape(max_dunning_level) %]</b>; [% 'Dunning Amount' | $T8 %]:
           <b>[% HTML.escape(LxERP.format_amount(dunning_amount, 2)) %]</b>
          </td>
         </tr>
@@ -194,7 +195,7 @@
 
        [%- IF ALL_DEPARTMENTS.size %]
        <tr>
-        <th align="right" nowrap>Abteilung</th>
+        <th align="right" nowrap>[% 'Department' | $T8 %]</th>
         <td colspan="3">
          [%- IF delivered %]
          <input type="hidden" name="department" value="[% HTML.escape(department) %]">
@@ -214,17 +215,17 @@
        [%- END %]
 
        <tr>
-        <th align="right">Versandort</th>
+        <th align="right">[% 'Shipping Point' | $T8 %]</th>
         <td colspan="3"><input name="shippingpoint" size="35" value="[% HTML.escape(shippingpoint) %]"[% RO %]></td>
        </tr>
 
        <tr>
-        <th align="right">Transportmittel</th>
+        <th align="right">[% 'Ship via' | $T8 %]</th>
         <td colspan="3"><input name="shipvia" size="35" value="[% HTML.escape(shipvia) %]"[% RO %]></td>
        </tr>
 
        <tr>
-        <th align="right">Vorgangsbezeichnung</th>
+        <th align="right">[% 'Transaction description' | $T8 %]</th>
         <td colspan="3"><input name="transaction_description" size="35" value="[% HTML.escape(transaction_description) %]"[% RO %]></td>
        </tr>
 
@@ -238,22 +239,22 @@
         <td colspan="2" align="center">
          [%- IF delivered %]
           [%- IF is_customer %]
-          ausgelagert
+          [% 'transferred out' | $T8 %]
           [%- ELSE %]
-          eingelagert
+          [% 'transferred in' | $T8 %]
           [%- END %]
          [%- ELSE %]
           [%- IF is_customer %]
-          noch nicht ausgelagert
+          [% 'not transferred out yet' | $T8 %]
           [%- ELSE %]
-          noch nicht eingelagert
+          [% 'not transferred in yet' | $T8 %]
           [%- END %]
          [%- END %]
          ;
          [%- IF closed %]
-          Geschlossen
+          [% 'Closed' | $T8 %]
          [%- ELSE %]
-          Offen
+          [% 'Open' | $T8 %]
          [%- END %]
         </td>
        </tr>
@@ -261,7 +262,7 @@
        <input type="hidden" name="delivered" value="[% HTML.escape(delivered) %]">
 
        <tr>
-        <th align="right">Bearbeiter</th>
+        <th align="right">[% 'Employee' | $T8 %]</th>
         <td>
          [%- IF delivered %]
          <input type="hidden" name="employee_id" value="[% HTML.escape(employee_id) %]">
@@ -287,7 +288,7 @@
        [%- SET the_salesman_id = employee_id %]
        [%- END %]
        <tr>
-        <th align="right">Verkäufer/in</th>
+        <th align="right">[% 'Salesman' | $T8 %]</th>
         <td>
          [%- IF delivered %]
          <input type="hidden" name="salesman_id" value="[% HTML.escape(salesman_id) %]">
@@ -308,22 +309,22 @@
        [%- END %]
 
        <tr>
-        <th width="70%" align="right" nowrap>Lieferscheinnummer</th>
+        <th width="70%" align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
         <td><input name="donumber" size="11" value="[% HTML.escape(donumber) %]"[% RO %]></td>
        </tr>
 
        <tr>
-        <th width="70%" align="right" nowrap>Auftragsnummer</th>
+        <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
         <td><input name="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]"[% RO %]></td>
        </tr>
 
        <tr>
-        <th width="70%" align="right" nowrap>[% IF is_customer %]Bestellnummer des Kunden[% ELSE %]Bestellnummer beim Lieferanten[% END %]</th>
+        <th width="70%" align="right" nowrap>[% IF is_customer %][% 'Customer Order Number' | $T8 %][% ELSE %][% 'Vendor Order Number' | $T8 %][% END %]</th>
         <td><input name="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"[% RO %]></td>
        </tr>
 
        <tr>
-        <th align="right" nowrap>Lieferscheindatum</th>
+        <th align="right" nowrap>[% 'Delivery Order Date' | $T8 %]</th>
         <td nowrap>
          <input name="transdate" id="transdate" size="11" title="[% HTML.escape(myconfig_dateformat) %]" value="[% HTML.escape(transdate) %]"
                 onBlur="check_right_date_format(this)"[% RO %]>
@@ -332,7 +333,7 @@
        </tr>
 
        <tr>
-        <th width="70%" align="right" nowrap>Projektnummer</th>
+        <th width="70%" align="right" nowrap>[% 'Project Number' | $T8 %]</th>
         <td>
          [%- IF delivered %]
          <input type="hidden" name="globalproject_id" value="[% HTML.escape(globalproject_id) %]">

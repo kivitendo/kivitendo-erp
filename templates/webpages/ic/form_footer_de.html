@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
   [%- IF item == 'assembly' %]
@@ -6,8 +7,8 @@
     <td>
       <table border="0" width="100%">
         <tr>
-          <th colspan="2" align=right>Summe&nbsp;</th>
-          <th align=right>Einkaufspreis:[% LxERP.format_amount(assembly_purchase_price_total, 2) %]  Verkaufspreis: [% LxERP.format_amount(assemblytotal, 2) %]</th>
+          <th colspan="2" align=right>[% 'Total' | $T8 %]&nbsp;</th>
+          <th align=right>[% 'Purchase Price' | $T8 %]:[% LxERP.format_amount(assembly_purchase_price_total, 2) %]  [% 'Sell Price' | $T8 %]: [% LxERP.format_amount(assemblytotal, 2) %]</th>
         </tr>
       </table>
     </td>
@@ -30,7 +31,7 @@
 [%- IF CUSTOM_VARIABLES.size %]
 <div id="custom_variables" class="tabcontent">
 
- <p>Unmarkierte Variablen werden für diesen Artikel nicht in Aufträgen und Rechnungen angezeigt.</p>
+ <p>[% 'Unchecked custom variables will not appear in orders and invoices.' | $T8 %]</p>
 
  <p>
   <table>
@@ -50,30 +51,30 @@
 
 </div>
 
-<input class="submit" type="submit" name="action" value="Erneuern">
+<input class="submit" type="submit" name="action" value="[% 'Update' | $T8 %]">
 <input type="hidden" name="price_rows" value="[% HTML.escape(price_rows) %]">
-<input class="submit" type="submit" name="action" value="Speichern">
+<input class="submit" type="submit" name="action" value="[% 'Save' | $T8 %]">
 
   [%- IF id %]
     [%- UNLESS previousform %]
-<input class="submit" type="submit" name="action" value="als neu speichern">
+<input class="submit" type="submit" name="action" value="[% 'Save as new' | $T8 %]">
     [%- END %]
 
     [%- IF orphaned %]
       [%- UNLESS previousform %]
         [%- IF item == 'assembly' %]
           [%- UNLESS onhand %]
-<input class="submit" type="submit" name="action" value="Löschen">
+<input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
           [%- END %]
         [%- ELSE %]
-<input class="submit" type="submit" name="action" value="Löschen">
+<input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
         [%- END %]
       [%- END %]
     [%- END %]
   [%- END %]
 
   [%- IF id != "" %]
-<input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="Historie">
+<input type="button" class="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
   [%- END %]
 
 </form>

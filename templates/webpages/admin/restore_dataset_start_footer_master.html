@@ -1,15 +1,17 @@
+[%- USE T8 %]
+[%- USE LxERP %]
 [% USE HTML %] </pre>
 
  <hr>
 
  <p>
-  <translate>The restoration process is complete. Please review &quot;pg_restore&quot;'s output to find out if the restoration was successful.</translate>
-  <translate>The program's exit code was [% HTML.escape(retval) %] (&quot;0&quot; usually means that everything went OK).</translate>
+  [% 'The restoration process is complete. Please review &quot;pg_restore&quot;'s output to find out if the restoration was successful.' | $T8 %]
+  [% LxERP.t8("The programs exit code was #1 (&quot;0&quot; usually means that everything went OK).", retval) | html %]
  </p>
 
  <form method="post" action="admin.pl">
   <input type="hidden" name="nextsub" value="list_users">
-  <input type="submit" name="action" value="<translate>Continue</translate>">
+  <input type="submit" name="action" value="[% 'Continue' | $T8 %]">
  </form>
 </body>
 </html>

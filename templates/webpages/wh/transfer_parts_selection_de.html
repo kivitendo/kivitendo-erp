@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE JavaScript %]<body onload="on_load();">
 
  <script type="text/javascript">
@@ -39,12 +40,12 @@
 
   <div class="listtop">[% title %]</div>
 
-  <p>Quelllager: [% warehouse_description %]</p>
+  <p>[% 'Transfer from warehouse' | $T8 %]: [% warehouse_description %]</p>
 
   <p>
    <table>
     <tr>
-     <td>Grund der Umlagerung ausw&auml;hlen:</td>
+     <td>[% 'Select type of transfer' | $T8 %]:</td>
      <td>
       <select name="transfer_type_id">
        [%- FOREACH type = TRANSFER_TYPES %]<option value="[% HTML.escape(type.id) %]">[% type.description %]</option>[% END %]
@@ -53,7 +54,7 @@
     </tr>
 
     <tr>
-     <td>Optionaler Kommentar:</td>
+     <td>[% 'Optional comment' | $T8 %]:</td>
      <td><input name="comment" size="20"></td>
     </tr>
    </table>
@@ -62,17 +63,17 @@
   <p>
    <table>
     <tr>
-     <th class="listheading">Quelllagerplatz</th>
-     <th class="listheading">Artikelnummer</th>
-     <th class="listheading">Artikelbeschreibung</th>
-     <th class="listheading">Chargennummer</th>
+     <th class="listheading">[% 'Source bin' | $T8 %]</th>
+     <th class="listheading">[% 'Part Number' | $T8 %]</th>
+     <th class="listheading">[% 'Part Description' | $T8 %]</th>
+     <th class="listheading">[% 'Charge Number' | $T8 %]</th>
      [% IF conf_show_best_before %]
-     <th class="listheading">Mindesthaltbarkeit</th>
+     <th class="listheading">[% 'Best Before' | $T8 %]</th>
      [% END %]
-     <th class="listheading">EAN</th>
-     <th class="listheading">Lagerbestand</th>
-     <th class="listheading" colspan="2">Umlagermenge</th>
-     <th class="listheading" colspan="2">Ziellager und -lagerplatz</th>
+     <th class="listheading">[% 'EAN' | $T8 %]</th>
+     <th class="listheading">[% 'Available qty' | $T8 %]</th>
+     <th class="listheading" colspan="2">[% 'Transfer qty' | $T8 %]</th>
+     <th class="listheading" colspan="2">[% 'Destination warehouse and bin' | $T8 %]</th>
     </tr>
 
     [% FOREACH row = CONTENTS %]
@@ -120,7 +121,7 @@
   <hr size="3" noshade>
 
   <p>
-   <input type="submit" class="submit" name="action" value="Weiter">
+   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
 

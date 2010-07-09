@@ -1,11 +1,12 @@
+[%- USE T8 %]
 [% USE HTML %]  <input type="hidden" name="rowcount" value="[% rowcount %]">
 
   <p>[% PRINT_OPTIONS %]</p>
 
   <p>
-   <translate>Dunnings</translate><br>
+   [% 'Dunnings' | $T8 %]<br>
    <input type="hidden" name="print_nextsub" value="print_multiple">
-   <input type="submit" class="submit" name="action" value="<translate>Print</translate>">
+   <input type="submit" class="submit" name="action" value="[% 'Print' | $T8 %]">
   </p>
 
  </form>

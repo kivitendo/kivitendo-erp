@@ -1,17 +1,18 @@
+[%- USE T8 %]
 [% USE HTML %]
 [% IF SUCCESS %]
 
 [% BLOCK column_header %]
             <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
              [% IF THIS_COLUMN && !THIS_COLUMN_DOWN %]
-               <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+               <tr><td><a title="[% 'order' | $T8 %]" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
              [% ELSE %]
-               <tr><td><a href="[% callback %]&order=[% column %]--0" title="Reihenfolge" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+               <tr><td><a href="[% callback %]&order=[% column %]--0" title="[% 'order' | $T8 %]" style="border: solid 1px #aaaade;">&and;</a></td></tr>
              [% END %]
              [% IF THIS_COLUMN &&  THIS_COLUMN_DOWN %]
-               <tr><td><a title="Reihenfolge" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+               <tr><td><a title="[% 'order' | $T8 %]" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
              [% ELSE %]
-               <tr><td><a href="[% callback %]&order=[% column %]--1" title="Reihenfolge" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+               <tr><td><a href="[% callback %]&order=[% column %]--1" title="[% 'order' | $T8 %]" style="border: solid 1px #aaaade;">&or;</a></td></tr>
              [% END %]
             </table>
 [% END %]
@@ -22,7 +23,7 @@
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
         <tr>
           <td align="center" valign="middle">
-           &nbsp;Zeitpunkt&nbsp;
+           &nbsp;[% 'Zeitpunkt' | $T8 %]&nbsp;
           </td>
           <td valign="top">
            [% PROCESS column_header THIS_COLUMN=ITIME THIS_COLUMN_DOWN=ITIMEBY column='h.itime' %]
@@ -34,7 +35,7 @@
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
         <tr>
           <td align="center" valign="middle">
-            &nbsp;Mitarbeiter&nbsp;
+            &nbsp;[% 'Mitarbeiter' | $T8 %]&nbsp;
           </td>
           <td valign="top">
            [% PROCESS column_header THIS_COLUMN=NAME THIS_COLUMN_DOWN=NAMEBY column='emp.name' %]
@@ -46,7 +47,7 @@
       <table>
         <tr>
           <td>
-            &nbsp;Aktion&nbsp;
+            &nbsp;[% 'Aktion' | $T8 %]&nbsp;
           </td>
         </tr>
       </table>
@@ -55,7 +56,7 @@
       <table>
         <tr>
           <td>
-            &nbsp;Zusatz&nbsp;
+            &nbsp;[% 'Zusatz' | $T8 %]&nbsp;
           </td>
         </tr>
       </table>
@@ -64,7 +65,7 @@
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
         <tr>
           <td align="center" valign="middle">
-           &nbsp;ID-Nummer (intern)&nbsp;
+           &nbsp;[% 'ID-Nummer' | $T8 %]&nbsp;
           </td>
           <td valign="top">
             [% PROCESS column_header THIS_COLUMN=TRANS_ID THIS_COLUMN_DOWN=TRANS_IDBY column='h.trans_id' %]
@@ -76,7 +77,7 @@
       <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
         <tr>
           <td align="center" valign="middle">
-           &nbsp;Buchungsnummer&nbsp;
+           &nbsp;[% 'Belegnummer' | $T8 %]&nbsp;
           </td>
           <td valign="top">
             [% PROCESS column_header THIS_COLUMN=SNUMBERS THIS_COLUMN_DOWN=SNUMBERSBY column='h.snumbers' %]
@@ -111,12 +112,12 @@
 </tbody>
 </table>
 [% ELSE %]
-<b>Keine Suchergebnisse gefunden!</b><br>
+<b>[% 'Keine Suchergebnisse gefunden!' | $T8 %]</b><br>
 [% END %]
 <p>
 [% IF NONEWWINDOW %]
-<input type="button" onclick="javascript:history.back(-1);" value="zurück">
+<input type="button" onclick="javascript:history.back(-1);" value="[% 'back' | $T8 %]">
 [% ELSE %]
-<input type="button" onclick="javascript:window.close();" value="schließen">
+<input type="button" onclick="javascript:window.close();" value="[% 'close' | $T8 %]">
 [% END %]
 </p>

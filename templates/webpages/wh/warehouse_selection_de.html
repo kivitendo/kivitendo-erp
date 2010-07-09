@@ -1,4 +1,6 @@
-[% USE HTML %][% USE JavaScript %]<body onload="on_load();">
+[%- USE T8 %]
+[%- USE HTML %]
+[% USE JavaScript %]<body onload="on_load();">
 
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/part_selection.js"></script>
@@ -69,13 +71,13 @@
   <div class="listtop">[% title %]</div>
 
   <p>
-   Wenn Sie f&uuml;r die Artikelnummer und / oder die Beschreibung etwas eingeben, so werden nur die Lagerpl&auml;tze angezeigt, in denen Waren eingelagert sind, die Ihre Suchbegriffe enthalten.
+   [% 'If you enter values for the part number and / or part description then only those bins containing parts whose part number or part description match your input will be shown.' | $T8 %]
   </p>
 
   <p>
    <table>
     <tr>
-     <th align="right" nowrap>Quelllager:</th>
+     <th align="right" nowrap>[% 'Transfer from warehouse' | $T8 %]:</th>
      <td>
       <select name="warehouse_id" id="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
        [%- FOREACH warehouse = WAREHOUSES %]
@@ -86,17 +88,17 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Lagerplatz:</th>
+     <th align="right" nowrap>[% 'Bin' | $T8 %]:</th>
      <td><select id="bin_id" name="bin_id"></select></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Artikelauswahl eingrenzen:</th>
+     <th align="right" nowrap>[% 'Limit part selection' | $T8 %]:</th>
      <td></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Artikelnummer</th>
+     <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
      <td>
       <input type="hidden" name="parts_id" id="parts_id">
       <input name="partnumber" id="partnumber" size="30">
@@ -104,7 +106,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Artikelbeschreibung</th>
+     <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
      <td>
       <input name="description" size="30">
       <input type="button" onclick="part_selection_window('partnumber', 'description', 'parts_id', 0, 'Form', 'no_services:')" value="?">
@@ -112,13 +114,13 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Chargennummer</th>
+     <th align="right" nowrap>[% 'Charge number' | $T8 %]</th>
      <td><input name="chargenumber" size="30"></td>
     </tr>
 
     [% IF conf_show_best_before %]
     <tr>
-     <th align="right" nowrap>Mindesthaltbarkeit</th>
+     <th align="right" nowrap>[% 'Best Before' | $T8 %]</th>
      <td>
        <input name="bestbefore" id="bestbefore" size="11" title="[% myconfig_dateformat %]">
        <input type="button" name="b_bestbefore" id="bestbefore_trigger" value="?">
@@ -127,14 +129,14 @@
     [% END %]
 
     <tr>
-     <th align="right" nowrap>EAN</th>
+     <th align="right" nowrap>[% 'EAN' | $T8 %]</th>
      <td><input name="ean" size="30"></td>
     </tr>
    </table>
   </p>
 
   <p>
-   <input type="submit" class="submit" name="action" value="Weiter">
+   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
 

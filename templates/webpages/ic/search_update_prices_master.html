@@ -1,43 +1,44 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
 <body>
 
  <form method="post" action="ic.pl">
 
-  <input type="hidden" name="title" value="<translate>Update prices</translate>">
+  <input type="hidden" name="title" value="[% 'Update prices' | $T8 %]">
 
-  <div class="listtop"><translate>Update prices</translate></div>
+  <div class="listtop">[% 'Update prices' | $T8 %]</div>
 
   <p>
    <table>
     <tr>
-     <th align="right" nowrap><translate>Part Number</translate></th>
+     <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
      <td><input name="partnumber" size="20"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Part Description</translate></th>
+     <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
      <td colspan="3"><input name="description" size="20"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Group</translate></th>
+     <th align="right" nowrap>[% 'Group' | $T8 %]</th>
      <td><input name="partsgroup" size="20"></td>
-     <th align="right" nowrap><translate>Serial Number</translate></th>
+     <th align="right" nowrap>[% 'Serial Number' | $T8 %]</th>
      <td><input name="serialnumber" size="20"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Make</translate></th>
+     <th align="right" nowrap>[% 'Make' | $T8 %]</th>
      <td><input name="make" size="20"></td>
-     <th align="right" nowrap><translate>Model</translate></th>
+     <th align="right" nowrap>[% 'Model' | $T8 %]</th>
      <td><input name="model" size="20"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Drawing</translate></th>
+     <th align="right" nowrap>[% 'Drawing' | $T8 %]</th>
      <td><input name="drawing" size="20"></td>
-     <th align="right" nowrap><translate>Microfiche</translate></th>
+     <th align="right" nowrap>[% 'Microfiche' | $T8 %]</th>
      <td><input name="microfiche" size="20"></td>
     </tr>
 
@@ -45,15 +46,15 @@
      <td></td>
      <td colspan="3">
       <input name="itemstatus" id="itemstatus_active" class="radio" type="radio" value="active" checked>
-      <label for="itemstatus_active"><translate>Active</translate></label>
+      <label for="itemstatus_active">[% 'Active' | $T8 %]</label>
       <input name="itemstatus" id="itemstatus_onhand" class="radio" type="radio" value="onhand">
-      <label for="itemstatus_onhand"><translate>On Hand</translate></label>
+      <label for="itemstatus_onhand">[% 'On Hand' | $T8 %]</label>
       <input name="itemstatus" id="itemstatus_short" class="radio" type="radio" value="short">
-      <label for="itemstatus_short"><translate>Short</translate></label>
+      <label for="itemstatus_short">[% 'Short' | $T8 %]</label>
       <input name="itemstatus" id="itemstatus_obsolete" class="radio" type="radio" value="obsolete">
-      <label for="itemstatus_obsolete"><translate>Obsolete</translate></label>
+      <label for="itemstatus_obsolete">[% 'Obsolete' | $T8 %]</label>
       <input name="itemstatus" id="itemstatus_orphaned" class="radio" type="radio" value="orphaned">
-      <label for="itemstatus_orphaned"><translate>Orphaned</translate></label>
+      <label for="itemstatus_orphaned">[% 'Orphaned' | $T8 %]</label>
      </td>
     </tr>
    </table>
@@ -64,13 +65,13 @@
   <p>
    <table>
     <tr>
-     <th class="listheading"><translate>Preisklasse</translate></th>
-     <th class="listheading"><translate>Preis</translate></th>
-     <th class="listheading"><translate>Prozentual/Absolut</translate></th>
+     <th class="listheading">[% 'Preisklasse' | $T8 %]</th>
+     <th class="listheading">[% 'Preis' | $T8 %]</th>
+     <th class="listheading">[% 'Prozentual/Absolut' | $T8 %]</th>
     </tr>
 
     <tr>
-     <td><translate>Sell Price</translate></td>
+     <td>[% 'Sell Price' | $T8 %]</td>
      <td><input name="sellprice" size="11" value="[% HTML.escape(sellprice) %]"></td>
      <td align="center">
       <input name="sellprice_type" class="radio" type="radio" value="percent" checked> /
@@ -79,7 +80,7 @@
     </tr>
 
     <tr>
-     <td><translate>List Price</translate></td>
+     <td>[% 'List Price' | $T8 %]</td>
      <td><input name="listprice" size="11" value="[% HTML.escape(listprice) %]"></td>
      <td align="center">
       <input name="listprice_type" class="radio" type="radio" value="percent" checked> /
@@ -109,7 +110,7 @@
   <input type="hidden" name="price_rows" value="[% HTML.escape(price_rows) %]">
 
   <p>
-   <input class="submit" type="submit" name="action" value="<translate>Continue</translate>">
+   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
 

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body onLoad="fokus()">
 
@@ -6,13 +7,13 @@
  <form method="post" name="ct" action="ct.pl" onKeyUp="highlight(event)" onClick="highlight(event)">
 
   <ul id="maintab" class="shadetabs">
-   <li class="selected"><a href="#" rel="billing"><translate>Billing Address</translate></a></li>
-   <li><a href="#" rel="shipto"><translate>Shipping Address</translate></a></li>
+   <li class="selected"><a href="#" rel="billing">[% 'Billing Address' | $T8 %]</a></li>
+   <li><a href="#" rel="shipto">[% 'Shipping Address' | $T8 %]</a></li>
    <li><a href="#" rel="contacts">Ansprechpartner</a></li>
-   <li><a href="#" rel="deliveries"><translate>Lieferungen</translate></a></li>
-   <li><a href="#" rel="vcnotes"><translate>Notes</translate></a></li>
+   <li><a href="#" rel="deliveries">[% 'Lieferungen' | $T8 %]</a></li>
+   <li><a href="#" rel="vcnotes">[% 'Notes' | $T8 %]</a></li>
    [%- IF CUSTOM_VARIABLES.size %]
-   <li><a href="#" rel="custom_variables"><translate>Custom Variables</translate></a></li>
+   <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
    [%- END %]
   </ul>
 
@@ -24,7 +25,7 @@
      <tr height="5"></tr>
      [% IF conf_vertreter %]
       <tr>
-       <th align="right">[% IF is_customer %]<translate>Type of Customer</translate>[%- ELSE %]<translate>Type of Vendor</translate>[%- END %]</th>
+       <th align="right">[% IF is_customer %][% 'Type of Customer' | $T8 %][%- ELSE %][% 'Type of Vendor' | $T8 %][%- END %]</th>
        <td>
         [%- INCLUDE generic/multibox.html
               name       = 'business',
@@ -36,7 +37,7 @@
        </td>
       </tr>
       <tr>
-       <th align="right"><translate>Representative</translate></th>
+       <th align="right">[% 'Representative' | $T8 %]</th>
        <td>
         [%- INCLUDE generic/multibox.html
               name      = 'salesman_id',
@@ -49,16 +50,16 @@
      [%- END %]
      <tr>
       [%- IF is_customer %]
-      <th align="right" nowrap><translate>Customer Number</translate></th>
+      <th align="right" nowrap>[% 'Customer Number' | $T8 %]</th>
       <td><input name="customernumber" size="35" value="[% HTML.escape(customernumber) %]"></td>
       [%- ELSE %]
-      <th align="right" nowrap><translate>Vendor Number</translate></th>
+      <th align="right" nowrap>[% 'Vendor Number' | $T8 %]</th>
       <td><input name="vendornumber" size="35" value="[% HTML.escape(vendornumber) %]"></td>
       [%- END %]
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Greeting</translate></th>
+      <th align="right" nowrap>[% 'Greeting' | $T8 %]</th>
       <td>
        <input id="greeting" name="greeting" size="30" value="[% HTML.escape(greeting) %]">&nbsp;
        [%- INCLUDE generic/multibox.html
@@ -72,12 +73,12 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap>[% IF is_customer %]<translate>Customer Name</translate>[%- ELSE %]<translate>Vendor Name</translate>[%- END %]</th>
+      <th align="right" nowrap>[% IF is_customer %][% 'Customer Name' | $T8 %][%- ELSE %][% 'Vendor Name' | $T8 %][%- END %]</th>
       <td><input name="name" size="35" maxlength="75" value="[% HTML.escape(name) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Department</translate></th>
+      <th align="right" nowrap>[% 'Department' | $T8 %]</th>
       <td>
        <input name="department_1" size="16" maxlength="75" value="[% HTML.escape(department_1) %]">
        <input name="department_2" size="16" maxlength="75" value="[% HTML.escape(department_2) %]">
@@ -85,12 +86,12 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Street</translate></th>
+      <th align="right" nowrap>[% 'Street' | $T8 %]</th>
       <td><input name="street" size="35" maxlength="75" value="[% HTML.escape(street) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Zipcode</translate>/<translate>City</translate></th>
+      <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
       <td>
        <input name="zipcode" size="5" maxlength="10" value="[% HTML.escape(zipcode) %]">
        <input name="city" size="30" maxlength="75" value="[% HTML.escape(city) %]">
@@ -98,42 +99,42 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Country</translate></th>
+      <th align="right" nowrap>[% 'Country' | $T8 %]</th>
       <td><input name="country" size="35" maxlength="75" value="[% HTML.escape(country) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Contact</translate></th>
+      <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
       <td><input name="contact" size="28" maxlength="75" value="[% HTML.escape(contact) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Phone</translate></th>
+      <th align="right" nowrap>[% 'Phone' | $T8 %]</th>
       <td><input name="phone" size="30" maxlength="30" value="[% HTML.escape(phone) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Fax</translate></th>
+      <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
       <td><input name="fax" size="30" maxlength="30" value="[% HTML.escape(fax) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>E-mail</translate></th>
+      <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
       <td><input name="email" size="45" value="[% HTML.escape(email) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Homepage</translate></th>
+      <th align="right" nowrap>[% 'Homepage' | $T8 %]</th>
       <td><input name="homepage" size="45" value="[% HTML.escape(homepage) %]"></td>
      </tr>
     </table>
 
     <table>
      <tr>
-      <th align="right"><translate>Credit Limit</translate></th>
+      <th align="right">[% 'Credit Limit' | $T8 %]</th>
       <td><input name="creditlimit" size="9" value="[% LxERP.format_amount(creditlimit, 0) %]"></td>
       <input type="hidden" name="terms" value="[% HTML.escape(terms) %]">
-      <th align="right"><translate>Payment Terms</translate></th>
+      <th align="right">[% 'Payment Terms' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'payment_id',
@@ -144,53 +145,53 @@
        -%]
       </td>
 
-      <th align="right"><translate>Discount</translate></th>
+      <th align="right">[% 'Discount' | $T8 %]</th>
       <td><input name="discount" size="4" value="[% LxERP.format_amount(discount) %]"> %</td>
      </tr>
 
      <tr>
-      <th align="right"><translate>Tax Number / SSN</translate></th>
+      <th align="right">[% 'Tax Number / SSN' | $T8 %]</th>
       <td><input name="taxnumber" size="20" value="[% HTML.escape(taxnumber) %]"></td>
       <!-- Anm.: R&B 15.11.2008     VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein -->
-      <th align="right"><translate>sales tax identification number</translate></th>
+      <th align="right">[% 'sales tax identification number' | $T8 %]</th>
       <td><input name="ustid" maxlength="14" size="20" value="[% HTML.escape(ustid) %]"></td>
       [%- IF is_customer %]
-      <th align="right"><translate>our vendor number at customer</translate></th>
+      <th align="right">[% 'our vendor number at customer' | $T8 %]</th>
       <td><input name="c_vendor_id" size="10" value="[% HTML.escape(c_vendor_id) %]"></td>
       [%- ELSE %]
-      <th align="right"><translate>Customer Number</translate></th>
+      <th align="right">[% 'Customer Number' | $T8 %]</th>
       <td><input name="v_customer_id" size="10" value="[% HTML.escape(v_customer_id) %]"></td>
       [%- END %]
      </tr>
 
      <tr>
-      <th align="right"><translate>Account Number</translate></th>
+      <th align="right">[% 'Account Number' | $T8 %]</th>
       <td><input name="account_number" size="10" maxlength="100" value="[% HTML.escape(account_number) %]"></td>
-      <th align="right"><translate>Bank Code Number</translate></th>
+      <th align="right">[% 'Bank Code Number' | $T8 %]</th>
       <td><input name="bank_code" size="10" maxlength="100" value="[% HTML.escape(bank_code) %]"></td>
-      <th align="right"><translate>Bank</translate></th>
+      <th align="right">[% 'Bank' | $T8 %]</th>
       <td><input name="bank" size="20" value="[% HTML.escape(bank) %]"></td>
      </tr>
 
      <tr>
-      <th align="right"><translate>IBAN</translate></th>
+      <th align="right">[% 'IBAN' | $T8 %]</th>
       <td><input name="iban" size="10" maxlength="100" value="[% HTML.escape(iban) %]"></td>
-      <th align="right"><translate>BIC</translate></th>
+      <th align="right">[% 'BIC' | $T8 %]</th>
       <td><input name="bic" size="10" maxlength="100" value="[% HTML.escape(bic) %]"></td>
      </tr>
 
      [%- IF conf_vertreter %]
       <tr>
-       <th align="right"><translate>Username</translate></th>
+       <th align="right">[% 'Username' | $T8 %]</th>
        <td><input name="username" maxlength="50" value="[% HTML.escape(username) %]"></td>
-       <th align="right"><translate>Password</translate></th>
+       <th align="right">[% 'Password' | $T8 %]</th>
        <td><input name="user_password" value="[% HTML.escape(user_password) %]"></td>
       </tr>
      [%- END %]
 
      <tr>
       [% UNLESS conf_vertreter %]
-       <th align="right">[% IF is_customer %]<translate>Type of Customer</translate>[% ELSE %]<translate>Type of Vendor</translate>[%- END %]</th>
+       <th align="right">[% IF is_customer %][% 'Type of Customer' | $T8 %][% ELSE %][% 'Type of Vendor' | $T8 %][%- END %]</th>
        <td>
         [%- INCLUDE generic/multibox.html
               name       = 'business',
@@ -201,7 +202,7 @@
         -%]
        </td>
       [%- END %]
-      <th align="right"><translate>Language</translate></th>
+      <th align="right">[% 'Language' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'language_id',
@@ -213,7 +214,7 @@
       </td>
 
       [%- IF is_customer %]
-      <th align="right"><translate>Preisklasse</translate></th>
+      <th align="right">[% 'Preisklasse' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'klass',
@@ -227,14 +228,14 @@
      </tr>
 
      <tr>
-      <td align="right"><translate>Obsolete</translate></td>
+      <td align="right">[% 'Obsolete' | $T8 %]</td>
       <td><input name="obsolete" class="checkbox" type="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
-      <td align="right"><translate>direct debit</translate></td>
+      <td align="right">[% 'direct debit' | $T8 %]</td>
       <td><input name="direct_debit" class="checkbox" type="checkbox" value="1" [% IF direct_debit %]checked[% END %]></td>
      </tr>
 
      <tr>
-      <th align="right"><translate>Steuersatz</translate></th>
+      <th align="right">[% 'Steuersatz' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'taxzone_id',
@@ -245,7 +246,7 @@
        -%]
       </td>
       [%- IF is_customer && !conf_vertreter %]
-      <th align="right"><translate>Salesman</translate></th>
+      <th align="right">[% 'Salesman' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'salesman_id',
@@ -261,7 +262,7 @@
 
     <table>
      <tr>
-      <th align="left" nowrap><translate>Notes</translate></th>
+      <th align="left" nowrap>[% 'Notes' | $T8 %]</th>
      </tr>
 
      <tr>
@@ -276,7 +277,7 @@
 
     <table width="100%">
      <tr>
-      <th align="right"><translate>Shipping Address</translate></th>
+      <th align="right">[% 'Shipping Address' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'shipto_id',
@@ -291,12 +292,12 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Company Name</translate></th>
+      <th align="right" nowrap>[% 'Company Name' | $T8 %]</th>
       <td><input id="shiptoname" name="shiptoname" size="35" maxlength="75" value="[% HTML.escape(shiptoname) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Abteilung</translate></th>
+      <th align="right" nowrap>[% 'Abteilung' | $T8 %]</th>
       <td>
        <input id="shiptodepartment_1" name="shiptodepartment_1" size="16" maxlength="75" value="[% HTML.escape(shiptodepartment_1) %]">
        <input id="shiptodepartment_2" name="shiptodepartment_2" size="16" maxlength="75" value="[% HTML.escape(shiptodepartment_2) %]">
@@ -304,12 +305,12 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Street</translate></th>
+      <th align="right" nowrap>[% 'Street' | $T8 %]</th>
       <td><input id="shiptostreet" name="shiptostreet" size="35" maxlength="75" value="[% HTML.escape(shiptostreet) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Zipcode</translate>/<translate>City</translate></th>
+      <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
       <td>
        <input id="shiptozipcode" name="shiptozipcode" size="5" maxlength="75" value="[% HTML.escape(shiptozipcode) %]">
        <input id="shiptocity" name="shiptocity" size="30" maxlength="75" value="[% HTML.escape(shiptocity) %]">
@@ -317,27 +318,27 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Country</translate></th>
+      <th align="right" nowrap>[% 'Country' | $T8 %]</th>
       <td><input id="shiptocountry" name="shiptocountry" size="35" maxlength="75" value="[% HTML.escape(shiptocountry) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Contact</translate></th>
+      <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
       <td><input id="shiptocontact" name="shiptocontact" size="30" maxlength="75" value="[% HTML.escape(shiptocontact) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Phone</translate></th>
+      <th align="right" nowrap>[% 'Phone' | $T8 %]</th>
       <td><input id="shiptophone" name="shiptophone" size="30" maxlength="30" value="[% HTML.escape(shiptophone) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>Fax</translate></th>
+      <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
       <td><input id="shiptofax" name="shiptofax" size="30" maxlength="30" value="[% HTML.escape(shiptofax) %]"></td>
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>E-mail</translate></th>
+      <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
       <td><input id="shiptoemail" name="shiptoemail" size="45" value="[% HTML.escape(shiptoemail) %]"></td>
      </tr>
 
@@ -349,7 +350,7 @@
      </tr>
     </table>
 
-    <input type="submit" id="delete_shipto" name="action" value="<translate>Delete Shipto</translate>" disabled>
+    <input type="submit" id="delete_shipto" name="action" value="[% 'Delete Shipto' | $T8 %]" disabled>
     <br style="clear: left" />
    </div>
 
@@ -357,7 +358,7 @@
     <table>
      <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
      <tr>
-      <th align="right"><translate>Ansprechpartner</translate></th>
+      <th align="right">[% 'Ansprechpartner' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'cp_id',
@@ -371,18 +372,18 @@
      </tr>
 
     <tr>
-     <th align="left" nowrap><translate>Gender</translate></th>
+     <th align="left" nowrap>[% 'Gender' | $T8 %]</th>
      <td>
       <select id="cp_gender" name="cp_gender">
-       <option value="m"[% IF cp_gender == 'm' %] selected[% END %]><translate>male</translate></option>
-       <option value="f"[% IF cp_gender == 'f' %] selected[% END %]><translate>female</translate></option>
+       <option value="m"[% IF cp_gender == 'm' %] selected[% END %]>[% 'male' | $T8 %]</option>
+       <option value="f"[% IF cp_gender == 'f' %] selected[% END %]>[% 'female' | $T8 %]</option>
       </select>
      </td>
     </tr>
     <tr>
 
      <tr>
-      <th align="left" nowrap><translate>Title</translate></th>
+      <th align="left" nowrap>[% 'Title' | $T8 %]</th>
       <td>
        <input id="cp_title" name="cp_title" size="40" maxlength="75" value="[% HTML.escape(cp_title) %]">&nbsp;
        [%- INCLUDE generic/multibox.html
@@ -397,7 +398,7 @@
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Department</translate></th>
+      <th align="left" nowrap>[% 'Department' | $T8 %]</th>
       <td>
        <input id="cp_abteilung" name="cp_abteilung" size="40" value="[% HTML.escape(cp_abteilung) %]">&nbsp;
        [%- INCLUDE generic/multibox.html
@@ -412,72 +413,72 @@
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Given Name</translate></th>
+      <th align="left" nowrap>[% 'Given Name' | $T8 %]</th>
       <td><input id="cp_givenname" name="cp_givenname" size="40" maxlength="75" value="[% HTML.escape(cp_givenname) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Name</translate></th>
+      <th align="left" nowrap>[% 'Name' | $T8 %]</th>
       <td><input id="cp_name" name="cp_name" size="40" maxlength="75" value="[% HTML.escape(cp_name) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Phone1</translate></th>
+      <th align="left" nowrap>[% 'Phone1' | $T8 %]</th>
       <td><input id="cp_phone1" name="cp_phone1" size="40" maxlength="75" value="[% HTML.escape(cp_phone1) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Phone2</translate></th>
+      <th align="left" nowrap>[% 'Phone2' | $T8 %]</th>
       <td><input id="cp_phone2" name="cp_phone2" size="40" maxlength="75" value="[% HTML.escape(cp_phone2) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Fax</translate></th>
+      <th align="left" nowrap>[% 'Fax' | $T8 %]</th>
       <td><input id="cp_fax" name="cp_fax" size="40" value="[% HTML.escape(cp_fax) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Mobile1</translate></th>
+      <th align="left" nowrap>[% 'Mobile1' | $T8 %]</th>
       <td><input id="cp_mobile1" name="cp_mobile1" size="40" value="[% HTML.escape(cp_mobile1) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Mobile2</translate></th>
+      <th align="left" nowrap>[% 'Mobile2' | $T8 %]</th>
       <td><input id="cp_mobile2" name="cp_mobile2" size="40" value="[% HTML.escape(cp_mobile2) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Sat. Phone</translate></th>
+      <th align="left" nowrap>[% 'Sat. Phone' | $T8 %]</th>
       <td><input id="cp_satphone" name="cp_satphone" size="40" value="[% HTML.escape(cp_satphone) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Sat. Fax</translate></th>
+      <th align="left" nowrap>[% 'Sat. Fax' | $T8 %]</th>
       <td><input id="cp_satfax" name="cp_satfax" size="40" value="[% HTML.escape(cp_satfax) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Project</translate></th>
+      <th align="left" nowrap>[% 'Project' | $T8 %]</th>
       <td><input id="cp_project" name="cp_project" size="40" value="[% HTML.escape(cp_project) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>E-mail</translate></th>
+      <th align="left" nowrap>[% 'E-mail' | $T8 %]</th>
       <td><input id="cp_email" name="cp_email" size="40" value="[% HTML.escape(cp_email) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Private Phone</translate></th>
+      <th align="left" nowrap>[% 'Private Phone' | $T8 %]</th>
       <td><input id="cp_privatphone" name="cp_privatphone" size="40" value="[% HTML.escape(cp_privatphone) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Private E-mail</translate></th>
+      <th align="left" nowrap>[% 'Private E-mail' | $T8 %]</th>
       <td><input id="cp_privatemail" name="cp_privatemail" size="40" value="[% HTML.escape(cp_privatemail) %]"></td>
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Birthday</translate></th>
+      <th align="left" nowrap>[% 'Birthday' | $T8 %]</th>
       <td><input id="cp_birthday" name="cp_birthday" size="40" value="[% HTML.escape(cp_birthday) %]"></td>
      </tr>
 
@@ -486,19 +487,19 @@
      </tr>
 
      <tr>
-      <th align="left" nowrap><translate>Bcc</translate></th>
+      <th align="left" nowrap>[% 'Bcc' | $T8 %]</th>
       <td><input name="bcc" size="40" value="[% HTML.escape(bcc) %]"></td>
      </tr>
     </table>
 
-    <input type="submit" id="delete_contact" name="action" value="<translate>Delete Contact</translate>" disabled>
+    <input type="submit" id="delete_contact" name="action" value="[% 'Delete Contact' | $T8 %]" disabled>
     <br style="clear: left" />
    </div>
 
    <div id="deliveries" class="tabcontent">
     <table>
      <tr>
-      <th align="right"><translate>Shipping Address</translate></th>
+      <th align="right">[% 'Shipping Address' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'delivery_id',
@@ -512,12 +513,12 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap><translate>From</translate></th>
+      <th align="right" nowrap>[% 'From' | $T8 %]</th>
       <td>
        <input id="from" name="from" size="10" maxlength="10" onChange="get_delivery(['shipto_id__' + delivery_id.value, 'from__' + this.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])" value="[% HTML.escape(from) %]">
        <input type="button" name="fromB" id="trigger_from" value="?">
       </td>
-      <th align="right" nowrap><translate>To (time)</translate></th>
+      <th align="right" nowrap>[% 'To (time)' | $T8 %]</th>
       <td>
        <input id="to" name="to" size="10" maxlength="10" onChange="get_delivery(['shipto_id__' + delivery_id.value, 'from__' + from.value, 'to__' + this.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])" value="[% HTML.escape(to) %]">
        <input type="button" name="toB" id="trigger_to" value="?">
@@ -541,13 +542,13 @@
     <p>
      <table>
       <tr>
-       <th class="listheading"><translate>Delete</translate></th>
-       <th class="listheading"><translate>Subject</translate></th>
-       <th class="listheading"><translate>Created on</translate></th>
-       <th class="listheading"><translate>Created by</translate></th>
-       <th class="listheading"><translate>Follow-Up Date</translate></th>
-       <th class="listheading"><translate>Follow-Up for</translate></th>
-       <th class="listheading"><translate>Follow-Up done</translate></th>
+       <th class="listheading">[% 'Delete' | $T8 %]</th>
+       <th class="listheading">[% 'Subject' | $T8 %]</th>
+       <th class="listheading">[% 'Created on' | $T8 %]</th>
+       <th class="listheading">[% 'Created by' | $T8 %]</th>
+       <th class="listheading">[% 'Follow-Up Date' | $T8 %]</th>
+       <th class="listheading">[% 'Follow-Up for' | $T8 %]</th>
+       <th class="listheading">[% 'Follow-Up done' | $T8 %]</th>
       </tr>
 
       [%- FOREACH row = NOTES %]
@@ -559,7 +560,7 @@
        <td>[% IF row.created_by_name %][% HTML.escape(row.created_by_name) %][% ELSE %][% HTML.escape(row.created_by_login) %][% END %]</td>
        <td>[% HTML.escape(row.follow_up_date) %]</td>
        <td>[% IF row.created_for_name %][% HTML.escape(row.created_for_name) %][% ELSE %][% HTML.escape(row.created_for_login) %][% END %]</td>
-       <td>[% IF row.follow_up_date %][% IF row.follow_up_done %]<translate>Yes</translate>[% ELSE %]<translate>No</translate>[% END %][% END %]</td>
+       <td>[% IF row.follow_up_date %][% IF row.follow_up_done %][% 'Yes' | $T8 %][% ELSE %][% 'No' | $T8 %][% END %][% END %]</td>
       </tr>
       [%- END %]
 
@@ -569,7 +570,7 @@
     </p>
     [%- END %]
 
-    <div class="listtop">[% IF NOTE_id %]<translate>Edit note</translate>[% ELSE %]<translate>Add note</translate>[% END %]</div>
+    <div class="listtop">[% IF NOTE_id %][% 'Edit note' | $T8 %][% ELSE %][% 'Add note' | $T8 %][% END %]</div>
 
     <input type="hidden" name="NOTE_id" value="[% HTML.escape(NOTE_id) %]">
     <input type="hidden" name="FU_id" value="[% HTML.escape(FU_id) %]">
@@ -577,21 +578,21 @@
     <p>
      <table>
       <tr>
-       <td valign="right"><translate>Subject</translate></td>
+       <td valign="right">[% 'Subject' | $T8 %]</td>
        <td><input name="NOTE_subject" value="[% HTML.escape(NOTE_subject) %]" size="50"></td>
       </tr>
 
       <tr>
-       <td valign="right" align="top"><translate>Body</translate></td>
+       <td valign="right" align="top">[% 'Body' | $T8 %]</td>
        <td align="top"><textarea cols="50" rows="10" name="NOTE_body">[% HTML.escape(NOTE_body) %]</textarea></td>
       </tr>
 
       <tr>
-       <td valign="right"><translate>Follow-Up On</translate></td>
+       <td valign="right">[% 'Follow-Up On' | $T8 %]</td>
        <td>
         <input name="FU_date" id="FU_date" value="[% HTML.escape(FU_date) %]" size="12">
         <input type="button" name="FU_date_button" id="FU_date_trigger" value="?">
-        <translate>for</translate>
+        [% 'for' | $T8 %]
         <select name="FU_created_for_user">
          [%- FOREACH row = ALL_EMPLOYEES %]
          <option value="[% HTML.escape(row.id) %]"[% IF (NOTE_id && (row.id == FU_created_for_user)) || (row.login == login) %] selected[% END %]>
@@ -606,7 +607,7 @@
        <td>&nbsp;</td>
        <td>
         <input type="checkbox" name="FU_done" id="FU_done" value="1"[% IF FU_done %] checked[% END %]>
-        <label for="FU_done"><translate>Follow-Up done</translate></label>
+        <label for="FU_done">[% 'Follow-Up done' | $T8 %]</label>
        </td>
       </tr>
      </table>

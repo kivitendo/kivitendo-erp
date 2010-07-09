@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
 <body bgcolor="#ffffff">
@@ -5,13 +6,13 @@
 <h2 align="center">
 [% company %]
 <br>[% address %]
-<p><translate>BALANCE SHEET</translate>
+<p>[% 'BALANCE SHEET' | $T8 %]
 <br>[% period %]
 </h2>
 
 <table border="0">
   <tr>
-    <th align="left" width="400" colspan="2"><translate>ASSETS</translate><br><hr align="left" width="250" size="5" noshade></th>
+    <th align="left" width="400" colspan="2">[% 'ASSETS' | $T8 %]<br><hr align="left" width="250" size="5" noshade></th>
     <th>[% this_period %]</th>
     <th>[% last_period %]</th>
   </tr>
@@ -35,7 +36,7 @@
   </tr>
 
   <tr valign="top">
-    <th align="left" colspan="2"><translate>TOTAL</translate></th>
+    <th align="left" colspan="2">[% 'TOTAL' | $T8 %]</th>
     <td align="right">[% LxERP.format_amount(total.A.this, decimalplaces) %]<hr noshade size="2"></td>
     [%- IF last_period %]
     <td align="right">[% LxERP.format_amount(total.A.last, decimalplaces) %]<hr noshade size="2"></td>
@@ -44,7 +45,7 @@
 [% END %]
 
   <tr>
-    <th align="left" colspan="4"><translate>LIABILITIES</translate><b><hr align="left" width="250" size="5" noshade></th>
+    <th align="left" colspan="4">[% 'LIABILITIES' | $T8 %]<b><hr align="left" width="250" size="5" noshade></th>
   </tr>
 
   [% FOREACH row = L %]
@@ -67,7 +68,7 @@
 
   <tr valign="top">
     <td></td>
-    <th align="left"><translate>TOTAL</translate></th>
+    <th align="left">[% 'TOTAL' | $T8 %]</th>
     <td align="right">[% LxERP.format_amount(total.L.this, decimalplaces) %]<br><hr noshade size="2"</td>
     [%- IF last_period %]
     <td align="right">[% LxERP.format_amount(total.L.last, decimalplaces) %]<br><hr noshade size="2"</td>
@@ -76,7 +77,7 @@
 [% END %]
 
   <tr>
-    <th align="left" colspan="4"><translate>EQUITY</translate><br><hr align="left" width="250" size="5" noshade></th>
+    <th align="left" colspan="4">[% 'EQUITY' | $T8 %]<br><hr align="left" width="250" size="5" noshade></th>
   </tr>
 
   [% FOREACH row = Q %]
@@ -99,7 +100,7 @@
 
   <tr valign="top">
     <td></td>
-    <th align="left"><translate>TOTAL</translate></th>
+    <th align="left">[% 'TOTAL' | $T8 %]</th>
     <td align="right">[% LxERP.format_amount(total.Q.this, decimalplaces) %]<br><hr noshade size="2"</td>
     [%- IF last_period %]
     <td align="right">[% LxERP.format_amount(total.Q.last, decimalplaces) %]<br><hr noshade size="2"</td>
@@ -108,7 +109,7 @@
 [% END %]
 
   <tr valign="top">
-    <th align="left" colspan="2"><translate>TOTAL</translate> <translate>LIABILITIES</translate> &amp; <translate>EQUITY</translate></th>
+    <th align="left" colspan="2">[% 'TOTAL' | $T8 %] [% 'LIABILITIES' | $T8 %] &amp; [% 'EQUITY' | $T8 %]</th>
     <td align="right">[% LxERP.format_amount(total.this, decimalplaces) %]<br><hr noshade size="2"></td>
     [%- IF last_period %]
     <td align="right">[% LxERP.format_amount(total.last, decimalplaces) %]<br><hr noshade size="2"></td>

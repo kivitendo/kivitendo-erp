@@ -1,18 +1,15 @@
+[%- USE T8 %]
 <body>
 
- <p><b><translate>Error!</translate></b></p>
+ <p><b>[% 'Error!' | $T8 %]</b></p>
 
- <p><translate>The authentication database is not reachable at the
-   moment. Either it hasn't been set up yet or the database server might
-   be down. Please contact your administrator.</translate></p>
+ <p>[% 'The authentication database is not reachable at the moment. Either it hasn't been set up yet or the database server might be down. Please contact your administrator.' | $T8 %]</p>
 
- <p><translate>If you want to set up the authentication database
-   yourself then log in to the administration panel. Lx-Office will
-   then create the database and tables for you.</translate></p>
+ <p>[% 'If you want to set up the authentication database yourself then log in to the administration panel. Lx-Office will then create the database and tables for you.' | $T8 %]</p>
 
  <p>
-  <a href="login.pl" target="_top"><translate>Login</translate></a> |
-  <a href="admin.pl" target="_top"><translate>Administration</translate></a>
+  <a href="login.pl" target="_top">[% 'Login' | $T8 %]</a> |
+  <a href="admin.pl" target="_top">[% 'Administration' | $T8 %]</a>
  </p>
 
 </body>

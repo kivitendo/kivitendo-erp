@@ -1,14 +1,15 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
-<h1><translate>Generic Tax Report</translate></h1>
-<p><translate>Taxnumber</translate>: [% taxnumber %]</p>
-<p><translate>Year</translate>: [% year %]</p>
-<p><translate>Period</translate>: [% period %]</p>
+<h1>[% 'Generic Tax Report' | $T8 %]</h1>
+<p>[% 'Taxnumber' | $T8 %]: [% taxnumber %]</p>
+<p>[% 'Year' | $T8 %]: [% year %]</p>
+<p>[% 'Period' | $T8 %]: [% period %]</p>
 <br />
 <table width="33%">
   <tr>
-    <th><translate>Tax Position</translate></th>
-    <th><translate>Amount</translate></th>
+    <th>[% 'Tax Position' | $T8 %]</th>
+    <th>[% 'Amount' | $T8 %]</th>
   </tr>
 [% FOREACH row = USTVA %]
   <tr class="listrow[% loop.count % 2 %]">

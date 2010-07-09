@@ -1,20 +1,17 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
  <p>
-  <translate>There is at least one sales or purchase invoice for which
-   Lx-Office recorded an inventory transaction with taxkeys even
-   though no tax was recorded.</translate>
+  [% 'There is at least one sales or purchase invoice for which Lx-Office recorded an inventory transaction with taxkeys even though no tax was recorded.' | $T8 %]
  </p>
 
  <p>
-  <translate>Lx-Office can fix these problems automatically.</translate>
+  [% 'Lx-Office can fix these problems automatically.' | $T8 %]
 
-  <translate>It will simply set the taxkey to 0 (meaning "no taxes")
-   which is the correct value for such inventory
-   transactions.</translate>
+  [% 'It will simply set the taxkey to 0 (meaning "no taxes") which is the correct value for such inventory transactions.' | $T8 %]
  </p>
 
  <form name="Form" action="acctranscorrections.pl" method="post">
@@ -22,8 +19,8 @@
   <p>
    <input type="hidden" name="action" value="fix_invoice_inventory_with_taxkeys">
    <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-   <input type="submit" class="submit" value="<translate>Fix transactions</translate>">
-   <input type="button" class="submit" onclick="history.back()" value="<translate>Back</translate>">
+   <input type="submit" class="submit" value="[% 'Fix transactions' | $T8 %]">
+   <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
   </p>
  </form>
 

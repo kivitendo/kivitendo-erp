@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="login" onLoad="document.loginscreen.login.focus()">
 
  <center>
@@ -5,7 +6,7 @@
    <tr>
     <td class="login" align="center">
      <a href="http://www.lx-office.org" target="_top"><img src="image/lx-office-erp.png" border="0"></a>
-     <h1 class="login" align="center"><translate>Version</translate> [% version %]</h1>
+     <h1 class="login" align="center">[% 'Version' | $T8 %] [% version %]</h1>
 
      [% IF error_message %]
      <p><span class="error_message">[% error_message %]</span></p>
@@ -22,17 +23,17 @@
          <td align="center">
           <table>
            <tr>
-            <th align="right"><translate>Login Name</translate></th>
+            <th align="right">[% 'Login Name' | $T8 %]</th>
             <td><input class="login" name="login" size="30" tabindex="1"></td>
            </tr>
            <tr>
-            <th align="right"><translate>Password</translate></th>
+            <th align="right">[% 'Password' | $T8 %]</th>
             <td><input class="login" type="password" name="password" size="30" tabindex="2"></td>
            </tr>
           </table>
 
           <br>
-          <input type="submit" name="action" value="<translate>Login</translate>" tabindex="3">
+          <input type="submit" name="action" value="[% 'Login' | $T8 %]" tabindex="3">
 
          </td>
         </tr>

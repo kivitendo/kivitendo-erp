@@ -1,10 +1,11 @@
-[% USE HTML %]<p><translate>...done</translate></p>
+[%- USE T8 %]
+[% USE HTML %]<p>[% '...done' | $T8 %]</p>
 
 <form action="[% menufile %]">
 
  <input type="hidden" name="action" value="display">
 
- <p><input type="submit" value="<translate>Continue</translate>"></p>
+ <p><input type="submit" value="[% 'Continue' | $T8 %]"></p>
 </form>
 
 </body>

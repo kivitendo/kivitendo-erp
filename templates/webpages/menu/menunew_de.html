@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body style="padding:0px; margin:0px;">
 
  <script type="text/javascript">
@@ -19,13 +20,13 @@ window.onload=clockon
   <tr>
    <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;">
     &nbsp;
-    [<a href="menuv3.pl?action=display" target="_blank">neues Fenster</a>]
+    [<a href="menuv3.pl?action=display" target="_blank">[% 'new Window' | $T8 %]</a>]
     &nbsp;
-    [<a href="JavaScript:top.main_window.print()">drucken</a>]
+    [<a href="JavaScript:top.main_window.print()">[% 'print' | $T8 %]</a>]
    </td>
    <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
-    [Benutzer: [% HTML.escape(login) %] -
-    <a href="login.pl?action=logout" target="_top">abmelden</a>]
+    [[% 'User' | $T8 %]: [% HTML.escape(login) %] -
+    <a href="login.pl?action=logout" target="_top">[% 'logout' | $T8 %]</a>]
     [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
    </td>
   </tr>
@@ -96,7 +97,7 @@ function open_url(url, target) {
  </script>
 
  <iframe id="win1" src="[% callback %]" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
-  <p>Ihr Browser kann leider keine eingebetteten Frames anzeigen. Bitte w&auml;hlen Sie ein anderes Men&uuml; in der Benutzerkonfiguration im Administrationsmen&uuml; aus.</p>
+  <p>[% 'MSG_BROWSER_DOES_NOT_SUPPORT_IFRAMES' | $T8 %]</p>
  </iframe>
 </body>
 </html>

@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <p>
@@ -16,15 +17,15 @@
 
    <tr>
     <th class="listheading">&nbsp;</th>
-    <th class="listheading">männlich</th>
-    <th class="listheading">weiblich</th>
+    <th class="listheading">[% 'male' | $T8 %]</th>
+    <th class="listheading">[% 'female' | $T8 %]</th>
    </tr>
 
    [%- FOREACH language = LANGUAGES %]
    <tr>
     <td>
      [%- IF language.id == 'default' %]
-     Standard (keine Sprache ausgewählt)
+     [% 'Default (no language selected)' | $T8 %]
      [%- ELSE %]
      [%- HTML.escape(language.description) %]
      [%- END %]
@@ -38,7 +39,7 @@
 
   <p>
    <input type="hidden" name="action" value="save_greetings">
-   <input type="submit" class="submit" value="Speichern">
+   <input type="submit" class="submit" value="[% 'Save' | $T8 %]">
   </p>
 
  </form>

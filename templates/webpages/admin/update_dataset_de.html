@@ -1,24 +1,25 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin">
 
  <h2>[% title %]</h2>
 
  [% IF ALL_UPDATED %]
-  Alle Datenbanken sind auf aktuellem Stand.
+  [% 'All Datasets up to date!' | $T8 %]
 
   [% ELSE %]
 
   <form method="post" action="admin.pl">
 
-   <p>Folgende Datenbanken müssen aktualisiert werden:</p>
+   <p>[% 'The following Datasets need to be updated' | $T8 %]:</p>
 
    <table>
     <tr>
-     <th class="listtop">Aktualisieren?</th>
-     <th class="listtop">Datenbank</th>
-     <th class="listtop">Treiber</th>
-     <th class="listtop">Datenbankcomputer</th>
-     <th class="listtop">Port</th>
-     <th class="listtop">Benutzer</th>
+     <th class="listtop">[% 'Update?' | $T8 %]</th>
+     <th class="listtop">[% 'Dataset' | $T8 %]</th>
+     <th class="listtop">[% 'Driver' | $T8 %]</th>
+     <th class="listtop">[% 'Host' | $T8 %]</th>
+     <th class="listtop">[% 'Port' | $T8 %]</th>
+     <th class="listtop">[% 'User' | $T8 %]</th>
     </tr>
 
     [% FOREACH row = NEED_UPDATES %]
@@ -46,7 +47,7 @@
 
    <br>
 
-   <input type="submit" class="submit" name="action" value="Weiter">
+   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
 
   </form>
 

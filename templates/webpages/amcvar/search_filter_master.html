@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]
 
    [%- FOREACH var = variables %]
@@ -9,15 +10,15 @@
      [%- IF var.type == 'bool' %]
      <select name="cvar_[% HTML.escape(var.name) %]">
       <option value="">---</option>
-      <option value="yes"><translate>Yes</translate></option>
-      <option value="no"><translate>No</translate></option>
+      <option value="yes">[% 'Yes' | $T8 %]</option>
+      <option value="no">[% 'No' | $T8 %]</option>
      </select>
 
      [%- ELSIF var.type == 'date' %]
-     <translate>from (time)</translate>
+     [% 'from (time)' | $T8 %]
      <input name="cvar_[% HTML.escape(var.name) %]_from" id="cvar_[% HTML.escape(var.name) %]_from" size="12">
      <input type="button" name="cvar_[% HTML.escape(var.name) %]_from_button" id="cvar_[% HTML.escape(var.name) %]_from_trigger" value="?">
-     <translate>to (time)</translate>
+     [% 'to (time)' | $T8 %]
      <input name="cvar_[% HTML.escape(var.name) %]_to" id="cvar_[% HTML.escape(var.name) %]_to" size="12">
      <input type="button" name="cvar_[% HTML.escape(var.name) %]_to_button" id="cvar_[% HTML.escape(var.name) %]_to_trigger" value="?">
 
@@ -62,7 +63,7 @@
    [%- END %]
    [%- END %]
 [% IF hidden_cvar_filters %]
-   <tr><td></td><td colspan="3"><a href="#" id="cvar_filter-toggle"><i><translate>click here to edit cvars</translate></i></a></td></tr>
+   <tr><td></td><td colspan="3"><a href="#" id="cvar_filter-toggle"><i>[% 'click here to edit cvars' | $T8 %]</i></a></td></tr>
    <script type='text/javascript'>
      $('#cvar_filter-toggle').click(function() { $('[id^="cvar_filter"]').toggle(); $('[id^="l_cvartd_"]').toggle(); });
      $(document).ready(function(){ $('[id^="cvar_filter_"]').hide(); $('[id^="l_cvartd_"]').hide(); });

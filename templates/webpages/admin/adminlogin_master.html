@@ -1,12 +1,13 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin" onload="document.getElementById('rpw').focus()">
 
  <div align="center">
 
   <a href="http://www.lx-office.org"><img src="image/lx-office-erp.png" border="0"></a>
 
-  <h1 class="login"><translate>Version</translate> [% HTML.escape(version) %]</h1>
+  <h1 class="login">[% 'Version' | $T8 %] [% HTML.escape(version) %]</h1>
 
-  <h2><translate>Administration</translate></h2>
+  <h2>[% 'Administration' | $T8 %]</h2>
 
   [% IF error_message %]
   <p><span class="error_message">[% error_message %]</span></p>
@@ -16,16 +17,16 @@
 
    <table>
     <tr>
-     <th><translate>Password</translate></th>
+     <th>[% 'Password' | $T8 %]</th>
      <td><input type="password" name="rpw" id="rpw"></td>
-     <td><input type="submit" class="submit" name="action" value="<translate>Login</translate>"></td>
+     <td><input type="submit" class="submit" name="action" value="[% 'Login' | $T8 %]"></td>
     </tr>
     <input type="hidden" name="action" value="login">
    </table>
 
   </form>
 
-  <p><a href="http://www.lx-office.org/"><translate>Lx-Office website</translate></a></p>
+  <p><a href="http://www.lx-office.org/">[% 'Lx-Office website' | $T8 %]</a></p>
 
  </div>
 

@@ -1,6 +1,9 @@
-[% USE HTML %]<p>Die Datenbankaktualisierung/erstellung schlug fehl. Die Datei [% HTML.escape(file) %] enthielt den folgenden Fehler:
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+<p>[% LxERP.t8('The database update/creation did not succeed. The file #1 contained the following error:', file) | html %]
  <br>
  [% error %]
  <br>
- Alle &Auml;nderungen in dieser Datei wurden r&uuml;ckg&auml;ngig gemacht.
+ [% 'All changes in that file have been reverted.' | $T8 %]
 </p>

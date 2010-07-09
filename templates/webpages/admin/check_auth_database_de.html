@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
@@ -5,46 +6,46 @@
  <form method="post" action="admin.pl">
 
   <p>
-   Die Datenbank zur Verwaltung der Benutzerdaten und zur Authentifizierung existiert nicht. Sie k&ouml;nnen Lx-Office diese Datenbank mit den folgenden Parametern anlegen lassen:
+   [% 'The database for user management and authentication does not exist. You can create let Lx-Office create it with the following parameters:' | $T8 %]
   </p>
 
   <table border="0">
    <tr>
-    <td>Datenbankcomputer:</td>
+    <td>[% 'Host' | $T8 %]:</td>
     <td>[% HTML.escape(db_host) %]</td>
    </tr>
    <tr>
-    <td>Port:</td>
+    <td>[% 'Port' | $T8 %]:</td>
     <td>[% HTML.escape(db_port) %]</td>
    </tr>
    <tr>
-    <td>Benutzername:</td>
+    <td>[% 'User name' | $T8 %]:</td>
     <td>[% HTML.escape(db_user) %]</td>
    </tr>
    <tr>
-    <td>Datenbankname:</td>
+    <td>[% 'Database name' | $T8 %]:</td>
     <td>[% HTML.escape(db_db) %]</td>
    </tr>
   </table>
 
   <p>
-   Bitte geben Sie den Namen der Datenbank an, die als Vorlage f&uuml;r die neue Datenbank benutzt wird:
+   [% 'Please enter the name of the database that will be used as the template for the new database:' | $T8 %]
   </p>
 
-  <p>Datenbankvorlage: <input name="db_template" value="template1"></p>
+  <p>[% 'Template database' | $T8 %]: <input name="db_template" value="template1"></p>
 
   <p>
-   Falls der oben genannte Datenbankbenutzer nicht die Berechtigung zum Anlegen neuer Datenbanken hat, so k&ouml;nnen Sie hier den Namen und das Passwort des Datenbankadministratoraccounts angeben:
+   [% 'If the database user listed above does not have the right to create a database then enter the name and password of the superuser below:' | $T8 %]
   </p>
 
   <table border="0"
    <tr>
-    <td>Datenbankadministrator:</td>
+    <td>[% 'Superuser name' | $T8 %]:</td>
     <td><input name="db_superuser"></td>
    </tr>
 
    <tr>
-    <td>Passwort:</td>
+    <td>[% 'Password' | $T8 %]:</td>
     <td><input type="password" name="db_superuser_password"></td>
    </tr>
   </table>
@@ -52,8 +53,8 @@
   <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
   <input type="hidden" name="action" value="create_auth_db">
 
-  <input type="submit" class="submit" value="Datenbank anlegen">
-  <input type="button" class="submit" onclick="history.back()" value="Zurück">
+  <input type="submit" class="submit" value="[% 'Create Dataset' | $T8 %]">
+  <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
 
  </form>
 

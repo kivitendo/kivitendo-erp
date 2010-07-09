@@ -1,16 +1,17 @@
+[%- USE T8 %]
 [% USE HTML %]  <body>
 
-    <h4 class="error">Dieser Artikel ist nicht in der Datenbank!
+    <h4 class="error">[% 'Item not on file!' | $T8 %]
 
 
-    <p>Was ist dieser Artikel?</h4>
+    <p>[% 'What type of item is this?' | $T8 %]</h4>
 
     <form method="post" action="ic.pl">
 
       <p>
 
-      <input class="radio" type="radio" name="item" value="part" checked>&nbsp;Ware<br>
-      <input class="radio" type="radio" name="item" value="service">&nbsp;Dienstleistung
+      <input class="radio" type="radio" name="item" value="part" checked>&nbsp;[% 'Part' | $T8 %]<br>
+      <input class="radio" type="radio" name="item" value="service">&nbsp;[% 'Service' | $T8 %]
       <p>
 
       [%- FOREACH var = HIDDENS %]
@@ -18,7 +19,7 @@
       [%- END %]
 
       <input type="hidden" name="nextsub" value="add">
-      <input class="submit" type="submit" name="action" value="Weiter">
+      <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
     </form>
 
   </body>

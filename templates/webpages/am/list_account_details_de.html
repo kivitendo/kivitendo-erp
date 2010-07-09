@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %] [% FOREACH row = CA %]
 <table width="100%">
 
@@ -22,15 +23,15 @@
  </tr>
 
  <tr class="coa_listrow[% loop.count % 2 %]">
-  <td colspan="5" class="coa_details_header">Steuerautomatik</td>
+  <td colspan="5" class="coa_details_header">[% 'Taxlink_coa' | $T8 %]</td>
  </tr>
 
  <tr class="coa_listrow[% loop.count % 2 %]">
-  <td class="coa_details_header2">Steuerschlüssel</td>
-  <td class="coa_details_header2">Automatikkonto</td>
-  <td class="coa_details_header2">Steuer</td>
-  <td class="coa_details_header2">USTVA Kennz.</td>
-  <td class="coa_details_header2">Gültig ab</td>
+  <td class="coa_details_header2">[% 'Taxkey_coa' | $T8 %]</td>
+  <td class="coa_details_header2">[% 'Taxaccount_coa' | $T8 %]</td>
+  <td class="coa_details_header2">[% 'Taxdescription_coa' | $T8 %]</td>
+  <td class="coa_details_header2">[% 'Posustva_coa' | $T8 %]</td>
+  <td class="coa_details_header2">[% 'Startdate_coa' | $T8 %]</td>
  </tr>
 
  <tr class="coa_listrow[% loop.count % 2 %]">
@@ -42,21 +43,21 @@
  </tr>
 
  <tr class="coa_listrow[% loop.count % 2 %]">
-  <td colspan="5" class="coa_details_header">Berichte</td>
+  <td colspan="5" class="coa_details_header">[% 'Report Positions' | $T8 %]</td>
  </tr>
 
  <tr class="coa_listrow[% loop.count % 2 %]">
-  <td class="coa_details_header2">BWA</td>
-  <td class="coa_details_header2">Bilanz</td>
-  <td class="coa_details_header2">E/ÜR</td>
-  <td colspan="2" class="coa_details_header2">Datevexport</td>
+  <td class="coa_details_header2">[% 'pos_bwa' | $T8 %]</td>
+  <td class="coa_details_header2">[% 'pos_bilanz' | $T8 %]</td>
+  <td class="coa_details_header2">[% 'pos_eur' | $T8 %]</td>
+  <td colspan="2" class="coa_details_header2">[% 'Datevautomatik' | $T8 %]</td>
  </tr>
 
  <tr class="coa_listrow[% loop.count % 2 %]">
   <td class="coa_detail_emph">[% IF row.pos_bwa    %][% HTML.escape(row.pos_bwa)    %][% ELSE %]-[% END %]</td>
   <td class="coa_detail_emph">[% IF row.pos_bilanz %][% HTML.escape(row.pos_bilanz) %][% ELSE %]-[% END %]</td>
   <td class="coa_detail_emph">[% IF row.pos_eur    %][% HTML.escape(row.pos_eur)    %][% ELSE %]-[% END %]</td>
-  <td colspan="2" class="coa_detail_emph">[% IF row.datevautomatik %]An[% ELSE %]Aus[% END %]</td>
+  <td colspan="2" class="coa_detail_emph">[% IF row.datevautomatik %][% 'On' | $T8 %][% ELSE %][% 'Off' | $T8 %][% END %]</td>
  </tr>
 </table>
 

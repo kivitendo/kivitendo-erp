@@ -1,16 +1,17 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
 
  [%- IF connection_ok %]
 
- <p>Die Verbindung zur Datenbank wurde erfolgreich hergestellt.</p>
+ <p>[% 'The connection was established successfully.' | $T8 %]</p>
 
  [%- ELSE %]
 
  <p>
-  Die Verbindung zur Datenbank konnte nicht hergestellt werden.
-  Fehlermeldung des Datenbanktreibers:
+  [% 'The connection to the database could not be established.' | $T8 %]
+  [% 'Error message from the database driver:' | $T8 %]
  </p>
 
  <p>[% HTML.escape(errstr) %]</p>
@@ -19,7 +20,7 @@
 
  <p>
   <form>
-   <input type="button" class="submit" onclick="window.close()" value="Fenster Schlie&szlig;en">
+   <input type="button" class="submit" onclick="window.close()" value="[% 'Close Window' | $T8 %]">
   </form>
  </p>
 

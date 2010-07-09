@@ -1,12 +1,13 @@
-[% USE HTML %]<div class="listtop">Update SKR04: neues Steuerkonto 3804 (19%) für innergemeinschaftlichen Erwerb</div>
+[%- USE T8 %]
+[% USE HTML %]<div class="listtop">[% 'Update SKR04: new tax account 3804 (19%)' | $T8 %]</div>
 
 <form action="[% script %]" method="POST">
 
-<p>Das Konto 3803 wurde nach dem 01.01.2007 bebucht. Falls Sie dieses Konto nicht manuell auf 19% gestellt haben sind die Buchungen wahrscheinlich mit falscher Umsatzsteuer gebucht worden.</p>
-<p>Das Konto 3804 wird nicht automatisch hinzugefügt.</p>
-<p>Bitte lesen Sie die Dateidoc/skr04-update-3804/skr04_3804_hinzufuegen.html</p>
+<p>[% 'There are bookings to the account 3803 after 01.01.2007. If you didn't change this account manually to 19% the bookings are probably incorrect.' | $T8 %]</p>
+<p>[% 'The account 3804 will not be added automatically.' | $T8 %]</p>
+<p>[% 'Please read the file' | $T8 %]doc/skr04-update-3804/skr04_3804_hinzufuegen.html</p>
 
 <input type="hidden" name="bookings_exist" value="1">
-<input type="submit" value="Weiter">
+<input type="submit" value="[% 'Continue' | $T8 %]">
 
 

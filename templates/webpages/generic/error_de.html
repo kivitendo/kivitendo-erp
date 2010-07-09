@@ -1,13 +1,14 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
- <div class="listtop">[% IF title_error %][% title_error %][% ELSE %]Fehler![% END %]</div>
+ <div class="listtop">[% IF title_error %][% title_error %][% ELSE %][% 'Error!' | $T8 %][% END %]</div>
 
  <p>[% label_error %]</p>
 
  [%- IF SHOW_BACK_BUTTON %]
  <form>
   <p>
-   <input type="button" onclick="history.back()" value="Zurück">
+   <input type="button" onclick="history.back()" value="[% 'Back' | $T8 %]">
   </p>
  </form>
 

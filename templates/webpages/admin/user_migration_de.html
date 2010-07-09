@@ -1,3 +1,5 @@
+[%- USE T8 %]
+[%- USE LxERP %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
@@ -5,18 +7,18 @@
  <form method="post" action="admin.pl">
 
   <p>
-   Die alte Datei mit den Benutzerdaten existiert in dieser Installation noch immer (&quot;[% HTML.escape(memberfile) %]&quot;). Wollen Sie diese Benutzer in die neue Authentifizierungsdatenbank migrieren lassen? Falls nicht, so werden Sie sich nicht mehr mit den Benutzerdaten aus der alten Mitgliedsdatei anmelden k&ouml;nnen.
+   [% LxERP.t8('The old file containing the user information is still present (&quot;#1&quot;). Do you want to migrate these users into the database? If not then you will not be able to log in with any of the users present in the old file.', memberfile) | html %]
   </p>
 
   <p>
-   Falls Sie sich entscheiden, Lx-Office die Migration durchf&uuml;hren zu lassen, so wird Lx-Office ein Backup der alten Dateien im Verzeichnis &quot;[% HTML.escape(backupdir) %]&quot; erstellen und die Dateien anschlie&szlig;end l&ouml;schen.
+   [% LxERP.t8('If you chose to let Lx-Office do the migration then Lx-Office will also remove the old member file after creating a backup copy of it in the directory &quot;#1&quot;.', backupdir) | html %]
   </p>
 
   <input type="hidden" name="yes_nextsub" value="migrate_users">
   <input type="hidden" name="no_nextsub" value="list_users">
 
-  <input type="submit" class="submit" name="action" value="Ja">
-  <input type="submit" class="submit" name="action" value="Nein">
+  <input type="submit" class="submit" name="action" value="[% 'Yes' | $T8 %]">
+  <input type="submit" class="submit" name="action" value="[% 'No' | $T8 %]">
 
  </form>
 

@@ -1,16 +1,17 @@
+[%- USE T8 %]
 <hr>
 
-<div class="listtop">Einf&uuml;hrung von Einheiten</div>
+<div class="listtop">[% 'Introduction of units' | $T8 %]</div>
 
 <p>
- Vor Lx-Office 2.4.0 konnte der Benutzer bei Artikeln, Dienstleistungen und Rechnungen, Angeboten etc beliebige Einheiten angeben.
- In Lx-Office 2.4.0 muss der Administrator in den Systemeinstellungen eine Liste von verwendbaren Einheiten angeben.
- Diese Einheiten k&ouml;nnen auf anderen Einheiten basieren, sodass Lx-Office Preise umrechnen kann, wenn der Benutzer von einer Einheit zu einer anderen Wechselt.
+ [% 'Prior to Lx-Office v2.4.0 the user could enter arbitrary strings as units for parts, services and in invoices, sales quotations etc.' | $T8 %]
+ [% 'In Lx-Office 2.4.0 the administrator has to enter a list of units in the administrative section.' | $T8 %]
+ [% 'These units can be based on other units so that Lx-Office can convert prices when the user switches from one unit to another.' | $T8 %]
 </p>
 
 <p>
- Dieses Update-Script versucht, alle bestehenden Einheiten automatisch in die neuen Einheiten umzuwandeln.
- Das ist f&uuml;r einige Einheiten automatisch m&ouml;glich, aber bei anderen muss der Benutzer die neue Einheit ausw&auml;hlen.
- Sie k&ouml;nnen nicht fortfahren, bis alle unbekannten Einheiten in neue Einheiten umgewandelt wurden.
- Sie k&ouml;nnen jetzt auch neue Einheiten anlegen.
+ [% 'This upgrade script tries to map all existing units in the database to the newly created units.' | $T8 %]
+ [% 'It is possible to do this automatically for some units, but for others the user has to chose the new unit.' | $T8 %]
+ [% 'You cannot continue until all unknown units have been mapped to known ones.' | $T8 %]
+ [% 'You can also create new units now.' | $T8 %]
 </p>

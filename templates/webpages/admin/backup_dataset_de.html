@@ -1,9 +1,10 @@
+[%- USE T8 %]
 [% USE HTML %]<body class="admin" onload="set_subject(); document.getElementsByName('to')[0].focus(); ">
 
  <script type="text/javascript">
   <!--
       function set_subject() {
-        var subject_template = "Sicherung der Datenbank";
+        var subject_template = "[% 'Backup of dataset' | $T8 %]";
         var subject = document.Form.subject.value;
 
         if ((subject == "") || (subject.substr(0, subject_template.length) == subject_template)) {
@@ -16,7 +17,7 @@
  <h2>[% title %]</h2>
 
  [% IF NO_DATABSES %]
-  Auf diesem Server wurden keine Datenbanken gefunden.
+  [% 'No databases have been found on this server.' | $T8 %]
 
   [% ELSE %]
 
@@ -29,44 +30,44 @@
    <input type="hidden" name="dbpasswd" value="[% HTML.escape(dbpasswd) %]">
 
    <p>
-    Bitte w&auml;hlen Sie die zu sichernde Datenbank gefunden:
+    [% 'Please select the database you want to backup' | $T8 %]:
     <select name="dbname" onchange="set_subject()">[% FOREACH row = DATABASES %]<option>[% HTML.escape(row.dbname) %]</option>[% END %]</select>
    </p>
 
    <table>
     <tr>
      <td valign="top"><input type="radio" name="destination" id="destination_download" value="download" checked></td>
-     <td valign="top"><label for="destination_download">Die Sicherungsdatei herunterladen</label></td>
+     <td valign="top"><label for="destination_download">[% 'Download the backup' | $T8 %]</label></td>
     </tr>
 
     <tr>
      <td valign="top"><input type="radio" name="destination" id="destination_email" value="email"></td>
      <td valign="top">
-      <label for="destination_email">Die Sicherungsdatei per Email verschicken</label><br>
+      <label for="destination_email">[% 'Send the backup via Email' | $T8 %]</label><br>
 
       <table>
        <tr>
-        <td valign="top" align="right">Von</td>
+        <td valign="top" align="right">[% 'From' | $T8 %]</td>
         <td valign="top"><input name="from" size="40" value="[% HTML.escape(from) %]"></td>
        </tr>
 
        <tr>
-        <td valign="top" align="right">An</td>
+        <td valign="top" align="right">[% 'To' | $T8 %]</td>
         <td valign="top"><input name="to" size="40"></td>
        </tr>
 
        <tr>
-        <td valign="top" align="right">Cc</td>
+        <td valign="top" align="right">[% 'Cc' | $T8 %]</td>
         <td valign="top"><input name="cc" size="40"></td>
        </tr>
 
        <tr>
-        <td valign="top" align="right">Betreff</td>
+        <td valign="top" align="right">[% 'Subject' | $T8 %]</td>
         <td valign="top"><input name="subject" size="40"></td>
        </tr>
 
        <tr>
-        <td valign="top" align="right">Nachricht</td>
+        <td valign="top" align="right">[% 'Message' | $T8 %]</td>
         <td valign="top"><textarea name="message" cols="40" rows="10"></textarea></td>
        </tr>
 
@@ -85,8 +86,8 @@
 
    <br>
 
-   <input type="submit" class="submit" name="action" value="Weiter">
-   <input type="submit" class="submit" name="action" value="Zurück">
+   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
+   <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
 
   </form>
 

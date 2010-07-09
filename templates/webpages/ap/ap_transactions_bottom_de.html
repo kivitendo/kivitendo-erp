@@ -1,11 +1,12 @@
+[%- USE T8 %]
 [% USE HTML %] <form method="post" action="ap.pl">
 
   <input name="callback" type="hidden" value="[% callback %]">
 
-  Neu erfassen<br>
+  [% 'Create new' | $T8 %]<br>
 
-  <input class="submit" type="submit" name="action" value="Kreditorenbuchung">
-  <input class="submit" type="submit" name="action" value="Einkaufsrechnung">
+  <input class="submit" type="submit" name="action" value="[% 'AP Transaction' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Vendor Invoice' | $T8 %]">
 
  </form>
 

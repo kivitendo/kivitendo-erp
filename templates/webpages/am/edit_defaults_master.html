@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %]<body>
 
  <div class="listtop">[% title %]</div>
@@ -9,60 +10,60 @@
   <p>
    <table>
     <tr class="listheading">
-     <th colspan="4"><translate>Ranges of numbers</translate></th>
+     <th colspan="4">[% 'Ranges of numbers' | $T8 %]</th>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Last Invoice Number</translate></th>
+     <th align="right" nowrap>[% 'Last Invoice Number' | $T8 %]</th>
      <td><input name="invnumber" size="10" value="[% HTML.escape(defaults_invnumber) %]"></td>
-     <th align="right" nowrap><translate>Last Customer Number</translate></th>
+     <th align="right" nowrap>[% 'Last Customer Number' | $T8 %]</th>
      <td><input name="customernumber" size="10" value="[% HTML.escape(defaults_customernumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Last Credit Note Number</translate></th>
+     <th align="right" nowrap>[% 'Last Credit Note Number' | $T8 %]</th>
      <td><input name="cnnumber" size="10" value="[% HTML.escape(defaults_cnnumber) %]"></td>
-     <th align="right" nowrap><translate>Last Vendor Number</translate></th>
+     <th align="right" nowrap>[% 'Last Vendor Number' | $T8 %]</th>
      <td><input name="vendornumber" size="10" value="[% HTML.escape(defaults_vendornumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Last Sales Order Number</translate></th>
+     <th align="right" nowrap>[% 'Last Sales Order Number' | $T8 %]</th>
      <td><input name="sonumber" size="10" value="[% HTML.escape(defaults_sonumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Last Purchase Order Number</translate></th>
+     <th align="right" nowrap>[% 'Last Purchase Order Number' | $T8 %]</th>
      <td><input name="ponumber" size="10" value="[% HTML.escape(defaults_ponumber) %]"></td>
-     <th align="right" nowrap><translate>Last Article Number</translate></th>
+     <th align="right" nowrap>[% 'Last Article Number' | $T8 %]</th>
      <td><input name="articlenumber" size="10" value="[% HTML.escape(defaults_articlenumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Last Sales Quotation Number</translate></th>
+     <th align="right" nowrap>[% 'Last Sales Quotation Number' | $T8 %]</th>
      <td><input name="sqnumber" size="10" value="[% HTML.escape(defaults_sqnumber) %]"></td>
-     <th align="right" nowrap><translate>Last Service Number</translate></th>
+     <th align="right" nowrap>[% 'Last Service Number' | $T8 %]</th>
      <td><input name="servicenumber" size="10" value="[% HTML.escape(defaults_servicenumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Last RFQ Number</translate></th>
+     <th align="right" nowrap>[% 'Last RFQ Number' | $T8 %]</th>
      <td><input name="rfqnumber" size="10" value="[% HTML.escape(defaults_rfqnumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Last Sales Delivery Order Number</translate></th>
+     <th align="right" nowrap>[% 'Last Sales Delivery Order Number' | $T8 %]</th>
      <td><input name="sdonumber" size="10" value="[% HTML.escape(defaults_sdonumber) %]"></td>
-     <th align="right" nowrap><translate>Last Purchase Delivery Order Number</translate></th>
+     <th align="right" nowrap>[% 'Last Purchase Delivery Order Number' | $T8 %]</th>
      <td><input name="pdonumber" size="10" value="[% HTML.escape(defaults_pdonumber) %]"></td>
     </tr>
 
     <tr class="listheading">
-     <th colspan="4"><translate>Default Accounts</translate></th>
+     <th colspan="4">[% 'Default Accounts' | $T8 %]</th>
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Inventory Account</translate></th>
+     <th align="right" nowrap>[% 'Inventory Account' | $T8 %]</th>
      <td colspan="3">
       <select name="inventory_accno">
        [%- FOREACH row = ACCNOS_IC %]
@@ -73,7 +74,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Revenue Account</translate></th>
+     <th align="right" nowrap>[% 'Revenue Account' | $T8 %]</th>
      <td colspan="3">
       <select name="income_accno">
        [%- FOREACH row = ACCNOS_IC_INCOME %]
@@ -84,7 +85,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Expense Account</translate></th>
+     <th align="right" nowrap>[% 'Expense Account' | $T8 %]</th>
      <td colspan="3">
       <select name="expense_accno">
        [%- FOREACH row = ACCNOS_IC_EXPENSE %]
@@ -95,7 +96,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Foreign Exchange Gain</translate></th>
+     <th align="right" nowrap>[% 'Foreign Exchange Gain' | $T8 %]</th>
      <td colspan="3">
       <select name="fxgain_accno">
        [%- FOREACH row = ACCNOS_FX_GAIN %]
@@ -106,7 +107,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap><translate>Foreign Exchange Loss</translate></th>
+     <th align="right" nowrap>[% 'Foreign Exchange Loss' | $T8 %]</th>
      <td colspan="3">
       <select name="fxloss_accno">
        [%- FOREACH row = ACCNOS_FX_LOSS %]
@@ -117,26 +118,26 @@
     </tr>
 
     <tr class="listheading">
-     <th colspan="4"><translate>Miscellaneous</translate></th>
+     <th colspan="4">[% 'Miscellaneous' | $T8 %]</th>
     </tr>
 
     <tr>
-     <th align="right"><translate>Business Number</translate></th>
+     <th align="right">[% 'Business Number' | $T8 %]</th>
      <td colspan="3"><input name="businessnumber" size="25" value="[% HTML.escape(defaults_businessnumber) %]"></td>
     </tr>
 
     <tr>
-     <th align="right"><translate>Year End</translate> (mm/dd)</th>
+     <th align="right">[% 'Year End' | $T8 %] (mm/dd)</th>
      <td colspan="3"><input name="yearend" size="5" value="[% HTML.escape(defaults_yearend) %]"></td>
     </tr>
 
     <tr>
-     <th align="right"><translate>Currencies</translate> <sup>(1)</sup></th>
+     <th align="right">[% 'Currencies' | $T8 %] <sup>(1)</sup></th>
      <td colspan="3"><input name="curr" size="20" value="[% HTML.escape(defaults_curr) %]"></td>
     </tr>
 
     <tr>
-     <th align="right"><translate>Weight unit</translate></th>
+     <th align="right">[% 'Weight unit' | $T8 %]</th>
  <!--    <td colspan="3"><input name="weightunit" size="20" maxlength="5" value="[% HTML.escape(defaults_weightunit) %]"></td> -->
      <td>
       [%- INCLUDE 'generic/multibox.html'
@@ -155,12 +156,12 @@
 
   <hr height="3" noshade>
 
-  <p><input type="submit" class="submit" name="action" value="<translate>Save</translate>"></p>
+  <p><input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]"></p>
 
   <hr height="3" noshade>
 
   <p>
-   (1) <translate>Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies</translate>
+   (1) [% 'Enter up to 3 letters separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies' | $T8 %]
   </p>
  </form>
 

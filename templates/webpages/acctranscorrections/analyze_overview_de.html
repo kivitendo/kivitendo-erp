@@ -1,30 +1,31 @@
+[%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
- <p>Lx-Office hat ein oder mehrere Probleme im Hauptbuch gefunden.</p>
+ <p>[% 'Lx-Office has found one or more problems in the general ledger.' | $T8 %]</p>
 
  <p>
-  Zeitraum:
+  [% 'Period' | $T8 %]:
   [%- IF transdate_from || transdate_to %]
    [%- IF transdate_from %]
-   von [% transdate_from %]
+   [% 'from (time)' | $T8 %] [% transdate_from %]
    [%- END %]
    [%- IF transdate_to %]
-   bis [% transdate_to %]
+   [% 'to (time)' | $T8 %] [% transdate_to %]
    [%- END %]
   [%- ELSE %]
-  alle Einträge
+  [% 'all entries' | $T8 %]
   [%- END %]
  </p>
 
  <p>
   <table width="100%">
    <tr>
-    <th class="listheading">Buchung</th>
-    <th class="listheading">Problem</th>
-    <th class="listheading">Lösung</th>
+    <th class="listheading">[% 'Transaction' | $T8 %]</th>
+    <th class="listheading">[% 'Problem' | $T8 %]</th>
+    <th class="listheading">[% 'Solution' | $T8 %]</th>
    </tr>
 
    [%- FOREACH problem = PROBLEMS %]
@@ -32,7 +33,7 @@
     <td valign="top">
      [%- IF problem.type == 'ap_ar_wrong_taxkeys' %]
       [%- IF problem.ap_problems.size %]
-       Kreditorenbuchungen
+       [% 'AP Transactions' | $T8 %]
        [%- FOREACH ap = problem.ap_problems %]
         [%- UNLESS loop.first %], [%- END %]
         <a href="[% ap.link %]">[% HTML.escape(ap.data.reference) %]</a>
@@ -41,7 +42,7 @@
 
       [%- IF problem.ar_problems.size %]
        [%- IF problem.ap_problems.size %]; [%- END %]
-       Debitorenbuchungen
+       [% 'AR Transactions' | $T8 %]
        [%- FOREACH ar = problem.ar_problems %]
         [%- UNLESS loop.first %], [%- END %]
         <a href="[% ar.link %]">[% HTML.escape(ar.data.reference) %]</a>
@@ -51,7 +52,7 @@
 
      [%- ELSIF problem.type == 'invoice_inventory_with_taxkeys' %]
       [%- IF problem.ar_problems.size %]
-       Verkaufsrechnungen
+       [% 'Sales invoices' | $T8 %]
        [%- FOREACH subproblem = problem.ar_problems %]
         [%- UNLESS loop.first %], [%- END %]
         <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
@@ -60,7 +61,7 @@
 
       [%- IF problem.ap_problems.size %]
        [%- IF problem.ar_problems.size %]; [%- END %]
-       Einkaufsrechnungen
+       [% 'Purchase invoices' | $T8 %]
        [%- FOREACH subproblem = problem.ap_problems %]
         [%- UNLESS loop.first %], [%- END %]
         <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
@@ -69,7 +70,7 @@
 
      [%- ELSIF problem.type == 'missing_taxkeys_in_invoices' %]
       [%- IF problem.ar_problems.size %]
-       Verkaufsrechnungen
+       [% 'Sales invoices' | $T8 %]
        [%- FOREACH subproblem = problem.ar_problems %]
         [%- UNLESS loop.first %], [%- END %]
         <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
@@ -78,7 +79,7 @@
 
       [%- IF problem.ap_problems.size %]
        [%- IF problem.ar_problems.size %]; [%- END %]
-       Einkaufsrechnungen
+       [% 'Purchase invoices' | $T8 %]
        [%- FOREACH subproblem = problem.ap_problems %]
         [%- UNLESS loop.first %], [%- END %]
         <a href="[% subproblem.link %]">[% HTML.escape(subproblem.data.reference) %]</a>
@@ -89,11 +90,11 @@
 
      <a href="[% problem.link %]">
       [%- IF problem.data.module == 'ar' %]
-      Debitorenbuchung
+      [% 'AR Transaction' | $T8 %]
       [%- ELSIF problem.data.module == 'ap' %]
-      Kreditorenbuchung
+      [% 'AP Transaction' | $T8 %]
       [%- ELSE %]
-      Dialogbuchung
+      [% 'General Ledger Transaction' | $T8 %]
       [%- END %]
       [% HTML.escape(problem.data.reference) %]
      </a>
@@ -105,43 +106,43 @@
 
     <td valign="top">
      [%- IF problem.type == 'split_multiple_credit_and_debit' %]
-     Sowohl auf der Soll- als auch auf der Haben-Seite gesplittete Buchung
+     [% 'Transaction has been split on both the credit and the debit side' | $T8 %]
 
      [%- ELSIF problem.type == 'wrong_taxkeys' %]
-     Gespeicherte Steuerschlüssel sind falsch
+     [% 'Wrong tax keys recorded' | $T8 %]
 
      [%- ELSIF problem.type == 'wrong_taxes' %]
-     Gespeicherte Steuern passen nicht zum Steuerschlüssel
+     [% 'Wrong taxes recorded' | $T8 %]
 
      [%- ELSIF problem.type == 'ap_ar_wrong_taxkeys' %]
-     Kreditorenbuchungen mit Umsatzsteuer-Steuerschlüsseln und/oder Debitorenbuchungen mit Vorsteuer-Steuerschlüsseln
+     [% 'AP transactions with sales taxkeys and/or AR transactions with input taxkeys' | $T8 %]
 
      [%- ELSIF problem.type == 'invoice_inventory_with_taxkeys' %]
-     Einkaufs- und Verkaufsrechnungen mit Warenbestandsbuchungen mit Steuerschlüsseln
+     [% 'Sales and purchase invoices with inventory transactions with taxkeys' | $T8 %]
 
      [%- ELSIF problem.type == 'missing_taxkeys_in_invoices' %]
-     Fehlende Steuerschl&uuml;ssel in Rechnungen mit Steuern
+     [% 'Missing taxkeys in invoices with taxes.' | $T8 %]
 
      [%- END %]
     </td>
 
     <td valign="top">
      [%- IF problem.type == 'split_multiple_credit_and_debit' %]
-     Diese Buchung muss manuell in mehrere Buchungen aufgeteilt werden.
+     [% 'This transaction has to be split into several transactions manually.' | $T8 %]
 
      [%- ELSIF (problem.type == 'wrong_taxkeys') || (problem.type == 'wrong_taxes') %]
      <a href="acctranscorrections.pl?action=assistant&trans_id=[% HTML.url(problem.data.trans_id) %]&trans_module=[% HTML.url(problem.data.module) %]&trans_reference=[% HTML.url(problem.data.reference) %]&callback=[% callback %]">
-      Korrekturassistenten starten
+      [% 'Start the correction assistant' | $T8 %]
      </a>
 
      [%- ELSIF problem.type == 'ap_ar_wrong_taxkeys' %]
      <a href="acctranscorrections.pl?action=assistant_for_ap_ar_wrong_taxkeys&callback=[% callback %]">
-      Korrekturassistenten starten
+      [% 'Start the correction assistant' | $T8 %]
      </a>
 
      [%- ELSIF problem.type == 'invoice_inventory_with_taxkeys' %]
      <a href="acctranscorrections.pl?action=assistant_for_invoice_inventory_with_taxkeys&callback=[% callback %]">
-      Korrekturassistenten starten
+      [% 'Start the correction assistant' | $T8 %]
      </a>
 
      [%- END %]

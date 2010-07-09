@@ -1,3 +1,4 @@
+[%- USE T8 %]
 [% USE HTML %][% USE JavaScript %][% USE LxERP %]<body onload="on_load(); [% onload %]">
 
  <script type="text/javascript" src="js/common.js"></script>
@@ -68,7 +69,7 @@
   <p>
    <table>
     <tr>
-     <th align="right" nowrap>Ziellager</th>
+     <th align="right" nowrap>[% 'Destination warehouse' | $T8 %]</th>
      <td>
       <select name="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
        [%- FOREACH warehouse = WAREHOUSES %]
@@ -79,12 +80,12 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Ziellagerplatz:</th>
+     <th align="right" nowrap>[% 'Destination bin' | $T8 %]:</th>
      <td><select id="bin_id" name="bin_id"></select></td>
     </tr>
 
     <tr>
-     <th align="right" nowrap>Erzeugnis-Nummer</th>
+     <th align="right" nowrap>[% 'Assembly Number' | $T8 %]</th>
      <td>
       <input type="hidden" name="parts_id" id="parts_id" value="[% HTML.escape(parts_id) %]">
       <input type="hidden" name="old_partnumber" id="old_partnumber" value="[% HTML.escape(partnumber) %]">
@@ -93,7 +94,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Erzeugnis-Beschreibung</th>
+     <th align="right" nowrap>[% 'Assembly Description' | $T8 %]</th>
      <td>
       <input name="description" size="30" value="[% HTML.escape(description) %]">
       <input type="button" onclick="part_selection_window('partnumber', 'description', 'parts_id', 0, 'Form', 'assemblies:click_button=update_button')" value="?">
@@ -101,13 +102,13 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Chargennummer</th>
+     <th align="right" nowrap>[% 'Charge number' | $T8 %]</th>
      <td><input name="chargenumber" size="30" value="[% HTML.escape(chargenumber) %]"></td>
     </tr>
 
     [% IF conf_show_best_before %]
     <tr>
-     <th align="right" nowrap>Mindesthaltbarkeit</th>
+     <th align="right" nowrap>[% 'Best Before' | $T8 %]</th>
      <td>
        <input name="bestbefore" id="bestbefore" size="11" value="[% HTML.escape(bestbefore) %]" title="[% myconfig_dateformat %]">
        <input type="button" name="b_bestbefore" id="bestbefore_trigger" value="?">
@@ -116,7 +117,7 @@
     [% END %]
 
     <tr>
-     <th align="right" nowrap>Menge</th>
+     <th align="right" nowrap>[% 'Quantity' | $T8 %]</th>
      <td>
       <input name="qty" size="10" value="[% HTML.escape(LxERP.format_amount(qty)) %]">
       <select name="unit">
@@ -126,7 +127,7 @@
     </tr>
 
     <tr>
-     <th align="right" nowrap>Optionaler Kommentar</th>
+     <th align="right" nowrap>[% 'Optional comment' | $T8 %]</th>
      <td><input name="comment" size="30" value="[% HTML.escape(comment) %]"></td>
     </tr>
 
@@ -134,9 +135,9 @@
   </p>
 
   <p>
-   <input type="submit" class="submit" name="action" id="update_button" value="Erneuern">
+   <input type="submit" class="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
    [%- IF parts_id %]
-   <input type="submit" class="submit" name="action" value="Erzeugnis fertigen">
+   <input type="submit" class="submit" name="action" value="[% 'Create Assembly' | $T8 %]">
    [%- END %]
   </p>
  </form>

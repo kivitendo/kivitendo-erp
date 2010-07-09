@@ -1,14 +1,17 @@
-[% USE HTML %]<body class="admin">
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+<body class="admin">
 
   <h2>[% title %]</h2>
 
   <form method="post" action="admin.pl">
 
-   <p><translate>The dataset [% HTML.escape(db) %] has been successfully created.</translate></p>
+   <p>[% LxERP.t8('The dataset #1 has been successfully created.', db) | html %]</p>
 
    <input type="hidden" name="nextsub" value="list_users">
 
-   <p><input type="submit" class="submit" name="action" value="<translate>Continue</translate>"></p>
+   <p><input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]"></p>
 
   </form>
 
