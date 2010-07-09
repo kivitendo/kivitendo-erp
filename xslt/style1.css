@@ -1,16 +1,8 @@
+/* toolbar style */
 toolbar{
  -moz-appearance:none !important;
  background: url('../image/fade.png');
  border-bottom:1px solid black;
- border-top:1px solid black
-}
-splitter{
- -moz-appearance:none !important;
- background:white url('../image/fade.png') no-repeat !important;
- border:0px
-}
-iframe{
- border-left:1px solid black !important
 }
 
 /* sidebar styles */
@@ -20,6 +12,7 @@ tree{
  padding-top:2px;
  background: white url('../image/fade.png') repeat-x;
 }
+
 #sidebar{
  background-image: url('../image/fade.png');
  max-width:450px;
@@ -35,33 +28,30 @@ menubar{
  background: url('../image/bg_titel.gif');
  border:0px
 }
+
 menu, 
 menuitem{
  font:12px Arial;
 }
-menu menuitem,
-menu menu{
- padding:2px
-}
-menubar menu,
-menubar menuitem{
+
+menubar menu{
  -moz-appearance: none !important;
- color:white
+ color:white;
+ background: url('../image/bg_titel.gif');
 }
-menubar menu:hover,
-menubar menuitem:hover{
+
+menubar menu:hover{
  -moz-appearance:none !important;
- background:lightblue;
- color:red
+ background:#4466cc;
+ color:yellow;
 }
-menu menu,
-menu menuitem{
- -moz-appearance: none !important;
- color:black
-}
-menu menu:hover,
-menu menuitem:hover{
+
+/* are splitter & iframe in use currently? */
+splitter{
  -moz-appearance:none !important;
- background:lightgrey;
- color:red
+ background:white url('../image/fade.png') no-repeat !important;
+ border:0px;
+}
+iframe{
+ border-left:1px solid black !important;
 }
