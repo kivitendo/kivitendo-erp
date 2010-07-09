@@ -95,7 +95,7 @@
             }
             else {
               defaults.splice(remove,1);
-              document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b>[% 'You've already chosen the following limitations:' | $T8 %]</b><br>") : ("<br>")) + translated[last];
+              document.getElementById('inputText').innerHTML += ((document.getElementById('inputText').innerHTML == "") ? ("<b>[%- 'You\'ve already chosen the following limitations:' | $T8 %]</b><br>") : ("<br>")) + translated[last];
               if(defaults.length > 0) {
                 document.getElementById('einschraenkungen').value += ((document.getElementById('einschraenkungen').value == "") ? ("") : (",")) + last;
                 tempString = "<select id='selectForm'><option></option>";
