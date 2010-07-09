@@ -101,11 +101,9 @@
    </td>
   </tr>
 
-[% SET webdav_template = 'webdav/_list_' _ LxERP.t8('master') _ '.html' %]
-[% PROCESS $webdav_template %]
+[% PROCESS 'webdav/_list.html' %]
 
-[% SET payments_template = 'is/_payments_' _ LxERP.t8('master') _ '.html' %]
-[% PROCESS $payments_template %]
+[% PROCESS 'is/_payments.html' %]
 
   <tr>
     <td><hr size="3" noshade></td>
