@@ -2,11 +2,11 @@
 
 $self->{texts} = {
   'Back'                        => 'Zurück',
-  'Go one step back'            => 'Einen Schritt Zur&uuml;ck',
+  'Go one step back'            => 'Einen Schritt zur&uuml;ck',
   'Hardcopy'                    => 'Seite drucken',
   'Logout'                      => 'Abmelden',
   'New Win/Tab'                 => 'Neues Fenster',
-  'Open a further Lx-Office Window or Tab' => 'Neues Fenster &ouml;ffnen',
+  'Open a further Lx-Office Window or Tab' => 'Neues Fenster bzw. Tab &ouml;ffnen',
   'Print'                       => 'Drucken',
 };
 
