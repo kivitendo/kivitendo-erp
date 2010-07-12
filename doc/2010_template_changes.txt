@@ -1,0 +1,107 @@
+Table of Contents
+-----------------
+
+Inhalt der Anleitung
+1 Zusammenfassung
+2 Bisheriger Mechanismus und Motivation zur Änderung
+3 Änderungen
+4 Migration
+
+Zusammenfassung
+---------------
+
+Dieses Dokument beschreibt die Änderungen, die 2010 am Templatesystem von
+Lx-Office vorgenommen wurden, sowie Möglichkeiten zur Migration aus alten
+Systemen.
+
+Die betroffenen Templates sind alle lokalisierten Templates im Verzeichnis
+templates/. Die Druckvoragen sind nicht betroffen.
+
+
+Bisheriger Mechanismus und Motivation zur Änderung
+--------------------------------------------------
+
+SQL Ledger benutzt für Darstellung garkein Templatesytem. HTML wird im Perlcode
+zusammengebaut, und dabei über das Locale Modul lokalisiert. Gleichzeitig
+werden Druckvorlagen in einer lokalisierten Version mitgeliefert und
+vorgehalten, und werden beim anlegen eines Benutzers in sein lokales
+Templateverzeichnis kopiert. Mit einem mitgelieferten Editor konnten diese HTML
+Dateien dann editiert werden.
+
+Das Lx-Office Templatesystem ist zuerst in Anlehnung daran entstanden.
+Templates wurden in einer _master Version vorgehalten und mit den lokalisierten
+Strings aus dem Programm statisch übersetzt, und dann zur Laufzeit mit
+Variablen gefüllt. Das Template System war zuerst HTML::Template, wurde später
+aber durch Template Toolkit ersetzt, was flexiblere Syntax bietet und eine
+Größenordnung schneller ist.
+
+Das System hat diverse Probleme. Templates sind im Programm in einem Coding
+hinterlegt, das maßgeblich durch die einkompilierte Sprache bestimmt wird. Wenn
+die Sprachtexte Latin-1 sind, sind die übersetzten Templates auch Latin-1.
+Wenn die angeforderte Sprache aber UTF-8 ist, müssen die Templates zur Laufzeit
+umcodiert werden. Das kostet Zeit, und erschwert caching.
+
+Das nächste Problem sind Untertemplates. In ein kompiliertes Template ein
+anderes Template einzubinden ist möglich, hat aber diverse Probleme mit Coding
+und Lokalisierung, weil gewisse Kontextinformationen nicht weitergegeben
+werden. Die Modularisierung von Templates ist ein langfristiges Ziel, deshalb
+ist es gewünscht, dass das funktioniert.
+
+
+Änderungen
+----------
+
+Bisher wurden alle html Templates in allen Sprachversionen separat
+vorgehalten. Diese sind jetzt entfernt, es wird nur noch die _master.html
+weitergepflegt, die jetzt ohne diese Endung behandelt wird. So wird aus
+
+  template/webpages/oe/search_master.html und
+  template/webpages/oe/search_de.html
+  template/webpages/oe/search_en.html
+
+jetzt nur noch
+
+  templates/webpages/oe/search.html
+
+die alle Rollen übernimmt.
+
+Gleichzeitig wurde der an HTML angelehnte <translate></translate> Operator
+überall ersetzt durch das Template Modul T8, dass zur Templateverarbeitungszeit
+auf die Lokalisierung von Lx-Office zugreift. Der <translate> Operator war für
+statische Kompilierung gedacht, und ist dynamisch nicht ohne massive
+Geschwindigkeitseinbusse umzusetzen.
+
+Folgende Konstrukte sollten ab jetzt verwendet werden:
+
+  <translate>Originaltext</translate>
+  LxERP.format_text('<translate>Text with var #1</translate>', value)
+
+werden zu:
+
+  [%- USE T8 %]
+  [%- USE LxERP %]
+
+  [% 'Originaltext' | $T8 %]
+  [% LxERP.t8('Text with var #1', value) | html %]
+
+Beide Module sind in Perl geschrieben und sind Instanzen der Module
+
+  SL::Template::Plugin::T8 und
+  SL::Template::Plugin::LxERP
+
+Migration
+--------
+
+Installationen, die Änderungen an den Templates vorgenommen haben, müssen
+diese Änderungen manuell in die neuen Templates einpflegen.
+
+Um die <translate> Operatoren umzuwandeln steht ein Hilfsscript bereit:
+
+  scripts/migrate_template_to_t8.pl <file>
+
+Bitte vorher die Dokumentation von dem Script lesen.
+
+Es gibt einige Fälle die nicht abgedeckt sind davon, aber die sollte mit einem
+Diff danach zu finden sein. vor allem kann es keine LxERP.format_text Aufrufe
+umwandeln, und es hat keinen Schutz gegen nicht escapte Anführungszeichen in
+den zu übersetzenden Strings.

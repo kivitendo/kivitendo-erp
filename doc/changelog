@@ -18,6 +18,15 @@
    - Bug 1409 -  Bei "Erzeugnis fertigen" wird nur der Bestand der letzten Komponente geprüft
 
 
+  API Änderungen:
+
+  - Template System Zentralisierung.
+
+    Alle lokalisierten Templates wurden entfernt.
+    Alle <translate> Konstrukte wurden auf das Hilfsmodul T8 umgeschrieben.
+
+    Bitte vor dem Upgrade das Dokument doc/2010_template_changes.txt lesen.
+
 
 2010-03-24 - Release 2.6.1
 
