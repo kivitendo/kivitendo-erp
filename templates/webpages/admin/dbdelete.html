@@ -1,0 +1,17 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[% USE HTML %]<body class="admin">
+
+  <h2>[% title %]</h2>
+
+  <form method="post" action="admin.pl">
+
+   <p>[% LxERP.t8('The database #1 has been successfully deleted.', db) | html %]</p>
+
+   <input type="hidden" name="nextsub" value="list_users">
+
+   <p><input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]"></p>
+  </form>
+
+</body>
+</html>

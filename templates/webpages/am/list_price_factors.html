@@ -1,0 +1,40 @@
+[%- USE T8 %]
+[% USE HTML %]<body>
+
+ [% IF MESSAGE %]<p>[% MESSAGE %]</p>[% END %]
+
+ <div class="listtop">[% title %]</div>
+
+ <p>
+  <table width="100%">
+   <tr>
+    <td class="listheading" width="0%"></td>
+    <td class="listheading" width="0%"></td>
+    <td class="listheading" width="80%">[% 'Description' | $T8 %]</td>
+    <td class="listheading" width="20%">[% 'Factor' | $T8 %]</td>
+   </tr>
+
+   [% SET row_odd = '1' %][% FOREACH factor = PRICE_FACTORS %]
+   <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
+    <td>[% IF factor.previous_id %]<a href="[% url_base %]&action=swap_price_factors&id1=[% HTML.url(factor.previous_id) %]&id2=[% HTML.url(factor.id) %]"><img border="0" src="image/up.png"></a>[% END %]</td>
+    <td>[% IF factor.next_id %]<a href="[% url_base %]&action=swap_price_factors&id1=[% HTML.url(factor.next_id) %]&id2=[% HTML.url(factor.id) %]"><img border="0" src="image/down.png"></a>[% END %]</td>
+    <td><a href="[% url_base %]&action=edit_price_factor&id=[% HTML.url(factor.id) %]">[% HTML.escape(factor.description) %]</a></td>
+    <td>[% HTML.escape(factor.factor) %]</td>
+   </tr>
+   [% END %]
+  </table>
+ </p>
+
+ <hr height="3">
+
+ <p>
+  <form method="post" action="am.pl">
+   <input type="hidden" name="type" value="price_factor">
+   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+
+   <input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]">
+  </form>
+ </p>
+
+</body>
+</html>

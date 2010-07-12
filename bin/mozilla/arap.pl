@@ -59,7 +59,7 @@ sub check_name {
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | cash         |' .
                 'purchase_delivery_order_edit | sales_delivery_order_edit');
 
-  my ($name) = @_;
+  my ($name, %params) = @_;
 
   $name = $name eq "customer" ? "customer" : "vendor";
 
@@ -99,9 +99,17 @@ sub check_name {
       $form->{calctax}      = 1;
 
       # return one name or a list of names in $form->{name_list}
-      if (($i = $form->get_name(\%myconfig, $name)) > 1) {
-        &select_name($name);
-        exit;
+      $i = $form->get_name(\%myconfig, $name);
+
+      if ($i > 1) {
+        if ($params{no_select}) {
+          # $locale->text('Customer')
+          # $locale->text('Vendor')
+          $form->error($locale->text("More than one #1 found matching, please be more specific.", $locale->text(ucfirst $name)));
+        } else {
+          &select_name($name);
+          exit;
+        }
       }
 
       if ($i == 1) {
@@ -486,13 +494,13 @@ sub project_selected {
 
 sub continue       { call_sub($main::form->{"nextsub"}); }
 
-
 1;
 
 __END__
 
 =head1 NAME
 
+<<<<<<< HEAD:bin/mozilla/arap.pl
 bin/mozilla/arap.pl - helper routines for invoiceing frontend.
 
 =head1 SYNOPSIS
@@ -502,11 +510,26 @@ nothing yet
 =head1 DESCRIPTION
 
 nothing yet
+=======
+arap.pl - helper functions or customer/vendor retrieval
+
+=head1 SYNOPSIS
+
+ check_name('vendor')
+ check_project();
+
+=head1 DESCRIPTION
+
+Don't use anyting in this file without extreme care, and even then be prepared for massive headaches.
+
+It's a collection of helper routines that wrap the customer/vendor dropdown/textfield duality into something even complexer.
+>>>>>>> 88f5a78... check_name erweitert um ein no_select flag. siehe perldoc bin/mozilla/arap.pl:bin/mozilla/arap.pl
 
 =head1 FUNCTIONS
 
 =head2 check_name customer|vendor
 
+<<<<<<< HEAD:bin/mozilla/arap.pl
 check_name was originally meant to update the selected customer or vendor. The
 way it does that has generted more hate than almost any other part of this
 software.
@@ -593,5 +616,23 @@ are necessary in all steps and branches.
 
 Since get_customer and get_vendor clobber a lot of fields, make sure what
 changes exactly.
+=======
+This function will take the contents of $form->{vendor} or $form->{customer}, try to guess if there was a selectbox or not, and search for matching customer/vendors.
+
+This mostly works great, except for the case when there is more than one match.
+In that case check_name will display a select form, that will redirect to the
+original C<nextsub>. Unfortunately any hidden vars or input fields will be lost
+in the process unless saved before in a callback.
+
+If you still want to use it, you can disable this feature, like this:
+
+  check_name('customer', no_select => 1)
+
+In that case multiple matches will trigger an error.
+
+=head1 BUGS
+
+=head1 AUTHOR
+>>>>>>> 88f5a78... check_name erweitert um ein no_select flag. siehe perldoc bin/mozilla/arap.pl:bin/mozilla/arap.pl
 
 =cut

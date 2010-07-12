@@ -1,0 +1,102 @@
+[%- USE T8 %]
+[% USE HTML %][% USE LxERP %]<body>
+
+ [%- IF message %]
+ <p>[% message %]</p>
+
+ <hr>
+ [%- END %]
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <form method="post" action="projects.pl">
+
+  <input type="hidden" name="project.id" value="[% HTML.escape(project.id) %]">
+  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
+
+  <ul id="maintab" class="shadetabs">
+   <li class="selected"><a href="#" rel="basic_data">[% 'Basic data' | $T8 %]</a></li>
+   [%- IF CUSTOM_VARIABLES.size %]
+   <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
+   [%- END %]
+  </ul>
+
+  <div class="tabcontentstyle">
+
+   <div id="basic_data" class="tabcontent">
+
+    <table>
+     <tr>
+      <th align="right">[% 'Number' | $T8 %]</th>
+      <td><input name="project.projectnumber" size="20" value="[% HTML.escape(project.projectnumber) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right">[% 'Description' | $T8 %]</th>
+      <td>
+       [%- SET rows = LxERP.numtextrows(project.description, 60) %]
+       [%- IF rows > 1 %]
+       <textarea name="project.description" rows="rows" cols="60" style="width: 100%" wrap="soft">[% HTML.escape(project.description) %]</textarea>
+       [%- ELSE %]
+       <input name="project.description" size="60" value="[% HTML.escape(project.description) %]">
+       [%- END %]
+      </td>
+     </tr>
+
+     [%- IF project.id %]
+     <tr>
+      <th align="right">&nbsp;</th>
+      <td>
+       <input type="radio" name="project.active" id="active_1" value="1"[% IF project.active %] checked[% END %]><label for="active_1">[% 'Active' | $T8 %]</label>
+       <input type="radio" name="project.active" id="active_0" value="0"[% IF !project.active %] checked[% END %]><label for="active_0">[% 'Inactive' | $T8 %]</label>
+      </td>
+     </tr>
+     [%- END %]
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   [%- IF CUSTOM_VARIABLES.size %]
+   <div id="custom_variables" class="tabcontent">
+
+    <p>
+     <table>
+      [%- FOREACH var = CUSTOM_VARIABLES %]
+      <tr>
+       <td align="right" valign="top">[% HTML.escape(var.description) %]</td>
+       <td valign="top">[% var.HTML_CODE %]</td>
+      </tr>
+      [%- END %]
+     </table>
+    </p>
+
+    <br style="clear: left" />
+   </div>
+   [%- END %]
+
+  </div>
+
+  <p>
+   <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
+   [%- IF project.id %]
+   <input type="submit" class="submit" name="action" value="[% 'Save as new' | $T8 %]">
+   [%- IF project.orphaned %]
+   <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
+   [%- END %]
+   <input type="button" onclick="set_history_window([% HTML.escape(project.id) %]);" name="history" id="history" value="[% 'history' | $T8 %]">
+   [%- END %]
+  </p>
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      var maintab = new ddtabcontent("maintab");
+      maintab.setpersist(true);
+      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
+      maintab.init();
+    -->
+ </script>
+
+</body>
+</html>

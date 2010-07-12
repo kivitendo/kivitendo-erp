@@ -1,0 +1,27 @@
+[%- USE T8 %]
+[% USE HTML %]  <body>
+
+    <h4 class="error">[% 'Item not on file!' | $T8 %]
+
+
+    <p>[% 'What type of item is this?' | $T8 %]</h4>
+
+    <form method="post" action="ic.pl">
+
+      <p>
+
+      <input class="radio" type="radio" name="item" value="part" checked>&nbsp;[% 'Part' | $T8 %]<br>
+      <input class="radio" type="radio" name="item" value="service">&nbsp;[% 'Service' | $T8 %]
+      <p>
+
+      [%- FOREACH var = HIDDENS %]
+      <input type="hidden" name="[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]">
+      [%- END %]
+
+      <input type="hidden" name="nextsub" value="add">
+      <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
+    </form>
+
+  </body>
+</html>
+

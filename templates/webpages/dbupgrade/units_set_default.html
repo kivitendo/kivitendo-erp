@@ -1,0 +1,37 @@
+[%- USE T8 %]
+[% USE HTML %]<div class="listtop">[% 'Step 3 of 3: Default units' | $T8 %]</div>
+
+<form name="Form" method="post" action="login.pl">
+
+ <input type="hidden" name="unit_type" value="dimension">
+ <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action2" value="">
+
+ <p>
+  [% 'There are still entries in the database for which no unit has been assigned.' | $T8 %]
+  [% 'You have to chose a dimension unit and a service unit which will then be assigned to those entries.' | $T8 %]
+ </p>
+
+ <table>
+  <tr>
+   <td>[% 'Dimension unit' | $T8 %]:</td>
+   <td>
+    <select name="default_dimension_unit">
+     [% FOREACH row = DIMENSION_DDBOX %]<option>[% HTML.escape(row.name) %]</option>[% END %]
+    </select>
+   </td>
+  </tr>
+  <tr>
+
+   <td>[% 'Service unit' | $T8 %]:</td>
+   <td>
+    <select name="default_service_unit">
+     [% FOREACH row = SERVICE_DDBOX %]<option>[% HTML.escape(row.name) %]</option>[% END %]
+    </select>
+   </td>
+  </tr>
+ </table>
+
+ <p><input type="submit" onclick="document.Form.action2.value = 'set_default'; document.Form.submit();" name="dummy" value="[% 'Assign units' | $T8 %]"></p>
+
+</form>

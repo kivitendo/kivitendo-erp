@@ -42,6 +42,8 @@ sub format_amount_units {
 sub format_percent {
   my ($self, $var, $places, $skip_zero) = @_;
 
+  $places ||= 2;
+
   return $self->format_amount($var * 100, $places, $skip_zero);
 }
 
@@ -104,6 +106,12 @@ sub abs {
   my $var  = shift;
 
   return $var < 0 ? $var * -1 : $var;
+}
+
+sub t8 {
+  my ($self, $text, @args) = @_;
+  $self->{locale} ||= Locale->new($::myconfig{countrycode}, 'all');
+  return $self->{locale}->text($text, @args) || $text;
 }
 
 1;

@@ -1,0 +1,20 @@
+[%- USE T8 %]
+[% USE HTML %] <input type="hidden" name="rowcount" value="[% HTML.escape(row_idx) %]">
+
+ [% PRINT_OPTIONS %]
+
+ <input type="hidden" name="todate" value="[% HTML.escape(todate) %]">
+ <input type="hidden" name="title" value="[% HTML.escape(title) %]">
+ <input type="hidden" name="arap" value="[% HTML.escape(arap) %]">
+ <input type="hidden" name="ct" value="[% HTML.escape(ct) %]">
+ <input type="hidden" name="customer" value="[% HTML.escape(customer) %]">
+ <input type="hidden" name="vendor" value="[% HTML.escape(vendor) %]">
+ <input type="hidden" name="department" value="[% HTML.escape(department) %]">
+
+ [% 'Statement' | $T8 %]
+ <br>
+ <input class="submit" type="submit" name="action" value="[% 'Select all' | $T8 %]">
+ <input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]">
+ <input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
+
+</form>

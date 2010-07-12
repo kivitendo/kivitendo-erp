@@ -1,0 +1,17 @@
+[%- USE T8 %]
+<hr>
+
+<div class="listtop">[% 'Introduction of units' | $T8 %]</div>
+
+<p>
+ [% 'Prior to Lx-Office v2.4.0 the user could enter arbitrary strings as units for parts, services and in invoices, sales quotations etc.' | $T8 %]
+ [% 'In Lx-Office 2.4.0 the administrator has to enter a list of units in the administrative section.' | $T8 %]
+ [% 'These units can be based on other units so that Lx-Office can convert prices when the user switches from one unit to another.' | $T8 %]
+</p>
+
+<p>
+ [% 'This upgrade script tries to map all existing units in the database to the newly created units.' | $T8 %]
+ [% 'It is possible to do this automatically for some units, but for others the user has to chose the new unit.' | $T8 %]
+ [% 'You cannot continue until all unknown units have been mapped to known ones.' | $T8 %]
+ [% 'You can also create new units now.' | $T8 %]
+</p>

@@ -1,0 +1,123 @@
+[%- USE T8 %]
+[% USE HTML %]
+[% IF SUCCESS %]
+
+[% BLOCK column_header %]
+            <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" valign="top" border="0">
+             [% IF THIS_COLUMN && !THIS_COLUMN_DOWN %]
+               <tr><td><a title="[% 'order' | $T8 %]" style="background: #ccccff; border: solid 1px #aaaade;">&and;</a></td></tr>
+             [% ELSE %]
+               <tr><td><a href="[% callback %]&order=[% column %]--0" title="[% 'order' | $T8 %]" style="border: solid 1px #aaaade;">&and;</a></td></tr>
+             [% END %]
+             [% IF THIS_COLUMN &&  THIS_COLUMN_DOWN %]
+               <tr><td><a title="[% 'order' | $T8 %]" style="background: #ccccff; border: solid 1px #aaaade;">&or;</a></td></tr>
+             [% ELSE %]
+               <tr><td><a href="[% callback %]&order=[% column %]--1" title="[% 'order' | $T8 %]" style="border: solid 1px #aaaade;">&or;</a></td></tr>
+             [% END %]
+            </table>
+[% END %]
+
+<table>
+  <tr>
+    <th class="listtop">
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+           &nbsp;[% 'Zeitpunkt' | $T8 %]&nbsp;
+          </td>
+          <td valign="top">
+           [% PROCESS column_header THIS_COLUMN=ITIME THIS_COLUMN_DOWN=ITIMEBY column='h.itime' %]
+          </td>
+        </tr>
+      </table>
+    </th>
+    <th class=listtop>
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+            &nbsp;[% 'Mitarbeiter' | $T8 %]&nbsp;
+          </td>
+          <td valign="top">
+           [% PROCESS column_header THIS_COLUMN=NAME THIS_COLUMN_DOWN=NAMEBY column='emp.name' %]
+          </td>
+        </tr>
+      </table>
+    </th>
+    <th class=listtop>
+      <table>
+        <tr>
+          <td>
+            &nbsp;[% 'Aktion' | $T8 %]&nbsp;
+          </td>
+        </tr>
+      </table>
+    </th>
+    <th class=listtop>
+      <table>
+        <tr>
+          <td>
+            &nbsp;[% 'Zusatz' | $T8 %]&nbsp;
+          </td>
+        </tr>
+      </table>
+    </th>
+    <th class=listtop>
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+           &nbsp;[% 'ID-Nummer' | $T8 %]&nbsp;
+          </td>
+          <td valign="top">
+            [% PROCESS column_header THIS_COLUMN=TRANS_ID THIS_COLUMN_DOWN=TRANS_IDBY column='h.trans_id' %]
+          </td>
+        </tr>
+      </table>
+    </th>
+    <th class=listtop>
+      <table height="0" width="0" cellpadding="0" cellspacing="0" marginheight="0" marginwidth="0" border="0">
+        <tr>
+          <td align="center" valign="middle">
+           &nbsp;[% 'Belegnummer' | $T8 %]&nbsp;
+          </td>
+          <td valign="top">
+            [% PROCESS column_header THIS_COLUMN=SNUMBERS THIS_COLUMN_DOWN=SNUMBERSBY column='h.snumbers' %]
+          </td>
+        </tr>
+      </table>
+    </th>
+  </tr>
+  <tbody>
+[% FOREACH row = DATEN %]
+  <tr class="listrow[% loop.count % 2 %]">
+    <td nowrap>
+      &nbsp;[% HTML.escape(row.itime) %]&nbsp;
+    </td>
+    <td nowrap>
+      &nbsp;[% HTML.escape(row.name) %]&nbsp;
+    </td>
+    <td>
+      &nbsp;[% HTML.escape(row.addition) %]&nbsp;
+    </td>
+    <td>
+      &nbsp;[% HTML.escape(row.what_done) %]&nbsp;
+    </td>
+    <td>
+      &nbsp;[% HTML.escape(row.id) %]&nbsp;
+    </td>
+    <td>
+      &nbsp;[% HTML.escape(row.snumbers) %]&nbsp;
+    </td>
+  </tr>
+[% END %]
+</tbody>
+</table>
+[% ELSE %]
+<b>[% 'Keine Suchergebnisse gefunden!' | $T8 %]</b><br>
+[% END %]
+<p>
+[% IF NONEWWINDOW %]
+<input type="button" onclick="javascript:history.back(-1);" value="[% 'back' | $T8 %]">
+[% ELSE %]
+<input type="button" onclick="javascript:window.close();" value="[% 'close' | $T8 %]">
+[% END %]
+</p>

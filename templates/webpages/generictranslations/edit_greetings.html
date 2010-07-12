@@ -1,0 +1,48 @@
+[%- USE T8 %]
+[% USE HTML %]<body>
+
+ <p>
+  <div class="listtop">[% HTML.escape(title) %]</div>
+ </p>
+
+ [%- IF message %]
+ <p>
+  [% HTML.escape(message) %]
+ </p>
+ [%- END %]
+
+ <form method="post" action="generictranslations.pl">
+
+  <table>
+
+   <tr>
+    <th class="listheading">&nbsp;</th>
+    <th class="listheading">[% 'male' | $T8 %]</th>
+    <th class="listheading">[% 'female' | $T8 %]</th>
+   </tr>
+
+   [%- FOREACH language = LANGUAGES %]
+   <tr>
+    <td>
+     [%- IF language.id == 'default' %]
+     [% 'Default (no language selected)' | $T8 %]
+     [%- ELSE %]
+     [%- HTML.escape(language.description) %]
+     [%- END %]
+    </td>
+    <td><input name="translation__[% language.id %]__male" size="40" value="[% HTML.escape(language.male) %]"></td>
+    <td><input name="translation__[% language.id %]__female" size="40" value="[% HTML.escape(language.female) %]"></td>
+   </tr>
+   [%- END %]
+
+  </table>
+
+  <p>
+   <input type="hidden" name="action" value="save_greetings">
+   <input type="submit" class="submit" value="[% 'Save' | $T8 %]">
+  </p>
+
+ </form>
+
+</body>
+</html>

@@ -1,0 +1,126 @@
+[%- USE T8 %]
+[% USE HTML %]
+<body>
+
+ <p><div class="listtop">[% title %]</div></p>
+
+ <form action="sepa.pl" method="post">
+  <p>
+   <table>
+    <tr>
+     <td align="right">[% 'Vendor' | $T8 %]</td>
+     <td><input name="f_vendor"></td>
+    </tr>
+
+    <tr>
+     <td align="right">[% 'Invoice number' | $T8 %]</td>
+     <td><input name="f_invnumber"></td>
+    </tr>
+
+    <tr>
+     <td align="right">[% 'Export date from' | $T8 %]</td>
+     <td>
+      <input name="f_export_date_from" id="f_export_date_from" size="11">
+      <input type="button" name="f_export_date_from_trigger" id="f_export_date_from_trigger" value="?">
+      [% 'to (time)' | $T8 %]
+      <input name="f_export_date_to" id="f_export_date_to" size="11">
+      <input type="button" name="f_export_date_to_trigger" id="f_export_date_to_trigger" value="?">
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right">[% 'Requested execution date from' | $T8 %]</td>
+     <td>
+      <input name="f_requested_execution_date_from" id="f_requested_execution_date_from" size="11">
+      <input type="button" name="f_requested_execution_date_from_trigger" id="f_requested_execution_date_from_trigger" value="?">
+      [% 'to (time)' | $T8 %]
+      <input name="f_requested_execution_date_to" id="f_requested_execution_date_to" size="11">
+      <input type="button" name="f_requested_execution_date_to_trigger" id="f_requested_execution_date_to_trigger" value="?">
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right">[% 'Execution date from' | $T8 %]</td>
+     <td>
+      <input name="f_execution_date_from" id="f_execution_date_from" size="11">
+      <input type="button" name="f_execution_date_from_trigger" id="f_execution_date_from_trigger" value="?">
+      [% 'to (time)' | $T8 %]
+      <input name="f_execution_date_to" id="f_execution_date_to" size="11">
+      <input type="button" name="f_execution_date_to_trigger" id="f_execution_date_to_trigger" value="?">
+     </td>
+    </tr>
+
+    <tr>
+     <td align="right" valign="top">[% 'Include in Report' | $T8 %]</td>
+     <td valign="top">
+      <table>
+       <tr>
+        <td>
+         <input type="checkbox" name="l_open" id="l_open" value="1" checked>
+         <label for="l_open">[% 'open' | $T8 %]</label>
+        </td>
+
+        <td>
+         <input type="checkbox" name="l_closed" id="l_closed" value="1">
+         <label for="l_closed">[% 'closed' | $T8 %]</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input type="checkbox" name="l_not_executed" id="l_not_executed" value="1" checked>
+         <label for="l_not_executed">[% 'not yet executed' | $T8 %]</label>
+        </td>
+
+        <td>
+         <input type="checkbox" name="l_executed" id="l_executed" value="1" checked>
+         <label for="l_executed">[% 'executed' | $T8 %]</label>
+        </td>
+       </tr>
+      </table>
+     </td>
+    </tr>
+
+   </table>
+  </p>
+
+  <p>
+   <input type="hidden" name="action" value="dispatcher">
+   <input type="submit" class="submit" name="action_bank_transfer_list" value="[% 'Continue' | $T8 %]">
+  </p>
+ </form>
+
+ <script type="text/javascript">
+  <!--
+     Calendar.setup({ inputField : "f_export_date_from",
+                      ifFormat   : "[% myconfig_jsc_dateformat %]",
+                      align      : "BL",
+                      button     : "f_export_date_from_trigger" });
+     Calendar.setup({ inputField : "f_export_date_to",
+                      ifFormat   : "[% myconfig_jsc_dateformat %]",
+                      align      : "BL",
+                      button     : "f_export_date_to_trigger" });
+
+     Calendar.setup({ inputField : "f_requested_execution_date_from",
+                      ifFormat   : "[% myconfig_jsc_dateformat %]",
+                      align      : "BL",
+                      button     : "f_requested_execution_date_from_trigger" });
+     Calendar.setup({ inputField : "f_requested_execution_date_to",
+                      ifFormat   : "[% myconfig_jsc_dateformat %]",
+                      align      : "BL",
+                      button     : "f_requested_execution_date_to_trigger" });
+
+     Calendar.setup({ inputField : "f_execution_date_from",
+                      ifFormat   : "[% myconfig_jsc_dateformat %]",
+                      align      : "BL",
+                      button     : "f_execution_date_from_trigger" });
+     Calendar.setup({ inputField : "f_execution_date_to",
+                      ifFormat   : "[% myconfig_jsc_dateformat %]",
+                      align      : "BL",
+                      button     : "f_execution_date_to_trigger" });
+
+    -->
+ </script>
+
+</body>
+</html>

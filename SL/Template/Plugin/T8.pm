@@ -6,19 +6,19 @@ use base qw( Template::Plugin::Filter );
 my $locale = undef;
 
 sub init {
-    my $self = shift;
+  my $self = shift;
 
-    $locale ||= Locale->new($main::myconfig{countrycode}, 'all');
+  $locale ||= Locale->new($main::myconfig{countrycode}, 'all');
 
-    # first arg can specify filter name
-    $self->install_filter($self->{ _ARGS }->[0] || 'T8');
+  # first arg can specify filter name
+  $self->install_filter($self->{ _ARGS }->[0] || 'T8');
 
-    return $self;
+  return $self;
 }
 
 sub filter {
-    my ($self, $text, $args) = @_;
-    return $locale->text($text, @{ $args || [] });
+  my ($self, $text, $args) = @_;
+  return $locale->text($text, @{ $args || [] }) || $text;
 }
 
 return 'SL::Template::Plugin::T8';

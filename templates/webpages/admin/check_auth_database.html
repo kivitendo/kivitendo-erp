@@ -1,0 +1,62 @@
+[%- USE T8 %]
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="admin.pl">
+
+  <p>
+   [% 'The database for user management and authentication does not exist. You can create let Lx-Office create it with the following parameters:' | $T8 %]
+  </p>
+
+  <table border="0">
+   <tr>
+    <td>[% 'Host' | $T8 %]:</td>
+    <td>[% HTML.escape(db_host) %]</td>
+   </tr>
+   <tr>
+    <td>[% 'Port' | $T8 %]:</td>
+    <td>[% HTML.escape(db_port) %]</td>
+   </tr>
+   <tr>
+    <td>[% 'User name' | $T8 %]:</td>
+    <td>[% HTML.escape(db_user) %]</td>
+   </tr>
+   <tr>
+    <td>[% 'Database name' | $T8 %]:</td>
+    <td>[% HTML.escape(db_db) %]</td>
+   </tr>
+  </table>
+
+  <p>
+   [% 'Please enter the name of the database that will be used as the template for the new database:' | $T8 %]
+  </p>
+
+  <p>[% 'Template database' | $T8 %]: <input name="db_template" value="template1"></p>
+
+  <p>
+   [% 'If the database user listed above does not have the right to create a database then enter the name and password of the superuser below:' | $T8 %]
+  </p>
+
+  <table border="0"
+   <tr>
+    <td>[% 'Superuser name' | $T8 %]:</td>
+    <td><input name="db_superuser"></td>
+   </tr>
+
+   <tr>
+    <td>[% 'Password' | $T8 %]:</td>
+    <td><input type="password" name="db_superuser_password"></td>
+   </tr>
+  </table>
+
+  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+  <input type="hidden" name="action" value="create_auth_db">
+
+  <input type="submit" class="submit" value="[% 'Create Dataset' | $T8 %]">
+  <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
+
+ </form>
+
+</body>
+</html>

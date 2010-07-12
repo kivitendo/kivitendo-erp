@@ -1,0 +1,171 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+  <tr>
+    <td>
+      <table width="100%">
+        <tr valign="bottom">
+          <td>
+            <table>
+              <tr>
+                <th align="left">[% 'Notes' | $T8 %]</th>
+                <th align="left">[% 'Internal Notes' | $T8 %]</th>
+              </tr>
+              <tr valign="top">
+                <td>[% notes %]</td>
+                <td>[% intnotes %]</td>
+              </tr>
+              <tr>
+                <th align="right">[% 'Payment Terms' | $T8 %]</th>
+                <td>
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'payment_id',
+                           style      = 'width: 250px',
+                           DATA       = ALL_PAYMENTS,
+                           id_key     = 'id',
+                           label_key  = 'description',
+                           show_empty = 1 -%]
+                </td>
+            </tr>
+      [%- IF id && num_follow_ups %]
+      <tr>
+       <td colspan="2">[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', num_follow_ups, num_due_follow_ups) %]</td>
+      </tr>
+      [%- END %]
+      </table>
+          </td>
+[%- IF is_sales %]
+          <td>
+            <table>
+
+            <tr>
+              <th  align="left">[% 'Ertrag' | $T8 %]</th>
+              <td align="right">[% LxERP.format_amount(marge_total, 2) %]</td>
+            </tr>
+            <tr>
+              <th  align="left">[% 'Ertrag prozentual' | $T8 %]</th>
+              <td align="right">[% LxERP.format_amount(marge_percent, 2) %]</td>
+              <td>%</td>
+            </tr>
+
+            <input type="hidden" name="marge_total" value="[% HTML.escape(marge_total) %]">
+            <input type="hidden" name="marge_percent" value="[% HTML.escape(marge_percent) %]">
+            </table>
+          </td>
+[%- END %]
+          <td align="right">
+[%- IF taxaccounts %]
+            <input name="taxincluded" class="checkbox" type="checkbox" value="1"[% IF taxincluded %] checked[% END %]><b>[% 'Tax Included' | $T8 %]</b><br><br>
+[%- END %]
+            <table>
+[%- IF NOT taxincluded %]
+              <tr>
+                <th align='right'>[% 'Subtotal' | $T8 %]</th>
+                <td align='right'>[% LxERP.format_amount(invsubtotal, 2) %]</td>
+              </tr>
+[%- END %]
+              [% tax %]
+              <tr>
+                <th align="right">[% 'Total' | $T8 %]</th>
+                <td align="right">[% LxERP.format_amount(invtotal, 2) %]</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <input type="hidden" name="oldinvtotal" value="[% HTML.escape(oldinvtotal) %]">
+  <input type="hidden" name="oldtotalpaid" value="[% HTML.escape(totalpaid) %]">
+  <tr>
+    <td><hr size="3" noshade></td>
+  </tr>
+
+[%- IF webdav %]
+  <tr>
+    <th class="listtop" align="left">Dokumente im Webdav-Repository</th>
+  </tr>
+  <tr>
+   <td>
+    <table width="100%">
+     <tr>
+      <td align="left" width="30%"><b>Dateiname</b></td>
+      <td align="left" width="70%"><b>Webdavlink</b></td>
+     </tr>
+ [%- FOREACH file = WEBDAV %]
+      <tr>
+        <td align="left">[% HTML.escape(file.name) %]</td>
+        <td align="left"><a href="[% file.link %]">[% HTML.escape(file.type) %]</a></td>
+      </tr>
+ [%- END %]
+    </table>
+   </td>
+  </tr>
+  <tr>
+    <td><hr size="3" noshade></td>
+  </tr>
+[%- END %]
+
+  <tr>
+    <td>
+      [% print_options %]
+    </td>
+  </tr>
+</table>
+
+[% label_edit %]<br>
+<input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'Save' | $T8 %]">
+<input class="submit" type="submit" name="action" value="[% 'Save and Close' | $T8 %]">
+
+[%- IF id %]
+  <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
+  <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %])" name="history" id="history" value="[% 'history' | $T8 %]">
+
+  <br>[% label_workflow %]<br>
+  <input class="submit" type="submit" name="action" value="[% 'Save as new' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
+
+  [%- IF is_sales_quo %]
+    <input class="submit" type="submit" name="action" value="[% 'Sales Order' | $T8 %]">
+  [%- END %]
+
+  [%- IF is_req_quo %]
+    <input class="submit" type="submit" name="action" value="[% 'Purchase Order' | $T8 %]">
+  [%- END %]
+
+  [%- IF is_sales_ord || is_pur_ord %]
+    <input class="submit" type="submit" name="action" value="[% 'Delivery Order' | $T8 %]">
+  [%- END %]
+
+  <input class="submit" type="submit" name="action" value="[% 'Invoice' | $T8 %]">
+
+  [%- IF is_sales_ord || is_pur_ord %]
+    <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
+    [%- IF is_sales_ord %]
+      <input class="submit" type="submit" name="action" value="[% 'Purchase Order' | $T8 %]">
+     <input class="submit" type="submit" name="action" value="[% 'Quotation' | $T8 %]">
+    [%- ELSE %]
+    [%- IF is_pur_ord %]
+      <input class="submit" type="submit" name="action" value="[% 'Sales Order' | $T8 %]">
+     <input class="submit" type="submit" name="action" value="[% 'Request for Quotation' | $T8 %]">
+    [%- END %]
+    [%- END %]
+  [%- END %]
+[%- END %]
+<input type="hidden" name="saved_xyznumber" value="[% HTML.escape(saved_xyznumber) %]">
+<input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
+<input type="hidden" name="callback" value="[% callback %]">
+[% IF vc == 'customer' %]
+  <input type="hidden" name="customer_discount" value="[% HTML.escape(customer_discount) %]">
+[% ELSE %]
+  <input type="hidden" name="vendor_discount" value="[% HTML.escape(vendor_discount) %]">
+[% END %]
+
+</form>
+
+</body>
+</html>

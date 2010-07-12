@@ -6,27 +6,35 @@
 # this version of locles processes not only all required .pl files
 # but also all parse_html_templated files.
 
+use strict;
+
 use Data::Dumper;
+use English;
 use FileHandle;
 use Getopt::Long;
 use List::Util qw(first);
 use POSIX;
 use Pod::Usage;
 
-$| = 1;
+$OUTPUT_AUTOFLUSH = 1;
 
-$basedir  = "../..";
-$bindir   = "$basedir/bin/mozilla";
-$dbupdir  = "$basedir/sql/Pg-upgrade";
-$dbupdir2 = "$basedir/sql/Pg-upgrade2";
-$menufile = "menu.ini";
-$submitsearch = qr/type\s*=\s*[\"\']?submit/i;
+my $basedir      = "../..";
+my $bindir       = "$basedir/bin/mozilla";
+my $dbupdir      = "$basedir/sql/Pg-upgrade";
+my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
+my $menufile     = "menu.ini";
+my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 
-%referenced_html_files = ();
+my (%referenced_html_files, %locale, %htmllocale, %alllocales, %cached, %submit, %subrt);
 
-my $opt_v = 0;
-my $opt_n = 0;
-my $opt_c = 0;
+my $count  = 0;
+my $notext = 0;
+
+my $debug  = 0;
+
+my $opt_v  = 0;
+my $opt_n  = 0;
+my $opt_c  = 0;
 
 sub parse_args {
   my ($help, $man);
@@ -51,12 +59,13 @@ sub parse_args {
 parse_args();
 
 opendir DIR, "$bindir" or die "$!";
-@progfiles = grep { /\.pl$/ && !/(_|^\.)/ } readdir DIR;
+my @progfiles = grep { /\.pl$/ && !/(_custom|^\.)/ } readdir DIR;
 seekdir DIR, 0;
-@customfiles = grep /_/, readdir DIR;
+my @customfiles = grep /_custom/, readdir DIR;
 closedir DIR;
 
 # put customized files into @customfiles
+my @menufiles;
 
 if ($opt_n) {
   @customfiles = ();
@@ -69,26 +78,32 @@ if ($opt_n) {
 }
 
 opendir DIR, $dbupdir or die "$!";
-@dbplfiles = grep { /\.pl$/ } readdir DIR;
+my @dbplfiles = grep { /\.pl$/ } readdir DIR;
 closedir DIR;
 
 opendir DIR, $dbupdir2 or die "$!";
-@dbplfiles2 = grep { /\.pl$/ } readdir DIR;
+my @dbplfiles2 = grep { /\.pl$/ } readdir DIR;
 closedir DIR;
 
 # slurp the translations in
+our $self    = {};
+our $missing = {};
+our @missing = ();
+our @lost    = ();
+
 if (-f 'all') {
-  require "all";
+  require 'all';
+}
+if (-f 'missing') {
+  require 'missing' ;
+  unlink 'missing';
+}
+if (-f 'lost') {
+  require 'lost';
+  unlink 'lost';
 }
 
-my %old_texts = %{ $self->{texts} };
-
-# Read HTML templates.
-#%htmllocale = ();
-#@htmltemplates = <../../templates/webpages/*/*_master.html>;
-#foreach $file (@htmltemplates) {
-#  scanhtmlfile($file);
-#}
+my %old_texts = %{ $self->{texts} || {} };
 
 map({ handle_file($_, $bindir); } @progfiles);
 map({ handle_file($_, $dbupdir); } @dbplfiles);
@@ -104,7 +119,7 @@ sub handle_file {
   &scanfile("$dir/$file");
 
   # scan custom_{module}.pl or {login}_{module}.pl files
-  foreach $customfile (@customfiles) {
+  foreach my $customfile (@customfiles) {
     if ($customfile =~ /_$file/) {
       if (-f "$dir/$customfile") {
         &scanfile("$dir/$customfile");
@@ -114,13 +129,13 @@ sub handle_file {
 
   # if this is the menu.pl file
   if ($file eq 'menu.pl') {
-    foreach $item (@menufiles) {
+    foreach my $item (@menufiles) {
       &scanmenu("$basedir/$item");
     }
   }
 
   if ($file eq 'menunew.pl') {
-    foreach $item (@menufiles) {
+    foreach my $item (@menufiles) {
       &scanmenu("$basedir/$item");
       print "." if $opt_v;
     }
@@ -128,10 +143,7 @@ sub handle_file {
 
   $file =~ s/\.pl//;
 
-  eval { require 'missing'; };
-  unlink 'missing';
-
-  foreach $text (keys %$missing) {
+  foreach my $text (keys %$missing) {
     if ($locale{$text} || $htmllocale{$text}) {
       unless ($self->{texts}{$text}) {
         $self->{texts}{$text} = $missing->{$text};
@@ -146,18 +158,14 @@ sub handle_file {
 $self->{texts} = {
 |;
 
-  foreach $key (sort keys %locale) {
-    if ($self->{texts}{$key}) {
-      $text = $self->{texts}{$key};
-    } else {
-      $text = $key;
-    }
-    $text =~ s/'/\\'/g;
-    $text =~ s/\\$/\\\\/;
+  foreach my $key (sort keys %locale) {
+    my $text    =  $self->{texts}{$key} || $key;
+    $text       =~ s/'/\\'/g;
+    $text       =~ s/\\$/\\\\/;
 
-    $keytext = $key;
-    $keytext =~ s/'/\\'/g;
-    $keytext =~ s/\\$/\\\\/;
+    my $keytext =  $key;
+    $keytext    =~ s/'/\\'/g;
+    $keytext    =~ s/\\$/\\\\/;
 
     print FH qq|  '$keytext'|
       . (' ' x (27 - length($keytext)))
@@ -169,26 +177,26 @@ $self->{texts} = {
 $self->{subs} = {
 |;
 
-  foreach $key (sort keys %subrt) {
-    $text = $key;
-    $text =~ s/'/\\'/g;
-    $text =~ s/\\$/\\\\/;
+  foreach my $key (sort keys %subrt) {
+    my $text =  $key;
+    $text    =~ s/'/\\'/g;
+    $text    =~ s/\\$/\\\\/;
     print FH qq|  '$text'| . (' ' x (27 - length($text))) . qq| => '$text',\n|;
   }
 
-  foreach $key (sort keys %submit) {
-    $text = ($self->{texts}{$key}) ? $self->{texts}{$key} : $key;
-    $text =~ s/'/\\'/g;
-    $text =~ s/\\$/\\\\/;
+  foreach my $key (sort keys %submit) {
+    my $text           =  ($self->{texts}{$key}) ? $self->{texts}{$key} : $key;
+    $text              =~ s/'/\\'/g;
+    $text              =~ s/\\$/\\\\/;
 
-    $english_sub = $key;
-    $english_sub =~ s/'/\\'/g;
-    $english_sub =~ s/\\$/\\\\/;
-    $english_sub = lc $key;
+    my $english_sub    =  $key;
+    $english_sub       =~ s/'/\\'/g;
+    $english_sub       =~ s/\\$/\\\\/;
+    $english_sub       = lc $key;
 
-    $translated_sub = lc $text;
-    $english_sub    =~ s/( |-|,)/_/g;
-    $translated_sub =~ s/( |-|,)/_/g;
+    my $translated_sub =  lc $text;
+    $english_sub       =~ s/( |-|,)/_/g;
+    $translated_sub    =~ s/( |-|,)/_/g;
     print FH qq|  '$translated_sub'|
       . (' ' x (27 - length($translated_sub)))
       . qq| => '$english_sub',\n|;
@@ -202,10 +210,6 @@ $self->{subs} = {
   close FH;
 
 }
-
-#foreach $file (@htmltemplates) {
-#  converthtmlfile($file);
-#}
 
 # now print out all
 
@@ -221,8 +225,8 @@ print FH q|#!/usr/bin/perl
 $self->{texts} = {
 |;
 
-foreach $key (sort keys %alllocales) {
-  $text = $self->{texts}{$key};
+foreach my $key (sort keys %alllocales) {
+  my $text = $self->{texts}{$key};
 
   $count++;
 
@@ -257,7 +261,7 @@ if (@missing) {
 $missing = {
 |;
 
-  foreach $text (@missing) {
+  foreach my $text (@missing) {
     print FH qq|  '$text'| . (' ' x (27 - length($text))) . qq| => '',\n|;
   }
 
@@ -270,14 +274,7 @@ $missing = {
 
 }
 
-@lost = ();
-
-if (-f "lost") {
-  require "lost";
-  unlink "lost";
-}
-
-while (($text, $translation) = each %old_texts) {
+while (my ($text, $translation) = each %old_texts) {
   next if ($alllocales{$text});
 
   push @lost, { 'text' => $text, 'translation' => $translation };
@@ -292,7 +289,7 @@ if (scalar @lost) {
     "# This file will be auto-generated by locales.pl. Do not edit it.\n\n" .
     "\@lost = (\n";
 
-  foreach $entry (@lost) {
+  foreach my $entry (@lost) {
     $entry->{text}        =~ s/\'/\\\'/g;
     $entry->{translation} =~ s/\'/\\\'/g;
     print FH "  { 'text' => '$entry->{text}', 'translation' => '$entry->{translation}' },\n";
@@ -303,17 +300,16 @@ if (scalar @lost) {
 }
 
 open(FH, "LANGUAGE");
-@language = <FH>;
+my @language = <FH>;
 close(FH);
-$trlanguage = $language[0];
+my $trlanguage = $language[0];
 chomp $trlanguage;
 
 if ($opt_c) {
   search_unused_htmlfiles();
-  search_translated_htmlfiles_wo_master();
 }
 
-$per = sprintf("%.1f", ($count - $notext) / $count * 100);
+my $per = sprintf("%.1f", ($count - $notext) / $count * 100);
 print "\n$trlanguage - ${per}%";
 print " - $notext/$count missing" if $notext;
 print "\n";
@@ -413,13 +409,12 @@ sub scanfile {
 
       # is this a template call?
       if (/parse_html_template2?\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
-        my $newfile = "$basedir/templates/webpages/$1_master.html";
+        my $newfile = "$basedir/templates/webpages/$1.html";
         if (/parse_html_template2/) {
           print "E: " . strip_base($file) . " is still using 'parse_html_template2' for " . strip_base($newfile) . ".\n";
         }
         if (-f $newfile) {
 #           &scanhtmlfile($newfile);
-#           &converthtmlfile($newfile);
            $cached{$file}{scanh}{$newfile} = 1;
           print "." if $opt_v;
         } elsif ($opt_c) {
@@ -430,7 +425,7 @@ sub scanfile {
       # is this a sub ?
       if (/^sub /) {
         next if ($dont_include_subs);
-        ($null, $subrt) = split / +/;
+        my $subrt = (split / +/)[1];
 #        $subrt{$subrt} = 1;
         $cached{$file}{subr}{$subrt} = 1;
         next;
@@ -525,8 +520,8 @@ sub scanmenu {
   grep { s/(\[|\])//g } @a;
 
   foreach my $item (@a) {
-    @b = split /--/, $item;
-    foreach $string (@b) {
+    my @b = split /--/, $item;
+    foreach my $string (@b) {
       chomp $string;
       $locale{$string}     = 1;
       $alllocales{$string} = 1;
@@ -535,17 +530,25 @@ sub scanmenu {
 
 }
 
+sub unescape_template_string {
+  my $in =  "$_[0]";
+  $in    =~ s/\\(.)/$1/g;
+  return $in;
+}
+
 sub scanhtmlfile {
   local *IN;
 
-  if (!defined $cached{$_[0]}) {
+  my $file = shift;
+
+  if (!defined $cached{$file}) {
     my %plugins = ( 'loaded' => { }, 'needed' => { } );
 
-    open(IN, $_[0]) || die $_[0];
+    open(IN, $file) || die $file;
 
-    my $copying = 0;
+    my $copying  = 0;
     my $issubmit = 0;
-    my $text = "";
+    my $text     = "";
     while (my $line = <IN>) {
       chomp($line);
 
@@ -558,61 +561,55 @@ sub scanhtmlfile {
         $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator));
       }
 
-      while ($line =~ m/\[\%            # Template-Start-Tag
-                        [\-~#]*         # Whitespace-Unterdrückung
-                        \s*             # Optional beliebig viele Whitespace
-                        [\'\"]          # Anfang des zu übersetzenden Strings
-                        (.*?)           # Der zu übersetzende String
-                        [\'\"]          # Ende des zu übersetzenden Strings
-                        \s*\|\s*        # Pipe-Zeichen mit optionalen Whitespace davor und danach
-                        \$T8            # Filteraufruf
-                        .*?             # Optionale Argumente für den Filter und Whitespaces
-                        [\-~#]*         # Whitespace-Unterdrückung
-                        \%\]            # Template-Ende-Tag
+      while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
+                          (LxERP\.t8)\( #   LxERP.t8(                             ::Parameter $1::
+                          ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $2::
+                          (.*?)         #   Der zu übersetzende String            ::Parameter $3::
+                          (?<!\\)\2     #   Ende des zu übersetzenden Strings
+                        |               # Start von Variante 2: [% '...' | $T8 %]
+                          \[\%          #   Template-Start-Tag
+                          [\-~#]*       #   Whitespace-Unterdrückung
+                          \s*           #   Optional beliebig viele Whitespace
+                          ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $4::
+                          (.*?)         #   Der zu übersetzende String            ::Parameter $5::
+                          (?<!\\)\4     #   Ende des zu übersetzenden Strings
+                          \s*\|\s*      #   Pipe-Zeichen mit optionalen Whitespace davor und danach
+                          (\$T8)        #   Filteraufruf                          ::Parameter $6::
+                          .*?           #   Optionale Argumente für den Filter
+                          \s*           #   Whitespaces
+                          [\-~#]*       #   Whitespace-Unterdrückung
+                          \%\]          #   Template-Ende-Tag
+                        )
                        /ix) {
-#        print "Found filter '$1' in string '$line'\n";
-        $cached{$_[0]}{all}{$1}  = 1;
-        $cached{$_[0]}{html}{$1} = 1;
-        $plugins{needed}->{T8}   = 1;
-        substr $line, $-[0], $+[0] - $-[0], '';
+        my $module = $1 || $6;
+        my $string = $3 || $5;
+        print "Found filter >>>$string<<<\n" if $debug;
+        substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
+
+        $string                         = unescape_template_string($string);
+        $cached{$file}{all}{$string}    = 1;
+        $cached{$file}{html}{$string}   = 1;
+        $cached{$file}{submit}{$string} = 1 if $PREMATCH =~ /$submitsearch/;
+        $plugins{needed}->{T8}          = 1 if $module eq '$T8';
+        $plugins{needed}->{LxERP}       = 1 if $module eq 'LxERP.t8';
       }
 
-      while ("" ne $line) {
-        if (!$copying) {
-          if ($line =~ m|<translate>|i) {
-            my $eom = $+[0];
-            if ($` =~ /$submitsearch/) {
-              $issubmit = 1
-            }
-            substr($line, 0, $eom) = "";
-            $copying = 1;
-          } else {
-            $line = "";
-          }
-
-        } else {
-          if ($line =~ m|</translate>|i) {
-            $text .= $`;
-            substr($line, 0, $+[0]) = "";
-            $text =~ s/\s+/ /g;
-
-            $copying = 0;
-            if ($issubmit) {
-  #            $submit{$text} = 1;
-               $cached{$_[0]}{submit}{$text} = 1;
-              $issubmit = 0;
-            }
-  #          $alllocales{$text} = 1;
-             $cached{$_[0]}{all}{$text} = 1;
-  #          $htmllocale{$text} = 1;
-             $cached{$_[0]}{html}{$text} = 1;
-            $text = "";
-
-          } else {
-            $text .= $line;
-            $line = "";
-          }
-        }
+      while ($line =~ m/\[\%          # Template-Start-Tag
+                        [\-~#]?       # Whitespace-Unterdrückung
+                        \s*           # Optional beliebig viele Whitespace
+                        (?:           # Die erkannten Template-Direktiven
+                          PROCESS
+                        |
+                          INCLUDE
+                        )
+                        \s+           # Mindestens ein Whitespace
+                        [\'\"]?       # Anfang des Dateinamens
+                        ([^\s]+)      # Beliebig viele Nicht-Whitespaces -- Dateiname
+                        \.html        # Endung ".html", ansonsten kann es der Name eines Blocks sein
+                       /ix) {
+        my $new_file_name = "$basedir/templates/webpages/$1.html";
+        $cached{$file}{scanh}{$new_file_name} = 1;
+        substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
       }
     }
 
@@ -620,75 +617,18 @@ sub scanhtmlfile {
 
     foreach my $plugin (keys %{ $plugins{needed} }) {
       next if ($plugins{loaded}->{$plugin});
-      print "E: " . strip_base($_[0]) . " requires the Template plugin '$plugin', but is not loaded with '[\% USE $plugin \%]'.\n";
+      print "E: " . strip_base($file) . " requires the Template plugin '$plugin', but is not loaded with '[\% USE $plugin \%]'.\n";
     }
-
-    &converthtmlfile($_[0]);
   }
 
   # copy back into global arrays
-  map { $alllocales{$_} = 1 } keys %{$cached{$_[0]}{all}};
-  map { $htmllocale{$_} = 1 } keys %{$cached{$_[0]}{html}};
-  map { $submit{$_} = 1 }     keys %{$cached{$_[0]}{submit}};
-}
+  map { $alllocales{$_} = 1 } keys %{$cached{$file}{all}};
+  map { $htmllocale{$_} = 1 } keys %{$cached{$file}{html}};
+  map { $submit{$_} = 1 }     keys %{$cached{$file}{submit}};
 
-sub converthtmlfile {
-  local *IN;
-  local *OUT;
+  map { scanhtmlfile($_)  }   keys %{$cached{$file}{scanh}};
 
-  my $file = shift;
-
-  open(IN, $file) || die;
-
-  my $langcode = (split("/", getcwd()))[-1];
-  $file =~ s/_master.html$/_${langcode}.html/;
-
-  open(OUT, ">$file") || die;
-
-  my $copying = 0;
-  my $text = "";
-  while (my $line = <IN>) {
-    chomp($line);
-    if ("" eq $line) {
-      print(OUT "\n");
-      next;
-    }
-
-    while ("" ne $line) {
-      if (!$copying) {
-        if ($line =~ m|<translate>|i) {
-          print(OUT $`);
-          substr($line, 0, $+[0]) = "";
-          $copying = 1;
-          print(OUT "\n") if ("" eq $line);
-
-        } else {
-          print(OUT "${line}\n");
-          $line = "";
-        }
-
-      } else {
-        if ($line =~ m|</translate>|i) {
-          $text .= $`;
-          substr($line, 0, $+[0]) = "";
-          $text =~ s/\s+/ /g;
-          $copying = 0;
-          $alllocales{$text} = 1;
-          $htmllocale{$text} = 1;
-          print(OUT $self->{"texts"}{$text} || $text);
-          print(OUT "\n") if ("" eq $line);
-          $text = "";
-
-        } else {
-          $text .= $line;
-          $line = "";
-        }
-      }
-    }
-  }
-
-  close(IN);
-  close(OUT);
+  @referenced_html_files{keys %{$cached{$file}{scanh}}} = (1) x scalar keys %{$cached{$file}{scanh}};
 }
 
 sub search_unused_htmlfiles {
@@ -704,27 +644,6 @@ sub search_unused_htmlfiles {
       } elsif (($entry =~ /_master.html$/) && -f $entry && !$referenced_html_files{$entry}) {
         print "W: unused HTML template: " . strip_base($entry) . "\n";
 
-      }
-    }
-  }
-}
-
-sub search_translated_htmlfiles_wo_master {
-  my @unscanned_dirs = ('../../templates/webpages');
-
-  while (scalar @unscanned_dirs) {
-    my $dir = shift @unscanned_dirs;
-
-    foreach my $entry (<$dir/*>) {
-      if (-d $entry) {
-        push @unscanned_dirs, $entry;
-
-      } elsif (($entry =~ /_[a-z]+\.html$/) && ($entry !~ /_master.html$/) && -f $entry) {
-        my $master =  $entry;
-        $master    =~ s/[a-z]+\.html$/master.html/;
-        if (! -f $master) {
-          print "W: translated HTML template without master: " . strip_base($entry) . "\n";
-        }
       }
     }
   }

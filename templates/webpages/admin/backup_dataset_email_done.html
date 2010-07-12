@@ -1,0 +1,14 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[% USE HTML %]<body class="admin">
+
+ <h2>[% title %]</h2>
+
+ <p>[% LxERP.t8('The dataset backup has been sent via email to #1.', to) | html %]</p>
+
+ <form method="post" action="admin.pl">
+  <input type="hidden" name="nextsub" value="list_users">
+  <input type="submit" name="action" value="[% 'Continue' | $T8 %]">
+ </form>
+</body>
+</html>

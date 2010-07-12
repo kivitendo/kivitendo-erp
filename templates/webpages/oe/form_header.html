@@ -1,0 +1,274 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+<body onLoad="[% onload %]">
+
+  <form method="post" name="oe" action="[% script %]">
+
+    <script type="text/javascript" src="js/common.js"></script>
+    <script type="text/javascript" src="js/delivery_customer_selection.js"></script>
+    <script type="text/javascript" src="js/vendor_selection.js"></script>
+    <script type="text/javascript" src="js/calculate_qty.js"></script>
+    <script type="text/javascript" src="js/customer_or_vendor_selection.js"></script>
+    <script type="text/javascript" src="js/follow_up.js"></script>
+
+[%- FOREACH row = HIDDENS %]
+   <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" >
+[%- END %]
+
+    <input type="hidden" name="convert_from_oe_ids" value="[% HTML.escape(convert_from_oe_ids) %]">
+
+    <input type="hidden" name="follow_up_trans_id_1" value="[% HTML.escape(id) %]">
+    <input type="hidden" name="follow_up_trans_type_1" value="[% HTML.escape(type) %]">
+    <input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
+    <input type="hidden" name="follow_up_rowcount" value="1">
+
+    <div class="listtop">[% title %]</div>
+
+    <table width="100%">
+      <tr height="5"></tr>
+      <tr>
+        <td>
+          <table width="100%">
+            <tr valign="top">
+              <td width="50%">
+                <table width="100%">
+                  <tr>
+                    <th align="right">[% IF vc == 'customer' %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</th>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html'
+                           name          = vc,
+                           style         = 'width: 250px',
+                           DATA          = vc == 'customer' ? ALL_CUSTOMERS : ALL_VENDORS,
+                           id_sub        = 'vc_keys',
+                           label_key     = 'name',
+                           select        = vc_select,
+                           limit         = vclimit,
+                           allow_textbox = 1,
+                           onChange      = "document.getElementById('update_button').click();" -%]
+                      <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% HTML.escape(vc) %]')">
+                    </td>
+                  </tr>
+[%- IF ALL_CONTACTS.size %]
+                  <tr>
+                    <th align="right">[% 'Contact Person' | $T8 %]</th>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'cp_id',
+                           style      = 'width: 250px',
+                           DATA       = ALL_CONTACTS,
+                           id_key     = 'cp_id',
+                           label_sub  = 'contact_labels',
+                           show_empty = 1 -%]
+                    </td>
+                  </tr>
+[%- END %]
+[%- IF ALL_SHIPTO.size %]
+                  <tr>
+                    <th align="right">[% 'Shipping Address' | $T8 %]</th>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'shipto_id',
+                           style      = 'width: 250px',
+                           DATA       = ALL_SHIPTO,
+                           id_key     = 'shipto_id',
+                           label_sub  = 'shipto_labels',
+                           show_empty = 1,
+                           onChange   = "document.getElementById('update_button').click();" -%]
+                    </td>
+                  </tr>
+[%- END %]
+[%- IF is_order %]
+                  <tr>
+                    <td align="right">[% 'Credit Limit' | $T8 %]</td>
+                    <td>[% LxERP.format_amount(creditlimit, 0) %]; [% 'Remaining' | $T8 %] <span class="plus[% is_credit_remaining_negativ %]">[% LxERP.format_amount(creditremaining, 0) %]</span></td>
+                  </tr>
+[%- END %]
+[%- IF business %]
+                  <tr>
+                    <th align="right">[% business_label %]</th>
+                    <td>[% HTML.escape(business) %]; [% 'Trade Discount' | $T8 %] [% LxERP.format_percent(tradediscount) %] %</td>
+                  </tr>
+[%- END %]
+[%- IF max_dunning_level %]
+                  <tr>
+                    <th align="right">[% 'Max. Dunning Level' | $T8 %]:</th>
+                    <td>
+                      <b>[% HTML.escape(max_dunning_level) %]</b>;
+                      [% 'Dunning Amount' | $T8 %]: <b>[% LxERP.format_amount(dunning_amount, 2) %]</b>
+                    </td>
+                  </tr>
+[%- END %]
+                  <tr>
+                    <th align="right">[% 'Steuersatz' | $T8 %]</th>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'taxzone_id',
+                           style      = 'width: 250px',
+                           DATA       = ALL_TAXZONES,
+                           id_key     = 'id',
+                           label_key  = 'description' -%]
+                    </td>
+                  </tr>
+[%- IF ALL_DEPARTMENTS %]
+                  <tr>
+                    <th align="right" nowrap>[% 'Department' | $T8 %]</th>
+                    <td colspan="3">
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'department_id',
+                           style      = 'width: 250px',
+                           DATA       = ALL_DEPARTMENTS,
+                           id_key     = 'id',
+                           label_sub  = 'department_labels',
+                           show_empty = 1 -%]
+                    </td>
+                  </tr>
+[%- END %]
+                  <tr>
+[%- IF currencies %]
+                  <tr>
+                    <th align="right">[% 'Currency' | $T8 %]</th>
+                    <td>[% currencies %]</td>
+                  </tr>
+[%- END %]
+[%- IF show_exchangerate %]
+                  <tr>
+                    <th align="right">[% 'Exchangerate' | $T8 %]</th>
+                    <td>
+                     [%- IF forex %]
+                      [% LxERP.format_amount(exchangerate, 2) %]
+                     [%- ELSE %]
+                      <input name="exchangerate" size="10" value="[% HTML.escape(LxERP.format_amount(exchangerate)) %]">
+                     [%- END %]
+                    </td>
+                  </tr>
+[%- END %]
+                  <tr>
+                    <th align="right">[% 'Shipping Point' | $T8 %]</th>
+                    <td colspan="3"><input name="shippingpoint" size="35" value="[% HTML.escape(shippingpoint) %]"></td>
+                  </tr>
+                  <tr>
+                    <th align="right">[% 'Ship via' | $T8 %]</th>
+                    <td colspan="3"><input name="shipvia" size="35" value="[% HTML.escape(shipvia) %]"></td>
+                  </tr>
+                  <tr>
+                    <th align="right">[% 'Transaction description' | $T8 %]</th>
+                    <td colspan="3"><input name="transaction_description" size="35" value="[% HTML.escape(transaction_description) %]"></td>
+                  </tr>
+[%- IF show_delivery_customer %]
+                  <tr>
+                    <td colspan="4">
+                      <table>
+                        <tr>
+                          <td colspan="2">
+                          <button type="button" onclick="delivery_customer_selection_window('delivery_customer_string','delivery_customer_id')">[% 'Choose Customer' | $T8 %]</button>
+                        </td>
+                          <td colspan="2"><input type="hidden" name="delivery_customer_id" value="[% HTML.escape(delivery_customer_id) %]">
+                          <input size="45" id="delivery_customer_string" name="delivery_customer_string" value="[% HTML.escape(delivery_customer_string) %]"></td>
+                        </tr>
+                        <tr>
+                          <td colspan="2">
+                            <button type="button" onclick="vendor_selection_window('delivery_vendor_string','delivery_vendor_id')">[% 'Choose Vendor' | $T8 %]</button>
+                          </td>
+                          <td colspan="2"><input type="hidden" name="delivery_vendor_id" value="[% HTML.escape(delivery_vendor_id) %]">
+                          <input size="45" id="vendor_string" name="delivery_vendor_string" value="[% HTML.escape(delivery_vendor_string) %]"></td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+[%- END %]
+                </table>
+              </td>
+              <td align="right">
+                <table>
+              [% openclosed %]
+                  <tr>
+                    <th align="right">[% 'Employee' | $T8 %]</th>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'employee_id',
+                           DATA       = ALL_EMPLOYEES,
+                           id_key     = 'id',
+                           label_sub  = 'sales_employee_labels' -%]
+                    </td>
+                  </tr>
+[%- IF is_sales and ALL_SALESMEN.size %]
+                  <tr>
+                    <th align="right">[% 'Salesman' | $T8 %]</th>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'salesman_id',
+                           default    = salesman_id ? salesman_id : employee_id,
+                           DATA       = ALL_SALESMEN,
+                           id_key     = 'id',
+                           label_sub  = 'sales_employee_labels' -%]
+                    </td>
+                  </tr>
+[%- END %]
+[%- IF is_order %]
+                  <tr>
+                    <th width="70%" align="right" nowrap>[% 'Order Number' | $T8 %]</th>
+                    <td><input name="ordnumber" size="11" value="[% HTML.escape(ordnumber) %]"></td>
+                  </tr>
+[%- END %]
+                  <tr>
+                    <th width="70%" align="right" nowrap>[% IF is_req_quo %][% 'RFQ Number' | $T8 %][% ELSE %][% 'Quotation Number' | $T8 %][% END %]</th>
+                    <td><input name="quonumber" size="11" value="[% HTML.escape(quonumber) %]"></td>
+                  </tr>
+[%- IF is_order %]
+                  <tr>
+                    <th width="70%" align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
+                    <td><input name="cusordnumber" size="11" value="[% HTML.escape(cusordnumber) %]"></td>
+                  </tr>
+[%- END %]
+                  <tr>
+                    <th align="right" nowrap>
+                     [%- IF is_order %]
+                      [% 'Order Date' | $T8 %]
+                     [%- ELSE %]
+                      [% 'Quotation Date' | $T8 %]
+                     [%- END %]
+                    </th>
+                    <td nowrap>
+                      <input name=transdate id=transdate size=11 title="[% HTML.escape(dateformat) %]" value="[% transdate %]" onBlur="check_right_date_format(this)">
+                      <input type=button name=transdate id="trigger1" value="[% 'button' | $T8 %]">
+                    </td>
+                  </tr>
+                  <tr>
+                    <th align="right" nowrap>
+                     [%- IF is_sales_quo %]
+                      [% 'Valid until' | $T8 %]
+                     [%- ELSE %]
+                      [% 'Required by' | $T8 %]
+                     [%- END %]
+                    </th>
+                    <td nowrap>
+                      <input name=reqdate id=reqdate size=11 title="[% HTML.escape(dateformat) %]" value="[% reqdate %]" onBlur="check_right_date_format(this)">
+                      <input type=button name=reqdate id="trigger2" value="[% 'button' | $T8 %]">
+                    </td>
+                  </tr>
+                  <tr>
+                    <th width="70%" align="right" nowrap>[% 'Project Number' | $T8 %]</th>
+                    <td>
+                      [%- INCLUDE 'generic/multibox.html'
+                           name       = 'globalproject_id',
+                           DATA       = ALL_PROJECTS,
+                           id_key     = 'id',
+                           label_key  = 'projectnumber',
+                           show_empty = 1,
+                           onChange   = "document.getElementById('update_button').click();" -%]
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+    <script type="text/javascript">
+     <!--
+       Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
+       Calendar.setup({ inputField : "reqdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
+     //-->
+    </script>

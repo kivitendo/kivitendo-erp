@@ -1,0 +1,84 @@
+[%- USE T8 %]
+[% USE HTML %]<body onload="[% onload %]">
+
+ <form name="Form">
+
+  <input type="hidden" name="input_name" value="[% HTML.escape(input_name) %]">
+  <input type="hidden" name="input_id" value="[% HTML.escape(input_id) %]">
+
+  <table width="100%">
+   <tr>
+    <th class="listtop">[% title %]</th>
+   </tr>
+   <tr height="5"></tr>
+
+   <tr><td>[% 'Please insert object dimensions below.' | $T8 %]</td></tr>
+
+   <tr>
+    <td>
+
+     <table>
+      <tr class="listheading">
+       [% FOREACH col = HEADER %]
+        <th nowrap class="listheading">[% col.column_title %]</a></th>
+       [% END %]
+      </tr>
+
+      [% FOREACH row = VARIABLES %]
+       <tr class="listrow[% loop.count % 2 %]">
+        <td>[% HTML.escape(row.description) %]:</td><td><input id="[% row.name %]" name="[% row.name %]" value=""></td>
+        <td>[% HTML.escape(row.unit) %]</td>
+       </tr>
+      [% END %]
+     </table>
+
+    </td>
+   </tr>
+  </table>
+ <button type="button" onclick="calculate_qty()">[% 'Calculate' | $T8 %]</button>
+ </form>
+
+ <script type="text/javascript">
+  <!--//
+      function calculate_qty() {
+        [% FOREACH row = VARIABLES %]
+        var [% row.name %] = document.getElementsByName("[% row.name %]")[0].value.replace(/,/g, ".");
+       [% END %]
+        var result = [% formel %];
+        result = number_format(result, 2, ",", ".");
+        window.opener.document.getElementsByName(document.Form.input_name.value)[0].value = result;
+        self.close();
+      }
+      //-->
+
+function /*out: String*/ number_format( /* in: float   */ number, 
+                                        /* in: integer */ laenge, 
+                                        /* in: String  */ sep, 
+                                        /* in: String  */ th_sep ) {
+
+  number = Math.round( number * Math.pow(10, laenge) ) / Math.pow(10, laenge);
+  str_number = number+"";
+  arr_int = str_number.split(".");
+  if(!arr_int[0]) arr_int[0] = "0";
+  if(!arr_int[1]) arr_int[1] = "";
+  if(arr_int[1].length < laenge){
+    nachkomma = arr_int[1];
+    for(i=arr_int[1].length+1; i <= laenge; i++){  nachkomma += "0";  }
+    arr_int[1] = nachkomma;
+  }
+  if(th_sep != "" && arr_int[0].length > 3){
+    Begriff = arr_int[0];
+    arr_int[0] = "";
+    for(j = 3; j < Begriff.length ; j+=3){
+      Extrakt = Begriff.slice(Begriff.length - j, Begriff.length - j + 3);
+      arr_int[0] = th_sep + Extrakt +  arr_int[0] + "";
+    }
+    str_first = Begriff.substr(0, (Begriff.length % 3 == 0)?3:(Begriff.length % 3));
+    arr_int[0] = str_first + arr_int[0];
+  }
+  return arr_int[0]+sep+arr_int[1];
+}
+ </script>
+
+</body>
+</html>

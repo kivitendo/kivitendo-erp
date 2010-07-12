@@ -1,0 +1,74 @@
+[%- USE T8 %]
+[% USE HTML %]<body class="admin" onload="">
+
+ <form method="post" action="admin.pl">
+
+  <div class="listtop" width="100%">[% title %]</div>
+
+  <p>
+   <table width="100%">
+    <tr>
+     <th class="listtop">[% 'Login' | $T8 %]</th>
+     <th class="listtop">[% 'Name' | $T8 %]</th>
+     <th class="listtop">[% 'Company' | $T8 %]</th>
+     <th class="listtop">[% 'Driver' | $T8 %]</th>
+     <th class="listtop">[% 'Host' | $T8 %]</th>
+     <th class="listtop">[% 'Dataset' | $T8 %]</th>
+     <th class="listtop">[% 'Templates' | $T8 %]</th>
+    </tr>
+
+    [% FOREACH row = MEMBERS %]
+     <tr class="listrow[% loop.count % 2 %]">
+      <td><a href="admin.pl?action=edit&login=[% HTML.url(row.login) %]">[% HTML.escape(row.login) %]</a></td>
+      <td>[% HTML.escape(row.name) %]</td>
+      <td>[% HTML.escape(row.company) %]</td>
+      <td>[% HTML.escape(row.dbdriver) %]</td>
+      <td>[% IF row.dbhost %][% HTML.escape(row.dbhost) %][% ELSE %]localhost[% END %]</td>
+      <td>[% HTML.escape(row.dbname) %]</td>
+      <td>[% HTML.escape(row.templates) %]</td>
+     </tr>
+    [% END %]
+
+    <td colspan="7"><hr size="3" noshade></td>
+   </table>
+  </p>
+
+
+  <input type="submit" class="submit" name="action" value="[% 'Add User' | $T8 %]">
+  <input type="submit" class="submit" name="action" value="[% 'Edit groups' | $T8 %]">
+  <input type="submit" class="submit" name="action" value="[% 'Pg Database Administration' | $T8 %]">
+  [% IF LOCKED %]
+   <input type="submit" class="submit" name="action" value="[% 'Unlock System' | $T8 %]">
+   [% ELSE %]
+   <input type="submit" class="submit" name="action" value="[% 'Lock System' | $T8 %]">
+  [% END %]
+  <input type="submit" class="submit" name="action" value="[% 'Logout' | $T8 %]">
+
+  <p>[% 'Click on login name to edit!' | $T8 %]</p>
+
+  <p>[% 'To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.' | $T8 %]</p>
+ </form>
+
+ <form method="post" action="login.pl">
+
+  <div class="listheading">Lx-Office ERP [% 'Login' | $T8 %]</div>
+
+  <table border="0">
+   <tr>
+    <th align="right">[% 'Name' | $T8 %]</th>
+    <td><input class="login" name="login"></td>
+    <td>&nbsp;</td>
+   </tr>
+   <tr>
+    <th align="right">[% 'Password' | $T8 %]</th>
+    <td><input class="login" type="password" name="password"></td>
+    <td><input type="submit" name="action" value="[% 'Login' | $T8 %]"></td>
+   </tr>
+  </table>
+
+ </form>
+
+ <hr size="3" noshade>
+
+</body>
+</html>

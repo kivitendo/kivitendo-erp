@@ -1,0 +1,26 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="admin.pl">
+
+  <p>
+   [% LxERP.t8('The old file containing the user information is still present (&quot;#1&quot;). Do you want to migrate these users into the database? If not then you will not be able to log in with any of the users present in the old file.', memberfile) | html %]
+  </p>
+
+  <p>
+   [% LxERP.t8('If you chose to let Lx-Office do the migration then Lx-Office will also remove the old member file after creating a backup copy of it in the directory &quot;#1&quot;.', backupdir) | html %]
+  </p>
+
+  <input type="hidden" name="yes_nextsub" value="migrate_users">
+  <input type="hidden" name="no_nextsub" value="list_users">
+
+  <input type="submit" class="submit" name="action" value="[% 'Yes' | $T8 %]">
+  <input type="submit" class="submit" name="action" value="[% 'No' | $T8 %]">
+
+ </form>
+
+</body>
+</html>

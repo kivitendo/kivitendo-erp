@@ -54,6 +54,7 @@ use SL::Menu;
 use SL::Template;
 use SL::User;
 use Template;
+use URI;
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(any);
 
@@ -534,6 +535,26 @@ sub isblank {
   $main::lxdebug->leave_sub();
 }
 
+sub _get_request_uri {
+  my $self = shift;
+
+  return URI->new($ENV{HTTP_REFERER})->canonical() if $ENV{HTTP_X_FORWARDED_FOR};
+
+  my $scheme =  $ENV{HTTPS} && (lc $ENV{HTTPS} eq 'on') ? 'https' : 'http';
+  my $port   =  $ENV{SERVER_PORT} || '';
+  $port      =  undef if (($scheme eq 'http' ) && ($port == 80))
+                      || (($scheme eq 'https') && ($port == 443));
+
+  my $uri    =  URI->new("${scheme}://");
+  $uri->scheme($scheme);
+  $uri->port($port);
+  $uri->host($ENV{HTTP_HOST} || $ENV{SERVER_ADDR});
+  $uri->path_query($ENV{REQUEST_URI});
+  $uri->query('');
+
+  return $uri;
+}
+
 sub create_http_response {
   $main::lxdebug->enter_sub();
 
@@ -543,25 +564,19 @@ sub create_http_response {
   my $cgi      = $main::cgi;
   $cgi       ||= CGI->new('');
 
-  my $base_path;
-
-  if ($ENV{HTTP_X_FORWARDED_FOR}) {
-    $base_path =  $ENV{HTTP_REFERER};
-    $base_path =~ s|^.*?://.*?/|/|;
-  } else {
-    $base_path =  $ENV{REQUEST_URI};
-  }
-  $base_path =~ s|[^/]+$||;
-  $base_path =~ s|/$||;
-
   my $session_cookie;
   if (defined $main::auth) {
+    my $uri      = $self->_get_request_uri;
+    my @segments = $uri->path_segments;
+    pop @segments;
+    $uri->path_segments(@segments);
+
     my $session_cookie_value   = $main::auth->get_session_id();
     $session_cookie_value    ||= 'NO_SESSION';
 
     $session_cookie = $cgi->cookie('-name'   => $main::auth->get_session_cookie_name(),
                                    '-value'  => $session_cookie_value,
-                                   '-path'   => $base_path,
+                                   '-path'   => $uri->path,
                                    '-secure' => $ENV{HTTPS});
   }
 
@@ -714,6 +729,20 @@ sub ajax_response_header {
   return $output;
 }
 
+sub redirect_header {
+  my $self     = shift;
+  my $new_url  = shift;
+
+  my $base_uri = $self->_get_request_uri;
+  my $new_uri  = URI->new_abs($new_url, $base_uri);
+
+  die "Headers already sent" if $::self->{header};
+  $self->{header} = 1;
+
+  my $cgi = $main::cgi || CGI->new('');
+  return $cgi->redirect($new_uri);
+}
+
 sub _prepare_html_template {
   $main::lxdebug->enter_sub();
 
@@ -727,20 +756,16 @@ sub _prepare_html_template {
   }
   $language = "de" unless ($language);
 
-  if (-f "templates/webpages/${file}_${language}.html") {
-    if ((-f ".developer") &&
-        (-f "templates/webpages/${file}_master.html") &&
-        ((stat("templates/webpages/${file}_master.html"))[9] >
-         (stat("templates/webpages/${file}_${language}.html"))[9])) {
-      my $info = "Developer information: templates/webpages/${file}_master.html is newer than the localized version.\n" .
+  if (-f "templates/webpages/${file}.html") {
+    if ((-f ".developer") && ((stat("templates/webpages/${file}.html"))[9] > (stat("locale/${language}/all"))[9])) {
+      my $info = "Developer information: templates/webpages/${file}.html is newer than the translation file locale/${language}/all.\n" .
         "Please re-run 'locales.pl' in 'locale/${language}'.";
       print(qq|<pre>$info</pre>|);
       die($info);
     }
 
-    $file = "templates/webpages/${file}_${language}.html";
-  } elsif (-f "templates/webpages/${file}.html") {
     $file = "templates/webpages/${file}.html";
+
   } else {
     my $info = "Web page template '${file}' not found.\n" .
       "Please re-run 'locales.pl' in 'locale/${language}'.";
@@ -764,6 +789,7 @@ sub _prepare_html_template {
     $jsc_dateformat =~ s/m+/\%m/gi;
     $jsc_dateformat =~ s/y+/\%Y/gi;
     $additional_params->{"myconfig_jsc_dateformat"} = $jsc_dateformat;
+    $additional_params->{"myconfig"} ||= \%::myconfig;
   }
 
   $additional_params->{"conf_dbcharset"}              = $main::dbcharset;
@@ -818,10 +844,6 @@ sub parse_html_template {
 
   my $input = join('', <$in>);
   $in->close();
-
-  if ($main::locale) {
-    $input = $main::locale->{iconv}->convert($input);
-  }
 
   my $output;
   if (!$template->process(\$input, $additional_params, \$output)) {
@@ -3548,6 +3570,20 @@ handles business (thats customer/vendor types) sequences.
 
 special behaviour for empty strings in customerinitnumber field:
 will in this case not increase the value, and return undef.
+
+=item redirect_header $url
+
+Generates a HTTP redirection header for the new C<$url>. Constructs an
+absolute URL including scheme, host name and port. If C<$url> is a
+relative URL then it is considered relative to Lx-Office base URL.
+
+This function C<die>s if headers have already been created with
+C<$::form-E<gt>header>.
+
+Examples:
+
+  print $::form->redirect_header('oe.pl?action=edit&id=1234');
+  print $::form->redirect_header('http://www.lx-office.org/');
 
 =back
 

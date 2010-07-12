@@ -1,0 +1,132 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+  <tr>
+   <td>
+    <table width="100%">
+     <tr valign="bottom">
+      <td>
+       <table>
+        <tr>
+         <th align="left">[% 'Notes' | $T8 %]</th>
+         <th align="left">[% 'Internal Notes' | $T8 %]</th>
+        </tr>
+        <tr valign="top">
+         <td>
+          <textarea name="notes" rows="[% rows %]" cols="26" wrap="soft">[% notes %]</textarea>
+         </td>
+         <td>
+          <textarea name="intnotes" rows="[% rows %]" cols="35" wrap="soft">[% intnotes %]</textarea>
+         </td>
+        </tr>
+[%- IF id && follow_ups.size %]
+        <tr>
+          <td colspan="2">
+            [%- LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size, follow_ups_unfinished) | html %]
+          <td>
+        </tr>
+[%- END %]
+       </table>
+      </td>
+      <td align="right">
+  [%- IF taxaccounts %]
+       <input name="taxincluded" class="checkbox" type="checkbox" [% IF taxincluded %]checked[% END %]>
+       <b>[% 'Tax Included' | $T8 %]</b>
+       <br>
+       <br>
+  [%- END %]
+       <table>
+
+[%- UNLESS taxincluded %]
+        <tr>
+         <th align="right">[% 'Subtotal' | $T8 %]</th>
+         <td align="right">[% LxERP.format_amount(invsubtotal, 2) %]</td>
+       </tr>
+[%- END %]
+
+[%# tax %]
+[% FOREACH item = taxaccounts_array %]
+[% SET description_ref = item _ '_description' %]
+[% SET rate_ref        = item _ '_rate' %]
+[% SET total_ref       = item _ '_total' %]
+[% SET netto_ref       = item _ '_netto' %]
+       <tr>
+        <th align="right">Enthaltene [% $description_ref | html %]&nbsp;[% $rate_ref * 100 %]%</th>
+        <td align="right">[% LxERP.format_amount($total_ref, 2) %]</td>
+       </tr>
+  [%- IF taxincluded %]
+       <tr>
+        <th align="right">Nettobetrag</th>
+        <td align="right">[% LxERP.format_amount($netto_ref, 2) %]</td>
+       </tr>
+  [%- END %]
+[%- END %]
+
+        <tr>
+         <th align="right">[% 'Total' | $T8 %]</th>
+         <td align="right">[% LxERP.format_amount(invtotal, 2) %]</td>
+        </tr>
+       </table>
+      </td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+
+[% PROCESS 'webdav/_list.thml' %]
+
+[% PROCESS 'ir/_payments.html' %]
+
+  <tr>
+    <td><hr size="3" noshade></td>
+  </tr>
+  <tr>
+    <td>
+[% print_options %]
+    </td>
+  </tr>
+ </table>
+
+
+
+  [% IF id %]
+
+    <input class="submit" type="submit" accesskey="u" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+[% IF  show_storno %]
+    <input class="submit" type="submit" name="action" value="[% 'Storno' | $T8 %]">
+[% END %]
+    <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Use As Template' | $T8 %]">
+
+[% IF show_delete %]
+    <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
+[% END %]
+
+    <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
+
+ [% ELSE # no id %]
+   [% UNLESS locked %]
+      <input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
+      <input class="submit" type="submit" name="action" value="[% 'Save Draft' | $T8 %]">
+   [%- END %]
+ [% END # id %]
+
+  [% IF id %]
+      [%#- button for saving history %]
+      <input type="button" class="submit" onclick="set_history_window([% id | html %]);" name="history" id="history" value="[% 'history' | $T8 %]">
+
+      <input type="submit" class="submit" name="action" value="[% 'mark as paid' | $T8 %]">
+  [% END %]
+
+<input type="hidden" name="rowcount" value="[% rowcount %]">
+<input type="hidden" name="callback" value="[% callback %]">
+<input type="hidden" name="draft_id" value="[% draft_id %]">
+<input type="hidden" name="draft_description" value="[% draft_description %]">
+<input type="hidden" name="vendor_discount" value="[% vendor_discount %]">
+
+</form>
+
+</body>
+
+</html>

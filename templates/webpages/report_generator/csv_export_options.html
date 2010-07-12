@@ -1,0 +1,87 @@
+[%- USE T8 %]
+[% USE HTML %]<body>
+
+ <script type="text/javascript">
+  <!--
+      function submit_report_generator_form(nextsub) {
+        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
+        document.report_generator_form.submit();
+      }
+
+    -->
+ </script>
+
+ <div class="listheading" width="100%">[% HTML.escape(title) %]</div>
+
+ <form action="[% HTML.escape(script) %]" method="post" name="report_generator_form">
+
+  [%- FOREACH var = HIDDEN %]
+  <input type="hidden" name="[% HTML.escape(var.key) %]" value="[% HTML.escape(var.value) %]">
+  [%- END %]
+
+  <input type="hidden" name="report_generator_csv_options_set" value="1">
+  <input type="hidden" name="report_generator_dispatch_to" value="">
+  <input type="hidden" name="action" value="report_generator_dispatcher">
+
+  <table>
+   <tr>
+    <td align="right">[% 'Quote chararacter' | $T8 %]</td>
+    <td>
+     <select name="report_generator_csv_options_quote_char" style="width: 300px">
+      <option value="&quot;" selected>&quot;</option>
+      <option value="'">'</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Escape character' | $T8 %]</td>
+    <td>
+     <select name="report_generator_csv_options_escape_char" style="width: 300px">
+      <option value="QUOTE_CHAR" selected>[% 'Same as the quote character' | $T8 %]</option>
+      <option value="&quot;">&quot;</option>
+      <option value="'">'</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Separator chararacter' | $T8 %]</td>
+    <td>
+     <select name="report_generator_csv_options_sep_char" style="width: 300px">
+      <option value=";" selected>;</option>
+      <option value=",">,</option>
+      <option value=":">:</option>
+      <option value="TAB">TAB ([% 'The tabulator character' | $T8 %])</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Line endings' | $T8 %]</td>
+    <td>
+     <select name="report_generator_csv_options_eol_style" style="width: 300px">
+      <option value="DOS">DOS/Windows (CR/LF)</option>
+      <option value="Unix" selected>Unix (LF)</option>
+     </select>
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right" valign="top">[% 'Options' | $T8 %]:</td>
+    <td valign="top">
+     <input type="checkbox" name="report_generator_csv_options_headers" id="report_generator_csv_options_headers" value="1" checked>
+     <label for="report_generator_csv_options_headers">[% 'Include column headings' | $T8 %]</label>
+    </td>
+   </tr>
+
+  </table>
+
+  <p>
+   <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')" value="[% 'Export as CSV' | $T8 %]">
+   <input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_back')" value="[% 'Back' | $T8 %]">
+  </p>
+
+ </form>
+</body>
+</html>

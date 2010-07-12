@@ -281,7 +281,6 @@ $self->{subs} = {
   'cov_selection_internal'      => 'cov_selection_internal',
   'customer_details'            => 'customer_details',
   'delivery_customer_selection' => 'delivery_customer_selection',
-  'display_form'                => 'display_form',
   'display_row'                 => 'display_row',
   'edit_e_mail'                 => 'edit_e_mail',
   'format_dates'                => 'format_dates',

@@ -1,0 +1,12 @@
+[%- USE T8 %]
+[% USE HTML %]<div class="listtop">[% 'Warnings during template upgrade' | $T8 %]</div>
+
+<p>[% 'The following warnings occured during an upgrade to the document templates:' | $T8 %]</p>
+
+<p>
+ <ul>
+  [% FOREACH row = WARNINGS %]
+   <li>[% row.message %]</li>
+  [% END %]
+ </ul>
+</p>

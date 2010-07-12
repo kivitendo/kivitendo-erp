@@ -18,8 +18,8 @@ body {
   color: black;
 }
 
-/* .bg { 
-  background-image: url("mn_hauptmenu.png"); 
+/* .bg {
+  background-image: url("mn_hauptmenu.png");
 } */
 
 td {
@@ -28,7 +28,7 @@ td {
   font-size: 8pt;
   font-weight: normal;
 }
-td.hover:hover { 
+td.hover:hover {
 	color: black;
 /*          background-color: #FFFFCC;
           font-size: 8pt;
@@ -85,12 +85,12 @@ body.menu {
 /*
 	Überschriftsbalken
 */
-.listtop { 
-	background-color: rgb(236,233,216); 
+.listtop {
+	background-color: rgb(236,233,216);
 	text-align:left;
 	padding:5px;
-	font-size: 10pt; 
-	color: black; 
+	font-size: 10pt;
+	color: black;
 	font-weight: bolder;
 	border-style:dashed;
 	border-width:thin;
@@ -111,12 +111,12 @@ body.menu {
 	border-width:thin;
 }
 
-.listheading { 
-	font-size: 9pt; 
+.listheading, .listheading th {
+	font-size: 9pt;
 	padding:3px;
-	background-color: 
-	rgb(236,233,216); 
-	color: black; 
+	background-color:
+	rgb(236,233,216);
+	color: black;
 	font-weight: bolder;
 	text-align:left;
 	background-image: url("../image/fade.png");
@@ -124,19 +124,19 @@ body.menu {
 	border-width:thin;
 }
 
-.listheadingcontent { 
-	font-size: 9pt; 
-	background-color: 
-	rgb(236,233,216); 
-	color: black; 
+.listheadingcontent {
+	font-size: 9pt;
+	background-color:
+	rgb(236,233,216);
+	color: black;
 	font-weight: bolder;
 	text-align:left;
 }
 
-.accountlistheading { 
-	font-size: 10pt; 
+.accountlistheading {
+	font-size: 10pt;
 	padding:3px;
-	color: white; 
+	color: white;
 	font-weight: bold;
 	text-align:left;
 	background-color:rgb(133,132,129);
@@ -158,18 +158,18 @@ body.menu {
 	background:#efedde;
 }
 
-	
-.listrow1 { 
-	background-color: rgb(208,207,201); 
-	color: black; 
-	vertical-align: top; 
+
+.listrow1 {
+	background-color: rgb(208,207,201);
+	color: black;
+	vertical-align: top;
 }
 
 .listrow0 { background-color: rgb(236,233,216); color: black; vertical-align: top; }
 
 .listsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
 
-.listtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
+.listtotal, .listtotal td { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
 
 .submit {
   font-family: Verdana, Arial, Helvetica;

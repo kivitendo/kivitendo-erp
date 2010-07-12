@@ -1,0 +1,329 @@
+[%- USE T8 %]
+[% USE HTML %]
+
+[% BLOCK jump_block %]
+ <p>
+  [% 'Jump to' | $T8 %] <a href="#billing">[% 'Billing Address' | $T8 %]</a>
+  [%- FOREACH shipto = SHIPTO %]
+   ,
+   <a href="#shipping[% loop.count %]">
+    [% 'Shipping Address' | $T8 %]
+    &quot;[% HTML.escape(shipto.shiptoname) %]&quot;
+   </a>
+  [%- END %]
+  [%- FOREACH contact = CONTACTS %]
+   ,
+   <a href="#contact[% loop.count %]">
+    [% 'Contact Person' | $T8 %]
+    &quot;[% HTML.escape(contact.cp_name) %]&quot;
+   </a>
+  [%- END %]
+ </p>
+
+ <hr>
+[% END %]
+
+<body>
+
+ <div width="100%" class="listtop">
+  [% IF is_customer %][% 'Customer details' | $T8 %][% ELSE %][% 'Vendor details' | $T8 %][% END %] &quot;[% HTML.escape(name) %]&quot;
+ </div>
+
+ [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+
+ <a name="billing"><div class="listheading">[% 'Billing Address' | $T8 %]</div></a>
+
+ <table>
+  <tr>
+  [% IF is_customer %]
+   <td align="right">[% 'Customer Number' | $T8 %]</td>
+   <td>[% HTML.escape(customernumber) %]</td>
+  [% ELSE %]
+   <td align="right">[% 'Vendor Number' | $T8 %]</td>
+   <td>[% HTML.escape(vendornumber) %]</td>
+  [% END %]
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Company Name' | $T8 %]</td>
+   <td>[% HTML.escape(name) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Department' | $T8 %]</td>
+   <td>[% HTML.escape(department_1) %][% IF department_2 %][% IF department_1 %]; [% END %][% HTML.escape(department_2) %][% END %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Street' | $T8 %]</td>
+   <td>[% HTML.escape(street) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Zip, City' | $T8 %]</td>
+   <td>[% HTML.escape(zipcode) %] [% HTML.escape(city) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Country' | $T8 %]</td>
+   <td>[% HTML.escape(country) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Contact Person' | $T8 %]</td>
+   <td>[% IF greeting %][% HTML.escape(greeting) %] [% END %][% HTML.escape(contact) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Phone' | $T8 %]</td>
+   <td>[% HTML.escape(phone) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Fax' | $T8 %]</td>
+   <td>[% HTML.escape(fax) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'E-mail' | $T8 %]</td>
+   <td>[% HTML.escape(email) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Homepage' | $T8 %]</td>
+   <td>[% HTML.escape(homepage) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Credit Limit' | $T8 %]</td>
+   <td>[% HTML.escape(creditlimit) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Discount' | $T8 %]</td>
+   <td>[% HTML.escape(discount) %]%</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Payment Terms' | $T8 %]</td>
+   <td>[% HTML.escape(payment_terms) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Tax Number' | $T8 %]</td>
+   <td>[% HTML.escape(taxnumber) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'USt-IdNr.' | $T8 %]</td>
+   <td>[% HTML.escape(ustid) %]</td>
+  </tr>
+
+  [% IF is_customer %]
+   <tr>
+    <td align="right">[% 'KNr. beim Kunden' | $T8 %]</td>
+    <td>[% HTML.escape(c_vendor_id) %]</td>
+   </tr>
+  [% END %]
+
+  <tr>
+   <td align="right">[% 'Account Number' | $T8 %]</td>
+   <td>[% HTML.escape(account_number) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Bank Code' | $T8 %]</td>
+   <td>[% HTML.escape(bank_code) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Bank' | $T8 %]</td>
+   <td>[% HTML.escape(bank) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% IF is_customer %][% 'Customer type' | $T8 %][% ELSE %][% 'Vendor type' | $T8 %][% END %]</td>
+   <td>[% HTML.escape(business) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Language' | $T8 %]</td>
+   <td>[% HTML.escape(language) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right" valign="top">[% 'Notes' | $T8 %]</td>
+   <td valign="top">[% HTML.escape(notes) %]</td>
+  </tr>
+
+ </table>
+
+
+
+
+ [% FOREACH row = SHIPTO %]
+
+  <hr>
+
+  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+
+  <a name="shipping[% loop.count %]"><div class="listheading">[% 'Shipping Address' | $T8 %] &quot;[% HTML.escape(row.shiptoname) %]&quot;</div></a>
+
+  <table>
+   <tr>
+    <td align="right">[% 'Company Name' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptoname) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Department' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptodepartment_1) %][% IF row.shiptodepartment_2 %][% IF row.shiptodepartment_1 %]; [% END %][% HTML.escape(row.shiptodepartment_2) %][% END %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Street' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptostreet) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Zip, City' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptozipcode) %] [% HTML.escape(row.shiptocity) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Country' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptocountry) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Contact Person' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptocontact) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Phone' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptophone) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Fax' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptofax) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'E-mail' | $T8 %]</td>
+    <td>[% HTML.escape(row.shiptoemail) %]</td>
+   </tr>
+
+  </table>
+ [% END %]
+
+
+
+
+
+
+
+
+
+
+ [% FOREACH row = CONTACTS %]
+
+  <hr>
+
+  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
+
+  <a name="contact[% loop.count %]"><div class="listheading">[% 'Contact Person' | $T8 %] &quot;[% HTML.escape(row.cp_name) %]&quot;</div></a>
+
+  <table>
+   <tr>
+    <td align="right">[% 'Greeting' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_greeting) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Title' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_title) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Given Name' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_givenname) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Name' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_name) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Department' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_abteilung) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Phone1' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_phone1) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Phone2' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_phone2) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Fax' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_fax) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Mobile1' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_mobile1) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Mobile2' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_mobile2) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Sat. Phone' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_satphone) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Sat. Fax' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_satfax) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Project' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_project) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'E-mail' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_email) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Private Phone' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_privatphone) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Private E-mail' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_privatemail) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Birthday' | $T8 %]</td>
+    <td>[% HTML.escape(row.cp_birthday) %]</td>
+   </tr>
+
+  </table>
+
+ [% END %]
+
+</body>
+</html>

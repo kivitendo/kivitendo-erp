@@ -1,0 +1,39 @@
+[%- USE T8 %]
+[% USE HTML %]
+
+<table width="100%" cellspacing="0" cellpadding="0">
+ <tr>
+  <td>
+   <table>
+    <tr>
+     <td>
+      [%- FOREACH row = SELECTS %]
+      [%- IF row.show %]
+      <select name="[% row.sname %]">
+       [%- FOREACH data = row.DATA %]
+       <option value="[% data.value %]" [% data.selected %]>[% data.oname %]</option>
+       [%- END %]
+      </select>
+      [%- END %]
+      [%- END %]
+     </td>
+     [%- IF display_copies %]
+     <td>[% 'Copies' | $T8 %] <input name="copies" size="2" value="[% HTML.escape(copies) %]"></td>
+     [%- END %]
+     [%- IF display_groupitems %]
+     <td>[% 'Group Items' | $T8 %]</td>
+     <td><input name="groupitems" type="checkbox" class="checkbox" [% groupitems_checked %]></td>
+     [%- END %]
+     [%- IF display_remove_draft %]
+     <td>[% 'Remove Draft' | $T8 %]</td>
+     <td><input name="remove_draft" type="checkbox" class="checkbox" [% remove_draft_checked %]></td>
+     [%- END %]
+    </tr>
+   </table>
+  </td>
+  <td align=right>
+   <table><tr><th>[% status_msg %]</th></tr></table>
+  </td>
+ </tr>
+</table>
+

@@ -1,0 +1,25 @@
+[%- USE T8 %]
+[% USE HTML %]<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="admin.pl">
+
+  [%- IF standard_group_created %]
+  <p>[% 'A group named &quot;Full Access&quot; has been created.' | $T8 %]</p>
+  [%- END %]
+
+
+  <p>[% 'The user migration process is complete.' | $T8 %]
+   [% 'You will now be forwarded to the administration panel.' | $T8 %]</p>
+
+  <input type="hidden" name="nextsub" value="list_users">
+
+  <p>
+   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
+  </p>
+
+ </form>
+
+</body>
+</html>
