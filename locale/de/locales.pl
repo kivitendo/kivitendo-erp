@@ -105,13 +105,6 @@ if (-f 'lost') {
 
 my %old_texts = %{ $self->{texts} || {} };
 
-# Read HTML templates.
-#%htmllocale = ();
-#@htmltemplates = <../../templates/webpages/*/*_master.html>;
-#foreach $file (@htmltemplates) {
-#  scanhtmlfile($file);
-#}
-
 map({ handle_file($_, $bindir); } @progfiles);
 map({ handle_file($_, $dbupdir); } @dbplfiles);
 map({ handle_file($_, $dbupdir2); } @dbplfiles2);
@@ -218,10 +211,6 @@ $self->{subs} = {
 
 }
 
-#foreach $file (@htmltemplates) {
-#  converthtmlfile($file);
-#}
-
 # now print out all
 
 open FH, ">all" or die "$! : all";
@@ -318,7 +307,6 @@ chomp $trlanguage;
 
 if ($opt_c) {
   search_unused_htmlfiles();
-  search_translated_htmlfiles_wo_master();
 }
 
 my $per = sprintf("%.1f", ($count - $notext) / $count * 100);
@@ -421,13 +409,12 @@ sub scanfile {
 
       # is this a template call?
       if (/parse_html_template2?\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
-        my $newfile = "$basedir/templates/webpages/$1_master.html";
+        my $newfile = "$basedir/templates/webpages/$1.html";
         if (/parse_html_template2/) {
           print "E: " . strip_base($file) . " is still using 'parse_html_template2' for " . strip_base($newfile) . ".\n";
         }
         if (-f $newfile) {
 #           &scanhtmlfile($newfile);
-#           &converthtmlfile($newfile);
            $cached{$file}{scanh}{$newfile} = 1;
           print "." if $opt_v;
         } elsif ($opt_c) {
@@ -543,13 +530,34 @@ sub scanmenu {
 
 }
 
+sub unescape_template_string {
+  my $in      = shift;
+  my $out     = '';
+  my $escaped = 0;
+
+  foreach my $char (split m//, $in) {
+    if ($escaped) {
+      $out     .= $char;
+      $escaped  = 0;
+    } elsif ($char eq '\\') {
+      $escaped  = 1;
+    } else {
+      $out     .= $char;
+    }
+  }
+
+  return $out;
+}
+
 sub scanhtmlfile {
   local *IN;
 
-  if (!defined $cached{$_[0]}) {
+  my $file = shift;
+
+  if (!defined $cached{$file}) {
     my %plugins = ( 'loaded' => { }, 'needed' => { } );
 
-    open(IN, $_[0]) || die $_[0];
+    open(IN, $file) || die $file;
 
     my $copying  = 0;
     my $issubmit = 0;
@@ -567,72 +575,54 @@ sub scanhtmlfile {
       }
 
       while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
-                          (LxERP\.t8)\( #   LxERP.t8(
-                          [\'\"]        #   Anfang des zu übersetzenden Strings
-                          (.*?)         #   Der zu übersetzende String
-                          [\'\"]        #   Ende des zu übersetzenden Strings
+                          (LxERP\.t8)\( #   LxERP.t8(                             ::Parameter $1::
+                          ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $2::
+                          (.*?)         #   Der zu übersetzende String            ::Parameter $3::
+                          (?<!\\)\2     #   Ende des zu übersetzenden Strings
                         |               # Start von Variante 2: [% '...' | $T8 %]
                           \[\%          #   Template-Start-Tag
                           [\-~#]*       #   Whitespace-Unterdrückung
                           \s*           #   Optional beliebig viele Whitespace
-                          [\'\"]        #   Anfang des zu übersetzenden Strings
-                          (.*?)         #   Der zu übersetzende String
-                          [\'\"]        #   Ende des zu übersetzenden Strings
+                          ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $4::
+                          (.*?)         #   Der zu übersetzende String            ::Parameter $5::
+                          (?<!\\)\4     #   Ende des zu übersetzenden Strings
                           \s*\|\s*      #   Pipe-Zeichen mit optionalen Whitespace davor und danach
-                          (\$T8)        #   Filteraufruf
+                          (\$T8)        #   Filteraufruf                          ::Parameter $6::
                           .*?           #   Optionale Argumente für den Filter
                           \s*           #   Whitespaces
                           [\-~#]*       #   Whitespace-Unterdrückung
                           \%\]          #   Template-Ende-Tag
                         )
                        /ix) {
-        my $module = $1 || $4;
-        my $string = $2 || $3;
+        my $module = $1 || $6;
+        my $string = $3 || $5;
         print "Found filter >>>$string<<<\n" if $debug;
         substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
 
-        $cached{$_[0]}{all}{$string}    = 1;
-        $cached{$_[0]}{html}{$string}   = 1;
-        $cached{$_[0]}{submit}{$string} = 1 if $PREMATCH =~ /$submitsearch/;
+        $string                         = unescape_template_string($string);
+        $cached{$file}{all}{$string}    = 1;
+        $cached{$file}{html}{$string}   = 1;
+        $cached{$file}{submit}{$string} = 1 if $PREMATCH =~ /$submitsearch/;
         $plugins{needed}->{T8}          = 1 if $module eq '$T8';
+        $plugins{needed}->{LxERP}       = 1 if $module eq 'LxERP.t8';
       }
 
-      while ("" ne $line) {
-        if (!$copying) {
-          if ($line =~ m|<translate>|i) {
-            my $eom = $+[0];
-            if ($` =~ /$submitsearch/) {
-              $issubmit = 1
-            }
-            substr($line, 0, $eom) = "";
-            $copying = 1;
-          } else {
-            $line = "";
-          }
-
-        } else {
-          if ($line =~ m|</translate>|i) {
-            $text .= $`;
-            substr($line, 0, $+[0]) = "";
-            $text =~ s/\s+/ /g;
-
-            $copying = 0;
-            if ($issubmit) {
-  #            $submit{$text} = 1;
-               $cached{$_[0]}{submit}{$text} = 1;
-              $issubmit = 0;
-            }
-  #          $alllocales{$text} = 1;
-             $cached{$_[0]}{all}{$text} = 1;
-  #          $htmllocale{$text} = 1;
-             $cached{$_[0]}{html}{$text} = 1;
-            $text = "";
-
-          } else {
-            $text .= $line;
-            $line = "";
-          }
-        }
+      while ($line =~ m/\[\%          # Template-Start-Tag
+                        [\-~#]?       # Whitespace-Unterdrückung
+                        \s*           # Optional beliebig viele Whitespace
+                        (?:           # Die erkannten Template-Direktiven
+                          PROCESS
+                        |
+                          INCLUDE
+                        )
+                        \s+           # Mindestens ein Whitespace
+                        [\'\"]?       # Anfang des Dateinamens
+                        ([^\s]+)      # Beliebig viele Nicht-Whitespaces -- Dateiname
+                        \.html        # Endung ".html", ansonsten kann es der Name eines Blocks sein
+                       /ix) {
+        my $new_file_name = "$basedir/templates/webpages/$1.html";
+        $cached{$file}{scanh}{$new_file_name} = 1;
+        substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
       }
     }
 
@@ -640,75 +630,18 @@ sub scanhtmlfile {
 
     foreach my $plugin (keys %{ $plugins{needed} }) {
       next if ($plugins{loaded}->{$plugin});
-      print "E: " . strip_base($_[0]) . " requires the Template plugin '$plugin', but is not loaded with '[\% USE $plugin \%]'.\n";
+      print "E: " . strip_base($file) . " requires the Template plugin '$plugin', but is not loaded with '[\% USE $plugin \%]'.\n";
     }
-
-    &converthtmlfile($_[0]);
   }
 
   # copy back into global arrays
-  map { $alllocales{$_} = 1 } keys %{$cached{$_[0]}{all}};
-  map { $htmllocale{$_} = 1 } keys %{$cached{$_[0]}{html}};
-  map { $submit{$_} = 1 }     keys %{$cached{$_[0]}{submit}};
-}
+  map { $alllocales{$_} = 1 } keys %{$cached{$file}{all}};
+  map { $htmllocale{$_} = 1 } keys %{$cached{$file}{html}};
+  map { $submit{$_} = 1 }     keys %{$cached{$file}{submit}};
 
-sub converthtmlfile {
-  local *IN;
-  local *OUT;
+  map { scanhtmlfile($_)  }   keys %{$cached{$file}{scanh}};
 
-  my $file = shift;
-
-  open(IN, $file) || die;
-
-  my $langcode = (split("/", getcwd()))[-1];
-  $file =~ s/_master.html$/_${langcode}.html/;
-
-  open(OUT, ">$file") || die;
-
-  my $copying = 0;
-  my $text = "";
-  while (my $line = <IN>) {
-    chomp($line);
-    if ("" eq $line) {
-      print(OUT "\n");
-      next;
-    }
-
-    while ("" ne $line) {
-      if (!$copying) {
-        if ($line =~ m|<translate>|i) {
-          print(OUT $`);
-          substr($line, 0, $+[0]) = "";
-          $copying = 1;
-          print(OUT "\n") if ("" eq $line);
-
-        } else {
-          print(OUT "${line}\n");
-          $line = "";
-        }
-
-      } else {
-        if ($line =~ m|</translate>|i) {
-          $text .= $`;
-          substr($line, 0, $+[0]) = "";
-          $text =~ s/\s+/ /g;
-          $copying = 0;
-          $alllocales{$text} = 1;
-          $htmllocale{$text} = 1;
-          print(OUT $self->{"texts"}{$text} || $text);
-          print(OUT "\n") if ("" eq $line);
-          $text = "";
-
-        } else {
-          $text .= $line;
-          $line = "";
-        }
-      }
-    }
-  }
-
-  close(IN);
-  close(OUT);
+  @referenced_html_files{keys %{$cached{$file}{scanh}}} = (1) x scalar keys %{$cached{$file}{scanh}};
 }
 
 sub search_unused_htmlfiles {
@@ -724,27 +657,6 @@ sub search_unused_htmlfiles {
       } elsif (($entry =~ /_master.html$/) && -f $entry && !$referenced_html_files{$entry}) {
         print "W: unused HTML template: " . strip_base($entry) . "\n";
 
-      }
-    }
-  }
-}
-
-sub search_translated_htmlfiles_wo_master {
-  my @unscanned_dirs = ('../../templates/webpages');
-
-  while (scalar @unscanned_dirs) {
-    my $dir = shift @unscanned_dirs;
-
-    foreach my $entry (<$dir/*>) {
-      if (-d $entry) {
-        push @unscanned_dirs, $entry;
-
-      } elsif (($entry =~ /_[a-z]+\.html$/) && ($entry !~ /_master.html$/) && -f $entry) {
-        my $master =  $entry;
-        $master    =~ s/[a-z]+\.html$/master.html/;
-        if (! -f $master) {
-          print "W: translated HTML template without master: " . strip_base($entry) . "\n";
-        }
       }
     }
   }

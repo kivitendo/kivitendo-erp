@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE LxERP %]
 [% USE HTML %]<div class="listtop">[% 'Step 1 of 3: Parts' | $T8 %]</div>
 
 <form name="Form" method="post" action="login.pl">
@@ -39,7 +40,7 @@
  </p>
 
  [% FOREACH row = LIST %]
-  <div class="subsubheading">[% 'New Buchungsgruppe [% loop.count %]' | $T8 %]</div>
+  <div class="subsubheading">[% LxERP.t8('New Buchungsgruppe #1', loop.count) | html %]</div>
 
   <table>
    <tr>

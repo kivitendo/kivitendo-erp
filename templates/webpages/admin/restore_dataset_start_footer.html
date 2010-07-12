@@ -6,7 +6,7 @@
 
  <p>
   [%- 'The restoration process is complete. Please review &quot;pg_restore&quot;\'s output to find out if the restoration was successful.' | $T8 %]
-  [%- 'The program\'s exit code was [% HTML.escape(retval) %] (&quot;0&quot; usually means that everything went OK).' | $T8 %]
+  [%- LxERP.t8('The program\'s exit code was #1 (&quot;0&quot; usually means that everything went OK).', retval) | html %]
  </p>
 
  <form method="post" action="admin.pl">
