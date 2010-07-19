@@ -503,7 +503,7 @@ sub transfer_stock {
 
   WH->transfer($transfer);
 
-  delete @{$form}{qw(parts_id partnumber description qty unit chargenumber bestbefore comment)};
+  delete @{$form}{qw(parts_id partnumber description qty unit chargenumber bestbefore comment ean)};
 
   $form->{saved_message} = $locale->text('The parts have been stocked.');
   $form->{trans_type}    = 'stock';
