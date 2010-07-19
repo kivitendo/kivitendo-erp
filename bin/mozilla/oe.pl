@@ -51,7 +51,7 @@ require "bin/mozilla/reportgenerator.pl";
 use strict;
 
 my $print_post;
-my %TMPL_VAR;
+our %TMPL_VAR;
 
 1;
 
@@ -302,7 +302,7 @@ sub form_header {
   check_oe_access();
 
   # Container for template variables. Unfortunately this has to be
-  # visible in form_footer too, so my at package level and not here.
+  # visible in form_footer too, so package local level and not my here.
   %TMPL_VAR = ();
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);

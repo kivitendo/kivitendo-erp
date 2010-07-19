@@ -743,6 +743,17 @@ sub redirect_header {
   return $cgi->redirect($new_uri);
 }
 
+sub set_standard_title {
+  $::lxdebug->enter_sub;
+  my $self = shift;
+
+  $self->{titlebar}  = "Lx-Office " . $::locale->text('Version') . " $self->{version}";
+  $self->{titlebar} .= "- $::myconfig{name}"   if $::myconfig{name};
+  $self->{titlebar} .= "- $::myconfig{dbname}" if $::myconfig{name};
+
+  $::lxdebug->leave_sub;
+}
+
 sub _prepare_html_template {
   $main::lxdebug->enter_sub();
 
@@ -961,18 +972,18 @@ sub redirect {
 
   my ($self, $msg) = @_;
 
-  if ($self->{callback}) {
-
-    my ($script, $argv) = split(/\?/, $self->{callback}, 2);
-    $script =~ s|.*/||;
-    $script =~ s|[^a-zA-Z0-9_\.]||g;
-    exec("perl", "$script", $argv);
-
-  } else {
+  if (!$self->{callback}) {
 
     $self->info($msg);
     exit;
   }
+
+#  my ($script, $argv) = split(/\?/, $self->{callback}, 2);
+#  $script =~ s|.*/||;
+#  $script =~ s|[^a-zA-Z0-9_\.]||g;
+#  exec("perl", "$script", $argv);
+
+  print $::form->redirect_header($self->{callback});
 
   $main::lxdebug->leave_sub();
 }

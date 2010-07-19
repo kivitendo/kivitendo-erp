@@ -1,11 +1,14 @@
 #!/usr/bin/perl
 #
 
-$| = 1;
+#$| = 1;
 
-use CGI::Carp qw(fatalsToBrowser);
+#use CGI::Carp qw(fatalsToBrowser);
 
 use strict;
+
+sub run {
+  my $session_result = shift;
 
 my $form     = $main::form;
 my $locale   = $main::locale;
@@ -122,5 +125,9 @@ print qq|
 </body>
 </html>
 |;
+
+}
+
+1;
 
 #

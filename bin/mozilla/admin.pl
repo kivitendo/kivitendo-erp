@@ -57,55 +57,47 @@ require "bin/mozilla/admin_groups.pl";
 
 use strict;
 
-our $cgi    = new CGI('');
-our $form   = new Form;
-our $locale = new Locale $main::language, "admin";
-our $auth = SL::Auth->new();
+our $cgi;
+our $form;
+our $locale;
+our $auth;
 
-if ($auth->session_tables_present()) {
-  $auth->expire_sessions();
-  $auth->restore_session();
-  $auth->set_session_value('rpw', $form->{rpw});
-}
+sub run {
+  $::lxdebug->enter_sub;
+  my $session_result = shift;
 
-# customization
-if (-f "bin/mozilla/custom_$form->{script}") {
-  eval { require "bin/mozilla/custom_$form->{script}"; };
-  $form->error($@) if ($@);
-}
+  $cgi    = $::cgi;
+  $form   = $::form;
+  $locale = $::locale;
+  $auth   = $::auth;
 
-$form->{stylesheet} = "lx-office-erp.css";
-$form->{favicon}    = "favicon.ico";
+  $::auth->set_session_value('rpw', $::form->{rpw}) if $session_result == SL::Auth->SESSION_OK;
 
-if ($form->{action}) {
-  if ($auth->authenticate_root($form->{rpw}, 0) != $auth->OK()) {
-    $form->{error_message} = $locale->text('Incorrect Password!');
+  $form->{stylesheet} = "lx-office-erp.css";
+  $form->{favicon}    = "favicon.ico";
+
+  if ($form->{action}) {
+    if ($auth->authenticate_root($form->{rpw}, 0) != $auth->OK()) {
+      $form->{error_message} = $locale->text('Incorrect Password!');
+      adminlogin();
+    } else {
+      $auth->create_or_refresh_session() if ($auth->session_tables_present());
+      call_sub($locale->findsub($form->{action}));
+    }
+  } elsif ($auth->authenticate_root($form->{rpw}, 0) == $auth->OK()) {
+
+    $auth->create_or_refresh_session() if ($auth->session_tables_present());
+
+    login();
+  } else {
+    # if there are no drivers bail out
+    $form->error($locale->text('No Database Drivers available!'))
+      unless (User->dbdrivers);
+
     adminlogin();
-    exit;
   }
-
-  $auth->create_or_refresh_session() if ($auth->session_tables_present());
-
-  call_sub($locale->findsub($form->{action}));
-
-} elsif ($auth->authenticate_root($form->{rpw}, 0) == $auth->OK()) {
-
-  $auth->create_or_refresh_session() if ($auth->session_tables_present());
-
-  login();
-
-} else {
-  # if there are no drivers bail out
-  $form->error($locale->text('No Database Drivers available!'))
-    unless (User->dbdrivers);
-
-  adminlogin();
-
+  $::lxdebug->leave_sub;
 }
-
-1;
-
-# end
 
 sub adminlogin {
   my $form     = $main::form;

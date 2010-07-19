@@ -37,72 +37,51 @@ require "bin/mozilla/todo.pl";
 
 use strict;
 
-# This is required because the am.pl in the root directory
-# is not scanned by locales.pl:
-# $form->parse_html_template('login/password_error')
+our $cgi;
+our $form;
+our $locale;
+our $auth;
 
-our $form = new Form;
+sub run {
+  $::lxdebug->enter_sub;
+  my $session_result = shift;
 
-if (! -f 'config/authentication.pl') {
-  show_error('login/authentication_pl_missing');
-}
+  $cgi    = $::cgi;
+  $form   = $::form;
+  $locale = $::locale;
+  $auth   = $::auth;
 
-our $locale = new Locale $main::language, "login";
+  $form->{stylesheet} = "lx-office-erp.css";
+  $form->{favicon}    = "favicon.ico";
 
-our $auth = SL::Auth->new();
-if (!$auth->session_tables_present()) {
-  show_error('login/auth_db_unreachable');
-}
-$auth->expire_sessions();
-my $session_result = $main::auth->restore_session();
-
-# customization
-if (-f "bin/mozilla/custom_$form->{script}") {
-  eval { require "bin/mozilla/custom_$form->{script}"; };
-  $form->error($@) if ($@);
-}
-
-# per login customization
-if (-f "bin/mozilla/$form->{login}_$form->{script}") {
-  eval { require "bin/mozilla/$form->{login}_$form->{script}"; };
-  $form->error($@) if ($@);
-}
-
-# window title bar, user info
-$form->{titlebar} = "Lx-Office " . $locale->text('Version') . " $form->{version}";
-
-if (SL::Auth::SESSION_EXPIRED == $session_result) {
-  $form->{error_message} = $locale->text('The session is invalid or has expired.');
-  login_screen();
-  exit;
-}
-
-my $action = $form->{action};
-
-if (!$action && $auth->{SESSION}->{login}) {
-  $action = 'login';
-}
-
-if ($action) {
-  our %myconfig = $auth->read_user($form->{login}) if ($form->{login});
-
-  if (!$myconfig{login} || (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0))) {
-    $form->{error_message} = $locale->text('Incorrect Password!');
+  if (SL::Auth::SESSION_EXPIRED == $session_result) {
+    $form->{error_message} = $locale->text('The session is invalid or has expired.');
     login_screen();
     exit;
   }
+  my $action = $form->{action};
+  if (!$action && $auth->{SESSION}->{login}) {
+    $action = 'login';
+  }
+  if ($action) {
+    our %myconfig = $auth->read_user($form->{login}) if ($form->{login});
 
-  $auth->set_session_value('login', $form->{login}, 'password', $form->{password});
-  $auth->create_or_refresh_session();
+    if (!$myconfig{login} || (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0))) {
+      $form->{error_message} = $locale->text('Incorrect Password!');
+      login_screen();
+    } else {
+      $auth->set_session_value('login', $form->{login}, 'password', $form->{password});
+      $auth->create_or_refresh_session();
 
-  $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
-  call_sub($locale->findsub($action));
+      $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
+      call_sub($locale->findsub($action));
+    }
+  } else {
+    login_screen();
+  }
 
-} else {
-  login_screen();
+  $::lxdebug->leave_sub;
 }
-
-1;
 
 sub login_screen {
   $main::lxdebug->enter_sub();
@@ -147,11 +126,20 @@ sub login {
   my $menu_script = $style_to_script_map{$user->{menustyle}} || '';
 
   # made it this far, execute the menu
-  $form->{callback} = build_std_url("script=menu${menu_script}.pl", 'action=display', "callback=" . $form->escape($form->{callback}));
+  # standard redirect does not seem to work for this invocation, (infinite loops?)
+  # do a manual invocation instead
+#  $form->{callback} = build_std_url("script=menu${menu_script}.pl", 'action=display', "callback=" . $form->escape($form->{callback}));
 
   $main::auth->set_cookie_environment_variable();
 
-  $form->redirect();
+  $::form->{script}   = "menu${menu_script}.pl";
+  $::form->{action}   = 'display';
+  $::form->{callback} = $::form->escape($::form->{callback});
+
+  require "bin/mozilla/$::form->{script}";
+  display();
+
+#  $form->redirect();
 
   $main::lxdebug->leave_sub();
 }
@@ -203,3 +191,6 @@ sub show_error {
   exit;
 }
 
+1;
+
+__END__
