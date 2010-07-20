@@ -1035,6 +1035,8 @@ sub post_payment {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
+  my $invdate = $form->datetonum($form->{transdate}, \%myconfig);
+
   for my $i (1 .. $form->{paidaccounts}) {
 
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {

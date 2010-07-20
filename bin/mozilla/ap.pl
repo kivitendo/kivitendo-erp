@@ -972,6 +972,8 @@ sub post_payment {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
+  my $invdate = $form->datetonum($form->{transdate}, \%myconfig);
+
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       my $datepaid = $form->datetonum($form->{"datepaid_$i"}, \%myconfig);
@@ -983,7 +985,7 @@ sub post_payment {
 
       if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}
-          if ($form->{transdate} == $datepaid);
+          if ($invdate == $datepaid);
         $form->isblank("exchangerate_$i",
                        $locale->text('Exchangerate for payment missing!'));
       }

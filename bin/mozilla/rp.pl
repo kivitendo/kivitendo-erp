@@ -107,10 +107,6 @@ my $rp_access_map = {
   'balance_sheet'    => 'report',
 };
 
-# subs use these pretty freely, so declare them here
-our (%column_data, @column_index);
-our ($subtotalnetamount, $subtotaltax, $subtotal);
-
 sub check_rp_access {
   my $form     = $main::form;
 
@@ -2115,19 +2111,19 @@ sub generate_tax_report {
   my $descvar     = "$form->{accno}_description";
   my $description = $form->escape($form->{$descvar});
   my $ratevar     = "$form->{accno}_rate";
-  our $taxrate; # most likely error
+  my ($subtotalnetamount, $subtotaltax, $subtotal) = (0, 0, 0);
 
   my $department = $form->escape($form->{department});
 
   # construct href
   my $href =
-    "$form->{script}?&action=generate_tax_report&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
+    "$form->{script}?&action=generate_tax_report&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&report=$form->{report}";
 
   # construct callback
   $description = $form->escape($form->{$descvar},   1);
   $department  = $form->escape($form->{department}, 1);
   my $callback    =
-    "$form->{script}?&action=generate_tax_report&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&$ratevar=$taxrate&report=$form->{report}";
+    "$form->{script}?&action=generate_tax_report&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&report=$form->{report}";
 
   my $title = $form->escape($form->{title});
   $href .= "&title=$title";
@@ -2138,6 +2134,7 @@ sub generate_tax_report {
 
   my @columns =
     $form->sort_columns(qw(id transdate invnumber name netamount tax amount));
+  my @column_index;
 
   foreach my $item (@columns) {
     if ($form->{"l_$item"} eq "Y") {
@@ -2242,7 +2239,7 @@ sub generate_tax_report {
 
     if ($form->{l_subtotal} eq 'Y') {
       if ($sameitem ne $ref->{ $form->{sort} }) {
-        &tax_subtotal;
+        tax_subtotal(\@column_index, \$subtotalnetamount, \$subtotaltax, \$subtotal);
         $sameitem = $ref->{ $form->{sort} };
       }
     }
@@ -2258,6 +2255,7 @@ sub generate_tax_report {
       $ref->{$_} = $form->format_amount(\%myconfig, $ref->{$_}, 2, "&nbsp;");
     } qw(netamount tax amount);
 
+    my %column_data;
     $column_data{id}        = qq|<td>$ref->{id}</td>|;
     $column_data{invnumber} =
       qq|<td><a href=$module?action=edit&id=$ref->{id}&callback=$callback>$ref->{invnumber}</a></td>|;
@@ -2282,9 +2280,10 @@ sub generate_tax_report {
   }
 
   if ($form->{l_subtotal} eq 'Y') {
-    &tax_subtotal;
+    tax_subtotal(\@column_index, \$subtotalnetamount, \$subtotaltax, \$subtotal);
   }
 
+  my %column_data;
   map { $column_data{$_} = qq|<th>&nbsp;</th>| } @column_index;
 
   print qq|
@@ -2322,27 +2321,30 @@ sub generate_tax_report {
 sub tax_subtotal {
   $main::lxdebug->enter_sub();
 
+  my ($column_index, $subtotalnetamount, $subtotaltax, $subtotal) = @_;
+
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
+  my %column_data;
+  map { $column_data{$_} = "<td>&nbsp;</td>" } @{ $column_index };
 
-  $subtotalnetamount = $form->format_amount(\%myconfig, $subtotalnetamount, 2, "&nbsp;");
-  $subtotaltax       = $form->format_amount(\%myconfig, $subtotaltax, 2, "&nbsp;");
-  $subtotal          = $form->format_amount(\%myconfig, $subtotalnetamount + $subtotaltax, 2, "&nbsp;");
+  $$subtotalnetamount = $form->format_amount(\%myconfig, $$subtotalnetamount, 2, "&nbsp;");
+  $$subtotaltax       = $form->format_amount(\%myconfig, $$subtotaltax, 2, "&nbsp;");
+  $$subtotal          = $form->format_amount(\%myconfig, $$subtotalnetamount + $$subtotaltax, 2, "&nbsp;");
 
-  $column_data{netamount} = "<th class=listsubtotal align=right>$subtotalnetamount</th>";
-  $column_data{tax}       = "<th class=listsubtotal align=right>$subtotaltax</th>";
-  $column_data{amount}    = "<th class=listsubtotal align=right>$subtotal</th>";
+  $column_data{netamount} = "<th class=listsubtotal align=right>$$subtotalnetamount</th>";
+  $column_data{tax}       = "<th class=listsubtotal align=right>$$subtotaltax</th>";
+  $column_data{amount}    = "<th class=listsubtotal align=right>$$subtotal</th>";
 
-  $subtotalnetamount = 0;
-  $subtotaltax       = 0;
+  $$subtotalnetamount = 0;
+  $$subtotaltax       = 0;
 
   print qq|
         <tr class=listsubtotal>
 |;
-  map { print "\n$column_data{$_}" } @column_index;
+  map { print "\n$column_data{$_}" } @{ $column_index };
 
   print qq|
         </tr>

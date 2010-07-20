@@ -285,7 +285,7 @@ sub form_header {
 
   $main::auth->assert('invoice_edit');
 
-  our %TMPL_VAR = ();
+  my %TMPL_VAR = ();
   my @custom_hiddens;
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
@@ -596,7 +596,7 @@ sub post_payment {
 
   $main::auth->assert('invoice_edit');
 
-  our $invdate;
+  my $invdate = $form->datetonum($form->{invdate}, \%myconfig);
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
   for my $i (1 .. $form->{paidaccounts}) {
@@ -886,8 +886,6 @@ sub credit_note {
 
   $form->{title}  = $locale->text('Add Credit Note');
   $form->{script} = 'is.pl';
-  our $script         = "is";
-  our $buysell        = 'buy';
 
 
   # bo creates the id, reset it
@@ -906,7 +904,7 @@ sub credit_note {
   &invoice_links;
 
   $form->{currency}     = $currency;
-  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{invdate}, $buysell);
+  $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{invdate}, 'buy');
   $form->{exchangerate} = $form->{forex} || '';
 
   $form->{creditremaining} -= ($form->{oldinvtotal} - $form->{ordtotal});

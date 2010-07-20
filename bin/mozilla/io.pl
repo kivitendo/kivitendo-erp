@@ -1952,13 +1952,11 @@ sub new_license {
 
   $form->{script} = "licenses.pl";
 
-  our $name;
-
   map { $form->{$_} = $form->{"old_$_"} } qw(partnumber description);
   map { $form->{$_} = $form->escape($form->{$_}, 1) }
     qw(partnumber description);
   $form->{callback} =
-    qq|$form->{script}?action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$name&type=$form->{type}&customer=$customer&partnumber=$form->{partnumber}&description=$form->{description}&previousform="$previousform"&initial=1|;
+    qq|$form->{script}?action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$form->{name}&type=$form->{type}&customer=$customer&partnumber=$form->{partnumber}&description=$form->{description}&previousform="$previousform"&initial=1|;
   $form->redirect;
 
   $main::lxdebug->leave_sub();
