@@ -45,9 +45,6 @@ require "bin/mozilla/drafts.pl";
 
 use strict;
 
-my $edit;
-my $print_post;
-
 1;
 
 # end of main
@@ -719,14 +716,20 @@ sub post {
 
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
-    $form->{addition} = $print_post     ? "PRINTED AND POSTED" :
-                        $form->{storno} ? "STORNO"             :
-                                          "POSTED";
+    $form->{addition} = $form->{print_and_post} ? "PRINTED AND POSTED" :
+                        $form->{storno}         ? "STORNO"             :
+                                                  "POSTED";
     $form->save_history($form->dbconnect(\%myconfig));
   }
 
-  $form->redirect( $form->{label} . " $form->{invnumber} " . $locale->text('posted!'))
-    unless $print_post;
+  # macnetix: after invoice->Post, redirect to edit.
+  if (!$form->{no_redirect_after_post}) {
+    $form->{action} = 'edit';
+    $form->{script} = 'is.pl';
+    $form->{saved_message} = $form->{label} . " $form->{invnumber} " . $locale->text('posted!');
+    $form->{callback} = build_std_url(qw(action edit id saved_message));
+    $form->redirect;
+  }
 
   $main::lxdebug->leave_sub();
 }
@@ -738,9 +741,9 @@ sub print_and_post {
 
   $main::auth->assert('invoice_edit');
 
-  my $old_form               = new Form;
-  $print_post             = 1;
-  $form->{print_and_post} = 1;
+  my $old_form                    = new Form;
+  $form->{no_redirect_after_post} = 1;
+  $form->{print_and_post}         = 1;
   &post();
 
   &edit();
@@ -958,7 +961,7 @@ sub e_mail {
   $main::auth->assert('invoice_edit');
 
   if (!$form->{id}) {
-    $print_post = 1;
+    $form->{no_redirect_after_post} = 1;
 
     my $saved_form = save_form();
 
