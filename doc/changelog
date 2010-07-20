@@ -52,6 +52,10 @@
     in Belegen in den Artiekln mit angezeigt, und werden wie Beschreibung und
     Preis Ã¼berlagert. In der Artikelsuche sind sie durchsuchbar.
 
+  - FastCGI Schnittstelle.
+
+    Das Program läuft jetzt optional unter FastCGI, und damit etwa um
+    Faktor 10 schneller. Siehe Dokumentation in doc INSTALL.fcgi.
 
   Kleinere neue Features und Detailverbesserungen:
 
@@ -154,6 +158,11 @@
   - Die templates packing_list.* werden jetzt im Programm als
     "Verpackungsliste" bezeichnet um den Unterschied zu sales_delivery_order zu
     verdeutlichen.
+  - Locales und Templates funktionieren jetzt anders. In templates ist jetzt
+    das T8 Modul für Übersetzungen zu verwenden, siehe Beispiele in den
+    bestehenden Templates. Bei den Locales sind separate locale DAteien
+    abgeschafft, und das locales Script liegt jetzt in scrips. Siehe
+    Dokumentation in locales.pl.
 
 
 
