@@ -63,28 +63,34 @@ my $perlapp = "\"$^X\"";
 
 foreach my $file (@testitems) {
     $file =~ s/\s.*$//; # nuke everything after the first space (#comment)
-    next if (!$file); # skip null entries
+    next if !$file;    # skip null entries
 
     open (FILE,$file);
     my $bang = <FILE>;
     close (FILE);
     my $T = "";
-    if ($bang =~ m/#!\S*perl\s+-.*T/) {
-        $T = "T";
-    }
-    my $command = "$perlapp -c$T -I modules/fallback -I modules/override $file 2>&1";
-    my $loginfo=`$command`;
-    #print '@@'.$loginfo.'##';
-    if ($loginfo =~ /syntax ok$/im) {
-        if ($loginfo ne "$file syntax OK\n") {
-            ok(0,$file." --WARNING");
-            print $fh $loginfo;
-        } else {
-            ok(1,$file);
-        }
+    $T = "T" if $bang =~ m/#!\S*perl\s+-.*T/;
+
+    if (-l $file) {
+        ok(1, "$file is a symlink");
     } else {
-        ok(0,$file." --ERROR");
-        print $fh $loginfo;
+        local $TODO;
+        $TODO = 'schema updates are not required to be strict now' if $file =~ m{^sql/Pg-upgrade2};
+
+        my $command = "$perlapp -c$T -I modules/fallback -I modules/override $file 2>&1";
+        my $loginfo=`$command`;
+
+        if ($loginfo =~ /syntax ok$/im) {
+            if ($loginfo ne "$file syntax OK\n") {
+                ok(0,$file." --WARNING");
+                print $fh $loginfo;
+            } else {
+                ok(1,$file);
+            }
+        } else {
+            ok(0,$file." --ERROR");
+            print $fh $loginfo;
+        }
     }
 }
 
