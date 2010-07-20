@@ -36,7 +36,6 @@
 #  2007-10-14 - XMLified  - Holger Will  <holger@treebuilder.de>
 #######################################################################
 
-my $menufile = "menu.ini";
 use SL::Menu;
 
 use CGI::Carp qw(fatalsToBrowser);
@@ -98,7 +97,7 @@ sub acc_menu {
 
   my $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
-  my $menu = new Menu "$menufile";
+  my $menu = Menu->new($::menufile);
 
   $| = 1;
 

@@ -70,6 +70,7 @@ sub pre_startup_setup {
     $::userspath  = "users";
     $::templates  = "templates";
     $::memberfile = "users/members";
+    $::menufile   = "menu.ini";
     $::sendmail   = "| /usr/sbin/sendmail -t";
     $::lxdebug    = LXDebug->new;
     $::auth       = SL::Auth->new;

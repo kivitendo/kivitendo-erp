@@ -50,7 +50,6 @@ require "bin/mozilla/reportgenerator.pl";
 
 use strict;
 
-my $print_post;
 our %TMPL_VAR;
 
 1;
@@ -1857,8 +1856,6 @@ sub e_mail {
   check_oe_access();
 
   $form->{print_and_save} = 1;
-
-  $print_post = 1;
 
   my $saved_form = save_form();
 

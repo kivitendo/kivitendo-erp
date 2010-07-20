@@ -37,8 +37,6 @@ use URI;
 
 use strict;
 
-my $menufile = "menu.ini";
-
 1;
 
 # end of main
@@ -87,7 +85,7 @@ sub acc_menu {
 
   my $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
-  my $menu = new Menu "$menufile";
+  my $menu = Menu->new($::menufile);
 
   $| = 1;
 

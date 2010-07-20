@@ -84,7 +84,7 @@ sub acc_menu {
 
   $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
-  my $menu = new Menu "$menufile";
+  my $menu = Menu->new($::menufile);
 
   $form->{title} = $locale->text('Accounting Menu');
 

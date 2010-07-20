@@ -35,7 +35,6 @@
 #  2004-12-14 - Holger Lindemann
 #######################################################################
 
-my $menufile = "menu.ini";
 use SL::Menu;
 use CGI::Carp qw(fatalsToBrowser);
 
@@ -136,7 +135,7 @@ sub acc_menu {
 
   my $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
-  my $menu = new Menu "$menufile";
+  my $menu = Menu->new($::menufile);
 
   $| = 1;
 

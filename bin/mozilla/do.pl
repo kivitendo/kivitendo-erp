@@ -48,8 +48,6 @@ require "bin/mozilla/reportgenerator.pl";
 
 use strict;
 
-my $print_post;
-
 1;
 
 # end of main
@@ -904,8 +902,6 @@ sub e_mail {
   my $form     = $main::form;
 
   $form->{print_and_save} = 1;
-
-  $print_post = 1;
 
   my $saved_form = save_form();
 
