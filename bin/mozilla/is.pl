@@ -724,7 +724,6 @@ sub post {
     $form->save_history($form->dbconnect(\%myconfig));
   }
 
-  # macnetix: after invoice->Post, redirect to edit.
   if (!$form->{no_redirect_after_post}) {
     $form->{action} = 'edit';
     $form->{script} = 'is.pl';
