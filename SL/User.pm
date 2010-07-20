@@ -450,10 +450,7 @@ sub process_perl_script {
   map({ $dbup_myconfig{$_} = $form->{$_}; }
       qw(dbname dbuser dbpasswd dbhost dbport dbconnect));
 
-  my $nls_file = $filename;
-  $nls_file =~ s|.*/||;
-  $nls_file =~ s|.pl$||;
-  my $dbup_locale = Locale->new($main::language, $nls_file);
+  my $dbup_locale = $::locale;
 
   my $result = eval($contents);
 

@@ -355,7 +355,7 @@ eval { require "config/lx-erp.conf"; };
 eval { require "config/lx-erp-local.conf"; } if (-f "config/lx-erp-local.conf");
 
 $form = Form->new();
-$locale = Locale->new("de", "login");
+$locale = Locale->new("de");
 
 #######
 #######

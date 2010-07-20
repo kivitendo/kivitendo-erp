@@ -34,7 +34,7 @@ sub show_error {
   my $template             = shift;
   my $error_type           = shift || '';
 
-  $::locale                = Locale->new($::language, 'all');
+  $::locale                = Locale->new($::language);
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!.')                   if ($error_type eq 'password');
   $::myconfig{countrycode} = $::language;
@@ -128,7 +128,7 @@ sub handle_request {
   require_main_code($script, $suffix);
 
   $::cgi            = CGI->new('');
-  $::locale         = Locale->new($::language, $script);
+  $::locale         = Locale->new($::language);
   $::form           = Form->new;
   $::form->{script} = $script . $suffix;
 
@@ -150,7 +150,7 @@ sub handle_request {
 
       show_error('login/password_error', 'password') unless $::myconfig{login};
 
-      $::locale = Locale->new($::myconfig{countrycode}, $script);
+      $::locale = Locale->new($::myconfig{countrycode});
 
       show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($::form->{login}, $::form->{password}, 0);
 

@@ -45,8 +45,6 @@ use URI;
 
 use strict;
 
-my $locale;
-
 1;
 
 # end of main
@@ -55,7 +53,6 @@ sub display {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $locale     = Locale->new($myconfig{countrycode}, "menu");
   my $charset = $main::dbcharset || 'ISO-8859-1';
   my $callback            = $form->unescape($form->{callback});
   $callback               = URI->new($callback)->rel($callback) if $callback;
@@ -66,10 +63,10 @@ sub display {
     . qq|<?xml version="1.0" encoding="${charset}"?>
 <?xml-stylesheet href="xslt/xulmenu.xsl" type="text/xsl"?>
 <!DOCTYPE doc [
-<!ENTITY szlig "| . $locale->{iconv_iso8859}->convert('ß') . qq|">
-<!ENTITY auml "| . $locale->{iconv_iso8859}->convert('ä') . qq|">
-<!ENTITY ouml "| . $locale->{iconv_iso8859}->convert('ö') . qq|">
-<!ENTITY uuml "| . $locale->{iconv_iso8859}->convert('ü') . qq|">
+<!ENTITY szlig "| . $::locale->{iconv_iso8859}->convert('ß') . qq|">
+<!ENTITY auml "| . $::locale->{iconv_iso8859}->convert('ä') . qq|">
+<!ENTITY ouml "| . $::locale->{iconv_iso8859}->convert('ö') . qq|">
+<!ENTITY uuml "| . $::locale->{iconv_iso8859}->convert('ü') . qq|">
 ]>
 
 <doc>
@@ -129,7 +126,7 @@ sub print_menu {
     next if (($item eq "") || ($item =~ /--/));
 
     my $menu_item = $menu->{"${parent}${item}"};
-    my $menu_title = $locale->text($item);
+    my $menu_title = $::locale->text($item);
     my $menu_text = $menu_title;
 
     my $target = "main_window";

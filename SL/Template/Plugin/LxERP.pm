@@ -110,8 +110,7 @@ sub abs {
 
 sub t8 {
   my ($self, $text, @args) = @_;
-  $self->{locale} ||= Locale->new($::myconfig{countrycode}, 'all');
-  return $self->{locale}->text($text, @args) || $text;
+  return $::locale->text($text, @args) || $text;
 }
 
 1;

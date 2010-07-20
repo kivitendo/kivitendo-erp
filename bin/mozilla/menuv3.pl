@@ -38,7 +38,6 @@ use URI;
 use strict;
 
 my $menufile = "menu.ini";
-my $locale;
 
 1;
 
@@ -86,8 +85,6 @@ sub acc_menu {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $locale = Locale->new($myconfig{countrycode}, "menu");
-
   my $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
   my $menu = new Menu "$menufile";
@@ -118,7 +115,7 @@ sub print_menu {
     next if (($item eq "") || ($item =~ /--/));
 
     my $menu_item = $menu->{"${parent}${item}"};
-    my $menu_title = $locale->text($item);
+    my $menu_title = $::locale->text($item);
     my $menu_text = $menu_title;
 
     my $target = "main_window";

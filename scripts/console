@@ -1,0 +1,196 @@
+#!/usr/bin/perl
+
+use warnings;
+use strict;
+use 5.008;                          # too much magic in here to include perl 5.6
+
+BEGIN {
+  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
+  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+}
+
+use Config::Std;
+use Data::Dumper;
+use Devel::REPL 1.002001;
+use Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
+
+read_config 'config/console.conf' => my %config;# if -f 'config/console.conf';
+
+my $login        = shift || $config{Console}{login}        || 'demo';
+my $history_file =          $config{Console}{history_file} || '/tmp/lxoffice_console_history.log'; # fallback if users is not writable
+my $autorun      =          $config{Console}{autorun};
+
+# will be configed eventually
+my @plugins      = qw(History LexEnv Colors MultiLine::PPI FancyPrompt PermanentHistory AutoloadModules);
+
+my $repl = Devel::REPL->new;
+$repl->load_plugin($_) for @plugins;
+$repl->load_history($history_file);
+$repl->eval('help');
+$repl->print("trying to auto login as '$login'...");
+$repl->print($repl->eval("lxinit '$login'"));
+$repl->print($repl->eval($autorun)) if $autorun;
+$repl->run;
+
+package Devel::REPL;
+
+
+# this is a cleaned up version of am.pl
+# it lacks redirection, some html setup and most of the authentication process.
+# it is assumed that anyone with physical access and execution rights on this script
+# won't be hindered by authentication anyway.
+sub lxinit {
+  my $login = shift;
+
+  die 'need login' unless $login;
+
+  package main;
+
+  { no warnings 'once';
+    $::userspath  = "users";
+    $::templates  = "templates";
+    $::memberfile = "users/members";
+    $::sendmail   = "| /usr/sbin/sendmail -t";
+  }
+
+  use SL::LXDebug;
+  $::lxdebug = LXDebug->new;
+
+  use CGI qw( -no_xhtml);
+  use SL::Auth;
+  use SL::Form;
+  use SL::Locale;
+  use Data::Dumper;
+
+  eval { require "config/lx-erp.conf"; };
+  eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
+
+  $::cgi  = CGI->new qw();
+  $::form = Form->new;
+  $::auth = SL::Auth->new;
+
+  die 'cannot reach auth db'               unless $::auth->session_tables_present;
+
+  $::auth->restore_session;
+
+  require "bin/mozilla/common.pl";
+
+  die "cannot find user $login"            unless %::myconfig = $::auth->read_user($login);
+  die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode});
+
+  return "logged in as $login";
+}
+
+# these function provides a load command to slurp in a lx-office module
+# since it's seldomly useful, it's not documented in help
+sub load {
+  my $module = shift;
+  $module =~ s/[^\w]//g;
+  require "bin/mozilla/$module.pl";
+}
+
+sub reload {
+  use Module::Reload;
+  Module::Reload->check();
+
+  return "modules reloaded";
+}
+
+sub quit {
+  exit;
+}
+
+sub help {
+  print <<EOL;
+
+  Lx-Office Konsole
+
+  ./scripts/console [login]
+
+Spezielle Kommandos:
+
+  help                - zeigt diese Hilfe an.
+  lxinit 'login'      - lädt das Lx-Office Environment für den User 'login'.
+  reload              - lädt modifizierte Module neu.
+  pp DATA             - zeigt die Datenstruktur mit Data::Dumper an.
+  quit                - beendet die Konsole
+
+EOL
+#  load   'module'     - läd das angegebene Modul, d.h. bin/mozilla/module.pl und SL/Module.pm.
+}
+
+sub pp {
+  $Data::Dumper::Indent   = 2;
+  $Data::Dumper::Maxdepth = 2;
+  Data::Dumper::Dumper(@_);
+}
+
+1;
+
+__END__
+
+=head1 NAME
+
+scripts/console - Lx Office Console
+
+=head1 SYNOPSIS
+
+  ./script/console
+  > help               # displays a brief documentation
+
+=head1 DESCRIPTION
+
+Users of Ruby on Rails will recognize this as a perl reimplementation of the
+rails scripts/console. It's intend is to provide a shell environment to the
+lx-office internals. This will mostly not interest you if you just want to do
+your ERP stuff with lx-office, but will be invaluable for those who wish to
+make changes to lx-office itself.
+
+=head1 FUNCTIONS
+
+You can do most things in the console that you could do in an actual perl
+script. Certain helper functions will aid you in debugging the state of the
+program:
+
+=head2 pp C<DATA>
+
+Named after the rails pretty print gem, this will call Data::Dumper on the
+given C<DATA>. Use it to see what is going on.
+
+Currently C<pp> will set the Data::Dumper depth to 2, so if you need a
+different depth, you'll have to change that. A nice feature would be to
+configure that, or at least to be able to change it at runtime.
+
+=head2 lxinit C<login>
+
+Login into lx-office using a specified login. No password will be required, and
+security mechanisms will mostly be inactive. form, locale, myconfig will be
+correctly set.
+
+=head2 reload
+
+Attempts to reload modules that changed since last reload (or inital startup).
+This will mostly work just fine, except for Moose classes that have been made
+immutable. Keep in mind that existing objects will continue to have the methods
+of the classes they were created with.
+
+=head1 BUGS
+
+ - Reload on immutable Moose classes is buggy.
+ - Logging in more than once is not supported by the program, and thus not by
+   the console. It seems to work, but strange things may happen.
+
+=head1 SEE ALSO
+
+Configuration of this script is located in:
+
+ config/console.conf
+ config/console.conf.default
+
+See there for interesting options.
+
+=head1 AUTHOR
+
+  Sven Schöling <s.schoeling@linet-services.de>
+
+=cut

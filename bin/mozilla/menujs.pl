@@ -41,8 +41,6 @@ use CGI::Carp qw(fatalsToBrowser);
 
 use strict;
 
-my $locale;
-
 1;
 
 # end of main
@@ -82,7 +80,7 @@ sub clock_line {
   my $login = "[Nutzer "
     . $form->{login}
     . " - <a href=\"login.pl?action=logout\" target=\"_top\">"
-    . $locale->text('Logout')
+    . $::locale->text('Logout')
     . "</a>] ";
   my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,
       $Jahr,     $Wochentag, $Jahrestag, $Sommerzeit)
@@ -136,7 +134,6 @@ sub acc_menu {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $locale = Locale->new($myconfig{countrycode}, "menu");
   my $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
   my $menu = new Menu "$menufile";
@@ -390,7 +387,7 @@ sub section_menu {
     my $ml    = $item;
     $label =~ s/$level--//g;
     $ml    =~ s/--.*//;
-    $label = $locale->text($label);
+    $label = $::locale->text($label);
     $label =~ s/ /&nbsp;/g;
     $menu->{$item}{target} = "main_window" unless $menu->{$item}{target};
 

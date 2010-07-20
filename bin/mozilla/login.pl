@@ -39,7 +39,6 @@ use strict;
 
 our $cgi;
 our $form;
-our $locale;
 our $auth;
 
 sub run {
@@ -48,14 +47,13 @@ sub run {
 
   $cgi    = $::cgi;
   $form   = $::form;
-  $locale = $::locale;
   $auth   = $::auth;
 
   $form->{stylesheet} = "lx-office-erp.css";
   $form->{favicon}    = "favicon.ico";
 
   if (SL::Auth::SESSION_EXPIRED == $session_result) {
-    $form->{error_message} = $locale->text('The session is invalid or has expired.');
+    $form->{error_message} = $::locale->text('The session is invalid or has expired.');
     login_screen();
     ::end_of_request();
   }
@@ -67,14 +65,14 @@ sub run {
     our %myconfig = $auth->read_user($form->{login}) if ($form->{login});
 
     if (!$myconfig{login} || (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0))) {
-      $form->{error_message} = $locale->text('Incorrect Password!');
+      $form->{error_message} = $::locale->text('Incorrect Password!');
       login_screen();
     } else {
       $auth->set_session_value('login', $form->{login}, 'password', $form->{password});
       $auth->create_or_refresh_session();
 
       $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
-      call_sub($locale->findsub($action));
+      call_sub($::locale->findsub($action));
     }
   } else {
     login_screen();
@@ -103,7 +101,7 @@ sub login {
   $main::lxdebug->enter_sub();
 
   unless ($form->{login}) {
-    login_screen($locale->text('You did not enter a name!'));
+    login_screen($::locale->text('You did not enter a name!'));
     ::end_of_request();
   }
 
@@ -113,7 +111,7 @@ sub login {
   my $result;
   if (($result = $user->login($form)) <= -1) {
     ::end_of_request() if $result == -2;
-    login_screen($locale->text('Incorrect username or password!'));
+    login_screen($::locale->text('Incorrect username or password!'));
     ::end_of_request();
   }
 
@@ -151,7 +149,7 @@ sub logout {
 
   # remove the callback to display the message
   $form->{callback} = "login.pl?action=";
-  $form->redirect($locale->text('You are logged out!'));
+  $form->redirect($::locale->text('You are logged out!'));
 
   $main::lxdebug->leave_sub();
 }
@@ -160,12 +158,10 @@ sub company_logo {
   $main::lxdebug->enter_sub();
 
   my %myconfig = %main::myconfig;
-  $locale             =  new Locale $myconfig{countrycode}, "login" if ($main::language ne $myconfig{countrycode});
-
   $form->{todo_list}  =  create_todo_list('login_screen' => 1) if (!$form->{no_todo_list});
 
   $form->{stylesheet} =  $myconfig{stylesheet};
-  $form->{title}      =  $locale->text('About');
+  $form->{title}      =  $::locale->text('About');
 
   # create the logo screen
   $form->header() unless $form->{noheader};
@@ -177,8 +173,7 @@ sub company_logo {
 
 sub show_error {
   my $template           = shift;
-  my %myconfig = %main::myconfig;
-  $locale                = Locale->new($main::language, 'all');
+  my %myconfig           = %main::myconfig;
   $myconfig{countrycode} = $main::language;
   $form->{stylesheet}    = 'css/lx-office-erp.css';
 

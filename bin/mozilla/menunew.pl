@@ -40,8 +40,6 @@ use SL::Menu;
 
 use strict;
 
-my $locale;
-
 1;
 
 # end of main
@@ -91,7 +89,6 @@ sub clock_line {
 sub acc_menu {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
-  $locale = Locale->new($myconfig{countrycode}, "menu");
 
   my $mainlevel =  $form->{level};
   $mainlevel    =~ s/\Q$mainlevel\E--//g;
@@ -135,7 +132,7 @@ sub create_menu {
     next if (($name eq "") || ($name =~ /--/));
 
     my $menu_item = $menu->{"${parent}${name}"};
-    my $item      = { 'title' => $locale->text($name) };
+    my $item      = { 'title' => $::locale->text($name) };
     push @{ $all_items }, $item;
 
     if ($menu_item->{submenu} || !defined($menu_item->{module}) || ($menu_item->{module} eq "menu.pl")) {
