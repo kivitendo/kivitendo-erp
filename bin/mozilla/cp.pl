@@ -771,7 +771,7 @@ sub check_form {
 
   if ($form->{currency} ne $form->{oldcurrency}) {
     &update;
-    exit;
+    ::end_of_request();
   }
 
   $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{amount});

@@ -915,7 +915,7 @@ sub generate_ustva {
       } else {
         $form->header;
         USTVA::error( $locale->text('Wrong Period' ));
-        exit(0);
+        ::end_of_request();
       }
 
       my $tax_office           = first { $_->{name} eq $form->{elsterland} } @{ $ustva->{tax_office_information} };
@@ -983,12 +983,12 @@ sub generate_ustva {
     } elsif ( $form->{format} eq '' ){ # No format error.
       $form->header;
       USTVA::error( $locale->text('Application Error. No Format given' ) . "!");
-      exit(0);
+      ::end_of_request();
 
     } else { # All other Formats are wrong
       $form->header;
       USTVA::error( $locale->text('Application Error. Wrong Format') . ": " . $form->{format} );
-      exit(0);
+      ::end_of_request();
     }
 
 

@@ -132,7 +132,7 @@ sub check_auth_db_and_tables {
     $form->header();
     print $form->parse_html_template('admin/check_auth_database', \%params);
 
-    exit 0;
+    ::end_of_request();
   }
 
   if (!$main::auth->check_tables()) {
@@ -140,7 +140,7 @@ sub check_auth_db_and_tables {
     $form->header();
     print $form->parse_html_template('admin/check_auth_tables', \%params);
 
-    exit 0;
+    ::end_of_request();
   }
 
   if (-f $main::memberfile) {
@@ -157,7 +157,7 @@ sub check_auth_db_and_tables {
     print $form->parse_html_template('admin/user_migration', { 'memberfile' => $main::memberfile,
                                                                'backupdir'  => $backupdir });
 
-    exit 0
+    ::end_of_request();
   }
 }
 

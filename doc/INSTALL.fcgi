@@ -49,6 +49,3 @@ Variante 2 startet nur einen zentralen Dispatcher und lenkt alle Scripte auf die
 
 4. TODO
 
-4.1. Fehlermeldungen, die per $form->error() ausgegeben werden, werden momentan doppelt angezeigt.
-
-4.2. "exit" sollte unter FastCGI nicht verwendet werden, startet ja den Prozess neu. Nur die Abhandlung des Requests sollte beendet werden.

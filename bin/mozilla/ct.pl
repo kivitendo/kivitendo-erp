@@ -574,8 +574,9 @@ sub save {
   }
   # /saving the history
   &edit;
-  exit;
+
   $main::lxdebug->leave_sub();
+  ::end_of_request();
 }
 
 sub delete {

@@ -412,7 +412,7 @@ sub info {
     </body>
     |;
 
-    exit;
+    ::end_of_request();
 
   } else {
 

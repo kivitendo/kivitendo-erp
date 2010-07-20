@@ -3545,7 +3545,7 @@ sub delete_warehouse {
 
     $form->header();
     print $form->parse_html_template('am/confirm_delete_warehouse');
-    exit 0;
+    ::end_of_request();
   }
 
   if (AM->delete_warehouse(\%myconfig, $form)) {

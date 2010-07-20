@@ -1064,7 +1064,7 @@ sub post {
   my ($vendor) = split /--/, $form->{vendor};
   if ($form->{oldvendor} ne "$vendor--$form->{vendor_id}") {
     &update;
-    exit;
+    ::end_of_request();
   }
   my ($debitaccno,    $debittaxkey)    = split /--/, $form->{AP_amountselected};
   my ($taxkey,        $NULL)           = split /--/, $form->{taxchartselected};

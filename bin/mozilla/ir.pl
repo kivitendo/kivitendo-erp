@@ -468,7 +468,7 @@ sub update {
       if ($rows > 1) {
 
         &select_item;
-        exit;
+        ::end_of_request();
 
       } else {
 
@@ -664,7 +664,7 @@ sub post {
   # if the vendor changed get new values
   if (&check_name('vendor')) {
     &update;
-    exit;
+    ::end_of_request();
   }
 
   if ($myconfig{mandatory_departments} && !$form->{department_id}) {

@@ -159,7 +159,7 @@ sub display_form {
   # if we have a display_form
   if ($form->{display_form}) {
     call_sub($form->{"display_form"});
-    exit;
+    ::end_of_request();
   }
 
   Common::webdav_folder($form) if ($main::webdav);
@@ -176,7 +176,7 @@ sub display_form {
   #     $form->{print_and_post} = 0;
   #
   #     &print_form($old_form);
-  #     exit;
+  #     ::end_of_request();
   #   }
   #
   #   $form->{action}   = "";

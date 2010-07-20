@@ -1723,7 +1723,7 @@ sub update {
         if ($rows > 1) {
           $form->{makemodel_rows}--;
           &select_item;
-          exit;
+          ::end_of_request();
         } else {
           map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }
             qw(partnumber description unit partsgroup);

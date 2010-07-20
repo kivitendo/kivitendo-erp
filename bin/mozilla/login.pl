@@ -57,7 +57,7 @@ sub run {
   if (SL::Auth::SESSION_EXPIRED == $session_result) {
     $form->{error_message} = $locale->text('The session is invalid or has expired.');
     login_screen();
-    exit;
+    ::end_of_request();
   }
   my $action = $form->{action};
   if (!$action && $auth->{SESSION}->{login}) {
@@ -104,7 +104,7 @@ sub login {
 
   unless ($form->{login}) {
     login_screen($locale->text('You did not enter a name!'));
-    exit;
+    ::end_of_request();
   }
 
   my $user = new User $form->{login};
@@ -112,9 +112,9 @@ sub login {
   # if we get an error back, bale out
   my $result;
   if (($result = $user->login($form)) <= -1) {
-    exit if $result == -2;
+    ::end_of_request() if $result == -2;
     login_screen($locale->text('Incorrect username or password!'));
-    exit;
+    ::end_of_request();
   }
 
   my %style_to_script_map = ( 'v3'  => 'v3',
@@ -188,7 +188,7 @@ sub show_error {
   # $form->parse_html_template('login/auth_db_unreachable');
   # $form->parse_html_template('login/authentication_pl_missing');
 
-  exit;
+  ::end_of_request();
 }
 
 1;

@@ -277,7 +277,7 @@ sub transfer_parts {
 
   if (!scalar @transfers) {
     $form->show_generic_information($locale->text('Nothing has been selected for transfer.'));
-    exit 0;
+    ::end_of_request();
   }
 
   WH->transfer(@transfers);
@@ -611,7 +611,7 @@ sub remove_parts {
 
   if (!scalar @transfers) {
     $form->show_generic_information($locale->text('Nothing has been selected for removal.'));
-    exit 0;
+    ::end_of_request();
   }
 
   WH->transfer(@transfers);

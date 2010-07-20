@@ -563,7 +563,7 @@ sub update {
       if ($rows > 1) {
 
         &select_item;
-        exit;
+        ::end_of_request();
 
       } else {
 
@@ -1010,7 +1010,7 @@ sub save_and_close {
       $form->{payment_id} = $payment_id;
     }
     &update;
-    exit;
+    ::end_of_request();
   }
 
   $form->{id} = 0 if $form->{saveasnew};
@@ -1119,7 +1119,7 @@ sub save {
       $form->{payment_id} = $payment_id;
     }
     &update;
-    exit;
+    ::end_of_request();
   }
 
   $form->{id} = 0 if $form->{saveasnew};
@@ -1180,7 +1180,7 @@ sub save {
   if(!$form->{print_and_save}) {
     delete @{$form}{ary_diff([keys %{ $form }], [qw(login stylesheet id script type cursor_fokus)])};
     edit();
-    exit;
+    ::end_of_request();
   }
   $main::lxdebug->leave_sub();
 }
@@ -1264,7 +1264,7 @@ sub delete_order_quotation {
     }
     # /saving the history
     $form->info($msg);
-    exit();
+    ::end_of_request();
   }
   $form->error($err);
 
@@ -1310,7 +1310,7 @@ sub invoice {
   if (&check_name($form->{vc})) {
     $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
     &update;
-    exit;
+    ::end_of_request();
   }
 
   $form->{cp_id} *= 1;
@@ -1333,7 +1333,7 @@ sub invoice {
 
     if (!$exchangerate) {
       &backorder_exchangerate($orddate, $buysell);
-      exit;
+      ::end_of_request();
     }
   }
 
@@ -1681,7 +1681,7 @@ sub check_for_direct_delivery {
 
   $main::lxdebug->leave_sub();
 
-  exit 0;
+  ::end_of_request();
 }
 
 sub purchase_order {

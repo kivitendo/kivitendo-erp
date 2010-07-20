@@ -405,7 +405,7 @@ sub _get_transactions {
 
       if ($ref2->{trans_id} != $trans->[0]->{trans_id}) {
         $form->error("Unbalanced ledger! old trans_id " . $trans->[0]->{trans_id} . " new trans_id " . $ref2->{trans_id} . " count $count");
-        exit 1;
+        ::end_of_request();
       }
 
       push @{ $trans }, $ref2;

@@ -455,8 +455,8 @@ sub error {
     $self->show_generic_error($msg);
 
   } else {
-
-    die "Error: $msg\n";
+    print STDERR "Error: $msg\n";
+    ::end_of_request();
   }
 
   $main::lxdebug->leave_sub();
@@ -772,7 +772,7 @@ sub _prepare_html_template {
       my $info = "Developer information: templates/webpages/${file}.html is newer than the translation file locale/${language}/all.\n" .
         "Please re-run 'locales.pl' in 'locale/${language}'.";
       print(qq|<pre>$info</pre>|);
-      die($info);
+      ::end_of_request();
     }
 
     $file = "templates/webpages/${file}.html";
@@ -781,7 +781,7 @@ sub _prepare_html_template {
     my $info = "Web page template '${file}' not found.\n" .
       "Please re-run 'locales.pl' in 'locale/${language}'.";
     print(qq|<pre>$info</pre>|);
-    die($info);
+    ::end_of_request();
   }
 
   if ($self->{"DEBUG"}) {
@@ -895,9 +895,11 @@ sub show_generic_error {
   $self->header();
   print $self->parse_html_template("generic/error", $add_params);
 
+  print STDERR "Error: $error\n";
+
   $main::lxdebug->leave_sub();
 
-  die("Error: $error\n");
+  ::end_of_request();
 }
 
 sub show_generic_information {
@@ -917,7 +919,7 @@ sub show_generic_information {
 
   $main::lxdebug->leave_sub();
 
-  die("Information: $text\n");
+  ::end_of_request();
 }
 
 # write Trigger JavaScript-Code ($qty = quantity of Triggers)
@@ -975,7 +977,7 @@ sub redirect {
   if (!$self->{callback}) {
 
     $self->info($msg);
-    exit;
+    ::end_of_request();
   }
 
 #  my ($script, $argv) = split(/\?/, $self->{callback}, 2);

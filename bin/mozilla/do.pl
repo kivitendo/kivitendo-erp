@@ -367,7 +367,7 @@ sub update_delivery_order {
       if ($rows > 1) {
 
         select_item();
-        exit;
+        ::end_of_request();
 
       } else {
 
@@ -619,7 +619,7 @@ sub save {
   # if the name changed get new values
   if (check_name($form->{vc})) {
     update();
-    exit;
+    ::end_of_request();
   }
 
   $form->{id} = 0 if $form->{saveasnew};
@@ -647,7 +647,7 @@ sub save {
   if(!$form->{print_and_save}) {
     set_headings("edit");
     update();
-    exit;
+    ::end_of_request();
   }
   $main::lxdebug->leave_sub();
 }
@@ -690,7 +690,7 @@ sub delete_delivery_order {
     # /saving the history
 
     $form->info($locale->text('Delivery Order deleted!'));
-    exit();
+    ::end_of_request();
   }
 
   $form->error($locale->text('Cannot delete delivery order!'));
@@ -1232,7 +1232,7 @@ sub transfer_in {
       update();
       $main::lxdebug->leave_sub();
 
-      exit 0;
+      ::end_of_request();
     }
   }
 
@@ -1346,7 +1346,7 @@ sub transfer_out {
       update();
       $main::lxdebug->leave_sub();
 
-      exit 0;
+      ::end_of_request();
     }
   }
 

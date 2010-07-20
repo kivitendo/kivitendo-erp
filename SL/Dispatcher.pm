@@ -14,6 +14,10 @@ use Rose::DB;
 use Rose::DB::Object;
 use File::Basename;
 
+# Trailing new line is added so that Perl will not add the line
+# number 'die' was called in.
+use constant END_OF_REQUEST => "END-OF-REQUEST\n";
+
 sub pre_request_checks {
   show_error('login/auth_db_unreachable') unless $::auth->session_tables_present;
   $::auth->expire_sessions;
@@ -33,7 +37,7 @@ sub show_error {
   print $::form->parse_html_template($template);
   $::lxdebug->leave_sub;
 
-  exit;
+  ::end_of_request();
 }
 
 sub pre_startup_setup {
@@ -159,8 +163,10 @@ sub handle_request {
 
     1;
   } or do {
-    $::form->{label_error} = $::cgi->pre($EVAL_ERROR);
-    show_error('generic/error');
+    if ($EVAL_ERROR ne END_OF_REQUEST) {
+      $::form->{label_error} = $::cgi->pre($EVAL_ERROR);
+      eval { show_error('generic/error') };
+    }
   };
 
   # cleanup
@@ -179,6 +185,14 @@ sub unrequire_bin_mozilla {
     next if /\binstallationcheck.pl$/;
     delete $INC{$_};
   }
+}
+
+package main;
+
+use strict;
+
+sub end_of_request {
+  die SL::Dispatcher->END_OF_REQUEST;
 }
 
 1;

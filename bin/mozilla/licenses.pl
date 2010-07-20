@@ -611,7 +611,7 @@ sub do_search {
             . $locale->text(
                       "No licenses were found that match the search criteria.")
             . qq|</body></html>|);
-    exit(0);
+    ::end_of_request();
   }
 
   print(

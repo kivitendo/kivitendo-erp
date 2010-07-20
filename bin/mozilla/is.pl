@@ -512,7 +512,7 @@ sub update {
       if ($rows > 1) {
 
         &select_item;
-        exit;
+        ::end_of_request();
 
       } else {
 
@@ -652,7 +652,7 @@ sub post {
   # if oldcustomer ne customer redo form
   if (&check_name('customer')) {
     &update;
-    exit;
+    ::end_of_request();
   }
 
   if ($myconfig{mandatory_departments} && !$form->{department_id}) {

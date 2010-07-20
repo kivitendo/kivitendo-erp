@@ -85,7 +85,8 @@ sub verify_installation {
  </body>
 </html>
 |);
-  exit(0);
+
+  ::end_of_request();
 }
 
 1;

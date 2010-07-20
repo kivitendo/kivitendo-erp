@@ -108,7 +108,7 @@ sub check_name {
           $form->error($locale->text("More than one #1 found matching, please be more specific.", $locale->text(ucfirst $name)));
         } else {
           &select_name($name);
-          exit;
+          ::end_of_request();
         }
       }
 
@@ -318,7 +318,7 @@ sub check_project {
           # check form->{project_list} how many there are
           $form->{rownumber} = $i;
           &select_project($i ? undef : 1, $nextsub);
-          exit;
+          ::end_of_request();
         }
 
         if ($rows == 1) {

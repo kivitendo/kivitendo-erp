@@ -144,7 +144,7 @@ sub login {
 
       if ($form->{"show_dbupdate_warning"}) {
         print $form->parse_html_template("dbupgrade/warning");
-        exit(0);
+        ::end_of_request();
       }
 
       # update the tables
@@ -412,7 +412,7 @@ sub dbcreate {
 # Process a Perl script which updates the database.
 # If the script returns 1 then the update was successful.
 # Return code "2" means "needs more interaction; remove
-# users/nologin and exit".
+# users/nologin and end current request".
 # All other return codes are fatal errors.
 sub process_perl_script {
   $main::lxdebug->enter_sub();
@@ -466,10 +466,10 @@ sub process_perl_script {
     print $form->parse_html_template("dbupgrade/error",
                                      { "file"  => $filename,
                                        "error" => $@ });
-    exit(0);
+    ::end_of_request();
   } elsif (1 != $result) {
     unlink("users/nologin") if (2 == $result);
-    exit(0);
+    ::end_of_request();
   }
 
   if (ref($version_or_control) eq "HASH") {

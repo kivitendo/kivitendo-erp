@@ -1127,7 +1127,7 @@ sub post {
   my ($customer) = split /--/, $form->{customer};
   if ($form->{oldcustomer} ne "$customer--$form->{customer_id}") {
     update();
-    exit;
+    ::end_of_request();
   }
 
   $form->{AR}{receivables} = $form->{ARselected};

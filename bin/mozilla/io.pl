@@ -882,7 +882,7 @@ sub validate_items {
   # check if items are valid
   if ($form->{rowcount} == 1) {
     &update;
-    exit;
+    ::end_of_request();
   }
 
   for my $i (1 .. $form->{rowcount} - 1) {
@@ -1265,7 +1265,7 @@ sub print {
     &save();
     $form->{formname} = $formname;
     &edit();
-    exit;
+    ::end_of_request();
   }
 
   &print_form($old_form);
@@ -1432,7 +1432,7 @@ sub print_form {
         $form->save_history($form->dbconnect(\%myconfig));
       }
       # /saving the history
-      exit;
+      ::end_of_request();
     }
   }
 
@@ -1705,7 +1705,7 @@ sub print_form {
       }
 
       call_sub($display_form);
-      exit;
+      ::end_of_request();
     }
 
     my $msg =
@@ -1716,7 +1716,7 @@ sub print_form {
   }
   if ($form->{printing}) {
    call_sub($display_form);
-   exit;
+   ::end_of_request();
   }
 
   $main::lxdebug->leave_sub();
