@@ -1336,8 +1336,11 @@ sub parse_template {
       #print(STDERR "OUT $self->{OUT}\n");
       for my $i (1 .. $self->{copies}) {
         if ($self->{OUT}) {
-          open(OUT, $self->{OUT})
-            or $self->error($self->cleanup . "$self->{OUT} : $!");
+          open OUT, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
+          print OUT while <IN>;
+          close OUT;
+          seek IN, 0, 0;
+
         } else {
           $self->{attachment_filename} = ($self->{attachment_filename})
                                        ? $self->{attachment_filename}
@@ -1350,18 +1353,8 @@ Content-Length: $numbytes
 
 |;
 
-          open(OUT, ">-") or $self->error($self->cleanup . "$!: STDOUT");
-
+          $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
         }
-
-        while (<IN>) {
-          print OUT $_;
-
-        }
-
-        close(OUT);
-
-        seek IN, 0, 0;
       }
 
       close(IN);
