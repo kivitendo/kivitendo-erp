@@ -16,9 +16,6 @@ use SL::Locale;
 use SL::Common;
 use Form;
 use List::Util qw(first);
-use Moose;
-use Rose::DB;
-use Rose::DB::Object;
 use File::Basename;
 
 # Trailing new line is added so that Perl will not add the line
