@@ -1767,8 +1767,9 @@ sub check_exchangerate {
 sub get_all_currencies {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig) = @_;
-  my $dbh = $self->get_standard_dbh($myconfig);
+  my $self     = shift;
+  my $myconfig = shift || \%::myconfig;
+  my $dbh      = $self->get_standard_dbh($myconfig);
 
   my $query = qq|SELECT curr FROM defaults|;
 
@@ -3015,8 +3016,8 @@ sub lastname_used {
 sub current_date {
   $main::lxdebug->enter_sub();
 
-  my $self              = shift;
-  my $myconfig          = shift  || \%::myconfig;
+  my $self     = shift;
+  my $myconfig = shift || \%::myconfig;
   my ($thisdate, $days) = @_;
 
   my $dbh = $self->get_standard_dbh($myconfig);
