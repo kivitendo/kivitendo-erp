@@ -6,7 +6,6 @@ use Carp;
 use Encode;
 use List::Util qw(first);
 use POSIX qw(strftime);
-use Text::Iconv;
 
 sub new {
   my $class = shift;
@@ -34,9 +33,9 @@ sub _init {
 
   croak "Execution date format wrong for '$params{execution_date}': not YYYY-MM-DD." if ($params{execution_date} !~ /^\d{4}-\d{2}-\d{2}$/);
 
-  map { $self->{$_} = decode('UTF-8', $self->{sepa}->{iconv}->convert($params{$_})) } keys %params;
-  map { $self->{$_} =~ s/\s+//g                                                     } qw(src_iban src_bic dst_iban dst_bic);
-  map { $self->{$_} = $self->{sepa}->_replace_special_chars($self->{$_})            } qw(recipient reference end_to_end_id);
+  map { $self->{$_} = $self->{sepa}->{iconv}->convert($params{$_})       } keys %params;
+  map { $self->{$_} =~ s/\s+//g                                          } qw(src_iban src_bic dst_iban dst_bic);
+  map { $self->{$_} = $self->{sepa}->_replace_special_chars($self->{$_}) } qw(recipient reference end_to_end_id);
 }
 
 sub get {

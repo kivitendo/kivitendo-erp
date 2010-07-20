@@ -36,11 +36,13 @@
 
 package Locale;
 
-use Text::Iconv;
+use Encode;
 use List::Util qw(first);
+use List::MoreUtils qw(any);
 
 use SL::LXDebug;
 use SL::Common;
+use SL::Iconv;
 use SL::Inifile;
 
 use strict;
@@ -88,12 +90,18 @@ sub _init {
   }
 
   my $db_charset            = $main::dbcharset || Common::DEFAULT_CHARSET;
+  $self->{is_utf8}          = (any { lc($::dbcharset || '') eq $_ } qw(utf8 utf-8 unicode)) ? 1 : 0;
 
-  $self->{iconv}            = Text::Iconv->new($self->{charset}, $db_charset);
-  $self->{iconv_reverse}    = Text::Iconv->new($db_charset,      $self->{charset});
-  $self->{iconv_english}    = Text::Iconv->new('ASCII',          $db_charset);
-  $self->{iconv_iso8859}    = Text::Iconv->new('ISO-8859-15',    $db_charset);
-  $self->{iconv_to_iso8859} = Text::Iconv->new($db_charset,      'ISO-8859-15');
+  if ($self->{is_utf8}) {
+    binmode STDOUT, ":utf8";
+    binmode STDERR, ":utf8";
+  }
+
+  $self->{iconv}            = SL::Iconv->new($self->{charset}, $db_charset);
+  $self->{iconv_reverse}    = SL::Iconv->new($db_charset,      $self->{charset});
+  $self->{iconv_english}    = SL::Iconv->new('ASCII',          $db_charset);
+  $self->{iconv_iso8859}    = SL::Iconv->new('ISO-8859-15',    $db_charset);
+  $self->{iconv_to_iso8859} = SL::Iconv->new($db_charset,      'ISO-8859-15');
 
   $self->_read_special_chars_file($country);
 
@@ -103,6 +111,12 @@ sub _init {
      "September", "October",  "November", "December");
   push @{ $self->{SHORT_MONTH} },
     (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec));
+}
+
+sub is_utf8 {
+  my $self   = shift;
+  my $handle = shift;
+  return $self->{is_utf8} && (!$handle || $handle->is_utf8);
 }
 
 sub _handle_markup {
@@ -404,6 +418,16 @@ sub remap_special_chars {
   my $dst_format = shift;
 
   return $self->quote_special_chars($dst_format, $self->quote_special_chars("${src_format}-reverse", shift));
+}
+
+sub with_raw_io {
+  my $self = shift;
+  my $fh   = shift;
+  my $code = shift;
+
+  binmode $fh, ":raw";
+  $code->();
+  binmode $fh, ":utf8" if $self->is_utf8;
 }
 
 1;

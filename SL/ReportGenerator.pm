@@ -1,11 +1,9 @@
 package SL::ReportGenerator;
 
 use Data::Dumper;
-use Encode;
 use IO::Wrap;
 use List::Util qw(max);
 use Text::CSV_XS;
-use Text::Iconv;
 #use PDF::API2;    # these two eat up to .75s on startup. only load them if we actually need them
 #use PDF::Table;
 
@@ -235,7 +233,9 @@ sub generate_with_headers {
     my $filename = $self->get_attachment_basename();
     print qq|content-type: text/csv\n|;
     print qq|content-disposition: attachment; filename=${filename}.csv\n\n|;
-    $self->generate_csv_content();
+    $::locale->with_raw_io(\*STDOUT, sub {
+      $self->generate_csv_content();
+    });
 
   } elsif ($format eq 'pdf') {
     $self->generate_pdf_content();
@@ -410,15 +410,6 @@ sub _cm2bp {
   return $_[0] * 72 / 2.54;
 }
 
-sub _decode_text {
-  my $self = shift;
-  my $text = shift;
-
-  $text    = decode('UTF-8', $text) if ($self->{text_is_utf8});
-
-  return $text;
-}
-
 sub generate_pdf_content {
   eval {
     require PDF::API2;
@@ -440,8 +431,7 @@ sub generate_pdf_content {
   my $num_columns     = scalar @visible_columns;
   my $num_header_rows = 1;
 
-  my $font_encoding     = $main::dbcharset || 'ISO-8859-15';
-  $self->{text_is_utf8} = $font_encoding =~ m/^utf-?8$/i;
+  my $font_encoding   = $main::dbcharset || 'ISO-8859-15';
 
   foreach my $name (@visible_columns) {
     push @column_props, { 'justify' => $self->{columns}->{$name}->{align} eq 'right' ? 'right' : 'left' };
@@ -456,7 +446,7 @@ sub generate_pdf_content {
     foreach my $name (@visible_columns) {
       my $column = $self->{columns}->{$name};
 
-      push @{ $data_row },       $self->_decode_text($column->{text});
+      push @{ $data_row },       $column->{text};
       push @{ $cell_props_row }, {};
     }
 
@@ -470,7 +460,7 @@ sub generate_pdf_content {
       push @cell_props, $cell_props_row;
 
       foreach my $custom_header_col (@{ $custom_header_row }) {
-        push @{ $data_row }, $self->_decode_text($custom_header_col->{text});
+        push @{ $data_row }, $custom_header_col->{text};
 
         my $num_output  = ($custom_header_col->{colspan} * 1 > 1) ? $custom_header_col->{colspan} : 1;
         if ($num_output > 1) {
@@ -488,7 +478,7 @@ sub generate_pdf_content {
   foreach my $row_set (@{ $self->{data} }) {
     if ('HASH' eq ref $row_set) {
       if ($row_set->{type} eq 'colspan_data') {
-        push @data, [ $self->_decode_text($row_set->{data}) ];
+        push @data, [ $row_set->{data} ];
 
         $cell_props_row = [];
         push @cell_props, $cell_props_row;
@@ -512,7 +502,7 @@ sub generate_pdf_content {
       my $col_idx = 0;
       foreach my $col_name (@visible_columns) {
         my $col = $row->{$col_name};
-        push @{ $data_row }, $self->_decode_text(join("\n", @{ $col->{data} || [] }));
+        push @{ $data_row }, join("\n", @{ $col->{data} || [] });
 
         $column_props[$col_idx]->{justify} = 'right' if ($col->{align} eq 'right');
 
@@ -583,7 +573,7 @@ sub generate_pdf_content {
   my $top_text_height   = 0;
 
   if ($self->{options}->{top_info_text}) {
-    my $top_text     =  $self->_decode_text($self->{options}->{top_info_text});
+    my $top_text     =  $self->{options}->{top_info_text};
     $top_text        =~ s/\r//g;
     $top_text        =~ s/\n+$//;
 
@@ -631,7 +621,7 @@ sub generate_pdf_content {
     my $curpage  = $pdf->openpage($page_num);
 
     if ($pdfopts->{number}) {
-      my $label    = $self->_decode_text($main::locale->text("Page #1/#2", $page_num, $pdf->pages()));
+      my $label    = $main::locale->text("Page #1/#2", $page_num, $pdf->pages());
       my $text_obj = $curpage->text();
 
       $text_obj->font($font, $font_size);
@@ -640,7 +630,7 @@ sub generate_pdf_content {
     }
 
     if ($opts->{title}) {
-      my $title    = $self->_decode_text($opts->{title});
+      my $title    = $opts->{title};
       my $text_obj = $curpage->text();
 
       $text_obj->font($font, $title_font_size);
@@ -671,7 +661,9 @@ sub generate_pdf_content {
     print qq|content-type: application/pdf\n|;
     print qq|content-disposition: attachment; filename=${filename}.pdf\n\n|;
 
-    print $content;
+    $::locale->with_raw_io(\*STDOUT, sub {
+      print $content;
+    });
   }
 }
 
@@ -700,10 +692,9 @@ sub _print_content {
 sub unescape_string {
   my $self  = shift;
   my $text  = shift;
-  my $iconv = $main::locale->{iconv};
 
   $text     = $main::locale->unquote_special_chars('HTML', $text);
-  $text     = $main::locale->{iconv}->convert($text) if ($main::locale->{iconv});
+  $text     = $::locale->{iconv}->convert($text);
 
   return $text;
 }

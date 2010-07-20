@@ -8,9 +8,9 @@ use Encode;
 use List::Util qw(first sum);
 use List::MoreUtils qw(any);
 use POSIX qw(strftime);
-use Text::Iconv;
 use XML::Writer;
 
+use SL::Iconv;
 use SL::SEPA::XML::Transaction;
 
 sub new {
@@ -34,12 +34,12 @@ sub _init {
 
   map { $self->{$_} = $params{$_} if (exists $params{$_}) } qw(src_charset company message_id grouped);
 
-  $self->{iconv} = Text::Iconv->new($self->{src_charset}, "UTF-8") || croak "Unsupported source charset $self->{src_charset}.";
+  $self->{iconv} = SL::Iconv->new($self->{src_charset}, "UTF-8") || croak "Unsupported source charset $self->{src_charset}.";
 
   my $missing_parameter = first { !$self->{$_} } qw(company message_id);
   croak "Missing parameter: $missing_parameter" if ($missing_parameter);
 
-  map { $self->{$_} = $self->_replace_special_chars(decode('UTF-8', $self->{iconv}->convert($self->{$_}))) } qw(company message_id);
+  map { $self->{$_} = $self->_replace_special_chars($self->{iconv}->convert($self->{$_})) } qw(company message_id);
 }
 
 sub add_transaction {

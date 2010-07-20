@@ -838,8 +838,11 @@ sub parse {
 
 package OpenDocumentTemplate;
 
+use Archive::Zip;
 use POSIX 'setsid';
 use vars qw(@ISA);
+
+use SL::Iconv;
 
 use Cwd;
 # use File::Copy;
@@ -856,19 +859,8 @@ sub new {
 
   my $self = $type->SUPER::new(@_);
 
-  foreach my $module (qw(Archive::Zip Text::Iconv)) {
-    eval("use ${module};");
-    if ($@) {
-      $self->{"form"}->error("The Perl module '${module}' could not be " .
-                             "loaded. Support for OpenDocument templates " .
-                             "does not work without it. Please install your " .
-                             "distribution's package or get the module from " .
-                             "CPAN ( http://www.cpan.org ).");
-    }
-  }
-
   $self->{"rnd"}   = int(rand(1000000));
-  $self->{"iconv"} = Text::Iconv->new($main::dbcharset, "UTF-8");
+  $self->{"iconv"} = SL::Iconv->new($main::dbcharset, "UTF-8");
 
   $self->set_tag_style('&lt;%', '%&gt;');
   $self->{quot_re} = '&quot;';
