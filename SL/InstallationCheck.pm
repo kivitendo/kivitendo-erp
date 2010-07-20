@@ -14,6 +14,7 @@ use strict;
   { name => "DBI",             url => "http://search.cpan.org/~timb/" },
   { name => "DBD::Pg",         url => "http://search.cpan.org/~dbdpg/" },
   { name => "Email::Address",  url => "http://search.cpan.org/~rjbs/" },
+  { name => "FCGI",            url => "http://search.cpan.org/~mstrout/" },
   { name => "IO::Wrap",        url => "http://search.cpan.org/~dskoll/" },
   { name => "List::MoreUtils", url => "http://search.cpan.org/~vparseval/" },
   { name => "PDF::API2",       url => "http://search.cpan.org/~areibens/" },
