@@ -1,12 +1,11 @@
-[%- USE T8 %]
-[% USE HTML %] <form method="post" action="ar.pl">
+[% USE T8 %][% USE HTML %] <form method="post" action="dispatcher.pl?M=ar">
 
   <input name="callback" type="hidden" value="[% callback %]">
 
   [% 'Create new' | $T8 %]<br>
 
-  <input class="submit" type="submit" name="action" value="[% 'AR Transaction' | $T8 %]">
-  <input class="submit" type="submit" name="action" value="[% 'Sales Invoice' | $T8 %]">
+  <input class="submit" type="submit" name="A_ar_transaction" value="[%- 'AR Transaction' | $T8 %]">
+  <input class="submit" type="submit" name="A_sales_invoice" value="[%- 'Sales Invoice' | $T8 %]">
 
  </form>
 

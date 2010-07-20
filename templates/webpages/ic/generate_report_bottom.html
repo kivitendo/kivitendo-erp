@@ -4,6 +4,7 @@
  <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
 
  <input type="hidden" name="item" value="[% HTML.escape(searchitems) %]">
+ <input type="hidden" name="action" value="add">
 
  [% SWITCH searchitems %]
    [% CASE 'part' %][% 'New part' | $T8 %]
@@ -11,6 +12,6 @@
    [% CASE 'assembly' %][% 'New assembly' | $T8 %]
  [% END %]
  <br>
- <input class="submit" type="submit" name="action" value="[% 'Add' | $T8 %]">
+ <input class="submit" type="submit" value="[%- 'Add' | $T8 %]">
 
 </form>
