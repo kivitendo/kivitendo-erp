@@ -663,29 +663,26 @@ sub melt_pdfs {
   my $in = IO::File->new("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
   $form->error($main::locale->text('Could not spawn ghostscript.')) unless $in;
 
-  my $out;
-
   if ($form->{media} eq 'printer') {
     $form->get_printer_code($myconfig);
+    my $out;
     if ($form->{printer_command}) {
       $out = IO::File->new("| $form->{printer_command}");
     }
+
+    $::locale->with_raw_io($out, sub { $out->print($_) while <$in> });
 
     $form->error($main::locale->text('Could not spawn the printer command.')) unless $out;
 
   } else {
     my $dunning_filename = $form->get_formname_translation('dunning');
-    $out = IO::File->new('>-');
-    $out->print(qq|Content-Type: Application/PDF\n| .
-                qq|Content-Disposition: attachment; filename="${dunning_filename}_${dunning_id}.pdf"\n\n|);
-  }
+    print qq|Content-Type: Application/PDF\n| .
+          qq|Content-Disposition: attachment; filename="${dunning_filename}_${dunning_id}.pdf"\n\n|;
 
-  while (my $line = <$in>) {
-    $out->print($line);
+    $::locale->with_raw_io(\*STDOUT, sub { print while <$in> });
   }
 
   $in->close();
-  $out->close();
 
   map { unlink("${main::spool}/$_") } @{ $form->{DUNNING_PDFS} };
 
