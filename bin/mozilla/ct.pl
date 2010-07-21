@@ -350,7 +350,7 @@ sub add_transaction {
 #  # saving the history
 #  if(!exists $form->{addition}) {
 #    $form->{addition} = "ADD TRANSACTION";
-#    $form->save_history($form->dbconnect(\%myconfig));
+#    $form->save_history;
 #  }
 #  # /saving the history
 
@@ -384,7 +384,7 @@ sub save_and_ap_transaction {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   &add_transaction;
@@ -404,7 +404,7 @@ sub save_and_ar_transaction {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   &add_transaction;
@@ -429,7 +429,7 @@ sub save_and_invoice {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   &add_transaction;
@@ -450,7 +450,7 @@ sub save_and_rfq {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   &add_transaction;
@@ -471,7 +471,7 @@ sub save_and_quotation {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   &add_transaction;
@@ -497,7 +497,7 @@ sub save_and_order {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   &add_transaction;
@@ -530,7 +530,7 @@ sub save_and_close {
   if(!exists $form->{addition}) {
     $form->{snumbers} = ($form->{"db"} eq "customer" ? qq|customernumber_| . $form->{customernumber} : qq|vendornumber_| . $form->{vendornumber});
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   $form->redirect($locale->text($msg));
@@ -570,7 +570,7 @@ sub save {
   if(!exists $form->{addition}) {
     $form->{snumbers} = ($form->{"db"} eq "customer" ? qq|customernumber_| . $form->{customernumber} : qq|vendornumber_| . $form->{vendornumber});
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   &edit;
@@ -596,7 +596,7 @@ sub delete {
   if(!exists $form->{addition}) {
     $form->{snumbers} = ($form->{"db"} eq "customer" ? qq|customernumber_| . $form->{customernumber} : qq|vendornumber_| . $form->{vendornumber});
     $form->{addition} = "DELETED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   $form->redirect($locale->text($msg));

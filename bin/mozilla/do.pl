@@ -637,7 +637,7 @@ sub save {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|donumber_| . $form->{donumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 
@@ -683,7 +683,7 @@ sub delete_delivery_order {
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|donumber_| . $form->{donumber};
       $form->{addition} = "DELETED";
-      $form->save_history($form->dbconnect(\%myconfig));
+      $form->save_history;
     }
     # /saving the history
 
@@ -732,7 +732,7 @@ sub invoice {
 
   for my $i (1 .. $form->{rowcount}) {
     # für bug 1284
-    if ($form->{discount}){ # Falls wir einen Kundenrabatt haben 
+    if ($form->{discount}){ # Falls wir einen Kundenrabatt haben
       # und keinen anderen discount wert an $i ...
       $form->{"discount_$i"} ||= $form->{discount}*100; # ... nehmen wir den kundenrabatt
     }

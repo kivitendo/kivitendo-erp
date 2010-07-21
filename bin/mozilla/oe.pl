@@ -1063,7 +1063,7 @@ sub save_and_close {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 
@@ -1171,7 +1171,7 @@ sub save {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 
@@ -1259,7 +1259,7 @@ sub delete_order_quotation {
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
       $form->{addition} = "DELETED";
-      $form->save_history($form->dbconnect(\%myconfig));
+      $form->save_history;
     }
     # /saving the history
     $form->info($msg);

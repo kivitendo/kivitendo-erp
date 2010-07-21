@@ -1783,7 +1783,7 @@ sub save {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   $parts_id = $form->{id};
@@ -1916,7 +1916,7 @@ sub save_as_new {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
     $form->{addition} = "SAVED AS NEW";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   $form->{id} = 0;
@@ -1937,7 +1937,7 @@ sub delete {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|partnumber_| . $form->{partnumber};
     $form->{addition} = "DELETED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   my $rc = IC->delete(\%myconfig, \%$form);

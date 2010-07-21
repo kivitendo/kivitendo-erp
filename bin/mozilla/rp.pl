@@ -2062,7 +2062,7 @@ sub print_form {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     $form->{addition} = "PRINTED";
     $form->{what_done} = $form->{type};
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   $main::lxdebug->leave_sub();

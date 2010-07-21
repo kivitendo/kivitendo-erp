@@ -3235,8 +3235,8 @@ sub save_status {
 sub save_history {
   $main::lxdebug->enter_sub();
 
-  my $self = shift();
-  my $dbh = shift();
+  my $self = shift;
+  my $dbh  = shift || $self->get_standard_dbh;
 
   if(!exists $self->{employee_id}) {
     &get_employee($self, $dbh);
@@ -3248,6 +3248,8 @@ sub save_history {
   my @values = (conv_i($self->{id}), $self->{login},
                 $self->{addition}, $self->{what_done}, "$self->{snumbers}");
   do_query($self, $dbh, $query, @values);
+
+  $dbh->commit;
 
   $main::lxdebug->leave_sub();
 }

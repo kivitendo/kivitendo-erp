@@ -90,7 +90,7 @@ sub add {
   if(!exists $form->{addition} && ($form->{id} ne "")) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = "ADDED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 
@@ -1140,7 +1140,7 @@ sub post {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = "invnumber_$form->{invnumber}";
     $form->{addition} = "POSTED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   remove_draft() if $form->{remove_draft};
@@ -1163,7 +1163,7 @@ sub post_as_new {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = "POSTED AS NEW";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   &post;
@@ -1246,7 +1246,7 @@ sub yes {
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
       $form->{addition} = "DELETED";
-      $form->save_history($form->dbconnect(\%myconfig));
+      $form->save_history;
     }
     # /saving the history
     $form->redirect($locale->text('Transaction deleted!'));
@@ -1520,7 +1520,7 @@ sub storno {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = "ordnumber_$form->{ordnumber}";
     $form->{addition} = "STORNO";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 

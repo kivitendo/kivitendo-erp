@@ -552,7 +552,7 @@ sub storno {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
     $form->{addition} = "CANCELED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 
@@ -618,7 +618,7 @@ sub post_payment {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
       $form->{addition} = "PAYMENT POSTED";
       $form->{what_done} = $form->{currency} . qq| | . $form->{paid} . qq| | . $locale->text("POSTED");
-      $form->save_history($form->dbconnect(\%myconfig));
+      $form->save_history;
       # /saving the history
     }
 
@@ -718,7 +718,7 @@ sub post {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
       $form->{addition} = "POSTED";
       #$form->{what_done} = $locale->text("Rechnungsnummer") . qq| | . $form->{invnumber};
-      $form->save_history($form->dbconnect(\%myconfig));
+      $form->save_history;
     }
     # /saving the history
     remove_draft() if $form->{remove_draft};
@@ -784,7 +784,7 @@ sub yes {
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
       $form->{addition} = "DELETED";
-      $form->save_history($form->dbconnect(\%myconfig));
+      $form->save_history;
     }
     # /saving the history
     $form->redirect($locale->text('Invoice deleted!'));

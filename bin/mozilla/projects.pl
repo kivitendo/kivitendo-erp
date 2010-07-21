@@ -235,7 +235,7 @@ sub save {
     $form->{id}       = $project->{id};
     $form->{snumbers} = qq|projectnumber_| . $project->{projectnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 
@@ -278,7 +278,7 @@ sub delete {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|projectnumber_| . $project->{projectnumber};
     $form->{addition} = "DELETED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 

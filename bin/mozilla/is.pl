@@ -721,7 +721,7 @@ sub post {
     $form->{addition} = $form->{print_and_post} ? "PRINTED AND POSTED" :
                         $form->{storno}         ? "STORNO"             :
                                                   "POSTED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
 
   if (!$form->{no_redirect_after_post}) {
@@ -942,7 +942,7 @@ sub yes {
     if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
       $form->{addition} = "DELETED";
-      $form->save_history($form->dbconnect(\%myconfig));
+      $form->save_history;
     }
     # /saving the history
     $form->redirect($locale->text('Invoice deleted!'));

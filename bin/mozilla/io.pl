@@ -210,8 +210,8 @@ sub display_row {
     my %column_data = ();
 
     # undo formatting
-    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } 
-      qw(qty discount sellprice lastcost price_new price_old) 
+    map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) }
+      qw(qty discount sellprice lastcost price_new price_old)
         unless ($form->{simple_save});
 
 # unit begin
@@ -343,8 +343,8 @@ sub display_row {
     map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2) } qw(marge_absolut marge_percent);
 
     push @ROW2, { value => sprintf qq|
-         <font %s><b>%s</b> %s &nbsp;%s%% </font> 
-        &nbsp;<b>%s</b> %s 
+         <font %s><b>%s</b> %s &nbsp;%s%% </font>
+        &nbsp;<b>%s</b> %s
         &nbsp;<b>%s</b> <input size="5" name="lastcost_$i" value="%s">|,
                    $marge_color, $locale->text('Ertrag'),$form->{"marge_absolut_$i"}, $form->{"marge_percent_$i"},
                    $locale->text('LP'), $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2),
@@ -1429,7 +1429,7 @@ sub print_form {
       if(!exists $form->{addition}) {
         $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
         $form->{addition} = "PRINTED";
-        $form->save_history($form->dbconnect(\%myconfig));
+        $form->save_history;
       }
       # /saving the history
       ::end_of_request();
@@ -1660,7 +1660,7 @@ sub print_form {
     elsif($form->{media} =~ /screen/) {
       $form->{addition} = "SCREENED";
     }
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 

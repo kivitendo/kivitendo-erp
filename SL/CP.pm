@@ -360,7 +360,7 @@ sub process_payment {
       if(!exists $form->{addition}) {
         $form->{snumbers} = qq|invnumber_| . $form->{"invnumber_$i"};
         $form->{addition} = "POSTED";
-        $form->save_history($form->dbconnect($myconfig));
+        $form->save_history;
       }
       # /saving the history
     }

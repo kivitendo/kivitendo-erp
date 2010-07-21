@@ -1420,7 +1420,7 @@ sub yes {
       if(!exists $form->{addition} && $form->{id} ne "") {
         $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
         $form->{addition} = "DELETED";
-        $form->save_history($form->dbconnect(\%myconfig));
+        $form->save_history;
       }
     # /saving the history
     $form->redirect($locale->text('Transaction deleted!'))
@@ -1578,7 +1578,7 @@ sub post_transaction {
     $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
     $form->{addition} = "SAVED";
     $form->{what_done} = $locale->text("Buchungsnummer") . " = " . $form->{id};
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 
@@ -1646,7 +1646,7 @@ sub storno {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = "ordnumber_$form->{ordnumber}";
     $form->{addition} = "STORNO";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 

@@ -178,7 +178,7 @@ sub save {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|dunning_id_| . $form->{"dunning_id"};
     $form->{addition} = "SAVED FOR DUNNING";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   $form->redirect($locale->text('Dunning Process Config saved!'));
@@ -247,7 +247,7 @@ sub save_dunning {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|dunning_id_| . $form->{"dunning_id"};
     $form->{addition} = "DUNNING STARTED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 

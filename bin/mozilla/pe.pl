@@ -195,7 +195,7 @@ sub save {
   if(!exists $form->{addition} && $form->{id} ne "") {
     $form->{snumbers} = qq|projectnumber_| . $form->{projectnumber};
     $form->{addition} = "SAVED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
 
@@ -223,7 +223,7 @@ sub delete {
   if(!exists $form->{addition}) {
     $form->{snumbers} = qq|projectnumber_| . $form->{projectnumber};
     $form->{addition} = "DELETED";
-    $form->save_history($form->dbconnect(\%myconfig));
+    $form->save_history;
   }
   # /saving the history
   $main::lxdebug->leave_sub();
