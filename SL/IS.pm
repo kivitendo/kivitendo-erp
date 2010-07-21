@@ -717,7 +717,7 @@ sub post_invoice {
                  $form->{"serialnumber_$i"}, conv_i($pricegroup_id),
                  $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
                  $form->{"cusordnumber_$i"}, $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
-                 $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},   
+                 $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},
                  $form->{"lastcost_$i"},
                  conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                  conv_i($form->{"marge_price_factor_$i"}));
@@ -1400,7 +1400,7 @@ sub retrieve_invoice {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my ($sth, $ref, $query);
 
@@ -1575,7 +1575,6 @@ sub retrieve_invoice {
   }
 
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
@@ -1588,7 +1587,7 @@ sub get_customer {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $dateformat = $myconfig->{dateformat};
   $dateformat .= "yy" if $myconfig->{dateformat} !~ /^y/;
@@ -1723,8 +1722,6 @@ sub get_customer {
     $sth->finish;
     $form->{rowcount} = $i if ($i && !$form->{type});
   }
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
