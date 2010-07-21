@@ -4,17 +4,17 @@
 NR="0"
 
 #hier wurde das Git-Paket entpakt:
-SRC=/tmp/lx-office-erp
+SRC=/tmp/deb_test/unstable
 
 #hier wird das Debian-Paket gebaut:
-DST=/tmp/lx-office
+DST=/tmp/deb_test/package
 
 
 ################################################
 # ab hier keine Konfiguration mehr
 ################################################
 
-VERSION=`cat ../VERSION`
+VER=`cat VERSION`
 DEST=$DST/lx-office-erp_$VER-$NR-all
 
 FILES='
@@ -47,12 +47,11 @@ for filespec in $FILES; do
   set - `echo $filespec | sed -e 's/:/ /g'`
   dir=$1
   file=$2
-
-  mkdir -p $dir
-  if [ -f "./files/$file" ]; then
-    cp ./files/$file $dir/$file
+  mkdir -p $SRC/DEBIAN/$dir
+  if [ -f $SRC/DEBIAN/files/$file ]; then
+    cp  $SRC/DEBIAN/files/$file $SRC/DEBIAN/$dir/$file
   else
-    echo '1' > $dir/.dummy
+    echo '1' > $SRC/DEBIAN/$dir/.dummy
   fi
 done
 
@@ -72,7 +71,7 @@ for symspec in $SYMLINKS; do
   src=$1
   tar=$2
 
-  ln -s $tar ./usr/lib/lx-office-erp/$src
+  ln -s $tar $SRC/DEBIAN/usr/lib/lx-office-erp/$src
 done
 #fertig
 
