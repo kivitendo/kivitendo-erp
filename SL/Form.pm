@@ -847,26 +847,40 @@ sub parse_html_template {
 
   $additional_params ||= { };
 
-  $file = $self->_prepare_html_template($file, $additional_params);
-
-  my $template = Template->new({ 'INTERPOLATE'  => 0,
-                                 'EVAL_PERL'    => 0,
-                                 'ABSOLUTE'     => 1,
-                                 'CACHE_SIZE'   => 0,
-                                 'PLUGIN_BASE'  => 'SL::Template::Plugin',
-                                 'INCLUDE_PATH' => '.:templates/webpages',
-                                 'COMPILE_EXT'  => $main::template_compile_ext,
-                                 'COMPILE_DIR'  => $main::template_compile_dir,
-                               }) || die;
+  my $real_file = $self->_prepare_html_template($file, $additional_params);
+  my $template  = $self->template || $self->init_template;
 
   map { $additional_params->{$_} ||= $self->{$_} } keys %{ $self };
 
   my $output;
-  $template->process($file, $additional_params, \$output) || die $template->error();
+  $template->process($real_file, $additional_params, \$output) || die $template->error;
 
   $main::lxdebug->leave_sub();
 
   return $output;
+}
+
+sub init_template {
+  my $self = shift;
+
+  return if $self->template;
+
+  return $self->template(Template->new({
+     'INTERPOLATE'  => 0,
+     'EVAL_PERL'    => 0,
+     'ABSOLUTE'     => 1,
+     'CACHE_SIZE'   => 0,
+     'PLUGIN_BASE'  => 'SL::Template::Plugin',
+     'INCLUDE_PATH' => '.:templates/webpages',
+     'COMPILE_EXT'  => $main::template_compile_ext,
+     'COMPILE_DIR'  => $main::template_compile_dir,
+  })) || die;
+}
+
+sub template {
+  my $self = shift;
+  $self->{template_object} = shift if @_;
+  return $self->{template_object};
 }
 
 sub show_generic_error {
