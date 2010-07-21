@@ -669,6 +669,28 @@ sub get_custom_variables_validity {
   return !$invalid;
 }
 
+sub custom_variables_validity_by_trans_id {
+  $main::lxdebug->enter_sub(2);
+
+  my $self     = shift;
+  my %params   = @_;
+
+  return sub { 0 } unless $params{trans_id};
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+
+  my $query    = qq|SELECT config_id, COUNT(*) FROM custom_variables_validity WHERE trans_id = ? GROUP BY config_id|;
+
+  my %invalids = selectall_as_map($form, $dbh, $query, 'config_id', 'count', $params{trans_id});
+
+  $main::lxdebug->leave_sub(2);
+
+  return sub { !$invalids{+shift} };
+}
+
 1;
 
 __END__

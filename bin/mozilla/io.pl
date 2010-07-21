@@ -2077,7 +2077,7 @@ sub _update_custom_variables {
   my $form     = $main::form;
 
   $form->{CVAR_CONFIGS}       ||= { };
-  $form->{CVAR_CONFIGS}->{IC}   = CVar->get_configs(module => 'IC');
+  $form->{CVAR_CONFIGS}->{IC} ||= CVar->get_configs(module => 'IC');
 
   $main::lxdebug->leave_sub();
 }
@@ -2094,10 +2094,11 @@ sub _render_custom_variables_inputs {
     return;
   }
 
+  my $valid = CVar->custom_variables_validity_by_trans_id(trans_id => $params{part_id});
+
   my $num_visible_cvars = 0;
   foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
-    $cvar->{valid} = $params{part_id} &&
-       CVar->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{part_id});
+    $cvar->{valid} = $params{part_id} && $valid->($cvar->{id});
 
     my $description = '';
     if ($cvar->{flag_editable} && $cvar->{valid}) {
