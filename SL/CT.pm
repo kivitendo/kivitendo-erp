@@ -1158,7 +1158,7 @@ sub parse_excel_file {
   $form->{excel} = 1;
   my $extension            = 'xls';
 
-  my $form->{IN}         = "$form->{formname}.${extension}";
+  $form->{IN}         = "$form->{formname}.${extension}";
 
   delete $form->{OUT};
 
