@@ -125,36 +125,23 @@ sub remove {
 }
 
 sub list {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my ($self, $myconfig, $form) = @_;
+  my $self     = shift;
+  my $myconfig = shift || \%::myconfig;
+  my $form     = shift ||  $::form;
+  my $dbh      = $form->get_standard_dbh;
 
-  my ($dbh, $sth, $query, @values);
+  my @list = selectall_hashref_query($form, $dbh, <<SQL, $self->get_module($form));
+    SELECT d.id, d.description, d.itime::timestamp(0) AS itime,
+      e.name AS employee_name
+    FROM drafts d
+    LEFT JOIN employee e ON d.employee_id = e.id
+    WHERE (d.module = ?) AND (d.submodule = ?)
+    ORDER BY d.itime
+SQL
 
-  $dbh = $form->dbconnect($myconfig);
-
-  my ($module, $submodule) = $self->get_module($form);
-
-  my @list = ();
-  $query =
-    qq|SELECT d.id, d.description, d.itime::timestamp(0) AS itime, | .
-    qq|  e.name AS employee_name | .
-    qq|FROM drafts d | .
-    qq|LEFT JOIN employee e ON d.employee_id = e.id | .
-    qq|WHERE (d.module = ?) AND (d.submodule = ?) | .
-    qq|ORDER BY d.itime|;
-  @values = ($module, $submodule);
-
-  $sth = prepare_execute_query($form, $dbh, $query, @values);
-
-  while (my $ref = $sth->fetchrow_hashref()) {
-    push(@list, $ref);
-  }
-  $sth->finish();
-
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 
   return @list;
 }
