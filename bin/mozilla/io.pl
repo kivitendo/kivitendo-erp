@@ -2094,30 +2094,30 @@ sub _render_custom_variables_inputs {
     return;
   }
 
-  foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
-    $cvar->{valid} = $params{part_id}
-      ? CVar->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{part_id})
-      : 0;
-
-    $cvar->{value} = $form->{"ic_cvar_" . $cvar->{name} . "_$params{row}"};
-  }
-
-  CVar->render_inputs(hide_non_editable => 1,
-                      variables         => $form->{CVAR_CONFIGS}->{IC},
-                      name_prefix       => 'ic_',
-                      name_postfix      => "_$params{row}");
-
   my $num_visible_cvars = 0;
   foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
+    $cvar->{valid} = $params{part_id} &&
+       CVar->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{part_id});
+
     my $description = '';
     if ($cvar->{flag_editable} && $cvar->{valid}) {
       $num_visible_cvars++;
       $description = $cvar->{description} . ' ';
     }
 
-    push @{ $params{ROW2} }, { line_break => $num_visible_cvars == 1,
-                               value      => $description . $cvar->{HTML_CODE},
-                             };
+    push @{ $params{ROW2} }, {
+      line_break     => $num_visible_cvars == 1,
+      description    => $description,
+      cvar           => 1,
+      render_options => {
+         hide_non_editable => 1,
+         var               => $cvar,
+         name_prefix       => 'ic_',
+         name_postfix      => "_$params{row}",
+         valid             => $cvar->{valid},
+         value             => $form->{"ic_cvar_" . $cvar->{name} . "_$params{row}"},
+      }
+    };
   }
 
   $main::lxdebug->leave_sub(2);
