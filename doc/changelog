@@ -6,17 +6,17 @@
 
 
 
+  Größere neue Features:
+
+  - FastCGI Schnittstelle.
+
+    Das Program läuft jetzt optional unter FastCGI, und damit etwa um
+    Faktor 10 schneller. Siehe Dokumentation in doc INSTALL.fcgi.
 
   Kleinere neue Features und Detailverbesserungen:
 
   - Druckvorlage optional auf Excel erweitert, um Variablen die sich nicht in foreach-Schleifen
     befinden anzuzeigen (s.a.: doc/excel_templates.txt).
-
-
-  Liste gefixter Bugs aus dem Bugtracker:
-
-   - Bug 1409 -  Bei "Erzeugnis fertigen" wird nur der Bestand der letzten Komponente geprüft
-
 
   API Änderungen:
 
@@ -26,6 +26,17 @@
     Alle <translate> Konstrukte wurden auf das Hilfsmodul T8 umgeschrieben.
 
     Bitte vor dem Upgrade das Dokument doc/2010_template_changes.txt lesen.
+
+  - Locales System zentralisiert.
+
+    locales.pl liegt jetzt unter scripts/ und bedient alle Sprachpakete. Die
+    Übersetzung von templates und sprachdateien in separate Versionen ist nicht
+    mehr notwendig. Genauere Informationen zu den neuen locales gibt es im
+    Dokument doc/language_howto.txt
+
+  Liste gefixter Bugs aus dem Bugtracker:
+
+   - Bug 1409 -  Bei "Erzeugnis fertigen" wird nur der Bestand der letzten Komponente geprüft
 
 
 2010-03-24 - Release 2.6.1
@@ -46,16 +57,11 @@
 
   - Benutzerdefinierte Variablen in Artikelstammdaten.
 
-    Zusättzlich zu Aufträgen, Lieferscheinen und Rechnungen sind
+    Zusätzlich zu Aufträgen, Lieferscheinen und Rechnungen sind
     benutzerdefinierte Variabeln jetzt auch in Waren, Dienstleistungen
     und Erzeugnissen verfügbar. Diese werden, sofern als solche markiert, auch
     in Belegen in den Artiekln mit angezeigt, und werden wie Beschreibung und
     Preis überlagert. In der Artikelsuche sind sie durchsuchbar.
-
-  - FastCGI Schnittstelle.
-
-    Das Program l�uft jetzt optional unter FastCGI, und damit etwa um
-    Faktor 10 schneller. Siehe Dokumentation in doc INSTALL.fcgi.
 
   Kleinere neue Features und Detailverbesserungen:
 
@@ -159,8 +165,8 @@
     "Verpackungsliste" bezeichnet um den Unterschied zu sales_delivery_order zu
     verdeutlichen.
   - Locales und Templates funktionieren jetzt anders. In templates ist jetzt
-    das T8 Modul f�r �bersetzungen zu verwenden, siehe Beispiele in den
-    bestehenden Templates. Bei den Locales sind separate locale DAteien
+    das T8 Modul fuer Uebersetzungen zu verwenden, siehe Beispiele in den
+    bestehenden Templates. Bei den Locales sind separate locale Dateien
     abgeschafft, und das locales Script liegt jetzt in scrips. Siehe
     Dokumentation in locales.pl.
 
@@ -232,7 +238,7 @@
   - Bugfix 1025: BenutzerInneneigenschaften für neue BenutzerInnen übernehmen nicht möglich
   - Bugfix 1028: Fehlerhafter workflow von Bestellung in Lieferschein
   - Bugfix 1030: Rechteverwaltungsfehler: Mitarbeiter mit Rechten fuer Lieferscheine darf diese nicht einsehen
-  - Bugfix 1031: Geaenderter Mitarbeitername taucht in Dropdown-Listen nicht auf
+  - Bugfix 1031: Geänderter Mitarbeitername taucht in Dropdown-Listen nicht auf
   - Bugfix 1034: Verkaeufer wird nicht von Auftrag in Lieferschein uebernommen
   - Bugfix 1035: "Steuer enthalten" ueberlebt nicht bei Workflow Auftrag -> Lieferschein -> Rechnung
   - Bugfix 1037: Spracheinstellung ändern führt zu Perl-Fehler
