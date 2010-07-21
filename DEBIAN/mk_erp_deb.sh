@@ -1,12 +1,80 @@
 #!/bin/bash
-VER="2.6.1"
+
 #Jedes neue Paket der gleichen Version bekommt eine eigene Nummer
 NR="0"
 
 #hier wurde das Git-Paket entpakt:
 SRC=/tmp/lx-office-erp
+
 #hier wird das Debian-Paket gebaut:
-DEST=/tmp/lx-office/lx-office-erp_$VER-$NR-all
+DST=/tmp/lx-office
+
+
+################################################
+# ab hier keine Konfiguration mehr
+################################################
+
+VERSION=`cat ../VERSION`
+DEST=$DST/lx-office-erp_$VER-$NR-all
+
+FILES='
+usr/lib/lx-office-erp/
+usr/share/lx-office-erp/
+usr/share/doc/lx-office-erp/
+var/lib/lx-office-erp/spool/
+var/lib/lx-office-erp/users/
+var/lib/lx-office-erp/css/
+var/lib/lx-office-erp/xslt/
+var/lib/lx-office-erp/templates/
+var/lib/lx-office-erp/webdav/lieferantenbestellungen/
+var/lib/lx-office-erp/webdav/anfragen/
+var/lib/lx-office-erp/webdav/gutschriften/
+var/lib/lx-office-erp/webdav/einkaufsrechnungen/
+var/lib/lx-office-erp/webdav/rechnungen/
+var/lib/lx-office-erp/webdav/bestellungen/
+var/lib/lx-office-erp/webdav/angebote/
+usr/lib/lx-office-erp/
+usr/share/lx-office-erp/
+usr/share/doc/lx-office-erp/
+usr/share/man/man1/:lx-office-erp.1.gz
+etc/lx-office-erp/:lx-office-erp.cherokee.handler
+etc/lx-office-erp/:lx-office-erp.apache2.conf
+etc/lx-office-erp/:lx-office-erp.cherokee
+usr/bin/:lx-office-erp
+'
+
+for filespec in $FILES; do
+  set - `echo $filespec | sed -e 's/:/ /g'`
+  dir=$1
+  file=$2
+
+  mkdir -p $dir
+  if [ -f "./files/$file" ]; then
+    cp ./files/$file $dir/$file
+  else
+    echo '1' > $dir/.dummy
+  fi
+done
+
+SYMLINKS='
+css:/var/lib/lx-office-erp/css
+doc:/usr/share/doc/lx-office-erp/
+image:/usr/share/lx-office-erp
+spool:/var/lib/lx-office-erp/spool
+templates:/var/lib/lx-office-erp/templates
+users:/var/lib/lx-office-erp/users/
+webdav:/var/lib/lx-office-erp/webdav
+xslt:/var/lib/lx-office-erp/xslt
+'
+
+for symspec in $SYMLINKS; do
+  set - `echo $symspec | sed -e 's/:/ /g'`
+  src=$1
+  tar=$2
+
+  ln -s $tar ./usr/lib/lx-office-erp/$src
+done
+#fertig
 
 mkdir -p $DEST
 cd $DEST
