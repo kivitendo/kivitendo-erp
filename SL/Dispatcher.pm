@@ -94,6 +94,7 @@ sub pre_startup {
 }
 
 sub require_main_code {
+  $::lxdebug->enter_sub;
   my ($script, $suffix) = @_;
 
   eval {
@@ -115,6 +116,7 @@ sub require_main_code {
     };
     $::form->error($EVAL_ERROR) if ($EVAL_ERROR);
   }
+  $::lxdebug->leave_sub;
 }
 
 sub handle_request {
