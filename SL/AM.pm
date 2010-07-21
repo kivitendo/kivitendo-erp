@@ -1742,7 +1742,7 @@ sub retrieve_units {
 
   my ($self, $myconfig, $form, $prefix) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query = "SELECT *, base_unit AS original_base_unit FROM units";
 
@@ -1782,9 +1782,7 @@ sub retrieve_units {
       map({ $unit->{"LANGUAGES"}->{$ref->{"template_code"}}->{$_} = $ref->{$_} } keys(%{$ref}));
     }
   }
-  $sth->finish();
-
-  $dbh->disconnect();
+  $sth->finish;
 
   $main::lxdebug->leave_sub();
 
