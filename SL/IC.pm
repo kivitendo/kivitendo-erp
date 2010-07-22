@@ -1479,14 +1479,17 @@ sub follow_account_chain {
 sub retrieve_accounts {
   $main::lxdebug->enter_sub(2);
 
-  my ($self, $myconfig, $form, $parts_id, $index) = @_;
+  my $self     = shift;
+  my $myconfig = shift;
+  my $form     = shift;
+  my $dbh      = $form->get_standard_dbh;
+  my %args     = @_;     # part_id => index
 
   my ($query, $sth);
 
   $form->{taxzone_id} *= 1;
 
-  my $dbh = $form->get_standard_dbh;
-
+  # transdate madness.
   my $transdate = "";
   if ($form->{type} eq "invoice") {
     if (($form->{vc} eq "vendor") || !$form->{deliverydate}) {
@@ -1505,8 +1508,9 @@ sub retrieve_accounts {
   } else {
     $transdate = $dbh->quote($transdate);
   }
+  #/transdate
 
-  $query = <<SQL;
+  my $sth_accno = prepare_query($::form, $dbh, <<SQL);
     SELECT
       p.inventory_accno_id AS is_part,
       bg.inventory_accno_id,
@@ -1522,28 +1526,8 @@ sub retrieve_accounts {
     LEFT JOIN chart c3 ON bg.expense_accno_id_$form->{taxzone_id} = c3.id
     WHERE p.id = ?
 SQL
-  my $ref = selectfirst_hashref_query($form, $dbh, $query, $parts_id);
 
-  return $main::lxdebug->leave_sub(2) if (!$ref);
-
-  $ref->{"inventory_accno_id"} = undef unless ($ref->{"is_part"});
-
-  my %accounts;
-  foreach my $type (qw(inventory income expense)) {
-    next unless ($ref->{"${type}_accno_id"});
-    ($accounts{"${type}_accno_id"}, $accounts{"${type}_accno"}) =
-      $self->follow_account_chain($form, $dbh, $transdate,
-                                  $ref->{"${type}_accno_id"},
-                                  $ref->{"${type}_accno"});
-  }
-
-  map { $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} }
-      qw(inventory income expense);
-
-  my $inc_exp = $form->{"vc"} eq "customer" ? "income" : "expense";
-  my $accno_id = $accounts{"${inc_exp}_accno_id"};
-
-  $query = <<SQL;
+  my $sth_tx = prepare_query($::form, $dbh, <<SQL);
     SELECT c.accno, t.taxdescription AS description, t.rate, t.taxnumber
     FROM tax t
     LEFT JOIN chart c ON c.id = t.chart_id
@@ -1553,18 +1537,29 @@ SQL
        WHERE tk.chart_id = ? AND startdate <= ?
        ORDER BY startdate DESC LIMIT 1)
 SQL
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $accno_id, quote_db_date($transdate));
 
-  unless ($ref) {
-    $::lxdebug->leave_sub(2);
-    return;
-  }
+  while (my ($part_id, $index) = each %args) {
+    my $ref = $sth_accno->fetchrow_hashref($part_id) or next;
 
-  $form->{"taxaccounts_$index"} = $ref->{"accno"};
-  if ($form->{"taxaccounts"} !~ /$ref->{accno}/) {
-    $form->{"taxaccounts"} .= "$ref->{accno} ";
+    $ref->{"inventory_accno_id"} = undef unless $ref->{"is_part"};
+
+    my %accounts;
+    for my $type (qw(inventory income expense)) {
+      next unless $ref->{"${type}_accno_id"};
+      ($accounts{"${type}_accno_id"}, $accounts{"${type}_accno"}) =
+        $self->follow_account_chain($form, $dbh, $transdate, $ref->{"${type}_accno_id"}, $ref->{"${type}_accno"});
+    }
+
+    $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} for qw(inventory income expense);
+
+    my $inc_exp = $form->{"vc"} eq "customer" ? "income" : "expense";
+    $ref = $sth->fetchrow_hashref($accounts{"${inc_exp}_accno_id"}, quote_db_date($transdate)) or next;
+
+    $form->{"taxaccounts_$index"} = $ref->{"accno"};
+    $form->{"taxaccounts"} .= "$ref->{accno} "if $form->{"taxaccounts"} !~ /$ref->{accno}/;
+
+    $form->{"$ref->{accno}_${_}"} = $ref->{$_} for qw(rate description taxnumber);
   }
-  map { $form->{"$ref->{accno}_${_}"} = $ref->{$_}; } qw(rate description taxnumber);
 
   $::lxdebug->leave_sub(2);
 }
