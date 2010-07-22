@@ -623,6 +623,8 @@ sub retrieve {
   }
   $sth->finish();
 
+  $form->{donumber_array} =~ s/\s*$//g;
+
   $form->{saved_donumber} = $form->{donumber};
 
   # if not given, fill transdate with current_date
