@@ -1977,11 +1977,7 @@ sub relink_accounts {
   }
   $form->{"taxaccounts"} = "";
 
-  for (my $i = 1; $i <= $form->{"rowcount"}; $i++) {
-    if ($form->{"id_$i"}) {
-      IC->retrieve_accounts(\%myconfig, $form, $form->{"id_$i"}, $i);
-    }
-  }
+  IC->retrieve_accounts(\%myconfig, $form, map { $_ => $form->{"id_$_"} } 1 .. $form->{rowcount});
 
   $main::lxdebug->leave_sub();
 }

@@ -1896,9 +1896,7 @@ sub display_form {
   }
   $form->{"taxaccounts"} = "";
 
-  for my $i (1 .. $form->{"rowcount"}) {
-    IC->retrieve_accounts(\%myconfig, $form, $form->{"id_$i"}, $i) if $form->{"id_$i"};
-  }
+  IC->retrieve_accounts(\%myconfig, $form, map { $_ => $form->{"id_$_"} } 1 .. $form->{rowcount});
 
   $form->{rowcount}++;
   $form->{"project_id_$form->{rowcount}"} = $form->{globalproject_id};

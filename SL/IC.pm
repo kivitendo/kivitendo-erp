@@ -1,4 +1,4 @@
-#=====================================================================
+  #=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -1477,15 +1477,17 @@ sub follow_account_chain {
 }
 
 sub retrieve_accounts {
-  $main::lxdebug->enter_sub(2);
+  $main::lxdebug->enter_sub;
 
   my $self     = shift;
   my $myconfig = shift;
   my $form     = shift;
   my $dbh      = $form->get_standard_dbh;
-  my %args     = @_;     # part_id => index
+  my %args     = @_;     # index => part_id
 
   $form->{taxzone_id} *= 1;
+
+  return unless grep $_, values %args; # shortfuse if no part_id supplied
 
   # transdate madness.
   my $transdate = "";
@@ -1507,10 +1509,15 @@ sub retrieve_accounts {
     $transdate = $dbh->quote($transdate);
   }
   #/transdate
+  my $inc_exp = $form->{"vc"} eq "customer" ? "income" : "expense";
 
-  my $sth_accno = prepare_query($::form, $dbh, <<SQL);
+  my @part_ids = grep { $_ } values %args;
+  my $in       = join ',', ('?') x @part_ids;
+
+  my %accno_by_part = map { $_->{id} => $_ }
+    selectall_hashref_query($form, $dbh, <<SQL, @part_ids);
     SELECT
-      p.inventory_accno_id AS is_part,
+      p.id, p.inventory_accno_id AS is_part,
       bg.inventory_accno_id,
       bg.income_accno_id_$form->{taxzone_id} AS income_accno_id,
       bg.expense_accno_id_$form->{taxzone_id} AS expense_accno_id,
@@ -1522,7 +1529,7 @@ sub retrieve_accounts {
     LEFT JOIN chart c1 ON bg.inventory_accno_id = c1.id
     LEFT JOIN chart c2 ON bg.income_accno_id_$form->{taxzone_id} = c2.id
     LEFT JOIN chart c3 ON bg.expense_accno_id_$form->{taxzone_id} = c3.id
-    WHERE p.id = ?
+    WHERE p.id IN ($in)
 SQL
 
   my $sth_tax = prepare_query($::form, $dbh, <<SQL);
@@ -1536,9 +1543,8 @@ SQL
        ORDER BY startdate DESC LIMIT 1)
 SQL
 
-  while (my ($part_id, $index) = each %args) {
-    $sth_accno->execute($part_id);
-    my $ref = $sth_accno->fetchrow_hashref or next;
+  while (my ($index => $part_id) = each %args) {
+    my $ref = $accno_by_part{$part_id} or next;
 
     $ref->{"inventory_accno_id"} = undef unless $ref->{"is_part"};
 
@@ -1551,7 +1557,6 @@ SQL
 
     $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} for qw(inventory income expense);
 
-    my $inc_exp = $form->{"vc"} eq "customer" ? "income" : "expense";
     $sth_tax->execute($accounts{"${inc_exp}_accno_id"}, quote_db_date($transdate));
     $ref = $sth_tax->fetchrow_hashref or next;
 
@@ -1561,10 +1566,9 @@ SQL
     $form->{"$ref->{accno}_${_}"} = $ref->{$_} for qw(rate description taxnumber);
   }
 
-  $sth_accno->finish;
   $sth_tax->finish;
 
-  $::lxdebug->leave_sub(2);
+  $::lxdebug->leave_sub;
 }
 
 sub get_basic_part_info {
