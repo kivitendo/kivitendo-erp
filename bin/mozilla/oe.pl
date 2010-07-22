@@ -1897,7 +1897,7 @@ sub display_form {
   $form->{"taxaccounts"} = "";
 
   for my $i (1 .. $form->{"rowcount"}) {
-    IC->retrieve_accounts(\%myconfig, $form, $form->{"id_$i"}, $i, 1) if $form->{"id_$i"};
+    IC->retrieve_accounts(\%myconfig, $form, $form->{"id_$i"}, $i) if $form->{"id_$i"};
   }
 
   $form->{rowcount}++;

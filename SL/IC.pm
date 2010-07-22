@@ -1485,8 +1485,6 @@ sub retrieve_accounts {
   my $dbh      = $form->get_standard_dbh;
   my %args     = @_;     # part_id => index
 
-  my ($query, $sth);
-
   $form->{taxzone_id} *= 1;
 
   # transdate madness.
@@ -1527,7 +1525,7 @@ sub retrieve_accounts {
     WHERE p.id = ?
 SQL
 
-  my $sth_tx = prepare_query($::form, $dbh, <<SQL);
+  my $sth_tax = prepare_query($::form, $dbh, <<SQL);
     SELECT c.accno, t.taxdescription AS description, t.rate, t.taxnumber
     FROM tax t
     LEFT JOIN chart c ON c.id = t.chart_id
@@ -1539,7 +1537,8 @@ SQL
 SQL
 
   while (my ($part_id, $index) = each %args) {
-    my $ref = $sth_accno->fetchrow_hashref($part_id) or next;
+    $sth_accno->execute($part_id);
+    my $ref = $sth_accno->fetchrow_hashref or next;
 
     $ref->{"inventory_accno_id"} = undef unless $ref->{"is_part"};
 
@@ -1553,13 +1552,17 @@ SQL
     $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} for qw(inventory income expense);
 
     my $inc_exp = $form->{"vc"} eq "customer" ? "income" : "expense";
-    $ref = $sth->fetchrow_hashref($accounts{"${inc_exp}_accno_id"}, quote_db_date($transdate)) or next;
+    $sth_tax->execute($accounts{"${inc_exp}_accno_id"}, quote_db_date($transdate));
+    $ref = $sth_tax->fetchrow_hashref or next;
 
     $form->{"taxaccounts_$index"} = $ref->{"accno"};
     $form->{"taxaccounts"} .= "$ref->{accno} "if $form->{"taxaccounts"} !~ /$ref->{accno}/;
 
     $form->{"$ref->{accno}_${_}"} = $ref->{$_} for qw(rate description taxnumber);
   }
+
+  $sth_accno->finish;
+  $sth_tax->finish;
 
   $::lxdebug->leave_sub(2);
 }
