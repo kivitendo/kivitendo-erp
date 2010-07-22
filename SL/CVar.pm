@@ -25,25 +25,31 @@ sub get_configs {
     push @values, $params{module};
   }
 
-  my $query    = qq|SELECT * FROM custom_variable_configs $where ORDER BY sortkey|;
+  my $query    = <<SQL;
+    SELECT *, date_trunc('seconds', localtimestamp) AS current_timestamp
+    FROM custom_variable_configs $where ORDER BY sortkey
+SQL
 
-  my $configs  = selectall_hashref_query($form, $dbh, $query, @values);
+  if (!$::form->{CVAR_CONFIGS}->{$params{module}}) {
+    my $configs  = selectall_hashref_query($form, $dbh, $query, @values);
 
-  foreach my $config (@{ $configs }) {
-    if ($config->{type} eq 'select') {
-      $config->{OPTIONS} = [ map { { 'value' => $_ } } split(m/\#\#/, $config->{options}) ];
+    foreach my $config (@{ $configs }) {
+      if ($config->{type} eq 'select') {
+        $config->{OPTIONS} = [ map { { 'value' => $_ } } split(m/\#\#/, $config->{options}) ];
 
-    } elsif ($config->{type} eq 'number') {
-      $config->{precision} = $1 if ($config->{options} =~ m/precision=(\d+)/i);
+      } elsif ($config->{type} eq 'number') {
+        $config->{precision} = $1 if ($config->{options} =~ m/precision=(\d+)/i);
 
+      }
+
+      $self->_unpack_flags($config);
     }
-
-    $self->_unpack_flags($config);
+    $::form->{CVAR_CONFIGS}->{$params{module}} = $configs;
   }
 
   $main::lxdebug->leave_sub();
 
-  return $configs;
+  return $::form->{CVAR_CONFIGS}->{$params{module}};
 }
 
 sub get_config {
@@ -191,13 +197,6 @@ sub get_custom_variables {
 
   my $trans_id = $params{trans_id} ? 'OR (v.trans_id = ?) ' : '';
 
-  my $q_cfg    =
-    qq|SELECT id, name, description, type, default_value, options,
-         date_trunc('seconds', localtimestamp) AS current_timestamp, current_date AS current_date
-       FROM custom_variable_configs
-       WHERE module = ?
-       ORDER BY sortkey|;
-
   my $q_var    =
     qq|SELECT text_value, timestamp_value, timestamp_value::date AS date_value, number_value, bool_value
        FROM custom_variables
@@ -205,7 +204,7 @@ sub get_custom_variables {
   $q_var      .= qq| AND (sub_module = ?)| if $params{sub_module};
   my $h_var    = prepare_query($form, $dbh, $q_var);
 
-  my $custom_variables = selectall_hashref_query($form, $dbh, $q_cfg, $params{module});
+  my $custom_variables = $self->get_configs(module => $params{module});
 
   foreach my $cvar (@{ $custom_variables }) {
     if ($cvar->{type} eq 'textfield') {
