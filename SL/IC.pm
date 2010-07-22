@@ -1453,17 +1453,17 @@ sub follow_account_chain {
 
   my ($query, $sth);
 
-  $query =
-    qq|SELECT c.new_chart_id, date($transdate) >= c.valid_from AS is_valid, | .
-    qq|  cnew.accno | .
-    qq|FROM chart c | .
-    qq|LEFT JOIN chart cnew ON c.new_chart_id = cnew.id | .
-    qq|WHERE (c.id = ?) AND NOT c.new_chart_id IS NULL AND (c.new_chart_id > 0)|;
-  $sth = prepare_query($form, $dbh, $query);
+  $form->{ACCOUNT_CHAIN_BY_ID} ||= {
+    map { $_->{id} => $_ }
+      selectall_hashref_query($form, $dbh, <<SQL, $transdate) };
+    SELECT c.id, c.new_chart_id, date(?) >= c.valid_from AS is_valid, cnew.accno
+    FROM chart c
+    LEFT JOIN chart cnew ON c.new_chart_id = cnew.id
+    WHERE NOT c.new_chart_id IS NULL AND (c.new_chart_id > 0)
+SQL
 
   while (1) {
-    do_statement($form, $sth, $query, $accno_id);
-    my $ref = $sth->fetchrow_hashref();
+    my $ref = $form->{ACCOUNT_CHAIN_BY_ID}->{$accno_id};
     last unless ($ref && $ref->{"is_valid"} &&
                  !grep({ $_ == $ref->{"new_chart_id"} } @visited_accno_ids));
     $accno_id = $ref->{"new_chart_id"};
@@ -1509,7 +1509,7 @@ sub retrieve_accounts {
     $transdate = $dbh->quote($transdate);
   }
   #/transdate
-  my $inc_exp = $form->{"vc"} eq "customer" ? "income" : "expense";
+  my $inc_exp = $form->{"vc"} eq "customer" ? "income_accno_id" : "expense_accno_id";
 
   my @part_ids = grep { $_ } values %args;
   my $in       = join ',', ('?') x @part_ids;
@@ -1557,7 +1557,7 @@ SQL
 
     $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} for qw(inventory income expense);
 
-    $sth_tax->execute($accounts{"${inc_exp}_accno_id"}, quote_db_date($transdate));
+    $sth_tax->execute($accounts{$inc_exp}, quote_db_date($transdate));
     $ref = $sth_tax->fetchrow_hashref or next;
 
     $form->{"taxaccounts_$index"} = $ref->{"accno"};
