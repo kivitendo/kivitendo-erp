@@ -1481,11 +1481,11 @@ sub retrieve_accounts {
 
   my ($self, $myconfig, $form, $parts_id, $index) = @_;
 
-  my ($query, $sth, $dbh);
+  my ($query, $sth);
 
-  $form->{"taxzone_id"} *= 1;
+  $form->{taxzone_id} *= 1;
 
-  $dbh = $form->get_standard_dbh($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $transdate = "";
   if ($form->{type} eq "invoice") {
@@ -1506,21 +1506,22 @@ sub retrieve_accounts {
     $transdate = $dbh->quote($transdate);
   }
 
-  $query =
-    qq|SELECT | .
-    qq|  p.inventory_accno_id AS is_part, | .
-    qq|  bg.inventory_accno_id, | .
-    qq|  bg.income_accno_id_$form->{taxzone_id} AS income_accno_id, | .
-    qq|  bg.expense_accno_id_$form->{taxzone_id} AS expense_accno_id, | .
-    qq|  c1.accno AS inventory_accno, | .
-    qq|  c2.accno AS income_accno, | .
-    qq|  c3.accno AS expense_accno | .
-    qq|FROM parts p | .
-    qq|LEFT JOIN buchungsgruppen bg ON p.buchungsgruppen_id = bg.id | .
-    qq|LEFT JOIN chart c1 ON bg.inventory_accno_id = c1.id | .
-    qq|LEFT JOIN chart c2 ON bg.income_accno_id_$form->{taxzone_id} = c2.id | .
-    qq|LEFT JOIN chart c3 ON bg.expense_accno_id_$form->{taxzone_id} = c3.id | .
-    qq|WHERE p.id = ?|;
+  $query = <<SQL;
+    SELECT
+      p.inventory_accno_id AS is_part,
+      bg.inventory_accno_id,
+      bg.income_accno_id_$form->{taxzone_id} AS income_accno_id,
+      bg.expense_accno_id_$form->{taxzone_id} AS expense_accno_id,
+      c1.accno AS inventory_accno,
+      c2.accno AS income_accno,
+      c3.accno AS expense_accno
+    FROM parts p
+    LEFT JOIN buchungsgruppen bg ON p.buchungsgruppen_id = bg.id
+    LEFT JOIN chart c1 ON bg.inventory_accno_id = c1.id
+    LEFT JOIN chart c2 ON bg.income_accno_id_$form->{taxzone_id} = c2.id
+    LEFT JOIN chart c3 ON bg.expense_accno_id_$form->{taxzone_id} = c3.id
+    WHERE p.id = ?
+SQL
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $parts_id);
 
   return $main::lxdebug->leave_sub(2) if (!$ref);
@@ -1536,25 +1537,26 @@ sub retrieve_accounts {
                                   $ref->{"${type}_accno"});
   }
 
-  map({ $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} }
-      qw(inventory income expense));
+  map { $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} }
+      qw(inventory income expense);
 
   my $inc_exp = $form->{"vc"} eq "customer" ? "income" : "expense";
   my $accno_id = $accounts{"${inc_exp}_accno_id"};
 
-  $query =
-    qq|SELECT c.accno, t.taxdescription AS description, t.rate, t.taxnumber | .
-    qq|FROM tax t | .
-    qq|LEFT JOIN chart c ON c.id = t.chart_id | .
-    qq|WHERE t.id IN | .
-    qq|  (SELECT tk.tax_id | .
-    qq|   FROM taxkeys tk | .
-    qq|   WHERE tk.chart_id = ? AND startdate <= | . quote_db_date($transdate) .
-    qq|   ORDER BY startdate DESC LIMIT 1) |;
-  $ref = selectfirst_hashref_query($form, $dbh, $query, $accno_id);
+  $query = <<SQL;
+    SELECT c.accno, t.taxdescription AS description, t.rate, t.taxnumber
+    FROM tax t
+    LEFT JOIN chart c ON c.id = t.chart_id
+    WHERE t.id IN
+      (SELECT tk.tax_id
+       FROM taxkeys tk
+       WHERE tk.chart_id = ? AND startdate <= ?
+       ORDER BY startdate DESC LIMIT 1)
+SQL
+  $ref = selectfirst_hashref_query($form, $dbh, $query, $accno_id, quote_db_date($transdate));
 
   unless ($ref) {
-    $main::lxdebug->leave_sub(2);
+    $::lxdebug->leave_sub(2);
     return;
   }
 
@@ -1562,16 +1564,9 @@ sub retrieve_accounts {
   if ($form->{"taxaccounts"} !~ /$ref->{accno}/) {
     $form->{"taxaccounts"} .= "$ref->{accno} ";
   }
-  map({ $form->{"$ref->{accno}_${_}"} = $ref->{$_}; }
-      qw(rate description taxnumber));
+  map { $form->{"$ref->{accno}_${_}"} = $ref->{$_}; } qw(rate description taxnumber);
 
-#   $main::lxdebug->message(0, "formvars: rate " . $form->{"$ref->{accno}_rate"} .
-#                           " description " . $form->{"$ref->{accno}_description"} .
-#                           " taxnumber " . $form->{"$ref->{accno}_taxnumber"} .
-#                           " || taxaccounts_$index " . $form->{"taxaccounts_$index"} .
-#                           " || taxaccounts " . $form->{"taxaccounts"});
-
-  $main::lxdebug->leave_sub(2);
+  $::lxdebug->leave_sub(2);
 }
 
 sub get_basic_part_info {
