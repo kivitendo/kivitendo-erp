@@ -213,7 +213,7 @@ sub text {
   my $self = shift;
   my $text = shift;
 
-  if (exists $self->{texts}->{$text}) {
+  if ($self->{texts}->{$text}) {
     $text = $self->{iconv}->convert($self->{texts}->{$text});
   } else {
     $text = $self->{iconv_english}->convert($text);
