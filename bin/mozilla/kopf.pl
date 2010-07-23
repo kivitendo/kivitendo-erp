@@ -111,10 +111,10 @@ print qq|
 
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
   <tr>
-    <td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;"> 
+    <td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;">
       &nbsp;[<a href="JavaScript:top.main_window.print();" title="| . $locale->text('Hardcopy') . qq|">| . $locale->text('Print') . qq|</a>]
       &nbsp;[<a HREF="login.pl" target="_blank" "title="| . $locale->text('Open a further Lx-Office Window or Tab') . qq|">| . $locale->text('New Win/Tab') . qq|</a>]
-      &nbsp;[<a href="Javascript:top.main_window.history.back();" title="| . $locale->text('Go one step back') . qq|">| . $locale->text('Back') . qq|</a>] 
+      &nbsp;[<a href="Javascript:top.main_window.history.back();" title="| . $locale->text('Go one step back') . qq|">| . $locale->text('Back') . qq|</a>]
       <!-- is there a better solution for Back? Possibly with the callback variable? -->
     </td>
     <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
