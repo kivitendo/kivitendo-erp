@@ -62,16 +62,17 @@ sub run {
     $action = 'login';
   }
   if ($action) {
-    our %myconfig = $auth->read_user($form->{login}) if ($form->{login});
+    %::myconfig = $auth->read_user($form->{login}) if ($form->{login});
+    $::locale   = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
 
-    if (!$myconfig{login} || (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0))) {
+    if (!$::myconfig{login} || (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0))) {
       $form->{error_message} = $::locale->text('Incorrect Password!');
       login_screen();
     } else {
       $auth->set_session_value('login', $form->{login}, 'password', $form->{password});
       $auth->create_or_refresh_session();
 
-      $form->{titlebar} .= " - $myconfig{name} - $myconfig{dbname}";
+      $form->{titlebar} .= " - $::myconfig{name} - $::myconfig{dbname}";
       call_sub($::locale->findsub($action));
     }
   } else {

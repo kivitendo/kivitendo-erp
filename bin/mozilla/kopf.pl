@@ -9,6 +9,8 @@ use strict;
 
 sub run {
   my $session_result = shift;
+  %::myconfig = $::auth->read_user($::form->{login})  if  $::form->{login};
+  $::locale   = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
 
 my $form     = $main::form;
 my $locale   = $main::locale;
