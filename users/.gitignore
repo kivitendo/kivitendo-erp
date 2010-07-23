@@ -2,3 +2,4 @@
 .fonts.cache*
 *_finanzamt.ini
 xvfb_display
+console_history

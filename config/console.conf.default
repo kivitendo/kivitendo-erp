@@ -1,0 +1,13 @@
+[Console]
+
+# autologin to use if none is given
+login = demo
+
+# autorun lines will be executed after autologin.
+# be warned that loading huge libraries will noticably lengthen startup time.
+#autorun = use SL::Module
+#        = use SL::Other::Module
+
+# location of history file for permanent history
+history_file = users/console_history
+
