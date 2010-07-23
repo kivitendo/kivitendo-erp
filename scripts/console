@@ -12,7 +12,9 @@ BEGIN {
 use Config::Std;
 use Data::Dumper;
 use Devel::REPL 1.002001;
-use Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
+eval {
+require Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
+};
 
 read_config 'config/console.conf' => my %config;# if -f 'config/console.conf';
 
@@ -90,7 +92,7 @@ sub load {
 }
 
 sub reload {
-  use Module::Reload;
+  require Module::Reload;
   Module::Reload->check();
 
   return "modules reloaded";
