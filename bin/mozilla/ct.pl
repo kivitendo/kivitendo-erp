@@ -289,7 +289,7 @@ sub form_header {
                    taxzones  => "ALL_TAXZONES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
-  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::vertreter;
+  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1, with_obsolete => 1 }) if $::vertreter;
 
   $form->{ALL_SALESMEN}   = $form->{ALL_EMPLOYEES};
   $form->{taxincluded}    = ($form->{taxincluded}) ? "checked" : "";

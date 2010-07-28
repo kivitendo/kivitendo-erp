@@ -2373,9 +2373,13 @@ sub _get_customers {
   my $options        = ref $key eq 'HASH' ? $key : { key => $key };
   $options->{key}  ||= "all_customers";
   my $limit_clause   = "LIMIT $options->{limit}" if $options->{limit};
-  my $where          = $options->{business_is_salesman} ? qq| AND business_id IN (SELECT id FROM business WHERE salesman)| : '';
 
-  my $query = qq|SELECT * FROM customer WHERE NOT obsolete $where ORDER BY name $limit_clause|;
+  my @where;
+  push @where, qq|business_id IN (SELECT id FROM business WHERE salesman)| if  $options->{business_is_salesman};
+  push @where, qq|NOT obsolete|                                            if !$options->{with_obsolete};
+  my $where_str = @where ? "WHERE " . join(" AND ", map { "($_)" } @where) : '';
+
+  my $query = qq|SELECT * FROM customer $where_str ORDER BY name $limit_clause|;
   $self->{ $options->{key} } = selectall_hashref_query($self, $dbh, $query);
 
   $main::lxdebug->leave_sub();
