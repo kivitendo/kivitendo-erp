@@ -1360,7 +1360,7 @@ sub convert_to_pdf {
   system(@cmdline);
 
   my $res = $?;
-  if (0 == $?) {
+  if ((0 == $?) || (-f "${filename}.pdf" && -s "${filename}.pdf")) {
     $form->{"tmpfile"} =~ s/odt$/pdf/;
 
     unlink($filename . ".odt");
