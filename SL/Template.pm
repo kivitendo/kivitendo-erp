@@ -1251,10 +1251,11 @@ sub spawn_xvfb {
 sub is_openoffice_running {
   $main::lxdebug->enter_sub();
 
-  system("./scripts/oo-uno-test-conn.py $main::openofficeorg_daemon_port " .
-         "> /dev/null 2> /dev/null");
-  my $res = $? == 0;
-  $main::lxdebug->message(LXDebug->DEBUG2(), "  is_openoffice_running(): $?\n");
+  my $output = `./scripts/oo-uno-test-conn.py $main::openofficeorg_daemon_port 2> /dev/null`;
+  chomp $output;
+
+  my $res = ($? == 0) || $output;
+  $main::lxdebug->message(LXDebug->DEBUG2(), "  is_openoffice_running(): res $res\n");
 
   $main::lxdebug->leave_sub();
 
