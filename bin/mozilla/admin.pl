@@ -98,8 +98,8 @@ sub run {
 }
 
 sub adminlogin {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   $form->{title} = qq|Lx-Office ERP $form->{version} | . $locale->text('Administration');
 
@@ -118,8 +118,8 @@ sub logout {
 }
 
 sub check_auth_db_and_tables {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   my %params;
 
@@ -160,17 +160,17 @@ sub check_auth_db_and_tables {
 }
 
 sub create_auth_db {
-  my $form     = $main::form;
+  my $form = $main::form;
 
   $main::auth->create_database('superuser'          => $form->{db_superuser},
-                         'superuser_password' => $form->{db_superuser_password},
-                         'template'           => $form->{db_template});
+                               'superuser_password' => $form->{db_superuser_password},
+                               'template'           => $form->{db_template});
   login();
 }
 
 sub create_auth_tables {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   $main::auth->create_tables();
   $main::auth->set_session_value('rpw', $form->{rpw});
@@ -195,8 +195,8 @@ sub create_auth_tables {
 sub migrate_users {
   $main::lxdebug->enter_sub();
 
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form      = $main::form;
+  my $locale    = $main::locale;
 
   my $memberdir = "";
 
@@ -275,8 +275,8 @@ sub migrate_users {
 }
 
 sub create_standard_group_ask {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   $form->{title} = $locale->text('Create a standard group');
 
@@ -285,12 +285,12 @@ sub create_standard_group_ask {
 }
 
 sub create_standard_group {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form    = $main::form;
+  my $locale  = $main::locale;
 
   my %members = $main::auth->read_all_users();
 
-  my $groups = $main::auth->read_groups();
+  my $groups  = $main::auth->read_groups();
 
   foreach my $group (values %{$groups}) {
     if (($form->{group_id} != $group->{id})
@@ -318,8 +318,8 @@ sub dont_create_standard_group {
 sub user_migration_complete {
   my $standard_group_created = shift;
 
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form                   = $main::form;
+  my $locale                 = $main::locale;
 
   $form->{title} = $locale->text('User migration complete');
   $form->header();
@@ -328,8 +328,8 @@ sub user_migration_complete {
 }
 
 sub list_users {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form    = $main::form;
+  my $locale  = $main::locale;
 
   my %members = $main::auth->read_all_users();
 
@@ -346,16 +346,12 @@ sub list_users {
 }
 
 sub add_user {
+  my $form         = $main::form;
+  my $locale       = $main::locale;
 
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  $form->{title}   = "Lx-Office ERP " . $locale->text('Administration') . " / " . $locale->text('Add User');
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Administration') . " / "
-    . $locale->text('Add User');
-
-  my $myconfig = {
+  my $myconfig     = {
     "vclimit"      => 200,
     "countrycode"  => "de",
     "numberformat" => "1.000,00",
@@ -368,15 +364,11 @@ sub add_user {
 }
 
 sub edit_user {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form       = $main::form;
+  my $locale     = $main::locale;
 
-
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Administration') . " / "
-    . $locale->text('Edit User');
-  $form->{edit} = 1;
+  $form->{title} = "Lx-Office ERP " . $locale->text('Administration') . " / " . $locale->text('Edit User');
+  $form->{edit}  = 1;
 
   $form->isblank("login", $locale->text("The login is missing."));
 
@@ -392,8 +384,8 @@ sub edit_user {
 sub edit_user_form {
   my ($myconfig) = @_;
 
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form       = $main::form;
+  my $locale     = $main::locale;
 
   my @valid_dateformats = qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd);
   $form->{ALL_DATEFORMATS} = [ map { { "format" => $_, "selected" => $_ eq $myconfig->{dateformat} } } @valid_dateformats ];
@@ -468,8 +460,8 @@ sub edit_user_form {
 }
 
 sub save_user {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form          = $main::form;
+  my $locale        = $main::locale;
 
   $form->{dbdriver} = 'Pg';
 
@@ -583,7 +575,7 @@ sub save_user {
 }
 
 sub save_user_as_new {
-  my $form     = $main::form;
+  my $form       = $main::form;
 
   $form->{login} = $form->{new_user_login};
   delete @{$form}{qw(edit new_user_login)};
@@ -592,8 +584,8 @@ sub save_user_as_new {
 }
 
 sub delete_user {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form      = $main::form;
+  my $locale    = $main::locale;
 
   my %members   = $main::auth->read_all_users();
   my $templates = $members{$form->{login}}->{templates};
@@ -629,10 +621,7 @@ sub login_name {
 }
 
 sub get_value {
-  my $line = shift;
-
-  my $form     = $main::form;
-
+  my $line           = shift;
   my ($null, $value) = split(/=/, $line, 2);
 
   # remove comments
@@ -645,7 +634,7 @@ sub get_value {
 }
 
 sub pg_database_administration {
-  my $form     = $main::form;
+  my $form = $main::form;
 
   $form->{dbdriver} = 'Pg';
   dbselect_source();
@@ -653,8 +642,8 @@ sub pg_database_administration {
 }
 
 sub dbselect_source {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form           = $main::form;
+  my $locale         = $main::locale;
 
   $form->{dbport}    = '5432';
   $form->{dbuser}    = 'postgres';
@@ -671,8 +660,8 @@ sub dbselect_source {
 }
 
 sub test_db_connection {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   $form->{dbdriver} = 'Pg';
   User::dbconnect_vars($form, $form->{dbname});
@@ -694,13 +683,10 @@ sub continue {
 }
 
 sub update_dataset {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form              = $main::form;
+  my $locale            = $main::locale;
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Update Dataset');
+  $form->{title}        = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Update Dataset');
 
   my @need_updates      = User->dbneedsupdate($form);
   $form->{NEED_UPDATES} = \@need_updates;
@@ -711,8 +697,8 @@ sub update_dataset {
 }
 
 sub dbupdate {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form            = $main::form;
+  my $locale          = $main::locale;
 
   $form->{stylesheet} = "lx-office-erp.css";
   $form->{title}      = $locale->text("Dataset upgrade");
@@ -749,12 +735,12 @@ sub dbupdate {
 }
 
 sub create_dataset {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form           = $main::form;
+  my $locale         = $main::locale;
 
   $form->{dbsources} = join " ", map { "[${_}]" } sort User->dbsources($form);
 
-  $form->{CHARTS} = [];
+  $form->{CHARTS}    = [];
 
   opendir SQLDIR, "sql/." or $form->error($ERRNO);
   foreach my $item (sort grep /-chart\.sql\z/, readdir SQLDIR) {
@@ -788,43 +774,34 @@ sub create_dataset {
     }
   }
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Create Dataset');
+  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Create Dataset');
 
   $form->header();
   print $form->parse_html_template("admin/create_dataset");
 }
 
 sub dbcreate {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   $form->isblank("db", $locale->text('Dataset missing!'));
 
   User->dbcreate(\%$form);
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Create Dataset');
+  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Create Dataset');
 
   $form->header();
   print $form->parse_html_template("admin/dbcreate");
 }
 
 sub delete_dataset {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form      = $main::form;
+  my $locale    = $main::locale;
 
   my @dbsources = User->dbsources_unused($form);
   $form->error($locale->text('Nothing to delete!')) unless @dbsources;
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Delete Dataset');
+  $form->{title}     = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Delete Dataset');
   $form->{DBSOURCES} = [ map { { "name", $_ } } sort @dbsources ];
 
   $form->header();
@@ -832,8 +809,8 @@ sub delete_dataset {
 }
 
 sub dbdelete {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   if (!$form->{db}) {
     $form->error($locale->text('No Dataset selected!'));
@@ -841,22 +818,16 @@ sub dbdelete {
 
   User->dbdelete(\%$form);
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Delete Dataset');
+  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Delete Dataset');
   $form->header();
   print $form->parse_html_template("admin/dbdelete");
 }
 
 sub backup_dataset {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form       = $main::form;
+  my $locale     = $main::locale;
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Backup Dataset');
+  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
   if ("$main::pg_dump_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
@@ -875,13 +846,10 @@ sub backup_dataset {
 }
 
 sub backup_dataset_start {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form       = $main::form;
+  my $locale     = $main::locale;
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Backup Dataset');
+  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
   $main::pg_dump_exe ||= "pg_dump";
 
@@ -957,10 +925,7 @@ sub backup_dataset_start {
     unlink "${tmpdir}/.pgpass", $tmp;
     rmdir $tmpdir;
 
-    $form->{title} =
-        "Lx-Office ERP "
-      . $locale->text('Database Administration') . " / "
-      . $locale->text('Backup Dataset');
+    $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
     $form->header();
     print $form->parse_html_template("admin/backup_dataset_email_done");
@@ -968,13 +933,10 @@ sub backup_dataset_start {
 }
 
 sub restore_dataset {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form       = $main::form;
+  my $locale     = $main::locale;
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Restore Dataset');
+  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
   if ("$main::pg_restore_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
@@ -996,13 +958,10 @@ sub restore_dataset {
 }
 
 sub restore_dataset_start {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form       = $main::form;
+  my $locale     = $main::locale;
 
-  $form->{title} =
-      "Lx-Office ERP "
-    . $locale->text('Database Administration') . " / "
-    . $locale->text('Restore Dataset');
+  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
   $main::pg_restore_exe ||= "pg_restore";
 
@@ -1122,8 +1081,8 @@ sub restore_dataset_start {
 }
 
 sub unlock_system {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   unlink "$main::userspath/nologin";
 
@@ -1134,8 +1093,8 @@ sub unlock_system {
 }
 
 sub lock_system {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   open(FH, ">$main::userspath/nologin")
     or $form->error($locale->text('Cannot create Lock!'));
@@ -1160,7 +1119,7 @@ sub add {
 }
 
 sub edit {
-  my $form     = $main::form;
+  my $form = $main::form;
 
   $form->{edit_nextsub} ||= 'edit_user';
 
@@ -1176,7 +1135,7 @@ sub delete {
 }
 
 sub save {
-  my $form     = $main::form;
+  my $form = $main::form;
 
   $form->{save_nextsub} ||= 'save_user';
 
@@ -1188,8 +1147,8 @@ sub back {
 }
 
 sub dispatcher {
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  my $form   = $main::form;
+  my $locale = $main::locale;
 
   foreach my $action (qw(create_standard_group dont_create_standard_group
                          save_user delete_user save_user_as_new)) {
