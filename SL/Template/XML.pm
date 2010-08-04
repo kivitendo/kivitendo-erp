@@ -1,10 +1,6 @@
 package SL::Template::XML;
 
-use SL::Template::HTML;
-
-use vars qw(@ISA);
-
-@ISA = qw(SL::Template::HTML);
+use parent qw(SL::Template::HTML);
 
 use strict;
 

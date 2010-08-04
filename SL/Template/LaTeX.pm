@@ -1,9 +1,6 @@
 package SL::Template::LaTeX;
 
-use vars qw(@ISA);
-
-use SL::Template;
-@ISA = qw(SL::Template::Simple);
+use parent qw(SL::Template::Simple);
 
 use strict;
 

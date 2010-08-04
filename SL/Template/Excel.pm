@@ -1,10 +1,6 @@
 package SL::Template::Excel;
 
-use SL::Template::Simple;
-
-use vars qw(@ISA);
-
-@ISA = qw(SL::Template::Simple);
+use parent qw(SL::Template::Simple);
 
 sub new {
   my $type = shift;

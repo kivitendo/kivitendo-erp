@@ -1,10 +1,9 @@
 package SL::Template::OpenDocument;
 
-use SL::Template::Simple;
+use parent qw(SL::Template::Simple);
 
 use Archive::Zip;
 use POSIX 'setsid';
-use vars qw(@ISA);
 
 use SL::Iconv;
 
@@ -13,8 +12,6 @@ use Cwd;
 # use File::Spec;
 # use File::Temp qw(:mktemp);
 use IO::File;
-
-@ISA = qw(SL::Template::Simple);
 
 use strict;
 

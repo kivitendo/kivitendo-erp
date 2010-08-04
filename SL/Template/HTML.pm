@@ -1,9 +1,6 @@
 package SL::Template::HTML;
 
-use SL::Template::LaTeX;
-
-use vars qw(@ISA);
-@ISA = qw(SL::Template::LaTeX);
+use parent qw(SL::Template::LaTeX);
 
 use strict;
 
