@@ -413,7 +413,7 @@ sub edit_user_form {
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
-  @alldir = grep !/^(webpages|cache|\.svn)$/, @alldir;
+  @alldir = grep !/^(webpages|\.svn)$/, @alldir;
 
   @allhtml = reverse grep !/Default/, @allhtml;
   push @allhtml, 'Default';
