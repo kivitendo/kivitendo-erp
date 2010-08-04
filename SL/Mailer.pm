@@ -114,7 +114,7 @@ sub send {
   $email          =~ s/[^\w\.\-\+=@]//ig;
 
   my %temp_form   = ( %{ $form }, 'myconfig_email' => $email );
-  my $template    = PlainTextTemplate->new(undef, \%temp_form, $myconfig);
+  my $template    = SL::Template::create(type => 'PlainText', form => \%temp_form);
   my $sendmail    = $template->parse_block($main::sendmail);
 
   if (!open(OUT, $sendmail)) {

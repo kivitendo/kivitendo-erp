@@ -29,7 +29,7 @@ $form->{"script"} = "oe.pl";
 
 $ENV{'HOME'} = getcwd() . "/$userspath";
 
-my $template = OpenDocumentTemplate->new("", $form, \%myconfig, $userspath);
+my $template = SL::Template::create(type => 'OpenDocument', file_name => '', form => $form, myconfig => \%myconfig, userspath => $userspath);
 
 if (@ARGV && ($ARGV[0] eq "-r")) {
   system("ps auxww | " .

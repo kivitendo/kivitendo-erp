@@ -1198,7 +1198,7 @@ sub parse_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $userspath) = @_;
-  my ($template, $out);
+  my $out;
 
   local (*IN, *OUT);
 
@@ -1207,31 +1207,29 @@ sub parse_template {
 
   my $ext_for_format;
 
+  my $template_type;
   if ($self->{"format"} =~ /(opendocument|oasis)/i) {
-    $template       = OpenDocumentTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $template_type  = 'OpenDocument';
     $ext_for_format = $self->{"format"} =~ m/pdf/ ? 'pdf' : 'odt';
 
   } elsif ($self->{"format"} =~ /(postscript|pdf)/i) {
     $ENV{"TEXINPUTS"} = ".:" . getcwd() . "/" . $myconfig->{"templates"} . ":" . $ENV{"TEXINPUTS"};
-    $template         = LaTeXTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $template_type    = 'LaTeX';
     $ext_for_format   = 'pdf';
 
   } elsif (($self->{"format"} =~ /html/i) || (!$self->{"format"} && ($self->{"IN"} =~ /html$/i))) {
-    $template       = HTMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $template_type  = 'HTML';
     $ext_for_format = 'html';
 
   } elsif (($self->{"format"} =~ /xml/i) || (!$self->{"format"} && ($self->{"IN"} =~ /xml$/i))) {
-    $template       = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $template_type  = 'XML';
     $ext_for_format = 'xml';
 
-  } elsif ( $self->{"format"} =~ /elsterwinston/i ) {
-    $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
-
-  } elsif ( $self->{"format"} =~ /elstertaxbird/i ) {
-    $template = XMLTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+  } elsif ( $self->{"format"} =~ /elster(?:winston|taxbird)/i ) {
+    $template_type = 'xml';
 
   } elsif ( $self->{"format"} =~ /excel/i ) {
-    $template = ExcelTemplate->new($self->{"IN"}, $self, $myconfig, $userspath);
+    $template_type  = 'Excel';
     $ext_for_format = 'xls';
 
   } elsif ( defined $self->{'format'}) {
@@ -1243,6 +1241,12 @@ sub parse_template {
   } else { #Catch the rest
     $self->error("Outputformat not defined: $self->{'format'}");
   }
+
+  my $template = SL::Template::create(type      => $template_type,
+                                      file_name => $self->{IN},
+                                      form      => $self,
+                                      myconfig  => $myconfig,
+                                      userspath => $userspath);
 
   # Copy the notes from the invoice/sales order etc. back to the variable "notes" because that is where most templates expect it to be.
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };

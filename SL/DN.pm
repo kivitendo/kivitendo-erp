@@ -363,7 +363,7 @@ sub send_email {
     return;
   }
 
-  my $template     = PlainTextTemplate->new(undef, $form, $myconfig);
+  my $template     = SL::Template::create(type => 'PlainText', form => $form, myconfig => $myconfig);
   my $mail         = Mailer->new();
   $mail->{from}    = $myconfig->{email};
   $mail->{to}      = $ref->{recipient};
