@@ -71,6 +71,7 @@ $parts = array(
     "weight" => "Gewicht in Benutzerdefinition",
     "notes" => "Beschreibung",
     "notes1" => "Beschreibung",
+    "formel" => "Formel",
     "makemodel" => "Hersteller",
     "model" => "Modellbezeichnung",
     "image" => "Pfad/Dateiname",
