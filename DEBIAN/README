@@ -10,3 +10,11 @@ DEBIAN/mk_erp_deb.sh mit einem Editor öffnen. Die Pfade:
 SRC und DST ggf. anpassen und wieder speichern.
 
 Die Datei DEBIAN/mk_erp_deb.sh ausführen. Fertig.
+
+
+FCGI wird mit diesem Paket nicht installiert.
+Dafür würde ich ein eigenes Paket bauen.
+Dieses bekommt ein eigenes Konfigfile für den Apache und
+erfüllt die Abhängigkeiten.
+Dann kann jeder Admin selber entscheiden, ob er 
+fcgi einschaltet.
