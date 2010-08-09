@@ -60,6 +60,8 @@ Bestandteil einer Standard-Perl-Installation sind:
 
    * CGI::Ajax
 
+   * DateTime
+
    * DBI
 
    * DBD::Pg
@@ -103,24 +105,24 @@ Distributionen unterschiedlich heißen.
    Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
    `apache2 postgresql libarchive-zip-perl libclass-accessor-perl
-libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl
-libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl
-libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl
-libxml-writer-perl libyaml-perl'
+libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl
+libemail-address-perl libio-stringy-perl liblist-moreutils-perl
+libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl
+libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl'
 
    Für Fedora Core benötigen Sie diese Pakete:
 
-   `httpd postgresql-server perl-Class-Accessor perl-DBI perl-DBD-Pg
-perl-Email-Address perl-IO-stringy perl-List-MoreUtils perl-PDF-API2
-perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI
-perl-XML-Writer perl-YAML'
+   `httpd postgresql-server perl-Class-Accessor perl-DateTime perl-DBI
+perl-DBD-Pg perl-Email-Address perl-IO-stringy perl-List-MoreUtils
+perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv
+perl-URI perl-XML-Writer perl-YAML'
 
    Für OpenSuSE benötigen Sie diese Pakete:
 
    `apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor
-perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy perl-List-MoreUtils
-perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv
-perl-URI perl-XML-Writer perl-YAML'
+perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy
+perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit
+perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML'
 
    Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
 benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:

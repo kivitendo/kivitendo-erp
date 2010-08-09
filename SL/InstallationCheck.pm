@@ -11,6 +11,7 @@ use strict;
   { name => "Archive::Zip",    url => "http://search.cpan.org/~adamk/" },
   { name => "Class::Accessor", url => "http://search.cpan.org/~kasei/" },
   { name => "CGI::Ajax",       url => "http://search.cpan.org/~bct/" },
+  { name => "DateTime",        url => "http://search.cpan.org/~drolsky/" },
   { name => "DBI",             url => "http://search.cpan.org/~timb/" },
   { name => "DBD::Pg",         url => "http://search.cpan.org/~dbdpg/" },
   { name => "Email::Address",  url => "http://search.cpan.org/~rjbs/" },
