@@ -5,7 +5,7 @@ Section: universe/web
 Priority: optional
 Installed-Size: 0
 Maintainer: Holger Lindemann <hli@lx-system.de>, Adrian Weibel <adrian_weibel@web.de>
-Depends: patch, apache2 | apache | lighttpd, postgresql | postgresql-7.4 | postgresql-8.0  | postgresql-8.1 | postgresql-8.2 | postgresql-8.3 | postgresql-8.4, libdbi-perl, libdbd-pg-perl, libpg-perl, libarchive-zip-perl, libyaml-perl, libtext-csv-perl, libio-stringy-perl, libtemplate-perl, libpdf-api2-perl, libcgi-ajax-perl, liblist-moreutils-perl, libxml-writer-perl, libtext-csv-xs-perl | libtext-csv-perl, liburi-perl, libdatetime-perl
+Depends: patch, apache2 | apache | lighttpd, postgresql | postgresql-7.4 | postgresql-8.0  | postgresql-8.1 | postgresql-8.2 | postgresql-8.3 | postgresql-8.4, libdbi-perl, libdbd-pg-perl, libpg-perl, libarchive-zip-perl, libyaml-perl, libtext-csv-perl, libio-stringy-perl, libtemplate-perl, libpdf-api2-perl, libcgi-ajax-perl, liblist-moreutils-perl, libxml-writer-perl, libtext-csv-xs-perl | libtext-csv-perl, liburi-perl, libdatetime-perl, libparent-perl
 Suggests: tetex-base, tetex-bin, tetex-extra, xpdf | evince | okular, libfcgi-perl, libapache2-mod-fastcgi
 Homepage: http://www.lx-office.org
 Description: Extended double entry accounting system for the german market.
