@@ -109,21 +109,27 @@ sub parse_block {
         $contents =~ m|^(.*?)(</table:table-row[^>]*>)|;
         my $table_row = $1;
         my $end_tag = $2;
-        substr($contents, 0, length($1) + length($end_tag)) = "";
 
         if ($table_row =~ m|\&lt;\%foreachrow\s+(.*?)\%\&gt;|) {
           my $var = $1;
 
-          substr($table_row, length($`), length($&)) = "";
+          $contents =~ m|\&lt;\%foreachrow\s+.*?\%\&gt;|;
+          substr($contents, length($`), length($&)) = "";
 
-          my ($t1, $t2) = $self->find_end($table_row, length($`));
-          if (!$t1) {
+          ($table_row, $contents) = $self->find_end($contents, length($`));
+          if (!$table_row) {
             $self->{"error"} = "Unclosed <\%foreachrow\%>." unless ($self->{"error"});
             $main::lxdebug->leave_sub();
             return undef;
           }
 
-          my $new_text = $self->parse_foreach($var, $t1 . $t2, $tag, $end_tag, @indices);
+          $contents   =~ m|^(.*?)(</table:table-row[^>]*>)|;
+          $table_row .=  $1;
+          $end_tag    =  $2;
+
+          substr $contents, 0, length($&), '';
+
+          my $new_text = $self->parse_foreach($var, $table_row, $tag, $end_tag, @indices);
           if (!defined($new_text)) {
             $main::lxdebug->leave_sub();
             return undef;
@@ -131,6 +137,7 @@ sub parse_block {
           $new_contents .= $new_text;
 
         } else {
+          substr($contents, 0, length($table_row) + length($end_tag)) = "";
           my $new_text = $self->parse_block($table_row, @indices);
           if (!defined($new_text)) {
             $main::lxdebug->leave_sub();
