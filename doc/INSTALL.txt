@@ -102,10 +102,10 @@ Distributionen unterschiedlich heißen.
 
    Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-   `apache postgresql libarchive-zip-perl libclass-accessor-perl
+   `apache2 postgresql libarchive-zip-perl libclass-accessor-perl
 libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl
 libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl
-libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl lib-uriperl
+libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl
 libxml-writer-perl libyaml-perl'
 
    Für Fedora Core benötigen Sie diese Pakete:

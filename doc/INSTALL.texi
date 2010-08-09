@@ -109,7 +109,7 @@ Die zu installierenden Pakete können in den verschiedenen Distributionen unters
 
 Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-@code{apache postgresql libarchive-zip-perl libclass-accessor-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl lib-uriperl libxml-writer-perl libyaml-perl}
+@code{apache2 postgresql libarchive-zip-perl libclass-accessor-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl}
 
 Für Fedora Core benötigen Sie diese Pakete:
 
