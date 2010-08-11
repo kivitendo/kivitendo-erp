@@ -218,7 +218,7 @@ sub section_menu {
       } else {
         my $ml_ = $form->escape($ml);
         print
-          qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?action=acc_menu&level=$ml_" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+          qq|<tr><td class="bg" height="22" align="left" valign="middle" ><a href="menu.pl?action=acc_menu&level=$ml_" class="nohover""><img src="image/$item.png" border="0" style="vertical-align:middle" titel="Hallo Welt">&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
         #print qq|<br>\n|;
