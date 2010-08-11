@@ -472,6 +472,12 @@ sub info {
     print qq|
     <p class="message_ok"><b>$msg</b></p>
     
+    <script type="text/javascript">
+    <!--
+    setTimeout("parent.frames.main_window.location.href='login.pl?action=company_logo'",1000);
+    //-->
+    </script>
+    
 </body>
     |;
 

@@ -260,7 +260,7 @@ https://developer.mozilla.org/en/XUL/Attribute/tooltiptext
 <xsl:template name="specialbuttons">
     <toolbarbutton image="image/icons/24x24/Batch Printing.png" oncommand="PrintW(event)" tooltiptext="Drucken"/>
     <toolbarbutton image="image/icons/24x24/Neues Fenster.png" tooltiptext="Neues Fenster" link="menuXML.pl?action=display" target="_top" oncommand="openLinkNewWindow(event)"/>
-    <toolbarbutton image="image/icons/24x24/Programm--Logout.png" link="{/*//item[@id='Programm--Logout']/@link}" target="_top" oncommand="openLink(event)" tooltiptext="Abmelden"/>
+    <toolbarbutton image="image/icons/24x24/Program--Logout.png" link="{/*//item[@id='Program--Logout']/@link}" target="_top" oncommand="openLink(event)" tooltiptext="Abmelden"/>
   <toolbarseparator/>
     <toolbarbutton image="image/icons/24x24/leftarrow_24.png" tooltiptext="Schritt zurück" oncommand="MyGoBack()"/>
     <toolbarbutton image="image/icons/24x24/rightarrow_24.png" tooltiptext="Schritt vor" oncommand="MyGoForward()"/>
