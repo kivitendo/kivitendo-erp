@@ -466,13 +466,13 @@ sub info {
 
     if (!$self->{header}) {
       $self->header;
-      print qq|
-      <body>|;
+      print qq|<body>|;
     }
 
     print qq|
-
-    <p><b>$msg</b>
+    <p class="message_ok"><b>$msg</b></p>
+    
+</body>
     |;
 
   } else {
