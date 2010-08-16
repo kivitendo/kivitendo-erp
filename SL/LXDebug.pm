@@ -8,7 +8,8 @@ use constant QUERY              =>  1 << 3;
 use constant TRACE              =>  1 << 4;
 use constant BACKTRACE_ON_ERROR =>  1 << 5;
 use constant REQUEST_TIMER      =>  1 << 6;
-use constant ALL                => (1 << 7) - 1;
+use constant WARN               =>  1 << 7;
+use constant ALL                => (1 << 8) - 1;
 use constant DEVEL              => INFO | QUERY | TRACE | BACKTRACE_ON_ERROR | REQUEST_TIMER;
 
 use constant FILE_TARGET   => 0;
@@ -65,8 +66,8 @@ sub set_target {
 }
 
 sub enter_sub {
-  my ($self, $level) = @_;
-  $level *= 1;
+  my $self  = shift;
+  my $level = shift || 0;
 
   return 1 unless ($global_level & TRACE);          # ignore if traces aren't active
   return 1 if $level && !($global_level & $level);  # ignore if level of trace isn't active
@@ -89,8 +90,8 @@ sub enter_sub {
 }
 
 sub leave_sub {
-  my ($self, $level) = @_;
-  $level *= 1;
+  my $self  = shift;
+  my $level = shift || 0;
 
   return 1 unless ($global_level & TRACE);           # ignore if traces aren't active
   return 1 if $level && !($global_level & $level);   # ignore if level of trace isn't active
@@ -125,9 +126,15 @@ sub show_backtrace {
 }
 
 sub message {
+  no warnings;
   my ($self, $level, $message) = @_;
 
   $self->_write(level2string($level), $message) if (($self->{"level"} | $global_level) & $level || !$level);
+}
+sub warn {
+  no warnings;
+  my ($self, $message) = @_;
+  $self->message(WARN, $message);
 }
 
 sub dump {
@@ -210,6 +217,7 @@ sub is_tracing_enabled {
 }
 
 sub _write {
+  no warnings;
   my ($self, $prefix, $message) = @_;
   my $date = strftime("%Y-%m-%d %H:%M:%S $$ [" . getppid() . "] ${prefix}: ", localtime(time()));
   local *FILE;
@@ -227,8 +235,9 @@ sub _write {
 }
 
 sub level2string {
+  no warnings;
   # use $_[0] as a bit mask and return levelstrings separated by /
-  join '/', qw(info debug1 debug2 query trace error_call_trace)[ grep { (reverse split //, sprintf "%05b", $_[0])[$_] } 0..5 ]
+  join '/', qw(info debug1 debug2 query trace error_call_trace request_timer WARNING)[ grep { (reverse split //, sprintf "%08b", $_[0])[$_] } 0..7 ]
 }
 
 sub begin_request {
