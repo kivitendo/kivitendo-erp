@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# -*- coding: iso-8859-15; -*-
 
 # These are all the texts to build the translations files.
 # The file has the form of 'english text'  => 'foreign text',
@@ -343,6 +344,7 @@ $self->{texts} = {
   'Cash'                        => 'Zahlungsverkehr',
   'Cc'                          => 'Cc',
   'Change Lx-Office installation settings (all menu entries beneath \'System\')' => 'Ver&auml;ndern der Lx-Office-Installationseinstellungen (Men&uuml;punkte unterhalb von \'System\')',
+  'Change representative to'    => 'Vertreter ändern in',
   'Charge Number'               => 'Chargennummer',
   'Charge number'               => 'Chargennummer',
   'Chart'                       => 'Buchungskonto',
@@ -1254,7 +1256,7 @@ $self->{texts} = {
   'Productivity'                => 'Produktivität',
   'Profit Center'               => 'Erfolgsbereich',
   'Proforma Invoice'            => 'Proformarechnung',
-  'Program'                    => 'Programm',
+  'Program'                     => 'Programm',
   'Project'                     => 'Projekt',
   'Project Number'              => 'Projektnummer',
   'Project Number missing!'     => 'Projektnummer fehlt!',
@@ -1875,7 +1877,7 @@ $self->{texts} = {
   'You have to chose which unit to save for each of them.' => 'Sie m&uuml;ssen f&uuml;r jeden Artikel die neue Einheit ausw&auml;hlen.',
   'You have to create at least one group, grant it access to Lx-Office\'s functions and assign users to it.' => 'Sie m&uuml;ssen mindestens eine Benutzergruppe anlegen, ihr Zugriff auf die verschiedenen Funktionsbereiche von Lx-Office gew&auml;hren und Benutzer dieser Gruppe zuordnen.',
   'You have to create new Buchungsgruppen for all the combinations of inventory, income and expense accounts that have been used already.' => 'Sie m&uuml;ssen neue Buchungsgruppen f&uuml;r alle Kombinationen aus Inventar-, Erl&ouml;s- und Aufwandskonto, die bereits benutzt wurden.',
-  'You have to enter a company name in your user preferences (see the "Program" menu, "Preferences").' => 'Sie müssen einen Firmennamen in Ihren Einstellungen angeben (siehe "Programm"-Menü, "Benuztereinstellungen).',
+  'You have to enter a company name in your user preferences (see the "Program" menu, "Preferences").' => 'Sie müssen einen Firmennamen in Ihren Einstellungen angeben (siehe Menü "Programm", "Einstellungen").',
   'You have to fill in at least an account number, the bank code, the IBAN and the BIC.' => 'Sie müssen zumindest die Kontonummer, die Bankleitzahl, die IBAN und den BIC angeben.',
   'You have to specify a department.' => 'Sie müssen eine Abteilung wählen.',
   'You have to specify an execution date for each antry.' => 'Sie müssen für jeden zu buchenden Eintrag ein Ausführungsdatum angeben.',
@@ -1927,7 +1929,6 @@ $self->{texts} = {
   'cp_greeting to cp_gender migration' => 'Datenumwandlung von Titel nach Geschlecht (cp_greeting to cp_gender)',
   'customer'                    => 'Kunde',
   'customer_list'               => 'kundenliste',
-  'customernumber not unique!'  => 'Die Kundennummer ist schon vergeben',
   'debug'                       => 'Debug',
   'delete'                      => 'Löschen',
   'deliverydate'                => 'Lieferdatum',

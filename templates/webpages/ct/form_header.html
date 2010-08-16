@@ -36,14 +36,30 @@
         -%]
        </td>
       </tr>
+      [%- IF id %]
       <tr>
        <th align="right">[% 'Representative' | $T8 %]</th>
        <td>
+        <input type="hidden" name="salesman_id" value="[%- HTML.escape(salesman_id) %]"%>
+        [%- HTML.escape(salesman) %]
+       </td>
+      </tr>
+      [%- END %]
+      <tr>
+       <th align="right">
+        [%- IF !id %]
+         [% 'Representative' | $T8 %]
+        [%- ELSE %]
+         [% 'Change representative to' | $T8 %]
+        [%- END %]
+       </th>
+       <td>
         [%- INCLUDE generic/multibox.html
-              name      = 'salesman_id',
-              DATA      = ALL_SALESMAN_CUSTOMERS,
-              id_key    = 'id',
-              label_key = 'name',
+              name       = 'new_salesman_id',
+              DATA       = ALL_SALESMAN_CUSTOMERS,
+              id_key     = 'id',
+              label_key  = 'name',
+              show_empty = id,
         -%]
        </td>
       </tr>

@@ -598,7 +598,7 @@ sub generate_file {
 
   open my $fh, '>', $file or die "$! : $file";
 
-  print $fh "#!/usr/bin/perl\n\n";
+  print $fh "#!/usr/bin/perl\n# -*- coding: iso-8859-15; -*-\n\n";
   print $fh $header, "\n" if $header;
   print $fh "$data_name = $delim[0]\n" if $data_name;
 
