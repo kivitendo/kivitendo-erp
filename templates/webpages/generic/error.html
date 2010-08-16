@@ -1,7 +1,7 @@
 [%- USE T8 %]
 [% USE HTML %]<body>
 
- <div class="listtop">[% IF title_error %][% title_error %][% ELSE %][% 'Error!' | $T8 %][% END %]</div>
+ <div class="message_error">[% IF title_error %][% title_error %][% ELSE %][% 'Error!' | $T8 %][% END %]</div>
 
  <p>[% label_error %]</p>
 

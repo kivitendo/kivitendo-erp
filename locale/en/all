@@ -6,7 +6,6 @@
 # run locales.pl from this directory to rebuild the translation files
 
 $self->{texts} = {
-  'login'                       => 'anmeldung',
   ' Date missing!'              => '',
   ' Part Number missing!'       => '',
   ' missing!'                   => '',
@@ -761,6 +760,7 @@ $self->{texts} = {
   'From Date'                   => '',
   'Full Access'                 => '',
   'Full access to all functions' => '',
+  'Fwd'                         => 'Forward',
   'GL Transaction'              => '',
   'Gegenkonto'                  => '',
   'Gender'                      => '',
@@ -772,6 +772,7 @@ $self->{texts} = {
   'Generic Tax Report'          => '',
   'Given Name'                  => '',
   'Go one step back'            => '',
+  'Go one step forward'         => '',
   'Greeting'                    => '',
   'Greetings'                   => '',
   'Group'                       => '',

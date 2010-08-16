@@ -466,13 +466,19 @@ sub info {
 
     if (!$self->{header}) {
       $self->header;
-      print qq|
-      <body>|;
+      print qq|<body>|;
     }
 
     print qq|
-
-    <p><b>$msg</b>
+    <p class="message_ok"><b>$msg</b></p>
+    
+    <script type="text/javascript">
+    <!--
+    setTimeout("parent.frames.main_window.location.href='login.pl?action=company_logo'",1000);
+    //-->
+    </script>
+    
+</body>
     |;
 
   } else {

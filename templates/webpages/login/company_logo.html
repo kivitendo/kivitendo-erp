@@ -1,7 +1,12 @@
 [%- USE T8 %]
 [% USE HTML %][% USE LxERP %]<body>
  [%- DEFAULT myconfig_dbhost = 'localhost' %]
-
+   <noscript>
+   [% INCLUDE 'generic/information.html'
+     title_information = LxERP.t8('Your browser does not currently support Javascript.'),
+     label_information = LxERP.t8('A lot of the usability of Lx-Office has been enhanced with javascript. Although it is currently possible to use every aspect of Lx-Office without javascript, we strongly recommend it. In a future version this may change and javascript may be necessary to access advanced features.'),
+   %]
+   </noscript>
  <center>
   <a class="nomobile" href="http://www.lx-office.org" target="_top"><img src="image/lx-office-erp.png" border="0"></a>
 
@@ -39,13 +44,6 @@
      <th colspan="2" align="center"><a href="http://lx-office.org" target="blank">http://lx-office.org</a></th>
     </tr>
    </table>
-
-   <noscript>
-   [% INCLUDE 'generic/information.html'
-     title_information = LxERP.t8('Your browser does not currently support Javascript.'),
-     label_information = LxERP.t8('A lot of the usability of Lx-Office has been enhanced with javascript. Although it is currently possible to use every aspect of Lx-Office without javascript, we strongly recommend it. In a future version this may change and javascript may be necessary to access advanced features.'),
-   %]
-   </noscript>
  </center>
 
  [%- todo_list %]

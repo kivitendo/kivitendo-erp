@@ -147,12 +147,11 @@ sub selectall_hashref_query {
 
   my ($form, $dbh, $query) = splice(@_, 0, 3);
 
-  my $sth = prepare_execute_query($form, $dbh, $query, @_);
-  my $result = [];
-  while (my $ref = $sth->fetchrow_hashref()) {
-    push(@{ $result }, $ref);
-  }
-  $sth->finish();
+  dump_query(LXDebug->QUERY(), '', $query, @_);
+
+  # this works back 'til at least DBI 1.46 on perl 5.8.4 on Debian Sarge (2004)
+  my $result = $dbh->selectall_arrayref($query, { Slice => {} }, @_)
+    or $form->dberror($query . (@_ ? " (" . join(", ", @_) . ")" : ''));
 
   $main::lxdebug->leave_sub(2);
 
