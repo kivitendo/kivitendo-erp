@@ -84,7 +84,7 @@ sub dump_query {
   }
 
   while ($query =~ /\?/) {
-    my $value = shift(@_);
+    my $value = shift || '';
     $value =~ s/\'/\\\'/g;
     $value = "'${value}'";
     $query =~ s/\?/$value/;
