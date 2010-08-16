@@ -85,6 +85,9 @@ if (-f "$locales_dir/lost") {
   unlink "$locales_dir/lost";
 }
 
+my $charset = slurp("$locales_dir/charset") || 'utf-8';
+chomp $charset;
+
 my %old_texts = %{ $self->{texts} || {} };
 
 map({ handle_file($_, $bindir); } @progfiles);
@@ -598,7 +601,7 @@ sub generate_file {
 
   open my $fh, '>', $file or die "$! : $file";
 
-  print $fh "#!/usr/bin/perl\n# -*- coding: iso-8859-15; -*-\n\n";
+  print $fh "#!/usr/bin/perl\n# -*- coding: $charset; -*-\n# vim: fenc=$charset\n\n";
   print $fh $header, "\n" if $header;
   print $fh "$data_name = $delim[0]\n" if $data_name;
 
@@ -606,6 +609,11 @@ sub generate_file {
 
   print $fh qq|$delim[1];\n\n1;\n|;
   close $fh;
+}
+
+sub slurp {
+  my $file = shift;
+  do { local ( @ARGV, $/ ) = $file; <> }
 }
 
 __END__
