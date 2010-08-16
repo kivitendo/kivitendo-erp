@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+# -*- coding: iso-8859-15; -*-
 
 # These are all the texts to build the translations files.
 # The file has the form of 'english text'  => 'foreign text',
