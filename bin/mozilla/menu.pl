@@ -86,7 +86,7 @@ sub acc_menu {
   $mainlevel =~ s/\Q$mainlevel\E--//g;
   my $menu = Menu->new($::menufile);
 
-  $form->{title} = $locale->text('Accounting Menu');
+  $form->{title} = $locale->text('Lx-Office');
 
   $form->header;
 
@@ -96,7 +96,7 @@ sub acc_menu {
 |;
   print qq|<div align="left">\n<table width="|
     . $framesize
-    . qq|" border=0>\n|;
+    . qq|" border="0">\n|;
 
   &section_menu($menu);
 
@@ -129,9 +129,9 @@ sub section_menu {
     $ml    =~ s/--.*//;
     if ($ml eq $mainlevel) { $zeige = 1; }
     else { $zeige = 0; }
-    my $spacer = "&nbsp;" x (($item =~ s/--/--/g) * 1);
+    my $spacer = "&nbsp;" x (($item =~ s/--/--/g) * 2);
     $label =~ s/.*--//g;
-    my $label_icon = $label . ".gif";
+    my $label_icon = $level . "--" . $label . ".png";
     my $mlab       = $label;
     $label      = $locale->text($label);
 
@@ -197,18 +197,29 @@ sub section_menu {
           if ($zeige) {
             if (scalar @chunks <= 1) {
               print
-                qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
-                . $menu->menuitem(\%myconfig, \%$form, $item, $level)
-                . qq|$label</a></td></tr>\n|;
+                qq|<tr><td class="hover" height="16" >$spacer| 
+                . $menu->menuitem(\%myconfig, \%$form, $item, $level) ;
+              
+            if (-f "image/icons/16x16/$label_icon")
+             { print 
+                qq|<img src="image/icons/16x16/$label_icon" border="0" style="vertical-align:text-top" title="| 
+                . $locale->text($item) 
+                . qq|">&nbsp;&nbsp;| } 
+            else {
+			   print qq|<img src="image/unterpunkt.png" border="0" style="vertical-align:text-top">|;	
+				}
+				
+               print
+                 qq|$label</a></td></tr>\n|;
             } else {
               my $tmpitem = $menu->menuitem(\%myconfig, \%$form, $item, $level);
               print
-                qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
+                qq|<tr><td class="hover" height="16" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
                 . $tmpitem
                 . qq|$chunks[0]</a></td></tr>\n|;
               map {
                 print
-                  qq|<tr style="vertical-align:top""><td class="hover">$spacer<img src="image/unterpunkt.png" style="visibility:hidden; width:23; height=2;">|
+                  qq|<tr style="vertical-align:top""><td class="hover">$spacer<img src="image/unterpunkt.png" style="visibility:hidden; width:24; height=2;">|
                   . $tmpitem
                   . qq|$chunks[$_]</a></td></tr>\n|;
               } 1..$#chunks;
@@ -218,10 +229,10 @@ sub section_menu {
       } else {
         my $ml_ = $form->escape($ml);
         print
-          qq|<tr><td class="bg" height="24" align="left" valign="middle" ><a href="menu.pl?action=acc_menu&level=$ml_" class="nohover""><img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" titel="Hallo Welt">&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+          qq|<tr><td class="bg" height="24" align="left" valign="middle"><a href="menu.pl?action=acc_menu&level=$ml_" class="nohover""><img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" title="| . $locale->text("Help Menu $item") . qq|">&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
-        #print qq|<br>\n|;
+        print qq|\n|;
       }
     }
   }

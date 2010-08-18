@@ -18,11 +18,11 @@
 <xsl:template match="doc" mode="html">
   <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-      <meta http-equiv="refresh" content="2;url=menuv3.pl?action=display"/>
+      <meta http-equiv="refresh" content="2;url=menu.pl?action=display"/>
     </head>
     <body>
 Ihr Browser unterstuetzt kein XUL!<br/>
-wenn die automatische weiterleitung nicht funktioniert klicken sie <a href="menuv3.pl?action=display">hier</a>
+Falls die automatische Weiterleitung nicht funktioniert, klicken Sie <a href="menu.pl?action=display">hier</a>.
     </body>
   </html>
 </xsl:template>
