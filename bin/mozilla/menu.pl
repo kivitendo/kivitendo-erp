@@ -28,11 +28,13 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #######################################################################
 #
-# thre frame layout with refractured menu
+# the frame layout with refractured menu
 #
 # CHANGE LOG:
 #   DS. 2002-03-25  Created
 #  2004-12-14 - New Optik - Marco Welter <mawe@linux-studio.de>
+#  2010-08-19 - Icons for sub entries and one click 
+#               JS switchable HTML-menu - Sven Donath <lxo@dexo.de>
 #######################################################################
 
 use strict;
@@ -61,7 +63,7 @@ sub display {
   print qq|
 <frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">
   <frame  src="kopf.pl" name="kopf"  scrolling="NO">
-  <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" >
+  <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" id="menuframe" name="menuframe">
     <frame src="$form->{script}?action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
     <frame src="$callback" name="main_window" scrolling="auto">
   </frameset>
@@ -80,7 +82,7 @@ sub acc_menu {
 
   my $form      = $main::form;
   my $locale    = $main::locale;
-  my $framesize = _calc_framesize();
+  my $framesize = _calc_framesize(); # how to get it into kopf.pl or vice versa?
 
   $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
@@ -246,7 +248,7 @@ sub _calc_framesize {
 
   return  $is_mobile_browser && $is_mobile_style ?  130
         : $is_lynx_browser                       ?  240
-        :                                           190;
+        :                                           180;
 }
 
 1;
