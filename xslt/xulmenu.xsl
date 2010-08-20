@@ -18,11 +18,16 @@
 <xsl:template match="doc" mode="html">
   <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-      <meta http-equiv="refresh" content="2;url=menu.pl?action=display"/>
+      <meta http-equiv="refresh" content="5;url=menu.pl?action=display"/>
     </head>
-    <body>
-Ihr Browser unterstuetzt kein XUL!<br/>
-Falls die automatische Weiterleitung nicht funktioniert, klicken Sie <a href="menu.pl?action=display">hier</a>.
+    <body style="background-color: #eee; color: #333;">
+     <div style="margin-top: 2em; margin-left: auto; margin-right: auto; border: solid 0.1em #f88; width: 30em; background-color:#fff; font-size: 0.8em;font-family: Verdana, Arial, Helvetica; padding: 2em;">
+      <h2>XUL-Men&#252; ist aktiviert</h2>
+      <h3>Nur der Firefox-Browser mag das XUL-Men&#252;.</h3>
+      Wir schalten auf die kompatiblere <a href="menu.pl?action=display">HTML-Variante</a> um.
+      <h3>Only the Firefox-Browser likes the XUL-Menu.</h3>
+      We switch to the <a href="menu.pl?action=display">HTML-Version</a> now.      
+     </div>
     </body>
   </html>
 </xsl:template>
@@ -122,7 +127,7 @@ Falls die automatische Weiterleitung nicht funktioniert, klicken Sie <a href="me
 **********************************************************************************   -->
 <xsl:template match="menu" mode="tree">
 <toolbar>
-<label value="Hauptmenue"/>
+<label value="Hauptmen&#252;"/>
 </toolbar>
   <tree flex="1" onselect="openTreeLink(event)" style="margin:0px;" hidecolumnpicker="true">
     <treecols>
