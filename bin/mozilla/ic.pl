@@ -78,7 +78,7 @@ sub add {
 
   $auth->assert('part_service_assembly_edit');
 
-  $form->{title}           = $locale->text('Add ' . ucfirst $form->{item});
+  $form->{title}           = $locale->text('Add' . ucfirst $form->{item});
   $form->{callback}        = "$form->{script}?action=add&item=$form->{item}" unless $form->{callback};
   $form->{unit_changeable} = 1;
 
@@ -126,6 +126,8 @@ sub search_update_prices {
   $auth->assert('part_service_assembly_edit');
 
   my $pricegroups = IC->get_pricegroups(\%myconfig, \%$form);
+
+  $form->{title} = $locale->text('Update Prices');
 
   $form->header;
 
@@ -1417,7 +1419,7 @@ sub edit {
 
   $form->{"original_partnumber"} = $form->{"partnumber"};
 
-  $form->{title} = $locale->text('Edit ' . ucfirst $form->{item});
+  $form->{title} = $locale->text('Edit' . ucfirst $form->{item});
 
   &link_part;
   &display_form;

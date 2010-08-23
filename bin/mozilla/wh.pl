@@ -635,7 +635,9 @@ sub journal {
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
 
+  $form->{title} = $locale->text('Report about warehouse transactions');
   $form->get_lists('warehouses' => { 'key'  => 'WAREHOUSES',
                                      'bins' => 'BINS', });
 
@@ -790,7 +792,7 @@ sub report {
 
 #  $form->{fokus}   = "partnumber";
 #  $form->{onload} .= "focus();";
-  $form->{title}   = $locale->text("Report about wareouse contents");
+  $form->{title}   = $locale->text("Report about warehouse contents");
 
   $form->header();
   print $form->parse_html_template("wh/report_filter",
@@ -810,7 +812,7 @@ sub generate_report {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->{title}   = $locale->text("Report about wareouse contents");
+  $form->{title}   = $locale->text("Report about warehouse contents");
   $form->{sort}  ||= 'partnumber';
   my $sort_col     = $form->{sort};
 

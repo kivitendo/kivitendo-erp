@@ -323,6 +323,8 @@ sub add {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
+  $form->{title} = $locale->text('Add License');
+
   if (!$main::lizenzen) {
     $form->error(
                  $locale->text(
@@ -513,6 +515,8 @@ sub search {
 
   my $form     = $main::form;
   my $locale   = $main::locale;
+
+  $form->{title} = $locale->text('Licenses');
 
   if (!$main::lizenzen) {
     $form->error(

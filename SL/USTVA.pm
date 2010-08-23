@@ -32,21 +32,21 @@ use SL::DBUtils;
 use strict;
 
 my @tax_office_information = (
-  { 'id' =>  8, 'name' => 'Baden Württemberg',      'taxbird_nr' => '0',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' =>  8, 'name' => 'Baden-Württemberg',      'taxbird_nr' => '0',  'elster_format' => 'FF/BBB/UUUUP',  },
   { 'id' =>  9, 'name' => 'Bayern',                 'taxbird_nr' => '1',  'elster_format' => 'FFF/BBB/UUUUP', },
   { 'id' => 11, 'name' => 'Berlin',                 'taxbird_nr' => '2',  'elster_format' => 'FF/BBB/UUUUP',  },
   { 'id' => 12, 'name' => 'Brandenburg',            'taxbird_nr' => '3',  'elster_format' => 'FFF/BBB/UUUUP', },
   { 'id' =>  4, 'name' => 'Bremen',                 'taxbird_nr' => '4',  'elster_format' => 'FF BBB UUUUP',  },
   { 'id' =>  2, 'name' => 'Hamburg',                'taxbird_nr' => '5',  'elster_format' => 'FF/BBB/UUUUP',  },
   { 'id' =>  6, 'name' => 'Hessen',                 'taxbird_nr' => '6',  'elster_format' => '0FF BBB UUUUP', },
-  { 'id' => 13, 'name' => 'Mecklenburg Vorpommern', 'taxbird_nr' => '7',  'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' => 13, 'name' => 'Mecklenburg-Vorpommern', 'taxbird_nr' => '7',  'elster_format' => 'FFF/BBB/UUUUP', },
   { 'id' =>  3, 'name' => 'Niedersachsen',          'taxbird_nr' => '8',  'elster_format' => 'FF/BBB/UUUUP',  },
-  { 'id' =>  5, 'name' => 'Nordrhein Westfalen',    'taxbird_nr' => '9',  'elster_format' => 'FFF/BBBB/UUUP', },
-  { 'id' =>  7, 'name' => 'Rheinland Pfalz',        'taxbird_nr' => '10', 'elster_format' => 'FF/BBB/UUUU/P', },
+  { 'id' =>  5, 'name' => 'Nordrhein-Westfalen',    'taxbird_nr' => '9',  'elster_format' => 'FFF/BBBB/UUUP', },
+  { 'id' =>  7, 'name' => 'Rheinland-Pfalz',        'taxbird_nr' => '10', 'elster_format' => 'FF/BBB/UUUU/P', },
   { 'id' => 10, 'name' => 'Saarland',               'taxbird_nr' => '11', 'elster_format' => 'FFF/BBB/UUUUP', },
   { 'id' => 14, 'name' => 'Sachsen',                'taxbird_nr' => '12', 'elster_format' => 'FFF/BBB/UUUUP', },
-  { 'id' => 15, 'name' => 'Sachsen Anhalt',         'taxbird_nr' => '13', 'elster_format' => 'FFF/BBB/UUUUP', },
-  { 'id' =>  1, 'name' => 'Schleswig Holstein',     'taxbird_nr' => '14', 'elster_format' => 'FF BBB UUUUP',  },
+  { 'id' => 15, 'name' => 'Sachsen-Anhalt',         'taxbird_nr' => '13', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' =>  1, 'name' => 'Schleswig-Holstein',     'taxbird_nr' => '14', 'elster_format' => 'FF BBB UUUUP',  },
   { 'id' => 16, 'name' => 'Thüringen',              'taxbird_nr' => '15', 'elster_format' => 'FFF/BBB/UUUUP', },
   );
 

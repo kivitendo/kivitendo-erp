@@ -672,15 +672,20 @@ sub header {
     </script>
     | if $self->{"fokus"};
 
-    my $title_hack = qq|
-    <script type="text/javascript">
-    <!--
-      // Write a meaningful title-tag for our frameset.
-      top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - Ver. | . $self->{"version"} . qq|";
-    //-->
-    </script>
-    |;
-
+  # if there is a title, we put some JavaScript in to the page, wich writes a 
+  # meaningful title-tag for our frameset.
+    my $title_hack;          
+    if ($self->{"title"}){
+		$title_hack = qq|
+		<script type="text/javascript">
+		<!--
+		  // Write a meaningful title-tag for our frameset.
+		  top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - Ver. | . $self->{"version"} . qq|";
+		//-->
+		</script>
+		|;
+	}
+    
     #Set Calendar
     my $jsscript = "";
     if ($self->{jsscript} == 1) {
