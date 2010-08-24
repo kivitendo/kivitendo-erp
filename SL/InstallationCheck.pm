@@ -8,32 +8,33 @@ use vars qw(@required_modules @optional_modules);
 use strict;
 
 @required_modules = (
-  { name => "Archive::Zip",    url => "http://search.cpan.org/~adamk/" },
-  { name => "Class::Accessor", url => "http://search.cpan.org/~kasei/" },
-  { name => "CGI::Ajax",       url => "http://search.cpan.org/~bct/" },
-  { name => "DateTime",        url => "http://search.cpan.org/~drolsky/" },
-  { name => "DBI",             url => "http://search.cpan.org/~timb/" },
-  { name => "DBD::Pg",         url => "http://search.cpan.org/~dbdpg/" },
-  { name => "Email::Address",  url => "http://search.cpan.org/~rjbs/" },
-  { name => "FCGI",            url => "http://search.cpan.org/~mstrout/" },
-  { name => "IO::Wrap",        url => "http://search.cpan.org/~dskoll/" },
-  { name => "List::MoreUtils", url => "http://search.cpan.org/~vparseval/" },
-  { name => "PDF::API2",       url => "http://search.cpan.org/~areibens/" },
-  { name => "Template",        url => "http://search.cpan.org/~abw/" },
-  { name => "Text::CSV_XS",    url => "http://search.cpan.org/~hmbrand/" },
-  { name => "Text::Iconv",     url => "http://search.cpan.org/~mpiotr/" },
-  { name => "URI",             url => "http://search.cpan.org/~gaas/" },
-  { name => "XML::Writer",     url => "http://search.cpan.org/~josephw/" },
-  { name => "YAML",            url => "http://search.cpan.org/~ingy/" },
-  { name => "parent",          url => "http://search.cpan.org/dist/parent/" },
+  { name => "parent",                              url => "http://search.cpan.org/~corion/" },
+  { name => "Archive::Zip",                        url => "http://search.cpan.org/~adamk/" },
+  { name => "Class::Accessor",                     url => "http://search.cpan.org/~kasei/" },
+  { name => "CGI::Ajax",                           url => "http://search.cpan.org/~bct/" },
+  { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/" },
+  { name => "DBI",                                 url => "http://search.cpan.org/~timb/" },
+  { name => "DBD::Pg",                             url => "http://search.cpan.org/~dbdpg/" },
+  { name => "Email::Address",                      url => "http://search.cpan.org/~rjbs/" },
+  { name => "FCGI",                                url => "http://search.cpan.org/~mstrout/" },
+  { name => "IO::Wrap",                            url => "http://search.cpan.org/~dskoll/" },
+  { name => "List::MoreUtils",                     url => "http://search.cpan.org/~vparseval/" },
+  { name => "PDF::API2",                           url => "http://search.cpan.org/~areibens/" },
+  { name => "Template",        version => '2.18',  url => "http://search.cpan.org/~abw/" },
+  { name => "Text::CSV_XS",                        url => "http://search.cpan.org/~hmbrand/" },
+  { name => "Text::Iconv",                         url => "http://search.cpan.org/~mpiotr/" },
+  { name => "URI",                                 url => "http://search.cpan.org/~gaas/" },
+  { name => "XML::Writer",                         url => "http://search.cpan.org/~josephw/" },
+  { name => "YAML",                                url => "http://search.cpan.org/~ingy/" },
 );
 
 @optional_modules = ();
 
 sub module_available {
-  my ($module) = @_;
+  my $module  = $_[0];
+  my $version = $_[1] || '' ;
 
-  if (!defined(eval("require $module;"))) {
+  if (!defined(eval("require $module $version;"))) {
     return 0;
   } else {
     return 1;
