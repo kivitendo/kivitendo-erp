@@ -7,9 +7,10 @@ use vars qw(@required_modules @optional_modules);
 
 use strict;
 
+BEGIN {
 @required_modules = (
   { name => "parent",                              url => "http://search.cpan.org/~corion/" },
-  { name => "Archive::Zip",                        url => "http://search.cpan.org/~adamk/" },
+  { name => "Archive::Zip",   version => 12,       url => "http://search.cpan.org/~adamk/" },
   { name => "Class::Accessor",                     url => "http://search.cpan.org/~kasei/" },
   { name => "CGI::Ajax",                           url => "http://search.cpan.org/~bct/" },
   { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/" },
@@ -30,43 +31,27 @@ use strict;
 
 @optional_modules = ();
 
+$_->{fullname} = join ' ', grep $_, @$_{qw(name version)}
+  for @required_modules, @optional_modules;
+}
+
 sub module_available {
   my $module  = $_[0];
   my $version = $_[1] || '' ;
 
-  if (!defined(eval("require $module $version;"))) {
-    return 0;
-  } else {
-    return 1;
-  }
+  return eval "use $module $version; 1";
 }
 
 my %conditional_dependencies;
 
 sub check_for_conditional_dependencies {
-  if (!$conditional_dependencies{net_ldap}) {
-    $conditional_dependencies{net_ldap} = 1;
+  return if $conditional_dependencies{net_ldap}++;
 
-    my $in = IO::File->new('config/authentication.pl', 'r');
-    if ($in) {
-      my $self = {};
-      my $code;
+  my $self = {};
+  eval do { local (@ARGV, $/) = 'config/authentication.pl'; <> } or return;
 
-      while (my $line = <$in>) {
-        $code .= $line;
-      }
-      $in->close();
-
-      eval $code;
-
-      if (! $EVAL_ERROR) {
-
-        if ($self->{module} && ($self->{module} eq 'LDAP')) {
-          push @required_modules, { 'name' => 'Net::LDAP', 'url' => 'http://search.cpan.org/~gbarr/' };
-        }
-      }
-    }
-  }
+  push @required_modules, { 'name' => 'Net::LDAP', 'url' => 'http://search.cpan.org/~gbarr/' }
+    if $self->{module} && ($self->{module} eq 'LDAP');
 }
 
 sub test_all_modules {
