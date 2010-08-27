@@ -12,9 +12,7 @@ BEGIN {
 use Config::Std;
 use Data::Dumper;
 use Devel::REPL 1.002001;
-eval {
-require Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
-};
+use Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
 
 read_config 'config/console.conf' => my %config;# if -f 'config/console.conf';
 
@@ -36,6 +34,12 @@ $repl->run;
 
 package Devel::REPL;
 
+use CGI qw( -no_xhtml);
+use SL::Auth;
+use SL::Form;
+use SL::Locale;
+use SL::LXDebug;
+use Data::Dumper;
 
 # this is a cleaned up version of am.pl
 # it lacks redirection, some html setup and most of the authentication process.
@@ -51,25 +55,18 @@ sub lxinit {
   { no warnings 'once';
     $::userspath  = "users";
     $::templates  = "templates";
-    $::memberfile = "users/members";
     $::sendmail   = "| /usr/sbin/sendmail -t";
   }
 
-  use SL::LXDebug;
   $::lxdebug = LXDebug->new;
-
-  use CGI qw( -no_xhtml);
-  use SL::Auth;
-  use SL::Form;
-  use SL::Locale;
-  use Data::Dumper;
 
   eval { require "config/lx-erp.conf"; };
   eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
 
-  $::cgi  = CGI->new qw();
-  $::form = Form->new;
-  $::auth = SL::Auth->new;
+  $::locale = Locale->new($::language);
+  $::cgi    = CGI->new qw();
+  $::form   = Form->new;
+  $::auth   = SL::Auth->new;
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 
