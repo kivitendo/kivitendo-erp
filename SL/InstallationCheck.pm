@@ -25,6 +25,7 @@ use strict;
   { name => "URI",             url => "http://search.cpan.org/~gaas/" },
   { name => "XML::Writer",     url => "http://search.cpan.org/~josephw/" },
   { name => "YAML",            url => "http://search.cpan.org/~ingy/" },
+  { name => "parent",          url => "http://search.cpan.org/dist/parent/" },
 );
 
 @optional_modules = ();
