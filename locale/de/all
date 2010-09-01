@@ -178,7 +178,6 @@ $self->{texts} = {
   'Amount Due'                  => 'Betrag fällig',
   'Annotations'                 => 'Anmerkungen',
   'Another user with the login #1 does already exist.' => 'Es existiert bereits ein anderer Benutzer mit diesem Login.',
-  'Ansprechpartner'             => 'Ansprechpartner',
   'Ap aging on %s'              => 'Offene Verbindlichkeiten zum %s',
   'Application Error. No Format given' => 'Fehler in der Anwendung. Das Ausgabeformat fehlt.',
   'Application Error. Wrong Format' => 'Fehler in der Anwendung. Falsches Format: ',

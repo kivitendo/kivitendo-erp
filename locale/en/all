@@ -178,7 +178,6 @@ $self->{texts} = {
   'Amount Due'                  => '',
   'Annotations'                 => '',
   'Another user with the login #1 does already exist.' => '',
-  'Ansprechpartner'             => '',
   'Ap aging on %s'              => '',
   'Application Error. No Format given' => '',
   'Application Error. Wrong Format' => '',
