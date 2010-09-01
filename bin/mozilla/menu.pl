@@ -205,12 +205,12 @@ sub section_menu {
             if (-f "image/icons/16x16/$label_icon")
              { print 
                 qq|<img src="image/icons/16x16/$label_icon" border="0" style="vertical-align:text-top" title="| 
-                . $locale->text($item) 
+                . $label 
                 . qq|">&nbsp;&nbsp;| } 
             else {
-			   print qq|<img src="image/unterpunkt.png" border="0" style="vertical-align:text-top">|;	
-				}
-				
+               print qq|<img src="image/unterpunkt.png" border="0" style="vertical-align:text-top">|;   
+                }
+                
                print
                  qq|$label</a></td></tr>\n|;
             } else {
@@ -231,7 +231,7 @@ sub section_menu {
       } else {
         my $ml_ = $form->escape($ml);
         print
-          qq|<tr><td class="bg" height="24" align="left" valign="middle"><a href="menu.pl?action=acc_menu&level=$ml_" class="nohover""><img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" title="| . $locale->text("Help Menu $item") . qq|">&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+          qq|<tr><td class="bg" height="24" align="left" valign="middle"><a href="menu.pl?action=acc_menu&level=$ml_" class="nohover" title="$label"><img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" title="$label">&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
         print qq|\n|;
