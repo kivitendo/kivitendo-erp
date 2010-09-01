@@ -1,7 +1,7 @@
 [%- USE T8 %]
-[% USE HTML %]<body>
+[% USE HTML %]<body onload="fokus()">
 
- <form method="post" action="projects.pl">
+ <form method="post" action="projects.pl" name="Form">
 
   <div class="listtop">[% title %]</div>
 
@@ -9,7 +9,7 @@
    <table>
     <tr>
      <th align="right">[% 'Number' | $T8 %]</th>
-     <td><input name="filter.projectnumber" size="20"></td>
+     <td><input name="filter.projectnumber" id="projectnumber" size="20"></td>
     </tr>
 
     <tr>

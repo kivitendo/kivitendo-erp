@@ -92,6 +92,7 @@ sub search {
    $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES},
                                                                            'include_prefix' => 'l_',
                                                                            'include_value'  => 'Y');
+  $form->{fokus}    = 'getElementById("projectnumber")';
 
   $form->header();
   print $form->parse_html_template('projects/search');
