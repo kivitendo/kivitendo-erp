@@ -78,7 +78,7 @@ sub add {
 
   $auth->assert('part_service_assembly_edit');
 
-  my $title = 'Add ' . ucfirst $form->{item};
+  my $title                = 'Add ' . ucfirst $form->{item};
   $form->{title}           = $locale->text($title);
   $form->{callback}        = "$form->{script}?action=add&item=$form->{item}" unless $form->{callback};
   $form->{unit_changeable} = 1;
@@ -1420,7 +1420,7 @@ sub edit {
 
   $form->{"original_partnumber"} = $form->{"partnumber"};
 
-  my $title = 'Edit ' . ucfirst $form->{item};
+  my $title      = 'Edit ' . ucfirst $form->{item};
   $form->{title} = $locale->text($title);
 
   &link_part;
