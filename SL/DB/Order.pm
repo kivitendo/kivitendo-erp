@@ -10,6 +10,7 @@ use SL::DB::Invoice;
 
 __PACKAGE__->attr_number($_, places => -2) for qw(amount netamount marge_total marge_percent);
 __PACKAGE__->attr_date($_) for qw(transdate reqdate);
+__PACKAGE__->attr_percent($_) for qw(marge_percent);
 
 __PACKAGE__->meta->add_relationship(
   orderitems => {
