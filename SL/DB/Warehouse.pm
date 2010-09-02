@@ -6,7 +6,8 @@ package SL::DB::Warehouse;
 use strict;
 
 use SL::DB::MetaSetup::Warehouse;
-use SL::DB::Manager::Warehouse;
+
+__PACKAGE__->meta->make_manager_class;
 
 __PACKAGE__->meta->add_relationship(
   bins => {
