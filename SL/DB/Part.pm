@@ -63,37 +63,6 @@ sub get_ordered_qty {
   return $result{ $self->id };
 }
 
-sub get_uncommissioned_qty {
-  my $self   = shift;
-  my %params = @_;
-
-  confess "Missing part id" unless $self->id;
-
-  my $query = <<SQL;
-    SELECT
-      COALESCE((SELECT SUM(oi.qty)
-                FROM orderitems oi
-                LEFT JOIN oe ON (oi.trans_id = oe.id)
-                WHERE (oi.parts_id = ?)
-                  AND (NOT COALESCE(oe.quotation, FALSE))
-                  AND (NOT COALESCE(oe.closed,    FALSE))
-                  AND (NOT COALESCE(oe.delivered, FALSE))
-                  AND (COALESCE(oe.customer_id, 0) <> 0)),
-               0)
-      -
-      COALESCE((SELECT SUM(i.qty) AS qty
-                FROM inventory i
-                LEFT JOIN warehouse wh ON (i.warehouse_id = wh.id)
-                WHERE (i.parts_id = ?)
-                  AND COALESCE(wh.commission)),
-               0)
-      AS qty
-SQL
-
-  my $result = selectfirst_hashref_query($::form, $self->dbh, $query, $self->id, $self->id);
-  return $result ? $result->{qty} : 0;
-}
-
 sub available_units {
   shift->unit_obj->convertible_units;
 }
