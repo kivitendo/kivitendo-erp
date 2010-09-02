@@ -7,9 +7,7 @@ use Rose::DB::Object;
 use List::MoreUtils qw(any);
 
 use SL::DB;
-use SL::DB::Helpers::AttrNumber;
-use SL::DB::Helpers::AttrDate;
-use SL::DB::Helpers::AttrPercent;
+use SL::DB::Helpers::Attr;
 use SL::DB::Helpers::Metadata;
 use SL::DB::Helpers::Manager;
 
@@ -78,34 +76,6 @@ sub update_attributes {
   $self->assign_attributes(@_)->save;
 
   return $self;
-}
-
-sub make_attr_helper {
-  my ($self) = @_;
-  my $package = ref $self || $self;
-
-  for my $col ($package->meta->columns) {
-    next if $col->primary_key_position; # don't make attr helper for primary keys
-
-    attr_number ($package, $col->name, -2) if $col->type =~ /numeric | real | float/xi;
-    attr_percent($package, $col->name, -2) if $col->type =~ /numeric | real | float/xi;
-    attr_number ($package, $col->name,  0) if $col->type =~ /int/xi;
-    attr_date   ($package, $col->name)     if $col->type =~ /date | timestamp/xi;
-  }
-
-  return $self;
-}
-
-sub attr_number {
-  SL::DB::Helpers::AttrNumber::define(@_);
-}
-
-sub attr_date {
-  SL::DB::Helpers::AttrDate::define(@_);
-}
-
-sub attr_percent {
-  SL::DB::Helpers::AttrPercent::define(@_);
 }
 
 1;

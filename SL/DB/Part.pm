@@ -7,10 +7,6 @@ use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
 
-__PACKAGE__->attr_number('lastcost',  places => -2);
-__PACKAGE__->attr_number('listprice', places => -2);
-__PACKAGE__->attr_number('sellprice', places => -2);
-
 __PACKAGE__->meta->add_relationships(
   unit_obj                     => {
     type         => 'one to one',

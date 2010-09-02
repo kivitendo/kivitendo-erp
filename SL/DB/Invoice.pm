@@ -10,10 +10,6 @@ use List::Util qw(first);
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
 
-__PACKAGE__->attr_number($_, places => -2) for qw(amount netamount paid  marge_total marge_percent taxamount);
-__PACKAGE__->attr_date($_) for qw(transdate gldate datepaid duedate deliverydate orddate quodate);
-__PACKAGE__->attr_percent($_) for qw(abschlag_percentage);
-
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
     type         => 'one to many',
@@ -58,5 +54,7 @@ sub taxamount {
 
   return $self->amount - $self->netamount;
 }
+
+__PACKAGE__->meta->make_attr_helpers(taxamount => 'numeric(15,5)');
 
 1;

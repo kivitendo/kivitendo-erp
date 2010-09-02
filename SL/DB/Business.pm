@@ -7,8 +7,6 @@ use strict;
 
 use SL::DB::MetaSetup::Business;
 
-__PACKAGE__->attr_percent('discount', places => -2);
-
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
 

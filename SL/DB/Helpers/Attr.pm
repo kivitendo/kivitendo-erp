@@ -1,0 +1,135 @@
+package SL::DB::Helper::Attr;
+
+use strict;
+
+sub auto_make {
+  my ($package, %params) = @_;
+
+  for my $col ($package->meta->columns) {
+    next if $col->primary_key_position; # don't make attr helper for primary keys
+    _make_by_type($package, $col->name, $col->type);
+  }
+
+  return $package;
+}
+
+sub make {
+  my ($package, %params) = @_;
+
+  for my $name (keys %params) {
+    my @types = ref $params{$name} eq 'ARRAY' ? @{ $params{$name} } : ($params{$name});
+    for my $type (@types) {
+      _make_by_type($package, $name, $type);
+    }
+  }
+  return $package;
+}
+
+
+
+sub _make_by_type {
+  my ($package, $name, $type) = @_;
+  _as_number ($package, $name, places => -2) if $type =~ /numeric | real | float/xi;
+  _as_percent($package, $name, places =>  0) if $type =~ /numeric | real | float/xi;
+  _as_number ($package, $name, places =>  0) if $type =~ /int/xi;
+  _as_date   ($package, $name)               if $type =~ /date | timestamp/xi;
+}
+
+sub _as_number {
+  my $package     = shift;
+  my $attribute   = shift;
+  my %params      = @_;
+
+  $params{places} = 2 if !defined($params{places});
+
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_number' } = sub {
+    my ($self, $string) = @_;
+
+    $self->$attribute($::form->parse_amount(\%::myconfig, $string)) if @_ > 1;
+
+    return $::form->format_amount(\%::myconfig, $self->$attribute, $params{places});
+  };
+}
+
+sub _as_percent {
+  my $package     = shift;
+  my $attribute   = shift;
+  my %params      = @_;
+
+  $params{places} = 2 if !defined($params{places});
+
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_percent' } = sub {
+    my ($self, $string) = @_;
+
+    $self->$attribute($::form->parse_amount(\%::myconfig, $string) / 100) if @_ > 1;
+
+    return $::form->format_amount(\%::myconfig, 100 * $self->$attribute, $params{places});
+  };
+
+  return 1;
+}
+
+sub _as_date {
+  my $package     = shift;
+  my $attribute   = shift;
+  my %params      = @_;
+
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_date' } = sub {
+    my ($self, $string) = @_;
+
+    if (@_ > 1) {
+      if ($string) {
+        my ($yy, $mm, $dd) = $::locale->parse_date(\%::myconfig, $string);
+        $self->$attribute(DateTime->new(year => $yy, month => $mm, day => $dd));
+      } else {
+        $self->$attribute(undef);
+      }
+    }
+
+    return $self->$attribute
+      ? $::locale->reformat_date(
+          { dateformat => 'yy-mm-dd' },
+          ( $self->$attribute eq 'now'
+             ? DateTime->now
+             : $self->$attribute
+          )->ymd,
+          $::myconfig{dateformat}
+        )
+      : undef;
+  };
+
+  return 1;
+}
+
+1;
+
+
+1;
+
+__END__
+
+=head1 NAME
+
+SL::DB::Helpers::Attr - attribute helpers
+
+=head1 SYNOPSIS
+
+  use SL::DB::Helpers::Attr;
+  SL::DB::Helpers::Attr::make($class,
+    method_name => 'numeric(15,5)',
+    datemethod  => 'date'
+  );
+  SL::DB::Helpers::Attr::auto_make($class);
+
+=head1 DESCRIPTION
+
+=head1 FUNCTIONS
+
+=head1 BUGS
+
+=head1 AUTHOR
+
+=cut

@@ -8,10 +8,6 @@ use SL::DB::Order;
 
 use List::Util qw(first);
 
-for my $field (qw(transdate reqdate)) {
-  __PACKAGE__->attr_date($field);
-}
-
 __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many',
                                                     class        => 'SL::DB::DeliveryOrderItem',
                                                     column_map   => { id => 'trans_id' },
