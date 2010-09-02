@@ -80,6 +80,22 @@ sub update_attributes {
   return $self;
 }
 
+sub make_attr_helper {
+  my ($self) = @_;
+  my $package = ref $self || $self;
+
+  for my $col ($package->meta->columns) {
+    next if $col->primary_key_position; # don't make attr helper for primary keys
+
+    attr_number ($package, $col->name, -2) if $col->type =~ /numeric | real | float/xi;
+    attr_percent($package, $col->name, -2) if $col->type =~ /numeric | real | float/xi;
+    attr_number ($package, $col->name,  0) if $col->type =~ /int/xi;
+    attr_date   ($package, $col->name)     if $col->type =~ /date | timestamp/xi;
+  }
+
+  return $self;
+}
+
 sub attr_number {
   SL::DB::Helpers::AttrNumber::define(@_);
 }
