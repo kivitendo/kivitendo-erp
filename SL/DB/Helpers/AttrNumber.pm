@@ -12,24 +12,14 @@ sub define {
 
   $params{places} = 2 if !defined($params{places});
 
-  my $code        = <<CODE;
-package ${package};
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_number' } = sub {
+    my ($self, $string) = @_;
 
-sub ${attribute}_as_number {
-  my \$self = shift;
+    $self->$attribute($::form->parse_amount(\%::myconfig, $string)) if @_ > 1;
 
-  if (scalar \@_) {
-    \$self->${attribute}(\$::form->parse_amount(\\\%::myconfig, \$_[0]));
-  }
-
-  return \$::form->format_amount(\\\%::myconfig, \$self->${attribute}, $params{places});
-}
-
-1;
-CODE
-
-  eval $code;
-  croak "Defining '${attribute}_as_number' failed: $EVAL_ERROR" if $EVAL_ERROR;
+    return $::form->format_amount(\%::myconfig, $self->$attribute, $params{places});
+  };
 
   return 1;
 }

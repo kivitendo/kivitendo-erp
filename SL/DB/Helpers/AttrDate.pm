@@ -10,31 +10,27 @@ sub define {
   my $attribute   = shift;
   my %params      = @_;
 
-  $params{places} = 2 if !defined($params{places});
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_date' } = sub {
+    my ($self, $string) = @_;
 
-  my $code        = <<CODE;
-package ${package};
-
-sub ${attribute}_as_date {
-  my \$self = shift;
-
-  if (scalar \@_) {
-    if (\$_[0]) {
-      my (\$yy, \$mm, \$dd) = \$::locale->parse_date(\\\%::myconfig, \@_);
-      \$self->${attribute}(DateTime->new(year => \$yy, month => \$mm, day => \$dd));
-    } else {
-      \$self->${attribute}(undef);
+    if (@_ > 1) {
+      if ($string) {
+        my ($yy, $mm, $dd) = $::locale->parse_date(\%::myconfig, $string);
+        $self->$attribute(DateTime->new(year => $yy, month => $mm, day => $dd));
+      } else {
+        $self->$attribute(undef);
+      }
     }
-  }
 
-  return \$self->${attribute} ? \$::locale->reformat_date({ dateformat => 'yy-mm-dd' }, \$self->${attribute}->ymd, \$::myconfig{dateformat}) : undef;
-}
-
-1;
-CODE
-
-  eval $code;
-  croak "Defining '${attribute}_as_number' failed: $EVAL_ERROR" if $EVAL_ERROR;
+    return $self->$attribute
+      ? $::locale->reformat_date(
+          { dateformat => 'yy-mm-dd' },
+          $self->${attribute}->ymd,
+          $::myconfig{dateformat}
+        )
+      : undef;
+  };
 
   return 1;
 }
