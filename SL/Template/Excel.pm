@@ -1,5 +1,6 @@
 package SL::Template::Excel;
 
+use strict;
 use parent qw(SL::Template::Simple);
 
 sub new {
