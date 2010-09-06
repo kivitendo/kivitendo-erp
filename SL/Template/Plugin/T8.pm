@@ -1,5 +1,7 @@
 package SL::Template::Plugin::T8;
 
+use strict;
+
 use Template::Plugin::Filter;
 use base qw( Template::Plugin::Filter );
 

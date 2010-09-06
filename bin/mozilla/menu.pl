@@ -28,11 +28,13 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #######################################################################
 #
-# thre frame layout with refractured menu
+# the frame layout with refractured menu
 #
 # CHANGE LOG:
 #   DS. 2002-03-25  Created
 #  2004-12-14 - New Optik - Marco Welter <mawe@linux-studio.de>
+#  2010-08-19 - Icons for sub entries and one click 
+#               JS switchable HTML-menu - Sven Donath <lxo@dexo.de>
 #######################################################################
 
 use strict;
@@ -61,7 +63,7 @@ sub display {
   print qq|
 <frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">
   <frame  src="kopf.pl" name="kopf"  scrolling="NO">
-  <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" >
+  <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" id="menuframe" name="menuframe">
     <frame src="$form->{script}?action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
     <frame src="$callback" name="main_window" scrolling="auto">
   </frameset>
@@ -80,13 +82,13 @@ sub acc_menu {
 
   my $form      = $main::form;
   my $locale    = $main::locale;
-  my $framesize = _calc_framesize();
+  my $framesize = _calc_framesize(); # how to get it into kopf.pl or vice versa?
 
   $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
   my $menu = Menu->new($::menufile);
 
-  $form->{title} = $locale->text('Accounting Menu');
+  $form->{title} = $locale->text('Lx-Office');
 
   $form->header;
 
@@ -96,7 +98,7 @@ sub acc_menu {
 |;
   print qq|<div align="left">\n<table width="|
     . $framesize
-    . qq|" border=0>\n|;
+    . qq|" border="0">\n|;
 
   &section_menu($menu);
 
@@ -129,9 +131,9 @@ sub section_menu {
     $ml    =~ s/--.*//;
     if ($ml eq $mainlevel) { $zeige = 1; }
     else { $zeige = 0; }
-    my $spacer = "&nbsp;" x (($item =~ s/--/--/g) * 1);
+    my $spacer = "&nbsp;" x (($item =~ s/--/--/g) * 2);
     $label =~ s/.*--//g;
-    my $label_icon = $label . ".gif";
+    my $label_icon = $level . "--" . $label . ".png";
     my $mlab       = $label;
     $label      = $locale->text($label);
 
@@ -197,18 +199,29 @@ sub section_menu {
           if ($zeige) {
             if (scalar @chunks <= 1) {
               print
-                qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
-                . $menu->menuitem(\%myconfig, \%$form, $item, $level)
-                . qq|$label</a></td></tr>\n|;
+                qq|<tr><td class="hover" height="16" >$spacer| 
+                . $menu->menuitem(\%myconfig, \%$form, $item, $level) ;
+              
+            if (-f "image/icons/16x16/$label_icon")
+             { print 
+                qq|<img src="image/icons/16x16/$label_icon" border="0" style="vertical-align:text-top" title="| 
+                . $label 
+                . qq|">&nbsp;&nbsp;| } 
+            else {
+               print qq|<img src="image/unterpunkt.png" border="0" style="vertical-align:text-top">|;   
+                }
+                
+               print
+                 qq|$label</a></td></tr>\n|;
             } else {
               my $tmpitem = $menu->menuitem(\%myconfig, \%$form, $item, $level);
               print
-                qq|<tr><td class="hover" height="13" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
+                qq|<tr><td class="hover" height="16" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
                 . $tmpitem
                 . qq|$chunks[0]</a></td></tr>\n|;
               map {
                 print
-                  qq|<tr style="vertical-align:top""><td class="hover">$spacer<img src="image/unterpunkt.png" style="visibility:hidden; width:23; height=2;">|
+                  qq|<tr style="vertical-align:top""><td class="hover">$spacer<img src="image/unterpunkt.png" style="visibility:hidden; width:24; height=2;">|
                   . $tmpitem
                   . qq|$chunks[$_]</a></td></tr>\n|;
               } 1..$#chunks;
@@ -218,10 +231,10 @@ sub section_menu {
       } else {
         my $ml_ = $form->escape($ml);
         print
-          qq|<tr><td class="bg" height="22" align="left" valign="middle" ><img src="image/$item.png" style="vertical-align:middle">&nbsp;<a href="menu.pl?action=acc_menu&level=$ml_" class="nohover">$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+          qq|<tr><td class="bg" height="24" align="left" valign="middle"><a href="menu.pl?action=acc_menu&level=$ml_" class="nohover" title="$label"><img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" title="$label">&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
-        #print qq|<br>\n|;
+        print qq|\n|;
       }
     }
   }
@@ -235,7 +248,7 @@ sub _calc_framesize {
 
   return  $is_mobile_browser && $is_mobile_style ?  130
         : $is_lynx_browser                       ?  240
-        :                                           190;
+        :                                           180;
 }
 
 1;

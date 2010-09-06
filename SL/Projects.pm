@@ -189,7 +189,8 @@ sub save_project {
   CVar->save_custom_variables('dbh'       => $dbh,
                               'module'    => 'Projects',
                               'trans_id'  => $params{id},
-                              'variables' => $form);
+                              'variables' => $form,
+                              'always_valid' => 1);
 
   $dbh->commit();
 

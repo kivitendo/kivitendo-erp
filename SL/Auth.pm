@@ -139,7 +139,7 @@ sub dbconnect {
 
   $main::lxdebug->message(LXDebug->DEBUG1, "Auth::dbconnect DSN: $dsn");
 
-  $self->{dbh} = DBI->connect($dsn, $cfg->{user}, $cfg->{password}, { 'AutoCommit' => 0 });
+  $self->{dbh} = DBI->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => $::locale->is_utf8, AutoCommit => 0 });
 
   if (!$may_fail && !$self->{dbh}) {
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
@@ -214,16 +214,16 @@ sub create_database {
 
   $main::lxdebug->message(LXDebug->DEBUG1(), "Auth::create_database DSN: $dsn");
 
-  my $dbh = DBI->connect($dsn, $params{superuser}, $params{superuser_password});
-
-  if (!$dbh) {
-    $main::form->error($main::locale->text('The connection to the template database failed:') . "\n" . $DBI::errstr);
-  }
-
   my $charset    = $main::dbcharset;
   $charset     ||= Common::DEFAULT_CHARSET;
   my $encoding   = $Common::charset_to_db_encoding{$charset};
   $encoding    ||= 'UNICODE';
+
+  my $dbh        = DBI->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => $charset =~ m/^utf-?8$/i });
+
+  if (!$dbh) {
+    $main::form->error($main::locale->text('The connection to the template database failed:') . "\n" . $DBI::errstr);
+  }
 
   my $query = qq|CREATE DATABASE "$cfg->{db}" OWNER "$cfg->{user}" TEMPLATE "$params{template}" ENCODING '$encoding'|;
 

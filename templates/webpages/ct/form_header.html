@@ -9,8 +9,8 @@
   <ul id="maintab" class="shadetabs">
    <li class="selected"><a href="#" rel="billing">[% 'Billing Address' | $T8 %]</a></li>
    <li><a href="#" rel="shipto">[% 'Shipping Address' | $T8 %]</a></li>
-   <li><a href="#" rel="contacts">Ansprechpartner</a></li>
-   <li><a href="#" rel="deliveries">[% 'Lieferungen' | $T8 %]</a></li>
+   <li><a href="#" rel="contacts">[% 'Contacts' | $T8 %]</a></li>
+   <li><a href="#" rel="deliveries">[% 'Supplies' | $T8 %]</a></li>
    <li><a href="#" rel="vcnotes">[% 'Notes' | $T8 %]</a></li>
    [%- IF CUSTOM_VARIABLES.size %]
    <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
@@ -36,14 +36,30 @@
         -%]
        </td>
       </tr>
+      [%- IF id %]
       <tr>
        <th align="right">[% 'Representative' | $T8 %]</th>
        <td>
+        <input type="hidden" name="salesman_id" value="[%- HTML.escape(salesman_id) %]"%>
+        [%- HTML.escape(salesman) %]
+       </td>
+      </tr>
+      [%- END %]
+      <tr>
+       <th align="right">
+        [%- IF !id %]
+         [% 'Representative' | $T8 %]
+        [%- ELSE %]
+         [% 'Change representative to' | $T8 %]
+        [%- END %]
+       </th>
+       <td>
         [%- INCLUDE generic/multibox.html
-              name      = 'salesman_id',
-              DATA      = ALL_SALESMAN_CUSTOMERS,
-              id_key    = 'id',
-              label_key = 'name',
+              name       = 'new_salesman_id',
+              DATA       = ALL_SALESMAN_CUSTOMERS,
+              id_key     = 'id',
+              label_key  = 'name',
+              show_empty = id,
         -%]
        </td>
       </tr>
@@ -358,7 +374,7 @@
     <table>
      <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
      <tr>
-      <th align="right">[% 'Ansprechpartner' | $T8 %]</th>
+      <th align="left">[% 'Contacts' | $T8 %]</th>
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'cp_id',

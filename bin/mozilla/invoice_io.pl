@@ -47,7 +47,7 @@ use strict;
 
 # any custom scripts for this one
 if (-f "bin/mozilla/custom_invoice_io.pl") {
-  eval { require "bin/mozilla/custom_ivvoice_io.pl"; };
+  eval { require "bin/mozilla/custom_invoice_io.pl"; };
 }
 if (-f "bin/mozilla/$main::form->{login}_invoice_io.pl") {
   eval { require "bin/mozilla/$main::form->{login}_invoice_io.pl"; };

@@ -82,6 +82,10 @@ sub pre_startup_setup {
     %::myconfig    = ();
     %::called_subs = (); # currently used for recursion detection
   }
+
+  $SIG{__WARN__} = sub {
+    $::lxdebug->warn(@_);
+  }
 }
 
 sub pre_startup_checks {

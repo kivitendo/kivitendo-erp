@@ -265,7 +265,11 @@ sub new {
   $self->{action}  =  lc $self->{action};
   $self->{action}  =~ s/( |-|,|\#)/_/g;
 
-  $self->{version} =  "2.6.1";
+  #$self->{version} =  "2.6.1";                 # Old hardcoded but secure style
+  open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
+  $self->{version} =  <VERSION_FILE>;
+  close VERSION_FILE;							
+  $self->{version}  =~ s/[^0-9A-Za-z\.\_\-]//g; # only allow numbers, letters, points, underscores and dashes. Prevents injecting of malicious code.
 
   $main::lxdebug->leave_sub();
 
@@ -466,13 +470,22 @@ sub info {
 
     if (!$self->{header}) {
       $self->header;
-      print qq|
-      <body>|;
+      print qq|<body>|;
     }
 
     print qq|
-
-    <p><b>$msg</b>
+    <p class="message_ok"><b>$msg</b></p>
+    
+    <script type="text/javascript">
+    <!--
+    // If JavaScript is enabled, the whole thing will be reloaded.
+    // The reason is: When one changes his menu setup (HTML / XUL / CSS ...)
+    // it now loads the correct code into the browser instead of do nothing.
+    setTimeout("top.frames.location.href='login.pl'",500);
+    //-->
+    </script>
+    
+</body>
     |;
 
   } else {
@@ -659,6 +672,20 @@ sub header {
     </script>
     | if $self->{"fokus"};
 
+  # if there is a title, we put some JavaScript in to the page, wich writes a 
+  # meaningful title-tag for our frameset.
+    my $title_hack;          
+    if ($self->{"title"}){
+		$title_hack = qq|
+		<script type="text/javascript">
+		<!--
+		  // Write a meaningful title-tag for our frameset.
+		  top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - Ver. | . $self->{"version"} . qq|";
+		//-->
+		</script>
+		|;
+	}
+    
     #Set Calendar
     my $jsscript = "";
     if ($self->{jsscript} == 1) {
@@ -694,9 +721,9 @@ sub header {
   $favicon
   $jsscript
   $ajax
-
   $fokus
-
+  $title_hack
+  
   <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css" />
 
   <meta name="robots" content="noindex,nofollow" />

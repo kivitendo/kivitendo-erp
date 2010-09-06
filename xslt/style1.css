@@ -2,7 +2,7 @@
 toolbar{
  -moz-appearance:none !important;
  background: url('../image/fade.png');
- border-bottom:1px solid black;
+ border-bottom:1px solid #888;
 }
 
 /* sidebar styles */
@@ -19,14 +19,14 @@ tree{
  width:150px;
  font:12px Arial;
  margin:0px;
- border-right:1px solid black
+ border-right:1px solid #888;
 }
 
 /* menubar styles */
 menubar{
  -moz-appearance:none !important;
  background: url('../image/bg_titel.gif');
- border:0px
+ border:0px;
 }
 
 menu, 
@@ -34,15 +34,20 @@ menuitem{
  font:12px Arial;
 }
 
+menu menu{
+ -moz-appearance: none !important;
+ color:white;
+ background: #35a;
+}
+
 menubar menu{
  -moz-appearance: none !important;
  color:white;
- background: url('../image/bg_titel.gif');
 }
 
 menubar menu:hover{
  -moz-appearance:none !important;
- background:#4466cc;
+ background:#46d;
  color:yellow;
 }
 
@@ -53,5 +58,5 @@ splitter{
  border:0px;
 }
 iframe{
- border-left:1px solid black !important;
+ border-left:1px solid #888 !important;
 }

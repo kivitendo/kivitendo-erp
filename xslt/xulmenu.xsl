@@ -18,11 +18,16 @@
 <xsl:template match="doc" mode="html">
   <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-      <meta http-equiv="refresh" content="2;url=menuv3.pl?action=display"/>
+      <meta http-equiv="refresh" content="5;url=menu.pl?action=display"/>
     </head>
-    <body>
-Ihr Browser unterstuetzt kein XUL!<br/>
-wenn die automatische weiterleitung nicht funktioniert klicken sie <a href="menuv3.pl?action=display">hier</a>
+    <body style="background-color: #eee; color: #333;">
+     <div style="margin-top: 2em; margin-left: auto; margin-right: auto; border: solid 0.1em #f88; width: 30em; background-color:#fff; font-size: 0.8em;font-family: Verdana, Arial, Helvetica; padding: 2em;">
+      <h2>XUL-Men&#252; ist aktiviert</h2>
+      <h3>Nur der Firefox-Browser mag das XUL-Men&#252;.</h3>
+      Wir schalten auf die kompatiblere <a href="menu.pl?action=display">HTML-Variante</a> um.
+      <h3>Only the Firefox-Browser likes the XUL-Menu.</h3>
+      We switch to the <a href="menu.pl?action=display">HTML-Version</a> now.      
+     </div>
     </body>
   </html>
 </xsl:template>
@@ -122,7 +127,7 @@ wenn die automatische weiterleitung nicht funktioniert klicken sie <a href="menu
 **********************************************************************************   -->
 <xsl:template match="menu" mode="tree">
 <toolbar>
-<label value="Hauptmenue"/>
+<label value="Hauptmen&#252;"/>
 </toolbar>
   <tree flex="1" onselect="openTreeLink(event)" style="margin:0px;" hidecolumnpicker="true">
     <treecols>
@@ -260,7 +265,7 @@ https://developer.mozilla.org/en/XUL/Attribute/tooltiptext
 <xsl:template name="specialbuttons">
     <toolbarbutton image="image/icons/24x24/Batch Printing.png" oncommand="PrintW(event)" tooltiptext="Drucken"/>
     <toolbarbutton image="image/icons/24x24/Neues Fenster.png" tooltiptext="Neues Fenster" link="menuXML.pl?action=display" target="_top" oncommand="openLinkNewWindow(event)"/>
-    <toolbarbutton image="image/icons/24x24/Programm--Logout.png" link="{/*//item[@id='Programm--Logout']/@link}" target="_top" oncommand="openLink(event)" tooltiptext="Abmelden"/>
+    <toolbarbutton image="image/icons/24x24/Program--Logout.png" link="{/*//item[@id='Program--Logout']/@link}" target="_top" oncommand="openLink(event)" tooltiptext="Abmelden"/>
   <toolbarseparator/>
     <toolbarbutton image="image/icons/24x24/leftarrow_24.png" tooltiptext="Schritt zurück" oncommand="MyGoBack()"/>
     <toolbarbutton image="image/icons/24x24/rightarrow_24.png" tooltiptext="Schritt vor" oncommand="MyGoForward()"/>

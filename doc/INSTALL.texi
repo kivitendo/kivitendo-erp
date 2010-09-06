@@ -68,6 +68,8 @@ Class::Accessor
 @item
 CGI::Ajax
 @item
+DateTime
+@item
 DBI
 @item
 DBD::Pg
@@ -109,15 +111,15 @@ Die zu installierenden Pakete können in den verschiedenen Distributionen unters
 
 Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-@code{apache postgresql libarchive-zip-perl libclass-accessor-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl lib-uriperl libxml-writer-perl libyaml-perl}
+@code{apache2 postgresql libarchive-zip-perl libclass-accessor-perl libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl}
 
 Für Fedora Core benötigen Sie diese Pakete:
 
-@code{httpd postgresql-server perl-Class-Accessor perl-DBI perl-DBD-Pg perl-Email-Address perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
+@code{httpd postgresql-server perl-Class-Accessor perl-DateTime perl-DBI perl-DBD-Pg perl-Email-Address perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
 
 Für OpenSuSE benötigen Sie diese Pakete:
 
-@code{apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
+@code{apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
 
 Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
 benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:

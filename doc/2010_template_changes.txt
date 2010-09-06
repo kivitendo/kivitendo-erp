@@ -102,6 +102,6 @@ Um die <translate> Operatoren umzuwandeln steht ein Hilfsscript bereit:
 Bitte vorher die Dokumentation von dem Script lesen.
 
 Es gibt einige Fälle die nicht abgedeckt sind davon, aber die sollte mit einem
-Diff danach zu finden sein. vor allem kann es keine LxERP.format_text Aufrufe
+Diff danach zu finden sein. Vor allem kann es keine LxERP.format_text Aufrufe
 umwandeln, und es hat keinen Schutz gegen nicht escapte Anführungszeichen in
 den zu übersetzenden Strings.

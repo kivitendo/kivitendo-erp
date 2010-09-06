@@ -1066,6 +1066,8 @@ sub config_step1 {
 
   $auth->assert('advance_turnover_tax_return');
 
+$form->{title} = $locale->text('Tax Office Preferences');
+
   # edit all taxauthority prefs
 
   $form->header;

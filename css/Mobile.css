@@ -95,6 +95,29 @@ body.menu {
   border-width:1px;
   background:#D4D0C8;
 }
+
+.message_ok {
+    font-size: 10pt;
+	padding:3px;
+	background-color: lightgreen;
+	color: black;
+	font-weight: bolder;
+	text-align:center;
+	border-style:solid;
+	border-width:thin;
+}
+
+.message_error {
+    font-size: 10pt;
+	padding:5px;
+	background-color: #FFAAAA;
+	color: white;
+	font-weight: bolder;
+	text-align:center;
+	border-style:solid;
+	border-width:thin;
+}
+
 /* Bei Listen den Farbwechsel zur besseren Lesbarkeit: */
 .listrow1 { background-color: #C8D4C6; color: black; vertical-align: top; }
 .listrow0 { background-color: white; color: black; vertical-align: top; }

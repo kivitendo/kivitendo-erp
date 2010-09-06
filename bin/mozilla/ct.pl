@@ -289,7 +289,7 @@ sub form_header {
                    taxzones  => "ALL_TAXZONES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
-  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1, with_obsolete => 1 }) if $::vertreter;
+  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::vertreter;
 
   $form->{ALL_SALESMEN}   = $form->{ALL_EMPLOYEES};
   $form->{taxincluded}    = ($form->{taxincluded}) ? "checked" : "";
@@ -336,6 +336,29 @@ sub form_footer {
   $main::lxdebug->leave_sub();
 }
 
+sub _do_save {
+  $main::auth->assert('customer_vendor_edit & ' .
+                      '(general_ledger         | invoice_edit         | vendor_invoice_edit | ' .
+                      ' request_quotation_edit | sales_quotation_edit | sales_order_edit    | purchase_order_edit)');
+
+  $::form->isblank("name", $::locale->text("Name missing!"));
+
+  if ($::form->{new_salesman_id} && $::vertreter) {
+    $::form->{salesman_id} = $::form->{new_salesman_id};
+    delete $::form->{new_salesman_id};
+  }
+
+  my $res = $::form->{db} eq 'customer' ? CT->save_customer(\%::myconfig, $::form) : CT->save_vendor(\%::myconfig, $::form);
+
+  if (3 == $res) {
+    if ($::form->{"db"} eq "customer") {
+      $::form->error($::locale->text('This customer number is already in use.'));
+    } else {
+      $::form->error($::locale->text('This vendor number is already in use.'));
+    }
+  }
+}
+
 sub add_transaction {
   $main::lxdebug->enter_sub();
 
@@ -354,12 +377,7 @@ sub add_transaction {
 #  }
 #  # /saving the history
 
-  $form->isblank("name", $locale->text("Name missing!"));
-  if ($form->{"db"} eq "customer") {
-    CT->save_customer(\%myconfig, \%$form);
-  } else {
-    CT->save_vendor(\%myconfig, \%$form);
-  }
+  _do_save();
 
   $form->{callback} = $form->escape($form->{callback}, 1);
   my $name = $form->escape("$form->{name}", 1);
@@ -516,16 +534,8 @@ sub save_and_close {
   my $msg = ucfirst $form->{db};
   $msg .= " saved!";
 
-  $form->isblank("name", $locale->text("Name missing!"));
-  my $rc;
-  if ($form->{"db"} eq "customer") {
-    $rc = CT->save_customer(\%myconfig, \%$form);
-  } else {
-    $rc = CT->save_vendor(\%myconfig, \%$form);
-  }
-  if ($rc == 3) {
-    $form->error($locale->text('customernumber not unique!'));
-  }
+  _do_save();
+
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = ($form->{"db"} eq "customer" ? qq|customernumber_| . $form->{customernumber} : qq|vendornumber_| . $form->{vendornumber});
@@ -550,22 +560,8 @@ sub save {
   my $msg = ucfirst $form->{db};
   $msg .= " saved!";
 
-  $form->isblank("name", $locale->text("Name missing!"));
+  _do_save();
 
-  my $res;
-  if ($form->{"db"} eq "customer") {
-    $res = CT->save_customer(\%myconfig, \%$form);
-  } else {
-    $res = CT->save_vendor(\%myconfig, \%$form);
-  }
-
-  if (3 == $res) {
-    if ($form->{"db"} eq "customer") {
-      $form->error($locale->text('This customer number is already in use.'));
-    } else {
-      $form->error($locale->text('This vendor number is already in use.'));
-    }
-  }
   # saving the history
   if(!exists $form->{addition}) {
     $form->{snumbers} = ($form->{"db"} eq "customer" ? qq|customernumber_| . $form->{customernumber} : qq|vendornumber_| . $form->{vendornumber});
