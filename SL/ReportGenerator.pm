@@ -7,8 +7,6 @@ use Text::CSV_XS;
 #use PDF::API2;    # these two eat up to .75s on startup. only load them if we actually need them
 #use PDF::Table;
 
-use SL::Form;
-
 use strict;
 
 # Cause locales.pl to parse these files:
