@@ -2,7 +2,7 @@ package SL::DB::Helpers::Mappings;
 
 use strict;
 
-# threse will not be managed as Rose::DB models, because they are not normalized
+# these will not be managed as Rose::DB models, because they are not normalized
 # significant changes are needed to get them done.
 my @lxoffice_blacklist_permanent = qw(
   acc_trans audittrail customertax datev defaults department dpt_trans
@@ -14,11 +14,7 @@ my @lxoffice_blacklist_permanent = qw(
 # these are not managed _yet_, but will hopefully at some point.
 # if you are confident that one of these works, remove it here.
 my @lxoffice_blacklist_temp = qw(
-  bank_accounts buchungsgruppen contacts custom_variable_configs
-  custom_variables custom_variables_validity drafts dunning dunning_config
-  employee follow_up_links follow_ups generic_translations history_erp language
-  license notes payment_terms pricegroup rma schema_info sepa_export
-  sepa_export_items tax taxkeys
+     schema_info
 );
 
 my @lxoffice_blacklist = (@lxoffice_blacklist_permanent, @lxoffice_blacklist_temp);
@@ -29,15 +25,39 @@ my @lxoffice_blacklist = (@lxoffice_blacklist_permanent, @lxoffice_blacklist_tem
 my %lxoffice_package_names = (
   ar                             => 'invoice',
   ap                             => 'purchase_invoice',
+  bank_accounts                  => 'bank_account',
+  buchungsgruppen                => 'buchungsgruppe',
+  contacts                       => 'contact',
+  custom_variable_configs        => 'custom_variable_config',
+  custom_variables               => 'custom_variable',
+  custom_variables_validity      => 'custom_variable_validity',
   delivery_orders                => 'delivery_order',
   delivery_order_items           => 'delivery_order_item',
+  drafts                         => 'draft',
+  dunning                        => 'dunning',
+  dunning_config                 => 'dunning_config',
+  employee                       => 'employee',
+  follow_up_links                => 'follow_up_link',
+  follow_ups                     => 'follow_up',
+  generic_translations           => 'generic_translation',
   gl                             => 'GLTransaction',
+  history_erp                    => 'history',
   invoice                        => 'invoice_item',
+  language                       => 'language',
+  license                        => 'licemse',
+  notes                          => 'note',
   orderitems                     => 'order_item',
   oe                             => 'order',
   parts                          => 'part',
+  payment_terms                  => 'payment_term',
   price_factors                  => 'price_factor',
+  pricegroup                     => 'pricegroup',
   printers                       => 'Printer',
+  rma                            => 'RMA',
+  sepa_export                    => 'sepa_export',
+  sepa_export_items              => 'sepa_export_item',
+  tax                            => 'tax',
+  taxkeys                        => 'taxkey',
   units                          => 'unit',
 );
 

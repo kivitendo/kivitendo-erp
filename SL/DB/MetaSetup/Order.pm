@@ -55,9 +55,24 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
+    employee => {
+      class       => 'SL::DB::Employee',
+      key_columns => { employee_id => 'id' },
+    },
+
     globalproject => {
       class       => 'SL::DB::Project',
       key_columns => { globalproject_id => 'id' },
+    },
+
+    project_manager => {
+      class       => 'SL::DB::Employee',
+      key_columns => { project_manager_id => 'id' },
+    },
+
+    salesman => {
+      class       => 'SL::DB::Employee',
+      key_columns => { salesman_id => 'id' },
     },
   ],
 );

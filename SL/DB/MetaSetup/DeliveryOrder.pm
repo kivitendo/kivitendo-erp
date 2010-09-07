@@ -48,14 +48,34 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
+    contact => {
+      class       => 'SL::DB::Contact',
+      key_columns => { cp_id => 'cp_id' },
+    },
+
     customer => {
       class       => 'SL::DB::Customer',
       key_columns => { customer_id => 'id' },
     },
 
+    employee => {
+      class       => 'SL::DB::Employee',
+      key_columns => { employee_id => 'id' },
+    },
+
     globalproject => {
       class       => 'SL::DB::Project',
       key_columns => { globalproject_id => 'id' },
+    },
+
+    language => {
+      class       => 'SL::DB::Language',
+      key_columns => { language_id => 'id' },
+    },
+
+    salesman => {
+      class       => 'SL::DB::Employee',
+      key_columns => { salesman_id => 'id' },
     },
 
     vendor => {

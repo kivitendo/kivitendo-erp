@@ -68,9 +68,19 @@ __PACKAGE__->meta->setup(
       key_columns => { customer_id => 'id' },
     },
 
+    dunning_config => {
+      class       => 'SL::DB::DunningConfig',
+      key_columns => { dunning_config_id => 'id' },
+    },
+
     globalproject => {
       class       => 'SL::DB::Project',
       key_columns => { globalproject_id => 'id' },
+    },
+
+    salesman => {
+      class       => 'SL::DB::Employee',
+      key_columns => { salesman_id => 'id' },
     },
 
     storno_obj => {
