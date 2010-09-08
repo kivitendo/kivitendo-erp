@@ -3,6 +3,7 @@ package SL::Template::OpenDocument;
 use parent qw(SL::Template::Simple);
 
 use Archive::Zip;
+use Encode;
 use POSIX 'setsid';
 
 use SL::Iconv;
@@ -228,7 +229,7 @@ sub parse {
     return 0;
   }
 
-  my $contents = $zip->contents("content.xml");
+  my $contents = Encode::decode('utf-8-strict', $zip->contents("content.xml"));
   if (!$contents) {
     $self->{"error"} = "File is not a OpenDocument file.";
     $main::lxdebug->leave_sub();
@@ -267,7 +268,7 @@ sub parse {
 
 #   $new_contents =~ s|>|>\n|g;
 
-  $zip->contents("content.xml", $new_contents);
+  $zip->contents("content.xml", Encode::encode('utf-8-strict', $new_contents));
 
   my $styles = $zip->contents("styles.xml");
   if ($contents) {
