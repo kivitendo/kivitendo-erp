@@ -981,6 +981,7 @@ Stone Environmental Inc. (www.stone-env.com).
 The text_block() method is a slightly modified copy of the one from
 Rick Measham's PDF::API2 tutorial at
 http://pdfapi2.sourceforge.net/cgi-bin/view/Main/YourFirstDocument
+update: The tutorial is no longer available. Please visit http://pdfapi2.sourceforge.net .
 
 by Desislav Kamenov
 
