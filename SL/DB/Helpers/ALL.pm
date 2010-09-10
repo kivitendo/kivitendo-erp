@@ -42,6 +42,7 @@ use SL::DB::PurchaseInvoice;
 use SL::DB::RMA;
 use SL::DB::SepaExport;
 use SL::DB::SepaExportItem;
+use SL::DB::SchemaInfo;
 use SL::DB::Shipto;
 use SL::DB::Tax;
 use SL::DB::Taxkey;

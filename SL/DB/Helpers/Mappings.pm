@@ -14,7 +14,6 @@ my @lxoffice_blacklist_permanent = qw(
 # these are not managed _yet_, but will hopefully at some point.
 # if you are confident that one of these works, remove it here.
 my @lxoffice_blacklist_temp = qw(
-     schema_info
 );
 
 my @lxoffice_blacklist = (@lxoffice_blacklist_permanent, @lxoffice_blacklist_temp);
@@ -56,6 +55,7 @@ my %lxoffice_package_names = (
   rma                            => 'RMA',
   sepa_export                    => 'sepa_export',
   sepa_export_items              => 'sepa_export_item',
+  schema_info                    => 'schema_info',
   tax                            => 'tax',
   taxkeys                        => 'taxkey',
   units                          => 'unit',
