@@ -727,4 +727,13 @@ sub gl_transaction {
   $main::lxdebug->leave_sub();
 }
 
+if ($::use_rdbo) {
+  eval {
+    require SL::DB::Helpers::Mappings;
+    sub db {
+      goto &SL::DB::Helpers::Mappings::db;
+    }
+  } or die $@;
+}
+
 1;
