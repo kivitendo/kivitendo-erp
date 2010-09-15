@@ -42,7 +42,7 @@ Für Perl-Upgradedateien:
 # @key: value
 
 
-Leerzeichen vor "value" werden entfern.
+Leerzeichen vor "value" werden entfernt.
 
 Die folgenden Schlüsselworte werden verarbeitet:
 
