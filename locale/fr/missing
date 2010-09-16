@@ -2,12 +2,9 @@
 # -*- coding: utf-8; -*-
 # vim: fenc=utf-8
 
-# These are all the texts to build the translations files.
-# The file has the form of 'english text'  => 'foreign text',
-# you can add the translation in this file or in the 'missing' file
-# run locales.pl from this directory to rebuild the translation files
+# add the missing texts and run locales.pl to rebuild
 
-$self->{texts} = {
+$missing = {
   ' Date missing!'              => '',
   ' Part Number missing!'       => '',
   ' missing!'                   => '',
