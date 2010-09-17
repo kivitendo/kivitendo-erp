@@ -130,13 +130,9 @@ sub handle_request {
   my $interface = lc(shift || 'cgi');
   my ($script_name, $action);
 
-  if ($interface =~ m/^(?:fastcgi|fcgid|fcgi)$/) {
-    $script_name = $ENV{SCRIPT_NAME};
-    unrequire_bin_mozilla();
+  $script_name = $ENV{SCRIPT_NAME};
 
-  } else {
-    $script_name = $0;
-  }
+  unrequire_bin_mozilla($interface);
 
   $::cgi         = CGI->new('');
   $::locale      = Locale->new($::language);
@@ -205,6 +201,8 @@ sub handle_request {
 }
 
 sub unrequire_bin_mozilla {
+  return unless $_[0] =~ m/^(?:fastcgi|fcgid|fcgi)$/;
+
   for (keys %INC) {
     next unless m#^bin/mozilla/#;
     next if /\bcommon.pl$/;
