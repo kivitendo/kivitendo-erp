@@ -4,6 +4,9 @@ use strict;
 
 use FCGI;
 use SL::Dispatcher;
+use SL::FCGIFixes;
+
+SL::FCGIFixes::apply_fixes();
 
 SL::Dispatcher::pre_startup();
 my $request = FCGI::Request();

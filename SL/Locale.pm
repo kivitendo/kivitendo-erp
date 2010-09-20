@@ -462,14 +462,22 @@ sub remap_special_chars {
   return $self->quote_special_chars($dst_format, $self->quote_special_chars("${src_format}-reverse", shift));
 }
 
+sub raw_io_active {
+  my $self = shift;
+
+  return !!$self->{raw_io_active};
+}
+
 sub with_raw_io {
   my $self = shift;
   my $fh   = shift;
   my $code = shift;
 
+  $self->{raw_io_active} = 1;
   binmode $fh, ":raw";
   $code->();
   binmode $fh, ":utf8" if $self->is_utf8;
+  $self->{raw_io_active} = 0;
 }
 
 1;
