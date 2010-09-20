@@ -41,7 +41,6 @@ use SL::DB::Inventory;
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::Language;
-use SL::DB::Lead;
 use SL::DB::License;
 use SL::DB::LicenseInvoice;
 use SL::DB::MakeModel;
