@@ -2,9 +2,10 @@ package SL::DB::Helpers::Mappings;
 
 use strict;
 
-# these will not be managed as Rose::DB models, because they are not normalized
-# significant changes are needed to get them done.
+# these will not be managed as Rose::DB models, because they are not normalized,
+# significant changes are needed to get them done, or they were done by CRM.
 my @lxoffice_blacklist_permanent = qw(
+  leads
 );
 
 # these are not managed _yet_, but will hopefully at some point.
@@ -51,7 +52,6 @@ my %lxoffice_package_names = (
   inventory                      => 'inventory',
   invoice                        => 'invoice_item',
   language                       => 'language',
-  leads                          => 'lead',
   license                        => 'license',
   licenseinvoice                 => 'license_invoice',
   makemodel                      => 'make_model',

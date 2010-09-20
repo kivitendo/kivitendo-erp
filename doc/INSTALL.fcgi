@@ -45,8 +45,16 @@ höher ist extrem strict in der Behandlung von Unicode, und verweigert bestimmte
 Eingaben von Lx-Office. Solange diese Probleme nicht behoben sind, muss auf die
 Vorgängerversion FCGI 0.68 ausgewichen werden.
 
+Mit cpan lässt sie sich wie folgt installieren:
+
+ force install M/MS/MSTROUT/FCGI-0.68.tar.gz
 
 =head2 Konfiguration des Webservers.
+
+Bevor Sie versuchen eine Lx-Office Installation unter FCGI laufen zu lassen,
+empfliehlt es sich die Installation ersteinmal unter CGI aufzusetzen. FCGI
+macht es nicht einfach Fehler zu debuggen die beim ersten aufsetzen auftreten
+können. Sollte die Installation schon funktionieren, lesen Sie weiter.
 
 Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann unter
 Debian/Ubuntu z.B. mit folgendem Befehl geschehen:
