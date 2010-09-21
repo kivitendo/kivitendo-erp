@@ -106,3 +106,5 @@ SQL
 }
 
 do_update();
+return 1;
+
