@@ -79,7 +79,10 @@ sub run {
       $form->{error_message} = $locale->text('Incorrect Password!');
       adminlogin();
     } else {
-      $auth->create_or_refresh_session() if ($auth->session_tables_present());
+      if ($auth->session_tables_present()) {
+        $::auth->set_session_value('rpw', $::form->{rpw});
+        $::auth->create_or_refresh_session();
+      }
       call_sub($locale->findsub($form->{action}));
     }
   } elsif ($auth->authenticate_root($form->{rpw}, 0) == $auth->OK()) {
