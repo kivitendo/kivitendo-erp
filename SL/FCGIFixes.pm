@@ -4,6 +4,7 @@ use strict;
 
 use Encode;
 use FCGI;
+use version;
 
 # FCGI does not use Perl's I/O layer. Therefore it does not honor
 # setting STDOUT to ":utf8" with "binmode".  Also FCGI starting with
@@ -23,7 +24,7 @@ use FCGI;
 # that current I/O operations should be raw.
 
 sub fix_print_and_internal_encoding_after_0_68 {
-  return if version->parse($FCGI::VERSION) <= version->parse("0.68");
+  return if version->new("$FCGI::VERSION")->numify <= version->new("0.68")->numify;
 
   my $encoder             = Encode::find_encoding('UTF-8');
   my $original_fcgi_print = \&FCGI::Stream::PRINT;
