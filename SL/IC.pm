@@ -350,7 +350,7 @@ sub save {
     }
 
     ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('id')|);
-    do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber) VALUES (?, '')|, $form->{id});
+    do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber, unit) VALUES (?, '', '')|, $form->{id});
 
     $form->{orphaned} = 1;
     if ($form->{partnumber} eq "" && $form->{"item"} eq "service") {
