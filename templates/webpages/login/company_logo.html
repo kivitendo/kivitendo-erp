@@ -8,12 +8,11 @@
    %]
    </noscript>
  <center>
-  <a class="nomobile" href="http://www.lx-office.org" target="_top"><img src="image/lx-office-erp.png" border="0"></a>
+  <a class="nomobile" href="http://www.lx-office.org" target="_top"><img src="image/lx-office-erp.png" border="0" title="[% 'Lx-Office Homepage' | $T8 %]"></a>
 
-  <h2 class="login">[% 'Version' | $T8 %] [% version %]</h2>
+  <h3 class="login">[% 'Lx-Office' | $T8 %] [% version %]</h3>
 
-  <p>[% 'Licensed to' | $T8 %]</p>
-
+  <p>[% 'companylogo_subtitle' | $T8 %]</p>
   <p>
    <b>
     [% HTML.escape(myconfig_company) %]
@@ -22,26 +21,28 @@
    </b>
 
    <br>
+   <br>
 
    <table border="0">
     <tr>
-     <th align="left">[% 'User' | $T8 %]</th>
+     <th align="left"><a href="am.pl?action=config&level=Program--Preferences" title="[% 'Preferences' | $T8 %]">[% 'User' | $T8 %]</a></th>
      <td>[% HTML.escape(myconfig_name) %]</td>
     </tr>
     <tr>
-     <th align="left">[% 'Dataset' | $T8 %]</th>
+     <th align="left"><a href="am.pl?action=config&level=Program--Preferences" title="[% 'Preferences' | $T8 %]">[% 'Language' | $T8 %]</a></th>
+     <td>[% HTML.escape(myconfig_countrycode) %]</td>
+    </tr>
+    <tr>
+     <th align="left"><a href="admin.pl" title="[% 'Administration' | $T8 %]">[% 'Dataset' | $T8 %]</a></th>
      <td>[% HTML.escape(myconfig_dbname) %]</td>
     </tr>
     <tr>
      <th align="left">[% 'Database Host' | $T8 %]</th>
      <td>[% HTML.escape(myconfig_dbhost) %]</td>
     </tr>
-    <tr>
-    </tr>
-    <tr>
-    </tr>
     <tr class="nomobile">
-     <th colspan="2" align="center"><a href="http://lx-office.org" target="blank">http://lx-office.org</a></th>
+     <th align="left">[% 'Lx-Office Homepage' | $T8 %]:</th>
+     <td><a href="http://lx-office.org" target="_blank" title="[% 'Lx-Office Homepage' | $T8 %]">http://lx-office.org</a></td>
     </tr>
    </table>
  </center>

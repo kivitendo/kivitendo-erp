@@ -85,6 +85,8 @@ use strict;
 # $locale->text('Trial Balance')
 # $locale->text('AR Aging')
 # $locale->text('AP Aging')
+# $locale->text('Search AR Aging')
+# $locale->text('Search AP Aging')
 # $locale->text('Tax collected')
 # $locale->text('Tax paid')
 # $locale->text('Receipts')
@@ -92,6 +94,7 @@ use strict;
 # $locale->text('Project Transactions')
 # $locale->text('Non-taxable Sales')
 # $locale->text('Non-taxable Purchases')
+# $locale->text('Business evaluation')
 
 # $form->parse_html_template('rp/html_report_susa')
 
@@ -129,8 +132,8 @@ sub report {
             'balance_sheet'        => 'Balance Sheet',
             'income_statement'     => 'Income Statement',
             'trial_balance'        => 'Trial Balance',
-            'ar_aging'             => 'AR Aging',
-            'ap_aging'             => 'Offene Verbindlichkeiten',
+            'ar_aging'             => 'Search AR Aging',
+            'ap_aging'             => 'Search AP Aging',
             'tax_collected'        => 'Tax collected',
             'tax_paid'             => 'Tax paid',
             'nontaxable_sales'     => 'Non-taxable Sales',
@@ -138,7 +141,7 @@ sub report {
             'receipts'             => 'Receipts',
             'payments'             => 'Payments',
             'projects'             => 'Project Transactions',
-            'bwa'                  => 'Betriebswirtschaftliche Auswertung',
+            'bwa'                  => 'Business evaluation',
   );
 
   $form->{title} = $locale->text($title{ $form->{report} });

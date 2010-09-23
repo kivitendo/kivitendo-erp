@@ -13,7 +13,7 @@
 
     [% IF user.repeat_headings %]
     <tr>
-     <th class="listheading" valign="bottom">[% 'Login' | $T8 %]</th>
+     <th class="listheading" valign="bottom">[% 'Login Name' | $T8 %]</th>
      <th class="listheading" valign="bottom">[% 'Name' | $T8 %]</th>
      [% FOREACH column = HEADINGS %]<th class="listheading" valign="bottom" align="center">[% LxERP.turn90(column.title) %]</th>
      [% END %]

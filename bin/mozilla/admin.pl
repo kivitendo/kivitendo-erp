@@ -651,7 +651,7 @@ sub dbselect_source {
   my $locale         = $main::locale;
 
   $form->{dbport}    = '5432';
-  $form->{dbuser}    = 'postgres';
+  $form->{dbuser}    = 'lxoffice';
   $form->{dbdefault} = 'template1';
   $form->{dbhost}    = 'localhost';
 

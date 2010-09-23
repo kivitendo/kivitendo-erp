@@ -59,7 +59,7 @@ sub add {
 
   return $main::lxdebug->leave_sub() if (load_draft_maybe());
 
-  $form->{title} = $locale->text('Add Vendor Invoice');
+  $form->{title} = $locale->text('Record Vendor Invoice');
 
   &invoice_links;
   &prepare_invoice;

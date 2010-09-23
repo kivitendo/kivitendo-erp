@@ -4,6 +4,8 @@
   <h2>[% title %]</h2>
 
   <form method="post" action="admin.pl">
+      <input type="hidden" name="back_nextsub" value="list_users">
+      <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
 
    <table>
     <tr>
@@ -28,7 +30,7 @@
 
           <tr>
 
-           <th align="right">[% 'User' | $T8 %]</th>
+           <th align="right">[% 'Database User' | $T8 %]</th>
            <td><input name="dbuser" size="10" value="[% HTML.escape(dbuser) %]"></td>
            <th align="right">[% 'Password' | $T8 %]</th>
            <td><input type="password" name="dbpasswd" size="10"></td>
@@ -51,7 +53,6 @@
       <input name="callback" type="hidden" value="admin.pl?action=list_users">
 
       <br>
-
       <input type="submit" class="submit" name="action" value="[% 'Create Dataset' | $T8 %]">
       <input type="submit" class="submit" name="action" value="[% 'Update Dataset' | $T8 %]">
       <input type="submit" class="submit" name="action" value="[% 'Delete Dataset' | $T8 %]">

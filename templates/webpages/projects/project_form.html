@@ -7,7 +7,7 @@
  <hr>
  [%- END %]
 
- <p><div class="listtop">[% title %]</div></p>
+ <p><div class="listtop">[% title %]  [% HTML.escape(project.projectnumber) %]</div></p>
 
  <form method="post" action="projects.pl">
 
@@ -15,7 +15,7 @@
   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
 
   <ul id="maintab" class="shadetabs">
-   <li class="selected"><a href="#" rel="basic_data">[% 'Basic data' | $T8 %]</a></li>
+   <li class="selected"><a href="#" rel="basic_data">[% 'Basic Data' | $T8 %]</a></li>
    [%- IF CUSTOM_VARIABLES.size %]
    <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
    [%- END %]

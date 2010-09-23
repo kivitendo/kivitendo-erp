@@ -183,7 +183,7 @@ sub part_selection_internal {
 
   my @header_sort  = qw(partnumber description);
   my %header_title = ( "partnumber"  => $locale->text("Part Number"),
-                       "description" => $locale->text("Part description"),
+                       "description" => $locale->text("Part Description"),
                        );
 
   my @header =

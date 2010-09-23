@@ -3,6 +3,10 @@
 
  <div class="listheading">[% title %]</div>
 
+  [% IF type == 'templates' %]
+   <p style="text-align: right;">[<a href="doc/dokumentenvorlagen-und-variablen.html" target="_blank" title="[% 'Open in new window' | $T8 %]">[% 'Help Template Variables' | $T8 %]</a>]</p>
+  [% END %]
+
  <form method="post" name="Form" action="amtemplates.pl">
 
   [% FOREACH var = HIDDEN %]<input type="hidden" name="[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]">[% END %]

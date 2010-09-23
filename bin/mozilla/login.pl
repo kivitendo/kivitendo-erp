@@ -66,7 +66,7 @@ sub run {
     $::locale   = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
 
     if (!$::myconfig{login} || (SL::Auth::OK != $auth->authenticate($form->{login}, $form->{password}, 0))) {
-      $form->{error_message} = $::locale->text('Incorrect Password!');
+      $form->{error_message} = $::locale->text('Incorrect username or password!');
       login_screen();
     } else {
       $auth->set_session_value('login', $form->{login}, 'password', $form->{password});
