@@ -6,7 +6,7 @@
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/parts_language_selection.js"></script>
 
- <p><div class="listtop">[% title %]</div></p>
+ <p><div class="listtop">[% title %]  [% HTML.escape(partnumber) %]  [% HTML.escape(description) %]</div></p>
 
  <form method="post" name="ic" action="[% script %]">
 
@@ -24,7 +24,7 @@
   <input name="original_partnumber" type="hidden" value="[% HTML.escape(original_partnumber) %]">
 
   <ul id="maintab" class="shadetabs">
-   <li class="selected"><a href="#" rel="master_data">[% 'Master Data' | $T8 %]</a></li>
+   <li class="selected"><a href="#" rel="master_data">[% 'Basic Data' | $T8 %]</a></li>
    [%- IF CUSTOM_VARIABLES.size %]
    <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
    [%- END %]
@@ -128,7 +128,7 @@
            <td>
             <table>
              <tr>
-              <th align="left">[% 'Notes' | $T8 %]</th>
+              <th align="left">[% 'Part Notes' | $T8 %]</th>
               [%- UNLESS is_service %]
               <th align="left">[% 'Formula' | $T8 %]</th>
               [%- END %]

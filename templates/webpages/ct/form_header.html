@@ -140,8 +140,12 @@
      </tr>
 
      <tr>
-      <th align="right" nowrap>[% 'Homepage' | $T8 %]</th>
-      <td><input name="homepage" size="45" value="[% HTML.escape(homepage) %]"></td>
+      <th align="right" nowrap>
+      [% IF homepage %]<a href="[% HTML.escape(homepage) %]" title="[% 'Open this Website' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>
+      [% ELSE %][% 'Homepage' | $T8 %]
+      [% END %]
+      </th>
+      <td><input name="homepage" size="45" title="[% 'Example: http://lx-office.org' | $T8 %]" value="[% HTML.escape(homepage) %]"></td>
      </tr>
     </table>
 
@@ -278,7 +282,7 @@
 
     <table>
      <tr>
-      <th align="left" nowrap>[% 'Notes' | $T8 %]</th>
+      <th align="left" nowrap>[% 'Internal Notes' | $T8 %]</th>
      </tr>
 
      <tr>

@@ -2,7 +2,7 @@
 [% USE HTML %]<body class="admin">
 
  <h2>[% title %]</h2>
-
+  <p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
  <form method="post" action="admin.pl">
 
   <p>[% 'You can only delete datasets that are not in use.' | $T8 %]

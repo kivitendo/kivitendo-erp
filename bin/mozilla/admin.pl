@@ -351,13 +351,15 @@ sub add_user {
 
   $form->{title}   = "Lx-Office ERP " . $locale->text('Administration') . " / " . $locale->text('Add User');
 
+# Note: Menu Style 'v3' is not compatible to all browsers!
+# "menustyle"    => "old" sets the HTML Menu to default.
   my $myconfig     = {
     "vclimit"      => 200,
     "countrycode"  => "de",
     "numberformat" => "1.000,00",
     "dateformat"   => "dd.mm.yy",
     "stylesheet"   => "lx-office-erp.css",
-    "menustyle"    => "v3",
+    "menustyle"    => "old",
   };
 
   edit_user_form($myconfig);
@@ -646,7 +648,7 @@ sub dbselect_source {
   my $locale         = $main::locale;
 
   $form->{dbport}    = '5432';
-  $form->{dbuser}    = 'postgres';
+  $form->{dbuser}    = 'lxoffice';
   $form->{dbdefault} = 'template1';
   $form->{dbhost}    = 'localhost';
 

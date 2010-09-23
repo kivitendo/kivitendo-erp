@@ -680,7 +680,7 @@ sub header {
 		<script type="text/javascript">
 		<!--
 		  // Write a meaningful title-tag for our frameset.
-		  top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - Ver. | . $self->{"version"} . qq|";
+		  top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - V| . $self->{"version"} . qq|";
 		//-->
 		</script>
 		|;

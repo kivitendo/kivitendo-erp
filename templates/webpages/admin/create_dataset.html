@@ -4,7 +4,7 @@
   <h2>[% title %]</h2>
 
   <form method="post" action="admin.pl">
-
+  <p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
    <p>
     [% 'You can either create a new database or chose an existing database.' | $T8 %]
     [% 'In the latter case the tables needed by Lx-Office will be created in that database.' | $T8 %]

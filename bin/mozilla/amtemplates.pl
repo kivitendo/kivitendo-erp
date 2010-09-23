@@ -117,6 +117,9 @@ sub display_template_form {
   my $format = $form->{"format"} eq "html" ? "html" : "tex";
 
   $form->{"title"} = $form->{"type"} eq "stylesheet" ? $locale->text("Edit the stylesheet") : $locale->text("Edit templates");
+  if ($form->{"format"}) {
+      $form->{"title"} = uc($form->{"format"}) . " - " . $form->{"title"};
+  }
 
   my %options;
 

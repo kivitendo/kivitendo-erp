@@ -29,7 +29,7 @@ sub do_update {
   my ($kontenrahmen) = $dbh->selectrow_array("select coa from defaults");
 
   unless ( $kontenrahmen eq 'Germany-DATEV-SKR04EU' ) {
-    print "Kontenrahmen ist nicht SKR04, überspringen<br>";
+    print "Kontenrahmen ist nicht SKR04, &uuml;berspringen<br>";
     return 1;
   };
 
@@ -42,7 +42,7 @@ sub do_update {
   if ( $anzahl_buchungen > 0 ) {
     if ($main::form->{bookings_exist} ) {
       # Benutzer hat Meldung bestätigt
-      print "Buchungen nach dem 01.01.2007 existierten, Upgrade überspringen";
+      print "Buchungen nach dem 01.01.2007 existierten, Upgrade &uuml;berspringen";
       return 1;  
     } else {
       # Meldung anzeigen und auf Rückgabe warten
@@ -59,7 +59,7 @@ sub do_update {
 
       if ($main::form->{account_exists} ) {
       # Benutzer hat Meldung bestätigt
-        print "Konto existiert, Upgrade überspringen\n";
+        print "Konto existiert, Upgrade &uuml;berspringen\n";
         return 1;  
       } else {
         # Meldung anzeigen und auf Rückgabe warten
