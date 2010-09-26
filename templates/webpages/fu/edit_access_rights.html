@@ -19,7 +19,7 @@
     </tr>
 
     [%- FOREACH row = EMPLOYEES %]
-    [%- UNLESS row.login == name %]
+    [%- UNLESS row.login == login %]
     <input type="hidden" name="employee_id_[% loop.count %]" value="[% HTML.escape(row.id) %]">
 
     <tr class="listrow[% loop.count % 2 %]">
