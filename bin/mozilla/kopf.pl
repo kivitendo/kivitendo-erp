@@ -111,19 +111,24 @@ window.onload=clockon
 my $framesize = _calc_framesize(); # framesize calculation as in menu.pl is only a quick and dirty hack here
                                    # it would be better to use a global or config variable
 
+# is there any better solution then the JS-Link for Back? Possibly with the callback variable?
+
 print qq|
 <body bgcolor="#ffffff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0" style="background-image: url('image/fade.png'); background-repeat:repeat-x;">
 <script language='JavaScript' src='js/switchmenuframe.js'></script>
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
-  <tr>
-    <td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
+  <tr>|;
+   if ($framesize ne 240) {    # only show the the links in case of "links" in $ENV{HTTP_USER_AGENT} (see sub _calc_framesize)
+      print qq|
+      <td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
       [<a href="JavaScript:Switch_Menu(|.$framesize.qq|);" title="| . $locale->text('Switch Menu on / off') . qq|">| . $locale->text('Menu') . qq|</a>]
       &nbsp;[<a HREF="login.pl" target="_blank" title="| . $locale->text('Open a further Lx-Office Window or Tab') . qq|">| . $locale->text('New Win/Tab') . qq|</a>]
       &nbsp;[<a href="JavaScript:top.main_window.print();" title="| . $locale->text('Hardcopy') . qq|">| . $locale->text('Print') . qq|</a>]
       &nbsp;[<a href="Javascript:top.main_window.history.back();" title="| . $locale->text('Go one step back') . qq|">| . $locale->text('Back') . qq|</a>]
       &nbsp;[<a href="Javascript:top.main_window.history.forward();" title="| . $locale->text('Go one step forward') . qq|">| . $locale->text('Fwd') . qq|</a>]
-      <!-- is there any better solution for Back? Possibly with the callback variable? -->
-    </td>
+      </td>|;
+   }
+   print qq|
     <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
   . $login . $datum . qq| <script>writeclock()</script>&nbsp;
     </td>
