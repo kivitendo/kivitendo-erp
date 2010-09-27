@@ -33,7 +33,7 @@
 # CHANGE LOG:
 #   DS. 2002-03-25  Created
 #  2004-12-14 - New Optik - Marco Welter <mawe@linux-studio.de>
-#  2010-08-19 - Icons for sub entries and one click
+#  2010-08-19 - Icons for sub entries and one click 
 #               JS switchable HTML-menu - Sven Donath <lxo@dexo.de>
 #######################################################################
 
@@ -45,7 +45,6 @@ use URI;
 
 my $menufile = "menu.ini";
 my $mainlevel;
-our $framesize;
 
 # end of main
 
@@ -83,7 +82,7 @@ sub acc_menu {
 
   my $form      = $main::form;
   my $locale    = $main::locale;
-     $framesize = _calc_framesize(); # how to get it into kopf.pl or vice versa?
+  my $framesize = _calc_framesize(); # how to get it into kopf.pl or vice versa?
 
   $mainlevel = $form->{level};
   $mainlevel =~ s/\Q$mainlevel\E--//g;
@@ -98,7 +97,7 @@ sub acc_menu {
 
 |;
   print qq|<div align="left">\n<table width="|
-    . ($framesize-2)
+    . $framesize
     . qq|" border="0">\n|;
 
   &section_menu($menu);
@@ -200,20 +199,18 @@ sub section_menu {
           if ($zeige) {
             if (scalar @chunks <= 1) {
               print
-                qq|<tr><td class="hover" height="16" >$spacer|
+                qq|<tr><td class="hover" height="16" >$spacer| 
                 . $menu->menuitem(\%myconfig, \%$form, $item, $level) ;
-
-            if (-f "image/icons/16x16/$label_icon" && ($framesize ne 240))
-             { print
-                qq|<img src="image/icons/16x16/$label_icon" border="0" style="vertical-align:text-top" title="|
-                . $label
-                . qq|">&nbsp;&nbsp;| }
+              
+            if (-f "image/icons/16x16/$label_icon")
+             { print 
+                qq|<img src="image/icons/16x16/$label_icon" border="0" style="vertical-align:text-top" title="| 
+                . $label 
+                . qq|">&nbsp;&nbsp;| } 
             else {
-                   if ($framesize ne 240) {
-                    print qq|<img src="image/unterpunkt.png" border="0" style="vertical-align:text-top">|;
-                   }
+               print qq|<img src="image/unterpunkt.png" border="0" style="vertical-align:text-top">|;   
                 }
-
+                
                print
                  qq|$label</a></td></tr>\n|;
             } else {
@@ -234,12 +231,7 @@ sub section_menu {
       } else {
         my $ml_ = $form->escape($ml);
         print
-          qq|<tr><td class="bg" height="24" align="left" valign="middle">
-          <a href="menu.pl?action=acc_menu&level=$ml_" class="nohover" title="$label">|;
-              if ($framesize ne 240) {
-                  print qq|<img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" title="$label">|;
-              }
-          print qq|&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
+          qq|<tr><td class="bg" height="24" align="left" valign="middle"><a href="menu.pl?action=acc_menu&level=$ml_" class="nohover" title="$label"><img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" title="$label">&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
         &section_menu($menu, $item);
 
         print qq|\n|;
