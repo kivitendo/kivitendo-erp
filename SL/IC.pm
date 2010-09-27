@@ -1633,7 +1633,7 @@ sub prepare_parts_for_printing {
   my $placeholders = join ', ', ('?') x scalar(@part_ids);
   my $query        = qq|SELECT mm.parts_id, mm.model, v.name AS make
                         FROM makemodel mm
-                        LEFT JOIN vendor v ON (mm.make = cast (v.id as text))
+                        LEFT JOIN vendor v ON (mm.make = v.id)
                         WHERE mm.parts_id IN ($placeholders)|;
 
   my %makemodel    = ();
