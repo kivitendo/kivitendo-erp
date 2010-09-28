@@ -118,8 +118,7 @@ sub section_menu {
   my $form      = $main::form;
   my %myconfig  = %main::myconfig;
   my $locale    = $main::locale;
-  my $is_links_browser = 1;
-  if ( _calc_framesize() eq 240) { $is_links_browser = 0; }
+  my $is_not_links_browser = $ENV{HTTP_USER_AGENT} =~ /links/i ? 0 : 1;
 
   my $zeige;
 
@@ -204,13 +203,13 @@ sub section_menu {
                 qq|<tr><td class="hover" height="16" >$spacer|
                 . $menu->menuitem(\%myconfig, \%$form, $item, $level) ;
 
-            if (-f "image/icons/16x16/$label_icon" && ($is_links_browser))
+            if (-f "image/icons/16x16/$label_icon" && ($is_not_links_browser))
              { print
                 qq|<img src="image/icons/16x16/$label_icon" border="0" style="vertical-align:text-top" title="|
                 . $label
                 . qq|">&nbsp;&nbsp;| }
             else {
-                   if ($is_links_browser) {
+                   if ($is_not_links_browser) {
                     print qq|<img src="image/unterpunkt.png" border="0" style="vertical-align:text-top">|;
                    }
                 }
@@ -237,7 +236,7 @@ sub section_menu {
         print
           qq|<tr><td class="bg" height="24" align="left" valign="middle">
           <a href="menu.pl?action=acc_menu&level=$ml_" class="nohover" title="$label">|;
-              if ($is_links_browser) {
+              if ($is_not_links_browser) {
                   print qq|<img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" title="$label">|;
               }
           print qq|&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
