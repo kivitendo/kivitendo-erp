@@ -233,8 +233,8 @@ sub get_accounts {
            AND ac.trans_id IN
              (
                SELECT trans_id
-               FROM acc_trans
-               JOIN chart ON (chart_id = id)
+               FROM acc_trans a
+               JOIN chart c ON (a.chart_id = c.id)
                WHERE (link LIKE '%AR_paid%')
                $subwhere
              )
@@ -254,8 +254,8 @@ sub get_accounts {
            AND ac.trans_id IN
              (
                SELECT trans_id
-               FROM acc_trans
-               JOIN chart ON (chart_id = id)
+               FROM acc_trans a
+               JOIN chart c ON (a.chart_id = c.id)
                WHERE (link LIKE '%AP_paid%')
                $subwhere
              )
@@ -296,8 +296,8 @@ sub get_accounts {
            AND ac.trans_id IN
              (
                SELECT trans_id
-               FROM acc_trans
-               JOIN chart ON (chart_id = id)
+               FROM acc_trans a
+               JOIN chart c ON (a.chart_id = c.id)
                WHERE (link LIKE '%AR_paid%')
                $subwhere
              )
@@ -318,8 +318,8 @@ sub get_accounts {
            AND ac.trans_id IN
              (
                SELECT trans_id
-               FROM acc_trans
-               JOIN chart ON (chart_id = id)
+               FROM acc_trans a
+               JOIN chart c ON (a.chart_id = c.id)
                WHERE link LIKE '%AP_paid%'
                $subwhere
              )
@@ -519,7 +519,7 @@ sub get_accounts_g {
          JOIN ar a ON (a.id = ac.trans_id)
          $dpt_join
          WHERE $where $dpt_where
-           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AR_paid%') $subwhere)
+           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a JOIN chart c ON (a.chart_id = c.id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
          GROUP BY c.$category
 */
@@ -531,7 +531,7 @@ sub get_accounts_g {
          JOIN ap a ON (a.id = ac.trans_id)
          $dpt_join
          WHERE $where $dpt_where
-           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AP_paid%') $subwhere)
+           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a JOIN chart c ON (a.chart_id = c.id) WHERE (link LIKE '%AP_paid%') $subwhere)
            $project
          GROUP BY c.$category
 
@@ -559,7 +559,7 @@ sub get_accounts_g {
          JOIN chart c on (p.income_accno_id = c.id)
          $dpt_join
          WHERE (c.category = 'I') $prwhere $dpt_where
-           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AR_paid%') $subwhere)
+           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a JOIN chart c ON (a.chart_id = c.id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
          GROUP BY c.$category
 
@@ -572,7 +572,7 @@ sub get_accounts_g {
          JOIN chart c on (p.expense_accno_id = c.id)
          $dpt_join
          WHERE (c.category = 'E') $prwhere $dpt_where
-           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans JOIN chart ON (chart_id = id) WHERE (link LIKE '%AP_paid%') $subwhere)
+           AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a JOIN chart c ON (a.chart_id = c.id) WHERE (link LIKE '%AP_paid%') $subwhere)
          $project
          GROUP BY c.$category
          |;
@@ -1334,8 +1334,8 @@ sub tax_report {
       AND ac.trans_id IN
         (
           SELECT trans_id
-          FROM acc_trans
-          JOIN chart ON (chart_id = id)
+          FROM acc_trans a
+          JOIN chart c ON (a.chart_id = c.id)
           WHERE (link LIKE '%${ARAP}_paid%')
           AND (transdate <= $todate)
         )
