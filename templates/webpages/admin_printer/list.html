@@ -1,0 +1,44 @@
+[%- USE T8 %]
+
+<body>
+<form method='post'>
+
+<h1 class=listtop>[% title %]</h1>
+
+[%- PROCESS 'admin_printer/_login_form.html' %]
+
+<table width=100%>
+  <tr>
+    <td>
+      <table width=100%>
+        <tr class=listheading>
+          <th>[% 'Description' | $T8 %]</th>
+          <th>[% 'Printer Command' | $T8 %]</th>
+          <th>[% 'Template Code' | $T8 %]</th>
+        </tr>
+[%- IF all_printers.size %]
+[%- FOREACH row = all_printers %]
+        <tr valign=top class="listrow[% loop.count % 2 %]">
+          <td><a href="[% edit_link %][% row.id %]">[% row.printer_description %]</a></td>
+          <td align=right>[% row.printer_command | html %]</td>
+          <td align=right>[% row.template_code | html %]</td>
+        </tr>
+[%- END %]
+[%- ELSE %]
+        <tr><td colspan='3'>[% 'No data was found.' | $T8 %]</td></tr>
+[%- END %]
+      </table>
+    </td>
+  </tr>
+  <tr>
+  <td><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<br>
+ <input type="hidden" name="action" value="printer_dispatcher">
+ <input type="submit" name="add_printer" value ="[% 'Add' | $T8 %]">
+ <input type="submit" name='get_login_form' value="[% 'Back' | $T8 %]">
+</form>
+</body>
+</html>

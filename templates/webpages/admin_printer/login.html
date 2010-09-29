@@ -1,0 +1,16 @@
+[% USE T8 %]
+[% USE L %]
+
+<h1 class=listtop>[% 'Printer Management' | $T8 %]</h1>
+<form method='post'>
+<p>[% 'Printers are created for a user database. Please select a user. The associated database will be edited.' | $T8 %]</p>
+
+[%- PROCESS 'admin_printer/_login_form.html' %]
+
+<input type='hidden' name='action' value='printer_dispatcher'>
+<p>
+<input type='submit' name='list_printers' value='[% 'Continue' | $T8 %]'>
+<input type='submit' name='list_users' value='[% 'Back' | $T8 %]'>
+</p>
+
+</form>

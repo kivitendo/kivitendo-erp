@@ -33,6 +33,26 @@ sub new {
   return $self;
 }
 
+sub get_user_dbh {
+  my ($self, $login) = @_;
+  my %user = $self->read_user($login);
+  my $dbh  = DBI->connect(
+    $user{dbconnect},
+    $user{dbuser},
+    $user{dbpasswd},
+    {
+      pg_enable_utf8 => $::locale->is_utf8,
+      AutoCommit     => 0
+    }
+  ) or $::form->dberror;
+
+  if ($user{dboptions}) {
+    $dbh->do($user{dboptions}) or $::form->dberror($user{dboptions});
+  }
+
+  return $dbh;
+}
+
 sub DESTROY {
   my $self = shift;
 

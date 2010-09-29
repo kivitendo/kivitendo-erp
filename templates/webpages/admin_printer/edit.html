@@ -1,0 +1,41 @@
+[%- USE T8 %]
+<body>
+
+<form method=post>
+
+<h1 class=listtop colspan=2>[% title %]</h1>
+
+[%- PROCESS 'admin_printer/_login_form.html' %]
+
+<input type=hidden name="printer.id" value="[% printer.id | html %]">
+<table width=100%>
+  <tr height="5"></tr>
+  <tr>
+    <th align=right>[% 'Printer' | $T8 %]</th>
+    <td><input name="printer.printer_description" size=30 value="[% printer.printer_description | html %]"></td>
+  <tr>
+  <tr>
+    <th align=right>[% 'Printer Command' | $T8 %]</th>
+    <td><input name="printer.printer_command" size=30 value="[% printer.printer_command | html %]"></td>
+  </tr>
+  <tr>
+    <th align=right>[% 'Template Code' | $T8 %]</th>
+    <td><input name="printer.template_code" size=5 value="[% printer.template_code | html %]"></td>
+  </tr>
+  <td colspan=2><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<br>
+<input type=hidden name=action value="printer_dispatcher">
+<input type=submit class=submit name=save_printer value="[% 'Save' | $T8 %]">
+
+[%- IF id %]
+<input type=submit class=submit name=delete_printer value="[% 'Delete' | $T8 %]">
+[%- END %]
+<input type=submit class=submit name=list_printers value="[% 'Back' | $T8 %]">
+
+</form>
+
+</body>
+</html>

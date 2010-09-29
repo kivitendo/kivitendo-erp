@@ -52,6 +52,7 @@ use SL::DBUtils;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/admin_groups.pl";
+require "bin/mozilla/admin_printer.pl";
 
 use strict;
 
