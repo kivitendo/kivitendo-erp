@@ -82,7 +82,8 @@ if ($_POST["ok"]) {
         echo "Jeder Artikel mu&szlig; einer Buchungsgruppe zugeordnet werden. ";
         echo "Dazu mu&szlig; entweder in der Maske eine Standardbuchungsgruppe gew&auml;hlt werden <br>";
         echo "oder es wird ein g&uuml;ltiges Konto in 'income_accno_id' und 'expense_accno_id' eingegeben. ";
-        echo "Das Programm versucht dann eine passende Buchungsgruppe zu finden.";
+        echo "Das Programm versucht dann eine passende Buchungsgruppe zu finden.<br>";
+	echo "Preisgruppen müssen zunächst angelegt werden. Die Spalten für die Preisgruppen beginnen mit 'pg_' gefolgt vom Preisgruppenname.";
         exit(0);
     };
 
