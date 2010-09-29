@@ -320,6 +320,7 @@ sub parse {
     $self->{"error"} = "$!";
     return 0;
   }
+  binmode IN, ":utf8" if $::locale->is_utf8;
   my @lines = <IN>;
   close(IN);
 
@@ -346,6 +347,7 @@ sub parse {
     return 0;
   }
 
+  binmode OUT, ":utf8" if $::locale->is_utf8;
   print(OUT $new_contents);
 
   if ($form->{"format"} =~ /postscript/i) {

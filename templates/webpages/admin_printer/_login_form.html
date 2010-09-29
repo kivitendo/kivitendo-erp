@@ -1,0 +1,4 @@
+[%- USE T8 %]
+[%- USE L %]
+<p>[% 'Please select a user' | $T8 %]: [% L.select_tag('login', L.options_for_select(users, value => 'login', title => 'login', default => login)) %]</p>
+

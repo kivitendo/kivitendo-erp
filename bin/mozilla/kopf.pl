@@ -107,23 +107,22 @@ window.onload=clockon
 </script>
 |;
 
-#
-my $framesize = _calc_framesize(); # framesize calculation as in menu.pl is only a quick and dirty hack here
-                                   # it would be better to use a global or config variable
-
 print qq|
 <body bgcolor="#ffffff" text="#ffffff" link="#ffffff" vlink="#ffffff" alink="#ffffff" topmargin="0" leftmargin="0"  marginwidth="0" marginheight="0" style="background-image: url('image/fade.png'); background-repeat:repeat-x;">
 <script language='JavaScript' src='js/switchmenuframe.js'></script>
 <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
-  <tr>
-    <td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
-      [<a href="JavaScript:Switch_Menu(|.$framesize.qq|);" title="| . $locale->text('Switch Menu on / off') . qq|">| . $locale->text('Menu') . qq|</a>]
-      &nbsp;[<a HREF="login.pl" target="_blank" title="| . $locale->text('Open a further Lx-Office Window or Tab') . qq|">| . $locale->text('New Win/Tab') . qq|</a>]
-      &nbsp;[<a href="JavaScript:top.main_window.print();" title="| . $locale->text('Hardcopy') . qq|">| . $locale->text('Print') . qq|</a>]
-      &nbsp;[<a href="Javascript:top.main_window.history.back();" title="| . $locale->text('Go one step back') . qq|">| . $locale->text('Back') . qq|</a>]
-      &nbsp;[<a href="Javascript:top.main_window.history.forward();" title="| . $locale->text('Go one step forward') . qq|">| . $locale->text('Fwd') . qq|</a>]
-      <!-- is there any better solution for Back? Possibly with the callback variable? -->
-    </td>
+  <tr>|;
+   if ( !($ENV{HTTP_USER_AGENT} =~ /links/i) ) {    # do not show the the links in case of "links" in HTTP_USER_AGENT
+      print qq|
+       <td  style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
+       [<a href="JavaScript:Switch_Menu();" title="| . $locale->text('Switch Menu on / off') . qq|">| . $locale->text('Menu') . qq|</a>]
+       &nbsp;[<a HREF="login.pl" target="_blank" title="| . $locale->text('Open a further Lx-Office Window or Tab') . qq|">| . $locale->text('New Win/Tab') . qq|</a>]
+       &nbsp;[<a href="JavaScript:top.main_window.print();" title="| . $locale->text('Hardcopy') . qq|">| . $locale->text('Print') . qq|</a>]
+       &nbsp;[<a href="Javascript:top.main_window.history.back();" title="| . $locale->text('Go one step back') . qq|">| . $locale->text('Back') . qq|</a>]
+       &nbsp;[<a href="Javascript:top.main_window.history.forward();" title="| . $locale->text('Go one step forward') . qq|">| . $locale->text('Fwd') . qq|</a>]
+      </td>|;
+   }
+   print qq|
     <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>|
   . $login . $datum . qq| <script>writeclock()</script>&nbsp;
     </td>
@@ -132,17 +131,6 @@ print qq|
 </body>
 </html>
 |;
-
-sub _calc_framesize {
-  my $is_lynx_browser   = $ENV{HTTP_USER_AGENT} =~ /links/i;
-  my $is_mobile_browser = $ENV{HTTP_USER_AGENT} =~ /mobile/i;
-  my $is_mobile_style   = $::form->{stylesheet} =~ /mobile/i;
-
-  return  $is_mobile_browser && $is_mobile_style ?  130
-        : $is_lynx_browser                       ?  240
-        :                                           180;
-}
-
 }
 
 1;

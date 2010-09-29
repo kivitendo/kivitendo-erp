@@ -268,7 +268,7 @@ sub new {
   #$self->{version} =  "2.6.1";                 # Old hardcoded but secure style
   open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
   $self->{version} =  <VERSION_FILE>;
-  close VERSION_FILE;							
+  close VERSION_FILE;
   $self->{version}  =~ s/[^0-9A-Za-z\.\_\-]//g; # only allow numbers, letters, points, underscores and dashes. Prevents injecting of malicious code.
 
   $main::lxdebug->leave_sub();
@@ -475,7 +475,7 @@ sub info {
 
     print qq|
     <p class="message_ok"><b>$msg</b></p>
-    
+
     <script type="text/javascript">
     <!--
     // If JavaScript is enabled, the whole thing will be reloaded.
@@ -484,7 +484,7 @@ sub info {
     setTimeout("top.frames.location.href='login.pl'",500);
     //-->
     </script>
-    
+
 </body>
     |;
 
@@ -672,9 +672,9 @@ sub header {
     </script>
     | if $self->{"fokus"};
 
-  # if there is a title, we put some JavaScript in to the page, wich writes a 
+  # if there is a title, we put some JavaScript in to the page, wich writes a
   # meaningful title-tag for our frameset.
-    my $title_hack;          
+    my $title_hack;
     if ($self->{"title"}){
 		$title_hack = qq|
 		<script type="text/javascript">
@@ -685,7 +685,7 @@ sub header {
 		</script>
 		|;
 	}
-    
+
     #Set Calendar
     my $jsscript = "";
     if ($self->{jsscript} == 1) {
@@ -723,7 +723,7 @@ sub header {
   $ajax
   $fokus
   $title_hack
-  
+
   <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css" />
 
   <meta name="robots" content="noindex,nofollow" />
