@@ -576,7 +576,7 @@ sub strip_base {
 
 sub _single_quote {
   my $val = shift;
-  $val =~ s/('|\\$)/\\$1/g;
+  $val =~ s/(\'|\\$)/\\$1/g;
   return  "'" . $val .  "'";
 }
 
