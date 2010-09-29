@@ -21,10 +21,19 @@ function getPartsgroupId($db, $value, $add) {
     }
     return $rs[0]["id"];
 }
-function insertParts($db,$insert,$show,$data) {
+function getPricegroup($db) {
+    $sql="SELECT * from pricegroup";
+    $rs=$db->getAll($sql);
+    $data = false;
+    if ($rs) foreach ($rs as $row) {
+        $data["pg_".strtolower($row["pricegroup"])]=$row["id"];
+    };
+    return $data;	
+}
+function insertParts($db,$insert,$show,$data,$pricegroup) {
     if ($show) {
         show('<tr>',false);
-        show($data["partnumber"]);        show($data["lastcost"]);          show($data["sellprice"]);
+        show($data["partnumber"]);        show($data["lastcost"]);          show($data["sellprice"]);	show($data["listprice"]);
         show($data["description"]);       show(substr($data["notes"],0,25));show($data["ean"]);
         show($data["weight"]);            show($data["image"]);             show($data["partsgroup_id"]);
         show($data["buchungsgruppen_id"]);show($data["income_accno"]);      show($data["expense_accno"]);
@@ -38,15 +47,16 @@ function insertParts($db,$insert,$show,$data) {
     if ($insert) {
         $sqlIa  = 'INSERT INTO parts (';
         $sqlIa .= 'partnumber,description,notes,ean,unit,';
-        $sqlIa .= 'weight,image,sellprice,lastcost,partsgroup_id,';
+        $sqlIa .= 'weight,image,sellprice,listprice,lastcost,partsgroup_id,';
         $sqlIa .= 'buchungsgruppen_id,income_accno_id,expense_accno_id,inventory_accno_id,';
         $sqlIa .= 'microfiche,drawing,rop,assembly,shop,makemodel,import) ';
-        $sqlIa .= 'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        $sqlIa .= 'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
         $data["import"]=time();
         $rc=$db->execute($sqlIa,$data);
     } else {
         $rc = true;
     }
+    if ($pricegroup) $ok = insPrices($db,$data["partnumber"],$pricegroup);
     if ($show) {
         if ($rc) 
             show('<b>ok</b>');
@@ -56,19 +66,20 @@ function insertParts($db,$insert,$show,$data) {
     }
     return $rc;
 }
-function updPrice($db,$insert,$show,$partnumber,$lastcost,$sellprice,$shop) {
+function updPrice($db,$insert,$show,$partnumber,$lastcost,$sellprice,$listprice,$pricegroup,$shop) {
     if ($show) {
         show('<tr>',false);
-        show($partnumber); show($lastcost); show($sellprice);
+        show($partnumber); show($lastcost); show($sellprice); show($listprice);
     }
     if ($insert) {
         $sqlPr  = 'UPDATE PARTS SET ';
-        $sqlPr .= 'sellprice = ?, lastcost = ?, shop = ? ';
+        $sqlPr .= 'sellprice = ?, listprice = ?, lastcost = ?, shop = ? ';
         $sqlPr .= 'WHERE  partnumber = ?';
-        $rc=$db->execute($sqlPr,array("sellprice"=>$sellprice,"lastcost"=>$lastcost,"shop"=>$shop,"partnumber"=>$partnumber));
+        $rc=$db->execute($sqlPr,array("sellprice"=>$sellprice,"listprice"=>$listprice,"lastcost"=>$lastcost,"shop"=>$shop,"partnumber"=>$partnumber));
     } else {
         $rc = true;
     }
+    if ($pricegroup) $ok = insPrices($db,$partnumber,$pricegroup);
     if ($show) {
         if ($rc) 
             show('<b>ok</b>');
@@ -78,25 +89,26 @@ function updPrice($db,$insert,$show,$partnumber,$lastcost,$sellprice,$shop) {
     }
     return $rc;
 }
-function updParts($db,$insert,$show,$partnumber,$lastcost,$sellprice,
+function updParts($db,$insert,$show,$partnumber,$lastcost,$sellprice,$listprice,
                     $description,$notes,$ean,$weight,$image,
-                    $partsgroup_id, $shop) {
+                    $partsgroup_id,$pricegroup, $shop) {
     if ($show) {
         show('<tr>',false);
-        show($partnumber);      show($lastcost);          show($sellprice);
+        show($partnumber);      show($lastcost);          show($sellprice); 	show($listprice);
         show($description);     show(substr($notes,0,25));show($ean);
         show($weight);          show($image);             show($partsgroup_id);
     }
     if ($insert) {
         $sqlUa  = 'UPDATE PARTS SET ';
         $sqlUa .= 'description = ?, notes = ?, ean = ?, weight = ?, image = ?, ';
-        $sqlUa .= 'sellprice = ?, lastcost = ?, partsgroup_id = ?, shop = ? ';
+        $sqlUa .= 'sellprice = ?, listprice = ?, lastcost = ?, partsgroup_id = ?, shop = ? ';
         $sqlUa .= 'WHERE  partnumber = ?';
         $rc=$db->execute($sqlUa,array($description,$notes,$ean,$weight,$image,
-                                $sellprice,$lastcost,$partsgroup_id,$shop,$partnumber));
+                                $sellprice,$listprice,$lastcost,$partsgroup_id,$shop,$partnumber));
     } else {
         $rc = true;
     }
+    if ($pricegroup) $ok = insPrices($db,$partnumber,$pricegroup);
     if ($show) {
         if ($rc) 
             show('<b>ok</b>');
@@ -139,7 +151,6 @@ function newPartNumber($db,$check) {
     $rs=$db->getAll($sql);
     if ($rs[0]["articlenumber"]) {
         preg_match("/([^0-9]+)?([0-9]+)([^0-9]+)?/", $rs[0]["articlenumber"] , $regs);
-        print_r($regs);
         $number=$regs[1].($regs[2]+1).$regs[3];
     }
     $sql = "update defaults set articlenumber = '$number'";
@@ -190,6 +201,22 @@ function getStdUnit($db,$type) {
     return $rs[0]["name"];
 }
 
+function insPrices($db,$pid,$prices) {
+    $rc = $db->query("BEGIN");
+    $sql="delete from prices where parts_id = ".$pid;
+    $rc = $db->query($sql);
+    $sql = "insert into prices (parts_id,pricegroup_id,price) values ((select id from parts where partnumber = '%s'),%d,%0.5f)";
+    foreach ($prices as $key => $val) {
+	$rc = $db->query(sprintf($sql,$pid,$key,$val));
+	if (!$rc) {
+	    $db->query("ROLLBACK");
+	    return false;
+	}
+    }
+    $db->query("COMMIT");
+    return true;
+}
+
 function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $insert, $show ,$maske) {
     $precision=$maske["precision"];
     $quotation=$maske["quotation"];
@@ -207,7 +234,13 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
     if ($show) show("<table border='1'>\n",false);
 
     /* field description */
-    $parts_fld = array_keys($fields);
+    $prices = getPricegroup($db);
+    if ($prices) {
+        $priceskey = array_keys($prices);
+        $parts_fld = array_merge(array_keys($fields),$priceskey);
+    } else {
+        $parts_fld = array_keys($fields);
+    }
 
     /* open csv file */
     $f=fopen($file.'.csv',"r");
@@ -217,7 +250,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
      */
     if ($show) {
         show('<tr>',false);
-        show("partnumber"); show("lastcost");   show("sellprice");
+        show("partnumber"); show("lastcost");   show("sellprice");	show("listprice");
         show("description");show("notes");      show("ean");
         show("weight");     show("image");      show("partsgroup_id");
         show("bg");         show("income_accno"); show("expense_accno");
@@ -264,13 +297,20 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 
         /* VK-Preis bilden */
         $sellprice = str_replace(",", ".", $zeile[$fldpos["sellprice"]]);
+        $listprice = str_replace(",", ".", $zeile[$fldpos["listprice"]]);
         $lastcost = str_replace(",", ".", $zeile[$fldpos["lastcost"]]);
+        if ($prices) {
+	    foreach ($prices as $pkey=>$val) {
+		$pricegroup[$val] = str_replace(",", ".", $zeile[$fldpos[$pkey]]);
+	    }
+	}
         if ($quotation<>0) {
             if ($quottype=="A") { $sellprice += $quotation; }
             else { $sellprice = $sellprice * $quotation; }
         };
         if ($lastcost=="") unset($lastcost);
         if ($sellprice=="") unset($sellprice);
+        if ($listprice=="") unset($listprice);
 
         /* Langtext zusammenbauen */
         if ($zeile[$fldpos["notes"]]) {
@@ -283,9 +323,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
             //Kundenspezifisch:
             //$notes1 = preg_replace('/""[^ ]/','"',$zeile[$fldpos["notes1"]]);
             $notes1 = addslashes($zeile[$fldpos["notes1"]]);
-echo "!".$notes1."!<br>";
             if (Translate) translate($notes1);
-echo "!".$notes1."!<br>";
             if ($notes) {
                 $notes .= "\n".$notes1;
             } else {
@@ -402,7 +440,6 @@ echo "!".$notes1."!<br>";
         } else {
                 $shop = $maske["shop"];
         }
-
         // Artikel updaten
 
         if (getPartsid($db,trim($zeile[$fldpos["partnumber"]]))) {
@@ -410,11 +447,11 @@ echo "!".$notes1."!<br>";
             if ($Update) {
                 /* Updates durchführen */
                 if ($UpdText=='1') {
-                    $u += updParts($db,$insert,$show,$zeile[$fldpos["partnumber"]],$lastcost,$sellprice,
+                    $u += updParts($db,$insert,$show,$zeile[$fldpos["partnumber"]],$lastcost,$sellprice,$listprice,
                     $description,$notes,$zeile[$fldpos["ean"]],$weight,
-                    $zeile[$fldpos["image"]],$partsgroup_id, $shop);
+                    $zeile[$fldpos["image"]],$partsgroup_id,$pricegroup, $shop);
                 } else {
-                    $u += updPrice($db,$insert,$show,$zeile[$fldpos["partnumber"]],$lastcost,$sellprice,$shop);
+                    $u += updPrice($db,$insert,$show,$zeile[$fldpos["partnumber"]],$lastcost,$sellprice,$listprice,$pricegroup,$shop);
                 }
                 continue;
                 // nächste Zeile
@@ -435,13 +472,13 @@ echo "!".$notes1."!<br>";
                     "description"=>$description,"notes"=>$notes,
                     "ean"=>$zeile[$fldpos["ean"]],"unit"=>$unit,
                     "weight"=>$weight,"image"=>$zeile[$fldpos["image"]],
-                    "sellprice"=>$sellprice,"lastcost"=>$lastcost,
+                    "sellprice"=>$sellprice,"lastcost"=>$lastcost,"listprice"=>$listprice,
                     "partsgroup_id"=>$partsgroup_id,
                     "buchungsgruppen_id"=>$bg,"income_accno"=>$income_accno,
                     "expense_accno"=>$expense_accno,"inventory_accno"=>$inventory_accno,
                     "microfiche"=>$zeile[$fldpos["microfiche"]],"drawing"=>$zeile[$fldpos["drawing"]],
                     "rop"=>$rop,"assembly"=>$assembly,
-                    "shop"=>$shop,"makemodel"=>$makemodel)
+                    "shop"=>$shop,"makemodel"=>$makemodel),$pricegroup
                 );
         if ($hersteller>0 && $model) {
             $partsid=getPartsid($db,$zeile[$fldpos["partnumber"]]);
