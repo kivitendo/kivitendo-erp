@@ -20,10 +20,9 @@ sub get_login_form {
 }
 
 sub printer_dispatcher {
-      $::lxdebug->dump(0,  "testing", $::form);
-  for (qw(get_login_form list_printers add_printer edit_printer save_printer delete_printer list_users)) {
-    if ($::form->{$_}) {
-      ::call_sub($::locale->findsub($_));
+  for my $action (qw(get_login_form list_printers add_printer edit_printer save_printer delete_printer list_users)) {
+    if ($::form->{$action}) {
+      ::call_sub($::locale->findsub($action));
       ::end_of_request()
     }
   }

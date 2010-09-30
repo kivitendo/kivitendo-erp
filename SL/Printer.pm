@@ -12,6 +12,8 @@ sub all_printers {
   my $query = qq|SELECT * FROM printers ORDER BY printer_description|;
   my @printers = selectall_hashref_query($::form, $dbh, $query);
 
+  $dbh->disconnect;
+
   $::lxdebug->leave_sub;
 
   return wantarray ? @printers : \@printers;
@@ -26,6 +28,8 @@ sub get_printer {
 
   my $query = qq|SELECT * FROM printers WHERE id = ?|;
   my ($printer) = selectfirst_hashref_query($::form, $dbh, $query, $params{id});
+
+  $dbh->disconnect;
 
   $::lxdebug->leave_sub;
 
@@ -61,6 +65,7 @@ SQL
   );
 
   $dbh->commit;
+  $dbh->disconnect;
 
   $::lxdebug->leave_sub;
 }
@@ -76,6 +81,7 @@ sub delete_printer {
   do_query($::form, $dbh, $query, $params{id});
 
   $dbh->commit;
+  $dbh->disconnect;
 
   $::lxdebug->leave_sub;
 }
