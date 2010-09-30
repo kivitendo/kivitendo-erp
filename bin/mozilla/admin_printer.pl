@@ -30,7 +30,7 @@ sub printer_dispatcher {
 }
 
 sub printer_management {
-  &list_printers;
+  &get_login_form;
 }
 
 sub add_printer {
