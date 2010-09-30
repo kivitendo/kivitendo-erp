@@ -39,6 +39,7 @@ use SL::User;
 use SL::USTVA;
 use SL::Iconv;
 use SL::TODO;
+use SL::Printer;
 use CGI::Ajax;
 use CGI;
 
