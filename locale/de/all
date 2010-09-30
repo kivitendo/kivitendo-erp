@@ -942,7 +942,6 @@ $self->{texts} = {
   'List Price'                  => 'Listenpreis',
   'List Price Factors'          => 'Preisfaktoren anzeigen',
   'List Pricegroups'            => 'Preisgruppen anzeigen',
-  'List Printer'                => 'Drucker anzeigen',
   'List Tax'                    => 'Bearbeiten',
   'List Transactions'           => 'Buchungsliste',
   'List Warehouses'             => 'Lager anzeigen',

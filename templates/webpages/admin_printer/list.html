@@ -20,8 +20,8 @@
 [%- FOREACH row = all_printers %]
         <tr valign=top class="listrow[% loop.count % 2 %]">
           <td><a href="[% edit_link %][% row.id %]">[% row.printer_description %]</a></td>
-          <td align=right>[% row.printer_command | html %]</td>
-          <td align=right>[% row.template_code | html %]</td>
+          <td align=left>[% row.printer_command | html %]</td>
+          <td align=left>[% row.template_code | html %]</td>
         </tr>
 [%- END %]
 [%- ELSE %]
