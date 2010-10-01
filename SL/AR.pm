@@ -435,7 +435,8 @@ sub ar_transactions {
     qq|LEFT JOIN employee e2 ON (a.salesman_id = e2.id) | .
     qq|LEFT JOIN project pr ON (a.globalproject_id = pr.id)| .
     qq|LEFT JOIN tax_zones tz ON (tz.id = c.taxzone_id)| .
-    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)|;
+    qq|LEFT JOIN payment_terms pt ON (pt.id = c.payment_id)| .
+    qq|LEFT JOIN department d ON (d.id = a.department_id)|;
 
   my $where = "1 = 1";
   if ($form->{customer_id}) {
@@ -445,10 +446,15 @@ sub ar_transactions {
     $where .= " AND c.name ILIKE ?";
     push(@values, $form->like($form->{customer}));
   }
-  if ($form->{department}) {
-    my ($null, $department_id) = split /--/, $form->{department};
+  if ($form->{department_id}) {
+    my $department_id = $form->{department_id};
     $where .= " AND a.department_id = ?";
     push(@values, $department_id);
+  }
+  if ($form->{department}) {
+    my $department = "%" . $form->{department} . "%";
+    $where .= " AND d.description ILIKE ?";
+    push(@values, $department);
   }
   foreach my $column (qw(invnumber ordnumber notes transaction_description)) {
     if ($form->{$column}) {

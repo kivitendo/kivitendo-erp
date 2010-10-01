@@ -1398,6 +1398,9 @@ sub ar_transactions {
     my ($department) = split /--/, $form->{department};
     push @options, $locale->text('Department') . " : $department";
   }
+  if ($form->{department_id}) {
+    push @options, $locale->text('Department Id') . " : $form->{department_id}";
+  }
   if ($form->{invnumber}) {
     push @options, $locale->text('Invoice Number') . " : $form->{invnumber}";
   }
