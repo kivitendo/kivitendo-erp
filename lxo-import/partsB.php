@@ -8,6 +8,9 @@ Henry Margies <h.margies@maxina.de>
 Holger Lindemann <hli@lx-system.de>
 */
 
+$dir="../users/";
+$gz_bin = "/bin/gzip -df ";
+$zip_bin = "/usr/bin/unzip -o -d ".$dir;
 
 function ende($txt) {
     echo "Abbruch: $txt<br>";
@@ -44,7 +47,7 @@ if ($_POST["ok"]) {
          define("ServerCode",$tmpcode);
     }
     //Zeichensatz sollte gleich sein, sonst ist die Datenkonvertierung nutzlos
-    //DB und LxO müssen ja nicht auf der gleichen Maschiene sein.
+    //DB und LxO müssen ja nicht auf der gleichen Maschine sein.
     if($tmpcode<>$db->getClientCode()) {
         $rc = $db->setClientCode($tmpcode);
     } 
@@ -104,10 +107,22 @@ if ($_POST["ok"]) {
         ende ("Kein Datenfile angegeben");
 
     /* copy file */
-    $dir="../users/";
-    if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv")) {
+    if (substr($_FILES["Datei"]["name"],-2)=="gz") {
+        if (move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv.gz")) {
+            echo $gz_bin.$dir.$file.".csv.gz";
+            exec ($gz_bin.$dir.$file.".csv.gz");
+        } else {
+            ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
+        };
+    } else if (substr($_FILES["Datei"]["name"],-3)=="zip") {
+        if (move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".zip")) {
+            exec ($zip_bin.$dir.$file.".zip");
+        } else {
+            ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
+        };
+    } else if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv")) {
         ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
-    } 
+    }; 
 
     /* check if file is really there */
     if (!file_exists($dir.$file.'.csv') or filesize($dir.$file.'.csv')==0) 
@@ -129,6 +144,8 @@ if ($_POST["ok"]) {
 
 } else {
     $bugrus=getAllBG($db);
+    $serviceunit=getAllUnits($db,"service");
+    $dimensionunit=getAllUnits($db,"dimension");
 ?>
 
 <p class="listtop">Artikelimport f&uuml;r die ERP<p>
@@ -166,14 +183,23 @@ if ($_POST["ok"]) {
 <tr><td>Art</td><td><input type="Radio" name="ware" value="W" checked>Ware &nbsp; 
             <input type="Radio" name="ware" value="D">Dienstleistung
             <input type="Radio" name="ware" value="G">gemischt (Spalte 'art' vorhanden)</td></tr>
+<tr><td>Default Einheiten<br></td><td><select name="dimensionunit">
+<?php    if ($dimensionunit) foreach ($dimensionunit as $u) { ?>
+            <option value="<?php echo  $u["name"] ?>"><?php echo  $u["name"]."\n" ?>
+<?php    } ?>
+    </select><select name="serviceunit">
+<?php    if ($serviceunit) foreach ($serviceunit as $u) { ?>
+            <option value="<?php echo  $u["name"] ?>"><?php echo  $u["name"]."\n" ?>
+<?php    } ?>
+</select>
+</td></tr>
 <tr><td>Default Bugru<br></td><td><select name="bugru">
 <?php    if ($bugrus) foreach ($bugrus as $bg) { ?>
             <option value="<?php echo  $bg["id"] ?>"><?php echo  $bg["description"]."\n" ?>
 <?php    } ?>
     </select>
-    <input type="radio" name="bugrufix" value="0">nie<br>
-    <input type="radio" name="bugrufix" value="1" checked>f&uuml;r alle Artikel verwenden
-    <input type="radio" name="bugrufix" value="2">f&uuml;r Artikel ohne passende Bugru
+    <input type="radio" name="bugrufix" value="1" >f&uuml;r alle Artikel verwenden
+    <input type="radio" name="bugrufix" value="2" checked>f&uuml;r Artikel ohne passende Bugru
     </td></tr>
 <tr><td>Daten</td><td><input type="file" name="Datei"></td></tr>
 <tr><td>Verwendete<br />Zeichecodierung</td><td>

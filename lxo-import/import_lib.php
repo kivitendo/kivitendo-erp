@@ -279,6 +279,11 @@ function getAllBG($db) {
     $rs=$db->getAll($sql);
     return $rs;
 }
+function getAllUnits($db,$type) {
+    $sql  = "select * from units where type = '$type' order by sortkey";
+    $rs=$db->getAll($sql);
+    return $rs;
+}
 
 function anmelden() {
     ini_set("gc_maxlifetime","3600");

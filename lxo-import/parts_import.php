@@ -41,18 +41,27 @@ function insertParts($db,$insert,$show,$data,$pricegroup) {
         show($data["rop"]);               show($data["assembly"]);          show($data["makemodel"]);
         show($data["shop"]);
     }
+
     /*foreach ($data as $key=>$val) {
         echo $key.":".gettype($val).":".gettype($data[$key]).":".$val."<br>";
     }*/
     if ($insert) {
+        $data["import"]=time();
         $sqlIa  = 'INSERT INTO parts (';
         $sqlIa .= 'partnumber,description,notes,ean,unit,';
         $sqlIa .= 'weight,image,sellprice,listprice,lastcost,partsgroup_id,';
         $sqlIa .= 'buchungsgruppen_id,income_accno_id,expense_accno_id,inventory_accno_id,';
         $sqlIa .= 'microfiche,drawing,rop,assembly,shop,makemodel,import) ';
-        $sqlIa .= 'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
-        $data["import"]=time();
-        $rc=$db->execute($sqlIa,$data);
+        //$sqlIa .= 'VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)';
+        //$rc=$db->execute($sqlIa,$data);
+        $sqlIa .= "VALUES ('%s','%s','%s','%s','%s',%0.5f,'%s',%0.5f,%0.5f,%0.5f,%d,%d,%d,%d,%d,'%s','%s',%.0f,'%s','%s','%s',%s)";
+        $sql = sprintf($sqlIa,$data['partnumber'],$data['description'],$data['notes'],$data['ean'],
+                                $data['unit'],$data['weight'],$data['image'],$data['sellprice'],
+                                $data['listprice'],$data['lastcost'],$data['partsgroup_id'],
+                                $data['buchungsgruppen_id'],$data['income_accno_id'],$data['expense_accno_id'],
+                                $data['inventory_accno_id'],$data['microfiche'],$data['drawing'],$data['rop'],
+                                $data['assembly'],$data['shop'],$data['makemodel'],$data['import']);
+        $rc = $db->query($sql);
     } else {
         $rc = true;
     }
@@ -203,7 +212,7 @@ function getStdUnit($db,$type) {
 
 function insPrices($db,$pid,$prices) {
     $rc = $db->query("BEGIN");
-    $sql="delete from prices where parts_id = ".$pid;
+    $sql="delete from prices where parts_id = (select id from parts where partnumber = '$pid')";
     $rc = $db->query($sql);
     $sql = "insert into prices (parts_id,pricegroup_id,price) values ((select id from parts where partnumber = '%s'),%d,%0.5f)";
     foreach ($prices as $key => $val) {
@@ -226,8 +235,10 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
     $Update=($maske["update"]=="U")?true:false;
     $UpdText=($maske["TextUpd"]=="1")?true:false;
 
-    $stdunitW=getStdUnit($db,"dimension");
-    $stdunitD=getStdUnit($db,"service");
+    //$stdunitW=getStdUnit($db,"dimension");
+    //$stdunitD=getStdUnit($db,"service");
+    $stdunitW=$maske["dimensionunit"];
+    $stdunitD=$maske["serviceunit"];
     if ($quottype=="P") $quotation=($quotation+100)/100;
 
     if ($show && !$insert) show("<b>Testimport</b>",false);
@@ -242,9 +253,24 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
         $parts_fld = array_keys($fields);
     }
 
+    if ($trenner=="other") $trenner=trim($trennzeichen);
+    if (substr($trenner,0,1)=="#") if (strlen($trenner)>1) $trenner=chr(substr($trenner,1));
+
     /* open csv file */
-    $f=fopen($file.'.csv',"r");
-    
+    if (file_exists($file."head.csv")) {
+        $fh=fopen($file.'head.csv',"r");
+        // Erst einmal die erste Zeile mit den richtigen Feldbezeichnungen einlesen. 
+        $infld=fgetcsv($fh,1200,$trenner);
+        fclose($fh);
+        $f=fopen($file.'.csv',"r");
+        // Erst einmal die erste Zeile mit den falschen Feldbezeichnungen einlesen. 
+        $tmp=fgetcsv($f,1200,$trenner);
+    } else {
+        $f=fopen($file.'.csv',"r");
+        // Erst einmal die erste Zeile mit den Feldbezeichnungen einlesen. 
+        $infld=fgetcsv($f,1200,$trenner);
+    }
+
     /*
      * read first line with table descriptions
      */
@@ -259,11 +285,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
         show("</tr>\n",false);
     }
 
-    if ($trenner=="other") $trenner=trim($trennzeichen);
-    if (substr($trenner,0,1)=="#") if (strlen($trenner)>1) $trenner=chr(substr($trenner,1));
    
-    // Erst einmal die erste Zeile mit den Feldbezeichnungen einlesen. 
-    $infld=fgetcsv($f,1200,$trenner);
     $p=0;
     foreach ($infld as $fld) {
         $fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
@@ -300,8 +322,9 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
         $listprice = str_replace(",", ".", $zeile[$fldpos["listprice"]]);
         $lastcost = str_replace(",", ".", $zeile[$fldpos["lastcost"]]);
         if ($prices) {
-	    foreach ($prices as $pkey=>$val) {
-		$pricegroup[$val] = str_replace(",", ".", $zeile[$fldpos[$pkey]]);
+  	        foreach ($prices as $pkey=>$val) {
+                if (array_key_exists($pkey,$fldpos))  
+    		        $pricegroup[$val] = str_replace(",", ".", $zeile[$fldpos[$pkey]]);
 	    }
 	}
         if ($quotation<>0) {
@@ -345,6 +368,7 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
 
         /* sind Hersteller und Modelnummer hinterlegt 
             wenn ja, erfolgt er insert später */
+        $makemodel = 'f';
         if (!empty($zeile[$fldpos["makemodel"]]) and !$artikel) { 
             $mm = $zeile[$fldpos["makemodel"]];
             if (Translate) translate($mm);
@@ -472,10 +496,12 @@ function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $ins
                     "description"=>$description,"notes"=>$notes,
                     "ean"=>$zeile[$fldpos["ean"]],"unit"=>$unit,
                     "weight"=>$weight,"image"=>$zeile[$fldpos["image"]],
-                    "sellprice"=>$sellprice,"lastcost"=>$lastcost,"listprice"=>$listprice,
+                    "sellprice"=>$sellprice,
+                    "lastcost"=>$lastcost,
+                    "listprice"=>$listprice,
                     "partsgroup_id"=>$partsgroup_id,
-                    "buchungsgruppen_id"=>$bg,"income_accno"=>$income_accno,
-                    "expense_accno"=>$expense_accno,"inventory_accno"=>$inventory_accno,
+                    "buchungsgruppen_id"=>$bg,"income_accno_id"=>$income_accno,
+                    "expense_accno_id"=>$expense_accno,"inventory_accno_id"=>$inventory_accno,
                     "microfiche"=>$zeile[$fldpos["microfiche"]],"drawing"=>$zeile[$fldpos["drawing"]],
                     "rop"=>$rop,"assembly"=>$assembly,
                     "shop"=>$shop,"makemodel"=>$makemodel),$pricegroup
