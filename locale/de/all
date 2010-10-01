@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# -*- coding: ISO-8859-15; -*-
+# -*- coding: iso-8859-15; -*-
 # vim: fenc=ISO-8859-15
 
 # These are all the texts to build the translations files.
@@ -942,7 +942,6 @@ $self->{texts} = {
   'List Price'                  => 'Listenpreis',
   'List Price Factors'          => 'Preisfaktoren anzeigen',
   'List Pricegroups'            => 'Preisgruppen anzeigen',
-  'List Printer'                => 'Drucker anzeigen',
   'List Tax'                    => 'Bearbeiten',
   'List Transactions'           => 'Buchungsliste',
   'List Warehouses'             => 'Lager anzeigen',

@@ -576,7 +576,7 @@ sub strip_base {
 
 sub _single_quote {
   my $val = shift;
-  $val =~ s/('|\\$)/\\$1/g;
+  $val =~ s/(\'|\\$)/\\$1/g;
   return  "'" . $val .  "'";
 }
 
@@ -601,7 +601,9 @@ sub generate_file {
 
   open my $fh, '>', $file or die "$! : $file";
 
-  print $fh "#!/usr/bin/perl\n# -*- coding: $charset; -*-\n# vim: fenc=$charset\n\n";
+  my $emacs_charset = lc $charset;
+
+  print $fh "#!/usr/bin/perl\n# -*- coding: $emacs_charset; -*-\n# vim: fenc=$charset\n\n";
   print $fh $header, "\n" if $header;
   print $fh "$data_name = $delim[0]\n" if $data_name;
 
