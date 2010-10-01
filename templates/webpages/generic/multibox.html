@@ -23,12 +23,17 @@
     select        : java function call for a selection popup or other magic
     allow_textbox : allow to display a textbox instead of a drop down box if there are more entries than 'limit' entries.
     limit         : defines the limit of entries, after which a textbox is generated. defaults to vclimit, or, failing to find that, 200.
+    select_name   : if a select is displayed, use a different name. ex.: department for textinput, but department_id for selects
     readonly      : softly prevents modification
 -%]
 [%- DEFAULT
   limit      = limit   != '' ? limit   : vclimit != '' ? vclimit : 200
+  show_text  = allow_textbox and DATA.size and limit < DATA.size ? 1 : 0
   id         = id      != '' ? id      : name
   default    = default != '' ? default : $name
+-%]
+[%-
+  name       = (select_name != '' and ! show_text) ? select_name : name
 -%]
 [%- FOREACH row = DATA %]
   [%-
@@ -39,7 +44,7 @@
        row.selected = default == row.id
   -%]
 [%- END -%]
-[%- IF allow_textbox and DATA.size and limit < DATA.size %]
+[%- IF show_text %]
 <input type="text"
  [%- IF name     %] name="[%     HTML.escape(name)     %]"[% END -%]
  [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END -%]
