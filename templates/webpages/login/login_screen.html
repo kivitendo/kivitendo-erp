@@ -2,12 +2,10 @@
 [% USE HTML %]<body class="login" onLoad="document.loginscreen.login.focus()">
 
  <center>
- <p>&nbsp;</p>
- <p>&nbsp;</p>
-  <table class="login" border="0" cellpadding="0">
+  <table class="login" border="3" cellpadding="20">
    <tr>
     <td class="login" align="center">
-     <a href="http://www.lx-office.org" target="_top"><img src="image/lx-office-erp.png" border="0" width="150"></a>
+     <a href="http://www.lx-office.org" target="_top"><img src="image/lx-office-erp.png" border="0"></a>
      <h3 class="login" align="center">[% 'Lx-Office' | $T8 %] [% version %]</h3>
 
      [% IF error_message %]
@@ -20,16 +18,26 @@
 
        <input type="hidden" name="show_dbupdate_warning" value="1">
 
-       <table width="100%" border=0>
+       <table width="100%">
         <tr>
          <td align="center">
-          <table border=0>
-           <tr><th align="left">[% 'Login Name' | $T8 %]</th><td><input class="login" name="login" size="20" tabindex="1" title="[% 'Login Name' | $T8 %]"></td></tr>
-           <tr><th align="left">[% 'Password' | $T8 %]</th><td><input class="login" type="password" name="password" size="20" tabindex="2" title="[% 'Password' | $T8 %]"></td></tr>
-           <tr><th align="left"></th><td><input type="hidden" name="action" value="login"><input type="submit" value="[% 'Login' | $T8 %]" tabindex="3" title="[% 'User Login' | $T8 %]"></td></tr>
-           <tr><th align="left"></th><td align="right"><a href="admin.pl" style="font-size: 0.66em;" title="[% 'Administration' | $T8 %]">[% 'Administration' | $T8 %]</a></td></tr>
+          <table>
+           <tr>
+            <th align="right">[% 'Login Name' | $T8 %]</th>
+            <td><input class="login" name="login" size="30" tabindex="1"></td>
+           </tr>
+           <tr>
+            <th align="right">[% 'Password' | $T8 %]</th>
+            <td><input class="login" type="password" name="password" size="30" tabindex="2"></td>
+           </tr>
           </table>
-         </tr>
+
+          <br>
+          <input type="hidden" name="action" value="login">
+          <input type="submit" value="[% 'Login' | $T8 %]" tabindex="3">
+
+         </td>
+        </tr>
        </table>
 
       </form>
