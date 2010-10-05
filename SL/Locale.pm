@@ -241,7 +241,7 @@ sub findsub {
       $original    =~ s/_+/_/g;
 
       $translation =  lc $translation;
-      $translation =~ s/\s+/_/g;
+      $translation =~ s/[\s\-]+/_/g;
 
       $self->{texts_reverse}->{$translation} ||= [ ];
       push @{ $self->{texts_reverse}->{$translation} }, $original;
