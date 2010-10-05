@@ -1166,7 +1166,7 @@ sub print_options {
 
   push @MEDIA, grep $_,
       opthash("screen",              $form->{OP}{screen},              $locale->text('Screen')),
-    (scalar @{ $form->{printers} } && $main::latex_templates) ?
+    ($form->{printers} && scalar @{ $form->{printers} } && $main::latex_templates) ?
       opthash("printer",             $form->{OP}{printer},             $locale->text('Printer')) : undef,
     ($main::latex_templates && !$options{no_queue}) ?
       opthash("queue",               $form->{OP}{queue},               $locale->text('Queue')) : undef
