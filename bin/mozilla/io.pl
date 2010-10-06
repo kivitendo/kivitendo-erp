@@ -229,7 +229,6 @@ sub display_row {
     }
     my $this_unit = $form->{"unit_$i"};
     $this_unit    = $form->{"selected_unit_$i"} if AM->convert_unit($this_unit, $form->{"selected_unit_$i"}, $all_units);
-    $this_unit  ||= "kg";
 
     if (0 < scalar @{ $form->{ALL_PRICE_FACTORS} }) {
       my @values = ('', map { $_->{id}                      } @{ $form->{ALL_PRICE_FACTORS} });
