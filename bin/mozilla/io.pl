@@ -2072,7 +2072,7 @@ sub _update_custom_variables {
 
   my $form     = $main::form;
 
-  $form->{CVAR_CONFIGS}       ||= { };
+  $form->{CVAR_CONFIGS}         = { } unless ref $form->{CVAR_CONFIGS} eq 'HASH';
   $form->{CVAR_CONFIGS}->{IC} ||= CVar->get_configs(module => 'IC');
 
   $main::lxdebug->leave_sub();
