@@ -236,12 +236,6 @@ sub form_header {
           <td>
             <table>
               <tr>
-                <td align=right>
-                <input name=all_vc type=checkbox style=checkbox value=Y $allvc>
-                <input type=hidden name="oldall_vc" value="$form->{all_vc}"></td>
-                <th align=left>| . $locale->text('All') . qq|</th>
-              </tr>
-              <tr>
                 <th align=right>$vclabel</th>
                 <td>$vc</td>
                 <input type=hidden name="select$form->{vc}" value="| . H($form->{"select$form->{vc}"}) . qq|">
@@ -303,8 +297,7 @@ sub form_header {
               </tr>
               <tr>
                 <th align="right" nowrap>| . $locale->text('Amount') . qq|</th>
-                <td colspan="3"><input name="amount" size="10" value="|
-    . $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|" onBlur=\"check_right_number_format(this)\"></td>
+                <td colspan="3">| .  $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|</td>
               </tr>
             </table>
           </td>
