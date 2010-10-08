@@ -34,7 +34,6 @@
 use SL::CP;
 use SL::IS;
 use SL::IR;
-
 use strict ("vars", "subs");
 #use warnings;
 
@@ -773,9 +772,19 @@ sub check_form {
     &update;
     ::end_of_request();
   }
-
-  $form->error($locale->text('Zero amount posting!')) if !$form->parse_amount(\%myconfig, $form->{amount});
   $form->error($locale->text('Date missing!')) unless $form->{datepaid};
+  my $selected_check = 1; 
+  for my $i (1 .. $form->{rowcount}) {
+    if ($form->{"checked_$i"}) {
+      if ($form->parse_amount(\%myconfig, $form->{"paid_$i"}, 2) <= 0) { # negativen Betrag eingegeben
+          $form->error($locale->text('No zero or negative values, please! Correct row number:' . $i));
+      }
+        undef($selected_check);
+        # last; # ich muss doch über alle buchungen laufen, da ich noch
+        # die freitext-eingabe der werte prüfen will 
+    }
+  }
+  $form->error($locale->text('No transaction selected!')) if $selected_check;
 
   $closedto = $form->datetonum($form->{closedto}, \%myconfig);
   $datepaid = $form->datetonum($form->{datepaid}, \%myconfig);

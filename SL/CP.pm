@@ -240,7 +240,6 @@ sub process_payment {
       qq|  (c.link LIKE '%:AP:%')) |;
   }
 
-  my $paymentamount = $form->{amount};
 
   my $null;
   ($null, $form->{department_id}) = split(/--/, $form->{department});
@@ -260,7 +259,6 @@ sub process_payment {
     $form->{"due_$i"}  = $form->parse_amount($myconfig, $form->{"due_$i"});
 
     if ($form->{"checked_$i"} && $form->{"paid_$i"}) {
-      $paymentamount = (($paymentamount * 1000) - ($form->{"paid_$i"} * 1000)) / 1000;
 
       # get exchangerate for original
       $query =
@@ -365,18 +363,11 @@ sub process_payment {
       # /saving the history
     }
   }
-
   my $rc;
-  if ($form->round_amount($paymentamount, 2) < 0) {
-		# Hier werden negativen Zahlungseingänge abgefangen
-		# Besser: in Oberfläche schon prüfen
-		# Zahlungsein- und ausgänge sind immer positiv
-    $dbh->rollback;
-    $rc = 0;
-  }
-  if ($form->round_amount($paymentamount, 2) == 0) {
+  # Hier wurden negativen Zahlungseingänge abgefangen
+  # da Zahlungsein- und ausgänge immer positiv sind
+  # Besser: in Oberfläche schon prüfen erledigt jb 10.2010
     $rc = $dbh->commit;
-  }
 
   $dbh->disconnect;
 
