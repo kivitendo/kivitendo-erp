@@ -48,7 +48,6 @@ our ($form, %myconfig, $lxdebug, $locale, $auth);
 
 sub payment {
   $lxdebug->enter_sub();
-
   $auth->assert('cash');
 
   my (@curr);
@@ -83,7 +82,6 @@ sub payment {
   }
 
   CP->paymentaccounts(\%myconfig, \%$form);
-
   $form->{selectaccount} = "";
   $form->{"select$form->{ARAP}"} = "";
 
@@ -288,7 +286,6 @@ sub form_header {
                 <th align=right nowrap>| . $locale->text('Currency') . qq|</th>
                 <td><select name=currency>$form->{selectcurrency}</select></td>
                 <input type=hidden name=selectcurrency value="$form->{selectcurrency}">
-                <input type=hidden name=oldcurrency value=$form->{oldcurrency}>
               </tr>
               $exchangerate
               <tr>
@@ -661,6 +658,8 @@ sub post {
       unless $form->{exchangerate};
   }
 
+  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&muh=kuh&account=$form->{account}";
+
   my $msg1 = "$form->{origtitle} posted!";
   my $msg2 = "Cannot post $form->{origtitle}!";
 
@@ -678,7 +677,7 @@ sub post {
 
 sub print {
   $lxdebug->enter_sub();
-
+  exit; # Niemand braucht mich mehr! LöschMich endlich! jb 8.10.2010
   $auth->assert('cash');
 
   my ($whole, $check, %queued, $spool, $filename, $userspath);
