@@ -770,7 +770,7 @@ sub check_form {
   for my $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
       if ($form->parse_amount(\%myconfig, $form->{"paid_$i"}, 2) <= 0) { # negativen Betrag eingegeben
-          $form->error($locale->text('No zero or negative values, please! Correct row number:' . $i));
+          $form->error($locale->text('Amount has to be greater then zero! Wrong row number: ') . $i);
       }
         undef($selected_check);
         # last; # ich muss doch über alle buchungen laufen, da ich noch
