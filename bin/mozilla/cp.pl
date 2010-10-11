@@ -658,7 +658,7 @@ sub post {
       unless $form->{exchangerate};
   }
 
-  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&muh=kuh&account=$form->{account}";
+  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&type=$form->{type}&account=$form->{account}";
 
   my $msg1 = "$form->{origtitle} posted!";
   my $msg2 = "Cannot post $form->{origtitle}!";
