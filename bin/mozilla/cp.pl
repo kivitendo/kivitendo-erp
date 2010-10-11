@@ -48,6 +48,7 @@ our ($form, %myconfig, $lxdebug, $locale, $auth);
 
 sub payment {
   $lxdebug->enter_sub();
+
   $auth->assert('cash');
 
   my (@curr);
@@ -82,6 +83,7 @@ sub payment {
   }
 
   CP->paymentaccounts(\%myconfig, \%$form);
+
   $form->{selectaccount} = "";
   $form->{"select$form->{ARAP}"} = "";
 
@@ -286,6 +288,7 @@ sub form_header {
                 <th align=right nowrap>| . $locale->text('Currency') . qq|</th>
                 <td><select name=currency>$form->{selectcurrency}</select></td>
                 <input type=hidden name=selectcurrency value="$form->{selectcurrency}">
+                <input type=hidden name=oldcurrency value=$form->{oldcurrency}>
               </tr>
               $exchangerate
               <tr>
