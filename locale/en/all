@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# -*- coding: ISO-8859-15; -*-
+# -*- coding: iso-8859-15; -*-
 # vim: fenc=ISO-8859-15
 
 # These are all the texts to build the translations files.
@@ -177,6 +177,7 @@ $self->{texts} = {
   'Amended Advance Turnover Tax Return (Nr. 10)' => '',
   'Amount'                      => '',
   'Amount Due'                  => '',
+  'Amount has to be greater then zero! Wrong row number: ' => '',
   'Annotations'                 => '',
   'Another user with the login #1 does already exist.' => '',
   'Ap aging on %s'              => '',
@@ -526,6 +527,7 @@ $self->{texts} = {
   'Delivery Order deleted!'     => '',
   'Delivery Orders'             => '',
   'Department'                  => '',
+  'Department Id'               => '',
   'Department deleted!'         => '',
   'Department saved!'           => '',
   'Departments'                 => '',
@@ -1067,6 +1069,7 @@ $self->{texts} = {
   'No part was found matching the search parameters.' => '',
   'No prices will be updated because no prices have been entered.' => '',
   'No problems were recognized.' => '',
+  'No transaction selected!'    => '',
   'No transfers were executed in this export.' => '',
   'No unknown units where found.' => '',
   'No user has been selected.'  => '',
