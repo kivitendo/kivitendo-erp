@@ -103,7 +103,6 @@ sub payment {
   $form->{selectcurrency} = "";
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
 
-  $form->{media} = "screen";
 
   &form_header;
   &form_footer;
@@ -451,28 +450,6 @@ sub form_footer {
 
   $auth->assert('cash');
 
-  my ($media, $format, $latex_templates);
-
-  $form->{DF}{ $form->{format} } = "selected";
-  $form->{OP}{ $form->{media} }  = "selected";
-
-  $media = qq|
-          <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-
-  if ($myconfig{printer} && $latex_templates) {
-    $media .= qq|
-          <option value=printer $form->{OP}{printer}>|
-      . $locale->text('Printer');
-  }
-  if ($latex_templates) {
-    $media .= qq|
-          <option value=queue $form->{OP}{queue}>| . $locale->text('Queue');
-    $format .= qq|
-            <option value=postscript $form->{DF}{postscript}>|
-      . $locale->text('Postscript') . qq|
-            <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF');
-  }
-
   print qq|
   <tr>
     <td><hr size=3 noshade></td>
@@ -484,19 +461,8 @@ sub form_footer {
 <input class=submit type=submit name=action value="|
     . $locale->text('Update') . qq|">
 <input class=submit type=submit name=action value="|
-    . $locale->text('Post') . qq|">|;
-
-  if ($latex_templates) {
-    print qq|
-<input class=submit type=submit name=action value="|
-      . $locale->text('Print') . qq|">|;
-  }
-
-  print qq|
-<select name=format>$format</select>
-<select name=media>$media</select>
-
-  </form>
+    . $locale->text('Post') . qq|">
+ </form>
 
 </body>
 </html>
@@ -674,82 +640,6 @@ sub post {
   $form->redirect($locale->text($msg1))
     if (CP->process_payment(\%myconfig, \%$form));
   $form->error($locale->text($msg2));
-
-  $lxdebug->leave_sub();
-}
-
-sub print {
-  $lxdebug->enter_sub();
-  exit; # Niemand braucht mich mehr! LöschMich endlich! jb 8.10.2010
-  $auth->assert('cash');
-
-  my ($whole, $check, %queued, $spool, $filename, $userspath);
-
-  &check_form;
-
-  ($whole, $form->{decimal}) = split(/\./, $form->{amount});
-
-  $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
-
-  #$form->{decimal} .= "00";
-  $form->{decimal} = substr($form->{decimal}, 0, 2);
-
-  $check = new CP $myconfig{countrycode};
-  $check->init;
-  $form->{text_amount} = $check->num2text($whole);
-
-  if ($form->{vc} eq 'customer') {
-    IS->customer_details(\%myconfig, $form);
-  } else {
-    IR->vendor_details(\%myconfig, $form);
-  }
-
-  $form->{callback} = "";
-
-  $form->{templates} = "$myconfig{templates}";
-  $form->{IN}        = "$form->{formname}.tex";
-
-  if ($form->{format} eq 'postscript') {
-    $form->{postscript} = 1;
-  }
-  if ($form->{format} eq 'pdf') {
-    $form->{pdf} = 1;
-  }
-
-  delete $form->{OUT};
-
-  if ($form->{media} eq 'printer') {
-    $form->{OUT} = "| $myconfig{printer}";
-  }
-  if ($form->{media} eq 'queue') {
-    %queued = map { s|.*/|| } split / /, $form->{queued};
-
-    if ($filename = $queued{ $form->{formname} }) {
-      unlink "$spool/$filename";
-      $filename =~ s/\..*$//g;
-    } else {
-      $filename = time;
-      $filename .= $$;
-    }
-    $filename .= ($form->{postscript}) ? '.ps' : '.pdf';
-    $form->{queued} = "$form->{formname} $filename";
-    $form->{OUT}    = ">$spool/$filename";
-
-    $form->update_status(\%myconfig);
-
-  }
-
-  $form->{company} = $myconfig{company};
-  $form->{address} = $myconfig{address};
-
-  $form->parse_template(\%myconfig, $userspath);
-
-  if ($form->{media} ne 'screen') {
-    $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&all_vc=$form->{all_vc}";
-
-    $form->redirect if (CP->process_payment(\%myconfig, \%$form));
-    $form->error($locale->text('Cannot post payment!'));
-  }
 
   $lxdebug->leave_sub();
 }
