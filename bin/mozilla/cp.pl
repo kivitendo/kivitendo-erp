@@ -58,6 +58,8 @@ sub payment {
 
   # setup customer/vendor selection for open invoices
   if ($form->{all_vc}) {
+    # Dieser Zweig funktioniert derzeit NIE. Ggf. ganz raus oder
+    # alle offenen Zahlungen wieder korrekt anzeigen. jb 12.10.2010
     $form->all_vc(\%myconfig, $form->{vc}, $form->{ARAP});
   } else {
     CP->get_openvc(\%myconfig, \%$form);
@@ -66,12 +68,15 @@ sub payment {
   $form->{"select$form->{vc}"} = "";
 
   if ($form->{"all_$form->{vc}"}) {
+    # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
     map { $form->{"select$form->{vc}"} .= "<option>$_->{name}--$_->{id}\n" }
       @{ $form->{"all_$form->{vc}"} };
   }
 
   # departments
+  # auf departments kann man auch nicht mehr buchen. Raus oder wieder 
+  # aktivieren? Im Backend dann auch anpassen. jb 12.10.2010
   if (@{ $form->{all_departments} || [] }) {
     $form->{selectdepartment} = "<option>\n";
     $form->{department}       = "$form->{department}--$form->{department_id}";
@@ -95,8 +100,14 @@ sub payment {
   } @{ $form->{PR}{ $form->{ARAP} } };
 
   # currencies
-  @curr = split(/:/, $form->{currencies});
-  chomp $curr[0];
+  # oldcurrency ist zwar noch hier als fragment enthalten, wird aber bei
+  # der aktualisierung der form auch nicht mitübernommen. das konzept
+  # old_$FOO habe ich auch noch nicht verstanden ...
+  # Ok. Wenn currency übernommen werden, dann in callback-string über-
+  # geben und hier reinparsen, oder besser multibox oder html auslagern?
+  @curr_unsorted = split(/:/, $form->{currencies});
+  chomp $curr_unsorted[0];
+  @curr = sort {} @curr_unsorted;
   $form->{defaultcurrency} = $form->{currency} = $form->{oldcurrency} =
     $curr[0];
 
@@ -487,6 +498,7 @@ sub update {
   }
 
   # if we switched to all_vc
+  # funktioniert derzeit nicht 12.10.2010 jb
   if ($form->{all_vc} ne $form->{oldall_vc}) {
 
     $form->{openinvoices} = ($form->{all_vc}) ? 0 : 1;
@@ -502,7 +514,7 @@ sub update {
             "<option>$_->{name}--$_->{id}\n"
         } @{ $form->{"all_$form->{vc}"} };
       }
-    } else {
+    } else {  # ab hier wieder ausgeführter code (s.o.):
       CP->get_openvc(\%myconfig, \%$form);
 
       if ($form->{"all_$form->{vc}"}) {
@@ -626,7 +638,7 @@ sub post {
     $form->error($locale->text('Exchangerate missing!'))
       unless $form->{exchangerate};
   }
-
+  # Beim Aktualisieren wird das Konto übernommen
   $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&muh=kuh&account=$form->{account}";
 
   my $msg1 = "$form->{origtitle} posted!";
@@ -636,7 +648,8 @@ sub post {
   # $locale->text('Receipt posted!')
   # $locale->text('Cannot post Payment!')
   # $locale->text('Cannot post Receipt!')
-
+  # Die Nachrichten (Receipt posted!) werden nicht angezeigt.
+  # Entweder wieder aktivieren oder komplett rausnehmen
   $form->redirect($locale->text($msg1))
     if (CP->process_payment(\%myconfig, \%$form));
   $form->error($locale->text($msg2));
