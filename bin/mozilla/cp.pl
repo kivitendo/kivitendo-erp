@@ -74,19 +74,6 @@ sub payment {
       @{ $form->{"all_$form->{vc}"} };
   }
 
-  # departments
-  # auf departments kann man auch nicht mehr buchen. Raus oder wieder 
-  # aktivieren? Im Backend dann auch anpassen. jb 12.10.2010
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-    $form->{department}       = "$form->{department}--$form->{department_id}";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
-  }
-
   CP->paymentaccounts(\%myconfig, \%$form);
 
   $form->{selectaccount} = "";
@@ -105,9 +92,10 @@ sub payment {
   # old_$FOO habe ich auch noch nicht verstanden ...
   # Ok. Wenn currency übernommen werden, dann in callback-string über-
   # geben und hier reinparsen, oder besser multibox oder html auslagern?
-  @curr_unsorted = split(/:/, $form->{currencies});
-  chomp $curr_unsorted[0];
-  @curr = sort {} @curr_unsorted;
+  # Antwort: form->currency wird mit oldcurrency oder curr[0] überschrieben
+  # Wofür macht das Sinn?
+  @curr = split(/:/, $form->{currencies});
+  chomp $curr[0];
   $form->{defaultcurrency} = $form->{currency} = $form->{oldcurrency} =
     $curr[0];
 
@@ -126,7 +114,7 @@ sub form_header {
 
   $auth->assert('cash');
 
-  my ($vc, $vclabel, $allvc, $arap, $department, $exchangerate);
+  my ($vc, $vclabel, $allvc, $arap, $exchangerate);
   my ($jsscript, $button1, $button2, $onload);
 
   $vclabel = ucfirst $form->{vc};
@@ -167,8 +155,7 @@ sub form_header {
 |;
     }
   }
-
-  foreach my $item ($form->{vc}, "account", "currency", $form->{ARAP}, "department") {
+  foreach my $item ($form->{vc}, "account", "currency", $form->{ARAP}) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -283,7 +270,6 @@ sub form_header {
           </td>
           <td align=right>
             <table>
-              $department
               <tr>
                 <th align=right nowrap>| . $locale->text('Account') . qq|</th>
                 <td colspan=3><select name=account>$form->{selectaccount}</select>
@@ -640,7 +626,7 @@ sub post {
   }
 
   # Beim Aktualisieren wird das Konto übernommen
-  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&type=$form->{type}&account=$form->{account}";
+  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&type=$form->{type}&account=$form->{account}&$form->{currency}";
 
   my $msg1 = "$form->{origtitle} posted!";
   my $msg2 = "Cannot post $form->{origtitle}!";

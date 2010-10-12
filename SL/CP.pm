@@ -128,20 +128,9 @@ sub get_openvc {
     $form->{"all_$form->{vc}"} = selectall_hashref_query($form, $dbh, $query);
   }
 
-  if ($form->{ARAP} eq 'AR') {
-    $query =
-      qq|SELECT d.id, d.description | .
-      qq|FROM department d | .
-      qq|WHERE d.role = 'P' | .
-      qq|ORDER BY 2|;
-  } else {
-    $query =
-      qq|SELECT d.id, d.description | .
-      qq|FROM department d | .
-      qq|ORDER BY 2|;
-  }
-  $form->{all_departments} = selectall_hashref_query($form, $dbh, $query);
-
+  # aufruf für all_deparments rausgenommen, da die abteilungen nur
+  # beim buchen der belege (rechnung, fibu) geändert werden und danach
+  # NICHT mehr überschrieben werden
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
@@ -240,10 +229,6 @@ sub process_payment {
       qq|  (c.link LIKE '%:AP:%')) |;
   }
 
-
-  my $null;
-  ($null, $form->{department_id}) = split(/--/, $form->{department});
-  $form->{department_id} *= 1;
 
   # query to retrieve paid amount
   $query =
