@@ -268,9 +268,6 @@ sub all_transactions {
   }
 
   if ($form->{accno}) {
-    exit;
-    # Diese Abfrage hatte schon 2005 keinen Sinn mehr, jedenfalls
-    # nicht über FiBu -> Berichte (keine Eingabefeld für Suchkriterium vorhanden)
     $glwhere .= " AND c.accno = '$form->{accno}'";
     $arwhere .= " AND c.accno = '$form->{accno}'";
     $apwhere .= " AND c.accno = '$form->{accno}'";
