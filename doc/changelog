@@ -17,6 +17,8 @@
 
   - Druckvorlage optional auf Excel erweitert, um Variablen die sich nicht in foreach-Schleifen
     befinden anzuzeigen (s.a.: doc/excel_templates.txt).
+  - FiBu -> Bericht um Suchfeld Kontonummer erweitert
+
 
   API Änderungen:
 
@@ -37,6 +39,16 @@
   Liste gefixter Bugs aus dem Bugtracker:
 
    - Bug 1409 -  Bei "Erzeugnis fertigen" wird nur der Bestand der letzten Komponente geprüft
+   - Bug 1484 -  Das Ankreuzfeld 'alle' hat keine Funktion wenn man einen Auswahlliste (multibox) an Lieferanten hat
+                 Es wird trotzdem nach der Auswahlliste gefiltert und die Option 'alle' wird
+                 ignoriert auch wenn man auf Erneuern klickt.
+                 Das Eingabefeld 'Betrag' im oberen Teil der Maske hat in Lx-Office
+                 keinen Sinn mehr, da nur noch über die Auswahl der offenen
+                 Kreditorenposten ein Zahlungsausgang veranlasst wird.
+                 Neu-Aufbau Lx-Office Bildschirm
+                 Nach einer erfolgreichen Buchung erscheint die Meldung: 'Zahlung gebucht.' und
+                 die Startseite wird angezeigt. Wünschenwert wäre es, wenn man in
+                 Zahlungsverkehr bleiben würde, optimalerweise mit vorbelegten Feldern.
 
 
 2010-03-24 - Release 2.6.1
