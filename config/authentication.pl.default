@@ -23,7 +23,7 @@ $self->{DB_config} = {
   'host'     => 'localhost',
   'port'     => 5432,
   'db'       => 'lxerp_auth',
-  'user'     => 'postgres',
+  'user'     => 'lxoffice',
   'password' => '',
 };
 
