@@ -259,3 +259,7 @@ label {
   background-color: #ffcccc;
   padding: 3px;
 }
+input:focus {
+    background-color:yellow;
+}
+
