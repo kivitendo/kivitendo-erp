@@ -226,7 +226,24 @@ function insPrices($db,$pid,$prices) {
     return true;
 }
 
-function import_parts($db, $file, $trenner, $trennzeichen, $fields, $check, $insert, $show ,$maske) {
+/**
+ * TODO: short description.
+ * 
+ * @param double $db     
+ * @param mixed  $file   
+ * @param mixed  $fields 
+ * @param mixed  $check  
+ * @param int    $insert 
+ * @param string $show   
+ * @param mixed  $maske  
+ * 
+ * @return TODO
+ */
+function import_parts($db, $file, $fields, $check, $maske) {
+    $insert = !$maske["test"];
+    $show = $maske["show"];
+    $trennzeichen = ($maske["trennzeichen"])?$maske["trennzeichen"]:"";
+    $trenner = ($maske["trenner"])?$maske["trenner"]:",";
     $precision=$maske["precision"];
     $quotation=$maske["quotation"];
     $quottype=$maske["quottype"];

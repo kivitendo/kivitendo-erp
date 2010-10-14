@@ -1,3 +1,4 @@
+<?php session_start(); ?>
 <html>
 <LINK REL="stylesheet" HREF="../css/lx-office-erp.css" TYPE="text/css" TITLE="Lx-Office stylesheet">
 <body>
@@ -25,13 +26,18 @@ if (!$_SESSION["db"]) {
 }
 require ("import_lib.php");
 
-if (!anmelden()) ende("Anmeldung fehlgeschlagen.");
+if ($_GET["login"]) {
+    $db = anmelden($_GET["login"],$_GET["passwd"]);
+} else {
+    $db = anmelden();
+}
+//if (!$_SESSION["db"]) ende("Anmeldung fehlgeschlagen.");
+if (!$db) ende("Anmeldung fehlgeschlagen.");
 
 /* get DB instance */
 $db=$_SESSION["db"]; //new myDB($login);
-
 /* just display page or do real import? */
-if ($_POST["ok"]) {
+if ($_POST["ok"] || $_GET["cron"]=="1") {
 
     require ("parts_import.php");
     //Zeichencodierung des Servers
@@ -92,37 +98,60 @@ if ($_POST["ok"]) {
 
     clearstatcache ();
 
-    $test    = $_POST["test"];
-    $lager    = $_POST["lager"];
-    $TextUpd = $_POST["TextUpd"];
-    $trenner = ($_POST["trenner"])?$_POST["trenner"]:",";
-    $trennzeichen = ($_POST["trennzeichen"])?$_POST["trennzeichen"]:"";
-    $precision = $_POST["precision"];
-    $quotation = $_POST["quotation"];
-    $quottype = $_POST["quottype"];
     $file    = "parts";
 
-    /* no data? */
-    if (empty($_FILES["Datei"]["name"]))
-        ende ("Kein Datenfile angegeben");
-
-    /* copy file */
-    if (substr($_FILES["Datei"]["name"],-2)=="gz") {
-        if (move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv.gz")) {
-            echo $gz_bin.$dir.$file.".csv.gz";
+    if ($_GET["cron"]==1) {
+        $Cron = True;
+        if (file_exists($dir.$file.".zip")) {
+             exec ($zip_bin.$dir.$file.".zip");
+        } else if (file_exists($dir.$file.".gz")) {
             exec ($gz_bin.$dir.$file.".csv.gz");
-        } else {
+        } else if (!file_exists($dir.$file.".csv")) {
+            ende($dir.$file.".csv nicht gefunden");
+        }
+        $_POST["trenner"] = "#9";         // Tabulator
+        $_POST["trennzeichen"] = ";";     // Anderes Trennzeichen
+        $_POST["dimensionunit"] = "Stck"; // Artikeleinheit
+        $_POST["serviceunit"] = "Std";    // Dienstleistungseinheit
+        $_POST["bugru"] = "1600";         // Std-Bugru
+        $_POST["bugrufix"] = "2";         // Nur wenn keine Passende angegeben
+        $_POST["shop"] = "f";             // Shopartikel
+        $_POST["show"] = "";              // Kontrollausgabe
+        $_POST["test"] = "";              // Testlauf == 1
+        $_POST["lager"] = "";             // Nicht  gebraucht
+        $_POST["lagerplatz"] = "";
+        $_POST["precision"] = "2";        // Runden auf nn Stellen
+        $_POST["quotation"] = "";         // Preisaufschlag
+        $_POST["quottype"] = "P";         // Prozent?
+        $_POST["wgtrenner"] = "!";        // Trennzeichen der Warengruppen
+        $_POST["TextUpd"] = "1";          // Textupdate durchführen
+        $_POST["update"] = "U";           // Bei vorhandenen Nummer updaten
+        $_POST["ware"] = "W";             // Ist ein Artikel
+        $_POST["encoding"] = "";
+    } else {
+            
+        /* no data? */
+        if (empty($_FILES["Datei"]["name"]))
+            ende ("Kein Datenfile angegeben");
+
+        /* copy file */
+        if (substr($_FILES["Datei"]["name"],-2)=="gz") {
+            if (move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv.gz")) {
+                echo $gz_bin.$dir.$file.".csv.gz";
+                exec ($gz_bin.$dir.$file.".csv.gz");
+            } else {
+                ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
+            };
+        } else if (substr($_FILES["Datei"]["name"],-3)=="zip") {
+            if (move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".zip")) {
+                exec ($zip_bin.$dir.$file.".zip");
+            } else {
+                ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
+            };
+        } else if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv")) {
             ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
-        };
-    } else if (substr($_FILES["Datei"]["name"],-3)=="zip") {
-        if (move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".zip")) {
-            exec ($zip_bin.$dir.$file.".zip");
-        } else {
-            ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
-        };
-    } else if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv")) {
-        ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
-    }; 
+        }; 
+    }
 
     /* check if file is really there */
     if (!file_exists($dir.$file.'.csv') or filesize($dir.$file.'.csv')==0) 
@@ -132,15 +161,8 @@ if ($_POST["ok"]) {
     if (!$db->chkcol($file)) 
         ende("Importspalte konnte nicht angelegt werden");
 
-    /* first check all elements */
-    $_test=$_POST;
-    $_test["precision"]=-1;
-    $_test["quotation"]=0;
-    $_test["lager"]=$_POST["lager"];
-    $_test["lagerplatz"]=$_POST["lagerplatz"];
-
     /* just print data or insert it, if test is false */
-    import_parts($db, $dir.$file, $trenner, $trennzeichen, $parts, FALSE, !$test, $_POST["show"],$_POST);
+    import_parts($_SESSION["db"], $dir.$file, $parts, FALSE, $_POST);
 
 } else {
     $bugrus=getAllBG($db);

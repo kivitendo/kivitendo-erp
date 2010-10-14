@@ -279,13 +279,14 @@ function getAllBG($db) {
     $rs=$db->getAll($sql);
     return $rs;
 }
+
 function getAllUnits($db,$type) {
     $sql  = "select * from units where type = '$type' order by sortkey";
     $rs=$db->getAll($sql);
     return $rs;
 }
 
-function anmelden() {
+function anmelden($login=false,$pwd=false) {
     ini_set("gc_maxlifetime","3600");
     $tmp = @file_get_contents("../config/authentication.pl");
     preg_match("/'db'[ ]*=> '(.+)'/",$tmp,$hits);
@@ -301,9 +302,13 @@ function anmelden() {
     preg_match("/[ ]*\\\$self->\{cookie_name\}[ ]*=[ ]*'(.+)'/",$tmp,$hits);
     $cookiename=$hits[1];
     if (!$cookiename) $cookiename='lx_office_erp_session_id';
-    $cookie=$_COOKIE[$cookiename];
-    if (!$cookie) header("location: ups.html");
-    $auth=authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie);
+    if ($login) {
+        $auth=authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,false,$login,$pwd);
+    } else {
+        $cookie=$_COOKIE[$cookiename];
+        if (!$cookie) header("location: ups.html");
+        $auth=authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie,false,false);
+    };
     if (!$auth) { return false; };
     $_SESSION["sessid"]=$cookie;
     $_SESSION["cookie"]=$cookiename;
@@ -333,38 +338,43 @@ function anmelden() {
             $sql="select * from defaults";
             $rs=$_SESSION["db"]->getAll($sql);
             $_SESSION["ERPver"]=$rs[0]["version"];
-            return true;
+            return true;$_SESSION;
         } else {
             return false;
         }
     }
 }
 
-function authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie) {
+function authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie,$login,$pwd) {
     $db=new myDB($dbhost,$dbuser,$dbpasswd,$dbname,$dbport,true);
-    $sql="select sc.session_id,u.id from auth.session_content sc left join auth.user u on ";
-    $sql.="u.login=sc.sess_value left join auth.session s on s.id=sc.session_id ";
-    $sql.="where session_id = '$cookie' and sc.sess_key='login'";// order by s.mtime desc";
-    $rs=$db->getAll($sql,"authuser_1");
-    if (!$rs) return false;
-    $stmp="";
-    if (count($rs)>1) {
-        header("location:../login.pl?action=logout");
-        /*foreach($rs as $row) {
-                $stmp.=$row["session_id"].",";
-        }
-        $sql1="delete from session where id in (".substr($stmp,-1).")";
-        $sql2="delete from session_content where session_id in (".substr($stmp,-1).")";
-        $db->query($sql1,"authuser_A");
-        $db->query($sql2,"authuser_B");
-        $sql3="insert into session ";*/
+    if ($cookie) {
+        $sql="select sc.session_id,u.id from auth.session_content sc left join auth.user u on ";
+        $sql.="u.login=sc.sess_value left join auth.session s on s.id=sc.session_id ";
+        $sql.="where session_id = '$cookie' and sc.sess_key='login'";// order by s.mtime desc";
+        $rs=$db->getAll($sql,"authuser_1");
+        if (!$rs) return false;
+        $stmp="";
+        if (count($rs)>1) {
+            foreach($rs as $row) {
+                    $stmp.=$row["session_id"].",";
+            }
+            $sql1="delete from session where id in (".substr($stmp,-1).")";
+            $sql2="delete from session_content where session_id in (".substr($stmp,-1).")";
+            $db->query($sql1,"authuser_A");
+            $db->query($sql2,"authuser_B");
+            header("location:../login.pl?action=logout");
+        };
+        $sql="update auth.session set mtime = '".date("Y-M-d H:i:s.100001")."' where id = '".$rs[0]["session_id"]."'";
+        $db->query($sql,"authuser_3");
+        $sql="select * from auth.user where id=".$rs[0]["id"];
+    } else {
+        $sql = "select * from auth.user where login = '$login' and password = '$pwd'";
     }
-    $sql="select * from auth.user where id=".$rs[0]["id"];
     $rs1=$db->getAll($sql,"authuser_1");
     if (!$rs1) return false;
     $auth=array();
     $auth["login"]=$rs1[0]["login"];
-    $sql="select * from auth.user_config where user_id=".$rs[0]["id"];
+    $sql="select * from auth.user_config where user_id=".$rs1[0]["id"];
     $rs1=$db->getAll($sql,"authuser_2");
     $keys=array("dbname","dbpasswd","dbhost","dbport","dbuser");
     foreach ($rs1 as $row) {
@@ -372,10 +382,9 @@ function authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,$cookie) {
                 $auth[$row["cfg_key"]]=$row["cfg_value"];
         }
     }
-    $sql="update auth.session set mtime = '".date("Y-M-d H:i:s.100001")."' where id = '".$rs[0]["session_id"]."'";
-    $db->query($sql,"authuser_3");
     return $auth;
 }
+
 /**
  * Zeichencode übersetzen
  *
