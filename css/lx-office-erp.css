@@ -9,6 +9,9 @@ A:hover { color: black;
            text-decoration: none;
          }
 
+input:focus, textarea:focus, select:focus {
+  background-color:yellow;
+}
 
 body {
   font-family: Verdana, Arial, Helvetica;
@@ -29,7 +32,7 @@ td {
   font-weight: normal;
 }
 td.hover:hover {
-	color: black;
+    color: black;
 /*          background-color: #FFFFCC;
           font-size: 8pt;
           text-decoration: none;
@@ -83,84 +86,84 @@ body.menu {
 
 .message_ok {
     font-size: 12pt;
-	padding:5px;
-	background-color: lightgreen;
-	color: black;
-	font-weight: bolder;
-	text-align:center;
-	border-style:solid;
-	border-width:thin;
+    padding:5px;
+    background-color: lightgreen;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
 }
 
 .message_error {
     font-size: 12pt;
-	padding:5px;
-	background-color: #FFAAAA;
-	color: black;
-	font-weight: bolder;
-	text-align:center;
-	border-style:solid;
-	border-width:thin;
+    padding:5px;
+    background-color: #FFAAAA;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
 }
 
 /*
-	Überschriftsbalken
+    Überschriftsbalken
 */
 .listtop {
-	background-color: rgb(236,233,216);
-	text-align:left;
-	padding:5px;
-	font-size: 10pt;
-	color: black;
-	font-weight: bolder;
-	border-style:dashed;
-	border-width:thin;
+    background-color: rgb(236,233,216);
+    text-align:left;
+    padding:5px;
+    font-size: 10pt;
+    color: black;
+    font-weight: bolder;
+    border-style:dashed;
+    border-width:thin;
 }
 
 
 .listelement {
-	background-image: url("../image/fade2.png");
-	background-repeat:repeat-x;
-	border-style:dashed;
-	border-width:thin;
+    background-image: url("../image/fade2.png");
+    background-repeat:repeat-x;
+    border-style:dashed;
+    border-width:thin;
 }
 
 .listelement2 {
-	background-image: url("../image/fade2.png");
-	background-repeat:repeat-x;
-	border-style:dashed;
-	border-width:thin;
+    background-image: url("../image/fade2.png");
+    background-repeat:repeat-x;
+    border-style:dashed;
+    border-width:thin;
 }
 
 .listheading, .listheading th {
-	font-size: 9pt;
-	padding:3px;
-	background-color:
-	rgb(236,233,216);
-	color: black;
-	font-weight: bolder;
-	text-align:left;
-	background-image: url("../image/fade.png");
-	border-style:dotted;
-	border-width:thin;
+    font-size: 9pt;
+    padding:3px;
+    background-color:
+    rgb(236,233,216);
+    color: black;
+    font-weight: bolder;
+    text-align:left;
+    background-image: url("../image/fade.png");
+    border-style:dotted;
+    border-width:thin;
 }
 
 .listheadingcontent {
-	font-size: 9pt;
-	background-color:
-	rgb(236,233,216);
-	color: black;
-	font-weight: bolder;
-	text-align:left;
+    font-size: 9pt;
+    background-color:
+    rgb(236,233,216);
+    color: black;
+    font-weight: bolder;
+    text-align:left;
 }
 
 .accountlistheading {
-	font-size: 10pt;
-	padding:3px;
-	color: white;
-	font-weight: bold;
-	text-align:left;
-	background-color:rgb(133,132,129);
+    font-size: 10pt;
+    padding:3px;
+    color: white;
+    font-weight: bold;
+    text-align:left;
+    background-color:rgb(133,132,129);
 }
 
 .subsubheading {
@@ -170,20 +173,20 @@ body.menu {
 }
 
 .optionen {
-	border:dashed;
-/*	padding-top:10px;
-	padding-bottom:10px;
-	padding-left:10px;
+    border:dashed;
+/*  padding-top:10px;
+    padding-bottom:10px;
+    padding-left:10px;
 */
-	border-width:1px;
-	background:#efedde;
+    border-width:1px;
+    background:#efedde;
 }
 
 
 .listrow1 {
-	background-color: rgb(208,207,201);
-	color: black;
-	vertical-align: top;
+    background-color: rgb(208,207,201);
+    color: black;
+    vertical-align: top;
 }
 
 .listrow0 { background-color: rgb(236,233,216); color: black; vertical-align: top; }
@@ -258,8 +261,5 @@ label {
   border: 1px solid #8b0000;
   background-color: #ffcccc;
   padding: 3px;
-}
-input:focus {
-    background-color:yellow;
 }
 

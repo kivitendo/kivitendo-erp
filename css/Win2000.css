@@ -1,24 +1,28 @@
-/* stylesheet for LX-Office ERP 
-Getestet mit W3C CSS-Validator: 
+/* stylesheet for LX-Office ERP
+Getestet mit W3C CSS-Validator:
 Keine Fehler oder Warnungen gefunden
 */
 
 A:link { color: black; text-decoration: none; }
 A:visited { color: black; text-decoration: none; }
 A:active { color: black; text-decoration: underline; }
-input:focus, textarea:focus, select:focus, option:focus { background-color: yellow; }
-A.nohover:hover { 
+A.nohover:hover {
   color:white;
   background-color: #093280;
   font-size: 10pt;
   text-decoration: none;
 }
-A:hover { 
+A:hover {
   color:white;
   background-color: #093280;
   font-size: 10pt;
   text-decoration: none;
 }
+
+input:focus, textarea:focus, select:focus {
+  background-color:yellow;
+}
+
 body {
   font-family: Verdana, Arial, Helvetica;
   font-size: 10pt;
@@ -68,23 +72,23 @@ body.menu {
   font-size:10pt;
   color: black;
 }
-.listtop { 
-  background-color: #b8d1f3; 
+.listtop {
+  background-color: #b8d1f3;
   text-align:left;
   padding:5px;
-  font-size: 10pt; 
-  color: black; 
+  font-size: 10pt;
+  color: black;
   font-weight: bolder;
   border-bottom: 2px solid #A5A29C;
 }
-.listheading { 
-  font-size: 10pt; 
+.listheading {
+  font-size: 10pt;
   padding:3px;
   background-color: #b8d1f3;
-  color: black; 
+  color: black;
   font-weight: bolder;
   text-align:left;
-}	 
+}
 .subsubheading {
   color: black;
   font-weight: bolder;

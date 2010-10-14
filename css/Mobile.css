@@ -1,24 +1,28 @@
-/* stylesheet for LX-Office ERP 
-Getestet mit W3C CSS-Validator: 
+/* stylesheet for LX-Office ERP
+Getestet mit W3C CSS-Validator:
 Keine Fehler oder Warnungen gefunden
 */
 A      { font-size: 8pt; }
 A:link { color: black; text-decoration: none; }
 A:visited { color: black; text-decoration: none; }
 A:active { color: black; text-decoration: underline; }
-input:focus, textarea:focus, select:focus, option:focus { background-color: yellow; }
-A.nohover:hover { 
+A.nohover:hover {
   color:white;
   background-color: #093280;
   font-size: 8pt;
   text-decoration: none;
 }
-A:hover { 
+A:hover {
   color:white;
   background-color: #093280;
   font-size: 8pt;
   text-decoration: none;
 }
+
+input:focus, textarea:focus, select:focus {
+  background-color:yellow;
+}
+
 body {
   font-family: Verdana, Arial, Helvetica;
   font-size: 8pt;
@@ -68,23 +72,23 @@ body.menu {
   font-size:8pt;
   color: black;
 }
-.listtop { 
-  background-color: #b8d1f3; 
+.listtop {
+  background-color: #b8d1f3;
   text-align:left;
   padding:5px;
-  font-size: 8pt; 
-  color: black; 
+  font-size: 8pt;
+  color: black;
   font-weight: bolder;
   border-bottom: 2px solid #A5A29C;
 }
-.listheading { 
-  font-size: 8pt; 
+.listheading {
+  font-size: 8pt;
   padding:3px;
   background-color: #b8d1f3;
-  color: black; 
+  color: black;
   font-weight: bolder;
   text-align:left;
-}	 
+}
 .subsubheading {
   color: black;
   font-weight: bolder;
@@ -98,24 +102,24 @@ body.menu {
 
 .message_ok {
     font-size: 10pt;
-	padding:3px;
-	background-color: lightgreen;
-	color: black;
-	font-weight: bolder;
-	text-align:center;
-	border-style:solid;
-	border-width:thin;
+    padding:3px;
+    background-color: lightgreen;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
 }
 
 .message_error {
     font-size: 10pt;
-	padding:5px;
-	background-color: #FFAAAA;
-	color: white;
-	font-weight: bolder;
-	text-align:center;
-	border-style:solid;
-	border-width:thin;
+    padding:5px;
+    background-color: #FFAAAA;
+    color: white;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
 }
 
 /* Bei Listen den Farbwechsel zur besseren Lesbarkeit: */
@@ -124,7 +128,7 @@ body.menu {
 .listsubtotal { border-top: 1px solid black; font-size: 8pt; background-color: #b8d1f3; color: black; font-weight: bolder;}
 .listtotal { border-top: 1px double black; font-size: 8pt; background-color: #b8d1f3; color: black; font-weight: bolder;}
 .submit {
-  font-size: 8pt; 
+  font-size: 8pt;
   font-family: Verdana, Arial, Helvetica;
   color: #000000;
 }
