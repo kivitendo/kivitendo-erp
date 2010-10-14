@@ -1253,8 +1253,7 @@ CREATE TABLE taxkeys (
 -- Name: defaults; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO "defaults" ("version") VALUES ('2.4.0.0');
-
+INSERT INTO "defaults" ("version", "curr") VALUES ('2.4.0.0', 'EUR:USD');
 
 --
 -- Data for TOC entry 204 (OID 1982194)
@@ -1954,17 +1953,17 @@ INSERT INTO finanzamt (fa_land_nr, fa_bufa_nr, fa_name, fa_strasse, fa_plz, fa_o
 -- Name: units; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('mg', NULL, NULL, 'dimension');
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('g', 'mg', 1000.00000, 'dimension');
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('kg', 'g', 1000.00000, 'dimension');
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('t', 'kg', 1000.00000, 'dimension');
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('ml', NULL, NULL, 'dimension');
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('L', 'ml', 1000.00000, 'dimension');
 INSERT INTO units (name, base_unit, factor, "type") VALUES ('Stck', NULL, NULL, 'dimension');
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('min', NULL, 0.00000, 'service');
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('Std', 'min', 60.00000, 'service');
-INSERT INTO units (name, base_unit, factor, "type") VALUES ('Tag', 'Std', 8.00000, 'service');
 INSERT INTO units (name, base_unit, factor, "type") VALUES ('psch', NULL, 0.00000, 'service');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('Tag', 'Std', 8.00000, 'service');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('Std', 'min', 60.00000, 'service');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('min', NULL, 0.00000, 'service');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('t', 'kg', 1000.00000, 'dimension');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('kg', 'g', 1000.00000, 'dimension');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('g', 'mg', 1000.00000, 'dimension');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('mg', NULL, NULL, 'dimension');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('L', 'ml', 1000.00000, 'dimension');
+INSERT INTO units (name, base_unit, factor, "type") VALUES ('ml', NULL, NULL, 'dimension');
 
 
 --

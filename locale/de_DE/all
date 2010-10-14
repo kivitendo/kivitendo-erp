@@ -1,5 +1,5 @@
 #!/usr/bin/perl
-# -*- coding: ISO-8859-15; -*-
+# -*- coding: iso-8859-15; -*-
 # vim: fenc=ISO-8859-15
 
 # These are all the texts to build the translations files.
@@ -526,6 +526,7 @@ $self->{texts} = {
   'Delivery Order deleted!'     => 'Lieferschein gel&ouml;scht!',
   'Delivery Orders'             => 'Lieferscheine',
   'Department'                  => 'Abteilung',
+  'Department Id'               => 'Abteilungsnummer',
   'Department deleted!'         => 'Abteilung gelöscht.',
   'Department saved!'           => 'Abteilung gespeichert.',
   'Departments'                 => 'Abteilungen',
@@ -1067,12 +1068,14 @@ $self->{texts} = {
   'No part was found matching the search parameters.' => 'Es wurde kein Artikel gefunden, auf den die Suchparameter zutreffen.',
   'No prices will be updated because no prices have been entered.' => 'Es werden keine Preise aktualisiert, weil keine gültigen Preisänderungen eingegeben wurden.',
   'No problems were recognized.' => 'Es wurden keine Probleme gefunden.',
+  'No transaction selected!'    => 'Bitte mindestens einen Haken in der Spalte "auswählen" setzen.',
   'No transfers were executed in this export.' => 'In diesem SEPA-Export wurden keine Überweisungen ausgeführt.',
   'No unknown units where found.' => 'Es wurden keine unbekannten Einheiten gefunden.',
   'No user has been selected.'  => 'Es wurde kein Benutzer ausgew&auml;hlt.',
   'No valid number entered for pricegroup "#1".' => 'Für Preisgruppe "#1" wurde keine gültige Nummer eingegeben.',
   'No vendor has been selected yet.' => 'Es wurde noch kein Lieferant ausgewählt.',
   'No warehouse has been created yet or the quantity of the bins is not configured yet.' => 'Es wurde noch kein Lager angelegt, bzw. die dazugehörigen Lagerplätze sind noch nicht konfiguriert.',
+  'Amount has to be greater then zero! Wrong row number: ' => '"Betrag" muss größer Null sein. Fehlerhafte Zeile: ',
   'No.'                         => 'Position',
   'Non-taxable Purchases'       => 'Nicht zu versteuernde Einkäufe',
   'Non-taxable Sales'           => 'Nicht zu versteuernde Verkäufe',

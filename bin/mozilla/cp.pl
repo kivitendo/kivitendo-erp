@@ -58,6 +58,8 @@ sub payment {
 
   # setup customer/vendor selection for open invoices
   if ($form->{all_vc}) {
+    # Dieser Zweig funktioniert derzeit NIE. Ggf. ganz raus oder
+    # alle offenen Zahlungen wieder korrekt anzeigen. jb 12.10.2010
     $form->all_vc(\%myconfig, $form->{vc}, $form->{ARAP});
   } else {
     CP->get_openvc(\%myconfig, \%$form);
@@ -66,20 +68,10 @@ sub payment {
   $form->{"select$form->{vc}"} = "";
 
   if ($form->{"all_$form->{vc}"}) {
+    # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
     map { $form->{"select$form->{vc}"} .= "<option>$_->{name}--$_->{id}\n" }
       @{ $form->{"all_$form->{vc}"} };
-  }
-
-  # departments
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-    $form->{department}       = "$form->{department}--$form->{department_id}";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
   }
 
   CP->paymentaccounts(\%myconfig, \%$form);
@@ -95,6 +87,13 @@ sub payment {
   } @{ $form->{PR}{ $form->{ARAP} } };
 
   # currencies
+  # oldcurrency ist zwar noch hier als fragment enthalten, wird aber bei
+  # der aktualisierung der form auch nicht mitübernommen. das konzept
+  # old_$FOO habe ich auch noch nicht verstanden ...
+  # Ok. Wenn currency übernommen werden, dann in callback-string über-
+  # geben und hier reinparsen, oder besser multibox oder html auslagern?
+  # Antwort: form->currency wird mit oldcurrency oder curr[0] überschrieben
+  # Wofür macht das Sinn?
   @curr = split(/:/, $form->{currencies});
   chomp $curr[0];
   $form->{defaultcurrency} = $form->{currency} = $form->{oldcurrency} =
@@ -103,7 +102,6 @@ sub payment {
   $form->{selectcurrency} = "";
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
 
-  $form->{media} = "screen";
 
   &form_header;
   &form_footer;
@@ -116,7 +114,7 @@ sub form_header {
 
   $auth->assert('cash');
 
-  my ($vc, $vclabel, $allvc, $arap, $department, $exchangerate);
+  my ($vc, $vclabel, $allvc, $arap, $exchangerate);
   my ($jsscript, $button1, $button2, $onload);
 
   $vclabel = ucfirst $form->{vc};
@@ -157,8 +155,7 @@ sub form_header {
 |;
     }
   }
-
-  foreach my $item ($form->{vc}, "account", "currency", $form->{ARAP}, "department") {
+  foreach my $item ($form->{vc}, "account", "currency", $form->{ARAP}) {
     $form->{"select$item"} =~ s/ selected//;
     $form->{"select$item"} =~
       s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
@@ -273,7 +270,6 @@ sub form_header {
           </td>
           <td align=right>
             <table>
-              $department
               <tr>
                 <th align=right nowrap>| . $locale->text('Account') . qq|</th>
                 <td colspan=3><select name=account>$form->{selectaccount}</select>
@@ -451,28 +447,6 @@ sub form_footer {
 
   $auth->assert('cash');
 
-  my ($media, $format, $latex_templates);
-
-  $form->{DF}{ $form->{format} } = "selected";
-  $form->{OP}{ $form->{media} }  = "selected";
-
-  $media = qq|
-          <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-
-  if ($myconfig{printer} && $latex_templates) {
-    $media .= qq|
-          <option value=printer $form->{OP}{printer}>|
-      . $locale->text('Printer');
-  }
-  if ($latex_templates) {
-    $media .= qq|
-          <option value=queue $form->{OP}{queue}>| . $locale->text('Queue');
-    $format .= qq|
-            <option value=postscript $form->{DF}{postscript}>|
-      . $locale->text('Postscript') . qq|
-            <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF');
-  }
-
   print qq|
   <tr>
     <td><hr size=3 noshade></td>
@@ -484,19 +458,8 @@ sub form_footer {
 <input class=submit type=submit name=action value="|
     . $locale->text('Update') . qq|">
 <input class=submit type=submit name=action value="|
-    . $locale->text('Post') . qq|">|;
-
-  if ($latex_templates) {
-    print qq|
-<input class=submit type=submit name=action value="|
-      . $locale->text('Print') . qq|">|;
-  }
-
-  print qq|
-<select name=format>$format</select>
-<select name=media>$media</select>
-
-  </form>
+    . $locale->text('Post') . qq|">
+ </form>
 
 </body>
 </html>
@@ -521,6 +484,7 @@ sub update {
   }
 
   # if we switched to all_vc
+  # funktioniert derzeit nicht 12.10.2010 jb
   if ($form->{all_vc} ne $form->{oldall_vc}) {
 
     $form->{openinvoices} = ($form->{all_vc}) ? 0 : 1;
@@ -536,7 +500,7 @@ sub update {
             "<option>$_->{name}--$_->{id}\n"
         } @{ $form->{"all_$form->{vc}"} };
       }
-    } else {
+    } else {  # ab hier wieder ausgeführter code (s.o.):
       CP->get_openvc(\%myconfig, \%$form);
 
       if ($form->{"all_$form->{vc}"}) {
@@ -661,6 +625,9 @@ sub post {
       unless $form->{exchangerate};
   }
 
+  # Beim Aktualisieren wird das Konto übernommen
+  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&type=$form->{type}&account=$form->{account}&$form->{currency}";
+
   my $msg1 = "$form->{origtitle} posted!";
   my $msg2 = "Cannot post $form->{origtitle}!";
 
@@ -668,86 +635,11 @@ sub post {
   # $locale->text('Receipt posted!')
   # $locale->text('Cannot post Payment!')
   # $locale->text('Cannot post Receipt!')
-
+  # Die Nachrichten (Receipt posted!) werden nicht angezeigt.
+  # Entweder wieder aktivieren oder komplett rausnehmen
   $form->redirect($locale->text($msg1))
     if (CP->process_payment(\%myconfig, \%$form));
   $form->error($locale->text($msg2));
-
-  $lxdebug->leave_sub();
-}
-
-sub print {
-  $lxdebug->enter_sub();
-
-  $auth->assert('cash');
-
-  my ($whole, $check, %queued, $spool, $filename, $userspath);
-
-  &check_form;
-
-  ($whole, $form->{decimal}) = split(/\./, $form->{amount});
-
-  $form->{amount} = $form->format_amount(\%myconfig, $form->{amount}, 2);
-
-  #$form->{decimal} .= "00";
-  $form->{decimal} = substr($form->{decimal}, 0, 2);
-
-  $check = new CP $myconfig{countrycode};
-  $check->init;
-  $form->{text_amount} = $check->num2text($whole);
-
-  if ($form->{vc} eq 'customer') {
-    IS->customer_details(\%myconfig, $form);
-  } else {
-    IR->vendor_details(\%myconfig, $form);
-  }
-
-  $form->{callback} = "";
-
-  $form->{templates} = "$myconfig{templates}";
-  $form->{IN}        = "$form->{formname}.tex";
-
-  if ($form->{format} eq 'postscript') {
-    $form->{postscript} = 1;
-  }
-  if ($form->{format} eq 'pdf') {
-    $form->{pdf} = 1;
-  }
-
-  delete $form->{OUT};
-
-  if ($form->{media} eq 'printer') {
-    $form->{OUT} = "| $myconfig{printer}";
-  }
-  if ($form->{media} eq 'queue') {
-    %queued = map { s|.*/|| } split / /, $form->{queued};
-
-    if ($filename = $queued{ $form->{formname} }) {
-      unlink "$spool/$filename";
-      $filename =~ s/\..*$//g;
-    } else {
-      $filename = time;
-      $filename .= $$;
-    }
-    $filename .= ($form->{postscript}) ? '.ps' : '.pdf';
-    $form->{queued} = "$form->{formname} $filename";
-    $form->{OUT}    = ">$spool/$filename";
-
-    $form->update_status(\%myconfig);
-
-  }
-
-  $form->{company} = $myconfig{company};
-  $form->{address} = $myconfig{address};
-
-  $form->parse_template(\%myconfig, $userspath);
-
-  if ($form->{media} ne 'screen') {
-    $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&all_vc=$form->{all_vc}";
-
-    $form->redirect if (CP->process_payment(\%myconfig, \%$form));
-    $form->error($locale->text('Cannot post payment!'));
-  }
 
   $lxdebug->leave_sub();
 }
@@ -770,7 +662,7 @@ sub check_form {
   for my $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
       if ($form->parse_amount(\%myconfig, $form->{"paid_$i"}, 2) <= 0) { # negativen Betrag eingegeben
-          $form->error($locale->text('No zero or negative values, please! Correct row number:' . $i));
+          $form->error($locale->text('Amount has to be greater then zero! Wrong row number: ') . $i);
       }
         undef($selected_check);
         # last; # ich muss doch über alle buchungen laufen, da ich noch

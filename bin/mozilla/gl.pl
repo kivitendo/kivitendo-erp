@@ -314,7 +314,9 @@ sub search {
         $department
         <tr>
           <th align=right>| . $locale->text('Description') . qq|</th>
-          <td colspan=3><input name=description size=40></td>
+          <td><input name=description size=40></td>
+          <th align=right>| . $locale->text('Account Number') . qq|</th>
+          <td><input name=accno size=20></td>
         </tr>
         <tr>
           <th align=right>| . $locale->text('Notes') . qq|</th>
