@@ -225,6 +225,8 @@
                     <th align="right" nowrap>
                      [%- IF is_order %]
                       [% 'Order Date' | $T8 %]
+                     [%- ELSIF is_req_quo %]
+                      [% 'RFQ Date' | $T8 %]
                      [%- ELSE %]
                       [% 'Quotation Date' | $T8 %]
                      [%- END %]
