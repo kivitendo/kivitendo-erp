@@ -35,15 +35,6 @@
 [%-
   name       = (select_name != '' and ! show_text) ? select_name : name
 -%]
-[%- FOREACH row = DATA %]
-  [%-
-       row.id       = row.$id_key     != ''  ? row.$id_key    : $id_sub(row)
-       row.label    = row.$label_key  != ''  ? row.$label_key
-                    : $label_sub(row) != ''  ? $label_sub(row)
-                    :                          row.id
-       row.selected = default == row.id
-  -%]
-[%- END -%]
 [%- IF show_text %]
 <input type="text"
  [%- IF name     %] name="[%     HTML.escape(name)     %]"[% END -%]
@@ -67,7 +58,11 @@
   <option value=""></option>
   [%- END %]
   [%- FOREACH row = DATA %]
-  <option value="[% row.id | html %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.label) %]</option>
+  <option value="[% row.$id_key != '' ? row.$id_key : $id_sub(row) | html %]"[% IF default == (row.$id_key != '' ? row.$id_key : $id_sub(row)) %] selected[% END %]>[%
+                      row.$label_key  != ''  ? row.$label_key
+                    : $label_sub(row) != ''  ? $label_sub(row)
+                    : row.$id_key     != ''  ? row.$id_key
+                    :                          $id_sub(row) | html %]</option>
   [%- END %]
 </select>
 [%- END %]
