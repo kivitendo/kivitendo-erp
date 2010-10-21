@@ -1305,6 +1305,7 @@ $self->{texts} = {
   'Quote chararacter'           => 'Anf&uuml;hrungszeichen',
   'Quoted'                      => 'Angeboten',
   'RFQ'                         => 'Anfrage',
+  'RFQ Date'                    => 'Anfragedatum',
   'RFQ Number'                  => 'Anfragenummer',
   'RFQs'                        => 'Preisanfragen',
   'ROP'                         => 'Mindestlagerbestand',
