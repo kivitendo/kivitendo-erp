@@ -5,11 +5,11 @@
 
  [%- IF connection_ok %]
 
- <p>[% 'The connection was established successfully.' | $T8 %]</p>
+ <p class="message_ok">[% 'The connection was established successfully.' | $T8 %]</p>
 
  [%- ELSE %]
 
- <p>
+ <p class="message_error">
   [% 'The connection to the database could not be established.' | $T8 %]
   [% 'Error message from the database driver:' | $T8 %]
  </p>

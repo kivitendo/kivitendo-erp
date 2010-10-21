@@ -1,15 +1,31 @@
 [%- USE T8 %]
 [% USE HTML %]<body>
- <form name="Form" method="post" action="admin.pl">
-
-
-  [% IF message %]
-  <p>[% message %]</p>
-  [% END %]
 
   <div class="listtop">[% 'Edit groups' | $T8 %]</div>
+  [% IF message %]
+  <p class="message_ok">[% message %]</p>
+  [% END %]
 
-  <p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
+  <form method="post" action="admin.pl">
+     <input type="hidden" name="back_nextsub" value="list_users">
+    <p><input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]"></p>
+  </form>
+
+ <div class="listheading">[% 'Add a new group' | $T8 %]</div>
+ <form method="post" action="admin.pl">
+ <br>
+  <table border="0">
+   <tr><td>[% 'Name' | $T8 %] </td><td><input name="name" maxlength="50"></td></tr>
+   <tr><td>[% 'Description' | $T8 %] </td><td><input name="description"></td></tr>
+  </table>
+   <input type="hidden" name="add_nextsub" value="add_group">
+   <p><input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]"></p>
+  <hr>
+ </form>
+
+
+ <form name="Form" method="post" action="admin.pl">
+
 
   <div class="listheading">[% 'Edit and delete a group' | $T8 %]</div>
 
@@ -33,7 +49,6 @@
    <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
    [% END %]
    <input type="hidden" name="back_nextsub" value="list_users">
-   <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
   </p>
  </form>
 
@@ -52,30 +67,6 @@
  </form>
 
  <hr size="2" noshade>
-
- <div class="listheading">[% 'Add a new group' | $T8 %]</div>
-
- <form method="post" action="admin.pl">
-  <p>
-   <table border="0">
-    <tr>
-     <td>[% 'Name' | $T8 %]:</td>
-     <td><input name="name" maxlength="50"></td>
-    </tr>
-
-    <tr>
-     <td>[% 'Description' | $T8 %]:</td>
-     <td><input name="description"></td>
-    </tr>
-   </table>
-  </p>
-
-  <p>
-   <input type="hidden" name="add_nextsub" value="add_group">
-   <input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]">
-  </p>
-
- </form>
 
 </body>
 </html>
