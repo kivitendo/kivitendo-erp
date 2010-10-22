@@ -6,7 +6,7 @@
   decides wether it should be a text field or a drop down box,
   generates the HTML code, and fixes everything just right.
 
-  call:  INCLUDE generic/multibox.html var = var, var2 = ....
+  call:  PROCESS generic/multibox.html var = var, var2 = ....
 
   options and variables:
     name          : name of the select/textfield
@@ -26,43 +26,44 @@
     select_name   : if a select is displayed, use a different name. ex.: department for textinput, but department_id for selects
     readonly      : softly prevents modification
 -%]
-[%- DEFAULT
-  limit      = limit   != '' ? limit   : vclimit != '' ? vclimit : 200
-  show_text  = allow_textbox and DATA.size and limit < DATA.size ? 1 : 0
-  id         = id      != '' ? id      : name
-  default    = default != '' ? default : $name
--%]
 [%-
-  name       = (select_name != '' and ! show_text) ? select_name : name
+  Multibox__limit      = limit   != '' ? limit   : vclimit != '' ? vclimit : 200
+  Multibox__show_text  = allow_textbox and DATA.size and Multibox__limit < DATA.size ? 1 : 0
+  Multibox__id         = id      != '' ? id      : name
+  Multibox__default    = default != '' ? default : $name
+  Multibox__name       = (select_name != '' and ! Multibox__show_text) ? select_name : name
 -%]
-[%- IF show_text %]
+[%- IF Multibox__show_text %]
 <input type="text"
- [%- IF name     %] name="[%     HTML.escape(name)     %]"[% END -%]
- [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END -%]
- [%- IF default  %] value="[%    HTML.escape(default)  %]"[% END -%]
- [%- IF style    %] style="[%    HTML.escape(style)    %]"[% END -%]
- [%- IF readonly %] readonly[% END -%]
+ [%- IF Multibox__name     %] name="[%  Multibox__name    | html %]"[% END -%]
+ [%- IF Multibox__id       %] id="[%    Multibox__id      | html %]"[% END -%]
+ [%- IF Multibox__default  %] value="[% Multibox__default | html %]"[% END -%]
+ [%- IF style              %] style="[% style             | html %]"[% END -%]
+ [%- IF readonly           %] readonly[% END -%]
 [%- -%]>
 [%- IF select -%]
   <input type="button" onclick="[% select %]" value="?">
 [%- END -%]
 [%- ELSE %]
 <select
- [%- IF name     %] name="[%     HTML.escape(name)     %]"[% END -%]
- [%- IF id       %] id="[%       HTML.escape(id)       %]"[% END -%]
- [%- IF style    %] style="[%    HTML.escape(style)    %]"[% END -%]
- [%- IF onChange %] onChange="[% HTML.escape(onChange) %]"[% END -%]
- [%- IF readonly %] disabled[% END -%]
+ [%- IF Multibox__name     %] name="[%     Multibox__name     | html %]"[% END -%]
+ [%- IF Multibox__id       %] id="[%       Multibox__id       | html %]"[% END -%]
+ [%- IF style              %] style="[%    style              | html %]"[% END -%]
+ [%- IF onChange           %] onChange="[% onChange           | html %]"[% END -%]
+ [%- IF readonly           %] disabled[% END -%]
 [%- -%]>
   [%- IF show_empty %]
   <option value=""></option>
   [%- END %]
   [%- FOREACH row = DATA %]
-  <option value="[% row.$id_key != '' ? row.$id_key : $id_sub(row) | html %]"[% IF default == (row.$id_key != '' ? row.$id_key : $id_sub(row)) %] selected[% END %]>[%
-                      row.$label_key  != ''  ? row.$label_key
-                    : $label_sub(row) != ''  ? $label_sub(row)
-                    : row.$id_key     != ''  ? row.$id_key
-                    :                          $id_sub(row) | html %]</option>
+  [%-
+      Multibox__row_id       = row.$id_key     != ''  ? row.$id_key    : $id_sub(row)
+      Multibox__row_label    = row.$label_key  != ''  ? row.$label_key
+                             : $label_sub(row) != ''  ? $label_sub(row)
+                             :                          Multibox__row_id
+      Multibox__row_selected = Multibox__default == Multibox__row_id
+  %]
+  <option value="[% Multibox__row_id | html %]"[% IF Multibox__row_selected %] selected[% END %]>[% Multibox__row_label | html %]</option>
   [%- END %]
 </select>
 [%- END %]
