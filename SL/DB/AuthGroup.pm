@@ -29,4 +29,9 @@ __PACKAGE__->meta->add_relationship(
 
 __PACKAGE__->meta->initialize;
 
+sub get_employees {
+  my @logins = map { $_->login } $_[0]->users;
+  return @logins ? @{ SL::DB::Manager::Employee->get_all(query => [ login => \@logins ]) } : ();
+}
+
 1;
