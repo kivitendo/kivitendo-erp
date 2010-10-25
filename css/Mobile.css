@@ -1,7 +1,7 @@
-/* stylesheet for LX-Office ERP
-Getestet mit W3C CSS-Validator:
-Keine Fehler oder Warnungen gefunden
-*/
+/* Stylesheet for Lx-Office
+ * Name: Mobile.css*/
+
+/* The look of links */
 A      { font-size: 8pt; }
 A:link { color: black; text-decoration: none; }
 A:visited { color: black; text-decoration: none; }
@@ -20,7 +20,7 @@ A:hover {
 }
 
 input:focus, textarea:focus, select:focus {
-  background-color:yellow;
+  background-color: yellow;
 }
 
 body {
@@ -72,6 +72,43 @@ body.menu {
   font-size:8pt;
   color: black;
 }
+
+.message_error_login {
+    color: #000000;
+    border: 1px solid #8b0000;
+    background-color: #ffcccc;
+    padding: 3px;
+}
+.message_ok {
+    font-size: 12pt;
+    padding:5px;
+    background-color: #ADFFB6;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
+}
+.message_error {
+    font-size: 12pt;
+    padding:5px;
+    background-color: #FFAAAA;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
+}
+.message_hint {
+    font-size: 12pt;
+    padding:5px;
+    background-color: #FFFE47;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
+}
 .listtop {
   background-color: #b8d1f3;
   text-align:left;
@@ -100,27 +137,6 @@ body.menu {
   background:#D4D0C8;
 }
 
-.message_ok {
-    font-size: 10pt;
-    padding:3px;
-    background-color: lightgreen;
-    color: black;
-    font-weight: bolder;
-    text-align:center;
-    border-style:solid;
-    border-width:thin;
-}
-
-.message_error {
-    font-size: 10pt;
-    padding:5px;
-    background-color: #FFAAAA;
-    color: white;
-    font-weight: bolder;
-    text-align:center;
-    border-style:solid;
-    border-width:thin;
-}
 
 /* Bei Listen den Farbwechsel zur besseren Lesbarkeit: */
 .listrow1 { background-color: #C8D4C6; color: black; vertical-align: top; }

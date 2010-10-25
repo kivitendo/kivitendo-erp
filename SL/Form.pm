@@ -56,7 +56,7 @@ use SL::User;
 use Template;
 use URI;
 use List::Util qw(first max min sum);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any apply);
 
 use strict;
 
@@ -828,13 +828,13 @@ sub _prepare_html_template {
   }
 
   if (%main::myconfig) {
-    map({ $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys(%main::myconfig));
-    my $jsc_dateformat = $main::myconfig{"dateformat"};
-    $jsc_dateformat =~ s/d+/\%d/gi;
-    $jsc_dateformat =~ s/m+/\%m/gi;
-    $jsc_dateformat =~ s/y+/\%Y/gi;
-    $additional_params->{"myconfig_jsc_dateformat"} = $jsc_dateformat;
+    $::myconfig{jsc_dateformat} = apply {
+      s/d+/\%d/gi;
+      s/m+/\%m/gi;
+      s/y+/\%Y/gi;
+    } $::myconfig{"dateformat"};
     $additional_params->{"myconfig"} ||= \%::myconfig;
+    map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
   $additional_params->{"conf_dbcharset"}              = $main::dbcharset;

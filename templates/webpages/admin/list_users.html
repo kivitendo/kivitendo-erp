@@ -11,26 +11,30 @@
      <th class="listtop">[% 'Login Name' | $T8 %]</th>
      <th class="listtop">[% 'Name' | $T8 %]</th>
      <th class="listtop">[% 'Company' | $T8 %]</th>
-     <th class="listtop">[% 'Driver' | $T8 %]</th>
-     <th class="listtop">[% 'Host' | $T8 %]</th>
-     <th class="listtop">[% 'Dataset' | $T8 %]</th>
      <th class="listtop">[% 'Templates' | $T8 %]</th>
+     <th class="listtop">[% 'Print' | $T8 %]</th>
+     <th class="listtop">[% 'Language' | $T8 %]</th>
+     <th class="listtop">[% 'Dataset' | $T8 %]</th>
+     <th class="listtop">[% 'Host' | $T8 %]</th>
+<!-- <th class="listtop">[% 'Driver' | $T8 %]</th> -->
     </tr>
 
     [% FOREACH row = MEMBERS %]
      <tr class="listrow[% loop.count % 2 %]">
-      <td><a href="admin.pl?action=edit&login=[% HTML.url(row.login) %]">[% HTML.escape(row.login) %]</a></td>
-      <td>[% HTML.escape(row.name) %]</td>
-      <td>[% HTML.escape(row.company) %]</td>
-      <td>[% HTML.escape(row.dbdriver) %]</td>
-      <td>[% IF row.dbhost %][% HTML.escape(row.dbhost) %][% ELSE %]localhost[% END %]</td>
-      <td>[% HTML.escape(row.dbname) %]</td>
-      <td>[% HTML.escape(row.templates) %]</td>
+      <td>&nbsp;<a href="admin.pl?action=edit&login=[% HTML.url(row.login) %]">[% HTML.escape(row.login) %]</a></td>
+      <td>&nbsp;[% HTML.escape(row.name) %]</td>
+      <td>&nbsp;[% HTML.escape(row.company) %]</td>
+      <td>&nbsp;[% HTML.escape(row.templates) %]</td>
+      <td>&nbsp;[% HTML.escape(row.template_format) %]</td>
+      <td>&nbsp;[% HTML.escape(row.countrycode) %]</td>
+      <td>&nbsp;[% HTML.escape(row.dbname) %]</td>
+      <td>&nbsp;[% IF row.dbhost %][% HTML.escape(row.dbhost) %][% ELSE %]localhost[% END %]</td>
+<!--  <td>&nbsp;[% HTML.escape(row.dbdriver) %]</td> -->
      </tr>
     [% END %]
 
-    <td colspan="7"><hr size="3" noshade></td>
    </table>
+  <hr size="3" noshade>
   </p>
 
 
@@ -45,9 +49,10 @@
   [% END %]
   <input type="submit" class="submit" name="action" value="[% 'Logout' | $T8 %]">
 
+  <div style="background-color: #FFFFDA; font-size: 12px; padding: 0.5em; max-width: 720px; margin: 1em;">
   <p>[% 'Click on login name to edit!' | $T8 %]</p>
-
   <p>[% 'To add a user to a group edit a name, change the login name and save.  A new user with the same variables will then be saved under the new login name.' | $T8 %]</p>
+  </div>
  </form>
 
  <form method="post" action="login.pl">

@@ -17,7 +17,7 @@ sub default_manager_base_class {
 
 sub initialize {
   my $self = shift;
-  $self->make_attr_auto_helpers;
+  $self->make_attr_auto_helpers unless $self->is_initialized;
   $self->SUPER::initialize(@_);
 }
 

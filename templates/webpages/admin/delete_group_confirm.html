@@ -8,11 +8,11 @@
 
   <div class="listtop">[% 'Delete group' | $T8 %]</div>
 
-  <p>[% 'Do you really want to delete this group:' | $T8 %] [% name %] ?</p>
+  <p class="message_hint">[% 'Do you really want to delete this group:' | $T8 %] [% name %] ?</p>
 
   <input type="hidden" name="delete_nextsub" value="delete_group">
-  <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
   <button type="button" onclick="history.back()">[% 'Back' | $T8 %]</button>
+  <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
 
  </form>
 
