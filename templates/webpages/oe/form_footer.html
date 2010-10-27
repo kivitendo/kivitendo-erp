@@ -114,48 +114,49 @@
 </table>
 
 [% label_edit %]<br>
-<input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
-<input class="submit" type="submit" name="action" value="[% 'Ship to' | $T8 %]">
-<input class="submit" type="submit" name="action" value="[% 'Print' | $T8 %]">
-<input class="submit" type="submit" name="action" value="[% 'E-mail' | $T8 %]">
-<input class="submit" type="submit" name="action" value="[% 'Save' | $T8 %]">
-<input class="submit" type="submit" name="action" value="[% 'Save and Close' | $T8 %]">
+<input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
+<input class="submit" type="submit" name="action_ship_to" value="[% 'Ship to' | $T8 %]">
+<input class="submit" type="submit" name="action_print" value="[% 'Print' | $T8 %]">
+<input class="submit" type="submit" name="action_e_mail" value="[% 'E-mail' | $T8 %]">
+<input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]">
+<input class="submit" type="submit" name="action_save_and_close" value="[% 'Save and Close' | $T8 %]">
 
 [%- IF id %]
   <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
   <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %])" name="history" id="history" value="[% 'history' | $T8 %]">
 
   <br>[% label_workflow %]<br>
-  <input class="submit" type="submit" name="action" value="[% 'Save as new' | $T8 %]">
-  <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
+  <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]">
+  <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
 
   [%- IF is_sales_quo %]
-    <input class="submit" type="submit" name="action" value="[% 'Sales Order' | $T8 %]">
+    <input class="submit" type="submit" name="action_sales_order" value="[% 'Sales Order' | $T8 %]">
   [%- END %]
 
   [%- IF is_req_quo %]
-    <input class="submit" type="submit" name="action" value="[% 'Purchase Order' | $T8 %]">
+    <input class="submit" type="submit" name="action_purchase_order" value="[% 'Purchase Order' | $T8 %]">
   [%- END %]
 
   [%- IF is_sales_ord || is_pur_ord %]
-    <input class="submit" type="submit" name="action" value="[% 'Delivery Order' | $T8 %]">
+    <input class="submit" type="submit" name="action_delivery_order" value="[% 'Delivery Order' | $T8 %]">
   [%- END %]
 
-  <input class="submit" type="submit" name="action" value="[% 'Invoice' | $T8 %]">
+  <input class="submit" type="submit" name="action_invoice" value="[% 'Invoice' | $T8 %]">
 
   [%- IF is_sales_ord || is_pur_ord %]
     <br>[% heading %] als neue Vorlage verwenden f&uuml;r<br>
     [%- IF is_sales_ord %]
-      <input class="submit" type="submit" name="action" value="[% 'Purchase Order' | $T8 %]">
-     <input class="submit" type="submit" name="action" value="[% 'Quotation' | $T8 %]">
+      <input class="submit" type="submit" name="action_purchase_order" value="[% 'Purchase Order' | $T8 %]">
+     <input class="submit" type="submit" name="action_quotation" value="[% 'Quotation' | $T8 %]">
     [%- ELSE %]
     [%- IF is_pur_ord %]
-      <input class="submit" type="submit" name="action" value="[% 'Sales Order' | $T8 %]">
-     <input class="submit" type="submit" name="action" value="[% 'Request for Quotation' | $T8 %]">
+      <input class="submit" type="submit" name="action_sales_order" value="[% 'Sales Order' | $T8 %]">
+     <input class="submit" type="submit" name="action_request_for_quotation" value="[% 'Request for Quotation' | $T8 %]">
     [%- END %]
     [%- END %]
   [%- END %]
 [%- END %]
+<input type="hidden" name="action" value="dispatcher">
 <input type="hidden" name="saved_xyznumber" value="[% HTML.escape(saved_xyznumber) %]">
 <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
 <input type="hidden" name="callback" value="[% callback %]">
