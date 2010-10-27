@@ -18,7 +18,7 @@
   - Druckvorlage optional auf Excel erweitert, um Variablen die sich nicht in foreach-Schleifen
     befinden anzuzeigen (s.a.: doc/excel_templates.txt).
   - FiBu -> Bericht um Suchfeld Kontonummer erweitert
-
+  - Ansprechpartner für abweichende Lieferadresse, um das Attribut Geschlecht erweitert
 
   API Änderungen:
 

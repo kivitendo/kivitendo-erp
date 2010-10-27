@@ -55,7 +55,7 @@ sub parse_foreach {
 
   for (my $i = 0; $i < scalar(@{$ary}); $i++) {
     # do magic markers
-    $form->{"__first__"}   = $i == 1;
+    $form->{"__first__"}   = $i == 0;
     $form->{"__last__"}    = ($i + 1) == scalar(@{$ary});
     $form->{"__odd__"}     = (($i + 1) % 2) == 1;
     $form->{"__counter__"} = $i + 1;

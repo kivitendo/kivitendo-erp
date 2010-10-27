@@ -5,10 +5,10 @@
 
  <input type="hidden" name="action" value="login">
  <p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
+ <p class="message_hint">
+  [% LxERP.t8('Lx-Office is about to update the database [ #1 ].', dbname) | html %]
+ </p>
  <p>
-  [% LxERP.t8('Lx-Office is about to update the database <b>#1</b>.', dbname) | html %]
-  </p>
-  <p>
   [% 'You should create a backup of the database before proceeding because the backup might not be reversible.' | $T8 %]
  </p>
 

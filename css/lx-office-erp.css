@@ -1,4 +1,5 @@
-/* stylesheet for LX-Office ERP */
+/* Stylesheet for Lx-Office
+ * Name: lx-office-erp.css*/
 
 /* The look of links */
 A:link { color: mediumblue; text-decoration: none; }
@@ -10,7 +11,7 @@ A:hover { color: black;
          }
 
 input:focus, textarea:focus, select:focus {
-  background-color:yellow;
+  background-color: yellow;
 }
 
 body {
@@ -84,21 +85,36 @@ body.menu {
   color: black;
 }
 
+.message_error_login {
+    color: #000000;
+    border: 1px solid #8b0000;
+    background-color: #ffcccc;
+    padding: 3px;
+}
 .message_ok {
     font-size: 12pt;
     padding:5px;
-    background-color: lightgreen;
+    background-color: #ADFFB6;
     color: black;
     font-weight: bolder;
     text-align:center;
     border-style:solid;
     border-width:thin;
 }
-
 .message_error {
     font-size: 12pt;
     padding:5px;
     background-color: #FFAAAA;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
+}
+.message_hint {
+    font-size: 12pt;
+    padding:5px;
+    background-color: #FFFE66;
     color: black;
     font-weight: bolder;
     text-align:center;
@@ -255,11 +271,3 @@ label {
 .unbalanced_ledger {
   background-color: #ffa0a0;
 }
-
-.error_message {
-  color: #000000;
-  border: 1px solid #8b0000;
-  background-color: #ffcccc;
-  padding: 3px;
-}
-

@@ -1780,7 +1780,7 @@ sub ship_to {
 
   my @shipto_vars =
     qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry
-       shiptocontact shiptophone shiptofax shiptoemail
+       shiptocontact shiptocp_gender shiptophone shiptofax shiptoemail
        shiptodepartment_1 shiptodepartment_2);
 
   my @addr_vars =
@@ -1794,6 +1794,19 @@ sub ship_to {
     ($form->{vc} eq 'customer')
     ? $locale->text('Customer Number')
     : $locale->text('Vendor Number');
+
+  # sieht nicht nett aus, funktioniert aber
+  # das vorausgewählte select-feld wird über shiptocp_gender
+  # entsprechend vorbelegt
+  my $selected_m='';
+  my $selected_f='';
+  if ($form->{shiptocp_gender} eq 'm') {
+    $selected_m='selected';
+    $selected_f='';
+  } elsif ($form->{shiptocp_gender} eq 'f') {
+    $selected_m='';
+    $selected_f='selected';
+  }
 
   # get pricegroups for parts
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
@@ -1866,6 +1879,15 @@ sub ship_to {
           <th align="right" nowrap>| . $locale->text('Contact') . qq|</th>
           <td>$form->{contact}</td>
           <td><input name="shiptocontact" size="35" value="$form->{shiptocontact}"></td>
+        </tr>
+        <tr>
+          <th align="right" nowrap>| . $locale->text('Gender') . qq|</th>
+          <td></td>
+          <td><select id="shiptocp_gender" name="shiptocp_gender">
+              <option value="m"| .  $selected_m . qq|>| . $locale->text('male') . qq|</option>
+              <option value="f"| .  $selected_f . qq|>| . $locale->text('female') . qq|</option>
+              </select>
+          </td>
         </tr>
         <tr>
           <th align="right" nowrap>| . $locale->text('Phone') . qq|</th>

@@ -3,23 +3,35 @@
  <form name="Form" method="post" action="admin.pl">
 
   <input type="hidden" name="group_id" value="[% HTML.escape(group_id) %]">
-
   <input type="hidden" name="back_nextsub" value="edit_groups">
 
   [% IF message %]
-  <p>[% message %]</p>
+  <p class="message_ok">[% message %]</p>
   [% END %]
 
-  <div class="listtop">[% 'Edit group ' | $T8 %] [% HTML.escape(name) %]</div>
+  <div class="listtop">[% 'Edit group ' | $T8 %]:  [% HTML.escape(name) %]</div>
 
-  <table width="100%">
-   <tr>
-    <td>
+  <p><input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]"></p>
+
+   <hr>
+
+   <p class="listheading">[% 'Rename the group' | $T8 %]</p>
+   <table>
+     <tr><td><div style="">[% 'Name' | $T8 %]</th><td><input name="name" maxlength="50" value="[% HTML.escape(name) %]"></td></tr>
+	 <tr><th>[% 'Description' | $T8 %]</th><td><input name="description" value="[% HTML.escape(description) %]"></td></tr>
+   </table>
+   <br>
+     <input type="hidden" name="save_nextsub" value="save_group">
+     <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
+
+ <hr>
+ <br>
+ <div class="listtop">[% 'Group membership' | $T8 %]</div>
      <table>
-      <tr class="listheading">
-       <td><b>[% 'Users in<br>this group' | $T8 %]</b></td>
-       <td>&nbsp;</td>
-       <td><b>[% 'Users not in this group' | $T8 %]</b></td>
+      <tr>
+       <td><p class="listheading">[% 'Members of' | $T8 %]<br>[% HTML.escape(name) %]</p></td>
+       <td> </td>
+       <td><p class="listheading">[% 'Members not of' | $T8 %]<br>[% HTML.escape(name) %]</p></td>
       </tr>
 
       <tr>
@@ -42,74 +54,30 @@
         </select>
        </td>
       </tr>
-
-      <tr>
-       <td>
-        <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
-       </td>
-      </tr>
      </table>
-
-     <hr>
-
-     <table>
-      <tr class="listheading">
-       <td colspan="2">[% 'Edit rights' | $T8 %]</td>
-      </tr>
+ <hr>
+ <br>
+    <div class="listtop">[% 'Edit rights' | $T8 %]</div>
 
       [% FOREACH right = RIGHTS %]
-      <tr>
-       <td>
+
         [% IF right.is_section %]
-        <i>[% right.description %]</i>
+        <br>
+        <h4 style="border-bottom: solid; border-bottom-width: 1px; border-bottom-color: #ddd;">[% right.description %]</h4>
         [% ELSE %]
+        <p style="/*font-size: 11px;*/ margin: 0;">
         <input type="checkbox" name="[% HTML.escape(right.right) %]_granted" id="[% HTML.escape(right.right) %]_granted" [% IF right.granted %]checked[% END %]>
         <label for="[% HTML.escape(right.right) %]_granted">[% IF right.description %][% right.description %][% ELSE %]<i>[% HTML.escape(right.right) %]</i>[% END %]</label>
+         </p>
         [% END %]
-       </td>
-      </tr>
+
       [% END %]
 
-      <tr>
-       <td>
-        <input type="hidden" name="save_nextsub" value="save_group">
-        <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
-        &nbsp;
-        <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
-       </td>
-      </tr>
-     </table>
-
-     <hr>
-
-     <table>
-      <tr class="listheading">
-       <td colspan="2">[% 'Rename the group' | $T8 %]</td>
-      </tr>
-
-      <tr>
-       <td>[% 'Name' | $T8 %]:</td>
-       <td><input name="name" maxlength="50" value="[% HTML.escape(name) %]"></td>
-      </tr>
-
-      <tr>
-       <td>[% 'Description' | $T8 %]:</td>
-       <td><input name="description" value="[% HTML.escape(description) %]"></td>
-      </tr>
-
-      <tr>
-       <td>
-        <input type="hidden" name="save_nextsub" value="save_group">
-        <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
-        &nbsp;
-        <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
-       </td>
-      </tr>
-     </table>
-    </td>
-   </tr>
-  </table>
+   <hr>
+    <input type="hidden" name="save_nextsub" value="save_group">
+    <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
+    &nbsp;
+    <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
  </form>
-
 </body>
 </html>

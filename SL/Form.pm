@@ -56,7 +56,7 @@ use SL::User;
 use Template;
 use URI;
 use List::Util qw(first max min sum);
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(any apply);
 
 use strict;
 
@@ -828,13 +828,13 @@ sub _prepare_html_template {
   }
 
   if (%main::myconfig) {
-    map({ $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys(%main::myconfig));
-    my $jsc_dateformat = $main::myconfig{"dateformat"};
-    $jsc_dateformat =~ s/d+/\%d/gi;
-    $jsc_dateformat =~ s/m+/\%m/gi;
-    $jsc_dateformat =~ s/y+/\%Y/gi;
-    $additional_params->{"myconfig_jsc_dateformat"} = $jsc_dateformat;
+    $::myconfig{jsc_dateformat} = apply {
+      s/d+/\%d/gi;
+      s/m+/\%m/gi;
+      s/y+/\%Y/gi;
+    } $::myconfig{"dateformat"};
     $additional_params->{"myconfig"} ||= \%::myconfig;
+    map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
   $additional_params->{"conf_dbcharset"}              = $main::dbcharset;
@@ -2018,7 +2018,7 @@ sub add_shipto {
   my @values;
 
   foreach my $item (qw(name department_1 department_2 street zipcode city country
-                       contact phone fax email)) {
+                       contact cp_gender phone fax email)) {
     if ($self->{"shipto$item"}) {
       $shipto = 1 if ($self->{$item} ne $self->{"shipto$item"});
     }
@@ -2036,6 +2036,7 @@ sub add_shipto {
                        shiptocity = ?,
                        shiptocountry = ?,
                        shiptocontact = ?,
+                       shiptocp_gender = ?,
                        shiptophone = ?,
                        shiptofax = ?,
                        shiptoemail = ?
@@ -2051,6 +2052,7 @@ sub add_shipto {
                        shiptocity = ? AND
                        shiptocountry = ? AND
                        shiptocontact = ? AND
+                       shiptocp_gender = ? AND
                        shiptophone = ? AND
                        shiptofax = ? AND
                        shiptoemail = ? AND
@@ -2061,8 +2063,8 @@ sub add_shipto {
         $query =
           qq|INSERT INTO shipto (trans_id, shiptoname, shiptodepartment_1, shiptodepartment_2,
                                  shiptostreet, shiptozipcode, shiptocity, shiptocountry,
-                                 shiptocontact, shiptophone, shiptofax, shiptoemail, module)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+                                 shiptocontact, shiptocp_gender, shiptophone, shiptofax, shiptoemail, module)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
         do_query($self, $dbh, $query, $id, @values, $module);
       }
     }

@@ -5,6 +5,15 @@ use Template::Plugin;
 
 use strict;
 
+{ # This will give you an id for identifying html tags and such.
+  # It's guaranteed to be unique unless you exceed 10 mio calls per request.
+  # Do not use these id's to store information across requests.
+my $_id_sequence = int rand 1e7;
+sub _tag_id {
+  return $_id_sequence = ($_id_sequence + 1) % 1e7;
+}
+}
+
 sub _H {
   my $string = shift;
   return $::locale->quote_special_chars('HTML', $string);
@@ -132,6 +141,36 @@ sub options_for_select {
   return $code;
 }
 
+sub javascript {
+  my ($self, $data) = @_;
+  return $self->html_tag('script', $data, type => 'text/javascript');
+}
+
+sub date_tag {
+  my ($self, $name, $value, @slurp) = @_;
+  my %params   = _hashify(@slurp);
+  my $name_e   = _H($name);
+  my $seq      = _tag_id();
+
+  $params{cal_align} ||= 'BR';
+
+  $self->input_tag($name, $value,
+    size   => 11,
+    title  => _H($::myconfig{dateformat}),
+    onBlur => 'check_right_date_format(this)',
+    %params,
+  ) . ((!$params{no_cal}) ?
+  $self->html_tag('img', undef,
+    src    => 'image/calendar.png',
+    id     => "trigger$seq",
+    title  => _H($::myconfig{dateformat}),
+    %params,
+  ) .
+  $self->javascript(
+    "Calendar.setup({ inputField: '$name_e', ifFormat: '$::myconfig{jsc_dateformat}', align: '$params{cal_align}', button: 'trigger$seq'  });"
+  ) : '');
+}
+
 1;
 
 __END__
@@ -212,6 +251,16 @@ C<name_to_id($name)>. The tag's C<value> defaults to C<1>.
 If C<%attributes> contains a key C<label> then a HTML 'label' tag is
 created with said C<label>. No attribute named C<label> is created in
 that case.
+
+=item C<date_tag $name, $value, %attributes>
+
+=item C<date_tag $name, $value, cal_align =E<gt> $align_code, %attributes>
+
+Creates a date input field, with an attached javascript that will open a
+calendar on click. The javascript ist by default anchoered at the bottom right
+sight. This can be overridden with C<cal_align>, see Calendar documentation for
+the details, usually you'll want a two letter abbreviation of the alignment.
+Right + Bottom becomes C<BL>.
 
 =back
 
