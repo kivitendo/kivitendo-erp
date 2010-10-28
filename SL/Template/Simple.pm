@@ -10,6 +10,8 @@ package SL::Template::Simple;
 
 use strict;
 
+use Scalar::Util qw(blessed);
+
 # Parameters:
 #   1. The template's file name
 #   2. A reference to the Form object
@@ -91,7 +93,19 @@ sub _get_loop_variable {
   my $form      = $self->{form};
   my $value;
 
-  if (($get_array || @indices) && (ref $form->{TEMPLATE_ARRAYS} eq 'HASH') && (ref $form->{TEMPLATE_ARRAYS}->{$var} eq 'ARRAY')) {
+  if ($var =~ m/\./) {
+    $value = $form;
+    for my $part (split(m/\./, $var)) {
+      if (ref($value) =~ m/^(?:Form|HASH)$/) {
+        $value = $value->{$part};
+      } elsif (blessed($value) && $value->can($part)) {
+        $value = $value->$part;
+      } else {
+        $value = '';
+        last;
+      }
+    }
+  } elsif (($get_array || @indices) && (ref $form->{TEMPLATE_ARRAYS} eq 'HASH') && (ref $form->{TEMPLATE_ARRAYS}->{$var} eq 'ARRAY')) {
     $value = $form->{TEMPLATE_ARRAYS}->{$var};
   } else {
     $value = $form->{$var};
