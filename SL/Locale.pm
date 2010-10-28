@@ -232,6 +232,7 @@ sub findsub {
 
   my ($self, $text) = @_;
   my $text_rev      = lc $self->{iconv_reverse}->convert($text);
+  $text_rev         =~ s/[\s\-]+/_/g;
 
   if (!$self->{texts_reverse}) {
     $self->{texts_reverse} = { };
