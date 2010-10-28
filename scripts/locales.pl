@@ -283,11 +283,11 @@ sub extract_text_between_parenthesis {
 
     } else {
       if ($quote_next) {
+        $text .= '\\' unless $cur_char eq "'";
         $text .= $cur_char;
         $quote_next = 0;
 
       } elsif ($cur_char eq '\\') {
-        $text .= $cur_char;
         $quote_next = 1;
 
       } elsif ($cur_char eq $inside_string) {
