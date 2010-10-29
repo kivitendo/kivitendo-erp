@@ -15,8 +15,21 @@ sub cleanup {
 }
 
 sub get_all_need_to_run {
-  my $class = shift;
-  return $class->get_all(where => [ and => [ active => 1, next_run_at => { le => DateTime->now_local } ] ]);
+  my $class         = shift;
+
+  my $now           = DateTime->now_local;
+  my @interval_args = (and => [ type        => 'interval',
+                                active      => 1,
+                                next_run_at => { le => $now } ]);
+  my @once_args     = (and => [ type        => 'once',
+                                active      => 1,
+                                last_run_at => undef,
+                                or          => [ cron_spec   => undef,
+                                                 cron_spec   => '',
+                                                 next_run_at => undef,
+                                                 next_run_at => { le => $now } ] ]);
+
+  return $class->get_all(where => [ or => [ @interval_args, @once_args ] ]);
 }
 
 1;
