@@ -6,6 +6,8 @@ use SL::DB::AccTrans;
 use SL::DB::AccTransaction;
 use SL::DB::Assembly;
 use SL::DB::AuditTrail;
+use SL::DB::BackgroundJob;
+use SL::DB::BackgroundJobHistory;
 use SL::DB::BankAccount;
 use SL::DB::Bin;
 use SL::DB::Buchungsgruppe;
