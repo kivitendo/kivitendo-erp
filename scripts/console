@@ -59,11 +59,10 @@ sub lxinit {
     $::sendmail   = "| /usr/sbin/sendmail -t";
   }
 
-  $::lxdebug = LXDebug->new;
-
   eval { require "config/lx-erp.conf"; };
   eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
 
+  $::lxdebug = LXDebug->new;
   $::locale = Locale->new($::language);
   $::cgi    = CGI->new qw();
   $::form   = Form->new;
