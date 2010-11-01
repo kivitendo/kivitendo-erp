@@ -1,0 +1,5 @@
+[task_server]
+# User name to use for database access
+login =
+# Set to 1 for debug messages in /tmp/lx-office-debug.log
+debug = 0

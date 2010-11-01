@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+
+use strict;
+
+BEGIN {
+  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
+  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+}
+
+use CGI qw( -no_xhtml);
+use Config::Std;
+use Cwd;
+use Daemon::Generic;
+use Data::Dumper;
+use DateTime;
+use English qw(-no_match_vars);
+use SL::Auth;
+use SL::DB::BackgroundJob;
+use SL::BackgroundJob::ALL;
+use SL::Form;
+use SL::Helper::DateTime;
+use SL::LXDebug;
+use SL::Locale;
+
+my %config;
+
+# this is a cleaned up version of am.pl
+# it lacks redirection, some html setup and most of the authentication process.
+# it is assumed that anyone with physical access and execution rights on this script
+# won't be hindered by authentication anyway.
+sub lxinit {
+  my $login = $config{task_server}->{login};
+
+  package main;
+
+  { no warnings 'once';
+    $::userspath  = "users";
+    $::templates  = "templates";
+    $::sendmail   = "| /usr/sbin/sendmail -t";
+  }
+
+  eval { require "config/lx-erp.conf";       1; } or die $EVAL_ERROR;
+  eval { require "config/lx-erp-local.conf"; 1; } or die $EVAL_ERROR if -f "config/lx-erp-local.conf";
+
+  $::lxdebug = LXDebug->new;
+  $::locale  = Locale->new($::language);
+  $::cgi     = CGI->new qw();
+  $::form    = Form->new;
+  $::auth    = SL::Auth->new;
+
+  die 'cannot reach auth db'               unless $::auth->session_tables_present;
+
+  $::auth->restore_session;
+
+  require "bin/mozilla/common.pl";
+
+  die "cannot find user $login"            unless %::myconfig = $::auth->read_user($login);
+  die "cannot find locale for user $login" unless $::locale   = Locale->new('de');
+}
+
+sub gd_preconfig {
+  my $self = shift;
+
+  read_config $self->{configfile} => %config;
+
+  die "Missing section [task_server] in config file"                unless $config{task_server};
+  die "Missing key 'login' in section [task_server] in config file" unless $config{task_server}->{login};
+
+  lxinit();
+
+  return ();
+}
+
+sub gd_run {
+  while (1) {
+    my $ok = eval {
+      $::lxdebug->message(0, "Retrieving jobs") if $config{task_server}->{debug};
+
+      my $jobs = SL::DB::Manager::BackgroundJob->get_all_need_to_run;
+
+      $::lxdebug->message(0, "  Found: " . join(' ', map { $_->package_name } @{ $jobs })) if $config{task_server}->{debug} && @{ $jobs };
+
+      $_->run for @{ $jobs };
+
+      1;
+    };
+
+    if ($config{task_server}->{debug}) {
+      $::lxdebug->message(0, "Exception during execution: ${EVAL_ERROR}") if !$ok;
+      $::lxdebug->message(0, "Sleeping");
+    }
+
+    my $seconds = 60 - (localtime)[0];
+    sleep($seconds < 30 ? $seconds + 60 : $seconds);
+  }
+}
+
+my $cwd     = getcwd();
+my $pidbase = "${cwd}/users/pid";
+
+mkdir($pidbase) if !-d $pidbase;
+
+newdaemon(configfile => "${cwd}/config/task_server.conf",
+          progname   => 'lx-office-task-server',
+          pidbase    => "${pidbase}/",
+          );
+
+1;
