@@ -13,38 +13,35 @@ sub mydberror {
       "<br>$msg<br>" . $DBI::errstr);
 }
 
-sub do_query {
-  my ($query, $may_fail) = @_;
-
-  if (!$dbh->do($query)) {
-    mydberror($query) unless ($may_fail);
-    $dbh->rollback();
-    $dbh->begin_work();
-  }
-}
-
 sub do_update {
-  my @queries;
+  my $dbh   = $main::auth->dbconnect();
+  my $query = <<SQL;
+    SELECT id
+    FROM auth."group"
+    WHERE NOT EXISTS(
+      SELECT group_id
+      FROM auth.group_rights
+      WHERE (auth.group_rights.group_id = auth."group".id)
+        AND (auth.group_rights."right"  = 'sales_all_edit')
+    )
+SQL
 
-#  do_query("ALTER TABLE project ADD PRIMARY KEY (id);", 1);
-#  map({ do_query($_, 0); } @queries);
-#  print "hieryy";
-#  print (Dumper($main::form));
-  my $dbh = $main::auth->dbconnect();
-  my $query = qq|SELECT distinct group_id from auth.user_group|;
-  my $sth_all_groups = prepare_execute_query($form, $dbh, $query);
-  while (my $hash_ref = $sth_all_groups->fetchrow_hashref()) {  # Schleife
-    push @queries, "INSERT INTO auth.group_rights (group_id, \"right\", granted) VALUES (" . $hash_ref->{group_id} . ", 'sales_all_edit', 't')";
-}
-# if in doubt use brute force ;-) jb
-  foreach my $query (@queries){
-#    print "hier:" . $query;
-    my $dbh = $main::auth->dbconnect();
-    my $sth   = prepare_query($form, $dbh, $query);
-    do_statement($form,$sth,$query);
+  my @group_ids = selectall_array_query($form, $dbh, $query);
+  if (@group_ids) {
+    $query = <<SQL;
+      INSERT INTO auth.group_rights (group_id, "right",          granted)
+      VALUES                        (?,        'sales_all_edit', TRUE)
+SQL
+    my $sth = prepare_query($form, $dbh, $query);
+
+    foreach my $id (@group_ids) {
+      do_statement($form, $sth, $query, $id);
+    }
+
     $sth->finish();
-    $dbh ->commit();
-}
+    $dbh->commit();
+  }
+
   return 1;
 }
 
