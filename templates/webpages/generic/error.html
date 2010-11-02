@@ -1,10 +1,12 @@
 [%- USE T8 %]
 [% USE HTML %]<body>
 
- <div class="message_error">[% IF title_error %][% title_error %][% ELSE %][% 'Error!' | $T8 %][% END %]</div>
-<p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
+ <div class="message_error">[% IF title_error %][% title_error %][% ELSE %][% 'Error!' | $T8 %][% END %]
  <p>[% label_error %]</p>
-
+ </div>
+ 
+ <p style="text-align: left;"><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
+ 
  [%- IF SHOW_BACK_BUTTON %]
  <form>
   <p>
