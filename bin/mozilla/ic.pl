@@ -1579,8 +1579,8 @@ sub form_footer {
 sub makemodel_row {
   $lxdebug->enter_sub();
   my ($numrows) = @_;
-
-  my @mm_data = grep { any { $_ ne '' } @$_{qw(make model)} } map +{ make => $form->{"make_$_"}, model => $form->{"model_$_"} }, 1 .. $numrows;
+  #hli
+  my @mm_data = grep { any { $_ ne '' } @$_{qw(make model)} } map +{ make => $form->{"make_$_"}, model => $form->{"model_$_"}, lastcost => $form->{"lastcost_$_"}, lastupdate => $form->{"lastupdate_$_"}, sortorder => $form->{"sortorder_$_"} }, 1 .. $numrows;
   delete @{$form}{grep { m/^make_\d+/ || m/^model_\d+/ } keys %{ $form }};
   print $form->parse_html_template('ic/makemodel', { MM_DATA => [ @mm_data, {} ], mm_rows => scalar @mm_data + 1 });
 

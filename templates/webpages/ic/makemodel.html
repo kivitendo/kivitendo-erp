@@ -7,6 +7,9 @@
         <tr>
           <th class="listheading">[% 'Make' | $T8 %]</th>
           <th class="listheading">[% 'Model' | $T8 %]</th>
+          <th class="listheading">[% 'Last Cost' | $T8 %]</th>
+          <th class="listheading">[% 'Updated' | $T8 %]</th>
+          <th class="listheading">[% 'order' | $T8 %]</th>
         </tr>
       [%- FOREACH row = MM_DATA %]
         <tr>
@@ -21,6 +24,10 @@
             -%]
           </td>
           <td><input name="model_[% loop.count %]" size="30" value="[% HTML.escape(row.model) %]"></td>
+          <td><input type="hidden" name="old_lastcost_[% loop.count %]" value="[% LxERP.format_amount(row.lastcost, -2) %]">
+              <input name="lastcost_[% loop.count %]" size="10" value="[% LxERP.format_amount(row.lastcost, -2) %]"></td>
+          <td><input name="lastupdate_[% loop.count %]" size="10" value="[% HTML.escape(row.lastupdate) %]"></td>
+          <td><input name="sortorder_[% loop.count %]" size="3" value="[% HTML.escape(row.sortorder) %]"></td>
         </tr>
       [%- END %]
       </table>
