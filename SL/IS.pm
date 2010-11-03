@@ -561,7 +561,7 @@ sub post_invoice {
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
   } else {
-    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{transdate}, 'buy');
+    $exchangerate = $form->check_exchangerate($myconfig, $form->{currency}, $form->{invdate}, 'buy');
   }
 
   $form->{exchangerate} =
