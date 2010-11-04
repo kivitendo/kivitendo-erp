@@ -22,7 +22,6 @@ sub test ($$$) {
 }
 
 test { }, {
-  query => []
 }, 'minimal test';
 
 test {
@@ -52,7 +51,7 @@ test {
   }
 }, {
   query => [ 'customer.chart.accno' => 'test' ],
-  with_objects => [ 'customer', 'chart' ],
+  with_objects => bag( 'customer', 'chart' ),
 }, 'nested joins';
 
 test {
@@ -76,7 +75,7 @@ test {
 },
 {
   query => [ 'customer.chart.accno' => { like => '%1200' } ],
-  with_objects => ['customer', 'chart' ],
+  with_objects => bag('customer', 'chart' ),
 }, 'all together';
 
 
@@ -94,10 +93,7 @@ test {
                'invoice.customer.name'  => 'test',
                'customer.name'          => 'test',
              }} ],
-  'with_objects' => [
-                      'invoice',
-                      'customer'
-                    ]
+  'with_objects' => bag( 'invoice', 'customer' )
 }, 'object in more than one relationship';
 
 test {

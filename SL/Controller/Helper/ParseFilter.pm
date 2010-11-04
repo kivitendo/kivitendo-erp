@@ -39,8 +39,8 @@ sub parse_filter {
   _launder_keys($filter) unless $params{no_launder};
 
   return
-    query => $query,
-    @$objects ? ( with_objects => [ uniq @$objects ]) : ();
+    ($query   && @$query   ? (query => $query) : ()),
+    ($objects && @$objects ? ( with_objects => [ uniq @$objects ]) : ());
 }
 
 sub _launder_keys {
@@ -61,7 +61,7 @@ sub _pre_parse {
   my ($filter, $with_objects, $prefix, %params) = @_;
 
   return () unless 'HASH'  eq ref $filter;
-  $with_objects = [];
+  $with_objects ||= [];
 
   my @result;
 
