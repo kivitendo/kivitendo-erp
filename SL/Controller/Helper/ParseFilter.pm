@@ -146,9 +146,9 @@ search target. A search for sales orders may be filtered by the name of the
 customer. L<Rose::DB::Object> alloes you to search for these by filtering them prefixed with their table:
 
   query => [
-    customer.name => 'John Doe',
-    department.description => [ ilike => '%Sales%' ],
-    orddate => [ lt => DateTime->today ],
+    'customer.name'          => 'John Doe',
+    'department.description' => [ ilike => '%Sales%' ],
+    'orddate'                => [ lt    => DateTime->today ],
   ]
 
 Unfortunately, if you specify them in you form as these strings, the form
@@ -171,7 +171,7 @@ providing suffixes for common search patterns.
 
 =over 4
 
-=item parse_amount \%FILTER, [ %PARAMS ]
+=item C<parse_filter \%FILTER, [ %PARAMS ]>
 
 First argument is the filter from form. It is highly recommended that you put
 all filter attributes into a named container as to not confuse them with the
@@ -181,14 +181,14 @@ Nested structures will be parsed and interpreted as foreign references. For
 example if you search for L<Order>s, this input will search for those with a
 specific L<Salesman>:
 
-  [% L.select_tag('filter.salesman.id', ...
+  [% L.select_tag('filter.salesman.id', ...) %]
 
 Additionally you can add modifier to the name to set a certain method:
 
-  [% L.input_tag('filter.department.description:substr::ilike' ...
+  [% L.input_tag('filter.department.description:substr::ilike', ...) %]
 
-This will add the "% .. %" wildcards for substr matching in sql, and add an C<[
-ilike => $value ]> block around it to match case insensitively.
+This will add the "% .. %" wildcards for substr matching in SQL, and add an
+C<< ilike => $value >> block around it to match case insensitively.
 
 As a rule all value filters require a single colon and must be placed before
 match method suffixes, which are appended with 2 colons. See below for a full
@@ -209,10 +209,11 @@ method-less input.
 
 =item Laundering filter
 
-Unfortunately Template cannot parse the postfixes if you want to rerender the
-filter. For this reason all colons filter keys are by default laundered into
-underscores. If you don't want this to happen pass C<no_launder => 1> as a
-parameter. A full select_tag then loks like this:
+Unfortunately Template cannot parse the postfixes if you want to
+rerender the filter. For this reason all colons filter keys are by
+default laundered into underscores. If you don't want this to happen
+pass C<< no_launder => 1 >> as a parameter. A full select_tag then
+loks like this:
 
   [% L.input_tag('filter.price:number::lt', filter.price_number__lt) %]
 
@@ -227,15 +228,15 @@ The following filters are built in, and can be used.
 
 =item date
 
-Parses the input string with DateTime->from_lxoffice
+Parses the input string with C<< DateTime->from_lxoffice >>
 
 =item number
 
-Pasres the input string with Form->parse_amount
+Pasres the input string with C<< Form->parse_amount >>
 
 =item percent
 
-Parses the input string with Form->parse_amount / 100
+Parses the input string with C<< Form->parse_amount / 100 >>
 
 =item head
 
@@ -277,8 +278,8 @@ customer, or are linked to a L<SL::DB::Invoice> with this customer, the
 following will not work as you expect:
 
   # does not work!
-  L.input_tag('customer.name:substr::ilike', ...
-  L.input_tag('invoice.customer.name:substr::ilike', ...
+  L.input_tag('customer.name:substr::ilike', ...)
+  L.input_tag('invoice.customer.name:substr::ilike', ...)
 
 This will sarch for orders whoe invoice has the _same_ customer, which matches
 both inputs. This is because tables are aliased by their name and not by their
