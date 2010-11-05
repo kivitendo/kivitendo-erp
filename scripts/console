@@ -29,7 +29,10 @@ $repl->load_history($history_file);
 $repl->eval('help');
 $repl->print("trying to auto login as '$login'...");
 $repl->print($repl->eval("lxinit '$login'"));
-$repl->print($repl->eval($autorun)) if $autorun;
+if ($autorun) {
+  my $result = $repl->eval($autorun);
+  $repl->print($result->message) if ref($result) eq 'Devel::REPL::Error';
+}
 $repl->run;
 
 package Devel::REPL;
