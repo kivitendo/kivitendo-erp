@@ -6,7 +6,7 @@ use parent qw(Exporter);
 our @EXPORT = qw(calculate_prices_and_taxes);
 
 use Carp;
-use List::Util qw(sum);
+use List::Util qw(sum min);
 use SL::DB::Default;
 use SL::DB::PriceFactor;
 use SL::DB::Unit;
@@ -14,28 +14,24 @@ use SL::DB::Unit;
 sub calculate_prices_and_taxes {
   my ($self, %params) = @_;
 
-  my $is_sales            = $self->can('customer') && $self->customer;
-  my $is_invoice          = (ref($self) =~ /Invoice/) || $params{invoice};
-
   my %units_by_name       = map { ( $_->name => $_ ) } @{ SL::DB::Manager::Unit->get_all        };
   my %price_factors_by_id = map { ( $_->id   => $_ ) } @{ SL::DB::Manager::PriceFactor->get_all };
-  my %taxes_by_chart_id   = ();
-  my %amounts_by_chart_id = ();
 
   my %data = ( lastcost_total      => 0,
                invoicediff         => 0,
                units_by_name       => \%units_by_name,
                price_factors_by_id => \%price_factors_by_id,
-               taxes_by_chart_id   => \%taxes_by_chart_id,
-               amounts_by_chart_id => \%amounts_by_chart_id,
+               taxes               => { },
+               amounts             => { },
+               amounts_cogs        => { },
+               allocated           => { },
+               assembly_items      => [ ],
                exchangerate        => undef,
+               is_sales            => $self->can('customer') && $self->customer,
+               is_invoice          => (ref($self) =~ /Invoice/) || $params{invoice},
              );
 
-  if (($self->curr || '') ne SL::DB::Default->get_default_currency) {
-    $data{exchangerate}   = $::form->check_exchangerate(\%::myconfig, $self->curr, $self->transdate, $is_sales ? 'buy' : 'sell');
-    $data{exchangerate} ||= $params{exchangerate};
-  }
-  $data{exchangerate} ||= 1;
+  _get_exchangerate($self, \%data, %params);
 
   $self->netamount(  0);
   $self->marge_total(0);
@@ -43,24 +39,34 @@ sub calculate_prices_and_taxes {
   my $idx = 0;
   foreach my $item ($self->items) {
     $idx++;
-    _calculate_item($self, $item, $idx, \%data);
+    _calculate_item($self, $item, $idx, \%data, %params);
   }
 
-  my $tax_sum = sum map { _round($_, 2) } values %taxes_by_chart_id;
+  my $tax_sum = sum map { _round($_, 2) } values %{ $data{taxes} };
 
   $self->amount(       _round($self->netamount + $tax_sum, 2));
   $self->netamount(    _round($self->netamount,            2));
   $self->marge_percent($self->netamount ? ($self->netamount - $data{lastcost_total}) * 100 / $self->netamount : 0);
 
+  _calculate_invoice($self, \%data, %params) if $data{is_invoice};
+
   return $self unless wantarray;
-  return ( self    => $self,
-           taxes   => \%taxes_by_chart_id,
-           amounts => \%amounts_by_chart_id,
-         );
+
+  return map { ($_ => $data{$_}) } qw(taxes amounts amounts_cogs allocated exchangerate assembly_items);
+}
+
+sub _get_exchangerate {
+  my ($self, $data, %params) = @_;
+
+  if (($self->curr || '') ne SL::DB::Default->get_default_currency) {
+    $data->{exchangerate}   = $::form->check_exchangerate(\%::myconfig, $self->curr, $self->transdate, $data->{is_sales} ? 'buy' : 'sell');
+    $data->{exchangerate} ||= $params{exchangerate};
+  }
+  $data->{exchangerate} ||= 1;
 }
 
 sub _calculate_item {
-  my ($self, $item, $idx, $data) = @_;
+  my ($self, $item, $idx, $data, %params) = @_;
 
   my $part_unit  = $data->{units_by_name}->{ $item->part->unit };
   my $item_unit  = $data->{units_by_name}->{ $item->unit       };
@@ -107,24 +113,77 @@ sub _calculate_item {
     $tax_amount = $linetotal * $tax_rate;
   }
 
-  $data->{taxes_by_chart_id}->{ $taxkey->chart_id } ||= 0;
-  $data->{taxes_by_chart_id}->{ $taxkey->chart_id }  += $tax_amount;
+  $data->{taxes}->{ $taxkey->chart_id } ||= 0;
+  $data->{taxes}->{ $taxkey->chart_id }  += $tax_amount;
 
   $self->netamount($self->netamount + $sellprice * $item->qty / $item->price_factor);
 
   my $chart = $item->part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
-  $data->{amounts_by_chart_id}->{$chart->id} += $linetotal;
+  $data->{amounts}->{$chart->id} += $linetotal;
 
-  if ($data->{is_invoice}) {
-    if ($item->part->is_assembly) {
-      # process_assembly()...
-    } else {
-      # cogs...
-    }
-  }
+  push @{ $data->{assembly_items} }, [];
+  $item->allocated(_calculate_assembly_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj)));
 
   $::lxdebug->message(0, "CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice taxamount $tax_amount " .
                       "i.linetotal $linetotal netamount " . $self->netamount . " marge_total " . $item->marge_total . " marge_percent " . $item->marge_percent);
+}
+
+sub _calculate_invoice {
+  my ($self, $data, %params) = @_;
+
+  return unless $data->{invoice};
+}
+
+sub _calculate_assembly_item {
+  my ($self, $data, $part, $total_qty, $base_factor) = @_;
+
+  return 0 unless $::eur && $data->{is_invoice};
+  return _calculate_part_service_item($self, $data, $part, $total_qty) unless $part->is_assembly;
+
+  my $allocated = 0;
+  foreach my $assembly_entry (@{ $part->assemblies }) {
+    push @{ $data->{assembly_items}->[-1] }, { part => $assembly_entry->part, qty => $total_qty * $assembly_entry->qty };
+    $allocated += _calculate_assembly_item($self, $data, $assembly_entry->part, $total_qty * $assembly_entry->qty);
+  }
+
+  return $allocated;
+}
+
+sub _calculate_part_service_item {
+  my ($self, $data, $part, $total_qty, $base_factor) = @_;
+
+  $::lxdebug->message(0, "cpsi tq " . $total_qty);
+
+  return 0 unless $::eur && $data->{is_invoice} && $total_qty;
+
+  my ($entry);
+  $base_factor           ||= 1;
+  my $remaining_qty        = $total_qty;
+  my $expense_income_chart = $part->get_chart(type => $data->{is_sales} ? 'expense' : 'income', taxzone => $self->taxzone_id);
+  my $inventory_chart      = $part->get_chart(type => 'inventory',                              taxzone => $self->taxzone_id);
+
+  my $iterator             = SL::DB::Manager::InvoiceItem->get_all_iterator(query => [ and => [ parts_id => $part->id,
+                                                                                                \'(base_qty + allocated) < 0' ] ]);
+
+  while (($remaining_qty > 0) && ($entry = $iterator->next)) {
+    my $qty = min($remaining_qty, $entry->base_qty * -1 - $entry->allocated - $data->{allocated}->{$part->id});
+    $::lxdebug->message(0, "qty $qty");
+
+    next unless $qty;
+
+    my $linetotal = _round(($entry->sellprice * $qty) / $base_factor, 2);
+
+    $data->{amounts_cogs}->{ $expense_income_chart->id } -= $linetotal;
+    $data->{amounts_cogs}->{ $inventory_chart->id      } += $linetotal;
+
+    $data->{allocated}->{ $part->id } ||= 0;
+    $data->{allocated}->{ $part->id }  += $qty;
+    $remaining_qty                     -= $qty;
+  }
+
+  $iterator->finish;
+
+  return $remaining_qty - $total_qty;
 }
 
 sub _round {
