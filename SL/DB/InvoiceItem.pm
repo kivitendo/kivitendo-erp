@@ -9,7 +9,12 @@ __PACKAGE__->meta->add_relationship(
     type         => 'one to one',
     class        => 'SL::DB::Part',
     column_map   => { parts_id => 'id' },
-  }
+  },
+  price_factor_obj => {
+    type           => 'one to one',
+    class          => 'SL::DB::PriceFactor',
+    column_map     => { price_factor_id => 'id' },
+  },
 );
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
