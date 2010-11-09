@@ -3,6 +3,8 @@ package SL::DB::Part;
 use strict;
 
 use Carp;
+use List::MoreUtils qw(any);
+
 use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
@@ -132,21 +134,36 @@ sub get_taxkey {
   $tk_info->{$taxzone}              ||= { };
   $tk_info->{$taxzone}->{$is_sales} ||= { };
 
-  return $tk_info->{$taxzone}->{$is_sales}->{$date} if exists $tk_info->{$taxzone}->{$is_sales}->{$date};
-
-  my $bugru  = $self->buchungsgruppe;
-  my %charts = ( inventory => { id => $self->inventory_accno_id ? $bugru->inventory_accno_id : undef },
-                 income    => { id => $bugru->call_sub("income_accno_id_${taxzone}")                 },
-                 expense   => { id => $bugru->call_sub("expense_accno_id_${taxzone}")                },
-               );
-
-  foreach my $type(qw(inventory income expense)) {
-    $charts{$type}->{chart} ||= $charts{$type}->{id} ? SL::DB::Manager::Chart->find_by(id => $charts{$type}->{id}) : undef if $charts{$type}->{id};
+  if (!exists $tk_info->{$taxzone}->{$is_sales}->{$date}) {
+    $tk_info->{$taxzone}->{$is_sales}->{$date} =
+      $self->get_chart(type => $is_sales ? 'income' : 'expense', taxzone => $taxzone)
+      ->load
+      ->get_active_taxkey($date);
   }
 
-  my $chart = $charts{ $is_sales ? 'income' : 'expense' }->{chart};
+  return $tk_info->{$taxzone}->{$is_sales}->{$date};
+}
 
-  return $tk_info->{$taxzone}->{$is_sales}->{$date} = $chart->get_active_taxkey($date);
+sub get_chart {
+  my ($self, %params) = @_;
+
+  my $type    = (any { $_ eq $params{type} } qw(income expense inventory)) ? $params{type} : croak("Invalid 'type' parameter '$params{type}'");
+  my $taxzone = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;
+
+  $self->{__partpriv_get_chart_id} ||= { };
+  my $charts = $self->{__partpriv_get_chart_id};
+
+  $charts->{$taxzone} ||= { };
+
+  if (!exists $charts->{$taxzone}->{$type}) {
+    my $bugru    = $self->buchungsgruppe;
+    my $chart_id = ($type eq 'inventory') ? ($self->inventory_accno_id ? $bugru->inventory_accno_id : undef)
+                 :                          $bugru->call_sub("${type}_accno_id_${taxzone}");
+
+    $charts->{$taxzone}->{$type} = $chart_id ? SL::DB::Chart->new(id => $chart_id)->load : undef;
+  }
+
+  return $charts->{$taxzone}->{$type};
 }
 
 1;
@@ -259,6 +276,19 @@ C<$params{is_sales}>) or expense (for falsish values of
 C<$params{is_sales}>) account for the current part. It uses the part's
 associated buchungsgruppe and uses the fields belonging to the tax
 zone given by C<$params{taxzone}> (range 0..3).
+
+The information retrieved by the function is cached.
+
+=item C<get_chart %params>
+
+Retrieves and returns a chart object valid for the given type
+C<$params{type}> and tax zone C<$params{taxzone}>
+(C<$params{taxzone_id}> is also recognized). The type must be one of
+the three key words C<income>, C<expense> and C<inventory>.
+
+This function uses the part's associated buchungsgruppe and uses the
+fields belonging to the tax zone given by C<$params{taxzone}> (range
+0..3).
 
 The information retrieved by the function is cached.
 
