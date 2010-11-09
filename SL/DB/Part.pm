@@ -6,6 +6,7 @@ use Carp;
 use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
+use SL::DB::Chart;
 
 __PACKAGE__->meta->add_relationships(
   unit_obj                     => {
@@ -118,6 +119,36 @@ sub buchungsgruppe {
   shift->buchungsgruppen(@_);
 }
 
+sub get_taxkey {
+  my ($self, %params) = @_;
+
+  my $date     = $params{date} || DateTime->today_local;
+  my $is_sales = !!$params{is_sales};
+  my $taxzone  = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;
+
+  $self->{__partpriv_taxkey_information} ||= { };
+  my $tk_info = $self->{__partpriv_taxkey_information};
+
+  $tk_info->{$taxzone}              ||= { };
+  $tk_info->{$taxzone}->{$is_sales} ||= { };
+
+  return $tk_info->{$taxzone}->{$is_sales}->{$date} if exists $tk_info->{$taxzone}->{$is_sales}->{$date};
+
+  my $bugru  = $self->buchungsgruppe;
+  my %charts = ( inventory => { id => $self->inventory_accno_id ? $bugru->inventory_accno_id : undef },
+                 income    => { id => $bugru->call_sub("income_accno_id_${taxzone}")                 },
+                 expense   => { id => $bugru->call_sub("expense_accno_id_${taxzone}")                },
+               );
+
+  foreach my $type(qw(inventory income expense)) {
+    $charts{$type}->{chart} ||= $charts{$type}->{id} ? SL::DB::Manager::Chart->find_by(id => $charts{$type}->{id}) : undef if $charts{$type}->{id};
+  }
+
+  my $chart = $charts{ $is_sales ? 'income' : 'expense' }->{chart};
+
+  return $tk_info->{$taxzone}->{$is_sales}->{$date} = $chart->get_active_taxkey($date);
+}
+
 1;
 
 __END__
@@ -215,6 +246,21 @@ C<$self> is used.
 
 Retrieves the quantity that has been ordered from a vendor but that
 has not been delivered yet. Only open purchase orders are considered.
+
+=item C<get_taxkey %params>
+
+Retrieves and returns a taxkey object valid for the given date
+C<$params{date}> and tax zone C<$params{taxzone}>
+(C<$params{taxzone_id}> is also recognized). The date defaults to the
+current date if undefined.
+
+This function looks up the income (for trueish values of
+C<$params{is_sales}>) or expense (for falsish values of
+C<$params{is_sales}>) account for the current part. It uses the part's
+associated buchungsgruppe and uses the fields belonging to the tax
+zone given by C<$params{taxzone}> (range 0..3).
+
+The information retrieved by the function is cached.
 
 =item C<orphaned>
 
