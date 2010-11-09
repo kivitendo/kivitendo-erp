@@ -124,6 +124,8 @@ __END__
 
 =pod
 
+=encoding utf-8
+
 =head1 NAME
 
 SL::DB::Part: Model for the 'parts' table
@@ -155,24 +157,30 @@ method for it, but you can construct them explicitly with C<new_part>,
 C<new_service>, and C<new_assembly>. A Buchungsgruppe should be supplied in this
 case, but it will use the default Buchungsgruppe if you don't.
 
-Matching these there are assorted helper methods dealing with type:
+Matching these there are assorted helper methods dealing with types,
+e.g.  L</new_part>, L</new_service>, L</new_assembly>, L</type>,
+L</is_type> and others.
 
-=head2 new_part PARAMS
+=head1 FUNCTIONS
 
-=head2 new_service PARAMS
+=over 4
 
-=head2 new_assembly PARAMS
+=item C<new_part %PARAMS>
+
+=item C<new_service %PARAMS>
+
+=item C<new_assembly %PARAMS>
 
 Will set the appropriate data fields so that the resulting instance will be of
 tthe requested type. Since part of the distinction are accounting targets,
 providing a C<Buchungsgruppe> is recommended. If none is given the constructor
 will load a default one and set the accounting targets from it.
 
-=head2 type
+=item C<type>
 
 Returns the type as a string. Can be one of C<part>, C<service>, C<assembly>.
 
-=head2 is_type TYPE
+=item C<is_type $TYPE>
 
 Tests if the current object is a part, a service or an
 assembly. C<$type> must be one of the words 'part', 'service' or
@@ -181,17 +189,15 @@ assembly. C<$type> must be one of the words 'part', 'service' or
 Returns 1 if the requested type matches, 0 if it doesn't and
 C<confess>es if an unknown C<$type> parameter is encountered.
 
-=head2 is_part
+=item C<is_part>
 
-=head2 is_service
+=item C<is_service>
 
-=head2 is_assembly
+=item C<is_assembly>
 
-Shorthand for is_type('part') etc.
+Shorthand for C<is_type('part')> etc.
 
-=head1 FUNCTIONS
-
-=head2 get_sellprice_info %params
+=item C<get_sellprice_info %params>
 
 Retrieves the C<sellprice> and C<price_factor_id> for a part under
 different conditions and returns a hash reference with those two keys.
@@ -205,24 +211,27 @@ entry without a country set will be used.
 If none of the above conditions is met then the information from
 C<$self> is used.
 
-=head2 get_ordered_qty %params
+=item C<get_ordered_qty %params>
 
 Retrieves the quantity that has been ordered from a vendor but that
 has not been delivered yet. Only open purchase orders are considered.
 
-=head2 orphaned
+=item C<orphaned>
 
 Checks if this articke is used in orders, invoices, delivery orders or
 assemblies.
 
-=head2 buchungsgruppe BUCHUNGSGRUPPE
+=item C<buchungsgruppe BUCHUNGSGRUPPE>
 
 Used to set the accounting informations from a L<SL:DB::Buchungsgruppe> object.
 Please note, that this is a write only accessor, the original Buchungsgruppe can
 not be retrieved from an article once set.
 
-=head1 AUTHOR
+=back
 
-Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+=head1 AUTHORS
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>,
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
