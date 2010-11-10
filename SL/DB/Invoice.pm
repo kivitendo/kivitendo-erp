@@ -120,6 +120,8 @@ sub new_from {
 sub post {
   my ($self, %params) = @_;
 
+  croak("Missing parameter 'ar_id'") unless $params{ar_id};
+
   $self->db->do_transaction(sub {
     1;                          # dummy instruction for Emacs ;)
 
@@ -132,6 +134,8 @@ sub post {
     $self->_post_add_acctrans($data{amounts_cogs});
     $self->_post_add_acctrans($data{amounts});
     $self->_post_add_acctrans($data{taxes});
+
+    $self->_post_add_acctrans({ $params{ar_id} => $self->amount * -1 });
 
     $self->_post_update_allocated($data{allocated});
 
