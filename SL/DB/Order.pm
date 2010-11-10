@@ -30,6 +30,11 @@ __PACKAGE__->meta->add_relationship(
     class                  => 'SL::DB::PeriodicInvoice',
     column_map             => { id => 'oe_id' },
   },
+  payment_term => {
+    type       => 'one to one',
+    class      => 'SL::DB::PaymentTerm',
+    column_map => { payment_id => 'id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
