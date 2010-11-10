@@ -5,12 +5,14 @@ package SL::DB::Invoice;
 
 use strict;
 
+use Carp;
 use List::Util qw(first);
 
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
+use SL::DB::Employee;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -20,6 +22,11 @@ __PACKAGE__->meta->add_relationship(
     manager_args => {
       with_objects => [ 'part' ]
     }
+  },
+  payment_term => {
+    type       => 'one to one',
+    class      => 'SL::DB::PaymentTerm',
+    column_map => { payment_id => 'id' },
   },
 );
 
@@ -64,6 +71,49 @@ __PACKAGE__->meta->make_attr_helpers(taxamount => 'numeric(15,5)');
 sub closed {
   my ($self) = @_;
   return $self->paid >= $self->amount;
+}
+
+sub new_from {
+  my ($class, $source, %params) = @_;
+
+  croak("Unsupported source object type '" . ref($source) . "'") unless ref($source) =~ m/^ SL::DB:: (?: Order | DeliveryOrder ) $/x;
+  croak("Cannot create invoices for purchase records")           unless $source->customer_id;
+
+  my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_term->terms_netto : 0;
+
+  my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes curr salesman_id cusordnumber ordnumber quonumber
+                                                department_id cp_id language_id payment_id delivery_customer_id delivery_vendor_id taxzone_id shipto_id
+                                                globalproject_id transaction_description)),
+               transdate   => DateTime->today_local,
+               gldate      => DateTime->today_local,
+               duedate     => DateTime->today_local->add(days => $terms * 1),
+               invoice     => 1,
+               type        => 'invoice',
+               storno      => 0,
+               employee_id => (SL::DB::Manager::Employee->current || SL::DB::Employee->new(id => $source->employee_id))->id,
+            );
+
+  if ($source->type =~ /_order$/) {
+    $args{deliverydate} = $source->reqdate;
+    $args{orddate}      = $source->transdate;
+  } else {
+    $args{quodate}      = $source->transdate;
+  }
+
+  my $invoice = $class->new(%args, %params);
+
+  my @items = map {
+    my $source_item = $_;
+    SL::DB::InvoiceItem->new(map({ ( $_ => $source_item->$_ ) }
+                                 qw(parts_id description qty sellprice discount project_id
+                                    serialnumber pricegroup_id ordnumber transdate cusordnumber unit
+                                    base_qty subtotal longdescription lastcost price_factor_id)),
+                            deliverydate => $source_item->reqdate);
+  } @{ $source->items };
+
+  $invoice->invoiceitems(\@items);
+
+  return $invoice;
 }
 
 sub post {
