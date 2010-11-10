@@ -19,6 +19,7 @@ sub calculate_prices_and_taxes {
 
   my %data = ( lastcost_total      => 0,
                invoicediff         => 0,
+               last_incex_chart_id => undef,
                units_by_name       => \%units_by_name,
                price_factors_by_id => \%price_factors_by_id,
                taxes               => { },
@@ -42,13 +43,7 @@ sub calculate_prices_and_taxes {
     _calculate_item($self, $item, $idx, \%data, %params);
   }
 
-  my $tax_sum = sum map { _round($_, 2) } values %{ $data{taxes} };
-
-  $self->amount(       _round($self->netamount + $tax_sum, 2));
-  $self->netamount(    _round($self->netamount,            2));
-  $self->marge_percent($self->netamount ? ($self->netamount - $data{lastcost_total}) * 100 / $self->netamount : 0);
-
-  _calculate_invoice($self, \%data, %params) if $data{is_invoice};
+  _calculate_amounts($self, \%data, %params);
 
   return $self unless wantarray;
 
@@ -85,7 +80,7 @@ sub _calculate_item {
   my $linetotal = _round($sellprice * $item->qty / $item->price_factor, 2) * $data->{exchangerate};
   $linetotal    = _round($linetotal,                                    2);
 
-  $data->{invoicediff} += $sellprice * $item->qty * $data->{exchangerate} / $item->price_factor - $linetotal;
+  $data->{invoicediff} += $sellprice * $item->qty * $data->{exchangerate} / $item->price_factor - $linetotal if $self->taxincluded;
 
   if (!$linetotal) {
     $item->marge_total(  0);
@@ -119,40 +114,74 @@ sub _calculate_item {
   $self->netamount($self->netamount + $sellprice * $item->qty / $item->price_factor);
 
   my $chart = $item->part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
-  $data->{amounts}->{$chart->id} += $linetotal;
+  $data->{amounts}->{ $chart->id }           ||= { taxkey => $taxkey->id, amount => 0 };
+  $data->{amounts}->{ $chart->id }->{amount}  += $linetotal;
 
   push @{ $data->{assembly_items} }, [];
-  $item->allocated(_calculate_assembly_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj)));
+  if ($item->part->is_assembly) {
+    _calculate_assembly_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj));
+  } elsif ($item->part->is_part) {
+    $item->allocated(_calculate_part_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj)));
+  }
 
-  $::lxdebug->message(0, "CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice taxamount $tax_amount " .
-                      "i.linetotal $linetotal netamount " . $self->netamount . " marge_total " . $item->marge_total . " marge_percent " . $item->marge_percent);
+  $data->{last_incex_chart_id} = $chart->id if $data->{is_sales};
+
+  _dbg("CALCULATE! ${idx} i.qty " . $item->qty . " i.sellprice " . $item->sellprice . " sellprice $sellprice num_dec $num_dec taxamount $tax_amount " .
+       "i.linetotal $linetotal netamount " . $self->netamount . " marge_total " . $item->marge_total . " marge_percent " . $item->marge_percent);
 }
 
-sub _calculate_invoice {
+sub _calculate_amounts {
   my ($self, $data, %params) = @_;
 
-  return unless $data->{invoice};
+  my $tax_diff = 0;
+  foreach my $chart_id (keys %{ $data->{taxes} }) {
+    my $rounded                  = _round($data->{taxes}->{$chart_id} * $data->{exchangerate}, 2);
+    $tax_diff                   += $data->{taxes}->{$chart_id} * $data->{exchangerate} - $rounded if $self->taxincluded;
+    $data->{taxes}->{$chart_id}  = $rounded;
+  }
+
+  my $amount    = _round(($self->netamount + $tax_diff) * $data->{exchangerate}, 2);
+  my $diff      = $amount - ($self->netamount + $tax_diff) * $data->{exchangerate};
+  my $netamount = $amount;
+
+  if ($self->taxincluded) {
+    $data->{invoicediff}                                         += $diff;
+    $data->{amounts}->{ $data->{last_incex_chart_id} }->{amount} += $data->{invoicediff} if $data->{last_incex_chart_id};
+  }
+
+  _dbg("Sna " . $self->netamount . " idiff " . $data->{invoicediff} . " tdiff ${tax_diff}");
+
+  my $tax              = sum values %{ $data->{taxes} };
+  $data->{arap_amount} = $netamount + $tax;
+
+  $self->netamount(    $netamount);
+  $self->amount(       $netamount + $tax);
+  $self->marge_percent($self->netamount ? ($self->netamount - $data->{lastcost_total}) * 100 / $self->netamount : 0);
 }
 
 sub _calculate_assembly_item {
   my ($self, $data, $part, $total_qty, $base_factor) = @_;
 
   return 0 unless $::eur && $data->{is_invoice};
-  return _calculate_part_service_item($self, $data, $part, $total_qty) unless $part->is_assembly;
 
-  my $allocated = 0;
   foreach my $assembly_entry (@{ $part->assemblies }) {
-    push @{ $data->{assembly_items}->[-1] }, { part => $assembly_entry->part, qty => $total_qty * $assembly_entry->qty };
-    $allocated += _calculate_assembly_item($self, $data, $assembly_entry->part, $total_qty * $assembly_entry->qty);
-  }
+    push @{ $data->{assembly_items}->[-1] }, { part      => $assembly_entry->part,
+                                               qty       => $total_qty * $assembly_entry->qty,
+                                               allocated => 0 };
 
-  return $allocated;
+    if ($assembly_entry->part->is_assembly) {
+      _calculate_assembly_item($self, $data, $assembly_entry->part, $total_qty * $assembly_entry->qty);
+    } elsif ($assembly_entry->part->is_part) {
+      my $allocated = _calculate_part_item($self, $data, $assembly_entry->part, $total_qty * $assembly_entry->qty);
+      $data->{assembly_items}->[-1]->[-1]->{allocated} = $allocated;
+    }
+  }
 }
 
-sub _calculate_part_service_item {
+sub _calculate_part_item {
   my ($self, $data, $part, $total_qty, $base_factor) = @_;
 
-  $::lxdebug->message(0, "cpsi tq " . $total_qty);
+  _dbg("cpsi tq " . $total_qty);
 
   return 0 unless $::eur && $data->{is_invoice} && $total_qty;
 
@@ -166,8 +195,8 @@ sub _calculate_part_service_item {
                                                                                                 \'(base_qty + allocated) < 0' ] ]);
 
   while (($remaining_qty > 0) && ($entry = $iterator->next)) {
-    my $qty = min($remaining_qty, $entry->base_qty * -1 - $entry->allocated - $data->{allocated}->{$part->id});
-    $::lxdebug->message(0, "qty $qty");
+    my $qty = min($remaining_qty, $entry->base_qty * -1 - $entry->allocated - $data->{allocated}->{ $entry->id });
+    _dbg("qty $qty");
 
     next unless $qty;
 
@@ -176,9 +205,9 @@ sub _calculate_part_service_item {
     $data->{amounts_cogs}->{ $expense_income_chart->id } -= $linetotal;
     $data->{amounts_cogs}->{ $inventory_chart->id      } += $linetotal;
 
-    $data->{allocated}->{ $part->id } ||= 0;
-    $data->{allocated}->{ $part->id }  += $qty;
-    $remaining_qty                     -= $qty;
+    $data->{allocated}->{ $entry->id } ||= 0;
+    $data->{allocated}->{ $entry->id }  += $qty;
+    $remaining_qty                      -= $qty;
   }
 
   $iterator->finish;
@@ -191,7 +220,11 @@ sub _round {
 }
 
 sub _num_decimal_places {
-  return length( (split(/\./, '' . shift, 2))[1] || '' );
+  return length( (split(/\./, '' . ($_[0] * 1), 2))[1] || '' );
+}
+
+sub _dbg {
+  $::lxdebug->message(0, join(' ', @_));
 }
 
 1;
@@ -213,8 +246,10 @@ amounts and taxes of orders, quotations, invoices
 =item C<calculate_prices_and_taxes %params>
 
 Calculates the prices, amounts and taxes for an order, a quotation or
-an invoice. The function assumes that the mixing package has a certain
-layout and provides certain functions:
+an invoice.
+
+The function assumes that the mixing package has a certain layout and
+provides certain functions:
 
 =over 2
 
@@ -249,10 +284,6 @@ In array context a hash with the following keys is returned:
 
 =over 2
 
-=item C<self>
-
-The object itself.
-
 =item C<taxes>
 
 A hash reference with the calculated taxes. The keys are chart IDs,
@@ -261,7 +292,31 @@ the values the calculated taxes.
 =item C<amounts>
 
 A hash reference with the calculated amounts. The keys are chart IDs,
-the values the calculated amounts.
+the values are hash references containing the two keys C<amount> and
+C<taxkey>.
+
+=item C<amounts_cogs>
+
+A hash reference with the calculated amounts for costs of goods
+sold. The keys are chart IDs, the values the calculated amounts.
+
+=item C<assembly_items>
+
+An array reference with as many entries as there are items in the
+record. Each entry is again an array reference of hash references with
+the keys C<part> (an instance of L<SL::DB::Part>), C<qty> and
+C<allocated>. Is only valid for invoices and can be used to populate
+the C<invoice> table with entries for assemblies.
+
+=item C<allocated>
+
+A hash reference. The keys are IDs of entries in the C<invoice>
+table. The values are the new values for the entry's C<allocated>
+column. Only valid for invoices.
+
+=item C<exchangerate>
+
+The exchangerate used for the calculation.
 
 =back
 
