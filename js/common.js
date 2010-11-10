@@ -48,27 +48,28 @@ function check_right_number_format(input_name) {
   if(decpoint == thpoint) {
     return show_alert_and_focus(input_name, wrongNumberFormat);
   }
-  if(decpoint == ',') {
-    var decnumbers = input_name.value.split(',');
+  var test_val = input_name.value;
+  if(thpoint && thpoint == ','){
+    test_val = test_val.replace(/,/g, '');
   }
-  else {
-    var decnumbers = input_name.value.split('.');
+  if(thpoint && thpoint == '.'){
+    test_val = test_val.replace(/\./g, '');
   }
-  if(decnumbers.length == 2) {
-    if(decnumbers[1].length > 2)  {
-     /* return show_alert_and_focus(input_name, wrongNumberFormat); */
-    }
+  if(thpoint && decpoint == ','){
+    test_val = test_val.replace(/,/g, '.');
   }
-  else {
-    if(decnumbers.length > 2) {
-      return show_alert_and_focus(input_name, wrongNumberFormat);
-    }
-    if(!thpoint) {
-      if(decnumbers[0].match(/\D/)) {
-        return show_alert_and_focus(input_name, wrongNumberFormat);
-      }
-    }
-  }
+
+  var forbidden = test_val.match(/[^-\+\/\*\.0-9\ ]/g );
+  if (forbidden && forbidden.length > 0 ){
+    return show_alert_and_focus(input_name, wrongNumberFormat);
+  } 
+
+  try{ 
+    eval(test_val);
+  }catch(err){
+    return show_alert_and_focus(input_name, wrongNumberFormat);
+  } 
+
 }
 
 function check_right_date_format(input_name) {
