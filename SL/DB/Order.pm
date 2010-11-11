@@ -101,6 +101,8 @@ sub convert_to {
 sub convert_to_invoice {
   my ($self, %params) = @_;
 
+  croak("Conversion to invoices is only supported for sales records") unless $self->customer_id;
+
   if (!$params{ar_id}) {
     my $chart = SL::DB::Manager::Chart->get_all(query   => [ SL::DB::Manager::Chart->link_filter('AR') ],
                                                 sort_by => 'id ASC',
