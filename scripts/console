@@ -122,8 +122,8 @@ EOL
 }
 
 sub pp {
-  $Data::Dumper::Indent   = 2;
-  $Data::Dumper::Maxdepth = 2;
+  local $Data::Dumper::Indent   = 2;
+  local $Data::Dumper::Maxdepth = 2;
   Data::Dumper::Dumper(@_);
 }
 
