@@ -108,8 +108,8 @@ sub _calculate_item {
     $tax_amount = $linetotal * $tax_rate;
   }
 
-  $data->{taxes}->{ $taxkey->chart_id } ||= 0;
-  $data->{taxes}->{ $taxkey->chart_id }  += $tax_amount;
+  $data->{taxes}->{ $taxkey->tax->chart_id } ||= 0;
+  $data->{taxes}->{ $taxkey->tax->chart_id }  += $tax_amount;
 
   $self->netamount($self->netamount + $sellprice * $item->qty / $item->price_factor);
 
