@@ -78,3 +78,92 @@ sub create_trans_number {
 }
 
 1;
+
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::DB::Helper::TransNumberGenerator - A mixin for creating unique record numbers
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<get_mext_trams_number %params>
+
+Generates a new unique record number for the mixing class. Each record
+type (invoices, sales quotations, purchase orders etc) has its own
+number range. Within these ranges all numbers should be unique. The
+table C<defaults> contains the last record number assigned for all of
+the number ranges.
+
+This function contains hard-coded knowledge about the modules it can
+be mixed into. This way the models themselves don't have to contain
+boilerplate code for the details like the the number range column's
+name in the C<defaults> table.
+
+The process of creating a unique number involves the following steps:
+
+At first all existing record numbers for the current type are
+retrieved from the database as well as the last number assigned from
+the table C<defaults>.
+
+The next step is separating the number range from C<defaults> into two
+parts: an optional non-numeric prefix and its numeric suffix. The
+prefix, if present, will be kept intact.
+
+Now the number itself is increased as often as neccessary to create a
+unique one by comparing the generated numbers with the existing ones
+retrieved in the first step. In this step gaps in the assigned numbers
+are filled for some tables (e.g. invoices) but not for others
+(e.g. sales orders).
+
+After creating the unique record number this function can update
+C<$self> and the C<defaults> table if requested. This is controlled
+with the following parameters:
+
+=over 2
+
+=item * C<update_record>
+
+Determines whether or not C<$self>'s record number field is set to the
+newly generated number. C<$self> will not be saved even if this
+parameter is trueish. Defaults to false.
+
+=item * C<update_defaults>
+
+Determines whether or not the number range value in the C<defaults>
+table should be updated. Unlike C<$self> the C<defaults> table will be
+saved. Defaults to false.
+
+=back
+
+Always returns the newly generated number. This function cannot fail
+and return a value. If it fails then it is due to exceptions.
+
+=item C<create_trans_number %params>
+
+Calls and returns L</get_next_trans_number> with the parameters
+C<update_defaults = 1> and C<update_record = 1>. C<%params> is passed
+to it as well.
+
+=back
+
+=head1 EXPORTS
+
+This mixin exports all of its functions: L</get_next_trans_number> and
+L</create_trans_number>. There are no optional exports.
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut
