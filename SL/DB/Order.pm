@@ -155,9 +155,21 @@ C<$paras{ar_id}>. If set it must be the ID of the accounts receivables
 chart to post to. If it is not set then the first chart configured for
 accounts receivables is used.
 
-Returns the new invoice instance on success and C<undef> on failure.
+Returns the new invoice instance on success and C<undef> on
+failure. The whole process is run inside a transaction. On failure
+nothing is created or changed in the database.
 
 At the moment only sales quotations and sales orders can be converted.
+
+=item C<create_sales_process>
+
+Creates and saves a new sales process. Can only be called for sales
+orders.
+
+The newly created process will be linked bidirectionally to both
+C<$self> and to all sales quotations that are linked to C<$self>.
+
+Returns the newly created process instance.
 
 =back
 

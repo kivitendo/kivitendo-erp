@@ -273,7 +273,10 @@ Lx-Office is not configured to use Einnahmenüberschussrechnungen
 
 =back
 
-Returns C<$self> on success and C<undef> on failure.
+Returns C<$self> on success and C<undef> on failure. The whole process
+is run inside a transaction. If it fails then nothing is saved to or
+changed in the database. A new transaction is only started if none is
+active.
 
 =item C<basic_info $field>
 
