@@ -3,6 +3,7 @@ package SL::DB::Chart;
 use strict;
 
 use SL::DB::MetaSetup::Chart;
+use SL::DB::Manager::Chart;
 use SL::DB::TaxKey;
 
 __PACKAGE__->meta->add_relationships(taxkeys => { type         => 'one to many',
@@ -12,7 +13,6 @@ __PACKAGE__->meta->add_relationships(taxkeys => { type         => 'one to many',
                                     );
 
 __PACKAGE__->meta->initialize;
-__PACKAGE__->meta->make_manager_class;
 
 sub get_active_taxkey {
   my ($self, $date) = @_;
