@@ -2,7 +2,6 @@ package SL::DB::Helper::ALL;
 
 use strict;
 
-use SL::DB::AccTrans;
 use SL::DB::AccTransaction;
 use SL::DB::Assembly;
 use SL::DB::AuditTrail;

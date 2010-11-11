@@ -13,6 +13,7 @@ use SL::DB::Manager::Invoice;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::DB::AccTransaction;
 use SL::DB::Employee;
 
 __PACKAGE__->meta->add_relationship(
@@ -155,12 +156,12 @@ sub _post_add_acctrans {
 
   while (my ($chart_id, $spec) = each %{ $entries }) {
     $spec = { taxkey => 0, amount => $spec } unless ref $spec;
-    SL::DB::AccTrans->new(trans_id   => $self->id,
-                          chart_id   => $chart_id,
-                          amount     => $spec->{amount},
-                          taxkey     => $spec->{taxkey},
-                          project_id => $self->globalproject_id,
-                          transdate  => $self->transdate)->save;
+    SL::DB::AccTransaction->new(trans_id   => $self->id,
+                                chart_id   => $chart_id,
+                                amount     => $spec->{amount},
+                                taxkey     => $spec->{taxkey},
+                                project_id => $self->globalproject_id,
+                                transdate  => $self->transdate)->save;
   }
 }
 
