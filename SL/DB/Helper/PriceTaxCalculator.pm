@@ -114,7 +114,7 @@ sub _calculate_item {
   $self->netamount($self->netamount + $sellprice * $item->qty / $item->price_factor);
 
   my $chart = $item->part->get_chart(type => $data->{is_sales} ? 'income' : 'expense', taxzone => $self->taxzone_id);
-  $data->{amounts}->{ $chart->id }           ||= { taxkey => $taxkey->id, amount => 0 };
+  $data->{amounts}->{ $chart->id }           ||= { taxkey => $taxkey->taxkey_id, amount => 0 };
   $data->{amounts}->{ $chart->id }->{amount}  += $linetotal;
 
   push @{ $data->{assembly_items} }, [];
