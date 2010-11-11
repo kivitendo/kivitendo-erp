@@ -91,6 +91,7 @@ sub new_from {
                invoice     => 1,
                type        => 'invoice',
                storno      => 0,
+               paid        => 0,
                employee_id => (SL::DB::Manager::Employee->current || SL::DB::Employee->new(id => $source->employee_id))->id,
             );
 
@@ -109,7 +110,8 @@ sub new_from {
                                  qw(parts_id description qty sellprice discount project_id
                                     serialnumber pricegroup_id ordnumber transdate cusordnumber unit
                                     base_qty subtotal longdescription lastcost price_factor_id)),
-                            deliverydate => $source_item->reqdate);
+                            deliverydate => $source_item->reqdate,
+                            fxsellprice  => $source_item->sellprice,);
   } @{ $source->items };
 
   $invoice->invoiceitems(\@items);
@@ -122,13 +124,11 @@ sub post {
 
   croak("Missing parameter 'ar_id'") unless $params{ar_id};
 
-  $self->db->do_transaction(sub {
-    1;                          # dummy instruction for Emacs ;)
-
+  my $worker = sub {
     my %data = $self->calculate_prices_and_taxes;
 
     $self->_post_create_assemblyitem_entries($data{assembly_items});
-
+    $self->create_trans_number;
     $self->save;
 
     $self->_post_add_acctrans($data{amounts_cogs});
@@ -138,9 +138,16 @@ sub post {
     $self->_post_add_acctrans({ $params{ar_id} => $self->amount * -1 });
 
     $self->_post_update_allocated($data{allocated});
+  };
 
-    die;
-  });
+  if ($self->db->in_transaction) {
+    $worker->();
+  } elsif (!$self->db->do_transaction($worker)) {
+    $::lxdebug->message(0, "convert_to_invoice failed: " . join("\n", (split(/\n/, $self->db->error))[0..2]));
+    return undef;
+  }
+
+  return $self;
 }
 
 sub _post_add_acctrans {
@@ -152,7 +159,7 @@ sub _post_add_acctrans {
                           chart_id   => $chart_id,
                           amount     => $spec->{amount},
                           taxkey     => $spec->{taxkey},
-                          project_id => $self->project_id,
+                          project_id => $self->globalproject_id,
                           transdate  => $self->transdate)->save;
   }
 }
@@ -189,7 +196,7 @@ sub _post_update_allocated {
   my ($self, $allocated) = @_;
 
   while (my ($invoice_id, $diff) = each %{ $allocated }) {
-    SL::DB::Manager::InvoiceItem->update_all(set   => { allocated => { sql => [ 'allocated + ?', $diff ] } },
+    SL::DB::Manager::InvoiceItem->update_all(set   => { allocated => { sql => "allocated + $diff" } },
                                              where => [ id        => $invoice_id ]);
   }
 }
