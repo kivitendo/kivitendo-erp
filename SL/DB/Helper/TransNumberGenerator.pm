@@ -3,7 +3,7 @@ package SL::DB::Helper::TransNumberGenerator;
 use strict;
 
 use parent qw(Exporter);
-our @EXPORT = qw(get_next_trans_number);
+our @EXPORT = qw(get_next_trans_number create_trans_number);
 
 use Carp;
 use List::Util qw(max);
