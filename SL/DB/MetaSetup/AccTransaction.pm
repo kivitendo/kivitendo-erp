@@ -10,7 +10,7 @@ __PACKAGE__->meta->setup(
   table   => 'acc_trans',
 
   columns => [
-    acc_trans_id   => { type => 'bigint', sequence => 'acc_trans_id_seq' },
+    acc_trans_id   => { type => 'bigint', not_null => 1, sequence => 'acc_trans_id_seq' },
     trans_id       => { type => 'integer', not_null => 1 },
     chart_id       => { type => 'integer', not_null => 1 },
     amount         => { type => 'numeric', precision => 5, scale => 15 },
@@ -26,10 +26,9 @@ __PACKAGE__->meta->setup(
     taxkey         => { type => 'integer' },
     itime          => { type => 'timestamp', default => 'now()' },
     mtime          => { type => 'timestamp' },
-    id             => { type => 'integer', not_null => 1, sequence => 'acc_trans_id_seq1' },
   ],
 
-  primary_key_columns => [ 'id' ],
+  primary_key_columns => [ 'acc_trans_id' ],
 
   allow_inline_column_values => 1,
 
