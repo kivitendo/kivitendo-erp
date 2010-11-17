@@ -12,6 +12,7 @@ use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
+use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::AccTransaction;
 use SL::DB::Chart;

@@ -12,6 +12,7 @@ use SL::DB::Manager::Order;
 use SL::DB::Invoice;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
+use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::RecordLinks;
 
