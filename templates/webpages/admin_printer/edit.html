@@ -28,12 +28,12 @@
 
 <br>
 <input type=hidden name=action value="printer_dispatcher">
+<input type=submit class=submit name=list_printers value="[% 'Back' | $T8 %]">
 <input type=submit class=submit name=save_printer value="[% 'Save' | $T8 %]">
 
 [%- IF id %]
 <input type=submit class=submit name=delete_printer value="[% 'Delete' | $T8 %]">
 [%- END %]
-<input type=submit class=submit name=list_printers value="[% 'Back' | $T8 %]">
 
 </form>
 

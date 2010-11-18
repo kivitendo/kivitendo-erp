@@ -39,6 +39,7 @@ package AM;
 
 use Carp;
 use Data::Dumper;
+use Encode;
 use SL::DBUtils;
 
 use strict;
@@ -1315,6 +1316,8 @@ sub load_template {
     close(TEMPLATE);
   }
 
+  $content = Encode::decode('utf-8-strict', $content) if $::locale->is_utf8;
+
   $main::lxdebug->leave_sub();
 
   return ($content, $lines);
@@ -1330,6 +1333,7 @@ sub save_template {
   my $error = "";
 
   if (open(TEMPLATE, ">$filename")) {
+    $content = Encode::encode('utf-8-strict', $content) if $::locale->is_utf8;
     $content =~ s/\r\n/\n/g;
     print(TEMPLATE $content);
     close(TEMPLATE);

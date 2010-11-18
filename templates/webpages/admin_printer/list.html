@@ -19,9 +19,9 @@
 [%- IF all_printers.size %]
 [%- FOREACH row = all_printers %]
         <tr valign=top class="listrow[% loop.count % 2 %]">
-          <td><a href="[% edit_link %][% row.id %]">[% row.printer_description %]</a></td>
-          <td align=left>[% row.printer_command | html %]</td>
-          <td align=left>[% row.template_code | html %]</td>
+          <td>&nbsp;<a href="[% edit_link %][% row.id %]">[% row.printer_description %]</a></td>
+          <td align=left>&nbsp;[% row.printer_command | html %]</td>
+          <td align=left>&nbsp;[% row.template_code | html %]</td>
         </tr>
 [%- END %]
 [%- ELSE %]
@@ -37,8 +37,8 @@
 
 <br>
  <input type="hidden" name="action" value="printer_dispatcher">
- <input type="submit" name="add_printer" value ="[% 'Add' | $T8 %]">
  <input type="submit" name='get_login_form' value="[% 'Back' | $T8 %]">
+ <input type="submit" name="add_printer" value ="[% 'Add' | $T8 %]">
 </form>
 </body>
 </html>

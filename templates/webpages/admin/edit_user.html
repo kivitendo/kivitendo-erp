@@ -254,6 +254,7 @@
 
   <input name="callback" type="hidden" value="admin.pl?action=list_users">
 
+  <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
   <input type="hidden" name="action" value="dispatcher">
   <input type="submit" class="submit" name="action_save_user" value="[% 'Save' | $T8 %]">
 
@@ -265,7 +266,6 @@
    <input type="hidden" name="action_save_user_as_new" id="action_save_user_as_new" value="">
    <input type="button" class="submit" id="save_as_new_button" value="[% 'Save as new' | $T8 %]">
    <input type="submit" class="submit" name="action_delete_user" value="[% 'Delete' | $T8 %]">
-   <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
    <input type="hidden" name="edit" value="1">
   [% END %]
 

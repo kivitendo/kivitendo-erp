@@ -167,14 +167,17 @@ sub get_part {
 
     # get makes
     if ($form->{makemodel}) {
-      $query = qq|SELECT m.make, m.model FROM makemodel m | .
-               qq|WHERE m.parts_id = ?|;
+    #hli
+      $query = qq|SELECT m.make, m.model,m.lastcost,m.lastcost,m.lastupdate,m.sortorder FROM makemodel m | .
+               qq|WHERE m.parts_id = ? order by m.sortorder asc|;
       my @values = ($form->{id});
       $sth = $dbh->prepare($query);
       $sth->execute(@values) || $form->dberror("$query (" . join(', ', @values) . ")");
 
       my $i = 1;
-      while (($form->{"make_$i"}, $form->{"model_$i"}) = $sth->fetchrow_array)
+
+      while (($form->{"make_$i"}, $form->{"model_$i"}, $form->{"old_lastcost_$i"}, 
+                $form->{"lastcost_$i"}, $form->{"lastupdate_$i"}, $form->{"sortorder_$i"}) = $sth->fetchrow_array)
       {
         $i++;
       }
@@ -493,12 +496,21 @@ sub save {
 
   # insert makemodel records
   unless ($form->{item} eq 'service') {
+    my $lastupdate = '';
+    my $value = 0;
     for my $i (1 .. $form->{makemodel_rows}) {
       if (($form->{"make_$i"}) || ($form->{"model_$i"})) {
-
-        $query = qq|INSERT INTO makemodel (parts_id, make, model) | .
-                 qq|VALUES (?, ?, ?)|;
-        @values = (conv_i($form->{id}), conv_i($form->{"make_$i"}), $form->{"model_$i"});
+        #hli
+        $value = $form->parse_amount($myconfig, $form->{"lastcost_$i"});
+        if ($value == $form->{"old_lastcost_$i"}) 
+        {
+            $lastupdate = $dbh->quote($form->{"lastupdate_$i"});
+        } else {
+            $lastupdate = 'now()';
+        }
+        $query = qq|INSERT INTO makemodel (parts_id, make, model, lastcost, lastupdate, sortorder) | .
+                 qq|VALUES (?, ?, ?, ?, ?, ?)|;
+        @values = (conv_i($form->{id}), conv_i($form->{"make_$i"}), $form->{"model_$i"}, $value, $lastupdate, conv_i($form->{"sortorder_$i"}) );
 
         do_query($form, $dbh, $query, @values);
       }
@@ -818,7 +830,7 @@ sub all_parts {
      ordnumber    => 'apoe.', make         => 'mm.',
      quonumber    => 'apoe.', model        => 'mm.',
      invnumber    => 'apoe.', partsgroup   => 'pg.',
-     lastcost     => ' ',   , soldtotal    => ' ',
+     lastcost     => 'p.',  , soldtotal    => ' ',
      factor       => 'pfac.',
      'SUM(ioi.qty)' => ' ',
      description  => 'p.',
