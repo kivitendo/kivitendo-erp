@@ -607,8 +607,6 @@ sub post_payment {
 
       $form->isblank("datepaid_$i", $locale->text('Payment date missing!'));
 
-      $form->error($locale->text('Cannot post payment for a closed period!'))
-        if ($form->date_closed($form->{"datepaid_$i"}, \%myconfig));
 
       if ($form->{currency} ne $form->{defaultcurrency}) {
         $form->{"exchangerate_$i"} = $form->{exchangerate}
@@ -618,6 +616,18 @@ sub post_payment {
       }
     }
   }
+  # Abgeschlossene Zeiträume nur für den letzten (aktuellen) Zahlungseingang prüfen
+  # Details s.a. Bug 1502
+  # Das Problem ist jetzt, dass man Zahlungseingänge nachträglich ändern kann
+  # Wobei dies für Installationen die sowieso nicht mit Bücherkontrolle arbeiten keinen
+  # keinen Unterschied macht.
+  # Optimal wäre, wenn gegen einen Zeitstempel des Zahlungsfelds geprüft würde ...
+  # Das Problem hierbei ist, dass in IS.pm post_invoice IMMER alle Zahlungseingänge aus $form
+  # erneut gespeichert werden. Prinzipiell wäre es besser NUR die Änderungen des Rechnungs-
+  # belegs (neue Zahlung aber nichts anderes) zu speichern ...
+  # Vielleicht könnte man ähnlich wie bei Rechnung löschen verfahren 
+  $form->error($locale->text('Cannot post payment for a closed period!'))
+    if ($form->date_closed($form->{"datepaid_$form->{paidaccounts}"}, \%myconfig));
 
   ($form->{AR})      = split /--/, $form->{AR};
   ($form->{AR_paid}) = split /--/, $form->{AR_paid};
