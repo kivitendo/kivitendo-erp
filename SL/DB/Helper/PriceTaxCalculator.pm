@@ -70,6 +70,7 @@ sub _calculate_item {
   croak("Undefined unit " . $item->unit)       if !$item_unit;
 
   $item->base_qty($item_unit->convert_to($item->qty, $part_unit));
+  $item->fxsellprice($item->sellprice);
 
   my $num_dec   = _num_decimal_places($item->sellprice);
   my $discount  = _round($item->sellprice * ($item->discount || 0), $num_dec);
