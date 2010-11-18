@@ -49,6 +49,7 @@
                  Nach einer erfolgreichen Buchung erscheint die Meldung: 'Zahlung gebucht.' und
                  die Startseite wird angezeigt. Wünschenwert wäre es, wenn man in
                  Zahlungsverkehr bleiben würde, optimalerweise mit vorbelegten Feldern.
+   - Bug 1502 -  2. Zahlung buchen, auch wenn die erste Zahlung in einen abgeschlossenen Zeitraum liegt
 
 
 2010-03-24 - Release 2.6.1
