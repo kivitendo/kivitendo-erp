@@ -91,14 +91,6 @@ sub convert_to_invoice {
 
   croak("Conversion to invoices is only supported for sales records") unless $self->customer_id;
 
-  if (!$params{ar_id}) {
-    my $chart = SL::DB::Manager::Chart->get_all(query   => [ SL::DB::Manager::Chart->link_filter('AR') ],
-                                                sort_by => 'id ASC',
-                                                limit   => 1)->[0];
-    croak("No AR chart found and no parameter `ar_id' given") unless $chart;
-    $params{ar_id} = $chart->id;
-  }
-
   my $invoice;
   if (!$self->db->do_transaction(sub {
     $invoice = SL::DB::Invoice->new_from($self)->post(%params) || die;
@@ -149,11 +141,7 @@ L<SL::DB::Invoice::new_from>. That invoice is posted, and C<$self> is
 linked to the new invoice via L<SL::DB::RecordLink>. C<$self>'s
 C<closed> attribute is set to C<true>, and C<$self> is saved.
 
-The arguments in C<%params> are passed to
-L<SL::DB::Invoice::post>. One parameter of note is
-C<$paras{ar_id}>. If set it must be the ID of the accounts receivables
-chart to post to. If it is not set then the first chart configured for
-accounts receivables is used.
+The arguments in C<%params> are passed to L<SL::DB::Invoice::post>.
 
 Returns the new invoice instance on success and C<undef> on
 failure. The whole process is run inside a transaction. On failure

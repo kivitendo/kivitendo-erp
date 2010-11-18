@@ -14,6 +14,7 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::AccTransaction;
+use SL::DB::Chart;
 use SL::DB::Employee;
 
 __PACKAGE__->meta->add_relationship(
@@ -123,7 +124,13 @@ sub new_from {
 sub post {
   my ($self, %params) = @_;
 
-  croak("Missing parameter 'ar_id'") unless $params{ar_id};
+  if (!$params{ar_id}) {
+    my $chart = SL::DB::Manager::Chart->get_all(query   => [ SL::DB::Manager::Chart->link_filter('AR') ],
+                                                sort_by => 'id ASC',
+                                                limit   => 1)->[0];
+    croak("No AR chart found and no parameter `ar_id' given") unless $chart;
+    $params{ar_id} = $chart->id;
+  }
 
   my $worker = sub {
     my %data = $self->calculate_prices_and_taxes;
@@ -241,7 +248,8 @@ Posts the invoice. Required parameters are:
 =item * C<ar_id>
 
 The ID of the accounds receivable chart the invoices amounts are
-posted to.
+posted to. If it is not set then the first chart configured for
+accounts receivables is used.
 
 =back
 
