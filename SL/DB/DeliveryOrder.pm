@@ -15,6 +15,14 @@ __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many
                                                     column_map   => { id => 'trans_id' },
                                                     manager_args => { with_objects => [ 'part' ] }
                                                   },
+                                    shipto => { type       => 'one to one',
+                                                class      => 'SL::DB::Shipto',
+                                                column_map => { shipto_id => 'shipto_id' },
+                                              },
+                                    department => { type       => 'one to one',
+                                                    class      => 'SL::DB::Department',
+                                                    column_map => { department_id => 'id' },
+                                                  },
                                    );
 
 __PACKAGE__->meta->initialize;
