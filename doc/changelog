@@ -20,6 +20,7 @@
   - FiBu -> Bericht um Suchfeld Kontonummer erweitert
   - Ansprechpartner für abweichende Lieferadresse, um das Attribut Geschlecht erweitert
   - FiBu -> Bericht -> Offene Forderung | Offene Verbindlichkeiten um Altersstrukturliste (30, 60, 90, 120) erweitert
+  - SEPA Hinzufügen von Überweisungen um das Infofeld Fälligkeitsdatum erweitert
 
   API Änderungen:
 

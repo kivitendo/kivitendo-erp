@@ -20,7 +20,7 @@ sub retrieve_open_invoices {
   my $query =
     qq|
        SELECT ap.id, ap.invnumber, ap.vendor_id, ap.amount AS invoice_amount, ap.invoice,
-         v.name AS vendorname,
+         v.name AS vendorname, ap.duedate as duedate,
 
          COALESCE(v.iban, '') <> '' AND COALESCE(v.bic, '') <> '' AS vendor_bank_info_ok,
 

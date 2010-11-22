@@ -17,13 +17,14 @@
   </p>
 
   <p>
-   <table>
+   <table border="0">
     <tr>
      <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
      <th class="listheading">[% 'Vendor' | $T8 %]</th>
      <th class="listheading">[% 'Invoice' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Open amount' | $T8 %]</th>
+     <th class="listheading" align="right">[% 'Due Date' | $T8 %]</th>
      <th class="listheading">[% 'Purpose' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Bank transfer amount' | $T8 %]</th>
     </tr>
@@ -58,6 +59,7 @@
 
       <td align="right">[% LxERP.format_amount(invoice.invoice_amount, -2) %]</td>
       <td align="right">[% LxERP.format_amount(invoice.open_amount, -2) %]</td>
+      <td align="right">[% invoice.duedate %]</td>
       <td><input name="bank_transfers[].reference" value="[% HTML.escape(invoice.invnumber) %]"></td>
       <td align="right">
        <input name="bank_transfers[].amount" value="[% LxERP.format_amount(invoice.invoice_amount, -2) %]" style="text-align: right">
