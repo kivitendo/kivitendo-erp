@@ -3507,6 +3507,80 @@ sub restore_vars {
   $main::lxdebug->leave_sub();
 }
 
+sub format_dates {
+  my ($self, $dateformat, $longformat, @indices) = @_;
+
+  $dateformat ||= $::myconfig{dateformat};
+
+  foreach my $idx (@indices) {
+    if ($self->{TEMPLATE_ARRAYS} && (ref($self->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{ $self->{TEMPLATE_ARRAYS}->{$idx} }); $i++) {
+        $self->{TEMPLATE_ARRAYS}->{$idx}->[$i] = $::locale->reformat_date(\%::myconfig, $self->{TEMPLATE_ARRAYS}->{$idx}->[$i], $dateformat, $longformat);
+      }
+    }
+
+    next unless defined $self->{$idx};
+
+    if (!ref($self->{$idx})) {
+      $self->{$idx} = $::locale->reformat_date(\%::myconfig, $self->{$idx}, $dateformat, $longformat);
+
+    } elsif (ref($self->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{ $self->{$idx} }); $i++) {
+        $self->{$idx}->[$i] = $::locale->reformat_date(\%::myconfig, $self->{$idx}->[$i], $dateformat, $longformat);
+      }
+    }
+  }
+}
+
+sub reformat_numbers {
+  my ($self, $numberformat, $places, @indices) = @_;
+
+  return if !$numberformat || ($numberformat eq $::myconfig{numberformat});
+
+  foreach my $idx (@indices) {
+    if ($self->{TEMPLATE_ARRAYS} && (ref($self->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{ $self->{TEMPLATE_ARRAYS}->{$idx} }); $i++) {
+        $self->{TEMPLATE_ARRAYS}->{$idx}->[$i] = $self->parse_amount(\%::myconfig, $self->{TEMPLATE_ARRAYS}->{$idx}->[$i]);
+      }
+    }
+
+    next unless defined $self->{$idx};
+
+    if (!ref($self->{$idx})) {
+      $self->{$idx} = $self->parse_amount(\%::myconfig, $self->{$idx});
+
+    } elsif (ref($self->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{ $self->{$idx} }); $i++) {
+        $self->{$idx}->[$i] = $self->parse_amount(\%::myconfig, $self->{$idx}->[$i]);
+      }
+    }
+  }
+
+  my $saved_numberformat    = $::myconfig{numberformat};
+  $::myconfig{numberformat} = $numberformat;
+
+  foreach my $idx (@indices) {
+    if ($self->{TEMPLATE_ARRAYS} && (ref($self->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{ $self->{TEMPLATE_ARRAYS}->{$idx} }); $i++) {
+        $self->{TEMPLATE_ARRAYS}->{$idx}->[$i] = $self->format_amount(\%::myconfig, $self->{TEMPLATE_ARRAYS}->{$idx}->[$i], $places);
+      }
+    }
+
+    next unless defined $self->{$idx};
+
+    if (!ref($self->{$idx})) {
+      $self->{$idx} = $self->format_amount(\%::myconfig, $self->{$idx}, $places);
+
+    } elsif (ref($self->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{ $self->{$idx} }); $i++) {
+        $self->{$idx}->[$i] = $self->format_amount(\%::myconfig, $self->{$idx}->[$i], $places);
+      }
+    }
+  }
+
+  $::myconfig{numberformat} = $saved_numberformat;
+}
+
 1;
 
 __END__
