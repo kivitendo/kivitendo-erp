@@ -224,7 +224,7 @@ sub get_custom_variables {
       $cvar->{OPTIONS} = [ map { { 'value' => $_ } } split(m/\#\#/, $cvar->{options}) ];
     }
 
-    my $act_var;
+    my ($act_var, $valid);
     if ($params{trans_id}) {
       my @values = (conv_i($cvar->{id}), conv_i($params{trans_id}));
       push @values, $params{sub_module} if $params{sub_module};
@@ -232,7 +232,7 @@ sub get_custom_variables {
       do_statement($form, $h_var, $q_var, @values);
       $act_var = $h_var->fetchrow_hashref();
 
-      $act_var->{valid} = $self->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{trans_id});
+      $valid = $self->get_custom_variables_validity(config_id => $cvar->{id}, trans_id => $params{trans_id});
     }
 
     if ($act_var) {
@@ -241,7 +241,7 @@ sub get_custom_variables {
                      : $cvar->{type} eq 'number'    ? $act_var->{number_value}
                      : $cvar->{type} eq 'bool'      ? $act_var->{bool_value}
                      :                                $act_var->{text_value};
-      $cvar->{valid} = $act_var->{valid};
+      $cvar->{valid} = $valid;
     } else {
       $cvar->{valid}  =  1;
 
