@@ -54,6 +54,7 @@ use SL::CVar;
 use SL::DB;
 use SL::DBUtils;
 use SL::DO;
+use SL::IC;
 use SL::IS;
 use SL::Mailer;
 use SL::Menu;
@@ -3537,6 +3538,9 @@ sub prepare_for_printing {
     $output_numberformat = $::myconfig{numberformat};
     $output_longdates    = 1;
   }
+
+  # Retrieve accounts for tax calculation.
+  IC->retrieve_accounts(\%::myconfig, $self, map { $_ => $self->{"id_$_"} } 1 .. $self->{rowcount});
 
   if ($self->{type} =~ /_delivery_order$/) {
     DO->order_details();
