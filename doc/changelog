@@ -19,6 +19,7 @@
     befinden anzuzeigen (s.a.: doc/excel_templates.txt).
   - FiBu -> Bericht um Suchfeld Kontonummer erweitert
   - Ansprechpartner für abweichende Lieferadresse, um das Attribut Geschlecht erweitert
+  - FiBu -> Bericht -> Offene Forderung | Offene Verbindlichkeiten um Altersstrukturliste (30, 60, 90, 120) erweitert
 
   API Änderungen:
 

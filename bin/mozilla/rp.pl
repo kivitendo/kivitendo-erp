@@ -265,14 +265,14 @@ sub report {
 
 <input type=hidden name=title value="$form->{title}">
 
-<table width=100%>
+<table width=100% border="0">
   <tr>
     <th class=listtop>$form->{title}</th>
   </tr>
   <tr height="5"></tr>
   <tr>
     <td>
-      <table>
+      <table border="0">
       $department
 |;
 
@@ -804,6 +804,18 @@ $jsscript
         <tr>
           <th align=right>| . $locale->text($label) . qq|</th>
           <td>$vc</td>
+        </tr>
+        <tr>
+          <td>| . $locale->text('Review of Aging list') . qq|</td>
+          <td><select name="review_of_aging_list"> 
+              <option></option>
+              <option>0-30</option>
+              <option>30-60</option>
+              <option>60-90</option>
+              <option>90-120</option>
+              <option>> 120</option>
+              </select>
+          </td>
         </tr>
         <tr>
           <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;

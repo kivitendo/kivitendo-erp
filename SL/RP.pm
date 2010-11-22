@@ -1182,9 +1182,19 @@ sub aging {
     $dpt_join = qq| JOIN department d ON (a.department_id = d.id) |;
     $where .= qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
   }
+  my $review_of_aging_list;
+  if ($form->{review_of_aging_list}) {
+    if ($form->{review_of_aging_list} =~ m "-"){
+      my @period = split(/-/, $form->{review_of_aging_list});
+      $review_of_aging_list = " AND $period[0] < date_part('days', now() - duedate) 
+                                AND date_part('days', now() - duedate)  < $period[1]";
+    } else {
+      $form->{review_of_aging_list} =~ s/[^0-9]//g;
+      $review_of_aging_list = " AND $form->{review_of_aging_list} < date_part('days', now() - duedate)"; 
+    }
+  }
 
   my $q_details = qq|
-    -- between 0-30 days
 
     SELECT ${ct}.id AS ctid, ${ct}.name,
       street, zipcode, city, country, contact, email,
@@ -1202,7 +1212,7 @@ sub aging {
       AND (${arap}.${ct}_id = ${ct}.id)
       AND (${ct}.id = ?)
       AND (transdate <= (date $todate) $fromwhere )
-
+      $review_of_aging_list
     ORDER BY ctid, transdate, invnumber |;
 
   my $sth_details = prepare_query($form, $dbh, $q_details);

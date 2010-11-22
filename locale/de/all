@@ -1358,6 +1358,7 @@ $self->{texts} = {
   'Revenue Account'             => 'Erlöskonto',
   'Revenues EU with UStId'      => 'Erl&ouml;se EU m. UStId',
   'Revenues EU without UStId'   => 'Erl&ouml;se EU o. UStId',
+  'Review of Aging list'        => 'Altersstrukturliste',
   'Right'                       => 'Rechts',
   'SAVED'                       => 'Gespeichert',
   'SAVED FOR DUNNING'           => 'Gespeichert',
