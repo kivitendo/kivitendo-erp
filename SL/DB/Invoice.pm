@@ -53,6 +53,11 @@ __PACKAGE__->meta->add_relationship(
     class      => 'SL::DB::Language',
     column_map => { language_id => 'id' },
   },
+  employee     => {
+    type       => 'one to one',
+    class      => 'SL::DB::Employee',
+    column_map => { employee_id => 'id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
