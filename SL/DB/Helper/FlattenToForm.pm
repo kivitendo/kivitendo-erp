@@ -28,9 +28,14 @@ sub flatten_to_form {
 
   $self->{vc} = $vc if ref($self) =~ /^SL::DB::.*Invoice/;
 
-  _copy($self,                          $form, '',              '', 1, qw(amount netamount marge_total marge_percent container_remaining_weight container_remaining_volume
-                                                                          paid));
-  _copy($self->$vc,                     $form, "${vc}_",        '', 0, map { $_->name } ref($self->$vc)->meta->columns);
+  my @vc_fields          = (qw(account_number bank bank_code bic business city contact country creditlimit discount
+                               email fax homepage iban language name payment_terms phone street taxnumber zipcode),
+                            "${vc}number");
+  my @vc_prefixed_fields = qw(email fax notes number phone);
+
+  _copy($self,                          $form, '',              '', 1, qw(amount netamount marge_total marge_percent container_remaining_weight container_remaining_volume paid));
+  _copy($self->$vc,                     $form, '',              '', 0, @vc_fields);
+  _copy($self->$vc,                     $form, $vc,             '', 0, @vc_prefixed_fields);
   _copy($self->contact,                 $form, '',              '', 0, grep { /^cp_/    } map { $_->name } SL::DB::Contact->meta->columns) if _has($self, 'cp_id');
   _copy($self->shipto,                  $form, '',              '', 0, grep { /^shipto/ } map { $_->name } SL::DB::Shipto->meta->columns)  if _has($self, 'shipto_id');
   _copy($self->globalproject,           $form, 'globalproject', '', 0, qw(number description))                                             if _has($self, 'globalproject_id');
