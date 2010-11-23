@@ -26,7 +26,7 @@ sub flatten_to_form {
     $form->{$transdate_idx} = $self->transdate->to_lxoffice;
   }
 
-  $self->{vc} = $vc if ref($self) =~ /^SL::DB::.*Invoice/;
+  $form->{vc} = $vc if ref($self) =~ /^SL::DB::.*Invoice/;
 
   my @vc_fields          = (qw(account_number bank bank_code bic business city contact country creditlimit discount
                                email fax homepage iban language name payment_terms phone street taxnumber zipcode),
