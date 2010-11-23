@@ -163,6 +163,7 @@ sub _parse_block_if {
 
   my $not           = $1;
   my $var           = $2;
+  my $comparison    = $3; # Optionaler Match um $4..$8
   my $operator_neg  = $4; # '=' oder '!' oder undef, wenn kein Vergleich erkannt
   my $operator_type = $5; # '=' oder '~' für Stringvergleich oder Regex
   my $quoted_word   = $7; # nur gültig, wenn quoted string angegeben (siehe unten); dann "value" aus <%if var == "value" %>
@@ -173,7 +174,7 @@ sub _parse_block_if {
   substr($$contents, 0, length($&)) = "";
 
   my $block;
-  ($block, $$contents) = $self->find_end($$contents, 0, $var, $not);
+  ($block, $$contents) = $self->find_end($$contents, 0, "$var $comparison", $not);
   if (!$block) {
     $self->{"error"} = "Unclosed $self->{tag_start}if$self->{tag_end}." unless ($self->{"error"});
     $main::lxdebug->leave_sub();
