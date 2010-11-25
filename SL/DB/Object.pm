@@ -110,24 +110,30 @@ sub load {
 
 sub save {
   my ($self, @args) = @_;
-  my $worker        = sub {
+
+  my $result;
+  my $worker = sub {
     SL::DB::Object::Hooks::run_hooks($self, 'before_save');
-    my $result = $self->SUPER::save(@args);
+    $result = $self->SUPER::save(@args);
     SL::DB::Object::Hooks::run_hooks($self, 'after_save', $result);
   };
 
-  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+  $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+  return $result;
 }
 
 sub delete {
   my ($self, @args) = @_;
-  my $worker        = sub {
+
+  my $result;
+  my $worker = sub {
     SL::DB::Object::Hooks::run_hooks($self, 'before_delete');
-    my $result = $self->SUPER::delete(@args);
+    $result = $self->SUPER::delete(@args);
     SL::DB::Object::Hooks::run_hooks($self, 'after_delete', $result);
   };
 
-  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+  $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+  return $result;
 }
 
 1;
