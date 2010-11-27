@@ -92,8 +92,8 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
         echo "Dazu mu&szlig; entweder in der Maske eine Standardbuchungsgruppe gew&auml;hlt werden <br>";
         echo "oder es wird ein g&uuml;ltiges Konto in 'income_accno_id' und 'expense_accno_id' eingegeben. ";
         echo "Das Programm versucht dann eine passende Buchungsgruppe zu finden.<br>";
-	echo "Preisgruppen müssen zunächst angelegt werden. Die Spalten für die Preisgruppen beginnen mit 'pg_' gefolgt vom Preisgruppenname.<br>";
-        echo "Wenn eine Datei <code>partshead.csv</code> existiert, wird die erste Zeile aus dieser benutzt um das Format zu bestimmen. Die erste Zeile aus der eigentlichen Importdatei wird dann ignoriert.<br>";
+	    echo "Preisgruppen müssen zunächst angelegt werden. Die Spalten für die Preisgruppen beginnen mit 'pg_' gefolgt vom Preisgruppenname.<br>";
+        echo "Wenn eine Datei <code>users/partshead.csv</code> existiert, wird die erste Zeile aus dieser benutzt um das Format zu bestimmen. Die erste Zeile aus der eigentlichen Importdatei wird dann ignoriert.<br>";
         exit(0);
     };
 
@@ -203,7 +203,9 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
 <tr><td>Textupdate</td><td><input type="checkbox" name="TextUpd" value="1">ja</td></tr>
 <tr><td>Warengruppen<br>verbinder</td><td><input type="text" name="wgtrenner" value="!" size="3"></td></tr>
 <tr><td>Shopartikel<br />falls nicht &uuml;bergeben</td><td><input type="radio" name="shop" value="t">ja <input type="radio" name="shop" value="f" checked>nein</td></tr>
-<tr><td>Art</td><td><input type="Radio" name="ware" value="W" checked>Ware &nbsp;
+<tr><td>Eintrag in<br />Makemodel ist</td><td><input type="radio" name="vendnr" value="t">Lieferantennummer <input type="radio" name="vendnr" value="f" checked>Lieferantenname</td></tr>
+<tr><td>auch ohne<br />Model-Nr.</td><td><input type="radio" name="modnr" value="t">ja <input type="radio" name="modnr" value="f" checked>nein</td></tr>
+<tr><td>Art</td><td><input type="Radio" name="ware" value="W" checked>Ware &nbsp; 
             <input type="Radio" name="ware" value="D">Dienstleistung
             <input type="Radio" name="ware" value="G">gemischt (Spalte 'art' vorhanden)</td></tr>
 <tr><td>Default Einheiten<br></td><td><select name="dimensionunit">
