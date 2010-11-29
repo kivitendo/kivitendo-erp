@@ -16,6 +16,14 @@ sub new {
 sub init {
   my ($self, %params) = @_;
 
+  if ($params{auth}) {
+    $params{path_suffix} = "-auth";
+    $params{schema}      = "auth.";
+  }
+
+  $params{path_suffix} ||= '';
+  $params{schame}      ||= '';
+
   map { $self->{$_} = $params{$_} } keys %params;
 
   return $self;
@@ -32,7 +40,7 @@ sub parse_dbupdate_controls {
   local *IN;
   my %all_controls;
 
-  my $path = "sql/" . $self->{dbdriver} . "-upgrade2";
+  my $path = "sql/" . $self->{dbdriver} . "-upgrade2" . $self->{path_suffix};
 
   foreach my $file_name (<$path/*.sql>, <$path/*.pl>) {
     next unless (open(IN, $file_name));
@@ -192,12 +200,9 @@ sub process_query {
   }
 
   if (ref($version_or_control) eq "HASH") {
-    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
-             $dbh->quote($version_or_control->{"tag"}) . ", " .
-             $dbh->quote($form->{"login"}) . ")");
+    $dbh->do("INSERT INTO " . $self->{schema} . "schema_info (tag, login) VALUES (" . $dbh->quote($version_or_control->{"tag"}) . ", " . $dbh->quote($form->{"login"}) . ")");
   } elsif ($version_or_control) {
-    $dbh->do("UPDATE defaults SET version = " .
-             $dbh->quote($version_or_control));
+    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
   }
   $dbh->commit();
 
@@ -266,12 +271,9 @@ sub process_perl_script {
   }
 
   if (ref($version_or_control) eq "HASH") {
-    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
-             $dbh->quote($version_or_control->{"tag"}) . ", " .
-             $dbh->quote($form->{"login"}) . ")");
+    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" . $dbh->quote($version_or_control->{"tag"}) . ", " . $dbh->quote($form->{"login"}) . ")");
   } elsif ($version_or_control) {
-    $dbh->do("UPDATE defaults SET version = " .
-             $dbh->quote($version_or_control));
+    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
   }
   $dbh->commit();
 
