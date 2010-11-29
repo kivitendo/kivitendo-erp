@@ -410,79 +410,6 @@ sub dbcreate {
   $main::lxdebug->leave_sub();
 }
 
-# Process a Perl script which updates the database.
-# If the script returns 1 then the update was successful.
-# Return code "2" means "needs more interaction; remove
-# users/nologin and end current request".
-# All other return codes are fatal errors.
-sub process_perl_script {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form, $dbh, $filename, $version_or_control, $db_charset) = @_;
-
-  my $fh = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
-
-  my $file_charset = Common::DEFAULT_CHARSET;
-
-  if (ref($version_or_control) eq "HASH") {
-    $file_charset = $version_or_control->{charset};
-
-  } else {
-    while (<$fh>) {
-      last if !/^--/;
-      next if !/^--\s*\@charset:\s*(.+)/;
-      $file_charset = $1;
-      last;
-    }
-    $fh->seek(0, SEEK_SET);
-  }
-
-  my $contents = join "", <$fh>;
-  $fh->close();
-
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
-  my $iconv = SL::Iconv::get_converter($file_charset, $db_charset);
-
-  $dbh->begin_work();
-
-  # setup dbup_ export vars
-  my %dbup_myconfig = ();
-  map({ $dbup_myconfig{$_} = $form->{$_}; }
-      qw(dbname dbuser dbpasswd dbhost dbport dbconnect));
-
-  my $dbup_locale = $::locale;
-
-  my $result = eval($contents);
-
-  if (1 != $result) {
-    $dbh->rollback();
-    $dbh->disconnect();
-  }
-
-  if (!defined($result)) {
-    print $form->parse_html_template("dbupgrade/error",
-                                     { "file"  => $filename,
-                                       "error" => $@ });
-    ::end_of_request();
-  } elsif (1 != $result) {
-    unlink("users/nologin") if (2 == $result);
-    ::end_of_request();
-  }
-
-  if (ref($version_or_control) eq "HASH") {
-    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
-             $dbh->quote($version_or_control->{"tag"}) . ", " .
-             $dbh->quote($form->{"login"}) . ")");
-  } elsif ($version_or_control) {
-    $dbh->do("UPDATE defaults SET version = " .
-             $dbh->quote($version_or_control));
-  }
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
-}
-
 sub dbdelete {
   $main::lxdebug->enter_sub();
 
@@ -714,8 +641,7 @@ sub dbupdate {
       if ($file_type eq "sql") {
         $dbupdater->process_query($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb, $db_charset);
       } else {
-        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                                   "-upgrade/$upgradescript", $str_maxdb, $db_charset);
+        $dbupdater->process_perl_script($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb, $db_charset);
       }
 
       $version = $maxdb;
@@ -799,8 +725,7 @@ sub dbupdate2 {
       if ($file_type eq "sql") {
         $dbupdater->process_query($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade2/$control->{file}", $control, $db_charset);
       } else {
-        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                                   "-upgrade2/$control->{file}", $control, $db_charset);
+        $dbupdater->process_perl_script($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade2/$control->{file}", $control, $db_charset);
       }
     }
 
