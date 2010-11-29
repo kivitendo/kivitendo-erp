@@ -624,7 +624,6 @@ sub dbupdate {
     foreach my $upgradescript (@upgradescripts) {
       my $a = $upgradescript;
       $a =~ s/^\Q$form->{dbdriver}\E-upgrade-|\.(sql|pl)$//g;
-      my $file_type = $1;
 
       my ($mindb, $maxdb) = split /-/, $a;
       my $str_maxdb = $maxdb;
@@ -638,11 +637,7 @@ sub dbupdate {
 
       # apply upgrade
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $upgradescript");
-      if ($file_type eq "sql") {
-        $dbupdater->process_query($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb, $db_charset);
-      } else {
-        $dbupdater->process_perl_script($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb, $db_charset);
-      }
+      $dbupdater->process_file($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb, $db_charset);
 
       $version = $maxdb;
 
@@ -722,11 +717,7 @@ sub dbupdate2 {
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
       print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-      if ($file_type eq "sql") {
-        $dbupdater->process_query($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade2/$control->{file}", $control, $db_charset);
-      } else {
-        $dbupdater->process_perl_script($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade2/$control->{file}", $control, $db_charset);
-      }
+      $dbupdater->process_file($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade2/$control->{file}", $control, $db_charset);
     }
 
     $rc = 0;

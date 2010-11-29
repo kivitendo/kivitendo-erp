@@ -276,6 +276,16 @@ sub process_perl_script {
   $main::lxdebug->leave_sub();
 }
 
+sub process_file {
+  my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
+
+  if ($filename =~ m/sql$/) {
+    $self->process_query($dbh, $filename, $version_or_control, $db_charset);
+  } else {
+    $self->process_perl_script($dbh, $filename, $version_or_control, $db_charset);
+  }
+}
+
 sub _check_for_loops {
   my ($form, $file_name, $controls, $tag, @path) = @_;
 
