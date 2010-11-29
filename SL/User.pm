@@ -125,8 +125,8 @@ sub login {
 
     $rc = 0;
 
-    my $controls =
-      parse_dbupdate_controls($form, $myconfig{"dbdriver"});
+    my $dbupdater = SL::DBUpgrade2->new($form, $myconfig{"dbdriver"});
+    my $controls  = $dbupdater->parse_dbupdate_controls;
 
     map({ $form->{$_} = $myconfig{$_} }
         qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect dateformat));
@@ -163,7 +163,7 @@ sub login {
       $SIG{QUIT} = 'IGNORE';
 
       $self->dbupdate($form);
-      $self->dbupdate2($form, $controls);
+      $self->dbupdate2($form, $dbupdater);
 
       close(FH);
 
@@ -622,7 +622,7 @@ sub dbneedsupdate {
   my ($self, $form) = @_;
 
   my %members  = $main::auth->read_all_users();
-  my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
+  my $controls = SL::DBUpgrade2->new($form, $form->{dbdriver})->parse_dbupdate_controls;
 
   my ($query, $sth, %dbs_needing_updates);
 
@@ -826,7 +826,7 @@ sub dbupdate {
 sub dbupdate2 {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $controls) = @_;
+  my ($self, $form, $dbupdater) = @_;
 
   $form->{sid} = $form->{dbdefault};
 
@@ -834,7 +834,7 @@ sub dbupdate2 {
   my ($query, $sth, $tag);
   my $rc = -2;
 
-  @upgradescripts = sort_dbupdate_controls($controls);
+  @upgradescripts = $dbupdater->sort_dbupdate_controls;
 
   my $db_charset = $main::dbcharset;
   $db_charset ||= Common::DEFAULT_CHARSET;
@@ -861,7 +861,7 @@ sub dbupdate2 {
     $sth = $dbh->prepare($query);
     $sth->execute() || $form->dberror($query);
     while (($tag) = $sth->fetchrow_array()) {
-      $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
+      $dbupdater->{all_controls}->{$tag}->{"applied"} = 1 if (defined($dbupdater->{all_controls}->{$tag}));
     }
     $sth->finish();
 

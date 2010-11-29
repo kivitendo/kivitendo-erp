@@ -2,24 +2,26 @@ package SL::DBUpgrade2;
 
 use SL::Common;
 
-require Exporter;
-our @ISA = qw(Exporter);
-
-our @EXPORT = qw(parse_dbupdate_controls sort_dbupdate_controls);
-
 use strict;
+
+sub new {
+  my ($package, $form, $dbdriver) = @_;
+  my $self                        = { form => $form, dbdriver => $dbdriver };
+  return bless($self, $package);
+}
 
 sub parse_dbupdate_controls {
   $main::lxdebug->enter_sub();
 
-  my ($form, $dbdriver) = @_;
+  my ($self) = @_;
 
+  my $form   = $self->{form};
   my $locale = $main::locale;
 
   local *IN;
   my %all_controls;
 
-  my $path = "sql/${dbdriver}-upgrade2";
+  my $path = "sql/" . $self->{dbdriver} . "-upgrade2";
 
   foreach my $file_name (<$path/*.sql>, <$path/*.pl>) {
     next unless (open(IN, $file_name));
@@ -92,6 +94,8 @@ sub parse_dbupdate_controls {
   map({ _dbupdate2_calculate_depth(\%all_controls, $_->{"tag"}) }
       values(%all_controls));
 
+  $self->{all_controls} = \%all_controls;
+
   $main::lxdebug->leave_sub();
 
   return \%all_controls;
@@ -148,9 +152,11 @@ sub _dbupdate2_calculate_depth {
 }
 
 sub sort_dbupdate_controls {
+  my $self = shift;
+
   return sort({   $a->{"depth"}    !=  $b->{"depth"}    ? $a->{"depth"}    <=> $b->{"depth"}
                 : $a->{"priority"} !=  $b->{"priority"} ? $a->{"priority"} <=> $b->{"priority"}
-                :                                         $a->{"tag"}      cmp $b->{"tag"}      } values(%{$_[0]}));
+                :                                         $a->{"tag"}      cmp $b->{"tag"}      } values(%{ $self->{all_controls} }));
 }
 
 1;
