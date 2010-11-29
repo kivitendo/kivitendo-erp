@@ -395,11 +395,12 @@ sub dbcreate {
   my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
   $db_charset ||= Common::DEFAULT_CHARSET;
 
+  my $dbupdater = SL::DBUpgrade2->new($form, $form->{dbdriver});
   # create the tables
-  $self->process_query($form, $dbh, "sql/lx-office.sql", undef, $db_charset);
+  $dbupdater->process_query($dbh, "sql/lx-office.sql", undef, $db_charset);
 
   # load chart of accounts
-  $self->process_query($form, $dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
+  $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
 
   $query = "UPDATE defaults SET coa = ?";
   do_query($form, $dbh, $query, $form->{chart});
@@ -478,99 +479,6 @@ sub process_perl_script {
              $dbh->quote($version_or_control));
   }
   $dbh->commit();
-
-  $main::lxdebug->leave_sub();
-}
-
-sub process_query {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form, $dbh, $filename, $version_or_control, $db_charset) = @_;
-
-  my $fh = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
-  my $query = "";
-  my $sth;
-  my @quote_chars;
-
-  my $file_charset = Common::DEFAULT_CHARSET;
-  while (<$fh>) {
-    last if !/^--/;
-    next if !/^--\s*\@charset:\s*(.+)/;
-    $file_charset = $1;
-    last;
-  }
-  $fh->seek(0, SEEK_SET);
-
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
-  $dbh->begin_work();
-
-  while (<$fh>) {
-    $_ = SL::Iconv::convert($file_charset, $db_charset, $_);
-
-    # Remove DOS and Unix style line endings.
-    chomp;
-
-    # remove comments
-    s/--.*$//;
-
-    for (my $i = 0; $i < length($_); $i++) {
-      my $char = substr($_, $i, 1);
-
-      # Are we inside a string?
-      if (@quote_chars) {
-        if ($char eq $quote_chars[-1]) {
-          pop(@quote_chars);
-        }
-        $query .= $char;
-
-      } else {
-        if (($char eq "'") || ($char eq "\"")) {
-          push(@quote_chars, $char);
-
-        } elsif ($char eq ";") {
-
-          # Query is complete. Send it.
-
-          $sth = $dbh->prepare($query);
-          if (!$sth->execute()) {
-            my $errstr = $dbh->errstr;
-            $sth->finish();
-            $dbh->rollback();
-            $form->dberror("The database update/creation did not succeed. " .
-                           "The file ${filename} containing the following " .
-                           "query failed:<br>${query}<br>" .
-                           "The error message was: ${errstr}<br>" .
-                           "All changes in that file have been reverted.");
-          }
-          $sth->finish();
-
-          $char  = "";
-          $query = "";
-        }
-
-        $query .= $char;
-      }
-    }
-
-    # Insert a space at the end of each line so that queries split
-    # over multiple lines work properly.
-    if ($query ne '') {
-      $query .= @quote_chars ? "\n" : ' ';
-    }
-  }
-
-  if (ref($version_or_control) eq "HASH") {
-    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
-             $dbh->quote($version_or_control->{"tag"}) . ", " .
-             $dbh->quote($form->{"login"}) . ")");
-  } elsif ($version_or_control) {
-    $dbh->do("UPDATE defaults SET version = " .
-             $dbh->quote($version_or_control));
-  }
-  $dbh->commit();
-
-  $fh->close();
 
   $main::lxdebug->leave_sub();
 }
@@ -762,6 +670,8 @@ sub dbupdate {
   my $db_charset = $main::dbcharset;
   $db_charset ||= Common::DEFAULT_CHARSET;
 
+  my $dbupdater = SL::DBUpgrade2->new($form, $form->{dbdriver});
+
   foreach my $db (split(/ /, $form->{dbupdate})) {
 
     next unless $form->{$db};
@@ -802,8 +712,7 @@ sub dbupdate {
       # apply upgrade
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $upgradescript");
       if ($file_type eq "sql") {
-        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                             "-upgrade/$upgradescript", $str_maxdb, $db_charset);
+        $dbupdater->process_query($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb, $db_charset);
       } else {
         $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
                                    "-upgrade/$upgradescript", $str_maxdb, $db_charset);
@@ -888,8 +797,7 @@ sub dbupdate2 {
       print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
       if ($file_type eq "sql") {
-        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                             "-upgrade2/$control->{file}", $control, $db_charset);
+        $dbupdater->process_query($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade2/$control->{file}", $control, $db_charset);
       } else {
         $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
                                    "-upgrade2/$control->{file}", $control, $db_charset);

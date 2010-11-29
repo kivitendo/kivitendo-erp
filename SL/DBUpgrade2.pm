@@ -1,6 +1,9 @@
 package SL::DBUpgrade2;
 
+use IO::File;
+
 use SL::Common;
+use SL::Iconv;
 
 use strict;
 
@@ -8,6 +11,12 @@ sub new {
   my ($package, $form, $dbdriver) = @_;
   my $self                        = { form => $form, dbdriver => $dbdriver };
   return bless($self, $package);
+}
+
+sub set_dbcharset {
+  my $self           = shift;
+  $self->{dbcharset} = shift;
+  return $self;
 }
 
 sub parse_dbupdate_controls {
@@ -99,6 +108,100 @@ sub parse_dbupdate_controls {
   $main::lxdebug->leave_sub();
 
   return \%all_controls;
+}
+
+sub process_query {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
+
+  my $form  = $self->{form};
+  my $fh    = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
+  my $query = "";
+  my $sth;
+  my @quote_chars;
+
+  my $file_charset = Common::DEFAULT_CHARSET;
+  while (<$fh>) {
+    last if !/^--/;
+    next if !/^--\s*\@charset:\s*(.+)/;
+    $file_charset = $1;
+    last;
+  }
+  $fh->seek(0, SEEK_SET);
+
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
+  $dbh->begin_work();
+
+  while (<$fh>) {
+    $_ = SL::Iconv::convert($file_charset, $db_charset, $_);
+
+    # Remove DOS and Unix style line endings.
+    chomp;
+
+    # remove comments
+    s/--.*$//;
+
+    for (my $i = 0; $i < length($_); $i++) {
+      my $char = substr($_, $i, 1);
+
+      # Are we inside a string?
+      if (@quote_chars) {
+        if ($char eq $quote_chars[-1]) {
+          pop(@quote_chars);
+        }
+        $query .= $char;
+
+      } else {
+        if (($char eq "'") || ($char eq "\"")) {
+          push(@quote_chars, $char);
+
+        } elsif ($char eq ";") {
+
+          # Query is complete. Send it.
+
+          $sth = $dbh->prepare($query);
+          if (!$sth->execute()) {
+            my $errstr = $dbh->errstr;
+            $sth->finish();
+            $dbh->rollback();
+            $form->dberror("The database update/creation did not succeed. " .
+                           "The file ${filename} containing the following " .
+                           "query failed:<br>${query}<br>" .
+                           "The error message was: ${errstr}<br>" .
+                           "All changes in that file have been reverted.");
+          }
+          $sth->finish();
+
+          $char  = "";
+          $query = "";
+        }
+
+        $query .= $char;
+      }
+    }
+
+    # Insert a space at the end of each line so that queries split
+    # over multiple lines work properly.
+    if ($query ne '') {
+      $query .= @quote_chars ? "\n" : ' ';
+    }
+  }
+
+  if (ref($version_or_control) eq "HASH") {
+    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
+             $dbh->quote($version_or_control->{"tag"}) . ", " .
+             $dbh->quote($form->{"login"}) . ")");
+  } elsif ($version_or_control) {
+    $dbh->do("UPDATE defaults SET version = " .
+             $dbh->quote($version_or_control));
+  }
+  $dbh->commit();
+
+  $fh->close();
+
+  $main::lxdebug->leave_sub();
 }
 
 sub _check_for_loops {
