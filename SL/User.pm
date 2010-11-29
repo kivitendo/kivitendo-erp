@@ -125,7 +125,7 @@ sub login {
 
     $rc = 0;
 
-    my $dbupdater = SL::DBUpgrade2->new($form, $myconfig{"dbdriver"});
+    my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $myconfig{dbdriver});
     my $controls  = $dbupdater->parse_dbupdate_controls;
 
     map({ $form->{$_} = $myconfig{$_} }
@@ -395,7 +395,7 @@ sub dbcreate {
   my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
   $db_charset ||= Common::DEFAULT_CHARSET;
 
-  my $dbupdater = SL::DBUpgrade2->new($form, $form->{dbdriver});
+  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver});
   # create the tables
   $dbupdater->process_query($dbh, "sql/lx-office.sql", undef, $db_charset);
 
@@ -457,7 +457,7 @@ sub dbneedsupdate {
   my ($self, $form) = @_;
 
   my %members  = $main::auth->read_all_users();
-  my $controls = SL::DBUpgrade2->new($form, $form->{dbdriver})->parse_dbupdate_controls;
+  my $controls = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls;
 
   my ($query, $sth, %dbs_needing_updates);
 
@@ -597,7 +597,7 @@ sub dbupdate {
   my $db_charset = $main::dbcharset;
   $db_charset ||= Common::DEFAULT_CHARSET;
 
-  my $dbupdater = SL::DBUpgrade2->new($form, $form->{dbdriver});
+  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver});
 
   foreach my $db (split(/ /, $form->{dbupdate})) {
 

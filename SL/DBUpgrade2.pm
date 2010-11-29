@@ -8,14 +8,16 @@ use SL::Iconv;
 use strict;
 
 sub new {
-  my ($package, $form, $dbdriver) = @_;
-  my $self                        = { form => $form, dbdriver => $dbdriver };
-  return bless($self, $package);
+  my $package = shift;
+
+  return bless({}, $package)->init(@_);
 }
 
-sub set_dbcharset {
-  my $self           = shift;
-  $self->{dbcharset} = shift;
+sub init {
+  my ($self, %params) = @_;
+
+  map { $self->{$_} = $params{$_} } keys %params;
+
   return $self;
 }
 
