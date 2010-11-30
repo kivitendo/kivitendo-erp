@@ -121,19 +121,16 @@ sub login {
 
     $self->create_schema_info_table($form, $dbh);
 
-    $dbh->disconnect;
-
     $rc = 0;
 
-    my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $myconfig{dbdriver});
-    my $controls  = $dbupdater->parse_dbupdate_controls;
+    my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $myconfig{dbdriver})->parse_dbupdate_controls;
 
-    map({ $form->{$_} = $myconfig{$_} }
-        qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect dateformat));
+    map({ $form->{$_} = $myconfig{$_} } qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect dateformat));
+    dbconnect_vars($form, $form->{dbname});
+    my $update_available = $dbupdater->update_available($dbversion) || $dbupdater->update2_available($dbh);
+    $dbh->disconnect;
 
-    if (update_available($myconfig{"dbdriver"}, $dbversion) ||
-        update2_available($form, $controls)) {
-
+    if ($update_available) {
       $form->{"stylesheet"} = "lx-office-erp.css";
       $form->{"title"} = $main::locale->text("Dataset upgrade");
       $form->header();
@@ -456,8 +453,8 @@ sub dbneedsupdate {
 
   my ($self, $form) = @_;
 
-  my %members  = $main::auth->read_all_users();
-  my $controls = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls;
+  my %members   = $main::auth->read_all_users();
+  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls;
 
   my ($query, $sth, %dbs_needing_updates);
 
@@ -479,11 +476,13 @@ sub dbneedsupdate {
       ($version) = $sth->fetchrow_array();
     }
     $sth->finish();
-    $dbh->disconnect();
 
-    next unless $version;
+    $dbh->disconnect and next unless $version;
 
-    if (update_available($form->{dbdriver}, $version) || update2_available($form, $controls)) {
+    my $update_available = $dbupdater->update_available($version) || $dbupdater->update2_available($dbh);
+    $dbh->disconnect;
+
+   if ($update_available) {
       my $dbinfo = {};
       map { $dbinfo->{$_} = $member->{$_} } grep /^db/, keys %{ $member };
       $dbs_needing_updates{$member->{dbhost} . "::" . $member->{dbname}} = $dbinfo;
@@ -535,18 +534,6 @@ sub cmp_script_version {
   }
 
   return $res_a <=> $res_b;
-}
-
-sub update_available {
-  my ($dbdriver, $cur_version) = @_;
-
-  local *SQLDIR;
-
-  opendir SQLDIR, "sql/${dbdriver}-upgrade" || error("", "sql/${dbdriver}-upgrade: $!");
-  my @upgradescripts = grep /${dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
-  closedir SQLDIR;
-
-  return ($#upgradescripts > -1);
 }
 
 sub create_schema_info_table {
@@ -728,38 +715,6 @@ sub dbupdate2 {
   $main::lxdebug->leave_sub();
 
   return $rc;
-}
-
-sub update2_available {
-  $main::lxdebug->enter_sub();
-
-  my ($form, $controls) = @_;
-
-  map({ $_->{"applied"} = 0; } values(%{$controls}));
-
-  dbconnect_vars($form, $form->{"dbname"});
-
-  my $dbh =
-    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) ||
-    $form->dberror;
-
-  my ($query, $tag, $sth);
-
-  $query = qq|SELECT tag FROM schema_info|;
-  $sth = $dbh->prepare($query);
-  if ($sth->execute()) {
-    while (($tag) = $sth->fetchrow_array()) {
-      $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
-    }
-  }
-  $sth->finish();
-  $dbh->disconnect();
-
-  map({ $main::lxdebug->leave_sub() and return 1 if (!$_->{"applied"}) }
-      values(%{$controls}));
-
-  $main::lxdebug->leave_sub();
-  return 0;
 }
 
 sub save_member {

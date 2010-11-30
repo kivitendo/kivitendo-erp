@@ -719,15 +719,13 @@ sub dbupdate {
 
     map { $form->{$_} = $form->{"${_}_${i}"} } qw(dbname dbdriver dbhost dbport dbuser dbpasswd);
 
-    my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
-
     print $form->parse_html_template("admin/dbupgrade_header");
 
     $form->{dbupdate}        = $form->{dbname};
     $form->{$form->{dbname}} = 1;
 
     User->dbupdate($form);
-    User->dbupdate2($form, $controls);
+    User->dbupdate2($form, SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls);
 
     print $form->parse_html_template("admin/dbupgrade_footer");
   }

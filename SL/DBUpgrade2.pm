@@ -1,6 +1,7 @@
 package SL::DBUpgrade2;
 
 use IO::File;
+use List::MoreUtils qw(any);
 
 use SL::Common;
 use SL::Iconv;
@@ -117,7 +118,7 @@ sub parse_dbupdate_controls {
 
   $::lxdebug->leave_sub();
 
-  return \%all_controls;
+  return $self;
 }
 
 sub process_query {
@@ -288,6 +289,41 @@ sub process_file {
   } else {
     $self->process_perl_script($dbh, $filename, $version_or_control, $db_charset);
   }
+}
+
+sub update_available {
+  my ($self, $cur_version) = @_;
+
+  local *SQLDIR;
+
+  my $dbdriver = $self->{dbdriver};
+  opendir SQLDIR, "sql/${dbdriver}-upgrade" || error("", "sql/${dbdriver}-upgrade: $!");
+  my @upgradescripts = grep /${dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
+  closedir SQLDIR;
+
+  return ($#upgradescripts > -1);
+}
+
+sub update2_available {
+  $::lxdebug->enter_sub();
+
+  my ($self, $dbh) = @_;
+
+  map { $_->{applied} = 0; } values %{ $self->{all_controls} };
+
+  my $sth = $dbh->prepare(qq|SELECT tag FROM | . $self->{schema} . qq|schema_info|);
+  if ($sth->execute) {
+    while (my ($tag) = $sth->fetchrow_array) {
+      $self->{all_controls}->{$tag}->{applied} = 1 if defined $self->{all_controls}->{$tag};
+    }
+  }
+  $sth->finish();
+
+  my $needs_update = any { !$_->{applied} } values %{ $self->{all_controls} };
+
+  $::lxdebug->leave_sub();
+
+  return $needs_update;
 }
 
 sub _check_for_loops {
