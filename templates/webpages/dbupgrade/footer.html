@@ -3,7 +3,7 @@
 
 <form action="[% menufile %]">
 
- <input type="hidden" name="action" value="display">
+ <input type="hidden" name="action" value="[% IF is_admin %]login[% ELSE %]display[% END %]">
 
  <p><input type="submit" value="[% 'Continue' | $T8 %]"></p>
 </form>

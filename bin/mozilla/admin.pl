@@ -43,6 +43,7 @@ use Sys::Hostname;
 
 use SL::Auth;
 use SL::Form;
+use SL::Iconv;
 use SL::Mailer;
 use SL::User;
 use SL::Common;
@@ -84,6 +85,9 @@ sub run {
         $::auth->set_session_value('rpw', $::form->{rpw});
         $::auth->create_or_refresh_session();
       }
+
+      _apply_dbupgrade_scripts();
+
       call_sub($locale->findsub($form->{action}));
     }
   } else {
@@ -1160,6 +1164,34 @@ sub dispatcher {
   call_sub($form->{default_action}) if ($form->{default_action});
 
   $form->error($locale->text('No action defined.'));
+}
+
+sub _apply_dbupgrade_scripts {
+  my $dbh               = $::auth->dbconnect;
+  my $dbdriver          = 'Pg';
+  my $dbupdater         = SL::DBUpgrade2->new(form => $::form, dbdriver => $dbdriver, auth => 1)->parse_dbupdate_controls;
+  my @unapplied_scripts = $dbupdater->unapplied_upgrade_scripts($dbh);
+
+  return if !@unapplied_scripts;
+
+  my $db_charset = $main::dbcharset || Common::DEFAULT_CHARSET;
+  $form->{login} = 'admin';
+
+  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $dbupdater->{all_controls} };
+
+  $form->{title} = $::locale->text('Dataset upgrade');
+  $form->header;
+  print $form->parse_html_template("dbupgrade/header", { dbname => $::auth->{DB_config}->{db} });
+
+  foreach my $control (@unapplied_scripts) {
+    $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
+    print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
+
+    $dbupdater->process_file($dbh, "sql/${dbdriver}-upgrade2-auth/$control->{file}", $control, $db_charset);
+  }
+
+  print $form->parse_html_template("dbupgrade/footer", { is_admin => 1, menufile => 'admin.pl' });
+  ::end_of_request();
 }
 
 1;

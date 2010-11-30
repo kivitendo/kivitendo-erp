@@ -272,7 +272,7 @@ sub process_perl_script {
   }
 
   if (ref($version_or_control) eq "HASH") {
-    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" . $dbh->quote($version_or_control->{"tag"}) . ", " . $dbh->quote($form->{"login"}) . ")");
+    $dbh->do("INSERT INTO " . $self->{schema} . "schema_info (tag, login) VALUES (" . $dbh->quote($version_or_control->{"tag"}) . ", " . $dbh->quote($form->{"login"}) . ")");
   } elsif ($version_or_control) {
     $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
   }
@@ -331,7 +331,7 @@ sub unapplied_upgrade_scripts {
 
   my @all_scripts = map { $_->{applied} = 0; $_ } $self->sort_dbupdate_controls;
 
-  my $query = qq|SELECT tag FROM schema_info|;
+  my $query = qq|SELECT tag FROM | . $self->{schema} . qq|schema_info|;
   my $sth   = $dbh->prepare($query);
   $sth->execute || $self->{form}->dberror($query);
   while (my ($tag) = $sth->fetchrow_array()) {
