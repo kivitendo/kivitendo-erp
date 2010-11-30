@@ -647,59 +647,29 @@ sub dbupdate2 {
 
   $form->{sid} = $form->{dbdefault};
 
-  my @upgradescripts = ();
-  my ($query, $sth, $tag);
-  my $rc = -2;
+  my $rc         = -2;
+  my $db_charset = $main::dbcharset || Common::DEFAULT_CHARSET;
 
-  @upgradescripts = $dbupdater->sort_dbupdate_controls;
-
-  my $db_charset = $main::dbcharset;
-  $db_charset ||= Common::DEFAULT_CHARSET;
+  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $dbupdater->{all_controls} };
 
   foreach my $db (split / /, $form->{dbupdate}) {
-
     next unless $form->{$db};
 
     # strip db from dataset
     $db =~ s/^db//;
     &dbconnect_vars($form, $db);
 
-    my $dbh =
-      DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-      or $form->dberror;
+    my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
 
     $dbh->do($form->{dboptions}) if ($form->{dboptions});
 
-    map({ $_->{"applied"} = 0; } @upgradescripts);
-
     $self->create_schema_info_table($form, $dbh);
 
-    $query = qq|SELECT tag FROM schema_info|;
-    $sth = $dbh->prepare($query);
-    $sth->execute() || $form->dberror($query);
-    while (($tag) = $sth->fetchrow_array()) {
-      $dbupdater->{all_controls}->{$tag}->{"applied"} = 1 if (defined($dbupdater->{all_controls}->{$tag}));
-    }
-    $sth->finish();
+    my @upgradescripts = $dbupdater->unapplied_upgrade_scripts($dbh);
 
-    my $all_applied = 1;
-    foreach (@upgradescripts) {
-      if (!$_->{"applied"}) {
-        $all_applied = 0;
-        last;
-      }
-    }
-
-    next if ($all_applied);
+    $dbh->disconnect and next if !@upgradescripts;
 
     foreach my $control (@upgradescripts) {
-      next if ($control->{"applied"});
-
-      $control->{description} = SL::Iconv::convert($control->{charset}, $db_charset, $control->{description});
-
-      $control->{"file"} =~ /\.(sql|pl)$/;
-      my $file_type = $1;
-
       # apply upgrade
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
       print $form->parse_html_template("dbupgrade/upgrade_message2", $control);

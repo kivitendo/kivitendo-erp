@@ -326,6 +326,22 @@ sub update2_available {
   return $needs_update;
 }
 
+sub unapplied_upgrade_scripts {
+  my ($self, $dbh) = @_;
+
+  my @all_scripts = map { $_->{applied} = 0; $_ } $self->sort_dbupdate_controls;
+
+  my $query = qq|SELECT tag FROM schema_info|;
+  my $sth   = $dbh->prepare($query);
+  $sth->execute || $self->{form}->dberror($query);
+  while (my ($tag) = $sth->fetchrow_array()) {
+    $self->{all_controls}->{$tag}->{applied} = 1 if defined $self->{all_controls}->{$tag};
+  }
+  $sth->finish;
+
+  return grep { !$_->{applied} } @all_scripts;
+}
+
 sub _check_for_loops {
   my ($form, $file_name, $controls, $tag, @path) = @_;
 
