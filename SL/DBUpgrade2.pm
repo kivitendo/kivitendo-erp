@@ -30,12 +30,12 @@ sub init {
 }
 
 sub parse_dbupdate_controls {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
   my ($self) = @_;
 
   my $form   = $self->{form};
-  my $locale = $main::locale;
+  my $locale = $::locale;
 
   local *IN;
   my %all_controls;
@@ -115,13 +115,13 @@ sub parse_dbupdate_controls {
 
   $self->{all_controls} = \%all_controls;
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 
   return \%all_controls;
 }
 
 sub process_query {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
   my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
@@ -208,7 +208,7 @@ sub process_query {
 
   $fh->close();
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 # Process a Perl script which updates the database.
@@ -217,7 +217,7 @@ sub process_query {
 # users/nologin and end current request".
 # All other return codes are fatal errors.
 sub process_perl_script {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
   my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
@@ -277,7 +277,7 @@ sub process_perl_script {
   }
   $dbh->commit();
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 sub process_file {
@@ -299,7 +299,7 @@ sub _check_for_loops {
 
   if ($ctrl->{"loop"} == 1) {
     # Not done yet.
-    _control_error($form, $file_name, $main::locale->text("Dependency loop detected:") . " " . join(" -> ", @path))
+    _control_error($form, $file_name, $::locale->text("Dependency loop detected:") . " " . join(" -> ", @path))
 
   } elsif ($ctrl->{"loop"} == 0) {
     # Not checked yet.
@@ -312,20 +312,20 @@ sub _check_for_loops {
 sub _control_error {
   my ($form, $file_name, $message) = @_;
 
-  $form = $main::form;
-  my $locale = $main::locale;
+  $form = $::form;
+  my $locale = $::locale;
 
   $form->error(sprintf($locale->text("Error in database control file '%s': %s"), $file_name, $message));
 }
 
 sub _dbupdate2_calculate_depth {
-  $main::lxdebug->enter_sub(2);
+  $::lxdebug->enter_sub(2);
 
   my ($tree, $tag) = @_;
 
   my $node = $tree->{$tag};
 
-  return $main::lxdebug->leave_sub(2) if (defined($node->{"depth"}));
+  return $::lxdebug->leave_sub(2) if (defined($node->{"depth"}));
 
   my $max_depth = 0;
 
@@ -337,15 +337,13 @@ sub _dbupdate2_calculate_depth {
 
   $node->{"depth"} = $max_depth + 1;
 
-  $main::lxdebug->leave_sub(2);
+  $::lxdebug->leave_sub(2);
 }
 
 sub sort_dbupdate_controls {
   my $self = shift;
 
-  return sort({   $a->{"depth"}    !=  $b->{"depth"}    ? $a->{"depth"}    <=> $b->{"depth"}
-                : $a->{"priority"} !=  $b->{"priority"} ? $a->{"priority"} <=> $b->{"priority"}
-                :                                         $a->{"tag"}      cmp $b->{"tag"}      } values(%{ $self->{all_controls} }));
+  return sort { ($a->{depth} <=> $b->{depth}) || ($a->{priority} <=> $b->{priority}) || ($a->{tag} cmp $b->{tag}) } values %{ $self->{all_controls} };
 }
 
 1;
