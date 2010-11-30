@@ -161,6 +161,7 @@ sub login {
 
       $self->dbupdate($form);
       $self->dbupdate2($form, $dbupdater);
+      SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(0);
 
       close(FH);
 
@@ -177,7 +178,6 @@ sub login {
       print $form->parse_html_template("dbupgrade/footer", { "menufile" => $menufile });
 
       $rc = -2;
-
     }
   }
 

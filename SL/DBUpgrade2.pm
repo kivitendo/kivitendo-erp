@@ -347,20 +347,23 @@ sub unapplied_upgrade_scripts {
 sub apply_admin_dbupgrade_scripts {
   my ($self, $called_from_admin) = @_;
 
-  return if !$self->{auth};
+  return 0 if !$self->{auth};
 
   my $dbh               = $::auth->dbconnect;
   my @unapplied_scripts = $self->unapplied_upgrade_scripts($dbh);
 
-  return if !@unapplied_scripts;
+  return 0 if !@unapplied_scripts;
 
   my $db_charset           = $main::dbcharset || Common::DEFAULT_CHARSET;
   $self->{form}->{login} ||= 'admin';
 
   map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $self->{all_controls} };
 
-  $self->{form}->{title} = $::locale->text('Dataset upgrade');
-  $self->{form}->header;
+  if ($called_from_admin) {
+    $self->{form}->{title} = $::locale->text('Dataset upgrade');
+    $self->{form}->header;
+  }
+
   print $self->{form}->parse_html_template("dbupgrade/header", { dbname => $::auth->{DB_config}->{db} });
 
   foreach my $control (@unapplied_scripts) {
@@ -370,8 +373,9 @@ sub apply_admin_dbupgrade_scripts {
     $self->process_file($dbh, "sql/$self->{dbdriver}-upgrade2-auth/$control->{file}", $control, $db_charset);
   }
 
-  print $self->{form}->parse_html_template("dbupgrade/footer", { is_admin => $called_from_admin });
-  ::end_of_request();
+  print $self->{form}->parse_html_template("dbupgrade/footer", { is_admin => 1 }) if $called_from_admin;
+
+  return 1;
 }
 
 sub _check_for_loops {

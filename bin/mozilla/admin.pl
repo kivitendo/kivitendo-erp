@@ -1167,7 +1167,7 @@ sub dispatcher {
 }
 
 sub _apply_dbupgrade_scripts {
-  SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->parse_dbupdate_controls->apply_admin_dbupgrade_scripts(1);
+  ::end_of_request() if SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(1);
 }
 
 1;
