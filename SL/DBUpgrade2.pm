@@ -329,6 +329,8 @@ sub update2_available {
 sub unapplied_upgrade_scripts {
   my ($self, $dbh) = @_;
 
+  $::lxdebug->dump(0, "self", $self);
+
   my @all_scripts = map { $_->{applied} = 0; $_ } $self->sort_dbupdate_controls;
 
   my $query = qq|SELECT tag FROM | . $self->{schema} . qq|schema_info|;
@@ -340,6 +342,36 @@ sub unapplied_upgrade_scripts {
   $sth->finish;
 
   return grep { !$_->{applied} } @all_scripts;
+}
+
+sub apply_admin_dbupgrade_scripts {
+  my ($self, $called_from_admin) = @_;
+
+  return if !$self->{auth};
+
+  my $dbh               = $::auth->dbconnect;
+  my @unapplied_scripts = $self->unapplied_upgrade_scripts($dbh);
+
+  return if !@unapplied_scripts;
+
+  my $db_charset           = $main::dbcharset || Common::DEFAULT_CHARSET;
+  $self->{form}->{login} ||= 'admin';
+
+  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $self->{all_controls} };
+
+  $self->{form}->{title} = $::locale->text('Dataset upgrade');
+  $self->{form}->header;
+  print $self->{form}->parse_html_template("dbupgrade/header", { dbname => $::auth->{DB_config}->{db} });
+
+  foreach my $control (@unapplied_scripts) {
+    $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
+    print $self->{form}->parse_html_template("dbupgrade/upgrade_message2", $control);
+
+    $self->process_file($dbh, "sql/$self->{dbdriver}-upgrade2-auth/$control->{file}", $control, $db_charset);
+  }
+
+  print $self->{form}->parse_html_template("dbupgrade/footer", { is_admin => $called_from_admin });
+  ::end_of_request();
 }
 
 sub _check_for_loops {
@@ -394,6 +426,8 @@ sub _dbupdate2_calculate_depth {
 
 sub sort_dbupdate_controls {
   my $self = shift;
+
+  $self->parse_dbupdate_controls unless $self->{all_controls};
 
   return sort { ($a->{depth} <=> $b->{depth}) || ($a->{priority} <=> $b->{priority}) || ($a->{tag} cmp $b->{tag}) } values %{ $self->{all_controls} };
 }

@@ -1167,31 +1167,7 @@ sub dispatcher {
 }
 
 sub _apply_dbupgrade_scripts {
-  my $dbh               = $::auth->dbconnect;
-  my $dbdriver          = 'Pg';
-  my $dbupdater         = SL::DBUpgrade2->new(form => $::form, dbdriver => $dbdriver, auth => 1)->parse_dbupdate_controls;
-  my @unapplied_scripts = $dbupdater->unapplied_upgrade_scripts($dbh);
-
-  return if !@unapplied_scripts;
-
-  my $db_charset = $main::dbcharset || Common::DEFAULT_CHARSET;
-  $form->{login} = 'admin';
-
-  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $dbupdater->{all_controls} };
-
-  $form->{title} = $::locale->text('Dataset upgrade');
-  $form->header;
-  print $form->parse_html_template("dbupgrade/header", { dbname => $::auth->{DB_config}->{db} });
-
-  foreach my $control (@unapplied_scripts) {
-    $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
-    print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
-
-    $dbupdater->process_file($dbh, "sql/${dbdriver}-upgrade2-auth/$control->{file}", $control, $db_charset);
-  }
-
-  print $form->parse_html_template("dbupgrade/footer", { is_admin => 1, menufile => 'admin.pl' });
-  ::end_of_request();
+  SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->parse_dbupdate_controls->apply_admin_dbupgrade_scripts(1);
 }
 
 1;
