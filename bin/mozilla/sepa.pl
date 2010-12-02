@@ -126,7 +126,7 @@ sub bank_transfer_create {
   } else {
     foreach my $bank_transfer (@bank_transfers) {
       foreach (qw(iban bic)) {
-        $bank_transfer->{"vc_${_}"}  = $vc_bank_info->{ $bank_transfer->{vc_id} }->{$_};
+        $bank_transfer->{"vc_${_}"}  = $vc_bank_info->{ $bank_transfer->{"${vc}_id"} }->{$_};
         $bank_transfer->{"our_${_}"} = $bank_account->{$_};
       }
 

@@ -56,46 +56,49 @@ sub create_export {
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(employee bank_transfers));
+  Common::check_params(\%params, qw(employee bank_transfers vc));
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $ARAP     = uc $arap;
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my ($export_id) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('sepa_export_id_seq')|);
   my $query       =
-    qq|INSERT INTO sepa_export (id, employee_id)
+    qq|INSERT INTO sepa_export (id, employee_id, vc)
        VALUES (?, (SELECT id
                    FROM employee
-                   WHERE login = ?))|;
-  do_query($form, $dbh, $query, $export_id, $params{employee});
+                   WHERE login = ?), ?)|;
+  do_query($form, $dbh, $query, $export_id, $params{employee}, $vc);
 
   my $q_item_id = qq|SELECT nextval('id')|;
   my $h_item_id = prepare_query($form, $dbh, $q_item_id);
 
   my $q_insert =
-    qq|INSERT INTO sepa_export_items (id,          sepa_export_id,           ap_id,       chart_id,
+    qq|INSERT INTO sepa_export_items (id,          sepa_export_id,           ${arap}_id,  chart_id,
                                       amount,      requested_execution_date, reference,   end_to_end_id,
-                                      our_iban,    our_bic,                  vendor_iban, vendor_bic)
+                                      our_iban,    our_bic,                  vc_iban,     vc_bic)
        VALUES                        (?,           ?,                        ?,           ?,
                                       ?,           ?,                        ?,           ?,
                                       ?,           ?,                        ?,           ?)|;
   my $h_insert = prepare_query($form, $dbh, $q_insert);
 
   my $q_reference =
-    qq|SELECT ap.invnumber,
+    qq|SELECT arap.invnumber,
          (SELECT COUNT(at.*)
           FROM acc_trans at
           LEFT JOIN chart c ON (at.chart_id = c.id)
           WHERE (at.trans_id = ?)
-            AND (c.link LIKE '%AP_paid%'))
+            AND (c.link LIKE '%${ARAP}_paid%'))
          +
          (SELECT COUNT(sei.*)
           FROM sepa_export_items sei
           WHERE (sei.ap_id = ?))
          AS num_payments
-       FROM ap
+       FROM ${arap} arap
        WHERE id = ?|;
   my $h_reference = prepare_query($form, $dbh, $q_reference);
 
@@ -103,7 +106,7 @@ sub create_export {
 
   foreach my $transfer (@{ $params{bank_transfers} }) {
     if (!$transfer->{reference}) {
-      do_statement($form, $h_reference, $q_reference, (conv_i($transfer->{ap_id})) x 3);
+      do_statement($form, $h_reference, $q_reference, (conv_i($transfer->{"${arap}_id"})) x 3);
 
       my ($invnumber, $num_payments) = $h_reference->fetchrow_array();
       $num_payments++;
@@ -121,11 +124,11 @@ sub create_export {
     $end_to_end_id    .= $item_id;
     $end_to_end_id     = substr $end_to_end_id, 0, 35;
 
-    my @values = ($item_id,                   $export_id,
-                  conv_i($transfer->{ap_id}), conv_i($transfer->{chart_id}),
-                  $transfer->{amount},        conv_date($transfer->{requested_execution_date}),
-                  $transfer->{reference},     $end_to_end_id,
-                  map { my $pfx = $_; map { $transfer->{"${pfx}_${_}"} } qw(iban bic) } qw(our vendor));
+    my @values = ($item_id,                          $export_id,
+                  conv_i($transfer->{"${arap}_id"}), conv_i($transfer->{chart_id}),
+                  $transfer->{amount},               conv_date($transfer->{requested_execution_date}),
+                  $transfer->{reference},            $end_to_end_id,
+                  map { my $pfx = $_; map { $transfer->{"${pfx}_${_}"} } qw(iban bic) } qw(our vc));
 
     do_statement($form, $h_insert, $q_insert, @values);
   }
