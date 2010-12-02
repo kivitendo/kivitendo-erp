@@ -16,28 +16,31 @@ sub retrieve_open_invoices {
   my $form     = $main::form;
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
 
   my $query =
     qq|
-       SELECT ap.id, ap.invnumber, ap.vendor_id, ap.amount AS invoice_amount, ap.invoice,
-         v.name AS vendorname, ap.duedate as duedate,
+       SELECT ${arap}.id, ${arap}.invnumber, ${arap}.${vc}_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
+         vc.name AS vcname, ${arap}.duedate as duedate,
 
-         COALESCE(v.iban, '') <> '' AND COALESCE(v.bic, '') <> '' AS vendor_bank_info_ok,
+         COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' AS vc_bank_info_ok,
 
-         ap.amount - ap.paid - COALESCE(open_transfers.amount, 0) AS open_amount
+         ${arap}.amount - ${arap}.paid - COALESCE(open_transfers.amount, 0) AS open_amount
 
-       FROM ap
-       LEFT JOIN vendor v ON (ap.vendor_id = v.id)
+       FROM ${arap}
+       LEFT JOIN ${vc} vc ON (${arap}.${vc}_id = vc.id)
        LEFT JOIN (SELECT sei.ap_id, SUM(sei.amount) AS amount
                   FROM sepa_export_items sei
                   LEFT JOIN sepa_export se ON (sei.sepa_export_id = se.id)
                   WHERE NOT se.closed
+                    AND (se.vc = '${vc}')
                   GROUP BY sei.ap_id)
-         AS open_transfers ON (ap.id = open_transfers.ap_id)
+         AS open_transfers ON (${arap}.id = open_transfers.ap_id)
 
-       WHERE ap.amount > (COALESCE(open_transfers.amount, 0) + ap.paid)
+       WHERE ${arap}.amount > (COALESCE(open_transfers.amount, 0) + ${arap}.paid)
 
-       ORDER BY lower(v.name) ASC, lower(ap.invnumber) ASC
+       ORDER BY lower(vc.name) ASC, lower(${arap}.invnumber) ASC
 |;
 
   my $results = selectall_hashref_query($form, $dbh, $query);

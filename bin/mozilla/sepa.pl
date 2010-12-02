@@ -20,8 +20,9 @@ sub bank_transfer_add {
 
   my $form          = $main::form;
   my $locale        = $main::locale;
+  my $vc            = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
-  $form->{title}    = $locale->text('Prepare bank transfer via SEPA XML');
+  $form->{title}    = $vc eq 'customer' ? $::locale->text('Prepare bank collection via SEPA XML') : $locale->text('Prepare bank transfer via SEPA XML');
 
   my $bank_accounts = SL::BankAccount->list();
 
@@ -29,7 +30,7 @@ sub bank_transfer_add {
     $form->error($locale->text('You have not added bank accounts yet.'));
   }
 
-  my $invoices = SL::SEPA->retrieve_open_invoices();
+  my $invoices = SL::SEPA->retrieve_open_invoices(vc => $vc);
 
   if (!scalar @{ $invoices }) {
     $form->show_generic_information($locale->text('Either there are no open invoices, or you have already initiated bank transfers ' .
@@ -44,7 +45,9 @@ sub bank_transfer_add {
   print $form->parse_html_template('sepa/bank_transfer_add',
                                    { 'INVOICES'           => $invoices,
                                      'BANK_ACCOUNTS'      => $bank_accounts,
-                                     'bank_account_label' => $bank_account_label_sub, });
+                                     'bank_account_label' => $bank_account_label_sub,
+                                     'vc'                 => $vc,
+                                   });
 
   $main::lxdebug->leave_sub();
 }
