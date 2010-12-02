@@ -58,8 +58,9 @@ sub bank_transfer_create {
   my $form          = $main::form;
   my $locale        = $main::locale;
   my $myconfig      = \%main::myconfig;
+  my $vc            = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
-  $form->{title}    = $locale->text('Create bank transfer via SEPA XML');
+  $form->{title}    = $vc eq 'customer' ? $::locale->text('Create bank collection via SEPA XML') : $locale->text('Create bank transfer via SEPA XML');
 
   my $bank_accounts = SL::BankAccount->list();
 
@@ -73,11 +74,13 @@ sub bank_transfer_create {
     $form->error($locale->text('The selected bank account does not exist anymore.'));
   }
 
-  my $invoices       = SL::SEPA->retrieve_open_invoices();
+  my $arap_id        = $vc eq 'customer' ? 'ar_id' : 'ap_id';
+  my $invoices       = SL::SEPA->retrieve_open_invoices(vc => $vc);
+
   my %invoices_map   = map { $_->{id} => $_ } @{ $invoices };
   my @bank_transfers =
-    map  +{ %{ $invoices_map{ $_->{ap_id} } }, %{ $_ } },
-    grep  { $_->{selected} && (0 < $_->{amount}) && $invoices_map{ $_->{ap_id} } }
+    map  +{ %{ $invoices_map{ $_->{$arap_id} } }, %{ $_ } },
+    grep  { $_->{selected} && (0 < $_->{amount}) && $invoices_map{ $_->{$arap_id} } }
     map   { $_->{amount} = $form->parse_amount($myconfig, $_->{amount}); $_ }
           @{ $form->{bank_transfers} || [] };
 
@@ -85,13 +88,13 @@ sub bank_transfer_create {
     $form->error($locale->text('You have selected none of the invoices.'));
   }
 
-  my ($vendor_bank_info);
+  my ($vc_bank_info);
   my $error_message;
 
   if ($form->{confirmation}) {
-    $vendor_bank_info = { map { $_->{id} => $_ } @{ $form->{vendor_bank_info} || [] } };
+    $vc_bank_info = { map { $_->{id} => $_ } @{ $form->{vc_bank_info} || [] } };
 
-    foreach my $info (values %{ $vendor_bank_info }) {
+    foreach my $info (values %{ $vc_bank_info }) {
       if (any { !$info->{$_} } qw(iban bic)) {
         $error_message = $locale->text('The bank information must not be empty.');
         last;
@@ -100,10 +103,10 @@ sub bank_transfer_create {
   }
 
   if ($error_message || !$form->{confirmation}) {
-    my @vendor_ids             = uniq map { $_->{vendor_id} } @bank_transfers;
-    $vendor_bank_info        ||= CT->get_bank_info('vc' => 'vendor',
-                                                   'id' => \@vendor_ids);
-    my @vendor_bank_info       = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vendor_bank_info };
+    my @vc_ids                 = uniq map { $_->{"${vc}_id"} } @bank_transfers;
+    $vc_bank_info            ||= CT->get_bank_info('vc' => $vc,
+                                                   'id' => \@vc_ids);
+    my @vc_bank_info           = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
 
     my $bank_account_label_sub = sub { $locale->text('Account number #1, bank code #2, #3', $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank}) };
 
@@ -113,27 +116,29 @@ sub bank_transfer_create {
     print $form->parse_html_template('sepa/bank_transfer_create',
                                      { 'BANK_TRANSFERS'     => \@bank_transfers,
                                        'BANK_ACCOUNTS'      => $bank_accounts,
-                                       'VENDOR_BANK_INFO'   => \@vendor_bank_info,
+                                       'VC_BANK_INFO'       => \@vc_bank_info,
                                        'bank_account'       => $bank_account,
                                        'bank_account_label' => $bank_account_label_sub,
                                        'error_message'      => $error_message,
+                                       'vc'                 => $vc,
                                      });
 
   } else {
     foreach my $bank_transfer (@bank_transfers) {
       foreach (qw(iban bic)) {
-        $bank_transfer->{"vendor_${_}"} = $vendor_bank_info->{ $bank_transfer->{vendor_id} }->{$_};
-        $bank_transfer->{"our_${_}"}    = $bank_account->{$_};
+        $bank_transfer->{"vc_${_}"}  = $vc_bank_info->{ $bank_transfer->{vc_id} }->{$_};
+        $bank_transfer->{"our_${_}"} = $bank_account->{$_};
       }
 
       $bank_transfer->{chart_id} = $bank_account->{chart_id};
     }
 
     my $id = SL::SEPA->create_export('employee'       => $form->{login},
-                                     'bank_transfers' => \@bank_transfers);
+                                     'bank_transfers' => \@bank_transfers,
+                                     'vc'             => $vc);
 
     $form->header();
-    print $form->parse_html_template('sepa/bank_transfer_created', { 'id' => $id });
+    print $form->parse_html_template('sepa/bank_transfer_created', { 'id' => $id, 'vc' => $vc });
   }
 
   $main::lxdebug->leave_sub();
