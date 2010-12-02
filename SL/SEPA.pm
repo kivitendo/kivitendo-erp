@@ -149,18 +149,20 @@ sub retrieve_export {
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(id));
+  Common::check_params(\%params, qw(id vc));
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my ($joins, $columns);
 
   if ($params{details}) {
-    $columns = ', ap.invoice';
-    $joins   = 'LEFT JOIN ap ON (se.ap_id = ap.id)';
+    $columns = ', arap.invoice';
+    $joins   = "LEFT JOIN ${arap} arap ON (se.${arap}_id = arap.id)";
   }
 
   my $query =
@@ -176,10 +178,10 @@ sub retrieve_export {
     my ($columns, $joins);
 
     if ($params{details}) {
-      $columns = qq|, ap.invnumber, ap.invoice, v.name AS vendor_name, c.accno AS chart_accno, c.description AS chart_description|;
-      $joins   = qq|LEFT JOIN ap       ON (sei.ap_id    = ap.id)
-                    LEFT JOIN vendor v ON (ap.vendor_id = v.id)
-                    LEFT JOIN chart c  ON (sei.chart_id = c.id)|;
+      $columns = qq|, arap.invnumber, arap.invoice, vc.name AS vc_name, c.accno AS chart_accno, c.description AS chart_description|;
+      $joins   = qq|LEFT JOIN ${arap} arap ON (sei.${arap}_id = arap.id)
+                    LEFT JOIN ${vc} vc     ON (arap.${vc}_id  = vc.id)
+                    LEFT JOIN chart c      ON (sei.chart_id   = c.id)|;
     }
 
     $query = qq|SELECT sei.*
@@ -187,6 +189,7 @@ sub retrieve_export {
                 FROM sepa_export_items sei
                 $joins
                 WHERE sei.sepa_export_id = ?|;
+
     $export->{items} = selectall_hashref_query($form, $dbh, $query, conv_i($params{id}));
 
   } else {

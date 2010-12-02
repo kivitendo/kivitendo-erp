@@ -4,6 +4,7 @@
 [%- IF show_buttons %]
  <input type="hidden" name="action" value="dispatcher">
  <input type="hidden" name="mode" value="multi">
+ <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
 
  <p>
   <input type="submit" class="submit" name="action_bank_transfer_download_sepa_xml" value="[% 'SEPA XML download' | $T8 %]">

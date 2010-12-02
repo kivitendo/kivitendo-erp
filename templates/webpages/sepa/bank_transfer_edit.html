@@ -1,6 +1,15 @@
 [%- USE T8 %]
 [% USE HTML %]
 [% USE LxERP %]
+[% IF vc == 'vendor' %]
+ [% SET is_vendor = 1 %]
+ [% SET arap = 'ap' %]
+ [% SET iris = 'ir' %]
+[% ELSE %]
+ [% SET is_vendor = 0 %]
+ [% SET arap = 'ar' %]
+ [% SET iris = 'is' %]
+[%- END %]
 <body>
 
  <p><div class="listtop">[% title %]: [% HTML.escape(export.ids.join(', ')) %]</div></p>
@@ -15,9 +24,14 @@
       <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
      [%- END %]
      <th class="listheading">[% 'Invoice' | $T8 %]</th>
-     <th class="listheading">[% 'Vendor' | $T8 %]</th>
-     <th class="listheading" colspan="2">[% 'Source bank account' | $T8 %]</th>
-     <th class="listheading" colspan="2">[% 'Target bank account' | $T8 %]</th>
+     <th class="listheading">[%- IF is_vendor %][% 'Vendor' | $T8 %][%- ELSE %][%- LxERP.t8('Customer') %][%- END %]</th>
+     [%- IF is_vendor %]
+      <th class="listheading" colspan="2">[% 'Source bank account' | $T8 %]</th>
+      <th class="listheading" colspan="2">[% 'Target bank account' | $T8 %]</th>
+     [%- ELSE %]
+      <th class="listheading" colspan="2">[% 'Target bank account' | $T8 %]</th>
+      <th class="listheading" colspan="2">[% 'Source bank account' | $T8 %]</th>
+     [%- END %]
      <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
      <th class="listheading">[% 'Reference' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Requested execution date' | $T8 %]</th>
@@ -52,13 +66,13 @@
        </td>
       [%- END %]
       <td>
-       <a href="[% IF item.invoice %]ir[% ELSE %]ap[% END %].pl?action=edit&type=invoice&id=[% HTML.url(item.ap_id) %]">[% HTML.escape(item.invnumber) %]</a>
+       <a href="[% IF item.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&type=invoice&id=[% IF is_vendor %][% HTML.url(item.ap_id) %][% ELSE %][% HTML.url(item.ar_id) %][% END %]">[% HTML.escape(item.invnumber) %]</a>
       </td>
-      <td>[% HTML.escape(item.vendor_name) %]</td>
+      <td>[% HTML.escape(item.vc_name) %]</td>
       <td>[% HTML.escape(item.our_iban) %]</td>
       <td>[% HTML.escape(item.our_bic) %]</td>
-      <td>[% HTML.escape(item.vendor_iban) %]</td>
-      <td>[% HTML.escape(item.vendor_bic) %]</td>
+      <td>[% HTML.escape(item.vc_iban) %]</td>
+      <td>[% HTML.escape(item.vc_bic) %]</td>
       <td align="right">[% HTML.escape(LxERP.format_amount(item.amount, 2)) %]</td>
       <td>[% HTML.escape(item.reference) %]</td>
       <td align="right">[% HTML.escape(item.requested_execution_date) %]</td>
@@ -135,6 +149,8 @@
     [%- END %]
    [%- END %]
   [%- END %]
+
+     <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
  </form>
 
 </body>

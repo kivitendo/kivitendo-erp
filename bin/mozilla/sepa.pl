@@ -155,7 +155,7 @@ sub bank_transfer_search {
   $form->{jsscript} = 1;
 
   $form->header();
-  print $form->parse_html_template('sepa/bank_transfer_search');
+  print $form->parse_html_template('sepa/bank_transfer_search', { vc => $vc });
 
   $main::lxdebug->leave_sub();
 }
@@ -231,7 +231,7 @@ sub bank_transfer_list {
 
   $report->set_options('top_info_text'         => join("\n", @options),
                        'raw_top_info_text'     => $form->parse_html_template('sepa/bank_transfer_list_top'),
-                       'raw_bottom_info_text'  => $form->parse_html_template('sepa/bank_transfer_list_bottom', { 'show_buttons' => $open_available }),
+                       'raw_bottom_info_text'  => $form->parse_html_template('sepa/bank_transfer_list_bottom', { 'show_buttons' => $open_available, vc => $vc }),
                        'std_column_visibility' => 1,
                        'output_format'         => 'HTML',
                        'title'                 => $form->{title},
@@ -272,6 +272,7 @@ sub bank_transfer_edit {
 
   my $form   = $main::form;
   my $locale = $main::locale;
+  my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   my @ids    = ();
   if (!$form->{mode} || ($form->{mode} eq 'single')) {
@@ -287,7 +288,7 @@ sub bank_transfer_edit {
   my $export;
 
   foreach my $id (@ids) {
-    my $curr_export = SL::SEPA->retrieve_export('id' => $id, 'details' => 1);
+    my $curr_export = SL::SEPA->retrieve_export('id' => $id, 'details' => 1, 'vc' => $vc);
 
     foreach my $item (@{ $curr_export->{items} }) {
       map { $item->{"export_${_}"} = $curr_export->{$_} } grep { !ref $curr_export->{$_} } keys %{ $curr_export };
