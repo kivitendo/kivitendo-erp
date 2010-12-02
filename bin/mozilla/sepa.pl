@@ -363,20 +363,20 @@ sub bank_transfer_post_payments {
   $main::lxdebug->leave_sub();
 }
 
-# TODO
 sub bank_transfer_payment_list_as_pdf {
   $main::lxdebug->enter_sub();
 
   my $form       = $main::form;
   my %myconfig   = %main::myconfig;
   my $locale     = $main::locale;
+  my $vc         = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   my @ids        = @{ $form->{items} || [] };
   my @export_ids = uniq map { $_->{export_id} } @ids;
 
   $form->show_generic_error($locale->text('Multi mode not supported.'), 'back_button' => 1) if 1 != scalar @export_ids;
 
-  my $export = SL::SEPA->retrieve_export('id' => $export_ids[0], 'details' => 1);
+  my $export = SL::SEPA->retrieve_export('id' => $export_ids[0], 'details' => 1, vc => $vc);
   my @items  = ();
 
   foreach my $id (@ids) {
@@ -389,25 +389,25 @@ sub bank_transfer_payment_list_as_pdf {
   my $report         =  SL::ReportGenerator->new(\%main::myconfig, $form);
 
   my %column_defs    =  (
-    'invnumber'      => { 'text' => $locale->text('Invoice'), },
-    'vendor_name'    => { 'text' => $locale->text('Vendor'), },
-    'our_iban'       => { 'text' => $locale->text('Source IBAN'), },
-    'our_bic'        => { 'text' => $locale->text('Source BIC'), },
-    'vendor_iban'    => { 'text' => $locale->text('Destination IBAN'), },
-    'vendor_bic'     => { 'text' => $locale->text('Destination BIC'), },
-    'amount'         => { 'text' => $locale->text('Amount'), },
-    'reference'      => { 'text' => $locale->text('Reference'), },
-    'execution_date' => { 'text' => $locale->text('Execution date'), },
+    'invnumber'      => { 'text' => $locale->text('Invoice'),                                                                  },
+    'vc_name'        => { 'text' => $vc eq 'customer' ? $locale->text('Customer')         : $locale->text('Vendor'),           },
+    'our_iban'       => { 'text' => $vc eq 'customer' ? $locale->text('Destination IBAN') : $locale->text('Source IBAN'),      },
+    'our_bic'        => { 'text' => $vc eq 'customer' ? $locale->text('Destination BIC')  : $locale->text('Source BIC'),       },
+    'vc_iban'        => { 'text' => $vc eq 'customer' ? $locale->text('Source IBAN')      : $locale->text('Destination IBAN'), },
+    'vc_bic'         => { 'text' => $vc eq 'customer' ? $locale->text('Source BIC')       : $locale->text('Destination BIC'),  },
+    'amount'         => { 'text' => $locale->text('Amount'),                                                                   },
+    'reference'      => { 'text' => $locale->text('Reference'),                                                                },
+    'execution_date' => { 'text' => $locale->text('Execution date'),                                                           },
   );
 
   map { $column_defs{$_}->{align} = 'right' } qw(amount execution_date);
 
-  my @columns        =  qw(invnumber vendor_name our_iban our_bic vendor_iban vendor_bic amount reference execution_date);
+  my @columns        =  qw(invnumber vc_name our_iban our_bic vc_iban vc_bic amount reference execution_date);
 
   $report->set_options('std_column_visibility' => 1,
                        'output_format'         => 'PDF',
-                       'title'                 => $locale->text('Bank transfer payment list for export #1', $export->{id}),
-                       'attachment_basename'   => $locale->text('bank_transfer_payment_list_#1', $export->{id}) . strftime('_%Y%m%d', localtime time),
+                       'title'                 =>  $vc eq 'customer' ? $locale->text('Bank collection payment list for export #1', $export->{id}) : $locale->text('Bank transfer payment list for export #1', $export->{id}),
+                       'attachment_basename'   => ($vc eq 'customer' ? $locale->text('bank_collection_payment_list_#1', $export->{id}) : $locale->text('bank_transfer_payment_list_#1', $export->{id})) . strftime('_%Y%m%d', localtime time),
     );
 
   $report->set_columns(%column_defs);
@@ -526,7 +526,6 @@ sub bank_transfer_mark_as_closed_step1 {
   $main::lxdebug->leave_sub();
 }
 
-# TODO
 sub bank_transfer_mark_as_closed_step2 {
   $main::lxdebug->enter_sub();
 
