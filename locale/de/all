@@ -556,6 +556,7 @@ $self->{texts} = {
   'Display'                     => 'Anzeigen',
   'Display file'                => 'Datei anzeigen',
   'Display options'             => 'Anzeigeoptionen',
+  'Do you really want to close the following SEPA exports? No payment will be recorded for bank collections that haven\'t been marked as executed yet.' => 'Wollen Sie wirklich die folgenden SEPA-Exporte abschließen? Für Überweisungen, die noch nicht gebucht wurden, werden dann keine Zahlungen verbucht.',
   'Do you really want to close the following SEPA exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.' => 'Wollen Sie wirklich die folgenden SEPA-Exporte abschließen? Für Überweisungen, die noch nicht gebucht wurden, werden dann keine Zahlungen verbucht.',
   'Do you really want to delete AP transaction #1?' => 'Wollen Sie wirklich die Kreditorenbuchung #1 löschen?',
   'Do you really want to delete AR transaction #1?' => 'Wollen Sie wirklich die Debitorenbuchung #1 löschen?',

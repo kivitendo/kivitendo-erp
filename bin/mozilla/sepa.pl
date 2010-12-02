@@ -499,6 +499,7 @@ sub bank_transfer_mark_as_closed_step1 {
 
   my $form       = $main::form;
   my $locale     = $main::locale;
+  my $vc         = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   my @export_ids = map { $_->{id} } grep { $_->{selected} } @{ $form->{exports} || [] };
 
@@ -508,7 +509,7 @@ sub bank_transfer_mark_as_closed_step1 {
 
   my @open_export_ids = ();
   foreach my $id (@export_ids) {
-    my $export = SL::SEPA->retrieve_export('id' => $id);
+    my $export = SL::SEPA->retrieve_export('id' => $id, vc => $vc);
     push @open_export_ids, $id if (!$export->{closed});
   }
 
@@ -518,11 +519,12 @@ sub bank_transfer_mark_as_closed_step1 {
 
   $form->{title} = $locale->text('Close SEPA exports');
   $form->header();
-  print $form->parse_html_template('sepa/bank_transfer_mark_as_closed_step1', { 'OPEN_EXPORT_IDS' => \@open_export_ids });
+  print $form->parse_html_template('sepa/bank_transfer_mark_as_closed_step1', { 'OPEN_EXPORT_IDS' => \@open_export_ids, vc => $vc });
 
   $main::lxdebug->leave_sub();
 }
 
+# TODO
 sub bank_transfer_mark_as_closed_step2 {
   $main::lxdebug->enter_sub();
 

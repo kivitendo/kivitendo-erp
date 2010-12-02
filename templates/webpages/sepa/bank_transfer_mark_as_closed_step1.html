@@ -6,7 +6,11 @@
 
  <form action="sepa.pl" method="post">
   <p>
-   [%- 'Do you really want to close the following SEPA exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.' | $T8 %]
+   [%- IF vc == 'vendor' %]
+    [%- 'Do you really want to close the following SEPA exports? No payment will be recorded for bank transfers that haven\'t been marked as executed yet.' | $T8 %]
+   [%- ELSE %]
+    [%- 'Do you really want to close the following SEPA exports? No payment will be recorded for bank collections that haven\'t been marked as executed yet.' | $T8 %]
+   [%- END %]
   </p>
 
   <p>
@@ -14,7 +18,7 @@
    [%- FOREACH id = OPEN_EXPORT_IDS %]
     [%- UNLESS loop.first %], [%- END %]
     <input type="hidden" name="open_export_ids[]" value="[% HTML.escape(id) %]">
-    <a href="sepa.pl?action=bank_transfer_edit&id=[% HTML.url(id) %]">[% HTML.escape(id) %]</a>
+    <a href="sepa.pl?action=bank_transfer_edit&id=[% HTML.url(id) %]&vc=[% HTML.url(vc) %]">[% HTML.escape(id) %]</a>
    [%- END %]
   </p>
 
@@ -24,6 +28,7 @@
   </p>
 
   <input type="hidden" name="action" value="dispatcher">
+  <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
  </form>
 
 </body>
