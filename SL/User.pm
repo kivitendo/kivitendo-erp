@@ -1000,7 +1000,8 @@ sub config_vars {
     bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen
     taxnumber co_ustid duns menustyle template_format default_media
     default_printer_id copies show_form_details favorites
-    pdonumber sdonumber hide_cvar_search_options mandatory_departments);
+    pdonumber sdonumber hide_cvar_search_options mandatory_departments
+    sepa_creditor_id);
 
   $main::lxdebug->leave_sub();
 

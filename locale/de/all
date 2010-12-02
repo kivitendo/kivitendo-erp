@@ -1384,6 +1384,7 @@ $self->{texts} = {
   'SAVED FOR DUNNING'           => 'Gespeichert',
   'SCREENED'                    => 'Angezeigt',
   'SEPA XML download'           => 'SEPA-XML-Download',
+  'SEPA creditor ID'            => 'SEPA-Kreditoren-Identifikation',
   'SEPA exports:'               => 'SEPA-Exporte:',
   'Saldo Credit'                => 'Saldo Haben',
   'Saldo Debit'                 => 'Saldo Soll',
