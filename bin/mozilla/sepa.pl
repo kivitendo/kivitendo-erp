@@ -330,6 +330,7 @@ sub bank_transfer_post_payments {
 
   my $form   = $main::form;
   my $locale = $main::locale;
+  my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   my @items  = grep { $_->{selected} } @{ $form->{items} || [] };
 
@@ -337,7 +338,7 @@ sub bank_transfer_post_payments {
     $form->show_generic_error($locale->text('You have not selected any item.'), 'back_button' => 1);
   }
   my @export_ids    = uniq map { $_->{sepa_export_id} } @items;
-  my %exports       = map { $_ => SL::SEPA->retrieve_export('id' => $_, 'details' => 1) } @export_ids;
+  my %exports       = map { $_ => SL::SEPA->retrieve_export('id' => $_, 'details' => 1, vc => $vc) } @export_ids;
   my @items_to_post = ();
 
   foreach my $item (@items) {
@@ -355,13 +356,14 @@ sub bank_transfer_post_payments {
     $form->show_generic_error($locale->text('You have to specify an execution date for each antry.'), 'back_button' => 1);
   }
 
-  SL::SEPA->post_payment('items' => \@items_to_post);
+  SL::SEPA->post_payment('items' => \@items_to_post, vc => $vc);
 
   $form->show_generic_information($locale->text('The payments have been posted.'));
 
   $main::lxdebug->leave_sub();
 }
 
+# TODO
 sub bank_transfer_payment_list_as_pdf {
   $main::lxdebug->enter_sub();
 

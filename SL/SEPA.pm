@@ -336,6 +336,10 @@ sub post_payment {
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
+  my $mult     = $params{vc} eq 'customer' ? -1         : 1;
+  my $ARAP     = uc $arap;
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
@@ -346,17 +350,17 @@ sub post_payment {
                              FROM sepa_export_items sei
                              WHERE sei.id = ?| ],
 
-    'get_ap'         => [ qq|SELECT at.chart_id
+    'get_arap'       => [ qq|SELECT at.chart_id
                              FROM acc_trans at
                              LEFT JOIN chart c ON (at.chart_id = c.id)
                              WHERE (trans_id = ?)
-                               AND ((c.link LIKE '%:AP') OR (c.link LIKE 'AP:%') OR (c.link = 'AP'))
+                               AND ((c.link LIKE '%:${ARAP}') OR (c.link LIKE '${ARAP}:%') OR (c.link = '${ARAP}'))
                              LIMIT 1| ],
 
     'add_acc_trans'  => [ qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate,       source, memo)
                              VALUES                (?,        ?,        ?,      ?,         current_date, ?,      '')| ],
 
-    'update_ap'      => [ qq|UPDATE ap
+    'update_arap'    => [ qq|UPDATE ${arap}
                              SET paid = paid + ?
                              WHERE id = ?| ],
 
@@ -388,16 +392,16 @@ sub post_payment {
 
     next if (!$orig_item);
 
-    # Retrieve the invoice's AP chart ID.
-    do_statement($form, @{ $handles{get_ap} }, $orig_item->{ap_id});
-    my ($ap_chart_id) = $handles{get_ap}->[0]->fetchrow_array();
+    # Retrieve the invoice's AR/AP chart ID.
+    do_statement($form, @{ $handles{get_arap} }, $orig_item->{"${arap}_id"});
+    my ($arap_chart_id) = $handles{get_arap}->[0]->fetchrow_array();
 
-    # Record the payment in acc_trans offsetting AP.
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{ap_id}, $ap_chart_id,           -1 * $orig_item->{amount}, $item->{execution_date}, '');
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{ap_id}, $orig_item->{chart_id},      $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference});
+    # Record the payment in acc_trans offsetting AR/AP.
+    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $arap_chart_id,         -1 * $mult * $orig_item->{amount}, $item->{execution_date}, '');
+    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $orig_item->{chart_id},      $mult * $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference});
 
     # Update the invoice to reflect the new paid amount.
-    do_statement($form, @{ $handles{update_ap} }, $orig_item->{amount}, $orig_item->{ap_id});
+    do_statement($form, @{ $handles{update_arap} }, $orig_item->{amount}, $orig_item->{"${arap}_id"});
 
     # Update the item to reflect that it has been posted.
     do_statement($form, @{ $handles{finish_item} }, $item->{execution_date}, $item_id);
