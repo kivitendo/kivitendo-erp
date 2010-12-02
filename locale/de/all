@@ -957,6 +957,7 @@ $self->{texts} = {
   'List bank accounts'          => 'Bankkonten anzeigen',
   'List export'                 => 'Export anzeigen',
   'List of bank accounts'       => 'Liste der Bankkonten',
+  'List of bank collections'    => 'Bankeinzugsliste',
   'List of bank transfers'      => 'Überweisungsliste',
   'List of custom variables'    => 'Liste der benutzerdefinierten Variablen',
   'List open SEPA exports'      => 'Noch nicht ausgeführte SEPA-Exporte anzeigen',

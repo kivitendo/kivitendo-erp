@@ -149,8 +149,9 @@ sub bank_transfer_search {
 
   my $form   = $main::form;
   my $locale = $main::locale;
+  my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
-  $form->{title}    = $locale->text('List of bank transfers');
+  $form->{title}    = $vc eq 'customer' ? $::locale->text('List of bank collections') : $locale->text('List of bank transfers');
   $form->{jsscript} = 1;
 
   $form->header();
