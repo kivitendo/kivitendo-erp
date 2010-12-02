@@ -213,7 +213,7 @@ sub bank_transfer_list {
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
 
-  $column_defs{selected}->{visible} = $open_available                                ? 1 : 0;
+  $column_defs{selected}->{visible} = $open_available                                ? 'HTML' : 0;
   $column_defs{executed}->{visible} = $form->{l_executed} && $form->{l_not_executed} ? 1 : 0;
   $column_defs{closed}->{visible}   = $form->{l_closed}   && $form->{l_open}         ? 1 : 0;
 
