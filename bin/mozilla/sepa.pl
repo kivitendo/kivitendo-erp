@@ -167,17 +167,18 @@ sub bank_transfer_list {
   my $form   = $main::form;
   my $locale = $main::locale;
   my $cgi    = $main::cgi;
+  my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
-  $form->{title}     = $locale->text('List of bank transfers');
+  $form->{title}     = $vc eq 'customer' ? $::locale->text('List of bank collections') : $locale->text('List of bank transfers');
 
   $form->{sort}    ||= 'id';
   $form->{sortdir}   = '1' if (!defined $form->{sortdir});
 
-  $form->{callback}  = build_std_url('action=bank_transfer_list', 'sort', 'sortdir');
+  $form->{callback}  = build_std_url('action=bank_transfer_list', 'sort', 'sortdir', 'vc');
 
   my %filter         = map  +( $_ => $form->{"f_${_}"} ),
                        grep  { $form->{"f_${_}"} }
-                             (qw(vendor invnumber),
+                             (qw(vc invnumber),
                               map { ("${_}_date_from", "${_}_date_to") }
                                   qw(export requested_execution execution));
   $filter{executed}  = $form->{l_executed} ? 1 : 0 if ($form->{l_executed} != $form->{l_not_executed});
@@ -185,13 +186,14 @@ sub bank_transfer_list {
 
   my $exports        = SL::SEPA->list_exports('filter'    => \%filter,
                                               'sortorder' => $form->{sort},
-                                              'sortdir'   => $form->{sortdir});
+                                              'sortdir'   => $form->{sortdir},
+                                              'vc'        => $vc);
 
   my $open_available = any { !$_->{closed} } @{ $exports };
 
   my $report         = SL::ReportGenerator->new(\%main::myconfig, $form);
 
-  my @hidden_vars    = grep { m/^[fl]_/ && $form->{$_} } keys %{ $form };
+  my @hidden_vars    = ('vc', grep { m/^[fl]_/ && $form->{$_} } keys %{ $form });
 
   my $href           = build_std_url('action=bank_transfer_list', @hidden_vars);
 
@@ -216,7 +218,7 @@ sub bank_transfer_list {
   $column_defs{closed}->{visible}   = $form->{l_closed}   && $form->{l_open}         ? 1 : 0;
 
   my @options = ();
-  push @options, $locale->text('Vendor')                        . ' : ' . $form->{f_vendor}                        if ($form->{f_vendor});
+  push @options, ($vc eq 'customer' ? $::locale->text('Customer') : $locale->text('Vendor')) . ' : ' . $form->{f_vc} if ($form->{f_vc});
   push @options, $locale->text('Invoice number')                . ' : ' . $form->{f_invnumber}                     if ($form->{f_invnumber});
   push @options, $locale->text('Export date from')              . ' : ' . $form->{f_export_date_from}              if ($form->{f_export_date_from});
   push @options, $locale->text('Export date to')                . ' : ' . $form->{f_export_date_to}                if ($form->{f_export_date_to});
@@ -249,7 +251,7 @@ sub bank_transfer_list {
 
     map { $row->{$_}->{data} = $export->{$_} ? $locale->text('yes') : $locale->text('no') } qw(executed closed);
 
-    $row->{id}->{link} = $edit_url . '&id=' . E($export->{id});
+    $row->{id}->{link} = $edit_url . '&id=' . E($export->{id}) . '&vc=' . E($vc);
 
     if (!$export->{closed}) {
       $row->{selected}->{raw_data} =

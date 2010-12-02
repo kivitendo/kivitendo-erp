@@ -230,6 +230,8 @@ sub list_exports {
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
@@ -261,16 +263,16 @@ sub list_exports {
   }
 
   if ($filter->{invnumber}) {
-    push @where_sub,  "ap.invnumber ILIKE ?";
+    push @where_sub,  "arap.invnumber ILIKE ?";
     push @values_sub, '%' . $filter->{invnumber} . '%';
-    $joins_sub{ap} = 1;
+    $joins_sub{$arap} = 1;
   }
 
-  if ($filter->{vendor}) {
-    push @where_sub,  "v.name ILIKE ?";
-    push @values_sub, '%' . $filter->{vendor} . '%';
-    $joins_sub{ap}     = 1;
-    $joins_sub{vendor} = 1;
+  if ($filter->{vc}) {
+    push @where_sub,  "vc.name ILIKE ?";
+    push @values_sub, '%' . $filter->{vc} . '%';
+    $joins_sub{$arap} = 1;
+    $joins_sub{vc}    = 1;
   }
 
   foreach my $type (qw(requested_execution execution)) {
@@ -283,8 +285,8 @@ sub list_exports {
 
   if (@where_sub) {
     my $joins_sub  = '';
-    $joins_sub    .= ' LEFT JOIN ap       ON (items.ap_id  = ap.id)' if ($joins_sub{ap});
-    $joins_sub    .= ' LEFT JOIN vendor v ON (ap.vendor_id = v.id)'  if ($joins_sub{vendor});
+    $joins_sub    .= " LEFT JOIN ${arap} arap ON (items.${arap}_id = arap.id)" if ($joins_sub{$arap});
+    $joins_sub    .= " LEFT JOIN ${vc} vc      ON (arap.${vc}_id   = vc.id)"   if ($joins_sub{vc});
 
     my $where_sub  = join(' AND ', map { "(${_})" } @where_sub);
 
@@ -296,6 +298,9 @@ sub list_exports {
     push @where,  $query_sub;
     push @values, @values_sub;
   }
+
+  push @where,  'se.vc = ?';
+  push @values, $vc;
 
   my $where = ' WHERE ' . join(' AND ', map { "(${_})" } @where) if (@where);
 
