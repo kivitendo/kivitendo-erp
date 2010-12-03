@@ -425,6 +425,7 @@ sub bank_transfer_payment_list_as_pdf {
   $main::lxdebug->leave_sub();
 }
 
+# TODO
 sub bank_transfer_download_sepa_xml {
   $main::lxdebug->enter_sub();
 
@@ -432,9 +433,14 @@ sub bank_transfer_download_sepa_xml {
   my $myconfig = \%main::myconfig;
   my $locale   =  $main::locale;
   my $cgi      =  $main::cgi;
+  my $vc       = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   if (!$myconfig->{company}) {
     $form->show_generic_error($locale->text('You have to enter a company name in your user preferences (see the "Program" menu, "Preferences").'), 'back_button' => 1);
+  }
+
+  if (($vc eq 'customer') && !$myconfig->{sepa_creditor_id}) {
+    $form->show_generic_error($locale->text('You have to enter the SEPA creditor ID in your user preferences (see the "Program" menu, "Preferences").'), 'back_button' => 1);
   }
 
   my @ids;
@@ -452,7 +458,7 @@ sub bank_transfer_download_sepa_xml {
   my @items = ();
 
   foreach my $id (@ids) {
-    my $export = SL::SEPA->retrieve_export('id' => $id, 'details' => 1);
+    my $export = SL::SEPA->retrieve_export('id' => $id, 'details' => 1, vc => $vc);
     push @items, grep { !$_->{executed} } @{ $export->{items} } if ($export && !$export->{closed});
   }
 
@@ -463,9 +469,11 @@ sub bank_transfer_download_sepa_xml {
   my $message_id = strftime('MSG%Y%m%d%H%M%S', localtime) . sprintf('%06d', $$);
 
   my $sepa_xml   = SL::SEPA::XML->new('company'     => $myconfig->{company},
+                                      'creditor_id' => $myconfig->{sepa_creditor_id},
                                       'src_charset' => $main::dbcharset || 'ISO-8859-15',
                                       'message_id'  => $message_id,
                                       'grouped'     => 1,
+                                      'collection'  => $vc eq 'customer',
     );
 
   foreach my $item (@items) {
@@ -475,13 +483,19 @@ sub bank_transfer_download_sepa_xml {
       $requested_execution_date = sprintf '%04d-%02d-%02d', $yy, $mm, $dd;
     }
 
+    if ($vc eq 'customer') {
+      my ($yy, $mm, $dd)      = $locale->parse_date($myconfig, $item->{reference_date});
+      $item->{reference_date} = sprintf '%04d-%02d-%02d', $yy, $mm, $dd;
+    }
+
     $sepa_xml->add_transaction({ 'src_iban'       => $item->{our_iban},
                                  'src_bic'        => $item->{our_bic},
-                                 'dst_iban'       => $item->{vendor_iban},
-                                 'dst_bic'        => $item->{vendor_bic},
-                                 'recipient'      => $item->{vendor_name},
+                                 'dst_iban'       => $item->{vc_iban},
+                                 'dst_bic'        => $item->{vc_bic},
+                                 'company'        => $item->{vc_name},
                                  'amount'         => $item->{amount},
                                  'reference'      => $item->{reference},
+                                 'reference_date' => $item->{reference_date},
                                  'execution_date' => $requested_execution_date,
                                  'end_to_end_id'  => $item->{end_to_end_id} });
   }
@@ -489,7 +503,7 @@ sub bank_transfer_download_sepa_xml {
   my $xml = $sepa_xml->to_xml();
 
   print $cgi->header('-type'                => 'application/octet-stream',
-                     '-content-disposition' => 'attachment; filename="SEPA_' . $message_id . '.cct"',
+                     '-content-disposition' => 'attachment; filename="SEPA_' . $message_id . ($vc eq 'customer' ? '.cdd' : '.cct') . '"',
                      '-content-length'      => length $xml);
   print $xml;
 

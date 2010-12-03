@@ -25,7 +25,7 @@ sub _init {
   $self->{sepa}  = $params{sepa};
   delete $params{sepa};
 
-  my $missing_parameter = first { !$params{$_} } qw(src_iban src_bic dst_iban dst_bic recipient reference amount end_to_end_id);
+  my $missing_parameter = first { !$params{$_} } qw(src_iban src_bic dst_iban dst_bic company reference amount end_to_end_id);
   croak "Missing parameter: $missing_parameter" if ($missing_parameter);
 
   $params{end_to_end_id}  ||= 'NOTPROVIDED';
@@ -35,7 +35,7 @@ sub _init {
 
   map { $self->{$_} = $self->{sepa}->{iconv}->convert($params{$_})       } keys %params;
   map { $self->{$_} =~ s/\s+//g                                          } qw(src_iban src_bic dst_iban dst_bic);
-  map { $self->{$_} = $self->{sepa}->_replace_special_chars($self->{$_}) } qw(recipient reference end_to_end_id);
+  map { $self->{$_} = $self->{sepa}->_replace_special_chars($self->{$_}) } qw(company reference end_to_end_id);
 }
 
 sub get {
