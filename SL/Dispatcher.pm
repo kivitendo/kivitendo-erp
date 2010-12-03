@@ -155,7 +155,7 @@ sub handle_request {
       $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";
       ::run($::auth->restore_session);
 
-    } elsif ($action) {
+    } else {
       # copy from am.pl routines
       my $session_result = $::auth->restore_session;
 
@@ -172,14 +172,15 @@ sub handle_request {
       $::auth->create_or_refresh_session;
       delete $::form->{password};
 
-      map { $::form->{$_} = $::myconfig{$_} } qw(stylesheet charset)
-        unless $action eq 'save' && $::form->{type} eq 'preferences';
+      if ($action) {
+        map { $::form->{$_} = $::myconfig{$_} } qw(stylesheet charset)
+          unless $action eq 'save' && $::form->{type} eq 'preferences';
 
-      $::form->set_standard_title;
-      ::call_sub('::' . $::locale->findsub($action));
-
-    } else {
-      $::form->error($::locale->text('action= not defined!'));
+        $::form->set_standard_title;
+        ::call_sub('::' . $::locale->findsub($action));
+      } else {
+        $::form->error($::locale->text('action= not defined!'));
+      }
     }
 
     1;
