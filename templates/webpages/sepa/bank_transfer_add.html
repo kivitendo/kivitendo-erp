@@ -73,7 +73,7 @@
       <td align="right">[% LxERP.format_amount(invoice.invoice_amount, -2) %]</td>
       <td align="right">[% LxERP.format_amount(invoice.open_amount, -2) %]</td>
       <td align="right">[% invoice.duedate %]</td>
-      <td><input name="bank_transfers[].reference" value="[% HTML.escape(invoice.invnumber) %]"></td>
+      <td><input name="bank_transfers[].reference" value="[% HTML.escape(invoice.reference_prefix _ invoice.invnumber) %]"></td>
       <td align="right">
        <input name="bank_transfers[].amount" value="[% LxERP.format_amount(invoice.invoice_amount, -2) %]" style="text-align: right">
       </td>

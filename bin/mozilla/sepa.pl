@@ -8,6 +8,7 @@ use SL::BankAccount;
 use SL::Chart;
 use SL::CT;
 use SL::Form;
+use SL::GenericTranslations;
 use SL::ReportGenerator;
 use SL::SEPA;
 use SL::SEPA::XML;
@@ -40,6 +41,15 @@ sub bank_transfer_add {
   }
 
   my $bank_account_label_sub = sub { $locale->text('Account number #1, bank code #2, #3', $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank}) };
+
+  my $translation_list = GenericTranslations->list(translation_type => 'sepa_remittance_info_pfx');
+  my %translations     = map { ( ($_->{language_id} || 'default') => $_->{translation} ) } @{ $translation_list };
+
+  foreach my $invoice (@{ $invoices }) {
+    my $prefix                    = $translations{ $invoice->{language_id} } || $translations{default} || $::locale->text('Invoice');
+    $prefix                      .= ' ' unless $prefix =~ m/ $/;
+    $invoice->{reference_prefix}  = $prefix;
+  }
 
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_add',
