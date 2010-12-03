@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]
+[% USE HTML %][% USE LxERP %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
@@ -8,8 +8,8 @@
   <p>
    <table>
     <tr>
-     <td align="right">[% 'Vendor' | $T8 %]</td>
-     <td><input name="f_vendor"></td>
+     <td align="right">[%- IF vc == 'vendor' %][% 'Vendor' | $T8 %][%- ELSE %][%- LxERP.t8('Customer') %][%- END %]</td>
+     <td><input name="f_vc"></td>
     </tr>
 
     <tr>
@@ -86,6 +86,7 @@
 
   <p>
    <input type="hidden" name="action" value="dispatcher">
+   <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
    <input type="submit" class="submit" name="action_bank_transfer_list" value="[% 'Continue' | $T8 %]">
   </p>
  </form>

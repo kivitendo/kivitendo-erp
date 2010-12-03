@@ -32,14 +32,15 @@ sub _init {
   $self->{src_charset}  = 'UTF-8';
   $self->{grouped}      = 0;
 
-  map { $self->{$_} = $params{$_} if (exists $params{$_}) } qw(src_charset company message_id grouped);
+  map { $self->{$_} = $params{$_} if (exists $params{$_}) } qw(src_charset company creditor_id message_id grouped collection);
 
   $self->{iconv} = SL::Iconv->new($self->{src_charset}, "UTF-8") || croak "Unsupported source charset $self->{src_charset}.";
 
   my $missing_parameter = first { !$self->{$_} } qw(company message_id);
   croak "Missing parameter: $missing_parameter" if ($missing_parameter);
+  croak "Missing parameter: creditor_id"        if !$self->{creditor_id} && $self->{collection};
 
-  map { $self->{$_} = $self->_replace_special_chars($self->{iconv}->convert($self->{$_})) } qw(company message_id);
+  map { $self->{$_} = $self->_replace_special_chars($self->{iconv}->convert($self->{$_})) } qw(company message_id creditor_id);
 }
 
 sub add_transaction {
@@ -77,7 +78,7 @@ sub _format_amount {
   my $self   = shift;
   my $amount = shift;
 
-  return sprintf '%d.%02d', int($amount), int($amount * 100) % 100;
+  return sprintf '%.02f', $amount;
 }
 
 sub _group_transactions {
@@ -116,19 +117,27 @@ sub to_xml {
                                 DATA_INDENT => 2,
                                 ENCODING    => 'utf-8');
 
-  my @now        = localtime;
-  my $time_zone  = strftime "%z", @now;
-  my $now_str    = strftime('%Y-%m-%dT%H:%M:%S', @now) . substr($time_zone, 0, 3) . ':' . substr($time_zone, 3, 2);
+  my @now       = localtime;
+  my $time_zone = strftime "%z", @now;
+  my $now_str   = strftime('%Y-%m-%dT%H:%M:%S', @now) . substr($time_zone, 0, 3) . ':' . substr($time_zone, 3, 2);
+
+  my $is_coll   = $self->{collection};
+  my $cd_src    = $is_coll ? 'Cdtr' : 'Dbtr';
+  my $cd_dst    = $is_coll ? 'Dbtr' : 'Cdtr';
+  my $pain_id   = $is_coll ? 'pain.008.002.01' : 'pain.001.001.02';
+  my $pain_elmt = $is_coll ? 'pain.008.001.01' : 'pain.001.001.02';
+  my @pii_base  = (strftime('PII%Y%m%d%H%M%S', @now), rand(1000000000));
 
   my $grouped_transactions = $self->_group_transactions();
 
   $xml->xmlDecl();
-  $xml->startTag('Document',
-                 'xmlns'              => 'urn:sepade:xsd:pain.001.001.02.grp',
-                 'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
-                 'xsi:schemaLocation' => 'urn:sepade:xsd:pain.001.001.02.grp pain.001.001.02.grp.xsd');
 
-  $xml->startTag('pain.001.001.02');
+  $xml->startTag('Document',
+                 'xmlns'              => "urn:swift:xsd:\$${pain_id}",
+                 'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
+                 'xsi:schemaLocation' => "urn:swift:xsd:\$${pain_id} ${pain_id}.xsd");
+
+  $xml->startTag($pain_elmt);
 
   $xml->startTag('GrpHdr');
   $xml->dataElement('MsgId', encode('UTF-8', substr($self->{message_id}, 0, 35)));
@@ -148,73 +157,111 @@ sub to_xml {
     my $master_transaction = $transaction_group->{transactions}->[0];
 
     $xml->startTag('PmtInf');
-    $xml->dataElement('PmtMtd', 'TRF');
+    if ($is_coll) {
+      $xml->dataElement('PmtInfId', sprintf('%s%010d', @pii_base));
+      $pii_base[1]++;
+    }
+    $xml->dataElement('PmtMtd', $is_coll ? 'DD' : 'TRF');
 
     $xml->startTag('PmtTpInf');
     $xml->startTag('SvcLvl');
     $xml->dataElement('Cd', 'SEPA');
     $xml->endTag('SvcLvl');
+
+    if ($is_coll) {
+      $xml->startTag('LclInstrm');
+      $xml->dataElement('Cd', 'CORE');
+      $xml->endTag('LclInstrm');
+      $xml->dataElement('SeqTp', 'OOFF');
+    }
     $xml->endTag('PmtTpInf');
 
-    $xml->dataElement('ReqdExctnDt', $master_transaction->get('execution_date'));
-    $xml->startTag('Dbtr');
+    $xml->dataElement($is_coll ? 'ReqdColltnDt' : 'ReqdExctnDt', $master_transaction->get('execution_date'));
+    $xml->startTag($cd_src);
     $xml->dataElement('Nm', encode('UTF-8', substr($self->{company}, 0, 70)));
-    $xml->endTag('Dbtr');
+    $xml->endTag($cd_src);
 
-    $xml->startTag('DbtrAcct');
+    $xml->startTag($cd_src . 'Acct');
     $xml->startTag('Id');
     $xml->dataElement('IBAN', $master_transaction->get('src_iban', 34));
     $xml->endTag('Id');
-    $xml->endTag('DbtrAcct');
+    $xml->endTag($cd_src . 'Acct');
 
-    $xml->startTag('DbtrAgt');
+    $xml->startTag($cd_src . 'Agt');
     $xml->startTag('FinInstnId');
     $xml->dataElement('BIC', $master_transaction->get('src_bic', 20));
     $xml->endTag('FinInstnId');
-    $xml->endTag('DbtrAgt');
+    $xml->endTag($cd_src . 'Agt');
 
     $xml->dataElement('ChrgBr', 'SLEV');
 
     foreach my $transaction (@{ $transaction_group->{transactions} }) {
-      $xml->startTag('CdtTrfTxInf');
+      $xml->startTag($is_coll ? 'DrctDbtTxInf' : 'CdtTrfTxInf');
 
       $xml->startTag('PmtId');
       $xml->dataElement('EndToEndId', $transaction->get('end_to_end_id', 35));
       $xml->endTag('PmtId');
 
-      $xml->startTag('Amt');
-      $xml->startTag('InstdAmt', 'Ccy' => 'EUR');
-      $xml->characters($self->_format_amount($transaction->{amount}));
-      $xml->endTag('InstdAmt');
-      $xml->endTag('Amt');
+      if ($is_coll) {
+        $xml->startTag('InstdAmt', 'Ccy' => 'EUR');
+        $xml->characters($self->_format_amount($transaction->{amount}));
+        $xml->endTag('InstdAmt');
 
-      $xml->startTag('CdtrAgt');
+        $xml->startTag('DrctDbtTx');
+
+        $xml->startTag('MndtRltdInf');
+        $xml->dataElement('MndtId', $transaction->get('reference', 35));
+        $xml->dataElement('DtOfSgntr', $transaction->get('reference_date', 2010-12-02));
+        $xml->endTag('MndtRltdInf');
+
+        $xml->startTag('CdtrSchmeId');
+        $xml->startTag('Id');
+        $xml->startTag('PrvtId');
+        $xml->startTag('OthrId');
+        $xml->dataElement('Id', encode('UTF-8', substr($self->{creditor_id}, 0, 35)));
+        $xml->dataElement('IdTp', 'SEPA');
+        $xml->endTag('OthrId');
+        $xml->endTag('PrvtId');
+        $xml->endTag('Id');
+        $xml->endTag('CdtrSchmeId');
+
+        $xml->endTag('DrctDbtTx');
+
+      } else {
+        $xml->startTag('Amt');
+        $xml->startTag('InstdAmt', 'Ccy' => 'EUR');
+        $xml->characters($self->_format_amount($transaction->{amount}));
+        $xml->endTag('InstdAmt');
+        $xml->endTag('Amt');
+      }
+
+      $xml->startTag("${cd_dst}Agt");
       $xml->startTag('FinInstnId');
       $xml->dataElement('BIC', $transaction->get('dst_bic', 20));
       $xml->endTag('FinInstnId');
-      $xml->endTag('CdtrAgt');
+      $xml->endTag("${cd_dst}Agt");
 
-      $xml->startTag('Cdtr');
-      $xml->dataElement('Nm', $transaction->get('recipient', 70));
-      $xml->endTag('Cdtr');
+      $xml->startTag("${cd_dst}");
+      $xml->dataElement('Nm', $transaction->get('company', 70));
+      $xml->endTag("${cd_dst}");
 
-      $xml->startTag('CdtrAcct');
+      $xml->startTag("${cd_dst}Acct");
       $xml->startTag('Id');
       $xml->dataElement('IBAN', $transaction->get('dst_iban', 34));
       $xml->endTag('Id');
-      $xml->endTag('CdtrAcct');
+      $xml->endTag("${cd_dst}Acct");
 
       $xml->startTag('RmtInf');
       $xml->dataElement('Ustrd', $transaction->get('reference', 140));
       $xml->endTag('RmtInf');
 
-      $xml->endTag('CdtTrfTxInf');
+      $xml->endTag($is_coll ? 'DrctDbtTxInf' : 'CdtTrfTxInf');
     }
 
     $xml->endTag('PmtInf');
   }
 
-  $xml->endTag('pain.001.001.02');
+  $xml->endTag($pain_elmt);
   $xml->endTag('Document');
 
   return $output;

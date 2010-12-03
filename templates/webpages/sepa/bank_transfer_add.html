@@ -1,12 +1,25 @@
 [%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
+[% IF vc == 'vendor' %]
+ [% SET is_vendor = 1 %]
+ [% SET arap = 'ap' %]
+ [% SET iris = 'ir' %]
+[% ELSE %]
+ [% SET is_vendor = 0 %]
+ [% SET arap = 'ar' %]
+ [% SET iris = 'is' %]
+[%- END %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
 
  <form action="sepa.pl" method="post">
   <p>
-   [% 'Please select the source bank account for the transfers:' | $T8 %]
+   [%- IF is_vendor %]
+    [% 'Please select the source bank account for the transfers:' | $T8 %]
+   [%- ELSE %]
+    [% 'Please select the destination bank account for the collections:' | $T8 %]
+   [%- END %]
    <br>
    [%- INCLUDE generic/multibox.html
          name      = 'bank_account.id',
@@ -20,7 +33,7 @@
    <table border="0">
     <tr>
      <th class="listheading" align="center"><input type="checkbox" id="select_all"></th>
-     <th class="listheading">[% 'Vendor' | $T8 %]</th>
+     <th class="listheading">[% IF is_vendor %][% 'Vendor' | $T8 %][%- ELSE %][%- LxERP.t8('Customer') %][%- END %]</th>
      <th class="listheading">[% 'Invoice' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Amount' | $T8 %]</th>
      <th class="listheading" align="right">[% 'Open amount' | $T8 %]</th>
@@ -30,29 +43,29 @@
     </tr>
 
     [%- FOREACH invoice = INVOICES %]
-     <input type="hidden" name="bank_transfers[+].ap_id" value="[% HTML.escape(invoice.id) %]">
+     <input type="hidden" name="bank_transfers[+].[% arap %]_id" value="[% HTML.escape(invoice.id) %]">
 
      <tr class="listrow[% loop.count % 2 %]">
       <td align="center">
-       [%- IF invoice.vendor_bank_info_ok %]
+       [%- IF invoice.vc_bank_info_ok %]
         <input type="checkbox" name="bank_transfers[].selected" value="1">
        [%- END %]
       </td>
       <td>
-       [%- IF loop.first || (previous_vendorname != invoice.vendorname) %]
-        <a href="ct.pl?action=edit&db=vendor&id=[% HTML.url(invoice.vendor_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add') %]">
-         [%- GET HTML.escape(invoice.vendorname);
-             SET previous_vendorname = invoice.vendorname;
-             IF !invoice.vendor_bank_info_ok;
+       [%- IF loop.first || (previous_vcname != invoice.vcname) %]
+        <a href="ct.pl?action=edit&db=[% vc %]&id=[% HTML.url(invoice.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
+         [%- GET HTML.escape(invoice.vcname);
+             SET previous_vcname = invoice.vcname;
+             IF !invoice.vc_bank_info_ok;
                GET ' <sup>(1)</sup>';
-               SET show_vendor_bank_info_footnote = '1';
+               SET show_vc_bank_info_footnote = '1';
              END; -%]
         </a>
        [%- END -%]
       </td>
 
       <td>
-       <a href="[% IF invoice.invoice %]ir[% ELSE %]ap[% END %].pl?action=edit&id=[% HTML.escape(invoice.id) %]">
+       <a href="[% IF invoice.invoice %][% iris %][% ELSE %][% arap %][% END %].pl?action=edit&id=[% HTML.escape(invoice.id) %]">
         [% HTML.escape(invoice.invnumber) %]
        </a>
       </td>
@@ -69,9 +82,14 @@
    </table>
   </p>
 
-  [%- IF show_vendor_bank_info_footnote %]
+  [%- IF show_vc_bank_info_footnote %]
    <p>
-    <sup>(1)</sup> [%- 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
+    <sup>(1)</sup>
+    [%- IF is_vendor %]
+     [%- 'No bank information has been entered in this vendor\'s master data entry. You cannot create bank transfers unless you enter bank information.' | $T8 %]
+    [%- ELSE %]
+     [%- 'No bank information has been entered in this customer\'s master data entry. You cannot create bank collections unless you enter bank information.' | $T8 %]
+    [%- END %]
    </p>
   [%- END %]
 
@@ -80,6 +98,7 @@
   </p>
 
   <input type="hidden" name="action" value="dispatcher">
+  <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
  </form>
 
  <script type="text/javascript" src="js/jquery.js"></script>
