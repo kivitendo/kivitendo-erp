@@ -16,28 +16,31 @@ sub retrieve_open_invoices {
   my $form     = $main::form;
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
 
   my $query =
     qq|
-       SELECT ap.id, ap.invnumber, ap.vendor_id, ap.amount AS invoice_amount, ap.invoice,
-         v.name AS vendorname, ap.duedate as duedate,
+       SELECT ${arap}.id, ${arap}.invnumber, ${arap}.${vc}_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
+         vc.name AS vcname, vc.language_id, ${arap}.duedate as duedate,
 
-         COALESCE(v.iban, '') <> '' AND COALESCE(v.bic, '') <> '' AS vendor_bank_info_ok,
+         COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' AS vc_bank_info_ok,
 
-         ap.amount - ap.paid - COALESCE(open_transfers.amount, 0) AS open_amount
+         ${arap}.amount - ${arap}.paid - COALESCE(open_transfers.amount, 0) AS open_amount
 
-       FROM ap
-       LEFT JOIN vendor v ON (ap.vendor_id = v.id)
+       FROM ${arap}
+       LEFT JOIN ${vc} vc ON (${arap}.${vc}_id = vc.id)
        LEFT JOIN (SELECT sei.ap_id, SUM(sei.amount) AS amount
                   FROM sepa_export_items sei
                   LEFT JOIN sepa_export se ON (sei.sepa_export_id = se.id)
                   WHERE NOT se.closed
+                    AND (se.vc = '${vc}')
                   GROUP BY sei.ap_id)
-         AS open_transfers ON (ap.id = open_transfers.ap_id)
+         AS open_transfers ON (${arap}.id = open_transfers.ap_id)
 
-       WHERE ap.amount > (COALESCE(open_transfers.amount, 0) + ap.paid)
+       WHERE ${arap}.amount > (COALESCE(open_transfers.amount, 0) + ${arap}.paid)
 
-       ORDER BY lower(v.name) ASC, lower(ap.invnumber) ASC
+       ORDER BY lower(vc.name) ASC, lower(${arap}.invnumber) ASC
 |;
 
   my $results = selectall_hashref_query($form, $dbh, $query);
@@ -53,46 +56,49 @@ sub create_export {
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(employee bank_transfers));
+  Common::check_params(\%params, qw(employee bank_transfers vc));
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $ARAP     = uc $arap;
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my ($export_id) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('sepa_export_id_seq')|);
   my $query       =
-    qq|INSERT INTO sepa_export (id, employee_id)
+    qq|INSERT INTO sepa_export (id, employee_id, vc)
        VALUES (?, (SELECT id
                    FROM employee
-                   WHERE login = ?))|;
-  do_query($form, $dbh, $query, $export_id, $params{employee});
+                   WHERE login = ?), ?)|;
+  do_query($form, $dbh, $query, $export_id, $params{employee}, $vc);
 
   my $q_item_id = qq|SELECT nextval('id')|;
   my $h_item_id = prepare_query($form, $dbh, $q_item_id);
 
   my $q_insert =
-    qq|INSERT INTO sepa_export_items (id,          sepa_export_id,           ap_id,       chart_id,
+    qq|INSERT INTO sepa_export_items (id,          sepa_export_id,           ${arap}_id,  chart_id,
                                       amount,      requested_execution_date, reference,   end_to_end_id,
-                                      our_iban,    our_bic,                  vendor_iban, vendor_bic)
+                                      our_iban,    our_bic,                  vc_iban,     vc_bic)
        VALUES                        (?,           ?,                        ?,           ?,
                                       ?,           ?,                        ?,           ?,
                                       ?,           ?,                        ?,           ?)|;
   my $h_insert = prepare_query($form, $dbh, $q_insert);
 
   my $q_reference =
-    qq|SELECT ap.invnumber,
+    qq|SELECT arap.invnumber,
          (SELECT COUNT(at.*)
           FROM acc_trans at
           LEFT JOIN chart c ON (at.chart_id = c.id)
           WHERE (at.trans_id = ?)
-            AND (c.link LIKE '%AP_paid%'))
+            AND (c.link LIKE '%${ARAP}_paid%'))
          +
          (SELECT COUNT(sei.*)
           FROM sepa_export_items sei
           WHERE (sei.ap_id = ?))
          AS num_payments
-       FROM ap
+       FROM ${arap} arap
        WHERE id = ?|;
   my $h_reference = prepare_query($form, $dbh, $q_reference);
 
@@ -100,7 +106,7 @@ sub create_export {
 
   foreach my $transfer (@{ $params{bank_transfers} }) {
     if (!$transfer->{reference}) {
-      do_statement($form, $h_reference, $q_reference, (conv_i($transfer->{ap_id})) x 3);
+      do_statement($form, $h_reference, $q_reference, (conv_i($transfer->{"${arap}_id"})) x 3);
 
       my ($invnumber, $num_payments) = $h_reference->fetchrow_array();
       $num_payments++;
@@ -118,11 +124,11 @@ sub create_export {
     $end_to_end_id    .= $item_id;
     $end_to_end_id     = substr $end_to_end_id, 0, 35;
 
-    my @values = ($item_id,                   $export_id,
-                  conv_i($transfer->{ap_id}), conv_i($transfer->{chart_id}),
-                  $transfer->{amount},        conv_date($transfer->{requested_execution_date}),
-                  $transfer->{reference},     $end_to_end_id,
-                  map { my $pfx = $_; map { $transfer->{"${pfx}_${_}"} } qw(iban bic) } qw(our vendor));
+    my @values = ($item_id,                          $export_id,
+                  conv_i($transfer->{"${arap}_id"}), conv_i($transfer->{chart_id}),
+                  $transfer->{amount},               conv_date($transfer->{requested_execution_date}),
+                  $transfer->{reference},            $end_to_end_id,
+                  map { my $pfx = $_; map { $transfer->{"${pfx}_${_}"} } qw(iban bic) } qw(our vc));
 
     do_statement($form, $h_insert, $q_insert, @values);
   }
@@ -143,18 +149,20 @@ sub retrieve_export {
   my $self     = shift;
   my %params   = @_;
 
-  Common::check_params(\%params, qw(id));
+  Common::check_params(\%params, qw(id vc));
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my ($joins, $columns);
 
   if ($params{details}) {
-    $columns = ', ap.invoice';
-    $joins   = 'LEFT JOIN ap ON (se.ap_id = ap.id)';
+    $columns = ', arap.invoice';
+    $joins   = "LEFT JOIN ${arap} arap ON (se.${arap}_id = arap.id)";
   }
 
   my $query =
@@ -170,10 +178,10 @@ sub retrieve_export {
     my ($columns, $joins);
 
     if ($params{details}) {
-      $columns = qq|, ap.invnumber, ap.invoice, v.name AS vendor_name, c.accno AS chart_accno, c.description AS chart_description|;
-      $joins   = qq|LEFT JOIN ap       ON (sei.ap_id    = ap.id)
-                    LEFT JOIN vendor v ON (ap.vendor_id = v.id)
-                    LEFT JOIN chart c  ON (sei.chart_id = c.id)|;
+      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, vc.name AS vc_name, c.accno AS chart_accno, c.description AS chart_description|;
+      $joins   = qq|LEFT JOIN ${arap} arap ON (sei.${arap}_id = arap.id)
+                    LEFT JOIN ${vc} vc     ON (arap.${vc}_id  = vc.id)
+                    LEFT JOIN chart c      ON (sei.chart_id   = c.id)|;
     }
 
     $query = qq|SELECT sei.*
@@ -181,6 +189,7 @@ sub retrieve_export {
                 FROM sepa_export_items sei
                 $joins
                 WHERE sei.sepa_export_id = ?|;
+
     $export->{items} = selectall_hashref_query($form, $dbh, $query, conv_i($params{id}));
 
   } else {
@@ -224,6 +233,8 @@ sub list_exports {
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
@@ -255,16 +266,16 @@ sub list_exports {
   }
 
   if ($filter->{invnumber}) {
-    push @where_sub,  "ap.invnumber ILIKE ?";
+    push @where_sub,  "arap.invnumber ILIKE ?";
     push @values_sub, '%' . $filter->{invnumber} . '%';
-    $joins_sub{ap} = 1;
+    $joins_sub{$arap} = 1;
   }
 
-  if ($filter->{vendor}) {
-    push @where_sub,  "v.name ILIKE ?";
-    push @values_sub, '%' . $filter->{vendor} . '%';
-    $joins_sub{ap}     = 1;
-    $joins_sub{vendor} = 1;
+  if ($filter->{vc}) {
+    push @where_sub,  "vc.name ILIKE ?";
+    push @values_sub, '%' . $filter->{vc} . '%';
+    $joins_sub{$arap} = 1;
+    $joins_sub{vc}    = 1;
   }
 
   foreach my $type (qw(requested_execution execution)) {
@@ -277,8 +288,8 @@ sub list_exports {
 
   if (@where_sub) {
     my $joins_sub  = '';
-    $joins_sub    .= ' LEFT JOIN ap       ON (items.ap_id  = ap.id)' if ($joins_sub{ap});
-    $joins_sub    .= ' LEFT JOIN vendor v ON (ap.vendor_id = v.id)'  if ($joins_sub{vendor});
+    $joins_sub    .= " LEFT JOIN ${arap} arap ON (items.${arap}_id = arap.id)" if ($joins_sub{$arap});
+    $joins_sub    .= " LEFT JOIN ${vc} vc      ON (arap.${vc}_id   = vc.id)"   if ($joins_sub{vc});
 
     my $where_sub  = join(' AND ', map { "(${_})" } @where_sub);
 
@@ -290,6 +301,9 @@ sub list_exports {
     push @where,  $query_sub;
     push @values, @values_sub;
   }
+
+  push @where,  'se.vc = ?';
+  push @values, $vc;
 
   my $where = ' WHERE ' . join(' AND ', map { "(${_})" } @where) if (@where);
 
@@ -322,6 +336,10 @@ sub post_payment {
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
+  my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
+  my $mult     = $params{vc} eq 'customer' ? -1         : 1;
+  my $ARAP     = uc $arap;
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
@@ -332,17 +350,17 @@ sub post_payment {
                              FROM sepa_export_items sei
                              WHERE sei.id = ?| ],
 
-    'get_ap'         => [ qq|SELECT at.chart_id
+    'get_arap'       => [ qq|SELECT at.chart_id
                              FROM acc_trans at
                              LEFT JOIN chart c ON (at.chart_id = c.id)
                              WHERE (trans_id = ?)
-                               AND ((c.link LIKE '%:AP') OR (c.link LIKE 'AP:%') OR (c.link = 'AP'))
+                               AND ((c.link LIKE '%:${ARAP}') OR (c.link LIKE '${ARAP}:%') OR (c.link = '${ARAP}'))
                              LIMIT 1| ],
 
     'add_acc_trans'  => [ qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate,       source, memo)
                              VALUES                (?,        ?,        ?,      ?,         current_date, ?,      '')| ],
 
-    'update_ap'      => [ qq|UPDATE ap
+    'update_arap'    => [ qq|UPDATE ${arap}
                              SET paid = paid + ?
                              WHERE id = ?| ],
 
@@ -374,16 +392,16 @@ sub post_payment {
 
     next if (!$orig_item);
 
-    # Retrieve the invoice's AP chart ID.
-    do_statement($form, @{ $handles{get_ap} }, $orig_item->{ap_id});
-    my ($ap_chart_id) = $handles{get_ap}->[0]->fetchrow_array();
+    # Retrieve the invoice's AR/AP chart ID.
+    do_statement($form, @{ $handles{get_arap} }, $orig_item->{"${arap}_id"});
+    my ($arap_chart_id) = $handles{get_arap}->[0]->fetchrow_array();
 
-    # Record the payment in acc_trans offsetting AP.
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{ap_id}, $ap_chart_id,           -1 * $orig_item->{amount}, $item->{execution_date}, '');
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{ap_id}, $orig_item->{chart_id},      $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference});
+    # Record the payment in acc_trans offsetting AR/AP.
+    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $arap_chart_id,         -1 * $mult * $orig_item->{amount}, $item->{execution_date}, '');
+    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $orig_item->{chart_id},      $mult * $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference});
 
     # Update the invoice to reflect the new paid amount.
-    do_statement($form, @{ $handles{update_ap} }, $orig_item->{amount}, $orig_item->{ap_id});
+    do_statement($form, @{ $handles{update_arap} }, $orig_item->{amount}, $orig_item->{"${arap}_id"});
 
     # Update the item to reflect that it has been posted.
     do_statement($form, @{ $handles{finish_item} }, $item->{execution_date}, $item_id);

@@ -504,7 +504,11 @@ sub save {
         $value = $form->parse_amount($myconfig, $form->{"lastcost_$i"});
         if ($value == $form->{"old_lastcost_$i"}) 
         {
-            $lastupdate = $dbh->quote($form->{"lastupdate_$i"});
+            if ($form->{"lastupdate_$i"} eq "") { 
+                $lastupdate = 'now()';
+            } else {
+                $lastupdate = $dbh->quote($form->{"lastupdate_$i"});
+            }
         } else {
             $lastupdate = 'now()';
         }
@@ -1467,8 +1471,8 @@ sub follow_account_chain {
 
   $form->{ACCOUNT_CHAIN_BY_ID} ||= {
     map { $_->{id} => $_ }
-      selectall_hashref_query($form, $dbh, <<SQL) };
-    SELECT c.id, c.new_chart_id, ${transdate} >= c.valid_from AS is_valid, cnew.accno
+      selectall_hashref_query($form, $dbh, <<SQL, $transdate) };
+    SELECT c.id, c.new_chart_id, date(?) >= c.valid_from AS is_valid, cnew.accno
     FROM chart c
     LEFT JOIN chart cnew ON c.new_chart_id = cnew.id
     WHERE NOT c.new_chart_id IS NULL AND (c.new_chart_id > 0)
@@ -1518,7 +1522,7 @@ sub retrieve_accounts {
   if ($transdate eq "") {
     $transdate = "current_date";
   } else {
-    $transdate = 'date(' . $dbh->quote($transdate) . ')';
+    $transdate = $dbh->quote($transdate);
   }
   #/transdate
   my $inc_exp = $form->{"vc"} eq "customer" ? "income_accno_id" : "expense_accno_id";
@@ -1551,7 +1555,7 @@ SQL
     WHERE t.id IN
       (SELECT tk.tax_id
        FROM taxkeys tk
-       WHERE tk.chart_id = ? AND startdate <= ${transdate}
+       WHERE tk.chart_id = ? AND startdate <= ?
        ORDER BY startdate DESC LIMIT 1)
 SQL
 
@@ -1569,7 +1573,7 @@ SQL
 
     $form->{"${_}_accno_$index"} = $accounts{"${_}_accno"} for qw(inventory income expense);
 
-    $sth_tax->execute($accounts{$inc_exp});
+    $sth_tax->execute($accounts{$inc_exp}, quote_db_date($transdate));
     $ref = $sth_tax->fetchrow_hashref or next;
 
     $form->{"taxaccounts_$index"} = $ref->{"accno"};

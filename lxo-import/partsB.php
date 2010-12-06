@@ -56,7 +56,7 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
     //DB und LxO müssen ja nicht auf der gleichen Maschine sein.
     if($tmpcode<>$db->getClientCode()) {
         $rc = $db->setClientCode($tmpcode);
-    } 
+    }
 
     // Zeichenkodierung File
     if ($_POST["encoding"] == "auto") {
@@ -83,7 +83,7 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
         echo $header;
         echo "<br><br>Die erste Zeile enth&auml;lt die Feldnamen der Daten in ihrer richtigen Reihenfolge<br>";
         echo "Geben Sie das Trennzeichen der Datenspalten ein. Steuerzeichen k&ouml;nnen mit ihrem Dezimalwert ";
-        echo "gef&uuml;hrt von einem &quot;#&quot; eingegebn werden (#11).<br><br>"; 
+        echo "gef&uuml;hrt von einem &quot;#&quot; eingegebn werden (#11).<br><br>";
         echo "Wird bei &quot;Art&quot; in der Maske &quot;gemischt&quot; gew&auml;hlt, muss die Spalte &quot;art&quot; vor der Einheit stehen.<br><br>";
         echo "Der &quot;sellprice&quot; kann um den eingegeben Wert  ge&auml;ndert werden.<br><br>";
         echo "Bei vorhandenen Artikelnummern (in der db), kann entweder ein Update auf den Preis (und Text) durchgef&uuml;hrt werden oder ";
@@ -92,7 +92,8 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
         echo "Dazu mu&szlig; entweder in der Maske eine Standardbuchungsgruppe gew&auml;hlt werden <br>";
         echo "oder es wird ein g&uuml;ltiges Konto in 'income_accno_id' und 'expense_accno_id' eingegeben. ";
         echo "Das Programm versucht dann eine passende Buchungsgruppe zu finden.<br>";
-	echo "Preisgruppen müssen zunächst angelegt werden. Die Spalten für die Preisgruppen beginnen mit 'pg_' gefolgt vom Preisgruppenname.";
+	    echo "Preisgruppen müssen zunächst angelegt werden. Die Spalten für die Preisgruppen beginnen mit 'pg_' gefolgt vom Preisgruppenname.<br>";
+        echo "Wenn eine Datei <code>users/partshead.csv</code> existiert, wird die erste Zeile aus dieser benutzt um das Format zu bestimmen. Die erste Zeile aus der eigentlichen Importdatei wird dann ignoriert.<br>";
         exit(0);
     };
 
@@ -129,7 +130,7 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
         $_POST["ware"] = "W";             // Ist ein Artikel
         $_POST["encoding"] = "";
     } else {
-            
+
         /* no data? */
         if (empty($_FILES["Datei"]["name"]))
             ende ("Kein Datenfile angegeben");
@@ -150,15 +151,15 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
             };
         } else if (!move_uploaded_file($_FILES["Datei"]["tmp_name"],$dir.$file.".csv")) {
             ende ("Upload von Datei fehlerhaft.".$_FILES["Datei"]["error"]);
-        }; 
+        };
     }
 
     /* check if file is really there */
-    if (!file_exists($dir.$file.'.csv') or filesize($dir.$file.'.csv')==0) 
+    if (!file_exists($dir.$file.'.csv') or filesize($dir.$file.'.csv')==0)
         ende("Datenfile ($file.csv) nicht im Ordner gefunden oder leer");
 
     /* Zu diesem Zeitpunkt wurde der Artikel Importiert */
-    if (!$db->chkcol($file)) 
+    if (!$db->chkcol($file))
         ende("Importspalte konnte nicht angelegt werden");
 
     /* just print data or insert it, if test is false */
@@ -178,22 +179,22 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
 <table>
 <tr><td><input type="submit" name="ok" value="Hilfe"></td><td></td></tr>
 <tr><td>Trennzeichen</td><td>
-        <input type="radio" name="trenner" value=";" checked>Semikolon 
-        <input type="radio" name="trenner" value=",">Komma 
+        <input type="radio" name="trenner" value=";" checked>Semikolon
+        <input type="radio" name="trenner" value=",">Komma
         <input type="radio" name="trenner" value="#9" checked>Tabulator
         <input type="radio" name="trenner" value=" ">Leerzeichen
-        <input type="radio" name="trenner" value="other"> 
-        <input type="text" size="2" name="trennzeichen" value=""> 
+        <input type="radio" name="trenner" value="other">
+        <input type="text" size="2" name="trennzeichen" value="">
 </td></tr>
-<tr><td>VK-Preis<br>Nachkomma:</td><td><input type="Radio" name="precision" value="0">0  
-            <input type="Radio" name="precision" value="1">1 
-            <input type="Radio" name="precision" value="2" checked>2 
-            <input type="Radio" name="precision" value="3">3 
-            <input type="Radio" name="precision" value="4">4 
-            <input type="Radio" name="precision" value="5">5 
+<tr><td>VK-Preis<br>Nachkomma:</td><td><input type="Radio" name="precision" value="0">0
+            <input type="Radio" name="precision" value="1">1
+            <input type="Radio" name="precision" value="2" checked>2
+            <input type="Radio" name="precision" value="3">3
+            <input type="Radio" name="precision" value="4">4
+            <input type="Radio" name="precision" value="5">5
     </td></tr>
-<tr><td>VK-Preis<br>Aufschlag:</td><td><input type="text" name="quotation" size="5" value="0"> 
-            <input type="radio" name="quottype" value="P" checked>% 
+<tr><td>VK-Preis<br>Aufschlag:</td><td><input type="text" name="quotation" size="5" value="0">
+            <input type="radio" name="quottype" value="P" checked>%
             <input type="radio" name="quottype" value="A">Absolut</td></tr>
 <tr><td>Vorhandene<br>Artikelnummer:</td><td><input type="radio" name="update" value="U" checked>Preis update durchf&uuml;hren<br>
                     <input type="radio" name="update" value="I">mit neuer Nummer einf&uuml;gen</td></tr>
@@ -202,6 +203,8 @@ if ($_POST["ok"] || $_GET["cron"]=="1") {
 <tr><td>Textupdate</td><td><input type="checkbox" name="TextUpd" value="1">ja</td></tr>
 <tr><td>Warengruppen<br>verbinder</td><td><input type="text" name="wgtrenner" value="!" size="3"></td></tr>
 <tr><td>Shopartikel<br />falls nicht &uuml;bergeben</td><td><input type="radio" name="shop" value="t">ja <input type="radio" name="shop" value="f" checked>nein</td></tr>
+<tr><td>Eintrag in<br />Makemodel ist</td><td><input type="radio" name="vendnr" value="t">Lieferantennummer <input type="radio" name="vendnr" value="f" checked>Lieferantenname</td></tr>
+<tr><td>auch ohne<br />Model-Nr.</td><td><input type="radio" name="modnr" value="t">ja <input type="radio" name="modnr" value="f" checked>nein</td></tr>
 <tr><td>Art</td><td><input type="Radio" name="ware" value="W" checked>Ware &nbsp; 
             <input type="Radio" name="ware" value="D">Dienstleistung
             <input type="Radio" name="ware" value="G">gemischt (Spalte 'art' vorhanden)</td></tr>

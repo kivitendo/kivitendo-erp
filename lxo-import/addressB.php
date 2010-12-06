@@ -69,11 +69,10 @@ if (!$file) ende ("Kein Datenfile");
 $trenner=($_POST["trenner"])?$_POST["trenner"]:",";
 if ($trenner=="other") {
     $trenner=trim($trennzeichen);
-    if (substr($trenner,0,1)=="#") if (strlen($trenner)>1) $trenner=chr(substr($trenner,1));
 } 
+if (substr($trenner,0,1)=="#") if (strlen($trenner)>1) $trenner=chr(substr($trenner,1));
 
 if (!file_exists($dir.$file.".csv")) ende("$file.csv nicht im Ordner oder leer");
-
 
 if (!$db->chkcol($file)) ende("Importspalte kann nicht angelegt werden");
 
@@ -114,18 +113,54 @@ $kunde_fld = array_keys($address);
          }
     }
 
+function chkBusiness($data,$id=true) {
+global $db;
+    if ($id) {
+        $rs = $db->getAll("select id from business where id =$data");
+    } else {
+        $rs = $db->getAll("select id from business where decription ilike '$data'");
+    }
+    if ($rs[0]["id"]) {
+        return $rs[0]["id"];
+    } else {
+        return "null";
+    }
+}
+
+function chkSalesman($data,$id=true) {
+global $db;
+    if ($id) {
+        $rs = $db->getAll("select id from employee where id =$data");
+    } else {
+        $rs = $db->getAll("select id from employee where login ilike '$data'");
+    }
+    if ($rs[0]["id"]) {
+        return $rs[0]["id"];
+    } else {
+        return "null";
+    }
+}
+
 $f=fopen($dir.$file.".csv","r");
 $zeile=fgets($f,1200);
 $infld=explode($trenner,strtolower($zeile));
 $first=true;
 $ok=true;
+$p=0;
 foreach ($infld as $fld) {
     $fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
-    if ($fld=="branche" && !$crm) { $in_fld[]=""; continue; };
-    if ($fld=="sw" && !$crm) { $in_fld[]=""; continue; };
-    $in_fld[]=$fld;
+    if (in_array($fld,$kunde_fld)) {
+        if ($fld=="branche" && !$crm) {  continue; };
+        if ($fld=="sw" && !$crm) {  continue; };
+        $in_fld[$fld]=$p;
+        //$fldpos[$fld]=$p;
+        //$in_fld[]=$fld;
+    }
+    $p++;
 }
-
+$infld = array_keys($in_fld);
+$infld[] = "import";
+$infld = implode(",",$infld);
 $j=0;
 $m=0;
 $zeile=fgetcsv($f,1200,$trenner);
@@ -135,16 +170,75 @@ if ($ok) while (!feof($f)){
     $anrede="";
     $Matchcode="";
     $sql="insert into $file ";
-    $keys="(";
-    $vals=" values (";
+    $keys=array();
+    $vals=array();
     $number=false;
-    foreach($zeile as $data) {
-        if (!in_array(trim($in_fld[$i]),$kunde_fld)) {
-            if ($in_fld[$i]=="anrede") {  $anrede=addslashes(trim($data)); }
-            $i++;
-            continue;
-        };
-        $data=trim($data);
+    //foreach($zeile as $data) {
+    
+    foreach($in_fld as $fld => $pos) {
+        switch ($fld) {
+            case "name"         :
+            case "department_1" :
+            case "department_2" :
+            case "matchcode"    : 
+            case "street"       :
+            case "city"         :
+            case "notes"        :
+            case "sw"           :
+            case "branche"      :
+            case "country"      :
+            case "contact"      :
+            case "homepage"     :
+            case "email"        :
+            case "bank"         : $data = addslashes(trim($zeile[$pos]));
+                                  if (Translate) translate($data);
+            case "ustid"        : $data = strtr(trim($zeile[$pos])," ","");
+            case "bank_code"    : $data = trim($zeile[$pos]);
+            case "account_number":
+            case "greeting"     :
+            case "taxnumber"    :
+            case "zipcode"      : 
+            case "phone"        :
+            case "fax"          : $data = trim($zeile[$pos]);
+                                  $data = "'$data'";
+                                  if ($data=="''") {
+                                        $vals[] = "null";
+                                  } else {
+                                        $vals[] = $data;
+                                  }
+                                  break;
+            case "business_id"  : $vals[] = chkBusiness(trim($zeile[$pos]));
+                                  break;
+            case "salesman_id"  : $vals[] = chkSalesman(trim($zeile[$pos]));
+                                  break;
+            case "taxincluded"  : $data = strtolower(substr($zeile[$pos],0,1));
+                                  if ($data!="f" && $data!="t") { $vals[] = "'f'"; }
+                                  else { $vals[] = "'".$data."'";}
+                                  break;
+            case "taxzone_id"   : $data = trim($zeile[$pos])*1;
+                                  if ($data>3 && $data<0) $data = 0;
+                                  $vals[] = $data;
+                                  break;
+            case "creditlimit"  : 
+            case "discount"     :
+            case "terms"        : $vals[] = trim($zeile[$pos])*1;
+                                  break;
+            case "customernumber":
+            case "vendornumber" : $data = trim($zeile[$pos]);
+                                  if (empty($data) or !$data) {
+                                      $vals[] = getKdId();
+                                      $number = true;
+                                  } else {
+                                      $vals[] = chkKdId($data);
+                                      $number = true;
+                                  }
+                                  break;
+        }
+    };
+    if (!in_array("taxzone_id",$in_fld)) {
+        $in_fld[] = "taxzone_id";
+        $vals[] = 0;
+    }
         // seit 2.6 ist die DB-Kodierung UTF-8 @holger Ansonsten einmal vorher die DB-Encoding auslesen
         // Falls die Daten ISO-kodiert kommen entsprechend wandeln
         // done!
@@ -152,78 +246,26 @@ if ($ok) while (!feof($f)){
         // die blöde mb_detect... tut leider nicht immer, daher die Möglichkeit der Auswahl
         // TODO Umlaute am Anfang wurden bei meinem Test nicht übernommen (Österreich). S.a.:
         // http://forum.de.selfhtml.org/archiv/2007/1/t143904/
-
-        if (Translate) translate($data);
-
-        //$data=htmlentities($data);
-        $data=addslashes($data);
-        if ($in_fld[$i]==$file."number") {  // customernumber || vendornumber
-            if (empty($data) or !$data) {
-                $data=getKdId();
-                $number=true;
-            } else {
-                $data=chkKdId($data);
-                $number=true;
-            }
-        } else if ($in_fld[$i]=="taxincluded"){
-            $data=strtolower(substr($data,0,1));
-            if ($data!="f" && $data!="t") $data="f";
-        } else if ($in_fld[$i]=="ustid"){
-            $data=strtr($data," ","");
-        } /*else if ($in_fld[$i]=="matchcode") {
-                  $matchcode=$data;
-                  $i++;
-                  continue;
-                if ($data==false or empty($data) or !$data) {
-            if (in_array($in_fld[$i],array("name"))) {
-                $data=$matchcode;
-            }
-        }
-            }*/
-
-        $keys.=$in_fld[$i].",";
-        if ($data==false or empty($data) or !$data) {
-            $vals.="null,";
-        } else {
-            if ($in_fld[$i]=="contact"){
-                if ($anrede) {
-                    $vals.="'$anrede $data',";
-                } else {
-                    $vals.="'$data',";
-                }
-            } else {
-                $vals.="'".$data."',";
-            }
-        }
-        $i++;
-    }
-    if (!$number) {
-        $keys.=$file."number,";
-        $vals.="'".getKdId()."',";
-    }
-    if ($keys<>"(") {
-        if ($test) {
+    if ($test) {
             if ($first) {
-                echo "<table border='1'>\n";
-                echo "<tr><th>".str_replace(",","</th><th>",substr($keys,1,-1))."</th></tr>\n";
+                echo "<table border='1'>\n<tr><td>";
+                echo implode('</th><th>',array_keys($in_fld));
+                echo "</td></tr>\n";
                 $first=false;
             };
-            $vals=str_replace("',","'</td><td>",substr($vals,9,-1));
-            echo "<tr><td>".str_replace("null,","null</td><td>",$vals)."</td></tr>\n";
+            echo "<tr><td>";
+            echo implode('</td><td>',$vals);
+            echo "</td></tr>\n";
             //echo "Import $j<br>\n";
             flush();
-        } else {
-            $sql.=$keys."taxzone_id,import)";
-            $sql.=$vals."0,$nun)";
-            $rc=$db->query($sql);
-            if (!$rc) echo "Fehler: ".$sql."<br>";
-        }
-        $j++;
     } else {
-          $vals=str_replace("',","'</td><td>",substr($vals,9,-1));
-          echo "<tr><td style=\"color:red\">".str_replace("null,","null</td><td style=\"color:red\">",$vals)."</td></tr>\n";
-          flush();
-        }
+            $vals[] = $nun;
+            $sql = "INSERT INTO $file (".$infld.") values (".implode(",",$vals).")";
+            $rc=$db->query($sql);
+            if ($j % 10 == 0) { echo "."; flush(); };
+            if (!$rc) {  echo "<br />Fehler: ".$sql."<br />"; flush(); };
+    }
+    $j++;
     $zeile=fgetcsv($f,1200,$trenner);
 }
 fclose($f);

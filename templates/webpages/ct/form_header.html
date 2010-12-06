@@ -147,6 +147,16 @@
       </th>
       <td><input name="homepage" size="45" title="[% 'Example: http://lx-office.org' | $T8 %]" value="[% HTML.escape(homepage) %]"></td>
      </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Username' | $T8 %]</th>
+      <td><input name="username" size="45" value="[% HTML.escape(username) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Password' | $T8 %]</th>
+      <td><input name="user_password" size="45" value="[% HTML.escape(user_password) %]"></td>
+     </tr>
     </table>
 
     <table>
@@ -199,15 +209,6 @@
       <th align="right">[% 'BIC' | $T8 %]</th>
       <td><input name="bic" size="10" maxlength="100" value="[% HTML.escape(bic) %]"></td>
      </tr>
-
-     [%- IF conf_vertreter %]
-      <tr>
-       <th align="right">[% 'Username' | $T8 %]</th>
-       <td><input name="username" maxlength="50" value="[% HTML.escape(username) %]"></td>
-       <th align="right">[% 'Password' | $T8 %]</th>
-       <td><input name="user_password" value="[% HTML.escape(user_password) %]"></td>
-      </tr>
-     [%- END %]
 
      <tr>
       [% UNLESS conf_vertreter %]

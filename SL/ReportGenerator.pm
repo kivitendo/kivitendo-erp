@@ -425,7 +425,7 @@ sub generate_pdf_content {
   my (@data, @column_props, @cell_props);
 
   my ($data_row, $cell_props_row);
-  my @visible_columns = $self->get_visible_columns('HTML');
+  my @visible_columns = $self->get_visible_columns('PDF');
   my $num_columns     = scalar @visible_columns;
   my $num_header_rows = 1;
 

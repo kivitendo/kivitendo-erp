@@ -128,11 +128,13 @@ function updParts($db,$insert,$show,$partnumber,$lastcost,$sellprice,$listprice,
     return $rc;
 }
 
-function getMakemodel($db,$check,$hersteller,$model,$partsid,$add=true) {
+function getMakemodel($db,$check,$hersteller,$model,$partsid,$lastcost,$add=true) {
     $sql="select * from makemodel where make = $hersteller and model = '$model' and parts_id = $partsid";
     $rs=$db->getAll($sql);
     if (empty($rs[0]["id"]) && $add) {
-        $sql="insert into makemodel (parts_id,make,model) values ($partsid,'$hersteller','$model')";    
+        if (!$lastcost) $lastcost=0.00;
+        $sql="insert into makemodel (parts_id,make,model,lastcost,lastupdate,sortorder) ";
+        $sql.="values ($partsid,'$hersteller','$model',$lastcost,now(),1)";    
         $rc=$db->query($sql);
     }
 }
@@ -251,6 +253,8 @@ function import_parts($db, $file, $fields, $check, $maske) {
     $wgtrenner=$maske["wgtrenner"];
     $Update=($maske["update"]=="U")?true:false;
     $UpdText=($maske["TextUpd"]=="1")?true:false;
+    $vendnr=($maske["vendnr"]=="t")?true:false;
+    $modnr=($maske["modnr"]=="t")?true:false;
 
     //$stdunitW=getStdUnit($db,"dimension");
     //$stdunitD=getStdUnit($db,"service");
@@ -293,12 +297,12 @@ function import_parts($db, $file, $fields, $check, $maske) {
      */
     if ($show) {
         show('<tr>',false);
-        show("partnumber"); show("lastcost");   show("sellprice");	show("listprice");
-        show("description");show("notes");      show("ean");
-        show("weight");     show("image");      show("partsgroup_id");
-        show("bg");         show("income_accno"); show("expense_accno");
-        show("inventory_accno"); show("microfiche");show("drawing");show("rop");
-        show("assembly");show("makemodel");  show("shop"); show("");
+        show("partnumber");     show("lastcost");       show("sellprice");	show("listprice");
+        show("description");    show("notes");          show("ean");
+        show("weight");         show("image");          show("partsgroup_id");
+        show("bg");             show("income_accno");   show("expense_accno");
+        show("inventory_accno"); show("microfiche");    show("drawing");
+        show("rop");            show("assembly");       show("makemodel");  show("shop"); show("");
         show("</tr>\n",false);
     }
 
@@ -342,8 +346,8 @@ function import_parts($db, $file, $fields, $check, $maske) {
   	        foreach ($prices as $pkey=>$val) {
                 if (array_key_exists($pkey,$fldpos))  
     		        $pricegroup[$val] = str_replace(",", ".", $zeile[$fldpos[$pkey]]);
-	    }
-	}
+            }
+        }
         if ($quotation<>0) {
             if ($quottype=="A") { $sellprice += $quotation; }
             else { $sellprice = $sellprice * $quotation; }
@@ -383,30 +387,37 @@ function import_parts($db, $file, $fields, $check, $maske) {
                 $partsgroup_id = getPartsgroupId($db, $pgname, $insert);
         }
 
-        /* sind Hersteller und Modelnummer hinterlegt 
-            wenn ja, erfolgt er insert später */
-        $makemodel = 'f';
-        if (!empty($zeile[$fldpos["makemodel"]]) and !$artikel) { 
-            $mm = $zeile[$fldpos["makemodel"]];
-            if (Translate) translate($mm);
-            $hersteller=suchFirma("vendor",$mm);
-            $hersteller=$hersteller["cp_cv_id"];
-            if (!empty($zeile[$fldpos["model"]])) {
-                $mo = $zeile[$fldpos["model"]];
-                if (Translate) translate($mo);
-                $model = $mo;
-                $makemodel = 't';
-            } else { 
-                unset($hersteller);
-                $makemodel = 'f';
-            }
-        }
-
         /* Ware oder Dienstleistung */
         if (($maske["ware"]=="G" and strtoupper($zeile[$fldpos["art"]])=="D") or $maske["ware"]=="D") { 
             $artikel = false; 
         } else if (($maske["ware"]=="G" and strtoupper($zeile[$fldpos["art"]])=="W") or $maske["ware"]=="W") { 
             $artikel = true;
+        }
+
+        /* sind Hersteller und Modelnummer hinterlegt 
+            wenn ja, erfolgt er insert später */
+        $makemodel = 'f';
+        if (!empty($zeile[$fldpos["makemodel"]]) and $artikel) { 
+            $mm = $zeile[$fldpos["makemodel"]];
+            if (Translate) translate($mm);
+            if ($vendnr) {
+                $hersteller=getFirma($mm,"vendor");
+            } else {
+                $hersteller=suchFirma("vendor",$mm);
+                $hersteller=$hersteller["cp_cv_id"];
+            }
+            if (!empty($zeile[$fldpos["model"]]) and $hersteller>0) {
+                $mo = $zeile[$fldpos["model"]];
+                if (Translate) translate($mo);
+                $model = $mo;
+                $makemodel = 't';
+            } else if ($modnr and $hersteller>0) { 
+                $model = ''; 
+                $makemodel = 't';
+            } else {
+                unset($hersteller);
+                $makemodel = 'f';
+            }
         }
 
         /* Einheit ermitteln */
@@ -523,10 +534,10 @@ function import_parts($db, $file, $fields, $check, $maske) {
                     "rop"=>$rop,"assembly"=>$assembly,
                     "shop"=>$shop,"makemodel"=>$makemodel),$pricegroup
                 );
-        if ($hersteller>0 && $model) {
+        if ($hersteller>0 ) { // && $model) {
             $partsid=getPartsid($db,$zeile[$fldpos["partnumber"]]);
-            if ($partsid) {
-                getMakemodel($db,$check,$hersteller,$model,$partsid,true);
+            if ($partsid) { 
+                getMakemodel($db,$check,$hersteller,$model,$partsid,$lastcost,true);
             }
         }
         unset($zeile);
