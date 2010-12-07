@@ -3,7 +3,7 @@
 
  <form method=post name="search" action=[% script %]>
 
-  <table width=100%>
+  <table width=100% border="0">
   <tr><th class=listtop>[% title %]</th></tr>
   <tr height="5"></tr>
   <tr>
@@ -72,6 +72,25 @@
             -%]
       </td>
      </tr>
+    [% IF SHOW_BUSINESS_TYPES %]
+     <tr>
+      <th align="right" nowrap>[% 'Customer type' | $T8 %]</th>
+      <td colspan="3">
+          [%- INCLUDE 'generic/multibox.html'
+                 name          =  'business_id',
+                 style         = "width: 250px",
+                 DATA          =  ALL_BUSINESS_TYPES,
+                 id_key        = 'id',
+                 label_key     = 'description',
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 0,
+            -%]
+
+        </select>
+      </td>
+     </tr>
+    [% END %]
      <tr>
       <th align=right nowrap>[% 'From' | $T8 %]</th>
       <td>

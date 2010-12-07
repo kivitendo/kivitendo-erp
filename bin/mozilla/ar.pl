@@ -1275,9 +1275,12 @@ sub search {
   $form->{title}    = $locale->text('AR Transactions');
   $form->{jsscript} = 1;
 
-  $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "departments"  => "ALL_DEPARTMENTS",
-                   "customers"    => "ALL_VC");
+  # Auch in Rechnungsübersicht nach Kundentyp filtern - jan
+  $form->get_lists("projects"       => { "key" => "ALL_PROJECTS", "all" => 1 },
+                   "departments"    => "ALL_DEPARTMENTS",
+                   "customers"      => "ALL_VC",
+                   "business_types" => "ALL_BUSINESS_TYPES");
+  $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
   # constants and subs for template
   $form->{jsscript}  = 1;
