@@ -10,13 +10,15 @@ our @EXPORT = qw(translated_attribute save_attribute_translation);
 use Carp;
 
 sub translated_attribute {
-  my ($self, $attribute, $language_id, %params) = @_;
+  my ($self, $attribute, $language_id, $verbatim) = @_;
 
-  $language_id      = _check($self, $attribute, $language_id);
+  $language_id      = _check($self, $attribute, $language_id, $verbatim);
   my $translation   = _find_translation($self, $attribute, $language_id, 0);
-  $translation    ||= _find_translation($self, $attribute, undef,        0);
+  $translation    ||= _find_translation($self, $attribute, undef,        0) unless $verbatim;
 
-  return $translation ? $translation->translation : $self->$attribute;
+  return $translation ? $translation->translation
+       : $verbatim    ? undef
+       :                $self->$attribute;
 }
 
 sub save_attribute_translation {
@@ -28,10 +30,10 @@ sub save_attribute_translation {
 }
 
 sub _check {
-  my ($self, $attribute, $language_id) = @_;
+  my ($self, $attribute, $language_id, $verbatim) = @_;
 
   croak "Invalid attribute '${attribute}'" unless $self->can($attribute);
-  croak "Object has not been saved yet"    unless $self->id;
+  croak "Object has not been saved yet"    unless $self->id || $verbatim;
 
   return ref($language_id) eq 'SL::DB::Language' ? $language_id->id : $language_id;
 }
@@ -78,17 +80,18 @@ Usage:
 
 =over 4
 
-=item C<translated_attribute $attribute, $language_id>
+=item C<translated_attribute $attribute, $language_id, $verbatim>
 
 Returns the translation stored for the attribute C<$attribute> and the
 language C<$language_id> (either an ID or an instance of
 L<SL::DB::Language>).
 
-If no translation exists for C<$language_id> or if C<$language_id> is
-undefined then the default translation is looked up.
+If C<$verbatim> is falsish and either no translation exists for
+C<$language_id> or if C<$language_id> is undefined then the default
+translation is looked up.
 
-If neither translation exists then the value of C<< $self->$attribute >>
-is returned.
+If C<$verbatim> is falsish and neither translation exists then the
+value of C<< $self->$attribute >> is returned.
 
 Requires that C<$self> has a primary ID column named C<id> and that
 the object has been saved.
