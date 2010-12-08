@@ -146,7 +146,7 @@ sub invoice_transactions {
 
   my @options;
   if ($form->{description}) {
-    push @options, $locale->text('description') . " : $form->{description}";
+    push @options, $locale->text('Description') . " : $form->{description}";
   }
   if ($form->{customer}) {
     push @options, $locale->text('Customer') . " : $form->{customername}";
@@ -185,7 +185,7 @@ sub invoice_transactions {
   $report->set_options('top_info_text'        => join("\n", @options),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
-                       'attachment_basename'  => $locale->text('sales_report') . strftime('_%Y%m%d', localtime time),
+                       'attachment_basename'  => $locale->text('Sales Report') . strftime('_%Y%m%d', localtime time),
     );
   $report->set_options_from_form();
 

@@ -332,7 +332,7 @@ sub account_header {
 
   my %charttype = (
       'A'  => $locale->text('Account'),
-      'H'  => $locale->text('Header'),
+      'H'  => $locale->text('Heading'),
   );
 
   foreach my $item ( sort({ $a <=> $b } keys %charttype) ) {
