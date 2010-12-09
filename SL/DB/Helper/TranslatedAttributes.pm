@@ -38,7 +38,7 @@ sub _check {
   croak "Invalid attribute '${attribute}'" unless $self->can($attribute);
   croak "Object has not been saved yet"    unless $self->id || $verbatim;
 
-  return ref($language_id) eq 'SL::DB::Language' ? $language_id->id : $language_id;
+  return (ref($language_id) eq 'SL::DB::Language' ? $language_id->id : $language_id) || undef;
 }
 
 sub _find_translation {
