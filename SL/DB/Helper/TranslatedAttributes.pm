@@ -12,13 +12,16 @@ use Carp;
 sub translated_attribute {
   my ($self, $attribute, $language_id, $verbatim) = @_;
 
-  $language_id      = _check($self, $attribute, $language_id, $verbatim);
-  my $translation   = _find_translation($self, $attribute, $language_id, 0);
-  $translation    ||= _find_translation($self, $attribute, undef,        0) unless $verbatim;
+  $language_id        = _check($self, $attribute, $language_id, $verbatim);
+  my $translation_obj = _find_translation($self, $attribute, $language_id, 0);
+  my $translation     = $translation_obj ? $translation_obj->translation : '';
 
-  return $translation ? $translation->translation
-       : $verbatim    ? undef
-       :                $self->$attribute;
+  return $translation if $verbatim || $translation;
+
+  $translation_obj = _find_translation($self, $attribute, undef, 0);
+  $translation     = $translation_obj ? $translation_obj->translation : '';
+
+  return $translation || $self->$attribute;
 }
 
 sub save_attribute_translation {
