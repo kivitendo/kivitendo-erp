@@ -626,7 +626,9 @@ sub post {
   }
 
   # Beim Aktualisieren wird das Konto übernommen
-  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&type=$form->{type}&account=$form->{account}&$form->{currency}";
+  # und jetzt auch Beleg und Datum
+  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&type=$form->{type}&account=$form->{account}&$form->{currency}" . 
+                      "&datepaid=$form->{datepaid}&source=$form->{source}";
 
   my $msg1 = "$form->{origtitle} posted!";
   my $msg2 = "Cannot post $form->{origtitle}!";
