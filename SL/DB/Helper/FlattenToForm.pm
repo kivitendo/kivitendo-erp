@@ -65,7 +65,6 @@ sub flatten_to_form {
   }
 
   _copy_custom_variables($self, $form, 'vc_cvar_', '');
-  # TODO: CustomVariables
 
   return $self;
 }
