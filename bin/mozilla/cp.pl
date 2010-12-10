@@ -34,6 +34,8 @@
 use SL::CP;
 use SL::IS;
 use SL::IR;
+use SL::AR;
+use SL::AP;
 use strict ("vars", "subs");
 #use warnings;
 
@@ -238,6 +240,10 @@ sub form_header {
                 <input type=hidden name="select$form->{vc}" value="| . H($form->{"select$form->{vc}"}) . qq|">
                 <input type=hidden name="$form->{vc}_id" value="|    . H($form->{"$form->{vc}_id"}) . qq|">
                 <input type=hidden name="old$form->{vc}" value="|    . H($form->{"old$form->{vc}"}) . qq|">
+              </tr>
+              <tr>
+                <th align=right>| . $locale->text('Invoice Number') . qq|</th>
+                <td><input name="invnumber" size="35"</td>
               </tr>
               <tr valign=top>
                 <th align=right nowrap>| . $locale->text('Address') . qq|</th>
@@ -518,7 +524,19 @@ sub update {
       }
     }
   }
-
+  # Falls Suche über Rechnungsnummer und kein Kundenname vorhanden
+  if ($form->{invnumber} && !($form->{$form->{vc}})){
+  $form->{open} ='Y'; # nur die offenen rechnungen
+  if ($form->{ARAP} eq 'AR'){
+    AR->ar_transactions(\%myconfig, \%$form);
+    # den ersten treffen nehmen und mit dem namen überschreiben
+    $form->{$form->{vc}} = $form->{AR}[0]{name};
+  } else {
+    # s.o. nur für zahlungsausgang
+    AP->ap_transactions(\%myconfig, \%$form);
+    $form->{$form->{vc}} = $form->{AP}[0]{name};
+    }
+  }
   # get customer and invoices
   $updated = &check_name($form->{vc});
 
