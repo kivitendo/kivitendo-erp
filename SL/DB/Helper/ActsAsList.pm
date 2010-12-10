@@ -39,9 +39,11 @@ sub move_position_down {
 
 sub set_position {
   my ($self) = @_;
-  if (!defined $self->position) {
-    my $max_position = $self->db->dbh->selectrow_arrayref(qq|SELECT COALESCE(max(position), 0) FROM | . $self->meta->table)->[0];
-    $self->position($max_position + 1);
+  my $column = column_name($self);
+
+  if (!defined $self->$column) {
+    my $max_position = $self->db->dbh->selectrow_arrayref(qq|SELECT COALESCE(max(${column}), 0) FROM | . $self->meta->table)->[0];
+    $self->$column($max_position + 1);
   }
 
   return 1;
@@ -49,11 +51,12 @@ sub set_position {
 
 sub remove_position {
   my ($self) = @_;
+  my $column = column_name($self);
 
   $self->load;
-  if (defined $self->position) {
-    $self->_get_manager_class->update_all(set   => { position => \'position - 1' },
-                                          where => [ position => { gt => $self->position } ]);
+  if (defined $self->$column) {
+    $self->_get_manager_class->update_all(set   => { $column => \"${column} - 1" },
+                                          where => [ $column => { gt => $self->$column } ]);
   }
 
   return 1;
@@ -61,19 +64,25 @@ sub remove_position {
 
 sub do_move {
   my ($self, $direction) = @_;
+  my $column             = column_name($self);
 
   croak "Object has not been saved yet" unless $self->id;
-  croak "No position set yet"           unless defined $self->position;
+  croak "No position set yet"           unless defined $self->$column;
 
   my ($comp_sql, $comp_rdbo, $min_max, $plus_minus) = $direction eq 'up' ? ('<', 'ge', 'max', '+') : ('>', 'le', 'min', '-');
 
-  my $new_position = $self->db->dbh->selectrow_arrayref(qq|SELECT ${min_max}(position) FROM | . $self->meta->table . qq| WHERE position ${comp_sql} | . $self->position)->[0];
+  my $new_position = $self->db->dbh->selectrow_arrayref(qq|SELECT ${min_max}(${column}) FROM | . $self->meta->table . qq| WHERE ${column} ${comp_sql} | . $self->$column)->[0];
 
   return undef unless defined $new_position;
 
-  $self->_get_manager_class->update_all(set   => { position => $self->position },
-                                        where => [ position => $new_position ]);
-  $self->update_attributes(position => $new_position);
+  $self->_get_manager_class->update_all(set   => { $column => $self->$column },
+                                        where => [ $column => $new_position ]);
+  $self->update_attributes($column => $new_position);
+}
+
+sub column_name {
+  my ($self) = @_;
+  return $self->can('sortkey') ? 'sortkey' : 'position';
 }
 
 1;
@@ -85,7 +94,8 @@ __END__
 
 =head1 NAME
 
-SL::DB::Helper::ActsAsList - Mixin for managing ordered items by a column I<position>
+SL::DB::Helper::ActsAsList - Mixin for managing ordered items by a
+column I<position> or I<sortkey>
 
 =head1 SYNOPSIS
 
@@ -107,9 +117,10 @@ SL::DB::Helper::ActsAsList - Mixin for managing ordered items by a column I<posi
   $obj->delete
 
 This mixin assumes that the mixing package's table contains a column
-called C<position>. This column is set automatically upon saving the
-object if it hasn't been set already. If it hasn't then it will be set
-to the maximum position used in the table plus one.
+called C<position> or C<sortkey> (for legacy tables). This column is
+set automatically upon saving the object if it hasn't been set
+already. If it hasn't then it will be set to the maximum position used
+in the table plus one.
 
 When the object is deleted all positions greater than the object's old
 position are decreased by one.
