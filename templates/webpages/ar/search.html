@@ -50,6 +50,37 @@
       <td colspan=3><input name=ordnumber size=20></td>
      </tr>
      <tr>
+      <th align="right">[% 'Employee' | $T8 %]</th>
+      <td>
+             [%- INCLUDE 'generic/multibox.html'
+                  name          = 'employee_id',
+                  style         = 'width: 250px',
+                  DATA          =  ALL_EMPLOYEES,
+                  id_key        = 'id',
+                  label_sub     = 'employee_labels',
+                  limit         = vclimit,
+                  show_empty    = 1,
+                  allow_textbox = 0,
+                  default       = ' ',
+             -%]
+      </td>
+     </tr>
+    <tr>
+     <th align="right">[% 'Salesman' | $T8 %]</th>
+     <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'salesman_id',
+                 style         = 'width: 250px',
+                 DATA          =  ALL_SALESMEN,
+                 id_key        = 'id',
+                 label_sub     = 'salesman_labels',
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 0,
+            -%]
+     </td>
+     </tr>
+     <tr>
       <th align=right nowrap>[% 'Transaction description' | $T8 %]</th>
       <td colspan=3><input name=transaction_description size=40></td>
      </tr>

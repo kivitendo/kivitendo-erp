@@ -490,10 +490,21 @@ sub ar_transactions {
     }
   }
 
- if (!$main::auth->assert('sales_all_edit', 1)) {
+  if (!$main::auth->assert('sales_all_edit', 1)) {
+    # only show own invoices
     $where .= " AND a.employee_id = (select id from employee where login= ?)";
     push (@values, $form->{login});
-  }
+  } else {
+    if ($form->{employee_id}) {
+      $where .= " AND a.employee_id = ?";
+      push @values, conv_i($form->{employee_id});
+    }
+    if ($form->{salesman_id}) {
+      $where .= " AND a.salesman_id = ?";
+      push @values, conv_i($form->{salesman_id});
+    }
+  };
+
   my @a = qw(transdate invnumber name);
   push @a, "employee" if $form->{l_employee};
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';

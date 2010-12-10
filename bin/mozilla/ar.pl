@@ -1279,12 +1279,16 @@ sub search {
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS", "all" => 1 },
                    "departments"    => "ALL_DEPARTMENTS",
                    "customers"      => "ALL_VC",
+                   "employees"    => "ALL_EMPLOYEES",
+                   "salesmen"     => "ALL_SALESMEN",
                    "business_types" => "ALL_BUSINESS_TYPES");
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
   # constants and subs for template
   $form->{jsscript}  = 1;
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
+  $form->{employee_labels} = sub { $_[0]->{"name"} || $_[0]->{"login"} };
+  $form->{salesman_labels} = $form->{employee_labels};
 
   $form->header;
   print $form->parse_html_template('ar/search', { %myconfig });
