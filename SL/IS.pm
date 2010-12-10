@@ -1251,7 +1251,7 @@ sub cogs {
   my $transdate  = $form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
   my $taxzone_id = $form->{"taxzone_id"} * 1;
   my $query =
-    qq|SELECT i.id, i.trans_id, i.base_qty, i.allocated, i.sellprice,
+    qq|SELECT i.id, i.trans_id, i.base_qty, i.allocated, i.sellprice, i.price_factor,
          c1.accno AS inventory_accno, c1.new_chart_id AS inventory_new_chart, date($transdate) - c1.valid_from AS inventory_valid,
          c2.accno AS    income_accno, c2.new_chart_id AS    income_new_chart, date($transdate) - c2.valid_from AS    income_valid,
          c3.accno AS   expense_accno, c3.new_chart_id AS   expense_new_chart, date($transdate) - c3.valid_from AS   expense_valid
@@ -1277,7 +1277,7 @@ sub cogs {
 
     # total expenses and inventory
     # sellprice is the cost of the item
-    my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / ( $basefactor || 1 ), 2);
+    my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / ($ref->{price_factor} * ( $basefactor || 1 )), 2);
 
     if (!$main::eur) {
       $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};

@@ -264,7 +264,7 @@ sub _parse_config_lines {
     $comment_start = '\s*%';
   } elsif (ref $self eq 'SL::Template::HTML') {
     $comment_start = '\s*<!--';
-    $comment_end   = '>\s*';
+    $comment_end   = '(?:--)?>\s*';
   } else {
     $comment_start = '\s*\#';
   }
