@@ -3566,8 +3566,8 @@ sub prepare_for_printing {
     $extension            = 'xls';
   }
 
-  my $email_extension = '_email' if -f "$::myconfig{templates}/$self->{formname}_email$self->{language}.${extension}";
-  $self->{IN}         = "$self->{formname}${email_extension}$self->{language}.${extension}";
+  my $email_extension = '_email' if -f "$::myconfig{templates}/$self->{formname}_email${language}.${extension}";
+  $self->{IN}         = "$self->{formname}${email_extension}${language}.${extension}";
 
   # Format dates.
   $self->format_dates($output_dateformat, $output_longdates,
