@@ -137,7 +137,7 @@
     <input class="submit" type="submit" name="action_purchase_order" value="[% 'Purchase Order' | $T8 %]">
   [%- END %]
 
-  [%- IF is_sales_ord || is_pur_ord %]
+  [%- IF is_sales_ord || is_pur_ord  && !delivered%]
     <input class="submit" type="submit" name="action_delivery_order" value="[% 'Delivery Order' | $T8 %]">
   [%- END %]
 

@@ -446,6 +446,11 @@ sub ar_transactions {
     $where .= " AND c.name ILIKE ?";
     push(@values, $form->like($form->{customer}));
   }
+  if ($form->{business_id}) {
+    my $business_id = $form->{business_id};
+    $where .= " AND c.business_id = ?";
+    push(@values, $business_id);
+  }
   if ($form->{department_id}) {
     my $department_id = $form->{department_id};
     $where .= " AND a.department_id = ?";

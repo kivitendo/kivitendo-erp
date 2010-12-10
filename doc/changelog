@@ -22,6 +22,7 @@
   - FiBu -> Bericht -> Offene Forderung | Offene Verbindlichkeiten um Altersstrukturliste (30, 60, 90, 120) erweitert
   - SEPA Hinzufügen von Überweisungen um das Infofeld Fälligkeitsdatum erweitert
   - Verkaufsbericht mit Statistiken zu Margen
+  - Wenn ein Auftrag komplett geliefert ist, den Workflow-Knopf 'Lieferschein' ausblenden
 
   API Änderungen:
 
