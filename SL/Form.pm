@@ -42,6 +42,7 @@ use Data::Dumper;
 use CGI;
 use CGI::Ajax;
 use Cwd;
+use Encode;
 use IO::File;
 use SL::Auth;
 use SL::Auth::DB;
@@ -379,6 +380,7 @@ sub escape {
 
   my ($self, $str) = @_;
 
+  $str =  Encode::encode('utf-8-strict', $str) if $::locale->is_utf8;
   $str =~ s/([^a-zA-Z0-9_.-])/sprintf("%%%02x", ord($1))/ge;
 
   $main::lxdebug->leave_sub(2);
