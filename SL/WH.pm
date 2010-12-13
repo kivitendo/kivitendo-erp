@@ -109,7 +109,7 @@ sub transfer {
       );
 
       if ($unit) {
-        $qty *= $unit->factor;
+        $qty *= $unit->factor           || 1;
         $qty /= $part->unit_obj->factor || 1 if $part->unit;
       }
 
