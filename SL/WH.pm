@@ -79,7 +79,7 @@ sub transfer {
       my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
 
       my $part          = $objectify->($transfer, 'parts',         'SL::DB::Part');
-      my $unit          = $objectify->($transfer, 'unit',          'SL::DB::Unit',         unit => $transfer->{unit});
+      my $unit          = $objectify->($transfer, 'unit',          'SL::DB::Unit',         name => $transfer->{unit});
       my $qty           = $transfer->{qty};
       my $src_bin       = $objectify->($transfer, 'src_bin',       'SL::DB::Bin');
       my $dst_bin       = $objectify->($transfer, 'dst_bin',       'SL::DB::Bin');
