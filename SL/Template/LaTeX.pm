@@ -275,7 +275,7 @@ sub _parse_config_lines {
   while ($i < $num_lines) {
     my $line = $lines->[$i];
 
-    if ($line !~ m/^${comment_start}\s*config\s*:(.*)${comment_end}$/i) {
+    if ($line !~ m/^${comment_start}\s*config\s*:(.*?)${comment_end}$/i) {
       $i++;
       next;
     }
