@@ -4,7 +4,7 @@
    <td>
     <table width="100%">
      <tr class="listheading">
-[% IF is_type_credit_note %]
+[% IF is_type_credit_note || vc == 'vendor' %]
       <th colspan="6" class="listheading">[% 'Payments' | $T8 %]</th>
 [% ELSE %]
       <th colspan="6" class="listheading">[% 'Incoming Payments' | $T8 %]</th>
