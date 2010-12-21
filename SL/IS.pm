@@ -2159,4 +2159,21 @@ sub is_storno {
   return $result;
 }
 
+sub get_standard_accno_current_assets {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my $dbh = $form->dbconnect($myconfig);
+
+  my $query = qq| SELECT accno FROM chart WHERE id = (SELECT ar_paid_accno_id FROM defaults)|;
+  my ($result) = selectrow_query($form, $dbh, $query);
+
+  $dbh->disconnect();
+
+  $main::lxdebug->leave_sub();
+
+  return $result;
+}
+
 1;

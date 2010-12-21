@@ -171,7 +171,7 @@ sub invoice_links {
   foreach my $key (keys %{ $form->{AP_links} }) {
 
     foreach my $ref (@{ $form->{AP_links}{$key} }) {
-      $form->{"select$key"} .= "<option>$ref->{accno}--$ref->{description}\n";
+      $form->{"select$key"} .= "<option>$ref->{accno}--$ref->{description}</option>";
     }
 
     next unless $form->{acc_trans}{$key};
@@ -393,9 +393,17 @@ sub form_footer {
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   $form->{paid_indices} = [ 1 .. $form->{paidaccounts} ];
 
+  # Standard Konto für Umlaufvermögen
+  my $accno_arap = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
+
   for my $i (1 .. $form->{paidaccounts}) {
     $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
-    $form->{"selectAP_paid_$i"} =~ s/option>\Q$form->{"AP_paid_$i"}\E/option selected>$form->{"AP_paid_$i"}/;
+    if (!$form->{"AP_paid_$i"}) {
+      $form->{"selectAP_paid_$i"} =~ s/option>$accno_arap--(.*?)>/option selected>$accno_arap--$1>/;
+    } else {
+      $form->{"selectAP_paid_$i"} =~ s/option>\Q$form->{"AP_paid_$i"}\E/option selected>$form->{"AP_paid_$i"}/;
+    }
+
     $totalpaid += $form->{"paid_$i"};
   }
 

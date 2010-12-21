@@ -78,15 +78,21 @@ sub payment {
 
   CP->paymentaccounts(\%myconfig, \%$form);
 
+  # Standard Konto für Umlaufvermögen
+  my $accno_arap = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
+
   $form->{selectaccount} = "";
   $form->{"select$form->{ARAP}"} = "";
 
-  map { $form->{selectaccount} .= "<option>$_->{accno}--$_->{description}\n" }
-    @{ $form->{PR}{"$form->{ARAP}_paid"} };
-  map {
-    $form->{"select$form->{ARAP}"} .=
-      "<option>$_->{accno}--$_->{description}\n"
-  } @{ $form->{PR}{ $form->{ARAP} } };
+  map { $form->{selectaccount} .= "<option>$_->{accno}--$_->{description}\n";
+        $form->{account}        = "$_->{accno}--$_->{description}" if ($_->{accno} eq $accno_arap) } @{ $form->{PR}{"$form->{ARAP}_paid"} };
+
+  # Braucht man das hier überhaupt? Erstmal auskommentieren .. jan 18.12.2010
+  #  map {
+  #    $form->{"select$form->{ARAP}"} .=
+  #      "<option>$_->{accno}--$_->{description}\n"
+  #  } @{ $form->{PR}{ $form->{ARAP} } };
+  # ENDE LOESCHMICH in 2012
 
   # currencies
   # oldcurrency ist zwar noch hier als fragment enthalten, wird aber bei

@@ -116,6 +116,16 @@
       </select>
      </td>
     </tr>
+     <tr>
+     <th align="right" nowrap>[% 'Current assets account' | $T8 %]</th>
+     <td colspan="3">
+      <select name="ar_paid_accno">
+       [%- FOREACH row = ACCNOS_AR_PAID %]
+       <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
+       [%- END %]
+      </select>
+     </td>
+    </tr>
 
     <tr class="listheading">
      <th colspan="4">[% 'Miscellaneous' | $T8 %]</th>

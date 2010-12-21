@@ -1358,7 +1358,7 @@ sub save_defaults {
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
   my %accnos;
-  map { ($accnos{$_}) = split(m/--/, $form->{$_}) } qw(inventory_accno income_accno expense_accno fxgain_accno fxloss_accno);
+  map { ($accnos{$_}) = split(m/--/, $form->{$_}) } qw(inventory_accno income_accno expense_accno fxgain_accno fxloss_accno ar_paid_accno);
 
   $form->{curr}  =~ s/ //g;
   my @currencies =  grep { $_ ne '' } split m/:/, $form->{curr};
@@ -1373,6 +1373,7 @@ sub save_defaults {
         expense_accno_id   = (SELECT c.id FROM chart c WHERE c.accno = ?),
         fxgain_accno_id    = (SELECT c.id FROM chart c WHERE c.accno = ?),
         fxloss_accno_id    = (SELECT c.id FROM chart c WHERE c.accno = ?),
+        ar_paid_accno_id   = (SELECT c.id FROM chart c WHERE c.accno = ?),
         invnumber          = ?,
         cnnumber           = ?,
         sonumber           = ?,
@@ -1385,19 +1386,18 @@ sub save_defaults {
         servicenumber      = ?,
         sdonumber          = ?,
         pdonumber          = ?,
-        yearend            = ?,
         curr               = ?,
         businessnumber     = ?,
         weightunit         = ?|;
   my @values = ($accnos{inventory_accno}, $accnos{income_accno}, $accnos{expense_accno},
-                $accnos{fxgain_accno},    $accnos{fxloss_accno},
+                $accnos{fxgain_accno},    $accnos{fxloss_accno}, $accnos{ar_paid_accno},
                 $form->{invnumber},       $form->{cnnumber},
                 $form->{sonumber},        $form->{ponumber},
                 $form->{sqnumber},        $form->{rfqnumber},
                 $form->{customernumber},  $form->{vendornumber},
                 $form->{articlenumber},   $form->{servicenumber},
                 $form->{sdonumber},       $form->{pdonumber},
-                $form->{yearend},         $currency,
+                $currency,
                 $form->{businessnumber},  $form->{weightunit});
   do_query($form, $dbh, $query, @values);
 
@@ -1492,6 +1492,7 @@ sub defaultaccounts {
   $form->{defaults}{IC_expense}   = $form->{defaults}{expense_accno_id};
   $form->{defaults}{FX_gain}      = $form->{defaults}{fxgain_accno_id};
   $form->{defaults}{FX_loss}      = $form->{defaults}{fxloss_accno_id};
+  $form->{defaults}{AR_paid}      = $form->{defaults}{ar_paid_accno_id};
 
   $form->{defaults}{weightunit} ||= 'kg';
 
@@ -1570,6 +1571,24 @@ sub defaultaccounts {
     $form->{taxrates}{ $ref->{accno} }{taxnumber}   = $ref->{taxnumber}
       if $ref->{taxnumber};
     $form->{taxrates}{ $ref->{accno} }{rate} = $ref->{rate} if $ref->{rate};
+  }
+  # Abfrage für Standard Umlaufvermögenskonto
+  $query =
+    qq|SELECT id, accno, description, link | .
+    qq|FROM chart | .
+    qq|WHERE link LIKE ? |.
+    qq|ORDER BY accno|;
+  $sth = prepare_execute_query($form, $dbh, $query, '%AR%');
+  $sth->execute || $form->dberror($query);#
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+    foreach my $item (split(/:/, $ref->{link})) {
+      if ($item eq "AR_paid") {
+        %{ $form->{IC}{AR_paid}{ $ref->{accno} } } = (
+                                             id          => $ref->{id},
+                                             description => $ref->{description}
+          );
+      }
+    }
   }
 
   $sth->finish;
