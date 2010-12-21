@@ -1277,7 +1277,7 @@ sub cogs {
 
     # total expenses and inventory
     # sellprice is the cost of the item
-    my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / ($ref->{price_factor} * ( $basefactor || 1 )), 2);
+    my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / ( ($ref->{price_factor} ̣|| 1) * ( $basefactor || 1 )), 2);
 
     if (!$main::eur) {
       $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};
