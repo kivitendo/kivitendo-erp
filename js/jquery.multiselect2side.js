@@ -118,17 +118,17 @@
 
         // FIRST HIDE ALL
         div.find(".RemoveOne, .MoveUp, .MoveDown, .MoveTop, .MoveBottom, .SelSort").addClass('ms2side__hide');
-        if (selectDx.size() > 1)
-          div.find(".SelSort").removeClass('ms2side__hide');
+        // if (selectDx.size() > 1)
+          // div.find(".SelSort").removeClass('ms2side__hide');
         if (selectedDx.size() > 0) {
           div.find(".RemoveOne").removeClass('ms2side__hide');
-          // ALL SELECTED - NO MOVE
-          if (selectedDx.size() < selectDx.size()) {    // FOR NOW (JOE) && selectedDx.size() == 1
-            if (selectedDx.val() != selectDx.val())     // FIRST OPTION, NO UP AND TOP BUTTON
-              div.find(".MoveUp, .MoveTop").removeClass('ms2side__hide');
-            if (selectedDx.last().val() != selectDx.last().val())       // LAST OPTION, NO DOWN AND BOTTOM BUTTON
-              div.find(".MoveDown, .MoveBottom").removeClass('ms2side__hide');
-          }
+          // // ALL SELECTED - NO MOVE
+          // if (selectedDx.size() < selectDx.size()) {    // FOR NOW (JOE) && selectedDx.size() == 1
+          //   if (selectedDx.val() != selectDx.val())     // FIRST OPTION, NO UP AND TOP BUTTON
+          //     div.find(".MoveUp, .MoveTop").removeClass('ms2side__hide');
+          //   if (selectedDx.last().val() != selectDx.last().val())       // LAST OPTION, NO DOWN AND BOTTOM BUTTON
+          //     div.find(".MoveDown, .MoveBottom").removeClass('ms2side__hide');
+          // }
         }
 
         if (selectSx.size() == 0 || (o.maxSelected >= 0 && selectSx.size() >= o.maxSelected))
@@ -140,6 +140,9 @@
           div.find(".RemoveAll").addClass('ms2side__hide');
         else
           div.find(".RemoveAll").removeClass('ms2side__hide');
+
+        leftSel.sortOptions();
+        rightSel.sortOptions();
       });
 
       // DOUBLE CLICK ON LEFT SELECT OPTION
