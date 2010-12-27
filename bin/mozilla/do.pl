@@ -939,7 +939,7 @@ sub calculate_stock_in_out {
                                             'amount_unit' => $all_units->{$form->{"partunit_$i"}}->{base_unit},
                                             'conv_units'  => 'convertible_not_smaller',
                                             'max_places'  => 2);
-  $content    .= qq| <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
+  $content     = qq|<span id="stock_in_out_qty_display_${i}">${content}</span> <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
 
   $main::lxdebug->leave_sub();
 
@@ -1061,6 +1061,18 @@ sub display_stock_in_form {
   $main::lxdebug->leave_sub();
 }
 
+sub _stock_in_out_set_qty_display {
+  my $stock_info       = shift;
+  my $form             = $::form;
+  my $all_units        = AM->retrieve_all_units();
+  my $sum              = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $stock_info });
+  $form->{qty_display} = $form->format_amount_units(amount      => $sum * 1,
+                                                    part_unit   => $form->{partunit},
+                                                    amount_unit => $all_units->{ $form->{partunit} }->{base_unit},
+                                                    conv_units  => 'convertible_not_smaller',
+                                                    max_places  => 2);
+}
+
 sub set_stock_in {
   $main::lxdebug->enter_sub();
 
@@ -1078,6 +1090,8 @@ sub set_stock_in {
   }
 
   $form->{stock} = YAML::Dump($stock_info);
+
+  _stock_in_out_set_qty_display($stock_info);
 
   $form->header();
   print $form->parse_html_template('do/set_stock_in_out');
@@ -1172,6 +1186,8 @@ sub set_stock_out {
     stock_in_out_form();
 
   } else {
+    _stock_in_out_set_qty_display($stock_info);
+
     $form->header();
     print $form->parse_html_template('do/set_stock_in_out');
   }
