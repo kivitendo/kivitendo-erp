@@ -810,7 +810,7 @@ sub remove_emptied_rows {
                 sellprice_pg pricegroup_old price_old price_new unit_old ordnumber
                 transdate longdescription basefactor marge_total marge_percent
                 marge_price_factor lastcost price_factor_id partnotes
-                stock_out stock_in has_sernumber);
+                stock_out stock_in has_sernumber reqdate);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @flds, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
