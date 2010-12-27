@@ -22,7 +22,14 @@
       labelSort:        'Sort',
       labelsx:          'Available',
       labeldx:          'Selected',
-      maxSelected:      -1
+      maxSelected:      -1,
+      leftSel:          null,
+      rightSel:         null,
+
+      sortOptions: function() {
+        o.leftSel.sortOptions();
+        o.rightSel.sortOptions();
+      }
     }, o);
 
     return this.each(function () {
@@ -93,6 +100,8 @@
       var rightSel  = (o.selectedPosition == 'right') ? allSel.eq(1) : allSel.eq(0);
       // HEIGHT DIV
       var heightDiv = $(".ms2side__select").eq(0).height();
+      o.leftSel     = leftSel;
+      o.rightSel    = rightSel;
 
       // CENTER MOVE OPTIONS AND UPDOWN OPTIONS
       $(this).next().find('.ms2side__options, .ms2side__updown').each(function(){
@@ -152,9 +161,6 @@
         rightSel.find("option").each(function(idx, option) {
           $('<input type="hidden"/>').attr("name", hiddenName).attr("value", $(option).attr("value")).appendTo(hiddenCont);
         });
-
-        leftSel.sortOptions();
-        rightSel.sortOptions();
       });
 
       // DOUBLE CLICK ON LEFT SELECT OPTION
@@ -167,6 +173,7 @@
           }
         });
         $(this).trigger('change');
+        o.sortOptions();
       });
 
       // DOUBLE CLICK ON RIGHT SELECT OPTION
@@ -176,6 +183,7 @@
           el.find("[value=" + $(selected).val() + "]").attr("selected", false).remove().appendTo(el);
         });
         $(this).trigger('change');
+        o.sortOptions();
       });
 
       // CLICK ON OPTION
@@ -186,24 +194,28 @@
               $(this).remove().appendTo(rightSel);
               el.find("[value=" + $(selected).val() + "]").attr("selected", true).remove().appendTo(el);
             });
+            o.sortOptions();
 
           } else if ($(this).hasClass("AddAll")) {        // ALL SELECTED
             leftSel.children().appendTo(rightSel);
             leftSel.children().remove();
             el.find('option').attr("selected", true);
             // el.children().attr("selected", true); -- PROBLEM WITH OPTGROUP
+            o.sortOptions();
 
           } else if ($(this).hasClass("RemoveOne")) {
             rightSel.find("option:selected").each(function(i, selected){
               $(this).remove().appendTo(leftSel);
               el.find("[value=" + $(selected).val() + "]").attr("selected", false).remove().appendTo(el);
             });
+            o.sortOptions();
 
           } else if ($(this).hasClass("RemoveAll")) {     // ALL REMOVED
             rightSel.children().appendTo(leftSel);
             rightSel.children().remove();
             el.find('option').attr("selected", false);
             //el.children().attr("selected", false); -- PROBLEM WITH OPTGROUP
+            o.sortOptions();
           }
         }
 
@@ -284,6 +296,7 @@
 
       // UPDATE BUTTON ON START
       leftSel.trigger('change');
+      o.sortOptions();
       // SHOW WHEN ALL READY
       $(this).next().show();
     });
