@@ -48,7 +48,7 @@ sub attributes {
   my @result = ();
   while (my ($name, $value) = each %options) {
     next unless $name;
-    $value ||= '';
+    $value = '' if !defined($value);
     push @result, _H($name) . '="' . _H($value) . '"';
   }
 
