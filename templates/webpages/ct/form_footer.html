@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [% USE HTML %]
 [% USE LxERP %]
+[% USE L %]
 <input name="id" type="hidden" id="cvid" value="[% HTML.escape(id) %]">
 <input name="business_save" type="hidden" value="[% HTML.escape(selectbusiness) %]">
 <input name="title_save" type="hidden" value="[% HTML.escape(title) %]">
@@ -24,7 +25,7 @@
   <input class="submit" type="submit" name="action" value="[% 'Save and RFQ' | $T8 %]" onclick="return check_taxzone_and_ustid()">
   [%- END %]
 [%- IF id AND is_orphaned %]
-  <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
+  [% L.submit_tag('action', LxERP.t8('Delete'), id => 'action_delete', confirm => LxERP.t8('Do you really want to delete this object?')) %]
 [%- END %]
 [%- IF id %]
   <input type="button" class="submit" onclick="set_history_window([% HTML.escape(id) %]);" name="history" id="history" value="[% 'history' | $T8 %]">
