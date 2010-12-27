@@ -238,6 +238,20 @@ sub javascript {
   return $self->html_tag('script', $data, type => 'text/javascript');
 }
 
+sub stylesheet_tag {
+  my $self = shift;
+  my $code = '';
+
+  foreach my $file (@_) {
+    $file .= '.css'        unless $file =~ m/\.css$/;
+    $file  = "css/${file}" unless $file =~ m|/|;
+
+    $code .= qq|<link rel="stylesheet" href="${file}" type="text/css" media="screen" />|;
+  }
+
+  return $code;
+}
+
 sub date_tag {
   my ($self, $name, $value, @slurp) = @_;
   my %params   = _hashify(@slurp);
@@ -485,6 +499,13 @@ Creates a HTML 'E<lt>script type="text/javascript" src="..."E<gt>'
 tag for each file name parameter passed. Each file name will be
 postfixed with '.js' if it isn't already and prefixed with 'js/' if it
 doesn't contain a slash.
+
+=item C<stylesheet_tag $file1, $file2, $file3...>
+
+Creates a HTML 'E<lt>link rel="text/stylesheet" href="..."E<gt>' tag
+for each file name parameter passed. Each file name will be postfixed
+with '.css' if it isn't already and prefixed with 'css/' if it doesn't
+contain a slash.
 
 =item C<date_tag $name, $value, cal_align =E<gt> $align_code, %attributes>
 
