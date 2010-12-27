@@ -155,6 +155,7 @@ sub date_tag {
   $params{cal_align} ||= 'BR';
 
   $self->input_tag($name, $value,
+    id     => $name_e,
     size   => 11,
     title  => _H($::myconfig{dateformat}),
     onBlur => 'check_right_date_format(this)',
