@@ -152,26 +152,36 @@ sub submit_tag {
 }
 
 sub options_for_select {
-  my $self          = shift;
-  my $collection    = shift;
-  my %options       = _hashify(@_);
+  my $self            = shift;
+  my $collection      = shift;
+  my %options         = _hashify(@_);
 
-  my $value_key     = $options{value} || 'id';
-  my $title_key     = $options{title} || $value_key;
+  my $value_key       = $options{value} || 'id';
+  my $title_key       = $options{title} || $value_key;
 
-  my @elements      = ();
+  my $value_sub       = $options{value_sub};
+  my $title_sub       = $options{title_sub};
+
+  my $value_title_sub = $options{value_title_sub};
+
+  my $access = sub {
+    my ($element, $index, $key, $sub) = @_;
+    my $ref = ref $element;
+    return  $sub            ? $sub->($element)
+         : !$ref            ? $element
+         :  $ref eq 'ARRAY' ? $element->[$index]
+         :  $ref eq 'HASH'  ? $element->{$key}
+         :                    $element->$key;
+  };
+
+  my @elements = ();
   push @elements, [ undef, $options{empty_title} || '' ] if $options{with_empty};
-
-  if ($collection && (ref $collection eq 'ARRAY')) {
-    foreach my $element (@{ $collection }) {
-      my @result = !ref $element            ? ( $element,               $element               )
-                 :  ref $element eq 'ARRAY' ? ( $element->[0],          $element->[1]          )
-                 :  ref $element eq 'HASH'  ? ( $element->{$value_key}, $element->{$title_key} )
-                 :                            ( $element->$value_key,   $element->$title_key   );
-
-      push @elements, \@result;
-    }
-  }
+  push @elements, map [
+    $value_title_sub ? $value_title_sub->($_) : (
+      $access->($_, 0, $value_key, $value_sub),
+      $access->($_, 1, $title_key, $title_sub),
+    )
+  ], @{ $collection } if $collection && ref $collection eq 'ARRAY';
 
   my $code = '';
   foreach my $result (@elements) {
@@ -306,6 +316,18 @@ Creates a HTML 'input type=text' tag named C<$name> with the value
 C<$value> and with arbitrary HTML attributes from C<%attributes>. The
 tag's C<id> defaults to C<name_to_id($name)>.
 
+=item C<hidden_tag $name, $value, %attributes>
+
+Creates a HTML 'input type=hidden' tag named C<$name> with the value
+C<$value> and with arbitrary HTML attributes from C<%attributes>. The
+tag's C<id> defaults to C<name_to_id($name)>.
+
+=item C<submit_tag $name, $value, %attributes>
+
+Creates a HTML 'input type=submit class=submit' tag named C<$name> with the
+value C<$value> and with arbitrary HTML attributes from C<%attributes>. The
+tag's C<id> defaults to C<name_to_id($name)>.
+
 =item C<textarea_tag $name, $value, %attributes>
 
 Creates a HTML 'textarea' tag named C<$name> with the content
@@ -380,6 +402,15 @@ respectively.
 
 For cases 3 and 4 C<$options{value}> defaults to C<id> and
 C<$options{title}> defaults to C<$options{value}>.
+
+In addition to pure keys/method you can also provide coderefs as I<value_sub>
+and/or I<title_sub>. If present, these take precedence over keys or methods,
+and are called with the element as first argument. It must return the value or
+title.
+
+Lastly a joint coderef I<value_title_sub> may be provided, which in turn takes
+precedence over each individual sub. It will only be called once for each
+element and must return a list of value and title.
 
 If the option C<with_empty> is set then an empty element (value
 C<undef>) will be used as the first element. The title to display for
