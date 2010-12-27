@@ -481,7 +481,15 @@ Right + Bottom becomes C<BL>.
 =item C<tabbed \@tab, %attributes>
 
 Will create a tabbed area. The tabs should be created with the helper function
-C<tab>
+C<tab>. Example:
+
+  [% L.tabbed([
+    L.tab(LxERP.t8('Basic Data'),       'part/_main_tab.html'),
+    L.tab(LxERP.t8('Custom Variables'), 'part/_cvar_tab.html', if => SELF.display_cvar_tab),
+  ]) %]
+
+An optional attribute is C<selected>, which accepts the ordinal of a tab which
+should be selected by default.
 
 =back
 
@@ -530,6 +538,20 @@ If the option C<with_empty> is set then an empty element (value
 C<undef>) will be used as the first element. The title to display for
 this element can be set with the option C<empty_title> and defaults to
 an empty string.
+
+=item C<tab, description, target, %PARAMS>
+
+Creates a tab for C<tabbed>. The description will be used as displayed name.
+The target should be a block or template that can be processed. C<tab> supports
+a C<method> parameter, which can override the process method to apply target.
+C<method => 'raw'> will just include the given text as is. I was too lazy to
+implement C<include> properly.
+
+Also an C<if> attribute is supported, so that tabs can be suppressed based on
+some occasion. In this case the supplied block won't even get processed, and
+the resulting tab will get ignored by C<tabbed>:
+
+  L.tab('Awesome tab wih much info', '_much_info.html', if => SELF.wants_all)
 
 =back
 
