@@ -68,8 +68,6 @@ Bestandteil einer Standard-Perl-Installation sind:
 
    * Email::Address
 
-   * IO::Wrap (aus dem Paket IO::Stringy)
-
    * List::MoreUtils
 
    * PDF::API2
