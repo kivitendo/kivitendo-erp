@@ -28,14 +28,16 @@
     return this.each(function () {
       var el = $(this);
 
+      var hiddenName   = $(this).attr("name");
       var originalName = $(this).attr("name");
       if (originalName.indexOf('[') != -1)
         originalName = originalName.substring(0, originalName.indexOf('['));
 
-      var nameDx = $(this).attr("name");
-      var idDx   = originalName + "ms2side__dx";
-      var nameSx = originalName + "ms2side__sx";
-      var size   = $(this).attr("size");
+      var nameDx   = originalName + "ms2side__dx";
+      var idDx     = originalName + "ms2side__dx";
+      var nameSx   = originalName + "ms2side__sx";
+      var hiddenId = originalName + "ms2side_hidden";
+      var size     = $(this).attr("size");
       $(this).attr("name", originalName + "ms2side__orig");
       // SIZE MIN
       if (size < 6) {
@@ -79,9 +81,11 @@
         (o.labeldx ? ("<div class='ms2side__header'>" + o.labeldx + "</div>") : "") +
         "<select title='" + o.labeldx + "' name='" + nameDx + "' id='" + idDx + "' size='" + size + "' multiple='multiple' ></select>" +
         "</div>" +
+        "<span id=\"" + hiddenId + "\"></span>" +
         ((o.selectedPosition == 'right' && o.moveOptions) ? divUpDown : "") +
         "</div>";
       $(this).after(htmlToAdd).hide();
+      $("#" + hiddenId).hide();
 
       // ELEMENTS
       var allSel    = $(this).next().find("select");
@@ -111,6 +115,7 @@
         var selectDx   = rightSel.children();
         var selectedSx = leftSel.find("option:selected");
         var selectedDx = rightSel.find("option:selected");
+        var hiddenCont = $("#" + hiddenId);
 
         if (selectedSx.size() == 0 || (o.maxSelected >= 0 && (selectedSx.size() + selectDx.size()) > o.maxSelected))
           div.find(".AddOne").addClass('ms2side__hide');
@@ -141,6 +146,12 @@
           div.find(".RemoveAll").addClass('ms2side__hide');
         else
           div.find(".RemoveAll").removeClass('ms2side__hide');
+
+        // Rebuild hidden inputs...
+        hiddenCont.empty();
+        rightSel.find("option").each(function(idx, option) {
+          $('<input type="hidden"/>').attr("name", hiddenName).attr("value", $(option).attr("value")).appendTo(hiddenCont);
+        });
 
         leftSel.sortOptions();
         rightSel.sortOptions();
