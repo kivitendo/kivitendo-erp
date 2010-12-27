@@ -292,11 +292,12 @@ sub _force_mandatory_packages {
   my $self  = shift;
   my $lines = shift;
 
-  my (%used_packages, $document_start_line);
+  my (%used_packages, $document_start_line, $last_usepackage_line);
 
   foreach my $i (0 .. scalar @{ $lines } - 1) {
     if ($lines->[$i] =~ m/\\usepackage[^\{]*{(.*?)}/) {
       $used_packages{$1} = 1;
+      $last_usepackage_line = $i;
 
     } elsif ($lines->[$i] =~ m/\\begin{document}/) {
       $document_start_line = $i;
@@ -305,11 +306,14 @@ sub _force_mandatory_packages {
     }
   }
 
-  $document_start_line = scalar @{ $lines } - 1 if (!defined $document_start_line);
+  my $insertion_point = defined($document_start_line)  ? $document_start_line
+                      : defined($last_usepackage_line) ? $last_usepackage_line
+                      :                                  scalar @{ $lines } - 1;
 
-  if (!$used_packages{textcomp}) {
-    splice @{ $lines }, $document_start_line, 0, "\\usepackage{textcomp}\n";
-    $document_start_line++;
+  foreach my $package (qw(textcomp)) {
+    next if $used_packages{$package};
+    splice @{ $lines }, $insertion_point, 0, "\\usepackage{${package}}\n";
+    $insertion_point++;
   }
 }
 
