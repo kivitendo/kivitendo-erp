@@ -288,7 +288,7 @@ sub save_dunning {
                (SELECT SUM(fee)
                 FROM dunning_config
                 WHERE dunning_level <= (SELECT dunning_level FROM dunning_config WHERE id = ?)),
-               (SELECT (amount - paid) * (current_date - transdate) FROM ar WHERE id = ?)
+               (SELECT (amount - paid) * (current_date - duedate) FROM ar WHERE id = ?)
                  * (SELECT interest_rate FROM dunning_config WHERE id = ?)
                  / 360,
                current_date,

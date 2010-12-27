@@ -474,7 +474,7 @@ sub scanhtmlfile {
 
       while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
         my $plugin = $1;
-        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator));
+        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator L));
       }
 
       while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
