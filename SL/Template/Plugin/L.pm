@@ -203,6 +203,8 @@ sub options_for_select {
 
   my $value_title_sub = $options{value_title_sub};
 
+  my %selected        = map { ( $_ => 1 ) } @{ ref($options{default}) eq 'ARRAY' ? $options{default} : $options{default} ? [ $options{default} ] : [] };
+
   my $access = sub {
     my ($element, $index, $key, $sub) = @_;
     my $ref = ref $element;
@@ -225,7 +227,7 @@ sub options_for_select {
   my $code = '';
   foreach my $result (@elements) {
     my %attributes = ( value => $result->[0] );
-    $attributes{selected} = 'selected' if $options{default} && ($options{default} eq ($result->[0] || ''));
+    $attributes{selected} = 'selected' if $selected{ $result->[0] || '' };
 
     $code .= $self->html_tag('option', _H($result->[1]), %attributes);
   }
@@ -584,6 +586,10 @@ If the option C<with_empty> is set then an empty element (value
 C<undef>) will be used as the first element. The title to display for
 this element can be set with the option C<empty_title> and defaults to
 an empty string.
+
+The option C<default> can be either a scalar or an array reference
+containing the values of the options which should be set to be
+selected.
 
 =item C<tab, description, target, %PARAMS>
 
