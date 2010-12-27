@@ -3,6 +3,7 @@ package SL::Template::Plugin::L;
 use base qw( Template::Plugin );
 use Template::Plugin;
 use List::MoreUtils qw(apply);
+use List::Util qw(max);
 
 use strict;
 
@@ -84,10 +85,8 @@ sub select_tag {
 }
 
 sub textarea_tag {
-  my $self            = shift;
-  my $name            = shift;
-  my $content         = shift;
-  my %attributes      = _hashify(@_);
+  my ($self, $name, $content, @slurp) = @_;
+  my %attributes      = _hashify(@slurp);
 
   $attributes{id}   ||= $self->name_to_id($name);
   $content            = $content ? _H($content) : '';
@@ -139,7 +138,7 @@ sub radio_button_tag {
 
 sub input_tag {
   my ($self, $name, $value, @slurp) = @_;
-  my %attributes                    = _hashify(@slurp);
+  my %attributes      = _hashify(@slurp);
 
   $attributes{id}   ||= $self->name_to_id($name);
   $attributes{type} ||= 'text';
@@ -176,14 +175,19 @@ sub link {
 }
 
 sub submit_tag {
-  my $self             = shift;
-  my $name             = shift;
-  my $value            = shift;
-  my %attributes       = _hashify(@_);
+  my ($self, $name, $value, @slurp) = @_;
+  my %attributes = _hashify(@slurp);
 
   $attributes{onclick} = "if (confirm('" . delete($attributes{confirm}) . "')) return true; else return false;" if $attributes{confirm};
 
   return $self->input_tag($name, $value, %attributes, type => 'submit', class => 'submit');
+}
+
+sub button_tag {
+  my ($self, $onclick, $value, @slurp) = @_;
+  my %attributes = _hashify(@slurp);
+
+  return $self->input_tag(undef, $value, %attributes, type => 'button', onclick => $onclick);
 }
 
 sub options_for_select {
@@ -339,6 +343,18 @@ sub tab {
   return +{ name => $name, data => $data };
 }
 
+sub areainput_tag {
+  my ($self, $name, $value, @slurp) = @_;
+  my %attributes      = _hashify(@slurp);
+
+  my $rows = delete $attributes{rows}     || 1;
+  my $min  = delete $attributes{min_rows} || 1;
+
+  return $rows > 1
+    ? $self->textarea_tag($name, $value, %attributes, rows => max $rows, $min)
+    : $self->input_tag($name, $value, %attributes);
+}
+
 1;
 
 __END__
@@ -490,6 +506,15 @@ C<tab>. Example:
 
 An optional attribute is C<selected>, which accepts the ordinal of a tab which
 should be selected by default.
+
+=item C<areainput_tag $name, $content, %PARAMS>
+
+Creates a generic input tag or textarea tag, depending on content size. The
+mount of desired rows must be given with C<rows> parameter, Accpeted parameters
+include C<min_rows> for rendering a minimum of rows if a textarea is displayed.
+
+You can force input by setting rows to 1, and you can force textarea by setting
+rows to anything >1.
 
 =back
 
