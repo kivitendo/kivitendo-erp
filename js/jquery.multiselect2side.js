@@ -99,9 +99,8 @@
       $(this).find("option:selected").clone().appendTo(rightSel);
       $(this).find("option:not(:selected)").clone().appendTo(leftSel);
 
-      // SELECT FIRST LEFT ITEM
-      if (!($.browser.msie && $.browser.version == '6.0'))
-        leftSel.find("option").eq(0).attr("selected", true);
+      // Mark all unselected.
+      rightSel.find("option").attr("selected", false);
 
       // ON CHANGE REFRESH ALL BUTTON STATUS
       allSel.change(function() {
