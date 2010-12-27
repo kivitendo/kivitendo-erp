@@ -21,6 +21,12 @@ sub _H {
   return $::locale->quote_special_chars('HTML', $string);
 }
 
+sub _J {
+  my $string =  "" . shift;
+  $string    =~ s/\"/\\\"/g;
+  return $string;
+}
+
 sub _hashify {
   return (@_ && (ref($_[0]) eq 'HASH')) ? %{ $_[0] } : @_;
 }
