@@ -25,10 +25,16 @@ sub _hashify {
 }
 
 sub new {
-  my $class   = shift;
-  my $context = shift;
+  my ($class, $context, @args) = @_;
 
-  return bless { }, $class;
+  return bless {
+    CONTEXT => $context,
+  }, $class;
+}
+
+sub _context {
+  die 'not an accessor' if @_ > 1;
+  return $_[0]->{CONTEXT};
 }
 
 sub name_to_id {
@@ -132,10 +138,8 @@ sub radio_button_tag {
 }
 
 sub input_tag {
-  my $self            = shift;
-  my $name            = shift;
-  my $value           = shift;
-  my %attributes      = _hashify(@_);
+  my ($self, $name, $value, @slurp) = @_;
+  my %attributes                    = _hashify(@slurp);
 
   $attributes{id}   ||= $self->name_to_id($name);
   $attributes{type} ||= 'text';
@@ -145,6 +149,30 @@ sub input_tag {
 
 sub hidden_tag {
   return shift->input_tag(@_, type => 'hidden');
+}
+
+sub div_tag {
+  my ($self, $content, @slurp) = @_;
+  return $self->html_tag('div', $content, @slurp);
+}
+
+sub ul_tag {
+  my ($self, $content, @slurp) = @_;
+  return $self->html_tag('ul', $content, @slurp);
+}
+
+sub li_tag {
+  my ($self, $content, @slurp) = @_;
+  return $self->html_tag('li', $content, @slurp);
+}
+
+sub link {
+  my ($self, $href, $content, @slurp) = @_;
+  my %params = _hashify(@slurp);
+
+  $href ||= '#';
+
+  return $self->html_tag('a', $content, %params, href => $href);
 }
 
 sub submit_tag {
@@ -233,7 +261,7 @@ sub date_tag {
     %params,
   ) .
   $self->javascript(
-    "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$params{cal_align}', button: 'trigger$seq'  });"
+    "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$params{cal_align}', button: 'trigger$seq' });"
   ) : '');
 
 sub javascript_tag {
@@ -248,6 +276,67 @@ sub javascript_tag {
   }
 
   return $code;
+}
+
+sub tabbed {
+  my ($self, $tabs, @slurp) = @_;
+  my %params   = _hashify(@slurp);
+  my $id       = 'tab_' . _tag_id();
+
+  $params{selected} *= 1;
+
+  die 'L.tabbed needs an arrayred of tabs for first argument'
+    unless ref $tabs eq 'ARRAY';
+
+  my (@header, @blocks);
+  for my $i (0..$#$tabs) {
+    my $tab = $tabs->[$i];
+
+    next if $tab eq '';
+
+    my $selected = $params{selected} == $i;
+    my $tab_id = _tag_id();
+    push @header, $self->li_tag(
+      $self->link('', $tab->{name}, rel => $tab_id),
+        ($selected ? (class => 'selected') : ())
+    );
+    push @blocks, $self->div_tag($tab->{data},
+      id => $tab_id, class => 'tabcontent');
+  }
+
+  return '' unless @header;
+  return $self->ul_tag(
+    join('', @header), id => $id, class => 'shadetabs'
+  ) .
+  $self->div_tag(
+    join('', @blocks), class => 'tabcontentstyle'
+  ) .
+  $self->javascript(
+    qq|var $id = new ddtabcontent("$id");$id.setpersist(true);| .
+    qq|$id.setselectedClassTarget("link");$id.init();|
+  );
+}
+
+sub tab {
+  my ($self, $name, $src, @slurp) = @_;
+  my %params = _hashify(@slurp);
+
+  $params{method} ||= 'process';
+
+  return () if defined $params{if} && !$params{if};
+
+  my $data;
+  if ($params{method} eq 'raw') {
+    $data = $src;
+  } elsif ($params{method} eq 'process') {
+    $data = $self->_context->process($src, %{ $params{args} || {} });
+  } else {
+    die "unknown tag method '$params{method}'";
+  }
+
+  return () unless $data;
+
+  return +{ name => $name, data => $data };
 }
 
 1;
@@ -380,6 +469,19 @@ Creates a HTML 'E<lt>script type="text/javascript" src="..."E<gt>'
 tag for each file name parameter passed. Each file name will be
 postfixed with '.js' if it isn't already and prefixed with 'js/' if it
 doesn't contain a slash.
+
+=item C<date_tag $name, $value, cal_align =E<gt> $align_code, %attributes>
+
+Creates a date input field, with an attached javascript that will open a
+calendar on click. The javascript ist by default anchoered at the bottom right
+sight. This can be overridden with C<cal_align>, see Calendar documentation for
+the details, usually you'll want a two letter abbreviation of the alignment.
+Right + Bottom becomes C<BL>.
+
+=item C<tabbed \@tab, %attributes>
+
+Will create a tabbed area. The tabs should be created with the helper function
+C<tab>
 
 =back
 
