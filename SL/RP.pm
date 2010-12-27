@@ -49,12 +49,21 @@ use strict;
 # - subdescription
 # - proper testing for heading charts
 # - transmission from $form to TMPL realm is not as clear as i'd like
+
+sub get_openbalance_date {
+  my ($closedto, $target) = map { $::locale->parse_date_to_object(\%::myconfig, $_) } @_;
+
+  $closedto->subtract(years => 1) while ($target - $closedto)->is_negative;
+  $closedto->add(days => 1);
+  return $::locale->format_date(\%::myconfig, $closedto);
+}
+
 sub balance_sheet {
   $main::lxdebug->enter_sub();
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
-  my $dbh      = $form->get_standard_dbh($myconfig);
+  my $dbh      = $::form->get_standard_dbh;
 
   my $last_period = 0;
   my @categories  = qw(A C L Q);
@@ -64,12 +73,21 @@ sub balance_sheet {
     $form->{period} = $form->{this_period} = conv_dateq($form->{asofdate});
   }
 
-  get_accounts($dbh, $last_period, "", $form->{asofdate}, $form, \@categories);
+  # get end of financial year and convert to Date format
+  my ($closedto) = selectfirst_arrayref_query($form, $dbh, 'SELECT closedto FROM defaults');
+
+  # get date of last opening balance
+  my $startdate = get_openbalance_date($closedto, $form->{asofdate});
+
+  get_accounts($dbh, $last_period, $startdate, $form->{asofdate}, $form, \@categories);
 
   # if there are any compare dates
   if ($form->{compareasofdate}) {
     $last_period = 1;
-    get_accounts($dbh, $last_period, "", $form->{compareasofdate}, $form, \@categories);
+
+    $startdate = get_openbalance_date($closedto, $form->{compareasofdate});
+
+    get_accounts($dbh, $last_period, $startdate, $form->{compareasofdate}, $form, \@categories);
     $form->{last_period} = conv_dateq($form->{compareasofdate});
   }
 
@@ -118,7 +136,6 @@ sub balance_sheet {
         next if ($period eq 'last' && !$last_period);
         # only add assets
         $row->{$period}                    *= $ml;
-        $form->{total}{$category}{$period} += $row->{$period};      #      if ($row->{charttype} eq 'A') {   # why??
       }
 
       push @{ $TMPL_DATA->{$category} }, $row;
@@ -138,12 +155,11 @@ sub balance_sheet {
   for my $period (qw(this last)) {
     next if ($period eq 'last' && !$last_period);
 
-    $form->{E}{$period}             = $form->{total}{A}{$period} - $form->{total}{L}{$period} - $form->{total}{Q}{$period};
-    $form->{total}{Q}{$period}     += $form->{E}{$period};
-    $TMPL_DATA->{total}{Q}{$period} = $form->{total}{Q}{$period};
-    $TMPL_DATA->{total}{$period}    = $form->{total}{L}{$period} + $form->{total}{Q}{$period};
+    $form->{E}{$period}             = $TMPL_DATA->{total}{A}{$period} - $TMPL_DATA->{total}{L}{$period} - $TMPL_DATA->{total}{Q}{$period};
+    $TMPL_DATA->{total}{Q}{$period}     += $form->{E}{$period};
+    $TMPL_DATA->{total}{$period}    = $TMPL_DATA->{total}{L}{$period} + $TMPL_DATA->{total}{Q}{$period};
   }
-
+    $form->{E}{description}='nicht verbuchter Gewinn/Verlust';
   push @{ $TMPL_DATA->{Q} }, $form->{E};
 
   $main::lxdebug->leave_sub();
@@ -1186,11 +1202,11 @@ sub aging {
   if ($form->{review_of_aging_list}) {
     if ($form->{review_of_aging_list} =~ m "-"){
       my @period = split(/-/, $form->{review_of_aging_list});
-      $review_of_aging_list = " AND $period[0] < date_part('days', now() - duedate) 
+      $review_of_aging_list = " AND $period[0] < date_part('days', now() - duedate)
                                 AND date_part('days', now() - duedate)  < $period[1]";
     } else {
       $form->{review_of_aging_list} =~ s/[^0-9]//g;
-      $review_of_aging_list = " AND $form->{review_of_aging_list} < date_part('days', now() - duedate)"; 
+      $review_of_aging_list = " AND $form->{review_of_aging_list} < date_part('days', now() - duedate)";
     }
   }
 
