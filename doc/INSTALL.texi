@@ -632,7 +632,7 @@ auf @samp{1} stehen.  Dieses ist die Standardeinstellung.
 Weiterhin muss in der Datei @code{config/lx-erp.conf} die Variable
 @code{$dbcharset} auf die Zeichenkodierung gesetzt werden, die auch
 bei der Speicherung der Daten in der Datenbank verwendet wird. Diese
-ist in den meisten Fällen "ISO-8859-15".
+ist in den meisten Fällen "UTF-8".
 
 Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
 weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
