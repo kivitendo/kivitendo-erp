@@ -84,7 +84,7 @@ sub textarea_tag {
   my %attributes      = _hashify(@_);
 
   $attributes{id}   ||= $self->name_to_id($name);
-  $content            = $content ? '' : _H($content);
+  $content            = $content ? _H($content) : '';
 
   return $self->html_tag('textarea', $content, %attributes, name => $name);
 }
