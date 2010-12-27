@@ -397,6 +397,12 @@ EOCODE
   return $code;
 }
 
+sub dump {
+  my $self = shift;
+  require Data::Dumper;
+  return '<pre>' . Data::Dumper::Dumper(@_) . '</pre>';
+}
+
 1;
 
 __END__
@@ -585,6 +591,10 @@ The label of the list of selected options. Defaults to the
 translation of 'Selected'.
 
 =back
+
+=item C<dump REF>
+
+Dumps the Argument using L<Data::Dumper> into a E<lt>preE<gt> block.
 
 =back
 
