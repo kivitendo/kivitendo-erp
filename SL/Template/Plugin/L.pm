@@ -55,8 +55,8 @@ sub name_to_id {
 }
 
 sub attributes {
-  my $self    = shift;
-  my %options = _hashify(@_);
+  my ($self, @slurp)    = @_;
+  my %options = _hashify(@slurp);
 
   my @result = ();
   while (my ($name, $value) = each %options) {
@@ -69,10 +69,8 @@ sub attributes {
 }
 
 sub html_tag {
-  my $self       = shift;
-  my $tag        = shift;
-  my $content    = shift;
-  my $attributes = $self->attributes(@_);
+  my ($self, $tag, $content, @slurp) = @_;
+  my $attributes = $self->attributes(@slurp);
 
   return "<${tag}${attributes}/>" unless defined($content);
   return "<${tag}${attributes}>${content}</${tag}>";
@@ -101,9 +99,8 @@ sub textarea_tag {
 }
 
 sub checkbox_tag {
-  my $self             = shift;
-  my $name             = shift;
-  my %attributes       = _hashify(@_);
+  my ($self, $name, @slurp) = @_;
+  my %attributes       = _hashify(@slurp);
 
   $attributes{id}    ||= $self->name_to_id($name);
   $attributes{value}   = 1 unless defined $attributes{value};
@@ -307,7 +304,7 @@ sub javascript_tag {
 sub tabbed {
   my ($self, $tabs, @slurp) = @_;
   my %params   = _hashify(@slurp);
-  my $id       = 'tab_' . _tag_id();
+  my $id       = $params{id} || 'tab_' . _tag_id();
 
   $params{selected} *= 1;
 
@@ -321,7 +318,7 @@ sub tabbed {
     next if $tab eq '';
 
     my $selected = $params{selected} == $i;
-    my $tab_id = _tag_id();
+    my $tab_id   = "__tab_id_$i";
     push @header, $self->li_tag(
       $self->link('', $tab->{name}, rel => $tab_id),
         ($selected ? (class => 'selected') : ())
