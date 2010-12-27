@@ -597,9 +597,6 @@ sub delete {
   # /saving the history
   $form->redirect($locale->text($msg));
 
-  $msg = "Cannot delete $form->{db}";
-  $form->error($locale->text($msg));
-
   $main::lxdebug->leave_sub();
 }
 
