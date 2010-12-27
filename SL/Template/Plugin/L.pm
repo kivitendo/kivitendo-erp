@@ -60,7 +60,7 @@ sub html_tag {
   my $content    = shift;
   my $attributes = $self->attributes(@_);
 
-  return "<${tag}${attributes}/>" unless $content;
+  return "<${tag}${attributes}/>" unless defined($content);
   return "<${tag}${attributes}>${content}</${tag}>";
 }
 
@@ -73,6 +73,18 @@ sub select_tag {
   $attributes{id}   ||= $self->name_to_id($name);
 
   return $self->html_tag('select', $options_str, %attributes, name => $name);
+}
+
+sub textarea_tag {
+  my $self            = shift;
+  my $name            = shift;
+  my $content         = shift;
+  my %attributes      = _hashify(@_);
+
+  $attributes{id}   ||= $self->name_to_id($name);
+  $content            = $content ? '' : _H($content);
+
+  return $self->html_tag('textarea', $content, %attributes, name => $name);
 }
 
 sub checkbox_tag {
@@ -91,6 +103,27 @@ sub checkbox_tag {
   }
 
   my $code  = $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
+  $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
+
+  return $code;
+}
+
+sub radio_button_tag {
+  my $self             = shift;
+  my $name             = shift;
+  my %attributes       = _hashify(@_);
+
+  $attributes{value}   = 1 unless defined $attributes{value};
+  $attributes{id}    ||= $self->name_to_id($name . "_" . $attributes{value});
+  my $label            = delete $attributes{label};
+
+  if ($attributes{checked}) {
+    $attributes{checked} = 'checked';
+  } else {
+    delete $attributes{checked};
+  }
+
+  my $code  = $self->html_tag('input', undef,  %attributes, name => $name, type => 'radio');
   $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
 
   return $code;
@@ -243,6 +276,12 @@ Creates a HTML 'input type=text' tag named C<$name> with the value
 C<$value> and with arbitrary HTML attributes from C<%attributes>. The
 tag's C<id> defaults to C<name_to_id($name)>.
 
+=item C<textarea_tag $name, $value, %attributes>
+
+Creates a HTML 'textarea' tag named C<$name> with the content
+C<$value> and with arbitrary HTML attributes from C<%attributes>. The
+tag's C<id> defaults to C<name_to_id($name)>.
+
 =item C<checkbox_tag $name, %attributes>
 
 Creates a HTML 'input type=checkbox' tag named C<$name> with arbitrary
@@ -253,8 +292,6 @@ If C<%attributes> contains a key C<label> then a HTML 'label' tag is
 created with said C<label>. No attribute named C<label> is created in
 that case.
 
-=item C<date_tag $name, $value, %attributes>
-
 =item C<date_tag $name, $value, cal_align =E<gt> $align_code, %attributes>
 
 Creates a date input field, with an attached javascript that will open a
@@ -262,6 +299,16 @@ calendar on click. The javascript ist by default anchoered at the bottom right
 sight. This can be overridden with C<cal_align>, see Calendar documentation for
 the details, usually you'll want a two letter abbreviation of the alignment.
 Right + Bottom becomes C<BL>.
+
+=item C<radio_button_tag $name, %attributes>
+
+Creates a HTML 'input type=radio' tag named C<$name> with arbitrary
+HTML attributes from C<%attributes>. The tag's C<value> defaults to
+C<1>. The tag's C<id> defaults to C<name_to_id($name . "_" . $value)>.
+
+If C<%attributes> contains a key C<label> then a HTML 'label' tag is
+created with said C<label>. No attribute named C<label> is created in
+that case.
 
 =back
 
