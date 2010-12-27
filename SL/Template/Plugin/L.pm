@@ -142,6 +142,14 @@ sub input_tag {
   return $self->html_tag('input', undef, %attributes, name => $name, value => $value);
 }
 
+sub hidden_tag {
+  return shift->input_tag(@_, type => 'hidden');
+}
+
+sub submit_tag {
+  return shift->input_tag(@_, type => 'submit', class => 'submit');
+}
+
 sub options_for_select {
   my $self          = shift;
   my $collection    = shift;
