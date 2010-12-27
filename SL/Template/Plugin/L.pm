@@ -287,6 +287,7 @@ sub date_tag {
   $self->javascript(
     "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$params{cal_align}', button: 'trigger$seq' });"
   ) : '');
+}
 
 sub javascript_tag {
   my $self = shift;
