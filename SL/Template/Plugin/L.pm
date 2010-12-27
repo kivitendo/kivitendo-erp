@@ -2,6 +2,7 @@ package SL::Template::Plugin::L;
 
 use base qw( Template::Plugin );
 use Template::Plugin;
+use List::MoreUtils qw(apply);
 
 use strict;
 
@@ -193,6 +194,11 @@ sub date_tag {
   my %params   = _hashify(@slurp);
   my $name_e   = _H($name);
   my $seq      = _tag_id();
+  my $datefmt  = apply {
+    s/d+/\%d/gi;
+    s/m+/\%m/gi;
+    s/y+/\%Y/gi;
+  } $::myconfig{"dateformat"};
 
   $params{cal_align} ||= 'BR';
 
@@ -210,7 +216,7 @@ sub date_tag {
     %params,
   ) .
   $self->javascript(
-    "Calendar.setup({ inputField: '$name_e', ifFormat: '$::myconfig{jsc_dateformat}', align: '$params{cal_align}', button: 'trigger$seq'  });"
+    "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$params{cal_align}', button: 'trigger$seq'  });"
   ) : '');
 
 sub javascript_tag {
