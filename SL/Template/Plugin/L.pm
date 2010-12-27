@@ -203,6 +203,19 @@ sub date_tag {
   $self->javascript(
     "Calendar.setup({ inputField: '$name_e', ifFormat: '$::myconfig{jsc_dateformat}', align: '$params{cal_align}', button: 'trigger$seq'  });"
   ) : '');
+
+sub javascript_tag {
+  my $self = shift;
+  my $code = '';
+
+  foreach my $file (@_) {
+    $file .= '.js'        unless $file =~ m/\.js$/;
+    $file  = "js/${file}" unless $file =~ m|/|;
+
+    $code .= qq|<script type="text/javascript" src="${file}"></script>|;
+  }
+
+  return $code;
 }
 
 1;
@@ -309,6 +322,13 @@ C<1>. The tag's C<id> defaults to C<name_to_id($name . "_" . $value)>.
 If C<%attributes> contains a key C<label> then a HTML 'label' tag is
 created with said C<label>. No attribute named C<label> is created in
 that case.
+
+=item C<javascript_tag $file1, $file2, $file3...>
+
+Creates a HTML 'E<lt>script type="text/javascript" src="..."E<gt>'
+tag for each file name parameter passed. Each file name will be
+postfixed with '.js' if it isn't already and prefixed with 'js/' if it
+doesn't contain a slash.
 
 =back
 
