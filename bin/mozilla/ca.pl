@@ -106,6 +106,7 @@ sub chart_of_accounts {
                        'std_column_visibility' => 1,
     );
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -593,6 +594,7 @@ sub list_transactions {
                        'std_column_visibility' => 1,
     );
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);

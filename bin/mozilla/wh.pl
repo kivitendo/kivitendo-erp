@@ -721,6 +721,7 @@ sub generate_journal {
                        'title'                => $form->{title},
                        'attachment_basename'  => strftime($locale->text('warehouse_journal_list') . '_%Y%m%d', localtime time));
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
   my @contents  = WH->get_warehouse_journal(%filter);
@@ -869,6 +870,7 @@ sub generate_report {
                        'title'                => $form->{title},
                        'attachment_basename'  => strftime($locale->text('warehouse_report_list') . '_%Y%m%d', localtime time));
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
   my @contents  = WH->get_warehouse_report(%filter);

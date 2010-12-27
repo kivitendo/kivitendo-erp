@@ -87,7 +87,7 @@ sub invoice_transactions {
   my ($callback, $href, @columns);
 
   $form->{customer} = $form->unescape($form->{customer});
-  
+
   ($form->{customername}, $form->{customer_id}) = split(/--/, $form->{customer});
 
   # decimalplaces überprüfen oder auf Default 2 setzen
@@ -137,7 +137,7 @@ sub invoice_transactions {
     'marge_total'             => { 'text' => $locale->text('Sales margin'), },
     'marge_percent'           => { 'text' => $locale->text('Sales margin %'), },
   );
-  
+
   my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total unit discount marge_total marge_percent qty);
 
   $form->{"l_type"} = "Y";
@@ -188,6 +188,7 @@ sub invoice_transactions {
                        'attachment_basename'  => $locale->text('Sales Report') . strftime('_%Y%m%d', localtime time),
     );
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -222,7 +223,7 @@ sub invoice_transactions {
     $ar->{sellprice} = $ar->{sellprice} / $ar->{price_factor};
     $ar->{lastcost} = $ar->{lastcost} / $ar->{price_factor};
     $ar->{sellprice_total} = $ar->{qty} * $ar->{sellprice};
-    $ar->{lastcost_total}  = $ar->{qty} * $ar->{lastcost}; 
+    $ar->{lastcost_total}  = $ar->{qty} * $ar->{lastcost};
     # marge_percent wird neu berechnet, da Wert in invoice leer ist (Bug)
     $ar->{marge_percent} = $ar->{sellprice_total} ? (($ar->{sellprice_total}-$ar->{lastcost_total}) / $ar->{sellprice_total}) : 0;
     # marge_total neu berechnen
@@ -243,14 +244,14 @@ sub invoice_transactions {
       $report->add_data($headerrow_set);
 
       # add empty row after main header
-#      my $emptyheaderrow->{description}->{data} = ""; 
+#      my $emptyheaderrow->{description}->{data} = "";
 #      $emptyheaderrow->{description}->{class} = "listmainsortheader";
 #      my $emptyheaderrow_set = [ $emptyheaderrow ];
-#      $report->add_data($emptyheaderrow_set) if $form->{l_headers} eq "Y"; 
+#      $report->add_data($emptyheaderrow_set) if $form->{l_headers} eq "Y";
     };
 
     # subsort überschriften
-    if ( $idx == 0 
+    if ( $idx == 0
       or $ar->{ $form->{'subsort'} }  ne $form->{AR}->[$idx - 1]->{ $form->{'subsort'} }
       or $ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx - 1]->{ $form->{'mainsort'} }
     ) {
@@ -271,8 +272,8 @@ sub invoice_transactions {
     map { $subtotals1{$_} += $ar->{$_};
           $subtotals2{$_} += $ar->{$_};
         } @subtotal_columns;
-         
-    map { $totals{$_}    += $ar->{$_} } @total_columns;  
+
+    map { $totals{$_}    += $ar->{$_} } @total_columns;
 
     $subtotals2{sellprice} = $subtotals2{sellprice_total} / $subtotals2{qty} if $subtotals2{qty} != 0;
     $subtotals1{sellprice} = $subtotals1{sellprice_total} / $subtotals1{qty} if $subtotals1{qty} != 0;
@@ -298,7 +299,7 @@ sub invoice_transactions {
         'align' => $column_alignment{$column},
       };
     }
-  
+
    $row->{description}->{class} = 'listsortdescription';
 
     $row->{invnumber}->{link} = build_std_url("script=is.pl", 'action=edit')
@@ -317,14 +318,14 @@ sub invoice_transactions {
       } else {
         $name = 'name';
       };
-      
+
       if ($form->{l_subtotal} eq 'Y' ) {
         push @{ $row_set }, create_subtotal_row_invoice(\%subtotals2, \@columns, \%column_alignment, \@subtotal_columns, 'listsubsortsubtotal', $ar->{$name}) ;
         push @{ $row_set }, insert_empty_row();
       };
     }
 
-    # if mainsort has changed, add mainsort subtotal and empty row 
+    # if mainsort has changed, add mainsort subtotal and empty row
     if (($form->{l_subtotal} eq 'Y')
         && (($idx == (scalar @{ $form->{AR} } - 1))   # last element always has a subtotal
             || ($ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx + 1]->{ $form->{'mainsort'} })
@@ -340,7 +341,7 @@ sub invoice_transactions {
         push @{ $row_set }, insert_empty_row();
       };
     }
-  
+
     $report->add_data($row_set);
 
     $idx++;
@@ -373,7 +374,7 @@ sub create_subtotal_row_invoice {
   my %myconfig = %main::myconfig;
 
   my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
-  
+
   $row->{description}->{data} = "Summe " . $name;
 
   map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } qw(marge_total marge_percent);

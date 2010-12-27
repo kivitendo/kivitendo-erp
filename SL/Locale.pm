@@ -480,4 +480,19 @@ sub with_raw_io {
   $self->{raw_io_active} = 0;
 }
 
+sub set_numberformat_wo_thousands_separator {
+  my $self     = shift;
+  my $myconfig = shift || \%::myconfig;
+
+  $self->{saved_numberformat} = $myconfig->{numberformat};
+  $myconfig->{numberformat}   =~ s/^1[,\.]/1/;
+}
+
+sub restore_numberformat {
+  my $self     = shift;
+  my $myconfig = shift || \%::myconfig;
+
+  $myconfig->{numberformat} = $self->{saved_numberformat} if $self->{saved_numberformat};
+}
+
 1;
