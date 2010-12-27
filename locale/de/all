@@ -1214,6 +1214,7 @@ $self->{texts} = {
   'Please enter the login for the new user.' => 'Bitte geben Sie das Login für den neuen Benutzer ein.',
   'Please enter the name of the database that will be used as the template for the new database:' => 'Bitte geben Sie den Namen der Datenbank an, die als Vorlage f&uuml;r die neue Datenbank benutzt wird:',
   'Please enter the name of the dataset you want to restore the backup in.' => 'Bitte geben Sie den Namen der Datenbank ein, in der Sie die Sicherung wiederherstellen wollen.',
+  'Please enter the sales tax identification number.' => 'Bitte geben Sie die Umsatzsteueridentifikationsnummer an.',
   'Please enter the taxnumber in the administration menu user preferences' => 'Bitte bei den Einstellungen des aktuellen Benutzers im Administrationsmodul angeben.',
   'Please enter values'         => 'Bitte Werte eingeben',
   'Please insert object dimensions below.' => 'Bitte geben Sie die Abmessungen unten ein',

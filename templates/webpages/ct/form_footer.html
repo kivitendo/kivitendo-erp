@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %]
-
+[% USE LxERP %]
 <input name="id" type="hidden" id="cvid" value="[% HTML.escape(id) %]">
 <input name="business_save" type="hidden" value="[% HTML.escape(selectbusiness) %]">
 <input name="title_save" type="hidden" value="[% HTML.escape(title) %]">
@@ -9,19 +9,19 @@
 <input type="hidden" name="db" id="db" value="[% HTML.escape(db) %]">
 
 <br>
-  <input class="submit" type="submit" name="action" accesskey="s" value="[% 'Save' | $T8 %]">
-  <input class="submit" type="submit" name="action" accesskey="s" value="[% 'Save and Close' | $T8 %]">
+  <input class="submit" type="submit" name="action" accesskey="s" value="[% 'Save' | $T8 %]" onclick="return check_taxzone_and_ustid()">
+  <input class="submit" type="submit" name="action" accesskey="s" value="[% 'Save and Close' | $T8 %]" onclick="return check_taxzone_and_ustid()">
   [%- IF is_customer %]
-  <input class="submit" type="submit" name="action" value="[% 'Save and AR Transaction' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Save and AR Transaction' | $T8 %]" onclick="return check_taxzone_and_ustid()">
   [%- ELSE %]
-  <input class="submit" type="submit" name="action" value="[% 'Save and AP Transaction' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Save and AP Transaction' | $T8 %]" onclick="return check_taxzone_and_ustid()">
   [%- END %]
-  <input class="submit" type="submit" name="action" value="[% 'Save and Invoice' | $T8 %]">
-  <input class="submit" type="submit" name="action" value="[% 'Save and Order' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Save and Invoice' | $T8 %]" onclick="return check_taxzone_and_ustid()">
+  <input class="submit" type="submit" name="action" value="[% 'Save and Order' | $T8 %]" onclick="return check_taxzone_and_ustid()">
   [%- IF is_customer %]
-  <input class="submit" type="submit" name="action" value="[% 'Save and Quotation' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Save and Quotation' | $T8 %]" onclick="return check_taxzone_and_ustid()">
   [%- ELSE %]
-  <input class="submit" type="submit" name="action" value="[% 'Save and RFQ' | $T8 %]">
+  <input class="submit" type="submit" name="action" value="[% 'Save and RFQ' | $T8 %]" onclick="return check_taxzone_and_ustid()">
   [%- END %]
 [%- IF id AND is_orphaned %]
   <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
@@ -45,6 +45,14 @@
       maintab.setpersist(true);
       maintab.setselectedClassTarget("link"); //"link" or "linkparent"
       maintab.init();
+
+      function check_taxzone_and_ustid() {
+        if (($('#taxzone_id').attr('value') == '1') && ($('#ustid').attr('value') == '')) {
+          alert('[% LxERP.t8('Please enter the sales tax identification number.') %]');
+          return false;
+        }
+        return true;
+      }
 
     -->
  </script>

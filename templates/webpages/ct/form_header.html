@@ -1,5 +1,7 @@
 [%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
+[% USE L %]
+[% L.javascript_tag('jquery') %]
 <body>
 
  <div class="listtop">[% title %]</div>
@@ -184,7 +186,7 @@
       <td><input name="taxnumber" size="20" value="[% HTML.escape(taxnumber) %]"></td>
       <!-- Anm.: R&B 15.11.2008     VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein -->
       <th align="right">[% 'sales tax identification number' | $T8 %]</th>
-      <td><input name="ustid" maxlength="14" size="20" value="[% HTML.escape(ustid) %]"></td>
+      <td><input name="ustid" id="ustid" maxlength="14" size="20" value="[% HTML.escape(ustid) %]"></td>
       [%- IF is_customer %]
       <th align="right">[% 'our vendor number at customer' | $T8 %]</th>
       <td><input name="c_vendor_id" size="10" value="[% HTML.escape(c_vendor_id) %]"></td>
@@ -260,6 +262,7 @@
       <td>
        [%- INCLUDE generic/multibox.html
              name       = 'taxzone_id',
+             id         = 'taxzone_id',
              DATA       = ALL_TAXZONES,
              show_empty = 0,
              id_key     = 'id',
@@ -657,7 +660,6 @@
 
   </div>
 
-  <script type="text/javascript" src="js/jquery.js"></script>
   <script type="text/javascript">
    <!--
    function set_gender(gender) {
