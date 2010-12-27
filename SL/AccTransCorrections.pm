@@ -1,5 +1,6 @@
 package AccTransCorrections;
 
+use utf8;
 use strict;
 
 use List::Util qw(first);
@@ -129,8 +130,8 @@ sub _prepare_data {
     delete $entry->{chartlink};
   }
 
-  # Verknüpfungen zwischen Steuerschlüsseln und zum Zeitpunkt der Transaktion
-  # gültigen Steuersätze
+  # VerknÃ¼pfungen zwischen SteuerschlÃ¼sseln und zum Zeitpunkt der Transaktion
+  # gÃ¼ltigen SteuersÃ¤tze
   my %all_taxes = $self->{taxkeys}->get_full_tax_info('transdate' => $transaction->[0]->{transdate});
 
   my ($trans_type, $previous_non_tax_entry);
@@ -184,8 +185,8 @@ sub _prepare_data {
     }
   }
 
-  # Alle Einträge entfernen, die die Gegenkonten zu Zahlungsein- und
-  # -ausgängen darstellen.
+  # Alle EintrÃ¤ge entfernen, die die Gegenkonten zu Zahlungsein- und
+  # -ausgÃ¤ngen darstellen.
   foreach my $payment (@{ $data->{payments} }) {
     my $idx = 0 < $payment->{amount} ? 'debit' : 'credit';
 
@@ -253,8 +254,8 @@ sub _group_sub_transactions {
 }
 
 # Problemfall: Verkaufsrechnungen, bei denen Buchungen auf Warenbestandskonten
-# mit Steuerschlüssel != 0 durchgeführt wurden. Richtig wäre, dass alle
-# Steuerschlüssel für solche Warenbestandsbuchungen 0 sind.
+# mit SteuerschlÃ¼ssel != 0 durchgefÃ¼hrt wurden. Richtig wÃ¤re, dass alle
+# SteuerschlÃ¼ssel fÃ¼r solche Warenbestandsbuchungen 0 sind.
 sub _check_trans_invoices_inventory_with_taxkeys {
   $main::lxdebug->enter_sub();
 
@@ -289,7 +290,7 @@ sub _check_trans_invoices_inventory_with_taxkeys {
 }
 
 # Problemfall: Verkaufsrechnungen, bei denen Steuern verbucht wurden, obwohl
-# kein Steuerschlüssel eingetragen ist.
+# kein SteuerschlÃ¼ssel eingetragen ist.
 sub _check_missing_taxkeys_in_invoices {
   $::lxdebug->enter_sub;
 
@@ -331,8 +332,8 @@ sub _check_missing_taxkeys_in_invoices {
   return $found_broken;
 }
 
-# Problemfall: Kreditorenbuchungen, bei denen mit Umsatzsteuerschlüsseln
-# gebucht wurde und Debitorenbuchungen, bei denen mit Vorsteuerschlüsseln
+# Problemfall: Kreditorenbuchungen, bei denen mit UmsatzsteuerschlÃ¼sseln
+# gebucht wurde und Debitorenbuchungen, bei denen mit VorsteuerschlÃ¼sseln
 # gebucht wurde.
 sub _check_trans_ap_ar_wrong_taxkeys {
   $main::lxdebug->enter_sub();
@@ -360,8 +361,8 @@ sub _check_trans_ap_ar_wrong_taxkeys {
 }
 
 # Problemfall: Splitbuchungen, die mehrere Haben- und Sollkonten ansprechen.
-# Aber nur für Debitoren- und Kreditorenbuchungen, weil das bei Einkaufs- und
-# Verkaufsrechnungen hingegen völlig normal ist.
+# Aber nur fÃ¼r Debitoren- und Kreditorenbuchungen, weil das bei Einkaufs- und
+# Verkaufsrechnungen hingegen vÃ¶llig normal ist.
 sub _check_trans_split_multiple_credit_and_debit {
   $main::lxdebug->enter_sub();
 
@@ -385,7 +386,7 @@ sub _check_trans_split_multiple_credit_and_debit {
 }
 
 # Problemfall: Buchungen, bei denen Steuersummen nicht mit den Summen
-# übereinstimmen, die nach ausgewähltem Steuerschlüssel hätten auftreten müssen.
+# Ã¼bereinstimmen, die nach ausgewÃ¤hltem SteuerschlÃ¼ssel hÃ¤tten auftreten mÃ¼ssen.
 sub _check_trans_wrong_taxkeys {
   $main::lxdebug->enter_sub();
 
@@ -510,16 +511,16 @@ sub _check_trans_wrong_taxkeys {
   return $retval;
 }
 
-# Inaktiver Code für das Erraten möglicher Verteilungen von
-# Steuerschlüsseln. Deaktiviert, weil er exponentiell Zeit
-# benötigt.
+# Inaktiver Code fÃ¼r das Erraten mÃ¶glicher Verteilungen von
+# SteuerschlÃ¼sseln. Deaktiviert, weil er exponentiell Zeit
+# benÃ¶tigt.
 
 #       if (abs($expected_tax - $data{$side}->{tax_sum}) >= 0.02) {
 #         my @potential_taxkeys = $trans_type eq 'AP' ? (0, 8, 9) : (0, 1, 2, 3);
 
 #         $main::lxdebug->dump(0, "pota", \@potential_taxkeys);
 
-#         # Über alle Kombinationen aus Buchungssätzen und potenziellen Steuerschlüsseln
+#         # Ãœber alle Kombinationen aus BuchungssÃ¤tzen und potenziellen SteuerschlÃ¼sseln
 #         # iterieren und jeweils die Summe ermitteln.
 #         my $num_entries    = scalar @{ $data{$side}->{entries} };
 #         my @taxkey_indices = (0) x $num_entries;
@@ -533,7 +534,7 @@ sub _check_trans_wrong_taxkeys {
 #         while ($num_entries == scalar @taxkey_indices) {
 #           my @tax_cache = ();
 
-#           # Berechnen der Steuersumme für die aktuell angenommenen Steuerschlüssel.
+#           # Berechnen der Steuersumme fÃ¼r die aktuell angenommenen SteuerschlÃ¼ssel.
 #           my $tax_sum = 0;
 #           foreach my $i (0 .. $num_entries - 1) {
 #             my $taxkey      = $potential_taxkeys[$taxkey_indices[$i]];
@@ -543,9 +544,9 @@ sub _check_trans_wrong_taxkeys {
 #             $tax_sum       += $tax_cache[$i];
 #           }
 
-#           # Entspricht die Steuersumme mit den aktuell angenommenen Steuerschlüsseln
+#           # Entspricht die Steuersumme mit den aktuell angenommenen SteuerschlÃ¼sseln
 #           # der verbuchten Steuersumme? Wenn ja, dann ist das eine potenzielle
-#           # Lösung.
+#           # LÃ¶sung.
 #           if (abs($tax_sum - $data{$side}->{tax_sum}) < 0.02) {
 #             push @solutions, {
 #               'taxkeys' => [ @potential_taxkeys[@taxkey_indices] ],
@@ -553,8 +554,8 @@ sub _check_trans_wrong_taxkeys {
 #             }
 #           }
 
-#           # Weiterzählen der Steuerschlüsselindices zum Interieren über
-#           # alle möglichen Kombinationen.
+#           # WeiterzÃ¤hlen der SteuerschlÃ¼sselindices zum Interieren Ã¼ber
+#           # alle mÃ¶glichen Kombinationen.
 #           my $i = 0;
 #           while (1) {
 #             $taxkey_indices[$i]++;

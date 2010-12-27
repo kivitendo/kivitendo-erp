@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 
-# Das Passwort für den Zugang zum Administrationsfrontend im Klartext.
-# Kann nur in dieser Datei geändert werden, nicht im Administrationsfrontend
+# Das Passwort fÃ¼r den Zugang zum Administrationsfrontend im Klartext.
+# Kann nur in dieser Datei geÃ¤ndert werden, nicht im Administrationsfrontend
 # selber.
 $self->{admin_password} = 'admin';
 
@@ -9,16 +9,16 @@ $self->{admin_password} = 'admin';
 # Entweder 'DB' oder 'LDAP'.
 #
 # Wenn LDAP-Authentifizierung benutzt wird, dann kann der Benutzer sein
-# Passwort nicht über Lx-Office ändern.
+# Passwort nicht Ã¼ber Lx-Office Ã¤ndern.
 $self->{module} = 'DB';
 
 # Verbindungsinformationen zur Datenbank mit den Benutzer- und
-# Gruppeninformationen. Wird auch dann benötigt, wenn gegen einen
-# LDAP-Server authentifiziert wird, weil dieser nur zur Passwortüberprüfung
+# Gruppeninformationen. Wird auch dann benÃ¶tigt, wenn gegen einen
+# LDAP-Server authentifiziert wird, weil dieser nur zur PasswortÃ¼berprÃ¼fung
 # benutzt wird. Der Rest der Benutzerdaten ist in der Datenbank hinterlegt.
 #
-# Ist 'module' = 'DB' dann wird diese Datenbank auch für die
-# Passwortüberprüfung benutzt.
+# Ist 'module' = 'DB' dann wird diese Datenbank auch fÃ¼r die
+# PasswortÃ¼berprÃ¼fung benutzt.
 $self->{DB_config} = {
   'host'     => 'localhost',
   'port'     => 5432,
@@ -27,20 +27,20 @@ $self->{DB_config} = {
   'password' => '',
 };
 
-# Wird nur benötigt, wenn 'module' = 'LDAP' ist. An diesem LDAP-Server
-# werden die Benutzerpasswörter durch einen LDAP-Bind überprüft.
+# Wird nur benÃ¶tigt, wenn 'module' = 'LDAP' ist. An diesem LDAP-Server
+# werden die BenutzerpasswÃ¶rter durch einen LDAP-Bind Ã¼berprÃ¼ft.
 #
-# Es müssen mindestens die Parameter host, attribute und base_dn
+# Es mÃ¼ssen mindestens die Parameter host, attribute und base_dn
 # angegeben werden.
 #
-# tls:       Verschlüsselung per TLS erzwingen
-# attribute: Das LDAP-Attribut, das den Loginnamen enthält
+# tls:       VerschlÃ¼sselung per TLS erzwingen
+# attribute: Das LDAP-Attribut, das den Loginnamen enthÃ¤lt
 # base_dn:   Basis-DN, ab der der LDAP-Baum durchsucht wird
 # filter:    Ein optionaler LDAP-Filter. Die Zeichenkette '<%login%>' wird
 #            innerhalb des Filters durch den Loginnamen ersetzt.
 # bind_dn und bind_password:
 #            Wenn zum Durchsuchen des LDAP-Baumes eine Anmeldung erforderlich
-#            ist (z.B. beim ActiveDirectory), dann müssen diese beiden
+#            ist (z.B. beim ActiveDirectory), dann mÃ¼ssen diese beiden
 #            Parameter gesetzt sein.
 $self->{LDAP_config} = {
   'host'          => 'localhost',
@@ -54,11 +54,11 @@ $self->{LDAP_config} = {
   'bind_password' => undef,
 };
 
-# Der Name des Cookies kann geändert werden, sofern gewünscht.
+# Der Name des Cookies kann geÃ¤ndert werden, sofern gewÃ¼nscht.
 # $self->{cookie_name} = 'lx_office_erp_session_id';
 
-# Die Zeitspanne, bis eine inaktive Session ungültig wird, kann
-# hier geändert werden. Der Standardwert ist acht Stunden.
+# Die Zeitspanne, bis eine inaktive Session ungÃ¼ltig wird, kann
+# hier geÃ¤ndert werden. Der Standardwert ist acht Stunden.
 # Die Angabe ist in Minuten.
 # $self->{session_timeout} = 8 * 60;
 

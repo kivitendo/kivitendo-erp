@@ -35,10 +35,11 @@
 #  2004-12-14 - Holger Lindemann
 #######################################################################
 
+use utf8;
+use strict;
+
 use SL::Menu;
 use CGI::Carp qw(fatalsToBrowser);
-
-use strict;
 
 1;
 
@@ -415,7 +416,7 @@ sub section_menu {
     } else {
       if ($menu->{$item}{module}) {
 
-        #Untermenüpunkte
+        #UntermenÃ¼punkte
         my $target = $menu->{$item}{target};
         my $uri    = $menu->menuitem_js(\%myconfig, \%$form, $item, $level);
 

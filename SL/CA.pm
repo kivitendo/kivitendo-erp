@@ -34,11 +34,12 @@
 #
 #======================================================================
 
+use utf8;
+use strict;
+
 package CA;
 use Data::Dumper;
 use SL::DBUtils;
-
-use strict;
 
 sub all_accounts {
   $main::lxdebug->enter_sub();
@@ -50,16 +51,16 @@ sub all_accounts {
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
 
-  # bug 1071 Warum sollte bei Erreichen eines neuen Jahres die Kontenübersicht nur noch die
+  # bug 1071 Warum sollte bei Erreichen eines neuen Jahres die KontenÃ¼bersicht nur noch die
   # bereits bebuchten Konten anzeigen?
   # Folgende Erweiterung:
-  # 1.) Gehe zurück bis zu dem Datum an dem die Bücher geschlossen wurden
-  # 2.) Falls die Bücher noch nie geschlossen wurden, gehe zurück bis zum Bearbeitungsstart
+  # 1.) Gehe zurÃ¼ck bis zu dem Datum an dem die BÃ¼cher geschlossen wurden
+  # 2.) Falls die BÃ¼cher noch nie geschlossen wurden, gehe zurÃ¼ck bis zum Bearbeitungsstart
   # COALESCE((SELECT closedto FROM defaults),(SELECT itime FROM defaults))
 
   my $closedto_sql = "COALESCE((SELECT closedto FROM defaults),(SELECT itime FROM defaults))";
 
-  if ($form->{method} eq "cash") {  # EÜR
+  if ($form->{method} eq "cash") {  # EÃœR
     $acc_cash_where = qq| AND (a.trans_id IN (SELECT id FROM ar WHERE datepaid>= $closedto_sql
                           UNION SELECT id FROM ap WHERE datepaid>= $closedto_sql
                           UNION SELECT id FROM gl WHERE transdate>= $closedto_sql
@@ -284,7 +285,7 @@ sub all_transactions {
     $query =
       qq|SELECT a.id, a.reference, a.description, ac.transdate, ac.chart_id, | .
       qq|  $false AS invoice, ac.amount, 'gl' as module, | .
-      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo § .
+      qqÂ§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo Â§ .
       qq|FROM acc_trans ac, gl a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
@@ -296,7 +297,7 @@ sub all_transactions {
 
       qq|SELECT a.id, a.invnumber, c.name, ac.transdate, ac.chart_id, | .
       qq|  a.invoice, ac.amount, 'ar' as module, | .
-      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § .
+      qqÂ§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  Â§ .
       qq|FROM acc_trans ac, customer c, ar a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
@@ -309,7 +310,7 @@ sub all_transactions {
 
       qq|SELECT a.id, a.invnumber, v.name, ac.transdate, ac.chart_id, | .
       qq|  a.invoice, ac.amount, 'ap' as module, | .
-      qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  § .
+      qqÂ§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo  Â§ .
       qq|FROM acc_trans ac, vendor v, ap a | .
       $dpt_join .
       qq|WHERE | . $where . $dpt_where . $project .
@@ -345,7 +346,7 @@ sub all_transactions {
 
         qq|SELECT a.id, a.invnumber, c.name, a.transdate, | .
         qq|  a.invoice, ac.qty * ac.sellprice AS sellprice, 'ar' as module, | .
-        qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § .
+        qqÂ§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo Â§ .
         qq|FROM ar a | .
         qq|JOIN invoice ac ON (ac.trans_id = a.id) | .
         qq|JOIN parts p ON (ac.parts_id = p.id) | .
@@ -360,7 +361,7 @@ sub all_transactions {
 
         qq|SELECT a.id, a.invnumber, v.name, a.transdate, | .
         qq|  a.invoice, ac.qty * ac.sellprice AS sellprice, 'ap' as module, | .
-        qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo § .
+        qqÂ§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo Â§ .
         qq|FROM ap a | .
         qq|JOIN invoice ac ON (ac.trans_id = a.id) | .
         qq|JOIN parts p ON (ac.parts_id = p.id) | .

@@ -109,6 +109,7 @@ sub _init {
   $self->{iconv_english}    = SL::Iconv->new('ASCII',          $db_charset);
   $self->{iconv_iso8859}    = SL::Iconv->new('ISO-8859-15',    $db_charset);
   $self->{iconv_to_iso8859} = SL::Iconv->new($db_charset,      'ISO-8859-15');
+  $self->{iconv_utf8}       = SL::Iconv->new('UTF-8',          $db_charset);
 
   $self->_read_special_chars_file($country);
 

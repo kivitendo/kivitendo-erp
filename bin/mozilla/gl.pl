@@ -31,6 +31,9 @@
 #
 #======================================================================
 
+use utf8;
+use strict;
+
 use POSIX qw(strftime);
 use List::Util qw(sum);
 
@@ -43,8 +46,6 @@ use SL::ReportGenerator;
 require "bin/mozilla/common.pl";
 require "bin/mozilla/drafts.pl";
 require "bin/mozilla/reportgenerator.pl";
-
-use strict;
 
 # this is for our long dates
 # $locale->text('January')
@@ -817,8 +818,8 @@ sub display_rows {
   my %charts = ();
   my $taxchart_init;
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
-    if ($item->{charttype} eq 'H'){ #falls überschrift
-      next;                         #überspringen (Bug 1150)
+    if ($item->{charttype} eq 'H'){ #falls Ã¼berschrift
+      next;                         #Ã¼berspringen (Bug 1150)
     }
     my $key = $item->{accno} . "--" . $item->{tax_id};
     $taxchart_init = $item->{tax_id} unless (@chart_values);
@@ -1333,7 +1334,7 @@ $follow_ups_block
       print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|;
     }
 
-    # Löschen und Ändern von Buchungen nicht mehr möglich (GoB) nur am selben Tag möglich
+    # LÃ¶schen und Ã„ndern von Buchungen nicht mehr mÃ¶glich (GoB) nur am selben Tag mÃ¶glich
     if (!$form->{locked} && $radieren) {
       print qq|
         <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|" accesskey="b">

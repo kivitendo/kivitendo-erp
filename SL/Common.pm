@@ -8,14 +8,15 @@
 
 package Common;
 
+use utf8;
+use strict;
+
 use Time::HiRes qw(gettimeofday);
 use Data::Dumper;
 
 use SL::DBUtils;
 
 use vars qw(@db_encodings %db_encoding_to_charset %charset_to_db_encoding);
-
-use strict;
 
 @db_encodings = (
   { "label" => "ASCII",          "dbencoding" => "SQL_ASCII", "charset" => "ASCII" },
@@ -286,8 +287,9 @@ sub retrieve_vendor {
 
   my $query =
     qq!SELECT id, name, customernumber, (street || ', ' || zipcode || city) AS address FROM customer ! .
-    qq!WHERE $filter business_id = (SELECT id FROM business WHERE description = 'Händler') ! .
+    qq!WHERE $filter business_id = (SELECT id FROM business WHERE description = ?') ! .
     qq!ORDER BY $order_by $order_dir!;
+  push @filter_values, $::locale->{iconv_utf8}->convert('HÃ¤ndler');
   my $sth = $dbh->prepare($query);
   $sth->execute(@filter_values) ||
     $form->dberror($query . " (" . join(", ", @filter_values) . ")");
@@ -373,7 +375,7 @@ sub webdav_folder {
     my $base_path = substr($ENV{'SCRIPT_NAME'}, 1);
     $base_path =~ s|[^/]+$||;
     $base_path =~ s|/$||;
-    # wo kommt der wert für dir her? es wird doch gar nichts übergeben? fix für strict my $dir jb 21.2.
+    # wo kommt der wert fÃ¼r dir her? es wird doch gar nichts Ã¼bergeben? fix fÃ¼r strict my $dir jb 21.2.
     if (opendir my $dir, $path) {
       foreach my $file (sort { lc $a cmp lc $b } readdir $dir) {
         next if (($file eq '.') || ($file eq '..'));

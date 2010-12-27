@@ -26,7 +26,8 @@
 
 package DATEV;
 
-use List::Util qw(max);
+use utf8;
+use strict;
 
 use SL::DBUtils;
 use SL::DATEV::KNEFile;
@@ -34,9 +35,8 @@ use SL::Taxkeys;
 
 use Data::Dumper;
 use File::Path;
+use List::Util qw(max);
 use Time::HiRes qw(gettimeofday);
-
-use strict;
 
 sub _get_export_path {
   $main::lxdebug->enter_sub();
@@ -776,14 +776,14 @@ sub kne_buchungsexport {
       my $taxkey         = 0;
       my $charttax       = 0;
       my ($haben, $soll);
-      my $iconv          = $main::locale->{iconv_iso8859};
-      my %umlaute = ($iconv->convert('ä') => 'ae',
-                     $iconv->convert('ö') => 'oe',
-                     $iconv->convert('ü') => 'ue',
-                     $iconv->convert('Ä') => 'Ae',
-                     $iconv->convert('Ö') => 'Oe',
-                     $iconv->convert('Ü') => 'Ue',
-                     $iconv->convert('ß') => 'sz');
+      my $iconv          = $::locale->{iconv_utf8};
+      my %umlaute = ($iconv->convert('Ã¤') => 'ae',
+                     $iconv->convert('Ã¶') => 'oe',
+                     $iconv->convert('Ã¼') => 'ue',
+                     $iconv->convert('Ã„') => 'Ae',
+                     $iconv->convert('Ã–') => 'Oe',
+                     $iconv->convert('Ãœ') => 'Ue',
+                     $iconv->convert('ÃŸ') => 'sz');
       for (my $i = 0; $i < $trans_lines; $i++) {
         if ($trans_lines == 2) {
           if (abs($transaction->[$i]->{'amount'}) > abs($umsatz)) {

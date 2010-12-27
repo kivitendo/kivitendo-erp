@@ -1,5 +1,6 @@
 package SL::DB::Order;
 
+use utf8;
 use strict;
 
 use SL::RecordLinks;
@@ -98,6 +99,6 @@ Nothing here yet.
 
 =head1 AUTHOR
 
-  Sven Schöling <s.schoeling@linet-services.de>
+Sven SchÃ¶ling <s.schoeling@linet-services.de>
 
 =cut

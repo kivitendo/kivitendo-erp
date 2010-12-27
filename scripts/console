@@ -34,6 +34,7 @@ $repl->run;
 
 package Devel::REPL;
 
+use utf8;
 use CGI qw( -no_xhtml);
 use SL::Auth;
 use SL::Form;
@@ -109,13 +110,13 @@ sub help {
 Spezielle Kommandos:
 
   help                - zeigt diese Hilfe an.
-  lxinit 'login'      - l‰dt das Lx-Office Environment f¸r den User 'login'.
-  reload              - l‰dt modifizierte Module neu.
+  lxinit 'login'      - l√§dt das Lx-Office Environment f√ºr den User 'login'.
+  reload              - l√§dt modifizierte Module neu.
   pp DATA             - zeigt die Datenstruktur mit Data::Dumper an.
   quit                - beendet die Konsole
 
 EOL
-#  load   'module'     - l‰d das angegebene Modul, d.h. bin/mozilla/module.pl und SL/Module.pm.
+#  load   'module'     - l√§d das angegebene Modul, d.h. bin/mozilla/module.pl und SL/Module.pm.
 }
 
 sub pp {
@@ -190,6 +191,6 @@ See there for interesting options.
 
 =head1 AUTHOR
 
-  Sven Schˆling <s.schoeling@linet-services.de>
+  Sven Sch√∂ling <s.schoeling@linet-services.de>
 
 =cut
