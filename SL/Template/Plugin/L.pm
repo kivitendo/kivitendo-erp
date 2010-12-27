@@ -71,6 +71,7 @@ sub select_tag {
   my %attributes      = _hashify(@_);
 
   $attributes{id}   ||= $self->name_to_id($name);
+  $options_str        = $self->options_for_select($options_str) if ref $options_str;
 
   return $self->html_tag('select', $options_str, %attributes, name => $name);
 }
@@ -280,8 +281,10 @@ Creates a HTML 'select' tag named C<$name> with the contents
 C<$options_string> and with arbitrary HTML attributes from
 C<%attributes>. The tag's C<id> defaults to C<name_to_id($name)>.
 
-The $options_string is usually created by the C<options_for_select>
-function.
+The C<$options_string> is usually created by the
+L</options_for_select> function. If C<$options_string> is an array
+reference then it will be passed to L</options_for_select>
+automatically.
 
 =item C<input_tag $name, $value, %attributes>
 
