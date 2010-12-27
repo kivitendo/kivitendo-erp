@@ -32,9 +32,11 @@
       if (originalName.indexOf('[') != -1)
         originalName = originalName.substring(0, originalName.indexOf('['));
 
-      var nameDx = originalName + "ms2side__dx";
+      var nameDx = $(this).attr("name");
+      var idDx   = originalName + "ms2side__dx";
       var nameSx = originalName + "ms2side__sx";
       var size   = $(this).attr("size");
+      $(this).attr("name", originalName + "ms2side__orig");
       // SIZE MIN
       if (size < 6) {
         $(this).attr("size", "6");
@@ -75,7 +77,7 @@
         "</div>" +
         "<div class='ms2side__select'>" +
         (o.labeldx ? ("<div class='ms2side__header'>" + o.labeldx + "</div>") : "") +
-        "<select title='" + o.labeldx + "' name='" + nameDx + "' id='" + nameDx + "' size='" + size + "' multiple='multiple' ></select>" +
+        "<select title='" + o.labeldx + "' name='" + nameDx + "' id='" + idDx + "' size='" + size + "' multiple='multiple' ></select>" +
         "</div>" +
         ((o.selectedPosition == 'right' && o.moveOptions) ? divUpDown : "") +
         "</div>";
