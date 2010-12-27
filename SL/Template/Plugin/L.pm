@@ -148,7 +148,14 @@ sub hidden_tag {
 }
 
 sub submit_tag {
-  return shift->input_tag(@_, type => 'submit', class => 'submit');
+  my $self             = shift;
+  my $name             = shift;
+  my $value            = shift;
+  my %attributes       = _hashify(@_);
+
+  $attributes{onclick} = "if (confirm('" . delete($attributes{confirm}) . "')) return true; else return false;" if $attributes{confirm};
+
+  return $self->input_tag($name, $value, %attributes, type => 'submit', class => 'submit');
 }
 
 sub options_for_select {
@@ -327,6 +334,11 @@ tag's C<id> defaults to C<name_to_id($name)>.
 Creates a HTML 'input type=submit class=submit' tag named C<$name> with the
 value C<$value> and with arbitrary HTML attributes from C<%attributes>. The
 tag's C<id> defaults to C<name_to_id($name)>.
+
+If C<$attributes{confirm}> is set then a JavaScript popup dialog will
+be added via the C<onclick> handler asking the question given with
+C<$attributes{confirm}>. If request is only submitted if the user
+clicks the dialog's ok/yes button.
 
 =item C<textarea_tag $name, $value, %attributes>
 
