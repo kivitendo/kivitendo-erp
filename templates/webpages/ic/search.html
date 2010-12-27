@@ -38,9 +38,7 @@
       <tr>
        <th align="right" nowrap>[% 'Group' | $T8 %]</th>
        <td><input name="partsgroup" size="20"></td>
-       [%- UNLESS is_service %]
        <th align="right" nowrap>[% 'Serial Number' | $T8 %]</th> <td><input name="serialnumber" size="20"></td>
-       [%- END %]
       </tr>
 
       [%- UNLESS is_service %]
@@ -74,12 +72,10 @@
        <td colspan="3">
         <input name="itemstatus" id="itemstatus_active" class="radio" type="radio" value="active" checked>
         <label for="itemstatus_active">[% 'Active' | $T8 %]</label>
-        [%- UNLESS is_service %]
         <input name="itemstatus" id="itemstatus_onhand" class="radio" type="radio" value="onhand">
         <label for="itemstatus_onhand">[% 'On Hand' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_short" class="radio" type="radio" value="short">
         <label for="itemstatus_short">[% 'Short' | $T8 %]</label>
-        [%- END %]
         <input name="itemstatus" id="itemstatus_obsolete" class="radio" type="radio" value="obsolete">
         <label for="itemstatus_obsolete">[% 'Obsolete' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_orphaned" class="radio" type="radio" value="orphaned">
@@ -169,12 +165,10 @@
            <input name="l_description" id="l_description" class="checkbox" type="checkbox" value="Y" checked>
            <label for="l_description">[% 'Part Description' | $T8 %]</label>
           </td>
-          [%- UNLESS is_service %]
           <td>
            <input name="l_serialnumber" id="l_serialnumber" class="checkbox" type="checkbox" value="Y">
            <label for="l_serialnumber">[% 'Serial Number' | $T8 %]</label>
           </td>
-          [%- END %]
           <td>
            <input name="l_unit" id="l_unit" class="checkbox" type="checkbox" value="Y" checked>
            <label for="l_unit">[% 'Unit of measure' | $T8 %]</label>
