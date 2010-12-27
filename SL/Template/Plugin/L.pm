@@ -377,6 +377,26 @@ sub areainput_tag {
     : $self->input_tag($name, $value, %attributes);
 }
 
+sub multiselect2side {
+  my ($self, $id, @slurp) = @_;
+  my %params              = _hashify(@slurp);
+
+  $params{labelsx}        = "\"" . _J($params{labelsx} || $::locale->text('Available')) . "\"";
+  $params{labeldx}        = "\"" . _J($params{labeldx} || $::locale->text('Selected'))  . "\"";
+  $params{moveOptions}    = 'false';
+
+  my $vars                = join(', ', map { "${_}: " . $params{$_} } keys %params);
+  my $code                = <<EOCODE;
+<script type="text/javascript">
+  \$().ready(function() {
+    \$('#${id}').multiselect2side({ ${vars} });
+  });
+</script>
+EOCODE
+
+  return $code;
+}
+
 1;
 
 __END__
@@ -544,6 +564,27 @@ include C<min_rows> for rendering a minimum of rows if a textarea is displayed.
 
 You can force input by setting rows to 1, and you can force textarea by setting
 rows to anything >1.
+
+=item C<multiselect2side $id, %params>
+
+Creates a JavaScript snippet calling the jQuery function
+C<multiselect2side> on the select control with the ID C<$id>. The
+select itself is not created. C<%params> can contain the following
+entries:
+
+=over 2
+
+=item C<labelsx>
+
+The label of the list of available options. Defaults to the
+translation of 'Available'.
+
+=item C<labeldx>
+
+The label of the list of selected options. Defaults to the
+translation of 'Selected'.
+
+=back
 
 =back
 
