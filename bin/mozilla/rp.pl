@@ -1064,8 +1064,9 @@ sub generate_income_statement {
         last SWITCH;
       };
     }
-  }
-
+    hotfix_reformat_date();
+  } # Ende Bericht für vorgewählten Zeitraum (warum auch immer die Prüfung (custom eq true) ist ...
+   
   RP->income_statement(\%myconfig, \%$form);
 
   ($form->{department}) = split /--/, $form->{department};
@@ -1294,6 +1295,7 @@ sub generate_trial_balance {
         last SWITCH;
       };
     }
+    hotfix_reformat_date();
   }
 
 
@@ -2728,6 +2730,7 @@ sub generate_bwa {
         last SWITCH;
       };
     }
+    hotfix_reformat_date();
   } else {
     # die konvertierungen nur dann durchführen, wenn auch daten gesetzt sind.
     # ansonsten ist die prüfung in RP.pm
@@ -2735,12 +2738,12 @@ sub generate_bwa {
     # immer wahr
     if ($form->{fromdate}){
       my ($yy, $mm, $dd) = $locale->parse_date(\%myconfig, $form->{fromdate});
-      $form->{fromdate} = "${dd}.${mm}.${yy}";
-      $form->{comparefromdate} = "01.01.$yy";
+      my $datetime = $locale->parse_date_to_object(\%myconfig, $form->{fromdate});
+      $datetime->set( month      => 1,
+                      day        => 1);
+      $form->{comparefromdate} = $locale->format_date(\%::myconfig, $datetime);
     }
     if ($form->{todate}){
-      my ($yy, $mm, $dd) = $locale->parse_date(\%myconfig, $form->{todate});
-      $form->{todate}          = "${dd}.${mm}.${yy}";
       $form->{comparetodate}   = $form->{todate};
     }
   }
@@ -2787,5 +2790,32 @@ sub generate_bwa {
 
   $main::lxdebug->leave_sub();
 }
+###
+# Hotfix, um das Datumsformat, die unten hart auf deutsches Datumsformat eingestellt
+# sind, entsprechend mit anderem Formaten (z.B. iso-kodiert) zum Laufen zu bringen (S.a.: Bug 1388)
+sub hotfix_reformat_date {
+  
+  $main::lxdebug->enter_sub();
+  
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  
+  if ($myconfig{dateformat} ne 'dd.mm.yyyy'){
+    my $current_dateformat = $myconfig{dateformat};
+    $myconfig{dateformat} = 'dd.mm.yyyy';
+    $form->{fromdate} = $main::locale->reformat_date(\%myconfig, $form->{fromdate}, $current_dateformat);
+    $form->{todate} = $main::locale->reformat_date(\%myconfig, $form->{todate}, $current_dateformat);
+    $form->{comparefromdate} = $main::locale->reformat_date(\%myconfig, $form->{comparefromdate}, $current_dateformat)
+      unless (!defined ($form->{comparefromdate}));
+    $form->{comparetodate} = $main::locale->reformat_date(\%myconfig, $form->{comparetodate}, $current_dateformat)
+      unless (!defined ($form->{comparetodate}));
 
+    # Und wieder zurücksetzen
+    $myconfig{dateformat} =  $current_dateformat; #'dd.mm.yyyy';
+  } # Ende Hotifx Bug 1388
+
+  $main::lxdebug->leave_sub();
+
+}
 1;

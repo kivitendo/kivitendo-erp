@@ -53,6 +53,8 @@ use strict;
 sub get_openbalance_date {
   my ($closedto, $target) = map { $::locale->parse_date_to_object(\%::myconfig, $_) } @_;
 
+  return unless $closedto;
+
   $closedto->subtract(years => 1) while ($target - $closedto)->is_negative;
   $closedto->add(days => 1);
   return $::locale->format_date(\%::myconfig, $closedto);
