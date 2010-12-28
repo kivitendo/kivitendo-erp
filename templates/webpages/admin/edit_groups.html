@@ -6,10 +6,7 @@
   <p class="message_ok">[% message %]</p>
   [% END %]
 
-  <form method="post" action="admin.pl">
-     <input type="hidden" name="back_nextsub" value="list_users">
-    <p><input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]"></p>
-  </form>
+  <p><a href="admin.pl?action=login">[% 'Back' | $T8 %]</a></p>
 
  <div class="listheading">[% 'Add a new group' | $T8 %]</div>
  <form method="post" action="admin.pl">
@@ -25,8 +22,6 @@
 
 
  <form name="Form" method="post" action="admin.pl">
-
-
   <div class="listheading">[% 'Edit and delete a group' | $T8 %]</div>
 
   [% IF num_groups %]
@@ -48,7 +43,6 @@
    <input type="submit" class="submit" name="action" value="[% 'Edit' | $T8 %]">
    <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
    [% END %]
-   <input type="hidden" name="back_nextsub" value="list_users">
   </p>
  </form>
 

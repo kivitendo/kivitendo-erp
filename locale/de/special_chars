@@ -33,7 +33,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ % _ # ^ { } < > £ ± \xe1 ² ³ °
+order=\\ <pagebreak> & \n \r " $ % _ # ^ { } < > £ ± \xe1 ² ³ ° § ® ©
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -55,6 +55,9 @@ _=\\_
 ²=$^2$
 ³=$^3$
 °=$^\\circ$
+§=\\S
+®=\\textregistered
+©=\\textcopyright
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
