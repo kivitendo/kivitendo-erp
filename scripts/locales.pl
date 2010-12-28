@@ -31,6 +31,7 @@ parse_args();
 my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
+my @progdirs     = ( "$basedir/SL/Template/Plugin" );
 my $dbupdir      = "$basedir/sql/Pg-upgrade";
 my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
 my $menufile     = "menu.ini";
@@ -42,10 +43,16 @@ my ($ALL_HEADER, $MISSING_HEADER, $LOST_HEADER);
 init();
 
 opendir DIR, "$bindir" or die "$!";
-my @progfiles = grep { /\.pl$/ && !/(_custom|^\.)/ } readdir DIR;
+my @progfiles = map { [ $_, $bindir ] } grep { /\.pl$/ && !/(_custom|^\.)/ } readdir DIR;
 seekdir DIR, 0;
 my @customfiles = grep /_custom/, readdir DIR;
 closedir DIR;
+
+foreach my $dir (@progdirs) {
+  opendir DIR, $dir or die "$!";
+  push @progfiles, map { [ $_, $dir ] } grep { /\.pm$/ } readdir DIR;
+  closedir DIR;
+}
 
 # put customized files into @customfiles
 my @menufiles;
@@ -91,7 +98,7 @@ chomp $charset;
 
 my %old_texts = %{ $self->{texts} || {} };
 
-map({ handle_file($_, $bindir); } @progfiles);
+map({ handle_file(@{ $_ }); } @progfiles);
 map({ handle_file($_, $dbupdir); } @dbplfiles);
 map({ handle_file($_, $dbupdir2); } @dbplfiles2);
 
@@ -283,11 +290,11 @@ sub extract_text_between_parenthesis {
 
     } else {
       if ($quote_next) {
+        $text .= '\\' unless $cur_char eq "'";
         $text .= $cur_char;
         $quote_next = 0;
 
       } elsif ($cur_char eq '\\') {
-        $text .= $cur_char;
         $quote_next = 1;
 
       } elsif ($cur_char eq $inside_string) {
