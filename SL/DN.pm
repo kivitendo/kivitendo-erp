@@ -36,6 +36,7 @@ package DN;
 
 use SL::Common;
 use SL::DBUtils;
+use SL::GenericTranslations;
 use SL::IS;
 use SL::Mailer;
 use SL::MoreCommon;
@@ -782,6 +783,7 @@ sub print_dunning {
   $form->{total_open_amount} = $form->format_amount($myconfig, $form->round_amount($ref->{total_open_amount}, 2), 2);
   $form->{total_amount}      = $form->format_amount($myconfig, $form->round_amount($ref->{fee} + $ref->{total_interest} + $ref->{total_open_amount}, 2), 2);
 
+  $self->set_customer_cvars($myconfig, $form);
   $self->set_template_options($myconfig, $form);
 
   my $filename          = "dunning_${dunning_id}_" . Common::unique_id() . ".pdf";
@@ -832,7 +834,7 @@ sub print_invoice_for_fees {
   $query =
     qq|SELECT
          ar.invnumber, ar.transdate AS invdate, ar.amount, ar.netamount,
-         ar.duedate,   ar.notes,     ar.notes AS invoicenotes,
+         ar.duedate,   ar.notes,     ar.notes AS invoicenotes, ar.customer_id,
 
          c.name,      c.department_1,   c.department_2, c.street, c.zipcode, c.city, c.country,
          c.contact,   c.customernumber, c.phone,        c.fax,    c.email,
@@ -873,6 +875,7 @@ sub print_invoice_for_fees {
 
   map { $form->{$_} = $form->format_amount($myconfig, $form->{$_}, 2) } qw(fee interest invamount);
 
+  $self->set_customer_cvars($myconfig, $form);
   $self->set_template_options($myconfig, $form);
 
   my $filename = Common::unique_id() . "dunning_invoice_${dunning_id}.pdf";
@@ -894,6 +897,20 @@ sub print_invoice_for_fees {
   $dbh->disconnect() unless $provided_dbh;
 
   $main::lxdebug->leave_sub();
+}
+
+sub set_customer_cvars {
+  my ($self, $myconfig, $form) = @_;
+
+  my $custom_variables = CVar->get_custom_variables(dbh      => $form->get_standard_dbh,
+                                                    module   => 'CT',
+                                                    trans_id => $form->{customer_id});
+  map { $form->{"vc_cvar_$_->{name}"} = $_->{value} } @{ $custom_variables };
+
+  $form->{cp_greeting} = GenericTranslations->get(dbh              => $form->get_standard_dbh,
+                                                  translation_type => 'greetings::' . ($form->{cp_gender} eq 'f' ? 'female' : 'male'),
+                                                  language_id      => $form->{language_id},
+                                                  allow_fallback   => 1);
 }
 
 1;
