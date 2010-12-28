@@ -504,7 +504,12 @@ sub get_invoices {
               ORDER BY dunning_level ASC
               LIMIT 1)
              , ?))
-       LEFT JOIN dunning d ON ((d.trans_id = a.id) AND (cfg.dunning_level = d.dunning_level))
+       LEFT JOIN dunning d ON (d.id = (
+         SELECT MAX(d2.id)
+         FROM dunning d2
+         WHERE (d2.trans_id      = a.id)
+           AND (d2.dunning_level = cfg.dunning_level)
+       ))
 
        WHERE (a.paid < a.amount)
          AND (a.duedate < current_date)
