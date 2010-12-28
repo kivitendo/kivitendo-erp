@@ -2,6 +2,8 @@
 # -*- coding: utf-8; -*-
 # vim: fenc=UTF-8
 
+use utf8;
+
 # These are all the texts to build the translations files.
 # The file has the form of 'english text'  => 'foreign text',
 # you can add the translation in this file or in the 'missing' file

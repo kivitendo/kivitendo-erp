@@ -2,6 +2,8 @@
 # -*- coding: utf-8; -*-
 # vim: fenc=UTF-8
 
+use utf8;
+
 # These are all the texts to build the translations files.
 # The file has the form of 'english text'  => 'foreign text',
 # you can add the translation in this file or in the 'missing' file
@@ -153,7 +155,6 @@ $self->{texts} = {
   'Add bank account'            => 'Bankkonto erfassen',
   'Add custom variable'         => 'Benutzerdefinierte Variable erfassen',
   'Add note'                    => 'Notiz erfassen',
-  'Add to group'                => 'Zu Gruppe hinzufügen',
   'Add unit'                    => 'Einheit hinzuf&uuml;gen',
   'Address'                     => 'Adresse',
   'Administration'              => 'Administration',
@@ -1011,8 +1012,6 @@ $self->{texts} = {
   'May '                        => 'Mai',
   'May set the BCC field when sending emails' => 'Beim Verschicken von Emails das Feld \'BCC\' setzen',
   'Medium Number'               => 'Datentr&auml;gernummer',
-  'Members not of'              => 'Benutzer nicht in Gruppe',
-  'Members of'                  => 'Benutzer in Gruppe',
   'Memo'                        => 'Memo',
   'Menu'                        => 'Men&uuml;',
   'Message'                     => 'Nachricht',

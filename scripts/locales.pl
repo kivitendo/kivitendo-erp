@@ -600,12 +600,12 @@ sub generate_file {
   my $data_name = $params{data_name};
   my @delim     = split //, ($params{delim} || '{}');
 
-  open my $fh, '>', $file or die "$! : $file";
+  open my $fh, '>:encoding(utf8)', $file or die "$! : $file";
 
   $charset =~ s/\r?\n//g;
   my $emacs_charset = lc $charset;
 
-  print $fh "#!/usr/bin/perl\n# -*- coding: $emacs_charset; -*-\n# vim: fenc=$charset\n\n";
+  print $fh "#!/usr/bin/perl\n# -*- coding: $emacs_charset; -*-\n# vim: fenc=$charset\n\nuse utf8;\n\n";
   print $fh $header, "\n" if $header;
   print $fh "$data_name = $delim[0]\n" if $data_name;
 
