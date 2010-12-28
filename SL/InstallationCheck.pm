@@ -18,7 +18,6 @@ BEGIN {
   { name => "DBD::Pg",         version => '1.49',  url => "http://search.cpan.org/~dbdpg/" },
   { name => "Email::Address",                      url => "http://search.cpan.org/~rjbs/" },
   { name => "FCGI",                                url => "http://search.cpan.org/~mstrout/" },
-  { name => "IO::Wrap",        version => '2.110', url => "http://search.cpan.org/~dskoll/" },
   { name => "List::MoreUtils", version => '0.21',  url => "http://search.cpan.org/~vparseval/" },
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/" },
   { name => "Template",        version => '2.18',  url => "http://search.cpan.org/~abw/" },

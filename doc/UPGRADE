@@ -109,7 +109,6 @@ der Datei "doc/INSTALL". Seit Version 2.4.0 sind die folgenden Module
 neu hinzugekommen:
 
 - Achive::Zip
-- IO::Wrap (aus dem Paket "IO::Stringy")
 - Template
 - Text::CSV_XS
 - Text::Iconv

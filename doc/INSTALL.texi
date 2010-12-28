@@ -76,8 +76,6 @@ DBD::Pg
 @item
 Email::Address
 @item
-IO::Wrap (aus dem Paket IO::Stringy)
-@item
 List::MoreUtils
 @item
 PDF::API2
