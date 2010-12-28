@@ -55,9 +55,9 @@ _=\\_
 ²=$^2$
 ³=$^3$
 °=$^\\circ$
-§=$\\S$
-®=$\\textregistered$
-©=$\\textcopyright$
+§=\\S
+®=\\textregistered
+©=\\textcopyright
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
