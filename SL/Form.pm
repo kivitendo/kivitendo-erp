@@ -643,7 +643,7 @@ sub header {
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
   push @header, '<script type="text/javascript" src="js/jquery.js"></script>',
                 '<script type="text/javascript" src="js/common.js"></script>',
-                '<style type="text/css">\@import url(js/jscalendar/calendar-win2k-1.css);</style>',
+                '<style type="text/css">@import url(js/jscalendar/calendar-win2k-1.css);</style>',
                 '<script type="text/javascript" src="js/jscalendar/calendar.js"></script>',
                 '<script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>',
                 '<script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>',
