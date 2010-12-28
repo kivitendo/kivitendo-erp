@@ -1,12 +1,12 @@
 [HTML]
-order=& ä ö ü Ä Ö Ü ß " < >
-ä=&auml;
-ö=&ouml;
-ü=&uuml;
-Ä=&Auml;
-Ö=&Ouml;
-Ü=&Uuml;
-ß=&szlig;
+order=& Ã¤ Ã¶ Ã¼ Ã„ Ã– Ãœ ÃŸ " < >
+Ã¤=&auml;
+Ã¶=&ouml;
+Ã¼=&uuml;
+Ã„=&Auml;
+Ã–=&Ouml;
+Ãœ=&Uuml;
+ÃŸ=&szlig;
 "=&quot;
 &=&amp;
 <=&lt;
@@ -33,7 +33,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ % _ # ^ { } < > £ ± \xe1 ² ³
+order=\\ <pagebreak> & \n \r " $ % _ # ^ { } < > Â£ Â± \xe1 Â² Â³
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -46,14 +46,14 @@ _=\\_
 }=\\}
 <=$<$
 >=$>$
-£=\\pounds\s
+Â£=\\pounds\s
 \n=\\newline\s
 \r=
-±=$\\pm$
+Â±=$\\pm$
 \xe1=$\\bullet$
 ^=\\^\\\s
-²=$^2$
-³=$^3$
+Â²=$^2$
+Â³=$^3$
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r
@@ -68,11 +68,11 @@ order=& < > " ' \x80 \n \r
 \r=
 
 [filenames]
-order=ä ö ü Ä Ö Ü ß
-ä=ae
-ö=oe
-ü=ue
-Ä=Ae
-Ö=Oe
-Ü=Ue
-ß=ss
+order=Ã¤ Ã¶ Ã¼ Ã„ Ã– Ãœ ÃŸ
+Ã¤=ae
+Ã¶=oe
+Ã¼=ue
+Ã„=Ae
+Ã–=Oe
+Ãœ=Ue
+ÃŸ=ss

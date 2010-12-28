@@ -36,6 +36,8 @@
 #  2007-10-14 - XMLified  - Holger Will  <holger@treebuilder.de>
 #######################################################################
 
+use utf8;
+
 use SL::Menu;
 
 use CGI::Carp qw(fatalsToBrowser);
@@ -62,10 +64,10 @@ sub display {
     . qq|<?xml version="1.0" encoding="${charset}"?>
 <?xml-stylesheet href="xslt/xulmenu.xsl" type="text/xsl"?>
 <!DOCTYPE doc [
-<!ENTITY szlig "| . $::locale->{iconv_iso8859}->convert('ß') . qq|">
-<!ENTITY auml "| . $::locale->{iconv_iso8859}->convert('ä') . qq|">
-<!ENTITY ouml "| . $::locale->{iconv_iso8859}->convert('ö') . qq|">
-<!ENTITY uuml "| . $::locale->{iconv_iso8859}->convert('ü') . qq|">
+<!ENTITY szlig "| . $::locale->{iconv_utf8}->convert('ÃŸ') . qq|">
+<!ENTITY auml "|  . $::locale->{iconv_utf8}->convert('Ã¤') . qq|">
+<!ENTITY ouml "|  . $::locale->{iconv_utf8}->convert('Ã¶') . qq|">
+<!ENTITY uuml "|  . $::locale->{iconv_utf8}->convert('Ã¼') . qq|">
 ]>
 
 <doc>

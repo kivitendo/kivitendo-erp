@@ -23,6 +23,8 @@
 # German Tax authority Module and later ELSTER Interface
 #======================================================================
 
+use utf8;
+
 require "bin/mozilla/common.pl";
 
 #use strict;
@@ -93,7 +95,7 @@ sub report {
   $ustva->get_config($userspath, 'finanzamt.ini');
 
   # Hier Einlesen der user-config
-  # steuernummer entfernt für prerelease
+  # steuernummer entfernt fÃ¼r prerelease
   my @a = qw(
     signature      name          company       address        businessnumber
     tel            fax           email         co_chief       co_department
@@ -120,7 +122,7 @@ sub report {
 
 
   # Anpassungen der Variablennamen auf pre 2.1.1 Namen
-  # klären, ob $form->{company_street|_address} gesetzt sind
+  # klÃ¤ren, ob $form->{company_street|_address} gesetzt sind
   if ($form->{address} ne '') {
     my $temp = $form->{address};
     $temp =~ s/\n/<br \/>/;
@@ -302,7 +304,7 @@ sub ustva_vorauswahl {
     $sel    = '';
     my $dfv = '';
 
-    # Offset für Dauerfristverlängerung
+    # Offset fÃ¼r DauerfristverlÃ¤ngerung
     $dfv = '100' if ($form->{FA_dauerfrist} eq '1');
 
   SWITCH: {
@@ -386,7 +388,7 @@ sub ustva_vorauswahl {
     my $yy = $form->{year} * 10000;
     $yymmdd = "$form->{year}$form->{month}$form->{day}" * 1;
     $sel    = '';
-    my $dfv = '';    # Offset für Dauerfristverlängerung
+    my $dfv = '';    # Offset fÃ¼r DauerfristverlÃ¤ngerung
     $dfv = '100' if ($form->{FA_dauerfrist} eq '1');
 
   SWITCH: {
@@ -672,7 +674,7 @@ sub generate_ustva {
       };
     }
 
-  # Kontrollvariable für die Templates
+  # Kontrollvariable fÃ¼r die Templates
   $form->{'year2007'} = ($form->{year} >= 2007 ) ? "1":"0";
 
 
@@ -788,7 +790,7 @@ sub generate_ustva {
       $form->{endbold} = "}";
       $form->{br}      = '\\\\';
 
-      # Zahlenformatierung für Latex USTVA Formulare
+      # Zahlenformatierung fÃ¼r Latex USTVA Formulare
 
       foreach my $number (@category_euro) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '0', '');
@@ -802,7 +804,7 @@ sub generate_ustva {
         $form->{$number} =~ s/${decimal_comma}/~~/g;
       }
 
-    } elsif ( $form->{format} eq 'html') { # Formatierungen für HTML Ausgabe
+    } elsif ( $form->{format} eq 'html') { # Formatierungen fÃ¼r HTML Ausgabe
 
       $form->{IN} = $form->{type} . '.html';
       $form->{padding} = "&nbsp;&nbsp;";
@@ -833,7 +835,7 @@ sub generate_ustva {
       $file .= sprintf("%02d", $form->{year} % 100);
       #6. to 18. char = Elstersteuernummer
       #Beispiel: Steuernummer in Bayern
-      #111/222/33334 ergibt für UStVA Jan 2004: U01049111022233334
+      #111/222/33334 ergibt fÃ¼r UStVA Jan 2004: U01049111022233334
       $file .= $form->{elsterFFFF};
       $file .= $form->{elstersteuernummer};
       #file suffix
@@ -843,7 +845,7 @@ sub generate_ustva {
 
       $form->{attachment_filename} = $file;
 
-      # Zahlenformatierung für Winston
+      # Zahlenformatierung fÃ¼r Winston
 
       my $temp_numberformat = $myconfig{numberformat};
 
@@ -1013,7 +1015,7 @@ sub generate_ustva {
 
     $form->{USTVA} = [];
 
-    if ( $form->{format} eq 'generic') { # Formatierungen für HTML Ausgabe
+    if ( $form->{format} eq 'generic') { # Formatierungen fÃ¼r HTML Ausgabe
 
       my $rec_ref = {};
       for my $kennziffer (@category_cent, @category_euro) {
@@ -1123,10 +1125,10 @@ $form->{title} = $locale->text('Tax Office Preferences');
 
   $ustva->get_coa($form, \%myconfig);
 
-  # hä? kann die weg?
+  # hÃ¤? kann die weg?
   my $steuernummer_new = '';
 
-  # Variablen für das Template zur Verfügung stellen
+  # Variablen fÃ¼r das Template zur VerfÃ¼gung stellen
   my $template_ref = {
      select_tax_office               => $select_tax_office,
      checked_accrual                 => $checked_accrual,
@@ -1164,7 +1166,7 @@ sub config_step2 {
   $ustva->get_config($userspath, 'finanzamt.ini')
     if ($form->{saved} eq $locale->text('saved'));
 
-  # Auf Übergabefehler checken
+  # Auf Ãœbergabefehler checken
   USTVA::info(  $locale->text('Missing Tax Authoritys Preferences') . "\n"
               . $locale->text('USTVA-Hint: Tax Authoritys'))
     if (   $form->{elsterFFFF_new} eq 'Auswahl'
@@ -1173,7 +1175,7 @@ sub config_step2 {
               . $locale->text('USTVA-Hint: Method'))
     if ($form->{method} eq '');
 
-  # Klären, ob Variablen bereits befüllt sind UND ob veräderungen auf
+  # KlÃ¤ren, ob Variablen bereits befÃ¼llt sind UND ob verÃ¤derungen auf
   # der vorherigen Maske stattfanden: $change = 1(in der edit sub,
   # mittels get_config)
 
@@ -1186,7 +1188,7 @@ sub config_step2 {
 
   if ($change eq '1') {
 
-    # Daten ändern
+    # Daten Ã¤ndern
     $elsterland           = $form->{elsterland_new};
     $elsterFFFF           = $form->{elsterFFFF_new};
     $form->{elsterland}   = $elsterland;
@@ -1359,7 +1361,7 @@ sub save {
     FA_steuerberater_street FA_steuerberater_city FA_steuerberater_tel
     FA_71 FA_dauerfrist);
 
-  # Hier kommt dann die Plausibilitätsprüfung der ELSTERSteuernummer
+  # Hier kommt dann die PlausibilitÃ¤tsprÃ¼fung der ELSTERSteuernummer
   if ($form->{elstersteuernummer} ne '000000000') {
 
     $form->{elster} = '1';

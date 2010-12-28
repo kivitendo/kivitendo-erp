@@ -421,11 +421,13 @@ sub download {
   chdir($cwd);
 
   open(IN, $tmp_name) || die("open $tmp_name");
-  print("Content-Type: application/zip\n");
-  print("Content-Disposition: attachment; filename=\"${zip_name}\"\n\n");
-  while (<IN>) {
-    print($_);
-  }
+  $::locale->with_raw_io(\*STDOUT, sub {
+    print("Content-Type: application/zip\n");
+    print("Content-Disposition: attachment; filename=\"${zip_name}\"\n\n");
+    while (<IN>) {
+      print($_);
+    }
+  });
   close(IN);
 
   unlink($tmp_name);

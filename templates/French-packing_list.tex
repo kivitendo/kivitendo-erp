@@ -1,7 +1,7 @@
 \documentclass[twoside]{scrartcl}
 \usepackage[frame]{xy}
 \usepackage[frenchb]{babel}
-\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage{tabularx}
 \setlength{\voffset}{0.5cm}
 \setlength{\hoffset}{-2.0cm}
@@ -30,8 +30,8 @@
       
       <%address%>}\hfill
     \begin{tabular}[b]{rr@{}}
-    Téléphone & <%tel%>\\
-    Télécopieur & <%fax%>
+    TÃ©lÃ©phone & <%tel%>\\
+    TÃ©lÃ©copieur & <%fax%>
     \end{tabular}
 
     \rule[1.5ex]{\textwidth}{0.5pt}
@@ -55,8 +55,8 @@
 \vspace*{-12pt}
 
 \begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rll@{}}
-  \textbf{Numéro} & \textbf{Description} & \textbf{Qté} &
-    \textbf{Unité} & \textbf{Bin} \\
+  \textbf{NumÃ©ro} & \textbf{Description} & \textbf{QtÃ©} &
+    \textbf{UnitÃ©} & \textbf{Bin} \\
 <%end pagebreak%>
 
 
@@ -82,15 +82,15 @@
 \hfill
 \begin{tabular}[t]{l@{\hspace{0.3cm}}l}
   \textbf{Date de facture} & <%invdate%> \\
-  \textbf{Numéro de facture} & <%invnumber%> \\
-  \textbf{Numéro de client} & <%customer_id%>
+  \textbf{NumÃ©ro de facture} & <%invnumber%> \\
+  \textbf{NumÃ©ro de client} & <%customer_id%>
 \end{tabular}
 
 \vspace{1cm}
 
 \begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rll@{}}
-  \textbf{Numéro} & \textbf{Description} & \textbf{Qté} &
-    \textbf{Unité} & \textbf{Bin} \\
+  \textbf{NumÃ©ro} & \textbf{Description} & \textbf{QtÃ©} &
+    \textbf{UnitÃ©} & \textbf{Bin} \\
 <%foreach number%>
   <%number%> & <%description%> & <%qty%> &
     <%unit%> & <%bin%> \\
@@ -115,11 +115,11 @@
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
 \footnotetext[1]{\tiny
-Les éléments retournés seront sujets à un supplément de remmagasinnage de
-10\%. Une autorisation de renvoi doit être obtenue au préalable auprès de
-<%company%>. Les frais de transports et d'assurance sur les éléments
-retournés devront être couvert par le client de façon appropriée.
-<%company%> ne peut être tenue responsable des dommages survenus pendant
+Les Ã©lÃ©ments retournÃ©s seront sujets Ã  un supplÃ©ment de remmagasinnage de
+10\%. Une autorisation de renvoi doit Ãªtre obtenue au prÃ©alable auprÃ¨s de
+<%company%>. Les frais de transports et d'assurance sur les Ã©lÃ©ments
+retournÃ©s devront Ãªtre couvert par le client de faÃ§on appropriÃ©e.
+<%company%> ne peut Ãªtre tenue responsable des dommages survenus pendant
 le transit.}
 
 \end{document}

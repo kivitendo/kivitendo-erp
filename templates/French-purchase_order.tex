@@ -1,7 +1,7 @@
 \documentclass[twoside]{scrartcl}
 \usepackage[frame]{xy}
 \usepackage[frenchb]{babel}
-\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage{tabularx}
 \setlength{\voffset}{0.5cm}
 \setlength{\hoffset}{-2.0cm}
@@ -30,8 +30,8 @@
       
       <%address%>}\hfill
     \begin{tabular}[b]{rr@{}}
-    Téléphone & <%tel%>\\
-    Télécopieur & <%fax%>
+    TÃ©lÃ©phone & <%tel%>\\
+    TÃ©lÃ©copieur & <%fax%>
     \end{tabular}
 
     \rule[1.5ex]{\textwidth}{0.5pt}
@@ -64,7 +64,7 @@
 \begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrr@{}}
   \textbf{Number} & \textbf{Description} & \textbf{Qt'y} &
     \textbf{Unit} & \textbf{Price} & \textbf{Amount} \\
-  & reporté de la page <%lastpage%> & & & & <%sumcarriedforward%> \\
+  & reportÃ© de la page <%lastpage%> & & & & <%sumcarriedforward%> \\
 <%end pagebreak%>
 
 
@@ -92,14 +92,14 @@
 <%if reqdate%>
   \textbf{Livrable le} & <%reqdate%> \\
 <%end reqdate%>
-  \textbf{Numéro de commande} & <%ordnumber%>
+  \textbf{NumÃ©ro de commande} & <%ordnumber%>
 \end{tabular}
 
 \vspace{1cm}
 
 \begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrr@{}}
-  \textbf{Numéro} & \textbf{Description} & \textbf{Qté} &
-    \textbf{Unité} & \textbf{Prix} & \textbf{Montant} \\
+  \textbf{NumÃ©ro} & \textbf{Description} & \textbf{QtÃ©} &
+    \textbf{UnitÃ©} & \textbf{Prix} & \textbf{Montant} \\
 <%foreach number%>
   <%number%> & <%description%> & <%qty%> &
     <%unit%> & <%sellprice%> & <%linetotal%> \\
@@ -125,7 +125,7 @@
 \vspace{0.3cm}
 
 \hfill
-  Tous les prix indiqués sont en \textbf{<%currency%>}.
+  Tous les prix indiquÃ©s sont en \textbf{<%currency%>}.
 
 \vspace{12pt}
 

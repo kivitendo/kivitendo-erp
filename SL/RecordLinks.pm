@@ -1,11 +1,12 @@
 package RecordLinks;
 
+use utf8;
+use strict;
+
 use SL::Common;
 use SL::DBUtils;
 use Data::Dumper;
 use List::Util qw(reduce);
-
-use strict;
 
 sub create_links {
   $main::lxdebug->enter_sub();
@@ -243,8 +244,8 @@ SL::RecordLinks - Verlinkung von Lx-Office Objekten.
 
 Transitive RecordLinks mit get_links_via.
 
-get_links_via erwartet den zusätzlichen parameter via. via ist ein
-hashref mit den jeweils optionalen Einträgen table und id, die sich
+get_links_via erwartet den zusÃ¤tzlichen parameter via. via ist ein
+hashref mit den jeweils optionalen EintrÃ¤gen table und id, die sich
 genauso verhalten wie die from/to_table/id werte der get_links funktion.
 
 Alternativ kann via auch ein Array dieser Hashes sein:
@@ -267,9 +268,9 @@ Alternativ kann via auch ein Array dieser Hashes sein:
     ],
   )
 
-Die Einträge in einem via-Array werden exakt in dieser Reihenfolge
-benutzt und sind nicht optional. Da obige Beispiel würde also die
-Verknüpfung:
+Die EintrÃ¤ge in einem via-Array werden exakt in dieser Reihenfolge
+benutzt und sind nicht optional. Da obige Beispiel wÃ¼rde also die
+VerknÃ¼pfung:
 
   oe:11 -> ar:12 -> is:13 -> do:14
 
