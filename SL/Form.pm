@@ -1374,7 +1374,6 @@ sub get_formname_translation {
     bin_list                => $main::locale->text('Bin List'),
     credit_note             => $main::locale->text('Credit Note'),
     invoice                 => $main::locale->text('Invoice'),
-    packing_list            => $main::locale->text('Packing List'),
     pick_list               => $main::locale->text('Pick List'),
     proforma                => $main::locale->text('Proforma Invoice'),
     purchase_order          => $main::locale->text('Purchase Order'),
@@ -1382,7 +1381,6 @@ sub get_formname_translation {
     sales_order             => $main::locale->text('Confirmation'),
     sales_quotation         => $main::locale->text('Quotation'),
     storno_invoice          => $main::locale->text('Storno Invoice'),
-    storno_packing_list     => $main::locale->text('Storno Packing List'),
     sales_delivery_order    => $main::locale->text('Delivery Order'),
     purchase_delivery_order => $main::locale->text('Delivery Order'),
     dunning                 => $main::locale->text('Dunning'),
@@ -3225,7 +3223,6 @@ sub save_status {
 # $main::locale->text('invoice')
 # $main::locale->text('proforma')
 # $main::locale->text('sales_order')
-# $main::locale->text('packing_list')
 # $main::locale->text('pick_list')
 # $main::locale->text('purchase_order')
 # $main::locale->text('bin_list')
