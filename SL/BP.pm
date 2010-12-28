@@ -47,7 +47,6 @@ sub get_vc {
   my $dbh = $form->dbconnect($myconfig);
 
   my %arap = (invoice           => 'ar',
-              packing_list      => 'ar',
               sales_order       => 'oe',
               purchase_order    => 'oe',
               sales_quotation   => 'oe',
@@ -183,7 +182,7 @@ sub get_spoolfiles {
     }
   }
 
-  if ($form->{type} =~ /(invoice|sales_order|sales_quotation|packing_list|puchase_order|request_quotation)$/) {
+  if ($form->{type} =~ /(invoice|sales_order|sales_quotation|puchase_order|request_quotation)$/) {
     if ($form->{transdatefrom}) {
       $query .= " AND a.transdate >= ?";
       push(@values, $form->{transdatefrom});

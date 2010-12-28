@@ -1151,7 +1151,6 @@ sub print_options {
     ) : undef,
     ($form->{type} eq 'invoice' && $form->{storno}) ? (
       opthash("storno_invoice",      $form->{PD}{storno_invoice},      $locale->text('Storno Invoice')),
-      opthash("storno_packing_list", $form->{PD}{storno_packing_list}, $locale->text('Storno Packing List'))
     ) : undef,
     ($form->{type} =~ /_delivery_order$/) ? (
       opthash($form->{type},         $form->{PD}{$form->{type}},       $locale->text('Delivery Order')),
@@ -1297,11 +1296,6 @@ sub print_form {
   if ($form->{formname} eq "invoice") {
     $form->{label} = $locale->text('Invoice');
   }
-  if ($form->{formname} eq "packing_list") {
-
-    # this is from an invoice
-    $form->{label} = $locale->text('Packing List');
-  }
   if ($form->{formname} eq 'sales_order') {
     $inv                  = "ord";
     $due                  = "req";
@@ -1331,17 +1325,6 @@ sub print_form {
     $order                = 1;
   }
 
-  if ($form->{formname} eq 'packing_list' && $form->{type} ne 'invoice') {
-
-    # we use the same packing list as from an invoice
-    $inv = "ord";
-    $due = "req";
-    $form->{invdate} = $form->{"${inv}date"} = $form->{transdate};
-    $form->{label} = $locale->text('Packing List');
-    $order = 1;
-    # set invnumber for template packing_list
-    $form->{invnumber}   = $form->{ordnumber};
-  }
   if ($form->{formname} eq 'purchase_order') {
     $inv                  = "ord";
     $due                  = "req";
@@ -1402,8 +1385,6 @@ sub print_form {
 
   # $locale->text('Invoice Number missing!')
   # $locale->text('Invoice Date missing!')
-  # $locale->text('Packing List Number missing!')
-  # $locale->text('Packing List Date missing!')
   # $locale->text('Order Number missing!')
   # $locale->text('Order Date missing!')
   # $locale->text('Quotation Number missing!')

@@ -59,14 +59,6 @@ sub assert_bp_access {
   if ($form->{type} && $access_map{$form->{type}}) {
     $main::auth->assert($access_map{$form->{type}});
 
-  } elsif ($form->{type} eq 'packing_list') {
-    $main::lxdebug->message(0, "1");
-    if (!$main::auth->assert('sales_order_edit', 1)) {
-    $main::lxdebug->message(0, "2");
-      $main::auth->assert('invoice_edit') ;
-    }
-    $main::lxdebug->message(0, "3");
-
   } else {
     $main::auth->assert('DOES_NOT_EXIST');
   }
@@ -84,7 +76,6 @@ sub search {
   assert_bp_access();
 
   # $locale->text('Sales Invoices')
-  # $locale->text('Packing Lists')
   # $locale->text('Sales Orders')
   # $locale->text('Purchase Orders')
   # $locale->text('Quotations')
@@ -109,8 +100,6 @@ sub search {
   my %label = (
        invoice =>
          { title => 'Sales Invoices', name => 'Customer', l_invnumber => 'Y' },
-       packing_list =>
-         { title => 'Packing Lists', name => 'Customer', l_invnumber => 'Y' },
        sales_order =>
          { title => 'Sales Orders', name => 'Customer', l_ordnumber => 'Y' },
        purchase_order =>
@@ -148,8 +137,6 @@ sub search {
         </tr>
 |;
 
-  $label{packing_list}{invnumber}      = $label{invoice}{invnumber};
-  $label{packing_list}{ordnumber}      = $label{invoice}{ordnumber};
   $label{sales_order}{ordnumber}       = $label{invoice}{ordnumber};
   $label{purchase_order}{ordnumber}    = $label{invoice}{ordnumber};
   $label{request_quotation}{quonumber} = $label{sales_quotation}{quonumber};
@@ -476,9 +463,6 @@ sub list_spool {
   my $name = ucfirst $form->{vc};
 
   my @columns = qw(transdate);
-  if ($form->{type} =~ /(invoice|packing_list|check|receipt)/) {
-    push @columns, "invnumber";
-  }
   if ($form->{type} =~ /_order$/) {
     push @columns, "ordnumber";
   }
