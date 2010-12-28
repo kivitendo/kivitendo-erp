@@ -74,7 +74,7 @@ sub balance_sheet {
   }
 
   # get end of financial year and convert to Date format
-  my ($closedto) = selectfirst_arrayref_query($form, $dbh, 'SELECT closedto FROM defaults');
+  my ($closedto) = selectfirst_array_query($form, $dbh, 'SELECT closedto FROM defaults');
 
   # get date of last opening balance
   my $startdate = get_openbalance_date($closedto, $form->{asofdate});
