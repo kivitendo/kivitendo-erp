@@ -266,6 +266,8 @@ sub prepare_invoice {
 
       $form->{"qty_$i"}        = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
+      $form->{"sellprice_pg_$i"} = join ('--', $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"});
+
       $form->{rowcount}        = $i;
 
     }
