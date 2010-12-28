@@ -176,7 +176,7 @@ sub get_part {
 
       my $i = 1;
 
-      while (($form->{"make_$i"}, $form->{"model_$i"}, $form->{"old_lastcost_$i"}, 
+      while (($form->{"make_$i"}, $form->{"model_$i"}, $form->{"old_lastcost_$i"},
                 $form->{"lastcost_$i"}, $form->{"lastupdate_$i"}, $form->{"sortorder_$i"}) = $sth->fetchrow_array)
       {
         $i++;
@@ -502,9 +502,9 @@ sub save {
       if (($form->{"make_$i"}) || ($form->{"model_$i"})) {
         #hli
         $value = $form->parse_amount($myconfig, $form->{"lastcost_$i"});
-        if ($value == $form->{"old_lastcost_$i"}) 
+        if ($value == $form->{"old_lastcost_$i"})
         {
-            if ($form->{"lastupdate_$i"} eq "") { 
+            if ($form->{"lastupdate_$i"} eq "") {
                 $lastupdate = 'now()';
             } else {
                 $lastupdate = $dbh->quote($form->{"lastupdate_$i"});
