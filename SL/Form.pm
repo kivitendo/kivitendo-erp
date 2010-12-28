@@ -654,6 +654,19 @@ sub header {
   push @header, sprintf "<script type='text/javascript'>top.document.title='%s';</script>",
     join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
 
+  # if there is a title, we put some JavaScript in to the page, wich writes a
+  # meaningful title-tag for our frameset.
+  my $title_hack = '';
+  if ($self->{title}) {
+    $title_hack = qq|
+    <script type="text/javascript">
+    <!--
+      // Write a meaningful title-tag for our frameset.
+      top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - V| . $self->{"version"} . qq|";
+    //-->
+    </script>|;
+  }
+
   # output
   print $self->create_http_response(content_type => 'text/html', charset => $db_charset);
   print "<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/TR/html4/strict.dtd'>\n"
@@ -680,6 +693,7 @@ EOT
 
   </script>
   $extra_code
+  $title_hack
  </head>
 
 EOT
