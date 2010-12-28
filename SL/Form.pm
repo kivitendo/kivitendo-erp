@@ -3518,9 +3518,7 @@ Points of interest for a beginner are:
 
 =head1 SPECIAL FUNCTIONS
 
-=over 4
-
-=item _store_value()
+=head2 C<_store_value()>
 
 parses a complex var name, and stores it in the form.
 
@@ -3575,7 +3573,7 @@ supported key structures are:
 
   filter.status[]  => $form->{status}->[ val1, val2, ... ]
 
-=item update_business PARAMS
+=head2 C<update_business> PARAMS
 
 PARAMS (not named):
  \%config,     - config hashref
@@ -3587,7 +3585,7 @@ handles business (thats customer/vendor types) sequences.
 special behaviour for empty strings in customerinitnumber field:
 will in this case not increase the value, and return undef.
 
-=item redirect_header $url
+=head2 C<redirect_header> $url
 
 Generates a HTTP redirection header for the new C<$url>. Constructs an
 absolute URL including scheme, host name and port. If C<$url> is a
@@ -3600,6 +3598,45 @@ Examples:
 
   print $::form->redirect_header('oe.pl?action=edit&id=1234');
   print $::form->redirect_header('http://www.lx-office.org/');
+
+=head2 C<header>
+
+Generates a general purpose http/html header and includes most of the scripts
+ans stylesheets needed.
+
+Only one header will be generated. If the method was already called in this
+request it will not output anything and return undef. Also if no
+HTTP_USER_AGENT is found, no header is generated.
+
+Although header does not accept parameters itself, it will honor special
+hashkeys of its Form instance:
+
+=over 4
+
+=item refresh_time
+
+=item refresh_url
+
+If one of these is set, a http-equiv refresh is generated. Missing parameters
+default to 3 seconds and the refering url.
+
+=item stylesheet
+
+=item stylesheets
+
+If these are arrayrefs the contents will be inlined into the header.
+
+=item landscape
+
+If true, a css snippet will be generated that sets the page in landscape mode.
+
+=item favicon
+
+Used to override the default favicon.
+
+=item title
+
+A html page title will be generated from this
 
 =back
 
