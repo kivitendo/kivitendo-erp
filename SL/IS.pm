@@ -2076,14 +2076,14 @@ sub get_pricegroups_for_parts {
           $pkr->{price}    = $form->{"sellprice_$i"};
           $pkr->{selected} = ' selected';
         }
-      }
-
-      if ($selectedpricegroup_id or $selectedpricegroup_id == 0) {
+      } else {
         if ($selectedpricegroup_id ne $pricegroup_old) {
           if ($pkr->{pricegroup_id} eq $selectedpricegroup_id) {
             $pkr->{selected}  = ' selected';
           }
-        } elsif (($price_new != $form->{"sellprice_$i"}) and ($price_new ne 0)) {
+        } elsif (    (   $form->parse_amount($myconfig, $price_new)
+                      != $form->parse_amount($myconfig, $form->{"sellprice_$i"}))
+                 and ($price_new ne 0)) {
           if ($pkr->{pricegroup_id} == 0) {
             $pkr->{price}     = $form->{"sellprice_$i"};
             $pkr->{selected}  = ' selected';

@@ -266,6 +266,8 @@ sub prepare_invoice {
 
       $form->{"qty_$i"}        = $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
 
+      $form->{"sellprice_pg_$i"} = join ('--', $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"});
+
       $form->{rowcount}        = $i;
 
     }
@@ -423,9 +425,17 @@ sub form_footer {
   $form->{paidaccounts}++ if ($form->{"paid_$form->{paidaccounts}"});
   $form->{paid_indices} = [ 1 .. $form->{paidaccounts} ];
 
+  # Standard Konto für Umlaufvermögen
+  my $accno_arap = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
+
   for my $i (1 .. $form->{paidaccounts}) {
     $form->{"selectAR_paid_$i"} = $form->{selectAR_paid};
-    $form->{"selectAR_paid_$i"} =~ s/option>\Q$form->{"AR_paid_$i"}\E/option selected>$form->{"AR_paid_$i"}/;
+    if (!$form->{"AR_paid_$i"}) {
+      $form->{"selectAR_paid_$i"} =~ s/option>$accno_arap--(.*?)</option selected>$accno_arap--$1</;
+    } else {
+      $form->{"selectAR_paid_$i"} =~ s/option>\Q$form->{"AR_paid_$i"}\E/option selected>$form->{"AR_paid_$i"}/;
+    }
+
     $totalpaid += $form->{"paid_$i"};
   }
 
