@@ -179,9 +179,9 @@ sub order_links {
   # get customer / vendor
   if ($form->{vc} eq 'vendor') {
     IR->get_vendor(\%myconfig, \%$form);
+    $form->{discount} = $form->{vendor_discount};
   } else {
     IS->get_customer(\%myconfig, \%$form);
-    # OFFEN tritt bug 1284 auch bei vendor auf?
     $form->{discount} = $form->{customer_discount};
   }
 
@@ -733,9 +733,9 @@ sub invoice {
 
   for my $i (1 .. $form->{rowcount}) {
     # für bug 1284
-    if ($form->{discount}){ # Falls wir einen Kundenrabatt haben
+    if ($form->{discount}){ # Falls wir einen Lieferanten-/Kundenrabatt haben
       # und keinen anderen discount wert an $i ...
-      $form->{"discount_$i"} ||= $form->{discount}*100; # ... nehmen wir den kundenrabatt
+      $form->{"discount_$i"} ||= $form->{discount}*100; # ... nehmen wir diesen Rabatt
     }
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice lastcost basefactor);
   }
