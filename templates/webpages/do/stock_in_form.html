@@ -138,7 +138,7 @@
      <td>
       <select name="unit_[% loop.count %]">
        [%- FOREACH unit = UNITS %]
-       <option[% IF unit.name == row.unit %] selected[% END %]>[% HTML.escape(unit.name) %]</option>
+       <option[% IF unit.selected %] selected[% END %]>[% HTML.escape(unit.name) %]</option>
        [%- END %]
       </select>
      </td>
