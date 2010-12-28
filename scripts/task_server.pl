@@ -3,6 +3,14 @@
 use strict;
 
 BEGIN {
+  require Cwd;
+
+  my $dir =  $0;
+  $dir    =  Cwd::getcwd() . '/' . $dir unless $dir =~ m|^/|;
+  $dir    =~ s|[^/]+$|..|;
+
+  chdir($dir) || die "Cannot change directory to ${dir}\n";
+
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
 }
