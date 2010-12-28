@@ -4,6 +4,8 @@ use parent qw(SL::Template::Simple);
 
 use strict;
 
+use Cwd;
+
 sub new {
   my $type = shift;
 
@@ -290,11 +292,12 @@ sub _force_mandatory_packages {
   my $self  = shift;
   my $lines = shift;
 
-  my (%used_packages, $document_start_line);
+  my (%used_packages, $document_start_line, $last_usepackage_line);
 
   foreach my $i (0 .. scalar @{ $lines } - 1) {
     if ($lines->[$i] =~ m/\\usepackage[^\{]*{(.*?)}/) {
       $used_packages{$1} = 1;
+      $last_usepackage_line = $i;
 
     } elsif ($lines->[$i] =~ m/\\begin{document}/) {
       $document_start_line = $i;
@@ -303,11 +306,14 @@ sub _force_mandatory_packages {
     }
   }
 
-  $document_start_line = scalar @{ $lines } - 1 if (!defined $document_start_line);
+  my $insertion_point = defined($document_start_line)  ? $document_start_line
+                      : defined($last_usepackage_line) ? $last_usepackage_line
+                      :                                  scalar @{ $lines } - 1;
 
-  if (!$used_packages{textcomp}) {
-    splice @{ $lines }, $document_start_line, 0, "\\usepackage{textcomp}\n";
-    $document_start_line++;
+  foreach my $package (qw(textcomp)) {
+    next if $used_packages{$package};
+    splice @{ $lines }, $insertion_point, 0, "\\usepackage{${package}}\n";
+    $insertion_point++;
   }
 }
 
@@ -374,11 +380,14 @@ sub convert_to_postscript {
   $form->{tmpfile} =~ s/\Q$userspath\E\///g;
 
   my $latex = $self->_get_latex_path();
+  my $old_home = $ENV{HOME};
+  $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd() . "/" . $userspath;
 
   for (my $run = 1; $run <= 2; $run++) {
     system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
+      $ENV{HOME} = $old_home;
       $self->{"error"} = $form->cleanup();
       $self->cleanup();
       return 0;
@@ -388,6 +397,8 @@ sub convert_to_postscript {
   $form->{tmpfile} =~ s/tex$/dvi/;
 
   system("dvips $form->{tmpfile} -o -q > /dev/null");
+  $ENV{HOME} = $old_home;
+
   if ($?) {
     $self->{"error"} = "dvips : $!";
     $self->cleanup();
@@ -415,17 +426,21 @@ sub convert_to_pdf {
   $form->{tmpfile} =~ s/\Q$userspath\E\///g;
 
   my $latex = $self->_get_latex_path();
+  my $old_home = $ENV{HOME};
+  $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd() . "/" . $userspath;
 
   for (my $run = 1; $run <= 2; $run++) {
     system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
+      $ENV{HOME} = $old_home;
       $self->{"error"} = $form->cleanup();
       $self->cleanup();
       return 0;
     }
   }
 
+  $ENV{HOME} = $old_home;
   $form->{tmpfile} =~ s/tex$/pdf/;
 
   $self->cleanup();

@@ -1440,6 +1440,7 @@ sub ar_transactions {
                        'attachment_basename'  => $locale->text('invoice_list') . strftime('_%Y%m%d', localtime time),
     );
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   # add sort and escape callback, this one we use for the add sub
   $form->{callback} = $href .= "&sort=$form->{sort}";

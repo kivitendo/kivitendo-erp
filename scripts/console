@@ -29,11 +29,15 @@ $repl->load_history($history_file);
 $repl->eval('help');
 $repl->print("trying to auto login as '$login'...");
 $repl->print($repl->eval("lxinit '$login'"));
-$repl->print($repl->eval($autorun)) if $autorun;
+if ($autorun) {
+  my $result = $repl->eval($autorun);
+  $repl->print($result->message) if ref($result) eq 'Devel::REPL::Error';
+}
 $repl->run;
 
 package Devel::REPL;
 
+use utf8;
 use CGI qw( -no_xhtml);
 use SL::Auth;
 use SL::Form;
@@ -58,11 +62,10 @@ sub lxinit {
     $::sendmail   = "| /usr/sbin/sendmail -t";
   }
 
-  $::lxdebug = LXDebug->new;
-
   eval { require "config/lx-erp.conf"; };
   eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
 
+  $::lxdebug = LXDebug->new;
   $::locale = Locale->new($::language);
   $::cgi    = CGI->new qw();
   $::form   = Form->new;
@@ -109,18 +112,19 @@ sub help {
 Spezielle Kommandos:
 
   help                - zeigt diese Hilfe an.
-  lxinit 'login'      - l‰dt das Lx-Office Environment f¸r den User 'login'.
-  reload              - l‰dt modifizierte Module neu.
+  lxinit 'login'      - l√§dt das Lx-Office Environment f√ºr den User 'login'.
+  reload              - l√§dt modifizierte Module neu.
   pp DATA             - zeigt die Datenstruktur mit Data::Dumper an.
   quit                - beendet die Konsole
 
 EOL
-#  load   'module'     - l‰d das angegebene Modul, d.h. bin/mozilla/module.pl und SL/Module.pm.
+#  load   'module'     - l√§d das angegebene Modul, d.h. bin/mozilla/module.pl und SL/Module.pm.
 }
 
 sub pp {
-  $Data::Dumper::Indent   = 2;
-  $Data::Dumper::Maxdepth = 2;
+  local $Data::Dumper::Indent   = 2;
+  local $Data::Dumper::Maxdepth = 2;
+  local $Data::Dumper::Sortkeys = 1;
   Data::Dumper::Dumper(@_);
 }
 
@@ -190,6 +194,6 @@ See there for interesting options.
 
 =head1 AUTHOR
 
-  Sven Schˆling <s.schoeling@linet-services.de>
+  Sven Sch√∂ling <s.schoeling@linet-services.de>
 
 =cut

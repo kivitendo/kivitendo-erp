@@ -5,7 +5,7 @@
 <head>
 
 <title>A2A <%invnumber%> <%name%></title>
-<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-15">
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
 
 </head>
 
@@ -27,7 +27,7 @@
 
     <td align=right>
       <h4>
-      Tél&nbsp;: <%tel%>
+      TÃ©l&nbsp;: <%tel%>
       <br>Fax&nbsp;: <%fax%>
       </h4>
     </td>
@@ -52,11 +52,11 @@
     </tr>
   
     <tr>
-      <th align=right>Date d'échéance</th><td width=10>&nbsp;</td><td><%duedate%></td>
+      <th align=right>Date d'Ã©chÃ©ance</th><td width=10>&nbsp;</td><td><%duedate%></td>
     </tr>
 
     <tr>
-      <th align=right>N° de facture</th><td>&nbsp;</td><td><%invnumber%></td></tr>
+      <th align=right>NÂ° de facture</th><td>&nbsp;</td><td><%invnumber%></td></tr>
     </tr>
   
 <!--
@@ -81,7 +81,7 @@
     </tr>
 
 <!--
-     d'autres variables pouvant être utilisées ici :
+     d'autres variables pouvant Ãªtre utilisÃ©es ici :
      contact, shiptocontact, shiptophone, shiptofax
 -->
 
@@ -112,10 +112,10 @@
     <td>
     <table width="100%">
     <tr bgcolor="000000">
-<!--      <th align=right><font color="ffffff">N°</font></th>  -->
-      <th align=left><font color="ffffff">N°</font></th>
+<!--      <th align=right><font color="ffffff">NÂ°</font></th>  -->
+      <th align=left><font color="ffffff">NÂ°</font></th>
       <th align=left><font color="ffffff">Description</font></th>
-      <th><font color="ffffff">Qté</font></th>
+      <th><font color="ffffff">QtÃ©</font></th>
       <th>&nbsp;</th>
       <th><font color="ffffff">Prix</font></th>
       <th><font color="ffffff">Remise</font></th>
@@ -126,7 +126,7 @@
     <tr valign=top>
 <!--      <td align=right><%runningnumber%>.</td>
 veuillez adapter le colspan si vous comptez inclure ce poste.
-ceci permettra de décaler le poste sous-total vers la gauche.
+ceci permettra de dÃ©caler le poste sous-total vers la gauche.
 -->
       <td><%number%></td>
       <td><%description%></td>
@@ -139,7 +139,7 @@ ceci permettra de décaler le poste sous-total vers la gauche.
 <%end number%>
 
 <!--
-vous pouvez également utiliser netprice à la place de sellprice
+vous pouvez Ã©galement utiliser netprice Ã  la place de sellprice
 si vous ne voulez pas afficher la remise
 netprice = sellprice - discount
 -->
@@ -168,7 +168,7 @@ netprice = sellprice - discount
 
 <%if paid%>
     <tr>
-      <th colspan=5 align=right>Déjà payé</th>
+      <th colspan=5 align=right>DÃ©jÃ  payÃ©</th>
       <td colspan=2 align=right>- <%paid%></td>
     </tr>
 <%end paid%>
@@ -179,8 +179,8 @@ netprice = sellprice - discount
     </tr>
 
     <tr>
-      <td colspan=3>À régler dans <b><%terms%></b> jours au plus tard.</td>
-      <th colspan=2 align=right>Solde à régler</th>
+      <td colspan=3>Ã rÃ©gler dans <b><%terms%></b> jours au plus tard.</td>
+      <th colspan=2 align=right>Solde Ã  rÃ©gler</th>
       <th colspan=2 align=right><%total%></th>
     </tr>
 
@@ -197,11 +197,11 @@ netprice = sellprice - discount
   <table width="100%">
     <tr valign=top>
 <%if notes%>
-      <td>À noter&nbsp;:</td>
+      <td>Ã noter&nbsp;:</td>
       <td><%notes%></td>
 <%end notes%>
       <td align=right>
-      Tous prix indiqués en <b><%currency%></b>
+      Tous prix indiquÃ©s en <b><%currency%></b>
       <br><%shippingpoint%>
       </td>
     </tr>
@@ -217,7 +217,7 @@ netprice = sellprice - discount
   <td colspan=7>
     <table width="60%">
       <tr>
-        <th align=left>Détail règlements</th>
+        <th align=left>DÃ©tail rÃšglements</th>
       </tr>
       <tr>
         <td colspan=4>
@@ -276,25 +276,25 @@ netprice = sellprice - discount
 
 <!-- <%foreach tax%>
   <tr>
-   <th colspan=7 align=left><font size=-2><%taxdescription%> Numéro de TVA <%taxnumber%></font></th>
+   <th colspan=7 align=left><font size=-2><%taxdescription%> NumÃ©ro de TVA <%taxnumber%></font></th>
   </tr>
 <%end tax%> -->
 
 <%if taxincluded%>
   <tr>
-    <th colspan=7 align=left><font size=-2>Les taxes affichés sont inclus dans le prix.</font></th>
+    <th colspan=7 align=left><font size=-2>Les taxes affichÃ©s sont inclus dans le prix.</font></th>
   </tr>
 <%end taxincluded%>
 
 <!-- business number
   <tr>
-    <th colspan=7 align=left><font size=-2>Régistre de Commerce&amp;nbsp;: <%businessnumber%></font></th>
+    <th colspan=7 align=left><font size=-2>RÃ©gistre de Commerce&amp;nbsp;: <%businessnumber%></font></th>
   </tr>
 -->
 
 <!-- information banquaire -->
   <tr><td>
-  <h6><center>N° TVA&nbsp;: &nbsp;&nbsp;Banque&nbsp;: &nbsp;&nbsp;N° de compte&nbsp;: &nbsp;&nbsp;Code SWIFT&nbsp;: </center>
+  <h6><center>NÂ° TVA&nbsp;: &nbsp;&nbsp;Banque&nbsp;: &nbsp;&nbsp;NÂ° de compte&nbsp;: &nbsp;&nbsp;Code SWIFT&nbsp;: </center>
   </h6>
     </td>
   </tr>

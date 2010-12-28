@@ -5,7 +5,7 @@
 <head>
 
 <title>Commande <%ordnumber%> <%name%></title>
-<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=iso-8859-15">
+<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
 
 </head>
 
@@ -27,7 +27,7 @@
 
     <td align=right>
       <h4>
-      Tél&nbsp;: <%tel%>
+      TÃ©l&nbsp;: <%tel%>
       <br>Fax&nbsp;: <%fax%>
       </h4>
     </td>
@@ -56,7 +56,7 @@
     </tr>
 
     <tr>
-      <th align=right>N° commande</th><td>&nbsp;</td><td><%ordnumber%></td></tr>
+      <th align=right>NÂ° commande</th><td>&nbsp;</td><td><%ordnumber%></td></tr>
     </tr>
   
     <tr>
@@ -70,7 +70,7 @@
     <td>
     <table width=100%>
     <tr bgcolor=000000>
-      <th align=left><font color=ffffff>Commandé par</th>
+      <th align=left><font color=ffffff>CommandÃ© par</th>
     </tr>
 
     <tr>
@@ -94,9 +94,9 @@
     <table width=100%>
     <tr bgcolor=000000>
 <!--      <th align=right><font color=ffffff>No.</th>  -->
-      <th align=left><font color=ffffff>N°</th>
+      <th align=left><font color=ffffff>NÂ°</th>
       <th align=left><font color=ffffff>Description</th>
-      <th><font color=ffffff>Qté</th>
+      <th><font color=ffffff>QtÃ©</th>
       <th>&nbsp;</th>
       <th><font color=ffffff>Prix</th>
       <th><font color=ffffff>Montant</th>
@@ -105,7 +105,7 @@
 <%foreach number%>
     <tr valign=top>
 <!--      <td align=right><%runningnumber%>.</td>
-veuillez ajuster le colspan si vous voulez inclure ce poste pour décaler le sous-total vers la droite.
+veuillez ajuster le colspan si vous voulez inclure ce poste pour dÃ©caler le sous-total vers la droite.
 -->
       <td><%number%></td>
       <td><%description%></td>
@@ -138,7 +138,7 @@ veuillez ajuster le colspan si vous voulez inclure ce poste pour décaler le sous
     </tr>
 
     <tr>
-      <td colspan=2>À régler dans <b><%terms%></b> jours au plus tard</td>
+      <td colspan=2>Ã rÃ©gler dans <b><%terms%></b> jours au plus tard</td>
       <th colspan=2 align=right>Total</th>
       <th colspan=2 align=right><%total%></th>
     </tr>
@@ -156,11 +156,11 @@ veuillez ajuster le colspan si vous voulez inclure ce poste pour décaler le sous
   <table width=100%>
     <tr valign=top>
 <%if notes%>
-      <td>À noter&nbsp;:</td>
+      <td>Ã noter&nbsp;:</td>
       <td><pre><%notes%></pre></td>
 <%end notes%>
       <td align=right>
-      Tous prix indiqués en <b><%currency%></b>
+      Tous prix indiquÃ©s en <b><%currency%></b>
       <br><%shippingpoint%>
       </td>
     </tr>

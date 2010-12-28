@@ -1,5 +1,6 @@
 package SL::DB::Helpers::Mappings;
 
+use utf8;
 use strict;
 
 # these will not be managed as Rose::DB models, because they are not normalized,
@@ -181,6 +182,6 @@ L<scripts/rose_auto_create_model.pl>
 
 =head1 AUTHOR
 
-Sven Schöling <s.schoeling@linet-services.de>
+Sven SchÃ¶ling <s.schoeling@linet-services.de>
 
 =cut

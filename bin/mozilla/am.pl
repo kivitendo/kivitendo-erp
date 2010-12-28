@@ -31,6 +31,8 @@
 #
 #======================================================================
 
+use utf8;
+
 use SL::Auth;
 use SL::AM;
 use SL::CA;
@@ -213,29 +215,29 @@ sub account_header {
 
   my $select_eur = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
   my %eur = (
-          1  => "Umsatzerlöse",
-          2  => "sonstige Erlöse",
+          1  => "UmsatzerlÃ¶se",
+          2  => "sonstige ErlÃ¶se",
           3  => "Privatanteile",
-          4  => "Zinserträge",
-          5  => "Ausserordentliche Erträge",
+          4  => "ZinsertrÃ¤ge",
+          5  => "Ausserordentliche ErtrÃ¤ge",
           6  => "Vereinnahmte Umsatzst.",
           7  => "Umsatzsteuererstattungen",
-          8  => "Wareneingänge",
-          9  => "Löhne und Gehälter",
+          8  => "WareneingÃ¤nge",
+          9  => "LÃ¶hne und GehÃ¤lter",
           10 => "Gesetzl. sozialer Aufw.",
           11 => "Mieten",
           12 => "Gas, Strom, Wasser",
           13 => "Instandhaltung",
-          14 => "Steuern, Versich., Beiträge",
+          14 => "Steuern, Versich., BeitrÃ¤ge",
           15 => "Kfz-Steuern",
           16 => "Kfz-Versicherungen",
           17 => "Sonst. Fahrzeugkosten",
           18 => "Werbe- und Reisekosten",
           19 => "Instandhaltung u. Werkzeuge",
-          20 => "Fachzeitschriften, Bücher",
-          21 => "Miete für Einrichtungen",
+          20 => "Fachzeitschriften, BÃ¼cher",
+          21 => "Miete fÃ¼r Einrichtungen",
           22 => "Rechts- und Beratungskosten",
-          23 => "Bürobedarf, Porto, Telefon",
+          23 => "BÃ¼robedarf, Porto, Telefon",
           24 => "Sonstige Aufwendungen",
           25 => "Abschreibungen auf Anlagever.",
           26 => "Abschreibungen auf GWG",
@@ -245,7 +247,7 @@ sub account_header {
           30 => "Ausserordentlicher Aufwand",
           31 => "Betriebliche Steuern");
   foreach my $item (sort({ $a <=> $b } keys(%eur))) {
-    my $text = H(SL::Iconv::convert("ISO-8859-15", $main::dbcharset, $eur{$item}));
+    my $text = H($::locale->{iconv_utf8}->convert($eur{$item}));
     if ($item == $form->{pos_eur}) {
       $select_eur .= qq|<option value=$item selected>|. sprintf("%.2d", $item) .qq|. $text</option>\n|;
     } else {
@@ -257,30 +259,30 @@ sub account_header {
   my $select_bwa = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
 
   my %bwapos = (
-             1  => 'Umsatzerlöse',
+             1  => 'UmsatzerlÃ¶se',
              2  => 'Best.Verdg.FE/UE',
              3  => 'Aktiv.Eigenleistung',
              4  => 'Mat./Wareneinkauf',
-             5  => 'So.betr.Erlöse',
+             5  => 'So.betr.ErlÃ¶se',
              10 => 'Personalkosten',
              11 => 'Raumkosten',
              12 => 'Betriebl.Steuern',
-             13 => 'Vers./Beiträge',
+             13 => 'Vers./BeitrÃ¤ge',
              14 => 'Kfz.Kosten o.St.',
              15 => 'Werbe-Reisek.',
              16 => 'Kosten Warenabgabe',
              17 => 'Abschreibungen',
              18 => 'Rep./instandhlt.',
-             19 => 'Übrige Steuern',
+             19 => 'Ãœbrige Steuern',
              20 => 'Sonst.Kosten',
              30 => 'Zinsauwand',
              31 => 'Sonst.neutr.Aufw.',
-             32 => 'Zinserträge',
+             32 => 'ZinsertrÃ¤ge',
              33 => 'Sonst.neutr.Ertrag',
              34 => 'Verr.kalk.Kosten',
              35 => 'Steuern Eink.u.Ertr.');
   foreach my $item (sort({ $a <=> $b } keys %bwapos)) {
-    my $text = H(SL::Iconv::convert("ISO-8859-15", $main::dbcharset, $bwapos{$item}));
+    my $text = H($::locale->{iconv_utf8}->convert($bwapos{$item}));
     if ($item == $form->{pos_bwa}) {
       $select_bwa .= qq|<option value="$item" selected>|. sprintf("%.2d", $item) .qq|. $text\n|;
     } else {
@@ -289,7 +291,7 @@ sub account_header {
 
   }
 
-# Wieder hinzugefügt zu evaluationszwecken (us) 09.03.2007
+# Wieder hinzugefÃ¼gt zu evaluationszwecken (us) 09.03.2007
   my $select_bilanz = q|<option value=""> |. $locale->text('None') .q|</option>\n|;
   foreach my $item ((1, 2, 3, 4)) {
     if ($item == $form->{pos_bilanz}) {

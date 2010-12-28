@@ -109,6 +109,7 @@ sub _init {
   $self->{iconv_english}    = SL::Iconv->new('ASCII',          $db_charset);
   $self->{iconv_iso8859}    = SL::Iconv->new('ISO-8859-15',    $db_charset);
   $self->{iconv_to_iso8859} = SL::Iconv->new($db_charset,      'ISO-8859-15');
+  $self->{iconv_utf8}       = SL::Iconv->new('UTF-8',          $db_charset);
 
   $self->_read_special_chars_file($country);
 
@@ -478,6 +479,21 @@ sub with_raw_io {
   $code->();
   binmode $fh, ":utf8" if $self->is_utf8;
   $self->{raw_io_active} = 0;
+}
+
+sub set_numberformat_wo_thousands_separator {
+  my $self     = shift;
+  my $myconfig = shift || \%::myconfig;
+
+  $self->{saved_numberformat} = $myconfig->{numberformat};
+  $myconfig->{numberformat}   =~ s/^1[,\.]/1/;
+}
+
+sub restore_numberformat {
+  my $self     = shift;
+  my $myconfig = shift || \%::myconfig;
+
+  $myconfig->{numberformat} = $self->{saved_numberformat} if $self->{saved_numberformat};
 }
 
 1;

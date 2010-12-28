@@ -169,6 +169,7 @@ sub project_report {
                        'attachment_basename' => $locale->text('project_list') . strftime('_%Y%m%d', localtime time),
     );
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   CVar->add_custom_variables_to_report('module'         => 'Projects',
                                        'trans_id_field' => 'id',

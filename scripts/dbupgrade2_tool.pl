@@ -10,6 +10,10 @@ BEGIN {
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
 }
 
+
+use strict;
+
+use utf8;
 use English '-no_match_vars';
 
 use DBI;
@@ -19,7 +23,7 @@ use Text::Iconv;
 
 use SL::LXDebug;
 
-$lxdebug = LXDebug->new();
+our $lxdebug = LXDebug->new();
 
 use SL::Auth;
 use SL::Form;
@@ -37,7 +41,7 @@ my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
 my ($opt_user, $opt_apply, $opt_applied, $opt_format, $opt_test_utf8);
 my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword);
 
-our (%myconfig, $form, $user, $auth);
+our (%myconfig, $form, $user, $auth, $locale, $controls);
 
 sub show_help {
   my $help_text = <<"END_HELP"
@@ -109,7 +113,7 @@ sub dump_list {
   print "LIST VIEW\n\n" .
     "number tag depth priority\n";
 
-  $i = 0;
+  my $i = 0;
   foreach (@sorted_controls) {
     print "$i $_->{tag} $_->{depth} $_->{priority}\n";
     $i++;
@@ -178,7 +182,7 @@ sub dump_graphviz {
 
   calc_rev_depends();
 
-  $dot = "|dot -T${format} ";
+  my $dot = "|dot -T${format} ";
   open OUT, "${dot}> \"${file_name}\"" || die;
 
   print OUT
@@ -247,9 +251,9 @@ sub apply_upgrade {
   $user->create_schema_info_table($form, $dbh);
 
   my $query = qq|SELECT tag FROM schema_info|;
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
-  while (($tag) = $sth->fetchrow_array()) {
+  while (my ($tag) = $sth->fetchrow_array()) {
     $controls->{$tag}->{applied} = 1 if defined $controls->{$tag};
   }
   $sth->finish();
@@ -315,7 +319,7 @@ sub dump_applied {
   $user->create_schema_info_table($form, $dbh);
 
   my $query = qq|SELECT tag, login, itime FROM schema_info ORDER BY itime|;
-  $sth = $dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute() || $form->dberror($query);
   while (my $ref = $sth->fetchrow_hashref()) {
     push @results, $ref;
@@ -334,14 +338,14 @@ sub dump_applied {
 sub build_upgrade_order {
   my $name  = shift;
   my $order = shift;
-  my $tag   = shift;
+  my $tags  = shift;
 
   my $control = $controls->{$name};
 
   foreach my $dependency (@{ $control->{depends} }) {
     next if $tags->{$dependency};
     $tags->{$dependency} = 1;
-    build_upgrade_order($dependency, $order, $tag);
+    build_upgrade_order($dependency, $order, $tags);
   }
 
   push @{ $order }, $name;
@@ -424,29 +428,23 @@ if ($opt_applied) {
 if ($opt_test_utf8) {
   $form->error("--test-utf8 used but no database name given with --dbname.") if (!$opt_dbname);
 
-  my $iconv_to_utf8      = Text::Iconv->new("ISO-8859-15", "UTF-8");
-  my $iconv_from_utf8    = Text::Iconv->new("UTF-8", "ISO-8859-15");
-
-  my $umlaut_upper       = 'Ä';
-  my $umlaut_upper_utf8  = $iconv_to_utf8->convert($umlaut_upper);
+  my $umlaut_upper       = 'Ã„';
 
   my $dbconnect          = "dbi:Pg:dbname=${opt_dbname}";
   $dbconnect            .= ";host=${opt_dbhost}" if ($opt_dbhost);
   $dbconnect            .= ";port=${opt_dbport}" if ($opt_dbport);
 
-  my $dbh                = DBI->connect($dbconnect, $opt_dbuser, $opt_dbpassword);
+  my $dbh                = DBI->connect($dbconnect, $opt_dbuser, $opt_dbpassword, { pg_enable_utf8 => 1 });
 
   $form->error("UTF-8 test: Database connect failed (" . $DBI::errstr . ")") if (!$dbh);
 
-  my ($umlaut_lower_utf8) = $dbh->selectrow_array(qq|SELECT lower(?)|, undef, $umlaut_upper_utf8);
+  my ($umlaut_lower) = $dbh->selectrow_array(qq|SELECT lower(?)|, undef, $umlaut_upper);
 
   $dbh->disconnect();
 
-  my $umlaut_lower = $iconv_from_utf8->convert($umlaut_lower_utf8);
-
-  if ($umlaut_lower eq 'ä') {
+  if ($umlaut_lower eq 'Ã¤') {
     print "UTF-8 test was successful.\n";
-  } elsif ($umlaut_lower eq 'Ä') {
+  } elsif ($umlaut_lower eq 'Ã„') {
     print "UTF-8 test was NOT successful: Umlauts are not modified (this might be partially ok, but you should probably not use UTF-8 on this cluster).\n";
   } else {
     print "UTF-8 test was NOT successful: Umlauts are destroyed. Do not use UTF-8 on this cluster.\n";

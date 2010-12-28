@@ -1,7 +1,7 @@
 \documentclass[twoside]{scrartcl}
 \usepackage[frame]{xy}
 \usepackage[frenchb]{babel}
-\usepackage[latin1]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage{tabularx}
 \setlength{\voffset}{0.5cm}
 \setlength{\hoffset}{-2.0cm}
@@ -30,8 +30,8 @@
       
       <%address%>}\hfill
     \begin{tabular}[b]{rr@{}}
-    Téléphone & <%tel%>\\
-    Télécopieur & <%fax%>
+    TÃ©lÃ©phone & <%tel%>\\
+    TÃ©lÃ©copieur & <%fax%>
     \end{tabular}
 
     \rule[1.5ex]{\textwidth}{0.5pt}
@@ -62,9 +62,9 @@
 \vspace*{-12pt}
 
 \begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
-  \textbf{Numéro} & \textbf{Description} & \textbf{Qté} &
-    \textbf{Unité} & \textbf{Prix} & \textbf{Remise} & \textbf{Montant} \\
-  & reporté de la page <%lastpage%> & & & & & <%sumcarriedforward%> \\
+  \textbf{NumÃ©ro} & \textbf{Description} & \textbf{QtÃ©} &
+    \textbf{UnitÃ©} & \textbf{Prix} & \textbf{Remise} & \textbf{Montant} \\
+  & reportÃ© de la page <%lastpage%> & & & & & <%sumcarriedforward%> \\
 <%end pagebreak%>
 
 
@@ -91,14 +91,14 @@
 <%if reqdate%>
   \textbf{Livrable le} & <%reqdate%> \\
 <%end reqdate%>
-  \textbf{Numéro de commande} & <%ordnumber%>
+  \textbf{NumÃ©ro de commande} & <%ordnumber%>
 \end{tabular}
 
 \vspace{1cm}
 
 \begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
-  \textbf{Numéro} & \textbf{Description} & \textbf{Qté} &
-    \textbf{Unité} & \textbf{Prix} & \textbf{Remise} & \textbf{Montant} \\
+  \textbf{NumÃ©ro} & \textbf{Description} & \textbf{QtÃ©} &
+    \textbf{UnitÃ©} & \textbf{Prix} & \textbf{Remise} & \textbf{Montant} \\
 <%foreach number%>
   <%number%> & <%description%> & <%qty%> &
     <%unit%> & <%sellprice%> & <%discount%> & <%linetotal%> \\
@@ -124,7 +124,7 @@
 \vspace{0.3cm}
 
 \hfill
-  Tous les prix indiqués sont en \textbf{<%currency%>}.
+  Tous les prix indiquÃ©s sont en \textbf{<%currency%>}.
 
 \vspace{12pt}
 
@@ -138,9 +138,9 @@
 \renewcommand{\thefootnote}{\fnsymbol{footnote}}
 
 \footnotetext[1]{\tiny
-Un supplément de 10% sera appliqué à toute commande spécifique et à tout
-produit adapté, amélioré ou mis-à-jour à la demande du client. Les
-éléments non-retournables sont indiqués ci-dessus.
+Un supplÃ©ment de 10% sera appliquÃ© Ã  toute commande spÃ©cifique et Ã  tout
+produit adaptÃ©, amÃ©liorÃ© ou mis-Ã -jour Ã  la demande du client. Les
+Ã©lÃ©ments non-retournables sont indiquÃ©s ci-dessus.
 }
 
 \end{document}

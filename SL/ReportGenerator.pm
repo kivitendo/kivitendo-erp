@@ -1,7 +1,6 @@
 package SL::ReportGenerator;
 
 use Data::Dumper;
-use IO::Wrap;
 use List::Util qw(max);
 use Text::CSV_XS;
 #use PDF::API2;    # these two eat up to .75s on startup. only load them if we actually need them
@@ -688,11 +687,10 @@ sub _print_content {
 }
 
 sub unescape_string {
-  my $self  = shift;
-  my $text  = shift;
+  my ($self, $text, $do_iconv) = @_;
 
-  $text     = $main::locale->unquote_special_chars('HTML', $text);
-  $text     = $::locale->{iconv}->convert($text);
+  $text = $main::locale->unquote_special_chars('HTML', $text);
+  $text = $::locale->{iconv}->convert($text) if $do_iconv;
 
   return $text;
 }
@@ -718,12 +716,15 @@ sub generate_csv_content {
                                 'quote_char'  => $quote_char,
                                 'eol'         => $eol, });
 
-  my $stdout          = wraphandle(\*STDOUT);
   my @visible_columns = $self->get_visible_columns('CSV');
+
+  my $stdout;
+  open $stdout, '>-';
+  binmode $stdout, ':encoding(utf8)' if $::locale->is_utf8;
 
   if ($opts->{headers}) {
     if (!$self->{custom_headers}) {
-      $csv->print($stdout, [ map { $self->unescape_string($self->{columns}->{$_}->{text}) } @visible_columns ]);
+      $csv->print($stdout, [ map { $self->unescape_string($self->{columns}->{$_}->{text}, 1) } @visible_columns ]);
 
     } else {
       foreach my $row (@{ $self->{custom_headers} }) {

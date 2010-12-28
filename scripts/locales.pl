@@ -6,6 +6,7 @@
 # this version of locles processes not only all required .pl files
 # but also all parse_html_templated files.
 
+use utf8;
 use strict;
 
 use Data::Dumper;
@@ -474,26 +475,26 @@ sub scanhtmlfile {
 
       while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
         my $plugin = $1;
-        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator));
+        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator L));
       }
 
       while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
                           (LxERP\.t8)\( #   LxERP.t8(                             ::Parameter $1::
-                          ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $2::
-                          (.*?)         #   Der zu übersetzende String            ::Parameter $3::
-                          (?<!\\)\2     #   Ende des zu übersetzenden Strings
+                          ([\'\"])      #   Anfang des zu Ã¼bersetzenden Strings   ::Parameter $2::
+                          (.*?)         #   Der zu Ã¼bersetzende String            ::Parameter $3::
+                          (?<!\\)\2     #   Ende des zu Ã¼bersetzenden Strings
                         |               # Start von Variante 2: [% '...' | $T8 %]
                           \[\%          #   Template-Start-Tag
-                          [\-~#]?       #   Whitespace-Unterdrückung
+                          [\-~#]?       #   Whitespace-UnterdrÃ¼ckung
                           \s*           #   Optional beliebig viele Whitespace
-                          ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $4::
-                          (.*?)         #   Der zu übersetzende String            ::Parameter $5::
-                          (?<!\\)\4     #   Ende des zu übersetzenden Strings
+                          ([\'\"])      #   Anfang des zu Ã¼bersetzenden Strings   ::Parameter $4::
+                          (.*?)         #   Der zu Ã¼bersetzende String            ::Parameter $5::
+                          (?<!\\)\4     #   Ende des zu Ã¼bersetzenden Strings
                           \s*\|\s*      #   Pipe-Zeichen mit optionalen Whitespace davor und danach
                           (\$T8)        #   Filteraufruf                          ::Parameter $6::
-                          .*?           #   Optionale Argumente für den Filter
+                          .*?           #   Optionale Argumente fÃ¼r den Filter
                           \s*           #   Whitespaces
-                          [\-~#]?       #   Whitespace-Unterdrückung
+                          [\-~#]?       #   Whitespace-UnterdrÃ¼ckung
                           \%\]          #   Template-Ende-Tag
                         )
                        /ix) {
@@ -511,7 +512,7 @@ sub scanhtmlfile {
       }
 
       while ($line =~ m/\[\%          # Template-Start-Tag
-                        [\-~#]?       # Whitespace-Unterdrückung
+                        [\-~#]?       # Whitespace-UnterdrÃ¼ckung
                         \s*           # Optional beliebig viele Whitespace
                         (?:           # Die erkannten Template-Direktiven
                           PROCESS
@@ -601,6 +602,7 @@ sub generate_file {
 
   open my $fh, '>', $file or die "$! : $file";
 
+  $charset =~ s/\r?\n//g;
   my $emacs_charset = lc $charset;
 
   print $fh "#!/usr/bin/perl\n# -*- coding: $emacs_charset; -*-\n# vim: fenc=$charset\n\n";

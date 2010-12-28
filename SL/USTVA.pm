@@ -29,10 +29,11 @@ use List::Util qw(first);
 
 use SL::DBUtils;
 
+use utf8;
 use strict;
 
 my @tax_office_information = (
-  { 'id' =>  8, 'name' => 'Baden-Württemberg',      'taxbird_nr' => '0',  'elster_format' => 'FF/BBB/UUUUP',  },
+  { 'id' =>  8, 'name' => 'Baden-WÃ¼rttemberg',      'taxbird_nr' => '0',  'elster_format' => 'FF/BBB/UUUUP',  },
   { 'id' =>  9, 'name' => 'Bayern',                 'taxbird_nr' => '1',  'elster_format' => 'FFF/BBB/UUUUP', },
   { 'id' => 11, 'name' => 'Berlin',                 'taxbird_nr' => '2',  'elster_format' => 'FF/BBB/UUUUP',  },
   { 'id' => 12, 'name' => 'Brandenburg',            'taxbird_nr' => '3',  'elster_format' => 'FFF/BBB/UUUUP', },
@@ -47,7 +48,7 @@ my @tax_office_information = (
   { 'id' => 14, 'name' => 'Sachsen',                'taxbird_nr' => '12', 'elster_format' => 'FFF/BBB/UUUUP', },
   { 'id' => 15, 'name' => 'Sachsen-Anhalt',         'taxbird_nr' => '13', 'elster_format' => 'FFF/BBB/UUUUP', },
   { 'id' =>  1, 'name' => 'Schleswig-Holstein',     'taxbird_nr' => '14', 'elster_format' => 'FF BBB UUUUP',  },
-  { 'id' => 16, 'name' => 'Thüringen',              'taxbird_nr' => '15', 'elster_format' => 'FFF/BBB/UUUUP', },
+  { 'id' => 16, 'name' => 'ThÃ¼ringen',              'taxbird_nr' => '15', 'elster_format' => 'FFF/BBB/UUUUP', },
   );
 
 sub new {
@@ -69,7 +70,7 @@ sub _init {
 
   foreach (@tax_office_information) {
     my $entry      = \%{ $_ };
-    $entry->{name} = $main::locale->{iconv_iso8859}->convert($entry->{name});
+    $entry->{name} = $::locale->{iconv_utf8}->convert($entry->{name});
     push @{ $self->{tax_office_information} }, $entry;
   }
 }
@@ -282,9 +283,9 @@ sub fa_auswahl {
 
 #  use SL::Form;
 
-  # Referenz wird übergeben, hash of hash wird nicht
-  # in neues  Hash kopiert, sondern direkt über die Referenz verändert
-  # Prototyp für diese Konstruktion
+  # Referenz wird Ã¼bergeben, hash of hash wird nicht
+  # in neues  Hash kopiert, sondern direkt Ã¼ber die Referenz verÃ¤ndert
+  # Prototyp fÃ¼r diese Konstruktion
 
   my ($self, $land, $elsterFFFF, $elster_init) = @_;
 
@@ -302,7 +303,7 @@ sub fa_auswahl {
                 var elsterBLAuswahl = document.verzeichnis.elsterland_new;
                 var elsterFAAuswahl = document.verzeichnis.elsterFFFF_new;
 
-                elsterFAAuswahl.options.length = 0; // dropdown aufräumen
+                elsterFAAuswahl.options.length = 0; // dropdown aufrÃ¤umen
                 |;
 
   foreach my $elster_land (sort keys %$elster_init) {
@@ -427,8 +428,8 @@ sub stichtag {
   $main::lxdebug->enter_sub();
 
   # noch nicht fertig
-  # soll mal eine Erinnerungsfunktion für USTVA Abgaben werden, die automatisch
-  # den Termin der nächsten USTVA anzeigt.
+  # soll mal eine Erinnerungsfunktion fÃ¼r USTVA Abgaben werden, die automatisch
+  # den Termin der nÃ¤chsten USTVA anzeigt.
   #
   #
   my ($today, $FA_dauerfrist, $FA_voranmeld) = @_;
@@ -522,7 +523,7 @@ sub query_finanzamt {
 
     #There is no table, read the table from sql/finanzamt.sql
     print qq|<p>Bitte warten, Tabelle $table wird einmalig in Datenbank:
-    $myconfig->{dbname} als Benutzer: $myconfig->{dbuser} hinzugefügt...</p>|;
+    $myconfig->{dbname} als Benutzer: $myconfig->{dbuser} hinzugefÃ¼gt...</p>|;
     process_query($form, $dbh, $filename) || $self->error(DBI->errstr);
 
     #execute second last call
@@ -741,9 +742,9 @@ sub ustva {
   }
 
 
-  # Fixme: Wird auch noch für Oesterreich gebraucht,
+  # Fixme: Wird auch noch fÃ¼r Oesterreich gebraucht,
   # weil kein eigenes Ausgabeformular
-  # sotte aber aus der allgeméinen Steuerberechnung verschwinden
+  # sotte aber aus der allgemÃ©inen Steuerberechnung verschwinden
   #
   # Berechnung der USTVA Formularfelder laut Bogen 207
   #
@@ -925,7 +926,7 @@ sub get_accounts_ustva {
 
   #########################################
   # Ausgaben und Gl Buchungen sind gleich
-  # für Ist- und Soll-Versteuerung
+  # fÃ¼r Ist- und Soll-Versteuerung
   #########################################
   $query .= qq|
      UNION -- alle Ausgaben AP erfassen

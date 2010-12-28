@@ -807,7 +807,7 @@ $jsscript
         </tr>
         <tr>
           <td>| . $locale->text('Review of Aging list') . qq|</td>
-          <td><select name="review_of_aging_list"> 
+          <td><select name="review_of_aging_list">
               <option></option>
               <option>0-30</option>
               <option>30-60</option>
@@ -1368,6 +1368,7 @@ sub generate_trial_balance {
                        'pdf_template'         => 'rp/html_report_susa',
     );
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   # add sort and escape callback, this one we use for the add sub
   $form->{callback} = $href .= "&sort=$form->{sort}";
@@ -1519,6 +1520,7 @@ sub list_accounts {
                        'std_column_visibility' => 1,
     );
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
@@ -1719,6 +1721,8 @@ sub aging {
                        'title'                => $form->{title},
                        'attachment_basename'  => $attachment_basename . strftime('_%Y%m%d', localtime time),
     );
+  $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $previous_ctid = 0;
   my $row_idx       = 0;
@@ -1774,8 +1778,6 @@ sub aging {
     $report->set_options('raw_top_info_text'    => $raw_top_info_text,
                          'raw_bottom_info_text' => $raw_bottom_info_text);
   }
-
-  $report->set_options_from_form();
 
   $report->generate_with_headers();
 
@@ -2432,6 +2434,8 @@ sub list_payments {
                        'std_column_visibility' => 1,
     );
   $report->set_options_from_form();
+
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);

@@ -300,6 +300,7 @@ sub report {
                        'attachment_basename'  => $locale->text('follow_up_list') . strftime('_%Y%m%d', localtime time),
     );
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $idx      = 0;
   my $callback = build_std_url('action=report', grep { $form->{$_} } @report_params);

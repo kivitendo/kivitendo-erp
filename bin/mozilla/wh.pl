@@ -311,7 +311,7 @@ sub transfer_stock_update_part {
 
   } elsif (($form->{partnumber} && ($form->{partnumber} ne $form->{old_partnumber})) || $form->{description} || $form->{ean}) {
 
-    $form->{no_services}   = 1;
+#    $form->{no_services}   = 1; # services may now be transfered. fix for Bug 1383.
     $form->{no_assemblies} = 0; # assemblies duerfen eingelagert werden (z.B. bei retouren)
 
     my $parts = Common->retrieve_parts(\%myconfig, $form, 'description', 1);
@@ -722,6 +722,7 @@ sub generate_journal {
                        'title'                => $form->{title},
                        'attachment_basename'  => strftime($locale->text('warehouse_journal_list') . '_%Y%m%d', localtime time));
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
   my @contents  = WH->get_warehouse_journal(%filter);
@@ -870,6 +871,7 @@ sub generate_report {
                        'title'                => $form->{title},
                        'attachment_basename'  => strftime($locale->text('warehouse_report_list') . '_%Y%m%d', localtime time));
   $report->set_options_from_form();
+  $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
   my @contents  = WH->get_warehouse_report(%filter);
