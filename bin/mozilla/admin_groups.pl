@@ -73,6 +73,7 @@ sub save_group {
   $form->isblank('name', $locale->text('The group name is missing.'));
 
   my $groups = $main::auth->read_groups();
+  my %users  = map { ( $_->{id} => 1 ) } values %{ { $::auth->read_all_users() } };
 
   foreach my $group (values %{$groups}) {
     if (($form->{group_id} != $group->{id})
@@ -92,9 +93,8 @@ sub save_group {
 
   $group->{name}        = $form->{name};
   $group->{description} = $form->{description};
-  $group->{rights}      = {};
-
-  map { $group->{rights}->{$_} = $form->{"${_}_granted"} ? 1 : 0 } SL::Auth::all_rights();
+  $group->{rights}      = { map { ( $_ => $form->{"${_}_granted"} ? 1 : 0 ) } SL::Auth::all_rights() };
+  $group->{members}     = [ grep { $users{$_} } @{ $form->{user_ids} || [] } ];
 
   my $is_new = !$form->{group_id};
 
@@ -124,17 +124,9 @@ sub edit_group {
     $form->show_generic_error($locale->text("No group has been selected, or the group does not exist anymore."));
   }
 
-  my $group = $groups->{$form->{group_id}};
-
-  my %all_users   = $main::auth->read_all_users();
-  my %users_by_id = map { $_->{id} => $_ } values %all_users;
-
-  my @members     = uniq sort { lc $a->{login} cmp lc $b->{login} } @users_by_id{ @{ $group->{members} } };
-
-  my %grouped     = map { $_ => 1 } uniq @{ $group->{members} };
-  my @non_members = sort { lc $a->{login} cmp lc $b->{login} } grep { !$grouped{$_->{id}} } values %all_users;
-
-  my @rights = map {
+  my $group     = $groups->{$form->{group_id}};
+  my %all_users = $main::auth->read_all_users();
+  my @rights    = map {
     { "right"       => $_->[0],
       "description" => $_->[1],
       "is_section"  => '--' eq substr($_->[0], 0, 2),
@@ -143,8 +135,8 @@ sub edit_group {
   } SL::Auth::all_rights_full();
 
   $form->header();
-  print $form->parse_html_template("admin/edit_group", { "USERS_IN_GROUP"     => \@members,
-                                                         "USERS_NOT_IN_GROUP" => \@non_members,
+  print $form->parse_html_template("admin/edit_group", { ALL_USERS            => [ values %all_users ],
+                                                         USER_IDS_IN_GROUP    => $group->{members},
                                                          "RIGHTS"             => \@rights,
                                                          "name"               => $group->{name},
                                                          "description"        => $group->{description} });
@@ -175,56 +167,6 @@ sub delete_group {
     $form->header();
     print $form->parse_html_template("admin/delete_group_confirm", $groups->{$form->{group_id}});
   }
-
-  $main::lxdebug->leave_sub();
-}
-
-sub add_to_group {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $form->isblank('user_id_not_in_group', $locale->text('No user has been selected.'));
-
-  my $groups = $main::auth->read_groups();
-
-  if (!$form->{group_id} || !$groups->{$form->{group_id}}) {
-    $form->show_generic_error($locale->text('No group has been selected, or the group does not exist anymore.'));
-  }
-
-  my $group = $groups->{$form->{group_id}};
-  $group->{members} = [ uniq @{ $group->{members} }, $form->{user_id_not_in_group} ];
-
-  $main::auth->save_group($group);
-
-  $form->{message} = $locale->text('The user has been added to this group.');
-  edit_group();
-
-  $main::lxdebug->leave_sub();
-}
-
-sub remove_from_group {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $form->isblank('user_id_in_group', $locale->text('No user has been selected.'));
-
-  my $groups = $main::auth->read_groups();
-
-  if (!$form->{group_id} || !$groups->{$form->{group_id}}) {
-    $form->show_generic_error($locale->text('No group has been selected, or the group does not exist anymore.'));
-  }
-
-  my $group            = $groups->{$form->{group_id}};
-  $group->{members} = [ uniq grep { $_ ne $form->{user_id_in_group} } @{ $group->{members} } ];
-
-  $main::auth->save_group($group);
-
-  $form->{message} = $locale->text('The user has been removed from this group.');
-  edit_group();
 
   $main::lxdebug->leave_sub();
 }

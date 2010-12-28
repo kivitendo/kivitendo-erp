@@ -1044,7 +1044,8 @@ sub display_stock_in_form {
   my $part_info  = IC->get_basic_part_info('id' => $form->{parts_id});
 
   my $units      = AM->retrieve_units(\%myconfig, $form);
-  my $units_data = AM->unit_select_data($units, undef, undef, $part_info->{unit});
+  # der zweite Parameter von unit_select_data gibt den default-Namen (selected) vor
+  my $units_data = AM->unit_select_data($units, $form->{do_unit}, undef, $part_info->{unit});
 
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                      'bins'   => 'BINS' });

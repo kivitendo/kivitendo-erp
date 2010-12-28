@@ -2,6 +2,7 @@
 # -*- coding: utf-8; -*-
 # vim: fenc=UTF-8
 
+use utf8;
 
 # These are all the texts to build the translations files.
 # The file has the form of 'english text'  => 'foreign text',
@@ -448,7 +449,7 @@ $self->{texts} = {
   'Currency'                    => 'Währung',
   'Current / Next Level'        => 'Aktuelles / Nächstes Mahnlevel',
   'Current Earnings'            => 'Gewinn',
-  'Current assets account'      => '',
+  'Current assets account'      => 'Konto für Umlaufvermögen',
   'Current unit'                => 'Aktuelle Einheit',
   'Current value:'              => 'Aktueller Wert:',
   'Custom Variables'            => 'Erweitert',
@@ -564,7 +565,7 @@ $self->{texts} = {
   'Do you really want to delete AR transaction #1?' => 'Wollen Sie wirklich die Debitorenbuchung #1 löschen?',
   'Do you really want to delete GL transaction #1?' => 'Wollen Sie wirklich die Dialogbuchung #1 löschen?',
   'Do you really want to delete this group?' => 'Gruppe wirklich l&ouml;schen?',
-  'Do you really want to delete this object?' => '',
+  'Do you really want to delete this object?' => 'Wirklich löschen?',
   'Do you really want to delete this warehouse?' => 'Wollen Sie dieses Lager wirklich l&ouml;schen?',
   'Do you want Lx-Office to create a group for access to all functions?' => 'Wollen Sie, dass Lx-Office eine Gruppe mit Zugriff auf alle Funktionen anlegt?',
   'Do you want to <b>limit</b> your search?' => 'Wollen Sie Ihre Suche <b>spezialisieren</b>?',
@@ -1217,7 +1218,7 @@ $self->{texts} = {
   'Please enter the login for the new user.' => 'Bitte geben Sie das Login für den neuen Benutzer ein.',
   'Please enter the name of the database that will be used as the template for the new database:' => 'Bitte geben Sie den Namen der Datenbank an, die als Vorlage f&uuml;r die neue Datenbank benutzt wird:',
   'Please enter the name of the dataset you want to restore the backup in.' => 'Bitte geben Sie den Namen der Datenbank ein, in der Sie die Sicherung wiederherstellen wollen.',
-  'Please enter the sales tax identification number.' => '',
+  'Please enter the sales tax identification number.' => 'Bitte geben Sie die Umsatzsteueridentifikationsnummer an.',
   'Please enter the taxnumber in the administration menu user preferences' => 'Bitte bei den Einstellungen des aktuellen Benutzers im Administrationsmodul angeben.',
   'Please enter values'         => 'Bitte Werte eingeben',
   'Please insert object dimensions below.' => 'Bitte geben Sie die Abmessungen unten ein',

@@ -616,120 +616,72 @@ sub create_http_response {
 
 
 sub header {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  # extra code ist currently only used by menuv3 and menuv4 to set their css.
+  # extra code is currently only used by menuv3 and menuv4 to set their css.
   # it is strongly deprecated, and will be changed in a future version.
   my ($self, $extra_code) = @_;
+  my $db_charset = $::dbcharset || Common::DEFAULT_CHARSET;
+  my @header;
 
-  if ($self->{header}) {
-    $main::lxdebug->leave_sub();
-    return;
+  $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
+
+  $self->{favicon} ||= "favicon.ico";
+  $self->{titlebar}  = "$self->{title} - $self->{titlebar}" if $self->{title};
+
+  # build includes
+  if ($self->{refresh_url} || $self->{refresh_time}) {
+    my $refresh_time = $self->{refresh_time} || 3;
+    my $refresh_url  = $self->{refresh_url}  || $ENV{REFERER};
+    push @header, "<meta http-equiv='refresh' content='$refresh_time;$refresh_url'>";
   }
 
-  my ($stylesheet, $favicon, $pagelayout);
+  push @header, "<link rel='stylesheet' href='css/$_' type='text/css' title='Lx-Office stylesheet'>"
+    for grep { -f "css/$_" } apply { s|.*/|| } $self->{stylesheet}, $self->{stylesheets};
 
-  if ($ENV{HTTP_USER_AGENT}) {
-    my $doctype;
-
-    if ($ENV{'HTTP_USER_AGENT'} =~ m/MSIE\s+\d/) {
-      # Only set the DOCTYPE for Internet Explorer. Other browsers have problems displaying the menu otherwise.
-      $doctype = qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">\n|;
-    }
-
-    my $stylesheets = "$self->{stylesheet} $self->{stylesheets}";
-
-    $stylesheets =~ s|^\s*||;
-    $stylesheets =~ s|\s*$||;
-    foreach my $file (split m/\s+/, $stylesheets) {
-      $file =~ s|.*/||;
-      next if (! -f "css/$file");
-
-      $stylesheet .= qq|<link rel="stylesheet" href="css/$file" TYPE="text/css" TITLE="Lx-Office stylesheet">\n|;
-    }
-
-    $self->{favicon}    = "favicon.ico" unless $self->{favicon};
-
-    if ($self->{favicon} && (-f "$self->{favicon}")) {
-      $favicon =
-        qq|<LINK REL="shortcut icon" HREF="$self->{favicon}" TYPE="image/x-icon">
-  |;
-    }
-
-    my $db_charset = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
-
-    if ($self->{landscape}) {
-      $pagelayout = qq|<style type="text/css">
-                        \@page { size:landscape; }
-                        </style>|;
-    }
-
-    my $fokus = qq|
-    <script type="text/javascript">
-    <!--
-      function fokus() {
-        document.$self->{fokus}.focus();
-      }
-    //-->
-    </script>
-    | if $self->{"fokus"};
+  push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
+  push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
+  push @header, '<script type="text/javascript" src="js/jquery.js"></script>',
+                '<script type="text/javascript" src="js/common.js"></script>',
+                '<style type="text/css">@import url(js/jscalendar/calendar-win2k-1.css);</style>',
+                '<script type="text/javascript" src="js/jscalendar/calendar.js"></script>',
+                '<script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>',
+                '<script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>',
+                '<script type="text/javascript" src="js/part_selection.js"></script>';
+  push @header, $self->{javascript} if $self->{javascript};
+  push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
+  push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
+  push @header, sprintf "<script type='text/javascript'>top.document.title='%s';</script>",
+    join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
 
   # if there is a title, we put some JavaScript in to the page, wich writes a
   # meaningful title-tag for our frameset.
-    my $title_hack;
-    if ($self->{"title"}){
-		$title_hack = qq|
-		<script type="text/javascript">
-		<!--
-		  // Write a meaningful title-tag for our frameset.
-		  top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - V| . $self->{"version"} . qq|";
-		//-->
-		</script>
-		|;
-	}
+  my $title_hack = '';
+  if ($self->{title}) {
+    $title_hack = qq|
+    <script type="text/javascript">
+    <!--
+      // Write a meaningful title-tag for our frameset.
+      top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - V| . $self->{"version"} . qq|";
+    //-->
+    </script>|;
+  }
 
-    #Set Calendar
-    my $jsscript = "";
-    if ($self->{jsscript} == 1) {
-
-      $jsscript = qq|
-        <script type="text/javascript" src="js/jquery.js"></script>
-        <script type="text/javascript" src="js/common.js"></script>
-        <style type="text/css">\@import url(js/jscalendar/calendar-win2k-1.css);</style>
-        <script type="text/javascript" src="js/jscalendar/calendar.js"></script>
-        <script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>
-        <script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>
-        $self->{javascript}
-       |;
-    }
-
-    $self->{titlebar} =
-      ($self->{title})
-      ? "$self->{title} - $self->{titlebar}"
-      : $self->{titlebar};
-    my $ajax = "";
-    for my $item (@ { $self->{AJAX} || [] }) {
-      $ajax .= $item->show_javascript();
-    }
-
-    print $self->create_http_response('content_type' => 'text/html',
-                                      'charset'      => $db_charset,);
-    print qq|${doctype}<html>
-<head>
-  <META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=${db_charset}">
+  # output
+  print $self->create_http_response(content_type => 'text/html', charset => $db_charset);
+  print "<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/TR/html4/strict.dtd'>\n"
+    if  $ENV{'HTTP_USER_AGENT'} =~ m/MSIE\s+\d/; # Other browsers may choke on menu scripts with DOCTYPE.
+  print <<EOT;
+<html>
+ <head>
+  <meta http-equiv="Content-Type" content="text/html; charset=$db_charset">
   <title>$self->{titlebar}</title>
-  $stylesheet
-  $pagelayout
-  $favicon
-  $jsscript
-  $ajax
-  $fokus
-  $title_hack
-
+EOT
+  print "  $_\n" for @header;
+  print <<EOT;
   <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css" />
-
   <meta name="robots" content="noindex,nofollow" />
-
+  <script type="text/javascript" src="js/highlight_input.js"></script>
   <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
   <script type="text/javascript" src="js/tabcontent.js">
 
@@ -740,15 +692,13 @@ sub header {
    ***********************************************/
 
   </script>
-
   $extra_code
-</head>
+  $title_hack
+ </head>
 
-|;
-  }
-  $self->{header} = 1;
+EOT
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub ajax_response_header {
@@ -3568,9 +3518,7 @@ Points of interest for a beginner are:
 
 =head1 SPECIAL FUNCTIONS
 
-=over 4
-
-=item _store_value()
+=head2 C<_store_value()>
 
 parses a complex var name, and stores it in the form.
 
@@ -3625,7 +3573,7 @@ supported key structures are:
 
   filter.status[]  => $form->{status}->[ val1, val2, ... ]
 
-=item update_business PARAMS
+=head2 C<update_business> PARAMS
 
 PARAMS (not named):
  \%config,     - config hashref
@@ -3637,7 +3585,7 @@ handles business (thats customer/vendor types) sequences.
 special behaviour for empty strings in customerinitnumber field:
 will in this case not increase the value, and return undef.
 
-=item redirect_header $url
+=head2 C<redirect_header> $url
 
 Generates a HTTP redirection header for the new C<$url>. Constructs an
 absolute URL including scheme, host name and port. If C<$url> is a
@@ -3650,6 +3598,45 @@ Examples:
 
   print $::form->redirect_header('oe.pl?action=edit&id=1234');
   print $::form->redirect_header('http://www.lx-office.org/');
+
+=head2 C<header>
+
+Generates a general purpose http/html header and includes most of the scripts
+ans stylesheets needed.
+
+Only one header will be generated. If the method was already called in this
+request it will not output anything and return undef. Also if no
+HTTP_USER_AGENT is found, no header is generated.
+
+Although header does not accept parameters itself, it will honor special
+hashkeys of its Form instance:
+
+=over 4
+
+=item refresh_time
+
+=item refresh_url
+
+If one of these is set, a http-equiv refresh is generated. Missing parameters
+default to 3 seconds and the refering url.
+
+=item stylesheet
+
+=item stylesheets
+
+If these are arrayrefs the contents will be inlined into the header.
+
+=item landscape
+
+If true, a css snippet will be generated that sets the page in landscape mode.
+
+=item favicon
+
+Used to override the default favicon.
+
+=item title
+
+A html page title will be generated from this
 
 =back
 

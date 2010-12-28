@@ -1,10 +1,9 @@
-[%- USE T8 %]
-[% USE HTML %]<body>
+[% USE T8 %][% USE HTML %][% USE L %][% USE LxERP -%]
+<body>
+ [% L.stylesheet_tag('jquery.multiselect2side') %]
+ [% L.javascript_tag('jquery.selectboxes', 'jquery.multiselect2side') %]
+
  <form name="Form" method="post" action="admin.pl">
-
-  <input type="hidden" name="group_id" value="[% HTML.escape(group_id) %]">
-  <input type="hidden" name="back_nextsub" value="edit_groups">
-
   [% IF message %]
   <p class="message_ok">[% message %]</p>
   [% END %]
@@ -15,68 +14,49 @@
 
    <hr>
 
-   <p class="listheading">[% 'Rename the group' | $T8 %]</p>
-   <table>
-     <tr><td><div style="">[% 'Name' | $T8 %]</th><td><input name="name" maxlength="50" value="[% HTML.escape(name) %]"></td></tr>
-	 <tr><th>[% 'Description' | $T8 %]</th><td><input name="description" value="[% HTML.escape(description) %]"></td></tr>
-   </table>
-   <br>
-     <input type="hidden" name="save_nextsub" value="save_group">
-     <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
+  <h3 class="listheading">[%- LxERP.t8('Edit membership') %]</h3>
 
- <hr>
- <br>
- <div class="listtop">[% 'Group membership' | $T8 %]</div>
-     <table>
-      <tr>
-       <td><p class="listheading">[% 'Members of' | $T8 %]<br>[% HTML.escape(name) %]</p></td>
-       <td> </td>
-       <td><p class="listheading">[% 'Members not of' | $T8 %]<br>[% HTML.escape(name) %]</p></td>
-      </tr>
+  <div class="clearfix">
+   [% L.select_tag("user_ids[]", L.options_for_select(ALL_USERS, value => 'id', title => 'login', default => USER_IDS_IN_GROUP), 'multiple' => 'multiple') %]
+  </div>
 
-      <tr>
-       <td valign="center">
-        <select name="user_id_in_group" size="10">
-         [% FOREACH user = USERS_IN_GROUP %]<option value="[% HTML.escape(user.id) %]">[% HTML.escape(user.login) %]</option>[% END %]
-        </select>
-       </td>
+  <h3 class="listheading">[% 'Edit rights' | $T8 %]</h3>
 
-       <td valign="center">
-        <input type="submit" class="submit" name="action" value="[% 'Add to group' | $T8 %]">
-        <br>
-        <br>
-        <input type="submit" class="submit" name="action" value="[% 'Remove from group' | $T8 %]">
-       </td>
+  <p>
+   [% FOREACH right = RIGHTS %]
+    [% IF right.is_section %]
+     <i>[% right.description %]</i><br>
+    [% ELSE %]
+     <input type="checkbox" name="[% HTML.escape(right.right) %]_granted" id="[% HTML.escape(right.right) %]_granted" [% IF right.granted %]checked[% END %]>
+     <label for="[% HTML.escape(right.right) %]_granted">[% IF right.description %][% right.description %][% ELSE %]<i>[% HTML.escape(right.right) %]</i>[% END %]</label>
+     <br>
+    [% END %]
+   [% END %]
+  </p>
 
-       <td valign="center">
-        <select name="user_id_not_in_group" size="10">
-         [% FOREACH user = USERS_NOT_IN_GROUP %]<option value="[% HTML.escape(user.id) %]">[% HTML.escape(user.login) %]</option>[% END %]
-        </select>
-       </td>
-      </tr>
-     </table>
- <hr>
- <br>
-    <div class="listtop">[% 'Edit rights' | $T8 %]</div>
+  <h3 class="listheading">[% LxERP.t8('Rename the group') %]</h3>
 
-      [% FOREACH right = RIGHTS %]
+  <table>
+   <tr>
+    <td>[% 'Name' | $T8 %]:</td>
+    <td><input name="name" maxlength="50" value="[% HTML.escape(name) %]"></td>
+   </tr>
 
-        [% IF right.is_section %]
-        <br>
-        <h4 style="border-bottom: solid; border-bottom-width: 1px; border-bottom-color: #ddd;">[% right.description %]</h4>
-        [% ELSE %]
-        <p style="/*font-size: 11px;*/ margin: 0;">
-        <input type="checkbox" name="[% HTML.escape(right.right) %]_granted" id="[% HTML.escape(right.right) %]_granted" [% IF right.granted %]checked[% END %]>
-        <label for="[% HTML.escape(right.right) %]_granted">[% IF right.description %][% right.description %][% ELSE %]<i>[% HTML.escape(right.right) %]</i>[% END %]</label>
-         </p>
-        [% END %]
+   <tr>
+    <td>[% 'Description' | $T8 %]:</td>
+    <td><input name="description" value="[% HTML.escape(description) %]"></td>
+   </tr>
+  </table>
 
-      [% END %]
-
-   <hr>
-    <input type="hidden" name="save_nextsub" value="save_group">
-    <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
-    <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
+  <p>
+   <input type="hidden" name="group_id" value="[% HTML.escape(group_id) %]">
+   <input type="hidden" name="action" value="save_group">
+   <input type="submit" class="submit" value="[% 'Save' | $T8 %]">
+   &nbsp;
+   <a href="admin.pl?action=edit_groups">[% 'Back' | $T8 %]</a>
+  </p>
  </form>
+
+ [% L.multiselect2side('user_ids_', labelsx => LxERP.t8('All users'), labeldx => LxERP.t8('Users in this group')) %]
 </body>
 </html>
