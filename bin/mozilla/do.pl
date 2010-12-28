@@ -846,15 +846,35 @@ sub invoice_multi {
 
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued);
 
+  # get vendor or customer discount
+  my $vc_discount;
+  my $saved_form = save_form();
+  if ($form->{vc} eq 'vendor') {
+    IR->get_vendor(\%myconfig, \%$form);
+    $vc_discount = $form->{vendor_discount};
+  } else {
+    IS->get_customer(\%myconfig, \%$form);
+    $vc_discount = $form->parse_amount(\%myconfig, $form->{customer_discount});
+  }
+  restore_form($saved_form);
+
   $form->{rowcount} = 0;
   foreach my $ref (@{ $form->{form_details} }) {
     $form->{rowcount}++;
     $ref->{reqdate} ||= $ref->{dord_transdate}; # copy transdates into each invoice row
     map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{ $ref };
-    map { $form->{"${_}_$form->{rowcount}"} = $form->format_amount(\%myconfig, $ref->{$_}) } qw(qty sellprice discount lastcost);
+    map { $form->{"${_}_$form->{rowcount}"} = $form->format_amount(\%myconfig, $ref->{$_}) } qw(qty sellprice lastcost);
+
+    if ($vc_discount){ # falls wir einen Lieferanten/Kundenrabatt haben 
+      # und keinen anderen discount wert an $i ...
+      $form->{"discount_$form->{rowcount}"} ||= $vc_discount; # ... nehmen wir diesen Rabatt
+    }
+
     $form->{"discount_$form->{rowcount}"}   = $form->{"discount_$form->{rowcount}"}  * 100; #s.a. Bug 1151
     # Anm.: Eine Änderung des discounts in der SL/DO.pm->retrieve (select (doi.discount * 100) as discount) ergibt in psql einen
     # Wert von 10.0000001490116. Ferner ist der Rabatt in der Rechnung dann bei 1.0 (?). Deswegen lasse ich das hier. jb 10.10.09
+
+    $form->{"discount_$form->{rowcount}"} = $form->format_amount(\%myconfig, $form->{"discount_$form->{rowcount}"});
   }
   delete $form->{form_details};
 
