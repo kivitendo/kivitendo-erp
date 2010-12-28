@@ -386,6 +386,7 @@ sub _get_transactions {
        ORDER BY trans_id, acc_trans_id|;
 
   my $sth = prepare_execute_query($form, $dbh, $query);
+  $form->{DATEV} = [];
 
   my $counter = 0;
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
