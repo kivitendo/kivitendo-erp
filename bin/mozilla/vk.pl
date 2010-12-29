@@ -35,6 +35,7 @@ use POSIX qw(strftime);
 use List::Util qw(sum first);
 
 use SL::VK;
+use SL::IS;
 use SL::ReportGenerator;
 use Data::Dumper;
 
@@ -88,7 +89,23 @@ sub invoice_transactions {
 
   $form->{customer} = $form->unescape($form->{customer});
 
-  ($form->{customername}, $form->{customer_id}) = split(/--/, $form->{customer});
+  if ( $form->{customer} =~ /--/ ) {
+    # Felddaten kommen aus Dropdownbox
+    ($form->{customername}, $form->{customer_id}) = split(/--/, $form->{customer});
+  } else {
+    # Felddaten kommen aus Freitextfeld
+
+    # check_name wird mit no_select => 1 ausgeführt, ist die Abfrage nicht eindeutig kommt ein Fehler
+    # und die Abfrage muß erneut ausgeführt werden
+
+    # Ohne no_select kommt bei Auswahl des Kunden ein Aufruf von update der ins
+    # Nichts führt, daher diese Zwischenlösung
+
+    &check_name('customer', no_select => 1);
+
+    # $form->{customer_id} wurde schon von check_name gesetzt
+    $form->{customername} = $form->{customer};
+  };
 
   # decimalplaces überprüfen oder auf Default 2 setzen
   $form->{decimalplaces} = 2 unless $form->{decimalplaces} > 0 && $form->{decimalplaces} < 6;
