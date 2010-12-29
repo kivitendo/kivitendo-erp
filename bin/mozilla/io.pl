@@ -1040,9 +1040,9 @@ sub edit_e_mail {
 
   $form->{email} = $form->{shiptoemail} if $form->{shiptoemail} && $form->{formname} =~ /(pick|packing|bin)_list/;
 
-  if ($form->{"cp_id"} && !$form->{"email"}) {
+  if ($form->{"cp_id"}) {
     CT->get_contact(\%myconfig, $form);
-    $form->{"email"} = $form->{"cp_email"};
+    $form->{"email"} = $form->{"cp_email"} if $form->{"cp_email"};
   }
 
   my $title = $locale->text('E-mail') . " " . $form->get_formname_translation();

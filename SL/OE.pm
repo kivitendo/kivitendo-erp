@@ -1285,39 +1285,6 @@ sub project_description {
   return $value;
 }
 
-##########################
-# Get data for the submitted order id
-# from database
-#
-sub get_order_data_by_ordnumber {
-  $main::lxdebug->enter_sub();
-
-  my $self      = shift;
-  my %params    = @_;
-
-  Common::check_params(\%params, qw(ordnumber));
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $dbh      = $form->get_standard_dbh();
-
-  my @values = ($params{ordnumber});
-
-  # We query the database for the fields we need using the submitted "ordnumber"
-  my $query = <<SQL;
-    SELECT o.payment_id, o.salesman_id, o.transdate AS orddate, o.taxzone_id, o.quonumber
-    FROM oe o
-    WHERE o.ordnumber = ?;
-SQL
-
-  # Do the actual query and return the results for later processing by our "frontend"
-  my $result = selectfirst_hashref_query($form, $dbh, $query, @values);
-
-  $main::lxdebug->leave_sub();
-
-  return $result;
-}
-
 1;
 
 __END__
