@@ -1,4 +1,4 @@
-  #=====================================================================
+#=====================================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -789,7 +789,7 @@ sub all_parts {
   my @makemodel_filters    = qw(make model);
   my @invoice_oi_filters   = qw(serialnumber soldtotal);
   my @apoe_filters         = qw(transdate);
-  my @like_filters         = (@simple_filters, @makemodel_filters, @invoice_oi_filters);
+  my @like_filters         = (@simple_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(listprice sellprice lastcost priceupdate weight unit bin rop image));
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
@@ -824,8 +824,9 @@ sub all_parts {
            SELECT id, name, 'customer' AS cv FROM customer UNION
            SELECT id, name, 'vendor'   AS cv FROM vendor
          ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
+    mv         => 'LEFT JOIN vendor AS mv ON mv.id = mm.make',
   );
-  my @join_order = qw(partsgroup makemodel invoice_oi apoe cv pfac);
+  my @join_order = qw(partsgroup makemodel mv invoice_oi apoe cv pfac);
 
   my %table_prefix = (
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -942,6 +943,19 @@ sub all_parts {
         WHERE (a_lc.id = p.id)) AS lastcost|;
   $table_prefix{$q_assembly_lastcost} = ' ';
 
+  # special case makemodel search
+  # all_parts is based upon the assumption that every parameter is named like the column it represents
+  # unfortunately make would have to match vendor.name which is already taken for vendor.name in bsooqr mode.
+  # fortunately makemodel doesn't need to be displayed later, so adding a special clause to where_token is sufficient.
+  if ($form->{make}) {
+    push @where_tokens, 'mv.name ILIKE ?';
+    push @bind_vars, "%$form->{make}%";
+  }
+  if ($form->{model}) {
+    push @where_tokens, 'mm.model ILIKE ?';
+    push @bind_vars, "%$form->{model}%";
+  }
+
   # special case: sorting by partnumber
   # since partnumbers are expected to be prefixed integers, a special sorting is implemented sorting first lexically by prefix and then by suffix.
   # and yes, that expression is designed to hold that array of regexes only once, so the map is kinda messy, sorry about that.
@@ -976,6 +990,7 @@ sub all_parts {
   $joins_needed{partsgroup}  = 1;
   $joins_needed{pfac}        = 1;
   $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
+  $joins_needed{mv}          = 1 if $joins_needed{makemodel};
   $joins_needed{cv}          = 1 if $bsooqr;
   $joins_needed{apoe}        = 1 if $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}  = 1 if $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
