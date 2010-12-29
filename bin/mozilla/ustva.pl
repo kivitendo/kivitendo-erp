@@ -674,9 +674,8 @@ sub generate_ustva {
       };
     }
 
-  # Kontrollvariable für die Templates
-  $form->{'year2007'} = ($form->{year} >= 2007 ) ? "1":"0";
-
+  # Kontrollvariablen für die Templates
+  $form->{"year$_"} = ($form->{year} >= $_ ) ? "1":"0" for 2007..2107;
 
   # Get the USTVA
   $ustva->ustva(\%myconfig, \%$form);
