@@ -1377,6 +1377,20 @@ sub delete_invoice {
 
   my @values = (conv_i($form->{id}));
 
+  # Falls wir ein Storno haben, müssen zwei Felder in der stornierten Rechnung wieder
+  # zurückgesetzt werden. Vgl:
+  #  id | storno | storno_id |  paid   |  amount   
+  #----+--------+-----------+---------+-----------
+  # 18 | f      |           | 0.00000 | 119.00000
+  # ZU:
+  # 18 | t      |           |  119.00000 |  119.00000
+  #
+  if($form->{storno}){
+    # storno_id auslesen und korrigieren
+    my ($invoice_id) = selectfirst_array_query($form, $dbh, qq|SELECT storno_id FROM ar WHERE id = ?|,@values);
+    do_query($form, $dbh, qq|UPDATE ar SET storno = 'f', paid = 0 WHERE id = ?|, $invoice_id);
+  }
+
   # delete AR record
   do_query($form, $dbh, qq|DELETE FROM ar WHERE id = ?|, @values);
 

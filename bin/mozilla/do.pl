@@ -1310,6 +1310,7 @@ sub transfer_out {
       foreach my $request (@{ DO->unpack_stock_information('packed' => $form->{"stock_out_$i"}) }) {
         $request->{parts_id} = $form->{"id_$i"};
         $request->{base_qty} = $request->{qty} * $units->{$request->{unit}}->{factor} / $base_unit_factor;
+        $request->{project_id} = $form->{"project_id_$i"} ? $form->{"project_id_$i"} : $form->{globalproject_id}; 
 
         my $map_key          = join '--', ($form->{"id_$i"}, @{$request}{qw(warehouse_id bin_id chargenumber bestbefore)});
 
@@ -1383,7 +1384,6 @@ sub transfer_out {
       ::end_of_request();
     }
   }
-
   DO->transfer_in_out('direction' => 'out',
                       'requests'  => \@all_requests);
 

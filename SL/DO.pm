@@ -1053,6 +1053,7 @@ sub transfer_in_out {
       'oe_id'                  => $form->{id},
       'shippingdate'           => 'current_date',
       'transfer_type'          => $params{direction} eq 'in' ? 'stock' : 'shipped',
+      'project_id'             => $request->{project_id},
     };
   }
 
