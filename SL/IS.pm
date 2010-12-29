@@ -46,6 +46,7 @@ use SL::GenericTranslations;
 use SL::MoreCommon;
 use SL::IC;
 use SL::IO;
+use SL::TransNumber;
 use Data::Dumper;
 
 use strict;
@@ -515,7 +516,7 @@ sub post_invoice {
   my ($self, $myconfig, $form, $provided_dbh, $payments_only) = @_;
 
   # connect to database, turn off autocommit
-  my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
+  my $dbh = $provided_dbh ? $provided_dbh : $form->get_standard_dbh;
 
   my ($query, $sth, $null, $project_id, @values);
   my $exchangerate = 0;
@@ -538,6 +539,9 @@ sub post_invoice {
       &reverse_invoice($dbh, $form);
 
     } else {
+      my $trans_number   = SL::TransNumber->new(type => $form->{type}, dbh => $dbh, number => $form->{invnumber}, save => 1);
+      $form->{invnumber} = $trans_number->create_unique unless $trans_number->is_unique;
+
       $query = qq|SELECT nextval('glid')|;
       ($form->{"id"}) = selectrow_query($form, $dbh, $query);
 

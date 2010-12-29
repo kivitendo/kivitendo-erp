@@ -4,6 +4,30 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v2.6.2
+==================
+
+ Vor dem Einloggen
+ -----------------
+
+Mit Version 2.6.2 sind einige Abhängigkeiten von Perl-Modulen hinzugekommen.
+Bitte führen sie vor dem ersten Aufrufen der einmal den folgenden Befehl im
+Lx-Office Verzeichnis aus:
+
+$ scripts/installation_check.pl
+
+Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
+der Installationsanweisung.
+
+Zumindest folgende Module sind neu benötigt:
+
+* Readonly (optional mit Begleitermodul Readonly::XS)
+* Rose::Object, Rose::DB und Rose::DB::Object (die Installation von
+  Rose::DB::Object via CPAN oder den Paketmechanismus Ihrer
+  Distribution sollte für die automatische Installation der anderen
+  zwei Pakete sorgen)
+
+
 Upgrade auf v2.6.1
 ==================
 
