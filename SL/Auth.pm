@@ -59,19 +59,31 @@ sub DESTROY {
   $self->{dbh}->disconnect() if ($self->{dbh});
 }
 
+# form isn't loaded yet, so auth needs it's own error.
+sub mini_error {
+  $::lxdebug->show_backtrace();
+
+  my ($self, @msg) = @_;
+  if ($ENV{HTTP_USER_AGENT}) {
+    print Form->create_http_response(content_type => 'text/html');
+    print "<pre>", join ('<br>', @msg), "</pre>";
+  } else {
+    print STDERR "Error: @msg\n";
+  }
+  ::end_of_request();
+}
+
 sub _read_auth_config {
   $main::lxdebug->enter_sub();
 
   my $self   = shift;
 
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
   my $code;
   my $in = IO::File->new('config/authentication.pl', 'r');
 
   if (!$in) {
-    $form->error($locale->text('The config file "config/authentication.pl" was not found.'));
+    my $locale = Locale->new('en');
+    $self->mini_error($locale->text('The config file "config/authentication.pl" was not found.'));
   }
 
   while (<$in>) {
@@ -82,7 +94,8 @@ sub _read_auth_config {
   eval $code;
 
   if ($@) {
-    $form->error($locale->text('The config file "config/authentication.pl" contained invalid Perl code:') . "\n" . $@);
+    my $locale = Locale->new('en');
+    $self->mini_error($locale->text('The config file "config/authentication.pl" contained invalid Perl code:'), $@);
   }
 
   if ($self->{module} eq 'DB') {
@@ -93,17 +106,20 @@ sub _read_auth_config {
   }
 
   if (!$self->{authenticator}) {
-    $form->error($locale->text('No or an unknown authenticantion module specified in "config/authentication.pl".'));
+    my $locale = Locale->new('en');
+    $self->mini_error($locale->text('No or an unknown authenticantion module specified in "config/authentication.pl".'));
   }
 
   my $cfg = $self->{DB_config};
 
   if (!$cfg) {
-    $form->error($locale->text('config/authentication.pl: Key "DB_config" is missing.'));
+    my $locale = Locale->new('en');
+    $self->mini_error($locale->text('config/authentication.pl: Key "DB_config" is missing.'));
   }
 
   if (!$cfg->{host} || !$cfg->{db} || !$cfg->{user}) {
-    $form->error($locale->text('config/authentication.pl: Missing parameters in "DB_config". Required parameters are "host", "db" and "user".'));
+    my $locale = Locale->new('en');
+    $self->mini_error($locale->text('config/authentication.pl: Missing parameters in "DB_config". Required parameters are "host", "db" and "user".'));
   }
 
   $self->{authenticator}->verify_config();
@@ -690,6 +706,8 @@ sub all_rights_full {
     ["--reports",                      $locale->text('Reports')],
     ["report",                         $locale->text('All reports')],
     ["advance_turnover_tax_return",    $locale->text('Advance turnover tax return')],
+    ["--batch_printing",               $locale->text("Batch Printing")],
+    ["batch_printing",                 $locale->text("Batch Printing")],
     ["--others",                       $locale->text("Others")],
     ["email_bcc",                      $locale->text("May set the BCC field when sending emails")],
     ["config",                         $locale->text("Change Lx-Office installation settings (all menu entries beneath 'System')")],
