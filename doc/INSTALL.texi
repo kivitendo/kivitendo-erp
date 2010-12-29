@@ -80,6 +80,14 @@ List::MoreUtils
 @item
 PDF::API2
 @item
+Readonly (benötigt) und Readonly::XS (optional)
+@item
+Rose::Object
+@item
+Rose::DB
+@item
+Rose::DB::Object
+@item
 Template
 @item
 Text::CSV_XS

@@ -72,6 +72,14 @@ Bestandteil einer Standard-Perl-Installation sind:
 
    * PDF::API2
 
+   * Readonly (benötigt) und Readonly::XS (optional)
+
+   * Rose::Object
+
+   * Rose::DB
+
+   * Rose::DB::Object
+
    * Template
 
    * Text::CSV_XS
