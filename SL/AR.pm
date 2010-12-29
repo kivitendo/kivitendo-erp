@@ -697,7 +697,7 @@ sub storno {
     do_query($form, $dbh, $query, (values %$row));
   }
 
-  map { IO->set_datepaid(table => 'ap', id => $_, dbh => $dbh) } ($id, $new_id);
+  map { IO->set_datepaid(table => 'ar', id => $_, dbh => $dbh) } ($id, $new_id);
 
   $dbh->commit;
 
