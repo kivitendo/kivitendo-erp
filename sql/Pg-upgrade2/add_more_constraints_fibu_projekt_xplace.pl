@@ -3,6 +3,7 @@
 # @depends: release_2_6_0 fix_acc_trans_ap_taxkey_bug
 # @charset: utf-8
 
+use utf8;
 use strict;
 use Data::Dumper;
 die("This script cannot be run from the command line.") unless ($main::form);
