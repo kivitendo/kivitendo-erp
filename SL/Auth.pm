@@ -706,6 +706,8 @@ sub all_rights_full {
     ["--reports",                      $locale->text('Reports')],
     ["report",                         $locale->text('All reports')],
     ["advance_turnover_tax_return",    $locale->text('Advance turnover tax return')],
+    ["--batch_printing",               $locale->text("Batch Printing")],
+    ["batch_printing",                 $locale->text("Batch Printing")],
     ["--others",                       $locale->text("Others")],
     ["email_bcc",                      $locale->text("May set the BCC field when sending emails")],
     ["config",                         $locale->text("Change Lx-Office installation settings (all menu entries beneath 'System')")],

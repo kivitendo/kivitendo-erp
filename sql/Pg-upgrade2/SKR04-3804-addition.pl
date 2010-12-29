@@ -3,6 +3,7 @@
 # @depends:
 # @charset: UTF-8
 
+use utf8;
 use strict;
 
 die("This script cannot be run from the command line.") unless ($main::form);

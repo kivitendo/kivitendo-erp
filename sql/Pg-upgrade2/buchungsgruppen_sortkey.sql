@@ -1,6 +1,7 @@
 -- @tag: buchungsgruppen_sortkey
--- @description: Neue Spalte f&uuml;r Sortierreihenfolge der Buchungsgruppen
+-- @description: Neue Spalte für Sortierreihenfolge der Buchungsgruppen
 -- @depends: release_2_4_1
+-- @charset: utf-8
 ALTER TABLE buchungsgruppen ADD COLUMN sortkey integer;
 CREATE SEQUENCE tmp_counter;
 UPDATE buchungsgruppen SET sortkey = nextval('tmp_counter');
