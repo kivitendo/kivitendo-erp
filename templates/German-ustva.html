@@ -256,6 +256,15 @@ Vorsteuerabzug. </b><br />Ums&auml;tze nach &sect; 4 Nr. 8 bis 20 UStG</td>
       <td class="spalte"><span class="nodis"></span></td>
       <td class="betrag"></td>
     </tr>
+<%if year2010%>
+   <tr>
+      <td class="text2"><b>Nicht steuerbare Leistungen</b> gem. &sect; 18b Satz 1 Nr. 2 UStG</td>
+      <td class="spalte ausfuellen">21</td>
+      <td class="betrag ausfuellen" width="70"><%21%><br></td>
+      <td class="spalte"><span class="nodis"></span></td>
+      <td class="betrag"></td>
+    </tr>
+<%end if year2010%>
    <tr>
       <td class="text">Im Inland nicht steuerbare Ums&auml;tze</td>
       <td class="spalte ausfuellen">45</td>
@@ -278,6 +287,15 @@ Vorsteuerabzug. </b><br />Ums&auml;tze nach &sect; 4 Nr. 8 bis 20 UStG</td>
       <td class="betrag"><%Z45%></td>
     </tr>
 
+<%if year2010%>
+    <tr>
+      <td class="text2">Im Inland steuerpflichtige sonstige Leistungen von im &uuml;brigen Gemeinschaftsgebiet ans&auml;ssigen Unternehmen (&sect;13b Abs. 1 UStG)</td>
+      <td class="spalte ausfuellen">46</td>
+      <td class="betrag ausfuellen"><%46%></td>
+      <td class="spalte">47</td>
+      <td class="betrag"><%47%></td>
+    </tr>
+<%end if year2010%>
     <tr>
       <td class="text2">Leistungen eines im Ausland ans&auml;ssigen Unternehmers</td>
       <td class="spalte ausfuellen">52</td>
