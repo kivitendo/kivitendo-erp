@@ -649,6 +649,8 @@ sub analyze {
 
   my @problems = @{ $self->{problems} };
 
+  map { $self->{$_} ||= [] } qw(ap_ar_taxkey_problems invoice_inventory_taxkey_problems missing_taxkeys_in_invoices);
+
   if (0 != scalar @{ $self->{ap_ar_taxkey_problems} }) {
     my $problem = {
       'type'        => 'ap_ar_wrong_taxkeys',
