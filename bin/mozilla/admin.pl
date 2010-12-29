@@ -86,11 +86,6 @@ sub run {
       }
       call_sub($locale->findsub($form->{action}));
     }
-  } elsif ($auth->authenticate_root($form->{rpw}, 0) == $auth->OK()) {
-
-    $auth->create_or_refresh_session() if ($auth->session_tables_present());
-
-    login();
   } else {
     # if there are no drivers bail out
     $form->error($locale->text('No Database Drivers available!'))
