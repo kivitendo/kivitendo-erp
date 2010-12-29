@@ -126,7 +126,9 @@ sub authenticate_root {
 
   $main::lxdebug->leave_sub();
 
-  return $password eq $admin_password ? OK : ERR_PASSWORD;
+  return OK if $password eq $admin_password;
+  sleep 5;
+  return ERR_PASSWORD;
 }
 
 sub authenticate {
@@ -136,7 +138,10 @@ sub authenticate {
 
   $main::lxdebug->leave_sub();
 
-  return $self->{authenticator}->authenticate(@_);
+  my $result = $self->{authenticator}->authenticate(@_);
+  return OK if $result eq OK;
+  sleep 5;
+  return $result;
 }
 
 sub dbconnect {

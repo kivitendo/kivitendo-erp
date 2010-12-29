@@ -149,16 +149,16 @@ sub handle_request {
   pre_request_checks();
 
   eval {
+    my $session_result = $::auth->restore_session;
+    $::auth->create_or_refresh_session;
+
     $::form->error($::locale->text('System currently down for maintenance!')) if -e "$::userspath/nologin" && $script ne 'admin';
 
     if ($script eq 'login' or $script eq 'admin' or $script eq 'kopf') {
       $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";
-      ::run($::auth->restore_session);
+      ::run($session_result);
 
     } else {
-      # copy from am.pl routines
-      my $session_result = $::auth->restore_session;
-
       show_error('login/password_error', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
       %::myconfig = $::auth->read_user($::form->{login});
 

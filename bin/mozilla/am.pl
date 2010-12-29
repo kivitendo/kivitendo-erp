@@ -2866,7 +2866,7 @@ sub show_am_history {
   my %searchNo = ( "Artikelnummer"          => "partnumber",
                    "Kundennummer"           => "customernumber",
                    "Lieferantennummer"      => "vendornumber",
-                   "Projektnummer"          => "projectnummer",
+                   "Projektnummer"          => "projectnumber",
                    "Buchungsnummer"         => "ordnumber",
                    "Eingangsrechnungnummer" => "invnumber",
                    "Ausgangsrechnungnummer" => "invnumber",
