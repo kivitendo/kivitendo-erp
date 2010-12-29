@@ -513,7 +513,11 @@ sub update {
 
     my $rows = scalar @{ $form->{item_list} };
 
-    $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{customer_discount} * 100);
+    # Falls kein Kundenrabatt vorhanden ist, den aktuellen Rabatt nicht mit 0% überschreiben,
+    # da hier der Anwender schon manual einen Wert eingetragen haben könnte (analog zu qty) Bugfix: 1412
+    if ($form->{customer_discount}){
+      $form->{"discount_$i"} = $form->format_amount(\%myconfig, $form->{customer_discount} * 100);
+    }
 
     if ($rows) {
       $form->{"qty_$i"} = ($form->{"qty_$i"} * 1) ? $form->{"qty_$i"} : 1;
