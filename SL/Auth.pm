@@ -597,7 +597,6 @@ sub create_or_refresh_session {
 
   if ($id) {
     do_query($form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
-    do_query($form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
 
   } else {
     do_query($form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
@@ -617,14 +616,20 @@ sub save_session {
 
   my $dbh          = $provided_dbh || $self->dbconnect();
 
-  my $query        = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
-  my $sth          = prepare_query($::form, $dbh, $query);
+  do_query($::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
 
-  foreach my $key (sort keys %{ $self->{SESSION} }) {
-    do_statement($::form, $sth, $query, $session_id, $key, $self->{SESSION}->{$key});
+  if (%{ $self->{SESSION} }) {
+    my $query = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
+    my $sth   = prepare_query($::form, $dbh, $query);
+
+    foreach my $key (sort keys %{ $self->{SESSION} }) {
+      do_statement($::form, $sth, $query, $session_id, $key, $self->{SESSION}->{$key});
+    }
+
+    $sth->finish();
   }
 
-  $sth->finish();
+  $dbh->commit() unless $provided_dbh;
 }
 
 sub set_session_value {
@@ -640,6 +645,32 @@ sub set_session_value {
   }
 
   $main::lxdebug->leave_sub();
+
+  return $self;
+}
+
+sub delete_session_value {
+  $main::lxdebug->enter_sub();
+
+  my $self = shift;
+
+  $self->{SESSION} ||= { };
+  delete @{ $self->{SESSION} }{ @_ };
+
+  $main::lxdebug->leave_sub();
+
+  return $self;
+}
+
+sub get_session_value {
+  $main::lxdebug->enter_sub();
+
+  my $self  = shift;
+  my $value = $self->{SESSION} ? $self->_load_value($self->{SESSION}->{ $_[0] }) : undef;
+
+  $main::lxdebug->leave_sub();
+
+  return $value;
 }
 
 sub set_cookie_environment_variable {
