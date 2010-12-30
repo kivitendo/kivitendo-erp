@@ -37,6 +37,21 @@ sub redirect_to {
   print $::cgi->redirect($url);
 }
 
+sub render {
+  my $self = shift;
+
+  my $template;
+  $template  = shift if scalar(@_) % 2;
+  my %params = @_;
+
+  if ($params{title}) {
+    $::form->{title} = delete $params{title};
+    $::form->header;
+  }
+
+  print $self->parse_html_template($template, $params{locals});
+}
+
 #
 # private functions -- for use in Base only
 #
@@ -156,6 +171,15 @@ These functions are supposed to be called by sub-classed controllers.
 Outputs an HTML template. It is a thin wrapper around
 C<Form::parse_html_template> which also adds the current object as the
 template variable C<SELF>.
+
+=item C<render $template, %params>
+
+Renders the template C<$template> by calling
+L</parse_html_template>. C<$params{locals}> will be used as the second
+parameter to L</parse_html_template>.
+
+If C<$params{title}> is trueish then the function also sets
+C<< $::form->{header} >> to that value and calls C<< $::form->header >>.
 
 =item C<url_for $url>
 

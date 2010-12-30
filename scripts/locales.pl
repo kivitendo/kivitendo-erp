@@ -346,7 +346,7 @@ sub scanfile {
       }
 
       # is this a template call?
-      if (/parse_html_template2?\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
+      if (/(?:parse_html_template2?|render)\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
         my $newfile = "$basedir/templates/webpages/$1.html";
         if (/parse_html_template2/) {
           print "E: " . strip_base($file) . " is still using 'parse_html_template2' for " . strip_base($newfile) . ".\n";
