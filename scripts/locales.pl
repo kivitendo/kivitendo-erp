@@ -31,7 +31,7 @@ parse_args();
 my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
-my @progdirs     = ( "$basedir/SL/Template/Plugin" );
+my @progdirs     = ( "$basedir/SL/Controller", "$basedir/SL/Template/Plugin" );
 my $dbupdir      = "$basedir/sql/Pg-upgrade";
 my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
 my $menufile     = "menu.ini";
@@ -346,7 +346,7 @@ sub scanfile {
       }
 
       # is this a template call?
-      if (/parse_html_template2?\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
+      if (/(?:parse_html_template2?|render)\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
         my $newfile = "$basedir/templates/webpages/$1.html";
         if (/parse_html_template2/) {
           print "E: " . strip_base($file) . " is still using 'parse_html_template2' for " . strip_base($newfile) . ".\n";

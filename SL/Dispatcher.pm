@@ -123,12 +123,26 @@ sub require_main_code {
   $::lxdebug->leave_sub;
 }
 
+sub _require_controller {
+  my $controller =  shift;
+  $controller    =~ s|[^A-Za-z0-9_]||g;
+
+  eval {
+    package main;
+    require "SL/Controller/${controller}.pm";
+  } or die $EVAL_ERROR;
+}
+
+sub _run_controller {
+  "SL::Controller::$_[0]"->new->_run_action($_[1]);
+}
+
 sub handle_request {
   $::lxdebug->enter_sub;
   $::lxdebug->begin_request;
 
   my $interface = lc(shift || 'cgi');
-  my ($script_name, $action);
+  my ($script, $path, $suffix, $script_name, $action, $routing_type);
 
   $script_name = $ENV{SCRIPT_NAME};
 
@@ -139,12 +153,21 @@ sub handle_request {
   $::form        = Form->new;
   %::called_subs = ();
 
-  eval { ($script_name, $action) = _route_request($script_name); 1; } or return;
+  eval { ($routing_type, $script_name, $action) = _route_request($script_name); 1; } or return;
 
-  my ($script, $path, $suffix) = fileparse($script_name, ".pl");
-  require_main_code($script, $suffix);
+  if ($routing_type eq 'old') {
+    $::form->{action}  =  lc $::form->{action};
+    $::form->{action}  =~ s/( |-|,|\#)/_/g;
 
-  $::form->{script} = $script . $suffix;
+   ($script, $path, $suffix) = fileparse($script_name, ".pl");
+    require_main_code($script, $suffix);
+
+    $::form->{script} = $script . $suffix;
+
+  } else {
+    _require_controller($script_name);
+    $::form->{script} = "controller.pl";
+  }
 
   pre_request_checks();
 
@@ -178,7 +201,11 @@ sub handle_request {
           unless $action eq 'save' && $::form->{type} eq 'preferences';
 
         $::form->set_standard_title;
-        ::call_sub('::' . $::locale->findsub($action));
+        if ($routing_type eq 'old') {
+          ::call_sub('::' . $::locale->findsub($action));
+        } else {
+          _run_controller($script_name, $action);
+        }
       } else {
         $::form->error($::locale->text('action= not defined!'));
       }
@@ -216,7 +243,9 @@ sub unrequire_bin_mozilla {
 sub _route_request {
   my $script_name = shift;
 
-  return $script_name =~ m/dispatcher\.pl$/ ? _route_dispatcher_request() : ($script_name, $::form->{action});
+  return $script_name =~ m/dispatcher\.pl$/ ? ('old',        _route_dispatcher_request())
+       : $script_name =~ m/controller\.pl/  ? ('controller', _route_controller_request())
+       :                                      ('old',        $script_name, $::form->{action});
 }
 
 sub _route_dispatcher_request {
@@ -247,6 +276,23 @@ sub _route_dispatcher_request {
   };
 
   return ($script_name, $action);
+}
+
+sub _route_controller_request {
+  my ($controller, $action);
+
+  eval {
+    $::form->{action}      =~ m|^ ( [A-Z] [A-Za-z0-9_]* ) / ( [a-z] [a-z0-9_]* ) $|x || die "Unroutable request -- inavlid controller/action.\n";
+    ($controller, $action) =  ($1, $2);
+    delete $::form->{action};
+
+    1;
+  } or do {
+    $::form->{label_error} = $::cgi->pre($EVAL_ERROR);
+    show_error('generic/error');
+  };
+
+  return ($controller, $action);
 }
 
 package main;
