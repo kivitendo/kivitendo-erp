@@ -263,9 +263,6 @@ sub new {
 
   _recode_recursively(SL::Iconv->new($encoding, $db_charset), $self);
 
-  $self->{action}  =  lc $self->{action};
-  $self->{action}  =~ s/( |-|,|\#)/_/g;
-
   #$self->{version} =  "2.6.1";                 # Old hardcoded but secure style
   open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
   $self->{version} =  <VERSION_FILE>;

@@ -31,7 +31,7 @@ parse_args();
 my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
-my @progdirs     = ( "$basedir/SL/Template/Plugin" );
+my @progdirs     = ( "$basedir/SL/Controller", "$basedir/SL/Template/Plugin" );
 my $dbupdir      = "$basedir/sql/Pg-upgrade";
 my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
 my $menufile     = "menu.ini";
