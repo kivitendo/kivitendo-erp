@@ -4,8 +4,9 @@ require Exporter;
 our @ISA = qw(Exporter);
 
 our @EXPORT    = qw(save_form restore_form compare_numbers any cross);
-our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify);
+our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify ary_to_hash);
 
+use List::MoreUtils qw(zip);
 use YAML;
 
 use SL::AM;
@@ -148,6 +149,22 @@ sub listify {
   return wantarray ? @ary : scalar @ary;
 }
 
+sub ary_to_hash {
+  my $idx_key   = shift;
+  my $value_key = shift;
+
+  return map { ($_, 1) } @_ if !defined($idx_key);
+
+  my @indexes = map { ref $_ eq 'HASH' ? $_->{ $idx_key } : $_->$idx_key(); } @_;
+  my @values  = map {
+      !defined($value_key) ? $_
+    : ref $_ eq 'HASH'     ? $_->{ $value_key }
+    :                        $_->$value_key()
+  } @_;
+
+  return zip(@indexes, @values);
+}
+
 1;
 
 __END__
@@ -189,6 +206,29 @@ will modify the input arrays.
 
 As cross expects an array but returns a list it is not directly chainable
 at the moment. This will be corrected in the future.
+
+=back
+
+=item ary_to_hash INDEX_KEY, VALUE_KEY, ARRAY
+
+Returns a hash with the content of ARRAY based on the values of
+INDEX_KEY and VALUE_KEY.
+
+If INDEX_KEY is undefined then the elements of ARRAY are the keys and
+'1' is the value for each of them.
+
+If INDEX_KEY is defined then each element of ARRAY is checked whether
+or not it is a hash. If it is then its element at the position
+INDEX_KEY will be the resulting hash element's key. Otherwise the
+element is assumed to be a blessed reference, and its INDEX_KEY
+function will be called.
+
+The values of the resulting hash follow a similar pattern. If
+VALUE_KEY is undefined then the current element itself is the new hash
+element's value. If the current element is a hash then its element at
+the position VALUE_KEY will be the resulting hash element's
+key. Otherwise the element is assumed to be a blessed reference, and
+its VALUE_KEY function will be called.
 
 =back
 
