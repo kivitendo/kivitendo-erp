@@ -1263,6 +1263,7 @@ sub print {
     &save();
     $form->{formname} = $formname;
     &edit();
+    $::lxdebug->leave_sub();
     ::end_of_request();
   }
 
