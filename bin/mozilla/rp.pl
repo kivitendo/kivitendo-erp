@@ -1066,7 +1066,7 @@ sub generate_income_statement {
     }
     hotfix_reformat_date();
   } # Ende Bericht für vorgewählten Zeitraum (warum auch immer die Prüfung (custom eq true) ist ...
-   
+
   RP->income_statement(\%myconfig, \%$form);
 
   ($form->{department}) = split /--/, $form->{department};
@@ -2794,13 +2794,13 @@ sub generate_bwa {
 # Hotfix, um das Datumsformat, die unten hart auf deutsches Datumsformat eingestellt
 # sind, entsprechend mit anderem Formaten (z.B. iso-kodiert) zum Laufen zu bringen (S.a.: Bug 1388)
 sub hotfix_reformat_date {
-  
+
   $main::lxdebug->enter_sub();
-  
+
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  
+
   if ($myconfig{dateformat} ne 'dd.mm.yyyy'){
     my $current_dateformat = $myconfig{dateformat};
     $myconfig{dateformat} = 'dd.mm.yyyy';
