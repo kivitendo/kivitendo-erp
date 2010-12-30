@@ -604,17 +604,27 @@ sub create_or_refresh_session {
 
   }
 
-  $query = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
-  $sth   = prepare_query($form, $dbh, $query);
+  $self->save_session($dbh);
 
-  foreach my $key (sort keys %{ $self->{SESSION} }) {
-    do_statement($form, $sth, $query, $session_id, $key, $self->{SESSION}->{$key});
-  }
-
-  $sth->finish();
   $dbh->commit();
 
   $main::lxdebug->leave_sub();
+}
+
+sub save_session {
+  my $self         = shift;
+  my $provided_dbh = shift;
+
+  my $dbh          = $provided_dbh || $self->dbconnect();
+
+  my $query        = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
+  my $sth          = prepare_query($::form, $dbh, $query);
+
+  foreach my $key (sort keys %{ $self->{SESSION} }) {
+    do_statement($::form, $sth, $query, $session_id, $key, $self->{SESSION}->{$key});
+  }
+
+  $sth->finish();
 }
 
 sub set_session_value {
