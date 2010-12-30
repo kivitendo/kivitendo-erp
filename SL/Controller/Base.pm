@@ -38,11 +38,7 @@ sub redirect_to {
 }
 
 sub render {
-  my $self = shift;
-
-  my $template;
-  $template  = shift if scalar(@_) % 2;
-  my %params = @_;
+  my ($self, $template, %params) = @_;
 
   if ($params{title}) {
     $::form->{title} = delete $params{title};
