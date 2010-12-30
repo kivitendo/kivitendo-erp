@@ -729,6 +729,7 @@ sub gl_transaction {
 
 sub flash {
   my $category = shift;
+  $category    = 'info' if $category eq 'information';
 
   $::form->{FLASH} ||= { };
   $::form->{FLASH}->{ $category } ||= [ ];
