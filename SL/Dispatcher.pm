@@ -170,6 +170,7 @@ sub handle_request {
 
       $::auth->set_session_value('login', $::form->{login}, 'password', $::form->{password});
       $::auth->create_or_refresh_session;
+      $::auth->delete_session_value('FLASH')->save_session();
       delete $::form->{password};
 
       if ($action) {

@@ -338,7 +338,7 @@ sub save {
 
       $form->{"marge_percent_$i"} = $form->parse_amount($myconfig, $form->{"marge_percent_$i"}) * 1;
       $form->{"marge_absolut_$i"} = $form->parse_amount($myconfig, $form->{"marge_absolut_$i"}) * 1;
-      
+
       $form->{"lastcost_$i"} = $form->parse_amount($myconfig, $form->{"lastcost_$i"});
 
       # set values to 0 if nothing entered

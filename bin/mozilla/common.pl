@@ -14,6 +14,7 @@ use SL::Common;
 use SL::DBUtils;
 use SL::Form;
 use SL::MoreCommon;
+use SL::Helper::Flash;
 
 use strict;
 
