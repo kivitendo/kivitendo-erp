@@ -37,18 +37,30 @@ sub render {
   my $template           = shift;
   my ($options, %locals) = (@_ && ref($_[0])) ? @_ : ({ }, @_);
 
+  $options->{type}       = lc($options->{type} || 'html');
+  $options->{no_layout}  = 1 if $options->{type} eq 'js';
+
   my $source;
   if ($options->{inline}) {
     $source = \$template;
 
   } else {
-    $source = "templates/webpages/${template}.html";
+    $source = "templates/webpages/${template}." . $options->{type};
     croak "Template file ${source} not found" unless -f $source;
   }
 
-  if (!$options->{partial} && !$options->{inline}) {
-    $::form->{title} = $locals{title} if $locals{title};
-    $::form->header;
+  if (!$options->{partial} && !$options->{inline} && !$::form->{header}) {
+    if ($options->{no_layout}) {
+      $::form->{header} = 1;
+      my $content_type  = $options->{type} eq 'js' ? 'text/javascript' : 'text/html';
+
+      print $::form->create_http_response(content_type => $content_type,
+                                          charset      => $::dbcharset || Common::DEFAULT_CHARSET);
+
+    } else {
+      $::form->{title} = $locals{title} if $locals{title};
+      $::form->header;
+    }
   }
 
   my %params = ( %locals,
@@ -72,7 +84,7 @@ sub render {
   my $parser = $self->_template_obj;
   $parser->process($source, \%params, \$output) || croak $parser->error;
 
-  print $output unless $options->{inline};
+  print $output unless $options->{inline} || $options->{no_output};
 
   return $output;
 }
@@ -287,7 +299,7 @@ C<$options>, if present, must be a hash reference. All remaining
 parameters are slurped into C<%locals>.
 
 What is rendered and how C<$template> is interpreted is determined by
-C<< $options->{inline} >> and C<< $options->{partial} >>.
+the options I<type>, I<inline>, I<partial> and I<no_layout>.
 
 If C<< $options->{inline} >> is trueish then C<$template> is a string
 containing the template code to interprete. Additionally the output
@@ -296,14 +308,23 @@ caller.
 
 If C<< $options->{inline} >> is falsish then C<$template> is
 interpreted as the name of a template file. It is prefixed with
-"templates/webpages/" and postfixed with ".html". An exception will be
-thrown if that file does not exist.
+"templates/webpages/" and postfixed with a file extension based on
+C<< $options->{type} >>. C<< $options->{type} >> can be either C<html>
+or C<js> and defaults to C<html>. An exception will be thrown if that
+file does not exist.
 
 If C<< $options->{partial} >> or C<< $options->{inline} >> is trueish
-then C<< $::form->header >> will not be called. Otherwise
-C<< $::form->{header} >> will be set to C<$locals{header}> (only if
-$locals{header} is trueish) and C<< $::form->header >> will be called
-before the template itself is processed.
+then neither the HTTP response header nor the standard HTML header is
+generated.
+
+Otherwise at least the HTTP response header will be generated based on
+the template type (C<< $options->{type} >>).
+
+If the template type is C<html> then the standard HTML header will be
+output via C<< $::form->header >> with C<< $::form->{title} >> set to
+C<$locals{title}> (the latter only if C<$locals{title}> is
+trueish). Setting C<< $options->{no_layout} >> to trueish will prevent
+this.
 
 The template itself has access to the following variables:
 
@@ -333,6 +354,24 @@ Unless C<< $options->{inline} >> is trueish the function will send the
 output to the browser.
 
 The function will always return the output.
+
+Example: Render a HTML template with a certain title and a few locals
+
+  $self->render('todo/list',
+                title      => 'List TODO items',
+                TODO_ITEMS => SL::DB::Manager::Todo->get_all_sorted);
+
+Example: Render a string and return its content for further processing
+by the calling function. No header is generated due to C<inline>.
+
+  my $content = $self->render('[% USE JavaScript %][% JavaScript.replace_with("#someid", "js/something") %]',
+                              { type => 'js', inline => 1 });
+
+Example: Render a JavaScript template and send it to the
+browser. Typical use for actions called via AJAX:
+
+  $self->render('todo/single_item', { type => 'js' },
+                item => $employee->most_important_todo_item);
 
 =item C<url_for $url>
 
