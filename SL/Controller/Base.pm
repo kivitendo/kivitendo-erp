@@ -2,19 +2,12 @@ package SL::Controller::Base;
 
 use parent qw(Rose::Object);
 
+use Carp;
 use List::Util qw(first);
 
 #
 # public/helper functions
 #
-
-sub parse_html_template {
-  my $self   = shift;
-  my $name   = shift;
-  my $locals = shift || {};
-
-  return $::form->parse_html_template($name, { %{ $locals }, SELF => $self });
-}
 
 sub url_for {
   my $self = shift;
@@ -38,14 +31,48 @@ sub redirect_to {
 }
 
 sub render {
-  my ($self, $template, %params) = @_;
+  my $self               = shift;
+  my $template           = shift;
+  my ($options, %locals) = (@_ && ref($_[0])) ? @_ : ({ }, @_);
 
-  if ($params{title}) {
-    $::form->{title} = delete $params{title};
+  my $source;
+  if ($options->{inline}) {
+    $source = \$template;
+
+  } else {
+    $source = "templates/webpages/${template}.html";
+    croak "Template file ${source} not found" unless -f $source;
+  }
+
+  if (!$options->{partial} && !$options->{inline}) {
+    $::form->{title} = $locals{title} if $locals{title};
     $::form->header;
   }
 
-  print $self->parse_html_template($template, $params{locals});
+  my %params = ( %locals,
+                 AUTH     => $::auth,
+                 FORM     => $::form,
+                 LOCALE   => $::locale,
+                 LXCONFIG => { dbcharset              => $::dbcharset,
+                               webdav                 => $::webdav,
+                               lizenzen               => $::lizenzen,
+                               latex_templates        => $::latex,
+                               opendocument_templates => $::opendocument_templates,
+                               vertreter              => $::vertreter,
+                               show_best_before       => $::show_best_before,
+                             },
+                 LXDEBUG  => $::lxdebug,
+                 MYCONFIG => \%::myconfig,
+                 SELF     => $self,
+               );
+
+  my $output;
+  my $parser = $self->_template_obj;
+  $parser->process($source, \%params, \$output) || croak $parser->error;
+
+  print $output unless $options->{inline};
+
+  return $output;
 }
 
 #
@@ -73,6 +100,23 @@ sub _dispatch {
   my $action  = first { $::form->{$_} } @actions;
 
   $self->$action(@_);
+}
+
+sub _template_obj {
+  my ($self) = @_;
+
+  $self->{__basepriv_template_obj} ||=
+    Template->new({ INTERPOLATE  => 0,
+                    EVAL_PERL    => 0,
+                    ABSOLUTE     => 1,
+                    CACHE_SIZE   => 0,
+                    PLUGIN_BASE  => 'SL::Template::Plugin',
+                    INCLUDE_PATH => '.:templates/webpages',
+                    COMPILE_EXT  => '.tcc',
+                    COMPILE_DIR  => $::userspath . '/templates-cache',
+                  }) || croak;
+
+  return $self->{__basepriv_template_obj};
 }
 
 1;
@@ -162,20 +206,61 @@ These functions are supposed to be called by sub-classed controllers.
 
 =over 4
 
-=item C<parse_html_template $file_name, $local_variables>
+=item C<render $template, [ $options, ] %locals>
 
-Outputs an HTML template. It is a thin wrapper around
-C<Form::parse_html_template> which also adds the current object as the
-template variable C<SELF>.
+Renders the template C<$template>. Provides other variables than
+C<Form::parse_html_template> does.
 
-=item C<render $template, %params>
+C<$options>, if present, must be a hash reference. All remaining
+parameters are slurped into C<%locals>.
 
-Renders the template C<$template> by calling
-L</parse_html_template>. C<$params{locals}> will be used as the second
-parameter to L</parse_html_template>.
+What is rendered and how C<$template> is interpreted is determined by
+C<< $options->{inline} >> and C<< $options->{partial} >>.
 
-If C<$params{title}> is trueish then the function also sets
-C<< $::form->{header} >> to that value and calls C<< $::form->header >>.
+If C<< $options->{inline} >> is trueish then C<$template> is a string
+containing the template code to interprete. Additionally the output
+will not be sent to the browser. Instead it is only returned to the
+caller.
+
+If C<< $options->{inline} >> is falsish then C<$template> is
+interpreted as the name of a template file. It is prefixed with
+"templates/webpages/" and postfixed with ".html". An exception will be
+thrown if that file does not exist.
+
+If C<< $options->{partial} >> is trueish then C<< $::form->header >>
+will not be called. Otherwise C<< $::form->{header} >> will be set to
+C<$locals{header}> (only if $locals{header} is trueish) and
+C<< $::form->header >> will be called before the template itself is
+processed.
+
+The template itself has access to the following variables:
+
+=over 2
+
+=item * C<AUTH> -- C<$::auth>
+
+=item * C<FORM> -- C<$::form>
+
+=item * C<LOCALE> -- C<$::locale>
+
+=item * C<LXCONFIG> -- all parameters from C<config/lx-erp.conf> with
+the same name they appear in the file (e.g. C<dbcharset>, C<webdav>
+etc)
+
+=item * C<LXDEBUG> -- C<$::lxdebug>
+
+=item * C<MYCONFIG> -- C<%::myconfig>
+
+=item * C<SELF> -- the controller instance
+
+=item * All items from C<%locals>
+
+=back
+
+Unless C<< $options->{inline} >> is trueish the function will send the
+output to the browser.
+
+The function will always return the output.
 
 =item C<url_for $url>
 
