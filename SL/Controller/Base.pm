@@ -98,6 +98,7 @@ sub _controller_name {
 sub _dispatch {
   my $self    = shift;
 
+  no strict 'refs';
   my @actions = grep { m/^action_/ } keys %{ ref($self) . "::" };
   my $action  = first { $::form->{$_} } @actions;
 
