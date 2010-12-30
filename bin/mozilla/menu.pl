@@ -122,7 +122,7 @@ sub section_menu {
 
     my $anchor     = $menu->menuitem(\%::myconfig, $::form, $item, $level);
 
-    next if $menuitem->{HIDDEN};
+#    next if $menuitem->{HIDDEN};
 
     # multi line hack, sschoeling jul06
     # if a label is too long, try to split it at whitespaces, then join it to chunks of less
