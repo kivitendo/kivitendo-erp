@@ -762,9 +762,8 @@ sub _prepare_html_template {
     $file = "templates/webpages/${file}.html";
 
   } else {
-    my $info = "Web page template '${file}' not found.\n" .
-      "Please re-run 'locales.pl' in 'locale/${language}'.";
-    print(qq|<pre>$info</pre>|);
+    my $info = "Web page template '${file}' not found.\n";
+    print qq|<pre>$info</pre>|;
     ::end_of_request();
   }
 
