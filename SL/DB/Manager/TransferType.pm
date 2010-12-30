@@ -2,7 +2,7 @@ package SL::DB::Manager::TransferType;
 
 use strict;
 
-use base qw(SL::DB::Helpers::Manager);
+use base qw(SL::DB::Helper::Manager);
 
 use Carp;
 

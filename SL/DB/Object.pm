@@ -7,9 +7,9 @@ use Rose::DB::Object;
 use List::MoreUtils qw(any);
 
 use SL::DB;
-use SL::DB::Helpers::Attr;
-use SL::DB::Helpers::Metadata;
-use SL::DB::Helpers::Manager;
+use SL::DB::Helper::Attr;
+use SL::DB::Helper::Metadata;
+use SL::DB::Helper::Manager;
 
 use base qw(Rose::DB::Object);
 
@@ -31,7 +31,7 @@ sub init_db {
 }
 
 sub meta_class {
-  return 'SL::DB::Helpers::Metadata';
+  return 'SL::DB::Helper::Metadata';
 }
 
 sub _get_manager_class {
@@ -61,9 +61,10 @@ sub _assign_attributes {
 
   while (my ($attribute, $value) = each %attributes) {
     my $type = lc($types{$attribute} || 'text');
-    $value   = $type eq 'boolean'        ? ($value ? 't' : 'f')
-             : $text_column_types{$type} ? $value
-             :                             ($value || undef);
+    $value   = $type eq 'boolean'                ? ($value ? 't' : 'f')
+             : $text_column_types{$type}         ? $value
+             : defined($value) && ($value eq '') ? undef
+             :                                     $value;
     $self->$attribute($value);
   }
 

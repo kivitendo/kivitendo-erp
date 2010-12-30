@@ -1,4 +1,4 @@
-package SL::DB::Helpers::ALL;
+package SL::DB::Helper::ALL;
 
 use strict;
 
@@ -86,16 +86,16 @@ __END__
 
 =head1 NAME
 
-SL::DB::Helpers::ALL: Dependency-only package for all SL::DB::* modules
+SL::DB::Helper::ALL: Dependency-only package for all SL::DB::* modules
 
 =head1 SYNOPSIS
 
-  use SL::DB::Helpers::ALL;
+  use SL::DB::Helper::ALL;
 
 =head1 DESCRIPTION
 
 This module depends on all modules in SL/DB/*.pm for the convenience
-of being able to write a simple \C<use SL::DB::Helpers::ALL> and
+of being able to write a simple \C<use SL::DB::Helper::ALL> and
 having everything loaded. This is supposed to be used only in the
 Lx-Office console. Normal modules should C<use> only the modules they
 actually need.

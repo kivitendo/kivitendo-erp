@@ -113,16 +113,16 @@ __END__
 
 =head1 NAME
 
-SL::DB::Helpers::Attr - attribute helpers
+SL::DB::Helper::Attr - attribute helpers
 
 =head1 SYNOPSIS
 
-  use SL::DB::Helpers::Attr;
-  SL::DB::Helpers::Attr::make($class,
+  use SL::DB::Helper::Attr;
+  SL::DB::Helper::Attr::make($class,
     method_name => 'numeric(15,5)',
     datemethod  => 'date'
   );
-  SL::DB::Helpers::Attr::auto_make($class);
+  SL::DB::Helper::Attr::auto_make($class);
 
 =head1 DESCRIPTION
 

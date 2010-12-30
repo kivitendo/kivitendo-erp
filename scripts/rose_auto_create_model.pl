@@ -18,8 +18,8 @@ use SL::DB;
 use SL::Form;
 use SL::Locale;
 use SL::LXDebug;
-use SL::DB::Helpers::ALL;
-use SL::DB::Helpers::Mappings;
+use SL::DB::Helper::ALL;
+use SL::DB::Helper::Mappings;
 
 our $form;
 our $cgi;
@@ -131,8 +131,8 @@ CODE
 
 setup();
 
-my %blacklist     = SL::DB::Helpers::Mappings->get_blacklist;
-my %package_names = SL::DB::Helpers::Mappings->get_package_names;
+my %blacklist     = SL::DB::Helper::Mappings->get_blacklist;
+my %package_names = SL::DB::Helper::Mappings->get_package_names;
 
 my @tables = ();
 if (($ARGV[0] eq '--all') || ($ARGV[0] eq '-a') || ($ARGV[0] eq '--sugar') || ($ARGV[0] eq '-s')) {
