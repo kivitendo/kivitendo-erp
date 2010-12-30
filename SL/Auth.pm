@@ -6,6 +6,7 @@ use Digest::MD5 qw(md5_hex);
 use IO::File;
 use Time::HiRes qw(gettimeofday);
 use List::MoreUtils qw(uniq);
+use YAML;
 
 use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
@@ -186,7 +187,7 @@ sub dbconnect {
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $self->{dbh};
 }
@@ -496,7 +497,7 @@ sub restore_session {
 
   while (my $ref = $sth->fetchrow_hashref()) {
     $self->{SESSION}->{$ref->{sess_key}} = $ref->{sess_value};
-    $form->{$ref->{sess_key}}            = $ref->{sess_value} if (!defined $form->{$ref->{sess_key}});
+    $form->{$ref->{sess_key}}            = $self->_load_value($ref->{sess_value}) if (!defined $form->{$ref->{sess_key}});
   }
 
   $sth->finish();
@@ -504,6 +505,18 @@ sub restore_session {
   $main::lxdebug->leave_sub();
 
   return SESSION_OK;
+}
+
+sub _load_value {
+  return $_[1] if $_[1] !~ m/^---/;
+
+  my $value;
+  eval {
+    $value = YAML::Load($_[1]);
+    1;
+  } or return $_[1];
+
+  return $value;
 }
 
 sub destroy_session {
@@ -583,41 +596,80 @@ sub create_or_refresh_session {
 
   if ($id) {
     do_query($form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
-    do_query($form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
 
   } else {
     do_query($form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
 
   }
 
-  $query = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
-  $sth   = prepare_query($form, $dbh, $query);
+  $self->save_session($dbh);
 
-  foreach my $key (sort keys %{ $self->{SESSION} }) {
-    do_statement($form, $sth, $query, $session_id, $key, $self->{SESSION}->{$key});
-  }
-
-  $sth->finish();
   $dbh->commit();
 
   $main::lxdebug->leave_sub();
 }
 
+sub save_session {
+  my $self         = shift;
+  my $provided_dbh = shift;
+
+  my $dbh          = $provided_dbh || $self->dbconnect();
+
+  do_query($::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
+
+  if (%{ $self->{SESSION} }) {
+    my $query = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
+    my $sth   = prepare_query($::form, $dbh, $query);
+
+    foreach my $key (sort keys %{ $self->{SESSION} }) {
+      do_statement($::form, $sth, $query, $session_id, $key, $self->{SESSION}->{$key});
+    }
+
+    $sth->finish();
+  }
+
+  $dbh->commit() unless $provided_dbh;
+}
+
 sub set_session_value {
   $main::lxdebug->enter_sub();
 
-  my $self  = shift;
+  my $self   = shift;
+  my %params = @_;
 
   $self->{SESSION} ||= { };
 
-  while (2 <= scalar @_) {
-    my $key   = shift;
-    my $value = shift;
-
-    $self->{SESSION}->{$key} = $value;
+  while (my ($key, $value) = each %params) {
+    $self->{SESSION}->{ $key } = YAML::Dump($value);
   }
 
   $main::lxdebug->leave_sub();
+
+  return $self;
+}
+
+sub delete_session_value {
+  $main::lxdebug->enter_sub();
+
+  my $self = shift;
+
+  $self->{SESSION} ||= { };
+  delete @{ $self->{SESSION} }{ @_ };
+
+  $main::lxdebug->leave_sub();
+
+  return $self;
+}
+
+sub get_session_value {
+  $main::lxdebug->enter_sub();
+
+  my $self  = shift;
+  my $value = $self->{SESSION} ? $self->_load_value($self->{SESSION}->{ $_[0] }) : undef;
+
+  $main::lxdebug->leave_sub();
+
+  return $value;
 }
 
 sub set_cookie_environment_variable {

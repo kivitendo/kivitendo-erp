@@ -1,25 +1,47 @@
 package SL::DBUpgrade2;
 
+use IO::File;
+use List::MoreUtils qw(any);
+
 use SL::Common;
-
-require Exporter;
-our @ISA = qw(Exporter);
-
-our @EXPORT = qw(parse_dbupdate_controls sort_dbupdate_controls);
+use SL::Iconv;
 
 use strict;
 
+sub new {
+  my $package = shift;
+
+  return bless({}, $package)->init(@_);
+}
+
+sub init {
+  my ($self, %params) = @_;
+
+  if ($params{auth}) {
+    $params{path_suffix} = "-auth";
+    $params{schema}      = "auth.";
+  }
+
+  $params{path_suffix} ||= '';
+  $params{schame}      ||= '';
+
+  map { $self->{$_} = $params{$_} } keys %params;
+
+  return $self;
+}
+
 sub parse_dbupdate_controls {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  my ($form, $dbdriver) = @_;
+  my ($self) = @_;
 
-  my $locale = $main::locale;
+  my $form   = $self->{form};
+  my $locale = $::locale;
 
   local *IN;
   my %all_controls;
 
-  my $path = "sql/${dbdriver}-upgrade2";
+  my $path = "sql/" . $self->{dbdriver} . "-upgrade2" . $self->{path_suffix};
 
   foreach my $file_name (<$path/*.sql>, <$path/*.pl>) {
     next unless (open(IN, $file_name));
@@ -92,9 +114,266 @@ sub parse_dbupdate_controls {
   map({ _dbupdate2_calculate_depth(\%all_controls, $_->{"tag"}) }
       values(%all_controls));
 
-  $main::lxdebug->leave_sub();
+  $self->{all_controls} = \%all_controls;
 
-  return \%all_controls;
+  $::lxdebug->leave_sub();
+
+  return $self;
+}
+
+sub process_query {
+  $::lxdebug->enter_sub();
+
+  my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
+
+  my $form  = $self->{form};
+  my $fh    = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
+  my $query = "";
+  my $sth;
+  my @quote_chars;
+
+  my $file_charset = Common::DEFAULT_CHARSET;
+  while (<$fh>) {
+    last if !/^--/;
+    next if !/^--\s*\@charset:\s*(.+)/;
+    $file_charset = $1;
+    last;
+  }
+  $fh->seek(0, SEEK_SET);
+
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
+  $dbh->begin_work();
+
+  while (<$fh>) {
+    $_ = SL::Iconv::convert($file_charset, $db_charset, $_);
+
+    # Remove DOS and Unix style line endings.
+    chomp;
+
+    # remove comments
+    s/--.*$//;
+
+    for (my $i = 0; $i < length($_); $i++) {
+      my $char = substr($_, $i, 1);
+
+      # Are we inside a string?
+      if (@quote_chars) {
+        if ($char eq $quote_chars[-1]) {
+          pop(@quote_chars);
+        }
+        $query .= $char;
+
+      } else {
+        if (($char eq "'") || ($char eq "\"")) {
+          push(@quote_chars, $char);
+
+        } elsif ($char eq ";") {
+
+          # Query is complete. Send it.
+
+          $sth = $dbh->prepare($query);
+          if (!$sth->execute()) {
+            my $errstr = $dbh->errstr;
+            $sth->finish();
+            $dbh->rollback();
+            $form->dberror("The database update/creation did not succeed. " .
+                           "The file ${filename} containing the following " .
+                           "query failed:<br>${query}<br>" .
+                           "The error message was: ${errstr}<br>" .
+                           "All changes in that file have been reverted.");
+          }
+          $sth->finish();
+
+          $char  = "";
+          $query = "";
+        }
+
+        $query .= $char;
+      }
+    }
+
+    # Insert a space at the end of each line so that queries split
+    # over multiple lines work properly.
+    if ($query ne '') {
+      $query .= @quote_chars ? "\n" : ' ';
+    }
+  }
+
+  if (ref($version_or_control) eq "HASH") {
+    $dbh->do("INSERT INTO " . $self->{schema} . "schema_info (tag, login) VALUES (" . $dbh->quote($version_or_control->{"tag"}) . ", " . $dbh->quote($form->{"login"}) . ")");
+  } elsif ($version_or_control) {
+    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
+  }
+  $dbh->commit();
+
+  $fh->close();
+
+  $::lxdebug->leave_sub();
+}
+
+# Process a Perl script which updates the database.
+# If the script returns 1 then the update was successful.
+# Return code "2" means "needs more interaction; remove
+# users/nologin and end current request".
+# All other return codes are fatal errors.
+sub process_perl_script {
+  $::lxdebug->enter_sub();
+
+  my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
+
+  my $form         = $self->{form};
+  my $fh           = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
+  my $file_charset = Common::DEFAULT_CHARSET;
+
+  if (ref($version_or_control) eq "HASH") {
+    $file_charset = $version_or_control->{charset};
+
+  } else {
+    while (<$fh>) {
+      last if !/^--/;
+      next if !/^--\s*\@charset:\s*(.+)/;
+      $file_charset = $1;
+      last;
+    }
+    $fh->seek(0, SEEK_SET);
+  }
+
+  my $contents = join "", <$fh>;
+  $fh->close();
+
+  $db_charset ||= Common::DEFAULT_CHARSET;
+
+  my $iconv = SL::Iconv::get_converter($file_charset, $db_charset);
+
+  $dbh->begin_work();
+
+  # setup dbup_ export vars
+  my %dbup_myconfig = ();
+  map({ $dbup_myconfig{$_} = $form->{$_}; } qw(dbname dbuser dbpasswd dbhost dbport dbconnect));
+
+  my $dbup_locale = $::locale;
+
+  my $result = eval($contents);
+
+  if (1 != $result) {
+    $dbh->rollback();
+    $dbh->disconnect();
+  }
+
+  if (!defined($result)) {
+    print $form->parse_html_template("dbupgrade/error",
+                                     { "file"  => $filename,
+                                       "error" => $@ });
+    ::end_of_request();
+  } elsif (1 != $result) {
+    unlink("users/nologin") if (2 == $result);
+    ::end_of_request();
+  }
+
+  if (ref($version_or_control) eq "HASH") {
+    $dbh->do("INSERT INTO " . $self->{schema} . "schema_info (tag, login) VALUES (" . $dbh->quote($version_or_control->{"tag"}) . ", " . $dbh->quote($form->{"login"}) . ")");
+  } elsif ($version_or_control) {
+    $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
+  }
+  $dbh->commit();
+
+  $::lxdebug->leave_sub();
+}
+
+sub process_file {
+  my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
+
+  if ($filename =~ m/sql$/) {
+    $self->process_query($dbh, $filename, $version_or_control, $db_charset);
+  } else {
+    $self->process_perl_script($dbh, $filename, $version_or_control, $db_charset);
+  }
+}
+
+sub update_available {
+  my ($self, $cur_version) = @_;
+
+  local *SQLDIR;
+
+  my $dbdriver = $self->{dbdriver};
+  opendir SQLDIR, "sql/${dbdriver}-upgrade" || error("", "sql/${dbdriver}-upgrade: $!");
+  my @upgradescripts = grep /${dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
+  closedir SQLDIR;
+
+  return ($#upgradescripts > -1);
+}
+
+sub update2_available {
+  $::lxdebug->enter_sub();
+
+  my ($self, $dbh) = @_;
+
+  map { $_->{applied} = 0; } values %{ $self->{all_controls} };
+
+  my $sth = $dbh->prepare(qq|SELECT tag FROM | . $self->{schema} . qq|schema_info|);
+  if ($sth->execute) {
+    while (my ($tag) = $sth->fetchrow_array) {
+      $self->{all_controls}->{$tag}->{applied} = 1 if defined $self->{all_controls}->{$tag};
+    }
+  }
+  $sth->finish();
+
+  my $needs_update = any { !$_->{applied} } values %{ $self->{all_controls} };
+
+  $::lxdebug->leave_sub();
+
+  return $needs_update;
+}
+
+sub unapplied_upgrade_scripts {
+  my ($self, $dbh) = @_;
+
+  my @all_scripts = map { $_->{applied} = 0; $_ } $self->sort_dbupdate_controls;
+
+  my $query = qq|SELECT tag FROM | . $self->{schema} . qq|schema_info|;
+  my $sth   = $dbh->prepare($query);
+  $sth->execute || $self->{form}->dberror($query);
+  while (my ($tag) = $sth->fetchrow_array()) {
+    $self->{all_controls}->{$tag}->{applied} = 1 if defined $self->{all_controls}->{$tag};
+  }
+  $sth->finish;
+
+  return grep { !$_->{applied} } @all_scripts;
+}
+
+sub apply_admin_dbupgrade_scripts {
+  my ($self, $called_from_admin) = @_;
+
+  return 0 if !$self->{auth};
+
+  my $dbh               = $::auth->dbconnect;
+  my @unapplied_scripts = $self->unapplied_upgrade_scripts($dbh);
+
+  return 0 if !@unapplied_scripts;
+
+  my $db_charset           = $main::dbcharset || Common::DEFAULT_CHARSET;
+  $self->{form}->{login} ||= 'admin';
+
+  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $self->{all_controls} };
+
+  if ($called_from_admin) {
+    $self->{form}->{title} = $::locale->text('Dataset upgrade');
+    $self->{form}->header;
+  }
+
+  print $self->{form}->parse_html_template("dbupgrade/header", { dbname => $::auth->{DB_config}->{db} });
+
+  foreach my $control (@unapplied_scripts) {
+    $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
+    print $self->{form}->parse_html_template("dbupgrade/upgrade_message2", $control);
+
+    $self->process_file($dbh, "sql/$self->{dbdriver}-upgrade2-auth/$control->{file}", $control, $db_charset);
+  }
+
+  print $self->{form}->parse_html_template("dbupgrade/footer", { is_admin => 1 }) if $called_from_admin;
+
+  return 1;
 }
 
 sub _check_for_loops {
@@ -106,7 +385,7 @@ sub _check_for_loops {
 
   if ($ctrl->{"loop"} == 1) {
     # Not done yet.
-    _control_error($form, $file_name, $main::locale->text("Dependency loop detected:") . " " . join(" -> ", @path))
+    _control_error($form, $file_name, $::locale->text("Dependency loop detected:") . " " . join(" -> ", @path))
 
   } elsif ($ctrl->{"loop"} == 0) {
     # Not checked yet.
@@ -119,20 +398,20 @@ sub _check_for_loops {
 sub _control_error {
   my ($form, $file_name, $message) = @_;
 
-  $form = $main::form;
-  my $locale = $main::locale;
+  $form = $::form;
+  my $locale = $::locale;
 
   $form->error(sprintf($locale->text("Error in database control file '%s': %s"), $file_name, $message));
 }
 
 sub _dbupdate2_calculate_depth {
-  $main::lxdebug->enter_sub(2);
+  $::lxdebug->enter_sub(2);
 
   my ($tree, $tag) = @_;
 
   my $node = $tree->{$tag};
 
-  return $main::lxdebug->leave_sub(2) if (defined($node->{"depth"}));
+  return $::lxdebug->leave_sub(2) if (defined($node->{"depth"}));
 
   my $max_depth = 0;
 
@@ -144,13 +423,15 @@ sub _dbupdate2_calculate_depth {
 
   $node->{"depth"} = $max_depth + 1;
 
-  $main::lxdebug->leave_sub(2);
+  $::lxdebug->leave_sub(2);
 }
 
 sub sort_dbupdate_controls {
-  return sort({   $a->{"depth"}    !=  $b->{"depth"}    ? $a->{"depth"}    <=> $b->{"depth"}
-                : $a->{"priority"} !=  $b->{"priority"} ? $a->{"priority"} <=> $b->{"priority"}
-                :                                         $a->{"tag"}      cmp $b->{"tag"}      } values(%{$_[0]}));
+  my $self = shift;
+
+  $self->parse_dbupdate_controls unless $self->{all_controls};
+
+  return sort { ($a->{depth} <=> $b->{depth}) || ($a->{priority} <=> $b->{priority}) || ($a->{tag} cmp $b->{tag}) } values %{ $self->{all_controls} };
 }
 
 1;
