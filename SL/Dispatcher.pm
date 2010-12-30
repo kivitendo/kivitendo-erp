@@ -282,7 +282,7 @@ sub _route_controller_request {
   my ($controller, $action);
 
   eval {
-    $::form->{action}      =~ m|^ ( [A-Z] [A-Za-z0-9_]* ) :: ( [a-z] [a-z0-9_]* ) $|x || die "Unroutable request -- inavlid controller/action.\n";
+    $::form->{action}      =~ m|^ ( [A-Z] [A-Za-z0-9_]* ) / ( [a-z] [a-z0-9_]* ) $|x || die "Unroutable request -- inavlid controller/action.\n";
     ($controller, $action) =  ($1, $2);
     delete $::form->{action};
 

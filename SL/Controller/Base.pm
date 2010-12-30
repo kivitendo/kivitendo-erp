@@ -19,7 +19,7 @@ sub url_for {
   my %params      = @_;
   my $controller  = delete($params{controller}) || $self->_controller_name;
   my $action      = delete($params{action})     || 'dispatch';
-  $params{action} = "${controller}::${action}";
+  $params{action} = "${controller}/${action}";
   my $query       = join('&', map { $::form->escape($_) . '=' . $::form->escape($params{$_}) } keys %params);
 
   return "controller.pl?${query}";
