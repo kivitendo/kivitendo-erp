@@ -727,6 +727,18 @@ sub gl_transaction {
   $main::lxdebug->leave_sub();
 }
 
+sub flash {
+  my $category = shift;
+
+  $::form->{FLASH} ||= { };
+  $::form->{FLASH}->{ $category } ||= [ ];
+  push @{ $::form->{FLASH}->{ $category } }, @_;
+}
+
+sub render_flash {
+  return $::form->parse_html_template('common/flash');
+}
+
 if ($::use_rdbo) {
   eval {
     require SL::DB::Helpers::Mappings;
