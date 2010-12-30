@@ -11,21 +11,21 @@ my %sort_spec;
 sub make_sort_string {
   my ($class, %params) = @_;
 
-  _make_sort_spec($class) unless %sort_spec;
+  my $sort_spec        = _get_sort_spec($class);
 
-  my $sort_dir         = defined($params{sort_dir}) ? $params{sort_dir} * 1 : $sort_spec{default}->[1];
+  my $sort_dir         = defined($params{sort_dir}) ? $params{sort_dir} * 1 : $sort_spec->{default}->[1];
   my $sort_dir_str     = $sort_dir ? 'ASC' : 'DESC';
 
   my $sort_by          = $params{sort_by};
-  $sort_by             = $sort_spec{default}->[0] unless $sort_spec{columns}->{$sort_by};
+  $sort_by             = $sort_spec->{default}->[0] unless $sort_spec->{columns}->{$sort_by};
 
   my $nulls_str        = '';
-  if ($sort_spec{nulls}) {
-    $nulls_str = ref($sort_spec{nulls}) ? ($sort_spec{nulls}->{$sort_by} || $sort_spec{nulls}->{default}) : $sort_spec{nulls};
+  if ($sort_spec->{nulls}) {
+    $nulls_str = ref($sort_spec->{nulls}) ? ($sort_spec->{nulls}->{$sort_by} || $sort_spec->{nulls}->{default}) : $sort_spec->{nulls};
     $nulls_str = " NULLS ${nulls_str}" if $nulls_str;
   }
 
-  my $sort_by_str = $sort_spec{columns}->{$sort_by};
+  my $sort_by_str = $sort_spec->{columns}->{$sort_by};
   $sort_by_str    = [ $sort_by_str ] unless ref($sort_by_str) eq 'ARRAY';
   $sort_by_str    = join(', ', map { "${_} ${sort_dir_str}${nulls_str}" } @{ $sort_by_str });
 
@@ -39,10 +39,15 @@ sub get_all_sorted {
   return $class->get_all(sort_by => $sort_str, %params);
 }
 
+sub _get_sort_spec {
+  my ($class) = @_;
+  return $sort_spec{$class} ||= _make_sort_spec($class);
+}
+
 sub _make_sort_spec {
   my ($class) = @_;
 
-  %sort_spec = $class->_sort_spec if defined &{ "${class}::_sort_spec" };
+  my %sort_spec = $class->_sort_spec if defined &{ "${class}::_sort_spec" };
 
   my $meta = $class->object_class->meta;
 
@@ -63,6 +68,8 @@ sub _make_sort_spec {
       map { $sort_spec{columns}->{$_} = "${table}.${_}" } @{ delete($sort_spec{columns}->{SIMPLE}) };
     }
   }
+
+  return \%sort_spec;
 }
 
 1;
