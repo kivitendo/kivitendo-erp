@@ -329,8 +329,6 @@ sub update2_available {
 sub unapplied_upgrade_scripts {
   my ($self, $dbh) = @_;
 
-  $::lxdebug->dump(0, "self", $self);
-
   my @all_scripts = map { $_->{applied} = 0; $_ } $self->sort_dbupdate_controls;
 
   my $query = qq|SELECT tag FROM | . $self->{schema} . qq|schema_info|;
