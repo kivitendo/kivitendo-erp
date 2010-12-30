@@ -14,9 +14,9 @@ sub parse_html_template {
 sub url_for {
   my $self = shift;
 
-  return $_[0] if scalar(@_) == 1;
+  return $_[0] if (scalar(@_) == 1) && !ref($_[0]);
 
-  my %params      = @_;
+  my %params      = ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_;
   my $controller  = delete($params{controller}) || $self->_controller_name;
   my $action      = delete($params{action})     || 'dispatch';
   $params{action} = "${controller}/${action}";
