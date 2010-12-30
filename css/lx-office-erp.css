@@ -288,3 +288,27 @@ label {
   height:0;
   visibility:hidden;
 }
+
+.flash_message_error {
+  background-color:#FFD6D6;
+  border: 1px solid #AE0014;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+}
+
+.flash_message_warning {
+  background-color:#FFE8C7;
+  border: 1px solid #FF6600;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+}
+
+.flash_message_info {
+  background-color:#DCF2FF;
+  border: 1px solid #4690FF;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+}
