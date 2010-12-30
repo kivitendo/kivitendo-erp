@@ -187,7 +187,7 @@ sub dbconnect {
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $self->{dbh};
 }
