@@ -489,7 +489,7 @@ sub restore_session {
   if (!$cookie || $cookie->{is_expired} || ($cookie->{ip_address} ne $ENV{REMOTE_ADDR})) {
     $self->destroy_session();
     $main::lxdebug->leave_sub();
-    return SESSION_EXPIRED;
+    return $cookie ? SESSION_EXPIRED : SESSION_NONE;
   }
 
   $query = qq|SELECT sess_key, sess_value FROM auth.session_content WHERE session_id = ?|;

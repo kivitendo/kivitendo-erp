@@ -594,20 +594,21 @@ sub create_http_response {
     pop @segments;
     $uri->path_segments(@segments);
 
-    my $session_cookie_value   = $main::auth->get_session_id();
-    $session_cookie_value    ||= 'NO_SESSION';
+    my $session_cookie_value = $main::auth->get_session_id();
 
-    $session_cookie = $cgi->cookie('-name'   => $main::auth->get_session_cookie_name(),
-                                   '-value'  => $session_cookie_value,
-                                   '-path'   => $uri->path,
-                                   '-secure' => $ENV{HTTPS});
+    if ($session_cookie_value) {
+      $session_cookie = $cgi->cookie('-name'   => $main::auth->get_session_cookie_name(),
+                                     '-value'  => $session_cookie_value,
+                                     '-path'   => $uri->path,
+                                     '-secure' => $ENV{HTTPS});
+    }
   }
 
   my %cgi_params = ('-type' => $params{content_type});
   $cgi_params{'-charset'} = $params{charset} if ($params{charset});
+  $cgi_params{'-cookie'}  = $session_cookie  if ($session_cookie);
 
-  my $output = $cgi->header('-cookie' => $session_cookie,
-                            %cgi_params);
+  my $output = $cgi->header(%cgi_params);
 
   $main::lxdebug->leave_sub();
 
