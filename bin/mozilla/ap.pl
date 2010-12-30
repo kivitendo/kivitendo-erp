@@ -244,17 +244,10 @@ sub form_header {
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
-
   # format amounts
-  $form->{exchangerate} =
-    $form->format_amount(\%myconfig, $form->{exchangerate});
-  if ($form->{exchangerate} == 0) {
-    $form->{exchangerate} = "";
-  }
-  $form->{creditlimit} =
-    $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
-  $form->{creditremaining} =
-    $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
+  $form->{exchangerate}    = $form->{exchangerate} ? $form->format_amount(\%myconfig, $form->{exchangerate}) : '';
+  $form->{creditlimit}     = $form->format_amount(\%myconfig, $form->{creditlimit}, 0, "0");
+  $form->{creditremaining} = $form->format_amount(\%myconfig, $form->{creditremaining}, 0, "0");
 
   my $exchangerate = qq|
 <input type=hidden name=forex value=$form->{forex}>
