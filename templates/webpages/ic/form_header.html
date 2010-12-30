@@ -39,6 +39,10 @@
       <table width="100%">
        <tr valign="top">
         <td>
+[%- IF image && conf_parts_show_image %]
+         <a href="[% image | html %]" target="_blank"><img style="[% conf_parts_image_css %]" src="[% image | html %]"/></a>
+[%- END %]
+
          <table>
           <tr>
            <td colspan="2">

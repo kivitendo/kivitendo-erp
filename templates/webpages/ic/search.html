@@ -218,7 +218,7 @@
 
          <tr>
           <td>
-           <input name="l_image" id="l_image" class="checkbox" type="checkbox" value="Y">
+           <input name="l_image" id="l_image" class="checkbox"[%- IF conf_parts_listing_images %] checked="checked"[% END %] type="checkbox" value="Y">
            <label for="l_image">[% 'Image' | $T8 %]</label>
           </td>
           <td>
