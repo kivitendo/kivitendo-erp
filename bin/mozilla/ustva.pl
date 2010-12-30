@@ -912,7 +912,7 @@ sub generate_ustva {
         my $period = $form->{period};
         $period * 1;
         $period--;
-        $form->{period} = $period;
+        $form->{taxbird_period} = $period;
       } else {
         $form->header;
         USTVA::error( $locale->text('Wrong Period' ));
