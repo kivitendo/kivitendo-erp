@@ -81,7 +81,7 @@ sub menuitem {
            ? qw(module        target href)
            : qw(module action target href);
 
-#  map { delete $self->{$item}{$_} } @vars;
+  map { delete $self->{$item}{$_} } @vars;
 
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
