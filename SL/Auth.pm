@@ -496,9 +496,8 @@ sub restore_session {
   $sth   = prepare_execute_query($form, $dbh, $query, $session_id);
 
   while (my $ref = $sth->fetchrow_hashref()) {
-    my $value                            = $self->_load_value($ref->{sess_value});
-    $self->{SESSION}->{$ref->{sess_key}} = $value;
-    $form->{$ref->{sess_key}}            = $value if (!defined $form->{$ref->{sess_key}});
+    $self->{SESSION}->{$ref->{sess_key}} = $ref->{sess_value};
+    $form->{$ref->{sess_key}}            = $self->_load_value($ref->{sess_value}) if (!defined $form->{$ref->{sess_key}});
   }
 
   $sth->finish();
