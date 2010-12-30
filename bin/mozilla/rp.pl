@@ -1385,7 +1385,7 @@ sub generate_trial_balance {
   my $edit_url = build_std_url('action=edit', 'type', 'vc');
 
   my $idx;
-  foreach my $accno (@{ $form->{TB} }) {
+  foreach my $accno (@{ $form->{TB} || [] }) {
 
     $accno->{soll} = $accno->{debit};
     $accno->{haben} = $accno->{credit};
@@ -1533,7 +1533,7 @@ sub list_accounts {
   my %subtotals      = map { $_ => 0 } @totals_columns;
   my %totals         = map { $_ => 0 } @totals_columns;
   my $found_heading  = 0;
-  my @tb             = sort { $a->{accno} cmp $b->{accno} } @{ $form->{TB} };
+  my @tb             = sort { $a->{accno} cmp $b->{accno} } @{ $form->{TB} || [] };
 
   # sort the whole thing by account numbers and display
   foreach my $idx (0 .. scalar(@tb) - 1) {
