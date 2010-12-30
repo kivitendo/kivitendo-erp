@@ -919,13 +919,29 @@ sub generate_ustva {
         ::end_of_request();
       }
 
+      # heuristics for address splitting
+      # lx-office holds the entire address in a single field.
+      # taxbird expects it to be splitted into street, zipcode and city
+      if ($form->{co_street} =~ /\n/) {
+        my $new_co_street;
+        for (split /\n/, $form->{co_street}) {
+          if (/(\d{3,5})\s+(\w+)/) {
+            $form->{co_zip}  = $1;
+            $form->{co_city} = $2;
+          } else {
+            $new_co_street .= $_;
+          }
+        }
+        $form->{co_street} = $new_co_street;
+      } else {
+        $form->{co_zip} = $form->{co_city};
+        $form->{co_zip} =~ s/\D//g;
+        $form->{co_city} =~ s/\d//g;
+        $form->{co_city} =~ s/^\s//g;
+      }
+
       my $tax_office           = first { $_->{name} eq $form->{elsterland} } @{ $ustva->{tax_office_information} };
       $form->{taxbird_land_nr} = $tax_office->{taxbird_nr} if $tax_office;
-
-      $form->{co_zip} = $form->{co_city};
-      $form->{co_zip} =~ s/\D//g;
-      $form->{co_city} =~ s/\d//g;
-      $form->{co_city} =~ s/^\s//g;
 
       ($form->{co_phone_prefix}, $form->{co_phone}) = split("-", $form->{tel});
       $form->{co_phone_prefix} =~ s/\s//g;
