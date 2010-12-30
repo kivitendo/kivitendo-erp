@@ -949,7 +949,7 @@ sub generate_ustva {
 
        $form->{taxbird_steuernummer} = $form->{steuernummer};
       #      $form->{taxbird_steuernummer} =~ s/\D//g;
-      $form->{taxbird_steuernummer} =~ s/\///; # ersten Querstrich ersetzen
+#      $form->{taxbird_steuernummer} =~ s/\///; # ersten Querstrich ersetzen
 
       # Numberformatting for Taxbird
       my $temp_numberformat = $myconfig{numberformat};
