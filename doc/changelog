@@ -24,6 +24,8 @@
   - Verkaufsbericht mit Statistiken zu Margen
   - Wenn ein Auftrag komplett geliefert ist, den Workflow-Knopf 'Lieferschein' ausblenden
   - Zahlungsein- und ausgänge um Suche nach Rechnungsnummer erweitert
+  - Anzeige von Bildern in Artikelmaske und Wahlmöglichkeit Defaultwert für
+    Bilder in Artikelsuche via Configparameter in config/lx-erp.conf
 
   API Änderungen:
 

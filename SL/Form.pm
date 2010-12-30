@@ -789,13 +789,16 @@ sub _prepare_html_template {
     map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
-  $additional_params->{"conf_dbcharset"}              = $main::dbcharset;
-  $additional_params->{"conf_webdav"}                 = $main::webdav;
-  $additional_params->{"conf_lizenzen"}               = $main::lizenzen;
-  $additional_params->{"conf_latex_templates"}        = $main::latex;
-  $additional_params->{"conf_opendocument_templates"} = $main::opendocument_templates;
-  $additional_params->{"conf_vertreter"}              = $main::vertreter;
-  $additional_params->{"conf_show_best_before"}       = $main::show_best_before;
+  $additional_params->{"conf_dbcharset"}              = $::dbcharset;
+  $additional_params->{"conf_webdav"}                 = $::webdav;
+  $additional_params->{"conf_lizenzen"}               = $::lizenzen;
+  $additional_params->{"conf_latex_templates"}        = $::latex;
+  $additional_params->{"conf_opendocument_templates"} = $::opendocument_templates;
+  $additional_params->{"conf_vertreter"}              = $::vertreter;
+  $additional_params->{"conf_show_best_before"}       = $::show_best_before;
+  $additional_params->{"conf_parts_image_css"}        = $::parts_image_css;
+  $additional_params->{"conf_parts_listing_images"}   = $::parts_listing_images;
+  $additional_params->{"conf_parts_show_image"}       = $::parts_show_image;
 
   if (%main::debug_options) {
     map { $additional_params->{'DEBUG_' . uc($_)} = $main::debug_options{$_} } keys %main::debug_options;
