@@ -61,9 +61,10 @@ sub _assign_attributes {
 
   while (my ($attribute, $value) = each %attributes) {
     my $type = lc($types{$attribute} || 'text');
-    $value   = $type eq 'boolean'        ? ($value ? 't' : 'f')
-             : $text_column_types{$type} ? $value
-             :                             ($value || undef);
+    $value   = $type eq 'boolean'                ? ($value ? 't' : 'f')
+             : $text_column_types{$type}         ? $value
+             : defined($value) && ($value eq '') ? undef
+             :                                     $value;
     $self->$attribute($value);
   }
 
