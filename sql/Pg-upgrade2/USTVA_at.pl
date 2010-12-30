@@ -4,6 +4,8 @@
 
 use strict;
 
+use SL::DBUtils;
+
 unless ( $main::form ) {
   die("This script cannot be run from the command line.");
 }
