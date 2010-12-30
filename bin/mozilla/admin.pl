@@ -43,6 +43,7 @@ use Sys::Hostname;
 
 use SL::Auth;
 use SL::Form;
+use SL::Iconv;
 use SL::Mailer;
 use SL::User;
 use SL::Common;
@@ -84,6 +85,9 @@ sub run {
         $::auth->set_session_value('rpw', $::form->{rpw});
         $::auth->create_or_refresh_session();
       }
+
+      _apply_dbupgrade_scripts();
+
       call_sub($locale->findsub($form->{action}));
     }
   } else {
@@ -719,15 +723,13 @@ sub dbupdate {
 
     map { $form->{$_} = $form->{"${_}_${i}"} } qw(dbname dbdriver dbhost dbport dbuser dbpasswd);
 
-    my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
-
     print $form->parse_html_template("admin/dbupgrade_header");
 
     $form->{dbupdate}        = $form->{dbname};
     $form->{$form->{dbname}} = 1;
 
     User->dbupdate($form);
-    User->dbupdate2($form, $controls);
+    User->dbupdate2($form, SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls);
 
     print $form->parse_html_template("admin/dbupgrade_footer");
   }
@@ -1162,6 +1164,10 @@ sub dispatcher {
   call_sub($form->{default_action}) if ($form->{default_action});
 
   $form->error($locale->text('No action defined.'));
+}
+
+sub _apply_dbupgrade_scripts {
+  ::end_of_request() if SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(1);
 }
 
 1;

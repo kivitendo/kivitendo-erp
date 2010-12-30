@@ -121,19 +121,16 @@ sub login {
 
     $self->create_schema_info_table($form, $dbh);
 
-    $dbh->disconnect;
-
     $rc = 0;
 
-    my $controls =
-      parse_dbupdate_controls($form, $myconfig{"dbdriver"});
+    my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $myconfig{dbdriver})->parse_dbupdate_controls;
 
-    map({ $form->{$_} = $myconfig{$_} }
-        qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect dateformat));
+    map({ $form->{$_} = $myconfig{$_} } qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect dateformat));
+    dbconnect_vars($form, $form->{dbname});
+    my $update_available = $dbupdater->update_available($dbversion) || $dbupdater->update2_available($dbh);
+    $dbh->disconnect;
 
-    if (update_available($myconfig{"dbdriver"}, $dbversion) ||
-        update2_available($form, $controls)) {
-
+    if ($update_available) {
       $form->{"stylesheet"} = "lx-office-erp.css";
       $form->{"title"} = $main::locale->text("Dataset upgrade");
       $form->header();
@@ -163,7 +160,8 @@ sub login {
       $SIG{QUIT} = 'IGNORE';
 
       $self->dbupdate($form);
-      $self->dbupdate2($form, $controls);
+      $self->dbupdate2($form, $dbupdater);
+      SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(0);
 
       close(FH);
 
@@ -180,7 +178,6 @@ sub login {
       print $form->parse_html_template("dbupgrade/footer", { "menufile" => $menufile });
 
       $rc = -2;
-
     }
   }
 
@@ -395,182 +392,17 @@ sub dbcreate {
   my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
   $db_charset ||= Common::DEFAULT_CHARSET;
 
+  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver});
   # create the tables
-  $self->process_query($form, $dbh, "sql/lx-office.sql", undef, $db_charset);
+  $dbupdater->process_query($dbh, "sql/lx-office.sql", undef, $db_charset);
 
   # load chart of accounts
-  $self->process_query($form, $dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
+  $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
 
   $query = "UPDATE defaults SET coa = ?";
   do_query($form, $dbh, $query, $form->{chart});
 
   $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-# Process a Perl script which updates the database.
-# If the script returns 1 then the update was successful.
-# Return code "2" means "needs more interaction; remove
-# users/nologin and end current request".
-# All other return codes are fatal errors.
-sub process_perl_script {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form, $dbh, $filename, $version_or_control, $db_charset) = @_;
-
-  my $fh = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
-
-  my $file_charset = Common::DEFAULT_CHARSET;
-
-  if (ref($version_or_control) eq "HASH") {
-    $file_charset = $version_or_control->{charset};
-
-  } else {
-    while (<$fh>) {
-      last if !/^--/;
-      next if !/^--\s*\@charset:\s*(.+)/;
-      $file_charset = $1;
-      last;
-    }
-    $fh->seek(0, SEEK_SET);
-  }
-
-  my $contents = join "", <$fh>;
-  $fh->close();
-
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
-  my $iconv = SL::Iconv::get_converter($file_charset, $db_charset);
-
-  $dbh->begin_work();
-
-  # setup dbup_ export vars
-  my %dbup_myconfig = ();
-  map({ $dbup_myconfig{$_} = $form->{$_}; }
-      qw(dbname dbuser dbpasswd dbhost dbport dbconnect));
-
-  my $dbup_locale = $::locale;
-
-  my $result = eval($contents);
-
-  if (1 != $result) {
-    $dbh->rollback();
-    $dbh->disconnect();
-  }
-
-  if (!defined($result)) {
-    print $form->parse_html_template("dbupgrade/error",
-                                     { "file"  => $filename,
-                                       "error" => $@ });
-    ::end_of_request();
-  } elsif (1 != $result) {
-    unlink("users/nologin") if (2 == $result);
-    ::end_of_request();
-  }
-
-  if (ref($version_or_control) eq "HASH") {
-    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
-             $dbh->quote($version_or_control->{"tag"}) . ", " .
-             $dbh->quote($form->{"login"}) . ")");
-  } elsif ($version_or_control) {
-    $dbh->do("UPDATE defaults SET version = " .
-             $dbh->quote($version_or_control));
-  }
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
-}
-
-sub process_query {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form, $dbh, $filename, $version_or_control, $db_charset) = @_;
-
-  my $fh = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
-  my $query = "";
-  my $sth;
-  my @quote_chars;
-
-  my $file_charset = Common::DEFAULT_CHARSET;
-  while (<$fh>) {
-    last if !/^--/;
-    next if !/^--\s*\@charset:\s*(.+)/;
-    $file_charset = $1;
-    last;
-  }
-  $fh->seek(0, SEEK_SET);
-
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
-  $dbh->begin_work();
-
-  while (<$fh>) {
-    $_ = SL::Iconv::convert($file_charset, $db_charset, $_);
-
-    # Remove DOS and Unix style line endings.
-    chomp;
-
-    # remove comments
-    s/--.*$//;
-
-    for (my $i = 0; $i < length($_); $i++) {
-      my $char = substr($_, $i, 1);
-
-      # Are we inside a string?
-      if (@quote_chars) {
-        if ($char eq $quote_chars[-1]) {
-          pop(@quote_chars);
-        }
-        $query .= $char;
-
-      } else {
-        if (($char eq "'") || ($char eq "\"")) {
-          push(@quote_chars, $char);
-
-        } elsif ($char eq ";") {
-
-          # Query is complete. Send it.
-
-          $sth = $dbh->prepare($query);
-          if (!$sth->execute()) {
-            my $errstr = $dbh->errstr;
-            $sth->finish();
-            $dbh->rollback();
-            $form->dberror("The database update/creation did not succeed. " .
-                           "The file ${filename} containing the following " .
-                           "query failed:<br>${query}<br>" .
-                           "The error message was: ${errstr}<br>" .
-                           "All changes in that file have been reverted.");
-          }
-          $sth->finish();
-
-          $char  = "";
-          $query = "";
-        }
-
-        $query .= $char;
-      }
-    }
-
-    # Insert a space at the end of each line so that queries split
-    # over multiple lines work properly.
-    if ($query ne '') {
-      $query .= @quote_chars ? "\n" : ' ';
-    }
-  }
-
-  if (ref($version_or_control) eq "HASH") {
-    $dbh->do("INSERT INTO schema_info (tag, login) VALUES (" .
-             $dbh->quote($version_or_control->{"tag"}) . ", " .
-             $dbh->quote($form->{"login"}) . ")");
-  } elsif ($version_or_control) {
-    $dbh->do("UPDATE defaults SET version = " .
-             $dbh->quote($version_or_control));
-  }
-  $dbh->commit();
-
-  $fh->close();
 
   $main::lxdebug->leave_sub();
 }
@@ -621,8 +453,8 @@ sub dbneedsupdate {
 
   my ($self, $form) = @_;
 
-  my %members  = $main::auth->read_all_users();
-  my $controls = parse_dbupdate_controls($form, $form->{dbdriver});
+  my %members   = $main::auth->read_all_users();
+  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls;
 
   my ($query, $sth, %dbs_needing_updates);
 
@@ -644,11 +476,13 @@ sub dbneedsupdate {
       ($version) = $sth->fetchrow_array();
     }
     $sth->finish();
-    $dbh->disconnect();
 
-    next unless $version;
+    $dbh->disconnect and next unless $version;
 
-    if (update_available($form->{dbdriver}, $version) || update2_available($form, $controls)) {
+    my $update_available = $dbupdater->update_available($version) || $dbupdater->update2_available($dbh);
+    $dbh->disconnect;
+
+   if ($update_available) {
       my $dbinfo = {};
       map { $dbinfo->{$_} = $member->{$_} } grep /^db/, keys %{ $member };
       $dbs_needing_updates{$member->{dbhost} . "::" . $member->{dbname}} = $dbinfo;
@@ -702,18 +536,6 @@ sub cmp_script_version {
   return $res_a <=> $res_b;
 }
 
-sub update_available {
-  my ($dbdriver, $cur_version) = @_;
-
-  local *SQLDIR;
-
-  opendir SQLDIR, "sql/${dbdriver}-upgrade" || error("", "sql/${dbdriver}-upgrade: $!");
-  my @upgradescripts = grep /${dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
-  closedir SQLDIR;
-
-  return ($#upgradescripts > -1);
-}
-
 sub create_schema_info_table {
   $main::lxdebug->enter_sub();
 
@@ -762,6 +584,8 @@ sub dbupdate {
   my $db_charset = $main::dbcharset;
   $db_charset ||= Common::DEFAULT_CHARSET;
 
+  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver});
+
   foreach my $db (split(/ /, $form->{dbupdate})) {
 
     next unless $form->{$db};
@@ -787,7 +611,6 @@ sub dbupdate {
     foreach my $upgradescript (@upgradescripts) {
       my $a = $upgradescript;
       $a =~ s/^\Q$form->{dbdriver}\E-upgrade-|\.(sql|pl)$//g;
-      my $file_type = $1;
 
       my ($mindb, $maxdb) = split /-/, $a;
       my $str_maxdb = $maxdb;
@@ -801,13 +624,7 @@ sub dbupdate {
 
       # apply upgrade
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $upgradescript");
-      if ($file_type eq "sql") {
-        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                             "-upgrade/$upgradescript", $str_maxdb, $db_charset);
-      } else {
-        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                                   "-upgrade/$upgradescript", $str_maxdb, $db_charset);
-      }
+      $dbupdater->process_file($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb, $db_charset);
 
       $version = $maxdb;
 
@@ -826,74 +643,38 @@ sub dbupdate {
 sub dbupdate2 {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $controls) = @_;
+  my ($self, $form, $dbupdater) = @_;
 
   $form->{sid} = $form->{dbdefault};
 
-  my @upgradescripts = ();
-  my ($query, $sth, $tag);
-  my $rc = -2;
+  my $rc         = -2;
+  my $db_charset = $main::dbcharset || Common::DEFAULT_CHARSET;
 
-  @upgradescripts = sort_dbupdate_controls($controls);
-
-  my $db_charset = $main::dbcharset;
-  $db_charset ||= Common::DEFAULT_CHARSET;
+  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $dbupdater->{all_controls} };
 
   foreach my $db (split / /, $form->{dbupdate}) {
-
     next unless $form->{$db};
 
     # strip db from dataset
     $db =~ s/^db//;
     &dbconnect_vars($form, $db);
 
-    my $dbh =
-      DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
-      or $form->dberror;
+    my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
 
     $dbh->do($form->{dboptions}) if ($form->{dboptions});
 
-    map({ $_->{"applied"} = 0; } @upgradescripts);
-
     $self->create_schema_info_table($form, $dbh);
 
-    $query = qq|SELECT tag FROM schema_info|;
-    $sth = $dbh->prepare($query);
-    $sth->execute() || $form->dberror($query);
-    while (($tag) = $sth->fetchrow_array()) {
-      $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
-    }
-    $sth->finish();
+    my @upgradescripts = $dbupdater->unapplied_upgrade_scripts($dbh);
 
-    my $all_applied = 1;
-    foreach (@upgradescripts) {
-      if (!$_->{"applied"}) {
-        $all_applied = 0;
-        last;
-      }
-    }
-
-    next if ($all_applied);
+    $dbh->disconnect and next if !@upgradescripts;
 
     foreach my $control (@upgradescripts) {
-      next if ($control->{"applied"});
-
-      $control->{description} = SL::Iconv::convert($control->{charset}, $db_charset, $control->{description});
-
-      $control->{"file"} =~ /\.(sql|pl)$/;
-      my $file_type = $1;
-
       # apply upgrade
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
       print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-      if ($file_type eq "sql") {
-        $self->process_query($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                             "-upgrade2/$control->{file}", $control, $db_charset);
-      } else {
-        $self->process_perl_script($form, $dbh, "sql/" . $form->{"dbdriver"} .
-                                   "-upgrade2/$control->{file}", $control, $db_charset);
-      }
+      $dbupdater->process_file($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade2/$control->{file}", $control, $db_charset);
     }
 
     $rc = 0;
@@ -904,38 +685,6 @@ sub dbupdate2 {
   $main::lxdebug->leave_sub();
 
   return $rc;
-}
-
-sub update2_available {
-  $main::lxdebug->enter_sub();
-
-  my ($form, $controls) = @_;
-
-  map({ $_->{"applied"} = 0; } values(%{$controls}));
-
-  dbconnect_vars($form, $form->{"dbname"});
-
-  my $dbh =
-    DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) ||
-    $form->dberror;
-
-  my ($query, $tag, $sth);
-
-  $query = qq|SELECT tag FROM schema_info|;
-  $sth = $dbh->prepare($query);
-  if ($sth->execute()) {
-    while (($tag) = $sth->fetchrow_array()) {
-      $controls->{$tag}->{"applied"} = 1 if (defined($controls->{$tag}));
-    }
-  }
-  $sth->finish();
-  $dbh->disconnect();
-
-  map({ $main::lxdebug->leave_sub() and return 1 if (!$_->{"applied"}) }
-      values(%{$controls}));
-
-  $main::lxdebug->leave_sub();
-  return 0;
 }
 
 sub save_member {
