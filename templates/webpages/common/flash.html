@@ -1,0 +1,21 @@
+[%- USE HTML -%]
+[%- IF FLASH %]
+ [%- BLOCK output %]
+  <div class="flash_message_[% type %]">
+   [%- title %]:
+   [% FOREACH message = messages %]
+    [%- HTML.escape(message) %]
+    [%- UNLESS loop.last %]<br>[% END %]
+   [%- END %]
+  </div>
+ [%- END %]
+ [%- IF FLASH.error && FLASH.error.size %]
+  [%- PROCESS output title=LxERP.t8('Error') type='error' messages = FLASH.error %]
+ [%- END %]
+ [%- IF FLASH.warning && FLASH.warning.size %]
+  [%- PROCESS output title=LxERP.t8('Warning') type='warning' messages = FLASH.warning %]
+ [%- END %]
+ [%- IF FLASH.info && FLASH.info.size %]
+  [%- PROCESS output title=LxERP.t8('Information') type='info' messages = FLASH.info %]
+ [%- END %]
+[%- END %]
