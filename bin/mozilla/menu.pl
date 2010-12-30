@@ -43,28 +43,29 @@ use SL::Menu;
 use Data::Dumper;
 use URI;
 
+use List::MoreUtils qw(apply);
+
 my $menufile = "menu.ini";
+my $nbsp     = '&nbsp;';
 my $mainlevel;
 
 # end of main
 
 sub display {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my $form      = $main::form;
-
-  my $callback  = $form->unescape($form->{callback});
+  my $callback  = $::form->unescape($::form->{callback});
   $callback     = URI->new($callback)->rel($callback) if $callback;
   $callback     = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
   my $framesize = _calc_framesize();
 
-  $form->header;
+  $::form->header;
 
   print qq|
 <frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">
   <frame  src="kopf.pl" name="kopf"  scrolling="NO">
   <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" id="menuframe" name="menuframe">
-    <frame src="$form->{script}?action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
+    <frame src="$::form->{script}?action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
     <frame src="$callback" name="main_window" scrolling="auto">
   </frameset>
   <noframes>
@@ -74,179 +75,111 @@ sub display {
 </HTML>
 |;
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub acc_menu {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my $form      = $main::form;
-  my $locale    = $main::locale;
-  my $framesize = _calc_framesize();
-
-  $mainlevel = $form->{level};
-  $mainlevel =~ s/\Q$mainlevel\E--//g;
-  my $menu = Menu->new($::menufile);
-
-  $form->{title} = $locale->text('Lx-Office');
-
-  $form->header;
+  my $framesize    = _calc_framesize() - 2;
+  my $menu         = Menu->new($::menufile);
+  $mainlevel       = $::form->{level};
+  $::form->{title} = $::locale->text('Lx-Office');
+  $::form->header;
 
   print qq|
 <body class="menu">
- 
-|; 
-  print qq|<div align="left">\n<table width="|
-    . ($framesize-2)
-    . qq|" border="0">\n|;
 
-  &section_menu($menu);
+<div align="left">\n<table width="$framesize" border="0">\n|;
 
-  print qq|</table></div>|;
-  print qq|
+  section_menu($menu);
+
+  print qq|</table></div>
 </body>
 </html>
 |;
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub section_menu {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
   my ($menu, $level) = @_;
 
-  my $form      = $main::form;
-  my %myconfig  = %main::myconfig;
-  my $locale    = $main::locale;
-  my $is_not_links_browser = $ENV{HTTP_USER_AGENT} =~ /links/i ? 0 : 1;
-
-  my $zeige;
-
   # build tiered menus
-  my @menuorder = $menu->access_control(\%myconfig, $level);
-  while (@menuorder) {
-    my $item  = shift @menuorder;
-    my $label = $item;
-    my $ml    = $item;
-    $label =~ s/\Q$level\E--//g;
-    $ml    =~ s/--.*//;
-    if ($ml eq $mainlevel) { $zeige = 1; }
-    else { $zeige = 0; }
-    my $spacer = "&nbsp;" x (($item =~ s/--/--/g) * 2);
-    $label =~ s/.*--//g;
+  my @menuorder = $menu->access_control(\%::myconfig, $level);
+  for my $item (@menuorder) {
+    my $menuitem   = $menu->{$item};
+    my $label      = apply { s/.*--// } $item;
+    my $ml         = apply { s/--.*// } $item;
+    my $show       = $ml eq $mainlevel;
+    my $spacer     = $nbsp x (($item =~ s/--/--/g) * 2);
     my $label_icon = $level . "--" . $label . ".png";
-    my $mlab       = $label;
-    $label      = $locale->text($label);
+
+    $label         = $::locale->text($label);
+
+    $menuitem->{target} ||= "main_window";
+
+    my $anchor     = $menu->menuitem(\%::myconfig, $::form, $item, $level);
+
+    next if $menuitem->{HIDDEN};
 
     # multi line hack, sschoeling jul06
     # if a label is too long, try to split it at whitespaces, then join it to chunks of less
     # than 20 chars and store it in an array.
     # use this array later instead of the &nbsp;-ed label
-    my @chunks = ();
-    my ($i,$l) = (-1, 20);
-    map {
-      if (($l += length $_) < 20) {
-        $chunks[$i] .= " $_";
+    my @chunks;
+    my $l = 20;
+    for (split / /, $label) {
+      $l += length $_;
+      if ($l < 20) {
+        $chunks[-1] .= " $_";
       } else {
         $l = length $_;
-        $chunks[++$i] = $_;
-
-      }
-    } split / /, $label;
-    map { s/ /&nbsp;/ } @chunks;
-    # end multi line
-
-    $label =~ s/ /&nbsp;/g;
-    $menu->{$item}{target} = "main_window" unless $menu->{$item}{target};
-
-    if ($menu->{$item}{submenu}) {
-      $menu->{$item}{$item} = !$form->{$item};
-      if ($form->{level} && $item =~ /^\Q$form->{level}\E/) {
-
-        # expand menu
-        if ($zeige) {
-          print
-            qq|<tr><td style='vertical-align:bottom'><b>$spacer<img src="image/unterpunkt.png">$label</b></td></tr>\n|;
-        }
-
-        # remove same level items
-        map { shift @menuorder } grep /^$item/, @menuorder;
-        &section_menu($menu, $item);
-      } else {
-        if ($zeige) {
-          print qq|<tr><td>|
-            . $menu->menuitem(\%myconfig, \%$form, $item, $level)
-            . qq|$label&nbsp;...</a></td></tr>\n|;
-        }
-
-        # remove same level items
-        map { shift @menuorder } grep /^$item/, @menuorder;
-      }
-    } else {
-      if ($menu->{$item}{module}) {
-        if ($form->{$item} && $form->{level} eq $item) {
-          $menu->{$item}{$item} = !$form->{$item};
-          if ($zeige) {
-            print
-              qq|<tr><td valign=bottom>$spacer<img src="image/unterpunkt.png">|
-              . $menu->menuitem(\%myconfig, \%$form, $item, $level)
-              . qq|$label</a></td></tr>\n|;
-          }
-
-          # remove same level items
-          map { shift @menuorder } grep /^$item/, @menuorder;
-          &section_menu($menu, $item);
-        } else {
-          if ($zeige) {
-            if (scalar @chunks <= 1) {
-              print
-                qq|<tr><td class="hover" height="16" >$spacer|
-                . $menu->menuitem(\%myconfig, \%$form, $item, $level) ;
-
-            if (-f "image/icons/16x16/$label_icon" && ($is_not_links_browser))
-             { print
-                qq|<img src="image/icons/16x16/$label_icon" border="0" style="vertical-align:text-top" title="|
-                . $label
-                . qq|">&nbsp;&nbsp;| }
-            else {
-                   if ($is_not_links_browser) {
-                    print qq|<img src="image/unterpunkt.png" border="0" style="vertical-align:text-top">|;
-                   }
-                }
-
-               print
-                 qq|$label</a></td></tr>\n|;
-            } else {
-              my $tmpitem = $menu->menuitem(\%myconfig, \%$form, $item, $level);
-              print
-                qq|<tr><td class="hover" height="16" >$spacer<img src="image/unterpunkt.png"  style="vertical-align:text-top">|
-                . $tmpitem
-                . qq|$chunks[0]</a></td></tr>\n|;
-              map {
-                print
-                  qq|<tr style="vertical-align:top""><td class="hover">$spacer<img src="image/unterpunkt.png" style="visibility:hidden; width:24; height=2;">|
-                  . $tmpitem
-                  . qq|$chunks[$_]</a></td></tr>\n|;
-              } 1..$#chunks;
-            }
-          }
-        }
-      } else {
-        my $ml_ = $form->escape($ml);
-        print
-          qq|<tr><td class="bg" height="24" align="left" valign="middle">
-          <a href="menu.pl?action=acc_menu&level=$ml_" class="nohover" title="$label">|;
-              if ($is_not_links_browser) {
-                  print qq|<img src="image/icons/24x24/$item.png" border="0" style="vertical-align:middle" title="$label">|;
-              }
-          print qq|&nbsp;$label</a>&nbsp;&nbsp;&nbsp;&nbsp;</td></tr>\n|;
-        &section_menu($menu, $item);
-
-        print qq|\n|;
+        push @chunks, $_;
       }
     }
+    # end multi line
+
+    if ($menuitem->{submenu}) {
+      if ($::form->{level} && $item =~ /^\Q$::form->{level}\E/) {
+        my $image = make_image(submenu => 1);
+        print "<tr><td style='vertical-align:bottom'><b>$spacer$image$label</b></td></tr>\n" if $show;
+
+        # remove same level items
+        $menu->{$_}{HIDDEN} = 1 for grep /^$item/, @menuorder;
+        section_menu($menu, $item);
+      } else {
+        print "<tr><td>$anchor$label&nbsp;...</a></td></tr>\n" if $show;
+
+        # remove same level items
+        $menu->{$_}{HIDDEN} = 1 for grep /^$item/, @menuorder;
+      }
+    } elsif ($menuitem->{module}) {
+      if ($::form->{$item} && $::form->{level} eq $item) {
+        my $image = make_image();
+        print qq|<tr><td valign=bottom>$spacer$image$anchor$label</a></td></tr>\n| if $show;
+
+        # remove same level items
+        $menu->{$_}{HIDDEN} = 1 for grep /^$item/, @menuorder;
+        section_menu($menu, $item);
+      } elsif ($show) {
+        my $image1 = make_image(label => $label, icon => $label_icon);
+        my $image2 = make_image(hidden => 1);
+        print "<tr><td class='hover' height='16'>$spacer$anchor$image1$chunks[0]</a></td></tr>\n";
+        print "<tr style='vertical-align:top'><td class='hover'>$spacer$image2$anchor$chunks[$_]</a></td></tr>\n"
+          for 1..$#chunks;
+      }
+    } else {
+      my $ml_    = $::form->escape($ml);
+      my $image  = make_image(icon => $item . '.png', size => 24, label => $label, valign => 'middle');
+      my $anchor = "<a href='menu.pl?action=acc_menu&level=$ml_' class='nohover' title='$label'>";
+      print qq|<tr><td class="bg" height="24" align="left" valign="middle">$anchor$image$label</a></td></tr>\n|;
+
+      &section_menu($menu, $item);
+    }
   }
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub _calc_framesize {
@@ -257,6 +190,43 @@ sub _calc_framesize {
   return  $is_mobile_browser && $is_mobile_style ?  130
         : $is_lynx_browser                       ?  240
         :                                           200;
+}
+
+sub _show_images {
+  # don't show images in links
+  _calc_framesize() != 240;
+}
+
+sub make_image {
+  my (%params) = @_;
+
+  my $label  = $params{label};
+  my $icon   = $params{icon};
+  my $hidden = $params{hidden};
+  my $size   = $params{size}   || 16;
+  my $valign = $params{valign} || 'text-top';
+
+  return unless _show_images();
+
+  my $icon_found = $icon && -f _icon_path($icon, $size);
+
+  my $image_url = $icon_found ? _icon_path($icon, $size) : "image/unterpunkt.png";
+  my $style     = $hidden     ? "visibility:hidden"      : "vertical-align:$valign";
+  my $width     = $hidden     ? "width='$size'"          : '';
+
+  my $padding   = $size == 16 && $icon_found || $hidden ? $nbsp x 2
+                : $size == 24                           ? $nbsp
+                :                                         '';
+
+  return "<img src='$image_url' border='0' style='$style' title='$label' $width>$padding";
+}
+
+sub _icon_path {
+  my ($label, $size) = @_;
+
+  $size ||= 16;
+
+  return "image/icons/${size}x${size}/$label";
 }
 
 1;
