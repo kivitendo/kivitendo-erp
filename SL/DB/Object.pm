@@ -7,9 +7,9 @@ use Rose::DB::Object;
 use List::MoreUtils qw(any);
 
 use SL::DB;
-use SL::DB::Helpers::Attr;
-use SL::DB::Helpers::Metadata;
-use SL::DB::Helpers::Manager;
+use SL::DB::Helper::Attr;
+use SL::DB::Helper::Metadata;
+use SL::DB::Helper::Manager;
 
 use base qw(Rose::DB::Object);
 
@@ -31,7 +31,7 @@ sub init_db {
 }
 
 sub meta_class {
-  return 'SL::DB::Helpers::Metadata';
+  return 'SL::DB::Helper::Metadata';
 }
 
 sub _get_manager_class {

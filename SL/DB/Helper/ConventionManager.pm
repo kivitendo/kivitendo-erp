@@ -1,4 +1,4 @@
-package SL::DB::Helpers::ConventionManager;
+package SL::DB::Helper::ConventionManager;
 
 use strict;
 
@@ -23,7 +23,7 @@ sub auto_manager_base_name {
 }
 
 sub auto_manager_base_class {
-  return 'SL::DB::Helpers::Manager';
+  return 'SL::DB::Helper::Manager';
 }
 
 1;

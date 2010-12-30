@@ -1,4 +1,4 @@
-package SL::DB::Helpers::Sorted;
+package SL::DB::Helper::Sorted;
 
 use strict;
 
@@ -80,14 +80,14 @@ __END__
 
 =head1 NAME
 
-SL::DB::Helpers::Sorted - Mixin for a manager class that handles
+SL::DB::Helper::Sorted - Mixin for a manager class that handles
 sorting of database records
 
 =head1 SYNOPSIS
 
   package SL::DB::Manager::Message;
 
-  use SL::DB::Helpers::Sorted;
+  use SL::DB::Helper::Sorted;
 
   sub _sort_spec {
     return ( columns => { recipient_id => [ 'CASE
