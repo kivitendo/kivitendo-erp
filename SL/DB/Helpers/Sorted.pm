@@ -11,7 +11,7 @@ my %sort_spec;
 sub make_sort_string {
   my ($class, %params) = @_;
 
-  %sort_spec           = $class->_sort_spec unless %sort_spec;
+  _make_sort_spec($class) unless %sort_spec;
 
   my $sort_dir         = defined($params{sort_dir}) ? $params{sort_dir} * 1 : $sort_spec{default}->[1];
   my $sort_dir_str     = $sort_dir ? 'ASC' : 'DESC';
@@ -37,6 +37,32 @@ sub get_all_sorted {
   my $sort_str         = $class->make_sort_string(sort_by => delete($params{sort_by}), sort_dir => delete($params{sort_dir}));
 
   return $class->get_all(sort_by => $sort_str, %params);
+}
+
+sub _make_sort_spec {
+  my ($class) = @_;
+
+  %sort_spec = $class->_sort_spec if defined &{ "${class}::_sort_spec" };
+
+  my $meta = $class->object_class->meta;
+
+  if (!$sort_spec{default}) {
+    my @primary_keys = $meta->primary_key;
+    $sort_spec{default} = [ "" . $primary_keys[0], 0 ];
+  }
+
+  $sort_spec{columns} ||= { SIMPLE => [ map { "$_" } $meta->columns ] };
+
+  if ($sort_spec{columns}->{SIMPLE}) {
+    my $table = $meta->table;
+
+    if (!ref($sort_spec{columns}->{SIMPLE}) && ($sort_spec{columns}->{SIMPLE} eq 'ALL')) {
+      map { $sort_spec{columns}->{"$_"} ||= "${table}.${_}"} @{ $meta->columns };
+      delete $sort_spec{columns}->{SIMPLE};
+    } else {
+      map { $sort_spec{columns}->{$_} = "${table}.${_}" } @{ delete($sort_spec{columns}->{SIMPLE}) };
+    }
+  }
 }
 
 1;
@@ -111,10 +137,12 @@ returned by c<< $class->make_sort_string(%params) >>.
 
 =item C<_sort_spec>
 
-This method is actually not part of this package but must be provided
-by the package this helper is mixed into.
+This method is actually not part of this package but can be provided
+by the package this helper is mixed into. If it isn't then all columns
+of the corresponding table (as returned by the model's meta data) will
+be eligible for sorting.
 
-Returns a has with the following keys:
+Returns a hash with the following keys:
 
 =over 2
 
@@ -125,12 +153,16 @@ in default cases. Example:
 
   default => [ 'name', 1 ],
 
+Defaults to the table's primary key column (the first column if the
+primary key is composited).
+
 =item C<columns>
 
 A hash reference. Its keys are column names, and its values are SQL
 strings by which to sort. Example:
 
-  columns => { transaction_description => 'oe.transaction_description',
+  columns => { SIMPLE                  => [ 'transaction_description', 'orddate' ],
+               the_date                => 'CASE WHEN oe.quotation THEN oe.quodate ELSE oe.orddate END',
                customer_name           => 'lower(customer.name)',
              },
 
@@ -140,6 +172,16 @@ then the default column name will be used.
 The value can be either a scalar or an array reference. If it's the
 latter then both the sort direction as well as the null handling will
 be appended to each of its members.
+
+The special key C<SIMPLE> can be a scalar or an array reference. If it
+is an array reference then it contains column names that are mapped
+1:1 onto the table's columns. If it is the scalar 'ALL' then all
+columns in that model's meta data are mapped 1:1 unless the C<columns>
+hash already contains a key for that column.
+
+If C<columns> is missing then all columns of the model will be
+eligible for sorting. The list of columns is looked up in the model's
+meta data.
 
 =item C<nulls>
 
