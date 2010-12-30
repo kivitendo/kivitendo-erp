@@ -1871,6 +1871,7 @@ $self->{texts} = {
   'Warehouse management'        => 'Lagerverwaltung/Bestandsveränderung',
   'Warehouse saved.'            => 'Lager gespeichert.',
   'Warehouses'                  => 'Lager',
+  'Warning'                     => 'Warnung',
   'Warnings during template upgrade' => 'Warnungen bei Aktualisierung der Dokumentenvorlagen',
   'WebDAV link'                 => 'WebDAV-Link',
   'Weight'                      => 'Gewicht',
