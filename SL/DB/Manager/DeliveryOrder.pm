@@ -2,8 +2,8 @@ package SL::DB::Manager::DeliveryOrder;
 
 use strict;
 
-use SL::DB::Helpers::Manager;
-use base qw(SL::DB::Helpers::Manager);
+use SL::DB::Helper::Manager;
+use base qw(SL::DB::Helper::Manager);
 
 sub object_class { 'SL::DB::DeliveryOrder' }
 

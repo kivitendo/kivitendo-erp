@@ -730,9 +730,9 @@ sub gl_transaction {
 
 if ($::use_rdbo) {
   eval {
-    require SL::DB::Helpers::Mappings;
+    require SL::DB::Helper::Mappings;
     sub db {
-      goto &SL::DB::Helpers::Mappings::db;
+      goto &SL::DB::Helper::Mappings::db;
     }
   } or die $@;
 }

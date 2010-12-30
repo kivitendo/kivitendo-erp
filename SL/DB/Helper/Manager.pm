@@ -1,4 +1,4 @@
-package SL::DB::Helpers::Manager;
+package SL::DB::Helper::Manager;
 
 use strict;
 

@@ -2,8 +2,8 @@ package SL::DB::Manager::Part;
 
 use strict;
 
-use SL::DB::Helpers::Manager;
-use base qw(SL::DB::Helpers::Manager);
+use SL::DB::Helper::Manager;
+use base qw(SL::DB::Helper::Manager);
 
 use Carp;
 use SL::DBUtils;

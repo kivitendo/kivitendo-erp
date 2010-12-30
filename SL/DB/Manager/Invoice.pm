@@ -2,7 +2,7 @@ package SL::DB::Manager::Invoice;
 
 use strict;
 
-use base qw(SL::DB::Helpers::Manager);
+use base qw(SL::DB::Helper::Manager);
 
 sub object_class { 'SL::DB::Invoice' }
 
