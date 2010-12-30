@@ -227,11 +227,11 @@ interpreted as the name of a template file. It is prefixed with
 "templates/webpages/" and postfixed with ".html". An exception will be
 thrown if that file does not exist.
 
-If C<< $options->{partial} >> is trueish then C<< $::form->header >>
-will not be called. Otherwise C<< $::form->{header} >> will be set to
-C<$locals{header}> (only if $locals{header} is trueish) and
-C<< $::form->header >> will be called before the template itself is
-processed.
+If C<< $options->{partial} >> or C<< $options->{inline} }} is trueish
+then C<< $::form->header >> will not be called. Otherwise
+C<< $::form->{header} >> will be set to C<$locals{header}> (only if
+$locals{header} is trueish) and C<< $::form->header >> will be called
+before the template itself is processed.
 
 The template itself has access to the following variables:
 
