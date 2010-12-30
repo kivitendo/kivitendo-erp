@@ -48,7 +48,7 @@ sub _make_sort_spec {
 
   if (!$sort_spec{default}) {
     my @primary_keys = $meta->primary_key;
-    $sort_spec{default} = [ "" . $primary_keys[0], 0 ];
+    $sort_spec{default} = [ "" . $primary_keys[0], 1 ];
   }
 
   $sort_spec{columns} ||= { SIMPLE => [ map { "$_" } $meta->columns ] };
