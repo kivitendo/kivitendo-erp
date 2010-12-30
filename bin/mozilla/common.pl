@@ -14,6 +14,7 @@ use SL::Common;
 use SL::DBUtils;
 use SL::Form;
 use SL::MoreCommon;
+use SL::Helper::Flash;
 
 use strict;
 
@@ -725,19 +726,6 @@ sub gl_transaction {
   print $::form->redirect_header('gl.pl?action=add');
 
   $main::lxdebug->leave_sub();
-}
-
-sub flash {
-  my $category = shift;
-  $category    = 'info' if $category eq 'information';
-
-  $::form->{FLASH}                ||= { };
-  $::form->{FLASH}->{ $category } ||= [ ];
-  push @{ $::form->{FLASH}->{ $category } }, @_;
-}
-
-sub render_flash {
-  return $::form->parse_html_template('common/flash');
 }
 
 if ($::use_rdbo) {
