@@ -3,20 +3,40 @@ package SL::Helper::Flash;
 use strict;
 
 require Exporter;
-our @ISA    = qw(Exporter);
-our @EXPORT = qw(flash render_flash);
+our @ISA       = qw(Exporter);
+our @EXPORT    = qw(flash flash_later);
+our @EXPORT_OK = qw(render_flash);
+
+#
+# public functions
+#
 
 sub flash {
-  my $category = shift;
-  $category    = 'info' if $category eq 'information';
+  $::form->{FLASH} = _store_flash($::form->{FLASH}, @_);
+}
 
-  $::form->{FLASH}                ||= { };
-  $::form->{FLASH}->{ $category } ||= [ ];
-  push @{ $::form->{FLASH}->{ $category } }, @_;
+sub flash_later {
+  $::auth->set_session_value(FLASH => _store_flash($::auth->get_session_value('FLASH'), @_))->save_session();
 }
 
 sub render_flash {
   return $::form->parse_html_template('common/flash');
+}
+
+#
+# private functions
+#
+
+sub _store_flash {
+  my $store    = shift || { };
+  my $category = shift;
+  $category    = 'info' if $category eq 'information';
+
+  $store                ||= { };
+  $store->{ $category } ||= [ ];
+  push @{ $store->{ $category } }, @_;
+
+  return $store;
 }
 
 1;
@@ -42,20 +62,38 @@ following code:
 
   [%- INCLUDE 'common/flash.html' %]
 
+=head1 EXPORTS
+
+The functions L</flash> and L</flash_later> are always exported.
+
+The function L</render_flash> is only exported upon request.
+
 =head1 FUNCTIONS
 
 =over 4
 
-=item C<flash $category, $message>
+=item C<flash $category, @messages>
 
-Stores a message for the given category. The category can be either
+Stores messages for the given category. The category can be either
 C<information>, C<warning> or C<error>. C<info> can also be used as an
 alias for C<information>.
+
+=item C<flash_later $category, @messages>
+
+Stores messages for the given category for the next request. The
+category can be either C<information>, C<warning> or C<error>. C<info>
+can also be used as an alias for C<information>.
+
+The messages are stored in the user's session and restored upon the
+next request. Can be used for transmitting information over HTTP
+redirects.
 
 =item C<render_flash>
 
 Outputs the flash message by parsing the C<common/flash.html> template
 file.
+
+This function is not exported by default.
 
 =back
 
