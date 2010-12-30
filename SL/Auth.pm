@@ -6,6 +6,7 @@ use Digest::MD5 qw(md5_hex);
 use IO::File;
 use Time::HiRes qw(gettimeofday);
 use List::MoreUtils qw(uniq);
+use YAML;
 
 use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
@@ -495,8 +496,9 @@ sub restore_session {
   $sth   = prepare_execute_query($form, $dbh, $query, $session_id);
 
   while (my $ref = $sth->fetchrow_hashref()) {
-    $self->{SESSION}->{$ref->{sess_key}} = $ref->{sess_value};
-    $form->{$ref->{sess_key}}            = $ref->{sess_value} if (!defined $form->{$ref->{sess_key}});
+    my $value                            = $self->_load_value($ref->{sess_value});
+    $self->{SESSION}->{$ref->{sess_key}} = $value;
+    $form->{$ref->{sess_key}}            = $value if (!defined $form->{$ref->{sess_key}});
   }
 
   $sth->finish();
@@ -504,6 +506,18 @@ sub restore_session {
   $main::lxdebug->leave_sub();
 
   return SESSION_OK;
+}
+
+sub _load_value {
+  return $_[1] if $_[1] !~ m/^---/;
+
+  my $value;
+  eval {
+    $value = YAML::Load($_[1]);
+    1;
+  } or return $_[1];
+
+  return $value;
 }
 
 sub destroy_session {
@@ -606,15 +620,13 @@ sub create_or_refresh_session {
 sub set_session_value {
   $main::lxdebug->enter_sub();
 
-  my $self  = shift;
+  my $self   = shift;
+  my %params = @_;
 
   $self->{SESSION} ||= { };
 
-  while (2 <= scalar @_) {
-    my $key   = shift;
-    my $value = shift;
-
-    $self->{SESSION}->{$key} = $value;
+  while (my ($key, $value) = each %params) {
+    $self->{SESSION}->{ $key } = YAML::Dump($value);
   }
 
   $main::lxdebug->leave_sub();
