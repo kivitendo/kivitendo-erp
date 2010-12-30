@@ -1,5 +1,7 @@
 package SL::Controller::Base;
 
+use strict;
+
 use parent qw(Rose::Object);
 
 use Carp;
