@@ -84,9 +84,8 @@ sub run {
       if ($auth->session_tables_present()) {
         $::auth->set_session_value('rpw', $::form->{rpw});
         $::auth->create_or_refresh_session();
+        _apply_dbupgrade_scripts();
       }
-
-      _apply_dbupgrade_scripts();
 
       call_sub($locale->findsub($form->{action}));
     }
