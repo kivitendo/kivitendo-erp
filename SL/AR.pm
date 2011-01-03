@@ -171,7 +171,7 @@ sub post_transaction {
         # insert detail records in acc_trans
         $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
                      VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
-        @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"amount_$i"}), conv_i($form->{"amount_$i"}), conv_date($form->{transdate}), $project_id,
+        @values = (conv_i($form->{id}), $form->{AR_amounts}{"amount_$i"}, conv_i($form->{"amount_$i"}), conv_date($form->{transdate}), $project_id,
                    conv_i($form->{"taxkey_$i"}));
         do_query($form, $dbh, $query, @values);
 
@@ -179,7 +179,7 @@ sub post_transaction {
           # insert detail records in acc_trans
           $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
                        VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
-          @values = (conv_i($form->{id}), conv_i($form->{AR_amounts}{"tax_$i"}), conv_i($form->{"tax_$i"}), conv_date($form->{transdate}), $project_id,
+          @values = (conv_i($form->{id}), $form->{AR_amounts}{"tax_$i"}, conv_i($form->{"tax_$i"}), conv_date($form->{transdate}), $project_id,
                      conv_i($form->{"taxkey_$i"}));
           do_query($form, $dbh, $query, @values);
         }
