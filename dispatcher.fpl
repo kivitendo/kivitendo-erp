@@ -6,10 +6,10 @@ use FCGI;
 use SL::Dispatcher;
 use SL::FCGIFixes;
 
-SL::FCGIFixes::apply_fixes();
-
 our $dispatcher = SL::Dispatcher->new('FastCGI');
-$dispatcher->pre_startup;
+$dispatcher->pre_startup_setup;
+SL::FCGIFixes::apply_fixes();
+$dispatcher->pre_startup_checks;
 
 my $request = FCGI::Request();
 $dispatcher->handle_request($request) while $request->Accept() >= 0;
