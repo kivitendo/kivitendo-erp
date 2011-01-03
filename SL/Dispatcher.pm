@@ -147,7 +147,8 @@ sub _run_controller {
 }
 
 sub handle_request {
-  my $self = shift;
+  my $self         = shift;
+  $self->{request} = shift;
 
   $::lxdebug->enter_sub;
   $::lxdebug->begin_request;
@@ -304,6 +305,12 @@ sub _route_controller_request {
   };
 
   return ($controller, $action);
+}
+
+sub get_standard_filehandles {
+  my $self = shift;
+
+  return $self->{interface} =~ m/f(?:ast)cgi/i ? $self->{request}->GetHandles() : (\*STDIN, \*STDOUT, \*STDERR);
 }
 
 package main;

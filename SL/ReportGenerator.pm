@@ -686,17 +686,26 @@ sub _print_content {
   }
 }
 
-sub unescape_string {
-  my ($self, $text, $do_iconv) = @_;
+sub _handle_quoting_and_encoding {
+  my ($self, $text, $do_unquote) = @_;
 
-  $text = $main::locale->unquote_special_chars('HTML', $text);
-  $text = $::locale->{iconv}->convert($text) if $do_iconv;
+  $text = $main::locale->unquote_special_chars('HTML', $text) if $do_unquote;
+  $text = Encode::encode('UTF-8', $text) if $::locale->is_utf8;
 
   return $text;
 }
 
 sub generate_csv_content {
-  my $self = shift;
+  my $self   = shift;
+  my $stdout = ($::dispatcher->get_standard_filehandles)[1];
+
+  # Text::CSV_XS seems to downgrade to bytes already (see
+  # SL/FCGIFixes.pm). Therefore don't let FCGI do that again.
+  $::locale->with_raw_io($stdout, sub { $self->_generate_csv_content($stdout) });
+}
+
+sub _generate_csv_content {
+  my ($self, $stdout) = @_;
 
   my %valid_sep_chars    = (';' => ';', ',' => ',', ':' => ':', 'TAB' => "\t");
   my %valid_escape_chars = ('"' => 1, "'" => 1);
@@ -718,13 +727,9 @@ sub generate_csv_content {
 
   my @visible_columns = $self->get_visible_columns('CSV');
 
-  my $stdout;
-  open $stdout, '>-';
-  binmode $stdout, ':encoding(utf8)' if $::locale->is_utf8;
-
   if ($opts->{headers}) {
     if (!$self->{custom_headers}) {
-      $csv->print($stdout, [ map { $self->unescape_string($self->{columns}->{$_}->{text}, 1) } @visible_columns ]);
+      $csv->print($stdout, [ map { $self->_handle_quoting_and_encoding($self->{columns}->{$_}->{text}, 1) } @visible_columns ]);
 
     } else {
       foreach my $row (@{ $self->{custom_headers} }) {
@@ -732,7 +737,7 @@ sub generate_csv_content {
 
         foreach my $col (@{ $row }) {
           my $num_output = ($col->{colspan} && ($col->{colspan} > 1)) ? $col->{colspan} : 1;
-          push @{ $fields }, ($self->unescape_string($col->{text})) x $num_output;
+          push @{ $fields }, ($self->_handle_quoting_and_encoding($col->{text}, 1)) x $num_output;
         }
 
         $csv->print($stdout, $fields);
@@ -754,7 +759,7 @@ sub generate_csv_content {
         my $num_output = ($row->{$col}{colspan} && ($row->{$col}->{colspan} > 1)) ? $row->{$col}->{colspan} : 1;
         $skip_next     = $num_output - 1;
 
-        push @data, join($eol, map { s/\r?\n/$eol/g; $_ } @{ $row->{$col}->{data} });
+        push @data, join($eol, map { s/\r?\n/$eol/g; $self->_handle_quoting_and_encoding($_, 0) } @{ $row->{$col}->{data} });
         push @data, ('') x $skip_next if ($skip_next);
       }
 

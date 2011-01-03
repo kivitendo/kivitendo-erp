@@ -8,7 +8,7 @@ use SL::FCGIFixes;
 
 SL::FCGIFixes::apply_fixes();
 
-my $dispatcher = SL::Dispatcher->new('FastCGI');
+our $dispatcher = SL::Dispatcher->new('FastCGI');
 $dispatcher->pre_startup;
 
 my $request = FCGI::Request();
