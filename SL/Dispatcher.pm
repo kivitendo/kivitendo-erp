@@ -22,6 +22,15 @@ use File::Basename;
 # number 'die' was called in.
 use constant END_OF_REQUEST => "END-OF-REQUEST\n";
 
+sub new {
+  my ($class, $interface) = @_;
+
+  my $self           = bless {}, $class;
+  $self->{interface} = lc($interface || 'cgi');
+
+  return $self;
+}
+
 sub pre_request_checks {
   if (!$::auth->session_tables_present) {
     if ($::form->{script} eq 'admin.pl') {
@@ -138,15 +147,16 @@ sub _run_controller {
 }
 
 sub handle_request {
+  my $self = shift;
+
   $::lxdebug->enter_sub;
   $::lxdebug->begin_request;
 
-  my $interface = lc(shift || 'cgi');
   my ($script, $path, $suffix, $script_name, $action, $routing_type);
 
   $script_name = $ENV{SCRIPT_NAME};
 
-  unrequire_bin_mozilla($interface);
+  $self->unrequire_bin_mozilla;
 
   $::cgi         = CGI->new('');
   $::locale      = Locale->new($::language);
@@ -230,7 +240,8 @@ sub handle_request {
 }
 
 sub unrequire_bin_mozilla {
-  return unless $_[0] =~ m/^(?:fastcgi|fcgid|fcgi)$/;
+  my $self = shift;
+  return unless $self->{interface} =~ m/^(?:fastcgi|fcgid|fcgi)$/;
 
   for (keys %INC) {
     next unless m#^bin/mozilla/#;
