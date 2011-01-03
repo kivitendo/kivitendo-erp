@@ -4,7 +4,8 @@ use strict;
 
 use SL::Dispatcher;
 
-SL::Dispatcher::pre_startup();
-SL::Dispatcher::handle_request('CGI');
+our $dispatcher = SL::Dispatcher->new('CGI');
+$dispatcher->pre_startup;
+$dispatcher->handle_request;
 
 1;

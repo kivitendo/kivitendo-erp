@@ -84,9 +84,8 @@ sub run {
       if ($auth->session_tables_present()) {
         $::auth->set_session_value('rpw', $::form->{rpw});
         $::auth->create_or_refresh_session();
+        _apply_dbupgrade_scripts();
       }
-
-      _apply_dbupgrade_scripts();
 
       call_sub($locale->findsub($form->{action}));
     }
@@ -363,7 +362,11 @@ sub add_user {
     "dateformat"   => "dd.mm.yy",
     "stylesheet"   => "lx-office-erp.css",
     "menustyle"    => "old",
+    dbport         => $::auth->{DB_config}->{port} || 5432,
+    dbuser         => $::auth->{DB_config}->{user} || 'lxoffice',
+    dbhost         => $::auth->{DB_config}->{host} || 'localhost',
   };
+
 
   edit_user_form($myconfig);
 }
@@ -650,10 +653,10 @@ sub dbselect_source {
   my $form           = $main::form;
   my $locale         = $main::locale;
 
-  $form->{dbport}    = '5432';
-  $form->{dbuser}    = 'lxoffice';
+  $form->{dbport}    = $::auth->{DB_config}->{port} || 5432;
+  $form->{dbuser}    = $::auth->{DB_config}->{user} || 'lxoffice';
   $form->{dbdefault} = 'template1';
-  $form->{dbhost}    = 'localhost';
+  $form->{dbhost}    = $::auth->{DB_config}->{host} || 'localhost';
 
   $form->{title}     = "Lx-Office ERP / " . $locale->text('Database Administration');
 
