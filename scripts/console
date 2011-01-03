@@ -78,7 +78,11 @@ sub lxinit {
   require "bin/mozilla/common.pl";
 
   die "cannot find user $login"            unless %::myconfig = $::auth->read_user($login);
+
+  $::form->{login} = $login; # normaly implicit at login
+
   die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode});
+
 
   return "logged in as $login";
 }
