@@ -1873,12 +1873,12 @@ sub set_payment_options {
   my $dbh = $self->get_standard_dbh($myconfig);
 
   my $query =
-    qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long | .
+    qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long , p.description | .
     qq|FROM payment_terms p | .
     qq|WHERE p.id = ?|;
 
   ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto},
-   $self->{payment_terms}) =
+   $self->{payment_terms}, $self->{payment_description}) =
      selectrow_query($self, $dbh, $query, $self->{payment_id});
 
   if ($transdate eq "") {
