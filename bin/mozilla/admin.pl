@@ -650,10 +650,10 @@ sub dbselect_source {
   my $form           = $main::form;
   my $locale         = $main::locale;
 
-  $form->{dbport}    = '5432';
-  $form->{dbuser}    = 'lxoffice';
+  $form->{dbport}    = $::auth->{DB_config}->{port} || 5432;
+  $form->{dbuser}    = $::auth->{DB_config}->{user} || 'lxoffice';
   $form->{dbdefault} = 'template1';
-  $form->{dbhost}    = 'localhost';
+  $form->{dbhost}    = $::auth->{DB_config}->{host} || 'localhost';
 
   $form->{title}     = "Lx-Office ERP / " . $locale->text('Database Administration');
 
