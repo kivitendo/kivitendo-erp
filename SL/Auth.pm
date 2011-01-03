@@ -13,6 +13,7 @@ use SL::Auth::DB;
 use SL::Auth::LDAP;
 
 use SL::User;
+use SL::DBUpgrade2;
 use SL::DBUtils;
 
 use strict;
@@ -303,7 +304,7 @@ sub create_tables {
   $charset     ||= Common::DEFAULT_CHARSET;
 
   $dbh->rollback();
-  User->process_query($main::form, $dbh, 'sql/auth_db.sql', undef, $charset);
+  SL::DBUpgrade2->new(form => $::form)->process_query($dbh, 'sql/auth_db.sql', undef, $charset);
 
   $main::lxdebug->leave_sub();
 }
