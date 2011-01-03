@@ -1610,7 +1610,7 @@ sub post {
 
   remove_draft() if $form->{remove_draft};
 
-  $form->{callback} = build_std_url("action=add", "show_details");
+  $form->{callback} = build_std_url("action=add&DONT_LOAD_DRAFT=1", "show_details");
   $form->redirect($form->{callback});
 
   $main::lxdebug->leave_sub();

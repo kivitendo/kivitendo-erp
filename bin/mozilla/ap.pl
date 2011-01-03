@@ -92,7 +92,7 @@ sub add {
 
   $form->{title} = "Add";
 
-  $form->{callback} = "ap.pl?action=add" unless $form->{callback};
+  $form->{callback} = "ap.pl?action=add&DONT_LOAD_DRAFT=1" unless $form->{callback};
 
   AP->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
