@@ -362,7 +362,11 @@ sub add_user {
     "dateformat"   => "dd.mm.yy",
     "stylesheet"   => "lx-office-erp.css",
     "menustyle"    => "old",
+    dbport         => $::auth->{DB_config}->{port} || 5432,
+    dbuser         => $::auth->{DB_config}->{user} || 'lxoffice',
+    dbhost         => $::auth->{DB_config}->{host} || 'localhost',
   };
+
 
   edit_user_form($myconfig);
 }
