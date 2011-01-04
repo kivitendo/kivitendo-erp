@@ -26,6 +26,7 @@
   - Zahlungsein- und ausgänge um Suche nach Rechnungsnummer erweitert
   - Anzeige von Bildern in Artikelmaske und Wahlmöglichkeit Defaultwert für
     Bilder in Artikelsuche via Configparameter in config/lx-erp.conf
+  - Kundentyp in Rechnungssuche auch als Wert in Rechnungsübersicht anzeigen und exportieren
 
   API Änderungen:
 
@@ -45,7 +46,13 @@
 
   Liste gefixter Bugs aus dem Bugtracker:
 
+
+   - Bug 1388 -  Berichte sind defekt, wenn abweichendes Datumsformat (ISO) eingestellt ist
+   - Bug 1395 -  Einlagern ueber Lieferschein: Einheiten entsprechen nicht den Standardeinheiten der Artikel
+   - Bug 1398 -  Im Lagerjournal werden Projektnummern nicht erfasst 
    - Bug 1409 -  Bei "Erzeugnis fertigen" wird nur der Bestand der letzten Komponente geprüft
+   - Bug 1412 -  Wenn die Ware ausgewählt werden muss wird der Rabatt verworfen
+   - Bug 1421 -  Stornorechnungen loeschen bereitet Probleme
    - Bug 1484 -  Das Ankreuzfeld 'alle' hat keine Funktion wenn man einen Auswahlliste (multibox) an Lieferanten hat
                  Es wird trotzdem nach der Auswahlliste gefiltert und die Option 'alle' wird
                  ignoriert auch wenn man auf Erneuern klickt.
