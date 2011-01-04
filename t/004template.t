@@ -56,7 +56,7 @@ my $fh;
 
 # test master files for <translate> tag
 foreach my $ref (@Support::Templates::referenced_files) {
-    my $file = "${template_path}${ref}_master.html";
+    my $file = "${template_path}${ref}.html";
     my $data = read_file($file) || die "??? couldn't open $file";
     if ($data =~ /<translate>/) {
         ok(0, "$file uses deprecated <translate> tags.");
