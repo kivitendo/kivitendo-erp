@@ -207,8 +207,6 @@ will modify the input arrays.
 As cross expects an array but returns a list it is not directly chainable
 at the moment. This will be corrected in the future.
 
-=back
-
 =item ary_to_hash INDEX_KEY, VALUE_KEY, ARRAY
 
 Returns a hash with the content of ARRAY based on the values of
