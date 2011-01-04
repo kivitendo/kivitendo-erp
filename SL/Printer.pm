@@ -1,5 +1,7 @@
 package SL::Printer;
 
+use strict;
+
 use SL::DBUtils;
 
 sub all_printers {
