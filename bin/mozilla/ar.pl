@@ -1346,7 +1346,7 @@ sub ar_transactions {
   @columns =
     qw(transdate id type invnumber ordnumber name netamount tax amount paid
        datepaid due duedate transaction_description notes salesman employee shippingpoint shipvia
-       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts);
+       marge_total marge_percent globalprojectnumber customernumber country ustid taxzone payment_terms charts customertype);
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", qw(open closed customer invnumber ordnumber transaction_description notes project_id transdatefrom transdateto);
@@ -1382,6 +1382,7 @@ sub ar_transactions {
     'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
     'payment_terms'           => { 'text' => $locale->text('Payment Terms'), },
     'charts'                  => { 'text' => $locale->text('Buchungskonto'), },
+    'customertype'            => { 'text' => $locale->text('Customer type'), },
   );
 
   foreach my $name (qw(id transdate duedate invnumber ordnumber name datepaid employee shippingpoint shipvia transaction_description)) {
