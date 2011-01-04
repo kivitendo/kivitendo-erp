@@ -55,7 +55,7 @@ sub render {
       my $content_type  = $options->{type} eq 'js' ? 'text/javascript' : 'text/html';
 
       print $::form->create_http_response(content_type => $content_type,
-                                          charset      => $::dbcharset || Common::DEFAULT_CHARSET);
+                                          charset      => $::dbcharset || Common::DEFAULT_CHARSET());
 
     } else {
       $::form->{title} = $locals{title} if $locals{title};
