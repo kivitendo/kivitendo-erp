@@ -47,10 +47,10 @@ SQL
 
   do_query($query, 0);
 
-  my %entries_by_trans_id;
+  my %skipped_acc_trans_ids;
   foreach my $entry (@entries) {
-    if (!$entries_by_trans_id{ $entry->{trans_id} }) {
-      $entries_by_trans_id{ $entry->{trans_id} } = [];
+    if (!$skipped_acc_trans_ids{ $entry->{acc_trans_id} }) {
+      $skipped_acc_trans_ids{ $entry->{acc_trans_id} } = 1;
     } else {
       my $mtime = $entry->{mtime} ? "= '$entry->{mtime}'" : 'IS NULL';
       $query    = <<SQL;
