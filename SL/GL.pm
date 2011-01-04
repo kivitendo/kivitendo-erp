@@ -707,7 +707,7 @@ sub storno {
   my $rowref = selectall_hashref_query($form, $dbh, $query, $id);
 
   for my $row (@$rowref) {
-    delete @$row{qw(itime mtime)};
+    delete @$row{qw(itime mtime acc_trans_id)};
     $query = sprintf 'INSERT INTO acc_trans (%s) VALUES (%s)', join(', ', keys %$row), join(', ', map '?', values %$row);
     $row->{trans_id}   = $new_id;
     $row->{amount}    *= -1;
