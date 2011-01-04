@@ -223,6 +223,10 @@
            <td nowrap>[% 'Payment Terms' | $T8 %]</td>
            <td align=right><input name="l_charts" class=checkbox type=checkbox value=Y></td>
            <td nowrap>[% 'Buchungskonto' | $T8 %]</td>
+           [% IF SHOW_BUSINESS_TYPES %]
+             <td align=right><input name="l_customertype" class=checkbox type=checkbox value=Y></td>
+             <td nowrap>[% 'Customer type' | $T8 %]</td>
+           [% END %]
           </tr>
          </table>
         </td>
