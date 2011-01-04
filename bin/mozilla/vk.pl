@@ -252,9 +252,9 @@ sub invoice_transactions {
       my $name;
       my $headerrow;
       if ( $form->{mainsort} eq 'parts_id' ) {
-	$headerrow->{description}->{data} = "$ar->{description}";
+        $headerrow->{description}->{data} = "$ar->{description}";
       } else {
-	$headerrow->{description}->{data} = "$ar->{name}";
+        $headerrow->{description}->{data} = "$ar->{name}";
       };
       $headerrow->{description}->{class} = "listmainsortheader";
       my $headerrow_set = [ $headerrow ];
