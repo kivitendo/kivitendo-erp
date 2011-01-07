@@ -108,26 +108,14 @@ sub post_transaction {
 
     my ($tax, $diff);
     if ($form->{taxincluded} *= 1) {
-      if (!$form->{"korrektur_$i"}) {
-        $tax =
-          $form->{"amount_$i"} -
-          ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1));
-      } else {
-        $tax = $form->{"tax_$i"};
-      }
+      $tax = $form->{"amount_$i"} - ($form->{"amount_$i"} / ($form->{"taxrate_$i"} + 1));
       $amount = $form->{"amount_$i"} - $tax;
       $form->{"amount_$i"} = $form->round_amount($amount, 2);
       $diff += $amount - $form->{"amount_$i"};
       $form->{"tax_$i"} = $form->round_amount($tax, 2);
       $form->{netamount} += $form->{"amount_$i"};
     } else {
-      if (!$form->{"korrektur_$i"}) {
-        $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
-      } else {
-        $tax = $form->{"tax_$i"};
-      }
-      $form->{"tax_$i"} =
-        $form->round_amount($form->{"tax_$i"} * $form->{exchangerate}, 2);
+      $form->{"tax_$i"} = $form->{"amount_$i"} * $form->{"taxrate_$i"};
       $form->{netamount} += $form->{"amount_$i"};
     }
     $form->{total_tax} += $form->{"tax_$i"} * -1;
