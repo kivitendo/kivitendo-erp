@@ -7,6 +7,11 @@ our @ISA       = qw(Exporter);
 our @EXPORT    = qw(flash flash_later);
 our @EXPORT_OK = qw(render_flash);
 
+my %valid_categories = (
+  map({$_ => 'info'} qw(information message)),
+  map({$_ => $_}     qw(info error warning)),
+);
+
 #
 # public functions
 #
@@ -29,14 +34,19 @@ sub render_flash {
 
 sub _store_flash {
   my $store    = shift || { };
-  my $category = shift;
-  $category    = 'info' if $category eq 'information';
+  my $category = _check_category(+shift);
 
   $store                ||= { };
   $store->{ $category } ||= [ ];
   push @{ $store->{ $category } }, @_;
 
   return $store;
+}
+
+sub _check_category {
+  my ($c) = @_;
+  return $valid_categories{$c}
+    || die 'invalid category for flash';
 }
 
 1;
