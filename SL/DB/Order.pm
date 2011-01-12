@@ -34,6 +34,8 @@ __PACKAGE__->meta->initialize;
 
 # methods
 
+sub items { goto &orderitems; }
+
 sub type {
   my $self = shift;
 

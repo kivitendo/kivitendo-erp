@@ -25,6 +25,8 @@ __PACKAGE__->meta->initialize;
 
 # methods
 
+sub items { goto &invoiceitems; }
+
 # it is assumed, that ordnumbers are unique here.
 sub first_order_by_ordnumber {
   my $self = shift;

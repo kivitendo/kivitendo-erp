@@ -19,6 +19,8 @@ __PACKAGE__->meta->initialize;
 
 # methods
 
+sub items { goto &orderitems; }
+
 sub sales_order {
   my $self   = shift;
   my %params = @_;
