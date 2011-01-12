@@ -142,6 +142,25 @@ Returns one of the following string types:
 
 Rreturns true if the order is of the given type.
 
+=item C<convert_to_invoice %params>
+
+Creates a new invoice with C<$self> as the basis by calling
+L<SL::DB::Invoice::new_from>. That invoice is posted, and C<$self> is
+linked to the new invoice via L<SL::DB::RecordLink>. C<$self>'s
+C<closed> attribute is set to C<true>, and C<$self> is saved.
+
+The arguments in C<%params> are passed to
+L<SL::DB::Invoice::post>. One parameter of note is
+C<$paras{ar_id}>. If set it must be the ID of the accounts receivables
+chart to post to. If it is not set then the first chart configured for
+accounts receivables is used.
+
+Returns the new invoice instance on success and C<undef> on failure.
+
+At the moment only sales quotations and sales orders can be converted.
+
+=back
+
 =head1 BUGS
 
 Nothing here yet.
