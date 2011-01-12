@@ -86,18 +86,6 @@ sub end_invoice {
   return shift()->invoices(query => [ abschlag => 0 ]);
 }
 
-sub convert_to {
-  my ($self, %params) = @_;
-
-  my $destination_type = lc(delete $params{destination_type});
-
-  if ($destination_type eq 'invoice') {
-    $self->convert_to_invoice(%params);
-  } else {
-    croak("Unsupported destination type `$destination_type'");
-  }
-}
-
 sub convert_to_invoice {
   my ($self, %params) = @_;
 
