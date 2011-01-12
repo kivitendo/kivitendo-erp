@@ -27,7 +27,7 @@ sub run {
   my $run_at  = DateTime->now_local;
   my $history;
 
-  eval {
+  my $ok = eval {
     my $result = $package->new->run($self);
 
     $history = SL::DB::BackgroundJobHistory
@@ -41,7 +41,7 @@ sub run {
     1;
   };
 
-  if ($EVAL_ERROR) {
+  if (!$ok) {
     $history = SL::DB::BackgroundJobHistory
       ->new(package_name => $self->package_name,
             run_at       => $run_at,
