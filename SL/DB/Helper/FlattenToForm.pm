@@ -10,7 +10,7 @@ use List::MoreUtils qw(any);
 use SL::CVar;
 
 sub flatten_to_form {
-  my ($self, $form, $format_amounts) = @_;
+  my ($self, $form, %params) = @_;
 
   my $vc = $self->can('customer_id') && $self->customer_id ? 'customer' : 'vendor';
 
@@ -49,6 +49,7 @@ sub flatten_to_form {
   $form->{rowcount}   = scalar(@{ $self->items });
 
   my $idx = 0;
+  my $format_amounts = $params{format_amounts};
   foreach my $item (@{ $self->items }) {
     next if _has($item, 'assemblyitem');
 
