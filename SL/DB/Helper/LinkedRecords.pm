@@ -17,14 +17,16 @@ sub linked_records {
 
   my %sort_spec       = ( by  => delete($params{sort_by}),
                           dir => delete($params{sort_dir}) );
+  my $filter          =  delete $params{filter};
 
-  my $records         = _linked_records_implementation($self, %params);
+  my $records         = linked_records_implementation($self, %params);
+  $records            = filter_linked_records($self, $filter, @{ $records })                       if $filter;
   $records            = sort_linked_records($self, $sort_spec{by}, $sort_spec{dir}, @{ $records }) if $sort_spec{by};
 
   return $records;
 }
 
-sub _linked_records_implementation {
+sub linked_records_implementation {
   my $self     = shift;
   my %params   = @_;
 
@@ -35,8 +37,8 @@ sub _linked_records_implementation {
     my %from_to    = ( from => delete($params{from}) || $both,
                        to   => delete($params{to})   || $both);
 
-    my @records    = (@{ _linked_records_implementation($self, %params, direction => 'from', from => $from_to{from}) },
-                      @{ _linked_records_implementation($self, %params, direction => 'to',   to   => $from_to{to}  ) });
+    my @records    = (@{ linked_records_implementation($self, %params, direction => 'from', from => $from_to{from}) },
+                      @{ linked_records_implementation($self, %params, direction => 'to',   to   => $from_to{to}  ) });
 
     my %record_map = map { ( ref($_) . $_->id => $_ ) } @records;
 
@@ -171,6 +173,19 @@ sub sort_linked_records {
   return [ sort($comparator @records) ];
 }
 
+sub filter_linked_records {
+  my ($self_or_class, $filter, @records) = @_;
+
+  if ($filter eq 'accessible') {
+    my $employee = SL::DB::Manager::Employee->current;
+    @records     = grep { !$_->can('may_be_accessed') || $_->may_be_accessed($employee) } @records;
+  } else {
+    croak "Unsupported filter parameter '${filter}'";
+  }
+
+  return \@records;
+}
+
 1;
 
 __END__
@@ -217,6 +232,19 @@ created today:
 The optional parameters C<$params{sort_by}> and C<$params{sort_dir}>
 can be used in order to sort the result. If C<$params{sort_by}> is
 trueish then the result is sorted by calling L</sort_linked_records>.
+
+The optional parameter C<$params{filter}> controls whether or not the
+result is filtered. Supported values are:
+
+=over 2
+
+=item C<accessible>
+
+Removes all objects for which the function C<may_be_accessed> from the
+mixin L<SL::DB::Helper::MayBeAccessed> exists and returns falsish for
+the current employee.
+
+=back
 
 Returns an array reference.
 
