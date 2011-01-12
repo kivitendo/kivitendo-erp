@@ -4,3 +4,4 @@ crm
 /users/templates-cache/
 /users/pid/
 /config/task_server.conf
+/config/periodic_invoices.conf

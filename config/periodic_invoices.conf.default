@@ -1,0 +1,5 @@
+[periodic_invoices]
+send_email     = 1
+email_from     = Lx-Office Daemon <root@localhost>
+email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
+email_template = templates/webpages/oe/periodic_invoices_email.txt
