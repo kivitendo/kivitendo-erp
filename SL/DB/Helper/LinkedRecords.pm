@@ -75,14 +75,14 @@ sub link_to_record {
   my @links;
 
   foreach my $direction (@directions) {
-    my %params = ( $direction->[0] . "_table" => SL::DB::Helper::Mappings::get_table_for_package(ref($self)),
-                   $direction->[0] . "_id"    => $self->id,
-                   $direction->[1] . "_table" => SL::DB::Helper::Mappings::get_table_for_package(ref($other)),
-                   $direction->[1] . "_id"    => $other->id,
-                 );
+    my %data = ( $direction->[0] . "_table" => SL::DB::Helper::Mappings::get_table_for_package(ref($self)),
+                 $direction->[0] . "_id"    => $self->id,
+                 $direction->[1] . "_table" => SL::DB::Helper::Mappings::get_table_for_package(ref($other)),
+                 $direction->[1] . "_id"    => $other->id,
+               );
 
-    my $link = SL::DB::Manager::RecordLink->find_by(and => [ %params ]);
-    push @links, $link ? $link : SL::DB::RecordLink->new(%params)->save unless $link;
+    my $link = SL::DB::Manager::RecordLink->find_by(and => [ %data ]);
+    push @links, $link ? $link : SL::DB::RecordLink->new(%data)->save unless $link;
   }
 
   return wantarray ? @links : $links[0];
