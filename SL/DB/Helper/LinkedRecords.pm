@@ -4,7 +4,7 @@ use strict;
 
 require Exporter;
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(linked_records link_to_record linked_records_sorted);
+our @EXPORT = qw(linked_records link_to_record);
 
 use Carp;
 use Sort::Naturally;
@@ -13,6 +13,18 @@ use SL::DB::Helpers::Mappings;
 use SL::DB::RecordLink;
 
 sub linked_records {
+  my ($self, %params) = @_;
+
+  my %sort_spec       = ( by  => delete($params{sort_by}),
+                          dir => delete($params{sort_dir}) );
+
+  my $records         = _linked_records_implementation($self, %params);
+  $records            = sort_linked_records($self, $sort_spec{by}, $sort_spec{dir}, @{ $records }) if $sort_spec{by};
+
+  return $records;
+}
+
+sub _linked_records_implementation {
   my $self     = shift;
   my %params   = @_;
 
@@ -23,8 +35,8 @@ sub linked_records {
     my %from_to    = ( from => delete($params{from}) || $both,
                        to   => delete($params{to})   || $both);
 
-    my @records    = (@{ $self->linked_records(%params, direction => 'from', from => $from_to{from}) },
-                      @{ $self->linked_records(%params, direction => 'to',   to   => $from_to{to}  ) });
+    my @records    = (@{ _linked_records_implementation($self, %params, direction => 'from', from => $from_to{from}) },
+                      @{ _linked_records_implementation($self, %params, direction => 'to',   to   => $from_to{to}  ) });
 
     my %record_map = map { ( ref($_) . $_->id => $_ ) } @records;
 
@@ -86,12 +98,6 @@ sub link_to_record {
   }
 
   return wantarray ? @links : $links[0];
-}
-
-sub linked_records_sorted {
-  my ($self, $sort_by, $sort_dir, %params) = @_;
-
-  return sort_linked_records($self, $sort_by, $sort_dir, $self->linked_records(%params));
 }
 
 sub sort_linked_records {
@@ -208,6 +214,10 @@ created today:
                                         to        => 'SL::DB::Invoice',
                                         query     => [ transdate => DateTime->today_local ]);
 
+The optional parameters C<$params{sort_by}> and C<$params{sort_dir}>
+can be used in order to sort the result. If C<$params{sort_by}> is
+trueish then the result is sorted by calling L</sort_linked_records>.
+
 Returns an array reference.
 
 =item C<link_to_record $record, %params>
@@ -259,19 +269,12 @@ Can be called both as a class or as an instance function.
 
 This function is not exported.
 
-=item C<linked_records_sorted $sort_by, $sort_dir, %params>
-
-Returns the result of L</linked_records> sorted by
-L</sort_linked_records>. C<%params> is passed to
-L</linked_records>. C<$sort_by> and C<$sort_dir> are passed to
-L</sort_linked_records>.
-
 =back
 
 =head1 EXPORTS
 
-This mixin exports the functions L</linked_records>,
-L</link_to_record> and L</linked_records_sorted>.
+This mixin exports the functions L</linked_records> and
+L</link_to_record>.
 
 =head1 BUGS
 
