@@ -8,6 +8,8 @@ use SL::RecordLinks;
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
 use SL::DB::Invoice;
+use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::PriceTaxCalculator;
 
 __PACKAGE__->meta->add_relationship(
   orderitems => {

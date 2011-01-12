@@ -9,6 +9,8 @@ use List::Util qw(first);
 
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
+use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::PriceTaxCalculator;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
