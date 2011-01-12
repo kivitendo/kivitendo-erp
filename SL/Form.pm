@@ -48,6 +48,7 @@ use SL::Auth;
 use SL::Auth::DB;
 use SL::Auth::LDAP;
 use SL::AM;
+use SL::DB;
 use SL::Common;
 use SL::DBUtils;
 use SL::Mailer;
@@ -1580,7 +1581,7 @@ sub get_standard_dbh {
     undef $standard_dbh;
   }
 
-  $standard_dbh ||= $self->dbconnect_noauto($myconfig);
+  $standard_dbh ||= SL::DB::create->dbh;
 
   $main::lxdebug->leave_sub(2);
 
