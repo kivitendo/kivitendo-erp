@@ -2,7 +2,7 @@ package SL::DB::Helpers::LinkedRecords;
 
 require Exporter;
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(linked_records);
+our @EXPORT = qw(linked_records link_to_record);
 
 use Carp;
 
@@ -40,6 +40,23 @@ sub linked_records {
   }
 
   return $records;
+}
+
+sub link_to_record {
+  my $self   = shift;
+  my $other  = shift;
+
+  croak "self has no id"  unless $self->id;
+  croak "other has no id" unless $other->id;
+
+  my %params = ( from_table => SL::DB::Helpers::Mappings::get_table_for_package(ref($self)),
+                 from_id    => $self->id,
+                 to_table   => SL::DB::Helpers::Mappings::get_table_for_package(ref($other)),
+                 to_id      => $other->id,
+               );
+
+  my $link = SL::DB::Manager::RecordLink->find_by(and => [ %params ]);
+  return $link ? $link : SL::DB::RecordLink->new(%params)->save;
 }
 
 1;
@@ -81,6 +98,15 @@ created today:
                                         query     => [ transdate => DateTime->today_local ]);
 
 Returns an array reference.
+
+=item C<link_to_record $record>
+
+Will create an entry in the table C<record_links> with the C<from>
+side being C<$self> and the C<to> side being C<$record>. Will only
+insert a new entry if such a link does not already exist.
+
+Returns either the existing link or the newly created one as an
+instance of C<SL::DB::RecordLink>.
 
 =back
 
