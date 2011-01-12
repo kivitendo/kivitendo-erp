@@ -53,6 +53,8 @@ use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::PartsTax;
 use SL::DB::PaymentTerm;
+use SL::DB::PeriodicInvoice;
+use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::PriceFactor;
 use SL::DB::Pricegroup;
 use SL::DB::Prices;

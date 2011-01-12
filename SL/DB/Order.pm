@@ -17,7 +17,17 @@ __PACKAGE__->meta->add_relationship(
     manager_args => {
       with_objects => [ 'part' ]
     }
-  }
+  },
+  periodic_invoices_config => {
+    type                   => 'one to one',
+    class                  => 'SL::DB::PeriodicInvoicesConfig',
+    column_map             => { id => 'oe_id' },
+  },
+  periodic_invoices        => {
+    type                   => 'one to many',
+    class                  => 'SL::DB::PeriodicInvoice',
+    column_map             => { id => 'oe_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
