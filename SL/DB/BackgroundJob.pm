@@ -46,7 +46,7 @@ sub run {
       ->new(package_name => $self->package_name,
             run_at       => $run_at,
             status       => 'failure',
-            error        => $EVAL_ERROR,
+            error_col    => $EVAL_ERROR,
             data         => $self->data);
     $history->save;
   }
