@@ -22,8 +22,9 @@ sub linked_records {
                    "${myself}_id"    => $self->id );
 
   if ($params{$wanted}) {
-    my $wanted_table = SL::DB::Helpers::Mappings::get_table_for_package($params{$wanted}) || croak("Invalid parameter `${wanted}'");
-    push @query, ("${wanted}_table" => $wanted_table);
+    my $wanted_classes = ref($params{$wanted}) eq 'ARRAY' ? $params{$wanted} : [ $params{$wanted} ];
+    my $wanted_tables  = [ map { SL::DB::Helpers::Mappings::get_table_for_package($_) || croak("Invalid parameter `${wanted}'") } @{ $wanted_classes } ];
+    push @query, ("${wanted}_table" => $wanted_tables);
   }
 
   my $links            = SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]);
@@ -82,9 +83,13 @@ to C<$self> (for C<direction> = C<to>) or that are linked from
 C<$self> (for C<direction> = C<from>).
 
 The optional parameter C<from> or C<to> (same as C<direction>)
-contains the package name of a Rose model for table limitation. If you
-only need invoices created from an order C<$order> then the call could
-look like this:
+contains the package names of Rose models for table limitation. It can
+be a single model name as a single scalar or multiple model names in
+an array reference in which case all links matching any of the model
+names will be returned.
+
+If you only need invoices created from an order C<$order> then the
+call could look like this:
 
   my $invoices = $order->linked_records(direction => 'to',
                                         to        => 'SL::DB::Invoice');
