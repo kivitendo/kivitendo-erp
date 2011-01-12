@@ -1,4 +1,4 @@
-package SL::DB::Helpers::LinkedRecords;
+package SL::DB::Helper::LinkedRecords;
 
 use strict;
 
@@ -9,7 +9,7 @@ our @EXPORT = qw(linked_records link_to_record);
 use Carp;
 use Sort::Naturally;
 
-use SL::DB::Helpers::Mappings;
+use SL::DB::Helper::Mappings;
 use SL::DB::RecordLink;
 
 sub linked_records {
@@ -47,14 +47,14 @@ sub linked_records_implementation {
 
   my $myself   = $wanted eq 'from' ? 'to' : $wanted eq 'to' ? 'from' : croak("Invalid parameter `direction'");
 
-  my $my_table = SL::DB::Helpers::Mappings::get_table_for_package(ref($self));
+  my $my_table = SL::DB::Helper::Mappings::get_table_for_package(ref($self));
 
   my @query    = ( "${myself}_table" => $my_table,
                    "${myself}_id"    => $self->id );
 
   if ($params{$wanted}) {
     my $wanted_classes = ref($params{$wanted}) eq 'ARRAY' ? $params{$wanted} : [ $params{$wanted} ];
-    my $wanted_tables  = [ map { SL::DB::Helpers::Mappings::get_table_for_package($_) || croak("Invalid parameter `${wanted}'") } @{ $wanted_classes } ];
+    my $wanted_tables  = [ map { SL::DB::Helper::Mappings::get_table_for_package($_) || croak("Invalid parameter `${wanted}'") } @{ $wanted_classes } ];
     push @query, ("${wanted}_table" => $wanted_tables);
   }
 
@@ -67,8 +67,8 @@ sub linked_records_implementation {
   @query               = ref($params{query}) eq 'ARRAY' ? @{ $params{query} } : ();
 
   foreach my $link (@{ $links }) {
-    my $manager_class = SL::DB::Helpers::Mappings::get_manager_package_for_table($link->$sub_wanted_table);
-    my $object_class  = SL::DB::Helpers::Mappings::get_package_for_table($link->$sub_wanted_table);
+    my $manager_class = SL::DB::Helper::Mappings::get_manager_package_for_table($link->$sub_wanted_table);
+    my $object_class  = SL::DB::Helper::Mappings::get_package_for_table($link->$sub_wanted_table);
     eval "require " . $object_class . "; 1;";
     push @{ $records }, @{ $manager_class->get_all(query => [ id => $link->$sub_wanted_id, @query ]) };
   }
@@ -194,7 +194,7 @@ __END__
 
 =head1 NAME
 
-SL::DB::Helpers::LinkedRecords - Mixin for retrieving linked records via the table C<record_links>
+SL::DB::Helper::LinkedRecords - Mixin for retrieving linked records via the table C<record_links>
 
 =head1 FUNCTIONS
 
