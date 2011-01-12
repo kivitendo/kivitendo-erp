@@ -27,3 +27,36 @@ sub run {
 }
 
 1;
+
+__END__
+
+=encoding utf8
+
+=head1 NAME
+
+SL::BackgroundJob::CleanBackgroundJobHistory - Background job for
+cleaning the history table of all executed jobs
+
+=head1 SYNOPSIS
+
+This background job deletes old entries from the table
+C<background_job_histories>. Each time a job is run an entry is
+created in that table.
+
+The associated C<SL::DB::BackgroundJob> instance's C<data> may be a
+hash containing the retention periods for successful and failed
+jobs. Both are the number of days a history entry is to be kept.  C<<
+$data->{retention_success} >> defaults to 14.  C<<
+$data->{retention_failure} >> defaults to 90.
+
+The job is supposed to run once a day.
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut
