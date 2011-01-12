@@ -1,5 +1,7 @@
 package SL::DB::Helpers::LinkedRecords;
 
+use strict;
+
 require Exporter;
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(linked_records link_to_record);
