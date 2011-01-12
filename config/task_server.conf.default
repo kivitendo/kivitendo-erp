@@ -3,3 +3,5 @@
 login =
 # Set to 1 for debug messages in /tmp/lx-office-debug.log
 debug = 0
+# Chose a system user the daemon should run under when started as root.
+run_as = www

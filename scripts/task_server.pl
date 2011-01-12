@@ -14,6 +14,7 @@ use Daemon::Generic;
 use Data::Dumper;
 use DateTime;
 use English qw(-no_match_vars);
+use POSIX qw(setuid setgid);
 use SL::Auth;
 use SL::DB::BackgroundJob;
 use SL::BackgroundJob::ALL;
@@ -58,6 +59,34 @@ sub lxinit {
   die "cannot find locale for user $login" unless $::locale   = Locale->new('de');
 }
 
+sub drop_privileges {
+  my $user = $::emmvee_conf{task_server}->{run_as};
+  return unless $user;
+
+  my ($uid, $gid);
+  while (my @details = getpwent()) {
+    next unless $details[0] eq $user;
+    ($uid, $gid) = @details[2, 3];
+    last;
+  }
+  endpwent();
+
+  if (!$uid) {
+    print "Error: Cannot drop privileges to ${user}: user does not exist\n";
+    exit 1;
+  }
+
+  if (!setgid($gid)) {
+    print "Error: Cannot drop group privileges to ${user} (group ID $gid): $!\n";
+    exit 1;
+  }
+
+  if (!setuid($uid)) {
+    print "Error: Cannot drop user privileges to ${user} (user ID $uid): $!\n";
+    exit 1;
+  }
+}
+
 sub gd_preconfig {
   my $self = shift;
 
@@ -66,6 +95,7 @@ sub gd_preconfig {
   die "Missing section [task_server] in config file"                unless $config{task_server};
   die "Missing key 'login' in section [task_server] in config file" unless $config{task_server}->{login};
 
+  drop_privileges();
   lxinit();
 
   return ();
