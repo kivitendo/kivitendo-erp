@@ -202,5 +202,87 @@ sub _post_update_allocated {
   }
 }
 
->>>>>>> b6be290... Prototypisiertes Buchen von Rechnungen
 1;
+
+__END__
+
+=pod
+
+=head1 NAME
+
+SL::DB::Invoice: Rose model for invoices (table "ar")
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<new_from $source>
+
+Creates a new C<SL::DB::Invoice> instance and copies as much
+information from C<$source> as possible. At the moment only sales
+orders and sales quotations are supported as sources.
+
+The conversion copies order items into invoice items. Dates are copied
+as appropriate, e.g. the C<transdate> field from an order will be
+copied into the invoice's C<orddate> field.
+
+Amounts, prices and taxes are not
+calculated. L<SL::DB::Helper::PriceTaxCalculator::calculate_prices_and_taxes>
+can be used for this.
+
+The object returned is not saved.
+
+=item C<post %params>
+
+Posts the invoice. Required parameters are:
+
+=over 2
+
+=item * C<ar_id>
+
+The ID of the accounds receivable chart the invoices amounts are
+posted to.
+
+=back
+
+This function implements several steps:
+
+=over 2
+
+=item 1. It calculates all prices, amounts and taxes by calling
+L<SL::DB::Helper::PriceTaxCalculator::calculate_prices_and_taxes>.
+
+=item 2. A new and unique invoice number is created.
+
+=item 3. All amounts for costs of goods sold are recorded in
+C<acc_trans>.
+
+=item 4. All amounts for parts, services and assemblies are recorded
+in C<acc_trans> with their respective charts. This is determined by
+the part's buchungsgruppen.
+
+=item 5. The total amount is posted to the accounts receivable chart
+and recorded in C<acc_trans>.
+
+=item 6. Items in C<invoice> are updated according to their allocation
+status (regarding for costs of goold sold). Will only be done if
+Lx-Office is not configured to use Einnahmenüberschussrechnungen
+(C<$::eur>).
+
+=item 7. The invoice and its items are saved.
+
+=back
+
+Returns C<$self> on success and C<undef> on failure.
+
+=item C<basic_info $field>
+
+See L<SL::DB::Object::basic_info>.
+
+=back
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut
