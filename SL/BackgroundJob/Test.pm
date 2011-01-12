@@ -1,5 +1,7 @@
 package SL::BackgroundJob::Test;
 
+use strict;
+
 use parent qw(SL::BackgroundJob::Base);
 
 sub run {
@@ -8,6 +10,5 @@ sub run {
 
   $::lxdebug->message(0, "Test job is being executed.");
 }
-
 
 1;

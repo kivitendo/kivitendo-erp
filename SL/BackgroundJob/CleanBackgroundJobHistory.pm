@@ -1,5 +1,7 @@
 package SL::BackgroundJob::CleanBackgroundJobHistory;
 
+use strict;
+
 use parent qw(SL::BackgroundJob::Base);
 
 use SL::DB::BackgroundJobHistory;
