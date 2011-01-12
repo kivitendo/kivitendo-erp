@@ -10,6 +10,7 @@ use List::Util qw(first);
 
 use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
+use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;

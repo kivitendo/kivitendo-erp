@@ -10,6 +10,7 @@ use List::Util qw(max);
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
 use SL::DB::Invoice;
+use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
