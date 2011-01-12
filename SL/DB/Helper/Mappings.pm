@@ -1,4 +1,4 @@
-package SL::DB::Helpers::Mappings;
+package SL::DB::Helper::Mappings;
 
 use utf8;
 use strict;
@@ -145,11 +145,11 @@ __END__
 
 =head1 NAME
 
-SL::DB::Helpers::Mappings - Rose Table <-> Model mapping information
+SL::DB::Helper::Mappings - Rose Table <-> Model mapping information
 
 =head1 SYNOPSIS
 
-  use SL::DB::Helpers::Mappings qw(@blacklist %table2model);
+  use SL::DB::Helper::Mappings qw(@blacklist %table2model);
 
 =head1 DESCRIPTION
 

@@ -45,7 +45,7 @@ __END__
 
 =head1 NAME
 
-SL::Helpers::Flash - helper functions for storing messages to be
+SL::Helper::Flash - helper functions for storing messages to be
 displayed to the user
 
 =head1 SYNOPSIS
