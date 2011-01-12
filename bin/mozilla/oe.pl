@@ -1963,11 +1963,11 @@ sub edit_periodic_invoices_config {
   $config = YAML::Load($::form->{periodic_invoices_config}) if $::form->{periodic_invoices_config};
 
   if ('HASH' ne ref $config) {
-    $config       =  {
-      periodicity => 'm',
-      start_date  => $::form->{transdate},
-      active      => 1,
-    };
+    $config =  { periodicity             => 'y',
+                 start_date_as_date      => $::form->{transdate},
+                 extend_automatically_by => 12,
+                 active                  => 1,
+               };
   }
 
   $config->{periodicity} = 'm' if none { $_ eq $config->{periodicity} } qw(m q y);
@@ -1992,15 +1992,18 @@ sub save_periodic_invoices_config {
 
   check_oe_access();
 
-  $::form->isblank('start_date', $::locale->text('The start date is missing.'));
+  $::form->isblank('start_date_as_date', $::locale->text('The start date is missing.'));
 
-  my $config = { active       => $::form->{active} ? 1 : 0,
-                 periodicity  => (any { $_ eq $::form->{periodicity} } qw(m q y)) ? $::form->{periodicity} : 'm',
-                 start_date   => $::form->{start_date},
-                 print        => $::form->{print} ? 1 : 0,
-                 printer_id   => $::form->{print} ? $::form->{printer_id} * 1 : undef,
-                 copies       => $::form->{copies} * 1 ? $::form->{copies} : 1,
-                 ar_chart_id  => $::form->{ar_chart_id} * 1,
+  my $config = { active                  => $::form->{active}     ? 1 : 0,
+                 terminated              => $::form->{terminated} ? 1 : 0,
+                 periodicity             => (any { $_ eq $::form->{periodicity} } qw(m q y)) ? $::form->{periodicity} : 'm',
+                 start_date_as_date      => $::form->{start_date_as_date},
+                 end_date_as_date        => $::form->{end_date_as_date},
+                 print                   => $::form->{print} ? 1 : 0,
+                 printer_id              => $::form->{print} ? $::form->{printer_id} * 1 : undef,
+                 copies                  => $::form->{copies} * 1 ? $::form->{copies} : 1,
+                 extend_automatically_by => $::form->{extend_automatically_by} * 1 || undef,
+                 ar_chart_id             => $::form->{ar_chart_id} * 1,
                };
 
   $::form->{periodic_invoices_config} = YAML::Dump($config);

@@ -589,6 +589,23 @@ sub save_periodic_invoices_config {
   $obj->update_attributes(%{ $config });
 }
 
+sub load_periodic_invoice_config {
+  my $self = shift;
+  my $form = shift;
+
+  delete $form->{periodic_invoices_config};
+
+  if ($form->{id}) {
+    my $config_obj = SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $form->{id});
+
+    if ($config_obj) {
+      my $config = { map { $_ => $config_obj->$_ } qw(active terminated periodicity start_date_as_date end_date_as_date extend_automatically_by ar_chart_id
+                                                      print printer_id copies) };
+      $form->{periodic_invoices_config} = YAML::Dump($config);
+    }
+  }
+}
+
 sub _close_quotations_rfqs {
   $main::lxdebug->enter_sub();
 
@@ -965,14 +982,6 @@ sub retrieve {
     }
     $sth->finish;
 
-    delete $form->{periodic_invoices_config};
-    if ($form->{id} && ($form->{type} eq 'sales_order')) {
-      $query = qq|SELECT periodicity, start_date, print, printer_id, copies, active, ar_chart_id FROM periodic_invoices_configs WHERE oe_id = ? LIMIT 1|;
-      $ref   = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{id}));
-
-      $form->{periodic_invoices_config} = YAML::Dump($ref) if ($ref);
-    }
-
   } else {
 
     # get last name used
@@ -984,6 +993,8 @@ sub retrieve {
   $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? "buy" : "sell");
 
   Common::webdav_folder($form) if ($main::webdav);
+
+  $self->load_periodic_invoice_config($form);
 
   my $rc = $dbh->commit;
 

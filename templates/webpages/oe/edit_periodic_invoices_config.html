@@ -10,8 +10,15 @@
   <p>
    <table border="0">
     <tr>
-     <th align="right">[%- LxERP.t8('Active') %]</th>
-     <td>[% L.checkbox_tag("active", checked => active) %]</td>
+     <th align="right">[% LxERP.t8('Status') %]</th>
+     <td>[% L.checkbox_tag("active", checked => active, label => LxERP.t8('Active')) %]</td>
+    </tr>
+
+    <tr>
+     <td>&nbsp;</td>
+     <td>
+      [% L.checkbox_tag('terminated', label => LxERP.t8('terminated'), checked => terminated) %]
+     </td>
     </tr>
 
     <tr>
@@ -28,7 +35,21 @@
     <tr>
      <th align="right">[%- LxERP.t8('Start date') %]</th>
      <td valign="top">
-      [% L.date_tag("start_date", start_date) %]
+      [% L.date_tag("start_date_as_date", start_date_as_date) %]
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right">[%- LxERP.t8('End date') %]<sup>(1)</sup></th>
+     <td valign="top">
+      [% L.date_tag("end_date_as_date", end_date_as_date) %]
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right">[% LxERP.t8('Extend automatically by n months') %]</th>
+     <td valign="top">
+      [% L.input_tag("extend_automatically_by", extend_automatically_by, size => 10) %]
      </td>
     </tr>
 
@@ -59,6 +80,10 @@
     </tr>
    </table>
   </p>
+
+  <hr>
+
+  <p>(1): [%- LxERP.t8('The end date is the last day for which invoices will possibly be created.') %]</p>
 
   [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
 
