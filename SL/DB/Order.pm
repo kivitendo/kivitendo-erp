@@ -3,7 +3,9 @@ package SL::DB::Order;
 use utf8;
 use strict;
 
-use SL::RecordLinks;
+use Carp;
+use DateTime;
+use List::Util qw(max);
 
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
@@ -11,6 +13,7 @@ use SL::DB::Invoice;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::RecordLinks;
 
 __PACKAGE__->meta->add_relationship(
   orderitems => {
@@ -81,6 +84,42 @@ sub abschlag_invoices {
 
 sub end_invoice {
   return shift()->invoices(query => [ abschlag => 0 ]);
+}
+
+sub convert_to {
+  my ($self, %params) = @_;
+
+  my $destination_type = lc(delete $params{destination_type});
+
+  if ($destination_type eq 'invoice') {
+    $self->convert_to_invoice(%params);
+  } else {
+    croak("Unsupported destination type `$destination_type'");
+  }
+}
+
+sub convert_to_invoice {
+  my ($self, %params) = @_;
+
+  if (!$params{ar_id}) {
+    my $chart = SL::DB::Manager::Chart->get_all(query   => [ SL::DB::Manager::Chart->link_filter('AR') ],
+                                                sort_by => 'id ASC',
+                                                limit   => 1)->[0];
+    croak("No AR chart found and no parameter `ar_id' given") unless $chart;
+    $params{ar_id} = $chart->id;
+  }
+
+  my $invoice;
+  if (!$self->db->do_transaction(sub {
+    $invoice = SL::DB::Invoice->new_from($self)->post(%params) || die;
+    $self->link_to_record($invoice);
+    $self->update_attributes(closed => 1);
+    # die;
+  })) {
+    return undef;
+  }
+
+  return $invoice;
 }
 
 1;
