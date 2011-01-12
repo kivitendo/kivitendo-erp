@@ -14,7 +14,7 @@ sub linked_records {
   my %params   = @_;
 
   my $wanted   = $params{direction} || croak("Missing parameter `direction'");
-  my $myself   = $wanted eq 'from' ? 'to' : 'from';
+  my $myself   = $wanted eq 'from' ? 'to' : $wanted eq 'to' ? 'from' : croak("Invalid parameter `direction'");
 
   my $my_table = SL::DB::Helpers::Mappings::get_table_for_package(ref($self));
 
