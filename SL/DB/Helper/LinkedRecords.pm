@@ -65,18 +65,27 @@ sub linked_records {
 sub link_to_record {
   my $self   = shift;
   my $other  = shift;
+  my %params = @_;
 
   croak "self has no id"  unless $self->id;
   croak "other has no id" unless $other->id;
 
-  my %params = ( from_table => SL::DB::Helpers::Mappings::get_table_for_package(ref($self)),
-                 from_id    => $self->id,
-                 to_table   => SL::DB::Helpers::Mappings::get_table_for_package(ref($other)),
-                 to_id      => $other->id,
-               );
+  my @directions = ([ 'from', 'to' ]);
+  push @directions, [ 'to', 'from' ] if $params{bidirectional};
+  my @links;
 
-  my $link = SL::DB::Manager::RecordLink->find_by(and => [ %params ]);
-  return $link ? $link : SL::DB::RecordLink->new(%params)->save;
+  foreach my $direction (@directions) {
+    my %params = ( $direction->[0] . "_table" => SL::DB::Helper::Mappings::get_table_for_package(ref($self)),
+                   $direction->[0] . "_id"    => $self->id,
+                   $direction->[1] . "_table" => SL::DB::Helper::Mappings::get_table_for_package(ref($other)),
+                   $direction->[1] . "_id"    => $other->id,
+                 );
+
+    my $link = SL::DB::Manager::RecordLink->find_by(and => [ %params ]);
+    push @links, $link ? $link : SL::DB::RecordLink->new(%params)->save unless $link;
+  }
+
+  return wantarray ? @links : $links[0];
 }
 
 sub linked_records_sorted {
@@ -201,14 +210,20 @@ created today:
 
 Returns an array reference.
 
-=item C<link_to_record $record>
+=item C<link_to_record $record, %params>
 
 Will create an entry in the table C<record_links> with the C<from>
 side being C<$self> and the C<to> side being C<$record>. Will only
 insert a new entry if such a link does not already exist.
 
-Returns either the existing link or the newly created one as an
-instance of C<SL::DB::RecordLink>.
+If C<$params{bidirectional}> is trueish then another link will be
+created with the roles of C<from> and C<to> reversed. This link will
+also only be created if it doesn't exist already.
+
+In scalar contenxt returns either the existing link or the newly
+created one as an instance of C<SL::DB::RecordLink>. In array context
+it returns an array of links (one entry if C<$params{bidirectional}>
+is falsish and two entries if it is trueish).
 
 =item C<sort_linked_records $sort_by, $sort_dir, @records>
 
