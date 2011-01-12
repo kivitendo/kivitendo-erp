@@ -78,7 +78,7 @@ created today:
 
   my $invoices = $order->linked_records(direction => 'to',
                                         to        => 'SL::DB::Invoice',
-                                        query     => [ transdate => DateTime->today ]);
+                                        query     => [ transdate => DateTime->today_local ]);
 
 Returns an array reference.
 
