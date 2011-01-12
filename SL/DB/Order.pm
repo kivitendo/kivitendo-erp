@@ -10,6 +10,7 @@ use SL::DB::Manager::Order;
 use SL::DB::Invoice;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
+use SL::DB::Helper::TransNumberGenerator;
 
 __PACKAGE__->meta->add_relationship(
   orderitems => {

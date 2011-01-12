@@ -4,6 +4,8 @@ use strict;
 
 use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
+use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Order;
 
 use List::Util qw(first);

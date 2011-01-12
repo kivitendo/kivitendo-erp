@@ -8,12 +8,12 @@ use SL::DB::MetaSetup::Default;
 __PACKAGE__->meta->make_manager_class;
 
 sub get_default_currency {
-  my $self = _selfify(@_);
+  my $self = shift->get;
   my @currencies = grep { $_ } split(/:/, $self->curr || '');
   return $currencies[0] || '';
 }
 
-sub _selfify {
+sub get {
   my ($class_or_self) = @_;
   return $class_or_self if ref($class_or_self);
   return SL::DB::Manager::Default->get_all(limit => 1)->[0];

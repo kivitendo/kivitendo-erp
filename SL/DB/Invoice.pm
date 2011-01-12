@@ -12,6 +12,7 @@ use SL::DB::MetaSetup::Invoice;
 use SL::DB::Manager::Invoice;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
+use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Employee;
 
 __PACKAGE__->meta->add_relationship(
