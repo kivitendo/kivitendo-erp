@@ -54,7 +54,6 @@ __PACKAGE__->meta->setup(
     storno_id               => { type => 'integer' },
     marge_total             => { type => 'numeric', precision => 5, scale => 15 },
     marge_percent           => { type => 'numeric', precision => 5, scale => 15 },
-    notes_bottom            => { type => 'text' },
     donumber                => { type => 'text' },
   ],
 

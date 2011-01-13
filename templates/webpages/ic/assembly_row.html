@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE LxERP %]
+[%- USE HTML %]
   <tr class=listheading>
    <th class=listheading>[% 'Individual Items' | $T8 %]</th>
   </tr>
@@ -19,7 +20,7 @@
       <td[% ' align=' _ rcol.align IF rcol.align %]>[%- rcol.data %]</td>
  [%- END %]
  [%- FOREACH hidden = row.hiddens %]
-      <input type=hidden name="[% hidden.name %]" value="[% hidden.value %]">
+      <input type=hidden name="[% HTML.escape(hidden.name) %]" value="[% HTML.escape(hidden.value) %]">
  [%- END %]
      </tr>
 [%- END %]

@@ -497,4 +497,10 @@ sub restore_numberformat {
   $myconfig->{numberformat} = $self->{saved_numberformat} if $self->{saved_numberformat};
 }
 
+sub get_local_time_zone {
+  my $self = shift;
+  $self->{local_time_zone} ||= DateTime::TimeZone->new(name => 'local');
+  return $self->{local_time_zone};
+}
+
 1;

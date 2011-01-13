@@ -46,8 +46,6 @@ __PACKAGE__->meta->setup(
     transaction_description => { type => 'text' },
     marge_total             => { type => 'numeric', precision => 5, scale => 15 },
     marge_percent           => { type => 'numeric', precision => 5, scale => 15 },
-    notes_bottom            => { type => 'text' },
-    project_manager_id      => { type => 'integer' },
   ],
 
   primary_key_columns => [ 'id' ],
@@ -63,11 +61,6 @@ __PACKAGE__->meta->setup(
     globalproject => {
       class       => 'SL::DB::Project',
       key_columns => { globalproject_id => 'id' },
-    },
-
-    project_manager => {
-      class       => 'SL::DB::Employee',
-      key_columns => { project_manager_id => 'id' },
     },
 
     salesman => {

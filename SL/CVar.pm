@@ -30,6 +30,7 @@ sub get_configs {
     FROM custom_variable_configs $where ORDER BY sortkey
 SQL
 
+  $::form->{CVAR_CONFIGS} = {} unless 'HASH' eq ref $::form->{CVAR_CONFIGS};
   if (!$::form->{CVAR_CONFIGS}->{$params{module}}) {
     my $configs  = selectall_hashref_query($form, $dbh, $query, @values);
 

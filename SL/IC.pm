@@ -1535,7 +1535,7 @@ sub retrieve_accounts {
   }
 
   if ($transdate eq "") {
-    $transdate = "current_date";
+    $transdate = DateTime->today_local->to_lxoffice;
   } else {
     $transdate = $dbh->quote($transdate);
   }
