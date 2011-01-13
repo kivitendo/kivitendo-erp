@@ -118,7 +118,14 @@ sub gd_run {
 
       $::lxdebug->message(0, "  Found: " . join(' ', map { $_->package_name } @{ $jobs })) if $config{task_server}->{debug} && @{ $jobs };
 
-      $_->run for @{ $jobs };
+      foreach my $job (@{ $jobs }) {
+        # Provide fresh global variables in case legacy code modifies
+        # them somehow.
+        $::locale = Locale->new($::language);
+        $::form   = Form->new;
+
+        $job->run;
+      }
 
       1;
     };
