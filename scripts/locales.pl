@@ -331,6 +331,8 @@ sub scanfile {
     my ($is_submit, $line_no, $sub_line_no) = (0, 0, 0);
 
     while (<$fh>) {
+      last if /^\s*__END__/;
+
       $line_no++;
 
       # is this another file
