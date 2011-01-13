@@ -43,6 +43,7 @@ use CGI;
 use CGI::Ajax;
 use Cwd;
 use Encode;
+use File::Copy;
 use IO::File;
 use SL::Auth;
 use SL::Auth::DB;
@@ -1267,6 +1268,16 @@ sub parse_template {
   if (!$result) {
     $self->cleanup();
     $self->error("$self->{IN} : " . $template->get_error());
+  }
+
+  if ($self->{media} eq 'file') {
+    copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
+    $self->cleanup;
+    chdir("$self->{cwd}");
+
+    $::lxdebug->leave_sub();
+
+    return;
   }
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
