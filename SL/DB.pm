@@ -21,14 +21,26 @@ sub create {
 
   my $db = __PACKAGE__->new_or_cached(domain => $domain, type => $type);
 
+  _execute_initial_sql($db);
+
   return $db;
 }
+
+my %_dateformats = ( 'yy-mm-dd'   => 'ISO',
+                     'yyyy-mm-dd' => 'ISO',
+                     'mm/dd/yy'   => 'SQL, US',
+                     'mm-dd-yy'   => 'POSTGRES, US',
+                     'dd/mm/yy'   => 'SQL, EUROPEAN',
+                     'dd-mm-yy'   => 'POSTGRES, EUROPEAN',
+                     'dd.mm.yy'   => 'GERMAN'
+                   );
 
 sub _register_db {
   my $domain = shift;
   my $type   = shift;
 
   my %connect_settings;
+  my $initial_sql;
 
   if (!%::myconfig) {
     $type = 'LXOFFICE_EMPTY';
@@ -44,6 +56,11 @@ sub _register_db {
                           connect_options => { pg_enable_utf8 => $::locale && $::locale->is_utf8,
                                              });
   } else {
+    my $european_dates = 0;
+    if ($::myconfig{dateformat}) {
+      $european_dates = 1 if $_dateformats{ $::myconfig{dateformat} } =~ m/european/i;
+    }
+
     %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
                           database        => $::myconfig{dbname},
                           host            => $::myconfig{dbhost},
@@ -51,7 +68,8 @@ sub _register_db {
                           username        => $::myconfig{dbuser},
                           password        => $::myconfig{dbpasswd},
                           connect_options => { pg_enable_utf8 => $::locale && $::locale->is_utf8,
-                                             });
+                                             },
+                          european_dates  => $european_dates);
   }
 
   my %flattened_settings = _flatten_settings(%connect_settings);
@@ -70,6 +88,19 @@ sub _register_db {
   }
 
   return ($domain, $type);
+}
+
+sub _execute_initial_sql {
+  my ($db) = @_;
+
+  return if $_initial_sql_executed{$db} || !%::myconfig || !$::myconfig{dateformat};
+
+  $_initial_sql_executed{$db} = 1;
+
+  # Don't rely on dboptions being set properly. Chose them from
+  # dateformat instead.
+  my $pg_dateformat = $_dateformats{ $::myconfig{dateformat} };
+  $db->dbh->do("set DateStyle to '${pg_dateformat}'") if $pg_dateformat;
 }
 
 sub _flatten_settings {
