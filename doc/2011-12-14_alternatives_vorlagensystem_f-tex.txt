@@ -1,0 +1,245 @@
+README lx-office Fancy-LaTeX  (f-tex)
+
+# Revision 1.0-u  (16.11.2011)
+# Revision 0.9  (13.11.2011)
+# Revision 0.8  (12.09.2011)
+# Revision 0.7	(12.07.2011)
+# Revision 0.6	(16.06.2011)
+# Revision 0.5  (15.04.2011)
+# Revision 0.4  (14.02.2011)
+# Revision 0.3  (03.01.2011)
+# Revision 0.2  (24.12.2010)
+# Revision 0.1  (03.11.2009)
+
+
+# Einleitung
+
+  Es gibt ein alternatives LaTeX Vorlagensystem im Verzeichnis
+    templates/f-tex
+  Fuer das Einrichten der Vorlagen gibt es ein Setup-Script
+
+
+# Voraussetzung:
+
+  - funktionierende Lx-Office Intallation
+  - mindestens eine Mandantendatenbank
+  weiter ist es hilfreich:
+  - mindestens einen Benutzer mit Verweis auf ein Vorlagenverzeichs
+  - Bereits angelegte Sprachkuerzel, wenn mehrsprachige Dokumente erstellt
+    werden sollen.
+
+# Feature Uebersicht
+
+  - einfach Nutzung durch mitgeliefertes Setup-Script
+  - Keine Retundanz. Es wird ein und die selbe Latex-Vorlage fuer alle
+    briefartigen Dokumente verwendet. Also Angebot, Rechnung,
+    Performarechnung, Lieferschein, aber eben nicht fuer Paketaufkleber
+    etc..
+  - Leichte Anpassung an das Firmen Layout durch verwendung eines Hintergrund-PDF
+    dieses kann leicht mit dem eigenen Lieblingsprogramm erstellt werden
+    (Openoffice, Inkscape, Gimp, Adobe*)
+  - Hintergrundpdf um schaltbar auf "nur erste Seite" (default) oder "alle Seiten"
+    (option "bgPdfFirstPageOnly" in Datei letter.lco)
+  - Hintergrundpdf fuer Ausdruck auf bereits bedrucktem Briefpapier Abschaltbar,
+    es wird dann nur bei per email versendeten Dokumenten eingebunden.
+    (Option "bgPdfEmailOnly" in Datei letter.lco)
+  - Nutzung der Layout-Funktionen von Latex fuer Seitenumbruch,
+    wiederholung von Kopfzeilen, Zwischensummen etc. (danke an Kai-Martin fuer
+    die Vorarbeit)
+  - Anzeige des Empfaengerlandes im Adressfeld nur, wenn es vom Land des
+    eigenen Unternehmens abweicht (also die Rechnung das Land verlaesst).
+  - Multisprachfaehig leicht um weitere Sprachen zu erweitern, alle
+    Übersetzungen in der Datei translatinos.tex.
+  - Auflistung von Bruttopreisen fuer Endverbraucher.
+
+
+
+
+# die Installation
+
+  Wenn es noch keine LaTeX installation gibt, installiere die folgenden Pakete
+  (Debian)
+    aptitude install \
+      texlive-base-bin \
+      texlive-latex-recommended \
+      texlive-fonts-recommended \
+      texlive-latex-extra \
+      texlive-lang-german \
+      texlive-generic-extra
+  (Info fuer != Debian Installationen: die Abhaengigkeiten werden waehrend des
+  Setups nochmals geprueft)
+
+  Rufe das folgende Script auf:
+   [lxo-home]/templates/f-tex/setup.sh
+  und folge den Anweisungen.
+
+  Erstelle eine pdf-Hintergrund Datei und verlinke sie nach ./letter_head.pdf
+
+  Editiere den Bereich "settings" in der datei letter.lco ""
+
+  # oder etwas Detaillierter:
+  Es wird eine Datei sample.lco erstellt und diese nach letter.lco verlinkt.
+  Eigentlich ist dies die Datei die fuer die Firmenspezifischen Anpassungen
+  gedacht ist.  Da die Einstiegshuerde in LaTeX nicht ganz niedrig ist, wird in
+  dieser Datei auf ein Hintergrundpdf verwiesen. Ich empfehle ueber dieses pdf
+  die persoenlichen Layoutanpassungen vorzunehmen und sample.lco unveraendert zu
+  lassen. Die die Anpassung ueber eine *.lco Datei die letztlich auf letter.lco
+  verlinkt ist ist aber auch moeglich.
+
+  Es wird eine Datei sample_head.pdf mit ausgeliefert, diese wird nach
+  letter_head.pdf verlinkt. Damit gibt es schon mal eine Funktionsfaehige
+  Vorlage. Schau Dir nach Abschluss der Installation die Datei sample_haed.pdf
+  an und erstelle ein entsprechendes pdf passend zum Briefkopf Deiner Firma,
+  diese dann im Template Verzeichniss ablegen und statt sample_head.pdf nach
+  letter_head.pdf verlinken.
+
+  per default erstellt das Setupscript einen symbolischen Link
+  ./sample_head.pdf -> ./letter_head.pdf
+  letzlich muss ./letter_head.pdf auf das passende Hintergrundpdf verweisen,
+  welches gewuenschten Briefkopf enthaelt. Bei Updates oder nach erneutem
+  Aufruf des setup Scripts werden bestehende Links nicht ohne Rueckfrage
+  ersetzt, wer also schon seinen Briefkopf verlinkt hat, braucht diesen Link
+  nicht immer wieder neu anlegen. Das gleiche Prinzip gilt fuer letter.lco.
+
+  Es wird eine Datei mydata.tex erstellt, sie ist mit der aus
+  lp (Label Print in erp) kompatibel. Diese braucht man also nur einmal
+  fuer jedes template Verzeichnis zu generieren.
+  Bei Formatierungsschwierigkeiten bitte mit
+  [lxo-home]/templates/f-tex/mydata.tex.example vergleichen.
+
+  Alle Anpassungen zum Briefkopf, Fusszeilen, Firmenlogos, etc.
+  sollten ueber die Hintergrund pdf datei oder die *.lco Datei erfolgen.
+
+
+# einheitliche Latex-Vorlagen -- Background
+
+  Das Konzept von lx-office sieht vor, fuer jedes Dokument
+  (Auftragsbestaetigung, Lieferschein, Rechnung, etc.) eine
+  Latex-Vorlage vorzuhalten, dies ist sehr Wartungsunfreundlich. Auch
+  das Einlesen einer einheitlichen Quelle fuer den Briefkopf bringt nur
+  bedingte Vorteile, da hier leicht die Pflege der Artikel-Tabellen aus
+  dem Ruder laeuft. Bei dem vorliegenden Ansatz wird fuer alle
+  Briefartigen Dokumente mit Artikel-Tabellen eine einheitliche
+  Latexvorlage verwendet, welche ueber Codeweichen die Besonderheiten
+  der jeweiligen Dokumente Beruecksichtigt
+    - Tabellen mit oder ohne Preis
+    - Sprache der Tabellenueberschriften etc.
+    - Anpassung der Bezugs-Zeile (z.B. Rechnungsnummer versus
+      Angebotsnummer)
+    - Darstellung von Brutto oder Netto-Preisen in der Auflistung
+      (Endverbraucher versus Gewerblicher Kunde)
+  Dies laesst sich in lx-office nur ueber einen Kunstgriff realisieren,
+  da zum einen die perl-Anwendung nach latex-Vorlagen mit bestimmten
+  Namen sucht (z.B. sales_order_de.tex fuer die deutschsprachige
+  Auftragsbestaetigung -- wenn deutsch mit dem Vorlagenkuerzel de
+  angelegt wurde) und zum Anderen die Information um welches Dokument es
+  sich handelt nicht direkt innerhalb von Latex zur Verfuegung steht.
+
+  Umgesetzt wurde dies hier nun ueber symbolische Links im Dateisystem.  Es
+  gibt also eine Vorlage letter.tex (die ihrerseits weitere tex-Dateien
+  einbindet) und fuer jeden Dokumenttyp der durch letter.tex abgedeckt on von
+  jedem dieser wiederum in jeder verfuegbaren Sprache legt das setup Script einen
+  link in der lx-office Namenskonvention an, der auf die Datei letter.tex
+  verweist. Die Datei letter.tex wertet den Namen der Aufgerufenen Datei aus und
+  passt ihre Ausgabe dementsprechend an. Wenn zum Beispiel lx-office die Datei
+  packing_list_de.tex aufruft (die ja nur ein Link nach letter.tex ist) liegt die
+  Information des aktuellen Dokumentnamen (packing_list_de.tex) vor und latex
+  weiss, keine Preise, Lieferscheinnummer anzeigen, deutsche sprachumgebung, usw.
+
+  Es liegt mit der Datei setup.sh ein script vor, welches die Abhaengigkeiten
+  im System prueft und die benotigten Dateien und symbolischen Links erstellt.
+  Das script ist so aufgebaut, dass es bei Updates auch auf bestehende f-tex
+  Vorlagenordner angewendet werden kann, ohne vorhandene Personalisierungen zu
+  ueberschreiben. Die Benoetigten Informationen wie Template-Verzeichniss,
+  vorhandene Sprachkuerzel, etc werden waerend des setupprozesses abgefragt. Der
+  Setupprozess kann also sooft wie benoetigt wiederholt werden, auch wenn bereits
+  ein templateverzeichniss existiert.
+
+
+  Nachteil:
+  Ja, alles hat seinen Preis ...
+  Latex hat ohnehin eine sehr steile Lehrnkurve. Die Datei letter.tex
+  ist sehr komplex und verstaerkt damit diesen Effekt noch einmal erheblich.
+  Wer Latex-Erfahrung hat, oder geuebt ist Scriptsparachen nachzuvollziehen kann
+  natuerlich auch innerhalb der Tabellendarstellung gut persoenliche Anpassungen
+  vornehmen. Aber man kann sich hier bei Veraenderungen sehr schnell haeftig in
+  den Fuss schiessen.
+  Wer nicht so tief in die Materie einsteigen will oder leicht zu
+  frustrieren ist, sollte sein Hintergrund PDF auf Basis der mitglieferten
+  Datei sample_head.pdf erstellen, und sich an der Form der dargestellten Tabellen
+  wie sie ausgeliefert werden, erfreuen.
+  Kleiner Tipp:
+
+    Nicht zu viel auf einmal wollen, lieber kleine kontinuierliche
+    Schritte gehen.
+
+  Alternativ kann man sich natuerlich fuer die Latex-Vorlagen
+  professionelle Hilfe hohlen.
+
+
+Bruttopreise fuer Endvorbraucher
+  Der auszuweisende Bruttopreis wird innerhalb der LaTeX Umgebung berechnet.
+
+  - Background:
+    es gibt zwar ein Feld um bei Auftraegen "alle Preise Brutto" auszuwaehlen,
+    aber:
+      - hierfuer muessen die Preise auch in Brutto in der Datenbank stehen
+        (ja -- das laesst sich ueber die Preisgruppen und die Zuordung einer Default-Preisgruppe
+        handhaben)
+      - man darf beim Anlegen des Vorgangs nicht vergessen Dieses Haekchen zu setzen.
+        (das ist in der Praxis wenn man sowohl Endverbraucher- wie Gewerbekunden beliefert
+       der eigentliche Knackpunkt)
+
+  Es gibt mit f-tex eine weitere Alternative. Die Information ob Brutto oder
+  Nettorechnung wird mit den Zahlarten verknuepft. Zahlarten bei denen
+  Rechnungen, Angebote, etc, in Brutto ausgegeben werden sollen enden mit "_E"
+  (fuer Endverbraucher) Falls identische Zahlarten fuer Gewerbekunden und
+  Endverbraucher vorhanden sind legt man diese einfach doppelt an (einmal mit
+  der Namensendung "_E")
+  - Gewinn:
+    - die Entscheidung ob Netopreise ausgewiesen werden ist nicht mehr fix
+      mit einer Preisliste Verbunden.
+    - die Default-Zahlart kann im Kundendatensatz hinterlegt werden und man
+      muss nicht mehr daran denken "alle Preise Netto" auszuwaehlen.
+    - Die Entscheidung ob Netto/Oder Bruttopreise ausgewiesen werden kann direkt
+      beim Drucken reviediert werden, ohne dass sich der Auftragswert aendert.
+
+Lieferadressen
+
+  - in Lieferscheinen kommen shipto* -Variablen im Adressfeld zum Einsatz
+  - wenn die shipto*variable leer ist wird die entsprechende
+    Adressvariable eingesetzt.  Wenn Also die Lieferadresse in Strasse,
+    Hausnummer und Ort abweicht, muessen auch nur diese Felder in der
+    Lieferadresse ausgefuellt werden. Fuer den Firmenname wird der Wert der
+    Hauptadresse angezeigt.
+
+Troubleshooting -- Fehler suchen:
+  Wenn sich das Problem nicht auf Grund der ausgabe im Webbrowser verifizieren laesst:
+
+    editiere [flxo-home]/config/lx_office.conf und aendere "keep_tmp_files" auf 1
+          keep_temp_files = 1;
+
+    bei fastcgi oder mod_perl den Webserver neu Starten
+
+    Nochmal einen Druckversuch im Webfrontend ausloesen
+
+    wechsele in das users Verzeichnis von lxo
+      cd [lxo-home]/users
+
+    LaTeX Suchpfad anpassen:
+      export TEXINPUTS=".:[lxo-home]/templates/[aktuelles_template_verzeichniss]:"
+
+    Finde herraus welche datei lxo beim letzten Durchlauf erstellt hat
+      ls -lahtr ./1*.tex
+    Es sollte die letzte Datei ganz unten sein
+
+    fuer besseren Hinweis auf Fehler texdatei nochmals uebersetzen
+      pdflatex ./1*.tex
+
+    in der *.tex datei nach dem Fehler suchen.
+
+Changelogeintrag fuer offiziellen tree:
+  Kleine Verbesserungen:
+     Zusaetzliches alternatives LaTeX Templatesystem
+
+
