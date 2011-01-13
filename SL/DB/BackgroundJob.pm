@@ -42,13 +42,16 @@ sub run {
   };
 
   if (!$ok) {
+    my $error = $EVAL_ERROR;
     $history = SL::DB::BackgroundJobHistory
       ->new(package_name => $self->package_name,
             run_at       => $run_at,
             status       => 'failure',
-            error_col    => $EVAL_ERROR,
+            error_col    => $error,
             data         => $self->data);
     $history->save;
+
+    $::lxdebug->message(LXDebug->WARN(), "BackgroundJob ID " . $self->id . " execution error (first three lines): " . join("\n", (split(m/\n/, $error))[0..2]));
   }
 
   $self->assign_attributes(last_run_at => $run_at)->update_next_run_at;
