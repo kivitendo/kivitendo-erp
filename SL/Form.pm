@@ -3535,7 +3535,7 @@ sub prepare_for_printing {
   $self->{formname}  ||= $self->{type};
   $self->{media}     ||= 'email';
 
-  die "'media' other than 'email' or 'file' is not supported yet" unless $self->{media} =~ m/^(?:email|file)$/;
+  die "'media' other than 'email', 'file', 'printer' is not supported yet" unless $self->{media} =~ m/^(?:email|file|printer)$/;
 
   # set shipto from billto unless set
   my $has_shipto = any { $self->{"shipto$_"} } qw(name street zipcode city country contact);
