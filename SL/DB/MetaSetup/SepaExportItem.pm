@@ -12,7 +12,7 @@ __PACKAGE__->meta->setup(
   columns => [
     id                       => { type => 'integer', not_null => 1, sequence => 'id' },
     sepa_export_id           => { type => 'integer', not_null => 1 },
-    ap_id                    => { type => 'integer', not_null => 1 },
+    ap_id                    => { type => 'integer' },
     chart_id                 => { type => 'integer', not_null => 1 },
     amount                   => { type => 'numeric', precision => 5, scale => 25 },
     reference                => { type => 'varchar', length => 35 },
@@ -21,9 +21,10 @@ __PACKAGE__->meta->setup(
     execution_date           => { type => 'date' },
     our_iban                 => { type => 'varchar', length => 100 },
     our_bic                  => { type => 'varchar', length => 100 },
-    vendor_iban              => { type => 'varchar', length => 100 },
-    vendor_bic               => { type => 'varchar', length => 100 },
+    vc_iban                  => { type => 'varchar', length => 100 },
+    vc_bic                   => { type => 'varchar', length => 100 },
     end_to_end_id            => { type => 'varchar', length => 35 },
+    ar_id                    => { type => 'integer' },
   ],
 
   primary_key_columns => [ 'id' ],
@@ -32,6 +33,11 @@ __PACKAGE__->meta->setup(
     ap => {
       class       => 'SL::DB::PurchaseInvoice',
       key_columns => { ap_id => 'id' },
+    },
+
+    ar => {
+      class       => 'SL::DB::Invoice',
+      key_columns => { ar_id => 'id' },
     },
 
     chart => {

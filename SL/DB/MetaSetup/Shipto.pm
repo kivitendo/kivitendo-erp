@@ -26,6 +26,7 @@ __PACKAGE__->meta->setup(
     mtime              => { type => 'timestamp' },
     module             => { type => 'text' },
     shipto_id          => { type => 'integer', not_null => 1, sequence => 'id' },
+    shiptocp_gender    => { type => 'text' },
   ],
 
   primary_key_columns => [ 'shipto_id' ],

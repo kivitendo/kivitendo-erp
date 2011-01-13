@@ -10,12 +10,15 @@ __PACKAGE__->meta->setup(
   table   => 'makemodel',
 
   columns => [
-    parts_id => { type => 'integer' },
-    model    => { type => 'text' },
-    itime    => { type => 'timestamp', default => 'now()' },
-    mtime    => { type => 'timestamp' },
-    make     => { type => 'integer' },
-    id       => { type => 'serial', not_null => 1 },
+    parts_id   => { type => 'integer' },
+    model      => { type => 'text' },
+    itime      => { type => 'timestamp', default => 'now()' },
+    mtime      => { type => 'timestamp' },
+    lastcost   => { type => 'numeric', precision => 5, scale => 15 },
+    lastupdate => { type => 'date' },
+    sortorder  => { type => 'integer' },
+    make       => { type => 'integer' },
+    id         => { type => 'serial', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
