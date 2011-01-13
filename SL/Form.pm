@@ -448,13 +448,23 @@ sub hide_form {
   $main::lxdebug->leave_sub();
 }
 
+sub throw_on_error {
+  my ($self, $code) = @_;
+  local $self->{__ERROR_HANDLER} = sub { die({ error => $_[0] }) };
+  $code->();
+}
+
 sub error {
   $main::lxdebug->enter_sub();
 
   $main::lxdebug->show_backtrace();
 
   my ($self, $msg) = @_;
-  if ($ENV{HTTP_USER_AGENT}) {
+
+  if ($self->{__ERROR_HANDLER}) {
+    $self->{__ERROR_HANDLER}->($msg);
+
+  } elsif ($ENV{HTTP_USER_AGENT}) {
     $msg =~ s/\n/<br>/g;
     $self->show_generic_error($msg);
 
@@ -865,6 +875,12 @@ sub show_generic_error {
   $main::lxdebug->enter_sub();
 
   my ($self, $error, %params) = @_;
+
+  if ($self->{__ERROR_HANDLER}) {
+    $self->{__ERROR_HANDLER}->($error);
+    $main::lxdebug->leave_sub();
+    return;
+  }
 
   my $add_params = {
     'title_error' => $params{title},
