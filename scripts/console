@@ -39,8 +39,10 @@ package Devel::REPL;
 
 use utf8;
 use CGI qw( -no_xhtml);
+use DateTime;
 use SL::Auth;
 use SL::Form;
+use SL::Helper::DateTime;
 use SL::Locale;
 use SL::LXDebug;
 use Data::Dumper;
