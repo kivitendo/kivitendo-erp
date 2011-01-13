@@ -54,8 +54,10 @@ sub _register_db {
                                              });
   }
 
+  my %flattened_settings = _flatten_settings(%connect_settings);
+
   $domain = 'LXOFFICE' if $type =~ m/^LXOFFICE/;
-  $type  .= join($SUBSCRIPT_SEPARATOR, map { $::connect_setings{$_} } sort keys %connect_settings);
+  $type  .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_}) } sort keys %flattened_settings);
   my $idx = "${domain}::${type}";
 
   if (!$_db_registered{$idx}) {
@@ -68,6 +70,21 @@ sub _register_db {
   }
 
   return ($domain, $type);
+}
+
+sub _flatten_settings {
+  my %settings  = @_;
+  my %flattened = ();
+
+  while (my ($key, $value) = each %settings) {
+    if ('HASH' eq ref $value) {
+      %flattened = ( %flattened, _flatten_settings(%{ $value }) );
+    } else {
+      $flattened{$key} = $value;
+    }
+  }
+
+  return %flattened;
 }
 
 1;
