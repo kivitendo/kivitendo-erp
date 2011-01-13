@@ -3566,8 +3566,9 @@ sub prepare_for_printing {
     $extension            = 'xls';
   }
 
-  my $email_extension = '_email' if -f "$self->{templates}/$self->{formname}_email${language}.${extension}";
-  $self->{IN}         = "$self->{formname}${email_extension}${language}.${extension}";
+  my $printer_code    = '_' . $self->{printer_code} if $self->{printer_code};
+  my $email_extension = '_email' if -f "$self->{templates}/$self->{formname}_email${language}${printer_code}.${extension}";
+  $self->{IN}         = "$self->{formname}${email_extension}${language}${printer_code}.${extension}";
 
   # Format dates.
   $self->format_dates($output_dateformat, $output_longdates,
