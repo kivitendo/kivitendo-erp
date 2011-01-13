@@ -5,6 +5,8 @@ package SL::DB::AuthUser;
 
 use strict;
 
+use List::Util qw(first);
+
 use SL::DB::MetaSetup::AuthUser;
 use SL::DB::AuthUserGroup;
 
@@ -28,5 +30,12 @@ __PACKAGE__->meta->add_relationship(
 );
 
 __PACKAGE__->meta->initialize;
+
+sub get_config_value {
+  my ($self, $key) = @_;
+
+  my $cfg = first { $_->cfg_key eq $key } @{ $self->configs };
+  return $cfg ? $cfg->cfg_value : undef;
+}
 
 1;
