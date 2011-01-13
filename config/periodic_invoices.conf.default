@@ -1,5 +1,10 @@
 [periodic_invoices]
-send_email     = 1
+# The user name a report about the posted and printed invoices is sent
+# to.
+send_email_to  = login
+# The "From:" header for said email.
 email_from     = Lx-Office Daemon <root@localhost>
+# The subject for said email.
 email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
+# The template file used for the email's body.
 email_template = templates/webpages/oe/periodic_invoices_email.txt
