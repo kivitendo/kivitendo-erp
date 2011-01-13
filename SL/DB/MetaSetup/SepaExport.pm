@@ -15,6 +15,7 @@ __PACKAGE__->meta->setup(
     executed    => { type => 'boolean', default => 'false' },
     closed      => { type => 'boolean', default => 'false' },
     itime       => { type => 'timestamp', default => 'now()' },
+    vc          => { type => 'varchar', length => 10 },
   ],
 
   primary_key_columns => [ 'id' ],

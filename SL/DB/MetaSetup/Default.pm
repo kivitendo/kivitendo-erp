@@ -17,7 +17,6 @@ __PACKAGE__->meta->setup(
     fxloss_accno_id            => { type => 'integer' },
     invnumber                  => { type => 'text' },
     sonumber                   => { type => 'text' },
-    yearend                    => { type => 'varchar', length => 5 },
     weightunit                 => { type => 'varchar', length => 5 },
     businessnumber             => { type => 'text' },
     version                    => { type => 'varchar', length => 8 },
@@ -42,6 +41,7 @@ __PACKAGE__->meta->setup(
     dunning_ar                 => { type => 'integer' },
     pdonumber                  => { type => 'text' },
     sdonumber                  => { type => 'text' },
+    ar_paid_accno_id           => { type => 'integer' },
     id                         => { type => 'serial', not_null => 1 },
   ],
 
