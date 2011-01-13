@@ -43,7 +43,6 @@ __PACKAGE__->meta->setup(
     globalproject_id        => { type => 'integer' },
     transaction_description => { type => 'text' },
     storno_id               => { type => 'integer' },
-    notes_bottom            => { type => 'text' },
   ],
 
   primary_key_columns => [ 'id' ],

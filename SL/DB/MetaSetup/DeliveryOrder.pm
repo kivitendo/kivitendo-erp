@@ -36,7 +36,6 @@ __PACKAGE__->meta->setup(
     is_sales                => { type => 'boolean' },
     itime                   => { type => 'timestamp', default => 'now()' },
     mtime                   => { type => 'timestamp' },
-    notes_bottom            => { type => 'text' },
     taxzone_id              => { type => 'integer' },
     taxincluded             => { type => 'boolean' },
     terms                   => { type => 'integer' },
