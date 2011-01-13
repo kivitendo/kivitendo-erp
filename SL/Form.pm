@@ -49,17 +49,21 @@ use SL::Auth;
 use SL::Auth::DB;
 use SL::Auth::LDAP;
 use SL::AM;
-use SL::DB;
 use SL::Common;
+use SL::CVar;
+use SL::DB;
 use SL::DBUtils;
+use SL::DO;
+use SL::IS;
 use SL::Mailer;
 use SL::Menu;
+use SL::OE;
 use SL::Template;
 use SL::User;
 use Template;
 use URI;
 use List::Util qw(first max min sum);
-use List::MoreUtils qw(any apply);
+use List::MoreUtils qw(all any apply);
 
 use strict;
 
@@ -3505,6 +3509,85 @@ sub restore_vars {
   map { $self->{$_} = $self->{_VAR_BACKUP}->{$_} if exists $self->{_VAR_BACKUP}->{$_} } @vars;
 
   $main::lxdebug->leave_sub();
+}
+
+sub prepare_for_printing {
+  my ($self) = @_;
+
+  $self->{templates} ||= $::myconfig{templates};
+  $self->{formname}  ||= $self->{type};
+  $self->{media}     ||= 'email';
+
+  die "'media' other than 'email' or 'file' is not supported yet" unless $self->{media} =~ m/^(?:email|file)$/;
+
+  # set shipto from billto unless set
+  my $has_shipto = any { $self->{"shipto$_"} } qw(name street zipcode city country contact);
+  if (!$has_shipto && ($self->{type} =~ m/^(?:purchase_order|request_quotation)$/)) {
+    $self->{shiptoname}   = $::myconfig{company};
+    $self->{shiptostreet} = $::myconfig{address};
+  }
+
+  my $language = $self->{language} ? '_' . $self->{language} : '';
+
+  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
+  if ($self->{language_id}) {
+    ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) = AM->get_language_details(\%::myconfig, $self, $self->{language_id});
+  } else {
+    $output_dateformat   = $::myconfig{dateformat};
+    $output_numberformat = $::myconfig{numberformat};
+    $output_longdates    = 1;
+  }
+
+  if ($self->{type} =~ /_delivery_order$/) {
+    DO->order_details();
+  } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order/) {
+    OE->order_details(\%::myconfig, $self);
+  } else {
+    IS->invoice_details(\%::myconfig, $self, $::locale);
+  }
+
+  # Chose extension & set source file name
+  my $extension = 'html';
+  if ($self->{format} eq 'postscript') {
+    $self->{postscript}   = 1;
+    $extension            = 'tex';
+  } elsif ($self->{"format"} =~ /pdf/) {
+    $self->{pdf}          = 1;
+    $extension            = $self->{'format'} =~ m/opendocument/i ? 'odt' : 'tex';
+  } elsif ($self->{"format"} =~ /opendocument/) {
+    $self->{opendocument} = 1;
+    $extension            = 'odt';
+  } elsif ($self->{"format"} =~ /excel/) {
+    $self->{excel}        = 1;
+    $extension            = 'xls';
+  }
+
+  my $email_extension = '_email' if -f "$::myconfig{templates}/$self->{formname}_email$self->{language}.${extension}";
+  $self->{IN}         = "$self->{formname}${email_extension}$self->{language}.${extension}";
+
+  # Format dates.
+  $self->format_dates($output_dateformat, $output_longdates,
+                      qw(invdate orddate quodate pldate duedate reqdate transdate shippingdate deliverydate validitydate paymentdate datepaid
+                         transdate_oe deliverydate_oe employee_startdate employee_enddate),
+                      grep({ /^(?:datepaid|transdate_oe|reqdate|deliverydate|deliverydate_oe|transdate)_\d+$/ } keys(%{$self})));
+
+  $self->reformat_numbers($output_numberformat, 2,
+                          qw(invtotal ordtotal quototal subtotal linetotal listprice sellprice netprice discount tax taxbase total paid),
+                          grep({ /^(?:linetotal|listprice|sellprice|netprice|taxbase|discount|paid|subtotal|total|tax)_\d+$/ } keys(%{$self})));
+
+  $self->reformat_numbers($output_numberformat, undef, qw(qty price_factor), grep({ /^qty_\d+$/} keys(%{$self})));
+
+  my ($cvar_date_fields, $cvar_number_fields) = CVar->get_field_format_list('module' => 'CT', 'prefix' => 'vc_');
+
+  if (scalar @{ $cvar_date_fields }) {
+    $self->format_dates($output_dateformat, $output_longdates, @{ $cvar_date_fields });
+  }
+
+  while (my ($precision, $field_list) = each %{ $cvar_number_fields }) {
+    $self->reformat_numbers($output_numberformat, $precision, @{ $field_list });
+  }
+
+  return $self;
 }
 
 sub format_dates {
