@@ -50,15 +50,15 @@ sub run {
 
       _log_msg("Invoice " . $invoice->invnumber . " posted for config ID " . $config->id . ", period start date " . $::locale->format_date(\%::myconfig, $date) . "\n");
       push @new_invoices,      $invoice;
-      push @invoices_to_print, $invoice if $config->print;
+      push @invoices_to_print, [ $invoice, $config ] if $config->print;
 
       # last;
     }
   }
 
-  map { _print_invoice($_) } @invoices_to_print;
+  map { _print_invoice(@{ $_ }) } @invoices_to_print;
 
-  _send_email(\@new_invoices, \@invoices_to_print) if @new_invoices;
+  _send_email(\@new_invoices, [ map { $_->[0] } @invoices_to_print ]) if @new_invoices;
 
   return 1;
 }
@@ -219,6 +219,31 @@ sub _send_email {
   $mail->send;
 }
 
+sub _print_invoice {
+  my ($invoice, $config) = @_;
+
+  return unless $config->print && $config->printer_id && $config->printer->printer_command;
+
+  my $form = Form->new;
+  $invoice->flatten_to_form($form, format_amounts => 1);
+
+  $form->{printer_code} = $config->printer->template_code;
+  $form->{copies}       = $config->copies;
+  $form->{formname}     = $form->{type};
+  $form->{format}       = 'pdf';
+  $form->{media}        = 'printer';
+  $form->{OUT}          = "| " . $config->printer->printer_command;
+
+  $form->prepare_for_printing;
+
+  $form->throw_on_error(sub {
+    eval {
+      $form->parse_template(\%::myconfig, $::userspath);
+      1;
+    } || die $EVAL_ERROR->{error};
+  });
+}
+
 1;
 
 __END__
@@ -246,10 +271,6 @@ each date.
 =item *
 
 Strings like month names are hardcoded to German in this file.
-
-=item *
-
-Implement printing the invoices if requested.
 
 =back
 
