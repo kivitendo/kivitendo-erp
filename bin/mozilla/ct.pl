@@ -50,6 +50,7 @@ use POSIX qw(strftime);
 
 use SL::CT;
 use SL::CVar;
+use SL::DB::Business;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -140,6 +141,14 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (city)')    . " : $form->{addr_city}" if $form->{addr_city};
   push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{zipcode}"   if $form->{addr_zipcode};
   push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{street}"    if $form->{addr_street};
+
+  if ($form->{business_id}) {
+    my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});
+    if ($business) {
+      my $label = $form->{IS_CUSTOMER} ? $::locale->text('Customer type') : $::locale->text('Vendor type');
+      push @options, $label . " : " . $business->description;
+    }
+  }
 
   my @columns = (
     'id',        'name',      "$form->{db}number",   'contact',  'phone',
