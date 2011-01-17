@@ -11,15 +11,8 @@ use SL::DBUtils;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(type id number save dbh dbh_provided) ],
+ scalar => [ qw(type id number save dbh dbh_provided business_id) ],
 );
-
-# has 'type'         => ( is => 'rw', required => 1 );
-# has 'id'           => ( is => 'rw' );
-# has 'number'       => ( is => 'rw' );
-# has 'save'         => ( is => 'rw', default  => 1 );
-# has 'dbh'          => ( is => 'rw' );
-# has 'dbh_provided' => ( is => 'rw' );
 
 Readonly my @SUPPORTED_TYPES => qw(invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation);
 
@@ -32,6 +25,7 @@ sub new {
   $self->dbh_provided($self->dbh);
   $self->dbh($::form->get_standard_dbh) if !$self->dbh;
   $self->save(1) unless defined $self->save;
+  $self->business_id(undef) if $self->type ne 'customer';
 
   return $self;
 }
@@ -113,6 +107,7 @@ sub create_unique {
   my %filters = $self->_get_filters();
 
   do_query($form, $self->dbh, qq|LOCK TABLE defaults|);
+  do_query($form, $self->dbh, qq|LOCK TABLE business|) if $self->business_id;
 
   my $where = $filters{where} ? ' WHERE ' . $filters{where} : '';
   my $query = <<SQL;
@@ -123,8 +118,10 @@ SQL
 
   my %numbers_in_use = selectall_as_map($form, $self->dbh, $query, $filters{trans_number}, 'in_use');
 
-  my ($number)   = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|);
-  $number      ||= '';
+  my $number;
+  ($number)   = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ?|, $self->business_id) if $self->business_id;
+  ($number)   = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
+  $number   ||= '';
 
   do {
     if ($number =~ m/\d+$/) {
@@ -138,7 +135,11 @@ SQL
   } while ($numbers_in_use{$number});
 
   if ($self->save) {
-    do_query($form, $self->dbh, qq|UPDATE defaults SET $filters{numberfield} = ?|, $number);
+    if ($self->business_id) {
+      do_query($form, $self->dbh, qq|UPDATE business SET customernumberinit = ? WHERE id = ?|, $number, $self->business_id);
+    } else {
+      do_query($form, $self->dbh, qq|UPDATE defaults SET $filters{numberfield} = ?|, $number);
+    }
     $self->dbh->commit if !$self->dbh_provided;
   }
 
