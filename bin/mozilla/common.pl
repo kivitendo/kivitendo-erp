@@ -390,7 +390,7 @@ sub format_dates {
 }
 
 sub reformat_numbers {
-  return $::form->format_numbers(@_);
+  return $::form->reformat_numbers(@_);
 }
 
 # -------------------------------------------------------------------------
