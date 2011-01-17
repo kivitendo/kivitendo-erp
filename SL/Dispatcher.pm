@@ -236,7 +236,7 @@ sub handle_request {
   $::locale   = undef;
   $::form     = undef;
   $::myconfig = ();
-  Form::disconnect_standard_dbh();
+  Form::disconnect_standard_dbh unless $self->_interface_is_fcgi;
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;
@@ -244,7 +244,7 @@ sub handle_request {
 
 sub unrequire_bin_mozilla {
   my $self = shift;
-  return unless $self->{interface} =~ m/^(?:fastcgi|fcgid|fcgi)$/;
+  return unless $self->_interface_is_fcgi;
 
   for (keys %INC) {
     next unless m#^bin/mozilla/#;
@@ -252,6 +252,11 @@ sub unrequire_bin_mozilla {
     next if /\binstallationcheck.pl$/;
     delete $INC{$_};
   }
+}
+
+sub _interface_is_fcgi {
+  my $self = shift;
+  return $self->{interface} =~ m/^(?:fastcgi|fcgid|fcgi)$/;
 }
 
 sub _route_request {
