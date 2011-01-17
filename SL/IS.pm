@@ -963,10 +963,7 @@ sub post_invoice {
     $query = qq|UPDATE ar SET paid = ? WHERE id = ?|;
     do_query($form, $dbh, $query,  $form->{paid}, conv_i($form->{id}));
 
-    if (!$provided_dbh) {
-      $dbh->commit();
-      $dbh->disconnect();
-    }
+    $dbh->commit if !$provided_dbh;
 
     $main::lxdebug->leave_sub();
     return;
@@ -1081,10 +1078,7 @@ sub post_invoice {
                                'table'   => 'ar',);
 
   my $rc = 1;
-  if (!$provided_dbh) {
-    $dbh->commit();
-    $dbh->disconnect();
-  }
+  $dbh->commit if !$provided_dbh;
 
   $main::lxdebug->leave_sub();
 
@@ -1379,7 +1373,7 @@ sub delete_invoice {
 
   # Falls wir ein Storno haben, müssen zwei Felder in der stornierten Rechnung wieder
   # zurückgesetzt werden. Vgl:
-  #  id | storno | storno_id |  paid   |  amount   
+  #  id | storno | storno_id |  paid   |  amount
   #----+--------+-----------+---------+-----------
   # 18 | f      |           | 0.00000 | 119.00000
   # ZU:
