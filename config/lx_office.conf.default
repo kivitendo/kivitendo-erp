@@ -1,0 +1,30 @@
+[task_server]
+# User name to use for database access
+login = mb
+# Set to 1 for debug messages in /tmp/lx-office-debug.log
+debug = 1
+# Chose a system user the daemon should run under when started as root.
+run_as =
+
+[periodic_invoices]
+# The user name a report about the posted and printed invoices is sent
+# to.
+send_email_to  = login
+# The "From:" header for said email.
+email_from     = Lx-Office Daemon <root@localhost>
+# The subject for said email.
+email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
+# The template file used for the email's body.
+email_template = templates/webpages/oe/periodic_invoices_email.txt
+
+[Console]
+# autologin to use if none is given
+login = demo
+
+# autorun lines will be executed after autologin.
+# be warned that loading huge libraries will noticably lengthen startup time.
+#autorun = use SL::Module
+#        = use SL::Other::Module
+
+# location of history file for permanent history
+history_file = users/console_history

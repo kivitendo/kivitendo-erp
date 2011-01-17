@@ -3,5 +3,4 @@ crm
 /users/datev-export*
 /users/templates-cache/
 /users/pid/
-/config/task_server.conf
-/config/periodic_invoices.conf
+/config/lx_office.conf

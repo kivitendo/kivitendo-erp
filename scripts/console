@@ -14,7 +14,7 @@ use Data::Dumper;
 use Devel::REPL 1.002001;
 use Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
 
-read_config 'config/console.conf' => my %config;# if -f 'config/console.conf';
+read_config 'config/lx_office.conf' => my %config;
 
 my $login        = shift || $config{Console}{login}        || 'demo';
 my $history_file =          $config{Console}{history_file} || '/tmp/lxoffice_console_history.log'; # fallback if users is not writable
@@ -41,6 +41,7 @@ use utf8;
 use CGI qw( -no_xhtml);
 use DateTime;
 use SL::Auth;
+use SL::Dispatcher;
 use SL::Form;
 use SL::Helper::DateTime;
 use SL::Locale;
@@ -72,6 +73,9 @@ sub lxinit {
   $::cgi    = CGI->new qw();
   $::form   = Form->new;
   $::auth   = SL::Auth->new;
+
+  read_config 'config/lx_office.conf' => %::lx_office_conf;
+  SL::Dispatcher::_decode_recursively(\%::lx_office_conf);
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 
@@ -193,8 +197,8 @@ of the classes they were created with.
 
 Configuration of this script is located in:
 
- config/console.conf
- config/console.conf.default
+ config/lx_office.conf
+ config/lx_office.conf.default
 
 See there for interesting options.
 

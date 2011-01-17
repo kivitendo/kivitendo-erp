@@ -145,7 +145,7 @@ my $pidbase = "${cwd}/users/pid";
 
 mkdir($pidbase) if !-d $pidbase;
 
-newdaemon(configfile => "${cwd}/config/task_server.conf",
+newdaemon(configfile => "${cwd}/config/lx_office.conf",
           progname   => 'lx-office-task-server',
           pidbase    => "${pidbase}/",
           );
