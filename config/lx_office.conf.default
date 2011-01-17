@@ -28,3 +28,21 @@ login = demo
 
 # location of history file for permanent history
 history_file = users/console_history
+
+[debug]
+# Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
+# will be replaced by the file name configured for $::lxdebug.
+dbix_log4perl = 0
+dbix_log4perl_config = log4perl.logger = FATAL, LOGFILE
+                     = log4perl.appender.LOGFILE=Log::Log4perl::Appender::File
+                     = log4perl.appender.LOGFILE.filename=LXDEBUGFILE
+                     = log4perl.appender.LOGFILE.mode=append
+                     = log4perl.appender.LOGFILE.Threshold = ERROR
+                     = log4perl.appender.LOGFILE.layout=PatternLayout
+                     = log4perl.appender.LOGFILE.layout.ConversionPattern=[%r] %F %L %c - %m%n
+                     = log4perl.logger.DBIx.Log4perl=DEBUG, A1
+                     = log4perl.appender.A1=Log::Log4perl::Appender::File
+                     = log4perl.appender.A1.filename=LXDEBUGFILE
+                     = log4perl.appender.A1.mode=append
+                     = log4perl.appender.A1.layout=Log::Log4perl::Layout::PatternLayout
+                     = log4perl.appender.A1.layout.ConversionPattern=%d %p> %F{1}:%L %M - %m%n

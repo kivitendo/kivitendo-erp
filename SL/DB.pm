@@ -13,6 +13,22 @@ __PACKAGE__->use_private_registry;
 
 my (%_db_registered, %_initial_sql_executed);
 
+sub dbi_connect {
+  shift;
+
+  return DBI->connect(@_) unless $::lx_office_conf{debug} && $::lx_office_conf{debug}->{dbix_log4perl};
+
+  require Log::Log4perl;
+  require DBIx::Log4perl;
+
+  my $filename =  $LXDebug::file_name;
+  my $config   =  $::lx_office_conf{debug}->{dbix_log4perl_config};
+  $config      =~ s/LXDEBUGFILE/${filename}/g;
+
+  Log::Log4perl->init(\$config);
+  return DBIx::Log4perl->connect(@_);
+}
+
 sub create {
   my $domain = shift || SL::DB->default_domain;
   my $type   = shift || SL::DB->default_type;
