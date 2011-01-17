@@ -468,7 +468,7 @@ sub update {
 
   my ($recursive_call) = shift;
 
-#  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate creditlimit creditremaining) unless $recursive_call;
+  $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
 
   $form->{print_and_post} = 0         if $form->{second_run};
   my $taxincluded            = "checked" if $form->{taxincluded};
@@ -631,7 +631,7 @@ sub post_payment {
   # Das Problem hierbei ist, dass in IS.pm post_invoice IMMER alle Zahlungseingänge aus $form
   # erneut gespeichert werden. Prinzipiell wäre es besser NUR die Änderungen des Rechnungs-
   # belegs (neue Zahlung aber nichts anderes) zu speichern ...
-  # Vielleicht könnte man ähnlich wie bei Rechnung löschen verfahren 
+  # Vielleicht könnte man ähnlich wie bei Rechnung löschen verfahren
   $form->error($locale->text('Cannot post payment for a closed period!'))
     if ($form->date_closed($form->{"datepaid_$form->{paidaccounts}"}, \%myconfig));
 

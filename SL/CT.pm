@@ -698,7 +698,7 @@ sub search {
   my %allowed_sort_columns =
     map { $_, 1 } qw(
       id customernumber vendornumber name contact phone fax email street
-      taxnumber business invnumber ordnumber quonumber
+      taxnumber business invnumber ordnumber quonumber zipcode city
     );
   my $sortorder    = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
   $form->{sort} = $sortorder;

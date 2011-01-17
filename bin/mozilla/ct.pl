@@ -50,6 +50,7 @@ use POSIX qw(strftime);
 
 use SL::CT;
 use SL::CVar;
+use SL::DB::Business;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -141,6 +142,14 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{zipcode}"   if $form->{addr_zipcode};
   push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{street}"    if $form->{addr_street};
 
+  if ($form->{business_id}) {
+    my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});
+    if ($business) {
+      my $label = $form->{IS_CUSTOMER} ? $::locale->text('Customer type') : $::locale->text('Vendor type');
+      push @options, $label . " : " . $business->description;
+    }
+  }
+
   my @columns = (
     'id',        'name',      "$form->{db}number",   'contact',  'phone',
     'fax',       'email',     'taxnumber',           'street',   'zipcode' , 'city',
@@ -175,7 +184,8 @@ sub list_names {
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
 
-  my @hidden_variables  = (qw(db status obsolete name contact email cp_name addr_city), "$form->{db}number", @searchable_custom_variables, map { "l_$_" } @columns);
+  my @hidden_variables  = (qw(db status obsolete name contact email cp_name addr_street addr_zipcode addr_city business_id),
+                           "$form->{db}number", @searchable_custom_variables, map { "l_$_" } @columns);
   my @hidden_nondefault = grep({ $form->{$_} } @hidden_variables);
   my $callback          = build_std_url('action=list_names', grep { $form->{$_} } @hidden_nondefault);
   $form->{callback}     = "$callback&sort=" . E($form->{sort}) . "&sortdir=" . E($form->{sortdir});
