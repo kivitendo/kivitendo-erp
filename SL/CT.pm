@@ -44,6 +44,7 @@ use SL::CVar;
 use SL::DBUtils;
 use SL::FU;
 use SL::Notes;
+use SL::TransNumber;
 
 use strict;
 
@@ -261,21 +262,12 @@ sub save_customer {
     }
 
   } else {
-    if (!$form->{customernumber} && $form->{business}) {
-      $form->{customernumber} =
-        $form->update_business($myconfig, $form->{business}, $dbh);
-    }
-    if (!$form->{customernumber}) {
-      $form->{customernumber} =
-        $form->update_defaults($myconfig, "customernumber", $dbh);
-    }
-
-    $query  = qq|SELECT c.id FROM customer c WHERE c.customernumber = ?|;
-    ($f_id) = selectrow_query($form, $dbh, $query, $form->{customernumber});
-    if ($f_id ne "") {
-      $main::lxdebug->leave_sub();
-      return 3;
-    }
+    my $customernumber      = SL::TransNumber->new(type        => 'customer',
+                                                   dbh         => $dbh,
+                                                   number      => $form->{customernumber},
+                                                   business_id => $form->{business},
+                                                   save        => 1);
+    $form->{customernumber} = $customernumber->create_unique unless $customernumber->is_unique;
 
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
@@ -488,9 +480,11 @@ sub save_vendor {
     $query = qq|INSERT INTO vendor (id, name) VALUES (?, '')|;
     do_query($form, $dbh, $query, $form->{id});
 
-    if ( !$form->{vendornumber} ) {
-      $form->{vendornumber} = $form->update_defaults( $myconfig, "vendornumber", $dbh );
-    }
+    my $vendornumber      = SL::TransNumber->new(type   => 'vendor',
+                                                 dbh    => $dbh,
+                                                 number => $form->{vendornumber},
+                                                 save   => 1);
+    $form->{vendornumber} = $vendornumber->create_unique unless $vendornumber->is_unique;
   }
 
   $query =
