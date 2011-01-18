@@ -34,6 +34,7 @@
 use utf8;
 
 use SL::Auth;
+use SL::Auth::PasswordPolicy;
 use SL::AM;
 use SL::CA;
 use SL::Form;
@@ -2549,7 +2550,27 @@ sub save_preferences {
 
   TODO->save_user_config('login' => $form->{login}, %{ $form->{todo_cfg} || { } });
 
-  $form->redirect($locale->text('Preferences saved!')) if (AM->save_preferences(\%myconfig, \%$form, 0));
+  if (AM->save_preferences(\%myconfig, $form)) {
+    if ($::auth->can_change_password()
+        && defined $form->{new_password}
+        && ($form->{new_password} ne '********')) {
+      my $verifier = SL::Auth::PasswordPolicy->new;
+      my $result   = $verifier->verify($form->{new_password});
+
+      if ($result != SL::Auth::PasswordPolicy->OK()) {
+        $form->error($::locale->text('The settings were saved, but the password was not changed.') . ' ' . join(' ', $verifier->errors($result)));
+      }
+
+      $::auth->change_password($form->{login}, $form->{new_password});
+
+      $form->{password} = $form->{new_password};
+      $::auth->set_session_value('password', $form->{password});
+      $::auth->create_or_refresh_session();
+    }
+
+    $form->redirect($locale->text('Preferences saved!'));
+  }
+
   $form->error($locale->text('Cannot save preferences!'));
 
   $main::lxdebug->leave_sub();

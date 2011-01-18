@@ -1704,6 +1704,7 @@ $self->{texts} = {
   'The selected warehouse does not exist.' => 'Das ausgew&auml;hlte Lager existiert nicht.',
   'The selected warehouse is empty.' => 'Das ausgew&auml;hlte Lager ist leer.',
   'The session is invalid or has expired.' => 'Sie sind von Lx-Office abgemeldet.',
+  'The settings were saved, but the password was not changed.' => 'Die Einstellungen wurden gespeichert, aber das Passwort wurde nicht geändert.',
   'The source warehouse does not contain any bins.' => 'Das Quelllager enth&auml;lt keine Lagerpl&auml;tze.',
   'The start date is missing.'  => 'Das Startdatum fehlt.',
   'The subject is missing.'     => 'Der Betreff fehlt.',

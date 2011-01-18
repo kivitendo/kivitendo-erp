@@ -1410,7 +1410,7 @@ sub save_defaults {
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $webdav) = @_;
+  my ($self, $myconfig, $form) = @_;
 
   my $dbh = $form->get_standard_dbh($myconfig);
 
@@ -1437,16 +1437,6 @@ sub save_preferences {
   $myconfig->save_member($main::memberfile);
 
   my $auth = $main::auth;
-
-  if ($auth->can_change_password()
-      && defined $form->{new_password}
-      && ($form->{new_password} ne '********')) {
-    $auth->change_password($form->{login}, $form->{new_password});
-
-    $form->{password} = $form->{new_password};
-    $auth->set_session_value('password', $form->{password});
-    $auth->create_or_refresh_session();
-  }
 
   $main::lxdebug->leave_sub();
 
