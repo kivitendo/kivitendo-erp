@@ -42,6 +42,7 @@ use POSIX qw(strftime);
 use Sys::Hostname;
 
 use SL::Auth;
+use SL::Auth::PasswordPolicy;
 use SL::Form;
 use SL::Iconv;
 use SL::Mailer;
@@ -520,12 +521,6 @@ sub save_user {
 
   $myconfig->save_member();
 
-  if ($main::auth->can_change_password()
-      && defined $form->{new_password}
-      && ($form->{new_password} ne '********')) {
-    $main::auth->change_password($form->{login}, $form->{new_password});
-  }
-
   $form->{templates}       =~ s|.*/||;
   $form->{templates}       =  "$main::templates/$form->{templates}";
   $form->{mastertemplates} =~ s|.*/||;
@@ -578,8 +573,20 @@ sub save_user {
     }
   }
 
-  $form->redirect($locale->text('User saved!'));
+  if ($main::auth->can_change_password()
+      && defined $form->{new_password}
+      && ($form->{new_password} ne '********')) {
+    my $verifier = SL::Auth::PasswordPolicy->new;
+    my $result   = $verifier->verify($form->{new_password}, 1);
 
+    if ($result != SL::Auth::PasswordPolicy->OK()) {
+      $form->error($::locale->text('The settings were saved, but the password was not changed.') . ' ' . join(' ', $verifier->errors($result)));
+    }
+
+    $main::auth->change_password($form->{login}, $form->{new_password});
+  }
+
+  $form->redirect($locale->text('User saved!'));
 }
 
 sub save_user_as_new {

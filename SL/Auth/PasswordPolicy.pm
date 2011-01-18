@@ -19,10 +19,11 @@ use Rose::Object::MakeMethods::Generic
 );
 
 sub verify {
-  my ($self, $password) = @_;
+  my ($self, $password, $is_admin) = @_;
 
   my $cfg = $self->config;
   return OK() unless $cfg && %{ $cfg };
+  return OK() if $is_admin && $cfg->{disable_policy_for_admin};
 
   my $result = OK();
   $result |= TOO_SHORT()            if $cfg->{min_length}                && (length($password) < $cfg->{min_length});
@@ -144,11 +145,15 @@ The password contains an invalid character.
 
 =over 4
 
-=item C<verify $password>
+=item C<verify $password, $is_admin>
 
 Checks whether or not the password matches the policy. Returns C<OK()>
 if it does and an error code otherwise (binary or'ed of the error
 constants).
+
+If C<$is_admin> is trueish and the configuration specifies that the
+policy checks are disabled for the administrator then C<verify> will
+always return C<OK()>.
 
 =item C<errors $code>
 
