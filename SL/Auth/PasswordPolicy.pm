@@ -81,7 +81,6 @@ sub init_config {
   $cfg{invalid_characters_re} =  '['  . quotemeta($cfg{invalid_characters}) . ']' if $cfg{invalid_characters};
   $cfg{special_characters}    =  '!@#$%^&*()_+=[]{}<>\'"|\\,;.:?-';
   $cfg{special_characters_re} =  '[' . quotemeta($cfg{special_characters}) . ']';
-  print $cfg{special_characters_re}, "\n";
 
   map { $cfg{"require_${_}"} = $cfg{"require_${_}"} =~ m/^(?:1|true|t|yes|y)$/i } qw(lowercase uppercase digit special_char);
 
