@@ -11,6 +11,7 @@
 
 use Carp;
 use SL::Common;
+use SL::DB::Helper::Mappings;
 use SL::DBUtils;
 use SL::Form;
 use SL::MoreCommon;
@@ -613,13 +614,8 @@ sub gl_transaction {
   $main::lxdebug->leave_sub();
 }
 
-if ($::use_rdbo) {
-  eval {
-    require SL::DB::Helper::Mappings;
-    sub db {
-      goto &SL::DB::Helper::Mappings::db;
-    }
-  } or die $@;
+sub db {
+  goto &SL::DB::Helper::Mappings::db;
 }
 
 1;
