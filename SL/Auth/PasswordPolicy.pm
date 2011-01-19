@@ -4,14 +4,15 @@ use strict;
 
 use parent qw(Rose::Object);
 
-use constant OK                   =>  0;
-use constant TOO_SHORT            =>  1;
-use constant TOO_LONG             =>  2;
-use constant MISSING_LOWERCASE    =>  4;
-use constant MISSING_UPPERCASE    =>  8;
-use constant MISSING_DIGIT        => 16;
-use constant MISSING_SPECIAL_CHAR => 32;
-use constant INVALID_CHAR         => 64;
+use constant OK                   =>   0;
+use constant TOO_SHORT            =>   1;
+use constant TOO_LONG             =>   2;
+use constant MISSING_LOWERCASE    =>   4;
+use constant MISSING_UPPERCASE    =>   8;
+use constant MISSING_DIGIT        =>  16;
+use constant MISSING_SPECIAL_CHAR =>  32;
+use constant INVALID_CHAR         =>  64;
+use constant WEAK                 => 128;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -34,6 +35,11 @@ sub verify {
   $result |= MISSING_SPECIAL_CHAR() if $cfg->{require_special_character} && $password !~ $cfg->{special_characters_re};
   $result |= INVALID_CHAR()         if $cfg->{invalid_characters_re}     && $password =~ $cfg->{invalid_characters_re};
 
+  if ($cfg->{use_cracklib}) {
+    require Crypt::Cracklib;
+    $result |= WEAK() if !Crypt::Cracklib::check($password);
+  }
+
   return $result;
 }
 
@@ -47,6 +53,7 @@ sub errors {
   push @errors, $::locale->text('A lower-case character is required.')                                          if $result & MISSING_LOWERCASE();
   push @errors, $::locale->text('An upper-case character is required.')                                         if $result & MISSING_UPPERCASE();
   push @errors, $::locale->text('A digit is required.')                                                         if $result & MISSING_DIGIT();
+  push @errors, $::locale->text('The password is weak (e.g. it can be found in a dictionary).')                 if $result & WEAK();
 
   if ($result & MISSING_SPECIAL_CHAR()) {
     my $char_list = join ' ', sort split(m//, $self->config->{special_characters});

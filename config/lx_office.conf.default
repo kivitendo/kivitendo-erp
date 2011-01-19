@@ -53,6 +53,9 @@ invalid_characters =
 # Whether or not to check the policy if the password is set from the
 # user administration.
 disable_policy_for_admin =
+# Whether or not to check for weak passwords with the "cracklib"
+# library. Requires the Perl module "Crypt::Cracklib" to be installed.
+use_cracklib =
 
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
