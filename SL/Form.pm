@@ -1504,7 +1504,7 @@ sub cleanup {
     close(FH);
   }
 
-  if ($self->{tmpfile} && ! $::keep_temp_files) {
+  if ($self->{tmpfile} && !($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})) {
     $self->{tmpfile} =~ s|.*/||g;
     # strip extension
     $self->{tmpfile} =~ s/\.\w+$//g;

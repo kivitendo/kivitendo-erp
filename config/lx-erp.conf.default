@@ -131,10 +131,4 @@ $LXDebug::global_level = LXDebug->NONE;
 # weshalb sie normalerweise deaktiviert ist.
 $LXDebug::watch_form = 0;
 
-# Zum debuggen von Latexausgaben. Wenn diese Option auf 1 gesetzt wird, werden
-# temporäre Dateien, die bei der Erstellung von PDFs aus Latex erzeugt werden,
-# nach Abschluß der Erstellung oder im Fehlerfall nicht gelöscht, damit man sie
-# untersuchen kann.
-$::keep_temp_files = 0;
-
 1;
