@@ -383,7 +383,7 @@ sub save {
 
   $form->{saved_donumber} = $form->{donumber};
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   $main::lxdebug->leave_sub();
 
@@ -712,7 +712,7 @@ sub retrieve {
     $sth->finish();
   }
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   $main::lxdebug->leave_sub();
 

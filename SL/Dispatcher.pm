@@ -52,10 +52,10 @@ sub show_error {
   my $template             = shift;
   my $error_type           = shift || '';
 
-  $::locale                = Locale->new($::language);
+  $::locale                = Locale->new($::lx_office_conf{system}->{language});
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!.')                   if ($error_type eq 'password');
-  $::myconfig{countrycode} = $::language;
+  $::myconfig{countrycode} = $::lx_office_conf{system}->{language};
   $::form->{stylesheet}    = 'css/lx-office-erp.css';
 
   $::form->header;
@@ -164,7 +164,7 @@ sub handle_request {
   $self->unrequire_bin_mozilla;
 
   $::cgi         = CGI->new('');
-  $::locale      = Locale->new($::language);
+  $::locale      = Locale->new($::lx_office_conf{system}->{language});
   $::form        = Form->new;
   %::called_subs = ();
 

@@ -55,7 +55,7 @@ sub render {
       my $content_type  = $options->{type} eq 'js' ? 'text/javascript' : 'text/html';
 
       print $::form->create_http_response(content_type => $content_type,
-                                          charset      => $::dbcharset || Common::DEFAULT_CHARSET());
+                                          charset      => $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET());
 
     } else {
       $::form->{title} = $locals{title} if $locals{title};
@@ -67,13 +67,13 @@ sub render {
                  AUTH     => $::auth,
                  FORM     => $::form,
                  LOCALE   => $::locale,
-                 LXCONFIG => { dbcharset              => $::dbcharset,
-                               webdav                 => $::webdav,
-                               lizenzen               => $::lizenzen,
+                 LXCONFIG => { dbcharset              => $::lx_office_conf{system}->{dbcharset},
+                               webdav                 => $::lx_office_conf{system}->{webdav},
+                               lizenzen               => $::lx_office_conf{system}->{lizenzen},
                                latex_templates        => $::lx_office_conf{print_templates}->{latex},
                                opendocument_templates => $::lx_office_conf{print_templates}->{opendocument},
-                               vertreter              => $::vertreter,
-                               show_best_before       => $::show_best_before,
+                               vertreter              => $::lx_office_conf{system}->{vertreter},
+                               show_best_before       => $::lx_office_conf{system}->{show_best_before},
                              },
                  LXDEBUG  => $::lxdebug,
                  MYCONFIG => \%::myconfig,

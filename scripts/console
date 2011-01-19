@@ -66,7 +66,7 @@ sub lxinit {
   SL::Dispatcher::_decode_recursively(\%::lx_office_conf);
 
   $::lxdebug = LXDebug->new;
-  $::locale = Locale->new($::language);
+  $::locale = Locale->new($::lx_office_conf{system}->{language});
   $::cgi    = CGI->new qw();
   $::form   = Form->new;
   $::auth   = SL::Auth->new;

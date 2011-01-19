@@ -1045,7 +1045,7 @@ sub post_invoice {
   # save printed, emailed and queued
   $form->save_status($dbh);
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   # Link this record to the records it was created from.
   RecordLinks->create_links('dbh'        => $dbh,
@@ -1277,7 +1277,7 @@ sub cogs {
     # sellprice is the cost of the item
     my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / ( ($ref->{price_factor} || 1) * ( $basefactor || 1 )), 2);
 
-    if (!$main::eur) {
+    if (!$::lx_office_conf{system}->{eur}) {
       $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};
       # add to expense
       $form->{amount_cogs}{ $form->{id} }{ $ref->{expense_accno} } += -$linetotal;
@@ -1584,7 +1584,7 @@ sub retrieve_invoice {
     }
     $sth->finish;
 
-    Common::webdav_folder($form) if ($main::webdav);
+    Common::webdav_folder($form);
   }
 
   my $rc = $dbh->commit;

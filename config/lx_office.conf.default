@@ -1,3 +1,33 @@
+[system]
+# EUR: Einnahmen-Überschussrechnung (net income method). Set this to 1
+# if your company uses the net income method and to 0 for balacing.
+eur = 1
+
+# Set language for login and admin forms. Currently "de" (German),
+# "de_DE" (new German) and "en" (English, not perfect) are available.
+language = de
+
+# The database charset. Must match the database cluster you want to
+# connect to.
+dbcharset = UTF-8
+
+[features]
+# Activate certain optional features and modules.
+webdav = 0
+lizenzen = 1
+vertreter = 0
+
+# Show fields used for the best before date
+show_best_before = 0
+
+## Pictures for parts
+# Show the picture in the part form
+parts_show_image = 1
+# Style the picture with the following CSS code:
+parts_image_css = border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;
+# Show the picture in the results when you search for parts
+parts_listing_images = 0
+
 [paths]
 # path to temporary files (must be writeable by the web server)
 userspath = users

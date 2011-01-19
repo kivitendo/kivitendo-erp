@@ -567,7 +567,7 @@ sub save {
   $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
                                        "quonumber" : "ordnumber"};
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   my $rc = $dbh->commit;
 
@@ -993,7 +993,7 @@ sub retrieve {
 
   $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? "buy" : "sell");
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   $self->load_periodic_invoice_config($form);
 

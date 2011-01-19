@@ -302,7 +302,7 @@ and recorded in C<acc_trans>.
 =item 6. Items in C<invoice> are updated according to their allocation
 status (regarding for costs of goold sold). Will only be done if
 Lx-Office is not configured to use Einnahmenüberschussrechnungen
-(C<$::eur>).
+(see config/lx_office.conf, section "system", variable "eur").
 
 =item 7. The invoice and its items are saved.
 

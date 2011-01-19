@@ -581,7 +581,7 @@ sub dbupdate {
     closedir(SQLDIR);
   }
 
-  my $db_charset = $main::dbcharset;
+  my $db_charset = $::lx_office_conf{system}->{dbcharset};
   $db_charset ||= Common::DEFAULT_CHARSET;
 
   my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver});
@@ -648,7 +648,7 @@ sub dbupdate2 {
   $form->{sid} = $form->{dbdefault};
 
   my $rc         = -2;
-  my $db_charset = $main::dbcharset || Common::DEFAULT_CHARSET;
+  my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
 
   map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $dbupdater->{all_controls} };
 

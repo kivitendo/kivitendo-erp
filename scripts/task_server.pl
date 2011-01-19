@@ -46,7 +46,7 @@ sub lxinit {
   eval { require "config/lx-erp-local.conf"; 1; } or die $EVAL_ERROR if -f "config/lx-erp-local.conf";
 
   $::lxdebug = LXDebug->new;
-  $::locale  = Locale->new($::language);
+  $::locale  = Locale->new($::lx_office_conf{system}->{language});
   $::cgi     = CGI->new qw();
   $::form    = Form->new;
   $::auth    = SL::Auth->new;
@@ -115,7 +115,7 @@ sub gd_run {
       foreach my $job (@{ $jobs }) {
         # Provide fresh global variables in case legacy code modifies
         # them somehow.
-        $::locale = Locale->new($::language);
+        $::locale = Locale->new($::lx_office_conf{system}->{language});
         $::form   = Form->new;
 
         $job->run;

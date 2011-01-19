@@ -22,7 +22,7 @@ sub new {
   my $self = $type->SUPER::new(@_);
 
   $self->{"rnd"}   = int(rand(1000000));
-  $self->{"iconv"} = SL::Iconv->new($main::dbcharset, "UTF-8");
+  $self->{"iconv"} = SL::Iconv->new($::lx_office_conf{system}->{dbcharset}, "UTF-8");
 
   $self->set_tag_style('&lt;%', '%&gt;');
   $self->{quot_re} = '&quot;';

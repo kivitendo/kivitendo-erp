@@ -54,7 +54,7 @@ sub display {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  my $charset = $main::dbcharset || 'ISO-8859-1';
+  my $charset = $::lx_office_conf{system}->{dbcharset} || 'ISO-8859-1';
   my $callback            = $form->unescape($form->{callback});
   $callback               = URI->new($callback)->rel($callback) if $callback;
   $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;

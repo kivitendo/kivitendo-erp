@@ -767,12 +767,12 @@ sub create_dataset {
   }
   closedir SQLDIR;
 
-  my $default_charset = $main::dbcharset;
+  my $default_charset = $::lx_office_conf{system}->{dbcharset};
   $default_charset ||= Common::DEFAULT_CHARSET;
 
   my $cluster_encoding = User->dbclusterencoding($form);
   if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i)) {
-    if ($main::dbcharset !~ m/^UTF-?8$/i) {
+    if ($::lx_office_conf{system}->{dbcharset} !~ m/^UTF-?8$/i) {
       $form->show_generic_error($locale->text('The selected  PostgreSQL installation uses UTF-8 as its encoding. ' .
                                               'Therefore you have to configure Lx-Office to use UTF-8 as well.'),
                                 'back_button' => 1);
@@ -934,7 +934,7 @@ sub backup_dataset_start {
 
     map { $mail->{$_} = $form->{$_} } qw(from to cc subject message);
 
-    $mail->{charset}     = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
+    $mail->{charset}     = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
     $mail->{attachments} = [ { "filename" => $tmp, "name" => $name } ];
     $mail->send();
 
@@ -958,7 +958,7 @@ sub restore_dataset {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
-  my $default_charset   = $main::dbcharset;
+  my $default_charset   = $::lx_office_conf{system}->{dbcharset};
   $default_charset    ||= Common::DEFAULT_CHARSET;
 
   $form->{DBENCODINGS}  = [];

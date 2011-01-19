@@ -300,7 +300,7 @@ sub form_header {
                    taxzones  => "ALL_TAXZONES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
-  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::vertreter;
+  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::lx_office_conf{system}->{vertreter};
 
   $form->{ALL_SALESMEN}   = $form->{ALL_EMPLOYEES};
   $form->{taxincluded}    = ($form->{taxincluded}) ? "checked" : "";
@@ -354,7 +354,7 @@ sub _do_save {
 
   $::form->isblank("name", $::locale->text("Name missing!"));
 
-  if ($::form->{new_salesman_id} && $::vertreter) {
+  if ($::form->{new_salesman_id} && $::lx_office_conf{system}->{vertreter}) {
     $::form->{salesman_id} = $::form->{new_salesman_id};
     delete $::form->{new_salesman_id};
   }

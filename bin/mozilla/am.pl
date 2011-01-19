@@ -1111,7 +1111,7 @@ sub list_business {
   $form->{title} = $locale->text('Type of Business');
 
   my @column_index = qw(description discount customernumberinit);
-  push @column_index, 'salesman' if $::vertreter;
+  push @column_index, 'salesman' if $::lx_office_conf{system}->{vertreter};
   my %column_header;
   $column_header{description} =
       qq|<th class=listheading width=60%>|
@@ -1224,7 +1224,7 @@ sub business_header {
     $form->format_amount(\%myconfig, $form->{discount} * 100);
 
   my $salesman_code;
-  if ($::vertreter) {
+  if ($::lx_office_conf{system}->{vertreter}) {
     $salesman_code = qq|
   <tr>
     <th align="right">| . $locale->text('Representative') . qq|</th>
@@ -1873,7 +1873,7 @@ sub buchungsgruppe_header {
   }
 
   my $linkaccounts;
-  if (!$main::eur) {
+  if (!$::lx_office_conf{system}->{eur}) {
     $linkaccounts = qq|
                <tr>
                 <th align=right>| . $locale->text('Inventory') . qq|</th>
