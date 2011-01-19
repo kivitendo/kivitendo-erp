@@ -89,7 +89,6 @@ sub pre_startup_setup {
   {
     no warnings 'once';
     $::menufile    = "menu.ini";
-    $::sendmail    = "| /usr/sbin/sendmail -t";
     $::lxdebug     = LXDebug->new;
     $::auth        = SL::Auth->new;
     $::form        = undef;

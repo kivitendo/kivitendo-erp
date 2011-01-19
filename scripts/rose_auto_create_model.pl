@@ -42,8 +42,6 @@ sub setup {
 
   my $login     = shift @ARGV;
 
-  $::sendmail   = "| /usr/sbin/sendmail -t";
-
   $::lxdebug    = LXDebug->new();
 
   require "config/lx-erp.conf";

@@ -59,10 +59,6 @@ sub lxinit {
 
   package main;
 
-  { no warnings 'once';
-    $::sendmail   = "| /usr/sbin/sendmail -t";
-  }
-
   eval { require "config/lx-erp.conf"; };
   eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
 

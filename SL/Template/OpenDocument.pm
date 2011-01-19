@@ -382,7 +382,7 @@ sub spawn_xvfb {
   my $pid = fork();
   if (0 == $pid) {
     $main::lxdebug->message(LXDebug->DEBUG2(), "  Child execing\n");
-    exec($main::xvfb_bin, $display, "-screen", "0", "640x480x8", "-nolisten", "tcp");
+    exec($::lx_office_conf{applications}->{xvfb}, $display, "-screen", "0", "640x480x8", "-nolisten", "tcp");
   }
   sleep(3);
   $main::lxdebug->message(LXDebug->DEBUG2(), "  parent dont sleeping\n");
@@ -457,7 +457,7 @@ sub spawn_openoffice {
         exit if ($new_pid);
         my $ssres = setsid();
         $main::lxdebug->message(LXDebug->DEBUG2(), "  Child execing\n");
-        my @cmdline = ($main::openofficeorg_writer_bin,
+        my @cmdline = ($::lx_office_conf{applications}->{openofficeorg_writer},
                        "-minimized", "-norestore", "-nologo", "-nolockcheck",
                        "-headless",
                        "-accept=socket,host=localhost,port=" .
@@ -509,7 +509,7 @@ sub convert_to_pdf {
 
   my @cmdline;
   if (!$main::openofficeorg_daemon) {
-    @cmdline = ($main::openofficeorg_writer_bin,
+    @cmdline = ($::lx_office_conf{applications}->{openofficeorg_writer},
                 "-minimized", "-norestore", "-nologo", "-nolockcheck",
                 "-headless",
                 "file:${filename}.odt",

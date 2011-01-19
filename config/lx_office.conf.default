@@ -8,6 +8,27 @@ templates = templates
 # Path to the old memberfile (ignored on new installations)
 memberfile = users/members
 
+[applications]
+# Location of sendmail
+sendmail = /usr/sbin/sendmail -t<%if myconfig_email%> -f <%myconfig_email%><%end%>
+# Location of OpenOffice.org writer
+openofficeorg_writer = oowriter
+# Location of the X virtual frame buffer used for OpenOffice
+xvfb = Xvfb
+# Location of the html2ps binary
+html2ps = html2ps
+# Location of the Ghostscript binary
+ghostscript = gs
+# Location of the pdflatex (or compatible, e.g. xetex) binary
+latex = pdflatex
+# Location of the two executables "pg_dump" and "pg_restore" used for
+# database backup and restoration from the admin section.  If
+# "pg_dump" or "pg_restore" is set to "DISABLED" then the
+# corresponding option (backup/restoration) will be hidden from the
+# admin section.
+pg_dump = pg_dump
+pg_restore = pg_restore
+
 [environment]
 # Add the following paths to the PATH environment variable.
 path = /usr/local/bin:/usr/X11R6/bin:/usr/X11/bin

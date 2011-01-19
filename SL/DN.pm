@@ -667,7 +667,7 @@ sub melt_pdfs {
 
   $dunning_id     =~ s|[^\d]||g;
 
-  my $in = IO::File->new("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
+  my $in = IO::File->new($::lx_office_conf{applications}->{ghostscript} . " -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
   $form->error($main::locale->text('Could not spawn ghostscript.')) unless $in;
 
   if ($form->{media} eq 'printer') {

@@ -2457,8 +2457,9 @@ sub config {
   _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00'));
 
   my @formats = ();
-  if ($main::opendocument_templates && $main::openofficeorg_writer_bin &&
-      $main::xvfb_bin && (-x $main::openofficeorg_writer_bin) && (-x $main::xvfb_bin)) {
+  if ($main::opendocument_templates
+      && $::lx_office_conf{applications}->{openofficeorg_writer} && (-x $::lx_office_conf{applications}->{openofficeorg_writer})
+      && $::lx_office_conf{applications}->{xvfb}                 && (-x $::lx_office_conf{applications}->{xvfb})) {
     push(@formats, { "name" => $locale->text("PDF (OpenDocument/OASIS)"),
                      "value" => "opendocument_pdf" });
   }

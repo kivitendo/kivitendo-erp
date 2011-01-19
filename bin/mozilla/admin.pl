@@ -845,7 +845,7 @@ sub backup_dataset {
 
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
-  if ("$main::pg_dump_exe" eq "DISABLED") {
+  if ($::lx_office_conf{applications}->{pg_dump} eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
@@ -867,9 +867,9 @@ sub backup_dataset_start {
 
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
-  $main::pg_dump_exe ||= "pg_dump";
+  my $pg_dump_exe = $::lx_office_conf{applications}->{pg_dump} || "pg_dump";
 
-  if ("$main::pg_dump_exe" eq "DISABLED") {
+  if ("$pg_dump_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
@@ -895,7 +895,7 @@ sub backup_dataset_start {
   push @args, ("-p", $form->{dbport}) if ($form->{dbport});
   push @args, $form->{dbname};
 
-  my $cmd  = "$main::pg_dump_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
+  my $cmd  = "$pg_dump_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
   my $name = "dataset_backup_$form->{dbname}_" . strftime("%Y%m%d", localtime()) . ".tar";
 
   if ($form->{destination} ne "email") {
@@ -954,7 +954,7 @@ sub restore_dataset {
 
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
-  if ("$main::pg_restore_exe" eq "DISABLED") {
+  if ($::lx_office_conf{applications}->{pg_restore} eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
@@ -979,9 +979,9 @@ sub restore_dataset_start {
 
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
-  $main::pg_restore_exe ||= "pg_restore";
+  my $pg_restore_exe = $::lx_office_conf{applications}->{pg_restore} || "pg_restore";
 
-  if ("$main::pg_restore_exe" eq "DISABLED") {
+  if ("$pg_restore_exe" eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
   }
 
@@ -1068,7 +1068,7 @@ sub restore_dataset_start {
   push @args, ("-p", $form->{dbport}) if ($form->{dbport});
   push @args, $tmp;
 
-  my $cmd = "$main::pg_restore_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
+  my $cmd = "$pg_restore_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
 
   my $in = IO::File->new("$cmd 2>&1 |");
 
