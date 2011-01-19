@@ -2,9 +2,7 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
-
-
-
+2011-02-?? - Release 2.6.2
 
   Größere neue Features:
 
@@ -12,6 +10,16 @@
 
     Das Program läuft jetzt optional unter FastCGI, und damit etwa um
     Faktor 10 schneller. Siehe Dokumentation in doc INSTALL.fcgi.
+
+  - Neues Gruppenrecht "Druck"
+
+    Es wurde ein neues Recht "Druck" eingeführt. Dieses bestimmt, ob
+    die Benutzerin das Menü "Druck" zu Gesicht bekommt oder nicht,
+    unabhängig davon, wie die Rechte für die einzelnen Unterpunkte
+    gesetzt sind.
+
+    Für bereits bestehende Gruppen muss es sofern gewünscht vom
+    Administrator manuell gewährt werden.
 
   Kleinere neue Features und Detailverbesserungen:
 
@@ -49,7 +57,7 @@
 
    - Bug 1388 -  Berichte sind defekt, wenn abweichendes Datumsformat (ISO) eingestellt ist
    - Bug 1395 -  Einlagern ueber Lieferschein: Einheiten entsprechen nicht den Standardeinheiten der Artikel
-   - Bug 1398 -  Im Lagerjournal werden Projektnummern nicht erfasst 
+   - Bug 1398 -  Im Lagerjournal werden Projektnummern nicht erfasst
    - Bug 1409 -  Bei "Erzeugnis fertigen" wird nur der Bestand der letzten Komponente geprüft
    - Bug 1412 -  Wenn die Ware ausgewählt werden muss wird der Rabatt verworfen
    - Bug 1421 -  Stornorechnungen loeschen bereitet Probleme
