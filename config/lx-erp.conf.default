@@ -1,12 +1,12 @@
 use Cwd;
 
-our qw(
-  $dbcharset $eur $ghostscript_bin $html2ps_bin $language $latex_bin
-  $latex_templates $lizenzen $memberfile $opendocument_templates
-  $openofficeorg_daemon $openofficeorg_daemon_port $openofficeorg_writer_bin
-  $parts_image_css $parts_listing_images $parts_show_image $pg_dump_exe
-  $pg_restore_exe $sendmail $show_best_before $sid $spool $templates
-  $userspath $vertreter $webdav $xvfb_bin
+our (
+  $dbcharset, $eur, $ghostscript_bin, $html2ps_bin, $language, $latex_bin,
+  $latex_templates, $lizenzen, $memberfile, $opendocument_templates,
+  $openofficeorg_daemon, $openofficeorg_daemon_port, $openofficeorg_writer_bin,
+  $parts_image_css, $parts_listing_images, $parts_show_image, $pg_dump_exe,
+  $pg_restore_exe, $sendmail, $show_best_before, $sid, $spool, $templates,
+  $userspath, $vertreter, $webdav, $xvfb_bin
 );
 
 # path to user configuration files
