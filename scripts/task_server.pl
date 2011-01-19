@@ -31,14 +31,14 @@ use SL::Helper::DateTime;
 use SL::LXDebug;
 use SL::Locale;
 
-my %config;
+our %lx_office_conf;
 
 # this is a cleaned up version of am.pl
 # it lacks redirection, some html setup and most of the authentication process.
 # it is assumed that anyone with physical access and execution rights on this script
 # won't be hindered by authentication anyway.
 sub lxinit {
-  my $login = $config{task_server}->{login};
+  my $login = $lx_office_conf{task_server}->{login};
 
   package main;
 
@@ -68,7 +68,7 @@ sub lxinit {
 }
 
 sub drop_privileges {
-  my $user = $::emmvee_conf{task_server}->{run_as};
+  my $user = $lx_office_conf{task_server}->{run_as};
   return unless $user;
 
   my ($uid, $gid);
@@ -98,10 +98,10 @@ sub drop_privileges {
 sub gd_preconfig {
   my $self = shift;
 
-  read_config $self->{configfile} => %config;
+  read_config $self->{configfile} => %lx_office_conf;
 
-  die "Missing section [task_server] in config file"                unless $config{task_server};
-  die "Missing key 'login' in section [task_server] in config file" unless $config{task_server}->{login};
+  die "Missing section [task_server] in config file"                unless $lx_office_conf{task_server};
+  die "Missing key 'login' in section [task_server] in config file" unless $lx_office_conf{task_server}->{login};
 
   drop_privileges();
   lxinit();
@@ -112,11 +112,11 @@ sub gd_preconfig {
 sub gd_run {
   while (1) {
     my $ok = eval {
-      $::lxdebug->message(0, "Retrieving jobs") if $config{task_server}->{debug};
+      $::lxdebug->message(0, "Retrieving jobs") if $lx_office_conf{task_server}->{debug};
 
       my $jobs = SL::DB::Manager::BackgroundJob->get_all_need_to_run;
 
-      $::lxdebug->message(0, "  Found: " . join(' ', map { $_->package_name } @{ $jobs })) if $config{task_server}->{debug} && @{ $jobs };
+      $::lxdebug->message(0, "  Found: " . join(' ', map { $_->package_name } @{ $jobs })) if $lx_office_conf{task_server}->{debug} && @{ $jobs };
 
       foreach my $job (@{ $jobs }) {
         # Provide fresh global variables in case legacy code modifies
@@ -130,7 +130,7 @@ sub gd_run {
       1;
     };
 
-    if ($config{task_server}->{debug}) {
+    if ($lx_office_conf{task_server}->{debug}) {
       $::lxdebug->message(0, "Exception during execution: ${EVAL_ERROR}") if !$ok;
       $::lxdebug->message(0, "Sleeping");
     }
