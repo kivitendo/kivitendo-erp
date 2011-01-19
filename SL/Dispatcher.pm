@@ -75,6 +75,9 @@ sub pre_startup_setup {
     require "config/lx-erp-local.conf";
   } if -f "config/lx-erp-local.conf";
 
+  read_config 'config/lx_office.conf' => %::lx_office_conf;
+  _decode_recursively(\%::lx_office_conf);
+
   eval {
     package main;
     require "bin/mozilla/common.pl";
@@ -94,9 +97,6 @@ sub pre_startup_setup {
     $::form        = undef;
     %::myconfig    = ();
     %::called_subs = (); # currently used for recursion detection
-
-    read_config 'config/lx_office.conf' => %::lx_office_conf if -f "config/lx_office.conf";
-    _decode_recursively(\%::lx_office_conf);
   }
 
   $SIG{__WARN__} = sub {
