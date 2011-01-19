@@ -1271,7 +1271,7 @@ sub delete_order_quotation {
     $msg = $locale->text('Quotation deleted!');
     $err = $locale->text('Cannot delete quotation!');
   }
-  if (OE->delete(\%myconfig, \%$form, $main::spool)){
+  if (OE->delete(\%myconfig, \%$form)){
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};

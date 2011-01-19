@@ -87,9 +87,6 @@ sub pre_startup_setup {
   # canonial globals. if it's not here, chances are it will get refactored someday.
   {
     no warnings 'once';
-    $::userspath   = "users";
-    $::templates   = "templates";
-    $::memberfile  = "users/members";
     $::menufile    = "menu.ini";
     $::sendmail    = "| /usr/sbin/sendmail -t";
     $::lxdebug     = LXDebug->new;
@@ -193,7 +190,7 @@ sub handle_request {
     my $session_result = $::auth->restore_session;
     $::auth->create_or_refresh_session;
 
-    $::form->error($::locale->text('System currently down for maintenance!')) if -e "$::userspath/nologin" && $script ne 'admin';
+    $::form->error($::locale->text('System currently down for maintenance!')) if -e ($::lx_office_conf{paths}->{userspath} . "/nologin") && $script ne 'admin';
 
     if ($script eq 'login' or $script eq 'admin' or $script eq 'kopf') {
       $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";

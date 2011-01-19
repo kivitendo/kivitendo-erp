@@ -1178,7 +1178,7 @@ sub yes {
 
   $main::auth->assert('general_ledger');
 
-  if (AP->delete_transaction(\%myconfig, \%$form, $main::spool)) {
+  if (AP->delete_transaction(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
       $form->{snumbers} = qq|invnumber_| . $form->{invnumber};

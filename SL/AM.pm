@@ -1434,7 +1434,7 @@ sub save_preferences {
     $myconfig->{$item} = $form->{$item};
   }
 
-  $myconfig->save_member($main::memberfile);
+  $myconfig->save_member;
 
   my $auth = $main::auth;
 

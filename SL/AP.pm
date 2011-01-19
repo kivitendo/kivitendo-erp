@@ -360,7 +360,7 @@ sub post_transaction {
 sub delete_transaction {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $spool) = @_;
+  my ($self, $myconfig, $form) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);

@@ -2071,7 +2071,7 @@ sub print_form {
         $form->{attachment_filename} =  $locale->quote_special_chars('filenames', $locale->text("Statement") . "_$form->{todate}.$attachment_suffix");
         $form->{attachment_filename} =~ s/\s+/_/g;
 
-        $form->parse_template(\%myconfig, $main::userspath);
+        $form->parse_template(\%myconfig);
 
       }
     }

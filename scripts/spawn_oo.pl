@@ -5,6 +5,7 @@ BEGIN {
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
 }
 
+
 use DBI;
 use Data::Dumper;
 
@@ -13,9 +14,6 @@ use SL::LXDebug;
 use SL::Form;
 use SL::Template;
 
-$userspath  = "users";
-$templates  = "templates";
-$memberfile = "users/members";
 $sendmail   = "| /usr/sbin/sendmail -t";
 
 $| = 1;

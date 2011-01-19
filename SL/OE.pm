@@ -655,7 +655,7 @@ sub _close_quotations_rfqs {
 sub delete {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $spool) = @_;
+  my ($self, $myconfig, $form) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -705,6 +705,7 @@ sub delete {
   $dbh->disconnect;
 
   if ($rc) {
+    my $spool = $::lx_office_conf{paths}->{spool};
     foreach $spoolfile (@spoolfiles) {
       unlink "$spool/$spoolfile" if $spoolfile;
     }

@@ -43,8 +43,6 @@ sub lxinit {
   package main;
 
   { no warnings 'once';
-    $::userspath  = "users";
-    $::templates  = "templates";
     $::sendmail   = "| /usr/sbin/sendmail -t";
   }
 

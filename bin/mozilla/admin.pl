@@ -144,10 +144,11 @@ sub check_auth_db_and_tables {
     ::end_of_request();
   }
 
-  if (-f $main::memberfile) {
+  my $memberfile = $::lx_office_conf{paths}->{memberfile};
+  if (-f $memberfile) {
     my $memberdir = "";
 
-    if ($main::memberfile =~ m|^.*/|) {
+    if ($memberfile =~ m|^.*/|) {
       $memberdir = $&;
     }
 
@@ -155,7 +156,7 @@ sub check_auth_db_and_tables {
 
     $form->{title} = $locale->text('User data migration');
     $form->header();
-    print $form->parse_html_template('admin/user_migration', { 'memberfile' => $main::memberfile,
+    print $form->parse_html_template('admin/user_migration', { 'memberfile' => $memberfile,
                                                                'backupdir'  => $backupdir });
 
     ::end_of_request();
@@ -179,7 +180,8 @@ sub create_auth_tables {
   $main::auth->set_session_value('rpw', $form->{rpw});
   $main::auth->create_or_refresh_session();
 
-  if (!-f $main::memberfile) {
+  my $memberfile = $::lx_office_conf{paths}->{memberfile};
+  if (!-f $memberfile) {
     # New installation -- create a standard group with full access
     my %members;
     my $group = {
@@ -203,7 +205,8 @@ sub migrate_users {
 
   my $memberdir = "";
 
-  if ($main::memberfile =~ m|^.*/|) {
+  my $memberfile = $::lx_office_conf{paths}->{memberfile};
+  if ($memberfile =~ m|^.*/|) {
     $memberdir = $&;
   }
 
@@ -213,9 +216,9 @@ sub migrate_users {
     $form->error(sprintf($locale->text('The directory "%s" could not be created:\n%s'), $backupdir, $!));
   }
 
-  copy $main::memberfile, "users/member-file-migration/members";
+  copy $memberfile, "users/member-file-migration/members";
 
-  my $in = IO::File->new($main::memberfile, "r");
+  my $in = IO::File->new($memberfile, "r");
 
   $form->error($locale->text('Could not open the old memberfile.')) if (!$in);
 
@@ -266,7 +269,7 @@ sub migrate_users {
     }
   }
 
-  unlink $main::memberfile;
+  unlink $memberfile;
 
   my @member_list = sort { lc $a->{login} cmp lc $b->{login} } values %members;
 
@@ -341,7 +344,7 @@ sub list_users {
   map { $_->{templates} =~ s|.*/||; } values %members;
 
   $form->{title}   = "Lx-Office ERP " . $locale->text('Administration');
-  $form->{LOCKED}  = -e "$main::userspath/nologin";
+  $form->{LOCKED}  = -e _nologin_file_name();
   $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
 
   $form->header();
@@ -411,14 +414,14 @@ sub edit_user_form {
   }
 
   # is there a templates basedir
-  if (!-d "$main::templates") {
-    $form->error(sprintf($locale->text("The directory %s does not exist."), $main::templates));
+  if (!-d $::lx_office_conf{paths}->{templates}) {
+    $form->error(sprintf($locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
   }
 
-  opendir TEMPLATEDIR, "$main::templates/." or $form->error("$main::templates : $ERRNO");
+  opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
   my @all     = readdir(TEMPLATEDIR);
-  my @alldir  = sort grep { -d "$main::templates/$_" && !/^\.\.?$/ } @all;
-  my @allhtml = sort grep { -f "$main::templates/$_" && /\.html$/ } @all;
+  my @alldir  = sort grep { -d ($::lx_office_conf{paths}->{templates} . "/$_") && !/^\.\.?$/ } @all;
+  my @allhtml = sort grep { -f ($::lx_office_conf{paths}->{templates} . "/$_") &&  /\.html$/ } @all;
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
@@ -497,13 +500,13 @@ sub save_user {
   }
 
   # is there a basedir
-  if (!-d "$main::templates") {
-    $form->error(sprintf($locale->text("The directory %s does not exist."), $main::templates));
+  if (!-d $::lx_office_conf{paths}->{templates}) {
+    $form->error(sprintf($locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
   }
 
   # add base directory to $form->{templates}
   $form->{templates} =~ s|.*/||;
-  $form->{templates} =  "$main::templates/$form->{templates}";
+  $form->{templates} =  $::lx_office_conf{paths}->{templates} . "/$form->{templates}";
 
   my $myconfig = new User($form->{login});
 
@@ -522,7 +525,7 @@ sub save_user {
   $myconfig->save_member();
 
   $form->{templates}       =~ s|.*/||;
-  $form->{templates}       =  "$main::templates/$form->{templates}";
+  $form->{templates}       =  $::lx_office_conf{paths}->{templates} . "/$form->{templates}";
   $form->{mastertemplates} =~ s|.*/||;
 
   # create user template directory and copy master files
@@ -534,14 +537,14 @@ sub save_user {
       umask(007);
 
       # copy templates to the directory
-      opendir TEMPLATEDIR, "$main::templates/." or $form->error("$main::templates : $ERRNO");
+      opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
       my @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|odt|xml|txb)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
       foreach my $file (@templates) {
-        open(TEMP, "$main::templates/$file")
-          or $form->error("$main::templates/$file : $ERRNO");
+        open(TEMP, $::lx_office_conf{paths}->{templates} . "/$file")
+          or $form->error($::lx_office_conf{paths}->{templates} . "/$file : $ERRNO");
 
         $file =~ s/\Q$form->{mastertemplates}\E-//;
         open(NEW, ">$form->{templates}/$file")
@@ -1097,7 +1100,7 @@ sub unlock_system {
   my $form   = $main::form;
   my $locale = $main::locale;
 
-  unlink "$main::userspath/nologin";
+  unlink _nologin_file_name();;
 
   $form->{callback} = "admin.pl?action=list_users";
 
@@ -1109,7 +1112,7 @@ sub lock_system {
   my $form   = $main::form;
   my $locale = $main::locale;
 
-  open(FH, ">$main::userspath/nologin")
+  open(FH, ">" . _nologin_file_name())
     or $form->error($locale->text('Cannot create Lock!'));
   close(FH);
 
@@ -1178,6 +1181,10 @@ sub dispatcher {
 
 sub _apply_dbupgrade_scripts {
   ::end_of_request() if SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(1);
+}
+
+sub _nologin_file_name {
+  return $::lx_office_conf{paths}->{userspath} . '/nologin';
 }
 
 1;

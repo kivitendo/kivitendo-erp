@@ -238,7 +238,7 @@ sub _print_invoice {
 
   $form->throw_on_error(sub {
     eval {
-      $form->parse_template(\%::myconfig, $::userspath);
+      $form->parse_template(\%::myconfig);
       1;
     } || die $EVAL_ERROR->{error};
   });

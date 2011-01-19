@@ -1,3 +1,13 @@
+[paths]
+# path to temporary files (must be writeable by the web server)
+userspath = users
+# spool directory for batch printing
+spool = spool
+# templates base directory
+templates = templates
+# Path to the old memberfile (ignored on new installations)
+memberfile = users/members
+
 [task_server]
 # User name to use for database access
 login = mb

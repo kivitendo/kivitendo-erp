@@ -145,10 +145,10 @@ sub login {
       }
 
       # update the tables
-      if (!open(FH, ">$main::userspath/nologin")) {
+      if (!open(FH, ">" . $::lx_office_conf{paths}->{userspath} . "/nologin")) {
         $form->show_generic_error($main::locale->text('A temporary file could not be created. ' .
                                                       'Please verify that the directory "#1" is writeable by the webserver.',
-                                                      $main::userspath),
+                                                      $::lx_office_conf{paths}->{userspath}),
                                   'back_button' => 1);
       }
 
@@ -166,7 +166,7 @@ sub login {
       close(FH);
 
       # remove lock file
-      unlink("$main::userspath/nologin");
+      unlink($::lx_office_conf{paths}->{userspath} . "/nologin");
 
       my $menufile =
         $self->{"menustyle"} eq "v3" ? "menuv3.pl" :

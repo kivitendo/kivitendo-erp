@@ -491,7 +491,7 @@ sub delete {
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
-  my $spool    = $main::spool;
+  my $spool    = $::lx_office_conf{paths}->{spool};
 
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);

@@ -1362,7 +1362,7 @@ sub reverse_invoice {
 sub delete_invoice {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $spool) = @_;
+  my ($self, $myconfig, $form) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -1398,6 +1398,7 @@ sub delete_invoice {
   $dbh->disconnect;
 
   if ($rc) {
+    my $spool = $::lx_office_conf{paths}->{spool};
     map { unlink "$spool/$_" if -f "$spool/$_"; } @spoolfiles;
   }
 
@@ -2080,13 +2081,13 @@ sub get_pricegroups_for_parts {
         # to distinguish case A and B the variable pricegroup_id_$i is used
         # for new articles this variable isn't defined, for loaded articles it is
         # sellprice can't be used, as it already has 0,00 set
-        
+
         if ($pkr->{pricegroup_id} eq $form->{"pricegroup_id_$i"} and defined $form->{"pricegroup_id_$i"}) {
           # Case A
           $pkr->{selected}  = ' selected';
 
-        } elsif ($pkr->{pricegroup_id} eq $form->{customer_klass} 
-                 and not defined $form->{"pricegroup_id_$i"} 
+        } elsif ($pkr->{pricegroup_id} eq $form->{customer_klass}
+                 and not defined $form->{"pricegroup_id_$i"}
                  and $pkr->{price} != 0    # only use customer pricegroup price if it has a value, else use default_sellprice
                                            # for the case where pricegroup prices haven't been set
                 ) {

@@ -1611,7 +1611,7 @@ sub print_form {
     my $filename;
     if ($filename = $queued{ $form->{formname} }) {
       $form->{queued} =~ s/\Q$form->{formname} $filename\E//;
-      unlink "$main::spool/$filename";
+      unlink $::lx_office_conf{paths}->{spool} . "/$filename";
       $filename =~ s/\..*$//g;
     } else {
       $filename = time;
@@ -1619,7 +1619,7 @@ sub print_form {
     }
 
     $filename .= ($form->{postscript}) ? '.ps' : '.pdf';
-    $form->{OUT} = ">$main::spool/$filename";
+    $form->{OUT} = ">" . $::lx_office_conf{paths}->{spool} . "/$filename";
 
     # add type
     $form->{queued} .= " $form->{formname} $filename";
@@ -1647,7 +1647,7 @@ sub print_form {
   }
   # /saving the history
 
-  $form->parse_template(\%myconfig, $main::userspath);
+  $form->parse_template(\%myconfig);
 
   $form->{callback} = "";
 

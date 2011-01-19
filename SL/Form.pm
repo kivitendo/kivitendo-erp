@@ -861,7 +861,7 @@ sub init_template {
      'PLUGIN_BASE'  => 'SL::Template::Plugin',
      'INCLUDE_PATH' => '.:templates/webpages',
      'COMPILE_EXT'  => '.tcc',
-     'COMPILE_DIR'  => $::userspath . '/templates-cache',
+     'COMPILE_DIR'  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
   })) || die;
 }
 
@@ -1191,10 +1191,12 @@ sub round_amount {
 sub parse_template {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $userspath) = @_;
+  my ($self, $myconfig) = @_;
   my $out;
 
   local (*IN, *OUT);
+
+  my $userspath = $::lx_office_conf{paths}->{userspath};
 
   $self->{"cwd"} = getcwd();
   $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";

@@ -42,8 +42,6 @@ sub setup {
 
   my $login     = shift @ARGV;
 
-  $::userspath  = "users";
-  $::templates  = "templates";
   $::sendmail   = "| /usr/sbin/sendmail -t";
 
   $::lxdebug    = LXDebug->new();

@@ -964,7 +964,7 @@ sub yes {
 
   $main::auth->assert('invoice_edit');
 
-  if (IS->delete_invoice(\%myconfig, \%$form, $main::spool)) {
+  if (IS->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
