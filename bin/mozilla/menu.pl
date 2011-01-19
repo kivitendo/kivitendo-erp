@@ -82,7 +82,7 @@ sub acc_menu {
   $::lxdebug->enter_sub;
 
   my $framesize    = _calc_framesize() - 2;
-  my $menu         = Menu->new($::menufile);
+  my $menu         = Menu->new("menu.ini");
   $mainlevel       = $::form->{level};
   $::form->{title} = $::locale->text('Lx-Office');
   $::form->header;

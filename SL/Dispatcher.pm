@@ -88,7 +88,6 @@ sub pre_startup_setup {
   # canonial globals. if it's not here, chances are it will get refactored someday.
   {
     no warnings 'once';
-    $::menufile    = "menu.ini";
     $::lxdebug     = LXDebug->new;
     $::auth        = SL::Auth->new;
     $::form        = undef;
