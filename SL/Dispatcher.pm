@@ -77,6 +77,7 @@ sub pre_startup_setup {
 
   read_config 'config/lx_office.conf' => %::lx_office_conf;
   _decode_recursively(\%::lx_office_conf);
+  _init_environment();
 
   eval {
     package main;
@@ -331,6 +332,27 @@ sub _decode_recursively {
     } else {
       $obj->{$key} = decode('UTF-8', $value);
     }
+  }
+}
+
+sub _init_environment {
+  my %key_map = ( lib  => { name => 'PERL5LIB', append_path => 1 },
+                  path => { name => 'PATH',     append_path => 1 },
+                );
+  my $cfg     = $::lx_office_conf{environment} || {};
+
+  while (my ($key, $value) = each %{ $cfg }) {
+    next unless $value;
+
+    my $info = $key_map{$key} || {};
+    $key     = $info->{name}  || $key;
+
+    if ($info->{append_path}) {
+      $value = ':' . $value unless $value =~ m/^:/ || !$ENV{$key};
+      $value = $ENV{$key} . $value;
+    }
+
+    $ENV{$key} = $value;
   }
 }
 

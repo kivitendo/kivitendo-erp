@@ -23,12 +23,6 @@ $language = "de";
 # if you have latex installed set to 1
 $latex_templates = 1;
 
-# if the server can't find gzip, latex, dvips or pdflatex, add the path
-$ENV{PATH} .= ":/usr/local/bin";
-
-# on mac os X using Fink's Perl libs, add the path
-$ENV{PERL5LIB} .= ":/sw/lib/perl5";
-
 # Aktivierung der verschiedenen Spezialmodule
 $webdav = 0;
 $lizenzen = 1;
@@ -63,9 +57,6 @@ $openofficeorg_daemon = 1;
 $openofficeorg_daemon_port = 2002;
 
 # Pfad zum "X virtual frame buffer", unter dem OpenOffice gestartet wird.
-# Zusaetzlich muessen die Programme "xauth" und "mcookie" gefunden werden
-# koennen, was eine Aenderung an PATH bedeuten kann.
-$ENV{"PATH"} = $ENV{"PATH"} . ":/usr/X11R6/bin:/usr/X11/bin";
 $xvfb_bin = "/usr/bin/Xvfb";
 
 # Das charset, in dem die Daten in der Datenbank abgelegt sind.

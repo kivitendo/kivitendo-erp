@@ -8,6 +8,13 @@ templates = templates
 # Path to the old memberfile (ignored on new installations)
 memberfile = users/members
 
+[environment]
+# Add the following paths to the PATH environment variable.
+path = /usr/local/bin:/usr/X11R6/bin:/usr/X11/bin
+# Add the following paths to the PERL5LIB environment variable.
+# "/sw/lib/perl5" is for Mac OS X with Fink's Perl.
+lib = /sw/lib/perl5
+
 [task_server]
 # User name to use for database access
 login = mb
@@ -96,4 +103,4 @@ watch_form = 0
 keep_temp_files = 0
 
 # The file name where the debug messages are written to.
-file_name = /tmp/lx-office-debug.log
+file_name = /tmp/mb-lxdebug.log
