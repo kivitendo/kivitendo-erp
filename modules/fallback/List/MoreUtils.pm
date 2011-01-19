@@ -5,6 +5,8 @@ use strict;
 
 require Exporter;
 require DynaLoader;
+
+
 use vars qw($VERSION @ISA @EXPORT_OK %EXPORT_TAGS);
 @ISA = qw(Exporter DynaLoader);
 
@@ -12,12 +14,12 @@ use vars qw($VERSION @ISA @EXPORT_OK %EXPORT_TAGS);
     all => [ qw(any all none notall true false firstidx first_index lastidx
 		last_index insert_after insert_after_string apply after after_incl before
 		before_incl indexes firstval first_value lastval last_value each_array
-		each_arrayref pairwise natatime mesh zip uniq minmax part) ],
+		each_arrayref pairwise natatime mesh zip uniq minmax part bsearch) ],
 );
 
 @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
-$VERSION = '0.22';
+$VERSION = '0.25_02';
 
 eval {
     local $ENV{PERL_DL_NONLAZY} = 0 if $ENV{PERL_DL_NONLAZY};
@@ -26,6 +28,8 @@ eval {
 } if not $ENV{LIST_MOREUTILS_PP};
 
 eval <<'EOP' if not defined &any;
+
+require POSIX;
 
 sub any (&@) {
     my $f = shift;
@@ -47,7 +51,7 @@ sub all (&@) {
 
 sub none (&@) {
     my $f = shift;
-    return if ! @_;
+    return 1 if ! @_;
     for (@_) {
 	return 0 if $f->();
     }
@@ -280,7 +284,8 @@ sub mesh (\@\@;\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@\@) {
 
 sub uniq (@) {
     my %h;
-    map { $h{$_}++ == 0 ? $_ : () } @_;
+    my $ref = \1;
+    map { $h{defined $_ ? $_ : $ref}++ == 0 ? $_ : () } @_;
 }
 
 sub minmax (@) {
@@ -318,11 +323,39 @@ sub part(&@) {
     return @parts;
 }
 
+sub bsearch(&@) {
+    my $code = shift;
+
+    my $rc;
+    my $i = 0;
+    my $j = @_;
+    do {
+        my $k = int(($i + $j) / 2);
+
+        return if $k >= @_;
+
+        local *_ = \$_[$k];
+        $rc = $code->();
+
+        $rc == 0 and
+            return wantarray ? $_ : 1;
+
+        if ($rc < 0) {
+            $i = $k + 1;
+        } else {
+            $j = $k - 1;
+        }
+    } until $i > $j;
+
+    return;
+}
+
 sub _XScompiled {
     return 0;
 }
 
 EOP
+die $@ if $@;
 
 *first_index = \&firstidx;
 *last_index = \&lastidx;
@@ -663,6 +696,15 @@ Negative values are only ok when they refer to a partition previously created:
     my $i = 0;
     my @part = part { $idx[$++ % 3] } 1 .. 8;	# [1, 4, 7], [2, 3, 5, 6, 8]
 
+=item bsearch BLOCK LIST
+
+Performs a binary search on LIST which must be a sorted list of values. BLOCK
+must return a negative value if the current element (stored in C<$_>) is smaller,
+a positive value if it is bigger and zero if it matches.
+
+Returns a boolean value in scalar context. In list context, it returns the element
+if it was found, otherwise the empty list.
+
 =back
 
 =head1 EXPORTS
@@ -685,7 +727,7 @@ environment.
 
 =head1 VERSION
 
-This is version 0.22.
+This is version 0.25_01.
 
 =head1 BUGS
 
@@ -785,11 +827,11 @@ L<List::Util>
 
 =head1 AUTHOR
 
-Tassilo von Parseval, E<lt>tassilo.von.parseval@rwth-aachen.deE<gt>
+Tassilo von Parseval, E<lt>vparseval@gmail.comE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright (C) 2004-2006 by Tassilo von Parseval
+Copyright (C) 2004-2009 by Tassilo von Parseval
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself, either Perl version 5.8.4 or,
