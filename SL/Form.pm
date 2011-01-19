@@ -805,8 +805,8 @@ sub _prepare_html_template {
   $additional_params->{"conf_dbcharset"}              = $::dbcharset;
   $additional_params->{"conf_webdav"}                 = $::webdav;
   $additional_params->{"conf_lizenzen"}               = $::lizenzen;
-  $additional_params->{"conf_latex_templates"}        = $::latex;
-  $additional_params->{"conf_opendocument_templates"} = $::opendocument_templates;
+  $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
+  $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
   $additional_params->{"conf_vertreter"}              = $::vertreter;
   $additional_params->{"conf_show_best_before"}       = $::show_best_before;
   $additional_params->{"conf_parts_image_css"}        = $::parts_image_css;

@@ -2457,21 +2457,21 @@ sub config {
   _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00'));
 
   my @formats = ();
-  if ($main::opendocument_templates
+  if ($::lx_office_conf{print_templates}->{opendocument}
       && $::lx_office_conf{applications}->{openofficeorg_writer} && (-x $::lx_office_conf{applications}->{openofficeorg_writer})
       && $::lx_office_conf{applications}->{xvfb}                 && (-x $::lx_office_conf{applications}->{xvfb})) {
     push(@formats, { "name" => $locale->text("PDF (OpenDocument/OASIS)"),
                      "value" => "opendocument_pdf" });
   }
-  if ($main::latex_templates) {
+  if ($::lx_office_conf{print_templates}->{latex}) {
     push(@formats, { "name" => $locale->text("PDF"), "value" => "pdf" });
   }
   push(@formats, { "name" => "HTML", "value" => "html" });
-  if ($main::latex_templates) {
+  if ($::lx_office_conf{print_templates}->{latex}) {
     push(@formats, { "name" => $locale->text("Postscript"),
                      "value" => "postscript" });
   }
-  if ($main::opendocument_templates) {
+  if ($::lx_office_conf{print_templates}->{opendocument}) {
     push(@formats, { "name" => $locale->text("OpenDocument/OASIS"),
                      "value" => "opendocument" });
   }

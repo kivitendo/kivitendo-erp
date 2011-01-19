@@ -1166,26 +1166,26 @@ sub print_options {
 
   push @MEDIA, grep $_,
       opthash("screen",              $form->{OP}{screen},              $locale->text('Screen')),
-    ($form->{printers} && scalar @{ $form->{printers} } && $main::latex_templates) ?
+    ($form->{printers} && scalar @{ $form->{printers} } && $::lx_office_conf{print_templates}->{latex}) ?
       opthash("printer",             $form->{OP}{printer},             $locale->text('Printer')) : undef,
-    ($main::latex_templates && !$options{no_queue}) ?
+    ($::lx_office_conf{print_templates}->{latex} && !$options{no_queue}) ?
       opthash("queue",               $form->{OP}{queue},               $locale->text('Queue')) : undef
         if ($form->{media} ne 'email');
 
   push @FORMAT, grep $_,
-    ($main::opendocument_templates &&     $::lx_office_conf{applications}->{openofficeorg_writer}  &&     $::lx_office_conf{applications}->{xvfb}
-                                   && (-x $::lx_office_conf{applications}->{openofficeorg_writer}) && (-x $::lx_office_conf{applications}->{xvfb})
+    ($::lx_office_conf{print_templates}->{opendocument} &&     $::lx_office_conf{applications}->{openofficeorg_writer}  &&     $::lx_office_conf{applications}->{xvfb}
+                                                        && (-x $::lx_office_conf{applications}->{openofficeorg_writer}) && (-x $::lx_office_conf{applications}->{xvfb})
      && !$options{no_opendocument_pdf}) ?
       opthash("opendocument_pdf",    $form->{DF}{"opendocument_pdf"},  $locale->text("PDF (OpenDocument/OASIS)")) : undef,
-    ($main::latex_templates) ?
+    ($::lx_office_conf{print_templates}->{latex}) ?
       opthash("pdf",                 $form->{DF}{pdf},                 $locale->text('PDF')) : undef,
-    ($main::latex_templates && !$options{no_postscript}) ?
+    ($::lx_office_conf{print_templates}->{latex} && !$options{no_postscript}) ?
       opthash("postscript",          $form->{DF}{postscript},          $locale->text('Postscript')) : undef,
     (!$options{no_html}) ?
       opthash("html", $form->{DF}{html}, "HTML") : undef,
-    ($main::opendocument_templates && !$options{no_opendocument}) ?
+    ($::lx_office_conf{print_templates}->{opendocument} && !$options{no_opendocument}) ?
       opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef,
-    ($main::excel_templates && !$options{no_excel}) ?
+    ($::lx_office_conf{print_templates}->{excel} && !$options{no_excel}) ?
       opthash("excel",               $form->{DF}{excel},               $locale->text("Excel")) : undef;
 
   push @LANGUAGE_ID,
@@ -1213,7 +1213,7 @@ sub print_options {
     );
 
   my %template_vars = (
-    display_copies       => scalar @{ $form->{printers} || [] } && $main::latex_templates && $form->{media} ne 'email',
+    display_copies       => scalar @{ $form->{printers} || [] } && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     display_groupitems   => !$dont_display_groupitems{$form->{type}},
     groupitems_checked   => $form->{groupitems} ? "checked" : '',

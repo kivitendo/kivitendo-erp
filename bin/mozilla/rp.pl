@@ -2542,14 +2542,14 @@ sub print_options {
   } else {
     $media = qq|
             <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-    if ($myconfig{printer} && $main::latex_templates) {
+    if ($myconfig{printer} && $::lx_office_conf{print_templates}->{latex}) {
       $media .= qq|
             <option value=printer $form->{OP}{printer}>| . $locale->text('Printer');
     }
   }
 
   my $format;
-  if ($main::latex_templates) {
+  if ($::lx_office_conf{print_templates}->{latex}) {
     $format .= qq|
             <option value=html $form->{DF}{html}>| . $locale->text('HTML')
       . qq| <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF')
@@ -2564,7 +2564,7 @@ sub print_options {
     <td><select name=media>$media</select></td>
 |;
 
-  if ($myconfig{printer} && $main::latex_templates && $form->{media} ne 'email') {
+  if ($myconfig{printer} && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email') {
     $output .= qq|
       <td>| . $locale->text('Copies') . qq|
       <input name=copies size=2 value=$form->{copies}></td>
