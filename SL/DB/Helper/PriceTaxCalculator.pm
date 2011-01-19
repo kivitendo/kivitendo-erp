@@ -163,7 +163,7 @@ sub _calculate_amounts {
 sub _calculate_assembly_item {
   my ($self, $data, $part, $total_qty, $base_factor) = @_;
 
-  return 0 if $::eur || !$data->{is_invoice};
+  return 0 if $::lx_office_conf{system}->{eur} || !$data->{is_invoice};
 
   foreach my $assembly_entry (@{ $part->assemblies }) {
     push @{ $data->{assembly_items}->[-1] }, { part      => $assembly_entry->part,
@@ -184,7 +184,7 @@ sub _calculate_part_item {
 
   _dbg("cpsi tq " . $total_qty);
 
-  return 0 if $::eur || !$data->{is_invoice} || !$total_qty;
+  return 0 if $::lx_office_conf{system}->{eur} || !$data->{is_invoice} || !$total_qty;
 
   my ($entry);
   $base_factor           ||= 1;

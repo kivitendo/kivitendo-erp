@@ -136,7 +136,7 @@ sub acc_menu {
 
   my $mainlevel = $form->{level};
   $mainlevel =~ s/$mainlevel--//g;
-  my $menu = Menu->new($::menufile);
+  my $menu = Menu->new("menu.ini");
 
   $| = 1;
 

@@ -16,13 +16,16 @@ use strict;
 use utf8;
 use English '-no_match_vars';
 
+use Config::Std;
 use DBI;
 use Data::Dumper;
 use Getopt::Long;
 use Text::Iconv;
 
 use SL::LXDebug;
+use SL::LxOfficeConf;
 
+SL::LxOfficeConf->read;
 our $lxdebug = LXDebug->new();
 
 use SL::Auth;
@@ -355,9 +358,6 @@ sub build_upgrade_order {
 #######
 #######
 #######
-
-eval { require "config/lx-erp.conf"; };
-eval { require "config/lx-erp-local.conf"; } if (-f "config/lx-erp-local.conf");
 
 $form = Form->new();
 $locale = Locale->new("de");

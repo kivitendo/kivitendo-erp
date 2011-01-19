@@ -262,7 +262,7 @@ sub new {
     $self->_request_to_hash($content);
   }
 
-  my $db_charset   = $main::dbcharset;
+  my $db_charset   = $::lx_office_conf{system}->{dbcharset};
   $db_charset    ||= Common::DEFAULT_CHARSET;
 
   my $encoding     = $self->{INPUT_ENCODING} || $db_charset;
@@ -636,7 +636,7 @@ sub header {
   # extra code is currently only used by menuv3 and menuv4 to set their css.
   # it is strongly deprecated, and will be changed in a future version.
   my ($self, $extra_code) = @_;
-  my $db_charset = $::dbcharset || Common::DEFAULT_CHARSET;
+  my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   my @header;
 
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
@@ -720,7 +720,7 @@ sub ajax_response_header {
 
   my ($self) = @_;
 
-  my $db_charset = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
+  my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   my $cgi        = $main::cgi || CGI->new('');
   my $output     = $cgi->header('-charset' => $db_charset);
 
@@ -761,7 +761,7 @@ sub _prepare_html_template {
   my $language;
 
   if (!%::myconfig || !$::myconfig{"countrycode"}) {
-    $language = $main::language;
+    $language = $::lx_office_conf{system}->{language};
   } else {
     $language = $main::myconfig{"countrycode"};
   }
@@ -802,16 +802,16 @@ sub _prepare_html_template {
     map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
-  $additional_params->{"conf_dbcharset"}              = $::dbcharset;
-  $additional_params->{"conf_webdav"}                 = $::webdav;
-  $additional_params->{"conf_lizenzen"}               = $::lizenzen;
-  $additional_params->{"conf_latex_templates"}        = $::latex;
-  $additional_params->{"conf_opendocument_templates"} = $::opendocument_templates;
-  $additional_params->{"conf_vertreter"}              = $::vertreter;
-  $additional_params->{"conf_show_best_before"}       = $::show_best_before;
-  $additional_params->{"conf_parts_image_css"}        = $::parts_image_css;
-  $additional_params->{"conf_parts_listing_images"}   = $::parts_listing_images;
-  $additional_params->{"conf_parts_show_image"}       = $::parts_show_image;
+  $additional_params->{"conf_dbcharset"}              = $::lx_office_conf{system}->{dbcharset};
+  $additional_params->{"conf_webdav"}                 = $::lx_office_conf{system}->{webdav};
+  $additional_params->{"conf_lizenzen"}               = $::lx_office_conf{system}->{lizenzen};
+  $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
+  $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
+  $additional_params->{"conf_vertreter"}              = $::lx_office_conf{system}->{vertreter};
+  $additional_params->{"conf_show_best_before"}       = $::lx_office_conf{system}->{show_best_before};
+  $additional_params->{"conf_parts_image_css"}        = $::lx_office_conf{features}->{parts_image_css};
+  $additional_params->{"conf_parts_listing_images"}   = $::lx_office_conf{features}->{parts_listing_images};
+  $additional_params->{"conf_parts_show_image"}       = $::lx_office_conf{features}->{parts_show_image};
 
   if (%main::debug_options) {
     map { $additional_params->{'DEBUG_' . uc($_)} = $main::debug_options{$_} } keys %main::debug_options;
@@ -861,7 +861,7 @@ sub init_template {
      'PLUGIN_BASE'  => 'SL::Template::Plugin',
      'INCLUDE_PATH' => '.:templates/webpages',
      'COMPILE_EXT'  => '.tcc',
-     'COMPILE_DIR'  => $::userspath . '/templates-cache',
+     'COMPILE_DIR'  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
   })) || die;
 }
 
@@ -1191,10 +1191,12 @@ sub round_amount {
 sub parse_template {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $userspath) = @_;
+  my ($self, $myconfig) = @_;
   my $out;
 
   local (*IN, *OUT);
+
+  my $userspath = $::lx_office_conf{paths}->{userspath};
 
   $self->{"cwd"} = getcwd();
   $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";
@@ -1309,7 +1311,7 @@ sub parse_template {
 
       map { $mail->{$_} = $self->{$_} }
         qw(cc bcc subject message version format);
-      $mail->{charset} = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
+      $mail->{charset} = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
       $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
       $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
       $mail->{fileid} = "$fileid.";
@@ -1504,7 +1506,7 @@ sub cleanup {
     close(FH);
   }
 
-  if ($self->{tmpfile} && ! $::keep_temp_files) {
+  if ($self->{tmpfile} && !($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})) {
     $self->{tmpfile} =~ s|.*/||g;
     # strip extension
     $self->{tmpfile} =~ s/\.\w+$//g;

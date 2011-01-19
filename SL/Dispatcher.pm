@@ -15,6 +15,7 @@ use Encode;
 use English qw(-no_match_vars);
 use SL::Auth;
 use SL::LXDebug;
+use SL::LxOfficeConf;
 use SL::Locale;
 use SL::Common;
 use SL::Helper::DateTime;
@@ -52,10 +53,10 @@ sub show_error {
   my $template             = shift;
   my $error_type           = shift || '';
 
-  $::locale                = Locale->new($::language);
+  $::locale                = Locale->new($::lx_office_conf{system}->{language});
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!.')                   if ($error_type eq 'password');
-  $::myconfig{countrycode} = $::language;
+  $::myconfig{countrycode} = $::lx_office_conf{system}->{language};
   $::form->{stylesheet}    = 'css/lx-office-erp.css';
 
   $::form->header;
@@ -66,14 +67,8 @@ sub show_error {
 }
 
 sub pre_startup_setup {
-  eval {
-    package main;
-    require "config/lx-erp.conf";
-  };
-  eval {
-    package main;
-    require "config/lx-erp-local.conf";
-  } if -f "config/lx-erp-local.conf";
+  SL::LxOfficeConf->read;
+  _init_environment();
 
   eval {
     package main;
@@ -84,19 +79,11 @@ sub pre_startup_setup {
   # canonial globals. if it's not here, chances are it will get refactored someday.
   {
     no warnings 'once';
-    $::userspath   = "users";
-    $::templates   = "templates";
-    $::memberfile  = "users/members";
-    $::menufile    = "menu.ini";
-    $::sendmail    = "| /usr/sbin/sendmail -t";
     $::lxdebug     = LXDebug->new;
     $::auth        = SL::Auth->new;
     $::form        = undef;
     %::myconfig    = ();
     %::called_subs = (); # currently used for recursion detection
-
-    read_config 'config/lx_office.conf' => %::lx_office_conf if -f "config/lx_office.conf";
-    _decode_recursively(\%::lx_office_conf);
   }
 
   $SIG{__WARN__} = sub {
@@ -167,7 +154,7 @@ sub handle_request {
   $self->unrequire_bin_mozilla;
 
   $::cgi         = CGI->new('');
-  $::locale      = Locale->new($::language);
+  $::locale      = Locale->new($::lx_office_conf{system}->{language});
   $::form        = Form->new;
   %::called_subs = ();
 
@@ -193,7 +180,7 @@ sub handle_request {
     my $session_result = $::auth->restore_session;
     $::auth->create_or_refresh_session;
 
-    $::form->error($::locale->text('System currently down for maintenance!')) if -e "$::userspath/nologin" && $script ne 'admin';
+    $::form->error($::locale->text('System currently down for maintenance!')) if -e ($::lx_office_conf{paths}->{userspath} . "/nologin") && $script ne 'admin';
 
     if ($script eq 'login' or $script eq 'admin' or $script eq 'kopf') {
       $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";
@@ -325,15 +312,24 @@ sub get_standard_filehandles {
   return $self->{interface} =~ m/f(?:ast)cgi/i ? $self->{request}->GetHandles() : (\*STDIN, \*STDOUT, \*STDERR);
 }
 
-sub _decode_recursively {
-  my ($obj) = @_;
+sub _init_environment {
+  my %key_map = ( lib  => { name => 'PERL5LIB', append_path => 1 },
+                  path => { name => 'PATH',     append_path => 1 },
+                );
+  my $cfg     = $::lx_office_conf{environment} || {};
 
-  while (my ($key, $value) = each %{ $obj }) {
-    if (ref($value) eq 'HASH') {
-      _decode_recursively($value);
-    } else {
-      $obj->{$key} = decode('UTF-8', $value);
+  while (my ($key, $value) = each %{ $cfg }) {
+    next unless $value;
+
+    my $info = $key_map{$key} || {};
+    $key     = $info->{name}  || $key;
+
+    if ($info->{append_path}) {
+      $value = ':' . $value unless $value =~ m/^:/ || !$ENV{$key};
+      $value = $ENV{$key} . $value;
     }
+
+    $ENV{$key} = $value;
   }
 }
 

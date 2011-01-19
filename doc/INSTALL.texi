@@ -547,9 +547,10 @@ ist dies @samp{lxoffice}).
 Wenn Sie für die Lx-Office-Installation nicht den europäischen
 Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
 müssen Sie vor dem Anlegen der Datenbank in der Datei
-@code{config/lx-erp.conf} die Variable @code{$dbcharset} auf den Wert
-@samp{UTF-8} setzen. Zusätzlich muss beim Anlegen der Datenbank
-@samp{UTF-8 Unicode} als Schriftsatz ausgewählt werden.
+@code{config/lx_office.conf} die Variable @code{dbcharset} im
+Abschnitt @code{system} auf den Wert @samp{UTF-8} setzen. Zusätzlich
+muss beim Anlegen der Datenbank @samp{UTF-8 Unicode} als Schriftsatz
+ausgewählt werden.
 
 Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
 verwenden müssen, da diese Einstellungen momentan global in Lx-Office
@@ -634,13 +635,14 @@ OpenDocument-Format, wie es OpenOffice.org ab Version 2
 erzeugt. Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als
 auch aus diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
 OpenDocument-Vorlagen zu aktivieren muss in der Datei
-@code{config/lx-erp.conf} die Variable @code{$opendocument_templates}
-auf @samp{1} stehen.  Dieses ist die Standardeinstellung.
+@code{config/lx_office.conf} die Variable @code{opendocument} im
+Abschnitt @code{print_templates} auf @samp{1} stehen.  Dieses ist die
+Standardeinstellung.
 
-Weiterhin muss in der Datei @code{config/lx-erp.conf} die Variable
-@code{$dbcharset} auf die Zeichenkodierung gesetzt werden, die auch
-bei der Speicherung der Daten in der Datenbank verwendet wird. Diese
-ist in den meisten Fällen "UTF-8".
+Weiterhin muss in der Datei @code{config/lx_office.conf} die Variable
+@code{dbcharset} im Abschnitt @code{system} auf die Zeichenkodierung
+gesetzt werden, die auch bei der Speicherung der Daten in der
+Datenbank verwendet wird. Diese ist in den meisten Fällen "UTF-8".
 
 Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
 weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
@@ -649,11 +651,11 @@ neben OpenOffice.org ab Version 2 auch der ``X virtual frame buffer''
 (xvfb) installiert werden.  Bei Debian ist er im Paket ``xvfb''
 enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
 
-Nach der Installation müssen in der Datei @code{config/lx-erp.conf}
-zwei weitere Variablen angepasst werden:
-@code{$openofficeorg_writer_bin} muss den vollständigen Pfad zur
-OpenOffice.org Writer-Anwendung enthalten.  @code{$xvfb_bin} muss den
-Pfad zum ``X virtual frame buffer'' enthalten.
+Nach der Installation müssen in der Datei @code{config/lx_config.conf}
+zwei weitere Variablen angepasst werden: @code{openofficeorg_writer}
+muss den vollständigen Pfad zur OpenOffice.org Writer-Anwendung
+enthalten. @code{xvfb} muss den Pfad zum ``X virtual frame buffer''
+enthalten. Beide stehen im Abschnitt @code{applications}.
 
 Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
 OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn

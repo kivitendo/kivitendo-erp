@@ -165,7 +165,7 @@ sub order_links {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $main::webdav;
+  $form->{webdav}   = $::lx_office_conf{system}->{webdav};
   $form->{jsscript} = 1;
 
   my $editing = $form->{id};
@@ -865,7 +865,7 @@ sub invoice_multi {
     map { $form->{"${_}_$form->{rowcount}"} = $ref->{$_} } keys %{ $ref };
     map { $form->{"${_}_$form->{rowcount}"} = $form->format_amount(\%myconfig, $ref->{$_}) } qw(qty sellprice lastcost);
 
-    if ($vc_discount){ # falls wir einen Lieferanten/Kundenrabatt haben 
+    if ($vc_discount){ # falls wir einen Lieferanten/Kundenrabatt haben
       # und keinen anderen discount wert an $i ...
       $form->{"discount_$form->{rowcount}"} ||= $vc_discount; # ... nehmen wir diesen Rabatt
     }
@@ -1310,7 +1310,7 @@ sub transfer_out {
       foreach my $request (@{ DO->unpack_stock_information('packed' => $form->{"stock_out_$i"}) }) {
         $request->{parts_id} = $form->{"id_$i"};
         $request->{base_qty} = $request->{qty} * $units->{$request->{unit}}->{factor} / $base_unit_factor;
-        $request->{project_id} = $form->{"project_id_$i"} ? $form->{"project_id_$i"} : $form->{globalproject_id}; 
+        $request->{project_id} = $form->{"project_id_$i"} ? $form->{"project_id_$i"} : $form->{globalproject_id};
 
         my $map_key          = join '--', ($form->{"id_$i"}, @{$request}{qw(warehouse_id bin_id chargenumber bestbefore)});
 
@@ -1352,7 +1352,7 @@ sub transfer_out {
         my $pinfo = $part_info_map{$request->{parts_id}};
         my $binfo = $bin_info_map{$request->{bin_id}};
 
-        if ($main::show_best_before) {
+        if ($::lx_office_conf{system}->{show_best_before}) {
             push @{ $form->{ERRORS} }, $locale->text("There is not enough available of '#1' at warehouse '#2', bin '#3', #4, #5, for the transfer of #6.",
                                                      $pinfo->{description},
                                                      $binfo->{warehouse_description},

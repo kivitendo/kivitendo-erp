@@ -163,7 +163,7 @@ sub display_form {
     ::end_of_request();
   }
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   #   if (   $form->{print_and_post}
   #       && $form->{second_run}

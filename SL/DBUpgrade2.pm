@@ -353,7 +353,7 @@ sub apply_admin_dbupgrade_scripts {
 
   return 0 if !@unapplied_scripts;
 
-  my $db_charset           = $main::dbcharset || Common::DEFAULT_CHARSET;
+  my $db_charset           = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   $self->{form}->{login} ||= 'admin';
 
   map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $self->{all_controls} };

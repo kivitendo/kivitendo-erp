@@ -84,7 +84,7 @@ sub chart_of_accounts {
 
   $form->{title} = $locale->text('Chart of Accounts');
 
-  if ($main::eur) {
+  if ($::lx_office_conf{system}->{eur}) {
     $form->{method} = "cash";
   }
 
@@ -177,8 +177,8 @@ sub list {
           <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
         </tr>
 | if $form->{selectdepartment};
-  my $accrual = ($main::eur) ? ""        : "checked";
-  my $cash    = ($main::eur) ? "checked" : "";
+  my $accrual = $::lx_office_conf{system}->{eur} ? ""        : "checked";
+  my $cash    = $::lx_office_conf{system}->{eur} ? "checked" : "";
 
   my $name_1    = "fromdate";
   my $id_1      = "fromdate";
@@ -246,6 +246,8 @@ sub list {
 
   $form->{description} =~ s/\"/&quot;/g;
 
+  my $eur = $::lx_office_conf{system}->{eur};
+
   print qq|
 <body onLoad="$onload">
 
@@ -254,7 +256,7 @@ sub list {
 <input type=hidden name=accno value=$form->{accno}>
 <input type=hidden name=description value="$form->{description}">
 <input type=hidden name=sort value=transdate>
-<input type=hidden name=eur value=$main::eur>
+<input type=hidden name=eur value=$eur>
 <input type=hidden name=accounttype value=$form->{accounttype}>
 
 <table border=0 width=100%>

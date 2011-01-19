@@ -70,7 +70,7 @@ sub convert_to_postscript {
     $psfile .= ".ps";
   }
 
-  system("html2ps -f html2ps-config < $form->{tmpfile} > $psfile");
+  system($::lx_office_conf{applications}->{html2ps} . " -f html2ps-config < $form->{tmpfile} > $psfile");
   if ($?) {
     $self->{"error"} = $form->cleanup();
     $self->cleanup();
@@ -103,7 +103,7 @@ sub convert_to_pdf {
     $pdffile .= ".pdf";
   }
 
-  system("html2ps -f html2ps-config < $form->{tmpfile} | ps2pdf - $pdffile");
+  system($::lx_office_conf{applications}->{html2ps} . " -f html2ps-config < $form->{tmpfile} | ps2pdf - $pdffile");
   if ($?) {
     $self->{"error"} = $form->cleanup();
     $self->cleanup();

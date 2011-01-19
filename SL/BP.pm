@@ -221,7 +221,9 @@ sub get_spoolfiles {
 sub delete_spool {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $spool) = @_;
+  my ($self, $myconfig, $form) = @_;
+
+  my $spool = $::lx_office_conf{paths}->{spool};
 
   # connect to database, turn AutoCommit off
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -264,7 +266,9 @@ sub delete_spool {
 sub print_spool {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $spool, $output) = @_;
+  my ($self, $myconfig, $form, $output) = @_;
+
+  my $spool = $::lx_office_conf{paths}->{spool};
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);

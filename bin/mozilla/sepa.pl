@@ -481,7 +481,7 @@ sub bank_transfer_download_sepa_xml {
 
   my $sepa_xml   = SL::SEPA::XML->new('company'     => $myconfig->{company},
                                       'creditor_id' => $myconfig->{sepa_creditor_id},
-                                      'src_charset' => $main::dbcharset || 'ISO-8859-15',
+                                      'src_charset' => $::lx_office_conf{system}->{dbcharset} || 'ISO-8859-15',
                                       'message_id'  => $message_id,
                                       'grouped'     => 1,
                                       'collection'  => $vc eq 'customer',

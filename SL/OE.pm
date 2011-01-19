@@ -567,7 +567,7 @@ sub save {
   $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
                                        "quonumber" : "ordnumber"};
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   my $rc = $dbh->commit;
 
@@ -655,7 +655,7 @@ sub _close_quotations_rfqs {
 sub delete {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $spool) = @_;
+  my ($self, $myconfig, $form) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -705,6 +705,7 @@ sub delete {
   $dbh->disconnect;
 
   if ($rc) {
+    my $spool = $::lx_office_conf{paths}->{spool};
     foreach $spoolfile (@spoolfiles) {
       unlink "$spool/$spoolfile" if $spoolfile;
     }
@@ -992,7 +993,7 @@ sub retrieve {
 
   $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{transdate}, ($form->{vc} eq 'customer') ? "buy" : "sell");
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   $self->load_periodic_invoice_config($form);
 

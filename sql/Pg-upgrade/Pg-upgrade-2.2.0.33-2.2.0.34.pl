@@ -162,18 +162,18 @@ sub update_known_buchungsgruppen {
   $sth->execute() || mydberror($query);
 
   my $query_update = "UPDATE parts SET buchungsgruppen_id = ?";
-  $query_update .= ", inventory_accno_id = ?" if ($main::eur);
+  $query_update .= ", inventory_accno_id = ?" if $::lx_office_conf{system}->{eur};
   $query_update .= " WHERE id = ?";
   my $sth_update = $dbh->prepare($query_update);
 
   while (my $ref = $sth->fetchrow_hashref()) {
     foreach my $bg (@{$buchungsgruppen}) {
-      if (($main::eur ||
+      if (($::lx_office_conf{system}->{eur} ||
            ($ref->{"inventory_accno_id"} == $bg->{"inventory_accno_id"})) &&
           ($ref->{"income_accno_id"} == $bg->{"income_accno_id_0"}) &&
           ($ref->{"expense_accno_id"} == $bg->{"expense_accno_id_0"})) {
         my @values = ($bg->{"id"}, $ref->{"id"});
-        splice(@values, 1, 0, $bg->{"inventory_accno_id"}) if ($main::eur);
+        splice(@values, 1, 0, $bg->{"inventory_accno_id"}) if $::lx_office_conf{system}->{eur};
         $sth_update->execute(@values) ||
           mydberror($query_update . " (" . join(", ", @values) . ")");
         last;
@@ -195,7 +195,7 @@ sub update_known_buchungsgruppen {
       if (($ref->{"income_accno_id"} == $bg->{"income_accno_id_0"}) &&
           ($ref->{"expense_accno_id"} == $bg->{"expense_accno_id_0"})) {
         my @values = ($bg->{"id"}, $ref->{"id"});
-        splice(@values, 1, 0, undef) if ($main::eur);
+        splice(@values, 1, 0, undef) if $::lx_office_conf{system}->{eur};
         $sth_update->execute(@values) ||
           mydberror($query_update . " (" . join(", ", @values) . ")");
         last;
@@ -299,7 +299,7 @@ sub display_create_bgs_dialog {
     $entry->{"ACC_INVENTORY"} = $acc_inventory;
     $entry->{"ACC_INCOME"} = $acc_income;
     $entry->{"ACC_EXPENSE"} = $acc_expense;
-    $entry->{"eur"} = $main::eur;
+    $entry->{"eur"} = $::lx_office_conf{system}->{eur};
   }
 
   # $form->parse_html_template("dbupgrade/buchungsgruppen_parts")
@@ -439,7 +439,7 @@ sub do_update {
 
   # If balancing is off then force parts.inventory_accno_id to
   # a single value for parts.
-  force_inventory_accno_id_for_parts() if ($main::eur);
+  force_inventory_accno_id_for_parts() if $::lx_office_conf{system}->{eur};
 
   # Force "IC" to be present in chart.link for all accounts
   # which have been used as inventory accounts in parts.

@@ -39,6 +39,8 @@ sub new {
   my $type = shift;
   my $self = {};
 
+  _init_globals_from_config();
+
   $self->{"calldepth"}  = 0;
   $self->{"file"}       = $file_name || "/tmp/lx-office-debug.log";
   $self->{"target"}     = FILE_TARGET;
@@ -51,6 +53,22 @@ sub new {
   }
 
   bless($self, $type);
+}
+
+my $globals_inited_from_config;
+sub _init_globals_from_config {
+  return if $globals_inited_from_config;
+  $globals_inited_from_config = 1;
+
+  my $cfg = $::lx_office_conf{debug} || {};
+
+  $global_level = NONE() if $cfg->{global_level} =~ /NONE/;
+  foreach my $level (grep { $_} split(m/\s+/, $cfg->{global_level})) {
+    $global_level |= eval "${level}()";
+  }
+
+  $watch_form = $cfg->{watch_form};
+  $file_name  = $cfg->{file_name} || "/tmp/lx-office-debug.log";
 }
 
 sub set_target {

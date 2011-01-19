@@ -146,8 +146,8 @@ sub report {
 
   $form->{title} = $locale->text($title{ $form->{report} });
 
-  my $accrual = ($main::eur) ? ""        : "checked";
-  my $cash    = ($main::eur) ? "checked" : "";
+  my $accrual = $::lx_office_conf{system}->{eur} ? ""        : "checked";
+  my $cash    = $::lx_office_conf{system}->{eur} ? "checked" : "";
 
   my $year = (localtime)[5] + 1900;
 
@@ -2071,7 +2071,7 @@ sub print_form {
         $form->{attachment_filename} =  $locale->quote_special_chars('filenames', $locale->text("Statement") . "_$form->{todate}.$attachment_suffix");
         $form->{attachment_filename} =~ s/\s+/_/g;
 
-        $form->parse_template(\%myconfig, $main::userspath);
+        $form->parse_template(\%myconfig);
 
       }
     }
@@ -2542,14 +2542,14 @@ sub print_options {
   } else {
     $media = qq|
             <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-    if ($myconfig{printer} && $main::latex_templates) {
+    if ($myconfig{printer} && $::lx_office_conf{print_templates}->{latex}) {
       $media .= qq|
             <option value=printer $form->{OP}{printer}>| . $locale->text('Printer');
     }
   }
 
   my $format;
-  if ($main::latex_templates) {
+  if ($::lx_office_conf{print_templates}->{latex}) {
     $format .= qq|
             <option value=html $form->{DF}{html}>| . $locale->text('HTML')
       . qq| <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF')
@@ -2564,7 +2564,7 @@ sub print_options {
     <td><select name=media>$media</select></td>
 |;
 
-  if ($myconfig{printer} && $main::latex_templates && $form->{media} ne 'email') {
+  if ($myconfig{printer} && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email') {
     $output .= qq|
       <td>| . $locale->text('Copies') . qq|
       <input name=copies size=2 value=$form->{copies}></td>

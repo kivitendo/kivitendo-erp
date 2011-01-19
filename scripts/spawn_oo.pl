@@ -13,16 +13,11 @@ use SL::LXDebug;
 use SL::Form;
 use SL::Template;
 
-$userspath  = "users";
-$templates  = "templates";
-$memberfile = "users/members";
 $sendmail   = "| /usr/sbin/sendmail -t";
 
 $| = 1;
 
 $lxdebug = LXDebug->new();
-
-require "lx-erp.conf";
 
 $form = new Form;
 $form->{"script"} = "oe.pl";

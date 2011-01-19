@@ -428,7 +428,7 @@ sub generate_pdf_content {
   my $num_columns     = scalar @visible_columns;
   my $num_header_rows = 1;
 
-  my $font_encoding   = $main::dbcharset || 'ISO-8859-15';
+  my $font_encoding   = $::lx_office_conf{system}->{dbcharset} || 'ISO-8859-15';
 
   foreach my $name (@visible_columns) {
     push @column_props, { 'justify' => $self->{columns}->{$name}->{align} eq 'right' ? 'right' : 'left' };

@@ -257,7 +257,7 @@ sub create_database {
 
   $main::lxdebug->message(LXDebug->DEBUG1(), "Auth::create_database DSN: $dsn");
 
-  my $charset    = $main::dbcharset;
+  my $charset    = $::lx_office_conf{system}->{dbcharset};
   $charset     ||= Common::DEFAULT_CHARSET;
   my $encoding   = $Common::charset_to_db_encoding{$charset};
   $encoding    ||= 'UNICODE';
@@ -300,7 +300,7 @@ sub create_tables {
   my $self = shift;
   my $dbh  = $self->dbconnect();
 
-  my $charset    = $main::dbcharset;
+  my $charset    = $::lx_office_conf{system}->{dbcharset};
   $charset     ||= Common::DEFAULT_CHARSET;
 
   $dbh->rollback();

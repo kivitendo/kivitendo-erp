@@ -9,16 +9,16 @@ BEGIN {
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
 }
 
-use Config::Std;
 use Data::Dumper;
 use Devel::REPL 1.002001;
 use Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
 
-read_config 'config/lx_office.conf' => my %config;
+use SL::LxOfficeConf;
+SL::LxOfficeConf->read;
 
-my $login        = shift || $config{Console}{login}        || 'demo';
-my $history_file =          $config{Console}{history_file} || '/tmp/lxoffice_console_history.log'; # fallback if users is not writable
-my $autorun      =          $config{Console}{autorun};
+my $login        = shift || $::lx_office_conf{console}{login}        || 'demo';
+my $history_file =          $::lx_office_conf{console}{history_file} || '/tmp/lxoffice_console_history.log'; # fallback if users is not writable
+my $autorun      =          $::lx_office_conf{console}{autorun};
 
 # will be configed eventually
 my @plugins      = qw(History LexEnv Colors MultiLine::PPI FancyPrompt PermanentHistory AutoloadModules);
@@ -41,7 +41,6 @@ use utf8;
 use CGI qw( -no_xhtml);
 use DateTime;
 use SL::Auth;
-use SL::Dispatcher;
 use SL::Form;
 use SL::Helper::DateTime;
 use SL::Locale;
@@ -59,23 +58,11 @@ sub lxinit {
 
   package main;
 
-  { no warnings 'once';
-    $::userspath  = "users";
-    $::templates  = "templates";
-    $::sendmail   = "| /usr/sbin/sendmail -t";
-  }
-
-  eval { require "config/lx-erp.conf"; };
-  eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
-
   $::lxdebug = LXDebug->new;
-  $::locale = Locale->new($::language);
+  $::locale = Locale->new($::lx_office_conf{system}->{language});
   $::cgi    = CGI->new qw();
   $::form   = Form->new;
   $::auth   = SL::Auth->new;
-
-  read_config 'config/lx_office.conf' => %::lx_office_conf;
-  SL::Dispatcher::_decode_recursively(\%::lx_office_conf);
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 

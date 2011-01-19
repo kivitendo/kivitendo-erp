@@ -1111,7 +1111,7 @@ sub list_business {
   $form->{title} = $locale->text('Type of Business');
 
   my @column_index = qw(description discount customernumberinit);
-  push @column_index, 'salesman' if $::vertreter;
+  push @column_index, 'salesman' if $::lx_office_conf{system}->{vertreter};
   my %column_header;
   $column_header{description} =
       qq|<th class=listheading width=60%>|
@@ -1224,7 +1224,7 @@ sub business_header {
     $form->format_amount(\%myconfig, $form->{discount} * 100);
 
   my $salesman_code;
-  if ($::vertreter) {
+  if ($::lx_office_conf{system}->{vertreter}) {
     $salesman_code = qq|
   <tr>
     <th align="right">| . $locale->text('Representative') . qq|</th>
@@ -1873,7 +1873,7 @@ sub buchungsgruppe_header {
   }
 
   my $linkaccounts;
-  if (!$main::eur) {
+  if (!$::lx_office_conf{system}->{eur}) {
     $linkaccounts = qq|
                <tr>
                 <th align=right>| . $locale->text('Inventory') . qq|</th>
@@ -2457,20 +2457,21 @@ sub config {
   _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00'));
 
   my @formats = ();
-  if ($main::opendocument_templates && $main::openofficeorg_writer_bin &&
-      $main::xvfb_bin && (-x $main::openofficeorg_writer_bin) && (-x $main::xvfb_bin)) {
+  if ($::lx_office_conf{print_templates}->{opendocument}
+      && $::lx_office_conf{applications}->{openofficeorg_writer} && (-x $::lx_office_conf{applications}->{openofficeorg_writer})
+      && $::lx_office_conf{applications}->{xvfb}                 && (-x $::lx_office_conf{applications}->{xvfb})) {
     push(@formats, { "name" => $locale->text("PDF (OpenDocument/OASIS)"),
                      "value" => "opendocument_pdf" });
   }
-  if ($main::latex_templates) {
+  if ($::lx_office_conf{print_templates}->{latex}) {
     push(@formats, { "name" => $locale->text("PDF"), "value" => "pdf" });
   }
   push(@formats, { "name" => "HTML", "value" => "html" });
-  if ($main::latex_templates) {
+  if ($::lx_office_conf{print_templates}->{latex}) {
     push(@formats, { "name" => $locale->text("Postscript"),
                      "value" => "postscript" });
   }
-  if ($main::opendocument_templates) {
+  if ($::lx_office_conf{print_templates}->{opendocument}) {
     push(@formats, { "name" => $locale->text("OpenDocument/OASIS"),
                      "value" => "opendocument" });
   }
