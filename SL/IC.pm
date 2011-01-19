@@ -583,10 +583,11 @@ sub save {
     }
   }
 
-  CVar->save_custom_variables('dbh'       => $dbh,
-                              'module'    => 'IC',
-                              'trans_id'  => $form->{id},
-                              'variables' => $form);
+  CVar->save_custom_variables(dbh           => $dbh,
+                              module        => 'IC',
+                              trans_id      => $form->{id},
+                              variables     => $form,
+                              save_validity => 1);
 
   # commit
   my $rc = $dbh->commit;

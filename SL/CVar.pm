@@ -338,10 +338,13 @@ sub save_custom_variables {
 
     do_statement($form, $sth, $query, @values);
 
-    my $valid_index = "$params{name_prefix}cvar_$config->{name}$params{name_postfix}_valid";
-    $self->save_custom_variables_validity(trans_id => $params{trans_id}, config_id => $config->{id},
-      validity => ($params{variables}{$valid_index} || $params{always_valid} ? 1 : 0)
-    );
+    if ($params{save_validity}) {
+      my $valid_index = "$params{name_prefix}cvar_$config->{name}$params{name_postfix}_valid";
+      $self->save_custom_variables_validity(trans_id  => $params{trans_id},
+                                            config_id => $config->{id},
+                                            validity  => ($params{variables}{$valid_index} || $params{always_valid} ? 1 : 0)
+                                           );
+    }
   }
 
   $sth->finish();

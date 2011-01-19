@@ -288,9 +288,11 @@ sub display_row {
       # for last row and report
       # set pricegroup drop down list from report menu
       if ($form->{"sellprice_$i"} != 0) {
+        # remember the pricegroup_id in pricegroup_old
+        # but don't overwrite it
         $form->{"pricegroup_old_$i"} = $form->{"pricegroup_id_$i"};
         my $default_option           = $form->{"sellprice_$i"}.'--'.$form->{"pricegroup_id_$i"};
-        $column_data{sellprice_pg}   = NTI($cgi->popup_menu("sellpricepg_$i", [ $default_option ], $default_option, { $default_option => $form->{"pricegroup_$i"} || '' }));
+        $column_data{sellprice_pg}   = NTI($cgi->popup_menu("sellprice_pg_$i", [ $default_option ], $default_option, { $default_option => $form->{"pricegroup_$i"} || '' }));
       } else {
         $column_data{sellprice_pg} = qq|&nbsp;|;
       }
