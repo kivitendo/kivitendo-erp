@@ -19,6 +19,7 @@ use SL::DB;
 use SL::Form;
 use SL::Locale;
 use SL::LXDebug;
+use SL::LxOfficeConf;
 use SL::DB::Helper::ALL;
 use SL::DB::Helper::Mappings;
 
@@ -42,7 +43,7 @@ sub setup {
     exit 1;
   }
 
-  read_config "config/lx_office.conf" => %lx_office_conf;
+  SL::LxOfficeConf->read;
 
   my $login     = shift @ARGV;
 

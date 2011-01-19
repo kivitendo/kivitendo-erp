@@ -184,7 +184,7 @@ sub _calculate_dates {
 sub _send_email {
   my ($posted_invoices, $printed_invoices) = @_;
 
-  read_config 'config/lx_office.conf' => my %config;
+  my %config = %::lx_office_conf;
 
   return if !$config{periodic_invoices} || !$config{periodic_invoices}->{send_email_to} || !scalar @{ $posted_invoices };
 

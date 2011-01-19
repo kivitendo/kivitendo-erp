@@ -23,8 +23,9 @@ use Getopt::Long;
 use Text::Iconv;
 
 use SL::LXDebug;
+use SL::LxOfficeConf;
 
-read_config "config/lx_office.conf" => our %lx_office_conf;
+SL::LxOfficeConf->read;
 our $lxdebug = LXDebug->new();
 
 use SL::Auth;

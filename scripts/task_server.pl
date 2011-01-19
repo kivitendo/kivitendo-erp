@@ -16,7 +16,6 @@ BEGIN {
 }
 
 use CGI qw( -no_xhtml);
-use Config::Std;
 use Cwd;
 use Daemon::Generic;
 use Data::Dumper;
@@ -29,6 +28,7 @@ use SL::BackgroundJob::ALL;
 use SL::Form;
 use SL::Helper::DateTime;
 use SL::LXDebug;
+use SL::LxOfficeConf;
 use SL::Locale;
 
 our %lx_office_conf;
@@ -89,7 +89,7 @@ sub drop_privileges {
 sub gd_preconfig {
   my $self = shift;
 
-  read_config $self->{configfile} => %lx_office_conf;
+  SL::LxOfficeConf->read;
 
   die "Missing section [task_server] in config file"                unless $lx_office_conf{task_server};
   die "Missing key 'login' in section [task_server] in config file" unless $lx_office_conf{task_server}->{login};
@@ -136,7 +136,8 @@ my $pidbase = "${cwd}/users/pid";
 
 mkdir($pidbase) if !-d $pidbase;
 
-newdaemon(configfile => "${cwd}/config/lx_office.conf",
+my $file = -f "${cwd}/config/lx_office.conf" ? "${cwd}/config/lx_office.conf" : "${cwd}/config/lx_office.conf.default";
+newdaemon(configfile => $file,
           progname   => 'lx-office-task-server',
           pidbase    => "${pidbase}/",
           );

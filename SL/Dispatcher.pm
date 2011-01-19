@@ -15,6 +15,7 @@ use Encode;
 use English qw(-no_match_vars);
 use SL::Auth;
 use SL::LXDebug;
+use SL::LxOfficeConf;
 use SL::Locale;
 use SL::Common;
 use SL::Helper::DateTime;
@@ -66,8 +67,7 @@ sub show_error {
 }
 
 sub pre_startup_setup {
-  read_config 'config/lx_office.conf' => %::lx_office_conf;
-  _decode_recursively(\%::lx_office_conf);
+  SL::LxOfficeConf->read;
   _init_environment();
 
   eval {
@@ -310,18 +310,6 @@ sub get_standard_filehandles {
   my $self = shift;
 
   return $self->{interface} =~ m/f(?:ast)cgi/i ? $self->{request}->GetHandles() : (\*STDIN, \*STDOUT, \*STDERR);
-}
-
-sub _decode_recursively {
-  my ($obj) = @_;
-
-  while (my ($key, $value) = each %{ $obj }) {
-    if (ref($value) eq 'HASH') {
-      _decode_recursively($value);
-    } else {
-      $obj->{$key} = decode('UTF-8', $value);
-    }
-  }
 }
 
 sub _init_environment {

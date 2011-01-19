@@ -99,7 +99,7 @@ email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
 # The template file used for the email's body.
 email_template = templates/webpages/oe/periodic_invoices_email.txt
 
-[Console]
+[console]
 # autologin to use if none is given
 login = mb
 
