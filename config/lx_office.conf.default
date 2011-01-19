@@ -9,7 +9,7 @@ run_as =
 [periodic_invoices]
 # The user name a report about the posted and printed invoices is sent
 # to.
-send_email_to  = login
+send_email_to  = mb
 # The "From:" header for said email.
 email_from     = Lx-Office Daemon <root@localhost>
 # The subject for said email.
@@ -19,43 +19,19 @@ email_template = templates/webpages/oe/periodic_invoices_email.txt
 
 [Console]
 # autologin to use if none is given
-login = demo
+login = mb
 
 # autorun lines will be executed after autologin.
 # be warned that loading huge libraries will noticably lengthen startup time.
-#autorun = use SL::Module
-#        = use SL::Other::Module
+autorun = require "bin/mozilla/common.pl";
+        = use English qw(-no_match_vars);
+        = use List::Util qw(min max);
+        = use Sort::Naturally;
+        = my ($a, $b, $e, $f, @a1, @a2, %h);
+        = sub take { my $max = shift; my $r = ref($_[0]) eq 'ARRAY' ? $_[0] : \@_; return @{$r}[0..List::Util::min($max, scalar(@{$r})) - 1]; }
 
 # location of history file for permanent history
 history_file = users/console_history
-
-# Settings used when the user changes his/her password. All options
-# default to no restriction if unset.
-[password_policy]
-# Minimum length in number of characters.
-min_length =
-# Maximum length in number of characters.
-max_length =
-# Require a lowe-case character?
-require_lowercase =
-# Require an upper-case character?
-require_uppercase =
-# Require a digit?
-require_digit =
-# Require a special char? Special chars are the following:
-# ! " # $ % & ' ( ) * + , - . : ; < = > ? @ [ \ ] ^ _ { | }
-require_special_character =
-# Optional list of valid characters. Spaces are ignored. If set then
-# the password must only consist of these characters.
-valid_characters =
-# Optional list of invalid characters. Spaces are ignored.
-invalid_characters =
-# Whether or not to check the policy if the password is set from the
-# user administration.
-disable_policy_for_admin =
-# Whether or not to check for weak passwords with the "cracklib"
-# library. Requires the Perl module "Crypt::Cracklib" to be installed.
-use_cracklib =
 
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
@@ -75,7 +51,39 @@ dbix_log4perl_config = log4perl.logger = FATAL, LOGFILE
                      = log4perl.appender.A1.layout=Log::Log4perl::Layout::PatternLayout
                      = log4perl.appender.A1.layout.ConversionPattern=%d %p> %F{1}:%L %M - %m%n
 
+# Activate certain global debug messages. If you want to combine
+# several options then list them seperated by spaces.
+#
+# Possible values include:
+#   NONE   - no debug output (default)
+#   INFO
+#   DEBUG1
+#   DEBUG2
+#   QUERY              - Dump SQL queries (only in legacy code; see also "dbix_log4perl" above)
+#   TRACE              - Track function calls and returns
+#   BACKTRACE_ON_ERROR - Print a function call backtrace when $form->error() is called
+#   REQUEST_TIMER      - Log timing of HTTP requests
+#   WARN               - warnings
+#   ALL                - all possible debug messages
+#
+#   DEVEL              - sames as "INFO QUERY TRACE BACKTRACE_ON_ERROR REQUEST_TIMER"
+#
+# Example:
+#   global_level = TRACE QUERY
+global_level = NONE
+
+# Activate monitoring of the content of $form. If it is active then
+# monitoring can be turned on for certain variables with the
+# following:
+#   $form->{"Watchdog::<variable>"} = 1;
+# Monitoring has a performance cost and is therefore deactivated by
+# default.
+watch_form = 0
+
 # If you want to debug the creation of LaTeX files then set this to 1.
 # That way the temporary LaTeX files created during PDF creation are
 # not removed and remain in the "users" directory.
 keep_temp_files = 0
+
+# The file name where the debug messages are written to.
+file_name = /tmp/lx-office-debug.log
