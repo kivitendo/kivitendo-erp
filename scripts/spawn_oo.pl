@@ -5,7 +5,6 @@ BEGIN {
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
 }
 
-
 use DBI;
 use Data::Dumper;
 
@@ -19,8 +18,6 @@ $sendmail   = "| /usr/sbin/sendmail -t";
 $| = 1;
 
 $lxdebug = LXDebug->new();
-
-require "lx-erp.conf";
 
 $form = new Form;
 $form->{"script"} = "oe.pl";

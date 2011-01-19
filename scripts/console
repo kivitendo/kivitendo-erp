@@ -59,9 +59,6 @@ sub lxinit {
 
   package main;
 
-  eval { require "config/lx-erp.conf"; };
-  eval { require "config/lx-erp-local.conf"; } if -f "config/lx-erp-local.conf";
-
   read_config 'config/lx_office.conf' => %::lx_office_conf;
   SL::Dispatcher::_decode_recursively(\%::lx_office_conf);
 

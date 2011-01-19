@@ -66,15 +66,6 @@ sub show_error {
 }
 
 sub pre_startup_setup {
-  eval {
-    package main;
-    require "config/lx-erp.conf";
-  };
-  eval {
-    package main;
-    require "config/lx-erp-local.conf";
-  } if -f "config/lx-erp-local.conf";
-
   read_config 'config/lx_office.conf' => %::lx_office_conf;
   _decode_recursively(\%::lx_office_conf);
   _init_environment();

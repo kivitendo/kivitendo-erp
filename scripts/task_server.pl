@@ -42,9 +42,6 @@ sub lxinit {
 
   package main;
 
-  eval { require "config/lx-erp.conf";       1; } or die $EVAL_ERROR;
-  eval { require "config/lx-erp-local.conf"; 1; } or die $EVAL_ERROR if -f "config/lx-erp-local.conf";
-
   $::lxdebug = LXDebug->new;
   $::locale  = Locale->new($::lx_office_conf{system}->{language});
   $::cgi     = CGI->new qw();

@@ -8,6 +8,7 @@ BEGIN {
 }
 
 use CGI qw( -no_xhtml);
+use Config::Std;
 use Data::Dumper;
 use English qw( -no_match_vars );
 use List::MoreUtils qw(any);
@@ -24,6 +25,7 @@ use SL::DB::Helper::Mappings;
 our $form;
 our $cgi;
 our $auth;
+our %lx_office_conf;
 
 our $script =  __FILE__;
 $script     =~ s:.*/::;
@@ -40,12 +42,11 @@ sub setup {
     exit 1;
   }
 
+  read_config "config/lx_office.conf" => %lx_office_conf;
+
   my $login     = shift @ARGV;
 
   $::lxdebug    = LXDebug->new();
-
-  require "config/lx-erp.conf";
-  require "config/lx-erp-local.conf" if -f "config/lx-erp-local.conf";
 
   # locale messages
   $::locale       = Locale->new("de");

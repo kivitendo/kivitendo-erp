@@ -114,9 +114,7 @@ Distributionen unterschiedlich heißen.
 libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl
 libemail-address-perl libio-stringy-perl liblist-moreutils-perl
 libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl
-libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl
-librose-object-perl librose-db-perl librose-db-object-perl
-libreadonly-xs-perl'
+libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl'
 
    Für Fedora Core benötigen Sie diese Pakete:
 
@@ -498,9 +496,9 @@ ist dies `lxoffice').
    Wenn Sie für die Lx-Office-Installation nicht den europäischen
 Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
 müssen Sie vor dem Anlegen der Datenbank in der Datei
-`config/lx-erp.conf' die Variable `$dbcharset' auf den Wert `UTF-8'
-setzen. Zusätzlich muss beim Anlegen der Datenbank `UTF-8 Unicode' als
-Schriftsatz ausgewählt werden.
+`config/lx_office.conf' die Variable `dbcharset' im Abschnitt `system'
+auf den Wert `UTF-8' setzen. Zusätzlich muss beim Anlegen der Datenbank
+`UTF-8 Unicode' als Schriftsatz ausgewählt werden.
 
    Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
 verwenden müssen, da diese Einstellungen momentan global in Lx-Office
@@ -579,13 +577,13 @@ OpenDocument-Format, wie es OpenOffice.org ab Version 2 erzeugt.
 Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als auch aus
 diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
 OpenDocument-Vorlagen zu aktivieren muss in der Datei
-`config/lx-erp.conf' die Variable `$opendocument_templates' auf `1'
-stehen.  Dieses ist die Standardeinstellung.
+`config/lx_office.conf' die Variable `opendocument' im Abschnitt
+`print_templates' auf `1' stehen.  Dieses ist die Standardeinstellung.
 
-   Weiterhin muss in der Datei `config/lx-erp.conf' die Variable
-`$dbcharset' auf die Zeichenkodierung gesetzt werden, die auch bei der
-Speicherung der Daten in der Datenbank verwendet wird. Diese ist in den
-meisten Fällen "UTF-8".
+   Weiterhin muss in der Datei `config/lx_office.conf' die Variable
+`dbcharset' im Abschnitt `system' auf die Zeichenkodierung gesetzt
+werden, die auch bei der Speicherung der Daten in der Datenbank
+verwendet wird. Diese ist in den meisten Fällen "UTF-8".
 
    Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
 weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
@@ -594,10 +592,11 @@ neben OpenOffice.org ab Version 2 auch der "X virtual frame buffer"
 (xvfb) installiert werden.  Bei Debian ist er im Paket "xvfb"
 enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
 
-   Nach der Installation müssen in der Datei `config/lx-erp.conf' zwei
-weitere Variablen angepasst werden: `$openofficeorg_writer_bin' muss
+   Nach der Installation müssen in der Datei `config/lx_config.conf'
+zwei weitere Variablen angepasst werden: `openofficeorg_writer' muss
 den vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
-`$xvfb_bin' muss den Pfad zum "X virtual frame buffer" enthalten.
+`xvfb' muss den Pfad zum "X virtual frame buffer" enthalten. Beide
+stehen im Abschnitt `applications'.
 
    Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
 OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn die

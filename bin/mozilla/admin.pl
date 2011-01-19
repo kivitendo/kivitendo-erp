@@ -846,7 +846,7 @@ sub backup_dataset {
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
   if ($::lx_office_conf{applications}->{pg_dump} eq "DISABLED") {
-    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+    $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
   }
 
   my @dbsources         = sort User->dbsources($form);
@@ -870,7 +870,7 @@ sub backup_dataset_start {
   my $pg_dump_exe = $::lx_office_conf{applications}->{pg_dump} || "pg_dump";
 
   if ("$pg_dump_exe" eq "DISABLED") {
-    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+    $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
   }
 
   $form->isblank("dbname", $locale->text('The dataset name is missing.'));
@@ -955,7 +955,7 @@ sub restore_dataset {
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
   if ($::lx_office_conf{applications}->{pg_restore} eq "DISABLED") {
-    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+    $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
   }
 
   my $default_charset   = $::lx_office_conf{system}->{dbcharset};
@@ -982,7 +982,7 @@ sub restore_dataset_start {
   my $pg_restore_exe = $::lx_office_conf{applications}->{pg_restore} || "pg_restore";
 
   if ("$pg_restore_exe" eq "DISABLED") {
-    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+    $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
   }
 
   $form->isblank("new_dbname", $locale->text('The dataset name is missing.'));

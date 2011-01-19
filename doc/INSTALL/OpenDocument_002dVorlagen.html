@@ -39,13 +39,14 @@ OpenDocument-Format, wie es OpenOffice.org ab Version 2
 erzeugt. Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als
 auch aus diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
 OpenDocument-Vorlagen zu aktivieren muss in der Datei
-<code>config/lx-erp.conf</code> die Variable <code>$opendocument_templates</code>
-auf &lsquo;<samp><span class="samp">1</span></samp>&rsquo; stehen.  Dieses ist die Standardeinstellung.
+<code>config/lx_office.conf</code> die Variable <code>opendocument</code> im
+Abschnitt <code>print_templates</code> auf &lsquo;<samp><span class="samp">1</span></samp>&rsquo; stehen.  Dieses ist die
+Standardeinstellung.
 
-   <p>Weiterhin muss in der Datei <code>config/lx-erp.conf</code> die Variable
-<code>$dbcharset</code> auf die Zeichenkodierung gesetzt werden, die auch
-bei der Speicherung der Daten in der Datenbank verwendet wird. Diese
-ist in den meisten Fällen "UTF-8".
+   <p>Weiterhin muss in der Datei <code>config/lx_office.conf</code> die Variable
+<code>dbcharset</code> im Abschnitt <code>system</code> auf die Zeichenkodierung
+gesetzt werden, die auch bei der Speicherung der Daten in der
+Datenbank verwendet wird. Diese ist in den meisten Fällen "UTF-8".
 
    <p>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
 weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
@@ -54,11 +55,11 @@ neben OpenOffice.org ab Version 2 auch der &ldquo;X virtual frame buffer&rdquo;
 (xvfb) installiert werden.  Bei Debian ist er im Paket &ldquo;xvfb&rdquo;
 enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
 
-   <p>Nach der Installation müssen in der Datei <code>config/lx-erp.conf</code>
-zwei weitere Variablen angepasst werden:
-<code>$openofficeorg_writer_bin</code> muss den vollständigen Pfad zur
-OpenOffice.org Writer-Anwendung enthalten.  <code>$xvfb_bin</code> muss den
-Pfad zum &ldquo;X virtual frame buffer&rdquo; enthalten.
+   <p>Nach der Installation müssen in der Datei <code>config/lx_config.conf</code>
+zwei weitere Variablen angepasst werden: <code>openofficeorg_writer</code>
+muss den vollständigen Pfad zur OpenOffice.org Writer-Anwendung
+enthalten. <code>xvfb</code> muss den Pfad zum &ldquo;X virtual frame buffer&rdquo;
+enthalten. Beide stehen im Abschnitt <code>applications</code>.
 
    <p>Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
 OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn
