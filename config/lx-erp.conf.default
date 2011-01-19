@@ -1,14 +1,13 @@
 use Cwd;
 
-use vars qw(
+our qw(
   $dbcharset $eur $ghostscript_bin $html2ps_bin $language $latex_bin
   $latex_templates $lizenzen $memberfile $opendocument_templates
   $openofficeorg_daemon $openofficeorg_daemon_port $openofficeorg_writer_bin
   $parts_image_css $parts_listing_images $parts_show_image $pg_dump_exe
-  $pg_restore_exe $sendmail $show_best_before $sid $spool $templates $userspath
-  $vertreter $webdav $xvfb_bin
+  $pg_restore_exe $sendmail $show_best_before $sid $spool $templates
+  $use_rdbo $userspath $vertreter $webdav $xvfb_bin
 );
-
 
 # path to user configuration files
 $userspath = "users";
@@ -22,13 +21,15 @@ $templates = "templates";
 # member file
 $memberfile = "users/members";
 
-# Wenn nicht Bilanzierung dann auf 1 setzen
+# Wenn Einnahmen-Überschussrechnung, dann auf 1 setzen
+# Wenn Bilanzierung (z.B. GmbH), dann auf 0 setzen
 $eur = 1;
 
 # location of sendmail
 $sendmail = '| /usr/sbin/sendmail -t<%if myconfig_email%> -f <%myconfig_email%><%end%>';
 
 # set language for login and admin
+# currently "de" (German), "de_DE" (new German) and "en" (English, not perfect) are available
 $language = "de";
 
 # Oracle
@@ -48,6 +49,7 @@ $ENV{PERL5LIB} .= ":/sw/lib/perl5";
 $webdav = 0;
 $lizenzen = 1;
 $vertreter = 0;
+$excel_templates = 0; # Minimalunterstützung für Excel-Druckvorlagen
 
 # Zeige Felder für Mindesthaltbarkeitsdatum
 $show_best_before = 0;
@@ -104,6 +106,13 @@ $latex_bin = 'pdflatex';
 $pg_dump_exe    = "pg_dump";
 $pg_restore_exe = "pg_restore";
 
+# Rose::DB::Object Environment laden.
+# Die RDBO Klassen bieten für Addon Schreiber sehr einfache Interfaces zu den
+# bestehenden Klassen, haben aber den Nachteil, dass der Start des Programms
+# etwa 2s mehr dauert. Damit fällt die Möglichkeit Lx-Office über CGI zu
+# betreiben weg.
+$use_rdbo = 1;
+
 # Globale Debug-Ausgaben (de-)aktivieren? Moegliche Werte sind
 # LXDebug::NONE   - keine Debugausgaben
 # LXDebug::INFO
@@ -120,7 +129,7 @@ $pg_restore_exe = "pg_restore";
 #
 # Beipiel:
 #   $LXDebug::global_level = LXDebug::TRACE | LXDebug::QUERY;
-$LXDebug::global_level = LXDebug::NONE;
+$LXDebug::global_level = LXDebug->NONE;
 
 # Überwachung der Inhalte von $form aktiviert oder nicht? Wenn ja,
 # dann können einzelne Variablen mit
