@@ -29,6 +29,31 @@ login = demo
 # location of history file for permanent history
 history_file = users/console_history
 
+# Settings used when the user changes his/her password. All options
+# default to no restriction if unset.
+[password_policy]
+# Minimum length in number of characters.
+min_length =
+# Maximum length in number of characters.
+max_length =
+# Require a lowe-case character?
+require_lowercase =
+# Require an upper-case character?
+require_uppercase =
+# Require a digit?
+require_digit =
+# Require a special char? Special chars are the following:
+# ! " # $ % & ' ( ) * + , - . : ; < = > ? @ [ \ ] ^ _ { | }
+require_special_character =
+# Optional list of valid characters. Spaces are ignored. If set then
+# the password must only consist of these characters.
+valid_characters =
+# Optional list of invalid characters. Spaces are ignored.
+invalid_characters =
+# Whether or not to check the policy if the password is set from the
+# user administration.
+disable_policy_for_admin =
+
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
 # will be replaced by the file name configured for $::lxdebug.
