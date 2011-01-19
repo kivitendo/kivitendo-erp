@@ -1,0 +1,19 @@
+[% USE HTML %]
+[% USE L %]
+<body onload="copy_values_and_close()">
+
+ <script type="text/javascript">
+  <!--
+      function copy_values_and_close() {
+        window.opener.document.getElementsByName("periodic_invoices_config")[0].value = $("#periodic_invoices_config").attr('value');
+        window.close();
+      }
+    -->
+ </script>
+
+ <form name="Form">
+  [% L.hidden_tag("periodic_invoices_config", periodic_invoices_config) %]
+ </form>
+
+</body>
+</html>

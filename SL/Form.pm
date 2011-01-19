@@ -43,21 +43,28 @@ use CGI;
 use CGI::Ajax;
 use Cwd;
 use Encode;
+use File::Copy;
 use IO::File;
 use SL::Auth;
 use SL::Auth::DB;
 use SL::Auth::LDAP;
 use SL::AM;
 use SL::Common;
+use SL::CVar;
+use SL::DB;
 use SL::DBUtils;
+use SL::DO;
+use SL::IC;
+use SL::IS;
 use SL::Mailer;
 use SL::Menu;
+use SL::OE;
 use SL::Template;
 use SL::User;
 use Template;
 use URI;
 use List::Util qw(first max min sum);
-use List::MoreUtils qw(any apply);
+use List::MoreUtils qw(all any apply);
 
 use strict;
 
@@ -441,13 +448,23 @@ sub hide_form {
   $main::lxdebug->leave_sub();
 }
 
+sub throw_on_error {
+  my ($self, $code) = @_;
+  local $self->{__ERROR_HANDLER} = sub { die({ error => $_[0] }) };
+  $code->();
+}
+
 sub error {
   $main::lxdebug->enter_sub();
 
   $main::lxdebug->show_backtrace();
 
   my ($self, $msg) = @_;
-  if ($ENV{HTTP_USER_AGENT}) {
+
+  if ($self->{__ERROR_HANDLER}) {
+    $self->{__ERROR_HANDLER}->($msg);
+
+  } elsif ($ENV{HTTP_USER_AGENT}) {
     $msg =~ s/\n/<br>/g;
     $self->show_generic_error($msg);
 
@@ -859,6 +876,12 @@ sub show_generic_error {
 
   my ($self, $error, %params) = @_;
 
+  if ($self->{__ERROR_HANDLER}) {
+    $self->{__ERROR_HANDLER}->($error);
+    $main::lxdebug->leave_sub();
+    return;
+  }
+
   my $add_params = {
     'title_error' => $params{title},
     'label_error' => $error,
@@ -1268,6 +1291,16 @@ sub parse_template {
     $self->error("$self->{IN} : " . $template->get_error());
   }
 
+  if ($self->{media} eq 'file') {
+    copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
+    $self->cleanup;
+    chdir("$self->{cwd}");
+
+    $::lxdebug->leave_sub();
+
+    return;
+  }
+
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
 
     if ($self->{media} eq 'email') {
@@ -1579,7 +1612,7 @@ sub get_standard_dbh {
     undef $standard_dbh;
   }
 
-  $standard_dbh ||= $self->dbconnect_noauto($myconfig);
+  $standard_dbh ||= SL::DB::create->dbh;
 
   $main::lxdebug->leave_sub(2);
 
@@ -3493,6 +3526,163 @@ sub restore_vars {
   map { $self->{$_} = $self->{_VAR_BACKUP}->{$_} if exists $self->{_VAR_BACKUP}->{$_} } @vars;
 
   $main::lxdebug->leave_sub();
+}
+
+sub prepare_for_printing {
+  my ($self) = @_;
+
+  $self->{templates} ||= $::myconfig{templates};
+  $self->{formname}  ||= $self->{type};
+  $self->{media}     ||= 'email';
+
+  die "'media' other than 'email', 'file', 'printer' is not supported yet" unless $self->{media} =~ m/^(?:email|file|printer)$/;
+
+  # set shipto from billto unless set
+  my $has_shipto = any { $self->{"shipto$_"} } qw(name street zipcode city country contact);
+  if (!$has_shipto && ($self->{type} =~ m/^(?:purchase_order|request_quotation)$/)) {
+    $self->{shiptoname}   = $::myconfig{company};
+    $self->{shiptostreet} = $::myconfig{address};
+  }
+
+  my $language = $self->{language} ? '_' . $self->{language} : '';
+
+  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
+  if ($self->{language_id}) {
+    ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) = AM->get_language_details(\%::myconfig, $self, $self->{language_id});
+  } else {
+    $output_dateformat   = $::myconfig{dateformat};
+    $output_numberformat = $::myconfig{numberformat};
+    $output_longdates    = 1;
+  }
+
+  # Retrieve accounts for tax calculation.
+  IC->retrieve_accounts(\%::myconfig, $self, map { $_ => $self->{"id_$_"} } 1 .. $self->{rowcount});
+
+  if ($self->{type} =~ /_delivery_order$/) {
+    DO->order_details();
+  } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order/) {
+    OE->order_details(\%::myconfig, $self);
+  } else {
+    IS->invoice_details(\%::myconfig, $self, $::locale);
+  }
+
+  # Chose extension & set source file name
+  my $extension = 'html';
+  if ($self->{format} eq 'postscript') {
+    $self->{postscript}   = 1;
+    $extension            = 'tex';
+  } elsif ($self->{"format"} =~ /pdf/) {
+    $self->{pdf}          = 1;
+    $extension            = $self->{'format'} =~ m/opendocument/i ? 'odt' : 'tex';
+  } elsif ($self->{"format"} =~ /opendocument/) {
+    $self->{opendocument} = 1;
+    $extension            = 'odt';
+  } elsif ($self->{"format"} =~ /excel/) {
+    $self->{excel}        = 1;
+    $extension            = 'xls';
+  }
+
+  my $printer_code    = '_' . $self->{printer_code} if $self->{printer_code};
+  my $email_extension = '_email' if -f "$self->{templates}/$self->{formname}_email${language}${printer_code}.${extension}";
+  $self->{IN}         = "$self->{formname}${email_extension}${language}${printer_code}.${extension}";
+
+  # Format dates.
+  $self->format_dates($output_dateformat, $output_longdates,
+                      qw(invdate orddate quodate pldate duedate reqdate transdate shippingdate deliverydate validitydate paymentdate datepaid
+                         transdate_oe deliverydate_oe employee_startdate employee_enddate),
+                      grep({ /^(?:datepaid|transdate_oe|reqdate|deliverydate|deliverydate_oe|transdate)_\d+$/ } keys(%{$self})));
+
+  $self->reformat_numbers($output_numberformat, 2,
+                          qw(invtotal ordtotal quototal subtotal linetotal listprice sellprice netprice discount tax taxbase total paid),
+                          grep({ /^(?:linetotal|listprice|sellprice|netprice|taxbase|discount|paid|subtotal|total|tax)_\d+$/ } keys(%{$self})));
+
+  $self->reformat_numbers($output_numberformat, undef, qw(qty price_factor), grep({ /^qty_\d+$/} keys(%{$self})));
+
+  my ($cvar_date_fields, $cvar_number_fields) = CVar->get_field_format_list('module' => 'CT', 'prefix' => 'vc_');
+
+  if (scalar @{ $cvar_date_fields }) {
+    $self->format_dates($output_dateformat, $output_longdates, @{ $cvar_date_fields });
+  }
+
+  while (my ($precision, $field_list) = each %{ $cvar_number_fields }) {
+    $self->reformat_numbers($output_numberformat, $precision, @{ $field_list });
+  }
+
+  return $self;
+}
+
+sub format_dates {
+  my ($self, $dateformat, $longformat, @indices) = @_;
+
+  $dateformat ||= $::myconfig{dateformat};
+
+  foreach my $idx (@indices) {
+    if ($self->{TEMPLATE_ARRAYS} && (ref($self->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{ $self->{TEMPLATE_ARRAYS}->{$idx} }); $i++) {
+        $self->{TEMPLATE_ARRAYS}->{$idx}->[$i] = $::locale->reformat_date(\%::myconfig, $self->{TEMPLATE_ARRAYS}->{$idx}->[$i], $dateformat, $longformat);
+      }
+    }
+
+    next unless defined $self->{$idx};
+
+    if (!ref($self->{$idx})) {
+      $self->{$idx} = $::locale->reformat_date(\%::myconfig, $self->{$idx}, $dateformat, $longformat);
+
+    } elsif (ref($self->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{ $self->{$idx} }); $i++) {
+        $self->{$idx}->[$i] = $::locale->reformat_date(\%::myconfig, $self->{$idx}->[$i], $dateformat, $longformat);
+      }
+    }
+  }
+}
+
+sub reformat_numbers {
+  my ($self, $numberformat, $places, @indices) = @_;
+
+  return if !$numberformat || ($numberformat eq $::myconfig{numberformat});
+
+  foreach my $idx (@indices) {
+    if ($self->{TEMPLATE_ARRAYS} && (ref($self->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{ $self->{TEMPLATE_ARRAYS}->{$idx} }); $i++) {
+        $self->{TEMPLATE_ARRAYS}->{$idx}->[$i] = $self->parse_amount(\%::myconfig, $self->{TEMPLATE_ARRAYS}->{$idx}->[$i]);
+      }
+    }
+
+    next unless defined $self->{$idx};
+
+    if (!ref($self->{$idx})) {
+      $self->{$idx} = $self->parse_amount(\%::myconfig, $self->{$idx});
+
+    } elsif (ref($self->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{ $self->{$idx} }); $i++) {
+        $self->{$idx}->[$i] = $self->parse_amount(\%::myconfig, $self->{$idx}->[$i]);
+      }
+    }
+  }
+
+  my $saved_numberformat    = $::myconfig{numberformat};
+  $::myconfig{numberformat} = $numberformat;
+
+  foreach my $idx (@indices) {
+    if ($self->{TEMPLATE_ARRAYS} && (ref($self->{TEMPLATE_ARRAYS}->{$idx}) eq "ARRAY")) {
+      for (my $i = 0; $i < scalar(@{ $self->{TEMPLATE_ARRAYS}->{$idx} }); $i++) {
+        $self->{TEMPLATE_ARRAYS}->{$idx}->[$i] = $self->format_amount(\%::myconfig, $self->{TEMPLATE_ARRAYS}->{$idx}->[$i], $places);
+      }
+    }
+
+    next unless defined $self->{$idx};
+
+    if (!ref($self->{$idx})) {
+      $self->{$idx} = $self->format_amount(\%::myconfig, $self->{$idx}, $places);
+
+    } elsif (ref($self->{$idx}) eq "ARRAY") {
+      for (my $i = 0; $i < scalar(@{ $self->{$idx} }); $i++) {
+        $self->{$idx}->[$i] = $self->format_amount(\%::myconfig, $self->{$idx}->[$i], $places);
+      }
+    }
+  }
+
+  $::myconfig{numberformat} = $saved_numberformat;
 }
 
 1;

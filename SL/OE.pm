@@ -35,9 +35,12 @@
 package OE;
 
 use List::Util qw(max first);
+use YAML;
+
 use SL::AM;
 use SL::Common;
 use SL::CVar;
+use SL::DB::PeriodicInvoicesConfig;
 use SL::DBUtils;
 use SL::IC;
 
@@ -58,11 +61,17 @@ sub transactions {
   my @values;
   my $where;
 
+  my ($periodic_invoices_columns, $periodic_invoices_joins);
+
   my $rate = ($form->{vc} eq 'customer') ? 'buy' : 'sell';
 
   if ($form->{type} =~ /_quotation$/) {
     $quotation = '1';
     $ordnumber = 'quonumber';
+
+  } elsif ($form->{type} eq 'sales_order') {
+    $periodic_invoices_columns = qq| , COALESCE(pcfg.active, 'f') AS periodic_invoices |;
+    $periodic_invoices_joins   = qq| LEFT JOIN periodic_invoices_configs pcfg ON (o.id = pcfg.oe_id) |;
   }
 
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
@@ -77,6 +86,7 @@ sub transactions {
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
     qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid  | .
+    $periodic_invoices_columns .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
     qq|LEFT JOIN employee e ON (o.employee_id = e.id) | .
@@ -84,6 +94,7 @@ sub transactions {
     qq|LEFT JOIN exchangerate ex ON (ex.curr = o.curr | .
     qq|  AND ex.transdate = o.transdate) | .
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
+    qq|$periodic_invoices_joins | .
     qq|WHERE (o.quotation = ?) |;
   push(@values, $quotation);
 
@@ -178,6 +189,11 @@ SQL
     push(@values, '%' . $form->{transaction_description} . '%');
   }
 
+  if ($form->{periodic_invoices_active} ne $form->{periodic_invoices_inactive}) {
+    my $not  = 'NOT' if ($form->{periodic_invoices_inactive});
+    $query  .= qq| AND ${not} COALESCE(pcfg.active, 'f')|;
+  }
+
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "${_} ${sortdir} " } ("o.id", $form->sort_columns("transdate", $ordnumber, "name")));
   my %allowed_sort_columns = (
@@ -259,7 +275,7 @@ sub save {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database, turn off autocommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my ($query, @values, $sth, $null);
   my $exchangerate = 0;
@@ -543,17 +559,51 @@ sub save {
     }
   }
 
+  $self->save_periodic_invoices_config(dbh         => $dbh,
+                                       oe_id       => $form->{id},
+                                       config_yaml => $form->{periodic_invoices_config})
+    if ($form->{type} eq 'sales_order');
+
   $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
                                        "quonumber" : "ordnumber"};
 
   Common::webdav_folder($form) if ($main::webdav);
 
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
   return $rc;
+}
+
+sub save_periodic_invoices_config {
+  my ($self, %params) = @_;
+
+  return if !$params{oe_id};
+
+  my $config = $params{config_yaml} ? YAML::Load($params{config_yaml}) : undef;
+  return if 'HASH' ne ref $config;
+
+  my $obj  = SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $params{oe_id})
+          || SL::DB::PeriodicInvoicesConfig->new(oe_id => $params{oe_id});
+  $obj->update_attributes(%{ $config });
+}
+
+sub load_periodic_invoice_config {
+  my $self = shift;
+  my $form = shift;
+
+  delete $form->{periodic_invoices_config};
+
+  if ($form->{id}) {
+    my $config_obj = SL::DB::Manager::PeriodicInvoicesConfig->find_by(oe_id => $form->{id});
+
+    if ($config_obj) {
+      my $config = { map { $_ => $config_obj->$_ } qw(active terminated periodicity start_date_as_date end_date_as_date extend_automatically_by ar_chart_id
+                                                      print printer_id copies) };
+      $form->{periodic_invoices_config} = YAML::Dump($config);
+    }
+  }
 }
 
 sub _close_quotations_rfqs {
@@ -627,6 +677,10 @@ sub delete {
 
   # delete-values
   @values = (conv_i($form->{id}));
+
+  # periodic invoices and their configuration
+  do_query($form, $dbh, qq|DELETE FROM periodic_invoices         WHERE config_id IN (SELECT id FROM periodic_invoices_configs WHERE oe_id = ?)|, @values);
+  do_query($form, $dbh, qq|DELETE FROM periodic_invoices_configs WHERE oe_id = ?|, @values);
 
   # delete status entries
   $query = qq|DELETE FROM status | .
@@ -940,8 +994,9 @@ sub retrieve {
 
   Common::webdav_folder($form) if ($main::webdav);
 
+  $self->load_periodic_invoice_config($form);
+
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 

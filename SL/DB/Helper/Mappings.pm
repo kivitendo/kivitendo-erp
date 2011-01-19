@@ -1,7 +1,11 @@
-package SL::DB::Helpers::Mappings;
+package SL::DB::Helper::Mappings;
 
 use utf8;
 use strict;
+
+require Exporter;
+our @ISA       = qw(Exporter);
+our @EXPORT_OK = qw(get_table_for_package get_package_for_table get_package_names);
 
 # these will not be managed as Rose::DB models, because they are not normalized,
 # significant changes are needed to get them done, or they were done by CRM.
@@ -22,7 +26,15 @@ my @lxoffice_blacklist = (@lxoffice_blacklist_permanent, @lxoffice_blacklist_tem
 my %lxoffice_package_names = (
   acc_trans                      => 'acc_transaction',
   audittrail                     => 'audit_trail',
+  auth_group                     => 'auth_groups',
+  auth_group_right               => 'auth_group_rights',
+  auth_user                      => 'auth_users',
+  auth_user_config               => 'auth_user_configs',
+  auth_user_group                => 'auth_user_groups',
   ar                             => 'invoice',
+  ap                             => 'purchase_invoice',
+  background_jobs                => 'background_job',
+  background_job_histories       => 'background_job_history',
   ap                             => 'purchase_invoice',
   bank_accounts                  => 'bank_account',
   buchungsgruppen                => 'buchungsgruppe',
@@ -63,6 +75,8 @@ my %lxoffice_package_names = (
   partsgroup                     => 'parts_group',
   partstax                       => 'parts_tax',
   payment_terms                  => 'payment_term',
+  periodic_invoices              => 'periodic_invoice',
+  periodic_invoices_configs      => 'periodic_invoices_config',
   prices                         => 'prices',
   price_factors                  => 'price_factor',
   pricegroup                     => 'pricegroup',
@@ -85,12 +99,36 @@ my %lxoffice_package_names = (
   vendortax                      => 'vendor_tax',
 );
 
+my (%lxoffice_tables_to_packages, %lxoffice_tables_to_manager_packages, %lxoffice_packages_to_tables);
+
 sub get_blacklist {
   return LXOFFICE => \@lxoffice_blacklist;
 }
 
 sub get_package_names {
   return LXOFFICE => \%lxoffice_package_names;
+}
+
+sub get_package_for_table {
+  %lxoffice_tables_to_packages = map { ($_ => "SL::DB::" . camelify($lxoffice_package_names{$_})) } keys %lxoffice_package_names
+    unless %lxoffice_tables_to_packages;
+
+  return $lxoffice_tables_to_packages{ $_[0] };
+}
+
+sub get_manager_package_for_table {
+  %lxoffice_tables_to_manager_packages = map { ($_ => "SL::DB::Manager::" . camelify($lxoffice_package_names{$_})) } keys %lxoffice_package_names
+    unless %lxoffice_tables_to_manager_packages;
+
+  return $lxoffice_tables_to_manager_packages{ $_[0] };
+}
+
+sub get_table_for_package {
+  get_package_for_table('dummy') if !%lxoffice_tables_to_packages;
+  %lxoffice_packages_to_tables = reverse %lxoffice_tables_to_packages unless %lxoffice_packages_to_tables;
+
+  my $package = $_[0] =~ m/^SL::DB::/ ? $_[0] : "SL::DB::" . $_[0];
+  return $lxoffice_packages_to_tables{ $package };
 }
 
 sub db {
@@ -140,13 +178,15 @@ sub singlify {
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
-SL::DB::Helpers::Mappings - Rose Table <-> Model mapping information
+SL::DB::Helper::Mappings - Rose Table <-> Model mapping information
 
 =head1 SYNOPSIS
 
-  use SL::DB::Helpers::Mappings qw(@blacklist %table2model);
+  use SL::DB::Helper::Mappings qw(@blacklist %table2model);
 
 =head1 DESCRIPTION
 
@@ -154,9 +194,13 @@ This modul stores table <-> model mappings used by the
 L<scripts/rose_auto_create_model.pl> script.  If you add a new table that has
 custom mappings, add it here.
 
-=head2 db
+=head1 FUNCTIONS
 
-A special function provided here is E<db>. Without it you'd have to write:
+=over 4
+
+=item C<db $name>
+
+A special function provided here is C<db>. Without it you'd have to write:
 
   my $part = SL::DB::Part->new(id => 1234);
   my @all_parts = SL::DB::Manager::Part->get_all;
@@ -172,6 +216,31 @@ simple s at the end will get you the associated Manager class.
 db is written to try to make sense of what you give it, but if all fails, it
 will die with an error.
 
+=item C<get_package_for_table $table_name>
+
+Returns the package name for a table name:
+
+  SL::DB::Helpers::Mappings::get_package_for_table('oe')
+  # SL::DB::Order
+
+=item C<get_manager_package_for_table $table_name>
+
+Returns the manager package name for a table name:
+
+  SL::DB::Helpers::Mappings::get_manager_package_for_table('oe')
+  # SL::DB::Manager::Order
+
+=item C<get_table_for_package $package_name>
+
+Returns the table name for a package name:
+
+  SL::DB::Helpers::Mappings::get_table_for_package('SL::DB::Order')
+  # oe
+  SL::DB::Helpers::Mappings::get_table_for_package('Order')
+  # oe
+
+=back
+
 =head1 BUGS
 
 nothing yet
@@ -182,6 +251,7 @@ L<scripts/rose_auto_create_model.pl>
 
 =head1 AUTHOR
 
-Sven Schöling <s.schoeling@linet-services.de>
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>,
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
 
 =cut

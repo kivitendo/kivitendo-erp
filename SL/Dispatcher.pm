@@ -9,7 +9,9 @@ BEGIN {
 }
 
 use CGI qw( -no_xhtml);
+use Config::Std;
 use DateTime;
+use Encode;
 use English qw(-no_match_vars);
 use SL::Auth;
 use SL::LXDebug;
@@ -92,6 +94,9 @@ sub pre_startup_setup {
     $::form        = undef;
     %::myconfig    = ();
     %::called_subs = (); # currently used for recursion detection
+
+    read_config 'config/lx_office.conf' => %::lx_office_conf if -f "config/lx_office.conf";
+    _decode_recursively(\%::lx_office_conf);
   }
 
   $SIG{__WARN__} = sub {
@@ -236,7 +241,7 @@ sub handle_request {
   $::locale   = undef;
   $::form     = undef;
   $::myconfig = ();
-  Form::disconnect_standard_dbh();
+  Form::disconnect_standard_dbh unless $self->_interface_is_fcgi;
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;
@@ -244,7 +249,7 @@ sub handle_request {
 
 sub unrequire_bin_mozilla {
   my $self = shift;
-  return unless $self->{interface} =~ m/^(?:fastcgi|fcgid|fcgi)$/;
+  return unless $self->_interface_is_fcgi;
 
   for (keys %INC) {
     next unless m#^bin/mozilla/#;
@@ -252,6 +257,11 @@ sub unrequire_bin_mozilla {
     next if /\binstallationcheck.pl$/;
     delete $INC{$_};
   }
+}
+
+sub _interface_is_fcgi {
+  my $self = shift;
+  return $self->{interface} =~ m/^(?:fastcgi|fcgid|fcgi)$/;
 }
 
 sub _route_request {
@@ -313,6 +323,18 @@ sub get_standard_filehandles {
   my $self = shift;
 
   return $self->{interface} =~ m/f(?:ast)cgi/i ? $self->{request}->GetHandles() : (\*STDIN, \*STDOUT, \*STDERR);
+}
+
+sub _decode_recursively {
+  my ($obj) = @_;
+
+  while (my ($key, $value) = each %{ $obj }) {
+    if (ref($value) eq 'HASH') {
+      _decode_recursively($value);
+    } else {
+      $obj->{$key} = decode('UTF-8', $value);
+    }
+  }
 }
 
 package main;

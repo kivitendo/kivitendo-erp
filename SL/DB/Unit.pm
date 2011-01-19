@@ -38,4 +38,23 @@ sub convertible_units {
   ];
 }
 
+sub base_factor {
+  my ($self) = @_;
+
+  if (!defined $self->{__base_factor}) {
+    $self->{__base_factor} = !$self->base_unit || !$self->factor || ($self->name eq $self->base_unit) ? 1 : $self->factor * $self->base->base_factor;
+  }
+
+  return $self->{__base_factor};
+}
+
+sub convert_to {
+  my ($self, $qty, $other_unit) = @_;
+
+  my $my_base_factor    = $self->base_factor       || 1;
+  my $other_base_factor = $other_unit->base_factor || 1;
+
+  return $qty * $my_base_factor / $other_base_factor;
+}
+
 1;

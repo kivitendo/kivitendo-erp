@@ -41,6 +41,7 @@ use SL::IS;
 use SL::MoreCommon qw(ary_diff);
 use SL::PE;
 use SL::ReportGenerator;
+use List::MoreUtils qw(any none);
 use List::Util qw(max reduce sum);
 use Data::Dumper;
 
@@ -396,6 +397,16 @@ sub form_header {
   $onload .= qq|;setupPoints('|.   $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   $TMPL_VAR{onload} = $onload;
 
+  if ($form->{type} eq 'sales_order') {
+    if (!$form->{periodic_invoices_config}) {
+      $form->{periodic_invoices_status} = $locale->text('not configured');
+
+    } else {
+      my $config                        = YAML::Load($form->{periodic_invoices_config});
+      $form->{periodic_invoices_status} = $config->{active} ? $locale->text('active') : $locale->text('inactive');
+    }
+  }
+
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_form_details.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
@@ -747,7 +758,8 @@ sub orders {
     "salesman",
     "shipvia",                 "globalprojectnumber",
     "transaction_description", "open",
-    "delivered", "marge_total", "marge_percent",
+    "delivered",               "periodic_invoices",
+    "marge_total",             "marge_percent",
     "vcnumber",                "ustid",
     "country",
   );
@@ -758,8 +770,9 @@ sub orders {
     unshift @columns, "ids";
   }
 
-  $form->{l_open}      = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
-  $form->{l_delivered} = "Y"                     if ($form->{delivered} && $form->{notdelivered});
+  $form->{l_open}              = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
+  $form->{l_delivered}         = "Y"                     if ($form->{delivered} && $form->{notdelivered});
+  $form->{l_periodic_invoices} = "Y"                     if ($form->{periodic_invoices_active} && $form->{periodic_invoices_inactive});
 
   my $attachment_basename;
   if ($form->{vc} eq 'vendor') {
@@ -786,7 +799,7 @@ sub orders {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
-                                                        reqdatefrom reqdateto projectnumber project_id);
+                                                        reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -814,6 +827,7 @@ sub orders {
     'vcnumber'                => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer Number') : $locale->text('Vendor Number'), },
     'country'                 => { 'text' => $locale->text('Country'), },
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
+    'periodic_invoices'       => { 'text' => $locale->text('Per. Inv.'), },
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia transaction_description)) {
@@ -855,6 +869,7 @@ sub orders {
   push @options, $locale->text('Closed')                                                                  if $form->{closed};
   push @options, $locale->text('Delivered')                                                               if $form->{delivered};
   push @options, $locale->text('Not delivered')                                                           if $form->{notdelivered};
+  push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_actibe};
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),
@@ -884,9 +899,10 @@ sub orders {
   foreach my $oe (@{ $form->{OE} }) {
     map { $oe->{$_} *= $oe->{exchangerate} } @subtotal_columns;
 
-    $oe->{tax}       = $oe->{amount} - $oe->{netamount};
-    $oe->{open}      = $oe->{closed}    ? $locale->text('No')  : $locale->text('Yes');
-    $oe->{delivered} = $oe->{delivered} ? $locale->text('Yes') : $locale->text('No');
+    $oe->{tax}               = $oe->{amount} - $oe->{netamount};
+    $oe->{open}              = $oe->{closed}            ? $locale->text('No')  : $locale->text('Yes');
+    $oe->{delivered}         = $oe->{delivered}         ? $locale->text('Yes') : $locale->text('No');
+    $oe->{periodic_invoices} = $oe->{periodic_invoices} ? $locale->text('On')  : $locale->text('Off');
 
     map { $subtotals{$_} += $oe->{$_};
           $totals{$_}    += $oe->{$_} } @subtotal_columns;
@@ -1938,6 +1954,69 @@ sub report_for_todo_list {
   $main::lxdebug->leave_sub();
 
   return $content;
+}
+
+sub edit_periodic_invoices_config {
+  $::lxdebug->enter_sub();
+
+  $::form->{type} = 'sales_order';
+
+  check_oe_access();
+
+  my $config;
+  $config = YAML::Load($::form->{periodic_invoices_config}) if $::form->{periodic_invoices_config};
+
+  if ('HASH' ne ref $config) {
+    $config =  { periodicity             => 'y',
+                 start_date_as_date      => $::form->{transdate},
+                 extend_automatically_by => 12,
+                 active                  => 1,
+               };
+  }
+
+  $config->{periodicity} = 'm' if none { $_ eq $config->{periodicity} } qw(m q y);
+
+  $::form->get_lists(printers => "ALL_PRINTERS",
+                     charts   => { key       => 'ALL_CHARTS',
+                                   transdate => 'current_date' });
+
+  $::form->{AR}    = [ grep { $_->{link} =~ m/(?:^|:)AR(?::|$)/ } @{ $::form->{ALL_CHARTS} } ];
+  $::form->{title} = $::locale->text('Edit the configuration for periodic invoices');
+
+  $::form->header();
+  print $::form->parse_html_template('oe/edit_periodic_invoices_config', $config);
+
+  $::lxdebug->leave_sub();
+}
+
+sub save_periodic_invoices_config {
+  $::lxdebug->enter_sub();
+
+  $::form->{type} = 'sales_order';
+
+  check_oe_access();
+
+  $::form->isblank('start_date_as_date', $::locale->text('The start date is missing.'));
+
+  my $config = { active                  => $::form->{active}     ? 1 : 0,
+                 terminated              => $::form->{terminated} ? 1 : 0,
+                 periodicity             => (any { $_ eq $::form->{periodicity} } qw(m q y)) ? $::form->{periodicity} : 'm',
+                 start_date_as_date      => $::form->{start_date_as_date},
+                 end_date_as_date        => $::form->{end_date_as_date},
+                 print                   => $::form->{print} ? 1 : 0,
+                 printer_id              => $::form->{print} ? $::form->{printer_id} * 1 : undef,
+                 copies                  => $::form->{copies} * 1 ? $::form->{copies} : 1,
+                 extend_automatically_by => $::form->{extend_automatically_by} * 1 || undef,
+                 ar_chart_id             => $::form->{ar_chart_id} * 1,
+               };
+
+  $::form->{periodic_invoices_config} = YAML::Dump($config);
+
+  $::form->{title} = $::locale->text('Edit the configuration for periodic invoices');
+  $::form->header;
+  print $::form->parse_html_template('oe/save_periodic_invoices_config', $config);
+
+  $::lxdebug->leave_sub();
 }
 
 sub dispatcher {
