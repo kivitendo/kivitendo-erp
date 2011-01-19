@@ -126,7 +126,8 @@ sub set_pricegroup {
         if ($item->{selected} && ($pricegroup_id != 0)) {
           $form->{"pricegroup_old_$j"} = $pricegroup_id;
           $form->{"price_new_$j"}      = $price;
-          $form->{"sellprice_$j"}      = $price;
+          # edit: don't change the sellprice here
+          # $form->{"sellprice_$j"}      = $price;   # this must only be updated for existing articles, not new ones
         }
         if ($pricegroup_id == 0) {
           $form->{"price_new_$j"} = $form->{"sellprice_$j"};

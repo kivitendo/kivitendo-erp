@@ -1997,6 +1997,10 @@ sub get_pricegroups_for_parts {
     my ($price, $selectedpricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
 
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
+
+    # sellprice has format 13,0000 or 0,00000, can't check for 0 numerically
+    my $sellprice = $form->{"sellprice_$i"};
+    my $pricegroup_id = $form->{"pricegroup_id_$i"};
     $form->{"new_pricegroup_$i"} = $selectedpricegroup_id;
     $form->{"old_pricegroup_$i"} = $pricegroup_old;
 
@@ -2075,9 +2079,26 @@ sub get_pricegroups_for_parts {
       $pkr->{price} = $form->format_amount($myconfig, $pkr->{price}, 5);
 
       if ($selectedpricegroup_id eq undef) {
-        if ($pkr->{pricegroup_id} eq $form->{customer_klass}) {
+        # new entries in article list, either old invoice was loaded (edit) or a new article was added
+        # Case A: open old invoice, no pricegroup selected
+        # Case B: add new article to invoice, no pricegroup selected
 
+        # to distinguish case A and B the variable pricegroup_id_$i is used
+        # for new articles this variable isn't defined, for loaded articles it is
+        # sellprice can't be used, as it already has 0,00 set
+        
+        if ($pkr->{pricegroup_id} eq $form->{"pricegroup_id_$i"} and defined $form->{"pricegroup_id_$i"}) {
+          # Case A
           $pkr->{selected}  = ' selected';
+
+        } elsif ($pkr->{pricegroup_id} eq $form->{customer_klass} 
+                 and not defined $form->{"pricegroup_id_$i"} 
+                 and $pkr->{price} != 0    # only use customer pricegroup price if it has a value, else use default_sellprice
+                                           # for the case where pricegroup prices haven't been set
+                ) {
+          # Case B: use default pricegroup of customer
+
+          $pkr->{selected}  = ' selected'; # unless $form->{selected};
 
           # no customer pricesgroup set
           if ($pkr->{price} == $pkr->{default_sellprice}) {
@@ -2087,29 +2108,34 @@ sub get_pricegroups_for_parts {
           } else {
 
 # this sub should not set anything and only return. --sschoeling, 20090506
-#            $form->{"sellprice_$i"} = $pkr->{price};
+# is this correct? put in again... -- grichardson 20110119
+            $form->{"sellprice_$i"} = $pkr->{price};
           }
 
-        } elsif ($pkr->{price} == $pkr->{default_sellprice}) {
+        } elsif ($pkr->{price} == $pkr->{default_sellprice} and $pkr->{default_sellprice} != 0) {
           $pkr->{price}    = $form->{"sellprice_$i"};
           $pkr->{selected} = ' selected';
         }
-      } else {
+      }
+
+      # existing article: pricegroup or price changed
+      if ($selectedpricegroup_id or $selectedpricegroup_id == 0) {
         if ($selectedpricegroup_id ne $pricegroup_old) {
+          # pricegroup has changed
           if ($pkr->{pricegroup_id} eq $selectedpricegroup_id) {
             $pkr->{selected}  = ' selected';
           }
-        } elsif (    (   $form->parse_amount($myconfig, $price_new)
-                      != $form->parse_amount($myconfig, $form->{"sellprice_$i"}))
-                 and ($price_new ne 0)) {
+        } elsif (($price_new != $form->{"sellprice_$i"}) and ($price_new ne 0) and defined $price_new) {
+          # sellprice has changed
+          # when loading existing invoices $price_new is NULL
           if ($pkr->{pricegroup_id} == 0) {
             $pkr->{price}     = $form->{"sellprice_$i"};
             $pkr->{selected}  = ' selected';
           }
         } elsif ($pkr->{pricegroup_id} eq $selectedpricegroup_id) {
+          # neither sellprice nor pricegroup changed
           $pkr->{selected}  = ' selected';
-          if (    ($pkr->{pricegroup_id} == 0)
-              and ($pkr->{price} == $form->{"sellprice_$i"})) {
+          if (    ($pkr->{pricegroup_id} == 0) and ($pkr->{price} == $form->{"sellprice_$i"})) {
             # $pkr->{price}                         = $form->{"sellprice_$i"};
           } else {
             $pkr->{price} = $form->{"sellprice_$i"};

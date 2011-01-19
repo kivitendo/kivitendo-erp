@@ -266,7 +266,13 @@ sub prepare_invoice {
 
     # get pricegroups for parts
     IS->get_pricegroups_for_parts(\%myconfig, \%$form);
-    set_pricegroup($_) for 1 .. $form->{rowcount};
+
+    # Problem: set_pricegroup resets the sellprice of old invoices to the price
+    # currently defined in the pricegroup, which is a problem if the price has
+    # changed, as the old invoice gets the new price
+    # set_pricegroup must never be called, when an old invoice is initially loaded
+
+    # set_pricegroup($_) for 1 .. $form->{rowcount};
   }
   $main::lxdebug->leave_sub();
 }
@@ -780,6 +786,11 @@ sub use_as_template {
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
+
+  # remember pricegroups for "use as template"
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  set_pricegroup($_) for 1 .. $form->{rowcount};
+
   &display_form;
 
   $main::lxdebug->leave_sub();

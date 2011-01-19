@@ -1419,6 +1419,10 @@ sub invoice {
 
   }
 
+  #  show pricegroup in newly loaded invoice when creating invoice from quotation/order
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  set_pricegroup($_) for 1 .. $form->{rowcount};
+
   &display_form;
 
   $main::lxdebug->leave_sub();
