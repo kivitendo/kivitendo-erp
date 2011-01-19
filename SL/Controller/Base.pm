@@ -67,14 +67,7 @@ sub render {
                  AUTH     => $::auth,
                  FORM     => $::form,
                  LOCALE   => $::locale,
-                 LXCONFIG => { dbcharset              => $::lx_office_conf{system}->{dbcharset},
-                               webdav                 => $::lx_office_conf{system}->{webdav},
-                               lizenzen               => $::lx_office_conf{system}->{lizenzen},
-                               latex_templates        => $::lx_office_conf{print_templates}->{latex},
-                               opendocument_templates => $::lx_office_conf{print_templates}->{opendocument},
-                               vertreter              => $::lx_office_conf{system}->{vertreter},
-                               show_best_before       => $::lx_office_conf{system}->{show_best_before},
-                             },
+                 LXCONFIG => \%::lx_office_conf,
                  LXDEBUG  => $::lxdebug,
                  MYCONFIG => \%::myconfig,
                  SELF     => $self,
@@ -336,9 +329,10 @@ The template itself has access to the following variables:
 
 =item * C<LOCALE> -- C<$::locale>
 
-=item * C<LXCONFIG> -- all parameters from C<config/lx-erp.conf> with
-the same name they appear in the file (e.g. C<dbcharset>, C<webdav>
-etc)
+=item * C<LXCONFIG> -- all parameters from C<config/lx_office.conf>
+with the same name they appear in the file (first level is the
+section, second the actual variable, e.g. C<system.dbcharset>,
+C<features.webdav> etc)
 
 =item * C<LXDEBUG> -- C<$::lxdebug>
 
