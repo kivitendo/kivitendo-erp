@@ -1,5 +1,11 @@
 #!/usr/bin/perl
 
+# adapted from Michael Stevens' test script posted in p5p
+# in the thread "broken links in blead" from 01/19/2011
+#
+# caveats: wikipedia seems to have crawler protection and
+# will give 403 forbidden unless the user agent is faked.
+
 use strict;
 use File::Find;
 use LWP::Simple;
