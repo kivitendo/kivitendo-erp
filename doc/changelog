@@ -2,9 +2,7 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
-
-
-
+2011-02-?? - Release 2.6.2
 
   Größere neue Features:
 
@@ -12,6 +10,16 @@
 
     Das Program läuft jetzt optional unter FastCGI, und damit etwa um
     Faktor 10 schneller. Siehe Dokumentation in doc INSTALL.fcgi.
+
+  - Neues Gruppenrecht "Druck"
+
+    Es wurde ein neues Recht "Druck" eingeführt. Dieses bestimmt, ob
+    die Benutzerin das Menü "Druck" zu Gesicht bekommt oder nicht,
+    unabhängig davon, wie die Rechte für die einzelnen Unterpunkte
+    gesetzt sind.
+
+    Für bereits bestehende Gruppen muss es sofern gewünscht vom
+    Administrator manuell gewährt werden.
 
   Kleinere neue Features und Detailverbesserungen:
 
@@ -46,25 +54,92 @@
 
   Liste gefixter Bugs aus dem Bugtracker:
 
-
-   - Bug 1388 -  Berichte sind defekt, wenn abweichendes Datumsformat (ISO) eingestellt ist
-   - Bug 1395 -  Einlagern ueber Lieferschein: Einheiten entsprechen nicht den Standardeinheiten der Artikel
-   - Bug 1398 -  Im Lagerjournal werden Projektnummern nicht erfasst 
-   - Bug 1409 -  Bei "Erzeugnis fertigen" wird nur der Bestand der letzten Komponente geprüft
-   - Bug 1412 -  Wenn die Ware ausgewählt werden muss wird der Rabatt verworfen
-   - Bug 1421 -  Stornorechnungen loeschen bereitet Probleme
-   - Bug 1484 -  Das Ankreuzfeld 'alle' hat keine Funktion wenn man einen Auswahlliste (multibox) an Lieferanten hat
-                 Es wird trotzdem nach der Auswahlliste gefiltert und die Option 'alle' wird
-                 ignoriert auch wenn man auf Erneuern klickt.
-                 Das Eingabefeld 'Betrag' im oberen Teil der Maske hat in Lx-Office
-                 keinen Sinn mehr, da nur noch über die Auswahl der offenen
-                 Kreditorenposten ein Zahlungsausgang veranlasst wird.
-                 Neu-Aufbau Lx-Office Bildschirm
-                 Nach einer erfolgreichen Buchung erscheint die Meldung: 'Zahlung gebucht.' und
-                 die Startseite wird angezeigt. Wünschenwert wäre es, wenn man in
-                 Zahlungsverkehr bleiben würde, optimalerweise mit vorbelegten Feldern.
-   - Bug 1502 -  2. Zahlung buchen, auch wenn die erste Zahlung in einen abgeschlossenen Zeitraum liegt
-
+  - Bugfix 1131: Einkaufslieferscheine: Mengen muessen beim Auslagern manuell in die maske eingetragen werden
+  - Bugfix 1154: Debitoren und Kreditoren werden nicht korrekt gebucht
+  - Bugfix 1185: Preis überschreiben bei Preisgruppe
+  - Bugfix 1220: Zahlungsverkehr - Zahlungseingang: Aufteilung des Rechnungsbetrages
+  - Bugfix 1277: Fehler in der BWA Zuordnung in den SKR03 und dem daraus generierten skr04
+  - Bugfix 1298: SKR04 überarbeitet
+  - Bugfix 1302: Inkonsistenz in Buchungsdaten: In Verkaufsrechnungen wird die Zahlung nicht angezeit, Gegenbuchung fehlt
+  - Bugfix 1367: Feature-Vorschlag: SEPA auch für Lastschriften von Debitoren unterstützen
+  - Bugfix 1370: Umlautfehler beim Erfassen einer Einkaufsrechnung
+  - Bugfix 1375: Übersetzungsdateien im Verzeichnis ""locale/de/"" immer noch in ISO-8859-15 kodiert statt UTF-8
+  - Bugfix 1376: Benutzerdefinierte Variablen sollten auch im mahnsystem zur Verfuegung stehen
+  - Bugfix 1378: leere Buchungen (text, beschreibung und referenz) bei Splittbuchungen
+  - Bugfix 1381: missing files in package
+  - Bugfix 1383: Dienstleistungen in Stammdaten und Lager
+  - Bugfix 1384: Zinsen bei Mahnung falsch berechnet
+  - Bugfix 1387: Englische Eingabemaske bei Aufruf von Deb./Kred.-buchung aus Buchungsjournal
+  - Bugfix 1388: Berichte sind defekt, wenn abweichendes Datumsformat (ISO) eingestellt ist
+  - Bugfix 1389: Bilanz repariert
+  - Bugfix 1393: CSV-Export sollte ohne Tausender-Trenner erfolgen
+  - Bugfix 1395: Einlagern ueber Lieferschein: Einheiten entsprechen nicht den Standardeinheiten der Artikl
+  - Bugfix 1398: Im Lagerjournal werden Projektnummern nicht erfasst
+  - Bugfix 1399: Lieferdaten zu einzelnen Positionen ""verrutschen"" beim Loeschen hoeherer Positionszeilen
+  - Bugfix 1400: Lieferscheine: Usability bei Auslagerung - Positionsindikator
+  - Bugfix 1406: Kunde erfassen
+  - Bugfix 1410: Beschriftung bei Eingabe der Einkaufsrechnung falsch
+  - Bugfix 1412: Wenn die Ware ausgewählt werden muss wird der Rabatt verworfen
+  - Bugfix 1414: Einfügen der \usepackage{textcomp}-Zeile in TeX-Templates ungünstig
+  - Bugfix 1422: Loeschen von Stornos bereitet eine Reihe von Problemen: (3)Gutschriften aus Rechnungen, die einstmals storniert wurden
+  - Bugfix 1429: Debitorenbuchungen 1: Wechsel des Debitoren loescht Bemerkungsfeld nicht
+  - Bugfix 1432: Mahnläufe: Nach manuellem Zurücksetzen der Mahnstufen gibt es ein Chaos bei der weiteren Erzeugung
+  - Bugfix 1439: Sortierkriterium ""Strasse"" in Listenansicht der Lieferanten geht nicht
+  - Bugfix 1440: Eingrenzen der angelegten Waren nach Lieferant liefert immer kein Ergebnis
+  - Bugfix 1445: Kleines Chaos bei Vorlagenbezeichnungen zu Lieferscheinen: picklist, packing_list, sales_delivery_order
+  - Bugfix 1449: Konto 3170 langfristige Verbindlichkeiten SKR04 Aktiva
+  - Bugfix 1451: Menüsetup Alt (seitlich) wird nicht lokalisiert
+  - Bugfix 1452: Fehler bei Lokalisierung der Überschriften und weiterer Beschriftungen
+  - Bugfix 1454: mehrere Rechnungen mit gleicher Rechnungsnummer möglich
+  - Bugfix 1455: Feld wird nach Einlagerung nicht zurückgesetzt.
+  - Bugfix 1456: Lieferanschrift wird im Workflow nicht zuverlässig vom Auftrag in den Lieferschein übernommen
+  - Bugfix 1459: Gruppen bearbteien unter FCGI
+  - Bugfix 1467: System entsperren nicht möglich
+  - Bugfix 1468: Title Javascript setzt den Titel auch, wenn die Informationen nicht verfügbar sind.
+  - Bugfix 1469: Umlaute gehen auf der Startseite kaputt bei update von 2.6.1 auf unstable (August 2010)
+  - Bugfix 1470: Falsche Übersetzung für ""Expenses EU without UStId""
+  - Bugfix 1471: System -> Historien Suchmaschinen gibt folgenden Fehler:
+  - Bugfix 1472: Bei fehlender config/authentication.pl -> Webserver Error 500
+  - Bugfix 1475: Workflow Angebot -> Rechnung wird Angebotsnummer nicht übernommen
+  - Bugfix 1477: Sicherheitsloch bei 2.6er Versionen
+  - Bugfix 1479: Debian Paket bauen schlägt fehl
+  - Bugfix 1480: Filter für Abteilungen ohne Ergebnis
+  - Bugfix 1483: Formelberechnung und Zahlenformat
+  - Bugfix 1484: Zahlungsausgang diverses
+  - Bugfix 1485: Rechnung->neuer Artikel->Speichern->Fehler ""Can't use string ... as a HASH ref ... bin/mozilla/io.pl line 2075""
+  - Bugfix 1487: Wechselkurs wird falsch ausgelesen
+  - Bugfix 1488: Ust-Voranmeldung - Elster-Export nach Taxbird
+  - Bugfix 1491: Nitpicking: Beim ersten Login in eine DB werden im Text HTML Formatierungen ausgegeben, nicht interpretiert
+  - Bugfix 1492: ""Korrekturen im Hauptbuch"" wirft Fehler
+  - Bugfix 1494: undokumentiert -- dependency parent.pm / Dokumentvariable ustid
+  - Bugfix 1495: Ansicht von Artikelbilderen (Suchergebnis/Artikelmaske)
+  - Bugfix 1496: Grad-Symbol (°) verursacht Latex-Fehler
+  - Bugfix 1498: (versehentlicher?) commit der menu.ini mit crm Spalte
+  - Bugfix 1499: Einstellungen ""Nicht rabattierfähig"" ist nicht für Dienstleistungen verfügbar (z.B. Versandkosten)
+  - Bugfix 1502: Bücherkontrolle prüft auch ALTE Zahlungseingänge
+  - Bugfix 1504: UStVa Modul SQL Fehler: ""text >= integer"" nicht erlaubt
+  - Bugfix 1506: Email-Formular: Mailadresse der Firma anstelle des Ansprechpartners
+  - Bugfix 1517: Kreditorrechnung: Wechselkurs bei gleichem Re.-Datum nicht vorhanden
+  - Bugfix 1520: Division-by-Zero-Fehler bei einigen Rechnungsbuchungen
+  - Bugfix 1521: Fix von Bug 1521 bringt neuen Fehler bei Login und Verkaufsmasken
+  - Bugfix 1523: Rabatt geht verloren, wenn Rechnung aus Lieferscheinliste generiert wird
+  - Bugfix 1524: Kundenrabatt geht verloren (wie 1284, aber auch Einkauf)
+  - Bugfix 1528: Vorlagen
+  - Bugfix 1529: falsche Tabellendefinition in Default-request_quotation.tex
+  - Bugfix 1530: Debitorenbuchung: Abfragefehler bei Kontonummer mit ""."" (Punkt) oder Text
+  - Bugfix 1533: Zahlungen in Rechnungsmaske einbuchen scheitert an locale
+  - Bugfix 1535: CSV-Exporte sind nicht mehr UTF8
+  - Bugfix 1536: 'Alte' dbupgrade Skripte die SL::DBUtils verwenden sind defekt
+  - Bugfix 1537: Debitoren: Feld curr in Tabelle ar wird nicht gefüllt
+  - Bugfix 1541: Preisgruppeneintrag in Einkaufsrechungen ??
+  - Bugfix 1547: Kreditorenbuchung in Fremdwährung: Steuerfehler
+  - Bugfix 1550: Sortieren einer Kundenauflistung ""vergisst"" gewählte Filterkriterien
+  - Bugfix 1552: Diverse Probleme mit der Sortierfunktion bei Stammdaten
+  - Bugfix 1553: Diese Kundennummer wird bereits verwendet. - Obwohl keine eingetragen ist
+  - Bugfix 1554: Kein Wechselkurs bei Debitotenbuchung in Fremdwährung unter 1 bei gleichem Datum
+  - Bugfix 1555: Sonderzeichen nicht korrekt escaped (Stückliste beim Erstellen eines Erzeugnisses)
+  - Bugfix 1561: benutzerdefinierte Variable wird unabsichtlich deaktiviert
+  - Bugfix 1562: Fehlender Hinweis im changelog zu gaenderten Rechten Beim Druck
 
 2010-03-24 - Release 2.6.1
 

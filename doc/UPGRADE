@@ -27,6 +27,16 @@ Zumindest folgende Module sind neu benötigt:
   Distribution sollte für die automatische Installation der anderen
   zwei Pakete sorgen)
 
+ Neue Gruppenrechte
+ ------------------
+
+Es wurde ein neues Recht "Druck" eingeführt. Dieses bestimmt, ob die
+Benutzerin das Menü "Druck" zu Gesicht bekommt oder nicht, unabhängig
+davon, wie die Rechte für die einzelnen Unterpunkte gesetzt sind.
+
+Für bereits bestehende Gruppen muss es sofern gewünscht vom
+Administrator manuell gewährt werden.
+
 
 Upgrade auf v2.6.1
 ==================

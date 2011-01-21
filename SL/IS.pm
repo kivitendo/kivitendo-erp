@@ -2125,7 +2125,9 @@ sub get_pricegroups_for_parts {
           if ($pkr->{pricegroup_id} eq $selectedpricegroup_id) {
             $pkr->{selected}  = ' selected';
           }
-        } elsif (($price_new != $form->{"sellprice_$i"}) and ($price_new ne 0) and defined $price_new) {
+        } elsif ( ($form->parse_amount($myconfig, $price_new)
+                 != $form->parse_amount($myconfig, $form->{"sellprice_$i"})) 
+                  and ($price_new ne 0) and defined $price_new) {
           # sellprice has changed
           # when loading existing invoices $price_new is NULL
           if ($pkr->{pricegroup_id} == 0) {
