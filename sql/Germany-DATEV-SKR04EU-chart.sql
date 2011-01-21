@@ -398,6 +398,8 @@ INSERT INTO tax (chart_id,rate,taxnumber, taxkey, taxdescription)   VALUES ((SEL
 
 
 -- Ergaenzungen fuer 19% UmSt. ab 1.01.2007
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id from CHART WHERE accno='3806'), 0.19, '3806', 3, 'Umsatzsteuer 19%');
+INSERT INTO tax (chart_id, rate, taxnumber, taxkey, taxdescription) VALUES ((SELECT id from CHART WHERE accno='1406'), 0.19, '1406', 9, 'Vorsteuer 19%');
 insert into taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate) select chart.id, tax.id, taxkey_id, pos_ustva, '1970-01-01' from chart LEFT JOIN tax on (tax.taxkey=chart.taxkey_id) WHERE taxkey_id is not null;
 insert into taxkeys (chart_id, tax_id, taxkey_id,startdate) SELECT 0, id, taxkey, '1970-01-01' FROM tax;
 insert into taxkeys (chart_id, tax_id, taxkey_id, pos_ustva, startdate) select chart.id, (SELECT id from tax where taxdescription='Umsatzsteuer 19%'), 3, pos_ustva, '2007-01-01' from chart WHERE taxkey_id=3;
