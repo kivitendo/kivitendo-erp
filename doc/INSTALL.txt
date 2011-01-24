@@ -112,7 +112,8 @@ Distributionen unterschiedlich heißen.
 libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl
 libemail-address-perl libio-stringy-perl liblist-moreutils-perl
 libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl
-libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl'
+libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl
+librose-object-perl librose-db-perl librose-db-object-perl'
 
    Für Fedora Core benötigen Sie diese Pakete:
 
@@ -244,6 +245,13 @@ servergespeicherte Prozeduren eingerichet werden. Melden Sie sich dafür
 als Benutzer "postgres" an der Datenbank an, und führen Sie die
 folgenden Kommandos aus:
 
+   `create language 'plpgsql';'
+
+   Achtung: In älteren Postgresversionen (vor 8.0) muss der Handler für
+die Sprache manuell anlelegt werden, diese Versionen werden aber nicht
+mehr offiziell von Lx-Office unterstützt. Dafür dann die folgenden
+Kommandos:
+
    `create function plpgsql_call_handler () returns opaque as
 '/usr/lib/pgsql/plpgsql.so' language 'c';
 create language 'plpgsql' handler plpgsql_call_handler lancompiler
@@ -251,8 +259,7 @@ create language 'plpgsql' handler plpgsql_call_handler lancompiler
 
    Bitte beachten Sie, dass der Pfad zur Datei `plpgsql.so' von
 Distribution zu Distribution verschiedlich sein kann. Bei Debian/Ubuntu
-befindet sie sich unter `/usr/lib/postgresql/lib/plpgsql.so', bei
-Ubuntu 9.10 unter `/usr/lib/postgresql/8.4/lib/plpgsql.so'.
+befindet sie sich unter `/usr/lib/postgresql/lib/plpgsql.so'.
 
 4.4 Datenbankbenutzer anlegen
 =============================

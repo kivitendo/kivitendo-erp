@@ -35,20 +35,23 @@ Up:&nbsp;<a rel="up" accesskey="u" href="Anpassung-der-PostgreSQL_002dKonfigurat
 
 <h3 class="section">4.3 Erweiterung für servergespeicherte Prozeduren</h3>
 
-<p>In der Datenbank <code>template1</code> muss die Unterstützung für
-servergespeicherte Prozeduren eingerichet werden. Melden Sie sich
-dafür als Benutzer &ldquo;postgres&rdquo; an der Datenbank an, und führen Sie
-die folgenden Kommandos aus:
+<p>In der Datenbank <code>template1</code> muss die Unterstützung für servergespeicherte
+Prozeduren eingerichet werden. Melden Sie sich dafür als Benutzer &ldquo;postgres&rdquo;
+an der Datenbank an, und führen Sie die folgenden Kommandos aus:
+
+   <p><code>create language 'plpgsql';</code>
+
+   <p>Achtung: In älteren Postgresversionen (vor 8.0) muss der Handler für die
+Sprache manuell anlelegt werden, diese Versionen werden aber nicht mehr
+offiziell von Lx-Office unterstützt. Dafür dann die folgenden Kommandos:
 
    <p><code>create function plpgsql_call_handler () returns opaque as '/usr/lib/pgsql/plpgsql.so' language 'c';
 <br>
-create language 'plpgsql' handler plpgsql_call_handler
-lancompiler 'pl/pgsql';</code>
+create language 'plpgsql' handler plpgsql_call_handler lancompiler 'pl/pgsql';</code>
 
-   <p>Bitte beachten Sie, dass der Pfad zur Datei <code>plpgsql.so</code> von
-Distribution zu Distribution verschiedlich sein kann. Bei
-Debian/Ubuntu befindet sie sich unter
-<code>/usr/lib/postgresql/lib/plpgsql.so</code>, bei Ubuntu 9.10 unter <code>/usr/lib/postgresql/8.4/lib/plpgsql.so</code>.
+   <p>Bitte beachten Sie, dass der Pfad zur Datei <code>plpgsql.so</code> von Distribution
+zu Distribution verschiedlich sein kann. Bei Debian/Ubuntu befindet sie sich
+unter <code>/usr/lib/postgresql/lib/plpgsql.so</code>.
 
 <!--  -->
    </body></html>
