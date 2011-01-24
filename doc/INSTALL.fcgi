@@ -80,7 +80,6 @@ Folgendes Template funktioniert mit mod_fcgid:
 
   <Directory /path/to/lx-office-erp>
     AllowOverride All
-    AddHandler fastcgi-script .fpl
     Options ExecCGI Includes FollowSymlinks
     Order Allow,Deny
     Allow from All
@@ -91,10 +90,28 @@ Folgendes Template funktioniert mit mod_fcgid:
     Deny from All
   </DirectoryMatch>
 
-...und für mod_fastcgi muss die erste Zeile geändert werden in:
+Für mod_fastcgi muss ein AddHandler ergänzt werden und die erste Zeile geändert werden:
 
+  AddHandler fastcgi-script .fpl
   AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
 
+Das ganze sollte dann so aussehen:
+
+  AddHandler fastcgi-script .fpl
+  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+  Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
+
+  <Directory /path/to/lx-office-erp>
+    AllowOverride All
+    Options ExecCGI Includes FollowSymlinks
+    Order Allow,Deny
+    Allow from All
+  </Directory>
+
+  <DirectoryMatch /path/to/lx-office-erp/users>
+    Order Deny,Allow
+    Deny from All
+  </DirectoryMatch>
 
 Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle Zugriffe
 auf die einzelnen Scripte werden auf diesen umgeleitet. Dadurch, dass
@@ -104,18 +121,23 @@ Benutzung von "AddHandler fastcgi-script .pl" vorzuziehen.
 
 
 Es ist möglich die gleiche Lx-Office Version parallel unter cgi und fastcgi zu
-betreiben. Dafür bleiben Directorydirektiven bleiben wie oben beschrieben, die
-URLs werden aber umgeleitet:
+betreiben. Dafür bleiben die Directorydirektiven wie oben beschrieben, die URLs
+werden aber umgeleitet:
 
-  # Zugriff ohne FastCGI
+  # Zugriff über cgi
   Alias       /web/path/to/lx-office-erp                /path/to/lx-office-erp
 
-  # Zugriff mit FastCGI:
-  AliasMatch ^/web/path/to/lx-office-erp-fcgi/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
-  Alias       /web/path/to/lx-office-erp-fcgi/          /path/to/lx-office-erp/
+  # Zugriff mit mod_fastcgi:
+  AliasMatch ^/web/path/to/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
+  Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/
+
+  # Zugriff mit mod_fastcgi:
+  AliasMatch ^/web/path/to/lx-office-erp-fastcgi/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+  Alias       /web/path/to/lx-office-erp-fastcgi/          /path/to/lx-office-erp/
 
 Dann ist unter C</web/path/to/lx-office-erp/> die normale Version erreichbar,
-und unter C</web/opath/to/lx-office-erp-fcgi/> die FastCGI Version.
+und unter C</web/opath/to/lx-office-erp-fcgid/> bzw.
+C</web/opath/to/lx-office-erp-fastcgi/> die FastCGI Version.
 
 Achtung:
 
