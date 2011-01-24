@@ -6,7 +6,6 @@ use parent qw(Rose::Object);
 
 use Carp;
 use List::MoreUtils qw(any none);
-use Readonly;
 use SL::DBUtils;
 
 use Rose::Object::MakeMethods::Generic
@@ -14,7 +13,7 @@ use Rose::Object::MakeMethods::Generic
  scalar => [ qw(type id number save dbh dbh_provided business_id) ],
 );
 
-Readonly my @SUPPORTED_TYPES => qw(invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation);
+my @SUPPORTED_TYPES = qw(invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation);
 
 sub new {
   my $class = shift;

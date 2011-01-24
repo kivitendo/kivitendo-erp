@@ -80,8 +80,6 @@ List::MoreUtils
 @item
 PDF::API2
 @item
-Readonly (benötigt) und Readonly::XS (optional)
-@item
 Rose::Object
 @item
 Rose::DB

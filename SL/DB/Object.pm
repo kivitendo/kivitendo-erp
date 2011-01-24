@@ -2,7 +2,6 @@ package SL::DB::Object;
 
 use strict;
 
-use Readonly;
 use Rose::DB::Object;
 use List::MoreUtils qw(any);
 
@@ -41,7 +40,7 @@ sub _get_manager_class {
   return $class->meta->convention_manager->auto_manager_class_name($class);
 }
 
-Readonly my %text_column_types => (text => 1, char => 1, varchar => 1);
+my %text_column_types = (text => 1, char => 1, varchar => 1);
 
 sub assign_attributes {
   my $self       = shift;

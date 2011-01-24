@@ -20,7 +20,6 @@ BEGIN {
   { name => "FCGI",                                url => "http://search.cpan.org/~mstrout/" },
   { name => "List::MoreUtils", version => '0.21',  url => "http://search.cpan.org/~vparseval/" },
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/" },
-  { name => "Readonly",                            url => "http://search.cpan.org/~roode/" },
   { name => "Rose::Object",                        url => "http://search.cpan.org/~jsiracusa/" },
   { name => "Rose::DB",                            url => "http://search.cpan.org/~jsiracusa/" },
   { name => "Rose::DB::Object",                    url => "http://search.cpan.org/~jsiracusa/" },
