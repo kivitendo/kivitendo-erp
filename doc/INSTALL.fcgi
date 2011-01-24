@@ -5,6 +5,8 @@ Diese Datei ist in Plain Old Documentation geschrieben. Mit
 
 ist sie deutlich leichter zu lesen.
 
+=encoding utf8
+
 =head1 FastCGI für Lx-Office
 
 =head2 Was ist FastCGI?
