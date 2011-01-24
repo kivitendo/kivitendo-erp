@@ -5,6 +5,8 @@ Diese Datei ist in Plain Old Documentation geschrieben. Mit
 
 ist sie deutlich leichter zu lesen.
 
+=encoding utf8
+
 =head1 FastCGI für Lx-Office
 
 =head2 Was ist FastCGI?
@@ -37,8 +39,8 @@ eigentliche Programmlogik ausgeführt.
 
 Folgende Kombinationen sind getestet:
 
+ * Apache 2.2.11 (Ubuntu) und mod_fcgid.
  * Apache 2.2.11 (Ubuntu) und mod_fastcgi.
- * Apache 2.2.11 (Ubuntu) und mod_fcgid:
 
 Als Perl Backend wird das Modul FCGI.pm verwendet. Vorsicht: FCGI 0.69 und
 höher ist extrem strict in der Behandlung von Unicode, und verweigert bestimmte
@@ -59,11 +61,11 @@ können. Sollte die Installation schon funktionieren, lesen Sie weiter.
 Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann unter
 Debian/Ubuntu z.B. mit folgendem Befehl geschehen:
 
-  a2enmod fastcgi
+  a2enmod fcgid
 
 bzw.
 
-  a2enmod fcgid
+  a2enmod fastcgi
 
 Die Konfiguration für die Verwendung von Lx-Office mit FastCGI erfolgt
 durch Anpassung der vorhandenen Alias- und Directory-Direktiven. Dabei
@@ -71,9 +73,9 @@ wird zwischen dem Installationspfad von Lx-Office im Dateisystem
 ("/path/to/lx-office-erp") und der URL unterschieden, unter der
 Lx-Office im Webbrowser erreichbar ist ("/web/path/to/lx-office-erp").
 
-Folgendes Template funktioniert mit mod_fastcgi:
+Folgendes Template funktioniert mit mod_fcgid:
 
-  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
   Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
 
   <Directory /path/to/lx-office-erp>
@@ -89,9 +91,9 @@ Folgendes Template funktioniert mit mod_fastcgi:
     Deny from All
   </DirectoryMatch>
 
-...und für mod_fcgid muss die erste Zeile geändert werden in:
+...und für mod_fastcgi muss die erste Zeile geändert werden in:
 
-  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
+  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
 
 
 Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle Zugriffe

@@ -250,21 +250,23 @@ host    all         lxoffice      127.0.0.1         255.255.255.255    password}
 @node Erweiterung für servergespeicherte Prozeduren
 @section Erweiterung für servergespeicherte Prozeduren
 
-In der Datenbank @code{template1} muss die Unterstützung für
-servergespeicherte Prozeduren eingerichet werden. Melden Sie sich
-dafür als Benutzer ``postgres'' an der Datenbank an, und führen Sie
-die folgenden Kommandos aus:
+In der Datenbank @code{template1} muss die Unterstützung für servergespeicherte
+Prozeduren eingerichet werden. Melden Sie sich dafür als Benutzer ``postgres''
+an der Datenbank an, und führen Sie die folgenden Kommandos aus:
+
+@code{create language 'plpgsql';}
+
+Achtung: In älteren Postgresversionen (vor 8.0) muss der Handler für die
+Sprache manuell anlelegt werden, diese Versionen werden aber nicht mehr
+offiziell von Lx-Office unterstützt. Dafür dann die folgenden Kommandos:
 
 @code{create function plpgsql_call_handler () returns opaque as '/usr/lib/pgsql/plpgsql.so' language 'c';
 @*
-create language 'plpgsql' handler plpgsql_call_handler
-lancompiler 'pl/pgsql';}
+create language 'plpgsql' handler plpgsql_call_handler lancompiler 'pl/pgsql';}
 
-Bitte beachten Sie, dass der Pfad zur Datei @code{plpgsql.so} von
-Distribution zu Distribution verschiedlich sein kann. Bei
-Debian/Ubuntu befindet sie sich unter
-@code{/usr/lib/postgresql/lib/plpgsql.so}, bei Ubuntu 9.10 unter @code{/usr/lib/postgresql/8.4/lib/plpgsql.so}.
-
+Bitte beachten Sie, dass der Pfad zur Datei @code{plpgsql.so} von Distribution
+zu Distribution verschiedlich sein kann. Bei Debian/Ubuntu befindet sie sich
+unter @code{/usr/lib/postgresql/lib/plpgsql.so}.
 
 @c ---------------------------------------------------------------
 
