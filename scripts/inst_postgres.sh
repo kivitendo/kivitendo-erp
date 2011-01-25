@@ -18,12 +18,24 @@ writeln 2 1 1. plpgsql.so suchen
 PLPGSQL=""
 #Datei plpgsql.so suchen
 
-#Mit Paketmanager (RPM oder APT) suchen
-#PLPGSQL=`dpkg -L postgresql | grep plpgsql.so`
+POSTGRESQL=`dpkg -l | grep -E "postgresql-[0-9]" | cut -d" " -f3 | sort -r | head -1 -`
+
+#Mit Paketmanager (Apt) suchen
+if [ "$POSTGRESQL#" == "#" ]; then
+    writeln 1 1 $FEHLER
+    writeln 2 1 Keine PostgreSQL mit Paketmanager installiert
+    writeln 3 1 Datenbank bitte manuell einrichten.
+    exit 0
+else
+   PLPGSQL=`dpkg -L postgresql-8.3 | grep plpgsql.so`
+fi
+
+#Mit Paketmanager (RPM) suchen ?
 #PLPGSQL=`rpm -q --list postgres | grep plpgsql.so`
 
 if [ "$PLPGSQL#" == "#" ]; then
 	#Probleme mit Paketmanager, dann zunaechst mit locate, geht schneller
+	updatedb
 	writeln 3 3 --locate
 	tmp=`locate plpgsql.so 2>/dev/null`
 	PLPGSQL=`echo $tmp | cut -d " " -f 1`
@@ -56,23 +68,16 @@ if [ $cnt -eq 0 ]; then
 	tput rmso
 	exit 1
 fi
-v7=`su postgres -c "echo 'select version()' | psql template1 2>/dev/null | grep -E "[Ss][Qq][Ll][[:space:]]+7\.[0-9]\.[0-9]" | wc -l"`
-v8=`su postgres -c "echo 'select version()' | psql template1 2>/dev/null | grep -E "[Ss][Qq][Ll][[:space:]]+8\.[0-9]\.[0-9]" | wc -l"`
-#cnt=`echo  $v7 + $v8 | bc -l`
+v8=`su postgres -c "echo 'select version()' | psql template1 2>/dev/null | grep -E "[Ss][Qq][Ll][[:space:]]+8\.[2-9]\.[0-9]" | wc -l"`
 if [ $v8 -eq 0 ]; then 
-	if [ $v7 -eq 0 ]; then
-		tput bel
-		tput bold
-		echo User postgres konnte die Datenbank nicht ansprechen
-		tput rmso
-		exit 1; 
-	else
-		tput clear
-		writeln 1 1 Datenbank Version 7x konnte erreicht werden.
-	fi
+	tput bel
+	tput bold
+	echo User postgres konnte die Datenbank 8.2.x -  8.9.x nicht ansprechen
+	tput rmso
+	exit 1; 
 else
 	tput clear
-	writeln 1 1 Datenbank Version 8x konnte erreicht werden.
+	writeln 1 1 Datenbank Version 8.2.x - 8.9.x konnte erreicht werden.
 fi
 
 echo "CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler" > lxdbinst.sql
@@ -108,7 +113,7 @@ writeln 11 1 Datenbank fuer Lx-Office vorbereitet
 writeln 12 1 Datenbankberechtigung einrichten
 #wo ist die pg_hba.conf
 writeln 13 3 --find erst /etc dann /var/lib
-tmp=`find /etc -name pg_hba.conf -type f`
+tmp=`find /etc/postgresql -name pg_hba.conf -type f`
 [ "$tmp#" == "#" ] && tmp=`find /var/lib -name  pg_hba.conf -type f`
 PGHBA=`echo $tmp | cut -d " " -f 1`
 
@@ -152,26 +157,16 @@ if ! [ -f $CONFDIR/postgresql.conf ]; then
 fi
 
 mv $CONFDIR/postgresql.conf $CONFDIR/postgresql.conf.org
-if ! [ $v7 -eq 0 ]; then 
-	#Nur bei der V7.x:  tcpip_socket = true
-	sed 's/^.*tcpip_socket.*/tcpip_socket = true/i' $CONFDIR/postgresql.conf.org > $CONFDIR/postgresql.conf
-	cnt=`grep tcpip_socket $CONFDIR/postgresql.conf | wc -l`
-	if [ $cnt -eq 0 ]; then
-		cp $CONFDIR/postgresql.conf.org $CONFDIR/postgresql.conf
-		echo "tcpip_socket = true" >> $CONFDIR/postgresql.conf
-	fi
-else 
-	#Bei der V8.x OID einschalten.
-	sed 's/^.*default_with_oids.*/default_with_oids = true/i' $CONFDIR/postgresql.conf.org > $CONFDIR/postgresql.conf
-	cnt=`grep default_with_oids $CONFDIR/postgresql.conf | wc -l`
-	if [ $cnt -eq 0 ]; then
-		cp $CONFDIR/postgresql.conf.org $CONFDIR/postgresql.conf
-		echo "default_with_oids = true" >> $CONFDIR/postgresql.conf
-	fi
+#Bei der V8.x OID einschalten.
+sed 's/^.*default_with_oids.*/default_with_oids = true/i' $CONFDIR/postgresql.conf.org > $CONFDIR/postgresql.conf
+cnt=`grep default_with_oids $CONFDIR/postgresql.conf | wc -l`
+if [ $cnt -eq 0 ]; then
+	cp $CONFDIR/postgresql.conf.org $CONFDIR/postgresql.conf
+	echo "default_with_oids = true" >> $CONFDIR/postgresql.conf
 fi
 
  
-tmp=`ls /etc/init.d/postgres*`
+tmp=`ls -r1 /etc/init.d/postgres*`
 PGSQL=`echo $tmp | cut -d " " -f 1`
 
 writeln 18 1 Datenbank neu starten
