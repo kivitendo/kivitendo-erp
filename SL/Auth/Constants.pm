@@ -40,6 +40,8 @@ use constant SESSION_EXPIRED =>   2;
 
 __END__
 
+=encoding utf8
+
 =head1 NAME
 
 SL::Auth::Constants - COnstants for Auth module
@@ -54,10 +56,12 @@ SL::Auth::Constants - COnstants for Auth module
 
 This module provides status constants for authentication handling
 
-=head1 FUNCTIONS
-
 =head1 BUGS
 
+none yet.
+
 =head1 AUTHOR
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
