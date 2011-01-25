@@ -49,7 +49,8 @@ sub flatten_to_form {
   $form->{rowcount}   = scalar(@{ $self->items });
 
   my $idx = 0;
-  my $format_amounts = $params{format_amounts};
+  my $format_amounts = $params{format_amounts} ? 1 : 0;
+  my $format_notnull = $params{format_amounts} ? 2 : 0;
   foreach my $item (@{ $self->items }) {
     next if _has($item, 'assemblyitem');
 
@@ -57,9 +58,10 @@ sub flatten_to_form {
 
     $form->{"id_${idx}"}     = $item->parts_id;
     $form->{"number_${idx}"} = $item->part->partnumber;
-    _copy($item,          $form, '',         "_${idx}", 0,              qw(description project_id ship serialnumber pricegroup_id ordnumber cusordnumber unit
+    _copy($item,          $form, '',        "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber cusordnumber unit
                                                                            subtotal longdescription price_factor_id marge_price_factor approved_sellprice reqdate transdate));
-    _copy($item,          $form, '',        "_${idx}", $format_amounts, qw(qty sellprice discount marge_total marge_percent lastcost));
+    _copy($item,          $form, '',        "_${idx}", $format_amounts, qw(qty sellprice marge_total marge_percent lastcost));
+    _copy($item,          $form, '',        "_${idx}", $format_notnull, qw(discount));
     _copy($item->project, $form, 'project', "_${idx}", 0,               qw(number description)) if _has($item, 'project_id');
 
     _copy_custom_variables($item, $form, 'ic_cvar_', "_${idx}");
@@ -78,8 +80,11 @@ sub _has {
 sub _copy {
   my ($src, $form, $prefix, $postfix, $format_amounts, @columns) = @_;
 
-  map { $form->{"${prefix}${_}${postfix}"} = ref($src->$_) eq 'DateTime' ? $src->$_->to_lxoffice : $src->$_ if $src->can($_) } @columns if !$format_amounts;
-  map { $form->{"${prefix}${_}${postfix}"} = $::form->format_amount(\%::myconfig, $src->$_ * 1, 2) if $src->can($_)          } @columns if  $format_amounts;
+  @columns = grep { $src->can($_) } @columns;
+
+  map { $form->{"${prefix}${_}${postfix}"} = ref($src->$_) eq 'DateTime' ? $src->$_->to_lxoffice : $src->$_            } @columns if !$format_amounts;
+  map { $form->{"${prefix}${_}${postfix}"} =                $::form->format_amount(\%::myconfig, $src->$_ * 1, 2)      } @columns if  $format_amounts == 1;
+  map { $form->{"${prefix}${_}${postfix}"} = $src->$_ * 1 ? $::form->format_amount(\%::myconfig, $src->$_ * 1, 2) : 0  } @columns if  $format_amounts == 2;
 
   return $src;
 }
