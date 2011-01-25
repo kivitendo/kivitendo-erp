@@ -1250,6 +1250,7 @@ sub parse_template {
   }
 
   map { $self->{"${_}"} = $myconfig->{$_}; } qw(co_ustid);
+  map { $self->{"myconfig_${_}"} = $myconfig->{$_} } grep { $_ ne 'dbpasswd' } keys %{ $myconfig };
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
