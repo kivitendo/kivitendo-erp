@@ -1,5 +1,7 @@
 package DateTime;
 
+use strict;
+
 sub now_local {
   return shift->now(time_zone => $::locale->get_local_time_zone);
 }
