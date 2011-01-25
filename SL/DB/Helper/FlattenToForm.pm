@@ -56,8 +56,8 @@ sub flatten_to_form {
 
     $idx++;
 
-    $form->{"id_${idx}"}     = $item->parts_id;
-    $form->{"number_${idx}"} = $item->part->partnumber;
+    $form->{"id_${idx}"}         = $item->parts_id;
+    $form->{"partnumber_${idx}"} = $item->part->partnumber;
     _copy($item,          $form, '',        "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber cusordnumber unit
                                                                            subtotal longdescription price_factor_id marge_price_factor approved_sellprice reqdate transdate));
     _copy($item,          $form, '',        "_${idx}", $format_amounts, qw(qty sellprice marge_total marge_percent lastcost));
