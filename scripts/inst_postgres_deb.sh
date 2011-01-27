@@ -2,7 +2,7 @@
 # e = exit on error
 set -e
 # x = xtrace
-set -x
+#set -x
 
 FEHLER="Achtung!! Es hat ein Problem gegeben"
 ERRCNT=0
@@ -117,7 +117,7 @@ if [ $cnt -eq 0 ]; then
 fi
 
  
-tmp=`ls -r1 /etc/init.d/postgres*  | head -1 -`
+PGSQL=`ls -r1 /etc/init.d/postgres*  | head -1 -`
 
 #writeln 18 1 Datenbank neu starten
 $PGSQL reload
