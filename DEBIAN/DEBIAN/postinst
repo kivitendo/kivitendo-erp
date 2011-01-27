@@ -81,16 +81,11 @@ set_lx_office_erp_web_admin_password() {
 	db_get lx-office-erp/admin-password
 	ADMINPASSWORD="$RET"
 
-	#cat /usr/lib/lx-office-erp/config/authentication.pl.default | \
 	cat /etc/lx-office-erp/authentication.pl.default | \
 	sed --expression "s/\$self->{admin_password} = 'admin';/\$self->{admin_password} = '$ADMINPASSWORD';/g" \
 	> /tmp/1.txt
 
-	#mv /tmp/1.txt /usr/lib/lx-office-erp/config/authentication.pl
 	mv /tmp/1.txt /etc/lx-office-erp/authentication.pl
-
-	#chmod 0600 /usr/lib/lx-office-erp/config/authentication.pl
-	#chown www-data:www-data /usr/lib/lx-office-erp/config/authentication.pl
 
 }
 
@@ -99,12 +94,10 @@ set_lx_office_erp_authentication_db_password() {
 	db_get lx-office-erp/lx-office-erp-user-postgresql-password
 	PASSWORD="$RET"
 
-	#cat /usr/lib/lx-office-erp/config/authentication.pl | \
 	cat /etc/lx-office-erp/authentication.pl | \
 	sed --expression "s/'password' => '',/'password' => '$PASSWORD',/g" \
 	> /tmp/1.txt
 
-	#mv /tmp/1.txt /usr/lib/lx-office-erp/config/authentication.pl
 	mv /tmp/1.txt /etc/lx-office-erp/authentication.pl
 
 }
@@ -112,23 +105,21 @@ set_lx_office_erp_authentication_db_password() {
 set_lx_office_erp_authentication_db_user() {
 	USER="lxoffice"
 
-	#cat /usr/lib/lx-office-erp/config/authentication.pl | \
 	cat /etc/lx-office-erp/authentication.pl | \
 	sed --expression "s/'user'     => 'postgres',/'user'     => '$USER',/g" \
 	> /tmp/1.txt
 
-	#mv /tmp/1.txt /usr/lib/lx-office-erp/config/authentication.pl
 	mv /tmp/1.txt /etc/lx-office-erp/authentication.pl
 }
 
 set_user_rights() {
 	chown -R www-data:www-data /usr/lib/lx-office-erp/users
 	chown -R www-data:www-data /usr/lib/lx-office-erp/templates
-    chown www-data:www-data /etc/lx-office-erp/lx-erp.conf
-    chown www-data:www-data /usr/lib/lx-office-erp/menu.ini
-    chown www-data:www-data /etc/lx-office-erp/authentication.pl
-    chmod 0600 /etc/lx-office-erp/lx-erp.conf
-    chmod 0600 /etc/lx-office-erp/authentication.pl
+	chown www-data:www-data /etc/lx-office-erp/lx-erp.conf
+	chown www-data:www-data /usr/lib/lx-office-erp/menu.ini
+	chown www-data:www-data /etc/lx-office-erp/authentication.pl
+	chmod 0600 /etc/lx-office-erp/lx-erp.conf
+	chmod 0600 /etc/lx-office-erp/authentication.pl
 }
 
 disable_ipv6_on_lo_interface() {
@@ -159,6 +150,9 @@ mk_new_config() {
     if ! [ -f /etc/lx-office-erp/lx-erp.conf ] ; then
         cp /etc/lx-office-erp/lx-erp.conf.default /etc/lx-office-erp/lx-erp.conf
     fi
+    if ! [ -f /etc/lx-office-erp/console.conf ] ; then
+        cp /etc/lx-office-erp/console.conf.default /etc/lx-office-erp/console.conf
+    fi
 }  
 
 mk_links() {
@@ -167,6 +161,9 @@ mk_links() {
     fi;
     if ! [ -f /usr/lib/lx-office-erp/config/lx-erp.conf ] ; then
         ln -s /etc/lx-office-erp/lx-erp.conf /usr/lib/lx-office-erp/config/lx-erp.conf
+    fi;
+    if ! [ -f /usr/lib/lx-office-erp/config/console.conf ] ; then
+        ln -s /etc/lx-office-erp/console.conf /usr/lib/lx-office-erp/config/console.conf
     fi;
     if [ -e /etc/apache2 ] ; then 
         if ! [ -f /etc/apache2/conf.d/lx-office-erp.apache2.conf ] ; then
