@@ -109,8 +109,12 @@ sub _calculate_item {
     $tax_amount = $linetotal * $tax_rate;
   }
 
-  $data->{taxes}->{ $taxkey->tax->chart_id } ||= 0;
-  $data->{taxes}->{ $taxkey->tax->chart_id }  += $tax_amount;
+  if ($taxkey->tax->chart_id) {
+    $data->{taxes}->{ $taxkey->tax->chart_id } ||= 0;
+    $data->{taxes}->{ $taxkey->tax->chart_id }  += $tax_amount;
+  } elsif ($tax_amount) {
+    die "tax_amount != 0 but no chart_id for taxkey " . $taxkey->id . " tax " . $taxkey->tax->id;
+  }
 
   $self->netamount($self->netamount + $sellprice * $item->qty / $item->price_factor);
 
