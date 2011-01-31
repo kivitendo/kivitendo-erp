@@ -136,13 +136,13 @@ benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 @node Installation des Programmpaketes
 @chapter Installation des Programmpaketes
 
-Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.1.tgz) wird im
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.2.tgz) wird im
 Dokumentenverzeichnis des Webservers (z.B. @code{/var/www/html/},
 @code{/srv/www/htdocs} oder @code{/var/www/}) entpackt:
 
 @code{cd /var/www
 @*
-tar xvzf lxoffice-erp-2.6.1.tgz}
+tar xvzf lxoffice-erp-2.6.2.tgz}
 
 Verändern Sie evtl. noch den Namen des Verzeichnisses mit
 
@@ -607,7 +607,7 @@ ausgewählten Spalte hinzugefügt.
 @node Migration alter Installationen
 @section Migration alter Installationen
 
-Wenn Lx-Office 2.6.1 über eine ältere Version installiert wird, in der
+Wenn Lx-Office 2.6.2 über eine ältere Version installiert wird, in der
 die Benutzerdaten noch im Dateisystem im Verzeichnis @code{users}
 verwaltet wurden, so bietet Lx-Office die Möglichkeit, diese
 Benutzerdaten automatisch in die Authentifizierungsdatenbank zu
