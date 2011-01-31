@@ -751,6 +751,15 @@ sub invoice {
   my $currency = $form->{currency};
   invoice_links();
 
+  if ($form->{ordnumber}) {
+    require SL::DB::Order;
+    if (my $order = SL::DB::Manager::Order->find_by(ordnumber => $form->{ordnumber})) {
+      $order->load;
+      $form->{orddate} = $order->transdate_as_date;
+      $form->{$_}      = $order->$_ for qw(payment_id salesman_id taxzone_id quonumber);
+    }
+  }
+
   $form->{currency}     = $currency;
   $form->{exchangerate} = "";
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, $buysell);
