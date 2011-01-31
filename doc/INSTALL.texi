@@ -218,16 +218,12 @@ Das Encoding einer Datenbank kann in @code{psql} mit @code{\l} geprüft werden.
 In der Datei @code{postgresql.conf}, die je nach Distribution in
 verschiedenen Verzeichnissen liegen kann
 (z.B. @code{/var/lib/pgsql/data/} oder @code{/etc/postgresql/}, muss
-sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. Für
-PostgreSQL vor Version v8.0 lautete dieser Parameter
-
-@code{TCPIP_SOCKET = 1}
-
-Ab v8.0 wird das Verhalten hingegen über den neuen Parameter
-@code{listen_address} gesteuert. Laufen PostgreSQL und Lx-Office auf
-demselben Rechner, so kann dort der Wert @code{localhost} verwendet
-werden. Andernfalls müssen Datenbankverbindungen auch von anderen
-Rechnern aus zugelassen werden, was mit dem Wert \@code{*} geschieht.
+sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. Das
+Verhalten wird über den Parameter @code{listen_address}
+gesteuert. Laufen PostgreSQL und Lx-Office auf demselben Rechner, so
+kann dort der Wert @code{localhost} verwendet werden. Andernfalls
+müssen Datenbankverbindungen auch von anderen Rechnern aus zugelassen
+werden, was mit dem Wert \@code{*} geschieht.
 
 In der Datei @code{pg_hba.conf}, die im gleichen Verzeichnis wie die
 @code{postgresql.conf} zu finden sein sollte, müssen die
