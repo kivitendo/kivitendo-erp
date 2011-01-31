@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
-@documentencoding UTF-8
 @setfilename INSTALL.info
+@documentencoding UTF-8
 @settitle Lx-Office Installationsanleitung
 @c %**end of header
 

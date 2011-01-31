@@ -645,3 +645,8 @@ URL erreichbar:
 
    `http://localhost/lx-office-erp/admin.pl'
 
+
+
+Local Variables:
+coding: utf-8
+End:
