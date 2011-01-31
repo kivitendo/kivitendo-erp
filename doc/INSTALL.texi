@@ -56,7 +56,8 @@ im Lx-Office-Forum: @uref{http://www.lx-office.org/forum/}
 @node Benötigte Software und Pakete
 @chapter Benötigte Software und Pakete
 
-Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache) und ein Datenbankserver (PostgreSQL) benötigt.
+Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache)
+und ein Datenbankserver (PostgreSQL, mindestens v8.2) benötigt.
 
 Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind:
 
