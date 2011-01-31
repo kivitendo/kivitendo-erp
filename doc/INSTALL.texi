@@ -287,6 +287,10 @@ bzw. den hier gewählten Benutzernamen.
 @node Apache-Konfiguration
 @chapter Apache-Konfiguration
 
+Hinweis: Für einen deutlichen Performanceschub sorgt die Ausführung
+mittels FCGI. Die Einrichtung wird ausführlich in der Datei
+@code{INSTALL.fcgi} beschrieben.
+
 Der Zugriff auf das Programmverzeichnis muss in der Apache
 Webserverkonfigurationsdatei @code{httpd.conf} eingestellt
 werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
