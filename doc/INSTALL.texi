@@ -24,7 +24,7 @@
 @menu
 * Aktuelle Hinweise:: Andere Informationsquellen als diese Anleitung
 * Benötigte Software und Pakete:: Vorraussetzungen zum Betrieb von Lx-Office
-* Installation des Programmpaketes:: Installationsort, Berechtigungen
+* Manuelle Installation des Programmpaketes:: Installationsort, Berechtigungen
 * Anpassung der PostgreSQL-Konfiguration:: Verschiedene Aspekte der Datenbankkonfiguration
 * Apache-Konfiguration:: Einrichtung eines Aliases und Optionen für das Ausführen von CGI-Scripten
 * Benutzerauthentifizierung und Administratorpasswort:: Einrichtung der Authentifizierungsdatenbank und der Passwortüberprüfung
@@ -56,10 +56,74 @@ im Lx-Office-Forum: @uref{http://www.lx-office.org/forum/}
 @node Benötigte Software und Pakete
 @chapter Benötigte Software und Pakete
 
+@menu
+* Betriebssystem:: Unterstützte Betriebsysteme und Hinweise für ältere Systeme
+* Pakete:: Benötigte Software und Perlpakete sowie deren Quellen
+@end menu
+
+@node Betriebssystem
+@section Betriebssystem
+
+Lx-Office ist für Linux konzipiert, und sollte auf jedem unixoiden
+Betriebssystem zum Laufen zu kriegen sein. Getestet ist diese Version im
+speziellen auf Debian und Ubuntu, grundsätzlich wurde bei der Auswahl der
+Pakete aber darauf Rücksicht genommen, dass es ohne große Probleme auf den
+derzeit aktuellen verbreiteten Distributionen läuft.
+
+Anfang 2011 sind das folgende Systeme:
+
+@itemize
+@item
+Ubuntu 8.04 LTS Hardy Heron
+@item
+Ubuntu 9.10 Karmic Koala
+@item
+Ubuntu 10.04 Lucid Lynx
+@item
+Ubuntu 10.10 Maverick Meerkat
+@item
+Debian 5.0 Lenny
+@item
+Debian 6.0 Squeeze
+@item
+openSUSE 11.2
+@item
+openSUSE 11.3
+@item
+SuSE Linux Enterprice Server 11
+@item
+Fedora 13
+@item
+Fedora 14
+@end itemize
+
+Für die debianoiden Betriebssysteme existiert ein .deb, das deutlich einfacher
+zu installieren ist.
+
+Ubuntu 8.04 LTS hat zusätzlich die Schwierigkeit, dass die Module im Archiv
+recht alt sind, und das viele der benötigten Module nicht einfach zu
+installieren sind. Dafür sollte es kurz nach dem Release ein eigenes .deb
+geben.
+
+Alternativ dazu kann die normale Installation durchgeführt werden
+(@pxref{Manuelle Installation des Programmpaketes}), wenn vorher ein
+Kompatibilitätspaket installiert wird, das die fehlenden Pakete bereitstellt.
+Das Paket ist auf @uref{https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.2/, Sourceforge} unter dem Namen @code{lx-erp-perl-libs-compat-v2.tar.gz} hinterlegt.
+
+Zur Installation das Paket in das entpackte Lx-Office Verzeichnis entpacken:
+
+@code{tar xzf lx-erp-perl-libs-compat-v2.tar.gz /path/to/lx-office/}
+
+Danach sollte der Installationscheck (@pxref{Pakete}) die enthaltenen Pakete erkennen.
+
+@node Pakete
+@section Pakete
+
 Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache)
 und ein Datenbankserver (PostgreSQL, mindestens v8.2) benötigt.
 
-Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind:
+Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil
+einer Standard-Perl-Installation sind:
 
 @itemize
 @item
@@ -141,8 +205,8 @@ benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 
 @c ---------------------------------------------------------------
 
-@node Installation des Programmpaketes
-@chapter Installation des Programmpaketes
+@node Manuelle Installation des Programmpaketes
+@chapter Manuelle Installation des Programmpaketes
 
 Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.2.tgz) wird im
 Dokumentenverzeichnis des Webservers (z.B. @code{/var/www/html/},
@@ -692,11 +756,10 @@ folgender Befehl auszuführen:
 
 @code{mv users/.openoffice.org2 users/.openoffice}
 
-Dieses Verzeichnis, wie auch das komplette @code{users}-Verzeichnis,
-muss vom Webserver beschreibbar sein. Dieses wurde in Schritt
-@code{Installation des Programmpakets} oben bereits erledigt, kann
-aber erneut überprüft werden, wenn die Konvertierung nach PDF
-fehlschlägt.
+Dieses Verzeichnis, wie auch das komplette @code{users}-Verzeichnis, muss vom
+Webserver beschreibbar sein. Dieses wurde bereits erledigt
+(@pxref{Manuelle Installation des Programmpaketes}), kann aber erneut überprüft
+werden, wenn die Konvertierung nach PDF fehlschlägt.
 
 @c ---------------------------------------------------------------
 

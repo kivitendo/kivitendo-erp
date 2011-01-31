@@ -4,7 +4,9 @@ Table of Contents
 Inhalt der Anleitung
 1 Aktuelle Hinweise
 2 Benötigte Software und Pakete
-3 Installation des Programmpaketes
+  2.1 Betriebssystem
+  2.2 Pakete
+3 Manuelle Installation des Programmpaketes
 4 Anpassung der PostgreSQL-Konfiguration
   4.1 Zeichensätze/die Verwendung von UTF-8
   4.2 Änderungen an Konfigurationsdateien
@@ -47,6 +49,65 @@ Aktuelle Installations- und Konfigurationshinweise gibt es:
 
 2 Benötigte Software und Pakete
 ********************************
+
+2.1 Betriebssystem
+==================
+
+Lx-Office ist für Linux konzipiert, und sollte auf jedem unixoiden
+Betriebssystem zum Laufen zu kriegen sein. Getestet ist diese Version im
+speziellen auf Debian und Ubuntu, grundsätzlich wurde bei der Auswahl
+der Pakete aber darauf Rücksicht genommen, dass es ohne große Probleme
+auf den derzeit aktuellen verbreiteten Distributionen läuft.
+
+   Anfang 2011 sind das folgende Systeme:
+
+   * Ubuntu 8.04 LTS Hardy Heron
+
+   * Ubuntu 9.10 Karmic Koala
+
+   * Ubuntu 10.04 Lucid Lynx
+
+   * Ubuntu 10.10 Maverick Meerkat
+
+   * Debian 5.0 Lenny
+
+   * Debian 6.0 Squeeze
+
+   * openSUSE 11.2
+
+   * openSUSE 11.3
+
+   * SuSE Linux Enterprice Server 11
+
+   * Fedora 13
+
+   * Fedora 14
+
+   Für die debianoiden Betriebssysteme existiert ein .deb, das deutlich
+einfacher zu installieren ist.
+
+   Ubuntu 8.04 LTS hat zusätzlich die Schwierigkeit, dass die Module im
+Archiv recht alt sind, und das viele der benötigten Module nicht
+einfach zu installieren sind. Dafür sollte es kurz nach dem Release ein
+eigenes .deb geben.
+
+   Alternativ dazu kann die normale Installation durchgeführt werden
+(*note Manuelle Installation des Programmpaketes::), wenn vorher ein
+Kompatibilitätspaket installiert wird, das die fehlenden Pakete
+bereitstellt.  Das Paket ist auf Sourceforge
+(https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.2/)
+unter dem Namen `lx-erp-perl-libs-compat-v2.tar.gz' hinterlegt.
+
+   Zur Installation das Paket in das entpackte Lx-Office Verzeichnis
+entpacken:
+
+   `tar xzf lx-erp-perl-libs-compat-v2.tar.gz /path/to/lx-office/'
+
+   Danach sollte der Installationscheck (*note Pakete::) die
+enthaltenen Pakete erkennen.
+
+2.2 Pakete
+==========
 
 Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache)
 und ein Datenbankserver (PostgreSQL, mindestens v8.2) benötigt.
@@ -145,8 +206,8 @@ benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 
    `./scripts/installation_check.pl'
 
-3 Installation des Programmpaketes
-**********************************
+3 Manuelle Installation des Programmpaketes
+*******************************************
 
 Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.2.tgz) wird im
 Dokumentenverzeichnis des Webservers (z.B. `/var/www/html/',
@@ -640,8 +701,8 @@ z.B. einfach nur `.openoffice', so wäre folgender Befehl auszuführen:
    `mv users/.openoffice.org2 users/.openoffice'
 
    Dieses Verzeichnis, wie auch das komplette `users'-Verzeichnis, muss
-vom Webserver beschreibbar sein. Dieses wurde in Schritt `Installation
-des Programmpakets' oben bereits erledigt, kann aber erneut überprüft
+vom Webserver beschreibbar sein. Dieses wurde bereits erledigt (*note
+Manuelle Installation des Programmpaketes::), kann aber erneut überprüft
 werden, wenn die Konvertierung nach PDF fehlschlägt.
 
 9 Lx-Office ERP verwenden
