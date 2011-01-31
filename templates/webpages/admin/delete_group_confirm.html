@@ -4,9 +4,7 @@
   <p class="message_hint">[ [% name %] ] - [% 'Do you really want to delete this group?' | $T8 %]</p>
 
    <form name="Form" method="post" action="admin.pl">
-    <input type="hidden" name="back_nextsub" value="edit_groups">
-    <input type="submit" class="submit" name="action" value="[% 'Back' | $T8 %]">
-
+    <a href="admin.pl?action=edit_groups">[% 'Back' | $T8 %]</a>
 
     <input type="hidden" name="group_id" value="[% HTML.escape(id) %]">
     <input type="hidden" name="confirmed" value="1">
