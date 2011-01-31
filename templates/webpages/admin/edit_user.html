@@ -24,7 +24,7 @@
  <form name="Form" id="Form" method="post" action="admin.pl">
 
   <div class="listtop" width="100%">[% title %]</div>
-  <p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
+  <p><a href="admin.pl?action=list_users">[% 'Back' | $T8 %]</a></p>
 
   <table width="100%">
    <tr valign="top">
@@ -259,7 +259,7 @@
 
   <input name="callback" type="hidden" value="admin.pl?action=list_users">
 
-  <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
+  <a href="admin.pl?action=list_users">[% 'Back' | $T8 %]</a>
   <input type="hidden" name="action" value="dispatcher">
   <input type="submit" class="submit" name="action_save_user" value="[% 'Save' | $T8 %]">
 

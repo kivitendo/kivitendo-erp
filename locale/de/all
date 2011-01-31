@@ -232,6 +232,7 @@ $self->{texts} = {
   'BOM'                         => 'Stückliste',
   'BWA'                         => 'BWA',
   'Back'                        => 'Zurück',
+  'Back to the login page'      => 'Zurück zur Loginseite',
   'Backup Dataset'              => 'Datenbank sichern',
   'Backup file'                 => 'Sicherungsdatei',
   'Backup of dataset'           => 'Sicherung der Datenbank',

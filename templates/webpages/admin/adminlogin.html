@@ -1,6 +1,7 @@
 [%- USE T8 %]
-[% USE HTML %]<body class="admin" onload="document.getElementById('rpw').focus()">
- <p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
+[% USE HTML %]
+[% USE LxERP%]
+<body class="admin" onload="document.getElementById('rpw').focus()">
  <div align="center">
 
   <a href="http://www.lx-office.org"><img src="image/lx-office-erp.png" border="0"></a>
@@ -27,6 +28,8 @@
   </form>
 
   <p>[% 'Lx-Office Homepage' | $T8 %]: <a href="http://lx-office.org" target="_blank" title="[% 'Lx-Office Homepage' | $T8 %]">http://lx-office.org</a></p>
+
+  <p><a href="login.pl">[%- LxERP.t8('Back to the login page') %]</a></p>
 
  </div>
 
