@@ -144,6 +144,12 @@
   - Bugfix 1561: benutzerdefinierte Variable wird unabsichtlich deaktiviert
   - Bugfix 1562: Fehlender Hinweis im changelog zu gaenderten Rechten Beim Druck
   - Bugfix 1564: Vorlagen: TEX - Vorlagen bearbeiten -> Anzeigen -> Bearbeiten -> Steuer erfassen??
+  - Bugfix 1571: INSTALL.texi
+  - Bugfix 1573: Irrefuehrende Fehlermeldung ""das ausgewaehlte Lager ist leer""
+  - Bugfix 1574: OpenOffice (ODT) document may be corrupted
+  - Bugfix 1576: Änderung der Datenbank bei einem Benutzer führt zu Fehler
+  - Bugfix 1577: oberer Zurück-Knopf in 'Gruppe bearbeiten' im Admin-Interface bewirkt nichts
+  - Bugfix 1580: /doc/INSTALL/*.html in UTF-8 kein Coding im HTML Header
 
 2010-03-24 - Release 2.6.1
 
