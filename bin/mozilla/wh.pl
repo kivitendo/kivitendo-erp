@@ -176,7 +176,9 @@ sub transfer_or_removal_prepare_contents {
                                            "ean"          => $form->{ean},
                                            "description"  => $form->{description});
 
-  $form->show_generic_error($locale->text("The selected warehouse is empty.")) if (0 == scalar(@contents));
+  if (0 == scalar(@contents)) {
+    $form->show_generic_error($locale->text("The selected warehouse is empty, or no stocked items where found that match the filter settings."));
+  }
 
   my $all_units = AM->retrieve_units(\%myconfig, $form);
 
