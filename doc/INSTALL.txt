@@ -103,6 +103,11 @@ entpacken:
 
    `tar xzf lx-erp-perl-libs-compat-v2.tar.gz /path/to/lx-office/'
 
+   Zusätzlich müssen dann noch die folgenden Pakete installiert weerden
+
+   `libbit-vector-perl libsub-exporter-perl libclone-perl
+libclass-factory-util-perl'
+
    Danach sollte der Installationscheck (*note Pakete::) die
 enthaltenen Pakete erkennen.
 
