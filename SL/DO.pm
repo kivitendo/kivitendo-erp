@@ -939,7 +939,7 @@ sub unpack_stock_information {
 }
 
 sub get_item_availability {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
   my $self     = shift;
   my %params   = @_;
@@ -947,8 +947,6 @@ sub get_item_availability {
   Common::check_params(\%params, qw(parts_id));
 
   my @parts_ids = 'ARRAY' eq ref $params{parts_id} ? @{ $params{parts_id} } : ($params{parts_id});
-  my $form      = $main::form;
-  my $myconfig  = \%main::myconfig;
 
   my $query     =
     qq|SELECT i.warehouse_id, i.bin_id, i.chargenumber, i.bestbefore, SUM(qty) AS qty, i.parts_id,
@@ -962,9 +960,9 @@ sub get_item_availability {
        HAVING SUM(qty) > 0
        ORDER BY LOWER(w.description), LOWER(b.description), LOWER(i.chargenumber), i.bestbefore
 |;
-  my $contents = selectall_hashref_query($form, $form->get_standard_dbh($myconfig), $query, @parts_ids);
+  my $contents = selectall_hashref_query($::form, $::form->get_standard_dbh, $query, @parts_ids);
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 
   return @{ $contents };
 }
