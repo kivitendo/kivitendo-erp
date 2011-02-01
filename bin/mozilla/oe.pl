@@ -1944,6 +1944,7 @@ sub dispatcher {
   foreach my $action (qw(delete delivery_order e_mail invoice print purchase_order purchase_order quotation
                          request_for_quotation sales_order sales_order save save_and_close save_as_new ship_to update)) {
     if ($::form->{"action_${action}"}) {
+      $::form->{dispatched_action} = $action;
       call_sub($action);
       return;
     }
