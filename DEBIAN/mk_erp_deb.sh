@@ -4,10 +4,10 @@
 NR="0"
 
 #hier wurde das Git-Paket entpakt:
-SRC=/tmp/deb_test/unstable
+SRC=/tmp/lx-office-erp
 
 #hier wird das Debian-Paket gebaut:
-DST=/tmp/deb_test/package
+DST=/tmp/package
 
 
 ################################################
@@ -17,70 +17,13 @@ DST=/tmp/deb_test/package
 VER=`cat VERSION`
 DEST=$DST/lx-office-erp_$VER-$NR-all
 
-FILES='
-usr/lib/lx-office-erp/
-usr/share/lx-office-erp/
-usr/share/doc/lx-office-erp/
-var/lib/lx-office-erp/spool/
-var/lib/lx-office-erp/users/
-var/lib/lx-office-erp/css/
-var/lib/lx-office-erp/xslt/
-var/lib/lx-office-erp/templates/
-var/lib/lx-office-erp/webdav/lieferantenbestellungen/
-var/lib/lx-office-erp/webdav/anfragen/
-var/lib/lx-office-erp/webdav/gutschriften/
-var/lib/lx-office-erp/webdav/einkaufsrechnungen/
-var/lib/lx-office-erp/webdav/rechnungen/
-var/lib/lx-office-erp/webdav/bestellungen/
-var/lib/lx-office-erp/webdav/angebote/
-usr/lib/lx-office-erp/
-usr/share/lx-office-erp/
-usr/share/doc/lx-office-erp/
-usr/share/man/man1/:lx-office-erp.1.gz
-etc/lx-office-erp/:lx-office-erp.cherokee.handler
-etc/lx-office-erp/:lx-office-erp.apache2.conf
-etc/lx-office-erp/:lx-office-erp.cherokee
-usr/bin/:lx-office-erp
-'
-
-for filespec in $FILES; do
-  set - `echo $filespec | sed -e 's/:/ /g'`
-  dir=$1
-  file=$2
-  mkdir -p $SRC/DEBIAN/$dir
-  if [ -f $SRC/DEBIAN/files/$file ]; then
-    cp  $SRC/DEBIAN/files/$file $SRC/DEBIAN/$dir/$file
-  else
-    echo '1' > $SRC/DEBIAN/$dir/.dummy
-  fi
-done
-
-SYMLINKS='
-css:/var/lib/lx-office-erp/css
-doc:/usr/share/doc/lx-office-erp/
-image:/usr/share/lx-office-erp
-spool:/var/lib/lx-office-erp/spool
-templates:/var/lib/lx-office-erp/templates
-users:/var/lib/lx-office-erp/users/
-webdav:/var/lib/lx-office-erp/webdav
-xslt:/var/lib/lx-office-erp/xslt
-'
-
-for symspec in $SYMLINKS; do
-  set - `echo $symspec | sed -e 's/:/ /g'`
-  src=$1
-  tar=$2
-
-  ln -s $tar $SRC/DEBIAN/usr/lib/lx-office-erp/$src
-done
-#fertig
 
 mkdir -p $DEST
 cd $DEST
 
 #Struktur anlegen:
-cp -a $SRC/DEBIAN/* .
-rm ./mk*.sh
+cp -a $SRC/DEBIAN/DEBIAN .
+tar xzf $SRC/DEBIAN/struktur.tgz
 
 #Dateien kopieren:
 #aber keine fertigen Konfigurationen, nur *.default

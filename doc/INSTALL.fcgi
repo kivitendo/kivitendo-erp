@@ -5,6 +5,8 @@ Diese Datei ist in Plain Old Documentation geschrieben. Mit
 
 ist sie deutlich leichter zu lesen.
 
+=encoding utf8
+
 =head1 FastCGI für Lx-Office
 
 =head2 Was ist FastCGI?
@@ -37,8 +39,8 @@ eigentliche Programmlogik ausgeführt.
 
 Folgende Kombinationen sind getestet:
 
+ * Apache 2.2.11 (Ubuntu) und mod_fcgid.
  * Apache 2.2.11 (Ubuntu) und mod_fastcgi.
- * Apache 2.2.11 (Ubuntu) und mod_fcgid:
 
 Als Perl Backend wird das Modul FCGI.pm verwendet. Vorsicht: FCGI 0.69 und
 höher ist extrem strict in der Behandlung von Unicode, und verweigert bestimmte
@@ -59,11 +61,11 @@ können. Sollte die Installation schon funktionieren, lesen Sie weiter.
 Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann unter
 Debian/Ubuntu z.B. mit folgendem Befehl geschehen:
 
-  a2enmod fastcgi
+  a2enmod fcgid
 
 bzw.
 
-  a2enmod fcgid
+  a2enmod fastcgi
 
 Die Konfiguration für die Verwendung von Lx-Office mit FastCGI erfolgt
 durch Anpassung der vorhandenen Alias- und Directory-Direktiven. Dabei
@@ -71,14 +73,13 @@ wird zwischen dem Installationspfad von Lx-Office im Dateisystem
 ("/path/to/lx-office-erp") und der URL unterschieden, unter der
 Lx-Office im Webbrowser erreichbar ist ("/web/path/to/lx-office-erp").
 
-Folgendes Template funktioniert mit mod_fastcgi:
+Folgendes Template funktioniert mit mod_fcgid:
 
-  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
   Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
 
   <Directory /path/to/lx-office-erp>
     AllowOverride All
-    AddHandler fastcgi-script .fpl
     Options ExecCGI Includes FollowSymlinks
     Order Allow,Deny
     Allow from All
@@ -89,10 +90,28 @@ Folgendes Template funktioniert mit mod_fastcgi:
     Deny from All
   </DirectoryMatch>
 
-...und für mod_fcgid muss die erste Zeile geändert werden in:
+Für mod_fastcgi muss ein AddHandler ergänzt werden und die erste Zeile geändert werden:
 
-  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
+  AddHandler fastcgi-script .fpl
+  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
 
+Das ganze sollte dann so aussehen:
+
+  AddHandler fastcgi-script .fpl
+  AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+  Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
+
+  <Directory /path/to/lx-office-erp>
+    AllowOverride All
+    Options ExecCGI Includes FollowSymlinks
+    Order Allow,Deny
+    Allow from All
+  </Directory>
+
+  <DirectoryMatch /path/to/lx-office-erp/users>
+    Order Deny,Allow
+    Deny from All
+  </DirectoryMatch>
 
 Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle Zugriffe
 auf die einzelnen Scripte werden auf diesen umgeleitet. Dadurch, dass
@@ -102,18 +121,23 @@ Benutzung von "AddHandler fastcgi-script .pl" vorzuziehen.
 
 
 Es ist möglich die gleiche Lx-Office Version parallel unter cgi und fastcgi zu
-betreiben. Dafür bleiben Directorydirektiven bleiben wie oben beschrieben, die
-URLs werden aber umgeleitet:
+betreiben. Dafür bleiben die Directorydirektiven wie oben beschrieben, die URLs
+werden aber umgeleitet:
 
-  # Zugriff ohne FastCGI
+  # Zugriff über cgi
   Alias       /web/path/to/lx-office-erp                /path/to/lx-office-erp
 
-  # Zugriff mit FastCGI:
-  AliasMatch ^/web/path/to/lx-office-erp-fcgi/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
-  Alias       /web/path/to/lx-office-erp-fcgi/          /path/to/lx-office-erp/
+  # Zugriff mit mod_fastcgi:
+  AliasMatch ^/web/path/to/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
+  Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/
+
+  # Zugriff mit mod_fastcgi:
+  AliasMatch ^/web/path/to/lx-office-erp-fastcgi/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+  Alias       /web/path/to/lx-office-erp-fastcgi/          /path/to/lx-office-erp/
 
 Dann ist unter C</web/path/to/lx-office-erp/> die normale Version erreichbar,
-und unter C</web/opath/to/lx-office-erp-fcgi/> die FastCGI Version.
+und unter C</web/opath/to/lx-office-erp-fcgid/> bzw.
+C</web/opath/to/lx-office-erp-fastcgi/> die FastCGI Version.
 
 Achtung:
 

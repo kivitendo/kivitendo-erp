@@ -1,12 +1,12 @@
 <html lang="en">
 <head>
 <title>Benötigte Software und Pakete - Lx-Office Installationsanleitung</title>
-<meta http-equiv="Content-Type" content="text/html">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="Lx-Office Installationsanleitung">
-<meta name="generator" content="makeinfo 4.13">
+<meta name="generator" content="makeinfo 4.11">
 <link title="Top" rel="start" href="index.html#Top">
 <link rel="prev" href="Aktuelle-Hinweise.html#Aktuelle-Hinweise" title="Aktuelle Hinweise">
-<link rel="next" href="Installation-des-Programmpaketes.html#Installation-des-Programmpaketes" title="Installation des Programmpaketes">
+<link rel="next" href="Manuelle-Installation-des-Programmpaketes.html#Manuelle-Installation-des-Programmpaketes" title="Manuelle Installation des Programmpaketes">
 <link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
 <meta http-equiv="Content-Style-Type" content="text/css">
 <style type="text/css"><!--
@@ -23,74 +23,21 @@
 </head>
 <body>
 <div class="node">
+<p>
 <a name="Ben%c3%b6tigte-Software-und-Pakete"></a>
 <a name="Ben_00c3_00b6tigte-Software-und-Pakete"></a>
-<p>
-Next:&nbsp;<a rel="next" accesskey="n" href="Installation-des-Programmpaketes.html#Installation-des-Programmpaketes">Installation des Programmpaketes</a>,
-Previous:&nbsp;<a rel="previous" accesskey="p" href="Aktuelle-Hinweise.html#Aktuelle-Hinweise">Aktuelle Hinweise</a>,
-Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Manuelle-Installation-des-Programmpaketes.html#Manuelle-Installation-des-Programmpaketes">Manuelle Installation des Programmpaketes</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="Aktuelle-Hinweise.html#Aktuelle-Hinweise">Aktuelle Hinweise</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
 <hr>
 </div>
 
 <h2 class="chapter">2 Benötigte Software und Pakete</h2>
 
-<p>Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache) und ein Datenbankserver (PostgreSQL) benötigt.
-
-   <p>Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind:
-
-     <ul>
-<li>Archive::Zip
-<li>Class::Accessor
-<li>CGI::Ajax
-<li>DateTime
-<li>DBI
-<li>DBD::Pg
-<li>Email::Address
-<li>List::MoreUtils
-<li>PDF::API2
-<li>Readonly (benötigt) und Readonly::XS (optional)
-<li>Rose::Object
-<li>Rose::DB
-<li>Rose::DB::Object
-<li>Template
-<li>Text::CSV_XS
-<li>Text::Iconv
-<li>URI
-<li>XML::Writer
-<li>YAML
+<ul class="menu">
+<li><a accesskey="1" href="Betriebssystem.html#Betriebssystem">Betriebssystem</a>:  Unterstützte Betriebsysteme und Hinweise für ältere Systeme
+<li><a accesskey="2" href="Pakete.html#Pakete">Pakete</a>:  Benötigte Software und Perlpakete sowie deren Quellen
 </ul>
 
-   <p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete hinzugekommen, <code>URI</code>
-und <code>XML::Writer</code> sind notwendig. Ohne startet Lx-Office nicht.
-
-   <p><code>Email::Address</code> und <code>List::MoreUtils</code> sind schon länger feste
-Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert.  Beide sind auch
-in 2.6.1 weiterhin mit ausgeliefert, wurden in einer zukünftigen Version aber
-aus dem Paket entfernt werden. Es wird empfohlen diese Module zusammen mit den
-anderen als Bibliotheken zu installieren.
-
-   <p><code>CGI::Ajax</code> ist nach wie vor in einer modifizierten Version mitgeliefert
-und braucht nicht nachinstalliert werden.
-
-   <p>Die zu installierenden Pakete können in den verschiedenen Distributionen unterschiedlich heißen.
-
-   <p>Für Debian oder Ubuntu benötigen Sie diese Pakete:
-
-   <p><code>apache2 postgresql libarchive-zip-perl libclass-accessor-perl libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl</code>
-
-   <p>Für Fedora Core benötigen Sie diese Pakete:
-
-   <p><code>httpd postgresql-server perl-Class-Accessor perl-DateTime perl-DBI perl-DBD-Pg perl-Email-Address perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML</code>
-
-   <p>Für OpenSuSE benötigen Sie diese Pakete:
-
-   <p><code>apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML</code>
-
-   <p>Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
-benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
-
-   <p><code>./scripts/installation_check.pl</code>
-
-<!--  -->
-   </body></html>
+</body></html>
 

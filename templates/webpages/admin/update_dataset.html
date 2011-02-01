@@ -2,7 +2,7 @@
 [% USE HTML %]<body class="admin">
 
  <h2>[% title %]</h2>
-  <p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
+ <p><a href="admin.pl?action=pg_database_administration">[% 'Back' | $T8 %]</a></p>
  [% IF ALL_UPDATED %]
   [% 'All Datasets up to date!' | $T8 %]
 

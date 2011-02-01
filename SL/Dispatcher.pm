@@ -5,7 +5,6 @@ use strict;
 BEGIN {
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
-  push    @INC, "SL";               # FCGI won't find modules that are not properly named. Help it by inclduging SL
 }
 
 use CGI qw( -no_xhtml);
@@ -18,8 +17,8 @@ use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::Locale;
 use SL::Common;
+use SL::Form;
 use SL::Helper::DateTime;
-use Form;
 use List::Util qw(first);
 use File::Basename;
 

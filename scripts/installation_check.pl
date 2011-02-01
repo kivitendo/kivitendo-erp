@@ -57,7 +57,7 @@ EOL
   push @texts, <<EOL if $module->{debian};
   - On Debian, Ubuntu and other distros you can install it with apt-get:
       sudo apt-get install $module->{debian}
-    Note these may be out of date as well if you system is old.
+    Note: These may be out of date as well if your system is old.
 EOL
  # TODO: SuSE and Fedora packaging. Windows packaging.
 

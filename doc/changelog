@@ -57,6 +57,7 @@
   - Bugfix 1131: Einkaufslieferscheine: Mengen muessen beim Auslagern manuell in die maske eingetragen werden
   - Bugfix 1154: Debitoren und Kreditoren werden nicht korrekt gebucht
   - Bugfix 1185: Preis überschreiben bei Preisgruppe
+  - Bugfix 1206: Kein Preis bei Preisgruppen
   - Bugfix 1220: Zahlungsverkehr - Zahlungseingang: Aufteilung des Rechnungsbetrages
   - Bugfix 1277: Fehler in der BWA Zuordnung in den SKR03 und dem daraus generierten skr04
   - Bugfix 1298: SKR04 überarbeitet
@@ -119,6 +120,7 @@
   - Bugfix 1502: Bücherkontrolle prüft auch ALTE Zahlungseingänge
   - Bugfix 1504: UStVa Modul SQL Fehler: ""text >= integer"" nicht erlaubt
   - Bugfix 1506: Email-Formular: Mailadresse der Firma anstelle des Ansprechpartners
+  - Bugfix 1513: Berichte - Projektbuchungen. Gibt es keine Datensaetze zu einer Projektnummer wird eine unschoene Fehlermeldung geworfen statt einer Erklaerung was gerade schief lief
   - Bugfix 1517: Kreditorrechnung: Wechselkurs bei gleichem Re.-Datum nicht vorhanden
   - Bugfix 1520: Division-by-Zero-Fehler bei einigen Rechnungsbuchungen
   - Bugfix 1521: Fix von Bug 1521 bringt neuen Fehler bei Login und Verkaufsmasken
@@ -134,12 +136,20 @@
   - Bugfix 1541: Preisgruppeneintrag in Einkaufsrechungen ??
   - Bugfix 1547: Kreditorenbuchung in Fremdwährung: Steuerfehler
   - Bugfix 1550: Sortieren einer Kundenauflistung ""vergisst"" gewählte Filterkriterien
+  - Bugfix 1551: MWst Buchung wird bei neu angelegten SKR04 ""vergessen""
   - Bugfix 1552: Diverse Probleme mit der Sortierfunktion bei Stammdaten
   - Bugfix 1553: Diese Kundennummer wird bereits verwendet. - Obwohl keine eingetragen ist
   - Bugfix 1554: Kein Wechselkurs bei Debitotenbuchung in Fremdwährung unter 1 bei gleichem Datum
   - Bugfix 1555: Sonderzeichen nicht korrekt escaped (Stückliste beim Erstellen eines Erzeugnisses)
   - Bugfix 1561: benutzerdefinierte Variable wird unabsichtlich deaktiviert
   - Bugfix 1562: Fehlender Hinweis im changelog zu gaenderten Rechten Beim Druck
+  - Bugfix 1564: Vorlagen: TEX - Vorlagen bearbeiten -> Anzeigen -> Bearbeiten -> Steuer erfassen??
+  - Bugfix 1571: INSTALL.texi
+  - Bugfix 1573: Irrefuehrende Fehlermeldung ""das ausgewaehlte Lager ist leer""
+  - Bugfix 1574: OpenOffice (ODT) document may be corrupted
+  - Bugfix 1576: Änderung der Datenbank bei einem Benutzer führt zu Fehler
+  - Bugfix 1577: oberer Zurück-Knopf in 'Gruppe bearbeiten' im Admin-Interface bewirkt nichts
+  - Bugfix 1580: /doc/INSTALL/*.html in UTF-8 kein Coding im HTML Header
 
 2010-03-24 - Release 2.6.1
 

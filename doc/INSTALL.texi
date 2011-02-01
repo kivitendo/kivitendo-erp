@@ -1,7 +1,7 @@
 \input texinfo   @c -*-texinfo-*-
 @c %**start of header
-@documentencoding UTF-8
 @setfilename INSTALL.info
+@documentencoding UTF-8
 @settitle Lx-Office Installationsanleitung
 @c %**end of header
 
@@ -24,7 +24,7 @@
 @menu
 * Aktuelle Hinweise:: Andere Informationsquellen als diese Anleitung
 * Benötigte Software und Pakete:: Vorraussetzungen zum Betrieb von Lx-Office
-* Installation des Programmpaketes:: Installationsort, Berechtigungen
+* Manuelle Installation des Programmpaketes:: Installationsort, Berechtigungen
 * Anpassung der PostgreSQL-Konfiguration:: Verschiedene Aspekte der Datenbankkonfiguration
 * Apache-Konfiguration:: Einrichtung eines Aliases und Optionen für das Ausführen von CGI-Scripten
 * Benutzerauthentifizierung und Administratorpasswort:: Einrichtung der Authentifizierungsdatenbank und der Passwortüberprüfung
@@ -56,11 +56,78 @@ im Lx-Office-Forum: @uref{http://www.lx-office.org/forum/}
 @node Benötigte Software und Pakete
 @chapter Benötigte Software und Pakete
 
-Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache) und ein Datenbankserver (PostgreSQL) benötigt.
+@menu
+* Betriebssystem:: Unterstützte Betriebsysteme und Hinweise für ältere Systeme
+* Pakete:: Benötigte Software und Perlpakete sowie deren Quellen
+@end menu
 
-Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind:
+@node Betriebssystem
+@section Betriebssystem
+
+Lx-Office ist für Linux konzipiert, und sollte auf jedem unixoiden
+Betriebssystem zum Laufen zu kriegen sein. Getestet ist diese Version im
+speziellen auf Debian und Ubuntu, grundsätzlich wurde bei der Auswahl der
+Pakete aber darauf Rücksicht genommen, dass es ohne große Probleme auf den
+derzeit aktuellen verbreiteten Distributionen läuft.
+
+Anfang 2011 sind das folgende Systeme:
 
 @itemize
+@item
+Ubuntu 8.04 LTS Hardy Heron
+@item
+Ubuntu 9.10 Karmic Koala
+@item
+Ubuntu 10.04 Lucid Lynx
+@item
+Ubuntu 10.10 Maverick Meerkat
+@item
+Debian 5.0 Lenny
+@item
+Debian 6.0 Squeeze
+@item
+openSUSE 11.2
+@item
+openSUSE 11.3
+@item
+SuSE Linux Enterprice Server 11
+@item
+Fedora 13
+@item
+Fedora 14
+@end itemize
+
+Für die debianoiden Betriebssysteme existiert ein .deb, das deutlich einfacher
+zu installieren ist.
+
+Ubuntu 8.04 LTS hat zusätzlich die Schwierigkeit, dass die Module im Archiv
+recht alt sind, und das viele der benötigten Module nicht einfach zu
+installieren sind. Dafür sollte es kurz nach dem Release ein eigenes .deb
+geben.
+
+Alternativ dazu kann die normale Installation durchgeführt werden
+(@pxref{Manuelle Installation des Programmpaketes}), wenn vorher ein
+Kompatibilitätspaket installiert wird, das die fehlenden Pakete bereitstellt.
+Das Paket ist auf @uref{https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.2/, Sourceforge} unter dem Namen @code{lx-erp-perl-libs-compat-v2.tar.gz} hinterlegt.
+
+Zur Installation das Paket in das entpackte Lx-Office Verzeichnis entpacken:
+
+@code{tar xzf lx-erp-perl-libs-compat-v2.tar.gz /path/to/lx-office/}
+
+Danach sollte der Installationscheck (@pxref{Pakete}) die enthaltenen Pakete erkennen.
+
+@node Pakete
+@section Pakete
+
+Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache)
+und ein Datenbankserver (PostgreSQL, mindestens v8.2) benötigt.
+
+Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht Bestandteil
+einer Standard-Perl-Installation sind:
+
+@itemize
+@item
+parent
 @item
 Archive::Zip
 @item
@@ -79,8 +146,6 @@ Email::Address
 List::MoreUtils
 @item
 PDF::API2
-@item
-Readonly (benötigt) und Readonly::XS (optional)
 @item
 Rose::Object
 @item
@@ -104,6 +169,10 @@ YAML
 Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete hinzugekommen, @code{URI}
 und @code{XML::Writer} sind notwendig. Ohne startet Lx-Office nicht.
 
+Gegenüber Version 2.6.1 sind @code{parent}, @code{DateTime},
+@code{Rose::Object}, @code{Rose::DB} und @code{Rose::DB::Object} neu
+hinzugekommen. @code{IO::Wrap} wurde entfernt.
+
 @code{Email::Address} und @code{List::MoreUtils} sind schon länger feste
 Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert.  Beide sind auch
 in 2.6.1 weiterhin mit ausgeliefert, wurden in einer zukünftigen Version aber
@@ -117,15 +186,17 @@ Die zu installierenden Pakete können in den verschiedenen Distributionen unters
 
 Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-@code{apache2 postgresql libarchive-zip-perl libclass-accessor-perl libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl libio-stringy-perl liblist-moreutils-perl libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl}
+@code{apache2 postgresql libparent-perl libarchive-zip-perl libclass-accessor-perl libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl liblist-moreutils-perl libpdf-api2-perl librose-object-perl librose-db-perl librose-db-object-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl}
 
 Für Fedora Core benötigen Sie diese Pakete:
 
-@code{httpd postgresql-server perl-Class-Accessor perl-DateTime perl-DBI perl-DBD-Pg perl-Email-Address perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
+@code{httpd postgresql-server perl-parent perl-Class-Accessor perl-DateTime perl-DBI perl-DBD-Pg perl-Email-Address perl-List-MoreUtils perl-PDF-API2 perl-Rose-Object perl-Rose-DB perl-Rose-DB-Object perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
 
 Für OpenSuSE benötigen Sie diese Pakete:
 
-@code{apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
+@code{apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML}
+
+Bei openSuSE 11 ist @code{parent} bereits enthalten, und braucht nicht nachinstalliert werden. Die @code{Rose::*} Pakete sind derzeit nicht für SuSE gepackt, und müssen anderweitig nachinstalliert werden.
 
 Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
 benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
@@ -134,16 +205,16 @@ benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 
 @c ---------------------------------------------------------------
 
-@node Installation des Programmpaketes
-@chapter Installation des Programmpaketes
+@node Manuelle Installation des Programmpaketes
+@chapter Manuelle Installation des Programmpaketes
 
-Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.1.tgz) wird im
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.2.tgz) wird im
 Dokumentenverzeichnis des Webservers (z.B. @code{/var/www/html/},
 @code{/srv/www/htdocs} oder @code{/var/www/}) entpackt:
 
 @code{cd /var/www
 @*
-tar xvzf lxoffice-erp-2.6.1.tgz}
+tar xvzf lxoffice-erp-2.6.2.tgz}
 
 Verändern Sie evtl. noch den Namen des Verzeichnisses mit
 
@@ -219,16 +290,12 @@ Das Encoding einer Datenbank kann in @code{psql} mit @code{\l} geprüft werden.
 In der Datei @code{postgresql.conf}, die je nach Distribution in
 verschiedenen Verzeichnissen liegen kann
 (z.B. @code{/var/lib/pgsql/data/} oder @code{/etc/postgresql/}, muss
-sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. Für
-PostgreSQL vor Version v8.0 lautete dieser Parameter
-
-@code{TCPIP_SOCKET = 1}
-
-Ab v8.0 wird das Verhalten hingegen über den neuen Parameter
-@code{listen_address} gesteuert. Laufen PostgreSQL und Lx-Office auf
-demselben Rechner, so kann dort der Wert @code{localhost} verwendet
-werden. Andernfalls müssen Datenbankverbindungen auch von anderen
-Rechnern aus zugelassen werden, was mit dem Wert \@code{*} geschieht.
+sichergestellt werden, dass TCP/IP-Verbindungen aktiviert sind. Das
+Verhalten wird über den Parameter @code{listen_address}
+gesteuert. Laufen PostgreSQL und Lx-Office auf demselben Rechner, so
+kann dort der Wert @code{localhost} verwendet werden. Andernfalls
+müssen Datenbankverbindungen auch von anderen Rechnern aus zugelassen
+werden, was mit dem Wert \@code{*} geschieht.
 
 In der Datei @code{pg_hba.conf}, die im gleichen Verzeichnis wie die
 @code{postgresql.conf} zu finden sein sollte, müssen die
@@ -252,21 +319,23 @@ host    all         lxoffice      127.0.0.1         255.255.255.255    password}
 @node Erweiterung für servergespeicherte Prozeduren
 @section Erweiterung für servergespeicherte Prozeduren
 
-In der Datenbank @code{template1} muss die Unterstützung für
-servergespeicherte Prozeduren eingerichet werden. Melden Sie sich
-dafür als Benutzer ``postgres'' an der Datenbank an, und führen Sie
-die folgenden Kommandos aus:
+In der Datenbank @code{template1} muss die Unterstützung für servergespeicherte
+Prozeduren eingerichet werden. Melden Sie sich dafür als Benutzer ``postgres''
+an der Datenbank an, und führen Sie die folgenden Kommandos aus:
+
+@code{create language 'plpgsql';}
+
+Achtung: In älteren Postgresversionen (vor 8.0) muss der Handler für die
+Sprache manuell anlelegt werden, diese Versionen werden aber nicht mehr
+offiziell von Lx-Office unterstützt. Dafür dann die folgenden Kommandos:
 
 @code{create function plpgsql_call_handler () returns opaque as '/usr/lib/pgsql/plpgsql.so' language 'c';
 @*
-create language 'plpgsql' handler plpgsql_call_handler
-lancompiler 'pl/pgsql';}
+create language 'plpgsql' handler plpgsql_call_handler lancompiler 'pl/pgsql';}
 
-Bitte beachten Sie, dass der Pfad zur Datei @code{plpgsql.so} von
-Distribution zu Distribution verschiedlich sein kann. Bei
-Debian/Ubuntu befindet sie sich unter
-@code{/usr/lib/postgresql/lib/plpgsql.so}, bei Ubuntu 9.10 unter @code{/usr/lib/postgresql/8.4/lib/plpgsql.so}.
-
+Bitte beachten Sie, dass der Pfad zur Datei @code{plpgsql.so} von Distribution
+zu Distribution verschiedlich sein kann. Bei Debian/Ubuntu befindet sie sich
+unter @code{/usr/lib/postgresql/lib/plpgsql.so}.
 
 @c ---------------------------------------------------------------
 
@@ -289,6 +358,10 @@ bzw. den hier gewählten Benutzernamen.
 
 @node Apache-Konfiguration
 @chapter Apache-Konfiguration
+
+Hinweis: Für einen deutlichen Performanceschub sorgt die Ausführung
+mittels FCGI. Die Einrichtung wird ausführlich in der Datei
+@code{INSTALL.fcgi} beschrieben.
 
 Der Zugriff auf das Programmverzeichnis muss in der Apache
 Webserverkonfigurationsdatei @code{httpd.conf} eingestellt
@@ -607,7 +680,7 @@ ausgewählten Spalte hinzugefügt.
 @node Migration alter Installationen
 @section Migration alter Installationen
 
-Wenn Lx-Office 2.6.1 über eine ältere Version installiert wird, in der
+Wenn Lx-Office 2.6.2 über eine ältere Version installiert wird, in der
 die Benutzerdaten noch im Dateisystem im Verzeichnis @code{users}
 verwaltet wurden, so bietet Lx-Office die Möglichkeit, diese
 Benutzerdaten automatisch in die Authentifizierungsdatenbank zu
@@ -685,11 +758,10 @@ folgender Befehl auszuführen:
 
 @code{mv users/.openoffice.org2 users/.openoffice}
 
-Dieses Verzeichnis, wie auch das komplette @code{users}-Verzeichnis,
-muss vom Webserver beschreibbar sein. Dieses wurde in Schritt
-@code{Installation des Programmpakets} oben bereits erledigt, kann
-aber erneut überprüft werden, wenn die Konvertierung nach PDF
-fehlschlägt.
+Dieses Verzeichnis, wie auch das komplette @code{users}-Verzeichnis, muss vom
+Webserver beschreibbar sein. Dieses wurde bereits erledigt
+(@pxref{Manuelle Installation des Programmpaketes}), kann aber erneut überprüft
+werden, wenn die Konvertierung nach PDF fehlschlägt.
 
 @c ---------------------------------------------------------------
 

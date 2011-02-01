@@ -134,7 +134,7 @@ sub find_end {
 
     my $keyword_pos = $pos - 1 + $tag_start_len;
 
-    if ((substr($text, $keyword_pos, 2) eq 'if') || (substr($text, $keyword_pos, 3) eq 'foreach')) {
+    if ((substr($text, $keyword_pos, 2) eq 'if') || (substr($text, $keyword_pos, 7) eq 'foreach')) {
       $depth++;
 
     } elsif ((substr($text, $keyword_pos, 4) eq 'else') && (1 == $depth)) {

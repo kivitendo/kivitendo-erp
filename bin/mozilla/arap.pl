@@ -500,17 +500,6 @@ __END__
 
 =head1 NAME
 
-<<<<<<< HEAD:bin/mozilla/arap.pl
-bin/mozilla/arap.pl - helper routines for invoiceing frontend.
-
-=head1 SYNOPSIS
-
-nothing yet
-
-=head1 DESCRIPTION
-
-nothing yet
-=======
 arap.pl - helper functions or customer/vendor retrieval
 
 =head1 SYNOPSIS
@@ -523,13 +512,11 @@ arap.pl - helper functions or customer/vendor retrieval
 Don't use anyting in this file without extreme care, and even then be prepared for massive headaches.
 
 It's a collection of helper routines that wrap the customer/vendor dropdown/textfield duality into something even complexer.
->>>>>>> 88f5a78... check_name erweitert um ein no_select flag. siehe perldoc bin/mozilla/arap.pl:bin/mozilla/arap.pl
 
 =head1 FUNCTIONS
 
 =head2 check_name customer|vendor
 
-<<<<<<< HEAD:bin/mozilla/arap.pl
 check_name was originally meant to update the selected customer or vendor. The
 way it does that has generted more hate than almost any other part of this
 software.
@@ -538,69 +525,69 @@ What it does is:
 
 =over 4
 
-=item
+=item *
 
 It checks if a vendor or customer is given. No failsafe, vendor fallback if
 $_[0] is something fancy.
 
-=item
+=item *
 
 It assumes, that there is a field named customer or vendor in $form.
 
-=item
+=item *
 
 It assumes, that this field is filled with name--id, and tries to split that.
 sql ledger uses that combination to get ids into the select keys.
 
-=item
+=item *
 
 It looks for a field selectcustomer or selectvendor in $form. sql ledger used
 to store a copy of the html select in there. (again, don't ask)
 
-=item
+=item *
 
 If this field exists, it looks for a field called oldcustomer or oldvendor, in
 which the old name--id string was stored in sql ledger, and compares those.
 
-=item
+=item *
 
 if they don't match, it will set customer_id or vendor_id in $form, load the
 entry (which will clobber everything in $form named like a column in customer
 oder vendor) and return.
 
-=item
+=item *
 
 If there was no select* entry, it assumes that vclimit was lower than the
 number of entries, and that an input field was generated. In that case the
 splitting is omitted (since users don't generally include ids in entered names)
 
-=item
+=item *
 
 It looks for a *_id field, and combines it with the given input into a name--id
 entry and compares it to the old* entry. (Missing any of these will instantly
 break check_namea.
 
-=item
+=item *
 
 If those do not match, $form->get_name is called to get matching results.
 get_name only matches by *number and name, not by id, don't try to get it to do
 so.
 
-=item
+=item *
 
 The results are stored in $form>{name_list} but a count is returned, and
 checked.
 
-=item
+=item *
 
 If only one result was found, *_id, * and old* are copied into $form, the entry
 is loaded (like above, clobbering)
 
-=item
+=item *
 
 If there is more than one, a selection dialog is rendered
 
-=item
+=item *
 
 If none is found, an error is generated.
 
@@ -616,13 +603,12 @@ are necessary in all steps and branches.
 
 Since get_customer and get_vendor clobber a lot of fields, make sure what
 changes exactly.
-=======
-This function will take the contents of $form->{vendor} or $form->{customer}, try to guess if there was a selectbox or not, and search for matching customer/vendors.
 
-This mostly works great, except for the case when there is more than one match.
-In that case check_name will display a select form, that will redirect to the
-original C<nextsub>. Unfortunately any hidden vars or input fields will be lost
-in the process unless saved before in a callback.
+=head3 select- version works fine, but things go awry when I use a textbox, any idea?
+
+If there is more than one match, check_name will display a select form, that
+will redirect to the original C<nextsub>. Unfortunately any hidden vars or
+input fields will be lost in the process unless saved before in a callback.
 
 If you still want to use it, you can disable this feature, like this:
 
@@ -630,9 +616,6 @@ If you still want to use it, you can disable this feature, like this:
 
 In that case multiple matches will trigger an error.
 
-=head1 BUGS
-
-=head1 AUTHOR
->>>>>>> 88f5a78... check_name erweitert um ein no_select flag. siehe perldoc bin/mozilla/arap.pl:bin/mozilla/arap.pl
+Otherwise you'll have to care to include a complete state in callback.
 
 =cut

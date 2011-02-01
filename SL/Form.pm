@@ -1359,6 +1359,7 @@ sub parse_template {
       my $numbytes = (-s $self->{tmpfile});
       open(IN, $self->{tmpfile})
         or $self->error($self->cleanup . "$self->{tmpfile} : $!");
+      binmode IN;
 
       $self->{copies} = 1 unless $self->{media} eq 'printer';
 

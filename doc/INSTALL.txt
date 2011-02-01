@@ -4,7 +4,9 @@ Table of Contents
 Inhalt der Anleitung
 1 Aktuelle Hinweise
 2 Benötigte Software und Pakete
-3 Installation des Programmpaketes
+  2.1 Betriebssystem
+  2.2 Pakete
+3 Manuelle Installation des Programmpaketes
 4 Anpassung der PostgreSQL-Konfiguration
   4.1 Zeichensätze/die Verwendung von UTF-8
   4.2 Änderungen an Konfigurationsdateien
@@ -48,11 +50,72 @@ Aktuelle Installations- und Konfigurationshinweise gibt es:
 2 Benötigte Software und Pakete
 ********************************
 
+2.1 Betriebssystem
+==================
+
+Lx-Office ist für Linux konzipiert, und sollte auf jedem unixoiden
+Betriebssystem zum Laufen zu kriegen sein. Getestet ist diese Version im
+speziellen auf Debian und Ubuntu, grundsätzlich wurde bei der Auswahl
+der Pakete aber darauf Rücksicht genommen, dass es ohne große Probleme
+auf den derzeit aktuellen verbreiteten Distributionen läuft.
+
+   Anfang 2011 sind das folgende Systeme:
+
+   * Ubuntu 8.04 LTS Hardy Heron
+
+   * Ubuntu 9.10 Karmic Koala
+
+   * Ubuntu 10.04 Lucid Lynx
+
+   * Ubuntu 10.10 Maverick Meerkat
+
+   * Debian 5.0 Lenny
+
+   * Debian 6.0 Squeeze
+
+   * openSUSE 11.2
+
+   * openSUSE 11.3
+
+   * SuSE Linux Enterprice Server 11
+
+   * Fedora 13
+
+   * Fedora 14
+
+   Für die debianoiden Betriebssysteme existiert ein .deb, das deutlich
+einfacher zu installieren ist.
+
+   Ubuntu 8.04 LTS hat zusätzlich die Schwierigkeit, dass die Module im
+Archiv recht alt sind, und das viele der benötigten Module nicht
+einfach zu installieren sind. Dafür sollte es kurz nach dem Release ein
+eigenes .deb geben.
+
+   Alternativ dazu kann die normale Installation durchgeführt werden
+(*note Manuelle Installation des Programmpaketes::), wenn vorher ein
+Kompatibilitätspaket installiert wird, das die fehlenden Pakete
+bereitstellt.  Das Paket ist auf Sourceforge
+(https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.2/)
+unter dem Namen `lx-erp-perl-libs-compat-v2.tar.gz' hinterlegt.
+
+   Zur Installation das Paket in das entpackte Lx-Office Verzeichnis
+entpacken:
+
+   `tar xzf lx-erp-perl-libs-compat-v2.tar.gz /path/to/lx-office/'
+
+   Danach sollte der Installationscheck (*note Pakete::) die
+enthaltenen Pakete erkennen.
+
+2.2 Pakete
+==========
+
 Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist Apache)
-und ein Datenbankserver (PostgreSQL) benötigt.
+und ein Datenbankserver (PostgreSQL, mindestens v8.2) benötigt.
 
    Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die nicht
 Bestandteil einer Standard-Perl-Installation sind:
+
+   * parent
 
    * Archive::Zip
 
@@ -71,8 +134,6 @@ Bestandteil einer Standard-Perl-Installation sind:
    * List::MoreUtils
 
    * PDF::API2
-
-   * Readonly (benötigt) und Readonly::XS (optional)
 
    * Rose::Object
 
@@ -95,6 +156,10 @@ Bestandteil einer Standard-Perl-Installation sind:
    Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete hinzugekommen,
 `URI' und `XML::Writer' sind notwendig. Ohne startet Lx-Office nicht.
 
+   Gegenüber Version 2.6.1 sind `parent', `DateTime', `Rose::Object',
+`Rose::DB' und `Rose::DB::Object' neu hinzugekommen. `IO::Wrap' wurde
+entfernt.
+
    `Email::Address' und `List::MoreUtils' sind schon länger feste
 Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert.  Beide
 sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
@@ -110,40 +175,46 @@ Distributionen unterschiedlich heißen.
 
    Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-   `apache2 postgresql libarchive-zip-perl libclass-accessor-perl
-libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl
-libemail-address-perl libio-stringy-perl liblist-moreutils-perl
-libpdf-api2-perl libtemplate-perl libtext-csv-xs-perl
+   `apache2 postgresql libparent-perl libarchive-zip-perl
+libclass-accessor-perl libdatetime-perl libdbi-perl libdbd-pg-perl
+libpg-perl libemail-address-perl liblist-moreutils-perl
+libpdf-api2-perl librose-object-perl librose-db-perl
+librose-db-object-perl libtemplate-perl libtext-csv-xs-perl
 libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl'
 
    Für Fedora Core benötigen Sie diese Pakete:
 
-   `httpd postgresql-server perl-Class-Accessor perl-DateTime perl-DBI
-perl-DBD-Pg perl-Email-Address perl-IO-stringy perl-List-MoreUtils
-perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv
-perl-URI perl-XML-Writer perl-YAML'
+   `httpd postgresql-server perl-parent perl-Class-Accessor
+perl-DateTime perl-DBI perl-DBD-Pg perl-Email-Address
+perl-List-MoreUtils perl-PDF-API2 perl-Rose-Object perl-Rose-DB
+perl-Rose-DB-Object perl-Template-Toolkit perl-Text-CSV_XS
+perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML'
 
    Für OpenSuSE benötigen Sie diese Pakete:
 
    `apache2 postgresql-server perl-Archive-Zip perl-Class-Accessor
-perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-IO-stringy
-perl-List-MoreUtils perl-PDF-API2 perl-Template-Toolkit
-perl-Text-CSV_XS perl-Text-Iconv perl-URI perl-XML-Writer perl-YAML'
+perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-List-MoreUtils
+perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv
+perl-URI perl-XML-Writer perl-YAML'
+
+   Bei openSuSE 11 ist `parent' bereits enthalten, und braucht nicht
+nachinstalliert werden. Die `Rose::*' Pakete sind derzeit nicht für
+SuSE gepackt, und müssen anderweitig nachinstalliert werden.
 
    Lx-Office enthält ein Script, mit dem überprüft werden kann, ob alle
 benötigten Perl-Module installiert sind. Der Aufruf lautet wie folgt:
 
    `./scripts/installation_check.pl'
 
-3 Installation des Programmpaketes
-**********************************
+3 Manuelle Installation des Programmpaketes
+*******************************************
 
-Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.1.tgz) wird im
+Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.2.tgz) wird im
 Dokumentenverzeichnis des Webservers (z.B. `/var/www/html/',
 `/srv/www/htdocs' oder `/var/www/') entpackt:
 
    `cd /var/www
-tar xvzf lxoffice-erp-2.6.1.tgz'
+tar xvzf lxoffice-erp-2.6.2.tgz'
 
    Verändern Sie evtl. noch den Namen des Verzeichnisses mit
 
@@ -211,16 +282,11 @@ mit ISO-8859-15 als Encoding betrieben werden.
 In der Datei `postgresql.conf', die je nach Distribution in
 verschiedenen Verzeichnissen liegen kann (z.B. `/var/lib/pgsql/data/'
 oder `/etc/postgresql/', muss sichergestellt werden, dass
-TCP/IP-Verbindungen aktiviert sind. Für PostgreSQL vor Version v8.0
-lautete dieser Parameter
-
-   `TCPIP_SOCKET = 1'
-
-   Ab v8.0 wird das Verhalten hingegen über den neuen Parameter
-`listen_address' gesteuert. Laufen PostgreSQL und Lx-Office auf
-demselben Rechner, so kann dort der Wert `localhost' verwendet werden.
-Andernfalls müssen Datenbankverbindungen auch von anderen Rechnern aus
-zugelassen werden, was mit dem Wert \`*' geschieht.
+TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
+Parameter `listen_address' gesteuert. Laufen PostgreSQL und Lx-Office
+auf demselben Rechner, so kann dort der Wert `localhost' verwendet
+werden. Andernfalls müssen Datenbankverbindungen auch von anderen
+Rechnern aus zugelassen werden, was mit dem Wert \`*' geschieht.
 
    In der Datei `pg_hba.conf', die im gleichen Verzeichnis wie die
 `postgresql.conf' zu finden sein sollte, müssen die Berichtigungen für
@@ -246,6 +312,13 @@ servergespeicherte Prozeduren eingerichet werden. Melden Sie sich dafür
 als Benutzer "postgres" an der Datenbank an, und führen Sie die
 folgenden Kommandos aus:
 
+   `create language 'plpgsql';'
+
+   Achtung: In älteren Postgresversionen (vor 8.0) muss der Handler für
+die Sprache manuell anlelegt werden, diese Versionen werden aber nicht
+mehr offiziell von Lx-Office unterstützt. Dafür dann die folgenden
+Kommandos:
+
    `create function plpgsql_call_handler () returns opaque as
 '/usr/lib/pgsql/plpgsql.so' language 'c';
 create language 'plpgsql' handler plpgsql_call_handler lancompiler
@@ -253,8 +326,7 @@ create language 'plpgsql' handler plpgsql_call_handler lancompiler
 
    Bitte beachten Sie, dass der Pfad zur Datei `plpgsql.so' von
 Distribution zu Distribution verschiedlich sein kann. Bei Debian/Ubuntu
-befindet sie sich unter `/usr/lib/postgresql/lib/plpgsql.so', bei
-Ubuntu 9.10 unter `/usr/lib/postgresql/8.4/lib/plpgsql.so'.
+befindet sie sich unter `/usr/lib/postgresql/lib/plpgsql.so'.
 
 4.4 Datenbankbenutzer anlegen
 =============================
@@ -273,7 +345,11 @@ hier gewählten Benutzernamen.
 5 Apache-Konfiguration
 **********************
 
-Der Zugriff auf das Programmverzeichnis muss in der Apache
+Hinweis: Für einen deutlichen Performanceschub sorgt die Ausführung
+mittels FCGI. Die Einrichtung wird ausführlich in der Datei
+`INSTALL.fcgi' beschrieben.
+
+   Der Zugriff auf das Programmverzeichnis muss in der Apache
 Webserverkonfigurationsdatei `httpd.conf' eingestellt werden. Fügen Sie
 den folgenden Abschnitt dieser Datei oder einer anderen Datei hinzu,
 die beim Starten des Webservers eingelesen wird:
@@ -552,7 +628,7 @@ zugewiesen werden. Dazu gibt es zwei Möglichkeiten:
 7.6 Migration alter Installationen
 ==================================
 
-Wenn Lx-Office 2.6.1 über eine ältere Version installiert wird, in der
+Wenn Lx-Office 2.6.2 über eine ältere Version installiert wird, in der
 die Benutzerdaten noch im Dateisystem im Verzeichnis `users' verwaltet
 wurden, so bietet Lx-Office die Möglichkeit, diese Benutzerdaten
 automatisch in die Authentifizierungsdatenbank zu übernehmen. Dies
@@ -626,8 +702,8 @@ z.B. einfach nur `.openoffice', so wäre folgender Befehl auszuführen:
    `mv users/.openoffice.org2 users/.openoffice'
 
    Dieses Verzeichnis, wie auch das komplette `users'-Verzeichnis, muss
-vom Webserver beschreibbar sein. Dieses wurde in Schritt `Installation
-des Programmpakets' oben bereits erledigt, kann aber erneut überprüft
+vom Webserver beschreibbar sein. Dieses wurde bereits erledigt (*note
+Manuelle Installation des Programmpaketes::), kann aber erneut überprüft
 werden, wenn die Konvertierung nach PDF fehlschlägt.
 
 9 Lx-Office ERP verwenden
@@ -642,3 +718,8 @@ URL erreichbar:
 
    `http://localhost/lx-office-erp/admin.pl'
 
+
+
+Local Variables:
+coding: utf-8
+End:
