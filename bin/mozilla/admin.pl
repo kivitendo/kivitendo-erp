@@ -191,6 +191,7 @@ sub create_auth_tables {
     $main::auth->save_group($group);
   }
 
+  _apply_dbupgrade_scripts();
   login();
 }
 
