@@ -105,12 +105,10 @@ login = mb
 
 # autorun lines will be executed after autologin.
 # be warned that loading huge libraries will noticably lengthen startup time.
-autorun = require "bin/mozilla/common.pl";
-        = use English qw(-no_match_vars);
-        = use List::Util qw(min max);
-        = use Sort::Naturally;
-        = my ($a, $b, $e, $f, @a1, @a2, %h);
-        = sub take { my $max = shift; my $r = ref($_[0]) eq 'ARRAY' ? $_[0] : \@_; return @{$r}[0..List::Util::min($max, scalar(@{$r})) - 1]; }
+#autorun = require "bin/mozilla/common.pl";
+#        = use English qw(-no_match_vars);
+#        = use List::Util qw(min max);
+#        = sub take { my $max = shift; my $r = ref($_[0]) eq 'ARRAY' ? $_[0] : \@_; return @{$r}[0..List::Util::min($max, scalar(@{$r})) - 1]; }
 
 # location of history file for permanent history
 history_file = users/console_history
