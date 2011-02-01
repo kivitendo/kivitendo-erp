@@ -346,12 +346,10 @@ sub get_accounts {
     }
 
   } else {                      # if ($form->{method} eq 'cash')
-    # ich sehe keinen sinn das nochmal explizit ohne conv_i aufzurufen
-    # bitte prüfen und löschen jan 15.11.2009
-  #  if ($department_id) {
-  #    $dpt_join = qq| JOIN dpt_trans t ON (t.trans_id = ac.trans_id) |;
-  #    $dpt_where = qq| AND t.department_id = $department_id |;
-  #  }
+    if ($department_id) {
+      $dpt_join = qq| JOIN dpt_trans t ON (t.trans_id = ac.trans_id) |;
+      $dpt_where = qq| AND t.department_id = | . conv_i($department_id);
+    }
 
     $query = qq|
       SELECT c.accno, sum(ac.amount) AS amount, c.description, c.category
@@ -597,10 +595,10 @@ sub get_accounts_g {
     }
 
   } else {                      # if ($form->{method} eq 'cash')
-    # s.o. jan 15.11.2009
-#    if ($department_id) {
-#      ($dpt_join, $dpt_where) = sql_department($department_id);
-#    }
+    if ($department_id) {
+      $dpt_join = qq| JOIN dpt_trans t ON (t.trans_id = ac.trans_id) |;
+      $dpt_where = qq| AND (t.department_id = | . conv_i($department_id, 'NULL') . qq|) |;
+    }
 
     $query = qq|
         SELECT sum(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
