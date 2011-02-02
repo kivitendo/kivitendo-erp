@@ -47,11 +47,11 @@ sub parse {
 
   my $contents = join("", @lines);
   my @indices;
-  $contents =~ s{
+  $contents =~ s%
     $self->{tag_start} [<]* (\s?) [<>\s]* ([\w\s]+) [<>\s]* $self->{tag_end}
-  }{
+  %
     $self->format_vars(align_right => $1 ne '', varstring => $2, length => length($&), indices =>  \@indices)
-  }egx;
+  %egx;
 
   if (!defined($contents)) {
     $main::lxdebug->leave_sub();
@@ -75,10 +75,6 @@ sub format_vars {
   $varstring =~ s/(\w+)/ $self->_get_loop_variable($1, 0, @indices) /eg;
   my $old_string=$varstring;
   my $new_string = sprintf "%*s", ($align_right ? 1 : -1 ) * $length, $varstring;
-  if (!defined($new_string) || $new_string eq ''){
-    $main::lxdebug->message(0, 'varstring' . $varstring . "old" . $old_string);
-    #  return substr $varstring, ($align_right ? (0, $length) : -$length);
-  }
   return substr $new_string, ($align_right ? (0, $length) : -$length);
 }
 
