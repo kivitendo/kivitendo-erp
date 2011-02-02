@@ -1,0 +1,25 @@
+Package: lx-office-erp
+Version: 0
+Architecture: all
+Section: universe/web
+Priority: optional
+Installed-Size: 0
+Maintainer: Holger Lindemann <hli@lx-system.de>, Adrian Weibel <adrian_weibel@web.de>
+Depends: patch, apache2 | apache | lighttpd, postgresql-8.2 | postgresql-8.3 | postgresql-8.4, libdbi-perl, libdbd-pg-perl, libpg-perl, libarchive-zip-perl, libyaml-perl, libio-stringy-perl, libtemplate-perl, libpdf-api2-perl, libcgi-ajax-perl, liblist-moreutils-perl, libxml-writer-perl, libtext-csv-xs-perl | libtext-csv-perl, liburi-perl, libdatetime-perl, libtext-iconv-perl, libclass-accessor-perl,libemail-address-perl,libparent-perl, libbit-vector-perl, libsub-exporter-perl, libclone-perl, libclass-factory-util-perl
+Suggests: tetex-base | texlive-latex-base, tetex-bin | texlive-base-bin , tetex-extra | texlive-latex-extra, xpdf | evince | okular, libfcgi-perl, libapache2-mod-fastcgi
+Homepage: http://www.lx-office.org
+Description: Extended double entry accounting system for the german market.
+ Lx-Office is derived from sql-ledger and rewritten
+ and extended to meet german requirements in ERP software.
+ It is multi user capable and the administrator can grant and revoke
+ rights to access different modules. You can manage vendors and customers
+ as well as goods and attendences. Invoices and orders as well as other
+ documents can be sent direcly by email. German taxes are sent to Finanzamt
+ via Winston and taxbird (Elster) out of the program. The data stored in
+ datasets can
+ be accessed by a group of users and it is possible to sent it in DATEV
+ data format to a tax consultant. Most of the documents are printable in
+ html or pdf format.
+ Further information about Lx-Office is available at http://www.lx-office.org .
+ Revision:
+
