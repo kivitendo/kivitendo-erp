@@ -92,6 +92,7 @@
 
   Liste gefixter Bugs aus dem Bugtracker:
 
+  - Bugfix 1056: Workflow-Variable fuer Auftragsdatum ueberlebt Auftrag -> Lieferschein -> Rechnung nicht
   - Bugfix 1131: Einkaufslieferscheine: Mengen muessen beim Auslagern manuell in die maske eingetragen werden
   - Bugfix 1154: Debitoren und Kreditoren werden nicht korrekt gebucht
   - Bugfix 1185: Preis überschreiben bei Preisgruppe
@@ -120,6 +121,7 @@
   - Bugfix 1410: Beschriftung bei Eingabe der Einkaufsrechnung falsch
   - Bugfix 1412: Wenn die Ware ausgewählt werden muss wird der Rabatt verworfen
   - Bugfix 1414: Einfügen der \usepackage{textcomp}-Zeile in TeX-Templates ungünstig
+  - Bugfix 1421: Loeschen von Stornos bereitet eine Reihe von Problemen: (2)Stornorechnungen loeschen bereitet Probleme
   - Bugfix 1422: Loeschen von Stornos bereitet eine Reihe von Problemen: (3)Gutschriften aus Rechnungen, die einstmals storniert wurden
   - Bugfix 1429: Debitorenbuchungen 1: Wechsel des Debitoren loescht Bemerkungsfeld nicht
   - Bugfix 1432: Mahnläufe: Nach manuellem Zurücksetzen der Mahnstufen gibt es ein Chaos bei der weiteren Erzeugung
@@ -188,6 +190,9 @@
   - Bugfix 1576: Änderung der Datenbank bei einem Benutzer führt zu Fehler
   - Bugfix 1577: oberer Zurück-Knopf in 'Gruppe bearbeiten' im Admin-Interface bewirkt nichts
   - Bugfix 1580: /doc/INSTALL/*.html in UTF-8 kein Coding im HTML Header
+  - Bugfix 1581: Preisanfragen / Lieferantenaufträge Drucken wirft Fehler
+  - Bugfix 1582: Bilanz mit Auswahl ""Abteilung"" und Typ ""Bilanzierung"" fehlerhaft
+  - Bugfix 1583: Anlegen eines Artikels aus einer Rechnung heraus ändert die Umlaute im Formular
 
 2010-03-24 - Release 2.6.1
 
