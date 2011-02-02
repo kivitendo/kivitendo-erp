@@ -208,7 +208,7 @@ sub display_project_form {
   $form->{title}     = $form->{project}->{id} ? $locale->text("Edit Project") : $locale->text("Add Project");
 
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'Projects', 'trans_id' => $form->{project}->{id});
-  $main::lxdebug->dump(0, "cv", $form->{CUSTOM_VARIABLES});
+#  $main::lxdebug->dump(0, "cv", $form->{CUSTOM_VARIABLES});
   CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });
 
   $form->header();
