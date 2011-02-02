@@ -108,7 +108,7 @@ sub list_cvar_configs {
   print $form->parse_html_template('amcvar/list_cvar_configs', { CONFIGS => \@configs,
                                                                  MODULES => \@modules });
 
-  $main::lxdebug->dump(0, "modules", \@modules);
+#  $main::lxdebug->dump(0, "modules", \@modules);
 
   $main::lxdebug->leave_sub();
 }
