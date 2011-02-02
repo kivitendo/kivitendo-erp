@@ -1,0 +1,4 @@
+-- @tag: release_2_6_2
+-- @description: Leeres Script, das von allen bis zum Release 2.6.2 hinzugefügten Upgradescripten abhängt, um ein fest definiertes Schema für 2.6.2 zu definieren.
+-- @depends: add_ar_paid_defaults add_makemodel_prices customer_long_entries drop_yearend invalid_entries_in_custom_variables_validity schema_normalization_3 sepa_in shipto_add_cp_gender skr03_04_bwa_zuordnung_konten_4250_4610 skr04_fix_category_3151_3160_3170 ustva_2010
+-- @charset: utf-8
