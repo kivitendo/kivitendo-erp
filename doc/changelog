@@ -9,7 +9,13 @@
   - FastCGI Schnittstelle.
 
     Das Program läuft jetzt optional unter FastCGI, und damit etwa um
-    Faktor 10 schneller. Siehe Dokumentation in doc INSTALL.fcgi.
+    Faktor 10 schneller. Siehe Dokumentation in doc/INSTALL.fcgi.
+
+  - SEPA Einzug
+
+    Zusätzlich zum schon existierenden SEPA Export für ausgehende
+    Überweisungen, ist es jetzt auch möglich Bankeinzug über SEPA zu
+    exportieren.
 
   - Neues Gruppenrecht "Druck"
 
@@ -21,36 +27,68 @@
     Für bereits bestehende Gruppen muss es sofern gewünscht vom
     Administrator manuell gewährt werden.
 
+  Sicherheit:
+
+  - Drucker konnten verwendet werden um beliebigen Code mit den Rechten des
+    Webservers auszuführen. Das Anlegen von neuen Druckerkommandos ist daher
+    jetzt dem Administrator vorbehalten.
+
   Kleinere neue Features und Detailverbesserungen:
 
-  - Druckvorlage optional auf Excel erweitert, um Variablen die sich nicht in foreach-Schleifen
-    befinden anzuzeigen (s.a.: doc/excel_templates.txt).
+  - Druckvorlage optional auf Excel erweitert, um Variablen die sich nicht in
+    foreach-Schleifen befinden anzuzeigen (s.a.: doc/excel_templates.txt).
   - FiBu -> Bericht um Suchfeld Kontonummer erweitert
-  - Ansprechpartner für abweichende Lieferadresse, um das Attribut Geschlecht erweitert
-  - FiBu -> Bericht -> Offene Forderung | Offene Verbindlichkeiten um Altersstrukturliste (30, 60, 90, 120) erweitert
+  - Ansprechpartner für abweichende Lieferadresse, um das Attribut Geschlecht
+    erweitert
+  - FiBu -> Bericht -> Offene Forderung | Offene Verbindlichkeiten um
+    Altersstrukturliste (30, 60, 90, 120) erweitert
   - SEPA Hinzufügen von Überweisungen um das Infofeld Fälligkeitsdatum erweitert
   - Verkaufsbericht mit Statistiken zu Margen
-  - Wenn ein Auftrag komplett geliefert ist, den Workflow-Knopf 'Lieferschein' ausblenden
+  - Wenn ein Auftrag komplett geliefert ist, den Workflow-Knopf 'Lieferschein'
+    ausblenden
   - Zahlungsein- und ausgänge um Suche nach Rechnungsnummer erweitert
   - Anzeige von Bildern in Artikelmaske und Wahlmöglichkeit Defaultwert für
     Bilder in Artikelsuche via Configparameter in config/lx-erp.conf
-  - Kundentyp in Rechnungssuche auch als Wert in Rechnungsübersicht anzeigen und exportieren
+  - Kundentyp in Rechnungssuche auch als Wert in Rechnungsübersicht anzeigen
+    und exportieren
+  - CSV Importe sind nun per Cronjob möglich
+  - Es gibt nun eine alternative Lokalisierung de_DE, die auf Effizienz und
+    Benutzerfreundlichkeit entworfen wurde.
+  - Viele Masken haben jetzt zusätzliche "Zurück" Verlinkungen, um die
+    Navigation zu erleichtern.
+  - Es werden jetzt auch monatliche Zeiträume nach Taxbird exportiert.
+  - Der Kontorahmen SKR04 wurde aktualisiert.
+  - Dienstleistungen können jetzt eingelagert werden.
+  - Der Artikelupload unterstützt jetzt auch gezippte Uploads.
 
   API Änderungen:
 
-  - Template System Zentralisierung.
-
-    Alle lokalisierten Templates wurden entfernt.
-    Alle <translate> Konstrukte wurden auf das Hilfsmodul T8 umgeschrieben.
-
+  - Alle lokalisierten Templates wurden entfernt.
+    <translate> Konstrukte werden ab jetzt mit dem Hilfsmodul T8 realisiert.
     Bitte vor dem Upgrade das Dokument doc/2010_template_changes.txt lesen.
-
-  - Locales System zentralisiert.
-
-    locales.pl liegt jetzt unter scripts/ und bedient alle Sprachpakete. Die
-    Übersetzung von templates und sprachdateien in separate Versionen ist nicht
+  - locales.pl liegt jetzt unter scripts/ und bedient alle Sprachpakete. Die
+    Übersetzung von templates und Sprachdateien in separate Versionen ist nicht
     mehr notwendig. Genauere Informationen zu den neuen locales gibt es im
     Dokument doc/language_howto.txt
+  - Nahezu alle Objekte im Programm haben jetzt eine äquivalente
+    Rose::DB::Object Klasse, und diese sollten bevorzugt benutzt werden. Siehe
+    perldoc Rose::DB::Object
+  - Sämtliche Quelldateien sind jetzt in UTF-8 codiert, statt wie bisher
+    ISO-8859-15.
+  - Upgrade auf jQuery 1.4.4
+  - Datenbankupgradescripte können nun auch für die Auth-Datenbank geschrieben
+    werden. Sie werden wie üblich beim Login eingelesen.
+
+  Experimentelle Features:
+
+  - Für neue Plugins gibt es jetzt eine Controllerbasisklasse
+    SL::Controler::Base. Davon abgeleitete Klassen verhalten sich ähnlich wie
+    Rails Controller. Siehe perldoc SL::Controller::Base.
+  - Für HTML Templates gibt es jetzt ein Hilfsmodul SL::Template::Plugins::L,
+    und es wird empfohlen das für Templatearbeiten zu verwenden.
+  - Die Helferklasse SL::Helper::Flash implementiert einen flüchtigen Speicher
+    für Nachrichten im gleichen Request, inspiriert vom Flash in Rails.
+
 
   Liste gefixter Bugs aus dem Bugtracker:
 
