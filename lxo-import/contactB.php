@@ -127,6 +127,7 @@ $first=true;
 foreach ($zeile as $fld) {
 	$fld = strtolower(trim(strtr($fld,array("\""=>"","'"=>""))));
 	$in_fld[]=$fld;
+    if (substr($fld,0,2) == "x_") $kunde_fld[] = $fld;
 }
 $j=0;
 $zeile=fgetcsv($f,2000,$trenner);
@@ -138,6 +139,8 @@ while (!feof($f)){
 	$sql="insert into contacts ";
 	$keys="(";
 	$vals=" values (";
+    unset($extra);
+    $extra = array();
 	foreach($zeile as $data) {
 		$i++;
 		if (!in_array($in_fld[$i],$kunde_fld)) {
@@ -163,6 +166,12 @@ while (!feof($f)){
 		} else  if($in_fld[$i]=="cp_cv_id") {
 			continue;
 		}
+        if (substr($in_fld[$i],0,2)=="x_" && $data) {
+            $extra[substr($in_fld[$i],2)] = $data;
+            continue;
+        } else if ((substr($in_fld[$i],0,2)=="x_")) {
+            continue;
+        };
 		if ($in_fld[$i]==$file."number" && $data) {
 			if (!$id) {
 				$tmp=getFirma($data,$file);
@@ -223,10 +232,20 @@ while (!feof($f)){
 			echo "<tr><td>".str_replace("null,","null</td><td>",$vals)."</td></tr>\n";
 			flush();
 		} else {
-			$sql.=substr($keys,0,-1).")";
-			$sql.=substr($vals,0,-1).")";
+            $newID=uniqid (rand());
+            $now = date('Y-m-d H:i').":1.$j";
+            $sql.= $keys."mtime)";
+            $sql.= $vals."'$now')";
 			$rc=$db->query($sql);
 			if (!$rc) echo "Fehler: ".$sql."\n";
+            $rs = $db->getAll("select cp_id,cp_name from contacts where mtime = '$now'");
+            $cp_id = $rs[0]["cp_id"];
+            echo "(".$rs[0]["cp_name"].":$cp_id)".count($extra).";";
+            if (count($extra)>0 and $cp_id) {
+                foreach ($extra as $fld=>$val) {
+                    $rc = insertExtra("P",$cp_id,$fld,$val);
+                }
+            }
 		}
 		$j++;
 	};
@@ -237,7 +256,7 @@ echo $j." $file importiert.\n";} else {
 ?>
 <p class="listtop">Kontakt-Adressimport f&uuml;r die ERP</p>
 <form name="import" method="post" enctype="multipart/form-data" action="contactB.php">
-<input type="hidden" name="MAX_FILE_SIZE" value="300000">
+<input type="hidden" name="MAX_FILE_SIZE" value="3000000">
 <table>
 <tr><td></td><td><input type="submit" name="ok" value="Hilfe"></td></tr>
 <tr><td>Zieltabelle</td><td><input type="radio" name="ziel" value="customer" checked>customer <input type="radio" name="ziel" value="vendor">vendor</td></tr>

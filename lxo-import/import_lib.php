@@ -224,7 +224,23 @@ function getKdRefId($data) {
     $rs=$db->getAll($sql);
     return $rs[0]["id"];
 }
-
+/**
+ * TODO: short description.
+ * 
+ * @param mixed  $tab 
+ * @param object $own 
+ * @param mixed  $fld 
+ * @param mixed  $val 
+ * 
+ * @return TODO
+ */
+function insertExtra($tab,$own,$fld,$val)  {
+    global $db;
+    $sql = "insert into extra_felder (fkey,fval,tab,owner) ";
+    $sql.= "values ('$fld','$val','$tab','$own')";
+    $rc = $db->query($sql);
+    return $rc;
+}
 function suchFirma($tab,$data) {
 // gibt die Firma ?
     global $db;
