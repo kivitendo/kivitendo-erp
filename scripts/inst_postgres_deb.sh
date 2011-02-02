@@ -20,7 +20,7 @@ if [ "$POSTGRESQL#" == "#" ]; then
     echo Datenbank bitte manuell einrichten.
     exit 0
 else
-   PLPGSQL=`dpkg -L postgresql-8.3 | grep plpgsql.so`
+   PLPGSQL=`dpkg -L $POSTGRESQL | grep plpgsql.so `
 fi
 
 if [ "$PLPGSQL#" == "#" ]; then

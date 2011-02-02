@@ -27,7 +27,7 @@ if [ "$POSTGRESQL#" == "#" ]; then
     writeln 3 1 Datenbank bitte manuell einrichten.
     exit 0
 else
-   PLPGSQL=`dpkg -L postgresql-8.3 | grep plpgsql.so`
+   PLPGSQL=`dpkg -L $POSTGRESQL | grep plpgsql.so`
 fi
 
 #Mit Paketmanager (RPM) suchen ?
