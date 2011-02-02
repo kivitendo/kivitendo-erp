@@ -12,6 +12,7 @@ BEGIN {
 
 
 use strict;
+use warnings;
 
 use utf8;
 use English '-no_match_vars';
@@ -41,7 +42,7 @@ my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
 my ($opt_user, $opt_apply, $opt_applied, $opt_format, $opt_test_utf8);
 my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword);
 
-our (%myconfig, $form, $user, $auth, $locale, $controls);
+our (%myconfig, $form, $user, $auth, $locale, $controls, $dbupgrader);
 
 sub show_help {
   my $help_text = <<"END_HELP"
@@ -108,7 +109,7 @@ sub calc_rev_depends {
 }
 
 sub dump_list {
-  my @sorted_controls = sort_dbupdate_controls($controls);
+  my @sorted_controls = $dbupgrader->sort_dbupdate_controls;
 
   print "LIST VIEW\n\n" .
     "number tag depth priority\n";
@@ -137,7 +138,7 @@ sub dump_tree {
 
   calc_rev_depends();
 
-  my @sorted_controls = sort_dbupdate_controls($controls);
+  my @sorted_controls = $dbupgrader->sort_dbupdate_controls;
 
   foreach my $control (@sorted_controls) {
     dump_node($control->{tag}, "") unless (@{ $control->{rev_depends} });
@@ -161,7 +162,7 @@ sub dump_tree_reverse {
 
   calc_rev_depends();
 
-  my @sorted_controls = sort_dbupdate_controls($controls);
+  my @sorted_controls = $dbupgrader->sort_dbupdate_controls;
 
   foreach my $control (@sorted_controls) {
     last if ($control->{depth} > 1);
@@ -194,7 +195,8 @@ sub dump_graphviz {
   foreach my $c (values %{ $controls }) {
     $ranks{$c->{depth}} ||= [];
 
-    my ($pre, $post) = ('node [fillcolor=lightgray] ', 'node [fillcolor=white] ') if (!scalar @{ $c->{rev_depends} });
+    my ($pre, $post) = @{ $c->{rev_depends} } ? ('')x2 :
+      (map "node [fillcolor=$_] ", qw(lightgray white));
 
     push @{ $ranks{$c->{"depth"}} }, qq|${pre}"$c->{tag}"; ${post}|;
   }
@@ -204,10 +206,10 @@ sub dump_graphviz {
   }
 
   foreach my $c (values %{ $controls }) {
-    print OUT "$c->{tag};\n";
+    print OUT qq|"$c->{tag}";\n|;
 
     foreach my $d (@{ $c->{depends} }) {
-      print OUT "$c->{tag} -> $d;\n";
+      print OUT qq|"$c->{tag}" -> "$d";\n|;
     }
   }
 
@@ -272,9 +274,9 @@ sub apply_upgrade {
     print "Applying upgrade $control->{file}\n";
 
     if ($file_type eq "sql") {
-      $user->process_query($form, $dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control);
+      $dbupgrader->process_query($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control);
     } else {
-      $user->process_perl_script($form, $dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control);
+      $dbupgrader->process_perl_script($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control);
     }
   }
 
@@ -359,8 +361,8 @@ sub build_upgrade_order {
 eval { require "config/lx-erp.conf"; };
 eval { require "config/lx-erp-local.conf"; } if (-f "config/lx-erp-local.conf");
 
+$locale = Locale->new($::language);
 $form = Form->new();
-$locale = Locale->new("de");
 
 #######
 #######
@@ -386,7 +388,8 @@ GetOptions("list"         => \$opt_list,
 
 show_help() if ($opt_help);
 
-$controls = parse_dbupdate_controls($form, "Pg");
+$dbupgrader = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg');
+$controls   = $dbupgrader->parse_dbupdate_controls->{all_controls};
 
 dump_list()                                 if ($opt_list);
 dump_tree()                                 if ($opt_tree);
