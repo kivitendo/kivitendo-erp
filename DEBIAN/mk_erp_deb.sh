@@ -25,6 +25,13 @@ cd $DEST
 cp -a $SRC/DEBIAN/DEBIAN .
 tar xzf $SRC/DEBIAN/struktur.tgz
 
+#Für Hardy + co Sonderbehandlung
+if [ "$1#" == "old#" ]; then
+    mv DEBIAN/control.older DEBIAN/control
+else
+    rm DEBIAN/control.older
+fi
+
 #Dateien kopieren:
 #aber keine fertigen Konfigurationen, nur *.default
 cp -a $SRC/SL usr/lib/lx-office-erp
@@ -50,6 +57,11 @@ cp -a $SRC/xslt var/lib/lx-office-erp
 
 cp -a $SRC/doc/* usr/share/doc/lx-office-erp/
 cp -a $SRC/image/* usr/share/lx-office-erp/
+
+#Ist nicht im Repository. Bei Sven oder Holger erfragen.
+if [ "$1#" == "old#" ]; then
+    tar xzf $SRC/DEBIAN/missing_lib.tar.gz
+fi
 
 #Git- und dummy-files löschen
 find . -name ".git*" -exec rm -rf {} \;
