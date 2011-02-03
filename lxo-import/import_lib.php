@@ -253,7 +253,7 @@ function suchFirma($tab,$data) {
     if (!$rs) {
         $org=$data;
         while(strpos($data,"  ")>0) {
-            $data=ereg_replace("  "," ",$data);
+            $data=str_replace("  "," ",$data);
         }
          $data=preg_replace("/[^A-Z0-9]/ ",".*",trim($data));
         $sql="select * from $tab where upper(name) ~ '$data'"; 
@@ -275,13 +275,13 @@ function getFirma($nummer,$tabelle) {
     $sql="select id from $tabelle where upper(".$tabelle."number) = '$nummer'";
     $rs=$db->getAll($sql);
     if (!$rs) {
-        $nr=ereg_replace(" ","%",$nummer);
+        $nr=str_replace(" ","%",$nummer);
         $sql="select id,".$tabelle."number from $tabelle where upper(".$tabelle."number) like '$nr'";
         $rs=$db->getAll($sql);
         if ($rs) {
-            $nr=ereg_replace(" ","",$nummer);
+            $nr=str_replace(" ","",$nummer);
             foreach ($rs as $row) {
-                $tmp=ereg_replace(" ","",$row[$tabelle."number"]);
+                $tmp=str_replace(" ","",$row[$tabelle."number"]);
                 if ($tmp==$nr) return $row["id"];
             }
         } else { 
