@@ -1616,7 +1616,7 @@ sub get_standard_dbh {
     undef $standard_dbh;
   }
 
-  $standard_dbh ||= SL::DB::create->dbh;
+  $standard_dbh ||= $self->dbconnect_noauto($myconfig);
 
   $main::lxdebug->leave_sub(2);
 
