@@ -176,6 +176,11 @@ mk_links() {
             ln -s /etc/lx-office-erp/lx-office-erp.cherokee /etc/cherokee/sites-available/lx-office-erp.cherokee
         fi;
     fi;
+    if [ -e /etc/lighttpd ] ; then 
+        if ! [ -f /etc/lighttpd/conf-enabled/lx-office-erp.lighttpd ] ; then
+            ln -s /etc/lx-office-erp/lx-office-erp.lighttpd /etc/lighttpf/conf-enabled/10-lx-office-erp
+        fi;
+    fi;
 }
 reload_web_server() {
     if [ -f /etc/init.d/apache* ] ; then 
@@ -183,6 +188,9 @@ reload_web_server() {
     fi
     if [ -f /etc/init.d/cherokee ] ; then 
             /etc/init.d/cherokee reload
+    fi
+    if [ -f /etc/init.d/lighttpd ] ; then 
+            /etc/init.d/lighttpd reload
     fi
 }
 case "$1" in
