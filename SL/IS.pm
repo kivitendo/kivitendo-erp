@@ -963,10 +963,7 @@ sub post_invoice {
     $query = qq|UPDATE ar SET paid = ? WHERE id = ?|;
     do_query($form, $dbh, $query,  $form->{paid}, conv_i($form->{id}));
 
-    if (!$provided_dbh) {
-      $dbh->commit();
-      $dbh->disconnect();
-    }
+    $dbh->commit if !$provided_dbh;
 
     $main::lxdebug->leave_sub();
     return;
@@ -1048,7 +1045,7 @@ sub post_invoice {
   # save printed, emailed and queued
   $form->save_status($dbh);
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   # Link this record to the records it was created from.
   RecordLinks->create_links('dbh'        => $dbh,
@@ -1081,10 +1078,7 @@ sub post_invoice {
                                'table'   => 'ar',);
 
   my $rc = 1;
-  if (!$provided_dbh) {
-    $dbh->commit();
-    $dbh->disconnect();
-  }
+  $dbh->commit if !$provided_dbh;
 
   $main::lxdebug->leave_sub();
 
@@ -1283,7 +1277,7 @@ sub cogs {
     # sellprice is the cost of the item
     my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / ( ($ref->{price_factor} || 1) * ( $basefactor || 1 )), 2);
 
-    if (!$main::eur) {
+    if (!$::lx_office_conf{system}->{eur}) {
       $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};
       # add to expense
       $form->{amount_cogs}{ $form->{id} }{ $ref->{expense_accno} } += -$linetotal;
@@ -1368,7 +1362,7 @@ sub reverse_invoice {
 sub delete_invoice {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $spool) = @_;
+  my ($self, $myconfig, $form) = @_;
 
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
@@ -1379,7 +1373,7 @@ sub delete_invoice {
 
   # Falls wir ein Storno haben, müssen zwei Felder in der stornierten Rechnung wieder
   # zurückgesetzt werden. Vgl:
-  #  id | storno | storno_id |  paid   |  amount   
+  #  id | storno | storno_id |  paid   |  amount
   #----+--------+-----------+---------+-----------
   # 18 | f      |           | 0.00000 | 119.00000
   # ZU:
@@ -1404,6 +1398,7 @@ sub delete_invoice {
   $dbh->disconnect;
 
   if ($rc) {
+    my $spool = $::lx_office_conf{paths}->{spool};
     map { unlink "$spool/$_" if -f "$spool/$_"; } @spoolfiles;
   }
 
@@ -1589,7 +1584,7 @@ sub retrieve_invoice {
     }
     $sth->finish;
 
-    Common::webdav_folder($form) if ($main::webdav);
+    Common::webdav_folder($form);
   }
 
   my $rc = $dbh->commit;
@@ -2086,13 +2081,13 @@ sub get_pricegroups_for_parts {
         # to distinguish case A and B the variable pricegroup_id_$i is used
         # for new articles this variable isn't defined, for loaded articles it is
         # sellprice can't be used, as it already has 0,00 set
-        
+
         if ($pkr->{pricegroup_id} eq $form->{"pricegroup_id_$i"} and defined $form->{"pricegroup_id_$i"}) {
           # Case A
           $pkr->{selected}  = ' selected';
 
-        } elsif ($pkr->{pricegroup_id} eq $form->{customer_klass} 
-                 and not defined $form->{"pricegroup_id_$i"} 
+        } elsif ($pkr->{pricegroup_id} eq $form->{customer_klass}
+                 and not defined $form->{"pricegroup_id_$i"}
                  and $pkr->{price} != 0    # only use customer pricegroup price if it has a value, else use default_sellprice
                                            # for the case where pricegroup prices haven't been set
                 ) {

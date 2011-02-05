@@ -489,7 +489,7 @@ sub select_item {
     qw(bin listprice inventory_accno income_accno expense_accno unit weight
        assembly taxaccounts partsgroup formel longdescription not_discountable
        part_payment_id partnotes id lastcost price_factor_id price_factor);
-  push @new_fields, "lizenzen" if ($main::lizenzen);
+  push @new_fields, "lizenzen" if $::lx_office_conf{system}->{lizenzen};
   push @new_fields, grep { m/^ic_cvar_/ } keys %{ $form->{item_list}->[0] };
 
   my $i = 0;
@@ -497,7 +497,7 @@ sub select_item {
   foreach my $ref (@{ $form->{item_list} }) {
     my $checked = ($i++) ? "" : "checked";
 
-    if ($main::lizenzen) {
+    if ($::lx_office_conf{system}->{lizenzen}) {
       if ($ref->{inventory_accno} > 0) {
         $ref->{"lizenzen"} = qq|<option></option>|;
         foreach my $item (@{ $form->{LIZENZEN}{ $ref->{"id"} } }) {
@@ -622,7 +622,7 @@ sub item_selected {
     $form->{payment_id} = $form->{"part_payment_id_$i"};
   }
 
-  if ($main::lizenzen) {
+  if ($::lx_office_conf{system}->{lizenzen}) {
     map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} } qw(lizenzen);
   }
 
@@ -937,7 +937,7 @@ sub order {
   my $script = $form->{"script"};
   $script =~ s|.*/||;
   $script =~ s|.pl$||;
-  $locale = new Locale($main::language, $script);
+  $locale = new Locale($::lx_office_conf{system}->{language}, $script);
 
   map { $form->{"select$_"} = "" } ($form->{vc}, "currency");
 
@@ -1166,26 +1166,26 @@ sub print_options {
 
   push @MEDIA, grep $_,
       opthash("screen",              $form->{OP}{screen},              $locale->text('Screen')),
-    ($form->{printers} && scalar @{ $form->{printers} } && $main::latex_templates) ?
+    ($form->{printers} && scalar @{ $form->{printers} } && $::lx_office_conf{print_templates}->{latex}) ?
       opthash("printer",             $form->{OP}{printer},             $locale->text('Printer')) : undef,
-    ($main::latex_templates && !$options{no_queue}) ?
+    ($::lx_office_conf{print_templates}->{latex} && !$options{no_queue}) ?
       opthash("queue",               $form->{OP}{queue},               $locale->text('Queue')) : undef
         if ($form->{media} ne 'email');
 
   push @FORMAT, grep $_,
-    ($main::opendocument_templates &&     $main::openofficeorg_writer_bin  &&     $main::xvfb_bin
-                                   && (-x $main::openofficeorg_writer_bin) && (-x $main::xvfb_bin)
+    ($::lx_office_conf{print_templates}->{opendocument} &&     $::lx_office_conf{applications}->{openofficeorg_writer}  &&     $::lx_office_conf{applications}->{xvfb}
+                                                        && (-x $::lx_office_conf{applications}->{openofficeorg_writer}) && (-x $::lx_office_conf{applications}->{xvfb})
      && !$options{no_opendocument_pdf}) ?
       opthash("opendocument_pdf",    $form->{DF}{"opendocument_pdf"},  $locale->text("PDF (OpenDocument/OASIS)")) : undef,
-    ($main::latex_templates) ?
+    ($::lx_office_conf{print_templates}->{latex}) ?
       opthash("pdf",                 $form->{DF}{pdf},                 $locale->text('PDF')) : undef,
-    ($main::latex_templates && !$options{no_postscript}) ?
+    ($::lx_office_conf{print_templates}->{latex} && !$options{no_postscript}) ?
       opthash("postscript",          $form->{DF}{postscript},          $locale->text('Postscript')) : undef,
     (!$options{no_html}) ?
       opthash("html", $form->{DF}{html}, "HTML") : undef,
-    ($main::opendocument_templates && !$options{no_opendocument}) ?
+    ($::lx_office_conf{print_templates}->{opendocument} && !$options{no_opendocument}) ?
       opthash("opendocument",        $form->{DF}{opendocument},        $locale->text("OpenDocument/OASIS")) : undef,
-    ($main::excel_templates && !$options{no_excel}) ?
+    ($::lx_office_conf{print_templates}->{excel} && !$options{no_excel}) ?
       opthash("excel",               $form->{DF}{excel},               $locale->text("Excel")) : undef;
 
   push @LANGUAGE_ID,
@@ -1213,7 +1213,7 @@ sub print_options {
     );
 
   my %template_vars = (
-    display_copies       => scalar @{ $form->{printers} || [] } && $main::latex_templates && $form->{media} ne 'email',
+    display_copies       => scalar @{ $form->{printers} || [] } && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email',
     display_remove_draft => (!$form->{id} && $form->{draft_id}),
     display_groupitems   => !$dont_display_groupitems{$form->{type}},
     groupitems_checked   => $form->{groupitems} ? "checked" : '',
@@ -1611,7 +1611,7 @@ sub print_form {
     my $filename;
     if ($filename = $queued{ $form->{formname} }) {
       $form->{queued} =~ s/\Q$form->{formname} $filename\E//;
-      unlink "$main::spool/$filename";
+      unlink $::lx_office_conf{paths}->{spool} . "/$filename";
       $filename =~ s/\..*$//g;
     } else {
       $filename = time;
@@ -1619,7 +1619,7 @@ sub print_form {
     }
 
     $filename .= ($form->{postscript}) ? '.ps' : '.pdf';
-    $form->{OUT} = ">$main::spool/$filename";
+    $form->{OUT} = ">" . $::lx_office_conf{paths}->{spool} . "/$filename";
 
     # add type
     $form->{queued} .= " $form->{formname} $filename";
@@ -1647,7 +1647,7 @@ sub print_form {
   }
   # /saving the history
 
-  $form->parse_template(\%myconfig, $main::userspath);
+  $form->parse_template(\%myconfig);
 
   $form->{callback} = "";
 

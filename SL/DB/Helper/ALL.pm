@@ -2,10 +2,11 @@ package SL::DB::Helper::ALL;
 
 use strict;
 
-use SL::DB::AccTrans;
 use SL::DB::AccTransaction;
 use SL::DB::Assembly;
 use SL::DB::AuditTrail;
+use SL::DB::BackgroundJob;
+use SL::DB::BackgroundJobHistory;
 use SL::DB::BankAccount;
 use SL::DB::Bin;
 use SL::DB::Buchungsgruppe;
@@ -51,6 +52,8 @@ use SL::DB::Part;
 use SL::DB::PartsGroup;
 use SL::DB::PartsTax;
 use SL::DB::PaymentTerm;
+use SL::DB::PeriodicInvoice;
+use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::PriceFactor;
 use SL::DB::Pricegroup;
 use SL::DB::Prices;

@@ -22,7 +22,7 @@ sub new {
   my $self = $type->SUPER::new(@_);
 
   $self->{"rnd"}   = int(rand(1000000));
-  $self->{"iconv"} = SL::Iconv->new($main::dbcharset, "UTF-8");
+  $self->{"iconv"} = SL::Iconv->new($::lx_office_conf{system}->{dbcharset}, "UTF-8");
 
   $self->set_tag_style('&lt;%', '%&gt;');
   $self->{quot_re} = '&quot;';
@@ -382,7 +382,7 @@ sub spawn_xvfb {
   my $pid = fork();
   if (0 == $pid) {
     $main::lxdebug->message(LXDebug->DEBUG2(), "  Child execing\n");
-    exec($main::xvfb_bin, $display, "-screen", "0", "640x480x8", "-nolisten", "tcp");
+    exec($::lx_office_conf{applications}->{xvfb}, $display, "-screen", "0", "640x480x8", "-nolisten", "tcp");
   }
   sleep(3);
   $main::lxdebug->message(LXDebug->DEBUG2(), "  parent dont sleeping\n");
@@ -419,7 +419,8 @@ sub spawn_xvfb {
 sub is_openoffice_running {
   $main::lxdebug->enter_sub();
 
-  my $output = `./scripts/oo-uno-test-conn.py $main::openofficeorg_daemon_port 2> /dev/null`;
+  my $cmd    = "./scripts/oo-uno-test-conn.py " . $::lx_office_conf{print_templates}->{openofficeorg_daemon_port} . " 2> /dev/null";
+  my $output = `$cmd`;
   chomp $output;
 
   my $res = ($? == 0) || $output;
@@ -457,11 +458,11 @@ sub spawn_openoffice {
         exit if ($new_pid);
         my $ssres = setsid();
         $main::lxdebug->message(LXDebug->DEBUG2(), "  Child execing\n");
-        my @cmdline = ($main::openofficeorg_writer_bin,
+        my @cmdline = ($::lx_office_conf{applications}->{openofficeorg_writer},
                        "-minimized", "-norestore", "-nologo", "-nolockcheck",
                        "-headless",
                        "-accept=socket,host=localhost,port=" .
-                       $main::openofficeorg_daemon_port . ";urp;");
+                       $::lx_office_conf{print_templates}->{openofficeorg_daemon_port} . ";urp;");
         exec(@cmdline);
       }
 
@@ -508,8 +509,8 @@ sub convert_to_pdf {
   }
 
   my @cmdline;
-  if (!$main::openofficeorg_daemon) {
-    @cmdline = ($main::openofficeorg_writer_bin,
+  if (!$::lx_office_conf{print_templates}->{openofficeorg_daemon}) {
+    @cmdline = ($::lx_office_conf{applications}->{openofficeorg_writer},
                 "-minimized", "-norestore", "-nologo", "-nolockcheck",
                 "-headless",
                 "file:${filename}.odt",
@@ -522,7 +523,7 @@ sub convert_to_pdf {
     }
 
     @cmdline = ("./scripts/oo-uno-convert-pdf.py",
-                $main::openofficeorg_daemon_port,
+                $::lx_office_conf{print_templates}->{openofficeorg_daemon_port},
                 "${filename}.odt");
   }
 

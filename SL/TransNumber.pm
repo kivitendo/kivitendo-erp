@@ -105,7 +105,7 @@ sub create_unique {
   my $form    = $main::form;
   my %filters = $self->_get_filters();
 
-  $self->dbh->begin_work;
+  $self->dbh->begin_work if $self->dbh->{AutoCommit};
   do_query($form, $self->dbh, qq|LOCK TABLE defaults|);
   do_query($form, $self->dbh, qq|LOCK TABLE business|) if $self->business_id;
 

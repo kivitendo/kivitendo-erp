@@ -1,0 +1,11 @@
+Sehr geehrter Benutzer,
+
+die folgenden wiederkehrenden Rechnungen wurden automatisch erzeugt:
+
+[% FOREACH inv = POSTED_INVOICES %][% inv.invnumber %] [% END %]
+
+[% IF PRINTED_INVOICES.size -%]
+Davon wurden die folgenden Rechnungen automatisch ausgedruckt:
+
+[% FOREACH inv = PRINTED_INVOICES %][% inv.invnumber %] [% END %]
+[%- END %]

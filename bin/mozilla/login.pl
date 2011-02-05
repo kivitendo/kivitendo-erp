@@ -175,7 +175,7 @@ sub company_logo {
 sub show_error {
   my $template           = shift;
   my %myconfig           = %main::myconfig;
-  $myconfig{countrycode} = $main::language;
+  $myconfig{countrycode} = $::lx_office_conf{system}->{language};
   $form->{stylesheet}    = 'css/lx-office-erp.css';
 
   $form->header();

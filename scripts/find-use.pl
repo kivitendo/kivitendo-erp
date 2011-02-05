@@ -1,11 +1,37 @@
 #!/usr/bin/perl -l
 use strict;
 #use warnings; # corelist and find throw tons of warnings
-use Module::CoreList;
 use File::Find;
+use Module::CoreList;
 use SL::InstallationCheck;
+use Term::ANSIColor;
 
-my (%uselines, %modules, %supplied);
+my (%uselines, %modules, %supplied, %requires);
+
+# since the information which classes belong to a cpan distribution is not
+# easily obtained, I'll just hard code the bigger ones we use here. the same
+# hash will be filled later with information gathered from the source files.
+%requires = (
+  'DateTime' => {
+    'DateTime::Duration'                 => 1,
+    'DateTime::Infinite'                 => 1,
+  },
+  'Rose::DB::Object' => {
+   'Rose::DB::Object::ConventionManager' => 1,
+   'Rose::DB::Object::Manager'           => 1,
+   'Rose::DB::Object::Metadata'          => 1,
+  },
+  'Rose::Object' => {
+    'Rose::Object::MakeMethods::Generic' => 1,
+  },
+  'Template' => {
+    'Template::Constants'                => 1,
+    'Template::Exception'                => 1,
+    'Template::Iterator'                 => 1,
+    'Template::Plugin'                   => 1,
+    'Template::Plugin::Filter'           => 1,
+  },
+);
 
 find(sub {
   return unless /(\.p[lm]|console)$/;
@@ -24,17 +50,18 @@ find(sub {
 
     my ($useline) = m/^use\s+(.*?)$/;
 
-    next if  $useline =~ /^[\d.]+;/; # skip version requirements
+    next if  $useline =~ /^[\d._]+;/; # skip version requirements
     next if !$useline;
 
-    $uselines{$useline}++;
+    $uselines{$useline} ||= [];
+    push @{ $uselines{$useline} }, $File::Find::name;
   }
 }, '.');
 
 for my $useline (keys %uselines) {
   $useline =~ s/#.*//; # kill comments
 
-  # modules can be loaded implicit with use base qw(Module) or use parent
+  # modules can be loaded implicitly with use base qw(Module) or use parent
   # 'Module'. catch these:
   my ($module, $args) = $useline =~ /
     (?:
@@ -52,21 +79,49 @@ for my $useline (keys %uselines) {
   next if $useline =~ /^most and offer that in a small/; # YAML
 
   my $version = Module::CoreList->first_release($module);
-  $modules{$module} = $supplied{$module}     ? 'included'
-                    : $version               ? sprintf '%2.6f', $version
-                    : is_documented($module) ? 'required'
-                    : '!missing';
+  $modules{$module} = { status => $supplied{$module}     ? 'included'
+                                : $version               ? sprintf '%2.6f', $version
+                                : is_documented($module) ? 'required'
+                                : '!missing',
+                        files  => $uselines{$useline},
+                      };
+
+  # build requirement tree
+  for my $file (@{ $uselines{$useline} }) {
+    next if $file =~ /\.pl$/;
+    my $orig_module = modulize($file);
+    $requires{$orig_module} ||= {};
+    $requires{$orig_module}{$module}++;
+  }
 }
 
-print sprintf "%8s : %s", $modules{$_}, $_
+# build transitive closure for documented dependancies
+my $changed = 1;
+while ($changed) {
+  $changed = 0;
+  for my $src_module (keys %requires) {
+    for my $dst_module (keys %{ $requires{$src_module} }) {
+      if (   $modules{$src_module}
+          && $modules{$dst_module}
+          && $modules{$src_module}->{status} =~ /^required/
+          && $modules{$dst_module}->{status} eq '!missing') {
+        $modules{$dst_module}->{status} = "required"; # . ", via $src_module";
+        $changed = 1;
+      }
+    }
+  }
+}
+
+print sprintf "%8s : %s (%s)", color_text($modules{$_}->{status}), $_, join(' ', @{ $modules{$_}->{files} || [] })
   for sort {
-       $modules{$a} cmp $modules{$b}
-    ||          $a  cmp $b
+       $modules{$a}->{status} cmp $modules{$b}->{status}
+    ||                    $a  cmp $b
   } keys %modules;
 
 sub modulize {
   for (my ($name) = @_) {
     s#^./modules/\w+/##;
+    s#^./##;
     s#.pm$##;
     s#/#::#g;
     return $_;
@@ -75,8 +130,25 @@ sub modulize {
 
 sub is_documented {
   my ($module) = @_;
-  return grep { $_->{name} eq $module } @SL::InstallationCheck::required_modules;
+  grep { $_->{name} eq $module } @SL::InstallationCheck::required_modules;
 }
+
+sub color_text {
+  my ($text) = @_;
+  return color(get_color($text)) . $text . color('reset');
+}
+
+sub get_color {
+  for (@_) {
+    return 'yellow' if /^5./ && $_ > 5.008;
+    return 'green'  if /^5./;
+    return 'green'  if /^included/;
+    return 'red'    if /^!missing/;
+    return 'yellow';
+  }
+}
+
+1;
 
 __END__
 
@@ -87,18 +159,39 @@ find-use
 =head1 EXAMPLE
 
  # perl scipts/find-use.pl
- missing : Perl::Tags
- missing : Template::Constants
- missing : DBI
+ !missing : Perl::Tags
+ !missing : Template::Constants
+ !missing : DBI
 
 =head1 EXPLANATION
 
 This util is useful for package builders to identify all the CPAN dependencies
-we've made. It requires Module::CoreList (which is core, but is not in most
-stable releases of perl) to determine if a module is distributed with perl or
-not.  The output reports which version of perl the module is in.  If it reports
-0.000000, then the module is not in core perl, and needs to be installed before
-Lx-Office will operate.
+we have. It requires Module::CoreList (which is core since 5.9) to determine if
+a module is distributed with perl or not.  The output will be one of the
+following:
+
+=over 4
+
+=item VERSION
+
+If a version string is displayed, the module is core since this version.
+Everything up to 5.8 is alright. 5.10 (aka 5.010) is acceptable, but should be
+documented. Please do not use 5.12 core modules without adding an explicit
+requirement.
+
+=item included
+
+This module is included in C<modules/*>. Don't worry about it.
+
+=item required
+
+This module is documented in C<SL:InstallationCheck> to be necessary, or is a
+dependancy of one of these. Everything alright.
+
+= item !missing
+
+These modules are neither core, nor included, nor required. This is ok for
+developer tools, but should never occur for modules the actual program uses.
 
 =head1 AUTHOR
 

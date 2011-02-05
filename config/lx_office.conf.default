@@ -1,0 +1,227 @@
+[authentication]
+# The cleartext password for access to the administrative part.  It
+# can only be changed in this file, not via the administrative
+# interface.
+admin_password = admin123
+
+# Which module to use for authentication. Valid values are 'DB' and
+# 'LDAP'.  If 'LDAP' is used then users cannot change their password
+# via Lx-Office.
+module = DB
+
+# The cookie name can be changed if desired.
+cookie_name = lx_office_erp_session_id
+
+# The number of minutes a session is valid. The default value is eight
+# hours.
+session_timeout = 480
+
+[authentication/database]
+# Connection information for the database with the user and group
+# inforamtion.  This information is always needed, even if LDAP is
+# used for authentication, as the user information is stored in this
+# database while LDAP is only used for password verification.
+#
+# If 'module' is set to 'DB' then this database also contains the
+# users' passwords.
+host     = localhost
+port     = 5432
+db       = lxerp_auth
+user     = postgres
+password =
+
+[authentication/ldap]
+# This section is only relevant if 'module' is set to 'LDAP'. It names
+# the LDAP server the passwords are verified against by doing a LDAP
+# bind operation.
+#
+# At least the parameters 'host', 'aatribute' and 'base_dn' have to be
+# specified.
+#
+# tls:       Activate encryption via TLS
+# attribute: Name of the LDAP attribute containing the user's login name
+# base_dn:   Base DN the LDAP searches start from
+# filter:    An optional LDAP filter specification. The string '<%login%>'
+#            is replaced by the user's login name before the search is started.
+# bind_dn and bind_password:
+#            If searching the LDAP tree requires user credentials
+#            (e.g. ActiveDirectory) then these two parameters specify
+#            the user name and password to use.
+host          = localhost
+port          = 389
+tls           = 0
+attribute     = uid
+base_dn       =
+filter        =
+bind_dn       =
+bind_password =
+
+[system]
+# EUR: Einnahmen-Überschussrechnung (net income method). Set this to 1
+# if your company uses the net income method and to 0 for balacing.
+eur = 1
+
+# Set language for login and admin forms. Currently "de" (German),
+# "de_DE" (new German) and "en" (English, not perfect) are available.
+language = de
+
+# The database charset. Must match the database cluster you want to
+# connect to.
+dbcharset = UTF-8
+
+[features]
+# Activate certain optional features and modules.
+webdav = 0
+lizenzen = 1
+vertreter = 0
+
+# Show fields used for the best before date
+show_best_before = 0
+
+## Pictures for parts
+# Show the picture in the part form
+parts_show_image = 1
+# Style the picture with the following CSS code:
+parts_image_css = border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;
+# Show the picture in the results when you search for parts
+parts_listing_images = 0
+
+[paths]
+# path to temporary files (must be writeable by the web server)
+userspath = users
+# spool directory for batch printing
+spool = spool
+# templates base directory
+templates = templates
+# Path to the old memberfile (ignored on new installations)
+memberfile = users/members
+
+[applications]
+# Location of sendmail
+sendmail = /usr/sbin/sendmail -t<%if myconfig_email%> -f <%myconfig_email%><%end%>
+# Location of OpenOffice.org writer
+openofficeorg_writer = oowriter
+# Location of the X virtual frame buffer used for OpenOffice
+xvfb = Xvfb
+# Location of the html2ps binary
+html2ps = html2ps
+# Location of the Ghostscript binary
+ghostscript = gs
+# Location of the pdflatex (or compatible, e.g. xetex) binary
+latex = pdflatex
+# Location of the two executables "pg_dump" and "pg_restore" used for
+# database backup and restoration from the admin section.  If
+# "pg_dump" or "pg_restore" is set to "DISABLED" then the
+# corresponding option (backup/restoration) will be hidden from the
+# admin section.
+pg_dump = pg_dump
+pg_restore = pg_restore
+
+[environment]
+# Add the following paths to the PATH environment variable.
+path = /usr/local/bin:/usr/X11R6/bin:/usr/X11/bin
+# Add the following paths to the PERL5LIB environment variable.
+# "/sw/lib/perl5" is for Mac OS X with Fink's Perl.
+lib = /sw/lib/perl5
+
+[print_templates]
+# If you have LaTeX installed set to 1
+latex = 1
+# Minimal support for Excel print templates
+excel = 0
+# Enable or disable support for OpenDocument print templates
+opendocument = 1
+# Chose whether or not OpenOffice should remain running after a
+# conversion. If yes then the conversion of subsequent documents will
+# be a lot faster. You need to have Python and the Python UNO bindings
+# (part of OpenOffice) installed.
+openofficeorg_daemon = 1
+openofficeorg_daemon_port = 2002
+
+[task_server]
+# User name to use for database access
+login =
+# Set to 1 for debug messages in /tmp/lx-office-debug.log
+debug = 1
+# Chose a system user the daemon should run under when started as root.
+run_as =
+
+[periodic_invoices]
+# The user name a report about the posted and printed invoices is sent
+# to.
+send_email_to  = mb
+# The "From:" header for said email.
+email_from     = Lx-Office Daemon <root@localhost>
+# The subject for said email.
+email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
+# The template file used for the email's body.
+email_template = templates/webpages/oe/periodic_invoices_email.txt
+
+[console]
+# autologin to use if none is given
+login =
+
+# autorun lines will be executed after autologin.
+# be warned that loading huge libraries will noticably lengthen startup time.
+#autorun = require "bin/mozilla/common.pl";
+#        = use English qw(-no_match_vars);
+#        = use List::Util qw(min max);
+#        = sub take { my $max = shift; my $r = ref($_[0]) eq 'ARRAY' ? $_[0] : \@_; return @{$r}[0..List::Util::min($max, scalar(@{$r})) - 1]; }
+
+# location of history file for permanent history
+history_file = users/console_history
+
+[debug]
+# Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
+# will be replaced by the file name configured for $::lxdebug.
+dbix_log4perl = 0
+dbix_log4perl_config = log4perl.logger = FATAL, LOGFILE
+                     = log4perl.appender.LOGFILE=Log::Log4perl::Appender::File
+                     = log4perl.appender.LOGFILE.filename=LXDEBUGFILE
+                     = log4perl.appender.LOGFILE.mode=append
+                     = log4perl.appender.LOGFILE.Threshold = ERROR
+                     = log4perl.appender.LOGFILE.layout=PatternLayout
+                     = log4perl.appender.LOGFILE.layout.ConversionPattern=[%r] %F %L %c - %m%n
+                     = log4perl.logger.DBIx.Log4perl=DEBUG, A1
+                     = log4perl.appender.A1=Log::Log4perl::Appender::File
+                     = log4perl.appender.A1.filename=LXDEBUGFILE
+                     = log4perl.appender.A1.mode=append
+                     = log4perl.appender.A1.layout=Log::Log4perl::Layout::PatternLayout
+                     = log4perl.appender.A1.layout.ConversionPattern=%d %p> %F{1}:%L %M - %m%n
+
+# Activate certain global debug messages. If you want to combine
+# several options then list them seperated by spaces.
+#
+# Possible values include:
+#   NONE   - no debug output (default)
+#   INFO
+#   DEBUG1
+#   DEBUG2
+#   QUERY              - Dump SQL queries (only in legacy code; see also "dbix_log4perl" above)
+#   TRACE              - Track function calls and returns
+#   BACKTRACE_ON_ERROR - Print a function call backtrace when $form->error() is called
+#   REQUEST_TIMER      - Log timing of HTTP requests
+#   WARN               - warnings
+#   ALL                - all possible debug messages
+#
+#   DEVEL              - sames as "INFO QUERY TRACE BACKTRACE_ON_ERROR REQUEST_TIMER"
+#
+# Example:
+#   global_level = TRACE QUERY
+global_level = NONE
+
+# Activate monitoring of the content of $form. If it is active then
+# monitoring can be turned on for certain variables with the
+# following:
+#   $form->{"Watchdog::<variable>"} = 1;
+# Monitoring has a performance cost and is therefore deactivated by
+# default.
+watch_form = 0
+
+# If you want to debug the creation of LaTeX files then set this to 1.
+# That way the temporary LaTeX files created during PDF creation are
+# not removed and remain in the "users" directory.
+keep_temp_files = 0
+
+# The file name where the debug messages are written to.
+file_name = /tmp/mb-lxdebug.log

@@ -1156,7 +1156,7 @@ sub parse_excel_file {
 
   delete $form->{OUT};
 
-  $form->parse_template($myconfig, $main::userspath);
+  $form->parse_template($myconfig);
 
   $main::lxdebug->leave_sub();
 }

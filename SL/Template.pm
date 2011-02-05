@@ -22,7 +22,7 @@ sub create {
   my %params  = @_;
   my $package = "SL::Template::" . $params{type};
 
-  $package->new($params{file_name}, $params{form}, $params{myconfig} || \%::myconfig, $params{userspath} || $::userspath);
+  $package->new($params{file_name}, $params{form}, $params{myconfig} || \%::myconfig, $params{userspath} || $::lx_office_conf{paths}->{userspath});
 }
 
 1;

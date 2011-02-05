@@ -269,7 +269,7 @@ sub create_invoice_for_fees {
 sub save_dunning {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form, $rows, $userspath, $spool) = @_;
+  my ($self, $myconfig, $form, $rows) = @_;
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
@@ -661,12 +661,13 @@ sub melt_pdfs {
 
   $copies        *= 1;
   $copies         = 1 unless $copies;
-  my $inputfiles  = join " ", map { "${main::spool}/$_ " x $copies } @{ $form->{DUNNING_PDFS} };
+  my $spool       = $::lx_office_conf{paths}->{spool};
+  my $inputfiles  = join " ", map { "$spool/$_ " x $copies } @{ $form->{DUNNING_PDFS} };
   my $dunning_id  = $form->{dunning_id};
 
   $dunning_id     =~ s|[^\d]||g;
 
-  my $in = IO::File->new("gs -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
+  my $in = IO::File->new($::lx_office_conf{applications}->{ghostscript} . " -dBATCH -dNOPAUSE -q -sDEVICE=pdfwrite -sOutputFile=- $inputfiles |");
   $form->error($main::locale->text('Could not spawn ghostscript.')) unless $in;
 
   if ($form->{media} eq 'printer') {
@@ -690,7 +691,7 @@ sub melt_pdfs {
 
   $in->close();
 
-  map { unlink("${main::spool}/$_") } @{ $form->{DUNNING_PDFS} };
+  map { unlink("$spool/$_") } @{ $form->{DUNNING_PDFS} };
 
   $main::lxdebug->leave_sub();
 }
@@ -792,16 +793,17 @@ sub print_dunning {
   $self->set_template_options($myconfig, $form);
 
   my $filename          = "dunning_${dunning_id}_" . Common::unique_id() . ".pdf";
-  $form->{OUT}          = ">${main::spool}/$filename";
+  my $spool             = $::lx_office_conf{paths}->{spool};
+  $form->{OUT}          = ">${spool}/$filename";
   $form->{keep_tmpfile} = 1;
 
   delete $form->{tmpfile};
 
   push @{ $form->{DUNNING_PDFS} }, $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${main::spool}/$filename",
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${spool}/$filename",
                                            'name'     => "dunning_${dunning_id}.pdf" };
 
-  $form->parse_template($myconfig, $main::userspath);
+  $form->parse_template($myconfig);
 
   $dbh->disconnect() unless $provided_dbh;
 
@@ -885,18 +887,19 @@ sub print_invoice_for_fees {
 
   my $filename = Common::unique_id() . "dunning_invoice_${dunning_id}.pdf";
 
-  $form->{OUT}          = ">$main::spool/$filename";
+  my $spool             = $::lx_office_conf{paths}->{spool};
+  $form->{OUT}          = ">$spool/$filename";
   $form->{keep_tmpfile} = 1;
   delete $form->{tmpfile};
 
   map { delete $form->{$_} } grep /^[a-z_]+_\d+$/, keys %{ $form };
 
-  $form->parse_template($myconfig, $main::userspath);
+  $form->parse_template($myconfig);
 
   restore_form($saved_form);
 
   push @{ $form->{DUNNING_PDFS} }, $filename;
-  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${main::spool}/$filename",
+  push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${spool}/$filename",
                                            'name'     => "dunning_invoice_${dunning_id}.pdf" };
 
   $dbh->disconnect() unless $provided_dbh;

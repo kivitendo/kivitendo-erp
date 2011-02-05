@@ -3,7 +3,7 @@
 <title>Datenbanken anlegen - Lx-Office Installationsanleitung</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <meta name="description" content="Lx-Office Installationsanleitung">
-<meta name="generator" content="makeinfo 4.11">
+<meta name="generator" content="makeinfo 4.13">
 <link title="Top" rel="start" href="index.html#Top">
 <link rel="up" href="Benutzer_002d-und-Gruppenverwaltung.html#Benutzer_002d-und-Gruppenverwaltung" title="Benutzer- und Gruppenverwaltung">
 <link rel="prev" href="Zusammenh_00c3_00a4nge.html#Zusammenh_00c3_00a4nge" title="Zusammenhänge">
@@ -24,11 +24,11 @@
 </head>
 <body>
 <div class="node">
-<p>
 <a name="Datenbanken-anlegen"></a>
-n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="Gruppen-anlegen.html#Gruppen-anlegen">Gruppen anlegen</a>,
-voriges:&nbsp;<a rel="previous" accesskey="p" href="Zusammenh_00c3_00a4nge.html#Zusammenh_00c3_00a4nge">Zusammenhänge</a>,
-aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="Benutzer_002d-und-Gruppenverwaltung.html#Benutzer_002d-und-Gruppenverwaltung">Benutzer- und Gruppenverwaltung</a>
+<p>
+Next:&nbsp;<a rel="next" accesskey="n" href="Gruppen-anlegen.html#Gruppen-anlegen">Gruppen anlegen</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Zusammenh_00c3_00a4nge.html#Zusammenh_00c3_00a4nge">Zusammenhänge</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Benutzer_002d-und-Gruppenverwaltung.html#Benutzer_002d-und-Gruppenverwaltung">Benutzer- und Gruppenverwaltung</a>
 <hr>
 </div>
 
@@ -41,9 +41,10 @@ ist dies &lsquo;<samp><span class="samp">lxoffice</span></samp>&rsquo;).
    <p>Wenn Sie für die Lx-Office-Installation nicht den europäischen
 Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
 müssen Sie vor dem Anlegen der Datenbank in der Datei
-<code>config/lx-erp.conf</code> die Variable <code>$dbcharset</code> auf den Wert
-&lsquo;<samp><span class="samp">UTF-8</span></samp>&rsquo; setzen. Zusätzlich muss beim Anlegen der Datenbank
-&lsquo;<samp><span class="samp">UTF-8 Unicode</span></samp>&rsquo; als Schriftsatz ausgewählt werden.
+<code>config/lx_office.conf</code> die Variable <code>dbcharset</code> im
+Abschnitt <code>system</code> auf den Wert &lsquo;<samp><span class="samp">UTF-8</span></samp>&rsquo; setzen. Zusätzlich
+muss beim Anlegen der Datenbank &lsquo;<samp><span class="samp">UTF-8 Unicode</span></samp>&rsquo; als Schriftsatz
+ausgewählt werden.
 
    <p>Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
 verwenden müssen, da diese Einstellungen momentan global in Lx-Office
