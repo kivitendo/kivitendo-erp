@@ -123,6 +123,7 @@ set_user_rights() {
 }
 
 disable_ipv6_on_lo_interface() {
+        #Ist wohl nicht mehr notwendig.
 	# 2009-04-25
         # Perls Libraries are not yet ipv6 read
         echo "WICHTIG: ipv6 ist nunmehr auf dem Loopback-Interface deaktiviert, um die Funktionsfähigkeit von Lx-Office-ERP zu gewährleisten!"
@@ -210,7 +211,7 @@ case "$1" in
             set_lx_office_erp_web_admin_password
             set_lx_office_erp_authentication_db_user
             set_lx_office_erp_authentication_db_password
-	        disable_ipv6_on_lo_interface
+	    #  disable_ipv6_on_lo_interface
             mk_links
         fi;
 
@@ -227,7 +228,7 @@ case "$1" in
         set_lx_office_erp_web_admin_password
         set_lx_office_erp_authentication_db_user
         set_lx_office_erp_authentication_db_password
-        disable_ipv6_on_lo_interface
+        # disable_ipv6_on_lo_interface
         mk_links
 
         set_user_rights
