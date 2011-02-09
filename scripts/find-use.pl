@@ -12,6 +12,10 @@ my (%uselines, %modules, %supplied, %requires);
 # easily obtained, I'll just hard code the bigger ones we use here. the same
 # hash will be filled later with information gathered from the source files.
 %requires = (
+  'DateTime' => {
+    'DateTime::Duration'                 => 1,
+    'DateTime::Infinite'                 => 1,
+  },
   'Rose::DB::Object' => {
    'Rose::DB::Object::ConventionManager' => 1,
    'Rose::DB::Object::Manager'           => 1,
@@ -46,7 +50,7 @@ find(sub {
 
     my ($useline) = m/^use\s+(.*?)$/;
 
-    next if  $useline =~ /^[\d.]+;/; # skip version requirements
+    next if  $useline =~ /^[\d._]+;/; # skip version requirements
     next if !$useline;
 
     $uselines{$useline} ||= [];
