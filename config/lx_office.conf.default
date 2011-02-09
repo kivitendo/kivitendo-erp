@@ -82,7 +82,7 @@ openofficeorg_daemon_port = 2002
 
 [task_server]
 # User name to use for database access
-login = mb
+login =
 # Set to 1 for debug messages in /tmp/lx-office-debug.log
 debug = 1
 # Chose a system user the daemon should run under when started as root.
@@ -101,7 +101,7 @@ email_template = templates/webpages/oe/periodic_invoices_email.txt
 
 [console]
 # autologin to use if none is given
-login = mb
+login =
 
 # autorun lines will be executed after autologin.
 # be warned that loading huge libraries will noticably lengthen startup time.
