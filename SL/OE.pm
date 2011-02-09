@@ -559,17 +559,17 @@ sub save {
     }
   }
 
-  $self->save_periodic_invoices_config(dbh         => $dbh,
-                                       oe_id       => $form->{id},
-                                       config_yaml => $form->{periodic_invoices_config})
-    if ($form->{type} eq 'sales_order');
-
   $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
                                        "quonumber" : "ordnumber"};
 
   Common::webdav_folder($form);
 
   my $rc = $dbh->commit;
+
+  $self->save_periodic_invoices_config(dbh         => $dbh,
+                                       oe_id       => $form->{id},
+                                       config_yaml => $form->{periodic_invoices_config})
+    if ($form->{type} eq 'sales_order');
 
   $main::lxdebug->leave_sub();
 
