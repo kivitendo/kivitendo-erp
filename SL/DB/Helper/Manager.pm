@@ -20,6 +20,7 @@ sub find_by {
 
 sub get_first {
   shift->get_all(
+    @_,
     limit => 1,
   )->[0];
 }

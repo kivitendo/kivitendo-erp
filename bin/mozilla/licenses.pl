@@ -325,10 +325,10 @@ sub add {
 
   $form->{title} = $locale->text('Add License');
 
-  if (!$main::lizenzen) {
+  if (!$::lx_office_conf{system}->{lizenzen}) {
     $form->error(
                  $locale->text(
-                   'The licensing module has been deactivated in lx-erp.conf.')
+                   'The licensing module has been deactivated in the configuration.')
     );
   }
 
@@ -518,10 +518,10 @@ sub search {
 
   $form->{title} = $locale->text('Licenses');
 
-  if (!$main::lizenzen) {
+  if (!$::lx_office_conf{system}->{lizenzen}) {
     $form->error(
                  $locale->text(
-                   'The licensing module has been deactivated in lx-erp.conf.')
+                   'The licensing module has been deactivated in the configuration.')
     );
   }
 

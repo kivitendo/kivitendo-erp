@@ -10,6 +10,7 @@ source /usr/share/debconf/confmodule
 
 #Als root anmelden
 if [ `id -u` -gt 0 ]; then echo "Bitte als root anmelden"; exit 1; fi
+
 POSTGRESQL=`dpkg -l | grep -E "postgresql-[0-9]" | cut -d" " -f3 | sort -r | head -1 -`
 
 #Datei plpgsql.so suchen
@@ -53,7 +54,7 @@ fi
 v8=`su postgres -c "echo 'select version()' | psql template1 2>/dev/null | grep -E "[Ss][Qq][Ll][[:space:]]+8\.[2-9]\.[0-9]" | wc -l"`
 if [ $v8 -eq 0 ]; then 
     echo $FEHLER
-    echo Datenbank Version 8x konnte erreicht werden.
+    echo Datenbank Version 8x konnte nicht erreicht werden.
     exit 0
 fi
 

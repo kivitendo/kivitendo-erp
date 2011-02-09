@@ -4,6 +4,8 @@ use strict;
 
 use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
+use SL::DB::Helper::LinkedRecords;
+use SL::DB::Helper::TransNumberGenerator;
 use SL::DB::Order;
 
 use List::Util qw(first);
@@ -13,11 +15,21 @@ __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many
                                                     column_map   => { id => 'trans_id' },
                                                     manager_args => { with_objects => [ 'part' ] }
                                                   },
+                                    shipto => { type       => 'one to one',
+                                                class      => 'SL::DB::Shipto',
+                                                column_map => { shipto_id => 'shipto_id' },
+                                              },
+                                    department => { type       => 'one to one',
+                                                    class      => 'SL::DB::Department',
+                                                    column_map => { department_id => 'id' },
+                                                  },
                                    );
 
 __PACKAGE__->meta->initialize;
 
 # methods
+
+sub items { goto &orderitems; }
 
 sub sales_order {
   my $self   = shift;

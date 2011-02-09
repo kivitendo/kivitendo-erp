@@ -103,7 +103,7 @@ sub post_invoice {
     $form->{"qty_$i"}  = $form->parse_amount($myconfig, $form->{"qty_$i"});
     $form->{"qty_$i"} *= -1 if $form->{storno};
 
-    $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"} if $main::eur;
+    $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"} if $::lx_office_conf{system}->{eur};
 
     # get item baseunit
     if (!$item_units{$form->{"id_$i"}}) {
@@ -577,7 +577,7 @@ sub post_invoice {
   # delete zero entries
   do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE amount = 0|);
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   # Link this record to the records it was created from.
   RecordLinks->create_links('dbh'        => $dbh,
@@ -875,7 +875,7 @@ sub retrieve_invoice {
   }
   $sth->finish();
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   $dbh->disconnect();
 

@@ -132,8 +132,8 @@ sub invoice_links {
   $form->{vc} = 'customer';
 
   # create links
-  $form->{webdav}   = $main::webdav;
-  $form->{lizenzen} = $main::lizenzen;
+  $form->{webdav}   = $::lx_office_conf{system}->{webdav};
+  $form->{lizenzen} = $::lx_office_conf{system}->{lizenzen};
 
   $form->create_links("AR", \%myconfig, "customer");
 
@@ -561,7 +561,7 @@ sub update {
 
         $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
 
-        if ($main::lizenzen) {
+        if ($::lx_office_conf{system}->{lizenzen}) {
           if ($form->{"inventory_accno_$i"} ne "") {
             $form->{"lizenzen_$i"} = qq|<option></option>|;
             foreach my $item (@{ $form->{LIZENZEN}{ $form->{"id_$i"} } }) {
@@ -964,7 +964,7 @@ sub yes {
 
   $main::auth->assert('invoice_edit');
 
-  if (IS->delete_invoice(\%myconfig, \%$form, $main::spool)) {
+  if (IS->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
     $form->{snumbers} = qq|invnumber_| . $form->{invnumber};

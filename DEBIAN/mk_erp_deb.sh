@@ -15,7 +15,7 @@ DST=/tmp/package
 ################################################
 
 VER=`cat VERSION`
-DEST=$DST/lx-office-erp_$VER-$NR-all
+DEST=$DST/lx-office-erp_$VER-$NR$1-all
 
 
 mkdir -p $DEST
@@ -26,7 +26,7 @@ cp -a $SRC/DEBIAN/DEBIAN .
 tar xzf $SRC/DEBIAN/struktur.tgz
 
 #Für Hardy + co Sonderbehandlung
-if [ "$1#" == "old#" ]; then
+if [ "$1#" == "-older#" ]; then
     mv DEBIAN/control.older DEBIAN/control
 else
     rm DEBIAN/control.older
@@ -46,8 +46,7 @@ cp -a $SRC/t usr/lib/lx-office-erp
 cp -a $SRC/*.pl usr/lib/lx-office-erp
 cp $SRC/VERSION usr/lib/lx-office-erp
 cp $SRC/index.html usr/lib/lx-office-erp
-cp $SRC/config/lx-erp.conf  etc/lx-office-erp/lx-erp.conf.default
-cp $SRC/config/console.conf.default etc/lx-office-erp/
+cp $SRC/config/lx_office.conf.default etc/lx-office-erp/lx_office.conf.default
 cp $SRC/config/authentication.pl.default etc/lx-office-erp/
 cp $SRC/menu.ini usr/lib/lx-office-erp/menu.default
 cp -a $SRC/css var/lib/lx-office-erp
@@ -58,9 +57,9 @@ cp -a $SRC/xslt var/lib/lx-office-erp
 cp -a $SRC/doc/* usr/share/doc/lx-office-erp/
 cp -a $SRC/image/* usr/share/lx-office-erp/
 
-#Ist nicht im Repository. Bei Sven oder Holger erfragen.
-if [ "$1#" == "old#" ]; then
-    tar xzf $SRC/DEBIAN/missing_lib.tar.gz
+#Ist nicht im Repository. Liegt bei sf
+if [ "$1#" == "-older#" ]; then
+    tar xzf $SRC/DEBIAN/lx-erp-perl-libs-compat-v2.tar.gz
 fi
 
 #Git- und dummy-files löschen
@@ -89,6 +88,6 @@ mv DEBIAN/1.tmp DEBIAN/control
 
 #Paket bauen:
 cd ..
-dpkg-deb --build lx-office-erp_$VER-$NR-all
+dpkg-deb --build lx-office-erp_$VER-$NR$1-all
 
 echo "Done"

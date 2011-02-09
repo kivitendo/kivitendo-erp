@@ -8,6 +8,7 @@ BEGIN {
 }
 
 use CGI qw( -no_xhtml);
+use Config::Std;
 use Data::Dumper;
 use English qw( -no_match_vars );
 use List::MoreUtils qw(any);
@@ -18,12 +19,14 @@ use SL::DB;
 use SL::Form;
 use SL::Locale;
 use SL::LXDebug;
+use SL::LxOfficeConf;
 use SL::DB::Helper::ALL;
 use SL::DB::Helper::Mappings;
 
 our $form;
 our $cgi;
 our $auth;
+our %lx_office_conf;
 
 our $script =  __FILE__;
 $script     =~ s:.*/::;
@@ -40,16 +43,11 @@ sub setup {
     exit 1;
   }
 
+  SL::LxOfficeConf->read;
+
   my $login     = shift @ARGV;
 
-  $::userspath  = "users";
-  $::templates  = "templates";
-  $::sendmail   = "| /usr/sbin/sendmail -t";
-
   $::lxdebug    = LXDebug->new();
-
-  require "config/lx-erp.conf";
-  require "config/lx-erp-local.conf" if -f "config/lx-erp-local.conf";
 
   # locale messages
   $::locale       = Locale->new("de");
@@ -71,10 +69,16 @@ sub setup {
 sub process_table {
   my @spec       =  split(/=/, shift, 2);
   my $table      =  $spec[0];
+  my $schema     = '';
+  ($schema, $table) = split(m/\./, $table) if $table =~ m/\./;
   my $package    =  ucfirst($spec[1] || $spec[0]);
   $package       =~ s/_+(.)/uc($1)/ge;
   my $meta_file  =  "${meta_path}/${package}.pm";
   my $file       =  "SL/DB/${package}.pm";
+
+  $schema        = <<CODE if $schema;
+    __PACKAGE__->meta->schema('$schema');
+CODE
 
   my $definition =  eval <<CODE;
     package SL::DB::AUTO::$package;
@@ -82,6 +86,7 @@ sub process_table {
     use base qw(SL::DB::Object);
 
     __PACKAGE__->meta->table('$table');
+$schema
     __PACKAGE__->meta->auto_initialize;
 
     __PACKAGE__->meta->perl_class_definition(indent => 2); # , braces => 'bsd'

@@ -3,9 +3,12 @@ package SL::DB::Part;
 use strict;
 
 use Carp;
+use List::MoreUtils qw(any);
+
 use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
+use SL::DB::Chart;
 
 __PACKAGE__->meta->add_relationships(
   unit_obj                     => {
@@ -22,6 +25,11 @@ __PACKAGE__->meta->add_relationships(
     type         => 'one to one',
     class        => 'SL::DB::PartsGroup',
     column_map   => { partsgroup_id => 'id' },
+  },
+  price_factor   => {
+    type         => 'one to one',
+    class        => 'SL::DB::PriceFactor',
+    column_map   => { price_factor_id => 'id' },
   },
 );
 
@@ -113,11 +121,58 @@ sub buchungsgruppe {
   shift->buchungsgruppen(@_);
 }
 
+sub get_taxkey {
+  my ($self, %params) = @_;
+
+  my $date     = $params{date} || DateTime->today_local;
+  my $is_sales = !!$params{is_sales};
+  my $taxzone  = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;
+
+  $self->{__partpriv_taxkey_information} ||= { };
+  my $tk_info = $self->{__partpriv_taxkey_information};
+
+  $tk_info->{$taxzone}              ||= { };
+  $tk_info->{$taxzone}->{$is_sales} ||= { };
+
+  if (!exists $tk_info->{$taxzone}->{$is_sales}->{$date}) {
+    $tk_info->{$taxzone}->{$is_sales}->{$date} =
+      $self->get_chart(type => $is_sales ? 'income' : 'expense', taxzone => $taxzone)
+      ->load
+      ->get_active_taxkey($date);
+  }
+
+  return $tk_info->{$taxzone}->{$is_sales}->{$date};
+}
+
+sub get_chart {
+  my ($self, %params) = @_;
+
+  my $type    = (any { $_ eq $params{type} } qw(income expense inventory)) ? $params{type} : croak("Invalid 'type' parameter '$params{type}'");
+  my $taxzone = $params{ defined($params{taxzone}) ? 'taxzone' : 'taxzone_id' } * 1;
+
+  $self->{__partpriv_get_chart_id} ||= { };
+  my $charts = $self->{__partpriv_get_chart_id};
+
+  $charts->{$taxzone} ||= { };
+
+  if (!exists $charts->{$taxzone}->{$type}) {
+    my $bugru    = $self->buchungsgruppe;
+    my $chart_id = ($type eq 'inventory') ? ($self->inventory_accno_id ? $bugru->inventory_accno_id : undef)
+                 :                          $bugru->call_sub("${type}_accno_id_${taxzone}");
+
+    $charts->{$taxzone}->{$type} = $chart_id ? SL::DB::Chart->new(id => $chart_id)->load : undef;
+  }
+
+  return $charts->{$taxzone}->{$type};
+}
+
 1;
 
 __END__
 
 =pod
+
+=encoding utf-8
 
 =head1 NAME
 
@@ -150,24 +205,30 @@ method for it, but you can construct them explicitly with C<new_part>,
 C<new_service>, and C<new_assembly>. A Buchungsgruppe should be supplied in this
 case, but it will use the default Buchungsgruppe if you don't.
 
-Matching these there are assorted helper methods dealing with type:
+Matching these there are assorted helper methods dealing with types,
+e.g.  L</new_part>, L</new_service>, L</new_assembly>, L</type>,
+L</is_type> and others.
 
-=head2 new_part PARAMS
+=head1 FUNCTIONS
 
-=head2 new_service PARAMS
+=over 4
 
-=head2 new_assembly PARAMS
+=item C<new_part %PARAMS>
+
+=item C<new_service %PARAMS>
+
+=item C<new_assembly %PARAMS>
 
 Will set the appropriate data fields so that the resulting instance will be of
 tthe requested type. Since part of the distinction are accounting targets,
 providing a C<Buchungsgruppe> is recommended. If none is given the constructor
 will load a default one and set the accounting targets from it.
 
-=head2 type
+=item C<type>
 
 Returns the type as a string. Can be one of C<part>, C<service>, C<assembly>.
 
-=head2 is_type TYPE
+=item C<is_type $TYPE>
 
 Tests if the current object is a part, a service or an
 assembly. C<$type> must be one of the words 'part', 'service' or
@@ -176,17 +237,15 @@ assembly. C<$type> must be one of the words 'part', 'service' or
 Returns 1 if the requested type matches, 0 if it doesn't and
 C<confess>es if an unknown C<$type> parameter is encountered.
 
-=head2 is_part
+=item C<is_part>
 
-=head2 is_service
+=item C<is_service>
 
-=head2 is_assembly
+=item C<is_assembly>
 
-Shorthand for is_type('part') etc.
+Shorthand for C<is_type('part')> etc.
 
-=head1 FUNCTIONS
-
-=head2 get_sellprice_info %params
+=item C<get_sellprice_info %params>
 
 Retrieves the C<sellprice> and C<price_factor_id> for a part under
 different conditions and returns a hash reference with those two keys.
@@ -200,24 +259,55 @@ entry without a country set will be used.
 If none of the above conditions is met then the information from
 C<$self> is used.
 
-=head2 get_ordered_qty %params
+=item C<get_ordered_qty %params>
 
 Retrieves the quantity that has been ordered from a vendor but that
 has not been delivered yet. Only open purchase orders are considered.
 
-=head2 orphaned
+=item C<get_taxkey %params>
+
+Retrieves and returns a taxkey object valid for the given date
+C<$params{date}> and tax zone C<$params{taxzone}>
+(C<$params{taxzone_id}> is also recognized). The date defaults to the
+current date if undefined.
+
+This function looks up the income (for trueish values of
+C<$params{is_sales}>) or expense (for falsish values of
+C<$params{is_sales}>) account for the current part. It uses the part's
+associated buchungsgruppe and uses the fields belonging to the tax
+zone given by C<$params{taxzone}> (range 0..3).
+
+The information retrieved by the function is cached.
+
+=item C<get_chart %params>
+
+Retrieves and returns a chart object valid for the given type
+C<$params{type}> and tax zone C<$params{taxzone}>
+(C<$params{taxzone_id}> is also recognized). The type must be one of
+the three key words C<income>, C<expense> and C<inventory>.
+
+This function uses the part's associated buchungsgruppe and uses the
+fields belonging to the tax zone given by C<$params{taxzone}> (range
+0..3).
+
+The information retrieved by the function is cached.
+
+=item C<orphaned>
 
 Checks if this articke is used in orders, invoices, delivery orders or
 assemblies.
 
-=head2 buchungsgruppe BUCHUNGSGRUPPE
+=item C<buchungsgruppe BUCHUNGSGRUPPE>
 
 Used to set the accounting informations from a L<SL:DB::Buchungsgruppe> object.
 Please note, that this is a write only accessor, the original Buchungsgruppe can
 not be retrieved from an article once set.
 
-=head1 AUTHOR
+=back
 
-Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+=head1 AUTHORS
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>,
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut

@@ -16,7 +16,8 @@ sub verify_installation {
   return if (scalar(@missing_modules) == 0);
 
   use SL::Locale;
-  my $locale = new Locale($main::language, "installationcheck");
+
+  my $locale = new Locale($::lx_office_conf{system}->{language}, "installationcheck");
 
   print(qq|content-type: text/html
 

@@ -41,9 +41,10 @@ ist dies &lsquo;<samp><span class="samp">lxoffice</span></samp>&rsquo;).
    <p>Wenn Sie für die Lx-Office-Installation nicht den europäischen
 Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
 müssen Sie vor dem Anlegen der Datenbank in der Datei
-<code>config/lx-erp.conf</code> die Variable <code>$dbcharset</code> auf den Wert
-&lsquo;<samp><span class="samp">UTF-8</span></samp>&rsquo; setzen. Zusätzlich muss beim Anlegen der Datenbank
-&lsquo;<samp><span class="samp">UTF-8 Unicode</span></samp>&rsquo; als Schriftsatz ausgewählt werden.
+<code>config/lx_office.conf</code> die Variable <code>dbcharset</code> im
+Abschnitt <code>system</code> auf den Wert &lsquo;<samp><span class="samp">UTF-8</span></samp>&rsquo; setzen. Zusätzlich
+muss beim Anlegen der Datenbank &lsquo;<samp><span class="samp">UTF-8 Unicode</span></samp>&rsquo; als Schriftsatz
+ausgewählt werden.
 
    <p>Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
 verwenden müssen, da diese Einstellungen momentan global in Lx-Office
