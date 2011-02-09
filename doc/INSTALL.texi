@@ -139,6 +139,8 @@ Class::Accessor
 @item
 CGI::Ajax
 @item
+Config::Std
+@item
 DateTime
 @item
 DBI
@@ -148,6 +150,8 @@ DBD::Pg
 Email::Address
 @item
 List::MoreUtils
+@item
+Params::Validate
 @item
 PDF::API2
 @item
@@ -190,7 +194,7 @@ Die zu installierenden Pakete können in den verschiedenen Distributionen unters
 
 Für Debian oder Ubuntu benötigen Sie diese Pakete:
 
-@code{apache2 postgresql libparent-perl libarchive-zip-perl libclass-accessor-perl libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl liblist-moreutils-perl libpdf-api2-perl librose-object-perl librose-db-perl librose-db-object-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl}
+@code{apache2 postgresql libparent-perl libarchive-zip-perl libclass-accessor-perl libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl libemail-address-perl liblist-moreutils-perl libpdf-api2-perl librose-object-perl librose-db-perl librose-db-object-perl libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl libconfig-std-perl libparams-validate-perl}
 
 Für Fedora Core benötigen Sie diese Pakete:
 

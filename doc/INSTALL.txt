@@ -128,6 +128,8 @@ Bestandteil einer Standard-Perl-Installation sind:
 
    * CGI::Ajax
 
+   * Config::Std
+
    * DateTime
 
    * DBI
@@ -137,6 +139,8 @@ Bestandteil einer Standard-Perl-Installation sind:
    * Email::Address
 
    * List::MoreUtils
+
+   * Params::Validate
 
    * PDF::API2
 
@@ -185,7 +189,8 @@ libclass-accessor-perl libdatetime-perl libdbi-perl libdbd-pg-perl
 libpg-perl libemail-address-perl liblist-moreutils-perl
 libpdf-api2-perl librose-object-perl librose-db-perl
 librose-db-object-perl libtemplate-perl libtext-csv-xs-perl
-libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl'
+libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl
+libconfig-std-perl libparams-validate-perl'
 
    Für Fedora Core benötigen Sie diese Pakete:
 

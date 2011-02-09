@@ -12,6 +12,7 @@ BEGIN {
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
   { name => "Archive::Zip",    version => '1.16',  url => "http://search.cpan.org/~adamk/",     debian => 'libarchive-zip-perl' },
   { name => "Class::Accessor", version => '0.30',  url => "http://search.cpan.org/~kasei/",     debian => 'libclass-accessor-perl' },
+  { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
   { name => "CGI::Ajax",       version => '0.697', url => "http://search.cpan.org/~bct/" }, # no debian package, ours contains bugfixes
   { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-perl' },
   { name => "DBI",             version => '1.50',  url => "http://search.cpan.org/~timb/",      debian => 'libdbi-perl' },
@@ -19,6 +20,7 @@ BEGIN {
   { name => "Email::Address",                      url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-address-perl' },
   { name => "FCGI",                                url => "http://search.cpan.org/~mstrout/",   debian => 'libfcgi-perl' },
   { name => "List::MoreUtils", version => '0.21',  url => "http://search.cpan.org/~vparseval/", debian => 'liblist-moreutils-perl' },
+  { name => "Params::Validate",                    url => "http://search.cpan.org/~drolsky/",   debian => 'libparams-validate-perl' },
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/",  debian => 'libpdf-api2-perl' },
   { name => "Rose::Object",                        url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-object-perl' },
   { name => "Rose::DB",                            url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-perl' },
