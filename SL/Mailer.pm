@@ -116,9 +116,9 @@ sub send {
 
   my %temp_form   = ( %{ $form }, 'myconfig_email' => $email );
   my $template    = SL::Template::create(type => 'PlainText', form => \%temp_form);
-  my $sendmail    = $template->parse_block($main::sendmail);
+  my $sendmail    = $template->parse_block($::lx_office_conf{applications}->{sendmail});
 
-  if (!open(OUT, $sendmail)) {
+  if (!open(OUT, "|$sendmail")) {
     $main::lxdebug->leave_sub();
     return "$sendmail : $!";
   }

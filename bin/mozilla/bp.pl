@@ -341,7 +341,7 @@ sub yes {
   $form->{callback} .= "&header=1" if $form->{callback};
 
   $form->redirect($locale->text('Removed spoolfiles!'))
-    if (BP->delete_spool(\%myconfig, \%$form, $main::spool));
+    if (BP->delete_spool(\%myconfig, \%$form));
   $form->error($locale->text('Cannot remove files!'));
 
   $main::lxdebug->leave_sub();
@@ -373,7 +373,7 @@ sub print {
     if ($form->{"checked_$i"}) {
       $form->info($locale->text('Printing ... '));
 
-      if (BP->print_spool(\%myconfig, \%$form, $main::spool, "| $selected_printer")) {
+      if (BP->print_spool(\%myconfig, \%$form, "| $selected_printer")) {
         print $locale->text('done');
         $form->redirect($locale->text('Marked entries printed!'));
       }
@@ -537,6 +537,7 @@ sub list_spool {
   my $i = 0;
   my $j = 0;
   my $spoolfile;
+  my $spool = $::lx_office_conf{paths}->{spool};
 
   foreach my $ref (@{ $form->{SPOOL} }) {
 
@@ -566,7 +567,7 @@ sub list_spool {
       "<td><a href=$module?action=edit&id=$ref->{id}&type=$form->{type}&callback=$callback>$ref->{quonumber}</a></td>";
     $column_data{name}      = "<td>$ref->{name}</td>";
     $column_data{spoolfile} =
-      qq|<td><a href=$main::spool/$ref->{spoolfile}>$ref->{spoolfile}</a></td>
+      qq|<td><a href=$spool/$ref->{spoolfile}>$ref->{spoolfile}</a></td>
 <input type=hidden name="spoolfile_$i" value=$ref->{spoolfile}>
 |;
 

@@ -1526,7 +1526,7 @@ sub form_header {
 
   $auth->assert('part_service_assembly_edit');
 
-  $form->{eur}              = $main::eur; # config dumps into namespace - yuck
+  $form->{eur}              = $::lx_office_conf{system}->{eur}; # config dumps into namespace - yuck
   $form->{pg_keys}          = sub { "$_[0]->{partsgroup}--$_[0]->{id}" };
   $form->{description_area} = ($form->{rows} = $form->numtextrows($form->{description}, 40)) > 1;
   $form->{notes_rows}       =  max 4, $form->numtextrows($form->{notes}, 40), $form->numtextrows($form->{formel}, 40);

@@ -78,6 +78,12 @@ sub update_attributes {
   return $self;
 }
 
+sub call_sub {
+  my $self = shift;
+  my $sub  = shift;
+  return $self->$sub(@_);
+}
+
 1;
 
 __END__
@@ -130,6 +136,14 @@ the object itself.
 Returns the manager package for the object or class that it is called
 on. Can be used from methods in this package for getting the actual
 object's manager.
+
+=item C<call_sub $name, @args>
+
+Calls the sub C<$name> on C<$self> with the arguments C<@args> and
+returns its result. This is meant for situations in which the sub's
+name is a composite, e.g.
+
+  my $chart_id = $buchungsgruppe->call_sub(($is_sales ? "income" : "expense") . "_accno_id_${taxzone_id}");
 
 =back
 

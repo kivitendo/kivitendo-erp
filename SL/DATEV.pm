@@ -58,7 +58,7 @@ sub get_path_for_download_token {
   my $path;
 
   if ($token =~ m|^(\d+)-(\d+)-(\d+)$|) {
-    $path = "${main::userspath}/datev-export-${1}-${2}-${3}";
+    $path = $::lx_office_conf{paths}->{userspath} . "/datev-export-${1}-${2}-${3}";
   }
 
   $main::lxdebug->leave_sub();
@@ -84,7 +84,7 @@ sub get_download_token_for_path {
 sub clean_temporary_directories {
   $main::lxdebug->enter_sub();
 
-  foreach my $path (glob "${main::userspath}/datev-export-*") {
+  foreach my $path (glob($::lx_office_conf{paths}->{userspath} . "/datev-export-*")) {
     next unless (-d $path);
 
     my $mtime = (stat($path))[9];

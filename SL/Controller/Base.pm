@@ -55,7 +55,7 @@ sub render {
       my $content_type  = $options->{type} eq 'js' ? 'text/javascript' : 'text/html';
 
       print $::form->create_http_response(content_type => $content_type,
-                                          charset      => $::dbcharset || Common::DEFAULT_CHARSET());
+                                          charset      => $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET());
 
     } else {
       $::form->{title} = $locals{title} if $locals{title};
@@ -67,14 +67,7 @@ sub render {
                  AUTH     => $::auth,
                  FORM     => $::form,
                  LOCALE   => $::locale,
-                 LXCONFIG => { dbcharset              => $::dbcharset,
-                               webdav                 => $::webdav,
-                               lizenzen               => $::lizenzen,
-                               latex_templates        => $::latex,
-                               opendocument_templates => $::opendocument_templates,
-                               vertreter              => $::vertreter,
-                               show_best_before       => $::show_best_before,
-                             },
+                 LXCONFIG => \%::lx_office_conf,
                  LXDEBUG  => $::lxdebug,
                  MYCONFIG => \%::myconfig,
                  SELF     => $self,
@@ -179,7 +172,7 @@ sub _template_obj {
                     PLUGIN_BASE  => 'SL::Template::Plugin',
                     INCLUDE_PATH => '.:templates/webpages',
                     COMPILE_EXT  => '.tcc',
-                    COMPILE_DIR  => $::userspath . '/templates-cache',
+                    COMPILE_DIR  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
                   }) || croak;
 
   return $self->{__basepriv_template_obj};
@@ -336,9 +329,10 @@ The template itself has access to the following variables:
 
 =item * C<LOCALE> -- C<$::locale>
 
-=item * C<LXCONFIG> -- all parameters from C<config/lx-erp.conf> with
-the same name they appear in the file (e.g. C<dbcharset>, C<webdav>
-etc)
+=item * C<LXCONFIG> -- all parameters from C<config/lx_office.conf>
+with the same name they appear in the file (first level is the
+section, second the actual variable, e.g. C<system.dbcharset>,
+C<features.webdav> etc)
 
 =item * C<LXDEBUG> -- C<$::lxdebug>
 

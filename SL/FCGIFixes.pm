@@ -25,7 +25,7 @@ use version;
 
 sub fix_print_and_internal_encoding_after_0_68 {
   return if version->new("$FCGI::VERSION")->numify <= version->new("0.68")->numify;
-  return if lc($::dbcharset) !~ m/^(?:utf-?8|unicode)$/;
+  return if lc($::lx_office_conf{system}->{dbcharset}) !~ m/^(?:utf-?8|unicode)$/;
 
   my $encoder             = Encode::find_encoding('UTF-8');
   my $original_fcgi_print = \&FCGI::Stream::PRINT;

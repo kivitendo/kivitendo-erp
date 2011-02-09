@@ -383,7 +383,7 @@ sub save {
 
   $form->{saved_donumber} = $form->{donumber};
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   $main::lxdebug->leave_sub();
 
@@ -491,7 +491,7 @@ sub delete {
 
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
-  my $spool    = $main::spool;
+  my $spool    = $::lx_office_conf{paths}->{spool};
 
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
@@ -712,7 +712,7 @@ sub retrieve {
     $sth->finish();
   }
 
-  Common::webdav_folder($form) if ($main::webdav);
+  Common::webdav_folder($form);
 
   $main::lxdebug->leave_sub();
 

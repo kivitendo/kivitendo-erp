@@ -12,6 +12,9 @@
     <script type="text/javascript" src="js/calculate_qty.js"></script>
     <script type="text/javascript" src="js/customer_or_vendor_selection.js"></script>
     <script type="text/javascript" src="js/follow_up.js"></script>
+    [%- IF is_sales_ord %]
+     [% L.javascript_tag("js/edit_periodic_invoices_config") %]
+    [%- END %]
 
 [%- FOREACH row = HIDDENS %]
    <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" >

@@ -42,6 +42,7 @@ use POSIX qw(strftime);
 use Sys::Hostname;
 
 use SL::Auth;
+use SL::Auth::PasswordPolicy;
 use SL::Form;
 use SL::Iconv;
 use SL::Mailer;
@@ -143,10 +144,11 @@ sub check_auth_db_and_tables {
     ::end_of_request();
   }
 
-  if (-f $main::memberfile) {
+  my $memberfile = $::lx_office_conf{paths}->{memberfile};
+  if (-f $memberfile) {
     my $memberdir = "";
 
-    if ($main::memberfile =~ m|^.*/|) {
+    if ($memberfile =~ m|^.*/|) {
       $memberdir = $&;
     }
 
@@ -154,7 +156,7 @@ sub check_auth_db_and_tables {
 
     $form->{title} = $locale->text('User data migration');
     $form->header();
-    print $form->parse_html_template('admin/user_migration', { 'memberfile' => $main::memberfile,
+    print $form->parse_html_template('admin/user_migration', { 'memberfile' => $memberfile,
                                                                'backupdir'  => $backupdir });
 
     ::end_of_request();
@@ -178,7 +180,8 @@ sub create_auth_tables {
   $main::auth->set_session_value('rpw', $form->{rpw});
   $main::auth->create_or_refresh_session();
 
-  if (!-f $main::memberfile) {
+  my $memberfile = $::lx_office_conf{paths}->{memberfile};
+  if (!-f $memberfile) {
     # New installation -- create a standard group with full access
     my %members;
     my $group = {
@@ -203,7 +206,8 @@ sub migrate_users {
 
   my $memberdir = "";
 
-  if ($main::memberfile =~ m|^.*/|) {
+  my $memberfile = $::lx_office_conf{paths}->{memberfile};
+  if ($memberfile =~ m|^.*/|) {
     $memberdir = $&;
   }
 
@@ -213,9 +217,9 @@ sub migrate_users {
     $form->error(sprintf($locale->text('The directory "%s" could not be created:\n%s'), $backupdir, $!));
   }
 
-  copy $main::memberfile, "users/member-file-migration/members";
+  copy $memberfile, "users/member-file-migration/members";
 
-  my $in = IO::File->new($main::memberfile, "r");
+  my $in = IO::File->new($memberfile, "r");
 
   $form->error($locale->text('Could not open the old memberfile.')) if (!$in);
 
@@ -266,7 +270,7 @@ sub migrate_users {
     }
   }
 
-  unlink $main::memberfile;
+  unlink $memberfile;
 
   my @member_list = sort { lc $a->{login} cmp lc $b->{login} } values %members;
 
@@ -341,7 +345,7 @@ sub list_users {
   map { $_->{templates} =~ s|.*/||; } values %members;
 
   $form->{title}   = "Lx-Office ERP " . $locale->text('Administration');
-  $form->{LOCKED}  = -e "$main::userspath/nologin";
+  $form->{LOCKED}  = -e _nologin_file_name();
   $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
 
   $form->header();
@@ -411,14 +415,14 @@ sub edit_user_form {
   }
 
   # is there a templates basedir
-  if (!-d "$main::templates") {
-    $form->error(sprintf($locale->text("The directory %s does not exist."), $main::templates));
+  if (!-d $::lx_office_conf{paths}->{templates}) {
+    $form->error(sprintf($locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
   }
 
-  opendir TEMPLATEDIR, "$main::templates/." or $form->error("$main::templates : $ERRNO");
+  opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
   my @all     = readdir(TEMPLATEDIR);
-  my @alldir  = sort grep { -d "$main::templates/$_" && !/^\.\.?$/ } @all;
-  my @allhtml = sort grep { -f "$main::templates/$_" && /\.html$/ } @all;
+  my @alldir  = sort grep { -d ($::lx_office_conf{paths}->{templates} . "/$_") && !/^\.\.?$/ } @all;
+  my @allhtml = sort grep { -f ($::lx_office_conf{paths}->{templates} . "/$_") &&  /\.html$/ } @all;
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
@@ -497,13 +501,13 @@ sub save_user {
   }
 
   # is there a basedir
-  if (!-d "$main::templates") {
-    $form->error(sprintf($locale->text("The directory %s does not exist."), $main::templates));
+  if (!-d $::lx_office_conf{paths}->{templates}) {
+    $form->error(sprintf($locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
   }
 
   # add base directory to $form->{templates}
   $form->{templates} =~ s|.*/||;
-  $form->{templates} =  "$main::templates/$form->{templates}";
+  $form->{templates} =  $::lx_office_conf{paths}->{templates} . "/$form->{templates}";
 
   my $myconfig = new User($form->{login});
 
@@ -521,14 +525,8 @@ sub save_user {
 
   $myconfig->save_member();
 
-  if ($main::auth->can_change_password()
-      && defined $form->{new_password}
-      && ($form->{new_password} ne '********')) {
-    $main::auth->change_password($form->{login}, $form->{new_password});
-  }
-
   $form->{templates}       =~ s|.*/||;
-  $form->{templates}       =  "$main::templates/$form->{templates}";
+  $form->{templates}       =  $::lx_office_conf{paths}->{templates} . "/$form->{templates}";
   $form->{mastertemplates} =~ s|.*/||;
 
   # create user template directory and copy master files
@@ -540,14 +538,14 @@ sub save_user {
       umask(007);
 
       # copy templates to the directory
-      opendir TEMPLATEDIR, "$main::templates/." or $form->error("$main::templates : $ERRNO");
+      opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
       my @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|odt|xml|txb)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
       foreach my $file (@templates) {
-        open(TEMP, "$main::templates/$file")
-          or $form->error("$main::templates/$file : $ERRNO");
+        open(TEMP, $::lx_office_conf{paths}->{templates} . "/$file")
+          or $form->error($::lx_office_conf{paths}->{templates} . "/$file : $ERRNO");
 
         $file =~ s/\Q$form->{mastertemplates}\E-//;
         open(NEW, ">$form->{templates}/$file")
@@ -579,8 +577,20 @@ sub save_user {
     }
   }
 
-  $form->redirect($locale->text('User saved!'));
+  if ($main::auth->can_change_password()
+      && defined $form->{new_password}
+      && ($form->{new_password} ne '********')) {
+    my $verifier = SL::Auth::PasswordPolicy->new;
+    my $result   = $verifier->verify($form->{new_password}, 1);
 
+    if ($result != SL::Auth::PasswordPolicy->OK()) {
+      $form->error($::locale->text('The settings were saved, but the password was not changed.') . ' ' . join(' ', $verifier->errors($result)));
+    }
+
+    $main::auth->change_password($form->{login}, $form->{new_password});
+  }
+
+  $form->redirect($locale->text('User saved!'));
 }
 
 sub save_user_as_new {
@@ -758,12 +768,12 @@ sub create_dataset {
   }
   closedir SQLDIR;
 
-  my $default_charset = $main::dbcharset;
+  my $default_charset = $::lx_office_conf{system}->{dbcharset};
   $default_charset ||= Common::DEFAULT_CHARSET;
 
   my $cluster_encoding = User->dbclusterencoding($form);
   if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i)) {
-    if ($main::dbcharset !~ m/^UTF-?8$/i) {
+    if ($::lx_office_conf{system}->{dbcharset} !~ m/^UTF-?8$/i) {
       $form->show_generic_error($locale->text('The selected  PostgreSQL installation uses UTF-8 as its encoding. ' .
                                               'Therefore you have to configure Lx-Office to use UTF-8 as well.'),
                                 'back_button' => 1);
@@ -836,8 +846,8 @@ sub backup_dataset {
 
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
-  if ("$main::pg_dump_exe" eq "DISABLED") {
-    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+  if ($::lx_office_conf{applications}->{pg_dump} eq "DISABLED") {
+    $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
   }
 
   my @dbsources         = sort User->dbsources($form);
@@ -858,10 +868,10 @@ sub backup_dataset_start {
 
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
-  $main::pg_dump_exe ||= "pg_dump";
+  my $pg_dump_exe = $::lx_office_conf{applications}->{pg_dump} || "pg_dump";
 
-  if ("$main::pg_dump_exe" eq "DISABLED") {
-    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+  if ("$pg_dump_exe" eq "DISABLED") {
+    $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
   }
 
   $form->isblank("dbname", $locale->text('The dataset name is missing.'));
@@ -886,7 +896,7 @@ sub backup_dataset_start {
   push @args, ("-p", $form->{dbport}) if ($form->{dbport});
   push @args, $form->{dbname};
 
-  my $cmd  = "$main::pg_dump_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
+  my $cmd  = "$pg_dump_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
   my $name = "dataset_backup_$form->{dbname}_" . strftime("%Y%m%d", localtime()) . ".tar";
 
   if ($form->{destination} ne "email") {
@@ -925,7 +935,7 @@ sub backup_dataset_start {
 
     map { $mail->{$_} = $form->{$_} } qw(from to cc subject message);
 
-    $mail->{charset}     = $main::dbcharset ? $main::dbcharset : Common::DEFAULT_CHARSET;
+    $mail->{charset}     = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
     $mail->{attachments} = [ { "filename" => $tmp, "name" => $name } ];
     $mail->send();
 
@@ -945,11 +955,11 @@ sub restore_dataset {
 
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
-  if ("$main::pg_restore_exe" eq "DISABLED") {
-    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+  if ($::lx_office_conf{applications}->{pg_restore} eq "DISABLED") {
+    $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
   }
 
-  my $default_charset   = $main::dbcharset;
+  my $default_charset   = $::lx_office_conf{system}->{dbcharset};
   $default_charset    ||= Common::DEFAULT_CHARSET;
 
   $form->{DBENCODINGS}  = [];
@@ -970,10 +980,10 @@ sub restore_dataset_start {
 
   $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
-  $main::pg_restore_exe ||= "pg_restore";
+  my $pg_restore_exe = $::lx_office_conf{applications}->{pg_restore} || "pg_restore";
 
-  if ("$main::pg_restore_exe" eq "DISABLED") {
-    $form->error($locale->text('Database backups and restorations are disabled in lx-erp.conf.'));
+  if ("$pg_restore_exe" eq "DISABLED") {
+    $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
   }
 
   $form->isblank("new_dbname", $locale->text('The dataset name is missing.'));
@@ -1059,7 +1069,7 @@ sub restore_dataset_start {
   push @args, ("-p", $form->{dbport}) if ($form->{dbport});
   push @args, $tmp;
 
-  my $cmd = "$main::pg_restore_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
+  my $cmd = "$pg_restore_exe " . join(" ", map { s/\\/\\\\/g; s/\"/\\\"/g; $_ } @args);
 
   my $in = IO::File->new("$cmd 2>&1 |");
 
@@ -1091,7 +1101,7 @@ sub unlock_system {
   my $form   = $main::form;
   my $locale = $main::locale;
 
-  unlink "$main::userspath/nologin";
+  unlink _nologin_file_name();;
 
   $form->{callback} = "admin.pl?action=list_users";
 
@@ -1103,7 +1113,7 @@ sub lock_system {
   my $form   = $main::form;
   my $locale = $main::locale;
 
-  open(FH, ">$main::userspath/nologin")
+  open(FH, ">" . _nologin_file_name())
     or $form->error($locale->text('Cannot create Lock!'));
   close(FH);
 
@@ -1172,6 +1182,10 @@ sub dispatcher {
 
 sub _apply_dbupgrade_scripts {
   ::end_of_request() if SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(1);
+}
+
+sub _nologin_file_name {
+  return $::lx_office_conf{paths}->{userspath} . '/nologin';
 }
 
 1;

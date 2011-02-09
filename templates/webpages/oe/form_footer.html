@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
+[%- USE L %]
   <tr>
     <td>
       <table width="100%">
@@ -27,6 +28,18 @@
                            show_empty = 1 -%]
                 </td>
             </tr>
+
+[%- IF is_sales_ord %]
+            <tr>
+             <th align="right">[%- LxERP.t8('Periodic Invoices') %]</th>
+             <td>
+              [% L.button_tag("edit_periodic_invoices_config(); return false;", LxERP.t8('Configure')) %]
+              ([% HTML.escape(periodic_invoices_status) %])
+              [% L.hidden_tag("periodic_invoices_config", periodic_invoices_config) %]
+             </td>
+            </tr>
+[%- END %]
+
       [%- IF id && num_follow_ups %]
       <tr>
        <td colspan="2">[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', num_follow_ups, num_due_follow_ups) %]</td>

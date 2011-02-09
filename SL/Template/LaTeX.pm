@@ -447,7 +447,7 @@ sub convert_to_pdf {
 }
 
 sub _get_latex_path {
-  return $main::latex_bin || 'pdflatex';
+  return $::lx_office_conf{applications}->{latex} || 'pdflatex';
 }
 
 sub get_mime_type() {

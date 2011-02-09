@@ -55,7 +55,7 @@ sub new {
 
   my ($type, $country) = @_;
 
-  $country ||= $::language;
+  $country ||= $::lx_office_conf{system}->{language};
   $country   =~ s|.*/||;
   $country   =~ s|\.||g;
 
@@ -96,8 +96,8 @@ sub _init {
     }
   }
 
-  my $db_charset            = $main::dbcharset || Common::DEFAULT_CHARSET;
-  $self->{is_utf8}          = (any { lc($::dbcharset || '') eq $_ } qw(utf8 utf-8 unicode)) ? 1 : 0;
+  my $db_charset            = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
+  $self->{is_utf8}          = (any { lc($::lx_office_conf{system}->{dbcharset} || '') eq $_ } qw(utf8 utf-8 unicode)) ? 1 : 0;
 
   if ($self->{is_utf8}) {
     binmode STDOUT, ":utf8";

@@ -1,6 +1,7 @@
 [%- USE HTML %]
 [%- USE T8 %]
 [%- USE LxERP %]
+[%- USE L %]
 [%- SET vclabel = vc == 'customer' ? LxERP.t8('Customer') : LxERP.t8('Vendor') %]
 [%- SET vcnumberlabel = vc == 'customer' ? LxERP.t8('Customer Number') : LxERP.t8('Vendor Number') %]
 <body>
@@ -148,6 +149,16 @@
         <td>
          <input name="delivered" id="delivered" class="checkbox" type="checkbox" value="1" checked>
          <label for="delivered">[% 'Delivered' | $T8 %]</label>
+        </td>
+       </tr>
+[%- END %]
+[%- IF type == 'sales_order' %]
+       <tr>
+        <td>
+         [% L.checkbox_tag("periodic_invoices_active", label => LxERP.t8("Periodic invoices active")) %]
+        </td>
+        <td>
+         [% L.checkbox_tag("periodic_invoices_inactive", label => LxERP.t8("Periodic invoices inactive")) %]
         </td>
        </tr>
 [%- END %]
