@@ -6,9 +6,14 @@ use Config::Std;
 use Encode;
 
 sub read {
-  my $file = -f 'config/lx_office.conf' ? 'config/lx_office.conf' : 'config/lx_office.conf.default';
-  read_config $file => %::lx_office_conf;
+  read_config 'config/lx_office.conf.default' => %::lx_office_conf;
   _decode_recursively(\%::lx_office_conf);
+
+  if (-f 'config/lx_office.conf') {
+    read_config 'config/lx_office.conf' => my %local_conf;
+    _decode_recursively(\%local_conf);
+    _flat_merge(\%::lx_office_conf, \%local_conf);
+  }
 }
 
 sub _decode_recursively {
@@ -19,6 +24,19 @@ sub _decode_recursively {
       _decode_recursively($value);
     } else {
       $obj->{$key} = decode('UTF-8', $value);
+    }
+  }
+}
+
+sub _flat_merge {
+  my ($dst, $src) = @_;
+
+  while (my ($key, $value) = each %{ $src }) {
+    if (!exists $dst->{$key}) {
+      $dst->{$key} = $value;
+
+    } else {
+      map { $dst->{$key}->{$_} = $value->{$_} } keys %{ $value };
     }
   }
 }
