@@ -229,7 +229,7 @@ sub _num_decimal_places {
 }
 
 sub _dbg {
-  $::lxdebug->message(0, join(' ', @_));
+  # $::lxdebug->message(0, join(' ', @_));
 }
 
 1;

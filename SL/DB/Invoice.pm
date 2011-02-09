@@ -178,7 +178,7 @@ sub post {
   if ($self->db->in_transaction) {
     $worker->();
   } elsif (!$self->db->do_transaction($worker)) {
-    $::lxdebug->message(0, "convert_to_invoice failed: " . join("\n", (split(/\n/, $self->db->error))[0..2]));
+    $::lxdebug->message(LXDebug->WARN(), "convert_to_invoice failed: " . join("\n", (split(/\n/, $self->db->error))[0..2]));
     return undef;
   }
 
