@@ -2,8 +2,6 @@ package SL::DB::PeriodicInvoicesConfig;
 
 use strict;
 
-use Readonly;
-
 use SL::DB::MetaSetup::PeriodicInvoicesConfig;
 
 __PACKAGE__->meta->add_relationships(
@@ -19,8 +17,8 @@ __PACKAGE__->meta->initialize;
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
 
-Readonly our @PERIODICITIES  => qw(m q f b y);
-Readonly our %PERIOD_LENGTHS => ( m => 1, q => 3, f => 4, b => 6, y => 12 );
+our @PERIODICITIES  = qw(m q f b y);
+our %PERIOD_LENGTHS = ( m => 1, q => 3, f => 4, b => 6, y => 12 );
 
 sub get_period_length {
   my $self = shift;
