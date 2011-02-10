@@ -78,48 +78,42 @@ config_postgresql_sql_routines() {
 
 set_lx_office_erp_web_admin_password() {
 
+    	if ! [ -f /etc/lx-office-erp/lx_office.conf ] ; then
+		cp /etc/lx-office-erp/lx_office.conf.default /etc/lx-office-erp/lx_office.conf
+	fi
 	db_get lx-office-erp/admin-password
 	ADMINPASSWORD="$RET"
 
-	cat /etc/lx-office-erp/authentication.pl.default | \
-	sed --expression "s/\$self->{admin_password} = 'admin';/\$self->{admin_password} = '$ADMINPASSWORD';/g" \
+	cat /etc/lx-office-erp/lx_office.conf | \
+	sed --expression "s/admin_password = /admin_password = $ADMINPASSWORD/g" \
 	> /tmp/1.txt
 
-	mv /tmp/1.txt /etc/lx-office-erp/authentication.pl
+	mv /tmp/1.txt /etc/lx-office-erp/lx_office.conf
 
 }
 
 
-set_lx_office_erp_authentication_db_password() {
+set_lx_office_erp_authentication_db_user_password() {
 	db_get lx-office-erp/lx-office-erp-user-postgresql-password
 	PASSWORD="$RET"
 
-	cat /etc/lx-office-erp/authentication.pl | \
-	sed --expression "s/'password' => '',/'password' => '$PASSWORD',/g" \
+	cat /etc/lx-office-erp/lx_office.conf | \
+	sed --expression "s/^password = /password = $PASSWORD/g" \
 	> /tmp/1.txt
 
-	mv /tmp/1.txt /etc/lx-office-erp/authentication.pl
+	cat /tmp/1.txt | \
+	sed --expression "s/^user = postgres/user = lxoffice/g" \
+	>  /etc/lx-office-erp/lx_office.conf
 
 }
 
-set_lx_office_erp_authentication_db_user() {
-	USER="lxoffice"
-
-	cat /etc/lx-office-erp/authentication.pl | \
-	sed --expression "s/'user'     => 'postgres',/'user'     => '$USER',/g" \
-	> /tmp/1.txt
-
-	mv /tmp/1.txt /etc/lx-office-erp/authentication.pl
-}
 
 set_user_rights() {
 	chown -R www-data:www-data /usr/lib/lx-office-erp/users
 	chown -R www-data:www-data /usr/lib/lx-office-erp/templates
 	chown www-data:www-data /etc/lx-office-erp/lx_office.conf
 	chown www-data:www-data /usr/lib/lx-office-erp/menu.ini
-	chown www-data:www-data /etc/lx-office-erp/authentication.pl
 	chmod 0600 /etc/lx-office-erp/lx_office.conf
-	chmod 0600 /etc/lx-office-erp/authentication.pl
 }
 
 disable_ipv6_on_lo_interface() {
@@ -154,12 +148,15 @@ mk_new_config() {
 }
 
 mk_links() {
-    if ! [ -f /usr/lib/lx-office-erp/config/authentication.pl ] ; then
-        ln -s /etc/lx-office-erp/authentication.pl /usr/lib/lx-office-erp/config/authentication.pl
-    fi;
     if ! [ -f /usr/lib/lx-office-erp/config/lx_office.conf ] ; then
         ln -s /etc/lx-office-erp/lx_office.conf /usr/lib/lx-office-erp/config/lx_office.conf
     fi;
+    if ! [ -f /usr/lib/lx-office-erp/config/lx_office.conf.default ] ; then
+        ln -s /etc/lx-office-erp/lx_office.conf.default /usr/lib/lx-office-erp/config/lx_office.conf.default
+    fi;
+    if [ -e /etc/lx-office-erp/authentication.pl ] ; then
+	rm /etc/lx-office-erp/authentication.pl
+    fi
     if [ -e /etc/apache2 ] ; then
         if ! [ -f /etc/apache2/conf.d/lx-office-erp.apache2.conf ] ; then
             ln -s /etc/lx-office-erp/lx-office-erp.apache2.conf /etc/apache2/conf.d/lx-office-erp.apache2.conf
@@ -196,15 +193,14 @@ case "$1" in
         VER=`cat /var/www/lx-office-erp/VERSION | cut -d '.' -f2`
         if [ $VER = '6' ]; then
             echo " ! 2.6 !" >> /tmp/lxo-erp.log
-            echo "Version 2.6"
+            echo "Version 2.6.x"
             mk_new_menu
         else
             mk_new_menu
             mk_new_config
             config_postgresql_factory_script
             set_lx_office_erp_web_admin_password
-            set_lx_office_erp_authentication_db_user
-            set_lx_office_erp_authentication_db_password
+            set_lx_office_erp_authentication_db_user_password
 	    #  disable_ipv6_on_lo_interface
             mk_links
         fi;
@@ -220,8 +216,7 @@ case "$1" in
         mk_new_config
         config_postgresql_factory_script
         set_lx_office_erp_web_admin_password
-        set_lx_office_erp_authentication_db_user
-        set_lx_office_erp_authentication_db_password
+        set_lx_office_erp_authentication_db_user_password
         # disable_ipv6_on_lo_interface
         mk_links
 
