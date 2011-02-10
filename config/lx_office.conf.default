@@ -1,3 +1,61 @@
+[authentication]
+# The cleartext password for access to the administrative part.  It
+# can only be changed in this file, not via the administrative
+# interface.
+admin_password = admin123
+
+# Which module to use for authentication. Valid values are 'DB' and
+# 'LDAP'.  If 'LDAP' is used then users cannot change their password
+# via Lx-Office.
+module = DB
+
+# The cookie name can be changed if desired.
+cookie_name = lx_office_erp_session_id
+
+# The number of minutes a session is valid. The default value is eight
+# hours.
+session_timeout = 480
+
+[authentication/database]
+# Connection information for the database with the user and group
+# inforamtion.  This information is always needed, even if LDAP is
+# used for authentication, as the user information is stored in this
+# database while LDAP is only used for password verification.
+#
+# If 'module' is set to 'DB' then this database also contains the
+# users' passwords.
+host     = localhost
+port     = 5432
+db       = lxerp_auth
+user     = postgres
+password =
+
+[authentication/ldap]
+# This section is only relevant if 'module' is set to 'LDAP'. It names
+# the LDAP server the passwords are verified against by doing a LDAP
+# bind operation.
+#
+# At least the parameters 'host', 'aatribute' and 'base_dn' have to be
+# specified.
+#
+# tls:       Activate encryption via TLS
+# attribute: Name of the LDAP attribute containing the user's login name
+# base_dn:   Base DN the LDAP searches start from
+# filter:    An optional LDAP filter specification. The string '<%login%>'
+#            is replaced by the user's login name before the search is started.
+# bind_dn and bind_password:
+#            If searching the LDAP tree requires user credentials
+#            (e.g. ActiveDirectory) then these two parameters specify
+#            the user name and password to use.
+host          = localhost
+port          = 389
+tls           = 0
+attribute     = uid
+base_dn       =
+filter        =
+bind_dn       =
+bind_password =
+
 [system]
 # EUR: Einnahmen-Überschussrechnung (net income method). Set this to 1
 # if your company uses the net income method and to 0 for balacing.

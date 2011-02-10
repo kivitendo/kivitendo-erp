@@ -52,11 +52,8 @@ my %conditional_dependencies;
 sub check_for_conditional_dependencies {
   return if $conditional_dependencies{net_ldap}++;
 
-  my $self = {};
-  eval do { local (@ARGV, $/) = 'config/authentication.pl'; <> } or return;
-
   push @required_modules, { 'name' => 'Net::LDAP', 'url' => 'http://search.cpan.org/~gbarr/' }
-    if $self->{module} && ($self->{module} eq 'LDAP');
+    if $::lx_office_conf{authentication} && ($::lx_office_conf{authentication}->{module} eq 'LDAP');
 }
 
 sub test_all_modules {
