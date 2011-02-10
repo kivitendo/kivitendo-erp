@@ -413,10 +413,10 @@ LDAP-Server überprüft werden.
 
    Welche Art der Passwortüberprüfung Lx-Office benutzt und wie
 Lx-Office die Authentifizierungsdatenbank erreichen kann, wird in der
-Konfigurationsdatei `config/authentication.pl' festgelegt. Diese muss
-bei der Installation und bei einem Upgrade von einer Version vor v2.6.0
+Konfigurationsdatei `config/lx_office.conf' festgelegt. Diese muss bei
+der Installation und bei einem Upgrade von einer Version vor v2.6.0
 angelegt werden. Eine Beispielkonfigurationsdatei
-`config/authentication.pl.default' existiert, die als Vorlage benutzt
+`config/lx_office.conf.default' existiert, die als Vorlage benutzt
 werden kann.
 
 6.2 Administratorpasswort
@@ -511,7 +511,7 @@ existiert.
 6.6 Anlegen der Authentifizierungsdatenbank
 ===========================================
 
-Nachdem alle Einstellungen in `config/authentication.pl' vorgenommen
+Nachdem alle Einstellungen in `config/lx_office.conf' vorgenommen
 wurden, muss Lx-Office die Authentifizierungsdatenbank anlegen. Dieses
 geschieht automatisch, wenn Sie sich im Administrationsmodul anmelden,
 das unter der folgenden URL erreichbar sein sollte:
@@ -528,7 +528,7 @@ folgender URL finden:
    `http://localhost/lx-erp/admin.pl'
 
    Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
-`config/authentication.pl' eingetragen haben.
+`config/lx_office.conf' eingetragen haben.
 
 7.1 Zusammenhänge
 ==================
