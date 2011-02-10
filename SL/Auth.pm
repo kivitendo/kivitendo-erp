@@ -78,27 +78,11 @@ sub mini_error {
 sub _read_auth_config {
   $main::lxdebug->enter_sub();
 
-  my $self   = shift;
+  my $self = shift;
 
-  my $code;
-  my $in = IO::File->new('config/authentication.pl', 'r');
-
-  if (!$in) {
-    my $locale = Locale->new('en');
-    $self->mini_error($locale->text('The config file "config/authentication.pl" was not found.'));
-  }
-
-  while (<$in>) {
-    $code .= $_;
-  }
-  $in->close();
-
-  eval $code;
-
-  if ($@) {
-    my $locale = Locale->new('en');
-    $self->mini_error($locale->text('The config file "config/authentication.pl" contained invalid Perl code:'), $@);
-  }
+  map { $self->{$_} = $::lx_office_conf{authentication}->{$_} } keys %{ $::lx_office_conf{authentication} };
+  $self->{DB_config}   = $::lx_office_conf{'authentication/database'};
+  $self->{LDAP_config} = $::lx_office_conf{'authentication/ldap'};
 
   if ($self->{module} eq 'DB') {
     $self->{authenticator} = SL::Auth::DB->new($self);
@@ -109,19 +93,19 @@ sub _read_auth_config {
 
   if (!$self->{authenticator}) {
     my $locale = Locale->new('en');
-    $self->mini_error($locale->text('No or an unknown authenticantion module specified in "config/authentication.pl".'));
+    $self->mini_error($locale->text('No or an unknown authenticantion module specified in "config/lx_office.conf".'));
   }
 
   my $cfg = $self->{DB_config};
 
   if (!$cfg) {
     my $locale = Locale->new('en');
-    $self->mini_error($locale->text('config/authentication.pl: Key "DB_config" is missing.'));
+    $self->mini_error($locale->text('config/lx_office.conf: Key "DB_config" is missing.'));
   }
 
   if (!$cfg->{host} || !$cfg->{db} || !$cfg->{user}) {
     my $locale = Locale->new('en');
-    $self->mini_error($locale->text('config/authentication.pl: Missing parameters in "DB_config". Required parameters are "host", "db" and "user".'));
+    $self->mini_error($locale->text('config/lx_office.conf: Missing parameters in "authentication/database". Required parameters are "host", "db" and "user".'));
   }
 
   $self->{authenticator}->verify_config();

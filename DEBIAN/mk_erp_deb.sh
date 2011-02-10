@@ -47,7 +47,6 @@ cp -a $SRC/*.pl usr/lib/lx-office-erp
 cp $SRC/VERSION usr/lib/lx-office-erp
 cp $SRC/index.html usr/lib/lx-office-erp
 cp $SRC/config/lx_office.conf.default etc/lx-office-erp/lx_office.conf.default
-cp $SRC/config/authentication.pl.default etc/lx-office-erp/
 cp $SRC/menu.ini usr/lib/lx-office-erp/menu.default
 cp -a $SRC/css var/lib/lx-office-erp
 cp -a $SRC/templates var/lib/lx-office-erp

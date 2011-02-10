@@ -79,10 +79,12 @@ for my $useline (keys %uselines) {
   next if $useline =~ /^most and offer that in a small/; # YAML
 
   my $version = Module::CoreList->first_release($module);
-  $modules{$module} = $supplied{$module}     ? 'included'
-                    : $version               ? sprintf '%2.6f', $version
-                    : is_documented($module) ? 'required'
-                    : '!missing';
+  $modules{$module} = { status => $supplied{$module}     ? 'included'
+                                : $version               ? sprintf '%2.6f', $version
+                                : is_documented($module) ? 'required'
+                                : '!missing',
+                        files  => $uselines{$useline},
+                      };
 
   # build requirement tree
   for my $file (@{ $uselines{$useline} }) {
@@ -99,19 +101,21 @@ while ($changed) {
   $changed = 0;
   for my $src_module (keys %requires) {
     for my $dst_module (keys %{ $requires{$src_module} }) {
-      if (   $modules{$src_module} =~ /^required/
-          && $modules{$dst_module} eq '!missing') {
-        $modules{$dst_module} = "required"; # . ", via $src_module";
+      if (   $modules{$src_module}
+          && $modules{$dst_module}
+          && $modules{$src_module}->{status} =~ /^required/
+          && $modules{$dst_module}->{status} eq '!missing') {
+        $modules{$dst_module}->{status} = "required"; # . ", via $src_module";
         $changed = 1;
       }
     }
   }
 }
 
-print sprintf "%8s : %s", color_text($modules{$_}), $_
+print sprintf "%8s : %s (%s)", color_text($modules{$_}->{status}), $_, join(' ', @{ $modules{$_}->{files} || [] })
   for sort {
-       $modules{$a} cmp $modules{$b}
-    ||          $a  cmp $b
+       $modules{$a}->{status} cmp $modules{$b}->{status}
+    ||                    $a  cmp $b
   } keys %modules;
 
 sub modulize {
