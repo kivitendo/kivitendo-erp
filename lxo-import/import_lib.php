@@ -306,20 +306,42 @@ function getAllUnits($db,$type) {
 
 function anmelden($login=false,$pwd=false) {
     ini_set("gc_maxlifetime","3600");
-    $tmp = @file_get_contents("../config/authentication.pl");
-    preg_match("/'db'[ ]*=> '(.+)'/",$tmp,$hits);
-    $dbname=$hits[1];
-    preg_match("/'password'[ ]*=> '(.+)'/",$tmp,$hits);
-    $dbpasswd=$hits[1];
-    preg_match("/'user'[ ]*=> '(.+)'/",$tmp,$hits);
-    $dbuser=$hits[1];
-    preg_match("/'host'[ ]*=> '(.+)'/",$tmp,$hits);
-    $dbhost=($hits[1])?$hits[1]:"localhost";
-    preg_match("/'port'[ ]*=> '?(.+)'?/",$tmp,$hits);
-    $dbport=($hits[1])?$hits[1]:"5432";
-    preg_match("/[ ]*\\\$self->\{cookie_name\}[ ]*=[ ]*'(.+)'/",$tmp,$hits);
-    $cookiename=$hits[1];
+    if (file_exists("../config/lx_office.conf")) {
+        $lxo = fopen("../config/lx_office.conf","r");
+    } else if (file_exists("../config/lx_office.conf.default")) {
+        $lxo = fopen("../config/lx_office.conf.default","r");
+    } else {
+        return false;
+    }
+    $dbsec = false;
+    $tmp = fgets($lxo,512);
+    while (!feof($lxo)) {
+       if (preg_match("/^[\s]*#/",$tmp)) {
+            $tmp = fgets($lxo,512);
+            continue;
+       }
+       if ($dbsec) {
+            preg_match("/db[ ]*= (.+)/",$tmp,$hits);
+            if ($hits[1]) $dbname=$hits[1];
+            preg_match("/password[ ]*= (.+)/",$tmp,$hits);
+            if ($hits[1]) $dbpasswd=$hits[1];
+            preg_match("/user[ ]*= (.+)/",$tmp,$hits);
+            if ($hits[1]) $dbuser=$hits[1];
+            preg_match("/host[ ]*= (.+)/",$tmp,$hits);
+            if ($hits[1]) $dbhost=($hits[1])?$hits[1]:"localhost";
+            preg_match("/port[ ]*= (.+)/",$tmp,$hits);
+            if ($hits[1]) $dbport=($hits[1])?$hits[1]:"5432";
+            if (preg_match("/\[[a-z]+/",$tmp)) break;
+            $tmp = fgets($lxo,512);
+            continue;
+       }
+       preg_match("/[ ]*cookie_name[ ]*=[ ]*(.+)/",$tmp,$hits);
+       if ($hits[1]) $cookiename=$hits[1];
+       if (preg_match("!\[authentication/database\]!",$tmp)) $dbsec = true;
+       $tmp = fgets($lxo,512);
+    }
     if (!$cookiename) $cookiename='lx_office_erp_session_id';
+    $cookie=$_COOKIE[$cookiename];
     if ($login) {
         $auth=authuser($dbhost,$dbport,$dbuser,$dbpasswd,$dbname,false,$login,$pwd);
     } else {
