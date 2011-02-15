@@ -45,7 +45,7 @@ function set_longdescription_window(input_name) {
   }
 
 function check_right_number_format(input_name) {
-  if(decpoint == thpoint) {
+  if(decpoint && thpoint && thpoint == decpoint) {
     return show_alert_and_focus(input_name, wrongNumberFormat);
   }
   var test_val = input_name.value;
@@ -55,10 +55,9 @@ function check_right_number_format(input_name) {
   if(thpoint && thpoint == '.'){
     test_val = test_val.replace(/\./g, '');
   }
-  if(thpoint && decpoint == ','){
+  if(decpoint && decpoint == ','){
     test_val = test_val.replace(/,/g, '.');
   }
-
   var forbidden = test_val.match(/[^-\+\/\*\.0-9\ ]/g );
   if (forbidden && forbidden.length > 0 ){
     return show_alert_and_focus(input_name, wrongNumberFormat);
