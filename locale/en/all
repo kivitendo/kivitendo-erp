@@ -1896,6 +1896,7 @@ $self->{texts} = {
   'Warning'                     => '',
   'Warnings during template upgrade' => '',
   'WebDAV link'                 => '',
+  'Webserver interface'         => '',
   'Weight'                      => '',
   'Weight unit'                 => '',
   'What <b>term</b> you are looking for?' => '',
