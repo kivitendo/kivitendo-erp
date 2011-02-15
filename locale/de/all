@@ -1897,6 +1897,7 @@ $self->{texts} = {
   'Warning'                     => 'Warnung',
   'Warnings during template upgrade' => 'Warnungen bei Aktualisierung der Dokumentenvorlagen',
   'WebDAV link'                 => 'WebDAV-Link',
+  'Webserver interface'         => 'Webserverschnittstelle',
   'Weight'                      => 'Gewicht',
   'Weight unit'                 => 'Gewichtseinheit',
   'What <b>term</b> you are looking for?' => 'Nach welchem <b>Begriff</b> wollen Sie suchen?',

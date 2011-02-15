@@ -35,6 +35,11 @@ sub new {
   return $self;
 }
 
+sub interface_type {
+  my ($self) = @_;
+  return $self->{interface} eq 'cgi' ? 'CGI' : 'FastCGI';
+}
+
 sub pre_request_checks {
   if (!$::auth->session_tables_present) {
     if ($::form->{script} eq 'admin.pl') {

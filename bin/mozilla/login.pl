@@ -163,6 +163,7 @@ sub company_logo {
 
   $form->{stylesheet} =  $myconfig{stylesheet};
   $form->{title}      =  $::locale->text('Lx-Office');
+  $form->{interface}  = $::dispatcher->interface_type;
 
   # create the logo screen
   $form->header() unless $form->{noheader};
