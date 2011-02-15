@@ -116,8 +116,7 @@ sub report {
 
   my $company_given = ($form->{company} ne '')
     ? qq|<h3>$form->{company}</h3>\n|
-    : qq|<a href="am.pl?action=config|
-      . qq|&level=Programm--Preferences">|
+    : qq|<a href="am.pl?action=config">|
       . $locale->text('No Company Name given') . qq|!</a><br>|;
 
 
