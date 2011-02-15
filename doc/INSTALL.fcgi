@@ -127,7 +127,7 @@ werden aber umgeleitet:
   # Zugriff über cgi
   Alias       /web/path/to/lx-office-erp                /path/to/lx-office-erp
 
-  # Zugriff mit mod_fastcgi:
+  # Zugriff mit mod_fcgid:
   AliasMatch ^/web/path/to/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
   Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/
 
