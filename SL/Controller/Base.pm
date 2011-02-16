@@ -65,6 +65,7 @@ sub render {
 
   my %params = ( %locals,
                  AUTH     => $::auth,
+                 FLASH    => $::form->{FLASH},
                  FORM     => $::form,
                  LOCALE   => $::locale,
                  LXCONFIG => \%::lx_office_conf,
