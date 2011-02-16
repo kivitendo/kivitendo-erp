@@ -65,7 +65,7 @@ sub _register_db {
   } elsif ($type eq 'LXOFFICE_AUTH') {
     %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
                           database        => $::auth->{DB_config}->{db},
-                          host            => $::auth->{DB_config}->{host},
+                          host            => $::auth->{DB_config}->{host} || 'localhost',
                           port            => $::auth->{DB_config}->{port} || 5432,
                           username        => $::auth->{DB_config}->{user},
                           password        => $::auth->{DB_config}->{password},
@@ -79,7 +79,7 @@ sub _register_db {
 
     %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
                           database        => $::myconfig{dbname},
-                          host            => $::myconfig{dbhost},
+                          host            => $::myconfig{dbhost} || 'localhost',
                           port            => $::myconfig{dbport} || 5432,
                           username        => $::myconfig{dbuser},
                           password        => $::myconfig{dbpasswd},
