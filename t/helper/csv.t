@@ -6,7 +6,7 @@ use_ok 'SL::Helper::Csv';
 my $csv;
 
 $csv = SL::Helper::Csv->new(
-  file   => \"Kaffee;\n",
+  file   => \"Kaffee\n",
   header => [ 'description' ],
 );
 
@@ -111,6 +111,19 @@ EOL
 );
 is $csv->parse, undef, 'broken csv header won\'t get parsed';
 
+######
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost_as_number;
+"Kaf"fee";;0.12;1,221.52
+Beer;1123245;0.12;1.5234
+EOL
+  numberformat => '1,000.00',
+  class  => 'SL::DB::Part',
+);
+is $csv->parse, undef, 'broken csv content won\'t get parsed';
+is_deeply $csv->errors, [ '"Kaf"fee";;0.12;1,221.52'."\n", 2023, 'EIQ - QUO character not allowed', 5, 2 ], 'error';
 
 done_testing();
 # vim: ft=perl

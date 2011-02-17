@@ -8,8 +8,8 @@ use IO::File;
 use Text::CSV;
 use Params::Validate qw(:all);
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
-   file encoding sep_char quote_char header header_acc class numberformat
-   dateformat _io _csv _objects _parsed _data
+   file encoding sep_char quote_char escape_char header header_acc class
+   numberformat dateformat _io _csv _objects _parsed _data _errors
 ) ];
 
 
@@ -20,6 +20,7 @@ sub new {
   my %params = validate(@_, {
     sep_char      => { default => ';' },
     quote_char    => { default => '"' },
+    escape_char   => { default => '"' },
     header        => { type    => ARRAYREF, optional => 1 },
     header_acc    => { type    => HASHREF,  optional => 1 },
     file          => 1,
@@ -35,10 +36,12 @@ sub new {
   $self->_io(IO::File->new);
   $self->_csv(Text::CSV->new({
     binary => 1,
-    sep_char   => $self->sep_char,
-    quote_char => $self->quote_char,
+    sep_char    => $self->sep_char,
+    quote_char  => $self->quote_char,
+    escape_char => $self->escape_char,
 
   }));
+  $self->_errors([]);
 
   return $self;
 }
@@ -67,6 +70,10 @@ sub get_objects {
   return wantarray ? @{ $self->_objects } : $self->_objects;
 }
 
+sub errors {
+  @{ $_[0]->_errors }
+}
+
 # private stuff
 
 sub _open_file {
@@ -91,14 +98,32 @@ sub _check_header {
 
 sub _parse_data {
   my ($self, %params) = @_;
-  my @data;
+  my (@data, @errors);
 
   $self->_csv->column_names(@{ $self->header });
 
-  push @data, $self->_csv->getline_hr($self->_io)
-    while !$self->_csv->eof;
+  while (1) {
+    my $row = $self->_csv->getline($self->_io);
+    last if $self->_csv->eof;
+
+    if ($row) {
+      my %hr;
+      @hr{@{ $self->header }} = @$row;
+      push @data, \%hr;
+    } else {
+      push @errors, [
+        $self->_csv->error_input,
+        $self->_csv->error_diag,
+        $self->_io->input_line_number,
+      ];
+    }
+  }
 
   $self->_data(\@data);
+  $self->_errors(\@errors);
+
+  return if @errors;
+  return \@data;
 }
 
 sub _encode_layer {
@@ -134,6 +159,8 @@ sub _guess_encoding {
 
 __END__
 
+=encoding utf-8
+
 =head1 NAME
 
 SL::Helper::Csv - take care of csv file uploads
@@ -153,7 +180,7 @@ SL::Helper::Csv - take care of csv file uploads
   )
 
   my $status  = $csv->parse;
-  my @hrefs   = $csv->get_data;
+  my $hrefs   = $csv->get_data;
   my @objects = $scv->get_objects;
 
 =head1 DESCRIPTION
@@ -182,9 +209,22 @@ Do the actual work. Will return true ($self actually) if success, undef if not.
 
 Parse the data into objects and return those.
 
+This method will return list or arrayref depending on context.
+
 =item C<get_data>
 
 Returns an arrayref of the raw lines as hashrefs.
+
+=item C<errors>
+
+Return all errors that came up druing parsing. See error handling for detailed
+information.
+
+=back
+
+=head1 PARAMS
+
+=over 4
 
 =item C<file>
 
@@ -199,6 +239,8 @@ Know what your data ist. Defaults to utf-8.
 =item C<sep_char>
 
 =item C<quote_char>
+
+=item C<escape_char>
 
 Same as in L<Text::CSV>
 
@@ -223,8 +265,43 @@ and the return value used instead of the line itself.
 
 =back
 
-=head1 BUGS
+=head1 ERROR HANDLING
+
+After parsing a file all errors will be accumulated into C<errors>.
+
+Each entry is an arrayref with the following structure:
+
+ [
+   offending raw input,
+   Text::CSV error code if present,
+   Text::CSV error diagnostics if present,
+   position in line,
+   estimated line in file,
+ ]
+
+Note that the last entry can be off, but will give an estimate.
+
+=head1 CAVEATS
+
+=over 4
+
+=item *
+
+sep_char, quote_char, and escape_char are passed to Text::CSV on creation.
+Changing them later has no effect currently.
+
+=item *
+
+Encoding errors are not dealt with properly.
+
+=item *
+
+Errors are not gathered.
+
+=back
 
 =head1 AUTHOR
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
