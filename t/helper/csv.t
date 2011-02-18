@@ -30,14 +30,14 @@ $::locale = Locale->new('de');
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee;0.12;12,2;1,5234\n",
   header => [ 'description', 'sellprice', 'lastcost_as_number', 'listprice' ],
-  header_acc => { listprice => 'listprice_as_number' },
+  dispatch => { listprice => 'listprice_as_number' },
   class  => 'SL::DB::Part',
 );
 $csv->parse;
 
 is $csv->get_objects->[0]->sellprice, 0.12, 'numeric attr works';
 is $csv->get_objects->[0]->lastcost, 12.2, 'attr helper works';
-is $csv->get_objects->[0]->listprice, 1.5234, 'header_acc works';
+is $csv->get_objects->[0]->listprice, 1.5234, 'dispatch works';
 
 #####
 
@@ -49,7 +49,7 @@ Kaffee,0.12,'12,2','1,5234'
 EOL
   sep_char => ',',
   quote_char => "'",
-  header_acc => { listprice => 'listprice_as_number' },
+  dispatch => { listprice => 'listprice_as_number' },
   class  => 'SL::DB::Part',
 );
 $csv->parse;

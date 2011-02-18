@@ -8,7 +8,7 @@ use IO::File;
 use Text::CSV;
 use Params::Validate qw(:all);
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
-   file encoding sep_char quote_char escape_char header header_acc class
+   file encoding sep_char quote_char escape_char header dispatch class
    numberformat dateformat _io _csv _objects _parsed _data _errors
 ) ];
 
@@ -22,7 +22,7 @@ sub new {
     quote_char    => { default => '"' },
     escape_char   => { default => '"' },
     header        => { type    => ARRAYREF, optional => 1 },
-    header_acc    => { type    => HASHREF,  optional => 1 },
+    dispatch      => { type    => HASHREF,  optional => 1 },
     file          => 1,
     encoding      => 0,
     class         => 0,
@@ -74,6 +74,10 @@ sub errors {
   @{ $_[0]->_errors }
 }
 
+sub check_header {
+  $_[0]->_check_header;
+}
+
 # private stuff
 
 sub _open_file {
@@ -94,6 +98,30 @@ sub _check_header {
   my $header = $self->_csv->getline($self->_io);
 
   $self->header($header);
+}
+
+sub _check_header_for_class {
+  my ($self, %params) = @_;
+  my @errors;
+
+  return unless $self->class;
+  return $self->header;
+
+  for my $method (@{ $self->header }) {
+    next if $self->class->can($self->_real_method($method));
+
+    push @errors, [
+      $method,
+      undef,
+      "header field $method is not recognized",
+      undef,
+      0,
+    ];
+  }
+
+  $self->_push_error(@errors);
+
+  return ! @errors;
 }
 
 sub _parse_data {
@@ -120,10 +148,9 @@ sub _parse_data {
   }
 
   $self->_data(\@data);
-  $self->_errors(\@errors);
+  $self->_push_error(@errors);
 
-  return if @errors;
-  return \@data;
+  return ! @errors;
 }
 
 sub _encode_layer {
@@ -141,7 +168,7 @@ sub _make_objects {
   for my $line (@{ $self->_data }) {
     push @objs, $self->class->new(
       map {
-        ($self->header_acc && $self->header_acc->{$_}) || $_ => $line->{$_}
+        $self->_real_method($_) => $line->{$_}
       } grep { $_ } keys %$line
     );
   }
@@ -149,9 +176,20 @@ sub _make_objects {
   $self->_objects(\@objs);
 }
 
+sub _real_method {
+  my ($self, $arg) = @_;
+  ($self->dispatch && $self->dispatch->{$arg}) || $arg;
+}
+
 sub _guess_encoding {
   # won't fix
   'utf-8';
+}
+
+sub _push_error {
+  my ($self, @errors) = @_;
+  my @new_errors = ($self->errors, @errors);
+  $self->_errors(\@new_errors);
 }
 
 
@@ -175,7 +213,7 @@ SL::Helper::Csv - take care of csv file uploads
     sep_char    => ',',     # default ';'
     quote_char  => ''',     # default '"'
     header      => [qw(id text sellprice word)] # see later
-    header_acc  => { sellprice => 'sellprice_as_number' }
+    dispatch    => { sellprice => 'sellprice_as_number' }
     class       => 'SL::DB::CsvLine',   # if present, map lines to this
   )
 
@@ -191,7 +229,8 @@ Text::CSV offeres already good functions to get lines out of a csv file, but in
 most cases you will want those line to be parsed into hashes or even objects,
 so this model just skips ahead and gives you objects.
 
-Encoding autodetection is not easy, and should not be trusted. Try to avoid it if possible.
+Encoding autodetection is not easy, and should not be trusted. Try to avoid it
+if possible.
 
 =head1 METHODS
 
@@ -233,8 +272,8 @@ scalar ref for memory data.
 
 =item C<encoding>
 
-Encoding of the CSV file. Note that this module does not do any encoding guessing.
-Know what your data ist. Defaults to utf-8.
+Encoding of the CSV file. Note that this module does not do any encoding
+guessing.  Know what your data ist. Defaults to utf-8.
 
 =item C<sep_char>
 
@@ -246,10 +285,10 @@ Same as in L<Text::CSV>
 
 =item C<header> \@FIELDS
 
-can be an array of columns, in this case the first line is not used as a
+Can be an array of columns, in this case the first line is not used as a
 header. Empty header fields will be ignored in objects.
 
-=item C<header_acc> \%ACCESSORS
+=item C<dispatch> \%ACCESSORS
 
 May be used to map header fields to custom accessors. Example:
 
@@ -273,8 +312,8 @@ Each entry is an arrayref with the following structure:
 
  [
    offending raw input,
-   Text::CSV error code if present,
-   Text::CSV error diagnostics if present,
+   Text::CSV error code if T:C error, 0 else,
+   error diagnostics,
    position in line,
    estimated line in file,
  ]
@@ -294,11 +333,26 @@ Changing them later has no effect currently.
 
 Encoding errors are not dealt with properly.
 
-=item *
-
-Errors are not gathered.
-
 =back
+
+=head1 TODO
+
+Dispatch to child objects, like this:
+
+ $csv = SL::Helper::Csv->new(
+   file  => ...
+   class => SL::DB::Part,
+   dispatch => [
+     makemodel => {
+       make_1  => make,
+       model_1 => model,
+     },
+     makemodel => {
+       make_2  => make,
+       model_2 => model,
+     },
+   ]
+ );
 
 =head1 AUTHOR
 
