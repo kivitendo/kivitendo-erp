@@ -8,7 +8,7 @@ use IO::File;
 use Text::CSV;
 use Params::Validate qw(:all);
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
-   file encoding sep_char quote_char escape_char header dispatch class
+   file encoding sep_char quote_char escape_char header profile class
    numberformat dateformat _io _csv _objects _parsed _data _errors
 ) ];
 
@@ -22,7 +22,7 @@ sub new {
     quote_char    => { default => '"' },
     escape_char   => { default => '"' },
     header        => { type    => ARRAYREF, optional => 1 },
-    dispatch      => { type    => HASHREF,  optional => 1 },
+    profile       => { type    => HASHREF,  optional => 1 },
     file          => 1,
     encoding      => 0,
     class         => 0,
@@ -96,6 +96,12 @@ sub _check_header {
   return $self->header if $self->header;
 
   my $header = $self->_csv->getline($self->_io);
+
+  $self->_push_error([
+    $self->_csv->error_input,
+    $self->_csv->error_diag,
+    0,
+  ]) unless $header;
 
   $self->header($header);
 }
@@ -178,7 +184,7 @@ sub _make_objects {
 
 sub _real_method {
   my ($self, $arg) = @_;
-  ($self->dispatch && $self->dispatch->{$arg}) || $arg;
+  ($self->profile && $self->profile->{$arg}) || $arg;
 }
 
 sub _guess_encoding {
@@ -213,7 +219,7 @@ SL::Helper::Csv - take care of csv file uploads
     sep_char    => ',',     # default ';'
     quote_char  => ''',     # default '"'
     header      => [qw(id text sellprice word)] # see later
-    dispatch    => { sellprice => 'sellprice_as_number' }
+    profile    => { sellprice => 'sellprice_as_number' }
     class       => 'SL::DB::CsvLine',   # if present, map lines to this
   )
 
@@ -288,7 +294,7 @@ Same as in L<Text::CSV>
 Can be an array of columns, in this case the first line is not used as a
 header. Empty header fields will be ignored in objects.
 
-=item C<dispatch> \%ACCESSORS
+=item C<profile> \%ACCESSORS
 
 May be used to map header fields to custom accessors. Example:
 
@@ -342,7 +348,7 @@ Dispatch to child objects, like this:
  $csv = SL::Helper::Csv->new(
    file  => ...
    class => SL::DB::Part,
-   dispatch => [
+   profile => [
      makemodel => {
        make_1  => make,
        model_1 => model,
