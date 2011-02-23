@@ -55,7 +55,6 @@ sub parse {
   $self->_open_file;
   return if ! $self->_check_header;
   return if ! $self->dispatcher->parse_profile;
-#  return if $self->class && ! $self->_check_header_for_class;
   return if ! $self->_parse_data;
 
   $self->_parsed(1);
@@ -289,6 +288,22 @@ May be used to map header fields to custom accessors. Example:
 
 In this case C<listprice_as_number> will be used to read in values from the
 C<listprice> column.
+
+In case of a One-To-One relationsship these can also be set over
+relationsships by sparating the steps with a dot (C<.>). This will work:
+
+  { customer => customer.name }
+
+And will result in something like this:
+
+  $obj->customer($obj->meta->relationship('customer')->class->new);
+  $obj->customer->name($csv_line->{customer})
+
+But beware, this will not try to look up anything in the database. You will
+simply receive objects that represent what the profile defined. If some of
+these information are unique, and should be connected to preexisting data, you
+will have to do that for yourself. Since you provided the profile, it is
+assumed you know what to do in this case.
 
 =item C<class>
 
