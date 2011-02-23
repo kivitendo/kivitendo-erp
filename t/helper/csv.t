@@ -125,5 +125,21 @@ EOL
 is $csv->parse, undef, 'broken csv content won\'t get parsed';
 is_deeply $csv->errors, [ '"Kaf"fee";;0.12;1,221.52'."\n", 2023, 'EIQ - QUO character not allowed', 5, 2 ], 'error';
 
+####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost_as_number;wiener;
+Kaffee;;0.12;1,221.52;ja wiener
+Beer;1123245;0.12;1.5234;nein kein wieder
+EOL
+  numberformat => '1,000.00',
+  ignore_unknown_columns => 1,
+  class  => 'SL::DB::Part',
+);
+$csv->parse;
+is $csv->get_objects->[0]->lastcost, '1221.52', 'ignore_unkown_columns works';
+
+
 done_testing();
 # vim: ft=perl

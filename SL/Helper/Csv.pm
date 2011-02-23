@@ -8,8 +8,9 @@ use IO::File;
 use Text::CSV;
 use Params::Validate qw(:all);
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
-   file encoding sep_char quote_char escape_char header profile class
-   numberformat dateformat _io _csv _objects _parsed _data _errors
+  file encoding sep_char quote_char escape_char header profile class
+  numberformat dateformat ignore_unknown_columns _io _csv _objects _parsed
+  _data _errors
 ) ];
 
 
@@ -18,16 +19,17 @@ use Rose::Object::MakeMethods::Generic scalar => [ qw(
 sub new {
   my $class  = shift;
   my %params = validate(@_, {
-    sep_char      => { default => ';' },
-    quote_char    => { default => '"' },
-    escape_char   => { default => '"' },
-    header        => { type    => ARRAYREF, optional => 1 },
-    profile       => { type    => HASHREF,  optional => 1 },
-    file          => 1,
-    encoding      => 0,
-    class         => 0,
-    numberformat  => 0,
-    dateformat    => 0,
+    sep_char               => { default => ';' },
+    quote_char             => { default => '"' },
+    escape_char            => { default => '"' },
+    header                 => { type    => ARRAYREF, optional => 1 },
+    profile                => { type    => HASHREF,  optional => 1 },
+    file                   => 1,
+    encoding               => 0,
+    class                  => 0,
+    numberformat           => 0,
+    dateformat             => 0,
+    ignore_unknown_columns => 0,
   });
   my $self = bless {}, $class;
 
@@ -50,8 +52,9 @@ sub parse {
   my ($self, %params) = @_;
 
   $self->_open_file;
-  return unless $self->_check_header;
-  return unless $self->_parse_data;
+  return if ! $self->_check_header;
+  return if $self->class && ! $self->_check_header_for_class;
+  return if ! $self->_parse_data;
 
   $self->_parsed(1);
   return $self;
@@ -110,24 +113,35 @@ sub _check_header_for_class {
   my ($self, %params) = @_;
   my @errors;
 
-  return unless $self->class;
-  return $self->header;
+  carp 'this should never be called without' unless $self->class;
 
-  for my $method (@{ $self->header }) {
-    next if $self->class->can($self->_real_method($method));
+  if ($self->ignore_unknown_columns) {
+    my @new_header;
+    for my $method (@{ $self->header }) {
+      push @new_header, $self->class->can($self->_real_method($method))
+         ? $method : undef;
+    }
 
-    push @errors, [
-      $method,
-      undef,
-      "header field $method is not recognized",
-      undef,
-      0,
-    ];
+    $self->header(\@new_header);
+
+    return 1;
+  } else {
+    for my $method (@{ $self->header }) {
+      next if ! $method;
+      next if $self->class->can($self->_real_method($method));
+
+      push @errors, [
+        $method,
+        undef,
+        "header field $method is not recognized",
+        undef,
+        0,
+      ];
+    }
+
+    $self->_push_error(@errors);
+    return ! @errors;
   }
-
-  $self->_push_error(@errors);
-
-  return ! @errors;
 }
 
 sub _parse_data {
@@ -307,6 +321,11 @@ C<listprice> column.
 
 If present, the line will be handed to the new sub of this class,
 and the return value used instead of the line itself.
+
+=item C<ignore_unknown_columns>
+
+If set, the import will ignore unkown header columns. Useful for lazy imports,
+but deactivated by default.
 
 =back
 
