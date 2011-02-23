@@ -24,6 +24,41 @@ __PACKAGE__->before_save('_before_save_unset_default_on_others');
 # public functions
 #
 
+sub new_with_default {
+  my ($class, $type) = @_;
+
+  return $class->new(type => $type)->set_defaults;
+}
+
+sub set_defaults {
+  my ($self) = @_;
+
+  $self->_set_defaults(sep_char     => ',',
+                       quote_char   => '"',
+                       escape_char  => '"',
+                       charset      => 'CP850',
+                       numberformat => $::myconfig{numberformat},
+                      );
+
+  if ($self->type eq 'parts') {
+    my $bugru = SL::DB::Manager::Buchungsgruppe->find_by(name => { like => 'Standard%19%' });
+
+    $self->_set_defaults(sellprice_places          => 2,
+                         sellprice_adjustment      => 0,
+                         sellprice_adjustment_type => 'percent',
+                         article_number_policy     => 'update_price',
+                         price_group_sep_char      => '!',
+                         shoparticle_if_missing    => 0,
+                         parts_type                => 'part',
+                         default_buchungsgruppe    => ($bugru ? $bugru->name : undef),
+                        );
+  } else {
+    $self->_set_defaults(table => 'customer');
+  }
+
+  return $self;
+}
+
 sub set {
   my ($self, %params) = @_;
 
@@ -32,7 +67,7 @@ sub set {
 
     if (!$setting) {
       $setting = SL::DB::CsvImportProfileSetting->new(key => $key);
-      $self->add_settings($setting);
+      $self->settings(@{ $self->settings || [] }, $setting);
     }
 
     $setting->value($value);
@@ -46,6 +81,16 @@ sub get {
 
   my $setting = $self->_get_setting($key);
   return $setting ? $setting->value : $default;
+}
+
+sub _set_defaults {
+  my ($self, %params) = @_;
+
+  while (my ($key, $value) = each %params) {
+    $self->settings(@{ $self->settings || [] }, { key => $key, value => $value }) if !$self->_get_setting($key);
+  }
+
+  return $self;
 }
 
 #
@@ -70,7 +115,7 @@ sub _before_save_unset_default_on_others {
 
 sub _get_setting {
   my ($self, $key) = @_;
-  return first { $_->key eq $key } @{ $self->settings };
+  return first { $_->key eq $key } @{ $self->settings || [] };
 }
 
 1;

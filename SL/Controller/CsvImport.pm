@@ -1,0 +1,194 @@
+package SL::Controller::CsvImport;
+
+use strict;
+
+use SL::DB::CsvImportProfile;
+use SL::Helper::Flash;
+
+use List::MoreUtils qw(none);
+
+use parent qw(SL::Controller::Base);
+
+use Rose::Object::MakeMethods::Generic
+(
+ scalar => [ qw(type profile all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars) ],
+);
+
+__PACKAGE__->run_before('check_auth');
+__PACKAGE__->run_before('ensure_form_structure');
+__PACKAGE__->run_before('check_type');
+__PACKAGE__->run_before('load_all_profiles');
+
+#
+# actions
+#
+
+sub action_new {
+  my ($self) = @_;
+
+  $self->load_default_profile unless $self->profile;
+  $self->render_inputs;
+}
+
+sub action_test {
+  my ($self) = @_;
+  $self->test_and_import(test => 1);
+}
+
+sub action_import {
+  my $self = shift;
+  $self->test_and_import(test => 0);
+}
+
+sub action_save {
+  my ($self) = @_;
+
+  $self->profile_from_form(SL::DB::Manager::CsvImportProfile->find_by(name => $::form->{profile}->{name}));
+  $self->profile->save;
+
+  flash_later('info', $::locale->text("The profile has been saved under the name '#1'.", $self->profile->name));
+  $self->redirect_to(action => 'new', 'profile.type' => $self->type, 'profile.id' => $self->profile->id);
+}
+
+sub action_destroy {
+  my $self = shift;
+
+  my $profile = SL::DB::CsvImportProfile->new(id => $::form->{profile}->{id});
+  $profile->delete(cascade => 1);
+
+  flash_later('info', $::locale->text('The profile \'#1\' has been deleted.', $profile->name));
+  $self->redirect_to(action => 'new', 'profile.type' => $self->type);
+}
+
+#
+# filters
+#
+
+sub check_auth {
+  $::auth->assert('config');
+}
+
+sub check_type {
+  my ($self) = @_;
+
+  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts customers_vendors addresses contacts);
+  $self->type($::form->{profile}->{type});
+}
+
+sub ensure_form_structure {
+  my ($self, %params) = @_;
+
+  $::form->{profile}  = {} unless ref $::form->{profile}  eq 'HASH';
+  $::form->{settings} = {} unless ref $::form->{settings} eq 'HASH';
+}
+
+#
+# helpers
+#
+
+sub render_inputs {
+  my ($self, %params) = @_;
+
+  $self->all_charsets([ [ 'UTF-8',       'UTF-8'                 ],
+                        [ 'ISO-8859-1',  'ISO-8859-1 (Latin 1)'  ],
+                        [ 'ISO-8859-15', 'ISO-8859-15 (Latin 9)' ],
+                        [ 'CP850',       'CP850 (DOS/ANSI)'      ],
+                        [ 'CP1252',      'CP1252 (Windows)'      ],
+                      ]);
+
+  my %char_map = $self->char_map;
+
+  foreach my $type (qw(sep quote escape)) {
+    my $sub = "all_${type}_chars";
+    $self->$sub([ sort { $a->[0] cmp $b->[0] } values %{ $char_map{$type} } ]);
+
+    my $char = $self->profile->get($type . '_char');
+    $sub     = "${type}_char";
+    $self->$sub(($char_map{$type}->{$char} || [])->[0] || $char);
+  }
+
+  if ($self->type eq 'customers_vendors') {
+    $self->render('csv_import/form_customers_vendors', title => $::locale->text('CSV import: customers and vendors'));
+
+  } elsif ($self->type eq 'addresses') {
+    $self->render('csv_import/form_addresses',         title => $::locale->text('CSV import: shipping addresses'));
+
+  } elsif ($self->type eq 'contacts') {
+    $self->render('csv_import/form_contacts',          title => $::locale->text('CSV import: contacts'));
+
+  } elsif ($self->type eq 'parts') {
+    $self->render('csv_import/form_parts',             title => $::locale->text('CSV import: parts, services and assemblies'));
+
+  } else {
+    die;
+  }
+}
+
+sub test_and_import {
+  my ($self, %params) = @_;
+
+  $self->profile_from_form;
+
+  # do the import thingy...
+  $self->action_new;
+}
+
+sub load_default_profile {
+  my ($self) = @_;
+
+  if ($::form->{profile}->{id}) {
+    $self->profile(SL::DB::CsvImportProfile->new(id => $::form->{profile}->{id})->load);
+
+  } else {
+    $self->profile(SL::DB::Manager::CsvImportProfile->find_by(type => $self->{type}, is_default => 1));
+    $self->profile(SL::DB::CsvImportProfile->new(type => $self->{type})) unless $self->profile;
+  }
+
+  $self->profile->set_defaults;
+}
+
+sub load_all_profiles {
+  my ($self, %params) = @_;
+
+  $self->all_profiles(SL::DB::Manager::CsvImportProfile->get_all(where => [ type => $self->type ], sort_by => 'name'));
+}
+
+sub profile_from_form {
+  my ($self, $existing_profile) = @_;
+
+  delete $::form->{profile}->{id};
+
+  my %char_map = $self->char_map;
+  my @settings;
+
+  foreach my $type (qw(sep quote escape)) {
+    my %rev_chars = map { $char_map{$type}->{$_}->[0] => $_ } keys %{ $char_map{$type} };
+    my $char      = $::form->{"${type}_char"} eq 'custom' ? $::form->{"custom_${type}_char"} : $rev_chars{ $::form->{"${type}_char"} };
+
+    push @settings, { key => "${type}_char", value => $char };
+  }
+
+  delete $::form->{profile}->{id};
+  $self->profile($existing_profile || SL::DB::CsvImportProfile->new);
+  $self->profile->assign_attributes(%{ $::form->{profile} });
+  $self->profile->settings(map({ { key => $_, value => $::form->{settings}->{$_} } } keys %{ $::form->{settings} }),
+                           @settings);
+  $self->profile->set_defaults;
+}
+
+sub char_map {
+  return ( sep    => { ','  => [ 'comma',     $::locale->text('Comma')     ],
+                       ';'  => [ 'semicolon', $::locale->text('Semicolon') ],
+                       "\t" => [ 'tab',       $::locale->text('Tab')       ],
+                       ' '  => [ 'space',     $::locale->text('Space')     ],
+                     },
+           quote  => { '"' => [ 'quote', $::locale->text('Quotes') ],
+                       "'" => [ 'singlequote', $::locale->text('Single quotes') ],
+                     },
+           escape => { '"' => [ 'quote', $::locale->text('Quotes') ],
+                       "'" => [ 'singlequote', $::locale->text('Single quotes') ],
+                     },
+         );
+}
+
+1;
