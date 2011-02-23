@@ -13,6 +13,8 @@ use SL::DB::Buchungsgruppe;
 use SL::DB::Business;
 use SL::DB::Chart;
 use SL::DB::Contact;
+use SL::DB::CsvImportProfile;
+use SL::DB::CsvImportProfileSetting;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
 use SL::DB::CustomVariableValidity;
