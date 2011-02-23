@@ -1,5 +1,6 @@
-use Test::More;
+use Test::More tests => 29;
 use SL::Dispatcher;
+use Data::Dumper;
 use utf8;
 
 use_ok 'SL::Helper::Csv';
@@ -159,5 +160,52 @@ isa_ok $csv->get_objects->[0]->buchungsgruppe, 'SL::DB::Buchungsgruppe', 'deep d
 is $csv->get_objects->[0]->buchungsgruppe->description, 'Standard 7%', '...and gets set correctly';
 
 
-done_testing();
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost_as_number;make_1;model_1;
+  Kaffee;;0.12;1,221.52;213;Chair 0815
+Beer;1123245;0.12;1.5234;
+EOL
+  numberformat => '1,000.00',
+  class  => 'SL::DB::Part',
+  profile => {
+    make_1 => "makemodels.0.make",
+    model_1 => "makemodels.0.model",
+  }
+);
+$csv->parse;
+my @mm = $csv->get_objects->[0]->makemodel;
+is scalar @mm,  1, 'one-to-many dispatch';
+is $csv->get_objects->[0]->makemodels->[0]->model, 'Chair 0815', '... and works';
+
+#####
+
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost_as_number;make_1;model_1;make_2;model_2;
+ Kaffee;;0.12;1,221.52;213;Chair 0815;523;Table 15
+EOL
+  numberformat => '1,000.00',
+  class  => 'SL::DB::Part',
+  profile => {
+    make_1 => "makemodels.0.make",
+    model_1 => "makemodels.0.model",
+    make_2 => "makemodels.1.make",
+    model_2 => "makemodels.1.model",
+  }
+);
+$csv->parse;
+
+print Dumper($csv->errors);
+
+my @mm = $csv->get_objects->[0]->makemodel;
+is scalar @mm,  1, 'multiple one-to-many dispatch';
+is $csv->get_objects->[0]->makemodels->[0]->model, 'Chair 0815', '...check 1';
+is $csv->get_objects->[0]->makemodels->[0]->make, '213', '...check 2';
+is $csv->get_objects->[0]->makemodels->[1]->model, 'Table 15', '...check 3';
+is $csv->get_objects->[0]->makemodels->[1]->make, '523', '...check 4';
+
 # vim: ft=perl
