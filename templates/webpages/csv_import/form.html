@@ -49,8 +49,16 @@
 
   <table>
    <tr>
+    <th align="right">[%- LxERP.t8('Number format') %]:</th>
+    <td colspan="10">
+     [% SET options = L.options_for_select([ '1.000,00', '1000,00', '1,000.00', '1000.00' ], default => SELF.profile.get('numberformat')) %]
+     [% L.select_tag('settings.numberformat', options, style => 'width: 300px') %]
+    </td>
+   </tr>
+
+   <tr>
     <th align="right">[%- LxERP.t8('Charset') %]:</th>
-    <td colspan="10">[% L.select_tag('settings.charset', L.options_for_select(SELF.all_charsets, default => SELF.profile.get('charset'))) %]</td>
+    <td colspan="10">[% L.select_tag('settings.charset', L.options_for_select(SELF.all_charsets, default => SELF.profile.get('charset')), style => 'width: 300px') %]</td>
    </tr>
 
    <tr>

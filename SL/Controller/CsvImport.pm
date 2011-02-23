@@ -107,21 +107,13 @@ sub render_inputs {
     $self->$sub(($char_map{$type}->{$char} || [])->[0] || $char);
   }
 
-  if ($self->type eq 'customers_vendors') {
-    $self->render('csv_import/form_customers_vendors', title => $::locale->text('CSV import: customers and vendors'));
+  my $title = $self->type eq 'customers_vendors' ? $::locale->text('CSV import: customers and vendors')
+            : $self->type eq 'addresses'         ? $::locale->text('CSV import: shipping addresses')
+            : $self->type eq 'contacts'          ? $::locale->text('CSV import: contacts')
+            : $self->type eq 'parts'             ? $::locale->text('CSV import: parts, services and assemblies')
+            : die;
 
-  } elsif ($self->type eq 'addresses') {
-    $self->render('csv_import/form_addresses',         title => $::locale->text('CSV import: shipping addresses'));
-
-  } elsif ($self->type eq 'contacts') {
-    $self->render('csv_import/form_contacts',          title => $::locale->text('CSV import: contacts'));
-
-  } elsif ($self->type eq 'parts') {
-    $self->render('csv_import/form_parts',             title => $::locale->text('CSV import: parts, services and assemblies'));
-
-  } else {
-    die;
-  }
+  $self->render('csv_import/form', title => $title);
 }
 
 sub test_and_import {
