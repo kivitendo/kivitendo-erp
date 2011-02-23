@@ -5,14 +5,15 @@ use warnings;
 
 use Carp;
 use IO::File;
-use Text::CSV;
 use Params::Validate qw(:all);
+use Text::CSV;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
   file encoding sep_char quote_char escape_char header profile class
   numberformat dateformat ignore_unknown_columns _io _csv _objects _parsed
   _data _errors
 ) ];
 
+use SL::Helper::Csv::Dispatcher;
 
 # public interface
 
@@ -53,7 +54,8 @@ sub parse {
 
   $self->_open_file;
   return if ! $self->_check_header;
-  return if $self->class && ! $self->_check_header_for_class;
+  return if ! $self->dispatcher->parse_profile;
+#  return if $self->class && ! $self->_check_header_for_class;
   return if ! $self->_parse_data;
 
   $self->_parsed(1);
@@ -109,41 +111,6 @@ sub _check_header {
   $self->header($header);
 }
 
-sub _check_header_for_class {
-  my ($self, %params) = @_;
-  my @errors;
-
-  carp 'this should never be called without' unless $self->class;
-
-  if ($self->ignore_unknown_columns) {
-    my @new_header;
-    for my $method (@{ $self->header }) {
-      push @new_header, $self->class->can($self->_real_method($method))
-         ? $method : undef;
-    }
-
-    $self->header(\@new_header);
-
-    return 1;
-  } else {
-    for my $method (@{ $self->header }) {
-      next if ! $method;
-      next if $self->class->can($self->_real_method($method));
-
-      push @errors, [
-        $method,
-        undef,
-        "header field $method is not recognized",
-        undef,
-        0,
-      ];
-    }
-
-    $self->_push_error(@errors);
-    return ! @errors;
-  }
-}
-
 sub _parse_data {
   my ($self, %params) = @_;
   my (@data, @errors);
@@ -153,7 +120,6 @@ sub _parse_data {
   while (1) {
     my $row = $self->_csv->getline($self->_io);
     last if $self->_csv->eof;
-
     if ($row) {
       my %hr;
       @hr{@{ $self->header }} = @$row;
@@ -186,19 +152,26 @@ sub _make_objects {
   local $::myconfig{dateformat}   = $self->dateformat   if $self->dateformat;
 
   for my $line (@{ $self->_data }) {
-    push @objs, $self->class->new(
-      map {
-        $self->_real_method($_) => $line->{$_}
-      } grep { $_ } keys %$line
-    );
+    my $tmp_obj = $self->class->new;
+    $self->dispatcher->dispatch($tmp_obj, $line);
+    push @objs, $tmp_obj;
   }
 
   $self->_objects(\@objs);
 }
 
-sub _real_method {
-  my ($self, $arg) = @_;
-  ($self->profile && $self->profile->{$arg}) || $arg;
+sub dispatcher {
+  my ($self, %params) = @_;
+
+  $self->{_dispatcher} ||= $self->_make_dispatcher;
+}
+
+sub _make_dispatcher {
+  my ($self, %params) = @_;
+
+  die 'need a header to make a dispatcher' unless $self->header;
+
+  return SL::Helper::Csv::Dispatcher->new($self);
 }
 
 sub _guess_encoding {
