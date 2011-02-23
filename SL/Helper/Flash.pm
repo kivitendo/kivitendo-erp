@@ -46,7 +46,10 @@ sub _store_flash {
 sub _check_category {
   my ($c) = @_;
   return $valid_categories{$c}
-    || die 'invalid category for flash';
+    ||  do {
+      require Carp;
+      croak("invalid category '$c' for flash");
+    };
 }
 
 1;
