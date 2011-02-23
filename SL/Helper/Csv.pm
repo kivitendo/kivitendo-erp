@@ -317,11 +317,11 @@ After parsing a file all errors will be accumulated into C<errors>.
 Each entry is an arrayref with the following structure:
 
  [
-   offending raw input,
-   Text::CSV error code if T:C error, 0 else,
-   error diagnostics,
-   position in line,
-   estimated line in file,
+ 0  offending raw input,
+ 1  Text::CSV error code if T:C error, 0 else,
+ 2  error diagnostics,
+ 3  position in line,
+ 4  estimated line in file,
  ]
 
 Note that the last entry can be off, but will give an estimate.
