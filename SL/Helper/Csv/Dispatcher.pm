@@ -35,7 +35,7 @@ sub apply {
     my ($acc, $class) = @$step;
     if ($class) {
       eval "require $class; 1" or die "could not load class '$class'";
-      $obj->$acc($class->new) if ! $$obj->$acc;
+      $obj->$acc($class->new) if ! $obj->$acc;
       $obj = $obj->$acc;
     } else {
       $obj->$acc($value);
@@ -74,7 +74,7 @@ sub make_spec {
   for my $step ( split /\./, $path ) {
     if ($cur_class->can($step)) {
       if ($cur_class->meta->relationship($step)) { #a
-        my $next_class = $cur_class->meta->relationsship($step)->class;
+        my $next_class = $cur_class->meta->relationship($step)->class;
         push @{ $spec->{steps} }, [ $step, $next_class ];
         $cur_class = $next_class;
       } else { # simple dispatch

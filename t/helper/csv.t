@@ -140,6 +140,24 @@ EOL
 $csv->parse;
 is $csv->get_objects->[0]->lastcost, '1221.52', 'ignore_unkown_columns works';
 
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost_as_number;buchungsgruppe;
+Kaffee;;0.12;1,221.52;Standard 7%
+Beer;1123245;0.12;1.5234;16 %
+EOL
+  numberformat => '1,000.00',
+  class  => 'SL::DB::Part',
+  profile => {
+    buchungsgruppe => "buchungsgruppen.description",
+  }
+);
+$csv->parse;
+isa_ok $csv->get_objects->[0]->buchungsgruppe, 'SL::DB::Buchungsgruppe', 'deep dispatch auto vivify works';
+is $csv->get_objects->[0]->buchungsgruppe->description, 'Standard 7%', '...and gets set correctly';
+
 
 done_testing();
 # vim: ft=perl
