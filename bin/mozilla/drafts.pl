@@ -129,7 +129,10 @@ sub load_draft {
     $form->{draft_description}     = $description;
     $form->{remove_draft}          = 'checked';
   }
-
+  # Ich vergesse bei Rechnungsentwürfe das Rechnungsdatum zu ändern. Dadurch entstehen 
+  # ungültige Belege. Vielleicht geht es anderen ähnlich jan 19.2.2011
+  $form->{invdate} = $form->current_date(\%myconfig); # Aktuelles Rechnungsdatum  ...
+  $form->{duedate} = $form->current_date(\%myconfig); # Aktuelles Fälligkeitsdatum  ...
   update();
 
   $main::lxdebug->leave_sub();
