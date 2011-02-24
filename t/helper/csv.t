@@ -1,4 +1,4 @@
-use Test::More tests => 29;
+use Test::More tests => 31;
 use SL::Dispatcher;
 use Data::Dumper;
 use utf8;
@@ -207,5 +207,20 @@ is $csv->get_objects->[0]->makemodels->[0]->model, 'Chair 0815', '...check 1';
 is $csv->get_objects->[0]->makemodels->[0]->make, '213', '...check 2';
 is $csv->get_objects->[0]->makemodels->[1]->model, 'Table 15', '...check 3';
 is $csv->get_objects->[0]->makemodels->[1]->make, '523', '...check 4';
+
+######
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost_as_number;buchungsgruppe;
+EOL
+  numberformat => '1,000.00',
+  class  => 'SL::DB::Part',
+  profile => {
+    buchungsgruppe => "buchungsgruppen.1.description",
+  }
+);
+is $csv->parse, undef, 'wrong profile gets rejected';
+is_deeply $csv->errors, [ 'buchungsgruppen.1.description', undef, "Profile path error. Indexed relationship is not OneToMany around here: 'buchungsgruppen.1'", undef ,0 ], 'error indicates wrong header';
 
 # vim: ft=perl

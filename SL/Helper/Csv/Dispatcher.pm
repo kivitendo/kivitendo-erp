@@ -87,10 +87,21 @@ sub make_spec {
   for my $step_index ( split /\.(?!\d)/, $path ) {
     my ($step, $index) = split /\./, $step_index;
     if ($cur_class->can($step)) {
-      if ($cur_class->meta->relationship($step)) { #a
-        my $next_class = $cur_class->meta->relationship($step)->class;
-        push @{ $spec->{steps} }, [ $step, $next_class, $index ];
-        $cur_class = $next_class;
+      if (my $rel = $cur_class->meta->relationship($step)) { #a
+        if ($index && ! $rel->isa('Rose::DB::Object::Metadata::Relationship::OneToMany')) {
+          $self->_push_error([
+            $path,
+            undef,
+            "Profile path error. Indexed relationship is not OneToMany around here: '$step_index'",
+            undef,
+            0,
+          ]);
+          return;
+        } else {
+          my $next_class = $cur_class->meta->relationship($step)->class;
+          push @{ $spec->{steps} }, [ $step, $next_class, $index ];
+          $cur_class = $next_class;
+        }
       } else { # simple dispatch
         push @{ $spec->{steps} }, [ $step ];
         last;
