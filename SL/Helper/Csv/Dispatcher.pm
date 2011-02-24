@@ -36,7 +36,6 @@ sub apply {
     if ($class) {
 
       # autovifify
-      eval "require $class; 1" or die "could not load class '$class'";
       if (defined $index) {
         if (! $obj->$acc || !$obj->$acc->[$index]) {
           my @objects = $obj->$acc;
@@ -101,6 +100,7 @@ sub make_spec {
           my $next_class = $cur_class->meta->relationship($step)->class;
           push @{ $spec->{steps} }, [ $step, $next_class, $index ];
           $cur_class = $next_class;
+          eval "require $cur_class; 1" or die "could not load class '$cur_class'";
         }
       } else { # simple dispatch
         push @{ $spec->{steps} }, [ $step ];
