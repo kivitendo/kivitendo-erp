@@ -1,0 +1,7 @@
+<tr>
+ <th align="right">[%- LxERP.t8('Target table') %]:</th>
+ <td colspan="10">
+  [% opts = [ [ 'customer', LxERP.t8('Customers') ], [ 'vendor', LxERP.t8('Vendors') ] ] %]
+  [% L.select_tag('settings.table', L.options_for_select(opts, default => SELF.profile.get('table')), style => 'width: 300px') %]
+ </td>
+</tr>

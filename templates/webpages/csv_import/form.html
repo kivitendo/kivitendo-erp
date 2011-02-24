@@ -109,6 +109,22 @@
     </td>
    </tr>
 
+   <tr>
+    <th align="right">[%- LxERP.t8('Check for duplicates') %]:</th>
+    <td colspan="10">
+     [% opts = [ [ 'no_check', LxERP.t8('Do not check for duplicates') ],
+                 [ 'check_csv', LxERP.t8('Discard duplicate entries in CSV file') ],
+                 [ 'check_db',  LxERP.t8('Discard entries with duplicates in database and CSV file') ] ] %]
+     [% L.select_tag('settings.duplicates', L.options_for_select(opts, default => SELF.profile.get('duplicates')), style => 'width: 300px') %]
+    </td>
+   </tr>
+
+[%- IF SELF.type == 'parts' %]
+ [%- INCLUDE 'csv_import/_form_parts.html' %]
+[%- ELSIF SELF.type == 'customers_vendors' %]
+ [%- INCLUDE 'csv_import/_form_customers_vendors.html' %]
+[%- END %]
+
   </table>
 
   [% L.submit_tag('action_test', LxERP.t8('Gogogo')) %]

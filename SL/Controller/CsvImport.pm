@@ -2,6 +2,7 @@ package SL::Controller::CsvImport;
 
 use strict;
 
+use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
 use SL::Helper::Flash;
 
@@ -11,7 +12,7 @@ use parent qw(SL::Controller::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(type profile all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars) ],
+ scalar => [ qw(type profile all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -110,8 +111,10 @@ sub render_inputs {
   my $title = $self->type eq 'customers_vendors' ? $::locale->text('CSV import: customers and vendors')
             : $self->type eq 'addresses'         ? $::locale->text('CSV import: shipping addresses')
             : $self->type eq 'contacts'          ? $::locale->text('CSV import: contacts')
-            : $self->type eq 'parts'             ? $::locale->text('CSV import: parts, services and assemblies')
+            : $self->type eq 'parts'             ? $::locale->text('CSV import: parts and services')
             : die;
+
+  $self->all_buchungsgruppen(SL::DB::Manager::Buchungsgruppe->get_all_sorted);
 
   $self->render('csv_import/form', title => $title);
 }

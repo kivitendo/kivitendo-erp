@@ -1,0 +1,57 @@
+<tr>
+ <th align="right">[%- LxERP.t8('Parts with existing part numbers') %]:</th>
+ <td colspan="10">
+  [% opts = [ [ 'update_prices', LxERP.t8('Update prices of existing entries') ], [ 'insert_new', LxERP.t8('Insert with new part number') ] ] %]
+  [% L.select_tag('settings.article_number_policy', L.options_for_select(opts, default => SELF.profile.get('article_number_policy')), style => 'width: 300px') %]
+ </td>
+</tr>
+
+<tr>
+ <th align="right">[%- LxERP.t8('Sellprice significant places') %]:</th>
+ <td colspan="10">
+  [% L.select_tag('settings.sellprice_places', L.options_for_select([ 0, 1, 2, 3, 4, 5 ], default => SELF.profile.get('sellprice_places')), style => 'width: 300px') %]
+ </td>
+</tr>
+
+<tr>
+ <th align="right">[%- LxERP.t8('Sellprice adjustment') %]:</th>
+ <td colspan="10">
+  [% L.input_tag('settings.sellprice_adjustment', LxERP.format_amount(SELF.profile.get('sellprice_adjustment')), size => "5") %]
+  [% opts = [ [ 'percent', LxERP.t8('percental') ], [ 'absolute', LxERP.t8('absolute') ] ] %]
+  [% L.select_tag('settings.sellprice_adjustment_type', L.options_for_select(opts, default => SELF.profile.get('sellprice_adjustment_type'))) %]
+ </td>
+</tr>
+
+<tr>
+ <th align="right">[%- LxERP.t8('Separator for part groups') %]:</th>
+ <td colspan="10">
+  [% L.input_tag('settings.part_group_sep_char', SELF.profile.get('part_group_sep_char'), size => 5) %]
+ </td>
+</tr>
+
+<tr>
+ <th align="right">[%- LxERP.t8('Mark as shop article if column missing') %]:</th>
+ <td colspan="10">
+  [% opts = [ [ '1', LxERP.t8('yes') ], [ '0', LxERP.t8('no') ] ] %]
+  [% L.select_tag('settings.shoparticle_if_missing', L.options_for_select(opts, default => SELF.profile.get('shoparticle_if_missing')), style => 'width: 300px') %]
+ </td>
+</tr>
+
+<tr>
+ <th align="right">[%- LxERP.t8('Type') %]:</th>
+ <td colspan="10">
+  [% opts = [ [ 'part', LxERP.t8('Parts') ], [ 'service', LxERP.t8('Services') ], [ 'mixed', LxERP.t8('Mixed (requires column "type")') ] ] %]
+  [% L.select_tag('settings.parts_type', L.options_for_select(opts, default => SELF.profile.get('parts_type')), style => 'width: 300px') %]
+ </td>
+</tr>
+
+<tr>
+ <th align="right" valign="top">[%- LxERP.t8('Default buchungsgruppe') %]:</th>
+ <td colspan="10" valign="top">
+  [% opts = L.options_for_select(SELF.all_buchungsgruppen, tilte => 'description', value => 'description', default => SELF.profile.get('default_buchungsgruppe')) %]
+  [% L.select_tag('settings.default_buchungsgruppe', opts, style => 'width: 300px') %]
+  <br>
+  [% opts = [ [ 'never', LxERP.t8('Do not set default buchungsgruppe') ], [ 'all', LxERP.t8('Apply to all parts') ], [ 'missing', LxERP.t8('Apply to parts without buchungsgruppe') ] ] %]
+  [% L.select_tag('settings.apply_buchungsgruppe', L.options_for_select(opts, default => SELF.profile.get('apply_buchungsgruppe')), style => 'width: 300px') %]
+ </td>
+</tr>

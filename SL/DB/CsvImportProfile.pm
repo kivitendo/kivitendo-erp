@@ -38,19 +38,21 @@ sub set_defaults {
                        escape_char  => '"',
                        charset      => 'CP850',
                        numberformat => $::myconfig{numberformat},
+                       duplicates   => 'no_check',
                       );
 
   if ($self->type eq 'parts') {
-    my $bugru = SL::DB::Manager::Buchungsgruppe->find_by(name => { like => 'Standard%19%' });
+    my $bugru = SL::DB::Manager::Buchungsgruppe->find_by(description => { like => 'Standard%19%' });
 
     $self->_set_defaults(sellprice_places          => 2,
                          sellprice_adjustment      => 0,
                          sellprice_adjustment_type => 'percent',
-                         article_number_policy     => 'update_price',
-                         price_group_sep_char      => '!',
-                         shoparticle_if_missing    => 0,
+                         article_number_policy     => 'update_prices',
+                         part_group_sep_char       => '!',
+                         shoparticle_if_missing    => '0',
                          parts_type                => 'part',
-                         default_buchungsgruppe    => ($bugru ? $bugru->name : undef),
+                         default_buchungsgruppe    => ($bugru ? $bugru->description : undef),
+                         apply_buchungsgruppe      => 'all',
                         );
   } else {
     $self->_set_defaults(table => 'customer');
