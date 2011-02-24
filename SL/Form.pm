@@ -133,6 +133,7 @@ sub _request_to_hash {
 
   my $self  = shift;
   my $input = shift;
+  my $uploads = {};
 
   if (!$ENV{'CONTENT_TYPE'}
       || ($ENV{'CONTENT_TYPE'} !~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/)) {
@@ -140,7 +141,7 @@ sub _request_to_hash {
     $self->_input_to_hash($input);
 
     $main::lxdebug->leave_sub(2);
-    return;
+    return $uploads;
   }
 
   my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous);
@@ -185,7 +186,7 @@ sub _request_to_hash {
           substr $line, $-[0], $+[0] - $-[0], "";
         }
 
-        $previous         = $self->_store_value($name, '') if ($name);
+        $previous         = _store_value($uploads, $name, '') if ($name);
         $self->{FILENAME} = $filename if ($filename);
 
         next;
@@ -206,6 +207,8 @@ sub _request_to_hash {
   ${ $previous } =~ s|\r?\n$|| if $previous;
 
   $main::lxdebug->leave_sub(2);
+
+  return $uploads;
 }
 
 sub _recode_recursively {
@@ -256,10 +259,11 @@ sub new {
   $self->_input_to_hash($ENV{QUERY_STRING}) if $ENV{QUERY_STRING};
   $self->_input_to_hash($ARGV[0])           if @ARGV && $ARGV[0];
 
+  my $uploads;
   if ($ENV{CONTENT_LENGTH}) {
     my $content;
     read STDIN, $content, $ENV{CONTENT_LENGTH};
-    $self->_request_to_hash($content);
+    $uploads = $self->_request_to_hash($content);
   }
 
   my $db_charset   = $::lx_office_conf{system}->{dbcharset};
@@ -269,6 +273,8 @@ sub new {
   delete $self->{INPUT_ENCODING};
 
   _recode_recursively(SL::Iconv->new($encoding, $db_charset), $self);
+
+  map { $self->{$_} = $uploads->{$_} } keys %{ $uploads } if $uploads;
 
   #$self->{version} =  "2.6.1";                 # Old hardcoded but secure style
   open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
