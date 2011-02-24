@@ -5,7 +5,7 @@
 
  [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl">
+ <form method="post" action="controller.pl" enctype="multipart/form-data">
   [% L.hidden_tag('action', 'CsvImport/dispatch') %]
   [% L.hidden_tag('profile.type', SELF.profile.type) %]
 
@@ -124,6 +124,18 @@
 [%- ELSIF SELF.type == 'customers_vendors' %]
  [%- INCLUDE 'csv_import/_form_customers_vendors.html' %]
 [%- END %]
+
+   <tr>
+    <th align="right">[%- LxERP.t8('Import file') %]:</th>
+    <td colspan="10">[% L.input_tag('file', '', type => 'file', accept => '*') %]</td>
+   </tr>
+
+   [%- IF SELF.file.exists %]
+    <tr>
+     <th align="right">[%- LxERP.t8('Existing file on server') %]:</th>
+     <td colspan="10">[%- LxERP.t8('Uploaded on #1, size #2 kB', SELF.file.displayable_mtime, LxERP.format_amount(SELF.file.size / 1024, 2)) %]</td>
+    </tr>
+   [%- END %]
 
   </table>
 

@@ -5,6 +5,7 @@ use strict;
 use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
 use SL::Helper::Flash;
+use SL::SessionFile;
 
 use List::MoreUtils qw(none);
 
@@ -12,7 +13,7 @@ use parent qw(SL::Controller::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(type profile all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen) ],
+ scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -108,6 +109,8 @@ sub render_inputs {
     $self->$sub(($char_map{$type}->{$char} || [])->[0] || $char);
   }
 
+  $self->file(SL::SessionFile->new($self->csv_file_name));
+
   my $title = $self->type eq 'customers_vendors' ? $::locale->text('CSV import: customers and vendors')
             : $self->type eq 'addresses'         ? $::locale->text('CSV import: shipping addresses')
             : $self->type eq 'contacts'          ? $::locale->text('CSV import: contacts')
@@ -123,6 +126,18 @@ sub test_and_import {
   my ($self, %params) = @_;
 
   $self->profile_from_form;
+
+  if ($::form->{file}) {
+    my $file = SL::SessionFile->new($self->csv_file_name, "w");
+    $file->fh->print($::form->{file});
+    $file->fh->close;
+  }
+
+  my $file = SL::SessionFile->new($self->csv_file_name, "w");
+  if (!$file->fh) {
+    flash('error', $::locale->text('No file has been uploaded yet.'));
+    return $self->action_new;
+  }
 
   # do the import thingy...
   $self->action_new;
@@ -184,6 +199,11 @@ sub char_map {
                        "'" => [ 'singlequote', $::locale->text('Single quotes') ],
                      },
          );
+}
+
+sub csv_file_name {
+  my ($self) = @_;
+  return "csv-import-" . $self->type . ".csv";
 }
 
 1;
