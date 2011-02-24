@@ -203,11 +203,12 @@ SL::Helper::Csv - take care of csv file uploads
     file        => \$::form->{upload_file},
     encoding    => 'utf-8', # undef means utf8
     sep_char    => ',',     # default ';'
-    quote_char  => ''',     # default '"'
-    header      => [qw(id text sellprice word)] # see later
-    profile    => { sellprice => 'sellprice_as_number' }
+    quote_char  => '\'',    # default '"'
+    escape_char => '"',     # default '"'
+    header      => [qw(id text sellprice word)], # see later
+    profile     => { sellprice => 'sellprice_as_number' },
     class       => 'SL::DB::CsvLine',   # if present, map lines to this
-  )
+  );
 
   my $status  = $csv->parse;
   my $hrefs   = $csv->get_data;
@@ -265,7 +266,7 @@ scalar ref for memory data.
 =item C<encoding>
 
 Encoding of the CSV file. Note that this module does not do any encoding
-guessing.  Know what your data ist. Defaults to utf-8.
+guessing. Know what your data is. Defaults to utf-8.
 
 =item C<sep_char>
 
@@ -292,7 +293,7 @@ C<listprice> column.
 In case of a One-To-One relationsship these can also be set over
 relationsships by sparating the steps with a dot (C<.>). This will work:
 
-  { customer => customer.name }
+  { customer => 'customer.name' }
 
 And will result in something like this:
 
@@ -325,7 +326,7 @@ Each entry is an arrayref with the following structure:
 
  [
  0  offending raw input,
- 1  Text::CSV error code if T:C error, 0 else,
+ 1  Text::CSV error code if Text:CSV signalled an error, 0 else,
  2  error diagnostics,
  3  position in line,
  4  estimated line in file,
