@@ -212,7 +212,9 @@ SL::Helper::Csv - take care of csv file uploads
 
   my $status  = $csv->parse;
   my $hrefs   = $csv->get_data;
-  my @objects = $scv->get_objects;
+  my @objects = $csv->get_objects;
+
+  my @errors  = $csv->errors;
 
 =head1 DESCRIPTION
 
@@ -222,8 +224,31 @@ Text::CSV offeres already good functions to get lines out of a csv file, but in
 most cases you will want those line to be parsed into hashes or even objects,
 so this model just skips ahead and gives you objects.
 
-Encoding autodetection is not easy, and should not be trusted. Try to avoid it
-if possible.
+Its basic assumptions are:
+
+=over 4
+
+=item You do know what you expect to be in that csv file.
+
+This means first and foremost you have knowledge about encoding, number and
+date format, csv parameters such as quoting and separation characters. You also
+know what content will be in that csv and what L<Rose::DB> is responsible for
+it. You provide valid header columns and their mapping to the objects.
+
+=item You do NOT know if the csv provider yields to your expectations.
+
+Stuff that does not work with what you expect should not crash anything, but
+give you a hint what went wrong. As a result, if you remeber to check for
+errors after each step, you should be fine.
+
+=item Data does not make sense. It's just data.
+
+Almost all data imports have some type of constraints. Some data needs to be
+unique, other data needs to be connected to existing data sets. This will not
+happen here. You will receive a plain mapping of the data into the class tree,
+nothing more.
+
+=back
 
 =head1 METHODS
 
@@ -249,7 +274,7 @@ Returns an arrayref of the raw lines as hashrefs.
 
 =item C<errors>
 
-Return all errors that came up druing parsing. See error handling for detailed
+Return all errors that came up during parsing. See error handling for detailed
 information.
 
 =back
