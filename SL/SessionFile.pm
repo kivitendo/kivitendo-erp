@@ -5,7 +5,7 @@ use strict;
 use parent qw(Rose::Object);
 
 use Carp;
-use File::Path qw(make_path remove_tree);
+use File::Path qw(mkpath rmtree);
 use English qw(-no_match_vars);
 use IO::File;
 use POSIX qw(strftime);
@@ -56,7 +56,7 @@ sub get_path {
 sub prepare_path {
   my $path = get_path();
   return $path if -d $path;
-  make_path $path;
+  mkpath $path;
   die "Creating ${path} failed" unless -d $path;
   return $path;
 }
@@ -65,7 +65,7 @@ sub destroy_session {
   my ($class, $session_id) = @_;
 
   $session_id =~ s/[^a-z0-9]//gi;
-  remove_tree "users/session_files/$session_id" if $session_id;
+  rmtree "users/session_files/$session_id" if $session_id;
 }
 
 1;
