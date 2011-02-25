@@ -208,13 +208,14 @@ body.menu {
 }
 
 
-.listrow1 {
-    background-color: rgb(208,207,201);
-    color: black;
-    vertical-align: top;
-}
-
+.listrow1 { background-color: rgb(208,207,201); color: black; vertical-align: top; }
 .listrow0 { background-color: rgb(236,233,216); color: black; vertical-align: top; }
+
+.redrow1 { background-color: rgb(250,167, 161); color: black; vertical-align: top; }
+.redrow0 { background-color: rgb(255,193,176); color: black; vertical-align: top; }
+
+.greenrow1 { background-color: rgb(0,250,0); color: black; vertical-align: top; }
+.greenrow0 { background-color: rgb(0,255,0); color: black; vertical-align: top; }
 
 .listsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
 
