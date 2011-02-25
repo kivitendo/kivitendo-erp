@@ -232,7 +232,8 @@ sub handle_request {
   $::locale   = undef;
   $::form     = undef;
   $::myconfig = ();
-  Form::disconnect_standard_dbh unless $self->_interface_is_fcgi;
+  Form::disconnect_standard_dbh;
+  $::auth->dbdisconnect;
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;
