@@ -166,7 +166,7 @@ sub dbconnect {
 
   $main::lxdebug->message(LXDebug->DEBUG1, "Auth::dbconnect DSN: $dsn");
 
-  $self->{dbh} = DBI->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => $::locale->is_utf8, AutoCommit => 0 });
+  $self->{dbh} = DBI->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => $::locale->is_utf8, AutoCommit => 1 });
 
   if (!$may_fail && !$self->{dbh}) {
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
@@ -306,6 +306,8 @@ sub save_user {
 
   my ($sth, $query, $user_id);
 
+  $dbh->begin_work;
+
   $query     = qq|SELECT id FROM auth."user" WHERE login = ?|;
   ($user_id) = selectrow_query($form, $dbh, $query, $login);
 
@@ -426,11 +428,14 @@ sub delete_user {
   my $form  = $main::form;
 
   my $dbh   = $self->dbconnect();
+
+  $dbh->begin_work;
+
   my $query = qq|SELECT id FROM auth."user" WHERE login = ?|;
 
   my ($id)  = selectrow_query($form, $dbh, $query, $login);
 
-  return $main::lxdebug->leave_sub() if (!$id);
+  $dbh->rollback and return $main::lxdebug->leave_sub() if (!$id);
 
   do_query($form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
   do_query($form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
@@ -512,6 +517,8 @@ sub destroy_session {
   if ($session_id) {
     my $dbh = $self->dbconnect();
 
+    $dbh->begin_work;
+
     do_query($main::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
     do_query($main::form, $dbh, qq|DELETE FROM auth.session WHERE id = ?|, $session_id);
 
@@ -530,6 +537,9 @@ sub expire_sessions {
   my $self  = shift;
 
   my $dbh   = $self->dbconnect();
+
+  $dbh->begin_work;
+
   my $query =
     qq|DELETE FROM auth.session_content
        WHERE session_id IN
@@ -575,6 +585,9 @@ sub create_or_refresh_session {
   $form  = $main::form;
   $dbh   = $self->dbconnect();
 
+  $dbh->begin_work;
+  do_query($::form, $dbh, qq|LOCK auth.session_content|);
+
   $query = qq|SELECT id FROM auth.session WHERE id = ?|;
 
   ($id)  = selectrow_query($form, $dbh, $query, $session_id);
@@ -600,6 +613,9 @@ sub save_session {
 
   my $dbh          = $provided_dbh || $self->dbconnect();
 
+  $dbh->begin_work unless $provided_dbh;
+
+  do_query($::form, $dbh, qq|LOCK auth.session_content|);
   do_query($::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
 
   if (%{ $self->{SESSION} }) {
@@ -821,6 +837,8 @@ sub save_group {
   my $form  = $main::form;
   my $dbh   = $self->dbconnect();
 
+  $dbh->begin_work;
+
   my ($query, $sth, $row, $rights);
 
   if (!$group->{id}) {
@@ -866,6 +884,7 @@ sub delete_group {
   my $form = $main::from;
 
   my $dbh  = $self->dbconnect();
+  $dbh->begin_work;
 
   do_query($form, $dbh, qq|DELETE FROM auth.user_group WHERE group_id = ?|, $id);
   do_query($form, $dbh, qq|DELETE FROM auth.group_rights WHERE group_id = ?|, $id);
