@@ -48,6 +48,7 @@ sub _check_category {
   return $valid_categories{$c}
     ||  do {
       require Carp;
+      Carp->import;
       croak("invalid category '$c' for flash");
     };
 }
