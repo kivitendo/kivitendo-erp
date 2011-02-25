@@ -198,7 +198,7 @@ sub handle_request {
 
       $::locale = Locale->new($::myconfig{countrycode});
 
-      show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($::form->{login}, $::form->{password}, 0);
+      show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($::form->{login}, $::form->{password});
 
       $::auth->set_session_value('login', $::form->{login}, 'password', $::form->{password});
       $::auth->create_or_refresh_session;

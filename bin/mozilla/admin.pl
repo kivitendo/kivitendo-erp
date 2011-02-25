@@ -78,7 +78,7 @@ sub run {
   $form->{favicon}    = "favicon.ico";
 
   if ($form->{action}) {
-    if ($auth->authenticate_root($form->{rpw}, 0) != $auth->OK()) {
+    if ($auth->authenticate_root($form->{rpw}) != $auth->OK()) {
       $form->{error_message} = $locale->text('Incorrect Password!');
       adminlogin();
     } else {
