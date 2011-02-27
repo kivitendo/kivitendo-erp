@@ -73,6 +73,8 @@ sub transfer {
     return;
   };
 
+  my @trans_ids;
+
   my $db = SL::DB::Inventory->new->db;
   $db->do_transaction(sub{
     while (my $transfer = shift @args) {
@@ -130,12 +132,16 @@ sub transfer {
           qty       => $qty,
         )->save;
       }
+
+      push @trans_ids, $trans_id;
     }
   }) or do {
     $::form->error("Warehouse transfer error: " . join("\n", (split(/\n/, $db->error))[0..2]));
   };
 
   $::lxdebug->leave_sub;
+
+  return @trans_ids;
 }
 
 sub transfer_assembly {
