@@ -6,7 +6,7 @@ use warnings;
 use Carp;
 use IO::File;
 use Params::Validate qw(:all);
-use Text::CSV;
+use Text::CSV_XS;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
   file encoding sep_char quote_char escape_char header profile class
   numberformat dateformat ignore_unknown_columns strict_profile _io _csv
@@ -39,7 +39,7 @@ sub new {
   $self->$_($params{$_}) for keys %params;
 
   $self->_io(IO::File->new);
-  $self->_csv(Text::CSV->new({
+  $self->_csv(Text::CSV_XS->new({
     binary => 1,
     sep_char    => $self->sep_char,
     quote_char  => $self->quote_char,
