@@ -233,7 +233,7 @@ sub handle_request {
   $::form     = undef;
   $::myconfig = ();
   Form::disconnect_standard_dbh;
-  $::auth->save_session;
+  $::auth->expire_session_keys->save_session;
   $::auth->dbdisconnect;
 
   $::lxdebug->end_request;
