@@ -703,11 +703,11 @@ sub new_item {
   $form->{old_callback} = $form->escape($form->{callback}, 1);
   $form->{callback}     = $form->escape("$form->{script}?action=display_form", 1);
 
-  # save all form variables except action in a previousform variable
-  my $previousform = join '&', map { my $value = $form->{$_}; $value =~ s/&/%26/; "$_=$value" } grep { !/action/ } keys %$form;
+  # save all form variables except action in the session and keep the key in the previousform variable
+  my $previousform = $::auth->save_form_in_session(skip_keys => [ qw(action) ]);
 
   my @HIDDENS;
-  push @HIDDENS,      { 'name' => 'previousform', 'value' => $form->escape($previousform, 1) };
+  push @HIDDENS,      { 'name' => 'previousform', 'value' => $previousform };
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc);
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{"${_}_$form->{rowcount}"} }, qw(partnumber description unit);
   push @HIDDENS,      { 'name' => 'taxaccount2',  'value' => $form->{taxaccounts} };
