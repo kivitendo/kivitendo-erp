@@ -136,11 +136,11 @@ sub authenticate_root {
 sub authenticate {
   $main::lxdebug->enter_sub();
 
-  my $self = shift;
+  my ($self, $login, $password) = @_;
 
   $main::lxdebug->leave_sub();
 
-  my $result = $self->{authenticator}->authenticate(@_);
+  my $result = $login ? $self->{authenticator}->authenticate($login, $password) : ERR_USER;
   return OK if $result eq OK;
   sleep 5;
   return $result;
