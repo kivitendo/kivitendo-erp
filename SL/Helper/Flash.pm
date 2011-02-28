@@ -16,7 +16,7 @@ sub flash {
 }
 
 sub flash_later {
-  $::auth->set_session_value(FLASH => _store_flash($::auth->get_session_value('FLASH'), @_))->save_session();
+  $::auth->set_session_value(FLASH => _store_flash($::auth->get_session_value('FLASH'), @_));
 }
 
 sub render_flash {

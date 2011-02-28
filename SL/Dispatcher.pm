@@ -202,7 +202,7 @@ sub handle_request {
 
       $::auth->set_session_value('login', $::form->{login}, 'password', $::form->{password});
       $::auth->create_or_refresh_session;
-      $::auth->delete_session_value('FLASH')->save_session();
+      $::auth->delete_session_value('FLASH');
       delete $::form->{password};
 
       if ($action) {
@@ -233,6 +233,7 @@ sub handle_request {
   $::form     = undef;
   $::myconfig = ();
   Form::disconnect_standard_dbh;
+  $::auth->save_session;
   $::auth->dbdisconnect;
 
   $::lxdebug->end_request;

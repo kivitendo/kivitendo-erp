@@ -611,7 +611,9 @@ sub save_session {
   my $self         = shift;
   my $provided_dbh = shift;
 
-  my $dbh          = $provided_dbh || $self->dbconnect();
+  my $dbh          = $provided_dbh || $self->dbconnect(1);
+
+  return unless $dbh;
 
   $dbh->begin_work unless $provided_dbh;
 
