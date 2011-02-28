@@ -207,7 +207,7 @@ sub options_for_select {
 
   my $value_title_sub = $options{value_title_sub};
 
-  my %selected        = map { ( $_ => 1 ) } @{ ref($options{default}) eq 'ARRAY' ? $options{default} : $options{default} ? [ $options{default} ] : [] };
+  my %selected        = map { ( $_ => 1 ) } @{ ref($options{default}) eq 'ARRAY' ? $options{default} : defined($options{default}) ? [ $options{default} ] : [] };
 
   my $access = sub {
     my ($element, $index, $key, $sub) = @_;
@@ -231,7 +231,7 @@ sub options_for_select {
   my $code = '';
   foreach my $result (@elements) {
     my %attributes = ( value => $result->[0] );
-    $attributes{selected} = 'selected' if $selected{ $result->[0] || '' };
+    $attributes{selected} = 'selected' if $selected{ defined($result->[0]) ? $result->[0] : '' };
 
     $code .= $self->html_tag('option', _H($result->[1]), %attributes);
   }

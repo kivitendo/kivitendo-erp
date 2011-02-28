@@ -11,6 +11,7 @@ our %EXPORT_TAGS   = (
   ERR => [ qw(
     ERR_PASSWORD
     ERR_BACKEND
+    ERR_USER
   ) ],
   SESSION => [ qw(
     SESSION_OK
@@ -30,6 +31,7 @@ Exporter::export_ok_tags('all');
 
 use constant OK              =>   0;
 use constant ERR_PASSWORD    =>   1;
+use constant ERR_USER        =>   2;
 use constant ERR_BACKEND     => 100;
 
 use constant SESSION_OK      =>   0;

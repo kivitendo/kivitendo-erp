@@ -127,7 +127,7 @@ werden aber umgeleitet:
   # Zugriff über cgi
   Alias       /web/path/to/lx-office-erp                /path/to/lx-office-erp
 
-  # Zugriff mit mod_fastcgi:
+  # Zugriff mit mod_fcgid:
   AliasMatch ^/web/path/to/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
   Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/
 
@@ -136,8 +136,8 @@ werden aber umgeleitet:
   Alias       /web/path/to/lx-office-erp-fastcgi/          /path/to/lx-office-erp/
 
 Dann ist unter C</web/path/to/lx-office-erp/> die normale Version erreichbar,
-und unter C</web/opath/to/lx-office-erp-fcgid/> bzw.
-C</web/opath/to/lx-office-erp-fastcgi/> die FastCGI Version.
+und unter C</web/path/to/lx-office-erp-fcgid/> bzw.
+C</web/path/to/lx-office-erp-fastcgi/> die FastCGI Version.
 
 Achtung:
 
@@ -148,7 +148,7 @@ vhost.
 =head2 Entwicklungsaspekte
 
 Wenn Änderungen in der Konfiguration von Lx-Office gemacht werden, muss der
-Server neu gestartet werden.
+Webserver neu gestartet werden.
 
 Bei der Entwicklung für FastCGI ist auf ein paar Fallstricke zu achten. Dadurch
 dass das Programm in einer Endlosschleife läuft, müssen folgende Aspekte
@@ -180,7 +180,7 @@ In C<SL::Dispatcher> gibt es einen sauber abgetrennten Block der alle
 kanonischen globalen Variablen listet und erklärt. Bitte keine anderen
 einführen ohne das sauber zu dokumentieren.
 
-Datenbankverbindungen wird noch ein Guide verfasst werden, wie man sichergeht,
+Datenbankverbindungen wird noch ein Guide verfasst werden, wie man sicher geht,
 dass man die richtige erwischt.
 
 =head2 Performance und Statistiken

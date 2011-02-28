@@ -35,6 +35,11 @@ sub new {
   return $self;
 }
 
+sub interface_type {
+  my ($self) = @_;
+  return $self->{interface} eq 'cgi' ? 'CGI' : 'FastCGI';
+}
+
 sub pre_request_checks {
   if (!$::auth->session_tables_present) {
     if ($::form->{script} eq 'admin.pl') {
@@ -193,11 +198,11 @@ sub handle_request {
 
       $::locale = Locale->new($::myconfig{countrycode});
 
-      show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($::form->{login}, $::form->{password}, 0);
+      show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($::form->{login}, $::form->{password});
 
       $::auth->set_session_value('login', $::form->{login}, 'password', $::form->{password});
       $::auth->create_or_refresh_session;
-      $::auth->delete_session_value('FLASH')->save_session();
+      $::auth->delete_session_value('FLASH');
       delete $::form->{password};
 
       if ($action) {
@@ -227,7 +232,9 @@ sub handle_request {
   $::locale   = undef;
   $::form     = undef;
   $::myconfig = ();
-  Form::disconnect_standard_dbh unless $self->_interface_is_fcgi;
+  Form::disconnect_standard_dbh;
+  $::auth->expire_session_keys->save_session;
+  $::auth->dbdisconnect;
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;

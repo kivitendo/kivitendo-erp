@@ -136,11 +136,11 @@ sub authenticate_root {
 sub authenticate {
   $main::lxdebug->enter_sub();
 
-  my $self = shift;
+  my ($self, $login, $password) = @_;
 
   $main::lxdebug->leave_sub();
 
-  my $result = $self->{authenticator}->authenticate(@_);
+  my $result = $login ? $self->{authenticator}->authenticate($login, $password) : ERR_USER;
   return OK if $result eq OK;
   sleep 5;
   return $result;
@@ -166,7 +166,7 @@ sub dbconnect {
 
   $main::lxdebug->message(LXDebug->DEBUG1, "Auth::dbconnect DSN: $dsn");
 
-  $self->{dbh} = DBI->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => $::locale->is_utf8, AutoCommit => 0 });
+  $self->{dbh} = DBI->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => $::locale->is_utf8, AutoCommit => 1 });
 
   if (!$may_fail && !$self->{dbh}) {
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
@@ -306,6 +306,8 @@ sub save_user {
 
   my ($sth, $query, $user_id);
 
+  $dbh->begin_work;
+
   $query     = qq|SELECT id FROM auth."user" WHERE login = ?|;
   ($user_id) = selectrow_query($form, $dbh, $query, $login);
 
@@ -426,11 +428,14 @@ sub delete_user {
   my $form  = $main::form;
 
   my $dbh   = $self->dbconnect();
+
+  $dbh->begin_work;
+
   my $query = qq|SELECT id FROM auth."user" WHERE login = ?|;
 
   my ($id)  = selectrow_query($form, $dbh, $query, $login);
 
-  return $main::lxdebug->leave_sub() if (!$id);
+  $dbh->rollback and return $main::lxdebug->leave_sub() if (!$id);
 
   do_query($form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
   do_query($form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
@@ -482,7 +487,10 @@ sub restore_session {
 
   while (my $ref = $sth->fetchrow_hashref()) {
     $self->{SESSION}->{$ref->{sess_key}} = $ref->{sess_value};
-    $form->{$ref->{sess_key}}            = $self->_load_value($ref->{sess_value}) if (!defined $form->{$ref->{sess_key}});
+    next if defined $form->{$ref->{sess_key}};
+
+    my $params                = $self->_load_value($ref->{sess_value});
+    $form->{$ref->{sess_key}} = $params->{data} if $params->{auto_restore} || $params->{simple};
   }
 
   $sth->finish();
@@ -493,15 +501,26 @@ sub restore_session {
 }
 
 sub _load_value {
-  return $_[1] if $_[1] !~ m/^---/;
+  my ($self, $value) = @_;
 
-  my $value;
+  return { simple => 1, data => $value } if $value !~ m/^---/;
+
+  my %params = ( simple => 1 );
   eval {
-    $value = YAML::Load($_[1]);
-    1;
-  } or return $_[1];
+    my $data = YAML::Load($value);
 
-  return $value;
+    if (ref $data eq 'HASH') {
+      map { $params{$_} = $data->{$_} } keys %{ $data };
+      $params{simple} = 0;
+
+    } else {
+      $params{data}   = $data;
+    }
+
+    1;
+  } or $params{data} = $value;
+
+  return \%params;
 }
 
 sub destroy_session {
@@ -511,6 +530,8 @@ sub destroy_session {
 
   if ($session_id) {
     my $dbh = $self->dbconnect();
+
+    $dbh->begin_work;
 
     do_query($main::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
     do_query($main::form, $dbh, qq|DELETE FROM auth.session WHERE id = ?|, $session_id);
@@ -530,6 +551,9 @@ sub expire_sessions {
   my $self  = shift;
 
   my $dbh   = $self->dbconnect();
+
+  $dbh->begin_work;
+
   my $query =
     qq|DELETE FROM auth.session_content
        WHERE session_id IN
@@ -575,6 +599,9 @@ sub create_or_refresh_session {
   $form  = $main::form;
   $dbh   = $self->dbconnect();
 
+  $dbh->begin_work;
+  do_query($::form, $dbh, qq|LOCK auth.session_content|);
+
   $query = qq|SELECT id FROM auth.session WHERE id = ?|;
 
   ($id)  = selectrow_query($form, $dbh, $query, $session_id);
@@ -598,8 +625,13 @@ sub save_session {
   my $self         = shift;
   my $provided_dbh = shift;
 
-  my $dbh          = $provided_dbh || $self->dbconnect();
+  my $dbh          = $provided_dbh || $self->dbconnect(1);
 
+  return unless $dbh;
+
+  $dbh->begin_work unless $provided_dbh;
+
+  do_query($::form, $dbh, qq|LOCK auth.session_content|);
   do_query($::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
 
   if (%{ $self->{SESSION} }) {
@@ -625,7 +657,7 @@ sub set_session_value {
   $self->{SESSION} ||= { };
 
   while (my ($key, $value) = each %params) {
-    $self->{SESSION}->{ $key } = YAML::Dump($value);
+    $self->{SESSION}->{ $key } = YAML::Dump(ref($value) eq 'HASH' ? { data => $value } : $value);
   }
 
   $main::lxdebug->leave_sub();
@@ -649,12 +681,85 @@ sub delete_session_value {
 sub get_session_value {
   $main::lxdebug->enter_sub();
 
-  my $self  = shift;
-  my $value = $self->{SESSION} ? $self->_load_value($self->{SESSION}->{ $_[0] }) : undef;
+  my $self   = shift;
+  my $params = $self->{SESSION} ? $self->_load_value($self->{SESSION}->{ $_[0] }) : {};
 
   $main::lxdebug->leave_sub();
 
-  return $value;
+  return $params->{data};
+}
+
+sub create_unique_sesion_value {
+  my ($self, $value, %params) = @_;
+
+  $self->{SESSION} ||= { };
+
+  my @now                   = gettimeofday();
+  my $key                   = "$$-" . ($now[0] * 1000000 + $now[1]) . "-";
+  $self->{unique_counter} ||= 0;
+
+  $self->{unique_counter}++ while exists $self->{SESSION}->{$key . $self->{unique_counter}};
+  $self->{unique_counter}++;
+
+  $value  = { expiration => $params{expiration} ? ($now[0] + $params{expiration}) * 1000000 + $now[1] : undef,
+              no_auto    => !$params{auto_restore},
+              data       => $value,
+            };
+
+  $self->{SESSION}->{$key . $self->{unique_counter}} = YAML::Dump($value);
+
+  return $key . $self->{unique_counter};
+}
+
+sub save_form_in_session {
+  my ($self, %params) = @_;
+
+  my $form        = delete($params{form}) || $::form;
+  my $non_scalars = delete $params{non_scalars};
+  my $data        = {};
+
+  my %skip_keys   = map { ( $_ => 1 ) } (qw(login password stylesheet version titlebar), @{ $params{skip_keys} || [] });
+
+  foreach my $key (grep { !$skip_keys{$_} } keys %{ $form }) {
+    $data->{$key} = $form->{$key} if !ref($form->{$key}) || $non_scalars;
+  }
+
+  return $self->create_unique_sesion_value($data, %params);
+}
+
+sub restore_form_from_session {
+  my ($self, $key, %params) = @_;
+
+  my $data = $self->get_session_value($key);
+  return $self unless $data;
+
+  my $form    = delete($params{form}) || $::form;
+  my $clobber = exists $params{clobber} ? $params{clobber} : 1;
+
+  map { $form->{$_} = $data->{$_} if $clobber || !exists $form->{$_} } keys %{ $data };
+
+  return $self;
+}
+
+sub expire_session_keys {
+  my ($self) = @_;
+
+  $self->{SESSION} ||= { };
+
+  my @now = gettimeofday();
+  my $now = $now[0] * 1000000 + $now[1];
+
+  $self->delete_session_value(map  { $_->[0]                                                 }
+                              grep { $_->[1]->{expiration} && ($now > $_->[1]->{expiration}) }
+                              map  { [ $_, $self->_load_value($self->{SESSION}->{$_}) ]      }
+                              keys %{ $self->{SESSION} });
+
+  return $self;
+}
+
+sub _has_expiration {
+  my ($value) = @_;
+  return (ref $value eq 'HASH') && exists($value->{expiration}) && $value->{data};
 }
 
 sub set_cookie_environment_variable {
@@ -821,6 +926,8 @@ sub save_group {
   my $form  = $main::form;
   my $dbh   = $self->dbconnect();
 
+  $dbh->begin_work;
+
   my ($query, $sth, $row, $rights);
 
   if (!$group->{id}) {
@@ -866,6 +973,7 @@ sub delete_group {
   my $form = $main::from;
 
   my $dbh  = $self->dbconnect();
+  $dbh->begin_work;
 
   do_query($form, $dbh, qq|DELETE FROM auth.user_group WHERE group_id = ?|, $id);
   do_query($form, $dbh, qq|DELETE FROM auth.group_rights WHERE group_id = ?|, $id);
@@ -1046,3 +1154,93 @@ sub load_rights_for_user {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::Auth - Authentication and session handling
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<set_session_value %values>
+
+Store all key/value pairs in C<%values> in the session. All of these
+values are copied back into C<$::form> in the next request
+automatically.
+
+The values can be any Perl structure. They are stored as YAML dumps.
+
+=item C<get_session_value $key>
+
+Retrieve a value from the session. Returns C<undef> if the value
+doesn't exist.
+
+=item C<create_unique_sesion_value $value, %params>
+
+Create a unique key in the session and store C<$value>
+there.
+
+If C<$params{expiration}> is set then it is interpreted as a number of
+seconds after which the value is removed from the session. It will
+never expire if that parameter is falsish.
+
+If C<$params{auto_restore}> is trueish then the value will be copied
+into C<$::form> upon the next request automatically. It defaults to
+C<false> and has therefore different behaviour than
+L</set_session_value>.
+
+Returns the key created in the session.
+
+=item C<expire_session_keys>
+
+Removes all keys from the session that have an expiration time set and
+whose expiration time is in the past.
+
+=item C<save_session>
+
+Stores the session values in the database. This is the only function
+that actually stores stuff in the database. Neither the various
+setters nor the deleter access the database.
+
+=item <save_form_in_session %params>
+
+Stores the content of C<$params{form}> (default: C<$::form>) in the
+session using L</create_unique_sesion_value>.
+
+If C<$params{non_scalars}> is trueish then non-scalar values will be
+stored as well. Default is to only store scalar values.
+
+The following keys will never be saved: C<login>, C<password>,
+C<stylesheet>, C<titlebar>, C<version>. Additional keys not to save
+can be given as an array ref in C<$params{skip_keys}>.
+
+Returns the unique key under which the form is stored.
+
+=item <restore_form_from_session $key, %params>
+
+Restores the form from the session into C<$params{form}> (default:
+C<$::form>).
+
+If C<$params{clobber}> is falsish then existing values with the same
+key in C<$params{form}> will not be overwritten. C<$params{clobber}>
+is on by default.
+
+Returns C<$self>.
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut

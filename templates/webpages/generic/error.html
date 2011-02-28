@@ -2,7 +2,7 @@
 [% USE HTML %]<body>
 
  <div class="message_error">[% IF title_error %][% title_error %][% ELSE %][% 'Error!' | $T8 %][% END %]
- <p>[% label_error %]</p>
+ <p class="message_error_label">[% label_error %]</p>
  </div>
  
  <p style="text-align: left;"><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
@@ -10,7 +10,7 @@
  [%- IF SHOW_BACK_BUTTON %]
  <form>
   <p>
-   <!--- show back button always hack
+   <!--- TODO: show back button always hack
          In which situation is it necessary to hide it?
    <input type="button" onclick="history.back()" value="[% 'Back' | $T8 %]">
    -->

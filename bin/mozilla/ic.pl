@@ -1759,7 +1759,7 @@ sub save {
 
   $auth->assert('part_service_assembly_edit');
 
-  my ($parts_id, %newform, $previousform, $amount, $callback);
+  my ($parts_id, %newform, $amount, $callback);
 
   # check if there is a part number - commented out, cause there is an automatic allocation of numbers
   # $form->isblank("partnumber", $locale->text(ucfirst $form->{item}." Part Number missing!"));
@@ -1800,20 +1800,14 @@ sub save {
     # save the new form variables before splitting previousform
     map { $newform{$_} = $form->{$_} } keys %$form;
 
-    $previousform = $form->unescape($form->{previousform});
-
     # don't trample on previous variables
     map { delete $form->{$_} } keys %newform;
 
     my $ic_cvar_configs = CVar->get_configs(module => 'IC');
     my @ic_cvar_fields  = map { "cvar_$_->{name}" } @{ $ic_cvar_configs };
 
-    # now take it apart and restore original values
-    foreach my $item (split /&/, $previousform) {
-      my ($key, $value) = split m/=/, $item, 2;
-      $value =~ s/%26/&/g;
-      $form->{$key} = $value;
-    }
+    # restore original values
+    $::auth->restore_form_from_session($newform{previousform}, form => $form);
     $form->{taxaccounts} = $newform{taxaccount2};
 
     if ($form->{item} eq 'assembly') {
