@@ -1,3 +1,5 @@
 [% USE LxERP %]
 
-<p>[%- LxERP.t8('Found #1 objects to import.', SELF.data.size || 0) %]</p>
+<h3>[%- LxERP.t8('Import summary') %]</h3>
+
+<p>[%- LxERP.t8('#1 objects were imported.', SELF.data.size || 0) %]</p>
