@@ -15,8 +15,6 @@ use Rose::Object::MakeMethods::Generic
 sub run {
   my ($self) = @_;
 
-  $::lxdebug->dump(0, "file", $self->file);
-  $::lxdebug->dump(0, "profile", $self->controller->profile);
   my $profile = $self->profile;
   $self->csv(SL::Helper::Csv->new(file                   => $self->file->file_name,
                                   encoding               => $self->controller->profile->get('charset'),
@@ -29,8 +27,6 @@ sub run {
 
   $self->controller->errors([ $self->csv->errors ]) if $self->csv->errors;
 
-  $::lxdebug->dump(0, "err", $self->csv->errors);
-
   return unless $self->csv->header;
 
   my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header } ] };
@@ -41,6 +37,7 @@ sub run {
 
   $self->check_objects;
   $self->check_duplicates if $self->controller->profile->get('duplicates', 'no_check') ne 'no_check';
+  $self->fix_field_lenghts;
 }
 
 sub init_profile {
@@ -98,6 +95,20 @@ sub save_objects {
     } else {
       $self->controller->num_imported($self->controller->num_imported + 1);
     }
+  }
+}
+
+sub field_lengths {
+  return ();
+}
+
+sub fix_field_lenghts {
+  my ($self) = @_;
+
+  my %field_lengths = $self->field_lengths;
+  foreach my $entry (@{ $self->controller->data }) {
+    next unless @{ $entry->{errors} };
+    map { $entry->{object}->$_(substr($entry->{object}->$_, 0, $field_lengths{$_})) if $entry->{object}->$_ } keys %field_lengths;
   }
 }
 

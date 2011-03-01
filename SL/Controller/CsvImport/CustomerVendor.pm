@@ -8,16 +8,17 @@ use parent qw(SL::Controller::CsvImport::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(table) ],
+ 'scalar --get_set_init' => [ qw(table) ],
 );
 
-sub run {
+sub init_table {
   my ($self) = @_;
-
   $self->table($self->controller->profile->get('table') eq 'customer' ? 'customer' : 'vendor');
-  $self->class('SL::DB::' . ucfirst($self->table));
+}
 
-  $self->SUPER::run;
+sub init_class {
+  my ($self) = @_;
+  $self->class('SL::DB::' . ucfirst($self->table));
 }
 
 sub check_objects {
@@ -79,6 +80,27 @@ sub save_objects {
 
   $self->SUPER::save_objects(data => $with_number);
   $self->SUPER::save_objects(data => $without_number);
+}
+
+sub field_lengths {
+  return ( name           => 75,
+           department_1   => 75,
+           department_2   => 75,
+           street         => 75,
+           zipcode        => 10,
+           city           => 75,
+           country        => 75,
+           contact        => 75,
+           phone          => 30,
+           fax            => 30,
+           account_number => 15,
+           bank_code      => 10,
+           language       => 5,
+           username       => 50,
+           ustid          => 14,
+           iban           => 100,
+           bic            => 100,
+         );
 }
 
 1;

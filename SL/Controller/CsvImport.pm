@@ -142,7 +142,8 @@ sub test_and_import {
   }
 
   my $worker = $self->{type} eq 'customers_vendors' ? SL::Controller::CsvImport::CustomerVendor->new(controller => $self, file => $file)
-    :                                                 die "Program logic error";
+             : $self->{type} eq 'contacts'          ? SL::Controller::CsvImport::Contact->new(       controller => $self, file => $file)
+             :                                        die "Program logic error";
 
   $worker->run;
   $worker->save_objects if !$params{test};
