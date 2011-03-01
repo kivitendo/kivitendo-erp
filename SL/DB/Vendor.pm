@@ -15,6 +15,12 @@ __PACKAGE__->meta->add_relationship(
     manager_args => { sort_by => 'lower(shipto.shiptoname)' },
     query_args   => [ 'shipto.module' => 'CT' ],
   },
+  contacts => {
+    type         => 'one to many',
+    class        => 'SL::DB::Contact',
+    column_map   => { id      => 'cp_cv_id' },
+    manager_args => { sort_by => 'lower(contacts.cp_name)' },
+  },
   business => {
     type         => 'one to one',
     class        => 'SL::DB::Business',
