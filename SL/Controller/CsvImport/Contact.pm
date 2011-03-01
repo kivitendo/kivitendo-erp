@@ -51,7 +51,6 @@ sub check_objects {
     }
 
     if (!$object->cp_cv_id) {
-      $::lxdebug->message(0, "cnum" . $raw_data->{customernumber});
       my $vc_id = $by_number{customers}->{ $raw_data->{customernumber} } || $by_number{vendors}->{ $raw_data->{vendornumber} };
       $object->cp_cv_id($vc_id) if $vc_id;
     }
