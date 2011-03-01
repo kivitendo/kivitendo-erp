@@ -25,6 +25,8 @@ my %specs = ( ar                      => { number_column => 'invnumber',        
               purchase_order          => { number_column => 'ordnumber', number_range_column => 'ponumber',  scoping => $oe_scoping,                          },
               sales_delivery_order    => { number_column => 'donumber',  number_range_column => 'sdonumber', scoping => $do_scoping, fill_holes_in_range => 1 },
               purchase_delivery_order => { number_column => 'donumber',  number_range_column => 'pdonumber', scoping => $do_scoping, fill_holes_in_range => 1 },
+              customer                => { number_column => 'customernumber', number_range_column => 'customernumber', },
+              vendor                  => { number_column => 'vendornumber', number_range_column => 'vendornumber', },
             );
 
 sub get_next_trans_number {
