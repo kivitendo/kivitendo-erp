@@ -32,6 +32,7 @@ sub _before_save_set_customernumber {
   my ($self) = @_;
 
   $self->create_trans_number if $self->customernumber eq '';
+  return 1;
 }
 
 sub short_address {

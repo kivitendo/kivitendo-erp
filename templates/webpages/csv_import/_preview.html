@@ -1,0 +1,35 @@
+[% USE HTML %]
+[% USE LxERP %]
+
+<h3>
+ [%- IF SELF.import_status == 'tested' %]
+  [%- LxERP.t8('Import preview') %]
+ [%- ELSE %]
+  [%- LxERP.t8('Import result') %]
+ [%- END %]
+</h3>
+
+<p>[%- LxERP.t8('Found #1 objects to import.', SELF.data.size || 0) %]</p>
+
+[% IF SELF.data.size %]
+ <table>
+  <tr class="listheading">
+   [%- FOREACH column = SELF.headers.headers %]
+    <th>[%- HTML.escape(column) %]</th>
+   [%- END %]
+   <th>[%- LxERP.t8('Notes') %]</th>
+  </tr>
+
+  [%- FOREACH row = SELF.data %]
+  <tr class="[% IF row.errors.size %]redrow[% ELSE %]listrow[% END %][% loop.count % 2 %]">
+   [%- FOREACH method = SELF.headers.methods %]
+    <td>[%- HTML.escape(row.object.$method) %]</td>
+   [%- END %]
+   <td>
+    [%- FOREACH error = row.errors %][%- HTML.escape(error) %][% UNLESS loop.last %]<br>[%- END %][%- END %]
+   </td>
+  </tr>
+  [%- END %]
+
+ </table>
+[%- END %]

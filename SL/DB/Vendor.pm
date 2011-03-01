@@ -31,6 +31,7 @@ sub _before_save_set_vendornumber {
   my ($self) = @_;
 
   $self->create_trans_number if $self->vendornumber eq '';
+  return 1;
 }
 
 1;

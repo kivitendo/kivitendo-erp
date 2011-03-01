@@ -6,6 +6,7 @@ use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
 use SL::Helper::Flash;
 use SL::SessionFile;
+use SL::Controller::CsvImport::CustomerVendor;
 
 use List::MoreUtils qw(none);
 
@@ -13,7 +14,8 @@ use parent qw(SL::Controller::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen) ],
+ scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen
+                import_status errors headers data num_imported) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -128,18 +130,25 @@ sub test_and_import {
   $self->profile_from_form;
 
   if ($::form->{file}) {
-    my $file = SL::SessionFile->new($self->csv_file_name, "w");
+    my $file = SL::SessionFile->new($self->csv_file_name, mode => '>');
     $file->fh->print($::form->{file});
     $file->fh->close;
   }
 
-  my $file = SL::SessionFile->new($self->csv_file_name, "w");
+  my $file = SL::SessionFile->new($self->csv_file_name, mode => '<', encoding => $self->profile->get('charset'));
   if (!$file->fh) {
     flash('error', $::locale->text('No file has been uploaded yet.'));
     return $self->action_new;
   }
 
-  # do the import thingy...
+  my $worker = $self->{type} eq 'customers_vendors' ? SL::Controller::CsvImport::CustomerVendor->new(controller => $self, file => $file)
+    :                                                 die "Program logic error";
+
+  $worker->run;
+  $worker->save_objects if !$params{test};
+
+  $self->import_status($params{test} ? 'tested' : 'imported');
+
   $self->action_new;
 }
 
