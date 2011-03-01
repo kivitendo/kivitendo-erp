@@ -15,7 +15,7 @@ use parent qw(SL::Controller::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen
-                import_status errors headers data num_imported) ],
+                import_status errors headers data num_imported num_importable) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -147,6 +147,7 @@ sub test_and_import {
   $worker->run;
   $worker->save_objects if !$params{test};
 
+  $self->num_importable(scalar grep { !$_ } map { scalar @{ $_->{errors} } } @{ $self->data });
   $self->import_status($params{test} ? 'tested' : 'imported');
 
   $self->action_new;

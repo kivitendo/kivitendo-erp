@@ -52,7 +52,7 @@ sub check_duplicates {
 
   my %by_name;
   if ('check_db' eq $self->controller->profile->get('duplicates')) {
-    %by_name = map { ( $normalizer->($_->name) => 1 ) } @{ $self->existing_objects };
+    %by_name = map { ( $normalizer->($_->name) => 'db' ) } @{ $self->existing_objects };
   }
 
   foreach my $entry (@{ $self->controller->data }) {
@@ -60,10 +60,10 @@ sub check_duplicates {
 
     my $name = $normalizer->($entry->{object}->name);
     if (!$by_name{$name}) {
-      $by_name{$name} = 1;
+      $by_name{$name} = 'csv';
 
     } else {
-      push @{ $entry->{errors} }, $::locale->text('Duplicate');
+      push @{ $entry->{errors} }, $by_name{$name} eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file');
     }
   }
 }
