@@ -140,7 +140,7 @@
   </table>
 
   [% L.submit_tag('action_test', LxERP.t8('Test and preview')) %]
-  [% IF SELF.import_status && SELF.num_importable %]
+  [% IF (SELF.import_status == 'tested') && SELF.num_importable %]
    [% L.submit_tag('action_import', LxERP.t8('Import')) %]
   [%- END %]
 
