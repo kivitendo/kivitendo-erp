@@ -91,6 +91,8 @@ sub save_objects {
   my $data = $params{data} || $self->controller->data;
 
   foreach my $entry (@{ $data }) {
+    next if @{ $entry->{errors} };
+
     if (!$entry->{object}->save) {
       push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $entry->{object}->db->error);
     } else {
