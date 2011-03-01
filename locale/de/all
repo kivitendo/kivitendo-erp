@@ -1114,6 +1114,7 @@ $self->{texts} = {
   'Not done yet'                => 'Noch nicht fertig',
   'Not obsolete'                => 'Gültig',
   'Note'                        => 'Hinweis',
+  'Note: For Firefox 4 and later the menu XUL menu requires the addon <a href="#1">Remote XUL Manager</a> and the Lx-Office server to be white listed.' => 'Bitte beachten: Ab Firefox 4 benötigt das XUL Menü das Addon <a href="#1">Remote XUL Manager</a>, in dem der Lx-Office Server eingetragen sein muss.',
   'Note: Taxkeys must have a "valid from" date, and will not behave correctly without.' => 'Hinweis: Steuerschlüssel sind fehlerhaft ohne "Gültig ab" Datum',
   'Notes'                       => 'Bemerkungen',
   'Notes (will appear on hard copy)' => 'Bemerkungen',

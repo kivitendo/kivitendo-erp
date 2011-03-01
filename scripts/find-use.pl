@@ -188,10 +188,12 @@ This module is included in C<modules/*>. Don't worry about it.
 This module is documented in C<SL:InstallationCheck> to be necessary, or is a
 dependancy of one of these. Everything alright.
 
-= item !missing
+=item !missing
 
 These modules are neither core, nor included, nor required. This is ok for
 developer tools, but should never occur for modules the actual program uses.
+
+=back
 
 =head1 AUTHOR
 

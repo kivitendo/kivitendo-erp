@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE LxERP %]
 [% USE HTML %]<body onLoad="fokus()">
 
  <p>
@@ -163,6 +164,8 @@
       </td>
      </tr>
     </table>
+
+    <p>[% LxERP.t8('Note: For Firefox 4 and later the menu XUL menu requires the addon <a href="#1">Remote XUL Manager</a> and the Lx-Office server to be white listed.', 'https://addons.mozilla.org/de/firefox/addon/remote-xul-manager/') %]</p>
 
     <br style="clear: left" />
    </div>

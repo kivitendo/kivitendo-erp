@@ -28,7 +28,7 @@
   <p>
    <select name="group_id" size="10">
     [% FOREACH row = GROUPS %]
-    <option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.name) %][% IF row.description %] ([% HTML.escape(row.description) %])[% END %]</option>
+    <option value="[% HTML.escape(row.id) %]"[% ' selected' IF loop.first %]>[% HTML.escape(row.name) %][% IF row.description %] ([% HTML.escape(row.description) %])[% END %]</option>
     [% END %]
    </select>
   </p>
