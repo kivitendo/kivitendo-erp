@@ -49,7 +49,7 @@
   [% ELSE %]
         <input name="exchangerate_[% i %]" size="10" value="[% LxERP.format_amount($exchangerate, 2, 1) %]">
   [% END %]
-        <input type="hidden" name="forex_[% i %]" value="[% $forex %]">;
+        <input type="hidden" name="forex_[% i %]" value="[% $forex %]">
      </td>
 [% END %]
      <td align="center"><select name="AR_paid_[% i %]">[% $selectAR_paid_ref %]</select></td>
