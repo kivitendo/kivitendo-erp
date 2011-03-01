@@ -152,6 +152,8 @@ sub test_and_import {
   $self->num_importable(scalar grep { !$_ } map { scalar @{ $_->{errors} } } @{ $self->data });
   $self->import_status($params{test} ? 'tested' : 'imported');
 
+  flash('info', $::locale->text('Objects have been imported.')) if !$params{test};
+
   $self->action_new;
 }
 
