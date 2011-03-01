@@ -2,6 +2,8 @@ package SL::Controller::CsvImport::Base;
 
 use strict;
 
+use List::MoreUtils qw(pairwise);
+
 use SL::Helper::Csv;
 
 use parent qw(Rose::Object);
@@ -33,7 +35,11 @@ sub run {
   $headers->{methods} = [ map { $profile->{$_} } @{ $headers->{headers} } ];
   $self->controller->headers($headers);
 
-  $self->controller->data([ map { { object => $_, errors => [] } } $self->csv->get_objects ]);
+  # my @data;
+  # foreach my $object ($self->csv->get_objects)
+  my @objects  = $self->csv->get_objects;
+  my @raw_data = @{ $self->csv->get_data };
+  $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [] } } @objects, @raw_data ]);
 
   $self->check_objects;
   $self->check_duplicates if $self->controller->profile->get('duplicates', 'no_check') ne 'no_check';

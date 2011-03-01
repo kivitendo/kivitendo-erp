@@ -6,6 +6,7 @@ use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
 use SL::Helper::Flash;
 use SL::SessionFile;
+use SL::Controller::CsvImport::Contact;
 use SL::Controller::CsvImport::CustomerVendor;
 
 use List::MoreUtils qw(none);
