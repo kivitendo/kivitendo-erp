@@ -18,15 +18,15 @@ my $do_scoping = sub {
   SL::DB::Manager::DeliveryOrder->type_filter($_[0]);
 };
 
-my %specs = ( ar                      => { number_column => 'invnumber',                                                             fill_holes_in_range => 1 },
-              sales_quotation         => { number_column => 'quonumber', number_range_column => 'sqnumber',  scoping => $oe_scoping,                          },
-              sales_order             => { number_column => 'ordnumber', number_range_column => 'sonumber',  scoping => $oe_scoping,                          },
-              request_quotation       => { number_column => 'quonumber', number_range_column => 'rfqnumber', scoping => $oe_scoping,                          },
-              purchase_order          => { number_column => 'ordnumber', number_range_column => 'ponumber',  scoping => $oe_scoping,                          },
-              sales_delivery_order    => { number_column => 'donumber',  number_range_column => 'sdonumber', scoping => $do_scoping, fill_holes_in_range => 1 },
-              purchase_delivery_order => { number_column => 'donumber',  number_range_column => 'pdonumber', scoping => $do_scoping, fill_holes_in_range => 1 },
-              customer                => { number_column => 'customernumber', number_range_column => 'customernumber', },
-              vendor                  => { number_column => 'vendornumber', number_range_column => 'vendornumber', },
+my %specs = ( ar                      => { number_column => 'invnumber',                                                                       fill_holes_in_range => 1 },
+              sales_quotation         => { number_column => 'quonumber',      number_range_column => 'sqnumber',       scoping => $oe_scoping,                          },
+              sales_order             => { number_column => 'ordnumber',      number_range_column => 'sonumber',       scoping => $oe_scoping,                          },
+              request_quotation       => { number_column => 'quonumber',      number_range_column => 'rfqnumber',      scoping => $oe_scoping,                          },
+              purchase_order          => { number_column => 'ordnumber',      number_range_column => 'ponumber',       scoping => $oe_scoping,                          },
+              sales_delivery_order    => { number_column => 'donumber',       number_range_column => 'sdonumber',      scoping => $do_scoping, fill_holes_in_range => 1 },
+              purchase_delivery_order => { number_column => 'donumber',       number_range_column => 'pdonumber',      scoping => $do_scoping, fill_holes_in_range => 1 },
+              customer                => { number_column => 'customernumber', number_range_column => 'customernumber',                                                  },
+              vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                                                    },
             );
 
 sub get_next_trans_number {
