@@ -8,6 +8,7 @@ use SL::Helper::Flash;
 use SL::SessionFile;
 use SL::Controller::CsvImport::Contact;
 use SL::Controller::CsvImport::CustomerVendor;
+use SL::Controller::CsvImport::Shipto;
 
 use List::MoreUtils qw(none);
 
@@ -144,6 +145,7 @@ sub test_and_import {
 
   my $worker = $self->{type} eq 'customers_vendors' ? SL::Controller::CsvImport::CustomerVendor->new(controller => $self, file => $file)
              : $self->{type} eq 'contacts'          ? SL::Controller::CsvImport::Contact->new(       controller => $self, file => $file)
+             : $self->{type} eq 'addresses'         ? SL::Controller::CsvImport::Shipto->new(        controller => $self, file => $file)
              :                                        die "Program logic error";
 
   $worker->run;

@@ -13,7 +13,7 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::Shipto',
     column_map   => { id      => 'trans_id' },
     manager_args => { sort_by => 'lower(shipto.shiptoname)' },
-    query_args   => [ 'shipto.module' => 'CT' ],
+    query_args   => [ module  => 'CT' ],
   },
   contacts => {
     type         => 'one to many',
