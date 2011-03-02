@@ -366,16 +366,24 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete $profile->{type};
-
-  $::lxdebug->dump(0, "prof", $profile);
+  delete @{$profile}{qw(type priceupdate)};
 
   return $profile;
 }
 
+sub save_objects {
+  my ($self, %params) = @_;
+
+  my $with_number    = [ grep { $_->{object}->partnumber ne '####' } @{ $self->controller->data } ];
+  my $without_number = [ grep { $_->{object}->partnumber eq '####' } @{ $self->controller->data } ];
+
+  map { $_->{object}->partnumber('') } @{ $without_number };
+
+  $self->SUPER::save_objects(data => $with_number);
+  $self->SUPER::save_objects(data => $without_number);
+}
 
 # TODO:
-#  priceupdate aus Profil raus
 #  CVARs ins Profil rein
 
 1;
