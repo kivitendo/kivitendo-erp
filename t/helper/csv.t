@@ -1,4 +1,4 @@
-use Test::More tests => 31;
+use Test::More tests => 36;
 use SL::Dispatcher;
 use Data::Dumper;
 use utf8;
@@ -224,5 +224,45 @@ EOL
 is $csv->parse, undef, 'wrong profile gets rejected';
 is_deeply $csv->errors, [ 'buchungsgruppen.1.description', undef, "Profile path error. Indexed relationship is not OneToMany around here: 'buchungsgruppen.1'", undef ,0 ], 'error indicates wrong header';
 isa_ok( ($csv->errors)[0], 'SL::Helper::Csv::Error', 'Errors get objectified');
+
+####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost;wiener;
+Kaffee;;0.12;1,221.52;ja wiener
+Beer;1123245;0.12;1.5234;nein kein wieder
+EOL
+  numberformat => '1,000.00',
+  ignore_unknown_columns => 1,
+  strict_profile => 1,
+  class  => 'SL::DB::Part',
+  profile => {
+    lastcost => 'lastcost_as_number',
+  }
+);
+$csv->parse;
+is $csv->get_objects->[0]->lastcost, '1221.52', 'strict_profile with ignore';
+is $csv->get_objects->[0]->sellprice, undef,  'strict profile with ignore 2';
+
+####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+description;partnumber;sellprice;lastcost;wiener;
+Kaffee;;0.12;1,221.52;ja wiener
+Beer;1123245;0.12;1.5234;nein kein wieder
+EOL
+  numberformat => '1,000.00',
+  strict_profile => 1,
+  class  => 'SL::DB::Part',
+  profile => {
+    lastcost => 'lastcost_as_number',
+  }
+);
+$csv->parse;
+
+is_deeply( ($csv->errors)[0], [ 'description', undef, 'header field \'description\' is not recognized', undef, 0 ], 'strict_profile without ignore_columns throws error');
+
 
 # vim: ft=perl

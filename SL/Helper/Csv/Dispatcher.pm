@@ -71,7 +71,15 @@ sub parse_profile {
 
   for my $col (@$header) {
     next unless $col;
-    push @specs, $self->make_spec($col, $profile->{$col} || $col);
+    if ($self->_csv->strict_profile) {
+      if (exists $profile->{$col}) {
+        push @specs, $self->make_spec($col, $profile->{$col});
+      } else {
+        $self->unknown_column($col, undef);
+      }
+    } else {
+      push @specs, $self->make_spec($col, $profile->{$col} || $col);
+    }
   }
 
   $self->_specs(\@specs);

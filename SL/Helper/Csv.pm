@@ -9,8 +9,8 @@ use Params::Validate qw(:all);
 use Text::CSV;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
   file encoding sep_char quote_char escape_char header profile class
-  numberformat dateformat ignore_unknown_columns _io _csv _objects _parsed
-  _data _errors
+  numberformat dateformat ignore_unknown_columns strict_profile _io _csv
+  _objects _parsed _data _errors
 ) ];
 
 use SL::Helper::Csv::Dispatcher;
@@ -32,6 +32,7 @@ sub new {
     numberformat           => 0,
     dateformat             => 0,
     ignore_unknown_columns => 0,
+    strict_profile         => 0,
   });
   my $self = bless {}, $class;
 
@@ -341,6 +342,11 @@ and the return value used instead of the line itself.
 
 If set, the import will ignore unkown header columns. Useful for lazy imports,
 but deactivated by default.
+
+=item C<strict_profile>
+
+If set, all columns to be parsed must be specified in C<profile>. Every header
+field not listed there will be treated like an unknown column.
 
 =back
 
