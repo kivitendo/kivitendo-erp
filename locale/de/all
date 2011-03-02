@@ -1536,7 +1536,6 @@ $self->{texts} = {
   'Sep'                         => 'Sep',
   'Separator'                   => 'Trennzeichen',
   'Separator chararacter'       => 'Feldtrennzeichen',
-  'Separator for part groups'   => 'Trennzeichen für Warengruppen',
   'September'                   => 'September',
   'Serial No.'                  => 'Seriennummer',
   'Serial Number'               => 'Seriennummer',

@@ -48,7 +48,6 @@ sub set_defaults {
                          sellprice_adjustment      => 0,
                          sellprice_adjustment_type => 'percent',
                          article_number_policy     => 'update_prices',
-                         part_group_sep_char       => '!',
                          shoparticle_if_missing    => '0',
                          parts_type                => 'part',
                          default_buchungsgruppe    => ($bugru ? $bugru->id : undef),

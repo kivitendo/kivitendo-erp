@@ -25,13 +25,6 @@
 </tr>
 
 <tr>
- <th align="right">[%- LxERP.t8('Separator for part groups') %]:</th>
- <td colspan="10">
-  [% L.input_tag('settings.part_group_sep_char', SELF.profile.get('part_group_sep_char'), size => 5) %]
- </td>
-</tr>
-
-<tr>
  <th align="right">[%- LxERP.t8('Mark as shop article if column missing') %]:</th>
  <td colspan="10">
   [% opts = [ [ '1', LxERP.t8('yes') ], [ '0', LxERP.t8('no') ] ] %]
