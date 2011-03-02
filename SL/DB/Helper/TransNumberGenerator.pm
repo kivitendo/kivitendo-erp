@@ -10,23 +10,30 @@ use List::Util qw(max);
 
 use SL::DB::Default;
 
-my $oe_scoping = sub {
+sub oe_scoping {
   SL::DB::Manager::Order->type_filter($_[0]);
-};
+}
 
-my $do_scoping = sub {
+sub do_scoping {
   SL::DB::Manager::DeliveryOrder->type_filter($_[0]);
-};
+}
 
-my %specs = ( ar                      => { number_column => 'invnumber',                                                                       fill_holes_in_range => 1 },
-              sales_quotation         => { number_column => 'quonumber',      number_range_column => 'sqnumber',       scoping => $oe_scoping,                          },
-              sales_order             => { number_column => 'ordnumber',      number_range_column => 'sonumber',       scoping => $oe_scoping,                          },
-              request_quotation       => { number_column => 'quonumber',      number_range_column => 'rfqnumber',      scoping => $oe_scoping,                          },
-              purchase_order          => { number_column => 'ordnumber',      number_range_column => 'ponumber',       scoping => $oe_scoping,                          },
-              sales_delivery_order    => { number_column => 'donumber',       number_range_column => 'sdonumber',      scoping => $do_scoping, fill_holes_in_range => 1 },
-              purchase_delivery_order => { number_column => 'donumber',       number_range_column => 'pdonumber',      scoping => $do_scoping, fill_holes_in_range => 1 },
-              customer                => { number_column => 'customernumber', number_range_column => 'customernumber',                                                  },
-              vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                                                    },
+sub parts_scoping {
+  SL::DB::Manager::Part->type_filter($_[0]);
+}
+
+my %specs = ( ar                      => { number_column => 'invnumber',                                                                        fill_holes_in_range => 1 },
+              sales_quotation         => { number_column => 'quonumber',      number_range_column => 'sqnumber',       scoping => \&oe_scoping,                          },
+              sales_order             => { number_column => 'ordnumber',      number_range_column => 'sonumber',       scoping => \&oe_scoping,                          },
+              request_quotation       => { number_column => 'quonumber',      number_range_column => 'rfqnumber',      scoping => \&oe_scoping,                          },
+              purchase_order          => { number_column => 'ordnumber',      number_range_column => 'ponumber',       scoping => \&oe_scoping,                          },
+              sales_delivery_order    => { number_column => 'donumber',       number_range_column => 'sdonumber',      scoping => \&do_scoping, fill_holes_in_range => 1 },
+              purchase_delivery_order => { number_column => 'donumber',       number_range_column => 'pdonumber',      scoping => \&do_scoping, fill_holes_in_range => 1 },
+              customer                => { number_column => 'customernumber', number_range_column => 'customernumber',                                                   },
+              vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                                                     },
+              part                    => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping                        },
+              service                 => { number_column => 'partnumber',     number_range_column => 'servicenumber',  scoping => \&parts_scoping                        },
+              assembly                => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping                        },
             );
 
 sub get_next_trans_number {

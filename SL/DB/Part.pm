@@ -9,6 +9,7 @@ use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
 use SL::DB::Chart;
+use SL::DB::Helper::TransNumberGenerator;
 
 __PACKAGE__->meta->add_relationships(
   unit_obj                     => {
@@ -39,6 +40,15 @@ __PACKAGE__->meta->add_relationships(
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->before_save('_before_save_set_partnumber');
+
+sub _before_save_set_partnumber {
+  my ($self) = @_;
+
+  $self->create_trans_number if $self->partnumber eq '';
+  return 1;
+}
 
 sub is_type {
   my $self = shift;
