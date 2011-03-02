@@ -106,4 +106,37 @@ sub field_lengths {
          );
 }
 
+sub init_profile {
+  my ($self) = @_;
+
+  my $profile = $self->SUPER::init_profile;
+  delete @{$profile}{qw(module)};
+
+  return $profile;
+}
+
+sub setup_displayable_columns {
+  my ($self) = @_;
+
+  $self->SUPER::setup_displayable_columns;
+
+  $self->add_displayable_columns({ name => 'shiptocity',         description => $::locale->text('City')                          },
+                                 { name => 'shiptocontact',      description => $::locale->text('Contact')                       },
+                                 { name => 'shiptocountry',      description => $::locale->text('Country')                       },
+                                 { name => 'shiptodepartment_1', description => $::locale->text('Department 1')                  },
+                                 { name => 'shiptodepartment_2', description => $::locale->text('Department 2')                  },
+                                 { name => 'shiptoemail',        description => $::locale->text('E-mail')                        },
+                                 { name => 'shiptofax',          description => $::locale->text('Fax')                           },
+                                 { name => 'shiptoname',         description => $::locale->text('Name')                          },
+                                 { name => 'shiptophone',        description => $::locale->text('Phone')                         },
+                                 { name => 'shiptostreet',       description => $::locale->text('Street')                        },
+                                 { name => 'shiptozipcode',      description => $::locale->text('Zipcode')                       },
+                                 { name => 'trans_id',           description => $::locale->text('Customer/Vendor (database ID)') },
+                                 { name => 'customer',           description => $::locale->text('Customer (name)')               },
+                                 { name => 'customernumber',     description => $::locale->text('Customer Number')               },
+                                 { name => 'vendor',             description => $::locale->text('Vendor (name)')                 },
+                                 { name => 'vendornumber',       description => $::locale->text('Vendor Number')                 },
+                                );
+}
+
 1;

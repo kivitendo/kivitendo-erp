@@ -113,4 +113,35 @@ sub field_lengths {
          );
 }
 
+sub setup_displayable_columns {
+  my ($self) = @_;
+
+  $self->SUPER::setup_displayable_columns;
+
+  $self->add_displayable_columns({ name => 'cp_abteilung',   description => $::locale->text('Department')                    },
+                                 { name => 'cp_birthday',    description => $::locale->text('Birthday')                      },
+                                 { name => 'cp_cv_id',       description => $::locale->text('Customer/Vendor (database ID)') },
+                                 { name => 'cp_email',       description => $::locale->text('E-mail')                        },
+                                 { name => 'cp_fax',         description => $::locale->text('Fax')                           },
+                                 { name => 'cp_gender',      description => $::locale->text('Gender')                        },
+                                 { name => 'cp_givenname',   description => $::locale->text('Given Name')                    },
+                                 { name => 'cp_mobile1',     description => $::locale->text('Mobile1')                       },
+                                 { name => 'cp_mobile2',     description => $::locale->text('Mobile2')                       },
+                                 { name => 'cp_name',        description => $::locale->text('Name')                          },
+                                 { name => 'cp_phone1',      description => $::locale->text('Phone1')                        },
+                                 { name => 'cp_phone2',      description => $::locale->text('Phone2')                        },
+                                 { name => 'cp_privatemail', description => $::locale->text('Private E-mail')                },
+                                 { name => 'cp_privatphone', description => $::locale->text('Private Phone')                 },
+                                 { name => 'cp_project',     description => $::locale->text('Project')                       },
+                                 { name => 'cp_satfax',      description => $::locale->text('Sat. Fax')                      },
+                                 { name => 'cp_satphone',    description => $::locale->text('Sat. Phone')                    },
+                                 { name => 'cp_title',       description => $::locale->text('Title')                         },
+
+                                 { name => 'customer',       description => $::locale->text('Customer (name)')               },
+                                 { name => 'customernumber', description => $::locale->text('Customer Number')               },
+                                 { name => 'vendor',         description => $::locale->text('Vendor (name)')                 },
+                                 { name => 'vendornumber',   description => $::locale->text('Vendor Number')                 },
+                                );
+}
+
 1;
