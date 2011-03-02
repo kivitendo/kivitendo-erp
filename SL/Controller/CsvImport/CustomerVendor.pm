@@ -3,6 +3,8 @@ package SL::Controller::CsvImport::CustomerVendor;
 use strict;
 
 use SL::Helper::Csv;
+use SL::DB::CustomVariable;
+use SL::DB::CustomVariableConfig;
 
 use parent qw(SL::Controller::CsvImport::Base);
 
@@ -19,6 +21,12 @@ sub init_table {
 sub init_class {
   my ($self) = @_;
   $self->class('SL::DB::' . ucfirst($self->table));
+}
+
+sub init_all_cvar_configs {
+  my ($self) = @_;
+
+  return SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'CT' ]);
 }
 
 sub check_objects {
@@ -43,7 +51,11 @@ sub check_objects {
     } else {
       $vcs_by_number{ $object->$numbercolumn } = $object;
     }
+
+    $self->handle_cvars($entry);
   }
+
+  $self->add_cvar_raw_data_columns;
 }
 
 sub check_duplicates {
@@ -102,5 +114,11 @@ sub field_lengths {
            bic            => 100,
          );
 }
+
+# TODO:
+# Kundentyp
+# salesman_id
+# Sprache
+# Zahlungsbedingungen
 
 1;

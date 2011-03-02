@@ -5,6 +5,8 @@ use strict;
 use SL::Helper::Csv;
 
 use SL::DB::Buchungsgruppe;
+use SL::DB::CustomVariable;
+use SL::DB::CustomVariableConfig;
 use SL::DB::Language;
 use SL::DB::PartsGroup;
 use SL::DB::PaymentTerm;
@@ -17,8 +19,8 @@ use parent qw(SL::Controller::CsvImport::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(table) ],
- 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by payment_terms_by packing_types_by partsgroups_by all_languages
-                                 translation_columns) ],
+ 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by payment_terms_by packing_types_by partsgroups_by
+                                 all_languages translation_columns) ],
 );
 
 sub init_class {
@@ -97,6 +99,12 @@ sub init_all_languages {
   return SL::DB::Manager::Language->get_all;
 }
 
+sub init_all_cvar_configs {
+  my ($self) = @_;
+
+  return SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'IC' ]);
+}
+
 sub init_translation_columns {
   my ($self) = @_;
 
@@ -123,6 +131,7 @@ sub check_objects {
     $self->handle_prices($entry) if $self->settings->{sellprice_adjustment};
     $self->handle_shoparticle($entry);
     $self->handle_translations($entry);
+    $self->handle_cvars($entry);
     $self->set_various_fields($entry);
   }
 
@@ -130,7 +139,7 @@ sub check_objects {
   $self->add_columns(qw(buchungsgruppen_id unit));
   $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment packing_type partsgroup));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
-
+  $self->add_cvar_raw_data_columns;
   map { $self->add_raw_data_columns($_) if exists $self->controller->data->[0]->{raw_data}->{$_} } @{ $self->translation_columns };
 }
 
@@ -416,8 +425,5 @@ sub save_objects {
   $self->SUPER::save_objects(data => $with_number);
   $self->SUPER::save_objects(data => $without_number);
 }
-
-# TODO:
-#  CVARs ins Profil rein
 
 1;

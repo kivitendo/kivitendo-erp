@@ -11,7 +11,7 @@ use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv) ],
- 'scalar --get_set_init' => [ qw(profile existing_objects class manager_class) ],
+ 'scalar --get_set_init' => [ qw(profile existing_objects class manager_class cvar_columns all_cvar_configs) ],
 );
 
 sub run {
@@ -70,6 +70,43 @@ sub add_raw_data_columns {
     $h->{used}->{$column} = 1;
     push @{ $h->{headers} }, $column;
   }
+}
+
+sub add_cvar_raw_data_columns {
+  my ($self) = @_;
+
+  map { $self->add_raw_data_columns($_) if exists $self->controller->data->[0]->{raw_data}->{$_} } @{ $self->cvar_columns };
+}
+
+sub init_cvar_columns {
+  my ($self) = @_;
+
+  return [ map { "cvar_" . $_->name } (@{ $self->all_cvar_configs }) ];
+}
+
+sub handle_cvars {
+  my ($self, $entry) = @_;
+
+  return unless $self->can('all_cvar_configs');
+
+  my %type_to_column = ( text      => 'text_value',
+                         textfield => 'text_value',
+                         select    => 'text_value',
+                         date      => 'timestamp_value_as_date',
+                         timestamp => 'timestamp_value_as_date',
+                         number    => 'number_value_as_number',
+                         bool      => 'bool_value' );
+
+  my @cvars;
+  foreach my $config (@{ $self->all_cvar_configs }) {
+    next unless exists $entry->{raw_data}->{ "cvar_" . $config->name };
+    my $value  = $entry->{raw_data}->{ "cvar_" . $config->name };
+    my $column = $type_to_column{ $config->type } || die "Program logic error: unknown custom variable storage type";
+
+    push @cvars, SL::DB::CustomVariable->new(config_id => $config->id, $column => $value);
+  }
+
+  $entry->{object}->custom_variables(\@cvars);
 }
 
 sub init_profile {
