@@ -36,6 +36,7 @@ sub run {
   $headers->{methods} = [ map { $profile->{$_} } @{ $headers->{headers} } ];
   $headers->{used}    = { map { ($_ => 1) }      @{ $headers->{headers} } };
   $self->controller->headers($headers);
+  $self->controller->raw_data_headers({ used => { }, headers => [ ] });
 
   # my @data;
   # foreach my $object ($self->csv->get_objects)
@@ -56,6 +57,17 @@ sub add_columns {
   foreach my $column (grep { !$h->{used}->{$_} } @columns) {
     $h->{used}->{$column} = 1;
     push @{ $h->{methods} }, $column;
+    push @{ $h->{headers} }, $column;
+  }
+}
+
+sub add_raw_data_columns {
+  my ($self, @columns) = @_;
+
+  my $h = $self->controller->raw_data_headers;
+
+  foreach my $column (grep { !$h->{used}->{$_} } @columns) {
+    $h->{used}->{$column} = 1;
     push @{ $h->{headers} }, $column;
   }
 }

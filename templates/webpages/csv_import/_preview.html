@@ -15,6 +15,9 @@
    [%- FOREACH column = SELF.headers.headers %]
     <th>[%- HTML.escape(column) %]</th>
    [%- END %]
+   [%- FOREACH column = SELF.raw_data_headers.headers %]
+    <th>[%- HTML.escape(column) %]</th>
+   [%- END %]
    <th>[%- LxERP.t8('Notes') %]</th>
   </tr>
 
@@ -22,6 +25,9 @@
   <tr class="[% IF row.errors.size %]redrow[% ELSE %]listrow[% END %][% loop.count % 2 %]">
    [%- FOREACH method = SELF.headers.methods %]
     <td>[%- HTML.escape(row.object.$method) %]</td>
+   [%- END %]
+   [%- FOREACH method = SELF.raw_data_headers.headers %]
+    <td>[%- HTML.escape(row.raw_data.$method) %]</td>
    [%- END %]
    <td>
     [%- FOREACH error = row.errors %][%- HTML.escape(error) %][% UNLESS loop.last %]<br>[%- END %][%- END %]

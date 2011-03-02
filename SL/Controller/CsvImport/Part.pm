@@ -5,9 +5,11 @@ use strict;
 use SL::Helper::Csv;
 
 use SL::DB::Buchungsgruppe;
+use SL::DB::Language;
 use SL::DB::PartsGroup;
 use SL::DB::PaymentTerm;
 use SL::DB::PriceFactor;
+use SL::DB::Translation;
 use SL::DB::Unit;
 
 use parent qw(SL::Controller::CsvImport::Base);
@@ -15,7 +17,8 @@ use parent qw(SL::Controller::CsvImport::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(table) ],
- 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by payment_terms_by packing_types_by partsgroups_by) ],
+ 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by payment_terms_by packing_types_by partsgroups_by all_languages
+                                 translation_columns) ],
 );
 
 sub init_class {
@@ -88,6 +91,18 @@ sub init_settings {
                                                                     shoparticle_if_missing parts_type) };
 }
 
+sub init_all_languages {
+  my ($self) = @_;
+
+  return SL::DB::Manager::Language->get_all;
+}
+
+sub init_translation_columns {
+  my ($self) = @_;
+
+  return [ map { ("description_" . $_->article_code, "notes_" . $_->article_code) } (@{ $self->all_languages }) ];
+}
+
 sub check_objects {
   my ($self) = @_;
 
@@ -107,6 +122,7 @@ sub check_objects {
     $self->check_existing($entry);
     $self->handle_prices($entry) if $self->settings->{sellprice_adjustment};
     $self->handle_shoparticle($entry);
+    $self->handle_translations($entry);
     $self->set_various_fields($entry);
   }
 
@@ -114,6 +130,8 @@ sub check_objects {
   $self->add_columns(qw(buchungsgruppen_id unit));
   $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment packing_type partsgroup));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
+
+  map { $self->add_raw_data_columns($_) if exists $self->controller->data->[0]->{raw_data}->{$_} } @{ $self->translation_columns };
 }
 
 sub check_duplicates {
@@ -354,6 +372,22 @@ sub check_unit {
   }
 
   return 1;
+}
+
+sub handle_translations {
+  my ($self, $entry) = @_;
+
+  my @translations;
+  foreach my $language (@{ $self->all_languages }) {
+    my ($desc, $notes) = @{ $entry->{raw_data} }{ "description_" . $language->article_code, "notes_" . $language->article_code };
+    next unless $desc || $notes;
+
+    push @translations, SL::DB::Translation->new(language_id     => $language->id,
+                                                 translation     => $desc,
+                                                 longdescription => $notes);
+  }
+
+  $entry->{object}->translations(\@translations);
 }
 
 sub set_various_fields {
