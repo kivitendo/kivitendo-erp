@@ -84,7 +84,6 @@ sub pre_startup_setup {
   {
     no warnings 'once';
     $::lxdebug     = LXDebug->new;
-    $::auth        = SL::Auth->new;
     $::form        = undef;
     %::myconfig    = ();
     %::called_subs = (); # currently used for recursion detection
@@ -157,6 +156,7 @@ sub handle_request {
 
   $self->unrequire_bin_mozilla;
 
+  $::auth        = SL::Auth->new;
   $::cgi         = CGI->new('');
   $::locale      = Locale->new($::lx_office_conf{system}->{language});
   $::form        = Form->new;
