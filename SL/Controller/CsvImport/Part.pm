@@ -438,5 +438,6 @@ sub setup_displayable_columns {
 
 # TODO:
 # Preisgruppen
+# Preisaktualisierung
 
 1;
