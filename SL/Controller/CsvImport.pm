@@ -151,7 +151,7 @@ sub test_and_import {
   $worker->run;
   $worker->save_objects if !$params{test};
 
-  $self->num_importable(scalar grep { !$_ } map { scalar @{ $_->{errors} } } @{ $self->data });
+  $self->num_importable(scalar grep { !$_ } map { scalar @{ $_->{errors} } } @{ $self->data || [] });
   $self->import_status($params{test} ? 'tested' : 'imported');
 
   flash('info', $::locale->text('Objects have been imported.')) if !$params{test};
