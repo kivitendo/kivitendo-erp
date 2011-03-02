@@ -14,6 +14,7 @@ use Rose::Object::MakeMethods::Generic scalar => [ qw(
 ) ];
 
 use SL::Helper::Csv::Dispatcher;
+use SL::Helper::Csv::Error;
 
 # public interface
 
@@ -180,7 +181,7 @@ sub _guess_encoding {
 
 sub _push_error {
   my ($self, @errors) = @_;
-  my @new_errors = ($self->errors, @errors);
+  my @new_errors = ($self->errors, map { SL::Helper::Csv::Error->new(@$_) } @errors);
   $self->_errors(\@new_errors);
 }
 
@@ -346,16 +347,13 @@ but deactivated by default.
 =head1 ERROR HANDLING
 
 After parsing a file all errors will be accumulated into C<errors>.
+Each entry is an object with the following attributes:
 
-Each entry is an arrayref with the following structure:
-
- [
- 0  offending raw input,
- 1  Text::CSV error code if Text:CSV signalled an error, 0 else,
- 2  error diagnostics,
- 3  position in line,
- 4  estimated line in file,
- ]
+ raw_input:  offending raw input,
+ code:   Text::CSV error code if Text:CSV signalled an error, 0 else,
+ diag:   error diagnostics,
+ line:   position in line,
+ col:    estimated line in file,
 
 Note that the last entry can be off, but will give an estimate.
 

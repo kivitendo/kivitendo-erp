@@ -125,6 +125,7 @@ EOL
 );
 is $csv->parse, undef, 'broken csv content won\'t get parsed';
 is_deeply $csv->errors, [ '"Kaf"fee";;0.12;1,221.52'."\n", 2023, 'EIQ - QUO character not allowed', 5, 2 ], 'error';
+isa_ok( ($csv->errors)[0], 'SL::Helper::Csv::Error', 'Errors get objectified');
 
 ####
 
@@ -222,5 +223,6 @@ EOL
 );
 is $csv->parse, undef, 'wrong profile gets rejected';
 is_deeply $csv->errors, [ 'buchungsgruppen.1.description', undef, "Profile path error. Indexed relationship is not OneToMany around here: 'buchungsgruppen.1'", undef ,0 ], 'error indicates wrong header';
+isa_ok( ($csv->errors)[0], 'SL::Helper::Csv::Error', 'Errors get objectified');
 
 # vim: ft=perl

@@ -9,6 +9,8 @@ use Rose::Object::MakeMethods::Generic scalar => [ qw(
   _specs _errors
 ) ];
 
+use SL::Helper::Csv::Error;
+
 sub new {
   my ($class, $parent) = @_;
   my $self = bless { }, $class;
@@ -137,7 +139,7 @@ sub errors {
 
 sub _push_error {
   my ($self, @errors) = @_;
-  my @new_errors = ($self->errors, @errors);
+  my @new_errors = ($self->errors, map { SL::Helper::Csv::Error->new(@$_) } @errors);
   $self->_errors(\@new_errors);
 }
 
