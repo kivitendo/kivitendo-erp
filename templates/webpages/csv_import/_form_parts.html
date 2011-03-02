@@ -50,7 +50,7 @@
 <tr>
  <th align="right" valign="top">[%- LxERP.t8('Default buchungsgruppe') %]:</th>
  <td colspan="10" valign="top">
-  [% opts = L.options_for_select(SELF.all_buchungsgruppen, tilte => 'description', value => 'description', default => SELF.profile.get('default_buchungsgruppe')) %]
+  [% opts = L.options_for_select(SELF.all_buchungsgruppen, title => 'description', default => SELF.profile.get('default_buchungsgruppe')) %]
   [% L.select_tag('settings.default_buchungsgruppe', opts, style => 'width: 300px') %]
   <br>
   [% opts = [ [ 'never', LxERP.t8('Do not set default buchungsgruppe') ], [ 'all', LxERP.t8('Apply to all parts') ], [ 'missing', LxERP.t8('Apply to parts without buchungsgruppe') ] ] %]

@@ -51,7 +51,7 @@ sub set_defaults {
                          part_group_sep_char       => '!',
                          shoparticle_if_missing    => '0',
                          parts_type                => 'part',
-                         default_buchungsgruppe    => ($bugru ? $bugru->description : undef),
+                         default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
                          apply_buchungsgruppe      => 'all',
                         );
   } else {
