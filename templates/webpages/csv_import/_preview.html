@@ -1,15 +1,15 @@
 [% USE HTML %]
 [% USE LxERP %]
 
-<h3>
- [%- IF SELF.import_status == 'tested' %]
-  [%- LxERP.t8('Import preview') %]
- [%- ELSE %]
-  [%- LxERP.t8('Import result') %]
- [%- END %]
-</h3>
-
 [% IF SELF.data.size %]
+ <h3>
+  [%- IF SELF.import_status == 'tested' %]
+   [%- LxERP.t8('Import preview') %]
+  [%- ELSE %]
+   [%- LxERP.t8('Import result') %]
+  [%- END %]
+ </h3>
+
  <table>
   <tr class="listheading">
    [%- FOREACH column = SELF.headers.headers %]
