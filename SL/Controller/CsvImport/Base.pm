@@ -33,6 +33,7 @@ sub run {
 
   my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header } ] };
   $headers->{methods} = [ map { $profile->{$_} } @{ $headers->{headers} } ];
+  $headers->{used}    = { map { ($_ => 1) }      @{ $headers->{headers} } };
   $self->controller->headers($headers);
 
   # my @data;
@@ -44,6 +45,18 @@ sub run {
   $self->check_objects;
   $self->check_duplicates if $self->controller->profile->get('duplicates', 'no_check') ne 'no_check';
   $self->fix_field_lenghts;
+}
+
+sub add_columns {
+  my ($self, @columns) = @_;
+
+  my $h = $self->controller->headers;
+
+  foreach my $column (grep { !$h->{used}->{$_} } @columns) {
+    $h->{used}->{$column} = 1;
+    push @{ $h->{methods} }, $column;
+    push @{ $h->{headers} }, $column;
+  }
 }
 
 sub init_profile {

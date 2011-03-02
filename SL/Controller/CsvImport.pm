@@ -8,6 +8,7 @@ use SL::Helper::Flash;
 use SL::SessionFile;
 use SL::Controller::CsvImport::Contact;
 use SL::Controller::CsvImport::CustomerVendor;
+use SL::Controller::CsvImport::Part;
 use SL::Controller::CsvImport::Shipto;
 
 use List::MoreUtils qw(none);
@@ -143,11 +144,7 @@ sub test_and_import {
     return $self->action_new;
   }
 
-  my $worker = $self->{type} eq 'customers_vendors' ? SL::Controller::CsvImport::CustomerVendor->new(controller => $self, file => $file)
-             : $self->{type} eq 'contacts'          ? SL::Controller::CsvImport::Contact->new(       controller => $self, file => $file)
-             : $self->{type} eq 'addresses'         ? SL::Controller::CsvImport::Shipto->new(        controller => $self, file => $file)
-             :                                        die "Program logic error";
-
+  my $worker = $self->create_worker($file);
   $worker->run;
   $worker->save_objects if !$params{test};
 
@@ -194,6 +191,10 @@ sub profile_from_form {
     push @settings, { key => "${type}_char", value => $char };
   }
 
+  if ($self->type eq 'parts') {
+    $::form->{settings}->{sellprice_adjustment} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{sellprice_adjustment});
+  }
+
   delete $::form->{profile}->{id};
   $self->profile($existing_profile || SL::DB::CsvImportProfile->new);
   $self->profile->assign_attributes(%{ $::form->{profile} });
@@ -220,6 +221,16 @@ sub char_map {
 sub csv_file_name {
   my ($self) = @_;
   return "csv-import-" . $self->type . ".csv";
+}
+
+sub create_worker {
+  my ($self, $file) = @_;
+
+  return $self->{type} eq 'customers_vendors' ? SL::Controller::CsvImport::CustomerVendor->new(controller => $self, file => $file)
+       : $self->{type} eq 'contacts'          ? SL::Controller::CsvImport::Contact->new(       controller => $self, file => $file)
+       : $self->{type} eq 'addresses'         ? SL::Controller::CsvImport::Shipto->new(        controller => $self, file => $file)
+       : $self->{type} eq 'parts'             ? SL::Controller::CsvImport::Part->new(          controller => $self, file => $file)
+       :                                        die "Program logic error";
 }
 
 1;
