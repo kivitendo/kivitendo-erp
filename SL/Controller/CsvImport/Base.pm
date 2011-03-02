@@ -23,6 +23,7 @@ sub run {
                                   class                  => $self->class,
                                   profile                => $profile,
                                   ignore_unknown_columns => 1,
+                                  strict_profile         => 1,
                                   map { ( $_ => $self->controller->profile->get($_) ) } qw(sep_char escape_char quote_char),
                                  ));
   $self->csv->parse;

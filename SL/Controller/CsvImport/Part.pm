@@ -93,10 +93,6 @@ sub check_objects {
 
   return unless @{ $self->controller->data };
 
-  $self->add_columns(qw(type)) if $self->settings->{parts_type} eq 'mixed';
-  $self->add_columns(qw(buchungsgruppen_id unit));
-  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{$_} } qw (price_factor payment packing_type partsgroup));
-
   foreach my $entry (@{ $self->controller->data }) {
     my $object   = $entry->{object};
     my $raw_data = $entry->{raw_data};
@@ -113,23 +109,22 @@ sub check_objects {
     $self->handle_shoparticle($entry);
     $self->set_various_fields($entry);
   }
+
+  $self->add_columns(qw(type)) if $self->settings->{parts_type} eq 'mixed';
+  $self->add_columns(qw(buchungsgruppen_id unit));
+  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment packing_type partsgroup));
+  $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
 }
 
 sub check_duplicates {
   my ($self, %params) = @_;
 
-  die "IMPLEMENT ME";
-
   my $normalizer = sub { my $name = $_[0]; $name =~ s/[\s,\.\-]//g; return $name; };
-  my $name_maker = sub { return $normalizer->($_[0]->shiptoname) . '--' . $normalizer->($_[0]->shiptostreet) };
+  my $name_maker = sub { return $normalizer->($_[0]->description) };
 
-  my %by_id_and_name;
+  my %by_name;
   if ('check_db' eq $self->controller->profile->get('duplicates')) {
-    foreach my $type (qw(customers vendors)) {
-      foreach my $vc (@{ $self->all_vc->{$type} }) {
-        $by_id_and_name{ $vc->id } = { map { ( $name_maker->($_) => 'db' ) } @{ $vc->shipto } };
-      }
-    }
+    %by_name = map { ( $name_maker->($_) => 'db' ) } @{ $self->existing_objects };
   }
 
   foreach my $entry (@{ $self->controller->data }) {
@@ -137,12 +132,11 @@ sub check_duplicates {
 
     my $name = $name_maker->($entry->{object});
 
-    $by_id_and_name{ $entry->{vc}->id } ||= { };
-    if (!$by_id_and_name{ $entry->{vc}->id }->{ $name }) {
-      $by_id_and_name{ $entry->{vc}->id }->{ $name } = 'csv';
+    if (!$by_name{ $name }) {
+      $by_name{ $name } = 'csv';
 
     } else {
-      push @{ $entry->{errors} }, $by_id_and_name{ $entry->{vc}->id }->{ $name } eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file');
+      push @{ $entry->{errors} }, $by_name{ $name } eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file');
     }
   }
 }
@@ -207,7 +201,7 @@ sub handle_prices {
     my $value      = $entry->{object}->$column;
 
     $value = $self->settings->{sellprice_adjustment_type} eq 'percent' ? $value * (100 + $adjustment) / 100 : $value + $adjustment;
-    $entry->{object}->$column($::form->round_amount($self->settings->{sellprice_places}, $value));
+    $entry->{object}->$column($::form->round_amount($value, $self->settings->{sellprice_places}));
   }
 }
 
@@ -257,14 +251,14 @@ sub check_price_factor {
 
   # Map name to ID if given.
   if (!$object->price_factor_id && $entry->{raw_data}->{price_factor}) {
-    my $id = $self->price_factors_by->{description}->{ $entry->{raw_data}->{price_factor} };
+    my $pf = $self->price_factors_by->{description}->{ $entry->{raw_data}->{price_factor} };
 
-    if (!$id) {
+    if (!$pf) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid price factor');
       return 0;
     }
 
-    $object->price_factor_id($id);
+    $object->price_factor_id($pf->id);
   }
 
   return 1;
@@ -283,14 +277,14 @@ sub check_payment {
 
   # Map name to ID if given.
   if (!$object->payment_id && $entry->{raw_data}->{payment}) {
-    my $id = $self->payment_terms_by->{description}->{ $entry->{raw_data}->{payment} };
+    my $terms = $self->payment_terms_by->{description}->{ $entry->{raw_data}->{payment} };
 
-    if (!$id) {
+    if (!$terms) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid payment terms');
       return 0;
     }
 
-    $object->payment_id($id);
+    $object->payment_id($terms->id);
   }
 
   return 1;
@@ -309,14 +303,14 @@ sub check_packing_type {
 
   # Map name to ID if given.
   if (!$object->packing_type_id && $entry->{raw_data}->{packing_type}) {
-    my $id = $self->packing_type_by->{description}->{ $entry->{raw_data}->{packing_type} };
+    my $type = $self->packing_types_by->{description}->{ $entry->{raw_data}->{packing_type} };
 
-    if (!$id) {
+    if (!$type) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid packing type');
       return 0;
     }
 
-    $object->packing_type_id($id);
+    $object->packing_type_id($type->id);
   }
 
   return 1;
@@ -335,14 +329,14 @@ sub check_partsgroup {
 
   # Map name to ID if given.
   if (!$object->partsgroup_id && $entry->{raw_data}->{partsgroup}) {
-    my $id = $self->partsgroups_by->{partsgroup}->{ $entry->{raw_data}->{partsgroup} };
+    my $pg = $self->partsgroups_by->{partsgroup}->{ $entry->{raw_data}->{partsgroup} };
 
-    if (!$id) {
+    if (!$pg) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid parts group');
       return 0;
     }
 
-    $object->partsgroup_id($id);
+    $object->partsgroup_id($pg->id);
   }
 
   return 1;
