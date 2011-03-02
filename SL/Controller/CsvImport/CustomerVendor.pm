@@ -196,7 +196,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(language business salesman payment)};
+  delete @{$profile}{qw(business datevexport language payment salesman salesman_id taxincluded terms)};
 
   return $profile;
 }
@@ -206,6 +206,48 @@ sub setup_displayable_columns {
 
   $self->SUPER::setup_displayable_columns;
   $self->add_cvar_columns_to_displayable_columns;
+
+  $self->add_displayable_columns({ name => 'account_number',    description => $::locale->text('Account Number')                  },
+                                 { name => 'bank',              description => $::locale->text('Bank')                            },
+                                 { name => 'bank_code',         description => $::locale->text('Bank Code')                       },
+                                 { name => 'bcc',               description => $::locale->text('Bcc')                             },
+                                 { name => 'bic',               description => $::locale->text('BIC')                             },
+                                 { name => 'business_id',       description => $::locale->text('Business type (database ID)')     },
+                                 { name => 'business',          description => $::locale->text('Business type (name)')            },
+                                 { name => 'c_vendor_id',       description => $::locale->text('our vendor number at customer')   },
+                                 { name => 'cc',                description => $::locale->text('Cc')                              },
+                                 { name => 'city',              description => $::locale->text('City')                            },
+                                 { name => 'contact',           description => $::locale->text('Contact')                         },
+                                 { name => 'country',           description => $::locale->text('Country')                         },
+                                 { name => 'creditlimit',       description => $::locale->text('Credit Limit')                    },
+                                 { name => 'customernumber',    description => $::locale->text('Customer Number')                 },
+                                 { name => 'department_1',      description => $::locale->text('Department 1')                    },
+                                 { name => 'department_2',      description => $::locale->text('Department 2')                    },
+                                 { name => 'direct_debit',      description => $::locale->text('direct debit')                    },
+                                 { name => 'discount',          description => $::locale->text('Discount')                        },
+                                 { name => 'email',             description => $::locale->text('E-mail')                          },
+                                 { name => 'fax',               description => $::locale->text('Fax')                             },
+                                 { name => 'greeting',          description => $::locale->text('Greeting')                        },
+                                 { name => 'homepage',          description => $::locale->text('Homepage')                        },
+                                 { name => 'iban',              description => $::locale->text('IBAN')                            },
+                                 { name => 'klass',             description => $::locale->text('Preisklasse')                     },
+                                 { name => 'language_id',       description => $::locale->text('Language (database ID)')          },
+                                 { name => 'language',          description => $::locale->text('Language (name)')                 },
+                                 { name => 'name',              description => $::locale->text('Name')                            },
+                                 { name => 'notes',             description => $::locale->text('Notes')                           },
+                                 { name => 'obsolete',          description => $::locale->text('Obsolete')                        },
+                                 { name => 'payment_id',        description => $::locale->text('Payment terms (database ID)')     },
+                                 { name => 'payment',           description => $::locale->text('Payment terms (name)')            },
+                                 { name => 'phone',             description => $::locale->text('Phone')                           },
+                                 { name => 'pricing_agreement', description => $::locale->text('Pricing agreement')               },
+                                 { name => 'street',            description => $::locale->text('Street')                          },
+                                 { name => 'taxnumber',         description => $::locale->text('Tax Number / SSN')                },
+                                 { name => 'taxzone_id',        description => $::locale->text('Steuersatz')                      },
+                                 { name => 'user_password',     description => $::locale->text('Password')                        },
+                                 { name => 'username',          description => $::locale->text('Username')                        },
+                                 { name => 'ustid',             description => $::locale->text('sales tax identification number') },
+                                 { name => 'zipcode',           description => $::locale->text('Zipcode')                         },
+                                );
 }
 
 # TODO:
