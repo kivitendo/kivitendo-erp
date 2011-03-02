@@ -201,6 +201,13 @@ sub init_profile {
   return $profile;
 }
 
+sub setup_displayable_columns {
+  my ($self) = @_;
+
+  $self->SUPER::setup_displayable_columns;
+  $self->add_cvar_columns_to_displayable_columns;
+}
+
 # TODO:
 # salesman_id -- Kunden mit Typ 'Verkäufer', falls $::vertreter an ist, ansonsten Employees
 

@@ -13,7 +13,7 @@ use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv) ],
- 'scalar --get_set_init' => [ qw(profile existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by) ],
+ 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by) ],
 );
 
 sub run {
@@ -143,6 +143,39 @@ sub init_profile {
   }
 
   $self->profile(\%profile);
+}
+
+sub add_displayable_columns {
+  my ($self, @columns) = @_;
+
+  my @cols       = @{ $self->controller->displayable_columns || [] };
+  my %ex_col_map = map { $_->{name} => $_ } @cols;
+
+  foreach my $column (@columns) {
+    if ($ex_col_map{ $column->{name} }) {
+      @{ $ex_col_map{ $column->{name} } }{ keys %{ $column } } = @{ $column }{ keys %{ $column } };
+    } else {
+      push @cols, $column;
+    }
+  }
+
+  $self->controller->displayable_columns([ sort { $a->{name} cmp $b->{name} } @cols ]);
+}
+
+sub setup_displayable_columns {
+  my ($self) = @_;
+
+  $self->add_displayable_columns(map { { name => $_ } } keys %{ $self->profile });
+}
+
+sub add_cvar_columns_to_displayable_columns {
+  my ($self) = @_;
+
+  return unless $self->can('all_cvar_configs');
+
+  $self->add_displayable_columns(map { { name        => 'cvar_' . $_->name,
+                                         description => $::locale->text('#1 (custom variable)', $_->description) } }
+                                     @{ $self->all_cvar_configs });
 }
 
 sub init_existing_objects {

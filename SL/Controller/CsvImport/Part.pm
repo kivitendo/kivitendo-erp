@@ -369,7 +369,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(type priceupdate)};
+  delete @{$profile}{qw(alternate assembly bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
 
   return $profile;
 }
@@ -385,5 +385,58 @@ sub save_objects {
   $self->SUPER::save_objects(data => $with_number);
   $self->SUPER::save_objects(data => $without_number);
 }
+
+sub setup_displayable_columns {
+  my ($self) = @_;
+
+  $self->SUPER::setup_displayable_columns;
+  $self->add_cvar_columns_to_displayable_columns;
+
+  $self->add_displayable_columns({ name => 'bin',                description => $::locale->text('Bin')                          },
+                                 { name => 'binding_max_qty',    description => $::locale->text('Binding Max Qty')              },
+                                 { name => 'buchungsgruppen_id', description => $::locale->text('Buchungsgruppe (database ID)') },
+                                 { name => 'buchungsgruppe',     description => $::locale->text('Buchungsgruppe (name)')        },
+                                 { name => 'description',        description => $::locale->text('Description')                  },
+                                 { name => 'drawing',            description => $::locale->text('Drawing')                      },
+                                 { name => 'ean',                description => $::locale->text('EAN')                          },
+                                 { name => 'formel',             description => $::locale->text('Formula')                      },
+                                 { name => 'gv',                 description => $::locale->text('Business Volume')              },
+                                 { name => 'has_sernumber',      description => $::locale->text('Has serial number')            },
+                                 { name => 'image',              description => $::locale->text('Image')                        },
+                                 { name => 'lastcost',           description => $::locale->text('Last Cost')                    },
+                                 { name => 'listprice',          description => $::locale->text('List Price')                   },
+                                 { name => 'microfiche',         description => $::locale->text('Microfiche')                   },
+                                 { name => 'min_sellprice',      description => $::locale->text('Minimum Sell Price')           },
+                                 { name => 'not_discountable',   description => $::locale->text('Not Discountable')             },
+                                 { name => 'notes',              description => $::locale->text('Notes')                        },
+                                 { name => 'obsolete',           description => $::locale->text('Obsolete')                     },
+                                 { name => 'onhand',             description => $::locale->text('On Hand')                      },
+                                 { name => 'packing_type_id',    description => $::locale->text('Packing type (database ID)')   },
+                                 { name => 'packing_type',       description => $::locale->text('Packing type (name)')          },
+                                 { name => 'partnumber',         description => $::locale->text('Part Number')                  },
+                                 { name => 'partsgroup_id',      description => $::locale->text('Partsgroup (database ID)')     },
+                                 { name => 'partsgroup',         description => $::locale->text('Partsgroup (name)')            },
+                                 { name => 'payment_id',         description => $::locale->text('Payment terms (database ID)')  },
+                                 { name => 'payment',            description => $::locale->text('Payment terms (name)')         },
+                                 { name => 'price_factor_id',    description => $::locale->text('Price factor (database ID)')   },
+                                 { name => 'price_factor',       description => $::locale->text('Price factor (name)')          },
+                                 { name => 'rop',                description => $::locale->text('ROP')                          },
+                                 { name => 'sellprice',          description => $::locale->text('Sellprice')                    },
+                                 { name => 'shop',               description => $::locale->text('Shopartikel')                  },
+                                 { name => 'unit',               description => $::locale->text('Unit')                         },
+                                 { name => 've',                 description => $::locale->text('Verrechnungseinheit')          },
+                                 { name => 'weight',             description => $::locale->text('Weight')                       },
+                                );
+
+  foreach my $language (@{ $self->all_languages }) {
+    $self->add_displayable_columns({ name        => 'description_' . $language->article_code,
+                                     description => $::locale->text('Description (translation for #1)', $language->description) },
+                                   { name        => 'notes_' . $language->article_code,
+                                     description => $::locale->text('Notes (translation for #1)', $language->description) });
+  }
+}
+
+# TODO:
+# Preisgruppen
 
 1;
