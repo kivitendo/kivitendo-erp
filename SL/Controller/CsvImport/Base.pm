@@ -5,13 +5,15 @@ use strict;
 use List::MoreUtils qw(pairwise);
 
 use SL::Helper::Csv;
+use SL::DB::Language;
+use SL::DB::PaymentTerm;
 
 use parent qw(Rose::Object);
 
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv) ],
- 'scalar --get_set_init' => [ qw(profile existing_objects class manager_class cvar_columns all_cvar_configs) ],
+ 'scalar --get_set_init' => [ qw(profile existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by) ],
 );
 
 sub run {
@@ -84,6 +86,19 @@ sub init_cvar_columns {
   return [ map { "cvar_" . $_->name } (@{ $self->all_cvar_configs }) ];
 }
 
+sub init_all_languages {
+  my ($self) = @_;
+
+  return SL::DB::Manager::Language->get_all;
+}
+
+sub init_payment_terms_by {
+  my ($self) = @_;
+
+  my $all_payment_terms = SL::DB::Manager::PaymentTerm->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_payment_terms } } ) } qw(id description) };
+}
+
 sub handle_cvars {
   my ($self, $entry) = @_;
 
@@ -152,6 +167,32 @@ sub check_objects {
 }
 
 sub check_duplicates {
+}
+
+sub check_payment {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not payment ID is valid.
+  if ($object->payment_id && !$self->payment_terms_by->{id}->{ $object->payment_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid payment terms');
+    return 0;
+  }
+
+  # Map name to ID if given.
+  if (!$object->payment_id && $entry->{raw_data}->{payment}) {
+    my $terms = $self->payment_terms_by->{description}->{ $entry->{raw_data}->{payment} };
+
+    if (!$terms) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid payment terms');
+      return 0;
+    }
+
+    $object->payment_id($terms->id);
+  }
+
+  return 1;
 }
 
 sub save_objects {

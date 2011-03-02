@@ -3,14 +3,16 @@ package SL::Controller::CsvImport::CustomerVendor;
 use strict;
 
 use SL::Helper::Csv;
+use SL::DB::Business;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
+use SL::DB::PaymentTerm;
 
 use parent qw(SL::Controller::CsvImport::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(table) ],
+ 'scalar --get_set_init' => [ qw(table languages_by businesses_by) ],
 );
 
 sub init_table {
@@ -29,6 +31,18 @@ sub init_all_cvar_configs {
   return SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'CT' ]);
 }
 
+sub init_businesses_by {
+  my ($self) = @_;
+
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ SL::DB::Manager::Business->get_all } } ) } qw(id description) };
+}
+
+sub init_languages_by {
+  my ($self) = @_;
+
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_languages } } ) } qw(id description article_code) };
+}
+
 sub check_objects {
   my ($self) = @_;
 
@@ -38,23 +52,20 @@ sub check_objects {
   foreach my $entry (@{ $self->controller->data }) {
     my $object = $entry->{object};
 
-    my $name =  $object->name;
-    $name    =~ s/^\s+//;
-    $name    =~ s/\s+$//;
-    if (!$name) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Name missing');
-      next;
-    }
+    next unless $self->check_name($entry);
+    next unless $self->check_language($entry);
+    next unless $self->check_business($entry);
+    next unless $self->check_payment($entry);
+    $self->handle_cvars($entry);
 
     if ($vcs_by_number{ $object->$numbercolumn }) {
       $entry->{object}->$numbercolumn('####');
     } else {
       $vcs_by_number{ $object->$numbercolumn } = $object;
     }
-
-    $self->handle_cvars($entry);
   }
 
+  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(language business payment));
   $self->add_cvar_raw_data_columns;
 }
 
@@ -79,6 +90,72 @@ sub check_duplicates {
       push @{ $entry->{errors} }, $by_name{$name} eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file');
     }
   }
+}
+
+sub check_name {
+  my ($self, $entry) = @_;
+
+  my $name =  $entry->{object}->name;
+  $name    =~ s/^\s+//;
+  $name    =~ s/\s+$//;
+
+  return 1 if $name;
+
+  push @{ $entry->{errors} }, $::locale->text('Error: Name missing');
+  return 0;
+}
+
+sub check_language {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not language ID is valid.
+  if ($object->language_id && !$self->languages_by->{id}->{ $object->language_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid language');
+    return 0;
+  }
+
+  # Map name to ID if given.
+  if (!$object->language_id && $entry->{raw_data}->{language}) {
+    my $language = $self->languages_by->{description}->{  $entry->{raw_data}->{language} }
+                || $self->languages_by->{article_code}->{ $entry->{raw_data}->{language} };
+
+    if (!$language) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid language');
+      return 0;
+    }
+
+    $object->language_id($language->id);
+  }
+
+  return 1;
+}
+
+sub check_business {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not business ID is valid.
+  if ($object->business_id && !$self->businesss_by->{id}->{ $object->business_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid business');
+    return 0;
+  }
+
+  # Map name to ID if given.
+  if (!$object->business_id && $entry->{raw_data}->{business}) {
+    my $business = $self->businesses_by->{description}->{ $entry->{raw_data}->{business} };
+
+    if (!$business) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid business');
+      return 0;
+    }
+
+    $object->business_id($business->id);
+  }
+
+  return 1;
 }
 
 sub save_objects {
@@ -115,10 +192,16 @@ sub field_lengths {
          );
 }
 
+sub init_profile {
+  my ($self) = @_;
+
+  my $profile = $self->SUPER::init_profile;
+  delete @{$profile}{qw(language business salesman payment)};
+
+  return $profile;
+}
+
 # TODO:
-# Kundentyp
-# salesman_id
-# Sprache
-# Zahlungsbedingungen
+# salesman_id -- Kunden mit Typ 'Verkäufer', falls $::vertreter an ist, ansonsten Employees
 
 1;

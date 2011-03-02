@@ -7,7 +7,6 @@ use SL::Helper::Csv;
 use SL::DB::Buchungsgruppe;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
-use SL::DB::Language;
 use SL::DB::PartsGroup;
 use SL::DB::PaymentTerm;
 use SL::DB::PriceFactor;
@@ -19,8 +18,8 @@ use parent qw(SL::Controller::CsvImport::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(table) ],
- 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by payment_terms_by packing_types_by partsgroups_by
-                                 all_languages translation_columns) ],
+ 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by packing_types_by partsgroups_by
+                                 translation_columns) ],
 );
 
 sub init_class {
@@ -40,13 +39,6 @@ sub init_price_factors_by {
 
   my $all_price_factors = SL::DB::Manager::PriceFactor->get_all;
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_price_factors } } ) } qw(id description) };
-}
-
-sub init_payment_terms_by {
-  my ($self) = @_;
-
-  my $all_payment_terms = SL::DB::Manager::PaymentTerm->get_all;
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_payment_terms } } ) } qw(id description) };
 }
 
 sub init_packing_types_by {
@@ -91,12 +83,6 @@ sub init_settings {
   return { map { ( $_ => $self->controller->profile->get($_) ) } qw(apply_buchungsgruppe default_buchungsgruppe article_number_policy
                                                                     sellprice_places sellprice_adjustment sellprice_adjustment_type
                                                                     shoparticle_if_missing parts_type) };
-}
-
-sub init_all_languages {
-  my ($self) = @_;
-
-  return SL::DB::Manager::Language->get_all;
 }
 
 sub init_all_cvar_configs {
@@ -286,32 +272,6 @@ sub check_price_factor {
     }
 
     $object->price_factor_id($pf->id);
-  }
-
-  return 1;
-}
-
-sub check_payment {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-
-  # Check whether or not payment ID is valid.
-  if ($object->payment_id && !$self->payment_terms_by->{id}->{ $object->payment_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid payment terms');
-    return 0;
-  }
-
-  # Map name to ID if given.
-  if (!$object->payment_id && $entry->{raw_data}->{payment}) {
-    my $terms = $self->payment_terms_by->{description}->{ $entry->{raw_data}->{payment} };
-
-    if (!$terms) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid payment terms');
-      return 0;
-    }
-
-    $object->payment_id($terms->id);
   }
 
   return 1;
