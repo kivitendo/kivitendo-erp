@@ -51,8 +51,11 @@ sub init_profile {
 
   eval "require " . $self->class;
 
+  my %unwanted = map { ( $_ => 1 ) } (qw(itime mtime), map { $_->name } @{ $self->class->meta->primary_key_columns });
   my %profile;
   for my $col ($self->class->meta->columns) {
+    next if $unwanted{$col};
+
     my $name = $col->isa('Rose::DB::Object::Metadata::Column::Numeric')   ? "$col\_as_number"
       :        $col->isa('Rose::DB::Object::Metadata::Column::Date')      ? "$col\_as_date"
       :        $col->isa('Rose::DB::Object::Metadata::Column::Timestamp') ? "$col\_as_date"
