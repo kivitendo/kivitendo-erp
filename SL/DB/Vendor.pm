@@ -26,6 +26,12 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::Business',
     column_map   => { business_id => 'id' },
   },
+  custom_variables => {
+    type           => 'one to many',
+    class          => 'SL::DB::CustomVariable',
+    column_map     => { id => 'trans_id' },
+    query_args     => [ config_id => [ \"(SELECT custom_variable_configs.id FROM custom_variable_configs WHERE custom_variable_configs.module = 'CT')" ] ],
+  },
 );
 
 __PACKAGE__->meta->make_manager_class;
