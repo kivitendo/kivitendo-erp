@@ -44,7 +44,8 @@ sub run {
   # foreach my $object ($self->csv->get_objects)
   my @objects  = $self->csv->get_objects;
   my @raw_data = @{ $self->csv->get_data };
-  $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [] } } @objects, @raw_data ]);
+  $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [], information => [] } } @objects, @raw_data ]);
+  $::lxdebug->dump(0, "DATA", $self->controller->data);
 
   $self->check_objects;
   $self->check_duplicates if $self->controller->profile->get('duplicates', 'no_check') ne 'no_check';
