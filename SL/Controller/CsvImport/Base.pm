@@ -30,6 +30,10 @@ sub run {
                                   strict_profile         => 1,
                                   map { ( $_ => $self->controller->profile->get($_) ) } qw(sep_char escape_char quote_char),
                                  ));
+
+  my $old_numberformat      = $::myconfig{numberformat};
+  $::myconfig{numberformat} = $self->controller->profile->get('numberformat');
+
   $self->csv->parse;
 
   $self->controller->errors([ $self->csv->errors ]) if $self->csv->errors;
@@ -50,6 +54,8 @@ sub run {
   $self->check_objects;
   $self->check_duplicates if $self->controller->profile->get('duplicates', 'no_check') ne 'no_check';
   $self->fix_field_lengths;
+
+  $::myconfig{numberformat} = $old_numberformat;
 }
 
 sub add_columns {
