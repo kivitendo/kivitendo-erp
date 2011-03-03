@@ -103,9 +103,6 @@ sub check_objects {
   return unless @{ $self->controller->data };
 
   foreach my $entry (@{ $self->controller->data }) {
-    my $object   = $entry->{object};
-    my $raw_data = $entry->{raw_data};
-
     next unless $self->check_buchungsgruppe($entry);
     next unless $self->check_type($entry);
     next unless $self->check_unit($entry);
