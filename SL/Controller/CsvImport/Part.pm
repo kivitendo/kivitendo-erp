@@ -479,6 +479,7 @@ sub setup_displayable_columns {
                                  { name => 'rop',                description => $::locale->text('ROP')                           },
                                  { name => 'sellprice',          description => $::locale->text('Sellprice')                     },
                                  { name => 'shop',               description => $::locale->text('Shopartikel')                   },
+                                 { name => 'type',               description => $::locale->text('Article type (see below)')      },
                                  { name => 'unit',               description => $::locale->text('Unit')                          },
                                  { name => 've',                 description => $::locale->text('Verrechnungseinheit')           },
                                  { name => 'weight',             description => $::locale->text('Weight')                        },
