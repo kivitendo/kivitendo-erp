@@ -18,7 +18,7 @@ use parent qw(SL::Controller::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen
-                import_status errors headers raw_data_headers data num_imported num_importable worker displayable_columns) ],
+                import_status errors headers raw_data_headers data num_imported num_importable displayable_columns) ],
 );
 
 __PACKAGE__->run_before('check_auth');
