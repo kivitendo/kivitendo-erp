@@ -165,7 +165,7 @@ sub order_links {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $::lx_office_conf{system}->{webdav};
+  $form->{webdav}   = $::lx_office_conf{features}->{webdav};
   $form->{jsscript} = 1;
 
   my $editing = $form->{id};
