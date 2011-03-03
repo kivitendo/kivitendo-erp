@@ -192,7 +192,7 @@ sub check_existing {
 
   if ($self->settings->{article_number_policy} eq 'update_prices') {
     if ($entry->{part}) {
-      map { $object->$_( $entry->{part}->$_ ) } qw(sellprice listprice lastcost);
+      map { $entry->{part}->$_( $object->$_ ) } qw(sellprice listprice lastcost min_sellprice);
       push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
       $entry->{object_to_save} = $entry->{part};
     }
