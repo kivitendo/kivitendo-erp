@@ -1569,6 +1569,7 @@ $self->{texts} = {
   'Sell Price'                  => 'Verkaufspreis',
   'Sellprice'                   => '',
   'Sellprice adjustment'        => 'Verkaufspreis: Preisanpassung',
+  'Sellprice for price group \'#1\'' => 'Verkaufspreis für Preisgruppe \'#1\'',
   'Sellprice significant places' => 'Verkaufspreis: Nachkommastellen',
   'Semicolon'                   => 'Semikolon',
   'Send the backup via Email'   => 'Die Sicherungsdatei per Email verschicken',

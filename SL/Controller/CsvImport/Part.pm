@@ -10,6 +10,8 @@ use SL::DB::CustomVariableConfig;
 use SL::DB::PartsGroup;
 use SL::DB::PaymentTerm;
 use SL::DB::PriceFactor;
+use SL::DB::Pricegroup;
+use SL::DB::Price;
 use SL::DB::Translation;
 use SL::DB::Unit;
 
@@ -19,7 +21,7 @@ use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(table) ],
  'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by packing_types_by partsgroups_by
-                                 translation_columns) ],
+                                 translation_columns all_pricegroups) ],
 );
 
 sub init_class {
@@ -77,6 +79,12 @@ sub init_parts_by {
   return $parts_by;
 }
 
+sub init_all_pricegroups {
+  my ($self) = @_;
+
+  return SL::DB::Manager::Pricegroup->get_all(sort => 'id');
+}
+
 sub init_settings {
   my ($self) = @_;
 
@@ -110,6 +118,7 @@ sub check_objects {
     $self->check_payment($entry);
     $self->check_packing_type($entry);
     $self->check_partsgroup($entry);
+    $self->handle_pricegroups($entry);
     $self->check_existing($entry) unless @{ $entry->{errors} };
     $self->handle_prices($entry) if $self->settings->{sellprice_adjustment};
     $self->handle_shoparticle($entry);
@@ -123,6 +132,7 @@ sub check_objects {
   $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment packing_type partsgroup));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
   $self->add_cvar_raw_data_columns;
+  map { $self->add_raw_data_columns("pricegroup_${_}") } (1..scalar(@{ $self->all_pricegroups }));
   map { $self->add_raw_data_columns($_) if exists $self->controller->data->[0]->{raw_data}->{$_} } @{ $self->translation_columns };
 }
 
@@ -192,9 +202,12 @@ sub check_existing {
 
   if ($self->settings->{article_number_policy} eq 'update_prices') {
     if ($entry->{part}) {
-      map { $entry->{part}->$_( $object->$_ ) } qw(sellprice listprice lastcost min_sellprice);
+      map { $entry->{part}->$_( $object->$_ ) } qw(sellprice listprice lastcost min_sellprice prices);
       push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
       $entry->{object_to_save} = $entry->{part};
+
+      $::lxdebug->dump(0, "P1", $entry->{object}->prices);
+      $::lxdebug->dump(0, "P1", $entry->{object_to_save}->prices);
     }
 
   } else {
@@ -357,6 +370,23 @@ sub handle_translations {
   $entry->{object}->translations(\@translations);
 }
 
+sub handle_pricegroups {
+  my ($self, $entry) = @_;
+
+  my @prices;
+  my $idx = 0;
+  foreach my $pricegroup (@{ $self->all_pricegroups }) {
+    $idx++;
+    my $sellprice = $entry->{raw_data}->{"pricegroup_${idx}"};
+    next if $sellprice eq '';
+
+    push @prices, SL::DB::Price->new(pricegroup_id => $pricegroup->id,
+                                     price         => $::form->parse_amount(\%::myconfig, $sellprice));
+  }
+
+  $entry->{object}->prices(\@prices);
+}
+
 sub set_various_fields {
   my ($self, $entry) = @_;
 
@@ -432,10 +462,13 @@ sub setup_displayable_columns {
                                    { name        => 'notes_' . $language->article_code,
                                      description => $::locale->text('Notes (translation for #1)', $language->description) });
   }
-}
 
-# TODO:
-# Preisgruppen
-# Preisaktualisierung
+  my $idx = 0;
+  foreach my $pricegroup (@{ $self->all_pricegroups }) {
+    $idx++;
+    $self->add_displayable_columns({ name        => 'pricegroup_' . $idx,
+                                     description => $::locale->text("Sellprice for price group '#1'", $pricegroup->pricegroup) });
+  }
+}
 
 1;
