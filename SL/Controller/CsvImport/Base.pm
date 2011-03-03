@@ -48,7 +48,7 @@ sub run {
 
   $self->check_objects;
   $self->check_duplicates if $self->controller->profile->get('duplicates', 'no_check') ne 'no_check';
-  $self->fix_field_lenghts;
+  $self->fix_field_lengths;
 }
 
 sub add_columns {
@@ -248,7 +248,7 @@ sub field_lengths {
   return ();
 }
 
-sub fix_field_lenghts {
+sub fix_field_lengths {
   my ($self) = @_;
 
   my %field_lengths = $self->field_lengths;
