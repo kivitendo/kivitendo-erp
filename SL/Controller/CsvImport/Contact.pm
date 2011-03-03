@@ -8,8 +8,7 @@ use parent qw(SL::Controller::CsvImport::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar                  => [ qw(table) ],
- 'scalar --get_set_init' => [ qw(all_vc) ],
+ scalar => [ qw(table) ],
 );
 
 sub init_class {
@@ -17,61 +16,32 @@ sub init_class {
   $self->class('SL::DB::Contact');
 }
 
-sub init_all_vc {
-  my ($self) = @_;
-
-  $self->all_vc({ customers => SL::DB::Manager::Customer->get_all(with_objects => [ 'contacts' ]),
-                  vendors   => SL::DB::Manager::Vendor->get_all(  with_objects => [ 'contacts' ]) });
-}
-
 sub check_objects {
   my ($self) = @_;
 
-  my %by_id     = map { ( $_->id => $_ ) } @{ $self->all_vc->{customers} }, @{ $self->all_vc->{vendors} };
-  my %by_number = ( customers => { map { ( $_->customernumber => $_->id ) } @{ $self->all_vc->{customers} } },
-                    vendors   => { map { ( $_->vendornumber   => $_->id ) } @{ $self->all_vc->{vendors}   } } );
-  my %by_name   = ( customers => { map { ( $_->name           => $_->id ) } @{ $self->all_vc->{customers} } },
-                    vendors   => { map { ( $_->name           => $_->id ) } @{ $self->all_vc->{vendors}   } } );
-
   foreach my $entry (@{ $self->controller->data }) {
-    my $object   = $entry->{object};
-    my $raw_data = $entry->{raw_data};
-
-    my $name     =  $object->cp_name;
-    $name        =~ s/^\s+//;
-    $name        =~ s/\s+$//;
-
-    if (!$name) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Name missing');
-      next;
-    }
-
-    if ($object->cp_cv_id) {
-      $object->cp_cv_id(undef) if !$by_id{ $object->cp_cv_id };
-    }
-
-    if (!$object->cp_cv_id) {
-      my $vc_id = $by_number{customers}->{ $raw_data->{customernumber} } || $by_number{vendors}->{ $raw_data->{vendornumber} };
-      $object->cp_cv_id($vc_id) if $vc_id;
-    }
-
-    if (!$object->cp_cv_id) {
-      my $vc_id = $by_name{customers}->{ $raw_data->{customer} } || $by_name{vendors}->{ $raw_data->{vendor} };
-      $object->cp_cv_id($vc_id) if $vc_id;
-    }
-
-    if (!$object->cp_cv_id) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor not found');
-      next;
-    }
-
-    $entry->{vc} = $by_id{ $object->cp_cv_id };
-
-    if (($object->cp_gender ne 'm') && ($object->cp_gender ne 'f')) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid');
-      next;
-    }
+    $self->check_name($entry);
+    $self->check_vc($entry, 'cp_cv_id');
+    $self->check_gender($entry);
   }
+
+  $self->add_info_columns({ header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
+}
+
+sub check_name {
+  my ($self, $entry) = @_;
+
+  my $name     =  $entry->{object}->cp_name;
+  $name        =~ s/^\s+//;
+  $name        =~ s/\s+$//;
+
+  push @{ $entry->{errors} }, $::locale->text('Error: Name missing') unless $name;
+}
+
+sub check_gender {
+  my ($self, $entry) = @_;
+
+  push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid') if ($entry->{object}->cp_gender ne 'm') && ($entry->{object}->cp_gender ne 'f');
 }
 
 sub check_duplicates {

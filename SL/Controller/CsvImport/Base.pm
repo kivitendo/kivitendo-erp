@@ -5,15 +5,17 @@ use strict;
 use List::MoreUtils qw(pairwise);
 
 use SL::Helper::Csv;
+use SL::DB::Customer;
 use SL::DB::Language;
 use SL::DB::PaymentTerm;
+use SL::DB::Vendor;
 
 use parent qw(Rose::Object);
 
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv) ],
- 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by) ],
+ 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by all_vc vc_by) ],
 );
 
 sub run {
@@ -39,13 +41,11 @@ sub run {
   $headers->{used}    = { map { ($_ => 1) }      @{ $headers->{headers} } };
   $self->controller->headers($headers);
   $self->controller->raw_data_headers({ used => { }, headers => [ ] });
+  $self->controller->info_headers({ used => { }, headers => [ ] });
 
-  # my @data;
-  # foreach my $object ($self->csv->get_objects)
   my @objects  = $self->csv->get_objects;
   my @raw_data = @{ $self->csv->get_data };
-  $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [], information => [] } } @objects, @raw_data ]);
-  $::lxdebug->dump(0, "DATA", $self->controller->data);
+  $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [], information => [], info_data => {} } } @objects, @raw_data ]);
 
   $self->check_objects;
   $self->check_duplicates if $self->controller->profile->get('duplicates', 'no_check') ne 'no_check';
@@ -61,6 +61,18 @@ sub add_columns {
     $h->{used}->{$column} = 1;
     push @{ $h->{methods} }, $column;
     push @{ $h->{headers} }, $column;
+  }
+}
+
+sub add_info_columns {
+  my ($self, @columns) = @_;
+
+  my $h = $self->controller->info_headers;
+
+  foreach my $column (grep { !$h->{used}->{ $_->{method} } } map { ref $_ eq 'HASH' ? $_ : { method => $_, header => $_ } } @columns) {
+    $h->{used}->{ $column->{method} } = 1;
+    push @{ $h->{methods} }, $column->{method};
+    push @{ $h->{headers} }, $column->{header};
   }
 }
 
@@ -98,6 +110,53 @@ sub init_payment_terms_by {
 
   my $all_payment_terms = SL::DB::Manager::PaymentTerm->get_all;
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_payment_terms } } ) } qw(id description) };
+}
+
+sub init_all_vc {
+  my ($self) = @_;
+
+  return { customers => SL::DB::Manager::Customer->get_all,
+           vendors   => SL::DB::Manager::Vendor->get_all };
+}
+
+sub init_vc_by {
+  my ($self)    = @_;
+
+  my %by_id     = map { ( $_->id => $_ ) } @{ $self->all_vc->{customers} }, @{ $self->all_vc->{vendors} };
+  my %by_number = ( customers => { map { ( $_->customernumber => $_ ) } @{ $self->all_vc->{customers} } },
+                    vendors   => { map { ( $_->vendornumber   => $_ ) } @{ $self->all_vc->{vendors}   } } );
+  my %by_name   = ( customers => { map { ( $_->name           => $_ ) } @{ $self->all_vc->{customers} } },
+                    vendors   => { map { ( $_->name           => $_ ) } @{ $self->all_vc->{vendors}   } } );
+
+  return { id     => \%by_id,
+           number => \%by_number,
+           name   => \%by_name,   };
+}
+
+sub check_vc {
+  my ($self, $entry, $id_column) = @_;
+
+  if ($entry->{object}->$id_column) {
+    $entry->{object}->$id_column(undef) if !$self->vc_by->{id}->{ $entry->{object}->$id_column };
+  }
+
+  if (!$entry->{object}->$id_column) {
+    my $vc = $self->vc_by->{number}->{customers}->{ $entry->{raw_data}->{customernumber} }
+          || $self->vc_by->{number}->{vendors}->{   $entry->{raw_data}->{vendornumber}   };
+    $entry->{object}->$id_column($vc->id) if $vc;
+  }
+
+  if (!$entry->{object}->$id_column) {
+    my $vc = $self->vc_by->{name}->{customers}->{ $entry->{raw_data}->{customer} }
+          || $self->vc_by->{name}->{vendors}->{   $entry->{raw_data}->{vendor}   };
+    $entry->{object}->$id_column($vc->id) if $vc;
+  }
+
+  if ($entry->{object}->$id_column) {
+    $entry->{info_data}->{vc_name} = $self->vc_by->{id}->{ $entry->{object}->$id_column }->name;
+  } else {
+    push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor not found');
+  }
 }
 
 sub handle_cvars {

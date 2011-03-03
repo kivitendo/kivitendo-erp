@@ -12,6 +12,9 @@
 
  <table>
   <tr class="listheading">
+   [%- FOREACH column = SELF.info_headers.headers %]
+    <th>[%- HTML.escape(column) %]</th>
+   [%- END %]
    [%- FOREACH column = SELF.headers.headers %]
     <th>[%- HTML.escape(column) %]</th>
    [%- END %]
@@ -23,6 +26,9 @@
 
   [%- FOREACH row = SELF.data %]
   <tr class="[% IF row.errors.size %]redrow[% ELSE %]listrow[% END %][% loop.count % 2 %]">
+   [%- FOREACH method = SELF.info_headers.methods %]
+    <td>[%- HTML.escape(row.info_data.$method) %]</td>
+   [%- END %]
    [%- FOREACH method = SELF.headers.methods %]
     <td>[%- HTML.escape(row.object.$method) %]</td>
    [%- END %]

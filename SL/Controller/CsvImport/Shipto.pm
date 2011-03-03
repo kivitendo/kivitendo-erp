@@ -8,8 +8,7 @@ use parent qw(SL::Controller::CsvImport::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar                  => [ qw(table) ],
- 'scalar --get_set_init' => [ qw(all_vc) ],
+ scalar => [ qw(table) ],
 );
 
 sub init_class {
@@ -17,49 +16,15 @@ sub init_class {
   $self->class('SL::DB::Shipto');
 }
 
-sub init_all_vc {
-  my ($self) = @_;
-
-  $self->all_vc({ customers => SL::DB::Manager::Customer->get_all,
-                  vendors   => SL::DB::Manager::Vendor->get_all });
-}
-
 sub check_objects {
   my ($self) = @_;
 
-  my %by_id     = map { ( $_->id => $_ ) } @{ $self->all_vc->{customers} }, @{ $self->all_vc->{vendors} };
-  my %by_number = ( customers => { map { ( $_->customernumber => $_->id ) } @{ $self->all_vc->{customers} } },
-                    vendors   => { map { ( $_->vendornumber   => $_->id ) } @{ $self->all_vc->{vendors}   } } );
-  my %by_name   = ( customers => { map { ( $_->name           => $_->id ) } @{ $self->all_vc->{customers} } },
-                    vendors   => { map { ( $_->name           => $_->id ) } @{ $self->all_vc->{vendors}   } } );
-
   foreach my $entry (@{ $self->controller->data }) {
-    my $object   = $entry->{object};
-    my $raw_data = $entry->{raw_data};
-
-    if ($object->trans_id) {
-      $object->trans_id(undef) if !$by_id{ $object->trans_id };
-    }
-
-    if (!$object->trans_id) {
-      my $vc_id = $by_number{customers}->{ $raw_data->{customernumber} } || $by_number{vendors}->{ $raw_data->{vendornumber} };
-      $object->trans_id($vc_id) if $vc_id;
-    }
-
-    if (!$object->trans_id) {
-      my $vc_id = $by_name{customers}->{ $raw_data->{customer} } || $by_name{vendors}->{ $raw_data->{vendor} };
-      $object->trans_id($vc_id) if $vc_id;
-    }
-
-    if (!$object->trans_id) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor not found');
-      next;
-    }
-
-    $object->module('CT');
-
-    $entry->{vc} = $by_id{ $object->trans_id };
+    $self->check_vc($entry, 'trans_id');
+    $entry->{object}->module('CT');
   }
+
+  $self->add_info_columns({ header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
 }
 
 sub check_duplicates {

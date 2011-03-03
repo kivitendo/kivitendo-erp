@@ -490,6 +490,7 @@ $self->{texts} = {
   'Customer not on file!'       => 'Kunde ist nicht in der Datenbank!',
   'Customer saved!'             => 'Kunde gespeichert!',
   'Customer type'               => 'Kundentyp',
+  'Customer/Vendor'             => 'Kunde/Lieferant',
   'Customer/Vendor (database ID)' => 'Kunde/Lieferant (Datenbank-ID)',
   'Customername'                => 'Kundenname',
   'Customernumberinit'          => 'Kunden-/Lieferantennummernkreis',
