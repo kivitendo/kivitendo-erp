@@ -52,11 +52,13 @@ sub check_objects {
   foreach my $entry (@{ $self->controller->data }) {
     my $object = $entry->{object};
 
-    next unless $self->check_name($entry);
-    next unless $self->check_language($entry);
-    next unless $self->check_business($entry);
-    next unless $self->check_payment($entry);
+    $self->check_name($entry);
+    $self->check_language($entry);
+    $self->check_business($entry);
+    $self->check_payment($entry);
     $self->handle_cvars($entry);
+
+    next if @{ $entry->{errors} };
 
     if ($vcs_by_number{ $object->$numbercolumn }) {
       $entry->{object}->$numbercolumn('####');

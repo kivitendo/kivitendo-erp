@@ -103,14 +103,14 @@ sub check_objects {
   return unless @{ $self->controller->data };
 
   foreach my $entry (@{ $self->controller->data }) {
-    next unless $self->check_buchungsgruppe($entry);
-    next unless $self->check_type($entry);
-    next unless $self->check_unit($entry);
-    next unless $self->check_price_factor($entry);
-    next unless $self->check_payment($entry);
-    next unless $self->check_packing_type($entry);
-    next unless $self->check_partsgroup($entry);
-    $self->check_existing($entry);
+    $self->check_buchungsgruppe($entry);
+    $self->check_type($entry);
+    $self->check_unit($entry);
+    $self->check_price_factor($entry);
+    $self->check_payment($entry);
+    $self->check_packing_type($entry);
+    $self->check_partsgroup($entry);
+    $self->check_existing($entry) unless @{ $entry->{errors} };
     $self->handle_prices($entry) if $self->settings->{sellprice_adjustment};
     $self->handle_shoparticle($entry);
     $self->handle_translations($entry);
@@ -226,7 +226,7 @@ sub check_type {
   my ($self, $entry) = @_;
 
   my $bg = $self->bg_by->{id}->{ $entry->{object}->buchungsgruppen_id };
-  die "Program logic error" if !$bg;
+  $bg  ||= SL::DB::Buchungsgruppe->new(inventory_accno_id => 1, income_accno_id_0 => 1, expense_accno_id_0 => 1);
 
   my $type = $self->settings->{parts_type};
   if ($type eq 'mixed') {
