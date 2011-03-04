@@ -529,8 +529,12 @@ sub post_invoice {
   }
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
-
-  ($null, $form->{department_id}) = split(/--/, $form->{department});
+  # Seit neuestem wird die department_id schon übergeben UND $form->department nicht mehr
+  # korrekt zusammengebaut. Sehr wahrscheinlich beim Umstieg auf T8 kaputt gegangen
+  # Ich lass den Code von 2005 erstmal noch stehen ;-) jb 03-2011
+  if (!$form->{department_id}){
+    ($null, $form->{department_id}) = split(/--/, $form->{department});
+  }
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
