@@ -489,7 +489,7 @@ sub select_item {
     qw(bin listprice inventory_accno income_accno expense_accno unit weight
        assembly taxaccounts partsgroup formel longdescription not_discountable
        part_payment_id partnotes id lastcost price_factor_id price_factor);
-  push @new_fields, "lizenzen" if $::lx_office_conf{system}->{lizenzen};
+  push @new_fields, "lizenzen" if $::lx_office_conf{features}->{lizenzen};
   push @new_fields, grep { m/^ic_cvar_/ } keys %{ $form->{item_list}->[0] };
 
   my $i = 0;
@@ -497,7 +497,7 @@ sub select_item {
   foreach my $ref (@{ $form->{item_list} }) {
     my $checked = ($i++) ? "" : "checked";
 
-    if ($::lx_office_conf{system}->{lizenzen}) {
+    if ($::lx_office_conf{features}->{lizenzen}) {
       if ($ref->{inventory_accno} > 0) {
         $ref->{"lizenzen"} = qq|<option></option>|;
         foreach my $item (@{ $form->{LIZENZEN}{ $ref->{"id"} } }) {
@@ -622,7 +622,7 @@ sub item_selected {
     $form->{payment_id} = $form->{"part_payment_id_$i"};
   }
 
-  if ($::lx_office_conf{system}->{lizenzen}) {
+  if ($::lx_office_conf{features}->{lizenzen}) {
     map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} } qw(lizenzen);
   }
 

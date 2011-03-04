@@ -810,11 +810,11 @@ sub _prepare_html_template {
   }
 
   $additional_params->{"conf_dbcharset"}              = $::lx_office_conf{system}->{dbcharset};
-  $additional_params->{"conf_webdav"}                 = $::lx_office_conf{system}->{webdav};
-  $additional_params->{"conf_lizenzen"}               = $::lx_office_conf{system}->{lizenzen};
+  $additional_params->{"conf_webdav"}                 = $::lx_office_conf{features}->{webdav};
+  $additional_params->{"conf_lizenzen"}               = $::lx_office_conf{features}->{lizenzen};
   $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
   $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
-  $additional_params->{"conf_vertreter"}              = $::lx_office_conf{system}->{vertreter};
+  $additional_params->{"conf_vertreter"}              = $::lx_office_conf{features}->{vertreter};
   $additional_params->{"conf_show_best_before"}       = $::lx_office_conf{features}->{show_best_before};
   $additional_params->{"conf_parts_image_css"}        = $::lx_office_conf{features}->{parts_image_css};
   $additional_params->{"conf_parts_listing_images"}   = $::lx_office_conf{features}->{parts_listing_images};

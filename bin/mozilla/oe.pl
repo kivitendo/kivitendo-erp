@@ -222,7 +222,7 @@ sub order_links {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $::lx_office_conf{system}->{webdav};
+  $form->{webdav}   = $::lx_office_conf{features}->{webdav};
   $form->{jsscript} = 1;
 
   my $editing = $form->{id};
@@ -498,7 +498,7 @@ sub form_footer {
 
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
-     webdav          => $::lx_office_conf{system}->{webdav},
+     webdav          => $::lx_office_conf{features}->{webdav},
      print_options   => print_options(inline => 1),
      label_edit      => $locale->text("Edit the $form->{type}"),
      label_workflow  => $locale->text("Workflow $form->{type}"),

@@ -31,6 +31,11 @@ __PACKAGE__->meta->add_relationships(
     class        => 'SL::DB::PriceFactor',
     column_map   => { price_factor_id => 'id' },
   },
+  prices         => {
+    type         => 'one to many',
+    class        => 'SL::DB::Price',
+    column_map   => { id => 'parts_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;

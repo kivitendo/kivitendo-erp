@@ -336,7 +336,7 @@ sub webdav_folder {
   my ($form) = @_;
 
   return $main::lxdebug->leave_sub()
-    unless ($::lx_office_conf{system}->{webdav} && $form->{id});
+    unless ($::lx_office_conf{features}->{webdav} && $form->{id});
 
   my ($path, $number);
 

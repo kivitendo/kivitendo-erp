@@ -100,7 +100,7 @@ sub invoice_links {
   $form->{vc} = 'vendor';
 
   # create links
-  $form->{webdav}   = $::lx_office_conf{system}->{webdav};
+  $form->{webdav}   = $::lx_office_conf{features}->{webdav};
   $form->{jsscript} = 1;
 
   $form->create_links("AP", \%myconfig, "vendor");

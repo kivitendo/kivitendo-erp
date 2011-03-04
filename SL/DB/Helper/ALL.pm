@@ -56,7 +56,7 @@ use SL::DB::PeriodicInvoice;
 use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::PriceFactor;
 use SL::DB::Pricegroup;
-use SL::DB::Prices;
+use SL::DB::Price;
 use SL::DB::Printer;
 use SL::DB::Project;
 use SL::DB::PurchaseInvoice;
