@@ -915,7 +915,8 @@ sub credit_note {
   $form->{title}  = $locale->text('Add Credit Note');
   $form->{script} = 'is.pl';
 
-
+  # Bei Gutschriften bezug zur Rechnungsnummer
+  $form->{invnumber_for_credit_note} = $form->{invnumber};
   # bo creates the id, reset it
   map { delete $form->{$_} }
     qw(id invnumber subject message cc bcc printed emailed queued);

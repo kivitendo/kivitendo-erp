@@ -202,6 +202,10 @@
           <td colspan="3"><input size='11' name="invnumber" value="[% HTML.escape(invnumber) %]"></td>
         </tr>
         <tr>
+          <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
+          <td colspan="3"><input size='11' name="invnumber_for_credit_note" value="[% HTML.escape(invnumber_for_credit_note) %]"></td>
+        </tr>
+        <tr>
           <th align="right">[% 'Credit Note Date' | $T8 %]</th>
           <td nowrap>
             <input name="invdate" id="invdate" size="11" title="[% dateformat %]" value="[% invdate %]" onBlur="check_right_date_format(this)">
