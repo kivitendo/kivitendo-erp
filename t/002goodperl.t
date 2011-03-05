@@ -119,7 +119,8 @@ foreach my $file (@testitems) {
         next;
     }
     while (my $file_line = <FILE>) {
-        if ($file_line =~ m/(<\/?$tags>)/) {
+        last if $file_line =~ /^__END__/;
+        if ($file_line =~ m/(<\/?$tags>)/o) {
             $found_html_count++;
             $found_html .= $1;
         }

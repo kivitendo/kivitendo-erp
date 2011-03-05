@@ -489,7 +489,7 @@ sub select_item {
     qw(bin listprice inventory_accno income_accno expense_accno unit weight
        assembly taxaccounts partsgroup formel longdescription not_discountable
        part_payment_id partnotes id lastcost price_factor_id price_factor);
-  push @new_fields, "lizenzen" if $::lx_office_conf{system}->{lizenzen};
+  push @new_fields, "lizenzen" if $::lx_office_conf{features}->{lizenzen};
   push @new_fields, grep { m/^ic_cvar_/ } keys %{ $form->{item_list}->[0] };
 
   my $i = 0;
@@ -497,7 +497,7 @@ sub select_item {
   foreach my $ref (@{ $form->{item_list} }) {
     my $checked = ($i++) ? "" : "checked";
 
-    if ($::lx_office_conf{system}->{lizenzen}) {
+    if ($::lx_office_conf{features}->{lizenzen}) {
       if ($ref->{inventory_accno} > 0) {
         $ref->{"lizenzen"} = qq|<option></option>|;
         foreach my $item (@{ $form->{LIZENZEN}{ $ref->{"id"} } }) {
@@ -622,7 +622,7 @@ sub item_selected {
     $form->{payment_id} = $form->{"part_payment_id_$i"};
   }
 
-  if ($::lx_office_conf{system}->{lizenzen}) {
+  if ($::lx_office_conf{features}->{lizenzen}) {
     map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} } qw(lizenzen);
   }
 
@@ -703,11 +703,11 @@ sub new_item {
   $form->{old_callback} = $form->escape($form->{callback}, 1);
   $form->{callback}     = $form->escape("$form->{script}?action=display_form", 1);
 
-  # save all form variables except action in a previousform variable
-  my $previousform = join '&', map { my $value = $form->{$_}; $value =~ s/&/%26/; "$_=$value" } grep { !/action/ } keys %$form;
+  # save all form variables except action in the session and keep the key in the previousform variable
+  my $previousform = $::auth->save_form_in_session(skip_keys => [ qw(action) ]);
 
   my @HIDDENS;
-  push @HIDDENS,      { 'name' => 'previousform', 'value' => $form->escape($previousform, 1) };
+  push @HIDDENS,      { 'name' => 'previousform', 'value' => $previousform };
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{$_} },                       qw(rowcount vc);
   push @HIDDENS, map +{ 'name' => $_,             'value' => $form->{"${_}_$form->{rowcount}"} }, qw(partnumber description unit);
   push @HIDDENS,      { 'name' => 'taxaccount2',  'value' => $form->{taxaccounts} };

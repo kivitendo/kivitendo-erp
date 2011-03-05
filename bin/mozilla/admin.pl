@@ -34,6 +34,7 @@
 
 use DBI;
 use CGI;
+use Encode;
 use English qw(-no_match_vars);
 use Fcntl;
 use File::Copy;
@@ -78,7 +79,7 @@ sub run {
   $form->{favicon}    = "favicon.ico";
 
   if ($form->{action}) {
-    if ($auth->authenticate_root($form->{rpw}, 0) != $auth->OK()) {
+    if ($auth->authenticate_root($form->{rpw}) != $auth->OK()) {
       $form->{error_message} = $locale->text('Incorrect Password!');
       adminlogin();
     } else {
@@ -342,7 +343,10 @@ sub list_users {
 
   delete $members{"root login"};
 
-  map { $_->{templates} =~ s|.*/||; } values %members;
+  for (values %members) {
+    $_->{templates} =~ s|.*/||;
+    $_->{login_url} =  $::locale->is_utf8 ? Encode::encode('utf-8-strict', $_->{login}) : $_->{login_url};
+  }
 
   $form->{title}   = "Lx-Office ERP " . $locale->text('Administration');
   $form->{LOCKED}  = -e _nologin_file_name();

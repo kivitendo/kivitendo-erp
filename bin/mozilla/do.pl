@@ -165,7 +165,7 @@ sub order_links {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $::lx_office_conf{system}->{webdav};
+  $form->{webdav}   = $::lx_office_conf{features}->{webdav};
   $form->{jsscript} = 1;
 
   my $editing = $form->{id};
@@ -1361,7 +1361,7 @@ sub transfer_out {
         my $pinfo = $part_info_map{$request->{parts_id}};
         my $binfo = $bin_info_map{$request->{bin_id}};
 
-        if ($::lx_office_conf{system}->{show_best_before}) {
+        if ($::lx_office_conf{features}->{show_best_before}) {
             push @{ $form->{ERRORS} }, $locale->text("There is not enough available of '#1' at warehouse '#2', bin '#3', #4, #5, for the transfer of #6.",
                                                      $pinfo->{description},
                                                      $binfo->{warehouse_description},

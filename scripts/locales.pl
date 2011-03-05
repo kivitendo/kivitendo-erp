@@ -31,7 +31,7 @@ parse_args();
 my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
-my @progdirs     = ( "$basedir/SL/Controller", "$basedir/SL/Template/Plugin", "$basedir/SL/Auth" );
+my @progdirs     = ( "$basedir/SL" );
 my $dbupdir      = "$basedir/sql/Pg-upgrade";
 my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
 my $menufile     = "menu.ini";
@@ -42,17 +42,38 @@ my ($ALL_HEADER, $MISSING_HEADER, $LOST_HEADER);
 
 init();
 
-opendir DIR, "$bindir" or die "$!";
-my @progfiles = map { [ $_, $bindir ] } grep { /\.pl$/ && !/(_custom|^\.)/ } readdir DIR;
-seekdir DIR, 0;
-my @customfiles = grep /_custom/, readdir DIR;
-closedir DIR;
+sub find_files {
+  my ($dir_name, $files) = @_;
 
-foreach my $dir (@progdirs) {
-  opendir DIR, $dir or die "$!";
-  push @progfiles, map { [ $_, $dir ] } grep { /\.pm$/ } readdir DIR;
-  closedir DIR;
+  $files ||= [];
+
+  my @dirs_to_check;
+
+  opendir my $dir, $dir_name or die "$! $dir_name";
+
+  foreach my $name (readdir $dir) {
+    next if $name eq '.' || $name eq '..';
+
+    my $full_name = "${dir_name}/${name}";
+    if (-d $full_name) {
+      push @dirs_to_check, $full_name;
+    } else {
+      push @{ $files }, $full_name;
+    }
+  }
+
+  closedir $dir;
+
+  map { find_files($_, $files) } @dirs_to_check;
+
+  return @{ $files };
 }
+
+my @bindir_files = find_files($bindir);
+my @progfiles    = map { m:^(.+)/([^/]+)$:; [ $2, $1 ]  } grep { /\.pl$/ && !/_custom/ } @bindir_files;
+my @customfiles  = grep /_custom/, @bindir_files;
+
+push @progfiles, map { m:^(.+)/([^/]+)$:; [ $2, $1 ] } grep { /\.pm$/ } map { find_files($_) } @progdirs;
 
 # put customized files into @customfiles
 my @menufiles;

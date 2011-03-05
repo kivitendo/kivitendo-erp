@@ -2,6 +2,22 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
+  ab Feb 2011 Release 2.7-unstable
+
+
+
+  Kleinere neue Features und Detailverbesserungen:
+
+  - Beim Laden von Rechnungsentwürfen, das Fälligkeits- und Rechnungsdatum duch
+    das Tagesdatum ersetzen
+
+  - Bei Verkaufsgutschriften zusätzlich noch die Rechnungsnummer mitnehmen, damit der Bezug klarer ist.
+
+  Liste gefixter Bugs aus dem Bugtracker:
+
+  - Bugfix 1613: Status teilweise
+
+
 2011-02-02 - Release 2.6.2
 
   Größere neue Features:

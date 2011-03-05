@@ -121,6 +121,15 @@ body.menu {
     border-style:solid;
     border-width:thin;
 }
+.message_error_label {
+    font-size: 0.8em;
+    padding:5px;
+    background-color: #FEE;
+    font-weight:normal;
+    text-align:left;
+    border-style:solid;
+    border-width:thin;
+}
 
 /*
     Überschriftsbalken

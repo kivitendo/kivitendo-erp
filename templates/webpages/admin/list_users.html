@@ -21,7 +21,7 @@
 
     [% FOREACH row = MEMBERS %]
      <tr class="listrow[% loop.count % 2 %]">
-      <td>&nbsp;<a href="admin.pl?action=edit&login=[% HTML.url(row.login) %]">[% HTML.escape(row.login) %]</a></td>
+      <td>&nbsp;<a href="admin.pl?action=edit&login=[% HTML.url(row.login_url) %]">[% HTML.escape(row.login) %]</a></td>
       <td>&nbsp;[% HTML.escape(row.name) %]</td>
       <td>&nbsp;[% HTML.escape(row.company) %]</td>
       <td>&nbsp;[% HTML.escape(row.templates) %]</td>

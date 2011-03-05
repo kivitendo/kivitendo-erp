@@ -529,8 +529,12 @@ sub post_invoice {
   }
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
-
-  ($null, $form->{department_id}) = split(/--/, $form->{department});
+  # Seit neuestem wird die department_id schon übergeben UND $form->department nicht mehr
+  # korrekt zusammengebaut. Sehr wahrscheinlich beim Umstieg auf T8 kaputt gegangen
+  # Ich lass den Code von 2005 erstmal noch stehen ;-) jb 03-2011
+  if (!$form->{department_id}){
+    ($null, $form->{department_id}) = split(/--/, $form->{department});
+  }
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
@@ -1005,7 +1009,7 @@ sub post_invoice {
                 cp_id       = ?, marge_total   = ?, marge_percent = ?,
                 globalproject_id               = ?, delivery_customer_id             = ?,
                 transaction_description        = ?, delivery_vendor_id               = ?,
-                donumber    = ?
+                donumber    = ?, invnumber_for_credit_note = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
              conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}),    conv_i($form->{"customer_id"}),
@@ -1018,7 +1022,7 @@ sub post_invoice {
                 conv_i($form->{"cp_id"}),            1 * $form->{marge_total} ,      1 * $form->{marge_percent},
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
-                       $form->{"donumber"}, #das entsprechende feld lieferscheinnummer aus der html-form 12.02.09 jb
+                       $form->{"donumber"}, $form->{"invnumber_for_credit_note"},
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
 
@@ -1448,9 +1452,9 @@ sub retrieve_invoice {
            a.duedate, a.taxincluded, a.curr AS currency, a.shipto_id, a.cp_id,
            a.employee_id, a.salesman_id, a.payment_id,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
-           a.transaction_description,
+           a.transaction_description, a.donumber, a.invnumber_for_credit_note,
            a.marge_total, a.marge_percent,
-           e.name AS employee, a.donumber
+           e.name AS employee
          FROM ar a
          LEFT JOIN employee e ON (e.id = a.employee_id)
          WHERE a.id = ?|;

@@ -132,8 +132,8 @@ sub invoice_links {
   $form->{vc} = 'customer';
 
   # create links
-  $form->{webdav}   = $::lx_office_conf{system}->{webdav};
-  $form->{lizenzen} = $::lx_office_conf{system}->{lizenzen};
+  $form->{webdav}   = $::lx_office_conf{features}->{webdav};
+  $form->{lizenzen} = $::lx_office_conf{features}->{lizenzen};
 
   $form->create_links("AR", \%myconfig, "customer");
 
@@ -561,7 +561,7 @@ sub update {
 
         $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
 
-        if ($::lx_office_conf{system}->{lizenzen}) {
+        if ($::lx_office_conf{features}->{lizenzen}) {
           if ($form->{"inventory_accno_$i"} ne "") {
             $form->{"lizenzen_$i"} = qq|<option></option>|;
             foreach my $item (@{ $form->{LIZENZEN}{ $form->{"id_$i"} } }) {
@@ -915,7 +915,8 @@ sub credit_note {
   $form->{title}  = $locale->text('Add Credit Note');
   $form->{script} = 'is.pl';
 
-
+  # Bei Gutschriften bezug zur Rechnungsnummer
+  $form->{invnumber_for_credit_note} = $form->{invnumber};
   # bo creates the id, reset it
   map { delete $form->{$_} }
     qw(id invnumber subject message cc bcc printed emailed queued);
