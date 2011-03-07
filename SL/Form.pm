@@ -629,6 +629,8 @@ sub create_http_response {
   $cgi_params{'-charset'} = $params{charset} if ($params{charset});
   $cgi_params{'-cookie'}  = $session_cookie  if ($session_cookie);
 
+  map { $cgi_params{'-' . $_} = $params{$_} if exists $params{$_} } qw(content_disposition content_length);
+
   my $output = $cgi->header(%cgi_params);
 
   $main::lxdebug->leave_sub();
