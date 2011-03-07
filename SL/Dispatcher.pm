@@ -231,6 +231,7 @@ sub handle_request {
   # cleanup
   $::locale   = undef;
   $::form     = undef;
+  $::auth     = undef;
   $::myconfig = ();
   Form::disconnect_standard_dbh;
   $::auth->expire_session_keys->save_session;
