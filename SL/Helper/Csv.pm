@@ -120,18 +120,19 @@ sub _parse_data {
 
   while (1) {
     my $row = $self->_csv->getline($self->_io);
-    last if $self->_csv->eof;
     if ($row) {
       my %hr;
       @hr{@{ $self->header }} = @$row;
       push @data, \%hr;
     } else {
+      last if $self->_csv->eof;
       push @errors, [
         $self->_csv->error_input,
         $self->_csv->error_diag,
         $self->_io->input_line_number,
       ];
     }
+    last if $self->_csv->eof;
   }
 
   $self->_data(\@data);

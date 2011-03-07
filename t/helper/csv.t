@@ -1,4 +1,4 @@
-use Test::More tests => 36;
+use Test::More tests => 37;
 use SL::Dispatcher;
 use Data::Dumper;
 use utf8;
@@ -264,5 +264,14 @@ $csv->parse;
 
 is_deeply( ($csv->errors)[0], [ 'description', undef, 'header field \'description\' is not recognized', undef, 0 ], 'strict_profile without ignore_columns throws error');
 
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"Kaffee",
+  header => [ 'description' ],
+  class  => 'SL::DB::Part',
+);
+$csv->parse;
+is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'eol bug at the end of files';
 
 # vim: ft=perl
