@@ -67,6 +67,26 @@ sub action_destroy {
   $self->redirect_to(action => 'new', 'profile.type' => $self->type);
 }
 
+sub action_download_sample {
+  my $self = shift;
+
+  $self->profile_from_form;
+  $self->setup_help;
+
+  my $file_name = 'csv_import_sample_' . $self->type . '.csv';
+  my $file      = SL::SessionFile->new($file_name, mode => '>', encoding => $self->profile->get('charset'));
+  my $csv       = Text::CSV_XS->new({ binary => 1, map { ( $_ => $self->profile->get($_) ) } qw(sep_char escape_char quote_char),});
+
+  $csv->print($file->fh, [ map { $_->{name}        } @{ $self->displayable_columns } ]);
+  $file->fh->print("\r\n");
+  $csv->print($file->fh, [ map { $_->{description} } @{ $self->displayable_columns } ]);
+  $file->fh->print("\r\n");
+
+  $file->fh->close;
+
+  $self->send_file($file->file_name);
+}
+
 #
 # filters
 #

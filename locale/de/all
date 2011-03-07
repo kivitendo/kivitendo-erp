@@ -614,6 +614,7 @@ $self->{texts} = {
   'Documents in the WebDAV repository' => 'Dokumente im WebDAV-Repository',
   'Done'                        => 'Fertig',
   'Download SEPA XML export file' => 'SEPA-XML-Exportdatei herunterladen',
+  'Download sample file'        => 'Beispieldatei herunterladen',
   'Download the backup'         => 'Die Sicherungsdatei herunterladen',
   'Draft saved.'                => 'Entwurf gespeichert.',
   'Drawing'                     => 'Zeichnung',
