@@ -527,7 +527,14 @@ sub post_invoice {
 
   # set values which could be empty
   my $taxzone_id         = $form->{taxzone_id} * 1;
-  $form->{department_id} = (split /--/, $form->{department})[1];
+
+  # Seit neuestem wird die department_id schon übergeben UND $form->department nicht mehr
+  # korrekt zusammengebaut. Sehr wahrscheinlich beim Umstieg auf T8 kaputt gegangen
+  # Ich lass den Code von 2005 erstmal noch stehen ;-) jb 03-2011
+  # copy & paste von IS.pm
+  if (!$form->{department_id}){
+    $form->{department_id} = (split /--/, $form->{department})[1];
+  }
   $form->{invnumber}     = $form->{id} unless $form->{invnumber};
 
   $taxzone_id = 0 if (3 < $taxzone_id) || (0 > $taxzone_id);
