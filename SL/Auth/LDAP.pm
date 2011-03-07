@@ -2,6 +2,7 @@ package SL::Auth::LDAP;
 
 use English '-no_match_vars';
 
+use Scalar::Util qw(weaken);
 use SL::Auth::Constants qw(:all);
 
 use strict;
@@ -17,6 +18,7 @@ sub new {
   my $self = {};
 
   $self->{auth} = shift;
+  weaken $self->{auth};
 
   bless $self, $type;
 
