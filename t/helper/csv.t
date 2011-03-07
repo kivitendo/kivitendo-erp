@@ -11,7 +11,7 @@ $csv = SL::Helper::Csv->new(
   header => [ 'description' ],
 );
 
-isa_ok $csv->_csv, 'Text::CSV';
+isa_ok $csv->_csv, 'Text::CSV_XS';
 isa_ok $csv->_io, 'IO::File';
 isa_ok $csv->parse, 'SL::Helper::Csv', 'parsing returns self';
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'simple case works';
