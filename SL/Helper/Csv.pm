@@ -109,7 +109,7 @@ sub _check_header {
     0,
   ]) unless $header;
 
-  $self->header($header);
+  $self->header([ map { lc } @{ $header } ]);
 }
 
 sub _parse_data {
