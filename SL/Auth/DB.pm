@@ -3,6 +3,7 @@ package SL::Auth::DB;
 use strict;
 
 use Carp;
+use Scalar::Util qw(weaken);
 
 use SL::Auth::Constants qw(:all);
 use SL::DBUtils;
@@ -14,6 +15,7 @@ sub new {
   my $self = {};
 
   $self->{auth} = shift;
+  weaken $self->{auth};
 
   bless $self, $type;
 

@@ -156,10 +156,10 @@ sub handle_request {
 
   $self->unrequire_bin_mozilla;
 
-  $::auth        = SL::Auth->new;
   $::cgi         = CGI->new('');
   $::locale      = Locale->new($::lx_office_conf{system}->{language});
   $::form        = Form->new;
+  $::auth        = SL::Auth->new;
   %::called_subs = ();
 
   eval { ($routing_type, $script_name, $action) = _route_request($script_name); 1; } or return;
@@ -231,6 +231,7 @@ sub handle_request {
   # cleanup
   $::locale   = undef;
   $::form     = undef;
+  $::auth     = undef;
   $::myconfig = ();
   Form::disconnect_standard_dbh;
   $::auth->expire_session_keys->save_session;
