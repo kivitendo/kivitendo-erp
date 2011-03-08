@@ -1,4 +1,4 @@
-use Test::More tests => 37;
+use Test::More tests => 39;
 use SL::Dispatcher;
 use Data::Dumper;
 use utf8;
@@ -273,5 +273,24 @@ $csv = SL::Helper::Csv->new(
 );
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'eol bug at the end of files';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"Description\nKaffee",
+  class  => 'SL::DB::Part',
+);
+$csv->parse;
+is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive header from csv works';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"Kaffee",
+  header => [ 'Description' ],
+  class  => 'SL::DB::Part',
+);
+$csv->parse;
+is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive header as param works';
 
 # vim: ft=perl

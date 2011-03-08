@@ -99,17 +99,20 @@ sub _open_file {
 
 sub _check_header {
   my ($self, %params) = @_;
-  return $self->header if $self->header;
+  my $header = $self->header;
 
-  my $header = $self->_csv->getline($self->_io);
+  if (! $header) {
+    $header = $self->_csv->getline($self->_io);
 
-  $self->_push_error([
-    $self->_csv->error_input,
-    $self->_csv->error_diag,
-    0,
-  ]) unless $header;
+    $self->_push_error([
+      $self->_csv->error_input,
+      $self->_csv->error_diag,
+      0,
+    ]) unless $header;
+  }
 
-  $self->header([ map { lc } @{ $header } ]);
+  return unless $header;
+  return $self->header([ map { lc } @$header ]);
 }
 
 sub _parse_data {
