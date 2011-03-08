@@ -2459,7 +2459,8 @@ sub _get_warehouses {
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
   if ($bins_key) {
-    $query = qq|SELECT id, description FROM bin WHERE warehouse_id = ?|;
+    $query = qq|SELECT id, description FROM bin WHERE warehouse_id = ?
+                ORDER BY description|;
     my $sth = prepare_query($self, $dbh, $query);
 
     foreach my $warehouse (@{ $self->{$key} }) {
