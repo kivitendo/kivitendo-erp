@@ -1,6 +1,8 @@
+[%- IF pages.max > 1 %]
 [%- FOR p = pages.common %]
   [%- IF p.active %]<a href="[% base_url _ "&page=" _ p.page %]">[% p.page %]</a>
   [%- ELSE %]<b>[% p.page %]</b>
   [%- END %]
   [%- ' ' UNLESS loop.last %]
+[%- END %]
 [%- END %]
