@@ -1,11 +1,13 @@
 use strict;
-
 use lib 't';
-
 use Support::Files;
+use Test::More;
 
-use Test::More tests => scalar(@Support::Files::testitems);
-use PPI;
+if (eval { require PPI; 1 }) {
+  plan tests => scalar(@Support::Files::testitems);
+} else {
+  plan skip_all => "PPI not installed";
+}
 
 my $fh;
 {
