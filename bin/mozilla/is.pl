@@ -94,6 +94,15 @@ sub edit {
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
 
+  my ($language_id, $printer_id);
+  if ($form->{print_and_post}) {
+    $form->{action}   = "print";
+    $form->{resubmit} = 1;
+    $language_id = $form->{language_id};
+    $printer_id = $form->{printer_id};
+  }
+
+  &invoice_links;
   if ($form->{type} eq "credit_note") {
     $form->{title} = $locale->text('Edit Credit Note');
     $form->{title} = $locale->text('Edit Storno Credit Note') if $form->{storno};
@@ -102,14 +111,6 @@ sub edit {
     $form->{title} = $locale->text('Edit Storno Invoice')     if $form->{storno};
   }
 
-  my ($language_id, $printer_id);
-  if ($form->{print_and_post}) {
-    $form->{action}   = "print";
-    $form->{resubmit} = 1;
-    $language_id = $form->{language_id};
-    $printer_id = $form->{printer_id};
-  }
-  &invoice_links;
   &prepare_invoice;
   if ($form->{print_and_post}) {
     $form->{language_id} = $language_id;
