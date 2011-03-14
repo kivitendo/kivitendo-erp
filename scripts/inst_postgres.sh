@@ -139,32 +139,31 @@ if [ $cnt -eq 0 ]; then
 	cat $PGHBA.org >> $PGHBA
 fi 
 
-CONFDIR=`dirname $PGHBA`
+#CONFDIR=`dirname $PGHBA`
 
 #postgresql.conf anpassen, liegt vermutlich im gleichen Verzeichnis wie pg_hba.conf
-if ! [ -f $CONFDIR/postgresql.conf ]; then
-	#doch nicht da, dann fragen
-        while :; do
-		writeln 13 1 'postgresql.conf' nicht gefunden.
-		tput bold
-                writeln 14 1 "Bitte den Pfad eingeben: "
-		tput rmso
-                read PGCONF
-                [ "$PGCONF#" != "#" ] && [ -f $PGCONF ] && break
-                tput bel
-        done
-	CONFDIR=`dirname $PGCONF`
-fi
+#if ! [ -f $CONFDIR/postgresql.conf ]; then
+#	#doch nicht da, dann fragen
+#        while :; do
+#		writeln 13 1 'postgresql.conf' nicht gefunden.
+#		tput bold
+#                writeln 14 1 "Bitte den Pfad eingeben: "
+#		tput rmso
+#                read PGCONF
+#                [ "$PGCONF#" != "#" ] && [ -f $PGCONF ] && break
+#                tput bel
+#        done
+#	CONFDIR=`dirname $PGCONF`
+#fi
 
-mv $CONFDIR/postgresql.conf $CONFDIR/postgresql.conf.org
+#mv $CONFDIR/postgresql.conf $CONFDIR/postgresql.conf.org
 #Bei der V8.x OID einschalten.
-sed 's/^.*default_with_oids.*/default_with_oids = true/i' $CONFDIR/postgresql.conf.org > $CONFDIR/postgresql.conf
-cnt=`grep default_with_oids $CONFDIR/postgresql.conf | wc -l`
-if [ $cnt -eq 0 ]; then
-	cp $CONFDIR/postgresql.conf.org $CONFDIR/postgresql.conf
-	echo "default_with_oids = true" >> $CONFDIR/postgresql.conf
-fi
-
+#sed 's/^.*default_with_oids.*/default_with_oids = true/i' $CONFDIR/postgresql.conf.org > $CONFDIR/postgresql.conf
+#cnt=`grep default_with_oids $CONFDIR/postgresql.conf | wc -l`
+#if [ $cnt -eq 0 ]; then
+#	cp $CONFDIR/postgresql.conf.org $CONFDIR/postgresql.conf
+#	echo "default_with_oids = true" >> $CONFDIR/postgresql.conf
+#fi
  
 tmp=`ls -r1 /etc/init.d/postgres*`
 PGSQL=`echo $tmp | cut -d " " -f 1`
