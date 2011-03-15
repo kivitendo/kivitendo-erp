@@ -6,7 +6,7 @@ use Text::Iconv;
 
 use SL::Common;
 
-use vars qw(%converters);
+my %converters;
 
 use strict;
 
@@ -23,7 +23,7 @@ sub get_converter {
   my ($from_charset, $to_charset) = @_;
 
   my $index             = join $SUBSCRIPT_SEPARATOR, $from_charset, $to_charset;
-  $converters{$index} ||= SL::Iconv->new($from_charset, $to_charset);
+  $converters{$index} ||= Text::Iconv->new($from_charset, $to_charset) || die;
 
   return $converters{$index};
 }
@@ -44,8 +44,8 @@ sub _convert {
   my $self = shift;
   my $text = shift;
 
-  $text    = $self->{handle}->convert($text) if !$self->{to_is_utf8} || !Encode::is_utf8($text);
-  $text    = decode("utf-8-strict", $text)   if  $self->{to_is_utf8} && !Encode::is_utf8($text);
+  $text    = convert($self->{from}, $self->{to}, $text) if !$self->{to_is_utf8} || !Encode::is_utf8($text);
+  $text    = decode("utf-8-strict", $text)              if  $self->{to_is_utf8} && !Encode::is_utf8($text);
 
   return $text;
 }
@@ -56,7 +56,6 @@ sub _init {
   $self->{to}         = shift;
   $self->{to}         = 'UTF-8' if lc $self->{to} eq 'unicode';
   $self->{to_is_utf8} = $self->{to} =~ m/^utf-?8$/i;
-  $self->{handle}     = Text::Iconv->new($self->{from}, $self->{to}) || die;
 
   return $self;
 }
