@@ -4,3 +4,5 @@ crm
 /users/templates-cache/
 /users/pid/
 /config/lx_office.conf
+/doc/online/*/*.html
+pod2html*

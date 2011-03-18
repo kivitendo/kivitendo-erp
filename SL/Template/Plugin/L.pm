@@ -396,6 +396,18 @@ EOCODE
   return $code;
 }
 
+sub online_help_tag {
+  my ($self, $tag, @slurp) = @_;
+  my %params               = _hashify(@slurp);
+  my $cc                   = $::myconfig{countrycode};
+  my $file                 = "doc/online/$cc/$tag.html";
+  my $text                 = $params{text} || $::locale->text('Help');
+
+  die 'malformed help tag' unless $tag =~ /^[a-zA-Z0-9_]+$/;
+  return unless -f $file;
+  return $self->html_tag('a', $text, href => $file, target => '_blank');
+}
+
 sub dump {
   my $self = shift;
   require Data::Dumper;

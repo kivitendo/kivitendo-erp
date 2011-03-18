@@ -134,7 +134,7 @@ body.menu {
 /*
     Überschriftsbalken
 */
-.listtop {
+.listtop, h1 {
     background-color: rgb(236,233,216);
     text-align:left;
     padding:5px;
