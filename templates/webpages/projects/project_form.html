@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %][% USE LxERP %]<body>
 
  [%- IF message %]
@@ -78,6 +79,7 @@
   </div>
 
   <p>
+  [% L.online_help_tag('add_project') %]
    <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
    [%- IF project.id %]
    <input type="submit" class="submit" name="action" value="[% 'Save as new' | $T8 %]">

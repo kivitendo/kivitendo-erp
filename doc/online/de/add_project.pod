@@ -1,0 +1,16 @@
+=head1 Projekte erfassen
+
+Projekte sind in Lx-Office nur organisatorische Einheiten. Wenn Sie Projekte
+erfassen, können Sie C<Belegen> Projekte zuweisen, und Auswertungen hinterher
+nach den Projekten filtern. Projekte haben ansonsten keine weitere Funktion.
+
+=head1 Tips
+
+=over 4
+
+=item *
+
+Projektnamen können in den Rechnungstemplates ausgedruckt werden, siehe
+L<Dokumente und Druckvariablen>.
+
+=back
