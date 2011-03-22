@@ -245,6 +245,10 @@ body.menu {
   color: green;
 }
 
+td.numeric { /* class for numeric columns in tables */
+  text-align: right
+}
+
 h2.confirm {
   color: blue;
   font-size: 14pt;
