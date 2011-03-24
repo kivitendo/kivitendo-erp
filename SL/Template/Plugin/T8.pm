@@ -1,14 +1,19 @@
 package SL::Template::Plugin::T8;
 
 use strict;
+use parent qw( Template::Plugin::Filter );
 
-use Template::Plugin::Filter;
-use base qw( Template::Plugin::Filter );
+my $cached_instance;
+
+sub new {
+  my ($class) = shift;
+
+  return $cached_instance ||= $class->SUPER::new(@_);
+}
 
 sub init {
   my $self = shift;
 
-  # first arg can specify filter name
   $self->install_filter($self->{ _ARGS }->[0] || 'T8');
 
   return $self;
