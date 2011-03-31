@@ -87,8 +87,6 @@ sub invoice_transactions {
 
   my ($callback, $href, @columns);
 
-  $form->{customer} = $form->unescape($form->{customer});
-
   if ( $form->{customer} =~ /--/ ) {
     # Felddaten kommen aus Dropdownbox
     ($form->{customername}, $form->{customer_id}) = split(/--/, $form->{customer});
