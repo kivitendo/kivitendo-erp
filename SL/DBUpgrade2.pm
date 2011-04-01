@@ -245,7 +245,7 @@ sub process_perl_script {
 
   $db_charset ||= Common::DEFAULT_CHARSET;
 
-  my $iconv = SL::Iconv::get_converter($file_charset, $db_charset);
+  my $iconv = SL::Iconv->new($file_charset, $db_charset);
 
   $dbh->begin_work();
 

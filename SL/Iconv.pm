@@ -19,7 +19,7 @@ sub new {
   return $self;
 }
 
-sub get_converter {
+sub _get_converter {
   my ($from_charset, $to_charset) = @_;
 
   my $index             = join $SUBSCRIPT_SEPARATOR, $from_charset, $to_charset;
@@ -36,7 +36,7 @@ sub convert {
   $from_charset ||= Common::DEFAULT_CHARSET;
   $to_charset   ||= Common::DEFAULT_CHARSET;
 
-  my $converter = get_converter($from_charset, $to_charset);
+  my $converter = _get_converter($from_charset, $to_charset);
   return $converter->convert($text);
 }
 
