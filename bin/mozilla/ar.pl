@@ -1324,7 +1324,6 @@ sub ar_transactions {
 
   my ($callback, $href, @columns);
 
-  $form->{customer} = $form->unescape($form->{customer});
   ($form->{customer}, $form->{customer_id}) = split(/--/, $form->{customer});
 
   report_generator_set_default_sort('transdate', 1);
