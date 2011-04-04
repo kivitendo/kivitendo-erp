@@ -37,7 +37,7 @@ sub parse_foreach {
 
   my $ary = $self->_get_loop_variable($var, 1, @indices);
 
-  for (my $i = 0; $i < scalar(@{$ary}); $i++) {
+  for (my $i = 0; $i < scalar(@{$ary || []}); $i++) {
     $form->{"__first__"} = $i == 0;
     $form->{"__last__"} = ($i + 1) == scalar(@{$ary});
     $form->{"__odd__"} = (($i + 1) % 2) == 1;
