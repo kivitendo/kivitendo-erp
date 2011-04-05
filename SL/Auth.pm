@@ -13,6 +13,7 @@ use SL::Auth::DB;
 use SL::Auth::LDAP;
 
 use SL::User;
+use SL::DBConnect;
 use SL::DBUpgrade2;
 use SL::DBUtils;
 
@@ -38,7 +39,7 @@ sub new {
 sub get_user_dbh {
   my ($self, $login) = @_;
   my %user = $self->read_user($login);
-  my $dbh  = DBI->connect(
+  my $dbh  = SL::DBConnect->connect(
     $user{dbconnect},
     $user{dbuser},
     $user{dbpasswd},
@@ -166,7 +167,7 @@ sub dbconnect {
 
   $main::lxdebug->message(LXDebug->DEBUG1, "Auth::dbconnect DSN: $dsn");
 
-  $self->{dbh} = DBI->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => $::locale->is_utf8, AutoCommit => 1 });
+  $self->{dbh} = SL::DBConnect->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => $::locale->is_utf8, AutoCommit => 1 });
 
   if (!$may_fail && !$self->{dbh}) {
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
@@ -246,7 +247,7 @@ sub create_database {
   my $encoding   = $Common::charset_to_db_encoding{$charset};
   $encoding    ||= 'UNICODE';
 
-  my $dbh        = DBI->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => $charset =~ m/^utf-?8$/i });
+  my $dbh        = SL::DBConnect->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => $charset =~ m/^utf-?8$/i });
 
   if (!$dbh) {
     $main::form->error($main::locale->text('The connection to the template database failed:') . "\n" . $DBI::errstr);

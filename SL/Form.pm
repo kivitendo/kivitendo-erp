@@ -52,6 +52,7 @@ use SL::AM;
 use SL::Common;
 use SL::CVar;
 use SL::DB;
+use SL::DBConnect;
 use SL::DBUtils;
 use SL::DO;
 use SL::IC;
@@ -1582,7 +1583,7 @@ sub dbconnect {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh = DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, $self->_dbconnect_options)
+  my $dbh = SL::DBConnect->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, $self->_dbconnect_options)
     or $self->dberror;
 
   # set db options
@@ -1601,7 +1602,7 @@ sub dbconnect_noauto {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh = DBI->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, $self->_dbconnect_options(AutoCommit => 0))
+  my $dbh = SL::DBConnect->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, $self->_dbconnect_options(AutoCommit => 0))
     or $self->dberror;
 
   # set db options
