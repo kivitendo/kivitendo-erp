@@ -16,6 +16,9 @@
   - Kontenübersicht. Bei Auswahl Bilanz und keinem closedto (Bücher-Abschluss) wurden keine Konten
     ausgewählt, falls das Installationsjahr gleich dem laufenden Jahr ist
 
+  - Verkauf -> Berichte -> Filter nach Abteilungen wieder aktiviert
+
+
   Liste gefixter Bugs aus dem Bugtracker:
 
   - Bugfix 1613: Status teilweise
