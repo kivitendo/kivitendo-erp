@@ -57,8 +57,12 @@ sub all_accounts {
   # 1.) Gehe zurück bis zu dem Datum an dem die Bücher geschlossen wurden
   # 2.) Falls die Bücher noch nie geschlossen wurden, gehe zurück bis zum Bearbeitungsstart
   # COALESCE((SELECT closedto FROM defaults),(SELECT itime FROM defaults))
+  # PROBLEM: Das date_trunc schneidet auf den 1.1.20XX ab und KEINE Buchungen werden angezeigt
+  # Lösung: date_trunc rausgeworfen und nicht mehr auf itime geprüft, sondern auf die erste Buchung
+  # in transdate jan 11.04.2011
 
-  my $closedto_sql = "COALESCE((SELECT closedto FROM defaults),(SELECT itime FROM defaults))";
+  my $closedto_sql = "COALESCE((SELECT closedto FROM defaults),
+                               (SELECT transdate from acc_trans order by transdate limit 1))";
 
   if ($form->{method} eq "cash") {  # EÜR
     $acc_cash_where = qq| AND (a.trans_id IN (SELECT id FROM ar WHERE datepaid>= $closedto_sql
@@ -66,7 +70,7 @@ sub all_accounts {
                           UNION SELECT id FROM gl WHERE transdate>= $closedto_sql
                         )) |;
   } else {  # Bilanzierung
-    $acc_cash_where = " AND ((select date_trunc('year', a.transdate::date)) >= $closedto_sql) ";
+    $acc_cash_where = " AND (a.transdate >= $closedto_sql) ";
   }
 
   my $query =
