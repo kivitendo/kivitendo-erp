@@ -396,6 +396,32 @@ sub reformat_numbers {
 
 # -------------------------------------------------------------------------
 
+sub show_history {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+
+  my $dbh = $form->dbconnect(\%myconfig);
+  my ($sort, $sortby) = split(/\-\-/, $form->{order});
+  $sort =~ s/.*\.(.*)/$1/;
+
+  $form->{title} = $locale->text("History");
+  $form->header();
+  print $form->parse_html_template( "common/show_history", {
+    "DATEN"        => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
+    "SUCCESS"      => ($form->get_history($dbh,$form->{input_name}) ne "0"),
+    uc($sort)      => 1,
+    uc($sort)."BY" => $sortby
+  } );
+
+  $dbh->disconnect();
+  $main::lxdebug->leave_sub();
+}
+
+# -------------------------------------------------------------------------
+
 sub call_sub {
   $main::lxdebug->enter_sub();
 

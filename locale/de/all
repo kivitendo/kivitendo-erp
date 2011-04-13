@@ -823,6 +823,7 @@ $self->{texts} = {
   'Help Template Variables'     => 'Hilfe zu Dokumenten-Variablen',
   'Here\'s an example command line:' => 'Hier ist eine Kommandozeile, die als Beispiel dient:',
   'Hide by default'             => 'Standardm&auml;&szlig;ig verstecken',
+  'History'                     => 'Historie',
   'History Search'              => 'Historien Suche',
   'History Search Engine'       => 'Historien Suchmaschine',
   'Homepage'                    => 'Homepage',
