@@ -12,6 +12,10 @@ use Config::Std;
 use DateTime;
 use Encode;
 use English qw(-no_match_vars);
+use File::Basename;
+use List::MoreUtils qw(all);
+use List::Util qw(first);
+use POSIX;
 use SL::Auth;
 use SL::LXDebug;
 use SL::LxOfficeConf;
@@ -20,12 +24,12 @@ use SL::Common;
 use SL::Form;
 use SL::Helper::DateTime;
 use SL::Template::Plugin::HTMLFixes;
-use List::Util qw(first);
-use File::Basename;
 
 # Trailing new line is added so that Perl will not add the line
 # number 'die' was called in.
 use constant END_OF_REQUEST => "END-OF-REQUEST\n";
+
+my %fcgi_file_cache;
 
 sub new {
   my ($class, $interface) = @_;
@@ -73,6 +77,8 @@ sub show_error {
 }
 
 sub pre_startup_setup {
+  my ($self) = @_;
+
   SL::LxOfficeConf->read;
   _init_environment();
 
@@ -94,7 +100,9 @@ sub pre_startup_setup {
 
   $SIG{__WARN__} = sub {
     $::lxdebug->warn(@_);
-  }
+  };
+
+  $self->_cache_file_modification_times;
 }
 
 sub pre_startup_checks {
@@ -102,8 +110,9 @@ sub pre_startup_checks {
 }
 
 sub pre_startup {
-  pre_startup_setup();
-  pre_startup_checks();
+  my ($self) = @_;
+  $self->pre_startup_setup;
+  $self->pre_startup_checks;
 }
 
 sub require_main_code {
@@ -244,6 +253,9 @@ sub handle_request {
   Form::disconnect_standard_dbh;
 
   $::lxdebug->end_request;
+
+  $self->_watch_for_changed_files;
+
   $::lxdebug->leave_sub;
 }
 
@@ -317,6 +329,35 @@ sub _route_controller_request {
   };
 
   return ($controller, $action);
+}
+
+sub _cache_file_modification_times {
+  my ($self) = @_;
+
+  return unless $self->_interface_is_fcgi && $::lx_office_conf{debug}->{restart_fcgi_process_on_changes};
+
+  require File::Find;
+  require POSIX;
+
+  my $wanted = sub {
+    return unless $File::Find::name =~ m/\.(?:pm|f?pl|html|conf|conf\.default)$/;
+    $fcgi_file_cache{ $File::Find::name } = (stat $File::Find::name)[9];
+  };
+
+  my $cwd = POSIX::getcwd();
+  File::Find::find($wanted, map { "${cwd}/${_}" } qw(config bin SL templates/webpages));
+  map { my $name = "${cwd}/${_}"; $fcgi_file_cache{$name} = (stat $name)[9] } qw(admin.pl dispatcher.fpl);
+}
+
+sub _watch_for_changed_files {
+  my ($self) = @_;
+
+  return unless $self->_interface_is_fcgi && $::lx_office_conf{debug}->{restart_fcgi_process_on_changes};
+
+  my $ok = all { (stat($_))[9] == $fcgi_file_cache{$_} } keys %fcgi_file_cache;
+  return if $ok;
+  $::lxdebug->message(LXDebug::DEBUG1(), "Program modifications detected. Restarting.");
+  exit;
 }
 
 sub get_standard_filehandles {

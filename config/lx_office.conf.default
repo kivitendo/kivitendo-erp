@@ -231,5 +231,10 @@ show_debug_menu = 0
 # not removed and remain in the "users" directory.
 keep_temp_files = 0
 
+# Restart the FastCGI process if changes to the program or template
+# files have been detected. The restart will occur after the request
+# in which the changes have been detected has completed.
+restart_fcgi_process_on_changes = 0
+
 # The file name where the debug messages are written to.
 file_name = /tmp/lx-office-debug.log
