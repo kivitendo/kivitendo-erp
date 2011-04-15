@@ -94,7 +94,7 @@ sub report {
 
   # Einlesen der Finanzamtdaten
   my $ustva = USTVA->new();
-  $ustva->get_config($::userspath, 'finanzamt.ini');
+  $ustva->get_config($::lx_office_conf{paths}{userspath}, 'finanzamt.ini');
 
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
@@ -502,7 +502,7 @@ sub show_options {
       qq|       <option value=html selected>|
     . $::locale->text('Preview')
     . qq|</option>|;
-  if ($::latex_templates) {
+  if ($::lx_office_conf{print_templates}{latex}) {
     $format .=
         qq|    <option value=pdf>|
       . $::locale->text('UStVA (PDF-Dokument)')
@@ -545,7 +545,7 @@ sub generate_ustva {
   # Aufruf von get_config zum Einlesen der Finanzamtdaten aus finanzamt.ini
 
   my $ustva = USTVA->new();
-  $ustva->get_config($::userspath, 'finanzamt.ini');
+  $ustva->get_config($::lx_office_conf{paths}{userspath}, 'finanzamt.ini');
 
   # init some form vars
   my @anmeldungszeitraum =
@@ -847,7 +847,7 @@ sub generate_ustva {
       #file suffix
       $file .= '.xml';
       $file =~ s|.*/||;
-      $form->{tmpfile} = "$::userspath/$file";
+      $form->{tmpfile} = "$::lx_office_conf{paths}{userspath}/$file";
 
       $form->{attachment_filename} = $file;
 
@@ -897,7 +897,7 @@ sub generate_ustva {
       . sprintf("%02d", $form->{year} % 100) . ".txb";
 
       $form->{attachment_filename} =~ s|.*/||;
-      $form->{tmpfile} = "$::userspath/" . $form->{attachment_filename};
+      $form->{tmpfile} = "$::lx_office_conf{paths}{userspath}/" . $form->{attachment_filename};
 
       # TODO: set Output to UTF-8 or system Preference
       #$form->{"iconv"} = Text::Iconv->new($myconfig{dbcharset}, "UTF-8");
@@ -1078,7 +1078,7 @@ sub generate_ustva {
   } else
   {
 
-    $form->parse_template(\%myconfig, $::userspath);
+    $form->parse_template(\%myconfig, $::lx_office_conf{paths}{userspath});
 
   }
 
@@ -1097,7 +1097,7 @@ $::form->{title} = $::locale->text('Tax Office Preferences');
   $::form->header;
 
   my $ustva = USTVA->new();
-  $ustva->get_config($::userspath, 'finanzamt.ini');
+  $ustva->get_config($::lx_office_conf{paths}{userspath}, 'finanzamt.ini');
 
   my $land = $::form->{elsterland};
   my $amt  = $::form->{elsterFFFF};
@@ -1189,7 +1189,7 @@ sub config_step2 {
   my $elstersteuernummer = '';
 
   my $ustva = USTVA->new();
-  $ustva->get_config($::userspath, 'finanzamt.ini')
+  $ustva->get_config($::lx_office_conf{paths}{userspath}, 'finanzamt.ini')
     if ($form->{saved} eq $locale->text('saved'));
 
   # Auf Übergabefehler checken
@@ -1391,7 +1391,7 @@ sub save {
 
     $::form->{elster} = '1';
 
-    open my $ustvaconfig, ">", "$::userspath/$filename" or $::form->error("$filename : $!");
+    open my $ustvaconfig, ">", "$::lx_office_conf{paths}{userspath}/$filename" or $::form->error("$filename : $!");
 
     # create the config file
     print {$ustvaconfig} qq|# Configuration file for USTVA\n\n|;
