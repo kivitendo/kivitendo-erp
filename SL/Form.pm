@@ -745,7 +745,7 @@ sub redirect_header {
   my $base_uri = $self->_get_request_uri;
   my $new_uri  = URI->new_abs($new_url, $base_uri);
 
-  die "Headers already sent" if $::self->{header};
+  die "Headers already sent" if $self->{header};
   $self->{header} = 1;
 
   my $cgi = $main::cgi || CGI->new('');
