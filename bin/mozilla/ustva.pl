@@ -74,11 +74,13 @@ use SL::User;
 #############################
 
 sub report {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  my $form     = $::form;
+  my $locale   = $::locale;
+  my %myconfig = %::myconfig;
 
-  my $myconfig = \%myconfig;
+  $::auth->assert('advance_turnover_tax_return');
 
   $form->{title} = $locale->text('UStVA');
   $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1 Nein=0
@@ -87,12 +89,12 @@ sub report {
              0, 4);
 
   my $department = '';
-  local $hide = '';
+  my $hide = '';
   $form->header;
 
   # Einlesen der Finanzamtdaten
   my $ustva = USTVA->new();
-  $ustva->get_config($userspath, 'finanzamt.ini');
+  $ustva->get_config($::userspath, 'finanzamt.ini');
 
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
@@ -109,7 +111,7 @@ sub report {
     co_accountnr3
   );
 
-  map { $form->{$_} = $myconfig->{$_} } @a;
+  map { $form->{$_} = $myconfig{$_} } @a;
 
   my $openings = $form->{FA_Oeffnungszeiten};
   $openings =~ s/\\\\n/<br>/g;
@@ -189,14 +191,14 @@ sub report {
 
   # Which COA is in use?
 
-  $ustva->get_coa($form, $myconfig);
+  $ustva->get_coa($form, \%myconfig);
 
   my $template_ref = {
     openings         => $openings,
     company_given    => $company_given,
     address_given    => $address_given,
     taxnumber_given  => $taxnumber_given,
-    taxnumber        => $myconfig->{taxnumber},
+    taxnumber        => $myconfig{taxnumber},
     select_year      => $select_year,
     period_local     => $period_local,
     method_local     => $method_local,
@@ -211,44 +213,46 @@ sub report {
 
 
 
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 
 
 sub help {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  $::auth->assert('advance_turnover_tax_return');
 
   # parse help documents under doc
-  my $tmp = $form->{templates};
-  $form->{templates} = 'doc';
-  $form->{help}      = 'ustva';
-  $form->{type}      = 'help';
-  $form->{format}    = 'html';
-  &generate_ustva();
+  my $tmp = $::form->{templates};
+  $::form->{templates} = 'doc';
+  $::form->{help}      = 'ustva';
+  $::form->{type}      = 'help';
+  $::form->{format}    = 'html';
+  generate_ustva();
 
   #$form->{templates} = $tmp;
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 sub show {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  $::auth->assert('advance_turnover_tax_return');
 
   #&generate_ustva();
-  no strict 'refs';
-  $lxdebug->leave_sub();
-  call_sub($form->{"nextsub"});
-  use strict 'refs';
+  $::lxdebug->leave_sub();
+  call_sub($::form->{"nextsub"});
 }
 
 sub ustva_vorauswahl {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  my $form     = $::form;
+  my $locale   = $::locale;
+  my %myconfig = %::myconfig;
+
+  $::auth->assert('advance_turnover_tax_return');
 
   my $select_vorauswahl;
 
@@ -259,7 +263,7 @@ sub ustva_vorauswahl {
   $form->{day}   = substr($date, 6, 2);
   $form->{month} = substr($date, 4, 2);
   $form->{year}  = substr($date, 0, 4);
-  $lxdebug->message(LXDebug::DEBUG1, qq|
+  $::lxdebug->message(LXDebug->DEBUG1, qq|
     Actual date from Database: $date\n
     Actual year from Database: $form->{year}\n
     Actual day from Database: $form->{day}\n
@@ -466,27 +470,27 @@ sub ustva_vorauswahl {
     }
     $select_vorauswahl .= qq|</select>|;
   }
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 
   return $select_vorauswahl;
 }
 
 #sub config {
-#  $lxdebug->enter_sub();
+#  $::lxdebug->enter_sub();
 #  config_step1();
-#  $lxdebug->leave_sub();
+#  $::lxdebug->leave_sub();
 #}
 
 sub debug {
-  $lxdebug->enter_sub();
-  $form->debug();
-  $lxdebug->leave_sub();
+  $::lxdebug->enter_sub();
+  $::form->debug();
+  $::lxdebug->leave_sub();
 }
 
 sub show_options {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  $::auth->assert('advance_turnover_tax_return');
 
   #  $form->{PD}{$form->{type}} = "selected";
   #  $form->{DF}{$form->{format}} = "selected";
@@ -496,24 +500,24 @@ sub show_options {
   my $media  = qq|      <input type=hidden name="media" value="screen">|;
   my $format =
       qq|       <option value=html selected>|
-    . $locale->text('Preview')
+    . $::locale->text('Preview')
     . qq|</option>|;
-  if ($latex_templates) {
+  if ($::latex_templates) {
     $format .=
         qq|    <option value=pdf>|
-      . $locale->text('UStVA (PDF-Dokument)')
+      . $::locale->text('UStVA (PDF-Dokument)')
       . qq|</option>|;
   }
 
   #my $disabled= qq|disabled="disabled"|;
   #$disabled='' if ($form->{elster} eq '1' );
-  if ($form->{elster} eq '1') {
+  if ($::form->{elster} eq '1') {
     $format .=
         qq|<option value=elsterwinston>|
-      . $locale->text('ELSTER Export (Winston)')
+      . $::locale->text('ELSTER Export (Winston)')
       . qq|</option>|
       . qq|<option value=elstertaxbird>|
-      . $locale->text('ELSTER Export (Taxbird)')
+      . $::locale->text('ELSTER Export (Taxbird)')
       . qq|</option>|;
   }
 
@@ -522,22 +526,26 @@ sub show_options {
     $type
     $media
     <select name=format title = "|
-    . $locale->text('Choose Outputformat') . qq|">$format</select>
+    . $::locale->text('Choose Outputformat') . qq|">$format</select>
   |;
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 
   return $show_options;
 }
 
 sub generate_ustva {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  my $form     = $::form;
+  my $locale   = $::locale;
+  my %myconfig = %::myconfig;
+
+  $::auth->assert('advance_turnover_tax_return');
 
   # Aufruf von get_config zum Einlesen der Finanzamtdaten aus finanzamt.ini
 
   my $ustva = USTVA->new();
-  $ustva->get_config($userspath, 'finanzamt.ini');
+  $ustva->get_config($::userspath, 'finanzamt.ini');
 
   # init some form vars
   my @anmeldungszeitraum =
@@ -558,7 +566,7 @@ sub generate_ustva {
                                     $form->current_date(\%myconfig), \%myconfig
                              ),
                              0, 4);
-      $lxdebug->message(LXDebug::DEBUG1,
+      $::lxdebug->message(LXDebug->DEBUG1,
                         qq|Actual year from Database: $form->{year}\n|);
     }
 
@@ -691,13 +699,13 @@ sub generate_ustva {
   # if there are any dates construct a where
   if ($form->{fromdate} || $form->{todate}) {
 
-    $form->{todate} = $form->current_date($myconfig)  unless ($form->{todate});
+    $form->{todate} = $form->current_date(\%myconfig)  unless ($form->{todate});
 
-    my $longtodate  = $locale->date($myconfig, $form->{todate}, 1, 0, 0);
-    my $shorttodate = $locale->date($myconfig, $form->{todate}, 0, 0, 0);
+    my $longtodate  = $locale->date(\%myconfig, $form->{todate}, 1, 0, 0);
+    my $shorttodate = $locale->date(\%myconfig, $form->{todate}, 0, 0, 0);
 
-    my $longfromdate  = $locale->date($myconfig, $form->{fromdate}, 1, 0, 0);
-    my $shortfromdate = $locale->date($myconfig, $form->{fromdate}, 0, 0, 0);
+    my $longfromdate  = $locale->date(\%myconfig, $form->{fromdate}, 1, 0, 0);
+    my $shortfromdate = $locale->date(\%myconfig, $form->{fromdate}, 0, 0, 0);
 
     $form->{this_period} = "$shortfromdate<br>\n$shorttodate";
     $form->{longperiod}      =
@@ -811,11 +819,11 @@ sub generate_ustva {
       $form->{br}      = "<br>";
       $form->{address} =~ s/\\n/\n/g;
 
-      foreach $number (@category_cent) {
+      foreach my $number (@category_cent) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '2', '0');
       }
 
-      foreach $number (@category_euro) {
+      foreach my $number (@category_euro) {
         $form->{$number} = $form->format_amount(\%myconfig, $form->{$number}, '0', '0');
       }
 
@@ -839,7 +847,7 @@ sub generate_ustva {
       #file suffix
       $file .= '.xml';
       $file =~ s|.*/||;
-      $form->{tmpfile} = "$userspath/$file";
+      $form->{tmpfile} = "$::userspath/$file";
 
       $form->{attachment_filename} = $file;
 
@@ -889,7 +897,7 @@ sub generate_ustva {
       . sprintf("%02d", $form->{year} % 100) . ".txb";
 
       $form->{attachment_filename} =~ s|.*/||;
-      $form->{tmpfile} = "$userspath/" . $form->{attachment_filename};
+      $form->{tmpfile} = "$::userspath/" . $form->{attachment_filename};
 
       # TODO: set Output to UTF-8 or system Preference
       #$form->{"iconv"} = Text::Iconv->new($myconfig{dbcharset}, "UTF-8");
@@ -909,7 +917,7 @@ sub generate_ustva {
       } elsif ($form->{period} =~ /^\d+$/ ) {
         $form->{period} =~ s/^0//g;
         my $period = $form->{period};
-        $period * 1;
+        $period *= 1;
         $period--;
         $form->{taxbird_period} = $period;
       } else {
@@ -1037,8 +1045,8 @@ sub generate_ustva {
         $rec_ref->{id} = $kennziffer;
         $rec_ref->{amount} = $form->format_amount(\%myconfig, $form->{$kennziffer}, 2, '0');
 
-        $lxdebug->message($LXDebug::DEBUG, "Kennziffer $kennziffer: '$form->{$kennziffer}'" );
-        $lxdebug->dump($LXDebug::DEBUG, $rec_ref );
+        $::lxdebug->message($LXDebug::DEBUG, "Kennziffer $kennziffer: '$form->{$kennziffer}'" );
+        $::lxdebug->dump($LXDebug::DEBUG, $rec_ref );
         push @ { $form->{USTVA} }, $rec_ref;
       }
 
@@ -1061,7 +1069,7 @@ sub generate_ustva {
 
     $form->header();
 
-    $template_ref = {
+    my $template_ref = {
         taxnumber => $myconfig{taxnumber},
     };
 
@@ -1070,46 +1078,46 @@ sub generate_ustva {
   } else
   {
 
-    $form->parse_template(\%myconfig, $userspath);
+    $form->parse_template(\%myconfig, $::userspath);
 
   }
 
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 sub config_step1 {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  $::auth->assert('advance_turnover_tax_return');
 
-$form->{title} = $locale->text('Tax Office Preferences');
+$::form->{title} = $::locale->text('Tax Office Preferences');
 
   # edit all taxauthority prefs
 
-  $form->header;
+  $::form->header;
 
   my $ustva = USTVA->new();
-  $ustva->get_config($userspath, 'finanzamt.ini');
+  $ustva->get_config($::userspath, 'finanzamt.ini');
 
-  my $land = $form->{elsterland};
-  my $amt  = $form->{elsterFFFF};
-
-
-  $form->{title} = $locale->text('Tax Office Preferences');
+  my $land = $::form->{elsterland};
+  my $amt  = $::form->{elsterFFFF};
 
 
-  my $select_tax_office = $ustva->fa_auswahl($land, $amt, $ustva->query_finanzamt(\%myconfig, $form));
-  my $checked_accrual = q|checked="checked"| if ($form->{method} eq 'accrual');
-  my $checked_cash = q|checked="checked"| if ($form->{method} eq 'cash');
-  my $checked_monthly = "checked" if ($form->{FA_voranmeld} eq 'month');
-  my $checked_quarterly = "checked" if ($form->{FA_voranmeld} eq 'quarter');
-  my $checked_dauerfristverlaengerung = "checked" if ($form->{FA_dauerfrist} eq '1');
-  my $checked_kz_71 = "checked" if ($form->{FA_71} eq 'X');
+  $::form->{title} = $::locale->text('Tax Office Preferences');
+
+
+  my $select_tax_office = $ustva->fa_auswahl($land, $amt, $ustva->query_finanzamt(\%::myconfig, $::form));
+  my $checked_accrual = q|checked="checked"| if ($::form->{method} eq 'accrual');
+  my $checked_cash = q|checked="checked"| if ($::form->{method} eq 'cash');
+  my $checked_monthly = "checked" if ($::form->{FA_voranmeld} eq 'month');
+  my $checked_quarterly = "checked" if ($::form->{FA_voranmeld} eq 'quarter');
+  my $checked_dauerfristverlaengerung = "checked" if ($::form->{FA_dauerfrist} eq '1');
+  my $checked_kz_71 = "checked" if ($::form->{FA_71} eq 'X');
 
   my $_hidden_variables_ref;
 
   my %_hidden_local_variables = (
-    'saved'       => $locale->text('Check Details'),
+    'saved'       => $::locale->text('Check Details'),
     'nextsub'     => 'config_step2',
     'warnung'     => '0',
   );
@@ -1132,12 +1140,12 @@ $form->{title} = $locale->text('Tax Office Preferences');
 
   foreach my $variable (@_hidden_form_variables) {
     push @{ $_hidden_variables_ref},
-        { 'variable' => $variable, 'value' => $form->{$variable} };
+        { 'variable' => $variable, 'value' => $::form->{$variable} };
   }
 
 # Which COA is in use?
 
-  $ustva->get_coa($form, \%myconfig);
+  $ustva->get_coa($::form, \%::myconfig);
 
   # hä? kann die weg?
   my $steuernummer_new = '';
@@ -1155,15 +1163,19 @@ $form->{title} = $locale->text('Tax Office Preferences');
   };
 
   # Ausgabe des Templates
-  print($form->parse_html_template('ustva/config_step1', $template_ref));
+  print($::form->parse_html_template('ustva/config_step1', $template_ref));
 
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 sub config_step2 {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  my $form     = $::form;
+  my $locale   = $::locale;
+  my %myconfig = %::myconfig;
+
+  $::auth->assert('advance_turnover_tax_return');
 
   $form->header();
 
@@ -1177,7 +1189,7 @@ sub config_step2 {
   my $elstersteuernummer = '';
 
   my $ustva = USTVA->new();
-  $ustva->get_config($userspath, 'finanzamt.ini')
+  $ustva->get_config($::userspath, 'finanzamt.ini')
     if ($form->{saved} eq $locale->text('saved'));
 
   # Auf Übergabefehler checken
@@ -1242,7 +1254,7 @@ sub config_step2 {
   my $patterncount   = $form->{patterncount};
   my $elster_pattern = $form->{elster_pattern};
   my $delimiter      = $form->{delimiter};
-  my $steuernummer = $form->{steuernummer} if ($steuernummer eq '');
+  my $steuernummer = $form->{steuernummer} if ($stnr eq '');
 
   $form->{FA_Oeffnungszeiten} =~ s/\\\\n/\n/g;
 
@@ -1255,7 +1267,7 @@ sub config_step2 {
                              $form->{steuernummer}
   );
 
-  $lxdebug->message(LXDebug::DEBUG1, qq|$input_steuernummer|);
+  $::lxdebug->message(LXDebug->DEBUG1, qq|$input_steuernummer|);
 
 
   my $_hidden_variables_ref;
@@ -1263,7 +1275,7 @@ sub config_step2 {
   my %_hidden_local_variables = (
       'elsterland'          => $elsterland,
       'elsterFFFF'          => $elsterFFFF,
-      'warnung'             => $warnung,
+      'warnung'             => 0,
       'elstersteuernummer'  => $elstersteuernummer,
       'steuernummer'        => $stnr,
       'lastsub'             => 'config_step1',
@@ -1292,10 +1304,9 @@ sub config_step2 {
   }
 
   my $template_ref = {
-     tax_office_data                 => $tax_office_data,
      input_steuernummer              => $input_steuernummer,
      readonly                        => '', #q|disabled="disabled"|,
-     callback                        => $callback,
+     callback                        => $form->{callback},
      hidden_variables                => $_hidden_variables_ref,
   };
 
@@ -1303,18 +1314,18 @@ sub config_step2 {
   print($form->parse_html_template('ustva/config_step2', $template_ref));
 
 
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 sub create_steuernummer {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  $::auth->assert('advance_turnover_tax_return');
 
-  my $part           = $form->{part};
-  my $patterncount   = $form->{patterncount};
-  my $delimiter      = $form->{delimiter};
-  my $elster_pattern = $form->{elster_pattern};
+  my $part           = $::form->{part};
+  my $patterncount   = $::form->{patterncount};
+  my $delimiter      = $::form->{delimiter};
+  my $elster_pattern = $::form->{elster_pattern};
 
   # rebuild steuernummer and elstersteuernummer
   # es gibt eine gespeicherte steuernummer $form->{steuernummer}
@@ -1324,33 +1335,33 @@ sub create_steuernummer {
   my $i = 0;
 
   my $steuernummer_new       = $part;
-  my $elstersteuernummer_new = $form->{elster_FFFF};
+  my $elstersteuernummer_new = $::form->{elster_FFFF};
   $elstersteuernummer_new .= '0';
 
   for ($h = 1; $h < $patterncount; $h++) {
     $steuernummer_new .= qq|$delimiter|;
     for (my $i = 1; $i <= length($elster_pattern); $i++) {
-      $steuernummer_new       .= $form->{"part_$h\_$i"};
-      $elstersteuernummer_new .= $form->{"part_$h\_$i"};
+      $steuernummer_new       .= $::form->{"part_$h\_$i"};
+      $elstersteuernummer_new .= $::form->{"part_$h\_$i"};
     }
   }
-  if ($form->{steuernummer} ne $steuernummer_new) {
-    $form->{steuernummer}       = $steuernummer_new;
-    $form->{elstersteuernummer} = $elstersteuernummer_new;
-    $form->{steuernummer_new}   = $steuernummer_new;
+  if ($::form->{steuernummer} ne $steuernummer_new) {
+    $::form->{steuernummer}       = $steuernummer_new;
+    $::form->{elstersteuernummer} = $elstersteuernummer_new;
+    $::form->{steuernummer_new}   = $steuernummer_new;
   } else {
-    $form->{steuernummer_new}       = '';
-    $form->{elstersteuernummer_new} = '';
+    $::form->{steuernummer_new}       = '';
+    $::form->{elstersteuernummer_new} = '';
   }
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 sub save {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
-  $auth->assert('advance_turnover_tax_return');
+  $::auth->assert('advance_turnover_tax_return');
 
-  my $filename = "$form->{login}_$form->{filename}";
+  my $filename = "$::form->{login}_$::form->{filename}";
   $filename =~ s|.*/||;
 
   #zuerst die steuernummer aus den part, parts_X_Y und delimiter herstellen
@@ -1358,11 +1369,11 @@ sub save {
 
   # Textboxen formatieren: Linebreaks entfernen
   #
-  $form->{FA_Oeffnungszeiten} =~ s/\r\n/\\n/g;
+  $::form->{FA_Oeffnungszeiten} =~ s/\r\n/\\n/g;
 
   #URL mit http:// davor?
-  $form->{FA_Internet} =~ s/^http:\/\///;
-  $form->{FA_Internet} = 'http://' . $form->{FA_Internet};
+  $::form->{FA_Internet} =~ s/^http:\/\///;
+  $::form->{FA_Internet} = 'http://' . $::form->{FA_Internet};
 
   my @config = qw(
     elster              elsterland            elstersteuernummer  steuernummer
@@ -1376,55 +1387,53 @@ sub save {
     FA_71 FA_dauerfrist);
 
   # Hier kommt dann die Plausibilitätsprüfung der ELSTERSteuernummer
-  if ($form->{elstersteuernummer} ne '000000000') {
+  if ($::form->{elstersteuernummer} ne '000000000') {
 
-    $form->{elster} = '1';
+    $::form->{elster} = '1';
 
-    open my $ustvaconfig, ">", "$userspath/$filename" or $form->error("$filename : $!");
+    open my $ustvaconfig, ">", "$::userspath/$filename" or $::form->error("$filename : $!");
 
     # create the config file
     print {$ustvaconfig} qq|# Configuration file for USTVA\n\n|;
     my $key = '';
     foreach $key (sort @config) {
-      $form->{$key} =~ s/\\/\\\\/g;
+      $::form->{$key} =~ s/\\/\\\\/g;
       # strip M
-      $form->{$key} =~ s/\r\n/\n/g;
+      $::form->{$key} =~ s/\r\n/\n/g;
 
       print {$ustvaconfig} qq|$key=|;
-      if ($form->{$key} ne 'Y') {
-        print {$ustvaconfig} qq|$form->{$key}\n|;
+      if ($::form->{$key} ne 'Y') {
+        print {$ustvaconfig} qq|$::form->{$key}\n|;
       }
-      if ($form->{$key} eq 'Y') {
+      if ($::form->{$key} eq 'Y') {
         print {$ustvaconfig} qq|checked \n|;
       }
     }
     print {$ustvaconfig} qq|\n\n|;
     close $ustvaconfig;
-    $form->{saved} = $locale->text('saved');
+    $::form->{saved} = $::locale->text('saved');
 
   } else {
 
-    $form->{saved} = $locale->text('Choose a Tax Number');
+    $::form->{saved} = $::locale->text('Choose a Tax Number');
   }
 
   config_step2();
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 
 
 sub continue {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
   # allow Symbolic references just here:
-  no strict 'refs';
-  call_sub($form->{"nextsub"});
-  use strict 'refs';
-  $lxdebug->leave_sub();
+  call_sub($::form->{"nextsub"});
+  $::lxdebug->leave_sub();
 }
 
 sub back {
-  $lxdebug->enter_sub();
-  call_sub($form->{"lastsub"});
-  $lxdebug->leave_sub();
+  $::lxdebug->enter_sub();
+  call_sub($::form->{"lastsub"});
+  $::lxdebug->leave_sub();
 }
 
