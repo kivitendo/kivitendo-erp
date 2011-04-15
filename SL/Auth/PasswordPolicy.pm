@@ -73,7 +73,7 @@ sub errors {
 sub init_config {
   my ($self) = @_;
 
-  my %cfg = %{ $::emmvee_conf{password_policy} || {} };
+  my %cfg = %{ $::lx_office_conf{password_policy} || {} };
 
   $cfg{valid_characters}      =~ s/[ \n\r]//g if $cfg{valid_characters};
   $cfg{invalid_characters}    =~ s/[ \n\r]//g if $cfg{invalid_characters};

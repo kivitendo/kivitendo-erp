@@ -224,4 +224,4 @@ watch_form = 0
 keep_temp_files = 0
 
 # The file name where the debug messages are written to.
-file_name = /tmp/mb-lxdebug.log
+file_name = /tmp/lx-office-debug.log

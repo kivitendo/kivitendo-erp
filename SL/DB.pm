@@ -16,24 +16,14 @@ my (%_db_registered, %_initial_sql_executed);
 sub dbi_connect {
   shift;
 
-  return DBI->connect(@_) unless $::lx_office_conf{debug} && $::lx_office_conf{debug}->{dbix_log4perl};
-
-  require Log::Log4perl;
-  require DBIx::Log4perl;
-
-  my $filename =  $LXDebug::file_name;
-  my $config   =  $::lx_office_conf{debug}->{dbix_log4perl_config};
-  $config      =~ s/LXDEBUGFILE/${filename}/g;
-
-  Log::Log4perl->init(\$config);
-  return DBIx::Log4perl->connect(@_);
+  return SL::DBConnect->connect(@_);
 }
 
 sub create {
   my $domain = shift || SL::DB->default_domain;
   my $type   = shift || SL::DB->default_type;
 
-  my ($domain, $type) = _register_db($domain, $type);
+  ($domain, $type) = _register_db($domain, $type);
 
   my $db = __PACKAGE__->new_or_cached(domain => $domain, type => $type);
 
@@ -91,7 +81,7 @@ sub _register_db {
   my %flattened_settings = _flatten_settings(%connect_settings);
 
   $domain = 'LXOFFICE' if $type =~ m/^LXOFFICE/;
-  $type  .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_}) } sort keys %flattened_settings);
+  $type  .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_} || '') } sort keys %flattened_settings);
   my $idx = "${domain}::${type}";
 
   if (!$_db_registered{$idx}) {

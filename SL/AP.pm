@@ -422,9 +422,12 @@ sub ap_transactions {
     push(@values, $form->like($form->{vendor}));
   }
   if ($form->{department}) {
-    my ($null, $department_id) = split /--/, $form->{department};
+    # ähnlich wie commit 0bbfb33b6aa8e38bb6c81d1684ab7d08e5b5c5af abteilung
+    # wird so nicht mehr als zeichenkette zusammengebaut
+    # hätte zu ee9f9f9aa4c3b9d5d20ab10a45c12bcaa6aa78d0 auffallen können ;-) jan
+    #my ($null, $department_id) = split /--/, $form->{department};
     $where .= " AND a.department_id = ?";
-    push(@values, $department_id);
+    push(@values, $form->{department});
   }
   if ($form->{invnumber}) {
     $where .= " AND a.invnumber ILIKE ?";
