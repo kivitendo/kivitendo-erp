@@ -970,7 +970,7 @@ sub delete_group {
   my $self = shift;
   my $id   = shift;
 
-  my $form = $main::from;
+  my $form = $main::form;
 
   my $dbh  = $self->dbconnect();
   $dbh->begin_work;
