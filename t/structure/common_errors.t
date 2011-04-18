@@ -32,7 +32,7 @@ my @testitems = @Support::Files::testitems;
 
 my @common_errors = ([ '^\s*my\s+%[a-z0-9_]+\s*=\s*shift' ],
                      [ '^\s*my\s+\(.*\)\s*=\s*shift'      ],
-                     [ '^\s*my\s+\$.*\s*=\s*@_'           ],
+                     [ '^\s*my\s+\$[^=]*=\s*@_'           ],
                      [ '@[a-z0-9_]+->'                    ],
                      [ 'uft8'                             ],
                      [ '\$slef'                           ],
