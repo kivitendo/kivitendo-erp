@@ -473,7 +473,7 @@ sub update {
 
   $main::auth->assert('invoice_edit');
 
-  my ($recursive_call) = shift;
+  my ($recursive_call) = @_;
 
   $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
 
