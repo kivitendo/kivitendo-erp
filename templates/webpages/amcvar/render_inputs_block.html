@@ -1,44 +1,38 @@
 [%- USE T8 %]
 [%- USE HTML %]
+[%- BLOCK cvar_name %][% HTML.escape(cvar.name_prefix) _ "cvar_" _ HTML.escape(cvar.var.name) _ HTML.escape(cvar.name_postfix) -%][% END %]
 [%- BLOCK cvar_inputs %]
-[%- var               = cvar.var  %]
-[%- hide_non_editable = cvar.hide_non_editable, %]
-[%- name_prefix       = cvar.name_prefix, %]
-[%- name_postfix      = cvar.name_postfix, %]
-[%- valid             = cvar.valid, %]
-[%- value             = cvar.value, %]
-[%- var_name          = HTML.escape(name_prefix) _ "cvar_" _ HTML.escape(var.name) _ HTML.escape(name_postfix) -%]
 [%- %]
-[%- IF hide_non_editable && !var.flag_editable %]
-<input type="hidden" name="[% var_name %]" value="[% HTML.escape(var.value) %]">
-[%- ELSIF !valid %]
+[%- IF cvar.hide_non_editable && !cvar.var.flag_editable %]
+<input type="hidden" name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.var.value) %]">
+[%- ELSIF !cvar.valid %]
   [%- IF show_disabled_message %]
 <i>[% 'Element disabled' | $T8 %]</i>
   [%- END %]
-[%- ELSIF var.type == 'bool' %]
-<input type="checkbox" name="[% var_name %]" value="1"[% IF value %] checked[% END %]>
-[%- ELSIF var.type == 'textfield' %]
-<textarea name="[% var_name %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]">[% HTML.escape(value) %]</textarea>
-[%- ELSIF var.type == 'date' %]
-<input name="[% var_name %]" id="[% var_name %]" size="12" value="[% HTML.escape(value) %]">
-<input name="[% var_name %]_button" id="[% var_name %]_trigger" type="button" value="?">
+[%- ELSIF cvar.var.type == 'bool' %]
+<input type="checkbox" name="[% PROCESS cvar_name %]" value="1"[% IF cvar.value %] checked[% END %]>
+[%- ELSIF cvar.var.type == 'textfield' %]
+<textarea name="[% PROCESS cvar_name %]" cols="[% HTML.escape(cvar.var.width) %]" rows="[% HTML.escape(cvar.var.height) %]">[% HTML.escape(cvar.value) %]</textarea>
+[%- ELSIF cvar.var.type == 'date' %]
+<input name="[% PROCESS cvar_name %]" id="[% PROCESS cvar_name %]" size="12" value="[% HTML.escape(cvar.value) %]">
+<input name="[% PROCESS cvar_name %]_button" id="[% PROCESS cvar_name %]_trigger" type="button" value="?">
 <script type="text/javascript">
  <!--
-     Calendar.setup({ inputField : "[% var_name %]",
+     Calendar.setup({ inputField : "[% PROCESS cvar_name %]",
                       ifFormat   : "[% myconfig_jsc_dateformat %]",
                       align      : "BR",
-                      button     : "[% var_name %]_trigger" });
+                      button     : "[% PROCESS cvar_name %]_trigger" });
    -->
 </script>
-[%- ELSIF var.type == 'timestamp' %]
-<input name="[% var_name %]" value="[% HTML.escape(value) %]">
-[%- ELSIF var.type == 'select' %]
-<select name="[% var_name %]">
- [%- FOREACH option = var.OPTIONS %]
- <option[% IF option.value == value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
+[%- ELSIF cvar.var.type == 'timestamp' %]
+<input name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.value) %]">
+[%- ELSIF cvar.var.type == 'select' %]
+<select name="[% PROCESS cvar_name %]">
+ [%- FOREACH option = cvar.var.OPTIONS %]
+ <option[% IF option.value == cvar.value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
  [%- END %]
 </select>
 [%- ELSE %]
-<input name="[% var_name %]" value="[% HTML.escape(value) %]" [%- IF var.maxlength %] maxlength="[% HTML.escape(var.maxlength) %]"[% END -%]>
+<input name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.value) %]" [%- IF cvar.var.maxlength %] maxlength="[% HTML.escape(cvar.var.maxlength) %]"[% END -%]>
 [%- END %]
 [%- END %]

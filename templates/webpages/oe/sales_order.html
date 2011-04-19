@@ -30,7 +30,7 @@
    [%- IF row2.line_break %]<br/>[%- END %]
    [%- IF row2.cvar %]
      [% row2.description %]
-     [% INCLUDE cvar_inputs cvar = row2.render_options %]
+     [% PROCESS cvar_inputs cvar = row2.render_options %]
    [%- ELSE %]
      [% row2.value %]
    [%- END %]
