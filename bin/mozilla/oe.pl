@@ -516,7 +516,7 @@ sub form_footer {
 sub update {
   $main::lxdebug->enter_sub();
 
-  my ($recursive_call) = shift;
+  my ($recursive_call) = @_;
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;

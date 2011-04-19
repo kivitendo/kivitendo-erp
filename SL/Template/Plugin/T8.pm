@@ -6,7 +6,7 @@ use parent qw( Template::Plugin::Filter );
 my $cached_instance;
 
 sub new {
-  my ($class) = shift;
+  my $class = shift;
 
   return $cached_instance ||= $class->SUPER::new(@_);
 }
