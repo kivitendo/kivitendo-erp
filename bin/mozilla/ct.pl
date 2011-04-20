@@ -184,8 +184,14 @@ sub list_names {
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
 
-  my @hidden_variables  = (qw(db status obsolete name contact email cp_name addr_street addr_zipcode addr_city business_id),
-                           "$form->{db}number", @searchable_custom_variables, map { "l_$_" } @columns);
+  my @hidden_variables  = ( qw(
+      db status obsolete name contact email cp_name addr_street addr_zipcode
+      addr_city business_id
+    ), "$form->{db}number",
+    map({ "cvar_$_->{name}" } @searchable_custom_variables),
+    map({ "l_$_" } @columns),
+  );
+
   my @hidden_nondefault = grep({ $form->{$_} } @hidden_variables);
   my $callback          = build_std_url('action=list_names', grep { $form->{$_} } @hidden_nondefault);
   $form->{callback}     = "$callback&sort=" . E($form->{sort}) . "&sortdir=" . E($form->{sortdir});
