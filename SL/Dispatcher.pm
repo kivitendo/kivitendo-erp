@@ -84,6 +84,7 @@ sub pre_startup_setup {
   {
     no warnings 'once';
     $::lxdebug     = LXDebug->new;
+    $::auth        = SL::Auth->new;
     $::form        = undef;
     %::myconfig    = ();
     %::called_subs = (); # currently used for recursion detection
@@ -159,7 +160,6 @@ sub handle_request {
   $::cgi         = CGI->new('');
   $::locale      = Locale->new($::lx_office_conf{system}->{language});
   $::form        = Form->new;
-  $::auth        = SL::Auth->new;
   %::called_subs = ();
 
   eval { ($routing_type, $script_name, $action) = _route_request($script_name); 1; } or return;
@@ -234,8 +234,7 @@ sub handle_request {
   $::myconfig = ();
   Form::disconnect_standard_dbh;
   $::auth->expire_session_keys->save_session;
-  $::auth->dbdisconnect;
-  $::auth     = undef;
+  $::auth->reset;
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;
