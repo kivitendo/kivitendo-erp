@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
+[%- USE L %]
 [%- SET follow_up_trans_info = invnumber _ ' (' _ customer_name _ ')' %]
 <body>
 <script type="text/javascript" src="js/common.js"></script>
@@ -26,7 +27,7 @@
 
 <p>[% saved_message %]</p>
 
-[%- INCLUDE 'common/flash.html' %]
+[%- PROCESS 'common/flash.html' %]
 
 <table width="100%">
   <tr>
@@ -56,13 +57,7 @@
         <tr>
           <th align="right">[% 'Contact Person' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'cp_id',
-                 style      = 'width: 250px',
-                 DATA       = ALL_CONTACTS,
-                 id_key     = 'cp_id',
-                 label_sub  = 'contact_labels',
-                 show_empty = 1 -%]
+            [% L.select_tag('cp_id', L.options_for_select(ALL_CONTACTS, default=cp_id, value='cp_id', title_sub=\contact_labels, with_empty=1), style='width: 250px') %]
           </td>
         </tr>
 [%- END %]
@@ -70,14 +65,7 @@
         <tr>
           <th align="right">[% 'Shipping Address' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'shipto_id',
-                 style      = 'width: 250px',
-                 DATA       = ALL_SHIPTO,
-                 id_key     = 'shipto_id',
-                 label_sub  = 'shipto_labels',
-                 show_empty = 1,
-                 onChange   = "document.getElementById('update_button').click();" -%]
+            [% L.select_tag('shipto_id', L.options_for_select(ALL_SHIPTO, default=shipto_id, value='shipto_id', title_sub=\shipto_labels, with_empty=1), style='width: 250px', onChange="document.getElementById('update_button').click();") %]
           </td>
         </tr>
 [%- END %]
@@ -110,13 +98,7 @@
         <tr>
           <th align="right">[% 'Steuersatz' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'taxzone_id'
-                 stype      = '250px'
-                 DATA       = ALL_TAXZONES
-                 id_key     = 'id'
-                 readonly   = (id ? 1 : 0)
-                 label_key  = 'description' -%]
+            [% L.select_tag('taxzone_id', L.options_for_select(ALL_TAXZONES, default=taxzone_id, title='description'), readonly=(id ? 1 : 0), style='width: 250px') %]
           </td>
   [%- IF id %]
           <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
@@ -126,13 +108,7 @@
         <tr>
           <th align="right" nowrap>[% 'Department' | $T8 %]</th>
           <td colspan="3">
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'department_id',
-                 style      = 'width: 250px',
-                 DATA       = all_departments,
-                 id_key     = 'id',
-                 label_sub  = 'department_labels',
-                 show_empty = 1 -%]
+            [% L.select_tag('department_id', L.options_for_select(all_departments, default=department_id, title_sub=\department_labels, with_empty=1), style='width:250px') %]
           </td>
         </tr>
 [%- END %]
@@ -175,23 +151,14 @@
         <tr>
           <th align="right">[% 'Employee' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'employee_id',
-                 DATA       = ALL_EMPLOYEES,
-                 id_key     = 'id',
-                 label_sub  = 'sales_employee_labels' -%]
+            [% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, default=employee_id, title_sub=\sales_employee_labels)) %]
           </td>
         </tr>
 [%- IF ALL_SALESMEN.size %]
         <tr>
           <th align="right">[% 'Salesman' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'salesman_id',
-                 default    = salesman_id ? salesman_id : employee_id,
-                 DATA       = ALL_SALESMEN,
-                 id_key     = 'id',
-                 label_sub  = 'sales_employee_labels' -%]
+            [% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=(salesman_id ? salesman_id : employee_id), title_sub=\sales_employee_labels)) %]
           </td>
         </tr>
 [%- END %]
@@ -269,13 +236,7 @@
         <tr>
           <th align="right" nowrap>[% 'Project Number' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'globalproject_id',
-                 DATA       = ALL_PROJECTS,
-                 id_key     = 'id',
-                 label_key  = 'projectnumber',
-                 show_empty = 1,
-                 onChange   = "document.getElementById('update_button').click();" -%]
+            [%- L.select_tag('globalproject_id', L.options_for_select(ALL_PROJECTS, title='projectnumber', default=globalproject_id, with_empty='1'), onChange="document.getElementById('update_button').click();") %]
           </td>
         </tr>
       </table>
