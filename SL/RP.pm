@@ -1193,10 +1193,12 @@ sub aging {
   }
 
   my $dpt_join;
+  my $where_dpt;
   if ($form->{department}) {
     my ($null, $department_id) = split /--/, $form->{department};
     $dpt_join = qq| JOIN department d ON (a.department_id = d.id) |;
     $where .= qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
+    $where_dpt = qq| AND (${arap}.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
   }
   my $review_of_aging_list;
   if ($form->{review_of_aging_list}) {
@@ -1226,6 +1228,7 @@ sub aging {
     WHERE ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null))
       AND NOT COALESCE (${arap}.storno, 'f')
       AND (${arap}.${ct}_id = ${ct}.id)
+      $where_dpt 
       AND (${ct}.id = ?)
       AND (transdate <= (date $todate) $fromwhere )
       $review_of_aging_list
