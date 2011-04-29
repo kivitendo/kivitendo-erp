@@ -7,6 +7,8 @@ use Data::Dumper;
 use_ok 'Support::TestSetup';
 use_ok 'SL::Controller::Helper::ParseFilter';
 
+undef *::any; # Test::Deep exports any (for junctions) and MoreCommon exports any (like in List::Moreutils)
+
 Support::TestSetup::login();
 my ($filter, $expected);
 
