@@ -996,17 +996,13 @@ sub redirect {
   my ($self, $msg) = @_;
 
   if (!$self->{callback}) {
-
     $self->info($msg);
-    ::end_of_request();
+
+  } else {
+    print $::form->redirect_header($self->{callback});
   }
 
-#  my ($script, $argv) = split(/\?/, $self->{callback}, 2);
-#  $script =~ s|.*/||;
-#  $script =~ s|[^a-zA-Z0-9_\.]||g;
-#  exec("perl", "$script", $argv);
-
-  print $::form->redirect_header($self->{callback});
+  ::end_of_request();
 
   $main::lxdebug->leave_sub();
 }

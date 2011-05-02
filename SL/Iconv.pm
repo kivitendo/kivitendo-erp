@@ -37,7 +37,10 @@ sub convert {
   $to_charset   ||= Common::DEFAULT_CHARSET;
 
   my $converter = _get_converter($from_charset, $to_charset);
-  return $converter->convert($text);
+  $text         = $converter->convert($text);
+  $text         = decode("utf-8-strict", $text) if ($to_charset =~ m/^utf-?8$/i) && !Encode::is_utf8($text);
+
+  return $text;
 }
 
 sub _convert {

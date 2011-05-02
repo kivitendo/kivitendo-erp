@@ -378,6 +378,21 @@ sub save_account {
 
   }
 
+  # Update chart.taxkey_id to the latest from taxkeys for this chart.
+  $query = <<SQL;
+    UPDATE chart
+    SET taxkey_id = (
+      SELECT taxkey_id
+      FROM taxkeys
+      WHERE taxkeys.chart_id = chart.id
+      ORDER BY startdate DESC
+      LIMIT 1
+    )
+    WHERE id = ?
+SQL
+
+  do_query($form, $dbh, $query, $form->{id});
+
   # commit
   my $rc = $dbh->commit;
   $dbh->disconnect;
