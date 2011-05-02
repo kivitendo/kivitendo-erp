@@ -16,7 +16,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 sub new {
-  my ($class, $file_name, $mode) = @_;
+  my ($class, $file_name, %params) = @_;
 
   my $self   = $class->SUPER::new;
 
@@ -24,7 +24,17 @@ sub new {
   $file_name =~ s:.*/::g;
   $file_name =  "${path}/${file_name}";
 
-  $self->fh(IO::File->new($file_name, $mode)) if $mode;
+  if ($params{mode}) {
+    my $mode = $params{mode};
+
+    if ($params{encoding}) {
+      $params{encoding} =~ s/[^a-z0-9\-]//gi;
+      $mode .= ':encoding(' . $params{encoding} . ')';
+    }
+
+    $self->fh(IO::File->new($file_name, $mode));
+  }
+
   $self->file_name($file_name);
 
   return $self;
@@ -108,13 +118,16 @@ C<users/session_files/SESSIONID>.
 
 =over 4
 
-=item C<new $file_name, [$mode]>
+=item C<new $file_name, [%params]>
 
 Create a new instance. C<$file_name> is a relative file name (path
 components are stripped) to the session-specific temporary directory.
 
-If C<$mode> is given then try to open the file as an instance of
-C<IO::File>. C<$mode> is passed through to C<IO::File::new>.
+If C<$params{mode}> is given then try to open the file as an instance
+of C<IO::File>. C<${mode}> is passed through to C<IO::File::new>.
+
+If C<$params{encoding}> is given then the file is opened with the
+appropriate encoding layer.
 
 =item C<fh>
 
