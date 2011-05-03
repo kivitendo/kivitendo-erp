@@ -240,7 +240,7 @@ sub _print_invoice {
     eval {
       $form->parse_template(\%::myconfig);
       1;
-    } || die $EVAL_ERROR->{error};
+    } || die $EVAL_ERROR->getMessage;
   });
 }
 
