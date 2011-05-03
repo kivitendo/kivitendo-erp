@@ -35,7 +35,6 @@ __PACKAGE__->meta->add_relationship(
   },
 );
 
-__PACKAGE__->meta->make_manager_class;
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->before_save('_before_save_set_customernumber');
