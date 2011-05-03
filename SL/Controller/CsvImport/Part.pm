@@ -20,7 +20,7 @@ use parent qw(SL::Controller::CsvImport::Base);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(table makemodel_columns) ],
- 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by packing_types_by partsgroups_by
+ 'scalar --get_set_init' => [ qw(bg_by settings parts_by price_factors_by units_by partsgroups_by
                                  translation_columns all_pricegroups) ],
 );
 
@@ -41,13 +41,6 @@ sub init_price_factors_by {
 
   my $all_price_factors = SL::DB::Manager::PriceFactor->get_all;
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_price_factors } } ) } qw(id description) };
-}
-
-sub init_packing_types_by {
-  my ($self) = @_;
-
-  my $all_packing_types = SL::DB::Manager::PackingType->get_all;
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_packing_types } } ) } qw(id description) };
 }
 
 sub init_partsgroups_by {
@@ -118,7 +111,6 @@ sub check_objects {
     $self->check_unit($entry);
     $self->check_price_factor($entry);
     $self->check_payment($entry);
-    $self->check_packing_type($entry);
     $self->check_partsgroup($entry);
     $self->handle_pricegroups($entry);
     $self->check_existing($entry) unless @{ $entry->{errors} };
@@ -132,7 +124,7 @@ sub check_objects {
 
   $self->add_columns(qw(type)) if $self->settings->{parts_type} eq 'mixed';
   $self->add_columns(qw(buchungsgruppen_id unit));
-  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment packing_type partsgroup));
+  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment partsgroup));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
   $self->add_cvar_raw_data_columns;
   map { $self->add_raw_data_columns("pricegroup_${_}") } (1..scalar(@{ $self->all_pricegroups }));
@@ -206,7 +198,7 @@ sub check_existing {
 
   if ($self->settings->{article_number_policy} eq 'update_prices') {
     if ($entry->{part}) {
-      map { $entry->{part}->$_( $object->$_ ) } qw(sellprice listprice lastcost min_sellprice prices);
+      map { $entry->{part}->$_( $object->$_ ) } qw(sellprice listprice lastcost prices);
       push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
       $entry->{object_to_save} = $entry->{part};
     }
@@ -284,32 +276,6 @@ sub check_price_factor {
     }
 
     $object->price_factor_id($pf->id);
-  }
-
-  return 1;
-}
-
-sub check_packing_type {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-
-  # Check whether or not packing type ID is valid.
-  if ($object->packing_type_id && !$self->packing_types_by->{id}->{ $object->packing_type_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid packing type');
-    return 0;
-  }
-
-  # Map name to ID if given.
-  if (!$object->packing_type_id && $entry->{raw_data}->{packing_type}) {
-    my $type = $self->packing_types_by->{description}->{ $entry->{raw_data}->{packing_type} };
-
-    if (!$type) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid packing type');
-      return 0;
-    }
-
-    $object->packing_type_id($type->id);
   }
 
   return 1;
@@ -447,7 +413,6 @@ sub setup_displayable_columns {
   $self->add_cvar_columns_to_displayable_columns;
 
   $self->add_displayable_columns({ name => 'bin',                description => $::locale->text('Bin')                           },
-                                 { name => 'binding_max_qty',    description => $::locale->text('Binding Max Qty')               },
                                  { name => 'buchungsgruppen_id', description => $::locale->text('Buchungsgruppe (database ID)')  },
                                  { name => 'buchungsgruppe',     description => $::locale->text('Buchungsgruppe (name)')         },
                                  { name => 'description',        description => $::locale->text('Description')                   },
@@ -461,14 +426,11 @@ sub setup_displayable_columns {
                                  { name => 'listprice',          description => $::locale->text('List Price')                    },
                                  { name => 'make_X',             description => $::locale->text('Make (with X being a number)')  },
                                  { name => 'microfiche',         description => $::locale->text('Microfiche')                    },
-                                 { name => 'min_sellprice',      description => $::locale->text('Minimum Sell Price')            },
                                  { name => 'model_X',            description => $::locale->text('Model (with X being a number)') },
                                  { name => 'not_discountable',   description => $::locale->text('Not Discountable')              },
                                  { name => 'notes',              description => $::locale->text('Notes')                         },
                                  { name => 'obsolete',           description => $::locale->text('Obsolete')                      },
                                  { name => 'onhand',             description => $::locale->text('On Hand')                       },
-                                 { name => 'packing_type_id',    description => $::locale->text('Packing type (database ID)')    },
-                                 { name => 'packing_type',       description => $::locale->text('Packing type (name)')           },
                                  { name => 'partnumber',         description => $::locale->text('Part Number')                   },
                                  { name => 'partsgroup_id',      description => $::locale->text('Partsgroup (database ID)')      },
                                  { name => 'partsgroup',         description => $::locale->text('Partsgroup (name)')             },

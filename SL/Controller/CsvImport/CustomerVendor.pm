@@ -241,7 +241,6 @@ sub setup_displayable_columns {
                                  { name => 'payment_id',        description => $::locale->text('Payment terms (database ID)')     },
                                  { name => 'payment',           description => $::locale->text('Payment terms (name)')            },
                                  { name => 'phone',             description => $::locale->text('Phone')                           },
-                                 { name => 'pricing_agreement', description => $::locale->text('Pricing agreement')               },
                                  { name => 'street',            description => $::locale->text('Street')                          },
                                  { name => 'taxnumber',         description => $::locale->text('Tax Number / SSN')                },
                                  { name => 'taxzone_id',        description => $::locale->text('Steuersatz')                      },
