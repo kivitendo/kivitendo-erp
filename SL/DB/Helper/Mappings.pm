@@ -220,23 +220,23 @@ will die with an error.
 
 Returns the package name for a table name:
 
-  SL::DB::Helpers::Mappings::get_package_for_table('oe')
+  SL::DB::Helper::Mappings::get_package_for_table('oe')
   # SL::DB::Order
 
 =item C<get_manager_package_for_table $table_name>
 
 Returns the manager package name for a table name:
 
-  SL::DB::Helpers::Mappings::get_manager_package_for_table('oe')
+  SL::DB::Helper::Mappings::get_manager_package_for_table('oe')
   # SL::DB::Manager::Order
 
 =item C<get_table_for_package $package_name>
 
 Returns the table name for a package name:
 
-  SL::DB::Helpers::Mappings::get_table_for_package('SL::DB::Order')
+  SL::DB::Helper::Mappings::get_table_for_package('SL::DB::Order')
   # oe
-  SL::DB::Helpers::Mappings::get_table_for_package('Order')
+  SL::DB::Helper::Mappings::get_table_for_package('Order')
   # oe
 
 =back
