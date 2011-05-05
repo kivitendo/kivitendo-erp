@@ -174,9 +174,13 @@ sub _dispatch {
   my $action  = first { $::form->{"action_${_}"} } @actions;
   my $sub     = "action_${action}";
 
-  $self->_run_hooks('before', $action);
-  $self->$sub(@_);
-  $self->_run_hooks('after', $action);
+  if ($self->can($sub)) {
+    $self->_run_hooks('before', $action);
+    $self->$sub(@_);
+    $self->_run_hooks('after', $action);
+  } else {
+    $::form->error($::locale->text('Oops. No valid action found to dispatch. Please report this case to the Lx-Office team.'));
+  }
 }
 
 sub _template_obj {

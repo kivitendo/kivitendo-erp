@@ -1227,6 +1227,7 @@ $self->{texts} = {
   'On Order'                    => 'Ist bestellt',
   'One or more Perl modules missing' => 'Ein oder mehr Perl-Module fehlen',
   'Only due follow-ups'         => 'Nur f&auml;llige Wiedervorlagen',
+  'Oops. No valid action found to dispatch. Please report this case to the Lx-Office team.' => '',
   'Open'                        => 'Offen',
   'Open Amount'                 => 'Offener Betrag',
   'Open a further Lx-Office Window or Tab' => 'Neues Fenster bzw. Tab &ouml;ffnen',
