@@ -2,6 +2,7 @@ tags
 crm
 /users/datev-export*
 /users/templates-cache/
+/users/session_files/
 /users/pid/
 /config/lx_office.conf
 /doc/online/*/*.html
