@@ -41,6 +41,8 @@ sub interface_type {
 }
 
 sub pre_request_checks {
+  _check_for_old_config_files();
+
   if (!$::auth->session_tables_present) {
     if ($::form->{script} eq 'admin.pl') {
       ::run();
@@ -337,6 +339,18 @@ sub _init_environment {
 
     $ENV{$key} = $value;
   }
+}
+
+sub _check_for_old_config_files {
+  my @old_files = grep { -f "config/${_}" } qw(authentication.pl console.conf lx-erp.conf lx-erp-local.conf);
+  return unless @old_files;
+
+  $::form->{title}      = $::locale->text('Old configuration files');
+  $::form->{stylesheet} = 'lx-office-erp.css';
+  $::form->header;
+  print $::form->parse_html_template('login/old_configuration_files', { FILES => \@old_files });
+
+  ::end_of_request();
 }
 
 package main;
