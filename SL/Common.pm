@@ -13,7 +13,6 @@ use strict;
 
 use Time::HiRes qw(gettimeofday);
 use Data::Dumper;
-use File::Copy;
 
 use SL::DBUtils;
 
@@ -331,10 +330,6 @@ sub mkdir_with_parents {
   $main::lxdebug->leave_sub();
 }
 
-#
-# Legt ein entsprechendes Webdav-Verzeichnis an, falls
-# Webdav als Option konfiguriert ist
-#
 sub webdav_folder {
   $main::lxdebug->enter_sub();
 
@@ -343,11 +338,35 @@ sub webdav_folder {
   return $main::lxdebug->leave_sub()
     unless ($::lx_office_conf{features}->{webdav} && $form->{id});
 
-  my $path = get_webdav_folder($form); # ausgelagert, wg. D.R.Y.
+  my ($path, $number);
 
   $form->{WEBDAV} = [];
 
-  return $main::lxdebug->leave_sub() unless ($path);
+  if ($form->{type} eq "sales_quotation") {
+    ($path, $number) = ("angebote", $form->{quonumber});
+  } elsif ($form->{type} eq "sales_order") {
+    ($path, $number) = ("bestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "request_quotation") {
+    ($path, $number) = ("anfragen", $form->{quonumber});
+  } elsif ($form->{type} eq "purchase_order") {
+    ($path, $number) = ("lieferantenbestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "sales_delivery_order") {
+    ($path, $number) = ("verkaufslieferscheine", $form->{donumber});
+  } elsif ($form->{type} eq "purchase_delivery_order") {
+    ($path, $number) = ("einkaufslieferscheine", $form->{donumber});
+  } elsif ($form->{type} eq "credit_note") {
+    ($path, $number) = ("gutschriften", $form->{invnumber});
+  } elsif ($form->{vc} eq "customer") {
+    ($path, $number) = ("rechnungen", $form->{invnumber});
+  } else {
+    ($path, $number) = ("einkaufsrechnungen", $form->{invnumber});
+  }
+
+  return $main::lxdebug->leave_sub() unless ($path && $number);
+
+  $number =~ s|[/\\]|_|g;
+
+  $path = "webdav/${path}/${number}";
 
   if (!-d $path) {
     mkdir_with_parents($path);
@@ -552,107 +571,6 @@ sub check_params_x {
       }
     }
   }
-}
-
-#
-# Diese Routine baut aus dem Masken-Typ und der
-# Beleg-Nummer, das entsprechende Webdav-Verzeichnis zusammen
-# Nimmt leider noch die ganze Form entgegen und den if-elsif-Block
-# sollte man schöner "dispatchen"
-# Ergänzung 6.5.2011, den else-Zweig defensiver gestaltet und mit
-# -1 als n.i.O. Rückgabewert versehen
-#
-sub get_webdav_folder {
-  $main::lxdebug->enter_sub();
-
-  my ($form) = @_;
-
-  # TODO Ergänzung um check_params
-
-  my ($path, $number);
-
-
-  if ($form->{type} eq "sales_quotation") {
-    ($path, $number) = ("angebote", $form->{quonumber});
-  } elsif ($form->{type} eq "sales_order") {
-    ($path, $number) = ("bestellungen", $form->{ordnumber});
-  } elsif ($form->{type} eq "request_quotation") {
-    ($path, $number) = ("anfragen", $form->{quonumber});
-  } elsif ($form->{type} eq "purchase_order") {
-    ($path, $number) = ("lieferantenbestellungen", $form->{ordnumber});
-  } elsif ($form->{type} eq "sales_delivery_order") {
-    ($path, $number) = ("verkaufslieferscheine", $form->{donumber});
-  } elsif ($form->{type} eq "purchase_delivery_order") {
-    ($path, $number) = ("einkaufslieferscheine", $form->{donumber});
-  } elsif ($form->{type} eq "credit_note") {
-    ($path, $number) = ("gutschriften", $form->{invnumber});
-  } elsif ($form->{vc} eq "customer") {
-    ($path, $number) = ("rechnungen", $form->{invnumber});
-  } elsif ($form->{vc} eq "vendor") {
-    ($path, $number) = ("einkaufsrechnungen", $form->{invnumber});
-  } else {
-    # wir befinden uns nicht in einer belegmaske
-    # scheinbar wird diese routine auch bspw. bei waren
-    # aufgerufen - naja, steuerung über Form.pm halt ...
-    $main::lxdebug->leave_sub();
-    return undef;
-  }
-
-  return $main::lxdebug->leave_sub() unless ($path && $number);
-
-  $number =~ s|[/\\]|_|g;
-
-  $path = "webdav/${path}/${number}";
-
-  $main::lxdebug->leave_sub();
-
-  return $path;
-
-}
-
-#
-# Falls Webdav aktiviert ist, auch den generierten Beleg in das
-# Webdav-Verzeichnis kopieren
-#
-#
-sub copy_file_to_webdav_folder {
-  $main::lxdebug->enter_sub();
-  
-  my ($form) = @_;  
-  # leider die ganze form
-  # da get_webdav_folder die auch noch benötigt
-  # aber hier ein paar checks:
-  # OFFEN: check_params kann ich ja nicht eine
-  # abgespeckte $form übergeben, oder?
-  $form->{type} = ''; 
-  foreach my $item (qw(tmpdir tmpfile type)){
-    if (!$form->{$item}){  # wahr, bei undef oder ''
-      $main::lxdebug->message(0, 'Missing parameter'); 
-      $main::form->error($main::locale->text("Missing parameter for webdav file copy"));
-    }
-  }
-
-  # Den Webdav-Ordner ÜBER exakt denselben Mechanismus wie beim
-  # Anlegen bestimmen
-  # leider ist das auch das Kriterium, ob überhaupt ein "Anlegen"
-  # erlaubt ist
-  my $webdav_folder =  get_webdav_folder($form);
-
-  # hier auch nochmal prüfen
-  if (! $webdav_folder){
-    $main::lxdebug->leave_sub();
-    return undef; # s.o. erstmal so ...
-    $main::form->error($main::locale->text("Cannot check correct webdav folder"));
-  }
-
-  if(!copy(join('/', $form->{tmpdir}, $form->{tmpfile}), join('/', $form->{cwd},  $webdav_folder))){ 
-    my $j = join('/', $form->{tmpdir}, $form->{tmpfile});
-    my $k = join('/', $form->{cwd},  $webdav_folder);
-    $main::lxdebug->message(0, "Copy file from $j to $k failed");
-    $main::form->error($main::locale->text("Copy file from #1 to #2 failed", $j, $k));
-  }
-
-  $main::lxdebug->leave_sub();
 }
 
 1;

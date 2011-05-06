@@ -1204,6 +1204,7 @@ sub parse_template {
   local (*IN, *OUT);
 
   my $userspath = $::lx_office_conf{paths}->{userspath};
+
   $self->{"cwd"} = getcwd();
   $self->{"tmpdir"} = $self->{cwd} . "/${userspath}";
 
@@ -1295,7 +1296,6 @@ sub parse_template {
     $result = $template->parse(*STDOUT);
   }
 
-  Common::copy_file_to_webdav_folder($self)  if ($self->{webdav});
   if (!$result) {
     $self->cleanup();
     $self->error("$self->{IN} : " . $template->get_error());
