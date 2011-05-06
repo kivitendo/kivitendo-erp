@@ -42,7 +42,7 @@ use SL::Dispatcher;
 #######
 
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
-my ($opt_user, $opt_apply, $opt_applied, $opt_format, $opt_test_utf8);
+my ($opt_user, $opt_apply, $opt_applied, $opt_unapplied, $opt_format, $opt_test_utf8);
 my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword);
 
 our (%myconfig, $form, $user, $auth, $locale, $controls, $dbupgrader);
@@ -77,6 +77,9 @@ dbupgrade2_tool.pl [options]
                          then the option \'--user\' must be used as well.
     --applied            List the applied database upgrades for the
                          database that the user given with \'--user\' uses.
+    --unapplied          List the database upgrades that haven\'t been applied
+                         yet to the database that the user given with
+                         \'--user\' uses.
     --test-utf8          Tests a PostgreSQL cluster for proper UTF-8 support.
                          You have to specify the database to test with the
                          parameters --dbname, --dbhost, --dbport, --dbuser
@@ -340,6 +343,25 @@ sub dump_applied {
   }
 }
 
+sub dump_unapplied {
+  my @results;
+
+  my $dbh = $form->dbconnect_noauto(\%myconfig);
+
+  $dbh->{PrintWarn}  = 0;
+  $dbh->{PrintError} = 0;
+
+  my @unapplied = $dbupgrader->unapplied_upgrade_scripts($dbh);
+
+  $dbh->disconnect;
+
+  if (!scalar @unapplied) {
+    print "All database upgrades have been applied.\n";
+  } else {
+    print map { $_->{tag} . "\n" } @unapplied;
+  }
+}
+
 sub build_upgrade_order {
   my $name  = shift;
   my $order = shift;
@@ -377,6 +399,7 @@ GetOptions("list"         => \$opt_list,
            "user=s"       => \$opt_user,
            "apply=s"      => \$opt_apply,
            "applied"      => \$opt_applied,
+           "unapplied"    => \$opt_unapplied,
            "test-utf8"    => \$opt_test_utf8,
            "dbhost:s"     => \$opt_dbhost,
            "dbport:s"     => \$opt_dbport,
@@ -426,6 +449,11 @@ if ($opt_apply) {
 if ($opt_applied) {
   $form->error("--applied used but no user name given with --user.") if (!$user);
   dump_applied();
+}
+
+if ($opt_unapplied) {
+  $form->error("--unapplied used but no user name given with --user.") if (!$user);
+  dump_unapplied();
 }
 
 if ($opt_test_utf8) {

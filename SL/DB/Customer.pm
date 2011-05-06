@@ -12,7 +12,7 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::Shipto',
     column_map   => { id      => 'trans_id' },
     manager_args => { sort_by => 'lower(shipto.shiptoname)' },
-    query_args   => [ 'shipto.module' => 'CT' ],
+    query_args   => [ 'module' => 'CT' ],
   },
   business => {
     type         => 'one to one',
@@ -23,5 +23,11 @@ __PACKAGE__->meta->add_relationship(
 
 __PACKAGE__->meta->make_manager_class;
 __PACKAGE__->meta->initialize;
+
+sub short_address {
+  my ($self) = @_;
+
+  return join ', ', grep { $_ } $self->street, $self->zipcode, $self->city;
+}
 
 1;

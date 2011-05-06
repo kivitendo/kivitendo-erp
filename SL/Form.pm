@@ -62,6 +62,7 @@ use SL::Menu;
 use SL::OE;
 use SL::Template;
 use SL::User;
+use SL::X;
 use Template;
 use URI;
 use List::Util qw(first max min sum);
@@ -458,7 +459,7 @@ sub hide_form {
 
 sub throw_on_error {
   my ($self, $code) = @_;
-  local $self->{__ERROR_HANDLER} = sub { die({ error => $_[0] }) };
+  local $self->{__ERROR_HANDLER} = sub { die SL::X::FormError->new($_[0]) };
   $code->();
 }
 

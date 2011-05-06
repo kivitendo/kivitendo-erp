@@ -1,4 +1,4 @@
-package SL::DB::Helpers::ALLAuth;
+package SL::DB::Helper::ALLAuth;
 
 use strict;
 
@@ -15,17 +15,17 @@ __END__
 
 =head1 NAME
 
-SL::DB::Helpers::ALLAuth: Dependency-only package for all SL::DB::Auth* modules
+SL::DB::Helper::ALLAuth: Dependency-only package for all SL::DB::Auth* modules
 
 =head1 SYNOPSIS
 
-  use SL::DB::Helpers::ALLAuth;
+  use SL::DB::Helper::ALLAuth;
 
 =head1 DESCRIPTION
 
 This module depends on all modules in SL/DB/Auth*.pm for the
 convenience of being able to write a simple \C<use
-SL::DB::Helpers::ALLAuth> and having everything loaded. This is
+SL::DB::Helper::ALLAuth> and having everything loaded. This is
 supposed to be used only in the Lx-Office console. Normal modules
 should C<use> only the modules they actually need.
 

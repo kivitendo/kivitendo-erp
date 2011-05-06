@@ -36,6 +36,15 @@ sub new {
   return $self;
 }
 
+sub reset {
+  my ($self, %params) = @_;
+
+  $self->{SESSION}          = { };
+  $self->{FULL_RIGHTS}      = { };
+  $self->{RIGHTS}           = { };
+  $self->{unique_counter}   = 0;
+}
+
 sub get_user_dbh {
   my ($self, $login) = @_;
   my %user = $self->read_user($login);

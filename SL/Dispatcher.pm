@@ -41,6 +41,8 @@ sub interface_type {
 }
 
 sub pre_request_checks {
+  _check_for_old_config_files();
+
   if (!$::auth->session_tables_present) {
     if ($::form->{script} eq 'admin.pl') {
       ::run();
@@ -84,6 +86,7 @@ sub pre_startup_setup {
   {
     no warnings 'once';
     $::lxdebug     = LXDebug->new;
+    $::auth        = SL::Auth->new;
     $::form        = undef;
     %::myconfig    = ();
     %::called_subs = (); # currently used for recursion detection
@@ -159,7 +162,6 @@ sub handle_request {
   $::cgi         = CGI->new('');
   $::locale      = Locale->new($::lx_office_conf{system}->{language});
   $::form        = Form->new;
-  $::auth        = SL::Auth->new;
   %::called_subs = ();
 
   eval { ($routing_type, $script_name, $action) = _route_request($script_name); 1; } or return;
@@ -234,8 +236,7 @@ sub handle_request {
   $::myconfig = ();
   Form::disconnect_standard_dbh;
   $::auth->expire_session_keys->save_session;
-  $::auth->dbdisconnect;
-  $::auth     = undef;
+  $::auth->reset;
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;
@@ -338,6 +339,18 @@ sub _init_environment {
 
     $ENV{$key} = $value;
   }
+}
+
+sub _check_for_old_config_files {
+  my @old_files = grep { -f "config/${_}" } qw(authentication.pl console.conf lx-erp.conf lx-erp-local.conf);
+  return unless @old_files;
+
+  $::form->{title}      = $::locale->text('Old configuration files');
+  $::form->{stylesheet} = 'lx-office-erp.css';
+  $::form->header;
+  print $::form->parse_html_template('login/old_configuration_files', { FILES => \@old_files });
+
+  ::end_of_request();
 }
 
 package main;

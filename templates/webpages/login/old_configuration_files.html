@@ -1,0 +1,28 @@
+[% USE LxERP %][% USE HTML %]
+<body>
+ <div class="listtop">[% title %]</div>
+
+ <p>
+  [%- LxERP.t8('Starting with Lx-Office 2.6.3 the configuration files in "config" have been consolidated.') %]
+  [%- LxERP.t8('The following old files whose settings have to be merged manually into the new configuration file "config/lx_office.conf" still exist:') %]
+ </p>
+
+ <ul>
+  [%- FOREACH file = FILES %]
+   <li><code>config/[%- HTML.escape(file) %]</code></li>
+  [%- END %]
+ </ul>
+
+ <p>
+  [%- LxERP.t8('Due to security concerns these files have to be deleted or moved after the migration before you can continue using Lx-Office.') %]
+ </p>
+
+ <p>
+  [%- LxERP.t8('You can find information on the migration in the upgrade documentation.') %]
+ </p>
+
+ <p>
+  <a href="login.pl">[%- LxERP.t8('Back to login') %]</a>
+ </p>
+</body>
+</html>
