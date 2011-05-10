@@ -1031,6 +1031,7 @@ sub generate_report {
     'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
     'description'        => { 'text' => $locale->text('Part Description'), },
     'drawing'            => { 'text' => $locale->text('Drawing'), },
+    'ean'                => { 'text' => $locale->text('EAN'), },
     'image'              => { 'text' => $locale->text('Image'), },
     'invnumber'          => { 'text' => $locale->text('Invoice Number'), },
     'lastcost'           => { 'text' => $locale->text('Last Cost'), },
