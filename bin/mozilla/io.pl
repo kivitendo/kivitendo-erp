@@ -1538,17 +1538,7 @@ sub print_form {
                    qw(invtotal ordtotal quototal subtotal linetotal
                       listprice sellprice netprice discount
                       tax taxbase total paid),
-                   grep({ /^linetotal_\d+$/ ||
-                            /^listprice_\d+$/ ||
-                            /^sellprice_\d+$/ ||
-                            /^netprice_\d+$/ ||
-                            /^taxbase_\d+$/ ||
-                            /^discount_\d+$/ ||
-                            /^paid_\d+$/ ||
-                            /^subtotal_\d+$/ ||
-                            /^total_\d+$/ ||
-                            /^tax_\d+$/
-                        } keys(%{$form})));
+                   grep({ /^(?:linetotal|nodiscount_linetotal|listprice|sellprice|netprice|taxbase|discount|p_discount|discount_sub|nodiscount_sub|paid|subtotal|total|tax)_\d+$/ } keys(%{$form})));
 
   reformat_numbers($output_numberformat, undef,
                    qw(qty price_factor),
