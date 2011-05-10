@@ -19,6 +19,7 @@ use SL::Locale;
 use SL::Common;
 use SL::Form;
 use SL::Helper::DateTime;
+use SL::Template::Plugin::HTMLFixes;
 use List::Util qw(first);
 use File::Basename;
 
