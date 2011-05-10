@@ -80,19 +80,19 @@
  </p>
 
  <table>
-  <tr>
-   <th class="listheading" width="32" align="center" valign="center"><img alt="[% 'up' | $T8 %]" src="image/up.png"><img alt="[% 'down' | $T8 %]" src="image/down.png"></th>
-   <th class="listheading">[% 'Delete' | $T8 %]</th>
-   <th class="listheading">[% 'Unit' | $T8 %]</th>
-   <th class="listheading">[% 'Base unit' | $T8 %]</th>
-   <th class="listheading">[% 'Factor' | $T8 %]</th>
+  <tr class="listheading">
+   <th width="32" align="center" valign="center"><img alt="[% 'up' | $T8 %]" src="image/up.png"><img alt="[% 'down' | $T8 %]" src="image/down.png"></th>
+   <th>[% 'Delete' | $T8 %]</th>
+   <th>[% 'Unit' | $T8 %]</th>
+   <th>[% 'Base unit' | $T8 %]</th>
+   <th>[% 'Factor' | $T8 %]</th>
    [% FOREACH language = LANGUAGES %]
-    <th class="listheading">[% language.description %]</th>
+    <th>[% language.description %]</th>
    [% END %]
   </tr>
 
   [% FOREACH row = UNITS %]
-   <tr>
+   <tr class="listrow[% loop.count % 2 %]">
     <td width="32" align="center" valign="center">[% IF loop.first %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=up&name=[% HTML.url(row.name) %]"><img alt="[% 'up' | $T8 %]" src="image/up.png" border="0"></a>[% END %][% IF loop.last %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=down&name=[% HTML.url(row.name) %]"><img alt="[% 'down' | $T8 %]" src="image/down.png" border="0"></a>[% END %]</td>
     [% IF row.in_use %]
      <td>
