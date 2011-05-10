@@ -256,7 +256,7 @@ sub form_header {
   my $locale   = $main::locale;
   my $cgi      = $main::cgi;
 
-  $main::auth->assert('invoice_edit');
+  $main::auth->assert('vendor_invoice_edit');
 
   my %TMPL_VAR = ();
   my @custom_hiddens;
@@ -354,7 +354,7 @@ sub form_footer {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('invoice_edit');
+  $main::auth->assert('vendor_invoice_edit');
 
   $form->{invtotal}    = $form->{invsubtotal};
   $form->{oldinvtotal} = $form->{invtotal};
