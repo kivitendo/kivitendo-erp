@@ -3123,16 +3123,8 @@ sub list_price_factors {
 
   AM->get_all_price_factors(\%myconfig, \%$form);
 
-  my $previous;
   foreach my $current (@{ $form->{PRICE_FACTORS} }) {
-    if ($previous) {
-      $previous->{next_id}    = $current->{id};
-      $current->{previous_id} = $previous->{id};
-    }
-
     $current->{factor} = $form->format_amount(\%myconfig, $current->{factor} * 1);
-
-    $previous = $current;
   }
 
   $form->{callback} = build_std_url('action=list_price_factors');
@@ -3182,20 +3174,6 @@ sub delete_price_factor {
   $form->{callback} .= '&MESSAGE=' . $form->escape($locale->text('Price factor deleted!')) if ($form->{callback});
 
   $form->redirect($locale->text('Price factor deleted!'));
-
-  $main::lxdebug->leave_sub();
-}
-
-sub swap_price_factors {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('config');
-
-  AM->swap_sortkeys(\%myconfig, $form, 'price_factors');
-  list_price_factors();
 
   $main::lxdebug->leave_sub();
 }

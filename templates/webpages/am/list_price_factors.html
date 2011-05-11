@@ -1,23 +1,25 @@
-[%- USE T8 %]
-[% USE HTML %]<body>
+[%- USE T8 %][% USE L %][% USE LxERP %]
+[% USE HTML %]
+
+<script type="text/javascript" src="js/jquery-ui.js"></script>
+
+<body>
 
  [% IF MESSAGE %]<p>[% MESSAGE %]</p>[% END %]
 
  <div class="listtop">[% title %]</div>
 
  <p>
-  <table width="100%">
-   <tr>
-    <td class="listheading" width="0%"></td>
-    <td class="listheading" width="0%"></td>
-    <td class="listheading" width="80%">[% 'Description' | $T8 %]</td>
-    <td class="listheading" width="20%">[% 'Factor' | $T8 %]</td>
+  <table width="100%" id="price_factor_list">
+   <tr class="listheading">
+    <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+    <th width="80%">[% 'Description' | $T8 %]</th>
+    <th width="20%">[% 'Factor' | $T8 %]</th>
    </tr>
 
-   [% SET row_odd = '1' %][% FOREACH factor = PRICE_FACTORS %]
-   <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
-    <td>[% IF factor.previous_id %]<a href="[% url_base %]&action=swap_price_factors&id1=[% HTML.url(factor.previous_id) %]&id2=[% HTML.url(factor.id) %]"><img border="0" src="image/up.png"></a>[% END %]</td>
-    <td>[% IF factor.next_id %]<a href="[% url_base %]&action=swap_price_factors&id1=[% HTML.url(factor.next_id) %]&id2=[% HTML.url(factor.id) %]"><img border="0" src="image/down.png"></a>[% END %]</td>
+   [% FOREACH factor = PRICE_FACTORS %]
+   <tr class="listrow[% loop.count % 2 %]" id="price_factor_id_[% factor.id %]">
+    <td align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
     <td><a href="[% url_base %]&action=edit_price_factor&id=[% HTML.url(factor.id) %]">[% HTML.escape(factor.description) %]</a></td>
     <td>[% HTML.escape(factor.factor) %]</td>
    </tr>
@@ -35,6 +37,8 @@
    <input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]">
   </form>
  </p>
+
+ [% L.sortable_element('#price_factor_list tbody', 'url' => 'controller.pl?action=PriceFactor/reorder', 'with' => 'price_factor_id') %]
 
 </body>
 </html>
