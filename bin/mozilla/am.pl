@@ -2687,15 +2687,13 @@ sub edit_units {
   $units = AM->retrieve_units(\%myconfig, $form);
   my $ddbox = AM->unit_select_data($units, undef, 1);
 
-  my $updownlink = build_std_url("action=swap_units");
-
   $form->{"title"} = $locale->text("Add and edit units");
   $form->header();
   print($form->parse_html_template("am/edit_units",
                                    { "UNITS"               => \@unit_list,
                                      "NEW_BASE_UNIT_DDBOX" => $ddbox,
                                      "LANGUAGES"           => \@languages,
-                                     "updownlink"          => $updownlink }));
+                                   }));
 
   $main::lxdebug->leave_sub();
 }
@@ -2929,22 +2927,6 @@ sub show_am_history {
                                      'callback'       => $callback,
                                    });
   $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
-}
-
-sub swap_units {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('config');
-
-  my $dir = $form->{"dir"} eq "down" ? "down" : "up";
-  AM->swap_units(\%myconfig, $form, $dir, $form->{"name"});
-
-  edit_units();
 
   $main::lxdebug->leave_sub();
 }

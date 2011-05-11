@@ -2087,6 +2087,7 @@ $self->{texts} = {
   'quarterly'                   => 'quartalsweise',
   'quotation_list'              => 'angebotsliste',
   'release_material'            => 'Materialausgabebe',
+  'reorder item'                => 'Eintrag umsortieren',
   'report_generator_dispatch_to is not defined.' => 'report_generator_dispatch_to ist nicht definiert.',
   'report_generator_nextsub is not defined.' => 'report_generator_nextsub ist nicht definiert.',
   'request_quotation'           => 'Angebotsanforderung',
