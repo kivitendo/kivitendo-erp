@@ -11,12 +11,15 @@
 
  <p>
   <table width="100%" id="price_factor_list">
+   <thead>
    <tr class="listheading">
     <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
     <th width="80%">[% 'Description' | $T8 %]</th>
     <th width="20%">[% 'Factor' | $T8 %]</th>
    </tr>
+   </thead>
 
+   <tbody>
    [% FOREACH factor = PRICE_FACTORS %]
    <tr class="listrow[% loop.count % 2 %]" id="price_factor_id_[% factor.id %]">
     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
@@ -24,6 +27,7 @@
     <td>[% HTML.escape(factor.factor) %]</td>
    </tr>
    [% END %]
+   </tbody>
   </table>
  </p>
 
@@ -38,7 +42,7 @@
   </form>
  </p>
 
- [% L.sortable_element('#price_factor_list tbody', 'url' => 'controller.pl?action=PriceFactor/reorder', 'with' => 'price_factor_id', handle => '.dragdrop') %]
+ [% L.sortable_element('#price_factor_list tbody', url => 'controller.pl?action=PriceFactor/reorder', with => 'price_factor_id') %]
 
 </body>
 </html>

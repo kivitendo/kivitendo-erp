@@ -438,6 +438,7 @@ JAVASCRIPT
 JAVASCRIPT
   }
 
+  $params{handle}     = '.dragdrop' unless exists $params{handle};
   $attributes{handle} = "'$params{handle}'" if $params{handle};
 
   my $attr_str = join(', ', map { "${_}: $attributes{$_}" } keys %attributes);
@@ -697,9 +698,11 @@ element (see C<$params{with}>).
 =item C<handle>
 
 An optional jQuery selector specifying which part of the child element
-is dragable. If nothing is given then the whole child element is
-dragable, and clicks through to underlying elements like inputs or
-links might not work.
+is dragable. If the parameter is not given then it defaults to
+C<.dragdrop> matching DOM elements with the class C<dragdrop>.  If the
+parameter is set and empty then the whole child element is dragable,
+and clicks through to underlying elements like inputs or links might
+not work.
 
 =item C<dont_recolor>
 
