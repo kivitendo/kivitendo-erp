@@ -649,6 +649,9 @@ sortable with the I<jQuery UI Selectable> library. The children can be
 dragged & dropped around. After dropping an element an URL can be
 postet to with the element IDs of the sorted children.
 
+If this is used then the JavaScript file C<js/jquery-ui.js> must be
+included manually as well as it isn't loaded via C<$::form-gt;header>.
+
 C<%params> can contain the following entries:
 
 =over 2
@@ -676,6 +679,8 @@ element (see C<$params{with}>).
 =back
 
 Example:
+
+  <script type="text/javascript" src="js/jquery-ui.js"></script>
 
   <table id="thing_list">
     <thead>
