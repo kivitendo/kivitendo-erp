@@ -3230,16 +3230,6 @@ sub list_warehouses {
 
   AM->get_all_warehouses(\%myconfig, $form);
 
-  my $previous;
-  foreach my $current (@{ $form->{WAREHOUSES} }) {
-    if ($previous) {
-      $previous->{next_id}    = $current->{id};
-      $current->{previous_id} = $previous->{id};
-    }
-
-    $previous = $current;
-  }
-
   $form->{callback} = build_std_url('action=list_warehouses');
   $form->{title}    = $locale->text('Warehouses');
   $form->{url_base} = build_std_url('callback');
@@ -3268,20 +3258,6 @@ sub save_warehouse {
   $form->{callback} .= '&saved_message=' . E($locale->text('Warehouse saved.')) if ($form->{callback});
 
   $form->redirect($locale->text('Warehouse saved.'));
-
-  $main::lxdebug->leave_sub();
-}
-
-sub swap_warehouses {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('config');
-
-  AM->swap_sortkeys(\%myconfig, $form, 'warehouse');
-  list_warehouses();
 
   $main::lxdebug->leave_sub();
 }
