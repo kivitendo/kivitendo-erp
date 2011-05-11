@@ -396,6 +396,45 @@ EOCODE
   return $code;
 }
 
+sub sortable_element {
+  my ($self, $selector, @slurp) = @_;
+  my %params                    = _hashify(@slurp);
+
+  my %attributes = ( helper => <<JAVASCRIPT );
+    function(event, ui) {
+      ui.children().each(function() {
+        \$(this).width(\$(this).width());
+      });
+      return ui;
+    }
+JAVASCRIPT
+
+  if ($params{url} && $params{with}) {
+    my $as      = $params{as} || $params{with};
+    my $filter  = ".filter(function(idx) { return this.substr(0, " . length($params{with}) . ") == '$params{with}'; })";
+    $filter    .= ".map(function(idx, str) { return str.replace('$params{with}_', ''); })";
+
+    $attributes{stop} = <<JAVASCRIPT;
+      function(event, ui) {
+        \$.post('$params{url}', { '${as}[]': \$(\$('${selector}').sortable('toArray'))${filter}.toArray() });
+        return ui;
+      }
+JAVASCRIPT
+  }
+
+  my $attr_str = join(', ', map { "${_}: $attributes{$_}" } keys %attributes);
+
+  my $code = <<JAVASCRIPT;
+<script type="text/javascript">
+  \$(function() {
+    \$( "${selector}" ).sortable({ ${attr_str} }).disableSelection();
+  });
+</script>
+JAVASCRIPT
+
+  return $code;
+}
+
 sub online_help_tag {
   my ($self, $tag, @slurp) = @_;
   my %params               = _hashify(@slurp);
@@ -602,6 +641,62 @@ The label of the list of selected options. Defaults to the
 translation of 'Selected'.
 
 =back
+
+=item C<sortable_element $selector, %params>
+
+Makes the children of the DOM element C<$selector> (a jQuery selector)
+sortable with the I<jQuery UI Selectable> library. The children can be
+dragged & dropped around. After dropping an element an URL can be
+postet to with the element IDs of the sorted children.
+
+C<%params> can contain the following entries:
+
+=over 2
+
+=item C<url>
+
+The URL to POST an AJAX request to after a dragged element has been
+dropped. The AJAX request's return value is ignored. If given then
+C<$params{with}> must be given as well.
+
+=item C<with>
+
+A string that is interpreted as the prefix of the children's ID. Upon
+POSTing the result each child whose ID starts with C<$params{with}> is
+considered. The prefix and the following "_" is removed from the
+ID. The remaining parts of the IDs of those children are posted as a
+single array parameter. The array parameter's name is either
+C<$params{as}> or, missing that, C<$params{with}>.
+
+=item C<as>
+
+Sets the POST parameter name for AJAX request after dropping an
+element (see C<$params{with}>).
+
+=back
+
+Example:
+
+  <table id="thing_list">
+    <thead>
+      <tr><td>This</td><td>That</td></tr>
+    </thead>
+    <tbody>
+      <tr id="thingy_2"><td>stuff</td><td>more stuff</td></tr>
+      <tr id="thingy_15"><td>stuff</td><td>more stuff</td></tr>
+      <tr id="thingy_6"><td>stuff</td><td>more stuff</td></tr>
+    </tbody>
+  <table>
+
+  [% L.sortable_element('#thing_list tbody',
+                        'url'  => 'controller.pl?action=SystemThings/reorder',
+                        'with' => 'thingy',
+                        'as'   => 'thing_ids') %]
+
+After dropping e.g. the third element at the top of the list a POST
+request would be made to the C<reorder> action of the C<SystemThings>
+controller with a single parameter called C<thing_ids> -- an array
+containing the values C<[ 6, 2, 15 ]>.
 
 =item C<dump REF>
 

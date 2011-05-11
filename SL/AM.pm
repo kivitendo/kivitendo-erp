@@ -2007,43 +2007,6 @@ sub save_units {
   $main::lxdebug->leave_sub();
 }
 
-sub swap_units {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form, $dir, $name_1) = @_;
-
-  my $dbh = $form->dbconnect_noauto($myconfig);
-
-  my $query;
-
-  $query = qq|SELECT sortkey FROM units WHERE name = ?|;
-  my ($sortkey_1) = selectrow_query($form, $dbh, $query, $name_1);
-
-  $query =
-    qq|SELECT sortkey FROM units | .
-    qq|WHERE sortkey | . ($dir eq "down" ? ">" : "<") . qq| ? | .
-    qq|ORDER BY sortkey | . ($dir eq "down" ? "ASC" : "DESC") . qq| LIMIT 1|;
-  my ($sortkey_2) = selectrow_query($form, $dbh, $query, $sortkey_1);
-
-  if (defined($sortkey_1)) {
-    $query = qq|SELECT name FROM units WHERE sortkey = ${sortkey_2}|;
-    my ($name_2) = selectrow_query($form, $dbh, $query);
-
-    if (defined($name_2)) {
-      $query = qq|UPDATE units SET sortkey = ? WHERE name = ?|;
-      my $sth = $dbh->prepare($query);
-
-      do_statement($form, $sth, $query, $sortkey_1, $name_2);
-      do_statement($form, $sth, $query, $sortkey_2, $name_1);
-    }
-  }
-
-  $dbh->commit();
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
-}
-
 sub taxes {
   $main::lxdebug->enter_sub();
 

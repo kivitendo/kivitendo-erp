@@ -2687,15 +2687,13 @@ sub edit_units {
   $units = AM->retrieve_units(\%myconfig, $form);
   my $ddbox = AM->unit_select_data($units, undef, 1);
 
-  my $updownlink = build_std_url("action=swap_units");
-
   $form->{"title"} = $locale->text("Add and edit units");
   $form->header();
   print($form->parse_html_template("am/edit_units",
                                    { "UNITS"               => \@unit_list,
                                      "NEW_BASE_UNIT_DDBOX" => $ddbox,
                                      "LANGUAGES"           => \@languages,
-                                     "updownlink"          => $updownlink }));
+                                   }));
 
   $main::lxdebug->leave_sub();
 }
@@ -2933,22 +2931,6 @@ sub show_am_history {
   $main::lxdebug->leave_sub();
 }
 
-sub swap_units {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('config');
-
-  my $dir = $form->{"dir"} eq "down" ? "down" : "up";
-  AM->swap_units(\%myconfig, $form, $dir, $form->{"name"});
-
-  edit_units();
-
-  $main::lxdebug->leave_sub();
-}
-
 sub add_tax {
   $main::lxdebug->enter_sub();
 
@@ -3141,16 +3123,8 @@ sub list_price_factors {
 
   AM->get_all_price_factors(\%myconfig, \%$form);
 
-  my $previous;
   foreach my $current (@{ $form->{PRICE_FACTORS} }) {
-    if ($previous) {
-      $previous->{next_id}    = $current->{id};
-      $current->{previous_id} = $previous->{id};
-    }
-
     $current->{factor} = $form->format_amount(\%myconfig, $current->{factor} * 1);
-
-    $previous = $current;
   }
 
   $form->{callback} = build_std_url('action=list_price_factors');
@@ -3200,20 +3174,6 @@ sub delete_price_factor {
   $form->{callback} .= '&MESSAGE=' . $form->escape($locale->text('Price factor deleted!')) if ($form->{callback});
 
   $form->redirect($locale->text('Price factor deleted!'));
-
-  $main::lxdebug->leave_sub();
-}
-
-sub swap_price_factors {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('config');
-
-  AM->swap_sortkeys(\%myconfig, $form, 'price_factors');
-  list_price_factors();
 
   $main::lxdebug->leave_sub();
 }
@@ -3270,16 +3230,6 @@ sub list_warehouses {
 
   AM->get_all_warehouses(\%myconfig, $form);
 
-  my $previous;
-  foreach my $current (@{ $form->{WAREHOUSES} }) {
-    if ($previous) {
-      $previous->{next_id}    = $current->{id};
-      $current->{previous_id} = $previous->{id};
-    }
-
-    $previous = $current;
-  }
-
   $form->{callback} = build_std_url('action=list_warehouses');
   $form->{title}    = $locale->text('Warehouses');
   $form->{url_base} = build_std_url('callback');
@@ -3308,20 +3258,6 @@ sub save_warehouse {
   $form->{callback} .= '&saved_message=' . E($locale->text('Warehouse saved.')) if ($form->{callback});
 
   $form->redirect($locale->text('Warehouse saved.'));
-
-  $main::lxdebug->leave_sub();
-}
-
-sub swap_warehouses {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('config');
-
-  AM->swap_sortkeys(\%myconfig, $form, 'warehouse');
-  list_warehouses();
 
   $main::lxdebug->leave_sub();
 }

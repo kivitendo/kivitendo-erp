@@ -15,9 +15,12 @@ __PACKAGE__->meta->setup(
     factor    => { type => 'numeric', precision => 5, scale => 20 },
     type      => { type => 'varchar', length => 20 },
     sortkey   => { type => 'integer', not_null => 1 },
+    id        => { type => 'serial', not_null => 1 },
   ],
 
   primary_key_columns => [ 'name' ],
+
+  unique_key => [ 'id' ],
 
   foreign_keys => [
     unit => {
