@@ -39,7 +39,7 @@
 
     [%- FOREACH cfg = CONFIGS %]
     <tr class="listrow[% loop.count % 2 %]" id="cvarcfg_id_[% cfg.id %]">
-     <td align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
 
      <td>
       <a href="amcvar.pl?action=edit_cvar_config&module=[% HTML.url(module) %]&id=[% HTML.url(cfg.id) %]&callback=[% HTML.url(callback) %]">
@@ -89,7 +89,7 @@
   </p>
  </form>
 
- [% L.sortable_element('#cvarcfg_list tbody', 'url' => 'controller.pl?action=CustomVariableConfig/reorder', 'with' => 'cvarcfg_id') %]
+ [% L.sortable_element('#cvarcfg_list tbody', 'url' => 'controller.pl?action=CustomVariableConfig/reorder', 'with' => 'cvarcfg_id', handle => '.dragdrop') %]
 
 </body>
 </html>

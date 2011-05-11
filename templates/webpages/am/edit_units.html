@@ -100,7 +100,7 @@
   <tbody>
   [% FOREACH row = UNITS %]
    <tr class="listrow[% loop.count % 2 %]" id="unit_id_[% row.id %]">
-    <td align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+    <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
     [% IF row.in_use %]
      <td>
       <input type="hidden" name="unchangeable_[% loop.count %]" value="1">
@@ -145,7 +145,7 @@
 
  </form>
 
- [% L.sortable_element('#unit_list tbody', 'url' => 'controller.pl?action=Unit/reorder', 'with' => 'unit_id') %]
+ [% L.sortable_element('#unit_list tbody', 'url' => 'controller.pl?action=Unit/reorder', 'with' => 'unit_id', handle => '.dragdrop') %]
 
 </body>
 </html>

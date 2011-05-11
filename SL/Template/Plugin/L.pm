@@ -400,10 +400,11 @@ sub sortable_element {
   my ($self, $selector, @slurp) = @_;
   my %params                    = _hashify(@slurp);
 
-  my %attributes = ( helper => <<JAVASCRIPT );
+  my %attributes = ( distance => 5,
+                     helper   => <<'JAVASCRIPT' );
     function(event, ui) {
       ui.children().each(function() {
-        \$(this).width(\$(this).width());
+        $(this).width($(this).width());
       });
       return ui;
     }
@@ -422,12 +423,14 @@ JAVASCRIPT
 JAVASCRIPT
   }
 
+  $attributes{handle} = "'$params{handle}'" if $params{handle};
+
   my $attr_str = join(', ', map { "${_}: $attributes{$_}" } keys %attributes);
 
   my $code = <<JAVASCRIPT;
 <script type="text/javascript">
   \$(function() {
-    \$( "${selector}" ).sortable({ ${attr_str} }).disableSelection();
+    \$( "${selector}" ).sortable({ ${attr_str} })
   });
 </script>
 JAVASCRIPT
@@ -675,6 +678,13 @@ C<$params{as}> or, missing that, C<$params{with}>.
 
 Sets the POST parameter name for AJAX request after dropping an
 element (see C<$params{with}>).
+
+=item C<handle>
+
+An optional jQuery selector specifying which part of the child element
+is dragable. If nothing is given then the whole child element is
+dragable, and clicks through to underlying elements like inputs or
+links might not work.
 
 =back
 
