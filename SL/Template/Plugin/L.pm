@@ -410,14 +410,29 @@ sub sortable_element {
     }
 JAVASCRIPT
 
+  my $stop_event = '';
+
   if ($params{url} && $params{with}) {
     my $as      = $params{as} || $params{with};
     my $filter  = ".filter(function(idx) { return this.substr(0, " . length($params{with}) . ") == '$params{with}'; })";
     $filter    .= ".map(function(idx, str) { return str.replace('$params{with}_', ''); })";
 
+    $stop_event = <<JAVASCRIPT;
+        \$.post('$params{url}', { '${as}[]': \$(\$('${selector}').sortable('toArray'))${filter}.toArray() });
+JAVASCRIPT
+  }
+
+  if (!$params{dont_recolor}) {
+    $stop_event .= <<JAVASCRIPT;
+        \$('${selector}>*:odd').removeClass('listrow1').removeClass('listrow0').addClass('listrow0');
+        \$('${selector}>*:even').removeClass('listrow1').removeClass('listrow0').addClass('listrow1');
+JAVASCRIPT
+  }
+
+  if ($stop_event) {
     $attributes{stop} = <<JAVASCRIPT;
       function(event, ui) {
-        \$.post('$params{url}', { '${as}[]': \$(\$('${selector}').sortable('toArray'))${filter}.toArray() });
+        ${stop_event}
         return ui;
       }
 JAVASCRIPT
@@ -686,6 +701,12 @@ is dragable. If nothing is given then the whole child element is
 dragable, and clicks through to underlying elements like inputs or
 links might not work.
 
+=item C<dont_recolor>
+
+If trueish then the children will not be recolored. The default is to
+recolor the children by setting the class C<listrow0> on odd and
+C<listrow1> on even entries.
+
 =back
 
 Example:
@@ -704,9 +725,10 @@ Example:
   <table>
 
   [% L.sortable_element('#thing_list tbody',
-                        'url'  => 'controller.pl?action=SystemThings/reorder',
-                        'with' => 'thingy',
-                        'as'   => 'thing_ids') %]
+                        url          => 'controller.pl?action=SystemThings/reorder',
+                        with         => 'thingy',
+                        as           => 'thing_ids',
+                        recolor_rows => 1) %]
 
 After dropping e.g. the third element at the top of the list a POST
 request would be made to the C<reorder> action of the C<SystemThings>
