@@ -199,6 +199,9 @@ sub get_account {
 sub save_account {
   $main::lxdebug->enter_sub();
 
+  # TODO: it should be forbidden to change an account to a heading if there
+  # have been bookings to this account in the past
+
   my ($self, $myconfig, $form) = @_;
 
   # connect to database, turn off AutoCommit
@@ -242,7 +245,23 @@ sub save_account {
 
   my @values;
 
+
   if ($form->{id}) {
+
+    # if charttype is heading make sure certain values are empty
+    # specifically, if charttype is changed from an existing account, empty the
+    # fields unnecessary for headings, so that e.g. heading doesn't appear in 
+    # drop-down menues due to still having a valid "link" entry
+
+    if ( $form->{charttype} eq 'H' ) {
+      $form->{link} = '';
+      $form->{pos_bwa} = '';
+      $form->{pos_bilanz} = '';
+      $form->{pos_eur} = '';
+      $form->{new_chart_id} = '';
+      $form->{valid_from} = '';
+    };
+
     $query = qq|UPDATE chart SET
                   accno = ?,
                   description = ?,
@@ -271,6 +290,7 @@ sub save_account {
                   ($form->{datevautomatik} eq 'T') ? 'true':'false',
                 $form->{id},
     );
+
 
   }
 

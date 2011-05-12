@@ -22,8 +22,8 @@
   Liste gefixter Bugs aus dem Bugtracker:
 
   - Bugfix 1613: Status teilweise
-  - Bugfix 1642:  Lieferantenrabatt wird korrekt gespeichert, aber nicht mehr angezeigt
-
+  - Bugfix 1642: Lieferantenrabatt wird korrekt gespeichert, aber nicht mehr angezeigt
+  - Bugfix 1626: Beim Festlegen der Standardkonten kann beim Warenbestand eine Überschrift ausgewählt werden.
 
 
 2011-02-02 - Release 2.6.2
