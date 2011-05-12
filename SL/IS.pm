@@ -2035,27 +2035,27 @@ sub get_pricegroups_for_parts {
     }
 
     my $query =
-      qq|SELECT
+       qq|SELECT
+            0 as pricegroup_id,
+            sellprice AS default_sellprice,
+            '' AS pricegroup,
+            sellprice AS price,
+            'selected' AS selected
+          FROM parts
+          WHERE id = ?
+          UNION ALL
+          SELECT
            pricegroup_id,
-           (SELECT p.sellprice FROM parts p WHERE p.id = ?) AS default_sellprice,
-           (SELECT pg.pricegroup FROM pricegroup pg WHERE id = pricegroup_id) AS pricegroup,
+           parts.sellprice AS default_sellprice,
+           pricegroup.pricegroup,
            price,
            '' AS selected
           FROM prices
+          LEFT JOIN parts ON parts.id = parts_id
+          LEFT JOIN pricegroup ON pricegroup.id = pricegroup_id
           WHERE parts_id = ?
-
-          UNION
-
-          SELECT
-            0 as pricegroup_id,
-            (SELECT sellprice FROM parts WHERE id = ?) AS default_sellprice,
-            '' AS pricegroup,
-            (SELECT DISTINCT sellprice FROM parts where id = ?) AS price,
-            'selected' AS selected
-          FROM prices
-
           ORDER BY pricegroup|;
-    my @values = (conv_i($id), conv_i($id), conv_i($id), conv_i($id));
+    my @values = (conv_i($id), conv_i($id));
     my $pkq = prepare_execute_query($form, $dbh, $query, @values);
 
     while (my $pkr = $pkq->fetchrow_hashref('NAME_lc')) {
