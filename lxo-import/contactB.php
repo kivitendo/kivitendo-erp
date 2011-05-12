@@ -12,11 +12,18 @@ Web: http://lx-system.de
 
 */
 if (!$_SESSION["db"]) {
-	$conffile="../config/authentication.pl";
+	$conffile="../config/lx_office.conf";
 	if (!is_file($conffile)) {
 		ende(4);
 	}
 }
+
+function ende($nr) {
+  echo "Abbruch: $nr\n";
+  exit($nr);
+}
+
+
 require ("import_lib.php");
 
 if (!anmelden()) ende(5);
@@ -41,10 +48,6 @@ if ($_POST["ok"]) {
 	}
 	$nun=time();
 
-	function ende($nr) {
-		echo "Abbruch: $nr\n";
-		exit($nr);
-	}
 	if ($_POST["ok"]=="Hilfe") {
 		echo "Importfelder:<br>";
 		echo "Feldname => Bedeutung<br>";

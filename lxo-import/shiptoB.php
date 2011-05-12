@@ -30,9 +30,9 @@ Web: http://www.linet-services.de, http://www.lx-system.de
     };
 
 if (!$_SESSION["db"]) {
-    $conffile="../config/authentication.pl";
+    $conffile="../config/lx_office.conf";
     if (!is_file($conffile)) {
-        ende("authentication.pl nicht gefunden oder unlesbar");
+        ende("lx_office.conf nicht gefunden oder unlesbar");
     }
 }
 
