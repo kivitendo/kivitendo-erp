@@ -1767,8 +1767,6 @@ sub sales_order {
 sub poso {
   $main::lxdebug->enter_sub();
 
-  $::form->{"Watchdog::shipto_id"} = 2;
-
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
