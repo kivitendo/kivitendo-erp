@@ -1904,10 +1904,12 @@ sub set_payment_options {
 
   if ($self->{"language_id"}) {
     $query =
-      qq|SELECT t.description_long, l.output_numberformat, l.output_dateformat, l.output_longdates | .
-      qq|FROM translation_payment_terms t | .
+      qq|SELECT t.translation, l.output_numberformat, l.output_dateformat, l.output_longdates | .
+      qq|FROM generic_translations t | .
       qq|LEFT JOIN language l ON t.language_id = l.id | .
-      qq|WHERE (t.language_id = ?) AND (t.payment_terms_id = ?)|;
+      qq|WHERE (t.language_id = ?)
+           AND (t.translation_id = ?)
+           AND (t.translation_type = 'SL::DB::PaymentTerm/description_long')|;
     my ($description_long, $output_numberformat, $output_dateformat,
       $output_longdates) =
       selectrow_query($self, $dbh, $query,

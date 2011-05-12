@@ -1,0 +1,57 @@
+[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %]
+<body>
+ <div class="listtop">[% FORM.title %]</div>
+
+[%- INCLUDE 'common/flash.html' %]
+
+ <form method="post" action="controller.pl">
+  [% IF !PAYMENT_TERMS.size %]
+   <p>
+    [%- 'No payment term has been created yet.' | $T8 %]
+   </p>
+
+  [%- ELSE %]
+   <table>
+    <tr class="listheading">
+     <th align="center"><img src="image/up.png"></th>
+     <th align="center"><img src="image/down.png"></th>
+     <th>[%- 'Description' | $T8 %]</th>
+     <th>[%- 'Long Description' | $T8 %]</th>
+     <th align="right">[%- 'Netto Terms' | $T8 %]</th>
+     <th align="right">[%- 'Skonto Terms' | $T8 %]</th>
+     <th align="right">[%- 'Skonto' | $T8 %]</th>
+    </tr>
+
+    [%- FOREACH payment_term = PAYMENT_TERMS %]
+    <tr class="listrow[% loop.count % 2 %]">
+     <td align="center">
+      [%- UNLESS loop.first %]
+       <a href="[% SELF.url_for(action => 'move_up', id => payment_term.id) %]"><img src="image/up.png" border="0"></a>
+      [%- END %]
+     </td>
+     <td align="center">
+      [%- UNLESS loop.last %]
+       <a href="[% SELF.url_for(action => 'move_down', id => payment_term.id) %]"><img src="image/down.png" border="0"></a>
+      [%- END %]
+     </td>
+     <td>
+      <a href="[% SELF.url_for(action => 'edit', id => payment_term.id) %]">
+       [%- HTML.escape(payment_term.description) %]
+      </a>
+     </td>
+     <td>[%- HTML.escape(payment_term.description_long) %]</td>
+     <td align="right">[%- HTML.escape(payment_term.terms_netto_as_number) %]</td>
+     <td align="right">[%- HTML.escape(payment_term.terms_skonto_as_number) %]</td>
+     <td align="right">[%- HTML.escape(payment_term.percent_skonto_as_number) %] %</td>
+    </tr>
+    [%- END %]
+   </table>
+  [%- END %]
+
+  <p>
+   <a href="[% SELF.url_for(action => 'new') %]">[%- 'Create new payment term' | $T8 %]</a>
+  </p>
+ </form>
+
+</body>
+</html>
