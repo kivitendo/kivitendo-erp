@@ -238,14 +238,14 @@ sub order_links {
 
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id));
   $form->{shipto} = 1 if $form->{id};
 
   # get customer / vendor
   IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;
   IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
 
-  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id shipto_id));
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
   $form->{forex}       = $form->{exchangerate};
@@ -1766,6 +1766,8 @@ sub sales_order {
 
 sub poso {
   $main::lxdebug->enter_sub();
+
+  $::form->{"Watchdog::shipto_id"} = 2;
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
