@@ -1637,7 +1637,24 @@ sub date_closed {
   my $dbh = $self->dbconnect($myconfig);
 
   my $query = "SELECT 1 FROM defaults WHERE ? < closedto";
-  my $sth = prepare_execute_query($self, $dbh, $query, $date);
+  my $sth = prepare_execute_query($self, $dbh, $query, conv_date($date));
+
+  # Falls $date = '' - Fehlermeldung aus der Datenbank. Ich denke,
+  # es ist sicher ein conv_date vorher IMMER auszuführen.
+  # Testfälle ohne definiertes closedto:
+  #   Leere Datumseingabe i.O.
+  #     SELECT 1 FROM defaults WHERE '' < closedto
+  #   normale Zahlungsbuchung über Rechnungsmaske i.O.
+  #     SELECT 1 FROM defaults WHERE '10.05.2011' < closedto 
+  # Testfälle mit definiertem closedto (30.04.2011):
+  #  Leere Datumseingabe i.O.
+  #   SELECT 1 FROM defaults WHERE '' < closedto
+  # normale Buchung im geschloßenem Zeitraum i.O.
+  #   SELECT 1 FROM defaults WHERE '21.04.2011' < closedto
+  #     Fehlermeldung: Es können keine Zahlungen für abgeschlossene Bücher gebucht werden!
+  # normale Buchung in aktiver Buchungsperiode i.O.
+  #   SELECT 1 FROM defaults WHERE '01.05.2011' < closedto
+
   my ($closed) = $sth->fetchrow_array;
 
   $main::lxdebug->leave_sub();
