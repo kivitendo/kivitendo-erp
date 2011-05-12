@@ -9,6 +9,7 @@ use SL::DB;
 use SL::DB::Helper::Attr;
 use SL::DB::Helper::Metadata;
 use SL::DB::Helper::Manager;
+use SL::DB::Object::Hooks;
 
 use base qw(Rose::DB::Object);
 
@@ -92,6 +93,41 @@ sub call_sub_if {
   $check    = $check->($self) if ref($check) eq 'CODE';
 
   return $check ? $self->$sub(@_) : $self;
+}
+
+# These three functions cannot sit in SL::DB::Object::Hooks because
+# mixins don't deal well with super classes (SUPER is the current
+# package's super class, not $self's).
+sub load {
+  my ($self, @args) = @_;
+
+  SL::DB::Object::Hooks::run_hooks($self, 'before_load');
+  my $result = $self->SUPER::load(@args);
+  SL::DB::Object::Hooks::run_hooks($self, 'after_load', $result);
+
+  return $result;
+}
+
+sub save {
+  my ($self, @args) = @_;
+  my $worker        = sub {
+    SL::DB::Object::Hooks::run_hooks($self, 'before_save');
+    my $result = $self->SUPER::save(@args);
+    SL::DB::Object::Hooks::run_hooks($self, 'after_save', $result);
+  };
+
+  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+}
+
+sub delete {
+  my ($self, @args) = @_;
+  my $worker        = sub {
+    SL::DB::Object::Hooks::run_hooks($self, 'before_delete');
+    my $result = $self->SUPER::delete(@args);
+    SL::DB::Object::Hooks::run_hooks($self, 'after_delete', $result);
+  };
+
+  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
 }
 
 1;
