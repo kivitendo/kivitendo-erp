@@ -118,8 +118,8 @@ C<after_xyz> function names above.
 An exception of C<SL::X::DBHookError> is thrown if any of the hooks
 returns a falsish value.
 
-This function is supposed to be called by L</SL::DB::Object::load>,
-L</SL::DB::Object::save> or L</SL::DB::Object::delete>.
+This function is supposed to be called by L<Rose::DB::Object/load>,
+L<Rose::DB::Object/save> or L<Rose::DB::Object/delete>.
 
 =back
 
