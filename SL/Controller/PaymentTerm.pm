@@ -64,16 +64,17 @@ sub action_destroy {
   $self->redirect_to(action => 'list');
 }
 
-sub action_move_up {
+sub action_reorder {
   my ($self) = @_;
-  $self->{payment_term}->move_position_up;
-  $self->redirect_to(action => 'list');
-}
 
-sub action_move_down {
-  my ($self) = @_;
-  $self->{payment_term}->move_position_down;
-  $self->redirect_to(action => 'list');
+  my @ids = @{ $::form->{payment_term_id} || [] };
+  my $result = SL::DB::PaymentTerm->new->db->do_transaction(sub {
+    foreach my $idx (0 .. scalar(@ids) - 1) {
+      SL::DB::PaymentTerm->new(id => $ids[$idx])->load->update_attributes(sortkey => $idx + 1);
+    }
+  });
+
+  $self->render(type => 'js', inline => '1;');
 }
 
 #
