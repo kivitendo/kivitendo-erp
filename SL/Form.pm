@@ -2381,7 +2381,7 @@ $main::lxdebug->enter_sub();
 
   $key = "all_payments" unless ($key);
 
-  my $query = qq|SELECT * FROM payment_terms ORDER BY id|;
+  my $query = qq|SELECT * FROM payment_terms ORDER BY sortkey|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
