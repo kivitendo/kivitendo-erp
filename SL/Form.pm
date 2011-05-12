@@ -779,13 +779,6 @@ sub _prepare_html_template {
   $language = "de" unless ($language);
 
   if (-f "templates/webpages/${file}.html") {
-    if ((-f ".developer") && ((stat("templates/webpages/${file}.html"))[9] > (stat("locale/${language}/all"))[9])) {
-      my $info = "Developer information: templates/webpages/${file}.html is newer than the translation file locale/${language}/all.\n" .
-        "Please re-run 'locales.pl' in 'locale/${language}'.";
-      print(qq|<pre>$info</pre>|);
-      ::end_of_request();
-    }
-
     $file = "templates/webpages/${file}.html";
 
   } else {
