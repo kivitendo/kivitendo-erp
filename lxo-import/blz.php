@@ -30,7 +30,7 @@ if ($_POST["ok"]=="Hilfe") {
 	require ("import_lib.php");
 
 	if (!$_SESSION["db"]) {
-		$conffile="../config/authentication.pl";
+		$conffile="../config/lx_office.conf";
 		if (!is_file($conffile)) {
 			ende(4);
 		}

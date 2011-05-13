@@ -544,7 +544,7 @@ sub list_transactions {
     'ustrate'     => { 'text' => $locale->text('Satz %'), },
  );
 
-  my @hidden_variables = qw(accno fromdate todate description accounttype l_heading subtotal department projectnumber project_id sort);
+  my @hidden_variables = qw(accno fromdate todate description accounttype l_heading subtotal department projectnumber project_id sort method);
 
   my $link = build_std_url('action=list_transactions', grep { $form->{$_} } @hidden_variables);
 

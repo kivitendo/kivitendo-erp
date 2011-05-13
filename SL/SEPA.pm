@@ -21,7 +21,7 @@ sub retrieve_open_invoices {
 
   my $query =
     qq|
-       SELECT ${arap}.id, ${arap}.invnumber, ${arap}.${vc}_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
+       SELECT ${arap}.id, ${arap}.invnumber, ${arap}.${vc}_id as vc_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
          vc.name AS vcname, vc.language_id, ${arap}.duedate as duedate,
 
          COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' AS vc_bank_info_ok,

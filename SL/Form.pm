@@ -779,13 +779,6 @@ sub _prepare_html_template {
   $language = "de" unless ($language);
 
   if (-f "templates/webpages/${file}.html") {
-    if ((-f ".developer") && ((stat("templates/webpages/${file}.html"))[9] > (stat("locale/${language}/all"))[9])) {
-      my $info = "Developer information: templates/webpages/${file}.html is newer than the translation file locale/${language}/all.\n" .
-        "Please re-run 'locales.pl' in 'locale/${language}'.";
-      print(qq|<pre>$info</pre>|);
-      ::end_of_request();
-    }
-
     $file = "templates/webpages/${file}.html";
 
   } else {
@@ -1637,7 +1630,24 @@ sub date_closed {
   my $dbh = $self->dbconnect($myconfig);
 
   my $query = "SELECT 1 FROM defaults WHERE ? < closedto";
-  my $sth = prepare_execute_query($self, $dbh, $query, $date);
+  my $sth = prepare_execute_query($self, $dbh, $query, conv_date($date));
+
+  # Falls $date = '' - Fehlermeldung aus der Datenbank. Ich denke,
+  # es ist sicher ein conv_date vorher IMMER auszuführen.
+  # Testfälle ohne definiertes closedto:
+  #   Leere Datumseingabe i.O.
+  #     SELECT 1 FROM defaults WHERE '' < closedto
+  #   normale Zahlungsbuchung über Rechnungsmaske i.O.
+  #     SELECT 1 FROM defaults WHERE '10.05.2011' < closedto 
+  # Testfälle mit definiertem closedto (30.04.2011):
+  #  Leere Datumseingabe i.O.
+  #   SELECT 1 FROM defaults WHERE '' < closedto
+  # normale Buchung im geschloßenem Zeitraum i.O.
+  #   SELECT 1 FROM defaults WHERE '21.04.2011' < closedto
+  #     Fehlermeldung: Es können keine Zahlungen für abgeschlossene Bücher gebucht werden!
+  # normale Buchung in aktiver Buchungsperiode i.O.
+  #   SELECT 1 FROM defaults WHERE '01.05.2011' < closedto
+
   my ($closed) = $sth->fetchrow_array;
 
   $main::lxdebug->leave_sub();
@@ -1904,10 +1914,12 @@ sub set_payment_options {
 
   if ($self->{"language_id"}) {
     $query =
-      qq|SELECT t.description_long, l.output_numberformat, l.output_dateformat, l.output_longdates | .
-      qq|FROM translation_payment_terms t | .
+      qq|SELECT t.translation, l.output_numberformat, l.output_dateformat, l.output_longdates | .
+      qq|FROM generic_translations t | .
       qq|LEFT JOIN language l ON t.language_id = l.id | .
-      qq|WHERE (t.language_id = ?) AND (t.payment_terms_id = ?)|;
+      qq|WHERE (t.language_id = ?)
+           AND (t.translation_id = ?)
+           AND (t.translation_type = 'SL::DB::PaymentTerm/description_long')|;
     my ($description_long, $output_numberformat, $output_dateformat,
       $output_longdates) =
       selectrow_query($self, $dbh, $query,
@@ -2381,7 +2393,7 @@ $main::lxdebug->enter_sub();
 
   $key = "all_payments" unless ($key);
 
-  my $query = qq|SELECT * FROM payment_terms ORDER BY id|;
+  my $query = qq|SELECT * FROM payment_terms ORDER BY sortkey|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 

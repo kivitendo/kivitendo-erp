@@ -14,10 +14,15 @@ Web: http://lx-system.de
 
 require ("import_lib.php");
 
+function ende($txt) {
+  echo "Abbruch: $txt<br>";
+  exit(1);
+}
+
 if (!$_SESSION["db"]) {
-    $conffile="../config/authentication.pl";
+    $conffile="../config/lx_office.conf";
     if (!is_file($conffile)) {
-        ende("authentication.pl nicht gefunden oder unlesbar");
+        ende("lx_office.conf nicht gefunden oder unlesbar");
     }
 }
 
@@ -44,10 +49,6 @@ $db=$_SESSION["db"]; //new myDB($login);
 
 $crm=checkCRM();
 
-function ende($txt) {
-    echo "Abbruch: $txt<br>";
-    exit(1);
-}
 $dir = "../users/";
 clearstatcache ();
 //print_r($_FILES);

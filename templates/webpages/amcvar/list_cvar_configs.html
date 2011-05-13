@@ -25,6 +25,7 @@
 
   <p>
    <table width="100%" id="cvarcfg_list">
+    <thead>
     <tr class="listheading">
      <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
      <th width="20%">[% 'Name' | $T8 %]</th>
@@ -36,7 +37,9 @@
      <th width="20%">[% 'Editable' | $T8 %]</th>
      [%- END %]
     </tr>
+    </thead>
 
+    <tbody>
     [%- FOREACH cfg = CONFIGS %]
     <tr class="listrow[% loop.count % 2 %]" id="cvarcfg_id_[% cfg.id %]">
      <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
@@ -79,6 +82,7 @@
      [%- END %]
     </tr>
     [%- END %]
+    </tbody>
    </table>
   </p>
 
@@ -89,7 +93,7 @@
   </p>
  </form>
 
- [% L.sortable_element('#cvarcfg_list tbody', 'url' => 'controller.pl?action=CustomVariableConfig/reorder', 'with' => 'cvarcfg_id', handle => '.dragdrop') %]
+ [% L.sortable_element('#cvarcfg_list tbody', url => 'controller.pl?action=CustomVariableConfig/reorder', with => 'cvarcfg_id') %]
 
 </body>
 </html>

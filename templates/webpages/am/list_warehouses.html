@@ -39,7 +39,7 @@
   </form>
  </p>
 
- [% L.sortable_element('#warehouse_list tbody', 'url' => 'controller.pl?action=Warehouse/reorder', 'with' => 'warehouse_id', handle => '.dragdrop') %]
+ [% L.sortable_element('#warehouse_list tbody', url => 'controller.pl?action=Warehouse/reorder', with => 'warehouse_id') %]
 
 </body>
 </html>
