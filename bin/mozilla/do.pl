@@ -337,7 +337,19 @@ sub update_delivery_order {
   $payment_id = $form->{payment_id} if $form->{payment_id};
 
   check_name($form->{vc});
-
+  $form->{discount} =  $form->{"$form->{vc}_discount"} if defined $form->{"$form->{vc}_discount"};
+  # Problem: Wenn man ohne Erneuern einen Kunden/Lieferanten
+  # wechselt, wird der entsprechende Kunden/ Lieferantenrabatt
+  # nicht übernommen. Grundproblem: In Commit 82574e78
+  # hab ich aus discount customer_discount und vendor_discount
+  # gemacht und entsprechend an den Oberflächen richtig hin-
+  # geschoben. Die damals bessere Lösung wäre gewesen:
+  # In den Templates nur die hidden für form-discount wieder ein-
+  # setzen dann wäre die Verrenkung jetzt nicht notwendig.
+  # TODO: Ggf. Bugfix 1284, 1575 und 817 wieder zusammenführen
+  # Testfälle: Kunden mit Rabatt 0 -> Rabatt 20 i.O.
+  #            Kunde mit Rabatt 20 -> Rabatt 0  i.O.
+  #            Kunde mit Rabatt 20 -> Rabatt 5,5 i.O.
   $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
 
   # for pricegroups
