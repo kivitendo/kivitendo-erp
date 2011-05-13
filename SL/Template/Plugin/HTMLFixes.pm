@@ -17,7 +17,7 @@ use Encode;
 # creating invalid UTF-8 characters upon URL-unescaping.
 
 # The only addition is the "Encode::encode()" line.
-
+no warnings 'redefine';
 sub url {
     my ($self, $text) = @_;
     return undef unless defined $text;
