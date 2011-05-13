@@ -11,7 +11,8 @@ lokalen Installation, und findet sich auch nicht im Git Repository.  Diese
 Konfigurationsdatei ist unabhängig von den verschiedenen Mandanten, die auf der
 Installation laufen.
 
-Die Konfigurationsdatei besteht aus mehreren Teilen, die entsprechend kommentiert sind:
+Die Konfigurationsdatei besteht aus mehreren Teilen, die entsprechend
+kommentiert sind:
 
 * authentication
 * authentication/database
@@ -27,7 +28,8 @@ Die Konfigurationsdatei besteht aus mehreren Teilen, die entsprechend kommentier
 * console
 * debug
 
-Die üblicherweise wichtigsten Parameter, die am Anfang einzustellen oder zu kontrollieren sind, sind:
+Die üblicherweise wichtigsten Parameter, die am Anfang einzustellen oder zu
+kontrollieren sind, sind:
 
 [authentication]
 admin_password = geheim
@@ -61,3 +63,8 @@ In älteren Lx-Office Versionen gab es im Verzeichnis config die Dateien
 authentication.pl und lx-erp.conf, die jeweils Perl-Dateien waren. Es gab auch
 die Möglichkeit, eine lokale Version der Konfigurationsdatei zu erstellen
 (lx-erp-local.conf), dies ist ab 2.6.3 auch nicht mehr möglich/nötig.
+
+Beim Update von einer älteren Lx-Office Version auf 2.6.3 müssen die
+Einstellungen aus den alten Konfigurationsdateien manuell übertragen werden und
+die alten Konfigurationsdateien gelöscht oder verschoben werden, sonst kommt es
+zu einer Fehlermeldung.
