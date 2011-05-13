@@ -6,6 +6,19 @@
 
 
 
+  Größere neue Features:
+
+  - Es ist jetzt möglich wiederkehrende Rechnungen zu definieren und zu
+    konfigurieren, dies geschieht im Formular für den Verkaufsauftrag.
+    Mögliche Periodizitäten sind monatlich/quartalsweise/jährlich. Die
+    Hauptkonfiguration hierzu findet sich in der lx_office.conf im Abschnitt
+    [periodic_invoices]
+
+  - Die Überprüfung, wann wiederkehrende Rechnungen erstellt werden sollen,
+    geschieht durch ein weiteres neues Feature, den Taskserver.  Konfiguriert
+    wird der Taskserver in der lx_office.conf im Abschnitt [task_server]. Der
+    Taskserver läuft als eigener daemon im System, ähnlich cron.
+
   Kleinere neue Features und Detailverbesserungen:
 
   - Beim Laden von Rechnungsentwürfen, das Fälligkeits- und Rechnungsdatum duch
