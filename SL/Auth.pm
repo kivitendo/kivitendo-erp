@@ -256,7 +256,7 @@ sub create_database {
   my $encoding   = $Common::charset_to_db_encoding{$charset};
   $encoding    ||= 'UNICODE';
 
-  my $dbh        = SL::DBConnect->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => $charset =~ m/^utf-?8$/i });
+  my $dbh        = SL::DBConnect->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => scalar($charset =~ m/^utf-?8$/i) });
 
   if (!$dbh) {
     $main::form->error($main::locale->text('The connection to the template database failed:') . "\n" . $DBI::errstr);
