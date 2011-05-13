@@ -1,0 +1,26 @@
+body {
+  margin: 0;
+  color: white;
+  background: url('../../image/fade.png') repeat-x;
+}
+
+a:link, a:visited, a:hover, a:active {
+  color: white;
+}
+
+body > * {
+  font-size: 12px;
+  font-family: verdana,arial,sans-serif;
+  vertical-align: middle;
+}
+
+table {
+  border: 0;
+  width: 100%;
+  background: url('../../image/bg_titel.gif');
+  border-spacing: 0;
+}
+
+td {
+  padding: 0;
+}

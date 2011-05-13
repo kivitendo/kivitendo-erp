@@ -188,7 +188,7 @@ sub handle_request {
 
     $::form->error($::locale->text('System currently down for maintenance!')) if -e ($::lx_office_conf{paths}->{userspath} . "/nologin") && $script ne 'admin';
 
-    if ($script eq 'login' or $script eq 'admin' or $script eq 'kopf') {
+    if ($script eq 'login' or $script eq 'admin') {
       $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";
       ::run($session_result);
 

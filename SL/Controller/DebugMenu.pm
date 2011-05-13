@@ -9,7 +9,7 @@ __PACKAGE__->run_before(sub { die 'not allowed in config' unless $::lx_office_co
 sub action_reload {
   my ($self, %params) = @_;
 
-  print $::cgi->redirect('kopf.pl');
+  print $::cgi->redirect('controller.pl?action=FrameHeader/header');
   exit;
 }
 
@@ -17,7 +17,7 @@ sub action_toggle {
   my ($self, %params) = @_;
 
   $::lxdebug->level_by_name($::form->{level}, !$::lxdebug->level_by_name($::form->{level}));
-  print $::cgi->redirect('kopf.pl');
+  print $::cgi->redirect('controller.pl?action=FrameHeader/header');
   return;
 }
 
