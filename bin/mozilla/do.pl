@@ -401,6 +401,7 @@ sub update_delivery_order {
           && ($form->{"description_$i"} eq "")) {
         $form->{rowcount}--;
         $form->{"discount_$i"} = "";
+        $form->{"not_discountable_$i"} = "";
         display_form();
 
       } else {
@@ -745,9 +746,13 @@ sub invoice {
 
   for my $i (1 .. $form->{rowcount}) {
     # für bug 1284
-    if ($form->{discount}){ # Falls wir einen Lieferanten-/Kundenrabatt haben
-      # und keinen anderen discount wert an $i ...
-      $form->{"discount_$i"} ||= $form->{discount}*100; # ... nehmen wir diesen Rabatt
+    unless ($form->{"ordnumber"}) {
+      if ($form->{discount}) { # Falls wir einen Lieferanten-/Kundenrabatt haben
+        # und rabattfähig sind, dann
+        unless ($form->{"not_discountable_$i"}) {
+          $form->{"discount_$i"} = $form->{discount}*100; # ... nehmen wir diesen Rabatt
+        }
+      }
     }
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice lastcost basefactor);
   }
