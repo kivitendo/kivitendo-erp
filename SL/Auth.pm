@@ -598,37 +598,7 @@ sub _create_session_id {
 }
 
 sub create_or_refresh_session {
-  $main::lxdebug->enter_sub();
-
-  my $self = shift;
-
-  $session_id ||= $self->_create_session_id();
-
-  my ($form, $dbh, $query, $sth, $id);
-
-  $form  = $main::form;
-  $dbh   = $self->dbconnect();
-
-  $dbh->begin_work;
-  do_query($::form, $dbh, qq|LOCK auth.session_content|);
-
-  $query = qq|SELECT id FROM auth.session WHERE id = ?|;
-
-  ($id)  = selectrow_query($form, $dbh, $query, $session_id);
-
-  if ($id) {
-    do_query($form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
-
-  } else {
-    do_query($form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
-
-  }
-
-  $self->save_session($dbh);
-
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
+  $session_id ||= shift->_create_session_id;
 }
 
 sub save_session {
@@ -644,6 +614,16 @@ sub save_session {
 
   do_query($::form, $dbh, qq|LOCK auth.session_content|);
   do_query($::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
+
+  my $query = qq|SELECT id FROM auth.session WHERE id = ?|;
+
+  my ($id)  = selectrow_query($::form, $dbh, $query, $session_id);
+
+  if ($id) {
+    do_query($::form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
+  } else {
+    do_query($::form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
+  }
 
   if (%{ $self->{SESSION} }) {
     my $query = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
