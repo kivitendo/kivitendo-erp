@@ -35,7 +35,7 @@ password =
 # the LDAP server the passwords are verified against by doing a LDAP
 # bind operation.
 #
-# At least the parameters 'host', 'aatribute' and 'base_dn' have to be
+# At least the parameters 'host', 'attribute' and 'base_dn' have to be
 # specified.
 #
 # tls:       Activate encryption via TLS
@@ -65,8 +65,8 @@ eur = 1
 # "de_DE" (new German) and "en" (English, not perfect) are available.
 language = de
 
-# The database charset. Must match the database cluster you want to
-# connect to.
+# The database charset. Must match the encoding of the database cluster you want to
+# connect to. (Used on the shell command to create a database "pg_createcluster". Option "-e <encoding>".)
 dbcharset = UTF-8
 
 [features]
