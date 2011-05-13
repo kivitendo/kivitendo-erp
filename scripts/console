@@ -18,6 +18,7 @@ SL::LxOfficeConf->read;
 
 my $login        = shift || $::lx_office_conf{console}{login}        || 'demo';
 my $history_file =          $::lx_office_conf{console}{history_file} || '/tmp/lxoffice_console_history.log'; # fallback if users is not writable
+my $debug_file   =          $::lx_office_conf{Console}{log_file}     || '/tmp/lxoffice_console_debug.log';
 my $autorun      =          $::lx_office_conf{console}{autorun};
 
 # will be configed eventually
@@ -58,7 +59,7 @@ sub lxinit {
 
   package main;
 
-  $::lxdebug = LXDebug->new;
+  $::lxdebug = LXDebug->new(file => $debug_file);
   $::locale = Locale->new($::lx_office_conf{system}->{language});
   $::cgi    = CGI->new qw();
   $::form   = Form->new;

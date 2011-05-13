@@ -292,4 +292,8 @@ sub want_request_timer {
   $global_level & REQUEST_TIMER;
 }
 
+sub file {
+  @_ == 2 ? $_[0]->{file} = $_[1] : $_[0]->{file};
+}
+
 1;

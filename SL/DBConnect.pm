@@ -12,7 +12,7 @@ sub connect {
   require Log::Log4perl;
   require DBIx::Log4perl;
 
-  my $filename =  $LXDebug::file_name;
+  my $filename =  $::lxdebug->file;
   my $config   =  $::lx_office_conf{debug}->{dbix_log4perl_config};
   $config      =~ s/LXDEBUGFILE/${filename}/g;
 
