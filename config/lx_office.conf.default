@@ -222,6 +222,9 @@ global_level = NONE
 # default.
 watch_form = 0
 
+# Im HTML Menü ein Hilfsmenü zur Debugsteuerung zeigen.
+show_debug_menu = 0
+
 # If you want to debug the creation of LaTeX files then set this to 1.
 # That way the temporary LaTeX files created during PDF creation are
 # not removed and remain in the "users" directory.

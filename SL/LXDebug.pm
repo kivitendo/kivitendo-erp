@@ -296,4 +296,20 @@ sub file {
   @_ == 2 ? $_[0]->{file} = $_[1] : $_[0]->{file};
 }
 
+sub _by_name {
+  my ($self, $level) = @_;
+  my $meth = $self->can(uc $level);
+  die 'unknown level' unless $meth;
+  $meth->();
+}
+
+sub level_by_name {
+  my ($self, $level, $val) = @_;
+  if (@_ == 3) {
+    $global_level |=  $self->_by_name($level) if  $val;
+    $global_level &= ~$self->_by_name($level) if !$val;
+  }
+  return $global_level & $self->_by_name($level);
+}
+
 1;

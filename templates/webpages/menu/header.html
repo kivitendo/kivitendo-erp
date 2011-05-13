@@ -1,0 +1,41 @@
+[%- USE T8 %]
+<style type='text/css'>
+  body { margin: 0; color: white; background: url('image/fade.png') repeat-x; }
+  a:link, a:visited, a:hover, a:active { color:white }
+  body > * { font-size: 12px; font-family:verdana,arial,sans-serif; vertical-align:middle; }
+  table { border:0; width: 100%; background: url('image/bg_titel.gif'); border-spacing:0; }
+  td { padding: 0 }
+</style>
+<script language='javascript' src='js/switchmenuframe.js'></script>
+<body>
+ <table>
+  <tr>
+[% UNLESS is_links %]
+   <td nowrap>
+    [<a href="JavaScript:Switch_Menu();" title="[% 'Switch Menu on / off' | $T8 %]">[% 'Menu' | $T8 %]</a>]
+    [<a HREF="login.pl" target="_blank" title="[% 'Open a further Lx-Office Window or Tab' | $T8 %]">[% 'New Win/Tab' | $T8 %]</a>]
+    [<a href="JavaScript:top.main_window.print();" title="[% 'Hardcopy' | $T8 %]">[% 'Print' | $T8 %]</a>]
+    [<a href="Javascript:top.main_window.history.back();" title="[% 'Go one step back' | $T8 %]">[% 'Back' | $T8 %]</a>]
+    [<a href="Javascript:top.main_window.history.forward();" title="[% 'Go one step forward' | $T8 %]">[% 'Fwd' | $T8 %]</a>]
+   </td>
+[%- END %]
+[% IF show_debug %]
+   <td align='center' nowrap>
+    Debug:
+    [<a href='controller.pl?action=DebugMenu/reload']>FCGI Reload</a>]
+    [<a href='controller.pl?action=DebugMenu/toggle&level=request_timer'>[% IF lxdebug.level_by_name('request_timer') %]<b>Timing</b>[% ELSE %]Timing[% END %]</a>]
+    [<a href='controller.pl?action=DebugMenu/toggle&level=trace'>[% IF lxdebug.level_by_name('trace') %]<b>Trace</b>[% ELSE %]Trace[% END %]</a>]
+    [<a href='controller.pl?action=DebugMenu/toggle&level=query'>[% IF lxdebug.level_by_name('query') %]<b>Query</b>[% ELSE %]Query[% END %]</a>]
+   </td>
+[%- END %]
+   <td align="right" nowrap>
+    [% 'User' | $T8 %]:
+    [% login %]
+    [<a href="login.pl?action=logout" target="_top" title="[% 'Logout now' | $T8 %]">[% 'Logout' | $T8 %]</a>]
+    [% now.to_lxoffice %] -
+    [% now.hms %]
+   </td>
+  </tr>
+ </table>
+</body>
+</html>
