@@ -1,18 +1,19 @@
 == Lx-Office Konfigurationsdatei ab Version 2.6.3 ==
 
-Seit Lx-Office 2.6.3. findet sich die Hauptconfigurationsdatei von Lx-Office in
-der Datei config/lx_office.conf.
+Seit Lx-Office 2.6.3. gibt es nur noch eine Konfigurationsdatei die benötigt wird -  die: config/lx_office.conf.
 
-Diese muß bei der Erstinstallation von Lx-Office (oder Migration von älteren
-Versionen) angelegt werden, als Vorlage dient die Datei
-config/lx_office.conf.default. Die Datei lx_office.conf ist eine
-installationsspezifische Datei, enthält z.B. die wichtigsten Passwörter der
-lokalen Installation, und findet sich auch nicht im Git Repository.  Diese
-Konfigurationsdatei ist unabhängig von den verschiedenen Mandanten, die auf der
-Installation laufen.
+Diese muß bei der Erstinstallation von Lx-Office (oder Migration von älteren Versionen) angelegt werden.
+Als Vorlage dient die Datei config/lx_office.conf.default. 
 
-Die Konfigurationsdatei besteht aus mehreren Teilen, die entsprechend
-kommentiert sind:
+ $ cp config/lx_office.conf.default config/lx_office.conf
+
+Diese Datei (lx_office.conf) ist dann eine installationsspezifische Datei, 
+d.h. sie enthält bspw. lokale Passwörter und wird auch nicht im Versionsmanagement (git) verwaltet.
+
+Die Konfiguration ist ferner serverabhängig, d.h. für alle Mandaten, bzw. Datenbanken gleich.
+
+
+Die Konfigurationsdatei besteht aus mehreren Teilen, die entsprechend kommentiert sind:
 
 * authentication
 * authentication/database
@@ -28,8 +29,7 @@ kommentiert sind:
 * console
 * debug
 
-Die üblicherweise wichtigsten Parameter, die am Anfang einzustellen oder zu
-kontrollieren sind, sind:
+Die üblicherweise wichtigsten Parameter, die am Anfang einzustellen oder zu kontrollieren sind, sind:
 
 [authentication]
 admin_password = geheim

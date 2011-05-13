@@ -701,7 +701,7 @@ sub search {
 
   print $form->parse_html_template('oe/search', {
     %myconfig,
-    is_order => $form->{type} =~ /_order/,
+    is_order => scalar($form->{type} =~ /_order/),
   });
 
   $main::lxdebug->leave_sub();

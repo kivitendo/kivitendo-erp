@@ -504,7 +504,7 @@ sub list_account {
 
   push(@ { $form->{AJAX} }, $pjx);
 
-  $form->{stylesheets} = "list_accounts.css";
+  $form->use_stylesheet("list_accounts.css");
   $form->{title}       = $locale->text('Chart of Accounts');
 
   $form->header;

@@ -640,6 +640,18 @@ sub create_http_response {
   return $output;
 }
 
+sub use_stylesheet {
+  my $self = shift;
+
+  $self->{stylesheet} = [ $self->{stylesheet} ] unless ref $self->{stylesheet} eq 'ARRAY';
+  $self->{stylesheet} = [ grep { -f                       }
+                          map  { m:^css/: ? $_ : "css/$_" }
+                          grep { $_                       }
+                               (@{ $self->{stylesheet} }, @_)
+                        ];
+
+  return @{ $self->{stylesheet} };
+}
 
 sub header {
   $::lxdebug->enter_sub;
@@ -662,8 +674,7 @@ sub header {
     push @header, "<meta http-equiv='refresh' content='$refresh_time;$refresh_url'>";
   }
 
-  push @header, "<link rel='stylesheet' href='css/$_' type='text/css' title='Lx-Office stylesheet'>"
-    for grep { -f "css/$_" } apply { s|.*/|| } $self->{stylesheet}, $self->{stylesheets};
+  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Lx-Office stylesheet">| } $self->use_stylesheet;
 
   push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
@@ -1638,7 +1649,7 @@ sub date_closed {
   #   Leere Datumseingabe i.O.
   #     SELECT 1 FROM defaults WHERE '' < closedto
   #   normale Zahlungsbuchung über Rechnungsmaske i.O.
-  #     SELECT 1 FROM defaults WHERE '10.05.2011' < closedto 
+  #     SELECT 1 FROM defaults WHERE '10.05.2011' < closedto
   # Testfälle mit definiertem closedto (30.04.2011):
   #  Leere Datumseingabe i.O.
   #   SELECT 1 FROM defaults WHERE '' < closedto
@@ -3812,7 +3823,7 @@ Examples:
 =head2 C<header>
 
 Generates a general purpose http/html header and includes most of the scripts
-ans stylesheets needed.
+and stylesheets needed. Stylesheets can be added with L<use_stylesheet>.
 
 Only one header will be generated. If the method was already called in this
 request it will not output anything and return undef. Also if no
@@ -3832,9 +3843,8 @@ default to 3 seconds and the refering url.
 
 =item stylesheet
 
-=item stylesheets
-
-If these are arrayrefs the contents will be inlined into the header.
+Either a scalar or an array ref. Will be inlined into the header. Add
+stylesheets with the L<use_stylesheet> function.
 
 =item landscape
 

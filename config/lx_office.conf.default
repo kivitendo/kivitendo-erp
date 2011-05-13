@@ -222,7 +222,8 @@ global_level = NONE
 # default.
 watch_form = 0
 
-# Include menu options for debugging in the HTML menu
+# Include menu options for debugging in the HTML menu. Works only in
+# FastCGI mode.
 show_debug_menu = 0
 
 # If you want to debug the creation of LaTeX files then set this to 1.
