@@ -29,6 +29,7 @@
   - Bugfix 1569: Zahlungseingang löschen bei Rechnung 
   - Bugfix 1632: Nach Installation 2.6.2-0 aus .deb funktioniert CSV-Import nicht
   - Bugfix 1633: Stammdatenaufruf aus SEPA-Modul
+  - Bugfix 1575: Kundenrabatt geht verloren
 
 2011-02-02 - Release 2.6.2
 
