@@ -1,0 +1,78 @@
+Wiederkehrende Rechnungen werden als normale Aufträge definiert und
+konfiguriert, mit allen dazugehörigen Kunden- und Artikelangaben. Die
+konfigurierten Aufträge werden später automatisch in Rechnungen
+umgewandelt, so als ob man den Workflow benutzen würde, und auch die
+Auftragsnummer wird übernommen, sodass alle wiederkehrenden
+Rechnungen, die aus einem Auftrag erstellt wurden, später leicht
+wiederzufinden sind.
+
+Um einen Auftrag für wiederkehrende Rechnung zu konfigurieren, findet sich beim
+Bearbeiten des Auftrags ein neuer Knopf "Konfigurieren", der ein neues Fenster
+öffnet, in dem man die nötigen Parameter einstellen kann.  Hinter dem Knopf
+wird außerdem noch angezeigt, ob der Auftrag als wiederkehrende Rechnung
+konfiguriert ist oder nicht.
+
+Folgende Parameter kann man konfigurieren:
+
+* Status:
+ Bei aktiven Rechnungen wird automatisch eine Rechnung erstellt, wenn die
+ Periodizität erreicht ist (z.B. Anfang eines neuen Monats).
+
+ Ist ein Auftrag nicht aktiv, so werden für ihn auch keine wiederkehrenden
+ Rechnungen erzeugt. Stellt man nach längerer nicht-aktiver Zeit einen Auftrag
+ wieder auf aktiv, wird beim nächsten Periodenwechsel für alle Perioden, seit
+ der letzten aktiven Periode, jeweils eine Rechnung erstellt. Möchte man dies
+ verhindern, muss man vorher das Startdatum neu setzen.
+
+ Für gekündigte Aufträge werden nie mehr Rechnungen erstellt. Man kann sich
+ diese Aufträge aber gesondert in den Berichten anzeigen lassen.
+
+* Periodizität:
+  Ob monatlich, quartalsweise oder jährlich auf neue Rechnungen überprüft
+  werden soll. Für jede Periode seit dem Startdatum wird überprüft, ob für die
+  Periode (beginnend immer mit dem ersten Tag der Periode) schon eine Rechnung
+  erstellt wurde. Unter Umständen können bei einem Startdatum in der
+  Vergangenheit gleich mehrere Rechnungen erstellt werden.
+
+* Buchen auf:
+  Das Forderungskonto, in der Regel "Forderungen aus Lieferungen
+  und Leistungen". Das Gegenkonto ergibt sich aus den Buchungsgruppen der
+  betreffenden Waren.
+
+* Startdatum: ab welchem Datum auf Rechnungserstellung geprüft werden soll
+
+* Enddatum: ab wann keine Rechnungen mehr erstellt werden sollen.
+
+* Automatische Verlängerung um x Monate:
+  Sollen die wiederkehrenden Rechnungen bei Erreichen des
+  eingetragenen Enddatums weiterhin erstellt werden, so kann man hier
+  die Anzahl der Monate eingeben, um die das Enddatum automatisch nach
+  hinten geschoben wird.
+
+* Drucken:
+  Sind Drucker konfiguriert, so kann man sich die erstellten Rechnungen auch
+  gleich ausdrucken lassen.
+
+Unter Verkauf->Berichte->Aufträge finden sich zwei neue Checkboxen,
+"Wiederkehrende Rechnungen aktiv" und "Wiederkehrende Rechnungen inaktiv", mit
+denen man sich einen Überglick über die wiederkehrenden Rechnungen verschaffen
+kann.
+
+Die zeitliche und periodische Überprüfung, ob eine wiederkehrende
+Rechnung automatisch erstellt werden soll, geschieht durch den
+Taskserver, einen externen Dienst, der automatisch beim Start des
+Servers gestartet werden sollte.
+
+Nach Erstellung der Rechnungen kann eine E-Mail mit Informationen zu
+den erstellten Rechnungen verschickt werden. Konfiguriert wird dies in
+der Konfigurationsdatei config/lx_office.conf im Abschnitt
+[periodic_invoices].
+
+Will man im laufenden Monat eine monatlich wiederkehrende Rechnung inkl. des
+laufenden Monats starten, stellt man das Startdatum auf den Monatsanfang und
+wartet ein paar Minuten, bis der Taskserver den neu konfigurieren Auftrag
+erkennt und daraus eine Rechnung generiert hat. Alternativ setzt man das
+Startdatum auf den Monatsersten des Folgemonats und erstellt die erste Rechnung
+direkt manuell über den Workflow.
+
+

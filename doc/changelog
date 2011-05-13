@@ -1,10 +1,23 @@
-###################################
+####################################
 # Veränderungen von Lx-Office ERP #
 ###################################
 
   ab Feb 2011 Release 2.7-unstable
 
 
+
+  Größere neue Features:
+
+  - Es ist jetzt möglich wiederkehrende Rechnungen zu definieren und zu
+    konfigurieren, dies geschieht im Formular für den Verkaufsauftrag.
+    Mögliche Periodizitäten sind monatlich/quartalsweise/jährlich. Die
+    Hauptkonfiguration hierzu findet sich in der lx_office.conf im Abschnitt
+    [periodic_invoices]
+
+  - Die Überprüfung, wann wiederkehrende Rechnungen erstellt werden sollen,
+    geschieht durch ein weiteres neues Feature, den Taskserver.  Konfiguriert
+    wird der Taskserver in der lx_office.conf im Abschnitt [task_server]. Der
+    Taskserver läuft als eigener daemon im System, ähnlich cron.
 
   Kleinere neue Features und Detailverbesserungen:
 
@@ -28,6 +41,9 @@
   - Bugfix 1597: Report Lagerbestand wirft Fehler, wenn Artikelnummer ausgeblendet werden soll
   - Bugfix 1569: Zahlungseingang löschen bei Rechnung 
   - Bugfix 1632: Nach Installation 2.6.2-0 aus .deb funktioniert CSV-Import nicht
+  - Bugfix 1633: Stammdatenaufruf aus SEPA-Modul
+  - Bugfix 1575: Kundenrabatt geht verloren
+  - Bugfix 1647: Lieferanten-Einkaufspreise verlieren Nachkommastellen
 
 2011-02-02 - Release 2.6.2
 

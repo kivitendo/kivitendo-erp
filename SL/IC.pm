@@ -502,7 +502,7 @@ sub save {
       if (($form->{"make_$i"}) || ($form->{"model_$i"})) {
         #hli
         $value = $form->parse_amount($myconfig, $form->{"lastcost_$i"});
-        if ($value == $form->{"old_lastcost_$i"})
+        if ($value == $form->parse_amount($myconfig, $form->{"old_lastcost_$i"}))
         {
             if ($form->{"lastupdate_$i"} eq "") {
                 $lastupdate = 'now()';
@@ -1663,7 +1663,7 @@ sub prepare_parts_for_printing {
   }
 
   my $placeholders = join ', ', ('?') x scalar(@part_ids);
-  my $query        = qq|SELECT mm.parts_id, mm.model, v.name AS make
+  my $query        = qq|SELECT mm.parts_id, mm.model, mm.lastcost, v.name AS make
                         FROM makemodel mm
                         LEFT JOIN vendor v ON (mm.make = v.id)
                         WHERE mm.parts_id IN ($placeholders)|;
