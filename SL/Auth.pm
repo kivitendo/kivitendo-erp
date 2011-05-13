@@ -1128,17 +1128,13 @@ sub assert {
 }
 
 sub load_rights_for_user {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my $self  = shift;
-  my $login = shift;
-
-  my $form  = $main::form;
-  my $dbh   = $self->dbconnect();
-
+  my ($self, $login) = @_;
+  my $dbh   = $self->dbconnect;
   my ($query, $sth, $row, $rights);
 
-  $rights = {};
+  $rights = { map { $rights->{$_} = 0 } all_rights() };
 
   $query =
     qq|SELECT gr."right", gr.granted
@@ -1149,16 +1145,14 @@ sub load_rights_for_user {
           LEFT JOIN auth."user" u ON (ug.user_id = u.id)
           WHERE u.login = ?)|;
 
-  $sth = prepare_execute_query($form, $dbh, $query, $login);
+  $sth = prepare_execute_query($::form, $dbh, $query, $login);
 
   while ($row = $sth->fetchrow_hashref()) {
     $rights->{$row->{right}} |= $row->{granted};
   }
   $sth->finish();
 
-  map({ $rights->{$_} = 0 unless (defined $rights->{$_}); } SL::Auth::all_rights());
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 
   return $rights;
 }
