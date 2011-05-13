@@ -52,7 +52,6 @@ sub pre_request_checks {
       show_error('login/auth_db_unreachable');
     }
   }
-  $::auth->expire_sessions;
 }
 
 sub show_error {
@@ -237,6 +236,7 @@ sub handle_request {
   $::myconfig = ();
   Form::disconnect_standard_dbh;
   $::auth->expire_session_keys->save_session;
+  $::auth->expire_sessions;
   $::auth->reset;
 
   $::lxdebug->end_request;
