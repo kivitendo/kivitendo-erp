@@ -393,9 +393,8 @@ sub form_header {
           : ($creditwarning)                                   ? "alert('$credittext')"
           :                                                      "";
 
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|.   $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-  $TMPL_VAR{onload} = $onload;
+  $TMPL_VAR{dateformat}          = $myconfig{dateformat};
+  $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
   if ($form->{type} eq 'sales_order') {
     if (!$form->{periodic_invoices_config}) {

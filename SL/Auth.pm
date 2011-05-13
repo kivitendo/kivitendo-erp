@@ -598,51 +598,32 @@ sub _create_session_id {
 }
 
 sub create_or_refresh_session {
-  $main::lxdebug->enter_sub();
-
-  my $self = shift;
-
-  $session_id ||= $self->_create_session_id();
-
-  my ($form, $dbh, $query, $sth, $id);
-
-  $form  = $main::form;
-  $dbh   = $self->dbconnect();
-
-  $dbh->begin_work;
-  do_query($::form, $dbh, qq|LOCK auth.session_content|);
-
-  $query = qq|SELECT id FROM auth.session WHERE id = ?|;
-
-  ($id)  = selectrow_query($form, $dbh, $query, $session_id);
-
-  if ($id) {
-    do_query($form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
-
-  } else {
-    do_query($form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
-
-  }
-
-  $self->save_session($dbh);
-
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
+  $session_id ||= shift->_create_session_id;
 }
 
 sub save_session {
+  $::lxdebug->enter_sub;
   my $self         = shift;
   my $provided_dbh = shift;
 
   my $dbh          = $provided_dbh || $self->dbconnect(1);
 
-  return unless $dbh;
+   $::lxdebug->leave_sub && return unless $dbh;
 
   $dbh->begin_work unless $provided_dbh;
 
   do_query($::form, $dbh, qq|LOCK auth.session_content|);
   do_query($::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
+
+  my $query = qq|SELECT id FROM auth.session WHERE id = ?|;
+
+  my ($id)  = selectrow_query($::form, $dbh, $query, $session_id);
+
+  if ($id) {
+    do_query($::form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
+  } else {
+    do_query($::form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
+  }
 
   if (%{ $self->{SESSION} }) {
     my $query = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
@@ -656,6 +637,7 @@ sub save_session {
   }
 
   $dbh->commit() unless $provided_dbh;
+  $::lxdebug->leave_sub;
 }
 
 sub set_session_value {
@@ -1128,17 +1110,13 @@ sub assert {
 }
 
 sub load_rights_for_user {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my $self  = shift;
-  my $login = shift;
-
-  my $form  = $main::form;
-  my $dbh   = $self->dbconnect();
-
+  my ($self, $login) = @_;
+  my $dbh   = $self->dbconnect;
   my ($query, $sth, $row, $rights);
 
-  $rights = {};
+  $rights = { map { $rights->{$_} = 0 } all_rights() };
 
   $query =
     qq|SELECT gr."right", gr.granted
@@ -1149,16 +1127,14 @@ sub load_rights_for_user {
           LEFT JOIN auth."user" u ON (ug.user_id = u.id)
           WHERE u.login = ?)|;
 
-  $sth = prepare_execute_query($form, $dbh, $query, $login);
+  $sth = prepare_execute_query($::form, $dbh, $query, $login);
 
   while ($row = $sth->fetchrow_hashref()) {
     $rights->{$row->{right}} |= $row->{granted};
   }
   $sth->finish();
 
-  map({ $rights->{$_} = 0 unless (defined $rights->{$_}); } SL::Auth::all_rights());
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 
   return $rights;
 }

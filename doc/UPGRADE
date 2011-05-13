@@ -19,6 +19,9 @@ angelegt und authentication.pl und lx-erp.conf gelöscht oder verschoben wurden.
 Es gibt keine local-Variante der lx_office.conf, arbeitet man mit git sollte
 man lx_office.conf nicht einchecken.
 
+Eine etwas ausführlichere Beschreibung findet sich in der Datei:
+doc/konfigurationsdatei.txt
+
 
 Upgrade auf v2.6.2
 ==================
