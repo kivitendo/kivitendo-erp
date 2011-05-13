@@ -632,12 +632,13 @@ sub create_or_refresh_session {
 }
 
 sub save_session {
+  $::lxdebug->enter_sub;
   my $self         = shift;
   my $provided_dbh = shift;
 
   my $dbh          = $provided_dbh || $self->dbconnect(1);
 
-  return unless $dbh;
+   $::lxdebug->leave_sub && return unless $dbh;
 
   $dbh->begin_work unless $provided_dbh;
 
@@ -656,6 +657,7 @@ sub save_session {
   }
 
   $dbh->commit() unless $provided_dbh;
+  $::lxdebug->leave_sub;
 }
 
 sub set_session_value {
