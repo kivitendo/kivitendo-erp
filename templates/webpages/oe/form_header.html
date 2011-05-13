@@ -2,7 +2,7 @@
 [%- USE HTML %]
 [%- USE LxERP %]
 [%- USE L %]
-<body onLoad="[% onload %]">
+<body>
 
   <form method="post" name="oe" action="[% script %]">
 
@@ -243,5 +243,10 @@
      <!--
        Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
        Calendar.setup({ inputField : "reqdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
+
+       $('document').ready(function(){
+         setupDateFormat('[% dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
+         setupPoints('[% numberformat %]', '[% 'wrongformat' | $T8 %]');
+       });
      //-->
     </script>
