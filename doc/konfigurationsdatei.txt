@@ -3,11 +3,17 @@
 Seit Lx-Office 2.6.3. gibt es nur noch eine Konfigurationsdatei die benötigt wird -  die: config/lx_office.conf.
 
 Diese muß bei der Erstinstallation von Lx-Office (oder Migration von älteren Versionen) angelegt werden.
-Als Vorlage dient die Datei config/lx_office.conf.default. 
+
+Als Vorlage dient die Datei config/lx_office.conf.default.
 
  $ cp config/lx_office.conf.default config/lx_office.conf
 
-Diese Datei (lx_office.conf) ist dann eine installationsspezifische Datei, 
+Die Datei config/lx_office.conf.default wird immer eingelesen, Werte die in
+config/lx_office.conf stehen überschreiben die Werte aus
+config/lx_office.conf.default. Die Datei config/lx_office.conf muss also nur
+die Abschintte und Werte enthalten die von config/lx_office.conf.default abweichen.
+
+Diese Datei (lx_office.conf) ist dann eine installationsspezifische Datei,
 d.h. sie enthält bspw. lokale Passwörter und wird auch nicht im Versionsmanagement (git) verwaltet.
 
 Die Konfiguration ist ferner serverabhängig, d.h. für alle Mandaten, bzw. Datenbanken gleich.
