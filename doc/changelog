@@ -31,6 +31,8 @@
 
   - Verkauf -> Berichte -> Filter nach Abteilungen wieder aktiviert
 
+  - Dokumentensystem -> der Name der Zahlart ist in den Dokumenten verfügbar, dies ermoglicht größere
+                        Flexiblität in den Vorlagen über if-Abfragen
 
   Liste gefixter Bugs aus dem Bugtracker:
 
@@ -39,7 +41,7 @@
   - Bugfix 1626: Beim Festlegen der Standardkonten kann beim Warenbestand eine Überschrift ausgewählt werden.
   - Bugfix 1584: Summen und Saldenliste: Export to PDF/CSV in EÜR Modus falsch
   - Bugfix 1597: Report Lagerbestand wirft Fehler, wenn Artikelnummer ausgeblendet werden soll
-  - Bugfix 1569: Zahlungseingang löschen bei Rechnung 
+  - Bugfix 1569: Zahlungseingang löschen bei Rechnung
   - Bugfix 1632: Nach Installation 2.6.2-0 aus .deb funktioniert CSV-Import nicht
   - Bugfix 1633: Stammdatenaufruf aus SEPA-Modul
   - Bugfix 1575: Kundenrabatt geht verloren
