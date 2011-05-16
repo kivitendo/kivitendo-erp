@@ -281,9 +281,7 @@ sub invoice_details {
       }
 
       push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} }, $form->format_amount($myconfig, $linetotal, 2);
-      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_nofmt} },  $linetotal;
-      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_raw} }, $form->format_amount($myconfig, $linetotal_exact, 8);
-      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_raw_nofmt} },  $linetotal_exact;
+      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_nofmt} },  $linetotal_exact;
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} }, $form->format_amount($myconfig, $nodiscount_linetotal, 2);
       push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal_nofmt} },  $nodiscount_linetotal;
 
