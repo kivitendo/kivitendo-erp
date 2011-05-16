@@ -46,7 +46,9 @@ sub reset {
 }
 
 sub get_user_dbh {
-  my ($self, $login) = @_;
+  my ($self, $login, %params) = @_;
+  my $may_fail = delete $params{may_fail};
+
   my %user = $self->read_user($login);
   my $dbh  = SL::DBConnect->connect(
     $user{dbconnect},
@@ -56,9 +58,13 @@ sub get_user_dbh {
       pg_enable_utf8 => $::locale->is_utf8,
       AutoCommit     => 0
     }
-  ) or $::form->dberror;
+  );
 
-  if ($user{dboptions}) {
+  if (!$may_fail && !$dbh) {
+    $::form->error($::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
+  }
+
+  if ($user{dboptions} && $dbh) {
     $dbh->do($user{dboptions}) or $::form->dberror($user{dboptions});
   }
 
@@ -430,34 +436,30 @@ sub get_user_id {
 }
 
 sub delete_user {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
   my $self  = shift;
   my $login = shift;
 
-  my $form  = $main::form;
-
-  my %user  = $self->read_user($login);
-  my $u_dbh = DBI->connect($user{dbconnect}, $user{dbuser}, $user{dbpasswd});
-
-  my $dbh   = $self->dbconnect();
+  my $u_dbh = $self->get_user_dbh($login, may_fail => 1);
+  my $dbh   = $self->dbconnect;
 
   $dbh->begin_work;
 
   my $query = qq|SELECT id FROM auth."user" WHERE login = ?|;
 
-  my ($id)  = selectrow_query($form, $dbh, $query, $login);
+  my ($id)  = selectrow_query($::form, $dbh, $query, $login);
 
-  $dbh->rollback and return $main::lxdebug->leave_sub() if (!$id);
+  $dbh->rollback and return $::lxdebug->leave_sub if (!$id);
 
-  do_query($form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
-  do_query($form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
-  do_query($form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login);
+  do_query($::form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
+  do_query($::form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
+  do_query($::form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login) if $u_dbh;
 
   $dbh->commit;
-  $u_dbh->commit;
+  $u_dbh->commit if $u_dbh;
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 # --------------------------------------
