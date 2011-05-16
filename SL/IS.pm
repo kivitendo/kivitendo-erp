@@ -59,7 +59,7 @@ sub invoice_details {
   $form->{duedate} ||= $form->{invdate};
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
   my $sth;
 
   my $query = qq|SELECT date | . conv_dateq($form->{duedate}) . qq| - date | . conv_dateq($form->{invdate}) . qq| AS terms|;
@@ -409,8 +409,6 @@ sub invoice_details {
 
   $form->{username} = $myconfig->{name};
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -434,7 +432,7 @@ sub customer_details {
   my ($self, $myconfig, $form, @wanted_vars) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $language_id = $form->{language_id};
 
@@ -504,8 +502,6 @@ sub customer_details {
                                                   'language_id'      => $language_id,
                                                   'allow_fallback'   => 1);
 
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -1134,7 +1130,8 @@ sub post_payment {
   my ($self, $myconfig, $form, $locale) = @_;
 
   # connect to database, turn off autocommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
+  $dbh->begin_work;
 
   my (%payments, $old_form, $row, $item, $query, %keep_vars);
 
@@ -1189,7 +1186,6 @@ sub post_payment {
   restore_form($old_form);
 
   my $rc = $dbh->commit();
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -1369,7 +1365,8 @@ sub delete_invoice {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
+  $dbh->begin_work;
 
   &reverse_invoice($dbh, $form);
 
@@ -1399,7 +1396,6 @@ sub delete_invoice {
   do_query($form, $dbh, qq|DELETE FROM status WHERE trans_id = ?|, @values);
 
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   if ($rc) {
     my $spool = $::lx_office_conf{paths}->{spool};
@@ -1749,7 +1745,7 @@ sub retrieve_item {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $i = $form->{rowcount};
 
@@ -1960,8 +1956,6 @@ sub retrieve_item {
     map { $item->{"ic_cvar_" . $_->{name} } = $_->{value} } @{ $custom_variables };
   }
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1977,7 +1971,7 @@ sub get_pricegroups_for_parts {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   $form->{"PRICES"} = {};
 
@@ -2125,7 +2119,7 @@ sub get_pricegroups_for_parts {
             $pkr->{selected}  = ' selected';
           }
         } elsif ( ($form->parse_amount($myconfig, $price_new)
-                 != $form->parse_amount($myconfig, $form->{"sellprice_$i"})) 
+                 != $form->parse_amount($myconfig, $form->{"sellprice_$i"}))
                   and ($price_new ne 0) and defined $price_new) {
           # sellprice has changed
           # when loading existing invoices $price_new is NULL
@@ -2153,8 +2147,6 @@ sub get_pricegroups_for_parts {
     $pkq->finish;
   }
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -2169,12 +2161,10 @@ sub has_storno {
   # ToDO: die when this happens and throw an error
   $main::lxdebug->leave_sub() and return 0 if ($table =~ /\W/);
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query = qq|SELECT storno FROM $table WHERE storno_id = ?|;
   my ($result) = selectrow_query($form, $dbh, $query, $form->{id});
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -2192,12 +2182,10 @@ sub is_storno {
   # ToDO: die when this happens and throw an error
   $main::lxdebug->leave_sub() and return 0 if ($table =~ /\W/);
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query = qq|SELECT storno FROM $table WHERE id = ?|;
   my ($result) = selectrow_query($form, $dbh, $query, $id);
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -2209,12 +2197,10 @@ sub get_standard_accno_current_assets {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query = qq| SELECT accno FROM chart WHERE id = (SELECT ar_paid_accno_id FROM defaults)|;
   my ($result) = selectrow_query($form, $dbh, $query);
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
