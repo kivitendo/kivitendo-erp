@@ -437,6 +437,9 @@ sub delete_user {
 
   my $form  = $main::form;
 
+  my %user  = $self->read_user($login);
+  my $u_dbh = DBI->connect($user{dbconnect}, $user{dbuser}, $user{dbpasswd});
+
   my $dbh   = $self->dbconnect();
 
   $dbh->begin_work;
@@ -449,8 +452,10 @@ sub delete_user {
 
   do_query($form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
   do_query($form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
+  do_query($form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login);
 
-  $dbh->commit();
+  $dbh->commit;
+  $u_dbh->commit;
 
   $main::lxdebug->leave_sub();
 }
