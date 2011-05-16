@@ -831,7 +831,7 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}{description} },     $form->{"description_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{longdescription} }, $form->{"longdescription_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{qty} },             $form->format_amount($myconfig, $form->{"qty_$i"});
-    push @{ $form->{TEMPLATE_ARRAYS}{qty_num} },         $form->{"qty_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}{qty_nofmt} },         $form->{"qty_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{unit} },            $form->{"unit_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{partnotes} },       $form->{"partnotes_$i"};
     push @{ $form->{TEMPLATE_ARRAYS}{serialnumber} },    $form->{"serialnumber_$i"};
@@ -884,7 +884,7 @@ sub order_details {
         push @{ $form->{TEMPLATE_ARRAYS}{si_chargenumber}[$position-1] },  $si->{chargenumber};
         push @{ $form->{TEMPLATE_ARRAYS}{si_bestbefore}[$position-1] },    $si->{bestbefore};
         push @{ $form->{TEMPLATE_ARRAYS}{si_qty}[$position-1] },           $form->format_amount($myconfig, $si->{qty} * 1);
-        push @{ $form->{TEMPLATE_ARRAYS}{si_qty_num}[$position-1] },       $si->{qty} * 1;
+        push @{ $form->{TEMPLATE_ARRAYS}{si_qty_nofmt}[$position-1] },       $si->{qty} * 1;
         push @{ $form->{TEMPLATE_ARRAYS}{si_unit}[$position-1] },          $si->{unit};
       }
     }
