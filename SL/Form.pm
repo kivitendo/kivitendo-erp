@@ -1172,17 +1172,12 @@ sub parse_amount {
   }
 
   $amount =~ s/,//g;
-  # make shure no code wich is not a math expression ends in eval()
-
-  $amount =~ s/\s//g; 
-
-  unless($amount =~ /^[-\+]?\d+\.?\d*([-\+\*\/][-\+]?\d+\.?\d*)*$/){
-    return 0;
-  }
 
   $main::lxdebug->leave_sub(2);
 
-  return (eval $amount) * 1 ;
+  # Make sure no code wich is not a math expression ends up in eval().
+  return 0 unless $amount =~ /^ [\s \d \( \) \- \+ \* \/ \. ]* $/x;
+  return scalar(eval($amount)) * 1 ;
 }
 
 sub round_amount {

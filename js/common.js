@@ -58,7 +58,7 @@ function check_right_number_format(input_name) {
   if(decpoint && decpoint == ','){
     test_val = test_val.replace(/,/g, '.');
   }
-  var forbidden = test_val.match(/[^-\+\/\*\.0-9\ ]/g );
+  var forbidden = test_val.match(/[^\s\d\(\)\-\+\*\/\.]/g);
   if (forbidden && forbidden.length > 0 ){
     return show_alert_and_focus(input_name, wrongNumberFormat);
   } 
