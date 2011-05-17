@@ -701,7 +701,6 @@ sub create_unique_sesion_value {
   $self->{unique_counter}++;
 
   $value  = { expiration => $params{expiration} ? ($now[0] + $params{expiration}) * 1000000 + $now[1] : undef,
-              no_auto    => !$params{auto_restore},
               data       => $value,
             };
 
@@ -1182,11 +1181,6 @@ there.
 If C<$params{expiration}> is set then it is interpreted as a number of
 seconds after which the value is removed from the session. It will
 never expire if that parameter is falsish.
-
-If C<$params{auto_restore}> is trueish then the value will be copied
-into C<$::form> upon the next request automatically. It defaults to
-C<false> and has therefore different behaviour than
-L</set_session_value>.
 
 Returns the key created in the session.
 
