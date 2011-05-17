@@ -231,13 +231,14 @@ sub handle_request {
   };
 
   # cleanup
+  $::auth->expire_session_keys->save_session;
+  $::auth->expire_sessions;
+  $::auth->reset;
+
   $::locale   = undef;
   $::form     = undef;
   $::myconfig = ();
   Form::disconnect_standard_dbh;
-  $::auth->expire_session_keys->save_session;
-  $::auth->expire_sessions;
-  $::auth->reset;
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;
