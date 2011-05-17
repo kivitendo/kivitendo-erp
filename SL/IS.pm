@@ -201,11 +201,11 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{description} },       $form->{"description_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{longdescription} },   $form->{"longdescription_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{qty} },               $form->format_amount($myconfig, $form->{"qty_$i"});
-      push @{ $form->{TEMPLATE_ARRAYS}->{qty_nofmt} },           $form->{"qty_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{qty_nofmt} },         $form->{"qty_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{unit} },              $form->{"unit_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{deliverydate_oe} },   $form->{"reqdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
-      push @{ $form->{TEMPLATE_ARRAYS}->{sellprice_nofmt} },     $form->parse_amount($myconfig, $form->{"sellprice_$i"});
+      push @{ $form->{TEMPLATE_ARRAYS}->{sellprice_nofmt} },   $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       push @{ $form->{TEMPLATE_ARRAYS}->{ordnumber_oe} },      $form->{"ordnumber_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{transdate_oe} },      $form->{"transdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{invnumber} },         $form->{"invnumber"};
@@ -243,14 +243,14 @@ sub invoice_details {
       my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice / $price_factor->{factor}, 2);
       $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{netprice} }, ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
-      push @{ $form->{TEMPLATE_ARRAYS}->{netprice_nofmt} }, ($form->{"netprice_$i"} != 0) ?  $form->{"netprice_$i"} : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{netprice} },       ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{netprice_nofmt} }, ($form->{"netprice_$i"} != 0) ? $form->{"netprice_$i"} : '';
 
       $linetotal = ($linetotal != 0) ? $linetotal : '';
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{discount} },   ($discount  != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
-      push @{ $form->{TEMPLATE_ARRAYS}->{discount_nofmt} },   ($discount  != 0) ?  $discount * -1 : '';
-      push @{ $form->{TEMPLATE_ARRAYS}->{p_discount} }, $form->{"discount_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{discount} },       ($discount != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{discount_nofmt} }, ($discount != 0) ? $discount * -1 : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{p_discount} },     $form->{"discount_$i"};
 
       $form->{total}            += $linetotal;
       $form->{nodiscount_total} += $nodiscount_linetotal;
@@ -262,10 +262,10 @@ sub invoice_details {
       }
 
       if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
-        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },   $form->format_amount($myconfig, $discount_subtotal,   2);
-        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub_nofmt} },    $discount_subtotal;
-        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} }, $form->format_amount($myconfig, $nodiscount_subtotal, 2);
-        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub_nofmt} },  $nodiscount_subtotal;
+        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },         $form->format_amount($myconfig, $discount_subtotal,   2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub_nofmt} },   $discount_subtotal;
+        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} },       $form->format_amount($myconfig, $nodiscount_subtotal, 2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub_nofmt} }, $nodiscount_subtotal;
 
         $discount_subtotal   = 0;
         $nodiscount_subtotal = 0;
@@ -280,13 +280,13 @@ sub invoice_details {
         $nodiscount += $linetotal;
       }
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} }, $form->format_amount($myconfig, $linetotal, 2);
-      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_nofmt} },  $linetotal_exact;
-      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} }, $form->format_amount($myconfig, $nodiscount_linetotal, 2);
-      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal_nofmt} },  $nodiscount_linetotal;
+      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} },                  $form->format_amount($myconfig, $linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_nofmt} },            $linetotal_exact;
+      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} },       $form->format_amount($myconfig, $nodiscount_linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal_nofmt} }, $nodiscount_linetotal;
 
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} }, $projectdescriptions{$form->{"project_id_$i"}});
+      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $projectnumbers{$form->{"project_id_$i"}});
+      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $projectdescriptions{$form->{"project_id_$i"}});
 
       @taxaccounts = split(/ /, $form->{"taxaccounts_$i"});
       $taxrate     = 0;
@@ -376,11 +376,11 @@ sub invoice_details {
     $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
 
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxbase} },        $form->format_amount($myconfig, $taxbase{$item}, 2));
-    push(@{ $form->{TEMPLATE_ARRAYS}->{taxbase_nofmt} },    $taxbase{$item});
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxbase_nofmt} },  $taxbase{$item});
     push(@{ $form->{TEMPLATE_ARRAYS}->{tax} },            $form->format_amount($myconfig, $taxamount,      2));
-    push(@{ $form->{TEMPLATE_ARRAYS}->{tax_nofmt} },        $taxamount );
+    push(@{ $form->{TEMPLATE_ARRAYS}->{tax_nofmt} },      $taxamount );
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate} },        $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
-    push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate_nofmt} },    $form->{"${item}_rate"} * 100);
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate_nofmt} },  $form->{"${item}_rate"} * 100);
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $form->{"${item}_description"} . q{ } . 100 * $form->{"${item}_rate"} . q{%});
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxnumber} },      $form->{"${item}_taxnumber"});
   }
@@ -399,11 +399,11 @@ sub invoice_details {
     }
   }
   if($form->{taxincluded}) {
-    $form->{subtotal} = $form->format_amount($myconfig, $form->{total} - $tax, 2);
+    $form->{subtotal}       = $form->format_amount($myconfig, $form->{total} - $tax, 2);
     $form->{subtotal_nofmt} = $form->{total} - $tax;
   }
   else {
-    $form->{subtotal} = $form->format_amount($myconfig, $form->{total}, 2);
+    $form->{subtotal}       = $form->format_amount($myconfig, $form->{total}, 2);
     $form->{subtotal_nofmt} = $form->{total};
   }
 
