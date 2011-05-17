@@ -106,6 +106,7 @@ sub checkbox_tag {
   $attributes{id}    ||= $self->name_to_id($name);
   $attributes{value}   = 1 unless defined $attributes{value};
   my $label            = delete $attributes{label};
+  my $checkall         = delete $attributes{checkall};
 
   if ($attributes{checked}) {
     $attributes{checked} = 'checked';
@@ -115,6 +116,7 @@ sub checkbox_tag {
 
   my $code  = $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
   $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
+  $code    .= $self->javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
 
   return $code;
 }
@@ -577,6 +579,10 @@ C<name_to_id($name)>. The tag's C<value> defaults to C<1>.
 If C<%attributes> contains a key C<label> then a HTML 'label' tag is
 created with said C<label>. No attribute named C<label> is created in
 that case.
+
+If C<%attributes> contains a key C<checkall> then the value is taken as a
+JQuery selector and clicking this checkbox will also toggle all checkboxes
+matching the selector.
 
 =item C<date_tag $name, $value, cal_align =E<gt> $align_code, %attributes>
 

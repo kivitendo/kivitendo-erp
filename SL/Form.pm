@@ -1164,7 +1164,7 @@ sub parse_amount {
   if (   ($myconfig->{numberformat} eq '1.000,00')
       || ($myconfig->{numberformat} eq '1000,00')) {
     $amount =~ s/\.//g;
-    $amount =~ s/,/\./;
+    $amount =~ s/,/\./g;
   }
 
   if ($myconfig->{numberformat} eq "1'000.00") {
@@ -1175,7 +1175,9 @@ sub parse_amount {
 
   $main::lxdebug->leave_sub(2);
 
-  return ($amount * 1);
+  # Make sure no code wich is not a math expression ends up in eval().
+  return 0 unless $amount =~ /^ [\s \d \( \) \- \+ \* \/ \. ]* $/x;
+  return scalar(eval($amount)) * 1 ;
 }
 
 sub round_amount {
