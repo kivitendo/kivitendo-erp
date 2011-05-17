@@ -34,6 +34,9 @@
   - Dokumentensystem -> der Name der Zahlart ist in den Dokumenten verfügbar, dies ermoglicht größere
                         Flexiblität in den Vorlagen über if-Abfragen
 
+  - Dokumentensystem -> viele Zahlenwerte sind nun auch in nicht fromatierter Form (alos ungerundet und mit . als Dezimaltrennzeichen) in den Dokumenten verfügbar.
+                        Variabelenerweiterung: _nofmt, siehe doc/dokumentenvorlagen-und-variablen.html
+
   Liste gefixter Bugs aus dem Bugtracker:
 
   - Bugfix 1613: Status teilweise
