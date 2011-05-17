@@ -730,7 +730,7 @@ sub create_unique_sesion_value {
   my $key                   = "$$-" . ($now[0] * 1000000 + $now[1]) . "-";
   $self->{unique_counter} ||= 0;
 
-  $self->{unique_counter}++ while exists $self->{SESSION}->{$key . $self->{unique_counter}};
+  $self->{unique_counter}++ while exists $self->{SESSION}->{$key . ($self->{unique_counter} + 1)};
   $self->{unique_counter}++;
 
   $value  = { expiration => $params{expiration} ? ($now[0] + $params{expiration}) * 1000000 + $now[1] : undef,
