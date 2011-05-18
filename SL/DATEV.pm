@@ -401,7 +401,7 @@ sub _get_transactions {
     my $firstrun = 1;
     my $subcent  = abs($count) < 0.02;
 
-    while (abs($count) > 0.01 || $firstrun || ($subcent && abs($count) > 0.001)) {
+    while (abs($count) > 0.01 || $firstrun || ($subcent && abs($count) > 0.005)) {
       my $ref2 = $sth->fetchrow_hashref("NAME_lc");
       last unless ($ref2);
 
