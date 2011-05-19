@@ -59,6 +59,7 @@ bind_password =
 [system]
 # EUR: Einnahmen-Überschussrechnung (net income method). Set this to 1
 # if your company uses the net income method and to 0 for balancing.
+# Additional note in german: Sollversteuerung = 0; Istversteuerung = 1
 eur = 1
 
 # Set language for login and admin forms. Currently "de" (German),
