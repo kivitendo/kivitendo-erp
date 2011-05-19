@@ -90,8 +90,8 @@ sub invoice_transactions {
   if ( $form->{customer} =~ /--/ ) {
     # Felddaten kommen aus Dropdownbox
     ($form->{customername}, $form->{customer_id}) = split(/--/, $form->{customer});
-  } else {
-    # Felddaten kommen aus Freitextfeld
+  } elsif ($form->{customer}) {
+    # es wurde ein Wert im Freitextfeld übergeben, auf Eindeutigkeit überprüfen
 
     # check_name wird mit no_select => 1 ausgeführt, ist die Abfrage nicht eindeutig kommt ein Fehler
     # und die Abfrage muß erneut ausgeführt werden
@@ -100,10 +100,11 @@ sub invoice_transactions {
     # Nichts führt, daher diese Zwischenlösung
 
     &check_name('customer', no_select => 1);
-
+  
     # $form->{customer_id} wurde schon von check_name gesetzt
     $form->{customername} = $form->{customer};
   };
+  # ist $form->{customer} leer passiert hier nichts weiter
 
   # decimalplaces überprüfen oder auf Default 2 setzen
   $form->{decimalplaces} = 2 unless $form->{decimalplaces} > 0 && $form->{decimalplaces} < 6;
