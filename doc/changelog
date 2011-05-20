@@ -37,9 +37,14 @@
   - Dokumentensystem -> viele Zahlenwerte sind nun auch in nicht fromatierter Form (alos ungerundet und mit . als Dezimaltrennzeichen) in den Dokumenten verfügbar.
                         Variabelenerweiterung: _nofmt, siehe doc/dokumentenvorlagen-und-variablen.html
 
+  - Bedienung -> Eingabe beliebiger mathematischer Funktionen bestehend aus +-*/() in alle Zahlenfelder
+                 das ermoeglicht z.B. die nettopreisangabe "100/1,19", was dann als "84,033613" gespeichert wird.
+                 Berücksichtigt das beim Benutzer eingestellte Zahlenformat.
+
+
   Liste gefixter Bugs aus dem Bugtracker:
 
-  - Bugfix 1613: Status teilweise
+  - Bugfix 1613: Abteilung wird bei Verkaufsrechnungen nicht gespeichert
   - Bugfix 1642: Lieferantenrabatt wird korrekt gespeichert, aber nicht mehr angezeigt
   - Bugfix 1626: Beim Festlegen der Standardkonten kann beim Warenbestand eine Überschrift ausgewählt werden.
   - Bugfix 1584: Summen und Saldenliste: Export to PDF/CSV in EÜR Modus falsch

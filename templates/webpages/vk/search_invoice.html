@@ -38,6 +38,10 @@
                  -%]
       </td>
      </tr>
+      <tr>
+       <th align="right" nowrap>[% 'Customer Number' | $T8 %]</th>
+       <td><input name="customernumber" size="20"></td>
+      </tr>
      <tr>
       <th align=right nowrap>[% 'Department' | $T8 %]</th>
       <td>
@@ -139,6 +143,10 @@
            <td nowrap>[% 'Total' | $T8 %]</td>
            <td align=right><input name="l_headers" class=checkbox type=checkbox value="Y" checked></td>
            <td nowrap>[% 'Headings' | $T8 %]</td>
+          </tr>
+          <tr>
+           <td align=right><input name="l_customernumber" class=checkbox type=checkbox value=Y checked></td>
+           <td nowrap>[% 'Customer Number' | $T8 %]</td>
           </tr>
           <tr>
             <th align="right" nowrap>[% 'Decimalplaces' | $T8 %]</th>

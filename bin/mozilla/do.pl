@@ -34,6 +34,7 @@ use List::Util qw(max sum);
 use POSIX qw(strftime);
 use YAML;
 
+use SL::DB::DeliveryOrder;
 use SL::DO;
 use SL::IR;
 use SL::IS;
@@ -606,6 +607,8 @@ sub orders {
 sub save {
   $main::lxdebug->enter_sub();
 
+  my (%params) = @_;
+
   check_do_access();
 
   my $form     = $main::form;
@@ -656,7 +659,7 @@ sub save {
   # /saving the history
 
   $form->{simple_save} = 1;
-  if(!$form->{print_and_save}) {
+  if (!$params{no_redirect} && !$form->{print_and_save}) {
     set_headings("edit");
     update();
     ::end_of_request();
@@ -1245,6 +1248,8 @@ sub set_stock_out {
 sub transfer_in {
   $main::lxdebug->enter_sub();
 
+  save(no_redirect => 1);
+
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
@@ -1289,6 +1294,7 @@ sub transfer_in {
     if (@{ $form->{ERRORS} }) {
       push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been marked as delivered. The warehouse contents have not changed.');
 
+      set_headings('edit');
       update();
       $main::lxdebug->leave_sub();
 
@@ -1299,15 +1305,18 @@ sub transfer_in {
   DO->transfer_in_out('direction' => 'in',
                       'requests'  => \@all_requests);
 
-  $form->{delivered} = 1;
+  SL::DB::DeliveryOrder->new(id => $form->{id})->load->update_attributes(delivered => 1);
 
-  save();
+  $form->{callback} = 'do.pl?action=edit&type=purchase_delivery_order&id=' . $form->escape($form->{id});
+  $form->redirect;
 
   $main::lxdebug->leave_sub();
 }
 
 sub transfer_out {
   $main::lxdebug->enter_sub();
+
+  save(no_redirect => 1);
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -1350,7 +1359,7 @@ sub transfer_out {
 
       next if (0 == $row_sum_base_qty);
 
-      my $do_base_qty = $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
+      my $do_base_qty = $form->{"qty_$i"} * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
 
 #      if ($do_base_qty != $row_sum_base_qty) {
 #        push @{ $form->{ERRORS} }, $locale->text('Error in position #1: You must either assign no transfer at all or the full quantity of #2 #3.',
@@ -1404,6 +1413,7 @@ sub transfer_out {
     if (@{ $form->{ERRORS} }) {
       push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been marked as delivered. The warehouse contents have not changed.');
 
+      set_headings('edit');
       update();
       $main::lxdebug->leave_sub();
 
@@ -1413,9 +1423,10 @@ sub transfer_out {
   DO->transfer_in_out('direction' => 'out',
                       'requests'  => \@all_requests);
 
-  $form->{delivered} = 1;
+  SL::DB::DeliveryOrder->new(id => $form->{id})->load->update_attributes(delivered => 1);
 
-  save();
+  $form->{callback} = 'do.pl?action=edit&type=sales_delivery_order&id=' . $form->escape($form->{id});
+  $form->redirect;
 
   $main::lxdebug->leave_sub();
 }

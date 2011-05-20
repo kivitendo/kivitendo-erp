@@ -6,11 +6,15 @@ use Config::Std;
 use Encode;
 
 sub read {
+  my ($class, $file_name) = @_;
+
   read_config 'config/lx_office.conf.default' => %::lx_office_conf;
   _decode_recursively(\%::lx_office_conf);
 
-  if (-f 'config/lx_office.conf') {
-    read_config 'config/lx_office.conf' => my %local_conf;
+  $file_name ||= 'config/lx_office.conf';
+
+  if (-f $file_name) {
+    read_config $file_name => my %local_conf;
     _decode_recursively(\%local_conf);
     _flat_merge(\%::lx_office_conf, \%local_conf);
   }
