@@ -1095,7 +1095,7 @@ sub assert {
   $::lxdebug->enter_sub(2);
   my ($self, $right, $dont_abort) = @_;
 
-  if ($self->check_right($::form->{login}, $right)) {
+  if ($self->check_right($::myconfig{login}, $right)) {
     $::lxdebug->leave_sub(2);
     return 1;
   }
