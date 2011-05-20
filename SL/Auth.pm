@@ -1092,25 +1092,20 @@ sub check_right {
 }
 
 sub assert {
-  $main::lxdebug->enter_sub(2);
+  $::lxdebug->enter_sub(2);
+  my ($self, $right, $dont_abort) = @_;
 
-  my $self       = shift;
-  my $right      = shift;
-  my $dont_abort = shift;
-
-  my $form       = $main::form;
-
-  if ($self->check_right($form->{login}, $right)) {
-    $main::lxdebug->leave_sub(2);
+  if ($self->check_right($::form->{login}, $right)) {
+    $::lxdebug->leave_sub(2);
     return 1;
   }
 
   if (!$dont_abort) {
-    delete $form->{title};
-    $form->show_generic_error($main::locale->text("You do not have the permissions to access this function."));
+    delete $::form->{title};
+    $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
   }
 
-  $main::lxdebug->leave_sub(2);
+  $::lxdebug->leave_sub(2);
 
   return 0;
 }
