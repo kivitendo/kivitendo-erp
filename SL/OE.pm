@@ -52,7 +52,7 @@ sub transactions {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query;
   my $ordnumber = 'ordnumber';
@@ -226,7 +226,6 @@ SQL
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -658,7 +657,8 @@ sub delete {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
+  $dbh->begin_work;
 
   # delete spool files
   my $query = qq|SELECT s.spoolfile FROM status s | .
@@ -702,7 +702,6 @@ sub delete {
   do_query($form, $dbh, $query, @values);
 
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   if ($rc) {
     my $spool = $::lx_office_conf{paths}->{spool};
@@ -1034,7 +1033,7 @@ sub order_details {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
   my $query;
   my @values = ();
   my $sth;
