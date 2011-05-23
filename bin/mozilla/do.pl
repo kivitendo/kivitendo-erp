@@ -883,7 +883,7 @@ sub invoice_multi {
     $vc_discount = $form->{vendor_discount};
   } else {
     IS->get_customer(\%myconfig, \%$form);
-    $vc_discount = $form->parse_amount(\%myconfig, $form->{customer_discount});
+    $vc_discount = $form->{customer_discount};
   }
   restore_form($saved_form);
 
