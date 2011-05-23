@@ -739,7 +739,8 @@ sub dbupdate {
   foreach my $i (@update_rows) {
     restore_form($saved_form);
 
-    map { $form->{$_} = $form->{"${_}_${i}"} } qw(dbname dbdriver dbhost dbport dbuser dbpasswd);
+    %::myconfig = ();
+    map { $form->{$_} = $::myconfig{$_} = $form->{"${_}_${i}"} } qw(dbname dbdriver dbhost dbport dbuser dbpasswd);
 
     print $form->parse_html_template("admin/dbupgrade_header");
 
