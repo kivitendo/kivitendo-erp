@@ -45,7 +45,8 @@ sub save {
 
   my ($dbh, $sth, $query, %saved, $dumped);
 
-  $dbh = $form->dbconnect_noauto($myconfig);
+  $dbh = $form->get_standard_dbh;
+  $dbh->begin_work;
 
   my ($module, $submodule) = $self->get_module($form);
 
@@ -72,7 +73,6 @@ sub save {
   do_query($form, $dbh, $query, $draft_description, $dumped, $form->{login}, $draft_id);
 
   $dbh->commit();
-  $dbh->disconnect();
 
   $form->{draft_id}          = $draft_id;
   $form->{draft_description} = $draft_description;
@@ -87,7 +87,7 @@ sub load {
 
   my ($dbh, $sth, $query, @values);
 
-  $dbh = $form->dbconnect($myconfig);
+  $dbh = $form->get_standard_dbh;
 
   $query = qq|SELECT id, description, form FROM drafts WHERE id = ?|;
 
@@ -97,8 +97,6 @@ sub load {
     @values = ($ref->{form}, $ref->{id}, $ref->{description});
   }
   $sth->finish();
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -114,12 +112,10 @@ sub remove {
 
   my ($dbh, $sth, $query);
 
-  $dbh = $form->dbconnect($myconfig);
+  $dbh = $form->get_standard_dbh;
 
   $query = qq|DELETE FROM drafts WHERE id IN (| . join(", ", map { "?" } @draft_ids) . qq|)|;
   do_query($form, $dbh, $query, @draft_ids);
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 }
