@@ -4,7 +4,6 @@
 -- @charset: utf-8
 DELETE FROM auth.group_rights
 WHERE ("right" = 'batch_printing')
-  AND granted
   AND group_id = (
     SELECT id
     FROM auth."group"
