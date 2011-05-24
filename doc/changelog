@@ -56,6 +56,8 @@
   - Bugfix 1647: Lieferanten-Einkaufspreise verlieren Nachkommastellen
   - Bugfix 1630: Rabatt wird auf der Rechnung auch auf nicht rabattierfähige Artikel gewährt
   - Bugfix 1652: Rabatt falsch bei Rechnung aus Berichtsübersicht und Workflow-Start bei Lieferschein
+  - Bugfix 1579: Einkaufsrechnung mit bestimmten Werten und 'Steuer im Preis inbegriffen'
+          
 
 2011-02-02 - Release 2.6.2
 
