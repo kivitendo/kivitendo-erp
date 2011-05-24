@@ -883,7 +883,7 @@ sub invoice_multi {
     $vc_discount = $form->{vendor_discount};
   } else {
     IS->get_customer(\%myconfig, \%$form);
-    $vc_discount = $form->parse_amount(\%myconfig, $form->{customer_discount});
+    $vc_discount = $form->{customer_discount};
   }
   restore_form($saved_form);
 
@@ -1248,15 +1248,15 @@ sub set_stock_out {
 sub transfer_in {
   $main::lxdebug->enter_sub();
 
-  save(no_redirect => 1);
-
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  if (DO->is_marked_as_delivered('id' => $form->{id})) {
+  if ($form->{id} && DO->is_marked_as_delivered(id => $form->{id})) {
     $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred in.'), 'back_button' => 1);
   }
+
+  save(no_redirect => 1);
 
   my @part_ids = map { $form->{"id_${_}"} } grep { $form->{"id_${_}"} && $form->{"stock_in_${_}"} } (1 .. $form->{rowcount});
   my @all_requests;
@@ -1316,15 +1316,15 @@ sub transfer_in {
 sub transfer_out {
   $main::lxdebug->enter_sub();
 
-  save(no_redirect => 1);
-
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  if (DO->is_marked_as_delivered('id' => $form->{id})) {
+  if ($form->{id} && DO->is_marked_as_delivered(id => $form->{id})) {
     $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred out.'), 'back_button' => 1);
   }
+
+  save(no_redirect => 1);
 
   my @part_ids = map { $form->{"id_${_}"} } grep { $form->{"id_${_}"} && $form->{"stock_out_${_}"} } (1 .. $form->{rowcount});
   my @all_requests;

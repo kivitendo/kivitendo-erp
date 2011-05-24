@@ -34,7 +34,7 @@
   - Dokumentensystem -> der Name der Zahlart ist in den Dokumenten verfügbar, dies ermoglicht größere
                         Flexiblität in den Vorlagen über if-Abfragen
 
-  - Dokumentensystem -> viele Zahlenwerte sind nun auch in nicht fromatierter Form (alos ungerundet und mit . als Dezimaltrennzeichen) in den Dokumenten verfügbar.
+  - Dokumentensystem -> viele Zahlenwerte sind nun auch in nicht formatierter Form (also ungerundet und mit . als Dezimaltrennzeichen) in den Dokumenten verfügbar.
                         Variabelenerweiterung: _nofmt, siehe doc/dokumentenvorlagen-und-variablen.html
 
   - Bedienung -> Eingabe beliebiger mathematischer Funktionen bestehend aus +-*/() in alle Zahlenfelder
@@ -55,6 +55,7 @@
   - Bugfix 1575: Kundenrabatt geht verloren
   - Bugfix 1647: Lieferanten-Einkaufspreise verlieren Nachkommastellen
   - Bugfix 1630: Rabatt wird auf der Rechnung auch auf nicht rabattierfähige Artikel gewährt
+  - Bugfix 1652: Rabatt falsch bei Rechnung aus Berichtsübersicht und Workflow-Start bei Lieferschein
 
 2011-02-02 - Release 2.6.2
 
