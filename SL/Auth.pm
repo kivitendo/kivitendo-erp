@@ -615,7 +615,7 @@ sub save_session {
 
   my $dbh          = $provided_dbh || $self->dbconnect(1);
 
-   $::lxdebug->leave_sub && return unless $dbh;
+  $::lxdebug->leave_sub && return unless $dbh && $session_id;
 
   $dbh->begin_work unless $provided_dbh;
 

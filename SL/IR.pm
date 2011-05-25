@@ -158,8 +158,10 @@ sub post_invoice {
       $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
       if ($form->{taxincluded}) {
+        
         $taxamount              = $linetotal * ($taxrate / (1 + $taxrate));
         $form->{"sellprice_$i"} = $form->{"sellprice_$i"} * (1 / (1 + $taxrate));
+
       } else {
         $taxamount = $linetotal * $taxrate;
       }
@@ -380,10 +382,42 @@ sub post_invoice {
     $invoicediff += $paiddiff;
     $expensediff += $paiddiff;
 
-    ######## this only applies to tax included
+######## this only applies to tax included
+
+    # in the sales invoice case rounding errors only have to be corrected for
+    # income accounts, it is enough to add the total rounding error to one of
+    # the income accounts, with the one assigned to the last row being used
+    # (lastinventoryaccno)
+    
+    # in the purchase invoice case rounding errors may be split between
+    # inventory accounts and expense accounts. After rounding, an error of 1
+    # cent is introduced if the total rounding error exceeds 0.005. The total
+    # error is made up of $invoicediff and $expensediff, however, so if both
+    # values are below 0.005, but add up to a total >= 0.005, correcting
+    # lastinventoryaccno and lastexpenseaccno separately has no effect after
+    # rounding. This caused bug 1579. Therefore when the combined total exceeds
+    # 0.005, but neither do individually, the account with the larger value
+    # shall receive the total rounding error, and the next time it is rounded
+    # the 1 cent correction will be introduced.
+
+    my $total_rounding_diff = $invoicediff+$expensediff;
 
     $form->{amount}{ $form->{id} }{$lastinventoryaccno} -= $invoicediff if $lastinventoryaccno;
     $form->{amount}{ $form->{id} }{$lastexpenseaccno}   -= $expensediff if $lastexpenseaccno;
+
+    if ( ($expensediff+$invoicediff) >= 0.005 and $expensediff < 0.005 and $invoicediff < 0.005 ) {
+
+      # in total the rounding error adds up to 1 cent effectively, correct the
+      # larger of the two numbers
+
+      if ( abs($form->{amount}{ $form->{id} }{$lastinventoryaccno}) > abs($form->{amount}{ $form->{id} }{$lastexpenseaccno}) ) {
+        # $invoicediff has already been deducted, now also deduct expensediff
+        $form->{amount}{ $form->{id} }{$lastinventoryaccno}   -= $expensediff;
+      } else {
+        # expensediff has already been deducted, now also deduct invoicediff
+        $form->{amount}{ $form->{id} }{$lastexpenseaccno}   -= $invoicediff;
+      };
+    };
 
   } else {
     $amount    = $form->round_amount($netamount * $form->{exchangerate}, 2);
@@ -405,21 +439,22 @@ sub post_invoice {
 
   $form->{paid} = $form->round_amount($form->{paid} * $form->{exchangerate} + $paiddiff, 2) if $form->{paid} != 0;
 
-  # update exchangerate
+# update exchangerate
 
   $form->update_exchangerate($dbh, $form->{currency}, $form->{invdate}, 0, $form->{exchangerate})
     if ($form->{currency} ne $defaultcurrency) && !$exchangerate;
 
-  # record acc_trans transactions
+# record acc_trans transactions
   foreach my $trans_id (keys %{ $form->{amount} }) {
     foreach my $accno (keys %{ $form->{amount}{$trans_id} }) {
       $form->{amount}{$trans_id}{$accno} = $form->round_amount($form->{amount}{$trans_id}{$accno}, 2);
+
 
       next if $payments_only || !$form->{amount}{$trans_id}{$accno};
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
-                          (SELECT taxkey_id  FROM chart WHERE accno = ?), ?)|;
+                  (SELECT taxkey_id  FROM chart WHERE accno = ?), ?)|;
       @values = ($trans_id, $accno, $form->{amount}{$trans_id}{$accno},
                  conv_date($form->{invdate}), $accno, $project_id);
       do_query($form, $dbh, $query, @values);
