@@ -40,6 +40,7 @@
   - Bedienung -> Eingabe beliebiger mathematischer Funktionen bestehend aus +-*/() in alle Zahlenfelder
                  das ermoeglicht z.B. die nettopreisangabe "100/1,19", was dann als "84,033613" gespeichert wird.
                  Berücksichtigt das beim Benutzer eingestellte Zahlenformat.
+  - Benutzerdefinierte Variablen -> Beim CSV-Export die Filter (Such-) Kriterien auch für Waren und Kunden übernommen
 
 
   Liste gefixter Bugs aus dem Bugtracker:
