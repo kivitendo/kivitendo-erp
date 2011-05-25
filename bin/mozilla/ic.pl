@@ -1207,7 +1207,8 @@ sub generate_report {
     map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
   map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
 
-  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys, @searchable_custom_variables, map { "l_$_" } @columns);
+  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys,
+                              map({ "cvar_$_->{name}" } @searchable_custom_variables), map { "l_$_" } @columns);
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   my @sort_full        = qw(partnumber description onhand soldtotal deliverydate);
