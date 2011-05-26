@@ -269,15 +269,15 @@ sub parse_block {
       $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_foreach), @indices);
       substr($contents, 0, $pos_foreach) = "";
 
-      if ($contents !~ m|^$self->{tag_start_qm}foreach (.+?)$self->{tag_end_qm}|) {
+      if ($contents !~ m|^($self->{tag_start_qm}foreach (.+?)$self->{tag_end_qm})|) {
         $self->{"error"} = "Malformed $self->{tag_start}foreach$self->{tag_end}.";
         $main::lxdebug->leave_sub();
         return undef;
       }
 
-      my $var = $1;
+      my $var = $2;
 
-      substr($contents, 0, length($&)) = "";
+      substr($contents, 0, length($1)) = "";
 
       my $block;
       ($block, $contents) = $self->find_end($contents);
@@ -420,13 +420,13 @@ sub parse {
   my $contents = join("", @lines);
 
   # detect pagebreak block and its parameters
-  if ($contents =~ /$self->{tag_start_qm}pagebreak\s+(\d+)\s+(\d+)\s+(\d+)\s*$self->{tag_end_qm}(.*?)$self->{tag_start_qm}end(\s*pagebreak)?$self->{tag_end_qm}/s) {
-    $self->{"chars_per_line"} = $1;
-    $self->{"lines_on_first_page"} = $2;
-    $self->{"lines_on_second_page"} = $3;
-    $self->{"pagebreak_block"} = $4;
+  if ($contents =~ /^(.*)($self->{tag_start_qm}pagebreak\s+(\d+)\s+(\d+)\s+(\d+)\s*$self->{tag_end_qm}(.*?)$self->{tag_start_qm}end(\s*pagebreak)?$self->{tag_end_qm})/s) {
+    $self->{"chars_per_line"} = $3;
+    $self->{"lines_on_first_page"} = $4;
+    $self->{"lines_on_second_page"} = $5;
+    $self->{"pagebreak_block"} = $6;
 
-    substr($contents, length($`), length($&)) = "";
+    substr($contents, length($1), length($2)) = "";
   }
 
   $self->{"forced_pagebreaks"} = [];

@@ -210,9 +210,9 @@ sub parse_block {
 
   while ($contents ne "") {
     if (substr($contents, 0, 1) eq "<") {
-      $contents =~ m|^<[^>]+>|;
-      my $tag = $&;
-      substr($contents, 0, length($&)) = "";
+      $contents =~ m|^(<[^>]+>)|;
+      my $tag = $1;
+      substr($contents, 0, length($1)) = "";
 
       $self->{current_text_style} = $1 if $tag =~ m|text:style-name\s*=\s*"([^"]+)"|;
 
@@ -224,10 +224,10 @@ sub parse_block {
         if ($table_row =~ m|\&lt;\%foreachrow\s+(.*?)\%\&gt;|) {
           my $var = $1;
 
-          $contents =~ m|\&lt;\%foreachrow\s+.*?\%\&gt;|;
-          substr($contents, length($`), length($&)) = "";
+          $contents =~ m|^(.*?)(\&lt;\%foreachrow\s+.*?\%\&gt;)|;
+          substr($contents, length($1), length($2)) = "";
 
-          ($table_row, $contents) = $self->find_end($contents, length($`));
+          ($table_row, $contents) = $self->find_end($contents, length($1));
           if (!$table_row) {
             $self->{"error"} = "Unclosed <\%foreachrow\%>." unless ($self->{"error"});
             $main::lxdebug->leave_sub();
@@ -238,7 +238,7 @@ sub parse_block {
           $table_row .=  $1;
           $end_tag    =  $2;
 
-          substr $contents, 0, length($&), '';
+          substr $contents, 0, length($2), '';
 
           my $new_text = $self->parse_foreach($var, $table_row, $tag, $end_tag, @indices);
           if (!defined($new_text)) {
@@ -262,8 +262,8 @@ sub parse_block {
       }
 
     } else {
-      $contents =~ /^[^<]+/;
-      my $text = $&;
+      $contents =~ /^([^<]+)/;
+      my $text = $1;
 
       my $pos_if = index($text, '&lt;%if');
       my $pos_foreach = index($text, '&lt;%foreach');
@@ -278,15 +278,15 @@ sub parse_block {
         $new_contents .= $self->substitute_vars(substr($contents, 0, $pos_foreach), @indices);
         substr($contents, 0, $pos_foreach) = "";
 
-        if ($contents !~ m|^\&lt;\%foreach (.*?)\%\&gt;|) {
+        if ($contents !~ m|^(\&lt;\%foreach (.*?)\%\&gt;)|) {
           $self->{"error"} = "Malformed <\%foreach\%>.";
           $main::lxdebug->leave_sub();
           return undef;
         }
 
-        my $var = $1;
+        my $var = $2;
 
-        substr($contents, 0, length($&)) = "";
+        substr($contents, 0, length($1)) = "";
 
         my $block;
         ($block, $contents) = $self->find_end($contents);

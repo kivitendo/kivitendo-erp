@@ -48,9 +48,9 @@ sub parse {
   my $contents = join("", @lines);
   my @indices;
   $contents =~ s%
-    $self->{tag_start} [<]* (\s?) [<>\s]* ([\w\s]+) [<>\s]* $self->{tag_end}
+    ( $self->{tag_start} [<]* (\s?) [<>\s]* ([\w\s]+) [<>\s]* $self->{tag_end} )
   %
-    $self->format_vars(align_right => $1 ne '', varstring => $2, length => length($&), indices =>  \@indices)
+    $self->format_vars(align_right => $2 ne '', varstring => $3, length => length($1), indices =>  \@indices)
   %egx;
 
   if (!defined($contents)) {

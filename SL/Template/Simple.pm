@@ -162,43 +162,43 @@ sub _parse_block_if {
   $$new_contents .= $self->substitute_vars(substr($$contents, 0, $pos_if), @indices);
   substr($$contents, 0, $pos_if) = "";
 
-  if ($$contents !~ m/^$self->{tag_start_qm}if
+  if ($$contents !~ m/^( $self->{tag_start_qm}if
                      \s*
-                     (not\b|\!)?           # $1 -- Eventuelle Negierung
+                     (not\b|\!)?           # $2 -- Eventuelle Negierung
                      \s+
-                     (\b.+?\b)             # $2 -- Name der zu überprüfenden Variablen
-                     (                     # $3 -- Beginn des optionalen Vergleiches
+                     (\b.+?\b)             # $3 -- Name der zu überprüfenden Variablen
+                     (                     # $4 -- Beginn des optionalen Vergleiches
                        \s*
-                       ([!=])              # $4 -- Negierung des Vergleiches speichern
-                       ([=~])              # $5 -- Art des Vergleiches speichern
+                       ([!=])              # $5 -- Negierung des Vergleiches speichern
+                       ([=~])              # $6 -- Art des Vergleiches speichern
                        \s*
-                       (                   # $6 -- Gequoteter String oder Bareword
+                       (                   # $7 -- Gequoteter String oder Bareword
                          $self->{quot_re}
-                         (.*?)(?<!\\)      # $7 -- Gequoteter String -- direkter Vergleich mit eq bzw. ne oder Patternmatching; Escapete Anführungs als Teil des Strings belassen
+                         (.*?)(?<!\\)      # $8 -- Gequoteter String -- direkter Vergleich mit eq bzw. ne oder Patternmatching; Escapete Anführungs als Teil des Strings belassen
                          $self->{quot_re}
                        |
-                         (\b.+?\b)         # $8 -- Bareword -- als Index für $form benutzen
+                         (\b.+?\b)         # $9 -- Bareword -- als Index für $form benutzen
                        )
                      )?
                      \s*
-                     $self->{tag_end_qm}
+                     $self->{tag_end_qm} )
                     /x) {
     $self->{"error"} = "Malformed $self->{tag_start}if$self->{tag_end}.";
     $main::lxdebug->leave_sub();
     return undef;
   }
 
-  my $not           = $1;
-  my $var           = $2;
-  my $comparison    = $3; # Optionaler Match um $4..$8
-  my $operator_neg  = $4; # '=' oder '!' oder undef, wenn kein Vergleich erkannt
-  my $operator_type = $5; # '=' oder '~' für Stringvergleich oder Regex
-  my $quoted_word   = $7; # nur gültig, wenn quoted string angegeben (siehe unten); dann "value" aus <%if var == "value" %>
-  my $bareword      = $8; # undef, falls quoted string angegeben wurde; andernfalls "othervar" aus <%if var == othervar %>
+  my $not           = $2;
+  my $var           = $3;
+  my $comparison    = $4; # Optionaler Match um $4..$8
+  my $operator_neg  = $5; # '=' oder '!' oder undef, wenn kein Vergleich erkannt
+  my $operator_type = $6; # '=' oder '~' für Stringvergleich oder Regex
+  my $quoted_word   = $8; # nur gültig, wenn quoted string angegeben (siehe unten); dann "value" aus <%if var == "value" %>
+  my $bareword      = $9; # undef, falls quoted string angegeben wurde; andernfalls "othervar" aus <%if var == othervar %>
 
   $not = !$not if ($operator_neg && $operator_neg eq '!');
 
-  substr($$contents, 0, length($&)) = "";
+  substr($$contents, 0, length($1)) = "";
 
   my $block;
   ($block, $$contents) = $self->find_end($$contents, 0, "$var $comparison", $not);

@@ -441,13 +441,13 @@ sub reformat_date {
 
   my ($yy, $mm, $dd) = $self->parse_date($myconfig, $date);
 
-  $output_format =~ /d+/;
+  $output_format =~ /(d+)/;
   substr($output_format, $-[0], $+[0] - $-[0]) =
-    sprintf("%0" . (length($&)) . "d", $dd);
+    sprintf("%0" . (length($1)) . "d", $dd);
 
-  $output_format =~ /m+/;
+  $output_format =~ /(m+)/;
   substr($output_format, $-[0], $+[0] - $-[0]) =
-    sprintf("%0" . (length($&)) . "d", $mm);
+    sprintf("%0" . (length($1)) . "d", $mm);
 
   $output_format =~ /y+/;
   substr($output_format, $-[0], $+[0] - $-[0]) = $yy;
@@ -474,9 +474,9 @@ sub format_date {
   $yy = $yy % 100 if 2 == $yy_len;
 
   my $format = ref $myconfig eq '' ? "$myconfig" : $myconfig->{dateformat};
-  $format =~ s{ d+ }{ sprintf("%0" . (length($&)) . "d", $dd) }gex;
-  $format =~ s{ m+ }{ sprintf("%0" . (length($&)) . "d", $mm) }gex;
-  $format =~ s{ y+ }{ sprintf("%0${yy_len}d",            $yy) }gex;
+  $format =~ s{ (d+) }{ sprintf("%0" . (length($1)) . "d", $dd) }gex;
+  $format =~ s{ (m+) }{ sprintf("%0" . (length($1)) . "d", $mm) }gex;
+  $format =~ s{ (y+) }{ sprintf("%0${yy_len}d",            $yy) }gex;
 
   $main::lxdebug->leave_sub();
 
