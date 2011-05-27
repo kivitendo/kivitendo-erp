@@ -1117,7 +1117,7 @@ sub load_rights_for_user {
   my $dbh   = $self->dbconnect;
   my ($query, $sth, $row, $rights);
 
-  $rights = { map { $rights->{$_} = 0 } all_rights() };
+  $rights = { map { $rights->{$_} => 0 } all_rights() };
 
   $query =
     qq|SELECT gr."right", gr.granted
