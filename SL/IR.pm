@@ -400,12 +400,10 @@ sub post_invoice {
     # shall receive the total rounding error, and the next time it is rounded
     # the 1 cent correction will be introduced.
 
-    my $total_rounding_diff = $invoicediff+$expensediff;
-
     $form->{amount}{ $form->{id} }{$lastinventoryaccno} -= $invoicediff if $lastinventoryaccno;
     $form->{amount}{ $form->{id} }{$lastexpenseaccno}   -= $expensediff if $lastexpenseaccno;
 
-    if ( ($expensediff+$invoicediff) >= 0.005 and $expensediff < 0.005 and $invoicediff < 0.005 ) {
+    if ( (abs($expensediff)+abs($invoicediff)) >= 0.005 and abs($expensediff) < 0.005 and abs($invoicediff) < 0.005 ) {
 
       # in total the rounding error adds up to 1 cent effectively, correct the
       # larger of the two numbers
