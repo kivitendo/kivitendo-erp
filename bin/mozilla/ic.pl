@@ -1612,9 +1612,9 @@ sub assembly_row {
     map { delete $form->{$_} } qw(action header);
 
     # save form variables in a previousform variable
-    $previousform = $form->escape($form->escape(join '&', map {
-      sprintf "%s=%s", Q($_), /^listprice|lastcost|sellprice$/ ? $form->format_amount(\%myconfig, $form->{$_}) : $form->{$_}
-    } grep { ref $form->{$_} eq '' && $form->{$_} } grep { !/^select/ } sort keys %$form ));
+    my %form_to_save = map   { ($_ => m/^ (?: listprice | sellprice | lastcost ) $/x ? $form->format_amount(\%myconfig, $form->{$_}) : $form->{$_}) }
+                       keys %{ $form };
+    $previousform    = $::auth->save_form_in_session(form => \%form_to_save);
 
     $form->{callback} = $callback;
     $form->{assemblytotal} = 0;
