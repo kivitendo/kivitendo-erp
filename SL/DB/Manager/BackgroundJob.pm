@@ -29,7 +29,7 @@ sub get_all_need_to_run {
                                                  next_run_at => undef,
                                                  next_run_at => { le => $now } ] ]);
 
-  return $class->get_all(where => [ or => [ @interval_args, @once_args ] ]);
+  return $class->get_all(query => [ or => [ @interval_args, @once_args ] ]);
 }
 
 1;

@@ -22,7 +22,7 @@ sub run {
   my $self        = shift;
   $self->{db_obj} = shift;
 
-  my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(where => [ active => 1 ]);
+  my $configs = SL::DB::Manager::PeriodicInvoicesConfig->get_all(query => [ active => 1 ]);
 
   foreach my $config (@{ $configs }) {
     my $new_end_date = $config->handle_automatic_extension;
