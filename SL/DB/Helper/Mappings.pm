@@ -105,6 +105,7 @@ my %lxoffice_package_names = (
   translation_payment_terms      => 'translation_payment_term',
   units                          => 'unit',
   units_language                 => 'units_language',
+  vendor                         => 'vendor',
   vendortax                      => 'vendor_tax',
 );
 
