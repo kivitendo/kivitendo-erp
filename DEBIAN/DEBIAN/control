@@ -5,8 +5,8 @@ Section: universe/web
 Priority: optional
 Installed-Size: 0
 Maintainer: Holger Lindemann <hli@lx-system.de>, Adrian Weibel <adrian_weibel@web.de>
-Depends: patch, apache2 | apache | lighttpd, postgresql-8.3 | postgresql-8.4, libdbi-perl, libdbd-pg-perl, libpg-perl, libarchive-zip-perl, libyaml-perl, libio-stringy-perl, libtemplate-perl, libpdf-api2-perl, libcgi-ajax-perl, liblist-moreutils-perl, libxml-writer-perl, libtext-csv-xs-perl | libtext-csv-perl, liburi-perl, libdatetime-perl, libtext-iconv-perl, libclass-accessor-perl,libemail-address-perl,libparent-perl, librose-object-perl, librose-db-perl, librose-db-object-perl
-Suggests: tetex-base | texlive-latex-base, tetex-bin | texlive-base-bin , tetex-extra | texlive-latex-extra, xpdf | evince | okular, libfcgi-perl, libapache2-mod-fastcgi
+Depends: patch, apache2 | apache | lighttpd, postgresql-8.3 | postgresql-8.4, libdbi-perl, libdbd-pg-perl, libpg-perl, libarchive-zip-perl, libyaml-perl, libio-stringy-perl, libtemplate-perl, libpdf-api2-perl, libcgi-ajax-perl, liblist-moreutils-perl, libxml-writer-perl, libtext-csv-xs-perl | libtext-csv-perl, liburi-perl, libdatetime-perl, libtext-iconv-perl, libclass-accessor-perl,libemail-address-perl,libparent-perl, librose-object-perl, librose-db-perl, librose-db-object-perl,libsort-naturally-perl,libparams-validate-perl,libfcgi-perl
+Suggests: tetex-base | texlive-latex-base, tetex-bin | texlive-base-bin , tetex-extra | texlive-latex-extra, xpdf | evince | okular, libapache2-mod-fastcgi
 Homepage: http://www.lx-office.org
 Description: Extended double entry accounting system for the german market.
  Lx-Office is derived from sql-ledger and rewritten

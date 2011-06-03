@@ -81,11 +81,11 @@ set_lx_office_erp_web_admin_password() {
 	db_get lx-office-erp/admin-password
 	ADMINPASSWORD="$RET"
 
-	cat /etc/lx-office-erp/authentication.pl | \
-	sed --expression "s/{admin_password} = /{admin_password} = '$ADMINPASSWORD';#/g" \
+	cat /etc/lx-office-erp/lx_office.conf | \
+	sed --expression "s/{admin_password} = /{admin_password} = $ADMINPASSWORD/g" \
 	> /tmp/1.txt
 
-	mv /tmp/1.txt /etc/lx-office-erp/authentication.pl
+	mv /tmp/1.txt /etc/lx-office-erp/lx_office.conf
 
 }
 
@@ -94,13 +94,13 @@ set_lx_office_erp_authentication_db_user_password() {
 	db_get lx-office-erp/lx-office-erp-user-postgresql-password
 	PASSWORD="$RET"
 
-	cat /etc/lx-office-erp/authentication.pl | \
-	sed --expression "s/'password' => /'password' => '$PASSWORD', #/g" \
+	cat /etc/lx-office-erp/lx_office.conf | \
+	sed --expression "s/'password' = /'password' = $PASSWORD/g" \
 	> /tmp/1.txt
 
 	cat /tmp/1.txt | \
 	sed --expression "s/^user = postgres/user = lxoffice/g" \
-	>  /etc/lx-office-erp/authentication.pl
+	>  /etc/lx-office-erp/lx_office.conf
 
 }
 
@@ -108,12 +108,9 @@ set_lx_office_erp_authentication_db_user_password() {
 set_user_rights() {
 	chown -R www-data:www-data /usr/lib/lx-office-erp/users
 	chown -R www-data:www-data /usr/lib/lx-office-erp/templates
-	chown www-data:www-data /etc/lx-office-erp/lx-erp.conf
-	chown www-data:www-data /etc/lx-office-erp/authentication.pl
-	chown www-data:www-data /etc/lx-office-erp/console.conf
+	chown www-data:www-data /etc/lx-office-erp/lx_office.conf
 	chown www-data:www-data /usr/lib/lx-office-erp/menu.ini
-	chmod 0600 /etc/lx-office-erp/lx-erp.conf
-	chmod 0600 /etc/lx-office-erp/authentication.pl
+	chmod 0600 /etc/lx-office-erp/lx_office.conf
 }
 
 disable_ipv6_on_lo_interface() {
@@ -142,23 +139,14 @@ mk_new_menu() {
 }
 
 mk_new_config() {
-    if ! [ -f /etc/lx-office-erp/lx-erp.conf ] ; then
-        cp /etc/lx-office-erp/lx-erp.conf.default /etc/lx-office-erp/lx-erp.conf
-    fi
-    if ! [ -f /etc/lx-office-erp/authentication.pl ] ; then
-	cp /etc/lx-office-erp/authentication.pl.default /etc/lx-office-erp/authentication.pl
-    fi
-    if ! [ -f /etc/lx-office-erp/console.conf ] ; then
-        cp /etc/lx-office-erp/console.conf.default /etc/lx-office-erp/console.conf
+    if ! [ -f /etc/lx-office-erp/lx_office.conf ] ; then
+	cp /etc/lx-office-erp/lx_office.conf.default /etc/lx-office-erp/lx_office.conf
     fi
 }
 
 mk_links() {
-    if ! [ -f /usr/lib/lx-office-erp/config/lx-erp.conf ] ; then
-        ln -s /etc/lx-office-erp/lx-erp.conf /usr/lib/lx-office-erp/config/lx-erp.conf
-    fi;
-    if ! [ -f /usr/lib/lx-office-erp/config/authentication.pl ] ; then
-        ln -s /etc/lx-office-erp/authentication.pl /usr/lib/lx-office-erp/config/authentication.pl
+    if ! [ -f /usr/lib/lx-office-erp/config/lx_office.conf ] ; then
+        ln -s /etc/lx-office-erp/lx_office.conf /usr/lib/lx-office-erp/config/lx_office.conf
     fi
     if [ -e /etc/apache2 ] ; then
         if ! [ -f /etc/apache2/conf.d/lx-office-erp.apache2.conf ] ; then
@@ -194,9 +182,9 @@ case "$1" in
         echo " ! "`date`" $1 !" >> /tmp/lxo-erp.log
 
         VER=`cat /var/www/lx-office-erp/VERSION | cut -d '.' -f2`
-        if [ $VER = '6' ]; then
-            echo " ! 2.6 !" >> /tmp/lxo-erp.log
-            echo "Version 2.6.x"
+        if [ $VER = '7' ]; then
+            echo " ! 2.7 !" >> /tmp/lxo-erp.log
+            echo "Version 2.7.x"
             mk_new_menu
         else
             mk_new_menu
