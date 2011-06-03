@@ -372,9 +372,8 @@ sub webdav_folder {
     mkdir_with_parents($path);
 
   } else {
-    my $base_path = substr($ENV{'SCRIPT_NAME'}, 1);
+    my $base_path = $ENV{'SCRIPT_NAME'};
     $base_path =~ s|[^/]+$||;
-    $base_path =~ s|/$||;
     # wo kommt der wert für dir her? es wird doch gar nichts übergeben? fix für strict my $dir jb 21.2.
     if (opendir my $dir, $path) {
       foreach my $file (sort { lc $a cmp lc $b } readdir $dir) {
@@ -390,7 +389,7 @@ sub webdav_folder {
 
         push @{ $form->{WEBDAV} }, {
           'name' => $fname,
-          'link' => "$base_path/$file",
+          'link' => $base_path . $file,
           'type' => $is_directory ? $main::locale->text('Directory') : $main::locale->text('File'),
         };
       }

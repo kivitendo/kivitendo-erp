@@ -640,6 +640,18 @@ sub create_http_response {
   return $output;
 }
 
+sub use_stylesheet {
+  my $self = shift;
+
+  $self->{stylesheet} = [ $self->{stylesheet} ] unless ref $self->{stylesheet} eq 'ARRAY';
+  $self->{stylesheet} = [ grep { -f                       }
+                          map  { m:^css/: ? $_ : "css/$_" }
+                          grep { $_                       }
+                               (@{ $self->{stylesheet} }, @_)
+                        ];
+
+  return @{ $self->{stylesheet} };
+}
 
 sub header {
   $::lxdebug->enter_sub;
@@ -662,8 +674,7 @@ sub header {
     push @header, "<meta http-equiv='refresh' content='$refresh_time;$refresh_url'>";
   }
 
-  push @header, "<link rel='stylesheet' href='css/$_' type='text/css' title='Lx-Office stylesheet'>"
-    for grep { -f "css/$_" } apply { s|.*/|| } $self->{stylesheet}, $self->{stylesheets};
+  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Lx-Office stylesheet">| } $self->use_stylesheet;
 
   push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
@@ -779,13 +790,6 @@ sub _prepare_html_template {
   $language = "de" unless ($language);
 
   if (-f "templates/webpages/${file}.html") {
-    if ((-f ".developer") && ((stat("templates/webpages/${file}.html"))[9] > (stat("locale/${language}/all"))[9])) {
-      my $info = "Developer information: templates/webpages/${file}.html is newer than the translation file locale/${language}/all.\n" .
-        "Please re-run 'locales.pl' in 'locale/${language}'.";
-      print(qq|<pre>$info</pre>|);
-      ::end_of_request();
-    }
-
     $file = "templates/webpages/${file}.html";
 
   } else {
@@ -1160,7 +1164,7 @@ sub parse_amount {
   if (   ($myconfig->{numberformat} eq '1.000,00')
       || ($myconfig->{numberformat} eq '1000,00')) {
     $amount =~ s/\.//g;
-    $amount =~ s/,/\./;
+    $amount =~ s/,/\./g;
   }
 
   if ($myconfig->{numberformat} eq "1'000.00") {
@@ -1171,7 +1175,9 @@ sub parse_amount {
 
   $main::lxdebug->leave_sub(2);
 
-  return ($amount * 1);
+  # Make sure no code wich is not a math expression ends up in eval().
+  return 0 unless $amount =~ /^ [\s \d \( \) \- \+ \* \/ \. ]* $/x;
+  return scalar(eval($amount)) * 1 ;
 }
 
 sub round_amount {
@@ -1637,7 +1643,24 @@ sub date_closed {
   my $dbh = $self->dbconnect($myconfig);
 
   my $query = "SELECT 1 FROM defaults WHERE ? < closedto";
-  my $sth = prepare_execute_query($self, $dbh, $query, $date);
+  my $sth = prepare_execute_query($self, $dbh, $query, conv_date($date));
+
+  # Falls $date = '' - Fehlermeldung aus der Datenbank. Ich denke,
+  # es ist sicher ein conv_date vorher IMMER auszuführen.
+  # Testfälle ohne definiertes closedto:
+  #   Leere Datumseingabe i.O.
+  #     SELECT 1 FROM defaults WHERE '' < closedto
+  #   normale Zahlungsbuchung über Rechnungsmaske i.O.
+  #     SELECT 1 FROM defaults WHERE '10.05.2011' < closedto
+  # Testfälle mit definiertem closedto (30.04.2011):
+  #  Leere Datumseingabe i.O.
+  #   SELECT 1 FROM defaults WHERE '' < closedto
+  # normale Buchung im geschloßenem Zeitraum i.O.
+  #   SELECT 1 FROM defaults WHERE '21.04.2011' < closedto
+  #     Fehlermeldung: Es können keine Zahlungen für abgeschlossene Bücher gebucht werden!
+  # normale Buchung in aktiver Buchungsperiode i.O.
+  #   SELECT 1 FROM defaults WHERE '01.05.2011' < closedto
+
   my ($closed) = $sth->fetchrow_array;
 
   $main::lxdebug->leave_sub();
@@ -1852,12 +1875,12 @@ sub set_payment_options {
   my $dbh = $self->get_standard_dbh($myconfig);
 
   my $query =
-    qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long | .
+    qq|SELECT p.terms_netto, p.terms_skonto, p.percent_skonto, p.description_long , p.description | .
     qq|FROM payment_terms p | .
     qq|WHERE p.id = ?|;
 
   ($self->{terms_netto}, $self->{terms_skonto}, $self->{percent_skonto},
-   $self->{payment_terms}) =
+   $self->{payment_terms}, $self->{payment_description}) =
      selectrow_query($self, $dbh, $query, $self->{payment_id});
 
   if ($transdate eq "") {
@@ -1904,10 +1927,12 @@ sub set_payment_options {
 
   if ($self->{"language_id"}) {
     $query =
-      qq|SELECT t.description_long, l.output_numberformat, l.output_dateformat, l.output_longdates | .
-      qq|FROM translation_payment_terms t | .
+      qq|SELECT t.translation, l.output_numberformat, l.output_dateformat, l.output_longdates | .
+      qq|FROM generic_translations t | .
       qq|LEFT JOIN language l ON t.language_id = l.id | .
-      qq|WHERE (t.language_id = ?) AND (t.payment_terms_id = ?)|;
+      qq|WHERE (t.language_id = ?)
+           AND (t.translation_id = ?)
+           AND (t.translation_type = 'SL::DB::PaymentTerm/description_long')|;
     my ($description_long, $output_numberformat, $output_dateformat,
       $output_longdates) =
       selectrow_query($self, $dbh, $query,
@@ -2381,7 +2406,7 @@ $main::lxdebug->enter_sub();
 
   $key = "all_payments" unless ($key);
 
-  my $query = qq|SELECT * FROM payment_terms ORDER BY id|;
+  my $query = qq|SELECT * FROM payment_terms ORDER BY sortkey|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -3800,7 +3825,7 @@ Examples:
 =head2 C<header>
 
 Generates a general purpose http/html header and includes most of the scripts
-ans stylesheets needed.
+and stylesheets needed. Stylesheets can be added with L<use_stylesheet>.
 
 Only one header will be generated. If the method was already called in this
 request it will not output anything and return undef. Also if no
@@ -3820,9 +3845,8 @@ default to 3 seconds and the refering url.
 
 =item stylesheet
 
-=item stylesheets
-
-If these are arrayrefs the contents will be inlined into the header.
+Either a scalar or an array ref. Will be inlined into the header. Add
+stylesheets with the L<use_stylesheet> function.
 
 =item landscape
 

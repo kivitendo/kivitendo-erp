@@ -35,7 +35,7 @@ password =
 # the LDAP server the passwords are verified against by doing a LDAP
 # bind operation.
 #
-# At least the parameters 'host', 'aatribute' and 'base_dn' have to be
+# At least the parameters 'host', 'attribute' and 'base_dn' have to be
 # specified.
 #
 # tls:       Activate encryption via TLS
@@ -59,14 +59,15 @@ bind_password =
 [system]
 # EUR: Einnahmen-Überschussrechnung (net income method). Set this to 1
 # if your company uses the net income method and to 0 for balancing.
+# Additional note in german: Sollversteuerung = 0; Istversteuerung = 1
 eur = 1
 
 # Set language for login and admin forms. Currently "de" (German),
 # "de_DE" (new German) and "en" (English, not perfect) are available.
 language = de
 
-# The database charset. Must match the database cluster you want to
-# connect to.
+# The database charset. Must match the encoding of the database cluster you want to
+# connect to. (Used on the shell command to create a database "pg_createcluster". Option "-e <encoding>".)
 dbcharset = UTF-8
 
 [features]
@@ -171,6 +172,10 @@ login =
 # location of history file for permanent history
 history_file = users/console_history
 
+# location of a separate log file for the console. everything normally written
+# to the lx-office log will be put here if triggered from the console
+log_file = /tmp/lxoffice_console_debug.log
+
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
 # will be replaced by the file name configured for $::lxdebug.
@@ -217,6 +222,10 @@ global_level = NONE
 # Monitoring has a performance cost and is therefore deactivated by
 # default.
 watch_form = 0
+
+# Include menu options for debugging in the HTML menu. Works only in
+# FastCGI mode.
+show_debug_menu = 0
 
 # If you want to debug the creation of LaTeX files then set this to 1.
 # That way the temporary LaTeX files created during PDF creation are

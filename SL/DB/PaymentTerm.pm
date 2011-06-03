@@ -1,13 +1,20 @@
-# This file has been auto-generated only because it didn't exist.
-# Feel free to modify it at will; it will not be overwritten automatically.
-
 package SL::DB::PaymentTerm;
 
 use strict;
 
 use SL::DB::MetaSetup::PaymentTerm;
+use SL::DB::Manager::PaymentTerm;
+use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::TranslatedAttributes;
 
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The description is missing.')      if !$self->description;
+  push @errors, $::locale->text('The long description is missing.') if !$self->description_long;
+
+  return @errors;
+}
 
 1;

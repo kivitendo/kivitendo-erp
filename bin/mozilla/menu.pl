@@ -63,7 +63,7 @@ sub display {
 
   print qq|
 <frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">
-  <frame  src="kopf.pl" name="kopf"  scrolling="NO">
+  <frame  src="controller.pl?action=FrameHeader/header" scrolling="NO">
   <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" id="menuframe" name="menuframe">
     <frame src="$::form->{script}?action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
     <frame src="$callback" name="main_window" scrolling="auto">

@@ -34,6 +34,7 @@ use List::Util qw(max sum);
 use POSIX qw(strftime);
 use YAML;
 
+use SL::DB::DeliveryOrder;
 use SL::DO;
 use SL::IR;
 use SL::IS;
@@ -337,7 +338,19 @@ sub update_delivery_order {
   $payment_id = $form->{payment_id} if $form->{payment_id};
 
   check_name($form->{vc});
-
+  $form->{discount} =  $form->{"$form->{vc}_discount"} if defined $form->{"$form->{vc}_discount"};
+  # Problem: Wenn man ohne Erneuern einen Kunden/Lieferanten
+  # wechselt, wird der entsprechende Kunden/ Lieferantenrabatt
+  # nicht übernommen. Grundproblem: In Commit 82574e78
+  # hab ich aus discount customer_discount und vendor_discount
+  # gemacht und entsprechend an den Oberflächen richtig hin-
+  # geschoben. Die damals bessere Lösung wäre gewesen:
+  # In den Templates nur die hidden für form-discount wieder ein-
+  # setzen dann wäre die Verrenkung jetzt nicht notwendig.
+  # TODO: Ggf. Bugfix 1284, 1575 und 817 wieder zusammenführen
+  # Testfälle: Kunden mit Rabatt 0 -> Rabatt 20 i.O.
+  #            Kunde mit Rabatt 20 -> Rabatt 0  i.O.
+  #            Kunde mit Rabatt 20 -> Rabatt 5,5 i.O.
   $form->{payment_id} = $payment_id if $form->{payment_id} eq "";
 
   # for pricegroups
@@ -389,6 +402,7 @@ sub update_delivery_order {
           && ($form->{"description_$i"} eq "")) {
         $form->{rowcount}--;
         $form->{"discount_$i"} = "";
+        $form->{"not_discountable_$i"} = "";
         display_form();
 
       } else {
@@ -593,6 +607,8 @@ sub orders {
 sub save {
   $main::lxdebug->enter_sub();
 
+  my (%params) = @_;
+
   check_do_access();
 
   my $form     = $main::form;
@@ -643,7 +659,7 @@ sub save {
   # /saving the history
 
   $form->{simple_save} = 1;
-  if(!$form->{print_and_save}) {
+  if (!$params{no_redirect} && !$form->{print_and_save}) {
     set_headings("edit");
     update();
     ::end_of_request();
@@ -733,9 +749,13 @@ sub invoice {
 
   for my $i (1 .. $form->{rowcount}) {
     # für bug 1284
-    if ($form->{discount}){ # Falls wir einen Lieferanten-/Kundenrabatt haben
-      # und keinen anderen discount wert an $i ...
-      $form->{"discount_$i"} ||= $form->{discount}*100; # ... nehmen wir diesen Rabatt
+    unless ($form->{"ordnumber"}) {
+      if ($form->{discount}) { # Falls wir einen Lieferanten-/Kundenrabatt haben
+        # und rabattfähig sind, dann
+        unless ($form->{"not_discountable_$i"}) {
+          $form->{"discount_$i"} = $form->{discount}*100; # ... nehmen wir diesen Rabatt
+        }
+      }
     }
     map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"} } qw(ship qty sellprice listprice lastcost basefactor);
   }
@@ -863,7 +883,7 @@ sub invoice_multi {
     $vc_discount = $form->{vendor_discount};
   } else {
     IS->get_customer(\%myconfig, \%$form);
-    $vc_discount = $form->parse_amount(\%myconfig, $form->{customer_discount});
+    $vc_discount = $form->{customer_discount};
   }
   restore_form($saved_form);
 
@@ -1232,9 +1252,11 @@ sub transfer_in {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  if (DO->is_marked_as_delivered('id' => $form->{id})) {
+  if ($form->{id} && DO->is_marked_as_delivered(id => $form->{id})) {
     $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred in.'), 'back_button' => 1);
   }
+
+  save(no_redirect => 1);
 
   my @part_ids = map { $form->{"id_${_}"} } grep { $form->{"id_${_}"} && $form->{"stock_in_${_}"} } (1 .. $form->{rowcount});
   my @all_requests;
@@ -1272,6 +1294,7 @@ sub transfer_in {
     if (@{ $form->{ERRORS} }) {
       push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been marked as delivered. The warehouse contents have not changed.');
 
+      set_headings('edit');
       update();
       $main::lxdebug->leave_sub();
 
@@ -1282,9 +1305,10 @@ sub transfer_in {
   DO->transfer_in_out('direction' => 'in',
                       'requests'  => \@all_requests);
 
-  $form->{delivered} = 1;
+  SL::DB::DeliveryOrder->new(id => $form->{id})->load->update_attributes(delivered => 1);
 
-  save();
+  $form->{callback} = 'do.pl?action=edit&type=purchase_delivery_order&id=' . $form->escape($form->{id});
+  $form->redirect;
 
   $main::lxdebug->leave_sub();
 }
@@ -1296,9 +1320,11 @@ sub transfer_out {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  if (DO->is_marked_as_delivered('id' => $form->{id})) {
+  if ($form->{id} && DO->is_marked_as_delivered(id => $form->{id})) {
     $form->show_generic_error($locale->text('The parts for this delivery order have already been transferred out.'), 'back_button' => 1);
   }
+
+  save(no_redirect => 1);
 
   my @part_ids = map { $form->{"id_${_}"} } grep { $form->{"id_${_}"} && $form->{"stock_out_${_}"} } (1 .. $form->{rowcount});
   my @all_requests;
@@ -1333,7 +1359,7 @@ sub transfer_out {
 
       next if (0 == $row_sum_base_qty);
 
-      my $do_base_qty = $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
+      my $do_base_qty = $form->{"qty_$i"} * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
 
 #      if ($do_base_qty != $row_sum_base_qty) {
 #        push @{ $form->{ERRORS} }, $locale->text('Error in position #1: You must either assign no transfer at all or the full quantity of #2 #3.',
@@ -1387,6 +1413,7 @@ sub transfer_out {
     if (@{ $form->{ERRORS} }) {
       push @{ $form->{ERRORS} }, $locale->text('The delivery order has not been marked as delivered. The warehouse contents have not changed.');
 
+      set_headings('edit');
       update();
       $main::lxdebug->leave_sub();
 
@@ -1396,9 +1423,10 @@ sub transfer_out {
   DO->transfer_in_out('direction' => 'out',
                       'requests'  => \@all_requests);
 
-  $form->{delivered} = 1;
+  SL::DB::DeliveryOrder->new(id => $form->{id})->load->update_attributes(delivered => 1);
 
-  save();
+  $form->{callback} = 'do.pl?action=edit&type=sales_delivery_order&id=' . $form->escape($form->{id});
+  $form->redirect;
 
   $main::lxdebug->leave_sub();
 }

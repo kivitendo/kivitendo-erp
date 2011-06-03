@@ -188,6 +188,6 @@ Einige der Regeln lassen sich automatisch überprüfen, andere nicht.
 
 14. Alle neuen Module müssen use strict verwenden.
 
-    $form, $auth, $locale, $lxdebug, %myconfig sowie der Inhalt der lx-erp.conf
-    werden derzeit aus dem main package importiert. Alle anderen Konstrukte
-    sollten lexikalisch lokal gehalten werden.
+    $form, $auth, $locale, $lxdebug und %myconfig werden derzeit aus dem main
+    package importiert. Alle anderen Konstrukte sollten lexikalisch lokal
+    gehalten werden.

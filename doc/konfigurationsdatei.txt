@@ -1,0 +1,76 @@
+== Lx-Office Konfigurationsdatei ab Version 2.6.3 ==
+
+Seit Lx-Office 2.6.3. gibt es nur noch eine Konfigurationsdatei die benötigt wird -  die: config/lx_office.conf.
+
+Diese muß bei der Erstinstallation von Lx-Office (oder Migration von älteren Versionen) angelegt werden.
+
+Als Vorlage dient die Datei config/lx_office.conf.default.
+
+ $ cp config/lx_office.conf.default config/lx_office.conf
+
+Die Datei config/lx_office.conf.default wird immer eingelesen, Werte die in
+config/lx_office.conf stehen überschreiben die Werte aus
+config/lx_office.conf.default. Die Datei config/lx_office.conf muss also nur
+die Abschintte und Werte enthalten die von config/lx_office.conf.default abweichen.
+
+Diese Datei (lx_office.conf) ist dann eine installationsspezifische Datei,
+d.h. sie enthält bspw. lokale Passwörter und wird auch nicht im Versionsmanagement (git) verwaltet.
+
+Die Konfiguration ist ferner serverabhängig, d.h. für alle Mandaten, bzw. Datenbanken gleich.
+
+
+Die Konfigurationsdatei besteht aus mehreren Teilen, die entsprechend kommentiert sind:
+
+* authentication
+* authentication/database
+* authentication/ldap
+* system
+* features
+* paths
+* applications
+* environment
+* print_templates
+* task_server
+* periodic_invoices
+* console
+* debug
+
+Die üblicherweise wichtigsten Parameter, die am Anfang einzustellen oder zu kontrollieren sind, sind:
+
+[authentication]
+admin_password = geheim
+
+[authentication/database]
+host     = localhost
+port     = 5432
+db       = lxerp_auth
+user     = postgres
+password =
+
+[system]:
+* eur
+* dbcharset
+
+Nutzt man wiederkehrende Rechnungen kann man unter [periodic_invoices] den
+Login eines Benutzers angeben, der nach Erstellung der Rechnungen eine
+entsprechende E-Mail mit Informationen über die erstellten Rechnungen bekommt.
+
+Nutzt man den Taskserver für wiederkehrende Rechnungen, muß unter [task_server]
+ein Login eines Benutzers angegeben werden, mit dem sich der Taskserver an
+Lx-Office bei der Datenbank anmeldet, die dem Benutzer zugewiesen ist.
+
+Für Entwickler finden sich unter [debug] wichtige Funktionen, um die
+Fehlersuche zu erleichtern.
+
+
+== Versionen vor 2.6.3 ==
+
+In älteren Lx-Office Versionen gab es im Verzeichnis config die Dateien
+authentication.pl und lx-erp.conf, die jeweils Perl-Dateien waren. Es gab auch
+die Möglichkeit, eine lokale Version der Konfigurationsdatei zu erstellen
+(lx-erp-local.conf), dies ist ab 2.6.3 auch nicht mehr möglich/nötig.
+
+Beim Update von einer älteren Lx-Office Version auf 2.6.3 müssen die
+Einstellungen aus den alten Konfigurationsdateien manuell übertragen werden und
+die alten Konfigurationsdateien gelöscht oder verschoben werden, sonst kommt es
+zu einer Fehlermeldung.

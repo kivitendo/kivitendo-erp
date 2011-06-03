@@ -370,7 +370,7 @@ sub display_row {
 
     if ($is_delivery_order) {
       map { $form->{"${_}_${i}"} = $form->format_amount(\%myconfig, $form->{"${_}_${i}"}) } qw(sellprice discount lastcost);
-      push @hidden_vars, qw(sellprice discount price_factor_id lastcost);
+      push @hidden_vars, qw(sellprice discount not_discountable price_factor_id lastcost);
       push @hidden_vars, "stock_${stock_in_out}_sum_qty", "stock_${stock_in_out}";
     }
 
@@ -1538,17 +1538,7 @@ sub print_form {
                    qw(invtotal ordtotal quototal subtotal linetotal
                       listprice sellprice netprice discount
                       tax taxbase total paid),
-                   grep({ /^linetotal_\d+$/ ||
-                            /^listprice_\d+$/ ||
-                            /^sellprice_\d+$/ ||
-                            /^netprice_\d+$/ ||
-                            /^taxbase_\d+$/ ||
-                            /^discount_\d+$/ ||
-                            /^paid_\d+$/ ||
-                            /^subtotal_\d+$/ ||
-                            /^total_\d+$/ ||
-                            /^tax_\d+$/
-                        } keys(%{$form})));
+                   grep({ /^(?:linetotal|nodiscount_linetotal|listprice|sellprice|netprice|taxbase|discount|p_discount|discount_sub|nodiscount_sub|paid|subtotal|total|tax)_\d+$/ } keys(%{$form})));
 
   reformat_numbers($output_numberformat, undef,
                    qw(qty price_factor),

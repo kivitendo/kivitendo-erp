@@ -19,9 +19,9 @@ function ende($txt) {
 }
 
 if (!$_SESSION["db"]) {
-    $conffile="../config/authentication.pl";
+    $conffile="../config/lx_office.conf";
     if (!is_file($conffile)) {
-        ende("authentication.pl nicht gefunden oder kein Leserecht.");
+        ende("lx_office.conf nicht gefunden oder kein Leserecht.");
     }
 }
 require ("import_lib.php");

@@ -106,6 +106,7 @@ sub checkbox_tag {
   $attributes{id}    ||= $self->name_to_id($name);
   $attributes{value}   = 1 unless defined $attributes{value};
   my $label            = delete $attributes{label};
+  my $checkall         = delete $attributes{checkall};
 
   if ($attributes{checked}) {
     $attributes{checked} = 'checked';
@@ -115,6 +116,7 @@ sub checkbox_tag {
 
   my $code  = $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
   $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
+  $code    .= $self->javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
 
   return $code;
 }
@@ -396,6 +398,64 @@ EOCODE
   return $code;
 }
 
+sub sortable_element {
+  my ($self, $selector, @slurp) = @_;
+  my %params                    = _hashify(@slurp);
+
+  my %attributes = ( distance => 5,
+                     helper   => <<'JAVASCRIPT' );
+    function(event, ui) {
+      ui.children().each(function() {
+        $(this).width($(this).width());
+      });
+      return ui;
+    }
+JAVASCRIPT
+
+  my $stop_event = '';
+
+  if ($params{url} && $params{with}) {
+    my $as      = $params{as} || $params{with};
+    my $filter  = ".filter(function(idx) { return this.substr(0, " . length($params{with}) . ") == '$params{with}'; })";
+    $filter    .= ".map(function(idx, str) { return str.replace('$params{with}_', ''); })";
+
+    $stop_event = <<JAVASCRIPT;
+        \$.post('$params{url}', { '${as}[]': \$(\$('${selector}').sortable('toArray'))${filter}.toArray() });
+JAVASCRIPT
+  }
+
+  if (!$params{dont_recolor}) {
+    $stop_event .= <<JAVASCRIPT;
+        \$('${selector}>*:odd').removeClass('listrow1').removeClass('listrow0').addClass('listrow0');
+        \$('${selector}>*:even').removeClass('listrow1').removeClass('listrow0').addClass('listrow1');
+JAVASCRIPT
+  }
+
+  if ($stop_event) {
+    $attributes{stop} = <<JAVASCRIPT;
+      function(event, ui) {
+        ${stop_event}
+        return ui;
+      }
+JAVASCRIPT
+  }
+
+  $params{handle}     = '.dragdrop' unless exists $params{handle};
+  $attributes{handle} = "'$params{handle}'" if $params{handle};
+
+  my $attr_str = join(', ', map { "${_}: $attributes{$_}" } keys %attributes);
+
+  my $code = <<JAVASCRIPT;
+<script type="text/javascript">
+  \$(function() {
+    \$( "${selector}" ).sortable({ ${attr_str} })
+  });
+</script>
+JAVASCRIPT
+
+  return $code;
+}
+
 sub online_help_tag {
   my ($self, $tag, @slurp) = @_;
   my %params               = _hashify(@slurp);
@@ -520,6 +580,10 @@ If C<%attributes> contains a key C<label> then a HTML 'label' tag is
 created with said C<label>. No attribute named C<label> is created in
 that case.
 
+If C<%attributes> contains a key C<checkall> then the value is taken as a
+JQuery selector and clicking this checkbox will also toggle all checkboxes
+matching the selector.
+
 =item C<date_tag $name, $value, cal_align =E<gt> $align_code, %attributes>
 
 Creates a date input field, with an attached javascript that will open a
@@ -602,6 +666,83 @@ The label of the list of selected options. Defaults to the
 translation of 'Selected'.
 
 =back
+
+=item C<sortable_element $selector, %params>
+
+Makes the children of the DOM element C<$selector> (a jQuery selector)
+sortable with the I<jQuery UI Selectable> library. The children can be
+dragged & dropped around. After dropping an element an URL can be
+postet to with the element IDs of the sorted children.
+
+If this is used then the JavaScript file C<js/jquery-ui.js> must be
+included manually as well as it isn't loaded via C<$::form-gt;header>.
+
+C<%params> can contain the following entries:
+
+=over 2
+
+=item C<url>
+
+The URL to POST an AJAX request to after a dragged element has been
+dropped. The AJAX request's return value is ignored. If given then
+C<$params{with}> must be given as well.
+
+=item C<with>
+
+A string that is interpreted as the prefix of the children's ID. Upon
+POSTing the result each child whose ID starts with C<$params{with}> is
+considered. The prefix and the following "_" is removed from the
+ID. The remaining parts of the IDs of those children are posted as a
+single array parameter. The array parameter's name is either
+C<$params{as}> or, missing that, C<$params{with}>.
+
+=item C<as>
+
+Sets the POST parameter name for AJAX request after dropping an
+element (see C<$params{with}>).
+
+=item C<handle>
+
+An optional jQuery selector specifying which part of the child element
+is dragable. If the parameter is not given then it defaults to
+C<.dragdrop> matching DOM elements with the class C<dragdrop>.  If the
+parameter is set and empty then the whole child element is dragable,
+and clicks through to underlying elements like inputs or links might
+not work.
+
+=item C<dont_recolor>
+
+If trueish then the children will not be recolored. The default is to
+recolor the children by setting the class C<listrow0> on odd and
+C<listrow1> on even entries.
+
+=back
+
+Example:
+
+  <script type="text/javascript" src="js/jquery-ui.js"></script>
+
+  <table id="thing_list">
+    <thead>
+      <tr><td>This</td><td>That</td></tr>
+    </thead>
+    <tbody>
+      <tr id="thingy_2"><td>stuff</td><td>more stuff</td></tr>
+      <tr id="thingy_15"><td>stuff</td><td>more stuff</td></tr>
+      <tr id="thingy_6"><td>stuff</td><td>more stuff</td></tr>
+    </tbody>
+  <table>
+
+  [% L.sortable_element('#thing_list tbody',
+                        url          => 'controller.pl?action=SystemThings/reorder',
+                        with         => 'thingy',
+                        as           => 'thing_ids',
+                        recolor_rows => 1) %]
+
+After dropping e.g. the third element at the top of the list a POST
+request would be made to the C<reorder> action of the C<SystemThings>
+controller with a single parameter called C<thing_ids> -- an array
+containing the values C<[ 6, 2, 15 ]>.
 
 =item C<dump REF>
 

@@ -1,5 +1,9 @@
-[%- USE T8 %]
-[% USE HTML %]<body>
+[%- USE T8 %][% USE LxERP %][% USE L %]
+[% USE HTML %]
+
+<script type="text/javascript" src="js/jquery-ui.js"></script>
+
+<body>
 
  [% IF MESSAGE %]<p>[% MESSAGE %]</p>[% END %]
 
@@ -20,35 +24,25 @@
   </p>
 
   <p>
-   <table width="100%">
-    <tr>
-     <td class="listheading" width="0%"></td>
-     <td class="listheading" width="0%"></td>
-     <td class="listheading" width="20%">[% 'Name' | $T8 %]</td>
-     <td class="listheading" width="20%">[% 'Description' | $T8 %]</td>
-     <td class="listheading" width="20%">[% 'Type' | $T8 %]</td>
-     <td class="listheading" width="20%">[% 'Searchable' | $T8 %]</td>
-     <td class="listheading" width="20%">[% 'Includeable in reports' | $T8 %]</td>
+   <table width="100%" id="cvarcfg_list">
+    <thead>
+    <tr class="listheading">
+     <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+     <th width="20%">[% 'Name' | $T8 %]</th>
+     <th width="20%">[% 'Description' | $T8 %]</th>
+     <th width="20%">[% 'Type' | $T8 %]</th>
+     <th width="20%">[% 'Searchable' | $T8 %]</th>
+     <th width="20%">[% 'Includeable in reports' | $T8 %]</th>
      [%- IF module == 'IC' %]
-     <td class="listheading" width="20%">[% 'Editable' | $T8 %]</td>
+     <th width="20%">[% 'Editable' | $T8 %]</th>
      [%- END %]
     </tr>
+    </thead>
 
+    <tbody>
     [%- FOREACH cfg = CONFIGS %]
-    <tr class="listrow[% loop.count % 2 %]">
-     <td>
-      [%- IF cfg.previous_id %]
-      <a href="amcvar.pl?action=swap_cvar_configs&module=[% HTML.url(module) %]&id1=[% HTML.url(cfg.previous_id) %]&id2=[% HTML.url(cfg.id) %]">
-       <img border="0" src="image/up.png"></a>
-      [%- END %]
-     </td>
-
-     <td>
-      [%- IF cfg.next_id %]
-      <a href="amcvar.pl?action=swap_cvar_configs&module=[% HTML.url(module) %]&id1=[% HTML.url(cfg.next_id) %]&id2=[% HTML.url(cfg.id) %]">
-       <img border="0" src="image/down.png"></a>
-      [%- END %]
-     </td>
+    <tr class="listrow[% loop.count % 2 %]" id="cvarcfg_id_[% cfg.id %]">
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
 
      <td>
       <a href="amcvar.pl?action=edit_cvar_config&module=[% HTML.url(module) %]&id=[% HTML.url(cfg.id) %]&callback=[% HTML.url(callback) %]">
@@ -88,6 +82,7 @@
      [%- END %]
     </tr>
     [%- END %]
+    </tbody>
    </table>
   </p>
 
@@ -97,6 +92,8 @@
    <input type="submit" class="submit" name="action_add_cvar_config" value="[% 'Add' | $T8 %]">
   </p>
  </form>
+
+ [% L.sortable_element('#cvarcfg_list tbody', url => 'controller.pl?action=CustomVariableConfig/reorder', with => 'cvarcfg_id') %]
 
 </body>
 </html>

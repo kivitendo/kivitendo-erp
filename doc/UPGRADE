@@ -4,6 +4,34 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v2.6.3
+==================
+
+Mit Version 2.6.3. wurden die beiden Konfigurationsdateien authentication.pl
+und lx-erp.conf, sowie deren Varianten, abgeschafft. Stattdessen gibt es nun
+die Datei lx_office.conf, die aber erst neu angelegt werden muß. Als Vorlage
+dient hierfür die Datei lx_office.conf.default. Die entsprechenden Werte muß
+man selber neu konfigurieren, dies ist automatisiert zu fehleranfällig.
+
+Nach dem Upgrade kann man sich so lange nicht anmelden, bis lx_office.conf
+angelegt und authentication.pl und lx-erp.conf gelöscht oder verschoben wurden.
+
+Es gibt keine local-Variante der lx_office.conf, arbeitet man mit git sollte
+man lx_office.conf nicht einchecken.
+
+Eine etwas ausführlichere Beschreibung findet sich in der Datei:
+doc/konfigurationsdatei.txt
+
+Eine neu hinzugekommene Komponente ist der Task-Server. Hierbei
+handelt es sich um einen Dämonen, der im Hintergrund läuft, in
+regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese
+zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser
+Dämon wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
+benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
+bekommen. Die Einrichtung des Dämonen wird in der
+Installationsdokumentation im Abschnitt "Der Task-Server" beschrieben.
+
+
 Upgrade auf v2.6.2
 ==================
 

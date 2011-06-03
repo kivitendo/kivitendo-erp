@@ -46,7 +46,9 @@ sub reset {
 }
 
 sub get_user_dbh {
-  my ($self, $login) = @_;
+  my ($self, $login, %params) = @_;
+  my $may_fail = delete $params{may_fail};
+
   my %user = $self->read_user($login);
   my $dbh  = SL::DBConnect->connect(
     $user{dbconnect},
@@ -56,9 +58,13 @@ sub get_user_dbh {
       pg_enable_utf8 => $::locale->is_utf8,
       AutoCommit     => 0
     }
-  ) or $::form->dberror;
+  );
 
-  if ($user{dboptions}) {
+  if (!$may_fail && !$dbh) {
+    $::form->error($::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
+  }
+
+  if ($user{dboptions} && $dbh) {
     $dbh->do($user{dboptions}) or $::form->dberror($user{dboptions});
   }
 
@@ -256,7 +262,7 @@ sub create_database {
   my $encoding   = $Common::charset_to_db_encoding{$charset};
   $encoding    ||= 'UNICODE';
 
-  my $dbh        = SL::DBConnect->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => $charset =~ m/^utf-?8$/i });
+  my $dbh        = SL::DBConnect->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => scalar($charset =~ m/^utf-?8$/i) });
 
   if (!$dbh) {
     $main::form->error($main::locale->text('The connection to the template database failed:') . "\n" . $DBI::errstr);
@@ -430,29 +436,30 @@ sub get_user_id {
 }
 
 sub delete_user {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
   my $self  = shift;
   my $login = shift;
 
-  my $form  = $main::form;
-
-  my $dbh   = $self->dbconnect();
+  my $u_dbh = $self->get_user_dbh($login, may_fail => 1);
+  my $dbh   = $self->dbconnect;
 
   $dbh->begin_work;
 
   my $query = qq|SELECT id FROM auth."user" WHERE login = ?|;
 
-  my ($id)  = selectrow_query($form, $dbh, $query, $login);
+  my ($id)  = selectrow_query($::form, $dbh, $query, $login);
 
-  $dbh->rollback and return $main::lxdebug->leave_sub() if (!$id);
+  $dbh->rollback and return $::lxdebug->leave_sub if (!$id);
 
-  do_query($form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
-  do_query($form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
+  do_query($::form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
+  do_query($::form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
+  do_query($::form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login) if $u_dbh;
 
-  $dbh->commit();
+  $dbh->commit;
+  $u_dbh->commit if $u_dbh;
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 # --------------------------------------
@@ -598,51 +605,32 @@ sub _create_session_id {
 }
 
 sub create_or_refresh_session {
-  $main::lxdebug->enter_sub();
-
-  my $self = shift;
-
-  $session_id ||= $self->_create_session_id();
-
-  my ($form, $dbh, $query, $sth, $id);
-
-  $form  = $main::form;
-  $dbh   = $self->dbconnect();
-
-  $dbh->begin_work;
-  do_query($::form, $dbh, qq|LOCK auth.session_content|);
-
-  $query = qq|SELECT id FROM auth.session WHERE id = ?|;
-
-  ($id)  = selectrow_query($form, $dbh, $query, $session_id);
-
-  if ($id) {
-    do_query($form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
-
-  } else {
-    do_query($form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
-
-  }
-
-  $self->save_session($dbh);
-
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
+  $session_id ||= shift->_create_session_id;
 }
 
 sub save_session {
+  $::lxdebug->enter_sub;
   my $self         = shift;
   my $provided_dbh = shift;
 
   my $dbh          = $provided_dbh || $self->dbconnect(1);
 
-  return unless $dbh;
+  $::lxdebug->leave_sub && return unless $dbh && $session_id;
 
   $dbh->begin_work unless $provided_dbh;
 
   do_query($::form, $dbh, qq|LOCK auth.session_content|);
   do_query($::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
+
+  my $query = qq|SELECT id FROM auth.session WHERE id = ?|;
+
+  my ($id)  = selectrow_query($::form, $dbh, $query, $session_id);
+
+  if ($id) {
+    do_query($::form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
+  } else {
+    do_query($::form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
+  }
 
   if (%{ $self->{SESSION} }) {
     my $query = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
@@ -656,6 +644,7 @@ sub save_session {
   }
 
   $dbh->commit() unless $provided_dbh;
+  $::lxdebug->leave_sub;
 }
 
 sub set_session_value {
@@ -712,7 +701,6 @@ sub create_unique_sesion_value {
   $self->{unique_counter}++;
 
   $value  = { expiration => $params{expiration} ? ($now[0] + $params{expiration}) * 1000000 + $now[1] : undef,
-              no_auto    => !$params{auto_restore},
               data       => $value,
             };
 
@@ -1104,41 +1092,32 @@ sub check_right {
 }
 
 sub assert {
-  $main::lxdebug->enter_sub(2);
+  $::lxdebug->enter_sub(2);
+  my ($self, $right, $dont_abort) = @_;
 
-  my $self       = shift;
-  my $right      = shift;
-  my $dont_abort = shift;
-
-  my $form       = $main::form;
-
-  if ($self->check_right($form->{login}, $right)) {
-    $main::lxdebug->leave_sub(2);
+  if ($self->check_right($::myconfig{login}, $right)) {
+    $::lxdebug->leave_sub(2);
     return 1;
   }
 
   if (!$dont_abort) {
-    delete $form->{title};
-    $form->show_generic_error($main::locale->text("You do not have the permissions to access this function."));
+    delete $::form->{title};
+    $::form->show_generic_error($::locale->text("You do not have the permissions to access this function."));
   }
 
-  $main::lxdebug->leave_sub(2);
+  $::lxdebug->leave_sub(2);
 
   return 0;
 }
 
 sub load_rights_for_user {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my $self  = shift;
-  my $login = shift;
-
-  my $form  = $main::form;
-  my $dbh   = $self->dbconnect();
-
+  my ($self, $login) = @_;
+  my $dbh   = $self->dbconnect;
   my ($query, $sth, $row, $rights);
 
-  $rights = {};
+  $rights = { map { $_ => 0 } all_rights() };
 
   $query =
     qq|SELECT gr."right", gr.granted
@@ -1149,16 +1128,14 @@ sub load_rights_for_user {
           LEFT JOIN auth."user" u ON (ug.user_id = u.id)
           WHERE u.login = ?)|;
 
-  $sth = prepare_execute_query($form, $dbh, $query, $login);
+  $sth = prepare_execute_query($::form, $dbh, $query, $login);
 
   while ($row = $sth->fetchrow_hashref()) {
     $rights->{$row->{right}} |= $row->{granted};
   }
   $sth->finish();
 
-  map({ $rights->{$_} = 0 unless (defined $rights->{$_}); } SL::Auth::all_rights());
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 
   return $rights;
 }
@@ -1199,11 +1176,6 @@ there.
 If C<$params{expiration}> is set then it is interpreted as a number of
 seconds after which the value is removed from the session. It will
 never expire if that parameter is falsish.
-
-If C<$params{auto_restore}> is trueish then the value will be copied
-into C<$::form> upon the next request automatically. It defaults to
-C<false> and has therefore different behaviour than
-L</set_session_value>.
 
 Returns the key created in the session.
 

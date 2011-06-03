@@ -17,7 +17,7 @@ __PACKAGE__->meta->initialize;
 sub get_active_taxkey {
   my ($self, $date) = @_;
   $date ||= DateTime->today_local;
-  return SL::DB::Manager::TaxKey->get_all(where   => [ and => [ chart_id  => $self->id,
+  return SL::DB::Manager::TaxKey->get_all(query   => [ and => [ chart_id  => $self->id,
                                                                 startdate => { le => $date } ] ],
                                           sort_by => "startdate DESC")->[0];
 }

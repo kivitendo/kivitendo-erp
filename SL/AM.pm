@@ -199,6 +199,9 @@ sub get_account {
 sub save_account {
   $main::lxdebug->enter_sub();
 
+  # TODO: it should be forbidden to change an account to a heading if there
+  # have been bookings to this account in the past
+
   my ($self, $myconfig, $form) = @_;
 
   # connect to database, turn off AutoCommit
@@ -242,7 +245,23 @@ sub save_account {
 
   my @values;
 
+
   if ($form->{id}) {
+
+    # if charttype is heading make sure certain values are empty
+    # specifically, if charttype is changed from an existing account, empty the
+    # fields unnecessary for headings, so that e.g. heading doesn't appear in 
+    # drop-down menues due to still having a valid "link" entry
+
+    if ( $form->{charttype} eq 'H' ) {
+      $form->{link} = '';
+      $form->{pos_bwa} = '';
+      $form->{pos_bilanz} = '';
+      $form->{pos_eur} = '';
+      $form->{new_chart_id} = '';
+      $form->{valid_from} = '';
+    };
+
     $query = qq|UPDATE chart SET
                   accno = ?,
                   description = ?,
@@ -271,6 +290,7 @@ sub save_account {
                   ($form->{datevautomatik} eq 'T') ? 'true':'false',
                 $form->{id},
     );
+
 
   }
 
@@ -880,7 +900,7 @@ sub delete_language {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  foreach my $table (qw(translation_payment_terms units_language)) {
+  foreach my $table (qw(generic_translations units_language)) {
     $query = qq|DELETE FROM $table WHERE language_id = ?|;
     do_query($form, $dbh, $query, $form->{"id"});
   }
@@ -1123,160 +1143,6 @@ sub swap_sortkeys {
 
   $main::lxdebug->leave_sub();
 }
-
-sub payment {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $query = qq|SELECT * FROM payment_terms ORDER BY sortkey|;
-
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  $form->{ALL} = [];
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    push @{ $form->{ALL} }, $ref;
-  }
-
-  $sth->finish;
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub get_payment {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $query = qq|SELECT * FROM payment_terms WHERE id = ?|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
-
-  my $ref = $sth->fetchrow_hashref("NAME_lc");
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
-  $sth->finish();
-
-  $query =
-    qq|SELECT t.language_id, t.description_long, l.description AS language | .
-    qq|FROM translation_payment_terms t | .
-    qq|LEFT JOIN language l ON t.language_id = l.id | .
-    qq|WHERE t.payment_terms_id = ? | .
-    qq|UNION | .
-    qq|SELECT l.id AS language_id, NULL AS description_long, | .
-    qq|  l.description AS language | .
-    qq|FROM language l|;
-  $sth = $dbh->prepare($query);
-  $sth->execute($form->{"id"}) || $form->dberror($query . " ($form->{id})");
-
-  my %mapping;
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    $mapping{ $ref->{"language_id"} } = $ref
-      unless (defined($mapping{ $ref->{"language_id"} }));
-  }
-  $sth->finish;
-
-  $form->{"TRANSLATION"} = [sort({ $a->{"language"} cmp $b->{"language"} }
-                                 values(%mapping))];
-
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub save_payment {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
-
-  my $query;
-
-  if (!$form->{id}) {
-    $query = qq|SELECT nextval('id'), COALESCE(MAX(sortkey) + 1, 1) | .
-      qq|FROM payment_terms|;
-    my $sortkey;
-    ($form->{id}, $sortkey) = selectrow_query($form, $dbh, $query);
-
-    $query = qq|INSERT INTO payment_terms (id, sortkey) VALUES (?, ?)|;
-    do_query($form, $dbh, $query, $form->{id}, $sortkey);
-
-  } else {
-    $query =
-      qq|DELETE FROM translation_payment_terms | .
-      qq|WHERE payment_terms_id = ?|;
-    do_query($form, $dbh, $query, $form->{"id"});
-  }
-
-  $query = qq|UPDATE payment_terms SET
-              description = ?, description_long = ?,
-              terms_netto = ?, terms_skonto = ?,
-              percent_skonto = ?
-              WHERE id = ?|;
-  my @values = ($form->{description}, $form->{description_long},
-                $form->{terms_netto} * 1, $form->{terms_skonto} * 1,
-                $form->{percent_skonto} * 1,
-                $form->{id});
-  do_query($form, $dbh, $query, @values);
-
-  $query = qq|SELECT id FROM language|;
-  my @language_ids;
-  my $sth = $dbh->prepare($query);
-  $sth->execute() || $form->dberror($query);
-
-  while (my ($id) = $sth->fetchrow_array()) {
-    push(@language_ids, $id);
-  }
-  $sth->finish();
-
-  $query =
-    qq|INSERT INTO translation_payment_terms | .
-    qq|(language_id, payment_terms_id, description_long) | .
-    qq|VALUES (?, ?, ?)|;
-  $sth = $dbh->prepare($query);
-
-  foreach my $language_id (@language_ids) {
-    do_statement($form, $sth, $query, $language_id, $form->{"id"},
-                 $form->{"description_long_${language_id}"});
-  }
-  $sth->finish();
-
-  $dbh->commit();
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub delete_payment {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
-
-  my $query =
-    qq|DELETE FROM translation_payment_terms WHERE payment_terms_id = ?|;
-  do_query($form, $dbh, $query, $form->{"id"});
-
-  $query = qq|DELETE FROM payment_terms WHERE id = ?|;
-  do_query($form, $dbh, $query, $form->{"id"});
-
-  $dbh->commit();
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
 
 sub prepare_template_filename {
   $main::lxdebug->enter_sub();
@@ -2001,43 +1867,6 @@ sub save_units {
 
   $sth->finish();
   $sth_lang->finish();
-  $dbh->commit();
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
-}
-
-sub swap_units {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form, $dir, $name_1) = @_;
-
-  my $dbh = $form->dbconnect_noauto($myconfig);
-
-  my $query;
-
-  $query = qq|SELECT sortkey FROM units WHERE name = ?|;
-  my ($sortkey_1) = selectrow_query($form, $dbh, $query, $name_1);
-
-  $query =
-    qq|SELECT sortkey FROM units | .
-    qq|WHERE sortkey | . ($dir eq "down" ? ">" : "<") . qq| ? | .
-    qq|ORDER BY sortkey | . ($dir eq "down" ? "ASC" : "DESC") . qq| LIMIT 1|;
-  my ($sortkey_2) = selectrow_query($form, $dbh, $query, $sortkey_1);
-
-  if (defined($sortkey_1)) {
-    $query = qq|SELECT name FROM units WHERE sortkey = ${sortkey_2}|;
-    my ($name_2) = selectrow_query($form, $dbh, $query);
-
-    if (defined($name_2)) {
-      $query = qq|UPDATE units SET sortkey = ? WHERE name = ?|;
-      my $sth = $dbh->prepare($query);
-
-      do_statement($form, $sth, $query, $sortkey_1, $name_2);
-      do_statement($form, $sth, $query, $sortkey_2, $name_1);
-    }
-  }
-
   $dbh->commit();
   $dbh->disconnect();
 

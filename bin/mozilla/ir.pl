@@ -226,6 +226,12 @@ sub prepare_invoice {
     foreach my $ref (@{ $form->{invoice_details} }) {
       $i++;
       map { $form->{"${_}_$i"} = $ref->{$_} } keys %{$ref};
+      # übernommen aus is.pl Fix für Bug 1642. Nebenwirkungen? jb 12.5.2011
+      # getestet: Lieferantenauftrag -> Rechnung i.O.
+      #           Lieferantenauftrag -> Lieferschein -> Rechnung i.O.
+      # Werte: 20% (Lieferantenrabatt), 12,4% individuell und 0,4 individuell s.a. 
+      # Screenshot zu Bug 1642
+      $form->{"discount_$i"}   = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
 
       my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
       $dec           = length $dec;
@@ -256,7 +262,7 @@ sub form_header {
   my $locale   = $main::locale;
   my $cgi      = $main::cgi;
 
-  $main::auth->assert('invoice_edit');
+  $main::auth->assert('vendor_invoice_edit');
 
   my %TMPL_VAR = ();
   my @custom_hiddens;
@@ -354,7 +360,7 @@ sub form_footer {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('invoice_edit');
+  $main::auth->assert('vendor_invoice_edit');
 
   $form->{invtotal}    = $form->{invsubtotal};
   $form->{oldinvtotal} = $form->{invtotal};

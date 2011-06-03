@@ -1,5 +1,5 @@
-Table of Contents
-*****************
+Inhaltsverzeichnis
+******************
 
 Inhalt der Anleitung
 1 Aktuelle Hinweise
@@ -13,22 +13,28 @@ Inhalt der Anleitung
   4.3 Erweiterung für servergespeicherte Prozeduren
   4.4 Datenbankbenutzer anlegen
 5 Apache-Konfiguration
-6 Benutzerauthentifizierung und Administratorpasswort
-  6.1 Grundlagen zur Benutzerauthentifizierung
-  6.2 Administratorpasswort
-  6.3 Authentifizierungsdatenbank
-  6.4 Passwortüberprüfung
-  6.5 Name des Session-Cookies
-  6.6 Anlegen der Authentifizierungsdatenbank
-7 Benutzer- und Gruppenverwaltung
-  7.1 Zusammenhänge
-  7.2 Datenbanken anlegen
-  7.3 Gruppen anlegen
-  7.4 Benutzer anlegen
-  7.5 Gruppenmitgliedschaften verwalten
-  7.6 Migration alter Installationen
-8 OpenDocument-Vorlagen
-9 Lx-Office ERP verwenden
+6 Der Task-Server
+  6.1 Verfügbare und notwendige Konfigurationsoptionen
+  6.2 Automatisches Starten des Task-Servers beim Booten
+    6.2.1 SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora Core)
+    6.2.2 Upstart-basierende Systeme (z.B. Ubuntu)
+  6.3 Wie der Task-Server gestartet und beendet wird
+7 Benutzerauthentifizierung und Administratorpasswort
+  7.1 Grundlagen zur Benutzerauthentifizierung
+  7.2 Administratorpasswort
+  7.3 Authentifizierungsdatenbank
+  7.4 Passwortüberprüfung
+  7.5 Name des Session-Cookies
+  7.6 Anlegen der Authentifizierungsdatenbank
+8 Benutzer- und Gruppenverwaltung
+  8.1 Zusammenhänge
+  8.2 Datenbanken anlegen
+  8.3 Gruppen anlegen
+  8.4 Benutzer anlegen
+  8.5 Gruppenmitgliedschaften verwalten
+  8.6 Migration alter Installationen
+9 OpenDocument-Vorlagen
+10 Lx-Office ERP verwenden
 
 
 Inhalt der Anleitung
@@ -388,13 +394,109 @@ Option in die Konfiguration aufzunehmen:
 
    `EnableSendfile Off'
 
-6 Benutzerauthentifizierung und Administratorpasswort
+6 Der Task-Server
+*****************
+
+Der Task-Server ist ein Dämonen, der im Hintergrund läuft, in
+regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese zu
+festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser Dämon
+wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
+benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
+bekommen.
+
+6.1 Verfügbare und notwendige Konfigurationsoptionen
+=====================================================
+
+Die Konfiguration erfolgt über den Abschnitt `[task_server]' in der
+Datei `config/lx_office.conf'. Die dort verfügbaren Optionen sind:
+
+   * `login': Benutzername, der benutzt wird, um die zu verwendende
+     Datenbankverbindung auszulesen. Der Benutzer muss in der
+     Administration angelegt werden. Diese Option muss angegeben werden.
+
+   * `run_as': Wird der Server von `root' gestartet, so wechselt er auf
+     diesen Systembenutzer. Der Systembenutzer muss dieselben Lese- und
+     Schreibrechte haben, wie auch der Webserverbenutzer (siehe *note
+     Manuelle Installation des Programmpaketes::). Daher ist es
+     sinnvoll, hier denselben Systembenutzer einzutragen, unter dem
+     auch der Webserver läuft.
+
+   * `debug': Schaltet Debug-Informationen an und aus.
+
+6.2 Automatisches Starten des Task-Servers beim Booten
+======================================================
+
+Der Task-Server verhält sich von seinen Optionen her wie ein reguläres
+SystemV-kompatibles Boot-Script. Außerdem wechselt er beim Starten
+automatisch in das Lx-Office-Installationsverzeichnis.
+
+   Deshalb ist es möglich, ihn durch Setzen eines symbolischen Links aus
+einem der Runlevel-Verzeichnisse heraus in den Boot-Prozess
+einzubinden. Da das bei neueren Linux-Distributionen aber nicht
+zwangsläufig funktioniert, werden auch Start-Scripte mitgeliefert, die
+anstelle eines symbolischen Links verwendet werden können.
+
+6.2.1 SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora Core)
+---------------------------------------------------------------------
+
+Kopieren Sie die Datei `scripts/boot/system-v/lx-office-task-server'
+nach `/etc/init.d/lx-office-task-server'. Passen Sie in der kopierten
+Datei den Pfad zum Task-Server an (Zeile `DAEMON=....'). Binden Sie das
+Script in den Boot-Prozess ein. Dies ist distributionsabhängig:
+
+   * Debian-basierende Systeme:
+     `update-rc.d lx-office-task-server defaults
+     # Nur bei Debian Squeeze und neuer:
+     insserv lx-office-task-server'
+
+   * OpenSuSE und Fedora Core:
+     `chkconfig --add lx-office-task-server'
+
+   Danach kann der Task-Server mit dem folgenden Befehl gestartet
+werden: `/etc/init.d/lx-office-task-server start'
+
+6.2.2 Upstart-basierende Systeme (z.B. Ubuntu)
+----------------------------------------------
+
+Kopieren Sie die Datei
+`scripts/boot/upstart/lx-office-task-server.conf' nach
+`/etc/init/lx-office-task-server.conf'. Passen Sie in der kopierten
+Datei den Pfad zum Task-Server an (Zeile `exec ....').
+
+   Danach kann der Task-Server mit dem folgenden Befehl gestartet
+werden: `service lx-office-task-server start'
+
+6.3 Wie der Task-Server gestartet und beendet wird
+==================================================
+
+Der Task-Server wird wie folgt kontrolliert:
+
+   `./scripts/task_server.pl Befehl'
+
+   `Befehl' ist dabei eine der folgenden Optionen:
+
+   * `start' startet eine neue Instanz des Task-Servers. Die Prozess-ID
+     wird innerhalb des `users'-Verzeichnisses abgelegt.
+
+   * `stop' beendet einen laufenden Task-Server.
+
+   * `restart' beendet und startet ihn neu.
+
+   * `status' berichtet, ob der Task-Server läuft.
+
+   Der Task-Server wechselt beim Starten automatisch in das
+Lx-Office-Installationsverzeichnis.
+
+   Dieselben Optionen können auch für die SystemV-basierenden
+Runlevel-Scripte benutzt werden (siehe oben).
+
+7 Benutzerauthentifizierung und Administratorpasswort
 *****************************************************
 
 Informationen über die Einrichtung der Benutzerauthentifizierung, über
 die Verwaltung von Gruppen und weitere Einstellungen
 
-6.1 Grundlagen zur Benutzerauthentifizierung
+7.1 Grundlagen zur Benutzerauthentifizierung
 ============================================
 
 Lx-Office verwaltet die Benutzerinformationen in einer Datenbank, die
@@ -419,7 +521,7 @@ angelegt werden. Eine Beispielkonfigurationsdatei
 `config/lx_office.conf.default' existiert, die als Vorlage benutzt
 werden kann.
 
-6.2 Administratorpasswort
+7.2 Administratorpasswort
 =========================
 
 Das Passwort, das zum Zugriff auf das Aministrationsinterface benutzt
@@ -427,7 +529,7 @@ wird, wird ebenfalls in dieser Datei gespeichert. Es kann auch nur dort
 und nicht mehr im Administrationsinterface selber geändert werden. Der
 Parameter dazu heißt `$self->{admin_password}'.
 
-6.3 Authentifizierungsdatenbank
+7.3 Authentifizierungsdatenbank
 ===============================
 
 Die Verbindung zur Authentifizierungsdatenbank wird mit den Parametern
@@ -448,7 +550,7 @@ anzugeben:
    Die Datenbank muss noch nicht existieren. Lx-Office kann sie
 automatisch anlegen (mehr dazu siehe unten).
 
-6.4 Passwortüberprüfung
+7.4 Passwortüberprüfung
 =========================
 
 Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen die
@@ -497,7 +599,7 @@ LDAP-Server in `$self->{LDAP_config}' angegeben werden:
      Benutzers   eingegeben werden; in diesem Beispiel also `Martin
      Mustermann'.
 
-6.5 Name des Session-Cookies
+7.5 Name des Session-Cookies
 ============================
 
 Sollen auf einem Server mehrere Lx-Office-Installationen aufgesetzt
@@ -508,7 +610,7 @@ unterschiedlich sein. Der Name des Cookies wird mit dem Parameter
    Diese Angabe ist optional, wenn nur eine Installation auf dem Server
 existiert.
 
-6.6 Anlegen der Authentifizierungsdatenbank
+7.6 Anlegen der Authentifizierungsdatenbank
 ===========================================
 
 Nachdem alle Einstellungen in `config/lx_office.conf' vorgenommen
@@ -518,7 +620,7 @@ das unter der folgenden URL erreichbar sein sollte:
 
    `http://localhost/lx-erp/admin.pl'
 
-7 Benutzer- und Gruppenverwaltung
+8 Benutzer- und Gruppenverwaltung
 *********************************
 
 Nach der Installation müssen Benutzer, Gruppen und Datenbanken angelegt
@@ -530,7 +632,7 @@ folgender URL finden:
    Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
 `config/lx_office.conf' eingetragen haben.
 
-7.1 Zusammenhänge
+8.1 Zusammenhänge
 ==================
 
 Lx-Office verwendet eine Datenbank zum Speichern all seiner
@@ -572,7 +674,7 @@ angelegt werden sollten, lautet:
 
   4. Benutzer den Gruppen zuordnen
 
-7.2 Datenbanken anlegen
+8.2 Datenbanken anlegen
 =======================
 
 Zuerst muss eine Datenbank angelegt werden. Verwenden Sie für den
@@ -592,7 +694,7 @@ vorgenommen wird und nicht nach Datenbank unterschieden werden kann.
 Auch die Authentifizierungsdatenbank muss mit diesem Zeichensatz
 angelegt worden sein.
 
-7.3 Gruppen anlegen
+8.3 Gruppen anlegen
 ===================
 
 Eine Gruppe wird in der Gruppenverwaltung angelegt. Ihr muss ein Name
@@ -604,7 +706,7 @@ Mitglieder dieser Gruppe Zugriff haben sollen.
 Authentifizierungsdatenbank gespeichert werden. Sie gelten für alle
 Datenbanken, die in dieser Installation verwaltet werden.
 
-7.4 Benutzer anlegen
+8.4 Benutzer anlegen
 ====================
 
 Beim Anlegen von Benutzern werden für viele Parameter
@@ -620,7 +722,7 @@ aktiv, so ist das Passwort-Feld deaktiviert.
    In der Datenbankkonfiguration müssen die Zugriffsdaten einer der eben
 angelegten Datenbanken eingetragen werden.
 
-7.5 Gruppenmitgliedschaften verwalten
+8.5 Gruppenmitgliedschaften verwalten
 =====================================
 
 Nach dem Anlegen von Benutzern und Gruppen müssen Benutzer den Gruppen
@@ -635,7 +737,7 @@ zugewiesen werden. Dazu gibt es zwei Möglichkeiten:
      Häkchen wird der Benutzer in der ausgewählten Zeile der Gruppe in
      der ausgewählten Spalte hinzugefügt.
 
-7.6 Migration alter Installationen
+8.6 Migration alter Installationen
 ==================================
 
 Wenn Lx-Office 2.6.2 über eine ältere Version installiert wird, in der
@@ -655,7 +757,7 @@ das Verhalten von Lx-Office bis Version 2.4.3 inklusive
 wiederhergestellt, und die Benutzer können sich sofort wieder anmelden
 und mit dem System arbeiten.
 
-8 OpenDocument-Vorlagen
+9 OpenDocument-Vorlagen
 ***********************
 
 Lx-Office unterstützt die Verwendung von Vorlagen im
@@ -716,8 +818,8 @@ vom Webserver beschreibbar sein. Dieses wurde bereits erledigt (*note
 Manuelle Installation des Programmpaketes::), kann aber erneut überprüft
 werden, wenn die Konvertierung nach PDF fehlschlägt.
 
-9 Lx-Office ERP verwenden
-*************************
+10 Lx-Office ERP verwenden
+**************************
 
 Nach erfolgreicher Installation ist der Loginbildschirm unter folgender
 URL erreichbar:

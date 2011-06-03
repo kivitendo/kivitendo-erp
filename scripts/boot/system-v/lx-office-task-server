@@ -1,0 +1,49 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          lx-office-task-server
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     true
+# Short-Description: Start/stop the Lx-Office task server
+### END INIT INFO
+
+set -e
+
+# Change this to point to the Lx-Office "task_server.pl" location.
+DAEMON="/opt/lx-office/scripts/task_server.pl"
+TOPIC="Lx-Office task server"
+
+if [ ! -x $APACHE_HTTPD ] ; then
+  echo "$TOPIC executable not found"
+  exit 1
+fi
+
+case $1 in
+  start)
+    echo "Starting the $TOPIC"
+    $DAEMON start
+    ;;
+  stop)
+    echo "Stopping the $TOPIC"
+    $DAEMON stop
+    ;;
+  restart)
+    echo "Restarting the $TOPIC"
+    $DAEMON restart
+    ;;
+  status)
+    if $DAEMON status > /dev/null 2> /dev/null; then
+      echo "The $TOPIC is running"
+    else
+      echo "The $TOPIC is not running"
+      exit 1
+    fi
+    ;;
+  *)
+    echo "Usage: /etc/init.d/lx-office-task-server {start|stop|reload|status}"
+    exit 1
+    ;;
+esac

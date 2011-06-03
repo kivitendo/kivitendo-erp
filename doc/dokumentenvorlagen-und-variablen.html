@@ -149,6 +149,15 @@ td {
    ver&auml;ndern</a>.
  </p>
 
+ <p>Einige Zahlenwerte werden auch in unformatierter Form zur Verf&uuml;gung
+  gestellt (also z.B. 35 statt 35,00 oder 12.3 statt 12,30). Der Dezimaltrenner
+  ist dabei also immer ein Punkt unabhaengig vom eingestellten Zahlenformat.
+  Diese Variabelen kann man mit der Erweiterung _nofmt (f&uuml;r  no-format) aufrufen
+  (also z.B. netprice = 12,30 -- netprice_nofmt = 12.3). Variabeln die zus&auml;tzlich
+  unformatiert zur Verf&uuml;gung stehen sind unten als variable[_nofmt] gelistet.
+  Die Eckigen Klammern weisen also auf eine optionale Verw&auml;ndung der Erweiterung hin.
+  </p>
+
  <p>Fr&uuml;her wurde hier nur &uuml;ber LaTeX gesprochen. Inzwischen
   unterst&uuml;tzt Lx-Office aber auch OpenDocument-Vorlagen. Sofern
   es nicht ausdr&uuml;cklich eingeschr&auml;nkt wird, gilt das im
@@ -405,6 +414,10 @@ td {
    <tr>
     <td><code>name</code></td>
     <td>Firmenname</td>
+   </tr>
+   <tr>
+    <td><code>payment_description</code></td>
+    <td>Name der Zahlart</td>
    </tr>
    <tr>
     <td><code>payment_terms</code></td>
@@ -716,6 +729,10 @@ td {
     <td>Auftragsnummer, wenn die Rechnung aus einem Auftrag erstellt wurde</td>
    </tr>
    <tr>
+    <td><code>payment_description</code></td>
+    <td>Name der Zahlart</td>
+   </tr>
+   <tr>
     <td><code>payment_terms</code></td>
     <td>Zahlungskonditionen</td>
    </tr>
@@ -736,7 +753,7 @@ td {
     <td>Transportmittel</td>
    </tr>
    <tr>
-    <td><code>subtotal</code></td>
+    <td><code>subtotal[_nofmt]</code></td>
     <td>Zwischensumme aller Posten ohne Steuern</td>
    </tr>
    <tr>
@@ -775,11 +792,11 @@ td {
     <td>Artikelbeschreibung</td>
    </tr>
    <tr>
-    <td><code>discount</code></td>
+    <td><code>discount[_nofmt]</code></td>
     <td>Rabatt als Betrag</td>
    </tr>
    <tr>
-    <td><code>discount_sub</code></td>
+    <td><code>discount_sub[_nofmt]</code></td>
     <td>Zwischensumme mit Rabatt</td>
    </tr>
    <tr>
@@ -795,7 +812,7 @@ td {
     <td>Grafik</td>
    </tr>
    <tr>
-    <td><code>linetotal</code></td>
+    <td><code>linetotal[_nofmt]</code></td>
     <td>Zeilensumme (Anzahl * Einzelpreis)</td>
    </tr>
    <tr>
@@ -807,15 +824,15 @@ td {
     <td>Mikrofilm</td>
    </tr>
    <tr>
-    <td><code>netprice</code></td>
+    <td><code>netprice[_nofmt]</code></td>
     <td>Nettopreis</td>
    </tr>
    <tr>
-    <td><code>nodiscount_linetotal</code></td>
+    <td><code>nodiscount_linetotal[_nofmt]</code></td>
     <td>Zeilensumme ohne Rabatt</td>
    </tr>
    <tr>
-    <td><code>nodiscount_sub</code></td>
+    <td><code>nodiscount_sub[_nofmt]</code></td>
     <td>Zwischensumme ohne Rabatt</td>
    </tr>
    <tr>
@@ -855,7 +872,7 @@ td {
     <td>Projektbeschreibung</td>
    </tr>
    <tr>
-    <td><code>qty</code></td>
+    <td><code>qty[_nofmt]</code></td>
     <td>Anzahl</td>
    </tr>
    <tr>
@@ -867,7 +884,7 @@ td {
     <td>Position auf der Rechnung (1, 2, 3...)</td>
    </tr>
    <tr>
-    <td><code>sellprice</code></td>
+    <td><code>sellprice[_nofmt]</code></td>
     <td>Verkaufspreis</td>
    </tr>
    <tr>

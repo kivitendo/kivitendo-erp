@@ -1031,6 +1031,7 @@ sub generate_report {
     'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
     'description'        => { 'text' => $locale->text('Part Description'), },
     'drawing'            => { 'text' => $locale->text('Drawing'), },
+    'ean'                => { 'text' => $locale->text('EAN'), },
     'image'              => { 'text' => $locale->text('Image'), },
     'invnumber'          => { 'text' => $locale->text('Invoice Number'), },
     'lastcost'           => { 'text' => $locale->text('Last Cost'), },
@@ -1206,7 +1207,8 @@ sub generate_report {
     map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
   map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
 
-  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys, @searchable_custom_variables, map { "l_$_" } @columns);
+  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys,
+                              map({ "cvar_$_->{name}" } @searchable_custom_variables), map { "l_$_" } @columns);
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   my @sort_full        = qw(partnumber description onhand soldtotal deliverydate);
@@ -1610,9 +1612,9 @@ sub assembly_row {
     map { delete $form->{$_} } qw(action header);
 
     # save form variables in a previousform variable
-    $previousform = $form->escape($form->escape(join '&', map {
-      sprintf "%s=%s", Q($_), /^listprice|lastcost|sellprice$/ ? $form->format_amount(\%myconfig, $form->{$_}) : $form->{$_}
-    } grep { ref $form->{$_} eq '' && $form->{$_} } grep { !/^select/ } sort keys %$form ));
+    my %form_to_save = map   { ($_ => m/^ (?: listprice | sellprice | lastcost ) $/x ? $form->format_amount(\%myconfig, $form->{$_}) : $form->{$_}) }
+                       keys %{ $form };
+    $previousform    = $::auth->save_form_in_session(form => \%form_to_save);
 
     $form->{callback} = $callback;
     $form->{assemblytotal} = 0;
@@ -1701,6 +1703,9 @@ sub update {
 
   # parse pricegroups. and no, don't rely on check_form for this...
   map { $form->{"price_$_"} = $form->parse_amount(\%myconfig, $form->{"price_$_"}) } 1 .. $form->{price_rows};
+
+  # same for lastcosts
+  map { $form->{"lastcost_$_"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$_"}) } 1 .. $form->{"makemodel_rows"};
 
   if ($form->{item} eq "assembly") {
     my $i = $form->{assembly_rows};

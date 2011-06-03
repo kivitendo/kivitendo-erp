@@ -52,7 +52,7 @@ sub transactions {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query;
   my $ordnumber = 'ordnumber';
@@ -226,7 +226,6 @@ SQL
   }
 
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -658,7 +657,8 @@ sub delete {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
+  $dbh->begin_work;
 
   # delete spool files
   my $query = qq|SELECT s.spoolfile FROM status s | .
@@ -702,7 +702,6 @@ sub delete {
   do_query($form, $dbh, $query, @values);
 
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   if ($rc) {
     my $spool = $::lx_office_conf{paths}->{spool};
@@ -1034,7 +1033,7 @@ sub order_details {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
   my $query;
   my @values = ();
   my $sth;
@@ -1161,13 +1160,16 @@ sub order_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{description} },       $form->{"description_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{longdescription} },   $form->{"longdescription_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{qty} },               $form->format_amount($myconfig, $form->{"qty_$i"});
+      push @{ $form->{TEMPLATE_ARRAYS}->{qty_nofmt} },         $form->{"qty_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{ship} },              $form->format_amount($myconfig, $form->{"ship_$i"});
+      push @{ $form->{TEMPLATE_ARRAYS}->{ship_nofmt} },        $form->{"ship_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{unit} },              $form->{"unit_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{bin} },               $form->{"bin_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{partnotes} },         $form->{"partnotes_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{serialnumber} },      $form->{"serialnumber_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{reqdate} },           $form->{"reqdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{sellprice_nofmt} },   $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       push @{ $form->{TEMPLATE_ARRAYS}->{listprice} },         $form->{"listprice_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{price_factor} },      $price_factor->{formatted_factor};
       push @{ $form->{TEMPLATE_ARRAYS}->{price_factor_name} }, $price_factor->{description};
@@ -1185,12 +1187,14 @@ sub order_details {
       my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice / $price_factor->{factor}, 2);
       $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{netprice} }, ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{netprice} },       ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{netprice_nofmt} }, ($form->{"netprice_$i"} != 0) ? $form->{"netprice_$i"} : '';
 
       $linetotal = ($linetotal != 0) ? $linetotal : '';
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{discount} },  ($discount  != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
-      push @{ $form->{TEMPLATE_ARRAYS}->{p_discount} }, $form->{"discount_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{discount} },       ($discount != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{discount_nofmt} }, ($discount != 0) ? $discount * -1 : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{p_discount} },     $form->{"discount_$i"};
 
       $form->{ordtotal}         += $linetotal;
       $form->{nodiscount_total} += $nodiscount_linetotal;
@@ -1202,8 +1206,10 @@ sub order_details {
       }
 
       if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
-        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },   $form->format_amount($myconfig, $discount_subtotal,   2);
-        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} }, $form->format_amount($myconfig, $nodiscount_subtotal, 2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },         $form->format_amount($myconfig, $discount_subtotal,   2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub_nofmt} },   $discount_subtotal;
+        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} },       $form->format_amount($myconfig, $nodiscount_subtotal, 2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub_nofmt} }, $nodiscount_subtotal;
 
         $discount_subtotal   = 0;
         $nodiscount_subtotal = 0;
@@ -1218,11 +1224,12 @@ sub order_details {
         $nodiscount += $linetotal;
       }
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} }, $form->format_amount($myconfig, $linetotal, 2);
-      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} }, $form->format_amount($myconfig, $nodiscount_linetotal, 2);
-
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} }, $projectdescriptions{$form->{"project_id_$i"}});
+      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} },                  $form->format_amount($myconfig, $linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_nofmt} },            $linetotal_exact;
+      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} },       $form->format_amount($myconfig, $nodiscount_linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal_nofmt} }, $nodiscount_linetotal;
+      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $projectnumbers{$form->{"project_id_$i"}});
+      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $projectdescriptions{$form->{"project_id_$i"}});
 
       my ($taxamount, $taxbase);
       my $taxrate = 0;
@@ -1293,8 +1300,11 @@ sub order_details {
     $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
 
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxbase} },        $form->format_amount($myconfig, $taxbase{$item}, 2));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxbase_nofmt} },  $taxbase{$item});
     push(@{ $form->{TEMPLATE_ARRAYS}->{tax} },            $form->format_amount($myconfig, $taxamount,      2));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{tax_nofmt} },      $taxamount);
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate} },        $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate_nofmt} },  $form->{"${item}_rate"} * 100);
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $form->{"${item}_description"} . q{ } . 100 * $form->{"${item}_rate"} . q{%});
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxnumber} },      $form->{"${item}_taxnumber"});
   }
@@ -1305,9 +1315,11 @@ sub order_details {
   $form->{yesdiscount}         = $form->format_amount($myconfig, $form->{nodiscount_total} - $nodiscount, 2);
 
   if($form->{taxincluded}) {
-    $form->{subtotal} = $form->format_amount($myconfig, $form->{ordtotal} - $tax, 2);
+    $form->{subtotal}       = $form->format_amount($myconfig, $form->{ordtotal} - $tax, 2);
+    $form->{subtotal_nofmt} = $form->{ordtotal} - $tax;
   } else {
-    $form->{subtotal} = $form->format_amount($myconfig, $form->{ordtotal}, 2);
+    $form->{subtotal}       = $form->format_amount($myconfig, $form->{ordtotal}, 2);
+    $form->{subtotal_nofmt} = $form->{ordtotal};
   }
 
   $form->{ordtotal} = ($form->{taxincluded}) ? $form->{ordtotal} : $form->{ordtotal} + $tax;

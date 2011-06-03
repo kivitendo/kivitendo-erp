@@ -93,7 +93,7 @@ SL::DB::Helper::TransNumberGenerator - A mixin for creating unique record number
 
 =over 4
 
-=item C<get_mext_trams_number %params>
+=item C<get_next_trans_number %params>
 
 Generates a new unique record number for the mixing class. Each record
 type (invoices, sales quotations, purchase orders etc) has its own
@@ -147,7 +147,7 @@ and return a value. If it fails then it is due to exceptions.
 
 =item C<create_trans_number %params>
 
-Calls and returns L</get_next_trans_number> with the parameters
+Calls and returns </get_next_trans_number> with the parameters
 C<update_defaults = 1> and C<update_record = 1>. C<%params> is passed
 to it as well.
 

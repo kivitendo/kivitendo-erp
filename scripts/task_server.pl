@@ -33,10 +33,6 @@ use SL::Locale;
 
 our %lx_office_conf;
 
-# this is a cleaned up version of am.pl
-# it lacks redirection, some html setup and most of the authentication process.
-# it is assumed that anyone with physical access and execution rights on this script
-# won't be hindered by authentication anyway.
 sub lxinit {
   my $login = $lx_office_conf{task_server}->{login};
 
@@ -89,7 +85,7 @@ sub drop_privileges {
 sub gd_preconfig {
   my $self = shift;
 
-  SL::LxOfficeConf->read;
+  SL::LxOfficeConf->read($self->{configfile});
 
   die "Missing section [task_server] in config file"                unless $lx_office_conf{task_server};
   die "Missing key 'login' in section [task_server] in config file" unless $lx_office_conf{task_server}->{login};

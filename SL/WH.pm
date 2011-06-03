@@ -624,7 +624,12 @@ sub get_warehouse_report {
   my $sort_order  = $form->{order};
 
   $sort_col       =  $filter{sort}  unless $sort_col;
-  $sort_col       =  "parts_id"     unless $sort_col;
+  # falls $sort_col gar nicht in dem Bericht aufgenommen werden soll,
+  # führt ein entsprechenes order by $sort_col zu einem SQL-Fehler
+  # entsprechend parts_id als default lassen, wenn $sort_col UND l_$sort_col
+  # vorhanden sind (bpsw. l_partnumber = 'Y', für in Bericht aufnehmen).
+  # S.a. Bug 1597 jb 12.5.2011
+  $sort_col       =  "parts_id"     unless ($sort_col && $form->{"l_$sort_col"});
   $sort_order     =  $filter{order} unless $sort_order;
   $sort_col       =~ s/ASC|DESC//; # kill stuff left in from previous queries
   my $orderby     =  $sort_col;

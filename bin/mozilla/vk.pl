@@ -90,8 +90,8 @@ sub invoice_transactions {
   if ( $form->{customer} =~ /--/ ) {
     # Felddaten kommen aus Dropdownbox
     ($form->{customername}, $form->{customer_id}) = split(/--/, $form->{customer});
-  } else {
-    # Felddaten kommen aus Freitextfeld
+  } elsif ($form->{customer}) {
+    # es wurde ein Wert im Freitextfeld übergeben, auf Eindeutigkeit überprüfen
 
     # check_name wird mit no_select => 1 ausgeführt, ist die Abfrage nicht eindeutig kommt ein Fehler
     # und die Abfrage muß erneut ausgeführt werden
@@ -100,10 +100,11 @@ sub invoice_transactions {
     # Nichts führt, daher diese Zwischenlösung
 
     &check_name('customer', no_select => 1);
-
+  
     # $form->{customer_id} wurde schon von check_name gesetzt
     $form->{customername} = $form->{customer};
   };
+  # ist $form->{customer} leer passiert hier nichts weiter
 
   # decimalplaces überprüfen oder auf Default 2 setzen
   $form->{decimalplaces} = 2 unless $form->{decimalplaces} > 0 && $form->{decimalplaces} < 6;
@@ -124,12 +125,12 @@ sub invoice_transactions {
   $form->{title} = $locale->text('Sales Report');
 
   @columns =
-    qw(description invnumber partnumber parts_id transdate qty unit sellprice sellprice_total discount lastcost lastcost_total marge_total marge_percent);
+    qw(description invnumber transdate customernumber partnumber transdate qty unit sellprice sellprice_total discount lastcost lastcost_total marge_total marge_percent);
 
   # hidden variables für pdf/csv export übergeben
   # einmal mit l_ um zu bestimmen welche Spalten ausgegeben werden sollen
   # einmal optionen für die Überschrift (z.B. transdatefrom, partnumber, ...)
-  my @hidden_variables  = (qw(l_headers l_subtotal l_total transdatefrom transdateto decimalplaces customer customername customer_id department partnumber description project_id), "$form->{db}number", map { "l_$_" } @columns);
+  my @hidden_variables  = (qw(l_headers l_subtotal l_total l_customernumber transdatefrom transdateto decimalplaces customer customername customer_id department partnumber description project_id customernumber), "$form->{db}number", map { "l_$_" } @columns);
   my @hidden_nondefault = grep({ $form->{$_} } @hidden_variables);
   # Variablen werden dann als Hidden Variable mitgegeben, z.B.
   # <input type="hidden" name="report_generator_hidden_transdateto" value="21.05.2010">
@@ -151,6 +152,7 @@ sub invoice_transactions {
     'lastcost'                => { 'text' => $locale->text('Purchase price'), },
     'marge_total'             => { 'text' => $locale->text('Sales margin'), },
     'marge_percent'           => { 'text' => $locale->text('Sales margin %'), },
+    'customernumber'          => { 'text' => $locale->text('Customer Number'), },
   );
 
   my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total unit discount marge_total marge_percent qty);
@@ -165,6 +167,9 @@ sub invoice_transactions {
   }
   if ($form->{customer}) {
     push @options, $locale->text('Customer') . " : $form->{customername}";
+  }
+  if ($form->{customernumber}) {
+    push @options, $locale->text('Customer Number') . " : $form->{customernumber}";
   }
   if ($form->{department}) {
     my ($department) = split /--/, $form->{department};
@@ -334,7 +339,7 @@ sub invoice_transactions {
         $name = 'name';
       };
 
-      if ($form->{l_subtotal} eq 'Y' ) {
+      if ($form->{l_subtotal} eq 'Y') {
         push @{ $row_set }, create_subtotal_row_invoice(\%subtotals2, \@columns, \%column_alignment, \@subtotal_columns, 'listsubsortsubtotal', $ar->{$name}) ;
         push @{ $row_set }, insert_empty_row();
       };

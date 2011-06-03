@@ -1,5 +1,9 @@
-[%- USE T8 %]
-[% USE HTML %]<body>
+[%- USE T8 %][%- USE LxERP %][% USE L %]
+[% USE HTML %]
+
+<script type="text/javascript" src="js/jquery-ui.js"></script>
+
+<body>
 
  [% IF saved_message %]
   <p>[% saved_message %]</p>
@@ -19,7 +23,10 @@
  </table>
 
  <p>
-  Einheiten haben entweder keine oder genau eine Basiseinheit, von der sie ein Vielfaches sind. Wenn Sie eine Basiseinheit ausw&auml;hlen, dann m&uuml;ssen Sie auch einen Faktor eingeben. Sie m&uuml;ssen Einheiten als ein Vielfaches einer kleineren Einheit eingeben. So ist die Definition von &quot;kg&quot; mit der Basiseinheit &quot;g&quot; und dem Faktor 1000 zul&auml;ssig, die Definition von &quot;g&quot; mit der Basiseinheit &quot;kg&quot; und dem Faktor &quot;0,001&quot; hingegen nicht.
+  [% LxERP.t8('All units have either no or exactly one base unit of which they are multiples.') %]
+  [% LxERP.t8('If you select a base unit then you also have to enter a factor.') %]
+  [% LxERP.t8('You have to define a unit as a multiple of a smaller unit.') %]
+  [% LxERP.t8('Therefore the definition of "kg" with the base unit "g" and a factor of 1000 is valid while defining "g" with a base unit of "kg" and a factor of "0.001" is not.') %]
  </p>
 
  <hr>
@@ -76,21 +83,24 @@
   [% 'You can declare different translations for singular and plural for each unit (e.g. &quot;day&quot; and &quot;days).' | $T8 %]
  </p>
 
- <table>
-  <tr>
-   <th class="listheading" width="32" align="center" valign="center"><img alt="[% 'up' | $T8 %]" src="image/up.png"><img alt="[% 'down' | $T8 %]" src="image/down.png"></th>
-   <th class="listheading">[% 'Delete' | $T8 %]</th>
-   <th class="listheading">[% 'Unit' | $T8 %]</th>
-   <th class="listheading">[% 'Base unit' | $T8 %]</th>
-   <th class="listheading">[% 'Factor' | $T8 %]</th>
+ <table id="unit_list">
+  <thead>
+  <tr class="listheading">
+   <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+   <th>[% 'Delete' | $T8 %]</th>
+   <th>[% 'Unit' | $T8 %]</th>
+   <th>[% 'Base unit' | $T8 %]</th>
+   <th>[% 'Factor' | $T8 %]</th>
    [% FOREACH language = LANGUAGES %]
-    <th class="listheading">[% language.description %]</th>
+    <th>[% language.description %]</th>
    [% END %]
   </tr>
+  </thead>
 
+  <tbody>
   [% FOREACH row = UNITS %]
-   <tr>
-    <td width="32" align="center" valign="center">[% IF loop.first %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=up&name=[% HTML.url(row.name) %]"><img alt="[% 'up' | $T8 %]" src="image/up.png" border="0"></a>[% END %][% IF loop.last %]<img src="image/transparent16x16.gif">[% ELSE %]<a href="[% updownlink %]&dir=down&name=[% HTML.url(row.name) %]"><img alt="[% 'down' | $T8 %]" src="image/down.png" border="0"></a>[% END %]</td>
+   <tr class="listrow[% loop.count % 2 %]" id="unit_id_[% row.id %]">
+    <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
     [% IF row.in_use %]
      <td>
       <input type="hidden" name="unchangeable_[% loop.count %]" value="1">
@@ -125,14 +135,17 @@
      </td>
     [% END %]
    </tr>
-
-   [% IF loop.last %]<input type="hidden" name="rowcount" value="[% loop.count %]">[% END %]
   [% END %]
+  </tbody>
  </table>
+
+ <input type="hidden" name="rowcount" value="[% UNITS.size %]">
 
  <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
 
  </form>
+
+ [% L.sortable_element('#unit_list tbody', url => 'controller.pl?action=Unit/reorder', with => 'unit_id') %]
 
 </body>
 </html>

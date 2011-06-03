@@ -90,17 +90,8 @@ sub list_cvar_configs {
 
   my @configs = @{ CVar->get_configs(module => $form->{module}) };
 
-  my $previous_config;
-
   foreach my $config (@configs) {
     $config->{type_tr} = $translations{$config->{type}};
-
-    if ($previous_config) {
-      $previous_config->{next_id} = $config->{id};
-      $config->{previous_id}      = $previous_config->{id};
-    }
-
-    $previous_config = $config;
   }
 
   $form->{title} = $locale->text('List of custom variables');
@@ -215,19 +206,6 @@ sub display_cvar_config_form {
   $form->header();
   print $form->parse_html_template("amcvar/display_cvar_config_form", { TYPES   => \@types,
                                                                         MODULES => \@modules });
-
-  $main::lxdebug->leave_sub();
-}
-
-sub swap_cvar_configs {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  AM->swap_sortkeys(\%myconfig, $form, 'custom_variable_configs');
-
-  list_cvar_configs();
 
   $main::lxdebug->leave_sub();
 }

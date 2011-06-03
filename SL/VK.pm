@@ -51,7 +51,7 @@ sub invoice_transactions {
   my @values;
 
   my $query =
-    qq|SELECT cus.name,ar.invnumber,ar.id,ar.transdate,p.partnumber,i.parts_id,i.qty,i.price_factor,i.discount,i.description,i.lastcost,i.sellprice,i.marge_total,i.marge_percent,i.unit | .
+    qq|SELECT cus.name,cus.customernumber,ar.invnumber,ar.id,ar.transdate,p.partnumber,i.parts_id,i.qty,i.price_factor,i.discount,i.description,i.lastcost,i.sellprice,i.marge_total,i.marge_percent,i.unit | .
     qq|FROM invoice i | .  
     qq|join ar on (i.trans_id = ar.id) | .
     qq|join parts p on (i.parts_id = p.id) | .
@@ -71,6 +71,10 @@ sub invoice_transactions {
     $where .= " AND ar.customer_id = ?";
     push(@values, $form->{customer_id});
   };
+  if ($form->{customernumber}) {
+    $where .= qq| AND cus.customernumber = ? |;
+    push(@values, $form->{customernumber});
+  }
   if ($form->{partnumber}) {
     $where .= qq| AND (p.partnumber ILIKE ?)|;
     push(@values, '%' . $form->{partnumber} . '%');

@@ -59,7 +59,7 @@ sub invoice_details {
   $form->{duedate} ||= $form->{invdate};
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
   my $sth;
 
   my $query = qq|SELECT date | . conv_dateq($form->{duedate}) . qq| - date | . conv_dateq($form->{invdate}) . qq| AS terms|;
@@ -201,9 +201,11 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{description} },       $form->{"description_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{longdescription} },   $form->{"longdescription_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{qty} },               $form->format_amount($myconfig, $form->{"qty_$i"});
+      push @{ $form->{TEMPLATE_ARRAYS}->{qty_nofmt} },         $form->{"qty_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{unit} },              $form->{"unit_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{deliverydate_oe} },   $form->{"reqdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{sellprice} },         $form->{"sellprice_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{sellprice_nofmt} },   $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       push @{ $form->{TEMPLATE_ARRAYS}->{ordnumber_oe} },      $form->{"ordnumber_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{transdate_oe} },      $form->{"transdate_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{invnumber} },         $form->{"invnumber"};
@@ -241,12 +243,14 @@ sub invoice_details {
       my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice / $price_factor->{factor}, 2);
       $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{netprice} }, ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{netprice} },       ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{netprice_nofmt} }, ($form->{"netprice_$i"} != 0) ? $form->{"netprice_$i"} : '';
 
       $linetotal = ($linetotal != 0) ? $linetotal : '';
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{discount} },   ($discount  != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
-      push @{ $form->{TEMPLATE_ARRAYS}->{p_discount} }, $form->{"discount_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{discount} },       ($discount != 0) ? $form->format_amount($myconfig, $discount * -1, 2) : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{discount_nofmt} }, ($discount != 0) ? $discount * -1 : '';
+      push @{ $form->{TEMPLATE_ARRAYS}->{p_discount} },     $form->{"discount_$i"};
 
       $form->{total}            += $linetotal;
       $form->{nodiscount_total} += $nodiscount_linetotal;
@@ -258,8 +262,10 @@ sub invoice_details {
       }
 
       if ($form->{"subtotal_$i"} && $subtotal_header && ($subtotal_header != $i)) {
-        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },   $form->format_amount($myconfig, $discount_subtotal,   2);
-        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} }, $form->format_amount($myconfig, $nodiscount_subtotal, 2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },         $form->format_amount($myconfig, $discount_subtotal,   2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub_nofmt} },   $discount_subtotal;
+        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} },       $form->format_amount($myconfig, $nodiscount_subtotal, 2);
+        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub_nofmt} }, $nodiscount_subtotal;
 
         $discount_subtotal   = 0;
         $nodiscount_subtotal = 0;
@@ -274,11 +280,13 @@ sub invoice_details {
         $nodiscount += $linetotal;
       }
 
-      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} }, $form->format_amount($myconfig, $linetotal, 2);
-      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} }, $form->format_amount($myconfig, $nodiscount_linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal} },                  $form->format_amount($myconfig, $linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{linetotal_nofmt} },            $linetotal_exact;
+      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal} },       $form->format_amount($myconfig, $nodiscount_linetotal, 2);
+      push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_linetotal_nofmt} }, $nodiscount_linetotal;
 
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} }, $projectnumbers{$form->{"project_id_$i"}});
-      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} }, $projectdescriptions{$form->{"project_id_$i"}});
+      push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $projectnumbers{$form->{"project_id_$i"}});
+      push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $projectdescriptions{$form->{"project_id_$i"}});
 
       @taxaccounts = split(/ /, $form->{"taxaccounts_$i"});
       $taxrate     = 0;
@@ -368,8 +376,11 @@ sub invoice_details {
     $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
 
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxbase} },        $form->format_amount($myconfig, $taxbase{$item}, 2));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxbase_nofmt} },  $taxbase{$item});
     push(@{ $form->{TEMPLATE_ARRAYS}->{tax} },            $form->format_amount($myconfig, $taxamount,      2));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{tax_nofmt} },      $taxamount );
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate} },        $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate_nofmt} },  $form->{"${item}_rate"} * 100);
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $form->{"${item}_description"} . q{ } . 100 * $form->{"${item}_rate"} . q{%});
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxnumber} },      $form->{"${item}_taxnumber"});
   }
@@ -388,10 +399,12 @@ sub invoice_details {
     }
   }
   if($form->{taxincluded}) {
-    $form->{subtotal} = $form->format_amount($myconfig, $form->{total} - $tax, 2);
+    $form->{subtotal}       = $form->format_amount($myconfig, $form->{total} - $tax, 2);
+    $form->{subtotal_nofmt} = $form->{total} - $tax;
   }
   else {
-    $form->{subtotal} = $form->format_amount($myconfig, $form->{total}, 2);
+    $form->{subtotal}       = $form->format_amount($myconfig, $form->{total}, 2);
+    $form->{subtotal_nofmt} = $form->{total};
   }
 
   $form->{nodiscount_subtotal} = $form->format_amount($myconfig, $form->{nodiscount_total}, 2);
@@ -408,8 +421,6 @@ sub invoice_details {
   $form->set_payment_options($myconfig, $form->{invdate});
 
   $form->{username} = $myconfig->{name};
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -434,7 +445,7 @@ sub customer_details {
   my ($self, $myconfig, $form, @wanted_vars) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $language_id = $form->{language_id};
 
@@ -504,8 +515,6 @@ sub customer_details {
                                                   'language_id'      => $language_id,
                                                   'allow_fallback'   => 1);
 
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -1134,7 +1143,8 @@ sub post_payment {
   my ($self, $myconfig, $form, $locale) = @_;
 
   # connect to database, turn off autocommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
+  $dbh->begin_work;
 
   my (%payments, $old_form, $row, $item, $query, %keep_vars);
 
@@ -1189,7 +1199,6 @@ sub post_payment {
   restore_form($old_form);
 
   my $rc = $dbh->commit();
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -1369,7 +1378,8 @@ sub delete_invoice {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
+  $dbh->begin_work;
 
   &reverse_invoice($dbh, $form);
 
@@ -1399,7 +1409,6 @@ sub delete_invoice {
   do_query($form, $dbh, qq|DELETE FROM status WHERE trans_id = ?|, @values);
 
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   if ($rc) {
     my $spool = $::lx_office_conf{paths}->{spool};
@@ -1749,7 +1758,7 @@ sub retrieve_item {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $i = $form->{rowcount};
 
@@ -1960,8 +1969,6 @@ sub retrieve_item {
     map { $item->{"ic_cvar_" . $_->{name} } = $_->{value} } @{ $custom_variables };
   }
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -1977,7 +1984,7 @@ sub get_pricegroups_for_parts {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   $form->{"PRICES"} = {};
 
@@ -2041,27 +2048,27 @@ sub get_pricegroups_for_parts {
     }
 
     my $query =
-      qq|SELECT
+       qq|SELECT
+            0 as pricegroup_id,
+            sellprice AS default_sellprice,
+            '' AS pricegroup,
+            sellprice AS price,
+            'selected' AS selected
+          FROM parts
+          WHERE id = ?
+          UNION ALL
+          SELECT
            pricegroup_id,
-           (SELECT p.sellprice FROM parts p WHERE p.id = ?) AS default_sellprice,
-           (SELECT pg.pricegroup FROM pricegroup pg WHERE id = pricegroup_id) AS pricegroup,
+           parts.sellprice AS default_sellprice,
+           pricegroup.pricegroup,
            price,
            '' AS selected
           FROM prices
+          LEFT JOIN parts ON parts.id = parts_id
+          LEFT JOIN pricegroup ON pricegroup.id = pricegroup_id
           WHERE parts_id = ?
-
-          UNION
-
-          SELECT
-            0 as pricegroup_id,
-            (SELECT sellprice FROM parts WHERE id = ?) AS default_sellprice,
-            '' AS pricegroup,
-            (SELECT DISTINCT sellprice FROM parts where id = ?) AS price,
-            'selected' AS selected
-          FROM prices
-
           ORDER BY pricegroup|;
-    my @values = (conv_i($id), conv_i($id), conv_i($id), conv_i($id));
+    my @values = (conv_i($id), conv_i($id));
     my $pkq = prepare_execute_query($form, $dbh, $query, @values);
 
     while (my $pkr = $pkq->fetchrow_hashref('NAME_lc')) {
@@ -2125,7 +2132,7 @@ sub get_pricegroups_for_parts {
             $pkr->{selected}  = ' selected';
           }
         } elsif ( ($form->parse_amount($myconfig, $price_new)
-                 != $form->parse_amount($myconfig, $form->{"sellprice_$i"})) 
+                 != $form->parse_amount($myconfig, $form->{"sellprice_$i"}))
                   and ($price_new ne 0) and defined $price_new) {
           # sellprice has changed
           # when loading existing invoices $price_new is NULL
@@ -2153,8 +2160,6 @@ sub get_pricegroups_for_parts {
     $pkq->finish;
   }
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -2169,12 +2174,10 @@ sub has_storno {
   # ToDO: die when this happens and throw an error
   $main::lxdebug->leave_sub() and return 0 if ($table =~ /\W/);
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query = qq|SELECT storno FROM $table WHERE storno_id = ?|;
   my ($result) = selectrow_query($form, $dbh, $query, $form->{id});
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -2192,12 +2195,10 @@ sub is_storno {
   # ToDO: die when this happens and throw an error
   $main::lxdebug->leave_sub() and return 0 if ($table =~ /\W/);
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query = qq|SELECT storno FROM $table WHERE id = ?|;
   my ($result) = selectrow_query($form, $dbh, $query, $id);
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 
@@ -2209,12 +2210,10 @@ sub get_standard_accno_current_assets {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query = qq| SELECT accno FROM chart WHERE id = (SELECT ar_paid_accno_id FROM defaults)|;
   my ($result) = selectrow_query($form, $dbh, $query);
-
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
 

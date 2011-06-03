@@ -9,6 +9,7 @@ use SL::DB;
 use SL::DB::Helper::Attr;
 use SL::DB::Helper::Metadata;
 use SL::DB::Helper::Manager;
+use SL::DB::Object::Hooks;
 
 use base qw(Rose::DB::Object);
 
@@ -84,6 +85,57 @@ sub call_sub {
   return $self->$sub(@_);
 }
 
+sub call_sub_if {
+  my $self  = shift;
+  my $sub   = shift;
+  my $check = shift;
+
+  $check    = $check->($self) if ref($check) eq 'CODE';
+
+  return $check ? $self->$sub(@_) : $self;
+}
+
+# These three functions cannot sit in SL::DB::Object::Hooks because
+# mixins don't deal well with super classes (SUPER is the current
+# package's super class, not $self's).
+sub load {
+  my ($self, @args) = @_;
+
+  SL::DB::Object::Hooks::run_hooks($self, 'before_load');
+  my $result = $self->SUPER::load(@args);
+  SL::DB::Object::Hooks::run_hooks($self, 'after_load', $result);
+
+  return $result;
+}
+
+sub save {
+  my ($self, @args) = @_;
+
+  my $result;
+  my $worker = sub {
+    SL::DB::Object::Hooks::run_hooks($self, 'before_save');
+    $result = $self->SUPER::save(@args);
+    SL::DB::Object::Hooks::run_hooks($self, 'after_save', $result);
+  };
+
+  $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+  return $result;
+}
+
+sub delete {
+  my ($self, @args) = @_;
+
+  my $result;
+  my $worker = sub {
+    SL::DB::Object::Hooks::run_hooks($self, 'before_delete');
+    $result = $self->SUPER::delete(@args);
+    SL::DB::Object::Hooks::run_hooks($self, 'after_delete', $result);
+  };
+
+  $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+  return $result;
+}
+
 1;
 
 __END__
@@ -144,6 +196,16 @@ returns its result. This is meant for situations in which the sub's
 name is a composite, e.g.
 
   my $chart_id = $buchungsgruppe->call_sub(($is_sales ? "income" : "expense") . "_accno_id_${taxzone_id}");
+
+=item C<call_sub_if $name, $check, @args>
+
+Calls the sub C<$name> on C<$self> with the arguments C<@args> if
+C<$check> is trueish. If C<$check> is a code reference then it will be
+called with C<$self> as the only argument and its result determines
+whether or not C<$name> is called.
+
+Returns the sub's result if the check is positive and C<$self>
+otherwise.
 
 =back
 

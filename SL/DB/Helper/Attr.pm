@@ -30,7 +30,7 @@ sub make {
 sub _make_by_type {
   my ($package, $name, $type) = @_;
   _as_number ($package, $name, places => -2) if $type =~ /numeric | real | float/xi;
-  _as_percent($package, $name, places =>  0) if $type =~ /numeric | real | float/xi;
+  _as_percent($package, $name, places =>  2) if $type =~ /numeric | real | float/xi;
   _as_number ($package, $name, places =>  0) if $type =~ /int/xi;
   _as_date   ($package, $name)               if $type =~ /date | timestamp/xi;
 }

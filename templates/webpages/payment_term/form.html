@@ -1,0 +1,91 @@
+[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %]
+<body>
+
+ <form method="post" action="controller.pl">
+  <div class="listtop">[% FORM.title %]</div>
+
+[%- INCLUDE 'common/flash.html' %]
+
+  <table>
+   <tr>
+    <td>[%- 'Description' | $T8 %]</td>
+    <td>
+     <input name="payment_term.description" value="[%- HTML.escape(SELF.payment_term.description) %]">
+    </td>
+   </tr>
+
+   <tr>
+    <td>[%- 'Long Description' | $T8 %]</td>
+    <td>
+     <input name="payment_term.description_long" value="[%- HTML.escape(SELF.payment_term.description_long) %]" size="60">
+    </td>
+   </tr>
+
+   [%- FOREACH language = SELF.languages %]
+    <tr>
+     <td>[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</td>
+     <td>
+      <input name="translation_[% language.id %]" value="[%- HTML.escape(SELF.payment_term.translated_attribute('description_long', language, 1)) %]" size="60">
+     </td>
+    </tr>
+   [%- END %]
+
+   <tr>
+    <td>[%- 'Netto Terms' | $T8 %]</td>
+    <td>
+     <input name="payment_term.terms_netto_as_number" value="[%- HTML.escape(SELF.payment_term.terms_netto_as_number) %]" size="6">
+    </td>
+   </tr>
+
+   <tr>
+    <td>[%- 'Skonto Terms' | $T8 %]</td>
+    <td>
+     <input name="payment_term.terms_skonto_as_number" value="[%- HTML.escape(SELF.payment_term.terms_skonto_as_number) %]" size="6">
+    </td>
+   </tr>
+
+   <tr>
+    <td>[%- 'Skonto' | $T8 %]</td>
+    <td>
+     <input name="payment_term.percent_skonto_as_percent" value="[%- HTML.escape(SELF.payment_term.percent_skonto_as_percent) %]" size="6">%
+    </td>
+   </tr>
+  </table>
+
+  <p>
+   <input type="hidden" name="id" value="[% SELF.payment_term.id %]">
+   <input type="hidden" name="action" value="PaymentTerm/dispatch">
+   <input type="submit" class="submit" name="action_[% IF SELF.payment_term.id %]update[% ELSE %]create[% END %]" value="[% 'Save' | $T8 %]">
+   [%- IF SELF.payment_term.id %]
+    <input type="submit" class="submit" name="action_destroy" value="[% 'Delete' | $T8 %]"
+           onclick="if (confirm('[% 'Are you sure you want to delete this payment term?' | $T8 %]')) return true; else return false;">
+   [%- END %]
+   <a href="[% SELF.url_for(action => 'list') %]">[%- 'Abort' | $T8 %]</a>
+  </p>
+
+  <hr size="3" noshade>
+
+  <p>[% LxERP.t8("You can use the following strings in the long description and all translations. They will be replaced by their actual values by Lx-Office before they're output.") %]</p>
+
+  <table>
+   <tr class="listheading"><th>[%- LxERP.t8('Field') %]</th><th>[%- LxERP.t8('Description') %]</th></tr>
+   <tr><td>&lt;%payment_terms%&gt;</td><td>[% LxERP.t8("Payment description") %]</td></tr>
+   <tr><td>&lt;%payment_description%&gt;</td><td>[% LxERP.t8("Payment description detail") %]</td></tr>
+   <tr><td>&lt;%netto_date%&gt;</td><td>[% LxERP.t8("Date the payment is due in full") %]</td></tr>
+   <tr><td>&lt;%skonto_date%&gt;</td><td>[% LxERP.t8("Date the payment is due with discount") %]</td></tr>
+   <tr><td>&lt;%skonto_amount%&gt;</td><td>[% LxERP.t8("The deductible amount") %]</td></tr>
+   <tr><td>&lt;%skonto_in_percent%&gt;</td><td>[% LxERP.t8("The discount in percent") %]</td></tr>
+   <tr><td>&lt;%total%&gt;</td><td>[% LxERP.t8("Amount payable") %]</td></tr>
+   <tr><td>&lt;%total_wo_skonto%&gt;</td><td>[% LxERP.t8("Amount payable less discount") %]</td></tr>
+   <tr><td>&lt;%invtotal%&gt;</td><td>[% LxERP.t8("Invoice total") %]</td></tr>
+   <tr><td>&lt;%invtotal_wo_skonto%&gt;</td><td>[% LxERP.t8("Invoice total less discount") %]</td></tr>
+   <tr><td>&lt;%currency%&gt;</td><td>[% LxERP.t8("The selected currency") %]</td></tr>
+   <tr><td>&lt;%terms_netto%&gt;</td><td>[% LxERP.t8("The number of days for full payment") %]</td></tr>
+   <tr><td>&lt;%account_number%&gt;</td><td>[% LxERP.t8("Your account number") %]</td></tr>
+   <tr><td>&lt;%bank%&gt;</td><td>[% LxERP.t8("Your bank") %]</td></tr>
+   <tr><td>&lt;%bank_code%&gt;</td><td>[% LxERP.t8("Your bank code") %]</td></tr>
+  </table>
+ </form>
+
+</body>
+</html>

@@ -238,14 +238,14 @@ sub order_links {
 
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id));
   $form->{shipto} = 1 if $form->{id};
 
   # get customer / vendor
   IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;
   IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
 
-  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id shipto_id));
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
   $form->{forex}       = $form->{exchangerate};
@@ -393,9 +393,8 @@ sub form_header {
           : ($creditwarning)                                   ? "alert('$credittext')"
           :                                                      "";
 
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|.   $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-  $TMPL_VAR{onload} = $onload;
+  $TMPL_VAR{dateformat}          = $myconfig{dateformat};
+  $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
   if ($form->{type} eq 'sales_order') {
     if (!$form->{periodic_invoices_config}) {
@@ -702,7 +701,7 @@ sub search {
 
   print $form->parse_html_template('oe/search', {
     %myconfig,
-    is_order => $form->{type} =~ /_order/,
+    is_order => scalar($form->{type} =~ /_order/),
   });
 
   $main::lxdebug->leave_sub();

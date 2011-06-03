@@ -19,6 +19,7 @@ use SL::Locale;
 use SL::Common;
 use SL::Form;
 use SL::Helper::DateTime;
+use SL::Template::Plugin::HTMLFixes;
 use List::Util qw(first);
 use File::Basename;
 
@@ -51,7 +52,6 @@ sub pre_request_checks {
       show_error('login/auth_db_unreachable');
     }
   }
-  $::auth->expire_sessions;
 }
 
 sub show_error {
@@ -188,7 +188,7 @@ sub handle_request {
 
     $::form->error($::locale->text('System currently down for maintenance!')) if -e ($::lx_office_conf{paths}->{userspath} . "/nologin") && $script ne 'admin';
 
-    if ($script eq 'login' or $script eq 'admin' or $script eq 'kopf') {
+    if ($script eq 'login' or $script eq 'admin') {
       $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";
       ::run($session_result);
 
@@ -231,12 +231,14 @@ sub handle_request {
   };
 
   # cleanup
+  $::auth->expire_session_keys->save_session;
+  $::auth->expire_sessions;
+  $::auth->reset;
+
   $::locale   = undef;
   $::form     = undef;
   $::myconfig = ();
   Form::disconnect_standard_dbh;
-  $::auth->expire_session_keys->save_session;
-  $::auth->reset;
 
   $::lxdebug->end_request;
   $::lxdebug->leave_sub;

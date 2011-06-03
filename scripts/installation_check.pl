@@ -29,7 +29,7 @@ sub check {
 
   my @source_texts = source_texts($module);
   local $" = $/;
-  print <<EOL;
+  print STDERR <<EOL;
 +-----------------------------------------------------------------------------+
   $module->{fullname} could not be loaded.
 
