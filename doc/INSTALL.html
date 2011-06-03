@@ -40,26 +40,36 @@
 <li><a href="#Datenbankbenutzer-anlegen">4.4 Datenbankbenutzer anlegen</a>
 </li></ul>
 <li><a name="toc_Apache_002dKonfiguration" href="#Apache_002dKonfiguration">5 Apache-Konfiguration</a>
-<li><a name="toc_Benutzerauthentifizierung-und-Administratorpasswort" href="#Benutzerauthentifizierung-und-Administratorpasswort">6 Benutzerauthentifizierung und Administratorpasswort</a>
+<li><a name="toc_Der-Task_002dServer" href="#Der-Task_002dServer">6 Der Task-Server</a>
 <ul>
-<li><a href="#Grundlagen-zur-Benutzerauthentifizierung">6.1 Grundlagen zur Benutzerauthentifizierung</a>
-<li><a href="#Administratorpasswort">6.2 Administratorpasswort</a>
-<li><a href="#Authentifizierungsdatenbank">6.3 Authentifizierungsdatenbank</a>
-<li><a href="#Passwort_00c3_00bcberpr_00c3_00bcfung">6.4 Passwortüberprüfung</a>
-<li><a href="#Name-des-Session_002dCookies">6.5 Name des Session-Cookies</a>
-<li><a href="#Anlegen-der-Authentifizierungsdatenbank">6.6 Anlegen der Authentifizierungsdatenbank</a>
-</li></ul>
-<li><a name="toc_Benutzer_002d-und-Gruppenverwaltung" href="#Benutzer_002d-und-Gruppenverwaltung">7 Benutzer- und Gruppenverwaltung</a>
+<li><a href="#Konfiguration-des-Task_002dServers">6.1 Verfügbare und notwendige Konfigurationsoptionen</a>
+<li><a href="#Einbinden-in-den-Boot_002dProzess">6.2 Automatisches Starten des Task-Servers beim Booten</a>
 <ul>
-<li><a href="#Zusammenh_00c3_00a4nge">7.1 Zusammenhänge</a>
-<li><a href="#Datenbanken-anlegen">7.2 Datenbanken anlegen</a>
-<li><a href="#Gruppen-anlegen">7.3 Gruppen anlegen</a>
-<li><a href="#Benutzer-anlegen">7.4 Benutzer anlegen</a>
-<li><a href="#Gruppenmitgliedschaften-verwalten">7.5 Gruppenmitgliedschaften verwalten</a>
-<li><a href="#Migration-alter-Installationen">7.6 Migration alter Installationen</a>
+<li><a href="#Einbinden-in-den-Boot_002dProzess">6.2.1 SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora Core)</a>
+<li><a href="#Einbinden-in-den-Boot_002dProzess">6.2.2 Upstart-basierende Systeme (z.B. Ubuntu)</a>
 </li></ul>
-<li><a name="toc_OpenDocument_002dVorlagen" href="#OpenDocument_002dVorlagen">8 OpenDocument-Vorlagen</a>
-<li><a name="toc_Lx_002dOffice-ERP-verwenden" href="#Lx_002dOffice-ERP-verwenden">9 Lx-Office ERP verwenden</a>
+<li><a href="#Prozesskontrolle">6.3 Wie der Task-Server gestartet und beendet wird</a>
+</li></ul>
+<li><a name="toc_Benutzerauthentifizierung-und-Administratorpasswort" href="#Benutzerauthentifizierung-und-Administratorpasswort">7 Benutzerauthentifizierung und Administratorpasswort</a>
+<ul>
+<li><a href="#Grundlagen-zur-Benutzerauthentifizierung">7.1 Grundlagen zur Benutzerauthentifizierung</a>
+<li><a href="#Administratorpasswort">7.2 Administratorpasswort</a>
+<li><a href="#Authentifizierungsdatenbank">7.3 Authentifizierungsdatenbank</a>
+<li><a href="#Passwort_00c3_00bcberpr_00c3_00bcfung">7.4 Passwortüberprüfung</a>
+<li><a href="#Name-des-Session_002dCookies">7.5 Name des Session-Cookies</a>
+<li><a href="#Anlegen-der-Authentifizierungsdatenbank">7.6 Anlegen der Authentifizierungsdatenbank</a>
+</li></ul>
+<li><a name="toc_Benutzer_002d-und-Gruppenverwaltung" href="#Benutzer_002d-und-Gruppenverwaltung">8 Benutzer- und Gruppenverwaltung</a>
+<ul>
+<li><a href="#Zusammenh_00c3_00a4nge">8.1 Zusammenhänge</a>
+<li><a href="#Datenbanken-anlegen">8.2 Datenbanken anlegen</a>
+<li><a href="#Gruppen-anlegen">8.3 Gruppen anlegen</a>
+<li><a href="#Benutzer-anlegen">8.4 Benutzer anlegen</a>
+<li><a href="#Gruppenmitgliedschaften-verwalten">8.5 Gruppenmitgliedschaften verwalten</a>
+<li><a href="#Migration-alter-Installationen">8.6 Migration alter Installationen</a>
+</li></ul>
+<li><a name="toc_OpenDocument_002dVorlagen" href="#OpenDocument_002dVorlagen">9 OpenDocument-Vorlagen</a>
+<li><a name="toc_Lx_002dOffice-ERP-verwenden" href="#Lx_002dOffice-ERP-verwenden">10 Lx-Office ERP verwenden</a>
 </li></ul>
 </div>
 
@@ -81,10 +91,11 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
 <li><a accesskey="3" href="#Manuelle-Installation-des-Programmpaketes">Manuelle Installation des Programmpaketes</a>:  Installationsort, Berechtigungen
 <li><a accesskey="4" href="#Anpassung-der-PostgreSQL_002dKonfiguration">Anpassung der PostgreSQL-Konfiguration</a>:  Verschiedene Aspekte der Datenbankkonfiguration
 <li><a accesskey="5" href="#Apache_002dKonfiguration">Apache-Konfiguration</a>:  Einrichtung eines Aliases und Optionen für das Ausführen von CGI-Scripten
-<li><a accesskey="6" href="#Benutzerauthentifizierung-und-Administratorpasswort">Benutzerauthentifizierung und Administratorpasswort</a>:  Einrichtung der Authentifizierungsdatenbank und der Passwortüberprüfung
-<li><a accesskey="7" href="#Benutzer_002d-und-Gruppenverwaltung">Benutzer- und Gruppenverwaltung</a>:  Einrichten von Benutzern, Gruppen und Datenbanken
-<li><a accesskey="8" href="#OpenDocument_002dVorlagen">OpenDocument-Vorlagen</a>:  Wichtige Hinweise zum Erstellen und zur Verwendung von Dokumentenvorlagen
-<li><a accesskey="9" href="#Lx_002dOffice-ERP-verwenden">Lx-Office ERP verwenden</a>:  Die URLs zur Anmeldung und Administration
+<li><a accesskey="6" href="#Der-Task_002dServer">Der Task-Server</a>:  Konfiguration und Einrichtung des Task-Server-Dämonen
+<li><a accesskey="7" href="#Benutzerauthentifizierung-und-Administratorpasswort">Benutzerauthentifizierung und Administratorpasswort</a>:  Einrichtung der Authentifizierungsdatenbank und der Passwortüberprüfung
+<li><a accesskey="8" href="#Benutzer_002d-und-Gruppenverwaltung">Benutzer- und Gruppenverwaltung</a>:  Einrichten von Benutzern, Gruppen und Datenbanken
+<li><a accesskey="9" href="#OpenDocument_002dVorlagen">OpenDocument-Vorlagen</a>:  Wichtige Hinweise zum Erstellen und zur Verwendung von Dokumentenvorlagen
+<li><a href="#Lx_002dOffice-ERP-verwenden">Lx-Office ERP verwenden</a>:  Die URLs zur Anmeldung und Administration
 </ul>
 
 <!--  -->
@@ -460,7 +471,7 @@ bzw. den hier gewählten Benutzernamen.
 <a name="Apache-Konfiguration"></a>
 <a name="Apache_002dKonfiguration"></a>
 <p><hr>
-n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Benutzerauthentifizierung-und-Administratorpasswort">Benutzerauthentifizierung und Administratorpasswort</a>,
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Der-Task_002dServer">Der Task-Server</a>,
 voriges:&nbsp;<a rel="previous" accesskey="p" href="#Anpassung-der-PostgreSQL_002dKonfiguration">Anpassung der PostgreSQL-Konfiguration</a>,
 aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
@@ -513,15 +524,146 @@ folgende Option in die Konfiguration aufzunehmen:
 
 <!--  -->
 <div class="node">
-<a name="Benutzerauthentifizierung-und-Administratorpasswort"></a>
+<a name="Der-Task-Server"></a>
+<a name="Der-Task_002dServer"></a>
 <p><hr>
-n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Benutzer_002d-und-Gruppenverwaltung">Benutzer- und Gruppenverwaltung</a>,
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Benutzerauthentifizierung-und-Administratorpasswort">Benutzerauthentifizierung und Administratorpasswort</a>,
 voriges:&nbsp;<a rel="previous" accesskey="p" href="#Apache_002dKonfiguration">Apache-Konfiguration</a>,
 aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">6 Benutzerauthentifizierung und Administratorpasswort</h2>
+<h2 class="chapter">6 Der Task-Server</h2>
+
+<p>Der Task-Server ist ein Dämonen, der im Hintergrund läuft, in
+regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese
+zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser
+Dämon wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
+benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
+bekommen.
+
+<ul class="menu">
+<li><a accesskey="1" href="#Konfiguration-des-Task_002dServers">Konfiguration des Task-Servers</a>:  Verfügbare und notwendige Konfigurationsoptionen
+<li><a accesskey="2" href="#Prozesskontrolle">Prozesskontrolle</a>:  Wie der Task-Server gestartet und beendet wird
+<li><a accesskey="3" href="#Einbinden-in-den-Boot_002dProzess">Einbinden in den Boot-Prozess</a>:  Automatisches Starten des Task-Servers beim Booten
+</ul>
+
+<div class="node">
+<a name="Konfiguration-des-Task-Servers"></a>
+<a name="Konfiguration-des-Task_002dServers"></a>
+<p><hr>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Prozesskontrolle">Prozesskontrolle</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Der-Task_002dServer">Der Task-Server</a>
+
+</div>
+
+<h3 class="section">6.1 Verfügbare und notwendige Konfigurationsoptionen</h3>
+
+<p>Die Konfiguration erfolgt über den Abschnitt <code>[task_server]</code> in
+der Datei <samp><span class="file">config/lx_office.conf</span></samp>. Die dort verfügbaren Optionen
+sind:
+
+     <ul>
+<li><code>login</code>: Benutzername, der benutzt wird, um die zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss in der Administration angelegt werden. Diese Option muss angegeben werden. 
+<li><code>run_as</code>: Wird der Server von <code>root</code> gestartet, so wechselt er auf diesen Systembenutzer. Der Systembenutzer muss dieselben Lese- und Schreibrechte haben, wie auch der Webserverbenutzer (siehe see <a href="#Manuelle-Installation-des-Programmpaketes">Manuelle Installation des Programmpaketes</a>). Daher ist es sinnvoll, hier denselben Systembenutzer einzutragen, unter dem auch der Webserver läuft. 
+<li><code>debug</code>: Schaltet Debug-Informationen an und aus. 
+</ul>
+
+<div class="node">
+<a name="Einbinden-in-den-Boot-Prozess"></a>
+<a name="Einbinden-in-den-Boot_002dProzess"></a>
+<p><hr>
+voriges:&nbsp;<a rel="previous" accesskey="p" href="#Prozesskontrolle">Prozesskontrolle</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Der-Task_002dServer">Der Task-Server</a>
+
+</div>
+
+<h3 class="section">6.2 Automatisches Starten des Task-Servers beim Booten</h3>
+
+<p>Der Task-Server verhält sich von seinen Optionen her wie ein reguläres
+SystemV-kompatibles Boot-Script. Außerdem wechselt er beim Starten
+automatisch in das Lx-Office-Installationsverzeichnis.
+
+   <p>Deshalb ist es möglich, ihn durch Setzen eines symbolischen Links aus
+einem der Runlevel-Verzeichnisse heraus in den Boot-Prozess
+einzubinden. Da das bei neueren Linux-Distributionen aber nicht
+zwangsläufig funktioniert, werden auch Start-Scripte mitgeliefert, die
+anstelle eines symbolischen Links verwendet werden können.
+
+<h4 class="subsection">6.2.1 SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora Core)</h4>
+
+<p>Kopieren Sie die Datei
+<samp><span class="file">scripts/boot/system-v/lx-office-task-server</span></samp> nach
+<samp><span class="file">/etc/init.d/lx-office-task-server</span></samp>. Passen Sie in der kopierten
+Datei den Pfad zum Task-Server an (Zeile <code>DAEMON=....</code>). Binden
+Sie das Script in den Boot-Prozess ein. Dies ist distributionsabhängig:
+
+     <ul>
+<li>Debian-basierende Systeme:
+<br>
+<code>update-rc.d lx-office-task-server defaults
+<br>
+# Nur bei Debian Squeeze und neuer:
+<br>
+insserv lx-office-task-server</code>
+<li>OpenSuSE und Fedora Core:
+<br>
+<code>chkconfig --add lx-office-task-server</code>
+</ul>
+
+   <p>Danach kann der Task-Server mit dem folgenden Befehl gestartet werden:
+<code>/etc/init.d/lx-office-task-server start</code>
+
+<h4 class="subsection">6.2.2 Upstart-basierende Systeme (z.B. Ubuntu)</h4>
+
+<p>Kopieren Sie die Datei
+<samp><span class="file">scripts/boot/upstart/lx-office-task-server.conf</span></samp> nach
+<samp><span class="file">/etc/init/lx-office-task-server.conf</span></samp>. Passen Sie in der kopierten
+Datei den Pfad zum Task-Server an (Zeile <code>exec ....</code>).
+
+   <p>Danach kann der Task-Server mit dem folgenden Befehl gestartet werden:
+<code>service lx-office-task-server start</code>
+
+<div class="node">
+<a name="Prozesskontrolle"></a>
+<p><hr>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Einbinden-in-den-Boot_002dProzess">Einbinden in den Boot-Prozess</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="#Konfiguration-des-Task_002dServers">Konfiguration des Task-Servers</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Der-Task_002dServer">Der Task-Server</a>
+
+</div>
+
+<h3 class="section">6.3 Wie der Task-Server gestartet und beendet wird</h3>
+
+<p>Der Task-Server wird wie folgt kontrolliert:
+
+   <p><code>./scripts/task_server.pl Befehl</code>
+
+   <p><code>Befehl</code> ist dabei eine der folgenden Optionen:
+
+     <ul>
+<li><code>start</code> startet eine neue Instanz des Task-Servers. Die Prozess-ID wird innerhalb des <samp><span class="file">users</span></samp>-Verzeichnisses abgelegt. 
+<li><code>stop</code> beendet einen laufenden Task-Server. 
+<li><code>restart</code> beendet und startet ihn neu. 
+<li><code>status</code> berichtet, ob der Task-Server läuft. 
+</ul>
+
+   <p>Der Task-Server wechselt beim Starten automatisch in das Lx-Office-Installationsverzeichnis.
+
+   <p>Dieselben Optionen können auch für die SystemV-basierenden
+Runlevel-Scripte benutzt werden (siehe oben).
+
+<!--  -->
+<div class="node">
+<a name="Benutzerauthentifizierung-und-Administratorpasswort"></a>
+<p><hr>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Benutzer_002d-und-Gruppenverwaltung">Benutzer- und Gruppenverwaltung</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="#Der-Task_002dServer">Der Task-Server</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">7 Benutzerauthentifizierung und Administratorpasswort</h2>
 
 <p>Informationen über die Einrichtung der Benutzerauthentifizierung, über
 die Verwaltung von Gruppen und weitere Einstellungen
@@ -544,7 +686,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzerauthentifizierung-u
 
 </div>
 
-<h3 class="section">6.1 Grundlagen zur Benutzerauthentifizierung</h3>
+<h3 class="section">7.1 Grundlagen zur Benutzerauthentifizierung</h3>
 
 <p>Lx-Office verwaltet die Benutzerinformationen in einer Datenbank, die
 im folgenden &ldquo;Authentifizierungsdatenbank&rdquo; genannt wird. Für jeden
@@ -562,10 +704,10 @@ LDAP-Server überprüft werden.
 
    <p>Welche Art der Passwortüberprüfung Lx-Office benutzt und wie Lx-Office
 die Authentifizierungsdatenbank erreichen kann, wird in der
-Konfigurationsdatei <code>config/lx_office.conf</code> festgelegt. Diese
+Konfigurationsdatei <samp><span class="file">config/lx_office.conf</span></samp> festgelegt. Diese
 muss bei der Installation und bei einem Upgrade von einer Version vor
 v2.6.0 angelegt werden. Eine Beispielkonfigurationsdatei
-<code>config/lx_office.conf.default</code> existiert, die als Vorlage
+<samp><span class="file">config/lx_office.conf.default</span></samp> existiert, die als Vorlage
 benutzt werden kann.
 
 <div class="node">
@@ -577,7 +719,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzerauthentifizierung-u
 
 </div>
 
-<h3 class="section">6.2 Administratorpasswort</h3>
+<h3 class="section">7.2 Administratorpasswort</h3>
 
 <p>Das Passwort, das zum Zugriff auf das Aministrationsinterface benutzt wird,
 wird ebenfalls in dieser Datei gespeichert. Es kann auch nur dort und nicht
@@ -593,7 +735,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzerauthentifizierung-u
 
 </div>
 
-<h3 class="section">6.3 Authentifizierungsdatenbank</h3>
+<h3 class="section">7.3 Authentifizierungsdatenbank</h3>
 
 <p>Die Verbindung zur Authentifizierungsdatenbank wird mit den Parametern
 in <code>$self-&gt;{DB_config}</code> konfiguriert. Hier sind die folgenden
@@ -620,7 +762,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzerauthentifizierung-u
 
 </div>
 
-<h3 class="section">6.4 Passwortüberprüfung</h3>
+<h3 class="section">7.4 Passwortüberprüfung</h3>
 
 <p>Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen die
 Authentifizierungsdatenbank und gegen einen externen LDAP- oder
@@ -664,7 +806,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzerauthentifizierung-u
 
 </div>
 
-<h3 class="section">6.5 Name des Session-Cookies</h3>
+<h3 class="section">7.5 Name des Session-Cookies</h3>
 
 <p>Sollen auf einem Server mehrere Lx-Office-Installationen aufgesetzt
 werden, so müssen die Namen der Session-Cookies für alle
@@ -682,9 +824,9 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzerauthentifizierung-u
 
 </div>
 
-<h3 class="section">6.6 Anlegen der Authentifizierungsdatenbank</h3>
+<h3 class="section">7.6 Anlegen der Authentifizierungsdatenbank</h3>
 
-<p>Nachdem alle Einstellungen in <code>config/lx_office.conf</code>
+<p>Nachdem alle Einstellungen in <samp><span class="file">config/lx_office.conf</span></samp>
 vorgenommen wurden, muss Lx-Office die Authentifizierungsdatenbank
 anlegen. Dieses geschieht automatisch, wenn Sie sich im
 Administrationsmodul anmelden, das unter der folgenden URL erreichbar
@@ -703,7 +845,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">7 Benutzer- und Gruppenverwaltung</h2>
+<h2 class="chapter">8 Benutzer- und Gruppenverwaltung</h2>
 
 <p>Nach der Installation müssen Benutzer, Gruppen und Datenbanken
 angelegt werden.  Dieses geschieht im Administrationsmenü, das Sie
@@ -712,7 +854,7 @@ unter folgender URL finden:
    <p><a href="http://localhost/lx-erp/admin.pl">http://localhost/lx-erp/admin.pl</a>
 
    <p>Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
-<code>config/lx_office.conf</code> eingetragen haben.
+<samp><span class="file">config/lx_office.conf</span></samp> eingetragen haben.
 
 <ul class="menu">
 <li><a accesskey="1" href="#Zusammenh_00c3_00a4nge">Zusammenhänge</a>:  Übersicht über Benutzer, Gruppen, Berechtigungen und Datenbanken
@@ -732,7 +874,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzer_002d-und-Gruppenve
 
 </div>
 
-<h3 class="section">7.1 Zusammenhänge</h3>
+<h3 class="section">8.1 Zusammenhänge</h3>
 
 <p>Lx-Office verwendet eine Datenbank zum Speichern all seiner
 Informationen wie Kundendaten, Artikel, Angebote, Rechnungen etc. Um
@@ -781,7 +923,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzer_002d-und-Gruppenve
 
 </div>
 
-<h3 class="section">7.2 Datenbanken anlegen</h3>
+<h3 class="section">8.2 Datenbanken anlegen</h3>
 
 <p>Zuerst muss eine Datenbank angelegt werden. Verwenden Sie für den
 Datenbankzugriff den vorhin angelegten Benutzer (in unseren Beispielen
@@ -790,7 +932,7 @@ ist dies &lsquo;<samp><span class="samp">lxoffice</span></samp>&rsquo;).
    <p>Wenn Sie für die Lx-Office-Installation nicht den europäischen
 Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
 müssen Sie vor dem Anlegen der Datenbank in der Datei
-<code>config/lx_office.conf</code> die Variable <code>dbcharset</code> im
+<samp><span class="file">config/lx_office.conf</span></samp> die Variable <code>dbcharset</code> im
 Abschnitt <code>system</code> auf den Wert &lsquo;<samp><span class="samp">UTF-8</span></samp>&rsquo; setzen. Zusätzlich
 muss beim Anlegen der Datenbank &lsquo;<samp><span class="samp">UTF-8 Unicode</span></samp>&rsquo; als Schriftsatz
 ausgewählt werden.
@@ -810,7 +952,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzer_002d-und-Gruppenve
 
 </div>
 
-<h3 class="section">7.3 Gruppen anlegen</h3>
+<h3 class="section">8.3 Gruppen anlegen</h3>
 
 <p>Eine Gruppe wird in der Gruppenverwaltung angelegt. Ihr muss ein Name
 gegeben werden, eine Beschreibung ist hingegen optional. Nach dem
@@ -830,7 +972,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzer_002d-und-Gruppenve
 
 </div>
 
-<h3 class="section">7.4 Benutzer anlegen</h3>
+<h3 class="section">8.4 Benutzer anlegen</h3>
 
 <p>Beim Anlegen von Benutzern werden für viele Parameter
 Standardeinstellungen vorgenommen, die den Gepflogenheiten des
@@ -854,7 +996,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzer_002d-und-Gruppenve
 
 </div>
 
-<h3 class="section">7.5 Gruppenmitgliedschaften verwalten</h3>
+<h3 class="section">8.5 Gruppenmitgliedschaften verwalten</h3>
 
 <p>Nach dem Anlegen von Benutzern und Gruppen müssen Benutzer den Gruppen
 zugewiesen werden. Dazu gibt es zwei Möglichkeiten:
@@ -877,7 +1019,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Benutzer_002d-und-Gruppenve
 
 </div>
 
-<h3 class="section">7.6 Migration alter Installationen</h3>
+<h3 class="section">8.6 Migration alter Installationen</h3>
 
 <p>Wenn Lx-Office 2.6.2 über eine ältere Version installiert wird, in der
 die Benutzerdaten noch im Dateisystem im Verzeichnis <code>users</code>
@@ -908,18 +1050,18 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">8 OpenDocument-Vorlagen</h2>
+<h2 class="chapter">9 OpenDocument-Vorlagen</h2>
 
 <p>Lx-Office unterstützt die Verwendung von Vorlagen im
 OpenDocument-Format, wie es OpenOffice.org ab Version 2
 erzeugt. Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als
 auch aus diesen direkt PDF-Dateien erzeugen.  Um die Unterstützung von
 OpenDocument-Vorlagen zu aktivieren muss in der Datei
-<code>config/lx_office.conf</code> die Variable <code>opendocument</code> im
+<samp><span class="file">config/lx_office.conf</span></samp> die Variable <code>opendocument</code> im
 Abschnitt <code>print_templates</code> auf &lsquo;<samp><span class="samp">1</span></samp>&rsquo; stehen.  Dieses ist die
 Standardeinstellung.
 
-   <p>Weiterhin muss in der Datei <code>config/lx_office.conf</code> die Variable
+   <p>Weiterhin muss in der Datei <samp><span class="file">config/lx_office.conf</span></samp> die Variable
 <code>dbcharset</code> im Abschnitt <code>system</code> auf die Zeichenkodierung
 gesetzt werden, die auch bei der Speicherung der Daten in der
 Datenbank verwendet wird. Diese ist in den meisten Fällen "UTF-8".
@@ -931,7 +1073,7 @@ neben OpenOffice.org ab Version 2 auch der &ldquo;X virtual frame buffer&rdquo;
 (xvfb) installiert werden.  Bei Debian ist er im Paket &ldquo;xvfb&rdquo;
 enthalten. Andere Distributionen enthalten ihn in anderen Paketen.
 
-   <p>Nach der Installation müssen in der Datei <code>config/lx_config.conf</code>
+   <p>Nach der Installation müssen in der Datei <samp><span class="file">config/lx_config.conf</span></samp>
 zwei weitere Variablen angepasst werden: <code>openofficeorg_writer</code>
 muss den vollständigen Pfad zur OpenOffice.org Writer-Anwendung
 enthalten. <code>xvfb</code> muss den Pfad zum &ldquo;X virtual frame buffer&rdquo;
@@ -980,7 +1122,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">9 Lx-Office ERP verwenden</h2>
+<h2 class="chapter">10 Lx-Office ERP verwenden</h2>
 
 <p>Nach erfolgreicher Installation ist der Loginbildschirm unter
 folgender URL erreichbar:

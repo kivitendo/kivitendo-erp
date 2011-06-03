@@ -22,6 +22,15 @@ man lx_office.conf nicht einchecken.
 Eine etwas ausführlichere Beschreibung findet sich in der Datei:
 doc/konfigurationsdatei.txt
 
+Eine neu hinzugekommene Komponente ist der Task-Server. Hierbei
+handelt es sich um einen Dämonen, der im Hintergrund läuft, in
+regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese
+zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser
+Dämon wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
+benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
+bekommen. Die Einrichtung des Dämonen wird in der
+Installationsdokumentation im Abschnitt "Der Task-Server" beschrieben.
+
 
 Upgrade auf v2.6.2
 ==================

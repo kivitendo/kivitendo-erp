@@ -1,6 +1,6 @@
 # The Installation Documentation is being written in 'INSTALL.texi' using
 # the texinfo syntax. Visit http://www.gnu.org/software/texinfo/ and
-# http://cvs.savannah.gnu.org/viewvc/*checkout*/texinfo/doc/refcard/txirefcard-a4.pdf?root=texinfo
+# http://mirrors.ctan.org/macros/texinfo/texinfo/doc/refcard/txirefcard.pdf
 #
 # In order to generate the text, HTML and PDF versions of this
 # documentation you have to install the 'make' and 'textinfo' packages
