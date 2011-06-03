@@ -40,6 +40,7 @@ use YAML;
 
 use SL::CVar;
 use SL::DBUtils;
+use SL::TransNumber;
 
 use strict;
 
@@ -311,6 +312,11 @@ sub save {
   my $priceupdate = ', priceupdate = current_date';
 
   if ($form->{id}) {
+    my $trans_number = SL::TransNumber->new(type => $form->{item}, dbh => $dbh, number => $form->{partnumber}, id => $form->{id});
+    if (!$trans_number->is_unique) {
+      $::lxdebug->leave_sub;
+      return 3;
+    }
 
     # get old price
     $query = qq|SELECT sellprice, weight FROM parts WHERE id = ?|;
@@ -346,23 +352,19 @@ sub save {
     $priceupdate        = '' if (all { $previous_values->{$_} == $form->{$_} } qw(sellprice lastcost listprice));
 
   } else {
-    my ($count) = selectrow_query($form, $dbh, qq|SELECT COUNT(*) FROM parts WHERE partnumber = ?|, $form->{partnumber});
-    if ($count) {
-      $main::lxdebug->leave_sub();
+    my $trans_number = SL::TransNumber->new(type => $form->{item}, dbh => $dbh, number => $form->{partnumber}, save => 1);
+
+    if ($form->{partnumber} && !$trans_number->is_unique) {
+      $::lxdebug->leave_sub;
       return 3;
     }
 
+    $form->{partnumber} = $trans_number->create_unique;
+
     ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('id')|);
-    do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber, unit) VALUES (?, '', '')|, $form->{id});
+    do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber, unit) VALUES (?, ?, '')|, $form->{id}, $form->{partnumber});
 
     $form->{orphaned} = 1;
-    if ($form->{partnumber} eq "" && $form->{"item"} eq "service") {
-      $form->{partnumber} = $form->update_defaults($myconfig, "servicenumber");
-    }
-    if ($form->{partnumber} eq "" && $form->{"item"} ne "service") {
-      $form->{partnumber} = $form->update_defaults($myconfig, "articlenumber");
-    }
-
   }
   my $partsgroup_id = 0;
 

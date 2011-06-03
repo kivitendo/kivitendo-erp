@@ -13,7 +13,7 @@ use Rose::Object::MakeMethods::Generic
  scalar => [ qw(type id number save dbh dbh_provided business_id) ],
 );
 
-my @SUPPORTED_TYPES = qw(invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation);
+my @SUPPORTED_TYPES = qw(invoice credit_note customer vendor sales_delivery_order purchase_delivery_order sales_order purchase_order sales_quotation request_quotation part service assembly);
 
 sub new {
   my $class = shift;
@@ -58,12 +58,18 @@ sub _get_filters {
     $filters{where}         = 'NOT COALESCE(quotation, FALSE)';
     $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
 
-  } else {
+  } elsif ($type =~ /_quotation$/) {
     $filters{trans_number}  = "quonumber";
     $filters{numberfield}   = $type eq 'sales_quotation' ? "sqnumber" : "rfqnumber";
     $filters{table}         = "oe";
     $filters{where}         = 'COALESCE(quotation, FALSE)';
     $filters{where}        .= $type =~ /^sales/ ? ' AND (customer_id IS NOT NULL)' : ' AND (vendor_id IS NOT NULL)';
+
+  } elsif ($type =~ /part|service|assembly/) {
+    $filters{trans_number}  = "partnumber";
+    $filters{numberfield}   = $type eq 'service' ? 'servicenumber' : 'articlenumber';
+    $filters{table}         = "parts";
+    $filters{where}         = 'COALESCE(inventory_accno_id, 0) ' . ($type eq 'service' ? '=' : '<>') . ' 0';
   }
 
   return %filters;
@@ -86,7 +92,7 @@ sub is_unique {
     push @values, conv_i($self->id);
   }
 
-  my $where_str = @where ? join(' AND ', map { "($_)" } @where) : '';
+  my $where_str = @where ? ' AND ' . join(' AND ', map { "($_)" } @where) : '';
   my $query     = <<SQL;
     SELECT $filters{trans_number}
     FROM $filters{table}
