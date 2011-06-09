@@ -359,7 +359,7 @@ sub save {
       return 3;
     }
 
-    $form->{partnumber} = $trans_number->create_unique;
+    $form->{partnumber} ||= $trans_number->create_unique;
 
     ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('id')|);
     do_query($form, $dbh, qq|INSERT INTO parts (id, partnumber, unit) VALUES (?, ?, '')|, $form->{id}, $form->{partnumber});
