@@ -7,32 +7,36 @@ use base qw(SL::DB::Helper::Manager);
 
 use Carp;
 use SL::DBUtils;
+use SL::MoreCommon qw(listify);
 
 sub object_class { 'SL::DB::Part' }
 
 __PACKAGE__->make_manager_methods;
 
 sub type_filter {
-  my $class = shift;
-  my $type  = lc(shift || '');
+  my ($class, $type) = @_;
 
-  if ($type =~ m/^part/) {
-    return (and => [ or                    => [ assembly => 0, assembly => undef ],
-                     '!inventory_accno_id' => 0,
-                     '!inventory_accno_id' => undef,
-                   ]);
+  return () unless $type;
 
-  } elsif ($type =~ m/^service/) {
-    return (and => [ or => [ assembly           => 0, assembly           => undef ],
-                     or => [ inventory_accno_id => 0, inventory_accno_id => undef ],
-                   ]);
+  my @types = listify($type);
+  my @filter;
 
-  } elsif ($type =~ m/^assembl/) {
-    return (assembly => 1);
-
+  for my $type (@types) {
+    if ($type =~ m/^part/) {
+      push @filter, (and => [ or                    => [ assembly => 0, assembly => undef ],
+                       '!inventory_accno_id' => 0,
+                       '!inventory_accno_id' => undef,
+                     ]);
+    } elsif ($type =~ m/^service/) {
+      push @filter, (and => [ or => [ assembly           => 0, assembly           => undef ],
+                       or => [ inventory_accno_id => 0, inventory_accno_id => undef ],
+                     ]);
+    } elsif ($type =~ m/^assembl/) {
+      push @filter, (assembly => 1);
+    }
   }
 
-  return ();
+  return @filter ? (or => \@filter) : ();
 }
 
 sub get_ordered_qty {
