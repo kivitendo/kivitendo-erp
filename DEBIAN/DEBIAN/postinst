@@ -26,27 +26,27 @@ source /usr/share/debconf/confmodule
 
 config_postgresql_factory_script() {
 
-	echo "Starting factory postgresql config script: scripts/inst_postgres_deb.sh.."
-	cd /usr/lib/lx-office-erp/
-	./scripts/inst_postgres_deb.sh
-	echo "Factory postgresql config script done."
+        echo "Starting factory postgresql config script: scripts/inst_postgres_deb.sh.."
+        cd /usr/lib/lx-office-erp/
+        ./scripts/inst_postgres_deb.sh
+        echo "Factory postgresql config script done."
 }
 
 
 config_postgresql_accounts_sec() {
 
-	POSTGRESQL_PG_HBA_CONF="/etc/postgresql/8.3/main/pg_hba.conf"
+        POSTGRESQL_PG_HBA_CONF="/etc/postgresql/8.3/main/pg_hba.conf"
 
-	echo "# added by lx-office-erp postinst-script" >> $POSTGRESQL_PG_HBA_CONF
-	echo "host            all lx_office_erp 127.0.0.1 255.255.255.0 password" >> $POSTGRESQL_PG_HBA_CONF
+        echo "# added by lx-office-erp postinst-script" >> $POSTGRESQL_PG_HBA_CONF
+        echo "host            all lx_office_erp 127.0.0.1 255.255.255.0 password" >> $POSTGRESQL_PG_HBA_CONF
 
-	/etc/init.d/postgresql* reload
+        /etc/init.d/postgresql* reload
 }
 
 
 config_postgresql_roles() {
 
-	echo "CREATE USER lx_office_erp with CREATEDB ;" > /tmp/lxdb-install.sql
+        echo "CREATE USER lx_office_erp with CREATEDB ;" > /tmp/lxdb-install.sql
 
         db_get lx-office-erp/lx-office-erp-user-postgresql-password
         POSTGRES_LX_OFFICE_ERP_USER_PASSWORD="$RET"
@@ -54,7 +54,7 @@ config_postgresql_roles() {
         echo "ALTER USER lx_office_erp PASSWORD '$POSTGRES_LX_OFFICE_ERP_USER_PASSWORD' ;" \
          >> /tmp/lxdb-install.sql
 
-	echo "UPDATE pg_language SET lanpltrusted = true WHERE lanname = 'plpgsql';" >> /tmp/lxdb-instal.sql
+        echo "UPDATE pg_language SET lanpltrusted = true WHERE lanname = 'plpgsql';" >> /tmp/lxdb-instal.sql
 
         su postgres -c "psql --dbname template1 < /tmp/lxdb-install.sql"
 
@@ -65,53 +65,53 @@ config_postgresql_roles() {
 
 config_postgresql_sql_routines() {
 
-	PLPGSQL="/usr/lib/postgresql/8.3/lib/plpgsql.so"
-	echo "CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler" > /tmp/lxdb-install.sql
-	echo "AS '$PLPGSQL', 'plpgsql_call_handler'" >> /tmp/lxdb-install.sql
-	echo "LANGUAGE c;" >> /tmp/lxdb-install.sql
-	echo "CREATE PROCEDURAL LANGUAGE plpgsql HANDLER plpgsql_call_handler;" >> /tmp/lxdb-install.sql
-	su postgres -c "psql --dbname template1 < /tmp/lxdb-install.sql"
+        PLPGSQL="/usr/lib/postgresql/8.3/lib/plpgsql.so"
+        echo "CREATE FUNCTION plpgsql_call_handler() RETURNS language_handler" > /tmp/lxdb-install.sql
+        echo "AS '$PLPGSQL', 'plpgsql_call_handler'" >> /tmp/lxdb-install.sql
+        echo "LANGUAGE c;" >> /tmp/lxdb-install.sql
+        echo "CREATE PROCEDURAL LANGUAGE plpgsql HANDLER plpgsql_call_handler;" >> /tmp/lxdb-install.sql
+        su postgres -c "psql --dbname template1 < /tmp/lxdb-install.sql"
 
-	/etc/init.d/postgresql-8.3 reload
+        /etc/init.d/postgresql-8.3 reload
 }
 
 
 set_lx_office_erp_web_admin_password() {
-	db_get lx-office-erp/admin-password
-	ADMINPASSWORD="$RET"
+        db_get lx-office-erp/admin-password
+        ADMINPASSWORD="$RET"
 
-	sed --in-place --expression "s/^admin_password.*=.*/admin_password = $ADMINPASSWORD/" /etc/lx-office-erp/lx_office.conf
+        sed --in-place --expression "s/^admin_password.*=.*/admin_password = $ADMINPASSWORD/" /etc/lx-office-erp/lx_office.conf
 }
 
 
 set_lx_office_erp_authentication_db_user_password() {
-	db_get lx-office-erp/lx-office-erp-user-postgresql-password
-	PASSWORD="$RET"
+        db_get lx-office-erp/lx-office-erp-user-postgresql-password
+        PASSWORD="$RET"
 
-	sed --in-place --expression "s/^password.*=.*/password = $PASSWORD/" /etc/lx-office-erp/lx_office.conf
-	sed --in-place --expression "s/^user.*=.*postgres/user = lxoffice/g" /etc/lx-office-erp/lx_office.conf
+        sed --in-place --expression "s/^password.*=.*/password = $PASSWORD/" /etc/lx-office-erp/lx_office.conf
+        sed --in-place --expression "s/^user.*=.*postgres/user = lxoffice/g" /etc/lx-office-erp/lx_office.conf
 }
 
 
 set_user_rights() {
-	chown -R www-data:www-data /usr/lib/lx-office-erp/users
-	chown -R www-data:www-data /usr/lib/lx-office-erp/templates
-	chown www-data:www-data /etc/lx-office-erp/lx_office.conf
-	chown www-data:www-data /usr/lib/lx-office-erp/menu.ini
-	chmod 0600 /etc/lx-office-erp/lx_office.conf
+        chown -R www-data:www-data /usr/lib/lx-office-erp/users
+        chown -R www-data:www-data /usr/lib/lx-office-erp/templates
+        chown www-data:www-data /etc/lx-office-erp/lx_office.conf
+        chown www-data:www-data /usr/lib/lx-office-erp/menu.ini
+        chmod 0600 /etc/lx-office-erp/lx_office.conf
 }
 
 disable_ipv6_on_lo_interface() {
         #Ist wohl nicht mehr notwendig.
-	# 2009-04-25
+        # 2009-04-25
         # Perls Libraries are not yet ipv6 read
         echo "WICHTIG: ipv6 ist nunmehr auf dem Loopback-Interface deaktiviert, um die Funktionsfähigkeit von Lx-Office-ERP zu gewährleisten!"
         ifconfig lo inet6 del ::1/128 2> /dev/null || true
 
-	# make the changes permanent (triggered on next reboot)
-	RCLOCAL="/etc/rc.local"
-	echo "# lx-office-erp: Perl libraries are not yet fully ipv6-ready" >> $RCLOCAL
-	echo "ifconfig lo inet6 del ::1/128" >> $RCLOCAL
+        # make the changes permanent (triggered on next reboot)
+        RCLOCAL="/etc/rc.local"
+        echo "# lx-office-erp: Perl libraries are not yet fully ipv6-ready" >> $RCLOCAL
+        echo "ifconfig lo inet6 del ::1/128" >> $RCLOCAL
 
 }
 mk_new_menu() {
@@ -128,7 +128,7 @@ mk_new_menu() {
 
 mk_new_config() {
     if ! [ -f /etc/lx-office-erp/lx_office.conf ] ; then
-	cp /etc/lx-office-erp/lx_office.conf.default /etc/lx-office-erp/lx_office.conf
+        cp /etc/lx-office-erp/lx_office.conf.default /etc/lx-office-erp/lx_office.conf
     fi
 }
 
@@ -147,7 +147,7 @@ mk_links() {
             ln -s /etc/lx-office-erp/lx-office-erp.cherokee /etc/cherokee/sites-available/lx-office-erp.cherokee
         fi;
     fi;
-    if [ -e /etc/lighttpd ] ; then 
+    if [ -e /etc/lighttpd ] ; then
         if ! [ -f /etc/lighttpd/conf-enabled/lx-office-erp.lighttpd ] ; then
             ln -s /etc/lx-office-erp/lx-office-erp.lighttpd /etc/lighttpf/conf-enabled/10-lx-office-erp
         fi;
@@ -160,7 +160,7 @@ reload_web_server() {
     if [ -f /etc/init.d/cherokee ] ; then
             /etc/init.d/cherokee reload
     fi
-    if [ -f /etc/init.d/lighttpd ] ; then 
+    if [ -f /etc/init.d/lighttpd ] ; then
             /etc/init.d/lighttpd reload
     fi
 }
@@ -180,7 +180,7 @@ case "$1" in
             config_postgresql_factory_script
             set_lx_office_erp_web_admin_password
             set_lx_office_erp_authentication_db_user_password
-	    #  disable_ipv6_on_lo_interface
+            #  disable_ipv6_on_lo_interface
             mk_links
         fi;
 
