@@ -95,11 +95,17 @@ Für mod_fastcgi muss ein AddHandler ergänzt werden und die erste Zeile geände
   AddHandler fastcgi-script .fpl
   AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
 
+Seit mod_fcgid-Version 2.6.3 gelten sehr kleine Grenzen für die
+maximale Größe eines Requests. Diese sollte wie folgt hochgesetzt werden:
+
+  FcgidMaxRequestLen 10485760
+
 Das ganze sollte dann so aussehen:
 
   AddHandler fastcgi-script .fpl
   AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
   Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
+  FcgidMaxRequestLen 10485760
 
   <Directory /path/to/lx-office-erp>
     AllowOverride All
