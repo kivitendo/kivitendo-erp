@@ -42,6 +42,9 @@ Folgende Kombinationen sind getestet:
  * Apache 2.2.11 (Ubuntu) und mod_fcgid.
  * Apache 2.2.11 (Ubuntu) und mod_fastcgi.
 
+Dabei wird mod_fcgid empfohlen, weil mod_fastcgi seit geraumer Zeit
+nicht mehr weiter entwickelt wird.
+
 Als Perl Backend wird das Modul FCGI.pm verwendet. Vorsicht: FCGI 0.69 und
 höher ist extrem strict in der Behandlung von Unicode, und verweigert bestimmte
 Eingaben von Lx-Office. Solange diese Probleme nicht behoben sind, muss auf die
@@ -73,7 +76,7 @@ wird zwischen dem Installationspfad von Lx-Office im Dateisystem
 ("/path/to/lx-office-erp") und der URL unterschieden, unter der
 Lx-Office im Webbrowser erreichbar ist ("/web/path/to/lx-office-erp").
 
-Folgendes Template funktioniert mit mod_fcgid:
+Folgendes Template funktioniert mit mod_fastcgi:
 
   AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
   Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
@@ -92,7 +95,7 @@ Folgendes Template funktioniert mit mod_fcgid:
 
 Für mod_fastcgi muss ein AddHandler ergänzt werden und die erste Zeile geändert werden:
 
-  AddHandler fastcgi-script .fpl
+  AddHandler fcgid-script .fpl
   AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
 
 Seit mod_fcgid-Version 2.6.3 gelten sehr kleine Grenzen für die
@@ -102,7 +105,7 @@ maximale Größe eines Requests. Diese sollte wie folgt hochgesetzt werden:
 
 Das ganze sollte dann so aussehen:
 
-  AddHandler fastcgi-script .fpl
+  AddHandler fcgid-script .fpl
   AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
   Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
   FcgidMaxRequestLen 10485760
@@ -122,8 +125,7 @@ Das ganze sollte dann so aussehen:
 Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle Zugriffe
 auf die einzelnen Scripte werden auf diesen umgeleitet. Dadurch, dass
 zur Laufzeit öfter mal Scripte neu geladen werden, gibt es hier kleine
-Performance-Einbußen. Trotzdem ist diese Variante einer globalen
-Benutzung von "AddHandler fastcgi-script .pl" vorzuziehen.
+Performance-Einbußen.
 
 
 Es ist möglich die gleiche Lx-Office Version parallel unter cgi und fastcgi zu
@@ -134,22 +136,16 @@ werden aber umgeleitet:
   Alias       /web/path/to/lx-office-erp                /path/to/lx-office-erp
 
   # Zugriff mit mod_fcgid:
-  AliasMatch ^/web/path/to/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
+  AliasMatch ^/web/path/to/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
   Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/
 
   # Zugriff mit mod_fastcgi:
-  AliasMatch ^/web/path/to/lx-office-erp-fastcgi/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+  AliasMatch ^/web/path/to/lx-office-erp-fastcgi/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
   Alias       /web/path/to/lx-office-erp-fastcgi/          /path/to/lx-office-erp/
 
 Dann ist unter C</web/path/to/lx-office-erp/> die normale Version erreichbar,
 und unter C</web/path/to/lx-office-erp-fcgid/> bzw.
 C</web/path/to/lx-office-erp-fastcgi/> die FastCGI Version.
-
-Achtung:
-
-Die AddHandler Direktive vom Apache ist entgegen der Dokumentation
-anscheinend nicht lokal auf das Verzeichnis beschränkt sondern global im
-vhost.
 
 =head2 Entwicklungsaspekte
 
