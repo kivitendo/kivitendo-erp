@@ -116,9 +116,9 @@ case "$1" in
         echo " ! "`date`" $1 !" >> $debugfile
 
         VER=`cat /var/www/lx-office-erp/VERSION | cut -d '.' -f2`
-        if [ $VER = '7' ]; then
-            echo " ! 2.7 !" >> $debugfile
-            echo "Version 2.7.x"
+        if [ $VER = '6' ]; then
+            echo " ! 2.6 !" >> $debugfile
+            echo "Version 2.6.x"
             mk_new_menu
         else
             mk_new_menu
