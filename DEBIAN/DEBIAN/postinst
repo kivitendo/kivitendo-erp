@@ -77,16 +77,10 @@ config_postgresql_sql_routines() {
 
 
 set_lx_office_erp_web_admin_password() {
-
 	db_get lx-office-erp/admin-password
 	ADMINPASSWORD="$RET"
 
-	cat /etc/lx-office-erp/lx_office.conf | \
-	sed --expression "s/{admin_password} = /{admin_password} = $ADMINPASSWORD/g" \
-	> /tmp/1.txt
-
-	mv /tmp/1.txt /etc/lx-office-erp/lx_office.conf
-
+	sed --in-place --expression "s/^admin_password.*=.*/admin_password = $ADMINPASSWORD/" /etc/lx-office-erp/lx_office.conf
 }
 
 
@@ -94,14 +88,8 @@ set_lx_office_erp_authentication_db_user_password() {
 	db_get lx-office-erp/lx-office-erp-user-postgresql-password
 	PASSWORD="$RET"
 
-	cat /etc/lx-office-erp/lx_office.conf | \
-	sed --expression "s/'password' = /'password' = $PASSWORD/g" \
-	> /tmp/1.txt
-
-	cat /tmp/1.txt | \
-	sed --expression "s/^user = postgres/user = lxoffice/g" \
-	>  /etc/lx-office-erp/lx_office.conf
-
+	sed --in-place --expression "s/^password.*=.*/password = $PASSWORD/" /etc/lx-office-erp/lx_office.conf
+	sed --in-place --expression "s/^user.*=.*postgres/user = lxoffice/g" /etc/lx-office-erp/lx_office.conf
 }
 
 
