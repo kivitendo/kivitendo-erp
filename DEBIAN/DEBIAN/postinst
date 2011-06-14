@@ -99,21 +99,42 @@ mk_links() {
     fi;
   fi;
 }
-reload_web_server() {
-  if [ -f /etc/init.d/apache* ] ; then
-    /etc/init.d/apache* reload
+web_server_ctrl() {
+  local action=$1
+  if [ -x "/etc/init.d/apache2" ]; then
+    if [ -x /usr/sbin/invoke-rc.d ]; then
+      invoke-rc.d apache2 $action ||true
+    else
+      /etc/init.d/apache2 $action ||true
+    fi
   fi
   if [ -f /etc/init.d/cherokee ] ; then
-    /etc/init.d/cherokee reload
+    /etc/init.d/cherokee $action || true
   fi
   if [ -f /etc/init.d/lighttpd ] ; then
-    /etc/init.d/lighttpd reload
+    /etc/init.d/lighttpd $action || true
+  fi
+
+  # if [ $action = restart ] ; then
+  #   echo Sleeping
+  #   sleep 5
+  #   echo Awake
+  # fi
+}
+
+enable_fcgi() {
+  if [ -x /usr/sbin/a2enmod -a -f /usr/lib/apache2/modules/mod_fcgid.so ] ; then
+    /usr/sbin/a2enmod fcgid
+    # web_server_ctrl restart
   fi
 }
+
 case "$1" in
 
   upgrade)
     echo " ! "`date`" $1 !" >> $debugfile
+
+    enable_fcgi
 
     VER=`cat /var/www/lx-office-erp/VERSION | cut -d '.' -f2`
     if [ $VER = '6' ]; then
@@ -130,11 +151,17 @@ case "$1" in
     fi;
 
     set_user_rights
-    reload_web_server
+    ps auxw
+
+    db_stop || true
+    web_server_ctrl restart
+
     ;;
 
   install|configure)
     echo " ! "`date`" $1 !" >> $debugfile
+
+    enable_fcgi
 
     mk_new_menu
     mk_new_config
@@ -144,7 +171,9 @@ case "$1" in
     mk_links
 
     set_user_rights
-    reload_web_server
+
+    db_stop || true
+    web_server_ctrl restart
 
     ;;
 

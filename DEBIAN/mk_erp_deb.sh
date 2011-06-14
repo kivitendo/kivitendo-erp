@@ -44,6 +44,7 @@ cp -a $SRC/scripts usr/lib/lx-office-erp
 cp -a $SRC/sql usr/lib/lx-office-erp
 cp -a $SRC/t usr/lib/lx-office-erp
 cp -a $SRC/*.pl usr/lib/lx-office-erp
+cp -a $SRC/dispatcher.f* usr/lib/lx-office-erp
 cp $SRC/VERSION usr/lib/lx-office-erp
 cp $SRC/index.html usr/lib/lx-office-erp
 cp $SRC/config/lx_office.conf.default etc/lx-office-erp/lx_office.conf.default
@@ -79,10 +80,8 @@ find etc/ -name "*" -type f -exec md5sum {} \; >> DEBIAN/md5sum
 SIZE=`du -scb . | grep insgesamt | cut -f1`
 
 #Controlfile updaten:
-cat DEBIAN/control | sed --expression "s/Installed-Size: 0/Installed-Size: $SIZE/g" > DEBIAN/1.tmp
-mv DEBIAN/1.tmp DEBIAN/control
-cat DEBIAN/control | sed --expression "s/Version: 0/Version: $VER-$NR/g" > DEBIAN/1.tmp
-mv DEBIAN/1.tmp DEBIAN/control
+sed --in-place --expression "s/Installed-Size: 0/Installed-Size: $SIZE/g" DEBIAN/control
+sed --in-place --expression "s/Version: 0/Version: $VER-$NR/g" DEBIAN/control
 #Revisionsnummer evtl. von Hand eintragen
 
 #Paket bauen:
