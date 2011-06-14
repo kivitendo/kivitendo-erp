@@ -79,9 +79,9 @@ mk_new_config() {
 }
 
 mk_links() {
-    if ! [ -f /usr/lib/lx-office-erp/config/lx_office.conf ] ; then
-        ln -s /etc/lx-office-erp/lx_office.conf /usr/lib/lx-office-erp/config/lx_office.conf
-    fi
+    for file in lx_office.conf lx_office.conf.default ; do
+        test -f /usr/lib/lx-office-erp/config/${file} || ln -s /etc/lx-office-erp/${file} /usr/lib/lx-office-erp/config/${file}
+    done
     if [ -e /etc/apache2 ] ; then
         if ! [ -f /etc/apache2/conf.d/lx-office-erp.apache2.conf ] ; then
             ln -s /etc/lx-office-erp/lx-office-erp.apache2.conf /etc/apache2/conf.d/lx-office-erp.apache2.conf
