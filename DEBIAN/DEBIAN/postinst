@@ -7,7 +7,9 @@
 set -e
 # x = xtrace
 #set -x
-echo " ! "`date`" Postinst $1 !" >> /tmp/lxo-erp.log
+
+debugfile=$(mktemp /tmp/lx-erp.log.XXXXXX)
+echo " ! "`date`" Postinst $1 !" >> $debugfile
 
 source /usr/share/debconf/confmodule
 
@@ -111,11 +113,11 @@ reload_web_server() {
 case "$1" in
 
     upgrade)
-        echo " ! "`date`" $1 !" >> /tmp/lxo-erp.log
+        echo " ! "`date`" $1 !" >> $debugfile
 
         VER=`cat /var/www/lx-office-erp/VERSION | cut -d '.' -f2`
         if [ $VER = '7' ]; then
-            echo " ! 2.7 !" >> /tmp/lxo-erp.log
+            echo " ! 2.7 !" >> $debugfile
             echo "Version 2.7.x"
             mk_new_menu
         else
@@ -132,7 +134,7 @@ case "$1" in
     ;;
 
     install|configure)
-        echo " ! "`date`" $1 !" >> /tmp/lxo-erp.log
+        echo " ! "`date`" $1 !" >> $debugfile
 
         mk_new_menu
         mk_new_config
