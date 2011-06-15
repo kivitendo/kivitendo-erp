@@ -7,11 +7,12 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 Upgrade auf v2.6.3
 ==================
 
-Mit Version 2.6.3. wurden die beiden Konfigurationsdateien authentication.pl
-und lx-erp.conf, sowie deren Varianten, abgeschafft. Stattdessen gibt es nun
-die Datei lx_office.conf, die aber erst neu angelegt werden muß. Als Vorlage
-dient hierfür die Datei lx_office.conf.default. Die entsprechenden Werte muß
-man selber neu konfigurieren, dies ist automatisiert zu fehleranfällig.
+1. Mit Version 2.6.3. wurden die beiden Konfigurationsdateien
+authentication.pl und lx-erp.conf, sowie deren Varianten,
+abgeschafft. Stattdessen gibt es nun die Datei lx_office.conf, die
+aber erst neu angelegt werden muß. Als Vorlage dient hierfür die Datei
+lx_office.conf.default. Die entsprechenden Werte muß man selber neu
+konfigurieren, dies ist automatisiert zu fehleranfällig.
 
 Nach dem Upgrade kann man sich so lange nicht anmelden, bis lx_office.conf
 angelegt und authentication.pl und lx-erp.conf gelöscht oder verschoben wurden.
@@ -22,7 +23,7 @@ man lx_office.conf nicht einchecken.
 Eine etwas ausführlichere Beschreibung findet sich in der Datei:
 doc/konfigurationsdatei.txt
 
-Eine neu hinzugekommene Komponente ist der Task-Server. Hierbei
+2. Eine neu hinzugekommene Komponente ist der Task-Server. Hierbei
 handelt es sich um einen Dämonen, der im Hintergrund läuft, in
 regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese
 zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser
@@ -30,6 +31,20 @@ Dämon wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
 benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
 bekommen. Die Einrichtung des Dämonen wird in der
 Installationsdokumentation im Abschnitt "Der Task-Server" beschrieben.
+
+3. Mit Version 2.6.3 sind einige Abhängigkeiten von Perl-Modulen
+hinzugekommen. Bitte führen sie vor dem ersten Aufrufen der einmal
+den folgenden Befehl im Lx-Office Verzeichnis aus:
+
+$ scripts/installation_check.pl
+
+Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
+der Installationsanweisung.
+
+Zumindest folgende Module sind neu benötigt:
+
+* Config::Std
+* Params::Validate
 
 
 Upgrade auf v2.6.2
@@ -49,7 +64,6 @@ der Installationsanweisung.
 
 Zumindest folgende Module sind neu benötigt:
 
-* Readonly (optional mit Begleitermodul Readonly::XS)
 * Rose::Object, Rose::DB und Rose::DB::Object (die Installation von
   Rose::DB::Object via CPAN oder den Paketmechanismus Ihrer
   Distribution sollte für die automatische Installation der anderen
