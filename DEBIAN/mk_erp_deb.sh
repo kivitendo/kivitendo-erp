@@ -86,6 +86,6 @@ sed --in-place --expression "s/Version: 0/Version: $VER-$NR/g" DEBIAN/control
 
 #Paket bauen:
 cd ..
-dpkg-deb --build lx-office-erp_$VER-$NR$1-all
+dpkg-deb --build lx-office-erp_$VER-$NR$1_all
 
 echo "Done"
