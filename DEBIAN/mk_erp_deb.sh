@@ -15,7 +15,7 @@ DST=/tmp/package
 ################################################
 
 VER=`cat VERSION`
-DEST=$DST/lx-office-erp_$VER-$NR$1-all
+DEST=$DST/lx-office-erp_$VER-$NR$1_all
 
 
 mkdir -p $DEST
