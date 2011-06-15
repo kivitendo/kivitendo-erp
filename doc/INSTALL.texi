@@ -417,12 +417,12 @@ folgende Option in die Konfiguration aufzunehmen:
 @node Der Task-Server
 @chapter Der Task-Server
 
-Der Task-Server ist ein Dämonen, der im Hintergrund läuft, in
+Der Task-Server ist ein Prozess, der im Hintergrund läuft, in
 regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese
 zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser
-Dämon wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
-benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
-bekommen.
+Prozess wird bisher nur für die Erzeugung der wiederkehrenden
+Rechnungen benutzt, wird aber in Zukunft deutlich mehr Aufgaben
+übertragen bekommen.
 
 @menu
 * Konfiguration des Task-Servers:: Verfügbare und notwendige Konfigurationsoptionen
@@ -438,8 +438,8 @@ der Datei @file{config/lx_office.conf}. Die dort verfügbaren Optionen
 sind:
 
 @itemize
-@item @code{login}: Benutzername, der benutzt wird, um die zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss in der Administration angelegt werden. Diese Option muss angegeben werden.
-@item @code{run_as}: Wird der Server von @code{root} gestartet, so wechselt er auf diesen Systembenutzer. Der Systembenutzer muss dieselben Lese- und Schreibrechte haben, wie auch der Webserverbenutzer (siehe @pxref{Manuelle Installation des Programmpaketes}). Daher ist es sinnvoll, hier denselben Systembenutzer einzutragen, unter dem auch der Webserver läuft.
+@item @code{login}: Benutzername eines existierenden Lx-Office-Benutzers. Der Task-Server nutzt die bei dem Benutzer hinterlegten Datenkbankinformationen für die Verbindung zur Datenbank. Diese Option muss angegeben werden.
+@item @code{run_as}: Wird der Server vom Systembenutzer @code{root} gestartet, so wechselt er auf den mit @code{run_as} angegebenen Systembenutzer. Der Systembenutzer muss dieselben Lese- und Schreibrechte haben, wie auch der Webserverbenutzer (siehe @pxref{Manuelle Installation des Programmpaketes}). Daher ist es sinnvoll, hier denselben Systembenutzer einzutragen, unter dem auch der Webserver läuft.
 @item @code{debug}: Schaltet Debug-Informationen an und aus.
 @end itemize
 
