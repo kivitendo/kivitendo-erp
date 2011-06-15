@@ -2,9 +2,7 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
-  ab Feb 2011 Release 2.7-unstable
-
-
+2011-06-15 - Release 2.6.3
 
   Größere neue Features:
 
@@ -45,20 +43,71 @@
 
   Liste gefixter Bugs aus dem Bugtracker:
 
-  - Bugfix 1613: Abteilung wird bei Verkaufsrechnungen nicht gespeichert
-  - Bugfix 1642: Lieferantenrabatt wird korrekt gespeichert, aber nicht mehr angezeigt
-  - Bugfix 1626: Beim Festlegen der Standardkonten kann beim Warenbestand eine Überschrift ausgewählt werden.
-  - Bugfix 1584: Summen und Saldenliste: Export to PDF/CSV in EÜR Modus falsch
-  - Bugfix 1597: Report Lagerbestand wirft Fehler, wenn Artikelnummer ausgeblendet werden soll
+  - Bugfix 226: fehlermeldungen nutzlos
+  - Bugfix 383: Rechnungen buchen mit ungültigen Kunden
+  - Bugfix 1463: Einkauf -> Lieferschein einlagern OHNE Lieferscheindatum erhöht trotzdem Lagerbestand
+  - Bugfix 1482: Usability: Lagerplätze sortieren
+  - Bugfix 1497: Ganz- und Fliesskommazahlen  auch ohne Formatierung für LaTeX
+  - Bugfix 1534: XUL Menü wirft Fehler im Firefox 4 beta8
+  - Bugfix 1542: Zuordnung älterer Unstable-Versionseinträge im Bugzilla schwierig
+  - Bugfix 1557: config/lx-erp.conf
+  - Bugfix 1562: Fehlender Hinweis im changelog zu gaenderten Rechten Beim Druck
+  - Bugfix 1565: deadlocks beim anmelden auch nach commit: 5609a646164465de4a4217a2757c27d4c0b6bcee
   - Bugfix 1569: Zahlungseingang löschen bei Rechnung
+  - Bugfix 1570: EK-Auftrag erfassen: Artikelpreise werden anteilig auf geringste Einheit gesetzt
+  - Bugfix 1572: Umlaute bei fehlerhafter Anmeldung
+  - Bugfix 1575: Kundenrabatt geht verloren
+  - Bugfix 1579: Einkaufsrechnung mit bestimmten Werten und 'Steuer im Preis inbegriffen'
+  - Bugfix 1583: Anlegen eines Artikels aus einer Rechnung heraus ändert die Umlaute im Formular
+  - Bugfix 1584: Summen und Saldenliste: Export to PDF/CSV in EÜR Modus falsch
+  - Bugfix 1585: Kodierungsfehler in Verkaufsbericht (Fragezeichen statt Umlaut)
+  - Bugfix 1586: Rechnungssuche hat Probleme mit Umlauten in Kundenname
+  - Bugfix 1588: Wenn Feld ""Datenbankcomputer"" leer, dann ""Die Datenbankaktualisierung/erstellung schlug fehl. ...""
+  - Bugfix 1589: runtime con js:setupPoints -- decpoint is not defined
+  - Bugfix 1594: Zyklische Rechnungen: Wechsel zwischen ""Aktiv"" und ""Nicht aktiv/gekuendigt"" sollte Radiobutton sein
+  - Bugfix 1596: Datenbankupdate von 2.6.1 auf 2.6.2 funktioniert nicht
+  - Bugfix 1597: Report Lagerbestand wirft Fehler, wenn Artikelnummer ausgeblendet werden soll
+  - Bugfix 1605: upgrade nicht moeglich
+  - Bugfix 1606: Umlaute im Benutzernamen
+  - Bugfix 1612: Zahlung buchen in Rechnung
+  - Bugfix 1613: Abteilung wird bei Verkaufsrechnungen nicht gespeichert
+  - Bugfix 1614: Bericht -> offene Verbindlichkeiten nach Abteilung gefiltert gibt leeres Ergebnis
+  - Bugfix 1616: Englische Zahlenformatierung wird bei nodiscount_linetotal nicht berücksichtigt
+  - Bugfix 1618: fcgi und ldap-auth: keine erneute Abrfage nach ldap-Verbindungsfehler
+  - Bugfix 1619: Steuersatz Auswahl bei Verkaufsrechnungen wird ignoriert
+  - Bugfix 1620: Lieferantenauftrag direkt drucken gibt: 'Keine Aktion definiert'
+  - Bugfix 1621: Stammdaten -> Bestehende Waren: Historie laesst sich nicht anzeigen, wirft Fehler
+  - Bugfix 1622: Steuerübersetzungen verschwunden ...
+  - Bugfix 1623: Verkauf -> Berichte -> Suche mit Filter Bearbeiter -> CSV-Export -> Filter wird nicht übergeben ...
+  - Bugfix 1624: Schalter fuer Webdav in config funktioniert nicht
+  - Bugfix 1625: Lieferscheinnummer in Rechnungsmaske verschwunden (in 2.6.1 noch dort)
+  - Bugfix 1626: Beim Festlegen der Standardkonten kann beim Warenbestand eine Überschrift ausgewählt werden.
+  - Bugfix 1627: System -> Kontenübersicht -> Konto -> als neu speichern nimmt nicht die taxkey_id mit
+  - Bugfix 1629: Variable cp_greeting wird nicht übergeben und ein Anzeigefehler
+  - Bugfix 1630: Rabatt wird auf der Rechnung auch auf nicht rabattierfähige Artikel gewährt
+  - Bugfix 1631: Recht Einkaufsrechnung erfass. & bearb.: kein Zugriff auf Rechnung möglich
   - Bugfix 1632: Nach Installation 2.6.2-0 aus .deb funktioniert CSV-Import nicht
   - Bugfix 1633: Stammdatenaufruf aus SEPA-Modul
-  - Bugfix 1575: Kundenrabatt geht verloren
+  - Bugfix 1636: Einige Variablen werden in Lieferantenaufträgen beim Erstellen von odt-Dokumenten nicht dargestellt.
+  - Bugfix 1638: Fehler in Anzeige der Verbindlichkeiten getrennt nach Abteilungen
+  - Bugfix 1639: Kein CSV-Import möglich
+  - Bugfix 1641: Sortieren der Einheiten funktioniert nicht wenn Einheit Sonderzeichen enthält
+  - Bugfix 1642: Lieferantenrabatt wird korrekt gespeichert, aber nicht mehr angezeigt
+  - Bugfix 1643: UStVa-Bericht mit FastCGI
+  - Bugfix 1644: Sammdaten -> Berichte -> Waren in Bericht aufnehmen: EAN | wird aber nicht angezeigt
+  - Bugfix 1645: CSV Warenimport prüft noch auf config/authentication.pl
   - Bugfix 1647: Lieferanten-Einkaufspreise verlieren Nachkommastellen
-  - Bugfix 1630: Rabatt wird auf der Rechnung auch auf nicht rabattierfähige Artikel gewährt
+  - Bugfix 1650: config merging mechanismus in doc/konfigurationsdatei.txt aufgenommen
+  - Bugfix 1651: Spalte Dokument im Lagerbuchungs-Bericht bleibt manchmal leer
   - Bugfix 1652: Rabatt falsch bei Rechnung aus Berichtsübersicht und Workflow-Start bei Lieferschein
-  - Bugfix 1579: Einkaufsrechnung mit bestimmten Werten und 'Steuer im Preis inbegriffen'
-          
+  - Bugfix 1653: Abmelden gibt Internal Server Error (fcgi)
+  - Bugfix 1654: zu lange URLs fuer Internet Explorer
+  - Bugfix 1658: Verkauf -> Berichte -> Rechnungen -> Filter Kundentyp wird bei CSV-Export nicht berücksichtigt
+  - Bugfix 1659: Einkaufsrechnung erfassen: ? neben Lieferantennamen
+  - Bugfix 1660: Mehrfaches Einlagern eines Lieferscheins möglich
+  - Bugfix 1661: Administrationsmenü -> Datenbanken aktualisieren -> Update von 2.6.2 auf 2.7 wirft folgenden Fehler:
+  - Bugfix 1665: Beim Drucken eines Lieferscheins wird ""Angezeigt"" in Historie gespeichert
+  - Bugfix 1667: Artikelnummern werden mehrfach vergeben
 
 2011-02-02 - Release 2.6.2
 
