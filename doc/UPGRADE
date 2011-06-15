@@ -46,6 +46,13 @@ Zumindest folgende Module sind neu benötigt:
 * Config::Std
 * Params::Validate
 
+4. Sollten Sie die FCGI-Version einsetzen, das Apache-Modul
+"mod_fcgid" (nicht "mod_fastcgi") benutzen und von diesem Modul die
+Version v2.6.3 oder später installiert haben, so ist außerdem wichtig,
+seinen Parameter "FcgidMaxRequestLen" deutlich zu erhöhen, weil sich
+dieser im Release mod_fcgid-Release v2.6.3 deutlich geändert
+hat. Details dazu finden sich in der Datei doc/INSTALL.fcgi.
+
 
 Upgrade auf v2.6.2
 ==================
