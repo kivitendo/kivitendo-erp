@@ -567,6 +567,8 @@ sub expire_sessions {
 
   my $self  = shift;
 
+  $main::lxdebug->leave_sub and return if !$self->session_tables_present;
+
   my $dbh   = $self->dbconnect();
 
   $dbh->begin_work;
@@ -779,6 +781,14 @@ sub session_tables_present {
   $main::lxdebug->enter_sub();
 
   my $self = shift;
+
+  # Only re-check for the presence of auth tables if either the check
+  # hasn't been done before of if they weren't present.
+  if ($self->{session_tables_present}) {
+    $main::lxdebug->leave_sub();
+    return $self->{session_tables_present};
+  }
+
   my $dbh  = $self->dbconnect(1);
 
   if (!$dbh) {
@@ -794,9 +804,11 @@ sub session_tables_present {
 
   my ($count) = selectrow_query($main::form, $dbh, $query);
 
+  $self->{session_tables_present} = 2 == $count;
+
   $main::lxdebug->leave_sub();
 
-  return 2 == $count;
+  return $self->{session_tables_present};
 }
 
 # --------------------------------------
