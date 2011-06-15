@@ -410,10 +410,10 @@ bekommen.
 Die Konfiguration erfolgt über den Abschnitt `[task_server]' in der
 Datei `config/lx_office.conf'. Die dort verfügbaren Optionen sind:
 
-   * `login': Benutzername eines existierenden Lx-Office-Benutzers. Der
-     Task-Server nutzt die bei dem Benutzer hinterlegten
-     Datenkbankinformationen für die Verbindung zur Datenbank. Diese
-     Option muss angegeben werden.
+   * `login': gültiger Lx-Office-Benutzername, der benutzt wird, um die
+     zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss
+     in der Administration angelegt werden. Diese Option muss angegeben
+     werden.
 
    * `run_as': Wird der Server vom Systembenutzer `root' gestartet, so
      wechselt er auf den mit `run_as' angegebenen Systembenutzer. Der

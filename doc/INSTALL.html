@@ -564,7 +564,7 @@ der Datei <samp><span class="file">config/lx_office.conf</span></samp>. Die dort
 sind:
 
      <ul>
-<li><code>login</code>: Benutzername eines existierenden Lx-Office-Benutzers. Der Task-Server nutzt die bei dem Benutzer hinterlegten Datenkbankinformationen für die Verbindung zur Datenbank. Diese Option muss angegeben werden. 
+<li><code>login</code>: gültiger Lx-Office-Benutzername, der benutzt wird, um die zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss in der Administration angelegt werden. Diese Option muss angegeben werden. 
 <li><code>run_as</code>: Wird der Server vom Systembenutzer <code>root</code> gestartet, so wechselt er auf den mit <code>run_as</code> angegebenen Systembenutzer. Der Systembenutzer muss dieselben Lese- und Schreibrechte haben, wie auch der Webserverbenutzer (siehe see <a href="#Manuelle-Installation-des-Programmpaketes">Manuelle Installation des Programmpaketes</a>). Daher ist es sinnvoll, hier denselben Systembenutzer einzutragen, unter dem auch der Webserver läuft. 
 <li><code>debug</code>: Schaltet Debug-Informationen an und aus. 
 </ul>
