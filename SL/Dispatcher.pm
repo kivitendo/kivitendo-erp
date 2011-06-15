@@ -180,9 +180,9 @@ sub handle_request {
     $::form->{script} = "controller.pl";
   }
 
-  pre_request_checks();
-
   eval {
+    pre_request_checks();
+
     my $session_result = $::auth->restore_session;
     $::auth->create_or_refresh_session;
 
