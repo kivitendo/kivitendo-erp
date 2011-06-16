@@ -11,6 +11,7 @@ use YAML;
 use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
 use SL::Auth::LDAP;
+use SL::Auth::Password;
 
 use SL::SessionFile;
 use SL::User;
@@ -161,6 +162,15 @@ sub authenticate {
   return OK if $result eq OK;
   sleep 5;
   return $result;
+}
+
+sub store_credentials_in_session {
+  my ($self, %params) = @_;
+
+  $params{password} = SL::Auth::Password->hash_if_unhashed(login => $params{login}, password => $params{password})
+    unless $self->{authenticator}->requires_cleartext_password;
+
+  $self->set_session_value(login => $params{login}, password => $params{password});
 }
 
 sub dbconnect {

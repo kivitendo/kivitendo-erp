@@ -35,11 +35,19 @@ sub hash {
   }
 }
 
+sub hash_if_unhashed {
+  my ($class, %params) = @_;
+
+  my ($algorithm, $password) = $class->parse($params{password}, 'NONE');
+
+  return $algorithm eq 'NONE' ? $class->hash(%params) : $params{password};
+}
+
 sub parse {
-  my ($class, $password) = @_;
+  my ($class, $password, $default_algorithm) = @_;
 
   return ($1, $2) if $password =~ m/^\{ ([^\}]+) \} (.+)/x;
-  return ('CRYPT', $password);
+  return ($default_algorithm || 'CRYPT', $password);
 }
 
 1;

@@ -48,7 +48,7 @@ sub authenticate {
   # passwords. Hash it for easier comparison.
   $stored_password               = SL::Auth::Password->hash(password => $stored_password) unless $stored_password;
   ($algorithm, $stored_password) = SL::Auth::Password->parse($stored_password);
-  ($algorithm2, $password)       = SL::Auth::Password->parse(SL::Auth::Password->hash(password => $password, algorithm => $algorithm, login => $login));
+  ($algorithm2, $password)       = SL::Auth::Password->parse(SL::Auth::Password->hash_if_unhashed(password => $password, algorithm => $algorithm, login => $login));
 
   $main::lxdebug->leave_sub();
 
@@ -57,6 +57,10 @@ sub authenticate {
 
 sub can_change_password {
   return 1;
+}
+
+sub requires_cleartext_password {
+  return 0;
 }
 
 sub change_password {
