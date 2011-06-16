@@ -1848,6 +1848,19 @@ sub retrieve_item {
        WHERE $where|;
   my $sth = prepare_execute_query($form, $dbh, $query, @values);
 
+  my @translation_queries = ( [ qq|SELECT tr.translation, tr.longdescription
+                                   FROM translation tr
+                                   WHERE tr.language_id = ? AND tr.parts_id = ?| ],
+                              [ qq|SELECT tr.translation, tr.longdescription
+                                   FROM translation tr
+                                   WHERE tr.language_id IN
+                                     (SELECT id
+                                      FROM language
+                                      WHERE article_code = (SELECT article_code FROM language WHERE id = ?))
+                                     AND tr.parts_id = ?
+                                   LIMIT 1| ] );
+  map { push @{ $_ }, prepare_query($form, $dbh, $_->[0]) } @translation_queries;
+
   while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
 
     # In der Buchungsgruppe ist immer ein Bestandskonto verknuepft, auch wenn
@@ -1915,33 +1928,15 @@ sub retrieve_item {
 
     $stw->finish;
     chop $ref->{taxaccounts};
+
     if ($form->{language_id}) {
-      $query =
-        qq|SELECT tr.translation, tr.longdescription
-           FROM translation tr
-           WHERE tr.language_id = ? AND tr.parts_id = ?|;
-      @values = (conv_i($form->{language_id}), conv_i($ref->{id}));
-      my ($translation, $longdescription) = selectrow_query($form, $dbh, $query, @values);
-      if ($translation ne "") {
+      for my $spec (@translation_queries) {
+        do_statement($form, $spec->[1], $spec->[0], conv_i($form->{language_id}), conv_i($ref->{id}));
+        my ($translation, $longdescription) = $spec->[1]->fetchrow_array;
+        next unless $translation;
         $ref->{description} = $translation;
         $ref->{longdescription} = $longdescription;
-
-      } else {
-        $query =
-          qq|SELECT tr.translation, tr.longdescription
-             FROM translation tr
-             WHERE tr.language_id IN
-               (SELECT id
-                FROM language
-                WHERE article_code = (SELECT article_code FROM language WHERE id = ?))
-               AND tr.parts_id = ?
-             LIMIT 1|;
-        @values = (conv_i($form->{language_id}), conv_i($ref->{id}));
-        my ($translation, $longdescription) = selectrow_query($form, $dbh, $query, @values);
-        if ($translation ne "") {
-          $ref->{description} = $translation;
-          $ref->{longdescription} = $longdescription;
-        }
+        last;
       }
     }
 
@@ -1964,6 +1959,7 @@ sub retrieve_item {
     }
   }
   $sth->finish;
+  $_->[1]->finish for @translation_queries;
 
   foreach my $item (@{ $form->{item_list} }) {
     my $custom_variables = CVar->get_custom_variables(module   => 'IC',
