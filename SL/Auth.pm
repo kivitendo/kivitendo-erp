@@ -11,6 +11,7 @@ use YAML;
 use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
 use SL::Auth::LDAP;
+use SL::Auth::Password;
 
 use SL::SessionFile;
 use SL::User;
@@ -136,12 +137,10 @@ sub _read_auth_config {
 sub authenticate_root {
   $main::lxdebug->enter_sub();
 
-  my $self           = shift;
-  my $password       = shift;
-  my $is_crypted     = shift;
+  my ($self, $password) = @_;
 
-  $password          = crypt $password, 'ro' if (!$password || !$is_crypted);
-  my $admin_password = crypt "$self->{admin_password}", 'ro';
+  $password             = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $password);
+  my $admin_password    = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $self->{admin_password});
 
   $main::lxdebug->leave_sub();
 
@@ -161,6 +160,24 @@ sub authenticate {
   return OK if $result eq OK;
   sleep 5;
   return $result;
+}
+
+sub store_credentials_in_session {
+  my ($self, %params) = @_;
+
+  $params{password} = SL::Auth::Password->hash_if_unhashed(login => $params{login}, password => $params{password})
+    unless $self->{authenticator}->requires_cleartext_password;
+
+  $self->set_session_value(login => $params{login}, password => $params{password});
+}
+
+sub store_root_credentials_in_session {
+  my ($self, $rpw) = @_;
+
+  $rpw = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $rpw)
+    unless $self->{authenticator}->requires_cleartext_password;
+
+  $self->set_session_value(rpw => $rpw);
 }
 
 sub dbconnect {

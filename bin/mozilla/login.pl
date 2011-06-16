@@ -69,8 +69,9 @@ sub run {
       $form->{error_message} = $::locale->text('Incorrect username or password!');
       login_screen();
     } else {
-      $auth->set_session_value('login', $form->{login}, 'password', $form->{password});
+      $auth->store_credentials_in_session(login => $form->{login}, password => $form->{password});
       $auth->create_or_refresh_session();
+      delete $form->{password};
 
       $form->{titlebar} .= " - $::myconfig{name} - $::myconfig{dbname}";
       call_sub($::locale->findsub($action));

@@ -202,7 +202,7 @@ sub handle_request {
 
       show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($::form->{login}, $::form->{password});
 
-      $::auth->set_session_value('login', $::form->{login}, 'password', $::form->{password});
+      $::auth->store_credentials_in_session(login => $::form->{login}, password => $::form->{password});
       $::auth->create_or_refresh_session;
       $::auth->delete_session_value('FLASH');
       delete $::form->{password};

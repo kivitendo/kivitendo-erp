@@ -180,6 +180,10 @@ sub can_change_password {
   return 0;
 }
 
+sub requires_cleartext_password {
+  return 1;
+}
+
 sub change_password {
   return ERR_BACKEND;
 }

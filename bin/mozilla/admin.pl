@@ -73,7 +73,7 @@ sub run {
   $locale = $::locale;
   $auth   = $::auth;
 
-  $::auth->set_session_value('rpw', $::form->{rpw}) if $session_result == SL::Auth->SESSION_OK;
+  $::auth->store_root_credentials_in_session($form->{rpw}) if $session_result == SL::Auth->SESSION_OK;
 
   $form->{stylesheet} = "lx-office-erp.css";
   $form->{favicon}    = "favicon.ico";
@@ -81,11 +81,12 @@ sub run {
   if ($form->{action}) {
     if ($auth->authenticate_root($form->{rpw}) != $auth->OK()) {
       $form->{error_message} = $locale->text('Incorrect Password!');
+      $auth->delete_session_value('rpw');
       adminlogin();
     } else {
       if ($auth->session_tables_present()) {
-        $::auth->set_session_value('rpw', $::form->{rpw});
-        $::auth->create_or_refresh_session();
+        $::auth->store_root_credentials_in_session($::form->{rpw});
+        delete $::form->{rpw};
         _apply_dbupgrade_scripts();
       }
 
