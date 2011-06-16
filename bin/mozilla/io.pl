@@ -442,7 +442,8 @@ sub select_item {
 
   _check_io_auth();
 
-  $::form->{title} = $::locale->text('Select from one of the items below');
+  my $previous_form = $::auth->save_form_in_session(form => $::form);
+  $::form->{title}  = $::locale->text('Select from one of the items below');
   $::form->header;
 
   my @item_list = map {
@@ -454,7 +455,7 @@ sub select_item {
   # delete action variable
   delete @{$::form}{qw(action item_list header)};
 
-  print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM => $::auth->save_form_in_session(form => $::form),
+  print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM => $previous_form,
                                                          MODE          => $mode,
                                                          ITEM_LIST     => \@item_list,
                                                          IS_PURCHASE   => $mode eq 'IS' });
