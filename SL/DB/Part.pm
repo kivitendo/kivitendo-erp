@@ -9,6 +9,7 @@ use SL::DBUtils;
 use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
 use SL::DB::Chart;
+use SL::DB::Helper::TransNumberGenerator;
 
 __PACKAGE__->meta->add_relationships(
   unit_obj                     => {
@@ -36,9 +37,34 @@ __PACKAGE__->meta->add_relationships(
     class        => 'SL::DB::Price',
     column_map   => { id => 'parts_id' },
   },
+  makemodels     => {
+    type         => 'one to many',
+    class        => 'SL::DB::MakeModel',
+    column_map   => { id => 'parts_id' },
+  },
+  translations   => {
+    type         => 'one to many',
+    class        => 'SL::DB::Translation',
+    column_map   => { id => 'parts_id' },
+  },
+  custom_variables => {
+    type           => 'one to many',
+    class          => 'SL::DB::CustomVariable',
+    column_map     => { id => 'trans_id' },
+    query_args     => [ config_id => [ \"(SELECT custom_variable_configs.id FROM custom_variable_configs WHERE custom_variable_configs.module = 'IC')" ] ],
+  },
 );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->before_save('_before_save_set_partnumber');
+
+sub _before_save_set_partnumber {
+  my ($self) = @_;
+
+  $self->create_trans_number if $self->partnumber eq '';
+  return 1;
+}
 
 sub is_type {
   my $self = shift;

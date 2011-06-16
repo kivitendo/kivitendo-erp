@@ -1,0 +1,219 @@
+[% USE HTML %][% USE LxERP %][% USE L %]
+<body>
+
+ <div class="listtop">[% FORM.title %]</div>
+
+ [%- INCLUDE 'common/flash.html' %]
+
+ <form method="post" action="controller.pl" enctype="multipart/form-data">
+  [% L.hidden_tag('action', 'CsvImport/dispatch') %]
+  [% L.hidden_tag('profile.type', SELF.profile.type) %]
+
+  <h2>[%- LxERP.t8('Import profiles') %]</h2>
+
+  <table>
+   [%- IF SELF.profile.id %]
+    <tr>
+     <th align="right">[%- LxERP.t8('Current profile') %]:</th>
+     <td>[%- HTML.escape(SELF.profile.name) %]</td>
+    </tr>
+   [%- END %]
+
+   [%- IF SELF.all_profiles.size %]
+    <tr>
+     <th align="right">[%- LxERP.t8('Existing profiles') %]:</th>
+     <td>
+      [% L.select_tag('profile.id', L.options_for_select(SELF.all_profiles, title => 'name', default => SELF.profile.id), style => 'width: 300px') %]
+     </td>
+     <td>
+      [% L.submit_tag('action_new', LxERP.t8('Load profile')) %]
+      [% L.submit_tag('action_destroy', LxERP.t8('Delete profile'), confirm => LxERP.t8('Do you really want to delete this object?')) %]
+     </td>
+    </tr>
+   [%- END %]
+
+   <tr>
+    <th align="right" valign="top">[%- LxERP.t8('Save settings as') %]:</th>
+    <td valign="top">
+     [% L.input_tag('profile.name', '', style => 'width: 300px') %]
+     <br>
+     [% L.checkbox_tag('profile.is_default', label => LxERP.t8('Make default profile')) %]
+    </td>
+    <td valign="top">[% L.submit_tag('action_save', LxERP.t8('Save profile')) %]</td>
+   </tr>
+  </table>
+
+  <hr>
+
+  <h2>[%- LxERP.t8('Help on column names') %]</h2>
+
+  <div class="help_toggle">
+   <a href="#" onClick="javascript:$('.help_toggle').toggle()">[% LxERP.t8("Show help text") %]</a>
+  </div>
+
+  <div class="help_toggle" style="display:none">
+   <p><a href="#" onClick="javascript:$('.help_toggle').toggle()">[% LxERP.t8("Hide help text") %]</a></p>
+
+   <table>
+    <tr class="listheading">
+     <th>[%- LxERP.t8('Column name') %]</th>
+     <th>[%- LxERP.t8('Meaning') %]</th>
+    </tr>
+
+    [%- FOREACH row = SELF.displayable_columns %]
+     <tr class="listrow[% loop.count % 2 %]">
+      <td>[%- HTML.escape(row.name) %]</td>
+      <td>[%- HTML.escape(row.description) %]</td>
+     </tr>
+    [%- END %]
+   </table>
+
+[%- IF SELF.type == 'contacts' %]
+   <p>
+    [%- LxERP.t8('At least one of the columns #1, customer, customernumber, vendor, vendornumber (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'cp_cv_id') %]
+   </p>
+
+[%- ELSIF SELF.type == 'addresses' %]
+   <p>
+    [%- LxERP.t8('At least one of the columns #1, customer, customernumber, vendor, vendornumber (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'trans_id') %]
+   </p>
+
+[%- ELSIF SELF.type == 'parts' %]
+   <p>
+    [%- LxERP.t8("If the article type is set to 'mixed' then a column called 'type' must be present.") %]
+    [% LxERP.t8("Type can be either 'part' or 'service'.") %]
+   </p>
+[%- END %]
+
+   <p>
+    [%- L.submit_tag('action_download_sample', LxERP.t8('Download sample file')) %]
+   </p>
+
+  </div>
+
+  <hr>
+
+  <h2>[%- LxERP.t8('Settings') %]</h2>
+
+  <table>
+   <tr>
+    <th align="right">[%- LxERP.t8('Number Format') %]:</th>
+    <td colspan="10">
+     [% SET options = L.options_for_select([ '1.000,00', '1000,00', '1,000.00', '1000.00' ], default => SELF.profile.get('numberformat')) %]
+     [% L.select_tag('settings.numberformat', options, style => 'width: 300px') %]
+    </td>
+   </tr>
+
+   <tr>
+    <th align="right">[%- LxERP.t8('Charset') %]:</th>
+    <td colspan="10">[% L.select_tag('settings.charset', L.options_for_select(SELF.all_charsets, default => SELF.profile.get('charset')), style => 'width: 300px') %]</td>
+   </tr>
+
+   <tr>
+    <th align="right">[%- LxERP.t8('Separator') %]:</th>
+    [% SET custom_sep_char = SELF.sep_char %]
+    [% FOREACH entry = SELF.all_sep_chars %]
+     <td>
+      [% IF SELF.sep_char == entry.first %] [% SET custom_sep_char = '' %] [%- END %]
+      [% L.radio_button_tag('sep_char', value => entry.first, label => entry.last, checked => SELF.sep_char == entry.first) %]
+     </td>
+    [%- END %]
+
+    <td>
+     [% L.radio_button_tag('sep_char', value => 'custom', checked => custom_sep_char != '') %]
+     [% L.input_tag('custom_sep_char', custom_sep_char, size => 3, maxlength => 1) %]
+    </td>
+   </tr>
+
+   <tr>
+    <th align="right">[%- LxERP.t8('Quote character') %]:</th>
+    [% SET custom_quote_char = SELF.quote_char %]
+    [% FOREACH entry = SELF.all_quote_chars %]
+     <td>
+      [% IF SELF.quote_char == entry.first %] [% SET custom_quote_char = '' %] [%- END %]
+      [% L.radio_button_tag('quote_char', value => entry.first, label => entry.last, checked => SELF.quote_char == entry.first) %]
+     </td>
+    [%- END %]
+
+    <td>
+     [% L.radio_button_tag('quote_char', value => 'custom', checked => custom_quote_char != '') %]
+     [% L.input_tag('custom_quote_char', custom_quote_char, size => 3, maxlength => 1) %]
+    </td>
+   </tr>
+
+   <tr>
+    <th align="right">[%- LxERP.t8('Escape character') %]:</th>
+    [% SET custom_escape_char = SELF.escape_char %]
+    [% FOREACH entry = SELF.all_escape_chars %]
+     <td>
+      [% IF SELF.escape_char == entry.first %] [% SET custom_escape_char = '' %] [%- END %]
+      [% L.radio_button_tag('escape_char', value => entry.first, label => entry.last, checked => SELF.escape_char == entry.first) %]
+     </td>
+    [%- END %]
+
+    <td>
+     [% L.radio_button_tag('escape_char', value => 'custom', checked => custom_escape_char != '') %]
+     [% L.input_tag('custom_escape_char', custom_escape_char, size => 3, maxlength => 1) %]
+    </td>
+   </tr>
+
+   <tr>
+    <th align="right">[%- LxERP.t8('Check for duplicates') %]:</th>
+    <td colspan="10">
+     [% opts = [ [ 'no_check',  LxERP.t8('Do not check for duplicates') ],
+                 [ 'check_csv', LxERP.t8('Discard duplicate entries in CSV file') ],
+                 [ 'check_db',  LxERP.t8('Discard entries with duplicates in database or CSV file') ] ] %]
+     [% L.select_tag('settings.duplicates', L.options_for_select(opts, default => SELF.profile.get('duplicates')), style => 'width: 300px') %]
+    </td>
+   </tr>
+
+[%- IF SELF.type == 'parts' %]
+ [%- INCLUDE 'csv_import/_form_parts.html' %]
+[%- ELSIF SELF.type == 'customers_vendors' %]
+ [%- INCLUDE 'csv_import/_form_customers_vendors.html' %]
+[%- END %]
+
+   <tr>
+    <th align="right">[%- LxERP.t8('Import file') %]:</th>
+    <td colspan="10">[% L.input_tag('file', '', type => 'file', accept => '*') %]</td>
+   </tr>
+
+   [%- IF SELF.file.exists %]
+    <tr>
+     <th align="right">[%- LxERP.t8('Existing file on server') %]:</th>
+     <td colspan="10">[%- LxERP.t8('Uploaded on #1, size #2 kB', SELF.file.displayable_mtime, LxERP.format_amount(SELF.file.size / 1024, 2)) %]</td>
+    </tr>
+   [%- END %]
+
+  </table>
+
+  [% L.submit_tag('action_test', LxERP.t8('Test and preview')) %]
+  [% IF (SELF.import_status == 'tested') && SELF.num_importable %]
+   [% L.submit_tag('action_import', LxERP.t8('Import')) %]
+  [%- END %]
+
+ </form>
+
+ [%- IF SELF.import_status %]
+  [%- IF SELF.errors %]
+   [%- PROCESS 'csv_import/_errors.html' %]
+  [%- END %]
+
+  [%- PROCESS 'csv_import/_result.html' %]
+  [%- PROCESS 'csv_import/_preview.html' %]
+ [%- END %]
+
+ <script type="text/javascript">
+  <!--
+    $(document).ready(function() {
+      $('#action_save').click(function() {
+        if ($('#profile_name').attr('value') != '')
+          return true;
+        alert('[% LxERP.t8('Please enter a profile name.') %]');
+        return false;
+      })
+    });
+    -->
+ </script>
+</body>
+</html>

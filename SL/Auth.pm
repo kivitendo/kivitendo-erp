@@ -12,6 +12,7 @@ use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
 use SL::Auth::LDAP;
 
+use SL::SessionFile;
 use SL::User;
 use SL::DBConnect;
 use SL::DBUpgrade2;
@@ -555,6 +556,8 @@ sub destroy_session {
 
     $dbh->commit();
 
+    SL::SessionFile->destroy_session($session_id);
+
     $session_id      = undef;
     $self->{SESSION} = { };
   }
@@ -571,24 +574,27 @@ sub expire_sessions {
 
   my $dbh   = $self->dbconnect();
 
-  $dbh->begin_work;
+  my $query = qq|SELECT id
+                 FROM auth.session
+                 WHERE (mtime < (now() - '$self->{session_timeout}m'::interval))|;
 
-  my $query =
-    qq|DELETE FROM auth.session_content
-       WHERE session_id IN
-         (SELECT id
-          FROM auth.session
-          WHERE (mtime < (now() - '$self->{session_timeout}m'::interval)))|;
+  my @ids   = selectall_array_query($::form, $dbh, $query);
 
-  do_query($main::form, $dbh, $query);
+  if (@ids) {
+    $dbh->begin_work;
 
-  $query =
-    qq|DELETE FROM auth.session
-       WHERE (mtime < (now() - '$self->{session_timeout}m'::interval))|;
+    SL::SessionFile->destroy_session($_) for @ids;
 
-  do_query($main::form, $dbh, $query);
+    $query = qq|DELETE FROM auth.session_content
+                WHERE session_id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)|;
+    do_query($main::form, $dbh, $query, @ids);
 
-  $dbh->commit();
+    $query = qq|DELETE FROM auth.session
+                WHERE id IN (| . join(', ', ('?') x scalar(@ids)) . qq|)|;
+    do_query($main::form, $dbh, $query, @ids);
+
+    $dbh->commit();
+  }
 
   $main::lxdebug->leave_sub();
 }
