@@ -1,0 +1,45 @@
+[% USE LxERP %][% USE HTML %][% USE L %]
+<body>
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="[% HTML.escape(script) %]">
+
+  <table width="100%">
+   <tr class="listheading">
+    <th>&nbsp;</th>
+    <th>[% LxERP.t8('Number') %]</th>
+    <th>[% LxERP.t8('Part Description') %]</th>
+    <th>[% LxERP.t8('Price') %]</th>
+    [%- IF IS_PURCHASE %]
+     <th>[% LxERP.t8('ROP') %]</th>
+    [%- END %]
+    <th>[% LxERP.t8('Qty') %]</th>
+    <th>[% LxERP.t8('Unit') %]</th>
+   </tr>
+
+   [%- FOREACH item = ITEM_LIST %]
+   <tr class="listrow[% loop.count % 2 %]">
+    <td><input name="select_item_id" class="radio" type="radio" value="[% HTML.escape(item.id) %]"[% IF loop.first %] checked[% END %]></td>
+    <td>[% HTML.escape(item.partnumber) %]</td>
+    <td>[% HTML.escape(item.description) %]</td>
+    [%- IF IS_PURCHASE %]
+     <td align="right">[% LxERP.format_amount(item.rop, '') %]</td>
+    [%- END %]
+    <td align="right">[% LxERP.format_amount(item.display_sellprice, 2) %]</td>
+    <td align="right">[% LxERP.format_amount(item.onhand, '') %]</td>
+    <td>[% HTML.escape(item.unit) %]</td>
+   </tr>
+   [%- END %]
+
+   <tr><td colspan="8"><hr size="3" noshade></td></tr>
+  </table>
+
+  [% L.hidden_tag('select_item_mode', MODE) %]
+  [% L.hidden_tag('select_item_previous_form', PREVIOUS_FORM) %]
+  [% L.hidden_tag('nextsub', 'item_selected') %]
+
+  [% L.submit_tag('action', LxERP.t8('Continue')) %]
+ </form>
+</body>
+</html>

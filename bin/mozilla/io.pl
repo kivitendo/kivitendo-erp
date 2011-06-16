@@ -438,125 +438,27 @@ sub set_pricegroup {
 sub select_item {
   $main::lxdebug->enter_sub();
 
-  my %params   = @_;
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
-
-  my $mode        = $params{mode} || croak "Missing parameter 'mode'";
-  my $is_purchase = $mode eq 'IS';
+  my %params = @_;
+  my $mode   = $params{mode} || croak "Missing parameter 'mode'";
 
   _check_io_auth();
 
-  my @column_index = qw(ndx partnumber description rop onhand unit sellprice);
-  my %column_data;
-  $column_data{ndx}        = qq|<th>&nbsp;</th>|;
-  $column_data{partnumber} =
-    qq|<th class="listheading">| . $locale->text('Number') . qq|</th>|;
-  $column_data{description} =
-    qq|<th class="listheading">| . $locale->text('Part Description') . qq|</th>|;
-  $column_data{sellprice} =
-    qq|<th class="listheading">| . $locale->text('Price') . qq|</th>|;
-  if ($is_purchase){
-    $column_data{rop} =
-    qq|<th class="listheading">| . $locale->text('ROP') . qq|</th>|;
-  }# ende if $is_purchase -> Überschrift Mindestlagerbestand - ähnliche Prüfung weiter unten
-  $column_data{onhand} =
-    qq|<th class="listheading">| . $locale->text('Qty') . qq|</th>|;
-  $column_data{unit} =
-    qq|<th class="listheading">| . $locale->text('Unit') . qq|</th>|;
-  # list items with radio button on a form
-  $form->header;
+  $::form->{title} = $::locale->text('Select from one of the items below');
+  $::form->header;
 
-  my $title   = $locale->text('Select from one of the items below');
-  my $colspan = $#column_index + 1;
-
-  print qq|
-  <body>
-
-<form method="post" action="$form->{script}">
-
-<table width="100%">
-  <tr>
-    <th class="listtop" colspan="$colspan">$title</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr class="listheading">|;
-
-  map { print "\n$column_data{$_}" } @column_index;
-
-  print qq|</tr>|;
-
-  my $i = 0;
-  my $j;
-  foreach my $ref (@{ $form->{item_list} }) {
-    my $checked = ($i++) ? "" : "checked";
-
-    if ($::lx_office_conf{features}->{lizenzen}) {
-      if ($ref->{inventory_accno} > 0) {
-        $ref->{"lizenzen"} = qq|<option></option>|;
-        foreach my $item (@{ $form->{LIZENZEN}{ $ref->{"id"} } }) {
-          $ref->{"lizenzen"} .=
-            qq|<option value=\"$item->{"id"}\">$item->{"licensenumber"}</option>|;
-        }
-        $ref->{"lizenzen"} .= qq|<option value="-1">Neue Lizenz</option>|;
-        $ref->{"lizenzen"} =~ s/\"/&quot;/g;
-      }
-    }
-
-    my $display_sellprice  = $ref->{sellprice} * (1 - $form->{tradediscount});
-    $display_sellprice    /= $ref->{price_factor} if ($ref->{price_factor});
-    $display_sellprice     = $form->format_amount(\%myconfig, $display_sellprice, 2);
-    my $new_id             = $ref->{id};
-
-    map { $ref->{$_} = H($ref->{$_}) } qw(id partnumber description unit);
-
-    $column_data{ndx}         = qq|<td><input name="select_item_id" class="radio" type="radio" value="${new_id}" $checked></td>|;
-    $column_data{partnumber}  = qq|<td>$ref->{partnumber}</td>|;
-    $column_data{description} = qq|<td>$ref->{description}</td>|;
-    $column_data{sellprice}   = qq|<td align="right">${display_sellprice}</td>|;
-    $column_data{onhand}      = qq|<td align="right">| . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;") . qq|</td>|;
-    $column_data{unit}        = qq|<td>$ref->{unit}</td>|;
-
-    if ($is_purchase){
-      $column_data{rop}       = qq|<td align="right">| . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;") . qq|</td>|;
-    }# ende if $is_purchase -> Falls der Aufruf über eine Einkaufsmaske kam, handelt es sich um einen Lieferantenauftrag und uns interessiert auch die Mindestbestandsmenge
-
-    $j++;
-    $j %= 2;
-    print qq|
-<tr class=listrow$j>|;
-
-    map { print "\n$column_data{$_}" } @column_index;
-
-    print("</tr>\n");
-  }
-
-  print qq|
-<tr><td colspan="8"><hr size="3" noshade></td></tr>
-</table>
-|;
+  my @item_list = map {
+    $_->{display_sellprice}  = $_->{sellprice} * (1 - $::form->{tradediscount});
+    $_->{display_sellprice} /= $_->{price_factor} if ($_->{price_factor});
+    $_;
+  } @{ $::form->{item_list} };
 
   # delete action variable
-  map { delete $form->{$_} } qw(action item_list header);
+  delete @{$::form}{qw(action item_list header)};
 
-  my $previous_form = $::auth->save_form_in_session(form => $form);
-
-  print qq|
-<input name="select_item_mode" type="hidden" value="$mode">
-<input name="select_item_previous_form" type="hidden" value="${previous_form}">
-<input type="hidden" name="nextsub" value="item_selected">
-
-<br>
-<input class="submit" type="submit" name="action" value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
+  print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM => $::auth->save_form_in_session(form => $::form),
+                                                         MODE          => $mode,
+                                                         ITEM_LIST     => \@item_list,
+                                                         IS_PURCHASE   => $mode eq 'IS' });
 
   $main::lxdebug->leave_sub();
 }
