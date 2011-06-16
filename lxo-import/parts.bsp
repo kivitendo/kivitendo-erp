@@ -1,4 +1,0 @@
-"partnumber"	"ean"	"description"	"unit"	"weight"	"notes"	"makemodel"	"model"	"image"	"sellprice"	"lastcost"	"partsgroup"	"partsgroup1"	"partsgroup2"	"partsgroup3"	"rop"	"partsgroup4"	"income_accno"	"expense_accno"	"microfiche"	"art"
-"TI12346"	92384754671	"Importartikel 1"	"Stck"	2	"Die Beschreibung zum Artikel"	"Lx-System"	"LX123"		10	6	"Hardware"	"Test"			1.10		184	37	"Mfiche 1"	"W"
-"TI12345"	92384754672	"Importartikel 2"		3,1	"Die Beschreibung zum Artikel"	"Lx-System"	"LX124"		13	8,1	"Hardware"	"Test"					184	37	"y"	"W"
-"TD2345"		"Import Diestleistung"	"Std"						125								184	37		"D"
