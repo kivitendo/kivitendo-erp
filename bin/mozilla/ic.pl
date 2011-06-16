@@ -1728,7 +1728,7 @@ sub update {
 
         if ($rows > 1) {
           $form->{makemodel_rows}--;
-          &select_item;
+          select_item(mode => 'IC');
           ::end_of_request();
         } else {
           map { $form->{item_list}[$i]{$_} =~ s/\"/&quot;/g }

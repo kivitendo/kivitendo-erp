@@ -550,10 +550,13 @@ sub update {
     &check_form;
   } else {
 
+    my $mode;
     if ($form->{type} =~ /^sales/) {
       IS->retrieve_item(\%myconfig, \%$form);
+      $mode = 'IS';
     } else {
       IR->retrieve_item(\%myconfig, \%$form);
+      $mode = 'IR';
     }
 
     my $rows = scalar @{ $form->{item_list} };
@@ -571,7 +574,7 @@ sub update {
 
       if ($rows > 1) {
 
-        &select_item;
+        select_item(mode => $mode);
         ::end_of_request();
 
       } else {

@@ -36,6 +36,7 @@
 #
 #######################################################################
 
+use Carp;
 use CGI;
 use CGI::Ajax;
 use List::Util qw(min max first);
@@ -437,13 +438,16 @@ sub set_pricegroup {
 sub select_item {
   $main::lxdebug->enter_sub();
 
+  my %params   = @_;
+
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
   my $cgi      = $main::cgi;
 
-# diese variable kommt schon in der methode display_row vor, kann man die besser wiederverwenden? @mb fragen.  ich check das jetzt erstmal so ein
-  my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
+  my $mode        = $params{mode} || croak "Missing parameter 'mode'";
+  my $is_purchase = $mode eq 'IS';
+
   _check_io_auth();
 
   my @column_index = qw(ndx partnumber description rop onhand unit sellprice);
@@ -455,10 +459,10 @@ sub select_item {
     qq|<th class="listheading">| . $locale->text('Part Description') . qq|</th>|;
   $column_data{sellprice} =
     qq|<th class="listheading">| . $locale->text('Price') . qq|</th>|;
-    if ($is_purchase){
-      $column_data{rop} =
-      qq|<th class="listheading">| . $locale->text('ROP') . qq|</th>|;
-    }# ende if $is_purchase -> Überschrift Mindestlagerbestand - ähnliche Prüfung weiter unten
+  if ($is_purchase){
+    $column_data{rop} =
+    qq|<th class="listheading">| . $locale->text('ROP') . qq|</th>|;
+  }# ende if $is_purchase -> Überschrift Mindestlagerbestand - ähnliche Prüfung weiter unten
   $column_data{onhand} =
     qq|<th class="listheading">| . $locale->text('Qty') . qq|</th>|;
   $column_data{unit} =
@@ -485,13 +489,6 @@ sub select_item {
 
   print qq|</tr>|;
 
-  my @new_fields =
-    qw(bin listprice inventory_accno income_accno expense_accno unit weight
-       assembly taxaccounts partsgroup formel longdescription not_discountable
-       part_payment_id partnotes id lastcost price_factor_id price_factor);
-  push @new_fields, "lizenzen" if $::lx_office_conf{features}->{lizenzen};
-  push @new_fields, grep { m/^ic_cvar_/ } keys %{ $form->{item_list}->[0] };
-
   my $i = 0;
   my $j;
   foreach my $ref (@{ $form->{item_list} }) {
@@ -509,34 +506,24 @@ sub select_item {
       }
     }
 
-    map { $ref->{$_} =~ s/\"/&quot;/g } qw(partnumber description unit);
-
     my $display_sellprice  = $ref->{sellprice} * (1 - $form->{tradediscount});
     $display_sellprice    /= $ref->{price_factor} if ($ref->{price_factor});
     $display_sellprice     = $form->format_amount(\%myconfig, $display_sellprice, 2);
+    my $new_id             = $ref->{id};
 
-    $column_data{ndx} =
-      qq|<td><input name="ndx" class="radio" type="radio" value="$i" $checked></td>|;
-    $column_data{partnumber} =
-      qq|<td><input name="new_partnumber_$i" type="hidden" value="$ref->{partnumber}">$ref->{partnumber}</td>|;
-    $column_data{description} =
-      qq|<td><input name="new_description_$i" type="hidden" value="$ref->{description}">$ref->{description}</td>|;
-    $column_data{sellprice} =
-      qq|<td align="right"><input name="new_sellprice_$i" type="hidden" value="$ref->{sellprice}">|
-      . $display_sellprice
-      . qq|</td>|;
-    $column_data{onhand} =
-      qq|<td align="right"><input name="new_onhand_$i" type="hidden" value="$ref->{onhand}">|
-      . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;")
-      . qq|</td>|;
+    map { $ref->{$_} = H($ref->{$_}) } qw(id partnumber description unit);
+
+    $column_data{ndx}         = qq|<td><input name="select_item_id" class="radio" type="radio" value="${new_id}" $checked></td>|;
+    $column_data{partnumber}  = qq|<td>$ref->{partnumber}</td>|;
+    $column_data{description} = qq|<td>$ref->{description}</td>|;
+    $column_data{sellprice}   = qq|<td align="right">${display_sellprice}</td>|;
+    $column_data{onhand}      = qq|<td align="right">| . $form->format_amount(\%myconfig, $ref->{onhand}, '', "&nbsp;") . qq|</td>|;
+    $column_data{unit}        = qq|<td>$ref->{unit}</td>|;
+
     if ($is_purchase){
-    $column_data{rop} =
-      qq|<td align="right"><input name="new_rop$i" type="hidden" value="$ref->{rop}">|
-      . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;")
-      . qq|</td>|;
+      $column_data{rop}       = qq|<td align="right">| . $form->format_amount(\%myconfig, $ref->{rop}, '', "&nbsp;") . qq|</td>|;
     }# ende if $is_purchase -> Falls der Aufruf über eine Einkaufsmaske kam, handelt es sich um einen Lieferantenauftrag und uns interessiert auch die Mindestbestandsmenge
-    $column_data{unit} =
-      qq|<td>$ref->{unit}</td>|;
+
     $j++;
     $j %= 2;
     print qq|
@@ -545,30 +532,21 @@ sub select_item {
     map { print "\n$column_data{$_}" } @column_index;
 
     print("</tr>\n");
-
-    print join "\n", map { $cgi->hidden("-name" => "new_${_}_$i", "-value" => $ref->{$_}) } @new_fields;
-    print "\n";
   }
 
   print qq|
 <tr><td colspan="8"><hr size="3" noshade></td></tr>
 </table>
-
-<input name="lastndx" type="hidden" value="$i">
-
 |;
 
   # delete action variable
   map { delete $form->{$_} } qw(action item_list header);
 
-  # save all other form variables
-  foreach my $key (keys %${form}) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input name="$key" type="hidden" value="$form->{$key}">\n|;
-  }
+  my $previous_form = $::auth->save_form_in_session(form => $form);
 
   print qq|
+<input name="select_item_mode" type="hidden" value="$mode">
+<input name="select_item_previous_form" type="hidden" value="${previous_form}">
 <input type="hidden" name="nextsub" value="item_selected">
 
 <br>
@@ -591,16 +569,25 @@ sub item_selected {
 
   _check_io_auth();
 
-  # replace the last row with the checked row
-  my $i = $form->{rowcount};
-  $i = $form->{assembly_rows} if ($form->{item} eq 'assembly');
+  $::auth->restore_form_from_session($form->{select_item_previous_form} || croak('Missing previous form ID'), form => $form);
 
-  # index for new item
-  my $j = $form->{ndx};
+  my $mode = delete($form->{select_item_mode}) || croak 'Missing item selection mode';
+  my $id   = delete($form->{select_item_id})   || croak 'Missing item selection ID';
+  my $i    = $form->{ $mode eq 'IC' ? 'assembly_rows' : 'rowcount' };
 
-  #sk
-  #($form->{"sellprice_$i"},$form->{"$pricegroup_old_$i"}) = split /--/, $form->{"sellprice_$i"};
-  #$form->{"sellprice_$i"} = $form->{"sellprice_$i"};
+  $form->{"id_${i}"} = $id;
+
+  if ($mode eq 'IS') {
+    IS->retrieve_item(\%myconfig, \%$form);
+  } elsif ($mode eq 'IR') {
+    IR->retrieve_item(\%myconfig, \%$form);
+  } elsif ($mode eq 'IC') {
+    IC->assembly_item(\%myconfig, \%$form);
+  } else {
+    croak "Invalid item selection mode '${mode}'";
+  }
+
+  my $new_item = $form->{item_list}->[0] || croak "No item found for mode '${mode}' and ID '${id}'";
 
   # if there was a price entered, override it
   my $sellprice = $form->parse_amount(\%myconfig, $form->{"sellprice_$i"});
@@ -611,19 +598,17 @@ sub item_selected {
        partsgroup formel longdescription not_discountable partnotes lastcost
        price_factor_id price_factor);
 
+  push @new_fields, 'lizenzen' if $::lx_office_conf{features}->{lizenzen};
+
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @new_fields, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
-  map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} } @new_fields;
+  map { $form->{"${_}_$i"} = $new_item->{$_} } @new_fields;
 
-  $form->{"marge_price_factor_$i"} = $form->{"new_price_factor_$j"};
+  $form->{"marge_price_factor_$i"} = $new_item->{price_factor};
 
   if ($form->{"part_payment_id_$i"} ne "") {
     $form->{payment_id} = $form->{"part_payment_id_$i"};
-  }
-
-  if ($::lx_office_conf{features}->{lizenzen}) {
-    map { $form->{"${_}_$i"} = $form->{"new_${_}_$j"} } qw(lizenzen);
   }
 
   my ($dec) = ($form->{"sellprice_$i"} =~ /\.(\d+)/);
@@ -665,12 +650,7 @@ sub item_selected {
 
   $form->{"runningnumber_$i"} = $i;
 
-  # delete all the new_ variables
-  for $i (1 .. $form->{lastndx}) {
-    map { delete $form->{"new_${_}_$i"} } @new_fields;
-  }
-
-  map { delete $form->{$_} } qw(ndx lastndx nextsub);
+  delete $form->{nextsub};
 
   # format amounts
   map {

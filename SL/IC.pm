@@ -703,6 +703,11 @@ sub assembly_item {
     push(@values, '%' . $form->{"${column}_$i"} . '%');
   }
 
+  if ($form->{"id_${i}"}) {
+    $where .= qq| AND p.id = ?|;
+    push @values, $form->{"id_${i}"};
+  }
+
   if ($form->{id}) {
     $where .= qq| AND NOT (p.id = ?)|;
     push(@values, conv_i($form->{id}));

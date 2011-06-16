@@ -158,7 +158,7 @@ sub post_invoice {
       $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
       if ($form->{taxincluded}) {
-        
+
         $taxamount              = $linetotal * ($taxrate / (1 + $taxrate));
         $form->{"sellprice_$i"} = $form->{"sellprice_$i"} * (1 / (1 + $taxrate));
 
@@ -388,7 +388,7 @@ sub post_invoice {
     # income accounts, it is enough to add the total rounding error to one of
     # the income accounts, with the one assigned to the last row being used
     # (lastinventoryaccno)
-    
+
     # in the purchase invoice case rounding errors may be split between
     # inventory accounts and expense accounts. After rounding, an error of 1
     # cent is introduced if the total rounding error exceeds 0.005. The total
@@ -1066,6 +1066,11 @@ sub retrieve_item {
       $where .= qq| OR (NOT p.obsolete = '1' AND p.ean = ? )|;
       push @values, $form->{"partnumber_$i"};
    }
+
+  if ($form->{"id_${i}"}) {
+    $where .= qq| AND p.id = ?|;
+    push @values, $form->{"id_${i}"};
+  }
 
   if ($form->{"description_$i"}) {
     $where .= " ORDER BY p.description";

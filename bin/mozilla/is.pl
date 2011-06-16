@@ -523,7 +523,7 @@ sub update {
 
       if ($rows > 1) {
 
-        &select_item;
+        select_item(mode => 'IS');
         ::end_of_request();
 
       } else {

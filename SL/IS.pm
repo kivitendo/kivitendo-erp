@@ -1778,6 +1778,11 @@ sub retrieve_item {
     push @values, $form->{"partnumber_$i"};
   }
 
+  if ($form->{"id_${i}"}) {
+    $where .= qq| AND p.id = ?|;
+    push @values, $form->{"id_${i}"};
+  }
+
   if ($form->{"description_$i"}) {
     $where .= qq| ORDER BY p.description|;
   } else {

@@ -364,10 +364,13 @@ sub update_delivery_order {
 
   } else {
 
+    my $mode;
     if ($form->{type} eq 'purchase_delivery_order') {
       IR->retrieve_item(\%myconfig, $form);
+      $mode = 'IR';
     } else {
       IS->retrieve_item(\%myconfig, $form);
+      $mode = 'IS';
     }
 
     my $rows = scalar @{ $form->{item_list} };
@@ -377,7 +380,7 @@ sub update_delivery_order {
 
       if ($rows > 1) {
 
-        select_item();
+        select_item(mode => $mode);
         ::end_of_request();
 
       } else {

@@ -229,7 +229,7 @@ sub prepare_invoice {
       # übernommen aus is.pl Fix für Bug 1642. Nebenwirkungen? jb 12.5.2011
       # getestet: Lieferantenauftrag -> Rechnung i.O.
       #           Lieferantenauftrag -> Lieferschein -> Rechnung i.O.
-      # Werte: 20% (Lieferantenrabatt), 12,4% individuell und 0,4 individuell s.a. 
+      # Werte: 20% (Lieferantenrabatt), 12,4% individuell und 0,4 individuell s.a.
       # Screenshot zu Bug 1642
       $form->{"discount_$i"}   = $form->format_amount(\%myconfig, $form->{"discount_$i"} * 100);
 
@@ -481,7 +481,7 @@ sub update {
 
       if ($rows > 1) {
 
-        &select_item;
+        select_item(mode => 'IR');
         ::end_of_request();
 
       } else {
