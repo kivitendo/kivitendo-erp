@@ -174,10 +174,7 @@ sub store_credentials_in_session {
 sub store_root_credentials_in_session {
   my ($self, $rpw) = @_;
 
-  $rpw = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $rpw)
-    unless $self->{authenticator}->requires_cleartext_password;
-
-  $self->set_session_value(rpw => $rpw);
+  $self->set_session_value(rpw => SL::Auth::Password->hash_if_unhashed(login => 'root', password => $rpw));
 }
 
 sub dbconnect {
