@@ -44,8 +44,6 @@ use SL::DB::Inventory;
 use SL::DB::Invoice;
 use SL::DB::InvoiceItem;
 use SL::DB::Language;
-use SL::DB::License;
-use SL::DB::LicenseInvoice;
 use SL::DB::MakeModel;
 use SL::DB::Note;
 use SL::DB::Order;

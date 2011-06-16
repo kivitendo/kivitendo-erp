@@ -73,7 +73,6 @@ dbcharset = UTF-8
 [features]
 # Activate certain optional features and modules.
 webdav = 0
-lizenzen = 1
 vertreter = 0
 
 # Show fields used for the best before date

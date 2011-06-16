@@ -855,7 +855,6 @@ sub all_rights_full {
     ["customer_vendor_edit",           $locale->text("Create and edit customers and vendors")],
     ["part_service_assembly_edit",     $locale->text("Create and edit parts, services, assemblies")],
     ["project_edit",                   $locale->text("Create and edit projects")],
-    ["license_edit",                   $locale->text("Manage license keys")],
     ["--ar",                           $locale->text("AR")],
     ["sales_quotation_edit",           $locale->text("Create and edit sales quotations")],
     ["sales_order_edit",               $locale->text("Create and edit sales orders")],

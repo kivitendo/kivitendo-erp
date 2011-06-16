@@ -148,7 +148,6 @@ sub display_row {
     {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
     {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
     {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
-    {  id => 'license',       width => 10,    value => $locale->text('License'),              display => 0, },
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
     {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
@@ -499,8 +498,6 @@ sub item_selected {
        income_accno expense_accno bin unit weight assembly taxaccounts
        partsgroup formel longdescription not_discountable partnotes lastcost
        price_factor_id price_factor);
-
-  push @new_fields, 'lizenzen' if $::lx_office_conf{features}->{lizenzen};
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
   push @new_fields, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
@@ -1791,50 +1788,6 @@ sub ship_to {
 </body>
 </html>
 |;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub new_license {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-
-  _check_io_auth();
-
-  my $row = shift;
-
-  # change callback
-  $form->{old_callback} = $form->escape($form->{callback}, 1);
-  $form->{callback} = $form->escape("$form->{script}?action=display_form", 1);
-  $form->{old_callback} = $form->escape($form->{old_callback}, 1);
-
-  # delete action
-  delete $form->{action};
-  my $customer = $form->{customer};
-  map { $form->{"old_$_"} = $form->{"${_}_$row"} } qw(partnumber description);
-
-  # save all other form variables in a previousform variable
-  $form->{row} = $row;
-  my $previousform;
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-
-    # escape ampersands
-    $form->{$key} =~ s/&/%26/g;
-    $previousform .= qq|$key=$form->{$key}&|;
-  }
-  chop $previousform;
-  $previousform = $form->escape($previousform, 1);
-
-  $form->{script} = "licenses.pl";
-
-  map { $form->{$_} = $form->{"old_$_"} } qw(partnumber description);
-  map { $form->{$_} = $form->escape($form->{$_}, 1) }
-    qw(partnumber description);
-  $form->{callback} =
-    qq|$form->{script}?action=add&vc=$form->{db}&$form->{db}_id=$form->{id}&$form->{db}=$form->{name}&type=$form->{type}&customer=$customer&partnumber=$form->{partnumber}&description=$form->{description}&previousform="$previousform"&initial=1|;
-  $form->redirect;
 
   $main::lxdebug->leave_sub();
 }

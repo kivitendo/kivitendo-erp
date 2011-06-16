@@ -148,7 +148,7 @@ sub invoice_details {
 
   my @arrays =
     qw(runningnumber number description longdescription qty ship unit bin
-       deliverydate_oe ordnumber_oe transdate_oe licensenumber validuntil
+       deliverydate_oe ordnumber_oe transdate_oe validuntil
        partnotes serialnumber reqdate sellprice listprice netprice
        discount p_discount discount_sub nodiscount_sub
        linetotal  nodiscount_linetotal tax_rate projectnumber projectdescription
@@ -214,22 +214,7 @@ sub invoice_details {
       push @{ $form->{TEMPLATE_ARRAYS}->{price_factor_name} }, $price_factor->{description};
       push @{ $form->{TEMPLATE_ARRAYS}->{partsgroup} },        $form->{"partsgroup_$i"};
       push @{ $form->{TEMPLATE_ARRAYS}->{reqdate} },           $form->{"reqdate_$i"};
-
-      if ($form->{lizenzen}) {
-        if ($form->{"licensenumber_$i"}) {
-          $query = qq|SELECT licensenumber, validuntil FROM license WHERE id = ?|;
-          my ($licensenumber, $validuntil) = selectrow_query($form, $dbh, $query, conv_i($form->{"licensenumber_$i"}));
-          push(@{ $form->{TEMPLATE_ARRAYS}->{licensenumber} }, $licensenumber);
-          push(@{ $form->{TEMPLATE_ARRAYS}->{validuntil} }, $locale->date($myconfig, $validuntil, 0));
-
-        } else {
-          push(@{ $form->{TEMPLATE_ARRAYS}->{licensenumber} }, "");
-          push(@{ $form->{TEMPLATE_ARRAYS}->{validuntil} },    "");
-        }
-      }
-
-      # listprice
-      push(@{ $form->{TEMPLATE_ARRAYS}->{listprice} }, $form->{"listprice_$i"});
+      push(@{ $form->{TEMPLATE_ARRAYS}->{listprice} },         $form->{"listprice_$i"});
 
       my $sellprice     = $form->parse_amount($myconfig, $form->{"sellprice_$i"});
       my ($dec)         = ($sellprice =~ /\.(\d+)/);
@@ -739,14 +724,6 @@ sub post_invoice {
                  conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                  conv_i($form->{"marge_price_factor_$i"}));
       do_query($form, $dbh, $query, @values);
-
-      if ($form->{lizenzen} && $form->{"licensenumber_$i"}) {
-        $query =
-          qq|INSERT INTO licenseinvoice (trans_id, license_id)
-             VALUES ((SELECT id FROM invoice WHERE trans_id = ? ORDER BY oid DESC LIMIT 1), ?)|;
-        @values = (conv_i($form->{"id"}), conv_i($form->{"licensenumber_$i"}));
-        do_query($form, $dbh, $query, @values);
-      }
 
       CVar->save_custom_variables(module       => 'IC',
                                   sub_module   => 'invoice',
@@ -1359,14 +1336,6 @@ sub reverse_invoice {
   my @values = (conv_i($form->{id}));
   do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, @values);
   do_query($form, $dbh, qq|DELETE FROM invoice WHERE trans_id = ?|, @values);
-
-  if ($form->{lizenzen}) {
-    $query =
-      qq|DELETE FROM licenseinvoice
-         WHERE trans_id in (SELECT id FROM invoice WHERE trans_id = ?)|;
-    do_query($form, $dbh, $query, @values);
-  }
-
   do_query($form, $dbh, qq|DELETE FROM shipto WHERE (trans_id = ?) AND (module = 'AR')|, @values);
 
   $main::lxdebug->leave_sub();
@@ -1581,12 +1550,6 @@ sub retrieve_invoice {
           $form->{taxaccounts} .= "$ptr->{accno} ";
         }
 
-      }
-
-      if ($form->{lizenzen}) {
-        $query = qq|SELECT l.licensenumber, l.id AS licenseid FROM license l, licenseinvoice li WHERE l.id = li.license_id AND li.trans_id = ?|;
-        my ($licensenumber, $licenseid) = selectrow_query($form, $dbh, $query, conv_i($ref->{invoice_pos}));
-        $ref->{lizenzen} = "<option value=\"$licenseid\">$licensenumber</option>";
       }
 
       $ref->{qty} *= -1 if $form->{type} eq "credit_note";
@@ -1943,20 +1906,6 @@ sub retrieve_item {
     $ref->{onhand} *= 1;
 
     push @{ $form->{item_list} }, $ref;
-
-    if ($form->{lizenzen}) {
-      if ($ref->{inventory_accno} > 0) {
-        $query =
-          qq|SELECT l.*
-             FROM license l
-             WHERE l.parts_id = ? AND NOT l.id IN (SELECT li.license_id FROM licenseinvoice li)|;
-        my $stw = prepare_execute_query($form, $dbh, $query, conv_i($ref->{id}));
-        while (my $ptr = $stw->fetchrow_hashref('NAME_lc')) {
-          push @{ $form->{LIZENZEN}{ $ref->{id} } }, $ptr;
-        }
-        $stw->finish;
-      }
-    }
   }
   $sth->finish;
   $_->[1]->finish for @translation_queries;

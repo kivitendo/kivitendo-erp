@@ -134,7 +134,6 @@ sub invoice_links {
 
   # create links
   $form->{webdav}   = $::lx_office_conf{features}->{webdav};
-  $form->{lizenzen} = $::lx_office_conf{features}->{lizenzen};
 
   $form->create_links("AR", \%myconfig, "customer");
 
@@ -561,16 +560,6 @@ sub update {
         map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces) } qw(sellprice listprice lastcost);
 
         $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
-
-        if ($::lx_office_conf{features}->{lizenzen}) {
-          if ($form->{"inventory_accno_$i"} ne "") {
-            $form->{"lizenzen_$i"} = qq|<option></option>|;
-            foreach my $item (@{ $form->{LIZENZEN}{ $form->{"id_$i"} } }) {
-              $form->{"lizenzen_$i"} .= qq|<option value="$item->{"id"}">$item->{"licensenumber"}</option>|;
-            }
-            $form->{"lizenzen_$i"} .= qq|<option value=-1>Neue Lizenz</option>|;
-          }
-        }
 
         # get pricegroups for parts
         IS->get_pricegroups_for_parts(\%myconfig, \%$form);

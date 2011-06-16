@@ -819,7 +819,6 @@ sub _prepare_html_template {
 
   $additional_params->{"conf_dbcharset"}              = $::lx_office_conf{system}->{dbcharset};
   $additional_params->{"conf_webdav"}                 = $::lx_office_conf{features}->{webdav};
-  $additional_params->{"conf_lizenzen"}               = $::lx_office_conf{features}->{lizenzen};
   $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
   $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
   $additional_params->{"conf_vertreter"}              = $::lx_office_conf{features}->{vertreter};

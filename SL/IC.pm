@@ -671,7 +671,7 @@ sub delete {
 
   my %columns = ( "assembly" => "id", "parts" => "id" );
 
-  for my $table (qw(prices partstax makemodel inventory assembly license translation parts)) {
+  for my $table (qw(prices partstax makemodel inventory assembly translation parts)) {
     my $column = defined($columns{$table}) ? $columns{$table} : "parts_id";
     do_query($form, $dbh, qq|DELETE FROM $table WHERE $column = ?|, @values);
   }
