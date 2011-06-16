@@ -364,7 +364,7 @@ sub form_header {
     title creditlimit creditremaining tradediscount business closedto locked shipped storno storno_id
     max_dunning_level dunning_amount
     shiptoname shiptostreet shiptozipcode shiptocity shiptocountry  shiptocontact shiptophone shiptofax
-    shiptoemail shiptodepartment_1 shiptodepartment_2 message email subject cc bcc taxaccounts cursor_fokus
+    shiptoemail shiptodepartment_1 shiptodepartment_2  shiptocp_gender message email subject cc bcc taxaccounts cursor_fokus
     convert_from_do_ids convert_from_oe_ids
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
