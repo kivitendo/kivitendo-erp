@@ -250,7 +250,7 @@ sub save_account {
 
     # if charttype is heading make sure certain values are empty
     # specifically, if charttype is changed from an existing account, empty the
-    # fields unnecessary for headings, so that e.g. heading doesn't appear in 
+    # fields unnecessary for headings, so that e.g. heading doesn't appear in
     # drop-down menues due to still having a valid "link" entry
 
     if ( $form->{charttype} eq 'H' ) {
@@ -472,110 +472,6 @@ sub delete_account {
   $main::lxdebug->leave_sub();
 
   return $rc;
-}
-
-sub departments {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $query = qq|SELECT d.id, d.description, d.role
-                 FROM department d
-                 ORDER BY 2|;
-
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  $form->{ALL} = [];
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    push @{ $form->{ALL} }, $ref;
-  }
-
-  $sth->finish;
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub get_department {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $query = qq|SELECT d.description, d.role
-                 FROM department d
-                 WHERE d.id = ?|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute($form->{id}) || $form->dberror($query . " ($form->{id})");
-
-  my $ref = $sth->fetchrow_hashref("NAME_lc");
-
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  $sth->finish;
-
-  # see if it is in use
-  $query = qq|SELECT count(*) FROM dpt_trans d
-              WHERE d.department_id = ?|;
-  ($form->{orphaned}) = selectrow_query($form, $dbh, $query, $form->{id});
-
-  $form->{orphaned} = !$form->{orphaned};
-  $sth->finish;
-
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub save_department {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-  my ($query);
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my @values = ($form->{description}, $form->{role});
-  if ($form->{id}) {
-    $query = qq|UPDATE department SET
-                description = ?, role = ?
-                WHERE id = ?|;
-    push(@values, $form->{id});
-  } else {
-    $query = qq|INSERT INTO department
-                (description, role)
-                VALUES (?, ?)|;
-  }
-  do_query($form, $dbh, $query, @values);
-
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub delete_department {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-  my ($query);
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  $query = qq|DELETE FROM department
-              WHERE id = ?|;
-  do_query($form, $dbh, $query, $form->{id});
-
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
 }
 
 sub lead {

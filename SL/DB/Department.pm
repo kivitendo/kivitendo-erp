@@ -1,13 +1,27 @@
-# This file has been auto-generated only because it didn't exist.
-# Feel free to modify it at will; it will not be overwritten automatically.
-
 package SL::DB::Department;
 
 use strict;
 
 use SL::DB::MetaSetup::Department;
+use SL::DB::Manager::Department;
 
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
+use SL::DB::DptTrans;
+
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The description is missing.') if !$self->description;
+
+  return @errors;
+}
+
+sub is_used {
+  my ($self) = @_;
+
+  return undef if !$self->id;
+  my $is_used = SL::DB::Manager::DptTrans->find_by(department_id => $self->id);
+  return !!$is_used;
+}
 
 1;

@@ -1,0 +1,42 @@
+[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %]
+[% SET is_used = SELF.department.is_used %]
+<body>
+
+ <form method="post" action="controller.pl">
+  <div class="listtop">[% FORM.title %]</div>
+
+[%- INCLUDE 'common/flash.html' %]
+
+  <table>
+   <tr>
+    <td>[%- 'Description' | $T8 %]</td>
+    <td>[% L.input_tag("department.description", SELF.department.description) %]</td>
+   </tr>
+
+   <tr>
+    <td valign="top">[%- 'Type' | $T8 %]</td>
+    <td valign="top">
+     [%- IF is_used %]
+      [% L.hidden_tag("role", SELF.department.role) %]
+      [%- IF SELF.department.role == "C" %][%- LxERP.t8('Cost Center') %][%- ELSE %][%- LxERP.t8('Profit Center') %][%- END %]
+     [%- ELSE %]
+      [% L.radio_button_tag("department.role", "value", "C", "label", LxERP.t8("Cost Center"), "checked", SELF.department.role == "C") %]
+      <br>
+      [% L.radio_button_tag("department.role", "value", "P", "label", LxERP.t8("Profit Center"), "checked", SELF.department.role == "P") %]
+     [%- END %]
+    </td>
+   </tr>
+  </table>
+
+  <p>
+   [% L.hidden_tag("id", SELF.department.id) %]
+   [% L.hidden_tag("action", "Department/dispatch") %]
+   <input type="submit" class="submit" name="action_[% IF SELF.department.id %]update[% ELSE %]create[% END %]" value="[% 'Save' | $T8 %]">
+   [%- IF SELF.department.id && !is_used %]
+    [% L.submit_tag("action_destroy", LxERP.t8("Delete"), "confirm", LxERP.t8("Are you sure you want to delete this department?")) %]
+   [%- END %]
+   <a href="[% SELF.url_for(action => 'list') %]">[%- 'Abort' | $T8 %]</a>
+  </p>
+ </form>
+</body>
+</html>
