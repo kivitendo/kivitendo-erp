@@ -14,7 +14,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('load_payment_term', only => [ qw(         edit        update destroy move_up move_down) ]);
+__PACKAGE__->run_before('load_payment_term', only => [ qw(         edit        update destroy) ]);
 __PACKAGE__->run_before('load_languages',    only => [ qw(new list edit create update) ]);
 
 #
