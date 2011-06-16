@@ -1615,182 +1615,40 @@ sub post_as_new {
 sub ship_to {
   $main::lxdebug->enter_sub();
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
-
   _check_io_auth();
 
-  if ($form->{second_run}) {
-    $form->{print_and_post} = 0;
-  }
+  $::form->{print_and_post} = 0 if $::form->{second_run};
 
-  my $title = $form->{title};
-  $form->{title} = $locale->text('Ship to');
+  map { $::form->{$_} = $::form->parse_amount(\%::myconfig, $::form->{$_}) } qw(exchangerate creditlimit creditremaining);
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-    qw(exchangerate creditlimit creditremaining);
-
-  my @shipto_vars =
-    qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry
-       shiptocontact shiptocp_gender shiptophone shiptofax shiptoemail
-       shiptodepartment_1 shiptodepartment_2);
-
-  my @addr_vars =
-    (qw(name department_1 department_2 street zipcode city country
-        contact email phone fax));
-
-  # get details for name
-  call_sub("$form->{vc}_details", @addr_vars);
-
-  my $number =
-    ($form->{vc} eq 'customer')
-    ? $locale->text('Customer Number')
-    : $locale->text('Vendor Number');
-
-  # sieht nicht nett aus, funktioniert aber
-  # das vorausgewählte select-feld wird über shiptocp_gender
-  # entsprechend vorbelegt
-  my $selected_m='';
-  my $selected_f='';
-  if ($form->{shiptocp_gender} eq 'm') {
-    $selected_m='selected';
-    $selected_f='';
-  } elsif ($form->{shiptocp_gender} eq 'f') {
-    $selected_m='';
-    $selected_f='selected';
-  }
+  # get details for customer/vendor
+  call_sub($::form->{vc} . "_details", qw(name department_1 department_2 street zipcode city country contact email phone fax), $::form->{vc} . "number");
 
   # get pricegroups for parts
-  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  IS->get_pricegroups_for_parts(\%::myconfig, \%$::form);
 
   # build up html code for prices_$i
-  set_pricegroup($form->{rowcount});
+  set_pricegroup($::form->{rowcount});
 
-  my $nextsub = ($form->{display_form}) ? $form->{display_form} : "display_form";
+  $::form->{rowcount}--;
 
-  $form->{rowcount}--;
+  my @shipto_vars   = qw(shiptoname shiptostreet shiptozipcode shiptocity shiptocountry
+                         shiptocontact shiptocp_gender shiptophone shiptofax shiptoemail
+                         shiptodepartment_1 shiptodepartment_2);
+  my $previous_form = $::auth->save_form_in_session(skip_keys => [ @shipto_vars, qw(header shipto_id) ]);
+  $::form->{title}  = $::locale->text('Ship to');
+  $::form->header;
 
-  $form->header;
-
-  print qq|
-<body>
-
-<form method="post" action="$form->{script}">
-
-<table width="100%">
-  <tr>
-    <td>
-      <table>
-        <tr class="listheading">
-          <th class="listheading" colspan="2" width="50%">|
-    . $locale->text('Billing Address') . qq|</th>
-          <th class="listheading" width="50%">|
-    . $locale->text('Shipping Address') . qq|</th>
-        </tr>
-        <tr height="5"></tr>
-        <tr>
-          <th align="right" nowrap>$number</th>
-          <td>$form->{"$form->{vc}number"}</td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Company Name') . qq|</th>
-          <td>$form->{name}</td>
-          <td><input name="shiptoname" size="35" value="$form->{shiptoname}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
-          <td>$form->{department_1}</td>
-          <td><input name="shiptodepartment_1" size="35" value="$form->{shiptodepartment_1}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>&nbsp;</th>
-          <td>$form->{department_2}</td>
-          <td><input name="shiptodepartment_2" size="35" value="$form->{shiptodepartment_2}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Street') . qq|</th>
-          <td>$form->{street}</td>
-          <td><input name="shiptostreet" size="35" value="$form->{shiptostreet}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Zipcode') . qq|</th>
-          <td>$form->{zipcode}</td>
-          <td><input name="shiptozipcode" size="35" value="$form->{shiptozipcode}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('City') . qq|</th>
-          <td>$form->{city}</td>
-          <td><input name="shiptocity" size="35" value="$form->{shiptocity}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Country') . qq|</th>
-          <td>$form->{country}</td>
-          <td><input name="shiptocountry" size="35" value="$form->{shiptocountry}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Contact') . qq|</th>
-          <td>$form->{contact}</td>
-          <td><input name="shiptocontact" size="35" value="$form->{shiptocontact}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Gender') . qq|</th>
-          <td></td>
-          <td><select id="shiptocp_gender" name="shiptocp_gender">
-              <option value="m"| .  $selected_m . qq|>| . $locale->text('male') . qq|</option>
-              <option value="f"| .  $selected_f . qq|>| . $locale->text('female') . qq|</option>
-              </select>
-          </td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Phone') . qq|</th>
-          <td>$form->{phone}</td>
-          <td><input name="shiptophone" size="20" value="$form->{shiptophone}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('Fax') . qq|</th>
-          <td>$form->{fax}</td>
-          <td><input name="shiptofax" size="20" value="$form->{shiptofax}"></td>
-        </tr>
-        <tr>
-          <th align="right" nowrap>| . $locale->text('E-mail') . qq|</th>
-          <td>$form->{email}</td>
-          <td><input name="shiptoemail" size="35" value="$form->{shiptoemail}"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-| . $cgi->hidden("-name" => "nextsub", "-value" => $nextsub);
-;
-
-
-
-  # delete shipto
-  map({ delete $form->{$_} } (@shipto_vars, qw(header shipto_id)));
-  $form->{title} = $title;
-
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type="hidden" name="$key" value="$form->{$key}">\n|;
-  }
-
-  print qq|
-
-<hr size="3" noshade>
-
-<br>
-<input class="submit" type="submit" name="action" value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
+  print $::form->parse_html_template('io/ship_to', { previousform => $previous_form,
+                                                     nextsub      => $::form->{display_form} || 'display_form',
+                                                   });
 
   $main::lxdebug->leave_sub();
+}
+
+sub ship_to_entered {
+  $::auth->restore_form_from_session(delete $::form->{previousform});
+  call_sub($::form->{nextsub});
 }
 
 sub relink_accounts {
