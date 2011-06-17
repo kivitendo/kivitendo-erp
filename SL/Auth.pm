@@ -673,12 +673,23 @@ sub set_session_value {
   $main::lxdebug->enter_sub();
 
   my $self   = shift;
-  my %params = @_;
+  my @params = @_;
 
   $self->{SESSION} ||= { };
 
-  while (my ($key, $value) = each %params) {
-    $self->{SESSION}->{ $key } = YAML::Dump(ref($value) eq 'HASH' ? { data => $value } : $value);
+  while (@params) {
+    my $key = shift @params;
+
+    if (ref $key eq 'HASH') {
+      my $value = { data         => $key->{value},
+                    auto_restore => $key->{auto_restore},
+                  };
+      $self->{SESSION}->{ $key->{key} } = YAML::Dump($value);
+
+    } else {
+      my $value = shift @params;
+      $self->{SESSION}->{ $key } = YAML::Dump(ref($value) eq 'HASH' ? { data => $value } : $value);
+    }
   }
 
   $main::lxdebug->leave_sub();
@@ -1186,11 +1197,30 @@ SL::Auth - Authentication and session handling
 
 =over 4
 
+=item C<set_session_value @values>
 =item C<set_session_value %values>
 
-Store all key/value pairs in C<%values> in the session. All of these
-values are copied back into C<$::form> in the next request
-automatically.
+Store all values of C<@values> or C<%values> in the session. Each
+member of C<@values> is tested if it is a hash reference. If it is
+then it must contain the keys C<key> and C<value> and can optionally
+contain the key C<auto_restore>. In this case C<value> is associated
+with C<key> and restored to C<$::form> upon the next request
+automatically if C<auto_restore> is trueish or if C<value> is a scalar
+value.
+
+If the current member of C<@values> is not a hash reference then it
+will be used as the C<key> and the next entry of C<@values> is used as
+the C<value> to store. In this case setting C<auto_restore> is not
+possible.
+
+Therefore the following two invocations are identical:
+
+  $::auth-E<gt>set_session_value(name =E<gt> "Charlie");
+  $::auth-E<gt>set_session_value({ key =E<gt> "name", value =E<gt> "Charlie" });
+
+All of these values are copied back into C<$::form> for the next
+request automatically if they're scalar values or if they have
+C<auto_restore> set to trueish.
 
 The values can be any Perl structure. They are stored as YAML dumps.
 
