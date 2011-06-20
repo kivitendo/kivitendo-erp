@@ -802,14 +802,16 @@ sub retrieve {
     $sth = prepare_execute_query($form, $dbh, $query, @values);
 
     $ref = $sth->fetchrow_hashref("NAME_lc");
-    map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-    $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ?
-                                         "quonumber" : "ordnumber"};
+    if ($ref) {
+      map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-    # set all entries for multiple ids blank that yield different information
-    while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
-      map { $form->{$_} = '' if ($ref->{$_} ne $form->{$_}) } keys %$ref;
+      $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber"};
+
+      # set all entries for multiple ids blank that yield different information
+      while ($ref = $sth->fetchrow_hashref("NAME_lc")) {
+        map { $form->{$_} = '' if ($ref->{$_} ne $form->{$_}) } keys %$ref;
+      }
     }
 
     # if not given, fill transdate with current_date
