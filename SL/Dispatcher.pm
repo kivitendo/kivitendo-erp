@@ -164,6 +164,11 @@ sub handle_request {
   $::form        = Form->new;
   %::called_subs = ();
 
+  my $session_result = $::auth->restore_session;
+  $::auth->create_or_refresh_session;
+
+  $::form->read_cgi_input;
+
   eval { ($routing_type, $script_name, $action) = _route_request($script_name); 1; } or return;
 
   if ($routing_type eq 'old') {
@@ -182,9 +187,6 @@ sub handle_request {
 
   eval {
     pre_request_checks();
-
-    my $session_result = $::auth->restore_session;
-    $::auth->create_or_refresh_session;
 
     $::form->error($::locale->text('System currently down for maintenance!')) if -e ($::lx_office_conf{paths}->{userspath} . "/nologin") && $script ne 'admin';
 

@@ -258,6 +258,16 @@ sub new {
 
   bless $self, $type;
 
+  $main::lxdebug->leave_sub();
+
+  return $self;
+}
+
+sub read_cgi_input {
+  $main::lxdebug->enter_sub();
+
+  my ($self) = @_;
+
   $self->_input_to_hash($ENV{QUERY_STRING}) if $ENV{QUERY_STRING};
   $self->_input_to_hash($ARGV[0])           if @ARGV && $ARGV[0];
 
@@ -266,6 +276,12 @@ sub new {
     my $content;
     read STDIN, $content, $ENV{CONTENT_LENGTH};
     $uploads = $self->_request_to_hash($content);
+  }
+
+  if ($self->{RESTORE_FORM_FROM_SESSION_ID}) {
+    my %temp_form;
+    $::auth->restore_form_from_session(delete $self->{RESTORE_FORM_FROM_SESSION_ID}, form => \%temp_form);
+    $self->_input_to_hash(join '&', map { $self->escape($_) . '=' . $self->escape($temp_form{$_}) } keys %temp_form);
   }
 
   my $db_charset   = $::lx_office_conf{system}->{dbcharset};
@@ -994,6 +1010,16 @@ sub write_trigger {
   return $jsscript;
 }    #end sub write_trigger
 
+sub _store_redirect_info_in_session {
+  my ($self) = @_;
+
+  return unless $self->{callback} =~ m:^ ( [^\?/]+ \.pl ) \? (.+) :x;
+
+  my ($controller, $params) = ($1, $2);
+  my $form                  = { map { map { $self->unescape($_) } split /=/, $_, 2 } split m/\&/, $params };
+  $self->{callback}         = "${controller}?RESTORE_FORM_FROM_SESSION_ID=" . $::auth->save_form_in_session(form => $form);
+}
+
 sub redirect {
   $main::lxdebug->enter_sub();
 
@@ -1003,6 +1029,7 @@ sub redirect {
     $self->info($msg);
 
   } else {
+    $self->_store_redirect_info_in_session;
     print $::form->redirect_header($self->{callback});
   }
 
