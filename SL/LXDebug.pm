@@ -331,3 +331,187 @@ sub level_by_name {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+LXDebug - Lx-Office debugging facilities
+
+=head1 SYNOPSIS
+
+This module provides functions for debugging Lx-Office. An instance is
+always created as the global variable C<$::lxdebug> at the earliest
+possible moment.
+
+Debugging is mostly logging of information. Each log function has a
+I<level> and an I<object> to be logged. The configuration file as well
+as this module's functions determine which levels get logged, and
+which file they're logged to.
+
+=head1 LOG LEVELS
+
+The available log levels are:
+
+=over 4
+
+=item C<NONE>
+
+Always output the message regardless of the active levels. Only use
+this temporarily.
+
+=item C<INFO>
+
+Informational, not an error, more important than C<DEBUG1>.
+
+=item C<DEBUG1>
+
+Important debugging information.
+
+=item C<DEBUG2>
+
+Less important debugging information that occurs often and spams the
+log.
+
+=item C<QUERY>
+
+Log all queries executed by the L<SL::DBUtils> utility methods.
+
+=item C<TRACE>
+
+Log sub calls and exits via the L<enter_sub>/L<leave_sub> functions.
+
+=item C<BACKTRACE_ON_ERROR>
+
+Log a stack trace when an error is output.
+
+=item C<REQUEST_TIMER>
+
+Log each request's total execution time when it finishes.
+
+=item C<WARN>
+
+Important warnings.
+
+=item C<ALL>
+
+All of the above.
+
+=item C<DEVEL>
+
+Shortcut for C<INFO | QUERY | TRACE | BACKTRACE_ON_ERROR | REQUEST_TIMER>.
+
+=back
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<enter_sub [$level]>
+
+=item C<leave_sub [$level]>
+
+Pairs of these can be put near the beginning/end of a sub. They'll
+cause a trace to be written to the log file if the C<TRACE> level is
+active.
+
+If C<$level> is given then the log messages will only be logged if an
+additional log level C<$level> is active as well.
+
+=item C<enable_sub_tracing>
+
+=item C<disable_sub_tracing>
+
+Enables/disables sub tracing with L<enter_sub>/L<leave_sub> temporarily.
+
+=item C<is_tracing_enabled>
+
+Returns whether or not the C<TRACE> debug level is active.
+
+=item C<show_backtrace [$force]>
+
+Logs a stack backtrace if C<$force> is trueish or if the log level
+C<BACKTRACE_ON_ERROR> is active.
+
+=item C<message $level, $message>
+
+Logs the message C<$message> if the log level C<$level> is active. The
+message will be prefixed with a word describing the log level.
+
+=item C<warn $message>
+
+Equivalent to C<message WARN(), $message>.
+
+=item C<dump $level, $name, $variable>
+
+Logs a message that the variable named C<$name> is dumped along with a
+dump of the variable C<$variable> created by the L<Data::Dumper>
+module. Will log a warning if said module is not available. Will only
+log if the log level C<$level> is active.
+
+=item C<dump_yaml $level, $name, $variable>
+
+Logs a message that the variable named C<$name> is dumped along with a
+dump of the variable C<$variable> created by the C<YAML> module. Will
+only log if the log level C<$level> is active.
+
+=item C<dump_sql $level, $prefix, $results>
+
+Dumps the result of an SQL query in tabular form. Will only log if the
+log level C<$level> is active.
+
+=item C<show_diff $level, $item1, $item2, %params>
+
+Logs a unified diff of the textual representations of C<$item1> and
+C<$item2>. Requires the module L<Text::Diff> and logs a warning if
+said module is not available.
+
+C<$item1> and C<$item2> are dumped via L<YAML::Dumper> before diffing
+if they're non-scalars.
+
+Will only log if the log level C<$level> is active.
+
+=item C<begin_request>
+
+=item C<end_request>
+
+=item C<log_time>
+
+=item C<set_request_timer>
+
+=item C<want_request_timer>
+
+Internal functions used to log the current request's exeuction time
+(log level C<REQUEST_TIMER>).
+
+=item C<get_request_time>
+
+Returns the current request's elapsed execution time in seconds.
+
+=item C<file [$file_name]>
+
+Sets and/or returns the file name this instance logs to.
+
+=item C<level_by_name $level[, $val]>
+
+Returns if a log level C<$level> is active. C<$level> is a string
+representation, not one of the level constants from above.
+
+If C<$val> is given then said level will be turned on (if C<$val> is
+trueish) or off (if C<$val> is falsish).
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>,
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
+
+=cut
