@@ -881,7 +881,7 @@ sub parse_html_template {
 sub init_template {
   my $self = shift;
 
-  return if $self->template;
+  return $self->template if $self->template;
 
   return $self->template(Template->new({
      'INTERPOLATE'  => 0,
