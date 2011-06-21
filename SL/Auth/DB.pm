@@ -32,15 +32,7 @@ sub authenticate {
   my $login      = shift;
   my $password   = shift;
 
-  my $dbh        = $self->{auth}->dbconnect();
-
-  if (!$dbh) {
-    $main::lxdebug->leave_sub();
-    return ERR_BACKEND;
-  }
-
-  my $query             = qq|SELECT password FROM auth."user" WHERE login = ?|;
-  my ($stored_password) = $dbh->selectrow_array($query, undef, $login);
+  my $stored_password = $self->{auth}->get_stored_password($login);
 
   my ($algorithm, $algorithm2);
 

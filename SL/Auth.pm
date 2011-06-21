@@ -165,8 +165,12 @@ sub authenticate {
 sub store_credentials_in_session {
   my ($self, %params) = @_;
 
-  $params{password} = SL::Auth::Password->hash_if_unhashed(login => $params{login}, password => $params{password})
-    unless $self->{authenticator}->requires_cleartext_password;
+  if (!$self->{authenticator}->requires_cleartext_password) {
+    $params{password} = SL::Auth::Password->hash_if_unhashed(login             => $params{login},
+                                                             password          => $params{password},
+                                                             look_up_algorithm => 1,
+                                                             auth              => $self);
+  }
 
   $self->set_session_value(login => $params{login}, password => $params{password});
 }
@@ -175,6 +179,19 @@ sub store_root_credentials_in_session {
   my ($self, $rpw) = @_;
 
   $self->set_session_value(rpw => SL::Auth::Password->hash_if_unhashed(login => 'root', password => $rpw));
+}
+
+sub get_stored_password {
+  my ($self, $login) = @_;
+
+  my $dbh            = $self->dbconnect;
+
+  return undef unless $dbh;
+
+  my $query             = qq|SELECT password FROM auth."user" WHERE login = ?|;
+  my ($stored_password) = $dbh->selectrow_array($query, undef, $login);
+
+  return $stored_password;
 }
 
 sub dbconnect {

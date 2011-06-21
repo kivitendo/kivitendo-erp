@@ -40,7 +40,15 @@ sub hash_if_unhashed {
 
   my ($algorithm, $password) = $class->parse($params{password}, 'NONE');
 
-  return $algorithm eq 'NONE' ? $class->hash(%params) : $params{password};
+  return $params{password} unless $algorithm eq 'NONE';
+
+  if ($params{look_up_algorithm}) {
+    my $stored_password    = $params{auth}->get_stored_password($params{login});
+    my ($stored_algorithm) = $class->parse($stored_password);
+    $params{algorithm}     = $stored_algorithm;
+  }
+
+  return $class->hash(%params);
 }
 
 sub parse {
