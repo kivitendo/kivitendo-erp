@@ -1045,7 +1045,24 @@ sub delete_shipto {
   my %myconfig  = %main::myconfig;
   my $dbh       = $form->get_standard_dbh(\%myconfig);
 
-  do_query($form, $dbh, qq|UPDATE contacts SET cp_cv_id = NULL WHERE cp_id = ?|, $shipto_id);
+  do_query($form, $dbh, qq|UPDATE shipto SET trans_id = NULL WHERE shipto_id = ?|, $shipto_id);
+
+  $dbh->commit();
+
+  $main::lxdebug->leave_sub();
+}
+
+sub delete_contact {
+  $main::lxdebug->enter_sub();
+
+  my $self      = shift;
+  my $cp_id     = shift;
+
+  my $form      = $main::form;
+  my %myconfig  = %main::myconfig;
+  my $dbh       = $form->get_standard_dbh(\%myconfig);
+
+  do_query($form, $dbh, qq|UPDATE contacts SET cp_cv_id = NULL WHERE cp_id = ?|, $cp_id);
 
   $dbh->commit();
 

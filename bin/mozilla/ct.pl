@@ -717,7 +717,7 @@ sub delete_contact {
   CT->get_contact(\%myconfig, \%$form);
 
   unless ($form->{cp_used}) {
-    CT->delete_shipto($form->{cp_id});
+    CT->delete_contact($form->{cp_id});
     @$form{ grep /^cp_/, keys %$form } = undef;
   }
 
