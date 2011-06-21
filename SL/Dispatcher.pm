@@ -227,6 +227,7 @@ sub handle_request {
     1;
   } or do {
     if ($EVAL_ERROR ne END_OF_REQUEST) {
+      print STDERR $EVAL_ERROR;
       $::form->{label_error} = $::cgi->pre($EVAL_ERROR);
       eval { show_error('generic/error') };
     }
