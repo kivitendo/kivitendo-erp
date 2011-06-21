@@ -393,8 +393,14 @@ sub can_change_password {
 sub change_password {
   $main::lxdebug->enter_sub();
 
-  my $self   = shift;
-  my $result = $self->{authenticator}->change_password(@_);
+  my ($self, $login, $new_password) = @_;
+
+  my $result = $self->{authenticator}->change_password($login, $new_password);
+
+  $self->store_credentials_in_session(login             => $login,
+                                      password          => $new_password,
+                                      look_up_algorithm => 1,
+                                      auth              => $self);
 
   $main::lxdebug->leave_sub();
 
