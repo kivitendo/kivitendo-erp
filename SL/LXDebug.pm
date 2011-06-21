@@ -21,7 +21,7 @@ use YAML;
 
 use strict;
 
-my $data_dumper_available;
+my ($data_dumper_available, $text_diff_available);
 
 our $global_level;
 our $watch_form;
@@ -217,6 +217,24 @@ sub dump_sql_result {
     $self->message($level, $prefix . sprintf($format, map { $row->{$_} } @sorted_names));
   }
   $self->message($level, $prefix . sprintf('(%d row%s)', scalar @{ $results }, scalar @{ $results } > 1 ? 's' : ''));
+}
+
+sub show_diff {
+  my ($self, $level, $item1, $item2, %params) = @_;
+
+  if (!$self->_load_text_diff) {
+    $self->warn("Perl module Text::Diff is not available");
+    return;
+  }
+
+  my @texts = map { ref $_ ? YAML::Dump($_) : $_ } ($item1, $item2);
+
+  $self->message($level, Text::Diff::diff(\$texts[0], \$texts[1], \%params));
+}
+
+sub _load_text_diff {
+  $text_diff_available = eval("use Text::Diff (); 1;") ? 1 : 0 unless defined $text_diff_available;
+  return $text_diff_available;
 }
 
 sub enable_sub_tracing {
