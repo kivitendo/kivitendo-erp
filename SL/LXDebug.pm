@@ -406,6 +406,83 @@ Shortcut for C<INFO | QUERY | TRACE | BACKTRACE_ON_ERROR | REQUEST_TIMER>.
 
 =back
 
+=head1 CONFIGURATION
+
+C<SL::LXDebug> gets its configuration from the C<[debug]> section of
+the C<config/lx_office.conf> configuration file. The available options
+are:
+
+=over 4
+
+=item C<global_level>
+
+A string of log level names that should be activated by
+default. Multiple log levels are separated by C<|>.
+
+=item C<watch_form>
+
+A boolean (C<1> or C<0>). Turns on the C<$::form> watch facility. If
+this is enabled then any key inside C<$::form> can be monitored for
+changes. For example:
+
+  # Start watching 'action'
+  $::form->{"Watchdog::action"} = 1;
+  # Stop watching 'invtotal'
+  $::form->{"Watchdog::invtotal"} = 0;
+
+A log message is written when the watchdog is enabled for a variable
+and for each subsequent change. The log message includes the place
+(file name and line number) of the instruction changing the key.
+
+Note that this entails a performance penalty. Also only the keys
+themselves are monitored -- not the references they point to. E.g. the
+following would not trigger a change:
+
+  $::form->{"Watchdog::some_hash"} = 1;
+  # Does not trigger:
+  $::form->{some_hash}->{some_value} = 42;
+  # This does trigger:
+  $::form->{some_hash} = { something => 'else' };
+
+=item C<show_debug_menu>
+
+A boolean (C<1> or C<0>). If turned on then certain debug facilities
+are available from the v1 menu. These include e.g.
+
+=over 6
+
+=item *
+
+restarting the FastCGI process by forcefully exiting after the
+request,
+
+=item *
+
+enabling and disabling function tracing,
+
+=item *
+
+enabling and disabling certain debug levels.
+
+=back
+
+Note that these are only useful if Lx-Office is running as a FastCGI
+application because otherwise the changes would be lost when the
+process exits in a normal CGI environment.
+
+=item C<keep_temp_files>
+
+A boolean (C<1> or C<0>). If turned on then certain temporary files
+are not removed but kept in the C<users> directory. These include the
+temporary files used during printing, e.g. LaTeX files.
+
+=item C<file_name>
+
+The path and file name of the debug log file. Must be a location
+writeable by the web server process.
+
+=back
+
 =head1 FUNCTIONS
 
 =over 4
