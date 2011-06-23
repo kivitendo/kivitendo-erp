@@ -112,6 +112,12 @@ sub login {
   # if we get an error back, bale out
   my $result;
   if (($result = $user->login($form)) <= -1) {
+    if ($result == -3) {
+      show_error('login/auth_db_needs_update');
+      $::auth->destroy_session;
+      ::end_of_request();
+    }
+
     ::end_of_request() if $result == -2;
     login_screen($::locale->text('Incorrect username or password!'));
     ::end_of_request();
@@ -184,6 +190,7 @@ sub show_error {
   print $form->parse_html_template($template);
 
   # $form->parse_html_template('login/auth_db_unreachable');
+  # $form->parse_html_template('login/auth_db_needs_update');
   # $form->parse_html_template('login/authentication_pl_missing');
 
   ::end_of_request();

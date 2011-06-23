@@ -120,6 +120,12 @@ sub login {
 
     $self->create_schema_info_table($form, $dbh);
 
+    my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg', auth => 1)->parse_dbupdate_controls;
+    if ($dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect)) {
+      $::lxdebug->leave_sub;
+      return -3;
+    }
+
     $rc = 0;
 
     my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $myconfig{dbdriver})->parse_dbupdate_controls;
