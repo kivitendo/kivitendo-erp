@@ -70,7 +70,7 @@ sub change_password {
     return ERR_BACKEND;
   }
 
-  $password = SL::Auth::Password->hash(password => $password) unless $is_crypted;
+  $password = SL::Auth::Password->hash(login => $login, password => $password) unless $is_crypted;
 
   do_query($main::form, $dbh, qq|UPDATE auth."user" SET password = ? WHERE login = ?|, $password, $login);
 
