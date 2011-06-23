@@ -8,10 +8,12 @@ use Time::HiRes qw(gettimeofday);
 use List::MoreUtils qw(uniq);
 use YAML;
 
+use SL::Auth::ColumnInformation;
 use SL::Auth::Constants qw(:all);
 use SL::Auth::DB;
 use SL::Auth::LDAP;
 use SL::Auth::Password;
+use SL::Auth::SessionValue;
 
 use SL::SessionFile;
 use SL::User;
@@ -29,9 +31,8 @@ sub new {
 
   bless $self, $type;
 
-  $self->{SESSION} = { };
-
   $self->_read_auth_config();
+  $self->reset;
 
   $main::lxdebug->leave_sub();
 
@@ -41,10 +42,11 @@ sub new {
 sub reset {
   my ($self, %params) = @_;
 
-  $self->{SESSION}          = { };
-  $self->{FULL_RIGHTS}      = { };
-  $self->{RIGHTS}           = { };
-  $self->{unique_counter}   = 0;
+  $self->{SESSION}            = { };
+  $self->{FULL_RIGHTS}        = { };
+  $self->{RIGHTS}             = { };
+  $self->{unique_counter}     = 0;
+  $self->{column_information} = SL::Auth::ColumnInformation->new(auth => $self);
 }
 
 sub get_user_dbh {
@@ -537,45 +539,85 @@ sub restore_session {
     return $cookie ? SESSION_EXPIRED : SESSION_NONE;
   }
 
-  $query = qq|SELECT sess_key, sess_value FROM auth.session_content WHERE session_id = ?|;
-  $sth   = prepare_execute_query($form, $dbh, $query, $session_id);
-
-  while (my $ref = $sth->fetchrow_hashref()) {
-    $self->{SESSION}->{$ref->{sess_key}} = $ref->{sess_value};
-    next if defined $form->{$ref->{sess_key}};
-
-    my $params                = $self->_load_value($ref->{sess_value});
-    $form->{$ref->{sess_key}} = $params->{data} if $params->{auto_restore} || $params->{simple};
+  if ($self->{column_information}->has('auto_restore')) {
+    $self->_load_with_auto_restore_column($dbh, $session_id);
+  } else {
+    $self->_load_without_auto_restore_column($dbh, $session_id);
   }
-
-  $sth->finish();
 
   $main::lxdebug->leave_sub();
 
   return SESSION_OK;
 }
 
-sub _load_value {
-  my ($self, $value) = @_;
+sub _load_without_auto_restore_column {
+  my ($self, $dbh, $session_id) = @_;
 
-  return { simple => 1, data => $value } if $value !~ m/^---/;
+  my $query = <<SQL;
+    SELECT sess_key, sess_value
+    FROM auth.session_content
+    WHERE (session_id = ?)
+SQL
+  my $sth = prepare_execute_query($::form, $dbh, $query, $session_id);
 
-  my %params = ( simple => 1 );
-  eval {
-    my $data = YAML::Load($value);
+  while (my $ref = $sth->fetchrow_hashref) {
+    my $value = SL::Auth::SessionValue->new(auth  => $self,
+                                            key   => $ref->{sess_key},
+                                            value => $ref->{sess_value},
+                                            raw   => 1);
+    $self->{SESSION}->{ $ref->{sess_key} } = $value;
 
-    if (ref $data eq 'HASH') {
-      map { $params{$_} = $data->{$_} } keys %{ $data };
-      $params{simple} = 0;
+    next if defined $::form->{$ref->{sess_key}};
 
-    } else {
-      $params{data}   = $data;
-    }
+    my $data                    = $value->get;
+    $::form->{$ref->{sess_key}} = $data if $value->{auto_restore} || !ref $data;
+  }
+}
 
-    1;
-  } or $params{data} = $value;
+sub _load_with_auto_restore_column {
+  my ($self, $dbh, $session_id) = @_;
 
-  return \%params;
+  my $auto_restore_keys = join ', ', map { "'${_}'" } qw(login password rpw);
+
+  my $query = <<SQL;
+    SELECT sess_key, sess_value, auto_restore
+    FROM auth.session_content
+    WHERE (session_id = ?)
+      AND (   auto_restore
+           OR sess_key IN (${auto_restore_keys}))
+SQL
+  my $sth = prepare_execute_query($::form, $dbh, $query, $session_id);
+
+  while (my $ref = $sth->fetchrow_hashref) {
+    my $value = SL::Auth::SessionValue->new(auth         => $self,
+                                            key          => $ref->{sess_key},
+                                            value        => $ref->{sess_value},
+                                            auto_restore => $ref->{auto_restore},
+                                            raw          => 1);
+    $self->{SESSION}->{ $ref->{sess_key} } = $value;
+
+    next if defined $::form->{$ref->{sess_key}};
+
+    my $data                    = $value->get;
+    $::form->{$ref->{sess_key}} = $data if $value->{auto_restore} || !ref $data;
+  }
+
+  $sth->finish;
+
+  $query = <<SQL;
+    SELECT sess_key
+    FROM auth.session_content
+    WHERE (session_id = ?)
+      AND NOT COALESCE(auto_restore, FALSE)
+      AND (sess_key NOT IN (${auto_restore_keys}))
+SQL
+  $sth = prepare_execute_query($::form, $dbh, $query, $session_id);
+
+  while (my $ref = $sth->fetchrow_hashref) {
+    my $value = SL::Auth::SessionValue->new(auth => $self,
+                                            key  => $ref->{sess_key});
+    $self->{SESSION}->{ $ref->{sess_key} } = $value;
+  }
 }
 
 sub destroy_session {
@@ -665,11 +707,18 @@ sub save_session {
   $dbh->begin_work unless $provided_dbh;
 
   do_query($::form, $dbh, qq|LOCK auth.session_content|);
-  do_query($::form, $dbh, qq|DELETE FROM auth.session_content WHERE session_id = ?|, $session_id);
 
-  my $query = qq|SELECT id FROM auth.session WHERE id = ?|;
+  my @unfetched_keys = map     { $_->{key}        }
+                       grep    { ! $_->{fetched}  }
+                       values %{ $self->{SESSION} };
+  # $::lxdebug->dump(0, "unfetched_keys", [ sort @unfetched_keys ]);
+  # $::lxdebug->dump(0, "all keys", [ sort map { $_->{key} } values %{ $self->{SESSION} } ]);
+  my $query          = qq|DELETE FROM auth.session_content WHERE (session_id = ?)|;
+  $query            .= qq| AND (sess_key NOT IN (| . join(', ', ('?') x scalar @unfetched_keys) . qq|))| if @unfetched_keys;
 
-  my ($id)  = selectrow_query($::form, $dbh, $query, $session_id);
+  do_query($::form, $dbh, $query, $session_id, @unfetched_keys);
+
+  my ($id) = selectrow_query($::form, $dbh, qq|SELECT id FROM auth.session WHERE id = ?|, $session_id);
 
   if ($id) {
     do_query($::form, $dbh, qq|UPDATE auth.session SET mtime = now() WHERE id = ?|, $session_id);
@@ -677,12 +726,25 @@ sub save_session {
     do_query($::form, $dbh, qq|INSERT INTO auth.session (id, ip_address, mtime) VALUES (?, ?, now())|, $session_id, $ENV{REMOTE_ADDR});
   }
 
-  if (%{ $self->{SESSION} }) {
-    my $query = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value) VALUES (?, ?, ?)|;
-    my $sth   = prepare_query($::form, $dbh, $query);
+  my @values_to_save = grep    { $_->{fetched} }
+                       values %{ $self->{SESSION} };
+  if (@values_to_save) {
+    my ($columns, $placeholders) = ('', '');
+    my $auto_restore             = $self->{column_information}->has('auto_restore');
 
-    foreach my $key (sort keys %{ $self->{SESSION} }) {
-      do_statement($::form, $sth, $query, $session_id, $key, $self->{SESSION}->{$key});
+    if ($auto_restore) {
+      $columns      .= ', auto_restore';
+      $placeholders .= ', ?';
+    }
+
+    $query  = qq|INSERT INTO auth.session_content (session_id, sess_key, sess_value ${columns}) VALUES (?, ?, ? ${placeholders})|;
+    my $sth = prepare_query($::form, $dbh, $query);
+
+    foreach my $value (@values_to_save) {
+      my @values = ($value->{key}, $value->get_dumped);
+      push @values, $value->{auto_restore} if $auto_restore;
+
+      do_statement($::form, $sth, $query, $session_id, @values);
     }
 
     $sth->finish();
@@ -704,14 +766,14 @@ sub set_session_value {
     my $key = shift @params;
 
     if (ref $key eq 'HASH') {
-      my $value = { data         => $key->{value},
-                    auto_restore => $key->{auto_restore},
-                  };
-      $self->{SESSION}->{ $key->{key} } = YAML::Dump($value);
+      $self->{SESSION}->{ $key->{key} } = SL::Auth::SessionValue->new(key          => $key->{key},
+                                                                      value        => $key->{value},
+                                                                      auto_restore => $key->{auto_restore});
 
     } else {
       my $value = shift @params;
-      $self->{SESSION}->{ $key } = YAML::Dump(ref($value) eq 'HASH' ? { data => $value } : $value);
+      $self->{SESSION}->{ $key } = SL::Auth::SessionValue->new(key   => $key,
+                                                               value => $value);
     }
   }
 
@@ -736,12 +798,12 @@ sub delete_session_value {
 sub get_session_value {
   $main::lxdebug->enter_sub();
 
-  my $self   = shift;
-  my $params = $self->{SESSION} ? $self->_load_value($self->{SESSION}->{ $_[0] }) : {};
+  my $self = shift;
+  my $data = $self->{SESSION} && $self->{SESSION}->{ $_[0] } ? $self->{SESSION}->{ $_[0] }->get : undef;
 
   $main::lxdebug->leave_sub();
 
-  return $params->{data};
+  return $data;
 }
 
 sub create_unique_sesion_value {
@@ -756,11 +818,7 @@ sub create_unique_sesion_value {
   $self->{unique_counter}++ while exists $self->{SESSION}->{$key . ($self->{unique_counter} + 1)};
   $self->{unique_counter}++;
 
-  $value  = { expiration => $params{expiration} ? ($now[0] + $params{expiration}) * 1000000 + $now[1] : undef,
-              data       => $value,
-            };
-
-  $self->{SESSION}->{$key . $self->{unique_counter}} = YAML::Dump($value);
+  $self->set_session_value($key . $self->{unique_counter} => $value);
 
   return $key . $self->{unique_counter};
 }
@@ -793,27 +851,6 @@ sub restore_form_from_session {
   map { $form->{$_} = $data->{$_} if $clobber || !exists $form->{$_} } keys %{ $data };
 
   return $self;
-}
-
-sub expire_session_keys {
-  my ($self) = @_;
-
-  $self->{SESSION} ||= { };
-
-  my @now = gettimeofday();
-  my $now = $now[0] * 1000000 + $now[1];
-
-  $self->delete_session_value(map  { $_->[0]                                                 }
-                              grep { $_->[1]->{expiration} && ($now > $_->[1]->{expiration}) }
-                              map  { [ $_, $self->_load_value($self->{SESSION}->{$_}) ]      }
-                              keys %{ $self->{SESSION} });
-
-  return $self;
-}
-
-sub _has_expiration {
-  my ($value) = @_;
-  return (ref $value eq 'HASH') && exists($value->{expiration}) && $value->{data};
 }
 
 sub set_cookie_environment_variable {
@@ -1257,16 +1294,7 @@ doesn't exist.
 Create a unique key in the session and store C<$value>
 there.
 
-If C<$params{expiration}> is set then it is interpreted as a number of
-seconds after which the value is removed from the session. It will
-never expire if that parameter is falsish.
-
 Returns the key created in the session.
-
-=item C<expire_session_keys>
-
-Removes all keys from the session that have an expiration time set and
-whose expiration time is in the past.
 
 =item C<save_session>
 

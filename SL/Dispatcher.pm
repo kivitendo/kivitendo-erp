@@ -234,7 +234,7 @@ sub handle_request {
   };
 
   # cleanup
-  $::auth->expire_session_keys->save_session;
+  $::auth->save_session;
   $::auth->expire_sessions;
   $::auth->reset;
 
