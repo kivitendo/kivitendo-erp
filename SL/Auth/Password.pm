@@ -8,24 +8,41 @@ sub hash {
   my ($class, %params) = @_;
 
   if (!$params{algorithm}) {
-    $params{algorithm}          = 'SHA1';
+    $params{algorithm}          = 'SHA256S';
     $params{fallback_algorithm} = 'MD5';
   }
 
-  if ($params{algorithm} eq 'SHA1') {
-    if (eval { require Digest::SHA1; 1 }) {
-      return '{SHA1}' . Digest::SHA1::sha1_hex($params{password});
+
+  my $salt = $params{algorithm} =~ m/S$/ ? $params{login} : '';
+
+  if ($params{algorithm} =~ m/^SHA256/) {
+    if (eval { require Digest::SHA; 1 }) {
+      return '{' . $params{algorithm} . '}' . Digest::SHA::sha256_hex($salt . $params{password});
 
     } elsif ($params{fallback_algorithm}) {
       return $class->hash_password(%params, algorithm => $params{fallback_algorithm});
 
     } else {
-      die 'Digest::SHA1 not available';
+      die 'Digest::SHA is not available';
     }
 
-  } elsif ($params{algorithm} eq 'MD5') {
+  } elsif ($params{algorithm} =~ m/^SHA1/) {
+    if (eval { require Digest::SHA; 1 }) {
+      return '{' . $params{algorithm} . '}' . Digest::SHA::sha1_hex($salt . $params{password});
+
+    } elsif (eval { require Digest::SHA1; 1 }) {
+      return '{' . $params{algorithm} . '}' . Digest::SHA1::sha1_hex($salt . $params{password});
+
+    } elsif ($params{fallback_algorithm}) {
+      return $class->hash_password(%params, algorithm => $params{fallback_algorithm});
+
+    } else {
+      die 'Neither Digest::SHA nor Digest::SHA1 is available';
+    }
+
+  } elsif ($params{algorithm} =~ m/^MD5/) {
     require Digest::MD5;
-    return '{MD5}' . Digest::MD5::md5_hex($params{password});
+    return '{' . $params{algorithm} . '}' . Digest::MD5::md5_hex($salt . $params{password});
 
   } elsif ($params{algorithm} eq 'CRYPT') {
     return '{CRYPT}' . crypt($params{password}, substr($params{login}, 0, 2));
