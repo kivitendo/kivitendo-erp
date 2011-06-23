@@ -815,12 +815,15 @@ sub create_unique_sesion_value {
   my $key                   = "$$-" . ($now[0] * 1000000 + $now[1]) . "-";
   $self->{unique_counter} ||= 0;
 
-  $self->{unique_counter}++ while exists $self->{SESSION}->{$key . ($self->{unique_counter} + 1)};
-  $self->{unique_counter}++;
+  my $hashed_key;
+  do {
+    $self->{unique_counter}++;
+    $hashed_key = md5_hex($key . $self->{unique_counter});
+  } while (exists $self->{SESSION}->{$hashed_key});
 
-  $self->set_session_value($key . $self->{unique_counter} => $value);
+  $self->set_session_value($hashed_key => $value);
 
-  return $key . $self->{unique_counter};
+  return $hashed_key;
 }
 
 sub save_form_in_session {
