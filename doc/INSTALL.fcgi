@@ -93,7 +93,7 @@ Folgendes Template funktioniert mit mod_fastcgi:
     Deny from All
   </DirectoryMatch>
 
-Für mod_fastcgi muss ein AddHandler ergänzt werden und die erste Zeile geändert werden:
+Für mod_fcgid muss ein AddHandler ergänzt werden und die erste Zeile geändert werden:
 
   AddHandler fcgid-script .fpl
   AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
