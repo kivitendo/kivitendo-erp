@@ -203,6 +203,6 @@ Pfaden, unter 0,15 sonst.
 UTF-8 kodierte Installationen sind sehr anfällig gegen fehlerhfate Encodings
 unter FCGI. latin9 Installationen behandeln falsch kodierte Zeichen eher
 unwissend, und geben sie einfach weiter. UTF-8 verweigert bei fehlerhaften
-Programmpfaden kurzerhand aus ausliefern. Es wird noch daran gearbeitet alles
+Programmpfaden kurzerhand das Ausliefern. Es wird noch daran gearbeitet, alle
 Fehler da zu beseitigen.
 
