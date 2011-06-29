@@ -19,6 +19,7 @@
     [<a href='controller.pl?action=DebugMenu/toggle&level=request_timer'>[% IF LXDEBUG.level_by_name('request_timer') %]<b>Timing</b>[% ELSE %]Timing[% END %]</a>]
     [<a href='controller.pl?action=DebugMenu/toggle&level=trace'>[% IF LXDEBUG.level_by_name('trace') %]<b>Trace</b>[% ELSE %]Trace[% END %]</a>]
     [<a href='controller.pl?action=DebugMenu/toggle&level=query'>[% IF LXDEBUG.level_by_name('query') %]<b>Query</b>[% ELSE %]Query[% END %]</a>]
+    [<a href='controller.pl?action=DebugMenu/toggle&level=warn'>[% IF LXDEBUG.level_by_name('warn') %]<b>Warnings</b>[% ELSE %]Warnings[% END %]</a>]
    </td>
 [%- END %]
    <td align="right" nowrap>
