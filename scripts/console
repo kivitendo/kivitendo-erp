@@ -60,11 +60,11 @@ sub lxinit {
 
   package main;
 
-  $::lxdebug = LXDebug->new(file => $debug_file);
-  $::locale = Locale->new($::lx_office_conf{system}->{language});
-  $::cgi    = CGI->new qw();
-  $::form   = Form->new;
-  $::auth   = SL::Auth->new;
+  $::lxdebug       = LXDebug->new(file => $debug_file);
+  $::locale        = Locale->new($::lx_office_conf{system}->{language});
+  $::cgi           = CGI->new qw();
+  $::form          = Form->new;
+  $::auth          = SL::Auth->new;
   $::instance_conf = SL::InstanceConfiguration->new;
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;

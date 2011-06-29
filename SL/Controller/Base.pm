@@ -65,15 +65,15 @@ sub render {
   }
 
   my %params = ( %locals,
-                 AUTH     => $::auth,
-                 FLASH    => $::form->{FLASH},
-                 FORM     => $::form,
+                 AUTH          => $::auth,
+                 FLASH         => $::form->{FLASH},
+                 FORM          => $::form,
                  INSTANCE_CONF => $::instance_conf,
-                 LOCALE   => $::locale,
-                 LXCONFIG => \%::lx_office_conf,
-                 LXDEBUG  => $::lxdebug,
-                 MYCONFIG => \%::myconfig,
-                 SELF     => $self,
+                 LOCALE        => $::locale,
+                 LXCONFIG      => \%::lx_office_conf,
+                 LXDEBUG       => $::lxdebug,
+                 MYCONFIG      => \%::myconfig,
+                 SELF          => $self,
                );
 
   my $output;

@@ -169,10 +169,10 @@ sub handle_request {
 
   $self->unrequire_bin_mozilla;
 
-  $::cgi         = CGI->new('');
-  $::locale      = Locale->new($::lx_office_conf{system}->{language});
-  $::form        = Form->new;
-  %::called_subs = ();
+  $::cgi           = CGI->new('');
+  $::locale        = Locale->new($::lx_office_conf{system}->{language});
+  $::form          = Form->new;
+  %::called_subs   = ();
   $::instance_conf = SL::InstanceConfiguration->new;
 
   my $session_result = $::auth->restore_session;
