@@ -44,6 +44,7 @@ use DateTime;
 use SL::Auth;
 use SL::Form;
 use SL::Helper::DateTime;
+use SL::InstanceConfiguration;
 use SL::Locale;
 use SL::LXDebug;
 use Data::Dumper;
@@ -64,6 +65,7 @@ sub lxinit {
   $::cgi    = CGI->new qw();
   $::form   = Form->new;
   $::auth   = SL::Auth->new;
+  $::instance_conf = SL::InstanceConfiguration->new;
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 
@@ -77,6 +79,7 @@ sub lxinit {
 
   die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode});
 
+  $::instance_conf->init;
 
   return "logged in as $login";
 }

@@ -842,6 +842,7 @@ sub _prepare_html_template {
   $additional_params->{"conf_parts_image_css"}        = $::lx_office_conf{features}->{parts_image_css};
   $additional_params->{"conf_parts_listing_images"}   = $::lx_office_conf{features}->{parts_listing_images};
   $additional_params->{"conf_parts_show_image"}       = $::lx_office_conf{features}->{parts_show_image};
+  $additional_params->{"INSTANCE_CONF"}               = $::instance_conf;
 
   if (%main::debug_options) {
     map { $additional_params->{'DEBUG_' . uc($_)} = $main::debug_options{$_} } keys %main::debug_options;

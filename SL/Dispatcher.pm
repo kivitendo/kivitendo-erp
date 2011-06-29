@@ -23,6 +23,7 @@ use SL::Locale;
 use SL::Common;
 use SL::Form;
 use SL::Helper::DateTime;
+use SL::InstanceConfiguration;
 use SL::Template::Plugin::HTMLFixes;
 
 # Trailing new line is added so that Perl will not add the line
@@ -172,6 +173,7 @@ sub handle_request {
   $::locale      = Locale->new($::lx_office_conf{system}->{language});
   $::form        = Form->new;
   %::called_subs = ();
+  $::instance_conf = SL::InstanceConfiguration->new;
 
   my $session_result = $::auth->restore_session;
   $::auth->create_or_refresh_session;
@@ -219,6 +221,8 @@ sub handle_request {
       delete $::form->{password};
 
       if ($action) {
+        $::instance_conf->init;
+
         map { $::form->{$_} = $::myconfig{$_} } qw(stylesheet charset)
           unless $action eq 'save' && $::form->{type} eq 'preferences';
 
