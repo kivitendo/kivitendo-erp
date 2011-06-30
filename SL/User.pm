@@ -404,6 +404,12 @@ sub dbcreate {
 
   $query = "UPDATE defaults SET coa = ?";
   do_query($form, $dbh, $query, $form->{chart});
+  $query = "UPDATE defaults SET accounting_method = ?";
+  do_query($form, $dbh, $query, $form->{accounting_method});
+  $query = "UPDATE defaults SET profit_determination = ?";
+  do_query($form, $dbh, $query, $form->{profit_determination});
+  $query = "UPDATE defaults SET inventory_system = ?";
+  do_query($form, $dbh, $query, $form->{inventory_system});
 
   $dbh->disconnect;
 

@@ -177,7 +177,10 @@ CREATE TABLE "defaults" (
     itime timestamp without time zone DEFAULT now(),
     mtime timestamp without time zone,
     rmanumber text,
-    cnnumber text
+    cnnumber text,
+    accounting_method text,
+    inventory_system text,
+    profit_determination text
 );
 
 

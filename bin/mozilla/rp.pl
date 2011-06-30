@@ -146,8 +146,8 @@ sub report {
 
   $form->{title} = $locale->text($title{ $form->{report} });
 
-  my $accrual = $::lx_office_conf{system}->{eur} ? ""        : "checked";
-  my $cash    = $::lx_office_conf{system}->{eur} ? "checked" : "";
+  my $accrual =  $::instance_conf->get_accounting_method eq 'cash' ? ""        : "checked";
+  my $cash    =  $::instance_conf->get_accounting_method eq 'cash' ? "checked" : "";
 
   my $year = (localtime)[5] + 1900;
 

@@ -1256,18 +1256,45 @@ sub cogs {
   my $allocated = 0;
   my $qty;
 
+# all invoice entries of an example part:
+
+# id | trans_id | base_qty | allocated | sellprice | inventory_accno | income_accno | expense_accno 
+# ---+----------+----------+-----------+-----------+-----------------+--------------+---------------
+#  4 |        4 |       -5 |         5 |  20.00000 | 1140            | 4400         | 5400     bought 5 for 20
+#  5 |        5 |        4 |        -4 |  50.00000 | 1140            | 4400         | 5400     sold   4 for 50
+#  6 |        6 |        1 |        -1 |  50.00000 | 1140            | 4400         | 5400     sold   1 for 50
+#  7 |        7 |       -5 |         1 |  20.00000 | 1140            | 4400         | 5400     bought 5 for 20
+#  8 |        8 |        1 |        -1 |  50.00000 | 1140            | 4400         | 5400     sold   1 for 50
+
+# AND ((i.base_qty + i.allocated) < 0) filters out all but line with id=7, elsewhere i.base_qty + i.allocated has already reached 0
+# and all parts have been allocated
+
+# so transaction 8 only sees transaction 7 with unallocated parts and adjusts allocated for that transaction, before allocated was 0
+#  7 |        7 |       -5 |         1 |  20.00000 | 1140            | 4400         | 5400     bought 5 for 20
+
+# in this example there are still 4 unsold articles
+
+
+  # search all invoice entries for the part in question, adjusting "allocated"
+  # until the total number of sold parts has been reached
+
+  # ORDER BY trans_id ensures FIFO
+
+
   while (my $ref = $sth->fetchrow_hashref('NAME_lc')) {
     if (($qty = (($ref->{base_qty} * -1) - $ref->{allocated})) > $totalqty) {
       $qty = $totalqty;
     }
 
+    # update allocated in invoice
     $form->update_balance($dbh, "invoice", "allocated", qq|id = $ref->{id}|, $qty);
 
     # total expenses and inventory
     # sellprice is the cost of the item
     my $linetotal = $form->round_amount(($ref->{sellprice} * $qty) / ( ($ref->{price_factor} || 1) * ( $basefactor || 1 )), 2);
 
-    if (!$::lx_office_conf{system}->{eur}) {
+    if ( $::instance_conf->get_inventory_system eq 'perpetual' ) {
+      # Bestandsmethode: when selling parts, deduct their purchase value from the inventory account
       $ref->{expense_accno} = ($form->{"expense_accno_$row"}) ? $form->{"expense_accno_$row"} : $ref->{expense_accno};
       # add to expense
       $form->{amount_cogs}{ $form->{id} }{ $ref->{expense_accno} } += -$linetotal;

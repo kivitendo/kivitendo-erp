@@ -84,7 +84,8 @@ sub chart_of_accounts {
 
   $form->{title} = $locale->text('Chart of Accounts');
 
-  if ($::lx_office_conf{system}->{eur}) {
+  if ( $::instance_conf->get_accounting_method eq 'cash' ) {
+    # $form->{method} can probably be made redundant now that we have get_accounting_method
     $form->{method} = "cash";
   }
 
@@ -177,8 +178,8 @@ sub list {
           <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
         </tr>
 | if $form->{selectdepartment};
-  my $accrual = $::lx_office_conf{system}->{eur} ? ""        : "checked";
-  my $cash    = $::lx_office_conf{system}->{eur} ? "checked" : "";
+  my $accrual =  $::instance_conf->get_accounting_method eq 'cash' ? ""        : "checked";
+  my $cash    =  $::instance_conf->get_accounting_method eq 'cash' ? "checked" : "";
 
   my $name_1    = "fromdate";
   my $id_1      = "fromdate";
@@ -246,7 +247,7 @@ sub list {
 
   $form->{description} =~ s/\"/&quot;/g;
 
-  my $eur = $::lx_office_conf{system}->{eur};
+  my $eur =  $::instance_conf->get_accounting_method eq 'cash' ? 1 : 0;
 
   print qq|
 <body onLoad="$onload">
