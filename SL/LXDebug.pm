@@ -9,8 +9,9 @@ use constant TRACE              =>  1 << 4;
 use constant BACKTRACE_ON_ERROR =>  1 << 5;
 use constant REQUEST_TIMER      =>  1 << 6;
 use constant WARN               =>  1 << 7;
-use constant ALL                => (1 << 8) - 1;
-use constant DEVEL              => INFO | QUERY | TRACE | BACKTRACE_ON_ERROR | REQUEST_TIMER;
+use constant TRACE2             =>  1 << 8;
+use constant ALL                => (1 << 9) - 1;
+use constant DEVEL              => INFO | DEBUG1 | QUERY | TRACE | BACKTRACE_ON_ERROR | REQUEST_TIMER;
 
 use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
@@ -88,7 +89,7 @@ sub enter_sub {
   my $level = shift || 0;
 
   return 1 unless ($global_level & TRACE);          # ignore if traces aren't active
-  return 1 if $level && !($global_level & $level);  # ignore if level of trace isn't active
+  return 1 if $level && !($global_level & TRACE2);  # ignore if level of trace isn't active
 
   my ($package, $filename, $line, $subroutine) = caller(1);
   my ($dummy1, $self_filename, $self_line) = caller(0);
@@ -112,7 +113,7 @@ sub leave_sub {
   my $level = shift || 0;
 
   return 1 unless ($global_level & TRACE);           # ignore if traces aren't active
-  return 1 if $level && !($global_level & $level);   # ignore if level of trace isn't active
+  return 1 if $level && !($global_level & TRACE2);   # ignore if level of trace isn't active
 
   my ($package, $filename, $line, $subroutine) = caller(1);
   my ($dummy1, $self_filename, $self_line) = caller(0);
@@ -382,7 +383,15 @@ Log all queries executed by the L<SL::DBUtils> utility methods.
 
 =item C<TRACE>
 
-Log sub calls and exits via the L<enter_sub>/L<leave_sub> functions.
+Log sub calls and exits via the L<enter_sub>/L<leave_sub> functions,
+but only if they're called with a log level that is falsish
+(e.g. none, C<undef>, 0).
+
+=item C<TRACE2>
+
+Log sub calls and exits via the L<enter_sub>/L<leave_sub> functions
+even if they're called with a log level of 2. Will only have an effect
+if C<TRACE> is set as well.
 
 =item C<BACKTRACE_ON_ERROR>
 
@@ -495,8 +504,8 @@ Pairs of these can be put near the beginning/end of a sub. They'll
 cause a trace to be written to the log file if the C<TRACE> level is
 active.
 
-If C<$level> is given then the log messages will only be logged if an
-additional log level C<$level> is active as well.
+If C<$level> is given then the log messages will only be logged if the
+global log level C<TRACE2> is active as well.
 
 =item C<enable_sub_tracing>
 
