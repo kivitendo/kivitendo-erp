@@ -288,7 +288,7 @@ sub save {
   my ($self, $myconfig, $form) = @_;
   my @values;
   # connect to database, turn off AutoCommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   # save the part
   # make up a unique handle and store in partnumber field
@@ -593,7 +593,6 @@ sub save {
 
   # commit
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 

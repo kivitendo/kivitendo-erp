@@ -236,7 +236,7 @@ sub save_customer {
   $form->{klass} = 0 unless ($form->{klass});
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   map( {
     $form->{"cp_${_}"} = $form->{"selected_cp_${_}"}
@@ -445,7 +445,6 @@ sub save_customer {
                               'always_valid' => 1);
 
   my $rc = $dbh->commit();
-  $dbh->disconnect();
 
   $main::lxdebug->leave_sub();
   return $rc;
