@@ -68,8 +68,9 @@
 <li><a href="#Gruppenmitgliedschaften-verwalten">8.5 Gruppenmitgliedschaften verwalten</a>
 <li><a href="#Migration-alter-Installationen">8.6 Migration alter Installationen</a>
 </li></ul>
-<li><a name="toc_OpenDocument_002dVorlagen" href="#OpenDocument_002dVorlagen">9 OpenDocument-Vorlagen</a>
-<li><a name="toc_Lx_002dOffice-ERP-verwenden" href="#Lx_002dOffice-ERP-verwenden">10 Lx-Office ERP verwenden</a>
+<li><a name="toc_Drucken-mit-Lx_002dOffice" href="#Drucken-mit-Lx_002dOffice">9 Drucken mit Lx-Office</a>
+<li><a name="toc_OpenDocument_002dVorlagen" href="#OpenDocument_002dVorlagen">10 OpenDocument-Vorlagen</a>
+<li><a name="toc_Lx_002dOffice-ERP-verwenden" href="#Lx_002dOffice-ERP-verwenden">11 Lx-Office ERP verwenden</a>
 </li></ul>
 </div>
 
@@ -94,7 +95,8 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
 <li><a accesskey="6" href="#Der-Task_002dServer">Der Task-Server</a>:  Konfiguration und Einrichtung des Task-Server-Dämonen
 <li><a accesskey="7" href="#Benutzerauthentifizierung-und-Administratorpasswort">Benutzerauthentifizierung und Administratorpasswort</a>:  Einrichtung der Authentifizierungsdatenbank und der Passwortüberprüfung
 <li><a accesskey="8" href="#Benutzer_002d-und-Gruppenverwaltung">Benutzer- und Gruppenverwaltung</a>:  Einrichten von Benutzern, Gruppen und Datenbanken
-<li><a accesskey="9" href="#OpenDocument_002dVorlagen">OpenDocument-Vorlagen</a>:  Wichtige Hinweise zum Erstellen und zur Verwendung von Dokumentenvorlagen
+<li><a accesskey="9" href="#Drucken-mit-Lx_002dOffice">Drucken mit Lx-Office</a>:  Voraussetzungen, Einrichtung und Fehlerdiagnose
+<li><a href="#OpenDocument_002dVorlagen">OpenDocument-Vorlagen</a>:  Wichtige Hinweise zum Erstellen und zur Verwendung von Dokumentenvorlagen
 <li><a href="#Lx_002dOffice-ERP-verwenden">Lx-Office ERP verwenden</a>:  Die URLs zur Anmeldung und Administration
 </ul>
 
@@ -839,7 +841,7 @@ sein sollte:
 <a name="Benutzer--und-Gruppenverwaltung"></a>
 <a name="Benutzer_002d-und-Gruppenverwaltung"></a>
 <p><hr>
-n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#OpenDocument_002dVorlagen">OpenDocument-Vorlagen</a>,
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Drucken-mit-Lx_002dOffice">Drucken mit Lx-Office</a>,
 voriges:&nbsp;<a rel="previous" accesskey="p" href="#Benutzerauthentifizierung-und-Administratorpasswort">Benutzerauthentifizierung und Administratorpasswort</a>,
 aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
@@ -1041,16 +1043,63 @@ wieder anmelden und mit dem System arbeiten.
 
 <!--  -->
 <div class="node">
-<a name="OpenDocument-Vorlagen"></a>
-<a name="OpenDocument_002dVorlagen"></a>
+<a name="Drucken-mit-Lx-Office"></a>
+<a name="Drucken-mit-Lx_002dOffice"></a>
 <p><hr>
-n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Lx_002dOffice-ERP-verwenden">Lx-Office ERP verwenden</a>,
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#OpenDocument_002dVorlagen">OpenDocument-Vorlagen</a>,
 voriges:&nbsp;<a rel="previous" accesskey="p" href="#Benutzer_002d-und-Gruppenverwaltung">Benutzer- und Gruppenverwaltung</a>,
 aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">9 OpenDocument-Vorlagen</h2>
+<h2 class="chapter">9 Drucken mit Lx-Office</h2>
+
+<p>Das Drucksystem von Lx-Office benutzt von Haus aus LaTeX Vorlagen. Um drucken
+zu können, braucht der Server ein geeignetes LaTeX System. Am einfachsten ist
+dazu eine <code>texlive</code> Installation. Unter Debianoiden Betriebssystemen sind
+das die Pakete:
+
+   <p><code>texlive-latex-base texlive-latex-extra texlive-fonts-recommended</code>
+
+   <p>Diese hinteren beiden enthalten Bibliotheken und Schriftarten die von den
+Standardvorlagen verwendet werden.
+
+   <p>TODO: rpm Pakete.
+
+   <p>In den allermeisten Installationen sollte drucken jetzt schon funktionieren. 
+Sollte ein Fehler auftreten wirft TeX sehr lange Fehlerbeschreibungen, der
+eigentliche Fehler ist immer die erste Zeite die mit einem Ausrufezeichen
+anfängt. Häufig auftretende Fehler sind zum Beispiel:
+
+     <ul>
+<li>! LaTeX Error: File `eurosym.sty' not found. 
+Die entsprechende LaTeX-Bibliothek wurde nicht gefunden. Das tritt vor allem
+bei Vorlagen aus der Community auf. Installieren Sie die entsprechenden Pakete. 
+<li>! Package inputenc Error: Unicode char \u8:æ¡ not set up for use with LaTeX. 
+Dieser Fehler tritt auf, wenn sie versuchen mit einer Standardinstallation
+exotische utf8 Zeichen zu drucken. TeXLive unterstützt von Haus nur romanische
+Schriften und muss mit diversen Tricks dazu gebracht werden andere Zeichen zu
+akzeptieren. Adere TeX Systeme wie XeTeX schaffen hier Abhilfe. 
+</ul>
+
+   <p>Wird garkein Fehler angezeigt sondern nur der Name des Templates, heißt das
+normalerweise, dass das LaTeX Binary nicht gefunden wurde. Prüfen Sie den Namen
+in der Konfiguration (Standard: <code>pdflatex</code>), und stellen Sie sicher, dass
+pdflatex (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
+darf.
+
+<!--  -->
+<div class="node">
+<a name="OpenDocument-Vorlagen"></a>
+<a name="OpenDocument_002dVorlagen"></a>
+<p><hr>
+n&auml;chstes:&nbsp;<a rel="next" accesskey="n" href="#Lx_002dOffice-ERP-verwenden">Lx-Office ERP verwenden</a>,
+voriges:&nbsp;<a rel="previous" accesskey="p" href="#Drucken-mit-Lx_002dOffice">Drucken mit Lx-Office</a>,
+aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">10 OpenDocument-Vorlagen</h2>
 
 <p>Lx-Office unterstützt die Verwendung von Vorlagen im
 OpenDocument-Format, wie es OpenOffice.org ab Version 2
@@ -1122,7 +1171,7 @@ aufw&auml;rts:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
 
 </div>
 
-<h2 class="chapter">10 Lx-Office ERP verwenden</h2>
+<h2 class="chapter">11 Lx-Office ERP verwenden</h2>
 
 <p>Nach erfolgreicher Installation ist der Loginbildschirm unter
 folgender URL erreichbar:
