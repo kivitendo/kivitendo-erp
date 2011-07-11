@@ -1425,6 +1425,14 @@ sub ar_transactions {
   if ($form->{open}) {
     push @options, $locale->text('Open');
   }
+  if ($form->{employee_id}) {
+    my $employee = SL::DB::Employee->new(id => $form->{employee_id})->load;
+    push @options, $locale->text('Employee') . ' : ' . $employee->name;
+  }
+  if ($form->{salesman_id}) {
+    my $salesman = SL::DB::Employee->new(id => $form->{salesman_id})->load;
+    push @options, $locale->text('Salesman') . ' : ' . $salesman->name;
+  }
   if ($form->{closed}) {
     push @options, $locale->text('Closed');
   }
