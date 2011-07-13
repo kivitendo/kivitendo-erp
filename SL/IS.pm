@@ -687,10 +687,10 @@ sub post_invoice {
 
         if ($form->{"assembly_$i"}) {
           # record assembly item as allocated
-          &process_assembly($dbh, $form, $form->{"id_$i"}, $baseqty);
+          &process_assembly($dbh, $myconfig, $form, $form->{"id_$i"}, $baseqty);
 
         } else {
-          $allocated = &cogs($dbh, $form, $form->{"id_$i"}, $baseqty, $basefactor, $i);
+          $allocated = &cogs($dbh, $myconfig, $form, $form->{"id_$i"}, $baseqty, $basefactor, $i);
         }
       }
 
@@ -1185,7 +1185,7 @@ sub post_payment {
 sub process_assembly {
   $main::lxdebug->enter_sub();
 
-  my ($dbh, $form, $id, $totalqty) = @_;
+  my ($dbh, $myconfig, $form, $id, $totalqty) = @_;
 
   my $query =
     qq|SELECT a.parts_id, a.qty, p.assembly, p.partnumber, p.description, p.unit,
@@ -1206,11 +1206,11 @@ sub process_assembly {
     $ref->{qty} *= $totalqty;
 
     if ($ref->{assembly}) {
-      &process_assembly($dbh, $form, $ref->{parts_id}, $ref->{qty});
+      &process_assembly($dbh, $myconfig, $form, $ref->{parts_id}, $ref->{qty});
       next;
     } else {
       if ($ref->{inventory_accno_id}) {
-        $allocated = &cogs($dbh, $form, $ref->{parts_id}, $ref->{qty});
+        $allocated = &cogs($dbh, $myconfig, $form, $ref->{parts_id}, $ref->{qty});
       }
     }
 
@@ -1231,7 +1231,10 @@ sub process_assembly {
 sub cogs {
   $main::lxdebug->enter_sub();
 
-  my ($dbh, $form, $id, $totalqty, $basefactor, $row) = @_;
+  # adjust allocated in table invoice according to FIFO princicple
+  # for a certain part with part_id $id
+
+  my ($dbh, $myconfig, $form, $id, $totalqty, $basefactor, $row) = @_;
 
   $basefactor ||= 1;
 
