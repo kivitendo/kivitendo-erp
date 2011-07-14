@@ -35,14 +35,14 @@ is($o->reqdate_as_date, '11.12.2007');
 $o->reqdate(DateTime->new(year => 2010, month => 4, day => 12));
 is($o->reqdate_as_date, '12.04.2010');
 
-is($o->marge_percent_as_percent('40'), '40');
+is($o->marge_percent_as_percent('40'), '40,00');
 is($o->marge_percent, 0.40);
-is($o->marge_percent_as_percent, '40');
+is($o->marge_percent_as_percent, '40,00');
 is($o->marge_percent_as_percent('22,4'), '22,40');
 is($o->marge_percent, 0.224);
-is($o->marge_percent_as_percent, '22');
+is($o->marge_percent_as_percent, '22,40');
 is($o->marge_percent(0.231), 0.231);
-is($o->marge_percent_as_percent, '23');
+is($o->marge_percent_as_percent, '23,10');
 
 # overloaded attr: invoice taxamount
 my $i = new_ok 'SL::DB::Invoice';
