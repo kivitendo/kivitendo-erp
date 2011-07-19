@@ -1,10 +1,10 @@
 [%- IF pages.max > 1 %]
-[%- IF pages.cur > 1 %]<a href='[% base_url _ "&page=" _ (pages.cur - 1) %]'>&lt;-</a> [%- END %]
+[%- IF pages.cur > 1 %]<a href='[% base_url _ "&page=" _ (pages.cur - 1) %]'>&laquo;</a> [%- END %]
 [%- FOR p = pages.common %]
   [%- IF p.active %]<a href="[% base_url _ "&page=" _ p.page %]">[% p.page %]</a>
   [%- ELSE %]<b>[% p.page %]</b>
   [%- END %]
   [%- ' ' UNLESS loop.last %]
 [%- END %]
-[%- IF pages.cur < pages.max %] <a href='[% base_url _ "&page=" _ (pages.cur + 1) %]'>-&gt;</a>[%- END %]
+[%- IF pages.cur < pages.max %] <a href='[% base_url _ "&page=" _ (pages.cur + 1) %]'>&raquo;</a>[%- END %]
 [%- END %]
