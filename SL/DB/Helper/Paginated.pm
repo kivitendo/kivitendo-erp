@@ -59,9 +59,9 @@ sub make_common_pages {
 sub calc_visibility {
   my ($cur, $max, $this) = @_;
   any { $_ } abs($cur - $this) < 5,
-             $cur <= 3,
-             $cur == $max,
-             any { ! abs ($cur - $this) % $_ } 10, 50, 100, 500, 1000, 5000;
+             $this <= 3,
+             $this == $max,
+             any { abs ($cur - $this) == $_ } 10, 50, 100, 500, 1000, 5000;
 }
 
 1;
