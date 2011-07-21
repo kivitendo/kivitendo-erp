@@ -51,7 +51,7 @@ sub make_common_pages {
     map {
       active  => $_ != $cur,
       page    => $_,
-      visible =>
+      visible => calc_visibility($cur, $max, $_),
     }, 1 .. $max
   ];
 }
