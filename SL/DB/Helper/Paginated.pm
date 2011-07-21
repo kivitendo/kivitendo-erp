@@ -6,6 +6,8 @@ require Exporter;
 our @ISA    = qw(Exporter);
 our @EXPORT = qw(paginate);
 
+use List::MoreUtils qw(any);
+
 sub paginate {
   my ($self, %params) = @_;
   my $page = $params{page} || 1;
@@ -47,10 +49,19 @@ sub make_common_pages {
   my ($cur, $max) = @_;
   return [
     map {
-      active => $_ != $cur,
-      page   => $_,
+      active  => $_ != $cur,
+      page    => $_,
+      visible =>
     }, 1 .. $max
   ];
+}
+
+sub calc_visibility {
+  my ($cur, $max, $this) = @_;
+  any { $_ } abs($cur - $this) < 5,
+             $cur <= 3,
+             $cur == $max,
+             any { ! abs ($cur - $this) % $_ } 10, 50, 100, 500, 1000, 5000;
 }
 
 1;
