@@ -44,6 +44,32 @@
      </td>
     </tr>
 
+    <tr>
+     <th valign="top" align="right" nowrap>[% 'Accounting method' | $T8 %]</th>
+     <td>
+      <select name="accounting_method">
+       [% FOREACH row = ACCOUNTING_METHODS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+    <tr>
+     <th valign="top" align="right" nowrap>[% 'Inventory system' | $T8 %]</th>
+     <td>
+      <select name="inventory_system">
+       [% FOREACH row = INVENTORY_SYSTEMS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+
+    <tr>
+     <th valign="top" align="right" nowrap>[% 'Profit determination' | $T8 %]</th>
+     <td>
+      <select name="profit_determination">
+       [% FOREACH row = PROFIT_DETERMINATIONS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
+      </select>
+     </td>
+    </tr>
+
    </table>
 
    <input type="hidden" name="dbdriver"  value="[% HTML.escape(dbdriver) %]">

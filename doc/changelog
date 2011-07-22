@@ -2,6 +2,10 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
+- Umstellung der Variablen eur in lx_office.conf zu drei neuen Variablen in
+  Tabelle defaults, zur Einstellung von Gewinnermittlungsart, Versteuerungsart
+  und Warenbuchungsmethode. Siehe Datei doc/umstellung_eur.txt
+
 2011-06-15 - Release 2.6.3
 
   Größere neue Features:

@@ -43,6 +43,9 @@ __PACKAGE__->meta->setup(
     sdonumber                  => { type => 'text' },
     ar_paid_accno_id           => { type => 'integer' },
     id                         => { type => 'serial', not_null => 1 },
+    accounting_method          => { type => 'text' },
+    inventory_system           => { type => 'text' },
+    profit_determination       => { type => 'text' },
   ],
 
   primary_key_columns => [ 'id' ],

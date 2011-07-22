@@ -103,7 +103,11 @@ sub post_invoice {
     $form->{"qty_$i"}  = $form->parse_amount($myconfig, $form->{"qty_$i"});
     $form->{"qty_$i"} *= -1 if $form->{storno};
 
-    $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"} if $::lx_office_conf{system}->{eur};
+    if ( $::instance_conf->get_inventory_system eq 'periodic') {
+      # inventory account number is overwritten with expense account number, so
+      # never book incoming to inventory account but always to expense account
+      $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"} 
+    };
 
     # get item baseunit
     if (!$item_units{$form->{"id_$i"}}) {
@@ -211,7 +215,7 @@ sub post_invoice {
       # check if we sold the item already and
       # make an entry for the expense and inventory
       $query =
-        qq|SELECT i.id, i.qty, i.allocated, i.trans_id,
+        qq|SELECT i.id, i.qty, i.allocated, i.trans_id, i.base_qty,
              p.inventory_accno_id, p.expense_accno_id, a.transdate
            FROM invoice i, ar a, parts p
            WHERE (i.parts_id = p.id)
@@ -219,6 +223,20 @@ sub post_invoice {
              AND ((i.base_qty + i.allocated) > 0)
              AND (i.trans_id = a.id)
            ORDER BY transdate|;
+           # ORDER BY transdate guarantees FIFO
+
+# sold two items without having bought them yet, example result of query:
+# id | qty | allocated | trans_id | inventory_accno_id | expense_accno_id | transdate  
+# ---+-----+-----------+----------+--------------------+------------------+------------
+#  9 |   2 |         0 |        9 |                 15 |              151 | 2011-01-05
+
+# base_qty + allocated > 0 if article has already been sold but not bought yet
+
+# select qty,allocated,base_qty,sellprice from invoice where trans_id = 9;
+#  qty | allocated | base_qty | sellprice  
+# -----+-----------+----------+------------
+#    2 |         0 |        2 | 1000.00000
+
       $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{"id_$i"}));
 
       my $totalqty = $baseqty;
@@ -227,32 +245,38 @@ sub post_invoice {
         my $qty    = min $totalqty, ($ref->{base_qty} + $ref->{allocated});
         $linetotal = $form->round_amount(($form->{"sellprice_$i"} * $qty) / $basefactor, 2);
 
-        if ($ref->{allocated} < 0) {
+        if  ( $::instance_conf->get_inventory_system eq 'perpetual' ) {
+        # Warenbestandsbuchungen nur bei Bestandsmethode
 
-          # we have an entry for it already, adjust amount
-          $form->update_balance($dbh, "acc_trans", "amount",
-                                qq|    (trans_id = $ref->{trans_id})
-                                   AND (chart_id = $ref->{inventory_accno_id})
-                                   AND (transdate = '$ref->{transdate}')|,
-                                $linetotal);
+          if ($ref->{allocated} < 0) {
 
-          $form->update_balance($dbh, "acc_trans", "amount",
-                                qq|    (trans_id = $ref->{trans_id})
-                                   AND (chart_id = $ref->{expense_accno_id})
-                                   AND (transdate = '$ref->{transdate}')|,
-                                $linetotal * -1);
+# we have an entry for it already, adjust amount
+            $form->update_balance($dbh, "acc_trans", "amount",
+                qq|    (trans_id = $ref->{trans_id})
+                AND (chart_id = $ref->{inventory_accno_id})
+                AND (transdate = '$ref->{transdate}')|,
+                $linetotal);
 
-        } elsif ($linetotal != 0) {
-          # add entry for inventory, this one is for the sold item
-          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey) VALUES (?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE id = ?))|;
-          @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal, $ref->{transdate}, $ref->{inventory_accno_id});
-          do_query($form, $dbh, $query, @values);
+            $form->update_balance($dbh, "acc_trans", "amount",
+                qq|    (trans_id = $ref->{trans_id})
+                AND (chart_id = $ref->{expense_accno_id})
+                AND (transdate = '$ref->{transdate}')|,
+                $linetotal * -1);
 
-          # add expense
-          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey) VALUES (?, ?, ?, ?, (SELECT taxkey from tax WHERE chart_id = ?))|;
-          @values = ($ref->{trans_id},  $ref->{expense_accno_id}, ($linetotal * -1), $ref->{transdate}, $ref->{expense_accno_id});
-          do_query($form, $dbh, $query, @values);
-        }
+          } elsif ($linetotal != 0) {
+
+            # allocated >= 0
+            # add entry for inventory, this one is for the sold item
+            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey) VALUES (?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE id = ?))|;
+            @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal, $ref->{transdate}, $ref->{inventory_accno_id});
+            do_query($form, $dbh, $query, @values);
+
+# add expense
+            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey) VALUES (?, ?, ?, ?, (SELECT taxkey from tax WHERE chart_id = ?))|;
+            @values = ($ref->{trans_id},  $ref->{expense_accno_id}, ($linetotal * -1), $ref->{transdate}, $ref->{expense_accno_id});
+            do_query($form, $dbh, $query, @values);
+          }
+        };
 
         # update allocated for sold item
         $form->update_balance($dbh, "invoice", "allocated", qq|id = $ref->{id}|, $qty * -1);
@@ -265,6 +289,8 @@ sub post_invoice {
       $sth->finish();
 
     } else {                    # if ($form->{"inventory_accno_id_$i"})
+      # part doesn't have an inventory_accno_id
+      # lastcost of the part is updated at the end
 
       $linetotal = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 

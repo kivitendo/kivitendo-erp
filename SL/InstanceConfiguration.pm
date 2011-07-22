@@ -34,6 +34,21 @@ sub get_currencies {
   return $self->{currencies} ? @{ $self->{currencies} } : ();
 }
 
+sub get_accounting_method {
+  my ($self) = @_;
+  return $self->{data}->{accounting_method};
+}
+
+sub get_inventory_system {
+  my ($self) = @_;
+  return $self->{data}->{inventory_system};
+}
+
+sub get_profit_determination {
+  my ($self) = @_;
+  return $self->{data}->{profit_determination};
+}
+
 1;
 
 __END__
@@ -73,6 +88,18 @@ Returns an array of configured currencies.
 
 Returns the default currency or undef if no currency has been
 configured.
+
+=item C<get_accounting_method>
+
+Returns the default accounting method, accrual or cash
+
+=item C<get_inventory_system>
+
+Returns the default inventory system, perpetual or periodic
+
+=item C<get_profit_determination>
+
+Returns the default profit determination method, balance or income
 
 =back
 

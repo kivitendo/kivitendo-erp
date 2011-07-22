@@ -1528,7 +1528,9 @@ sub form_header {
 
   $auth->assert('part_service_assembly_edit');
 
-  $form->{eur}              = $::lx_office_conf{system}->{eur}; # config dumps into namespace - yuck
+  # what does eur set here? why is it in namespace?
+  # call of get_accounting_method preserves format of $form->{eur}, which expects 1 or 0
+  $form->{eur}              = $::instance_conf->get_accounting_method eq 'cash' ? 1 : 0; # config dumps into namespace - yuck
   $form->{pg_keys}          = sub { "$_[0]->{partsgroup}--$_[0]->{id}" };
   $form->{description_area} = ($form->{rows} = $form->numtextrows($form->{description}, 40)) > 1;
   $form->{notes_rows}       =  max 4, $form->numtextrows($form->{notes}, 40), $form->numtextrows($form->{formel}, 40);

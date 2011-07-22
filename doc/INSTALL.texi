@@ -31,6 +31,7 @@
 * Der Task-Server:: Konfiguration und Einrichtung des Task-Server-Dämonen
 * Benutzerauthentifizierung und Administratorpasswort:: Einrichtung der Authentifizierungsdatenbank und der Passwortüberprüfung
 * Benutzer- und Gruppenverwaltung:: Einrichten von Benutzern, Gruppen und Datenbanken
+* Drucken mit Lx-Office:: Voraussetzungen, Einrichtung und Fehlerdiagnose
 * OpenDocument-Vorlagen:: Wichtige Hinweise zum Erstellen und zur Verwendung von Dokumentenvorlagen
 * Lx-Office ERP verwenden:: Die URLs zur Anmeldung und Administration
 @end menu
@@ -806,6 +807,45 @@ gewährt. Alle migrierten Benutzern werden Mitglied in dieser
 Gruppe. Damit wird das Verhalten von Lx-Office bis Version 2.4.3
 inklusive wiederhergestellt, und die Benutzer können sich sofort
 wieder anmelden und mit dem System arbeiten.
+
+@c ---------------------------------------------------------------
+
+@node Drucken mit Lx-Office
+@chapter Drucken mit Lx-Office
+
+Das Drucksystem von Lx-Office benutzt von Haus aus LaTeX Vorlagen. Um drucken
+zu können, braucht der Server ein geeignetes LaTeX System. Am einfachsten ist
+dazu eine @code{texlive} Installation. Unter Debianoiden Betriebssystemen sind
+das die Pakete:
+
+@code{texlive-latex-base texlive-latex-extra texlive-fonts-recommended}
+
+Diese hinteren beiden enthalten Bibliotheken und Schriftarten die von den
+Standardvorlagen verwendet werden.
+
+TODO: rpm Pakete.
+
+In den allermeisten Installationen sollte drucken jetzt schon funktionieren.
+Sollte ein Fehler auftreten wirft TeX sehr lange Fehlerbeschreibungen, der
+eigentliche Fehler ist immer die erste Zeite die mit einem Ausrufezeichen
+anfängt. Häufig auftretende Fehler sind zum Beispiel:
+
+@itemize
+@item ! LaTeX Error: File `eurosym.sty' not found.
+Die entsprechende LaTeX-Bibliothek wurde nicht gefunden. Das tritt vor allem
+bei Vorlagen aus der Community auf. Installieren Sie die entsprechenden Pakete.
+@item ! Package inputenc Error: Unicode char \u8:æ¡ not set up for use with LaTeX.
+Dieser Fehler tritt auf, wenn sie versuchen mit einer Standardinstallation
+exotische utf8 Zeichen zu drucken. TeXLive unterstützt von Haus nur romanische
+Schriften und muss mit diversen Tricks dazu gebracht werden andere Zeichen zu
+akzeptieren. Adere TeX Systeme wie XeTeX schaffen hier Abhilfe.
+@end itemize
+
+Wird garkein Fehler angezeigt sondern nur der Name des Templates, heißt das
+normalerweise, dass das LaTeX Binary nicht gefunden wurde. Prüfen Sie den Namen
+in der Konfiguration (Standard: @code{pdflatex}), und stellen Sie sicher, dass
+pdflatex (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
+darf.
 
 @c ---------------------------------------------------------------
 

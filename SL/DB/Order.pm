@@ -136,13 +136,13 @@ SL::DB::Order - Order Datenbank Objekt.
 
 =head1 FUNCTIONS
 
-=head2 type
+=head2 C<type>
 
 Returns one of the following string types:
 
 =over 4
 
-=item saes_order
+=item sales_order
 
 =item purchase_order
 
@@ -152,11 +152,11 @@ Returns one of the following string types:
 
 =back
 
-=head2 is_type TYPE
+=head2 C<is_type TYPE>
 
-Rreturns true if the order is of the given type.
+Returns true if the order is of the given type.
 
-=item C<convert_to_invoice %params>
+=head2 C<convert_to_invoice %params>
 
 Creates a new invoice with C<$self> as the basis by calling
 L<SL::DB::Invoice::new_from>. That invoice is posted, and C<$self> is
@@ -171,7 +171,7 @@ nothing is created or changed in the database.
 
 At the moment only sales quotations and sales orders can be converted.
 
-=item C<create_sales_process>
+=head2 C<create_sales_process>
 
 Creates and saves a new sales process. Can only be called for sales
 orders.
@@ -180,8 +180,6 @@ The newly created process will be linked bidirectionally to both
 C<$self> and to all sales quotations that are linked to C<$self>.
 
 Returns the newly created process instance.
-
-=back
 
 =head1 BUGS
 

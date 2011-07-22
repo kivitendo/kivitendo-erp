@@ -774,6 +774,24 @@ sub create_dataset {
   }
   closedir SQLDIR;
 
+  $form->{ACCOUNTING_METHODS} = [];
+  foreach my $item ( qw(accrual cash) ) {
+    push @{ $form->{ACCOUNTING_METHODS} }, { "name"     => $item,
+                                 "selected" => $item eq "cash" };
+  };
+
+  $form->{INVENTORY_SYSTEMS} = [];
+  foreach my $item ( qw(perpetual periodic) ) {
+    push @{ $form->{INVENTORY_SYSTEMS} }, { "name"     => $item,
+                                 "selected" => $item eq "periodic" };
+  };
+
+  $form->{PROFIT_DETERMINATIONS} = [];
+  foreach my $item ( qw(balance income) ) {
+    push @{ $form->{PROFIT_DETERMINATIONS} }, { "name"     => $item,
+                                 "selected" => $item eq "income" };
+  };
+
   my $default_charset = $::lx_office_conf{system}->{dbcharset};
   $default_charset ||= Common::DEFAULT_CHARSET;
 

@@ -1,0 +1,49 @@
+Anstelle des Parameters eur in lx_office.conf werden drei neue Parameter
+eingeführt, die in defaults bereitgehalten werden, und damit mandantenabhängig
+konfiguriert werden können.
+
+Die drei Parameter regeln Gewinnermittlungsart, Versteuerungsart und
+Warenbuchungsmethode:
+
+profit_determination (Gewinnermittlung)
+* balance (Betriebsvermögensvergleich/Bilanzierung)
+* income (Einnahmen-Überschuß-Rechnung)
+
+accounting_method (Versteuerungsart)
+* accrual (Sollversteuerung)
+* cash (Istversteuerung)
+
+inventory_system (Warenbuchungsmethode)
+* perpetual (Bestandsmethode)
+* periodic (Aufwandsmethode)
+
+Beim Anlegen eines neuen Mandanten können diese Optionen nun unabhängig
+voneinander eingestellt werden.
+
+Beim Upgrade bestehender Mandanten wird eur ausgelesen und die Variablen werden
+so gesetzt, daß sich an der Funktionalität nichts ändert.
+
+Bisher galt:
+eur = 1: cash + periodic + income
+eur = 0: accrual + perpetual + balance
+
+Die aktuelle Konfiguration wird unter Nummernkreise und Standardkonten unter
+dem neuen Punkt "Einstellungen" angezeigt (read-only).
+
+Für die Umstellung eines bestehenden Mandanten gibt es an der Oberfläche
+derzeit keine Möglichkeit (gab es aber vorher auch nicht).
+
+Die Konfiguration "eur" unter [system] in lx_office.conf wird nun nicht mehr
+benötigt und kann aus der Konfigurationsdatei gelöscht werden (dies muß manuell
+geschehen).
+
+TODO:
+
+* bei bestimmten Berichten kann man derzeit noch inviduell einstellen, ob man
+  nach Ist- oder Sollversteuerung auswertet, und es werden im Code Variablen
+  wie $accrual oder $cash gesetzt. Diese Codestellen wurden noch nicht
+  angefasst, sondern nur die wo bisher $::lx_office_conf{system}->{eur}
+  ausgewertet wurde.
+
+* Hilfetext beim Neuanlegen eines Mandanten, was die Optionen bedeuten, z.B.
+  mit zwei Standardfällen

@@ -156,6 +156,31 @@
       </td>
     </tr>
 
+    <tr class="listheading">
+     <th colspan="4">[% 'Configuration' | $T8 %]</th>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Accounting method' | $T8 %] </th>
+     <td colspan="3"><input name="accounting_method" size="20" readonly="readonly" value="[% HTML.escape(defaults_accounting_method) | $T8 %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Inventory system' | $T8 %] </th>
+     <td colspan="3"><input name="inventory_system" size="20" readonly="readonly" value="[% HTML.escape(defaults_inventory_system) | $T8 %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Profit determination' | $T8 %] </th>
+     <td colspan="3"><input name="profit_determination" size="20" readonly="readonly" value="[% HTML.escape(defaults_profit_determination) | $T8 %]"></td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Chart of accounts' | $T8 %] </th>
+     <td colspan="3"><input name="coa" size="20" readonly="readonly" value="[% HTML.escape(defaults_coa) | $T8 %]"></td>
+    </tr>
+
+
    </table>
   </p>
 

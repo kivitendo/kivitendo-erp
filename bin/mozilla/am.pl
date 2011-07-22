@@ -46,8 +46,6 @@ use SL::Printer;
 use CGI::Ajax;
 use CGI;
 
-use Data::Dumper;
-
 require "bin/mozilla/common.pl";
 
 use strict;
@@ -1392,17 +1390,18 @@ sub buchungsgruppe_header {
   }
 
   my $linkaccounts;
-  if (!$::lx_office_conf{system}->{eur}) {
+  if ( $::instance_conf->get_inventory_system eq 'perpetual' ) { # was !$::lx_office_conf{system}->{eur}) {
     $linkaccounts = qq|
                <tr>
                 <th align=right>| . $locale->text('Inventory') . qq|</th>
                 <td><select name=inventory_accno_id>$form->{selectIC}</select></td>
                 <input name=selectIC type=hidden value="$form->{selectIC}">
               </tr>|;
-  } else {
+  } elsif ( $::instance_conf->get_inventory_system eq 'periodic' ) {
+    # don't allow choice of inventory accno and don't show that line
     $linkaccounts = qq|
                 <input type=hidden name=inventory_accno_id value=$form->{inventory_accno_id}>|;
-  }
+  };
 
 
   $linkaccounts .= qq|
@@ -1549,6 +1548,8 @@ sub edit_defaults {
   $form->{ALL_UNITS} = AM->convertible_units(AM->retrieve_all_units(), 'g');
 
   map { $form->{"defaults_${_}"} = $form->{defaults}->{$_} } keys %{ $form->{defaults} };
+
+# EÜR = cash, Bilanzierung = accrual 
 
   foreach my $key (keys %{ $form->{IC} }) {
     foreach my $accno (sort keys %{ $form->{IC}->{$key} }) {
