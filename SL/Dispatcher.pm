@@ -81,7 +81,6 @@ sub pre_startup_setup {
   my ($self) = @_;
 
   SL::LxOfficeConf->read;
-  _init_environment();
 
   eval {
     package main;
@@ -368,27 +367,6 @@ sub get_standard_filehandles {
   my $self = shift;
 
   return $self->{interface} =~ m/f(?:ast)cgi/i ? $self->{request}->GetHandles() : (\*STDIN, \*STDOUT, \*STDERR);
-}
-
-sub _init_environment {
-  my %key_map = ( lib  => { name => 'PERL5LIB', append_path => 1 },
-                  path => { name => 'PATH',     append_path => 1 },
-                );
-  my $cfg     = $::lx_office_conf{environment} || {};
-
-  while (my ($key, $value) = each %{ $cfg }) {
-    next unless $value;
-
-    my $info = $key_map{$key} || {};
-    $key     = $info->{name}  || $key;
-
-    if ($info->{append_path}) {
-      $value = ':' . $value unless $value =~ m/^:/ || !$ENV{$key};
-      $value = $ENV{$key} . $value;
-    }
-
-    $ENV{$key} = $value;
-  }
 }
 
 sub _check_for_old_config_files {
