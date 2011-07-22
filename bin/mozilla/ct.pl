@@ -298,6 +298,10 @@ sub _shipto_label {
   join('; ', grep { $_ } map { $s->{"shipto$_"} } qw(name department_1 street city)) || ' '
 }
 
+sub _contacts_label {
+  join ", ", grep { $_ } $_[0]->{cp_name}, $_[0]->{cp_givenname};
+}
+
 sub form_header {
   $main::lxdebug->enter_sub();
 
@@ -319,20 +323,18 @@ sub form_header {
   $form->{is_customer}    = $form->{db}     eq 'customer';
   $form->{salesman_label} = sub { $_[0]->{name} ne "" ? $_[0]->{name} : $_[0]->{login} };
   $form->{shipto_label}   = \&_shipto_label;
-  $form->{contacts_label} = sub { join ", ", grep { $_ } $_[0]->{cp_name}, $_[0]->{cp_givenname} };
+  $form->{contacts_label} = \&_contacts_label;
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
   $form->{jsscript}       = 1;
   $form->{fokus}          = "ct.greeting";
-  $form->{AJAX}           = [ new CGI::Ajax( map {; "get_$_" => "$form->{script}?action=get_$_" } qw(contact delivery) ) ];
+  $form->{AJAX}           = [ new CGI::Ajax( map {; "get_$_" => "$form->{script}?action=get_$_" } qw(delivery) ) ];
   $form->{SHIPTO_ALL}     = [ +{ shipto_id => '0', shiptoname => $::locale->text('All') }, @{ $form->{SHIPTO} } ];
-
-  unshift @{ $form->{CONTACTS} }, +{ cp_id     => '0', cp_name => $locale->text('New contact') };
 
   $form->{title} = $form->{title_save}
                 || $locale->text("$form->{title} " . ucfirst $form->{db}) . ($form->{title} eq "Edit" ? " $form->{name}" : '');
 
   CT->query_titles_and_greetings(\%myconfig, \%$form);
-  map { $form->{"MB_$_"} = [ map +{ id => $_, description => $_ }, @{ $form->{$_} } ] } qw(TITLES GREETINGS COMPANY_GREETINGS DEPARTMENT);
+  map { $form->{"MB_$_"} = [ map +{ id => $_, description => $_ }, @{ $form->{$_} } ] } qw(COMPANY_GREETINGS);
 
   $form->{NOTES} ||= [ ];
 
@@ -651,14 +653,15 @@ sub get_contact {
 
   $main::auth->assert('customer_vendor_edit');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+  CT->populate_drop_down_boxes(\%::myconfig, $::form);
+  CT->query_titles_and_greetings(\%::myconfig, $::form);
+  CT->get_contact(\%::myconfig, $::form) if $::form->{cp_id};
 
-  CT->get_contact(\%myconfig, \%$form);
-  print $form->ajax_response_header(), join '__pjx__', map $form->{"cp_$_"},
-    qw(name title givenname phone1 phone2 email abteilung fax mobile1 mobile2 satphone satfax project privatphone privatemail birthday used gender);
+  $::form->{contacts_label} = \&_contacts_label;
+
+  print $::form->ajax_response_header(), $::form->parse_html_template('ct/_contact');
+
   $main::lxdebug->leave_sub();
-
 }
 
 sub get_shipto {

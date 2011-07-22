@@ -1,0 +1,117 @@
+[% USE L %][% USE HTML %][% USE T8 %][% USE LxERP %]
+    <table id="contact_table">
+     <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
+     <tr>
+      <th align="left">[% 'Contacts' | $T8 %]</th>
+      <td>
+       [%- L.select_tag('cp_id', L.options_for_select(CONTACTS, default => cp_id, with_empty => 1, empty_title => LxERP.t8('New contact'), value => 'cp_id', title_sub => \contacts_label),
+                        onchange => "\$('#contact_table').load('ct.pl?action=get_contact&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&cp_id=' + \$('#cp_id').attr('value'))") %]
+      </td>
+     </tr>
+
+    <tr>
+     <th align="left" nowrap>[% 'Gender' | $T8 %]</th>
+     <td>
+      <select id="cp_gender" name="cp_gender">
+       <option value="m"[% IF cp_gender == 'm' %] selected[% END %]>[% 'male' | $T8 %]</option>
+       <option value="f"[% IF cp_gender == 'f' %] selected[% END %]>[% 'female' | $T8 %]</option>
+      </select>
+     </td>
+    </tr>
+    <tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Title' | $T8 %]</th>
+      <td>
+       <input id="cp_title" name="cp_title" size="40" maxlength="75" value="[% HTML.escape(cp_title) %]">&nbsp;
+       [% L.select_tag('selected_cp_title', L.options_for_select(TITLES, with_empty => 1)) %]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Department' | $T8 %]</th>
+      <td>
+       <input id="cp_abteilung" name="cp_abteilung" size="40" value="[% HTML.escape(cp_abteilung) %]">&nbsp;
+       [% L.select_tag('selected_cp_abteilung', L.options_for_select(DEPARTMENT, with_empty => 1)) %]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Given Name' | $T8 %]</th>
+      <td><input id="cp_givenname" name="cp_givenname" size="40" maxlength="75" value="[% HTML.escape(cp_givenname) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Name' | $T8 %]</th>
+      <td><input id="cp_name" name="cp_name" size="40" maxlength="75" value="[% HTML.escape(cp_name) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Phone1' | $T8 %]</th>
+      <td><input id="cp_phone1" name="cp_phone1" size="40" maxlength="75" value="[% HTML.escape(cp_phone1) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Phone2' | $T8 %]</th>
+      <td><input id="cp_phone2" name="cp_phone2" size="40" maxlength="75" value="[% HTML.escape(cp_phone2) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Fax' | $T8 %]</th>
+      <td><input id="cp_fax" name="cp_fax" size="40" value="[% HTML.escape(cp_fax) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Mobile1' | $T8 %]</th>
+      <td><input id="cp_mobile1" name="cp_mobile1" size="40" value="[% HTML.escape(cp_mobile1) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Mobile2' | $T8 %]</th>
+      <td><input id="cp_mobile2" name="cp_mobile2" size="40" value="[% HTML.escape(cp_mobile2) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Sat. Phone' | $T8 %]</th>
+      <td><input id="cp_satphone" name="cp_satphone" size="40" value="[% HTML.escape(cp_satphone) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Sat. Fax' | $T8 %]</th>
+      <td><input id="cp_satfax" name="cp_satfax" size="40" value="[% HTML.escape(cp_satfax) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Project' | $T8 %]</th>
+      <td><input id="cp_project" name="cp_project" size="40" value="[% HTML.escape(cp_project) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'E-mail' | $T8 %]</th>
+      <td><input id="cp_email" name="cp_email" size="40" value="[% HTML.escape(cp_email) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Private Phone' | $T8 %]</th>
+      <td><input id="cp_privatphone" name="cp_privatphone" size="40" value="[% HTML.escape(cp_privatphone) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Private E-mail' | $T8 %]</th>
+      <td><input id="cp_privatemail" name="cp_privatemail" size="40" value="[% HTML.escape(cp_privatemail) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Birthday' | $T8 %]</th>
+      <td><input id="cp_birthday" name="cp_birthday" size="40" value="[% HTML.escape(cp_birthday) %]"></td>
+     </tr>
+
+     <tr>
+      <td colspan="2"><hr></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Bcc' | $T8 %]</th>
+      <td><input name="bcc" size="40" value="[% HTML.escape(bcc) %]"></td>
+     </tr>
+    </table>
