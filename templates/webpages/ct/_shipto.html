@@ -1,0 +1,69 @@
+[% USE L %][% USE HTML %][% USE T8 %][% USE LxERP %]
+    <table width="100%" id="shipto_table">
+     <tr>
+      <th align="right">[% 'Shipping Address' | $T8 %]</th>
+      <td>
+       [%- INCLUDE generic/multibox.html
+             name       = 'shipto_id',
+             id         = 'shipto_id',
+             DATA       = SHIPTO,
+             onChange   = "\$('#shipto_table').load('ct.pl?action=get_shipto&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)",
+             id_key     = 'shipto_id',
+             label_sub  = 'shipto_label',
+             label_key  = 'shipto_label',
+             show_empty = 1,
+       -%]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Company Name' | $T8 %]</th>
+      <td><input id="shiptoname" name="shiptoname" size="35" maxlength="75" value="[% HTML.escape(shiptoname) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Abteilung' | $T8 %]</th>
+      <td>
+       <input id="shiptodepartment_1" name="shiptodepartment_1" size="16" maxlength="75" value="[% HTML.escape(shiptodepartment_1) %]">
+       <input id="shiptodepartment_2" name="shiptodepartment_2" size="16" maxlength="75" value="[% HTML.escape(shiptodepartment_2) %]">
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Street' | $T8 %]</th>
+      <td><input id="shiptostreet" name="shiptostreet" size="35" maxlength="75" value="[% HTML.escape(shiptostreet) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
+      <td>
+       <input id="shiptozipcode" name="shiptozipcode" size="5" maxlength="75" value="[% HTML.escape(shiptozipcode) %]">
+       <input id="shiptocity" name="shiptocity" size="30" maxlength="75" value="[% HTML.escape(shiptocity) %]">
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Country' | $T8 %]</th>
+      <td><input id="shiptocountry" name="shiptocountry" size="35" maxlength="75" value="[% HTML.escape(shiptocountry) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
+      <td><input id="shiptocontact" name="shiptocontact" size="30" maxlength="75" value="[% HTML.escape(shiptocontact) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Phone' | $T8 %]</th>
+      <td><input id="shiptophone" name="shiptophone" size="30" maxlength="30" value="[% HTML.escape(shiptophone) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
+      <td><input id="shiptofax" name="shiptofax" size="30" maxlength="30" value="[% HTML.escape(shiptofax) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
+      <td><input id="shiptoemail" name="shiptoemail" size="45" value="[% HTML.escape(shiptoemail) %]"></td>
+     </tr>
+    </table>
