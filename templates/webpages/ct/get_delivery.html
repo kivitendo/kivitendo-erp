@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %][% USE LxERP %]
+<div id="delivery">
 <table width="100%">
   <tr>
     <td>
@@ -39,3 +40,4 @@
 [%- IF DELIVERY.size == 15 %]
      <p>[% 'This list is capped at 15 items to keep it fast. If you need a full list, please use reports.' | $T8 %]</p>
 [%- END %]
+</div>

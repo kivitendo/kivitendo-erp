@@ -45,7 +45,6 @@
 # $locale->text('Vendor deleted!')
 # $locale->text('Cannot delete vendor!')
 
-use CGI::Ajax;
 use POSIX qw(strftime);
 
 use SL::CT;
@@ -327,7 +326,6 @@ sub form_header {
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
   $form->{jsscript}       = 1;
   $form->{fokus}          = "ct.greeting";
-  $form->{AJAX}           = [ new CGI::Ajax( map {; "get_$_" => "$form->{script}?action=get_$_" } qw(delivery) ) ];
   $form->{SHIPTO_ALL}     = [ +{ shipto_id => '0', shiptoname => $::locale->text('All') }, @{ $form->{SHIPTO} } ];
 
   $form->{title} = $form->{title_save}
