@@ -3,16 +3,8 @@
      <tr>
       <th align="right">[% 'Shipping Address' | $T8 %]</th>
       <td>
-       [%- INCLUDE generic/multibox.html
-             name       = 'shipto_id',
-             id         = 'shipto_id',
-             DATA       = SHIPTO,
-             onChange   = "\$('#shipto_table').load('ct.pl?action=get_shipto&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)",
-             id_key     = 'shipto_id',
-             label_sub  = 'shipto_label',
-             label_key  = 'shipto_label',
-             show_empty = 1,
-       -%]
+       [% L.select_tag('shipto_id', L.options_for_select(SHIPTO, default => shipto_id, value => 'shipto_id', title_sub => \shipto_label, with_empty => 1),
+                       onchange => "\$('#shipto_table').load('ct.pl?action=get_shipto&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)") %]
       </td>
      </tr>
 
