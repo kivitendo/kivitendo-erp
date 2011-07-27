@@ -115,8 +115,10 @@ sub search {
 
   $form->header;
 
+  $form->get_lists('partsgroup'    => 'ALL_PARTSGROUPS');
   print $form->parse_html_template('ic/search', { %is_xyz,
-                                                  dateformat => $myconfig{dateformat}, });
+                                                  dateformat => $myconfig{dateformat}, 
+                                                  limit => $myconfig{vclimit}, });
 
   $lxdebug->leave_sub();
 }    #end search()
@@ -1103,6 +1105,13 @@ sub generate_report {
     no_sn_joins  => [ qw(bought sold) ],
   );
 
+  # get name of partsgroup if id is given
+  my $pg_name;
+  if ($form->{partsgroup_id}) {
+    my $pg = SL::DB::PartsGroup->new(id => $form->{partsgroup_id})->load;
+    $pg_name = $pg->{'partsgroup'};
+  }
+
   # these strings get displayed at the top of the results to indicate the user which switches were used
   my %optiontexts = (
     active        => $locale->text('Active'),
@@ -1120,6 +1129,7 @@ sub generate_report {
     transdateto   => $locale->text('To (time)')  . " " . $locale->date(\%myconfig, $form->{transdateto}, 1),
     partnumber    => $locale->text('Part Number')      . ": '$form->{partnumber}'",
     partsgroup    => $locale->text('Group')            . ": '$form->{partsgroup}'",
+    partsgroup_id => $locale->text('Group')            . ": '$pg_name'",
     serialnumber  => $locale->text('Serial Number')    . ": '$form->{serialnumber}'",
     description   => $locale->text('Part Description') . ": '$form->{description}'",
     make          => $locale->text('Make')             . ": '$form->{make}'",
@@ -1131,7 +1141,7 @@ sub generate_report {
   );
 
   my @itemstatus_keys = qw(active obsolete orphaned onhand short);
-  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup serialnumber description make model
+  my @callback_keys   = qw(onorder ordered rfq quoted bought sold partnumber partsgroup partsgroup_id serialnumber description make model
                            drawing microfiche l_soldtotal l_deliverydate transdatefrom transdateto ean);
 
   # calculate dependencies

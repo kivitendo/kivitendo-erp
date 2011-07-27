@@ -37,7 +37,19 @@
 
       <tr>
        <th align="right" nowrap>[% 'Group' | $T8 %]</th>
-       <td><input name="partsgroup" size="20"></td>
+       <td>
+         [%- INCLUDE generic/multibox.html
+           name          = 'partsgroup',
+           select_name   = 'partsgroup_id',
+           DATA          = ALL_PARTSGROUPS,
+           show_empty    = 1,
+           id_key        = 'id',
+           label_key     = 'partsgroup',
+           style         = 'width:250px',
+           limit         = limit,
+           allow_textbox = 1
+         -%]
+       </td>
        <th align="right" nowrap>[% 'Serial Number' | $T8 %]</th> <td><input name="serialnumber" size="20"></td>
       </tr>
 

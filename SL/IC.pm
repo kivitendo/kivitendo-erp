@@ -911,6 +911,12 @@ sub all_parts {
     }
   }
 
+  if ($form->{"partsgroup_id"}) {
+    $form->{"l_partsgroup"} = '1'; # show the column
+    push @where_tokens, "pg.id = ?";
+    push @bind_vars, $form->{"partsgroup_id"};
+  }
+
   foreach (@like_filters) {
     next unless $form->{$_};
     $form->{"l_$_"} = '1'; # show the column
