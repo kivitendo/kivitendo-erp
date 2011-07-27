@@ -263,8 +263,6 @@ sub all_transactions {
  
   if ($form->{employee} =~ /--/) {
     ($form->{employee_id},$form->{employee_name}) = split(/--/,$form->{employee});
-    $query .= " AND o.employee_id = ?";
-    push @values, conv_i($form->{employee_id});
   #if ($form->{employee_id}) {
     $glwhere .= " AND g.employee_id = ? ";
     $arwhere .= " AND a.employee_id = ? ";
@@ -370,7 +368,9 @@ sub all_transactions {
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{gl}
-      FROM gl g, acc_trans ac $project_join, chart c
+      FROM gl g
+      LEFT JOIN employee e ON (g.employee_id = e.id),
+      acc_trans ac $project_join, chart c
       LEFT JOIN tax t ON (t.chart_id = c.id)
       WHERE $glwhere
         AND (ac.chart_id = c.id)
@@ -384,7 +384,9 @@ sub all_transactions {
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{arap}
-      FROM ar a, acc_trans ac $project_join, customer ct, chart c
+      FROM ar a
+      LEFT JOIN employee e ON (a.employee_id = e.id),
+      acc_trans ac $project_join, customer ct, chart c
       LEFT JOIN tax t ON (t.chart_id=c.id)
       WHERE $arwhere
         AND (ac.chart_id = c.id)
@@ -399,7 +401,9 @@ sub all_transactions {
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee
         $project_columns
         $columns_for_sorting{arap}
-      FROM ap a, acc_trans ac $project_join, vendor ct, chart c
+      FROM ap a
+      LEFT JOIN employee e ON (a.employee_id = e.id),
+      acc_trans ac $project_join, vendor ct, chart c
       LEFT JOIN tax t ON (t.chart_id=c.id)
       WHERE $apwhere
         AND (ac.chart_id = c.id)

@@ -511,7 +511,7 @@ sub generate_report {
     gldate         transdate        id             reference      description
     notes          source           debit          debit_accno   
     credit         credit_accno     debit_tax      debit_tax_accno
-    credit_tax     credit_tax_accno projectnumbers balance
+    credit_tax     credit_tax_accno projectnumbers balance employee
   );
 
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
@@ -658,9 +658,9 @@ sub generate_report {
     $row->{balance}->{data}        = $data;
     $row->{projectnumbers}->{data} = join ", ", sort { lc($a) cmp lc($b) } keys %{ $ref->{projectnumbers} };
 
-    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes);
+    map { $row->{$_}->{data} = $ref->{$_} } qw(id reference description notes gldate employee);
 
-    map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate gldate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno source);
+    map { $row->{$_}->{data} = \@{ $rows{$_} }; } qw(transdate debit credit debit_accno credit_accno debit_tax_accno credit_tax_accno source);
 
     foreach my $col (qw(debit_accno credit_accno debit_tax_accno credit_tax_accno)) {
       $row->{$col}->{link} = [ map { "${callback}&accno=" . E($_) } @{ $rows{$col} } ];
