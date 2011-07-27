@@ -342,8 +342,6 @@ sub search {
           <th align=right>| . $locale->text('Project Number') . qq|</th>
           <td colspan=3>$projectnumber</td>
         </tr>
-        <tr>
-          <th align=right>| . $locale->text('From') . qq|</th>
  <tr>
     <th align=right>| . $locale->text('Employee') . qq|</th>
     <td colspan=3>$employeenumber</td>
