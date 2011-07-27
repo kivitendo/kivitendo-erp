@@ -349,7 +349,7 @@ sub search {
     <td colspan=3>$employeenumber</td>
   </tr>
   <tr>
-    <th align=right>| . $locale->text('Date Sorting') . qq|</th>
+    <th align=right>| . $locale->text('Filter date by') . qq|</th>
     <td colspan=3>
     <input name=datesort class=radio type=radio value=gldate checked>&nbsp;| . $locale->text('Booking Date') . qq|
     <input name=datesort class=radio type=radio value=transdate>&nbsp;| . $locale->text('Invoice Date') . qq|
