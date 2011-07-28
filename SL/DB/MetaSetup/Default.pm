@@ -46,6 +46,7 @@ __PACKAGE__->meta->setup(
     accounting_method          => { type => 'text' },
     inventory_system           => { type => 'text' },
     profit_determination       => { type => 'text' },
+    language_id                => { type => 'integer' },
   ],
 
   primary_key_columns => [ 'id' ],

@@ -1065,7 +1065,8 @@ sub save_defaults {
         pdonumber          = ?,
         curr               = ?,
         businessnumber     = ?,
-        weightunit         = ?|;
+        weightunit         = ?,
+        language_id        = ?|;
   my @values = ($accnos{inventory_accno}, $accnos{income_accno}, $accnos{expense_accno},
                 $accnos{fxgain_accno},    $accnos{fxloss_accno}, $accnos{ar_paid_accno},
                 $form->{invnumber},       $form->{cnnumber},
@@ -1075,7 +1076,8 @@ sub save_defaults {
                 $form->{articlenumber},   $form->{servicenumber},
                 $form->{sdonumber},       $form->{pdonumber},
                 $currency,
-                $form->{businessnumber},  $form->{weightunit});
+                $form->{businessnumber},  $form->{weightunit},
+                $form->{language_id});
   do_query($form, $dbh, $query, @values);
 
   $dbh->commit();

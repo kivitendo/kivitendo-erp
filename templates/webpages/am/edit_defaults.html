@@ -156,6 +156,20 @@
       </td>
     </tr>
 
+    <tr>
+     <th align="right">[% 'Language' | $T8 %]</th>
+     <td>
+      [%- INCLUDE 'generic/multibox.html'
+           name          = 'language_id',
+           default       = defaults_language_id,
+           style         = 'size:20; maxength:5',
+           DATA          = ALL_LANGUAGES,
+           id_key        = 'id',
+           label_key     = 'description',
+           -%]
+      </td>
+    </tr>
+
     <tr class="listheading">
      <th colspan="4">[% 'Configuration' | $T8 %]</th>
     </tr>

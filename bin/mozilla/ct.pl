@@ -50,6 +50,7 @@ use POSIX qw(strftime);
 use SL::CT;
 use SL::CVar;
 use SL::DB::Business;
+use SL::DB::Default;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -335,6 +336,13 @@ sub form_header {
   map { $form->{"MB_$_"} = [ map +{ id => $_, description => $_ }, @{ $form->{$_} } ] } qw(COMPANY_GREETINGS);
 
   $form->{NOTES} ||= [ ];
+
+  if (!$form->{'language_id'}) {
+    my $l_id = SL::DB::Default->get->{'language_id'};
+    if ($l_id) {
+      $form->{'default_language_id'} = $l_id;
+    }
+  }
 
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'CT', 'trans_id' => $form->{id});
 
