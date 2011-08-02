@@ -524,6 +524,7 @@ $self->{texts} = {
   'Decrease'                    => '',
   'Default (no language selected)' => '',
   'Default Accounts'            => '',
+   'Default Customer/Vendor Language' => '',
   'Default output medium'       => '',
   'Default printer'             => '',
   'Default template format'     => '',
