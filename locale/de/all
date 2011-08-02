@@ -550,6 +550,7 @@ $self->{texts} = {
   'Decrease'                    => 'Verringern',
   'Default (no language selected)' => 'Standard (keine Sprache ausgewählt)',
   'Default Accounts'            => 'Standardkonten',
+  'Default Customer/Vendor Language' => 'Standard-Kunden-/Lieferantensprache',
   'Default buchungsgruppe'      => 'Standardbuchungsgruppe',
   'Default output medium'       => 'Standardausgabekanal',
   'Default printer'             => 'Standarddrucker',
