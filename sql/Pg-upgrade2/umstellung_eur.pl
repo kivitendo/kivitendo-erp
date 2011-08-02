@@ -1,11 +1,10 @@
 # @tag: umstellung_eur
 # @description: Variable eur umstellen: bitte doc/umstellung_eur.txt lesen
-# @depends: units_id
+# @depends: release_2_6_3
 # @charset: utf-8
 
 # this script relies on $eur still being set in lx_office.conf, and the
 # variable available in $::lx_office_conf{system}->{eur}
-# better @depends would be release_2_6_3
 
 use utf8;
 #use strict;

@@ -1,0 +1,4 @@
+-- @tag: release_2_6_3
+-- @description: Leeres Script, auf daß sich Upgrades nach Einführung des Releases 2.6.3 beziehen können. Etwas verspätet eingefügt.
+-- @depends: release_2_6_2,chart_taxkey_id_from_taxkeys,custom_variables_indices,custom_variables_indices_2,units_id  
+-- @charset: utf-8
