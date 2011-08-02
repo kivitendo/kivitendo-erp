@@ -1077,7 +1077,7 @@ sub save_defaults {
                 $form->{sdonumber},       $form->{pdonumber},
                 $currency,
                 $form->{businessnumber},  $form->{weightunit},
-                $form->{language_id});
+                conv_i($form->{language_id}));
   do_query($form, $dbh, $query, @values);
 
   $dbh->commit();
