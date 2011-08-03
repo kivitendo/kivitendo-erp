@@ -1550,7 +1550,7 @@ sub edit_defaults {
   map { $form->{"defaults_${_}"} = $form->{defaults}->{$_} } keys %{ $form->{defaults} };
 
   # default language
-  my @ALL_LANGUAGES = SL::DB::Manager::Language->get_all;
+  my $all_languages = SL::DB::Manager::Language->get_all;
 
 # EÜR = cash, Bilanzierung = accrual 
 
@@ -1572,7 +1572,7 @@ sub edit_defaults {
 
   $form->header();
   print $form->parse_html_template('am/edit_defaults',
-                                   { ALL_LANGUAGES => @ALL_LANGUAGES, });
+                                   { ALL_LANGUAGES => $all_languages, });
 
   $main::lxdebug->leave_sub();
 }
