@@ -32,7 +32,7 @@
 #======================================================================
 
 use POSIX qw(strftime);
-use List::Util qw(max);
+use List::Util qw(first max);
 use List::MoreUtils qw(any);
 
 use SL::AM;
@@ -117,7 +117,7 @@ sub search {
 
   $form->get_lists('partsgroup'    => 'ALL_PARTSGROUPS');
   print $form->parse_html_template('ic/search', { %is_xyz,
-                                                  dateformat => $myconfig{dateformat}, 
+                                                  dateformat => $myconfig{dateformat},
                                                   limit => $myconfig{vclimit}, });
 
   $lxdebug->leave_sub();
@@ -2042,4 +2042,22 @@ sub ajax_autocomplete {
   $main::lxdebug->leave_sub();
 }
 
+sub back_to_record {
+  _check_io_auth();
+
+  $::auth->restore_form_from_session($::form->{previousform}, clobber => 1);
+  $::form->{rowcount}--;
+  $::form->{action}   = 'display_form';
+  $::form->{callback} = $::form->{script} . '?' . join('&', map { $::form->escape($_) . '=' . $::form->escape($::form->{$_}) } sort keys %{ $::form });
+  $::form->redirect;
+}
+
 sub continue { call_sub($form->{"nextsub"}); }
+
+sub dispatcher {
+  my $action = first { $::form->{"action_${_}"} } qw(add back_to_record);
+  $::form->error($::locale->text('No action defined.')) unless $action;
+
+  $::form->{dispatched_action} = $action;
+  call_sub($action);
+}
