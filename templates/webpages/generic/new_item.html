@@ -3,7 +3,6 @@
 
     <h4 class="error">[% 'Item not on file!' | $T8 %]
 
-
     <p>[% 'What type of item is this?' | $T8 %]</h4>
 
     <form method="post" action="ic.pl">
@@ -18,8 +17,9 @@
       <input type="hidden" name="[% HTML.escape(var.name) %]" value="[% HTML.escape(var.value) %]">
       [%- END %]
 
-      <input type="hidden" name="nextsub" value="add">
-      <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
+      <input type="hidden" name="action" value="dispatcher">
+      <input class="submit" type="submit" name="action_add" value="[% 'Continue' | $T8 %]">
+      <input class="submit" type="submit" name="action_back_to_record" value="[% 'Back' | $T8 %]">
     </form>
 
   </body>
