@@ -351,6 +351,9 @@ sub display_row {
                    $locale->text('LP'), $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2),
                    $locale->text('EK'), $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, 2) }
       if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/) && !$is_delivery_order;
+
+    $form->{"listprice_$i"} = $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2)
+      if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/) ;
 # / marge calculations ending
 
 # calculate onhand
