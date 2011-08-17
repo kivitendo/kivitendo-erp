@@ -1514,7 +1514,7 @@ sub retrieve_invoice {
            i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.discount, i.parts_id AS id, i.unit, i.deliverydate AS reqdate,
            i.project_id, i.serialnumber, i.id AS invoice_pos, i.pricegroup_id, i.ordnumber, i.transdate, i.cusordnumber, i.subtotal, i.lastcost,
            i.price_factor_id, i.price_factor, i.marge_price_factor,
-           p.partnumber, p.assembly, p.bin, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, p.formel,
+           p.partnumber, p.assembly, p.bin, p.notes AS partnotes, p.inventory_accno_id AS part_inventory_accno_id, p.formel, p.listprice,
            pr.projectnumber, pg.partsgroup, prg.pricegroup
 
          FROM invoice i

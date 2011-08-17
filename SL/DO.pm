@@ -663,7 +663,7 @@ sub retrieve {
   # stuff different from the whole will not be overwritten, but saved with a suffix.
   $query =
     qq|SELECT doi.id AS delivery_order_items_id,
-         p.partnumber, p.assembly, doi.description, doi.qty,
+         p.partnumber, p.assembly, p.listprice, doi.description, doi.qty,
          doi.sellprice, doi.parts_id AS id, doi.unit, doi.discount, p.bin, p.notes AS partnotes,
          doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
          doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,
@@ -860,7 +860,6 @@ sub order_details {
           $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
           push(@{ $form->{description} }, $sameitem);
         }
-
         push(@{ $form->{description} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq|, $ref->{partnumber}, $ref->{description}|);
 
         map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
