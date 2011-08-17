@@ -59,7 +59,7 @@
         <!--<iframe src="xslt/trans.xml" flex="1" id="uhr"/>-->
       </vbox>
       <splitter state="open" collapse="before" resizeafter="farthest"><grippy/></splitter>
-          <html:iframe id="main_window" src="{$callback}" flex="1" style="border:0px"/>
+      <browser id="main_window" type="content" src="{$callback}" flex="1" style="border:0px"/>
     </hbox>
   </window>
 </xsl:template>
