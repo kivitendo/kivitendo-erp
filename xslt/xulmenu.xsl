@@ -185,7 +185,7 @@
       }
       else
       {
-        var bf=document.getElementsByTagNameNS("http://www.w3.org/1999/xhtml","iframe").item(0)
+        var bf=document.getElementById("main_window")
         bf.setAttribute("src",path)
       }
     }
