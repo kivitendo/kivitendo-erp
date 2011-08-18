@@ -3,7 +3,7 @@
 ###################################
 
 - Bei den Berichten für Verkaus- und Einkaufsrechnungen wird auch auf die
-  positionsbezogenen Projektnummern bei Debitoren- und Kreditorenbuchungen
+  positionsbezogenen Projektnummern für Debitoren- und Kreditorenbuchungen
   gefiltert.
 
 - Es kann eine Standardsprache eingestellt werden, die automatisch bei neu
