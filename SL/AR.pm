@@ -472,8 +472,12 @@ sub ar_transactions {
     $where .=
       qq|AND ((a.globalproject_id = ?) OR EXISTS | .
       qq|  (SELECT * FROM invoice i | .
-      qq|   WHERE i.project_id = ? AND i.trans_id = a.id))|;
-    push(@values, $form->{"project_id"}, $form->{"project_id"});
+      qq|   WHERE i.project_id = ? AND i.trans_id = a.id) | .
+      qq| OR EXISTS | .
+      qq|  (SELECT * FROM acc_trans at | .
+      qq|   WHERE at.project_id = ? AND at.trans_id = a.id)| .
+      qq|  )|;
+    push(@values, $form->{project_id}, $form->{project_id}, $form->{project_id});
   }
 
   if ($form->{transdatefrom}) {

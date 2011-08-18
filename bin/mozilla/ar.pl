@@ -1364,7 +1364,7 @@ sub ar_transactions {
     'employee'                => { 'text' => $locale->text('Employee'), },
     'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
-    'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
+    'globalprojectnumber'     => { 'text' => $locale->text('Document Project Number'), },
     'marge_total'             => { 'text' => $locale->text('Ertrag'), },
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
     'customernumber'          => { 'text' => $locale->text('Customer Number'), },

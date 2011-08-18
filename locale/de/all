@@ -617,6 +617,7 @@ $self->{texts} = {
   'Do you want to carry this shipping address over to the new purchase order so that the vendor can deliver the goods directly to your customer?' => 'Wollen Sie diese Lieferadresse in den neuen Lieferantenauftrag &uuml;bernehmen, damit der H&auml;ndler die Waren direkt an Ihren Kunden liefern kann?',
   'Do you want to store the existing onhand values into a new warehouse?' => 'M&ouml;chten Sie die vorhandenen Mengendaten in ein Lager &uuml;bertragen?',
   'Document'                    => 'Dokument',
+  'Document Project Number'     => 'Projektnummer des Belegs',
   'Documents in the WebDAV repository' => 'Dokumente im WebDAV-Repository',
   'Done'                        => 'Fertig',
   'Download SEPA XML export file' => 'SEPA-XML-Exportdatei herunterladen',

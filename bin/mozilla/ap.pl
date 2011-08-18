@@ -1290,7 +1290,7 @@ sub ap_transactions {
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'notes'                   => { 'text' => $locale->text('Notes'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
-    'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
+    'globalprojectnumber'     => { 'text' => $locale->text('Document Project Number'), },
     'vendornumber'            => { 'text' => $locale->text('Vendor Number'), },
     'country'                 => { 'text' => $locale->text('Country'), },
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },

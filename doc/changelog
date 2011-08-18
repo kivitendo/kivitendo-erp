@@ -2,6 +2,10 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
+- Bei den Berichten für Verkaus- und Einkaufsrechnungen wird auch auf die
+  positionsbezogenen Projektnummern bei Debitoren- und Kreditorenbuchungen
+  gefiltert.
+
 - Es kann eine Standardsprache eingestellt werden, die automatisch bei neu
   anzulegenden Kunden und Lieferanten vorausgewählt ist.
 
