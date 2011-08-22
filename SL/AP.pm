@@ -185,7 +185,8 @@ sub post_transaction {
     $query = qq|UPDATE ap SET
                 invnumber = ?, transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
                 amount = ?, duedate = ?, paid = ?, netamount = ?,
-                curr = ?, notes = ?, department_id = ?, storno = ?, storno_id = ?
+                curr = ?, notes = ?, department_id = ?, storno = ?, storno_id = ?,
+                globalproject_id = ?
                WHERE id = ?|;
     @values = ($form->{invnumber}, conv_date($form->{transdate}),
                   $form->{ordnumber}, conv_i($form->{vendor_id}),
@@ -194,7 +195,8 @@ sub post_transaction {
                   $form->{netamount},
                   $form->{currency}, $form->{notes},
                   conv_i($form->{department_id}), $form->{storno},
-                  $form->{storno_id}, $form->{id});
+                  $form->{storno_id}, conv_i($form->{globalproject_id}),
+                  $form->{id});
     do_query($form, $dbh, $query, @values);
 
     # add individual transactions

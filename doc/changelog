@@ -2,6 +2,9 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
+- Projektnummer pro Beleg läßt sich auch für Debitoren- und
+  Kreditorenbuchungen angeben.
+
 - Bei den Berichten für Verkaus- und Einkaufsrechnungen wird auch auf die
   positionsbezogenen Projektnummern für Debitoren- und Kreditorenbuchungen
   gefiltert.

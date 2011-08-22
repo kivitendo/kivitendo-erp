@@ -436,6 +436,12 @@ sub form_header {
     qq|<script type="text/javascript" src="js/show_vc_details.js"></script>| .
     qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
 
+  my $globalprojectnumber =
+    NTI($cgi->popup_menu('-name' => "globalproject_id",
+                         '-values' => \@project_values,
+                         '-labels' => \%project_labels,
+                         '-default' => $form->{"globalproject_id"} ));
+
   $form->header;
   $onload = qq|focus()|;
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
@@ -522,6 +528,10 @@ sub form_header {
               <tr>
                 <th align=right nowrap>| . $locale->text('Due Date') . qq|</th>
                 $button2
+              </tr>
+              <tr>
+                <th align=right nowrap>| . $locale->text('Project Number') . qq|</th>
+                <td>$globalprojectnumber</td>
               </tr>
      </table>
           </td>

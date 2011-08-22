@@ -156,11 +156,12 @@ sub post_transaction {
            invnumber = ?, ordnumber = ?, transdate = ?, customer_id = ?,
            taxincluded = ?, amount = ?, duedate = ?, paid = ?,
            netamount = ?, curr = ?, notes = ?, department_id = ?,
-           employee_id = ?, storno = ?, storno_id = ?
+           employee_id = ?, storno = ?, storno_id = ?, globalproject_id = ?
          WHERE id = ?|;
     my @values = ($form->{invnumber}, $form->{ordnumber}, conv_date($form->{transdate}), conv_i($form->{customer_id}), $form->{taxincluded} ? 't' : 'f', $form->{amount},
                   conv_date($form->{duedate}), $form->{paid}, $form->{netamount}, $form->{currency}, $form->{notes}, conv_i($form->{department_id}),
-                  conv_i($form->{employee_id}), $form->{storno} ? 't' : 'f', $form->{storno_id}, conv_i($form->{id}));
+                  conv_i($form->{employee_id}), $form->{storno} ? 't' : 'f', $form->{storno_id},
+                  conv_i($form->{globalproject_id}), conv_i($form->{id}));
     do_query($form, $dbh, $query, @values);
 
     # add individual transactions for AR, amount and taxes
