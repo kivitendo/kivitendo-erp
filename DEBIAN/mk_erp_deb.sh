@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #Jedes neue Paket der gleichen Version bekommt eine eigene Nummer
-NR="0"
+NR="${NR:-0}"
 
 #hier wurde das Git-Paket entpakt:
 SRC=/tmp/lx-office-erp
