@@ -77,7 +77,7 @@ find var/ -name "*" -type f -exec md5sum {} \; >> DEBIAN/md5sum
 find etc/ -name "*" -type f -exec md5sum {} \; >> DEBIAN/md5sum
 
 #Größe feststellen:
-SIZE=`du -scb . | grep insgesamt | cut -f1`
+SIZE=`du -scb . | tail -n 1 | cut -f1`
 
 #Controlfile updaten:
 sed --in-place --expression "s/Installed-Size: 0/Installed-Size: $SIZE/g" DEBIAN/control
