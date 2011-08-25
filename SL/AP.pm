@@ -288,12 +288,13 @@ sub post_transaction {
       $form->{payables} = $amount;
 
       # add payment
+      my $gldate = (conv_date($form->{"gldate_$i"}))? conv_date($form->{"gldate_$i"}) : conv_date($form->{"gldate"});
       $query =
-        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, project_id, taxkey) | .
-        qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, | .
+        qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, project_id, taxkey) | .
+        qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, ?, | .
         qq|        (SELECT taxkey_id FROM chart WHERE accno = ?))|;
       @values = ($form->{id}, $form->{"AP_paid_account_$i"}, $form->{"paid_$i"},
-                 conv_date($form->{"datepaid_$i"}), $form->{"source_$i"},
+                 conv_date($form->{"datepaid_$i"}), $gldate, $form->{"source_$i"},
                  $form->{"memo_$i"}, $project_id, $form->{"AP_paid_account_$i"});
       do_query($form, $dbh, $query, @values);
 
@@ -568,7 +569,7 @@ sub post_payment {
   $self->_delete_payments($form, $dbh);
 
   # Save the new payments the user made before cleaning up $form.
-  my $payments_re = '^datepaid_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^paid_project_id_\d+$|^AP_paid_\d+$|^paidaccounts$';
+  my $payments_re = '^datepaid_\d+$|^gldate_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^paid_project_id_\d+$|^AP_paid_\d+$|^paidaccounts$';
   map { $payments{$_} = $form->{$_} } grep m/$payments_re/, keys %{ $form };
 
   # Clean up $form so that old content won't tamper the results.
@@ -649,6 +650,7 @@ sub setup_form {
         $form->{"AP_paid_$j"}         = "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
         $form->{"paid_$j"}            = $form->{acc_trans}{$key}->[$i - 1]->{amount};
         $form->{"datepaid_$j"}        = $form->{acc_trans}{$key}->[$i - 1]->{transdate};
+        $form->{"gldate_$j"}          = $form->{acc_trans}{$key}->[$i - 1]->{gldate};
         $form->{"source_$j"}          = $form->{acc_trans}{$key}->[$i - 1]->{source};
         $form->{"memo_$j"}            = $form->{acc_trans}{$key}->[$i - 1]->{memo};
 
