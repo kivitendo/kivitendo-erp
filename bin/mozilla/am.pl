@@ -1552,7 +1552,7 @@ sub edit_defaults {
   # default language
   my $all_languages = SL::DB::Manager::Language->get_all;
 
-# EÜR = cash, Bilanzierung = accrual 
+# EÜR = cash, Bilanzierung = accrual
 
   foreach my $key (keys %{ $form->{IC} }) {
     foreach my $accno (sort keys %{ $form->{IC}->{$key} }) {
@@ -1660,14 +1660,7 @@ sub config {
     { 'name' => $locale->text('Queue'),   'value' => 'queue',   'selected' => $selected{queue}, },
     ];
 
-  $form->{PRINTERS} = [];
-  foreach my $printer (SL::Printer->all_printers(%::myconfig)) {
-    push @{ $form->{PRINTERS} }, {
-      'name'     => $printer->{printer_description},
-      'value'    => $printer->{id},
-      'selected' => $printer->{id} == $myconfig{default_printer_id},
-    };
-  }
+  $form->{PRINTERS} = [ SL::Printer->all_printers(%::myconfig) ];
 
   my %countrycodes = User->country_codes;
 

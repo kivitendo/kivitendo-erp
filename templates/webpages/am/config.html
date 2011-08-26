@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE LxERP %]
-[% USE HTML %]<body onLoad="fokus()">
+[% USE HTML %][% USE L %]<body onLoad="fokus()">
 
  <p>
   <div class="listtop">[% title %]</div>
@@ -200,11 +200,7 @@
      <tr>
       <th align="right">[% 'Default printer' | $T8 %]</th>
       <td>
-       <select name="default_printer_id">
-        [%- FOREACH row = PRINTERS %]
-        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-        [%- END %]
-       </select>
+       [% L.select_tag('default_printer_id', L.options_for_select(PRINTERS, default => myconfig_default_printer_id, title => 'printer_description', with_empty => 1)) %]
       </td>
      </tr>
 
