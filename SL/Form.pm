@@ -1537,12 +1537,17 @@ sub generate_email_subject {
 sub cleanup {
   $main::lxdebug->enter_sub();
 
-  my $self = shift;
+  my ($self, $application) = @_;
+
+  my $error_code = $?;
 
   chdir("$self->{tmpdir}");
 
   my @err = ();
-  if (-f "$self->{tmpfile}.err") {
+  if ((-1 == $error_code) || (127 == (($error_code) >> 8))) {
+    push @err, $::locale->text('The application "#1" was not found on the system.', $application || 'pdflatex') . ' ' . $::locale->text('Please contact your administrator.');
+
+  } elsif (-f "$self->{tmpfile}.err") {
     open(FH, "$self->{tmpfile}.err");
     @err = <FH>;
     close(FH);

@@ -72,8 +72,7 @@ sub convert_to_postscript {
 
   system($::lx_office_conf{applications}->{html2ps} . " -f html2ps-config < $form->{tmpfile} > $psfile");
   if ($?) {
-    $self->{"error"} = $form->cleanup();
-    $self->cleanup();
+    $self->{"error"} = $form->cleanup($::lx_office_conf{applications}->{html2ps});
     return 0;
   }
 
@@ -105,8 +104,7 @@ sub convert_to_pdf {
 
   system($::lx_office_conf{applications}->{html2ps} . " -f html2ps-config < $form->{tmpfile} | ps2pdf - $pdffile");
   if ($?) {
-    $self->{"error"} = $form->cleanup();
-    $self->cleanup();
+    $self->{"error"} = $form->cleanup($::lx_office_conf{applications}->{html2ps});
     return 0;
   }
 

@@ -388,8 +388,7 @@ sub convert_to_postscript {
            "> $form->{tmpfile}.err");
     if ($?) {
       $ENV{HOME} = $old_home;
-      $self->{"error"} = $form->cleanup();
-      $self->cleanup();
+      $self->{"error"} = $form->cleanup($latex);
       return 0;
     }
   }
@@ -401,7 +400,7 @@ sub convert_to_postscript {
 
   if ($?) {
     $self->{"error"} = "dvips : $!";
-    $self->cleanup();
+    $self->cleanup('dvips');
     return 0;
   }
   $form->{tmpfile} =~ s/dvi$/ps/;
@@ -433,9 +432,8 @@ sub convert_to_pdf {
     system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
-      $ENV{HOME} = $old_home;
-      $self->{"error"} = $form->cleanup();
-      $self->cleanup();
+      $ENV{HOME}     = $old_home;
+      $self->{error} = $form->cleanup($latex);
       return 0;
     }
   }
