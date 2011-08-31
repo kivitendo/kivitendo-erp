@@ -249,6 +249,11 @@ sub post_transaction {
 
   # add paid transactions
   for my $i (1 .. $form->{paidaccounts}) {
+
+    if ($form->{"acc_trans_id_$i"} && $payments_only &&  ($::lx_office_conf{features}->{payments_changeable} == 0)) {
+      next;
+    }
+
     if ($form->{"paid_$i"} != 0) {
       my $project_id = conv_i($form->{"paid_project_id_$i"});
 
@@ -566,10 +571,12 @@ sub post_payment {
   $old_form = save_form();
 
   # Delete all entries in acc_trans from prior payments.
-  $self->_delete_payments($form, $dbh);
+  if ($::lx_office_conf{features}->{payments_changeable} != 0) {
+    $self->_delete_payments($form, $dbh);
+  }
 
   # Save the new payments the user made before cleaning up $form.
-  my $payments_re = '^datepaid_\d+$|^gldate_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^paid_project_id_\d+$|^AP_paid_\d+$|^paidaccounts$';
+  my $payments_re = '^datepaid_\d+$|^gldate_\d+$|^acc_trans_id_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^paid_project_id_\d+$|^AP_paid_\d+$|^paidaccounts$';
   map { $payments{$_} = $form->{$_} } grep m/$payments_re/, keys %{ $form };
 
   # Clean up $form so that old content won't tamper the results.
@@ -648,6 +655,7 @@ sub setup_form {
       if ($key eq "AP_paid") {
         $j++;
         $form->{"AP_paid_$j"}         = "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
+        $form->{"acc_trans_id_$j"}    = $form->{acc_trans}{$key}->[$i - 1]->{acc_trans_id};
         $form->{"paid_$j"}            = $form->{acc_trans}{$key}->[$i - 1]->{amount};
         $form->{"datepaid_$j"}        = $form->{acc_trans}{$key}->[$i - 1]->{transdate};
         $form->{"gldate_$j"}          = $form->{acc_trans}{$key}->[$i - 1]->{gldate};

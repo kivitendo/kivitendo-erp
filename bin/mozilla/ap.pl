@@ -693,10 +693,17 @@ $jsscript
         $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
     }
 
+    print qq|<input type=hidden name="acc_trans_id_$i" value=$form->{"acc_trans_id_$i"}>\n|;
     print qq|<input type=hidden name="gldate_$i" value=$form->{"gldate_$i"}>\n|;
-    my $changeable = (($form->{"gldate_$i"} eq '') || $form->current_date(\%myconfig) eq $form->{"gldate_$i"});
-    $form->{"payment_readonly_$i"} = ($changeable)? 0 : 1;
-    print qq|<input type=hidden name="payment_readonly_$i" value=$form->{"payment_readonly_$i"}>\n|;
+    my $changeable = 1;
+    if ($::lx_office_conf{features}->{payments_changeable} == 0) {
+      # never
+      $changeable = ($form->{"acc_trans_id_$i"})? 0 : 1;
+    }
+    if ($::lx_office_conf{features}->{payments_changeable} == 2) {
+      # on the same day
+      $changeable = (($form->{"gldate_$i"} eq '') || $form->current_date(\%myconfig) eq $form->{"gldate_$i"});
+    }
 
     $exchangerate = qq|&nbsp;|;
     if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
@@ -1183,7 +1190,7 @@ sub use_as_template {
 
   $main::auth->assert('general_ledger');
 
-  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);

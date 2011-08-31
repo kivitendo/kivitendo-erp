@@ -86,6 +86,9 @@ parts_image_css = border:0;float:left;max-width:250px;margin-top:20px:margin-rig
 # Show the picture in the results when you search for parts
 parts_listing_images = 0
 
+# Should payments be changeable after posting (0 = never; 1 = every time; 2 = on the same day)
+payments_changeable = 1
+
 [paths]
 # path to temporary files (must be writeable by the web server)
 userspath = users
