@@ -393,6 +393,7 @@ sub form_header {
           : ($creditwarning)                                   ? "alert('$credittext')"
           :                                                      "";
 
+  $TMPL_VAR{onload} = $onload;
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};
   $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
