@@ -26,10 +26,6 @@
     <input type="hidden" name="follow_up_trans_type_1" value="[% HTML.escape(type) %]">
     <input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
     <input type="hidden" name="follow_up_rowcount" value="1">
-[%- IF resubmit %]
-[%# in case of resubmits, restore enough information for dispatcher to work %]
-    [% L.hidden_tag('action_' _ dispatched_action, 1) %]
-[%- END %]
 
     <div class="listtop">[% title %]</div>
 

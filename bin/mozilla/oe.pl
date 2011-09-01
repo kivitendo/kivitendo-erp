@@ -181,7 +181,8 @@ sub edit {
 
   my ($language_id, $printer_id);
   if ($form->{print_and_save}) {
-    $form->{action}   = "print";
+    $form->{action}   = "dispatcher";
+    $form->{action_print}   = "1";
     $form->{resubmit} = 1;
     $language_id = $form->{language_id};
     $printer_id = $form->{printer_id};
@@ -388,10 +389,17 @@ sub form_header {
     }
   }
 
-  my $onload = ($form->{resubmit} && ($form->{format} eq "html")) ? "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';document.oe.submit()"
-          : ($form->{resubmit})                                ? "document.oe.submit()"
-          : ($creditwarning)                                   ? "alert('$credittext')"
-          :                                                      "";
+  my $onload = "";
+  if ($form->{resubmit} && ($form->{format} eq "html")) {
+      $onload  = "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';";
+      $onload .= "document.do.submit();";
+  } elsif ($form->{resubmit}) {
+    # emulate click for resubmitting actions
+    $onload  = "document.oe.${_}.click(); " for grep { /^action_/ } keys %$form;
+    $onload .= "document.oe.submit();";
+  } elsif ($creditwarning) {
+    $onload = "alert('$credittext')";
+  }
 
   $TMPL_VAR{onload} = $onload;
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};
@@ -522,8 +530,6 @@ sub update {
   my %myconfig = %main::myconfig;
 
   check_oe_access();
-
-#  $main::lxdebug->message(0, Dumper($form));
 
   set_headings($form->{"id"} ? "edit" : "add");
 
@@ -2026,7 +2032,6 @@ sub dispatcher {
   foreach my $action (qw(delete delivery_order e_mail invoice print purchase_order purchase_order quotation
                          request_for_quotation sales_order sales_order save save_and_close save_as_new ship_to update)) {
     if ($::form->{"action_${action}"}) {
-      $::form->{dispatched_action} = $action;
       call_sub($action);
       return;
     }
