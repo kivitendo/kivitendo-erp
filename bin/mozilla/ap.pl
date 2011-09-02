@@ -684,12 +684,13 @@ $jsscript
     # format amounts
     if ($form->{"paid_$i"}) {
       $form->{"paid_$i"} =
-      $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
+        $form->format_amount(\%myconfig, $form->{"paid_$i"}, 2);
     }
-    $form->{"exchangerate_$i"} =
-      $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
     if ($form->{"exchangerate_$i"} == 0) {
       $form->{"exchangerate_$i"} = "";
+    } else {
+      $form->{"exchangerate_$i"} =
+        $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
     }
 
     print qq|<input type=hidden name="gldate_$i" value=$form->{"gldate_$i"}>\n|;
