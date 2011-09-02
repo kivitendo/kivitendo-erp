@@ -1261,7 +1261,7 @@ sub cogs {
 
 # all invoice entries of an example part:
 
-# id | trans_id | base_qty | allocated | sellprice | inventory_accno | income_accno | expense_accno 
+# id | trans_id | base_qty | allocated | sellprice | inventory_accno | income_accno | expense_accno
 # ---+----------+----------+-----------+-----------+-----------------+--------------+---------------
 #  4 |        4 |       -5 |         5 |  20.00000 | 1140            | 4400         | 5400     bought 5 for 20
 #  5 |        5 |        4 |        -4 |  50.00000 | 1140            | 4400         | 5400     sold   4 for 50
@@ -1771,9 +1771,10 @@ sub retrieve_item {
     push @values, $form->{"partnumber_$i"};
   }
 
+  # Search for part ID overrides all other criteria.
   if ($form->{"id_${i}"}) {
-    $where .= qq| AND p.id = ?|;
-    push @values, $form->{"id_${i}"};
+    $where  = qq|p.id = ?|;
+    @values = ($form->{"id_${i}"});
   }
 
   if ($form->{"description_$i"}) {
