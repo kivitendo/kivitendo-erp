@@ -106,7 +106,7 @@ sub post_invoice {
     if ( $::instance_conf->get_inventory_system eq 'periodic') {
       # inventory account number is overwritten with expense account number, so
       # never book incoming to inventory account but always to expense account
-      $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"} 
+      $form->{"inventory_accno_$i"} = $form->{"expense_accno_$i"}
     };
 
     # get item baseunit
@@ -226,14 +226,14 @@ sub post_invoice {
            # ORDER BY transdate guarantees FIFO
 
 # sold two items without having bought them yet, example result of query:
-# id | qty | allocated | trans_id | inventory_accno_id | expense_accno_id | transdate  
+# id | qty | allocated | trans_id | inventory_accno_id | expense_accno_id | transdate
 # ---+-----+-----------+----------+--------------------+------------------+------------
 #  9 |   2 |         0 |        9 |                 15 |              151 | 2011-01-05
 
 # base_qty + allocated > 0 if article has already been sold but not bought yet
 
 # select qty,allocated,base_qty,sellprice from invoice where trans_id = 9;
-#  qty | allocated | base_qty | sellprice  
+#  qty | allocated | base_qty | sellprice
 # -----+-----------+----------+------------
 #    2 |         0 |        2 | 1000.00000
 
@@ -1093,9 +1093,10 @@ sub retrieve_item {
       push @values, $form->{"partnumber_$i"};
    }
 
+  # Search for part ID overrides all other criteria.
   if ($form->{"id_${i}"}) {
-    $where .= qq| AND p.id = ?|;
-    push @values, $form->{"id_${i}"};
+    $where  = qq|p.id = ?|;
+    @values = ($form->{"id_${i}"});
   }
 
   if ($form->{"description_$i"}) {
