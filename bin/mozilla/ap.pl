@@ -715,7 +715,7 @@ $jsscript
           $exchangerate =
             qq|<input name="exchangerate_$i" size=10 value=$form->{"exchangerate_$i"}>|;
         } else {
-          $exchangerate = qq|$form->{"exchangerate_$i"}|.
+          $exchangerate =
             qq|<input type=hidden name="exchangerate_$i" value=$form->{"exchangerate_$i"}>$form->{"exchangerate_$i"}|;
         }
       }
@@ -781,12 +781,12 @@ $jsscript
         qq|<input type=hidden name="paid_project_id_$i" value=$form->{"paid_project_id_$i"}>|;
     }
 
-    $column_data{"paid_$i"} = $paid;
-    $column_data{"AP_paid_$i"} = $AP_paid;
-    $column_data{"exchangerate_$i"} = qq|<td align=center>$exchangerate</td>|;
-    $column_data{"datepaid_$i"}  = $datepaid;
-    $column_data{"source_$i"} = $source;
-    $column_data{"memo_$i"} = $memo;
+    $column_data{"paid_$i"}            = $paid;
+    $column_data{"AP_paid_$i"}         = $AP_paid;
+    $column_data{"exchangerate_$i"}    = qq|<td align=center>$exchangerate</td>|;
+    $column_data{"datepaid_$i"}        = $datepaid;
+    $column_data{"source_$i"}          = $source;
+    $column_data{"memo_$i"}            = $memo;
     $column_data{"paid_project_id_$i"} = $paid_project_id;
 
     map { print qq|$column_data{"${_}_$i"}\n| } @column_index;

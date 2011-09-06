@@ -250,7 +250,7 @@ sub post_transaction {
   # add paid transactions
   for my $i (1 .. $form->{paidaccounts}) {
 
-    if ($form->{"acc_trans_id_$i"} && $payments_only &&  ($::lx_office_conf{features}->{payments_changeable} == 0)) {
+    if ($form->{"acc_trans_id_$i"} && $payments_only && ($::lx_office_conf{features}->{payments_changeable} == 0)) {
       next;
     }
 
