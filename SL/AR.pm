@@ -201,6 +201,11 @@ sub post_transaction {
 
   # add paid transactions
   for my $i (1 .. $form->{paidaccounts}) {
+
+    if ($form->{"acc_trans_id_$i"} && $payments_only && ($::lx_office_conf{features}->{payments_changeable} == 0)) {
+      next;
+    }
+
     if ($form->{"paid_$i"} != 0) {
       my $project_id = conv_i($form->{"paid_project_id_$i"});
 
@@ -229,12 +234,13 @@ sub post_transaction {
       }
 
       if ($form->{"paid_$i"} != 0) {
-        my $project_id = conv_i($form->{"paid_project_id_$i"});
         # add payment
+        my $project_id = conv_i($form->{"paid_project_id_$i"});
+        my $gldate = (conv_date($form->{"gldate_$i"}))? conv_date($form->{"gldate_$i"}) : conv_date($form->current_date($myconfig));
         $amount = $form->{"paid_$i"} * -1;
-        $query  = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, project_id, taxkey)
-                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-        @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount, conv_date($form->{"datepaid_$i"}), $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $form->{AR}{"paid_$i"});
+        $query  = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, project_id, taxkey)
+                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
+        @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount, conv_date($form->{"datepaid_$i"}), $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $form->{AR}{"paid_$i"});
         do_query($form, $dbh, $query, @values);
 
         # exchangerate difference for payment
@@ -328,10 +334,12 @@ sub post_payment {
   $old_form = save_form();
 
   # Delete all entries in acc_trans from prior payments.
-  $self->_delete_payments($form, $dbh);
+  if ($::lx_office_conf{features}->{payments_changeable} != 0) {
+    $self->_delete_payments($form, $dbh);
+  }
 
   # Save the new payments the user made before cleaning up $form.
-  my $payments_re = '^datepaid_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^paid_project_id_\d+$|^AR_paid_\d+$|^paidaccounts$';
+  my $payments_re = '^datepaid_\d+$|^gldate_\d+$|^acc_trans_id_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^paid_project_id_\d+$|^AR_paid_\d+$|^paidaccounts$';
   map { $payments{$_} = $form->{$_} } grep m/$payments_re/, keys %{ $form };
 
   # Clean up $form so that old content won't tamper the results.
@@ -573,9 +581,11 @@ sub setup_form {
         $j++;
         $form->{"AR_paid_$j"} = $form->{acc_trans}{$key}->[$i-1]->{accno};
 
+        $form->{"acc_trans_id_$j"}    = $form->{acc_trans}{$key}->[$i - 1]->{acc_trans_id};
         # reverse paid
         $form->{"paid_$j"}            = $form->{acc_trans}{$key}->[$i - 1]->{amount} * -1;
         $form->{"datepaid_$j"}        = $form->{acc_trans}{$key}->[$i - 1]->{transdate};
+        $form->{"gldate_$j"}          = $form->{acc_trans}{$key}->[$i - 1]->{gldate};
         $form->{"source_$j"}          = $form->{acc_trans}{$key}->[$i - 1]->{source};
         $form->{"memo_$j"}            = $form->{acc_trans}{$key}->[$i - 1]->{memo};
         $form->{"forex_$j"}           = $form->{acc_trans}{$key}->[$i - 1]->{exchangerate};

@@ -734,14 +734,31 @@ $jsscript
         $form->format_amount(\%myconfig, $form->{"exchangerate_$i"});
     }
 
+    print qq|<input type=hidden name="acc_trans_id_$i" value=$form->{"acc_trans_id_$i"}>\n|;
+    print qq|<input type=hidden name="gldate_$i" value=$form->{"gldate_$i"}>\n|;
+    my $changeable = 1;
+    if ($::lx_office_conf{features}->{payments_changeable} == 0) {
+      # never
+      $changeable = ($form->{"acc_trans_id_$i"})? 0 : 1;
+    }
+    if ($::lx_office_conf{features}->{payments_changeable} == 2) {
+      # on the same day
+      $changeable = (($form->{"gldate_$i"} eq '') || $form->current_date(\%myconfig) eq $form->{"gldate_$i"});
+    }
+
     $exchangerate = qq|&nbsp;|;
     if ($form->{defaultcurrency} && ($form->{currency} ne $form->{defaultcurrency})) {
       if ($form->{"forex_$i"}) {
         $exchangerate =
           qq|<input type=hidden name="exchangerate_$i" value=$form->{"exchangerate_$i"}>$form->{"exchangerate_$i"}|;
       } else {
-        $exchangerate =
-          qq|<input name="exchangerate_$i" size=10 value=$form->{"exchangerate_$i"}>|;
+        if ($changeable) {
+          $exchangerate =
+            qq|<input name="exchangerate_$i" size=10 value=$form->{"exchangerate_$i"}>|;
+        } else {
+          $exchangerate =
+            qq|<input type=hidden name="exchangerate_$i" value=$form->{"exchangerate_$i"}>$form->{"exchangerate_$i"}|;
+        }
       }
     }
 
@@ -749,33 +766,78 @@ $jsscript
 <input type=hidden name="forex_$i" value=$form->{"forex_$i"}>
 |;
 
-    $column_data{paid} =
-      qq|<td align=center><input name="paid_$i" size=11 value="$form->{"paid_$i"}" onBlur=\"check_right_number_format(this)\"></td>|;
-    $column_data{AR_paid} =
-      qq|<td align=center>${selectAR_paid}</td>|;
-    $column_data{exchangerate} = qq|<td align=center>$exchangerate</td>|;
-    $column_data{datepaid}     =
-      qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 value="$form->{"datepaid_$i"}" onBlur=\"check_right_date_format(this)\">
+    my $datepaid;
+    if ($changeable) {
+      $datepaid = qq|<td align=center><input name="datepaid_$i" id="datepaid_$i" size=11 value="$form->{"datepaid_$i"}" onBlur=\"check_right_date_format(this)\">
          <input type="button" name="datepaid_$i" id="trigger_datepaid_$i" value="?"></td>|;
-    $column_data{source} =
-      qq|<td align=center><input name="source_$i" size=11 value="$form->{"source_$i"}"></td>|;
-    $column_data{memo} =
-      qq|<td align=center><input name="memo_$i" size=11 value="$form->{"memo_$i"}"></td>|;
+    } else {
+      $datepaid = qq|<td align=center>$form->{"datepaid_$i"}</td>|.
+        qq|<input type=hidden name="datepaid_$i" value=$form->{"datepaid_$i"}>|;
+    }
 
-    $column_data{paid_project_id} =
+    my $paid;
+    if ($changeable) {
+      $paid = qq|<td align=center><input name="paid_$i" size=11 value="$form->{"paid_$i"}" onBlur=\"check_right_number_format(this)\"></td>|;
+    } else {
+      $paid = qq|<td align=center>$form->{"paid_$i"}</td>|.
+        qq|<input type=hidden name="paid_$i" value=$form->{"paid_$i"}>|;
+    }
+
+    my $source;
+    if ($changeable) {
+      $source = qq|<td align=center><input name="source_$i" size=11 value="$form->{"source_$i"}"></td>|;
+    } else {
+      $source = qq|<td align=center>$form->{"source_$i"}</td>|.
+        qq|<input type=hidden name="source_$i" value=$form->{"source_$i"}>|;
+    }
+
+    my $memo;
+    if ($changeable) {
+      $memo = qq|<td align=center><input name="memo_$i" size=11 value="$form->{"memo_$i"}"></td>|;
+    } else {
+      $memo = qq|<td align=center>$form->{"memo_$i"}</td>|.
+        qq|<input type=hidden name="memo_$i" value=$form->{"memo_$i"}>|;
+    }
+
+    my $AR_paid;
+    if ($changeable) {
+      $AR_paid = qq|<td align=center>${selectAR_paid}</td>|;
+    } else {
+      $AR_paid = qq|<td align=center>$form->{"AR_paid_$i"}</td>|.
+        qq|<input type=hidden name="AR_paid_$i" value=$form->{"AR_paid_$i"}>|;
+    }
+
+    my $paid_project_id;
+    if ($changeable) {
+      $paid_project_id =
       qq|<td>|
       . NTI($cgi->popup_menu('-name' => "paid_project_id_$i",
                              '-values' => \@project_values,
                              '-labels' => \%project_labels,
                              '-default' => $form->{"paid_project_id_$i"} ))
       . qq|</td>|;
+    } else {
+      my $projectnumber = $project_labels{$form->{"paid_project_id_$i"}};
+      $paid_project_id = qq|<td>$projectnumber</td>|.
+        qq|<input type=hidden name="paid_project_id_$i" value=$form->{"paid_project_id_$i"}>|;
+    }
+
+    $column_data{paid}            = $paid;
+    $column_data{AR_paid}         = $AR_paid;
+    $column_data{exchangerate}    = qq|<td align=center>$exchangerate</td>|;
+    $column_data{datepaid}        = $datepaid;
+    $column_data{source}          = $source;
+    $column_data{memo}            = $memo;
+    $column_data{paid_project_id} = $paid_project_id;
 
     map { print qq|$column_data{$_}\n| } @column_index;
 
     print "
         </tr>
 ";
-    push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
+    if ($changeable) {
+      push(@triggers, "datepaid_$i", "BL", "trigger_datepaid_$i");
+    }
   }
 
   my $paid_missing = $form->{invtotal_unformatted} - $form->{totalpaid};
@@ -1185,7 +1247,7 @@ sub use_as_template {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
