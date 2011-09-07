@@ -295,10 +295,28 @@ sub invoice_transactions {
 
     map { $totals{$_}    += $ar->{$_} } @total_columns;
 
-    $subtotals2{sellprice} = $subtotals2{sellprice_total} / $subtotals2{qty} if $subtotals2{qty} != 0;
-    $subtotals1{sellprice} = $subtotals1{sellprice_total} / $subtotals1{qty} if $subtotals1{qty} != 0;
-    $subtotals2{lastcost} = $subtotals2{lastcost_total} / $subtotals2{qty} if $subtotals2{qty} != 0;
-    $subtotals1{lastcost} = $subtotals1{lastcost_total} / $subtotals1{qty} if $subtotals1{qty} != 0;
+    if ( $subtotals1{qty} != 0 ) {
+      # calculate averages for subtotals1 and subtotals2
+      # credited positions reduce both total and qty and thus don't influence average prices
+      $subtotals1{sellprice} = $subtotals1{sellprice_total} / $subtotals1{qty};
+      $subtotals1{lastcost} = $subtotals1{lastcost_total} / $subtotals1{qty};
+    } else {
+      # qty is zero, so we have a special case where each position in subtotal
+      # group has a corresponding credit note so that the total qty is zero in
+      # this case we also want the total amounts to be zero, so overwrite them,
+      # rather than leaving the last value in sellprice/lastcost
+
+      $subtotals1{sellprice} = 0;
+      $subtotals1{lastcost} = 0;
+    };
+
+    if ( $subtotals2{qty} != 0 ) {
+      $subtotals2{sellprice} = $subtotals2{sellprice_total} / $subtotals2{qty};
+      $subtotals2{lastcost} = $subtotals2{lastcost_total} / $subtotals2{qty}; 
+    } else {
+      $subtotals2{sellprice} = 0;
+      $subtotals2{lastcost} = 0;
+    };
 
     # Ertrag prozentual in den Summen: (summe VK - summe Ertrag) / summe VK
     $subtotals1{marge_percent} = $subtotals1{sellprice_total} ? (($subtotals1{sellprice_total} - $subtotals1{lastcost_total}) / $subtotals1{sellprice_total}) : 0;
