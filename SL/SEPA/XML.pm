@@ -105,6 +105,20 @@ sub _group_transactions {
   return $grouped;
 }
 
+sub _restricted_identification_sepa1 {
+  my ($self, $string) = @_;
+
+  $string =~ s/[^A-Za-z0-9\+\?\/\-:\(\)\.,' ]//g;
+  return substr $string, 0, 35;
+}
+
+sub _restricted_identification_sepa2 {
+  my ($self, $string) = @_;
+
+  $string =~ s/[^A-Za-z0-9\+\?\/\-:\(\)\.,']//g;
+  return substr $string, 0, 35;
+}
+
 sub to_xml {
   my $self = shift;
 
@@ -122,10 +136,10 @@ sub to_xml {
   my $now_str   = strftime('%Y-%m-%dT%H:%M:%S', @now) . substr($time_zone, 0, 3) . ':' . substr($time_zone, 3, 2);
 
   my $is_coll   = $self->{collection};
-  my $cd_src    = $is_coll ? 'Cdtr' : 'Dbtr';
-  my $cd_dst    = $is_coll ? 'Dbtr' : 'Cdtr';
-  my $pain_id   = $is_coll ? 'pain.008.002.01' : 'pain.001.001.02';
-  my $pain_elmt = $is_coll ? 'pain.008.001.01' : 'pain.001.001.02';
+  my $cd_src    = $is_coll ? 'Cdtr'              : 'Dbtr';
+  my $cd_dst    = $is_coll ? 'Dbtr'              : 'Cdtr';
+  my $pain_id   = $is_coll ? 'pain.008.002.02'   : 'pain.001.002.03';
+  my $pain_elmt = $is_coll ? 'CstmrDrctDbtInitn' : 'CstmrCdtTrfInitn';
   my @pii_base  = (strftime('PII%Y%m%d%H%M%S', @now), rand(1000000000));
 
   my $grouped_transactions = $self->_group_transactions();
@@ -133,18 +147,17 @@ sub to_xml {
   $xml->xmlDecl();
 
   $xml->startTag('Document',
-                 'xmlns'              => "urn:swift:xsd:\$${pain_id}",
+                 'xmlns'              => "urn:iso:std:iso:20022:tech:xsd:${pain_id}",
                  'xmlns:xsi'          => 'http://www.w3.org/2001/XMLSchema-instance',
-                 'xsi:schemaLocation' => "urn:swift:xsd:\$${pain_id} ${pain_id}.xsd");
+                 'xsi:schemaLocation' => "urn:iso:std:iso:20022:tech:xsd:${pain_id} ${pain_id}.xsd");
 
   $xml->startTag($pain_elmt);
 
   $xml->startTag('GrpHdr');
-  $xml->dataElement('MsgId', encode('UTF-8', substr($self->{message_id}, 0, 35)));
+  $xml->dataElement('MsgId', encode('UTF-8', $self->_restricted_identification_sepa1($self->{message_id})));
   $xml->dataElement('CreDtTm', $now_str);
   $xml->dataElement('NbOfTxs', scalar @{ $self->{transactions} });
   $xml->dataElement('CtrlSum', $self->_format_amount($grouped_transactions->{sum_amount}));
-  $xml->dataElement('Grpg', 'MIXD');
 
   $xml->startTag('InitgPty');
   $xml->dataElement('Nm', encode('UTF-8', substr($self->{company}, 0, 70)));
@@ -157,11 +170,11 @@ sub to_xml {
     my $master_transaction = $transaction_group->{transactions}->[0];
 
     $xml->startTag('PmtInf');
-    if ($is_coll) {
-      $xml->dataElement('PmtInfId', sprintf('%s%010d', @pii_base));
-      $pii_base[1]++;
-    }
+    $xml->dataElement('PmtInfId', sprintf('%s%010d', @pii_base));
+    $pii_base[1]++;
     $xml->dataElement('PmtMtd', $is_coll ? 'DD' : 'TRF');
+    $xml->dataElement('NbOfTxs', scalar @{ $transaction_group->{transactions} });
+    $xml->dataElement('CtrlSum', $self->_format_amount($transaction_group->{sum_amount}));
 
     $xml->startTag('PmtTpInf');
     $xml->startTag('SvcLvl');
@@ -199,7 +212,7 @@ sub to_xml {
       $xml->startTag($is_coll ? 'DrctDbtTxInf' : 'CdtTrfTxInf');
 
       $xml->startTag('PmtId');
-      $xml->dataElement('EndToEndId', $transaction->get('end_to_end_id', 35));
+      $xml->dataElement('EndToEndId', $self->_restricted_identification_sepa1($transaction->get('end_to_end_id')));
       $xml->endTag('PmtId');
 
       if ($is_coll) {
@@ -210,17 +223,19 @@ sub to_xml {
         $xml->startTag('DrctDbtTx');
 
         $xml->startTag('MndtRltdInf');
-        $xml->dataElement('MndtId', $transaction->get('reference', 35));
+        $xml->dataElement('MndtId', $self->_restricted_identification_sepa2($transaction->get('reference')));
         $xml->dataElement('DtOfSgntr', $transaction->get('reference_date', 2010-12-02));
         $xml->endTag('MndtRltdInf');
 
         $xml->startTag('CdtrSchmeId');
         $xml->startTag('Id');
         $xml->startTag('PrvtId');
-        $xml->startTag('OthrId');
+        $xml->startTag('Othr');
         $xml->dataElement('Id', encode('UTF-8', substr($self->{creditor_id}, 0, 35)));
-        $xml->dataElement('IdTp', 'SEPA');
-        $xml->endTag('OthrId');
+        $xml->startTag('SchmeNm');
+        $xml->dataElement('Prtry', 'SEPA');
+        $xml->endTag('SchmeNm');
+        $xml->endTag('Othr');
         $xml->endTag('PrvtId');
         $xml->endTag('Id');
         $xml->endTag('CdtrSchmeId');

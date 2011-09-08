@@ -113,7 +113,7 @@ sub bank_transfer_create {
   }
 
   if ($error_message || !$form->{confirmation}) {
-    my @vc_ids                 = uniq map { $_->{"${vc}_id"} } @bank_transfers;
+    my @vc_ids                 = uniq map { $_->{vc_id} } @bank_transfers;
     $vc_bank_info            ||= CT->get_bank_info('vc' => $vc,
                                                    'id' => \@vc_ids);
     my @vc_bank_info           = sort { lc $a->{name} cmp lc $b->{name} } values %{ $vc_bank_info };
@@ -136,7 +136,7 @@ sub bank_transfer_create {
   } else {
     foreach my $bank_transfer (@bank_transfers) {
       foreach (qw(iban bic)) {
-        $bank_transfer->{"vc_${_}"}  = $vc_bank_info->{ $bank_transfer->{"${vc}_id"} }->{$_};
+        $bank_transfer->{"vc_${_}"}  = $vc_bank_info->{ $bank_transfer->{vc_id} }->{$_};
         $bank_transfer->{"our_${_}"} = $bank_account->{$_};
       }
 
