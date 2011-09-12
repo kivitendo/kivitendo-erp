@@ -1438,10 +1438,6 @@ sub invoice {
     $dec_qty = length $dec_qty;
     $form->{"qty_$i"} =
       $form->format_amount(\%myconfig, $form->{"qty_$i"}, $dec_qty);
-
-    map { $form->{"${_}_$i"} =~ s/\"/&quot;/g }
-      qw(partnumber description unit);
-
   }
 
   #  show pricegroup in newly loaded invoice when creating invoice from quotation/order
