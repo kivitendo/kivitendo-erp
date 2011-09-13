@@ -15,13 +15,6 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
-use SL::DB::Helper::CustomVariables (
-  sub_module  => 'orderitems',
-  cvars_alias => 1,
-  overloads   => {
-    parts_id => 'SL::DB::Part',
-  },
-);
 use SL::DB::AccTransaction;
 use SL::DB::Chart;
 use SL::DB::Employee;

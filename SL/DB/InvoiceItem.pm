@@ -3,6 +3,13 @@ package SL::DB::InvoiceItem;
 use strict;
 
 use SL::DB::MetaSetup::InvoiceItem;
+use SL::DB::Helper::CustomVariables (
+  sub_module  => 'invoice',
+  cvars_alias => 1,
+  overloads   => {
+    parts_id => 'SL::DB::Part',
+  },
+);
 
 __PACKAGE__->meta->add_relationship(
   part => {
