@@ -93,6 +93,8 @@ sub make_spec {
   my $spec = { key => $col, steps => [] };
   my $cur_class = $self->_csv->class;
 
+  return unless $cur_class;
+
   for my $step_index ( split /\.(?!\d)/, $path ) {
     my ($step, $index) = split /\./, $step_index;
     if ($cur_class->can($step)) {
