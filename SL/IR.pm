@@ -499,6 +499,12 @@ sub post_invoice {
 
   # record payments and offsetting AP
   for my $i (1 .. $form->{paidaccounts}) {
+    if ($form->{"acc_trans_id_$i"}
+        && $payments_only
+        && ($::lx_office_conf{features}->{payments_changeable} == 0)) {
+      next;
+    }
+
     next if $form->{"paid_$i"} == 0;
 
     my ($accno)            = split /--/, $form->{"AP_paid_$i"};
@@ -518,11 +524,14 @@ sub post_invoice {
     }
 
     # record payment
-    $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, source, memo, taxkey, project_id)
-                VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?,
+    my $gldate = (conv_date($form->{"gldate_$i"}))? conv_date($form->{"gldate_$i"}) : conv_date($form->current_date($myconfig));
+
+    $query =
+      qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, taxkey, project_id)
+                VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?,
                 (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
     @values = (conv_i($form->{id}), $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"},
-               $form->{"source_$i"}, $form->{"memo_$i"}, $accno, $project_id);
+               $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $accno, $project_id);
     do_query($form, $dbh, $query, @values);
 
     $exchangerate = 0;
@@ -1394,10 +1403,12 @@ sub post_payment {
   $old_form = save_form();
 
   # Delete all entries in acc_trans from prior payments.
-  $self->_delete_payments($form, $dbh);
+  if ($::lx_office_conf{features}->{payments_changeable} != 0) {
+    $self->_delete_payments($form, $dbh);
+  }
 
   # Save the new payments the user made before cleaning up $form.
-  map { $payments{$_} = $form->{$_} } grep m/^datepaid_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^AP_paid_\d+$|^paidaccounts$/, keys %{ $form };
+  map { $payments{$_} = $form->{$_} } grep m/^datepaid_\d+$|^gldate_\d+$|^acc_trans_id_\d+$|^memo_\d+$|^source_\d+$|^exchangerate_\d+$|^paid_\d+$|^AP_paid_\d+$|^paidaccounts$/, keys %{ $form };
 
   # Clean up $form so that old content won't tamper the results.
   %keep_vars = map { $_, 1 } qw(login password id);

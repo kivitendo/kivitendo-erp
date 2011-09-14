@@ -181,10 +181,12 @@ sub invoice_links {
         $form->{"AP_paid_$i"} =
           "$form->{acc_trans}{$key}->[$i-1]->{accno}--$form->{acc_trans}{$key}->[$i-1]->{description}";
 
+        $form->{"acc_trans_id_$i"} = $form->{acc_trans}{$key}->[$i - 1]->{acc_trans_id};
         # reverse paid
         $form->{"paid_$i"}     = $form->{acc_trans}{$key}->[$i - 1]->{amount};
         $form->{"datepaid_$i"} =
           $form->{acc_trans}{$key}->[$i - 1]->{transdate};
+        $form->{"gldate_$i"}   = $form->{acc_trans}{$key}->[$i - 1]->{gldate};
         $form->{"forex_$i"} = $form->{"exchangerate_$i"} =
           $form->{acc_trans}{$key}->[$i - 1]->{exchangerate};
         $form->{"source_$i"} = $form->{acc_trans}{$key}->[$i - 1]->{source};
@@ -403,6 +405,16 @@ sub form_footer {
   my $accno_arap = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
 
   for my $i (1 .. $form->{paidaccounts}) {
+    $form->{"changeable_$i"} = 1;
+    if ($::lx_office_conf{features}->{payments_changeable} == 0) {
+      # never
+      $form->{"changeable_$i"} = ($form->{"acc_trans_id_$i"})? 0 : 1;
+    } elsif ($::lx_office_conf{features}->{payments_changeable} == 2) {
+      # on the same day
+      $form->{"changeable_$i"} = (($form->{"gldate_$i"} eq '') || 
+                                  ($form->current_date(\%myconfig) eq $form->{"gldate_$i"}));
+    }
+
     $form->{"selectAP_paid_$i"} = $form->{selectAP_paid};
     if (!$form->{"AP_paid_$i"}) {
       $form->{"selectAP_paid_$i"} =~ s/option>$accno_arap--(.*?)>/option selected>$accno_arap--$1>/;
@@ -560,7 +572,7 @@ sub storno {
 
   # Payments must not be recorded for the new storno invoice.
   $form->{paidaccounts} = 0;
-  map { my $key = $_; delete $form->{$key} if grep { $key =~ /^$_/ } qw(datepaid_ source_ memo_ paid_ exchangerate_ AR_paid_) } keys %{ $form };
+  map { my $key = $_; delete $form->{$key} if grep { $key =~ /^$_/ } qw(datepaid_ gldate_ acc_trans_id_ source_ memo_ paid_ exchangerate_ AR_paid_) } keys %{ $form };
 
   # saving the history
   if(!exists $form->{addition} && $form->{id} ne "") {
@@ -589,7 +601,7 @@ sub use_as_template {
 
   $main::auth->assert('vendor_invoice_edit');
 
-  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
+  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno);
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
