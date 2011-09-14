@@ -66,7 +66,7 @@ sub _init_environment {
 
     if ($info->{append_path}) {
       $value = ':' . $value unless $value =~ m/^:/ || !$ENV{$key};
-      $value = $ENV{$key} . $value;
+      $value = $ENV{$key} . $value if $ENV{$key};
     }
 
     $ENV{$key} = $value;
