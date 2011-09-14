@@ -64,7 +64,7 @@ SL::InstanceConfiguration - Provide instance-specific configuration data
 =head1 SYNOPSIS
 
 Lx-Office has two configuration levels: installation specific
-(provided by the global variable C<%::lxoffice_conf>) and instance
+(provided by the global variable C<%::lx_office_conf>) and instance
 specific. The latter is provided by a global instance of this class,
 C<$::instance_conf>.
 
