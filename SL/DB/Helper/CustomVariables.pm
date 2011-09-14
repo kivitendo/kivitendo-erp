@@ -22,7 +22,7 @@ sub import {
 
   $params{module} || $params{sub_module}  or croak 'need param module or sub_module';
 
-  save_meta_info($caller_package, %params);
+  return unless save_meta_info($caller_package, %params);
   make_cvar_accessor($caller_package, %params);
   make_cvar_alias($caller_package, %params)      if $params{cvars_alias};
   make_cvar_by_configs($caller_package, %params);
@@ -36,6 +36,8 @@ sub save_meta_info {
   return 0 if $meta->{META_CVARS()};
 
   $meta->{META_CVARS()} = \%params;
+
+  return 1;
 }
 
 sub make_cvar_accessor {
