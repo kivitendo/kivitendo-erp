@@ -26,6 +26,7 @@ my $finder = URI::Find->new(sub {
 });
 
 find(sub {
+  return unless -f $File::Find::name;
   open(FH, $File::Find::name) or return;
   my $text;
   { local $/; $text = <FH>; }
