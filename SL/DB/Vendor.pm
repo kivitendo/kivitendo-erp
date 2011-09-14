@@ -4,6 +4,10 @@ use strict;
 
 use SL::DB::MetaSetup::Vendor;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::DB::Helper::CustomVariables (
+  module      => 'CT',
+  cvars_alias => 1,
+);
 
 use SL::DB::VC;
 

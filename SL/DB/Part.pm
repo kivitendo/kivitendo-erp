@@ -10,6 +10,10 @@ use SL::DB::MetaSetup::Part;
 use SL::DB::Manager::Part;
 use SL::DB::Chart;
 use SL::DB::Helper::TransNumberGenerator;
+use SL::DB::Helper::CustomVariables (
+  module      => 'IC',
+  cvars_alias => 1,
+);
 
 __PACKAGE__->meta->add_relationships(
   unit_obj                     => {
