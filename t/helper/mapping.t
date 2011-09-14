@@ -1,7 +1,9 @@
-use Test::More tests => 12;
+use Test::More tests => 2;
 
 use_ok 'SL::DB::Helper::ALL';
-use_ok 'SL::DB::Helper::Mappings', qw(db);
+use_ok 'SL::DB::Helper::Mappings';
+
+__END__
 
 is db('part'), 'SL::DB::Part';
 is db('parts'), 'SL::DB::Manager::Part';
