@@ -51,12 +51,6 @@ __PACKAGE__->meta->add_relationships(
     class        => 'SL::DB::Translation',
     column_map   => { id => 'parts_id' },
   },
-  custom_variables => {
-    type           => 'one to many',
-    class          => 'SL::DB::CustomVariable',
-    column_map     => { id => 'trans_id' },
-    query_args     => [ config_id => [ \"(SELECT custom_variable_configs.id FROM custom_variable_configs WHERE custom_variable_configs.module = 'IC')" ] ],
-  },
 );
 
 __PACKAGE__->meta->initialize;
