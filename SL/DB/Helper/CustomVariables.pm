@@ -65,7 +65,7 @@ sub make_cvar_alias {
 }
 
 # this is used for templates where you need to list every applicable config
-# auto vivifies non existant cvar objects as necessary.
+# auto vivifies non existent cvar objects as necessary.
 sub make_cvar_by_configs {
   my ($caller_package, %params) = @_;
 
