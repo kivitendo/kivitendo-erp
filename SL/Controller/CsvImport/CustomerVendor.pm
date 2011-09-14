@@ -252,6 +252,6 @@ sub setup_displayable_columns {
 }
 
 # TODO:
-# salesman_id -- Kunden mit Typ 'Verkäufer', falls $::vertreter an ist, ansonsten Employees
+# salesman_id -- Kunden mit Typ 'Verkäufer', falls Vertreter-Modus an ist, ansonsten Employees
 
 1;
