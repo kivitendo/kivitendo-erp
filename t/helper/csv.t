@@ -9,6 +9,7 @@ my $csv;
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee\n",
   header => [ 'description' ],
+  class  => 'SL::DB::Part',
 );
 
 isa_ok $csv->_csv, 'Text::CSV_XS';
@@ -16,12 +17,15 @@ isa_ok $csv->_io, 'IO::File';
 isa_ok $csv->parse, 'SL::Helper::Csv', 'parsing returns self';
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'simple case works';
 
-$csv->class('SL::DB::Part');
 
 is $csv->get_objects->[0]->description, 'Kaffee', 'get_object works';
 ####
 
-SL::Dispatcher::pre_startup_setup();
+{
+no warnings 'once';
+$::dispatcher = SL::Dispatcher->new;
+$::dispatcher->pre_startup_setup();
+}
 
 $::form = Form->new;
 $::myconfig{numberformat} = '1.000,00';
@@ -31,7 +35,7 @@ $::locale = Locale->new('de');
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee;0.12;12,2;1,5234\n",
   header => [ 'description', 'sellprice', 'lastcost_as_number', 'listprice' ],
-  dispatch => { listprice => 'listprice_as_number' },
+  profile => { listprice => 'listprice_as_number' },
   class  => 'SL::DB::Part',
 );
 $csv->parse;
@@ -50,7 +54,7 @@ Kaffee,0.12,'12,2','1,5234'
 EOL
   sep_char => ',',
   quote_char => "'",
-  dispatch => { listprice => 'listprice_as_number' },
+  profile => { listprice => 'listprice_as_number' },
   class  => 'SL::DB::Part',
 );
 $csv->parse;
@@ -202,7 +206,7 @@ $csv->parse;
 
 print Dumper($csv->errors);
 
-my @mm = $csv->get_objects->[0]->makemodel;
+@mm = $csv->get_objects->[0]->makemodel;
 is scalar @mm,  1, 'multiple one-to-many dispatch';
 is $csv->get_objects->[0]->makemodels->[0]->model, 'Chair 0815', '...check 1';
 is $csv->get_objects->[0]->makemodels->[0]->make, '213', '...check 2';
