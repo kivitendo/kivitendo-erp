@@ -389,7 +389,7 @@ sub spawn_xvfb {
 
   local *OUT;
   my $dfname = $self->{"userspath"} . "/xvfb_display";
-  if (!open(OUT, ">$dfname")) {
+  if (!open(OUT, ">", $dfname)) {
     $self->{"error"} = "Conversion to PDF failed because OpenOffice could not be started ($dfname: $!)";
     unlink($xauthority);
     kill($pid);

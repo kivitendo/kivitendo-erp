@@ -794,7 +794,7 @@ sub print_dunning {
 
   my $filename          = "dunning_${dunning_id}_" . Common::unique_id() . ".pdf";
   my $spool             = $::lx_office_conf{paths}->{spool};
-  $form->{OUT}          = ">${spool}/$filename";
+  $form->{OUT}          = "${spool}/$filename";
   $form->{keep_tmpfile} = 1;
 
   delete $form->{tmpfile};
@@ -888,7 +888,7 @@ sub print_invoice_for_fees {
   my $filename = Common::unique_id() . "dunning_invoice_${dunning_id}.pdf";
 
   my $spool             = $::lx_office_conf{paths}->{spool};
-  $form->{OUT}          = ">$spool/$filename";
+  $form->{OUT}          = "$spool/$filename";
   $form->{keep_tmpfile} = 1;
   delete $form->{tmpfile};
 

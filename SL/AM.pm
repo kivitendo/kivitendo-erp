@@ -1009,7 +1009,7 @@ sub save_template {
 
   my $error = "";
 
-  if (open(TEMPLATE, ">$filename")) {
+  if (open(TEMPLATE, ">", $filename)) {
     $content = Encode::encode('utf-8-strict', $content) if $::locale->is_utf8;
     $content =~ s/\r\n/\n/g;
     print(TEMPLATE $content);

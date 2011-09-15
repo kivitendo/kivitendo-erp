@@ -549,11 +549,11 @@ sub save_user {
       closedir TEMPLATEDIR;
 
       foreach my $file (@templates) {
-        open(TEMP, $::lx_office_conf{paths}->{templates} . "/$file")
+        open(TEMP, "<", $::lx_office_conf{paths}->{templates} . "/$file")
           or $form->error($::lx_office_conf{paths}->{templates} . "/$file : $ERRNO");
 
         $file =~ s/\Q$form->{mastertemplates}\E-//;
-        open(NEW, ">$form->{templates}/$file")
+        open(NEW, ">", "$form->{templates}/$file")
           or $form->error("$form->{templates}/$file : $ERRNO");
 
         while (my $line = <TEMP>) {
@@ -1137,7 +1137,7 @@ sub lock_system {
   my $form   = $main::form;
   my $locale = $main::locale;
 
-  open(FH, ">" . _nologin_file_name())
+  open(FH, ">", _nologin_file_name())
     or $form->error($locale->text('Cannot create Lock!'));
   close(FH);
 

@@ -262,7 +262,7 @@ sub _write {
   chomp($message);
 
   if ((FILE_TARGET == $self->{"target"})
-      && open(FILE, ">>" . $self->{"file"})) {
+      && open(FILE, ">>", $self->{"file"})) {
     print(FILE "${date}${message}\n");
     close(FILE);
 

@@ -1315,25 +1315,24 @@ sub parse_template {
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
-    $self->{OUT} = ">$self->{tmpfile}";
+    $self->{OUT} = "$self->{tmpfile}";
   }
 
   my $result;
 
   if ($self->{OUT}) {
-    open OUT, "$self->{OUT}" or $self->error("$self->{OUT} : $!");
-    $result = $template->parse(*OUT);
-    close OUT;
-
+    open(OUT, ">", $self->{OUT}) or $self->error("$self->{OUT} : $!");
   } else {
+    open(OUT, ">&", \*STDOUT) or $self->error("STDOUT : $!");
     $self->header;
-    $result = $template->parse(*STDOUT);
   }
 
-  if (!$result) {
+  if (!$template->parse(*OUT)) {
     $self->cleanup();
     $self->error("$self->{IN} : " . $template->get_error());
   }
+
+  close OUT;
 
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
@@ -1368,7 +1367,7 @@ sub parse_template {
         $myconfig->{signature} =~ s/\n/<br>\n/g;
         $mail->{message} .= "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
 
-        open(IN, $self->{tmpfile})
+        open(IN, "<", $self->{tmpfile})
           or $self->error($self->cleanup . "$self->{tmpfile} : $!");
         while (<IN>) {
           $mail->{message} .= $_;
@@ -1398,7 +1397,7 @@ sub parse_template {
       $self->{OUT} = $out;
 
       my $numbytes = (-s $self->{tmpfile});
-      open(IN, $self->{tmpfile})
+      open(IN, "<", $self->{tmpfile})
         or $self->error($self->cleanup . "$self->{tmpfile} : $!");
       binmode IN;
 
@@ -1409,9 +1408,8 @@ sub parse_template {
       #print(STDERR "OUT $self->{OUT}\n");
       for my $i (1 .. $self->{copies}) {
         if ($self->{OUT}) {
-          open OUT, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
+          open OUT, '>', $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
           print OUT while <IN>;
-          close OUT;
           seek IN, 0, 0;
 
         } else {
@@ -1426,8 +1424,10 @@ Content-Length: $numbytes
 
 |;
 
-          $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
+          open(OUT, ">&", \*STDOUT) or $self->error($self->cleanup . "$!: STDOUT");
+          $::locale->with_raw_io(*OUT, sub { print while <IN> });
         }
+        close OUT;
       }
 
       close(IN);

@@ -868,7 +868,7 @@ sub kne_buchungsexport {
     $kne_file->add_block($mandantenendsumme);
     $kne_file->flush();
 
-    open(ED, "> $ed_filename") or die "can't open outputfile: $!\n";
+    open(ED, ">", $ed_filename) or die "can't open outputfile: $!\n";
     print(ED $kne_file->get_data());
     close(ED);
 
@@ -880,7 +880,7 @@ sub kne_buchungsexport {
   my $ev_header = &make_ev_header($form, $fileno);
   my $ev_filename = $export_path . $evfile;
   push(@filenames, $evfile);
-  open(EV, "> $ev_filename") or die "can't open outputfile: EV01\n";
+  open(EV, ">", $ev_filename) or die "can't open outputfile: EV01\n";
   print(EV $ev_header);
 
   foreach my $file (@ed_versionset) {
@@ -922,7 +922,7 @@ sub kne_stammdatenexport {
   $filename++;
   my $ed_filename = $export_path . $filename;
   push(@filenames, $filename);
-  open(ED, "> $ed_filename") or die "can't open outputfile: $!\n";
+  open(ED, ">", $ed_filename) or die "can't open outputfile: $!\n";
   my $header = &make_kne_data_header($myconfig, $form, "");
   $remaining_bytes -= length($header);
 
@@ -994,7 +994,7 @@ sub kne_stammdatenexport {
   my $ev_header = &make_ev_header($form, $fileno);
   my $ev_filename = $export_path . $evfile;
   push(@filenames, $evfile);
-  open(EV, "> $ev_filename") or die "can't open outputfile: EV01\n";
+  open(EV, ">", $ev_filename) or die "can't open outputfile: EV01\n";
   print(EV $ev_header);
 
   foreach my $file (@ed_versionset) {
