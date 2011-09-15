@@ -122,6 +122,7 @@ sub _all_configs {
 sub _overload_by_module {
   my ($module, %params) = @_;
 
+  keys %{ $params{overloads} }; # reset each iterator
   while (my ($fk, $class) = each %{ $params{overloads} }) {
     return ($fk, $class) if $class->meta->{META_CVARS()}->{module} eq $module;
   }
