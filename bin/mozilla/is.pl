@@ -435,7 +435,7 @@ sub form_footer {
       $form->{"changeable_$i"} = ($form->{"acc_trans_id_$i"})? 0 : 1;
     } elsif ($::lx_office_conf{features}->{payments_changeable} == 2) {
       # on the same day
-      $form->{"changeable_$i"} = (($form->{"gldate_$i"} eq '') || 
+      $form->{"changeable_$i"} = (($form->{"gldate_$i"} eq '') ||
                                   ($form->current_date(\%myconfig) eq $form->{"gldate_$i"}));
     }
 
