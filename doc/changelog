@@ -2,6 +2,10 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
+- Zahlungen bei Debitoren-, Kreditorenbuchungen, Verkaufs- und
+  Einkaufsrechnungen lassen sich entweder immer, gar nicht oder
+  am selben Tag noch ändern. Dies ist lx_office.conf einstellbar.
+
 - Projektnummer pro Beleg läßt sich auch für Debitoren- und
   Kreditorenbuchungen angeben.
 
