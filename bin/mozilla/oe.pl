@@ -1211,56 +1211,28 @@ sub save {
 }
 
 sub delete {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  $::lxdebug->enter_sub;
 
   check_oe_access();
 
-  $form->header;
-
-  my ($msg, $ordnumber);
-  if ($form->{type} =~ /_order$/) {
-    $msg       = $locale->text('Are you sure you want to delete Order Number');
-    $ordnumber = 'ordnumber';
-  } else {
-    $msg = $locale->text('Are you sure you want to delete Quotation Number');
-    $ordnumber = 'quonumber';
-  }
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-|;
+  $::form->header;
 
   # delete action variable
-  map { delete $form->{$_} } qw(action header);
+  delete $::form->{$_} for qw(action header);
 
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
+  my @hiddens;
+  for my $key (keys %$::form) {
+    next if $key eq 'login' || $key eq 'password' || '' ne ref $::form->{$key};
+    push @hiddens, { key => $key, value => $::form->{$key} };
   }
 
-  print qq|
-<h2 class=confirm>| . $locale->text('Confirm!') . qq|</h2>
+  print $::form->parse_html_template('oe/delete', {
+    hiddens => \@hiddens,
+    is_order => scalar($::form->{type} =~ /_order$/),
+  });
 
-<h4>$msg $form->{$ordnumber}</h4>
-<p>
-<input type="hidden" name="yes_nextsub" value="delete_order_quotation">
-<input name=action class=submit type=submit value="|
-    . $locale->text('Yes') . qq|">
-<button class=submit type=button onclick="history.back()">|
-    . $locale->text('No') . qq|</button>
-</form>
 
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub delete_order_quotation {
