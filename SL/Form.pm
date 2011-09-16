@@ -1410,6 +1410,7 @@ sub parse_template {
         if ($self->{OUT}) {
           open OUT, '>', $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
           print OUT while <IN>;
+          close OUT;
           seek IN, 0, 0;
 
         } else {
@@ -1424,10 +1425,8 @@ Content-Length: $numbytes
 
 |;
 
-          open(OUT, ">&", \*STDOUT) or $self->error($self->cleanup . "$!: STDOUT");
-          $::locale->with_raw_io(*OUT, sub { print while <IN> });
+          $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
         }
-        close OUT;
       }
 
       close(IN);
