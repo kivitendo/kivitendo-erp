@@ -251,6 +251,7 @@ sub new {
 
   my $self = {};
 
+  no warnings 'once';
   if ($LXDebug::watch_form) {
     require SL::Watchdog;
     tie %{ $self }, 'SL::Watchdog';
