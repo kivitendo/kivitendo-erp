@@ -149,215 +149,23 @@ sub chart_of_accounts {
 }
 
 sub list {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('report');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  $::form->{title} = $::locale->text('List Transactions') . " - " . $::locale->text('Account') . " $::form->{accno}";
 
-  $main::auth->assert('report');
-
-  $form->{title} = $locale->text('List Transactions');
-  $form->{title} .= " - " . $locale->text('Account') . " $form->{accno}";
-  my $year = (localtime)[5] + 1900;
-
-  # get departments
-  $form->all_departments(\%myconfig);
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
-  }
-
-  my $department = qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-          <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-        </tr>
-| if $form->{selectdepartment};
-  my $accrual =  $::instance_conf->get_accounting_method eq 'cash' ? ""        : "checked";
-  my $cash    =  $::instance_conf->get_accounting_method eq 'cash' ? "checked" : "";
-
-  my $name_1    = "fromdate";
-  my $id_1      = "fromdate";
-  my $value_1   = "$form->{fromdate}";
-  my $trigger_1 = "trigger1";
-  my $name_2    = "todate";
-  my $id_2      = "todate";
-  my $value_2   = "";
-  my $trigger_2 = "trigger2";
-
-  my ($button1, $button1_2, $button2, $button2_2, $jsscript);
-
-  # with JavaScript Calendar
-  if ($form->{jsscript}) {
-    if ($name_1 eq "") {
-
-      $button1 = qq|
-         <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
-      $button1_2 = qq|
-        <input type=button name=$name_2 id="$trigger_2" value=|
-        . $locale->text('button') . qq|>|;
-
-      #write Trigger
-      $jsscript =
-        Form->write_trigger(\%myconfig, "1", "$name_2", "BR", "$trigger_2");
-    } else {
-      $button1 = qq|
-         <input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\" value="$value_1">|;
-      $button1_2 = qq|
-        <input type=button name=$name_1 id="$trigger_1" value=|
-        . $locale->text('button') . qq|>|;
-      $button2 = qq|
-         <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
-      $button2_2 = qq|
-         <input type=button name=$name_2 id="$trigger_2" value=|
-        . $locale->text('button') . qq|>
-       |;
-
-      #write Trigger
-      $jsscript =
-        Form->write_trigger(\%myconfig, "2", "$name_1", "BR", "$trigger_1",
-                            "$name_2", "BL", "$trigger_2");
-    }
-  } else {
-
-    # without JavaScript Calendar
-    if ($name_1 eq "") {
-      $button1 =
-        qq|<input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
-    } else {
-      $button1 =
-        qq|<input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" value="$value_1" onBlur=\"check_right_date_format(this)\">|;
-      $button2 =
-        qq|<input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
-    }
-  }
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
-  $form->header;
   my $onload = qq|focus()|;
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
+  $onload .= qq|;setupDateFormat('$::myconfig{dateformat}', '|. $::locale->text("Falsches Datumsformat!") .qq|')|;
+  $onload .= qq|;setupPoints('$::myconfig{numberformat}', '|. $::locale->text("wrongformat") .qq|')|;
 
+  $::form->header;
+  print $::form->parse_html_template('ca/list', {
+    onload => $onload,
+    year => DateTime->today->year,
+    cash => $::instance_conf->get_accounting_method eq 'cash',
+  });
 
-  $form->header;
-
-  $form->{description} =~ s/\"/&quot;/g;
-
-  my $eur =  $::instance_conf->get_accounting_method eq 'cash' ? 1 : 0;
-
-  print qq|
-<body onLoad="$onload">
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=accno value=$form->{accno}>
-<input type=hidden name=description value="$form->{description}">
-<input type=hidden name=sort value=transdate>
-<input type=hidden name=eur value=$eur>
-<input type=hidden name=accounttype value=$form->{accounttype}>
-
-<table border=0 width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-
-</table>
-<table>
-        <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="custom" checked> |
-      . $locale->text('Customized Report') . qq|</th>
-        </tr>
-        <tr>
-          <th colspan=1>| . $locale->text('Year') . qq|</th>
-          <td><input name=year size=11 title="|
-      . $locale->text('YYYY') . qq|" value="$year"></td>
-        </tr>
-|;
-
-    print qq|
-        <tr>
-                <td align=right>
-<b> | . $locale->text('Yearly') . qq|</b> </td>
-                <th align=left>| . $locale->text('Quarterly') . qq|</th>
-                <th align=left colspan=3>| . $locale->text('Monthly') . qq|</th>
-        </tr>
-        <tr>
-                <td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13"></td>
-                <td><input name=duetyp class=radio type=radio value="A">&nbsp;1. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="1" "checked">&nbsp;| . $locale->text('January') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="5" >&nbsp;| . $locale->text('May') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="9" >&nbsp;| . $locale->text('September') . qq|</td>
-
-        </tr>
-        <tr>
-                <td align= right>&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="B">&nbsp;2. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="2" >&nbsp;| . $locale->text('February') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="6" >&nbsp;| . $locale->text('June') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="10" >&nbsp;| . $locale->text('October') . qq|</td>
-        </tr>
-        <tr>
-                <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="C">&nbsp;3. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="3" >&nbsp;| . $locale->text('March') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="7" >&nbsp;| . $locale->text('July') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="11" >&nbsp;| . $locale->text('November') . qq|</td>
-
-        </tr>
-        <tr>
-                <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="D">&nbsp;4. | . $locale->text('Quarter') . qq|&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="4" >&nbsp;| . $locale->text('April') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="8" >&nbsp;| . $locale->text('August') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="12" >&nbsp;| . $locale->text('December') . qq|</td>
-
-        </tr>
-        <tr>
-                   <td colspan=5><hr size=3 noshade></td>
-        </tr>
-        <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="free"> | . $locale->text('Free report period') . qq|</th>
-          <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;
-              $button1
-              $button1_2&nbsp;
-              | . $locale->text('Bis') . qq|&nbsp;
-              $button2
-              $button2_2
-          </td>
-        </tr>
-        <tr>
-                   <td colspan=5><hr size=3 noshade></td>
-        </tr>
-        <tr>
-          <th align=leftt>| . $locale->text('Method') . qq|</th>
-          <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>| . $locale->text('Accrual') . qq|
-          &nbsp;<input name=method class=radio type=radio value=cash $cash>| . $locale->text('EUR') . qq|</td>
-        </tr>
-        <tr>
-         <th align=right colspan=4>| . $locale->text('Decimalplaces') . qq|</th>
-             <td><input name=decimalplaces size=3 value="2"></td>
-         </tr>
-         <tr>
-            <td><input name="subtotal" class=checkbox type=checkbox value=1> | . $locale->text('Subtotal') . qq|</td>
-         </tr>
-
-$jsscript
-  <tr><td colspan=5 ><hr size=3 noshade></td></tr>
-</table>
-
-<br><input class=submit type=submit name=action value="|
-    . $locale->text('List Transactions') . qq|">
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub format_debit_credit {
