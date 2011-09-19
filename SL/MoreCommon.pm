@@ -61,8 +61,7 @@ sub compare_numbers {
 
   my ($a, $a_unit, $b, $b_unit) = @_;
 
-  $main::all_units ||= AM->retrieve_units(\%main::myconfig, $main::form);
-  my $units          = $main::all_units;
+  my $units          = AM->retrieve_all_units;
 
   if (!$units->{$a_unit} || !$units->{$b_unit} || ($units->{$a_unit}->{base_unit} ne $units->{$b_unit}->{base_unit})) {
     $main::lxdebug->leave_sub();
