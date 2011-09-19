@@ -42,78 +42,17 @@ use strict;
 # end of main
 
 sub reconciliation {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('cash');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  RC->paymentaccounts(\%::myconfig, $::form);
 
-  $main::auth->assert('cash');
+  $::form->header;
+  print $::form->parse_html_template('rc/step1', {
+    selection_sub => sub { ("$_[0]{accno}--$_[0]{description}")x2 },
+  });
 
-  RC->paymentaccounts(\%myconfig, \%$form);
-
-  my $selection = "";
-  map { $selection .= "<option>$_->{accno}--$_->{description}\n" }
-    @{ $form->{PR} };
-
-  $form->{title} = $locale->text('Reconciliation');
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
-  $form->{"jsscript"} = 1;
-  $form->header;
-  my $onload = qq|focus()|;
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-
-  print qq|
-<body onLoad="$onload">
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Account') . qq|</th>
-          <td colspan=3><select name=accno>$selection</select>
-          </td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('From') . qq|</th>
-          <td><input name=fromdate id=fromdate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-         <input type="button" name="fromdate" id="trigger_fromdate" value="?"></td>
-          <th align=right>| . $locale->text('Until') . qq|</th>
-          <td><input name=todate id=todate size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-         <input type="button" name="todate" id="trigger_todate" value="?"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-| . $form->write_trigger(\%myconfig, 2,
-                         "fromdate", "BL", "trigger_fromdate",
-                         "todate", "BL", "trigger_todate") . qq|
-
-<br>
-<input type=hidden name=nextsub value=get_payments>
-
-<input type=submit class=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub continue { call_sub($main::form->{"nextsub"}); }
