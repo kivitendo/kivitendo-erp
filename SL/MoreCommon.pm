@@ -59,10 +59,7 @@ sub restore_form {
 sub compare_numbers {
   $main::lxdebug->enter_sub();
 
-  my $a      = shift;
-  my $a_unit = shift;
-  my $b      = shift;
-  my $b_unit = shift;
+  my ($a, $a_unit, $b, $b_unit) = @_;
 
   $main::all_units ||= AM->retrieve_units(\%main::myconfig, $main::form);
   my $units          = $main::all_units;
