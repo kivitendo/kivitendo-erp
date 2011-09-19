@@ -340,120 +340,28 @@ sub check_project {
 }
 
 sub select_project {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
-
-  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
+  $::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+                  'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
 
   my ($is_global, $nextsub) = @_;
+  my $project_list = delete $::form->{project_list};
 
-  my @column_index = qw(ndx projectnumber description);
+  map { delete $::form->{$_} } qw(action header update);
 
-  my %column_data;
-  $column_data{ndx}           = qq|<th>&nbsp;</th>|;
-  $column_data{projectnumber} = qq|<th>| . $locale->text('Number') . qq|</th>|;
-  $column_data{description}   =
-    qq|<th>| . $locale->text('Description') . qq|</th>|;
-
-  # list items with radio button on a form
-  $form->header;
-
-  my $title = $locale->text('Select from one of the projects below');
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<input type=hidden name=rownumber value=$form->{rownumber}>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$title</th>
-  </tr>
-  <tr space=5></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>|;
-
-  map { print "\n$column_data{$_}" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  my $i = 0;
-  my $j;
-  foreach my $ref (@{ $form->{project_list} }) {
-    my $checked = ($i++) ? "" : "checked";
-
-    $ref->{name} =~ s/\"/&quot;/g;
-
-    $column_data{ndx} =
-      qq|<td><input name=ndx class=radio type=radio value=$i $checked></td>|;
-    $column_data{projectnumber} =
-      qq|<td><input name="new_projectnumber_$i" type=hidden value="$ref->{projectnumber}">$ref->{projectnumber}</td>|;
-    $column_data{description} = qq|<td>$ref->{description}</td>|;
-
-    $j++;
-    $j %= 2;
-    print qq|
-        <tr class=listrow$j>|;
-
-    map { print "\n$column_data{$_}" } @column_index;
-
-    print qq|
-        </tr>
-
-<input name="new_id_$i" type=hidden value=$ref->{id}>
-
-|;
-
+  my @hiddens;
+  for my $key (keys %$::form) {
+    next if $key eq 'login' || $key eq 'password' || '' ne ref $::form->{$key};
+    push @hiddens, { key => $key, value => $::form->{$key} };
   }
+  push @hiddens, { key => 'is_global',                value => $is_global },
+                 { key => 'project_selected_nextsub', value => $nextsub };
 
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
+  $::form->header;
+  print $::form->parse_html_template('arap/select_project', { hiddens => \@hiddens, project_list => $project_list });
 
-<input name=lastndx type=hidden value=$i>
-
-|;
-
-  # delete action variable
-  map { delete $form->{$_} } qw(action project_list header update);
-
-  # save all other form variables
-  foreach my $key (keys %${form}) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input name=$key type=hidden value="$form->{$key}">\n|;
-  }
-
-  print
-      $cgi->hidden('-name' => 'is_global',                '-default' => [$is_global])
-    . $cgi->hidden('-name' => 'project_selected_nextsub', '-default' => [$nextsub])
-    . qq|<input type=hidden name=nextsub value=project_selected>
-
-<br>
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub project_selected {

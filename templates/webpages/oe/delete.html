@@ -1,0 +1,27 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE LxERP %]
+
+<body>
+
+<form method="post" action="[% script %]">
+
+<h2 class="confirm">[% 'Confirm!' | $T8 %]</h2>
+
+[%- IF is_order %]
+<h4>[% 'Are you sure you want to delete Order Number' | $T8 %] [% ordnumber %]</h4>
+[%- ELSE %]
+<h4>[% 'Are you sure you want to delete Quotation Number' | $T8 %] [% quonumber %]</h4>
+[%- END %]
+
+<br>
+
+[% L.hidden_tag(row.key, row.value) FOREACH row = hiddens %]
+[% L.hidden_tag('yes_nextsub', 'delete_order_quotation') %]
+[% L.submit_tag('action', LxERP.t8('Yes')) %]
+
+<button class=submit type=button onclick="history.back()">[% 'No' | $T8 %]</button>
+</form>
+
+</body>
+</html>
