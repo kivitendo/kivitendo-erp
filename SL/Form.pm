@@ -1118,8 +1118,7 @@ sub format_amount_units {
     return '';
   }
 
-  AM->retrieve_all_units();
-  my $all_units        = $main::all_units;
+  my $all_units        = AM->retrieve_all_units;
 
   if (('' eq ref $conv_units) && ($conv_units =~ /convertible/)) {
     $conv_units = AM->convertible_units($all_units, $part_unit_name, $conv_units eq 'convertible_not_smaller');
