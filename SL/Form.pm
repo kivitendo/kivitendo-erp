@@ -846,8 +846,8 @@ sub _prepare_html_template {
   $additional_params->{"conf_payments_changeable"}    = $::lx_office_conf{features}->{payments_changeable};
   $additional_params->{"INSTANCE_CONF"}               = $::instance_conf;
 
-  if (%main::debug_options) {
-    map { $additional_params->{'DEBUG_' . uc($_)} = $main::debug_options{$_} } keys %main::debug_options;
+  if (my $debug_options = $::lx_office_conf{debug}{options}) {
+    map { $additional_params->{'DEBUG_' . uc($_)} = $debug_options->{$_} } keys %$debug_options;
   }
 
   if ($main::auth && $main::auth->{RIGHTS} && $main::auth->{RIGHTS}->{$self->{login}}) {
