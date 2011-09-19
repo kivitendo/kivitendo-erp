@@ -82,6 +82,8 @@ foreach my $file (@testitems) {
 }
 
 foreach my $file (@testitems) {
+    local $TODO;
+    $TODO = 'schema updates are not required to be strict now' if $file =~ m{^sql/Pg-upgrade2};
     my $found_use_strict = 0;
     $file =~ s/\s.*$//; # nuke everything after the first space (#comment)
     next if (!$file); # skip null entries
