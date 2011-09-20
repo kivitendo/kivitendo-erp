@@ -75,278 +75,57 @@ sub get_payments {
 }
 
 sub display_form {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('cash');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  my @options;
+  push @options, $::locale->text('From') . " " . $::locale->date(\%::myconfig, $::form->{fromdate}, 0) if $::form->{fromdate};
+  push @options, $::locale->text('Until') . " " . $::locale->date(\%::myconfig, $::form->{todate}, 0) if $::form->{todate};
 
-  $main::auth->assert('cash');
+  my $ml = ($::form->{category} eq 'A') ? -1 : 1;
+  my $beginningbalance = $::form->{beginningbalance} * $ml;
+  my $clearedbalance   =
+  my $balance          = $beginningbalance;
+  my $i                = 0;
+  my $last_id          = 0;
+  my ($last_fx, @rows, $cleared, $totaldebits, $totalcredits, $fx);
 
-  my @column_index = qw(cleared transdate source name credit debit balance);
-  my %column_header;
-  $column_header{cleared} = "<th>&nbsp;</th>";
-  $column_header{source}  =
-    "<th class=listheading>" . $locale->text('Source') . "</a></th>";
-  $column_header{name} =
-    "<th class=listheading>" . $locale->text('Description') . "</a></th>";
-  $column_header{transdate} =
-    "<th class=listheading>" . $locale->text('Date') . "</a></th>";
+  for my $ref (@{ $::form->{PR} }) {
+    $balance      += $ref->{amount} * $ml;
+    $cleared      += $ref->{amount} * $ml if $ref->{cleared};
+    $totaldebits  += $ref->{amount} * -1  if $ref->{amount} < 0;
+    $totalcredits += $ref->{amount}       if $ref->{amount} >= 0;
+    $fx           += $ref->{amount} * $ml if $ref->{fx_transaction};
+    $i++                                  if (!$ref->{fx_transaction} && !$last_fx) || $last_id != $ref->{id};
+    $last_fx       = $ref->{fx_transaction};
+    $last_id       = $ref->{id};
 
-  if ($form->{category} eq 'A') {
-    $column_header{debit} =
-      "<th class=listheading>" . $locale->text('Deposit') . "</a></th>";
-    $column_header{credit} =
-      "<th class=listheading>" . $locale->text('Payment') . "</a></th>";
-  } else {
-    $column_header{debit} =
-      "<th class=listheading>" . $locale->text('Decrease') . "</a></th>";
-    $column_header{credit} =
-      "<th class=listheading>" . $locale->text('Increase') . "</a></th>";
+    push @rows, { %$ref, balance => $balance, i => $i };
   }
 
-  $column_header{balance} =
-    "<th class=listheading>" . $locale->text('Balance') . "</a></th>";
+  my $statementbalance = $::form->parse_amount(\%::myconfig, $::form->{statementbalance});
+  my $difference       = $statementbalance - $clearedbalance - $cleared;
 
-  my $option;
-  if ($form->{fromdate}) {
-    $option .= "\n<br>" if ($option);
-    $option .=
-        $locale->text('From') . "&nbsp;"
-      . $locale->date(\%myconfig, $form->{fromdate}, 0);
-  }
-  if ($form->{todate}) {
-    $option .= "\n<br>" if ($option);
-    $option .=
-        $locale->text('Until') . "&nbsp;"
-      . $locale->date(\%myconfig, $form->{todate}, 0);
-  }
+  $::form->header;
+  print $::form->parse_html_template('rc/step2', {
+    is_asset         => $::form->{category} eq 'A',
+    option           => \@options,
+    DATA             => \@rows,
+    total            => {
+      credit => $totalcredits,
+      debit  => $totaldebits,
+    },
+    balance          => {
+      beginning => $beginningbalance,
+      cleared   => $clearedbalance,
+      statement => $statementbalance,
+    },
+    difference       => $difference,
+    rowcount         => $i,
+    fx               => $fx,
+  });
 
-  $form->{title} = "$form->{accno}--$form->{account}";
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>
-|;
-
-  map { print "\n$column_header{$_}" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  my $ml = ($form->{category} eq 'A') ? -1 : 1;
-  $form->{beginningbalance} *= $ml;
-  my $balance        = $form->{beginningbalance};
-  my $clearedbalance = $balance;
-  my $i              = 0;
-  my $id             = 0;
-
-  my %column_data;
-  map { $column_data{$_} = "<td>&nbsp;</td>" }
-    qw(cleared transdate source name debit credit);
-  $column_data{balance} =
-    "<td align=right>"
-    . $form->format_amount(\%myconfig, $balance, 2, 0) . "</td>";
-  my $j = 0;
-  print qq|
-        <tr class=listrow$j>
-|;
-
-  map { print "\n$column_data{$_}" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  my $cleared;
-  my $totaldebits;
-  my $totalcredits;
-  my $fx_transaction;
-  my $fx;
-  foreach my $ref (@{ $form->{PR} }) {
-
-    $balance += $ref->{amount} * $ml;
-    $cleared += $ref->{amount} * $ml if $ref->{cleared};
-
-    $column_data{name}   = "<td>$ref->{name}&nbsp;</td>";
-    $column_data{source} = qq|<td>$ref->{source}&nbsp;</a>
-    </td>|;
-    $column_data{transdate} = "<td>$ref->{transdate}&nbsp;</td>";
-
-    $column_data{debit}  = "<td>&nbsp;</td>";
-    $column_data{credit} = "<td>&nbsp;</td>";
-
-    if ($ref->{amount} < 0) {
-      $totaldebits += $ref->{amount} * -1;
-      $column_data{debit} =
-          "<td align=right>"
-        . $form->format_amount(\%myconfig, $ref->{amount} * -1, 2, "&nbsp;")
-        . "</td>";
-    } else {
-      $totalcredits += $ref->{amount};
-      $column_data{credit} =
-          "<td align=right>"
-        . $form->format_amount(\%myconfig, $ref->{amount}, 2, "&nbsp;")
-        . "</td>";
-    }
-
-    $column_data{balance} =
-      "<td align=right>"
-      . $form->format_amount(\%myconfig, $balance, 2, 0) . "</td>";
-
-    if ($ref->{fx_transaction}) {
-      $i++ unless $id == $ref->{id};
-      $fx_transaction = 1;
-      $fx += $ref->{amount} * $ml;
-      $column_data{cleared} = qq|<td align=center>&nbsp;
-      <input type=hidden name="fxoid_$i" value=$ref->{oid}>
-      </td>|;
-    } else {
-      $i++ unless ($fx_transaction && $id == $ref->{id});
-      $fx_transaction = 0;
-      $column_data{cleared} = qq|<td>
-      <input name="cleared_$i" type=checkbox class=checkbox value=1 $ref->{cleared}>
-      <input type=hidden name="oid_$i" value=$ref->{oid}>
-      </td>|;
-    }
-    $id = $ref->{id};
-
-    $j++;
-    $j %= 2;
-    print qq|
-        <tr class=listrow$j>
-|;
-
-    map { print "\n$column_data{$_}" } @column_index;
-
-    print qq|
-        </tr>
-|;
-
-  }
-
-  # print totals
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
-
-  $column_data{debit} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totaldebits, 2, "&nbsp;") . "</th>";
-  $column_data{credit} =
-    "<th class=listtotal align=right>"
-    . $form->format_amount(\%myconfig, $totalcredits, 2, "&nbsp;") . "</th>";
-
-  print qq|
-        <tr class=listtotal>
-|;
-
-  map { print "\n$column_data{$_}" } @column_index;
-
-  $form->{statementbalance} =
-    $form->parse_amount(\%myconfig, $form->{statementbalance});
-  my $difference =
-    $form->format_amount(\%myconfig,
-                        $form->{statementbalance} - $clearedbalance - $cleared,
-                        2, 0);
-
-  $form->{statementbalance} =
-    $form->format_amount(\%myconfig, $form->{statementbalance}, 2, 0);
-
-  $clearedbalance = $form->format_amount(\%myconfig, $clearedbalance, 2, 0);
-
-  my $exchdiff;
-  if ($fx) {
-    $fx       = $form->format_amount(\%myconfig, $fx, 2, 0);
-    $exchdiff = qq|
-          <th align=right nowrap>| . $locale->text('Exchangerate Difference') . qq|</th>
-          <td width=10%></td>
-          <td align=right>$fx</td>
-|;
-  }
-
-  print qq|
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr valign=top>
-          <td>
-            <table>
-              <tr>
-                <th align=right nowrap>| . $locale->text('Cleared Balance') . qq|</th>
-                <td width=10%></td>
-                <td align=right>$clearedbalance</td>
-              </tr>
-              <tr>
-                $exchdiff
-              </tr>
-            </table>
-          </td>
-          <td align=right>
-            <table>
-              <tr>
-                <th align=right nowrap>| . $locale->text('Statement Balance') . qq|</th>
-                <td width=10%></td>
-                <td align=right><input name=statementbalance size=11 value=$form->{statementbalance}></td>
-              </tr>
-              <tr>
-                <th align=right nowrap>| . $locale->text('Difference') . qq|</th>
-                <td width=10%></td>
-                <td align=right><input name=null size=11 value=$difference></td>
-                <input type=hidden name=difference value=$difference>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<input type=hidden name=rowcount value=$i>
-<input type=hidden name=accno value=$form->{accno}>
-<input type=hidden name=account value="$form->{account}">
-
-<input type=hidden name=fromdate value=$form->{fromdate}>
-<input type=hidden name=todate value=$form->{todate}>
-
-<br>
-<input type=submit class=submit name=action value="|
-    . $locale->text('Update') . qq|">
-<input type=submit class=submit name=action value="|
-    . $locale->text('Select all') . qq|">
-<input type=submit class=submit name=action value="|
-    . $locale->text('Done') . qq|">
-
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub update {
