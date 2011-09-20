@@ -224,7 +224,7 @@ sub options_for_select {
   my @elements = ();
   push @elements, [ undef, $options{empty_title} || '' ] if $options{with_empty};
   push @elements, map [
-    $value_title_sub ? $value_title_sub->($_) : (
+    $value_title_sub ? @{ $value_title_sub->($_) } : (
       $access->($_, 0, $value_key, $value_sub),
       $access->($_, 1, $title_key, $title_sub),
     )
