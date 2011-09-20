@@ -2,6 +2,7 @@
 [%- USE L  %]
 [%- USE T8 %]
 [%- USE LxERP  %]
+[%- L.javascript_tag('jquery.checkall')  %]
 <body>
 
 <h1>[% accno | html %]--[% account | html %]</h1>
@@ -12,7 +13,7 @@
 
 <table width=100%>
   <tr class=listheading>
-   <th>&nbsp;</th>
+   <th>[% L.checkbox_tag('checkall_checkboxes', checkall='input.checkall') %]</th>
    <th>[% 'Date' | $T8 %]</th>
    <th>[% 'Source' | $T8 %]</th>
    <th>[% 'Description' | $T8 %]</th>
@@ -40,7 +41,7 @@
 [%- IF row.fx_transaction %]
      [% L.hidden_tag('fxoid_' _ row.i, row.oid) %]
 [%- ELSE %]
-     [% L.checkbox_tag('cleared_' _ row.i, checked=row.cleared) %]
+     [% L.checkbox_tag('cleared_' _ row.i, class='checkall', checked=row.cleared) %]
      [% L.hidden_tag('oid_' _ row.i, row.oid) %]
 [%- END %]
    </td>
@@ -111,7 +112,6 @@
 
 <br>
 <input type=submit class=submit name=action value="[% 'Update' | $T8 %]">
-<input type=submit class=submit name=action value="[% 'Select all' | $T8 %]">
 <input type=submit class=submit name=action value="[% 'Done' | $T8 %]">
 
 </form>

@@ -55,23 +55,19 @@ sub reconciliation {
   $::lxdebug->leave_sub;
 }
 
-sub continue { call_sub($main::form->{"nextsub"}); }
+sub continue { call_sub($::form->{"nextsub"}); }
 
 sub get_payments {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('cash');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+  ($::form->{accno}, $::form->{account}) = split /--/, $::form->{accno};
 
-  $main::auth->assert('cash');
+  RC->payment_transactions(\%::myconfig, $::form);
 
-  ($form->{accno}, $form->{account}) = split /--/, $form->{accno};
+  display_form();
 
-  RC->payment_transactions(\%myconfig, \%$form);
-
-  &display_form;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub display_form {
@@ -129,62 +125,34 @@ sub display_form {
 }
 
 sub update {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('cash');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('cash');
-
-  RC->payment_transactions(\%myconfig, \%$form);
+  RC->payment_transactions(\%::myconfig, $::form);
 
   my $i;
-  foreach my $ref (@{ $form->{PR} }) {
-    if (!$ref->{fx_transaction}) {
-      $i++;
-      $ref->{cleared} = ($form->{"cleared_$i"}) ? "checked" : "";
-    }
+  for my $ref (@{ $::form->{PR} }) {
+    next if $ref->{fx_transaction};
+    $i++;
+    $ref->{cleared} = $::form->{"cleared_$i"};
   }
 
-  &display_form;
+  display_form();
 
-  $main::lxdebug->leave_sub();
-}
-
-sub select_all {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-
-  $main::auth->assert('cash');
-
-  RC->payment_transactions(\%myconfig, \%$form);
-
-  map { $_->{cleared} = "checked" unless $_->{fx_transaction} }
-    @{ $form->{PR} };
-
-  &display_form;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub done {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('cash');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  $::form->{callback} = "$::form->{script}?action=reconciliation";
 
-  $main::auth->assert('cash');
+  $::form->error($::locale->text('Out of balance!')) if $::form->{difference} *= 1;
 
-  $form->{callback} = "$form->{script}?action=reconciliation";
+  RC->reconcile(\%::myconfig, $::form);
+  $::form->redirect;
 
-  $form->error($locale->text('Out of balance!')) if ($form->{difference} *= 1);
-
-  RC->reconcile(\%myconfig, \%$form);
-  $form->redirect;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
