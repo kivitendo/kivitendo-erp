@@ -38,7 +38,7 @@
     <tr>
      <th valign="top" align="right" nowrap>[% 'Create Chart of Accounts' | $T8 %]</th>
      <td>
-      <select name="chart">
+      <select name="chart" onChange="comment_selected_chart(this.value)">
        [% FOREACH row = CHARTS %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>[% END %]
       </select>
      </td>
@@ -89,5 +89,37 @@
 
   </form>
 
+  <script type="text/javascript">
+    <!--
+
+    function comment_selected_chart(s) {
+      if (s == 'Austria') {
+        alert("SKR07 Austria ist noch Stand 2002." +
+              "\n" +
+              "Die Buchungsgruppen sind nicht korrekt vorkonfiguriert" +
+              "\n" +
+              "fuer Kunden im Ausland." +
+              "\n" + 
+              "Hinweis vom 20.09.2011");
+      }
+      if (s == 'Swiss-German') {
+        alert("Hinweis: Das ist weder ein Schweizer Kontorahmen nach Kaefer noch ein " +
+              "Schweizer KMU-Kontenrahmen, sondern ein angelehnter KMU-Kontenrahmen fuer " +
+              "ein EDV-Dienstleistungsunternehmen mit Stand 2006 (Bspw. 32001 Hardware, " +
+              "statt 3200 Warenertrag)." +
+              "\n" +
+              "Ferner sind keine Buchungsgruppe vorkonfiguriert, somit wird " +
+              "standardmaessig keine Rechnung mit Steuer ausgewiesen." +
+              "\n" +
+              "Zum schnellen Testen und Zusammenhaenge verstehen waehlen Sie lieber einen " +
+              "deutschen Kontenrahmen aus (SKR03 oder SKR04) und passen die Steuer an." +
+              "\n" +
+              "Hinweis vom 21.09.2011");
+      }
+    return true;
+    }
+
+    -->
+  </script>
 </body>
 </html>
