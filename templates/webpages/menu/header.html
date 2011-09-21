@@ -24,7 +24,7 @@
 [%- END %]
    <td align="right" nowrap>
     [% 'User' | $T8 %]:
-    [% login %]
+    [% MYCONFIG.login %]
     [<a href="login.pl?action=logout" target="_top" title="[% 'Logout now' | $T8 %]">[% 'Logout' | $T8 %]</a>]
     [% now.to_lxoffice %] -
     [% now.hms %]
