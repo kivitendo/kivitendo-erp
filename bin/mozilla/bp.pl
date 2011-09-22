@@ -65,212 +65,35 @@ sub assert_bp_access {
 }
 
 sub search {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  my ($name, $account, $onload);
+  $::lxdebug->enter_sub;
 
   assert_bp_access();
 
-  # $locale->text('Sales Invoices')
-  # $locale->text('Sales Orders')
-  # $locale->text('Purchase Orders')
-  # $locale->text('Quotations')
-  # $locale->text('RFQs')
-  # $locale->text('Checks')
-  # $locale->text('Receipts')
-
   # setup customer/vendor selection
-  BP->get_vc(\%myconfig, \%$form);
-
-  if (@{ $form->{"all_$form->{vc}"} || [] }) {
-    map { $name .= "<option>$_->{name}--$_->{id}\n" }
-      @{ $form->{"all_$form->{vc}"} };
-    $name = qq|<select name=$form->{vc}><option>\n$name</select>|;
-  } else {
-    $name = qq|<input name=$form->{vc} size=35>|;
-  }
-
-  # $locale->text('Customer')
-  # $locale->text('Vendor')
+  BP->get_vc(\%::myconfig, $::form);
 
   my %label = (
-       invoice =>
-         { title => 'Sales Invoices', name => 'Customer', l_invnumber => 'Y' },
-       sales_order =>
-         { title => 'Sales Orders', name => 'Customer', l_ordnumber => 'Y' },
-       purchase_order =>
-         { title => 'Purchase Orders', name => 'Vendor', l_ordnumber => 'Y' },
-       sales_quotation =>
-         { title => 'Quotations', name => 'Customer', l_quonumber => 'Y' },
-       request_quotation =>
-         { title => 'RFQs', name => 'Vendor', l_quonumber => 'Y' },
-       check   => { title => 'Checks',   name => 'Vendor' },
-       receipt => { title => 'Receipts', name => 'Customer' });
+       invoice           => { title => $::locale->text('Sales Invoices'),  invnumber => 1, ordnumber => 1 },
+       sales_order       => { title => $::locale->text('Sales Orders'),    ordnumber => 1, },
+       purchase_order    => { title => $::locale->text('Purchase Orders'), ordnumber => 1, },
+       sales_quotation   => { title => $::locale->text('Quotations'),      quonumber => 1, },
+       request_quotation => { title => $::locale->text('RFQs'),            quonumber => 1, },
+       check             => { title => $::locale->text('Checks'),          chknumber => 1, },
+       receipt           => { title => $::locale->text('Receipts'),        rctnumber => 1, },
+  );
 
-  $label{invoice}{invnumber} = qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Invoice Number') . qq|</th>
-          <td colspan=3><input name=invnumber size=20></td>
-        </tr>
-|;
-  $label{invoice}{ordnumber} = qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Order Number') . qq|</th>
-          <td colspan=3><input name=ordnumber size=20></td>
-        </tr>
-|;
-  $label{sales_quotation}{quonumber} = qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Quotation Number') . qq|</th>
-          <td colspan=3><input name=quonumber size=20></td>
-        </tr>
-|;
+  my $bp_accounts = $::form->{type} =~ /check|receipt/
+                 && BP->payment_accounts(\%::myconfig, $::form);
 
-  $label{check}{chknumber} = qq|
-          <tr>
-          <th align=right nowrap>| . $locale->text('Reference') . qq|</th>
-          <td colspan=3><input name=chknumber size=20></td>
-        </tr>
-|;
+  $::form->header;
+  print $::form->parse_html_template('bp/search', {
+    label         => \%label,
+    show_accounts => $bp_accounts,
+    account_sub   => sub { ("$_[0]{accno}--$_[0]{description}")x2 },
+    vc_keys       => sub { "$_[0]{name}--$_[0]{id}" },
+  });
 
-  $label{sales_order}{ordnumber}       = $label{invoice}{ordnumber};
-  $label{purchase_order}{ordnumber}    = $label{invoice}{ordnumber};
-  $label{request_quotation}{quonumber} = $label{sales_quotation}{quonumber};
-  $label{receipt}{rctnumber}           = $label{check}{chknumber};
-
-  # do one call to text
-  $form->{title} =
-      $locale->text('Print') . " "
-    . $locale->text($label{ $form->{type} }{title});
-
-  if ($form->{type} =~ /(check|receipt)/) {
-    if (BP->payment_accounts(\%myconfig, \%$form)) {
-      $account = qq|
-        <tr>
-          <th align=right>| . $locale->text('Account') . qq|</th>
-|;
-
-      if ($form->{accounts}) {
-        $account .= qq|
-          <td colspan=3><select name=account>
-|;
-        foreach my $ref (@{ $form->{accounts} }) {
-          $account .= qq|
-          <option>$ref->{accno}--$ref->{description}
-|;
-        }
-
-        $account .= qq|
-          </select>
-|;
-      } else {
-        $account .= qq|
-          <td colspan=3><input name=account></td>
-|;
-
-      }
-
-      $account .= qq|
-         </tr>
-|;
-
-    }
-  }
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
-  my $jsscript = "";
-  my ($button1, $button2);
-  if ($form->{jsscript}) {
-
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=transdatefrom id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-      |;
-    $button2 = qq|
-       <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=transdateto name=transdateto id="trigger2" value=|
-      . $locale->text('button') . qq|></td>
-     |;
-
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "2", "transdatefrom", "BR", "trigger1",
-                          "transdateto", "BL", "trigger2");
-  } else {
-
-    # without JavaScript Calendar
-    $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-    $button2 = qq|
-                              <td><input name=transdateto id=transdateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-  }
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
-  $form->header;
-  $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-  print qq|
-<body onLoad="$onload">
-
-<form method=post action=bp.pl>
-
-<input type=hidden name=vc value=$form->{vc}>
-<input type=hidden name=type value=$form->{type}>
-<input type=hidden name=title value="$form->{title}">
-
-<table width=100%>
-  <tr><th class=listtop>$form->{title}</th></tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right>Kunde</th>
-          <td colspan=3>$name</td>
-        </tr>
-        $account
-        $label{$form->{type}}{invnumber}
-        $label{$form->{type}}{ordnumber}
-        $label{$form->{type}}{quonumber}
-        $label{$form->{type}}{chknumber}
-        $label{$form->{type}}{rctnumber}
-        <tr>
-          <th align=right nowrap>| . $locale->text('From') . qq|</th>
-          $button1
-          <th align=right>| . $locale->text('Bis') . qq|</th>
-          $button2
-        </tr>
-        <input type=hidden name=sort value=transdate>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<input type=hidden name=nextsub value=list_spool>
-
-<br>
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-
-</form>
-
-</body>
-
-$jsscript
-
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub remove {

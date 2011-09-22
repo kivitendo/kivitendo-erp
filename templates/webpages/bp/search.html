@@ -1,0 +1,82 @@
+[%- USE L %]
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE HTML %]
+<body>
+<form method=post action=bp.pl>
+
+<h1>[% 'Print' | $T8 %] [% label.$type.title %]</h1>[% L.hidden_tag('title', LxERP.t8('Print') _ ' ' _ label.$type.title) %]
+
+<table>
+  <tr>
+    <th align=right>[% 'Customer' | $T8 %]</th>
+    <td colspan=3>
+  [%- IF vc == 'customer' ? all_customer.size : all_vendor.size %]
+      [%- INCLUDE 'generic/multibox.html'
+           name          = vc,
+           DATA          = vc == 'customer' ? all_customer : all_vendor,
+           id_sub        = 'vc_keys',
+           label_sub     = 'vc_keys',
+           select        = vc_select,
+           limit         = vclimit,
+           show_empty    = 1,
+           allow_textbox = 1,
+      -%]
+  [%- ELSE %]
+    [% L.input_tag(vc, '', size=35) %]
+  [%- END %]
+</td>
+  </tr>
+[% IF show_accounts %]
+  <tr>
+    <th align=right>[% 'Account' | $T8 %]</th>
+    <td colspan=3>[% L.select_tag('account', L.options_for_select(accounts, value_title_sub=\account_sub)) %]</td>
+  </tr>
+[% END %]
+[%- IF label.$type.invnumber %]
+  <tr>
+    <th align=right nowrap>[% 'Invoice Number' | $T8 %]</th>
+    <td colspan=3>[% L.input_tag('invnumber', '', size=20) %]</td>
+  </tr>
+[%- END %]
+[%- IF label.$type.ordnumber %]
+  <tr>
+    <th align=right nowrap>[% 'Order Number' | $T8 %]</th>
+    <td colspan=3>[% L.input_tag('ordnumber', '', size=20) %]</td>
+  </tr>
+[%- END %]
+[%- IF label.$type.quonumber %]
+  <tr>
+    <th align=right nowrap>[% 'Quotation Number' | $T8 %]</th>
+    <td colspan=3>[% L.input_tag('quonumber', '', size=20) %]</td>
+  </tr>
+[%- END %]
+[%- IF label.$type.chknumber %]
+  <tr>
+    <th align=right nowrap>[% 'Reference Number' | $T8 %]</th>
+    <td colspan=3>[% L.input_tag('chknumber', '', size=20) %]</td>
+  </tr>
+[%- END %]
+  <tr>
+    <th align=right nowrap>[% 'From' | $T8 %]</th>
+    <td>[% L.date_tag('transdatefrom') %]</td>
+    <th align=right>[% 'Bis' | $T8 %]</th>
+    <td>[% L.date_tag('transdateto') %]</td>
+  </tr>
+</table>
+
+<hr size=3 noshade>
+<br>
+
+[% L.hidden_tag('sort', 'transdate') %]
+[% L.hidden_tag('vc', vc) %]
+[% L.hidden_tag('type', type) %]
+[% L.hidden_tag('nextsub', 'list_spool') %]
+
+[% L.submit_tag('action', LxERP.t8('Continue')) %]
+
+</form>
+
+</body>
+
+</html>
