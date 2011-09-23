@@ -1323,7 +1323,7 @@ sub parse_template {
   if ($self->{OUT}) {
     open(OUT, ">", $self->{OUT}) or $self->error("$self->{OUT} : $!");
   } else {
-    open(OUT, ">&", \*STDOUT) or $self->error("STDOUT : $!");
+    *OUT = ($::dispatcher->get_standard_filehandles)[1];
     $self->header;
   }
 
@@ -1332,7 +1332,7 @@ sub parse_template {
     $self->error("$self->{IN} : " . $template->get_error());
   }
 
-  close OUT;
+  close OUT if $self->{OUT};
 
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
