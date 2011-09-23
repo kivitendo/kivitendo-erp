@@ -44,8 +44,6 @@ use strict;
 # end of main
 
 sub assert_bp_access {
-  my $form     = $main::form;
-
   my %access_map = (
     'invoice'           => 'invoice_edit',
     'sales_order'       => 'sales_order_edit',
@@ -56,11 +54,11 @@ sub assert_bp_access {
     'receipt'           => 'cash',
   );
 
-  if ($form->{type} && $access_map{$form->{type}}) {
-    $main::auth->assert($access_map{$form->{type}});
+  if ($::form->{type} && $access_map{$::form->{type}}) {
+    $::auth->assert($access_map{$::form->{type}});
 
   } else {
-    $main::auth->assert('DOES_NOT_EXIST');
+    $::auth->assert('DOES_NOT_EXIST');
   }
 }
 
@@ -97,116 +95,51 @@ sub search {
 }
 
 sub remove {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
+  $::lxdebug->enter_sub;
   assert_bp_access();
 
-  my $selected = 0;
+  $::form->info($::locale->text('Removing marked entries from queue ...'));
+  $::form->{callback} .= "&header=1" if $::form->{callback};
 
-  for my $i (1 .. $form->{rowcount}) {
-    if ($form->{"checked_$i"}) {
-      $selected = 1;
-      last;
-    }
-  }
+  $::form->redirect($::locale->text('Removed spoolfiles!'))
+    if BP->delete_spool(\%::myconfig, $::form);
+  $::form->error($::locale->text('Cannot remove files!'));
 
-  $form->error('Nothing selected!') unless $selected;
-
-  $form->{title} = $locale->text('Confirm!');
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=bp.pl>
-|;
-
-  map { delete $form->{$_} } qw(action header);
-
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
-  }
-
-  print qq|
-<h2 class=confirm>$form->{title}</h2>
-
-<h4>|
-    . $locale->text(
-          'Are you sure you want to remove the marked entries from the queue?')
-    . qq|</h4>
-
-<input name=action class=submit type=submit value="|
-    . $locale->text('Yes') . qq|">
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub yes {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  assert_bp_access();
-
-  $form->info($locale->text('Removing marked entries from queue ...'));
-  $form->{callback} .= "&header=1" if $form->{callback};
-
-  $form->redirect($locale->text('Removed spoolfiles!'))
-    if (BP->delete_spool(\%myconfig, \%$form));
-  $form->error($locale->text('Cannot remove files!'));
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub print {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
+  $::lxdebug->enter_sub;
   assert_bp_access();
 
-  $form->get_lists(printers => 'ALL_PRINTERS');
+  $::form->get_lists(printers => 'ALL_PRINTERS');
   # use the command stored in the databse or fall back to $myconfig{printer}
   my $selected_printer =  first { $_ } map ({ $_ ->{printer_command} }
-                                         grep { $_->{id} eq $form->{printer} }
-                                           @{ $form->{ALL_PRINTERS} }),
-                                       $myconfig{printer};
+                                         grep { $_->{id} eq $::form->{printer} }
+                                           @{ $::form->{ALL_PRINTERS} }),
+                                       $::myconfig{printer};
 
-  if ($form->{callback}) {
-    map { $form->{callback} .= "&checked_$_=1" if $form->{"checked_$_"} }
-      (1 .. $form->{rowcount});
-    $form->{callback} .= "&header=1";
+  if ($::form->{callback}) {
+    map { $::form->{callback} .= "&checked_$_=1" if $::form->{"checked_$_"} }
+      (1 .. $::form->{rowcount});
+    $::form->{callback} .= "&header=1";
   }
 
-  for my $i (1 .. $form->{rowcount}) {
-    if ($form->{"checked_$i"}) {
-      $form->info($locale->text('Printing ... '));
+  for my $i (1 .. $::form->{rowcount}) {
+    if ($::form->{"checked_$i"}) {
+      $::form->info($::locale->text('Printing ... '));
 
-      if (BP->print_spool(\%myconfig, \%$form, "| $selected_printer")) {
-        print $locale->text('done');
-        $form->redirect($locale->text('Marked entries printed!'));
+      if (BP->print_spool(\%::myconfig, $::form, "| $selected_printer")) {
+        print $::locale->text('done');
+        $::form->redirect($::locale->text('Marked entries printed!'));
       }
       ::end_of_request();
     }
   }
 
-  $form->error('Nothing selected!');
+  $::form->error('Nothing selected!');
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub list_spool {
@@ -262,18 +195,5 @@ sub list_spool {
   $::lxdebug->leave_sub;
 }
 
-sub select_all {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-
-  assert_bp_access();
-
-  map { $form->{"checked_$_"} = 1 } (1 .. $form->{rowcount});
-  &list_spool;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub continue { call_sub($main::form->{"nextsub"}); }
+sub continue { call_sub($::form->{"nextsub"}); }
 

@@ -3,7 +3,8 @@
 [%- USE LxERP %]
 [%- USE T8 %]
 [%- USE url %]
-[% SET list_spool__callback = href _ '&sort=' _ sort %]
+[%- SET list_spool__callback = href _ '&sort=' _ sort %]
+[% L.javascript_tag('jquery.checkall') %]
 <body>
 
 <h1>[% title | html %]</h1>
@@ -19,7 +20,7 @@
 
 <table width=100%>
  <tr>
-  <td class="listheading">&nbsp;</td>
+  <td class="listheading">[% L.checkbox_tag('checkall_box', checkall='input.check_all') %]</td>
   <td class="listheading">[% L.link(href _ '&sort=transdate', LxERP.t8('Date')) %]</td>
 [%- IF is_invoice %]
   <td class="listheading">[% L.link(href _ '&sort=invoice', LxERP.t8('Invoice')) %]</td>
@@ -35,7 +36,7 @@
  </tr>
 [%- FOREACH row = SPOOL %]
  <tr class="listrow[% loop.count %]">
-  <td>[% SET list_spool__checked='checked_' _ loop.count; L.checkbox_tag(list_spool__checked, checked=$list_spool__checked) IF row.new_file %]</td>
+  <td>[% SET list_spool__checked='checked_' _ loop.count; L.checkbox_tag(list_spool__checked, checked=$list_spool__checked, class='check_all') IF row.new_file %]</td>
   <td>[% row.transdate %]</td>
 [%- IF is_invoice %]
   <td>[% L.link(url(row.module _ '.pl', action='edit' ,type=type, callback=list_spool__callback, id=row.id), row.invnumber) %]</td>
@@ -73,7 +74,7 @@
 [% L.hidden_tag('customer', customer) %]
 [% L.hidden_tag('vendor', vendor) %]
 
-[% L.submit_tag('action', LxERP.t8('Remove')) %]
+[% L.submit_tag('action', LxERP.t8('Remove'), confirm=LxERP.t8('Are you sure you want to remove the marked entries from the queue?')) %]
 [% L.submit_tag('action', LxERP.t8('Print')) %]
 
 [% L.select_tag('printer', L.options_for_select(ALL_PRINTERS, title='printer_description')) %]
@@ -82,5 +83,3 @@
 
 </body>
 </html>
-
-
