@@ -2886,11 +2886,28 @@ sub create_links {
     }
 
     # now get the account numbers
-    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
-                FROM chart c, taxkeys tk
-                WHERE (c.link LIKE ?) AND (c.id = tk.chart_id) AND tk.id =
-                  (SELECT id FROM taxkeys WHERE (taxkeys.chart_id = c.id) AND (startdate <= $transdate) ORDER BY startdate DESC LIMIT 1)
-                ORDER BY c.accno|;
+#    $query = qq|SELECT c.accno, c.description, c.link, c.taxkey_id, tk.tax_id
+#                FROM chart c, taxkeys tk
+#                WHERE (c.link LIKE ?) AND (c.id = tk.chart_id) AND tk.id =
+#                  (SELECT id FROM taxkeys WHERE (taxkeys.chart_id = c.id) AND (startdate <= $transdate) ORDER BY startdate DESC LIMIT 1)
+#                ORDER BY c.accno|;
+
+#  same query as above, but without expensive subquery for each row. about 80% faster
+    $query = qq|
+      SELECT c.accno, c.description, c.link, c.taxkey_id, tk2.tax_id
+        FROM chart c
+        -- find newest entries in taxkeys
+        INNER JOIN (
+          SELECT chart_id, MAX(startdate) AS startdate
+          FROM taxkeys
+          WHERE (startdate <= $transdate)
+          GROUP BY chart_id
+        ) tk ON (c.id = tk.chart_id)
+        -- and load all of those entries
+        INNER JOIN taxkeys tk2
+           ON (tk.chart_id = tk2.chart_id AND tk.startdate = tk2.startdate)
+       WHERE (c.link LIKE ?)
+      ORDER BY c.accno|;
 
     $sth = $dbh->prepare($query);
 
