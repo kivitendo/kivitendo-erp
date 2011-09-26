@@ -292,9 +292,9 @@ sub end_request {
 }
 
 sub log_time {
-  my $self = shift;
+  my ($self, @slurp) = @_;
   return 1 unless want_request_timer();
-  $self->_write("time", $self->get_request_time);
+  $self->_write("time", $self->get_request_time() . (@slurp ? " (@slurp)" : ''));
 }
 
 sub get_request_time {
