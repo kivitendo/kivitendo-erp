@@ -296,12 +296,19 @@ database connection, and the piece of mind that comes from knowing that your
 class is stable, and won't change behind your back in response to an "action at
 a distance" (i.e., a database schema update).>
 
-Unfortunately this ready easier than it is, since classes need to get in the
-right package and directory, certain stuff need to be adjusted and table names
+Unfortunately this reads easier than it is, since classes need to go into the
+right package and directory, certain stuff needs to be adjusted and table names
 need to be translated into their class names. This script will wrap all that
 behind a few simple options.
 
-In the most basic version, just give it a login and
+In the most basic version, just give it a login and a table name, and it will
+load the schema information for this table and create the appropriate class
+files, or update them if already present.
+
+Each table has two associated files. A C<SL::DB::MetaSetup::*> class, which is
+a perl version of the schema definition, and a C<SL::DB::*> class file. The
+first one will be updated if the schema changes, the second one will only be
+created if it does not exist.
 
 =head1 OPTIONS
 
@@ -328,12 +335,12 @@ you debug schema awareness of the RDBO layer.
 =item C<--dry-run>
 
 Do not write back generated files. This will do everything as usual but not
-actually modify any files.
+actually modify any file.
 
 =item C<--diff>
 
-Displays diff for selected file, if file is present and never file is
-different. bware, does not imply C<no-commit>.
+Displays diff for selected file, if file is present and newer file is
+different. Beware, does not imply C<--no-commit>.
 
 =item C<--help, -h>
 
