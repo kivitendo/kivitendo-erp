@@ -129,13 +129,16 @@ CODE
   my $file_exists = -f $meta_file;
   if ($file_exists) {
     my $old_size    = -s $meta_file;
-    my $old_md5     = md5_hex(do { local(@ARGV, $/) = ($meta_file); <> });
+    my $orig_file   = do { local(@ARGV, $/) = ($meta_file); <> };
+    my $old_md5     = md5_hex($orig_file);
     my $new_size    = length $full_definition;
     my $new_md5     = md5_hex($full_definition);
     if ($old_size == $new_size && $old_md5 == $new_md5) {
       notice("No changes in $meta_file, skipping.") if $config{verbose};
       return;
     }
+
+    show_diff(\$orig_file, \$full_definition) if $config{show_diff};
   }
 
   if (!$config{nocommit}) {
@@ -162,8 +165,10 @@ sub parse_args {
     all             => \ my $all,
     sugar           => \ my $sugar,
     'no-commit'     => \ my $nocommit,
+    'dry-run'       => \ my $nocommit,
     help            => sub { pod2usage(verbose => 99, sections => 'NAME|SYNOPSIS|OPTIONS') },
     verbose         => \ my $verbose,
+    diff            => \ my $diff,
   );
 
   $options->{login}    = $login if $login;
@@ -171,6 +176,29 @@ sub parse_args {
   $options->{all}      = $all;
   $options->{nocommit} = $nocommit;
   $options->{verbose}  = $verbose;
+
+  if ($diff) {
+    if (eval { require Text::Diff; 1 }) {
+      $options->{show_diff} = 1;
+    } else {
+      error('Could not load Text::Diff. Sorry, no diffs for you.');
+    }
+  }
+}
+
+sub show_diff {
+   my ($text_a, $text_b) = @_;
+
+   my %colors = (
+     '+' => 'green',
+     '-' => 'red',
+   );
+
+   Text::Diff::diff($text_a, $text_b, { OUTPUT => sub {
+     for (split /\n/, $_[0]) {
+       print colored($_, $colors{substr($_, 0, 1)}), $/;
+     }
+   }});
 }
 
 sub usage {
@@ -297,9 +325,15 @@ Process tables in sugar schema instead of standard schema. Rarely useful unless
 you debug schema awareness of the RDBO layer.
 
 =item C<--no-commit, -n>
+=item C<--dry-run>
 
 Do not write back generated files. This will do everything as usual but not
 actually modify any files.
+
+=item C<--diff>
+
+Displays diff for selected file, if file is present and never file is
+different. bware, does not imply C<no-commit>.
 
 =item C<--help, -h>
 
