@@ -18,7 +18,16 @@ my @lxoffice_blacklist_permanent = qw(
 my @lxoffice_blacklist_temp = qw(
 );
 
-my @lxoffice_blacklist = (@lxoffice_blacklist_permanent, @lxoffice_blacklist_temp);
+# tables created by crm module
+my @crm_blacklist = qw(
+);
+
+# tables created by cash register
+my @cash_register_blacklist = qw(
+ekartikel ekbon ekkunde ektext erptasten
+);
+
+my @lxoffice_blacklist = (@lxoffice_blacklist_permanent, @lxoffice_blacklist_temp, @crm_blacklist, @cash_register_blacklist);
 
 # map table names to their models.
 # unlike rails we have no singular<->plural magic.
