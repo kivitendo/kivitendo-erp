@@ -161,14 +161,13 @@ CODE
 sub parse_args {
   my ($options) = @_;
   GetOptions(
-    'login|user=s'  => \ my $login,
-    all             => \ my $all,
-    sugar           => \ my $sugar,
-    'no-commit'     => \ my $nocommit,
-    'dry-run'       => \ my $nocommit,
-    help            => sub { pod2usage(verbose => 99, sections => 'NAME|SYNOPSIS|OPTIONS') },
-    verbose         => \ my $verbose,
-    diff            => \ my $diff,
+    'login|user=s'      => \ my $login,
+    all                 => \ my $all,
+    sugar               => \ my $sugar,
+    'no-commit|dry-run' => \ my $nocommit,
+    help                => sub { pod2usage(verbose => 99, sections => 'NAME|SYNOPSIS|OPTIONS') },
+    verbose             => \ my $verbose,
+    diff                => \ my $diff,
   );
 
   $options->{login}    = $login if $login;
