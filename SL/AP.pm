@@ -591,7 +591,7 @@ sub post_payment {
 
   # Set up the content of $form in the way that AR::post_transaction() expects.
 
-  $self->setup_form($form);
+  $self->setup_form($form, 1);
 
   $form->{exchangerate}    = $form->format_amount($myconfig, $form->{exchangerate});
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
@@ -625,7 +625,7 @@ sub post_payment {
 sub setup_form {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form) = @_;
+  my ($self, $form, $for_post_payments) = @_;
 
   my ($exchangerate, $i, $j, $k, $key, $akey, $ref, $index, $taxamount, $totalamount, $totaltax, $totalwithholding, $withholdingrate,
       $taxincluded, $tax, $diff);
@@ -645,11 +645,16 @@ sub setup_form {
 
     $form->{$key} = $form->{"select$key"};
 
-    # if there is a value we have an old entry
     $j = 0;
     $k = 0;
 
+    # if there is a value we have an old entry
     next unless $form->{acc_trans}{$key};
+
+    # do not use old entries for payments. They come from the form
+    # even if they are not changeable (then they are in hiddens)
+    next if $for_post_payments && $key eq "AP_paid";
+
     for $i (1 .. scalar @{ $form->{acc_trans}{$key} }) {
 
       if ($key eq "AP_paid") {
