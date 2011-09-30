@@ -53,6 +53,11 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
+    customer => {
+      class       => 'SL::DB::Customer',
+      key_columns => { customer_id => 'id' },
+    },
+
     employee => {
       class       => 'SL::DB::Employee',
       key_columns => { employee_id => 'id' },
@@ -66,6 +71,11 @@ __PACKAGE__->meta->setup(
     salesman => {
       class       => 'SL::DB::Employee',
       key_columns => { salesman_id => 'id' },
+    },
+
+    vendor => {
+      class       => 'SL::DB::Vendor',
+      key_columns => { vendor_id => 'id' },
     },
   ],
 );
