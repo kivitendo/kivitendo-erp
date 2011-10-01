@@ -1079,6 +1079,8 @@ sub post {
 
   $main::auth->assert('general_ledger');
 
+  my ($inline) = @_;
+
   # check if there is a vendor, invoice and due date
   $form->isblank("transdate", $locale->text("Invoice Date missing!"));
   $form->isblank("duedate",   $locale->text("Due Date missing!"));
@@ -1153,7 +1155,7 @@ sub post {
     # /saving the history
     remove_draft() if $form->{remove_draft};
     # Dieser Text wird niemals ausgegeben: Probleme beim redirect?
-    $form->redirect($locale->text('Transaction posted!'));
+    $form->redirect($locale->text('Transaction posted!')) unless $inline;
   } else {
     $form->error($locale->text('Cannot post transaction!'));
   }
