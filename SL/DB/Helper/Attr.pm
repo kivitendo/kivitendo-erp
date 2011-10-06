@@ -33,6 +33,7 @@ sub _make_by_type {
   _as_percent($package, $name, places =>  2) if $type =~ /numeric | real | float/xi;
   _as_number ($package, $name, places =>  0) if $type =~ /int/xi;
   _as_date   ($package, $name)               if $type =~ /date | timestamp/xi;
+  _as_bool_yn($package, $name)               if $type =~ /bool/xi;
 }
 
 sub _as_number {
@@ -102,6 +103,23 @@ sub _as_date {
   };
 
   return 1;
+}
+
+sub _as_bool_yn {
+  my ($package, $attribute, %params) = @_;
+
+  no strict 'refs';
+  *{ $package . '::' . $attribute . '_as_bool_yn' } = sub {
+    my ($self) = @_;
+
+    if (@_ > 1) {
+      die 'not an accessor';
+    }
+
+    return !defined $self->$attribute ? ''
+         :          $self->$attribute ? $::locale->text('Yes')
+         :                              $::locale->text('No');
+  }
 }
 
 1;
