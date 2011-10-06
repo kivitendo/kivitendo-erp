@@ -80,9 +80,13 @@ window.onload = function() {
     &nbsp;[% 'Inventory' | $T8 %]
 </fieldset>
 
+[% IF AccountIsPosted %]
+[%- SET DIS = ' disabled="disabled"' %]
+[% END %]
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>[% 'Include in drop-down menus' | $T8 %]</legend>
   <p style='font-weight:normal'>[% 'These will only be effective if the account is NOT a summary account AND there exists at least one taxkey. Setting the account as a summary account will erase these settings.' | $T8 %]</p>
+  <p style='font-weight:normal'>[% 'Changes to Receivables and Payables are only possible if no transactions to this account are posted yet.' | $T8 %]</p>
   <table width="100%">
     <tr>
       <th align="left">[% 'Receivables' | $T8 %]</th>
@@ -93,24 +97,24 @@ window.onload = function() {
     <tr>
       <td>
         <input name="AR_amount" type="checkbox" class="checkbox" value="AR_amount"
-          [% HTML.escape(AR_amount) %]>&nbsp;
+          [% HTML.escape(AR_amount)%][% DIS %]>&nbsp;
         [% 'Revenue' | $T8 %] <br>
         <input name="AR_paid" type="checkbox" class="checkbox" value="AR_paid"
-          [% HTML.escape(AR_paid) %]>&nbsp;
+          [% HTML.escape(AR_paid) %][% DIS %]>&nbsp;
         [% 'Receipt' | $T8 %] <br>
         <input name="AR_tax" type="checkbox" class="checkbox" value="AR_tax"
-          [% HTML.escape(AR_tax) %]>&nbsp;
+          [% HTML.escape(AR_tax) %][% DIS %]>&nbsp;
         [% 'Tax' | $T8 %]
       </td>
       <td>
         <input name="AP_amount" type="checkbox" class="checkbox" value="AP_amount"
-          [% HTML.escape(AP_amount) %]>&nbsp;
+          [% HTML.escape(AP_amount) %][% DIS %]>&nbsp;
         [% 'Expense/Asset' | $T8 %] <br>
         <input name="AP_paid" type="checkbox" class="checkbox" value="AP_paid"
-          [% HTML.escape(AP_paid) %]>&nbsp;
+          [% HTML.escape(AP_paid) %][% DIS %]>&nbsp;
         [% 'Payment' | $T8 %] <br>
         <input name="AP_tax" type="checkbox" class="checkbox" value="AP_tax"
-            [% HTML.escape(AP_tax) %]>&nbsp;
+            [% HTML.escape(AP_tax) %][% DIS %]>&nbsp;
         [% 'Tax' | $T8 %]
       </td>
       <td>

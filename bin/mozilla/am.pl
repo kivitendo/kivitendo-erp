@@ -347,11 +347,13 @@ sub account_header {
   }
 
   my $ChartTypeIsAccount = ($form->{charttype} eq "A") ? "1":"";
+  my $AccountIsPosted = ($form->{orphaned} ) ? "":"1";
 
   $form->header();
 
   my $parameters_ref = {
     ChartTypeIsAccount         => $ChartTypeIsAccount,
+    AccountIsPosted            => $AccountIsPosted,
     select_category            => $select_category,
     select_charttype           => $select_charttype,
     select_bwa                 => $select_bwa,
