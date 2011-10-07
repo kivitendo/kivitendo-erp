@@ -360,6 +360,7 @@ $self->{texts} = {
   'Cc'                          => '',
   'Change Lx-Office installation settings (all menu entries beneath \'System\')' => '',
   'Change representative to'    => '',
+  'Changes to Receivables and Payables are only possible if no transactions to this account are posted yet.' => '',
   'Charge Number'               => '',
   'Charge number'               => '',
   'Chart'                       => '',
