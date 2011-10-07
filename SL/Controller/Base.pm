@@ -45,6 +45,9 @@ sub render {
   if ($options->{inline}) {
     $source = \$template;
 
+  } elsif($options->{raw}) {
+    $source =  $template;
+
   } else {
     $source = "templates/webpages/${template}." . $options->{type};
     croak "Template file ${source} not found" unless -f $source;
@@ -77,8 +80,12 @@ sub render {
                );
 
   my $output;
-  my $parser = $self->_template_obj;
-  $parser->process($source, \%params, \$output) || croak $parser->error;
+  if (!$options->{raw}) {
+    my $parser = $self->_template_obj;
+    $parser->process($source, \%params, \$output) || croak $parser->error;
+  } else {
+    $output = $$source;
+  }
 
   print $output unless $options->{inline} || $options->{no_output};
 
@@ -321,6 +328,10 @@ If C<< $options->{inline} >> is trueish then C<$template> is a string
 containing the template code to interprete. Additionally the output
 will not be sent to the browser. Instead it is only returned to the
 caller.
+
+If C<< $options->{raw}>> is trueish, the function will treat the input as
+already parsed, and will not filter the input through Template. Unlike
+C<inline>, the input is taked as a reference.
 
 If C<< $options->{inline} >> is falsish then C<$template> is
 interpreted as the name of a template file. It is prefixed with
