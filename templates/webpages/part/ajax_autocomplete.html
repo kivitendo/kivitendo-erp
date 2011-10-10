@@ -1,8 +1,9 @@
 [%- USE HTML %][%  USE JSON %][
 [%- FOREACH part = SELF.parts %]
+[%- ajax_autocomplete__label = part.partnumber _ " " _ part.description %]
  {
-   "label": [% JSON.json(part.partnumber _ " " _ part.description) %],
    "value": [% part.${SELF.value}.json %],
+   "label": [% ajax_autocomplete__label.json %],
    "id": [% part.id.json %],
    "partnumber": [% part.partnumber.json %],
    "description": [% part.description.json %],
