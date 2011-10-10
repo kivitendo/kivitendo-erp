@@ -5,6 +5,7 @@ use parent qw(SL::Template::Simple);
 use strict;
 
 use Cwd;
+use Unicode::Normalize qw();
 
 sub new {
   my $type = shift;
@@ -353,8 +354,13 @@ sub parse {
     return 0;
   }
 
-  binmode OUT, ":utf8" if $::locale->is_utf8;
-  print(OUT $new_contents);
+  if ($::locale->is_utf8) {
+    binmode OUT, ":utf8";
+    print OUT Unicode::Normalize::normalize('C', $new_contents);
+
+  } else {
+    print OUT $new_contents;
+  }
 
   if ($form->{"format"} =~ /postscript/i) {
     return $self->convert_to_postscript();
