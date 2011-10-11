@@ -46,6 +46,9 @@
      </select>
      <input name="cvar_[% HTML.escape(var.name) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
 
+     [%- ELSIF var.type == 'customer' %]
+     <input name="cvar_[% var.name | html %]">
+
      [% ELSIF var.type == 'select' %]
      <select name="cvar_[% HTML.escape(var.name) %]">
       <option value="" selected>---</option>

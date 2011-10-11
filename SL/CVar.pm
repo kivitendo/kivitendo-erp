@@ -240,6 +240,7 @@ sub get_custom_variables {
       $cvar->{value} = $cvar->{type} eq 'date'      ? $act_var->{date_value}
                      : $cvar->{type} eq 'timestamp' ? $act_var->{timestamp_value}
                      : $cvar->{type} eq 'number'    ? $act_var->{number_value}
+                     : $cvar->{type} eq 'customer'  ? $act_var->{number_value}
                      : $cvar->{type} eq 'bool'      ? $act_var->{bool_value}
                      :                                $act_var->{text_value};
       $cvar->{valid} = $valid;
@@ -273,6 +274,9 @@ sub get_custom_variables {
 
     if ($cvar->{type} eq 'number') {
       $cvar->{value} = $form->format_amount($myconfig, $cvar->{value} * 1, $cvar->{precision});
+    } elsif ($cvar->{type} eq 'customer') {
+      require SL::DB::Customer;
+      $cvar->{value} = SL::DB::Manager::Customer->find_by(id => $cvar->{value} * 1);
     }
   }
 
@@ -334,6 +338,8 @@ sub save_custom_variables {
 
     } elsif ($config->{type} eq 'bool') {
       push @values, $value ? 't' : 'f', undef, undef, undef;
+    } elsif ($config->{type} eq 'customer') {
+      push @values, undef, undef, undef, $value * 1;
     }
 
     do_statement($form, $sth, $query, @values);
@@ -489,6 +495,11 @@ sub build_filter_query {
 
       $not = 'NOT' if ($params{filter}->{$name} eq 'no');
       push @sub_where,  qq|COALESCE(cvar.bool_value, false) = TRUE|;
+    } elsif ($config->{type} eq 'customer') {
+      next unless $params{filter}->{$name};
+
+      push @sub_where, qq|cvar.number_value * 1 IN (SELECT id FROM customer WHERE name ILIKE ?)|;
+      push @sub_values, "%$params{filter}->{$name}%";
     }
 
     if (@sub_where) {
@@ -562,6 +573,7 @@ sub add_custom_variables_to_report {
           $cfg->{type} eq 'date'      ? $ref->{date_value}
         : $cfg->{type} eq 'timestamp' ? $ref->{timestamp_value}
         : $cfg->{type} eq 'number'    ? $form->format_amount($myconfig, $ref->{number_value} * 1, $cfg->{precision})
+        : $cfg->{type} eq 'customer'  ? SL::DB::Manager::Customer->find_by(id => 1* $ref->{number_value})->name
         : $cfg->{type} eq 'bool'      ? ($ref->{bool_value} ? $locale->text('Yes') : $locale->text('No'))
         :                               $ref->{text_value};
     }

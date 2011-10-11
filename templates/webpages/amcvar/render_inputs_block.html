@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
+[%- USE L %]
 [%- BLOCK cvar_name %][% HTML.escape(cvar.name_prefix) _ "cvar_" _ HTML.escape(cvar.var.name) _ HTML.escape(cvar.name_postfix) -%][% END %]
 [%- BLOCK cvar_inputs %]
 [%- %]
@@ -32,6 +33,8 @@
  <option[% IF option.value == cvar.value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
  [%- END %]
 </select>
+[%- ELSIF cvar.var.type == 'customer' %]
+[% render_input_blocks__cvar_name = PROCESS cvar_name %][% L.customer_picker(render_input_blocks__cvar_name, cvar.value) %]
 [%- ELSE %]
 <input name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.value) %]" [%- IF cvar.var.maxlength %] maxlength="[% HTML.escape(cvar.var.maxlength) %]"[% END -%]>
 [%- END %]

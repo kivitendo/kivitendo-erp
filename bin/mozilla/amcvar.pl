@@ -54,9 +54,10 @@ our %translations = ('text'      => $locale->text('Free-form text'),
                      'timestamp' => $locale->text('Timestamp'),
                      'bool'      => $locale->text('Yes/No (Checkbox)'),
                      'select'    => $locale->text('Selection'),
+                     'customer'  => $locale->text('Customer'),
                      );
 
-our @types = qw(text textfield number date bool select); # timestamp
+our @types = qw(text textfield number date bool select customer); # timestamp
 
 our @modules = ({ module => 'CT',       description => $locale->text('Customers and vendors')          },
                 { module => 'IC',       description => $locale->text('Parts, services and assemblies') },

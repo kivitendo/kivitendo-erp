@@ -1,5 +1,6 @@
 [%- USE T8 %]
-[% USE HTML %]
+[%- USE HTML %]
+[%- USE L %]
 
 [%- SET var_name = HTML.escape(name_prefix) _ "cvar_" _ HTML.escape(var.name) _ HTML.escape(name_postfix) -%]
 
@@ -32,6 +33,9 @@
 
 [%- ELSIF var.type == 'timestamp' %]
 <input name="[% var_name %]" value="[% HTML.escape(var.value) %]">
+
+[%- ELSIF var.type == 'customer' %]
+[% L.customer_picker(var_name, var.value) %]
 
 [%- ELSIF var.type == 'select' %]
 
