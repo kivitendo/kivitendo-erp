@@ -8,11 +8,6 @@ use SL::DB::Part;
 # safety
 __PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') });
 
-sub action_part_picker_testpage {
-  my ($self, %params) = @_;
-  $self->render('part/testpage');
-}
-
 sub action_ajax_autocomplete {
   my ($self, %params) = @_;
 
