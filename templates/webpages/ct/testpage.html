@@ -1,0 +1,40 @@
+[% USE L %]
+[% USE T8 %]
+[% USE LxERP %]
+[% L.javascript_tag('jquery-ui') %]
+<link rel="stylesheet" href="css/ui-lightness/jquery-ui-1.8.12.custom.css" type="text/css" />
+
+<p>Pick a customer</p>
+id: [% L.input_tag('customer_id', '') %]
+nr: [% L.input_tag('customer_customernumber', '') %]
+desc: [% L.input_tag('customer_name', '') %]
+
+<script type='text/javascript'>
+function autocomplete_customer (selector, column) {
+  $(function(){ $(selector).autocomplete({
+    source: function(req, rsp) {
+      $.ajax({
+        url: 'controller.pl?action=Customer/ajax_autocomplete',
+        dataType: "json",
+        data: {
+          column: column,
+          term: req.term,
+          current: function() { $('#customer_id').val() },
+          obsolete: 0,
+        },
+        success: function (data){ rsp(data) }
+      });
+    },
+    limit: 20,
+    delay: 50,
+    select: function(event, ui) {
+      $('#customer_id').val(ui.item.id);
+      $('#customer_customernumber').val(ui.item.customernumber);
+      $('#customer_name').val(ui.item.name);
+    },
+  })});
+}
+//autocomplete_customer('#customer_customernumber', 'customernumber');
+autocomplete_customer('#customer_name', '');
+</script>
+

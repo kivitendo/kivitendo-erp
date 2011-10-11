@@ -291,6 +291,40 @@ sub date_tag {
   ) : '');
 }
 
+sub customer_picker {
+  my ($self, $name, $value, %params) = @_;
+  my $name_e    = _H($name);
+
+  $self->hidden_tag($name, (ref $value && $value->can('id')) ? $value->id : '') .
+  $self->input_tag("$name_e\_name", (ref $value && $value->can('name')) ? $value->name : '', %params) .
+  $self->javascript(<<JS);
+function autocomplete_customer (selector, column) {
+  \$(function(){ \$(selector).autocomplete({
+    source: function(req, rsp) {
+      \$.ajax({
+        url: 'controller.pl?action=Customer/ajax_autocomplete',
+        dataType: "json",
+        data: {
+          column: column,
+          term: req.term,
+          current: function() { \$('#$name_e').val() },
+          obsolete: 0,
+        },
+        success: function (data){ rsp(data) }
+      });
+    },
+    limit: 20,
+    delay: 50,
+    select: function(event, ui) {
+      \$('#$name_e').val(ui.item.id);
+      \$('#$name_e\_name').val(ui.item.name);
+    },
+  })});
+}
+autocomplete_customer('#$name_e\_name');
+JS
+}
+
 sub javascript_tag {
   my $self = shift;
   my $code = '';
