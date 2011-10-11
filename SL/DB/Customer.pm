@@ -50,4 +50,10 @@ sub short_address {
   return join ', ', grep { $_ } $self->street, $self->zipcode, $self->city;
 }
 
+sub displayable_name {
+  my $self = shift;
+
+  return join ' ', grep $_, $self->customernumber, $self->name;
+}
+
 1;
