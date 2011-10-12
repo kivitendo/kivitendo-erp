@@ -112,6 +112,7 @@ td {
     <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen_quotations">Angebote und Preisanfragen</a></li>
     <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen_orders">Auftragsbest&auml;tigungen und Lieferantenauftr&auml;ge</a></li>
     <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen_delivery_orders">Lieferscheine (Verkauf und Einkauf)</a></li>
+    <li><a href="dokumentenvorlagen-und-variablen.html#anderevorlagen_statement">Sammelrechnung</a></li>
    </ol>
   </li>
 
@@ -1235,6 +1236,14 @@ td {
   einer <code>foreach</code>-Schleife ausgegeben werden. Diese
   Variablen sind:</p>
 
+
+ <p>F&uuml;r jede Position eines Lieferscheines gibt es ein Unterarray mit
+  den Informationen dar&uuml;ber, von welchem Lager und Lagerplatz aus die
+  Waren verschickt wurden (Verkaufslieferscheine) bzw. auf welchen
+  Lagerplatz sie eingelagert wurden. Diese m&uuml;ssen mittels
+  einer <code>foreach</code>-Schleife ausgegeben werden. Diese
+  Variablen sind:</p>
+
  <p>
   <table border="1">
    <tr><th>Variablenname</th><th>Bedeutung</th></tr>
@@ -1273,6 +1282,81 @@ td {
   </table>
  </p>
 
+ <h3><a name="anderevorlagen_statement">Sammelrechnung</a></h3>
+
+ <h3> Variablen f&uuml;r Sammelrechnung:</h3>
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>c0total</code></td>
+    <td>Gesamtbetrag aller Rechnungen mit F&auml;lligkeit &lt; 30 Tage</td>
+   </tr>
+   <tr>
+    <td><code>c30total</code></td>
+    <td>Gesamtbetrag aller Rechnungen mit F&auml;lligkeit &gt;= 30 und &lt; 60 Tage</td>
+   </tr>
+   <tr>
+    <td><code>c60total</code></td>
+    <td>Gesamtbetrag aller Rechnungen mit F&auml;lligkeit &gt;= 60 und &lt; 90 Tage</td>
+   </tr>
+   <tr>
+    <td><code>c90total</code></td>
+    <td>Gesamtbetrag aller Rechnungen mit F&auml;lligkeit &gt;= 90 Tage</td>
+   </tr>
+   <tr>
+    <td><code>total</code></td>
+    <td>Gesamtbetrag aller Rechnungen</td>
+   </tr>
+  </table>
+ </p>
+
+ <h3> Variablen f&uuml;r jede Rechnungsposition in Sammelrechnung:</h3>
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>invnumber</code></td>
+    <td>Rechnungsnummer</td>
+   </tr>
+   <tr>
+    <td><code>invdate</code></td>
+    <td>Rechnungsdatum</td>
+   </tr>
+   <tr>
+    <td><code>duedate</code></td>
+    <td>F&auml;lligkeitsdatum</td>
+   </tr>
+   <tr>
+    <td><code>amount</code></td>
+    <td>Summe der Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>open</code></td>
+    <td>Noch offener Betrag der Rechnung</td>
+   </tr>
+   <tr>
+    <td><code>c0</code></td>
+    <td>Noch offener Rechnungsbetrag mit F&auml;lligkeit &lt; 30 Tage</td>
+   </tr>
+   <tr>
+    <td><code>c30</code></td>
+    <td>Noch offener Rechnungsbetrag mit F&auml;lligkeit &gt;= 30 und &lt; 60 Tage</td>
+   </tr>
+   <tr>
+    <td><code>c60</code></td>
+    <td>Noch offener Rechnungsbetrag mit F&auml;lligkeit &gt;= 60 und &lt; 90 Tage</td>
+   </tr>
+   <tr>
+    <td><code>c90</code></td>
+    <td>Noch offener Rechnungsbetrag mit F&auml;lligkeit &gt;= 90 Tage</td>
+   </tr>
+  </table>
+ </p>
+
+
+
+
  <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
@@ -1286,14 +1370,14 @@ td {
   ... &lt;%end%&gt;</code></p>
 
  <p>Anmerkung zum <code>&lt;%end%&gt;</code>: Der besseren
-  Verständlichkeit halber kann man nach dem <code>end</code> noch
-  beliebig weitere Wörter schreiben, um so zu markieren, welche
+  Verst&auml;ndlichkeit halber kann man nach dem <code>end</code> noch
+  beliebig weitere W&ouml;rter schreiben, um so zu markieren, welche
   Anweisung (z.B. <code>if</code> oder <code>foreach</code>) damit
   abgeschlossen wird.</p>
 
  <p>Beispiel: Lautet der Beginn eines Blockes
    z.B. <code class="blue">&lt;%if type ==
-   &quot;sales_quotation&quot;%&gt;</code>, so könnte er mit
+   &quot;sales_quotation&quot;%&gt;</code>, so k&ouml;nnte er mit
   <code class="blue">&lt;%end%&gt;</code> genauso abgeschlossen werden
   wie mit
   <code class="blue">&lt;%end if%&gt;</code> oder auch
@@ -1316,33 +1400,33 @@ td {
   wird. Beispiel: <code class="blue">&lt;%if not
   cp_greeting%&gt;</code></p>
 
- <p>Zusätzlich zu dem einfachen Test, ob eine Variable gesetzt ist
-  oder nicht, bietet dieser Block auch die Möglichkeit, den Inhalt
+ <p>Zus&auml;tzlich zu dem einfachen Test, ob eine Variable gesetzt ist
+  oder nicht, bietet dieser Block auch die M&ouml;glichkeit, den Inhalt
   einer Variablen mit einer festen Zeichenkette oder einer anderen
   Variablen zu vergleichen. Ob der Vergleich mit einer Zeichenkette
-  oder einer anderen Variablen vorgenommen wird, hängt davon ab, ob
-  die rechte Seite des Vergleichsoperators in Anführungszeichen
+  oder einer anderen Variablen vorgenommen wird, h&auml;ngt davon ab, ob
+  die rechte Seite des Vergleichsoperators in Anf&uuml;hrungszeichen
   gesetzt wird (Vergleich mit Zeichenkette) oder nicht (Vergleich mit
   anderer Variablen). Zwei Beispiele, die beide Vergleiche zeigen:</p>
 
  <p><code class="blue">&lt;%if var1 == &quot;Wert&quot;%&gt;</code>
-  testet die Variable &quot;var1&quot; auf Übereinstimmung mit der
+  testet die Variable &quot;var1&quot; auf &Uuml;bereinstimmung mit der
   Zeichenkette &quot;Wert&quot;. Mittels &quot;!=&quot; anstelle von
-  &quot;==&quot; würde auf Ungleichheit getestet.</p>
+  &quot;==&quot; w&uuml;rde auf Ungleichheit getestet.</p>
 
  <p><code class="blue">&lt;%if var1 == var2%&gt;</code> testet die
-  Variable &quot;var1&quot; auf Übereinstimmung mit der Variablen
+  Variable &quot;var1&quot; auf &Uuml;bereinstimmung mit der Variablen
   &quot;var2&quot;. Mittels &quot;!=&quot; anstelle von &quot;==&quot;
-  würde auf Ungleichheit getestet.</p>
+  w&uuml;rde auf Ungleichheit getestet.</p>
 
- <p>Erfahrere Benutzer können neben der Tests auf (Un-)Gleichheit auch
-  Tests auf Übereinstimmung mit regulären Ausdrücken ohne
-  Berücksichtung der Groß- und Kleinschreibung durchführen. Dazu dient
+ <p>Erfahrere Benutzer k&ouml;nnen neben der Tests auf (Un-)Gleichheit auch
+  Tests auf &Uuml;bereinstimmung mit regul&auml;ren Ausdr&uuml;cken ohne
+  Ber&uuml;cksichtung der Gro&szlig;- und Kleinschreibung durchf&uuml;hren. Dazu dient
   dieselbe Syntax wie oben nur mit &quot;=~&quot; und &quot;!~&quot;
   als Vergleichsoperatoren.</p>
 
- <p>Beispiel für einen Test, ob die Variable &quot;intnotes&quot;
-  (interne Bemerkungen) das Wort &quot;schwierig&quot; enthält:
+ <p>Beispiel f&uuml;r einen Test, ob die Variable &quot;intnotes&quot;
+  (interne Bemerkungen) das Wort &quot;schwierig&quot; enth&auml;lt:
   <code class="blue">&lt;%if intnotes =~
   &quot;schwierig&quot;%&gt;</code></p>
 

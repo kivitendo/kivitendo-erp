@@ -2032,7 +2032,7 @@ sub print_form {
         $form->{ $form->{ct} } = $form->{name};
         $form->{"$form->{ct}_id"} = $ref->{ctid};
 
-        map { $form->{$_} = () } qw(invnumber invdate duedate);
+        map { $form->{$_} = () } qw(invnumber invdate duedate amount open);
         $form->{total} = 0;
         foreach my $item (qw(c0 c30 c60 c90)) {
           $form->{$item} = ();
@@ -2101,11 +2101,16 @@ sub statement_details {
   push @{ $form->{invnumber} }, $ref->{invnumber};
   push @{ $form->{invdate} },   $ref->{transdate};
   push @{ $form->{duedate} },   $ref->{duedate};
+  push @{ $form->{amount} },    $form->format_amount(\%myconfig, $ref->{amount} / $ref->{exchangerate}, 2);
+  push @{ $form->{open} },      $form->format_amount(\%myconfig, $ref->{open} / $ref->{exchangerate}, 2);
 
   foreach my $item (qw(c0 c30 c60 c90)) {
     if ($ref->{exchangerate} * 1) {
-      $ref->{$item} =
-        $form->round_amount($ref->{$item} / $ref->{exchangerate}, 2);
+      # add only the open amount of the invoice to the aging, not the total amount
+      $ref->{"${item}"} = $form->round_amount($ref->{open} / $ref->{exchangerate}, 2) if $ref->{overduedays} < 30 and $item eq 'c0';
+      $ref->{"${item}"} = $form->round_amount($ref->{open} / $ref->{exchangerate}, 2) if $ref->{overduedays} >= 30 and $ref->{overduedays} < 60 and $item eq 'c30';
+      $ref->{"${item}"} = $form->round_amount($ref->{open} / $ref->{exchangerate}, 2) if $ref->{overduedays} >= 60 and $ref->{overduedays} < 90 and $item eq 'c60';
+      $ref->{"${item}"} = $form->round_amount($ref->{open} / $ref->{exchangerate}, 2) if $ref->{overduedays} >= 90 and $item eq 'c90';
     }
     $form->{"${item}total"} += $ref->{$item};
     $form->{total}          += $ref->{$item};
