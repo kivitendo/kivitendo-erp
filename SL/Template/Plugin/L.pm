@@ -4,6 +4,7 @@ use base qw( Template::Plugin );
 use Template::Plugin;
 use List::MoreUtils qw(apply);
 use List::Util qw(max);
+use Scalar::Util qw(blessed);
 
 use strict;
 
@@ -273,7 +274,9 @@ sub date_tag {
 
   $params{cal_align} ||= 'BR';
 
-  $self->input_tag($name, $value,
+  my $str_value = blessed $value ? $value->to_lxoffice : $value;
+
+  $self->input_tag($name, $str_value,
     id     => $name_e,
     size   => 11,
     title  => _H($::myconfig{dateformat}),
