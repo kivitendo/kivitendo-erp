@@ -3,6 +3,7 @@ package CVar;
 use strict;
 
 use List::Util qw(first);
+use Scalar::Util qw(blessed);
 use Data::Dumper;
 
 use SL::DBUtils;
@@ -704,6 +705,15 @@ sub custom_variables_validity_by_trans_id {
   $main::lxdebug->leave_sub(2);
 
   return sub { !$invalids{+shift} };
+}
+
+sub parse {
+  my ($self, $value, $config) = @_;
+
+  return $::form->parse_amount(\%::myconfig, $value)          if $config->{type} eq 'number';
+  return DateTime->from_lxoffice($value)                      if $config->{type} eq 'date';
+  return !ref $value ? SL::DB::Manager::Customer->find_by(id => $value * 1) : $value  if $config->{type} eq 'customer';
+  return $value;
 }
 
 1;

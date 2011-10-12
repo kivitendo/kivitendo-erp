@@ -1796,6 +1796,8 @@ sub _render_custom_variables_inputs {
       $description = $cvar->{description} . ' ';
     }
 
+    my $form_key = "ic_cvar_" . $cvar->{name} . "_$params{row}";
+
     push @{ $params{ROW2} }, {
       line_break     => $num_visible_cvars == 1,
       description    => $description,
@@ -1806,7 +1808,7 @@ sub _render_custom_variables_inputs {
          name_prefix       => 'ic_',
          name_postfix      => "_$params{row}",
          valid             => $cvar->{valid},
-         value             => $form->{"ic_cvar_" . $cvar->{name} . "_$params{row}"},
+         value             => CVar->parse($::form->{$form_key}, $cvar),
       }
     };
   }
