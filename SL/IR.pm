@@ -853,6 +853,9 @@ sub retrieve_invoice {
   $ref = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{id}));
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
+  # remove any trailing whitespace
+  $form->{currency} =~ s/\s*$//;
+
   $form->{exchangerate}  = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "sell");
 
   # get shipto

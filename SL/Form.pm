@@ -2968,6 +2968,9 @@ sub create_links {
       $self->{$key} = $ref->{$key};
     }
 
+    # remove any trailing whitespace
+    $self->{currency} =~ s/\s*$//;
+
     my $transdate = "current_date";
     if ($self->{transdate}) {
       $transdate = $dbh->quote($self->{transdate});
@@ -3143,6 +3146,9 @@ sub lastname_used {
   my $ref          = selectfirst_hashref_query($self, $dbh, $query, $trans_id);
 
   map { $self->{$_} = $ref->{$_} } values %column_map;
+
+  # remove any trailing whitespace
+  $self->{currency} =~ s/\s*$// if $self->{currency};
 
   $main::lxdebug->leave_sub();
 }
