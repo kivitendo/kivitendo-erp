@@ -2757,19 +2757,11 @@ sub all_vc {
   @{ $self->{all_employees} } =
     sort { $a->{name} cmp $b->{name} } @{ $self->{all_employees} };
 
-  if ($module eq 'AR') {
 
     # prepare query for departments
     $query = qq|SELECT id, description
                 FROM department
-                WHERE role = 'P'
                 ORDER BY description|;
-
-  } else {
-    $query = qq|SELECT id, description
-                FROM department
-                ORDER BY description|;
-  }
 
   $self->{all_departments} = selectall_hashref_query($self, $dbh, $query);
 
@@ -2840,15 +2832,9 @@ sub all_departments {
   my ($self, $myconfig, $table) = @_;
 
   my $dbh = $self->get_standard_dbh($myconfig);
-  my $where;
-
-  if ($table eq 'customer') {
-    $where = "WHERE role = 'P' ";
-  }
 
   my $query = qq|SELECT id, description
                  FROM department
-                 $where
                  ORDER BY description|;
   $self->{all_departments} = selectall_hashref_query($self, $dbh, $query);
 
@@ -2967,6 +2953,9 @@ sub create_links {
     foreach my $key (keys %$ref) {
       $self->{$key} = $ref->{$key};
     }
+
+    # remove any trailing whitespace
+    $self->{currency} =~ s/\s*$//;
 
     my $transdate = "current_date";
     if ($self->{transdate}) {
@@ -3143,6 +3132,9 @@ sub lastname_used {
   my $ref          = selectfirst_hashref_query($self, $dbh, $query, $trans_id);
 
   map { $self->{$_} = $ref->{$_} } values %column_map;
+
+  # remove any trailing whitespace
+  $self->{currency} =~ s/\s*$// if $self->{currency};
 
   $main::lxdebug->leave_sub();
 }

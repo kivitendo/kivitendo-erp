@@ -12,14 +12,11 @@ __PACKAGE__->meta->setup(
   columns => [
     id          => { type => 'integer', not_null => 1, sequence => 'id' },
     description => { type => 'text' },
-    role        => { type => 'character', default => 'P', length => 1 },
     itime       => { type => 'timestamp', default => 'now()' },
     mtime       => { type => 'timestamp' },
   ],
 
   primary_key_columns => [ 'id' ],
-
-  allow_inline_column_values => 1,
 );
 
 1;

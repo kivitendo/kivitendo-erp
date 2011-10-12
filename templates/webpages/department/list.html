@@ -16,8 +16,6 @@
     <thead>
     <tr class="listheading">
      <th width="100%">[%- 'Description' | $T8 %]</th>
-     <th>[%- 'Cost Center' | $T8 %]</th>
-     <th>[%- 'Profit Center' | $T8 %]</th>
     </tr>
     </thead>
 
@@ -29,8 +27,6 @@
        [%- HTML.escape(department.description) %]
       </a>
      </td>
-     <td align="center">[%- IF department.role == 'C' %]X[%- END %]</td>
-     <td align="center">[%- IF department.role == 'P' %]X[%- END %]</td>
     </tr>
     [%- END %]
     </tbody>

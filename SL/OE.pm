@@ -806,6 +806,9 @@ sub retrieve {
     if ($ref) {
       map { $form->{$_} = $ref->{$_} } keys %$ref;
 
+      # remove any trailing whitespace
+      $form->{currency} =~ s/\s*$//;
+
       $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber"};
 
       # set all entries for multiple ids blank that yield different information
