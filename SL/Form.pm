@@ -2757,19 +2757,11 @@ sub all_vc {
   @{ $self->{all_employees} } =
     sort { $a->{name} cmp $b->{name} } @{ $self->{all_employees} };
 
-  if ($module eq 'AR') {
 
     # prepare query for departments
     $query = qq|SELECT id, description
                 FROM department
-                WHERE role = 'P'
                 ORDER BY description|;
-
-  } else {
-    $query = qq|SELECT id, description
-                FROM department
-                ORDER BY description|;
-  }
 
   $self->{all_departments} = selectall_hashref_query($self, $dbh, $query);
 
@@ -2840,15 +2832,9 @@ sub all_departments {
   my ($self, $myconfig, $table) = @_;
 
   my $dbh = $self->get_standard_dbh($myconfig);
-  my $where;
-
-  if ($table eq 'customer') {
-    $where = "WHERE role = 'P' ";
-  }
 
   my $query = qq|SELECT id, description
                  FROM department
-                 $where
                  ORDER BY description|;
   $self->{all_departments} = selectall_hashref_query($self, $dbh, $query);
 

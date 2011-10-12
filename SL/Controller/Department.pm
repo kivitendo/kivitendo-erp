@@ -30,7 +30,6 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  $self->{department} = SL::DB::Department->new(role => 'P');
   $self->render('department/form', title => $::locale->text('Create a new department'));
 }
 
@@ -89,7 +88,6 @@ sub create_or_update {
     $self->render('department/form', title => $is_new ? $::locale->text('Create a new department') : $::locale->text('Edit department'));
     return;
   }
-
   $self->{department}->save;
 
   flash_later('info', $is_new ? $::locale->text('The department has been created.') : $::locale->text('The department has been saved.'));

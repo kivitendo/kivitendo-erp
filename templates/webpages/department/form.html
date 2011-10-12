@@ -12,20 +12,6 @@
     <td>[%- 'Description' | $T8 %]</td>
     <td>[% L.input_tag("department.description", SELF.department.description) %]</td>
    </tr>
-
-   <tr>
-    <td valign="top">[%- 'Type' | $T8 %]</td>
-    <td valign="top">
-     [%- IF is_used %]
-      [% L.hidden_tag("role", SELF.department.role) %]
-      [%- IF SELF.department.role == "C" %][%- LxERP.t8('Cost Center') %][%- ELSE %][%- LxERP.t8('Profit Center') %][%- END %]
-     [%- ELSE %]
-      [% L.radio_button_tag("department.role", "value", "C", "label", LxERP.t8("Cost Center"), "checked", SELF.department.role == "C") %]
-      <br>
-      [% L.radio_button_tag("department.role", "value", "P", "label", LxERP.t8("Profit Center"), "checked", SELF.department.role == "P") %]
-     [%- END %]
-    </td>
-   </tr>
   </table>
 
   <p>
