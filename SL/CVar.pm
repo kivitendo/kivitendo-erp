@@ -175,8 +175,9 @@ sub delete_config {
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
-  do_query($form, $dbh, qq|DELETE FROM custom_variables        WHERE config_id = ?|, conv_i($params{id}));
-  do_query($form, $dbh, qq|DELETE FROM custom_variable_configs WHERE id        = ?|, conv_i($params{id}));
+  do_query($form, $dbh, qq|DELETE FROM custom_variables          WHERE config_id = ?|, conv_i($params{id}));
+  do_query($form, $dbh, qq|DELETE FROM custom_variables_validity WHERE config_id = ?|, conv_i($params{id}));
+  do_query($form, $dbh, qq|DELETE FROM custom_variable_configs   WHERE id        = ?|, conv_i($params{id}));
 
   $dbh->commit();
 
