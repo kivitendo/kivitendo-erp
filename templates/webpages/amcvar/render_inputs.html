@@ -19,17 +19,7 @@
 <textarea name="[% var_name %]" cols="[% HTML.escape(var.width) %]" rows="[% HTML.escape(var.height) %]">[% HTML.escape(var.value) %]</textarea>
 
 [%- ELSIF var.type == 'date' %]
-<input name="[% var_name %]" id="[% var_name %]" size="12" value="[% HTML.escape(var.value) %]">
-<input name="[% var_name %]_button" id="[% var_name %]_trigger" type="button" value="?">
-
-<script type="text/javascript">
- <!--
-     Calendar.setup({ inputField : "[% var_name %]",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BR",
-                      button     : "[% var_name %]_trigger" });
-   -->
-</script>
+[% L.date_tag(var_name, var.value) %]
 
 [%- ELSIF var.type == 'timestamp' %]
 <input name="[% var_name %]" value="[% HTML.escape(var.value) %]">
