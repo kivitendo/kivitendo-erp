@@ -1,8 +1,10 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
+[%- USE LxERP %]
 [%- BLOCK cvar_name %][% HTML.escape(cvar.name_prefix) _ "cvar_" _ HTML.escape(cvar.var.name) _ HTML.escape(cvar.name_postfix) -%][% END %]
 [%- BLOCK cvar_inputs %]
+[% render_input_blocks__cvar_name = PROCESS cvar_name %]
 [%- %]
 [%- IF cvar.hide_non_editable && !cvar.var.flag_editable %]
 <input type="hidden" name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.var.value) %]">
@@ -15,16 +17,8 @@
 [%- ELSIF cvar.var.type == 'textfield' %]
 <textarea name="[% PROCESS cvar_name %]" cols="[% HTML.escape(cvar.var.width) %]" rows="[% HTML.escape(cvar.var.height) %]">[% HTML.escape(cvar.value) %]</textarea>
 [%- ELSIF cvar.var.type == 'date' %]
-<input name="[% PROCESS cvar_name %]" id="[% PROCESS cvar_name %]" size="12" value="[% HTML.escape(cvar.value) %]">
-<input name="[% PROCESS cvar_name %]_button" id="[% PROCESS cvar_name %]_trigger" type="button" value="?">
-<script type="text/javascript">
- <!--
-     Calendar.setup({ inputField : "[% PROCESS cvar_name %]",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BR",
-                      button     : "[% PROCESS cvar_name %]_trigger" });
-   -->
-</script>
+[%- L.date_tag(render_input_blocks__cvar_name, cvar.value) %]
+
 [%- ELSIF cvar.var.type == 'timestamp' %]
 <input name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.value) %]">
 [%- ELSIF cvar.var.type == 'select' %]
@@ -34,7 +28,11 @@
  [%- END %]
 </select>
 [%- ELSIF cvar.var.type == 'customer' %]
-[% render_input_blocks__cvar_name = PROCESS cvar_name %][% L.customer_picker(render_input_blocks__cvar_name, cvar.value) %]
+[%- L.customer_picker(render_input_blocks__cvar_name, cvar.value) %]
+
+[%- ELSIF cvar.var.type == 'number' %]
+[%- L.input_tag(render_input_blocks__cvar_name, LxERP.format_amount(cvar.value, -2)) %]
+
 [%- ELSE %]
 <input name="[% PROCESS cvar_name %]" value="[% HTML.escape(cvar.value) %]" [%- IF cvar.var.maxlength %] maxlength="[% HTML.escape(cvar.var.maxlength) %]"[% END -%]>
 [%- END %]

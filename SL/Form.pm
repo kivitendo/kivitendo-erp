@@ -697,13 +697,13 @@ sub header {
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
   push @header, '<script type="text/javascript" src="js/jquery.js"></script>',
                 '<script type="text/javascript" src="js/common.js"></script>',
-                '<style type="text/css">@import url(js/jscalendar/calendar-win2k-1.css);</style>',
+                '<link rel="stylesheet" type="text/css" href="js/jscalendar/calendar-win2k-1.css">',
                 '<script type="text/javascript" src="js/jscalendar/calendar.js"></script>',
                 '<script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>',
                 '<script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>',
                 '<script type="text/javascript" src="js/part_selection.js"></script>',
                 '<script type="text/javascript" src="js/jquery-ui.js"></script>',
-                '<style "type=text/css">@import url("css/ui-lightness/jquery-ui-1.8.12.custom.css")</style>';
+                '<link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.8.12.custom.css">';
   push @header, $self->{javascript} if $self->{javascript};
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
   push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
@@ -2954,6 +2954,9 @@ sub create_links {
       $self->{$key} = $ref->{$key};
     }
 
+    # remove any trailing whitespace
+    $self->{currency} =~ s/\s*$//;
+
     my $transdate = "current_date";
     if ($self->{transdate}) {
       $transdate = $dbh->quote($self->{transdate});
@@ -3129,6 +3132,9 @@ sub lastname_used {
   my $ref          = selectfirst_hashref_query($self, $dbh, $query, $trans_id);
 
   map { $self->{$_} = $ref->{$_} } values %column_map;
+
+  # remove any trailing whitespace
+  $self->{currency} =~ s/\s*$// if $self->{currency};
 
   $main::lxdebug->leave_sub();
 }
