@@ -353,7 +353,9 @@ sub invoice_details {
         $sth->finish;
       }
 
-      map { push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} }, $form->{"ic_cvar_$_->{name}_$i"} } @{ $ic_cvar_configs };
+      push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
+        CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
+          for @{ $ic_cvar_configs };
     }
   }
 
@@ -877,7 +879,7 @@ sub post_invoice {
   # record payments and offsetting AR
   if (!$form->{storno}) {
     for my $i (1 .. $form->{paidaccounts}) {
-      
+
       if ($form->{"acc_trans_id_$i"}
           && $payments_only
           && ($::lx_office_conf{features}->{payments_changeable} == 0)) {

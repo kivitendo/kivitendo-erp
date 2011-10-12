@@ -1293,7 +1293,9 @@ sub order_details {
         $sth->finish;
       }
 
-      map { push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} }, $form->{"ic_cvar_$_->{name}_$i"} } @{ $ic_cvar_configs };
+      push @{ $form->{TEMPLATE_ARRAYS}->{"ic_cvar_$_->{name}"} },
+        CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
+          for @{ $ic_cvar_configs };
     }
   }
 
