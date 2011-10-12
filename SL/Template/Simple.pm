@@ -85,27 +85,15 @@ sub uses_temp_file {
 }
 
 sub _get_loop_variable {
-  my $self      = shift;
-  my $var       = shift;
-  my $get_array = shift;
-  my @indices   = @_;
-
+  my ($self, $var, $get_array, @indices) = @_;
   my $form      = $self->{form};
-  my $value;
+  my ($value, @methods);
 
   if ($var =~ m/\./) {
-    $value = $form;
-    for my $part (split(m/\./, $var)) {
-      if (ref($value) =~ m/^(?:Form|HASH)$/) {
-        $value = $value->{$part};
-      } elsif (blessed($value) && $value->can($part)) {
-        $value = $value->$part;
-      } else {
-        $value = '';
-        last;
-      }
-    }
-  } elsif (($get_array || @indices) && (ref $form->{TEMPLATE_ARRAYS} eq 'HASH') && (ref $form->{TEMPLATE_ARRAYS}->{$var} eq 'ARRAY')) {
+    ($var, @methods) = split m/\./, $var;
+  }
+
+  if (($get_array || @indices) && (ref $form->{TEMPLATE_ARRAYS} eq 'HASH') && (ref $form->{TEMPLATE_ARRAYS}->{$var} eq 'ARRAY')) {
     $value = $form->{TEMPLATE_ARRAYS}->{$var};
   } else {
     $value = $form->{$var};
@@ -114,6 +102,17 @@ sub _get_loop_variable {
   for (my $i = 0; $i < scalar(@indices); $i++) {
     last unless (ref($value) eq "ARRAY");
     $value = $value->[$indices[$i]];
+  }
+
+  for my $part (@methods) {
+    if (ref($value) =~ m/^(?:Form|HASH)$/) {
+      $value = $value->{$part};
+    } elsif (blessed($value) && $value->can($part)) {
+      $value = $value->$part;
+    } else {
+      $value = '';
+      last;
+    }
   }
 
   return $value;
