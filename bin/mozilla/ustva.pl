@@ -23,6 +23,7 @@
 # German Tax authority Module and later ELSTER Interface
 #======================================================================
 
+use strict;
 use utf8;
 
 require "bin/mozilla/common.pl";
