@@ -1,5 +1,6 @@
 package SL::Template::Plugin::JSON;
 
+use strict;
 use JSON ();
 use Carp qw(croak);
 use base qw(Template::Plugin);
