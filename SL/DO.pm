@@ -1099,7 +1099,7 @@ sub get_shipped_qty {
   my $all_units = AM->retrieve_all_units();
 
   foreach my $entry (@{ $entries }) {
-    $entry->{qty} *= $all_units->{$entry->{unit}}->{factor} / $all_units->{$entry->{partunit}}->{factor};
+    $entry->{qty} *= AM->convert_unit($entry->{unit}, $entry->{partunit}, $all_units);
 
     if (!$ship{$entry->{parts_id}}) {
       $ship{$entry->{parts_id}} = $entry;
