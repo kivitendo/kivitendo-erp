@@ -56,7 +56,7 @@ sub setup {
     usage();
   }
 
-  $::lxdebug    = LXDebug->new();
+  $::lxdebug      = LXDebug->new();
   $::locale       = Locale->new("de");
   $::form         = new Form;
   $::cgi          = new CGI('');
