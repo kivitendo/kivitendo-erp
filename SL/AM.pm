@@ -1386,13 +1386,13 @@ sub retrieve_all_units {
 
   my $self = shift;
 
-  if (!$main::all_units) {
-    $main::all_units = $self->retrieve_units(\%main::myconfig, $main::form);
+  if (!$::request->{cache}{all_units}) {
+    $::request->{cache}{all_units} = $self->retrieve_units(\%main::myconfig, $main::form);
   }
 
   $main::lxdebug->leave_sub();
 
-  return $main::all_units;
+  return $::request->{cache}{all_units};
 }
 
 
