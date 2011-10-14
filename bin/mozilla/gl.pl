@@ -218,7 +218,7 @@ sub search {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   $form->{title} = $locale->text('Journal');
 
@@ -507,7 +507,7 @@ sub generate_report {
 
   my @columns = qw(
     gldate         transdate        id             reference      description
-    notes          source           debit          debit_accno   
+    notes          source           debit          debit_accno
     credit         credit_accno     debit_tax      debit_tax_accno
     credit_tax     credit_tax_accno projectnumbers balance employee
   );
@@ -861,7 +861,7 @@ sub display_rows {
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   $form->{debit_1}     = 0 if !$form->{"debit_1"};
   $form->{totaldebit}  = 0;
@@ -1347,7 +1347,7 @@ sub form_footer {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   my $follow_ups_block;
   if ($form->{id}) {

@@ -113,7 +113,7 @@ sub display_row {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   my $numrows = shift;
 
@@ -415,7 +415,7 @@ sub set_pricegroup {
 
   my $form     = $main::form;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   _check_io_auth();
 

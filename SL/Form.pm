@@ -464,11 +464,11 @@ sub hide_form {
   my $self = shift;
 
   if (@_) {
-    map({ print($main::cgi->hidden("-name" => $_, "-default" => $self->{$_}) . "\n"); } @_);
+    map({ print($::request->{cgi}->hidden("-name" => $_, "-default" => $self->{$_}) . "\n"); } @_);
   } else {
     for (sort keys %$self) {
       next if (($_ eq "header") || (ref($self->{$_}) ne ""));
-      print($main::cgi->hidden("-name" => $_, "-default" => $self->{$_}) . "\n");
+      print($::request->{cgi}->hidden("-name" => $_, "-default" => $self->{$_}) . "\n");
     }
   }
   $main::lxdebug->leave_sub();
@@ -624,8 +624,7 @@ sub create_http_response {
   my $self     = shift;
   my %params   = @_;
 
-  my $cgi      = $main::cgi;
-  $cgi       ||= CGI->new('');
+  my $cgi      = $::request->{cgi};
 
   my $session_cookie;
   if (defined $main::auth) {
@@ -762,8 +761,7 @@ sub ajax_response_header {
   my ($self) = @_;
 
   my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
-  my $cgi        = $main::cgi || CGI->new('');
-  my $output     = $cgi->header('-charset' => $db_charset);
+  my $output     = $::request->{cgi}->header('-charset' => $db_charset);
 
   $main::lxdebug->leave_sub();
 
@@ -780,8 +778,7 @@ sub redirect_header {
   die "Headers already sent" if $self->{header};
   $self->{header} = 1;
 
-  my $cgi = $main::cgi || CGI->new('');
-  return $cgi->redirect($new_uri);
+  return $::request->{cgi}->redirect($new_uri);
 }
 
 sub set_standard_title {

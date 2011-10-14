@@ -176,7 +176,7 @@ sub bank_transfer_list {
 
   my $form   = $main::form;
   my $locale = $main::locale;
-  my $cgi    = $main::cgi;
+  my $cgi    = $::request->{cgi};
   my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   $form->{title}     = $vc eq 'customer' ? $::locale->text('List of bank collections') : $locale->text('List of bank transfers');
@@ -443,7 +443,7 @@ sub bank_transfer_download_sepa_xml {
   my $form     =  $main::form;
   my $myconfig = \%main::myconfig;
   my $locale   =  $main::locale;
-  my $cgi      =  $main::cgi;
+  my $cgi      =  $::request->{cgi};
   my $vc       = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   if (!$myconfig->{company}) {

@@ -54,7 +54,6 @@ sub search_invoice {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
 
   my ($customer, $department);
 
@@ -100,7 +99,7 @@ sub invoice_transactions {
     # Nichts führt, daher diese Zwischenlösung
 
     &check_name('customer', no_select => 1);
-  
+
     # $form->{customer_id} wurde schon von check_name gesetzt
     $form->{customername} = $form->{customer};
   };
@@ -312,7 +311,7 @@ sub invoice_transactions {
 
     if ( $subtotals2{qty} != 0 ) {
       $subtotals2{sellprice} = $subtotals2{sellprice_total} / $subtotals2{qty};
-      $subtotals2{lastcost} = $subtotals2{lastcost_total} / $subtotals2{qty}; 
+      $subtotals2{lastcost} = $subtotals2{lastcost_total} / $subtotals2{qty};
     } else {
       $subtotals2{sellprice} = 0;
       $subtotals2{lastcost} = 0;

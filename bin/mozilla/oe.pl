@@ -298,7 +298,7 @@ sub form_header {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   check_oe_access();
 
@@ -744,7 +744,7 @@ sub orders {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   check_oe_access();
 

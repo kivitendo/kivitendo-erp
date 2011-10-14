@@ -316,7 +316,7 @@ sub show_dunning {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   $main::auth->assert('dunning_edit');
 

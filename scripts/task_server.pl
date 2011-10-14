@@ -40,10 +40,9 @@ sub lxinit {
 
   $::lxdebug = LXDebug->new;
   $::locale  = Locale->new($::lx_office_conf{system}->{language});
-  $::cgi     = CGI->new qw();
   $::form    = Form->new;
   $::auth    = SL::Auth->new;
-  $::request = { };
+  $::request = { cgi => CGI->new({}) };
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 

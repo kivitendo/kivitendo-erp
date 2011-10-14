@@ -31,7 +31,6 @@ my %blacklist     = SL::DB::Helper::Mappings->get_blacklist;
 my %package_names = SL::DB::Helper::Mappings->get_package_names;
 
 our $form;
-our $cgi;
 our $auth;
 our %lx_office_conf;
 
@@ -59,11 +58,10 @@ sub setup {
   $::lxdebug      = LXDebug->new();
   $::locale       = Locale->new("de");
   $::form         = new Form;
-  $::cgi          = new CGI('');
   $::auth         = SL::Auth->new();
   $::user         = User->new($login);
   %::myconfig     = $auth->read_user($login);
-  $::request      = { };
+  $::request      = { cgi => CGI->new({}) };
   $form->{script} = 'rose_meta_data.pl';
   $form->{login}  = $login;
 

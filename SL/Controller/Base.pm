@@ -30,7 +30,7 @@ sub redirect_to {
   my $self = shift;
   my $url  = $self->url_for(@_);
 
-  print $::cgi->redirect($url);
+  print $::request->{cgi}->redirect($url);
 }
 
 sub render {

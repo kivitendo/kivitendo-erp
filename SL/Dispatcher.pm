@@ -168,11 +168,10 @@ sub handle_request {
 
   $self->unrequire_bin_mozilla;
 
-  $::cgi           = CGI->new('');
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = { };
+  $::request       = { cgi => CGI->new({}) };
 
   my $session_result = $::auth->restore_session;
   $::auth->create_or_refresh_session;
@@ -240,7 +239,7 @@ sub handle_request {
   } or do {
     if ($EVAL_ERROR ne END_OF_REQUEST) {
       print STDERR $EVAL_ERROR;
-      $::form->{label_error} = $::cgi->pre($EVAL_ERROR);
+      $::form->{label_error} = $::request->{cgi}->pre($EVAL_ERROR);
       eval { show_error('generic/error') };
     }
   };
@@ -311,7 +310,7 @@ sub _route_dispatcher_request {
 
     1;
   } or do {
-    $::form->{label_error} = $::cgi->pre($EVAL_ERROR);
+    $::form->{label_error} = $::request->{cgi}->pre($EVAL_ERROR);
     show_error('generic/error');
   };
 
@@ -328,7 +327,7 @@ sub _route_controller_request {
 
     1;
   } or do {
-    $::form->{label_error} = $::cgi->pre($EVAL_ERROR);
+    $::form->{label_error} = $::request->{cgi}->pre($EVAL_ERROR);
     show_error('generic/error');
   };
 

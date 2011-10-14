@@ -33,7 +33,6 @@
 #======================================================================
 
 use DBI;
-use CGI;
 use Encode;
 use English qw(-no_match_vars);
 use Fcntl;
@@ -68,7 +67,6 @@ sub run {
   $::lxdebug->enter_sub;
   my $session_result = shift;
 
-  $cgi    = $::cgi;
   $form   = $::form;
   $locale = $::locale;
   $auth   = $::auth;

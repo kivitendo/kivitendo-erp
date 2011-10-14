@@ -176,7 +176,7 @@ sub report {
   }
 
   my $projectnumber =
-    NTI($main::cgi->popup_menu('-name' => "project_id",
+    NTI($::request->{cgi}->popup_menu('-name' => "project_id",
                                '-values' => \@project_values,
                                '-labels' => \%project_labels));
 
@@ -1663,7 +1663,7 @@ sub aging {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 

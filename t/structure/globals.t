@@ -7,7 +7,7 @@ use Support::Files;
 my (@globals, $testcount);
 
 BEGIN {
-  @globals = qw(lxdebug auth myconfig form cgi lx_office_conf locale dispatcher instance_conf request);
+  @globals = qw(lxdebug auth myconfig form lx_office_conf locale dispatcher instance_conf request);
   $testcount = scalar(@Support::Files::testitems);
 }
 

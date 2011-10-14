@@ -215,7 +215,7 @@ sub form_header {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   my ($title, $readonly, $exchangerate, $rows);
   my ($taxincluded, $notes, $department, $customer, $employee, $amount, $project);
@@ -879,7 +879,7 @@ sub form_footer {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   my ($transdate, $closedto);
 
@@ -1332,7 +1332,7 @@ sub search {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-  my $cgi      = $main::cgi;
+  my $cgi      = $::request->{cgi};
 
   my ($customer, $department);
   my ($jsscript, $button1, $button2, $onload);

@@ -45,7 +45,6 @@ sub run {
   $::lxdebug->enter_sub;
   my $session_result = shift;
 
-  $cgi    = $::cgi;
   $form   = $::form;
   $auth   = $::auth;
 
