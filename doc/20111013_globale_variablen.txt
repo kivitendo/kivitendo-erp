@@ -194,7 +194,7 @@ wird. Wird vermutlich irgendwann in einem anderen Objekt untergebracht.
 
 $::request
 
-- Hashref
+- Hashref (evtl später Objekt)
 - Wird pro Request neu initialisiert.
 - Keine Unterstruktur garantiert.
 
@@ -214,3 +214,36 @@ Die groben Differentialkriterien sind:
 
 - Muss ich von anderen Teilen des Programms lesend drauf zugreifen?
   => $::request, aber Zugriff über Wrappermethode
+
+
+
+
+Ehemalige globale Variablen
+---------------------------
+
+Die folgenden Variablen waren einmal im Programm, und wurden entfernt.
+
+
+$::cgi
+
+- war nötig, weil cookie Methoden nicht als Klassenfunktionen funktionieren
+- Aufruf als Klasse erzeugt Dummyobjekt was im Klassennamespace gehalten wird
+  und über Requestgrenzen leaked
+- liegt jetzt unter $::request->{cgi}
+
+
+$::all_units
+
+- war nötig, weil einige Funktionen in Schleifen zum Teil ein paar hundert mal
+  pro Request eine Liste der Einheiten brauchen, und die als Parameter durch
+  einen Riesenstack von Funktionen geschleift werden müssten.
+- Liegt jetzt unter $::request->{cache}{all_units}
+- Wird nur in AM->retrieve_all_units gesetzt oder gelesen.
+
+
+%::called_subs
+
+- wurde benutzt um callsub deep recursions abzufangen.
+- Wurde entfernt, weil callsub nur einen Bruchteil der möglichen Rekursioenen
+  darstellt, und da nie welche auftreten.
+- komplette recursion protection wurde entfernt.
