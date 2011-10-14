@@ -43,6 +43,7 @@ sub lxinit {
   $::cgi     = CGI->new qw();
   $::form    = Form->new;
   $::auth    = SL::Auth->new;
+  $::request = { };
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 

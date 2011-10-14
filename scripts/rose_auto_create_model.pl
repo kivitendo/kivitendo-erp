@@ -63,6 +63,7 @@ sub setup {
   $::auth         = SL::Auth->new();
   $::user         = User->new($login);
   %::myconfig     = $auth->read_user($login);
+  $::request      = { };
   $form->{script} = 'rose_meta_data.pl';
   $form->{login}  = $login;
 

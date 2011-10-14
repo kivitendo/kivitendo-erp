@@ -95,6 +95,7 @@ sub pre_startup_setup {
     $::auth        = SL::Auth->new;
     $::form        = undef;
     %::myconfig    = ();
+    $::request     = undef;
   }
 
   $SIG{__WARN__} = sub {
@@ -171,6 +172,7 @@ sub handle_request {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::instance_conf = SL::InstanceConfiguration->new;
+  $::request       = { };
 
   my $session_result = $::auth->restore_session;
   $::auth->create_or_refresh_session;
@@ -251,6 +253,7 @@ sub handle_request {
   $::locale   = undef;
   $::form     = undef;
   $::myconfig = ();
+  $::request  = undef;
   Form::disconnect_standard_dbh;
 
   $::lxdebug->end_request;

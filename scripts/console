@@ -66,6 +66,7 @@ sub lxinit {
   $::form          = Form->new;
   $::auth          = SL::Auth->new;
   $::instance_conf = SL::InstanceConfiguration->new;
+  $::request       = { };
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 
