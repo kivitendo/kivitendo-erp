@@ -95,7 +95,6 @@ sub pre_startup_setup {
     $::auth        = SL::Auth->new;
     $::form        = undef;
     %::myconfig    = ();
-    %::called_subs = (); # currently used for recursion detection
   }
 
   $SIG{__WARN__} = sub {
@@ -171,7 +170,6 @@ sub handle_request {
   $::cgi           = CGI->new('');
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
-  %::called_subs   = ();
   $::instance_conf = SL::InstanceConfiguration->new;
 
   my $session_result = $::auth->restore_session;

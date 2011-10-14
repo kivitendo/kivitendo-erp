@@ -9,7 +9,6 @@
 #
 ######################################################################
 
-use Carp;
 use SL::Common;
 use SL::DB::Helper::Mappings;
 use SL::DBUtils;
@@ -439,9 +438,6 @@ sub call_sub {
   if (!defined(&{ $name })) {
     $form->error(sprintf($locale->text("Attempt to call an undefined sub named '%s'"), $name));
   }
-
-  $::called_subs{$name}++;
-  confess "RECURSION DETECTION: call_sub($name) called " . $::called_subs{$name} . " time(s)" if $::called_subs{$name} > 10;
 
   {
     no strict "refs";
