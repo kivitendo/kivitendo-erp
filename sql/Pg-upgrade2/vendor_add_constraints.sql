@@ -4,9 +4,10 @@
 -- @charset: utf-8
 -- @ignore: 0
 
--- verwaiste Zahlungsbedingungen vorher entfernen
-update vendor set payment_id = NULL where payment_id not in (select id from payment_terms);
-
+-- verwaiste Einträge vorher entfernen
+UPDATE vendor SET payment_id  = NULL WHERE payment_id  NOT IN (SELECT id FROM payment_terms);
+UPDATE vendor SET language_id = NULL WHERE language_id NOT IN (SELECT id FROM language);
+UPDATE vendor SET business_id = NULL WHERE business_id NOT IN (SELECT id FROM business);
 
 ALTER TABLE vendor ADD FOREIGN KEY (payment_id) REFERENCES payment_terms (id);
 ALTER TABLE vendor ADD FOREIGN KEY (language_id) REFERENCES language (id);
