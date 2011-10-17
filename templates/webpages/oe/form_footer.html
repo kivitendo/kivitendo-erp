@@ -185,5 +185,17 @@
 
 </form>
 
+
+    <script type="text/javascript">
+     <!--
+       Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
+       Calendar.setup({ inputField : "reqdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
+
+       $('document').ready(function(){
+         setupDateFormat('[% dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
+         setupPoints('[% numberformat %]', '[% 'wrongformat' | $T8 %]');
+       });
+     //-->
+    </script>
 </body>
 </html>
