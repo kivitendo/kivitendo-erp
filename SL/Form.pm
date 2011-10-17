@@ -734,9 +734,9 @@ sub header {
 EOT
   print "  $_\n" for @header;
   print <<EOT;
-  <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css" />
-  <meta name="robots" content="noindex,nofollow" />
-  <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
+  <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" type="text/css" href="css/tabcontent.css">
   <script type="text/javascript" src="js/tabcontent.js">
 
   /***********************************************
