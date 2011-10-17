@@ -722,10 +722,15 @@ sub header {
     </script>|;
   }
 
+  my  %doctypes = (
+    strict       => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">|,
+    transitional => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">|,
+    frameset     => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">|,
+  );
+
   # output
   print $self->create_http_response(content_type => 'text/html', charset => $db_charset);
-  print "<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/TR/html4/strict.dtd'>\n"
-    if  $ENV{'HTTP_USER_AGENT'} =~ m/MSIE\s+\d/; # Other browsers may choke on menu scripts with DOCTYPE.
+  print $doctypes{$params{doctype} || 'transitional'}, $/;
   print <<EOT;
 <html>
  <head>
