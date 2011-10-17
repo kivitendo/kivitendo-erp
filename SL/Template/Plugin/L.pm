@@ -277,8 +277,7 @@ sub date_tag {
     s/y+/\%Y/gi;
   } $::myconfig{"dateformat"};
 
-  $params{cal_align} ||= 'BR';
-
+  my $cal_align =  delete $params{cal_align} || 'BR';
   my $str_value = blessed $value ? $value->to_lxoffice : $value;
 
   $self->input_tag($name, $str_value,
@@ -290,12 +289,13 @@ sub date_tag {
   ) . ((!$params{no_cal}) ?
   $self->html_tag('img', undef,
     src    => 'image/calendar.png',
+    alt    => $::locale->text('Calendar'),
     id     => "trigger$seq",
     title  => _H($::myconfig{dateformat}),
     %params,
   ) .
   $self->javascript(
-    "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$params{cal_align}', button: 'trigger$seq' });"
+    "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$cal_align', button: 'trigger$seq' });"
   ) : '');
 }
 
