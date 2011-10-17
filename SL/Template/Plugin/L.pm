@@ -196,7 +196,10 @@ sub button_tag {
   my ($self, $onclick, $value, @slurp) = @_;
   my %attributes = _hashify(@slurp);
 
-  return $self->input_tag(undef, $value, %attributes, type => 'button', onclick => $onclick);
+  $attributes{id}   ||= $self->name_to_id($attributes{name}) if $attributes{name};
+  $attributes{type} ||= 'button';
+
+  return $self->html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
 }
 
 sub options_for_select {
