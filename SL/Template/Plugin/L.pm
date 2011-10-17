@@ -95,6 +95,8 @@ sub textarea_tag {
   my %attributes      = _hashify(@slurp);
 
   $attributes{id}   ||= $self->name_to_id($name);
+  $attributes{rows}  *= 1; # required by standard
+  $attributes{cols}  *= 1; # required by standard
   $content            = $content ? _H($content) : '';
 
   return $self->html_tag('textarea', $content, %attributes, name => $name);
