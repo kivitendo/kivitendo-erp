@@ -331,6 +331,7 @@ $self->{texts} = {
   'CSV import: parts and services' => 'CSV-Import: Waren und Dienstleistungen',
   'CSV import: shipping addresses' => 'CSV-Import: Lieferadressen',
   'Calculate'                   => 'Berechnen',
+  'Calendar'                    => 'Kalender',
   'Can not create that quantity with current stock' => 'Diese Anzahl kann mit dem gegenwärtigen Lagerbestand nicht hergestellt werden.',
   'Cancel'                      => 'Abbrechen',
   'Cancel Accounts Payables Transaction' => 'Kreditorenbuchung stornieren',
