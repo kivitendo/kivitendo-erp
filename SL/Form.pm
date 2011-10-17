@@ -674,7 +674,7 @@ sub header {
 
   # extra code is currently only used by menuv3 and menuv4 to set their css.
   # it is strongly deprecated, and will be changed in a future version.
-  my ($self, $extra_code) = @_;
+  my ($self, %params) = @_;
   my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   my @header;
 
@@ -746,7 +746,7 @@ EOT
    ***********************************************/
 
   </script>
-  $extra_code
+  $params{extra_code}
   $title_hack
  </head>
 
