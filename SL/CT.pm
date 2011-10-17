@@ -696,7 +696,7 @@ sub search {
   $form->{sort} = $sortorder;
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-  if ($sortorder ne 'id' && 1 >= scalar grep { $form->{$_} } qw(l_ordnumber l_quonumber l_invnumber)) {
+  if ($sortorder !~ /(business|id)/ && 1 >= scalar grep { $form->{$_} } qw(l_ordnumber l_quonumber l_invnumber )) {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
