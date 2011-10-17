@@ -29,7 +29,7 @@
 [%-
   Multibox__limit      = limit   != '' ? limit   : vclimit != '' ? vclimit : 200
   Multibox__show_text  = allow_textbox and DATA.size and Multibox__limit < DATA.size ? 1 : 0
-  Multibox__id         = id      != '' ? id      : name
+  Multibox__id         = id      != '' && id * 1 != id ? id      : name
   Multibox__default    = default != '' ? default : $name
   Multibox__name       = (select_name != '' and ! Multibox__show_text) ? select_name : name
 -%]
