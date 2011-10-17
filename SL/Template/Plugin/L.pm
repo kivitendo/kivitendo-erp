@@ -74,7 +74,7 @@ sub html_tag {
   my ($self, $tag, $content, @slurp) = @_;
   my $attributes = $self->attributes(@slurp);
 
-  return "<${tag}${attributes}/>" unless defined($content);
+  return "<${tag}${attributes}>" unless defined($content);
   return "<${tag}${attributes}>${content}</${tag}>";
 }
 
