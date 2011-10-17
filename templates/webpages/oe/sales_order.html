@@ -5,7 +5,7 @@
  <td>
   <input type="button" id="cb_show_details" name="show_details" value='[% 'Show details' | $T8 %]'>
   <script type="text/javascript">
-   $('#cb_show_details').click(function(){ $('[id$="row2"]').toggle() });
+   $('#cb_show_details').click(function(){ $('[id^="row2"]').toggle() });
   </script>
   <table id='display_row' width="100%">
    <tr class="listheading">
@@ -18,16 +18,20 @@
 [%- FOREACH row = ROWS %]
      <tr valign="top" class="[% IF row.error %]error_message[% ELSE %]listrow[% loop.count % 2 %][% END %]">
  [%- FOREACH row1 = row.ROW1 %]
-      <td align="[% row1.align %]"[% IF row1.nowrap %] nowrap[% END %]>[% row1.value %]</td>
+      <td[% IF row1.align %] align="[% row1.align %]"[% END %][% IF row1.nowrap %] nowrap[% END %]>[% row1.value %]</td>
  [%- END %]
      </tr>
+     <tr style='display:none'>
+      <td>
  [%- FOREACH hidden = row.HIDDENS %]
-    [% hidden.value %]
+      [% hidden.value %]
  [%- END %]
-     <tr class="listrow[% loop.count % 2 %]" id="[% loop.count %].row2" [% UNLESS show_details %]style="display:none;"[% END %]>
+      </td>
+     </tr>
+     <tr class="listrow[% loop.count % 2 %]" id="row2.[% loop.count %]" [% UNLESS show_details %]style="display:none;"[% END %]>
       <td colspan="[% row.colspan %]">
  [%- FOREACH row2 = row.ROW2 %]
-   [%- IF row2.line_break %]<br/>[%- END %]
+   [%- IF row2.line_break %]<br>[%- END %]
    [%- IF row2.cvar %]
      [% row2.description %]
      [% PROCESS cvar_inputs cvar = row2.render_options %]
@@ -42,6 +46,10 @@
   </table>
  </td>
 </tr>
+<tr style='display:none'>
+ <td>
 <script type='text/javascript'>
   $(document).ready( function(){ $('#display_row tr:gt(1) input[name*="description"]').focus() });
 </script>
+ </td>
+</tr>

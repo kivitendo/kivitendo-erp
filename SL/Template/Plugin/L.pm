@@ -74,7 +74,7 @@ sub html_tag {
   my ($self, $tag, $content, @slurp) = @_;
   my $attributes = $self->attributes(@slurp);
 
-  return "<${tag}${attributes}/>" unless defined($content);
+  return "<${tag}${attributes}>" unless defined($content);
   return "<${tag}${attributes}>${content}</${tag}>";
 }
 
@@ -95,6 +95,8 @@ sub textarea_tag {
   my %attributes      = _hashify(@slurp);
 
   $attributes{id}   ||= $self->name_to_id($name);
+  $attributes{rows}  *= 1; # required by standard
+  $attributes{cols}  *= 1; # required by standard
   $content            = $content ? _H($content) : '';
 
   return $self->html_tag('textarea', $content, %attributes, name => $name);
@@ -194,7 +196,10 @@ sub button_tag {
   my ($self, $onclick, $value, @slurp) = @_;
   my %attributes = _hashify(@slurp);
 
-  return $self->input_tag(undef, $value, %attributes, type => 'button', onclick => $onclick);
+  $attributes{id}   ||= $self->name_to_id($attributes{name}) if $attributes{name};
+  $attributes{type} ||= 'button';
+
+  return $self->html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
 }
 
 sub options_for_select {
@@ -272,8 +277,7 @@ sub date_tag {
     s/y+/\%Y/gi;
   } $::myconfig{"dateformat"};
 
-  $params{cal_align} ||= 'BR';
-
+  my $cal_align =  delete $params{cal_align} || 'BR';
   my $str_value = blessed $value ? $value->to_lxoffice : $value;
 
   $self->input_tag($name, $str_value,
@@ -285,12 +289,13 @@ sub date_tag {
   ) . ((!$params{no_cal}) ?
   $self->html_tag('img', undef,
     src    => 'image/calendar.png',
+    alt    => $::locale->text('Calendar'),
     id     => "trigger$seq",
     title  => _H($::myconfig{dateformat}),
     %params,
   ) .
   $self->javascript(
-    "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$params{cal_align}', button: 'trigger$seq' });"
+    "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$cal_align', button: 'trigger$seq' });"
   ) : '');
 }
 

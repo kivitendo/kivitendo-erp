@@ -53,16 +53,19 @@
 
             <tr>
               <th  align="left">[% 'Ertrag' | $T8 %]</th>
-              <td align="right">[% LxERP.format_amount(marge_total, 2) %]</td>
+              <td align="right">
+                [% LxERP.format_amount(marge_total, 2) %]
+                <input type="hidden" name="marge_total" value="[% HTML.escape(marge_total) %]">
+              </td>
             </tr>
             <tr>
               <th  align="left">[% 'Ertrag prozentual' | $T8 %]</th>
-              <td align="right">[% LxERP.format_amount(marge_percent, 2) %]</td>
+              <td align="right">
+                [% LxERP.format_amount(marge_percent, 2) %]
+                <input type="hidden" name="marge_percent" value="[% HTML.escape(marge_percent) %]">
+              </td>
               <td>%</td>
             </tr>
-
-            <input type="hidden" name="marge_total" value="[% HTML.escape(marge_total) %]">
-            <input type="hidden" name="marge_percent" value="[% HTML.escape(marge_percent) %]">
             </table>
           </td>
 [%- END %]
@@ -80,7 +83,10 @@
               [% tax %]
               <tr>
                 <th align="right">[% 'Total' | $T8 %]</th>
-                <td align="right">[% LxERP.format_amount(invtotal, 2) %]</td>
+                <td align="right">[% LxERP.format_amount(invtotal, 2) %]
+                  <input type="hidden" name="oldinvtotal" value="[% HTML.escape(oldinvtotal) %]">
+                  <input type="hidden" name="oldtotalpaid" value="[% HTML.escape(totalpaid) %]">
+                </td>
               </tr>
             </table>
           </td>
@@ -88,8 +94,6 @@
       </table>
     </td>
   </tr>
-  <input type="hidden" name="oldinvtotal" value="[% HTML.escape(oldinvtotal) %]">
-  <input type="hidden" name="oldtotalpaid" value="[% HTML.escape(totalpaid) %]">
   <tr>
     <td><hr size="3" noshade></td>
   </tr>
@@ -172,7 +176,7 @@
 <input type="hidden" name="action" value="dispatcher">
 <input type="hidden" name="saved_xyznumber" value="[% HTML.escape(saved_xyznumber) %]">
 <input type="hidden" name="rowcount" value="[% HTML.escape(rowcount) %]">
-<input type="hidden" name="callback" value="[% callback %]">
+<input type="hidden" name="callback" value="[% callback | html %]">
 [% IF vc == 'customer' %]
   <input type="hidden" name="customer_discount" value="[% HTML.escape(customer_discount) %]">
 [% ELSE %]
@@ -181,5 +185,17 @@
 
 </form>
 
+
+    <script type="text/javascript">
+     <!--
+       Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
+       Calendar.setup({ inputField : "reqdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
+
+       $('document').ready(function(){
+         setupDateFormat('[% dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
+         setupPoints('[% numberformat %]', '[% 'wrongformat' | $T8 %]');
+       });
+     //-->
+    </script>
 </body>
 </html>

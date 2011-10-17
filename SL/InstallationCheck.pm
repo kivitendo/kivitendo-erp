@@ -19,6 +19,7 @@ BEGIN {
   { name => "DBD::Pg",         version => '1.49',  url => "http://search.cpan.org/~dbdpg/",     debian => 'libdbd-pg' },
   { name => "Email::Address",                      url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-address-perl' },
   { name => "FCGI",                                url => "http://search.cpan.org/~mstrout/",   debian => 'libfcgi-perl' },
+  { name => "JSON",                                url => "http://search.cpan.org/~makamaka",   debian => 'libjson-perl' },
   { name => "List::MoreUtils", version => '0.21',  url => "http://search.cpan.org/~vparseval/", debian => 'liblist-moreutils-perl' },
   { name => "Params::Validate",                    url => "http://search.cpan.org/~drolsky/",   debian => 'libparams-validate-perl' },
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/",  debian => 'libpdf-api2-perl' },

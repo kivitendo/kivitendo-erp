@@ -44,7 +44,7 @@ use strict;
 sub display {
   my $form     = $main::form;
 
-  $form->header(qq|<link rel="stylesheet" href="css/menuv3.css?id=" type="text/css">|);
+  $form->header(extra_code => qq|<link rel="stylesheet" href="css/menuv3.css?id=" type="text/css">|);
 
   $form->{date}     = clock_line();
   $form->{menu}     = acc_menu();

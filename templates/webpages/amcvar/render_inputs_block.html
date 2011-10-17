@@ -15,7 +15,7 @@
 [%- ELSIF cvar.var.type == 'bool' %]
 <input type="checkbox" name="[% PROCESS cvar_name %]" value="1"[% IF cvar.value %] checked[% END %]>
 [%- ELSIF cvar.var.type == 'textfield' %]
-<textarea name="[% PROCESS cvar_name %]" cols="[% HTML.escape(cvar.var.width) %]" rows="[% HTML.escape(cvar.var.height) %]">[% HTML.escape(cvar.value) %]</textarea>
+[% L.textarea_tag(render_input_blocks__cvar_name, cvar.value, cols=cvar.var.width, rows=cvar.var.height) %]
 [%- ELSIF cvar.var.type == 'date' %]
 [%- L.date_tag(render_input_blocks__cvar_name, cvar.value) %]
 

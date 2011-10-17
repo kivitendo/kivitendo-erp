@@ -461,8 +461,8 @@ sub form_footer {
   my $introws = max 2, $form->numtextrows($form->{intnotes}, 35, 8);
   $rows    = max $rows, $introws;
 
-  $TMPL_VAR{notes}    = qq|<textarea name=notes rows=$rows cols=25 wrap=soft>| . H($form->{notes}) . qq|</textarea>|;
-  $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows=$introws cols=35 wrap=soft>| . H($form->{intnotes}) . qq|</textarea>|;
+  $TMPL_VAR{notes}    = qq|<textarea name=notes rows="$rows" cols="25">| . H($form->{notes}) . qq|</textarea>|;
+  $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
 
   if (!$form->{taxincluded}) {
 

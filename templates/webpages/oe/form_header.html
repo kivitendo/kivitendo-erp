@@ -27,12 +27,11 @@
     <input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
     <input type="hidden" name="follow_up_rowcount" value="1">
 
-    <div class="listtop">[% title %]</div>
+    <h1>[% title %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
 
     <table width="100%">
-      <tr height="5"></tr>
       <tr>
         <td>
           <table width="100%">
@@ -106,7 +105,6 @@
                     </td>
                   </tr>
 [%- END %]
-                  <tr>
 [%- IF currencies %]
                   <tr>
                     <th align="right">[% 'Currency' | $T8 %]</th>
@@ -234,15 +232,3 @@
           </table>
         </td>
       </tr>
-
-    <script type="text/javascript">
-     <!--
-       Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
-       Calendar.setup({ inputField : "reqdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
-
-       $('document').ready(function(){
-         setupDateFormat('[% dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
-         setupPoints('[% numberformat %]', '[% 'wrongformat' | $T8 %]');
-       });
-     //-->
-    </script>

@@ -59,7 +59,7 @@ sub display {
   $callback     = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
   my $framesize = _calc_framesize();
 
-  $::form->header;
+  $::form->header(doctype => 'frameset');
 
   print qq|
 <frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">

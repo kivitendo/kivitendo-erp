@@ -674,7 +674,7 @@ sub header {
 
   # extra code is currently only used by menuv3 and menuv4 to set their css.
   # it is strongly deprecated, and will be changed in a future version.
-  my ($self, $extra_code) = @_;
+  my ($self, %params) = @_;
   my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   my @header;
 
@@ -722,10 +722,15 @@ sub header {
     </script>|;
   }
 
+  my  %doctypes = (
+    strict       => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">|,
+    transitional => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">|,
+    frameset     => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">|,
+  );
+
   # output
   print $self->create_http_response(content_type => 'text/html', charset => $db_charset);
-  print "<!DOCTYPE HTML PUBLIC '-//W3C//DTD HTML 4.01//EN' 'http://www.w3.org/TR/html4/strict.dtd'>\n"
-    if  $ENV{'HTTP_USER_AGENT'} =~ m/MSIE\s+\d/; # Other browsers may choke on menu scripts with DOCTYPE.
+  print $doctypes{$params{doctype} || 'transitional'}, $/;
   print <<EOT;
 <html>
  <head>
@@ -734,9 +739,9 @@ sub header {
 EOT
   print "  $_\n" for @header;
   print <<EOT;
-  <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css" />
-  <meta name="robots" content="noindex,nofollow" />
-  <link rel="stylesheet" type="text/css" href="css/tabcontent.css" />
+  <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css">
+  <meta name="robots" content="noindex,nofollow">
+  <link rel="stylesheet" type="text/css" href="css/tabcontent.css">
   <script type="text/javascript" src="js/tabcontent.js">
 
   /***********************************************
@@ -746,7 +751,7 @@ EOT
    ***********************************************/
 
   </script>
-  $extra_code
+  $params{extra_code}
   $title_hack
  </head>
 
