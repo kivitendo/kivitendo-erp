@@ -24,6 +24,12 @@
   Rechnungsdatum) erweitert
 
 
+  Kleinere neue Features und Detailverbesserungen:
+  - á (LATIN SMALL LETTER A WITH ACUTE) wird in Latex-Vorlagen nicht mehr durch
+    ein "Bullet" ersetzt. Dafür kann mit <bullet> ein Aufzählungspunkt erzeugt
+    werden.
+
+
   Liste gefixter Bugs aus dem Bugtracker:
 
   - Bugfix 1640: Buchungen werden falsch zugeordnet, wenn man Konten umkonfiguriert
