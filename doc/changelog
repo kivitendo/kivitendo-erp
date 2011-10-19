@@ -23,6 +23,12 @@
 - Buchungsjournal um Filter nach Bearbeiter und Buchungsdatum (ungleich
   Rechnungsdatum) erweitert
 
+
+  Liste gefixter Bugs aus dem Bugtracker:
+
+  - Bugfix 1640: Buchungen werden falsch zugeordnet, wenn man Konten umkonfiguriert
+
+
 2011-06-15 - Release 2.6.3
 
   Größere neue Features:
