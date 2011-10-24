@@ -36,7 +36,7 @@ use SL::IS;
 use SL::IR;
 use SL::AR;
 use SL::AP;
-use strict ("vars", "subs");
+use strict;
 #use warnings;
 
 require "bin/mozilla/arap.pl";
@@ -118,55 +118,20 @@ sub payment {
 }
 
 sub form_header {
-  $lxdebug->enter_sub();
+  $lxdebug->enter_sub;
 
   $auth->assert('cash');
 
-  my ($vc, $vclabel, $allvc, $arap, $exchangerate);
-  my ($jsscript, $button1, $button2, $onload);
-
-  $vclabel = ucfirst $form->{vc};
-  $vclabel = $locale->text($vclabel);
-
-  if ($form->{type} eq 'receipt') {
-    $form->{title}     = $locale->text('Receipt');
-    $form->{origtitle} = "Receipt";
-  }
-  if ($form->{type} eq 'check') {
-    $form->{title}     = $locale->text('Payment');
-    $form->{origtitle} = "Payment";
-  }
-
-  # $locale->text('Customer')
-  # $locale->text('Vendor')
+  my ($vc, $arap, $exchangerate);
+  my ($onload);
 
   if ($form->{ $form->{vc} } eq "") {
     map { $form->{"addr$_"} = "" } (1 .. 4);
   }
 
-  if ($form->{currency} ne $form->{defaultcurrency}) {
-    $form->{exchangerate} =
-      $form->format_amount(\%myconfig, $form->{exchangerate});
-    if ($form->{forex}) {
-      $exchangerate = qq|
-              <tr>
-                <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
-                <td colspan=3><input type=hidden name=exchangerate size=10 value=$form->{exchangerate}>$form->{exchangerate}</td>
-              </tr>
-|;
-    } else {
-      $exchangerate = qq|
-               <tr>
-                <th align=right nowrap>| . $locale->text('Exchangerate') . qq|</th>
-                <td colspan=3><input name=exchangerate size=10 value=$form->{exchangerate}></td>
-              </tr>
-|;
-    }
-  }
-  foreach my $item ($form->{vc}, "account", "currency", $form->{ARAP}) {
+  for my $item ($form->{vc}, "account", "currency", $form->{ARAP}) {
     $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~
-      s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
+    $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
   }
 
   $vc =
@@ -174,310 +139,55 @@ sub form_header {
     ? qq|<select name=$form->{vc}>$form->{"select$form->{vc}"}\n</select>|
     : qq|<input name=$form->{vc} size=35 value="$form->{$form->{vc}}">|;
 
-  if ($form->{all_vc}) {
-    $allvc = "checked";
-    $form->{openinvoices} = "";
-  } else {
-    $allvc = "";
-    $form->{openinvoices} = 1;
-  }
+  $form->{openinvoices} = $form->{all_vc} ? "" : 1;
 
   # $locale->text('AR')
   # $locale->text('AP')
 
-  $form->{jsscript} = 1;
-  $jsscript = "";
-  if ($form->{jsscript}) {
-
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=datepaid id=datepaid size=11 title="$myconfig{dateformat}" value="$form->{datepaid}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=datepaid id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-       |;
-
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "1", "datepaid", "BL", "trigger1");
-  } else {
-
-    # without JavaScript Calendar
-    $button1 = qq|
-                              <td><input name=transdatefrom id=transdatefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-  }
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->header;
 
   $arap = lc $form->{ARAP};
   $onload = qq|focus()|;
   $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
   $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-  print qq|
-<body onLoad="$onload">
 
-<form method=post action=cp.pl>
+  print $::form->parse_html_template('cp/form_header', {
+    is_customer => $form->{vc}   eq 'customer',
+    is_receipt  => $form->{type} eq 'receipt',
+    onload      => $onload,
+    arap        => $arap,
+    vccontent   => $vc,
+  });
 
-<input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
-<input type=hidden name=closedto value=$form->{closedto}>
-<input type=hidden name=vc value=$form->{vc}>
-<input type=hidden name=type value=$form->{type}>
-<input type=hidden name=formname value=$form->{type}>
-<input type=hidden name=queued value="$form->{queued}">
-<input type=hidden name=arap value=$arap>
-<input type=hidden name=ARAP value=$form->{ARAP}>
-<input type=hidden name=openinvoices value=$form->{openinvoices}>
-<input type=hidden name=title value="$form->{title}">
-<input type=hidden name=origtitle value="$form->{origtitle}">
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr valign=top>
-          <td>
-            <table>
-              <tr>
-                <th align=right>$vclabel</th>
-                <td>$vc</td>
-                <input type=hidden name="select$form->{vc}" value="| . H($form->{"select$form->{vc}"}) . qq|">
-                <input type=hidden name="$form->{vc}_id" value="|    . H($form->{"$form->{vc}_id"}) . qq|">
-                <input type=hidden name="old$form->{vc}" value="|    . H($form->{"old$form->{vc}"}) . qq|">
-              </tr>
-              <tr>
-                <th align=right>| . $locale->text('Invoice Number') . qq|</th>
-                <td><input name="invnumber" size="35"</td>
-              </tr>
-              <tr valign=top>
-                <th align=right nowrap>| . $locale->text('Address') . qq|</th>
-                <td colspan=2>
-                  <table>
-                    <tr>
-                      <td>$form->{street}</td>
-                    </tr>
-                    <tr>
-                      <td>$form->{zipcode}</td>
-                    </tr>
-                    <tr>
-                      <td>$form->{city}</td>
-                    </tr>
-                    <tr>
-                      <td>$form->{country}</td>
-                    </tr>
-                  </table>
-                </td>
-                <input type=hidden name=street value="$form->{street}">
-                <input type=hidden name=zipcode value="$form->{zipcode}">
-                <input type=hidden name=city value="$form->{city}">
-                <input type=hidden name=country value="$form->{country}">
-              </tr>
-              <tr>
-                <th align=right>| . $locale->text('Memo') . qq|</th>
-                <td colspan=2><input name="memo" size=30 value="$form->{memo}"></td>
-              </tr>
-            </table>
-          </td>
-          <td align=right>
-            <table>
-              <tr>
-                <th align=right nowrap>| . $locale->text('Account') . qq|</th>
-                <td colspan=3><select name=account>$form->{selectaccount}</select>
-                <input type=hidden name=selectaccount value="$form->{selectaccount}">
-                </td>
-              </tr>
-              <tr>
-                <th align=right nowrap>| . $locale->text('Date') . qq|</th>
-                $button1
-              </tr>
-              <tr>
-                <th align=right nowrap>| . $locale->text('Currency') . qq|</th>
-                <td><select name=currency>$form->{selectcurrency}</select></td>
-                <input type=hidden name=selectcurrency value="$form->{selectcurrency}">
-                <input type=hidden name=oldcurrency value=$form->{oldcurrency}>
-              </tr>
-              $exchangerate
-              <tr>
-                <th align=right nowrap>| . $locale->text('Source') . qq|</th>
-                <td colspan=3><input name=source value="$form->{source}" size=10></td>
-              </tr>
-              <tr>
-                <th align="right" nowrap>| . $locale->text('Amount') . qq|</th>
-                <td colspan="3">| .  $form->format_amount(\%myconfig, $form->{amount}, 2) . qq|</td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-
-$jsscript
-|;
-
-  if ($form->{openinvoices_other_currencies}) {
-    my $warning = $form->{vc} eq 'customer' ? $::locale->text('There are #1 more open invoices for this customer with other currencies.', $form->{openinvoices_other_currencies})
-                :                             $::locale->text('There are #1 more open invoices from this vendor with other currencies.',  $form->{openinvoices_other_currencies});
-
-    print qq|
-
-  <input type="hidden" name="openinvoices_other_currencies" value="| . H($form->{openinvoices_other_currencies}) . qq|">
-  <tr>
-   <td><b>| . $::locale->text('Note') . qq|: $warning</b></td>
-  </tr>
-|;
-  }
-
-  $lxdebug->leave_sub();
+  $lxdebug->leave_sub;
 }
 
 sub list_invoices {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('cash');
 
-  $auth->assert('cash');
-
-  my (@column_index, %column_data, $colspan, $invoice);
-  my ($totalamount, $totaldue, $totalpaid);
-
-  @column_index = qw(invnumber transdate amount due checked paid);
-
-  $colspan = $#column_index + 1;
-
-  $invoice = $locale->text('Invoices');
-
-  print qq|
-  <input type=hidden name=column_index value="id @column_index">
-  <tr>
-    <td>
-      <table width=100%>
-        <tr>
-          <th class=listheading colspan=$colspan>$invoice</th>
-        </tr>
-|;
-
-  $column_data{invnumber} =
-    qq|<th nowrap class=listheading>| . $locale->text('Invoice') . "</th>";
-  $column_data{transdate} =
-    qq|<th nowrap class=listheading>| . $locale->text('Date') . "</th>";
-  $column_data{amount} =
-    qq|<th nowrap class=listheading>| . $locale->text('Amount') . "</th>";
-  $column_data{due} =
-    qq|<th nowrap class=listheading>| . $locale->text('Due') . "</th>";
-  $column_data{paid} =
-    qq|<th nowrap class=listheading>| . $locale->text('Amount') . "</th>";
-  $column_data{checked} =
-    qq|<th nowrap class=listheading>| . $locale->text('Select') . "</th>";
-
-  print qq|
-        <tr>
-|;
-  map { print "$column_data{$_}\n" } @column_index;
-  print qq|
-        </tr>
-|;
-
-  for my $i (1 .. $form->{rowcount}) {
-
-    my $j = 0;
-
-    map {
-      $form->{"${_}_$i"} =
-        $form->parse_amount(\%myconfig, $form->{"${_}_$i"})
-    } qw(amount due paid);
-
-    $totalamount += $form->{"amount_$i"};
-    $totaldue    += $form->{"due_$i"};
-    $totalpaid   += $form->{"paid_$i"};
-
-    map {
-      $form->{"${_}_$i"} =
-        $form->format_amount(\%myconfig, $form->{"${_}_$i"}, 2)
-    } qw(amount due paid);
-
-    $column_data{invnumber} = qq|<td>$form->{"invnumber_$i"}</td>
-      <input type=hidden name="invnumber_$i" value="$form->{"invnumber_$i"}">
-      <input type=hidden name="id_$i" value=$form->{"id_$i"}>|;
-    $column_data{transdate} = qq|<td width=15%>$form->{"transdate_$i"}</td>
-      <input type=hidden name="transdate_$i" value=$form->{"transdate_$i"}>|;
-    $column_data{amount} =
-      qq|<td align=right width=15%>$form->{"amount_$i"}</td>
-      <input type=hidden name="amount_$i" value=$form->{"amount_$i"}>|;
-    $column_data{due} = qq|<td align=right width=15%>$form->{"due_$i"}</td>
-      <input type=hidden name="due_$i" value=$form->{"due_$i"}>|;
-
-    $column_data{paid} =
-      qq|<td align=right width=15%><input name="paid_$i" size=10 value=$form->{"paid_$i"}></td>|;
-
-    $form->{"checked_$i"} = ($form->{"checked_$i"}) ? "checked" : "";
-    $column_data{checked} =
-      qq|<td align=center width=10%><input name="checked_$i" type=checkbox style=checkbox $form->{"checked_$i"}></td>|;
-
-    $j++;
-    $j %= 2;
-    print qq|
-        <tr class=listrow$j>
-|;
-    map { print "$column_data{$_}\n" } @column_index;
-    print qq|
-        </tr>
-|;
+  my @columns = qw(amount due paid invnumber id transdate checked);
+  my (@invoices, %total);
+  for my $i (1 .. $::form->{rowcount}) {
+    push @invoices, +{ map { $_ => $::form->{"$_\_$i"} } @columns };
+    $total{$_} += $invoices[-1]{$_} = $::form->parse_amount(\%::myconfig, $invoices[-1]{$_}) for qw(amount due paid);
   }
 
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @column_index;
+  print $::form->parse_html_template('cp/invoices', {
+    invoices => \@invoices,
+    totals   => \%total,
+  });
 
-  $column_data{amount} =
-      qq|<th class=listtotal align=right>|
-    . $form->format_amount(\%myconfig, $totalamount, 2, "&nbsp;")
-    . qq|</th>|;
-  $column_data{due} =
-      qq|<th class=listtotal align=right>|
-    . $form->format_amount(\%myconfig, $totaldue, 2, "&nbsp;")
-    . qq|</th>|;
-  $column_data{paid} =
-      qq|<th class=listtotal align=right>|
-    . $form->format_amount(\%myconfig, $totalpaid, 2, "&nbsp;")
-    . qq|</th>|;
-
-  print qq|
-        <tr class=listtotal>
-|;
-  map { print "$column_data{$_}\n" } @column_index;
-  print qq|
-        </tr>
-      </table>
-    </td>
-  </tr>
-|;
-
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub form_footer {
-  $lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('cash');
 
-  $auth->assert('cash');
+  print $::form->parse_html_template('cp/form_footer');
 
-  print qq|
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-<input type=hidden name=rowcount value=$form->{rowcount}>
-
-<br>
-<input class=submit type=submit name=action value="|
-    . $locale->text('Update') . qq|">
-<input class=submit type=submit name=action value="|
-    . $locale->text('Post') . qq|">
- </form>
-
-</body>
-</html>
-|;
-
-  $lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub update {
@@ -651,21 +361,16 @@ sub post {
 
   # Beim Aktualisieren wird das Konto übernommen
   # und jetzt auch Beleg und Datum
-  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&type=$form->{type}&account=$form->{account}&$form->{currency}" . 
+  $form->{callback} = "cp.pl?action=payment&vc=$form->{vc}&type=$form->{type}&account=$form->{account}&$form->{currency}" .
                       "&datepaid=$form->{datepaid}&source=$form->{source}";
 
-  my $msg1 = "$form->{origtitle} posted!";
-  my $msg2 = "Cannot post $form->{origtitle}!";
+  my $msg1 = $::form->{type} eq 'receipt' ? $::locale->text("Receipt posted!") : $::locale->text("Payment posted!");
+  my $msg2 = $::form->{type} eq 'receipt' ? $::locale->text("Cannot post Receipt!") : $::locale->text("Cannot post Payment!");
 
-  # $locale->text('Payment posted!')
-  # $locale->text('Receipt posted!')
-  # $locale->text('Cannot post Payment!')
-  # $locale->text('Cannot post Receipt!')
   # Die Nachrichten (Receipt posted!) werden nicht angezeigt.
   # Entweder wieder aktivieren oder komplett rausnehmen
-  $form->redirect($locale->text($msg1))
-    if (CP->process_payment(\%myconfig, \%$form));
-  $form->error($locale->text($msg2));
+  $form->redirect($msg1) if (CP->process_payment(\%::myconfig, $::form));
+  $form->error($msg2);
 
   $lxdebug->leave_sub();
 }
@@ -684,7 +389,7 @@ sub check_form {
     ::end_of_request();
   }
   $form->error($locale->text('Date missing!')) unless $form->{datepaid};
-  my $selected_check = 1; 
+  my $selected_check = 1;
   for my $i (1 .. $form->{rowcount}) {
     if ($form->{"checked_$i"}) {
       if ($form->parse_amount(\%myconfig, $form->{"paid_$i"}, 2) <= 0) { # negativen Betrag eingegeben
@@ -692,7 +397,7 @@ sub check_form {
       }
         undef($selected_check);
         # last; # ich muss doch über alle buchungen laufen, da ich noch
-        # die freitext-eingabe der werte prüfen will 
+        # die freitext-eingabe der werte prüfen will
     }
   }
   $form->error($locale->text('No transaction selected!')) if $selected_check;
