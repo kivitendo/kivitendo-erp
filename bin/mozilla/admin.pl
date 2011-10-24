@@ -428,7 +428,7 @@ sub edit_user_form {
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
-  @alldir = grep !/^(webpages|mstertemplates|\.svn)$/, @alldir;
+  @alldir = grep !/^(webpages|mastertemplates|\.svn)$/, @alldir;
 
   $form->{ALL_TEMPLATES} = [ map { { "name", => $_, "selected" => $_ eq $myconfig->{templates} } } @alldir ];
 
