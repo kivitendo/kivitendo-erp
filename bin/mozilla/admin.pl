@@ -425,27 +425,25 @@ sub edit_user_form {
   opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
   my @all     = readdir(TEMPLATEDIR);
   my @alldir  = sort grep { -d ($::lx_office_conf{paths}->{templates} . "/$_") && !/^\.\.?$/ } @all;
-  my @allhtml = sort grep { -f ($::lx_office_conf{paths}->{templates} . "/$_") &&  /\.html$/ } @all;
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
-  @alldir = grep !/^(webpages|\.svn)$/, @alldir;
-
-  @allhtml = reverse grep !/Default/, @allhtml;
-  push @allhtml, 'Default';
-  @allhtml = reverse @allhtml;
+  @alldir = grep !/^(webpages|mstertemplates|\.svn)$/, @alldir;
 
   $form->{ALL_TEMPLATES} = [ map { { "name", => $_, "selected" => $_ eq $myconfig->{templates} } } @alldir ];
 
-  my $lastitem = $allhtml[0];
-  $lastitem =~ s/-.*//g;
-  $form->{ALL_MASTER_TEMPLATES} = [ { "name" => $lastitem, "selected" => $lastitem eq "German" } ];
-  foreach my $item (@allhtml) {
-    $item =~ s/-.*//g;
-    next if ($item eq $lastitem);
+  # mastertemplates
+  opendir TEMPLATEDIR, "$::lx_office_conf{paths}->{templates}/mastertemplates" or $form->error("$::lx_office_conf{paths}->{templates}/mastertemplates" . " : $ERRNO");
+  my @allmaster = readdir(TEMPLATEDIR);
+  closedir TEMPLATEDIR;
 
+  @allmaster  = sort grep { -d ("$::lx_office_conf{paths}->{templates}/mastertemplates" . "/$_") && !/^\.\.?$/ } @allmaster;
+  @allmaster = reverse grep !/Default/, @allmaster;
+  push @allmaster, 'Default';
+  @allmaster = reverse @allmaster;
+
+  foreach my $item (@allmaster) {
     push @{ $form->{ALL_MASTER_TEMPLATES} }, { "name" => $item, "selected" => $item eq "German" };
-    $lastitem = $item;
   }
 
   # css dir has styles that are not intended as general layouts.
@@ -541,16 +539,17 @@ sub save_user {
       umask(007);
 
       # copy templates to the directory
-      opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
-      my @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|odt|xml|txb)$/,
+      my $templatedir = "$::lx_office_conf{paths}->{templates}/mastertemplates/$form->{mastertemplates}";
+
+      opendir TEMPLATEDIR, $templatedir or $form->error($templatedir . " : $ERRNO");
+      my @templates = grep /.*?\.(html|tex|sty|odt|xml|txb)$/,
         readdir TEMPLATEDIR;
       closedir TEMPLATEDIR;
 
       foreach my $file (@templates) {
-        open(TEMP, "<", $::lx_office_conf{paths}->{templates} . "/$file")
-          or $form->error($::lx_office_conf{paths}->{templates} . "/$file : $ERRNO");
+        open(TEMP, "<", $templatedir . "/$file")
+          or $form->error($templatedir . "/$file : $ERRNO");
 
-        $file =~ s/\Q$form->{mastertemplates}\E-//;
         open(NEW, ">", "$form->{templates}/$file")
           or $form->error("$form->{templates}/$file : $ERRNO");
 

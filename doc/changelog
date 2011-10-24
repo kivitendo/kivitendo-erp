@@ -23,6 +23,9 @@
 - Buchungsjournal um Filter nach Bearbeiter und Buchungsdatum (ungleich
   Rechnungsdatum) erweitert
 
+- Mastertemplates für den Ausdruck sind in eigene Unterverzeichnisse gewandert.
+  Dadurch wird das Hinzufügen neuer Vorlagensätze einfacher.
+
 
   Kleinere neue Features und Detailverbesserungen:
   - á (LATIN SMALL LETTER A WITH ACUTE) wird in Latex-Vorlagen nicht mehr durch

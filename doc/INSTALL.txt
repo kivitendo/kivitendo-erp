@@ -1,5 +1,5 @@
-Inhaltsverzeichnis
-******************
+Table of Contents
+*****************
 
 Inhalt der Anleitung
 1 Aktuelle Hinweise
@@ -837,9 +837,9 @@ benötigt, die Bestandteil von OpenOffice 2 sind.
 Dokument OpenOffice neu gestartet und die Konvertierung mit Hilfe eines
 Makros durchgeführt. Dieses Makro muss in der Dokumentenvorlage
 enthalten sein und "Standard.Conversion.ConvertSelfToPDF()" heißen. Die
-Beispielvorlage `templates/German-invoice.odt' enthält ein solches
-Makro, das in jeder anderen Dokumentenvorlage ebenfalls enthalten sein
-muss.
+Beispielvorlage `templates/mastertemplates/German/invoice.odt' enthält
+ein solches Makro, das in jeder anderen Dokumentenvorlage ebenfalls
+enthalten sein muss.
 
    Als letztes muss herausgefunden werden, welchen Namen OpenOffice.org
 Writer dem Verzeichnis mit den Benutzereinstellungen gibt. Unter Debian

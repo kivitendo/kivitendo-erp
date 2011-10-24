@@ -890,7 +890,7 @@ Ist @code{$openofficeorg_daemon} nicht gesetzt, so wird für jedes
 Dokument OpenOffice neu gestartet und die Konvertierung mit Hilfe
 eines Makros durchgeführt. Dieses Makro muss in der Dokumentenvorlage
 enthalten sein und ``Standard.Conversion.ConvertSelfToPDF()''
-heißen. Die Beispielvorlage @samp{templates/German-invoice.odt}
+heißen. Die Beispielvorlage @samp{templates/mastertemplates/German/invoice.odt}
 enthält ein solches Makro, das in jeder anderen Dokumentenvorlage
 ebenfalls enthalten sein muss.
 
