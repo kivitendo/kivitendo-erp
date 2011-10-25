@@ -10,7 +10,7 @@
     [% 'In the latter case the tables needed by Lx-Office will be created in that database.' | $T8 %]
    </p>
 
-   <table>
+   <table border="0">
     <tr>
      <th valign="top" align="right" nowrap>[% 'Existing Datasets' | $T8 %]</th>
      <td valign="top">[% HTML.escape(dbsources) %]</td>
@@ -45,7 +45,7 @@
     </tr>
 
     <tr>
-     <th valign="top" align="right" nowrap>[% 'Accounting method' | $T8 %]</th>
+     <th valign="top" align="right" nowrap>[% 'Accounting method' | $T8 %] *</th>
      <td>
       <select name="accounting_method">
        [% FOREACH row = ACCOUNTING_METHODS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
@@ -53,7 +53,7 @@
      </td>
     </tr>
     <tr>
-     <th valign="top" align="right" nowrap>[% 'Inventory system' | $T8 %]</th>
+     <th valign="top" align="right" nowrap>[% 'Inventory system' | $T8 %] *</th>
      <td>
       <select name="inventory_system">
        [% FOREACH row = INVENTORY_SYSTEMS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
@@ -62,14 +62,18 @@
     </tr>
 
     <tr>
-     <th valign="top" align="right" nowrap>[% 'Profit determination' | $T8 %]</th>
+     <th valign="top" align="right" nowrap>[% 'Profit determination' | $T8 %] *</th>
      <td>
       <select name="profit_determination">
        [% FOREACH row = PROFIT_DETERMINATIONS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
       </select>
      </td>
+   </tr>
+    <tr>
+    <td colspan="2">
+    *) Seit 2.7 werden Gewinnermittlungsart, Versteuerungsart und Warenbuchungsmethode in der Mandanten-DB gesteuert und nicht mehr in der lx-erp.conf, Umstellungs-Details: <a href="doc/umstellung_eur.txt">EUR Umstellung in Mandant</a>
+    </td>
     </tr>
-
    </table>
 
    <input type="hidden" name="dbdriver"  value="[% HTML.escape(dbdriver) %]">
