@@ -1413,7 +1413,7 @@ sub parse_template {
       for my $i (1 .. $self->{copies}) {
         if ($self->{OUT}) {
           open OUT, '>', $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
-          print OUT while <IN>;
+          print OUT $_ while <IN>;
           close OUT;
           seek IN, 0, 0;
 
