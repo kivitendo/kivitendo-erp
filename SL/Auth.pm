@@ -512,7 +512,7 @@ sub restore_session {
   my $self = shift;
 
   $session_id        =  $::request->{cgi}->cookie($self->get_session_cookie_name());
-  $session_id        =~ s|[^0-9a-f]||g;
+  $session_id        =~ s|[^0-9a-f]||g if $session_id;
 
   $self->{SESSION}   = { };
 
