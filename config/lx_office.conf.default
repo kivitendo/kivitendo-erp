@@ -178,6 +178,11 @@ history_file = users/console_history
 # to the lx-office log will be put here if triggered from the console
 log_file = /tmp/lxoffice_console_debug.log
 
+[testing]
+
+# autologin to use if none is given
+login = demo
+
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
 # will be replaced by the file name configured for $::lxdebug.
