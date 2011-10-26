@@ -1333,6 +1333,7 @@ sub retrieve_units {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $prefix) = @_;
+  $prefix ||= '';
 
   my $dbh = $form->get_standard_dbh;
 
