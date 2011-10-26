@@ -1,0 +1,44 @@
+[%- USE L %]
+[%- USE T8 %]
+[%- USE HTML %]
+[% L.javascript_tag('show_history.js') %]
+<body>
+
+<form method=post action="[% script %]">
+
+<input type=hidden name=id value="[% id %]">
+<input type=hidden name=type value="[% type %]">
+
+<table width=100%>
+  <tr>
+    <th class=listtop>[% title %]</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr>
+    <td>
+      <table width=100%>
+        <tr>
+          <th align=right>[% 'Group' | $T8 %]</th>
+          <td><input name=partsgroup size=30 value="[% partsgroup | html %]"></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<br>
+
+<input name=callback type=hidden value="[% callback | html %]">
+<input type=submit class=submit name=action value="[% 'Save' | $T8 %]">
+[%- IF id && orphaned %]
+<input type=submit class=submit name=action value="[% 'Delete' | $T8 %]">
+[%- END %]
+
+<input type=button onclick="set_history_window([% id %]);" name=history id=history value="[% 'history' | $T8 %]">
+</form>
+
+</body>
+</html>
