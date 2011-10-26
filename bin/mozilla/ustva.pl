@@ -1107,13 +1107,13 @@ $::form->{title} = $::locale->text('Tax Office Preferences');
   $::form->{title} = $::locale->text('Tax Office Preferences');
 
 
-  my $select_tax_office = $ustva->fa_auswahl($land, $amt, $ustva->query_finanzamt(\%::myconfig, $::form));
-  my $checked_accrual = q|checked="checked"| if ($::form->{method} eq 'accrual');
-  my $checked_cash = q|checked="checked"| if ($::form->{method} eq 'cash');
-  my $checked_monthly = "checked" if ($::form->{FA_voranmeld} eq 'month');
-  my $checked_quarterly = "checked" if ($::form->{FA_voranmeld} eq 'quarter');
-  my $checked_dauerfristverlaengerung = "checked" if ($::form->{FA_dauerfrist} eq '1');
-  my $checked_kz_71 = "checked" if ($::form->{FA_71} eq 'X');
+  my $select_tax_office               = $ustva->fa_auswahl($land, $amt, $ustva->query_finanzamt(\%::myconfig, $::form));
+  my $checked_accrual                 = $::form->{method}        eq 'accrual' ? q|checked="checked"| : '';
+  my $checked_cash                    = $::form->{method}        eq 'cash'    ? q|checked="checked"| : '';
+  my $checked_monthly                 = $::form->{FA_voranmeld}  eq 'month'   ? "checked"            : '';
+  my $checked_quarterly               = $::form->{FA_voranmeld}  eq 'quarter' ? "checked"            : '';
+  my $checked_dauerfristverlaengerung = $::form->{FA_dauerfrist} eq '1'       ? "checked"            : '';
+  my $checked_kz_71                   = $::form->{FA_71}         eq 'X'       ? "checked"            : '';
 
   my $_hidden_variables_ref;
 
@@ -1255,7 +1255,7 @@ sub config_step2 {
   my $patterncount   = $form->{patterncount};
   my $elster_pattern = $form->{elster_pattern};
   my $delimiter      = $form->{delimiter};
-  my $steuernummer = $form->{steuernummer} if ($stnr eq '');
+  my $steuernummer   = $stnr eq '' ? $form->{steuernummer} : '';
 
   $form->{FA_Oeffnungszeiten} =~ s/\\\\n/\n/g;
 

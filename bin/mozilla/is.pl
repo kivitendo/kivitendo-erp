@@ -489,7 +489,7 @@ sub update {
   $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
 
   $form->{print_and_post} = 0         if $form->{second_run};
-  my $taxincluded            = "checked" if $form->{taxincluded};
+  my $taxincluded         = $form->{taxincluded} ? "checked" : '';
   $form->{update} = 1;
 
   &check_name("customer");

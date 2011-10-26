@@ -1301,7 +1301,10 @@ sub invoice {
     $form->{quodate}      = $form->{transdate};
   }
 
-  my $payment_id = $form->{payment_id} if $form->{payment_id};
+  my $payment_id;
+  if ($form->{payment_id}) {
+    $payment_id = $form->{payment_id};
+  }
 
   # if the name changed get new values
   if (&check_name($form->{vc})) {

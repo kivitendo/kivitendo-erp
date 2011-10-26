@@ -351,7 +351,7 @@ sub get_warehouse_journal {
   $sort_order    = $filter{order}        unless $sort_order;
   my $sort_spec  = "${sort_col} " . ($sort_order ? " DESC" : " ASC");
 
-  my $where_clause = join(" AND ", @filter_ary) . " AND " if (@filter_ary);
+  my $where_clause = @filter_ary ? join(" AND ", @filter_ary) . " AND " : '';
 
   $select_tokens{'trans'} = {
      "parts_id"             => "i1.parts_id",

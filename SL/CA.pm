@@ -84,7 +84,7 @@ sub all_accounts {
     $amount{ $ref->{accno} } = $ref->{amount};
   }
 
-  my $where = "AND c.id = $chart_id" if ($chart_id ne '');
+  my $where = $chart_id ne '' ? "AND c.id = $chart_id" : '';
 
   $query = qq{
     SELECT

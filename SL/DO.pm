@@ -408,7 +408,7 @@ sub mark_orders_if_delivered {
                                         'to_table'   => 'delivery_orders',
                                         'to_id'      => $params{do_id});
 
-  my ($oe_id)  = $links[0]->{from_id} if (scalar @links);
+  my $oe_id  = @links ? $links[0]->{from_id} : undef;
 
   return $main::lxdebug->leave_sub() if (!$oe_id);
 

@@ -1048,7 +1048,7 @@ sub all_parts {
   my $select_clause = join ', ',    map { $token_builder->($_, 1) } @select_tokens;
   my $join_clause   = join ' ',     @joins{ grep $joins_needed{$_}, @join_order };
   my $where_clause  = join ' AND ', map { "($_)" } @where_tokens;
-  my $group_clause  = ' GROUP BY ' . join ', ',    map { $token_builder->($_) } @group_tokens if scalar @group_tokens;
+  my $group_clause  = @group_tokens ? ' GROUP BY ' . join ', ',    map { $token_builder->($_) } @group_tokens : '';
 
   my %oe_flag_to_cvar = (
     bought   => 'invoice',

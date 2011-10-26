@@ -25,7 +25,21 @@ my @testitems = @Support::Files::testitems;
 
 foreach my $file (@testitems) {
   my $clean = 1;
-  my $doc = PPI::Document->new($file) or do {
+  my $source;
+  {
+    # due to a bug in PPI it cannot determine the encoding of a source file by
+    # use utf8; normaly this would be no problem but some people instist on
+    # putting strange stuff into the source. as a workaround read in the source
+    # with :utf8 layer and pass it to PPI by reference
+    # there are still some latin chars, but it's not the purpose of this test
+    # to find them, so warnings about it will be ignored
+    local $^W = 0; # don't care about invalid chars in comments
+    local $/ = undef;
+    open my $fh, '<:utf8', $file or die $!;
+    $source = <$fh>;
+  }
+
+  my $doc = PPI::Document->new(\$source) or do {
     print $fh "?: PPI error for file $file: " . PPI::Document::errstr() . "\n";
     ok 0, $file;
     next;

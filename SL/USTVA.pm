@@ -113,8 +113,8 @@ sub report_variables {
   my $attribute  = $arg_ref->{attribute}; #
   my $dec_places = (defined $arg_ref->{dec_places}) ? $arg_ref->{dec_places}:undef;
 
-  my $where_type = "AND tax.report_headings.type = '$type'" if ( $type );
-  my $where_dcp  = "AND tax.report_variables.dec_places = '$dec_places'" if ( defined $dec_places );
+  my $where_type = $type ? "AND tax.report_headings.type = '$type'" : '';
+  my $where_dcp  = defined $dec_places ? "AND tax.report_variables.dec_places = '$dec_places'" : '';
 
   my $query = qq|
     SELECT $attribute

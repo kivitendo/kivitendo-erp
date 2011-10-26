@@ -234,7 +234,8 @@ sub search {
     } (@{ $form->{all_departments} || [] });
   }
 
-  my $department = qq|
+  my $department;
+  $department = qq|
         <tr>
           <th align=right nowrap>| . $locale->text('Department') . qq|</th>
           <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
@@ -1017,7 +1018,7 @@ sub display_rows {
     my $projectnumber_hidden = qq|
     <input type="hidden" name="project_id_$i" value="$form->{"project_id_$i"}">|;
 
-    my $copy2credit = 'onkeyup="copy_debit_to_credit()"' if $i == 1;
+    my $copy2credit = $i == 1 ? 'onkeyup="copy_debit_to_credit()"' : '';
 
     print qq|<tr valign=top>
     $accno
@@ -1079,10 +1080,9 @@ sub form_header {
   $form->{title} = $locale->text("$title General Ledger Transaction");
   my $readonly   = ($form->{id}) ? "readonly" : "";
 
-  my $show_details_checked = "checked" if $form->{show_details};
-
-  my $ob_transaction_checked = "checked" if $form->{ob_transaction};
-  my $cb_transaction_checked = "checked" if $form->{cb_transaction};
+  my $show_details_checked   = $form->{show_details}   ? "checked" : '';
+  my $ob_transaction_checked = $form->{ob_transaction} ? "checked" : '';
+  my $cb_transaction_checked = $form->{cb_transaction} ? "checked" : '';
 
   # $locale->text('Add General Ledger Transaction')
   # $locale->text('Edit General Ledger Transaction')
@@ -1410,7 +1410,7 @@ $follow_ups_block
 
   } else {
     if ($form->{draft_id}) {
-      my $remove_draft_checked = 'checked' if ($form->{remove_draft});
+      my $remove_draft_checked = $form->{remove_draft} ? 'checked' : '';
       print qq|<p>\n|
         . qq|  <input name="remove_draft" id="remove_draft" type="checkbox" class="checkbox" ${remove_draft_checked}>|
         . qq|  <label for="remove_draft">| . $locale->text('Remove Draft') . qq|</label>\n|

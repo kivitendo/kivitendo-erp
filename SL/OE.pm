@@ -190,7 +190,7 @@ SQL
   }
 
   if ($form->{periodic_invoices_active} ne $form->{periodic_invoices_inactive}) {
-    my $not  = 'NOT' if ($form->{periodic_invoices_inactive});
+    my $not  = $form->{periodic_invoices_inactive} ? 'NOT' : '';
     $query  .= qq| AND ${not} COALESCE(pcfg.active, 'f')|;
   }
 

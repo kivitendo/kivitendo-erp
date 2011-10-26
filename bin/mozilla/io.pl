@@ -359,7 +359,7 @@ sub display_row {
 # calculate onhand
     if ($form->{"id_$i"}) {
       my $part         = IC->get_basic_part_info(id => $form->{"id_$i"});
-      my $onhand_color = 'color="#ff0000"' if  $part->{onhand} < $part->{rop};
+      my $onhand_color = $part->{onhand} < $part->{rop} ? 'color="#ff0000"' : '';
       push @ROW2, { value => sprintf "<b>%s</b> <font %s>%s %s</font>",
                       $locale->text('On Hand'),
                       $onhand_color,
@@ -1457,7 +1457,7 @@ sub print_form {
     $extension            = 'xls';
   }
 
-  my $email_extension = '_email' if (($form->{media} eq 'email') && (-f "$myconfig{templates}/$form->{formname}_email$form->{language}${printer_code}.${extension}"));
+  my $email_extension = (($form->{media} eq 'email') && (-f "$myconfig{templates}/$form->{formname}_email$form->{language}${printer_code}.${extension}")) ? '_email' : '';
 
   $form->{IN}         = "$form->{formname}${email_extension}$form->{language}${printer_code}.${extension}";
 

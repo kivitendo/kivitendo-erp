@@ -564,8 +564,8 @@ sub generate_pdf_content {
   my $font_height       = $font_size + 2 * $padding;
   my $title_font_height = $font_size + 2 * $padding;
 
-  my $header_height     = 2 * $title_font_height if ($opts->{title});
-  my $footer_height     = 2 * $font_height       if ($pdfopts->{number});
+  my $header_height     = $opts->{title}     ? 2 * $title_font_height : undef;
+  my $footer_height     = $pdfopts->{number} ? 2 * $font_height       : undef;
 
   my $top_text_height   = 0;
 

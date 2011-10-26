@@ -1440,7 +1440,7 @@ sub retrieve_invoice {
 
   my ($sth, $ref, $query);
 
-  my $query_transdate = ", current_date AS invdate" if !$form->{id};
+  my $query_transdate = !$form->{id} ? ", current_date AS invdate" : '';
 
   $query =
     qq|SELECT

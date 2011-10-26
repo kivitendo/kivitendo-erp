@@ -37,7 +37,7 @@ sub create_todo_list {
   my $form     = $main::form;
 
   my %params   = @_;
-  my $postfix  = '_login' if ($params{login_screen});
+  my $postfix  = $params{login_screen} ? '_login' : '';
 
   my %todo_cfg = TODO->get_user_config('login' => $form->{login});
 

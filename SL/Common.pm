@@ -496,8 +496,8 @@ sub save_email_status {
 
   $intnotes .= "\n\n" if ($intnotes);
 
-  my $cc  = $main::locale->text('Cc') . ": $form->{cc}\n"   if $form->{cc};
-  my $bcc = $main::locale->text('Bcc') . ": $form->{bcc}\n" if $form->{bcc};
+  my $cc  = $form->{cc}  ? $main::locale->text('Cc') . ": $form->{cc}\n"   : '';
+  my $bcc = $form->{bcc} ? $main::locale->text('Bcc') . ": $form->{bcc}\n" : '';
   my $now = scalar localtime;
 
   $intnotes .= $main::locale->text('[email]') . "\n"

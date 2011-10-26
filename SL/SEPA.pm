@@ -305,7 +305,7 @@ sub list_exports {
   push @where,  'se.vc = ?';
   push @values, $vc;
 
-  my $where = ' WHERE ' . join(' AND ', map { "(${_})" } @where) if (@where);
+  my $where = @where ? ' WHERE ' . join(' AND ', map { "(${_})" } @where) : '';
 
   my $query =
     qq|SELECT se.id, se.employee_id, se.executed, se.closed, itime::date AS export_date,

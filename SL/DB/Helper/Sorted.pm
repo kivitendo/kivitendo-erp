@@ -47,7 +47,7 @@ sub _get_sort_spec {
 sub _make_sort_spec {
   my ($class) = @_;
 
-  my %sort_spec = $class->_sort_spec if defined &{ "${class}::_sort_spec" };
+  my %sort_spec = defined &{ "${class}::_sort_spec" } ? $class->_sort_spec : ();
 
   my $meta = $class->object_class->meta;
 

@@ -2341,7 +2341,7 @@ sub _get_taxcharts {
     $key = $params;
   }
 
-  my $where = ' WHERE ' . join(' AND ', map { "($_)" } @where) if (@where);
+  my $where = @where ? ' WHERE ' . join(' AND ', map { "($_)" } @where) : '';
 
   my $query = qq|SELECT * FROM tax $where ORDER BY taxkey|;
 
@@ -2456,7 +2456,7 @@ sub _get_customers {
 
   my $options        = ref $key eq 'HASH' ? $key : { key => $key };
   $options->{key}  ||= "all_customers";
-  my $limit_clause   = "LIMIT $options->{limit}" if $options->{limit};
+  my $limit_clause   = $options->{limit} ? "LIMIT $options->{limit}" : '';
 
   my @where;
   push @where, qq|business_id IN (SELECT id FROM business WHERE salesman)| if  $options->{business_is_salesman};
@@ -3665,8 +3665,8 @@ sub prepare_for_printing {
     $extension            = 'xls';
   }
 
-  my $printer_code    = '_' . $self->{printer_code} if $self->{printer_code};
-  my $email_extension = '_email' if -f "$self->{templates}/$self->{formname}_email${language}${printer_code}.${extension}";
+  my $printer_code    = $self->{printer_code} ? '_' . $self->{printer_code} : '';
+  my $email_extension = -f "$::myconfig{templates}/$self->{formname}_email${language}.${extension}" ? '_email' : '';
   $self->{IN}         = "$self->{formname}${email_extension}${language}${printer_code}.${extension}";
 
   # Format dates.

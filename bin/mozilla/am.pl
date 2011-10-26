@@ -2051,7 +2051,8 @@ sub show_am_history {
 
   my $dbh = $form->dbconnect(\%myconfig);
 
-  my $restriction  = qq| AND (| . join(' OR ', map { " addition = " . $dbh->quote($_) } split(m/\,/, $form->{einschraenkungen})) . qq|)| if $form->{einschraenkungen};
+  my $restriction;
+  $restriction     = qq| AND (| . join(' OR ', map { " addition = " . $dbh->quote($_) } split(m/\,/, $form->{einschraenkungen})) . qq|)| if $form->{einschraenkungen};
   $restriction    .= qq| AND h.itime::date >= | . conv_dateq($form->{fromdate})                                                          if $form->{fromdate};
   $restriction    .= qq| AND h.itime::date <= | . conv_dateq($form->{todate})                                                            if $form->{todate};
   if ($form->{mitarbeiter} =~ m/^\d+$/) {

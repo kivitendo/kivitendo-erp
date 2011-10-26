@@ -942,7 +942,7 @@ sub kne_stammdatenexport {
     push @values, $form->{accnoto};
   }
 
-  my $where_str = ' WHERE ' . join(' AND ', map { "($_)" } @where) if (scalar @where);
+  my $where_str = @where ? ' WHERE ' . join(' AND ', map { "($_)" } @where) : '';
 
   my $query     = qq|SELECT c.accno, c.description
                      FROM chart c

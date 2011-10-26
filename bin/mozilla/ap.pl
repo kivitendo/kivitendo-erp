@@ -285,7 +285,8 @@ sub form_header {
   my $notes =
     qq|<textarea name=notes rows=$rows cols=50 wrap=soft $readonly>$form->{notes}</textarea>|;
 
-  my $department = qq|
+  my $department;
+  $department = qq|
               <tr>
                 <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
                 <td colspan=3><select name=department>$form->{selectdepartment}</select>

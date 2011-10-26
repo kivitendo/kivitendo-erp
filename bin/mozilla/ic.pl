@@ -1273,7 +1273,7 @@ sub generate_report {
   my %subtotals = map { $_ => 0 } ('onhand', @subtotal_columns);
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my $idx       = 0;
-  my $same_item = $form->{parts}[0]{ $form->{sort} } if (scalar @{ $form->{parts} });
+  my $same_item = @{ $form->{parts} } ? $form->{parts}[0]{ $form->{sort} } : undef;
 
   my $defaults  = AM->get_defaults();
 

@@ -158,7 +158,8 @@ sub report {
     map { $form->{selectdepartment} .= "<option>$_->{description}--$_->{id}\n" } @{ $form->{all_departments} || [] };
   }
 
-  my $department = qq|
+  my $department;
+  $department = qq|
         <tr>
           <th align=right nowrap>| . $locale->text('Department') . qq|</th>
           <td colspan=3><select name=department>$form->{selectdepartment}</select></td>

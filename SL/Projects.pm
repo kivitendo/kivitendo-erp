@@ -104,7 +104,7 @@ sub search_projects {
   }
 
 
-  my $where = 'WHERE ' . join(' AND ', map { "($_)" } @filters) if (scalar @filters);
+  my $where = @filters ? 'WHERE ' . join(' AND ', map { "($_)" } @filters) : '';
 
   my $sortorder =  $params{sort} ? $params{sort} : "projectnumber";
   $sortorder    =~ s/[^a-z_]//g;

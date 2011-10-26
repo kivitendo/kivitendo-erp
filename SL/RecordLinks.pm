@@ -193,7 +193,7 @@ sub delete {
     add_token(\@where_tokens, \@where_values, col => $col, val => $params{$col}) if $params{$col};
   }
 
-  my $where = "WHERE ". join ' AND ', map { "($_)" } @where_tokens if scalar @where_tokens;
+  my $where = @where_tokens ? "WHERE ". join ' AND ', map { "($_)" } @where_tokens : '';
   my $query = "DELETE FROM record_links $where";
 
   do_query($form, $dbh, $query, @where_values);
