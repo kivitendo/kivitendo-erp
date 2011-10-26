@@ -24,10 +24,10 @@ my $fh;
 my @testitems = @Support::Files::testitems;
 
 foreach my $file (@testitems) {
-  next unless -f $file;
   my $clean = 1;
   my $doc = PPI::Document->new($file) or do {
-    ok 0, "PPI error for file $file: " . PPI::Document::errstr();
+    print $fh "?: PPI error for file $file: " . PPI::Document::errstr() . "\n";
+    ok 0, $file;
     next;
   };
   my $stmts = $doc->find('Statement::Variable');
