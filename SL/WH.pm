@@ -55,61 +55,92 @@ sub transfer {
   require SL::DB::Part;
   require SL::DB::Employee;
   require SL::DB::Inventory;
+
   my $employee   = SL::DB::Manager::Employee->find_by(login => $::form->{login});
   my ($now)      = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT current_date|);
   my @directions = (undef, qw(out in transfer));
-  my $db         = SL::DB->create(undef, 'LXOFFICE');
+  my $db         = SL::DB->create(undef, 'LXOFFICE'); # get handle for transaction
 
-  for my $transfer (@args) {
-    my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
+  my $objectify = sub {
+    my ($transfer, $field, $class, @find_by) = @_;
 
-    my $direction = 0;
-    $direction |= 1 if ($transfer->{src_warehouse_id} && $transfer->{src_bin_id});
-    $direction |= 2 if ($transfer->{dst_warehouse_id} && $transfer->{dst_bin_id});
+    @find_by = (description => $transfer->{$field}) unless @find_by;
 
-    $transfer->{trans_type_id} = $transfer->{transfer_type_id} || SL::DB::Manager::TransferType->find_by(
-      direction   => $directions[$direction],
-      description => $transfer->{transfer_type},
-    )->id;
+    if ($transfer->{$field} || $transfer->{"${field}_id"}) {
+      return ref $transfer->{$field} && $transfer->{$field}->isa($class) ? $transfer->{$field}
+           : $transfer->{$field}    ? $class->_get_manager_class->find_by(@find_by)
+           : $class->_get_manager_class->find_by(id => $transfer->{"${field}_id"});
+    }
+    return;
+  };
 
-    my %params = (
-        shippingdate     => !$transfer->{shippingdate} || $transfer->{shippingdate} eq 'current_date' ? $now : $transfer->{shippingdate},
-        employee         => $employee,
-        trans_id         => $trans_id,
-        map { $_ => $transfer->{$_} } qw(
-          parts_id chargenumber bestbefore oe_id orderitems_id project_id comment trans_type_id),
-    );
+  $db->begin_work;
+  eval {
 
-    my $qty = $transfer->{qty};
+    for my $transfer (@args) {
+      my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
 
-    if ($transfer->{unit}) {
-      my $part          = SL::DB::Manager::Part->find_by(id => $transfer->{parts_id});
-      my $transfer_unit = SL::DB::Manager::Unit->find_by(name => $transfer->{unit});
+      my $part          = $objectify->($transfer, 'parts',         'SL::DB::Part');
+      my $unit          = $objectify->($transfer, 'unit',          'SL::DB::Unit',         unit => $transfer->{unit});
+      my $qty           = $transfer->{qty};
+      my $src_bin       = $objectify->($transfer, 'src_bin',       'SL::DB::Bin');
+      my $dst_bin       = $objectify->($transfer, 'dst_bin',       'SL::DB::Bin');
+      my $src_wh        = $objectify->($transfer, 'src_warehouse', 'SL::DB::Warehouse');
+      my $dst_wh        = $objectify->($transfer, 'dst_warehouse', 'SL::DB::Warehouse');
+      my $project       = $objectify->($transfer, 'project',       'SL::DB::Project');
 
-      $qty *= $transfer_unit->factor;
-      $qty /= $part->unit_obj->factor || 1 if $part->unit;
+      $src_wh ||= $src_bin->warehouse if $src_bin;
+      $dst_wh ||= $dst_bin->warehouse if $dst_bin;
+
+      my $direction = 0; # bit mask
+      $direction |= 1 if $src_bin;
+      $direction |= 2 if $dst_bin;
+
+      my $transfer_type = $objectify->($transfer, 'transfer_type', 'SL::DB::TransferType', direction   => $directions[$direction],
+                                                                                           description => $transfer->{transfer_type});
+
+      my %params = (
+          part             => $part,
+          employee         => $employee,
+          trans_type       => $transfer_type,
+          project          => $project,
+          trans_id         => $trans_id,
+          shippingdate     => !$transfer->{shippingdate} || $transfer->{shippingdate} eq 'current_date'
+                              ? $now : $transfer->{shippingdate},
+          map { $_ => $transfer->{$_} } qw( chargenumber bestbefore oe_id orderitems_id comment),
+      );
+
+      if ($unit) {
+        $qty *= $unit->factor;
+        $qty /= $part->unit_obj->factor || 1 if $part->unit;
+      }
+
+      if ($direction & 1) {
+        SL::DB::Inventory->new(
+          %params,
+          warehouse => $src_wh,
+          bin       => $src_bin,
+          qty       => $qty * -1,
+        )->save;
+      }
+
+      if ($direction & 2) {
+        SL::DB::Inventory->new(
+          %params,
+          warehouse => $dst_wh->id,
+          bin       => $dst_bin->id,
+          qty       => $qty,
+        )->save;
+      }
     }
 
-    if ($direction & 1) {
-      SL::DB::Inventory->new(
-        %params,
-        warehouse_id => $transfer->{src_warehouse_id},
-        bin_id       => $transfer->{src_bin_id},
-        qty          => $qty * -1
-      )->save;
-    }
+    $db->commit;
 
-    if ($direction & 2) {
-      SL::DB::Inventory->new(
-        %params,
-        warehouse_id => $transfer->{dst_warehouse_id},
-        bin_id       => $transfer->{dst_bin_id},
-        qty          => $qty
-      )->save;
-    }
-  }
-
-  $db->commit;
+    1;
+  } or do {
+    $db->rollback;
+    die $@; # rethrow
+  };
 
   $::lxdebug->leave_sub;
 }
@@ -870,5 +901,121 @@ $main::lxdebug->enter_sub();
   return $part_description;
 }
 
+
+1;
+
+__END__
+
+=head1 NAME
+
+SL::WH - Warehouse backend
+
+=head1 SYNOPSIS
+
+  use SL::WH;
+  WH->transfer(\%params);
+
+=head1 DESCRIPTION
+
+Backend for lx-office warehousing functions.
+
+=head1 FUNCTIONS
+
+=head2 transfer \%PARAMS, [ \%PARAMS, ... ]
+
+This is the main function to manipulate warehouse contents. A typical transfer
+is called like this:
+
+  WH->transfer->({
+    parts_id         => 6342,
+    qty              => 12.45,
+    transfer_type    => 'transfer',
+    src_warehouse_id => 12,
+    stc_bin_id       => 23,
+    dst_warehouse_id => 25,
+    dst_bin_id       => 167,
+  });
+
+It will generate an entry in inventory representing the transfer. Note that
+parts_id, qty, and transfer_type are mandatory. Depending on the transfer_type
+a destination or a src is mandatory.
+
+transfer accepts more than one transaction parameter, each being a hash ref. If
+more than one is supplied, it is guaranteed, that all are processed in the same
+transaction.
+
+Here is a full list of parameters. All "_id" parameters except oe and
+orderitems can be called without id with RDB objects as well.
+
+=over 4
+
+=item parts_id
+
+The id of the article transferred. Does not check if the article is a service.
+Mandatory.
+
+=item qty
+
+Quantity of the transaction.  Mandatory.
+
+=item unit
+
+Unit of the transaction. Optional.
+
+=item transfer_type
+
+=item transfer_type_id
+
+The type of transaction. The first version is a string describing the
+transaction (the types 'transfer' 'in' 'out' and a few others are present on
+every system), the id is the hard id of a transfer_type from the database.
+
+Depending of the direction of the transfer_type, source and/or destination must
+be specified.
+
+One of transfer_type or transfer_type_id is mandatory.
+
+=item src_warehouse_id
+
+=item src_bin_id
+
+Warehouse and bin from which to transfer. Mandatory in transfer and out
+directions. Ignored in in directions.
+
+=item dst_warehouse_id
+
+=item dst_bin_id
+
+Warehouse and bin to which to transfer. Mandatory in transfer and in
+directions. Ignored in out directions.
+
+=item chargenumber
+
+If given, the transfer will transfer only articles with this chargenumber.
+Optional.
+
+=item orderitem_id
+
+Reference to an orderitem for which this transfer happened. Optional
+
+=item oe_id
+
+Reference to an order for which this transfer happened. Optional
+
+=item comment
+
+An optional comment.
+
+=item best_before
+
+An expiration date. Note that this is not by default used by C<warehouse_report>.
+
+=back
+
+=head1 BUGS
+
+=head1 AUTHOR
+
+=cut
 
 1;

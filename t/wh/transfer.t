@@ -52,6 +52,8 @@ my $r2 = $report->();
 
 is $r1->{qty}, $r2->{qty} + 4, 'transfer one way';
 
+#################################################
+
 WH->transfer({
    transfer_type    => 'transfer',
    parts_id         => $part->id,
@@ -67,6 +69,42 @@ WH->transfer({
 my $r3 = $report->();
 
 is $r2->{qty}, $r3->{qty} - 4, 'and back';
+
+##############################################
+
+use_ok 'SL::DB::TransferType';
+
+# object interface test
+
+WH->transfer({
+   transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
+   parts            => $part,
+   src_bin          => $bin1,
+   dst_bin          => $bin2,
+   qty              => 6.2,
+   chargenumber     => '',
+});
+
+my $r4 = $report->();
+
+is $r3->{qty}, $r4->{qty} + 6.2, 'object transfer one way';
+
+#############################################
+
+WH->transfer({
+   transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
+   parts            => $part,
+   src_bin          => $bin2,
+   src_warehouse    => $wh,
+   dst_bin          => $bin1,
+   dst_warehouse    => $wh,
+   qty              => 6.2,
+   chargenumber     => '',
+});
+
+my $r5 = $report->();
+
+is $r4->{qty}, $r5->{qty} - 6.2, 'full object transfer back';
 
 done_testing;
 
