@@ -120,6 +120,23 @@ test { shift->{qty}, shift->{qty}, 'back and forth in one transaction' } {
    qty              => 1,
 };
 
+#############################################
+
+test { shift->{qty}, shift->{qty}, 'warehouse reduced interface' } {
+   transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
+   parts            => $part,
+   src_bin          => $bin2,
+   dst_bin          => $bin1,
+   qty              => 1,
+},
+{
+   transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
+   parts            => $part,
+   src_bin          => $bin1,
+   dst_bin          => $bin2,
+   qty              => 1,
+};
+
 
 done_testing;
 
