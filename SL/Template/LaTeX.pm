@@ -387,13 +387,16 @@ sub convert_to_postscript {
 
   my $latex = $self->_get_latex_path();
   my $old_home = $ENV{HOME};
+  my $old_openin_any = $ENV{openin_any};
   $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd() . "/" . $userspath;
+  $ENV{openin_any} = "p";
 
   for (my $run = 1; $run <= 2; $run++) {
     system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
       $ENV{HOME} = $old_home;
+      $ENV{openin_any} = $old_openin_any;
       $self->{"error"} = $form->cleanup($latex);
       return 0;
     }
@@ -403,6 +406,7 @@ sub convert_to_postscript {
 
   system("dvips $form->{tmpfile} -o -q > /dev/null");
   $ENV{HOME} = $old_home;
+  $ENV{openin_any} = $old_openin_any;
 
   if ($?) {
     $self->{"error"} = "dvips : $!";
@@ -432,19 +436,23 @@ sub convert_to_pdf {
 
   my $latex = $self->_get_latex_path();
   my $old_home = $ENV{HOME};
+  my $old_openin_any = $ENV{openin_any};
   $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd() . "/" . $userspath;
+  $ENV{openin_any} = "p";
 
   for (my $run = 1; $run <= 2; $run++) {
     system("${latex} --interaction=nonstopmode $form->{tmpfile} " .
            "> $form->{tmpfile}.err");
     if ($?) {
       $ENV{HOME}     = $old_home;
+      $ENV{openin_any} = $old_openin_any;
       $self->{error} = $form->cleanup($latex);
       return 0;
     }
   }
 
   $ENV{HOME} = $old_home;
+  $ENV{openin_any} = $old_openin_any;
   $form->{tmpfile} =~ s/tex$/pdf/;
 
   $self->cleanup();
