@@ -59,7 +59,6 @@ sub transfer {
   my $employee   = SL::DB::Manager::Employee->find_by(login => $::form->{login});
   my ($now)      = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT current_date|);
   my @directions = (undef, qw(out in transfer));
-  my $db         = SL::DB->create(undef, 'LXOFFICE'); # get handle for transaction
 
   my $objectify = sub {
     my ($transfer, $field, $class, @find_by) = @_;
@@ -74,10 +73,9 @@ sub transfer {
     return;
   };
 
-  $db->begin_work;
-  eval {
-
-    for my $transfer (@args) {
+  my $db = SL::DB::Inventory->new->db;
+  $db->do_transaction(sub{
+    while (my $transfer = shift @args) {
       my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
 
       my $part          = $objectify->($transfer, 'parts',         'SL::DB::Part');
@@ -133,13 +131,8 @@ sub transfer {
         )->save;
       }
     }
-
-    $db->commit;
-
-    1;
-  } or do {
-    $db->rollback;
-    die $@; # rethrow
+  }) or do {
+    $::form->error("Warehouse transfer error: " . join("\n", (split(/\n/, $db->error))[0..2]));
   };
 
   $::lxdebug->leave_sub;
