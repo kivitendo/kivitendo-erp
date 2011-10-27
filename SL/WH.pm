@@ -42,90 +42,76 @@ use warnings;
 use strict;
 
 sub transfer {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my $self = shift;
+  my ($self, @args) = @_;
 
-  if (!@_) {
-    $main::lxdebug->leave_sub();
+  if (!@args) {
+    $::lxdebug->leave_sub;
     return;
   }
 
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
+  require SL::DB::TransferType;
+  require SL::DB::Part;
+  require SL::DB::Employee;
+  require SL::DB::Inventory;
+  my $employee   = SL::DB::Manager::Employee->find_by(login => $::form->{login});
+  my ($now)      = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT current_date|);
+  my @directions = (undef, qw(out in transfer));
+  my $db         = SL::DB->create(undef, 'LXOFFICE');
 
-  my $dbh      = $form->get_standard_dbh($myconfig);
+  for my $transfer (@args) {
+    my ($trans_id) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT nextval('id')|);
 
-  my $units    = AM->retrieve_units($myconfig, $form);
-
-  my $query    = qq|SELECT * FROM transfer_type|;
-  my $sth      = prepare_execute_query($form, $dbh, $query);
-
-  my %transfer_types;
-
-  while (my $ref = $sth->fetchrow_hashref()) {
-    $transfer_types{$ref->{direction}} ||= { };
-    $transfer_types{$ref->{direction}}->{$ref->{description}} = $ref->{id};
-  }
-
-  my @part_ids  = map { $_->{parts_id} } @_;
-  my %partunits = selectall_as_map($form, $dbh, qq|SELECT id, unit FROM parts WHERE id IN (| . join(', ', map { '?' } @part_ids ) . qq|)|, 'id', 'unit', @part_ids);
-
-  my ($now)     = selectrow_query($form, $dbh, qq|SELECT current_date|);
-
-  $query = qq|INSERT INTO inventory (warehouse_id, bin_id, parts_id, chargenumber, bestbefore,
-                                     oe_id, orderitems_id, shippingdate,
-                                     employee_id, project_id, trans_id, trans_type_id, comment, qty)
-              VALUES (?, ?, ?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, ?, ?, ?, ?)|;
-
-  $sth   = prepare_query($form, $dbh, $query);
-
-  my @directions = (undef, 'out', 'in', 'transfer');
-
-  while (@_) {
-    my $transfer   = shift;
-    my ($trans_id) = selectrow_query($form, $dbh, qq|SELECT nextval('id')|);
-
-    my ($direction, @values) = (0);
-
+    my $direction = 0;
     $direction |= 1 if ($transfer->{src_warehouse_id} && $transfer->{src_bin_id});
     $direction |= 2 if ($transfer->{dst_warehouse_id} && $transfer->{dst_bin_id});
 
-    push @values, conv_i($transfer->{parts_id}), "$transfer->{chargenumber}", conv_date($transfer->{bestbefore}), conv_i($transfer->{oe_id}), conv_i($transfer->{orderitems_id});
-    push @values, $transfer->{shippingdate} eq 'current_date' ? $now : conv_date($transfer->{shippingdate}), $form->{login}, conv_i($transfer->{project_id}), $trans_id;
+    $transfer->{trans_type_id} = $transfer->{transfer_type_id} || SL::DB::Manager::TransferType->find_by(
+      direction   => $directions[$direction],
+      description => $transfer->{transfer_type},
+    )->id;
 
-    if ($transfer->{transfer_type_id}) {
-      push @values, $transfer->{transfer_type_id};
-    } else {
-      push @values, $transfer_types{$directions[$direction]}->{$transfer->{transfer_type}};
-    }
-    
-    $transfer->{comment} = defined($transfer->{comment}) ? $transfer->{comment} : '';
-    push @values, "$transfer->{comment}";
+    my %params = (
+        shippingdate     => !$transfer->{shippingdate} || $transfer->{shippingdate} eq 'current_date' ? $now : $transfer->{shippingdate},
+        employee         => $employee,
+        trans_id         => $trans_id,
+        map { $_ => $transfer->{$_} } qw(
+          parts_id chargenumber bestbefore oe_id orderitems_id project_id comment trans_type_id),
+    );
 
     my $qty = $transfer->{qty};
 
     if ($transfer->{unit}) {
-      my $partunit = $partunits{$transfer->{parts_id}};
+      my $part          = SL::DB::Manager::Part->find_by(id => $transfer->{parts_id});
+      my $transfer_unit = SL::DB::Manager::Unit->find_by(name => $transfer->{unit});
 
-      $qty *= $units->{$transfer->{unit}}->{factor};
-      $qty /= $units->{$partunit}->{factor} || 1 if ($partunit);
+      $qty *= $transfer_unit->factor;
+      $qty /= $part->unit_obj->factor || 1 if $part->unit;
     }
 
     if ($direction & 1) {
-      do_statement($form, $sth, $query, conv_i($transfer->{src_warehouse_id}), conv_i($transfer->{src_bin_id}), @values, $qty * -1);
+      SL::DB::Inventory->new(
+        %params,
+        warehouse_id => $transfer->{src_warehouse_id},
+        bin_id       => $transfer->{src_bin_id},
+        qty          => $qty * -1
+      )->save;
     }
 
     if ($direction & 2) {
-      do_statement($form, $sth, $query, conv_i($transfer->{dst_warehouse_id}), conv_i($transfer->{dst_bin_id}), @values, $qty);
+      SL::DB::Inventory->new(
+        %params,
+        warehouse_id => $transfer->{dst_warehouse_id},
+        bin_id       => $transfer->{dst_bin_id},
+        qty          => $qty
+      )->save;
     }
   }
 
-  $sth->finish();
+  $db->commit;
 
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub transfer_assembly {
@@ -146,12 +132,12 @@ sub transfer_assembly {
   #
   # ... Standard-Check oben Ende. Hier die eigentliche SQL-Abfrage
   # select parts_id,qty from assembly where id=1064;
-  # Erweiterung für bug 935 am 23.4.09 - 
+  # Erweiterung für bug 935 am 23.4.09 -
   # Erzeugnisse können Dienstleistungen enthalten, die ja nicht 'lagerbar' sind.
-  # select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id  
+  # select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id
   # where assembly.id=1066 and inventory_accno_id IS NOT NULL;
   #
-  # Erweiterung für bug 23.4.09 -2 Erzeugnisse in Erzeugnissen können nicht ausgelagert werden, 
+  # Erweiterung für bug 23.4.09 -2 Erzeugnisse in Erzeugnissen können nicht ausgelagert werden,
   # wenn assembly nicht überprüft wird ...
   # patch von joachim eingespielt 24.4.2009:
   # my $query    = qq|select parts_id,qty from assembly inner join parts
@@ -159,7 +145,7 @@ sub transfer_assembly {
   # (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
 
 
-  my $query = qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id 
+  my $query = qq|select parts_id,qty from assembly inner join parts on assembly.parts_id = parts.id
                   where assembly.id = ? and (inventory_accno_id IS NOT NULL or parts.assembly = TRUE)|;
 
   my $sth_part_qty_assembly = prepare_execute_query($form, $dbh, $query, $params{assembly_id});
@@ -184,10 +170,10 @@ sub transfer_assembly {
                                              warehouse_id => $params{dst_warehouse_id});
 
     if ($partsQTY  > $max_parts){
-      # Gibt es hier ein Problem mit nicht "escapten" Zeichen? 
+      # Gibt es hier ein Problem mit nicht "escapten" Zeichen?
       # 25.4.09 Antwort: Ja.  Aber erst wenn im Frontend die locales-Funktion aufgerufen wird
-     
-      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) . 
+
+      $kannNichtFertigen .= "Zum Fertigen fehlen:" . abs($partsQTY - $max_parts) .
                             " Einheiten der Ware:" . $self->get_part_description(parts_id => $currentPart_ID) .
                             ", um das Erzeugnis herzustellen. <br>"; # Konnte die Menge nicht mit der aktuellen Anzahl der Waren fertigen
       next; # die weiteren Überprüfungen sind unnötig, daher das nächste elemente prüfen (genaue Ausgabe, was noch fehlt)
@@ -200,7 +186,7 @@ sub transfer_assembly {
     # und lösen den Rest dann so wie bei xplace im Barcode-Programm
     # S.a. Kommentar im bin/mozilla-Code mb übernimmt und macht das in ordentlich
 
-    my $tempquery = qq|SELECT SUM(qty), bin_id, chargenumber, bestbefore   FROM inventory  
+    my $tempquery = qq|SELECT SUM(qty), bin_id, chargenumber, bestbefore   FROM inventory
                        WHERE warehouse_id = ? AND parts_id = ?  GROUP BY bin_id, chargenumber, bestbefore having SUM(qty)>0|;
     my $tempsth   = prepare_execute_query($form, $dbh, $tempquery, $params{dst_warehouse_id}, $currentPart_ID);
 
@@ -213,14 +199,14 @@ sub transfer_assembly {
       my $temppart_bestbefore   = conv_date($temphash_ref->{bestbefore});
       my $temppart_qty          = $temphash_ref->{sum};
 
-      if ($tmpPartsQTY > $temppart_qty) {  # wir haben noch mehr waren zum wegbuchen. 
+      if ($tmpPartsQTY > $temppart_qty) {  # wir haben noch mehr waren zum wegbuchen.
                                            # Wir buchen den kompletten Lagerplatzbestand und zählen die Hilfsvariable runter
         $tmpPartsQTY = $tmpPartsQTY - $temppart_qty;
-        $temppart_qty = $temppart_qty * -1; # TODO beim analyiseren des sql-trace, war dieser wert positiv, 
-                                            # wenn * -1 als berechnung in der parameter-übergabe angegeben wird. 
-                                            # Dieser Wert IST und BLEIBT positiv!! Hilfe. 
+        $temppart_qty = $temppart_qty * -1; # TODO beim analyiseren des sql-trace, war dieser wert positiv,
+                                            # wenn * -1 als berechnung in der parameter-übergabe angegeben wird.
+                                            # Dieser Wert IST und BLEIBT positiv!! Hilfe.
                                             # Liegt das daran, dass dieser Wert aus einem SQL-Statement stammt?
-        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id}, 
+        do_statement($form, $sthTransferPartSQL, $transferPartSQL, $currentPart_ID, $params{dst_warehouse_id},
                      $temppart_bin_id, $temppart_chargenumber, $temppart_bestbefore, 'Verbraucht für ' .
                      $self->get_part_description(parts_id => $params{assembly_id}), $params{login}, $temppart_qty);
 
@@ -255,7 +241,7 @@ sub transfer_assembly {
                                VALUES (?, ?, ?, ?, ?, ?, (SELECT id FROM employee WHERE login = ?), ?, nextval('id'),
                                (SELECT id FROM transfer_type WHERE direction = 'in' AND description = 'stock'))|;
   my $sthTransferAssemblySQL   = prepare_query($form, $dbh, $transferAssemblySQL);
-  do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id}, 
+  do_statement($form, $sthTransferAssemblySQL, $transferAssemblySQL, $params{assembly_id}, $params{dst_warehouse_id},
                $params{dst_bin_id}, $params{chargenumber}, conv_date($params{bestbefore}), $params{comment}, $params{login}, $params{qty});
   $dbh->commit();
 
