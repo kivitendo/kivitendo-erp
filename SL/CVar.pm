@@ -575,7 +575,7 @@ sub add_custom_variables_to_report {
           $cfg->{type} eq 'date'      ? $ref->{date_value}
         : $cfg->{type} eq 'timestamp' ? $ref->{timestamp_value}
         : $cfg->{type} eq 'number'    ? $form->format_amount($myconfig, $ref->{number_value} * 1, $cfg->{precision})
-        : $cfg->{type} eq 'customer'  ? SL::DB::Manager::Customer->find_by(id => 1* $ref->{number_value})->name
+        : $cfg->{type} eq 'customer'  ? (SL::DB::Manager::Customer->find_by(id => 1*$ref->{number_value}) || SL::DB::Customer->new)->name
         : $cfg->{type} eq 'bool'      ? ($ref->{bool_value} ? $locale->text('Yes') : $locale->text('No'))
         :                               $ref->{text_value};
     }
