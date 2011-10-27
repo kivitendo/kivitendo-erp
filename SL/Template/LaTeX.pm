@@ -388,7 +388,7 @@ sub convert_to_postscript {
   my $latex = $self->_get_latex_path();
   my $old_home = $ENV{HOME};
   my $old_openin_any = $ENV{openin_any};
-  $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd() . "/" . $userspath;
+  $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd();
   $ENV{openin_any} = "p";
 
   for (my $run = 1; $run <= 2; $run++) {
@@ -437,7 +437,7 @@ sub convert_to_pdf {
   my $latex = $self->_get_latex_path();
   my $old_home = $ENV{HOME};
   my $old_openin_any = $ENV{openin_any};
-  $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd() . "/" . $userspath;
+  $ENV{HOME}   = $userspath =~ m|^/| ? $userspath : getcwd();
   $ENV{openin_any} = "p";
 
   for (my $run = 1; $run <= 2; $run++) {
