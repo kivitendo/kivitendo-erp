@@ -106,6 +106,31 @@ my $r5 = $report->();
 
 is $r4->{qty}, $r5->{qty} - 6.2, 'full object transfer back';
 
+#############################################
+
+WH->transfer({
+   transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
+   parts            => $part,
+   src_bin          => $bin2,
+   src_warehouse    => $wh,
+   dst_bin          => $bin1,
+   dst_warehouse    => $wh,
+   qty              => 1,
+},
+{
+   transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
+   parts            => $part,
+   src_bin          => $bin1,
+   src_warehouse    => $wh,
+   dst_bin          => $bin2,
+   dst_warehouse    => $wh,
+   qty              => 1,
+});
+
+my $r6 = $report->();
+
+is $r5->{qty}, $r6->{qty}, 'back and forth in one transaction';
+
 done_testing;
 
 
