@@ -35,9 +35,19 @@ my $report = sub {
   return $result;
 };
 
-my $r1 = $report->();
+sub test (&@) {
+  my ($arg_sub, @transfers) = @_;
+  my $before = $report->();
 
-WH->transfer({
+  WH->transfer(@transfers);
+
+  my $after  = $report->();
+  my @args   = $arg_sub->($before, $after);
+
+  is $args[0], $args[1], $args[2];
+}
+
+test { shift->{qty}, shift->{qty} + 4, 'transfer one way' } {
    transfer_type    => 'transfer',
    parts_id         => $part->id,
    src_warehouse_id => $wh->id,
@@ -46,15 +56,11 @@ WH->transfer({
    dst_bin_id       => $bin2->id,
    qty              => 4,
    chargenumber     => '',
-});
-
-my $r2 = $report->();
-
-is $r1->{qty}, $r2->{qty} + 4, 'transfer one way';
+};
 
 #################################################
 
-WH->transfer({
+test { shift->{qty}, shift->{qty} - 4, 'and back' } {
    transfer_type    => 'transfer',
    parts_id         => $part->id,
    src_warehouse_id => $wh->id,
@@ -63,12 +69,7 @@ WH->transfer({
    dst_bin_id       => $bin1->id,
    qty              => 4,
    chargenumber     => '',
-});
-
-
-my $r3 = $report->();
-
-is $r2->{qty}, $r3->{qty} - 4, 'and back';
+};
 
 ##############################################
 
@@ -76,22 +77,18 @@ use_ok 'SL::DB::TransferType';
 
 # object interface test
 
-WH->transfer({
+test { shift->{qty}, shift->{qty} + 6.2, 'object transfer one way' } {
    transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
    parts            => $part,
    src_bin          => $bin1,
    dst_bin          => $bin2,
    qty              => 6.2,
    chargenumber     => '',
-});
-
-my $r4 = $report->();
-
-is $r3->{qty}, $r4->{qty} + 6.2, 'object transfer one way';
+};
 
 #############################################
 
-WH->transfer({
+test { shift->{qty}, shift->{qty} - 6.2, 'full object transfer back' } {
    transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
    parts            => $part,
    src_bin          => $bin2,
@@ -100,15 +97,11 @@ WH->transfer({
    dst_warehouse    => $wh,
    qty              => 6.2,
    chargenumber     => '',
-});
-
-my $r5 = $report->();
-
-is $r4->{qty}, $r5->{qty} - 6.2, 'full object transfer back';
+};
 
 #############################################
 
-WH->transfer({
+test { shift->{qty}, shift->{qty}, 'back and forth in one transaction' } {
    transfer_type    => SL::DB::Manager::TransferType->find_by(description => 'transfer'),
    parts            => $part,
    src_bin          => $bin2,
@@ -125,16 +118,9 @@ WH->transfer({
    dst_bin          => $bin2,
    dst_warehouse    => $wh,
    qty              => 1,
-});
+};
 
-my $r6 = $report->();
-
-is $r5->{qty}, $r6->{qty}, 'back and forth in one transaction';
 
 done_testing;
-
-
-
-
 
 1;
