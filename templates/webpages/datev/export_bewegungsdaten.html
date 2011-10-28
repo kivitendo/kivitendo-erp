@@ -1,0 +1,84 @@
+[%- USE T8 %]
+[%- USE L %]
+<body>
+
+<form method=post action="[% script %]">
+
+
+<table width=100%>
+  <tr>
+    <th class=listtop>[% 'DATEX - Export Assistent' | $T8 %]</th>
+  </tr>
+  <tr>
+    <th align=left>[% 'Zeitraum' | $T8 %]</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr valign=top>
+    <td>
+      <table>
+        <tr>
+          <td align=left><input checked name=zeitraum class=radio type=radio value=monat>&nbsp;</td>
+          <td align=left>[% 'Monat' | $T8 %]</td>
+          <td align=left></td>
+          <td align=left></td>
+          <td align=left><select name=monat>
+            <option value=1>[% 'January' | $T8 %]</option>
+            <option value=2>[% 'February' | $T8 %]</option>
+            <option value=3>[% 'March' | $T8 %]</option>
+            <option value=4>[% 'April' | $T8 %]</option>
+            <option value=5>[% 'May' | $T8 %]</option>
+            <option value=6>[% 'June' | $T8 %]</option>
+            <option value=7>[% 'July' | $T8 %]</option>
+            <option value=8>[% 'August' | $T8 %]</option>
+            <option value=9>[% 'September' | $T8 %]</option>
+            <option value=10>[% 'October' | $T8 %]</option>
+            <option value=11>[% 'November' | $T8 %]</option>
+            <option value=12>[% 'December' | $T8 %]</option>
+          </select></td>
+        </tr>
+        <tr>
+          <td align=left><input name=zeitraum class=radio type=radio value=quartal>&nbsp;</td>
+          <td align=left>[% 'Quartal' | $T8 %]</td>
+          <td align=left></td>
+          <td align=left></td>
+          <td align=left><select name=quartal>
+            <option selected value=1>[% 'I' | $T8 %]</option>
+            <option value=2>[% 'II' | $T8 %]</option>
+            <option value=3>[% 'III' | $T8 %]</option>
+            <option value=4>[% 'IV' | $T8 %]</option>
+          </select></td>
+        </tr>
+        <tr>
+          <td align=left><input name=zeitraum class=radio type=radio value=zeit>&nbsp;</td>
+          <td align=left>[% 'Datum von' | $T8 %]</td>
+          <td align=left>[% L.date_tag('transdatefrom') %]</td>
+          <td align=left>[% 'bis' | $T8 %]</td>
+          <td align=left>[% L.date_tag('transdateto') %]</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<input type=hidden name=beraternr value="[% beraternr %]">
+<input type=hidden name=dfvkz value="[% dfvkz %]">
+<input type=hidden name=beratername value="[% beratername %]">
+<input type=hidden name=passwort value="[% passwort %]">
+<input type=hidden name=mandantennr value="[% mandantennr %]">
+<input type=hidden name=datentraegernr value="[% datentraegernr %]">
+<input type=hidden name=kne value="[% kne %]">
+<input type=hidden name=abrechnungsnr value="[% abrechnungsnr %]">
+
+<input type=hidden name=exporttype value="[% exporttype %]">
+
+<input type=hidden name=nextsub value=export3>
+
+<br>
+<input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
+</form>
+
+</body>
+</html>
