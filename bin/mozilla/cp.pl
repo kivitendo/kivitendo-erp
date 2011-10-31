@@ -245,8 +245,28 @@ sub update {
   $form->{open} ='Y'; # nur die offenen rechnungen
   if ($form->{ARAP} eq 'AR'){
     AR->ar_transactions(\%myconfig, \%$form);
-    # den ersten treffen nehmen und mit dem namen überschreiben
-    $form->{$form->{vc}} = $form->{AR}[0]{name};
+
+    # if you search for invoice '11' ar_transactions will also match invoices
+    # 112, 211, ... due to the LIKE
+
+    # so there is now an extra loop that tries to match the invoice number
+    # exactly among all returned results, and then passes the customer_id instead of the name
+    # because the name may not be unique
+
+    my $found_exact_invnumber_match = 0;
+    foreach my $i ( @{ $form->{AR} } ) {
+      next unless $i->{invnumber} eq $form->{invnumber};
+      # found exactly matching invnumber
+      $form->{$form->{vc}} = $i->{name};
+      $form->{customer_id} = $i->{customer_id};
+      $found_exact_invnumber_match = 1;
+    };
+
+    unless ( $found_exact_invnumber_match ) {
+      # use first returned entry, may not be the correct one if invnumber doesn't match uniquely
+      $form->{$form->{vc}} = $form->{AR}[0]{name};
+      $form->{customer_id} = $form->{AR}[0]{customer_id};
+    };
   } else {
     # s.o. nur für zahlungsausgang
     AP->ap_transactions(\%myconfig, \%$form);
@@ -254,9 +274,16 @@ sub update {
     }
   }
   # get customer and invoices
-  $updated = &check_name($form->{vc});
+  $updated = &check_name($form->{vc}) unless $form->{customer_id};
+
+  if ( $form->{customer_id} ) {
+    # we already know the exact customer_id, fill $form with customer data
+    IS->get_customer(\%myconfig, \%$form);
+    $updated = 1;
+  };
 
   if ($new_name_selected || $updated) {
+    # get open invoices from ar/ap using $form->{vc} and a.${vc}_id
     CP->get_openinvoices(\%myconfig, \%$form);
     ($newvc) = split /--/, $form->{ $form->{vc} };
     $form->{"old$form->{vc}"} = qq|$newvc--$form->{"$form->{vc}_id"}|;
