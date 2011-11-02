@@ -125,10 +125,12 @@ sub substitute_vars {
 
   while ($text =~ /$self->{substitute_vars_re}/) {
     my ($tag_pos, $tag_len) = ($-[0], $+[0] - $-[0]);
-    my ($var, @options)     = split(/\s+/, $1);
+    my ($var, @option_list) = split(/\s+/, $1);
+    my %options             = map { ($_ => 1) } @option_list;
 
     my $value               = $self->_get_loop_variable($var, 0, @indices);
-    $value                  = $self->format_string($value) unless (grep(/^NOESCAPE$/, @options));
+    $value                  = $form->parse_amount({ numberformat => $::myconfig{output_numberformat} || $::myconfig{numberformat} }, $value) if     $options{NOFORMAT};
+    $value                  = $self->format_string($value)                                                                                   unless $options{NOESCAPE};
 
     substr($text, $tag_pos, $tag_len, $value);
   }
