@@ -2,6 +2,7 @@ package SL::DB::Object;
 
 use strict;
 
+use English qw(-no_match_vars);
 use Rose::DB::Object;
 use List::MoreUtils qw(any);
 
@@ -111,28 +112,40 @@ sub load {
 sub save {
   my ($self, @args) = @_;
 
-  my $result;
+  my ($result, $exception);
   my $worker = sub {
     SL::DB::Object::Hooks::run_hooks($self, 'before_save');
-    $result = $self->SUPER::save(@args);
+    $exception = $EVAL_ERROR unless eval {
+      $result = $self->SUPER::save(@args);
+      1;
+    };
     SL::DB::Object::Hooks::run_hooks($self, 'after_save', $result);
   };
 
   $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+
+  die $exception if $exception;
+
   return $result;
 }
 
 sub delete {
   my ($self, @args) = @_;
 
-  my $result;
+  my ($result, $exception);
   my $worker = sub {
     SL::DB::Object::Hooks::run_hooks($self, 'before_delete');
-    $result = $self->SUPER::delete(@args);
+    $exception = $EVAL_ERROR unless eval {
+      $result = $self->SUPER::delete(@args);
+      1;
+    };
     SL::DB::Object::Hooks::run_hooks($self, 'after_delete', $result);
   };
 
   $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+
+  die $exception if $exception;
+
   return $result;
 }
 
