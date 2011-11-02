@@ -48,6 +48,9 @@ td {
   <li><a href="dokumentenvorlagen-und-variablen.html#zuordnung_dateinamen">
     Zuordnung von Dateinamen zu den Funktionen</a></li>
 
+  <li><a href="#variablen_ausgeben">Variablen ausgeben</a>
+  </li>
+
   <li><a href="dokumentenvorlagen-und-variablen.html#tag_style">
     Anfang und Ende der Tags ver&auml;ndern</a></li>
 
@@ -187,6 +190,43 @@ td {
    <code>key</code>s sind verf&uuml;gbar.</li>
 
  </ol>
+
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="variablen_ausgeben">Variablen ausgeben</a></h2>
+
+ <p>Um eine Variable auszugeben, müssen sie einfach nur zwischen die
+  Tags geschrieben werden, also
+  z.B. <code>&lt;%variablenname%&gt;</code>.</p>
+
+ <p>
+  Optional kann man auch mit Leerzeichen getrennte Flags angeben, die
+  man aber nur selten brauchen wird. Die Syntax sieht also so
+  aus: <code>&lt;%variablenname FLAG1 FLAG2%&gt;</code>. Momentan werden
+  die folgenden Flags unterstützt:
+ </p>
+
+ <ul>
+  <li>
+   <code>NOFORMAT</code> gilt nur für Zahlenwerte und gibt den Wert
+   ohne Formatierung, also ohne Tausendertrennzeichen mit mit einem
+   Punkt als Dezimaltrennzeichen aus. Nützlich z.B., wenn damit in der
+   Vorlage z.B. von LaTeX gerechnet werden soll.
+  </li>
+
+  <li>
+   <code>NOESCAPE</code> unterdrückt das Escapen von Sonderzeichen für
+   die Vorlagensprache. Wenn also in einer Variablen bereits gültiger
+   LaTeX-Code steht und dieser von LaTeX auch ausgewertet und nicht
+   wortwörtlich angezeigt werden soll, so ist dieses Flag sinnvoll.
+  </li>
+ </ul>
+
+ <p>
+  Beispiel: <code class="blue">&lt;%quototal NOFORMAT%&gt;</code>
+ </p>
 
  <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
