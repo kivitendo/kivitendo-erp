@@ -44,7 +44,7 @@ sub make_cvar_accessor {
   my ($caller_package, %params) = @_;
 
   my @module_filter = $params{module} ?
-    ("config.module" => $params{module}) :
+    ("config_id" => [ \"(SELECT custom_variable_configs.id FROM custom_variable_configs WHERE custom_variable_configs.module = '$params{module}')" ]) :
     ();
 
   $caller_package->meta->add_relationships(
@@ -52,7 +52,6 @@ sub make_cvar_accessor {
       type         => 'one to many',
       class        => 'SL::DB::CustomVariable',
       column_map   => { ($params{id} || 'id') => 'trans_id' },
-      manager_args => { with_objects => 'config' },
       query_args   => [ sub_module => $params{sub_module}, @module_filter ],
     }
   );

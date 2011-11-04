@@ -1341,6 +1341,10 @@ sub print_form {
     $output_longdates = 1;
   }
 
+  # Store the output number format so that the template modules know
+  # how to parse the amounts back if requested.
+  $myconfig{output_numberformat} = $output_numberformat || $myconfig{numberformat};
+
   ($form->{employee}) = split /--/, $form->{employee};
 
   # create the form variables

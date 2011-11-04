@@ -168,6 +168,8 @@ sub test_and_import {
 
   my $worker = $self->create_worker($file);
   $worker->run;
+
+  $self->num_imported(0);
   $worker->save_objects if !$params{test};
 
   $self->num_importable(scalar grep { !$_ } map { scalar @{ $_->{errors} } } @{ $self->data || [] });
