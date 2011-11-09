@@ -427,6 +427,7 @@ sub ar_transactions {
     qq|  a.transaction_description, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  c.name, c.customernumber, c.country, c.ustid, b.description as customertype, | .
+    qq|  c.id as customer_id, | .
     qq|  e.name AS employee, | .
     qq|  e2.name AS salesman, | .
     qq|  tz.description AS taxzone, | .
