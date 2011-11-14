@@ -11,7 +11,7 @@
   <th>[%- LxERP.t8('Error') %]</th>
  </tr>
  [% FOREACH err = SELF.errors %]
-  <tr>
+  <tr class="listrow[% loop.count % 2 %]">
    <td>[% err.4 %]:[% err.3 %]</td>
    <td>[% err.0 %]</td>
    <td>[% err.2 %]</td>
