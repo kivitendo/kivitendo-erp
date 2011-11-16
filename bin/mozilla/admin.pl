@@ -431,16 +431,16 @@ sub edit_user_form {
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
-  @alldir = grep !/^(webpages|mastertemplates|\.svn)$/, @alldir;
+  @alldir = grep !/^(webpages|print|\.svn)$/, @alldir;
 
   $form->{ALL_TEMPLATES} = [ map { { "name", => $_, "selected" => $_ eq $myconfig->{templates} } } @alldir ];
 
   # mastertemplates
-  opendir TEMPLATEDIR, "$::lx_office_conf{paths}->{templates}/mastertemplates" or $form->error("$::lx_office_conf{paths}->{templates}/mastertemplates" . " : $ERRNO");
+  opendir TEMPLATEDIR, "$::lx_office_conf{paths}->{templates}/print" or $form->error("$::lx_office_conf{paths}->{templates}/print" . " : $ERRNO");
   my @allmaster = readdir(TEMPLATEDIR);
   closedir TEMPLATEDIR;
 
-  @allmaster  = sort grep { -d ("$::lx_office_conf{paths}->{templates}/mastertemplates" . "/$_") && !/^\.\.?$/ } @allmaster;
+  @allmaster  = sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ } @allmaster;
   @allmaster = reverse grep !/Default/, @allmaster;
   push @allmaster, 'Default';
   @allmaster = reverse @allmaster;
@@ -544,8 +544,8 @@ sub save_user {
       # copy templates to the directory
 
       my $oldcurrdir = getcwd();
-      if (!chdir("$::lx_office_conf{paths}->{templates}/mastertemplates/$form->{mastertemplates}")) {
-        $form->error("$ERRNO: chdir $::lx_office_conf{paths}->{templates}/mastertemplates/$form->{mastertemplates}");
+      if (!chdir("$::lx_office_conf{paths}->{templates}/print/$form->{mastertemplates}")) {
+        $form->error("$ERRNO: chdir $::lx_office_conf{paths}->{templates}/print/$form->{mastertemplates}");
       }
 
       my $newdir = File::Spec->catdir($oldcurrdir, $form->{templates});
