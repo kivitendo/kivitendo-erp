@@ -37,6 +37,9 @@ use Encode;
 use English qw(-no_match_vars);
 use Fcntl;
 use File::Copy;
+use File::Find;
+use File::Spec;
+use Cwd;
 use IO::File;
 use POSIX qw(strftime);
 use Sys::Hostname;
@@ -539,26 +542,40 @@ sub save_user {
       umask(007);
 
       # copy templates to the directory
-      my $templatedir = "$::lx_office_conf{paths}->{templates}/mastertemplates/$form->{mastertemplates}";
 
-      opendir TEMPLATEDIR, $templatedir or $form->error($templatedir . " : $ERRNO");
-      my @templates = grep /.*?\.(html|tex|sty|odt|xml|txb)$/,
-        readdir TEMPLATEDIR;
-      closedir TEMPLATEDIR;
-
-      foreach my $file (@templates) {
-        open(TEMP, "<", $templatedir . "/$file")
-          or $form->error($templatedir . "/$file : $ERRNO");
-
-        open(NEW, ">", "$form->{templates}/$file")
-          or $form->error("$form->{templates}/$file : $ERRNO");
-
-        while (my $line = <TEMP>) {
-          print NEW $line;
-        }
-        close(TEMP);
-        close(NEW);
+      my $oldcurrdir = getcwd();
+      if (!chdir("$::lx_office_conf{paths}->{templates}/mastertemplates/$form->{mastertemplates}")) {
+        $form->error("$ERRNO: chdir $::lx_office_conf{paths}->{templates}/mastertemplates/$form->{mastertemplates}");
       }
+
+      my $newdir = File::Spec->catdir($oldcurrdir, $form->{templates});
+
+      find(
+        sub
+        {
+          next if ($_ eq ".");
+
+          if (-d $_) {
+            if (!mkdir (File::Spec->catdir($newdir, $File::Find::name))) {
+              chdir($oldcurrdir);
+              $form->error("$ERRNO: mkdir $File::Find::name");
+            }
+          } elsif (-l $_) {
+            if (!symlink (readlink($_),
+                          File::Spec->catfile($newdir, $File::Find::name))) {
+              chdir($oldcurrdir);
+              $form->error("$ERRNO: symlink $File::Find::name");
+            }
+          } elsif (-f $_ && $_ =~ m/.*?\.(html|tex|sty|odt|xml|txb|eps|pdf|png|jpg)$/) {
+            if (!copy($_, File::Spec->catfile($newdir, $File::Find::name))) {
+              chdir($oldcurrdir);
+              $form->error("$ERRNO: cp $File::Find::name");
+            }
+          }
+        }, "./");
+
+      chdir($oldcurrdir);
+
     } else {
       $form->error("$ERRNO: $form->{templates}");
     }
