@@ -525,10 +525,24 @@ sub restore_session {
 
   $form   = $main::form;
 
-  $dbh    = $self->dbconnect();
+  # Don't fail if the auth DB doesn't yet.
+  if (!( $dbh = $self->dbconnect(1) )) {
+    $::lxdebug->leave_sub;
+    return SESSION_NONE;
+  }
+
+  # Don't fail if the "auth" schema doesn't exist yet, e.g. if the
+  # admin is creating the session tables at the moment.
   $query  = qq|SELECT *, (mtime < (now() - '$self->{session_timeout}m'::interval)) AS is_expired FROM auth.session WHERE id = ?|;
 
-  $cookie = selectfirst_hashref_query($form, $dbh, $query, $session_id);
+  if (!($sth = $dbh->prepare($query)) || !$sth->execute($session_id)) {
+    $sth->finish if $sth;
+    $::lxdebug->leave_sub;
+    return SESSION_NONE;
+  }
+
+  $cookie = $sth->fetchrow_hashref;
+  $sth->finish;
 
   if (!$cookie || $cookie->{is_expired} || ($cookie->{ip_address} ne $ENV{REMOTE_ADDR})) {
     $self->destroy_session();
@@ -703,7 +717,13 @@ sub save_session {
 
   $dbh->begin_work unless $provided_dbh;
 
-  do_query($::form, $dbh, qq|LOCK auth.session_content|);
+  # If this fails then the "auth" schema might not exist yet, e.g. if
+  # the admin is just trying to create the auth database.
+  if (!$dbh->do(qq|LOCK auth.session_content|)) {
+    $dbh->rollback unless $provided_dbh;
+    $::lxdebug->leave_sub;
+    return;
+  }
 
   my @unfetched_keys = map     { $_->{key}        }
                        grep    { ! $_->{fetched}  }

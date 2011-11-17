@@ -1343,7 +1343,7 @@ sub print_form {
 
   # Store the output number format so that the template modules know
   # how to parse the amounts back if requested.
-  $myconfig{output_numberformat} = $output_numberformat;
+  $myconfig{output_numberformat} = $output_numberformat || $myconfig{numberformat};
 
   ($form->{employee}) = split /--/, $form->{employee};
 
