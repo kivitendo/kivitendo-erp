@@ -145,6 +145,8 @@ Bestandteil einer Standard-Perl-Installation sind:
 
    * Email::Address
 
+   * JSON
+
    * List::MoreUtils
 
    * Params::Validate
@@ -175,6 +177,7 @@ Bestandteil einer Standard-Perl-Installation sind:
    Gegenüber Version 2.6.1 sind `parent', `DateTime', `Rose::Object',
 `Rose::DB' und `Rose::DB::Object' neu hinzugekommen. `IO::Wrap' wurde
 entfernt.
+   Gegenüber Version 2.6.3 ist `JSON` neu hinzugekommen. 
 
    `Email::Address' und `List::MoreUtils' sind schon länger feste
 Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert.  Beide
@@ -197,7 +200,7 @@ libpg-perl libemail-address-perl liblist-moreutils-perl
 libpdf-api2-perl librose-object-perl librose-db-perl
 librose-db-object-perl libtemplate-perl libtext-csv-xs-perl
 libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl
-libconfig-std-perl libparams-validate-perl'
+libconfig-std-perl libparams-validate-perl libjson-perl'
 
    Für Fedora Core benötigen Sie diese Pakete:
 
