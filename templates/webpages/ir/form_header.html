@@ -147,10 +147,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Credit Note Date' | $T8 %]</th>
-          <td nowrap>
-            <input name="invdate" id="invdate" size="11" title="[% dateformat %]" value="[% invdate %]" onBlur="check_right_date_format(this)">
-            <input type="button" name="invdate_button" id="trigger1" value="[% 'button' | $T8 %]">
-          </td>
+          <td>[% L.date_tag('invdate', invdate, onBlur='check_right_date_format(this)', cal_align='BL') %]</td>
         </tr>
 [%- ELSE %]
         <tr>
