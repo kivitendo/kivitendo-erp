@@ -297,10 +297,6 @@ sub form_header {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  my $set_duedate_url = "$form->{script}?action=set_duedate";
-
-  push @ { $form->{AJAX} }, new CGI::Ajax( 'set_duedate' => $set_duedate_url );
-
   my @old_project_ids = ($form->{"globalproject_id"});
   map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
 
