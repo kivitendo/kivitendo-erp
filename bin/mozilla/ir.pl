@@ -274,10 +274,6 @@ sub form_header {
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  my $set_duedate_url = "$form->{script}?action=set_duedate";
-
-  push @ { $form->{AJAX} }, new CGI::Ajax( 'set_duedate' => $set_duedate_url );
-
   my @old_project_ids = ($form->{"globalproject_id"});
   map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
 
@@ -820,14 +816,15 @@ sub yes {
   $main::lxdebug->leave_sub();
 }
 
-sub set_duedate_vendor {
-  $main::lxdebug->enter_sub();
+sub get_duedate_vendor {
+  $::lxdebug->enter_sub;
 
-  my $form     = $main::form;
+  my $result = IR->get_duedate(
+    vendor_id => $::form->{vendor_id},
+    invdate   => $::form->{invdate},
+    default   => $::form->{old_duedate},
+  );
 
-  print $form->ajax_response_header(), IR->get_duedate('vendor_id' => $form->{vendor_id},
-                                                       'invdate'   => $form->{invdate},
-                                                       'default'   => $form->{old_duedate});
-
-  $main::lxdebug->leave_sub();
+  print $::form->ajax_response_header, $result;
+  $::lxdebug->leave_sub;
 }
