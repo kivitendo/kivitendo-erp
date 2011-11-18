@@ -43,7 +43,6 @@ use SL::USTVA;
 use SL::Iconv;
 use SL::TODO;
 use SL::Printer;
-use CGI::Ajax;
 use CGI;
 
 require "bin/mozilla/common.pl";
@@ -495,15 +494,6 @@ sub list_account {
     $ca->{link_edit_account} = $link_edit_account . '&id=' . E($ca->{id});
   }
 
-  # Ajax
-  my $pjx = new CGI::Ajax('list_account_details' => build_std_url('action=list_account_details'));
-
-  # Eneable AJAX debuging
-  #$pjx->DEBUG(1);
-  #$pjx->JSDEBUG(1);
-
-  push(@ { $form->{AJAX} }, $pjx);
-
   $form->use_stylesheet("list_accounts.css");
   $form->{title}       = $locale->text('Chart of Accounts');
 
@@ -586,9 +576,8 @@ sub list_account_details {
   }
 
   $form->{title} = $locale->text('Chart of Accounts');
-  $form->header();
 
-  print $form->parse_html_template('am/list_account_details');
+  print $form->ajax_response_header, $form->parse_html_template('am/list_account_details');
 
   $main::lxdebug->leave_sub();
 
