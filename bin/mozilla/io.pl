@@ -38,7 +38,6 @@
 
 use Carp;
 use CGI;
-use CGI::Ajax;
 use List::Util qw(min max first);
 
 use SL::CVar;

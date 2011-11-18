@@ -40,7 +40,6 @@ package Form;
 use Data::Dumper;
 
 use CGI;
-use CGI::Ajax;
 use Cwd;
 use Encode;
 use File::Copy;

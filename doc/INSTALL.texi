@@ -140,8 +140,6 @@ Archive::Zip
 @item
 Class::Accessor
 @item
-CGI::Ajax
-@item
 Config::Std
 @item
 DateTime
@@ -189,9 +187,6 @@ Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert.  Beide sind auch
 in 2.6.1 weiterhin mit ausgeliefert, wurden in einer zukünftigen Version aber
 aus dem Paket entfernt werden. Es wird empfohlen diese Module zusammen mit den
 anderen als Bibliotheken zu installieren.
-
-@code{CGI::Ajax} ist nach wie vor in einer modifizierten Version mitgeliefert
-und braucht nicht nachinstalliert werden.
 
 Die zu installierenden Pakete können in den verschiedenen Distributionen unterschiedlich heißen.
 
