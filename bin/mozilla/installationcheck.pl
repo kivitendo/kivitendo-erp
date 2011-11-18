@@ -76,7 +76,7 @@ sub verify_installation {
         " " .
         $locale->text("Here's an example command line:") . qq|</p>
 
-  <p><code>perl -MCPAN -e &quot;install CGI::Ajax&quot;</code></p>
+  <p><code>perl -MCPAN -e &quot;install Config::Std&quot;</code></p>
 
   <p>| . $locale->text("The third way is to download the module from the " .
                        "above mentioned URL and to install the module " .
