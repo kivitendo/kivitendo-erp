@@ -172,7 +172,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Credit Note Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate, onBlur='check_right_date_format(this)', cal_align='BL') %]</td>
+          <td>[% L.date_tag('invdate', invdate, onBlur='check_right_date_format(this)', cal_align='BL', onChange='set_duedate()') %]</td>
         </tr>
 [%- ELSE %]
         <tr>
@@ -181,7 +181,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Invoice Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate, onBlur='check_right_date_format(this)', cal_align='BL') %]</td>
+          <td>[% L.date_tag('invdate', invdate, onBlur='check_right_date_format(this)', cal_align='BL', onChange='set_duedate()') %]</td>
         </tr>
         <tr>
           <th align="right">[% 'Due Date' | $T8 %]</th>
@@ -253,6 +253,17 @@
        setupDateFormat('[% dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
        setupPoints('[% numberformat %]', '[% 'wrongformat' | $T8 %]');
      });
+     function set_duedate() {
+       $.ajax({
+         url: 'is.pl?action=set_duedate',
+         data: {
+           invdate: $('#invdate').val(),
+           payment_id: $('#payment_id').val(),
+         },
+         dataType: 'text',
+         success: function (data) { $('#duedate').val(data); }
+       })
+     }
    //-->
   </script>
 
