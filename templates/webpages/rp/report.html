@@ -1,0 +1,352 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE T8 %]
+
+[%- BLOCK customized_report %]
+  <tr>
+    <th align=left><input name=reporttype class=radio type=radio value="custom" checked>[% 'Customized Report' | $T8 %]</th>
+  </tr>
+  <tr>
+    <th colspan=1>[% 'Year' | $T8 %]</th>
+    <td><input name=year size=11 title="[% 'YYYY' | $T8 %]" value="[% year %]"></td>
+  </tr>
+  <tr>
+    <td align=right> <b>[% 'Yearly' | $T8 %]</b> </td>
+    <th align=left>[% 'Quarterly' | $T8 %]</th>
+    <th align=left colspan=3>[% 'Monthly' | $T8 %]</th>
+  </tr>
+  <tr>
+    <td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13"></td>
+    <td><input name=duetyp class=radio type=radio value="A">&nbsp;1. [% 'Quarter' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="1" checked>&nbsp;[% 'January' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="5">&nbsp;[% 'May' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="9">&nbsp;[% 'September' | $T8 %]</td>
+  </tr>
+  <tr>
+    <td align= right>&nbsp;</td>
+    <td><input name=duetyp class=radio type=radio value="B">&nbsp;2. [% 'Quarter' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="2">&nbsp;[% 'February' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="6">&nbsp;[% 'June' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="10">&nbsp;[% 'October' | $T8 %]</td>
+  </tr>
+  <tr>
+    <td> &nbsp;</td>
+    <td><input name=duetyp class=radio type=radio value="C">&nbsp;3. [% 'Quarter' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="3">&nbsp;[% 'March' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="7">&nbsp;[% 'July' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="11">&nbsp;[% 'November' | $T8 %]</td>
+  </tr>
+  <tr>
+    <td> &nbsp;</td>
+    <td><input name=duetyp class=radio type=radio value="D">&nbsp;4. [% 'Quarter' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="4">&nbsp;[% 'April' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="8">&nbsp;[% 'August' | $T8 %]</td>
+    <td><input name=duetyp class=radio type=radio value="12">&nbsp;[% 'December' | $T8 %]</td>
+  </tr>
+  <tr>
+    <td colspan=5><hr size=3 noshade></td>
+  </tr>
+  <tr>
+    <th align=left><input name=reporttype class=radio type=radio value="free">[% 'Free report period' | $T8 %]</th>
+    <td align=left colspan=4>
+      [% 'From' | $T8 %] [% L.date_tag('fromdate', fromdate) %]
+      [% 'Bis' | $T8 %] [% L.date_tag('todate') %]
+    </td>
+  </tr>
+  <tr>
+    <td colspan=5><hr size=3 noshade></td>
+  </tr>
+[%- END %]
+[%- BLOCK cash_or_accrual %]
+  <tr>
+    <th align=leftt>[% 'Method' | $T8 %]</th>
+    <td colspan=3>
+      [% L.radio_button_tag('method', value='accrual', checked=accrual, label=LxERP.t8('Accrual')) %]
+      [% L.radio_button_tag('method', value='cash', checked=cash, label=LxERP.t8('EUR')) %]
+    </td>
+  </tr>
+[%- END %]
+[%- BLOCK projectnumber %]
+  <tr>
+    <th align=right nowrap>[% 'Project' | $T8 %]</th>
+    <td colspan=3>[% L.select_tag('project_id', L.options_for_select(ALL_PROJECTS, title='projectnumber', with_empty=1)) %]</td>
+  </tr>
+[%- END %]
+
+<body onLoad="[% onload %]">
+<h1>[% title %]</h1>
+
+<form method=post action='[% script %]'>
+
+<input type=hidden name=title value="[% title %]">
+
+<table border="0">
+[%- IF selectdepartment %]
+  <tr>
+    <th align=right nowrap>[% 'Department' | $T8 %]</th>
+    <td colspan=3><select name=department>[% selectdepartment %]</select></td>
+  </tr>
+[%- END %]
+
+[%- IF is_projects %]
+  <tr>
+    <th align=right nowrap>[% 'Project' | $T8 %]</th>
+    <td colspan=5><input name=projectnumber size=25</td>
+  </tr>
+  <input type=hidden name=nextsub value=generate_projects>
+  <tr>
+    <th align=right>[% 'as at' | $T8 %]</th>
+    <td> [% L.date_tag('fromdate', fromdate) %]</td>
+    <th align=right nowrap>[% 'Compare to' | $T8 %]</th>
+    <td>[% L.date_tag('todate') %]</td>
+  </tr>
+</table>
+<table>
+  <tr>
+    <th align=right nowrap>[% 'Include in Report' | $T8 %]</th>
+    <td><input name=l_heading class=checkbox type=checkbox value=Y>&nbsp;[% 'Heading' | $T8 %]
+    <input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;[% 'Subtotal' | $T8 %]</td>
+  </tr>
+[%- END %]
+
+[%- IF is_income_statement %]
+[%- PROCESS projectnumber %]
+  <input type=hidden name=nextsub value=generate_income_statement>
+</table>
+<table>
+[%- PROCESS customized_report %]
+[%- PROCESS cash_or_accrual %]
+[%- END %]
+
+[%- IF is_bwa %]
+[%- PROCESS projectnumber %]
+  <input type=hidden name=nextsub value=generate_bwa>
+</table>
+<table>
+[%- PROCESS customized_report %]
+[%- PROCESS cash_or_accrual %]
+  <tr>
+  <th align=right colspan=4>[% 'Decimalplaces' | $T8 %]</th>
+    <td><input name=decimalplaces size=3 value="2"></td>
+  </tr>
+[%- END %]
+
+[%- IF is_balance_sheet %]
+  <input type=hidden name=nextsub value=generate_balance_sheet>
+  <tr>
+    <th align=right>[% 'as at' | $T8 %]</th>
+    <td> [% L.date_tag('asofdate', asofdate) %]</td>
+    <th align=right nowrap>[% 'Compare to' | $T8 %]</th>
+    <td>[% L.date_tag('compareasofdate', compareasofdate) %]</td>
+  </tr>
+  <tr>
+    <th align=right>[% 'Decimalplaces' | $T8 %]</th>
+    <td><input name=decimalplaces size=3 value="2"></td>
+  </tr>
+</table>
+<table>
+[%- PROCESS cash_or_accrual %]
+  <tr>
+    <th align=right nowrap>[% 'Include in Report' | $T8 %]</th>
+    <td><input name=l_heading class=checkbox type=checkbox value=Y>&nbsp;[% 'Heading' | $T8 %]
+    <input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;[% 'Subtotal' | $T8 %]
+    <input name=l_accno class=checkbox type=checkbox value=Y>&nbsp;[% 'Account Number' | $T8 %]</td>
+  </tr>
+[%- END %]
+
+[%- IF is_trial_balance %]
+[%- PROCESS projectnumber %]
+  <input type=hidden name=nextsub value=generate_trial_balance>
+</table>
+<table>
+[%- PROCESS customized_report %]
+[%- PROCESS cash_or_accrual %]
+ <tr>
+   <th align=right colspan=4>[% 'All Accounts' | $T8 %]</th>
+   <td><input name=all_accounts type=checkbox value=1></td>
+ </tr>
+ <tr>
+   <th align=right colspan=4>[% 'Decimalplaces' | $T8 %]</th>
+   <td><input name=decimalplaces size=3 value="2"></td>
+ </tr>
+[%- END %]
+
+[%- IF is_aging %]
+  <tr>
+    <th align=right>[% label %]</th>
+    <td>[% vc %]</td>
+  </tr>
+  <tr>
+    <td>[% 'Review of Aging list' | $T8 %]</td>
+    <td><select name="review_of_aging_list">
+        <option></option>
+        <option>0-30</option>
+        <option>30-60</option>
+        <option>60-90</option>
+        <option>90-120</option>
+        <option>&gt; 120</option>
+        </select>
+    </td>
+  </tr>
+  <tr>
+    <td align=left colspan=4>
+      [% 'From' | $T8 %] [% L.date_tag('fromdate', fromdate) %]
+      [% 'Bis' | $T8 %] [% L.date_tag('todate') %]
+    </td>
+  </tr>
+  <input type=hidden name=type value=statement>
+  <input type=hidden name=format value=html>
+  <input type=hidden name=media value=screen>
+
+  <input type=hidden name=nextsub value='[% nextsub %]'>
+  <input type=hidden name=action value='[% nextsub %]'>
+[%- END %]
+
+[%- IF is_payments %]
+  <input type=hidden name=nextsub value=list_payments>
+  <tr>
+    <th align=right nowrap>[% 'Account' | $T8 %]</th>
+    <td colspan=3><select name=account>[% selection %]</select>
+      <input type=hidden name=paymentaccounts value="[% paymentaccounts %]">
+    </td>
+  </tr>
+  <tr>
+    <th align=right>[% 'Reference' | $T8 %]</th>
+    <td colspan=3><input name=reference></td>
+  </tr>
+  <tr>
+    <th align=right nowrap>[% 'Source' | $T8 %]</th>
+    <td colspan=3><input name=source></td>
+  </tr>
+  <tr>
+    <th align=right nowrap>[% 'Memo' | $T8 %]</th>
+    <td colspan=3><input name=memo size=30></td>
+  </tr>
+  <tr>
+    <th align=right>[% 'From' | $T8 %]</th>
+    <td>[% L.date_tag('fromdate', fromdate) %]</td>
+    <th align=right>[% 'Bis' | $T8 %]</th>
+    <td>[% L.date_tag('todate') %]</td>
+  </tr>
+  <tr>
+    <td align=right><input type=checkbox style=checkbox name=fx_transaction value=1 checked></td>
+    <th align=left colspan=3>[% 'Include Exchangerate Difference' | $T8 %]</td>
+  </tr>
+
+  <input type=hidden name=db value='[% db %]'>
+  <input type=hidden name=sort value=transdate>
+[%- END %]
+
+[%- IF 0 # is_taxreport %]
+  <input type=hidden name=nextsub value=generate_tax_report>
+  <tr>
+    <th align=right>[% 'From' | $T8 %]</th>
+    <td>[% L.date_tag('fromdate', fromdate) %]</td>
+    <th align=right>[% 'Bis' | $T8 %]</th>
+    <td>[% L.date_tag('todate', todate) %]</td>
+  </tr>
+  <tr>
+    <th align=right>[% 'Report for' | $T8 %]</th>
+    <td colspan=3>
+[% FOREACH row IN taxaccounts %]
+      <input name=accno class=radio type=radio value='[% row.accno %]' [% loop.first ? 'checked' : '' %]>&nbsp;[% row.description %]
+      <input name="[% row.accno %]_description" type=hidden value="[% row.description %]">
+      <input name="[% row.accno %]_rate" type=hidden value="[% row.rate %]">
+[%- END %]
+      <input type=hidden name=db value='[% db %]'>
+      <input type=hidden name=sort value=transdate>
+    </td>
+  </tr>
+[%- PROCESS cash_or_accrual %]
+</table>
+<table>
+  <tr>
+    <th align=right>[% 'Include in Report' | $T8 %]</th>
+    <td>
+      <table>
+        <tr>
+          <td><input name="l_id" class=checkbox type=checkbox value=Y></td>
+          <td>[% 'ID' | $T8 %]</td>
+          <td><input name="l_invnumber" class=checkbox type=checkbox value=Y checked></td>
+          <td>[% 'Invoice' | $T8 %]</td>
+          <td><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
+          <td>[% 'Date' | $T8 %]</td>
+        </tr>
+        <tr>
+          <td><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
+          <td>
+            [% LxERP.t8('Customer') IF db == 'ar' %]
+            [% LxERP.t8('Vendor')   IF db == 'ap' %]
+         </td>
+          <td><input name="l_netamount" class=checkbox type=checkbox value=Y checked></td>
+          <td>[% 'Amount' | $T8 %]</td>
+          <td><input name="l_tax" class=checkbox type=checkbox value=Y checked></td>
+          <td>[% 'Tax' | $T8 %]</td>
+          <td><input name="l_amount" class=checkbox type=checkbox value=Y></td>
+          <td>[% 'Total' | $T8 %]</td>
+        </tr>
+        <tr>
+          <td><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
+          <td>[% 'Subtotal' | $T8 %]</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+[%- END %]
+
+[%- IF 0 # is_nontaxable %]
+  <input type=hidden name=nextsub value=generate_tax_report>
+
+  <input type=hidden name=db value=[% db %]>
+  <input type=hidden name=sort value=transdate>
+  <input type=hidden name=report value='[% report %]'>
+
+  <tr>
+    <th align=right>[% 'From' | $T8 %]</th>
+    <td>[% L.date_tag('fromdate', fromdate) %]</td>
+    <th align=right>[% 'Bis' | $T8 %]</th>
+    <td>[% L.date_tag('todate', todate) %]</td>
+  </tr>
+[%- PROCESS cash_or_accrual %]
+  <tr>
+    <th align=right>[% 'Include in Report' | $T8 %]</th>
+    <td colspan=3>
+      <table>
+        <tr>
+          <td><input name="l_id" class=checkbox type=checkbox value=Y></td>
+          <td>[% 'ID' | $T8 %]</td>
+          <td><input name="l_invnumber" class=checkbox type=checkbox value=Y checked></td>
+          <td>[% 'Invoice' | $T8 %]</td>
+          <td><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
+          <td>[% 'Date' | $T8 %]</td>
+        </tr>
+        <tr>
+          <td><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
+          <td>
+            [% LxERP.t8('Customer') IF db == 'ar' %]
+            [% LxERP.t8('Vendor')   IF db == 'ap' %]
+       </td>
+          <td><input name="l_netamount" class=checkbox type=checkbox value=Y checked></td>
+          <td>[% 'Amount' | $T8 %]</td>
+          <td><input name="l_amount" class=checkbox type=checkbox value=Y></td>
+          <td>[% 'Total' | $T8 %]</td>
+        </tr>
+        <tr>
+          <td><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
+          <td>[% 'Subtotal' | $T8 %]</td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+[%- END %]
+</table>
+
+<hr size=3 noshade>
+<br>
+<input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
+
+</form>
+
+</body>
+</html>

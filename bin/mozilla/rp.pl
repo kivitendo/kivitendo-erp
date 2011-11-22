@@ -120,805 +120,107 @@ sub check_rp_access {
 }
 
 sub report {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
   check_rp_access();
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
   my %title = (
-            'balance_sheet'        => 'Balance Sheet',
-            'income_statement'     => 'Income Statement',
-            'trial_balance'        => 'Trial Balance',
-            'ar_aging'             => 'Search AR Aging',
-            'ap_aging'             => 'Search AP Aging',
-            'tax_collected'        => 'Tax collected',
-            'tax_paid'             => 'Tax paid',
-            'nontaxable_sales'     => 'Non-taxable Sales',
-            'nontaxable_purchases' => 'Non-taxable Purchases',
-            'receipts'             => 'Receipts',
-            'payments'             => 'Payments',
-            'projects'             => 'Project Transactions',
-            'bwa'                  => 'Business evaluation',
+    balance_sheet        => $::locale->text('Balance Sheet'),
+    income_statement     => $::locale->text('Income Statement'),
+    trial_balance        => $::locale->text('Trial Balance'),
+    ar_aging             => $::locale->text('Search AR Aging'),
+    ap_aging             => $::locale->text('Search AP Aging'),
+    tax_collected        => $::locale->text('Tax collected'),
+    tax_paid             => $::locale->text('Tax paid'),
+    nontaxable_sales     => $::locale->text('Non-taxable Sales'),
+    nontaxable_purchases => $::locale->text('Non-taxable Purchases'),
+    receipts             => $::locale->text('Receipts'),
+    payments             => $::locale->text('Payments'),
+    projects             => $::locale->text('Project Transactions'),
+    bwa                  => $::locale->text('Business evaluation'),
   );
 
-  $form->{title} = $locale->text($title{ $form->{report} });
-
-  my $accrual =  $::instance_conf->get_accounting_method eq 'cash' ? ""        : "checked";
-  my $cash    =  $::instance_conf->get_accounting_method eq 'cash' ? "checked" : "";
-
-  my $year = (localtime)[5] + 1900;
+  $::form->{title} = $title{$::form->{report}};
 
   # get departments
-  $form->all_departments(\%myconfig);
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-    map { $form->{selectdepartment} .= "<option>$_->{description}--$_->{id}\n" } @{ $form->{all_departments} || [] };
+  $::form->all_departments(\%::myconfig);
+  if (@{ $::form->{all_departments} || [] }) {
+    $::form->{selectdepartment} = "<option>\n";
+    map { $::form->{selectdepartment} .= "<option>$_->{description}--$_->{id}\n" } @{ $::form->{all_departments} || [] };
   }
 
-  my $department;
-  $department = qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-          <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-        </tr>
-| if $form->{selectdepartment};
+  $::form->get_lists("projects" => { "key" => "ALL_PROJECTS", "all" => 1 });
 
-  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 1 });
-
-  my %project_labels = ();
-  my @project_values = ("");
-  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
-    push(@project_values, $item->{"id"});
-    $project_labels{$item->{"id"}} = $item->{"projectnumber"};
-  }
-
-  my $projectnumber =
-    NTI($::request->{cgi}->popup_menu('-name' => "project_id",
-                               '-values' => \@project_values,
-                               '-labels' => \%project_labels));
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
-  my $jsscript = "";
-  my ( $name_1, $id_1, $value_1, $trigger_1, $name_2, $id_2, $value_2, $trigger_2, );
-  if ($form->{report} eq "balance_sheet") {
-    $name_1    = "asofdate";
-    $id_1      = "asofdate";
-    $value_1   = "$form->{asofdate}";
-    $trigger_1 = "trigger1";
-    $name_2    = "compareasofdate";
-    $id_2      = "compareasofdate";
-    $value_2   = "$form->{compareasofdate}";
-    $trigger_2 = "trigger2";
-  } elsif ($form->{report} =~ /(receipts|payments)$/) {
-    $name_1    = "fromdate";
-    $id_1      = "fromdate";
-    $value_1   = "$form->{fromdate}";
-    $trigger_1 = "trigger1";
-    $name_2    = "todate";
-    $id_2      = "todate";
-    $value_2   = "";
-    $trigger_2 = "trigger2";
-  } elsif (($form->{report} eq "ar_aging") || ($form->{report} eq "ap_aging")) {
-    $name_1    = "fromdate";
-    $id_1      = "fromdate";
-    $value_1   = "$form->{fromdate}";
-    $trigger_1 = "trigger1";
-    $name_2    = "todate";
-    $id_2      = "todate";
-    $value_2   = "";
-    $trigger_2 = "trigger2";
-
-  } else {
-    $name_1    = "fromdate";
-    $id_1      = "fromdate";
-    $value_1   = "$form->{fromdate}";
-    $trigger_1 = "trigger1";
-    $name_2    = "todate";
-    $id_2      = "todate";
-    $value_2   = "";
-    $trigger_2 = "trigger2";
-  }
-
-  my ($button1, $button1_2, $button2, $button2_2);
-  my $checked;
-
-  # with JavaScript Calendar
-  if ($form->{jsscript}) {
-    if ($name_1 eq "") {
-      $button1   = qq| <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
-      $button1_2 = qq| <input type=button name=$name_2 id="$trigger_2" value=| . $locale->text('button') . qq|>|;
-
-      #write Trigger
-      $jsscript = Form->write_trigger(\%myconfig, "1", "$name_2", "BR", "$trigger_2");
-    } else {
-      $button1   = qq| <input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" value="$value_1" onBlur=\"check_right_date_format(this)\">|;
-      $button1_2 = qq| <input type=button name=$name_1 id="$trigger_1" value=| . $locale->text('button') . qq|>|;
-      $button2   = qq| <input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
-      $button2_2 = qq| <input type=button name=$name_2 id="$trigger_2" value=| . $locale->text('button') . qq|> |;
-
-      #write Trigger
-      $jsscript = Form->write_trigger(\%myconfig, "2", "$name_1", "BR", "$trigger_1", "$name_2", "BL", "$trigger_2");
-    }
-  } else {
-
-    # without JavaScript Calendar
-    if ($name_1 eq "") {
-      $button1 = qq|<input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
-    } else {
-      $button1 = qq|<input name=$name_1 id=$id_1 size=11 title="$myconfig{dateformat}" value=$value_1 onBlur=\"check_right_date_format(this)\">|;
-      $button2 = qq|<input name=$name_2 id=$id_2 size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">|;
-    }
-  }
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
-  $form->header;
   my $onload = qq|focus()|;
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-  print qq|
-<body onLoad="$onload">
 
-<form method=post action=$form->{script}>
+  my $is_projects         = $::form->{report} eq "projects";
+  my $is_income_statement = $::form->{report} eq "income_statement";
+  my $is_bwa              = $::form->{report} eq "bwa";
+  my $is_balance_sheet    = $::form->{report} eq "balance_sheet";
+  my $is_trial_balance    = $::form->{report} eq "trial_balance";
+  my $is_taxreport        = $::form->{report} =~ /^tax_/;
+  my $is_nontaxable       = $::form->{report} =~ /^nontaxable_/;
+  my $is_aging            = $::form->{report} =~ /^a[rp]_aging$/;
+  my $is_payments         = $::form->{report} =~ /(receipts|payments)$/;
 
-<input type=hidden name=title value="$form->{title}">
-
-<table width=100% border="0">
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table border="0">
-      $department
-|;
-
-  if ($form->{report} eq "projects") {
-    print qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Project') . qq|</th>
-          <td colspan=5><input name=projectnumber size=25</td>
-        </tr>
-        <input type=hidden name=nextsub value=generate_projects>
-        <tr>
-          <th align=right>| . $locale->text('From') . qq|</th>
-          <td>$button1</td>
-          <td>$button1_2</td>
-          <th align=right>| . $locale->text('Bis') . qq|</th>
-          <td>$button2</td>
-          <td>$button2_2</td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Include in Report') . qq|</th>
-          <td><input name=l_heading class=checkbox type=checkbox value=Y>&nbsp;| . $locale->text('Heading') . qq|
-          <input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;| . $locale->text('Subtotal') . qq|</td>
-        </tr>
-
-$jsscript
-|;
-  }
-
-  if ($form->{report} eq "income_statement") {
-    print qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Project') . qq|</th>
-          <td colspan=3>$projectnumber</td>
-        </tr>
-        <input type=hidden name=nextsub value=generate_income_statement>
-</table>
-<table>
-        <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="custom" checked> | . $locale->text('Customized Report') . qq|</th>
-        </tr>
-        <tr>
-          <th colspan=1>| . $locale->text('Year') . qq|</th>
-          <td><input name=year size=11 title="| . $locale->text('YYYY') . qq|" value="$year"></td>
-        </tr>
-|;
-
-    print qq|
-        <tr>
-                <td align=right> <b> | . $locale->text('Yearly') . qq|</b> </td>
-                <th align=left>| . $locale->text('Quarterly') . qq|</th>
-                <th align=left colspan=3>| . $locale->text('Monthly') . qq|</th>
-        </tr>
-        <tr>
-                <td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13" "checked"></td>
-                <td><input name=duetyp class=radio type=radio value="A" $checked >&nbsp;1. | . $locale->text('Quarter') . qq|</td>
-|;
-    $checked = "";
-    print qq|
-                <td><input name=duetyp class=radio type=radio value="1" $checked >&nbsp;| . $locale->text('January') . qq|</td>
-|;
-    $checked = "";
-    print qq|
-                <td><input name=duetyp class=radio type=radio value="5" $checked >&nbsp;| . $locale->text('May') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="9" $checked >&nbsp;| . $locale->text('September') . qq|</td>
-
-        </tr>
-        <tr>
-                <td align= right>&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="B" $checked>&nbsp;2. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="2" $checked >&nbsp;| . $locale->text('February') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="6" $checked >&nbsp;| . $locale->text('June') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="10" $checked >&nbsp;| . $locale->text('October') . qq|</td>
-        </tr>
-        <tr>
-                <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="C" $checked>&nbsp;3. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="3" $checked >&nbsp;| . $locale->text('March') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="7" $checked >&nbsp;| . $locale->text('July') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="11" $checked >&nbsp;| . $locale->text('November') . qq|</td>
-
-        </tr>
-        <tr>
-                <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="D" $checked>&nbsp;4. | . $locale->text('Quarter') . qq|&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="4" $checked >&nbsp;| . $locale->text('April') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="8" $checked >&nbsp;| . $locale->text('August') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="12" $checked >&nbsp;| . $locale->text('December') . qq|</td>
-
-        </tr>
-        <tr>
-                   <td colspan=5><hr size=3 noshade></td>
-        </tr>
-        <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="free" $checked> | . $locale->text('Free report period') . qq|</th>
-          <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;
-              $button1
-              $button1_2&nbsp;
-              | . $locale->text('Bis') . qq|
-              $button2
-              $button2_2&nbsp;
-          </td>
-        </tr>
-        <tr>
-                   <td colspan=5><hr size=3 noshade></td>
-        </tr>
-        <tr>
-          <th align=leftt>| . $locale->text('Method') . qq|</th>
-          <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>| . $locale->text('Accrual') . qq|
-          &nbsp;<input name=method class=radio type=radio value=cash $cash>| . $locale->text('EUR') . qq|</td>
-        </tr>
-
-$jsscript
-|;
-  }
-
-  if ($form->{report} eq "bwa") {
-    print qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Project') . qq|</th>
-          <td colspan=3>$projectnumber</td>
-        </tr>
-        <input type=hidden name=nextsub value=generate_bwa>
-</table>
-<table>
-        <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="custom" checked> | . $locale->text('Customized Report') . qq|</th>
-        </tr>
-        <tr>
-          <th colspan=1>| . $locale->text('Year') . qq|</th>
-          <td><input name=year size=11 title="| . $locale->text('YYYY') . qq|" value="$year"></td>
-        </tr>
-|;
-
-    print qq|
-        <tr>
-                <td align=right> <b> | . $locale->text('Yearly') . qq|</b> </td>
-                <th align=left>| . $locale->text('Quarterly') . qq|</th>
-                <th align=left colspan=3>| . $locale->text('Monthly') . qq|</th>
-        </tr>
-        <tr>
-                <td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13"
-$checked></td>
-                <td><input name=duetyp class=radio type=radio value="A" $checked >&nbsp;1. | . $locale->text('Quarter') . qq|</td>
-|;
-    $checked = "checked";
-    print qq|
-                <td><input name=duetyp class=radio type=radio value="1" $checked >&nbsp;| . $locale->text('January') . qq|</td>
-|;
-    $checked = "";
-    print qq|
-                <td><input name=duetyp class=radio type=radio value="5" $checked >&nbsp;| . $locale->text('May') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="9" $checked >&nbsp;| . $locale->text('September') . qq|</td>
-
-        </tr>
-        <tr>
-                <td align= right>&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="B" $checked>&nbsp;2. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="2" $checked >&nbsp;| . $locale->text('February') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="6" $checked >&nbsp;| . $locale->text('June') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="10" $checked >&nbsp;| . $locale->text('October') . qq|</td>
-        </tr>
-        <tr>
-                <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="C" $checked>&nbsp;3. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="3" $checked >&nbsp;| . $locale->text('March') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="7" $checked >&nbsp;| . $locale->text('July') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="11" $checked >&nbsp;| . $locale->text('November') . qq|</td>
-
-        </tr>
-        <tr>
-                <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="D" $checked>&nbsp;4. | . $locale->text('Quarter') . qq|&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="4" $checked >&nbsp;| . $locale->text('April') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="8" $checked >&nbsp;| . $locale->text('August') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="12" $checked >&nbsp;| . $locale->text('December') . qq|</td>
-
-        </tr>
-        <tr>
-                   <td colspan=5><hr size=3 noshade></td>
-        </tr>
-        <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="free" $checked> | . $locale->text('Free report period') . qq|</th>
-          <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;
-              $button1
-              $button1_2&nbsp;
-              | . $locale->text('Bis') . qq|&nbsp;
-              $button2
-              $button2_2
-          </td>
-        </tr>
-        <tr>
-                   <td colspan=5><hr size=3 noshade></td>
-        </tr>
-        <tr>
-          <th align=leftt>| . $locale->text('Method') . qq|</th>
-          <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>| . $locale->text('Accrual') . qq|
-          &nbsp;<input name=method class=radio type=radio value=cash $cash>| . $locale->text('EUR') . qq|</td>
-        </tr>
-        <tr>
-         <th align=right colspan=4>| . $locale->text('Decimalplaces') . qq|</th>
-             <td><input name=decimalplaces size=3 value="2"></td>
-         </tr>
-
-$jsscript
-|;
-  }
-
-  if ($form->{report} eq "balance_sheet") {
-    print qq|
-        <input type=hidden name=nextsub value=generate_balance_sheet>
-        <tr>
-          <th align=right>| . $locale->text('as at') . qq|</th>
-          <td>
-            $button1
-            $button1_2
-          </td>
-          <th align=right nowrap>| . $locale->text('Compare to') . qq|</th>
-          <td>
-          $button2
-          $button2_2
-          </td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Decimalplaces') . qq|</th>
-          <td><input name=decimalplaces size=3 value="2"></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right>| . $locale->text('Method') . qq|</th>
-          <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>| . $locale->text('Accrual') . qq|
-          &nbsp;<input name=method class=radio type=radio value=cash $cash>| . $locale->text('EUR') . qq|</td>
-        </tr>
-
-        <tr>
-          <th align=right nowrap>| . $locale->text('Include in Report') . qq|</th>
-          <td><input name=l_heading class=checkbox type=checkbox value=Y>&nbsp;| . $locale->text('Heading') . qq|
-          <input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;| . $locale->text('Subtotal') . qq|
-          <input name=l_accno class=checkbox type=checkbox value=Y>&nbsp;| . $locale->text('Account Number') . qq|</td>
-        </tr>
-
-$jsscript
-|;
-  }
-
-  if ($form->{report} eq "trial_balance") {
-    print qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Project') . qq|</th>
-          <td colspan=3>$projectnumber</td>
-        </tr>
-        <input type=hidden name=nextsub value=generate_trial_balance>
-</table>
-<table>
-        <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="custom" checked> | . $locale->text('Customized Report') . qq|</th>
-        </tr>
-        <tr>
-          <th colspan=1>| . $locale->text('Year') . qq|</th>
-          <td><input name=year size=11 title="| . $locale->text('YYYY') . qq|" value="$year"></td>
-        </tr>
-|;
-
-    print qq|
-        <tr>
-                <td align=right> <b> | . $locale->text('Yearly') . qq|</b> </td>
-                <th align=left>| . $locale->text('Quarterly') . qq|</th>
-                <th align=left colspan=3>| . $locale->text('Monthly') . qq|</th>
-        </tr>
-        <tr>
-                <td align=right>&nbsp; <input name=duetyp class=radio type=radio value="13" $checked></td>
-                <td><input name=duetyp class=radio type=radio value="A" $checked >&nbsp;1. | . $locale->text('Quarter') . qq|</td>
-|;
-    $checked = "checked";
-    print qq|
-                <td><input name=duetyp class=radio type=radio value="1" $checked >&nbsp;| . $locale->text('January') . qq|</td>
-|;
-    $checked = "";
-    print qq|
-                <td><input name=duetyp class=radio type=radio value="5" $checked >&nbsp;| . $locale->text('May') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="9" $checked >&nbsp;| . $locale->text('September') . qq|</td>
-
-        </tr>
-        <tr>
-                <td align= right>&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="B" $checked>&nbsp;2. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="2" $checked >&nbsp;| . $locale->text('February') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="6" $checked >&nbsp;| . $locale->text('June') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="10" $checked >&nbsp;| . $locale->text('October') . qq|</td>
-        </tr>
-        <tr>
-                <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="C" $checked>&nbsp;3. | . $locale->text('Quarter') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="3" $checked >&nbsp;| . $locale->text('March') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="7" $checked >&nbsp;| . $locale->text('July') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="11" $checked >&nbsp;| . $locale->text('November') . qq|</td>
-
-        </tr>
-        <tr>
-                <td> &nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="D" $checked>&nbsp;4. | . $locale->text('Quarter') . qq|&nbsp;</td>
-                <td><input name=duetyp class=radio type=radio value="4" $checked >&nbsp;| . $locale->text('April') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="8" $checked >&nbsp;| . $locale->text('August') . qq|</td>
-                <td><input name=duetyp class=radio type=radio value="12" $checked >&nbsp;| . $locale->text('December') . qq|</td>
-
-        </tr>
-        <tr>
-                   <td colspan=5><hr size=3 noshade></td>
-        </tr>
-        <tr>
-          <th align=left><input name=reporttype class=radio type=radio value="free" $checked> | . $locale->text('Free report period') . qq|</th>
-          <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;
-              $button1
-              $button1_2&nbsp;
-              | . $locale->text('Bis') . qq|&nbsp;
-              $button2
-              $button2_2
-          </td>
-        </tr>
-        <tr>
-                   <td colspan=5><hr size=3 noshade></td>
-        </tr>
-        <tr>
-          <th align=leftt>| . $locale->text('Method') . qq|</th>
-          <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>| . $locale->text('Accrual') . qq|
-          &nbsp;<input name=method class=radio type=radio value=cash $cash>| . $locale->text('EUR') . qq|</td>
-        </tr>
-       <tr>
-         <th align=right colspan=4>| . $locale->text('All Accounts') . qq|</th>
-             <td><input name=all_accounts type=checkbox value=1></td>
-         </tr>
-        <tr>
-         <th align=right colspan=4>| . $locale->text('Decimalplaces') . qq|</th>
-             <td><input name=decimalplaces size=3 value="2"></td>
-         </tr>
-
-$jsscript
-|;
-  }
-
-  if ($form->{report} =~ /^tax_/) {
-    $form->{db} = ($form->{report} =~ /_collected/) ? "ar" : "ap";
-
-    RP->get_taxaccounts(\%myconfig, \%$form);
-
-    print qq|
-        <input type=hidden name=nextsub value=generate_tax_report>
-        <tr>
-          <th align=right>| . $locale->text('From') . qq|</th>
-          <td><input name=fromdate size=11 title="$myconfig{dateformat}" value=$form->{fromdate}></td>
-          <th align=right>| . $locale->text('Bis') . qq|</th>
-          <td><input name=todate size=11 title="$myconfig{dateformat}"></td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Report for') . qq|</th>
-          <td colspan=3>
-|;
-
-    $checked = "checked";
-    foreach my $ref (@{ $form->{taxaccounts} }) {
-
-      print
-        qq|<input name=accno class=radio type=radio value=$ref->{accno} $checked>&nbsp;$ref->{description}
-
-    <input name="$ref->{accno}_description" type=hidden value="$ref->{description}">
-    <input name="$ref->{accno}_rate" type=hidden value="$ref->{rate}">|;
-
-      $checked = "";
-
-    }
-
-    print qq|
-  <input type=hidden name=db value=$form->{db}>
-  <input type=hidden name=sort value=transdate>
-
-          </td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Method') . qq|</th>
-          <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>| . $locale->text('Accrual') . qq|
-          &nbsp;<input name=method class=radio type=radio value=cash $cash>| . $locale->text('EUR') . qq|</td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right>| . $locale->text('Include in Report') . qq|</th>
-          <td>
-            <table>
-              <tr>
-                <td><input name="l_id" class=checkbox type=checkbox value=Y></td>
-                <td>| . $locale->text('ID') . qq|</td>
-                <td><input name="l_invnumber" class=checkbox type=checkbox value=Y checked></td>
-                <td>| . $locale->text('Invoice') . qq|</td>
-                <td><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-                <td>| . $locale->text('Date') . qq|</td>
-              </tr>
-              <tr>
-                <td><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
-                <td>|;
-
-    if ($form->{db} eq 'ar') {
-      print $locale->text('Customer');
-    }
-    if ($form->{db} eq 'ap') {
-      print $locale->text('Vendor');
-    }
-
-    print qq|</td>
-                <td><input name="l_netamount" class=checkbox type=checkbox value=Y checked></td>
-                <td>| . $locale->text('Amount') . qq|</td>
-                <td><input name="l_tax" class=checkbox type=checkbox value=Y checked></td>
-                <td>| . $locale->text('Tax') . qq|</td>
-                <td><input name="l_amount" class=checkbox type=checkbox value=Y></td>
-                <td>| . $locale->text('Total') . qq|</td>
-              </tr>
-              <tr>
-                <td><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
-                <td>| . $locale->text('Subtotal') . qq|</td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-|;
-
-  }
-
-  if ($form->{report} =~ /^nontaxable_/) {
-    $form->{db} = ($form->{report} =~ /_sales/) ? "ar" : "ap";
-
-    print qq|
-        <input type=hidden name=nextsub value=generate_tax_report>
-
-        <input type=hidden name=db value=$form->{db}>
-        <input type=hidden name=sort value=transdate>
-        <input type=hidden name=report value=$form->{report}>
-
-        <tr>
-          <th align=right>| . $locale->text('From') . qq|</th>
-          <td><input name=fromdate size=11 title="$myconfig{dateformat}" value=$form->{fromdate}></td>
-          <th align=right>| . $locale->text('Bis') . qq|</th>
-          <td><input name=todate size=11 title="$myconfig{dateformat}"></td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Method') . qq|</th>
-          <td colspan=3><input name=method class=radio type=radio value=accrual $accrual>|
-      . $locale->text('Accrual') . qq|
-          &nbsp;<input name=method class=radio type=radio value=cash $cash>|
-      . $locale->text('EUR') . qq|</td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Include in Report') . qq|</th>
-          <td colspan=3>
-            <table>
-              <tr>
-                <td><input name="l_id" class=checkbox type=checkbox value=Y></td>
-                <td>| . $locale->text('ID') . qq|</td>
-                <td><input name="l_invnumber" class=checkbox type=checkbox value=Y checked></td>
-                <td>| . $locale->text('Invoice') . qq|</td>
-                <td><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-                <td>| . $locale->text('Date') . qq|</td>
-              </tr>
-              <tr>
-                <td><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
-                <td>|;
-
-    if ($form->{db} eq 'ar') {
-      print $locale->text('Customer');
-    }
-    if ($form->{db} eq 'ap') {
-      print $locale->text('Vendor');
-    }
-
-    print qq|</td>
-                <td><input name="l_netamount" class=checkbox type=checkbox value=Y checked></td>
-                <td>| . $locale->text('Amount') . qq|</td>
-                <td><input name="l_amount" class=checkbox type=checkbox value=Y></td>
-                <td>| . $locale->text('Total') . qq|</td>
-              </tr>
-              <tr>
-                <td><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
-                <td>| . $locale->text('Subtotal') . qq|</td>
-              </tr>
-            </table>
-          </td>
-        </tr>
-|;
-
-  }
+#  if (is_taxreport) {
+#    $::form->{db} = ($::form->{report} =~ /_collected/) ? "ar" : "ap";
+#    RP->get_taxaccounts(\%::myconfig, $::form);
+#  }
+#
+#  if ($is_nontaxable) {
+#    $::form->{db} = ($::form->{report} =~ /_sales/) ? "ar" : "ap";
+#  }
 
   my ($label, $nextsub, $vc);
-  if (($form->{report} eq "ar_aging") || ($form->{report} eq "ap_aging")) {
-    if ($form->{report} eq 'ar_aging') {
-      $label = $locale->text('Customer');
-      $form->{vc} = 'customer';
-    } else {
-      $label = $locale->text('Vendor');
-      $form->{vc} = 'vendor';
-    }
+  if ($is_aging) {
+    my $is_sales  = $::form->{report} eq 'ar_aging';
+    $label        = $is_sales ? $::locale->text('Customer') : $::locale->text('Vendor');
+    $::form->{vc} = $is_sales ? 'customer' : 'vendor';
 
-    $nextsub = "generate_$form->{report}";
+    $nextsub = "generate_$::form->{report}";
 
     # setup vc selection
-    $form->all_vc(\%myconfig, $form->{vc},
-                  ($form->{vc} eq 'customer') ? "AR" : "AP");
-
-    map { $vc .= "<option>$_->{name}--$_->{id}\n" }
-      @{ $form->{"all_$form->{vc}"} };
-
-    $vc =
-      ($vc)
-      ? qq|<select name=$form->{vc}><option>\n$vc</select>|
-      : qq|<input name=$form->{vc} size=35>|;
-
-    print qq|
-        <tr>
-          <th align=right>| . $locale->text($label) . qq|</th>
-          <td>$vc</td>
-        </tr>
-        <tr>
-          <td>| . $locale->text('Review of Aging list') . qq|</td>
-          <td><select name="review_of_aging_list">
-              <option></option>
-              <option>0-30</option>
-              <option>30-60</option>
-              <option>60-90</option>
-              <option>90-120</option>
-              <option>> 120</option>
-              </select>
-          </td>
-        </tr>
-        <tr>
-          <td align=left colspan=4>| . $locale->text('From') . qq|&nbsp;
-              $button1
-              $button1_2&nbsp;
-              | . $locale->text('Bis') . qq|&nbsp;
-              $button2
-              $button2_2
-          </td>
-        </tr>
-        <input type=hidden name=type value=statement>
-        <input type=hidden name=format value=html>
-        <input type=hidden name=media value=screen>
-
-        <input type=hidden name=nextsub value=$nextsub>
-        <input type=hidden name=action value=$nextsub>
-
-$jsscript
-|;
+    $::form->all_vc(\%::myconfig, $::form->{vc}, $is_sales ? "AR" : "AP");
+    $vc .= "<option>$_->{name}--$_->{id}\n" for @{ $::form->{"all_$::form->{vc}"} };
+    $vc = ($vc)
+        ? qq|<select name=$::form->{vc}><option>\n$vc</select>|
+        : qq|<input name=$::form->{vc} size=35>|;
   }
 
-  # above action can be removed if there is more than one input field
-
   my ($selection, $paymentaccounts);
-  if ($form->{report} =~ /(receipts|payments)$/) {
-    $form->{db} = ($form->{report} =~ /payments$/) ? "ap" : "ar";
+  if ($is_payments) {
+    $::form->{db} = $::form->{report} =~ /payments$/ ? "ap" : "ar";
 
-    RP->paymentaccounts(\%myconfig, \%$form);
+    RP->paymentaccounts(\%::myconfig, $::form);
 
     $selection = "<option>\n";
-    foreach my $ref (@{ $form->{PR} }) {
+    for my $ref (@{ $::form->{PR} }) {
       $paymentaccounts .= "$ref->{accno} ";
       $selection       .= "<option>$ref->{accno}--$ref->{description}\n";
     }
-
-    chop $paymentaccounts;
-
-    print qq|
-        <input type=hidden name=nextsub value=list_payments>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Account') . qq|</th>
-          <td colspan=3><select name=account>$selection</select>
-            <input type=hidden name=paymentaccounts value="$paymentaccounts">
-          </td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Reference') . qq|</th>
-          <td colspan=3><input name=reference></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Source') . qq|</th>
-          <td colspan=3><input name=source></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Memo') . qq|</th>
-          <td colspan=3><input name=memo size=30></td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('From') . qq|</th>
-          <td>
-            $button1
-            $button1_2
-          </td>
-          <th align=right>| . $locale->text('Bis') . qq|</th>
-          <td>
-            $button2
-            $button2_2
-          </td>
-        </tr>
-        <tr>
-          <td align=right><input type=checkbox style=checkbox name=fx_transaction value=1 checked></td>
-          <th align=left colspan=3>| . $locale->text('Include Exchangerate Difference') . qq|</td>
-        </tr>
-
-$jsscript
-
-          <input type=hidden name=db value=$form->{db}>
-          <input type=hidden name=sort value=transdate>
-|;
-
   }
 
-  print qq|
+  $::form->header;
+  print $::form->parse_html_template('rp/report', {
+    paymentaccounts     => $paymentaccounts,
+    selection           => $selection,
+    is_aging            => $is_aging,
+    vc                  => $vc,
+    label               => $label,
+    year                => DateTime->today->year,
+    onload              => $onload,
+    accrual             => $::instance_conf->get_accounting_method ne 'cash',
+    cash                => $::instance_conf->get_accounting_method eq 'cash',
+    is_payments         => $is_payments,
+    is_trial_balance    => $is_trial_balance,
+    is_balance_sheet    => $is_balance_sheet,
+    is_bwa              => $is_bwa,
+    is_income_statement => $is_income_statement,
+    is_projects         => $is_projects,
+  });
 
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<input type=submit class=submit name=action value="| . $locale->text('Continue') . qq|">
-
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub continue { call_sub($main::form->{"nextsub"}); }
