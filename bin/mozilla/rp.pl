@@ -1738,79 +1738,28 @@ sub list_payments {
 }
 
 sub print_options {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
   my ($dont_print) = @_;
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  $::form->{sendmode} = "attachment";
+  $::form->{format} ||= $::myconfig{template_format} || "pdf";
+  $::form->{copies} ||= $::myconfig{copies}          || 2;
 
-  $form->{sendmode} = "attachment";
+  $::form->{PD}{ $::form->{type} }     = "selected";
+  $::form->{DF}{ $::form->{format} }   = "selected";
+  $::form->{OP}{ $::form->{media} }    = "selected";
+  $::form->{SM}{ $::form->{sendmode} } = "selected";
 
-  $form->{"format"} =
-    $form->{"format"} ? $form->{"format"} :
-    $myconfig{"template_format"} ? $myconfig{"template_format"} :
-    "pdf";
-
-  $form->{"copies"} =
-    $form->{"copies"} ? $form->{"copies"} :
-    $myconfig{"copies"} ? $myconfig{"copies"} :
-    2;
-
-  $form->{PD}{ $form->{type} }     = "selected";
-  $form->{DF}{ $form->{format} }   = "selected";
-  $form->{OP}{ $form->{media} }    = "selected";
-  $form->{SM}{ $form->{sendmode} } = "selected";
-
-  my ($media);
-  my $type = qq|
-            <option value=statement $form->{PD}{statement}>| . $locale->text('Statement');
-
-  if ($form->{media} eq 'email') {
-    $media = qq|
-            <option value=attachment $form->{SM}{attachment}>| . $locale->text('Attachment') . qq|
-            <option value=inline $form->{SM}{inline}>| . $locale->text('In-line');
-  } else {
-    $media = qq|
-            <option value=screen $form->{OP}{screen}>| . $locale->text('Screen');
-    if ($myconfig{printer} && $::lx_office_conf{print_templates}->{latex}) {
-      $media .= qq|
-            <option value=printer $form->{OP}{printer}>| . $locale->text('Printer');
-    }
-  }
-
-  my $format;
-  if ($::lx_office_conf{print_templates}->{latex}) {
-    $format .= qq|
-            <option value=html $form->{DF}{html}>| . $locale->text('HTML')
-      . qq| <option value=pdf $form->{DF}{pdf}>| . $locale->text('PDF')
-      . qq| <option value=postscript $form->{DF}{postscript}>| . $locale->text('Postscript');
-  }
-
-  my $output = qq|
-<table>
-  <tr>
-    <td><select name=type>$type</select></td>
-    <td><select name=format>$format</select></td>
-    <td><select name=media>$media</select></td>
-|;
-
-  if ($myconfig{printer} && $::lx_office_conf{print_templates}->{latex} && $form->{media} ne 'email') {
-    $output .= qq|
-      <td>| . $locale->text('Copies') . qq|
-      <input name=copies size=2 value=$form->{copies}></td>
-|;
-  }
-
-  $output .= qq|
-  </tr>
-</table>
-|;
+  my $output = $::form->parse_html_template('rp/print_options', {
+    got_printer => $::myconfig{printer},
+    show_latex  => $::lx_office_conf{print_templates}->{latex},
+    is_email    => $::form->{media} eq 'email',
+  });
 
   print $output unless $dont_print;
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 
   return $output;
 }
