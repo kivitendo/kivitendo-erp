@@ -951,7 +951,7 @@ sub edit_e_mail {
                                      subject       => $subject,
                                      print_options => print_options('inline' => 1),
                                      HIDDEN        => [ map +{ name => $_, value => $form->{$_} }, @hidden_keys ],
-                                     SHOW_BCC      => $myconfig{role} eq 'admin' });
+                                     SHOW_BCC      => $::auth->assert('email_bcc', 'may fail') });
 
   $main::lxdebug->leave_sub();
 }

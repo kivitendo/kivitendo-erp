@@ -321,7 +321,6 @@ sub form_header {
 
   $form->{ALL_SALESMEN}   = $form->{ALL_EMPLOYEES};
   $form->{taxincluded}    = ($form->{taxincluded}) ? "checked" : "";
-  $form->{is_admin}       = $myconfig{role} eq 'admin';
   $form->{is_customer}    = $form->{db}     eq 'customer';
   $form->{salesman_label} = sub { $_[0]->{name} ne "" ? $_[0]->{name} : $_[0]->{login} };
   $form->{shipto_label}   = \&_shipto_label;

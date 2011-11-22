@@ -752,7 +752,7 @@ sub config_vars {
   my @conf = qw(address admin businessnumber company countrycode
     currency dateformat dbconnect dbdriver dbhost dbport dboptions
     dbname dbuser dbpasswd email fax name numberformat password
-    printer role sid signature stylesheet tel templates vclimit angebote
+    printer sid signature stylesheet tel templates vclimit angebote
     bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen
     taxnumber co_ustid duns menustyle template_format default_media
     default_printer_id copies show_form_details favorites
