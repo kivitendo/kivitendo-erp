@@ -965,7 +965,9 @@ sub prepare_template_filename {
     }
 
     $filename .= "." . ($form->{format} eq "html" ? "html" : "tex");
-    $filename =~ s|.*/||;
+    if ($form->{"formname"} =~ m|\.\.| || $form->{"formname"} =~ m|^/|) {
+      $filename =~ s|.*/||;
+    }
     $display_filename = $filename;
     $filename = "$myconfig->{templates}/$filename";
   }

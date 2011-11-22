@@ -31,6 +31,8 @@
 #
 #======================================================================
 
+use File::Find;
+
 use SL::AM;
 use SL::Form;
 
@@ -113,7 +115,10 @@ sub display_template_form {
 
   $main::auth->assert('config');
 
-  $form->{"formname"} =~ s|.*/||;
+  if ($form->{"formname"} =~ m|\.\.| || $form->{"formname"} =~ m|^/|) {
+    $form->{"formname"} =~ s|.*/||;
+  }
+
   my $format = $form->{"format"} eq "html" ? "html" : "tex";
 
   $form->{"title"} = $form->{"type"} eq "stylesheet" ? $locale->text("Edit the stylesheet") : $locale->text("Edit templates");
@@ -186,6 +191,36 @@ sub display_template_form {
     }
 
     @values = sort({ $a->{"label"} cmp $b->{"label"} } @values);
+
+    #
+    # at the end: others/includes for tex
+    #
+    if ($format eq "tex") {
+      # search all .tex-files in template dir (recursively)
+      my @all_files;
+      find(
+        sub {
+          next if (-l $_ || -d $_);
+          next unless (-f $_ && $_ =~ m/.*?\.tex$/);
+
+          my $fname = $File::Find::name;
+          # remove template dir from name
+          $fname =~ s|^$myconfig{templates}/||;
+          # remove .tex from name
+          $fname =~ s|.tex$||;
+
+          push(@all_files, $fname);
+
+          }, $myconfig{templates});
+
+      # filter all files already set up (i.e. not already in @values)
+      my @other_files = grep { my $a=$_; not grep {$a eq $_->{value}} @values } @all_files;
+
+      # add other tex files
+      foreach my $o (@other_files) {
+        push(@values, { "value" => $o, "label" => $locale->text("Others")." ($o)" });
+      }
+    }
 
     $options{FORMNAME} = [ @values ];
 
