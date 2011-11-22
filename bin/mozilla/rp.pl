@@ -210,6 +210,7 @@ sub report {
     label               => $label,
     year                => DateTime->today->year,
     onload              => $onload,
+    nextsub             => $nextsub,
     accrual             => $::instance_conf->get_accounting_method ne 'cash',
     cash                => $::instance_conf->get_accounting_method eq 'cash',
     is_payments         => $is_payments,
