@@ -1106,116 +1106,39 @@ sub select_all {
 }
 
 sub e_mail {
-  $main::lxdebug->enter_sub();
-
-  $main::auth->assert('general_ledger');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  $::lxdebug->enter_sub;
+  $::auth->assert('general_ledger');
 
   # get name and email addresses
   my $selected = 0;
-  for my $i (1 .. $form->{rowcount}) {
-    if ($form->{"statement_$i"}) {
-      $form->{"$form->{ct}_id"} = $form->{"$form->{ct}_id_$i"};
-      RP->get_customer(\%myconfig, \%$form);
-      $selected = 1;
-      last;
-    }
+  for my $i (1 .. $::form->{rowcount}) {
+    next unless $::form->{"statement_$i"};
+    $::form->{"$::form->{ct}_id"} = $::form->{"$::form->{ct}_id_$i"};
+    RP->get_customer(\%::myconfig, $::form);
+    $selected = 1;
+    last;
   }
 
-  $form->error($locale->text('Nothing selected!')) unless $selected;
+  $::form->error($::locale->text('Nothing selected!')) unless $selected;
 
-  my $bcc = '';
-  if ($myconfig{role} eq 'admin') {
-    $bcc = qq|
-          <th align=right nowrap=true>| . $locale->text('Bcc') . qq|</th>
-          <td><input name=bcc size=30 value="$form->{bcc}"></td>
-|;
-  }
-
-  my $title = $locale->text('E-mail Statement to') . " $form->{$form->{ct}}";
-
-  $form->{media} = "email";
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=$form->{script}>
-
-<table width=100%>
-  <tr class=listtop>
-    <th>$title</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr>
-          <th align=right nowrap>| . $locale->text('E-mail') . qq|</th>
-          <td><input name=email size=30 value="$form->{email}"></td>
-          <th align=right nowrap>| . $locale->text('Cc') . qq|</th>
-          <td><input name=cc size=30 value="$form->{cc}"></td>
-        </tr>
-        <tr>
-          <th align=right nowrap>| . $locale->text('Subject') . qq|</th>
-          <td><input name=subject size=30 value="$form->{subject}"></td>
-          $bcc
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr>
-          <th align=left nowrap>| . $locale->text('Message') . qq|</th>
-        </tr>
-        <tr>
-          <td><textarea name=message rows=15 cols=60 wrap=soft>$form->{message}</textarea></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td>
-|;
-
-  &print_options;
-
-  map { delete $form->{$_} }
-    qw(action email cc bcc subject message type sendmode format header);
+  $::form->{media} = "email";
 
   # save all other variables
-  foreach my $key (keys %$form) {
-    next if (($key eq 'login') || ($key eq 'password') || ('' ne ref $form->{$key}));
-    $form->{$key} =~ s/\"/&quot;/g;
-    print qq|<input type=hidden name=$key value="$form->{$key}">\n|;
+  my @hidden_values;
+  for my $key (keys %$::form) {
+    next if any { $key eq $_ } qw(login password action email cc bcc subject message type sendmode format header);
+    next unless '' eq ref $::form->{$key};
+    push @hidden_values, $key;
   }
 
-  print qq|
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
+  $::form->header;
+  print $::form->parse_html_template('rp/e_mail', {
+    show_bcc      => $::auth->assert('email_bcc', 'may fail'),
+    print_options => print_options(inline => 1),
+    hidden_values => \@hidden_values,
+  });
 
-<input type=hidden name=nextsub value=send_email>
-
-<br>
-<input name=action class=submit type=submit value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub send_email {
