@@ -1386,8 +1386,8 @@ sub generate_tax_report {
 
   # if there are any dates
   if ($::form->{fromdate} || $::form->{todate}) {
-    my $fromdate = $::locale->date(\%::myconfig, $::form->{fromdate}, 1) if $::form->{fromdate};
-    my $todate   = $::locale->date(\%::myconfig, $::form->{todate}, 1)   if $::form->{todate};
+    my $fromdate = $::form->{fromdate} ? $::locale->date(\%::myconfig, $::form->{fromdate}, 1) : '';
+    my $todate   = $::form->{todate}   ? $::locale->date(\%::myconfig, $::form->{todate}, 1)   : '';
     push @options, "$fromdate - $todate";
   } else {
     push @options, $::locale->date(\%::myconfig, $::form->current_date, 1);
