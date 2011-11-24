@@ -1307,7 +1307,7 @@ sub get_taxaccounts {
        FROM chart c, tax t
        WHERE (c.link LIKE '%CT_tax%') AND (c.id = t.chart_id)
        ORDER BY c.accno|;
-  $form->{taxaccounts} = selectall_hashref_quert($form, $dbh, $query);
+  $form->{taxaccounts} = selectall_hashref_query($form, $dbh, $query);
 
   $dbh->disconnect;
 
