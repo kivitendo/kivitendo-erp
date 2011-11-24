@@ -1349,259 +1349,138 @@ sub statement_details {
 }
 
 sub generate_tax_report {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('report');
 
-  $main::auth->assert('report');
+  RP->tax_report(\%::myconfig, $::form);
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  RP->tax_report(\%myconfig, \%$form);
-
-  my $descvar     = "$form->{accno}_description";
-  my $description = $form->escape($form->{$descvar});
-  my $ratevar     = "$form->{accno}_rate";
+  my $descvar     = "$::form->{accno}_description";
   my ($subtotalnetamount, $subtotaltax, $subtotal) = (0, 0, 0);
 
-  my $department = $form->escape($form->{department});
-
   # construct href
-  my $href =
-    "$form->{script}?&action=generate_tax_report&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&report=$form->{report}";
+  my $href     =
+  my $callback = build_std_url('action=generate_tax_report', $descvar,
+    qw(fromdate todate db method accno department report title));
 
-  # construct callback
-  $description = $form->escape($form->{$descvar},   1);
-  $department  = $form->escape($form->{department}, 1);
-  my $callback    =
-    "$form->{script}?&action=generate_tax_report&fromdate=$form->{fromdate}&todate=$form->{todate}&db=$form->{db}&method=$form->{method}&accno=$form->{accno}&$descvar=$description&department=$department&report=$form->{report}";
-
-  my $title = $form->escape($form->{title});
-  $href .= "&title=$title";
-  $title = $form->escape($form->{title}, 1);
-  $callback .= "&title=$title";
-
-  $form->{title} = qq|$form->{title} $form->{"$form->{accno}_description"} |;
-
-  my @columns =
-    $form->sort_columns(qw(id transdate invnumber name netamount tax amount));
+  my @columns = $::form->sort_columns(qw(id transdate invnumber name netamount tax amount));
   my @column_index;
 
-  foreach my $item (@columns) {
-    if ($form->{"l_$item"} eq "Y") {
-      push @column_index, $item;
-
-      # add column to href and callback
+  for my $item (@columns, 'subtotal') {
+    if ($::form->{"l_$item"} eq "Y") {
       $callback .= "&l_$item=Y";
       $href     .= "&l_$item=Y";
     }
   }
 
-  if ($form->{l_subtotal} eq 'Y') {
-    $callback .= "&l_subtotal=Y";
-    $href     .= "&l_subtotal=Y";
+  for my $item (@columns) {
+    if ($::form->{"l_$item"} eq "Y") {
+      push @column_index, $item;
+    }
   }
 
-  my $option;
-  if ($form->{department}) {
-    ($department) = split /--/, $form->{department};
-    $option = $locale->text('Department') . " : $department";
+  my @options;
+  if ($::form->{department}) {
+    my ($department) = split /--/, $::form->{department};
+    push @options, $::locale->text('Department') . " : $department";
   }
 
-  my ($fromdate, $todate);
   # if there are any dates
-  if ($form->{fromdate} || $form->{todate}) {
-    if ($form->{fromdate}) {
-      $fromdate = $locale->date(\%myconfig, $form->{fromdate}, 1);
-    }
-    if ($form->{todate}) {
-      $todate = $locale->date(\%myconfig, $form->{todate}, 1);
-    }
-
-    $form->{period} = "$fromdate - $todate";
+  if ($::form->{fromdate} || $::form->{todate}) {
+    my $fromdate = $::locale->date(\%::myconfig, $::form->{fromdate}, 1) if $::form->{fromdate};
+    my $todate   = $::locale->date(\%::myconfig, $::form->{todate}, 1)   if $::form->{todate};
+    push @options, "$fromdate - $todate";
   } else {
-    $form->{period} =
-      $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
+    push @options, $::locale->date(\%::myconfig, $::form->current_date, 1);
   }
 
   my ($name, $invoice, $arap);
-  if ($form->{db} eq 'ar') {
-    $name    = $locale->text('Customer');
+  if ($::form->{db} eq 'ar') {
+    $name    = $::locale->text('Customer');
     $invoice = 'is.pl';
     $arap    = 'ar.pl';
   }
-  if ($form->{db} eq 'ap') {
-    $name    = $locale->text('Vendor');
+  if ($::form->{db} eq 'ap') {
+    $name    = $::locale->text('Vendor');
     $invoice = 'ir.pl';
     $arap    = 'ap.pl';
   }
 
-  $option .= "<br>" if $option;
-  $option .= "$form->{period}";
+  my %column_header = (
+    id        => $::locale->text('ID'),
+    invnumber => $::locale->text('Invoice'),
+    transdate => $::locale->text('Date'),
+    netamount => $::locale->text('Amount'),
+    tax       => $::locale->text('Tax'),
+    amount    => $::locale->text('Total'),
+    name      => $name,
+  );
 
-  my %column_header;
-  $column_header{id}        = qq|<th><a class=listheading href=$href&sort=id>| . $locale->text('ID') . qq|</th>|;
-  $column_header{invnumber} = qq|<th><a class=listheading href=$href&sort=invnumber>| . $locale->text('Invoice') . qq|</th>|;
-  $column_header{transdate} = qq|<th><a class=listheading href=$href&sort=transdate>| . $locale->text('Date') . qq|</th>|;
-  $column_header{netamount} = qq|<th class=listheading>| . $locale->text('Amount') . qq|</th>|;
-  $column_header{tax}       = qq|<th class=listheading>| . $locale->text('Tax') . qq|</th>|;
-  $column_header{amount}    = qq|<th class=listheading>| . $locale->text('Total') . qq|</th>|;
+  my %column_sorted = map { $_ => 1 } qw(id invnumber transdate);
 
-  $column_header{name}      = qq|<th><a class=listheading href=$href&sort=name>$name</th>|;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>$option</td>
-  </tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  # add sort and escape callback
-  $callback = $form->escape($callback . "&sort=$form->{sort}");
+  $callback .= "&sort=$::form->{sort}";
 
   my $sameitem;
-  if (@{ $form->{TR} }) {
-    $sameitem = $form->{TR}->[0]->{ $form->{sort} };
+  if (@{ $::form->{TR} }) {
+    $sameitem = $::form->{TR}->[0]->{ $::form->{sort} };
   }
 
-  my ($totalnetamount, $totaltax);
-  my ($i);
-  foreach my $ref (@{ $form->{TR} }) {
+  my ($totalnetamount, $totaltax, @data);
+  for my $ref (@{ $::form->{TR} }) {
 
     my $module = ($ref->{invoice}) ? $invoice : $arap;
 
-    if ($form->{l_subtotal} eq 'Y') {
-      if ($sameitem ne $ref->{ $form->{sort} }) {
-        tax_subtotal(\@column_index, \$subtotalnetamount, \$subtotaltax, \$subtotal);
-        $sameitem = $ref->{ $form->{sort} };
+    if ($::form->{l_subtotal} eq 'Y') {
+      if ($sameitem ne $ref->{ $::form->{sort} }) {
+        push @data, {
+          subtotal  => 1,
+          netamount => $subtotalnetamount,
+          tax       => $subtotaltax,
+          amount    => $subtotal,
+        };
+        $subtotalnetamount = 0;
+        $subtotaltax       = 0;
+        $sameitem          = $ref->{ $::form->{sort} };
       }
     }
 
-    $totalnetamount += $ref->{netamount};
-    $totaltax       += $ref->{tax};
-    $ref->{amount} = $ref->{netamount} + $ref->{tax};
-
     $subtotalnetamount += $ref->{netamount};
     $subtotaltax       += $ref->{tax};
+    $totalnetamount    += $ref->{netamount};
+    $totaltax          += $ref->{tax};
+    $ref->{amount}      = $ref->{netamount} + $ref->{tax};
 
-    map {
-      $ref->{$_} = $form->format_amount(\%myconfig, $ref->{$_}, 2, "&nbsp;");
-    } qw(netamount tax amount);
-
-    my %column_data;
-    $column_data{id}        = qq|<td>$ref->{id}</td>|;
-    $column_data{invnumber} =
-      qq|<td><a href=$module?action=edit&id=$ref->{id}&callback=$callback>$ref->{invnumber}</a></td>|;
-    $column_data{transdate} = qq|<td>$ref->{transdate}</td>|;
-    $column_data{name}      = qq|<td>$ref->{name}&nbsp;</td>|;
-
-    map { $column_data{$_} = qq|<td align=right>$ref->{$_}</td>| }
-      qw(netamount tax amount);
-
-    $i++;
-    $i %= 2;
-    print qq|
-        <tr class=listrow$i>
-|;
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-        </tr>
-|;
-
+    push @data, { map { $_ => { data => $ref->{$_} } } keys %$ref };
+    $data[-1]{invnumber}{link} = "$module?action=edit&id=$ref->{id}&callback=$callback";
+    $data[-1]{$_}{numeric}     = 1 for qw(netamount tax amount);
   }
 
-  if ($form->{l_subtotal} eq 'Y') {
-    tax_subtotal(\@column_index, \$subtotalnetamount, \$subtotaltax, \$subtotal);
+  if ($::form->{l_subtotal} eq 'Y') {
+    push @data, {
+      subtotal  => 1,
+      netamount => $subtotalnetamount,
+      tax       => $subtotaltax,
+      amount    => $subtotal,
+    };
   }
 
-  my %column_data;
-  map { $column_data{$_} = qq|<th>&nbsp;</th>| } @column_index;
+  push @data, {
+    total     => 1,
+    netamount => $totalnetamount,
+    tax       => $totaltax,
+    amount    => $totalnetamount + $totaltax,
+  };
 
-  print qq|
-        </tr>
-        <tr class=listtotal>
-|;
+  $::form->header;
+  print $::form->parse_html_template('rp/tax_report', {
+    column_index  => \@column_index,
+    column_header => \%column_header,
+    column_sorted => \%column_sorted,
+    sort_base     => $href,
+    DATA          => \@data,
+    options       => \@options,
+  });
 
-  my $total          = $form->format_amount(\%myconfig, $totalnetamount + $totaltax, 2, "&nbsp;");
-  $totalnetamount = $form->format_amount(\%myconfig, $totalnetamount, 2, "&nbsp;");
-  $totaltax       = $form->format_amount(\%myconfig, $totaltax, 2, "&nbsp;");
-
-  $column_data{netamount} = qq|<th class=listtotal align=right>$totalnetamount</th>|;
-  $column_data{tax}    = qq|<th class=listtotal align=right>$totaltax</th>|;
-  $column_data{amount} = qq|<th class=listtotal align=right>$total</th>|;
-
-  map { print "$column_data{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub tax_subtotal {
-  $main::lxdebug->enter_sub();
-
-  my ($column_index, $subtotalnetamount, $subtotaltax, $subtotal) = @_;
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  my %column_data;
-  map { $column_data{$_} = "<td>&nbsp;</td>" } @{ $column_index };
-
-  $$subtotalnetamount = $form->format_amount(\%myconfig, $$subtotalnetamount, 2, "&nbsp;");
-  $$subtotaltax       = $form->format_amount(\%myconfig, $$subtotaltax, 2, "&nbsp;");
-  $$subtotal          = $form->format_amount(\%myconfig, $$subtotalnetamount + $$subtotaltax, 2, "&nbsp;");
-
-  $column_data{netamount} = "<th class=listsubtotal align=right>$$subtotalnetamount</th>";
-  $column_data{tax}       = "<th class=listsubtotal align=right>$$subtotaltax</th>";
-  $column_data{amount}    = "<th class=listsubtotal align=right>$$subtotal</th>";
-
-  $$subtotalnetamount = 0;
-  $$subtotaltax       = 0;
-
-  print qq|
-        <tr class=listsubtotal>
-|;
-  map { print "\n$column_data{$_}" } @{ $column_index };
-
-  print qq|
-        </tr>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub list_payments {
