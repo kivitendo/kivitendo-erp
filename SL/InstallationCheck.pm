@@ -11,9 +11,7 @@ BEGIN {
 @required_modules = (
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
   { name => "Archive::Zip",    version => '1.16',  url => "http://search.cpan.org/~adamk/",     debian => 'libarchive-zip-perl' },
-  { name => "Class::Accessor", version => '0.30',  url => "http://search.cpan.org/~kasei/",     debian => 'libclass-accessor-perl' },
   { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
-  { name => "CGI::Ajax",       version => '0.697', url => "http://search.cpan.org/~bct/" }, # no debian package, ours contains bugfixes
   { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-perl' },
   { name => "DBI",             version => '1.50',  url => "http://search.cpan.org/~timb/",      debian => 'libdbi-perl' },
   { name => "DBD::Pg",         version => '1.49',  url => "http://search.cpan.org/~dbdpg/",     debian => 'libdbd-pg' },

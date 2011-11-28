@@ -1766,9 +1766,11 @@ sub poso {
   map { delete $form->{$_} } qw(id subject message cc bcc printed emailed queued customer vendor creditlimit creditremaining discount tradediscount oldinvtotal delivered ordnumber);
 
   # if purchase_order was generated from sales_order, use  lastcost_$i as sellprice_$i
+  # also reset discounts
   if ( $form->{sales_order_to_purchase_order} ) {
     for my $i (1 .. $form->{rowcount}) {
       $form->{"sellprice_${i}"} = $form->format_amount(\%myconfig,$form->{"lastcost_${i}"});
+      $form->{"discount_${i}"}  = 0;
     };
   };
 

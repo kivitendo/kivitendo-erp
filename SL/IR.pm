@@ -1464,38 +1464,26 @@ sub post_payment {
 }
 
 sub get_duedate {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
-  my $self     = shift;
-  my %params   = @_;
+  my ($self, %params) = @_;
 
   if (!$params{vendor_id} || !$params{invdate}) {
-    $main::lxdebug->leave_sub();
+    $::lxdebug->leave_sub;
     return $params{default};
   }
 
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
-
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
-
+  my $dbh      = $::form->get_standard_dbh;
   my $query    = qq|SELECT ?::date + pt.terms_netto
                     FROM vendor v
                     LEFT JOIN payment_terms pt ON (pt.id = v.payment_id)
                     WHERE v.id = ?|;
 
-  my ($sth, $duedate);
-
-  if (($sth = $dbh->prepare($query)) && $sth->execute($params{invdate}, conv_i($params{vendor_id}))) {
-    ($duedate) = $sth->fetchrow_array();
-    $sth->finish();
-  } else {
-    $dbh->rollback();
-  }
+  my ($duedate) = selectfirst_array_query($::form, $dbh, $query, $params{invdate}, $params{vendor_id});
 
   $duedate ||= $params{default};
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 
   return $duedate;
 }

@@ -34,7 +34,6 @@
 #######################################################################
 
 use CGI;
-use CGI::Ajax;
 use List::Util qw(max);
 
 use SL::Common;

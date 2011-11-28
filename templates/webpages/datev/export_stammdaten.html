@@ -1,0 +1,49 @@
+[%- USE T8 %]
+<body>
+
+<form method=post action="[% script %]">
+<table width=100%>
+  <tr>
+    <th class=listtop>[% 'DATEX - Export Assistent' | $T8 %]</th>
+  </tr>
+  <tr>
+    <th align=left>[% 'Konten' | $T8 %]</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr valign=top>
+    <td>
+      <table>
+        <tr>
+          <td align=left>[% 'Von Konto: ' | $T8 %]</td>
+          <td align=left><input name=accnofrom size=8 maxlength=8></td>
+        </tr>
+        <tr>
+          <td align=left>[% 'Bis Konto: ' | $T8 %]</td>
+          <td align=left><input name=accnoto size=8 maxlength=8></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td><hr size=3 noshade></td>
+  </tr>
+</table>
+<input type=hidden name=beraternr value="[% beraternr %]">
+<input type=hidden name=dfvkz value="[% dfvkz %]">
+<input type=hidden name=beratername value="[% beratername %]">
+<input type=hidden name=passwort value="[% passwort %]">
+<input type=hidden name=mandantennr value="[% mandantennr %]">
+<input type=hidden name=datentraegernr value="[% datentraegernr %]">
+<input type=hidden name=kne value="[% kne %]">
+<input type=hidden name=abrechnungsnr value="[% abrechnungsnr %]">
+
+<input type=hidden name=exporttype value="[% exporttype %]">
+
+<input type=hidden name=nextsub value=export3>
+
+<br>
+<input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
+</form>
+
+</body>
+</html>
