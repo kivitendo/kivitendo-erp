@@ -16,7 +16,7 @@ set -e
 DAEMON="/opt/lx-office/scripts/task_server.pl"
 TOPIC="Lx-Office task server"
 
-if [ ! -x $APACHE_HTTPD ] ; then
+if [ ! -x $DAEMON ] ; then
   echo "$TOPIC executable not found"
   exit 1
 fi
