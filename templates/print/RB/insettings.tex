@@ -1,0 +1,96 @@
+% Sprachüberprüfung
+\IfSubStringInString{\_EN}{\lxtmpfile}{\input{english.tex}}{
+  \IfSubStringInString{\_DE}{\lxtmpfile}{\input{deutsch.tex}}{\input{deutsch.tex}}
+} % Ende EN
+
+
+% Mandanten-/Firmenabhängigkeiten
+
+% Pfad zu firmenspez. Angaben
+\IfSubStringInString{Firma1}{\lxcompany}{\newcommand{\identpath}{firma1}}{
+  \IfSubStringInString{Firma2}{\lxcompany}{\newcommand{\identpath}{firma2}}
+    {\newcommand{\identpath}{firma}} % sonst
+} % Ende Firma1
+
+% Identität
+\input{\identpath/ident.tex}
+
+% Währungen/Konten
+\IfSubStringInString{USD}{\lxcurrency}{\input{\identpath/usd_account.tex}}{
+  \IfSubStringInString{EUR}{\lxcurrency}{\input{\identpath/euro_account.tex}}{\input{\identpath/euro_account.tex}}
+} % Ende USD
+
+% Briefkopf, Logo oder Briefpapier
+%% \IfSubStringInString{mail}{\lxmedia}{    % nur bei Mail
+  % Grafik als Briefkopf
+  %%\setlength{\wpYoffset}{380pt} % Verschiebung von der Mitte nach oben
+  \setlength{\wpYoffset}{130mm} % Verschiebung von der Mitte nach oben
+  \CenterWallPaper{0.75}{\identpath/briefkopf.png} % mit Skalierung
+
+  % oder nur ein Logo oben rechts
+  %% \setlength{\wpXoffset}{180pt} % Verschiebung von der Mitte nach rechts
+  %% \setlength{\wpYoffset}{380pt} % Verschiebung von der Mitte nach oben
+  %% \CenterWallPaper{0.1}{\identpath/logo.png} % mit Skalierung
+
+  % oder ganzer Briefbogen als Hintergrund
+  %% \CenterWallPaper{1}{\identpath/briefbogen.pdf}
+%% }
+
+
+% keine Absätze nach rechts einrücken
+\setlength\parindent{0pt}
+
+% Papierformat, Ränder, usw.
+\geometry{
+        a4paper,      % DINA4
+        %% left=19mm,    % Linker Rand
+        %% width=142mm,  % Textbreite
+        top=49mm,     % Abstand Textanfang von oben
+        head=5mm,     % Höhe des Kopfes
+        headsep=12mm, % Abstand Kopf zu Textanfang
+        bottom=25mm,  % Abstand von unten
+        %% showframe,    % Rahmen zum Debuggen anzeigen
+}
+
+
+% Befehl f. normale Schriftart und -größe
+\newcommand{\ourfont}{\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont}
+
+
+% Einstellungen f. Kopf und Fuss
+\pagestyle{scrheadings}
+\clearscrheadfoot
+%\setheadwidth[20mm]{page} % Kopfzeile nach rechts verschieben
+%\setfootwidth[-39mm]{page} % Fusszeile verschieben
+
+% Befehl f. laufende Kopfzeile:
+% 1. Text f. Kunden- oder Lieferantennummer (oder leer, wenn diese nicht ausgegeben werden soll)
+% 2. Kunden- oder Lieferantennummer (oder leer)
+% 3. Belegname {oder leer}
+% 4. Belegnummer {oder leer}
+% 5. Belegdatum {oder leer}
+% Beispiel: \ourhead{\kundennummer}{<%customernumber%>}{\angebot}{<%quonumber%>}{<%quodate%>}
+\newcommand{\ourhead}[5] {
+\chead{
+  \ifthenelse{\equal{\thepage}{1}}
+    {}% then
+    {\normalfont\fontfamily{cmss}\scriptsize
+      \ifthenelse{\equal{#1}{}}{}{#1: #2 \hspace{0.7cm}}{}
+      #3
+      \ifthenelse{\equal{#4}{}}{}{~\nr: #4}
+      \ifthenelse{\equal{#5}{}}{}{\vom ~ #5}
+      \hspace{0.7cm} - \seite ~ \thepage/\pageref{LastPage} ~- }
+}%ende chead
+}
+
+% Firmenfuss
+\cfoot{
+  {\normalfont\fontfamily{cmss} \tiny
+     \begin{tabular}{p{5cm}p{4.5cm}lr}
+        \firma    & \email              & \textKontonummer & \kontonummer \\
+        \strasse  & \homepage           & \textBank        & \bank \\
+        \ort      & \textUstid\ \ustid  & \textIban        & \iban \\
+     \end{tabular}
+  }
+}
+

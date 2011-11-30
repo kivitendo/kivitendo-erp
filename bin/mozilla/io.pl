@@ -116,7 +116,7 @@ sub display_row {
 
   my $numrows = shift;
 
-  my ($readonly, $stock_in_out, $stock_in_out_title);
+  my ($stock_in_out, $stock_in_out_title);
 
   my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
   my $show_min_order_qty =  first { $_ eq $form->{type} } qw(request_quotation purchase_order);
@@ -124,8 +124,6 @@ sub display_row {
   my $is_s_p_order       = (first { $_ eq $form->{type} } qw(sales_order purchase_order));
 
   if ($is_delivery_order) {
-    $readonly             = ' readonly' if ($form->{closed});
-
     if ($form->{type} eq 'sales_delivery_order') {
       $stock_in_out_title = $locale->text('Release From Stock');
       $stock_in_out       = 'out';
@@ -277,12 +275,16 @@ sub display_row {
     }
 
     # build in drop down list for pricesgroups
+    # $sellprice_value setzt den Wert etwas unabhängiger von der Darstellung.
+    # Hintergrund: Preisgruppen werden hier überprüft und neu berechnet.
+    # Vorher wurde der ganze cgi->textfield Block zweimal identisch eingebaut, dass passiert
+    # jetzt nach der Abfrage.
+    my $sellprice_value;
     if ($form->{"prices_$i"}) {
       $column_data{sellprice_pg} = qq|<select name="sellprice_pg_$i" style="width: 8em">$form->{"prices_$i"}</select>|;
-      $column_data{sellprice}    = $cgi->textfield(-name => "sellprice_$i", -size => 10, -onBlur => 'check_right_number_format(this)', -value =>
-                                   (($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})
+      $sellprice_value           =($form->{"new_pricegroup_$i"} != $form->{"old_pricegroup_$i"})
                                       ? $form->format_amount(\%myconfig, $form->{"price_new_$i"}, $decimalplaces)
-                                      : $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces)));
+                                      : $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
     } else {
       # for last row and report
       # set pricegroup drop down list from report menu
@@ -295,11 +297,22 @@ sub display_row {
       } else {
         $column_data{sellprice_pg} = qq|&nbsp;|;
       }
-      $column_data{sellprice} = $cgi->textfield(-name => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value =>
-                                                $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces));
+      $sellprice_value = $form->format_amount(\%myconfig, $form->{"sellprice_$i"}, $decimalplaces);
 
     }
-    $column_data{discount}    = $cgi->textfield(-name => "discount_$i", -size => 3, -value => $form->format_amount(\%myconfig, $form->{"discount_$i"}));
+    # Falls der Benutzer die Preise nicht anpassen sollte, wird das entsprechende
+    # Textfield auf readonly gesetzt. Anm. von Sven: Manipulation der Preise ist
+    # immer noch möglich, konsequenterweise sollten diese NUR aus der Datenbank
+    # geholt werden.
+    my $edit_prices = $main::auth->assert('edit_prices', 1);
+    $column_data{sellprice} = (!$edit_prices)
+                                ? $cgi->textfield(-readonly => "readonly",
+                                                  -name => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value)
+                                : $cgi->textfield(-name => "sellprice_$i", -size => 10, -onBlur => "check_right_number_format(this)", -value => $sellprice_value);
+    $column_data{discount}    = (!$edit_prices)
+                                  ? $cgi->textfield(-readonly => "readonly",
+                                                    -name => "discount_$i", -size => 3, -value => $form->format_amount(\%myconfig, $form->{"discount_$i"}))
+                                  : $cgi->textfield(-name => "discount_$i", -size => 3, -value => $form->format_amount(\%myconfig, $form->{"discount_$i"}));
     $column_data{linetotal}   = $form->format_amount(\%myconfig, $linetotal, 2);
     $column_data{bin}         = $form->{"bin_$i"};
 

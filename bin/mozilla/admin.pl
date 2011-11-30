@@ -37,6 +37,9 @@ use Encode;
 use English qw(-no_match_vars);
 use Fcntl;
 use File::Copy;
+use File::Find;
+use File::Spec;
+use Cwd;
 use IO::File;
 use POSIX qw(strftime);
 use Sys::Hostname;
@@ -425,27 +428,25 @@ sub edit_user_form {
   opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
   my @all     = readdir(TEMPLATEDIR);
   my @alldir  = sort grep { -d ($::lx_office_conf{paths}->{templates} . "/$_") && !/^\.\.?$/ } @all;
-  my @allhtml = sort grep { -f ($::lx_office_conf{paths}->{templates} . "/$_") &&  /\.html$/ } @all;
   closedir TEMPLATEDIR;
 
   @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
-  @alldir = grep !/^(webpages|\.svn)$/, @alldir;
-
-  @allhtml = reverse grep !/Default/, @allhtml;
-  push @allhtml, 'Default';
-  @allhtml = reverse @allhtml;
+  @alldir = grep !/^(webpages|print|\.svn)$/, @alldir;
 
   $form->{ALL_TEMPLATES} = [ map { { "name", => $_, "selected" => $_ eq $myconfig->{templates} } } @alldir ];
 
-  my $lastitem = $allhtml[0];
-  $lastitem =~ s/-.*//g;
-  $form->{ALL_MASTER_TEMPLATES} = [ { "name" => $lastitem, "selected" => $lastitem eq "German" } ];
-  foreach my $item (@allhtml) {
-    $item =~ s/-.*//g;
-    next if ($item eq $lastitem);
+  # mastertemplates
+  opendir TEMPLATEDIR, "$::lx_office_conf{paths}->{templates}/print" or $form->error("$::lx_office_conf{paths}->{templates}/print" . " : $ERRNO");
+  my @allmaster = readdir(TEMPLATEDIR);
+  closedir TEMPLATEDIR;
 
+  @allmaster  = sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ } @allmaster;
+  @allmaster = reverse grep !/Default/, @allmaster;
+  push @allmaster, 'Default';
+  @allmaster = reverse @allmaster;
+
+  foreach my $item (@allmaster) {
     push @{ $form->{ALL_MASTER_TEMPLATES} }, { "name" => $item, "selected" => $item eq "German" };
-    $lastitem = $item;
   }
 
   # css dir has styles that are not intended as general layouts.
@@ -541,25 +542,40 @@ sub save_user {
       umask(007);
 
       # copy templates to the directory
-      opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
-      my @templates = grep /$form->{mastertemplates}.*?\.(html|tex|sty|odt|xml|txb)$/,
-        readdir TEMPLATEDIR;
-      closedir TEMPLATEDIR;
 
-      foreach my $file (@templates) {
-        open(TEMP, "<", $::lx_office_conf{paths}->{templates} . "/$file")
-          or $form->error($::lx_office_conf{paths}->{templates} . "/$file : $ERRNO");
-
-        $file =~ s/\Q$form->{mastertemplates}\E-//;
-        open(NEW, ">", "$form->{templates}/$file")
-          or $form->error("$form->{templates}/$file : $ERRNO");
-
-        while (my $line = <TEMP>) {
-          print NEW $line;
-        }
-        close(TEMP);
-        close(NEW);
+      my $oldcurrdir = getcwd();
+      if (!chdir("$::lx_office_conf{paths}->{templates}/print/$form->{mastertemplates}")) {
+        $form->error("$ERRNO: chdir $::lx_office_conf{paths}->{templates}/print/$form->{mastertemplates}");
       }
+
+      my $newdir = File::Spec->catdir($oldcurrdir, $form->{templates});
+
+      find(
+        sub
+        {
+          next if ($_ eq ".");
+
+          if (-d $_) {
+            if (!mkdir (File::Spec->catdir($newdir, $File::Find::name))) {
+              chdir($oldcurrdir);
+              $form->error("$ERRNO: mkdir $File::Find::name");
+            }
+          } elsif (-l $_) {
+            if (!symlink (readlink($_),
+                          File::Spec->catfile($newdir, $File::Find::name))) {
+              chdir($oldcurrdir);
+              $form->error("$ERRNO: symlink $File::Find::name");
+            }
+          } elsif (-f $_ && $_ =~ m/.*?\.(html|tex|sty|odt|xml|txb|eps|pdf|png|jpg)$/) {
+            if (!copy($_, File::Spec->catfile($newdir, $File::Find::name))) {
+              chdir($oldcurrdir);
+              $form->error("$ERRNO: cp $File::Find::name");
+            }
+          }
+        }, "./");
+
+      chdir($oldcurrdir);
+
     } else {
       $form->error("$ERRNO: $form->{templates}");
     }

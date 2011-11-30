@@ -953,6 +953,7 @@ sub all_rights_full {
     ["invoice_edit",                   $locale->text("Create and edit invoices and credit notes")],
     ["dunning_edit",                   $locale->text("Create and edit dunnings")],
     ["sales_all_edit",                 $locale->text("View/edit all employees sales documents")],
+    ["edit_prices",                    $locale->text("Edit prices and discount (if not used, textfield is ONLY set readonly)")],
     ["--ap",                           $locale->text("AP")],
     ["request_quotation_edit",         $locale->text("Create and edit RFQs")],
     ["purchase_order_edit",            $locale->text("Create and edit purchase orders")],
