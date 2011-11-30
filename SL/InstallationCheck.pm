@@ -3,7 +3,7 @@ package SL::InstallationCheck;
 use English '-no_match_vars';
 use IO::File;
 
-use vars qw(@required_modules @optional_modules);
+use vars qw(@required_modules @optional_modules @developer_modules);
 
 use strict;
 
@@ -35,8 +35,15 @@ BEGIN {
 
 @optional_modules = ();
 
+@developer_modules = (
+  { name => "Devel::REPL",                         url => "http://search.cpan.org/~doy/",       debian => 'libdevel-repl-perl' },
+  { name => "Moose::Role",                         url => "http://search.cpan.org/~doy/",       debian => 'libmoose-role-perl' },
+  { name => "Perl::Tags",                          url => "http://search.cpan.org/~osfameron/", debian => 'libperl-tags-perl' },
+);
+
 $_->{fullname} = join ' ', grep $_, @$_{qw(name version)}
-  for @required_modules, @optional_modules;
+  for @required_modules, @optional_modules, @developer_modules;
+
 }
 
 sub module_available {
