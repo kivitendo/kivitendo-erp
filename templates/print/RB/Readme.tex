@@ -1,0 +1,92 @@
+%
+% Bemerkungen zum Vorlagensatz RB von
+% Richardson & Büren GbR, Bonn
+%
+% Hier wurden einige Ideen aufgegriffen, die in folgendem Vortrag
+% erwähnt wurden:
+% http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf
+%
+%
+% Aufbau:
+%   Die documentclass und alle usepackage-Anweisungen sind in
+%   'inheaders.tex' ausgelagert. Diese werden von allen Vorlagen via
+%   \input eingebunden.
+%
+%   Desweiteren sind einige Einstellungen und eigene Befehle, die alle
+%   Vorlagen verwenden in 'insetting.tex' untergebracht. Auch diese
+%   werden mit \input eingebunden.
+%   Da in eingebundenen Dateien die Lx-Office-Variablen nicht aufgelöst
+%   werden könnnen, werden die hier verwendeten Variablen in jedem
+%   Dokument vorher mit \newcommand neu definiert.
+%
+% Sprachen:
+%   In 'insettings.tex' wird an Hand des herangezogenen
+%   Vorlagen-Dateinamens die Sprache unterschieden und eine
+%   entsprechende Übersetzungsdatei geladen, die Textbausteine
+%   bzw. -Schnipsel enthält. Die Vorlagen verwenden nur diese
+%   Schnipsel. Im Moment sind die Vorlagenkürzel DE und EN in
+%   Benutzung mit den entsprechenden Übersetzungsdateien 'deutsch.tex'
+%   und 'english.tex'.
+%
+%   Die eigentlichen Vorlagen sind gleich, deshalb sind die Dateien
+%   für die Sprachen (z.B. invoice_DE.tex) nur symbolische Links auf
+%   die Default-Datei ohne Sprachkürzel (z.B. invoice.tex).
+%
+%
+% Mandanten / Firma:
+%   Um gleiche Vorlagen für verschiedene Firmen verwenden zu können,
+%   wird je nach dem Wert der Lx-Office-Variablen <%employee_company%>
+%   ein Firmenverzeichnis ausgewählt (siehe 'settings.tex') in dem
+%   Briefkopf, Identitäten und Währungs-/Kontoeinstellungen hinterlegt
+%   sind. Ist keine Firma zugeordnet, so wird das Unterverzeichnis
+%   'firma' verwendet.
+%
+% Identitäten:
+%    In jedem Firmen-Unterverzeichnis soll einen Datei 'ident.tex'
+%    vorhanden sein, die mit \newcommand Werte für \telefon, \fax,
+%    \firma, \strasse, \ort, \ustid, \email und \homepage definiert.
+%
+% Währungen / Konten:
+%    Für jede Währung (siehe 'settings.tex') soll eine Datei vorhanden
+%    sein, die das Währungssymbol (\currency) und folgende Angaben für
+%    ein Konto in dieser Währung enthält \kontonummer, \bank,
+%    \bankleitzahl, \bic und \iban.
+%    So kann in den Dokumenten je nach Währung ein anderes Konto
+%    angegeben werden.
+%
+% Briefbogen/Logos:
+%    Eine Hintergrundgrafik oder ein Logo kann in Abhängigkeit vom
+%    Medium (z.B. nur beim verschicken mit E-Mail) eingebunden
+%    werden. Dies ist im Moment auskommentiert.
+% 
+%    Desweiteren sind (auskommentierte) Beispiele enthalten für eine
+%    Grafik als Briefkopf, nur ein Logo, oder ein komplletes DinA4-PDF
+%    als Briefpapier.
+%
+% Fusszeile:
+%    Die Tabelle im Fuß verwendet die Angaben aus firma/ident.tex und
+%    firma/*_account.tex.
+%
+%
+% Tabellen:
+%    Als Tabellenumgebung wird longtable verwendet. Diese Umgebung
+%    kann in einer Tabelle umbrechen. Da aber der Umbruch nicht von
+%    Lx-Office kontrolliert wird, kann man kein Übertrag mit
+%    <%sumcarriedforward%> machen (dazu z.B. tablularx und
+%    <%pagebreak ... %> verwenden).
+%    Innerhalb des Langtextes <%longdescription%> wird nicht
+%    umgebrochen. Falls das gewünscht ist, \\ mit \renewcommand
+%    umschreiben (siehe dazu:
+%    http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf)
+%
+% Quickstart (wo kann was angepasst werden?):
+%    insettings.tex : Pfad zu Angaben über Mandanten (default: firma)
+%                     Logo/Briefpapier
+%                     Seitenränder / Geomtry
+%                     Aussehen Kopf/Fußzeile
+%    firma/*        : Angaben über Mandanten
+%    deutsch.tex    : Textschnipsel f. Deutsch
+%                     Dafür eine Sprache mit Sprachkürzel DE anlegen
+%    english.tex    : Textschnipsel f. Englisch
+%                     Dafür eine Sprache mit Sprachkürzel EN anlegen
+%
