@@ -116,7 +116,7 @@ sub display_row {
 
   my $numrows = shift;
 
-  my ($readonly, $stock_in_out, $stock_in_out_title);
+  my ($stock_in_out, $stock_in_out_title);
 
   my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
   my $show_min_order_qty =  first { $_ eq $form->{type} } qw(request_quotation purchase_order);
@@ -124,8 +124,6 @@ sub display_row {
   my $is_s_p_order       = (first { $_ eq $form->{type} } qw(sales_order purchase_order));
 
   if ($is_delivery_order) {
-    $readonly             = ' readonly' if ($form->{closed});
-
     if ($form->{type} eq 'sales_delivery_order') {
       $stock_in_out_title = $locale->text('Release From Stock');
       $stock_in_out       = 'out';
