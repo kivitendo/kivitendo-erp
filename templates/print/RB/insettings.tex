@@ -7,6 +7,9 @@
 % Mandanten-/Firmenabhängigkeiten
 
 % Pfad zu firmenspez. Angaben
+% Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
+% Mandanten eingeben.
+
 \IfSubStringInString{Firma1}{\lxcompany}{\newcommand{\identpath}{firma1}}{
   \IfSubStringInString{Firma2}{\lxcompany}{\newcommand{\identpath}{firma2}}
     {\newcommand{\identpath}{firma}} % sonst
