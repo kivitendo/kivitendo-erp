@@ -30,7 +30,11 @@ my (%uselines, %modules, %supplied, %requires);
     'Template::Iterator'                 => 1,
     'Template::Plugin'                   => 1,
     'Template::Plugin::Filter'           => 1,
+    'Template::Plugin::HTML'             => 1,
   },
+  'Devel::REPL' => {
+    'namespace::clean'                   => 1,
+  }
 );
 
 find(sub {
@@ -81,7 +85,9 @@ for my $useline (keys %uselines) {
   my $version = Module::CoreList->first_release($module);
   $modules{$module} = { status => $supplied{$module}     ? 'included'
                                 : $version               ? sprintf '%2.6f', $version
-                                : is_documented($module) ? 'required'
+                                : is_required($module)   ? 'required'
+                                : is_optional($module)   ? 'optional'
+                                : is_developer($module)  ? 'developer'
                                 : '!missing',
                         files  => $uselines{$useline},
                       };
@@ -103,7 +109,7 @@ while ($changed) {
     for my $dst_module (keys %{ $requires{$src_module} }) {
       if (   $modules{$src_module}
           && $modules{$dst_module}
-          && $modules{$src_module}->{status} =~ /^required/
+          && $modules{$src_module}->{status} =~ /^(required|devel|optional)/
           && $modules{$dst_module}->{status} eq '!missing') {
         $modules{$dst_module}->{status} = "required"; # . ", via $src_module";
         $changed = 1;
@@ -128,9 +134,19 @@ sub modulize {
   }
 }
 
-sub is_documented {
+sub is_required {
   my ($module) = @_;
   grep { $_->{name} eq $module } @SL::InstallationCheck::required_modules;
+}
+
+sub is_optional {
+  my ($module) = @_;
+  grep { $_->{name} eq $module } @SL::InstallationCheck::optional_modules;
+}
+
+sub is_developer {
+  my ($module) = @_;
+  grep { $_->{name} eq $module } @SL::InstallationCheck::developer_modules;
 }
 
 sub color_text {
