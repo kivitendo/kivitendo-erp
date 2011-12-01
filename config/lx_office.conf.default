@@ -78,6 +78,14 @@ webdav = 0
 vertreter = 0
 
 # Show fields used for the best before date
+# ATTENTION! If you enabled this feature you can not simply turn it off again
+# without taking care that best_before fields are emptied in the database.
+# This can be done with the following query:
+#
+#  UPDATE inventory SET bestbefore = NULL;
+#
+# Any stock contents containing a best before date will be impossible to stock
+# out otherwise.
 show_best_before = 0
 
 ## Pictures for parts

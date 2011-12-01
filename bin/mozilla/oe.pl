@@ -240,7 +240,7 @@ sub order_links {
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
   $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id currency));
-  $form->{shipto} = 1 if $form->{id};
+  $form->{shipto} = 1 if $form->{id} || $form->{convert_from_oe_ids};
 
   # get customer / vendor
   IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;

@@ -1312,6 +1312,7 @@ sub post_transaction {
   my $debitcount  = 0;
   my $creditcount = 0;
   my $debitcredit;
+  my %split_safety = ();
 
   my @flds = qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
@@ -1324,6 +1325,9 @@ sub post_transaction {
 
     push @a, {};
     $debitcredit = ($form->{"debit_$i"} == 0) ? "0" : "1";
+
+    $split_safety{   $form->{"debit_$i"}  <=> 0 }++;
+    $split_safety{ - $form->{"credit_$i"} <=> 0 }++;
 
     if ($debitcredit) {
       $debitcount++;
@@ -1386,6 +1390,10 @@ sub post_transaction {
 
     for (@flds) { $a[$j]->{$_} = $form->{"${_}_$i"} }
     $count++;
+  }
+
+  if ($split_safety{-1} > 1 && $split_safety{1} > 1) {
+    $::form->error($::locale->text("Split entry detected. The values you have entered will result in an entry with more than one position on both debit and credit. Due to known problems involving accounting software Lx-Office does not allow these."));
   }
 
   for my $i (1 .. $count) {
