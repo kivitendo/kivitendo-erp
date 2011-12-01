@@ -27,6 +27,12 @@ sub new {
   return $self;
 }
 
+sub reset {
+  my ($self) = @_;
+  $self->{ldap}     = undef;
+  $self->{dn_cache} = { };
+}
+
 sub _connect {
   $main::lxdebug->enter_sub();
 

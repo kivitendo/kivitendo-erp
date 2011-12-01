@@ -47,6 +47,7 @@ sub reset {
   $self->{RIGHTS}             = { };
   $self->{unique_counter}     = 0;
   $self->{column_information} = SL::Auth::ColumnInformation->new(auth => $self);
+  $self->{authenticator}->reset;
 }
 
 sub get_user_dbh {

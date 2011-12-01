@@ -25,6 +25,10 @@ sub new {
   return $self;
 }
 
+sub reset {
+  # nothing to do here
+}
+
 sub authenticate {
   $main::lxdebug->enter_sub();
 
