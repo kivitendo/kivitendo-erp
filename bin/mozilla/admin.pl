@@ -566,7 +566,7 @@ sub save_user {
               chdir($oldcurrdir);
               $form->error("$ERRNO: symlink $File::Find::name");
             }
-          } elsif (-f $_ && $_ =~ m/.*?\.(html|tex|sty|odt|xml|txb|eps|pdf|png|jpg)$/) {
+          } elsif (-f $_) {
             if (!copy($_, File::Spec->catfile($newdir, $File::Find::name))) {
               chdir($oldcurrdir);
               $form->error("$ERRNO: cp $File::Find::name");
