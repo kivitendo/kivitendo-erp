@@ -13,7 +13,7 @@ use strict;
   # Do not use these id's to store information across requests.
 my $_id_sequence = int rand 1e7;
 sub _tag_id {
-  return $_id_sequence = ($_id_sequence + 1) % 1e7;
+  return "id_" . ( $_id_sequence = ($_id_sequence + 1) % 1e7 );
 }
 }
 
