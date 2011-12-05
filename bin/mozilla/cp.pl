@@ -442,10 +442,10 @@ sub check_form {
     if ($form->parse_amount(\%myconfig, $form->{"paid_$i"})) {
       $amount -= $form->parse_amount(\%myconfig, $form->{"paid_$i"});
 
-      push(@{ $form->{paid} },      $form->{"paid_$i"});
-      push(@{ $form->{due} },       $form->{"due_$i"});
-      push(@{ $form->{invnumber} }, $form->{"invnumber_$i"});
-      push(@{ $form->{invdate} },   $form->{"transdate_$i"});
+      push(@{ $form->{paid}      ||= [] }, $form->{"paid_$i"});
+      push(@{ $form->{due}       ||= [] }, $form->{"due_$i"});
+      push(@{ $form->{invnumber} ||= [] }, $form->{"invnumber_$i"});
+      push(@{ $form->{invdate}   ||= [] }, $form->{"transdate_$i"});
     }
   }
 
