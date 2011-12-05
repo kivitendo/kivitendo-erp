@@ -326,3 +326,33 @@ label {
   margin-bottom: 5px;
   padding: 5px;
 }
+
+.jqmWindow {
+  display: none;
+
+  position: fixed;
+  top: 17%;
+  left: 40%;
+
+  margin-left: -200px;
+  width: 700px;
+
+  background-color: lemonchiffon;
+  color: #333;
+  border: 1px solid black;
+  padding: 4px;
+}
+
+.jqmContent {
+  padding: 8px;
+}
+
+.jqmWindow h1 {
+  border: 0;
+  padding: 0;
+  background-color: lemonchiffon;
+}
+
+.jqmOverlay {
+  background-color: #000;
+}

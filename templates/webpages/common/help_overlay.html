@@ -1,0 +1,11 @@
+[%- USE T8 %]
+<script type="text/javascript">
+  $().ready(function(){$('#help_div').jqm()});
+</script>
+<div class='jqmWindow' id='help_div'>
+  <a href='#' style='float:right' class='jqmClose'><img src='image/close.png' border='0' alt='[% 'Close Dialog' | $T8 %]'></a>
+  <div class='jqmContent' id='help_content'>
+    [% 'Please wait...' | $T8 %]
+    <img src='image/spinner.gif' alt="[% 'loading' | $T8 %]">
+  </div>
+</div>

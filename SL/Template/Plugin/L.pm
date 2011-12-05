@@ -507,7 +507,7 @@ sub online_help_tag {
 
   die 'malformed help tag' unless $tag =~ /^[a-zA-Z0-9_]+$/;
   return unless -f $file;
-  return $self->html_tag('a', $text, href => $file, target => '_blank');
+  return $self->html_tag('a', $text, href => $file, class => 'jqModal')
 }
 
 sub dump {

@@ -701,6 +701,7 @@ sub header {
                 '<script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>',
                 '<script type="text/javascript" src="js/part_selection.js"></script>',
                 '<script type="text/javascript" src="js/jquery-ui.js"></script>',
+                '<script type="text/javascript" src="js/jqModal.js"></script>',
                 '<link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.8.12.custom.css">';
   push @header, $self->{javascript} if $self->{javascript};
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
