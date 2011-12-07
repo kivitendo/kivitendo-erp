@@ -211,232 +211,27 @@ sub edit {
 
 
 sub search {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('general_ledger');
 
-  $main::auth->assert('general_ledger');
+  $::form->all_departments(\%::myconfig);
+  $::form->get_lists(
+    projects  => { key => "ALL_PROJECTS", all => 1 },
+    employees => "ALL_EMPLOYEES",
+  );
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
+  my $onload = "focus()"
+             . qq|;setupDateFormat('|. $::myconfig{dateformat} . qq|', '| . $::locale->text("Falsches Datumsformat!") . qq|')|
+             . qq|;setupPoints('|. $::myconfig{numberformat} .   qq|', '| . $::locale->text("wrongformat") . qq|')|;
 
-  $form->{title} = $locale->text('Journal');
+  $::form->header;
+  print $::form->parse_html_template('gl/search', {
+    onload => $onload,
+    department_label => sub { ("$_[0]{description}--$_[0]{id}")x2 },
+    employee_label => sub { "$_[0]{id}--$_[0]{name}" },
+  });
 
-  $form->all_departments(\%myconfig);
-
-  # departments
-  if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
-  }
-
-  my $department;
-  $department = qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-          <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-        </tr>
-| if $form->{selectdepartment};
-
-  $form->get_lists("projects" => { "key" => "ALL_PROJECTS",
-                                   "all" => 1},
-                                   "employees"    => "ALL_EMPLOYEES" );
-
-  my %project_labels = ();
-  my @project_values = ("");
-  foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
-    push(@project_values, $item->{"id"});
-    $project_labels{$item->{"id"}} = $item->{"projectnumber"};
-  }
-
-  my $projectnumber =
-    NTI($cgi->popup_menu('-name' => "project_id",
-                         '-values' => \@project_values,
-                         '-labels' => \%project_labels));
-
-  my %employee_labels = ();
-  my @employee_values = ("");
-  foreach my $item (@{ $form->{"ALL_EMPLOYEES"} }) {
-    # value in Form "1234--Name" übergeben
-    my $id = "$item->{'id'}--$item->{'name'}";
-    push(@employee_values, "$id");
-    $employee_labels{$id} = $item->{"name"};
-  }
-
-  my $employeenumber =
-    NTI($cgi->popup_menu('-name' => "employee",
-                         '-values' => \@employee_values,
-                         '-labels' => \%employee_labels));
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
-  my $jsscript = "";
-  my ($button1, $button2, $onload);
-  if ($form->{jsscript}) {
-
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=datefrom id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-       |;
-    $button2 = qq|
-       <td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=dateto id="trigger2" value=|
-      . $locale->text('button') . qq|></td>
-     |;
-
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "2", "datefrom", "BR", "trigger1",
-                          "dateto", "BL", "trigger2");
-  } else {
-
-    # without JavaScript Calendar
-    $button1 =
-      qq|<td><input name=datefrom id=datefrom size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-    $button2 =
-      qq|<td><input name=dateto id=dateto size=11 title="$myconfig{dateformat}" onBlur=\"check_right_date_format(this)\"></td>|;
-  }
-  $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
-  $form->header;
-  $onload = qq|focus()|;
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
-  print qq|
-<body onLoad="$onload">
-
-<form method=post action=gl.pl>
-
-<input type=hidden name=sort value=datesort>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th align=right>| . $locale->text('Reference') . qq|</th>
-          <td><input name=reference size=20></td>
-          <th align=right>| . $locale->text('Source') . qq|</th>
-          <td><input name=source size=20></td>
-        </tr>
-        $department
-        <tr>
-          <th align=right>| . $locale->text('Description') . qq|</th>
-          <td><input name=description size=40></td>
-          <th align=right>| . $locale->text('Account Number') . qq|</th>
-          <td><input name=accno size=20></td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Notes') . qq|</th>
-          <td colspan=3><input name=notes size=40></td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Project Number') . qq|</th>
-          <td colspan=3>$projectnumber</td>
-        </tr>
- <tr>
-    <th align=right>| . $locale->text('Employee') . qq|</th>
-    <td colspan=3>$employeenumber</td>
-  </tr>
-  <tr>
-    <th align=right>| . $locale->text('Filter date by') . qq|</th>
-    <td colspan=3>
-    <input name=datesort class=radio type=radio value=gldate checked>&nbsp;| . $locale->text('Booking Date') . qq|
-    <input name=datesort class=radio type=radio value=transdate>&nbsp;| . $locale->text('Invoice Date') . qq|
-    </td>
-  </tr>
-  <tr>
-    <th align=right>| . $locale->text('From') . qq|</th>
-          $button1
-          <th align=right>| . $locale->text('To (time)') . qq|</th>
-          $button2
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Include in Report') . qq|</th>
-          <td colspan=3>
-            <table>
-              <tr>
-                <td>
-                  <input name="category" class=radio type=radio value=X checked>&nbsp;|
-    . $locale->text('All') . qq|
-                  <input name="category" class=radio type=radio value=A>&nbsp;|
-    . $locale->text('Asset') . qq|
-                  <input name="category" class=radio type=radio value=L>&nbsp;|
-    . $locale->text('Liability') . qq|
-                  <input name="category" class=radio type=radio value=I>&nbsp;|
-    . $locale->text('Revenue') . qq|
-                  <input name="category" class=radio type=radio value=E>&nbsp;|
-    . $locale->text('Expense') . qq|
-                </td>
-              </tr>
-              <tr>
-                <table>
-                  <tr>
-                    <td align=right><input name="l_id" class=checkbox type=checkbox value=Y></td>
-                    <td>| . $locale->text('ID') . qq|</td>
-                    <td align=right><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Invoice Date') . qq|</td>
-                    <td align=right><input name="l_gldate" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Booking Date') . qq|</td>
-                    <td align=right><input name="l_reference" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Reference') . qq|</td>
-                    <td align=right><input name="l_description" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Description') . qq|</td>
-                    <td align=right><input name="l_notes" class=checkbox type=checkbox value=Y></td>
-                    <td>| . $locale->text('Notes') . qq|</td>
-                  </tr>
-                  <tr>
-                    <td align=right><input name="l_debit" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Debit') . qq|</td>
-                    <td align=right><input name="l_credit" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Credit') . qq|</td>
-                    <td align=right><input name="l_source" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Source') . qq|</td>
-                    <td align=right><input name="l_accno" class=checkbox type=checkbox value=Y checked></td>
-                    <td>| . $locale->text('Account') . qq|</td>
-                  </tr>
-                  <tr>
-                    <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
-                    <td>| . $locale->text('Subtotal') . qq|</td>
-                    <td align=right><input name="l_projectnumbers" class=checkbox type=checkbox value=Y></td>
-                    <td>| . $locale->text('Project Number') . qq|</td>
-                    <td align=right><input name="l_employee" class=checkbox type=checkbox value=Y></td>
-                    <td>| . $locale->text('Employee') . qq|</td>
-                  </tr>
-                </table>
-              </tr>
-            </table>
-        </tr>
-      </table>
-    </td>
-  </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-$jsscript
-
-<input type=hidden name=nextsub value=generate_report>
-
-<br>
-<input class=submit type=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-</form>
-
-</body>
-</html>
-|;
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub create_subtotal_row {
