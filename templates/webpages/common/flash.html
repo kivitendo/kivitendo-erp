@@ -2,6 +2,7 @@
 [%- IF FLASH %]
  [%- BLOCK output %]
   <div class="flash_message_[% type %]">
+    <a href='#' style='float:right' onclick='$($(this).closest("div")).remove()'><img src='image/close.png' border='0' alt='[% 'Close Flash' | $T8 %]'></a>
    [%- title %]:
    [% FOREACH message = messages %]
     [%- HTML.escape(message) %]

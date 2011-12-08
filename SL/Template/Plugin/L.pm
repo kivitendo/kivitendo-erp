@@ -13,7 +13,7 @@ use strict;
   # Do not use these id's to store information across requests.
 my $_id_sequence = int rand 1e7;
 sub _tag_id {
-  return $_id_sequence = ($_id_sequence + 1) % 1e7;
+  return "id_" . ( $_id_sequence = ($_id_sequence + 1) % 1e7 );
 }
 }
 
@@ -507,7 +507,7 @@ sub online_help_tag {
 
   die 'malformed help tag' unless $tag =~ /^[a-zA-Z0-9_]+$/;
   return unless -f $file;
-  return $self->html_tag('a', $text, href => $file, target => '_blank');
+  return $self->html_tag('a', $text, href => $file, class => 'jqModal')
 }
 
 sub dump {
