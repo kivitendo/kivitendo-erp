@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %]<script type="text/javascript" src="js/FormManager.js" >
 /****************************************************
 * Form Dependency Manager- By Twey- http://www.twey.co.uk
@@ -81,7 +82,13 @@ window.onload = function() {
 </fieldset>
 
 [% IF AccountIsPosted %]
-[%- SET DIS = ' disabled="disabled"' %]
+  [% IF AR_amount %] [% L.hidden_tag('AR_amount', 'AR_amount') %] [% END %]
+  [% IF AR_paid   %] [% L.hidden_tag('AR_paid', '  AR_paid')   %] [% END %]
+  [% IF AR_tax    %] [% L.hidden_tag('AR_amount', 'AR_tax')    %] [% END %]
+  [% IF AP_amount %] [% L.hidden_tag('AP_amount', 'AP_amount') %] [% END %]
+  [% IF AP_paid   %] [% L.hidden_tag('AP_paid', '  AP_paid')   %] [% END %]
+  [% IF AP_tax    %] [% L.hidden_tag('AP_amount', 'AP_tax')    %] [% END %]
+  [%- SET DIS = ' disabled="disabled"' %]
 [% END %]
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>[% 'Include in drop-down menus' | $T8 %]</legend>
