@@ -73,7 +73,6 @@ $self->{texts} = {
   'Account Link AR_amount'      => 'Forderungen Erlöskonto',
   'Account Link AR_paid'        => 'Forderungen Zahlungseingang',
   'Account Link AR_tax'         => 'Forderungen Steuer',
-  'Account Link CT_tax'         => 'Kunde/Lieferant Steuer',
   'Account Link IC'             => 'Inventar',
   'Account Link IC_cogs'        => 'Warenliste Aufwandskonto',
   'Account Link IC_expense'     => 'Dienstleistungen Aufwandskonto',

@@ -26,7 +26,7 @@ sub update_steuersaetze_skr03 {
   if (!$count) {
     $query =
       qq|INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_ustva, pos_eur)
-      VALUES ('1776','Umsatzsteuer 19 %', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax', 0, 511,6)|;
+      VALUES ('1776','Umsatzsteuer 19 %', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice', 0, 511,6)|;
     $dbh->do($query) || mydberror($query);
   }
   $query = "SELECT COUNT(*) FROM chart " .
@@ -36,7 +36,7 @@ sub update_steuersaetze_skr03 {
   if (!$count) {
     $query =
       qq|INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_ustva, pos_eur)
-      VALUES ('1576','Abziehbare Vorsteuer 19 %', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax', 0, 66,27)|;
+      VALUES ('1576','Abziehbare Vorsteuer 19 %', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice', 0, 66,27)|;
     $dbh->do($query) || mydberror($query);
   }
 
@@ -69,7 +69,7 @@ sub update_steuersaetze_skr04 {
   if (!$count) {
     $query =
       qq|INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_ustva, pos_eur)
-      VALUES ('3806','Umsatzsteuer 19 %', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax', 0, 511,6)|;
+      VALUES ('3806','Umsatzsteuer 19 %', 'A', 'I', 'AR_tax:IC_taxpart:IC_taxservice', 0, 511,6)|;
     $dbh->do($query) || mydberror($query);
   }
   $query = "SELECT COUNT(*) FROM chart " .
@@ -79,7 +79,7 @@ sub update_steuersaetze_skr04 {
   if (!$count) {
     $query =
       qq|INSERT INTO chart (accno, description, charttype, category, link, taxkey_id, pos_ustva, pos_eur)
-      VALUES ('1406','Abziehbare Vorsteuer 19 %', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax', 0, 66,27)|;
+      VALUES ('1406','Abziehbare Vorsteuer 19 %', 'A', 'E', 'AP_tax:IC_taxpart:IC_taxservice', 0, 66,27)|;
     $dbh->do($query) || mydberror($query);
   }
 

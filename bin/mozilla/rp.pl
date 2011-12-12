@@ -158,19 +158,8 @@ sub report {
   my $is_bwa              = $::form->{report} eq "bwa";
   my $is_balance_sheet    = $::form->{report} eq "balance_sheet";
   my $is_trial_balance    = $::form->{report} eq "trial_balance";
-  my $is_taxreport        = $::form->{report} =~ /^tax_/;
-  my $is_nontaxable       = $::form->{report} =~ /^nontaxable_/;
   my $is_aging            = $::form->{report} =~ /^a[rp]_aging$/;
   my $is_payments         = $::form->{report} =~ /(receipts|payments)$/;
-
-#  if (is_taxreport) {
-#    $::form->{db} = ($::form->{report} =~ /_collected/) ? "ar" : "ap";
-#    RP->get_taxaccounts(\%::myconfig, $::form);
-#  }
-#
-#  if ($is_nontaxable) {
-#    $::form->{db} = ($::form->{report} =~ /_sales/) ? "ar" : "ap";
-#  }
 
   my ($label, $nextsub, $vc);
   if ($is_aging) {

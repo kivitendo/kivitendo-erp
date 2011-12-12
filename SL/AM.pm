@@ -210,7 +210,7 @@ sub save_account {
   # sanity check, can't have AR with AR_...
   if ($form->{AR} || $form->{AP} || $form->{IC}) {
     map { delete $form->{$_} }
-      qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice CT_tax);
+      qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice);
   }
 
   $form->{link} = "";
@@ -221,7 +221,7 @@ sub save_account {
                     $form->{IC},            $form->{IC_sale},
                     $form->{IC_cogs},       $form->{IC_taxpart},
                     $form->{IC_income},     $form->{IC_expense},
-                    $form->{IC_taxservice}, $form->{CT_tax}
+                    $form->{IC_taxservice}
     ) {
     $form->{link} .= "${item}:" if ($item);
   }

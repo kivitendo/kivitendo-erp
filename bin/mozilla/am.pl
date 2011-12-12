@@ -560,7 +560,6 @@ sub list_account_details {
                : ( $link eq 'IC_income' )     ? $locale->text('Account Link IC_income')
                : ( $link eq 'IC_expense' )    ? $locale->text('Account Link IC_expense')
                : ( $link eq 'IC_taxservice' ) ? $locale->text('Account Link IC_taxservice')
-#               : ( $link eq 'CT_tax' )        ? $locale->text('Account Link CT_tax')
                : $locale->text('Unknown Link') . ': ' . $link;
       $ca->{link} .= ($link ne '') ?  "[$link] ":'';
     }
