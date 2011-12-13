@@ -240,50 +240,63 @@ sub update {
       }
     }
   }
-  # Falls Suche über Rechnungsnummer und kein Kundenname vorhanden
-  if ($form->{invnumber} && !($form->{$form->{vc}})){
-  $form->{open} ='Y'; # nur die offenen rechnungen
-  if ($form->{ARAP} eq 'AR'){
-    AR->ar_transactions(\%myconfig, \%$form);
 
-    # if you search for invoice '11' ar_transactions will also match invoices
-    # 112, 211, ... due to the LIKE
+  # search by invoicenumber, 
+  if ($form->{invnumber}) { 
+    $form->{open} ='Y'; # nur die offenen rechnungen
+    if ($form->{ARAP} eq 'AR'){
 
-    # so there is now an extra loop that tries to match the invoice number
-    # exactly among all returned results, and then passes the customer_id instead of the name
-    # because the name may not be unique
+      # ar_transactions automatically searches by $form->{customer_id} or else
+      # $form->{customer} if available, and these variables will always be set
+      # when we have a dropdown field rather than an input field, so we have to
+      # empty these values first
+      $form->{customer_id} = '';
+      $form->{customer} = '';
+      AR->ar_transactions(\%myconfig, \%$form);
 
-    my $found_exact_invnumber_match = 0;
-    foreach my $i ( @{ $form->{AR} } ) {
-      next unless $i->{invnumber} eq $form->{invnumber};
-      # found exactly matching invnumber
-      $form->{$form->{vc}} = $i->{name};
-      $form->{customer_id} = $i->{customer_id};
-      $found_exact_invnumber_match = 1;
-    };
+      # if you search for invoice '11' ar_transactions will also match invoices
+      # 112, 211, ... due to the LIKE
 
-    unless ( $found_exact_invnumber_match ) {
-      # use first returned entry, may not be the correct one if invnumber doesn't match uniquely
-      $form->{$form->{vc}} = $form->{AR}[0]{name};
-      $form->{customer_id} = $form->{AR}[0]{customer_id};
-    };
-  } else {
-    # s.o. nur für zahlungsausgang
-    AP->ap_transactions(\%myconfig, \%$form);
-    $form->{$form->{vc}} = $form->{AP}[0]{name};
+      # so there is now an extra loop that tries to match the invoice number
+      # exactly among all returned results, and then passes the customer_id instead of the name
+      # because the name may not be unique
+
+      my $found_exact_invnumber_match = 0;
+      foreach my $i ( @{ $form->{AR} } ) {
+        next unless $i->{invnumber} eq $form->{invnumber};
+        # found exactly matching invnumber
+        $form->{$form->{vc}} = $i->{name};
+        $form->{customer_id} = $i->{customer_id};
+        #$form->{"old${form->{vc}"} = $i->{customer_id};
+        $found_exact_invnumber_match = 1;
+      };
+
+      unless ( $found_exact_invnumber_match ) {
+        # use first returned entry, may not be the correct one if invnumber doesn't
+        # match uniquely
+        $form->{$form->{vc}} = $form->{AR}[0]{name};
+        $form->{customer_id} = $form->{AR}[0]{customer_id};
+      };
+    } else {
+      # s.o. nur für zahlungsausgang
+      AP->ap_transactions(\%myconfig, \%$form);
+      $form->{$form->{vc}} = $form->{AP}[0]{name};
     }
   }
-  # get customer and invoices
-  $updated = &check_name($form->{vc}) unless $form->{customer_id};
 
-  if ( $form->{customer_id} ) {
-    # we already know the exact customer_id, fill $form with customer data
+  # determine customer/vendor
+  if ( $form->{customer_id} and $form->{invnumber} ) {
+    # we already know the exact customer_id, so fill $form with customer data
     IS->get_customer(\%myconfig, \%$form);
     $updated = 1;
+  } else {
+    # check_name is called with "customer" or "vendor" and otherwise uses contents of $form
+    # check_name also runs get_customer/get_vendor
+    $updated = &check_name($form->{vc});
   };
 
   if ($new_name_selected || $updated) {
-    # get open invoices from ar/ap using $form->{vc} and a.${vc}_id
+    # get open invoices from ar/ap using $form->{vc} and a.${vc}_id, i.e. customer_id
     CP->get_openinvoices(\%myconfig, \%$form);
     ($newvc) = split /--/, $form->{ $form->{vc} };
     $form->{"old$form->{vc}"} = qq|$newvc--$form->{"$form->{vc}_id"}|;
