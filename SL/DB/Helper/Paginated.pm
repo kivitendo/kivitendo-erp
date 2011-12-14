@@ -4,7 +4,7 @@ use strict;
 
 require Exporter;
 our @ISA    = qw(Exporter);
-our @EXPORT = qw(paginate);
+our @EXPORT = qw(paginate disable_paginating);
 
 use List::MoreUtils qw(any);
 
@@ -62,6 +62,13 @@ sub calc_visibility {
              $this <= 3,
              $this == $max,
              any { abs ($cur - $this) == $_ } 10, 50, 100, 500, 1000, 5000;
+}
+
+sub disable_paginating {
+  my ($self, %params) = @_;
+
+  delete $params{args}{page};
+  delete $params{args}{per_page};
 }
 
 1;
