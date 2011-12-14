@@ -27,6 +27,11 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::Unit',
     column_map   => { unit => 'name' },
   },
+  order => {
+    type         => 'one to one',
+    class        => 'SL::DB::Order',
+    column_map   => { trans_id => 'id' },
+  },
 );
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
@@ -38,5 +43,27 @@ sub is_price_update_available {
   my $self = shift;
   return $self->origprice > $self->part->sellprice;
 }
+
+package SL::DB::Manager::OrderItem;
+
+use SL::DB::Helper::Paginated;
+use SL::DB::Helper::Sorted;
+
+sub _sort_spec {
+  return ( columns => { delivery_date => [ 'deliverydate',        ],
+                        description   => [ 'lower(orderitems.description)',  ],
+                        partnumber    => [ 'part.partnumber',     ],
+                        qty           => [ 'qty'                  ],
+                        ordnumber     => [ 'order.ordnumber'      ],
+                        customer      => [ 'lower(customer.name)', ],
+                        position      => [ 'trans_id', 'runningnumber' ],
+                        transdate     => [ 'transdate', 'lower(order.reqdate::text)' ],
+                      },
+           default => [ 'position', 1 ],
+           nulls   => { }
+         );
+}
+
+sub default_objects_per_page { 40 }
 
 1;
