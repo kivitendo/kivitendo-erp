@@ -75,7 +75,6 @@ $missing = {
   'Account Link AR_amount'      => '',
   'Account Link AR_paid'        => '',
   'Account Link AR_tax'         => '',
-  'Account Link CT_tax'         => '',
   'Account Link IC'             => '',
   'Account Link IC_cogs'        => '',
   'Account Link IC_expense'     => '',

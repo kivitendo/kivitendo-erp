@@ -21,7 +21,7 @@ INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES 
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21205','Leasing','A','21200','L','AP');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21210','Kurzfristige Finanzverbindlichkeiten','H','21000','L','');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21220','Andere kurzfristige Verbindlichkeiten','H','21000','L','');
-INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21222','MWST (3,6)','A','21220','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice:CT_tax');
+INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21222','MWST (3,6)','A','21220','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21229','Gewinnausschüttung','A','21220','L','');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21230','Passive Rechnungsabgrenzung, kurzfristige Rückstellungen','H','21000','L','');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21235','Rückstellungen','A','21230','L','');
@@ -133,10 +133,10 @@ INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES 
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('36002','Reise (Fahrt)','A','36000','I','IC_income');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('11117','MWST Vorsteuer auf Aufwand','A','11110','A','');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21228','Geschuldete Steuern','A','21220','L','AP');
-INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21223','MWST (7,6)','A','21220','L','AR_tax:AP_tax:IC_taxpart:IC_expense:IC_taxservice:CT_tax');
+INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21223','MWST (7,6)','A','21220','L','AR_tax:AP_tax:IC_taxpart:IC_expense:IC_taxservice');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('57001','AHV, IV, EO, ALV','A','57000','E','AP_amount:IC_income:IC_expense');
-INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21221','MWST (2,4)','A','21220','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice:CT_tax');
-INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21224','MWST (7.6) 1/2','A','21220','L','AR_tax:AP_tax:IC_taxpart:IC_expense:IC_taxservice:CT_tax');
+INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21221','MWST (2,4)','A','21220','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice');
+INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21224','MWST (7.6) 1/2','A','21220','L','AR_tax:AP_tax:IC_taxpart:IC_expense:IC_taxservice');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('66001','Werbeaufwand','A','66000','E','AP_amount:IC_expense');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('21217','Privat','A','21210','L','AP');
 INSERT INTO chart (accno,description,charttype,gifi_accno,category,link) VALUES ('11101','Kasse','A','11100','A','AR_paid:AP_paid');

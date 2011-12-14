@@ -62,12 +62,12 @@ insert into chart (accno,description,charttype,gifi_accno,category,link) values 
 insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3500','VERBINDLICHKEITEN FINANZAMT','H','35','L','');
 insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3510','Finanzamt Verrechnung Körperschaftssteuer','A','350-359','L','');
 insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3520','Finanzamt Verrechnung Umsatzsteuer','A','350-359','L','');
-insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3530','Mehrwertsteuer 0%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice:CT_tax');
-insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3531','Mehrwertsteuer 10%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice:CT_tax');
-insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3532','Mehrwertsteuer 20%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice:CT_tax');
-insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3540','Vorsteuer 0%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice:CT_tax');
-insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3541','Vorsteuer 10%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice:CT_tax');
-insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3542','Vorsteuer 20%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice:CT_tax');
+insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3530','Mehrwertsteuer 0%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice');
+insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3531','Mehrwertsteuer 10%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice');
+insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3532','Mehrwertsteuer 20%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice');
+insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3540','Vorsteuer 0%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice');
+insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3541','Vorsteuer 10%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice');
+insert into chart (accno,description,charttype,gifi_accno,category,link) values ('3542','Vorsteuer 20%','A','350-359','L','AR_tax:AP_tax:IC_taxpart:IC_taxservice');
 insert into chart (accno,description,charttype,gifi_accno,category,link) values ('4000','UMSATZ','H','4','I','');
 insert into chart (accno,description,charttype,gifi_accno,category,link) values ('4020','Verkauf - Hardware','A','40-44','I','AR_amount:IC_sale');
 insert into chart (accno,description,charttype,gifi_accno,category,link) values ('4030','Verkauf - Software ','A','40-44','I','AR_amount:IC_sale');

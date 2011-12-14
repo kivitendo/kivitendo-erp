@@ -900,10 +900,10 @@ INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "categor
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445500', 'TAXES SUR CA A DECAISSER', 'A', '', '', '');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('706000', 'PRESTATIONS DE SERVICES', 'A', '', 'I', 'IC_income');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('707000', 'VENTES DE MARCHANDISES', 'A', '', 'I', 'IC_sale');
-INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445713', 'TVA COLLECTEE 19.6%', 'A', '', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax');
+INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445713', 'TVA COLLECTEE 19.6%', 'A', '', 'I', 'AR_tax:IC_taxpart:IC_taxservice');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('512020', 'BANQUE DEBIT', 'A', '', 'E', 'AP');
-INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445711', 'TVA COLLECTEE  5.5%', 'A', '', 'I', 'AR_tax:IC_taxpart:IC_taxservice:CT_tax');
-INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445661', 'TVA DEDUCTIBLE  5.5%', 'A', '', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax');
+INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445711', 'TVA COLLECTEE  5.5%', 'A', '', 'I', 'AR_tax:IC_taxpart:IC_taxservice');
+INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445661', 'TVA DEDUCTIBLE  5.5%', 'A', '', 'E', 'AP_tax:IC_taxpart:IC_taxservice');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('512010', 'BANQUE CREDIT', 'A', '', 'I', 'AR:AR_amount');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('681730', 'STOCKS ET EN-COURS', 'A', '', 'A', 'IC');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('580010', 'VIREMENT INTERNE', 'A', '', 'E', '');
@@ -930,7 +930,7 @@ INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "categor
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('609400', 'D\'ETUDES & PRESTATIONS DE SERVICES', 'A', '', '', '');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('625100', 'VOYAGES ET DEPLACEMENTS', 'A', '', 'E', 'AP_amount');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('618300', 'DOCUMENTATION TECHNIQUE', 'A', '', 'E', 'AP_amount');
-INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445663', 'TVA DEDUCTIBLE 19.6%', 'A', '', 'E', 'AP_tax:IC_taxpart:IC_taxservice:CT_tax');
+INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('445663', 'TVA DEDUCTIBLE 19.6%', 'A', '', 'E', 'AP_tax:IC_taxpart:IC_taxservice');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('601000', 'ACHATS STOCKES MAT. PREM. (FOURN.)', 'A', '', 'E', 'AP_amount:IC_cogs');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('626000', 'FRAIS POSTAUX ET TELECOMMUNIC.', 'A', '', 'E', 'AP_amount');
 INSERT INTO "chart" ("accno", "description", "charttype", "gifi_accno", "category", "link") VALUES ('512000', 'BANQUE', 'A', '', 'A', 'AR_paid:AP_paid');

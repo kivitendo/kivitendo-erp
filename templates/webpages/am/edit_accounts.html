@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %]<script type="text/javascript" src="js/FormManager.js" >
 /****************************************************
 * Form Dependency Manager- By Twey- http://www.twey.co.uk
@@ -81,12 +82,19 @@ window.onload = function() {
 </fieldset>
 
 [% IF AccountIsPosted %]
-[%- SET DIS = ' disabled="disabled"' %]
+  [% IF AR_amount %] [% L.hidden_tag('AR_amount', 'AR_amount') %] [% END %]
+  [% IF AR_paid   %] [% L.hidden_tag('AR_paid',   'AR_paid')   %] [% END %]
+  [% IF AR_tax    %] [% L.hidden_tag('AR_tax',    'AR_tax')    %] [% END %]
+  [% IF AP_amount %] [% L.hidden_tag('AP_amount', 'AP_amount') %] [% END %]
+  [% IF AP_paid   %] [% L.hidden_tag('AP_paid',   'AP_paid')   %] [% END %]
+  [% IF AP_tax    %] [% L.hidden_tag('AP_tax',    'AP_tax')    %] [% END %]
+  [%- SET DIS = ' disabled="disabled"' %]
 [% END %]
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>[% 'Include in drop-down menus' | $T8 %]</legend>
   <p style='font-weight:normal'>[% 'These will only be effective if the account is NOT a summary account AND there exists at least one taxkey. Setting the account as a summary account will erase these settings.' | $T8 %]</p>
-  <p style='font-weight:normal'>[% 'Changes to Receivables and Payables are only possible if no transactions to this account are posted yet.' | $T8 %]</p>
+  <p style='font-weight:normal'>[% 'Changes to Receivables and Payables are only possible if no transactions to this account are posted yet.' | $T8 %]
+  [% 'And if the account does not act as tax-o-matic account.' | $T8 %]</p>
   <table width="100%">
     <tr>
       <th align="left">[% 'Receivables' | $T8 %]</th>
@@ -96,26 +104,46 @@ window.onload = function() {
     </tr>
     <tr>
       <td>
-        <input name="AR_amount" type="checkbox" class="checkbox" value="AR_amount"
-          [% HTML.escape(AR_amount)%][% DIS %]>&nbsp;
-        [% 'Revenue' | $T8 %] <br>
-        <input name="AR_paid" type="checkbox" class="checkbox" value="AR_paid"
-          [% HTML.escape(AR_paid) %][% DIS %]>&nbsp;
-        [% 'Receipt' | $T8 %] <br>
-        <input name="AR_tax" type="checkbox" class="checkbox" value="AR_tax"
-          [% HTML.escape(AR_tax) %][% DIS %]>&nbsp;
-        [% 'Tax' | $T8 %]
+        [% L.radio_button_tag('AR_include_in_dropdown',
+          value => 'AR_amount',
+          disabled => AccountIsPosted,
+          checked  => AR_amount) %]
+        &nbsp;[% 'Revenue' | $T8 %] <br>
+        [% L.radio_button_tag('AR_include_in_dropdown',
+          value => 'AR_paid',
+          disabled => AccountIsPosted,
+          checked  => AR_paid) %]
+        &nbsp;[% 'Receipt' | $T8 %] <br>
+        [% L.radio_button_tag('AR_include_in_dropdown',
+          value => 'AR_tax',
+          disabled => AccountIsPosted,
+          checked  => AR_tax) %]
+        &nbsp;[% 'Tax' | $T8 %] <br>
+        [% L.radio_button_tag('AR_include_in_dropdown',
+          value => '',
+          disabled => AccountIsPosted) %]
+        &nbsp;[% 'do not include' | $T8 %]
       </td>
       <td>
-        <input name="AP_amount" type="checkbox" class="checkbox" value="AP_amount"
-          [% HTML.escape(AP_amount) %][% DIS %]>&nbsp;
-        [% 'Expense/Asset' | $T8 %] <br>
-        <input name="AP_paid" type="checkbox" class="checkbox" value="AP_paid"
-          [% HTML.escape(AP_paid) %][% DIS %]>&nbsp;
-        [% 'Payment' | $T8 %] <br>
-        <input name="AP_tax" type="checkbox" class="checkbox" value="AP_tax"
-            [% HTML.escape(AP_tax) %][% DIS %]>&nbsp;
-        [% 'Tax' | $T8 %]
+        [% L.radio_button_tag('AP_include_in_dropdown',
+          value => 'AP_amount',
+          disabled => AccountIsPosted,
+          checked  => AP_amount) %]
+        &nbsp;[% 'Expense/Asset' | $T8 %] <br>
+        [% L.radio_button_tag('AP_include_in_dropdown',
+          value => 'AP_paid',
+          disabled => AccountIsPosted,
+          checked  => AP_paid) %]
+        &nbsp;[% 'Payment' | $T8 %] <br>
+        [% L.radio_button_tag('AP_include_in_dropdown',
+          value => 'AP_tax',
+          disabled => AccountIsPosted,
+          checked  => AP_tax) %]
+        &nbsp;[% 'Tax' | $T8 %] <br>
+        [% L.radio_button_tag('AP_include_in_dropdown',
+          value => '',
+          disabled => AccountIsPosted) %]
+        &nbsp;[% 'do not include' | $T8 %]
       </td>
       <td>
         <input name="IC_sale" type="checkbox" class="checkbox" value="IC_sale"
@@ -127,6 +155,7 @@ window.onload = function() {
         <input name="IC_taxpart" type="checkbox" class="checkbox" value="IC_taxpart"
           [% HTML.escape(IC_taxpart) %]>&nbsp;
         [% 'Tax' | $T8 %]
+        <br><br>
       </td>
       <td>
         <input name=IC_income type=checkbox class=checkbox value="IC_income"
@@ -138,6 +167,7 @@ window.onload = function() {
         <input name=IC_taxservice type=checkbox class=checkbox value="IC_taxservice"
           [% HTML.escape(IC_taxservice) %]>&nbsp;
         [% 'Tax' | $T8 %]
+        <br><br>
       </td>
     </tr>
   </table>

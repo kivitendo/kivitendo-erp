@@ -42,6 +42,13 @@
     ein "Bullet" ersetzt. Dafür kann mit <bullet> ein Aufzählungspunkt erzeugt
     werden.
 
+  - Bebuchte Konten und als Steuerautomatik-Konten dienende Konten lassen sich
+    löschen und nur bedingt umkonfigurieren (Häkchen bei Forderungen o.
+    Verbindlichkeiten).
+
+  - Häkchen bei der Konto-Konfiguration f. Forderungen u. Verbindlichkeiten
+    als Radio-Buttons.
+
 
   Liste gefixter Bugs aus dem Bugtracker:
 

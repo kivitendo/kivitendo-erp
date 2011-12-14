@@ -18,7 +18,7 @@ INSERT INTO chart (
   )
 SELECT
   '1570','Anrechenbare Vorsteuer',
-  'A',         'E',       'AP_tax:IC_taxpart:IC_taxservice:CT_tax',
+  'A',         'E',       'AP_tax:IC_taxpart:IC_taxservice',
   0
 WHERE EXISTS ( -- update only for SKR03
     SELECT coa FROM defaults
@@ -33,7 +33,7 @@ INSERT INTO chart (
   )
 SELECT
   '1574','Abziehbare Vorsteuer aus innergem. Erwerb 19 %',
-  'A',         'E',       'AP_tax:IC_taxpart:IC_taxservice:CT_tax',
+  'A',         'E',       'AP_tax:IC_taxpart:IC_taxservice',
   0
 WHERE EXISTS ( -- update only for SKR03
     SELECT coa FROM defaults
@@ -48,7 +48,7 @@ INSERT INTO chart (
   )
 SELECT
   '1774','Umsatzsteuer aus innergem. Erwerb 19 %',
-  'A',         'I',       'AR_tax:IC_taxpart:IC_taxservice:CT_tax',
+  'A',         'I',       'AR_tax:IC_taxpart:IC_taxservice',
   0
 WHERE EXISTS ( -- update only for SKR03
     SELECT coa FROM defaults

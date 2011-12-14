@@ -1293,27 +1293,6 @@ sub get_customer {
   $main::lxdebug->leave_sub();
 }
 
-sub get_taxaccounts {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  # get tax accounts
-  my $query =
-    qq|SELECT c.accno, c.description, t.rate
-       FROM chart c, tax t
-       WHERE (c.link LIKE '%CT_tax%') AND (c.id = t.chart_id)
-       ORDER BY c.accno|;
-  $form->{taxaccounts} = selectall_hashref_query($form, $dbh, $query);
-
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
 sub tax_report {
   $main::lxdebug->enter_sub();
 
