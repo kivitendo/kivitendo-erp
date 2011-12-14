@@ -16,7 +16,7 @@ sub test ($$$;%) {
   my ($filter, $expect, $msg, %params) = @_;
   my $target = delete $params{target};
   my $args = { parse_filter($filter, %params) };
-  my $got  = $args;
+  my $got  = $args; $target ||= '';
      $got = $filter             if $target =~ /filter/;
      $got = $params{launder_to} if $target =~ /launder/;
   cmp_deeply(
