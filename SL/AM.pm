@@ -213,6 +213,13 @@ sub save_account {
       qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice);
   }
 
+  if ($form->{AR_include_in_dropdown}) {
+    $form->{$form->{AR_include_in_dropdown}} = $form->{AR_include_in_dropdown};
+  }
+  if ($form->{AP_include_in_dropdown}) {
+    $form->{$form->{AP_include_in_dropdown}} = $form->{AP_include_in_dropdown};
+  }
+
   $form->{link} = "";
   foreach my $item ($form->{AR},            $form->{AR_amount},
                     $form->{AR_tax},        $form->{AR_paid},

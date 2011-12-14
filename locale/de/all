@@ -2162,6 +2162,7 @@ $self->{texts} = {
   'deliverydate'                => 'Lieferdatum',
   'direct debit'                => 'Lastschrift',
   'disposed'                    => 'Entsorgung',
+  'do not include'              => 'Nicht aufnehmen',
   'done'                        => 'erledigt',
   'down'                        => 'runter',
   'dunning_list'                => 'mahnungsliste',

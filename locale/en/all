@@ -2016,6 +2016,7 @@ $self->{texts} = {
   'deliverydate'                => '',
   'direct debit'                => '',
   'disposed'                    => '',
+  'do not include'              => '',
   'done'                        => '',
   'down'                        => '',
   'dunning_list'                => '',
