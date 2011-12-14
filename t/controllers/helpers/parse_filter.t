@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 13;
+use Test::More tests => 17;
 use Test::Deep;
 use Data::Dumper;
 
@@ -12,14 +12,19 @@ undef *::any; # Test::Deep exports any (for junctions) and MoreCommon exports an
 Support::TestSetup::login();
 my ($filter, $expected);
 
-sub test ($$$) {
-  my $got = { parse_filter($_[0]) };
+sub test ($$$;%) {
+  my ($filter, $expect, $msg, %params) = @_;
+  my $target = delete $params{target};
+  my $args = { parse_filter($filter, %params) };
+  my $got  = $args;
+     $got = $filter             if $target =~ /filter/;
+     $got = $params{launder_to} if $target =~ /launder/;
   cmp_deeply(
     $got,
-    $_[1],
-    $_[2]
+    $expect,
+    $msg,
   ) or do {
-    print STDERR "expected => ", Dumper($_[1]), "\ngot: => ", Dumper($got), $/;
+    print STDERR "expected => ", Dumper($expect), "\ngot: => ", Dumper($got), $/;
   }
 }
 
@@ -125,4 +130,50 @@ test {
     sellprice => [ 123.4, 2.34, 0.4 ],
   ],
 }, 'arrays with filter';
+
+
+########### laundering
+
+test {
+  'sellprice:number' => [
+    '123,4', '2,34', '0,4',
+  ]
+}, {
+  'sellprice:number' => [ '123,4', '2,34', '0,4' ],
+  'sellprice_number' => [ '123,4', '2,34', '0,4' ],
+}, 'laundering with array', target => 'filter';
+
+my %args = (
+  'sellprice:number' => [
+    '123,4', '2,34', '0,4',
+  ],
+);
+test {
+  %args,
+}, {
+  %args
+}, 'laundering into launder does not alter filter', target => 'filter', launder_to => {};
+
+
+test {
+  part => {
+   'sellprice:number' => '123,4',
+  }
+}, {
+  part => {
+    'sellprice:number' => '123,4',
+    'sellprice_number' => '123,4'
+  }
+}, 'deep laundering', target => 'filter';
+
+
+test {
+  part => {
+   'sellprice:number' => '123,4',
+  }
+}, {
+  part => {
+    'sellprice_number' => '123,4'
+  }
+}, 'deep laundering, check for laundered hash', target => 'launder', launder_to => { };
 

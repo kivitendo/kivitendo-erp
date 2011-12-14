@@ -36,7 +36,7 @@ sub parse_filter {
 
   my $query = _parse_filter($flattened, %params);
 
-  _launder_keys($filter) unless $params{no_launder};
+  _launder_keys($filter, $params{launder_to}) unless $params{no_launder};
 
   return
     ($query   && @$query   ? (query => $query) : ()),
@@ -44,23 +44,27 @@ sub parse_filter {
 }
 
 sub _launder_keys {
-  my ($filter) = @_;
+  my ($filter, $launder_to) = @_;
+  $launder_to ||= $filter;
   return unless ref $filter eq 'HASH';
-  my @keys = keys %$filter;
-  for my $key (@keys) {
+  for my $key (keys %$filter) {
     my $orig = $key;
     $key =~ s/:/_/g;
-    $filter->{$key} = $filter->{$orig};
-    _launder_keys($filter->{$key});
+    if ('' eq ref $filter->{$orig}) {
+      $launder_to->{$key} = $filter->{$orig};
+    } elsif ('ARRAY' eq ref $filter->{$orig}) {
+      $launder_to->{$key} = [ @{ $filter->{$orig} } ];
+    } else {
+      $launder_to->{$key} ||= { };
+      _launder_keys($filter->{$key}, $launder_to->{$key});
+    }
   };
-
-  return $filter;
 }
 
 sub _pre_parse {
   my ($filter, $with_objects, $prefix, %params) = @_;
 
-  return () unless 'HASH'  eq ref $filter;
+  return (undef, $with_objects) unless 'HASH'  eq ref $filter;
   $with_objects ||= [];
 
   my @result;
@@ -207,18 +211,38 @@ and later
 The special empty method will be used to set the method for the previous
 method-less input.
 
-=item Laundering filter
+=back
+
+=head1 LAUNDERING
 
 Unfortunately Template cannot parse the postfixes if you want to
 rerender the filter. For this reason all colons filter keys are by
-default laundered into underscores. If you don't want this to happen
-pass C<< no_launder => 1 >> as a parameter. A full select_tag then
-loks like this:
+default laundered into underscores, so you can use them like this:
 
   [% L.input_tag('filter.price:number::lt', filter.price_number__lt) %]
 
+All of your original entries will stay intactg. If you don't want this to
+happen pass C<< no_launder => 1 >> as a parameter.  Additionally you can pass a
+different target for the laundered values with the C<launder_to>  parameter. It
+takes an hashref and will deep copy all values in your filter to the target. So
+if you have a filter that looks liek this:
 
-=back
+  $filter = {
+    'price:number::lt' => '2,30',
+    'closed            => '1',
+  }
+
+and parse it with
+
+  parse_filter($filter, launder_to => $laundered_filter = { })
+
+the original filter will be unchanged, and C<$laundered_filter> will end up
+like this:
+
+  $filter = {
+    'price_number__lt' => '2,30',
+    'closed            => '1',
+  }
 
 =head1 FILTERS (leading with :)
 
