@@ -23,6 +23,7 @@ sub new {
   $self->{options}  = {
     'std_column_visibility' => 0,
     'output_format'         => 'HTML',
+    'controller_class   '   => '',
     'allow_pdf_export'      => 1,
     'allow_csv_export'      => 1,
     'html_template'         => 'report_generator/html_report',
@@ -389,6 +390,7 @@ sub prepare_html_content {
     'EXPORT_VARIABLE_LIST' => join(' ', @{ $self->{export}->{variable_list} }),
     'EXPORT_NEXTSUB'       => $self->{export}->{nextsub},
     'DATA_PRESENT'         => $self->{data_present},
+    'CONTROLLER_DISPATCH'  => $opts->{controller_class},
   };
 
   return $variables;
@@ -768,6 +770,10 @@ sub _generate_csv_content {
   }
 }
 
+sub check_for_pdf_api {
+  return eval { require PDF::API2; 1; } ? 1 : 0;
+}
+
 1;
 
 __END__
@@ -920,6 +926,12 @@ Used to determine if a button for CSV export should be displayed. Default is yes
 =item html_template
 
 The template to be used for HTML reports. Default is 'report_generator/html_report'.
+
+=item controller_class
+
+If this is used from a C<SL::Controller::Base> based controller class, pass the
+class name here and make sure C<SL::Controller::Helper::ReportGenerator> is
+used in the controller. That way the exports stay functional.
 
 =back
 

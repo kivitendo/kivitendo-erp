@@ -1,16 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %]<body>
 
- <script type="text/javascript">
-  <!--
-      function submit_report_generator_form(nextsub) {
-        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
-        document.report_generator_form.submit();
-      }
-
-    -->
- </script>
-
  <style type="text/css">
   <!--
 .top_border {
@@ -106,6 +96,18 @@
    [% FOREACH var = EXPORT_VARIABLES %]<input type="hidden" name="report_generator_hidden_[% var.key %]" value="[% HTML.escape(var.value) %]">
    [% END %]
 
+[%- IF CONTROLLER_DISPATCH %]
+   <input type="hidden" name="action" value="[% CONTROLLER_DISPATCH %]/dispatch">
+   <input type="hidden" name="report_generator_nextsub" value="[% HTML.escape(EXPORT_NEXTSUB) %]">
+   <input type="hidden" name="report_generator_variable_list" value="[% HTML.escape(EXPORT_VARIABLE_LIST) %]">
+   <input type="hidden" name="CONTROLLER_DISPATCH" value="[% CONTROLLER_DISPATCH | html %]">
+
+   <p>
+    [% 'List export' | $T8 %]<br>
+    [% IF ALLOW_PDF_EXPORT %]<input type="submit" name="action_report_generator_export_as_pdf" value="[% 'Export as PDF' | $T8 %]">[% END %]
+    [% IF ALLOW_CSV_EXPORT %]<input type="submit" name="action_report_generator_export_as_csv" value="[% 'Export as CSV' | $T8 %]">[% END %]
+   </p>
+[%- ELSE %]
    <input type="hidden" name="report_generator_nextsub" value="[% HTML.escape(EXPORT_NEXTSUB) %]">
    <input type="hidden" name="report_generator_variable_list" value="[% HTML.escape(EXPORT_VARIABLE_LIST) %]">
    <input type="hidden" name="report_generator_dispatch_to" value="">
@@ -116,6 +118,14 @@
     [% IF ALLOW_PDF_EXPORT %]<input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_pdf')" value="[% 'Export as PDF' | $T8 %]">[% END %]
     [% IF ALLOW_CSV_EXPORT %]<input type="submit" class="submit" onclick="submit_report_generator_form('report_generator_export_as_csv')" value="[% 'Export as CSV' | $T8 %]">[% END %]
    </p>
+ <script type="text/javascript"> <!--
+      function submit_report_generator_form(nextsub) {
+        document.report_generator_form.report_generator_dispatch_to.value = nextsub;
+        document.report_generator_form.submit();
+      } // -->
+ </script>
+[%- END %]
+
   </form>
  [% END %]
 
