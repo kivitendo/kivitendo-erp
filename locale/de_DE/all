@@ -185,6 +185,7 @@ $self->{texts} = {
   'An invalid character was used (invalid characters: #1).' => '',
   'An invalid character was used (valid characters: #1).' => '',
   'An upper-case character is required.' => '',
+  'And if the account does not act as tax-o-matic account.' => 'Und wenn das Konto kein Steuerautomatik-Konto ist.',
   'Annotations'                 => 'Hilfe',
   'Another user with the login #1 does already exist.' => 'Es existiert bereits ein anderer Benutzer mit diesem Login.',
   'Ap aging on %s'              => 'Offene Verbindlichkeiten zum %s',

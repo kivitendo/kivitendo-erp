@@ -186,6 +186,7 @@ $self->{texts} = {
   'An invalid character was used (invalid characters: #1).' => '',
   'An invalid character was used (valid characters: #1).' => '',
   'An upper-case character is required.' => '',
+  'And if the account does not act as tax-o-matic account.' => '',
   'Annotations'                 => '',
   'Another user with the login #1 does already exist.' => '',
   'Ap aging on %s'              => '',

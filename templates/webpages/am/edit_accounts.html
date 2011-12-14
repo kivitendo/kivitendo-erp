@@ -93,7 +93,8 @@ window.onload = function() {
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>[% 'Include in drop-down menus' | $T8 %]</legend>
   <p style='font-weight:normal'>[% 'These will only be effective if the account is NOT a summary account AND there exists at least one taxkey. Setting the account as a summary account will erase these settings.' | $T8 %]</p>
-  <p style='font-weight:normal'>[% 'Changes to Receivables and Payables are only possible if no transactions to this account are posted yet.' | $T8 %]</p>
+  <p style='font-weight:normal'>[% 'Changes to Receivables and Payables are only possible if no transactions to this account are posted yet.' | $T8 %]
+  [% 'And if the account does not act as tax-o-matic account.' | $T8 %]</p>
   <table width="100%">
     <tr>
       <th align="left">[% 'Receivables' | $T8 %]</th>
