@@ -211,11 +211,27 @@ sub display_cvar_config_form {
   $main::lxdebug->leave_sub();
 }
 
+sub update {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+
+  $main::auth->assert('config');
+
+  $form->{included_by_default} = $form->{inclusion} eq 'yes_default_on';
+  $form->{includeable}         = $form->{inclusion} ne 'no';
+
+  display_cvar_config_form();
+
+  $main::lxdebug->leave_sub();
+}
+
+
 sub dispatcher {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  foreach my $action (qw(list_cvar_configs add_cvar_config)) {
+  foreach my $action (qw(list_cvar_configs add_cvar_config update)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
       return;
@@ -226,3 +242,4 @@ sub dispatcher {
 }
 
 1;
+

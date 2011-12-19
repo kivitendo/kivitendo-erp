@@ -60,6 +60,7 @@
   Liste gefixter Bugs aus dem Bugtracker:
 
   - Bugfix 1640: Buchungen werden falsch zugeordnet, wenn man Konten umkonfiguriert
+  - Bugfix 1753: Benutzerdefinierte Variable f. Waren: bearbeitbar nicht auswählbar
 
 
 2011-06-15 - Release 2.6.3

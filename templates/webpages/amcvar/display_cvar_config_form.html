@@ -20,7 +20,8 @@
             name      = 'module',
             id_key    = 'module',
             label_key = 'description',
-            DATA      = MODULES %]
+            DATA      = MODULES,
+            onChange   = "document.getElementById('update_button').click();" %]
      </td>
     </tr>
 
@@ -93,6 +94,7 @@
   <input type="hidden" name="id" value="[% HTML.escape(id) %]">
 
   <p>
+   <input type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
    <input type="submit" name="action" value="[% 'Save' | $T8 %]">
    [%- IF id %]
    <input type="submit" name="action" value="[% 'Delete' | $T8 %]">
