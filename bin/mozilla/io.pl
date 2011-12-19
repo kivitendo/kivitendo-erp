@@ -1481,9 +1481,10 @@ sub print_form {
 
   if ($form->{media} eq 'printer') {
     #$form->{OUT} = "| $form->{printer_command} &>/dev/null";
-    $form->{OUT} = "| $form->{printer_command} ";
+    $form->{OUT}      = $form->{printer_command};
+    $form->{OUT_MODE} = '|-';
     $form->{printed} .= " $form->{formname}";
-    $form->{printed} =~ s/^ //;
+    $form->{printed}  =~ s/^ //;
   }
   my $printed = $form->{printed};
 
@@ -1510,7 +1511,8 @@ sub print_form {
     }
 
     $filename .= ($form->{postscript}) ? '.ps' : '.pdf';
-    $form->{OUT} = ">" . $::lx_office_conf{paths}->{spool} . "/$filename";
+    $form->{OUT} = $::lx_office_conf{paths}->{spool} . "/$filename";
+    $form->{OUT_MODE} = '>';
 
     # add type
     $form->{queued} .= " $form->{formname} $filename";

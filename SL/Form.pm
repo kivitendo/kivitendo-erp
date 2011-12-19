@@ -1237,7 +1237,7 @@ sub parse_template {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig) = @_;
-  my $out;
+  my ($out, $out_mode);
 
   local (*IN, *OUT);
 
@@ -1319,13 +1319,15 @@ sub parse_template {
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
+    $out_mode = $self->{OUT_MODE} || '>';
     $self->{OUT} = "$self->{tmpfile}";
+    $self->{OUT_MODE} = '>';
   }
 
   my $result;
 
   if ($self->{OUT}) {
-    open(OUT, ">", $self->{OUT}) or $self->error("$self->{OUT} : $!");
+    open(OUT, $self->{OUT_MODE}, $self->{OUT}) or $self->error("error on opening $self->{OUT} with mode $self->{OUT_MODE} : $!");
   } else {
     *OUT = ($::dispatcher->get_standard_filehandles)[1];
     $self->header;
@@ -1398,7 +1400,8 @@ sub parse_template {
 
     } else {
 
-      $self->{OUT} = $out;
+      $self->{OUT}      = $out;
+      $self->{OUT_MODE} = $out_mode;
 
       my $numbytes = (-s $self->{tmpfile});
       open(IN, "<", $self->{tmpfile})
@@ -1412,7 +1415,7 @@ sub parse_template {
       #print(STDERR "OUT $self->{OUT}\n");
       for my $i (1 .. $self->{copies}) {
         if ($self->{OUT}) {
-          open OUT, '>', $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
+          open OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
           print OUT $_ while <IN>;
           close OUT;
           seek IN, 0, 0;
