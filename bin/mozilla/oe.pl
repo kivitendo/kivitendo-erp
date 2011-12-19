@@ -361,7 +361,9 @@ sub form_header {
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
   $TMPL_VAR{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
   $TMPL_VAR{currencies}        = NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
-                                                      '-values' => \@values, '-labels' => \%labels)) if scalar @values;
+                                                      '-values' => \@values, '-labels' => \%labels,
+                                                      '-onchange' => "document.getElementById('update_button').click();"
+                                     )) if scalar @values;
   push @custom_hiddens, "forex";
   push @custom_hiddens, "exchangerate" if $form->{forex};
 
