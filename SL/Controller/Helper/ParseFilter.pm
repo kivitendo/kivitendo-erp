@@ -74,7 +74,7 @@ sub _pre_parse {
     if ('HASH' eq ref $value) {
       my ($query, $more_objects) = _pre_parse($value, $with_objects, _prefix($prefix, $key));
       push @result,        @$query if $query;
-      push @$with_objects, $key, ($more_objects ? @$more_objects : ());
+      push @$with_objects, _prefix($prefix, $key), ($more_objects ? @$more_objects : ());
     } else {
       push @result, _prefix($prefix, $key) => $value;
     }

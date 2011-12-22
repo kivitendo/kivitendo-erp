@@ -58,7 +58,7 @@ test {
   }
 }, {
   query => [ 'customer.chart.accno' => 'test' ],
-  with_objects => bag( 'customer', 'chart' ),
+  with_objects => bag( 'customer', 'customer.chart' ),
 }, 'nested joins';
 
 test {
@@ -82,7 +82,7 @@ test {
 },
 {
   query => [ 'customer.chart.accno' => { like => '%1200' } ],
-  with_objects => bag('customer', 'chart' ),
+  with_objects => bag('customer', 'customer.chart' ),
 }, 'all together';
 
 
@@ -100,7 +100,7 @@ test {
                'invoice.customer.name'  => 'test',
                'customer.name'          => 'test',
              }} ],
-  'with_objects' => bag( 'invoice', 'customer' )
+  'with_objects' => bag( 'invoice.customer', 'customer', 'invoice' )
 }, 'object in more than one relationship';
 
 test {
@@ -176,4 +176,17 @@ test {
     'sellprice_number' => '123,4'
   }
 }, 'deep laundering, check for laundered hash', target => 'launder', launder_to => { };
+
+### bug: sub objects
+
+test {
+  order => {
+    customer => {
+      'name:substr::ilike' => 'test',
+    }
+  }
+}, {
+  query => [ 'order.customer.name' => { ilike => '%test%' } ],
+  with_objects => bag('order.customer', 'order'),
+}, 'sub objects have to retain their prefix';
 
