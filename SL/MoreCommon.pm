@@ -176,7 +176,7 @@ sub uri_decode {
   $str =~ tr/+/ /;
   $str =~ s/\\$//;
 
-  $str =~ s/%([0-9a-fA-Z]{2})/pack("c",hex($1))/eg;
+  $str =~ s/%([0-9a-fA-Z]{2})/pack("C",hex($1))/eg;
   $str =  Encode::decode('utf-8-strict', $str) if $::locale->is_utf8;
 
   return $str;
