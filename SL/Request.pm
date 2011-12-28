@@ -49,11 +49,17 @@ sub _input_to_hash {
   $::lxdebug->leave_sub(2);
 }
 
-sub parse_multipart_formdata {
-  my ($target, $input) = @_;
-  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous);
-  my $uploads = {};
+sub _parse_multipart_formdata {
+  my ($target, $temp_target, $input) = @_;
+  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous, $encoding, $transfer_encoding);
 
+  # We SHOULD honor encodings and transfer-encodings here, but as hard as I
+  # looked I couldn't find a reasonably recent webbrowser that makes use of
+  # these. Transfer encoding just eats up bandwidth...
+
+  # so all I'm going to do is add a fail safe that if anyone ever encounters
+  # this, it's going to croak so that debugging is easier
+  $ENV{'CONTENT_TYPE'} =~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/;
   my $boundary = '--' . $1;
 
   foreach my $line (split m/\n/, $input) {
@@ -61,6 +67,7 @@ sub parse_multipart_formdata {
 
     if (($line eq $boundary) || ($line eq "$boundary\r")) {
       ${ $previous } =~ s|\r?\n$|| if $previous;
+      ${ $previous } =  Encode::decode($encoding, $$previous) if $previous && !$filename && !$transfer_encoding eq 'binary';
 
       undef $previous;
       undef $filename;
@@ -69,6 +76,8 @@ sub parse_multipart_formdata {
       $content_type   = "text/plain";
       $boundary_found = 1;
       $need_cr        = 0;
+      $encoding       = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
+      $transfer_encoding = undef;
 
       next;
     }
@@ -94,14 +103,29 @@ sub parse_multipart_formdata {
           substr $line, $-[0], $+[0] - $-[0], "";
         }
 
-        $previous           = _store_value($uploads, $name, '') if ($name);
-        $target->{FILENAME} = $filename if ($filename);
+        $previous                = _store_value($filename ? $target : $temp_target, $name, '') if ($name);
+        $temp_target->{FILENAME} = $filename if ($filename);
 
         next;
       }
 
-      if ($line =~ m|^content-type\s*:\s*(.*?)$|i) {
+      if ($line =~ m|^content-type\s*:\s*(.*?)[;\$]|i) {
         $content_type = $1;
+
+        if ($content_type =~ /^text/ && $line =~ m|;\s*charset\s*:\s*("?)(.*?)\1$|i) {
+          $encoding = $2;
+        }
+
+        next;
+      }
+
+      if ($line =~ m|^content-transfer-encoding\s*=\s*(.*?)$|i) {
+        $transfer_encoding = lc($1);
+        if ($transfer_encoding  && $transfer_encoding !~ /^[78]bit|binary$/) {
+          die 'Transfer encodings beyond 7bit/8bit and binary are not implemented.';
+        }
+
+        next;
       }
 
       next;
@@ -115,54 +139,37 @@ sub parse_multipart_formdata {
   ${ $previous } =~ s|\r?\n$|| if $previous;
 
   $::lxdebug->leave_sub(2);
-
-}
-
-sub _request_to_hash {
-  $::lxdebug->enter_sub(2);
-
-  my ($target, $input) = @_;
-  my $uploads;
-
-  if (!$ENV{'CONTENT_TYPE'}
-      || ($ENV{'CONTENT_TYPE'} !~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/)) {
-
-   $uploads = { };
-    _input_to_hash($target, $input);
-
-  } else {
-   $uploads = _parse_multipart_formdata($target, $input);
-  }
-
-  $main::lxdebug->leave_sub(2);
-  return $uploads;
 }
 
 sub _recode_recursively {
-  $main::lxdebug->enter_sub();
-  my ($iconv, $param) = @_;
+  $::lxdebug->enter_sub;
+  my ($iconv, $from, $to) = @_;
 
-  if (any { ref $param eq $_ } qw(Form HASH)) {
-    foreach my $key (keys %{ $param }) {
-      if (!ref $param->{$key}) {
-        # Workaround for a bug: converting $param->{$key} directly
+  if (any { ref $from eq $_ } qw(Form HASH)) {
+    for my $key (keys %{ $from }) {
+      if (!ref $from->{$key}) {
+        # Workaround for a bug: converting $from->{$key} directly
         # leads to 'undef'. I don't know why. Converting a copy works,
         # though.
-        $param->{$key} = $iconv->convert("" . $param->{$key});
+        $to->{$key} = $iconv->convert("" . $from->{$key});
       } else {
-        _recode_recursively($iconv, $param->{$key});
+        $to->{$key} = {} if 'HASH'  eq ref $from->{$key};
+        $to->{$key} = [] if 'ARRAY' eq ref $from->{$key};
+        _recode_recursively($iconv, $from->{$key}, $to->{$key});
       }
     }
 
-  } elsif (ref $param eq 'ARRAY') {
-    foreach my $idx (0 .. scalar(@{ $param }) - 1) {
-      if (!ref $param->[$idx]) {
-        # Workaround for a bug: converting $param->[$idx] directly
+  } elsif (ref $from eq 'ARRAY') {
+    foreach my $idx (0 .. scalar(@{ $from }) - 1) {
+      if (!ref $from->[$idx]) {
+        # Workaround for a bug: converting $from->[$idx] directly
         # leads to 'undef'. I don't know why. Converting a copy works,
         # though.
-        $param->[$idx] = $iconv->convert("" . $param->[$idx]);
+        $from->[$idx] = $iconv->convert("" . $from->[$idx]);
       } else {
-        _recode_recursively($iconv, $param->[$idx]);
+        $to->[$idx] = {} if 'HASH'  eq ref $from->[$idx];
+        $to->[$idx] = [] if 'ARRAY' eq ref $from->[$idx];
+        _recode_recursively($iconv, $from->[$idx], $to->[$idx]);
       }
     }
   }
@@ -173,29 +180,49 @@ sub read_cgi_input {
   $::lxdebug->enter_sub;
 
   my ($target) = @_;
+  my $db_charset   = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
 
-  _input_to_hash($target, $ENV{QUERY_STRING}) if $ENV{QUERY_STRING};
-  _input_to_hash($target, $ARGV[0])           if @ARGV && $ARGV[0];
+  # yes i know, copying all those values around isn't terribly efficient, but
+  # the old version of dumping everything into form and then launching a
+  # tactical recode nuke at the data is still worse.
 
-  my $uploads;
+  # this way the data can at least be recoded on the fly as soon as we get to
+  # know the source encoding and only in the cases where encoding may be hidden
+  # among the payload we take the hit of copying the request around
+  my $temp_target = { };
+
+  # since both of these can potentially bring their encoding in INPUT_ENCODING
+  # they get dumped into temp_target
+  _input_to_hash($temp_target, $ENV{QUERY_STRING}) if $ENV{QUERY_STRING};
+  _input_to_hash($temp_target, $ARGV[0])           if @ARGV && $ARGV[0];
+
   if ($ENV{CONTENT_LENGTH}) {
     my $content;
     read STDIN, $content, $ENV{CONTENT_LENGTH};
-    $uploads = _request_to_hash($target, $content);
+    open my $fh, '>:raw', '/tmp/blubb.bin' or die;
+    print $fh $content;
+    close $fh;
+    if ($ENV{'CONTENT_TYPE'} && $ENV{'CONTENT_TYPE'} =~ /multipart\/form-data/) {
+      # multipart formdata can bring it's own encoding, so give it both
+      # and let ti decide on it's own
+      _parse_multipart_formdata($target, $temp_target, $content);
+    } else {
+      # normal encoding must be recoded
+      _input_to_hash($temp_target, $content);
+    }
   }
 
   if ($target->{RESTORE_FORM_FROM_SESSION_ID}) {
     my %temp_form;
     $::auth->restore_form_from_session(delete $target->{RESTORE_FORM_FROM_SESSION_ID}, form => \%temp_form);
-    _input_to_hash($target, join '&', map { uri_encode($_) . '=' . uri_encode($temp_form{$_}) } keys %temp_form);
+    _store_value($target, $_, $temp_form{$_}) for keys %temp_form;
   }
 
-  my $db_charset   = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
-  my $encoding     = delete $target->{INPUT_ENCODING} || $db_charset;
+  my $encoding     = delete $temp_target->{INPUT_ENCODING} || $db_charset;
 
-  _recode_recursively(SL::Iconv->new($encoding, $db_charset), $target);
+  _recode_recursively(SL::Iconv->new($encoding, $db_charset), $temp_target => $target) if keys %$target;
 
-  map { $target->{$_} = $uploads->{$_} } keys %{ $uploads } if $uploads;
+  map { $target->{$_} = $temp_target->{$_} } keys %{ $temp_target };
 
   $::lxdebug->leave_sub;
 
