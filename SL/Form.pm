@@ -58,7 +58,9 @@ use SL::IC;
 use SL::IS;
 use SL::Mailer;
 use SL::Menu;
+use SL::MoreCommon qw(uri_encode uri_decode);
 use SL::OE;
+use SL::Request;
 use SL::Template;
 use SL::User;
 use SL::X;
@@ -81,168 +83,6 @@ sub disconnect_standard_dbh {
   undef $standard_dbh;
 }
 
-sub _store_value {
-  $main::lxdebug->enter_sub(2);
-
-  my $self  = shift;
-  my $key   = shift;
-  my $value = shift;
-
-  my @tokens = split /((?:\[\+?\])?(?:\.|$))/, $key;
-
-  my $curr;
-
-  if (scalar @tokens) {
-     $curr = \ $self->{ shift @tokens };
-  }
-
-  while (@tokens) {
-    my $sep = shift @tokens;
-    my $key = shift @tokens;
-
-    $curr = \ $$curr->[++$#$$curr], next if $sep eq '[]';
-    $curr = \ $$curr->[max 0, $#$$curr]  if $sep eq '[].';
-    $curr = \ $$curr->[++$#$$curr]       if $sep eq '[+].';
-    $curr = \ $$curr->{$key}
-  }
-
-  $$curr = $value;
-
-  $main::lxdebug->leave_sub(2);
-
-  return $curr;
-}
-
-sub _input_to_hash {
-  $main::lxdebug->enter_sub(2);
-
-  my $self  = shift;
-  my $input = shift;
-
-  my @pairs = split(/&/, $input);
-
-  foreach (@pairs) {
-    my ($key, $value) = split(/=/, $_, 2);
-    $self->_store_value($self->unescape($key), $self->unescape($value)) if ($key);
-  }
-
-  $main::lxdebug->leave_sub(2);
-}
-
-sub _request_to_hash {
-  $main::lxdebug->enter_sub(2);
-
-  my $self  = shift;
-  my $input = shift;
-  my $uploads = {};
-
-  if (!$ENV{'CONTENT_TYPE'}
-      || ($ENV{'CONTENT_TYPE'} !~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/)) {
-
-    $self->_input_to_hash($input);
-
-    $main::lxdebug->leave_sub(2);
-    return $uploads;
-  }
-
-  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous);
-
-  my $boundary = '--' . $1;
-
-  foreach my $line (split m/\n/, $input) {
-    last if (($line eq "${boundary}--") || ($line eq "${boundary}--\r"));
-
-    if (($line eq $boundary) || ($line eq "$boundary\r")) {
-      ${ $previous } =~ s|\r?\n$|| if $previous;
-
-      undef $previous;
-      undef $filename;
-
-      $headers_done   = 0;
-      $content_type   = "text/plain";
-      $boundary_found = 1;
-      $need_cr        = 0;
-
-      next;
-    }
-
-    next unless $boundary_found;
-
-    if (!$headers_done) {
-      $line =~ s/[\r\n]*$//;
-
-      if (!$line) {
-        $headers_done = 1;
-        next;
-      }
-
-      if ($line =~ m|^content-disposition\s*:.*?form-data\s*;|i) {
-        if ($line =~ m|filename\s*=\s*"(.*?)"|i) {
-          $filename = $1;
-          substr $line, $-[0], $+[0] - $-[0], "";
-        }
-
-        if ($line =~ m|name\s*=\s*"(.*?)"|i) {
-          $name = $1;
-          substr $line, $-[0], $+[0] - $-[0], "";
-        }
-
-        $previous         = _store_value($uploads, $name, '') if ($name);
-        $self->{FILENAME} = $filename if ($filename);
-
-        next;
-      }
-
-      if ($line =~ m|^content-type\s*:\s*(.*?)$|i) {
-        $content_type = $1;
-      }
-
-      next;
-    }
-
-    next unless $previous;
-
-    ${ $previous } .= "${line}\n";
-  }
-
-  ${ $previous } =~ s|\r?\n$|| if $previous;
-
-  $main::lxdebug->leave_sub(2);
-
-  return $uploads;
-}
-
-sub _recode_recursively {
-  $main::lxdebug->enter_sub();
-  my ($iconv, $param) = @_;
-
-  if (any { ref $param eq $_ } qw(Form HASH)) {
-    foreach my $key (keys %{ $param }) {
-      if (!ref $param->{$key}) {
-        # Workaround for a bug: converting $param->{$key} directly
-        # leads to 'undef'. I don't know why. Converting a copy works,
-        # though.
-        $param->{$key} = $iconv->convert("" . $param->{$key});
-      } else {
-        _recode_recursively($iconv, $param->{$key});
-      }
-    }
-
-  } elsif (ref $param eq 'ARRAY') {
-    foreach my $idx (0 .. scalar(@{ $param }) - 1) {
-      if (!ref $param->[$idx]) {
-        # Workaround for a bug: converting $param->[$idx] directly
-        # leads to 'undef'. I don't know why. Converting a copy works,
-        # though.
-        $param->[$idx] = $iconv->convert("" . $param->[$idx]);
-      } else {
-        _recode_recursively($iconv, $param->[$idx]);
-      }
-    }
-  }
-  $main::lxdebug->leave_sub();
-}
-
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -258,43 +98,6 @@ sub new {
 
   bless $self, $type;
 
-  $main::lxdebug->leave_sub();
-
-  return $self;
-}
-
-sub read_cgi_input {
-  $main::lxdebug->enter_sub();
-
-  my ($self) = @_;
-
-  $self->_input_to_hash($ENV{QUERY_STRING}) if $ENV{QUERY_STRING};
-  $self->_input_to_hash($ARGV[0])           if @ARGV && $ARGV[0];
-
-  my $uploads;
-  if ($ENV{CONTENT_LENGTH}) {
-    my $content;
-    read STDIN, $content, $ENV{CONTENT_LENGTH};
-    $uploads = $self->_request_to_hash($content);
-  }
-
-  if ($self->{RESTORE_FORM_FROM_SESSION_ID}) {
-    my %temp_form;
-    $::auth->restore_form_from_session(delete $self->{RESTORE_FORM_FROM_SESSION_ID}, form => \%temp_form);
-    $self->_input_to_hash(join '&', map { $self->escape($_) . '=' . $self->escape($temp_form{$_}) } keys %temp_form);
-  }
-
-  my $db_charset   = $::lx_office_conf{system}->{dbcharset};
-  $db_charset    ||= Common::DEFAULT_CHARSET;
-
-  my $encoding     = $self->{INPUT_ENCODING} || $db_charset;
-  delete $self->{INPUT_ENCODING};
-
-  _recode_recursively(SL::Iconv->new($encoding, $db_charset), $self);
-
-  map { $self->{$_} = $uploads->{$_} } keys %{ $uploads } if $uploads;
-
-  #$self->{version} =  "2.6.1";                 # Old hardcoded but secure style
   open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
   $self->{version} =  <VERSION_FILE>;
   close VERSION_FILE;
@@ -303,6 +106,11 @@ sub read_cgi_input {
   $main::lxdebug->leave_sub();
 
   return $self;
+}
+
+sub read_cgi_input {
+  my ($self) = @_;
+  SL::Request::read_cgi_input($self);
 }
 
 sub _flatten_variables_rec {
@@ -404,32 +212,15 @@ sub dumper {
 }
 
 sub escape {
-  $main::lxdebug->enter_sub(2);
-
   my ($self, $str) = @_;
 
-  $str =  Encode::encode('utf-8-strict', $str) if $::locale->is_utf8;
-  $str =~ s/([^a-zA-Z0-9_.:-])/sprintf("%%%02x", ord($1))/ge;
-
-  $main::lxdebug->leave_sub(2);
-
-  return $str;
+  return uri_encode($str);
 }
 
 sub unescape {
-  $main::lxdebug->enter_sub(2);
-
   my ($self, $str) = @_;
 
-  $str =~ tr/+/ /;
-  $str =~ s/\\$//;
-
-  $str =~ s/%([0-9a-fA-Z]{2})/pack("c",hex($1))/eg;
-  $str =  Encode::decode('utf-8-strict', $str) if $::locale->is_utf8;
-
-  $main::lxdebug->leave_sub(2);
-
-  return $str;
+  return uri_decode($str);
 }
 
 sub quote {
@@ -3789,61 +3580,6 @@ Points of interest for a beginner are:
  - $form->get_standard_dbh - returns a database connection for the
 
 =head1 SPECIAL FUNCTIONS
-
-=head2 C<_store_value()>
-
-parses a complex var name, and stores it in the form.
-
-syntax:
-  $form->_store_value($key, $value);
-
-keys must start with a string, and can contain various tokens.
-supported key structures are:
-
-1. simple access
-  simple key strings work as expected
-
-  id => $form->{id}
-
-2. hash access.
-  separating two keys by a dot (.) will result in a hash lookup for the inner value
-  this is similar to the behaviour of java and templating mechanisms.
-
-  filter.description => $form->{filter}->{description}
-
-3. array+hashref access
-
-  adding brackets ([]) before the dot will cause the next hash to be put into an array.
-  using [+] instead of [] will force a new array index. this is useful for recurring
-  data structures like part lists. put a [+] into the first varname, and use [] on the
-  following ones.
-
-  repeating these names in your template:
-
-    invoice.items[+].id
-    invoice.items[].parts_id
-
-  will result in:
-
-    $form->{invoice}->{items}->[
-      {
-        id       => ...
-        parts_id => ...
-      },
-      {
-        id       => ...
-        parts_id => ...
-      }
-      ...
-    ]
-
-4. arrays
-
-  using brackets at the end of a name will result in a pure array to be created.
-  note that you mustn't use [+], which is reserved for array+hash access and will
-  result in undefined behaviour in array context.
-
-  filter.status[]  => $form->{status}->[ val1, val2, ... ]
 
 =head2 C<update_business> PARAMS
 
