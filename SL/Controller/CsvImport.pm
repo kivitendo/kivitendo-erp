@@ -142,7 +142,9 @@ sub render_inputs {
             : $self->type eq 'parts'             ? $::locale->text('CSV import: parts and services')
             : die;
 
-  $self->all_buchungsgruppen(SL::DB::Manager::Buchungsgruppe->get_all_sorted);
+  if ($self->{type} eq 'parts') {
+    $self->all_buchungsgruppen(SL::DB::Manager::Buchungsgruppe->get_all_sorted);
+  }
 
   $self->setup_help;
 
