@@ -4,7 +4,7 @@ require Exporter;
 our @ISA = qw(Exporter);
 
 our @EXPORT    = qw(save_form restore_form compare_numbers any cross);
-our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify ary_to_hash uri_encode uri_decode uri_encode uri_decode);
+our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify ary_to_hash uri_encode uri_decode);
 
 use List::MoreUtils qw(zip);
 use YAML;
