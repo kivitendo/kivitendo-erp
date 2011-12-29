@@ -153,8 +153,8 @@ sub _recode_recursively {
         # though.
         $to->{$key} = $iconv->convert("" . $from->{$key});
       } else {
-        $to->{$key} = {} if 'HASH'  eq ref $from->{$key};
-        $to->{$key} = [] if 'ARRAY' eq ref $from->{$key};
+        $to->{$key} ||= {} if 'HASH'  eq ref $from->{$key};
+        $to->{$key} ||= [] if 'ARRAY' eq ref $from->{$key};
         _recode_recursively($iconv, $from->{$key}, $to->{$key});
       }
     }
@@ -167,8 +167,8 @@ sub _recode_recursively {
         # though.
         $from->[$idx] = $iconv->convert("" . $from->[$idx]);
       } else {
-        $to->[$idx] = {} if 'HASH'  eq ref $from->[$idx];
-        $to->[$idx] = [] if 'ARRAY' eq ref $from->[$idx];
+        $to->[$idx] ||= {} if 'HASH'  eq ref $from->[$idx];
+        $to->[$idx] ||= [] if 'ARRAY' eq ref $from->[$idx];
         _recode_recursively($iconv, $from->[$idx], $to->[$idx]);
       }
     }
