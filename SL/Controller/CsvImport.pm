@@ -84,7 +84,7 @@ sub action_download_sample {
 
   $file->fh->close;
 
-  $self->send_file($file->file_name);
+  $self->send_file($file->file_name, name => $file_name);
 }
 
 #
