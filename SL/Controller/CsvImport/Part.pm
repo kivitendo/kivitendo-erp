@@ -83,7 +83,7 @@ sub init_settings {
 
   return { map { ( $_ => $self->controller->profile->get($_) ) } qw(apply_buchungsgruppe default_buchungsgruppe article_number_policy
                                                                     sellprice_places sellprice_adjustment sellprice_adjustment_type
-                                                                    shoparticle_if_missing parts_type) };
+                                                                    shoparticle_if_missing parts_type default_unit) };
 }
 
 sub init_all_cvar_configs {
@@ -312,6 +312,8 @@ sub check_unit {
 
   my $object = $entry->{object};
 
+  $object->unit($self->settings->{default_unit}) unless $object->unit;
+
   # Check whether or unit is valid.
   if (!$self->units_by->{name}->{ $object->unit }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Unit missing or invalid');
@@ -442,7 +444,7 @@ sub setup_displayable_columns {
                                  { name => 'sellprice',          description => $::locale->text('Sellprice')                     },
                                  { name => 'shop',               description => $::locale->text('Shopartikel')                   },
                                  { name => 'type',               description => $::locale->text('Article type (see below)')      },
-                                 { name => 'unit',               description => $::locale->text('Unit')                          },
+                                 { name => 'unit',               description => $::locale->text('Unit (if missing or empty default unit will be used)') },
                                  { name => 've',                 description => $::locale->text('Verrechnungseinheit')           },
                                  { name => 'weight',             description => $::locale->text('Weight')                        },
                                 );

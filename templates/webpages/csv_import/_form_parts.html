@@ -50,3 +50,11 @@
   [% L.select_tag('settings.apply_buchungsgruppe', L.options_for_select(opts, default => SELF.profile.get('apply_buchungsgruppe')), style => 'width: 300px') %]
  </td>
 </tr>
+
+<tr>
+ <th align="right" valign="top">[%- LxERP.t8('Default unit') %]:</th>
+ <td colspan="10" valign="top">
+  [% opts = L.options_for_select(SELF.all_units, title => 'name', value => 'name', default => SELF.profile.get('default_unit')) %]
+  [% L.select_tag('settings.default_unit', opts, style => 'width: 300px') %]
+ </td>
+</tr>

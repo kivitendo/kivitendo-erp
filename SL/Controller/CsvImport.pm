@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
+use SL::DB::Unit;
 use SL::Helper::Flash;
 use SL::SessionFile;
 use SL::Controller::CsvImport::Contact;
@@ -17,7 +18,7 @@ use parent qw(SL::Controller::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen
+ scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
                 import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns) ],
 );
 
@@ -144,6 +145,7 @@ sub render_inputs {
 
   if ($self->{type} eq 'parts') {
     $self->all_buchungsgruppen(SL::DB::Manager::Buchungsgruppe->get_all_sorted);
+    $self->all_units(SL::DB::Manager::Unit->get_all_sorted);
   }
 
   $self->setup_help;
