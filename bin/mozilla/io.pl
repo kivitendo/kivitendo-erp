@@ -46,6 +46,9 @@ use SL::CT;
 use SL::IC;
 use SL::IO;
 
+use SL::DB::Language;
+use SL::DB::Printer;
+
 require "bin/mozilla/common.pl";
 
 use strict;
@@ -1473,9 +1476,24 @@ sub print_form {
     $extension            = 'xls';
   }
 
-  my $email_extension = (($form->{media} eq 'email') && (-f "$myconfig{templates}/$form->{formname}_email$form->{language}${printer_code}.${extension}")) ? '_email' : '';
+  # search for the template
+  my @template_files;
+  push @template_files, "$form->{formname}_email$form->{language}$printer_code.$extension" if $form->{media} eq 'email';
+  push @template_files, "$form->{formname}$form->{language}$printer_code.$extension";
+  push @template_files, "$form->{formname}.$extension";
+  push @template_files, "default.$extension";
 
-  $form->{IN}         = "$form->{formname}${email_extension}$form->{language}${printer_code}.${extension}";
+  $form->{IN} = undef;
+  for my $filename (@template_files) {
+    if (-f "$myconfig{templates}/$filename") {
+      $form->{IN} = $filename;
+      last;
+    }
+  }
+
+  if (!defined $form->{IN}) {
+    $::form->error($::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files));
+  }
 
   delete $form->{OUT};
 
@@ -1539,6 +1557,16 @@ sub print_form {
     $form->save_history;
   }
   # /saving the history
+
+  # prepare meta information for template introspection
+  $form->{template_meta} = {
+    formname  => $form->{formname},
+    language  => SL::DB::Manager::Language->find_by_or_create(id => $form->{language_id}),
+    format    => $form->{format},
+    media     => $form->{media},
+    extension => $extension,
+    printer   => SL::DB::Manager::Printer->find_by_or_create(id => $form->{printer_id}),
+  };
 
   $form->parse_template(\%myconfig);
 

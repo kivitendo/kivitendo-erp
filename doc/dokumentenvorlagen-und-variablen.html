@@ -331,12 +331,78 @@ td {
   </table>
  </p>
 
+ <p>Zus&auml;tzlich werden angeforderte Sprache und Druckerk&uuml;rzel in den Dateinamen mit eingearbeitet. So wird aus der Vorlage <code>sales_order.ext</code> bei Sprache <code>de</code> und Druckerk&uuml;rzel <code>lpr2</code> der Vorlagenname <code>sales_order_de_lpr2.ext</code>. Zus&auml;tzlich k&ouml;nnen f&uuml;r E-Mails andere Vorlagen erstellt werden, diese bekommen dann noch das K&uuml;rzel <code>_email</code>, der vollst&auml;ndige Vorlagenname w&auml;re dann <code>sales_order_email_de_lpr2.ext</code>. In allen F&auml;llen kann eine Standarddatei <code>default.ext</code> hinterlegt werden. Diese wird verwendet, wenn keine der anderen Varianten gefunden wird.</p>
+
+ <p>Die vollst&auml;ndige Suchreihenfolge f&uuml;r einen Verkaufsauftrag mit der Sprache "de" und dem Drucker "lpr2", der per E-Mail im Format PDF verschickt wird, ist:</p>
+ <p>
+  <table border='1'>
+   <tr><th>Reihenfolge der m&ouml;glichen Vorlagennamen</th></tr>
+   <tr><td><code>sales_order_email_de_lpr2.tex</code></td></tr>
+   <tr><td><code>sales_order_de_lpr2.tex</code></td></tr>
+   <tr><td><code>sales_order.tex</code></td></tr>
+   <tr><td><code>default.tex</code></td></tr>
+  </table>
+ </p>
+
+ <p>Die kurzen Varianten dieser Vorlagentitel m&uuml;ssen dann entweder Standardwerte anzeigen, oder die angeforderten Werte selbst auswerten, siehe dazu <a href="#allgemein_meta">Metadaten in Vorlagen</a></p>
+
  <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
    zum Inhaltsverzeichnis</a></small><br>
  <hr>
 
  <h2><a name="allgemeine_variablen">
    Allgemeine Variablen, die in allen Vorlagen vorhanden sind</a></h2>
+
+ <h3><a name="allgemein_meta">
+   Metainformationen zur angeforderten Vorlage:</a></h3>
+
+ <p>Diese Variablen liefern Informationen dar&uuml;ber welche Variante einer Vorlage der Benutzer angefragt hat. Sie sind n&uuml;tzlich f&uuml;r Vorlagenautoren, die aus einer zentralen Layoutvorlage die einzelnen Formulare einbinden m&ouml;chten.</p>
+
+ <p>
+  <table border="1">
+   <tr><th>Variablenname</th><th>Bedeutung</th></tr>
+   <tr>
+    <td><code>template_meta.formname</code></td>
+    <td>Basisname der Vorlage. Identisch mit der <a href="#zuordnung_dateinamen">Zurordnung zu den Dateinamen</a> ohne die Erweiterung. Ein Verkaufsauftrag enth&auml;lt hier <code>sales_order</code>.</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.language.description</code></td>
+    <td>Beschreibung der verwendeten Sprache</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.language.template_code</code></td>
+    <td>Vorlagen&uuml;rzel der verwendeten Sprache, identisch mit dem K&uuml;rzel das im Dateinamen verwendetet wird.</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.language.output_numberformat</code></td>
+    <td>Zahlenformat der verwendeten Sprache in der Form "1.000,00". <em>Experimentell!</em>. Nur interessant f&uuml;r Vorlagen die mit unformatierten Werten arbeiten.</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.language.output_dateformat</code></td>
+    <td>Datumsformat der verwendeten Sprache in der Form "dd.mm.yyy". <em>Experimentell!</em>. Nur interessant f&uuml;r Vorlagen die mit unformatierten Werten arbeiten.</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.format</code></td>
+    <td>Das angeforderte Format. Kann im Moment die Werte <code>pdf</code>, <code>postscript</code>, <code>html</code>, <code>opendocument</code>, <code>opendocument_pdf</code> und <code>excel</code> enthalten.</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.extension</code></td>
+    <td>Dateierweiterung, wie im Dateinamen. Wird aus <code>format</code> entschieden.</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.media</code></td>
+    <td>Ausgabemedium. Kann zur Zeit die Werte <code>screen</code> f&uuml;r Bildschirm, <code>printer</code> f&uuml;r Drucker, und <code>queue</code> f&uuml;r Warteschlange enthalten.</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.printer.description</code></td>
+    <td>Beschreibung des ausgew&auml;hlten Druckers</td>
+   </tr>
+   <tr>
+    <td><code>template_meta.printer.template_code</code></td>
+    <td>Vorlagen&uuml;rzel des ausgew&auml;hlten Druckers, identisch mit dem K&uuml;rzel das im Dateinamen verwendetet wird.</td>
+   </tr>
+  </table>
+ </p>
 
  <h3><a name="allgemein_stammdaten">
    Stammdaten von Kunden und Lieferanten:</a></h3>
