@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
+use SL::DB::Unit;
 use SL::Helper::Flash;
 use SL::SessionFile;
 use SL::Controller::CsvImport::Contact;
@@ -17,7 +18,7 @@ use parent qw(SL::Controller::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen
+ scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
                 import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns) ],
 );
 
@@ -84,7 +85,7 @@ sub action_download_sample {
 
   $file->fh->close;
 
-  $self->send_file($file->file_name);
+  $self->send_file($file->file_name, name => $file_name);
 }
 
 #
@@ -142,7 +143,10 @@ sub render_inputs {
             : $self->type eq 'parts'             ? $::locale->text('CSV import: parts and services')
             : die;
 
-  $self->all_buchungsgruppen(SL::DB::Manager::Buchungsgruppe->get_all_sorted);
+  if ($self->{type} eq 'parts') {
+    $self->all_buchungsgruppen(SL::DB::Manager::Buchungsgruppe->get_all_sorted);
+    $self->all_units(SL::DB::Manager::Unit->get_all_sorted);
+  }
 
   $self->setup_help;
 

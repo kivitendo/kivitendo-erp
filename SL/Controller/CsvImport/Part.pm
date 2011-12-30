@@ -83,7 +83,7 @@ sub init_settings {
 
   return { map { ( $_ => $self->controller->profile->get($_) ) } qw(apply_buchungsgruppe default_buchungsgruppe article_number_policy
                                                                     sellprice_places sellprice_adjustment sellprice_adjustment_type
-                                                                    shoparticle_if_missing parts_type) };
+                                                                    shoparticle_if_missing parts_type default_unit) };
 }
 
 sub init_all_cvar_configs {
@@ -312,6 +312,8 @@ sub check_unit {
 
   my $object = $entry->{object};
 
+  $object->unit($self->settings->{default_unit}) unless $object->unit;
+
   # Check whether or unit is valid.
   if (!$self->units_by->{name}->{ $object->unit }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Unit missing or invalid');
@@ -412,39 +414,39 @@ sub setup_displayable_columns {
   $self->SUPER::setup_displayable_columns;
   $self->add_cvar_columns_to_displayable_columns;
 
-  $self->add_displayable_columns({ name => 'bin',                description => $::locale->text('Bin')                           },
-                                 { name => 'buchungsgruppen_id', description => $::locale->text('Buchungsgruppe (database ID)')  },
-                                 { name => 'buchungsgruppe',     description => $::locale->text('Buchungsgruppe (name)')         },
-                                 { name => 'description',        description => $::locale->text('Description')                   },
-                                 { name => 'drawing',            description => $::locale->text('Drawing')                       },
-                                 { name => 'ean',                description => $::locale->text('EAN')                           },
-                                 { name => 'formel',             description => $::locale->text('Formula')                       },
-                                 { name => 'gv',                 description => $::locale->text('Business Volume')               },
-                                 { name => 'has_sernumber',      description => $::locale->text('Has serial number')             },
-                                 { name => 'image',              description => $::locale->text('Image')                         },
-                                 { name => 'lastcost',           description => $::locale->text('Last Cost')                     },
-                                 { name => 'listprice',          description => $::locale->text('List Price')                    },
-                                 { name => 'make_X',             description => $::locale->text('Make (with X being a number)')  },
-                                 { name => 'microfiche',         description => $::locale->text('Microfiche')                    },
-                                 { name => 'model_X',            description => $::locale->text('Model (with X being a number)') },
-                                 { name => 'not_discountable',   description => $::locale->text('Not Discountable')              },
-                                 { name => 'notes',              description => $::locale->text('Notes')                         },
-                                 { name => 'obsolete',           description => $::locale->text('Obsolete')                      },
-                                 { name => 'onhand',             description => $::locale->text('On Hand')                       },
-                                 { name => 'partnumber',         description => $::locale->text('Part Number')                   },
-                                 { name => 'partsgroup_id',      description => $::locale->text('Partsgroup (database ID)')      },
-                                 { name => 'partsgroup',         description => $::locale->text('Partsgroup (name)')             },
-                                 { name => 'payment_id',         description => $::locale->text('Payment terms (database ID)')   },
-                                 { name => 'payment',            description => $::locale->text('Payment terms (name)')          },
-                                 { name => 'price_factor_id',    description => $::locale->text('Price factor (database ID)')    },
-                                 { name => 'price_factor',       description => $::locale->text('Price factor (name)')           },
-                                 { name => 'rop',                description => $::locale->text('ROP')                           },
-                                 { name => 'sellprice',          description => $::locale->text('Sellprice')                     },
-                                 { name => 'shop',               description => $::locale->text('Shopartikel')                   },
-                                 { name => 'type',               description => $::locale->text('Article type (see below)')      },
-                                 { name => 'unit',               description => $::locale->text('Unit')                          },
-                                 { name => 've',                 description => $::locale->text('Verrechnungseinheit')           },
-                                 { name => 'weight',             description => $::locale->text('Weight')                        },
+  $self->add_displayable_columns({ name => 'bin',                description => $::locale->text('Bin')                                                  },
+                                 { name => 'buchungsgruppen_id', description => $::locale->text('Buchungsgruppe (database ID)')                         },
+                                 { name => 'buchungsgruppe',     description => $::locale->text('Buchungsgruppe (name)')                                },
+                                 { name => 'description',        description => $::locale->text('Description')                                          },
+                                 { name => 'drawing',            description => $::locale->text('Drawing')                                              },
+                                 { name => 'ean',                description => $::locale->text('EAN')                                                  },
+                                 { name => 'formel',             description => $::locale->text('Formula')                                              },
+                                 { name => 'gv',                 description => $::locale->text('Business Volume')                                      },
+                                 { name => 'has_sernumber',      description => $::locale->text('Has serial number')                                    },
+                                 { name => 'image',              description => $::locale->text('Image')                                                },
+                                 { name => 'lastcost',           description => $::locale->text('Last Cost')                                            },
+                                 { name => 'listprice',          description => $::locale->text('List Price')                                           },
+                                 { name => 'make_X',             description => $::locale->text('Make (with X being a number)')                         },
+                                 { name => 'microfiche',         description => $::locale->text('Microfiche')                                           },
+                                 { name => 'model_X',            description => $::locale->text('Model (with X being a number)')                        },
+                                 { name => 'not_discountable',   description => $::locale->text('Not Discountable')                                     },
+                                 { name => 'notes',              description => $::locale->text('Notes')                                                },
+                                 { name => 'obsolete',           description => $::locale->text('Obsolete')                                             },
+                                 { name => 'onhand',             description => $::locale->text('On Hand')                                              },
+                                 { name => 'partnumber',         description => $::locale->text('Part Number')                                          },
+                                 { name => 'partsgroup_id',      description => $::locale->text('Partsgroup (database ID)')                             },
+                                 { name => 'partsgroup',         description => $::locale->text('Partsgroup (name)')                                    },
+                                 { name => 'payment_id',         description => $::locale->text('Payment terms (database ID)')                          },
+                                 { name => 'payment',            description => $::locale->text('Payment terms (name)')                                 },
+                                 { name => 'price_factor_id',    description => $::locale->text('Price factor (database ID)')                           },
+                                 { name => 'price_factor',       description => $::locale->text('Price factor (name)')                                  },
+                                 { name => 'rop',                description => $::locale->text('ROP')                                                  },
+                                 { name => 'sellprice',          description => $::locale->text('Sellprice')                                            },
+                                 { name => 'shop',               description => $::locale->text('Shopartikel')                                          },
+                                 { name => 'type',               description => $::locale->text('Article type (see below)')                             },
+                                 { name => 'unit',               description => $::locale->text('Unit (if missing or empty default unit will be used)') },
+                                 { name => 've',                 description => $::locale->text('Verrechnungseinheit')                                  },
+                                 { name => 'weight',             description => $::locale->text('Weight')                                               },
                                 );
 
   foreach my $language (@{ $self->all_languages }) {
