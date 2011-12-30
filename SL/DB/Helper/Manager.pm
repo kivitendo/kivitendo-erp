@@ -18,6 +18,14 @@ sub find_by {
   return $class->get_all(query => [ @_ ], limit => 1)->[0];
 }
 
+sub find_by_or_create {
+  my $class = shift;
+
+  my $found;
+  eval { $found = $class->find_by(@_); };
+  return defined $found ? $found : $class->object_class->new;
+}
+
 sub get_first {
   shift->get_all(
     @_,
