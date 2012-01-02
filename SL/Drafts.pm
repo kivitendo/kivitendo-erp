@@ -117,6 +117,8 @@ sub remove {
   $query = qq|DELETE FROM drafts WHERE id IN (| . join(", ", map { "?" } @draft_ids) . qq|)|;
   do_query($form, $dbh, $query, @draft_ids);
 
+  $dbh->commit;
+
   $main::lxdebug->leave_sub();
 }
 
