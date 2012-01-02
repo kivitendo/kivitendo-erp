@@ -331,7 +331,9 @@ td {
   </table>
  </p>
 
- <p>Zus&auml;tzlich werden angeforderte Sprache und Druckerk&uuml;rzel in den Dateinamen mit eingearbeitet. So wird aus der Vorlage <code>sales_order.ext</code> bei Sprache <code>de</code> und Druckerk&uuml;rzel <code>lpr2</code> der Vorlagenname <code>sales_order_de_lpr2.ext</code>. Zus&auml;tzlich k&ouml;nnen f&uuml;r E-Mails andere Vorlagen erstellt werden, diese bekommen dann noch das K&uuml;rzel <code>_email</code>, der vollst&auml;ndige Vorlagenname w&auml;re dann <code>sales_order_email_de_lpr2.ext</code>. In allen F&auml;llen kann eine Standarddatei <code>default.ext</code> hinterlegt werden. Diese wird verwendet, wenn keine der anderen Varianten gefunden wird.</p>
+ <a name="#dateinamen_erweitert"<h3>Sprache, Drucker und E-Mail</h3>
+
+ <p>Angeforderte Sprache und Druckerk&uuml;rzel in den Dateinamen mit eingearbeitet. So wird aus der Vorlage <code>sales_order.ext</code> bei Sprache <code>de</code> und Druckerk&uuml;rzel <code>lpr2</code> der Vorlagenname <code>sales_order_de_lpr2.ext</code>. Zus&auml;tzlich k&ouml;nnen f&uuml;r E-Mails andere Vorlagen erstellt werden, diese bekommen dann noch das K&uuml;rzel <code>_email</code>, der vollst&auml;ndige Vorlagenname w&auml;re dann <code>sales_order_email_de_lpr2.ext</code>. In allen F&auml;llen kann eine Standarddatei <code>default.ext</code> hinterlegt werden. Diese wird verwendet, wenn keine der anderen Varianten gefunden wird.</p>
 
  <p>Die vollst&auml;ndige Suchreihenfolge f&uuml;r einen Verkaufsauftrag mit der Sprache "de" und dem Drucker "lpr2", der per E-Mail im Format PDF verschickt wird, ist:</p>
  <p>
@@ -379,7 +381,7 @@ td {
    </tr>
    <tr>
     <td><code>template_meta.language.output_dateformat</code></td>
-    <td>Datumsformat der verwendeten Sprache in der Form "dd.mm.yyy". <em>Experimentell!</em>. Nur interessant f&uuml;r Vorlagen die mit unformatierten Werten arbeiten.</td>
+    <td>Datumsformat der verwendeten Sprache in der Form "dd.mm.yyyy". <em>Experimentell!</em>. Nur interessant f&uuml;r Vorlagen die mit unformatierten Werten arbeiten.</td>
    </tr>
    <tr>
     <td><code>template_meta.format</code></td>
@@ -391,7 +393,7 @@ td {
    </tr>
    <tr>
     <td><code>template_meta.media</code></td>
-    <td>Ausgabemedium. Kann zur Zeit die Werte <code>screen</code> f&uuml;r Bildschirm, <code>printer</code> f&uuml;r Drucker, und <code>queue</code> f&uuml;r Warteschlange enthalten.</td>
+    <td>Ausgabemedium. Kann zur Zeit die Werte <code>screen</code> f&uuml;r Bildschirm, <code>email</code> f&uuml;r E-Mmail (triggert das <code>_email</code> K&uuml;rzel im Dateinamen), <code>printer</code> f&uuml;r Drucker, und <code>queue</code> f&uuml;r Warteschlange enthalten.</td>
    </tr>
    <tr>
     <td><code>template_meta.printer.description</code></td>
