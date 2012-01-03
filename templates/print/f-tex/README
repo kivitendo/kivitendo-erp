@@ -1,5 +1,6 @@
 README lx-office Fancy-LaTeX  (f-tex)
 
+# Revision 1.1-u  (03.02.2012)
 # Revision 1.0-u  (16.11.2011)
 # Revision 0.9  (13.11.2011)
 # Revision 0.8  (12.09.2011)
@@ -12,21 +13,6 @@ README lx-office Fancy-LaTeX  (f-tex)
 # Revision 0.1  (03.11.2009)
 
 
-# Einleitung
-
-  Es gibt ein alternatives LaTeX Vorlagensystem im Verzeichnis
-    templates/f-tex
-  Fuer das Einrichten der Vorlagen gibt es ein Setup-Script
-
-
-# Voraussetzung:
-
-  - funktionierende Lx-Office Intallation
-  - mindestens eine Mandantendatenbank
-  weiter ist es hilfreich:
-  - mindestens einen Benutzer mit Verweis auf ein Vorlagenverzeichs
-  - Bereits angelegte Sprachkuerzel, wenn mehrsprachige Dokumente erstellt
-    werden sollen.
 
 # Feature Uebersicht
 
@@ -66,12 +52,14 @@ README lx-office Fancy-LaTeX  (f-tex)
       texlive-latex-extra \
       texlive-lang-german \
       texlive-generic-extra
-  (Info fuer != Debian Installationen: die Abhaengigkeiten werden waehrend des
-  Setups nochmals geprueft)
 
-  Rufe das folgende Script auf:
-   [lxo-home]/templates/f-tex/setup.sh
-  und folge den Anweisungen.
+  Die Abhaengigkeiten kann man mit
+   /scripts/installation_check.pl -l pruefen (z.Z. noch nicht eingecheckt)
+
+  Ein Vorlagenverzeichniss kannst Du direkt unter admin.pl Benutzeradministration erstellen:
+    Benutze Vorlagen: f-tex
+    Erzeuge Vorlagen, Name: <DEIN_WUNSCHNAME>
+  Das Verzeichniss templates muss dafuer fuer den Webserver schreibbar sein.
 
   Erstelle eine pdf-Hintergrund Datei und verlinke sie nach ./letter_head.pdf
 
@@ -93,19 +81,14 @@ README lx-office Fancy-LaTeX  (f-tex)
   diese dann im Template Verzeichniss ablegen und statt sample_head.pdf nach
   letter_head.pdf verlinken.
 
-  per default erstellt das Setupscript einen symbolischen Link
-  ./sample_head.pdf -> ./letter_head.pdf
   letzlich muss ./letter_head.pdf auf das passende Hintergrundpdf verweisen,
   welches gewuenschten Briefkopf enthaelt. Bei Updates oder nach erneutem
-  Aufruf des setup Scripts werden bestehende Links nicht ohne Rueckfrage
-  ersetzt, wer also schon seinen Briefkopf verlinkt hat, braucht diesen Link
-  nicht immer wieder neu anlegen. Das gleiche Prinzip gilt fuer letter.lco.
 
-  Es wird eine Datei mydata.tex erstellt, sie ist mit der aus
-  lp (Label Print in erp) kompatibel. Diese braucht man also nur einmal
-  fuer jedes template Verzeichnis zu generieren.
-  Bei Formatierungsschwierigkeiten bitte mit
-  [lxo-home]/templates/f-tex/mydata.tex.example vergleichen.
+  Es wird eine Datei mydata.tex.example ausgeliefert die nach mytdata.tex
+  verlinkt ist. Bei verwendetem Hintergrundpdf wird nur der Eintrag fuer das
+  Land verwendet die Datei muss  also nicht angefasst werden. Die Anderen Werte
+  sind fuer das Modul  lp (Label Print in erp -- zur Zeit nicht im
+  oeffentlichen Zweig).
 
   Alle Anpassungen zum Briefkopf, Fusszeilen, Firmenlogos, etc.
   sollten ueber die Hintergrund pdf datei oder die *.lco Datei erfolgen.
@@ -128,32 +111,8 @@ README lx-office Fancy-LaTeX  (f-tex)
       Angebotsnummer)
     - Darstellung von Brutto oder Netto-Preisen in der Auflistung
       (Endverbraucher versus Gewerblicher Kunde)
-  Dies laesst sich in lx-office nur ueber einen Kunstgriff realisieren,
-  da zum einen die perl-Anwendung nach latex-Vorlagen mit bestimmten
-  Namen sucht (z.B. sales_order_de.tex fuer die deutschsprachige
-  Auftragsbestaetigung -- wenn deutsch mit dem Vorlagenkuerzel de
-  angelegt wurde) und zum Anderen die Information um welches Dokument es
-  sich handelt nicht direkt innerhalb von Latex zur Verfuegung steht.
-
-  Umgesetzt wurde dies hier nun ueber symbolische Links im Dateisystem.  Es
-  gibt also eine Vorlage letter.tex (die ihrerseits weitere tex-Dateien
-  einbindet) und fuer jeden Dokumenttyp der durch letter.tex abgedeckt on von
-  jedem dieser wiederum in jeder verfuegbaren Sprache legt das setup Script einen
-  link in der lx-office Namenskonvention an, der auf die Datei letter.tex
-  verweist. Die Datei letter.tex wertet den Namen der Aufgerufenen Datei aus und
-  passt ihre Ausgabe dementsprechend an. Wenn zum Beispiel lx-office die Datei
-  packing_list_de.tex aufruft (die ja nur ein Link nach letter.tex ist) liegt die
-  Information des aktuellen Dokumentnamen (packing_list_de.tex) vor und latex
-  weiss, keine Preise, Lieferscheinnummer anzeigen, deutsche sprachumgebung, usw.
-
-  Es liegt mit der Datei setup.sh ein script vor, welches die Abhaengigkeiten
-  im System prueft und die benotigten Dateien und symbolischen Links erstellt.
-  Das script ist so aufgebaut, dass es bei Updates auch auf bestehende f-tex
-  Vorlagenordner angewendet werden kann, ohne vorhandene Personalisierungen zu
-  ueberschreiben. Die Benoetigten Informationen wie Template-Verzeichniss,
-  vorhandene Sprachkuerzel, etc werden waerend des setupprozesses abgefragt. Der
-  Setupprozess kann also sooft wie benoetigt wiederholt werden, auch wenn bereits
-  ein templateverzeichniss existiert.
+  Seit Version 2.7 ist das ohne Kunstgriff moeglich, da im bei nicht vorhanden
+  Dokumenten auf default.tex zurueckgegriffen wird.
 
 
   Nachteil:
@@ -238,8 +197,5 @@ Troubleshooting -- Fehler suchen:
 
     in der *.tex datei nach dem Fehler suchen.
 
-Changelogeintrag fuer offiziellen tree:
-  Kleine Verbesserungen:
-     Zusaetzliches alternatives LaTeX Templatesystem
 
 
