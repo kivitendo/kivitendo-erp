@@ -12,27 +12,39 @@ BEGIN {
 
 use SL::InstallationCheck;
 
+my %check;
+Getopt::Long::Configure ("bundling");
 GetOptions(
-  "verbose"   => \ my $v,
-  "all"       => \ my $a,
-  "optional!" => \ my $o,
-  "devel!"    => \ my $d,
-  "required!" => \ ( my $r = 1 ),
-  "help"      => sub { pod2usage(-verbose => 2) },
-  "color"     => \ ( my $c = 1 ),
+  "v|verbose"   => \ my $v,
+  "a|all"       => \ $check{a},
+  "o|optional!" => \ $check{o},
+  "d|devel!"    => \ $check{d},
+  "r|required!" => \ $check{r},
+  "h|help"      => sub { pod2usage(-verbose => 2) },
+  "c|color!"    => \ ( my $c = 1 ),
 );
 
-$d = $r = $o = 1 if $a;
+# if notihing is requested check "required"
+$check{r} = 1 unless defined $check{a} ||
+                     defined $check{o} ||
+                     defined $check{d};
+
+if ($check{a}) {
+  foreach my $check (keys %check) {
+    $check{$check} = 1 unless defined $check{$check};
+  }
+}
+
 
 $| = 1;
 
-if ($r) {
+if ($check{r}) {
   check($_, required => 1) for @SL::InstallationCheck::required_modules;
 }
-if ($o) {
+if ($check{o}) {
   check($_, optional => 1) for @SL::InstallationCheck::optional_modules;
 }
-if ($d) {
+if ($check{d}) {
   check($_, devel => 1) for @SL::InstallationCheck::developer_modules;
 }
 
@@ -40,9 +52,8 @@ sub check {
   my ($module, %role) = @_;
 
   my $line = "Looking for $module->{fullname}";
-  print $line;
   my $res = SL::InstallationCheck::module_available($module->{"name"}, $module->{version});
-  print dot_pad(length $line, $res ? 2 : 6, $res ? mycolor("ok", 'green') : mycolor("NOT ok", 'red')), $/;
+  print_result($line, $res);
 
   return if $res;
 
@@ -94,12 +105,12 @@ sub mycolor {
   return colored(@_);
 }
 
-sub dot_pad {
-  my ($s, $l, $text) = @_;
-  print " ";
-  print '.' x (80 - $s - 2 - $l);
-  print " ";
-  return $text;
+sub print_result {
+  my ($test, $exit) = @_;
+  print $test, " ", ('.' x (72 - length $test));
+  print $exit ? '.... '. mycolor('ok', 'green') : ' '. mycolor('NOT ok', 'red');
+  print "\n";
+  return;
 }
 
 1;
@@ -118,7 +129,10 @@ scripts/installation_check.pl - check Lx-Office dependancies
 
 =head1 DESCRIPTION
 
-List all modules needed by Lx-Office, probes for them, and warns if one is not available.
+Check dependencys. List all perl modules needed by Lx-Office, probes for them,
+and warns if one is not available.
+
+=head1 OPTIONS
 
 =over 4
 
@@ -130,9 +144,17 @@ Probe for all modules.
 
 Color output. Default on.
 
+=item C<--no-color>
+
+No color output. Helpful to avoid terminal escape problems.
+
 =item C<-d, --devel>
 
 Probe for developer dependancies. (Used for console  and tags file)
+
+=item C<--no-devel>
+
+Dont't probe for developer dependancies. (Useful in combination with --all)
 
 =item C<-h, --help>
 
@@ -142,13 +164,21 @@ Display this help.
 
 Probe for optional modules.
 
+=item C<--no-optional>
+
+Dont't probe for optional modules. (Useful in combination with --all)
+
 =item C<-r, --required>
 
 Probe for required modules (default).
 
+=item C<--no-required>
+
+Dont't probe for required modules. (Useful in combination with --all)
+
 =item C<-v. --verbose>
 
-Print additional info for modules that are missing
+Print additional info for missing dependancies
 
 =back
 
@@ -178,5 +208,6 @@ Version requirements not fully tested yet.
 
   Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
   Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
+  Wulf Coulmann E<lt>wulf@coulmann.deE<gt>
 
 =cut
