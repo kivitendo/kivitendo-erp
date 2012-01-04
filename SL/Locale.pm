@@ -340,13 +340,13 @@ sub date {
 }
 
 sub parse_date {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $date, $longformat) = @_;
   my ($spc, $yy, $mm, $dd);
 
   unless ($date) {
-    $main::lxdebug->leave_sub();
+    $main::lxdebug->leave_sub(2);
     return ();
   }
 
@@ -373,7 +373,7 @@ sub parse_date {
   $yy = ($yy < 70) ? $yy + 2000 : $yy;
   $yy = ($yy >= 70 && $yy <= 99) ? $yy + 1900 : $yy;
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
   return ($yy, $mm, $dd);
 }
 
@@ -385,11 +385,11 @@ sub parse_date_to_object {
 }
 
 sub reformat_date {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $date, $output_format, $longformat) = @_;
 
-  $main::lxdebug->leave_sub() and return "" unless ($date);
+  $main::lxdebug->leave_sub(2) and return "" unless ($date);
 
   my ($yy, $mm, $dd) = $self->parse_date($myconfig, $date);
 
@@ -404,7 +404,7 @@ sub reformat_date {
   $output_format =~ /y+/;
   substr($output_format, $-[0], $+[0] - $-[0]) = $yy;
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(2);
 
   return $output_format;
 }
