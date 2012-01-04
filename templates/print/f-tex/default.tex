@@ -3,7 +3,7 @@
 %  Globale Vorlage fuer Briefartige Documente LX-Office 2.6
 %
 %  Changelog: see gitlog
-   \newcommand{\ftLetterVersion}{1.0-u  (16.11.2011)}
+   \newcommand{\ftLetterVersion}{1.1-u  (03.01.2012)}
 %
 %  Lizenz
 %  http://www.gnu.de/licenses/gpl-3.0.html
@@ -20,7 +20,7 @@
 
 \begingroup
   \makeatletter
-  \@latex@warning@no@line{ #### this is letter.tex \ftLetterVersion #####}
+  \@latex@warning@no@line{ #### this is default.tex \ftLetterVersion #####}
 \endgroup
 
 
@@ -41,11 +41,17 @@
 \usepackage{zwischensumme}
 \ifthenelse{\isundefined{\employeecountry}}{\input{mydata}}{}
 
-
-
-% Dateinamen einlesen und auswertbar machen
-\scantokens\expandafter{%
-   \expandafter\def\expandafter\docname\expandafter{\jobname}}
+%% meta infos
+\newcommand{\docname}{<%template_meta.formname NOESCAPE%>}
+\newcommand{\TemplateMetaLanguageDescription}{<%template_meta.language.description NOESCAPE%>}
+\newcommand{\LangCode}{<%template_meta.language.template_code NOESCAPE%>}
+\newcommand{\TemplateMetaLanguageOutputNumberformat}{<%template_meta.language.output_numberformat NOESCAPE%>}
+\newcommand{\TemplateMetaLanguageOutputDateformat}{<%template_meta.language.output_dateformat NOESCAPE%>}
+\newcommand{\TemplateMetaFormat}{<%template_meta.format NOESCAPE%>}
+\newcommand{\TemplateMetaExtension}{<%template_meta.extension NOESCAPE%>}
+\newcommand{\TemplateMetaMedia}{<%template_meta.media NOESCAPE%>}
+\newcommand{\TemplateMetaPrinterDescription}{<%template_meta.printer.description NOESCAPE%>}
+\newcommand{\TemplateMetaPrinterTemplateCode}{<%template_meta.printer.template_code NOESCAPE%>}
 
 %%%%%%%%% Report-Variablen umsetzen, damit latex sie in lxbriefkopf.tex sieht.
 %%%% Die eigenen Daten
@@ -71,7 +77,7 @@
 \newcommand{\street}{<%street%>}
 \newcommand{\Shipstreet}{\ifthenelse{\equal{<%shiptostreet%>}{\leer}}{<%street%>}{<%shiptostreet%>}}
 \newcommand{\country}{<%country%>}
-\newcommand{\Shipcountry}{\ifthenelse{\equal{<%shiptocountry%>}{\leer}}{<%country%>}{<%shiptocountry%>}}
+\newcommand{\Shipcountry}{<%shiptocountry%>}
 \newcommand{\UstId}{<%ustid%>}
 \newcommand{\zipcode}{<%zipcode%>}
 \newcommand{\Shipzipcode}{\ifthenelse{\equal{<%shiptozipcode%>}{\leer}}{<%zipcode%>}{<%shiptozipcode%>}}
@@ -132,14 +138,13 @@
 \newcommand{\PurchaseOrder}{0}
 \newcommand{\trash}{0}
 \newcommand{\nonemptyline}[2]{\ifthenelse{\equal{#2}{\leer}}{}{#1#2~\\}}
-\newcommand{\MyAdress}{\IfSubStr{\docname}{sales_delivery_order}{\Shipname~\\
+\newcommand{\MyAdress}{\IfStrEq{\docname}{sales_delivery_order}{\Shipname~\\
   % lieferadresse wenn Lieferschein
     \nonemptyline{\cpgreeting{ }\cpgivenname{ }}{\cpname}
     \nonemptyline{}{\departmentone}
     \Shipstreet ~\\
     \Shipzipcode{ }\Shipcity
-    \ifthenelse{\equal{\Shipcountry}{\employeecountry}}{}{
-         \ifthenelse{\equal{\Shipcountry}{\leer}}{}{ ~\\ \Shipcountry} } % Laenderangabe wird nur gedruckt,
+    \ifthenelse{\equal{\Shipcountry}{\employeecountry}}{}{~\\ \Shipcountry}   % Laenderangabe wird nur gedruckt,
     ~                                             % wenn der Empfaenger nicht im eigenen Land sitzt.
   }{
     \name~\\
@@ -173,7 +178,7 @@
 
 
 % ==== dokumenttyp ermitteln
-\IfSubStr{\docname}{pick_list}{
+\IfStrEq{\docname}{pick_list}{
   % Sammelliste
   \setkomavar{backaddress}{\DeliveryAddress}
   \firsthead{
@@ -199,7 +204,7 @@
       \newcommand{\secnumber}{\ordnumber}
     }
 }{}
-\IfSubStr{\docname}{sales_delivery_order}{
+\IfStrEq{\docname}{sales_delivery_order}{
   % Lieferschein
   \renewcommand{\NoValue}{1}
   \newcommand{\doctype}{\TitleDelorder}
@@ -217,7 +222,7 @@
       \newcommand{\secnumber}{\ordnumber}
     }
 }{}
-\IfSubStr{\docname}{invoice}{
+\IfStrEq{\docname}{invoice}{
   % Rechnung
   \newcommand{\doctype}{\TitleInv}
   \newcommand{\MyDocdate}{\invdate}
@@ -233,7 +238,7 @@
       \newcommand{\secnumber}{\ordnumber}
     }
 }{}
-\IfSubStr{\docname}{proforma}{
+\IfStrEq{\docname}{proforma}{
   \newcommand{\doctype}{\TitleProforma}
   \newcommand{\MyDocdate}{\invdate}
   \newcommand{\DocNoTitle}{\InvNumber}
@@ -248,7 +253,7 @@
       \newcommand{\secnumber}{\ordnumber}
     }
 }{}
-\IfSubStr{\docname}{purchase_order}{
+\IfStrEq{\docname}{purchase_order}{
   \renewcommand{\PurchaseOrder}{1}
   \newcommand{\doctype}{\TitlePurchaseOrder}
   \newcommand{\MyDocdate}{\orddate}
@@ -261,7 +266,7 @@
   \newcommand{\SecNoTitle}{}
   \newcommand{\secnumber}{}
 }{}
-\IfSubStr{\docname}{credit_note}{
+\IfStrEq{\docname}{credit_note}{
   \newcommand{\doctype}{\TitleCreditNote}
   \newcommand{\MyDocdate}{\invdate}
   \newcommand{\DocNoTitle}{\CredNumber}
@@ -270,7 +275,7 @@
     \newcommand{\SecNoTitle}{}
     \newcommand{\secnumber}{}
 }{}
-\IfSubStr{\docname}{sales_order}{
+\IfStrEq{\docname}{sales_order}{
   % Auftragsbestaetigung
   \newcommand{\doctype}{\TitleSalesOrder}
   \newcommand{\MyDocdate}{\orddate}
@@ -287,7 +292,7 @@
       \newcommand{\secnumber}{\quonumber}
     }
 }{ }
-\IfSubStr{\docname}{sales_quotation}{
+\IfStrEq{\docname}{sales_quotation}{
   % Angebot
   \newcommand{\doctype}{\TitleSalesQuotation}
   \newcommand{\MyDocdate}{\quodate}

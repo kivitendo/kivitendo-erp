@@ -3,7 +3,7 @@
 %  Zentrale Uebersetzungsdatei f-tex
 %
 %  Changelog: see gitlog
-   \newcommand{\ftTranslationsVersion}{1.0-u  (16.11.2011)}
+   \newcommand{\ftTranslationsVersion}{1.1-u  (03.01.2012)}
 %
 %  Lizenz
 %  http://www.gnu.de/licenses/gpl-3.0.html
@@ -184,9 +184,9 @@
 \newcommand{\TitleInv}{\checkVal}
 
 
-\IfEndWith{\docname}{_de}{\loadDE}{}
-\IfEndWith{\docname}{_uk}{\loadUK}{}
-\IfEndWith{\docname}{_en}{\loadUK}{}
+\IfStrEq{\LangCode}{de}{\loadDE}{}
+\IfStrEq{\LangCode}{uk}{\loadUK}{}
+\IfStrEq{\LangCode}{en}{\loadUK}{}
 % neue Zeile mit dem neuen Sprachkuerzel und dem neuen Funktionsnamen hier anfuegen
 
 

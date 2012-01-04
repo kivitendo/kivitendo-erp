@@ -3,7 +3,7 @@
 %  Steuerdatei Briefklasse f-tex
 %
 %  Changelog: see gitlog
-   \newcommand{\ftLcoVTversion}{1.0-u  (16.11.2011)}
+   \newcommand{\ftLcoVTversion}{1.1-u  (03.01.2012)}
 %
 %  Lizenz
 %  http://www.gnu.de/licenses/gpl-3.0.html
