@@ -199,9 +199,6 @@ sub read_cgi_input {
   if ($ENV{CONTENT_LENGTH}) {
     my $content;
     read STDIN, $content, $ENV{CONTENT_LENGTH};
-    open my $fh, '>:raw', '/tmp/blubb.bin' or die;
-    print $fh $content;
-    close $fh;
     if ($ENV{'CONTENT_TYPE'} && $ENV{'CONTENT_TYPE'} =~ /multipart\/form-data/) {
       # multipart formdata can bring it's own encoding, so give it both
       # and let ti decide on it's own
