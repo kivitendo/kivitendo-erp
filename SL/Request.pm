@@ -219,8 +219,6 @@ sub read_cgi_input {
     _store_value($target, $_, $temp_form{$_}) for keys %temp_form;
   }
 
-  map { $target->{$_} = $temp_target->{$_} } keys %{ $temp_target };
-
   $::lxdebug->leave_sub;
 
   return $target;
