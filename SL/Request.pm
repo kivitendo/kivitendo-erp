@@ -212,15 +212,15 @@ sub read_cgi_input {
     }
   }
 
+  my $encoding     = delete $temp_target->{INPUT_ENCODING} || $db_charset;
+
+  _recode_recursively(SL::Iconv->new($encoding, $db_charset), $temp_target => $target) if keys %$target;
+
   if ($target->{RESTORE_FORM_FROM_SESSION_ID}) {
     my %temp_form;
     $::auth->restore_form_from_session(delete $target->{RESTORE_FORM_FROM_SESSION_ID}, form => \%temp_form);
     _store_value($target, $_, $temp_form{$_}) for keys %temp_form;
   }
-
-  my $encoding     = delete $temp_target->{INPUT_ENCODING} || $db_charset;
-
-  _recode_recursively(SL::Iconv->new($encoding, $db_charset), $temp_target => $target) if keys %$target;
 
   map { $target->{$_} = $temp_target->{$_} } keys %{ $temp_target };
 
