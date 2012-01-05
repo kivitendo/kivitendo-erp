@@ -54,6 +54,32 @@ sub module_available {
   return eval "use $module $version; 1";
 }
 
+sub check_kpsewhich {
+  my $exit = system("which kpsewhich > /dev/null");
+
+  return $exit > 0 ? 0 : 1;
+}
+
+sub template_dirs {
+  my ($path) = @_;
+  opendir my $dh, $path || die "can't open $path";
+  my @templates = sort grep { !/^\.\.?$/ } readdir $dh;
+  close $dh;
+
+  return @templates;
+}
+
+sub classes_from_latex {
+  my ($path, $class) = @_;
+  open my $pipe, q#egrep -rs '^[\ \t]*# . "$class' $path". q# | sed 's/ //g' | awk -F '{' '{print $2}' | awk -F '}' '{print $1}' |#;
+  my @cls = <$pipe>;
+  close $pipe;
+
+  # can't use uniq here
+  my %class_hash = map { $_ => 1 } map { s/\n//; $_ } split ',', join ',', @cls;
+  return sort keys %class_hash;
+}
+
 my %conditional_dependencies;
 
 sub check_for_conditional_dependencies {

@@ -4,10 +4,13 @@ use strict;
 use Getopt::Long;
 use Pod::Usage;
 use Term::ANSIColor;
-
+our $master_templates;
 BEGIN {
   unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
   push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+
+  # this is a default dir. may be wrong in your installation, change it then
+  $master_templates = './templates/print/';
 }
 
 use SL::InstallationCheck;
@@ -19,6 +22,7 @@ GetOptions(
   "a|all"       => \ $check{a},
   "o|optional!" => \ $check{o},
   "d|devel!"    => \ $check{d},
+  "l|latex!"    => \ $check{l},
   "r|required!" => \ $check{r},
   "h|help"      => sub { pod2usage(-verbose => 2) },
   "c|color!"    => \ ( my $c = 1 ),
@@ -26,6 +30,7 @@ GetOptions(
 
 # if notihing is requested check "required"
 $check{r} = 1 unless defined $check{a} ||
+                     defined $check{l} ||
                      defined $check{o} ||
                      defined $check{d};
 
@@ -39,13 +44,74 @@ if ($check{a}) {
 $| = 1;
 
 if ($check{r}) {
+  print_header('Checking Required Modules');
   check_module($_, required => 1) for @SL::InstallationCheck::required_modules;
 }
 if ($check{o}) {
+  print_header('Checking Optional Modules');
   check_module($_, optional => 1) for @SL::InstallationCheck::optional_modules;
 }
 if ($check{d}) {
+  print_header('Checking Developer Modules');
   check_module($_, devel => 1) for @SL::InstallationCheck::developer_modules;
+}
+if ($check{l}) {
+  check_latex();
+}
+
+sub check_latex {
+  my ($res) = check_kpsewhich();
+  print_result("Looking for LaTeX kpsewhich", $res ? ('ok', 'green') : ('NOT ok', 'red'));
+  if ($res) {
+    check_template_dir($_) for SL::InstallationCheck::template_dirs($master_templates);
+  }
+}
+
+sub check_template_dir {
+  my ($dir) = @_;
+  my $path  = $master_templates . $dir;
+
+  print_header("Checking LaTeX Dependencies for Master Templates '$dir'");
+  kpsewhich($path, 'cls', $_) for SL::InstallationCheck::classes_from_latex($path, '\documentclass');
+  kpsewhich($path, 'sty', $_) for SL::InstallationCheck::classes_from_latex($path, '\usepackage');
+}
+
+our $mastertemplate_path = './templates/print/';
+
+sub check_kpsewhich {
+  return 1 if SL::InstallationCheck::check_kpsewhich();
+
+  print STDERR <<EOL if $v;
++------------------------------------------------------------------------------+
+  Can't find kpsewhich, is there a proper installed LaTeX?
+  On Debian you may run "aptitude install texlive-base-bin"
++------------------------------------------------------------------------------+
+EOL
+  return 0;
+}
+
+sub kpsewhich {
+  my ($dw, $type, $package) = @_;
+  $package =~ s/[^-_0-9A-Za-z]//g;
+  my $type_desc = $type eq 'cls' ? 'document class' : 'package';
+
+  my $exit = system(qq|TEXINPUTS=".:$dw:" kpsewhich $package.$type > /dev/null|);
+  my $res  = $exit > 0 ? 0 : 1;
+
+  print_result("Looking for LaTeX $type_desc $package", $res);
+  if (!$res) {
+    print STDERR <<EOL if $v;
++------------------------------------------------------------------------------+
+  LaTeX $type_desc $package could not be loaded.
+
+  On Debian you may find the needed *.deb package with:
+    apt-file search $package.$type
+
+  Maybe you need to install apt-file first by:
+    aptitude install apt-file && apt-file update
++------------------------------------------------------------------------------+
+EOL
+  }
 }
 
 sub check_module {
@@ -113,6 +179,11 @@ sub print_result {
   return;
 }
 
+sub print_header {
+  print $/;
+  print "$_[0]:", $/;
+}
+
 1;
 
 __END__
@@ -130,7 +201,10 @@ scripts/installation_check.pl - check Lx-Office dependancies
 =head1 DESCRIPTION
 
 Check dependencys. List all perl modules needed by Lx-Office, probes for them,
-and warns if one is not available.
+and warns if one is not available.  List all LaTeX document classes and
+packages needed by Lx-Office master templates, probes for them, and warns if
+one is not available.
+
 
 =head1 OPTIONS
 
@@ -154,7 +228,7 @@ Probe for perl developer dependancies. (Used for console  and tags file)
 
 =item C<--no-devel>
 
-Dont't probe for perl developer dependancies. (Usefull in combination with --all)
+Don't probe for perl developer dependancies. (Useful in combination with --all)
 
 =item C<-h, --help>
 
@@ -166,7 +240,7 @@ Probe for optional modules.
 
 =item C<--no-optional>
 
-Dont't probe for optional perl modules. (Usefull in combination with --all)
+Don't probe for optional perl modules. (Useful in combination with --all)
 
 =item C<-r, --required>
 
@@ -174,7 +248,15 @@ Probe for required perl modules (default).
 
 =item C<--no-required>
 
-Dont't probe for required perl modules. (Usefull in combination with --all)
+Don't probe for required perl modules. (Useful in combination with --all)
+
+=item C<-l. --latex>
+
+Probe for LaTeX documentclasses and packages in master templates.
+
+=item C<--no-latex>
+
+Don't probe for LaTeX document classes and packages in master templates. (Useful in combination with --all)
 
 =item C<-v. --verbose>
 
