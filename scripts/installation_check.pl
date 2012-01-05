@@ -39,16 +39,16 @@ if ($check{a}) {
 $| = 1;
 
 if ($check{r}) {
-  check($_, required => 1) for @SL::InstallationCheck::required_modules;
+  check_module($_, required => 1) for @SL::InstallationCheck::required_modules;
 }
 if ($check{o}) {
-  check($_, optional => 1) for @SL::InstallationCheck::optional_modules;
+  check_module($_, optional => 1) for @SL::InstallationCheck::optional_modules;
 }
 if ($check{d}) {
-  check($_, devel => 1) for @SL::InstallationCheck::developer_modules;
+  check_module($_, devel => 1) for @SL::InstallationCheck::developer_modules;
 }
 
-sub check {
+sub check_module {
   my ($module, %role) = @_;
 
   my $line = "Looking for $module->{fullname}";
@@ -63,7 +63,7 @@ sub check {
     : $role{devel}    ? 'It is OPTIONAL for Lx-Office and only useful for developers.'
     :                   'It is not listed as a dependancy yet. Please tell this the developers.';
 
-  my @source_texts = source_texts($module);
+  my @source_texts = module_source_texts($module);
   local $" = $/;
   print STDERR <<EOL if $v;
 +------------------------------------------------------------------------------+
@@ -79,7 +79,7 @@ sub check {
 EOL
 }
 
-sub source_texts {
+sub module_source_texts {
   my ($module) = @_;
   my @texts;
   push @texts, <<EOL;
@@ -138,7 +138,7 @@ and warns if one is not available.
 
 =item C<-a, --all>
 
-Probe for all modules.
+Probe for all perl modules and all LaTeX master templates.
 
 =item C<-c, --color>
 
@@ -150,11 +150,11 @@ No color output. Helpful to avoid terminal escape problems.
 
 =item C<-d, --devel>
 
-Probe for developer dependancies. (Used for console  and tags file)
+Probe for perl developer dependancies. (Used for console  and tags file)
 
 =item C<--no-devel>
 
-Dont't probe for developer dependancies. (Useful in combination with --all)
+Dont't probe for perl developer dependancies. (Usefull in combination with --all)
 
 =item C<-h, --help>
 
@@ -166,15 +166,15 @@ Probe for optional modules.
 
 =item C<--no-optional>
 
-Dont't probe for optional modules. (Useful in combination with --all)
+Dont't probe for optional perl modules. (Usefull in combination with --all)
 
 =item C<-r, --required>
 
-Probe for required modules (default).
+Probe for required perl modules (default).
 
 =item C<--no-required>
 
-Dont't probe for required modules. (Useful in combination with --all)
+Dont't probe for required perl modules. (Usefull in combination with --all)
 
 =item C<-v. --verbose>
 
