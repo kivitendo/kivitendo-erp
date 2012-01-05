@@ -20,11 +20,10 @@ my %filters = (
 );
 
 my %methods = (
-  lt     => sub { +{ lt    => $_[0] } },
-  gt     => sub { +{ gt    => $_[0] } },
-  ilike  => sub { +{ ilike => $_[0] } },
-  like   => sub { +{ like  => $_[0] } },
   enable => sub { ;;;; },
+  map {
+    $_   => sub { +{ $_    => $_[0] } },
+  } qw(similar match imatch regex regexp like ilike rlike is is_not ne eq lt gt le ge),
 );
 
 sub parse_filter {
