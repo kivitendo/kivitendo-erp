@@ -997,7 +997,7 @@ sub get_vendor {
          v.id AS vendor_id, v.name AS vendor, v.discount as vendor_discount,
          v.creditlimit, v.terms, v.notes AS intnotes,
          v.email, v.cc, v.bcc, v.language_id, v.payment_id,
-         v.street, v.zipcode, v.city, v.country, v.taxzone_id,
+         v.street, v.zipcode, v.city, v.country, v.taxzone_id, v.curr,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.description AS business
        FROM vendor v
@@ -1006,6 +1006,12 @@ sub get_vendor {
        WHERE 1=1 $where|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
   map { $params->{$_} = $ref->{$_} } keys %$ref;
+
+  # remove any trailing whitespace
+  $form->{curr} =~ s/\s*$//;
+
+  # use vendor currency if not empty
+  $form->{currency} = $form->{curr} if $form->{curr};
 
   $params->{creditremaining} = $params->{creditlimit};
 
@@ -1289,7 +1295,8 @@ sub vendor_details {
   # get rest for the vendor
   # fax and phone and email as vendor*
   my $query =
-    qq|SELECT ct.*, cp.*, ct.notes as vendornotes, phone as vendorphone, fax as vendorfax, email as vendoremail
+    qq|SELECT ct.*, cp.*, ct.notes as vendornotes, phone as vendorphone, fax as vendorfax, email as vendoremail,
+         ct.curr AS currency
        FROM vendor ct
        LEFT JOIN contacts cp ON (ct.id = cp.cp_cv_id)
        WHERE (ct.id = ?) $contact
@@ -1308,6 +1315,8 @@ sub vendor_details {
   }
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
+  # remove any trailing whitespace
+  $form->{currency} =~ s/\s*$// if ($form->{currency});
 
   my $custom_variables = CVar->get_custom_variables('dbh'      => $dbh,
                                                     'module'   => 'CT',

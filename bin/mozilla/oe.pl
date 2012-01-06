@@ -239,7 +239,7 @@ sub order_links {
 
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id currency));
   $form->{shipto} = 1 if $form->{id};
 
   # get customer / vendor
@@ -247,6 +247,7 @@ sub order_links {
   IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
 
   $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id shipto_id));
+  $form->restore_vars(qw(currency))    if $form->{id};
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
   $form->{forex}       = $form->{exchangerate};

@@ -450,7 +450,8 @@ sub customer_details {
   # get rest for the customer
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as customernotes,
-         ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail
+         ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
+         ct.curr AS currency
        FROM customer ct
        LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
        WHERE (ct.id = ?) $where
@@ -469,6 +470,9 @@ sub customer_details {
   }
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+  # remove any trailing whitespace
+  $form->{currency} =~ s/\s*$// if ($form->{currency});
 
   if ($form->{delivery_customer_id}) {
     $query =
@@ -1647,7 +1651,7 @@ sub get_customer {
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit, c.terms,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id,
          c.street, c.zipcode, c.city, c.country,
-         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id,
+         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, c.curr,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.discount AS tradediscount, b.description AS business
        FROM customer c
@@ -1660,6 +1664,12 @@ sub get_customer {
   delete $ref->{salesman_id} if !$ref->{salesman_id};
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+  # remove any trailing whitespace
+  $form->{curr} =~ s/\s*$//;
+
+  # use customer currency if not empty
+  $form->{currency} = $form->{curr} if $form->{curr};
 
   $query =
     qq|SELECT sum(amount - paid) AS dunning_amount

@@ -69,6 +69,9 @@ sub get_tuple {
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
+  # remove any trailing whitespace
+  $form->{curr} =~ s/\s*$//;
+
   $sth->finish;
   if ( $form->{salesman_id} ) {
     my $query =
@@ -315,7 +318,8 @@ sub save_customer {
     qq|taxzone_id = ?, | .
     qq|user_password = ?, | .
     qq|c_vendor_id = ?, | .
-    qq|klass = ? | .
+    qq|klass = ?, | .
+    qq|curr = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{customernumber},
@@ -357,6 +361,7 @@ sub save_customer {
     $form->{user_password},
     $form->{c_vendor_id},
     conv_i($form->{klass}),
+    substr($form->{currency}, 0, 3),
     $form->{id}
     );
   do_query( $form, $dbh, $query, @values );
@@ -524,7 +529,8 @@ sub save_vendor {
     qq|  language_id = ?, | .
     qq|  username = ?, | .
     qq|  user_password = ?, | .
-    qq|  v_customer_id = ? | .
+    qq|  v_customer_id = ?, | .
+    qq|  curr = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{vendornumber},
@@ -564,6 +570,7 @@ sub save_vendor {
     $form->{username},
     $form->{user_password},
     $form->{v_customer_id},
+    substr($form->{currency}, 0, 3),
     $form->{id}
     );
   do_query($form, $dbh, $query, @values);

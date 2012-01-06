@@ -313,8 +313,9 @@ sub form_header {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->get_lists(employees => "ALL_EMPLOYEES",
-                   taxzones  => "ALL_TAXZONES");
+  $form->get_lists(employees  => "ALL_EMPLOYEES",
+                   taxzones   => "ALL_TAXZONES",
+                   currencies => "ALL_CURRENCIES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
   $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::lx_office_conf{features}->{vertreter};
@@ -343,6 +344,12 @@ sub form_header {
     if ($l_id) {
       $form->{'default_language_id'} = $l_id;
     }
+  }
+
+  if (!$form->{'id'}) {
+    $form->{'currency'} = $form->get_default_currency(\%myconfig);
+  } else {
+    $form->{currency} = $form->{curr};
   }
 
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'CT', 'trans_id' => $form->{id});
