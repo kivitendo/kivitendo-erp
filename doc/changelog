@@ -56,12 +56,17 @@
   - Häkchen bei der Konto-Konfiguration f. Forderungen u. Verbindlichkeiten
     als Radio-Buttons.
 
+  - Für Kunden und Lieferanten kann jetzt in den Stammdaten eine Währung
+    eingestellt werden, die als Voreinstellung in den Ver- und Einkaufs-
+    Masken dient.
+
 
   Liste gefixter Bugs aus dem Bugtracker:
 
   - Bugfix 1640: Buchungen werden falsch zugeordnet, wenn man Konten umkonfiguriert
   - Bugfix 1753: Benutzerdefinierte Variable f. Waren: bearbeitbar nicht auswählbar
   - Bugfix 1738:  Entwürfe können nicht gelöscht werden
+  - Bugfix 1759: Währung bei Kunden / Lieferanten vorbelegen
 
 2011-06-15 - Release 2.6.3
 

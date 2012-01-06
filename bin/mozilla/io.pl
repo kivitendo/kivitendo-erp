@@ -1328,12 +1328,14 @@ sub print_form {
   my $salesman_id_saved = $form->{salesman_id};
   my $cp_id_saved = $form->{cp_id};
   my $taxzone_id_saved = $form->{taxzone_id};
+  my $currency_saved = $form->{currency};
 
   call_sub("$form->{vc}_details") if ($form->{vc});
 
   $form->{language_id} = $language_saved;
   $form->{payment_id} = $payment_id_saved;
   $form->{taxzone_id} = $taxzone_id_saved;
+  $form->{currency} = $currency_saved;
 
   $form->{"email"} = $saved_email if ($saved_email);
   $form->{"cc"}    = $saved_cc    if ($saved_cc);

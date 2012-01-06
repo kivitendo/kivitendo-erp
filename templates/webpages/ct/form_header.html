@@ -213,6 +213,10 @@
       <td><input name="iban" size="10" maxlength="100" value="[% HTML.escape(iban) %]"></td>
       <th align="right">[% 'BIC' | $T8 %]</th>
       <td><input name="bic" size="10" maxlength="100" value="[% HTML.escape(bic) %]"></td>
+      [%- IF ALL_CURRENCIES.size %]
+        <th align="right">[% 'Currency' | $T8 %]</th>
+        <td>[% L.select_tag('currency', L.options_for_select(ALL_CURRENCIES, default=currency, with_empty=1)) %]</td>
+      [%- END %]
      </tr>
 
      <tr>

@@ -2890,12 +2890,14 @@ sub lastname_used {
                     "a.department_id"         => "department_id",
                     "d.description"           => "department",
                     "ct.name"                 => $table,
+                    "ct.curr"                 => "cv_curr",
                     "current_date + ct.terms" => "duedate",
     );
 
   if ($self->{type} =~ /delivery_order/) {
     $arap  = 'delivery_orders';
     delete $column_map{"a.curr"};
+    delete $column_map{"ct.curr"};
 
   } elsif ($self->{type} =~ /_order/) {
     $arap  = 'oe';
@@ -2931,6 +2933,10 @@ sub lastname_used {
 
   # remove any trailing whitespace
   $self->{currency} =~ s/\s*$// if $self->{currency};
+  $self->{cv_curr} =~ s/\s*$// if $self->{cv_curr};
+
+  # if customer/vendor currency is set use this
+  $self->{currency} = $self->{cv_curr} if $self->{cv_curr};
 
   $main::lxdebug->leave_sub();
 }
