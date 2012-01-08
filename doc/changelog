@@ -67,6 +67,8 @@
   - Bugfix 1753: Benutzerdefinierte Variable f. Waren: bearbeitbar nicht auswählbar
   - Bugfix 1738:  Entwürfe können nicht gelöscht werden
   - Bugfix 1759: Währung bei Kunden / Lieferanten vorbelegen
+  - Bugfix 1773: SQL Fehler bei Anzeige von Angeboten
+
 
 2011-06-15 - Release 2.6.3
 
