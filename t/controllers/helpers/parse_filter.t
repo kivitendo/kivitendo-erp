@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 17;
+use Test::More tests => 18;
 use Test::Deep;
 use Data::Dumper;
 
