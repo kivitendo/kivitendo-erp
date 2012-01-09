@@ -29,7 +29,7 @@
 \parbox{\textwidth}{
   \parbox[b]{.42\textwidth}{%
     <%company%>
-    
+
     <%address%>
   }\hfill
   \begin{tabular}[b]{rr@{}}
@@ -39,20 +39,6 @@
 
   \rule[1.5ex]{\textwidth}{0.5pt}
 }
-
- 
-<%pagebreak 90 27 37%>
-\end{tabularx}
-
-\newpage
-
-\markboth{<%company%>\hfill <%ordnumber%>}{<%company%>\hfill <%ordnumber%>}
-
-\vspace*{-12pt}
-
-\begin{tabularx}{\textwidth}{@{}rlXllrrll@{}}
-  \textbf{Pos} & \textbf{Number} & \textbf{Description} & \textbf{Serial Number} & & \textbf{Qty} & \textbf{Recd} & & \textbf{Bin} \\
-<%end pagebreak%>
 
 
 \vspace*{0.5cm}
@@ -94,7 +80,7 @@
   <%end warehouse%>
   & \textbf{Shipping Point} & \textbf{Ship via} \\ [0.5em]
   \hline
-  
+
   <%ordnumber%>
   <%if shippingdate%>
   & <%shippingdate%>
@@ -109,9 +95,9 @@
   & <%shippingpoint%> & <%shipvia%> \\
   \hline
 \end{tabularx}
-  
+
 \vspace{1cm}
-  
+
 \begin{tabularx}{\textwidth}{@{}rlXllrrll@{}}
   \textbf{Pos} & \textbf{Number} & \textbf{Description} & \textbf{Serial Number} & & \textbf{Qty} & \textbf{Recd} & & \textbf{Bin} \\
 
