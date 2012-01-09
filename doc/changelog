@@ -67,6 +67,7 @@
   - Bugfix 1753: Benutzerdefinierte Variable f. Waren: bearbeitbar nicht auswählbar
   - Bugfix 1738:  Entwürfe können nicht gelöscht werden
   - Bugfix 1759: Währung bei Kunden / Lieferanten vorbelegen
+  - Bugfix 1770: Währung / currency überlebt Workflow über Lieferschein nicht
   - Bugfix 1773: SQL Fehler bei Anzeige von Angeboten
 
 

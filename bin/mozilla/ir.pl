@@ -116,7 +116,7 @@ sub invoice_links {
     }
   }
 
-  my ($payment_id, $language_id, $taxzone_id);
+  my ($payment_id, $language_id, $taxzone_id, $currency);
   if ($form->{payment_id}) {
     $payment_id = $form->{payment_id};
   }
@@ -125,6 +125,9 @@ sub invoice_links {
   }
   if ($form->{taxzone_id}) {
     $taxzone_id = $form->{taxzone_id};
+  }
+  if ($form->{currency}) {
+    $currency = $form->{currency};
   }
 
   my $cp_id = $form->{cp_id};
@@ -140,6 +143,9 @@ sub invoice_links {
   }
   if ($taxzone_id) {
     $form->{taxzone_id} = $taxzone_id;
+  }
+  if ($currency) {
+    $form->{currency} = $currency;
   }
 
   my @curr = split(/:/, $form->{currencies}); #seems to be missing
