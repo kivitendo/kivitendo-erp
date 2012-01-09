@@ -2521,7 +2521,7 @@ sub all_vc {
 
   $table = $table eq "customer" ? "customer" : "vendor";
 
-  my $query = qq|SELECT count(*) FROM $table|;
+  my $query = qq|SELECT count(*) FROM $table WHERE NOT obsolete|;
   my ($count) = selectrow_query($self, $dbh, $query);
 
   # build selection list

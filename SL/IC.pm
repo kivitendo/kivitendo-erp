@@ -497,7 +497,6 @@ sub save {
   }
 
   # insert makemodel records
-  unless ($form->{item} eq 'service') {
     my $lastupdate = '';
     my $value = 0;
     for my $i (1 .. $form->{makemodel_rows}) {
@@ -521,7 +520,6 @@ sub save {
         do_query($form, $dbh, $query, @values);
       }
     }
-  }
 
   # insert taxes
   foreach my $item (split(/ /, $form->{taxaccounts})) {
