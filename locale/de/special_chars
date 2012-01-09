@@ -29,7 +29,7 @@ order=< > \n
 \n=<br>
 
 [Template/LaTeX]
-order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® ©
+order=\\ <pagebreak> & \n \r " $ <bullet> % _ # ^ { } < > £ ± ² ³ ° § ® © \xad
 \\=\\textbackslash\s
 <pagebreak>=
 "=''
@@ -53,7 +53,9 @@ _=\\_
 °=$^\\circ$
 §=\\S
 ®=\\textregistered
-©=\\textcopyright
+©=\\textcopyrighta
+\xad=\\-
+
 
 [Template/OpenDocument]
 order=& < > " ' \x80 \n \r

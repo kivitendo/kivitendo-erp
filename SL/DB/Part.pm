@@ -16,11 +16,6 @@ use SL::DB::Helper::CustomVariables (
 );
 
 __PACKAGE__->meta->add_relationships(
-  unit_obj                     => {
-    type         => 'one to one',
-    class        => 'SL::DB::Unit',
-    column_map   => { unit => 'name' },
-  },
   assemblies                     => {
     type         => 'one to many',
     class        => 'SL::DB::Assembly',
