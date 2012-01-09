@@ -543,6 +543,11 @@ sub item_selected {
       $form->{"sellprice_$i"} =
         $form->round_amount($form->{"sellprice_$i"}, $decimalplaces);
     }
+
+    # tradediscount
+    if ($::form->{tradediscount}) {
+      $::form->{"sellprice_$i"} *= 1 - $::form->{tradediscount};
+    }
   }
 
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
