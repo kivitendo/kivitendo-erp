@@ -66,13 +66,15 @@ sub payment {
   } else {
     CP->get_openvc(\%myconfig, \%$form);
   }
-
+  # Auswahlliste für vc zusammenbauen
+  # Erweiterung für schliessende option und erweiterung um value
+  # für bugfix 1771 (doppelte Leerzeichen werden nicht 'gepostet')
   $form->{"select$form->{vc}"} = "";
 
   if ($form->{"all_$form->{vc}"}) {
     # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
-    map { $form->{"select$form->{vc}"} .= "<option>$_->{name}--$_->{id}\n" }
+    map { $form->{"select$form->{vc}"} .= "<option value=\"$_->{name}--$_->{id}\">$_->{name}--$_->{id}</option>\n" }
       @{ $form->{"all_$form->{vc}"} };
   }
 
@@ -80,11 +82,14 @@ sub payment {
 
   # Standard Konto für Umlaufvermögen
   my $accno_arap = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
-
+  # Entsprechend präventiv die Auswahlliste für Kontonummer 
+  # auch mit value= zusammenbauen (s.a. oben bugfix 1771)
+  # Wichtig: Auch das Template anpassen, damit hidden input korrekt die "
+  # escaped.
   $form->{selectaccount} = "";
   $form->{"select$form->{ARAP}"} = "";
 
-  map { $form->{selectaccount} .= "<option>$_->{accno}--$_->{description}\n";
+  map { $form->{selectaccount} .= "<option value=\"$_->{accno}--$_->{description}\">$_->{accno}--$_->{description}</option>\n";
         $form->{account}        = "$_->{accno}--$_->{description}" if ($_->{accno} eq $accno_arap) } @{ $form->{PR}{"$form->{ARAP}_paid"} };
 
   # Braucht man das hier überhaupt? Erstmal auskommentieren .. jan 18.12.2010
@@ -107,8 +112,10 @@ sub payment {
   $form->{defaultcurrency} = $form->{currency} = $form->{oldcurrency} =
     $curr[0];
 
+  # Entsprechend präventiv die Auswahlliste für Währungen 
+  # auch mit value= zusammenbauen (s.a. oben bugfix 1771)
   $form->{selectcurrency} = "";
-  map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
+  map { $form->{selectcurrency} .= "<option value=\"$_\">$_</option>\n" } @curr;
 
 
   &form_header;
@@ -128,10 +135,14 @@ sub form_header {
   if ($form->{ $form->{vc} } eq "") {
     map { $form->{"addr$_"} = "" } (1 .. 4);
   }
-
+  # bugfix 1771
+  # geändert von <option>asdf--2929
+  # nach:
+  #              <option value="asdf--2929">asdf--2929</option>
+  # offen: $form->{ARAP} kann raus?
   for my $item ($form->{vc}, "account", "currency", $form->{ARAP}) {
     $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~ s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
+    $form->{"select$item"} =~ s/option value="\Q$form->{$item}\E">\Q$form->{$item}\E/option selected value="$form->{$item}">$form->{$item}/;
   }
 
   $vc =
