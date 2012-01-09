@@ -2857,7 +2857,7 @@ sub create_links {
     if ($self->{"$self->{vc}_id"}) {
 
       # only setup currency
-      ($self->{currency}) = split(/:/, $self->{currencies});
+      ($self->{currency}) = split(/:/, $self->{currencies}) if !$self->{currency};
 
     } else {
 

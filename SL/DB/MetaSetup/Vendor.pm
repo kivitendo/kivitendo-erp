@@ -54,6 +54,7 @@ __PACKAGE__->meta->setup(
     direct_debit   => { type => 'boolean', default => 'false' },
     iban           => { type => 'varchar', length => 100 },
     bic            => { type => 'varchar', length => 100 },
+    curr           => { type => 'character', length => 3 },
   ],
 
   primary_key_columns => [ 'id' ],
