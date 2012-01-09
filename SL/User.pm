@@ -77,9 +77,9 @@ sub country_codes {
   my @dir = grep(!/(^\.\.?$|\..*)/, readdir(DIR));
 
   foreach my $dir (@dir) {
-    next unless open(FH, "locale/$dir/LANGUAGE");
-    @language = <FH>;
-    close FH;
+    next unless open(my $fh, '<:encoding(UTF-8)', "locale/$dir/LANGUAGE");
+    @language = <$fh>;
+    close $fh;
 
     $cc{$dir} = "@language";
   }
