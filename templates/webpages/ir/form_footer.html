@@ -51,12 +51,12 @@
 [% SET total_ref       = item _ '_total' %]
 [% SET netto_ref       = item _ '_netto' %]
        <tr>
-        <th align="right">Enthaltene [% $description_ref | html %]&nbsp;[% $rate_ref * 100 %]%</th>
+        <th align="right">[% 'Including' | $T8 %] [% $description_ref | html %]&nbsp;[% $rate_ref * 100 %]%</th>
         <td align="right">[% LxERP.format_amount($total_ref, 2) %]</td>
        </tr>
   [%- IF taxincluded %]
        <tr>
-        <th align="right">Nettobetrag</th>
+        <th align="right">[% 'Net amount' | $T8 %]</th>
         <td align="right">[% LxERP.format_amount($netto_ref, 2) %]</td>
        </tr>
   [%- END %]
