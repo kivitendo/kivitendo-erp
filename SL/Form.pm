@@ -311,7 +311,7 @@ sub info {
     <script type="text/javascript">
     <!--
     // If JavaScript is enabled, the whole thing will be reloaded.
-    // The reason is: When one changes his menu setup (HTML / XUL / CSS ...)
+    // The reason is: When one changes his menu setup (HTML / CSS ...)
     // it now loads the correct code into the browser instead of do nothing.
     setTimeout("top.frames.location.href='login.pl'",500);
     //-->

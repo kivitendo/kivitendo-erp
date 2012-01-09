@@ -126,7 +126,6 @@ sub login {
     v3  => 'v3',
     neu => 'new',
     v4  => 'v4',
-    xml => 'XML',
   );
 
   my $menu_script = $style_to_script_map{$user->{menustyle}} || '';

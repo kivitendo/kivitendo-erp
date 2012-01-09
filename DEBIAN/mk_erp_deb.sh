@@ -52,7 +52,6 @@ cp $SRC/menu.ini usr/lib/lx-office-erp/menu.default
 cp -a $SRC/css var/lib/lx-office-erp
 cp -a $SRC/templates var/lib/lx-office-erp
 cp -a $SRC/users var/lib/lx-office-erp
-cp -a $SRC/xslt var/lib/lx-office-erp
 
 cp -a $SRC/doc/* usr/share/doc/lx-office-erp/
 cp -a $SRC/image/* usr/share/lx-office-erp/
