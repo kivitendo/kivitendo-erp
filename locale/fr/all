@@ -1702,7 +1702,6 @@ $self->{texts} = {
   'Top (CSS)'                   => '',
   'Top (CSS) new'               => '',
   'Top (Javascript)'            => '',
-  'Top (XUL; only for Mozilla Firefox)' => '',
   'Top 100'                     => '',
   'Top 100 hinzufuegen'         => '',
   'Top Level'                   => '',

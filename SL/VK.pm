@@ -62,6 +62,9 @@ sub invoice_transactions {
   # Stornierte Rechnungen und Stornorechnungen in invoice rausfiltern
   $where .= " AND ar.storno is not true ";
 
+  # Bestandteile von Erzeugnissen herausfiltern
+  $where .= " AND i.assemblyitem is not true ";
+
   my $sortorder = "cus.name,i.parts_id,ar.transdate";
   if ($form->{sortby} eq 'artikelsort') {
     $sortorder = "i.parts_id,cus.name,ar.transdate";

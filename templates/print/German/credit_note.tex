@@ -13,18 +13,6 @@
 
 \fontfamily{cmss}\fontshape{n}\selectfont
 
-<%pagebreak 80 28 37%>
-\end{tabularx}
-
-\newpage
-
-\begin{tabularx}{\textwidth}{lrXrr}
-  \hline
-  \textbf{Pos} & \textbf{Menge} & \textbf{Bezeichnung} &
-  \textbf{E-Preis/\euro} & \textbf{G-Preis/\euro} \\
-  \hline
-<%end pagebreak%>
-
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
 \vspace*{1.5cm}
@@ -77,7 +65,7 @@ Sehr geehrte Damen und Herren,
     <%sellprice%> \euro & <%linetotal%> \euro \\
     <%if discount_sub%> & Zwischensumme: &  & <%discount_sub%> \euro  & <%end if%>\\
   <%end number%>\hline
-  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro \\ 
+  \multicolumn{4}{l}{Nettobetrag} & <%subtotal%> \euro \\
   <%foreach tax%>
   \multicolumn{4}{l}{<%taxdescription%>} & <%tax%> \euro \\
   <%end tax%>

@@ -26,7 +26,7 @@
   \parbox{\textwidth}{
     \parbox[b]{12cm}{
       <%company%>
-      
+
       <%address%>}\hfill
     \begin{tabular}[b]{rr@{}}
     Telephone & <%tel%>\\
@@ -36,36 +36,13 @@
     \rule[1.5ex]{\textwidth}{0.5pt}
   }
 }
-    
+
 \fontfamily{cmss}\fontshape{n}\selectfont
 
 \markboth{<%company%>\hfill <%ordnumber%>}{\usebox{\hdr}}
 
 \pagestyle{myheadings}
 %\thispagestyle{empty}     use this with letterhead paper
-
-<%pagebreak 90 27 48%>
-\end{tabular*}
-
-  \rule{\textwidth}{2pt}
-  
-  \hfill
-  \begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Subtotal} & \textbf{<%sumcarriedforward%>} \\
-  \end{tabularx}
-
-\newpage
-
-\markright{<%company%>\hfill <%ordnumber%>}
-
-\vspace*{-12pt}
-
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
-  \textbf{Number} & \textbf{Description} & \textbf{Qt'y} &
-    \textbf{Unit} & \textbf{Price} & \textbf{Disc} & \textbf{Amount} \\
-  & carried forward from <%lastpage%> & & & & & <%sumcarriedforward%> \\
-<%end pagebreak%>
-
 
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 

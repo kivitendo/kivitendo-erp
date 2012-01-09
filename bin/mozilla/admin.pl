@@ -61,6 +61,13 @@ require "bin/mozilla/admin_printer.pl";
 
 use strict;
 
+# parserhappy(R):
+
+#  $locale->text('periodic')
+#  $locale->text('income')
+#  $locale->text('perpetual')
+#  $locale->text('balance')
+
 our $cgi;
 our $form;
 our $locale;

@@ -51,14 +51,30 @@ __PACKAGE__->meta->setup(
     taxzone_id     => { type => 'integer', default => '0', not_null => 1 },
     greeting       => { type => 'text' },
     ustid          => { type => 'text' },
+    direct_debit   => { type => 'boolean', default => 'false' },
     iban           => { type => 'varchar', length => 100 },
     bic            => { type => 'varchar', length => 100 },
-    direct_debit   => { type => 'boolean', default => 'false' },
+    curr           => { type => 'character', length => 3 },
   ],
 
   primary_key_columns => [ 'id' ],
 
-  allow_inline_column_values => 1,
+  foreign_keys => [
+    business => {
+      class       => 'SL::DB::Business',
+      key_columns => { business_id => 'id' },
+    },
+
+    language_obj => {
+      class       => 'SL::DB::Language',
+      key_columns => { language_id => 'id' },
+    },
+
+    payment => {
+      class       => 'SL::DB::PaymentTerm',
+      key_columns => { payment_id => 'id' },
+    },
+  ],
 );
 
 1;

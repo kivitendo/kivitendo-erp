@@ -133,7 +133,6 @@ writing the following are recognized:
 
   HTML
   URL@HTML
-  XUL
   Template/HTML
   Template/XML
   Template/LaTeX

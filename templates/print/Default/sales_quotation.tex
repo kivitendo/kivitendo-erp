@@ -28,7 +28,7 @@
 \parbox{\textwidth}{
   \parbox[b]{.42\textwidth}{
     <%company%>
-    
+
     <%address%>
   }
   \parbox[b]{.2\textwidth}{
@@ -41,30 +41,6 @@
 
   \rule[1.5ex]{\textwidth}{0.5pt}
 }
-
-
-<%pagebreak 90 27 48%>
-\end{tabular*}
-
-  \rule{\textwidth}{2pt}
-  
-  \hfill
-  \begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Subtotal} & \textbf{<%sumcarriedforward%>} \\
-  \end{tabularx}
-
-\newpage
-
-\markboth{<%company%>\hfill <%quonumber%>}{<%company%>\hfill <%quonumber%>}
-
-\vspace*{-12pt}
-
-\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}
-  \textbf{Number} & \textbf{Description} & \textbf{Qt'y} &
-    \textbf{Unit} & \textbf{Price} & \textbf{Disc} & \textbf{Amount} \\
-  & carried forward from <%lastpage%> & & & & & <%sumcarriedforward%> \\
-<%end pagebreak%>
-
 
 \vspace*{0.5cm}
 
@@ -113,7 +89,7 @@ Fax: <%customerfax%>
   <%quonumber%> & <%quodate%> & <%reqdate%> & <%employee%> & <%shippingpoint%> & <%shipvia%> \\
   \hline
 \end{tabularx}
-  
+
 \vspace{1cm}
 
 \begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rlrrr@{}}

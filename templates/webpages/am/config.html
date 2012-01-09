@@ -133,14 +133,8 @@
         <option value="v3"[% IF myconfig_menustyle == 'v3' %] selected[% END %]>[% 'Top (CSS)' | $T8 %]</option>
         <option value="v4"[% IF myconfig_menustyle == 'v4' %] selected[% END %]>[% 'Top (CSS) new' | $T8 %]</option>
         <option value="neu"[% IF myconfig_menustyle == 'neu' %] selected[% END %]>[% 'Top (Javascript)' | $T8 %]</option>
-        <option value="xml"[% IF myconfig_menustyle == 'xml' %] selected[% END %]>[% 'Top (XUL; only for Mozilla Firefox)' | $T8 %]</option>
        </select>
       </td>
-     </tr>
-
-     <tr valign="top">
-      <th align="right">[% 'Favorites' | $T8 %]</th>
-      <td><textarea name="favorites" rows="4" cols="50">[% HTML.escape(myconfig_favorites) %]</textarea></td>
      </tr>
 
      <tr>
@@ -163,8 +157,6 @@
       </td>
      </tr>
     </table>
-
-    <p>[% LxERP.t8('Note: For Firefox 4 and later the menu XUL menu requires the addon <a href="#1">Remote XUL Manager</a> and the Lx-Office server to be white listed.', 'https://addons.mozilla.org/de/firefox/addon/remote-xul-manager/') %]</p>
 
     <br style="clear: left" />
    </div>

@@ -77,9 +77,9 @@ sub country_codes {
   my @dir = grep(!/(^\.\.?$|\..*)/, readdir(DIR));
 
   foreach my $dir (@dir) {
-    next unless open(FH, "locale/$dir/LANGUAGE");
-    @language = <FH>;
-    close FH;
+    next unless open(my $fh, '<:encoding(UTF-8)', "locale/$dir/LANGUAGE");
+    @language = <$fh>;
+    close $fh;
 
     $cc{$dir} = "@language";
   }
@@ -177,7 +177,6 @@ sub login {
         $self->{"menustyle"} eq "v3" ? "menuv3.pl" :
         $self->{"menustyle"} eq "neu" ? "menunew.pl" :
         $self->{"menustyle"} eq "js" ? "menujs.pl" :
-        $self->{"menustyle"} eq "xml" ? "menuXML.pl" :
         "menu.pl";
 
       print $form->parse_html_template("dbupgrade/footer", { "menufile" => $menufile });

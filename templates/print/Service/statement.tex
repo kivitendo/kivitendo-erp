@@ -44,36 +44,13 @@
 \pagestyle{myheadings}
 %\thispagestyle{empty}     use this with letterhead paper
 
-<%pagebreak 90 27 48%>
-\end{tabular*}
-
-  \rule{\textwidth}{2pt}
-
-  \hfill
-  \begin{tabularx}{7cm}{Xr@{}}
-  \textbf{Subtotal} & \textbf{<%sumcarriedforward%>} \\
-  \end{tabularx}
-
-\newpage
-
-\markright{<%company%>\hfill <%statementdate%>}
-
-\vspace*{-12pt}
-
-\begin{tabular*}{\textwidth}{@{}l@{\extracolsep\fill}ccrrrr@{}}
-  \textbf{Invoice \#} & \textbf{Date} & \textbf{Due} &
-  \textbf{Current} & \textbf{30} & \textbf{60} & \textbf{90+} \\
-  carried forward from <%lastpage%> & & & & & & <%sumcarriedforward%> \\
-<%end pagebreak%>
-
-
 \fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
 
 \vspace*{1.5cm}
 
 \parbox[t]{1cm}{\hfill}
 \parbox[t]{10.5cm}{
-  
+
 <%name%>
 
 <%street%>

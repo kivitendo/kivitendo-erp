@@ -1413,14 +1413,16 @@ sub delete_invoice {
     do_query($form, $dbh, qq|UPDATE ar SET storno = 'f', paid = 0 WHERE id = ?|, $invoice_id);
   }
 
-  # delete AR record
-  do_query($form, $dbh, qq|DELETE FROM ar WHERE id = ?|, @values);
-
   # delete spool files
   my @spoolfiles = selectall_array_query($form, $dbh, qq|SELECT spoolfile FROM status WHERE trans_id = ?|, @values);
 
-  # delete status entries
-  do_query($form, $dbh, qq|DELETE FROM status WHERE trans_id = ?|, @values);
+  my @queries = (
+    qq|DELETE FROM status WHERE trans_id = ?|,
+    qq|DELETE FROM periodic_invoices WHERE ar_id = ?|,
+    qq|DELETE FROM ar WHERE id = ?|,
+  );
+
+  map { do_query($form, $dbh, $_, @values) } @queries;
 
   my $rc = $dbh->commit;
 
