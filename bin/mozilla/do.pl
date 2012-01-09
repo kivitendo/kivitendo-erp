@@ -301,7 +301,10 @@ sub form_header {
 
   $form->header();
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
-  $form->{department} .= '--' . $form->{department_id};
+  # Und Fix für Bug 1760, die Abteilung kommt 2012 wieder korrekt hoch
+  # keine ahnung warum: get_departments unverändert, do/form_header.html unverändert und
+  # diese routine hier auch. Also erstmal wieder raus, falls jmd. eine Idee hat ... jan ;-)
+  #$form->{department} .= '--' . $form->{department_id};
 
   print $form->parse_html_template('do/form_header');
 
