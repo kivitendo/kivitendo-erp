@@ -205,8 +205,7 @@ sub display_form {
     my $numrows    = ++$form->{rowcount};
     my $subroutine = "display_row";
 
-    if ($form->{item} eq 'part') {
-
+    if ($form->{item} =~ /(part|service)/) {
       #set preisgruppenanzahl
       $numrows    = $form->{price_rows};
       $subroutine = "price_row";
@@ -230,14 +229,6 @@ sub display_form {
 
       $numrows    = ++$form->{assembly_rows};
       $subroutine = "assembly_row";
-    }
-    if ($form->{item} eq 'service') {
-      $numrows    = $form->{price_rows};
-      $subroutine = "price_row";
-
-      &{$subroutine}($numrows);
-
-      $numrows = 0;
     }
 
     # create rows

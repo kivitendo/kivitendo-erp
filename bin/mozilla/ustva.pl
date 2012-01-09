@@ -848,7 +848,6 @@ sub generate_ustva {
       #file suffix
       $file .= '.xml';
       $file =~ s|.*/||;
-      $form->{tmpfile} = "$::lx_office_conf{paths}{userspath}/$file";
 
       $form->{attachment_filename} = $file;
 
@@ -894,11 +893,9 @@ sub generate_ustva {
       # Define serveral filenames
       $form->{IN} = 'taxbird.txb';
 
-      $form->{attachment_filename} = "USTVA-" . $form->{period}
-      . sprintf("%02d", $form->{year} % 100) . ".txb";
+      $form->{attachment_filename} = "USTVA-" . ($form->{period} * 1) . sprintf("%02d", $form->{year} % 100) . ".txb";
 
       $form->{attachment_filename} =~ s|.*/||;
-      $form->{tmpfile} = "$::lx_office_conf{paths}{userspath}/" . $form->{attachment_filename};
 
       # TODO: set Output to UTF-8 or system Preference
       #$form->{"iconv"} = Text::Iconv->new($myconfig{dbcharset}, "UTF-8");

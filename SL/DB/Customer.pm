@@ -26,11 +26,6 @@ __PACKAGE__->meta->add_relationship(
     column_map   => { id      => 'cp_cv_id' },
     manager_args => { sort_by => 'lower(contacts.cp_name)' },
   },
-  business => {
-    type         => 'one to one',
-    class        => 'SL::DB::Business',
-    column_map   => { business_id => 'id' },
-  },
 );
 
 __PACKAGE__->meta->initialize;

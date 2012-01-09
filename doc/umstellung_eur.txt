@@ -37,6 +37,21 @@ Die Konfiguration "eur" unter [system] in lx_office.conf wird nun nicht mehr
 benötigt und kann aus der Konfigurationsdatei gelöscht werden (dies muß manuell
 geschehen).
 
+
+Bemerkungen zu Bestandsmethode:
+
+Die Bestandsmethode ist eigentlich eine sehr elegante Methode, funktioniert in
+Lx-Office aber nur unter bestimmten Bedingungen: Voraussetzung ist, daß auch
+immer alle Einkaufsrechnungen gepflegt werden, und man beim Jahreswechsel nicht
+mit einer leeren Datenbank anfängt, da bei jedem Verkauf anhand der gesamten
+Rechnungshistorie der Einkaufswert der Ware nach dem FIFO-Prinzip aus den
+Einkaufsrechnungen berechnet wird.
+
+Die Bestandsmethode kann vom Prinzip her also nur funktioneren, wenn man mit
+den Buchungen bei Null anfängt, und man kann auch nicht im laufenden Betrieb
+von der Aufwandsmethode zur Bestandsmethode wechseln.
+
+
 TODO:
 
 * bei bestimmten Berichten kann man derzeit noch inviduell einstellen, ob man

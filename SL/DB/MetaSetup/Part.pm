@@ -59,6 +59,11 @@ __PACKAGE__->meta->setup(
       class       => 'SL::DB::Buchungsgruppe',
       key_columns => { buchungsgruppen_id => 'id' },
     },
+
+    unit_obj => {
+      class       => 'SL::DB::Unit',
+      key_columns => { unit => 'name' },
+    },
   ],
 );
 

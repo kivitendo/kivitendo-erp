@@ -63,47 +63,6 @@ sub parse_foreach {
     $form->{"__odd__"}     = (($i + 1) % 2) == 1;
     $form->{"__counter__"} = $i + 1;
 
-    if (   ref $description_array       eq 'ARRAY'
-        && scalar @{$description_array} == scalar @{$ary}
-        && $self->{"chars_per_line"}    != 0)
-    {
-      my $lines = int(length($description_array->[$i]) / $self->{"chars_per_line"});
-      my $lpp;
-
-      $description_array->[$i] =~ s/(\\newline\s?)*$//;
-      $lines++ while ($description_array->[$i] =~ m/\\newline/g);
-      $lines++;
-
-      if ($current_page == 1) {
-        $lpp = $self->{"lines_on_first_page"};
-      } else {
-        $lpp = $self->{"lines_on_second_page"};
-      }
-
-      # Yes we need a manual page break -- or the user has forced one
-      if (   (($current_line + $lines) > $lpp)
-          || ($description_array->[$i]     =~ /<pagebreak>/)
-          || (   ref $longdescription_array eq 'ARRAY'
-              && $longdescription_array->[$i] =~ /<pagebreak>/)) {
-        my $pb = $self->{"pagebreak_block"};
-
-        # replace the special variables <%sumcarriedforward%>
-        # and <%lastpage%>
-
-        my $psum = $form->format_amount($self->{"myconfig"}, $sum, 2);
-        $pb =~ s/$self->{tag_start_qm}sumcarriedforward$self->{tag_end_qm}/$psum/g;
-        $pb =~ s/$self->{tag_start_qm}lastpage$self->{tag_end_qm}/$current_page/g;
-
-        my $new_text = $self->parse_block($pb, (@indices, $i));
-        return undef unless (defined($new_text));
-        $new_contents .= $new_text;
-
-        $current_page++;
-        $current_line = 0;
-      }
-      $current_line += $lines;
-    }
-
     if (   ref $linetotal_array eq 'ARRAY'
         && $i < scalar(@{$linetotal_array})) {
       $sum += $form->parse_amount($self->{"myconfig"}, $linetotal_array->[$i]);
@@ -335,18 +294,6 @@ sub parse {
   $self->_force_mandatory_packages(\@lines) if (ref $self eq 'SL::Template::LaTeX');
 
   my $contents = join("", @lines);
-
-  # detect pagebreak block and its parameters
-  if ($contents =~ /$self->{tag_start_qm}pagebreak\s+(\d+)\s+(\d+)\s+(\d+)\s*$self->{tag_end_qm}(.*?)$self->{tag_start_qm}end(\s*pagebreak)?$self->{tag_end_qm}/s) {
-    $self->{"chars_per_line"} = $1;
-    $self->{"lines_on_first_page"} = $2;
-    $self->{"lines_on_second_page"} = $3;
-    $self->{"pagebreak_block"} = $4;
-
-    substr($contents, length($`), length($&)) = "";
-  }
-
-  $self->{"forced_pagebreaks"} = [];
 
   my $new_contents = $self->parse_block($contents);
   if (!defined($new_contents)) {

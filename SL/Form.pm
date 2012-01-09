@@ -1094,19 +1094,16 @@ sub parse_template {
 
   # OUT is used for the media, screen, printer, email
   # for postscript we store a copy in a temporary file
-  my $fileid = time;
-  my $prepend_userspath;
-
-  if (!$self->{tmpfile}) {
-    $self->{tmpfile}   = "${fileid}.$self->{IN}";
-    $prepend_userspath = 1;
-  }
-
-  $prepend_userspath = 1 if substr($self->{tmpfile}, 0, length $userspath) eq $userspath;
-
-  $self->{tmpfile} =~ s|.*/||;
-  $self->{tmpfile} =~ s/[^a-zA-Z0-9\._\ \-]//g;
-  $self->{tmpfile} = "$userspath/$self->{tmpfile}" if $prepend_userspath;
+  my ($temp_fh, $suffix);
+  $suffix =  $self->{IN};
+  $suffix =~ s/.*\.//;
+  ($temp_fh, $self->{tmpfile}) = File::Temp::tempfile(
+    'lx-office-printXXXXXX',
+    SUFFIX => '.' . ($suffix || 'tex'),
+    DIR    => $userspath,
+    UNLINK => 1,
+  );
+  close $temp_fh;
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out = $self->{OUT};
@@ -1152,7 +1149,7 @@ sub parse_template {
       $mail->{charset} = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
       $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
       $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
-      $mail->{fileid} = "$fileid.";
+      $mail->{fileid} = time() . '.' . $$ . '.';
       $myconfig->{signature} =~ s/\r//g;
 
       # if we send html or plain text inline
@@ -2524,7 +2521,7 @@ sub all_vc {
 
   $table = $table eq "customer" ? "customer" : "vendor";
 
-  my $query = qq|SELECT count(*) FROM $table|;
+  my $query = qq|SELECT count(*) FROM $table WHERE NOT obsolete|;
   my ($count) = selectrow_query($self, $dbh, $query);
 
   # build selection list
@@ -2860,7 +2857,7 @@ sub create_links {
     if ($self->{"$self->{vc}_id"}) {
 
       # only setup currency
-      ($self->{currency}) = split(/:/, $self->{currencies});
+      ($self->{currency}) = split(/:/, $self->{currencies}) if !$self->{currency};
 
     } else {
 
