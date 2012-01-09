@@ -71,9 +71,8 @@
 
 %
 % - longtable kann innerhalb der Tabelle umbrechen
-% - da der Umbruch nicht von Lx-Office kontrolliert wird, kann man kein
-%   Übertrag mit <%sumcarriedforward%> machen (dazu z.B. tablularx und
-%   <%pagebreak ... %> verwenden)
+% - da der Umbruch nicht von Lx-Office kontrolliert wird, kann man keinen
+%   Übertrag machen
 % - Innerhalb des Langtextes <%longdescription%> wird nicht umgebrochen.
 %   Falls das gewünscht ist, \\ mit \renewcommand umschreiben (siehe dazu:
 %   http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf)
@@ -113,7 +112,7 @@
           <%runningnumber%> &
           <%number%> &
           \textbf{<%description%>} &
-          \raggedleft <%qty%> <%unit%> & 
+          \raggedleft <%qty%> <%unit%> &
           <%sellprice%> \currency &
           \ifthenelse{\equal{<%p_discount%>}{0}}{}{\sffamily\scriptsize{(-<%p_discount%> \%)}}
           \ourfont{<%linetotal%> \currency} \\*  % kein Umbruch nach der ersten Zeile, damit Beschreibung und Langtext nicht getrennt werden

@@ -177,7 +177,6 @@ sub login {
         $self->{"menustyle"} eq "v3" ? "menuv3.pl" :
         $self->{"menustyle"} eq "neu" ? "menunew.pl" :
         $self->{"menustyle"} eq "js" ? "menujs.pl" :
-        $self->{"menustyle"} eq "xml" ? "menuXML.pl" :
         "menu.pl";
 
       print $form->parse_html_template("dbupgrade/footer", { "menufile" => $menufile });

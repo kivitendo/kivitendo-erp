@@ -16,10 +16,6 @@ order=& ä ö ü Ä Ö Ü ß " < >
 order="
 "=&quot;
 
-[XUL]
-order=&
-&=&quot;
-
 [Template/HTML]
 order=< > \n
 <=&lt;

@@ -350,7 +350,7 @@ sub save {
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
              $form->{type} =~ /^sales/ ? 't' : 'f',
-             conv_i($form->{taxzone_id}), $form->{taxincluded} ? 't' : 'f', conv_i($form->{terms}), $form->{curr},
+             conv_i($form->{taxzone_id}), $form->{taxincluded} ? 't' : 'f', conv_i($form->{terms}), substr($form->{currency}, 0, 3),
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
@@ -601,7 +601,7 @@ sub retrieve {
          d.description AS department, dord.language_id,
          dord.shipto_id,
          dord.globalproject_id, dord.delivered, dord.transaction_description,
-         dord.taxzone_id, dord.taxincluded, dord.terms, dord.curr
+         dord.taxzone_id, dord.taxincluded, dord.terms, dord.curr AS currency
        FROM delivery_orders dord
        JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
@@ -622,6 +622,9 @@ sub retrieve {
     $form->{donumber_array} .= $form->{donumber} . ' ';
   }
   $sth->finish();
+
+  # remove any trailing whitespace
+  $form->{currency} =~ s/\s*$//;
 
   $form->{donumber_array} =~ s/\s*$//g;
 

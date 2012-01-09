@@ -122,11 +122,11 @@ sub login {
     ::end_of_request();
   }
 
-  my %style_to_script_map = ( 'v3'  => 'v3',
-                              'neu' => 'new',
-                              'v4' => 'v4',
-                              'xml' => 'XML',
-    );
+  my %style_to_script_map = (
+    v3  => 'v3',
+    neu => 'new',
+    v4  => 'v4',
+  );
 
   my $menu_script = $style_to_script_map{$user->{menustyle}} || '';
 

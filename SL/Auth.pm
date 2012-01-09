@@ -455,6 +455,9 @@ sub read_user {
     @user_data{qw(id login)}    = @{$ref}{qw(id login)};
   }
 
+  # The XUL/XML backed menu has been removed.
+  $user_data{menustyle} = 'v3' if lc($user_data{menustyle} || '') eq 'xml';
+
   $sth->finish();
 
   $main::lxdebug->leave_sub();

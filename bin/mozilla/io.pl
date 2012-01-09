@@ -341,7 +341,19 @@ sub display_row {
     $form->{"marge_percent_$i"} = 0;
 
     my $marge_color;
-    my $real_sellprice           = $linetotal;
+    my $real_sellprice;
+    if ( $form->{taxincluded} and $form->{"qty_$i"} * 1  and $form->{$form->{"taxaccounts_$i"} . "_rate"} * 1) {
+      # if we use taxincluded we need to calculate the marge from the net_value
+      # all the marge calculations are based on linetotal which we need to
+      # convert to net first
+
+      # there is no direct form value for the tax_rate of the item, but
+      # form->{taxaccounts_$i} gives the tax account (e.g. 3806) and 3806_rate
+      # gives the tax percentage (e.g. 0.19)
+      $real_sellprice = $linetotal / (1 + $form->{$form->{"taxaccounts_$i"} . "_rate"});
+    } else {
+      $real_sellprice            = $linetotal;
+    };
     my $real_lastcost            = $form->{"lastcost_$i"} * $form->{"qty_$i"} / ( $form->{"marge_price_factor_$i"} || 1 );
     my $marge_percent_warn       = $myconfig{marge_percent_warn} * 1 || 15;
     my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;

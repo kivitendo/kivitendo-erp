@@ -1776,8 +1776,6 @@ ca1942a777bb9757e0929f677dcc6f49  var/lib/lx-office-erp/templates/German-invoice
 8bc701c81a0ee89fe4478ddae2ef4827  var/lib/lx-office-erp/templates/French-sales_order.html
 6f81ff6f4639eefe6816e7288374a28b  var/lib/lx-office-erp/templates/German-check.tex
 b064d0f07f8fd71423879e8ffe9d6be5  var/lib/lx-office-erp/templates/Default-invoice.html
-0eab06c10a4c76e73d23218740dd6de1  var/lib/lx-office-erp/xslt/xulmenu.xsl
-2f7fbf7fd0626ab4ffdedcdd8b33ccd0  var/lib/lx-office-erp/xslt/style1.css
 947ddd3cdc8d188dce0d9b0c689f3235  etc/lx-office-erp/lx-erp.conf.default
 ea0d4d87c77d5b69a20bcafc76c987c6  etc/lx-office-erp/lx-office-erp.cherokee
 947ddd3cdc8d188dce0d9b0c689f3235  etc/lx-office-erp/lx-erp.conf
