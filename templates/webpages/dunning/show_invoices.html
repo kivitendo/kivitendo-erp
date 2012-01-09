@@ -1,6 +1,10 @@
 [%- USE T8 %]
-[% USE HTML %]<body>
- <script type="text/javascript" src="js/checkbox_utils.js"></script>
+[% USE HTML %]
+[% USE L %]
+[% L.javascript_tag('jquery.checkall') %]
+[% SET all_active = 1 %][% FOREACH row = DUNNINGS %][% IF !row.active %][% SET all_active = 0 %][% LAST %][% END %][% END %]
+[% SET all_email = 1 %][% FOREACH row = DUNNINGS %][% IF !row.email %][% SET all_email = 0 %][% LAST %][% END %][% END %]
+<body>
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
@@ -14,12 +18,12 @@
    <th class="listheading" colspan="2">[% 'Current / Next Level' | $T8 %]</th>
 
    <th class="listheading">
-    <input type="checkbox" name="selectall_active" id="selectall_active" onclick="checkbox_check_all('selectall_active', 'active_', 1, [% rowcount %]);">
+    [% L.checkbox_tag('selectall_active', checkall='INPUT[name*=active_]', checked=all_active) %]
     <label for="selectall_active">[% 'Active?' | $T8 %]</label>
    </th>
 
    <th class="listheading">
-    <input type="checkbox" name="selectall_email" id="selectall_email" onclick="checkbox_check_all('selectall_email', 'email_', 1, [% rowcount %]);">
+    [% L.checkbox_tag('selectall_email', checkall='INPUT[name*=email_]', checked=all_email) %]
     <label for="selectall_email">[% 'eMail?' | $T8 %]</label>
    </th>
 

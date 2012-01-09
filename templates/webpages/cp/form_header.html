@@ -69,7 +69,7 @@
         <tr>
           <th align=right nowrap>[% 'Account' | $T8 %]</th>
           <td colspan=3><select name=account>[% selectaccount %]</select>
-          <input type=hidden name=selectaccount value="[% selectaccount %]">
+          <input type=hidden name=selectaccount value="[% selectaccount | html %]">
           </td>
         </tr>
         <tr>

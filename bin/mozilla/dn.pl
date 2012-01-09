@@ -368,7 +368,7 @@ sub show_dunning {
                                duedate amount dunning_date dunning_duedate fee interest salesman));
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
-  my $edit_url  = build_std_url('script=is.pl', 'action=edit', 'callback') . '&id=';
+  my $edit_url  = sub { build_std_url('script=' . ($_[0]->{invoice} ? 'is' : 'ar') . '.pl', 'action=edit', 'callback') . '&id=' . $::form->escape($_[0]->{id}) };
   my $print_url = build_std_url('action=print_dunning', 'format=pdf', 'media=screen') . '&dunning_id=';
   my $sort_url  = build_std_url('action=show_dunning', grep { $form->{$_} } @filter_field_list);
 
@@ -403,8 +403,9 @@ sub show_dunning {
 
         'align' => $alignment{$column},
 
-        'link'  => ($column eq 'invnumber'           ? $edit_url  . E($ref->{id})         :
-                    $column eq 'dunning_description' ? $print_url . E($ref->{dunning_id}) : ''),
+        'link'  => (  $column eq 'invnumber'           ? $edit_url->($ref)
+                    : $column eq 'dunning_description' ? $print_url . E($ref->{dunning_id})
+                    :                                    ''),
       };
     }
 
