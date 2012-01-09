@@ -77,6 +77,7 @@
   - Bugfix 1759: Währung bei Kunden / Lieferanten vorbelegen
   - Bugfix 1770: Währung / currency überlebt Workflow über Lieferschein nicht
   - Bugfix 1773: SQL Fehler bei Anzeige von Angeboten
+  - Bugfix 1725: In Mahnungen steht currency nicht als Variable zur Verfügung?
 
 
 2011-06-15 - Release 2.6.3
