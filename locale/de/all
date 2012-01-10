@@ -901,6 +901,7 @@ $self->{texts} = {
   'ID-Nummer'                   => 'ID-Nummer (intern)',
   'II'                          => 'II',
   'III'                         => 'III',
+  'IMPORTANT NOTE: You cannot safely change currencies, IF you have already booking entries!' => 'WICHTIGER HINWEIS: Falls schon Buchungen im Mandanten vorhanden sind, kann man nicht mehr UNKRITISCH neue oder andere Währungen konfigurieren!',
   'IV'                          => 'IV',
   'If the article type is set to \'mixed\' then a column called \'type\' must be present.' => 'Falls der Artikeltyp auf \'gemischt\' gestellt wird, muss eine Spalte namens \'type\' vorhanden sein.',
   'If the automatic creation of invoices for fees and interest is switched on for a dunning level then the following accounts will be used for the invoice.' => 'Wenn das automatische Erstellen einer Rechnung &uuml;ber Mahngeb&uuml;hren und Zinsen f&uuml;r ein Mahnlevel aktiviert ist, so werden die folgenden Konten f&uuml;r die Rechnung benutzt.',
