@@ -40,7 +40,6 @@ use SL::IR;
 use SL::IS;
 use SL::ReportGenerator;
 use SL::WH;
-
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -302,8 +301,17 @@ sub form_header {
 
   $form->header();
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
-  $form->{department} .= '--' . $form->{department_id};
-
+  # und Erweiterung für Bug 1760:
+  # Das war leider nur ein Teil-Fix, da das Verhalten den 'Erneuern'-Knopf
+  # nicht überlebt. Konsequent jetzt auf L umgestellt 
+  #   $ perldoc SL::Template::Plugin::L
+  # Daher entsprechend nur die Anpassung in form_header
+  # und in DO.pm gemacht. 4 Testfälle:
+  # department_id speichern                 | i.O.
+  # department_id lesen                     | i.O.
+  # department leer überlebt erneuern       | i.O.
+  # department nicht leer überlebt erneuern | i.O.
+  # $main::lxdebug->message(0, 'ABTEILUNGS ID in form?' . $form->{department_id});
   print $form->parse_html_template('do/form_header');
 
   $main::lxdebug->leave_sub();

@@ -1,5 +1,8 @@
 [%- USE T8 %]
-[% USE HTML %][% USE LxERP %]<body onload="on_load()">
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+<body onload="on_load()">
 
  <script type="text/javascript" src="js/show_form_details.js"></script>
  <script type="text/javascript" src="js/show_history.js"></script>
@@ -201,20 +204,8 @@
        <tr>
         <th align="right" nowrap>[% 'Department' | $T8 %]</th>
         <td colspan="3">
-         [%- IF delivered %]
-         <input type="hidden" name="department" value="[% HTML.escape(department) %]">
-         [%- FOREACH row = ALL_DEPARTMENTS %]
-         [% IF department == row.value %][% HTML.escape(row.description) %]--[% HTML.escape(row.id) %][% END %]
-         [%- END %]
-         [%- ELSE %]
-         <select name="department" class="fixed_width">
-          <option></option>
-          [%- FOREACH row = ALL_DEPARTMENTS %]
-          <option[% IF department == row.value %] selected[% END %]>[% HTML.escape(row.description) %]--[% HTML.escape(row.id) %]</option>
-          [%- END %]
-         </select>
-         [%- END %]
-        </td>
+         [% L.select_tag('department_id', L.options_for_select(ALL_DEPARTMENTS, default=department_id, title="description", with_empty=1), style='width: 250px', disabled => delivered )%]
+       </td>
        </tr>
        [%- END %]
 
