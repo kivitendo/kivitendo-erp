@@ -2519,7 +2519,7 @@ sub get_name {
   return scalar(@{ $self->{name_list} });
 }
 
-# the selection sub is used in the AR, AP, IS, IR and OE module
+# the selection sub is used in the AR, AP, IS, IR, DO and OE module
 #
 sub all_vc {
   $main::lxdebug->enter_sub();
