@@ -1222,11 +1222,7 @@ sub config_step2 {
     create_steuernummer();
 
     # rebuild elster_amt
-    my $amt = '';
-    foreach $amt (keys %{ $elster_init{ $form->{elsterland} } }) {
-      $elster_amt = $amt
-        if ($elster_init{ $form->{elsterland}{$amt} eq $form->{elsterFFFF} });
-    }
+    my $amt = $elster_init{$elsterFFFF};
 
     # load the predefined hash data into the FA_* Vars
     my @variables = qw(FA_Name FA_Strasse FA_PLZ FA_Ort
