@@ -1171,7 +1171,7 @@ sub generate_report {
   }
 
   if ($form->{l_linetotal}) {
-    $form->{l_onhand} = "Y";
+    $form->{l_qty} = "Y";
     $form->{l_linetotalsellprice} = "Y" if $form->{l_sellprice};
     $form->{l_linetotallastcost}  = $form->{searchitems} eq 'assembly' && !$form->{bom} ? "" : 'Y' if  $form->{l_lastcost};
     $form->{l_linetotallistprice} = "Y" if $form->{l_listprice};
@@ -1191,7 +1191,7 @@ sub generate_report {
         || $form->{ordered}
         || $form->{rfq}
         || $form->{quoted}) {
-      $form->{l_onhand} = "Y";
+#      $form->{l_onhand} = "Y";
     } else {
       $form->{l_linetotalsellprice} = "";
       $form->{l_linetotallastcost}  = "";
@@ -1290,12 +1290,12 @@ sub generate_report {
     $ref->{lastcost}      *= $ref->{exchangerate} / $ref->{price_factor};
 
     # use this for assemblies
-    my $onhand = $ref->{onhand};
+    my $soldtotal = $ref->{soldtotal};
 
     if ($ref->{assemblyitem}) {
       $row->{partnumber}{align}   = 'right';
-      $row->{onhand}{data}        = 0;
-      $onhand                     = 0 if ($form->{sold});
+      $row->{soldtotal}{data}     = 0;
+      $soldtotal                  = 0 if ($form->{sold});
     }
 
     my $edit_link               = build_std_url('action=edit', 'id=' . E($ref->{id}), 'callback');
@@ -1313,11 +1313,11 @@ sub generate_report {
 
     if (!$ref->{assemblyitem}) {
       foreach my $col (@subtotal_columns) {
-        $totals{$col}    += $onhand * $ref->{$col};
-        $subtotals{$col} += $onhand * $ref->{$col};
+        $totals{$col}    += $soldtotal * $ref->{$col};
+        $subtotals{$col} += $soldtotal * $ref->{$col};
       }
 
-      $subtotals{onhand} += $onhand;
+      $subtotals{soldtotal} += $soldtotal;
     }
 
     # set module stuff
@@ -1348,11 +1348,11 @@ sub generate_report {
       my $row = { map { $_ => { 'class' => 'listsubtotal', } } @columns };
 
       if (($form->{searchitems} ne 'assembly') || !$form->{bom}) {
-        $row->{onhand}->{data} = $form->format_amount(\%myconfig, $subtotals{onhand});
+        $row->{soldtotal}->{data} = $form->format_amount(\%myconfig, $subtotals{soldtotal});
       }
 
       map { $row->{"linetotal$_"}->{data} = $form->format_amount(\%myconfig, $subtotals{$_}, 2) } @subtotal_columns;
-      map { $subtotals{$_} = 0 } ('onhand', @subtotal_columns);
+      map { $subtotals{$_} = 0 } ('soldtotal', @subtotal_columns);
 
       $report->add_data($row);
 
