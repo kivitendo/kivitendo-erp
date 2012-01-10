@@ -1043,7 +1043,7 @@ sub generate_report {
     'listprice'          => { 'text' => $locale->text('List Price'), },
     'microfiche'         => { 'text' => $locale->text('Microfiche'), },
     'name'               => { 'text' => $locale->text('Name'), },
-    'onhand'             => { 'text' => $locale->text('Qty'), },
+    'onhand'             => { 'text' => $locale->text('Stocked Qty'), },
     'ordnumber'          => { 'text' => $locale->text('Order Number'), },
     'partnumber'         => { 'text' => $locale->text('Part Number'), },
     'partsgroup'         => { 'text' => $locale->text('Group'), },
@@ -1052,7 +1052,7 @@ sub generate_report {
     'rop'                => { 'text' => $locale->text('ROP'), },
     'sellprice'          => { 'text' => $locale->text('Sell Price'), },
     'serialnumber'       => { 'text' => $locale->text('Serial Number'), },
-    'soldtotal'          => { 'text' => $locale->text('soldtotal'), },
+    'soldtotal'          => { 'text' => $locale->text('Qty in Selected Records'), },
     'transdate'          => { 'text' => $locale->text('Transdate'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
@@ -1201,10 +1201,10 @@ sub generate_report {
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
-    partnumber description partsgroup bin onhand rop unit listprice
+    partnumber description partsgroup bin onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
-    transdate name serialnumber soldtotal deliverydate ean
+    transdate name serialnumber deliverydate ean
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
