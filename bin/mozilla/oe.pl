@@ -318,7 +318,7 @@ sub form_header {
   # openclosed checkboxes
   my @tmp;
   push @tmp, sprintf qq|<input name="delivered" id="delivered" type="checkbox" class="checkbox" value="1" %s><label for="delivered">%s</label>|,
-                        $form->{"delivered"} ? "checked" : "",  $locale->text('Delivered') if $form->{"type"} =~ /_order$/;
+                        $form->{"delivered"} ? "checked" : "",  $locale->text('Delivery Order created') if $form->{"type"} =~ /_order$/;
   push @tmp, sprintf qq|<input name="closed" id="closed" type="checkbox" class="checkbox" value="1" %s><label for="closed">%s</label>|,
                         $form->{"closed"}    ? "checked" : "",  $locale->text('Closed')    if $form->{id};
   $TMPL_VAR{openclosed} = sprintf qq|<tr><td colspan=%d align=center>%s</td></tr>\n|, 2 * scalar @tmp, join "\n", @tmp if @tmp;
@@ -833,7 +833,7 @@ sub orders {
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'open'                    => { 'text' => $locale->text('Open'), },
-    'delivered'               => { 'text' => $locale->text('Delivered'), },
+    'delivered'               => { 'text' => $locale->text('Delivery Order created'), },
     'marge_total'             => { 'text' => $locale->text('Ertrag'), },
     'marge_percent'           => { 'text' => $locale->text('Ertrag prozentual'), },
     'vcnumber'                => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer Number') : $locale->text('Vendor Number'), },
@@ -879,7 +879,7 @@ sub orders {
   };
   push @options, $locale->text('Open')                                                                    if $form->{open};
   push @options, $locale->text('Closed')                                                                  if $form->{closed};
-  push @options, $locale->text('Delivered')                                                               if $form->{delivered};
+  push @options, $locale->text('Delivery Order created')                                                               if $form->{delivered};
   push @options, $locale->text('Not delivered')                                                           if $form->{notdelivered};
   push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_actibe};
 

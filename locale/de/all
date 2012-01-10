@@ -574,6 +574,7 @@ $self->{texts} = {
   'Delivered'                   => 'Geliefert',
   'Delivery Date'               => 'Lieferdatum',
   'Delivery Order'              => 'Lieferschein',
+  'Delivery Order created'      => 'Lieferschein erstellt',
   'Delivery Order Date'         => 'Lieferscheindatum',
   'Delivery Order Date missing!' => 'Lieferscheindatum fehlt!',
   'Delivery Order Number'       => 'Lieferscheinnummer',
