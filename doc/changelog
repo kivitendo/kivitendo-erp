@@ -84,7 +84,7 @@
   - Bugfix 1588: Einzelteile eines Erzeugnisses von Verkaufsbericht ausnehmen
   - Bugfix 1756: Ertrag in Bruttorechnungen korrekt berechnen
   - Bugfix 1760 - 1760: Bei einem Lieferschein wird die Abteilung nicht mitgespeichert
-
+  - Bugfix 1752: Rechnung -> Druckvorschau ignoriert Änderung des Steuersatz beim Beleg
 
 
 
