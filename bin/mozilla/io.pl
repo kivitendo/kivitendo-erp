@@ -1584,6 +1584,7 @@ sub print_form {
     media     => $form->{media},
     extension => $extension,
     printer   => SL::DB::Manager::Printer->find_by_or_create(id => $form->{printer_id}),
+    today     => DateTime->today,
   };
 
   $form->parse_template(\%myconfig);
