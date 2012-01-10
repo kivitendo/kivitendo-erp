@@ -149,6 +149,7 @@ sub get_spoolfiles {
   } else {
     $arap = "ar";
     my $invoice = "a.invoice";
+    my $quonumber = "a.quonumber";
 
     if ($form->{type} =~ /_(order|quotation)$/) {
       $invnumber = "ordnumber";
@@ -156,16 +157,29 @@ sub get_spoolfiles {
       $invoice   = '0';
     }
 
+    if ($form->{type} eq 'packing_list') {
+      $invnumber = "donumber";
+      $arap      = "delivery_orders";
+      $invoice   = '0';
+      $quonumber = '0';
+    }
+
     $query =
-      qq|SELECT a.id, a.$invnumber AS invnumber, a.ordnumber, a.quonumber, | .
+      qq|SELECT a.id, a.$invnumber AS invnumber, a.ordnumber, $quonumber, | .
       qq|  a.transdate, $invoice AS invoice, '$arap' AS module, vc.name, | .
       qq|  s.spoolfile | .
       qq|FROM $arap a, ${vc} vc, status s | .
       qq|WHERE s.trans_id = a.id | .
       qq|  AND s.spoolfile IS NOT NULL | .
-      qq|  AND s.formname = ? | .
+    ($form->{type} eq 'packing_list'
+    ? qq|  AND s.formname IN (?, ?) |
+    : qq|  AND s.formname = ? |) .
       qq|  AND a.${vc}_id = vc.id|;
     @values = ($form->{type});
+
+    if ($form->{type} eq 'packing_list') {
+      @values = qw(sales_delivery_order purchase_delivery_order);
+    }
   }
 
   if ($form->{"${vc}_id"}) {
@@ -175,14 +189,14 @@ sub get_spoolfiles {
     $query .= " AND vc.name ILIKE ?";
     push(@values, $form->like($form->{ $vc }));
   }
-  foreach my $column (qw(invnumber ordnumber quonumber)) {
+  foreach my $column (qw(invnumber ordnumber quonumber donumber)) {
     if ($form->{$column}) {
       $query .= " AND a.$column ILIKE ?";
       push(@values, $form->like($form->{$column}));
     }
   }
 
-  if ($form->{type} =~ /(invoice|sales_order|sales_quotation|puchase_order|request_quotation)$/) {
+  if ($form->{type} =~ /(invoice|sales_order|sales_quotation|puchase_order|request_quotation|packing_list)$/) {
     if ($form->{transdatefrom}) {
       $query .= " AND a.transdate >= ?";
       push(@values, $form->{transdatefrom});
@@ -197,7 +211,7 @@ sub get_spoolfiles {
   my $sortorder = join ', ', $form->sort_columns(@a);
 
   if (grep({ $_ eq $form->{sort} }
-           qw(transdate invnumber ordnumber quonumber name))) {
+           qw(transdate invnumber ordnumber quonumber donumber name))) {
     $sortorder = $form->{sort};
   }
 
