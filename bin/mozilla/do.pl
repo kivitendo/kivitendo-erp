@@ -477,7 +477,7 @@ sub orders {
     ids                     transdate
     id                      donumber
     ordnumber
-    name                    employee
+    name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description
     open                    delivered
@@ -506,6 +506,7 @@ sub orders {
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
+    'salesman'                => { 'text' => $locale->text('Salesman'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
@@ -513,7 +514,7 @@ sub orders {
     'delivered'               => { 'text' => $locale->text('Delivered'), },
   );
 
-  foreach my $name (qw(id transdate donumber ordnumber name employee shipvia transaction_description)) {
+  foreach my $name (qw(id transdate donumber ordnumber name employee salesman shipvia transaction_description)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
