@@ -1113,8 +1113,13 @@ sub parse_template {
   }
 
   my $result;
+  my $command_formatter = sub {
+    my ($out_mode, $out) = @_;
+    return $out_mode eq '|-' ? SL::Template::create(type => 'ShellCommand', form => $self)->parse($out) : $out;
+  };
 
   if ($self->{OUT}) {
+    $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
     open(OUT, $self->{OUT_MODE}, $self->{OUT}) or $self->error("error on opening $self->{OUT} with mode $self->{OUT_MODE} : $!");
   } else {
     *OUT = ($::dispatcher->get_standard_filehandles)[1];
@@ -1199,6 +1204,8 @@ sub parse_template {
       #print(STDERR "OUT $self->{OUT}\n");
       for my $i (1 .. $self->{copies}) {
         if ($self->{OUT}) {
+          $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
+
           open  OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
           print OUT $_ while <IN>;
           close OUT;

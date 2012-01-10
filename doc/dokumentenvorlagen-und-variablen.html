@@ -51,6 +51,9 @@ td {
   <li><a href="#variablen_ausgeben">Variablen ausgeben</a>
   </li>
 
+  <li><a href="#verwendung_in_druckbefehlen">Verwendung in Druckbefehlen</a>
+  </li>
+
   <li><a href="dokumentenvorlagen-und-variablen.html#tag_style">
     Anfang und Ende der Tags ver&auml;ndern</a></li>
 
@@ -223,6 +226,31 @@ td {
 
  <p>
   Beispiel: <code class="blue">&lt;%quototal NOFORMAT%&gt;</code>
+ </p>
+
+ <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
+   zum Inhaltsverzeichnis</a></small><br>
+ <hr>
+
+ <h2><a name="verwendung_in_druckbefehlen">Verwendung in Druckbefehlen</a></h2>
+
+ <p>
+  In der Admininstration können Drucker definiert werden. Auch im dort
+  eingebbaren Druckbefehl können die hier aufgelisteten Variablen und
+  Kontrollstrukturen verwendet werden. Ihr Inhalt wird dabei nach den
+  Regeln der gängigen Shells formatiert, sodass Sonderzeichen
+  wie <code>`...`</code> nicht zu unerwünschtem Verhalten führen.
+ </p>
+
+ <p>
+  Dies erlaubt z.B. die Definition eines Faxes als Druckerbefehl, für
+  das die Telefonnummer eines Ansprechpartners als Teil der
+  Kommandozeile verwendet wird. Für ein fiktives Kommando könnte das
+  z.B. wie folgt aussehen:
+ </p>
+
+ <p>
+  <code>send_fax --number &lt;%if cp_phone2%&gt;&lt;%cp_phone2%&gt;&lt;%else%&gt;&lt;%cp_phone1%&gt;&lt;%end%&gt;</code>
  </p>
 
  <small><a href="dokumentenvorlagen-und-variablen.html#inhaltsverzeichnis">
