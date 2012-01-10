@@ -56,6 +56,7 @@ use SL::DBUtils;
 use SL::DO;
 use SL::IC;
 use SL::IS;
+use SL::Locale;
 use SL::Mailer;
 use SL::Menu;
 use SL::MoreCommon qw(uri_encode uri_decode);
@@ -1241,24 +1242,27 @@ sub get_formname_translation {
 
   $formname ||= $self->{formname};
 
+  $self->{recipient_locale} ||=  Locale->lang_to_locale($self->{language});
+  my $recipient_locale = Locale->new($self->{recipient_locale});
+
   my %formname_translations = (
-    bin_list                => $main::locale->text('Bin List'),
-    credit_note             => $main::locale->text('Credit Note'),
-    invoice                 => $main::locale->text('Invoice'),
-    pick_list               => $main::locale->text('Pick List'),
-    proforma                => $main::locale->text('Proforma Invoice'),
-    purchase_order          => $main::locale->text('Purchase Order'),
-    request_quotation       => $main::locale->text('RFQ'),
-    sales_order             => $main::locale->text('Confirmation'),
-    sales_quotation         => $main::locale->text('Quotation'),
-    storno_invoice          => $main::locale->text('Storno Invoice'),
-    sales_delivery_order    => $main::locale->text('Delivery Order'),
-    purchase_delivery_order => $main::locale->text('Delivery Order'),
-    dunning                 => $main::locale->text('Dunning'),
+    bin_list                => $recipient_locale->text('Bin List'),
+    credit_note             => $recipient_locale->text('Credit Note'),
+    invoice                 => $recipient_locale->text('Invoice'),
+    pick_list               => $recipient_locale->text('Pick List'),
+    proforma                => $recipient_locale->text('Proforma Invoice'),
+    purchase_order          => $recipient_locale->text('Purchase Order'),
+    request_quotation       => $recipient_locale->text('RFQ'),
+    sales_order             => $recipient_locale->text('Confirmation'),
+    sales_quotation         => $recipient_locale->text('Quotation'),
+    storno_invoice          => $recipient_locale->text('Storno Invoice'),
+    sales_delivery_order    => $recipient_locale->text('Delivery Order'),
+    purchase_delivery_order => $recipient_locale->text('Delivery Order'),
+    dunning                 => $recipient_locale->text('Dunning'),
   );
 
   $main::lxdebug->leave_sub();
-  return $formname_translations{$formname}
+  return $formname_translations{$formname};
 }
 
 sub get_number_prefix_for_type {
@@ -1294,11 +1298,14 @@ sub generate_attachment_filename {
   $main::lxdebug->enter_sub();
   my ($self) = @_;
 
+  $self->{recipient_locale} ||=  Locale->lang_to_locale($self->{language});
+  my $recipient_locale = Locale->new($self->{recipient_locale});
+
   my $attachment_filename = $main::locale->unquote_special_chars('HTML', $self->get_formname_translation());
   my $prefix              = $self->get_number_prefix_for_type();
 
   if ($self->{preview} && (first { $self->{type} eq $_ } qw(invoice credit_note))) {
-    $attachment_filename .= ' (' . $main::locale->text('Preview') . ')' . $self->get_extension_for_format();
+    $attachment_filename .= ' (' . $recipient_locale->text('Preview') . ')' . $self->get_extension_for_format();
 
   } elsif ($attachment_filename && $self->{"${prefix}number"}) {
     $attachment_filename .=  "_" . $self->{"${prefix}number"} . $self->get_extension_for_format();
