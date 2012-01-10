@@ -1849,6 +1849,9 @@ sub delivery_order {
 
   map { $form->{$_} = $old_values{$_} if ($old_values{$_}) } keys %old_values;
 
+  for my $i (1 .. $form->{rowcount}) {
+    (my $dummy, $form->{"pricegroup_id_$i"}) = split /--/, $form->{"sellprice_pg_$i"};
+  }
   update();
 
   $main::lxdebug->leave_sub();

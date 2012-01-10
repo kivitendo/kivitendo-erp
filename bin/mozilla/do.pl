@@ -40,7 +40,6 @@ use SL::IR;
 use SL::IS;
 use SL::ReportGenerator;
 use SL::WH;
-
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -174,7 +173,7 @@ sub order_links {
   DO->retrieve('vc'  => $form->{vc},
                'ids' => $form->{id});
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes currency));
   $form->{shipto} = 1 if $form->{id};
 
   # get customer / vendor
@@ -187,6 +186,7 @@ sub order_links {
   }
 
   $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(currency)) if ($form->{id} || $form->{convert_from_oe_ids});
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
 
@@ -301,8 +301,17 @@ sub form_header {
 
   $form->header();
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
-  $form->{department} .= '--' . $form->{department_id};
-
+  # und Erweiterung für Bug 1760:
+  # Das war leider nur ein Teil-Fix, da das Verhalten den 'Erneuern'-Knopf
+  # nicht überlebt. Konsequent jetzt auf L umgestellt 
+  #   $ perldoc SL::Template::Plugin::L
+  # Daher entsprechend nur die Anpassung in form_header
+  # und in DO.pm gemacht. 4 Testfälle:
+  # department_id speichern                 | i.O.
+  # department_id lesen                     | i.O.
+  # department leer überlebt erneuern       | i.O.
+  # department nicht leer überlebt erneuern | i.O.
+  # $main::lxdebug->message(0, 'ABTEILUNGS ID in form?' . $form->{department_id});
   print $form->parse_html_template('do/form_header');
 
   $main::lxdebug->leave_sub();
@@ -818,6 +827,13 @@ sub invoice {
 
   }
 
+  #  show pricegroup in newly loaded invoice when creating invoice from delivery order
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"sellprice_pg_$i"} = join /--/, $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
+  }
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  set_pricegroup($_) for 1 .. $form->{rowcount};
+
   display_form();
 
   $main::lxdebug->leave_sub();
@@ -916,6 +932,14 @@ sub invoice_multi {
 
   invoice_links();
   prepare_invoice();
+
+  #  show pricegroup in newly loaded invoice when creating invoice from delivery order
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"sellprice_pg_$i"} = join /--/, $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
+  }
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  set_pricegroup($_) for 1 .. $form->{rowcount};
+
   display_form();
 
   $main::lxdebug->leave_sub();
