@@ -738,7 +738,7 @@ sub create_employee_entry {
     do_query($form, $dbh, $query, ($self->{login}, $myconfig->{name}, $myconfig->{tel}, "user"));
 
   } elsif ($update_existing) {
-    my $query = qq|UPDATE employee SET name = ?, workphone = ?, role = 'user' WHERE id = ?|;
+    my $query = qq|UPDATE employee SET name = ?, workphone = ?, role = 'user', deleted = 'f' WHERE id = ?|;
     do_query($form, $dbh, $query, $myconfig->{name}, $myconfig->{tel}, $id);
   }
 
