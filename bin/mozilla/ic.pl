@@ -1136,7 +1136,7 @@ sub generate_report {
     model         => $locale->text('Model')            . ": '$form->{model}'",
     drawing       => $locale->text('Drawing')          . ": '$form->{drawing}'",
     microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
-    l_soldtotal   => $locale->text('soldtotal'),
+    l_soldtotal   => $locale->text('Qty in Selected Records'),
     ean           => $locale->text('EAN')              . ": '$form->{ean}'",
   );
 
