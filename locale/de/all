@@ -1879,6 +1879,7 @@ $self->{texts} = {
   'There are no items in stock.' => 'Dieser Artikel ist nicht eingelagert.',
   'There are no items on your TODO list at the moment.' => 'Ihre Aufgabenliste enth&auml;lt momentan keine Eintr&auml;ge.',
   'There are still entries in the database for which no unit has been assigned.' => 'Es gibt noch Eintr&auml;ge in der Datenbank, f&uuml;r die keine Einheit zugeordnet ist.',
+  'There are still transfers not matching the qty of the delivery order. Stock operations can not be changed later. Do you really want to proceed?' => 'Einige der Lagerbewegungen sind nicht vollständig und Lagerbewegungen können nachträglich nicht mehr verändert werden. Wollen Sie wirklich fortfahren?',
   'There are usually three ways to install Perl modules.' => 'Es gibt normalerweise drei Arten, ein Perlmodul zu installieren.',
   'There is at least one sales or purchase invoice for which Lx-Office recorded an inventory transaction with taxkeys even though no tax was recorded.' => 'Es gibt mindestens eine Einkaufs- oder Verkaufsrechnung, für die Lx-Office einen Steuerschlüssel ungleich 0 verzeichnet hat, obwohl für Warenbestandsbuchugen bei Rechnungen nie Steuern gebucht werden.',
   'There is at least one transaction for which the user has chosen a logically wrong taxkey.' => 'Es gibt mindestens eine Buchung, bei der ein logisch nicht passender Steuerschlüssel ausgewählt wurde.',
