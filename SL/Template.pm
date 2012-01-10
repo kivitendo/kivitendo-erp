@@ -16,6 +16,7 @@ use SL::Template::HTML;
 use SL::Template::LaTeX;
 use SL::Template::OpenDocument;
 use SL::Template::PlainText;
+use SL::Template::ShellCommand;
 use SL::Template::XML;
 
 sub create {
