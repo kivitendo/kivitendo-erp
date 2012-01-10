@@ -1056,6 +1056,8 @@ sub generate_report {
     'transdate'          => { 'text' => $locale->text('Transdate'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
+    'projectnumber'      => { 'text' => $locale->text('Project Number'), },
+    'projectdescription' => { 'text' => $locale->text('Project Description'), },
   );
 
   $revers     = $form->{revers};
@@ -1215,7 +1217,7 @@ sub generate_report {
     partnumber description partsgroup bin onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
-    transdate name serialnumber deliverydate ean
+    transdate name serialnumber deliverydate ean projectnumber projectdescription
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };

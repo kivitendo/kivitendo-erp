@@ -1407,6 +1407,7 @@ $self->{texts} = {
   'Proforma Invoice'            => 'Proformarechnung',
   'Program'                     => 'Programm',
   'Project'                     => 'Projekt',
+  'Project Description'         => '',
   'Project Number'              => 'Projektnummer',
   'Project Number missing!'     => 'Projektnummer fehlt!',
   'Project Numbers'             => 'Projektnummern',
