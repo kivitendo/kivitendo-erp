@@ -792,11 +792,12 @@ sub all_parts {
   $form->{soldtotal} = undef if $form->{l_soldtotal}; # security fix. top100 insists on putting strings in there...
 
   my @simple_filters       = qw(partnumber ean description partsgroup microfiche drawing onhand);
+  my @project_filters      = qw(projectnumber projectdescription);
   my @makemodel_filters    = qw(make model);
   my @invoice_oi_filters   = qw(serialnumber soldtotal);
   my @apoe_filters         = qw(transdate);
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
-  my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, qw(serialnumber));
+  my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
   my @simple_l_switches    = (@all_columns, qw(listprice sellprice lastcost priceupdate weight unit bin rop image));
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
   my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
@@ -816,14 +817,14 @@ sub all_parts {
     pfac       => 'LEFT JOIN price_factors pfac ON (pfac.id     = p.price_factor_id)',
     invoice_oi =>
       q|LEFT JOIN (
-         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem,         deliverydate, 'invoice'    AS ioi, id FROM invoice UNION
-         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, NULL AS deliverydate, 'orderitems' AS ioi, id FROM orderitems
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty,          assemblyitem,         deliverydate, 'invoice'    AS ioi, project_id, id FROM invoice UNION
+         SELECT parts_id, description, serialnumber, trans_id, unit, sellprice, qty, FALSE AS assemblyitem, NULL AS deliverydate, 'orderitems' AS ioi, project_id, id FROM orderitems
        ) AS ioi ON ioi.parts_id = p.id|,
     apoe       =>
       q|LEFT JOIN (
-         SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation, NULL AS customer_id,         vendor_id,    NULL AS deliverydate, 'invoice'    AS ioi FROM ap UNION
-         SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation,         customer_id, NULL AS vendor_id,            deliverydate, 'invoice'    AS ioi FROM ar UNION
-         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,          quotation,         customer_id,         vendor_id, reqdate AS deliverydate, 'orderitems' AS ioi FROM oe
+         SELECT id, transdate, 'ir' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation, NULL AS customer_id,         vendor_id,    NULL AS deliverydate, globalproject_id, 'invoice'    AS ioi FROM ap UNION
+         SELECT id, transdate, 'is' AS module, ordnumber, quonumber,         invnumber, FALSE AS quotation,         customer_id, NULL AS vendor_id,            deliverydate, globalproject_id, 'invoice'    AS ioi FROM ar UNION
+         SELECT id, transdate, 'oe' AS module, ordnumber, quonumber, NULL AS invnumber,          quotation,         customer_id,         vendor_id, reqdate AS deliverydate, globalproject_id, 'orderitems' AS ioi FROM oe
        ) AS apoe ON ((ioi.trans_id = apoe.id) AND (ioi.ioi = apoe.ioi))|,
     cv         =>
       q|LEFT JOIN (
@@ -831,8 +832,9 @@ sub all_parts {
            SELECT id, name, 'vendor'   AS cv FROM vendor
          ) AS cv ON cv.id = apoe.customer_id OR cv.id = apoe.vendor_id|,
     mv         => 'LEFT JOIN vendor AS mv ON mv.id = mm.make',
+    project    => 'LEFT JOIN project AS pj ON pj.id = COALESCE(ioi.project_id, apoe.globalproject_id)',
   );
-  my @join_order = qw(partsgroup makemodel mv invoice_oi apoe cv pfac);
+  my @join_order = qw(partsgroup makemodel mv invoice_oi apoe cv pfac project);
 
   my %table_prefix = (
      deliverydate => 'apoe.', serialnumber => 'ioi.',
@@ -842,8 +844,8 @@ sub all_parts {
      quonumber    => 'apoe.', model        => 'mm.',
      invnumber    => 'apoe.', partsgroup   => 'pg.',
      lastcost     => 'p.',  , soldtotal    => ' ',
-     factor       => 'pfac.',
-     'SUM(ioi.qty)' => ' ',
+     factor       => 'pfac.', projectnumber => 'pj.',
+     'SUM(ioi.qty)' => ' ',   projectdescription => 'pj.',
      description  => 'p.',
      qty          => 'ioi.',
      serialnumber => 'ioi.',
@@ -857,7 +859,7 @@ sub all_parts {
   # of the scecified table will gently override (coalesce actually) the original value
   # use it to conditionally coalesce values from subtables
   my @column_override = (
-    #  column name,   prefix,  joins_needed
+    #  column name,   prefix,  joins_needed,  nick name (in case column is named like another)
     [ 'description',  'ioi.',  'invoice_oi'  ],
     [ 'deliverydate', 'ioi.',  'invoice_oi'  ],
     [ 'transdate',    'apoe.', 'apoe'        ],
@@ -871,6 +873,11 @@ sub all_parts {
     'SUM(ioi.qty)' => 'soldtotal',
     'ioi.id'       => 'ioi_id',
     'ioi.ioi'      => 'ioi',
+    'projectdescription' => 'projectdescription',
+  );
+
+  my %real_column = (
+    projectdescription => 'description',
   );
 
   if (($form->{searchitems} eq 'assembly') && $form->{l_lastcost}) {
@@ -880,19 +887,20 @@ sub all_parts {
   my $make_token_builder = sub {
     my $joins_needed = shift;
     sub {
-      my ($col, $alias) = @_;
+      my ($nick, $alias) = @_;
+      my ($col) = $real_column{$nick} || $nick;
       my @coalesce_tokens =
         map  { ($_->[1] || 'p.') . $_->[0] }
         grep { !$_->[2] || $joins_needed->{$_->[2]} }
-        grep {  $_->[0] eq $col }
-        @column_override, [ $col, $table_prefix{$col} ];
+        grep { ($_->[3] || $_->[0]) eq $nick }
+        @column_override, [ $col, $table_prefix{$nick}, undef , $nick ];
 
       my $coalesce = scalar @coalesce_tokens > 1;
       return ($coalesce
         ? sprintf 'COALESCE(%s)', join ', ', @coalesce_tokens
         : shift                              @coalesce_tokens)
-        . ($alias && ($coalesce || $renamed_columns{$col})
-        ?  " AS " . ($renamed_columns{$col} || $col)
+        . ($alias && ($coalesce || $renamed_columns{$nick})
+        ?  " AS " . ($renamed_columns{$nick} || $nick)
         : '');
     }
   };
@@ -1001,11 +1009,12 @@ sub all_parts {
 
   $joins_needed{partsgroup}  = 1;
   $joins_needed{pfac}        = 1;
+  $joins_needed{project}     = 1 if grep { $form->{$_} || $form->{"l_$_"} } @project_filters;
   $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
   $joins_needed{mv}          = 1 if $joins_needed{makemodel};
   $joins_needed{cv}          = 1 if $bsooqr;
   $joins_needed{apoe}        = 1 if $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
-  $joins_needed{invoice_oi}  = 1 if $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
+  $joins_needed{invoice_oi}  = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
 
   # special case for description search.
   # up in the simple filter section the description filter got interpreted as something like: WHERE description ILIKE '%$form->{description}%'
