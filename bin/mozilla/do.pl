@@ -984,14 +984,16 @@ sub calculate_stock_in_out {
   my $in_out   = $form->{type} =~ /^sales/ ? 'out' : 'in';
   my $sinfo    = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_${i}"});
 
+  my $do_qty   = AM->sum_with_unit($::form->{"qty_$i"}, $::form->{"unit_$i"});
   my $sum      = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $sinfo });
+  my $matches  = $do_qty == $sum;
 
   my $content  = $form->format_amount_units('amount'      => $sum * 1,
                                             'part_unit'   => $form->{"partunit_$i"},
                                             'amount_unit' => $all_units->{$form->{"partunit_$i"}}->{base_unit},
                                             'conv_units'  => 'convertible_not_smaller',
                                             'max_places'  => 2);
-  $content     = qq|<span id="stock_in_out_qty_display_${i}">${content}</span> <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
+  $content     = qq|<span id="stock_in_out_qty_display_${i}">${content}</span><input type=hidden id='stock_in_out_qty_matches_$i' value='$matches'> <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
 
   $main::lxdebug->leave_sub();
 
@@ -1146,8 +1148,13 @@ sub set_stock_in {
 
   _stock_in_out_set_qty_display($stock_info);
 
+  my $do_qty       = AM->sum_with_unit($::form->parse_amount(\%::myconfig, $::form->{do_qty}), $::form->{do_unit});
+  my $transfer_qty = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $stock_info });
+
   $form->header();
-  print $form->parse_html_template('do/set_stock_in_out');
+  print $form->parse_html_template('do/set_stock_in_out', {
+    qty_matches => $do_qty == $transfer_qty,
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -1241,8 +1248,13 @@ sub set_stock_out {
   } else {
     _stock_in_out_set_qty_display($stock_info);
 
+    my $do_qty       = AM->sum_with_unit($::form->parse_amount(\%::myconfig, $::form->{do_qty}), $::form->{do_unit});
+    my $transfer_qty = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $stock_info });
+
     $form->header();
-    print $form->parse_html_template('do/set_stock_in_out');
+    print $form->parse_html_template('do/set_stock_in_out', {
+      qty_matches => $do_qty == $transfer_qty,
+    });
   }
 
   $main::lxdebug->leave_sub();

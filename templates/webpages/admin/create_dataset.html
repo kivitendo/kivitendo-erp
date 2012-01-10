@@ -58,7 +58,9 @@
       <select name="inventory_system">
        [% FOREACH row = INVENTORY_SYSTEMS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
       </select>
+     * f&uuml;r die Bestandsmethode gibt es Einschr&auml;nkungen, siehe Bemerkungen in <a href="doc/umstellung_eur.txt">EUR Umstellung in Mandant</a>.
      </td>
+
     </tr>
 
     <tr>
