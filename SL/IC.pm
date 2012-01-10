@@ -1077,6 +1077,13 @@ sub all_parts {
 
   map { $_->{onhand} *= 1 } @{ $form->{parts} };
 
+  # fix qty sign in ap. those are saved negative
+  if ($bsooqr && $form->{bought}) {
+    for my $row (@{ $form->{parts} }) {
+      $row->{qty} *= -1 if $row->{module} eq 'ir';
+    }
+  }
+
   # post processing for assembly parts lists (bom)
   # for each part get the assembly parts and add them into the partlist.
   my @assemblies;
