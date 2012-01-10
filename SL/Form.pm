@@ -1106,15 +1106,20 @@ sub parse_template {
   close $temp_fh;
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
-    $out = $self->{OUT};
-    $out_mode = $self->{OUT_MODE} || '>';
-    $self->{OUT} = "$self->{tmpfile}";
+    $out              = $self->{OUT};
+    $out_mode         = $self->{OUT_MODE} || '>';
+    $self->{OUT}      = "$self->{tmpfile}";
     $self->{OUT_MODE} = '>';
   }
 
   my $result;
+  my $command_formatter = sub {
+    my ($out_mode, $out) = @_;
+    return $out_mode eq '|-' ? SL::Template::create(type => 'ShellCommand', form => $self)->parse($out) : $out;
+  };
 
   if ($self->{OUT}) {
+    $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
     open(OUT, $self->{OUT_MODE}, $self->{OUT}) or $self->error("error on opening $self->{OUT} with mode $self->{OUT_MODE} : $!");
   } else {
     *OUT = ($::dispatcher->get_standard_filehandles)[1];
@@ -1154,19 +1159,15 @@ sub parse_template {
 
       # if we send html or plain text inline
       if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
-        $mail->{contenttype} = "text/html";
-
-        $mail->{message}       =~ s/\r//g;
-        $mail->{message}       =~ s/\n/<br>\n/g;
-        $myconfig->{signature} =~ s/\n/<br>\n/g;
-        $mail->{message} .= "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
+        $mail->{contenttype}    =  "text/html";
+        $mail->{message}        =~ s/\r//g;
+        $mail->{message}        =~ s/\n/<br>\n/g;
+        $myconfig->{signature}  =~ s/\n/<br>\n/g;
+        $mail->{message}       .=  "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
 
         open(IN, "<", $self->{tmpfile})
           or $self->error($self->cleanup . "$self->{tmpfile} : $!");
-        while (<IN>) {
-          $mail->{message} .= $_;
-        }
-
+        $mail->{message} .= $_ while <IN>;
         close(IN);
 
       } else {
@@ -1203,10 +1204,12 @@ sub parse_template {
       #print(STDERR "OUT $self->{OUT}\n");
       for my $i (1 .. $self->{copies}) {
         if ($self->{OUT}) {
-          open OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
+          $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
+
+          open  OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
           print OUT $_ while <IN>;
           close OUT;
-          seek IN, 0, 0;
+          seek  IN, 0, 0;
 
         } else {
           $self->{attachment_filename} = ($self->{attachment_filename})
