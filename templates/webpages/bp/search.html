@@ -51,6 +51,12 @@
     <td colspan=3>[% L.input_tag('quonumber', '', size=20) %]</td>
   </tr>
 [%- END %]
+[%- IF label.$type.donumber %]
+  <tr>
+    <th align=right nowrap>[% 'Delivery Order Number' | $T8 %]</th>
+    <td colspan=3>[% L.input_tag('donumber', '', size=20) %]</td>
+  </tr>
+[%- END %]
 [%- IF label.$type.chknumber %]
   <tr>
     <th align=right nowrap>[% 'Reference' | $T8 %]</th>
