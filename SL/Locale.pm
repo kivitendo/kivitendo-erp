@@ -227,6 +227,18 @@ sub text {
   return $text;
 }
 
+sub lang_to_locale {
+  my ($self, $requested_lang) = @_;
+
+  my $requested_locale;
+  $requested_locale = 'de' if $requested_lang =~ m/^_(de|deu|ger)/i;
+  $requested_locale = 'fr' if $requested_lang =~ m/^_(en|uk|us|gr)/i;
+  $requested_locale = 'en' if $requested_lang =~ m/^_fr/i;
+  $requested_locale ||= 'de';
+
+  return $requested_locale;
+}
+
 sub findsub {
   $main::lxdebug->enter_sub();
 
