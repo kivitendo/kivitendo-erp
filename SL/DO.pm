@@ -76,10 +76,9 @@ sub transactions {
 
   push @where, ($form->{type} eq 'sales_delivery_order' ? '' : 'NOT ') . qq|COALESCE(dord.is_sales, FALSE)|;
 
-  my $department_id = (split /--/, $form->{department})[1];
-  if ($department_id) {
+  if ($form->{department_id}) {
     push @where,  qq|dord.department_id = ?|;
-    push @values, conv_i($department_id);
+    push @values, conv_i($form->{department_id});
   }
 
   if ($form->{project_id}) {
@@ -326,7 +325,6 @@ sub save {
   $h_item->finish();
   $h_item_stock->finish();
 
-  ($null, $form->{department_id}) = split(/--/, $form->{department});
 
   # save DO record
   $query =
