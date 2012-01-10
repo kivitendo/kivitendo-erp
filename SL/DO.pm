@@ -252,9 +252,9 @@ sub save {
          id, delivery_order_id, parts_id, description, longdescription, qty, base_qty,
          sellprice, discount, unit, reqdate, project_id, serialnumber,
          ordnumber, transdate, cusordnumber,
-         lastcost, price_factor_id, price_factor, marge_price_factor)
+         lastcost, price_factor_id, price_factor, marge_price_factor, pricegroup_id)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
-         (SELECT factor FROM price_factors WHERE id = ?), ?)|;
+         (SELECT factor FROM price_factors WHERE id = ?), ?, ?)|;
   my $h_item = prepare_query($form, $dbh, $q_item);
 
   my $q_item_stock =
@@ -301,7 +301,8 @@ sub save {
                $form->{"cusordnumber_$i"},
                $form->{"lastcost_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
-               conv_i($form->{"marge_price_factor_$i"}));
+               conv_i($form->{"marge_price_factor_$i"}),
+               conv_i($form->{"pricegroup_id_$i"}));
     do_statement($form, $h_item, $q_item, @values);
 
     my $stock_info = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_$i"});
@@ -670,7 +671,7 @@ sub retrieve {
          doi.sellprice, doi.parts_id AS id, doi.unit, doi.discount, p.bin, p.notes AS partnotes,
          doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
          doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,
-         doi.price_factor_id, doi.price_factor, doi.marge_price_factor,
+         doi.price_factor_id, doi.price_factor, doi.marge_price_factor, doi.pricegroup_id,
          pr.projectnumber, dord.transdate AS dord_transdate,
          pg.partsgroup
        FROM delivery_order_items doi

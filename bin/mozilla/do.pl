@@ -174,7 +174,7 @@ sub order_links {
   DO->retrieve('vc'  => $form->{vc},
                'ids' => $form->{id});
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes currency));
   $form->{shipto} = 1 if $form->{id};
 
   # get customer / vendor
@@ -187,6 +187,7 @@ sub order_links {
   }
 
   $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(currency)) if ($form->{id} || $form->{convert_from_oe_ids});
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
 
@@ -818,6 +819,13 @@ sub invoice {
 
   }
 
+  #  show pricegroup in newly loaded invoice when creating invoice from delivery order
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"sellprice_pg_$i"} = join /--/, $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
+  }
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  set_pricegroup($_) for 1 .. $form->{rowcount};
+
   display_form();
 
   $main::lxdebug->leave_sub();
@@ -916,6 +924,14 @@ sub invoice_multi {
 
   invoice_links();
   prepare_invoice();
+
+  #  show pricegroup in newly loaded invoice when creating invoice from delivery order
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"sellprice_pg_$i"} = join /--/, $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
+  }
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  set_pricegroup($_) for 1 .. $form->{rowcount};
+
   display_form();
 
   $main::lxdebug->leave_sub();
