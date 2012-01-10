@@ -2042,6 +2042,9 @@ sub ajax_autocomplete {
 sub back_to_record {
   _check_io_auth();
 
+
+  delete @{$::form}{qw(action action_add action_back_to_record back_sub description item notes partnumber sellprice taxaccount2 unit vc)};
+
   $::auth->restore_form_from_session($::form->{previousform}, clobber => 1);
   $::form->{rowcount}--;
   $::form->{action}   = 'display_form';
