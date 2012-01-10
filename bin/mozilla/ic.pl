@@ -1043,7 +1043,7 @@ sub generate_report {
     'listprice'          => { 'text' => $locale->text('List Price'), },
     'microfiche'         => { 'text' => $locale->text('Microfiche'), },
     'name'               => { 'text' => $locale->text('Name'), },
-    'onhand'             => { 'text' => $locale->text('Qty'), },
+    'onhand'             => { 'text' => $locale->text('Stocked Qty'), },
     'ordnumber'          => { 'text' => $locale->text('Order Number'), },
     'partnumber'         => { 'text' => $locale->text('Part Number'), },
     'partsgroup'         => { 'text' => $locale->text('Group'), },
@@ -1052,7 +1052,7 @@ sub generate_report {
     'rop'                => { 'text' => $locale->text('ROP'), },
     'sellprice'          => { 'text' => $locale->text('Sell Price'), },
     'serialnumber'       => { 'text' => $locale->text('Serial Number'), },
-    'soldtotal'          => { 'text' => $locale->text('soldtotal'), },
+    'soldtotal'          => { 'text' => $locale->text('Qty in Selected Records'), },
     'transdate'          => { 'text' => $locale->text('Transdate'), },
     'unit'               => { 'text' => $locale->text('Unit'), },
     'weight'             => { 'text' => $locale->text('Weight'), },
@@ -1136,7 +1136,7 @@ sub generate_report {
     model         => $locale->text('Model')            . ": '$form->{model}'",
     drawing       => $locale->text('Drawing')          . ": '$form->{drawing}'",
     microfiche    => $locale->text('Microfiche')       . ": '$form->{microfiche}'",
-    l_soldtotal   => $locale->text('soldtotal'),
+    l_soldtotal   => $locale->text('Qty in Selected Records'),
     ean           => $locale->text('EAN')              . ": '$form->{ean}'",
   );
 
@@ -1171,7 +1171,7 @@ sub generate_report {
   }
 
   if ($form->{l_linetotal}) {
-    $form->{l_onhand} = "Y";
+    $form->{l_qty} = "Y";
     $form->{l_linetotalsellprice} = "Y" if $form->{l_sellprice};
     $form->{l_linetotallastcost}  = $form->{searchitems} eq 'assembly' && !$form->{bom} ? "" : 'Y' if  $form->{l_lastcost};
     $form->{l_linetotallistprice} = "Y" if $form->{l_listprice};
@@ -1191,20 +1191,31 @@ sub generate_report {
         || $form->{ordered}
         || $form->{rfq}
         || $form->{quoted}) {
-      $form->{l_onhand} = "Y";
+#      $form->{l_onhand} = "Y";
     } else {
       $form->{l_linetotalsellprice} = "";
       $form->{l_linetotallastcost}  = "";
     }
   }
 
+  # soldtotal doesn't make sense with more than one bsooqr option.
+  # so reset it to sold (the most common option), and issue a warning
+  my @bsooqr = qw(sold bought onorder ordered rfq quoted);
+  if ($form->{l_subtotal} && 1 < grep { $form->{$_} } @bsooqr) {
+    my $enabled       = first { $form->{$_} } @bsooqr;
+    $form->{$_}       = ''   for @bsooqr;
+    $form->{$enabled} = 'Y';
+
+    push @options, $::locale->text('Subtotal cannot distinguish betweens record types. Only one of the selected record types will be displayed: #1', $optiontexts{$enabled});
+  }
+
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
-    partnumber description partsgroup bin onhand rop unit listprice
+    partnumber description partsgroup bin onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
-    transdate name serialnumber soldtotal deliverydate ean
+    transdate name serialnumber deliverydate ean
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -1290,12 +1301,12 @@ sub generate_report {
     $ref->{lastcost}      *= $ref->{exchangerate} / $ref->{price_factor};
 
     # use this for assemblies
-    my $onhand = $ref->{onhand};
+    my $soldtotal = $ref->{soldtotal};
 
     if ($ref->{assemblyitem}) {
       $row->{partnumber}{align}   = 'right';
-      $row->{onhand}{data}        = 0;
-      $onhand                     = 0 if ($form->{sold});
+      $row->{soldtotal}{data}     = 0;
+      $soldtotal                  = 0 if ($form->{sold});
     }
 
     my $edit_link               = build_std_url('action=edit', 'id=' . E($ref->{id}), 'callback');
@@ -1313,11 +1324,11 @@ sub generate_report {
 
     if (!$ref->{assemblyitem}) {
       foreach my $col (@subtotal_columns) {
-        $totals{$col}    += $onhand * $ref->{$col};
-        $subtotals{$col} += $onhand * $ref->{$col};
+        $totals{$col}    += $soldtotal * $ref->{$col};
+        $subtotals{$col} += $soldtotal * $ref->{$col};
       }
 
-      $subtotals{onhand} += $onhand;
+      $subtotals{soldtotal} += $soldtotal;
     }
 
     # set module stuff
@@ -1348,11 +1359,11 @@ sub generate_report {
       my $row = { map { $_ => { 'class' => 'listsubtotal', } } @columns };
 
       if (($form->{searchitems} ne 'assembly') || !$form->{bom}) {
-        $row->{onhand}->{data} = $form->format_amount(\%myconfig, $subtotals{onhand});
+        $row->{soldtotal}->{data} = $form->format_amount(\%myconfig, $subtotals{soldtotal});
       }
 
       map { $row->{"linetotal$_"}->{data} = $form->format_amount(\%myconfig, $subtotals{$_}, 2) } @subtotal_columns;
-      map { $subtotals{$_} = 0 } ('onhand', @subtotal_columns);
+      map { $subtotals{$_} = 0 } ('soldtotal', @subtotal_columns);
 
       $report->add_data($row);
 

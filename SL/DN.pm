@@ -718,6 +718,7 @@ sub print_dunning {
          ar.transdate,       ar.duedate,      ar.customer_id,
          ar.invnumber,       ar.ordnumber,    ar.cp_id,
          ar.amount,          ar.netamount,    ar.paid,
+         ar.curr,
          ar.amount - ar.paid AS open_amount,
          ar.amount - ar.paid + da.fee + da.interest AS linetotal
 
@@ -746,11 +747,13 @@ sub print_dunning {
          c.country,           c.department_1, c.department_2, c.email,     c.customernumber,
          c.greeting,          c.contact,      c.phone,        c.fax,       c.homepage,
          c.email,             c.taxincluded,  c.business_id,  c.taxnumber, c.iban,
+         c,ustid,             e.name as salesman_name,
          co.*
        FROM dunning d
        LEFT JOIN ar          ON (d.trans_id = ar.id)
        LEFT JOIN customer c  ON (ar.customer_id = c.id)
        LEFT JOIN contacts co ON (ar.cp_id = co.cp_id)
+       LEFT JOIN employee e  ON (ar.salesman_id = e.id)
        WHERE (d.dunning_id = ?)
        LIMIT 1|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $dunning_id);

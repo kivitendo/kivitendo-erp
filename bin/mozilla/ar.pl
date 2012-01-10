@@ -1046,13 +1046,12 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
 
-  my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1 oldcustomer);
+  my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1 customer_id);
 
   &check_name("customer");
 
-  # check_name ruft get_customer auf, oldcustomer wird überschrieben, daher wird dies vorher gemerkt
-  # get_customer holt Bemerkungen als intnotes, für Debitorenbuchungen gibt es aber nur das Feld notes
-  $form->{notes} = $form->{intnotes} if $saved_variables{oldcustomer} ne $form->{customer};
+  # check_name loads customer notes into notes, but ar only knows intnotes, so copy them
+  $form->{notes} = $form->{intnotes} if $saved_variables{customer_id} != $form->{customer_id};
 
   $form->{AR} = $saved_variables{AR};
   if ($saved_variables{AR_amount_1} =~ m/.--./) {

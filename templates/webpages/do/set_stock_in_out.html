@@ -9,6 +9,7 @@
         var row = $('#row').attr('value');
         window.opener.document.getElementsByName("stock_" + $('#in_out').attr('value') + "_" + row)[0].value = $('#stock').attr('value');
         $(window.opener.document.getElementById("stock_in_out_qty_display_" + row)).html($('#qty_display').attr('value'));
+        $(window.opener.document.getElementById("stock_in_out_qty_matches_" + row)).val([% qty_matches %]);
 
         window.close();
       }

@@ -68,9 +68,9 @@
    [%- UNLESS delivered %]
    <input class="submit" type="submit" name="action_save" value="[% 'Save' | $T8 %]">
    [%- IF vc == 'customer' %]
-   <input class="submit" type="submit" name="action_transfer_out" value="[% 'Transfer out' | $T8 %]">
+   <input class="submit" type="submit" name="action_transfer_out" onclick="return check_transfer_qty()" value="[% 'Transfer out' | $T8 %]">
    [%- ELSE %]
-   <input class="submit" type="submit" name="action_transfer_in" value="[% 'Transfer in' | $T8 %]">
+   <input class="submit" type="submit" name="action_transfer_in"  onclick="return check_transfer_qty()" value="[% 'Transfer in' | $T8 %]">
    [%- END %]
    [%- END %]
    [%- IF id %]
@@ -96,6 +96,22 @@
   <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
 
  </form>
+<script type='text/javascript'>
+  function check_transfer_qty() {
+    var all_match = true;
+    var rowcount = $('input[name=rowcount]').val();
+    for (var i = 1; i < rowcount; i++) {
+      if ($('#stock_in_out_qty_matches_' + i).val() != 1) {
+        all_match = false;
+      }
+    }
 
+    if (all_match) {
+      return true;
+    } else {
+      return confirm("[% 'There are still transfers not matching the qty of the delivery order. Stock operations can not be changed later. Do you really want to proceed?' | $T8 %]");
+    }
+  }
+</script>
 </body>
 </html>

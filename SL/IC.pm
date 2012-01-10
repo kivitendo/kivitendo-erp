@@ -1007,12 +1007,6 @@ sub all_parts {
   $joins_needed{apoe}        = 1 if $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}  = 1 if $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
 
-  # in bsoorq, use qtys instead of onhand
-  if ($joins_needed{invoice_oi}) {
-    $renamed_columns{onhand} = 'onhand_before_bsooqr';
-    $renamed_columns{qty}    = 'onhand';
-  }
-
   # special case for description search.
   # up in the simple filter section the description filter got interpreted as something like: WHERE description ILIKE '%$form->{description}%'
   # now we'd like to search also for the masked description entered in orderitems and invoice, so...
@@ -1082,6 +1076,13 @@ sub all_parts {
   $form->{parts} = selectall_hashref_query($form, $dbh, $query, @bind_vars);
 
   map { $_->{onhand} *= 1 } @{ $form->{parts} };
+
+  # fix qty sign in ap. those are saved negative
+  if ($bsooqr && $form->{bought}) {
+    for my $row (@{ $form->{parts} }) {
+      $row->{qty} *= -1 if $row->{module} eq 'ir';
+    }
+  }
 
   # post processing for assembly parts lists (bom)
   # for each part get the assembly parts and add them into the partlist.

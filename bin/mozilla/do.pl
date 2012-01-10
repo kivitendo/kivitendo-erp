@@ -173,7 +173,7 @@ sub order_links {
   DO->retrieve('vc'  => $form->{vc},
                'ids' => $form->{id});
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes currency));
   $form->{shipto} = 1 if $form->{id};
 
   # get customer / vendor
@@ -186,6 +186,7 @@ sub order_links {
   }
 
   $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(currency)) if ($form->{id} || $form->{convert_from_oe_ids});
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
 
@@ -826,6 +827,13 @@ sub invoice {
 
   }
 
+  #  show pricegroup in newly loaded invoice when creating invoice from delivery order
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"sellprice_pg_$i"} = join /--/, $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
+  }
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  set_pricegroup($_) for 1 .. $form->{rowcount};
+
   display_form();
 
   $main::lxdebug->leave_sub();
@@ -924,6 +932,14 @@ sub invoice_multi {
 
   invoice_links();
   prepare_invoice();
+
+  #  show pricegroup in newly loaded invoice when creating invoice from delivery order
+  for my $i (1 .. $form->{rowcount}) {
+    $form->{"sellprice_pg_$i"} = join /--/, $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
+  }
+  IS->get_pricegroups_for_parts(\%myconfig, \%$form);
+  set_pricegroup($_) for 1 .. $form->{rowcount};
+
   display_form();
 
   $main::lxdebug->leave_sub();
@@ -992,14 +1008,16 @@ sub calculate_stock_in_out {
   my $in_out   = $form->{type} =~ /^sales/ ? 'out' : 'in';
   my $sinfo    = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_${i}"});
 
+  my $do_qty   = AM->sum_with_unit($::form->{"qty_$i"}, $::form->{"unit_$i"});
   my $sum      = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $sinfo });
+  my $matches  = $do_qty == $sum;
 
   my $content  = $form->format_amount_units('amount'      => $sum * 1,
                                             'part_unit'   => $form->{"partunit_$i"},
                                             'amount_unit' => $all_units->{$form->{"partunit_$i"}}->{base_unit},
                                             'conv_units'  => 'convertible_not_smaller',
                                             'max_places'  => 2);
-  $content     = qq|<span id="stock_in_out_qty_display_${i}">${content}</span> <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
+  $content     = qq|<span id="stock_in_out_qty_display_${i}">${content}</span><input type=hidden id='stock_in_out_qty_matches_$i' value='$matches'> <input type="button" onclick="open_stock_in_out_window('${in_out}', $i);" value="?">|;
 
   $main::lxdebug->leave_sub();
 
@@ -1154,8 +1172,13 @@ sub set_stock_in {
 
   _stock_in_out_set_qty_display($stock_info);
 
+  my $do_qty       = AM->sum_with_unit($::form->parse_amount(\%::myconfig, $::form->{do_qty}), $::form->{do_unit});
+  my $transfer_qty = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $stock_info });
+
   $form->header();
-  print $form->parse_html_template('do/set_stock_in_out');
+  print $form->parse_html_template('do/set_stock_in_out', {
+    qty_matches => $do_qty == $transfer_qty,
+  });
 
   $main::lxdebug->leave_sub();
 }
@@ -1249,8 +1272,13 @@ sub set_stock_out {
   } else {
     _stock_in_out_set_qty_display($stock_info);
 
+    my $do_qty       = AM->sum_with_unit($::form->parse_amount(\%::myconfig, $::form->{do_qty}), $::form->{do_unit});
+    my $transfer_qty = AM->sum_with_unit(map { $_->{qty}, $_->{unit} } @{ $stock_info });
+
     $form->header();
-    print $form->parse_html_template('do/set_stock_in_out');
+    print $form->parse_html_template('do/set_stock_in_out', {
+      qty_matches => $do_qty == $transfer_qty,
+    });
   }
 
   $main::lxdebug->leave_sub();

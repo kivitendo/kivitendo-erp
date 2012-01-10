@@ -76,8 +76,15 @@
   - Bugfix 1738:  Entwürfe können nicht gelöscht werden
   - Bugfix 1759: Währung bei Kunden / Lieferanten vorbelegen
   - Bugfix 1770: Währung / currency überlebt Workflow über Lieferschein nicht
+  - Bugfix 1770: (zweiter Teil) Preisgruppen überleben Workflow nicht
   - Bugfix 1773: SQL Fehler bei Anzeige von Angeboten
+  - Bugfix 1725: In Mahnungen steht currency nicht als Variable zur Verfügung?
   - Bugfix 1771: Zahlungsausgang: Lieferant wird nicht ausgewählt, wenn Name 2 Leerzeichen hintereinander enthält
+  - Bugfix 1566: Variablen für Verkäufer und USTID in Mahnungsdruck hinzugefügt
+  - Bugfix 1588: Einzelteile eines Erzeugnisses von Verkaufsbericht ausnehmen
+  - Bugfix 1756: Ertrag in Bruttorechnungen korrekt berechnen
+
+
 
 
 2011-06-15 - Release 2.6.3
