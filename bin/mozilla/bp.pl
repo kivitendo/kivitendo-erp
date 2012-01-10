@@ -49,6 +49,7 @@ sub assert_bp_access {
     'sales_order'       => 'sales_order_edit',
     'sales_quotation'   => 'sales_quotation_edit',
     'purchase_order'    => 'purchase_order_edit',
+    'packing_list'      => 'sales_delivery_order_edit|purchase_delivery_order_edit',
     'request_quotation' => 'request_quotation_edit',
     'check'             => 'cash',
     'receipt'           => 'cash',
@@ -76,6 +77,7 @@ sub search {
        purchase_order    => { title => $::locale->text('Purchase Orders'), ordnumber => 1, },
        sales_quotation   => { title => $::locale->text('Quotations'),      quonumber => 1, },
        request_quotation => { title => $::locale->text('RFQs'),            quonumber => 1, },
+       packing_list      => { title => $::locale->text('Delivery Orders'), donumber  => 1, ordnumber => 1 },
        check             => { title => $::locale->text('Checks'),          chknumber => 1, },
        receipt           => { title => $::locale->text('Receipts'),        rctnumber => 1, },
   );
@@ -161,12 +163,13 @@ sub list_spool {
     invnumber     => sub { $::locale->text('Invoice Number')   . " : $::form->{invnumber}" },
     ordnumber     => sub { $::locale->text('Order Number')     . " : $::form->{ordnumber}" },
     quonumber     => sub { $::locale->text('Quotation Number') . " : $::form->{quonumber}" },
+    donumber      => sub { $::locale->text('Delivery Order Number') . " : $::form->{donumber}" },
     transdatefrom => sub { $::locale->text('From') . "&nbsp;" . $::locale->date(\%::myconfig, $::form->{transdatefrom}, 1) },
     transdateto   => sub { $::locale->text('To')   . "&nbsp;" . $::locale->date(\%::myconfig, $::form->{transdateto}, 1) },
   );
 
   my @options;
-  for my $key ($::form->{vc}, qw(account invnumber ordnumber quonumber transdatefrom transdateto)) {
+  for my $key ($::form->{vc}, qw(account invnumber ordnumber quonumber donumber transdatefrom transdateto)) {
     next unless $::form->{$key};
     push @href_options, $key;
     push @options, $option_texts{$key} ? $option_texts{$key}->() : '';
