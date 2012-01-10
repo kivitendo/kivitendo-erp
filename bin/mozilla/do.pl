@@ -303,7 +303,7 @@ sub form_header {
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
   # und Erweiterung für Bug 1760:
   # Das war leider nur ein Teil-Fix, da das Verhalten den 'Erneuern'-Knopf
-  # nicht überlebt. Konsequent jetzt auf L umgestellt 
+  # nicht überlebt. Konsequent jetzt auf L umgestellt
   #   $ perldoc SL::Template::Plugin::L
   # Daher entsprechend nur die Anpassung in form_header
   # und in DO.pm gemacht. 4 Testfälle:
