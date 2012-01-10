@@ -1,0 +1,5196 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
+"http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
+<book id="ding.xml" lang="de">
+  <title>Lx-Office: Installation, Konfiguration, Entwicklung</title>
+
+  <chapter id="Aktuelle-Hinweise">
+    <title>Aktuelle Hinweise</title>
+
+    <para>Aktuelle Installations- und Konfigurationshinweise gibt es:</para>
+
+    <itemizedlist>
+      <listitem>
+        <para>auf der Lx-Office-Homepage unter <ulink
+        url="http://lx-office.org/index.php?id=dokumentation">http://lx-office.org/index.php?id=dokumentation</ulink></para>
+      </listitem>
+
+      <listitem>
+        <para>im Lx-Office-Wiki unter Dokumentation (<ulink
+        url="http://wiki.lx-office.org/index.php/Lx-Office_ERP">http://wiki.lx-office.org/index.php/Lx-Office_ERP</ulink>)</para>
+      </listitem>
+
+      <listitem>
+        <para>im Lx-Office-Forum: <ulink
+        url="http://www.lx-office.org/forum/">http://www.lx-office.org/forum/</ulink></para>
+      </listitem>
+    </itemizedlist>
+
+    <!--  -->
+  </chapter>
+
+  <chapter>
+    <title>Installation und Grundkonfiguration</title>
+
+    <sect1 id="Benötigte-Software-und-Pakete">
+      <title>Benötigte Software und Pakete</title>
+
+      <sect2 id="Betriebssystem">
+        <title>Betriebssystem</title>
+
+        <para>Lx-Office ist für Linux konzipiert, und sollte auf jedem
+        unixoiden Betriebssystem zum Laufen zu kriegen sein. Getestet ist
+        diese Version im speziellen auf Debian und Ubuntu, grundsätzlich wurde
+        bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
+        ohne große Probleme auf den derzeit aktuellen verbreiteten
+        Distributionen läuft.</para>
+
+        <para>Anfang 2011 sind das folgende Systeme:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>Ubuntu 8.04 LTS Hardy Heron</para>
+          </listitem>
+
+          <listitem>
+            <para>Ubuntu 9.10 Karmic Koala</para>
+          </listitem>
+
+          <listitem>
+            <para>Ubuntu 10.04 Lucid Lynx</para>
+          </listitem>
+
+          <listitem>
+            <para>Ubuntu 10.10 Maverick Meerkat</para>
+          </listitem>
+
+          <listitem>
+            <para>Debian 5.0 Lenny</para>
+          </listitem>
+
+          <listitem>
+            <para>Debian 6.0 Squeeze</para>
+          </listitem>
+
+          <listitem>
+            <para>openSUSE 11.2</para>
+          </listitem>
+
+          <listitem>
+            <para>openSUSE 11.3</para>
+          </listitem>
+
+          <listitem>
+            <para>SuSE Linux Enterprice Server 11</para>
+          </listitem>
+
+          <listitem>
+            <para>Fedora 13</para>
+          </listitem>
+
+          <listitem>
+            <para>Fedora 14</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Für die debianoiden Betriebssysteme existiert ein .deb, das
+        deutlich einfacher zu installieren ist.</para>
+
+        <para>Ubuntu 8.04 LTS hat zusätzlich die Schwierigkeit, dass die
+        Module im Archiv recht alt sind, und das viele der benötigten Module
+        nicht einfach zu installieren sind. Dafür sollte es kurz nach dem
+        Release ein eigenes .deb geben.</para>
+
+        <para>Alternativ dazu kann die normale Installation durchgeführt
+        werden (siehe <xref
+        linkend="Manuelle-Installation-des-Programmpaketes"/>), wenn vorher
+        ein Kompatibilitätspaket installiert wird, das die fehlenden Pakete
+        bereitstellt. Das Paket ist auf <ulink
+        url="https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.2/">Sourceforge</ulink>
+        unter dem Namen <filename>lx-erp-perl-libs-compat-v2.tar.gz</filename>
+        hinterlegt.</para>
+
+        <para>Zur Installation das Paket in das entpackte Lx-Office
+        Verzeichnis entpacken:</para>
+
+        <para><literal>tar xzf lx-erp-perl-libs-compat-v2.tar.gz
+        /path/to/lx-office/</literal></para>
+
+        <para>Zusätzlich müssen dann noch die folgenden Pakete installiert
+        weerden</para>
+
+        <para><literal>libbit-vector-perl libsub-exporter-perl libclone-perl
+        libclass-factory-util-perl</literal></para>
+
+        <para>Danach sollte der Installationscheck (siehe <xref
+        linkend="Pakete"/>) die enthaltenen Pakete erkennen.</para>
+      </sect2>
+
+      <sect2 id="Pakete" xreflabel="Pakete">
+        <title>Pakete</title>
+
+        <para>Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist
+        Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
+        benötigt.</para>
+
+        <para>Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die
+        nicht Bestandteil einer Standard-Perl-Installation sind:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>parent</para>
+          </listitem>
+
+          <listitem>
+            <para>Archive::Zip</para>
+          </listitem>
+
+          <listitem>
+            <para>Config::Std</para>
+          </listitem>
+
+          <listitem>
+            <para>DateTime</para>
+          </listitem>
+
+          <listitem>
+            <para>DBI</para>
+          </listitem>
+
+          <listitem>
+            <para>DBD::Pg</para>
+          </listitem>
+
+          <listitem>
+            <para>Email::Address</para>
+          </listitem>
+
+          <listitem>
+            <para>JSON</para>
+          </listitem>
+
+          <listitem>
+            <para>List::MoreUtils</para>
+          </listitem>
+
+          <listitem>
+            <para>Params::Validate</para>
+          </listitem>
+
+          <listitem>
+            <para>PDF::API2</para>
+          </listitem>
+
+          <listitem>
+            <para>Rose::Object</para>
+          </listitem>
+
+          <listitem>
+            <para>Rose::DB</para>
+          </listitem>
+
+          <listitem>
+            <para>Rose::DB::Object</para>
+          </listitem>
+
+          <listitem>
+            <para>Template</para>
+          </listitem>
+
+          <listitem>
+            <para>Text::CSV_XS</para>
+          </listitem>
+
+          <listitem>
+            <para>Text::Iconv</para>
+          </listitem>
+
+          <listitem>
+            <para>URI</para>
+          </listitem>
+
+          <listitem>
+            <para>XML::Writer</para>
+          </listitem>
+
+          <listitem>
+            <para>YAML</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
+        hinzugekommen, <literal>URI</literal> und
+        <literal>XML::Writer</literal> sind notwendig. Ohne startet Lx-Office
+        nicht.</para>
+
+        <para>Gegenüber Version 2.6.1 sind <literal>parent</literal>,
+        <literal>DateTime</literal>, <literal>Rose::Object</literal>,
+        <literal>Rose::DB</literal> und <literal>Rose::DB::Object</literal>
+        neu hinzugekommen. <literal>IO::Wrap</literal> wurde entfernt.</para>
+
+        <para>Gegenüber Version 2.6.3 ist <literal>JSON</literal> neu
+        hinzugekommen.</para>
+
+        <para><literal>Email::Address</literal> und
+        <literal>List::MoreUtils</literal> sind schon länger feste
+        Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert. Beide
+        sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
+        zukünftigen Version aber aus dem Paket entfernt werden. Es wird
+        empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
+        installieren.</para>
+
+        <para>Die zu installierenden Pakete können in den verschiedenen
+        Distributionen unterschiedlich heißen.</para>
+
+        <para>Für Debian oder Ubuntu benötigen Sie diese Pakete:</para>
+
+        <para><literal>apache2 postgresql libparent-perl libarchive-zip-perl
+        libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl
+        libemail-address-perl liblist-moreutils-perl libpdf-api2-perl
+        librose-object-perl librose-db-perl librose-db-object-perl
+        libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl
+        libxml-writer-perl libyaml-perl libconfig-std-perl
+        libparams-validate-perl libjson-perl</literal></para>
+
+        <para>Für Fedora Core benötigen Sie diese Pakete:</para>
+
+        <para><literal>httpd postgresql-server perl-parent perl-DateTime
+        perl-DBI perl-DBD-Pg perl-Email-Address perl-List-MoreUtils
+        perl-PDF-API2 perl-Rose-Object perl-Rose-DB perl-Rose-DB-Object
+        perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI
+        perl-XML-Writer perl-YAML</literal></para>
+
+        <para>Für OpenSuSE benötigen Sie diese Pakete:</para>
+
+        <para><literal>apache2 postgresql-server perl-Archive-Zip
+        perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-List-MoreUtils
+        perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv
+        perl-URI perl-XML-Writer perl-YAML</literal></para>
+
+        <para>Bei openSuSE 11 ist <literal>parent</literal> bereits enthalten,
+        und braucht nicht nachinstalliert werden. Die
+        <literal>Rose::*</literal> Pakete sind derzeit nicht für SuSE gepackt,
+        und müssen anderweitig nachinstalliert werden.</para>
+
+        <para>Lx-Office enthält ein Script, mit dem überprüft werden kann, ob
+        alle benötigten Perl-Module installiert sind. Der Aufruf lautet wie
+        folgt:</para>
+
+        <programlisting>./scripts/installation_check.pl</programlisting>
+      </sect2>
+    </sect1>
+
+    <sect1 id="Manuelle-Installation-des-Programmpaketes"
+           xreflabel="Manuelle Installation des Programmpaketes">
+      <title>Manuelle Installation des Programmpaketes</title>
+
+      <para>Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.2.tgz) wird
+      im Dokumentenverzeichnis des Webservers (z.B.
+      <filename>/var/www/html/</filename>,
+      <filename>/srv/www/htdocs</filename> oder
+      <filename>/var/www/</filename>) entpackt:</para>
+
+      <programlisting>cd /var/www tar xvzf
+lxoffice-erp-2.6.2.tgz</programlisting>
+
+      <para>Verändern Sie evtl. noch den Namen des Verzeichnisses mit</para>
+
+      <programlisting>mv lxoffice-erp/ lx-erp/</programlisting>
+
+      <para>Alternativ können Sie auch einen Alias in der
+      Webserverkonfiguration benutzen, um auf das tatsächliche
+      Installationsverzeichnis zu verweisen.</para>
+
+      <para>Die Verzeichnisse <filename>users</filename>,
+      <filename>spool</filename> und <filename>webdav</filename> müssen für
+      den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
+      restlichen Dateien müssen für diesen Benutzer lesbar sein. Der
+      Benutzername ist bei verschiedenen Distributionen unterschiedlich (z.B.
+      bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora core
+      <constant>apache</constant> oder bei OpenSuSE
+      <constant>wwwrun</constant>).</para>
+
+      <para>Der folgende Befehl ändert den Besitzer für die oben genannten
+      Verzeichnisse auf einem Debian/Ubuntu-System:</para>
+
+      <programlisting>chown -R www-data lx-office-erp/users lx-office-erp/spool lx-office-erp/webdav</programlisting>
+
+      <para>Weiterhin muss der Webserver-Benutzer im Verzeichnis
+      <filename>templates</filename> Verzeichnisse für jeden neuen Benutzer,
+      der in lx-office angelegt wird, anlegen dürfen:</para>
+
+      <programlisting>chgrp www-data lx-office-erp/templates
+chmod g+w lx-office-erp/templates</programlisting>
+    </sect1>
+
+    <sect1 id="config.config-file">
+     <title>Lx-Office-Konfigurationsdatei</title>
+
+     <sect2 id="config.config-file.introduction" xreflabel="Einführung in die Konfigurationsdatei">
+      <title>Einführung</title>
+
+      <para>
+       Seit Lx-Office 2.6.3. gibt es nur noch eine Konfigurationsdatei die benötigt wird: <filename>config/lx_office.conf</filename> (kurz:
+       "die Hauptkonfigurationsdatei"). Diese muss bei der Erstinstallation von Lx-Office bzw. der Migration von älteren Versionen angelegt
+       werden.
+      </para>
+
+      <para>
+       Als Vorlage dient die Datei <filename>config/lx_office.conf.default</filename> (kurz: "die Default-Datei"):
+      </para>
+
+      <programlisting>$ cp config/lx_office.conf.default config/lx_office.conf</programlisting>
+
+      <para>
+       Die Default-Datei wird immer zuerst eingelesen. Werte, die in der Hauptkonfigurationsdatei stehen, überschreiben die
+       Werte aus der Default-Datei. Die Hauptkonfigurationsdatei muss also nur die Abschintte und Werte
+       enthalten, die von denen der Default-Datei abweichen.
+      </para>
+
+      <para>
+       Diese Hauptkonfigurationsdatei ist dann eine installationsspezifische Datei, d.h. sie enthält bspw. lokale Passwörter und wird auch
+       nicht im Versionsmanagement (git) verwaltet.
+      </para>
+
+      <para>
+       Die Konfiguration ist ferner serverabhängig, d.h. für alle Mandaten, bzw. Datenbanken gleich.
+      </para>
+     </sect2>
+
+     <sect2 id="config.config-file.sections-parameters">
+      <title>Abschnitte und Parameter</title>
+
+      <para>
+       Die Konfigurationsdatei besteht aus mehreren Teilen, die entsprechend kommentiert sind:
+      </para>
+
+      <itemizedlist>
+       <listitem><para><literal>authentication</literal></para></listitem>
+       <listitem><para><literal>authentication/database</literal></para></listitem>
+       <listitem><para><literal>authentication/ldap</literal></para></listitem>
+       <listitem><para><literal>system</literal></para></listitem>
+       <listitem><para><literal>features</literal></para></listitem>
+       <listitem><para><literal>paths</literal></para></listitem>
+       <listitem><para><literal>applications</literal></para></listitem>
+       <listitem><para><literal>environment</literal></para></listitem>
+       <listitem><para><literal>print_templates</literal></para></listitem>
+       <listitem><para><literal>task_server</literal></para></listitem>
+       <listitem><para><literal>periodic_invoices</literal></para></listitem>
+       <listitem><para><literal>console</literal></para></listitem>
+       <listitem><para><literal>debug</literal></para></listitem>
+      </itemizedlist>
+
+      <para>
+       Die üblicherweise wichtigsten Parameter, die am Anfang einzustellen oder zu kontrollieren sind, sind:
+      </para>
+
+      <programlisting>[authentication]
+admin_password = geheim
+
+[authentication/database]
+host     = localhost
+port     = 5432
+db       = lxerp_auth
+user     = postgres
+password =
+
+[system]
+eur = 1
+dbcharset = UTF-8</programlisting>
+
+       <para>
+        Nutzt man wiederkehrende Rechnungen, kann man unter <literal>[periodic_invoices]</literal> den Login eines Benutzers angeben, der
+        nach Erstellung der Rechnungen eine entsprechende E-Mail mit Informationen über die erstellten Rechnungen bekommt.
+       </para>
+
+       <para>
+        Nutzt man den Taskserver für wiederkehrende Rechnungen, muss unter <literal>[task_server]</literal> ein Login eines Benutzers
+        angegeben werden, mit dem sich der Taskserver an Lx-Office bei der Datenbank anmeldet, die dem Benutzer zugewiesen ist.
+       </para>
+
+       <para>
+        Für Entwickler finden sich unter <literal>[debug]</literal> wichtige Funktionen, um die Fehlersuche zu erleichtern.
+       </para>
+     </sect2>
+
+     <sect2 id="config.config-file.prior-versions">
+      <title>Versionen vor 2.6.3</title>
+
+      <para>
+       In älteren Lx-Office Versionen gab es im Verzeichnis <filename>config</filename> die Dateien <filename>authentication.pl</filename>
+       und <filename>lx-erp.conf</filename>, die jeweils Perl-Dateien waren. Es gab auch die Möglichkeit, eine lokale Version der
+       Konfigurationsdatei zu erstellen (<literal>lx-erp-local.conf</literal>). Dies ist ab 2.6.3 nicht mehr möglich, aber auch nicht mehr
+       nötig.
+      </para>
+
+      <para>
+       Beim Update von einer Lx-Office-Version vor 2.6.3 auf 2.6.3 oder jünger müssen die Einstellungen aus den alten Konfigurationsdateien
+       manuell übertragen und die alten Konfigurationsdateien anschließend gelöscht oder verschoben werden. Ansonsten zeigt Lx-Office eine
+       entsprechende Fehlermeldung an.
+      </para>
+     </sect2>
+    </sect1>
+
+    <sect1 id="Anpassung-der-PostgreSQL-Konfiguration">
+      <title>Anpassung der PostgreSQL-Konfiguration</title>
+
+      <para>PostgreSQL muss auf verschiedene Weisen angepasst werden.</para>
+
+      <sect2 id="Zeichensätze-die-Verwendung-von-UTF-8">
+        <title>Zeichensätze/die Verwendung von UTF-8</title>
+
+        <para>Lx-Office kann komplett mit UTF-8 als Zeichensatz verwendet
+        werden. Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in
+        Version 8.0 oder neuer benutzt werden, und der
+        PostgreSQL-Datenbankcluster muss ebenfalls mit UTF-8 als Locale
+        angelegt worden sein.</para>
+
+        <para>Dieses ist kann überprüft werden: ist das Encoding der Datenbank
+        “template1” “UTF8”, so kann auch Lx-Office mit UTF-8 betrieben werden.
+        Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
+        UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
+        Ubuntu kann dies z.B. mit dem folgenden Befehl getan werden:</para>
+
+        <para><literal>pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8
+        8.2 clustername</literal></para>
+
+        <para>Die Datenbankversionsnummer muss an die tatsächlich verwendete
+        Versionsnummer angepasst werden.</para>
+
+        <para>Unter anderen Distributionen gibt es ähnliche Methoden.</para>
+
+        <para>Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und
+        ist ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
+        Lx-Office mit ISO-8859-15 als Encoding betrieben werden.</para>
+
+        <para>Das Encoding einer Datenbank kann in <literal>psql</literal> mit
+        <literal>\l</literal> geprüft werden.</para>
+      </sect2>
+
+      <sect2 id="Änderungen-an-Konfigurationsdateien">
+        <title>Änderungen an Konfigurationsdateien</title>
+
+        <para>In der Datei <literal>postgresql.conf</literal>, die je nach
+        Distribution in verschiedenen Verzeichnissen liegen kann (z.B.
+        <literal>/var/lib/pgsql/data/</literal> oder
+        <literal>/etc/postgresql/</literal>, muss sichergestellt werden, dass
+        TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
+        Parameter <literal>listen_address</literal> gesteuert. Laufen
+        PostgreSQL und Lx-Office auf demselben Rechner, so kann dort der Wert
+        <literal>localhost</literal> verwendet werden. Andernfalls müssen
+        Datenbankverbindungen auch von anderen Rechnern aus zugelassen werden,
+        was mit dem Wert \<literal>*</literal> geschieht.</para>
+
+        <para>In der Datei <literal>pg_hba.conf</literal>, die im gleichen
+        Verzeichnis wie die <literal>postgresql.conf</literal> zu finden sein
+        sollte, müssen die Berichtigungen für den Zugriff geändert werden.
+        Hier gibt es mehrere Möglichkeiten. Eine besteht darin, lokale
+        Verbindungen immer zuzulassen</para>
+
+        <para><literal>local all all trust host all all 127.0.0.1 255.0.0.0
+        trust</literal></para>
+
+        <para>Besser ist es, für eine bestimmte Datenbank Zugriff nur per
+        Passwort zuzulassen. Beispielsweise:</para>
+
+        <para><literal>local all lxoffice password host all lxoffice 127.0.0.1
+        255.255.255.255 password</literal></para>
+
+        <!--  -->
+      </sect2>
+
+      <sect2 id="Erweiterung-für-servergespeicherte-Prozeduren">
+        <title>Erweiterung für servergespeicherte Prozeduren</title>
+
+        <para>In der Datenbank <literal>template1</literal> muss die
+        Unterstützung für servergespeicherte Prozeduren eingerichet werden.
+        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an, und
+        führen Sie die folgenden Kommandos aus:</para>
+
+        <para><literal>create language 'plpgsql';</literal></para>
+
+        <para>Achtung: In älteren Postgresversionen (vor 8.0) muss der Handler
+        für die Sprache manuell anlelegt werden, diese Versionen werden aber
+        nicht mehr offiziell von Lx-Office unterstützt. Dafür dann die
+        folgenden Kommandos:</para>
+
+        <para><literal>create function plpgsql_call_handler () returns opaque
+        as '/usr/lib/pgsql/plpgsql.so' language 'c'; create language 'plpgsql'
+        handler plpgsql_call_handler lancompiler 'pl/pgsql';</literal></para>
+
+        <para>Bitte beachten Sie, dass der Pfad zur Datei
+        <literal>plpgsql.so</literal> von Distribution zu Distribution
+        verschiedlich sein kann. Bei Debian/Ubuntu befindet sie sich unter
+        <literal>/usr/lib/postgresql/lib/plpgsql.so</literal>.</para>
+
+        <!--  -->
+      </sect2>
+
+      <sect2 id="Datenbankbenutzer-anlegen">
+        <title>Datenbankbenutzer anlegen</title>
+
+        <para>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
+        benutzen wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer
+        anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
+        können:</para>
+
+        <para><literal>su - postgres createuser -d -P
+        lxoffice</literal></para>
+
+        <para>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
+        Sie den evtl. voreingestellten Benutzer “postgres” auf “lxoffice” bzw.
+        den hier gewählten Benutzernamen.</para>
+
+        <!--  -->
+      </sect2>
+    </sect1>
+
+    <sect1 id="Apache-Konfiguration">
+      <title>Webserver-Konfiguration</title>
+
+      <sect2>
+        <title>Grundkonfiguration mittels CGI</title>
+
+        <note>
+          <para>Für einen deutlichen Performanceschub sorgt die Ausführung
+          mittels FastCGI/FCGI. Die Einrichtung wird ausführlich im Abschnitt
+          <xref linkend="Apache-Konfiguration.FCGI"/> beschrieben.</para>
+        </note>
+
+        <para>Der Zugriff auf das Programmverzeichnis muss in der Apache
+        Webserverkonfigurationsdatei <literal>httpd.conf</literal> eingestellt
+        werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
+        anderen Datei hinzu, die beim Starten des Webservers eingelesen
+        wird:</para>
+
+        <para><literal> AddHandler cgi-script .pl Alias /lx-erp/
+        /var/www/lx-erp/ &lt;Directory /var/www/lx-erp&gt; Options ExecCGI
+        Includes FollowSymlinks &lt;/Directory&gt; &lt;Directory
+        /var/www/lx-erp/users&gt; Order Deny,Allow Deny from All
+        &lt;/Directory&gt; </literal></para>
+
+        <para>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher
+        das Lx-Office-Archiv entpacket haben.</para>
+
+        <para>Achtung: Vor den einzelnen Optionen muss bei einigen
+        Distributionen ein Plus ‘<literal>+</literal>’ gesetzt werden.</para>
+
+        <para>Auf einigen Webservern werden manchmal die Grafiken und
+        Style-Sheets nicht ausgeliefert. In solchen Fällen hat es oft
+        geholfen, die folgende Option in die Konfiguration aufzunehmen:</para>
+
+        <para><literal>EnableSendfile Off</literal></para>
+      </sect2>
+
+      <sect2 id="Apache-Konfiguration.FCGI"
+             xreflabel="Konfiguration für FastCGI/FCGI">
+        <title>Konfiguration für FastCGI/FCGI</title>
+
+        <sect3 id="Apache-Konfiguration.FCGI.WasIstEs">
+          <title>Was ist FastCGI?</title>
+
+          <para>Direkt aus <ulink
+          url="http://de.wikipedia.org/wiki/FastCGI">Wikipedia</ulink>
+          kopiert:</para>
+
+          <para><citation> FastCGI ist ein Standard für die Einbindung
+          externer Software zur Generierung dynamischer Webseiten in einem
+          Webserver. FastCGI ist vergleichbar zum Common Gateway Interface
+          (CGI), wurde jedoch entwickelt, um dessen Performance-Probleme zu
+          umgehen. </citation></para>
+        </sect3>
+
+        <sect3 id="Apache-Konfiguration.FCGI.Warum">
+          <title>Warum FastCGI?</title>
+
+          <para>Perl Programme (wie Lx-Office eines ist) werden nicht statisch
+          kompiliert. Stattdessen werden die Quelldateien bei jedem Start
+          übersetzt, was bei kurzen Laufzeiten einen Großteil der Laufzeit
+          ausmacht. Während SQL Ledger einen Großteil der Funktionalität in
+          einzelne Module kapselt, um immer nur einen kleinen Teil laden zu
+          müssen, ist die Funktionalität von Lx-Office soweit gewachsen, dass
+          immer mehr Module auf den Rest des Programms zugreifen. Zusätzlich
+          benutzen wir umfangreiche Bibliotheken um Funktionaltät nicht selber
+          entwickeln zu müssen, die zusätzliche Ladezeit kosten. All dies
+          führt dazu dass ein Lx-Office Aufruf der Kernmasken mittlerweile
+          deutlich länger dauert als früher, und dass davon 90% für das Laden
+          der Module verwendet wird.</para>
+
+          <para>Mit FastCGI werden nun die Module einmal geladen, und danach
+          wird nur die eigentliche Programmlogik ausgeführt.</para>
+        </sect3>
+
+        <sect3 id="Apache-Konfiguration.FCGI.WebserverUndPlugin">
+          <title>Getestete Kombinationen aus Webservern und Plugin</title>
+
+          <para>Folgende Kombinationen sind getestet:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Apache 2.2.11 (Ubuntu) und mod_fcgid.</para>
+            </listitem>
+
+            <listitem>
+              <para>Apache 2.2.11 (Ubuntu) und mod_fastcgi.</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>Dabei wird mod_fcgid empfohlen, weil mod_fastcgi seit geraumer
+          Zeit nicht mehr weiter entwickelt wird. Im Folgenden wird auf
+          mod_fastcgi nicht mehr explizit eingegangen.</para>
+
+          <para>Als Perl Backend wird das Modul <filename>FCGI.pm</filename>
+          verwendet.</para>
+
+          <warning>
+            <para>FCGI 0.69 und höher ist extrem strict in der Behandlung von
+            Unicode, und verweigert bestimmte Eingaben von Lx-Office. Falls es
+            Probleme mit Umlauten in Ihrere Installation gibt, muss auf die
+            Vorgängerversion FCGI 0.68 ausgewichen werden.</para>
+          </warning>
+
+          <para>Mit CPAN lässt sie sich die Vorgängerversion wie folgt
+          installieren:</para>
+
+          <programlisting>force install M/MS/MSTROUT/FCGI-0.68.tar.gz</programlisting>
+        </sect3>
+
+        <sect3 id="Apache-Konfiguration.FCGI.Konfiguration">
+          <title>Konfiguration des Webservers</title>
+
+          <para>Bevor Sie versuchen, eine Lx-Office Installation unter FCGI
+          laufen zu lassen, empfliehlt es sich die Installation ersteinmal
+          unter CGI aufzusetzen. FCGI macht es nicht einfach Fehler zu
+          debuggen die beim ersten aufsetzen auftreten können. Sollte die
+          Installation schon funktionieren, lesen Sie weiter.</para>
+
+          <para>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
+          unter Debian/Ubuntu z.B. mit folgendem Befehl geschehen:</para>
+
+          <programlisting>a2enmod fcgid</programlisting>
+
+          <para>Die Konfiguration für die Verwendung von Lx-Office mit FastCGI
+          erfolgt durch Anpassung der vorhandenen <function>Alias</function>-
+          und <function>Directory</function>-Direktiven. Dabei wird zwischen
+          dem Installationspfad von Lx-Office im Dateisystem
+          ("<filename>/path/to/lx-office-erp</filename>") und der URL
+          unterschieden, unter der Lx-Office im Webbrowser erreichbar ist
+          ("<filename>/web/path/to/lx-office-erp</filename>").</para>
+
+          <para>Folgender Konfigurationsschnipsel funktioniert mit
+          mod_fastcgi:</para>
+
+          <programlisting>AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
+Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
+
+&lt;Directory /path/to/lx-office-erp&gt;
+  AllowOverride All
+  Options ExecCGI Includes FollowSymlinks
+  Order Allow,Deny
+  Allow from All
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch /path/to/lx-office-erp/users&gt;
+  Order Deny,Allow
+  Deny from All
+&lt;/DirectoryMatch&gt;</programlisting>
+
+          <para>Seit mod_fcgid-Version 2.6.3 gelten sehr kleine Grenzen für
+          die maximale Größe eines Requests. Diese sollte wie folgt
+          hochgesetzt werden:</para>
+
+          <programlisting>FcgidMaxRequestLen 10485760</programlisting>
+
+          <para>Das ganze sollte dann so aussehen:</para>
+
+          <programlisting>AddHandler fcgid-script .fpl
+AliasMatch ^/web/path/to/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+Alias       /web/path/to/lx-office-erp/          /path/to/lx-office-erp/
+FcgidMaxRequestLen 10485760
+
+&lt;Directory /path/to/lx-office-erp&gt;
+  AllowOverride All
+  Options ExecCGI Includes FollowSymlinks
+  Order Allow,Deny
+  Allow from All
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch /path/to/lx-office-erp/users&gt;
+  Order Deny,Allow
+  Deny from All
+&lt;/DirectoryMatch&gt;</programlisting>
+
+          <para>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
+          Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
+          Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
+          gibt es hier kleine Performance-Einbußen.</para>
+
+          <para>Es ist möglich, die gleiche Lx-Office Version parallel unter
+          CGI und FastCGI zu betreiben. Dafür bleiben die Directorydirektiven
+          wie oben beschrieben, die URLs werden aber umgeleitet:</para>
+
+          <programlisting># Zugriff über CGI
+Alias       /web/path/to/lx-office-erp                /path/to/lx-office-erp
+
+# Zugriff mit mod_fcgid:
+AliasMatch ^/web/path/to/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/</programlisting>
+
+          <para>Dann ist unter
+          <filename>/web/path/to/lx-office-erp/</filename> die normale Version
+          erreichbar, und unter
+          <constant>/web/path/to/lx-office-erp-fcgid/</constant> die
+          FastCGI-Version.</para>
+        </sect3>
+      </sect2>
+    </sect1>
+
+    <sect1 id="Der-Task-Server">
+      <title>Der Task-Server</title>
+
+      <para>Der Task-Server ist ein Prozess, der im Hintergrund läuft, in
+      regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese zu
+      festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser Prozess
+      wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
+      benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
+      bekommen.</para>
+
+      <sect2 id="Konfiguration-des-Task-Servers">
+        <title>Verfügbare und notwendige Konfigurationsoptionen</title>
+
+        <para>Die Konfiguration erfolgt über den Abschnitt
+        <literal>[task_server]</literal> in der Datei
+        <filename>config/lx_office.conf</filename>. Die dort verfügbaren
+        Optionen sind:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><literal>login</literal>: gültiger Lx-Office-Benutzername,
+            der benutzt wird, um die zu verwendende Datenbankverbindung
+            auszulesen. Der Benutzer muss in der Administration angelegt
+            werden. Diese Option muss angegeben werden.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>run_as</literal>: Wird der Server vom
+            Systembenutzer <literal>root</literal> gestartet, so wechselt er
+            auf den mit <literal>run_as</literal> angegebenen Systembenutzer.
+            Der Systembenutzer muss dieselben Lese- und Schreibrechte haben,
+            wie auch der Webserverbenutzer (siehe see <xref
+            linkend="Manuelle-Installation-des-Programmpaketes"/>). Daher ist
+            es sinnvoll, hier denselben Systembenutzer einzutragen, unter dem
+            auch der Webserver läuft.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>debug</literal>: Schaltet Debug-Informationen an
+            und aus.</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2 id="Einbinden-in-den-Boot-Prozess">
+        <title>Automatisches Starten des Task-Servers beim Booten</title>
+
+        <para>Der Task-Server verhält sich von seinen Optionen her wie ein
+        reguläres SystemV-kompatibles Boot-Script. Außerdem wechselt er beim
+        Starten automatisch in das Lx-Office-Installationsverzeichnis.</para>
+
+        <para>Deshalb ist es möglich, ihn durch Setzen eines symbolischen
+        Links aus einem der Runlevel-Verzeichnisse heraus in den Boot-Prozess
+        einzubinden. Da das bei neueren Linux-Distributionen aber nicht
+        zwangsläufig funktioniert, werden auch Start-Scripte mitgeliefert, die
+        anstelle eines symbolischen Links verwendet werden können.</para>
+
+        <sect3>
+          <title>SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora
+          Core)</title>
+
+          <para>Kopieren Sie die Datei
+          <filename>scripts/boot/system-v/lx-office-task-server</filename>
+          nach <filename>/etc/init.d/lx-office-task-server</filename>. Passen
+          Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
+          <literal>DAEMON=....</literal>). Binden Sie das Script in den
+          Boot-Prozess ein. Dies ist distributionsabhängig:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Debian-basierende Systeme:</para>
+
+              <para><literal>update-rc.d lx-office-task-server defaults # Nur
+              bei Debian Squeeze und neuer: insserv
+              lx-office-task-server</literal></para>
+            </listitem>
+
+            <listitem>
+              <para>OpenSuSE und Fedora Core:</para>
+
+              <para><literal>chkconfig --add
+              lx-office-task-server</literal></para>
+            </listitem>
+          </itemizedlist>
+
+          <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden: <literal>/etc/init.d/lx-office-task-server
+          start</literal></para>
+        </sect3>
+
+        <sect3>
+          <title>Upstart-basierende Systeme (z.B. Ubuntu)</title>
+
+          <para>Kopieren Sie die Datei
+          <filename>scripts/boot/upstart/lx-office-task-server.conf</filename>
+          nach <filename>/etc/init/lx-office-task-server.conf</filename>.
+          Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
+          <literal>exec ....</literal>).</para>
+
+          <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden: <literal>service lx-office-task-server
+          start</literal></para>
+        </sect3>
+      </sect2>
+
+      <sect2 id="Prozesskontrolle">
+        <title>Wie der Task-Server gestartet und beendet wird</title>
+
+        <para>Der Task-Server wird wie folgt kontrolliert:</para>
+
+        <para><literal>./scripts/task_server.pl Befehl</literal></para>
+
+        <para><literal>Befehl</literal> ist dabei eine der folgenden
+        Optionen:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><literal>start</literal> startet eine neue Instanz des
+            Task-Servers. Die Prozess-ID wird innerhalb des
+            <filename>users</filename>-Verzeichnisses abgelegt.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>stop</literal> beendet einen laufenden
+            Task-Server.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>restart</literal> beendet und startet ihn
+            neu.</para>
+          </listitem>
+
+          <listitem>
+            <para><literal>status</literal> berichtet, ob der Task-Server
+            läuft.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Der Task-Server wechselt beim Starten automatisch in das
+        Lx-Office-Installationsverzeichnis.</para>
+
+        <para>Dieselben Optionen können auch für die SystemV-basierenden
+        Runlevel-Scripte benutzt werden (siehe oben).</para>
+
+        <!--  -->
+      </sect2>
+    </sect1>
+
+    <sect1 id="Benutzerauthentifizierung-und-Administratorpasswort">
+      <title>Benutzerauthentifizierung und Administratorpasswort</title>
+
+      <para>Informationen über die Einrichtung der Benutzerauthentifizierung,
+      über die Verwaltung von Gruppen und weitere Einstellungen</para>
+
+      <!--  -->
+
+      <sect2 id="Grundlagen-zur-Benutzerauthentifizierung">
+        <title>Grundlagen zur Benutzerauthentifizierung</title>
+
+        <para>Lx-Office verwaltet die Benutzerinformationen in einer
+        Datenbank, die im folgenden “Authentifizierungsdatenbank” genannt
+        wird. Für jeden Benutzer kann dort eine eigene Datenbank für die
+        eigentlichen Finanzdaten hinterlegt sein. Diese beiden Datenbanken
+        können, müssen aber nicht unterschiedlich sein.</para>
+
+        <para>Im einfachsten Fall gibt es für Lx-Office nur eine einzige
+        Datenbank, in der sowohl die Benutzerinformationen als auch die Daten
+        abgelegt werden.</para>
+
+        <para>Zusätzlich ermöglicht es Lx-Office, dass die Benutzerpasswörter
+        entweder gegen die Authentifizierungsdatenbank oder gegen einen
+        LDAP-Server überprüft werden.</para>
+
+        <para>Welche Art der Passwortüberprüfung Lx-Office benutzt und wie
+        Lx-Office die Authentifizierungsdatenbank erreichen kann, wird in der
+        Konfigurationsdatei <filename>config/lx_office.conf</filename>
+        festgelegt. Diese muss bei der Installation und bei einem Upgrade von
+        einer Version vor v2.6.0 angelegt werden. Eine
+        Beispielkonfigurationsdatei
+        <filename>config/lx_office.conf.default</filename> existiert, die als
+        Vorlage benutzt werden kann.</para>
+      </sect2>
+
+      <sect2 id="Administratorpasswort">
+        <title>Administratorpasswort</title>
+
+        <para>Das Passwort, das zum Zugriff auf das Aministrationsinterface
+        benutzt wird, wird ebenfalls in dieser Datei gespeichert. Es kann auch
+        nur dort und nicht mehr im Administrationsinterface selber geändert
+        werden. Der Parameter dazu heißt
+        <literal>$self-&gt;{admin_password}</literal>.</para>
+      </sect2>
+
+      <sect2 id="Authentifizierungsdatenbank">
+        <title>Authentifizierungsdatenbank</title>
+
+        <para>Die Verbindung zur Authentifizierungsdatenbank wird mit den
+        Parametern in <literal>$self-&gt;{DB_config}</literal> konfiguriert.
+        Hier sind die folgenden Parameter anzugeben:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>‘<literal>host</literal>’ – Der Rechnername oder die
+            IP-Adresse des Datenbankservers</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>port</literal>’ – Die Portnummer des
+            Datenbankservers, meist 5432</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>db</literal>’ – Der Name der
+            Authentifizierungsdatenbank</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>user</literal>’ – Der Benutzername, mit dem sich
+            Lx-Office beim Datenbankserver anmeldet (z.B. “postgres”)</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>password</literal>’ – Das Passwort für den
+            Datenbankbenutzer</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Die Datenbank muss noch nicht existieren. Lx-Office kann sie
+        automatisch anlegen (mehr dazu siehe unten).</para>
+      </sect2>
+
+      <sect2 id="Passwortüberprüfung">
+        <title>Passwortüberprüfung</title>
+
+        <para>Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen
+        die Authentifizierungsdatenbank und gegen einen externen LDAP- oder
+        Active-Directory-Server. Welche davon benutzt wird, regelt der
+        Parameter <literal>$self-&gt;{module}</literal>.</para>
+
+        <para>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank
+        gespeichert werden, so muss der Parameter
+        <literal>$self-&gt;{module}</literal> den Wert ‘<literal>DB</literal>’
+        enthalten. In diesem Fall können sowohl der Administrator als auch die
+        Benutzer selber ihre Psaswörter in Lx-Office ändern.</para>
+
+        <para>Soll hingegen ein externer LDAP- oder Active-Directory-Server
+        benutzt werden, so muss der Parameter
+        <literal>$self-&gt;{module}</literal> auf ‘<literal>LDAP</literal>’
+        gesetzt werden. In diesem Fall müssen zusätzliche Informationen über
+        den LDAP-Server in <literal>$self-&gt;{LDAP_config}</literal>
+        angegeben werden:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>‘<literal>host</literal>’ – Der Rechnername oder die
+            IP-Adresse des LDAP- oder Active-Directory-Servers. Diese Angabe
+            ist zwingend erforderlich.</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>port</literal>’ – Die Portnummer des LDAP-Servers;
+            meist 389.</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>tls</literal>’ – Wenn Verbindungsverschlüsselung
+            gewünscht ist, so diesen Wert auf ‘<literal>1</literal>’ setzen,
+            andernfalls auf ‘<literal>0</literal>’ belassen</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>attribute</literal>’ – Das LDAP-Attribut, in dem
+            der Benutzername steht, den der Benutzer eingegeben hat. Für
+            Active-Directory-Server ist dies meist
+            ‘<literal>sAMAccountName</literal>’, für andere LDAP-Server
+            hingegen ‘<literal>uid</literal>’. Diese Angabe ist zwingend
+            erforderlich.</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>base_dn</literal>’ – Der Abschnitt des
+            LDAP-Baumes, der durchsucht werden soll. Diese Angabe ist zwingend
+            erforderlich.</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>filter</literal>’ – Ein optionaler LDAP-Filter.
+            Enthält dieser Filter das Wort <literal>&lt;%login%&gt;</literal>,
+            so wird dieses durch den vom Benutzer eingegebenen Benutzernamen
+            ersetzt. Andernfalls wird der LDAP-Baum nach einem Element
+            durchsucht, bei dem das oben angegebene Attribut mit dem
+            Benutzernamen identisch ist.</para>
+          </listitem>
+
+          <listitem>
+            <para>‘<literal>bind_dn</literal>’ und
+            ‘<literal>bind_password</literal>’ – Wenn der LDAP-Server eine
+            Anmeldung erfordert, bevor er durchsucht werden kann (z.B. ist
+            dies bei Active-Directory-Servern der Fall), so kann diese hier
+            angegeben werden. Für Active-Directory-Server kann als
+            ‘<literal>bind_dn</literal>’ entweder eine komplette LDAP-DN wie
+            z.B. ‘<literal>cn=Martin
+            Mustermann,cn=Users,dc=firmendomain</literal>’ auch nur der volle
+            Name des Benutzers eingegeben werden; in diesem Beispiel also
+            ‘<literal>Martin Mustermann</literal>’.</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2 id="Name-des-Session-Cookies">
+        <title>Name des Session-Cookies</title>
+
+        <para>Sollen auf einem Server mehrere Lx-Office-Installationen
+        aufgesetzt werden, so müssen die Namen der Session-Cookies für alle
+        Installationen unterschiedlich sein. Der Name des Cookies wird mit dem
+        Parameter <literal>$self-&gt;{cookie_name}</literal> gesetzt.</para>
+
+        <para>Diese Angabe ist optional, wenn nur eine Installation auf dem
+        Server existiert.</para>
+      </sect2>
+
+      <sect2 id="Anlegen-der-Authentifizierungsdatenbank">
+        <title>Anlegen der Authentifizierungsdatenbank</title>
+
+        <para>Nachdem alle Einstellungen in
+        <filename>config/lx_office.conf</filename> vorgenommen wurden, muss
+        Lx-Office die Authentifizierungsdatenbank anlegen. Dieses geschieht
+        automatisch, wenn Sie sich im Administrationsmodul anmelden, das unter
+        der folgenden URL erreichbar sein sollte:</para>
+
+        <para><ulink
+        url="http://localhost/lx-erp/admin.pl">http://localhost/lx-erp/admin.pl</ulink></para>
+
+        <!--  -->
+      </sect2>
+    </sect1>
+
+    <sect1 id="Benutzer--und-Gruppenverwaltung">
+      <title>Benutzer- und Gruppenverwaltung</title>
+
+      <para>Nach der Installation müssen Benutzer, Gruppen und Datenbanken
+      angelegt werden. Dieses geschieht im Administrationsmenü, das Sie unter
+      folgender URL finden:</para>
+
+      <para><ulink
+      url="http://localhost/lx-erp/admin.pl">http://localhost/lx-erp/admin.pl</ulink></para>
+
+      <para>Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
+      <filename>config/lx_office.conf</filename> eingetragen haben.</para>
+
+      <sect2 id="Zusammenhänge">
+        <title>Zusammenhänge</title>
+
+        <para>Lx-Office verwendet eine Datenbank zum Speichern all seiner
+        Informationen wie Kundendaten, Artikel, Angebote, Rechnungen etc. Um
+        mit Lx-Office arbeiten zu können, muss eine Person einen
+        Benutzeraccount haben. Jedem Benutzeraccount wiederum wird genau eine
+        Datenbank zugewiesen, mit der dieser Benutzer arbeiten kann. Es ist
+        möglich und normal, dass mehreren Benutzern die selbe Datenbank
+        zugewiesen wird, sodass sie alle mit den selben Daten arbeiten
+        können.</para>
+
+        <para>Die Basisdaten der Benutzer, die in der Administration
+        eingegeben werden können, werden in einer zweiten Datenbank
+        gespeichert, der bereits erwähnten Authentifizierungsdatenbank. Diese
+        ist also den Produktivdaten enthaltenden Datenbanken vorgeschaltet.
+        Pro Lx-Office-Installation gibt es nur eine
+        Authentifizierungsdatenbank, aber beliebig viele Datenbanken mit
+        Firmendaten.</para>
+
+        <para>Lx-Office kann seinen Benutzern Zugriff auf bestimmte
+        Funktionsbereiche erlauben oder verbieten. Wird der Zugriff nicht
+        gestattet, so werden der entsprechenden Menüpunkte auch nicht
+        angezeigt. Diese Rechte werden ebenfalls in der
+        Authentifizierungsdatenbank gespeichert.</para>
+
+        <para>Um Rechte verteilen zu können, verwendet Lx-Office ein
+        Gruppen-Prinzip. Einer Gruppe kann der Zugriff auf bestimmte Bereiche
+        erlaubt werden. Ein Benutzer wiederum kann Mitglied in einer oder
+        mehrerer Gruppen sein. Der Benutzer hat Zugriff auf alle diejenigen
+        Funktionen, die mindestens einer Gruppe erlaubt sind, in der der
+        Benutzer Mitglied ist.</para>
+
+        <para>Die allgemeine Reihenfolge, in der Datenbanken, Gruppen und
+        Benutzer angelegt werden sollten, lautet:</para>
+
+        <orderedlist numeration="arabic">
+          <listitem>
+            <para>Datenbank anlegen</para>
+          </listitem>
+
+          <listitem>
+            <para>Gruppen anlegen</para>
+          </listitem>
+
+          <listitem>
+            <para>Benutzer anlegen</para>
+          </listitem>
+
+          <listitem>
+            <para>Benutzer den Gruppen zuordnen</para>
+          </listitem>
+        </orderedlist>
+      </sect2>
+
+      <sect2 id="Datenbanken-anlegen">
+        <title>Datenbanken anlegen</title>
+
+        <para>Zuerst muss eine Datenbank angelegt werden. Verwenden Sie für
+        den Datenbankzugriff den vorhin angelegten Benutzer (in unseren
+        Beispielen ist dies ‘<literal>lxoffice</literal>’).</para>
+
+        <para>Wenn Sie für die Lx-Office-Installation nicht den europäischen
+        Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
+        müssen Sie vor dem Anlegen der Datenbank in der Datei
+        <filename>config/lx_office.conf</filename> die Variable
+        <literal>dbcharset</literal> im Abschnitt <literal>system</literal>
+        auf den Wert ‘<literal>UTF-8</literal>’ setzen. Zusätzlich muss beim
+        Anlegen der Datenbank ‘<literal>UTF-8 Unicode</literal>’ als
+        Schriftsatz ausgewählt werden.</para>
+
+        <para>Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
+        verwenden müssen, da diese Einstellungen momentan global in Lx-Office
+        vorgenommen wird und nicht nach Datenbank unterschieden werden kann.
+        Auch die Authentifizierungsdatenbank muss mit diesem Zeichensatz
+        angelegt worden sein.</para>
+      </sect2>
+
+      <sect2 id="Gruppen-anlegen">
+        <title>Gruppen anlegen</title>
+
+        <para>Eine Gruppe wird in der Gruppenverwaltung angelegt. Ihr muss ein
+        Name gegeben werden, eine Beschreibung ist hingegen optional. Nach dem
+        Anlegen können Sie die verschiedenen Bereiche wählen, auf die
+        Mitglieder dieser Gruppe Zugriff haben sollen.</para>
+
+        <para>Benutzergruppen sind unabhängig von Datenbanken, da sie in der
+        Authentifizierungsdatenbank gespeichert werden. Sie gelten für alle
+        Datenbanken, die in dieser Installation verwaltet werden.</para>
+      </sect2>
+
+      <sect2 id="Benutzer-anlegen">
+        <title>Benutzer anlegen</title>
+
+        <para>Beim Anlegen von Benutzern werden für viele Parameter
+        Standardeinstellungen vorgenommen, die den Gepflogenheiten des
+        deutschen Raumes entsprechen.</para>
+
+        <para>Zwingend anzugeben sind der Loginname sowie die komplette
+        Datenbankkonfiguration. Wenn die Passwortauthentifizierung über die
+        Datenbank eingestellt ist, so kann hier auch das Benutzerpasswort
+        gesetzt bzw. geändert werden. Ist hingegen die LDAP-Authentifizierung
+        aktiv, so ist das Passwort-Feld deaktiviert.</para>
+
+        <para>In der Datenbankkonfiguration müssen die Zugriffsdaten einer der
+        eben angelegten Datenbanken eingetragen werden.</para>
+      </sect2>
+
+      <sect2 id="Gruppenmitgliedschaften-verwalten">
+        <title>Gruppenmitgliedschaften verwalten</title>
+
+        <para>Nach dem Anlegen von Benutzern und Gruppen müssen Benutzer den
+        Gruppen zugewiesen werden. Dazu gibt es zwei Möglichkeiten:</para>
+
+        <orderedlist numeration="arabic">
+          <listitem>
+            <para>In der Gruppenverwaltung wählt man eine Gruppe aus. Im
+            folgenden Dialog kann man dann einzeln die Benutzer der Gruppe
+            hinzufügen.</para>
+          </listitem>
+
+          <listitem>
+            <para>In der Gruppenverwaltung wählt man das Tool zur Verwaltung
+            der Gruppenmitgliedschaft. Hier wird eine Matrix angezeigt, die
+            alle im System angelegten Gruppen und Benutzer enthält. Durch
+            Setzen der Häkchen wird der Benutzer in der ausgewählten Zeile der
+            Gruppe in der ausgewählten Spalte hinzugefügt.</para>
+          </listitem>
+        </orderedlist>
+      </sect2>
+
+      <sect2 id="Migration-alter-Installationen">
+        <title>Migration alter Installationen</title>
+
+        <para>Wenn Lx-Office 2.6.2 über eine ältere Version installiert wird,
+        in der die Benutzerdaten noch im Dateisystem im Verzeichnis
+        <literal>users</literal> verwaltet wurden, so bietet Lx-Office die
+        Möglichkeit, diese Benutzerdaten automatisch in die
+        Authentifizierungsdatenbank zu übernehmen. Dies geschieht, wenn man
+        sich nach dem Update der Installation das erste Mal im
+        Administrationsbereich anmeldet. Findet Lx-Office die Datei
+        <literal>users/members</literal>, so wird der Migrationsprozess
+        gestartet.</para>
+
+        <para>Der Migrationsprozess ist nahezu vollautomatisch. Alle
+        Benutzerdaten können übernommen werden. Nach den Benutzerdaten bietet
+        Lx-Office noch die Möglichkeit an, dass automatisch eine
+        Benutzergruppe angelegt wird. Dieser Gruppe wird Zugriff auf alle
+        Funktionen von Lx-Office gewährt. Alle migrierten Benutzern werden
+        Mitglied in dieser Gruppe. Damit wird das Verhalten von Lx-Office bis
+        Version 2.4.3 inklusive wiederhergestellt, und die Benutzer können
+        sich sofort wieder anmelden und mit dem System arbeiten.</para>
+
+        <!--  -->
+      </sect2>
+    </sect1>
+
+    <sect1 id="Drucken-mit-Lx-Office">
+      <title>Drucken mit Lx-Office</title>
+
+      <para>Das Drucksystem von Lx-Office benutzt von Haus aus LaTeX Vorlagen.
+      Um drucken zu können, braucht der Server ein geeignetes LaTeX System. Am
+      einfachsten ist dazu eine <literal>texlive</literal> Installation. Unter
+      Debianoiden Betriebssystemen sind das die Pakete:</para>
+
+      <para><literal>texlive-latex-base texlive-latex-extra
+      texlive-fonts-recommended</literal></para>
+
+      <para>Diese hinteren beiden enthalten Bibliotheken und Schriftarten die
+      von den Standardvorlagen verwendet werden.</para>
+
+      <para>TODO: rpm Pakete.</para>
+
+      <para>In den allermeisten Installationen sollte drucken jetzt schon
+      funktionieren. Sollte ein Fehler auftreten wirft TeX sehr lange
+      Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste Zeite
+      die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler sind zum
+      Beispiel:</para>
+
+      <itemizedlist>
+        <listitem>
+          <para>! LaTeX Error: File `eurosym.sty' not found. Die entsprechende
+          LaTeX-Bibliothek wurde nicht gefunden. Das tritt vor allem bei
+          Vorlagen aus der Community auf. Installieren Sie die entsprechenden
+          Pakete.</para>
+        </listitem>
+
+        <listitem>
+          <para>! Package inputenc Error: Unicode char \u8:æ¡ not set up for
+          use with LaTeX. Dieser Fehler tritt auf, wenn sie versuchen mit
+          einer Standardinstallation exotische utf8 Zeichen zu drucken.
+          TeXLive unterstützt von Haus nur romanische Schriften und muss mit
+          diversen Tricks dazu gebracht werden andere Zeichen zu akzeptieren.
+          Adere TeX Systeme wie XeTeX schaffen hier Abhilfe.</para>
+        </listitem>
+      </itemizedlist>
+
+      <para>Wird garkein Fehler angezeigt sondern nur der Name des Templates,
+      heißt das normalerweise, dass das LaTeX Binary nicht gefunden wurde.
+      Prüfen Sie den Namen in der Konfiguration (Standard:
+      <literal>pdflatex</literal>), und stellen Sie sicher, dass pdflatex
+      (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
+      darf.</para>
+
+      <!--  -->
+    </sect1>
+
+    <sect1 id="OpenDocument-Vorlagen">
+      <title>OpenDocument-Vorlagen</title>
+
+      <para>Lx-Office unterstützt die Verwendung von Vorlagen im
+      OpenDocument-Format, wie es OpenOffice.org ab Version 2 erzeugt.
+      Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als auch aus
+      diesen direkt PDF-Dateien erzeugen. Um die Unterstützung von
+      OpenDocument-Vorlagen zu aktivieren muss in der Datei
+      <filename>config/lx_office.conf</filename> die Variable
+      <literal>opendocument</literal> im Abschnitt
+      <literal>print_templates</literal> auf ‘<literal>1</literal>’ stehen.
+      Dieses ist die Standardeinstellung.</para>
+
+      <para>Weiterhin muss in der Datei
+      <filename>config/lx_office.conf</filename> die Variable
+      <literal>dbcharset</literal> im Abschnitt <literal>system</literal> auf
+      die Zeichenkodierung gesetzt werden, die auch bei der Speicherung der
+      Daten in der Datenbank verwendet wird. Diese ist in den meisten Fällen
+      "UTF-8".</para>
+
+      <para>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
+      weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
+      OpenOffice.org benötigt. Soll dieses Feature genutzt werden, so muss
+      neben OpenOffice.org ab Version 2 auch der “X virtual frame buffer”
+      (xvfb) installiert werden. Bei Debian ist er im Paket “xvfb” enthalten.
+      Andere Distributionen enthalten ihn in anderen Paketen.</para>
+
+      <para>Nach der Installation müssen in der Datei
+      <filename>config/lx_config.conf</filename> zwei weitere Variablen
+      angepasst werden: <literal>openofficeorg_writer</literal> muss den
+      vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
+      <literal>xvfb</literal> muss den Pfad zum “X virtual frame buffer”
+      enthalten. Beide stehen im Abschnitt
+      <literal>applications</literal>.</para>
+
+      <para>Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
+      OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn die
+      Variable <literal>$openofficeorg_daemon</literal> gesetzt ist, startet
+      ein OpenOffice, das auch nach der Umwandlung des Dokumentes gestartet
+      bleibt. Bei weiteren Umwandlungen wird dann diese laufende Instanz
+      benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung deutlich
+      reduziert wird, weil nicht für jedes Dokument ein OpenOffice gestartet
+      werden muss. Der Nachteil ist, dass diese Methode Python und die
+      Python-UNO-Bindings benötigt, die Bestandteil von OpenOffice 2
+      sind.</para>
+
+      <para>Ist <literal>$openofficeorg_daemon</literal> nicht gesetzt, so
+      wird für jedes Dokument OpenOffice neu gestartet und die Konvertierung
+      mit Hilfe eines Makros durchgeführt. Dieses Makro muss in der
+      Dokumentenvorlage enthalten sein und
+      “Standard.Conversion.ConvertSelfToPDF()” heißen. Die Beispielvorlage
+      ‘<literal>templates/mastertemplates/German/invoice.odt</literal>’
+      enthält ein solches Makro, das in jeder anderen Dokumentenvorlage
+      ebenfalls enthalten sein muss.</para>
+
+      <para>Als letztes muss herausgefunden werden, welchen Namen
+      OpenOffice.org Writer dem Verzeichnis mit den Benutzereinstellungen
+      gibt. Unter Debian ist dies momentan
+      <literal>~/.openoffice.org2</literal>. Sollte der Name bei Ihrer
+      OpenOffice.org-Installation anders sein, so muss das Verzeichnis
+      <literal>users/.openoffice.org2</literal> entsprechend umbenannt werden.
+      Ist der Name z.B. einfach nur <literal>.openoffice</literal>, so wäre
+      folgender Befehl auszuführen:</para>
+
+      <para><literal>mv users/.openoffice.org2
+      users/.openoffice</literal></para>
+
+      <para>Dieses Verzeichnis, wie auch das komplette
+      <literal>users</literal>-Verzeichnis, muss vom Webserver beschreibbar
+      sein. Dieses wurde bereits erledigt (siehe <xref
+      linkend="Manuelle-Installation-des-Programmpaketes"/>), kann aber erneut
+      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</para>
+
+      <!--  -->
+    </sect1>
+
+    <sect1 id="Lx-Office-ERP-verwenden">
+      <title>Lx-Office ERP verwenden</title>
+
+      <para>Nach erfolgreicher Installation ist der Loginbildschirm unter
+      folgender URL erreichbar:</para>
+
+      <para><ulink
+      url="http://localhost/lx-office-erp/login.pl">http://localhost/lx-office-erp/login.pl</ulink></para>
+
+      <para>Die Administrationsseite erreichen Sie unter:</para>
+
+      <para><ulink
+      url="http://localhost/lx-office-erp/admin.pl">http://localhost/lx-office-erp/admin.pl</ulink></para>
+    </sect1>
+  </chapter>
+
+  <chapter>
+    <title>Entwicklerdokumentation</title>
+
+    <sect1 id="devel.globals" xreflabel="Globale Variablen">
+      <title>Globale Variablen</title>
+
+      <sect2>
+        <title>Wie sehen globale Variablen in Perl aus?</title>
+
+        <para>Globale Variablen liegen in einem speziellen namespace namens
+        "main", der von überall erreichbar ist. Darüber hinaus sind bareword
+        globs global und die meisten speziellen Variablen sind...
+        speziell.</para>
+
+        <para>Daraus ergeben sich folgende Formen:</para>
+
+        <variablelist>
+          <varlistentry>
+            <term>$main::form</term>
+
+            <listitem>
+              <para>expliziter Namespace "main"</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>$::form</term>
+
+            <listitem>
+              <para>impliziter Namespace "main"</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>open FILE, "file.txt"</term>
+
+            <listitem>
+              <para><varname>FILE</varname> ist global</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>$_</term>
+
+            <listitem>
+              <para>speziell</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+
+        <para>Im Gegensatz zu <productname>PHP</productname> gibt es kein
+        Schlüsselwort wie "<function>global</function>", mit dem man
+        importieren kann. <function>my</function>, <function>our</function>
+        und <function>local</function> machen was anderes.</para>
+
+        <variablelist>
+          <varlistentry>
+            <term>my $form</term>
+
+            <listitem>
+              <para>lexikalische Variable, gültig bis zum Ende des
+              Scopes</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>our $form</term>
+
+            <listitem>
+              <para><varname>$form</varname> referenziert ab hier
+              <varname>$PACKAGE::form</varname>.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>local $form</term>
+
+            <listitem>
+              <para>Alle Änderungen an <varname>$form</varname> werden am Ende
+              des scopes zurückgesetzt</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </sect2>
+
+      <sect2>
+        <title>Warum sind globale Variablen ein Problem?</title>
+
+        <para>Das erste Problem ist <productname>FCGI</productname>.</para>
+
+        <para><productname>SQL-Ledger</productname> hat fast alles im globalen
+        namespace abgelegt, und erwartet, dass es da auch wiederzufinden ist.
+        Unter <productname>FCGI</productname> müssen diese Sachen auch wieder
+        aufgeräumt werden, damit sie nicht in den nächsten Request kommen.
+        Einige Sachen wiederum sollen nicht gelöscht werden, wie zum Beispiel
+        Datenbankverbindungen, weil die ne Ewigkeit zum initialisieren
+        brauchen.</para>
+
+        <para>Das zweite Problem ist <function>strict</function>. Unter
+        <function>strict</function> werden alle Variablen die nicht explizit
+        mit <function>Package</function>, <function>my</function> oder
+        <function>our</function> angegeben werden als Tippfehler angemarkert,
+        was einen vor so mancher Stunde suchen nach einem Bug erspart. Da
+        globale Variablen aber implizit mit Package angegeben werden, werden
+        die nicht geprüft, und ein Tippfehler da fällt niemandem auf.</para>
+      </sect2>
+
+      <sect2>
+        <title>Kanonische globale Variablen</title>
+
+        <para>Um dieses Problem im Griff zu halten gibt es einige wenige
+        globale Variablen, die kanonisch sind, und alles andere sollte
+        anderweitig umhergereicht werden.</para>
+
+        <para>Diese Variablen sind im Moment die folgenden neun:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><varname>$::form</varname></para>
+          </listitem>
+
+          <listitem>
+            <para><varname>%::myconfig</varname></para>
+          </listitem>
+
+          <listitem>
+            <para><varname>$::locale</varname></para>
+          </listitem>
+
+          <listitem>
+            <para><varname>$::lxdebug</varname></para>
+          </listitem>
+
+          <listitem>
+            <para><varname>$::auth</varname></para>
+          </listitem>
+
+          <listitem>
+            <para><varname>$::lx_office_conf</varname></para>
+          </listitem>
+
+          <listitem>
+            <para><varname>$::instance_conf</varname></para>
+          </listitem>
+
+          <listitem>
+            <para><varname>$::dispatcher</varname></para>
+          </listitem>
+
+          <listitem>
+            <para><varname>$::request</varname></para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Damit diese nicht als Müllhalde misbrauch werden, im Folgenden
+        eine kurze Erläuterung was man von denn erwarten kann.</para>
+
+        <sect3>
+          <title>$::form</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Ist ein Objekt der Klasse
+              "<classname>Form</classname>"</para>
+            </listitem>
+
+            <listitem>
+              <para>Wird nach jedem Request gelöscht</para>
+            </listitem>
+
+            <listitem>
+              <para>Muss auch in Tests und Konsolenscripts vorhanden
+              sein.</para>
+            </listitem>
+
+            <listitem>
+              <para>Enthält am Anfang eines Requests die Requestparameter vom
+              User</para>
+            </listitem>
+
+            <listitem>
+              <para>Kann zwar intern über Requestgrenzen ein Datenbankhandle
+              cachen, das wird aber momentan absichtlich zerstört</para>
+            </listitem>
+          </itemizedlist>
+
+          <para><varname>$::form</varname> wurde unter <productname>SQL
+          Ledger</productname> als Gottobjekt für alles misbraucht. Sämtliche
+          alten Funktionen unter SL/ mutieren <varname>$::form</varname>, das
+          heißt, alles was einem lieb ist, sollte man vor einem Aufruf von zum
+          Beispiel <function>IS-&gt;retrieve_customer()</function> in
+          Sicherheit bringen.</para>
+
+          <para>Das Objekt der Klasse Form hat leider im Moment noch viele
+          zentrale Funktionen Gdie vom internen Zustand abhängen, deshalb
+          bitte nie einfach zerstören oder überschreiben. Es geht ziemlich
+          sicher etwas kaputt.</para>
+
+          <para><varname>$::form</varname> ist gleichzeitig der Standard Scope
+          in den <productname>Template::Toolkit</productname> Templates
+          außerhalb der Controller: der Ausdruck <function>[% var
+          %]</function> greift auf <varname>$::form-&gt;{var}</varname> zu.
+          Unter Controllern ist der Standard Scope anders, da lautet der
+          Zugriff <function>[% FORM.var %]</function>. In Druckvorlagen sind
+          normale Variablen ebenfall im <varname>$::form</varname> Scope, d.h.
+          <function>&lt;%var%&gt;</function> zeigt auf
+          <varname>$::form-&gt;{var}</varname>. Innerhalb von Schleifen wird
+          <varname>$::form-&gt;{TEMPLATE_ARRAYS}{var}[$index]</varname>
+          bevorzugt, wenn vorhanden.</para>
+        </sect3>
+
+        <sect3>
+          <title>%::myconfig</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Das einzige Hash unter den globalen Variablen</para>
+            </listitem>
+
+            <listitem>
+              <para>Wird spätestens benötigt wenn auf die Datenbank
+              zugegriffen wird</para>
+            </listitem>
+
+            <listitem>
+              <para>Wird bei jedem Request neu erstellt.</para>
+            </listitem>
+
+            <listitem>
+              <para>Enthält die Userdaten des aktuellen Logins</para>
+            </listitem>
+
+            <listitem>
+              <para>Sollte nicht ohne Filterung irgendwo gedumpt werden oder
+              extern serialisiert werden, weil da auch der Datenbankzugriff
+              für diesenuser drinsteht.</para>
+            </listitem>
+
+            <listitem>
+              <para>Enthält unter anderem Listenbegrenzung vclimit,
+              Datumsformat dateformat und Nummernformat numberformat</para>
+            </listitem>
+
+            <listitem>
+              <para>Enthält Datenbankzugriffinformationen</para>
+            </listitem>
+          </itemizedlist>
+
+          <para><varname>%::myconfig</varname> ist im Moment der Ersatz für
+          ein Userobjekt. Die meisten Funktionen, die etwas anhand des
+          aktuellen Users entscheiden müssen, befragen
+          <varname>%::myconfig</varname>.</para>
+        </sect3>
+
+        <sect3>
+          <title>$::locale</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Objekt der Klasse "Locale"</para>
+            </listitem>
+
+            <listitem>
+              <para>Wird pro Request erstellt</para>
+            </listitem>
+
+            <listitem>
+              <para>Muss auch für Tests und Scripte immer verfügbar
+              sein.</para>
+            </listitem>
+
+            <listitem>
+              <para>Cached intern über Requestgrenzen hinweg benutzte
+              Locales</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>Lokalisierung für den aktuellen User. Alle Übersetzungen,
+          Zahlen- und Datumsformatierungen laufen über dieses Objekt.</para>
+        </sect3>
+
+        <sect3>
+          <title>$::lxdebug</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Objekt der Klasse "LXDebug"</para>
+            </listitem>
+
+            <listitem>
+              <para>Wird global gecached</para>
+            </listitem>
+
+            <listitem>
+              <para>Muss immer verfügbar sein, in nahezu allen
+              Funktionen</para>
+            </listitem>
+          </itemizedlist>
+
+          <para><varname>$::lxdebug</varname> stellt Debuggingfunktionen
+          bereit, wie "<function>enter_sub</function>" und
+          "<function>leave_sub</function>", mit denen in den alten Modulen ein
+          brauchbares Tracing gebaut ist, "<function>log_time</function>", mit
+          der man die Wallclockzeit seit Requeststart loggen kann, sowie
+          "<function>message</function>" und "<function>dump</function>" mit
+          denen man flott Informationen ins Log packen kann.</para>
+        </sect3>
+
+        <sect3>
+          <title>$::auth</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Objekt der Klasse "SL::Auth"</para>
+            </listitem>
+
+            <listitem>
+              <para>Wird global gecached</para>
+            </listitem>
+
+            <listitem>
+              <para>Hat eine permanente DB Verbindung zur Authdatenbank</para>
+            </listitem>
+
+            <listitem>
+              <para>Wird nach jedem Request resettet.</para>
+            </listitem>
+          </itemizedlist>
+
+          <para><varname>$::auth</varname> stellt Funktionen bereit um die
+          Rechte des aktuellen Users abzufragen. Obwohl diese Informationen
+          vom aktuellen User abhängen wird das Objekt aus
+          Geschwindigkeitsgründen nur einmal angelegt und dann nach jedem
+          Request kurz resettet.</para>
+        </sect3>
+
+        <sect3>
+          <title>$::lx_office_conf</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Objekt der Klasse
+              "<classname>SL::LxOfficeConf</classname>"</para>
+            </listitem>
+
+            <listitem>
+              <para>Global gecached</para>
+            </listitem>
+
+            <listitem>
+              <para>Repräsentation der
+              <filename>config/lx_office.conf[.default]</filename>-Dateien</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>Globale Konfiguration. Configdateien werden zum Start gelesen,
+          und nicht mehr angefasst. Es ist derzeit nicht geplant, dass das
+          Programm die Konfiguration ändern kann oder sollte.</para>
+
+          <para>Für die folgende Konfigurationsdatei:</para>
+
+          <programlisting>[debug]
+       file = /tmp/lxoffice_debug_log.txt</programlisting>
+
+          <para>ist der Key <varname>file</varname> im Programm als
+          <varname>$::lx_office_conf-&gt;{debug}{file}</varname>
+          erreichbar.</para>
+
+          <warning>
+            <para>Zugriff auf die Konfiguration erfolgt im Moment über
+            Hashkeys, sind also nicht gegen Tippfehler abgesichert.</para>
+          </warning>
+        </sect3>
+
+        <sect3>
+          <title>$::instance_conf</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Objekt der Klasse
+              "<classname>SL::InstanceConfiguration</classname>"</para>
+            </listitem>
+
+            <listitem>
+              <para>wird pro Request neu erstellt</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>Funktioniert wie <varname>$::lx_office_conf</varname>,
+          speichert aber Daten die von der Instanz abhängig sind. Eine Instanz
+          ist hier eine Mandantendatenbank. Prominentestes Datum ist "eur",
+          die Information ob Bilanz oder Einnahmenüberschussrechnung gemacht
+          wird.</para>
+        </sect3>
+
+        <sect3>
+          <title>$::dispatcher</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Objekt der Klasse
+              "<varname>SL::Dispatcher</varname>"</para>
+            </listitem>
+
+            <listitem>
+              <para>wird pro Serverprozess erstellt.</para>
+            </listitem>
+
+            <listitem>
+              <para>enthält Informationen über die technische Verbindung zum
+              Server</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>Der dritte Punkt ist auch der einzige Grund warum das Objekt
+          global gespeichert wird. Wird vermutlich irgendwann in einem anderen
+          Objekt untergebracht.</para>
+        </sect3>
+
+        <sect3>
+          <title>$::request</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>Hashref (evtl später Objekt)</para>
+            </listitem>
+
+            <listitem>
+              <para>Wird pro Request neu initialisiert.</para>
+            </listitem>
+
+            <listitem>
+              <para>Keine Unterstruktur garantiert.</para>
+            </listitem>
+          </itemizedlist>
+
+          <para><varname>$::request</varname> ist ein generischer Platz um
+          Daten "für den aktuellen Request" abzulegen. Sollte nicht für action
+          at a distance benutzt werden, sondern um lokales memoizing zu
+          ermöglichen, das garantiert am Ende des Requests zerstört
+          wird.</para>
+
+          <para>Vieles von dem, was im moment in <varname>$::form</varname>
+          liegt, sollte eigentlich hier liegen. Die groben
+          Differentialkriterien sind:</para>
+
+          <itemizedlist>
+            <listitem>
+              <para>Kommt es vom User, und soll unverändert wieder an den
+              User? Dann $::form, steht da eh schon</para>
+            </listitem>
+
+            <listitem>
+              <para>Sind es Daten aus der Datenbank, die nur bis zum Ende des
+              Requests gebraucht werden? Dann $::request</para>
+            </listitem>
+
+            <listitem>
+              <para>Muss ich von anderen Teilen des Programms lesend drauf
+              zugreifen? Dann $::request, aber Zugriff über
+              Wrappermethode</para>
+            </listitem>
+          </itemizedlist>
+        </sect3>
+      </sect2>
+
+      <sect2>
+        <title>Ehemalige globale Variablen</title>
+
+        <para>Die folgenden Variablen waren einmal im Programm, und wurden
+        entfernt.</para>
+
+        <sect3>
+          <title>$::cgi</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>war nötig, weil cookie Methoden nicht als
+              Klassenfunktionen funktionieren</para>
+            </listitem>
+
+            <listitem>
+              <para>Aufruf als Klasse erzeugt Dummyobjekt was im
+              Klassennamespace gehalten wird und über Requestgrenzen
+              leaked</para>
+            </listitem>
+
+            <listitem>
+              <para>liegt jetzt unter
+              <varname>$::request-&gt;{cgi}</varname></para>
+            </listitem>
+          </itemizedlist>
+        </sect3>
+
+        <sect3>
+          <title>$::all_units</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>war nötig, weil einige Funktionen in Schleifen zum Teil
+              ein paar hundert mal pro Request eine Liste der Einheiten
+              brauchen, und de als Parameter durch einen Riesenstack von
+              Funktionen geschleift werden müssten.</para>
+            </listitem>
+
+            <listitem>
+              <para>Liegt jetzt unter
+              <varname>$::request-&gt;{cache}{all_units}</varname></para>
+            </listitem>
+
+            <listitem>
+              <para>Wird nur in
+              <function>AM-&gt;retrieve_all_units()</function> gesetzt oder
+              gelesen.</para>
+            </listitem>
+          </itemizedlist>
+        </sect3>
+
+        <sect3>
+          <title>%::called_subs</title>
+
+          <itemizedlist>
+            <listitem>
+              <para>wurde benutzt um callsub deep recursions
+              abzufangen.</para>
+            </listitem>
+
+            <listitem>
+              <para>Wurde entfernt, weil callsub nur einen Bruchteil der
+              möglichen Rekursioenen darstellt, und da nie welche
+              auftreten.</para>
+            </listitem>
+
+            <listitem>
+              <para>komplette recursion protection wurde entfernt.</para>
+            </listitem>
+          </itemizedlist>
+        </sect3>
+      </sect2>
+    </sect1>
+
+    <sect1 id="dokumentenvorlagen-und-variablen">
+      <title>Dokumentenvorlagen und verfügbare Variablen</title>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.einführung">
+        <title>Einführung</title>
+
+        <para>Dies ist eine Auflistung der Standard-Dokumentenvorlagen und
+        aller zur Bearbeitung verfügbaren Variablen. Eine Variable wird in
+        einer Vorlage durch ihren Inhalt ersetzt, wenn sie in der Form
+        <function>&lt;%variablenname%&gt;</function> verwendet wird. Für
+        LaTeX- und HTML-Vorlagen kann man die Form dieser Tags auch verändern
+        (siehe <xref
+        linkend="dokumentenvorlagen-und-variablen.tag-style"/>).</para>
+
+        <para>Früher wurde hier nur über LaTeX gesprochen. Inzwischen
+        unterstützt Lx-Office aber auch OpenDocument-Vorlagen. Sofern es nicht
+        ausdrücklich eingeschränkt wird, gilt das im Folgenden gesagte für
+        alle Vorlagenarten.</para>
+
+        <para>Insgesamt sind technisch gesehen eine ganze Menge mehr Variablen
+        verfügbar als hier aufgelistet werden. Die meisten davon können
+        allerdings innerhalb einer solchen Vorlage nicht sinnvoll verwendet
+        werden. Wenn eine Auflistung dieser Variablen gewollt ist, so kann
+        diese wie folgt erhalten werden:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><filename>SL/Form.pm</filename> öffnen und am Anfang die
+            Zeile "<command>use Data::Dumper;</command>" einfügen.</para>
+          </listitem>
+
+          <listitem>
+            <para>In <filename>Form.pm</filename> die Funktion
+            <function>parse_template</function> suchen und hier die Zeile
+            <command>print(STDERR Dumper($self));</command> einfügen.</para>
+          </listitem>
+
+          <listitem>
+            <para>Einmal per Browser die gewünschte Vorlage "benutzen", z.B.
+            ein PDF für eine Rechnung erzeugen.</para>
+          </listitem>
+
+          <listitem>
+            <para>Im <filename>error.log</filename> Apache steht die Ausgabe
+            der Variablen <varname>$self</varname> in der Form <varname>'key'
+            =&gt; 'value',</varname>. Alle <varname>key</varname>s sind
+            verfügbar.</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.variablen-ausgeben">
+        <title>Variablen ausgeben</title>
+
+        <para>Um eine Variable auszugeben, müssen sie einfach nur zwischen die
+        Tags geschrieben werden, also z.B.
+        <varname>&lt;%variablenname%&gt;</varname>.</para>
+
+        <para>Optional kann man auch mit Leerzeichen getrennte Flags angeben,
+        die man aber nur selten brauchen wird. Die Syntax sieht also so aus:
+        <varname>&lt;%variablenname FLAG1 FLAG2%&gt;</varname>. Momentan
+        werden die folgenden Flags unterstützt:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para><option>NOFORMAT</option> gilt nur für Zahlenwerte und gibt
+            den Wert ohne Formatierung, also ohne Tausendertrennzeichen mit
+            mit einem Punkt als Dezimaltrennzeichen aus. Nützlich z.B., wenn
+            damit in der Vorlage z.B. von LaTeX gerechnet werden soll.</para>
+          </listitem>
+
+          <listitem>
+            <para><parameter>NOESCAPE</parameter> unterdrückt das Escapen von
+            Sonderzeichen für die Vorlagensprache. Wenn also in einer
+            Variablen bereits gültiger LaTeX-Code steht und dieser von LaTeX
+            auch ausgewertet und nicht wortwörtlich angezeigt werden soll, so
+            ist dieses Flag sinnvoll.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Beispiel:</para>
+
+        <programlisting>&lt;%quototal NOFORMAT%&gt;</programlisting>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.verwendung-in-druckbefehlen">
+        <title>Verwendung in Druckbefehlen</title>
+
+        <para>In der Admininstration können Drucker definiert werden. Auch im
+        dort eingebbaren Druckbefehl können die hier aufgelisteten Variablen
+        und Kontrollstrukturen verwendet werden. Ihr Inhalt wird dabei nach
+        den Regeln der gängigen Shells formatiert, sodass Sonderzeichen wie
+        <function>`...`</function> nicht zu unerwünschtem Verhalten
+        führen.</para>
+
+        <para>Dies erlaubt z.B. die Definition eines Faxes als Druckerbefehl,
+        für das die Telefonnummer eines Ansprechpartners als Teil der
+        Kommandozeile verwendet wird. Für ein fiktives Kommando könnte das
+        z.B. wie folgt aussehen:</para>
+
+        <programlisting>send_fax --number &lt;%if cp_phone2%&gt;&lt;%cp_phone2%&gt;&lt;%else%&gt;&lt;%cp_phone1%&gt;&lt;%end%&gt;</programlisting>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.tag-style"
+             xreflabel="Anfang und Ende der Tags verändern">
+        <title>Anfang und Ende der Tags verändern</title>
+
+        <para>Der Standardstil für Tags sieht vor, dass ein Tag mit dem
+        Kleinerzeichen und einem Prozentzeichen beginnt und mit dem
+        Prozentzeichen und dem Größerzeichen endet, beispielsweise
+        <function>&lt;%customer%&gt;</function>. Da diese Form aber z.B. in
+        LaTeX zu Problemen führen kann, weil das Prozentzeichen dort
+        Kommentare einleitet, kann pro HTML- oder LaTeX-Dokumentenvorlage der
+        Stil umgestellt werden.</para>
+
+        <para>Dazu werden in die Datei Zeilen geschrieben, die mit dem für das
+        Format gültigen Kommentarzeichen anfangen, dann
+        <function>config:</function> enthalten, die entsprechende Option
+        setzen und bei HTML-Dokumentenvorlagen mit dem Kommentarendzeichen
+        enden. Beispiel für LaTeX:</para>
+
+        <programlisting>% config: tag-style=($ $)</programlisting>
+
+        <para>Dies würde Lx-Office dazu veranlassen, Variablen zu ersetzen,
+        wenn sie wie folgt aussehen: <function>($customer$)</function>. Das
+        äquivalente Beispiel für HTML-Dokumentenvorlagen sieht so aus:</para>
+
+        <programlisting>&lt;!-- config: tag-style=($ $) --&gt;</programlisting>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.zuordnung-dateinamen">
+        <title>Zuordnung von den Dateinamen zu den Funktionen</title>
+
+        <para>Diese folgende kurze Auflistung zeigt, welche Vorlage bei
+        welcher Funktion ausgelesen wird. Dabei ist die Dateiendung
+        "<filename>.ext</filename>" geeignet zu ersetzen:
+        "<filename>.tex</filename>" für LaTeX-Vorlagen und
+        "<filename>.odt</filename>" für OpenDocument-Vorlagen.</para>
+
+        <variablelist>
+          <varlistentry>
+            <term><filename>bin_list.ext</filename></term>
+
+            <listitem>
+              <para>Lagerliste</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>check.ext</filename></term>
+
+            <listitem>
+              <para>?</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>invoice.ext</filename></term>
+
+            <listitem>
+              <para>Rechnung</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>packing_list.ext</filename></term>
+
+            <listitem>
+              <para>Packliste</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>pick_list.ext</filename></term>
+
+            <listitem>
+              <para>Sammelliste</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>purchase_delivery_order.ext</filename></term>
+
+            <listitem>
+              <para>Lieferschein (Einkauf)</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>purcharse_order.ext</filename></term>
+
+            <listitem>
+              <para>Bestellung an Lieferanten</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>request_quotation.ext</filename></term>
+
+            <listitem>
+              <para>Anfrage an Lieferanten</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>sales_delivery_order.ext</filename></term>
+
+            <listitem>
+              <para>Lieferschein (Verkauf)</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>sales_order.ext</filename></term>
+
+            <listitem>
+              <para>Bestellung</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>sales_quotation.ext</filename></term>
+
+            <listitem>
+              <para>Angebot an Kunden</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>zahlungserinnerung.ext</filename></term>
+
+            <listitem>
+              <para>Mahnung (Dateiname im Programm konfigurierbar)</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><filename>zahlungserinnerung_invoice.ext</filename></term>
+
+            <listitem>
+              <para>Rechnung über Mahngebühren (Dateiname im Programm
+              konfigurierbar)</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.dateinamen-erweitert">
+        <title>Sprache, Drucker und E-Mail</title>
+
+        <para>Angeforderte Sprache und Druckerkürzel in den Dateinamen mit
+        eingearbeitet. So wird aus der Vorlage
+        <filename>sales_order.ext</filename> bei Sprache
+        <function>de</function> und Druckerkürzel <function>lpr2</function>
+        der Vorlagenname <filename>sales_order_de_lpr2.ext</filename>.
+        Zusätzlich können für E-Mails andere Vorlagen erstellt werden, diese
+        bekommen dann noch das Kürzel <filename>_email</filename>, der
+        vollständige Vorlagenname wäre dann
+        <filename>sales_order_email_de_lpr2.ext</filename>. In allen Fällen
+        kann eine Standarddatei <filename>default.ext</filename> hinterlegt
+        werden. Diese wird verwendet, wenn keine der anderen Varianten
+        gefunden wird.</para>
+
+        <para>Die vollständige Suchreihenfolge für einen Verkaufsauftrag mit
+        der Sprache "de" und dem Drucker "lpr2", der per E-Mail im Format PDF
+        verschickt wird, ist:</para>
+
+        <orderedlist>
+          <listitem>
+            <para><filename>sales_order_email_de_lpr2.tex</filename></para>
+          </listitem>
+
+          <listitem>
+            <para><filename>sales_order_de_lpr2.tex</filename></para>
+          </listitem>
+
+          <listitem>
+            <para><filename>sales_order.tex</filename></para>
+          </listitem>
+
+          <listitem>
+            <para><filename>default.tex</filename></para>
+          </listitem>
+        </orderedlist>
+
+        <para>Die kurzen Varianten dieser Vorlagentitel müssen dann entweder
+        Standardwerte anzeigen, oder die angeforderten Werte selbst auswerten,
+        siehe dazu <xref
+        linkend="dokumentenvorlagen-und-variablen.allgemeine-variablen.meta"/>.</para>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.allgemeine-variablen">
+        <title>Allgemeine Variablen, die in allen Vorlagen vorhanden
+        sind</title>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.allgemeine-variablen.meta"
+               xreflabel="Metainformationen zur angeforderten Vorlage">
+          <title>Metainformationen zur angeforderten Vorlage</title>
+
+          <para>Diese Variablen liefern Informationen darüber welche Variante
+          einer Vorlage der Benutzer angefragt hat. Sie sind nützlich für
+          Vorlagenautoren, die aus einer zentralen Layoutvorlage die einzelnen
+          Formulare einbinden möchten.</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>template_meta.formname</term>
+
+              <listitem>
+                <para>Basisname der Vorlage. Identisch mit der <link
+                linkend="dokumentenvorlagen-und-variablen.zuordnung-dateinamen">Zurordnung
+                zu den Dateinamen</link> ohne die Erweiterung. Ein
+                Verkaufsauftrag enthält hier
+                <constant>sales_order</constant>.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.language.description</term>
+
+              <listitem>
+                <para>Beschreibung der verwendeten Sprache</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.language.template_code</term>
+
+              <listitem>
+                <para>Vorlagenürzel der verwendeten Sprache, identisch mit dem
+                Kürzel das im Dateinamen verwendetet wird.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.language.output_numberformat</term>
+
+              <listitem>
+                <para>Zahlenformat der verwendeten Sprache in der Form
+                "<constant>1.000,00</constant>". Experimentell! Nur
+                interessant für Vorlagen die mit unformatierten Werten
+                arbeiten.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.language.output_dateformat</term>
+
+              <listitem>
+                <para>Datumsformat der verwendeten Sprache in der Form
+                "<constant>dd.mm.yyyy</constant>". Experimentell! Nur
+                interessant für Vorlagen die mit unformatierten Werten
+                arbeiten.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.format</term>
+
+              <listitem>
+                <para>Das angeforderte Format. Kann im Moment die Werte
+                <constant>pdf</constant>, <constant>postscript</constant>,
+                <constant>html</constant>, <constant>opendocument</constant>,
+                <constant>opendocument_pdf</constant> und
+                <constant>excel</constant> enthalten.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.extension</term>
+
+              <listitem>
+                <para>Dateierweiterung, wie im Dateinamen. Wird aus
+                <constant>format</constant> entschieden.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.media</term>
+
+              <listitem>
+                <para>Ausgabemedium. Kann zur Zeit die Werte
+                <constant>screen</constant> für Bildschirm,
+                <constant>email</constant> für E-Mmail (triggert das
+                <constant>_email</constant> Kürzel im Dateinamen),
+                <constant>printer</constant> für Drucker, und
+                <constant>queue</constant> für Warteschlange enthalten.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.printer.description</term>
+
+              <listitem>
+                <para>Beschreibung des ausgewählten Druckers</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>template_meta.printer.template_code</term>
+
+              <listitem>
+                <para>Vorlagenürzel des ausgewählten Druckers, identisch mit
+                dem Kürzel das im Dateinamen verwendetet wird.</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.allgemeine-variablen.kunden-lieferanten">
+          <title>Stammdaten von Kunden und Lieferanten</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>account_number</term>
+
+              <listitem>
+                <para>Kontonummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>bank</term>
+
+              <listitem>
+                <para>Name der Bank</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>bank_code</term>
+
+              <listitem>
+                <para>Bankleitzahl</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>bic</term>
+
+              <listitem>
+                <para>Bank-Identifikations-Code (Bank Identifier Code,
+                BIC)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>business</term>
+
+              <listitem>
+                <para>Kunden-/Lieferantentyp</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>city</term>
+
+              <listitem>
+                <para>Stadt</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>contact</term>
+
+              <listitem>
+                <para>Kontakt</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>country</term>
+
+              <listitem>
+                <para>Land</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>cp_email</term>
+
+              <listitem>
+                <para>Email des Ansprechpartners</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>cp_givenname</term>
+
+              <listitem>
+                <para>Vorname des Ansprechpartners</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>cp_greeting</term>
+
+              <listitem>
+                <para>Anrede des Ansprechpartners</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>cp_name</term>
+
+              <listitem>
+                <para>Name des Ansprechpartners</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>cp_phone1</term>
+
+              <listitem>
+                <para>Telefonnummer 1 des Ansprechpartners</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>cp_phone2</term>
+
+              <listitem>
+                <para>Telefonnummer 2 des Ansprechpartners</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>cp_title</term>
+
+              <listitem>
+                <para>Titel des Ansprechpartners</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>creditlimit</term>
+
+              <listitem>
+                <para>Kreditlimit</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>customeremail</term>
+
+              <listitem>
+                <para>Email des Kunden; nur für Kunden</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>customerfax</term>
+
+              <listitem>
+                <para>Faxnummer des Kunden; nur für Kunden</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>customernotes</term>
+
+              <listitem>
+                <para>Bemerkungen beim Kunden; nur für Kunden</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>customernumber</term>
+
+              <listitem>
+                <para>Kundennummer; nur für Kunden</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>customerphone</term>
+
+              <listitem>
+                <para>Telefonnummer des Kunden; nur für Kunden</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>discount</term>
+
+              <listitem>
+                <para>Rabatt</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>email</term>
+
+              <listitem>
+                <para>Emailadresse</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>fax</term>
+
+              <listitem>
+                <para>Faxnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>homepage</term>
+
+              <listitem>
+                <para>Homepage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>iban</term>
+
+              <listitem>
+                <para>Internationale Kontonummer (International Bank Account
+                Number, IBAN)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>language</term>
+
+              <listitem>
+                <para>Sprache</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>name</term>
+
+              <listitem>
+                <para>Firmenname</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>payment_description</term>
+
+              <listitem>
+                <para>Name der Zahlart</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>payment_terms</term>
+
+              <listitem>
+                <para>Zahlungskonditionen</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>phone</term>
+
+              <listitem>
+                <para>Telefonnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptocity</term>
+
+              <listitem>
+                <para>Stadt (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptocontact</term>
+
+              <listitem>
+                <para>Kontakt (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptocountry</term>
+
+              <listitem>
+                <para>Land (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptodepartment1</term>
+
+              <listitem>
+                <para>Abteilung 1 (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptodepartment2</term>
+
+              <listitem>
+                <para>Abteilung 2 (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptoemail</term>
+
+              <listitem>
+                <para>Email (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptofax</term>
+
+              <listitem>
+                <para>Fax (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptoname</term>
+
+              <listitem>
+                <para>Firmenname (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptophone</term>
+
+              <listitem>
+                <para>Telefonnummer (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptostreet</term>
+
+              <listitem>
+                <para>Straße und Hausnummer (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shiptozipcode</term>
+
+              <listitem>
+                <para>Postleitzahl (Lieferadresse) <link
+                linkend="dokumentenvorlagen-und-variablen.anmerkung-shipto">*</link></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>street</term>
+
+              <listitem>
+                <para>Straße und Hausnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>taxnumber</term>
+
+              <listitem>
+                <para>Steuernummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>ustid</term>
+
+              <listitem>
+                <para>Umsatzsteuer-Identifikationsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>vendoremail</term>
+
+              <listitem>
+                <para>Email des Lieferanten; nur für Lieferanten</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>vendorfax</term>
+
+              <listitem>
+                <para>Faxnummer des Lieferanten; nur für Lieferanten</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>vendornotes</term>
+
+              <listitem>
+                <para>Bemerkungen beim Lieferanten; nur für Lieferanten</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>vendornumber</term>
+
+              <listitem>
+                <para>Lieferantennummer; nur für Lieferanten</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>vendorphone</term>
+
+              <listitem>
+                <para>Telefonnummer des Lieferanten; nur für
+                Lieferanten</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>zipcode</term>
+
+              <listitem>
+                <para>Postleitzahl</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <note id="dokumentenvorlagen-und-variablen.anmerkung-shipto">
+            <para>Anmerkung: Sind die <varname>shipto*</varname>-Felder in den
+            Stammdaten nicht eingetragen, so haben die Variablen
+            <varname>shipto*</varname> den gleichen Wert wie die die
+            entsprechenden Variablen der Lieferdaten. Das bedeutet, dass sich
+            einige <varname>shipto*</varname>-Variablen so nicht in den
+            Stammdaten wiederfinden sondern schlicht Kopien der
+            Lieferdatenvariablen sind (z.B.
+            <varname>shiptocontact</varname>).</para>
+          </note>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.allgemein-bearbeiter">
+          <title>Informationen über den Bearbeiter</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>employee_address</term>
+
+              <listitem>
+                <para>Adressfeld</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_businessnumber</term>
+
+              <listitem>
+                <para>Firmennummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_company</term>
+
+              <listitem>
+                <para>Firmenname</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_co_ustid</term>
+
+              <listitem>
+                <para>Usatzsteuer-Identifikationsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_duns</term>
+
+              <listitem>
+                <para>DUNS-Nummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_email</term>
+
+              <listitem>
+                <para>Email</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_fax</term>
+
+              <listitem>
+                <para>Fax</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_name</term>
+
+              <listitem>
+                <para>voller Name</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_signature</term>
+
+              <listitem>
+                <para>Signatur</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_taxnumber</term>
+
+              <listitem>
+                <para>Steuernummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>employee_tel</term>
+
+              <listitem>
+                <para>Telefonnummer</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.allgemein-verkaeufer">
+          <title>Informationen über den Bearbeiter</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>salesman_address</term>
+
+              <listitem>
+                <para>Adressfeld</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_businessnumber</term>
+
+              <listitem>
+                <para>Firmennummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_company</term>
+
+              <listitem>
+                <para>Firmenname</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_co_ustid</term>
+
+              <listitem>
+                <para>Usatzsteuer-Identifikationsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_duns</term>
+
+              <listitem>
+                <para>DUNS-Nummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_email</term>
+
+              <listitem>
+                <para>Email</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_fax</term>
+
+              <listitem>
+                <para>Fax</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_name</term>
+
+              <listitem>
+                <para>voller Name</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_signature</term>
+
+              <listitem>
+                <para>Signatur</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_taxnumber</term>
+
+              <listitem>
+                <para>Steuernummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>salesman_tel</term>
+
+              <listitem>
+                <para>Telefonnummer</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.allgemein-steuern">
+          <title>Variablen für die einzelnen Steuern</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>tax</term>
+
+              <listitem>
+                <para>Steuer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>taxbase</term>
+
+              <listitem>
+                <para>zu versteuernder Betrag</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>taxdescription</term>
+
+              <listitem>
+                <para>Name der Steuer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>taxrate</term>
+
+              <listitem>
+                <para>Steuersatz</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.invoice">
+        <title>Variablen in Rechnungen</title>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.invoice-allgemein">
+          <title>Allgemeine Variablen</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>creditremaining</term>
+
+              <listitem>
+                <para>Verbleibender Kredit</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>currency</term>
+
+              <listitem>
+                <para>Währung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>cusordnumber</term>
+
+              <listitem>
+                <para>Bestellnummer beim Kunden</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>deliverydate</term>
+
+              <listitem>
+                <para>Lieferdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>duedate</term>
+
+              <listitem>
+                <para>Fälligkeitsdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>globalprojectnumber</term>
+
+              <listitem>
+                <para>Projektnummer des ganzen Beleges</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>globalprojectdescription</term>
+
+              <listitem>
+                <para>Projekbeschreibung des ganzen Beleges</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>intnotes</term>
+
+              <listitem>
+                <para>Interne Bemerkungen</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>invdate</term>
+
+              <listitem>
+                <para>Rechnungsdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>invnumber</term>
+
+              <listitem>
+                <para>Rechnungsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>invtotal</term>
+
+              <listitem>
+                <para>gesamter Rechnungsbetrag</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>notes</term>
+
+              <listitem>
+                <para>Bemerkungen der Rechnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>orddate</term>
+
+              <listitem>
+                <para>Auftragsdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>ordnumber</term>
+
+              <listitem>
+                <para>Auftragsnummer, wenn die Rechnung aus einem Auftrag
+                erstellt wurde</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>payment_description</term>
+
+              <listitem>
+                <para>Name der Zahlart</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>payment_terms</term>
+
+              <listitem>
+                <para>Zahlungskonditionen</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>quodate</term>
+
+              <listitem>
+                <para>Angebotsdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>quonumber</term>
+
+              <listitem>
+                <para>Angebotsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shippingpoint</term>
+
+              <listitem>
+                <para>Versandort</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>shipvia</term>
+
+              <listitem>
+                <para>Transportmittel</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>subtotal</term>
+
+              <listitem>
+                <para>Zwischensumme aller Posten ohne Steuern</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>total</term>
+
+              <listitem>
+                <para>Restsumme der Rechnung (Summe abzüglich bereits
+                bezahlter Posten)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>transaction_description</term>
+
+              <listitem>
+                <para>Vorgangsbezeichnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>transdate</term>
+
+              <listitem>
+                <para>Auftragsdatum wenn die Rechnung aus einem Auftrag
+                erstellt wurde</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.invoice-posten">
+          <title>Variablen für jeden Posten auf der Rechnung</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>bin</term>
+
+              <listitem>
+                <para>Stellage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>description</term>
+
+              <listitem>
+                <para>Artikelbeschreibung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>discount</term>
+
+              <listitem>
+                <para>Rabatt als Betrag</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>discount_sub</term>
+
+              <listitem>
+                <para>Zwischensumme mit Rabatt</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>drawing</term>
+
+              <listitem>
+                <para>Zeichnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>ean</term>
+
+              <listitem>
+                <para>EAN-Code</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>image</term>
+
+              <listitem>
+                <para>Grafik</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>linetotal</term>
+
+              <listitem>
+                <para>Zeilensumme (Anzahl * Einzelpreis)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>longdescription</term>
+
+              <listitem>
+                <para>Langtext</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>microfiche</term>
+
+              <listitem>
+                <para>Mikrofilm</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>netprice</term>
+
+              <listitem>
+                <para>Nettopreis</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>nodiscount_linetotal</term>
+
+              <listitem>
+                <para>Zeilensumme ohne Rabatt</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>nodiscount_sub</term>
+
+              <listitem>
+                <para>Zwischensumme ohne Rabatt</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>number</term>
+
+              <listitem>
+                <para>Artikelnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>ordnumber_oe</term>
+
+              <listitem>
+                <para>Auftragsnummer des Originalauftrags, wenn die Rechnung
+                aus einem Sammelauftrag erstellt wurde</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>p_discount</term>
+
+              <listitem>
+                <para>Rabatt in Prozent</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>partnotes</term>
+
+              <listitem>
+                <para>Die beim Artikel gespeicherten Bemerkungen</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>partsgroup</term>
+
+              <listitem>
+                <para>Warengruppe</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>price_factor</term>
+
+              <listitem>
+                <para>Der Preisfaktor als Zahl, sofern einer eingestellt
+                ist</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>price_factor_name</term>
+
+              <listitem>
+                <para>Der Name des Preisfaktors, sofern einer eingestellt
+                ist</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>projectnumber</term>
+
+              <listitem>
+                <para>Projektnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>projectdescription</term>
+
+              <listitem>
+                <para>Projektbeschreibung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>qty</term>
+
+              <listitem>
+                <para>Anzahl</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>reqdate</term>
+
+              <listitem>
+                <para>Lieferdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>runningnumber</term>
+
+              <listitem>
+                <para>Position auf der Rechnung (1, 2, 3...)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>sellprice</term>
+
+              <listitem>
+                <para>Verkaufspreis</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>serialnumber</term>
+
+              <listitem>
+                <para>Seriennummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>tax_rate</term>
+
+              <listitem>
+                <para>Steuersatz</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>transdate_oe</term>
+
+              <listitem>
+                <para>Auftragsdatum des Originalauftrags, wenn die Rechnung
+                aus einem Sammelauftrag erstellt wurde</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>unit</term>
+
+              <listitem>
+                <para>Einheit</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>weight</term>
+
+              <listitem>
+                <para>Gewicht</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>Für jeden Posten gibt es ein Unterarray mit den Informationen
+          über Lieferanten und Lieferantenartikelnummer. Diese müssen mit
+          einer <function>foreach</function>-Schleife ausgegeben werden, da
+          für jeden Artikel mehrere Lieferanteninformationen hinterlegt sein
+          können. Die Variablen dafür lauten:</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>make</term>
+
+              <listitem>
+                <para>Lieferant</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>model</term>
+
+              <listitem>
+                <para>Lieferantenartikelnummer</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.invoice-zahlungen">
+          <title>Variablen für die einzelnen Zahlungseingänge</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>payment</term>
+
+              <listitem>
+                <para>Betrag</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>paymentaccount</term>
+
+              <listitem>
+                <para>Konto</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>paymentdate</term>
+
+              <listitem>
+                <para>Datum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>paymentmemo</term>
+
+              <listitem>
+                <para>Memo</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>paymentsource</term>
+
+              <listitem>
+                <para>Beleg</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.benutzerdefinierte-variablen-vc">
+          <title>Benutzerdefinierte Kunden- und Lieferantenvariablen</title>
+
+          <para>Die vom Benutzer definierten Variablen für Kunden und
+          Lieferanten stehen beim Ausdruck von Einkaufs- und Verkaufsbelegen
+          ebenfalls zur Verfügung. Ihre Namen setzen sich aus dem Präfix
+          <varname>vc_cvar_</varname> und dem vom Benutzer festgelegten
+          Variablennamen zusammen.</para>
+
+          <para>Beispiel: Der Benutzer hat eine Variable namens
+          <varname>number_of_employees</varname> definiert, die die Anzahl der
+          Mitarbeiter des Unternehmens enthält. Diese Variable steht dann
+          unter dem Namen <varname>vc_cvar_number_of_employees</varname> zur
+          Verfügung.</para>
+        </sect3>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.dunning">
+        <title>Variablen in Mahnungen und Rechnungen über Mahngebühren</title>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.dunning-vorlagennamen">
+          <title>Namen der Vorlagen</title>
+
+          <para>Die Namen der Vorlagen werden im System-Menü vom Benutzer
+          eingegeben. Wird für ein Mahnlevel die Option zur automatischen
+          Erstellung einer Rechnung über die Mahngebühren und Zinsen
+          aktiviert, so wird der Name der Vorlage für diese Rechnung aus dem
+          Vorlagenname für diese Mahnstufe mit dem Zusatz
+          <constant>_invoice</constant> gebildet. Weiterhin werden die Kürzel
+          für die ausgewählte Sprache und den ausgewählten Drucker
+          angehängt.</para>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.dunning-allgemein">
+          <title>Allgemeine Variablen in Mahnungen</title>
+
+          <para>Die Variablen des Verkäufers stehen wie gewohnt als
+          <varname>employee_...</varname> zur Verfügung. Die Adressdaten des
+          Kunden stehen als Variablen <varname>name</varname>,
+          <varname>street</varname>, <varname>zipcode</varname>,
+          <varname>city</varname>, <varname>country</varname>,
+          <varname>department_1</varname>, <varname>department_2</varname>,
+          und <varname>email</varname> zur Verfügung.</para>
+
+          <para>Weitere Variablen beinhalten:</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>dunning_date</term>
+
+              <listitem>
+                <para>Datum der Mahnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dunning_duedate</term>
+
+              <listitem>
+                <para>Fälligkeitsdatum für diese Mahhnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dunning_id</term>
+
+              <listitem>
+                <para>Mahnungsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>fee</term>
+
+              <listitem>
+                <para>Kummulative Mahngebühren</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>interest_rate</term>
+
+              <listitem>
+                <para>Zinssatz per anno in Prozent</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>total_amount</term>
+
+              <listitem>
+                <para>Gesamter noch zu zahlender Betrag als
+                <function>fee</function> + <function>total_interest</function>
+                + <function>total_open_amount</function></para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>total_interest</term>
+
+              <listitem>
+                <para>Zinsen per anno über alle Rechnungen</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>total_open_amount</term>
+
+              <listitem>
+                <para>Summe über alle offene Beträge der Rechnungen</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.dunning-details">
+          <title>Variablen für jede gemahnte Rechnung in einer Mahnung</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>dn_amount</term>
+
+              <listitem>
+                <para>Rechnungssumme (brutto)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_duedate</term>
+
+              <listitem>
+                <para>Originales Fälligkeitsdatum der Rechnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_dunning_date</term>
+
+              <listitem>
+                <para>Datum der Mahnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_dunning_duedate</term>
+
+              <listitem>
+                <para>Fälligkeitsdatum der Mahnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_fee</term>
+
+              <listitem>
+                <para>Kummulative Mahngebühr</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_interest</term>
+
+              <listitem>
+                <para>Zinsen per anno für diese Rechnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_invnumber</term>
+
+              <listitem>
+                <para>Rechnungsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_linetotal</term>
+
+              <listitem>
+                <para>Noch zu zahlender Betrag (ergibt sich aus
+                <varname>dn_open_amount</varname> + <varname>dn_fee</varname>
+                + <varname>dn_interest</varname>)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_netamount</term>
+
+              <listitem>
+                <para>Rechnungssumme (netto)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_open_amount</term>
+
+              <listitem>
+                <para>Offener Rechnungsbetrag</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_ordnumber</term>
+
+              <listitem>
+                <para>Bestellnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_transdate</term>
+
+              <listitem>
+                <para>Rechnungsdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dn_curr</term>
+
+              <listitem>
+                <para>Währung, in der die Rechnung erstellt wurde. (Die
+                Rechnungsbeträge sind aber immer in der Hauptwährung)</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.dunning-invoice">
+          <title>Variablen in automatisch erzeugten Rechnungen über
+          Mahngebühren</title>
+
+          <para>Die Variablen des Verkäufers stehen wie gewohnt als
+          <varname>employee_...</varname> zur Verfügung. Die Adressdaten des
+          Kunden stehen als Variablen <varname>name</varname>,
+          <varname>street</varname>, <varname>zipcode</varname>,
+          <varname>city</varname>, <varname>country</varname>,
+          <varname>department_1</varname>, <varname>department_2</varname>,
+          und <varname>email</varname> zur Verfügung.</para>
+
+          <para>Weitere Variablen beinhalten:</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>duedate</term>
+
+              <listitem>
+                <para>Fälligkeitsdatum der Rechnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>dunning_id</term>
+
+              <listitem>
+                <para>Mahnungsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>fee</term>
+
+              <listitem>
+                <para>Mahngebühren</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>interest</term>
+
+              <listitem>
+                <para>Zinsen</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>invamount</term>
+
+              <listitem>
+                <para>Rechnungssumme (ergibt sich aus <varname>fee</varname> +
+                <varname>interest</varname>)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>invdate</term>
+
+              <listitem>
+                <para>Rechnungsdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>invnumber</term>
+
+              <listitem>
+                <para>Rechnungsnummer</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.andere-vorlagen">
+        <title>Variablen in anderen Vorlagen</title>
+
+        <sect3>
+          <title>Einführung</title>
+
+          <para>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+          Rechnung. Allerdings heißen die Variablen, die mit
+          <varname>inv</varname> beginnen, jetzt anders. Bei den Angeboten
+          fangen sie mit <varname>quo</varname> für "quotation" an:
+          <varname>quodate</varname> für Angebotsdatum etc. Bei Bestellungen
+          wiederum fangen sie mit <varname>ord</varname> für "order" an:
+          <varname>ordnumber</varname> für Bestellnummer etc.</para>
+
+          <para>Manche Variablen sind in anderen Vorlagen hingegen gar nicht
+          vorhanden wie z.B. die für bereits verbuchte Zahlungseingänge. Dies
+          sind Variablen, die vom Geschäftsablauf her in der entsprechenden
+          Vorlage keine Bedeutung haben oder noch nicht belegt sein
+          können.</para>
+
+          <para>Im Folgenden werden nur wichtige Unterschiede zu den Variablen
+          in Rechnungen aufgeführt.</para>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.andere-vorlagen-quotations">
+          <title>Angebote und Preisanfragen</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>quonumber</term>
+
+              <listitem>
+                <para>Angebots- bzw. Anfragenummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>reqdate</term>
+
+              <listitem>
+                <para>Gültigkeitsdatum (bei Angeboten) bzw. Lieferdatum (bei
+                Preisanfragen)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>transdate</term>
+
+              <listitem>
+                <para>Angebots- bzw. Anfragedatum</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.andere-vorlagen-orders">
+          <title>Auftragsbestätigungen und Lieferantenaufträge</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>ordnumber</term>
+
+              <listitem>
+                <para>Auftragsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>reqdate</term>
+
+              <listitem>
+                <para>Lieferdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>transdate</term>
+
+              <listitem>
+                <para>Auftragsdatum</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.andere-vorlagen-delivery-orders">
+          <title>Lieferscheine (Verkauf und Einkauf)</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>cusordnumber</term>
+
+              <listitem>
+                <para>Bestellnummer des Kunden (im Verkauf) bzw. Bestellnummer
+                des Lieferanten (im Einkauf)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>donumber</term>
+
+              <listitem>
+                <para>Lieferscheinnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>transdate</term>
+
+              <listitem>
+                <para>Lieferscheindatum</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>Für jede Position eines Lieferscheines gibt es ein Unterarray
+          mit den Informationen darüber, von welchem Lager und Lagerplatz aus
+          die Waren verschickt wurden (Verkaufslieferscheine) bzw. auf welchen
+          Lagerplatz sie eingelagert wurden. Diese müssen mittels einer
+          <function>foreach</function>-Schleife ausgegeben werden. Diese
+          Variablen sind:</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>si_bin</term>
+
+              <listitem>
+                <para>Lagerplatz</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>si_chargenumber</term>
+
+              <listitem>
+                <para>Chargennummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>si_bestbefore</term>
+
+              <listitem>
+                <para>Mindesthaltbarkeit</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>si_number</term>
+
+              <listitem>
+                <para>Artikelnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>si_qty</term>
+
+              <listitem>
+                <para>Anzahl bzw. Menge</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>si_runningnumber</term>
+
+              <listitem>
+                <para>Positionsnummer (1, 2, 3 etc)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>si_unit</term>
+
+              <listitem>
+                <para>Einheit</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>si_warehouse</term>
+
+              <listitem>
+                <para>Lager</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.andere-vorlagen-statement">
+          <title>Variablen für Sammelrechnung</title>
+
+          <variablelist>
+            <varlistentry>
+              <term>c0total</term>
+
+              <listitem>
+                <para>Gesamtbetrag aller Rechnungen mit Fälligkeit &lt; 30
+                Tage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>c30total</term>
+
+              <listitem>
+                <para>Gesamtbetrag aller Rechnungen mit Fälligkeit &gt;= 30
+                und &lt; 60 Tage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>c60total</term>
+
+              <listitem>
+                <para>Gesamtbetrag aller Rechnungen mit Fälligkeit &gt;= 60
+                und &lt; 90 Tage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>c90total</term>
+
+              <listitem>
+                <para>Gesamtbetrag aller Rechnungen mit Fälligkeit &gt;= 90
+                Tage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>total</term>
+
+              <listitem>
+                <para>Gesamtbetrag aller Rechnungen</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+
+          <para>Variablen für jede Rechnungsposition in Sammelrechnung:</para>
+
+          <variablelist>
+            <varlistentry>
+              <term>invnumber</term>
+
+              <listitem>
+                <para>Rechnungsnummer</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>invdate</term>
+
+              <listitem>
+                <para>Rechnungsdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>duedate</term>
+
+              <listitem>
+                <para>Fälligkeitsdatum</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>amount</term>
+
+              <listitem>
+                <para>Summe der Rechnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>open</term>
+
+              <listitem>
+                <para>Noch offener Betrag der Rechnung</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>c0</term>
+
+              <listitem>
+                <para>Noch offener Rechnungsbetrag mit Fälligkeit &lt; 30
+                Tage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>c30</term>
+
+              <listitem>
+                <para>Noch offener Rechnungsbetrag mit Fälligkeit &gt;= 30 und
+                &lt; 60 Tage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>c60</term>
+
+              <listitem>
+                <para>Noch offener Rechnungsbetrag mit Fälligkeit &gt;= 60 und
+                &lt; 90 Tage</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term>c90</term>
+
+              <listitem>
+                <para>Noch offener Rechnungsbetrag mit Fälligkeit &gt;= 90
+                Tage</para>
+              </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.bloecke">
+        <title>Blöcke, bedingte Anweisungen und Schleifen</title>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.bloecke.einfuehrung">
+          <title>Einfürhung</title>
+
+          <para>Der Parser kennt neben den Variablen einige weitere
+          Konstrukte, die gesondert behandelt werden. Diese sind wie
+          Variablennamen in spezieller Weise markiert:
+          <command>&lt;%anweisung%&gt; ... &lt;%end%&gt;</command></para>
+
+          <para>Anmerkung zum <command>&lt;%end%&gt;</command>: Der besseren
+          Verständlichkeit halber kann man nach dem <command>end</command>
+          noch beliebig weitere Wörter schreiben, um so zu markieren, welche
+          Anweisung (z.B. <command>if</command> oder
+          <command>foreach</command>) damit abgeschlossen wird.</para>
+
+          <para>Beispiel: Lautet der Beginn eines Blockes z.B.
+          <command>&lt;%if type == "sales_quotation"%&gt;</command>, so könnte
+          er mit <command>&lt;%end%&gt;</command> genauso abgeschlossen werden
+          wie mit <command>&lt;%end if%&gt;</command> oder auch
+          <command>&lt;%end type == "sales_quotation"%&gt;</command>.</para>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.bloecke.if">
+          <title>Der if-Block</title>
+
+          <programlisting>&lt;%if variablenname%&gt;
+...
+&lt;%end%&gt;</programlisting>
+
+          <para>Eine normale "if-then"-Bedingung. Die Zeilen zwischen dem "if"
+          und dem "end" werden nur ausgegeben, wenn die Variable
+          <varname>variablenname</varname> gesetzt und ungleich 0 ist.</para>
+
+          <para>Die Bedingung kann auch negiert werden, indem das Wort
+          <function>not</function> nach dem <filename>if</filename> verwendet
+          wird. Beispiel:</para>
+
+          <programlisting>&lt;%if not cp_greeting%&gt;
+...
+&lt;%end%&gt;</programlisting>
+
+          <para>Zusätzlich zu dem einfachen Test, ob eine Variable gesetzt ist
+          oder nicht, bietet dieser Block auch die Möglichkeit, den Inhalt
+          einer Variablen mit einer festen Zeichenkette oder einer anderen
+          Variablen zu vergleichen. Ob der Vergleich mit einer Zeichenkette
+          oder einer anderen Variablen vorgenommen wird, hängt davon ab, ob
+          die rechte Seite des Vergleichsoperators in Anführungszeichen
+          gesetzt wird (Vergleich mit Zeichenkette) oder nicht (Vergleich mit
+          anderer Variablen). Zwei Beispiele, die beide Vergleiche
+          zeigen:</para>
+
+          <programlisting>&lt;%if var1 == "Wert"%&gt;</programlisting>
+
+          <para>Testet die Variable <varname>var1</varname> auf
+          übereinstimmung mit der Zeichenkette <constant>Wert</constant>.
+          Mittels <function>!=</function> anstelle von <function>==</function>
+          würde auf Ungleichheit getestet.</para>
+
+          <programlisting>%if var1 == var2%&gt;</programlisting>
+
+          <para>Testet die Variable <varname>var1</varname> auf
+          übereinstimmung mit der Variablen <varname>var2</varname>. Mittel
+          <function>!=</function> anstelle von <function>==</function> würde
+          auf Ungleichheit getestet.</para>
+
+          <para>Erfahrere Benutzer können neben der Tests auf (Un-)Gleichheit
+          auch Tests auf übereinstimmung mit regulären Ausdrücken ohne
+          Berücksichtung der Groß- und Kleinschreibung durchführen. Dazu dient
+          dieselbe Syntax wie oben nur mit <function>=~</function> und
+          <function>!~</function> als Vergleichsoperatoren.</para>
+
+          <para>Beispiel für einen Test, ob die Variable
+          <varname>intnotes</varname> (interne Bemerkungen) das Wort
+          <constant>schwierig</constant> enthält:</para>
+
+          <programlisting>&lt;%if intnotes =~ "schwierig"%&gt;</programlisting>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.bloecke.foreach">
+          <title>Der foreach-Block</title>
+
+          <programlisting>&lt;%foreach variablenname%&gt;
+...
+&lt;%end%&gt;</programlisting>
+
+          <para>Fügt die Zeilen zwischen den beiden Anweisungen so oft ein,
+          wie das Perl-Array der Variablen <varname>variablenname</varname>
+          Elemente enthät. Dieses Konstrukt wird zur Ausgabe der einzelnen
+          Posten einer Rechnung / eines Angebots sowie zur Ausgabe der Steuern
+          benutzt. In jedem Durchlauf werden die <link
+          linkend="dokumentenvorlagen-und-variablen.invoice-posten">zeilenbezogenen
+          Variablen</link> jeweils auf den Wert für die aktuelle Position
+          gesetzt.</para>
+
+          <para>Die Syntax sieht normalerweise wie folgt aus:</para>
+
+          <programlisting>&lt;%foreach number%&gt;
+Position: &lt;%runningnumber%&gt;
+Anzahl: &lt;%qty%&gt;
+Artikelnummer: &lt;%number%&gt;
+Beschreibung: &lt;%description%&gt;
+...
+&lt;%end%&gt;</programlisting>
+
+          <para>Besonderheit in OpenDocument-Vorlagen: Tritt ein
+          <function>&lt;%foreach%&gt;</function>-Block innerhalb einer
+          Tabellenzelle auf, so wird die komplette Tabellenzeile so oft
+          wiederholt wie notwendig. Tritt er außerhalb auf, so wird nur der
+          Inhalt zwischen <function>&lt;%foreach%&gt;</function> und
+          <function>&lt;%end%&gt;</function> wiederholt, nicht aber die
+          komplette Zeile, in der er steht.</para>
+        </sect3>
+      </sect2>
+
+      <sect2 id="dokumentenvorlagen-und-variablen.markup">
+        <title>Markup-Code zur Textformatierung innerhalb von
+        Formularen</title>
+
+        <para>Wenn der Benutzer innhalb von Formularen in Lx-Office Text
+        anders formatiert haben möchte, so ist dies begrenzt möglich.
+        Lx-Office unterstützt die Textformatierung mit HTML-ähnlichen Tags.
+        Der Benutzer kann z.B. bei der Artikelbeschreibung auf einer Rechnung
+        Teile des Texts zwischen Start- und Endtags setzen. Dieser Teil wird
+        dann automatisch in Anweisungen für das ausgewählte Vorlagenformat
+        (HTML oder PDF über LaTeX) umgesetzt.</para>
+
+        <para>Die unterstützen Formatierungen sind:</para>
+
+        <variablelist>
+          <varlistentry>
+            <term>&lt;b&gt;Text&lt;/b&gt;</term>
+
+            <listitem>
+              <para>Text wird in Fettdruck gesetzt.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>&lt;i&gt;Text&lt;/i&gt;</term>
+
+            <listitem>
+              <para>Text wird kursiv gesetzt.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>&lt;u&gt;Text&lt;/u&gt;</term>
+
+            <listitem>
+              <para>Text wird unterstrichen.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>&lt;s&gt;Text&lt;/s&gt;</term>
+
+            <listitem>
+              <para>Text wird durchgestrichen. Diese Formatierung ist nicht
+              bei der Ausgabe als PDF über LaTeX verfügbar.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>&lt;bullet&gt;</term>
+
+            <listitem>
+              <para>Erzeugt einen ausgefüllten Kreis für Aufzählungen (siehe
+              unten).</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+
+        <para>Der Befehl <command>&lt;bullet&gt;</command> funktioniert
+        momentan auch nur in Latex-Vorlagen.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="excel-templates">
+      <title>Excel-Vorlagen</title>
+
+      <sect2 id="excel-templates.summary">
+        <title>Zusammenfassung</title>
+
+        <para>Dieses Dokument beschreibt den Mechanismus, mit dem
+        Exceltemplates abgearbeitet werden, und die Einschränkungen, die damit
+        einhergehen.</para>
+      </sect2>
+
+      <sect2 id="excel-templates.usage">
+        <title>Bedienung</title>
+
+        <para>Der Excel Mechanismus muss in der Konfigurationsdatei aktiviert
+        werden. Die Konfigurationsoption heißt <varname>excel_templates =
+        1</varname> im Abschnitt <varname>[print_templates]</varname>.</para>
+
+        <para>Eine Excelvorlage kann dann unter dem Namen einer beliebigen
+        anderen Vorlage mit der Endung <filename>.xls</filename> gespeichert
+        werden. In den normalen Verkaufsmasken taucht nun
+        <constant>Excel</constant> als auswählbares Format auf und kann von da
+        an wie LaTeX- oder OpenOffice-Vorlagen benutzt werden.</para>
+
+        <para>Der Sonderfall der Angebote aus der Kundenmaske ist ebenfalls
+        eine Angebotsvorlage und wird unter dem internen Namen der Angebote
+        <filename>sales_quotation.xls</filename> gespeichert.</para>
+      </sect2>
+
+      <sect2 id="excel-templates.syntax">
+        <title>Variablensyntax</title>
+
+        <para>Einfache Syntax:
+        <command>&lt;&lt;varname&gt;&gt;</command></para>
+
+        <para>Dabei sind <constant>&lt;&lt;</constant> und
+        <constant>&gt;&gt;</constant> die Delimiter. Da Excel auf festen
+        Breiten besteht, kann der Tag künstlich verlängert werden, indem
+        weitere <constant>&lt;</constant> oder <constant>&gt;</constant>
+        eingefügt werden. Der Tag muss nicht symmetrisch sein.
+        Beispiel:</para>
+
+        <programlisting>&lt;&lt;&lt;&lt;&lt;varname&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</programlisting>
+
+        <para>Um die Limitierung der festen Breite zu reduzieren, können
+        weitere Variablen in einem Block interpoliert werden. Whitespace wird
+        dazwishen dann erhalten. Beispiel:</para>
+
+        <programlisting>&lt;&lt;&lt;&lt;&lt;varname1 varname2   varname3&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</programlisting>
+
+        <para>Die Variablen werden interpoliert, und linksbündig mit
+        Leerzeichen auf die gewünschte Länge aufgefüllt. Ist der String zu
+        lang, werden überzählige Zeichen abgeschnitten.</para>
+
+        <para>Es ist ausserdem möglich, Daten rechtsbündig darzustellen, wenn
+        der Block mit einem Leerzeichen anfängt. Beispiel:</para>
+
+        <programlisting>&lt;&lt;&lt;&lt;&lt;&lt;            varname&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;&gt;</programlisting>
+
+        <para>Dies würde rechtsbündig triggern. Wenn bei rechtsbündiger
+        Ausrichtung Text abgeschnitten werden muss, wird er vom linken Ende
+        entfernt.</para>
+      </sect2>
+
+      <sect2 id="excel-templates.limitations">
+        <title>Einschränkungen</title>
+
+        <para>Das Excelformat bis 2002 ist ein binäres Format, und kann nicht
+        mit vertretbarem Aufwand editiert werden. Der Templatemechanismus
+        beschränkt sich daher darauf, Textstellen exakt durch einen anderen
+        Text zu ersetzen.</para>
+
+        <para>Aus dem gleichen Grund sind die Kontrolllstrukturen
+        <command>&lt;%if%&gt;</command> und
+        <command>&lt;%foreach%&gt;</command> nicht vorhanden. Der Delimiter
+        <constant>&lt;% %&gt;</constant> kommt in den Headerinformationen
+        evtl. vor. Deshalb wurde auf den sichereren Delimiter
+        <constant>&lt;&lt;</constant> und <constant>&gt;&gt;</constant>
+        gewechselt.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="devel.fcgi">
+      <title>Entwicklung unter FastCGI</title>
+
+      <sect2 id="devel.fcgi.general">
+        <title>Allgemeines</title>
+
+        <para>Wenn Änderungen in der Konfiguration von Lx-Office gemacht
+        werden, muss der Webserver neu gestartet werden.</para>
+
+        <para>Bei der Entwicklung für FastCGI ist auf ein paar Fallstricke zu
+        achten. Dadurch, dass das Programm in einer Endlosschleife läuft,
+        müssen folgende Aspekte beachtet werden.</para>
+      </sect2>
+
+      <sect2 id="devel.fcgi.exiting">
+        <title>Programmende und Ausnahmen</title>
+
+        <para>Betrifft die Funktionen <function>warn</function>,
+        <function>die</function>, <function>exit</function>,
+        <function>carp</function> und <function>confess</function>.</para>
+
+        <para>Fehler, die dass Programm normalerweise sofort beenden (fatale
+        Fehler), werden mit dem FastCGI Dispatcher abgefangen, um das Programm
+        am Laufen zu halten. Man kann mit <function>die</function>,
+        <function>confess</function> oder <function>carp</function> Fehler
+        ausgeben, die dann vom Dispatcher angezeigt werden. Die Lx-Office
+        eigene <function>$::form-</function>error()&gt; tut im Prinzip das
+        Gleiche, mit ein paar Extraoptionen. <function>warn</function> und
+        <function>exit</function> hingegen werden nicht abgefangen.
+        <function>warn</function> wird direkt nach STDERR, also in Server Log
+        eine Nachricht schreiben (sofern in der Konfiguration nicht die
+        Warnungen in das Lx-Office Log umgeleitet wurden), und
+        <function>exit</function> wird die Ausführung beenden.</para>
+
+        <para>Prinzipiell ist es kein Beinbruch, wenn sich der Prozess
+        beendet, fcgi wird ihn sofort neu starten. Allerdings sollte das die
+        Ausnahme sein. Quintessenz: Bitte kein <function>exit</function>
+        benutzen, alle anderen Exceptionmechanismen sind ok.</para>
+      </sect2>
+
+      <sect2 id="devel.fcgi.globals">
+        <title>Globale Variablen</title>
+
+        <para>Um zu vermeiden, dass Informationen von einem Request in einen
+        anderen gelangen, müssen alle globalen Variablen vor einem Request
+        sauber initialisiert werden. Das ist besonders wichtig im
+        <varname>$::cgi</varname> und <varname>$::auth</varname> Objekt, weil
+        diese nicht gelöscht werden pro Instanz, sondern persistent gehalten
+        werden.</para>
+
+        <para>In <classname>SL::Dispatcher</classname> gibt es einen sauber
+        abgetrennten Block, der alle kanonischen globalen Variablen listet und
+        erklärt. Bitte keine anderen einführen ohne das sauber zu
+        dokumentieren.</para>
+
+        <para>Datenbankverbindungen wird noch ein Guide verfasst werden, wie
+        man sicher geht, dass man die richtige erwischt.</para>
+      </sect2>
+
+      <sect2 id="devel.fcgi.performance">
+        <title>Performance und Statistiken</title>
+
+        <para>Die kritischen Pfade des Programms sind die Belegmasken, und
+        unter diesen ganz besonders die Verkaufsrechnungsmaske. Ein Aufruf der
+        Rechnungsmaske in Lx-Office 2.4.3 stable dauert auf einem Core2duo mit
+        4GB Arbeitsspeicher und Ubuntu 9.10 eine halbe Sekunde. In der 2.6.0
+        sind es je nach Menge der definierten Variablen 1-2s. Ab der
+        Moose/Rose::DB Version sind es 5-6s.</para>
+
+        <para>Mit FastCGI ist die neuste Version auf 0,26 Sekunden selbst in
+        den kritischen Pfaden, unter 0,15 sonst.</para>
+      </sect2>
+
+      <sect2 id="devel.fcgi.known-issues">
+        <title>Bekannte Probleme</title>
+
+        <sect3 id="devel.fcgi.known-issues.encoding">
+          <title>Encoding Awareness</title>
+
+          <para>UTF-8 kodierte Installationen sind sehr anfällig gegen
+          fehlerhfate Encodings unter FCGI. latin9 Installationen behandeln
+          falsch kodierte Zeichen eher unwissend, und geben sie einfach
+          weiter. UTF-8 verweigert bei fehlerhaften Programmpfaden kurzerhand
+          das Ausliefern. Es wird noch daran gearbeitet, alle Fehler da zu
+          beseitigen.</para>
+        </sect3>
+      </sect2>
+    </sect1>
+
+    <sect1 id="db-upgrade-files" xreflabel="Datenbank-Upgradedateien">
+     <title>SQL-Upgradedateien</title>
+
+     <sect2 id="db-upgrade-files.introduction" xreflabel="Einführung in die Datenbank-Upgradedateien">
+      <title>Einführung</title>
+
+      <para>
+       Der alte Mechanismus für SQL-Upgradescripte, der auf einer Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script für
+       diese Versionsnummer sucht, schränkt sehr ein, z.B. was die parallele Entwicklung im stable- und unstable-Baum betrifft.
+      </para>
+
+      <para>
+       Dieser Mechanismus wurde für Lx-Office 2.4.1 deutlich erweitert. Es werden weiterhin alle Scripte aus sql/Pg-upgrade
+       ausgeführt. Zusätzlich gibt es aber ein zweites Verzeichnis, sql/Pg-upgrade2. In diesem Verzeichnis muss pro Datenbankupgrade eine
+       Datei existieren, die neben den eigentlich auszuführenden SQL- oder Perl-Befehlen einige Kontrollinformationen enthält.
+      </para>
+
+      <para>
+       Neu sind die Kontrollinformationen, die Abhängigkeiten und Prioritäten definieren können werden, sodass Datenbankscripte zwar in
+       einer sicheren Reihenfolge ausgeführt werden (z.B. darf ein "ALTER TABLE" erst ausgeführt werden, wenn die Tabelle mit "CREATE TABLE"
+       angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man keine Versionsnummern mehr braucht.
+      </para>
+
+      <para>
+       Lx-Office merkt sich dabei, welches der Upgradescripte in sql/Pg-upgrade2 bereits durchgeführt wurde und führt diese nicht erneut
+       aus. Dazu dient die Tabelle "schema_info", die bei der Anmeldung automatisch angelegt wird.
+      </para>
+     </sect2>
+
+     <sect2 id="db-upgrade-files.format" xreflabel="Format der Upgradedateien">
+      <title>Format der Kontrollinformationen</title>
+
+      <para>
+       Die Kontrollinformationen sollten sich am Anfang der jeweiligen Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthält,
+       hat dabei das folgende Format:
+      </para>
+
+      <para>
+       Für SQL-Upgradedateien:
+      </para>
+
+      <programlisting>-- @key: value</programlisting>
+
+      <para>
+       Für Perl-Upgradedateien:
+      </para>
+
+      <programlisting># @key: value</programlisting>
+
+      <para>
+       Leerzeichen vor "<varname>value</varname>" werden entfernt.
+      </para>
+
+      <para>
+       Die folgenden Schlüsselworte werden verarbeitet:
+      </para>
+
+      <variablelist>
+       <varlistentry>
+        <term>tag</term>
+        <listitem>
+         <para>
+          Wird zwingend benötigt. Dies ist der "Name" des Upgrades. Dieser "tag" kann von anderen Kontrolldateien in ihren Abhängigkeiten
+          verwendet werden (Schlüsselwort "<varname>depends</varname>"). Der "tag" ist auch der Name, der in der Datenbank eingetragen wird.
+         </para>
+
+         <para>
+          Normalerweise sollte die Kontrolldatei genau so heißen wie der "tag", nur mit der Endung ".sql" bzw. "pl".
+         </para>
+
+         <para>
+          Ein Tag darf nur aus alphanumerischen Zeichen sowie den Zeichen _ - ( ) bestehen. Insbesondere sind Leerzeichen nicht erlaubt und
+          sollten stattdessen mit Unterstrichen ersetzt werden.
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>charset</term>
+        <listitem>
+         <para>
+          Empfohlen. Gibt den Zeichensatz an, in dem das Script geschrieben wurde, z.B. "<literal>UTF-8</literal>". Aus
+          Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei Abwesenheit des Tags der Zeichensatz "<literal>ISO-8859-15</literal>"
+          angenommen.
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>description</term>
+        <listitem>
+         <para>
+          Benötigt. Eine Beschreibung, was in diesem Update passiert. Diese wird dem Benutzer beim eigentlichen Datenbankupdate
+          angezeigt. Während der Tag in englisch gehalten sein sollte, sollte die Beschreibung auf Deutsch erfolgen.
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>depends</term>
+        <listitem>
+         <para>
+          Optional. Eine mit Leerzeichen getrennte Liste von "tags", von denen dieses Upgradescript abhängt. Lx-Office stellt sicher, dass
+          die in dieser Liste aufgeführten Scripte bereits durchgeführt wurden, bevor dieses Script ausgeführt wird.
+         </para>
+
+         <para>
+          Abhängigkeiten werden rekursiv betrachtet. Wenn also ein Script "b" existiert, das von Änderungen in "a" abhängt, und eine neue
+          Kontrolldatei für "c" erstellt wird, die von Änderungen in "a" und "b" abhängt, so genügt es, in "c" nur den Tag "b" als
+          Abhängigkeit zu definieren.
+         </para>
+
+         <para>
+          Es ist nicht erlaubt, sich selbst referenzierende Abhängigkeiten zu definieren (z.B. &quot;a&quot; -&gt; &quot;b&quot;,
+          &quot;b&quot; -&gt; &quot;c&quot; und &quot;c&quot; -&gt; &quot;a&quot;).
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>priority</term>
+        <listitem>
+         <para>
+          Optional. Ein Zahlenwert, der die Reihenfolge bestimmt, in der Scripte ausgeführt werden, die die gleichen Abhängigkeitstiefen
+          besitzen. Fehlt dieser Parameter, so wird der Wert 1000 benutzt.
+         </para>
+
+         <para>
+          Dies ist reine Kosmetik. Für echte Reihenfolgen muss "depends" benutzt werden. Lx-Office sortiert die auszuführenden Scripte
+          zuerst nach der Abhängigkeitstiefe (wenn "z" von "y" abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von 2, "y" von 1
+          und "x" von 0. "x" würde hier zuerst ausgeführt, dann "y", dann "z"), dann nach der Priorität und bei gleicher Priorität
+          alphabetisch nach dem "tag".
+         </para>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+     </sect2>
+
+     <sect2 id="db-upgrade-files.dbupgrade-tool" xreflabel="Hilfsscript dbupgrade2_tool.pl">
+      <title>Hilfsscript dbupgrade2_tool.pl</title>
+
+      <para>
+       Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern, existiert ein Hilfsscript namens
+       "<filename>scripts/dbupgrade2_tool.pl</filename>". Es muss aus dem Lx-Office-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses
+       Tool liest alle Datenbankupgradescripte aus dem Verzeichnis <filename>sql/Pg-upgrade2</filename> aus. Es benutzt dafür die gleichen
+       Methoden wie Lx-Office selber, sodass alle Fehlersituationen von der Kommandozeile überprüft werden können.
+      </para>
+
+      <para>
+       Wird dem Script kein weiterer Parameter übergeben, so wird nur eine Überprüfung der Felder und Abhängigkeiten vorgenommen. Man kann
+       sich aber auch Informationen auf verschiedene Art ausgeben lassen:
+      </para>
+
+      <itemizedlist>
+       <listitem>
+        <para>Listenform: "<command>./scripts/dbupgrade2_tool.pl --list</command>"</para>
+
+        <para>
+         Gibt eine Liste aller Scripte aus. Die Liste ist in der Reihenfolge sortiert, in der Lx-Office die Scripte ausführen würde. Es
+         werden neben der Listenposition der Tag, die Abhängigkeitstiefe und die Priorität ausgegeben.
+        </para>
+       </listitem>
+
+       <listitem>
+        <para>Baumform: "<command>./scripts/dbupgrade2_tool.pl --tree</command>"</para>
+
+        <para>
+         Listet alle Tags in Baumform basierend auf den Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte, von denen keine
+         anderen abhängen. Die Unterknoten sind Scripte, die beim übergeordneten Script als Abhängigkeit eingetragen sind.
+        </para>
+       </listitem>
+
+       <listitem id="db-upgrade-files.dbupgrade-tool.reverse-tree">
+        <para>Umgekehrte Baumform: "<command>./scripts/dbupgrade2_tool.pl --rtree</command>"</para>
+
+        <para>
+         Listet alle Tags in Baumform basierend auf den Abhängigkeiten auf.  Die "Wurzelknoten" sind dabei die Scripte mit der geringsten
+         Abhängigkeitstiefe. Die Unterknoten sind Scripte, die das übergeordnete Script als Abhängigkeit eingetragen haben.
+        </para>
+       </listitem>
+
+       <listitem>
+        <para>Baumform mit Postscriptausgabe: "<command>./scripts/dbupgrade2_tool.pl --graphviz</command>"</para>
+
+        <para>
+         Benötigt das Tool "<command>graphviz</command>", um mit seiner Hilfe die <link
+         linkend="db-upgrade-files.dbupgrade-tool.reverse-tree">umgekehrte Baumform</link> in eine Postscriptdatei namens
+         "<filename>db_dependencies.ps</filename>" auszugeben. Dies ist vermutlich die übersichtlichste Form, weil hierbei jeder Knoten nur
+         einmal ausgegeben wird. Bei den Textmodusbaumformen hingegen können Knoten und all ihre Abhängigkeiten mehrfach ausgegeben werden.
+        </para>
+       </listitem>
+
+       <listitem>
+        <para>
+         Scripte, von denen kein anderes Script abhängt: "<command>./scripts/dbupgrade2_tool.pl --nodeps</command>"
+        </para>
+
+        <para>
+         Listet die Tags aller Scripte auf, von denen keine anderen Scripte abhängen.
+        </para>
+       </listitem>
+      </itemizedlist>
+     </sect2>
+    </sect1>
+
+    <sect1 id="translations-languages" xreflabel="Translations and languages">
+      <title>Translations and languages</title>
+
+      <sect2 id="translations-languages.introduction"
+             xreflabel="Introduction to translations and languages">
+        <title>Introduction</title>
+
+        <note>
+          <para>Dieser Abschnitt ist in Englisch geschrieben, um
+          internationalen Übersetzern die Arbeit zu erleichtern.</para>
+        </note>
+
+        <para>This section describes how localization packages in Lx-Office
+        are built. Currently the only language fully supported is German, and
+        since most of the internal messages are held in English the English
+        version is usable too.</para>
+
+        <para>A stub version of French is included but not functunal at this
+        point.</para>
+      </sect2>
+
+      <sect2 id="translations-languages.file-structure"
+             xreflabel="File structure">
+        <title>File structure</title>
+
+        <para>The structure of locales in Lx-Office is:</para>
+
+        <programlisting>lx-office/locale/&lt;langcode&gt;/</programlisting>
+
+        <para>where &lt;langcode&gt; stands for an abbreviation of the
+        language package. The builtin packages use two letter <ulink
+        url="http://en.wikipedia.org/wiki/ISO_639-1">ISO 639-1</ulink> codes,
+        but the actual name is not relevant for the program and can easily be
+        extended to <ulink
+        url="http://en.wikipedia.org/wiki/IETF_language_tag">IETF language
+        tags</ulink> (i.e. "en_GB"). In fact the original language packages
+        from SQL Ledger are named in this way.</para>
+
+        <para>In such a language directory the following files are
+        recognized:</para>
+
+        <variablelist>
+          <varlistentry>
+            <term>LANGUAGE</term>
+
+            <listitem>
+              <para>This file is mandatory.</para>
+
+              <para>The <filename>LANGUAGE</filename> file contains the self
+              descripted name of the language. It should contain a native
+              representation first, and in parenthesis an english translation
+              after that. Example:</para>
+
+              <programlisting>Deutsch (German)</programlisting>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>charset</term>
+
+            <listitem>
+              <para>This file should be present.</para>
+
+              <para>The <filename>charset</filename> file describes which
+              charset a language package is written in and applies to all
+              other language files in the package. It is possible to write
+              some language packages without an explicit charset, but it is
+              still strongly recommended. You'll never know in what
+              environment your language package will be used, and neither
+              UTF-8 nor Latin1 are guaranteed.</para>
+
+              <para>The whole content of this file is a string that can be
+              recognized as a valid charset encoding. Example:</para>
+
+              <programlisting>UTF-8</programlisting>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>all</term>
+
+            <listitem>
+              <para>This file is mandatory.</para>
+
+              <para>The central translation file. It is essentially an inline
+              Perl script autogenerated by <command>locales.pl</command>. To
+              generate it, generate the directory and the two files mentioned
+              above, and execute the following command:</para>
+
+              <programlisting>scripts/locales.pl &lt;langcode&gt;</programlisting>
+
+              <para>Otherwise you can simply copy one of the other languages.
+              You will be told how many are missing like this:</para>
+
+              <programlisting>$ scripts/locales.pl en
+English - 0.6% - 2015/2028 missing</programlisting>
+
+              <para>A file named "<filename>missing</filename>" will be
+              generated and can be edited. You can also edit the
+              "<filename>all</filename>" file directly. Edit everything you
+              like to fit the target language and execute
+              <command>locales.pl</command> again. See how the missing words
+              get fewer.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>Num2text</term>
+
+            <listitem>
+              <para>Legacy code from SQL Ledger. It provides a means for
+              numbers to be converted into natural language, like
+              <literal>1523 =&gt; one thousand five hundred twenty
+              three</literal>. If you want to provide it, it must be inlinable
+              Perl code which provides a <function>num2text</function> sub. If
+              an <function>init</function> sub exists it will be executed
+              first.</para>
+
+              <para>Only used in the check and receipt printing module.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>special_chars</term>
+
+            <listitem>
+              <para>Lx-Office comes with a lot of interfaces to different
+              formats, some of which are rather picky with their accepted
+              charset. The <filename>special_chars</filename> file contains a
+              listing of chars not suited for different file format and
+              provides substitutions. It is written in "Simple Ini" style,
+              containing a block for every file format.</para>
+
+              <para>First entry should be the order of substitution for
+              entries as a whitespace separated list. All entries are
+              interpolated, so <literal>\n</literal>, <literal>\x20</literal>
+              and <literal>\\</literal> all work.</para>
+
+              <para>After that every entry is a special char that should be
+              translated when writing text into such a file.</para>
+
+              <para>Example:</para>
+
+              <programlisting>[Template/XML]
+order=&amp; &lt; &gt; \n
+&amp;=&amp;amp;
+&lt;=&amp;lt;
+&gt;=&amp;gt;
+\n=&lt;br&gt;</programlisting>
+
+              <para>Note the importance of the order in this example.
+              Substituting &lt; and &gt; befor &amp; would lead to $gt; become
+              &amp;amp;gt;</para>
+
+              <para>For a list of valid formats, see the German
+              <filename>special_chars</filename> entry. As of this writing the
+              following are recognized:</para>
+
+              <programlisting>HTML
+URL@HTML
+Template/HTML
+Template/XML
+Template/LaTeX
+Template/OpenDocument
+filenames</programlisting>
+
+              <para>The last of which is very machine dependant. Remember that
+              a lot of characters are forbidden by some filesystems, for
+              exmaple MS Windows doesn't like ':' in its files where Linux
+              doesn't mind that. If you want the files created with your
+              language pack to be portable, find all chars that could cause
+              trouble.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>missing</term>
+
+            <listitem>
+              <para>This file is not a part of the language package
+              itself.</para>
+
+              <para>This is a file generated by
+              <command>scripts/locales.pl</command> while processing your
+              locales. It's only to have the missing entries singled out and
+              does not belong to a language package.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term>lost</term>
+
+            <listitem>
+              <para>This file is not a part of the language package
+              itself.</para>
+
+              <para>Another file generated by
+              <command>scripts/locales.pl</command>. If for any reason a
+              translation does not appear anymore and can be deleted, it gets
+              moved here. The last 50 or so entries deleted are saved here in
+              case you made a typo, so that you don't have to translate
+              everything again. If a tranlsation is missing, the lost file is
+              checked first. If you maintain a language package, you might
+              want to keep this safe somewhere.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </sect2>
+
+      <sect2 id="devel.style-guide">
+       <title>Stil-Richtlinien</title>
+
+       <para>
+        Die folgenden Regeln haben das Ziel, den Code möglichst gut les- und wartbar zu machen. Dazu gehört zum Einen, dass der Code
+        einheitlich eingerückt ist, aber auch, dass Mehrdeutigkeit so weit es geht vermieden wird (Stichworte "Klammern" oder "Hash-Keys").
+       </para>
+
+       <para>
+        Diese Regeln sind keine Schikane sondern erleichtern allen das Leben!
+       </para>
+
+       <para>
+        Jeder, der einen Patch schickt, sollte seinen Code vorher überprüfen. Einige der Regeln lassen sich automatisch überprüfen, andere
+        nicht.
+       </para>
+
+       <orderedlist>
+        <listitem>
+         <para>
+          Es werden keine echten Tabs sondern Leerzeichen verwendet.
+         </para>
+        </listitem>
+
+        <listitem>
+         <para>
+          Die Einrückung beträgt zwei Leerzeichen. Beispiel:
+         </para>
+
+         <programlisting>foreach my $row (@data) {
+  if ($flag) {
+    # do something with $row
+  }
+
+  if ($use_modules) {
+    $row-&gt;{modules} = MODULE-&gt;retrieve(
+      id   =&gt; $row-&gt;{id},
+      date =&gt; $use_now ? localtime() : $row-&gt;{time},
+    );
+  }
+
+  $report-&gt;add($row);
+}</programlisting>
+        </listitem>
+
+        <listitem>
+         <para>Öffnende geschweifte Klammern befinden sich auf der gleichen Zeile wie der letzte Befehl. Beispiele:</para>
+
+         <programlisting>sub debug {
+  ...
+}</programlisting>
+
+         <para>oder</para>
+
+         <programlisting>if ($form-&gt;{item_rows} &gt; 0) {
+  ...
+}</programlisting>
+        </listitem>
+
+        <listitem>
+         <para>
+          Schließende geschweifte Klammern sind so weit eingerückt wie der Befehl / die öffnende schließende Klammer, die den Block gestartet
+          hat, und nicht auf der Ebene des Inhalts. Die gleichen Beispiele wie bei 3. gelten.
+         </para>
+        </listitem>
+
+        <listitem>
+         <para>
+          Die Wörter "<function>else</function>", "<function>elsif</function>", "<function>while</function>" befinden sich auf der gleichen
+          Zeile wie schließende geschweifte Klammern. Beispiele:
+         </para>
+
+         <programlisting>if ($form-&gt;{sum} &gt; 1000) {
+  ...
+} elsif ($form-&gt;{sum} &gt; 0) {
+  ...
+} else {
+  ...
+}
+
+do {
+  ...
+} until ($a &gt; 0);</programlisting>
+        </listitem>
+
+        <listitem>
+         <para>
+          Parameter von Funktionsaufrufen müssen mit runden Klammern versehen werden. Davon nicht betroffen sind interne Perl-Funktionen,
+          und grep-ähnliche Operatoren. Beispiel:
+         </para>
+
+         <programlisting>$main::lxdebug-&gt;message(&quot;Could not find file.&quot;);
+%options = map { $_ =&gt; 1 } grep { !/^#/ } @config_file;</programlisting>
+        </listitem>
+
+        <listitem>
+         <para>
+          Verschiedene Klammern, Ihre Ausdrücke und Leerzeichen:
+         </para>
+
+         <para>
+          Generell gilt: Hashkeys und Arrayindices sollten nicht durch Leerzeichen abgesetzt werden. Logische Klammerungen ebensowenig,
+          Blöcke schon. Beispiel:
+         </para>
+
+         <programlisting>if (($form-&gt;{debug} == 1) &amp;&amp; ($form-&gt;{sum} - 100 &lt; 0)) {
+  ...
+}
+
+$array[$i + 1]             = 4;
+$form-&gt;{sum}              += $form-&gt;{&quot;row_$i&quot;};
+$form-&gt;{ $form-&gt;{index} } += 1;
+
+map { $form-&gt;{sum} += $form-&gt;{&quot;row_$_&quot;} } 1..$rowcount;</programlisting>
+        </listitem>
+
+        <listitem>
+         <para>
+          Mehrzeilige Befehle
+         </para>
+
+         <orderedlist>
+          <listitem>
+           <para>
+            Werden die Parameter eines Funktionsaufrufes auf mehrere Zeilen aufgeteilt, so sollten diese bis zu der Spalte eingerückt
+            werden, in der die ersten Funktionsparameter in der ersten Zeile stehen. Beispiel:
+           </para>
+
+           <programlisting>$sth = $dbh-&gt;prepare(&quot;SELECT * FROM some_table WHERE col = ?&quot;,
+                     $form-&gt;{some_col_value});</programlisting>
+          </listitem>
+
+          <listitem>
+           <para>
+            Ein Spezialfall ist der ternäre Oprator "?:", der am besten in einer übersichtlichen Tabellenstruktur organisiert
+            wird. Beispiel:
+           </para>
+
+           <programlisting>my $rowcount = $form-&gt;{&quot;row_$i&quot;} ? $i
+             : $form-&gt;{oldcount} ? $form-&gt;{oldcount} + 1
+             :                     $form-&gt;{rowcount} - $form-&gt;{rowbase};</programlisting>
+          </listitem>
+         </orderedlist>
+        </listitem>
+
+        <listitem>
+         <para>
+          Kommentare
+         </para>
+
+         <orderedlist>
+          <listitem>
+           <para>Kommentare, die alleine in einer Zeile stehen, sollten soweit wie der Code eingerückt sein.</para>
+          </listitem>
+
+          <listitem>
+           <para>Seitliche hängende Kommentare sollten einheitlich formatiert werden.</para>
+          </listitem>
+
+          <listitem>
+           <para>
+            Sämtliche Kommentare und Sonstiges im Quellcode ist bitte auf Englisch zu verfassen. So wie ich keine Lust habe, französischen
+            Quelltext zu lesen, sollte auch der Lx-Office Quelltext für nicht-Deutschsprachige lesbar sein. Beispiel:
+           </para>
+
+           <programlisting>my $found = 0;
+while (1) {
+  last if $found;
+
+  # complicated check
+  $found = 1 if //
+}
+
+$i = 0         # initialize $i
+$n = $i;       # save $i
+$i *= $const;  # do something crazy
+$i = $n;       # recover $i</programlisting>
+          </listitem>
+         </orderedlist>
+        </listitem>
+
+        <listitem>
+         <para>
+          Hashkeys sollten nur in Anführungszeichen stehen, wenn die Interpolation gewünscht ist. Beispiel:
+         </para>
+
+         <programlisting>$form-&gt;{sum}      = 0;
+$form-&gt;{&quot;row_$i&quot;} = $form-&gt;{&quot;row_$i&quot;} - 5;
+$some_hash{42}    = 54;</programlisting>
+        </listitem>
+
+        <listitem>
+         <para>
+          Die maximale Zeilenlänge ist nicht bescränkt. Zeilenlängen unterhalb von 79 Zeichen helfen unter bestimmten Bedingungen, aber
+          wenn die Lesbarkeit unter kurzen Zeilen leidet (wie zum Biespiel in grossen Tabellen), dann ist Lesbarkeit vorzuziehen.
+         </para>
+
+         <para>
+          Als Beispiel sei die Funktion <function>print_options</function> aus <filename>bin/mozilla/io.pl</filename> angeführt.
+         </para>
+        </listitem>
+
+        <listitem>
+         <para>
+          Trailing Whitespace, d.h. Leerzeichen am Ende von Zeilen sind unerwünscht. Sie führen zu unnötigen Whitespaceänderungen, die
+          diffs verfälschen.
+         </para>
+
+         <para>
+          Emacs und vim haben beide recht einfache Methoden zur Entfernung von trailing whitespace. Emacs kennt das Kommande
+          <command>nuke-trailing-whitespace</command>, vim macht das gleiche manuell über <literal>:%s/\s\+$//e</literal> Mit <literal>:au
+          BufWritePre * :%s/\s\+$//e</literal> wird das an Speichern gebunden.
+         </para>
+        </listitem>
+
+        <listitem>
+         <para>
+          Es wird kein <command>perltidy</command> verwendet.
+         </para>
+
+         <para>
+          In der Vergangenheit wurde versucht, <command>perltidy</command> zu verwenden, um einen einheitlichen Stil zu erlangen. Es hat
+          sich aber gezeigt, dass <command>perltidy</command>s sehr eigenwilliges Verhalten, was Zeilenumbrüche angeht, oftmals gut
+          formatierten Code zerstört. Für den Interessierten sind hier die <command>perltidy</command>-Optionen, die grob den
+          beschriebenen Richtlinien entsprechen:
+         </para>
+
+         <programlisting>-syn -i=2 -nt -pt=2 -sbt=2 -ci=2 -ibc -hsc -noll -nsts -nsfs -asc -dsm
+-aws -bbc -bbs -bbb -mbl=1 -nsob -ce -nbl -nsbl -cti=0 -bbt=0 -bar -l=79
+-lp -vt=1 -vtc=1</programlisting>
+        </listitem>
+
+        <listitem>
+         <para>
+          <varname>STDERR</varname> ist tabu. Unkonditionale Debugmeldungen auch.
+         </para>
+
+         <para>
+          Lx-Office bietet mit dem Modul <classname>LXDebug</classname> einen brauchbaren Trace-/Debug-Mechanismus. Es gibt also keinen
+          Grund, nach <varname>STDERR</varname> zu schreiben.
+         </para>
+
+         <para>
+          Die <classname>LXDebug</classname>-Methode "<function>message</function>" nimmt als ersten Paramter außerdem eine Flagmaske, für
+          die die Meldung angezeigt wird, wobei "0" immer angezeigt wird. Solche Meldungen sollten nicht eingecheckt werden und werden in
+          den meisten Fällen auch vom Repository zurückgewiesen.
+         </para>
+        </listitem>
+
+        <listitem>
+         <para>
+          Alle neuen Module müssen use strict verwenden.
+         </para>
+
+         <para>
+          <varname>$form</varname>, <varname>$auth</varname>, <varname>$locale</varname>, <varname>$lxdebug</varname> und
+          <varname>%myconfig</varname> werden derzeit aus dem main package importiert (siehe <xref linkend="devel.globals"/>. Alle anderen
+          Konstrukte sollten lexikalisch lokal gehalten werden.
+         </para>
+        </listitem>
+       </orderedlist>
+      </sect2>
+    </sect1>
+  </chapter>
+</book>
