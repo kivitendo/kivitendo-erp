@@ -1198,6 +1198,17 @@ sub generate_report {
     }
   }
 
+  # soldtotal doesn't make sense with more than one bsooqr option.
+  # so reset it to sold (the most common option), and issue a warning
+  my @bsooqr = qw(sold bought onorder ordered rfq quoted);
+  if ($form->{l_subtotal} && 1 < grep { $form->{$_} } @bsooqr) {
+    my $enabled       = first { $form->{$_} } @bsooqr;
+    $form->{$_}       = ''   for @bsooqr;
+    $form->{$enabled} = 'Y';
+
+    push @options, $::locale->text('Subtotal cannot distinguish betweens record types. Only one of the selected record types will be displayed: #1', $optiontexts{$enabled});
+  }
+
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
