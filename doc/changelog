@@ -86,6 +86,7 @@
   - Bugfix 1760 - 1760: Bei einem Lieferschein wird die Abteilung nicht mitgespeichert
   - Bugfix 1752: Rechnung -> Druckvorschau ignoriert Änderung des Steuersatz beim Beleg
   - Bugfix 1708: Fehlender Übertrag der Lieferadresse von Angebot -> Auftragsbestätigung
+  - Bugfix 1648: bebuchte Konten sollten nicht in Überschriften umgewandelt werden können
 
 
 2011-06-15 - Release 2.6.3
