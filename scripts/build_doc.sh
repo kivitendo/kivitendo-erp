@@ -36,5 +36,9 @@ rm -f ${custom}/*
 cp -R ../custom-cfg/* ${custom}/
 
 ./generator.sh dokumentation pdf
-
 cp ${output}/pdf/dokumentation.pdf ../../
+
+./generator.sh dokumentation html
+rm -rf ../../html
+mkdir ../../html
+cp -R ${output}/html ../../html
