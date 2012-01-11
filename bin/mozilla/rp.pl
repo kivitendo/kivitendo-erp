@@ -644,7 +644,7 @@ sub generate_trial_balance {
   my @options;
 
 
-  $form->{template_fromto} = $locale->date(\%myconfig, $form->{fromdate}, 0) . "&nbsp; - &nbsp;" . $locale->date(\%myconfig, $form->{todate}, 0);
+  $form->{template_fromto} = $locale->date(\%myconfig, $form->{fromdate}, 0) . " - " . $locale->date(\%myconfig, $form->{todate}, 0);
 
   $form->{print_date} = $locale->text('Create Date') . " " . $locale->date(\%myconfig, $form->current_date(\%myconfig), 0);
   push (@options, $form->{print_date});
@@ -655,6 +655,28 @@ sub generate_trial_balance {
 
   $form->{template_to} = $locale->date(\%myconfig, $form->{todate}, 0);
 
+  my @custom_headers = ([
+    { text => $::locale->text('Account'),          rowspan => 2, },
+    { text => $::locale->text('Description'),      rowspan => 2, },
+    { text => $::locale->text('Last Transaction'), rowspan => 2, },
+    { text => $::locale->text('Starting Balance'), colspan => 2, },
+    { text => $::locale->text('Sum for')   . " $form->{template_fromto}", colspan => 2, },
+    { text => $::locale->text('Sum per')   . " $form->{template_to}",     colspan => 2, },
+    { text => $::locale->text('Saldo per') . " $form->{template_to}",     colspan => 2, },
+  ], [
+    { text => '', },
+    { text => '', },
+    { text => '', },
+    { text => $::locale->text('Assets'), },
+    { text => $::locale->text('Equity'), },
+    { text => $::locale->text('Debit'),  },
+    { text => $::locale->text('Credit'), },
+    { text => $::locale->text('Debit'),  },
+    { text => $::locale->text('Credit'), },
+    { text => $::locale->text('Debit'),  },
+    { text => $::locale->text('Credit'), },
+  ]);
+
   $report->set_options('output_format'        => 'HTML',
                        'top_info_text'        => join("\n", @options),
                        'title'                => $form->{title},
@@ -662,6 +684,7 @@ sub generate_trial_balance {
                        'html_template'        => 'rp/html_report_susa',
                        'pdf_template'         => 'rp/html_report_susa',
     );
+  $report->set_custom_headers(@custom_headers);
   $report->set_options_from_form();
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
