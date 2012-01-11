@@ -1635,6 +1635,7 @@ $self->{texts} = {
   'Source bank account'         => 'Quellkonto',
   'Source bin'                  => 'Quelllagerplatz',
   'Space'                       => 'Leerzeichen',
+  'Split entry detected. The values you have entered will result in an entry with more than one position on both debit and credit. Due to known problems involving accounting software Lx-Office does not allow these.' => 'Splitbuchung! Die eingebenen Werte würden eine Buchung auslösen, die jeweils mehr als eine Position auf Soll und Haben hätte. Um Kompatibilität mit DATEV zu gewährleisten erlaubt Lx-Office keine Splitbuchungen.',
   'Spoolfile'                   => 'Druckdatei',
   'Start Dunning Process'       => 'Mahnprozess starten',
   'Start analysis'              => 'Analyse beginnen',
