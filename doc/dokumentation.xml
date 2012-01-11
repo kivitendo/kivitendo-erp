@@ -1379,6 +1379,127 @@ Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/</
       <!--  -->
     </sect1>
 
+    <sect1 id="config.eur">
+      <title>Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung: EUR</title>
+
+      <sect2 id="config.eur.introduction" xreflabel="Einführung in die Konfiguration zur EUR">
+       <title>Einführung</title>
+
+       <para>
+        Lx-Office besaß bis inklusive Version 2.6.3 einen Konfigurationsparameter namens <varname>eur</varname>, der sich in der
+        Konfigurationsdatei <filename>config/lx_office.conf</filename> befindet. Somit galt er für alle Mandanten, die in dieser
+        Installation benutzt wurden.
+       </para>
+
+       <para>
+        Mit der nachfolgenden Version wurde der Parameter zum Einen in die Mandantendatenbank verschoben und dabei auch gleich in drei
+        Einzelparameter aufgeteilt, mit denen sich das Verhalten genauer steuern lässt.
+       </para>
+      </sect2>
+
+      <sect2 id="config.eur.parameters" xreflabel="Konfigurationsparameter für EUR">
+       <title>Konfigurationsparameter</title>
+
+       <para>
+        Es gibt drei Parameter, die die Gewinnermittlungsart, Versteuerungsart und die Warenbuchungsmethode regeln:
+       </para>
+
+       <variablelist>
+        <varlistentry>
+         <term>profit_determination</term>
+         <listitem>
+          <para>
+           Dieser Parameter legt die Berechnungsmethode für die Gewinnermittlung fest. Er enthält entweder <literal>balance</literal> für
+           Betriebsvermögensvergleich/Bilanzierung oder <literal>income</literal> für die Einnahmen-Überschuss-Rechnung.
+          </para>
+         </listitem>
+        </varlistentry>
+
+        <varlistentry>
+         <term>accounting_method</term>
+         <listitem>
+          <para>
+           Dieser Parameter steuert die Buchungs- und Berechnungsmethoden für die Versteuerungsart. Er enthält entweder
+           <literal>accrual</literal> für die Soll-Versteuerung oder <literal>cash</literal> für die Ist-Versteuerung.
+          </para>
+         </listitem>
+        </varlistentry>
+
+        <varlistentry>
+         <term>inventory_system</term>
+         <listitem>
+          <para>
+           Dieser Parameter legt die Warenbuchungsmethode fest. Er enthält entweder <literal>perpetual</literal> für die Bestandsmethode
+           oder <literal>periodic</literal> für die Aufwandsmethode.
+          </para>
+         </listitem>
+        </varlistentry>
+       </variablelist>
+
+       <para>
+        Zum Vergleich der Funktionalität bis und nach 2.6.3: <varname>eur</varname> = 1 bedeutete Einnahmen-Überschuss-Rechnung,
+        Ist-Versteuerung und Aufwandsmethode. <varname>eur</varname> = 0 bedeutete hingegen Bilanzierung, Soll-Versteuerung und
+        Bestandsmethode.
+       </para>
+
+       <para>
+        Die Konfiguration "<varname>eur</varname>" unter <varname>[system]</varname> in der <link
+        linkend="config.config-file">Konfigurationsdatei</link> <filename>config/lx_office.conf</filename> wird nun nicht mehr benötigt und
+        kann entfernt werden. Dies muss manuell geschehen.
+       </para>
+      </sect2>
+
+      <sect2 id="config.eur.setting-parameters">
+       <title>Festlegen der Parameter</title>
+
+       <para>
+        Beim Anlegen eines neuen Mandanten bzw. einer neuen Datenbank in der Admininstration können diese Optionen nun unabhängig
+        voneinander eingestellt werden.
+       </para>
+
+       <para>
+        Beim Upgrade bestehender Mandanten wird eur ausgelesen und die Variablen werden so gesetzt, daß sich an der Funktionalität nichts
+        ändert.
+       </para>
+
+       <para>
+        Die aktuelle Konfiguration wird unter Nummernkreise und Standardkonten unter dem neuen Punkt "Einstellungen" angezeigt (read-only).
+        Eine spätere Änderung ist für einen bestehenden Mandanten nicht mehr möglich. Dies war auch vorher nicht möglich, bzw. vorhandene
+        Daten wurden so belassen und haben damit die Ergebnisse verfälscht.
+       </para>
+      </sect2>
+
+      <sect2 id="config.eur.inventory-system-perpetual">
+       <title>Bemerkungen zu Bestandsmethode</title>
+
+       <para>
+        Die Bestandsmethode ist eigentlich eine sehr elegante Methode, funktioniert in Lx-Office aber nur unter bestimmten Bedingungen:
+        Voraussetzung ist, daß auch immer alle Einkaufsrechnungen gepflegt werden, und man beim Jahreswechsel nicht mit einer leeren
+        Datenbank anfängt, da bei jedem Verkauf anhand der gesamten Rechnungshistorie der Einkaufswert der Ware nach dem FIFO-Prinzip aus
+        den Einkaufsrechnungen berechnet wird.
+       </para>
+
+       <para>
+        Die Bestandsmethode kann vom Prinzip her also nur funktioneren, wenn man mit den Buchungen bei Null anfängt, und man kann auch nicht
+        im laufenden Betrieb von der Aufwandsmethode zur Bestandsmethode wechseln.
+       </para>
+      </sect2>
+
+      <sect2 id="config.eur.knonw-issues">
+       <title>Bekannte Probleme</title>
+
+       <para>
+        Bei bestimmten Berichten kann man derzeit noch inviduell einstellen, ob man nach Ist- oder Sollversteuerung auswertet, und es werden
+        im Code Variablen wie $accrual oder $cash gesetzt. Diese Codestellen wurden noch nicht angepasst, sondern nur die, wo bisher
+        die Konfigurationsvariable <varname>$::lx_office_conf{system}->{eur}</varname> ausgewertet wurde.
+       </para>
+
+       <para>
+        Es fehlen Hilfetext beim Neuanlegen eines Mandanten, was die Optionen bewirken, z.B. mit zwei Standardfällen.
+       </para>
+      </sect2>
+    </sect1>
+
     <sect1 id="Lx-Office-ERP-verwenden">
       <title>Lx-Office ERP verwenden</title>
 
