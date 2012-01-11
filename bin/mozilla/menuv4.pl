@@ -126,7 +126,7 @@ sub print_menu {
 
       my $h = print_menu($menu, "${parent}${item}", $depth * 1 + 1)."\n";
       if (!$parent) {
-        $html .= qq|<ul><li><h2>${menu_text}</h2><ul>${h}</ul></li></ul>\n|;
+        $html .= qq|<ul><li><h2> ${menu_text} </h2><ul>${h}</ul></li></ul>\n|;
       } else {
         $html .= qq|<li><div class="x">${menu_text}</div><ul>${h}</ul></li>\n|;
       }
