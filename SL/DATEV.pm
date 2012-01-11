@@ -426,10 +426,11 @@ sub _get_transactions {
         $ref->{is_tax} = 1;
       }
 
-      if (   !$ref->{invoice}
-          &&  $ref->{is_tax}
-          && !($prev_ref->{is_tax})
-          &&  (_sign($ref->{amount}) == _sign($prev_ref->{amount}))) {
+      if (   !$ref->{invoice}   # we have a non-invoice booking (=gl)
+          &&  $ref->{is_tax}    # that has "is_tax" set
+          && !($prev_ref->{is_tax})  # previous line wasn't is_tax
+          &&  (_sign($ref->{amount}) == _sign($prev_ref->{amount})))  # and sign same as previous sign
+          {
         $trans->[$i - 1]->{tax_amount} = $ref->{amount};
       }
     }
@@ -442,7 +443,10 @@ sub _get_transactions {
     }
 
     for my $j (0 .. (scalar(@{$trans}) - 1)) {
-      if (abs($trans->[$j]->{'amount'}) > abs($absumsatz)) {
+      # for gl-bookings no split is allowed and there is no AR/AP account, so we always use the maximum value as a reference
+      # for ap/ar bookings we can always search for AR/AP in link and use that
+      if ( ( not $trans->[$j]->{'invoice'} and abs($trans->[$j]->{'amount'}) > abs($absumsatz) )
+         or ($trans->[$j]->{'invoice'} and ($trans->[$j]->{'link'} eq 'AR' or $trans->[$j]->{'link'} eq 'AP'))) {
         $absumsatz     = $trans->[$j]->{'amount'};
         $notsplitindex = $j;
       }
