@@ -88,12 +88,16 @@ window.onload = function() {
 [% IF ChartTypeIsAccount %]
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>[% 'Is this a summary account to record' | $T8 %]</legend>
-    <input name="AR" type="checkbox" class="checkbox" value="AR" [% HTML.escape(AR) %]>
-    &nbsp;[% 'AR' | $T8 %]
-    <input name="AP" type="checkbox" class="checkbox" value="AP" [% HTML.escape(AP) %]>
-    &nbsp;[% 'AP' | $T8 %]
-    <input name="IC" type="checkbox" class="checkbox" value="IC" [% HTML.escape(IC) %]>
-    &nbsp;[% 'Inventory' | $T8 %]
+    [% L.checkbox_tag('AR', value => 'AR', checked => AR, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'AR' | $T8 %]
+    [% L.checkbox_tag('AP', value => 'AP', checked => AP, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'AP' | $T8 %]
+    [% L.checkbox_tag('IC', value => 'IC', checked => IC, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'Inventory' | $T8 %]
+
+[% IF AccountIsPosted %]
+    [% IF AR %] [% L.hidden_tag('AR', 'AR') %] [% END %]
+    [% IF AP %] [% L.hidden_tag('AP', 'AP') %] [% END %]
+    [% IF IC %] [% L.hidden_tag('IC', 'IC') %] [% END %]
+[% END %]
+
 </fieldset>
 
 [% IF AccountIsPosted %]
