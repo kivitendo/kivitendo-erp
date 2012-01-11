@@ -29,7 +29,7 @@
     <!--  -->
   </chapter>
 
-  <chapter>
+  <chapter id="config">
     <title>Installation und Grundkonfiguration</title>
 
     <sect1 id="Benötigte-Software-und-Pakete">
@@ -404,8 +404,9 @@ dbcharset = UTF-8</programlisting>
        </para>
 
        <para>
-        Nutzt man den Taskserver für wiederkehrende Rechnungen, muss unter <literal>[task_server]</literal> ein Login eines Benutzers
-        angegeben werden, mit dem sich der Taskserver an Lx-Office bei der Datenbank anmeldet, die dem Benutzer zugewiesen ist.
+        Nutzt man den <link linkend="config.task-server">Taskserver</link> für <link
+        linkend="features.periodic-invoices">wiederkehrende Rechnungen</link>, muss unter <literal>[task_server]</literal> ein Login eines
+        Benutzers angegeben werden, mit dem sich der Taskserver an Lx-Office bei der Datenbank anmeldet, die dem Benutzer zugewiesen ist.
        </para>
 
        <para>
@@ -745,7 +746,7 @@ Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/</
       </sect2>
     </sect1>
 
-    <sect1 id="Der-Task-Server">
+    <sect1 id="config.task-server">
       <title>Der Task-Server</title>
 
       <para>Der Task-Server ist ein Prozess, der im Hintergrund läuft, in
@@ -1391,6 +1392,158 @@ Alias       /web/path/to/lx-office-erp-fcgid/          /path/to/lx-office-erp/</
 
       <para><ulink
       url="http://localhost/lx-office-erp/admin.pl">http://localhost/lx-office-erp/admin.pl</ulink></para>
+    </sect1>
+  </chapter>
+
+    <chapter id="features" xreflabel="Features und Funktionen">
+    <title>Features und Funktionen</title>
+
+    <sect1 id="features.periodic-invoices" xreflabel="Wiedekehrende Rechnungen">
+     <title>Wiederkehrende Rechnungen</title>
+
+     <sect2 id="features.periodic-invoices.introduction" xreflabel="Einführung in wiederkehrende Rechnungen">
+      <title>Einführung</title>
+
+      <para>
+       Wiederkehrende Rechnungen werden als normale Aufträge definiert und konfiguriert, mit allen dazugehörigen Kunden- und
+       Artikelangaben. Die konfigurierten Aufträge werden später automatisch in Rechnungen umgewandelt, so als ob man den Workflow benutzen
+       würde, und auch die Auftragsnummer wird übernommen, sodass alle wiederkehrenden Rechnungen, die aus einem Auftrag erstellt wurden,
+       später leicht wiederzufinden sind.
+      </para>
+
+     </sect2>
+
+     <sect2 id="features.periodic-invoices.configuration" xreflabel="Konfiguration von wiederkehrenden Rechnungen">
+      <title>Konfiguration</title>
+
+      <para>
+       Um einen Auftrag für wiederkehrende Rechnung zu konfigurieren, findet sich beim Bearbeiten des Auftrags ein neuer Knopf
+       "Konfigurieren", der ein neues Fenster öffnet, in dem man die nötigen Parameter einstellen kann.  Hinter dem Knopf wird außerdem noch
+       angezeigt, ob der Auftrag als wiederkehrende Rechnung konfiguriert ist oder nicht.
+      </para>
+
+      <para>
+       Folgende Parameter kann man konfigurieren:
+      </para>
+
+      <variablelist>
+       <varlistentry>
+        <term>Status</term>
+        <listitem>
+         <para>
+          Bei aktiven Rechnungen wird automatisch eine Rechnung erstellt, wenn die Periodizität erreicht ist (z.B. Anfang eines neuen
+          Monats).
+         </para>
+
+         <para>
+          Ist ein Auftrag nicht aktiv, so werden für ihn auch keine wiederkehrenden Rechnungen erzeugt. Stellt man nach längerer
+          nicht-aktiver Zeit einen Auftrag wieder auf aktiv, wird beim nächsten Periodenwechsel für alle Perioden, seit der letzten aktiven
+          Periode, jeweils eine Rechnung erstellt. Möchte man dies verhindern, muss man vorher das Startdatum neu setzen.
+         </para>
+
+         <para>
+          Für gekündigte Aufträge werden nie mehr Rechnungen erstellt. Man kann sich diese Aufträge aber gesondert in den Berichten anzeigen
+          lassen.
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>Periodizität</term>
+        <listitem>
+         <para>
+          Ob monatlich, quartalsweise oder jährlich auf neue Rechnungen überprüft werden soll. Für jede Periode seit dem Startdatum wird
+          überprüft, ob für die Periode (beginnend immer mit dem ersten Tag der Periode) schon eine Rechnung erstellt wurde. Unter Umständen
+          können bei einem Startdatum in der Vergangenheit gleich mehrere Rechnungen erstellt werden.
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>Buchen auf</term>
+        <listitem>
+         <para>
+          Das Forderungskonto, in der Regel "Forderungen aus Lieferungen und Leistungen". Das Gegenkonto ergibt sich aus den Buchungsgruppen
+          der betreffenden Waren.
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>Startdatum</term>
+        <listitem>
+         <para>
+          ab welchem Datum auf Rechnungserstellung geprüft werden soll
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>Enddatum</term>
+        <listitem>
+         <para>
+          ab wann keine Rechnungen mehr erstellt werden sollen
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>Automatische Verlängerung um x Monate</term>
+        <listitem>
+         <para>
+          Sollen die wiederkehrenden Rechnungen bei Erreichen des eingetragenen Enddatums weiterhin erstellt werden, so kann man hier die
+          Anzahl der Monate eingeben, um die das Enddatum automatisch nach hinten geschoben wird.
+         </para>
+        </listitem>
+       </varlistentry>
+
+       <varlistentry>
+        <term>Drucken</term>
+        <listitem>
+         <para>
+          Sind Drucker konfiguriert, so kann man sich die erstellten Rechnungen auch gleich ausdrucken lassen.
+         </para>
+        </listitem>
+       </varlistentry>
+      </variablelist>
+
+      <para>
+       Nach Erstellung der Rechnungen kann eine E-Mail mit Informationen zu den erstellten Rechnungen verschickt werden. Konfiguriert wird
+       dies in der <link linkend="config.config-file.sections-parameters">Konfigurationsdatei</link>
+       <filename>config/lx_office.conf</filename> im Abschnitt <varname>[periodic_invoices]</varname>.
+      </para>
+     </sect2>
+
+     <sect2 id="features.periodic-invoices.reports">
+      <title>Auflisten</title>
+
+      <para>
+       Unter Verkauf-&gt;Berichte-&gt;Aufträge finden sich zwei neue Checkboxen, &quot;Wiederkehrende Rechnungen aktiv&quot; und
+       &quot;Wiederkehrende Rechnungen inaktiv&quot;, mit denen man sich einen Überglick über die wiederkehrenden Rechnungen verschaffen
+       kann.
+      </para>
+     </sect2>
+
+     <sect2 id="features.periodic-invoices.task-server">
+      <title>Erzeugung der eigentlichen Rechnungen</title>
+
+      <para>
+       Die zeitliche und periodische Überprüfung, ob eine wiederkehrende Rechnung automatisch erstellt werden soll, geschieht durch den
+       <link linkend="config.task-server">Taskserver</link>, einen externen Dienst, der automatisch beim Start des Servers gestartet
+       werden sollte.
+      </para>
+     </sect2>
+
+     <sect2 id="features.periodic-invoices.create-for-current-month">
+      <title>Erste Rechnung für aktuellen Monat erstellen</title>
+
+      <para>
+       Will man im laufenden Monat eine monatlich wiederkehrende Rechnung inkl. des laufenden Monats starten, stellt man das Startdatum auf
+       den Monatsanfang und wartet ein paar Minuten, bis der Taskserver den neu konfigurieren Auftrag erkennt und daraus eine Rechnung
+       generiert hat. Alternativ setzt man das Startdatum auf den Monatsersten des Folgemonats und erstellt die erste Rechnung direkt
+       manuell über den Workflow.
+      </para>
+     </sect2>
     </sect1>
   </chapter>
 
