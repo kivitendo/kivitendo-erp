@@ -5429,5 +5429,96 @@ $some_hash{42}    = 54;</programlisting>
        </listitem>
       </orderedlist>
     </sect1>
+
+    <sect1 id="devel.build-doc" xreflabel="Dokumentation erstellen">
+     <title>Dokumentation erstellen</title>
+
+     <sect2 id="devel.build-doc.introduction">
+      <title>Einführung</title>
+
+      <para>
+       Diese Dokumentation ist in <productname>DocBook</productname> XML geschrieben. Zum Bearbeiten reicht grundsätzlich ein
+       Text-Editor. Mehr Komfort bekommt man, wenn man einen dedizierten XML-fähigen Editor nutzt, der spezielle Unterstützung für
+       <productname>DocBook</productname> mitbringt. Wir empfehlen dafür den <ulink url="http://www.xmlmind.com/xmleditor/">XMLmind XML
+       Editor</ulink>, der bei nicht kommerzieller Nutzung kostenlos ist.
+      </para>
+     </sect2>
+
+     <sect2 id="devel.build-doc.required-software">
+      <title>Benötigte Software</title>
+
+      <para>
+       Bei <productname>DocBook</productname> ist Prinzip, dass ausschließlich die XML-Quelldatei bearbeitet wird. Aus dieser werden dann
+       mit entsprechenden Stylesheets andere Formate wie PDF oder HTML erzeugt. Bei Lx-Office übernimmt diese Aufgabe das Shell-Script
+       <command>scripts/build_doc.sh</command>.
+      </para>
+
+      <para>
+       Das Script benötigt zur Konvertierung verschiedene Softwarekomponenten, die im normalen Lx-Office-Betrieb nicht benötigt werden:
+      </para>
+
+      <itemizedlist>
+       <listitem>
+        <para>
+         <ulink url="http://www.oracle.com/technetwork/java/index.html">Java</ulink> in einer halbwegs aktuellen Version
+        </para>
+       </listitem>
+
+       <listitem>
+        <para>
+         Das Java-Build-System <ulink url="http://ant.apache.org/">Apache Ant</ulink>
+        </para>
+       </listitem>
+
+       <listitem>
+        <para>
+         Das Dokumentations-System Dobudish für <productname>DocBook</productname> 4.5, eine Zusammenstellung diverser Stylesheets und
+         Grafiken zur Konvertierung von <productname>DocBook</productname> XML in andere Formate. Das Paket, das benötigt wird, ist zum
+         Zeitpunkt der Dokumentationserstellung <filename>dobudish-nojre-1.1.4.zip</filename>, aus auf <ulink
+         url="http://code.google.com/p/dobudish/downloads/list">code.google.com</ulink> bereitsteht.
+        </para>
+       </listitem>
+      </itemizedlist>
+
+      <para>
+       Apache Ant sowie ein dazu passendes Java Runtime Environment sind auf allen gängigen Plattformen verfügbar. Beispiel für
+       Debian/Ubuntu:
+      </para>
+
+      <programlisting>apt-get install ant openjdk-7-jre</programlisting>
+
+      <para>
+       Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis <filename>doc/build</filename> entpackt werden. Beispiel unter der
+       Annahme, das <productname>Dobudish</productname> in <filename>$HOME/Downloads</filename> heruntergeladen wurde:
+      </para>
+
+      <programlisting>cd doc/build
+unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</programlisting>
+     </sect2>
+
+     <sect2 id="devel.build-doc.build">
+      <title>PDFs und HTML-Seiten erstellen</title>
+
+      <para>
+       Die eigentliche Konvertierung erfolgt nach Installation der benötigten Software mit einem einfachen Aufruf direkt aus dem
+       Lx-Office-Installationsverzeichnis heraus:
+      </para>
+
+      <programlisting>./scripts/build_doc.sh</programlisting>
+     </sect2>
+
+     <sect2 id="devel.build-doc.repository">
+      <title>Einchecken in das Git-Repository</title>
+
+      <para>
+       Sowohl die XML-Datei als auch die erzeugten PDF- und HTML-Dateien sind Bestandteil des Git-Repositories. Daraus folgt, dass nach
+       Änderungen am XML die PDF- und HTML-Dokumente ebenfalls gebaut und alles zusammen in einem Commit eingecheckt werden sollten.
+      </para>
+
+      <para>
+       Die "<filename>dobudish</filename>"-Verzeichnisse bzw. symbolischen Links gehören hingegen nicht in das Repository.
+      </para>
+     </sect2>
+    </sect1>
   </chapter>
 </book>

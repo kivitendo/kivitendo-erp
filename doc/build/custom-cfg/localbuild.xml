@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- This file is part of DobuDish                                           -->
+
+<!-- DobuDish is free software; you can redistribute it and/or modify        -->
+<!-- it under the terms of the GNU General Public License as published by    -->
+<!-- the Free Software Foundation; either version 2 of the License, or       -->
+<!-- (at your option) any later version.                                     -->
+
+<!-- DobuDish is distributed in the hope that it will be useful,             -->
+<!-- but WITHOUT ANY WARRANTY; without even the implied warranty of          -->
+<!-- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the           -->
+<!-- GNU General Public License for more details.                            -->
+
+<!-- You should have received a copy of the GNU General Public License       -->
+<!-- along with DobuDish; if not, write to the Free Software                 -->
+<!-- Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA -->
+
+<project>
+
+  <!--
+  You can add hooks here that perform your custom action at a given point.
+  Please see the manual (or the the file etc/build-output-formats.xml) for all
+  available hooks.
+  
+  Example:
+  
+  <target name="local-pre-init" >
+  </target>
+  -->
+
+</project>
