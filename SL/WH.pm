@@ -620,6 +620,11 @@ sub get_warehouse_report {
     push @filter_vars, '%' . $filter{ean} . '%';
   }
 
+  if ($filter{date}) {
+    push @filter_ary, "i.itime <= ?";
+    push @filter_vars, $filter{date};
+  }
+
   # prepare qty comparison for later filtering
   my ($f_qty_op, $f_qty, $f_qty_base_unit);
 

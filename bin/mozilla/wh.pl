@@ -824,7 +824,7 @@ sub generate_report {
   my @columns = qw(warehousedescription bindescription partnumber partdescription chargenumber bestbefore qty stock_value);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore date);
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
