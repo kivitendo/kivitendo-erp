@@ -387,7 +387,6 @@ sub form_footer {
   $main::auth->assert('invoice_edit');
 
   $form->{invtotal}    = $form->{invsubtotal};
-  $form->{oldinvtotal} = $form->{invtotal};
 
   # note rows
   $form->{rows} = max 2,
@@ -446,6 +445,8 @@ sub form_footer {
 
     $totalpaid += $form->{"paid_$i"};
   }
+
+  $form->{oldinvtotal} = $form->{invtotal};
 
   print $form->parse_html_template('is/form_footer', {
     is_type_credit_note => ($form->{type} eq "credit_note"),
