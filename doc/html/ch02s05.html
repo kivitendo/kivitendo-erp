@@ -1,0 +1,103 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>2.5. Webserver-Konfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s04.html" title="2.4. Anpassung der PostgreSQL-Konfiguration"><link rel="next" href="ch02s06.html" title="2.6. Der Task-Server"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.5. Webserver-Konfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s04.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s06.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.5. Webserver-Konfiguration"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Apache-Konfiguration"></a>2.5. Webserver-Konfiguration</h2></div></div></div><div class="sect2" title="2.5.1. Grundkonfiguration mittels CGI"><div class="titlepage"><div><div><h3 class="title"><a name="d0e508"></a>2.5.1. Grundkonfiguration mittels CGI</h3></div></div></div><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../../../../system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Für einen deutlichen Performanceschub sorgt die Ausführung
+          mittels FastCGI/FCGI. Die Einrichtung wird ausführlich im Abschnitt
+          <a class="xref" href="ch02s05.html#Apache-Konfiguration.FCGI" title="2.5.2. Konfiguration für FastCGI/FCGI">Konfiguration für FastCGI/FCGI</a> beschrieben.</p></td></tr></table></div><p>Der Zugriff auf das Programmverzeichnis muss in der Apache
+        Webserverkonfigurationsdatei <code class="literal">httpd.conf</code> eingestellt
+        werden. Fügen Sie den folgenden Abschnitt dieser Datei oder einer
+        anderen Datei hinzu, die beim Starten des Webservers eingelesen
+        wird:</p><pre class="programlisting">AddHandler cgi-script .pl
+Alias /lx-erp/ /var/www/lx-erp/
+
+&lt;Directory /var/www/lx-erp&gt;
+ Options ExecCGI
+ Includes FollowSymlinks
+&lt;/Directory&gt;
+
+&lt;Directory /var/www/lx-erp/users&gt;
+ Order Deny,Allow
+ Deny from All
+&lt;/Directory&gt;</pre><p>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher
+        das Lx-Office-Archiv entpacket haben.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../../../../system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>Vor den einzelnen Optionen muss bei einigen Distributionen ein Plus &#8216;<code class="literal">+</code>&#8217; gesetzt werden.</p></td></tr></table></div><p>Auf einigen Webservern werden manchmal die Grafiken und
+        Style-Sheets nicht ausgeliefert. In solchen Fällen hat es oft
+        geholfen, die folgende Option in die Konfiguration aufzunehmen:</p><pre class="programlisting">EnableSendfile Off</pre></div><div class="sect2" title="2.5.2. Konfiguration für FastCGI/FCGI"><div class="titlepage"><div><div><h3 class="title"><a name="Apache-Konfiguration.FCGI"></a>2.5.2. Konfiguration für FastCGI/FCGI</h3></div></div></div><div class="sect3" title="2.5.2.1. Was ist FastCGI?"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.WasIstEs"></a>2.5.2.1. Was ist FastCGI?</h4></div></div></div><p>Direkt aus <a class="ulink" href="http://de.wikipedia.org/wiki/FastCGI" target="_top">Wikipedia</a>
+          kopiert:</p><p>
+                  [<span class="citation"> FastCGI ist ein Standard für die Einbindung
+          externer Software zur Generierung dynamischer Webseiten in einem
+          Webserver. FastCGI ist vergleichbar zum Common Gateway Interface
+          (CGI), wurde jedoch entwickelt, um dessen Performance-Probleme zu
+          umgehen. </span>]
+               </p></div><div class="sect3" title="2.5.2.2. Warum FastCGI?"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.Warum"></a>2.5.2.2. Warum FastCGI?</h4></div></div></div><p>Perl Programme (wie Lx-Office eines ist) werden nicht statisch
+          kompiliert. Stattdessen werden die Quelldateien bei jedem Start
+          übersetzt, was bei kurzen Laufzeiten einen Großteil der Laufzeit
+          ausmacht. Während SQL Ledger einen Großteil der Funktionalität in
+          einzelne Module kapselt, um immer nur einen kleinen Teil laden zu
+          müssen, ist die Funktionalität von Lx-Office soweit gewachsen, dass
+          immer mehr Module auf den Rest des Programms zugreifen. Zusätzlich
+          benutzen wir umfangreiche Bibliotheken um Funktionaltät nicht selber
+          entwickeln zu müssen, die zusätzliche Ladezeit kosten. All dies
+          führt dazu dass ein Lx-Office Aufruf der Kernmasken mittlerweile
+          deutlich länger dauert als früher, und dass davon 90% für das Laden
+          der Module verwendet wird.</p><p>Mit FastCGI werden nun die Module einmal geladen, und danach
+          wird nur die eigentliche Programmlogik ausgeführt.</p></div><div class="sect3" title="2.5.2.3. Getestete Kombinationen aus Webservern und Plugin"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.WebserverUndPlugin"></a>2.5.2.3. Getestete Kombinationen aus Webservern und Plugin</h4></div></div></div><p>Folgende Kombinationen sind getestet:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Apache 2.2.11 (Ubuntu) und mod_fcgid.</p></li><li class="listitem"><p>Apache 2.2.11 (Ubuntu) und mod_fastcgi.</p></li></ul></div><p>Dabei wird mod_fcgid empfohlen, weil mod_fastcgi seit geraumer
+          Zeit nicht mehr weiter entwickelt wird. Im Folgenden wird auf
+          mod_fastcgi nicht mehr explizit eingegangen.</p><p>Als Perl Backend wird das Modul <code class="filename">FCGI.pm</code>
+          verwendet.</p><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="../../../../system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>
+             FCGI 0.69 und höher ist extrem strict in der Behandlung von Unicode, und verweigert bestimmte Eingaben von Lx-Office. Falls es
+             Probleme mit Umlauten in Ihrere Installation gibt, muss auf die Vorgängerversion FCGI 0.68 ausgewichen werden.
+            </p><p>
+             Mit CPAN lässt sie sich die Vorgängerversion wie folgt installieren:
+            </p><pre class="programlisting">force install M/MS/MSTROUT/FCGI-0.68.tar.gz</pre></td></tr></table></div></div><div class="sect3" title="2.5.2.4. Konfiguration des Webservers"><div class="titlepage"><div><div><h4 class="title"><a name="Apache-Konfiguration.FCGI.Konfiguration"></a>2.5.2.4. Konfiguration des Webservers</h4></div></div></div><p>Bevor Sie versuchen, eine Lx-Office Installation unter FCGI
+          laufen zu lassen, empfliehlt es sich die Installation ersteinmal
+          unter CGI aufzusetzen. FCGI macht es nicht einfach Fehler zu
+          debuggen die beim ersten aufsetzen auftreten können. Sollte die
+          Installation schon funktionieren, lesen Sie weiter.</p><p>Zuerst muss das FastCGI-Modul aktiviert werden. Dies kann
+          unter Debian/Ubuntu z.B. mit folgendem Befehl geschehen:</p><pre class="programlisting">a2enmod fcgid</pre><p>Die Konfiguration für die Verwendung von Lx-Office mit FastCGI
+          erfolgt durch Anpassung der vorhandenen <code class="function">Alias</code>-
+          und <code class="function">Directory</code>-Direktiven. Dabei wird zwischen
+          dem Installationspfad von Lx-Office im Dateisystem
+          ("<code class="filename">/path/to/lx-office-erp</code>") und der URL
+          unterschieden, unter der Lx-Office im Webbrowser erreichbar ist
+          ("<code class="filename">/url/for/lx-office-erp</code>").</p><p>Folgender Konfigurationsschnipsel funktioniert mit
+          mod_fastcgi:</p><pre class="programlisting">AliasMatch ^/url/for/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
+Alias       /url/for/lx-office-erp/          /path/to/lx-office-erp/
+
+&lt;Directory /path/to/lx-office-erp&gt;
+  AllowOverride All
+  Options ExecCGI Includes FollowSymlinks
+  Order Allow,Deny
+  Allow from All
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch /path/to/lx-office-erp/users&gt;
+  Order Deny,Allow
+  Deny from All
+&lt;/DirectoryMatch&gt;</pre><p>Seit mod_fcgid-Version 2.6.3 gelten sehr kleine Grenzen für
+          die maximale Größe eines Requests. Diese sollte wie folgt
+          hochgesetzt werden:</p><pre class="programlisting">FcgidMaxRequestLen 10485760</pre><p>Das ganze sollte dann so aussehen:</p><pre class="programlisting">AddHandler fcgid-script .fpl
+AliasMatch ^/url/for/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+Alias       /url/for/lx-office-erp/          /path/to/lx-office-erp/
+FcgidMaxRequestLen 10485760
+
+&lt;Directory /path/to/lx-office-erp&gt;
+  AllowOverride All
+  Options ExecCGI Includes FollowSymlinks
+  Order Allow,Deny
+  Allow from All
+&lt;/Directory&gt;
+
+&lt;DirectoryMatch /path/to/lx-office-erp/users&gt;
+  Order Deny,Allow
+  Deny from All
+&lt;/DirectoryMatch&gt;</pre><p>Hierdurch wird nur ein zentraler Dispatcher gestartet. Alle
+          Zugriffe auf die einzelnen Scripte werden auf diesen umgeleitet.
+          Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
+          gibt es hier kleine Performance-Einbußen.</p><p>Es ist möglich, die gleiche Lx-Office Version parallel unter
+          CGI und FastCGI zu betreiben. Dafür bleiben die Directorydirektiven
+          wie oben beschrieben, die URLs werden aber umgeleitet:</p><pre class="programlisting"># Zugriff über CGI
+Alias       /url/for/lx-office-erp                /path/to/lx-office-erp
+
+# Zugriff mit mod_fcgid:
+AliasMatch ^/url/for/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
+Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</pre><p>Dann ist unter <code class="filename">/url/for/lx-office-erp/</code> die normale Version erreichbar, und unter
+          <code class="constant">/url/for/lx-office-erp-fcgid/</code> die FastCGI-Version.</p></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s04.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s06.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.4. Anpassung der PostgreSQL-Konfiguration&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.6. Der Task-Server</td></tr></table></div></body></html>

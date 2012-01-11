@@ -1,0 +1,715 @@
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>3.2. Dokumentenvorlagen und verfügbare Variablen</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="prev" href="ch03.html" title="Kapitel 3. Features und Funktionen"><link rel="next" href="ch03s03.html" title="3.3. Excel-Vorlagen"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">3.2. Dokumentenvorlagen und verfügbare Variablen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 3. Features und Funktionen</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch03s03.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="3.2. Dokumentenvorlagen und verfügbare Variablen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="dokumentenvorlagen-und-variablen"></a>3.2. Dokumentenvorlagen und verfügbare Variablen</h2></div></div></div><div class="sect2" title="3.2.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.einf%C3%BChrung"></a>3.2.1. Einführung</h3></div></div></div><p>Dies ist eine Auflistung der Standard-Dokumentenvorlagen und
+        aller zur Bearbeitung verfügbaren Variablen. Eine Variable wird in
+        einer Vorlage durch ihren Inhalt ersetzt, wenn sie in der Form
+        <code class="function">&lt;%variablenname%&gt;</code> verwendet wird. Für
+        LaTeX- und HTML-Vorlagen kann man die Form dieser Tags auch verändern
+        (siehe <a class="xref" href="ch03s02.html#dokumentenvorlagen-und-variablen.tag-style" title="3.2.4. Anfang und Ende der Tags verändern">Anfang und Ende der Tags verändern</a>).</p><p>Früher wurde hier nur über LaTeX gesprochen. Inzwischen
+        unterstützt Lx-Office aber auch OpenDocument-Vorlagen. Sofern es nicht
+        ausdrücklich eingeschränkt wird, gilt das im Folgenden gesagte für
+        alle Vorlagenarten.</p><p>Insgesamt sind technisch gesehen eine ganze Menge mehr Variablen
+        verfügbar als hier aufgelistet werden. Die meisten davon können
+        allerdings innerhalb einer solchen Vorlage nicht sinnvoll verwendet
+        werden. Wenn eine Auflistung dieser Variablen gewollt ist, so kann
+        diese wie folgt erhalten werden:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="filename">SL/Form.pm</code> öffnen und am Anfang die
+            Zeile "<span class="command"><strong>use Data::Dumper;</strong></span>" einfügen.</p></li><li class="listitem"><p>In <code class="filename">Form.pm</code> die Funktion
+            <code class="function">parse_template</code> suchen und hier die Zeile
+            <span class="command"><strong>print(STDERR Dumper($self));</strong></span> einfügen.</p></li><li class="listitem"><p>Einmal per Browser die gewünschte Vorlage "benutzen", z.B.
+            ein PDF für eine Rechnung erzeugen.</p></li><li class="listitem"><p>Im <code class="filename">error.log</code> Apache steht die Ausgabe
+            der Variablen <code class="varname">$self</code> in der Form <code class="varname">'key'
+            =&gt; 'value',</code>. Alle <code class="varname">key</code>s sind
+            verfügbar.</p></li></ul></div></div><div class="sect2" title="3.2.2. Variablen ausgeben"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.variablen-ausgeben"></a>3.2.2. Variablen ausgeben</h3></div></div></div><p>Um eine Variable auszugeben, müssen sie einfach nur zwischen die
+        Tags geschrieben werden, also z.B.
+        <code class="varname">&lt;%variablenname%&gt;</code>.</p><p>Optional kann man auch mit Leerzeichen getrennte Flags angeben,
+        die man aber nur selten brauchen wird. Die Syntax sieht also so aus:
+        <code class="varname">&lt;%variablenname FLAG1 FLAG2%&gt;</code>. Momentan
+        werden die folgenden Flags unterstützt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="option">NOFORMAT</code> gilt nur für Zahlenwerte und gibt
+            den Wert ohne Formatierung, also ohne Tausendertrennzeichen mit
+            mit einem Punkt als Dezimaltrennzeichen aus. Nützlich z.B., wenn
+            damit in der Vorlage z.B. von LaTeX gerechnet werden soll.</p></li><li class="listitem"><p>
+                     <code class="option">NOESCAPE</code> unterdrückt das Escapen von
+            Sonderzeichen für die Vorlagensprache. Wenn also in einer
+            Variablen bereits gültiger LaTeX-Code steht und dieser von LaTeX
+            auch ausgewertet und nicht wortwörtlich angezeigt werden soll, so
+            ist dieses Flag sinnvoll.</p></li></ul></div><p>Beispiel:</p><pre class="programlisting">&lt;%quototal NOFORMAT%&gt;</pre></div><div class="sect2" title="3.2.3. Verwendung in Druckbefehlen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.verwendung-in-druckbefehlen"></a>3.2.3. Verwendung in Druckbefehlen</h3></div></div></div><p>In der Admininstration können Drucker definiert werden. Auch im
+        dort eingebbaren Druckbefehl können die hier aufgelisteten Variablen
+        und Kontrollstrukturen verwendet werden. Ihr Inhalt wird dabei nach
+        den Regeln der gängigen Shells formatiert, sodass Sonderzeichen wie
+        <code class="function">`...`</code> nicht zu unerwünschtem Verhalten
+        führen.</p><p>Dies erlaubt z.B. die Definition eines Faxes als Druckerbefehl,
+        für das die Telefonnummer eines Ansprechpartners als Teil der
+        Kommandozeile verwendet wird. Für ein fiktives Kommando könnte das
+        z.B. wie folgt aussehen:</p><pre class="programlisting">send_fax --number &lt;%if cp_phone2%&gt;&lt;%cp_phone2%&gt;&lt;%else%&gt;&lt;%cp_phone1%&gt;&lt;%end%&gt;</pre></div><div class="sect2" title="3.2.4. Anfang und Ende der Tags verändern"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.tag-style"></a>3.2.4. Anfang und Ende der Tags verändern</h3></div></div></div><p>Der Standardstil für Tags sieht vor, dass ein Tag mit dem
+        Kleinerzeichen und einem Prozentzeichen beginnt und mit dem
+        Prozentzeichen und dem Größerzeichen endet, beispielsweise
+        <code class="function">&lt;%customer%&gt;</code>. Da diese Form aber z.B. in
+        LaTeX zu Problemen führen kann, weil das Prozentzeichen dort
+        Kommentare einleitet, kann pro HTML- oder LaTeX-Dokumentenvorlage der
+        Stil umgestellt werden.</p><p>Dazu werden in die Datei Zeilen geschrieben, die mit dem für das
+        Format gültigen Kommentarzeichen anfangen, dann
+        <code class="function">config:</code> enthalten, die entsprechende Option
+        setzen und bei HTML-Dokumentenvorlagen mit dem Kommentarendzeichen
+        enden. Beispiel für LaTeX:</p><pre class="programlisting">% config: tag-style=($ $)</pre><p>Dies würde Lx-Office dazu veranlassen, Variablen zu ersetzen,
+        wenn sie wie folgt aussehen: <code class="function">($customer$)</code>. Das
+        äquivalente Beispiel für HTML-Dokumentenvorlagen sieht so aus:</p><pre class="programlisting">&lt;!-- config: tag-style=($ $) --&gt;</pre></div><div class="sect2" title="3.2.5. Zuordnung von den Dateinamen zu den Funktionen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.zuordnung-dateinamen"></a>3.2.5. Zuordnung von den Dateinamen zu den Funktionen</h3></div></div></div><p>Diese folgende kurze Auflistung zeigt, welche Vorlage bei
+        welcher Funktion ausgelesen wird. Dabei ist die Dateiendung
+        "<code class="filename">.ext</code>" geeignet zu ersetzen:
+        "<code class="filename">.tex</code>" für LaTeX-Vorlagen und
+        "<code class="filename">.odt</code>" für OpenDocument-Vorlagen.</p><div class="variablelist"><dl><dt><span class="term">
+                     <code class="filename">bin_list.ext</code>
+                  </span></dt><dd><p>Lagerliste</p></dd><dt><span class="term">
+                     <code class="filename">check.ext</code>
+                  </span></dt><dd><p>?</p></dd><dt><span class="term">
+                     <code class="filename">invoice.ext</code>
+                  </span></dt><dd><p>Rechnung</p></dd><dt><span class="term">
+                     <code class="filename">packing_list.ext</code>
+                  </span></dt><dd><p>Packliste</p></dd><dt><span class="term">
+                     <code class="filename">pick_list.ext</code>
+                  </span></dt><dd><p>Sammelliste</p></dd><dt><span class="term">
+                     <code class="filename">purchase_delivery_order.ext</code>
+                  </span></dt><dd><p>Lieferschein (Einkauf)</p></dd><dt><span class="term">
+                     <code class="filename">purcharse_order.ext</code>
+                  </span></dt><dd><p>Bestellung an Lieferanten</p></dd><dt><span class="term">
+                     <code class="filename">request_quotation.ext</code>
+                  </span></dt><dd><p>Anfrage an Lieferanten</p></dd><dt><span class="term">
+                     <code class="filename">sales_delivery_order.ext</code>
+                  </span></dt><dd><p>Lieferschein (Verkauf)</p></dd><dt><span class="term">
+                     <code class="filename">sales_order.ext</code>
+                  </span></dt><dd><p>Bestellung</p></dd><dt><span class="term">
+                     <code class="filename">sales_quotation.ext</code>
+                  </span></dt><dd><p>Angebot an Kunden</p></dd><dt><span class="term">
+                     <code class="filename">zahlungserinnerung.ext</code>
+                  </span></dt><dd><p>Mahnung (Dateiname im Programm konfigurierbar)</p></dd><dt><span class="term">
+                     <code class="filename">zahlungserinnerung_invoice.ext</code>
+                  </span></dt><dd><p>Rechnung über Mahngebühren (Dateiname im Programm
+              konfigurierbar)</p></dd></dl></div></div><div class="sect2" title="3.2.6. Sprache, Drucker und E-Mail"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.dateinamen-erweitert"></a>3.2.6. Sprache, Drucker und E-Mail</h3></div></div></div><p>Angeforderte Sprache und Druckerkürzel in den Dateinamen mit
+        eingearbeitet. So wird aus der Vorlage
+        <code class="filename">sales_order.ext</code> bei Sprache
+        <code class="function">de</code> und Druckerkürzel <code class="function">lpr2</code>
+        der Vorlagenname <code class="filename">sales_order_de_lpr2.ext</code>.
+        Zusätzlich können für E-Mails andere Vorlagen erstellt werden, diese
+        bekommen dann noch das Kürzel <code class="filename">_email</code>, der
+        vollständige Vorlagenname wäre dann
+        <code class="filename">sales_order_email_de_lpr2.ext</code>. In allen Fällen
+        kann eine Standarddatei <code class="filename">default.ext</code> hinterlegt
+        werden. Diese wird verwendet, wenn keine der anderen Varianten
+        gefunden wird.</p><p>Die vollständige Suchreihenfolge für einen Verkaufsauftrag mit
+        der Sprache "de" und dem Drucker "lpr2", der per E-Mail im Format PDF
+        verschickt wird, ist:</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
+                     <code class="filename">sales_order_email_de_lpr2.tex</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="filename">sales_order_de_lpr2.tex</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="filename">sales_order.tex</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="filename">default.tex</code>
+                  </p></li></ol></div><p>Die kurzen Varianten dieser Vorlagentitel müssen dann entweder
+        Standardwerte anzeigen, oder die angeforderten Werte selbst auswerten,
+        siehe dazu <a class="xref" href="ch03s02.html#dokumentenvorlagen-und-variablen.allgemeine-variablen.meta" title="3.2.7.1. Metainformationen zur angeforderten Vorlage">Metainformationen zur angeforderten Vorlage</a>.</p></div><div class="sect2" title="3.2.7. Allgemeine Variablen, die in allen Vorlagen vorhanden sind"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.allgemeine-variablen"></a>3.2.7. Allgemeine Variablen, die in allen Vorlagen vorhanden
+        sind</h3></div></div></div><div class="sect3" title="3.2.7.1. Metainformationen zur angeforderten Vorlage"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.allgemeine-variablen.meta"></a>3.2.7.1. Metainformationen zur angeforderten Vorlage</h4></div></div></div><p>Diese Variablen liefern Informationen darüber welche Variante
+          einer Vorlage der Benutzer angefragt hat. Sie sind nützlich für
+          Vorlagenautoren, die aus einer zentralen Layoutvorlage die einzelnen
+          Formulare einbinden möchten.</p><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">template_meta.formname</code>
+                     </span></dt><dd><p>Basisname der Vorlage. Identisch mit der <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.zuordnung-dateinamen" title="3.2.5. Zuordnung von den Dateinamen zu den Funktionen">Zurordnung
+                zu den Dateinamen</a> ohne die Erweiterung. Ein
+                Verkaufsauftrag enthält hier
+                <code class="constant">sales_order</code>.</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.language.description</code>
+                     </span></dt><dd><p>Beschreibung der verwendeten Sprache</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.language.template_code</code>
+                     </span></dt><dd><p>Vorlagenürzel der verwendeten Sprache, identisch mit dem
+                Kürzel das im Dateinamen verwendetet wird.</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.language.output_numberformat</code>
+                     </span></dt><dd><p>Zahlenformat der verwendeten Sprache in der Form
+                "<code class="constant">1.000,00</code>". Experimentell! Nur
+                interessant für Vorlagen die mit unformatierten Werten
+                arbeiten.</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.language.output_dateformat</code>
+                     </span></dt><dd><p>Datumsformat der verwendeten Sprache in der Form
+                "<code class="constant">dd.mm.yyyy</code>". Experimentell! Nur
+                interessant für Vorlagen die mit unformatierten Werten
+                arbeiten.</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.format</code>
+                     </span></dt><dd><p>Das angeforderte Format. Kann im Moment die Werte
+                <code class="constant">pdf</code>, <code class="constant">postscript</code>,
+                <code class="constant">html</code>, <code class="constant">opendocument</code>,
+                <code class="constant">opendocument_pdf</code> und
+                <code class="constant">excel</code> enthalten.</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.extension</code>
+                     </span></dt><dd><p>Dateierweiterung, wie im Dateinamen. Wird aus
+                <code class="constant">format</code> entschieden.</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.media</code>
+                     </span></dt><dd><p>Ausgabemedium. Kann zur Zeit die Werte
+                <code class="constant">screen</code> für Bildschirm,
+                <code class="constant">email</code> für E-Mmail (triggert das
+                <code class="constant">_email</code> Kürzel im Dateinamen),
+                <code class="constant">printer</code> für Drucker, und
+                <code class="constant">queue</code> für Warteschlange enthalten.</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.printer.description</code>
+                     </span></dt><dd><p>Beschreibung des ausgewählten Druckers</p></dd><dt><span class="term">
+                        <code class="varname">template_meta.printer.template_code</code>
+                     </span></dt><dd><p>Vorlagenürzel des ausgewählten Druckers, identisch mit
+                dem Kürzel das im Dateinamen verwendetet wird.</p></dd></dl></div></div><div class="sect3" title="3.2.7.2. Stammdaten von Kunden und Lieferanten"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.allgemeine-variablen.kunden-lieferanten"></a>3.2.7.2. Stammdaten von Kunden und Lieferanten</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">account_number</code>
+                     </span></dt><dd><p>Kontonummer</p></dd><dt><span class="term">
+                        <code class="varname">bank</code>
+                     </span></dt><dd><p>Name der Bank</p></dd><dt><span class="term">
+                        <code class="varname">bank_code</code>
+                     </span></dt><dd><p>Bankleitzahl</p></dd><dt><span class="term">
+                        <code class="varname">bic</code>
+                     </span></dt><dd><p>Bank-Identifikations-Code (Bank Identifier Code,
+                BIC)</p></dd><dt><span class="term">
+                        <code class="varname">business</code>
+                     </span></dt><dd><p>Kunden-/Lieferantentyp</p></dd><dt><span class="term">
+                        <code class="varname">city</code>
+                     </span></dt><dd><p>Stadt</p></dd><dt><span class="term">
+                        <code class="varname">contact</code>
+                     </span></dt><dd><p>Kontakt</p></dd><dt><span class="term">
+                        <code class="varname">country</code>
+                     </span></dt><dd><p>Land</p></dd><dt><span class="term">
+                        <code class="varname">cp_email</code>
+                     </span></dt><dd><p>Email des Ansprechpartners</p></dd><dt><span class="term">
+                        <code class="varname">cp_givenname</code>
+                     </span></dt><dd><p>Vorname des Ansprechpartners</p></dd><dt><span class="term">
+                        <code class="varname">cp_greeting</code>
+                     </span></dt><dd><p>Anrede des Ansprechpartners</p></dd><dt><span class="term">
+                        <code class="varname">cp_name</code>
+                     </span></dt><dd><p>Name des Ansprechpartners</p></dd><dt><span class="term">
+                        <code class="varname">cp_phone1</code>
+                     </span></dt><dd><p>Telefonnummer 1 des Ansprechpartners</p></dd><dt><span class="term">
+                        <code class="varname">cp_phone2</code>
+                     </span></dt><dd><p>Telefonnummer 2 des Ansprechpartners</p></dd><dt><span class="term">
+                        <code class="varname">cp_title</code>
+                     </span></dt><dd><p>Titel des Ansprechpartners</p></dd><dt><span class="term">
+                        <code class="varname">creditlimit</code>
+                     </span></dt><dd><p>Kreditlimit</p></dd><dt><span class="term">
+                        <code class="varname">customeremail</code>
+                     </span></dt><dd><p>Email des Kunden; nur für Kunden</p></dd><dt><span class="term">
+                        <code class="varname">customerfax</code>
+                     </span></dt><dd><p>Faxnummer des Kunden; nur für Kunden</p></dd><dt><span class="term">
+                        <code class="varname">customernotes</code>
+                     </span></dt><dd><p>Bemerkungen beim Kunden; nur für Kunden</p></dd><dt><span class="term">
+                        <code class="varname">customernumber</code>
+                     </span></dt><dd><p>Kundennummer; nur für Kunden</p></dd><dt><span class="term">
+                        <code class="varname">customerphone</code>
+                     </span></dt><dd><p>Telefonnummer des Kunden; nur für Kunden</p></dd><dt><span class="term">
+                        <code class="varname">discount</code>
+                     </span></dt><dd><p>Rabatt</p></dd><dt><span class="term">
+                        <code class="varname">email</code>
+                     </span></dt><dd><p>Emailadresse</p></dd><dt><span class="term">
+                        <code class="varname">fax</code>
+                     </span></dt><dd><p>Faxnummer</p></dd><dt><span class="term">
+                        <code class="varname">homepage</code>
+                     </span></dt><dd><p>Homepage</p></dd><dt><span class="term">
+                        <code class="varname">iban</code>
+                     </span></dt><dd><p>Internationale Kontonummer (International Bank Account
+                Number, IBAN)</p></dd><dt><span class="term">
+                        <code class="varname">language</code>
+                     </span></dt><dd><p>Sprache</p></dd><dt><span class="term">
+                        <code class="varname">name</code>
+                     </span></dt><dd><p>Firmenname</p></dd><dt><span class="term">
+                        <code class="varname">payment_description</code>
+                     </span></dt><dd><p>Name der Zahlart</p></dd><dt><span class="term">
+                        <code class="varname">payment_terms</code>
+                     </span></dt><dd><p>Zahlungskonditionen</p></dd><dt><span class="term">
+                        <code class="varname">phone</code>
+                     </span></dt><dd><p>Telefonnummer</p></dd><dt><span class="term">
+                        <code class="varname">shiptocity</code>
+                     </span></dt><dd><p>Stadt (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptocontact</code>
+                     </span></dt><dd><p>Kontakt (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptocountry</code>
+                     </span></dt><dd><p>Land (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptodepartment1</code>
+                     </span></dt><dd><p>Abteilung 1 (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptodepartment2</code>
+                     </span></dt><dd><p>Abteilung 2 (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptoemail</code>
+                     </span></dt><dd><p>Email (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptofax</code>
+                     </span></dt><dd><p>Fax (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptoname</code>
+                     </span></dt><dd><p>Firmenname (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptophone</code>
+                     </span></dt><dd><p>Telefonnummer (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptostreet</code>
+                     </span></dt><dd><p>Straße und Hausnummer (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">shiptozipcode</code>
+                     </span></dt><dd><p>Postleitzahl (Lieferadresse) <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.anmerkung-shipto" title="Anmerkung">*</a>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">street</code>
+                     </span></dt><dd><p>Straße und Hausnummer</p></dd><dt><span class="term">
+                        <code class="varname">taxnumber</code>
+                     </span></dt><dd><p>Steuernummer</p></dd><dt><span class="term">
+                        <code class="varname">ustid</code>
+                     </span></dt><dd><p>Umsatzsteuer-Identifikationsnummer</p></dd><dt><span class="term">
+                        <code class="varname">vendoremail</code>
+                     </span></dt><dd><p>Email des Lieferanten; nur für Lieferanten</p></dd><dt><span class="term">
+                        <code class="varname">vendorfax</code>
+                     </span></dt><dd><p>Faxnummer des Lieferanten; nur für Lieferanten</p></dd><dt><span class="term">
+                        <code class="varname">vendornotes</code>
+                     </span></dt><dd><p>Bemerkungen beim Lieferanten; nur für Lieferanten</p></dd><dt><span class="term">
+                        <code class="varname">vendornumber</code>
+                     </span></dt><dd><p>Lieferantennummer; nur für Lieferanten</p></dd><dt><span class="term">
+                        <code class="varname">vendorphone</code>
+                     </span></dt><dd><p>Telefonnummer des Lieferanten; nur für
+                Lieferanten</p></dd><dt><span class="term">
+                        <code class="varname">zipcode</code>
+                     </span></dt><dd><p>Postleitzahl</p></dd></dl></div><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="../../../../system/docbook-xsl/images/note.png"></td><th align="left"><a name="dokumentenvorlagen-und-variablen.anmerkung-shipto"></a>Anmerkung</th></tr><tr><td align="left" valign="top"><p>Anmerkung: Sind die <code class="varname">shipto*</code>-Felder in den
+            Stammdaten nicht eingetragen, so haben die Variablen
+            <code class="varname">shipto*</code> den gleichen Wert wie die die
+            entsprechenden Variablen der Lieferdaten. Das bedeutet, dass sich
+            einige <code class="varname">shipto*</code>-Variablen so nicht in den
+            Stammdaten wiederfinden sondern schlicht Kopien der
+            Lieferdatenvariablen sind (z.B.
+            <code class="varname">shiptocontact</code>).</p></td></tr></table></div></div><div class="sect3" title="3.2.7.3. Informationen über den Bearbeiter"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.allgemein-bearbeiter"></a>3.2.7.3. Informationen über den Bearbeiter</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">employee_address</code>
+                     </span></dt><dd><p>Adressfeld</p></dd><dt><span class="term">
+                        <code class="varname">employee_businessnumber</code>
+                     </span></dt><dd><p>Firmennummer</p></dd><dt><span class="term">
+                        <code class="varname">employee_company</code>
+                     </span></dt><dd><p>Firmenname</p></dd><dt><span class="term">
+                        <code class="varname">employee_co_ustid</code>
+                     </span></dt><dd><p>Usatzsteuer-Identifikationsnummer</p></dd><dt><span class="term">
+                        <code class="varname">employee_duns</code>
+                     </span></dt><dd><p>DUNS-Nummer</p></dd><dt><span class="term">
+                        <code class="varname">employee_email</code>
+                     </span></dt><dd><p>Email</p></dd><dt><span class="term">
+                        <code class="varname">employee_fax</code>
+                     </span></dt><dd><p>Fax</p></dd><dt><span class="term">
+                        <code class="varname">employee_name</code>
+                     </span></dt><dd><p>voller Name</p></dd><dt><span class="term">
+                        <code class="varname">employee_signature</code>
+                     </span></dt><dd><p>Signatur</p></dd><dt><span class="term">
+                        <code class="varname">employee_taxnumber</code>
+                     </span></dt><dd><p>Steuernummer</p></dd><dt><span class="term">
+                        <code class="varname">employee_tel</code>
+                     </span></dt><dd><p>Telefonnummer</p></dd></dl></div></div><div class="sect3" title="3.2.7.4. Informationen über den Bearbeiter"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.allgemein-verkaeufer"></a>3.2.7.4. Informationen über den Bearbeiter</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">salesman_address</code>
+                     </span></dt><dd><p>Adressfeld</p></dd><dt><span class="term">
+                        <code class="varname">salesman_businessnumber</code>
+                     </span></dt><dd><p>Firmennummer</p></dd><dt><span class="term">
+                        <code class="varname">salesman_company</code>
+                     </span></dt><dd><p>Firmenname</p></dd><dt><span class="term">
+                        <code class="varname">salesman_co_ustid</code>
+                     </span></dt><dd><p>Usatzsteuer-Identifikationsnummer</p></dd><dt><span class="term">
+                        <code class="varname">salesman_duns</code>
+                     </span></dt><dd><p>DUNS-Nummer</p></dd><dt><span class="term">
+                        <code class="varname">salesman_email</code>
+                     </span></dt><dd><p>Email</p></dd><dt><span class="term">
+                        <code class="varname">salesman_fax</code>
+                     </span></dt><dd><p>Fax</p></dd><dt><span class="term">
+                        <code class="varname">salesman_name</code>
+                     </span></dt><dd><p>voller Name</p></dd><dt><span class="term">
+                        <code class="varname">salesman_signature</code>
+                     </span></dt><dd><p>Signatur</p></dd><dt><span class="term">
+                        <code class="varname">salesman_taxnumber</code>
+                     </span></dt><dd><p>Steuernummer</p></dd><dt><span class="term">
+                        <code class="varname">salesman_tel</code>
+                     </span></dt><dd><p>Telefonnummer</p></dd></dl></div></div><div class="sect3" title="3.2.7.5. Variablen für die einzelnen Steuern"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.allgemein-steuern"></a>3.2.7.5. Variablen für die einzelnen Steuern</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">tax</code>
+                     </span></dt><dd><p>Steuer</p></dd><dt><span class="term">
+                        <code class="varname">taxbase</code>
+                     </span></dt><dd><p>zu versteuernder Betrag</p></dd><dt><span class="term">
+                        <code class="varname">taxdescription</code>
+                     </span></dt><dd><p>Name der Steuer</p></dd><dt><span class="term">
+                        <code class="varname">taxrate</code>
+                     </span></dt><dd><p>Steuersatz</p></dd></dl></div></div></div><div class="sect2" title="3.2.8. Variablen in Rechnungen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.invoice"></a>3.2.8. Variablen in Rechnungen</h3></div></div></div><div class="sect3" title="3.2.8.1. Allgemeine Variablen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-allgemein"></a>3.2.8.1. Allgemeine Variablen</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">creditremaining</code>
+                     </span></dt><dd><p>Verbleibender Kredit</p></dd><dt><span class="term">
+                        <code class="varname">currency</code>
+                     </span></dt><dd><p>Währung</p></dd><dt><span class="term">
+                        <code class="varname">cusordnumber</code>
+                     </span></dt><dd><p>Bestellnummer beim Kunden</p></dd><dt><span class="term">
+                        <code class="varname">deliverydate</code>
+                     </span></dt><dd><p>Lieferdatum</p></dd><dt><span class="term">
+                        <code class="varname">duedate</code>
+                     </span></dt><dd><p>Fälligkeitsdatum</p></dd><dt><span class="term">
+                        <code class="varname">globalprojectnumber</code>
+                     </span></dt><dd><p>Projektnummer des ganzen Beleges</p></dd><dt><span class="term">
+                        <code class="varname">globalprojectdescription</code>
+                     </span></dt><dd><p>Projekbeschreibung des ganzen Beleges</p></dd><dt><span class="term">
+                        <code class="varname">intnotes</code>
+                     </span></dt><dd><p>Interne Bemerkungen</p></dd><dt><span class="term">
+                        <code class="varname">invdate</code>
+                     </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
+                        <code class="varname">invnumber</code>
+                     </span></dt><dd><p>Rechnungsnummer</p></dd><dt><span class="term">
+                        <code class="varname">invtotal</code>
+                     </span></dt><dd><p>gesamter Rechnungsbetrag</p></dd><dt><span class="term">
+                        <code class="varname">notes</code>
+                     </span></dt><dd><p>Bemerkungen der Rechnung</p></dd><dt><span class="term">
+                        <code class="varname">orddate</code>
+                     </span></dt><dd><p>Auftragsdatum</p></dd><dt><span class="term">
+                        <code class="varname">ordnumber</code>
+                     </span></dt><dd><p>Auftragsnummer, wenn die Rechnung aus einem Auftrag
+                erstellt wurde</p></dd><dt><span class="term">
+                        <code class="varname">payment_description</code>
+                     </span></dt><dd><p>Name der Zahlart</p></dd><dt><span class="term">
+                        <code class="varname">payment_terms</code>
+                     </span></dt><dd><p>Zahlungskonditionen</p></dd><dt><span class="term">
+                        <code class="varname">quodate</code>
+                     </span></dt><dd><p>Angebotsdatum</p></dd><dt><span class="term">
+                        <code class="varname">quonumber</code>
+                     </span></dt><dd><p>Angebotsnummer</p></dd><dt><span class="term">
+                        <code class="varname">shippingpoint</code>
+                     </span></dt><dd><p>Versandort</p></dd><dt><span class="term">
+                        <code class="varname">shipvia</code>
+                     </span></dt><dd><p>Transportmittel</p></dd><dt><span class="term">
+                        <code class="varname">subtotal</code>
+                     </span></dt><dd><p>Zwischensumme aller Posten ohne Steuern</p></dd><dt><span class="term">
+                        <code class="varname">total</code>
+                     </span></dt><dd><p>Restsumme der Rechnung (Summe abzüglich bereits
+                bezahlter Posten)</p></dd><dt><span class="term">
+                        <code class="varname">transaction_description</code>
+                     </span></dt><dd><p>Vorgangsbezeichnung</p></dd><dt><span class="term">
+                        <code class="varname">transdate</code>
+                     </span></dt><dd><p>Auftragsdatum wenn die Rechnung aus einem Auftrag
+                erstellt wurde</p></dd></dl></div></div><div class="sect3" title="3.2.8.2. Variablen für jeden Posten auf der Rechnung"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-posten"></a>3.2.8.2. Variablen für jeden Posten auf der Rechnung</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">bin</code>
+                     </span></dt><dd><p>Stellage</p></dd><dt><span class="term">
+                        <code class="varname">description</code>
+                     </span></dt><dd><p>Artikelbeschreibung</p></dd><dt><span class="term">
+                        <code class="varname">discount</code>
+                     </span></dt><dd><p>Rabatt als Betrag</p></dd><dt><span class="term">
+                        <code class="varname">discount_sub</code>
+                     </span></dt><dd><p>Zwischensumme mit Rabatt</p></dd><dt><span class="term">
+                        <code class="varname">drawing</code>
+                     </span></dt><dd><p>Zeichnung</p></dd><dt><span class="term">
+                        <code class="varname">ean</code>
+                     </span></dt><dd><p>EAN-Code</p></dd><dt><span class="term">
+                        <code class="varname">image</code>
+                     </span></dt><dd><p>Grafik</p></dd><dt><span class="term">
+                        <code class="varname">linetotal</code>
+                     </span></dt><dd><p>Zeilensumme (Anzahl * Einzelpreis)</p></dd><dt><span class="term">
+                        <code class="varname">longdescription</code>
+                     </span></dt><dd><p>Langtext</p></dd><dt><span class="term">
+                        <code class="varname">microfiche</code>
+                     </span></dt><dd><p>Mikrofilm</p></dd><dt><span class="term">
+                        <code class="varname">netprice</code>
+                     </span></dt><dd><p>Nettopreis</p></dd><dt><span class="term">
+                        <code class="varname">nodiscount_linetotal</code>
+                     </span></dt><dd><p>Zeilensumme ohne Rabatt</p></dd><dt><span class="term">
+                        <code class="varname">nodiscount_sub</code>
+                     </span></dt><dd><p>Zwischensumme ohne Rabatt</p></dd><dt><span class="term">
+                        <code class="varname">number</code>
+                     </span></dt><dd><p>Artikelnummer</p></dd><dt><span class="term">
+                        <code class="varname">ordnumber_oe</code>
+                     </span></dt><dd><p>Auftragsnummer des Originalauftrags, wenn die Rechnung
+                aus einem Sammelauftrag erstellt wurde</p></dd><dt><span class="term">
+                        <code class="varname">p_discount</code>
+                     </span></dt><dd><p>Rabatt in Prozent</p></dd><dt><span class="term">
+                        <code class="varname">partnotes</code>
+                     </span></dt><dd><p>Die beim Artikel gespeicherten Bemerkungen</p></dd><dt><span class="term">
+                        <code class="varname">partsgroup</code>
+                     </span></dt><dd><p>Warengruppe</p></dd><dt><span class="term">
+                        <code class="varname">price_factor</code>
+                     </span></dt><dd><p>Der Preisfaktor als Zahl, sofern einer eingestellt
+                ist</p></dd><dt><span class="term">
+                        <code class="varname">price_factor_name</code>
+                     </span></dt><dd><p>Der Name des Preisfaktors, sofern einer eingestellt
+                ist</p></dd><dt><span class="term">
+                        <code class="varname">projectnumber</code>
+                     </span></dt><dd><p>Projektnummer</p></dd><dt><span class="term">
+                        <code class="varname">projectdescription</code>
+                     </span></dt><dd><p>Projektbeschreibung</p></dd><dt><span class="term">
+                        <code class="varname">qty</code>
+                     </span></dt><dd><p>Anzahl</p></dd><dt><span class="term">
+                        <code class="varname">reqdate</code>
+                     </span></dt><dd><p>Lieferdatum</p></dd><dt><span class="term">
+                        <code class="varname">runningnumber</code>
+                     </span></dt><dd><p>Position auf der Rechnung (1, 2, 3...)</p></dd><dt><span class="term">
+                        <code class="varname">sellprice</code>
+                     </span></dt><dd><p>Verkaufspreis</p></dd><dt><span class="term">
+                        <code class="varname">serialnumber</code>
+                     </span></dt><dd><p>Seriennummer</p></dd><dt><span class="term">
+                        <code class="varname">tax_rate</code>
+                     </span></dt><dd><p>Steuersatz</p></dd><dt><span class="term">
+                        <code class="varname">transdate_oe</code>
+                     </span></dt><dd><p>Auftragsdatum des Originalauftrags, wenn die Rechnung
+                aus einem Sammelauftrag erstellt wurde</p></dd><dt><span class="term">
+                        <code class="varname">unit</code>
+                     </span></dt><dd><p>Einheit</p></dd><dt><span class="term">
+                        <code class="varname">weight</code>
+                     </span></dt><dd><p>Gewicht</p></dd></dl></div><p>Für jeden Posten gibt es ein Unterarray mit den Informationen
+          über Lieferanten und Lieferantenartikelnummer. Diese müssen mit
+          einer <code class="function">foreach</code>-Schleife ausgegeben werden, da
+          für jeden Artikel mehrere Lieferanteninformationen hinterlegt sein
+          können. Die Variablen dafür lauten:</p><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">make</code>
+                     </span></dt><dd><p>Lieferant</p></dd><dt><span class="term">
+                        <code class="varname">model</code>
+                     </span></dt><dd><p>Lieferantenartikelnummer</p></dd></dl></div></div><div class="sect3" title="3.2.8.3. Variablen für die einzelnen Zahlungseingänge"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.invoice-zahlungen"></a>3.2.8.3. Variablen für die einzelnen Zahlungseingänge</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">payment</code>
+                     </span></dt><dd><p>Betrag</p></dd><dt><span class="term">
+                        <code class="varname">paymentaccount</code>
+                     </span></dt><dd><p>Konto</p></dd><dt><span class="term">
+                        <code class="varname">paymentdate</code>
+                     </span></dt><dd><p>Datum</p></dd><dt><span class="term">
+                        <code class="varname">paymentmemo</code>
+                     </span></dt><dd><p>Memo</p></dd><dt><span class="term">
+                        <code class="varname">paymentsource</code>
+                     </span></dt><dd><p>Beleg</p></dd></dl></div></div><div class="sect3" title="3.2.8.4. Benutzerdefinierte Kunden- und Lieferantenvariablen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.benutzerdefinierte-variablen-vc"></a>3.2.8.4. Benutzerdefinierte Kunden- und Lieferantenvariablen</h4></div></div></div><p>Die vom Benutzer definierten Variablen für Kunden und
+          Lieferanten stehen beim Ausdruck von Einkaufs- und Verkaufsbelegen
+          ebenfalls zur Verfügung. Ihre Namen setzen sich aus dem Präfix
+          <code class="varname">vc_cvar_</code> und dem vom Benutzer festgelegten
+          Variablennamen zusammen.</p><p>Beispiel: Der Benutzer hat eine Variable namens
+          <code class="varname">number_of_employees</code> definiert, die die Anzahl der
+          Mitarbeiter des Unternehmens enthält. Diese Variable steht dann
+          unter dem Namen <code class="varname">vc_cvar_number_of_employees</code> zur
+          Verfügung.</p></div></div><div class="sect2" title="3.2.9. Variablen in Mahnungen und Rechnungen über Mahngebühren"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.dunning"></a>3.2.9. Variablen in Mahnungen und Rechnungen über Mahngebühren</h3></div></div></div><div class="sect3" title="3.2.9.1. Namen der Vorlagen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-vorlagennamen"></a>3.2.9.1. Namen der Vorlagen</h4></div></div></div><p>Die Namen der Vorlagen werden im System-Menü vom Benutzer
+          eingegeben. Wird für ein Mahnlevel die Option zur automatischen
+          Erstellung einer Rechnung über die Mahngebühren und Zinsen
+          aktiviert, so wird der Name der Vorlage für diese Rechnung aus dem
+          Vorlagenname für diese Mahnstufe mit dem Zusatz
+          <code class="constant">_invoice</code> gebildet. Weiterhin werden die Kürzel
+          für die ausgewählte Sprache und den ausgewählten Drucker
+          angehängt.</p></div><div class="sect3" title="3.2.9.2. Allgemeine Variablen in Mahnungen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-allgemein"></a>3.2.9.2. Allgemeine Variablen in Mahnungen</h4></div></div></div><p>Die Variablen des Verkäufers stehen wie gewohnt als
+          <code class="varname">employee_...</code> zur Verfügung. Die Adressdaten des
+          Kunden stehen als Variablen <code class="varname">name</code>,
+          <code class="varname">street</code>, <code class="varname">zipcode</code>,
+          <code class="varname">city</code>, <code class="varname">country</code>,
+          <code class="varname">department_1</code>, <code class="varname">department_2</code>,
+          und <code class="varname">email</code> zur Verfügung.</p><p>Weitere Variablen beinhalten:</p><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">dunning_date</code>
+                     </span></dt><dd><p>Datum der Mahnung</p></dd><dt><span class="term">
+                        <code class="varname">dunning_duedate</code>
+                     </span></dt><dd><p>Fälligkeitsdatum für diese Mahhnung</p></dd><dt><span class="term">
+                        <code class="varname">dunning_id</code>
+                     </span></dt><dd><p>Mahnungsnummer</p></dd><dt><span class="term">
+                        <code class="varname">fee</code>
+                     </span></dt><dd><p>Kummulative Mahngebühren</p></dd><dt><span class="term">
+                        <code class="varname">interest_rate</code>
+                     </span></dt><dd><p>Zinssatz per anno in Prozent</p></dd><dt><span class="term">
+                        <code class="varname">total_amount</code>
+                     </span></dt><dd><p>Gesamter noch zu zahlender Betrag als
+                <code class="function">fee</code> + <code class="function">total_interest</code>
+                + <code class="function">total_open_amount</code>
+                        </p></dd><dt><span class="term">
+                        <code class="varname">total_interest</code>
+                     </span></dt><dd><p>Zinsen per anno über alle Rechnungen</p></dd><dt><span class="term">
+                        <code class="varname">total_open_amount</code>
+                     </span></dt><dd><p>Summe über alle offene Beträge der Rechnungen</p></dd></dl></div></div><div class="sect3" title="3.2.9.3. Variablen für jede gemahnte Rechnung in einer Mahnung"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-details"></a>3.2.9.3. Variablen für jede gemahnte Rechnung in einer Mahnung</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">dn_amount</code>
+                     </span></dt><dd><p>Rechnungssumme (brutto)</p></dd><dt><span class="term">
+                        <code class="varname">dn_duedate</code>
+                     </span></dt><dd><p>Originales Fälligkeitsdatum der Rechnung</p></dd><dt><span class="term">
+                        <code class="varname">dn_dunning_date</code>
+                     </span></dt><dd><p>Datum der Mahnung</p></dd><dt><span class="term">
+                        <code class="varname">dn_dunning_duedate</code>
+                     </span></dt><dd><p>Fälligkeitsdatum der Mahnung</p></dd><dt><span class="term">
+                        <code class="varname">dn_fee</code>
+                     </span></dt><dd><p>Kummulative Mahngebühr</p></dd><dt><span class="term">
+                        <code class="varname">dn_interest</code>
+                     </span></dt><dd><p>Zinsen per anno für diese Rechnung</p></dd><dt><span class="term">
+                        <code class="varname">dn_invnumber</code>
+                     </span></dt><dd><p>Rechnungsnummer</p></dd><dt><span class="term">
+                        <code class="varname">dn_linetotal</code>
+                     </span></dt><dd><p>Noch zu zahlender Betrag (ergibt sich aus
+                <code class="varname">dn_open_amount</code> + <code class="varname">dn_fee</code>
+                + <code class="varname">dn_interest</code>)</p></dd><dt><span class="term">
+                        <code class="varname">dn_netamount</code>
+                     </span></dt><dd><p>Rechnungssumme (netto)</p></dd><dt><span class="term">
+                        <code class="varname">dn_open_amount</code>
+                     </span></dt><dd><p>Offener Rechnungsbetrag</p></dd><dt><span class="term">
+                        <code class="varname">dn_ordnumber</code>
+                     </span></dt><dd><p>Bestellnummer</p></dd><dt><span class="term">
+                        <code class="varname">dn_transdate</code>
+                     </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
+                        <code class="varname">dn_curr</code>
+                     </span></dt><dd><p>Währung, in der die Rechnung erstellt wurde. (Die
+                Rechnungsbeträge sind aber immer in der Hauptwährung)</p></dd></dl></div></div><div class="sect3" title="3.2.9.4. Variablen in automatisch erzeugten Rechnungen über Mahngebühren"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.dunning-invoice"></a>3.2.9.4. Variablen in automatisch erzeugten Rechnungen über
+          Mahngebühren</h4></div></div></div><p>Die Variablen des Verkäufers stehen wie gewohnt als
+          <code class="varname">employee_...</code> zur Verfügung. Die Adressdaten des
+          Kunden stehen als Variablen <code class="varname">name</code>,
+          <code class="varname">street</code>, <code class="varname">zipcode</code>,
+          <code class="varname">city</code>, <code class="varname">country</code>,
+          <code class="varname">department_1</code>, <code class="varname">department_2</code>,
+          und <code class="varname">email</code> zur Verfügung.</p><p>Weitere Variablen beinhalten:</p><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">duedate</code>
+                     </span></dt><dd><p>Fälligkeitsdatum der Rechnung</p></dd><dt><span class="term">
+                        <code class="varname">dunning_id</code>
+                     </span></dt><dd><p>Mahnungsnummer</p></dd><dt><span class="term">
+                        <code class="varname">fee</code>
+                     </span></dt><dd><p>Mahngebühren</p></dd><dt><span class="term">
+                        <code class="varname">interest</code>
+                     </span></dt><dd><p>Zinsen</p></dd><dt><span class="term">
+                        <code class="varname">invamount</code>
+                     </span></dt><dd><p>Rechnungssumme (ergibt sich aus <code class="varname">fee</code> +
+                <code class="varname">interest</code>)</p></dd><dt><span class="term">
+                        <code class="varname">invdate</code>
+                     </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
+                        <code class="varname">invnumber</code>
+                     </span></dt><dd><p>Rechnungsnummer</p></dd></dl></div></div></div><div class="sect2" title="3.2.10. Variablen in anderen Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen"></a>3.2.10. Variablen in anderen Vorlagen</h3></div></div></div><div class="sect3" title="3.2.10.1. Einführung"><div class="titlepage"><div><div><h4 class="title"><a name="d0e3643"></a>3.2.10.1. Einführung</h4></div></div></div><p>Die Variablen in anderen Vorlagen sind ähnlich wie in der
+          Rechnung. Allerdings heißen die Variablen, die mit
+          <code class="varname">inv</code> beginnen, jetzt anders. Bei den Angeboten
+          fangen sie mit <code class="varname">quo</code> für "quotation" an:
+          <code class="varname">quodate</code> für Angebotsdatum etc. Bei Bestellungen
+          wiederum fangen sie mit <code class="varname">ord</code> für "order" an:
+          <code class="varname">ordnumber</code> für Bestellnummer etc.</p><p>Manche Variablen sind in anderen Vorlagen hingegen gar nicht
+          vorhanden wie z.B. die für bereits verbuchte Zahlungseingänge. Dies
+          sind Variablen, die vom Geschäftsablauf her in der entsprechenden
+          Vorlage keine Bedeutung haben oder noch nicht belegt sein
+          können.</p><p>Im Folgenden werden nur wichtige Unterschiede zu den Variablen
+          in Rechnungen aufgeführt.</p></div><div class="sect3" title="3.2.10.2. Angebote und Preisanfragen"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen-quotations"></a>3.2.10.2. Angebote und Preisanfragen</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">quonumber</code>
+                     </span></dt><dd><p>Angebots- bzw. Anfragenummer</p></dd><dt><span class="term">
+                        <code class="varname">reqdate</code>
+                     </span></dt><dd><p>Gültigkeitsdatum (bei Angeboten) bzw. Lieferdatum (bei
+                Preisanfragen)</p></dd><dt><span class="term">
+                        <code class="varname">transdate</code>
+                     </span></dt><dd><p>Angebots- bzw. Anfragedatum</p></dd></dl></div></div><div class="sect3" title="3.2.10.3. Auftragsbestätigungen und Lieferantenaufträge"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen-orders"></a>3.2.10.3. Auftragsbestätigungen und Lieferantenaufträge</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">ordnumber</code>
+                     </span></dt><dd><p>Auftragsnummer</p></dd><dt><span class="term">
+                        <code class="varname">reqdate</code>
+                     </span></dt><dd><p>Lieferdatum</p></dd><dt><span class="term">
+                        <code class="varname">transdate</code>
+                     </span></dt><dd><p>Auftragsdatum</p></dd></dl></div></div><div class="sect3" title="3.2.10.4. Lieferscheine (Verkauf und Einkauf)"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen-delivery-orders"></a>3.2.10.4. Lieferscheine (Verkauf und Einkauf)</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">cusordnumber</code>
+                     </span></dt><dd><p>Bestellnummer des Kunden (im Verkauf) bzw. Bestellnummer
+                des Lieferanten (im Einkauf)</p></dd><dt><span class="term">
+                        <code class="varname">donumber</code>
+                     </span></dt><dd><p>Lieferscheinnummer</p></dd><dt><span class="term">
+                        <code class="varname">transdate</code>
+                     </span></dt><dd><p>Lieferscheindatum</p></dd></dl></div><p>Für jede Position eines Lieferscheines gibt es ein Unterarray
+          mit den Informationen darüber, von welchem Lager und Lagerplatz aus
+          die Waren verschickt wurden (Verkaufslieferscheine) bzw. auf welchen
+          Lagerplatz sie eingelagert wurden. Diese müssen mittels einer
+          <code class="function">foreach</code>-Schleife ausgegeben werden. Diese
+          Variablen sind:</p><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">si_bin</code>
+                     </span></dt><dd><p>Lagerplatz</p></dd><dt><span class="term">
+                        <code class="varname">si_chargenumber</code>
+                     </span></dt><dd><p>Chargennummer</p></dd><dt><span class="term">
+                        <code class="varname">si_bestbefore</code>
+                     </span></dt><dd><p>Mindesthaltbarkeit</p></dd><dt><span class="term">
+                        <code class="varname">si_number</code>
+                     </span></dt><dd><p>Artikelnummer</p></dd><dt><span class="term">
+                        <code class="varname">si_qty</code>
+                     </span></dt><dd><p>Anzahl bzw. Menge</p></dd><dt><span class="term">
+                        <code class="varname">si_runningnumber</code>
+                     </span></dt><dd><p>Positionsnummer (1, 2, 3 etc)</p></dd><dt><span class="term">
+                        <code class="varname">si_unit</code>
+                     </span></dt><dd><p>Einheit</p></dd><dt><span class="term">
+                        <code class="varname">si_warehouse</code>
+                     </span></dt><dd><p>Lager</p></dd></dl></div></div><div class="sect3" title="3.2.10.5. Variablen für Sammelrechnung"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.andere-vorlagen-statement"></a>3.2.10.5. Variablen für Sammelrechnung</h4></div></div></div><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">c0total</code>
+                     </span></dt><dd><p>Gesamtbetrag aller Rechnungen mit Fälligkeit &lt; 30
+                Tage</p></dd><dt><span class="term">
+                        <code class="varname">c30total</code>
+                     </span></dt><dd><p>Gesamtbetrag aller Rechnungen mit Fälligkeit &gt;= 30
+                und &lt; 60 Tage</p></dd><dt><span class="term">
+                        <code class="varname">c60total</code>
+                     </span></dt><dd><p>Gesamtbetrag aller Rechnungen mit Fälligkeit &gt;= 60
+                und &lt; 90 Tage</p></dd><dt><span class="term">
+                        <code class="varname">c90total</code>
+                     </span></dt><dd><p>Gesamtbetrag aller Rechnungen mit Fälligkeit &gt;= 90
+                Tage</p></dd><dt><span class="term">
+                        <code class="varname">total</code>
+                     </span></dt><dd><p>Gesamtbetrag aller Rechnungen</p></dd></dl></div><p>Variablen für jede Rechnungsposition in Sammelrechnung:</p><div class="variablelist"><dl><dt><span class="term">
+                        <code class="varname">invnumber</code>
+                     </span></dt><dd><p>Rechnungsnummer</p></dd><dt><span class="term">
+                        <code class="varname">invdate</code>
+                     </span></dt><dd><p>Rechnungsdatum</p></dd><dt><span class="term">
+                        <code class="varname">duedate</code>
+                     </span></dt><dd><p>Fälligkeitsdatum</p></dd><dt><span class="term">
+                        <code class="varname">amount</code>
+                     </span></dt><dd><p>Summe der Rechnung</p></dd><dt><span class="term">
+                        <code class="varname">open</code>
+                     </span></dt><dd><p>Noch offener Betrag der Rechnung</p></dd><dt><span class="term">
+                        <code class="varname">c0</code>
+                     </span></dt><dd><p>Noch offener Rechnungsbetrag mit Fälligkeit &lt; 30
+                Tage</p></dd><dt><span class="term">
+                        <code class="varname">c30</code>
+                     </span></dt><dd><p>Noch offener Rechnungsbetrag mit Fälligkeit &gt;= 30 und
+                &lt; 60 Tage</p></dd><dt><span class="term">
+                        <code class="varname">c60</code>
+                     </span></dt><dd><p>Noch offener Rechnungsbetrag mit Fälligkeit &gt;= 60 und
+                &lt; 90 Tage</p></dd><dt><span class="term">
+                        <code class="varname">c90</code>
+                     </span></dt><dd><p>Noch offener Rechnungsbetrag mit Fälligkeit &gt;= 90
+                Tage</p></dd></dl></div></div></div><div class="sect2" title="3.2.11. Blöcke, bedingte Anweisungen und Schleifen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.bloecke"></a>3.2.11. Blöcke, bedingte Anweisungen und Schleifen</h3></div></div></div><div class="sect3" title="3.2.11.1. Einfürhung"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.bloecke.einfuehrung"></a>3.2.11.1. Einfürhung</h4></div></div></div><p>Der Parser kennt neben den Variablen einige weitere
+          Konstrukte, die gesondert behandelt werden. Diese sind wie
+          Variablennamen in spezieller Weise markiert:
+          <span class="command"><strong>&lt;%anweisung%&gt; ... &lt;%end%&gt;</strong></span>
+               </p><p>Anmerkung zum <span class="command"><strong>&lt;%end%&gt;</strong></span>: Der besseren
+          Verständlichkeit halber kann man nach dem <span class="command"><strong>end</strong></span>
+          noch beliebig weitere Wörter schreiben, um so zu markieren, welche
+          Anweisung (z.B. <span class="command"><strong>if</strong></span> oder
+          <span class="command"><strong>foreach</strong></span>) damit abgeschlossen wird.</p><p>Beispiel: Lautet der Beginn eines Blockes z.B.
+          <span class="command"><strong>&lt;%if type == "sales_quotation"%&gt;</strong></span>, so könnte
+          er mit <span class="command"><strong>&lt;%end%&gt;</strong></span> genauso abgeschlossen werden
+          wie mit <span class="command"><strong>&lt;%end if%&gt;</strong></span> oder auch
+          <span class="command"><strong>&lt;%end type == "sales_quotation"%&gt;</strong></span>.</p></div><div class="sect3" title="3.2.11.2. Der if-Block"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.bloecke.if"></a>3.2.11.2. Der if-Block</h4></div></div></div><pre class="programlisting">&lt;%if variablenname%&gt;
+...
+&lt;%end%&gt;</pre><p>Eine normale "if-then"-Bedingung. Die Zeilen zwischen dem "if"
+          und dem "end" werden nur ausgegeben, wenn die Variable
+          <code class="varname">variablenname</code> gesetzt und ungleich 0 ist.</p><p>Die Bedingung kann auch negiert werden, indem das Wort
+          <code class="function">not</code> nach dem <code class="filename">if</code> verwendet
+          wird. Beispiel:</p><pre class="programlisting">&lt;%if not cp_greeting%&gt;
+...
+&lt;%end%&gt;</pre><p>Zusätzlich zu dem einfachen Test, ob eine Variable gesetzt ist
+          oder nicht, bietet dieser Block auch die Möglichkeit, den Inhalt
+          einer Variablen mit einer festen Zeichenkette oder einer anderen
+          Variablen zu vergleichen. Ob der Vergleich mit einer Zeichenkette
+          oder einer anderen Variablen vorgenommen wird, hängt davon ab, ob
+          die rechte Seite des Vergleichsoperators in Anführungszeichen
+          gesetzt wird (Vergleich mit Zeichenkette) oder nicht (Vergleich mit
+          anderer Variablen). Zwei Beispiele, die beide Vergleiche
+          zeigen:</p><pre class="programlisting">&lt;%if var1 == "Wert"%&gt;</pre><p>Testet die Variable <code class="varname">var1</code> auf
+          übereinstimmung mit der Zeichenkette <code class="constant">Wert</code>.
+          Mittels <code class="function">!=</code> anstelle von <code class="function">==</code>
+          würde auf Ungleichheit getestet.</p><pre class="programlisting">%if var1 == var2%&gt;</pre><p>Testet die Variable <code class="varname">var1</code> auf
+          übereinstimmung mit der Variablen <code class="varname">var2</code>. Mittel
+          <code class="function">!=</code> anstelle von <code class="function">==</code> würde
+          auf Ungleichheit getestet.</p><p>Erfahrere Benutzer können neben der Tests auf (Un-)Gleichheit
+          auch Tests auf übereinstimmung mit regulären Ausdrücken ohne
+          Berücksichtung der Groß- und Kleinschreibung durchführen. Dazu dient
+          dieselbe Syntax wie oben nur mit <code class="function">=~</code> und
+          <code class="function">!~</code> als Vergleichsoperatoren.</p><p>Beispiel für einen Test, ob die Variable
+          <code class="varname">intnotes</code> (interne Bemerkungen) das Wort
+          <code class="constant">schwierig</code> enthält:</p><pre class="programlisting">&lt;%if intnotes =~ "schwierig"%&gt;</pre></div><div class="sect3" title="3.2.11.3. Der foreach-Block"><div class="titlepage"><div><div><h4 class="title"><a name="dokumentenvorlagen-und-variablen.bloecke.foreach"></a>3.2.11.3. Der foreach-Block</h4></div></div></div><pre class="programlisting">&lt;%foreach variablenname%&gt;
+...
+&lt;%end%&gt;</pre><p>Fügt die Zeilen zwischen den beiden Anweisungen so oft ein,
+          wie das Perl-Array der Variablen <code class="varname">variablenname</code>
+          Elemente enthät. Dieses Konstrukt wird zur Ausgabe der einzelnen
+          Posten einer Rechnung / eines Angebots sowie zur Ausgabe der Steuern
+          benutzt. In jedem Durchlauf werden die <a class="link" href="ch03s02.html#dokumentenvorlagen-und-variablen.invoice-posten" title="3.2.8.2. Variablen für jeden Posten auf der Rechnung">zeilenbezogenen
+          Variablen</a> jeweils auf den Wert für die aktuelle Position
+          gesetzt.</p><p>Die Syntax sieht normalerweise wie folgt aus:</p><pre class="programlisting">&lt;%foreach number%&gt;
+Position: &lt;%runningnumber%&gt;
+Anzahl: &lt;%qty%&gt;
+Artikelnummer: &lt;%number%&gt;
+Beschreibung: &lt;%description%&gt;
+...
+&lt;%end%&gt;</pre><p>Besonderheit in OpenDocument-Vorlagen: Tritt ein
+          <code class="function">&lt;%foreach%&gt;</code>-Block innerhalb einer
+          Tabellenzelle auf, so wird die komplette Tabellenzeile so oft
+          wiederholt wie notwendig. Tritt er außerhalb auf, so wird nur der
+          Inhalt zwischen <code class="function">&lt;%foreach%&gt;</code> und
+          <code class="function">&lt;%end%&gt;</code> wiederholt, nicht aber die
+          komplette Zeile, in der er steht.</p></div></div><div class="sect2" title="3.2.12. Markup-Code zur Textformatierung innerhalb von Formularen"><div class="titlepage"><div><div><h3 class="title"><a name="dokumentenvorlagen-und-variablen.markup"></a>3.2.12. Markup-Code zur Textformatierung innerhalb von
+        Formularen</h3></div></div></div><p>Wenn der Benutzer innhalb von Formularen in Lx-Office Text
+        anders formatiert haben möchte, so ist dies begrenzt möglich.
+        Lx-Office unterstützt die Textformatierung mit HTML-ähnlichen Tags.
+        Der Benutzer kann z.B. bei der Artikelbeschreibung auf einer Rechnung
+        Teile des Texts zwischen Start- und Endtags setzen. Dieser Teil wird
+        dann automatisch in Anweisungen für das ausgewählte Vorlagenformat
+        (HTML oder PDF über LaTeX) umgesetzt.</p><p>Die unterstützen Formatierungen sind:</p><div class="variablelist"><dl><dt><span class="term">&lt;b&gt;Text&lt;/b&gt;</span></dt><dd><p>Text wird in Fettdruck gesetzt.</p></dd><dt><span class="term">&lt;i&gt;Text&lt;/i&gt;</span></dt><dd><p>Text wird kursiv gesetzt.</p></dd><dt><span class="term">&lt;u&gt;Text&lt;/u&gt;</span></dt><dd><p>Text wird unterstrichen.</p></dd><dt><span class="term">&lt;s&gt;Text&lt;/s&gt;</span></dt><dd><p>Text wird durchgestrichen. Diese Formatierung ist nicht
+              bei der Ausgabe als PDF über LaTeX verfügbar.</p></dd><dt><span class="term">&lt;bullet&gt;</span></dt><dd><p>Erzeugt einen ausgefüllten Kreis für Aufzählungen (siehe
+              unten).</p></dd></dl></div><p>Der Befehl <span class="command"><strong>&lt;bullet&gt;</strong></span> funktioniert
+        momentan auch nur in Latex-Vorlagen.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch03.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch03s03.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitel 3. Features und Funktionen&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;3.3. Excel-Vorlagen</td></tr></table></div></body></html>
