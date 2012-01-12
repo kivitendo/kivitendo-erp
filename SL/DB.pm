@@ -4,11 +4,14 @@ use strict;
 
 use Carp;
 use Data::Dumper;
+use SL::DBConnect;
 use English qw(-no_match_vars);
 use Rose::DB;
+use Rose::DBx::Cache::Anywhere;
 
 use base qw(Rose::DB);
 
+__PACKAGE__->db_cache_class('Rose::DBx::Cache::Anywhere');
 __PACKAGE__->use_private_registry;
 
 my (%_db_registered, %_initial_sql_executed);
