@@ -328,22 +328,11 @@ sub account_header {
   }
 
   # preselection chart type
-  my $select_charttype = q{};
+  my @all_charttypes = ({'name' => $locale->text('Account'), 'value' => 'A'},
+                        {'name' => $locale->text('Heading'), 'value' => 'H'},
+    );
+  my $selected_charttype = $form->{charttype};
 
-  my %charttype = (
-      'A'  => $locale->text('Account'),
-      'H'  => $locale->text('Heading'),
-  );
-
-  foreach my $item ( sort({ $a <=> $b } keys %charttype) ) {
-    if ($item eq $form->{charttype}) {
-      $select_charttype .= qq|<option value="$item" selected="selected">$charttype{$item}\n|;
-
-    } else {
-      $select_charttype .= qq|<option value="$item">$charttype{$item}\n|;
-    }
-
-  }
 
   # account where AR_tax or AP_tax is set are not orphaned if they are used as
   # tax-o-matic account
@@ -362,7 +351,8 @@ sub account_header {
     ChartTypeIsAccount         => $ChartTypeIsAccount,
     AccountIsPosted            => $AccountIsPosted,
     select_category            => $select_category,
-    select_charttype           => $select_charttype,
+    all_charttypes             => \@all_charttypes,
+    selected_charttype         => $selected_charttype,
     select_bwa                 => $select_bwa,
     select_bilanz              => $select_bilanz,
     select_eur                 => $select_eur,

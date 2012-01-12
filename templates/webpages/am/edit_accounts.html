@@ -60,10 +60,25 @@ window.onload = function() {
 
         </label>
       </td>
-      <td><select name="charttype">[% select_charttype %]</select></td>
+      <td>
+[% IF AccountIsPosted %]
+        [% L.select_tag('dummy_charttype',
+                        L.options_for_select(all_charttypes,
+                                             title => 'name', value => 'value',
+                                             default => selected_charttype),
+                        disabled => '1') %]
+        [% L.hidden_tag('charttype', selected_charttype) %]
+[% ELSE %]
+        [% L.select_tag('charttype',
+                        L.options_for_select(all_charttypes,
+                                             title => 'name', value => 'value',
+                                             default => selected_charttype)) %]
+[% END %]
+      </td>
     </tr>
   </table>
 </fieldset>
+
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>[% 'Account Type' | $T8 %]</legend>
   <select name="category" id="AccountType" class="DEPENDS ON charttype BEING A">
@@ -73,12 +88,16 @@ window.onload = function() {
 [% IF ChartTypeIsAccount %]
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>[% 'Is this a summary account to record' | $T8 %]</legend>
-    <input name="AR" type="checkbox" class="checkbox" value="AR" [% HTML.escape(AR) %]>
-    &nbsp;[% 'AR' | $T8 %]
-    <input name="AP" type="checkbox" class="checkbox" value="AP" [% HTML.escape(AP) %]>
-    &nbsp;[% 'AP' | $T8 %]
-    <input name="IC" type="checkbox" class="checkbox" value="IC" [% HTML.escape(IC) %]>
-    &nbsp;[% 'Inventory' | $T8 %]
+    [% L.checkbox_tag('AR', value => 'AR', checked => AR, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'AR' | $T8 %]
+    [% L.checkbox_tag('AP', value => 'AP', checked => AP, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'AP' | $T8 %]
+    [% L.checkbox_tag('IC', value => 'IC', checked => IC, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'Inventory' | $T8 %]
+
+[% IF AccountIsPosted %]
+    [% IF AR %] [% L.hidden_tag('AR', 'AR') %] [% END %]
+    [% IF AP %] [% L.hidden_tag('AP', 'AP') %] [% END %]
+    [% IF IC %] [% L.hidden_tag('IC', 'IC') %] [% END %]
+[% END %]
+
 </fieldset>
 
 [% IF AccountIsPosted %]

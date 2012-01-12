@@ -92,6 +92,8 @@
         <label for="itemstatus_obsolete">[% 'Obsolete' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_orphaned" class="radio" type="radio" value="orphaned">
         <label for="itemstatus_orphaned">[% 'Orphaned' | $T8 %]</label>
+        <input name="itemstatus" id="itemstatus_all" class="radio" type="radio" value="">
+        <label for="itemstatus_all">[% 'All' | $T8 %]</label>
        </td>
       </tr>
 
@@ -270,6 +272,14 @@
           <td>
            <input name="l_onhand" id="l_onhand" class="checkbox" type="checkbox" value="Y">
            <label for="l_onhand">[% 'Stocked Qty' | $T8 %]</label>
+          </td>
+          <td>
+           <input name="l_projectnumber" id="l_projectnumber" class="checkbox" type="checkbox" value="Y">
+           <label for="l_projectnumber">[% 'Project Number' | $T8 %]</label>
+          </td>
+          <td>
+           <input name="l_projectdescription" id="l_projectdescription" class="checkbox" type="checkbox" value="Y">
+           <label for="l_projectdescription">[% 'Project Description' | $T8 %]</label>
           </td>
          </tr>
 

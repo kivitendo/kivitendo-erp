@@ -174,7 +174,7 @@ sub order_links {
                'ids' => $form->{id});
 
   $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes currency));
-  $form->{shipto} = 1 if $form->{id};
+  $form->{shipto} = 1 if $form->{id} || $form->{convert_from_oe_ids};
 
   # get customer / vendor
   if ($form->{vc} eq 'vendor') {
@@ -303,7 +303,7 @@ sub form_header {
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
   # und Erweiterung für Bug 1760:
   # Das war leider nur ein Teil-Fix, da das Verhalten den 'Erneuern'-Knopf
-  # nicht überlebt. Konsequent jetzt auf L umgestellt 
+  # nicht überlebt. Konsequent jetzt auf L umgestellt
   #   $ perldoc SL::Template::Plugin::L
   # Daher entsprechend nur die Anpassung in form_header
   # und in DO.pm gemacht. 4 Testfälle:
@@ -477,7 +477,7 @@ sub orders {
     ids                     transdate
     id                      donumber
     ordnumber
-    name                    employee
+    name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description
     open                    delivered
@@ -506,6 +506,7 @@ sub orders {
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
+    'salesman'                => { 'text' => $locale->text('Salesman'), },
     'shipvia'                 => { 'text' => $locale->text('Ship via'), },
     'globalprojectnumber'     => { 'text' => $locale->text('Project Number'), },
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
@@ -513,7 +514,7 @@ sub orders {
     'delivered'               => { 'text' => $locale->text('Delivered'), },
   );
 
-  foreach my $name (qw(id transdate donumber ordnumber name employee shipvia transaction_description)) {
+  foreach my $name (qw(id transdate donumber ordnumber name employee salesman shipvia transaction_description)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -781,6 +782,7 @@ sub invoice {
   require "bin/mozilla/$form->{script}";
 
   my $currency = $form->{currency};
+  $form->{shipto} = 1 if $form->{convert_from_do_ids};
   invoice_links();
 
   if ($form->{ordnumber}) {
