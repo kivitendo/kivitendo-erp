@@ -28,12 +28,12 @@ GetOptions(
   "c|color!"    => \ ( my $c = 1 ),
 );
 
-# if notihing is requested check "required"
+# if nothing is requested check "required"
 $check{r} = 1 unless defined $check{a} ||
                      defined $check{l} ||
                      defined $check{o} ||
                      defined $check{d};
-
+my $default_run ='1' if $check{r};  # no parameter, therefore print a note after default run
 if ($check{a}) {
   foreach my $check (keys %check) {
     $check{$check} = 1 unless defined $check{$check};
@@ -46,6 +46,7 @@ $| = 1;
 if ($check{r}) {
   print_header('Checking Required Modules');
   check_module($_, required => 1) for @SL::InstallationCheck::required_modules;
+  print_header('Standard check for required modules done. See additional parameters for more checks (-- help)') if $default_run;
 }
 if ($check{o}) {
   print_header('Checking Optional Modules');
@@ -123,8 +124,13 @@ sub check_module {
   my ($module, %role) = @_;
 
   my $line = "Looking for $module->{fullname}";
-  my $res = SL::InstallationCheck::module_available($module->{"name"}, $module->{version});
-  print_result($line, $res);
+  my ($res, $ver) = SL::InstallationCheck::module_available($module->{"name"}, $module->{version});
+  if ($res) {
+    print_line($line, $ver || 'no version', 'green');
+  } else {
+    print_result($line, $res);
+  }
+
 
   return if $res;
 
@@ -178,8 +184,17 @@ sub mycolor {
 
 sub print_result {
   my ($test, $exit) = @_;
-  print $test, " ", ('.' x (72 - length $test));
-  print $exit ? '.... '. mycolor('ok', 'green') : ' '. mycolor('NOT ok', 'red');
+  if ($exit) {
+    print_line($test, 'ok', 'green');
+  } else {
+    print_line($test, 'NOT ok', 'red');
+  }
+}
+
+sub print_line {
+  my ($text, $res, $color) = @_;
+  print $text, " ", ('.' x (78 - length($text) - length($res)));
+  print mycolor($res, $color);
   print "\n";
   return;
 }

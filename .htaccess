@@ -1,0 +1,11 @@
+### Choose a character set (just in case you like to change it here)
+### uncommit the line you wish to activate
+#AddDefaultCharset ISO-8859-15
+#AddDefaultCharset UTF-8
+
+### simple access control by client ip
+### uncomment the lines starting with Order ..., Deny ... and Allow ...
+### examples: "Allow from 192.168" or "Allow from 192.168.1" or "Allow from 192.168.178" or "Allow from 217.84.201.2"
+#Order deny,allow
+#Deny from all
+#Allow from 192.168
