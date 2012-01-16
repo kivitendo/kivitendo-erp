@@ -831,7 +831,7 @@ sub invoice {
 
   #  show pricegroup in newly loaded invoice when creating invoice from delivery order
   for my $i (1 .. $form->{rowcount}) {
-    $form->{"sellprice_pg_$i"} = join /--/, $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
+    $form->{"sellprice_pg_$i"} = join '--', $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
   }
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
   set_pricegroup($_) for 1 .. $form->{rowcount};
@@ -937,7 +937,7 @@ sub invoice_multi {
 
   #  show pricegroup in newly loaded invoice when creating invoice from delivery order
   for my $i (1 .. $form->{rowcount}) {
-    $form->{"sellprice_pg_$i"} = join /--/, $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
+    $form->{"sellprice_pg_$i"} = join '--', $form->{"sellprice_$i"}, $form->{"pricegroup_id_$i"};
   }
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
   set_pricegroup($_) for 1 .. $form->{rowcount};
