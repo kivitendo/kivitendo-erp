@@ -93,7 +93,7 @@ sub taxamount {
   my $self = shift;
   die 'not a setter method' if @_;
 
-  return $self->amount - $self->netamount;
+  return ($self->amount || 0) - ($self->netamount || 0);
 }
 
 __PACKAGE__->meta->make_attr_helpers(taxamount => 'numeric(15,5)');
