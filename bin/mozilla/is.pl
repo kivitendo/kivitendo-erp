@@ -485,8 +485,6 @@ sub update {
 
   my ($recursive_call) = @_;
 
-  $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
-
   $form->{print_and_post} = 0         if $form->{second_run};
   my $taxincluded         = $form->{taxincluded} ? "checked" : '';
   $form->{update} = 1;
@@ -495,6 +493,9 @@ sub update {
 
   $form->{taxincluded} ||= $taxincluded;
 
+  if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
+    $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate}) unless $recursive_call;
+  }
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{invdate}, 'buy');
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 

@@ -536,11 +536,13 @@ sub update {
 
   set_headings($form->{"id"} ? "edit" : "add");
 
-  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate) unless $recursive_call;
   $form->{update} = 1;
 
   &check_name($form->{vc});
 
+  if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
+    map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(exchangerate) unless $recursive_call;
+  }
   my $buysell           = 'buy';
   $buysell              = 'sell' if ($form->{vc} eq 'vendor');
   $form->{forex}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{transdate}, $buysell);
