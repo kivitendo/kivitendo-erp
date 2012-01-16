@@ -67,7 +67,8 @@ sub _register_db {
   } else {
     my $european_dates = 0;
     if ($::myconfig{dateformat}) {
-      $european_dates = 1 if $_dateformats{ $::myconfig{dateformat} } =~ m/european/i;
+      $european_dates = 1 if $_dateformats{ $::myconfig{dateformat} }
+                          && $_dateformats{ $::myconfig{dateformat} } =~ m/european/i;
     }
 
     %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
