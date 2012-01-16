@@ -68,6 +68,10 @@
           zuerst nach der Abhängigkeitstiefe (wenn "z" von "y" abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von 2, "y" von 1
           und "x" von 0. "x" würde hier zuerst ausgeführt, dann "y", dann "z"), dann nach der Priorität und bei gleicher Priorität
           alphabetisch nach dem "tag".
+         </p></dd><dt><span class="term">
+                     <code class="varname">ignore</code>
+                  </span></dt><dd><p>
+          Optional. Falls der Wert auf 1 (true) steht, wird das Skript bei der Anmeldung ignoriert und entsprechend nicht ausgeführt.
          </p></dd></dl></div></div><div class="sect2" title="4.3.3. Hilfsscript dbupgrade2_tool.pl"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.dbupgrade-tool"></a>4.3.3. Hilfsscript dbupgrade2_tool.pl</h3></div></div></div><p>
        Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern, existiert ein Hilfsscript namens
        "<code class="filename">scripts/dbupgrade2_tool.pl</code>". Es muss aus dem Lx-Office-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses
