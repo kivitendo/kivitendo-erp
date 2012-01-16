@@ -28,12 +28,12 @@ GetOptions(
   "c|color!"    => \ ( my $c = 1 ),
 );
 
-# if notihing is requested check "required"
+# if nothing is requested check "required"
 $check{r} = 1 unless defined $check{a} ||
                      defined $check{l} ||
                      defined $check{o} ||
                      defined $check{d};
-
+my $default_run ='1' if $check{r};  # no parameter, therefore print a note after default run
 if ($check{a}) {
   foreach my $check (keys %check) {
     $check{$check} = 1 unless defined $check{$check};
@@ -46,6 +46,7 @@ $| = 1;
 if ($check{r}) {
   print_header('Checking Required Modules');
   check_module($_, required => 1) for @SL::InstallationCheck::required_modules;
+  print_header('Standard check for required modules done. See additional parameters for more checks (-- help)') if $default_run;
 }
 if ($check{o}) {
   print_header('Checking Optional Modules');
