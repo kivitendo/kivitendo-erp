@@ -58,7 +58,7 @@ cp -R ../custom-cfg/* ${custom}/
 
 if [[ $pdf = 1 ]] ; then
   ./generator.sh dokumentation pdf
-  cp ${output}/pdf/dokumentation.pdf ../../
+  cp ${output}/pdf/dokumentation.pdf ../../Lx-Office-Dokumentation.pdf
 fi
 
 if [[ $html = 1 ]]; then
