@@ -11,6 +11,8 @@ if [[ ! -d doc ]]; then
   exit 1
 fi
 
+doc=${PWD}/doc
+
 html=1
 pdf=1
 
@@ -52,18 +54,18 @@ custom=${base}/custom-cfg
 rm -rf ${input} ${custom}
 mkdir ${input} ${input}/copy_to_output ${custom}
 
-cp ../../dokumentation.xml ${input}/
-cp -R ../../images ${input}/copy_to_output/
-cp -R ../custom-cfg/* ${custom}/
+cp ${doc}/dokumentation.xml ${input}/
+test -d ${doc}images && cp -R ${doc}/images ${input}/copy_to_output/
+cp -R ${doc}/build/custom-cfg/* ${custom}/
 
 if [[ $pdf = 1 ]] ; then
   ./generator.sh dokumentation pdf
-  cp ${output}/pdf/dokumentation.pdf ../../Lx-Office-Dokumentation.pdf
+  cp ${output}/pdf/dokumentation.pdf ${doc}/Lx-Office-Dokumentation.pdf
 fi
 
 if [[ $html = 1 ]]; then
   ./generator.sh dokumentation html
-  rm -rf ../../html
-  mkdir ../../html
-  cp -R ${output}/html ../../
+  rm -rf ${doc}/html
+  mkdir ${doc}/html
+  cp -R ${output}/html ${doc}/
 fi
