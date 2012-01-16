@@ -51,7 +51,13 @@ sub module_available {
   my $module  = $_[0];
   my $version = $_[1] || '' ;
 
-  return eval "use $module $version; 1";
+  my $got = eval "use $module $version; 1";
+
+  if ($got) {
+    return ($got, $module->VERSION);
+  } else {
+    return
+  }
 }
 
 sub check_kpsewhich {
