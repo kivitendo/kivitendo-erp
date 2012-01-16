@@ -10,21 +10,20 @@
         <code class="filename">config/lx_office.conf</code>. Die dort verfügbaren
         Optionen sind:</p><div class="variablelist"><dl><dt><span class="term">
                      <code class="varname">login</code>
-                  </span></dt><dd><p>
-            gültiger Lx-Office-Benutzername, der benutzt wird, um die zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss in
-            der Administration angelegt werden. Diese Option muss angegeben werden.
-           </p></dd><dt><span class="term">
+                  </span></dt><dd><p>gültiger Lx-Office-Benutzername, der benutzt wird, um die
+              zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss
+              in der Administration angelegt werden. Diese Option muss
+              angegeben werden.</p></dd><dt><span class="term">
                      <code class="varname">run_as</code>
-                  </span></dt><dd><p>
-             Wird der Server vom Systembenutzer <code class="literal">root</code> gestartet, so wechselt er auf den mit <code class="literal">run_as</code>
-             angegebenen Systembenutzer.  Der Systembenutzer muss dieselben Lese- und Schreibrechte haben, wie auch der Webserverbenutzer
-             (siehe see <a class="xref" href="ch02s02.html" title="2.2. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>). Daher ist es sinnvoll, hier denselben Systembenutzer
-             einzutragen, unter dem auch der Webserver läuft.
-            </p></dd><dt><span class="term">
+                  </span></dt><dd><p>Wird der Server vom Systembenutzer <code class="literal">root</code>
+              gestartet, so wechselt er auf den mit <code class="literal">run_as</code>
+              angegebenen Systembenutzer. Der Systembenutzer muss dieselben
+              Lese- und Schreibrechte haben, wie auch der Webserverbenutzer
+              (siehe see <a class="xref" href="ch02s02.html" title="2.2. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>). Daher
+              ist es sinnvoll, hier denselben Systembenutzer einzutragen,
+              unter dem auch der Webserver läuft.</p></dd><dt><span class="term">
                      <code class="varname">debug</code>
-                  </span></dt><dd><p>
-             Schaltet Debug-Informationen an und aus.
-            </p></dd></dl></div></div><div class="sect2" title="2.6.2. Automatisches Starten des Task-Servers beim Booten"><div class="titlepage"><div><div><h3 class="title"><a name="Einbinden-in-den-Boot-Prozess"></a>2.6.2. Automatisches Starten des Task-Servers beim Booten</h3></div></div></div><p>Der Task-Server verhält sich von seinen Optionen her wie ein
+                  </span></dt><dd><p>Schaltet Debug-Informationen an und aus.</p></dd></dl></div></div><div class="sect2" title="2.6.2. Automatisches Starten des Task-Servers beim Booten"><div class="titlepage"><div><div><h3 class="title"><a name="Einbinden-in-den-Boot-Prozess"></a>2.6.2. Automatisches Starten des Task-Servers beim Booten</h3></div></div></div><p>Der Task-Server verhält sich von seinen Optionen her wie ein
         reguläres SystemV-kompatibles Boot-Script. Außerdem wechselt er beim
         Starten automatisch in das Lx-Office-Installationsverzeichnis.</p><p>Deshalb ist es möglich, ihn durch Setzen eines symbolischen
         Links aus einem der Runlevel-Verzeichnisse heraus in den Boot-Prozess
@@ -38,13 +37,15 @@
           <code class="literal">DAEMON=....</code>). Binden Sie das Script in den
           Boot-Prozess ein. Dies ist distributionsabhängig:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian-basierende Systeme:</p><pre class="programlisting">update-rc.d lx-office-task-server defaults
 # Nur bei Debian Squeeze und neuer:
-insserv lx-office-task-server</pre></li><li class="listitem"><p>OpenSuSE und Fedora Core:</p><pre class="programlisting">chkconfig --add lx-office-task-server</pre></li></ul></div><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet werden: <span class="command"><strong>/etc/init.d/lx-office-task-server
+insserv lx-office-task-server</pre></li><li class="listitem"><p>OpenSuSE und Fedora Core:</p><pre class="programlisting">chkconfig --add lx-office-task-server</pre></li></ul></div><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden: <span class="command"><strong>/etc/init.d/lx-office-task-server
           start</strong></span>
                </p></div><div class="sect3" title="2.6.2.2. Upstart-basierende Systeme (z.B. Ubuntu)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e722"></a>2.6.2.2. Upstart-basierende Systeme (z.B. Ubuntu)</h4></div></div></div><p>Kopieren Sie die Datei
           <code class="filename">scripts/boot/upstart/lx-office-task-server.conf</code>
           nach <code class="filename">/etc/init/lx-office-task-server.conf</code>.
           Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
-          <code class="literal">exec ....</code>).</p><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet werden: <span class="command"><strong>service lx-office-task-server
+          <code class="literal">exec ....</code>).</p><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden: <span class="command"><strong>service lx-office-task-server
           start</strong></span>
                </p></div></div><div class="sect2" title="2.6.3. Wie der Task-Server gestartet und beendet wird"><div class="titlepage"><div><div><h3 class="title"><a name="Prozesskontrolle"></a>2.6.3. Wie der Task-Server gestartet und beendet wird</h3></div></div></div><p>Der Task-Server wird wie folgt kontrolliert:</p><pre class="programlisting">./scripts/task_server.pl Befehl</pre><p>
                <code class="literal">Befehl</code> ist dabei eine der folgenden

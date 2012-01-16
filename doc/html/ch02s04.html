@@ -4,23 +4,28 @@
         werden. Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in
         Version 8.2 oder neuer benutzt werden, und der
         PostgreSQL-Datenbankcluster muss ebenfalls mit UTF-8 als Locale
-        angelegt worden sein.</p><p>Dieses ist kann überprüft werden: ist das Encoding der Datenbank &#8220;template1&#8221; &#8220;UTF8&#8221;, so kann auch Lx-Office mit UTF-8
-        betrieben werden.  Andernfalls ist es notwendig, einen neuen Datenbankcluster mit UTF-8-Encoding anzulegen und diesen zu
-        verwenden. Unter Debian und Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl getan werden:</p><pre class="programlisting">pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2 clustername</pre><p>Die Datenbankversionsnummer muss an die tatsächlich verwendete Versionsnummer angepasst werden.</p><p>Unter anderen Distributionen gibt es ähnliche Methoden.</p><p>Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und
+        angelegt worden sein.</p><p>Dieses ist kann überprüft werden: ist das Encoding der Datenbank
+        &#8220;template1&#8221; &#8220;UTF8&#8221;, so kann auch Lx-Office mit UTF-8 betrieben werden.
+        Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
+        UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
+        Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl
+        getan werden:</p><pre class="programlisting">pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2 clustername</pre><p>Die Datenbankversionsnummer muss an die tatsächlich verwendete
+        Versionsnummer angepasst werden.</p><p>Unter anderen Distributionen gibt es ähnliche Methoden.</p><p>Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und
         ist ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
-        Lx-Office mit ISO-8859-15 als Encoding betrieben werden.</p><p>Das Encoding einer Datenbank kann in <span class="command"><strong>psql</strong></span> mit <code class="literal">\l</code> geprüft werden.</p></div><div class="sect2" title="2.4.2. Änderungen an Konfigurationsdateien"><div class="titlepage"><div><div><h3 class="title"><a name="%C3%84nderungen-an-Konfigurationsdateien"></a>2.4.2. Änderungen an Konfigurationsdateien</h3></div></div></div><p>In der Datei <code class="filename">postgresql.conf</code>, die je nach
+        Lx-Office mit ISO-8859-15 als Encoding betrieben werden.</p><p>Das Encoding einer Datenbank kann in <span class="command"><strong>psql</strong></span> mit
+        <code class="literal">\l</code> geprüft werden.</p></div><div class="sect2" title="2.4.2. Änderungen an Konfigurationsdateien"><div class="titlepage"><div><div><h3 class="title"><a name="%C3%84nderungen-an-Konfigurationsdateien"></a>2.4.2. Änderungen an Konfigurationsdateien</h3></div></div></div><p>In der Datei <code class="filename">postgresql.conf</code>, die je nach
         Distribution in verschiedenen Verzeichnissen liegen kann (z.B.
         <code class="filename">/var/lib/pgsql/data/</code> oder
-        <code class="filename">/etc/postgresql/</code>, muss sichergestellt werden, dass
-        TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
+        <code class="filename">/etc/postgresql/</code>, muss sichergestellt werden,
+        dass TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
         Parameter <code class="varname">listen_address</code> gesteuert. Laufen
         PostgreSQL und Lx-Office auf demselben Rechner, so kann dort der Wert
         <code class="literal">localhost</code> verwendet werden. Andernfalls müssen
         Datenbankverbindungen auch von anderen Rechnern aus zugelassen werden,
         was mit dem Wert <code class="literal">*</code> geschieht.</p><p>In der Datei <code class="filename">pg_hba.conf</code>, die im gleichen
-        Verzeichnis wie die <code class="filename">postgresql.conf</code> zu finden sein
-        sollte, müssen die Berichtigungen für den Zugriff geändert werden.
-        Hier gibt es mehrere Möglichkeiten. Eine besteht darin, lokale
+        Verzeichnis wie die <code class="filename">postgresql.conf</code> zu finden
+        sein sollte, müssen die Berichtigungen für den Zugriff geändert
+        werden. Hier gibt es mehrere Möglichkeiten. Eine besteht darin, lokale
         Verbindungen immer zuzulassen:</p><pre class="programlisting">local all all trust
 host all all 127.0.0.1 255.0.0.0 trust</pre><p>Besser ist es, für eine bestimmte Datenbank Zugriff nur per
         Passwort zuzulassen. Beispielsweise:</p><pre class="programlisting">local all lxoffice password
