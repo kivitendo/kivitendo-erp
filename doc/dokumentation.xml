@@ -4216,27 +4216,27 @@ Beschreibung: &lt;%description%&gt;
 
         <para><productname>SQL-Ledger</productname> hat fast alles im globalen
         namespace abgelegt, und erwartet, dass es da auch wiederzufinden ist.
-        Unter <productname>FCGI</productname> müssen diese Sachen auch wieder
+        Unter <productname>FCGI</productname> müssen diese Sachen aber wieder
         aufgeräumt werden, damit sie nicht in den nächsten Request kommen.
         Einige Sachen wiederum sollen nicht gelöscht werden, wie zum Beispiel
-        Datenbankverbindungen, weil die ne Ewigkeit zum initialisieren
+        Datenbankverbindungen, weil die sehr lange zum Initialisieren
         brauchen.</para>
 
         <para>Das zweite Problem ist <function>strict</function>. Unter
         <function>strict</function> werden alle Variablen die nicht explizit
         mit <function>Package</function>, <function>my</function> oder
         <function>our</function> angegeben werden als Tippfehler angemarkert,
-        was einen vor so mancher Stunde suchen nach einem Bug erspart. Da
-        globale Variablen aber implizit mit Package angegeben werden, werden
-        die nicht geprüft, und ein Tippfehler da fällt niemandem auf.</para>
+        dies hat, seit der Einführung, u.a. schon so manche langwierige Bug-Suche verkürzt.
+        Da globale Variablen aber implizit mit Package angegeben werden, werden
+        die nicht geprüft, und somit kann sich schnell ein Tippfehler einschleichen.</para>
       </sect2>
 
       <sect2>
         <title>Kanonische globale Variablen</title>
 
         <para>Um dieses Problem im Griff zu halten gibt es einige wenige
-        globale Variablen, die kanonisch sind, und alles andere sollte
-        anderweitig umhergereicht werden.</para>
+        globale Variablen, die kanonisch sind, d.h. sie haben bestimmte vorgegebenen Eigenschaften,
+        und alles andere sollte anderweitig umhergereicht werden.</para>
 
         <para>Diese Variablen sind im Moment die folgenden neun:</para>
 
@@ -4278,8 +4278,8 @@ Beschreibung: &lt;%description%&gt;
           </listitem>
         </itemizedlist>
 
-        <para>Damit diese nicht als Müllhalde misbrauch werden, im Folgenden
-        eine kurze Erläuterung was man von denn erwarten kann.</para>
+        <para>Damit diese nicht erneut als Müllhalde missbraucht werden, im Folgenden
+        eine kurze Erläuterung der bestimmten vorgegebenen Eigenschaften (Konventionen):</para>
 
         <sect3>
           <title>$::form</title>
@@ -4313,14 +4313,24 @@ Beschreibung: &lt;%description%&gt;
           <para><varname>$::form</varname> wurde unter <productname>SQL
           Ledger</productname> als Gottobjekt für alles misbraucht. Sämtliche
           alten Funktionen unter SL/ mutieren <varname>$::form</varname>, das
-          heißt, alles was einem lieb ist, sollte man vor einem Aufruf von zum
+          heißt, alles was einem lieb ist (alle Variablen die einem ans Herz
+          gewachsen sind), sollte man vor einem Aufruf (!) von zum
           Beispiel <function>IS-&gt;retrieve_customer()</function> in
-          Sicherheit bringen.</para>
-
+          Sicherheit bringen. </para>
+          Z.B. das vom Benutzer eingestellte Zahlenformat, bevor man Berechnung in einem
+          bestimmten Format durchführt (SL/Form.pm Zeile 3552, Stand version 2.7beta), um
+          dies hinterher wieder auf den richtigen Wert zu setzen:
+          <programlisting>
+            my $saved_numberformat    = $::myconfig{numberformat};
+            $::myconfig{numberformat} = $numberformat;
+            # (...) div Berechnungen
+            $::myconfig{numberformat} = $saved_numberformat;
+          </programlisting>
           <para>Das Objekt der Klasse Form hat leider im Moment noch viele
-          zentrale Funktionen Gdie vom internen Zustand abhängen, deshalb
-          bitte nie einfach zerstören oder überschreiben. Es geht ziemlich
-          sicher etwas kaputt.</para>
+          zentrale Funktionen die vom internen Zustand abhängen, deshalb
+          bitte nie einfach zerstören oder überschreiben (zumindestens nicht kurz
+          vor einem Release oder in Absprache über bspw. die devel-Liste ;-).
+          Es geht ziemlich sicher etwas kaputt.</para>
 
           <para><varname>$::form</varname> ist gleichzeitig der Standard Scope
           in den <productname>Template::Toolkit</productname> Templates
@@ -4330,10 +4340,32 @@ Beschreibung: &lt;%description%&gt;
           Zugriff <function>[% FORM.var %]</function>. In Druckvorlagen sind
           normale Variablen ebenfall im <varname>$::form</varname> Scope, d.h.
           <function>&lt;%var%&gt;</function> zeigt auf
-          <varname>$::form-&gt;{var}</varname>. Innerhalb von Schleifen wird
+          <varname>$::form-&gt;{var}</varname>.
+          Nochmal von der anderen Seite erläutert, innerhalb von (Web-)Templates sieht
+          man häufiger solche Konstrukte:
+          <programlisting>
+            [%- IF business %]
+            # (... Zeig die Auswahlliste Kunden-/Lieferantentyp an
+            [%- END %]
+         </programlisting>
+        Entweder wird hier dann $::form->{business} ausgewertet oder aber der Funktion
+        <function>$form->parse_html_template</function> wird explizit noch ein zusätzlicher Hash
+        übergeben, der dann auch in den (Web-)Templates zu Verfügung steht, bspw. so:
+          <function>$form->parse_html_template("is/form_header", \%TMPL_VAR);</function>
+
+          Innerhalb von Schleifen wird
           <varname>$::form-&gt;{TEMPLATE_ARRAYS}{var}[$index]</varname>
           bevorzugt, wenn vorhanden.</para>
-        </sect3>
+          Zum Beispiel in SL/DO.pm welche über alle Positionen eines Lieferscheins
+          in Schleife läuft:
+          <programlisting>
+            for $i (1 .. $form->{rowcount}) {
+              (...)
+              push @{ $form->{TEMPLATE_ARRAYS}{runningnumber} },   $position;
+              push @{ $form->{TEMPLATE_ARRAYS}{number} },          $form->{"partnumber_$i"};
+              push @{ $form->{TEMPLATE_ARRAYS}{description} },     $form->{"description_$i"};
+         </programlisting>
+                 </sect3>
 
         <sect3>
           <title>%::myconfig</title>
@@ -4359,7 +4391,7 @@ Beschreibung: &lt;%description%&gt;
             <listitem>
               <para>Sollte nicht ohne Filterung irgendwo gedumpt werden oder
               extern serialisiert werden, weil da auch der Datenbankzugriff
-              für diesenuser drinsteht.</para>
+              für diesen user drinsteht.</para>
             </listitem>
 
             <listitem>
@@ -4375,7 +4407,11 @@ Beschreibung: &lt;%description%&gt;
           <para><varname>%::myconfig</varname> ist im Moment der Ersatz für
           ein Userobjekt. Die meisten Funktionen, die etwas anhand des
           aktuellen Users entscheiden müssen, befragen
-          <varname>%::myconfig</varname>.</para>
+          <varname>%::myconfig</varname>.
+          Innerhalb der Anwendungen sind dies überwiegend die Daten, die sich
+          unter Programm->Einstellungen befinden, bzw. die Informationen über den
+          Benutzer die über die Administrator-Schnittstelle (admin.pl) eingegeben wurden.
+        </para>
         </sect3>
 
         <sect3>
@@ -4429,7 +4465,13 @@ Beschreibung: &lt;%description%&gt;
           brauchbares Tracing gebaut ist, "<function>log_time</function>", mit
           der man die Wallclockzeit seit Requeststart loggen kann, sowie
           "<function>message</function>" und "<function>dump</function>" mit
-          denen man flott Informationen ins Log packen kann.</para>
+          denen man flott Informationen ins Log (tmp/lx-office-debug.log) packen kann.</para>
+          Beispielsweise so:
+          <programlisting>
+            $main::lxdebug->message(0, 'Meine Konfig:' . Dumper (%::myconfig));
+            $main::lxdebug->message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form->{vc});
+
+          </programlisting>
         </sect3>
 
         <sect3>
@@ -4479,14 +4521,15 @@ Beschreibung: &lt;%description%&gt;
             </listitem>
           </itemizedlist>
 
-          <para>Globale Konfiguration. Configdateien werden zum Start gelesen,
-          und nicht mehr angefasst. Es ist derzeit nicht geplant, dass das
+          <para>Globale Konfiguration. Configdateien werden zum Start gelesen
+          und danach nicht mehr angefasst. Es ist derzeit nicht geplant, dass das
           Programm die Konfiguration ändern kann oder sollte.</para>
 
-          <para>Für die folgende Konfigurationsdatei:</para>
+          <para>Beispielsweise ist über den Konfigurationseintrag [debug]
+                die Debug- und Trace-Log-Datei wie folgt konfiguriert und verfügbar:</para>
 
           <programlisting>[debug]
-file = /tmp/lxoffice_debug_log.txt</programlisting>
+file = /tmp/lx-office-debug.log</programlisting>
 
           <para>ist der Key <varname>file</varname> im Programm als
           <varname>$::lx_office_conf-&gt;{debug}{file}</varname>
@@ -4514,9 +4557,10 @@ file = /tmp/lxoffice_debug_log.txt</programlisting>
 
           <para>Funktioniert wie <varname>$::lx_office_conf</varname>,
           speichert aber Daten die von der Instanz abhängig sind. Eine Instanz
-          ist hier eine Mandantendatenbank. Prominentestes Datum ist "eur",
-          die Information ob Bilanz oder Einnahmenüberschussrechnung gemacht
-          wird.</para>
+          ist hier eine Mandantendatenbank.
+          Beispielsweise überprüft
+          <programlisting>$::instance_conf->get_inventory_system eq 'perpetual'</programlisting>
+          ob die berüchtigte Bestandsmethode zur Anwendung kommt.</para>
         </sect3>
 
         <sect3>
@@ -4884,6 +4928,14 @@ file = /tmp/lxoffice_debug_log.txt</programlisting>
           zuerst nach der Abhängigkeitstiefe (wenn "z" von "y" abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von 2, "y" von 1
           und "x" von 0. "x" würde hier zuerst ausgeführt, dann "y", dann "z"), dann nach der Priorität und bei gleicher Priorität
           alphabetisch nach dem "tag".
+         </para>
+        </listitem>
+       </varlistentry>
+       <varlistentry>
+        <term><varname>ignore</varname></term>
+        <listitem>
+         <para>
+          Optional. Falls der Wert auf 1 (true) steht, wird das Skript bei der Anmeldung ignoriert und entsprechend nicht ausgeführt.
          </para>
         </listitem>
        </varlistentry>
@@ -5360,7 +5412,7 @@ $some_hash{42}    = 54;</programlisting>
 
        <listitem>
         <para>
-         Die maximale Zeilenlänge ist nicht bescränkt. Zeilenlängen unterhalb von 79 Zeichen helfen unter bestimmten Bedingungen, aber
+         Die maximale Zeilenlänge ist nicht beschränkt. Zeilenlängen unterhalb von 79 Zeichen helfen unter bestimmten Bedingungen, aber
          wenn die Lesbarkeit unter kurzen Zeilen leidet (wie zum Biespiel in grossen Tabellen), dann ist Lesbarkeit vorzuziehen.
         </para>
 
