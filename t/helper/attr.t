@@ -1,21 +1,19 @@
 use Test::More tests => 29;
 
+use lib 't';
+
 use DateTime;
 
+use_ok 'Support::TestSetup';
 use_ok 'SL::DB::Part';
 use_ok 'SL::DB::Order';
 use_ok 'SL::DB::Invoice';
-use_ok 'SL::Dispatcher';
 
+Support::TestSetup::login();
 
 {
-$::dispatcher = SL::Dispatcher->new;
-$::dispatcher->pre_startup_setup;
-no warnings 'once';
-$::form = Form->new;
 $::myconfig{numberformat} = '1.000,00';
 $::myconfig{dateformat} = 'dd.mm.yyyy';
-$::locale = Locale->new('de');
 }
 
 my $p = new_ok 'SL::DB::Part';
