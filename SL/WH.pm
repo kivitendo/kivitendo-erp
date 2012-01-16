@@ -115,6 +115,8 @@ sub transfer {
         $qty /= $part->unit_obj->factor || 1 if $part->unit;
       }
 
+      $params{chargenumber} ||= '';
+
       if ($direction & 1) {
         SL::DB::Inventory->new(
           %params,

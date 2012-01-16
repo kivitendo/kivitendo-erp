@@ -852,6 +852,7 @@ sub format_amount {
   $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
+  $dash ||= '';
 
   if ($amount eq "") {
     $amount = 0;
@@ -868,9 +869,10 @@ sub format_amount {
         $amount *= 1;
         $places *= -1;
 
-        my ($actual_places) = ($amount =~ /\.(\d+)/);
-        $actual_places = length($actual_places);
-        $places = $actual_places > $places ? $actual_places : $places;
+        if ($amount =~ /\.(\d+)/) {
+          my $actual_places = length $1;
+          $places = $actual_places if $actual_places > $places;
+        }
       }
     }
     $amount = $self->round_amount($amount, $places);
@@ -882,7 +884,7 @@ sub format_amount {
   $p[0] =~ s/\B(?=(...)*$)/$d[1]/g if $d[1]; # add 1,000 delimiters
 
   $amount = $p[0];
-  $amount .= $d[0].$p[1].(0 x ($places - length $p[1])) if ($places || $p[1] ne '');
+  $amount .= $d[0].($p[1]||'').(0 x ($places - length ($p[1]||''))) if ($places || $p[1] ne '');
 
   $amount = do {
     ($dash =~ /-/)    ? ($neg ? "($amount)"                            : "$amount" )                              :

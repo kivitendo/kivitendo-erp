@@ -1,12 +1,16 @@
-use Test::More tests => 39;
-use SL::Dispatcher;
+use Test::More tests => 40;
+
+use lib 't';
+
 use Data::Dumper;
 use utf8;
 
+use_ok 'Support::TestSetup';
 use_ok 'SL::Helper::Csv';
-my $csv;
 
-$csv = SL::Helper::Csv->new(
+Support::TestSetup::login();
+
+my $csv = SL::Helper::Csv->new(
   file   => \"Kaffee\n",
   header => [ 'description' ],
   class  => 'SL::DB::Part',
@@ -17,20 +21,11 @@ isa_ok $csv->_io, 'IO::File';
 isa_ok $csv->parse, 'SL::Helper::Csv', 'parsing returns self';
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'simple case works';
 
-
 is $csv->get_objects->[0]->description, 'Kaffee', 'get_object works';
 ####
 
-{
-no warnings 'once';
-$::dispatcher = SL::Dispatcher->new;
-$::dispatcher->pre_startup_setup();
-}
-
-$::form = Form->new;
 $::myconfig{numberformat} = '1.000,00';
 $::myconfig{dateformat} = 'dd.mm.yyyy';
-$::locale = Locale->new('de');
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee;0.12;12,2;1,5234\n",
