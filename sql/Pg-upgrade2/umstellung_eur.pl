@@ -1,5 +1,5 @@
 # @tag: umstellung_eur
-# @description: Variable eur umstellen: bitte doc/umstellung_eur.txt lesen
+# @description: Variable eur umstellen: bitte in doc/dokumentation.pdf das entsprechende Kapitel zur Konfiguration von EUR lesen
 # @depends: release_2_6_3
 # @charset: utf-8
 
@@ -62,7 +62,7 @@ sub do_update {
   # only set parameters if they haven't already been set (this in only the case
   # when upgrading)
 
-  my $update_eur = "UPDATE defaults set accounting_method = '$accounting_method' where accounting_method is null;" . 
+  my $update_eur = "UPDATE defaults set accounting_method = '$accounting_method' where accounting_method is null;" .
                    "UPDATE defaults set inventory_system = '$inventory_system' where inventory_system is null; " .
                    "UPDATE defaults set profit_determination = '$profit_determination' where profit_determination is null;";
   do_query($update_eur);

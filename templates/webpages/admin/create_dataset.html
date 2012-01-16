@@ -58,7 +58,7 @@
       <select name="inventory_system">
        [% FOREACH row = INVENTORY_SYSTEMS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
       </select>
-     * f&uuml;r die Bestandsmethode gibt es Einschr&auml;nkungen, siehe Bemerkungen in <a href="doc/umstellung_eur.txt">EUR Umstellung in Mandant</a>.
+     * f&uuml;r die Bestandsmethode gibt es Einschr&auml;nkungen, siehe Kapitel "Bemerkungen zu Bestandsmethode"  in <a href="doc/dokumentation.pdf">dokumentation.pdf</a>.
      </td>
 
     </tr>
@@ -73,7 +73,7 @@
    </tr>
     <tr>
     <td colspan="2">
-    *) Seit 2.7 werden Gewinnermittlungsart, Versteuerungsart und Warenbuchungsmethode in der Mandanten-DB gesteuert und nicht mehr in der lx-erp.conf, Umstellungs-Details: <a href="doc/umstellung_eur.txt">EUR Umstellung in Mandant</a>
+    *) Seit 2.7 werden Gewinnermittlungsart, Versteuerungsart und Warenbuchungsmethode in der Mandanten-DB gesteuert und nicht mehr in der lx-erp.conf / lx_office.conf, Umstellungs-Details: <a href="doc/dokumentation.pdf">Kapitel Konfiguration zur Einnahmen&uuml;berschussrechnung/ Bilanzierung: EUR</a>
     </td>
     </tr>
    </table>
@@ -105,7 +105,7 @@
               "Die Buchungsgruppen sind nicht korrekt vorkonfiguriert" +
               "\n" +
               "fuer Kunden im Ausland." +
-              "\n" + 
+              "\n" +
               "Hinweis vom 20.09.2011");
       }
       if (s == 'Swiss-German') {
