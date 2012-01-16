@@ -25,8 +25,6 @@
         url="http://www.lx-office.org/forum/">http://www.lx-office.org/forum/</ulink></para>
       </listitem>
     </itemizedlist>
-
-    <!--  -->
   </chapter>
 
   <chapter id="config">
@@ -462,8 +460,6 @@ host all all 127.0.0.1 255.0.0.0 trust</programlisting>
 
         <programlisting>local all lxoffice password
 host all lxoffice 127.0.0.1 255.255.255.255 password</programlisting>
-
-        <!--  -->
       </sect2>
 
       <sect2 id="Erweiterung-für-servergespeicherte-Prozeduren">
@@ -475,7 +471,6 @@ host all lxoffice 127.0.0.1 255.255.255.255 password</programlisting>
         führen Sie die folgenden Kommandos aus:</para>
 
         <programlisting>create language 'plpgsql';</programlisting>
-        <!--  -->
       </sect2>
 
       <sect2 id="Datenbankbenutzer-anlegen">
@@ -491,8 +486,6 @@ host all lxoffice 127.0.0.1 255.255.255.255 password</programlisting>
         <para>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
         Sie den evtl. voreingestellten Benutzer “postgres” auf “lxoffice” bzw.
         den hier gewählten Benutzernamen.</para>
-
-        <!--  -->
       </sect2>
     </sect1>
 
@@ -850,8 +843,6 @@ insserv lx-office-task-server</programlisting>
 
         <para>Dieselben Optionen können auch für die SystemV-basierenden
         Runlevel-Scripte benutzt werden (siehe oben).</para>
-
-        <!--  -->
       </sect2>
     </sect1>
 
@@ -860,8 +851,6 @@ insserv lx-office-task-server</programlisting>
 
       <para>Informationen über die Einrichtung der Benutzerauthentifizierung,
       über die Verwaltung von Gruppen und weitere Einstellungen</para>
-
-      <!--  -->
 
       <sect2 id="Grundlagen-zur-Benutzerauthentifizierung">
         <title>Grundlagen zur Benutzerauthentifizierung</title>
@@ -1043,8 +1032,6 @@ insserv lx-office-task-server</programlisting>
 
         <para><ulink
         url="http://localhost/lx-erp/admin.pl">http://localhost/lx-erp/admin.pl</ulink></para>
-
-        <!--  -->
       </sect2>
     </sect1>
 
@@ -1213,8 +1200,6 @@ insserv lx-office-task-server</programlisting>
         Mitglied in dieser Gruppe. Damit wird das Verhalten von Lx-Office bis
         Version 2.4.3 inklusive wiederhergestellt, und die Benutzer können
         sich sofort wieder anmelden und mit dem System arbeiten.</para>
-
-        <!--  -->
       </sect2>
     </sect1>
 
@@ -1264,8 +1249,6 @@ insserv lx-office-task-server</programlisting>
       <literal>pdflatex</literal>), und stellen Sie sicher, dass pdflatex
       (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
       darf.</para>
-
-      <!--  -->
     </sect1>
 
     <sect1 id="OpenDocument-Vorlagen">
@@ -1340,8 +1323,6 @@ insserv lx-office-task-server</programlisting>
       sein. Dieses wurde bereits erledigt (siehe <xref
       linkend="Manuelle-Installation-des-Programmpaketes"/>), kann aber erneut
       überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</para>
-
-      <!--  -->
     </sect1>
 
     <sect1 id="config.eur">
@@ -1456,7 +1437,7 @@ insserv lx-office-task-server</programlisting>
        <para>
         Bei bestimmten Berichten kann man derzeit noch inviduell einstellen, ob man nach Ist- oder Sollversteuerung auswertet, und es werden
         im Code Variablen wie $accrual oder $cash gesetzt. Diese Codestellen wurden noch nicht angepasst, sondern nur die, wo bisher
-        die Konfigurationsvariable <varname>$::lx_office_conf{system}->{eur}</varname> ausgewertet wurde.
+        die Konfigurationsvariable <varname>$::lx_office_conf{system}-&gt;{eur}</varname> ausgewertet wurde.
        </para>
 
        <para>
@@ -4317,55 +4298,57 @@ Beschreibung: &lt;%description%&gt;
           gewachsen sind), sollte man vor einem Aufruf (!) von zum
           Beispiel <function>IS-&gt;retrieve_customer()</function> in
           Sicherheit bringen. </para>
-          Z.B. das vom Benutzer eingestellte Zahlenformat, bevor man Berechnung in einem
-          bestimmten Format durchführt (SL/Form.pm Zeile 3552, Stand version 2.7beta), um
-          dies hinterher wieder auf den richtigen Wert zu setzen:
-          <programlisting>
-            my $saved_numberformat    = $::myconfig{numberformat};
-            $::myconfig{numberformat} = $numberformat;
-            # (...) div Berechnungen
-            $::myconfig{numberformat} = $saved_numberformat;
-          </programlisting>
-          <para>Das Objekt der Klasse Form hat leider im Moment noch viele
-          zentrale Funktionen die vom internen Zustand abhängen, deshalb
-          bitte nie einfach zerstören oder überschreiben (zumindestens nicht kurz
-          vor einem Release oder in Absprache über bspw. die devel-Liste ;-).
-          Es geht ziemlich sicher etwas kaputt.</para>
 
-          <para><varname>$::form</varname> ist gleichzeitig der Standard Scope
-          in den <productname>Template::Toolkit</productname> Templates
-          außerhalb der Controller: der Ausdruck <function>[% var
-          %]</function> greift auf <varname>$::form-&gt;{var}</varname> zu.
-          Unter Controllern ist der Standard Scope anders, da lautet der
-          Zugriff <function>[% FORM.var %]</function>. In Druckvorlagen sind
-          normale Variablen ebenfall im <varname>$::form</varname> Scope, d.h.
-          <function>&lt;%var%&gt;</function> zeigt auf
-          <varname>$::form-&gt;{var}</varname>.
-          Nochmal von der anderen Seite erläutert, innerhalb von (Web-)Templates sieht
-          man häufiger solche Konstrukte:
-          <programlisting>
-            [%- IF business %]
-            # (... Zeig die Auswahlliste Kunden-/Lieferantentyp an
-            [%- END %]
-         </programlisting>
-        Entweder wird hier dann $::form->{business} ausgewertet oder aber der Funktion
-        <function>$form->parse_html_template</function> wird explizit noch ein zusätzlicher Hash
-        übergeben, der dann auch in den (Web-)Templates zu Verfügung steht, bspw. so:
-          <function>$form->parse_html_template("is/form_header", \%TMPL_VAR);</function>
+          <para>
+           Z.B. das vom Benutzer eingestellte Zahlenformat, bevor man Berechnung in einem
+           bestimmten Format durchführt (SL/Form.pm Zeile 3552, Stand version 2.7beta), um
+           dies hinterher wieder auf den richtigen Wert zu setzen:
+          </para>
 
-          Innerhalb von Schleifen wird
-          <varname>$::form-&gt;{TEMPLATE_ARRAYS}{var}[$index]</varname>
-          bevorzugt, wenn vorhanden.</para>
-          Zum Beispiel in SL/DO.pm welche über alle Positionen eines Lieferscheins
-          in Schleife läuft:
-          <programlisting>
-            for $i (1 .. $form->{rowcount}) {
-              (...)
-              push @{ $form->{TEMPLATE_ARRAYS}{runningnumber} },   $position;
-              push @{ $form->{TEMPLATE_ARRAYS}{number} },          $form->{"partnumber_$i"};
-              push @{ $form->{TEMPLATE_ARRAYS}{description} },     $form->{"description_$i"};
-         </programlisting>
-                 </sect3>
+          <programlisting>  my $saved_numberformat    = $::myconfig{numberformat};
+  $::myconfig{numberformat} = $numberformat;
+  # (...) div Berechnungen
+  $::myconfig{numberformat} = $saved_numberformat;</programlisting>
+
+          <para>
+           Das Objekt der Klasse Form hat leider im Moment noch viele zentrale Funktionen die vom internen Zustand abhängen, deshalb bitte
+           nie einfach zerstören oder überschreiben (zumindestens nicht kurz vor einem Release oder in Absprache über bspw. die devel-Liste
+           ;-).  Es geht ziemlich sicher etwas kaputt.
+          </para>
+
+          <para>
+           <varname>$::form</varname> ist gleichzeitig der Standard Scope in den <productname>Template::Toolkit</productname> Templates
+           außerhalb der Controller: der Ausdruck <function>[% var %]</function> greift auf <varname>$::form-&gt;{var}</varname> zu.  Unter
+           Controllern ist der Standard Scope anders, da lautet der Zugriff <function>[% FORM.var %]</function>. In Druckvorlagen sind
+           normale Variablen ebenfall im <varname>$::form</varname> Scope, d.h.  <function>&lt;%var%&gt;</function> zeigt auf
+           <varname>$::form-&gt;{var}</varname>.  Nochmal von der anderen Seite erläutert, innerhalb von (Web-)Templates sieht man häufiger
+           solche Konstrukte:
+          </para>
+
+          <programlisting>[%- IF business %]
+# (... Zeig die Auswahlliste Kunden-/Lieferantentyp an)
+[%- END %]</programlisting>
+
+          <para>
+           Entweder wird hier dann $::form-&gt;{business} ausgewertet oder aber der Funktion <function>$form-&gt;parse_html_template</function>
+           wird explizit noch ein zusätzlicher Hash übergeben, der dann auch in den (Web-)Templates zu Verfügung steht, bspw. so:
+          </para>
+
+          <programlisting>$form-&gt;parse_html_template("is/form_header", \%TMPL_VAR);</programlisting>
+
+          <para>
+           Innerhalb von Schleifen wird <varname>$::form-&gt;{TEMPLATE_ARRAYS}{var}[$index]</varname> bevorzugt, wenn vorhanden. Ein
+           Beispiel findet sich in SL/DO.pm, welches über alle Positionen eines Lieferscheins in Schleife läuft:
+          </para>
+
+          <programlisting>for $i (1 .. $form-&gt;{rowcount}) {
+  # ...
+  push @{ $form-&gt;{TEMPLATE_ARRAYS}{runningnumber} },   $position;
+  push @{ $form-&gt;{TEMPLATE_ARRAYS}{number} },          $form-&gt;{"partnumber_$i"};
+  push @{ $form-&gt;{TEMPLATE_ARRAYS}{description} },     $form-&gt;{"description_$i"};
+  # ...
+}</programlisting>
+        </sect3>
 
         <sect3>
           <title>%::myconfig</title>
@@ -4404,14 +4387,12 @@ Beschreibung: &lt;%description%&gt;
             </listitem>
           </itemizedlist>
 
-          <para><varname>%::myconfig</varname> ist im Moment der Ersatz für
-          ein Userobjekt. Die meisten Funktionen, die etwas anhand des
-          aktuellen Users entscheiden müssen, befragen
-          <varname>%::myconfig</varname>.
-          Innerhalb der Anwendungen sind dies überwiegend die Daten, die sich
-          unter Programm->Einstellungen befinden, bzw. die Informationen über den
-          Benutzer die über die Administrator-Schnittstelle (admin.pl) eingegeben wurden.
-        </para>
+          <para>
+           <varname>%::myconfig</varname> ist im Moment der Ersatz für ein Userobjekt. Die meisten Funktionen, die etwas anhand des
+           aktuellen Users entscheiden müssen, befragen <varname>%::myconfig</varname>.  Innerhalb der Anwendungen sind dies überwiegend die
+           Daten, die sich unter <guimenu>Programm</guimenu> -&gt; <guimenuitem>Einstellungen</guimenuitem> befinden, bzw. die Informationen
+           über den Benutzer die über die Administrator-Schnittstelle (admin.pl) eingegeben wurden.
+          </para>
         </sect3>
 
         <sect3>
@@ -4459,19 +4440,20 @@ Beschreibung: &lt;%description%&gt;
             </listitem>
           </itemizedlist>
 
-          <para><varname>$::lxdebug</varname> stellt Debuggingfunktionen
-          bereit, wie "<function>enter_sub</function>" und
-          "<function>leave_sub</function>", mit denen in den alten Modulen ein
-          brauchbares Tracing gebaut ist, "<function>log_time</function>", mit
-          der man die Wallclockzeit seit Requeststart loggen kann, sowie
-          "<function>message</function>" und "<function>dump</function>" mit
-          denen man flott Informationen ins Log (tmp/lx-office-debug.log) packen kann.</para>
-          Beispielsweise so:
-          <programlisting>
-            $main::lxdebug->message(0, 'Meine Konfig:' . Dumper (%::myconfig));
-            $main::lxdebug->message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form->{vc});
+          <para>
+           <varname>$::lxdebug</varname> stellt Debuggingfunktionen bereit, wie "<function>enter_sub</function>" und
+           "<function>leave_sub</function>", mit denen in den alten Modulen ein brauchbares Tracing gebaut ist,
+           "<function>log_time</function>", mit der man die Wallclockzeit seit Requeststart loggen kann, sowie
+           "<function>message</function>" und "<function>dump</function>" mit denen man flott Informationen ins Log
+           (tmp/lx-office-debug.log) packen kann.
+          </para>
 
-          </programlisting>
+          <para>
+           Beispielsweise so:
+          </para>
+
+          <programlisting>$main::lxdebug-&gt;message(0, 'Meine Konfig:' . Dumper (%::myconfig));
+$main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{vc});</programlisting>
         </sect3>
 
         <sect3>
@@ -4559,7 +4541,7 @@ file = /tmp/lx-office-debug.log</programlisting>
           speichert aber Daten die von der Instanz abhängig sind. Eine Instanz
           ist hier eine Mandantendatenbank.
           Beispielsweise überprüft
-          <programlisting>$::instance_conf->get_inventory_system eq 'perpetual'</programlisting>
+          <programlisting>$::instance_conf-&gt;get_inventory_system eq 'perpetual'</programlisting>
           ob die berüchtigte Bestandsmethode zur Anwendung kommt.</para>
         </sect3>
 
