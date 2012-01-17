@@ -14,6 +14,27 @@ use SL::DB::Helper::CustomVariables (
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
 
+sub used {
+  my ($self) = @_;
+
+  return unless $self->cp_id;
+
+  require SL::DB::Order;
+  require SL::DB::Invoice;
+  require SL::DB::PurchaseInvoice;
+  require SL::DB::DeliveryOrder;
+
+  return SL::DB::Manager::Order->get_all_count(query => [ cp_id => $self->cp_id ])
+       + SL::DB::Manager::Invoice->get_all_count(query => [ cp_id => $self->cp_id ])
+       + SL::DB::Manager::PurchaseInvoice->get_all_count(query => [ cp_id => $self->cp_id ])
+       + SL::DB::Manager::DeliveryOrder->get_all_count(query => [ cp_id => $self->cp_id ]);
+}
+
+sub detach {
+  $_[0]->cp_cv_id(undef);
+  $_[0]->save;
+}
+
 sub full_name {
   my ($self) = @_;
   die 'not an accessor' if @_ > 1;

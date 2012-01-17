@@ -266,8 +266,7 @@ sub form_header {
           if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
-  $form->get_lists("contacts"       => "ALL_CONTACTS",
-                   "shipto"         => "ALL_SHIPTO",
+  $form->get_lists("shipto"         => "ALL_SHIPTO",
                    "projects"       => {
                      "key"          => "ALL_PROJECTS",
                      "all"          => 0,
@@ -280,6 +279,15 @@ sub form_header {
                    "departments"    => "ALL_DEPARTMENTS",
                    "business_types" => "ALL_BUSINESS_TYPES",
     );
+  $::form->{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all(query => [
+    or => [
+      cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
+      and      => [
+        cp_cv_id => undef,
+        cp_id    => $::form->{cp_id} * 1
+      ]
+    ]
+  ]);
 
   map { $_->{value} = "$_->{description}--$_->{id}" } @{ $form->{ALL_DEPARTMENTS} };
   map { $_->{value} = "$_->{name}--$_->{id}"        } @{ $form->{ALL_VC} };
