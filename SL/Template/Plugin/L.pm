@@ -282,7 +282,8 @@ sub date_tag {
     s/y+/\%Y/gi;
   } $::myconfig{"dateformat"};
 
-  my $cal_align =  delete $params{cal_align} || 'BR';
+  my $cal_align = delete $params{cal_align} || 'BR';
+  my $onchange  = delete $params{onchange};
   my $str_value = blessed $value ? $value->to_lxoffice : $value;
 
   $self->input_tag($name, $str_value,
@@ -290,6 +291,9 @@ sub date_tag {
     size   => 11,
     title  => _H($::myconfig{dateformat}),
     onBlur => 'check_right_date_format(this)',
+    ($onchange ? (
+    onChange => $onchange,
+    ) : ()),
     %params,
   ) . ((!$params{no_cal}) ?
   $self->html_tag('img', undef,
