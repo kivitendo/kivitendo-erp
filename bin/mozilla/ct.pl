@@ -287,7 +287,7 @@ sub edit {
   # format discount
   $form->{discount} *= 100;
   # format uri
-  $form->{homepage} = 'http://' . $form->{homepage} unless $form->{homepage} =~ m|^https?://|;
+  $form->{homepage} = 'http://' . $form->{homepage} unless ((!$form->{homepage}) || $form->{homepage} =~ m|^https?://|);
 
   &form_header;
   &form_footer;
