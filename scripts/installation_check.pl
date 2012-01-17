@@ -62,7 +62,7 @@ if ($check{l}) {
 
 sub check_latex {
   my ($res) = check_kpsewhich();
-  print_result("Looking for LaTeX kpsewhich", $res ? ('ok', 'green') : ('NOT ok', 'red'));
+  print_result("Looking for LaTeX kpsewhich", $res);
   if ($res) {
     check_template_dir($_) for SL::InstallationCheck::template_dirs($master_templates);
   }
@@ -126,7 +126,8 @@ sub check_module {
   my $line = "Looking for $module->{fullname}";
   my ($res, $ver) = SL::InstallationCheck::module_available($module->{"name"}, $module->{version});
   if ($res) {
-    print_line($line, $ver || 'no version', 'green');
+    my $ver_string = ref $ver && $ver->can('numify') ? $ver->numify : $ver ? $ver : 'no version';
+    print_line($line, $ver_string, 'green');
   } else {
     print_result($line, $res);
   }

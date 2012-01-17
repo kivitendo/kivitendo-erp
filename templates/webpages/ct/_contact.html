@@ -1,11 +1,11 @@
 [% USE L %][% USE HTML %][% USE T8 %][% USE LxERP %]
-    <table id="contact_table">
+    <table>
      <input type="hidden" name="cp_id" value="[% HTML.escape(cp_id) %]">
      <tr>
       <th align="left">[% 'Contacts' | $T8 %]</th>
       <td>
        [%- L.select_tag('cp_id', L.options_for_select(CONTACTS, default => cp_id, with_empty => 1, empty_title => LxERP.t8('New contact'), value => 'cp_id', title_sub => \contacts_label),
-                        onchange => "\$('#contact_table').load('ct.pl?action=get_contact&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&cp_id=' + \$('#cp_id').attr('value'))") %]
+                        onchange => "\$('#contacts').load('ct.pl?action=get_contact&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&cp_id=' + \$('#cp_id').attr('value'))") %]
       </td>
      </tr>
 
@@ -115,3 +115,7 @@
       <td><input name="bcc" size="40" value="[% HTML.escape(bcc) %]"></td>
      </tr>
     </table>
+
+    <input type="submit" id="delete_contact" name="action" value="[% 'Delete Contact' | $T8 %]" [% IF cp_used %]'disabled'[% END %]>
+
+    <br style="clear: left" />

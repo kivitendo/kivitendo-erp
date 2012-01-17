@@ -51,6 +51,7 @@ use SL::CT;
 use SL::CVar;
 use SL::DB::Business;
 use SL::DB::Default;
+use SL::Helper::Flash;
 use SL::ReportGenerator;
 
 require "bin/mozilla/common.pl";
@@ -730,23 +731,25 @@ sub delete_shipto {
 }
 
 sub delete_contact {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('customer_vendor_edit');
 
-  $main::auth->assert('customer_vendor_edit');
+  CT->get_contact(\%::myconfig, $::form);
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+  my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
 
-  CT->get_contact(\%myconfig, \%$form);
-
-  unless ($form->{cp_used}) {
-    CT->delete_contact($form->{cp_id});
-    @$form{ grep /^cp_/, keys %$form } = undef;
+  if ($contact->used) {
+    $contact->detach;
+    flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
+  } else {
+    $contact->delete;
+    flash('info', $::locale->text('Contact deleted.'));
   }
+  delete $::form->{$_} for grep /^cp_/, keys %$::form;
 
   edit();
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub ajax_autocomplete {

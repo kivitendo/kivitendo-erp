@@ -55,7 +55,7 @@
         <tr>
           <th align="right">[% 'Contact Person' | $T8 %]</th>
           <td>
-            [% L.select_tag('cp_id', L.options_for_select(ALL_CONTACTS, default=cp_id, value='cp_id', title_sub=\contact_labels, with_empty=1), style='width: 250px') %]
+            [% L.select_tag('cp_id', L.options_for_select(ALL_CONTACTS, default=cp_id, value='cp_id', title='full_name_dep', with_empty=1), style='width: 250px') %]
           </td>
         </tr>
 [%- END %]

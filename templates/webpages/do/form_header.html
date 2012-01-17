@@ -137,14 +137,7 @@
           [%- HTML.escape(row.cp_name) %][%- IF row.cp_abteilung %] ([% HTML.escape(row.cp_abteilung) %])[% END -%]
           [%- END %]
           [%- ELSE %]
-          <select name="cp_id" class="fixed_width" >
-           <option></option>
-           [%- FOREACH row = ALL_CONTACTS %]
-           <option value="[% HTML.escape(row.cp_id) %]"[% IF cp_id == row.cp_id %] selected[% END %]>
-            [%- HTML.escape(row.cp_name) %][%- IF row.cp_abteilung %] ([% HTML.escape(row.cp_abteilung) %])[% END -%]
-           </option>
-           [%- END %]
-          </select>
+            [% L.select_tag('cp_id', L.options_for_select(ALL_CONTACTS, default=cp_id, value='cp_id', title='full_name_dep', with_empty=1), style='width: 250px') %]
           [%- END %]
          </td>
         </tr>

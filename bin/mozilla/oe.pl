@@ -327,8 +327,7 @@ sub form_header {
   my @old_project_ids = ($form->{"globalproject_id"}, grep { $_ } map { $form->{"project_id_$_"} } 1..$form->{"rowcount"});
 
   my $vc = $form->{vc} eq "customer" ? "customers" : "vendors";
-  $form->get_lists("contacts"      => "ALL_CONTACTS",
-                   "shipto"        => "ALL_SHIPTO",
+  $form->get_lists("shipto"        => "ALL_SHIPTO",
                    "projects"      => { "key"      => "ALL_PROJECTS",
                                         "all"      => 0,
                                         "old_id"   => \@old_project_ids },
@@ -343,9 +342,17 @@ sub form_header {
                    "price_factors" => "ALL_PRICE_FACTORS");
 
   # label subs
+  $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all(query => [
+    or => [
+      cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
+      and      => [
+        cp_cv_id => undef,
+        cp_id    => $::form->{cp_id} * 1
+      ]
+    ]
+  ]);
   $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
   $TMPL_VAR{shipto_labels}         = sub { join "; ", grep { $_ } map { $_[0]->{"shipto${_}" } } qw(name department_1 street city) };
-  $TMPL_VAR{contact_labels}        = sub { join(', ', $_[0]->{"cp_name"}, $_[0]->{"cp_givenname"}) . ($_[0]->{cp_abteilung} ? " ($_[0]->{cp_abteilung})" : "") };
   $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" };
 
   # vendor/customer

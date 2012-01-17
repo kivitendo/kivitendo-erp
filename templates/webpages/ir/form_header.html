@@ -54,13 +54,7 @@
         <tr>
           <th align="right">[% 'Contact Person' | $T8 %]</th>
           <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'cp_id',
-                 style      = 'width: 250px',
-                 DATA       = ALL_CONTACTS,
-                 id_key     = 'cp_id',
-                 label_sub  = 'contact_labels',
-                 show_empty = 1 -%]
+            [% L.select_tag('cp_id', L.options_for_select(ALL_CONTACTS, default=cp_id, value='cp_id', title='full_name_dep', with_empty=1), style='width: 250px') %]
           </td>
         </tr>
 [%- END %]
