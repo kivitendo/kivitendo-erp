@@ -55,7 +55,7 @@ rm -rf ${input} ${custom}
 mkdir ${input} ${input}/copy_to_output ${custom}
 
 cp ${doc}/dokumentation.xml ${input}/
-test -d ${doc}images && cp -R ${doc}/images ${input}/copy_to_output/
+test -d ${doc}/images && cp -R ${doc}/images ${input}/copy_to_output/
 cp -R ${doc}/build/custom-cfg/* ${custom}/
 
 if [[ $pdf = 1 ]] ; then

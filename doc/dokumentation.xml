@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
-<book id="ding.xml" lang="de">
+<book id="lx-office-documentation" lang="de">
   <title>Lx-Office: Installation, Konfiguration, Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
@@ -43,11 +43,13 @@
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Anfang 2012 sind das folgende Systeme, von denen bekannt ist, dass Lx-Office auf ihnen läuft:</para>
+        <para>Anfang 2012 sind das folgende Systeme, von denen bekannt ist,
+        dass Lx-Office auf ihnen läuft:</para>
 
         <itemizedlist>
           <listitem>
-            <para>Ubuntu 8.04 LTS Hardy Heron, 10.04 LTS Lucid Lynx bis 11.10 Oneiric Ocelot</para>
+            <para>Ubuntu 8.04 LTS Hardy Heron, 10.04 LTS Lucid Lynx bis 11.10
+            Oneiric Ocelot</para>
           </listitem>
 
           <listitem>
@@ -74,7 +76,7 @@
 
         <para>Alternativ dazu kann die normale Installation durchgeführt
         werden (siehe <xref
-        linkend="Manuelle-Installation-des-Programmpaketes"/>), wenn vorher
+        linkend="Manuelle-Installation-des-Programmpaketes" />), wenn vorher
         ein Kompatibilitätspaket installiert wird, das die fehlenden Pakete
         bereitstellt. Das Paket ist auf <ulink
         url="https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.2/">Sourceforge</ulink>
@@ -92,7 +94,7 @@
         <programlisting>apt-get install libbit-vector-perl libsub-exporter-perl libclone-perl libclass-factory-util-perl</programlisting>
 
         <para>Danach sollte der Installationscheck (siehe <xref
-        linkend="Pakete"/>) die enthaltenen Pakete erkennen.</para>
+        linkend="Pakete" />) die enthaltenen Pakete erkennen.</para>
       </sect2>
 
       <sect2 id="Pakete" xreflabel="Pakete">
@@ -293,67 +295,103 @@ chmod g+w lx-office-erp/templates</programlisting>
     </sect1>
 
     <sect1 id="config.config-file">
-     <title>Lx-Office-Konfigurationsdatei</title>
+      <title>Lx-Office-Konfigurationsdatei</title>
 
-     <sect2 id="config.config-file.introduction" xreflabel="Einführung in die Konfigurationsdatei">
-      <title>Einführung</title>
+      <sect2 id="config.config-file.introduction"
+             xreflabel="Einführung in die Konfigurationsdatei">
+        <title>Einführung</title>
 
-      <para>
-       Seit Lx-Office 2.6.3. gibt es nur noch eine Konfigurationsdatei die benötigt wird: <filename>config/lx_office.conf</filename> (kurz:
-       "die Hauptkonfigurationsdatei"). Diese muss bei der Erstinstallation von Lx-Office bzw. der Migration von älteren Versionen angelegt
-       werden.
-      </para>
+        <para>Seit Lx-Office 2.6.3. gibt es nur noch eine Konfigurationsdatei
+        die benötigt wird: <filename>config/lx_office.conf</filename> (kurz:
+        "die Hauptkonfigurationsdatei"). Diese muss bei der Erstinstallation
+        von Lx-Office bzw. der Migration von älteren Versionen angelegt
+        werden.</para>
 
-      <para>
-       Als Vorlage dient die Datei <filename>config/lx_office.conf.default</filename> (kurz: "die Default-Datei"):
-      </para>
+        <para>Als Vorlage dient die Datei
+        <filename>config/lx_office.conf.default</filename> (kurz: "die
+        Default-Datei"):</para>
 
-      <programlisting>$ cp config/lx_office.conf.default config/lx_office.conf</programlisting>
+        <programlisting>$ cp config/lx_office.conf.default config/lx_office.conf</programlisting>
 
-      <para>
-       Die Default-Datei wird immer zuerst eingelesen. Werte, die in der Hauptkonfigurationsdatei stehen, überschreiben die
-       Werte aus der Default-Datei. Die Hauptkonfigurationsdatei muss also nur die Abschintte und Werte
-       enthalten, die von denen der Default-Datei abweichen.
-      </para>
+        <para>Die Default-Datei wird immer zuerst eingelesen. Werte, die in
+        der Hauptkonfigurationsdatei stehen, überschreiben die Werte aus der
+        Default-Datei. Die Hauptkonfigurationsdatei muss also nur die
+        Abschintte und Werte enthalten, die von denen der Default-Datei
+        abweichen.</para>
 
-      <para>
-       Diese Hauptkonfigurationsdatei ist dann eine installationsspezifische Datei, d.h. sie enthält bspw. lokale Passwörter und wird auch
-       nicht im Versionsmanagement (git) verwaltet.
-      </para>
+        <para>Diese Hauptkonfigurationsdatei ist dann eine
+        installationsspezifische Datei, d.h. sie enthält bspw. lokale
+        Passwörter und wird auch nicht im Versionsmanagement (git)
+        verwaltet.</para>
 
-      <para>
-       Die Konfiguration ist ferner serverabhängig, d.h. für alle Mandaten, bzw. Datenbanken gleich.
-      </para>
-     </sect2>
+        <para>Die Konfiguration ist ferner serverabhängig, d.h. für alle
+        Mandaten, bzw. Datenbanken gleich.</para>
+      </sect2>
 
-     <sect2 id="config.config-file.sections-parameters">
-      <title>Abschnitte und Parameter</title>
+      <sect2 id="config.config-file.sections-parameters">
+        <title>Abschnitte und Parameter</title>
 
-      <para>
-       Die Konfigurationsdatei besteht aus mehreren Teilen, die entsprechend kommentiert sind:
-      </para>
+        <para>Die Konfigurationsdatei besteht aus mehreren Teilen, die
+        entsprechend kommentiert sind:</para>
 
-      <itemizedlist>
-       <listitem><para><literal>authentication</literal></para></listitem>
-       <listitem><para><literal>authentication/database</literal></para></listitem>
-       <listitem><para><literal>authentication/ldap</literal></para></listitem>
-       <listitem><para><literal>system</literal></para></listitem>
-       <listitem><para><literal>features</literal></para></listitem>
-       <listitem><para><literal>paths</literal></para></listitem>
-       <listitem><para><literal>applications</literal></para></listitem>
-       <listitem><para><literal>environment</literal></para></listitem>
-       <listitem><para><literal>print_templates</literal></para></listitem>
-       <listitem><para><literal>task_server</literal></para></listitem>
-       <listitem><para><literal>periodic_invoices</literal></para></listitem>
-       <listitem><para><literal>console</literal></para></listitem>
-       <listitem><para><literal>debug</literal></para></listitem>
-      </itemizedlist>
+        <itemizedlist>
+          <listitem>
+            <para><literal>authentication</literal></para>
+          </listitem>
 
-      <para>
-       Die üblicherweise wichtigsten Parameter, die am Anfang einzustellen oder zu kontrollieren sind, sind:
-      </para>
+          <listitem>
+            <para><literal>authentication/database</literal></para>
+          </listitem>
 
-      <programlisting>[authentication]
+          <listitem>
+            <para><literal>authentication/ldap</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>system</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>features</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>paths</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>applications</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>environment</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>print_templates</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>task_server</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>periodic_invoices</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>console</literal></para>
+          </listitem>
+
+          <listitem>
+            <para><literal>debug</literal></para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Die üblicherweise wichtigsten Parameter, die am Anfang
+        einzustellen oder zu kontrollieren sind, sind:</para>
+
+        <programlisting>[authentication]
 admin_password = geheim
 
 [authentication/database]
@@ -367,38 +405,39 @@ password =
 eur = 1
 dbcharset = UTF-8</programlisting>
 
-       <para>
-        Nutzt man wiederkehrende Rechnungen, kann man unter <varname>[periodic_invoices]</varname> den Login eines Benutzers angeben, der
-        nach Erstellung der Rechnungen eine entsprechende E-Mail mit Informationen über die erstellten Rechnungen bekommt.
-       </para>
+        <para>Nutzt man wiederkehrende Rechnungen, kann man unter
+        <varname>[periodic_invoices]</varname> den Login eines Benutzers
+        angeben, der nach Erstellung der Rechnungen eine entsprechende E-Mail
+        mit Informationen über die erstellten Rechnungen bekommt.</para>
 
-       <para>
-        Nutzt man den <link linkend="config.task-server">Taskserver</link> für <link
-        linkend="features.periodic-invoices">wiederkehrende Rechnungen</link>, muss unter <varname>[task_server]</varname> ein Login eines
-        Benutzers angegeben werden, mit dem sich der Taskserver an Lx-Office bei der Datenbank anmeldet, die dem Benutzer zugewiesen ist.
-       </para>
+        <para>Nutzt man den <link
+        linkend="config.task-server">Taskserver</link> für <link
+        linkend="features.periodic-invoices">wiederkehrende Rechnungen</link>,
+        muss unter <varname>[task_server]</varname> ein Login eines Benutzers
+        angegeben werden, mit dem sich der Taskserver an Lx-Office bei der
+        Datenbank anmeldet, die dem Benutzer zugewiesen ist.</para>
 
-       <para>
-        Für Entwickler finden sich unter <varname>[debug]</varname> wichtige Funktionen, um die Fehlersuche zu erleichtern.
-       </para>
-     </sect2>
+        <para>Für Entwickler finden sich unter <varname>[debug]</varname>
+        wichtige Funktionen, um die Fehlersuche zu erleichtern.</para>
+      </sect2>
 
-     <sect2 id="config.config-file.prior-versions">
-      <title>Versionen vor 2.6.3</title>
+      <sect2 id="config.config-file.prior-versions">
+        <title>Versionen vor 2.6.3</title>
 
-      <para>
-       In älteren Lx-Office Versionen gab es im Verzeichnis <filename>config</filename> die Dateien <filename>authentication.pl</filename>
-       und <filename>lx-erp.conf</filename>, die jeweils Perl-Dateien waren. Es gab auch die Möglichkeit, eine lokale Version der
-       Konfigurationsdatei zu erstellen (<filename>lx-erp-local.conf</filename>). Dies ist ab 2.6.3 nicht mehr möglich, aber auch nicht mehr
-       nötig.
-      </para>
+        <para>In älteren Lx-Office Versionen gab es im Verzeichnis
+        <filename>config</filename> die Dateien
+        <filename>authentication.pl</filename> und
+        <filename>lx-erp.conf</filename>, die jeweils Perl-Dateien waren. Es
+        gab auch die Möglichkeit, eine lokale Version der Konfigurationsdatei
+        zu erstellen (<filename>lx-erp-local.conf</filename>). Dies ist ab
+        2.6.3 nicht mehr möglich, aber auch nicht mehr nötig.</para>
 
-      <para>
-       Beim Update von einer Lx-Office-Version vor 2.6.3 auf 2.6.3 oder jünger müssen die Einstellungen aus den alten Konfigurationsdateien
-       manuell übertragen und die alten Konfigurationsdateien anschließend gelöscht oder verschoben werden. Ansonsten zeigt Lx-Office eine
-       entsprechende Fehlermeldung an.
-      </para>
-     </sect2>
+        <para>Beim Update von einer Lx-Office-Version vor 2.6.3 auf 2.6.3 oder
+        jünger müssen die Einstellungen aus den alten Konfigurationsdateien
+        manuell übertragen und die alten Konfigurationsdateien anschließend
+        gelöscht oder verschoben werden. Ansonsten zeigt Lx-Office eine
+        entsprechende Fehlermeldung an.</para>
+      </sect2>
     </sect1>
 
     <sect1 id="Anpassung-der-PostgreSQL-Konfiguration">
@@ -415,13 +454,17 @@ dbcharset = UTF-8</programlisting>
         PostgreSQL-Datenbankcluster muss ebenfalls mit UTF-8 als Locale
         angelegt worden sein.</para>
 
-        <para>Dieses ist kann überprüft werden: ist das Encoding der Datenbank “template1” “UTF8”, so kann auch Lx-Office mit UTF-8
-        betrieben werden.  Andernfalls ist es notwendig, einen neuen Datenbankcluster mit UTF-8-Encoding anzulegen und diesen zu
-        verwenden. Unter Debian und Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl getan werden:</para>
+        <para>Dieses ist kann überprüft werden: ist das Encoding der Datenbank
+        “template1” “UTF8”, so kann auch Lx-Office mit UTF-8 betrieben werden.
+        Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
+        UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
+        Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl
+        getan werden:</para>
 
         <programlisting>pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2 clustername</programlisting>
 
-        <para>Die Datenbankversionsnummer muss an die tatsächlich verwendete Versionsnummer angepasst werden.</para>
+        <para>Die Datenbankversionsnummer muss an die tatsächlich verwendete
+        Versionsnummer angepasst werden.</para>
 
         <para>Unter anderen Distributionen gibt es ähnliche Methoden.</para>
 
@@ -429,7 +472,8 @@ dbcharset = UTF-8</programlisting>
         ist ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
         Lx-Office mit ISO-8859-15 als Encoding betrieben werden.</para>
 
-        <para>Das Encoding einer Datenbank kann in <command>psql</command> mit <literal>\l</literal> geprüft werden.</para>
+        <para>Das Encoding einer Datenbank kann in <command>psql</command> mit
+        <literal>\l</literal> geprüft werden.</para>
       </sect2>
 
       <sect2 id="Änderungen-an-Konfigurationsdateien">
@@ -438,8 +482,8 @@ dbcharset = UTF-8</programlisting>
         <para>In der Datei <filename>postgresql.conf</filename>, die je nach
         Distribution in verschiedenen Verzeichnissen liegen kann (z.B.
         <filename>/var/lib/pgsql/data/</filename> oder
-        <filename>/etc/postgresql/</filename>, muss sichergestellt werden, dass
-        TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
+        <filename>/etc/postgresql/</filename>, muss sichergestellt werden,
+        dass TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
         Parameter <varname>listen_address</varname> gesteuert. Laufen
         PostgreSQL und Lx-Office auf demselben Rechner, so kann dort der Wert
         <literal>localhost</literal> verwendet werden. Andernfalls müssen
@@ -447,9 +491,9 @@ dbcharset = UTF-8</programlisting>
         was mit dem Wert <literal>*</literal> geschieht.</para>
 
         <para>In der Datei <filename>pg_hba.conf</filename>, die im gleichen
-        Verzeichnis wie die <filename>postgresql.conf</filename> zu finden sein
-        sollte, müssen die Berichtigungen für den Zugriff geändert werden.
-        Hier gibt es mehrere Möglichkeiten. Eine besteht darin, lokale
+        Verzeichnis wie die <filename>postgresql.conf</filename> zu finden
+        sein sollte, müssen die Berichtigungen für den Zugriff geändert
+        werden. Hier gibt es mehrere Möglichkeiten. Eine besteht darin, lokale
         Verbindungen immer zuzulassen:</para>
 
         <programlisting>local all all trust
@@ -498,7 +542,7 @@ host all lxoffice 127.0.0.1 255.255.255.255 password</programlisting>
         <note>
           <para>Für einen deutlichen Performanceschub sorgt die Ausführung
           mittels FastCGI/FCGI. Die Einrichtung wird ausführlich im Abschnitt
-          <xref linkend="Apache-Konfiguration.FCGI"/> beschrieben.</para>
+          <xref linkend="Apache-Konfiguration.FCGI" /> beschrieben.</para>
         </note>
 
         <para>Der Zugriff auf das Programmverzeichnis muss in der Apache
@@ -524,7 +568,8 @@ Alias /lx-erp/ /var/www/lx-erp/
         das Lx-Office-Archiv entpacket haben.</para>
 
         <note>
-         <para>Vor den einzelnen Optionen muss bei einigen Distributionen ein Plus ‘<literal>+</literal>’ gesetzt werden.</para>
+          <para>Vor den einzelnen Optionen muss bei einigen Distributionen ein
+          Plus ‘<literal>+</literal>’ gesetzt werden.</para>
         </note>
 
         <para>Auf einigen Webservern werden manchmal die Grafiken und
@@ -595,14 +640,13 @@ Alias /lx-erp/ /var/www/lx-erp/
           verwendet.</para>
 
           <warning>
-            <para>
-             FCGI 0.69 und höher ist extrem strict in der Behandlung von Unicode, und verweigert bestimmte Eingaben von Lx-Office. Falls es
-             Probleme mit Umlauten in Ihrere Installation gibt, muss auf die Vorgängerversion FCGI 0.68 ausgewichen werden.
-            </para>
+            <para>FCGI 0.69 und höher ist extrem strict in der Behandlung von
+            Unicode, und verweigert bestimmte Eingaben von Lx-Office. Falls es
+            Probleme mit Umlauten in Ihrere Installation gibt, muss auf die
+            Vorgängerversion FCGI 0.68 ausgewichen werden.</para>
 
-            <para>
-             Mit CPAN lässt sie sich die Vorgängerversion wie folgt installieren:
-            </para>
+            <para>Mit CPAN lässt sie sich die Vorgängerversion wie folgt
+            installieren:</para>
 
             <programlisting>force install M/MS/MSTROUT/FCGI-0.68.tar.gz</programlisting>
           </warning>
@@ -689,8 +733,10 @@ Alias       /url/for/lx-office-erp                /path/to/lx-office-erp
 AliasMatch ^/url/for/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
 Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</programlisting>
 
-          <para>Dann ist unter <filename>/url/for/lx-office-erp/</filename> die normale Version erreichbar, und unter
-          <constant>/url/for/lx-office-erp-fcgid/</constant> die FastCGI-Version.</para>
+          <para>Dann ist unter <filename>/url/for/lx-office-erp/</filename>
+          die normale Version erreichbar, und unter
+          <constant>/url/for/lx-office-erp-fcgid/</constant> die
+          FastCGI-Version.</para>
         </sect3>
       </sect2>
     </sect1>
@@ -714,36 +760,39 @@ Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</prog
         Optionen sind:</para>
 
         <variablelist>
-         <varlistentry>
-          <term><varname>login</varname></term>
-          <listitem>
-           <para>
-            gültiger Lx-Office-Benutzername, der benutzt wird, um die zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss in
-            der Administration angelegt werden. Diese Option muss angegeben werden.
-           </para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><varname>login</varname></term>
 
-         <varlistentry>
-          <term><varname>run_as</varname></term>
-          <listitem>
-            <para>
-             Wird der Server vom Systembenutzer <literal>root</literal> gestartet, so wechselt er auf den mit <literal>run_as</literal>
-             angegebenen Systembenutzer.  Der Systembenutzer muss dieselben Lese- und Schreibrechte haben, wie auch der Webserverbenutzer
-             (siehe see <xref linkend="Manuelle-Installation-des-Programmpaketes"/>). Daher ist es sinnvoll, hier denselben Systembenutzer
-             einzutragen, unter dem auch der Webserver läuft.
-            </para>
-          </listitem>
-         </varlistentry>
+            <listitem>
+              <para>gültiger Lx-Office-Benutzername, der benutzt wird, um die
+              zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss
+              in der Administration angelegt werden. Diese Option muss
+              angegeben werden.</para>
+            </listitem>
+          </varlistentry>
 
-         <varlistentry>
-          <term><varname>debug</varname></term>
-          <listitem>
-            <para>
-             Schaltet Debug-Informationen an und aus.
-            </para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><varname>run_as</varname></term>
+
+            <listitem>
+              <para>Wird der Server vom Systembenutzer <literal>root</literal>
+              gestartet, so wechselt er auf den mit <literal>run_as</literal>
+              angegebenen Systembenutzer. Der Systembenutzer muss dieselben
+              Lese- und Schreibrechte haben, wie auch der Webserverbenutzer
+              (siehe see <xref
+              linkend="Manuelle-Installation-des-Programmpaketes" />). Daher
+              ist es sinnvoll, hier denselben Systembenutzer einzutragen,
+              unter dem auch der Webserver läuft.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>debug</varname></term>
+
+            <listitem>
+              <para>Schaltet Debug-Informationen an und aus.</para>
+            </listitem>
+          </varlistentry>
         </variablelist>
       </sect2>
 
@@ -787,7 +836,8 @@ insserv lx-office-task-server</programlisting>
             </listitem>
           </itemizedlist>
 
-          <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet werden: <command>/etc/init.d/lx-office-task-server
+          <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden: <command>/etc/init.d/lx-office-task-server
           start</command></para>
         </sect3>
 
@@ -800,7 +850,8 @@ insserv lx-office-task-server</programlisting>
           Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
           <literal>exec ....</literal>).</para>
 
-          <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet werden: <command>service lx-office-task-server
+          <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden: <command>service lx-office-task-server
           start</command></para>
         </sect3>
       </sect2>
@@ -882,52 +933,63 @@ insserv lx-office-task-server</programlisting>
       <sect2 id="Administratorpasswort">
         <title>Administratorpasswort</title>
 
-        <para>Das Passwort, das zum Zugriff auf das Aministrationsinterface benutzt wird, wird ebenfalls in dieser Datei gespeichert. Es
-        kann auch nur dort und nicht mehr im Administrationsinterface selber geändert werden. Der Parameter dazu heißt
-        <varname>admin_password</varname> im Abschnitt <varname>[authentication]</varname>.</para>
+        <para>Das Passwort, das zum Zugriff auf das Aministrationsinterface
+        benutzt wird, wird ebenfalls in dieser Datei gespeichert. Es kann auch
+        nur dort und nicht mehr im Administrationsinterface selber geändert
+        werden. Der Parameter dazu heißt <varname>admin_password</varname> im
+        Abschnitt <varname>[authentication]</varname>.</para>
       </sect2>
 
       <sect2 id="Authentifizierungsdatenbank">
         <title>Authentifizierungsdatenbank</title>
 
-        <para>Die Verbindung zur Authentifizierungsdatenbank wird mit den Parametern in <varname>[authentication/database]</varname>
-        konfiguriert.  Hier sind die folgenden Parameter anzugeben:</para>
+        <para>Die Verbindung zur Authentifizierungsdatenbank wird mit den
+        Parametern in <varname>[authentication/database]</varname>
+        konfiguriert. Hier sind die folgenden Parameter anzugeben:</para>
 
         <variablelist>
-         <varlistentry>
-          <term><literal>host</literal></term>
-          <listitem>
-           <para>Der Rechnername oder die IP-Adresse des Datenbankservers</para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><literal>host</literal></term>
 
-         <varlistentry>
-          <term><literal>port</literal></term>
-          <listitem>
-            <para>Die Portnummer des Datenbankservers, meist 5432</para>
-          </listitem>
-         </varlistentry>
+            <listitem>
+              <para>Der Rechnername oder die IP-Adresse des
+              Datenbankservers</para>
+            </listitem>
+          </varlistentry>
 
-         <varlistentry>
-          <term><literal>db</literal></term>
-          <listitem>
-           <para>Der Name der Authentifizierungsdatenbank</para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><literal>port</literal></term>
 
-         <varlistentry>
-          <term><literal>user</literal></term>
-          <listitem>
-            <para>Der Benutzername, mit dem sich Lx-Office beim Datenbankserver anmeldet (z.B. "<literal>postgres</literal>")</para>
-          </listitem>
-         </varlistentry>
+            <listitem>
+              <para>Die Portnummer des Datenbankservers, meist 5432</para>
+            </listitem>
+          </varlistentry>
 
-         <varlistentry>
-          <term><literal>password</literal></term>
-          <listitem>
-            <para>Das Passwort für den Datenbankbenutzer</para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><literal>db</literal></term>
+
+            <listitem>
+              <para>Der Name der Authentifizierungsdatenbank</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><literal>user</literal></term>
+
+            <listitem>
+              <para>Der Benutzername, mit dem sich Lx-Office beim
+              Datenbankserver anmeldet (z.B.
+              "<literal>postgres</literal>")</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><literal>password</literal></term>
+
+            <listitem>
+              <para>Das Passwort für den Datenbankbenutzer</para>
+            </listitem>
+          </varlistentry>
         </variablelist>
 
         <para>Die Datenbank muss noch nicht existieren. Lx-Office kann sie
@@ -937,84 +999,112 @@ insserv lx-office-task-server</programlisting>
       <sect2 id="Passwortüberprüfung">
         <title>Passwortüberprüfung</title>
 
-        <para>Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen die Authentifizierungsdatenbank und gegen einen externen LDAP-
-        oder Active-Directory-Server. Welche davon benutzt wird, regelt der Parameter <varname>module</varname> im Abschnitt
+        <para>Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen
+        die Authentifizierungsdatenbank und gegen einen externen LDAP- oder
+        Active-Directory-Server. Welche davon benutzt wird, regelt der
+        Parameter <varname>module</varname> im Abschnitt
         <varname>[authentication]</varname>.</para>
 
-        <para>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank gespeichert werden, so muss der Parameter
-        <varname>module</varname> den Wert <literal>DB</literal> enthalten. In diesem Fall können sowohl der Administrator als auch die
-        Benutzer selber ihre Psaswörter in Lx-Office ändern.</para>
+        <para>Sollen die Benutzerpasswörter in der Authentifizierungsdatenbank
+        gespeichert werden, so muss der Parameter <varname>module</varname>
+        den Wert <literal>DB</literal> enthalten. In diesem Fall können sowohl
+        der Administrator als auch die Benutzer selber ihre Psaswörter in
+        Lx-Office ändern.</para>
 
-        <para>Soll hingegen ein externer LDAP- oder Active-Directory-Server benutzt werden, so muss der Parameter <varname>module</varname>
-        auf <literal>LDAP</literal> gesetzt werden. In diesem Fall müssen zusätzliche Informationen über den LDAP-Server im Abschnitt
+        <para>Soll hingegen ein externer LDAP- oder Active-Directory-Server
+        benutzt werden, so muss der Parameter <varname>module</varname> auf
+        <literal>LDAP</literal> gesetzt werden. In diesem Fall müssen
+        zusätzliche Informationen über den LDAP-Server im Abschnitt
         <literal>[authentication/ldap]</literal> angegeben werden:</para>
 
         <variablelist>
-         <varlistentry>
-          <term><literal>host</literal></term>
-          <listitem>
-            <para>Der Rechnername oder die IP-Adresse des LDAP- oder Active-Directory-Servers. Diese Angabe ist zwingend
-            erforderlich.</para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><literal>host</literal></term>
 
-         <varlistentry>
-          <term><literal>port</literal></term>
-          <listitem>
-            <para>Die Portnummer des LDAP-Servers; meist 389.</para>
-          </listitem>
-         </varlistentry>
+            <listitem>
+              <para>Der Rechnername oder die IP-Adresse des LDAP- oder
+              Active-Directory-Servers. Diese Angabe ist zwingend
+              erforderlich.</para>
+            </listitem>
+          </varlistentry>
 
-         <varlistentry>
-          <term><literal>tls</literal></term>
-          <listitem>
-            <para>Wenn Verbindungsverschlüsselung gewünscht ist, so diesen Wert auf ‘<literal>1</literal>’ setzen, andernfalls auf
-            ‘<literal>0</literal>’ belassen</para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><literal>port</literal></term>
 
-         <varlistentry>
-          <term><literal>attribute</literal></term>
-          <listitem>
-            <para>Das LDAP-Attribut, in dem der Benutzername steht, den der Benutzer eingegeben hat. Für Active-Directory-Server ist dies
-            meist ‘<literal>sAMAccountName</literal>’, für andere LDAP-Server hingegen ‘<literal>uid</literal>’. Diese Angabe ist zwingend
-            erforderlich.</para>
-          </listitem>
-         </varlistentry>
+            <listitem>
+              <para>Die Portnummer des LDAP-Servers; meist 389.</para>
+            </listitem>
+          </varlistentry>
 
-         <varlistentry>
-          <term><literal>base_dn</literal></term>
-          <listitem>
-            <para>Der Abschnitt des LDAP-Baumes, der durchsucht werden soll. Diese Angabe ist zwingend erforderlich.</para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><literal>tls</literal></term>
 
-         <varlistentry>
-          <term><literal>filter</literal></term>
-          <listitem>
-            <para>Ein optionaler LDAP-Filter.  Enthält dieser Filter das Wort <literal>&lt;%login%&gt;</literal>, so wird dieses durch den
-            vom Benutzer eingegebenen Benutzernamen ersetzt. Andernfalls wird der LDAP-Baum nach einem Element durchsucht, bei dem das oben
-            angegebene Attribut mit dem Benutzernamen identisch ist.</para>
-          </listitem>
-         </varlistentry>
+            <listitem>
+              <para>Wenn Verbindungsverschlüsselung gewünscht ist, so diesen
+              Wert auf ‘<literal>1</literal>’ setzen, andernfalls auf
+              ‘<literal>0</literal>’ belassen</para>
+            </listitem>
+          </varlistentry>
 
-         <varlistentry>
-          <term><literal>bind_dn</literal> und <literal>bind_password</literal></term>
-          <listitem>
-            <para>Wenn der LDAP-Server eine Anmeldung erfordert, bevor er durchsucht werden kann (z.B. ist dies bei Active-Directory-Servern
-            der Fall), so kann diese hier angegeben werden. Für Active-Directory-Server kann als ‘<literal>bind_dn</literal>’ entweder eine
-            komplette LDAP-DN wie z.B. ‘<literal>cn=Martin Mustermann,cn=Users,dc=firmendomain</literal>’ auch nur der volle Name des
-            Benutzers eingegeben werden; in diesem Beispiel also ‘<literal>Martin Mustermann</literal>’.</para>
-          </listitem>
-         </varlistentry>
+          <varlistentry>
+            <term><literal>attribute</literal></term>
+
+            <listitem>
+              <para>Das LDAP-Attribut, in dem der Benutzername steht, den der
+              Benutzer eingegeben hat. Für Active-Directory-Server ist dies
+              meist ‘<literal>sAMAccountName</literal>’, für andere
+              LDAP-Server hingegen ‘<literal>uid</literal>’. Diese Angabe ist
+              zwingend erforderlich.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><literal>base_dn</literal></term>
+
+            <listitem>
+              <para>Der Abschnitt des LDAP-Baumes, der durchsucht werden soll.
+              Diese Angabe ist zwingend erforderlich.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><literal>filter</literal></term>
+
+            <listitem>
+              <para>Ein optionaler LDAP-Filter. Enthält dieser Filter das Wort
+              <literal>&lt;%login%&gt;</literal>, so wird dieses durch den vom
+              Benutzer eingegebenen Benutzernamen ersetzt. Andernfalls wird
+              der LDAP-Baum nach einem Element durchsucht, bei dem das oben
+              angegebene Attribut mit dem Benutzernamen identisch ist.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><literal>bind_dn</literal> und
+            <literal>bind_password</literal></term>
+
+            <listitem>
+              <para>Wenn der LDAP-Server eine Anmeldung erfordert, bevor er
+              durchsucht werden kann (z.B. ist dies bei
+              Active-Directory-Servern der Fall), so kann diese hier angegeben
+              werden. Für Active-Directory-Server kann als
+              ‘<literal>bind_dn</literal>’ entweder eine komplette LDAP-DN wie
+              z.B. ‘<literal>cn=Martin
+              Mustermann,cn=Users,dc=firmendomain</literal>’ auch nur der
+              volle Name des Benutzers eingegeben werden; in diesem Beispiel
+              also ‘<literal>Martin Mustermann</literal>’.</para>
+            </listitem>
+          </varlistentry>
         </variablelist>
       </sect2>
 
       <sect2 id="Name-des-Session-Cookies">
         <title>Name des Session-Cookies</title>
 
-        <para>Sollen auf einem Server mehrere Lx-Office-Installationen aufgesetzt werden, so müssen die Namen der Session-Cookies für alle
-        Installationen unterschiedlich sein. Der Name des Cookies wird mit dem Parameter <varname>cookie_name</varname> im Abschnitt
+        <para>Sollen auf einem Server mehrere Lx-Office-Installationen
+        aufgesetzt werden, so müssen die Namen der Session-Cookies für alle
+        Installationen unterschiedlich sein. Der Name des Cookies wird mit dem
+        Parameter <varname>cookie_name</varname> im Abschnitt
         <varname>[authentication]</varname>gesetzt.</para>
 
         <para>Diese Angabe ist optional, wenn nur eine Installation auf dem
@@ -1321,128 +1411,245 @@ insserv lx-office-task-server</programlisting>
       <para>Dieses Verzeichnis, wie auch das komplette
       <literal>users</literal>-Verzeichnis, muss vom Webserver beschreibbar
       sein. Dieses wurde bereits erledigt (siehe <xref
-      linkend="Manuelle-Installation-des-Programmpaketes"/>), kann aber erneut
-      überprüft werden, wenn die Konvertierung nach PDF fehlschlägt.</para>
+      linkend="Manuelle-Installation-des-Programmpaketes" />), kann aber
+      erneut überprüft werden, wenn die Konvertierung nach PDF
+      fehlschlägt.</para>
     </sect1>
 
     <sect1 id="config.eur">
-      <title>Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung: EUR</title>
+      <title>Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung:
+      EUR</title>
 
-      <sect2 id="config.eur.introduction" xreflabel="Einführung in die Konfiguration zur EUR">
-       <title>Einführung</title>
+      <sect2 id="config.eur.introduction"
+             xreflabel="Einführung in die Konfiguration zur EUR">
+        <title>Einführung</title>
 
-       <para>
-        Lx-Office besaß bis inklusive Version 2.6.3 einen Konfigurationsparameter namens <varname>eur</varname>, der sich in der
-        Konfigurationsdatei <filename>config/lx_office.conf</filename> befindet. Somit galt er für alle Mandanten, die in dieser
-        Installation benutzt wurden.
-       </para>
+        <para>Lx-Office besaß bis inklusive Version 2.6.3 einen
+        Konfigurationsparameter namens <varname>eur</varname>, der sich in der
+        Konfigurationsdatei <filename>config/lx_office.conf</filename>
+        befindet. Somit galt er für alle Mandanten, die in dieser Installation
+        benutzt wurden.</para>
 
-       <para>
-        Mit der nachfolgenden Version wurde der Parameter zum Einen in die Mandantendatenbank verschoben und dabei auch gleich in drei
-        Einzelparameter aufgeteilt, mit denen sich das Verhalten genauer steuern lässt.
-       </para>
+        <para>Mit der nachfolgenden Version wurde der Parameter zum Einen in
+        die Mandantendatenbank verschoben und dabei auch gleich in drei
+        Einzelparameter aufgeteilt, mit denen sich das Verhalten genauer
+        steuern lässt.</para>
       </sect2>
 
-      <sect2 id="config.eur.parameters" xreflabel="Konfigurationsparameter für EUR">
-       <title>Konfigurationsparameter</title>
+      <sect2 id="config.eur.parameters"
+             xreflabel="Konfigurationsparameter für EUR">
+        <title>Konfigurationsparameter</title>
 
-       <para>
-        Es gibt drei Parameter, die die Gewinnermittlungsart, Versteuerungsart und die Warenbuchungsmethode regeln:
-       </para>
+        <para>Es gibt drei Parameter, die die Gewinnermittlungsart,
+        Versteuerungsart und die Warenbuchungsmethode regeln:</para>
 
-       <variablelist>
-        <varlistentry>
-         <term><varname>profit_determination</varname></term>
-         <listitem>
-          <para>
-           Dieser Parameter legt die Berechnungsmethode für die Gewinnermittlung fest. Er enthält entweder <literal>balance</literal> für
-           Betriebsvermögensvergleich/Bilanzierung oder <literal>income</literal> für die Einnahmen-Überschuss-Rechnung.
-          </para>
-         </listitem>
-        </varlistentry>
+        <variablelist>
+          <varlistentry>
+            <term><varname>profit_determination</varname></term>
 
-        <varlistentry>
-         <term><varname>accounting_method</varname></term>
-         <listitem>
-          <para>
-           Dieser Parameter steuert die Buchungs- und Berechnungsmethoden für die Versteuerungsart. Er enthält entweder
-           <literal>accrual</literal> für die Soll-Versteuerung oder <literal>cash</literal> für die Ist-Versteuerung.
-          </para>
-         </listitem>
-        </varlistentry>
+            <listitem>
+              <para>Dieser Parameter legt die Berechnungsmethode für die
+              Gewinnermittlung fest. Er enthält entweder
+              <literal>balance</literal> für
+              Betriebsvermögensvergleich/Bilanzierung oder
+              <literal>income</literal> für die
+              Einnahmen-Überschuss-Rechnung.</para>
+            </listitem>
+          </varlistentry>
 
-        <varlistentry>
-         <term><varname>inventory_system</varname></term>
-         <listitem>
-          <para>
-           Dieser Parameter legt die Warenbuchungsmethode fest. Er enthält entweder <literal>perpetual</literal> für die Bestandsmethode
-           oder <literal>periodic</literal> für die Aufwandsmethode.
-          </para>
-         </listitem>
-        </varlistentry>
-       </variablelist>
+          <varlistentry>
+            <term><varname>accounting_method</varname></term>
 
-       <para>
-        Zum Vergleich der Funktionalität bis und nach 2.6.3: <varname>eur</varname> = 1 bedeutete Einnahmen-Überschuss-Rechnung,
-        Ist-Versteuerung und Aufwandsmethode. <varname>eur</varname> = 0 bedeutete hingegen Bilanzierung, Soll-Versteuerung und
-        Bestandsmethode.
-       </para>
+            <listitem>
+              <para>Dieser Parameter steuert die Buchungs- und
+              Berechnungsmethoden für die Versteuerungsart. Er enthält
+              entweder <literal>accrual</literal> für die Soll-Versteuerung
+              oder <literal>cash</literal> für die Ist-Versteuerung.</para>
+            </listitem>
+          </varlistentry>
 
-       <para>
-        Die Konfiguration "<varname>eur</varname>" unter <varname>[system]</varname> in der <link
-        linkend="config.config-file">Konfigurationsdatei</link> <filename>config/lx_office.conf</filename> wird nun nicht mehr benötigt und
-        kann entfernt werden. Dies muss manuell geschehen.
-       </para>
+          <varlistentry>
+            <term><varname>inventory_system</varname></term>
+
+            <listitem>
+              <para>Dieser Parameter legt die Warenbuchungsmethode fest. Er
+              enthält entweder <literal>perpetual</literal> für die
+              Bestandsmethode oder <literal>periodic</literal> für die
+              Aufwandsmethode.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+
+        <para>Zum Vergleich der Funktionalität bis und nach 2.6.3:
+        <varname>eur</varname> = 1 bedeutete Einnahmen-Überschuss-Rechnung,
+        Ist-Versteuerung und Aufwandsmethode. <varname>eur</varname> = 0
+        bedeutete hingegen Bilanzierung, Soll-Versteuerung und
+        Bestandsmethode.</para>
+
+        <para>Die Konfiguration "<varname>eur</varname>" unter
+        <varname>[system]</varname> in der <link
+        linkend="config.config-file">Konfigurationsdatei</link>
+        <filename>config/lx_office.conf</filename> wird nun nicht mehr
+        benötigt und kann entfernt werden. Dies muss manuell geschehen.</para>
       </sect2>
 
       <sect2 id="config.eur.setting-parameters">
-       <title>Festlegen der Parameter</title>
+        <title>Festlegen der Parameter</title>
 
-       <para>
-        Beim Anlegen eines neuen Mandanten bzw. einer neuen Datenbank in der Admininstration können diese Optionen nun unabhängig
-        voneinander eingestellt werden.
-       </para>
+        <para>Beim Anlegen eines neuen Mandanten bzw. einer neuen Datenbank in
+        der Admininstration können diese Optionen nun unabhängig voneinander
+        eingestellt werden.</para>
 
-       <para>
-        Beim Upgrade bestehender Mandanten wird eur ausgelesen und die Variablen werden so gesetzt, daß sich an der Funktionalität nichts
-        ändert.
-       </para>
+        <para>Beim Upgrade bestehender Mandanten wird eur ausgelesen und die
+        Variablen werden so gesetzt, daß sich an der Funktionalität nichts
+        ändert.</para>
 
-       <para>
-        Die aktuelle Konfiguration wird unter Nummernkreise und Standardkonten unter dem neuen Punkt "Einstellungen" angezeigt (read-only).
-        Eine spätere Änderung ist für einen bestehenden Mandanten nicht mehr möglich. Dies war auch vorher nicht möglich, bzw. vorhandene
-        Daten wurden so belassen und haben damit die Ergebnisse verfälscht.
-       </para>
+        <para>Die aktuelle Konfiguration wird unter Nummernkreise und
+        Standardkonten unter dem neuen Punkt "Einstellungen" angezeigt
+        (read-only). Eine spätere Änderung ist für einen bestehenden Mandanten
+        nicht mehr möglich. Dies war auch vorher nicht möglich, bzw.
+        vorhandene Daten wurden so belassen und haben damit die Ergebnisse
+        verfälscht.</para>
       </sect2>
 
       <sect2 id="config.eur.inventory-system-perpetual">
-       <title>Bemerkungen zu Bestandsmethode</title>
+        <title>Bemerkungen zu Bestandsmethode</title>
 
-       <para>
-        Die Bestandsmethode ist eigentlich eine sehr elegante Methode, funktioniert in Lx-Office aber nur unter bestimmten Bedingungen:
-        Voraussetzung ist, daß auch immer alle Einkaufsrechnungen gepflegt werden, und man beim Jahreswechsel nicht mit einer leeren
-        Datenbank anfängt, da bei jedem Verkauf anhand der gesamten Rechnungshistorie der Einkaufswert der Ware nach dem FIFO-Prinzip aus
-        den Einkaufsrechnungen berechnet wird.
-       </para>
+        <para>Die Bestandsmethode ist eigentlich eine sehr elegante Methode,
+        funktioniert in Lx-Office aber nur unter bestimmten Bedingungen:
+        Voraussetzung ist, daß auch immer alle Einkaufsrechnungen gepflegt
+        werden, und man beim Jahreswechsel nicht mit einer leeren Datenbank
+        anfängt, da bei jedem Verkauf anhand der gesamten Rechnungshistorie
+        der Einkaufswert der Ware nach dem FIFO-Prinzip aus den
+        Einkaufsrechnungen berechnet wird.</para>
 
-       <para>
-        Die Bestandsmethode kann vom Prinzip her also nur funktioneren, wenn man mit den Buchungen bei Null anfängt, und man kann auch nicht
-        im laufenden Betrieb von der Aufwandsmethode zur Bestandsmethode wechseln.
-       </para>
+        <para>Die Bestandsmethode kann vom Prinzip her also nur funktioneren,
+        wenn man mit den Buchungen bei Null anfängt, und man kann auch nicht
+        im laufenden Betrieb von der Aufwandsmethode zur Bestandsmethode
+        wechseln.</para>
       </sect2>
 
       <sect2 id="config.eur.knonw-issues">
-       <title>Bekannte Probleme</title>
+        <title>Bekannte Probleme</title>
 
-       <para>
-        Bei bestimmten Berichten kann man derzeit noch inviduell einstellen, ob man nach Ist- oder Sollversteuerung auswertet, und es werden
-        im Code Variablen wie $accrual oder $cash gesetzt. Diese Codestellen wurden noch nicht angepasst, sondern nur die, wo bisher
-        die Konfigurationsvariable <varname>$::lx_office_conf{system}-&gt;{eur}</varname> ausgewertet wurde.
-       </para>
+        <para>Bei bestimmten Berichten kann man derzeit noch inviduell
+        einstellen, ob man nach Ist- oder Sollversteuerung auswertet, und es
+        werden im Code Variablen wie $accrual oder $cash gesetzt. Diese
+        Codestellen wurden noch nicht angepasst, sondern nur die, wo bisher
+        die Konfigurationsvariable
+        <varname>$::lx_office_conf{system}-&gt;{eur}</varname> ausgewertet
+        wurde.</para>
 
-       <para>
-        Es fehlen Hilfetext beim Neuanlegen eines Mandanten, was die Optionen bewirken, z.B. mit zwei Standardfällen.
-       </para>
+        <para>Es fehlen Hilfetext beim Neuanlegen eines Mandanten, was die
+        Optionen bewirken, z.B. mit zwei Standardfällen.</para>
+      </sect2>
+    </sect1>
+
+    <sect1 id="config.skr04-update-3804">
+      <title>SKR04 19% Umstellung für innergemeinschaftlichen Erwerb</title>
+
+      <sect2 id="config.skr04-update-3804.introduction">
+        <title>Einführung</title>
+
+        <para>Die Umsatzsteuerumstellung auf 19% für SKR04 für die
+        Steuerschlüssel "EU ohne USt-ID Nummer" ist erst 2010 erfolgt.
+        Lx-Office beinhaltet ein Upgradeskript, das das Konto 3804 automatisch
+        erstellt und die Steuereinstellungen korrekt einstellt. Hat der
+        Benutzer aber schon selber das Konto 3804 angelegt, oder gab es schon
+        Buchungen im Zeitraum nach dem 01.01.2007 auf das Konto 3803, wird das
+        Upgradeskript vorsichtshalber nicht ausgeführt, da der Benutzer sich
+        vielleicht schon selbst geholfen hat und mit seinen Änderungen
+        zufrieden ist. Die korrekten Einstellungen kann man aber auch per Hand
+        ausführen. Nachfolgend werden die entsprechenden Schritte anhand von
+        Screenshots dargestellt.</para>
+
+        <para>Für den Fall, daß Buchungen mit der Steuerschlüssel "EU ohne
+        USt.-IdNr." nach dem 01.01.2007 erfolgt sind, ist davon auszugehen,
+        dass diese mit dem alten Umsatzsteuersatz von 16% gebucht worden sind,
+        und diese Buchungen sollten entsprechend kontrolliert werden.</para>
+      </sect2>
+
+      <sect2 id="config.skr04-update-3804.create-chart">
+        <title>Konto 3804 manuell anlegen</title>
+
+        <para>Die folgenden Schritte sind notwendig, um das Konto manuell
+        anzulegen und zu konfigurieren. Zuerst wird in
+        <guimenu>System</guimenu> -&gt;
+        <guisubmenu>Kontenübersicht</guisubmenu> -&gt; <guimenuitem>Konto
+        erfassen</guimenuitem> das Konto angelegt.</para>
+
+        <screenshot>
+          <screeninfo>Konto 3804 erfassen</screeninfo>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/skr04-update-3804/konto3804.png" />
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+
+        <para>
+         Als Zweites muss Steuergruppe 13 für Konto 3803 angepasst werden. Dazu unter <guimenu>System</guimenu> -&gt;
+         <guisubmenu>Steuern</guisubmenu> -&gt; <guimenuitem>Bearbeiten</guimenuitem> den Eintrag mit Steuerschlüssel 13 auswählen und ihn
+         wie im folgenden Screenshot angezeigt anpassen.
+        </para>
+
+        <screenshot>
+          <screeninfo>Steuerschlüssel 13 für 3803 (16%) anpassen</screeninfo>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/skr04-update-3804/steuer3803.png" />
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+
+        <para>
+         Als Drittes wird ein neuer Eintrag mit Steuerschlüssel 13 für Konto 3804 (19%) angelegt. Dazu unter <guimenu>System</guimenu> -&gt;
+         <guisubmenu>Steuern</guisubmenu> -&gt; <guimenuitem>Erfassen</guimenuitem> auswählen und die Werte aus dem Screenshot übernehmen.
+        </para>
+
+        <screenshot>
+          <screeninfo>Steuerschlüssel 13 für 3804 (19%) anlegen</screeninfo>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/skr04-update-3804/steuer3804.png" />
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+
+        <para>
+         Als Nächstes sind alle Konten anzupassen, die als Steuerautomatikkonto die 3803 haben, sodass sie ab dem 1.1.2007 auch
+         Steuerautomatik auf 3804 bekommen. Dies betrifft in der Standardkonfiguration die Konten 4315 und 4726. Als Beispiel für 4315
+         müssen Sie dazu unter <guimenu>System</guimenu> -&gt; <guisubmenu>Kontenübersicht</guisubmenu> -&gt; <guimenuitem>Konten
+         anzeigen</guimenuitem> das Konto 4315 anklicken und die Einstellungen wie im Screenshot gezeigt vornehmen.
+        </para>
+
+        <screenshot>
+          <screeninfo>Konto 4315 anpassen</screeninfo>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/skr04-update-3804/konto4315.png" />
+            </imageobject>
+          </mediaobject>
+        </screenshot>
+
+        <para>
+         Als Letztes sollte die Steuerliste unter <guimenu>System</guimenu> -&gt; <guisubmenu>Steuern</guisubmenu> -&gt;
+         <guimenuitem>Bearbeiten</guimenuitem> kontrolliert werden. Zum Vergleich der Screenshot.
+        </para>
+
+        <screenshot>
+          <screeninfo>Steuerliste vergleichen</screeninfo>
+
+          <mediaobject>
+            <imageobject>
+              <imagedata fileref="images/skr04-update-3804/steuerliste.png" />
+            </imageobject>
+          </mediaobject>
+        </screenshot>
       </sect2>
     </sect1>
 
@@ -1465,152 +1672,158 @@ insserv lx-office-task-server</programlisting>
   <chapter id="features" xreflabel="Features und Funktionen">
     <title>Features und Funktionen</title>
 
-    <sect1 id="features.periodic-invoices" xreflabel="Wiedekehrende Rechnungen">
-     <title>Wiederkehrende Rechnungen</title>
+    <sect1 id="features.periodic-invoices"
+           xreflabel="Wiedekehrende Rechnungen">
+      <title>Wiederkehrende Rechnungen</title>
 
-     <sect2 id="features.periodic-invoices.introduction" xreflabel="Einführung in wiederkehrende Rechnungen">
-      <title>Einführung</title>
+      <sect2 id="features.periodic-invoices.introduction"
+             xreflabel="Einführung in wiederkehrende Rechnungen">
+        <title>Einführung</title>
 
-      <para>
-       Wiederkehrende Rechnungen werden als normale Aufträge definiert und konfiguriert, mit allen dazugehörigen Kunden- und
-       Artikelangaben. Die konfigurierten Aufträge werden später automatisch in Rechnungen umgewandelt, so als ob man den Workflow benutzen
-       würde, und auch die Auftragsnummer wird übernommen, sodass alle wiederkehrenden Rechnungen, die aus einem Auftrag erstellt wurden,
-       später leicht wiederzufinden sind.
-      </para>
+        <para>Wiederkehrende Rechnungen werden als normale Aufträge definiert
+        und konfiguriert, mit allen dazugehörigen Kunden- und Artikelangaben.
+        Die konfigurierten Aufträge werden später automatisch in Rechnungen
+        umgewandelt, so als ob man den Workflow benutzen würde, und auch die
+        Auftragsnummer wird übernommen, sodass alle wiederkehrenden
+        Rechnungen, die aus einem Auftrag erstellt wurden, später leicht
+        wiederzufinden sind.</para>
+      </sect2>
 
-     </sect2>
+      <sect2 id="features.periodic-invoices.configuration"
+             xreflabel="Konfiguration von wiederkehrenden Rechnungen">
+        <title>Konfiguration</title>
 
-     <sect2 id="features.periodic-invoices.configuration" xreflabel="Konfiguration von wiederkehrenden Rechnungen">
-      <title>Konfiguration</title>
+        <para>Um einen Auftrag für wiederkehrende Rechnung zu konfigurieren,
+        findet sich beim Bearbeiten des Auftrags ein neuer Knopf
+        "Konfigurieren", der ein neues Fenster öffnet, in dem man die nötigen
+        Parameter einstellen kann. Hinter dem Knopf wird außerdem noch
+        angezeigt, ob der Auftrag als wiederkehrende Rechnung konfiguriert ist
+        oder nicht.</para>
 
-      <para>
-       Um einen Auftrag für wiederkehrende Rechnung zu konfigurieren, findet sich beim Bearbeiten des Auftrags ein neuer Knopf
-       "Konfigurieren", der ein neues Fenster öffnet, in dem man die nötigen Parameter einstellen kann.  Hinter dem Knopf wird außerdem noch
-       angezeigt, ob der Auftrag als wiederkehrende Rechnung konfiguriert ist oder nicht.
-      </para>
+        <para>Folgende Parameter kann man konfigurieren:</para>
 
-      <para>
-       Folgende Parameter kann man konfigurieren:
-      </para>
+        <variablelist>
+          <varlistentry>
+            <term>Status</term>
 
-      <variablelist>
-       <varlistentry>
-        <term>Status</term>
-        <listitem>
-         <para>
-          Bei aktiven Rechnungen wird automatisch eine Rechnung erstellt, wenn die Periodizität erreicht ist (z.B. Anfang eines neuen
-          Monats).
-         </para>
+            <listitem>
+              <para>Bei aktiven Rechnungen wird automatisch eine Rechnung
+              erstellt, wenn die Periodizität erreicht ist (z.B. Anfang eines
+              neuen Monats).</para>
 
-         <para>
-          Ist ein Auftrag nicht aktiv, so werden für ihn auch keine wiederkehrenden Rechnungen erzeugt. Stellt man nach längerer
-          nicht-aktiver Zeit einen Auftrag wieder auf aktiv, wird beim nächsten Periodenwechsel für alle Perioden, seit der letzten aktiven
-          Periode, jeweils eine Rechnung erstellt. Möchte man dies verhindern, muss man vorher das Startdatum neu setzen.
-         </para>
+              <para>Ist ein Auftrag nicht aktiv, so werden für ihn auch keine
+              wiederkehrenden Rechnungen erzeugt. Stellt man nach längerer
+              nicht-aktiver Zeit einen Auftrag wieder auf aktiv, wird beim
+              nächsten Periodenwechsel für alle Perioden, seit der letzten
+              aktiven Periode, jeweils eine Rechnung erstellt. Möchte man dies
+              verhindern, muss man vorher das Startdatum neu setzen.</para>
 
-         <para>
-          Für gekündigte Aufträge werden nie mehr Rechnungen erstellt. Man kann sich diese Aufträge aber gesondert in den Berichten anzeigen
-          lassen.
-         </para>
-        </listitem>
-       </varlistentry>
+              <para>Für gekündigte Aufträge werden nie mehr Rechnungen
+              erstellt. Man kann sich diese Aufträge aber gesondert in den
+              Berichten anzeigen lassen.</para>
+            </listitem>
+          </varlistentry>
 
-       <varlistentry>
-        <term>Periodizität</term>
-        <listitem>
-         <para>
-          Ob monatlich, quartalsweise oder jährlich auf neue Rechnungen überprüft werden soll. Für jede Periode seit dem Startdatum wird
-          überprüft, ob für die Periode (beginnend immer mit dem ersten Tag der Periode) schon eine Rechnung erstellt wurde. Unter Umständen
-          können bei einem Startdatum in der Vergangenheit gleich mehrere Rechnungen erstellt werden.
-         </para>
-        </listitem>
-       </varlistentry>
+          <varlistentry>
+            <term>Periodizität</term>
 
-       <varlistentry>
-        <term>Buchen auf</term>
-        <listitem>
-         <para>
-          Das Forderungskonto, in der Regel "Forderungen aus Lieferungen und Leistungen". Das Gegenkonto ergibt sich aus den Buchungsgruppen
-          der betreffenden Waren.
-         </para>
-        </listitem>
-       </varlistentry>
+            <listitem>
+              <para>Ob monatlich, quartalsweise oder jährlich auf neue
+              Rechnungen überprüft werden soll. Für jede Periode seit dem
+              Startdatum wird überprüft, ob für die Periode (beginnend immer
+              mit dem ersten Tag der Periode) schon eine Rechnung erstellt
+              wurde. Unter Umständen können bei einem Startdatum in der
+              Vergangenheit gleich mehrere Rechnungen erstellt werden.</para>
+            </listitem>
+          </varlistentry>
 
-       <varlistentry>
-        <term>Startdatum</term>
-        <listitem>
-         <para>
-          ab welchem Datum auf Rechnungserstellung geprüft werden soll
-         </para>
-        </listitem>
-       </varlistentry>
+          <varlistentry>
+            <term>Buchen auf</term>
 
-       <varlistentry>
-        <term>Enddatum</term>
-        <listitem>
-         <para>
-          ab wann keine Rechnungen mehr erstellt werden sollen
-         </para>
-        </listitem>
-       </varlistentry>
+            <listitem>
+              <para>Das Forderungskonto, in der Regel "Forderungen aus
+              Lieferungen und Leistungen". Das Gegenkonto ergibt sich aus den
+              Buchungsgruppen der betreffenden Waren.</para>
+            </listitem>
+          </varlistentry>
 
-       <varlistentry>
-        <term>Automatische Verlängerung um x Monate</term>
-        <listitem>
-         <para>
-          Sollen die wiederkehrenden Rechnungen bei Erreichen des eingetragenen Enddatums weiterhin erstellt werden, so kann man hier die
-          Anzahl der Monate eingeben, um die das Enddatum automatisch nach hinten geschoben wird.
-         </para>
-        </listitem>
-       </varlistentry>
+          <varlistentry>
+            <term>Startdatum</term>
 
-       <varlistentry>
-        <term>Drucken</term>
-        <listitem>
-         <para>
-          Sind Drucker konfiguriert, so kann man sich die erstellten Rechnungen auch gleich ausdrucken lassen.
-         </para>
-        </listitem>
-       </varlistentry>
-      </variablelist>
+            <listitem>
+              <para>ab welchem Datum auf Rechnungserstellung geprüft werden
+              soll</para>
+            </listitem>
+          </varlistentry>
 
-      <para>
-       Nach Erstellung der Rechnungen kann eine E-Mail mit Informationen zu den erstellten Rechnungen verschickt werden. Konfiguriert wird
-       dies in der <link linkend="config.config-file.sections-parameters">Konfigurationsdatei</link>
-       <filename>config/lx_office.conf</filename> im Abschnitt <varname>[periodic_invoices]</varname>.
-      </para>
-     </sect2>
+          <varlistentry>
+            <term>Enddatum</term>
 
-     <sect2 id="features.periodic-invoices.reports">
-      <title>Auflisten</title>
+            <listitem>
+              <para>ab wann keine Rechnungen mehr erstellt werden
+              sollen</para>
+            </listitem>
+          </varlistentry>
 
-      <para>
-       Unter Verkauf-&gt;Berichte-&gt;Aufträge finden sich zwei neue Checkboxen, &quot;Wiederkehrende Rechnungen aktiv&quot; und
-       &quot;Wiederkehrende Rechnungen inaktiv&quot;, mit denen man sich einen Überglick über die wiederkehrenden Rechnungen verschaffen
-       kann.
-      </para>
-     </sect2>
+          <varlistentry>
+            <term>Automatische Verlängerung um x Monate</term>
 
-     <sect2 id="features.periodic-invoices.task-server">
-      <title>Erzeugung der eigentlichen Rechnungen</title>
+            <listitem>
+              <para>Sollen die wiederkehrenden Rechnungen bei Erreichen des
+              eingetragenen Enddatums weiterhin erstellt werden, so kann man
+              hier die Anzahl der Monate eingeben, um die das Enddatum
+              automatisch nach hinten geschoben wird.</para>
+            </listitem>
+          </varlistentry>
 
-      <para>
-       Die zeitliche und periodische Überprüfung, ob eine wiederkehrende Rechnung automatisch erstellt werden soll, geschieht durch den
-       <link linkend="config.task-server">Taskserver</link>, einen externen Dienst, der automatisch beim Start des Servers gestartet
-       werden sollte.
-      </para>
-     </sect2>
+          <varlistentry>
+            <term>Drucken</term>
 
-     <sect2 id="features.periodic-invoices.create-for-current-month">
-      <title>Erste Rechnung für aktuellen Monat erstellen</title>
+            <listitem>
+              <para>Sind Drucker konfiguriert, so kann man sich die erstellten
+              Rechnungen auch gleich ausdrucken lassen.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
 
-      <para>
-       Will man im laufenden Monat eine monatlich wiederkehrende Rechnung inkl. des laufenden Monats starten, stellt man das Startdatum auf
-       den Monatsanfang und wartet ein paar Minuten, bis der Taskserver den neu konfigurieren Auftrag erkennt und daraus eine Rechnung
-       generiert hat. Alternativ setzt man das Startdatum auf den Monatsersten des Folgemonats und erstellt die erste Rechnung direkt
-       manuell über den Workflow.
-      </para>
-     </sect2>
+        <para>Nach Erstellung der Rechnungen kann eine E-Mail mit
+        Informationen zu den erstellten Rechnungen verschickt werden.
+        Konfiguriert wird dies in der <link
+        linkend="config.config-file.sections-parameters">Konfigurationsdatei</link>
+        <filename>config/lx_office.conf</filename> im Abschnitt
+        <varname>[periodic_invoices]</varname>.</para>
+      </sect2>
+
+      <sect2 id="features.periodic-invoices.reports">
+        <title>Auflisten</title>
+
+        <para>Unter Verkauf-&gt;Berichte-&gt;Aufträge finden sich zwei neue
+        Checkboxen, "Wiederkehrende Rechnungen aktiv" und "Wiederkehrende
+        Rechnungen inaktiv", mit denen man sich einen Überglick über die
+        wiederkehrenden Rechnungen verschaffen kann.</para>
+      </sect2>
+
+      <sect2 id="features.periodic-invoices.task-server">
+        <title>Erzeugung der eigentlichen Rechnungen</title>
+
+        <para>Die zeitliche und periodische Überprüfung, ob eine
+        wiederkehrende Rechnung automatisch erstellt werden soll, geschieht
+        durch den <link linkend="config.task-server">Taskserver</link>, einen
+        externen Dienst, der automatisch beim Start des Servers gestartet
+        werden sollte.</para>
+      </sect2>
+
+      <sect2 id="features.periodic-invoices.create-for-current-month">
+        <title>Erste Rechnung für aktuellen Monat erstellen</title>
+
+        <para>Will man im laufenden Monat eine monatlich wiederkehrende
+        Rechnung inkl. des laufenden Monats starten, stellt man das Startdatum
+        auf den Monatsanfang und wartet ein paar Minuten, bis der Taskserver
+        den neu konfigurieren Auftrag erkennt und daraus eine Rechnung
+        generiert hat. Alternativ setzt man das Startdatum auf den
+        Monatsersten des Folgemonats und erstellt die erste Rechnung direkt
+        manuell über den Workflow.</para>
+      </sect2>
     </sect1>
 
     <sect1 id="dokumentenvorlagen-und-variablen">
@@ -1625,7 +1838,7 @@ insserv lx-office-task-server</programlisting>
         <function>&lt;%variablenname%&gt;</function> verwendet wird. Für
         LaTeX- und HTML-Vorlagen kann man die Form dieser Tags auch verändern
         (siehe <xref
-        linkend="dokumentenvorlagen-und-variablen.tag-style"/>).</para>
+        linkend="dokumentenvorlagen-und-variablen.tag-style" />).</para>
 
         <para>Früher wurde hier nur über LaTeX gesprochen. Inzwischen
         unterstützt Lx-Office aber auch OpenDocument-Vorlagen. Sofern es nicht
@@ -1901,7 +2114,7 @@ insserv lx-office-task-server</programlisting>
         <para>Die kurzen Varianten dieser Vorlagentitel müssen dann entweder
         Standardwerte anzeigen, oder die angeforderten Werte selbst auswerten,
         siehe dazu <xref
-        linkend="dokumentenvorlagen-und-variablen.allgemeine-variablen.meta"/>.</para>
+        linkend="dokumentenvorlagen-und-variablen.allgemeine-variablen.meta" />.</para>
       </sect2>
 
       <sect2 id="dokumentenvorlagen-und-variablen.allgemeine-variablen">
@@ -4207,17 +4420,19 @@ Beschreibung: &lt;%description%&gt;
         <function>strict</function> werden alle Variablen die nicht explizit
         mit <function>Package</function>, <function>my</function> oder
         <function>our</function> angegeben werden als Tippfehler angemarkert,
-        dies hat, seit der Einführung, u.a. schon so manche langwierige Bug-Suche verkürzt.
-        Da globale Variablen aber implizit mit Package angegeben werden, werden
-        die nicht geprüft, und somit kann sich schnell ein Tippfehler einschleichen.</para>
+        dies hat, seit der Einführung, u.a. schon so manche langwierige
+        Bug-Suche verkürzt. Da globale Variablen aber implizit mit Package
+        angegeben werden, werden die nicht geprüft, und somit kann sich
+        schnell ein Tippfehler einschleichen.</para>
       </sect2>
 
       <sect2>
         <title>Kanonische globale Variablen</title>
 
         <para>Um dieses Problem im Griff zu halten gibt es einige wenige
-        globale Variablen, die kanonisch sind, d.h. sie haben bestimmte vorgegebenen Eigenschaften,
-        und alles andere sollte anderweitig umhergereicht werden.</para>
+        globale Variablen, die kanonisch sind, d.h. sie haben bestimmte
+        vorgegebenen Eigenschaften, und alles andere sollte anderweitig
+        umhergereicht werden.</para>
 
         <para>Diese Variablen sind im Moment die folgenden neun:</para>
 
@@ -4259,8 +4474,9 @@ Beschreibung: &lt;%description%&gt;
           </listitem>
         </itemizedlist>
 
-        <para>Damit diese nicht erneut als Müllhalde missbraucht werden, im Folgenden
-        eine kurze Erläuterung der bestimmten vorgegebenen Eigenschaften (Konventionen):</para>
+        <para>Damit diese nicht erneut als Müllhalde missbraucht werden, im
+        Folgenden eine kurze Erläuterung der bestimmten vorgegebenen
+        Eigenschaften (Konventionen):</para>
 
         <sect3>
           <title>$::form</title>
@@ -4295,51 +4511,55 @@ Beschreibung: &lt;%description%&gt;
           Ledger</productname> als Gottobjekt für alles misbraucht. Sämtliche
           alten Funktionen unter SL/ mutieren <varname>$::form</varname>, das
           heißt, alles was einem lieb ist (alle Variablen die einem ans Herz
-          gewachsen sind), sollte man vor einem Aufruf (!) von zum
-          Beispiel <function>IS-&gt;retrieve_customer()</function> in
-          Sicherheit bringen. </para>
+          gewachsen sind), sollte man vor einem Aufruf (!) von zum Beispiel
+          <function>IS-&gt;retrieve_customer()</function> in Sicherheit
+          bringen.</para>
 
-          <para>
-           Z.B. das vom Benutzer eingestellte Zahlenformat, bevor man Berechnung in einem
-           bestimmten Format durchführt (SL/Form.pm Zeile 3552, Stand version 2.7beta), um
-           dies hinterher wieder auf den richtigen Wert zu setzen:
-          </para>
+          <para>Z.B. das vom Benutzer eingestellte Zahlenformat, bevor man
+          Berechnung in einem bestimmten Format durchführt (SL/Form.pm Zeile
+          3552, Stand version 2.7beta), um dies hinterher wieder auf den
+          richtigen Wert zu setzen:</para>
 
           <programlisting>  my $saved_numberformat    = $::myconfig{numberformat};
   $::myconfig{numberformat} = $numberformat;
   # (...) div Berechnungen
   $::myconfig{numberformat} = $saved_numberformat;</programlisting>
 
-          <para>
-           Das Objekt der Klasse Form hat leider im Moment noch viele zentrale Funktionen die vom internen Zustand abhängen, deshalb bitte
-           nie einfach zerstören oder überschreiben (zumindestens nicht kurz vor einem Release oder in Absprache über bspw. die devel-Liste
-           ;-).  Es geht ziemlich sicher etwas kaputt.
-          </para>
+          <para>Das Objekt der Klasse Form hat leider im Moment noch viele
+          zentrale Funktionen die vom internen Zustand abhängen, deshalb bitte
+          nie einfach zerstören oder überschreiben (zumindestens nicht kurz
+          vor einem Release oder in Absprache über bspw. die devel-Liste ;-).
+          Es geht ziemlich sicher etwas kaputt.</para>
 
-          <para>
-           <varname>$::form</varname> ist gleichzeitig der Standard Scope in den <productname>Template::Toolkit</productname> Templates
-           außerhalb der Controller: der Ausdruck <function>[% var %]</function> greift auf <varname>$::form-&gt;{var}</varname> zu.  Unter
-           Controllern ist der Standard Scope anders, da lautet der Zugriff <function>[% FORM.var %]</function>. In Druckvorlagen sind
-           normale Variablen ebenfall im <varname>$::form</varname> Scope, d.h.  <function>&lt;%var%&gt;</function> zeigt auf
-           <varname>$::form-&gt;{var}</varname>.  Nochmal von der anderen Seite erläutert, innerhalb von (Web-)Templates sieht man häufiger
-           solche Konstrukte:
-          </para>
+          <para><varname>$::form</varname> ist gleichzeitig der Standard Scope
+          in den <productname>Template::Toolkit</productname> Templates
+          außerhalb der Controller: der Ausdruck <function>[% var
+          %]</function> greift auf <varname>$::form-&gt;{var}</varname> zu.
+          Unter Controllern ist der Standard Scope anders, da lautet der
+          Zugriff <function>[% FORM.var %]</function>. In Druckvorlagen sind
+          normale Variablen ebenfall im <varname>$::form</varname> Scope, d.h.
+          <function>&lt;%var%&gt;</function> zeigt auf
+          <varname>$::form-&gt;{var}</varname>. Nochmal von der anderen Seite
+          erläutert, innerhalb von (Web-)Templates sieht man häufiger solche
+          Konstrukte:</para>
 
           <programlisting>[%- IF business %]
 # (... Zeig die Auswahlliste Kunden-/Lieferantentyp an)
 [%- END %]</programlisting>
 
-          <para>
-           Entweder wird hier dann $::form-&gt;{business} ausgewertet oder aber der Funktion <function>$form-&gt;parse_html_template</function>
-           wird explizit noch ein zusätzlicher Hash übergeben, der dann auch in den (Web-)Templates zu Verfügung steht, bspw. so:
-          </para>
+          <para>Entweder wird hier dann $::form-&gt;{business} ausgewertet
+          oder aber der Funktion
+          <function>$form-&gt;parse_html_template</function> wird explizit
+          noch ein zusätzlicher Hash übergeben, der dann auch in den
+          (Web-)Templates zu Verfügung steht, bspw. so:</para>
 
           <programlisting>$form-&gt;parse_html_template("is/form_header", \%TMPL_VAR);</programlisting>
 
-          <para>
-           Innerhalb von Schleifen wird <varname>$::form-&gt;{TEMPLATE_ARRAYS}{var}[$index]</varname> bevorzugt, wenn vorhanden. Ein
-           Beispiel findet sich in SL/DO.pm, welches über alle Positionen eines Lieferscheins in Schleife läuft:
-          </para>
+          <para>Innerhalb von Schleifen wird
+          <varname>$::form-&gt;{TEMPLATE_ARRAYS}{var}[$index]</varname>
+          bevorzugt, wenn vorhanden. Ein Beispiel findet sich in SL/DO.pm,
+          welches über alle Positionen eines Lieferscheins in Schleife
+          läuft:</para>
 
           <programlisting>for $i (1 .. $form-&gt;{rowcount}) {
   # ...
@@ -4387,12 +4607,14 @@ Beschreibung: &lt;%description%&gt;
             </listitem>
           </itemizedlist>
 
-          <para>
-           <varname>%::myconfig</varname> ist im Moment der Ersatz für ein Userobjekt. Die meisten Funktionen, die etwas anhand des
-           aktuellen Users entscheiden müssen, befragen <varname>%::myconfig</varname>.  Innerhalb der Anwendungen sind dies überwiegend die
-           Daten, die sich unter <guimenu>Programm</guimenu> -&gt; <guimenuitem>Einstellungen</guimenuitem> befinden, bzw. die Informationen
-           über den Benutzer die über die Administrator-Schnittstelle (admin.pl) eingegeben wurden.
-          </para>
+          <para><varname>%::myconfig</varname> ist im Moment der Ersatz für
+          ein Userobjekt. Die meisten Funktionen, die etwas anhand des
+          aktuellen Users entscheiden müssen, befragen
+          <varname>%::myconfig</varname>. Innerhalb der Anwendungen sind dies
+          überwiegend die Daten, die sich unter <guimenu>Programm</guimenu>
+          -&gt; <guimenuitem>Einstellungen</guimenuitem> befinden, bzw. die
+          Informationen über den Benutzer die über die
+          Administrator-Schnittstelle (admin.pl) eingegeben wurden.</para>
         </sect3>
 
         <sect3>
@@ -4440,17 +4662,16 @@ Beschreibung: &lt;%description%&gt;
             </listitem>
           </itemizedlist>
 
-          <para>
-           <varname>$::lxdebug</varname> stellt Debuggingfunktionen bereit, wie "<function>enter_sub</function>" und
-           "<function>leave_sub</function>", mit denen in den alten Modulen ein brauchbares Tracing gebaut ist,
-           "<function>log_time</function>", mit der man die Wallclockzeit seit Requeststart loggen kann, sowie
-           "<function>message</function>" und "<function>dump</function>" mit denen man flott Informationen ins Log
-           (tmp/lx-office-debug.log) packen kann.
-          </para>
+          <para><varname>$::lxdebug</varname> stellt Debuggingfunktionen
+          bereit, wie "<function>enter_sub</function>" und
+          "<function>leave_sub</function>", mit denen in den alten Modulen ein
+          brauchbares Tracing gebaut ist, "<function>log_time</function>", mit
+          der man die Wallclockzeit seit Requeststart loggen kann, sowie
+          "<function>message</function>" und "<function>dump</function>" mit
+          denen man flott Informationen ins Log (tmp/lx-office-debug.log)
+          packen kann.</para>
 
-          <para>
-           Beispielsweise so:
-          </para>
+          <para>Beispielsweise so:</para>
 
           <programlisting>$main::lxdebug-&gt;message(0, 'Meine Konfig:' . Dumper (%::myconfig));
 $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{vc});</programlisting>
@@ -4504,11 +4725,12 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
           </itemizedlist>
 
           <para>Globale Konfiguration. Configdateien werden zum Start gelesen
-          und danach nicht mehr angefasst. Es ist derzeit nicht geplant, dass das
-          Programm die Konfiguration ändern kann oder sollte.</para>
+          und danach nicht mehr angefasst. Es ist derzeit nicht geplant, dass
+          das Programm die Konfiguration ändern kann oder sollte.</para>
 
-          <para>Beispielsweise ist über den Konfigurationseintrag [debug]
-                die Debug- und Trace-Log-Datei wie folgt konfiguriert und verfügbar:</para>
+          <para>Beispielsweise ist über den Konfigurationseintrag [debug] die
+          Debug- und Trace-Log-Datei wie folgt konfiguriert und
+          verfügbar:</para>
 
           <programlisting>[debug]
 file = /tmp/lx-office-debug.log</programlisting>
@@ -4539,8 +4761,7 @@ file = /tmp/lx-office-debug.log</programlisting>
 
           <para>Funktioniert wie <varname>$::lx_office_conf</varname>,
           speichert aber Daten die von der Instanz abhängig sind. Eine Instanz
-          ist hier eine Mandantendatenbank.
-          Beispielsweise überprüft
+          ist hier eine Mandantendatenbank. Beispielsweise überprüft
           <programlisting>$::instance_conf-&gt;get_inventory_system eq 'perpetual'</programlisting>
           ob die berüchtigte Bestandsmethode zur Anwendung kommt.</para>
         </sect3>
@@ -4598,16 +4819,19 @@ file = /tmp/lx-office-debug.log</programlisting>
 
           <itemizedlist>
             <listitem>
-              <para>Kommt es vom User, und soll unverändert wieder an den User? Dann <varname>$::form</varname>, steht da eh schon</para>
+              <para>Kommt es vom User, und soll unverändert wieder an den
+              User? Dann <varname>$::form</varname>, steht da eh schon</para>
             </listitem>
 
             <listitem>
-              <para>Sind es Daten aus der Datenbank, die nur bis zum Ende des Requests gebraucht werden? Dann
+              <para>Sind es Daten aus der Datenbank, die nur bis zum Ende des
+              Requests gebraucht werden? Dann
               <varname>$::request</varname></para>
             </listitem>
 
             <listitem>
-              <para>Muss ich von anderen Teilen des Programms lesend drauf zugreifen? Dann <varname>$::request</varname>, aber Zugriff über
+              <para>Muss ich von anderen Teilen des Programms lesend drauf
+              zugreifen? Dann <varname>$::request</varname>, aber Zugriff über
               Wrappermethode</para>
             </listitem>
           </itemizedlist>
@@ -4779,216 +5003,231 @@ file = /tmp/lx-office-debug.log</programlisting>
     </sect1>
 
     <sect1 id="db-upgrade-files" xreflabel="Datenbank-Upgradedateien">
-     <title>SQL-Upgradedateien</title>
+      <title>SQL-Upgradedateien</title>
 
-     <sect2 id="db-upgrade-files.introduction" xreflabel="Einführung in die Datenbank-Upgradedateien">
-      <title>Einführung</title>
+      <sect2 id="db-upgrade-files.introduction"
+             xreflabel="Einführung in die Datenbank-Upgradedateien">
+        <title>Einführung</title>
 
-      <para>
-       Der alte Mechanismus für SQL-Upgradescripte, der auf einer Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script für
-       diese Versionsnummer sucht, schränkt sehr ein, z.B. was die parallele Entwicklung im stable- und unstable-Baum betrifft.
-      </para>
+        <para>Der alte Mechanismus für SQL-Upgradescripte, der auf einer
+        Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script für
+        diese Versionsnummer sucht, schränkt sehr ein, z.B. was die parallele
+        Entwicklung im stable- und unstable-Baum betrifft.</para>
 
-      <para>
-       Dieser Mechanismus wurde für Lx-Office 2.4.1 deutlich erweitert. Es werden weiterhin alle Scripte aus sql/Pg-upgrade
-       ausgeführt. Zusätzlich gibt es aber ein zweites Verzeichnis, sql/Pg-upgrade2. In diesem Verzeichnis muss pro Datenbankupgrade eine
-       Datei existieren, die neben den eigentlich auszuführenden SQL- oder Perl-Befehlen einige Kontrollinformationen enthält.
-      </para>
+        <para>Dieser Mechanismus wurde für Lx-Office 2.4.1 deutlich erweitert.
+        Es werden weiterhin alle Scripte aus sql/Pg-upgrade ausgeführt.
+        Zusätzlich gibt es aber ein zweites Verzeichnis, sql/Pg-upgrade2. In
+        diesem Verzeichnis muss pro Datenbankupgrade eine Datei existieren,
+        die neben den eigentlich auszuführenden SQL- oder Perl-Befehlen einige
+        Kontrollinformationen enthält.</para>
 
-      <para>
-       Neu sind die Kontrollinformationen, die Abhängigkeiten und Prioritäten definieren können werden, sodass Datenbankscripte zwar in
-       einer sicheren Reihenfolge ausgeführt werden (z.B. darf ein "ALTER TABLE" erst ausgeführt werden, wenn die Tabelle mit "CREATE TABLE"
-       angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man keine Versionsnummern mehr braucht.
-      </para>
+        <para>Neu sind die Kontrollinformationen, die Abhängigkeiten und
+        Prioritäten definieren können werden, sodass Datenbankscripte zwar in
+        einer sicheren Reihenfolge ausgeführt werden (z.B. darf ein "ALTER
+        TABLE" erst ausgeführt werden, wenn die Tabelle mit "CREATE TABLE"
+        angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man
+        keine Versionsnummern mehr braucht.</para>
 
-      <para>
-       Lx-Office merkt sich dabei, welches der Upgradescripte in sql/Pg-upgrade2 bereits durchgeführt wurde und führt diese nicht erneut
-       aus. Dazu dient die Tabelle "schema_info", die bei der Anmeldung automatisch angelegt wird.
-      </para>
-     </sect2>
+        <para>Lx-Office merkt sich dabei, welches der Upgradescripte in
+        sql/Pg-upgrade2 bereits durchgeführt wurde und führt diese nicht
+        erneut aus. Dazu dient die Tabelle "schema_info", die bei der
+        Anmeldung automatisch angelegt wird.</para>
+      </sect2>
 
-     <sect2 id="db-upgrade-files.format" xreflabel="Format der Upgradedateien">
-      <title>Format der Kontrollinformationen</title>
+      <sect2 id="db-upgrade-files.format"
+             xreflabel="Format der Upgradedateien">
+        <title>Format der Kontrollinformationen</title>
 
-      <para>
-       Die Kontrollinformationen sollten sich am Anfang der jeweiligen Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthält,
-       hat dabei das folgende Format:
-      </para>
+        <para>Die Kontrollinformationen sollten sich am Anfang der jeweiligen
+        Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthält,
+        hat dabei das folgende Format:</para>
 
-      <para>
-       Für SQL-Upgradedateien:
-      </para>
+        <para>Für SQL-Upgradedateien:</para>
 
-      <programlisting>-- @key: value</programlisting>
+        <programlisting>-- @key: value</programlisting>
 
-      <para>
-       Für Perl-Upgradedateien:
-      </para>
+        <para>Für Perl-Upgradedateien:</para>
 
-      <programlisting># @key: value</programlisting>
+        <programlisting># @key: value</programlisting>
 
-      <para>
-       Leerzeichen vor "<varname>value</varname>" werden entfernt.
-      </para>
+        <para>Leerzeichen vor "<varname>value</varname>" werden
+        entfernt.</para>
 
-      <para>
-       Die folgenden Schlüsselworte werden verarbeitet:
-      </para>
+        <para>Die folgenden Schlüsselworte werden verarbeitet:</para>
 
-      <variablelist>
-       <varlistentry>
-        <term><varname>tag</varname></term>
-        <listitem>
-         <para>
-          Wird zwingend benötigt. Dies ist der "Name" des Upgrades. Dieser "tag" kann von anderen Kontrolldateien in ihren Abhängigkeiten
-          verwendet werden (Schlüsselwort "<varname>depends</varname>"). Der "tag" ist auch der Name, der in der Datenbank eingetragen wird.
-         </para>
+        <variablelist>
+          <varlistentry>
+            <term><varname>tag</varname></term>
 
-         <para>
-          Normalerweise sollte die Kontrolldatei genau so heißen wie der "tag", nur mit der Endung ".sql" bzw. "pl".
-         </para>
+            <listitem>
+              <para>Wird zwingend benötigt. Dies ist der "Name" des Upgrades.
+              Dieser "tag" kann von anderen Kontrolldateien in ihren
+              Abhängigkeiten verwendet werden (Schlüsselwort
+              "<varname>depends</varname>"). Der "tag" ist auch der Name, der
+              in der Datenbank eingetragen wird.</para>
 
-         <para>
-          Ein Tag darf nur aus alphanumerischen Zeichen sowie den Zeichen _ - ( ) bestehen. Insbesondere sind Leerzeichen nicht erlaubt und
-          sollten stattdessen mit Unterstrichen ersetzt werden.
-         </para>
-        </listitem>
-       </varlistentry>
+              <para>Normalerweise sollte die Kontrolldatei genau so heißen wie
+              der "tag", nur mit der Endung ".sql" bzw. "pl".</para>
 
-       <varlistentry>
-        <term><varname>charset</varname></term>
-        <listitem>
-         <para>
-          Empfohlen. Gibt den Zeichensatz an, in dem das Script geschrieben wurde, z.B. "<literal>UTF-8</literal>". Aus
-          Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei Abwesenheit des Tags der Zeichensatz "<literal>ISO-8859-15</literal>"
-          angenommen.
-         </para>
-        </listitem>
-       </varlistentry>
+              <para>Ein Tag darf nur aus alphanumerischen Zeichen sowie den
+              Zeichen _ - ( ) bestehen. Insbesondere sind Leerzeichen nicht
+              erlaubt und sollten stattdessen mit Unterstrichen ersetzt
+              werden.</para>
+            </listitem>
+          </varlistentry>
 
-       <varlistentry>
-        <term><varname>description</varname></term>
-        <listitem>
-         <para>
-          Benötigt. Eine Beschreibung, was in diesem Update passiert. Diese wird dem Benutzer beim eigentlichen Datenbankupdate
-          angezeigt. Während der Tag in englisch gehalten sein sollte, sollte die Beschreibung auf Deutsch erfolgen.
-         </para>
-        </listitem>
-       </varlistentry>
+          <varlistentry>
+            <term><varname>charset</varname></term>
 
-       <varlistentry>
-        <term><varname>depends</varname></term>
-        <listitem>
-         <para>
-          Optional. Eine mit Leerzeichen getrennte Liste von "tags", von denen dieses Upgradescript abhängt. Lx-Office stellt sicher, dass
-          die in dieser Liste aufgeführten Scripte bereits durchgeführt wurden, bevor dieses Script ausgeführt wird.
-         </para>
+            <listitem>
+              <para>Empfohlen. Gibt den Zeichensatz an, in dem das Script
+              geschrieben wurde, z.B. "<literal>UTF-8</literal>". Aus
+              Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei
+              Abwesenheit des Tags der Zeichensatz
+              "<literal>ISO-8859-15</literal>" angenommen.</para>
+            </listitem>
+          </varlistentry>
 
-         <para>
-          Abhängigkeiten werden rekursiv betrachtet. Wenn also ein Script "b" existiert, das von Änderungen in "a" abhängt, und eine neue
-          Kontrolldatei für "c" erstellt wird, die von Änderungen in "a" und "b" abhängt, so genügt es, in "c" nur den Tag "b" als
-          Abhängigkeit zu definieren.
-         </para>
+          <varlistentry>
+            <term><varname>description</varname></term>
 
-         <para>
-          Es ist nicht erlaubt, sich selbst referenzierende Abhängigkeiten zu definieren (z.B. &quot;a&quot; -&gt; &quot;b&quot;,
-          &quot;b&quot; -&gt; &quot;c&quot; und &quot;c&quot; -&gt; &quot;a&quot;).
-         </para>
-        </listitem>
-       </varlistentry>
+            <listitem>
+              <para>Benötigt. Eine Beschreibung, was in diesem Update
+              passiert. Diese wird dem Benutzer beim eigentlichen
+              Datenbankupdate angezeigt. Während der Tag in englisch gehalten
+              sein sollte, sollte die Beschreibung auf Deutsch
+              erfolgen.</para>
+            </listitem>
+          </varlistentry>
 
-       <varlistentry>
-        <term><varname>priority</varname></term>
-        <listitem>
-         <para>
-          Optional. Ein Zahlenwert, der die Reihenfolge bestimmt, in der Scripte ausgeführt werden, die die gleichen Abhängigkeitstiefen
-          besitzen. Fehlt dieser Parameter, so wird der Wert 1000 benutzt.
-         </para>
+          <varlistentry>
+            <term><varname>depends</varname></term>
 
-         <para>
-          Dies ist reine Kosmetik. Für echte Reihenfolgen muss "depends" benutzt werden. Lx-Office sortiert die auszuführenden Scripte
-          zuerst nach der Abhängigkeitstiefe (wenn "z" von "y" abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von 2, "y" von 1
-          und "x" von 0. "x" würde hier zuerst ausgeführt, dann "y", dann "z"), dann nach der Priorität und bei gleicher Priorität
-          alphabetisch nach dem "tag".
-         </para>
-        </listitem>
-       </varlistentry>
-       <varlistentry>
-        <term><varname>ignore</varname></term>
-        <listitem>
-         <para>
-          Optional. Falls der Wert auf 1 (true) steht, wird das Skript bei der Anmeldung ignoriert und entsprechend nicht ausgeführt.
-         </para>
-        </listitem>
-       </varlistentry>
-      </variablelist>
-     </sect2>
+            <listitem>
+              <para>Optional. Eine mit Leerzeichen getrennte Liste von "tags",
+              von denen dieses Upgradescript abhängt. Lx-Office stellt sicher,
+              dass die in dieser Liste aufgeführten Scripte bereits
+              durchgeführt wurden, bevor dieses Script ausgeführt wird.</para>
 
-     <sect2 id="db-upgrade-files.dbupgrade-tool" xreflabel="Hilfsscript dbupgrade2_tool.pl">
-      <title>Hilfsscript dbupgrade2_tool.pl</title>
+              <para>Abhängigkeiten werden rekursiv betrachtet. Wenn also ein
+              Script "b" existiert, das von Änderungen in "a" abhängt, und
+              eine neue Kontrolldatei für "c" erstellt wird, die von
+              Änderungen in "a" und "b" abhängt, so genügt es, in "c" nur den
+              Tag "b" als Abhängigkeit zu definieren.</para>
 
-      <para>
-       Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern, existiert ein Hilfsscript namens
-       "<filename>scripts/dbupgrade2_tool.pl</filename>". Es muss aus dem Lx-Office-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses
-       Tool liest alle Datenbankupgradescripte aus dem Verzeichnis <filename>sql/Pg-upgrade2</filename> aus. Es benutzt dafür die gleichen
-       Methoden wie Lx-Office selber, sodass alle Fehlersituationen von der Kommandozeile überprüft werden können.
-      </para>
+              <para>Es ist nicht erlaubt, sich selbst referenzierende
+              Abhängigkeiten zu definieren (z.B. "a" -&gt; "b", "b" -&gt; "c"
+              und "c" -&gt; "a").</para>
+            </listitem>
+          </varlistentry>
 
-      <para>
-       Wird dem Script kein weiterer Parameter übergeben, so wird nur eine Überprüfung der Felder und Abhängigkeiten vorgenommen. Man kann
-       sich aber auch Informationen auf verschiedene Art ausgeben lassen:
-      </para>
+          <varlistentry>
+            <term><varname>priority</varname></term>
 
-      <itemizedlist>
-       <listitem>
-        <para>Listenform: "<command>./scripts/dbupgrade2_tool.pl --list</command>"</para>
+            <listitem>
+              <para>Optional. Ein Zahlenwert, der die Reihenfolge bestimmt, in
+              der Scripte ausgeführt werden, die die gleichen
+              Abhängigkeitstiefen besitzen. Fehlt dieser Parameter, so wird
+              der Wert 1000 benutzt.</para>
 
-        <para>
-         Gibt eine Liste aller Scripte aus. Die Liste ist in der Reihenfolge sortiert, in der Lx-Office die Scripte ausführen würde. Es
-         werden neben der Listenposition der Tag, die Abhängigkeitstiefe und die Priorität ausgegeben.
-        </para>
-       </listitem>
+              <para>Dies ist reine Kosmetik. Für echte Reihenfolgen muss
+              "depends" benutzt werden. Lx-Office sortiert die auszuführenden
+              Scripte zuerst nach der Abhängigkeitstiefe (wenn "z" von "y"
+              abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von
+              2, "y" von 1 und "x" von 0. "x" würde hier zuerst ausgeführt,
+              dann "y", dann "z"), dann nach der Priorität und bei gleicher
+              Priorität alphabetisch nach dem "tag".</para>
+            </listitem>
+          </varlistentry>
 
-       <listitem>
-        <para>Baumform: "<command>./scripts/dbupgrade2_tool.pl --tree</command>"</para>
+          <varlistentry>
+            <term><varname>ignore</varname></term>
 
-        <para>
-         Listet alle Tags in Baumform basierend auf den Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte, von denen keine
-         anderen abhängen. Die Unterknoten sind Scripte, die beim übergeordneten Script als Abhängigkeit eingetragen sind.
-        </para>
-       </listitem>
+            <listitem>
+              <para>Optional. Falls der Wert auf 1 (true) steht, wird das
+              Skript bei der Anmeldung ignoriert und entsprechend nicht
+              ausgeführt.</para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </sect2>
 
-       <listitem id="db-upgrade-files.dbupgrade-tool.reverse-tree">
-        <para>Umgekehrte Baumform: "<command>./scripts/dbupgrade2_tool.pl --rtree</command>"</para>
+      <sect2 id="db-upgrade-files.dbupgrade-tool"
+             xreflabel="Hilfsscript dbupgrade2_tool.pl">
+        <title>Hilfsscript dbupgrade2_tool.pl</title>
 
-        <para>
-         Listet alle Tags in Baumform basierend auf den Abhängigkeiten auf.  Die "Wurzelknoten" sind dabei die Scripte mit der geringsten
-         Abhängigkeitstiefe. Die Unterknoten sind Scripte, die das übergeordnete Script als Abhängigkeit eingetragen haben.
-        </para>
-       </listitem>
+        <para>Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern,
+        existiert ein Hilfsscript namens
+        "<filename>scripts/dbupgrade2_tool.pl</filename>". Es muss aus dem
+        Lx-Office-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
+        liest alle Datenbankupgradescripte aus dem Verzeichnis
+        <filename>sql/Pg-upgrade2</filename> aus. Es benutzt dafür die
+        gleichen Methoden wie Lx-Office selber, sodass alle Fehlersituationen
+        von der Kommandozeile überprüft werden können.</para>
 
-       <listitem>
-        <para>Baumform mit Postscriptausgabe: "<command>./scripts/dbupgrade2_tool.pl --graphviz</command>"</para>
+        <para>Wird dem Script kein weiterer Parameter übergeben, so wird nur
+        eine Überprüfung der Felder und Abhängigkeiten vorgenommen. Man kann
+        sich aber auch Informationen auf verschiedene Art ausgeben
+        lassen:</para>
 
-        <para>
-         Benötigt das Tool "<command>graphviz</command>", um mit seiner Hilfe die <link
-         linkend="db-upgrade-files.dbupgrade-tool.reverse-tree">umgekehrte Baumform</link> in eine Postscriptdatei namens
-         "<filename>db_dependencies.ps</filename>" auszugeben. Dies ist vermutlich die übersichtlichste Form, weil hierbei jeder Knoten nur
-         einmal ausgegeben wird. Bei den Textmodusbaumformen hingegen können Knoten und all ihre Abhängigkeiten mehrfach ausgegeben werden.
-        </para>
-       </listitem>
+        <itemizedlist>
+          <listitem>
+            <para>Listenform: "<command>./scripts/dbupgrade2_tool.pl
+            --list</command>"</para>
 
-       <listitem>
-        <para>
-         Scripte, von denen kein anderes Script abhängt: "<command>./scripts/dbupgrade2_tool.pl --nodeps</command>"
-        </para>
+            <para>Gibt eine Liste aller Scripte aus. Die Liste ist in der
+            Reihenfolge sortiert, in der Lx-Office die Scripte ausführen
+            würde. Es werden neben der Listenposition der Tag, die
+            Abhängigkeitstiefe und die Priorität ausgegeben.</para>
+          </listitem>
 
-        <para>
-         Listet die Tags aller Scripte auf, von denen keine anderen Scripte abhängen.
-        </para>
-       </listitem>
-      </itemizedlist>
-     </sect2>
+          <listitem>
+            <para>Baumform: "<command>./scripts/dbupgrade2_tool.pl
+            --tree</command>"</para>
+
+            <para>Listet alle Tags in Baumform basierend auf den
+            Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte, von
+            denen keine anderen abhängen. Die Unterknoten sind Scripte, die
+            beim übergeordneten Script als Abhängigkeit eingetragen
+            sind.</para>
+          </listitem>
+
+          <listitem id="db-upgrade-files.dbupgrade-tool.reverse-tree">
+            <para>Umgekehrte Baumform: "<command>./scripts/dbupgrade2_tool.pl
+            --rtree</command>"</para>
+
+            <para>Listet alle Tags in Baumform basierend auf den
+            Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte mit
+            der geringsten Abhängigkeitstiefe. Die Unterknoten sind Scripte,
+            die das übergeordnete Script als Abhängigkeit eingetragen
+            haben.</para>
+          </listitem>
+
+          <listitem>
+            <para>Baumform mit Postscriptausgabe:
+            "<command>./scripts/dbupgrade2_tool.pl
+            --graphviz</command>"</para>
+
+            <para>Benötigt das Tool "<command>graphviz</command>", um mit
+            seiner Hilfe die <link
+            linkend="db-upgrade-files.dbupgrade-tool.reverse-tree">umgekehrte
+            Baumform</link> in eine Postscriptdatei namens
+            "<filename>db_dependencies.ps</filename>" auszugeben. Dies ist
+            vermutlich die übersichtlichste Form, weil hierbei jeder Knoten
+            nur einmal ausgegeben wird. Bei den Textmodusbaumformen hingegen
+            können Knoten und all ihre Abhängigkeiten mehrfach ausgegeben
+            werden.</para>
+          </listitem>
+
+          <listitem>
+            <para>Scripte, von denen kein anderes Script abhängt:
+            "<command>./scripts/dbupgrade2_tool.pl --nodeps</command>"</para>
+
+            <para>Listet die Tags aller Scripte auf, von denen keine anderen
+            Scripte abhängen.</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
     </sect1>
 
     <sect1 id="translations-languages" xreflabel="Translations and languages">
@@ -5201,36 +5440,31 @@ filenames</programlisting>
       </sect2>
     </sect1>
 
-     <sect1 id="devel.style-guide">
+    <sect1 id="devel.style-guide">
       <title>Stil-Richtlinien</title>
 
-      <para>
-       Die folgenden Regeln haben das Ziel, den Code möglichst gut les- und wartbar zu machen. Dazu gehört zum Einen, dass der Code
-       einheitlich eingerückt ist, aber auch, dass Mehrdeutigkeit so weit es geht vermieden wird (Stichworte "Klammern" oder "Hash-Keys").
-      </para>
+      <para>Die folgenden Regeln haben das Ziel, den Code möglichst gut les-
+      und wartbar zu machen. Dazu gehört zum Einen, dass der Code einheitlich
+      eingerückt ist, aber auch, dass Mehrdeutigkeit so weit es geht vermieden
+      wird (Stichworte "Klammern" oder "Hash-Keys").</para>
 
-      <para>
-       Diese Regeln sind keine Schikane sondern erleichtern allen das Leben!
-      </para>
+      <para>Diese Regeln sind keine Schikane sondern erleichtern allen das
+      Leben!</para>
 
-      <para>
-       Jeder, der einen Patch schickt, sollte seinen Code vorher überprüfen. Einige der Regeln lassen sich automatisch überprüfen, andere
-       nicht.
-      </para>
+      <para>Jeder, der einen Patch schickt, sollte seinen Code vorher
+      überprüfen. Einige der Regeln lassen sich automatisch überprüfen, andere
+      nicht.</para>
 
       <orderedlist>
-       <listitem>
-        <para>
-         Es werden keine echten Tabs sondern Leerzeichen verwendet.
-        </para>
-       </listitem>
+        <listitem>
+          <para>Es werden keine echten Tabs sondern Leerzeichen
+          verwendet.</para>
+        </listitem>
 
-       <listitem>
-        <para>
-         Die Einrückung beträgt zwei Leerzeichen. Beispiel:
-        </para>
+        <listitem>
+          <para>Die Einrückung beträgt zwei Leerzeichen. Beispiel:</para>
 
-        <programlisting>foreach my $row (@data) {
+          <programlisting>foreach my $row (@data) {
   if ($flag) {
     # do something with $row
   }
@@ -5244,36 +5478,37 @@ filenames</programlisting>
 
   $report-&gt;add($row);
 }</programlisting>
-       </listitem>
+        </listitem>
 
-       <listitem>
-        <para>Öffnende geschweifte Klammern befinden sich auf der gleichen Zeile wie der letzte Befehl. Beispiele:</para>
+        <listitem>
+          <para>Öffnende geschweifte Klammern befinden sich auf der gleichen
+          Zeile wie der letzte Befehl. Beispiele:</para>
 
-        <programlisting>sub debug {
+          <programlisting>sub debug {
   ...
 }</programlisting>
 
-        <para>oder</para>
+          <para>oder</para>
 
-        <programlisting>if ($form-&gt;{item_rows} &gt; 0) {
+          <programlisting>if ($form-&gt;{item_rows} &gt; 0) {
   ...
 }</programlisting>
-       </listitem>
+        </listitem>
 
-       <listitem>
-        <para>
-         Schließende geschweifte Klammern sind so weit eingerückt wie der Befehl / die öffnende schließende Klammer, die den Block gestartet
-         hat, und nicht auf der Ebene des Inhalts. Die gleichen Beispiele wie bei 3. gelten.
-        </para>
-       </listitem>
+        <listitem>
+          <para>Schließende geschweifte Klammern sind so weit eingerückt wie
+          der Befehl / die öffnende schließende Klammer, die den Block
+          gestartet hat, und nicht auf der Ebene des Inhalts. Die gleichen
+          Beispiele wie bei 3. gelten.</para>
+        </listitem>
 
-       <listitem>
-        <para>
-         Die Wörter "<function>else</function>", "<function>elsif</function>", "<function>while</function>" befinden sich auf der gleichen
-         Zeile wie schließende geschweifte Klammern. Beispiele:
-        </para>
+        <listitem>
+          <para>Die Wörter "<function>else</function>",
+          "<function>elsif</function>", "<function>while</function>" befinden
+          sich auf der gleichen Zeile wie schließende geschweifte Klammern.
+          Beispiele:</para>
 
-        <programlisting>if ($form-&gt;{sum} &gt; 1000) {
+          <programlisting>if ($form-&gt;{sum} &gt; 1000) {
   ...
 } elsif ($form-&gt;{sum} &gt; 0) {
   ...
@@ -5284,89 +5519,83 @@ filenames</programlisting>
 do {
   ...
 } until ($a &gt; 0);</programlisting>
-       </listitem>
+        </listitem>
 
-       <listitem>
-        <para>
-         Parameter von Funktionsaufrufen müssen mit runden Klammern versehen werden. Davon nicht betroffen sind interne Perl-Funktionen,
-         und grep-ähnliche Operatoren. Beispiel:
-        </para>
+        <listitem>
+          <para>Parameter von Funktionsaufrufen müssen mit runden Klammern
+          versehen werden. Davon nicht betroffen sind interne Perl-Funktionen,
+          und grep-ähnliche Operatoren. Beispiel:</para>
 
-        <programlisting>$main::lxdebug-&gt;message(&quot;Could not find file.&quot;);
+          <programlisting>$main::lxdebug-&gt;message("Could not find file.");
 %options = map { $_ =&gt; 1 } grep { !/^#/ } @config_file;</programlisting>
-       </listitem>
+        </listitem>
 
-       <listitem>
-        <para>
-         Verschiedene Klammern, Ihre Ausdrücke und Leerzeichen:
-        </para>
+        <listitem>
+          <para>Verschiedene Klammern, Ihre Ausdrücke und Leerzeichen:</para>
 
-        <para>
-         Generell gilt: Hashkeys und Arrayindices sollten nicht durch Leerzeichen abgesetzt werden. Logische Klammerungen ebensowenig,
-         Blöcke schon. Beispiel:
-        </para>
+          <para>Generell gilt: Hashkeys und Arrayindices sollten nicht durch
+          Leerzeichen abgesetzt werden. Logische Klammerungen ebensowenig,
+          Blöcke schon. Beispiel:</para>
 
-        <programlisting>if (($form-&gt;{debug} == 1) &amp;&amp; ($form-&gt;{sum} - 100 &lt; 0)) {
+          <programlisting>if (($form-&gt;{debug} == 1) &amp;&amp; ($form-&gt;{sum} - 100 &lt; 0)) {
   ...
 }
 
 $array[$i + 1]             = 4;
-$form-&gt;{sum}              += $form-&gt;{&quot;row_$i&quot;};
+$form-&gt;{sum}              += $form-&gt;{"row_$i"};
 $form-&gt;{ $form-&gt;{index} } += 1;
 
-map { $form-&gt;{sum} += $form-&gt;{&quot;row_$_&quot;} } 1..$rowcount;</programlisting>
-       </listitem>
+map { $form-&gt;{sum} += $form-&gt;{"row_$_"} } 1..$rowcount;</programlisting>
+        </listitem>
 
-       <listitem>
-        <para>
-         Mehrzeilige Befehle
-        </para>
+        <listitem>
+          <para>Mehrzeilige Befehle</para>
 
-        <orderedlist>
-         <listitem>
-          <para>
-           Werden die Parameter eines Funktionsaufrufes auf mehrere Zeilen aufgeteilt, so sollten diese bis zu der Spalte eingerückt
-           werden, in der die ersten Funktionsparameter in der ersten Zeile stehen. Beispiel:
-          </para>
+          <orderedlist>
+            <listitem>
+              <para>Werden die Parameter eines Funktionsaufrufes auf mehrere
+              Zeilen aufgeteilt, so sollten diese bis zu der Spalte eingerückt
+              werden, in der die ersten Funktionsparameter in der ersten Zeile
+              stehen. Beispiel:</para>
 
-          <programlisting>$sth = $dbh-&gt;prepare(&quot;SELECT * FROM some_table WHERE col = ?&quot;,
+              <programlisting>$sth = $dbh-&gt;prepare("SELECT * FROM some_table WHERE col = ?",
                     $form-&gt;{some_col_value});</programlisting>
-         </listitem>
+            </listitem>
 
-         <listitem>
-          <para>
-           Ein Spezialfall ist der ternäre Oprator "?:", der am besten in einer übersichtlichen Tabellenstruktur organisiert
-           wird. Beispiel:
-          </para>
+            <listitem>
+              <para>Ein Spezialfall ist der ternäre Oprator "?:", der am
+              besten in einer übersichtlichen Tabellenstruktur organisiert
+              wird. Beispiel:</para>
 
-          <programlisting>my $rowcount = $form-&gt;{&quot;row_$i&quot;} ? $i
+              <programlisting>my $rowcount = $form-&gt;{"row_$i"} ? $i
              : $form-&gt;{oldcount} ? $form-&gt;{oldcount} + 1
              :                     $form-&gt;{rowcount} - $form-&gt;{rowbase};</programlisting>
-         </listitem>
-        </orderedlist>
-       </listitem>
+            </listitem>
+          </orderedlist>
+        </listitem>
 
-       <listitem>
-        <para>
-         Kommentare
-        </para>
+        <listitem>
+          <para>Kommentare</para>
 
-        <orderedlist>
-         <listitem>
-          <para>Kommentare, die alleine in einer Zeile stehen, sollten soweit wie der Code eingerückt sein.</para>
-         </listitem>
+          <orderedlist>
+            <listitem>
+              <para>Kommentare, die alleine in einer Zeile stehen, sollten
+              soweit wie der Code eingerückt sein.</para>
+            </listitem>
 
-         <listitem>
-          <para>Seitliche hängende Kommentare sollten einheitlich formatiert werden.</para>
-         </listitem>
+            <listitem>
+              <para>Seitliche hängende Kommentare sollten einheitlich
+              formatiert werden.</para>
+            </listitem>
 
-         <listitem>
-          <para>
-           Sämtliche Kommentare und Sonstiges im Quellcode ist bitte auf Englisch zu verfassen. So wie ich keine Lust habe, französischen
-           Quelltext zu lesen, sollte auch der Lx-Office Quelltext für nicht-Deutschsprachige lesbar sein. Beispiel:
-          </para>
+            <listitem>
+              <para>Sämtliche Kommentare und Sonstiges im Quellcode ist bitte
+              auf Englisch zu verfassen. So wie ich keine Lust habe,
+              französischen Quelltext zu lesen, sollte auch der Lx-Office
+              Quelltext für nicht-Deutschsprachige lesbar sein.
+              Beispiel:</para>
 
-          <programlisting>my $found = 0;
+              <programlisting>my $found = 0;
 while (1) {
   last if $found;
 
@@ -5378,181 +5607,178 @@ $i  = 0        # initialize $i
 $n  = $i;      # save $i
 $i *= $const;  # do something crazy
 $i  = $n;      # recover $i</programlisting>
-         </listitem>
-        </orderedlist>
-       </listitem>
+            </listitem>
+          </orderedlist>
+        </listitem>
 
-       <listitem>
-        <para>
-         Hashkeys sollten nur in Anführungszeichen stehen, wenn die Interpolation gewünscht ist. Beispiel:
-        </para>
+        <listitem>
+          <para>Hashkeys sollten nur in Anführungszeichen stehen, wenn die
+          Interpolation gewünscht ist. Beispiel:</para>
 
-        <programlisting>$form-&gt;{sum}      = 0;
-$form-&gt;{&quot;row_$i&quot;} = $form-&gt;{&quot;row_$i&quot;} - 5;
+          <programlisting>$form-&gt;{sum}      = 0;
+$form-&gt;{"row_$i"} = $form-&gt;{"row_$i"} - 5;
 $some_hash{42}    = 54;</programlisting>
-       </listitem>
+        </listitem>
 
-       <listitem>
-        <para>
-         Die maximale Zeilenlänge ist nicht beschränkt. Zeilenlängen unterhalb von 79 Zeichen helfen unter bestimmten Bedingungen, aber
-         wenn die Lesbarkeit unter kurzen Zeilen leidet (wie zum Biespiel in grossen Tabellen), dann ist Lesbarkeit vorzuziehen.
-        </para>
+        <listitem>
+          <para>Die maximale Zeilenlänge ist nicht beschränkt. Zeilenlängen
+          unterhalb von 79 Zeichen helfen unter bestimmten Bedingungen, aber
+          wenn die Lesbarkeit unter kurzen Zeilen leidet (wie zum Biespiel in
+          grossen Tabellen), dann ist Lesbarkeit vorzuziehen.</para>
 
-        <para>
-         Als Beispiel sei die Funktion <function>print_options</function> aus <filename>bin/mozilla/io.pl</filename> angeführt.
-        </para>
-       </listitem>
+          <para>Als Beispiel sei die Funktion
+          <function>print_options</function> aus
+          <filename>bin/mozilla/io.pl</filename> angeführt.</para>
+        </listitem>
 
-       <listitem>
-        <para>
-         Trailing Whitespace, d.h. Leerzeichen am Ende von Zeilen sind unerwünscht. Sie führen zu unnötigen Whitespaceänderungen, die
-         diffs verfälschen.
-        </para>
+        <listitem>
+          <para>Trailing Whitespace, d.h. Leerzeichen am Ende von Zeilen sind
+          unerwünscht. Sie führen zu unnötigen Whitespaceänderungen, die diffs
+          verfälschen.</para>
 
-        <para>
-         Emacs und vim haben beide recht einfache Methoden zur Entfernung von trailing whitespace. Emacs kennt das Kommande
-         <command>nuke-trailing-whitespace</command>, vim macht das gleiche manuell über <literal>:%s/\s\+$//e</literal> Mit <literal>:au
-         BufWritePre * :%s/\s\+$//e</literal> wird das an Speichern gebunden.
-        </para>
-       </listitem>
+          <para>Emacs und vim haben beide recht einfache Methoden zur
+          Entfernung von trailing whitespace. Emacs kennt das Kommande
+          <command>nuke-trailing-whitespace</command>, vim macht das gleiche
+          manuell über <literal>:%s/\s\+$//e</literal> Mit <literal>:au
+          BufWritePre * :%s/\s\+$//e</literal> wird das an Speichern
+          gebunden.</para>
+        </listitem>
 
-       <listitem>
-        <para>
-         Es wird kein <command>perltidy</command> verwendet.
-        </para>
+        <listitem>
+          <para>Es wird kein <command>perltidy</command> verwendet.</para>
 
-        <para>
-         In der Vergangenheit wurde versucht, <command>perltidy</command> zu verwenden, um einen einheitlichen Stil zu erlangen. Es hat
-         sich aber gezeigt, dass <command>perltidy</command>s sehr eigenwilliges Verhalten, was Zeilenumbrüche angeht, oftmals gut
-         formatierten Code zerstört. Für den Interessierten sind hier die <command>perltidy</command>-Optionen, die grob den
-         beschriebenen Richtlinien entsprechen:
-        </para>
+          <para>In der Vergangenheit wurde versucht,
+          <command>perltidy</command> zu verwenden, um einen einheitlichen
+          Stil zu erlangen. Es hat sich aber gezeigt, dass
+          <command>perltidy</command>s sehr eigenwilliges Verhalten, was
+          Zeilenumbrüche angeht, oftmals gut formatierten Code zerstört. Für
+          den Interessierten sind hier die
+          <command>perltidy</command>-Optionen, die grob den beschriebenen
+          Richtlinien entsprechen:</para>
 
-        <programlisting>-syn -i=2 -nt -pt=2 -sbt=2 -ci=2 -ibc -hsc -noll -nsts -nsfs -asc -dsm
+          <programlisting>-syn -i=2 -nt -pt=2 -sbt=2 -ci=2 -ibc -hsc -noll -nsts -nsfs -asc -dsm
 -aws -bbc -bbs -bbb -mbl=1 -nsob -ce -nbl -nsbl -cti=0 -bbt=0 -bar -l=79
 -lp -vt=1 -vtc=1</programlisting>
-       </listitem>
+        </listitem>
 
-       <listitem>
-        <para>
-         <varname>STDERR</varname> ist tabu. Unkonditionale Debugmeldungen auch.
-        </para>
+        <listitem>
+          <para><varname>STDERR</varname> ist tabu. Unkonditionale
+          Debugmeldungen auch.</para>
 
-        <para>
-         Lx-Office bietet mit dem Modul <classname>LXDebug</classname> einen brauchbaren Trace-/Debug-Mechanismus. Es gibt also keinen
-         Grund, nach <varname>STDERR</varname> zu schreiben.
-        </para>
+          <para>Lx-Office bietet mit dem Modul <classname>LXDebug</classname>
+          einen brauchbaren Trace-/Debug-Mechanismus. Es gibt also keinen
+          Grund, nach <varname>STDERR</varname> zu schreiben.</para>
 
-        <para>
-         Die <classname>LXDebug</classname>-Methode "<function>message</function>" nimmt als ersten Paramter außerdem eine Flagmaske, für
-         die die Meldung angezeigt wird, wobei "0" immer angezeigt wird. Solche Meldungen sollten nicht eingecheckt werden und werden in
-         den meisten Fällen auch vom Repository zurückgewiesen.
-        </para>
-       </listitem>
+          <para>Die <classname>LXDebug</classname>-Methode
+          "<function>message</function>" nimmt als ersten Paramter außerdem
+          eine Flagmaske, für die die Meldung angezeigt wird, wobei "0" immer
+          angezeigt wird. Solche Meldungen sollten nicht eingecheckt werden
+          und werden in den meisten Fällen auch vom Repository
+          zurückgewiesen.</para>
+        </listitem>
 
-       <listitem>
-        <para>
-         Alle neuen Module müssen use strict verwenden.
-        </para>
+        <listitem>
+          <para>Alle neuen Module müssen use strict verwenden.</para>
 
-        <para>
-         <varname>$form</varname>, <varname>$auth</varname>, <varname>$locale</varname>, <varname>$lxdebug</varname> und
-         <varname>%myconfig</varname> werden derzeit aus dem main package importiert (siehe <xref linkend="devel.globals"/>. Alle anderen
-         Konstrukte sollten lexikalisch lokal gehalten werden.
-        </para>
-       </listitem>
+          <para><varname>$form</varname>, <varname>$auth</varname>,
+          <varname>$locale</varname>, <varname>$lxdebug</varname> und
+          <varname>%myconfig</varname> werden derzeit aus dem main package
+          importiert (siehe <xref linkend="devel.globals" />. Alle anderen
+          Konstrukte sollten lexikalisch lokal gehalten werden.</para>
+        </listitem>
       </orderedlist>
     </sect1>
 
     <sect1 id="devel.build-doc" xreflabel="Dokumentation erstellen">
-     <title>Dokumentation erstellen</title>
+      <title>Dokumentation erstellen</title>
 
-     <sect2 id="devel.build-doc.introduction">
-      <title>Einführung</title>
+      <sect2 id="devel.build-doc.introduction">
+        <title>Einführung</title>
 
-      <para>
-       Diese Dokumentation ist in <productname>DocBook</productname> XML geschrieben. Zum Bearbeiten reicht grundsätzlich ein
-       Text-Editor. Mehr Komfort bekommt man, wenn man einen dedizierten XML-fähigen Editor nutzt, der spezielle Unterstützung für
-       <productname>DocBook</productname> mitbringt. Wir empfehlen dafür den <ulink url="http://www.xmlmind.com/xmleditor/">XMLmind XML
-       Editor</ulink>, der bei nicht kommerzieller Nutzung kostenlos ist.
-      </para>
-     </sect2>
+        <para>Diese Dokumentation ist in <productname>DocBook</productname>
+        XML geschrieben. Zum Bearbeiten reicht grundsätzlich ein Text-Editor.
+        Mehr Komfort bekommt man, wenn man einen dedizierten XML-fähigen
+        Editor nutzt, der spezielle Unterstützung für
+        <productname>DocBook</productname> mitbringt. Wir empfehlen dafür den
+        <ulink url="http://www.xmlmind.com/xmleditor/">XMLmind XML
+        Editor</ulink>, der bei nicht kommerzieller Nutzung kostenlos
+        ist.</para>
+      </sect2>
 
-     <sect2 id="devel.build-doc.required-software">
-      <title>Benötigte Software</title>
+      <sect2 id="devel.build-doc.required-software">
+        <title>Benötigte Software</title>
 
-      <para>
-       Bei <productname>DocBook</productname> ist Prinzip, dass ausschließlich die XML-Quelldatei bearbeitet wird. Aus dieser werden dann
-       mit entsprechenden Stylesheets andere Formate wie PDF oder HTML erzeugt. Bei Lx-Office übernimmt diese Aufgabe das Shell-Script
-       <command>scripts/build_doc.sh</command>.
-      </para>
+        <para>Bei <productname>DocBook</productname> ist Prinzip, dass
+        ausschließlich die XML-Quelldatei bearbeitet wird. Aus dieser werden
+        dann mit entsprechenden Stylesheets andere Formate wie PDF oder HTML
+        erzeugt. Bei Lx-Office übernimmt diese Aufgabe das Shell-Script
+        <command>scripts/build_doc.sh</command>.</para>
 
-      <para>
-       Das Script benötigt zur Konvertierung verschiedene Softwarekomponenten, die im normalen Lx-Office-Betrieb nicht benötigt werden:
-      </para>
+        <para>Das Script benötigt zur Konvertierung verschiedene
+        Softwarekomponenten, die im normalen Lx-Office-Betrieb nicht benötigt
+        werden:</para>
 
-      <itemizedlist>
-       <listitem>
-        <para>
-         <ulink url="http://www.oracle.com/technetwork/java/index.html">Java</ulink> in einer halbwegs aktuellen Version
-        </para>
-       </listitem>
+        <itemizedlist>
+          <listitem>
+            <para><ulink
+            url="http://www.oracle.com/technetwork/java/index.html">Java</ulink>
+            in einer halbwegs aktuellen Version</para>
+          </listitem>
 
-       <listitem>
-        <para>
-         Das Java-Build-System <ulink url="http://ant.apache.org/">Apache Ant</ulink>
-        </para>
-       </listitem>
+          <listitem>
+            <para>Das Java-Build-System <ulink
+            url="http://ant.apache.org/">Apache Ant</ulink></para>
+          </listitem>
 
-       <listitem>
-        <para>
-         Das Dokumentations-System Dobudish für <productname>DocBook</productname> 4.5, eine Zusammenstellung diverser Stylesheets und
-         Grafiken zur Konvertierung von <productname>DocBook</productname> XML in andere Formate. Das Paket, das benötigt wird, ist zum
-         Zeitpunkt der Dokumentationserstellung <filename>dobudish-nojre-1.1.4.zip</filename>, aus auf <ulink
-         url="http://code.google.com/p/dobudish/downloads/list">code.google.com</ulink> bereitsteht.
-        </para>
-       </listitem>
-      </itemizedlist>
+          <listitem>
+            <para>Das Dokumentations-System Dobudish für
+            <productname>DocBook</productname> 4.5, eine Zusammenstellung
+            diverser Stylesheets und Grafiken zur Konvertierung von
+            <productname>DocBook</productname> XML in andere Formate. Das
+            Paket, das benötigt wird, ist zum Zeitpunkt der
+            Dokumentationserstellung
+            <filename>dobudish-nojre-1.1.4.zip</filename>, aus auf <ulink
+            url="http://code.google.com/p/dobudish/downloads/list">code.google.com</ulink>
+            bereitsteht.</para>
+          </listitem>
+        </itemizedlist>
 
-      <para>
-       Apache Ant sowie ein dazu passendes Java Runtime Environment sind auf allen gängigen Plattformen verfügbar. Beispiel für
-       Debian/Ubuntu:
-      </para>
+        <para>Apache Ant sowie ein dazu passendes Java Runtime Environment
+        sind auf allen gängigen Plattformen verfügbar. Beispiel für
+        Debian/Ubuntu:</para>
 
-      <programlisting>apt-get install ant openjdk-7-jre</programlisting>
+        <programlisting>apt-get install ant openjdk-7-jre</programlisting>
 
-      <para>
-       Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis <filename>doc/build</filename> entpackt werden. Beispiel unter der
-       Annahme, das <productname>Dobudish</productname> in <filename>$HOME/Downloads</filename> heruntergeladen wurde:
-      </para>
+        <para>Nach dem Download von Dobudish muss Dobudish im Unterverzeichnis
+        <filename>doc/build</filename> entpackt werden. Beispiel unter der
+        Annahme, das <productname>Dobudish</productname> in
+        <filename>$HOME/Downloads</filename> heruntergeladen wurde:</para>
 
-      <programlisting>cd doc/build
+        <programlisting>cd doc/build
 unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</programlisting>
-     </sect2>
+      </sect2>
 
-     <sect2 id="devel.build-doc.build">
-      <title>PDFs und HTML-Seiten erstellen</title>
+      <sect2 id="devel.build-doc.build">
+        <title>PDFs und HTML-Seiten erstellen</title>
 
-      <para>
-       Die eigentliche Konvertierung erfolgt nach Installation der benötigten Software mit einem einfachen Aufruf direkt aus dem
-       Lx-Office-Installationsverzeichnis heraus:
-      </para>
+        <para>Die eigentliche Konvertierung erfolgt nach Installation der
+        benötigten Software mit einem einfachen Aufruf direkt aus dem
+        Lx-Office-Installationsverzeichnis heraus:</para>
 
-      <programlisting>./scripts/build_doc.sh</programlisting>
-     </sect2>
+        <programlisting>./scripts/build_doc.sh</programlisting>
+      </sect2>
 
-     <sect2 id="devel.build-doc.repository">
-      <title>Einchecken in das Git-Repository</title>
+      <sect2 id="devel.build-doc.repository">
+        <title>Einchecken in das Git-Repository</title>
 
-      <para>
-       Sowohl die XML-Datei als auch die erzeugten PDF- und HTML-Dateien sind Bestandteil des Git-Repositories. Daraus folgt, dass nach
-       Änderungen am XML die PDF- und HTML-Dokumente ebenfalls gebaut und alles zusammen in einem Commit eingecheckt werden sollten.
-      </para>
+        <para>Sowohl die XML-Datei als auch die erzeugten PDF- und
+        HTML-Dateien sind Bestandteil des Git-Repositories. Daraus folgt, dass
+        nach Änderungen am XML die PDF- und HTML-Dokumente ebenfalls gebaut
+        und alles zusammen in einem Commit eingecheckt werden sollten.</para>
 
-      <para>
-       Die "<filename>dobudish</filename>"-Verzeichnisse bzw. symbolischen Links gehören hingegen nicht in das Repository.
-      </para>
-     </sect2>
+        <para>Die "<filename>dobudish</filename>"-Verzeichnisse bzw.
+        symbolischen Links gehören hingegen nicht in das Repository.</para>
+      </sect2>
     </sect1>
   </chapter>
 </book>
