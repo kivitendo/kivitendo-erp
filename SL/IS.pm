@@ -2088,6 +2088,7 @@ sub get_pricegroups_for_parts {
 
       $pkr->{price} *= $form->{"basefactor_$i"};
       $pkr->{price} *= $basefactor;
+      $pkr->{price_ufmt} = $pkr->{price};
       $pkr->{price} = $form->format_amount($myconfig, $pkr->{price}, 5);
 
       if ($selectedpricegroup_id eq undef) {
@@ -2102,18 +2103,16 @@ sub get_pricegroups_for_parts {
         if ($pkr->{pricegroup_id} eq $form->{"pricegroup_id_$i"} and defined $form->{"pricegroup_id_$i"}) {
           # Case A
           $pkr->{selected}  = ' selected';
-
         } elsif ($pkr->{pricegroup_id} eq $form->{customer_klass}
                  and not defined $form->{"pricegroup_id_$i"}
-                 and $pkr->{price} != 0    # only use customer pricegroup price if it has a value, else use default_sellprice
-                                           # for the case where pricegroup prices haven't been set
+                 and $pkr->{price_ufmt} != 0    # only use customer pricegroup price if it has a value, else use default_sellprice
+                                                # for the case where pricegroup prices haven't been set
                 ) {
           # Case B: use default pricegroup of customer
 
           $pkr->{selected}  = ' selected'; # unless $form->{selected};
-
           # no customer pricesgroup set
-          if ($pkr->{price} == $pkr->{default_sellprice}) {
+          if ($pkr->{price_unfmt} == $pkr->{default_sellprice}) {
 
             $pkr->{price} = $form->{"sellprice_$i"};
 
@@ -2124,7 +2123,7 @@ sub get_pricegroups_for_parts {
             $form->{"sellprice_$i"} = $pkr->{price};
           }
 
-        } elsif ($pkr->{price} == $pkr->{default_sellprice} and $pkr->{default_sellprice} != 0) {
+        } elsif ($pkr->{price_unfmt} == $pkr->{default_sellprice} and $pkr->{default_sellprice} != 0) {
           $pkr->{price}    = $form->{"sellprice_$i"};
           $pkr->{selected} = ' selected';
         }
