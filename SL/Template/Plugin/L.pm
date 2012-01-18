@@ -295,7 +295,7 @@ sub date_tag {
     onChange => $onchange,
     ) : ()),
     %params,
-  ) . ((!$params{no_cal}) ?
+  ) . ((!$params{no_cal} && !$params{readonly}) ?
   $self->html_tag('img', undef,
     src    => 'image/calendar.png',
     alt    => $::locale->text('Calendar'),
