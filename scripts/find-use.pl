@@ -5,6 +5,7 @@ use File::Find;
 use Module::CoreList;
 use SL::InstallationCheck;
 use Term::ANSIColor;
+use Getopt::Long;
 
 my (%uselines, %modules, %supplied, %requires);
 
@@ -35,6 +36,10 @@ my (%uselines, %modules, %supplied, %requires);
   'Devel::REPL' => {
     'namespace::clean'                   => 1,
   }
+);
+
+GetOptions(
+  'files-with-match|l' => \ my $l,
 );
 
 find(sub {
@@ -118,8 +123,12 @@ while ($changed) {
   }
 }
 
-print sprintf "%8s : %s (%s)", color_text($modules{$_}->{status}), $_, join(' ', @{ $modules{$_}->{files} || [] })
-  for sort {
+do {
+  print sprintf "%8s : %s", color_text($modules{$_}->{status}), $_;
+  if ($l) {
+    print " $_" for @{ $modules{$_}->{files} || [] };
+  }
+} for sort {
        $modules{$a}->{status} cmp $modules{$b}->{status}
     ||                    $a  cmp $b
   } keys %modules;
