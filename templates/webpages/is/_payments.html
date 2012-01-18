@@ -33,9 +33,12 @@
   [% SET paid          = 'paid_'          _ i %]
   [% SET AR_paid       = 'AR_paid_'       _ i %]
   [% SET selectAR_paid_ref = 'selectAR_paid_' _ i %]
-
-     <input type=hidden name="acc_trans_id_[% i %]" value=[% $acc_trans_id %]>
-     <input type=hidden name="gldate_[% i %]" value=[% $gldate %]>
+     <tr style='display:none'>
+       <td>
+         <input type=hidden name="acc_trans_id_[% i %]" value="[% $acc_trans_id %]">
+         <input type=hidden name="gldate_[% i %]" value="[% $gldate %]">
+       </td>
+     </tr>
 
      <tr>
      <td align="center">
@@ -99,11 +102,15 @@
 
     </tr>
   [% IF $changeable %]
+    <tr style='display:none'>
+     <td>
     <script type='text/javascript'>
      Calendar.setup({ inputField : "datepaid_[% i %]", ifFormat :"[% myconfig_jsc_dateformat %]", align : "TR", button : "trigger_datepaid_[% i %]" });
      $('input[name="paid_[% i %]"]').blur(function(){ check_right_number_format(this) });
      $('#datepaid_[% i %]').blur(function(){ check_right_date_format(this) });
     </script>
+     </td>
+    </tr>
   [% END %]
 
 [% END # foreach %]
@@ -120,12 +127,15 @@
       <td align="center">[%- 'Missing amount' | $T8 %]</td>
       <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
     </tr>
-
+    <tr style='display:none'>
+     <td>
      <input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
      <input type="hidden" name="selectAR_paid" value="[% selectAR_paid %]">
      <input type="hidden" name="oldinvtotal" value="[% oldinvtotal %]">
 
      <input type="hidden" name="oldtotalpaid" value="[% totalpaid %]">
+    </td>
+   </tr>
     </table>
 
     </td>

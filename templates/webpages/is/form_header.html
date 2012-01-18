@@ -45,11 +45,11 @@
                  allow_textbox = 1,
                  onChange      = "document.getElementById('update_button').click();" -%]
             <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('[% HTML.escape(vc) %]')">
-          </td>
           <input type="hidden" name="customer_klass" value="[% HTML.escape(customer_klass) %]">
           <input type="hidden" name="customer_id" value="[% HTML.escape(customer_id) %]">
           <input type="hidden" name="oldcustomer" value="[% HTML.escape(oldcustomer) %]">
           <input type="hidden" name="selectcustomer" value="[% HTML.escape(selectcustomer) %]">
+          </td>
         </tr>
 [%- IF ALL_CONTACTS.size %]
         <tr>
@@ -90,8 +90,10 @@
 [%- END %]
         <tr>
           <th align="right" nowrap>[% 'Record in' | $T8 %]</th>
-          <td colspan="3"><select name="AR" style="width:250px;">[% selectAR %]</select></td>
-          <input type="hidden" name="selectAR" value="[% selectAR %]">
+          <td colspan="3">
+            <select name="AR" style="width:250px;">[% selectAR %]</select>
+            <input type="hidden" name="selectAR" value="[% selectAR | html %]">
+          </td>
         </tr>
         <tr>
           <th align="right">[% 'Steuersatz' | $T8 %]</th>
@@ -100,6 +102,7 @@
   [%- IF id %]
           <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
   [%- END %]
+          </td>
         </tr>
 [%- IF all_departments %]
         <tr>
@@ -115,8 +118,12 @@
           <td>[% currencies %]</td>
         </tr>
 [%- END %]
-        <input type="hidden" name="fxgain_accno" value="[% fxgain_accno %]">
-        <input type="hidden" name="fxloss_accno" value="[% fxloss_accno %]">
+        <tr style='display:none'>
+          <td>
+            <input type="hidden" name="fxgain_accno" value="[% fxgain_accno %]">
+            <input type="hidden" name="fxloss_accno" value="[% fxloss_accno %]">
+          </td>
+        </tr>
 [%- IF show_exchangerate %]
         <tr>
           <th align="right">[% 'Exchangerate' | $T8 %]</th>
@@ -225,13 +232,13 @@
       </table>
     </td>
   </tr>
-</table>
-    </td>
-  </tr>
-  <tr>
+  <tr style='display:none'>
     <td>
+      <input type="hidden" name="webdav" value="[% webdav %]">
     </td>
   </tr>
+</table>
+
   <script type="text/javascript" src="js/show_form_details.js"></script>
   <script type="text/javascript" src="js/show_vc_details.js"></script>
   <script type="text/javascript" src="js/show_history.js"></script>
@@ -265,5 +272,4 @@
      }
    //-->
   </script>
-
-  <input type="hidden" name="webdav" value="[% webdav %]">
+<table width="100%">
