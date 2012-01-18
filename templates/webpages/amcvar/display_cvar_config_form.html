@@ -36,7 +36,7 @@
     </tr>
 
     <tr>
-     <td align="right">[% 'Type' | $T8 %]</td>
+     <td align="right">[% 'Type' | $T8 %]<sup><span class="small">(3)</span></sup></td>
      <td>
       <select name="type">
        [%- FOREACH row = TYPES %]
@@ -47,12 +47,12 @@
     </tr>
 
     <tr>
-     <td align="right">[% 'Default value' | $T8 %]<sup><span class="small">(3)</span></sup></td>
+     <td align="right">[% 'Default value' | $T8 %]<sup><span class="small">(4)</span></sup></td>
      <td><input name="default_value" value="[% HTML.escape(default_value) %]"></td>
     </tr>
 
     <tr>
-     <td align="right">[% 'Options' | $T8 %]<sup><span class="small">(4)</span></sup></td>
+     <td align="right">[% 'Options' | $T8 %]<sup><span class="small">(5)</span></sup></td>
      <td><input name="options" value="[% HTML.escape(options) %]"></td>
     </tr>
 
@@ -112,9 +112,12 @@
   <p>
    (2) [% 'The description is shown on the form. Chose something short and descriptive.' | $T8 %]
   </p>
+  <p>
+   (3) [% 'For type "customer" the perl module JSON is required. Please check this on system level: $ ./scripts/installation_check.pl' | $T8 %]
+  </p>
 
   <p>
-   (3) [% 'The default value depends on the variable type:' | $T8 %]
+   (4) [% 'The default value depends on the variable type:' | $T8 %]
    <br>
    <ul>
     <li>[%- 'Text, text field and number variables: The default value will be used as-is.' | $T8 %]</li>
@@ -124,7 +127,7 @@
   </p>
 
   <p>
-   (4) [% 'The available options depend on the varibale type:' | $T8 %]
+   (5) [% 'The available options depend on the varibale type:' | $T8 %]
    <br>
    <ul>
     <li>[%- 'Text variables: \'MAXLENGTH=n\' sets the maximum entry length to \'n\'.' | $T8 %]</li>
@@ -138,7 +141,7 @@
 
   [%- IF module == 'IC' %]
   <p>
-   (5)
+   (6)
 
    [%- 'A variable marked as \'editable\' can be changed in each quotation, order, invoice etc.' | $T8 %]
 
