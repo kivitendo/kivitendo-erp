@@ -897,99 +897,25 @@ sub form_header {
 }
 
 sub form_footer {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('general_ledger');
 
-  $main::auth->assert('general_ledger');
+  my ($follow_ups, $follow_ups_due);
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
-
-  my $follow_ups_block;
-  if ($form->{id}) {
-    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
-
-    if (@{ $follow_ups} ) {
-      my $num_due       = sum map { $_->{due} * 1 } @{ $follow_ups };
-      $follow_ups_block = qq|<p>| . $locale->text("There are #1 unfinished follow-ups of which #2 are due.", scalar @{ $follow_ups }, $num_due) . qq|</p>|;
-    }
+  if ($::form->{id}) {
+    $follow_ups     = FU->follow_ups('trans_id' => $::form->{id});
+    $follow_ups_due = sum map { $_->{due} * 1 } @{ $follow_ups || [] };
   }
 
-  my ($dec) = ($form->{totaldebit} =~ /\.(\d+)/);
-  $dec = length $dec;
-  my $decimalplaces = ($dec > 2) ? $dec : 2;
-  my $radieren = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  my $radieren = $::form->current_date(\%::myconfig) eq $::form->{gldate};
 
-  map {
-    $form->{$_} = $form->format_amount(\%myconfig, $form->{$_}, 2, "&nbsp;")
-  } qw(totaldebit totalcredit);
+  print $::form->parse_html_template('gl/form_footer', {
+    radieren       => $radieren,
+    follow_ups     => $follow_ups,
+    follow_ups_due => $follow_ups_due,
+  });
 
-  print qq|
-    <tr class=listtotal>
-    <th colspan="3" align=right class=listtotal> $form->{totaldebit}</th>
-    <th align=right class=listtotal> $form->{totalcredit}</th>
-    <td colspan=6></td>
-    </tr>
-  </table>
-  </td>
-  </tr>
-</table>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-$follow_ups_block
-
-<br>
-|;
-
-  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
-  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
-
-  if ($form->{id}) {
-
-    if (!$form->{storno}) {
-      print qq|<input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|">|;
-    }
-
-    # Löschen und Ändern von Buchungen nicht mehr möglich (GoB) nur am selben Tag möglich
-    if (!$form->{locked} && $radieren) {
-      print qq|
-        <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|" accesskey="b">
-        <input class=submit type=submit name=action value="| . $locale->text('Delete') . qq|">|;
-    }
-
-    print qq|
-        <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
-        <input type="button" class="submit" onclick="follow_up_window()" value="|
-      . $locale->text('Follow-Up')
-      . qq|"> |;
-
-  } else {
-    if ($form->{draft_id}) {
-      my $remove_draft_checked = $form->{remove_draft} ? 'checked' : '';
-      print qq|<p>\n|
-        . qq|  <input name="remove_draft" id="remove_draft" type="checkbox" class="checkbox" ${remove_draft_checked}>|
-        . qq|  <label for="remove_draft">| . $locale->text('Remove Draft') . qq|</label>\n|
-        . qq|</p>\n|;
-    }
-
-    print qq|
-        <input class=submit type=submit name=action id=update_button value="| . $locale->text('Update') . qq|">
-        <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|"> |
-        . NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'), '-class' => 'submit'))
-        . $cgi->hidden('-name' => 'draft_id',          '-default' => [$form->{draft_id}])
-        . $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}]);
-  }
-
-  print "
-  </form>
-
-</body>
-</html>
-";
-  $main::lxdebug->leave_sub();
-
+  $::lxdebug->leave_sub;
 }
 
 sub delete {

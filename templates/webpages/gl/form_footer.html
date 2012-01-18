@@ -1,0 +1,52 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE T8 %]
+[%- USE L %]
+    <tr class=listtotal>
+    <th colspan="3" align=right class=listtotal> [% LxERP.format_amount(totaldebit, 2) | html %]</th>
+    <th align=right class=listtotal> [% LxERP.format_amount(totalcredit, 2) | html %]</th>
+    <td colspan=6></td>
+    </tr>
+  </table>
+  </td>
+  </tr>
+</table>
+
+<input name=callback type=hidden value="[% callback %]">
+
+[%- IF id && follow_ups.size %]
+  <p>[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', follow_ups.size , follow_ups_due) %]</p>
+[%- END %]
+
+<br>
+
+[%- IF id %]
+
+ [%- IF !storno %]
+      [% L.submit_tag('action', LxERP.t8('Storno')) %]
+ [%- END %]
+
+ [% IF !locked && radieren %]
+      [% L.submit_tag('action', LxERP.t8('Post'), accesskey='b') %]
+      [% L.submit_tag('action', LxERP.t8('Delete')) %]
+ [%- END %]
+      [% L.submit_tag('action', LxERP.t8('Update'), id='update_button') %]
+      [% L.submit_tag('action', LxERP.t8('Follow-Up'), onclick='follow_up_window()') %]
+
+[%- ELSE %]
+
+ [%- IF draft_id %]
+      <p>[% L.checkbox_tag('remove_draft', checked=remove_draft, label=LxERP.t8('Remove Draft')) %]</p>
+ [%- END %]
+
+      [% L.submit_tag('action', LxERP.t8('Update'), id='update_button') %]
+      [% L.submit_tag('action', LxERP.t8('Post')) %]
+      [% L.submit_tag('action', LxERP.t8('Save Draft')) %]
+      [% L.hidden_tag('draft_id', draft_id) %]
+      [% L.hidden_tag('draft_description', draft_description) %]
+[%- END %]
+
+  </form>
+
+</body>
+</html>
