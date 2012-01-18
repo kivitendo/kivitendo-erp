@@ -17,6 +17,11 @@ sub _tag_id {
 }
 }
 
+my %_valueless_attributes = map { $_ => 1 } qw(
+  checked compact declare defer disabled ismap multiple noresize noshade nowrap
+  readonly selected
+);
+
 sub _H {
   my $string = shift;
   return $::locale->quote_special_chars('HTML', $string);
@@ -62,9 +67,9 @@ sub attributes {
   my @result = ();
   while (my ($name, $value) = each %options) {
     next unless $name;
-    next if $name eq 'disabled' && !$value;
+    next if $_valueless_attributes{$name} && !$value;
     $value = '' if !defined($value);
-    push @result, _H($name) . '="' . _H($value) . '"';
+    push @result, $_valueless_attributes{$name} ? _H($name) : _H($name) . '="' . _H($value) . '"';
   }
 
   return @result ? ' ' . join(' ', @result) : '';
@@ -277,7 +282,8 @@ sub date_tag {
     s/y+/\%Y/gi;
   } $::myconfig{"dateformat"};
 
-  my $cal_align =  delete $params{cal_align} || 'BR';
+  my $cal_align = delete $params{cal_align} || 'BR';
+  my $onchange  = delete $params{onchange};
   my $str_value = blessed $value ? $value->to_lxoffice : $value;
 
   $self->input_tag($name, $str_value,
@@ -285,6 +291,9 @@ sub date_tag {
     size   => 11,
     title  => _H($::myconfig{dateformat}),
     onBlur => 'check_right_date_format(this)',
+    ($onchange ? (
+    onChange => $onchange,
+    ) : ()),
     %params,
   ) . ((!$params{no_cal}) ?
   $self->html_tag('img', undef,
