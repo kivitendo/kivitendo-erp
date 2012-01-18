@@ -421,12 +421,19 @@ sub areainput_tag {
   my ($self, $name, $value, @slurp) = @_;
   my %attributes      = _hashify(@slurp);
 
-  my $rows = delete $attributes{rows}     || 1;
+  my ($rows, $cols);
   my $min  = delete $attributes{min_rows} || 1;
 
+  if (exists $attributes{cols}) {
+    $cols = delete $attributes{cols};
+    $rows = $::form->numtextrows($value, $cols);
+  } else {
+    $rows = delete $attributes{rows} || 1;
+  }
+
   return $rows > 1
-    ? $self->textarea_tag($name, $value, %attributes, rows => max $rows, $min)
-    : $self->input_tag($name, $value, %attributes);
+    ? $self->textarea_tag($name, $value, %attributes, rows => max($rows, $min), ($cols ? (cols => $cols) : ()))
+    : $self->input_tag($name, $value, %attributes, ($cols ? (size => $cols) : ()));
 }
 
 sub multiselect2side {
@@ -691,7 +698,8 @@ should be selected by default.
 =item C<areainput_tag $name, $content, %PARAMS>
 
 Creates a generic input tag or textarea tag, depending on content size. The
-mount of desired rows must be given with C<rows> parameter, Accpeted parameters
+amount of desired rows must be either given with the C<rows> parameter or can
+be computed from the value and the C<cols> paramter, Accepted parameters
 include C<min_rows> for rendering a minimum of rows if a textarea is displayed.
 
 You can force input by setting rows to 1, and you can force textarea by setting
