@@ -849,288 +849,50 @@ sub display_rows {
 }
 
 sub form_header {
+  $::lxdebug->enter_sub;
+  $::auth->assert('general_ledger');
+
   my ($init) = @_;
-  $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger');
+  my @old_project_ids = grep { $_ } map{ $::form->{"project_id_$_"} } 1..$::form->{rowcount};
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  my @old_project_ids = ();
-  map({ push(@old_project_ids, $form->{"project_id_$_"})
-          if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
-
-  $form->get_lists("projects"  => { "key"       => "ALL_PROJECTS",
+  $::form->get_lists("projects"  => { "key"       => "ALL_PROJECTS",
                                     "all"       => 0,
                                     "old_id"    => \@old_project_ids },
                    "charts"    => { "key"       => "ALL_CHARTS",
-                                    "transdate" => $form->{transdate} },
+                                    "transdate" => $::form->{transdate} },
                    "taxcharts" => "ALL_TAXCHARTS");
 
-  GL->get_chart_balances('charts' => $form->{ALL_CHARTS});
+  GL->get_chart_balances('charts' => $::form->{ALL_CHARTS});
 
-  my $title      = $form->{title};
-  $form->{title} = $locale->text("$title General Ledger Transaction");
-  my $readonly   = ($form->{id}) ? "readonly" : "";
-
-  my $show_details_checked   = $form->{show_details}   ? "checked" : '';
-  my $ob_transaction_checked = $form->{ob_transaction} ? "checked" : '';
-  my $cb_transaction_checked = $form->{cb_transaction} ? "checked" : '';
-
+  my $title      = $::form->{title};
+  $::form->{title} = $::locale->text("$title General Ledger Transaction");
   # $locale->text('Add General Ledger Transaction')
   # $locale->text('Edit General Ledger Transaction')
 
-  map { $form->{$_} =~ s/\"/&quot;/g }
-    qw(reference description chart taxchart);
+  map { $::form->{$_} =~ s/\"/&quot;/g }
+    qw(chart taxchart);
 
-  $form->{javascript} = qq|<script type="text/javascript">
-  <!--
-  function setTaxkey(row) {
-    var accno  = document.getElementById('accno_' + row);
-    var taxkey = accno.options[accno.selectedIndex].value;
-    var reg = /--([0-9]*)/;
-    var found = reg.exec(taxkey);
-    var index = found[1];
-    index = parseInt(index);
-    var tax = 'taxchart_' + row;
-    for (var i = 0; i < document.getElementById(tax).options.length; ++i) {
-      var reg2 = new RegExp("^"+ index, "");
-      if (reg2.exec(document.getElementById(tax).options[i].value)) {
-        document.getElementById(tax).options[i].selected = true;
-        break;
-      }
-    }
-  };
-
-  function copy_debit_to_credit() {
-    var txt = document.getElementsByName('debit_1')[0].value;
-    document.getElementsByName('credit_2')[0].value = txt;
-  };
-  //-->
-  </script>
-  <script type="text/javascript" src="js/show_form_details.js"></script>
-  <script type="text/javascript" src="js/jquery.js"></script>
-|;
-
-  $form->{selectdepartment} =~ s/ selected//;
-  $form->{selectdepartment} =~
-    s/option>\Q$form->{department}\E/option selected>$form->{department}/;
-
-  my $description;
-  if ((my $rows = $form->numtextrows($form->{description}, 50)) > 1) {
-    $description =
-      qq|<textarea name=description rows=$rows cols=50 wrap=soft $readonly >$form->{description}</textarea>|;
-  } else {
-    $description =
-      qq|<input name=description size=50 value="$form->{description}" $readonly>|;
-  }
-
-  my $taxincluded = ($form->{taxincluded}) ? "checked" : "";
+  $::form->{selectdepartment} =~ s/ selected//;
+  $::form->{selectdepartment} =~
+    s/option>\Q$::form->{department}\E/option selected>$::form->{department}/;
 
   if ($init) {
-    $taxincluded = "checked";
-  }
-
-  my $department;
-  $department = qq|
-        <tr>
-          <th align=right nowrap>| . $locale->text('Department') . qq|</th>
-          <td colspan=3><select name=department>$form->{selectdepartment}</select></td>
-          <input type=hidden name=selectdepartment value="$form->{selectdepartment}">
-        </tr>
-| if $form->{selectdepartment};
-  if ($init) {
-    $form->{fokus} = "gl.reference";
+    $::form->{fokus} = "gl.reference";
+    $::form->{taxincluded} = "1";
   } else {
-    $form->{fokus} = qq|gl.accno_$form->{rowcount}|;
+    $::form->{fokus} = qq|gl.accno_$::form->{rowcount}|;
   }
 
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
-  my $jsscript = "";
-  my ($button1, $button2);
-  if ($form->{jsscript}) {
+  $::form->{previous_id}     ||= "--";
+  $::form->{previous_gldate} ||= "--";
 
-    # with JavaScript Calendar
-    $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly onBlur=\"check_right_date_format(this)\">
-       <input type=button name=transdate id="trigger1" value=|
-      . $locale->text('button') . qq|></td>
-       |;
+  $::form->header;
+  print $::form->parse_html_template('gl/form_header', {
+    hide_title => $title,
+  });
 
-    #write Trigger
-    $jsscript =
-      Form->write_trigger(\%myconfig, "1", "transdate", "BL", "trigger1");
-  } else {
-
-    # without JavaScript Calendar
-    $button1 =
-      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" $readonly onBlur=\"check_right_date_format(this)\"></td>|;
-  }
-
-  $form->{previous_id}     ||= "--";
-  $form->{previous_gldate} ||= "--";
-
-  $jsscript .= $form->parse_html_template('gl/form_header_chart_balances_js');
-
-  $form->header;
-
-  print qq|
-<body onLoad="focus()">
-
-<script type="text/javascript" src="js/follow_up.js"></script>
-
-<form method=post name="gl" action=gl.pl>
-|;
-
-  $form->hide_form(qw(id closedto locked storno storno_id previous_id previous_gldate));
-
-  print qq|
-<input type=hidden name=title value="$title">
-
-<input type="hidden" name="follow_up_trans_id_1" value="| . H($form->{id}) . qq|">
-<input type="hidden" name="follow_up_trans_type_1" value="gl_transaction">
-<input type="hidden" name="follow_up_trans_info_1" value="| . H($form->{id}) . qq|">
-<input type="hidden" name="follow_up_rowcount" value="1">
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>| .
-
-  ($form->{saved_message} ? qq|
-  <tr>
-    <td>$form->{saved_message}</th>
-  </tr>| : '') .
-
-qq|
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr>
-          <td colspan="6" align="left">|
-    . $locale->text("Previous transnumber text")
-    . " $form->{previous_id} "
-    . $locale->text("Previous transdate text")
-    . " $form->{previous_gldate}"
-    . qq|</td>
-        </tr>
-        <tr>
-          <th align=right>| . $locale->text('Reference') . qq|</th>
-          <td><input name=reference size=20 value="$form->{reference}" $readonly></td>
-          <td align=left>
-            <table>
-              <tr>
-                <th align=right nowrap>| . $locale->text('Date') . qq|</th>
-                $button1
-              </tr>
-            </table>
-          </td>
-        </tr>|;
-  if ($form->{id}) {
-    print qq|
-        <tr>
-          <th align=right>| . $locale->text('Belegnummer') . qq|</th>
-          <td><input name=id size=20 value="$form->{id}" $readonly></td>
-          <td align=left>
-          <table>
-              <tr>
-                <th align=right width=50%>| . $locale->text('Buchungsdatum') . qq|</th>
-                <td align=left><input name=gldate size=11 title="$myconfig{dateformat}" value=$form->{gldate} $readonly onBlur=\"check_right_date_format(this)\"></td>
-              </tr>
-            </table>
-          </td>
-        </tr>|;
-  }
-  print qq|
-        $department|;
-  if ($form->{id}) {
-    print qq|
-        <tr>
-          <th align=right width=1%>| . $locale->text('Description') . qq|</th>
-          <td width=1%>$description</td>
-          <td>
-            <table>
-              <tr>
-                <th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
-                <td><input type=checkbox name=taxincluded value=1 $taxincluded></td>
-              </tr>
-            </table>
-         </td>
-          <td align=left>
-            <table width=100%>
-              <tr>
-                <th align=right width=50%>| . $locale->text('Mitarbeiter') . qq|</th>
-                <td align=left><input name=employee size=20  value="| . H($form->{employee}) . qq|" readonly></td>
-              </tr>
-            </table>
-          </td>
-        </tr>|;
-  } else {
-    print qq|
-        <tr>
-          <th align=left width=1%>| . $locale->text('Description') . qq|</th>
-          <td width=1%>$description</td>
-          <td>
-            <table>
-              <tr>
-                <th align=left>| . $locale->text('MwSt. inkl.') . qq|</th>
-                <td><input type=checkbox name=taxincluded value=1 $taxincluded></td>
-              </tr>
-            </table>
-         </td>
-        </tr>|;
-  }
-
-  print qq|
-      <tr>
-      <tr><td colspan=4><table><tr>
-       <td>
-        | . $locale->text('OB Transaction') . qq|<input type="checkbox" name="ob_transaction" value="1" $ob_transaction_checked>
-       </td>
-       <td>
-        | . $locale->text('CB Transaction') . qq|<input type="checkbox" name="cb_transaction" value="1" $cb_transaction_checked>
-       </td>
-      </tr></table></td></tr>
-      <tr>
-       <td width="1%" align="right" nowrap>| . $locale->text('Show details') . qq|</td>
-       <td width="1%"><input type="checkbox" onclick="show_form_details();" name="show_details" value="1" $show_details_checked></td>
-      </tr>|;
-
-  print qq|
-      <tr>
-      <td colspan=4>
-          <table width=100%>
-           <tr class=listheading>
-          <th class=listheading style="width:15%">|
-    . $locale->text('Account') . qq|</th>
-          <th class=listheading style="width:10%">| . $locale->text('Chart balance') . qq|</th>
-          <th class=listheading style="width:10%">|
-    . $locale->text('Debit') . qq|</th>
-          <th class=listheading style="width:10%">|
-    . $locale->text('Credit') . qq|</th>
-          <th class=listheading style="width:10%">|
-    . $locale->text('Tax') . qq|</th>
-          <th class=listheading style="width:5%">|
-    . $locale->text('Taxkey') . qq|</th>|;
-
-  if ($form->{show_details}) {
-    print qq|
-          <th class=listheading style="width:20%">| . $locale->text('Source') . qq|</th>
-          <th class=listheading style="width:20%">| . $locale->text('Memo') . qq|</th>
-          <th class=listheading style="width:20%">| . $locale->text('Project Number') . qq|</th>
-|;
-  }
-
-  print qq|
-        </tr>
-
-$jsscript
-|;
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 
 }
 

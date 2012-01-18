@@ -1,0 +1,157 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE T8 %]
+[%- USE L %]
+<body onLoad="focus()">
+
+<script type="text/javascript">
+  <!--
+  function setTaxkey(row) {
+    var accno  = document.getElementById('accno_' + row);
+    var taxkey = accno.options[accno.selectedIndex].value;
+    var reg = /--([0-9]*)/;
+    var found = reg.exec(taxkey);
+    var index = found[1];
+    index = parseInt(index);
+    var tax = 'taxchart_' + row;
+    for (var i = 0; i < document.getElementById(tax).options.length; ++i) {
+      var reg2 = new RegExp("^"+ index, "");
+      if (reg2.exec(document.getElementById(tax).options[i].value)) {
+        document.getElementById(tax).options[i].selected = true;
+        break;
+      }
+    }
+  };
+
+  function copy_debit_to_credit() {
+    var txt = document.getElementsByName('debit_1')[0].value;
+    document.getElementsByName('credit_2')[0].value = txt;
+  };
+  //-->
+  </script>
+  <script type="text/javascript" src="js/show_form_details.js"></script>
+<script type="text/javascript" src="js/follow_up.js"></script>
+
+<form method=post name="gl" action=gl.pl>
+
+[% FOREACH name IN [ 'id', 'closedto', 'locked', 'storno', 'storno_id', 'previous_id', 'previous_gldate' ] %]
+[% L.hidden_tag(name, $name) %]
+[%- END %]
+
+<input type=hidden name=title value="[% hide_title | html %]">
+
+<input type="hidden" name="follow_up_trans_id_1" value="[% id | html %]">
+<input type="hidden" name="follow_up_trans_type_1" value="gl_transaction">
+<input type="hidden" name="follow_up_trans_info_1" value="[% id | html %]">
+<input type="hidden" name="follow_up_rowcount" value="1">
+
+<table width=100%>
+  <tr>
+    <th class=listtop>[% title | html %]</th>
+  </tr>
+[%- IF saved_message %]
+  <tr>
+    <td>[% saved_message | html %]</th>
+  </tr>
+[%- END %]
+
+  <tr height="5"></tr>
+  <tr>
+    <td>
+      <table width=100%>
+        <tr>
+          <td colspan="6" align="left">[% 'Previous transnumber text' | $T8 %] [% previous_id  %] . [% 'Previous transdate text' | $T8 %] [% previous_gldate %]</td>
+        </tr>
+        <tr>
+          <th align=right>[% 'Reference' | $T8 %]</th>
+          <td>[% L.input_tag('reference', reference,  size=20, readonly=id) %]</td>
+          <td align=left>
+            <table>
+              <tr>
+                <th align=right width=50% nowrap>[% 'Date' | $T8 %]</th>
+                <td>[% L.date_tag('transdate', transdate, readonly=id) %]</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+[%- IF id %]
+        <tr>
+          <th align=right>[% 'Belegnummer' | $T8 %]</th>
+          <td>[% L.input_tag('id', id,  size=20, readonly=id) %]</td>
+          <td align=left>
+          <table>
+              <tr>
+                <th align=right width=50%>[% 'Buchungsdatum' | $T8 %]</th>
+                <td align=left>[% L.date_tag('gldate', gldate, readonly=id) %]</td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+[%- END %]
+
+[%- IF selectdepartment %]
+        <tr>
+          <th align=right nowrap>[% 'Department' | $T8 %]</th>
+          <td colspan=3><select name=department>[% selectdepartment %]</select></td>
+          <input type=hidden name=selectdepartment value="[% selectdepartment | html %]">
+        </tr>
+[%- END %]
+
+        <tr>
+          <th align=right width=1%>[% 'Description' | $T8 %]</th>
+          <td width=1%>[% L.areainput_tag('description', description, cols=50, readonly=id) %]</td>
+          <td>
+            <table>
+              <tr>
+                <th align=left>[% 'MwSt. inkl.' | $T8 %]</th>
+                <td>[% L.checkbox_tag('taxincluded', checked=taxincluded) %]</td>
+              </tr>
+            </table>
+         </td>
+[%- IF id %]
+          <td align=left>
+            <table width=100%>
+              <tr>
+                <th align=right width=50%>[% 'Mitarbeiter' | $T8 %]</th>
+                <td align=left>[% L.input_tag('employee', employee, size=20, readonly=id) %]</td>
+              </tr>
+            </table>
+          </td>
+[%- END %]
+        </tr>
+
+      <tr>
+       <td colspan=4>
+        <table>
+         <tr>
+          <td>[% 'OB Transaction' | $T8 %] [% L.checkbox_tag('ob_transaction' checked=ob_transaction) %]</td>
+          <td>[% 'CB Transaction' | $T8 %] [% L.checkbox_tag('cb_transaction' checked=cb_transaction) %]</td>
+         </tr>
+        </table>
+       </td>
+      </tr>
+      <tr>
+       <td width="1%" align="right" nowrap>[% 'Show details' | $T8 %]</td>
+       <td width="1%">[% L.checkbox_tag('show_details', checked=show_details, onclick='show_form_details();') %]</td>
+      </tr>
+
+      <tr>
+      <td colspan=4>
+          <table width=100%>
+           <tr class=listheading>
+          <th class=listheading style="width:15%">[% 'Account' | $T8 %]</th>
+          <th class=listheading style="width:10%">[% 'Chart balance' | $T8 %]</th>
+          <th class=listheading style="width:10%">[% 'Debit' | $T8 %]</th>
+          <th class=listheading style="width:10%">[% 'Credit' | $T8 %]</th>
+          <th class=listheading style="width:10%">[% 'Tax' | $T8 %]</th>
+          <th class=listheading style="width:5%">[% 'Taxkey' | $T8 %]</th>
+
+[%- IF show_details %]
+          <th class=listheading style="width:20%">[% 'Source' | $T8 %]</th>
+          <th class=listheading style="width:20%">[% 'Memo' | $T8 %]</th>
+          <th class=listheading style="width:20%">[% 'Project Number' | $T8 %]</th>
+[%- END %]
+
+        </tr>
+
+[%- PROCESS 'gl/form_header_chart_balances_js.html' %]
