@@ -194,10 +194,7 @@ sub print_result {
 
 sub print_line {
   my ($text, $res, $color) = @_;
-  print $text, " ", ('.' x (78 - length($text) - length($res)));
-  print mycolor($res, $color);
-  print "\n";
-  return;
+  print $text, " ", ('.' x (78 - length($text) - length($res))), " ", mycolor($res, $color), $/;
 }
 
 sub print_header {
