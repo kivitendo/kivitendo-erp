@@ -96,8 +96,7 @@
         <tr>
           <th align="right">[% 'Steuersatz' | $T8 %]</th>
           <td>
-            [% L.select_tag('taxzone_id', L.options_for_select(ALL_TAXZONES, default=taxzone_id, title='description'), readonly=(id ? 1 : 0), style='width: 250px', onchange="document.getElementById('update_button').click();") %]
-          </td>
+            [% L.select_tag('taxzone_id', L.options_for_select(ALL_TAXZONES, default=taxzone_id, title='description'), disabled=(id ? 1 : 0), style='width: 250px', onchange="document.getElementById('update_button').click();") %]
   [%- IF id %]
           <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
   [%- END %]
