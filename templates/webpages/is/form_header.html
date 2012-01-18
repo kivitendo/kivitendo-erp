@@ -171,7 +171,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Credit Note Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate, onBlur='check_right_date_format(this)', cal_align='BL', onChange='set_duedate()') %]</td>
+          <td>[% L.date_tag('invdate', invdate, cal_align='BL', onchange='set_duedate()') %]</td>
         </tr>
 [%- ELSE %]
         <tr>
@@ -180,11 +180,11 @@
         </tr>
         <tr>
           <th align="right">[% 'Invoice Date' | $T8 %]</th>
-          <td>[% L.date_tag('invdate', invdate, onBlur='check_right_date_format(this)', cal_align='BL', onChange='set_duedate()') %]</td>
+          <td>[% L.date_tag('invdate', invdate, cal_align='BL', onchange='set_duedate()') %]</td>
         </tr>
         <tr>
           <th align="right">[% 'Due Date' | $T8 %]</th>
-          <td>[% L.date_tag('duedate', duedate, onBlur='check_right_date_format(this)', cal_align='BL') %]</td>
+          <td>[% L.date_tag('duedate', duedate, cal_align='BL') %]</td>
         </tr>
         <tr>
         <th align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
@@ -192,7 +192,7 @@
         </tr>
         <tr>
           <th align="right">[% 'Delivery Date' | $T8 %]</th>
-          <td>[% L.date_tag('deliverydate', deliverydate, onBlur='check_right_date_format(this)', cal_align='BL') %]</td>
+          <td>[% L.date_tag('deliverydate', deliverydate, cal_align='BL') %]</td>
         </tr>
 [%- END %]
 
@@ -202,7 +202,7 @@
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Order Date' | $T8 %]</th>
-          <td>[% L.date_tag('orddate', orddate, onBlur='check_right_date_format(this)', cal_align='BL') %]</td>
+          <td>[% L.date_tag('orddate', orddate, cal_align='BL') %]</td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Quotation Number' | $T8 %]</th>
@@ -210,7 +210,7 @@
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Quotation Date' | $T8 %]</th>
-          <td>[% L.date_tag('quodate', quodate, onBlur='check_right_date_format(this)', cal_align='BL') %]</td>
+          <td>[% L.date_tag('quodate', quodate, cal_align='BL') %]</td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Customer Order Number' | $T8 %]</th>
