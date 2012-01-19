@@ -37,7 +37,6 @@ __PACKAGE__->meta->setup(
     bank_code      => { type => 'text' },
     bank           => { type => 'text' },
     language       => { type => 'varchar', length => 5 },
-    datevexport    => { type => 'integer' },
     itime          => { type => 'timestamp', default => 'now()' },
     mtime          => { type => 'timestamp' },
     obsolete       => { type => 'boolean', default => 'false' },
@@ -51,9 +50,9 @@ __PACKAGE__->meta->setup(
     taxzone_id     => { type => 'integer', default => '0', not_null => 1 },
     greeting       => { type => 'text' },
     ustid          => { type => 'text' },
-    direct_debit   => { type => 'boolean', default => 'false' },
     iban           => { type => 'varchar', length => 100 },
     bic            => { type => 'varchar', length => 100 },
+    direct_debit   => { type => 'boolean', default => 'false' },
     curr           => { type => 'character', length => 3 },
   ],
 
