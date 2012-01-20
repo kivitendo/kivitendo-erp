@@ -618,92 +618,18 @@ sub edit_lead {
 }
 
 sub list_lead {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('config');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  AM->lead(\%::myconfig, $::form);
 
-  $main::auth->assert('config');
+  $::form->{callback} = "am.pl?action=list_lead";
+  $::form->{title}    = $::locale->text('Lead');
 
-  AM->lead(\%myconfig, \%$form);
+  $::form->header;
+  print $::form->parse_html_template('am/lead_list');
 
-  $form->{callback} = "am.pl?action=list_lead";
-
-  my $callback = $form->escape($form->{callback});
-
-  $form->{title} = $locale->text('Lead');
-
-  my @column_index = qw(description cost profit);
-  my %column_header;
-  $column_header{description} =
-      qq|<th class=listheading width=100%>|
-    . $locale->text('Description')
-    . qq|</th>|;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-  </tr>
-|;
-
-  my ($i, %column_data);
-  foreach my $ref (@{ $form->{ALL} }) {
-
-    $i++;
-    $i %= 2;
-
-    print qq|
-  <tr valign=top class=listrow$i>
-|;
-
-#    $lead = $ref->{lead};
-
-    $column_data{description} = qq|<td><a href="am.pl?action=edit_lead&id=$ref->{id}&callback=$callback">$ref->{lead}</td>|;
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-  </tr>
-|;
-  }
-
-  print qq|
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=am.pl>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=type value=lead>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">
-
-  </form>
-
-  </body>
-  </html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub lead_header {

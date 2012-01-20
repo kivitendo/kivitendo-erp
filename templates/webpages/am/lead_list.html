@@ -1,0 +1,35 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+<body>
+
+<table width=100%>
+  <tr>
+    <th class=listtop>[% title | html %]</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr class=listheading>
+    <th class=listheading width=100%>[% 'Description' | $T8 %]</th>
+  </tr>
+[%- FOREACH row = ALL  %]
+  <tr valign=top class=listrow[% loop.count % 2 %]>
+    <td><a href="am.pl?action=edit_lead&id=[% row.id | html %]&callback=[% callback | html %]">[% row.lead | html %]</a></td>
+  </tr>
+[%- END %]
+  <tr>
+  <td><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<br>
+<form method=post action=am.pl>
+
+<input name=callback type=hidden value="[% callback | html %]">
+<input type=hidden name=type value=lead>
+<input class=submit type=submit name=action value="[% 'Add' | $T8 %]">
+
+  </form>
+
+  </body>
+  </html>
