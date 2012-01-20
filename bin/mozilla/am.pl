@@ -633,48 +633,17 @@ sub list_lead {
 }
 
 sub lead_header {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $main::auth->assert('config');
-
-  $form->{title} = $locale->text("$form->{title} Lead");
+  $::lxdebug->enter_sub;
+  $::auth->assert('config');
 
   # $locale->text('Add Lead')
   # $locale->text('Edit Lead')
+  $::form->{title} = $::locale->text("$::form->{title} Lead");
 
-  $form->{description} =~ s/\"/&quot;/g;
+  $::form->header;
+  print $::form->parse_html_template('am/lead_header');
 
-  my $description =
-      qq|<input name=description size=50 value="$form->{lead}">|;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=am.pl>
-
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=type value=lead>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=2>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <th align=right>| . $locale->text('Description') . qq|</th>
-    <td>$description</td>
-  </tr>
-    <td colspan=2><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub save_lead {
