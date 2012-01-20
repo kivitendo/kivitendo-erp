@@ -366,44 +366,18 @@ sub account_header {
 }
 
 sub form_footer {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('config');
 
-  my $form     = $main::form;
-  my $locale   = $main::locale;
+  print $::form->parse_html_template('am/form_footer', {
+    show_save        => !$::form->{id}
+                     || ($::form->{id} && $::form->{orphaned})
+                     || ($::form->{type} eq "account" && !$::form->{new_chart_valid}),
+    show_delete      => $::form->{id} && $::form->{orphaned},
+    show_save_as_new => $::form->{id} && $::form->{type} eq "account",
+  });
 
-  $main::auth->assert('config');
-
-  print qq|
-
-<input name=callback type=hidden value="| . H($form->{callback}) . qq|">
-
-<br>|;
-  if ((!$form->{id}) || ($form->{id} && $form->{orphaned}) || (($form->{type} eq "account") && (!$form->{new_chart_valid}))) {
-    print qq|
-<input type=submit class=submit name=action value="|
-    . $locale->text('Save') . qq|">
-|;
-}
-
-  if ($form->{id} && $form->{orphaned}) {
-    print qq|<input type=submit class=submit name=action value="|
-      . $locale->text('Delete') . qq|">|;
-  }
-
-  if ($form->{id} && $form->{type} eq "account") {
-    print qq|
-    <input class=submit type=submit name=action value="|
-      . $locale->text('Save as new') . qq|">|;
-  }
-
-  print qq|
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub save_account {
