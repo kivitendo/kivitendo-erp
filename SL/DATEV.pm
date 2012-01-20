@@ -852,6 +852,16 @@ sub kne_buchungsexport {
       $umsatzsumme += $umsatz;
       $kne_file->add_block("+" . $umsatz);
 
+      # Dies ist die einzige Stelle die datevautomatik auswertet. Was soll gesagt werden?
+      # Im Prinzip hat jeder acc_trans Eintrag einen Steuerschlüssel, außer, bei gewissen Fällen
+      # wie: Kreditorenbuchung mit negativen Vorzeichen, SEPA-Export oder Rechnungen die per
+      # Skript angelegt werden.
+      # Also falls ein Steuerschlüssel da ist und NICHT datevautomatik diesen Block hinzufügen.
+      # Oder aber datevautomatik ist WAHR, aber der Steuerschlüssel in der acc_trans weicht
+      # von dem in der Chart ab: Also wahrscheinlich Programmfehler (NULL übergeben, statt
+      # DATEV-Steuerschlüssel) oder der Steuerschlüssel des Kontos weicht WIRKLICH von dem Eintrag in der
+      # acc_trans ab. Gibt es für diesen Fall eine plausiblen Grund?
+      #
       if (   ( $datevautomatik || $taxkey)
           && (!$datevautomatik || ($datevautomatik && ($charttax ne $taxkey)))) {
 #         $kne_file->add_block("\x6C" . (!$datevautomatik ? $taxkey : "4"));
