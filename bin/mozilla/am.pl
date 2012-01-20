@@ -849,7 +849,7 @@ sub list_language {
   $::lxdebug->enter_sub;
   $::auth->assert('config');
 
-  AM->language(\%myconfig, \%$form);
+  AM->language(\%::myconfig, $::form);
 
   $::form->{callback} = "am.pl?action=list_language";
   $::form->{title}   = $::locale->text('Languages');
@@ -862,96 +862,21 @@ sub list_language {
 }
 
 sub language_header {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $main::auth->assert('config');
-
-  $form->{title}    = $locale->text("$form->{title} Language");
+  $::lxdebug->enter_sub;
+  $::auth->assert('config');
 
   # $locale->text('Add Language')
   # $locale->text('Edit Language')
+  $::form->{title} = $::locale->text("$::form->{title} Language");
 
-  $form->{description} =~ s/\"/&quot;/g;
-  $form->{template_code} =~ s/\"/&quot;/g;
-  $form->{article_code} =~ s/\"/&quot;/g;
+  $::form->header;
 
+  print $::form->parse_html_template('am/language_header', {
+    numberformats => [ '1,000.00', '1000.00', '1.000,00', '1000,00' ],
+    dateformats => [ qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ],
+  });
 
-  $form->header;
-
-  my $numberformat =
-    qq|<option value="">| . $locale->text("use program settings") .
-    qq|</option>|;
-  foreach my $item (('1,000.00', '1000.00', '1.000,00', '1000,00')) {
-    $numberformat .=
-      ($item eq $form->{output_numberformat})
-      ? "<option selected>$item"
-      : "<option>$item"
-      . "</option>";
-  }
-
-  my $dateformat =
-    qq|<option value="">| . $locale->text("use program settings") .
-    qq|</option>|;
-  foreach my $item (qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd)) {
-    $dateformat .=
-      ($item eq $form->{output_dateformat})
-      ? "<option selected>$item"
-      : "<option>$item"
-      . "</option>";
-  }
-
-  print qq|
-<body>
-
-<form method=post action=am.pl>
-
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=type value=language>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=2>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <th align=right>| . $locale->text('Language') . qq|</th>
-    <td><input name=description size=30 value="| . $form->quote($form->{description}) . qq|"></td>
-  <tr>
-  <tr>
-    <th align=right>| . $locale->text('Template Code') . qq|</th>
-    <td><input name=template_code size=5 value="| . $form->quote($form->{template_code}) . qq|"></td>
-  </tr>
-  <tr>
-    <th align=right>| . $locale->text('Article Code') . qq|</th>
-    <td><input name=article_code size=10 value="| . $form->quote($form->{article_code}) . qq|"></td>
-  </tr>
-  <tr>
-    <th align=right>| . $locale->text('Number Format') . qq|</th>
-    <td><select name="output_numberformat">$numberformat</select></td>
-  </tr>
-  <tr>
-    <th align=right>| . $locale->text('Date Format') . qq|</th>
-    <td><select name="output_dateformat">$dateformat</select></td>
-  </tr>
-  <tr>
-    <th align=right>| . $locale->text('Long Dates') . qq|</th>
-    <td><input type="radio" name="output_longdates" value="1"| .
-    ($form->{output_longdates} ? " checked" : "") .
-    qq|>| . $locale->text("Yes") .
-    qq|<input type="radio" name="output_longdates" value="0"| .
-    ($form->{output_longdates} ? "" : " checked") .
-    qq|>| . $locale->text("No") .
-    qq|</td>
-  </tr>
-  <td colspan=2><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub save_language {
