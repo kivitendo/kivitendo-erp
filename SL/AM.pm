@@ -547,7 +547,7 @@ sub save_lead {
     $query = qq|UPDATE leads SET
                 lead = ?
                 WHERE id = ?|;
-    puhs(@values, $form->{id});
+    push(@values, $form->{id});
   } else {
     $query = qq|INSERT INTO leads
                 (lead)
