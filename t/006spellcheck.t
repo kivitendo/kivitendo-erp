@@ -40,6 +40,7 @@ existant
 paramater
 varsion
 fomr
+puhs
 );
 
 $testcount = scalar(@Support::Files::testitems);
