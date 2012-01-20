@@ -846,135 +846,19 @@ sub edit_language {
 }
 
 sub list_language {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  $main::auth->assert('config');
+  $::lxdebug->enter_sub;
+  $::auth->assert('config');
 
   AM->language(\%myconfig, \%$form);
 
-  $form->{callback} = "am.pl?action=list_language";
+  $::form->{callback} = "am.pl?action=list_language";
+  $::form->{title}   = $::locale->text('Languages');
 
-  my $callback = $form->escape($form->{callback});
+  $::form->header;
 
-  $form->{title} = $locale->text('Languages');
+  print $::form->parse_html_template('am/language_list');
 
-  my @column_index = qw(description template_code article_code output_numberformat output_dateformat output_longdates);
-  my %column_header;
-  $column_header{description} =
-      qq|<th class=listheading width=60%>|
-    . $locale->text('Description')
-    . qq|</th>|;
-  $column_header{template_code} =
-      qq|<th class=listheading width=10%>|
-    . $locale->text('Template Code')
-    . qq|</th>|;
-  $column_header{article_code} =
-      qq|<th class=listheading>|
-    . $locale->text('Article Code')
-    . qq|</th>|;
-  $column_header{output_numberformat} =
-      qq|<th class=listheading>|
-    . $locale->text('Number Format')
-    . qq|</th>|;
-  $column_header{output_dateformat} =
-      qq|<th class=listheading>|
-    . $locale->text('Date Format')
-    . qq|</th>|;
-  $column_header{output_longdates} =
-      qq|<th class=listheading>|
-    . $locale->text('Long Dates')
-    . qq|</th>|;
-
-  $form->header;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  my ($i, %column_data);
-  foreach my $ref (@{ $form->{ALL} }) {
-
-    $i++;
-    $i %= 2;
-
-    print qq|
-        <tr valign=top class=listrow$i>
-|;
-
-
-    $column_data{description} =
-      qq|<td><a href="am.pl?action=edit_language&id=$ref->{id}&callback=$callback">$ref->{description}</td>|;
-    $column_data{template_code}           = qq|<td align=right>$ref->{template_code}</td>|;
-    $column_data{article_code} =
-      qq|<td align=right>$ref->{article_code}</td>|;
-    $column_data{output_numberformat} =
-      "<td nowrap>" .
-      ($ref->{output_numberformat} ? $ref->{output_numberformat} :
-       $locale->text("use program settings")) .
-      "</td>";
-    $column_data{output_dateformat} =
-      "<td nowrap>" .
-      ($ref->{output_dateformat} ? $ref->{output_dateformat} :
-       $locale->text("use program settings")) .
-      "</td>";
-    $column_data{output_longdates} =
-      "<td nowrap>" .
-      ($ref->{output_longdates} ? $locale->text("Yes") : $locale->text("No")) .
-      "</td>";
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-        </tr>
-|;
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=am.pl>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=type value=language>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">
-
-  </form>
-
-  </body>
-  </html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub language_header {
@@ -1378,7 +1262,7 @@ sub buchungsgruppe_header {
   }
 
   my $linkaccounts;
-  if ( $::instance_conf->get_inventory_system eq 'perpetual' ) { # was !$::lx_office_conf{system}->{eur}) {
+  if ( $::instance_conf->get_inventory_system eq 'perpetual' ) { # was !$::lx_office_conf{system}->{eur}) { }
     $linkaccounts = qq|
                <tr>
                 <th align=right>| . $locale->text('Inventory') . qq|</th>
