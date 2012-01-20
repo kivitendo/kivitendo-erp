@@ -1509,6 +1509,10 @@ sub convert_unit {
   $main::lxdebug->enter_sub(2);
   my ($this, $a, $b, $all_units) = @_;
 
+  if (!$all_units) {
+    $all_units = $this->retrieve_all_units;
+  }
+
   $main::lxdebug->leave_sub(2) and return 0 unless $a && $b;
   $main::lxdebug->leave_sub(2) and return 0 unless $all_units->{$a} && $all_units->{$b};
   $main::lxdebug->leave_sub(2) and return 0 unless $all_units->{$a}{base_unit} eq $all_units->{$b}{base_unit};
