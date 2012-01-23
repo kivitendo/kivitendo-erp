@@ -357,7 +357,7 @@ sub save_custom_variables {
 
   $sth->finish();
 
-  $dbh->commit();
+  $dbh->commit() unless $params{dbh};
 
   $main::lxdebug->leave_sub();
 }
@@ -658,7 +658,7 @@ sub save_custom_variables_validity {
 
   $sth->finish();
 
-  $dbh->commit();
+  $dbh->commit() unless $params{dbh};
 
   $main::lxdebug->leave_sub();
 }
