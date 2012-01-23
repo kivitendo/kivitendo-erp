@@ -720,7 +720,7 @@ sub storno {
   $storno_row->{storno}    = 't';
   $storno_row->{reference} = 'Storno-' . $storno_row->{reference};
 
-  delete @$storno_row{qw(itime mtime)};
+  delete @$storno_row{qw(itime mtime gldate)};
 
   $query = sprintf 'INSERT INTO gl (%s) VALUES (%s)', join(', ', keys %$storno_row), join(', ', map '?', values %$storno_row);
   do_query($form, $dbh, $query, (values %$storno_row));
@@ -733,7 +733,7 @@ sub storno {
   my $rowref = selectall_hashref_query($form, $dbh, $query, $id);
 
   for my $row (@$rowref) {
-    delete @$row{qw(itime mtime acc_trans_id)};
+    delete @$row{qw(itime mtime acc_trans_id gldate)};
     $query = sprintf 'INSERT INTO acc_trans (%s) VALUES (%s)', join(', ', keys %$row), join(', ', map '?', values %$row);
     $row->{trans_id}   = $new_id;
     $row->{amount}    *= -1;
