@@ -721,7 +721,7 @@ sub format_to_template {
   # stupid template expects everything formated. except objects
   # do not use outside of print routines for legacy templates
 
-  return $::form->parse_amount(\%::myconfig, $value) if $config->{type} eq 'number';
+  return $::form->format_amount(\%::myconfig, $value) if $config->{type} eq 'number';
   return $value->to_lxoffice if $config->{type} eq 'date' && blessed $value && $value->can('to_lxoffice');
   return $value;
 }
