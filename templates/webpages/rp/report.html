@@ -60,7 +60,7 @@
 [%- END %]
 [%- BLOCK cash_or_accrual %]
   <tr>
-    <th align=leftt>[% 'Method' | $T8 %]</th>
+    <th align=left>[% 'Method' | $T8 %]</th>
     <td colspan=3>
       [% L.radio_button_tag('method', value='accrual', checked=accrual, label=LxERP.t8('Accrual')) %]
       [% L.radio_button_tag('method', value='cash', checked=cash, label=LxERP.t8('EUR')) %]
@@ -117,6 +117,10 @@
 <table>
 [%- PROCESS customized_report %]
 [%- PROCESS cash_or_accrual %]
+  <tr>
+    <th align=left nowrap>[% 'Include in Report' | $T8 %]</th>
+    <td><input name=l_cb class=checkbox type=checkbox value=Y>&nbsp;[% 'CB Transactions' | $T8 %]</td>
+  </tr>
 [%- END %]
 
 [%- IF is_bwa %]
@@ -152,6 +156,11 @@
     <td><input name=l_heading class=checkbox type=checkbox value=Y>&nbsp;[% 'Heading' | $T8 %]
     <input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;[% 'Subtotal' | $T8 %]
     <input name=l_accno class=checkbox type=checkbox value=Y>&nbsp;[% 'Account Number' | $T8 %]</td>
+  </tr>
+  <tr>
+    <th></th>
+    <td><input name=l_cb class=checkbox type=checkbox value=Y>&nbsp;[% 'CB Transactions' | $T8 %]
+    <input name=l_ob class=checkbox type=checkbox value=Y>&nbsp;[% 'only OB Transactions' | $T8 %]</td>
   </tr>
 [%- END %]
 

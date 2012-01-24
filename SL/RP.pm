@@ -211,6 +211,13 @@ sub get_accounts {
 
   $sth->finish;
 
+  # if l_ob is selected l_cb is always ignored
+  if ( $form->{l_ob} ) {
+    $where .= ' AND ob_transaction is true  ' 
+  } elsif ( not $form->{l_cb} ) {
+    $where .= ' AND cb_transaction is false ';
+  };
+
   if ($fromdate) {
     $fromdate = conv_dateq($fromdate);
     if ($form->{method} eq 'cash') {
@@ -463,6 +470,8 @@ sub get_accounts_g {
   my $subwhere = "";
   my $inwhere = "";
   my $item;
+
+  $where .= ' AND cb_transaction is false ' unless $form->{l_cb};
 
   if ($fromdate) {
     $fromdate = conv_dateq($fromdate);
