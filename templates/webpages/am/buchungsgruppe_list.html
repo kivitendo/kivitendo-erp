@@ -1,0 +1,66 @@
+[%- USE HTML %]
+[%- USE L %]
+[%- USE LxERP %]
+[%- USE T8 %]
+<body>
+
+<h1>[% title | html %]</h1>
+
+<table width=100%>
+  <tr>
+  </tr>
+  <tr height="5"></tr>
+  <tr>
+    <td>
+      <table width=100%>
+        <tr class=listheading>
+         <th class="listheading" width="16"><img src="image/up.png" alt="[% 'up' | $T8 %]"></th>
+         <th class="listheading" width="16"><img src="image/down.png" alt="[% 'down' | $T8 %]"></th>
+         <th class="listheading" width="40%">[% 'Description' | $T8 %]</th>
+         <th class=listheading>[% 'Bestandskonto' | $T8 %]</th>
+         <th class=listheading>[% 'National Revenues' | $T8 %]</th>
+         <th class=listheading>[% 'National Expenses' | $T8 %]</th>
+         <th class=listheading>[% 'Revenues EU with UStId' | $T8 %]</th>
+         <th class=listheading>[% 'Expenses EU with UStId' | $T8 %]</th>
+         <th class=listheading>[% 'Revenues EU without UStId' | $T8 %]</th>
+         <th class=listheading>[% 'Expenses EU without UStId' | $T8 %]</th>
+         <th class=listheading>[% 'Foreign Revenues' | $T8 %]</th>
+         <th class=listheading>[% 'Foreign Expenses' | $T8 %]</th>
+        </tr>
+[%- FOREACH row IN ALL %]
+        <tr valign=top class=listrow[% loop.count % 2 %]>
+          <td align="center" valign="center">[% IF !loop.first %]<a href="[% swap_link %]id1=[% row.id %]&id2=[% loop.prev.id %]"><img border="0" src="image/up.png" alt="[% 'up' | $T8 %]"></a>[% ELSE %]&nbsp;[% END %]</td>
+          <td align="center" valign="center">[% IF !loop.last %]<a href="[% swap_link %]id1=[% row.id %]&id2=[% loop.next.id %]"><img border="0" src="image/down.png" alt="[% 'down' | $T8 %]"></a>[% ELSE %]&nbsp;[% END %]</td>
+          <td><a href="am.pl?action=edit_buchungsgruppe&id=[%row.id %]&callback=[% callback | html %]">[% row.description | html %]</a></td>
+          <td align=right>[% row.inventory_accno | html %]</td>
+          <td align=right>[% row.income_accno_0  | html %]</td>
+          <td align=right>[% row.expense_accno_0 | html %]</td>
+          <td align=right>[% row.income_accno_1  | html %]</td>
+          <td align=right>[% row.expense_accno_1 | html %]</td>
+          <td align=right>[% row.income_accno_2  | html %]</td>
+          <td align=right>[% row.expense_accno_2 | html %]</td>
+          <td align=right>[% row.income_accno_3  | html %]</td>
+          <td align=right>[% row.expense_accno_3 | html %]</td>
+        </tr>
+[%- END %]
+      </table>
+    </td>
+  </tr>
+  <tr>
+  <td><hr size=3 noshade></td>
+  </tr>
+</table>
+
+<br>
+<form method=post action=am.pl>
+
+<input name=callback type=hidden value="[% callback | html %]">
+
+<input type=hidden name=type value=buchungsgruppe>
+
+<input class=submit type=submit name=action value="[% 'Add' | $T8 %]">
+
+  </form>
+
+  </body>
+  </html>

@@ -830,183 +830,20 @@ sub edit_buchungsgruppe {
 }
 
 sub list_buchungsgruppe {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('config');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  AM->buchungsgruppe(\%::myconfig, $::form);
 
-  $main::auth->assert('config');
+  $::form->{callback} = "am.pl?action=list_buchungsgruppe";
+  $::form->{title}    = $::locale->text('Buchungsgruppen');
+  $::form->header;
 
-  AM->buchungsgruppe(\%myconfig, \%$form);
+  print $::form->parse_html_template('am/buchungsgruppe_list', {
+    swap_link => qq|am.pl?action=swap_buchungsgruppen&|,
+  });
 
-  $form->{callback} = "am.pl?action=list_buchungsgruppe";
-
-  my $callback = $form->escape($form->{callback});
-
-  $form->{title} = $locale->text('Buchungsgruppen');
-
-  my @column_index = qw(up down description inventory_accno
-                     income_accno_0 expense_accno_0
-                     income_accno_1 expense_accno_1
-                     income_accno_2 expense_accno_2
-                     income_accno_3 expense_accno_3 );
-  my %column_header;
-  $column_header{up} =
-      qq|<th class="listheading" width="16">|
-    . qq|<img src="image/up.png" alt="| . $locale->text("up") . qq|">|
-    . qq|</th>|;
-  $column_header{down} =
-      qq|<th class="listheading" width="16">|
-    . qq|<img src="image/down.png" alt="| . $locale->text("down") . qq|">|
-    . qq|</th>|;
-  $column_header{description} =
-      qq|<th class="listheading" width="40%">|
-    . $locale->text('Description')
-    . qq|</th>|;
-  $column_header{inventory_accno} =
-      qq|<th class=listheading>|
-    . $locale->text('Bestandskonto')
-    . qq|</th>|;
-  $column_header{income_accno_0} =
-      qq|<th class=listheading>|
-    . $locale->text('National Revenues')
-    . qq|</th>|;
-  $column_header{expense_accno_0} =
-      qq|<th class=listheading>|
-    . $locale->text('National Expenses')
-    . qq|</th>|;
-  $column_header{income_accno_1} =
-      qq|<th class=listheading>|
-    . $locale->text('Revenues EU with UStId')
-    . qq|</th>|;
-  $column_header{expense_accno_1} =
-      qq|<th class=listheading>|
-    . $locale->text('Expenses EU with UStId')
-    . qq|</th>|;
-  $column_header{income_accno_2} =
-      qq|<th class=listheading>|
-    . $locale->text('Revenues EU without UStId')
-    . qq|</th>|;
-  $column_header{expense_accno_2} =
-      qq|<th class=listheading>|
-    . $locale->text('Expenses EU without UStId')
-    . qq|</th>|;
-  $column_header{income_accno_3} =
-      qq|<th class=listheading>|
-    . $locale->text('Foreign Revenues')
-    . qq|</th>|;
-  $column_header{expense_accno_3} =
-      qq|<th class=listheading>|
-    . $locale->text('Foreign Expenses')
-    . qq|</th>|;
-  $form->header;
-
-  print qq|
-<body>
-
-<table width=100%>
-  <tr>
-    <th class=listtop>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table width=100%>
-        <tr class=listheading>
-|;
-
-  map { print "$column_header{$_}\n" } @column_index;
-
-  print qq|
-        </tr>
-|;
-
-  my $swap_link = qq|am.pl?action=swap_buchungsgruppen&|;
-
-  my $row = 0;
-  my ($i, %column_data);
-  foreach my $ref (@{ $form->{ALL} }) {
-
-    $i++;
-    $i %= 2;
-
-    print qq|
-        <tr valign=top class=listrow$i>
-|;
-
-    if ($row) {
-      my $pref = $form->{ALL}->[$row - 1];
-      $column_data{up} =
-        qq|<td align="center" valign="center" width="16">| .
-        qq|<a href="${swap_link}id1=$ref->{id}&id2=$pref->{id}">| .
-        qq|<img border="0" src="image/up.png" alt="| . $locale->text("up") . qq|">| .
-        qq|</a></td>|;
-    } else {
-      $column_data{up} = qq|<td width="16">&nbsp;</td>|;
-    }
-
-    if ($row == (scalar(@{ $form->{ALL} }) - 1)) {
-      $column_data{down} = qq|<td width="16">&nbsp;</td>|;
-    } else {
-      my $nref = $form->{ALL}->[$row + 1];
-      $column_data{down} =
-        qq|<td align="center" valign="center" width="16">| .
-        qq|<a href="${swap_link}id1=$ref->{id}&id2=$nref->{id}">| .
-        qq|<img border="0" src="image/down.png" alt="| . $locale->text("down") . qq|">| .
-        qq|</a></td>|;
-    }
-
-    $column_data{description} = qq|<td><a href="am.pl?action=edit_buchungsgruppe&id=$ref->{id}&callback=$callback">$ref->{description}</td>|;
-    $column_data{inventory_accno}           = qq|<td align=right>$ref->{inventory_accno}</td>|;
-    $column_data{income_accno_0} =
-      qq|<td align=right>$ref->{income_accno_0}</td>|;
-    $column_data{expense_accno_0}           = qq|<td align=right>$ref->{expense_accno_0}</td>|;
-    $column_data{income_accno_1} =
-      qq|<td align=right>$ref->{income_accno_1}</td>|;
-    $column_data{expense_accno_1}           = qq|<td align=right>$ref->{expense_accno_1}</td>|;
-    $column_data{income_accno_2} =
-      qq|<td align=right>$ref->{income_accno_2}</td>|;
-    $column_data{expense_accno_2}           = qq|<td align=right>$ref->{expense_accno_2}</td>|;
-    $column_data{income_accno_3} =
-      qq|<td align=right>$ref->{income_accno_3}</td>|;
-    $column_data{expense_accno_3}           = qq|<td align=right>$ref->{expense_accno_3}</td>|;
-
-    map { print "$column_data{$_}\n" } @column_index;
-
-    print qq|
-        </tr>
-|;
-
-    $row++;
-  }
-
-  print qq|
-      </table>
-    </td>
-  </tr>
-  <tr>
-  <td><hr size=3 noshade></td>
-  </tr>
-</table>
-
-<br>
-<form method=post action=am.pl>
-
-<input name=callback type=hidden value="$form->{callback}">
-
-<input type=hidden name=type value=buchungsgruppe>
-
-<input class=submit type=submit name=action value="|
-    . $locale->text('Add') . qq|">
-
-  </form>
-
-  </body>
-  </html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub buchungsgruppe_header {
