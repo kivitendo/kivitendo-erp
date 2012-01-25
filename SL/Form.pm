@@ -1248,22 +1248,22 @@ sub get_formname_translation {
   $formname ||= $self->{formname};
 
   $self->{recipient_locale} ||=  Locale->lang_to_locale($self->{language});
-  my $recipient_locale = Locale->new($self->{recipient_locale});
+  local $::locale = Locale->new($self->{recipient_locale});
 
   my %formname_translations = (
-    bin_list                => $recipient_locale->text('Bin List'),
-    credit_note             => $recipient_locale->text('Credit Note'),
-    invoice                 => $recipient_locale->text('Invoice'),
-    pick_list               => $recipient_locale->text('Pick List'),
-    proforma                => $recipient_locale->text('Proforma Invoice'),
-    purchase_order          => $recipient_locale->text('Purchase Order'),
-    request_quotation       => $recipient_locale->text('RFQ'),
-    sales_order             => $recipient_locale->text('Confirmation'),
-    sales_quotation         => $recipient_locale->text('Quotation'),
-    storno_invoice          => $recipient_locale->text('Storno Invoice'),
-    sales_delivery_order    => $recipient_locale->text('Delivery Order'),
-    purchase_delivery_order => $recipient_locale->text('Delivery Order'),
-    dunning                 => $recipient_locale->text('Dunning'),
+    bin_list                => $::locale->text('Bin List'),
+    credit_note             => $::locale->text('Credit Note'),
+    invoice                 => $::locale->text('Invoice'),
+    pick_list               => $::locale->text('Pick List'),
+    proforma                => $::locale->text('Proforma Invoice'),
+    purchase_order          => $::locale->text('Purchase Order'),
+    request_quotation       => $::locale->text('RFQ'),
+    sales_order             => $::locale->text('Confirmation'),
+    sales_quotation         => $::locale->text('Quotation'),
+    storno_invoice          => $::locale->text('Storno Invoice'),
+    sales_delivery_order    => $::locale->text('Delivery Order'),
+    purchase_delivery_order => $::locale->text('Delivery Order'),
+    dunning                 => $::locale->text('Dunning'),
   );
 
   $main::lxdebug->leave_sub();
