@@ -1124,55 +1124,17 @@ sub save_preferences {
 }
 
 sub audit_control {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('config');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  $::form->{title} = $::locale->text('Audit Control');
 
-  $main::auth->assert('config');
+  AM->closedto(\%::myconfig, $::form);
 
-  $form->{title} = $locale->text('Audit Control');
+  $::form->header;
+  print $::form->parse_html_template('am/audit_control');
 
-  AM->closedto(\%myconfig, \%$form);
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=am.pl>
-
-<table width=100%>
-  <tr><th class=listtop>$form->{title}</th></tr>
-  <tr height="5"></tr>
-  <tr>
-    <td>
-      <table>
-        <tr>
-          <th>| . $locale->text('Close Books up to') . qq|</th>
-          <td><input name=closedto size=11 title="$myconfig{dateformat}" value=$form->{closedto}></td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-</table>
-
-<hr size=3 noshade>
-
-<br>
-<input type=hidden name=nextsub value=doclose>
-
-<input type=submit class=submit name=action value="|
-    . $locale->text('Continue') . qq|">
-
-</form>
-
-</body>
-</html>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub doclose {

@@ -1,0 +1,27 @@
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE T8 %]
+[%- USE L %]
+<body>
+
+<h1>[% title | html %]</h1>
+
+<form method=post action=am.pl>
+
+<table>
+  <tr>
+    <th>[% 'Close Books up to' | $T8 %]</th>
+    <td>[% L.date_tag('closedto', closedto) %]</td>
+  </tr>
+</table>
+
+<hr size=3 noshade>
+
+<br>
+<input type=hidden name=nextsub value=doclose>
+<input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
+
+</form>
+
+</body>
+</html>
