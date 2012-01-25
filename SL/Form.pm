@@ -1251,19 +1251,19 @@ sub get_formname_translation {
   local $::locale = Locale->new($self->{recipient_locale});
 
   my %formname_translations = (
-    bin_list                => $::locale->text('Bin List'),
-    credit_note             => $::locale->text('Credit Note'),
-    invoice                 => $::locale->text('Invoice'),
-    pick_list               => $::locale->text('Pick List'),
-    proforma                => $::locale->text('Proforma Invoice'),
-    purchase_order          => $::locale->text('Purchase Order'),
-    request_quotation       => $::locale->text('RFQ'),
-    sales_order             => $::locale->text('Confirmation'),
-    sales_quotation         => $::locale->text('Quotation'),
-    storno_invoice          => $::locale->text('Storno Invoice'),
-    sales_delivery_order    => $::locale->text('Delivery Order'),
-    purchase_delivery_order => $::locale->text('Delivery Order'),
-    dunning                 => $::locale->text('Dunning'),
+    bin_list                => $main::locale->text('Bin List'),
+    credit_note             => $main::locale->text('Credit Note'),
+    invoice                 => $main::locale->text('Invoice'),
+    pick_list               => $main::locale->text('Pick List'),
+    proforma                => $main::locale->text('Proforma Invoice'),
+    purchase_order          => $main::locale->text('Purchase Order'),
+    request_quotation       => $main::locale->text('RFQ'),
+    sales_order             => $main::locale->text('Confirmation'),
+    sales_quotation         => $main::locale->text('Quotation'),
+    storno_invoice          => $main::locale->text('Storno Invoice'),
+    sales_delivery_order    => $main::locale->text('Delivery Order'),
+    purchase_delivery_order => $main::locale->text('Delivery Order'),
+    dunning                 => $main::locale->text('Dunning'),
   );
 
   $main::lxdebug->leave_sub();
