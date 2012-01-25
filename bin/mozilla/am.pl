@@ -847,150 +847,39 @@ sub list_buchungsgruppe {
 }
 
 sub buchungsgruppe_header {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $main::auth->assert('config');
-
-  $form->{title}    = $locale->text("$form->{title} Buchungsgruppe");
+  $::lxdebug->enter_sub;
+  $::auth->assert('config');
 
   # $locale->text('Add Accounting Group')
   # $locale->text('Edit Accounting Group')
+  $::form->{title}    = $::locale->text("$::form->{title} Buchungsgruppe");
 
   my ($acc_inventory, $acc_income, $acc_expense) = ({}, {}, {});
   my %acc_type_map = (
-    "IC" => $acc_inventory,
-    "IC_income" => $acc_income,
-    "IC_sale" => $acc_income,
-    "IC_expense" => $acc_expense,
-    "IC_cogs" => $acc_expense,
-    );
+    IC         => $acc_inventory,
+    IC_income  => $acc_income,
+    IC_sale    => $acc_income,
+    IC_expense => $acc_expense,
+    IC_cogs    => $acc_expense,
+  );
 
-  foreach my $key (keys(%acc_type_map)) {
-    foreach my $ref (@{ $form->{IC_links}{$key} }) {
-      $acc_type_map{$key}->{$ref->{"id"}} = $ref;
+  for my $key (keys %acc_type_map) {
+    for my $ref (@{ $::form->{IC_links}{$key} }) {
+      $acc_type_map{$key}{$ref->{id}} = $ref;
     }
   }
 
-  foreach my $type (qw(IC IC_income IC_expense)) {
-    $form->{"select$type"} =
-      join("",
-           map({ "<option value=$_->{id} $_->{selected}>" .
-                   "$_->{accno}--" . H($_->{description}) . "</option>" }
-               sort({ $a->{"accno"} cmp $b->{"accno"} }
-                    values(%{$acc_type_map{$type}}))));
-  }
+  my %sorted_accounts = map {
+    $_ => [ sort { $a->{accno} cmp $b->{accno} } values %{ $acc_type_map{$_} } ],
+  } keys %acc_type_map;
 
-  if ($form->{id}) {
-    $form->{selectIC} =~ s/selected//g;
-    $form->{selectIC} =~ s/ value=\Q$form->{inventory_accno_id}\E/  value=$form->{inventory_accno_id} selected/;
-    $form->{selectIC_income} =~ s/selected//g;
-    $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_0}\E/  value=$form->{income_accno_id_0} selected/;
-    $form->{selectIC_expense} =~ s/selected//g;
-    $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_0}\E/  value=$form->{expense_accno_id_0} selected/;
-  }
+  $::form->header;
+  print $::form->parse_html_template('am/buchungsgruppe_header', {
+    accounts      => \%sorted_accounts,
+    account_label => sub { "$_[0]{accno}--$_[0]{description}" },
+  });
 
-  my $linkaccounts;
-  if ( $::instance_conf->get_inventory_system eq 'perpetual' ) { # was !$::lx_office_conf{system}->{eur}) { }
-    $linkaccounts = qq|
-               <tr>
-                <th align=right>| . $locale->text('Inventory') . qq|</th>
-                <td><select name=inventory_accno_id>$form->{selectIC}</select></td>
-                <input name=selectIC type=hidden value="$form->{selectIC}">
-              </tr>|;
-  } elsif ( $::instance_conf->get_inventory_system eq 'periodic' ) {
-    # don't allow choice of inventory accno and don't show that line
-    $linkaccounts = qq|
-                <input type=hidden name=inventory_accno_id value=$form->{inventory_accno_id}>|;
-  };
-
-
-  $linkaccounts .= qq|
-              <tr>
-                <th align=right>| . $locale->text('National Revenues') . qq|</th>
-                <td><select name=income_accno_id_0>$form->{selectIC_income}</select></td>
-              </tr>
-              <tr>
-                <th align=right>| . $locale->text('National Expenses') . qq|</th>
-                <td><select name=expense_accno_id_0>$form->{selectIC_expense}</select></td>
-              </tr>|;
-  if ($form->{id}) {
-    $form->{selectIC_income} =~ s/selected//g;
-    $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_1}\E/  value=$form->{income_accno_id_1} selected/;
-    $form->{selectIC_expense} =~ s/selected//g;
-    $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_1}\E/  value=$form->{expense_accno_id_1} selected/;
-  }
-  $linkaccounts .= qq|              <tr>
-                <th align=right>| . $locale->text('Revenues EU with UStId') . qq|</th>
-                <td><select name=income_accno_id_1>$form->{selectIC_income}</select></td>
-              </tr>
-              <tr>
-                <th align=right>| . $locale->text('Expenses EU with UStId') . qq|</th>
-                <td><select name=expense_accno_id_1>$form->{selectIC_expense}</select></td>
-              </tr>|;
-
-  if ($form->{id}) {
-    $form->{selectIC_income} =~ s/selected//g;
-    $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_2}\E/  value=$form->{income_accno_id_2} selected/;
-    $form->{selectIC_expense} =~ s/selected//g;
-    $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_2}\E/  value=$form->{expense_accno_id_2} selected/;
-  }
-
-  $linkaccounts .= qq|              <tr>
-                <th align=right>| . $locale->text('Revenues EU without UStId') . qq|</th>
-                <td><select name=income_accno_id_2>$form->{selectIC_income}</select></td>
-              </tr>
-              <tr>
-                <th align=right>| . $locale->text('Expenses EU without UStId') . qq|</th>
-                <td><select name=expense_accno_id_2>$form->{selectIC_expense}</select></td>
-              </tr>|;
-
-  if ($form->{id}) {
-    $form->{selectIC_income} =~ s/selected//g;
-    $form->{selectIC_income} =~ s/ value=\Q$form->{income_accno_id_3}\E/  value=$form->{income_accno_id_3} selected/;
-    $form->{selectIC_expense} =~ s/selected//g;
-    $form->{selectIC_expense} =~ s/ value=\Q$form->{expense_accno_id_3}\E/  value=$form->{expense_accno_id_3} selected/;
-  }
-
-  $linkaccounts .= qq|              <tr>
-                <th align=right>| . $locale->text('Foreign Revenues') . qq|</th>
-                <td><select name=income_accno_id_3>$form->{selectIC_income}</select></td>
-              </tr>
-              <tr>
-                <th align=right>| . $locale->text('Foreign Expenses') . qq|</th>
-                <td><select name=expense_accno_id_3>$form->{selectIC_expense}</select></td>
-              </tr>
-|;
-
-
-  $form->header;
-
-  print qq|
-<body>
-
-<form method=post action=am.pl>
-
-<input type=hidden name=id value=$form->{id}>
-<input type=hidden name=type value=buchungsgruppe>
-
-<table width=100%>
-  <tr>
-    <th class=listtop colspan=2>$form->{title}</th>
-  </tr>
-  <tr height="5"></tr>
-  <tr>
-    <th align=right>| . $locale->text('Buchungsgruppe') . qq|</th>
-    <td><input name=description size=30 value="| . $form->quote($form->{description}) . qq|"></td>
-  <tr>
-  $linkaccounts
-  <td colspan=2><hr size=3 noshade></td>
-  </tr>
-</table>
-|;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub save_buchungsgruppe {
