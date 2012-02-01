@@ -79,7 +79,7 @@
         linkend="Manuelle-Installation-des-Programmpaketes" />), wenn vorher
         ein Kompatibilitätspaket installiert wird, das die fehlenden Pakete
         bereitstellt. Das Paket ist auf <ulink
-        url="https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.2/">Sourceforge</ulink>
+        url="https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.3/">Sourceforge</ulink>
         unter dem Namen <filename>lx-erp-perl-libs-compat-v2.tar.gz</filename>
         hinterlegt.</para>
 
@@ -91,7 +91,8 @@
         <para>Zusätzlich müssen dann noch die folgenden Pakete installiert
         weerden</para>
 
-        <programlisting>apt-get install libbit-vector-perl libsub-exporter-perl libclone-perl libclass-factory-util-perl</programlisting>
+        <programlisting>apt-get install libbit-vector-perl libsub-exporter-perl libclone-perl \
+  libclass-factory-util-perl</programlisting>
 
         <para>Danach sollte der Installationscheck (siehe <xref
         linkend="Pakete" />) die enthaltenen Pakete erkennen.</para>
@@ -221,7 +222,7 @@
   librose-object-perl librose-db-perl librose-db-object-perl \
   libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl \
   libxml-writer-perl libyaml-perl libconfig-std-perl \
-  libparams-validate-perl libjson-perl</programlisting>
+  libparams-validate-perl libjson-perl libclass-accessor-perl</programlisting>
 
         <para>Für Fedora Core benötigen Sie diese Pakete:</para>
 
@@ -262,36 +263,31 @@
       <filename>/var/www/</filename>) entpackt:</para>
 
       <programlisting>cd /var/www tar xvzf
-lxoffice-erp-2.6.2.tgz</programlisting>
+lxoffice-erp-2.6.3.tgz</programlisting>
 
-      <para>Verändern Sie evtl. noch den Namen des Verzeichnisses mit</para>
+      <para>Verändern Sie evtl. noch den Namen des Verzeichnisses und wechseln Sie in es:</para>
 
-      <programlisting>mv lxoffice-erp/ lx-erp/</programlisting>
+      <programlisting>mv lxoffice-erp/ lx-erp/
+cd lx-erp</programlisting>
 
       <para>Alternativ können Sie auch einen Alias in der
       Webserverkonfiguration benutzen, um auf das tatsächliche
       Installationsverzeichnis zu verweisen.</para>
 
-      <para>Die Verzeichnisse <filename>users</filename>,
-      <filename>spool</filename> und <filename>webdav</filename> müssen für
-      den Benutzer beschreibbar sein, unter dem der Webserver läuft. Die
-      restlichen Dateien müssen für diesen Benutzer lesbar sein. Der
-      Benutzername ist bei verschiedenen Distributionen unterschiedlich (z.B.
-      bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora core
-      <constant>apache</constant> oder bei OpenSuSE
-      <constant>wwwrun</constant>).</para>
+      <para>Die Verzeichnisse <filename>users</filename>, <filename>spool</filename> und <filename>webdav</filename> müssen für den Benutzer
+      beschreibbar sein, unter dem der Webserver läuft. Die restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer- und
+      Gruppennamen sind bei verschiedenen Distributionen unterschiedlich (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
+      core <constant>apache</constant> oder bei OpenSuSE <constant>wwwrun</constant>).</para>
 
       <para>Der folgende Befehl ändert den Besitzer für die oben genannten
       Verzeichnisse auf einem Debian/Ubuntu-System:</para>
 
-      <programlisting>chown -R www-data lx-office-erp/users lx-office-erp/spool lx-office-erp/webdav</programlisting>
+      <programlisting>chown -R www-data users spool webdav</programlisting>
 
-      <para>Weiterhin muss der Webserver-Benutzer im Verzeichnis
-      <filename>templates</filename> Verzeichnisse für jeden neuen Benutzer,
-      der in lx-office angelegt wird, anlegen dürfen:</para>
+      <para>Weiterhin muss der Webserver-Benutzer in den Verzeichnissen <filename>templates</filename> und <filename>users</filename>
+      Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in Lx-Office angelegt wird:</para>
 
-      <programlisting>chgrp www-data lx-office-erp/templates
-chmod g+w lx-office-erp/templates</programlisting>
+      <programlisting>chown www-data templates users</programlisting>
     </sect1>
 
     <sect1 id="config.config-file">
@@ -316,7 +312,7 @@ chmod g+w lx-office-erp/templates</programlisting>
         <para>Die Default-Datei wird immer zuerst eingelesen. Werte, die in
         der Hauptkonfigurationsdatei stehen, überschreiben die Werte aus der
         Default-Datei. Die Hauptkonfigurationsdatei muss also nur die
-        Abschintte und Werte enthalten, die von denen der Default-Datei
+        Abschnitte und Werte enthalten, die von denen der Default-Datei
         abweichen.</para>
 
         <para>Diese Hauptkonfigurationsdatei ist dann eine
@@ -1272,7 +1268,7 @@ insserv lx-office-task-server</programlisting>
       <sect2 id="Migration-alter-Installationen">
         <title>Migration alter Installationen</title>
 
-        <para>Wenn Lx-Office 2.6.2 über eine ältere Version installiert wird,
+        <para>Wenn Lx-Office 2.6.3 über eine ältere Version installiert wird,
         in der die Benutzerdaten noch im Dateisystem im Verzeichnis
         <literal>users</literal> verwaltet wurden, so bietet Lx-Office die
         Möglichkeit, diese Benutzerdaten automatisch in die

@@ -13,11 +13,12 @@
         Release ein eigenes .deb geben.</p><p>Alternativ dazu kann die normale Installation durchgeführt
         werden (siehe <a class="xref" href="ch02s02.html" title="2.2. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>), wenn vorher
         ein Kompatibilitätspaket installiert wird, das die fehlenden Pakete
-        bereitstellt. Das Paket ist auf <a class="ulink" href="https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.2/" target="_top">Sourceforge</a>
+        bereitstellt. Das Paket ist auf <a class="ulink" href="https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.3/" target="_top">Sourceforge</a>
         unter dem Namen <code class="filename">lx-erp-perl-libs-compat-v2.tar.gz</code>
         hinterlegt.</p><p>Zur Installation das Paket in das entpackte Lx-Office
         Verzeichnis entpacken:</p><pre class="programlisting">tar xzf lx-erp-perl-libs-compat-v2.tar.gz /path/to/lx-office/</pre><p>Zusätzlich müssen dann noch die folgenden Pakete installiert
-        weerden</p><pre class="programlisting">apt-get install libbit-vector-perl libsub-exporter-perl libclone-perl libclass-factory-util-perl</pre><p>Danach sollte der Installationscheck (siehe <a class="xref" href="ch02.html#Pakete" title="2.1.2. Pakete">Pakete</a>) die enthaltenen Pakete erkennen.</p></div><div class="sect2" title="2.1.2. Pakete"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.1.2. Pakete</h3></div></div></div><p>Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist
+        weerden</p><pre class="programlisting">apt-get install libbit-vector-perl libsub-exporter-perl libclone-perl \
+  libclass-factory-util-perl</pre><p>Danach sollte der Installationscheck (siehe <a class="xref" href="ch02.html#Pakete" title="2.1.2. Pakete">Pakete</a>) die enthaltenen Pakete erkennen.</p></div><div class="sect2" title="2.1.2. Pakete"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.1.2. Pakete</h3></div></div></div><p>Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
         benötigt.</p><p>Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die
         nicht Bestandteil einer Standard-Perl-Installation sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>parent</p></li><li class="listitem"><p>Archive::Zip</p></li><li class="listitem"><p>Config::Std</p></li><li class="listitem"><p>DateTime</p></li><li class="listitem"><p>DBI</p></li><li class="listitem"><p>DBD::Pg</p></li><li class="listitem"><p>Email::Address</p></li><li class="listitem"><p>JSON</p></li><li class="listitem"><p>List::MoreUtils</p></li><li class="listitem"><p>Params::Validate</p></li><li class="listitem"><p>PDF::API2</p></li><li class="listitem"><p>Rose::Object</p></li><li class="listitem"><p>Rose::DB</p></li><li class="listitem"><p>Rose::DB::Object</p></li><li class="listitem"><p>Template</p></li><li class="listitem"><p>Text::CSV_XS</p></li><li class="listitem"><p>Text::Iconv</p></li><li class="listitem"><p>URI</p></li><li class="listitem"><p>XML::Writer</p></li><li class="listitem"><p>YAML</p></li></ul></div><p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
@@ -41,7 +42,7 @@
   librose-object-perl librose-db-perl librose-db-object-perl \
   libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl \
   libxml-writer-perl libyaml-perl libconfig-std-perl \
-  libparams-validate-perl libjson-perl</pre><p>Für Fedora Core benötigen Sie diese Pakete:</p><pre class="programlisting">yum install httpd postgresql-server perl-parent perl-DateTime \
+  libparams-validate-perl libjson-perl libclass-accessor-perl</pre><p>Für Fedora Core benötigen Sie diese Pakete:</p><pre class="programlisting">yum install httpd postgresql-server perl-parent perl-DateTime \
   perl-DBI perl-DBD-Pg perl-Email-Address perl-List-MoreUtils \
   perl-PDF-API2 perl-Rose-Object perl-Rose-DB perl-Rose-DB-Object \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
