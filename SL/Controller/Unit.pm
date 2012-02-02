@@ -22,7 +22,7 @@ sub action_reorder {
     }
   });
 
-  $self->render(type => 'js', inline => '1;');
+  $self->render('1;', { type => 'js', inline => 1 });
 }
 
 #
