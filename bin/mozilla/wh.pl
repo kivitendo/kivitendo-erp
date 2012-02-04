@@ -824,7 +824,7 @@ sub generate_report {
   my @columns = qw(warehousedescription bindescription partnumber partdescription chargenumber bestbefore qty stock_value);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore date);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
 
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
@@ -842,7 +842,7 @@ sub generate_report {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit l_warehousedescription l_bindescription);
-  push @hidden_variables, qw(include_empty_bins subtotal);
+  push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses);
 
   my %column_defs = (
     'warehousedescription' => { 'text' => $locale->text('Warehouse'), },

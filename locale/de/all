@@ -939,6 +939,7 @@ $self->{texts} = {
   'Include empty bins'          => 'Leere Lagerpl&auml;tze anzeigen',
   'Include in Report'           => 'In Bericht aufnehmen',
   'Include in drop-down menus'  => 'In Aufklappmenü aufnehmen',
+  'Include invalid warehouses ' => 'Ungültige Lager berücksichtigen',
   'Includeable in reports'      => 'In Berichten anzeigbar',
   'Including'                   => 'Enthaltene',
   'Income Statement'            => 'GuV',
