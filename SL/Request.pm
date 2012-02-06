@@ -103,11 +103,11 @@ sub _parse_multipart_formdata {
           substr $line, $-[0], $+[0] - $-[0], "";
         }
 
-        $previous                = _store_value($filename ? $target : $temp_target, $name, '') if ($name);
-        $temp_target->{FILENAME} = $filename if ($filename);
+        $previous                = _store_value(defined $filename ? $target : $temp_target, $name, '') if ($name);
+        $temp_target->{FILENAME} = $filename if (defined $filename);
 
         # for multiple uploads: save the attachments in a SL/Mailer like structure
-        if ($name && $filename) {
+        if ($name && defined $filename) {
           _store_value($target, "ATTACHMENTS.$name.data", $previous);
           _store_value($temp_target, "ATTACHMENTS.$name.filename", $filename);
         }
