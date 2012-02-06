@@ -106,11 +106,18 @@ sub _parse_multipart_formdata {
         $previous                = _store_value($filename ? $target : $temp_target, $name, '') if ($name);
         $temp_target->{FILENAME} = $filename if ($filename);
 
+        # for multiple uploads: save the attachments in a SL/Mailer like structure
+        if ($name && $filename) {
+          _store_value($target, "ATTACHMENTS.$name.data", $previous);
+          _store_value($temp_target, "ATTACHMENTS.$name.filename", $filename);
+        }
+
         next;
       }
 
       if ($line =~ m|^content-type\s*:\s*(.*?)[;\$]|i) {
         $content_type = $1;
+        _store_value($temp_target, "ATTACHMENTS.$name.content_type", $1);
 
         if ($content_type =~ /^text/ && $line =~ m|;\s*charset\s*:\s*("?)(.*?)\1$|i) {
           $encoding = $2;
