@@ -51,7 +51,7 @@ sub _input_to_hash {
 
 sub _parse_multipart_formdata {
   my ($target, $temp_target, $input) = @_;
-  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous, $encoding, $transfer_encoding);
+  my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous, $p_attachment, $encoding, $transfer_encoding);
 
   # We SHOULD honor encodings and transfer-encodings here, but as hard as I
   # looked I couldn't find a reasonably recent webbrowser that makes use of
@@ -103,13 +103,30 @@ sub _parse_multipart_formdata {
           substr $line, $-[0], $+[0] - $-[0], "";
         }
 
-        $previous                = _store_value(defined $filename ? $target : $temp_target, $name, '') if ($name);
-        $temp_target->{FILENAME} = $filename if (defined $filename);
+        if ($name) {
+          # legacy, some old upload routines expect this to be here
+          $temp_target->{FILENAME} = $filename if defined $filename;
 
-        # for multiple uploads: save the attachments in a SL/Mailer like structure
-        if ($name && defined $filename) {
-          _store_value($target, "ATTACHMENTS.$name.data", $previous);
-          _store_value($temp_target, "ATTACHMENTS.$name.filename", $filename);
+          # name can potentially be both a normal variable or a file upload
+          # a file upload can be identified by its "filename" attribute
+          # the thing is, if a [+] clause vivifies atructur in one of the
+          # branches it must be done in both, or subsequent "[]" will fail
+          my $temp_target_slot = _store_value($temp_target, $name);
+          my $target_slot      = _store_value($target,      $name);
+
+          # set the reference for appending of multiline data to the correct one
+          $previous            = defined $filename ? $target_slot : $temp_target_slot;
+
+          # for multiple uploads: save the attachments in a SL/Mailer like structure
+          if (defined $filename) {
+            my $target_attachment      = _store_value($target,      "ATTACHMENTS.$name", {});
+            my $temp_target_attachment = _store_value($temp_target, "ATTACHMENTS.$name", {});
+
+            $$target_attachment->{data}          = $previous;
+            $$temp_target_attachment->{filename} = $filename;
+
+            $p_attachment = $$temp_target_attachment;
+          }
         }
 
         next;
@@ -117,7 +134,7 @@ sub _parse_multipart_formdata {
 
       if ($line =~ m|^content-type\s*:\s*(.*?)[;\$]|i) {
         $content_type = $1;
-        _store_value($temp_target, "ATTACHMENTS.$name.content_type", $1);
+        $p_attachment->{content_type} = $1;
 
         if ($content_type =~ /^text/ && $line =~ m|;\s*charset\s*:\s*("?)(.*?)\1$|i) {
           $encoding = $2;
@@ -131,6 +148,7 @@ sub _parse_multipart_formdata {
         if ($transfer_encoding  && $transfer_encoding !~ /^[78]bit|binary$/) {
           die 'Transfer encodings beyond 7bit/8bit and binary are not implemented.';
         }
+        $p_attachment->{transfer_encoding} = $transfer_encoding;
 
         next;
       }
@@ -158,7 +176,7 @@ sub _recode_recursively {
         # Workaround for a bug: converting $from->{$key} directly
         # leads to 'undef'. I don't know why. Converting a copy works,
         # though.
-        $to->{$key} = $iconv->convert("" . $from->{$key});
+        $to->{$key} = $iconv->convert("" . $from->{$key}) if defined $from->{$key} && !defined $to->{$key};
       } else {
         $to->{$key} ||= {} if 'HASH'  eq ref $from->{$key};
         $to->{$key} ||= [] if 'ARRAY' eq ref $from->{$key};
