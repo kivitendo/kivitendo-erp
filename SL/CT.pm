@@ -769,6 +769,13 @@ sub search {
     push(@values, conv_i($form->{business_id}));
   }
 
+  # Nur Kunden finden, bei denen ich selber der Verkäufer bin
+  # Gilt nicht für Lieferanten
+  if ($cv eq 'customer' &&   !$main::auth->assert('customer_vendor_all_edit', 1)) {
+    $where .= qq| AND ct.salesman_id = (select id from employee where login= ?)|;
+    push(@values, $form->{login});
+  }
+
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
                                                             'trans_id_field' => 'ct.id',
                                                             'filter'         => $form);
