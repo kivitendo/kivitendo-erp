@@ -1180,6 +1180,7 @@ $self->{texts} = {
   'Output Number Format'        => '',
   'Outputformat'                => '',
   'Overdue sales quotations and requests for quotations' => '',
+  'Override invoice language'   => '',
   'Own Product'                 => '',
   'PAYMENT POSTED'              => '',
   'PDF'                         => '',
