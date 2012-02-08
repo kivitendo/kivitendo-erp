@@ -121,7 +121,9 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * SL::DB::Helper::ALL auf Vollständigkeit prüfen
 
-  (TODO: Mag da einer ein Script für schreiben?)
+  (TODO: Mag da einer ein Script für schreiben?
+     find SL/DB -type f | grep -v MetaSetup | grep -v Helper | grep -v Manager | sort
+   hilft, kriegt aber die Sortierung durcheinander)
 
 * VERSION updaten
 
@@ -133,13 +135,13 @@ als freundliche Checkliste zum ausdrucken und erweitern.
   - Der git tag ist "release-<version>"
   - Das DB Ipgradescript ist "release_<snake_case_version>"
 
-* Datenbankupgradescript "release_2_6_1" (mit aktueller Releasenummer)
-  erstellen und alle Leafscripte als Abhängigkeit einsetzen. Leafscripte
-  kriegt man mit
+* Nur finales Release: Datenbankupgradescript "release_2_6_1" (mit aktueller
+  Releasenummer) erstellen und alle Leafscripte als Abhängigkeit einsetzen.
+  Leafscripte kriegt man mit
 
   $ scripts/dbupgrade2_tool.pl --nodeps
 
-* Voraussichtliches finales Releasedatum im changelog eintragen
+* Voraussichtliches Releasedatum im changelog eintragen
 
 * Finaler Testlauf:
 
