@@ -2,99 +2,257 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
-- Alternatives Vorlagenstemsystem f-tex
-  * Setup Script
+2012-02-08 - Release 2.7.0 beta 1
+
+Größere neue Features
+
+- Der CSV Import wurde komplett neu geschrieben
+  Features:
+  * Vorschau der Importdaten
+  * Serverseitiges Cachen der Daten
+  * Fehlererkennung
+  * Wählbare Trennzeich, Escapezeichen und Encoding
+  * speicherbare Profile
+
+- Der SEPA Export generiert jetzt SEPA v2.5
+
+- Vereinheitlichte Dokumentation
+  Die einzelnen manpage artigen Dokumentationstexte wurden in ein einziges PDF
+  Dokument vereinheitlicht.
+
+- Alternativer Vorlagensatz f-tex
   * mehrsprachig
   * leichte Integration des Firmenbriefkopfs
   * Ausgabe von Bruttopreisen in den Positionen fuer Endverbraucher moeglich
-  siehe doc/2011-12-14_alternatives_vorlagensystem_f-tex.txt
+  * siehe templates/print/f-tex/README
 
-- Ein neuer Vorlagensatz RB kam hinzu, der einige Ideen aufgreift, die
-  in folgendem Vortrag erwähnt wurden:
+- Alternativer Vorlagensatz RB
+  Basierend auf dem Vortrag aus dem Anwendertreffen 2011:
   http://www.lx-office.org/uploads/media/Lx-Office_Anwendertreffen_LaTeX-Druckvorlagen-31.01.2011_01.pdf
 
-- Master-Druckvorlagen in eigene Unterverzeichnisse
-  (z.B. print/Default/, print/German/) verschoben. Beim Anlegen eines Vorlagensatzes
-  werden symbolische Links und Unterverzeichnisse rekursiv kopiert.
-  Der eingebaute Vorlageneditor zeigt alle *.tex-Dateien an und lässt
-  sie bearbeiten.
+
+Kleinere neue Features und Detailverbesserungen:
+
+- Lx-Office behandelt jetzt Unicode Eingaben in DNF korrekt
+
+- Änderungen an Zahlungen in Belegen
+  Diese lassen sich jetzt entweder immer,gar nicht oder am selben Tag noch
+  ändern. Dies ist lx_office.conf einstellbar.
+
+- Projektnummer pro Beleg
+  Diese sind jetzt auch in Debitoren- und Kreditorenbuchungen verfügbar.
+
+- Berichten über Verkaus- und Einkaufsrechnungen
+  In Debitoren- und Kreditorenbuchungen berücksichtigt die
+  Projektnummernfilterung jetzt auch positionsbezogene Projektnummern.
+
+- Es kann eine Standardsprache eingestellt werden
+  Diese wird dann automatisch bei neu anzulegenden Kunden und Lieferanten
+  vorausgewählt.
+
+- Buchungsjournal
+  Es kann jetzt nach Bearbeiter und Buchungsdatum gefiltert werden.
+
+- á (LATIN SMALL LETTER A WITH ACUTE) in LaTeX-Vorlagen
+  Klassisch wurde á wegen Zeichensatzverwirrung durch ein Bullet ersetzt. Das
+  ist jetzt nicht mehr so. Dafür kann mit <bullet> ein Aufzählungspunkt erzeugt
+  werden.
+
+- Kontenrahmen
+  Bebuchte und steuerrelevante Konten lassen sich nicht mehr löschen und nur
+  noch bedingt umkonfigurieren.
+
+- Kunden und Lieferantenstammdaten
+  Hier kann jetzt eine Währung eingestellt werden, die als Voreinstellung in
+  den Ver- und Einkaufsmasken dient.
+
+
+Sicherheit:
+
+- Passwörter tauchen jetzt nicht mehr in der Sessiontabelle auf
+
+- Passwörter werden jetzt per Default als SHA256 gespeichert.
+
+
+API-Änderungen:
+
+- Umstellung der Variable $::lx_office_conf{system}{eur}
+  Die ehemalige globale Einstellung system/eur wird aufgespalten in drei
+  Einstellungen die in der defaults Tabelle gehalten werden;
+  "Gewinnermittlungsart", "Versteuerungsart" und "Warenbuchungsmethode". Siehe
+  Dakumentation, Abschnitt "Konfiguration zur
+  Einnahmenüberschussrechnung/Bilanzierung: EUR"
 
 - Der alte, manuelle Mechanismus "pagebreak-Block", um in
   LaTeX-Vorlagen Zwischensummen zu berechnen und den Seitenumbruch
   manuell zu kontrollieren, wurde entfernt.
 
-- Zahlungen bei Debitoren-, Kreditorenbuchungen, Verkaufs- und
-  Einkaufsrechnungen lassen sich entweder immer, gar nicht oder
-  am selben Tag noch ändern. Dies ist lx_office.conf einstellbar.
+- Änderungen an globalen Containern
+  Globale Container sind jetzt auf einige wenige beschränkt, alle anderen
+  wurden darin untergebracht oder entfernt.
+  * $::instance_conf - Daten die lokal auf einer Mandantendatenbank gelten
+  * %::request       - Requestlokaler Speicher
+  * $::cgi           - liegt jetzt in $::request{cgi}
+  * $::eur           - siehe $::instance_conf
+  * %::debug_options - liegt jetzt in $::lx_office_conf{debug}{options}
+  * $::all_units     - entfernt, die Einheitenfunktionen cachen jetzt selbst
+  * %::called_subs   - ersatzlos entfernt
 
-- Projektnummer pro Beleg läßt sich auch für Debitoren- und
-  Kreditorenbuchungen angeben.
+- Druckvorlagen verstehen jetzt die übliche dot-Notation für Methoden
+  Beispiel <%part.sellprice%> sofern als part ein Objekt übergeben wurde.
 
-- Bei den Berichten für Verkaus- und Einkaufsrechnungen wird auch auf die
-  positionsbezogenen Projektnummern für Debitoren- und Kreditorenbuchungen
-  gefiltert.
+- Druckvorlagen verstehen jetzt das Suffix NOFORMAT
+  Damit können Formatierungen im Vorlagensatz selbst gemacht werden.
+  Beispiel: <%amount NOFORMAT%>
 
-- Es kann eine Standardsprache eingestellt werden, die automatisch bei neu
-  anzulegenden Kunden und Lieferanten vorausgewählt ist.
+- Vorlagen bekommen jetzt Metadaten über sich selbst mitgeteilt
+  Die einzelnen Daten liegen in template_meta, diese Vorlagendokumentation.
 
-- Umstellung der Variablen eur in lx_office.conf zu drei neuen Variablen in
-  Tabelle defaults, zur Einstellung von Gewinnermittlungsart, Versteuerungsart
-  und Warenbuchungsmethode. Siehe Datei doc/umstellung_eur.txt
+- Default Vorlagen
+  Wenn eine Vorlage nicht gefunden wird, wird jetzt default.<extension>
+  benutzt. Das macht es möglich zentral verwaltete Vorlagensätze zu schreiben.
 
-- Buchungsjournal um Filter nach Bearbeiter und Buchungsdatum (ungleich
-  Rechnungsdatum) erweitert
-
-- Mastertemplates für den Ausdruck sind in eigene Unterverzeichnisse gewandert.
-  Dadurch wird das Hinzufügen neuer Vorlagensätze einfacher.
-
-- Zwei Rechterweiterung für 'eingeschränktere' Vertriebspartnerfunktion
-   Schreibschutz für Preise in Angebot und Suchfunktion in Stammdaten Kunden nur für Mitarbeiter freigeben, die auch
-   gleichzeitig als Verkäufer für den Kunden eingetragen sind. Rechtebeschreibung im Admin-Menü wie folgt:
-    * Preise und Rabatt in Formularen frei anpassen (falls deaktiviert,
-      wird allerdings NUR das textfield auf READONLY gesetzt / kann je nach Browserversion und technischen Fähigkeiten des Anwenders umgangen werden).
-    * Kunden und Lieferanten erfassen. Alle Lieferanten bearbeiten. Nur Kunden bearbeiten bei denen der Verkäufer gleich Bearbeiter (login) ist
-
-  Kleinere neue Features und Detailverbesserungen:
-  - á (LATIN SMALL LETTER A WITH ACUTE) wird in Latex-Vorlagen nicht mehr durch
-    ein "Bullet" ersetzt. Dafür kann mit <bullet> ein Aufzählungspunkt erzeugt
-    werden.
-
-  - Bebuchte Konten und als Steuerautomatik-Konten dienende Konten lassen sich
-    löschen und nur bedingt umkonfigurieren (Häkchen bei Forderungen o.
-    Verbindlichkeiten).
-
-  - Häkchen bei der Konto-Konfiguration f. Forderungen u. Verbindlichkeiten
-    als Radio-Buttons.
-
-  - Für Kunden und Lieferanten kann jetzt in den Stammdaten eine Währung
-    eingestellt werden, die als Voreinstellung in den Ver- und Einkaufs-
-    Masken dient.
-
-  - Das XUL-/XML-Menü, das nur mit Firefox funktionierte, wurde wegen
-    Sicherheitsproblemen und eingestellter Unterstützung für XUL
-    seitens der Firefox-Entwickler entfernt.
+- Master-Druckvorlagen liegen jetzt in eigenen Unterverzeichnissen
+  Das neue System ist templates/print/<name>. Beim Anlegen eines Vorlagensatzes
+  werden symbolische Links und Unterverzeichnisse rekursiv kopiert. Der
+  eingebaute Vorlageneditor zeigt alle *.tex-Dateien an und lässt sie
+  bearbeiten.
 
 
-  Liste gefixter Bugs aus dem Bugtracker:
+Entfernte Features:
 
+- Der PHP basierte CSV-Import wurde zugunsten des neuen Imports entfernt.
+
+- Das Feature "Lizenzverwaltung" wurde entfernt.
+
+- Das XUL Menü wurde ersatzlos entfernt.
+  Das Menü funktionierte nur nur mit Firefox, und wurde wegen
+  Sicherheitsproblemen und eingestellter Unterstützung für XUL seitens der
+  Firefox-Entwickler entfernt.
+
+
+Experimentelle Features:
+
+- Es ist möglich benutzerdefinierte Variablen vom Typ "Kunde" anzulegen
+  Die Details werden sich wahrscheinlich noch ändern.
+
+- Rechterweiterungen für eingeschränkte Vertriebspartnerfunktion
+  Das Recht "Kunden und lieferanten erstellen und bearbeiten" wurde
+  aufgespalten. Das bisherige Recht erlaubt es nur noch Kunden zu editieren,
+  bei denen man selbst als Verkäufer eingetragen ist. Das zweite Recht gibt
+  Vollzugriff.
+
+
+Liste gefixter Bugs aus dem Bugtracker:
+
+  - Bugfix 79: Bug bei Buchung Zahlungsausgang mit Skonto
+  - Bugfix 276: lx-erp.conf: $eur
+  - Bugfix 415: Ware erfassen Layout
+  - Bugfix 550: Fehlende Variable
+  - Bugfix 635: Fehlendes Feld "Konto-Inhaber" bei Kunden/Lieferanten
+  - Bugfix 807: InstallationCheck prueft nicht Version von Template-Toolkit, v2 ist aber erforderlich
+  - Bugfix 865: Beim PDF- Export Kontenblätter wird ab Seite 2 Zeile 1 und 3 vertauscht und "Soll" und "Haben" aufeinandergedruckt
+  - Bugfix 872: Lieferdatum erscheint nicht bei Rechnungsposten
+  - Bugfix 910: mod_perl Kompatibilität
+  - Bugfix 1020: Zu viel Automatismus
+  - Bugfix 1045: Lagerbewegung
+  - Bugfix 1056: Workflow-Variable fuer Auftragsdatum ueberlebt Auftrag -> Lieferschein -> Rechnung nicht
+  - Bugfix 1067: Sicherheitsluecke CRM vs ERP?
+  - Bugfix 1082: Bei einem Lieferschein wird die Abteilung nicht mitgespeichert
+  - Bugfix 1085: Wiederkehrende/zyklische Rechnungen
+  - Bugfix 1179: Ort des Perl-Binaries muss konfigurierbar sein
+  - Bugfix 1187: Lieferschein-Verkaeufer-Bug - Die Dritte
+  - Bugfix 1191: Update vom Freitag hat Benutzerdefinierte Variablen/Kundenverwaltung geschossen
+  - Bugfix 1275: Alte Lieferadressen lassen sich nicht entsorgen
+  - Bugfix 1361: Bestelldatum als Feld einführen / Systemdatum
+  - Bugfix 1413: Anzeige des Kreditlimits während der Rechnungserstellung zeigt sinnlose Werte
+  - Bugfix 1415: Typo in UstVA-Vorschau
+  - Bugfix 1420: Loeschen von Stornos bereitet eine Reihe von Problemen: (1)Stornorechnungen nicht beschreibbar
+  - Bugfix 1434: Saldo bei Lagerbewegungen aufnehmen
+  - Bugfix 1443: Berichte der Waren: Bericht nach Projekt nicht moeglich
+  - Bugfix 1446: Username + Passwort
+  - Bugfix 1478: Wörterbuch-Attacken gegen Lx-Office erschweren / abwehren
+  - Bugfix 1493: Menuepunkt "Druck" ausblendbar machen
+  - Bugfix 1500: Auswertung mathematischer Werte in Zahlenfeldern
+  - Bugfix 1519: 16x16 Icons funktionieren nicht bei Multiline Menüeinträgen im HTML Menü.
+  - Bugfix 1522: alternatives LaTeX Template system "fancy LaTeX"
+  - Bugfix 1538: Beim Bearbeiten von Preisgruppen: Button Historie reagiert nicht
+  - Bugfix 1549: Artikelbericht Gekauft/Verkauft Lagerwert
+  - Bugfix 1558: Verkaufsbericht listet Bestandteile eines Erzeugnisses statt des Erzeugnisses auf
+  - Bugfix 1566: Variablen Mahnung
+  - Bugfix 1590: rechnung->zahlung-buchen: ERROR: invalid input syntax for type date: ""
+  - Bugfix 1609: malformed script header beim speichern einer ware
+  - Bugfix 1610: Berichte Waren zusätzlicher Button "alle" erwünscht
+  - Bugfix 1611: Sammelrechnug offene Forderung leer
+  - Bugfix 1635: Berichte Waren zeigt falsche Verkaufszahlen
   - Bugfix 1640: Buchungen werden falsch zugeordnet, wenn man Konten umkonfiguriert
-  - Bugfix 1753: Benutzerdefinierte Variable f. Waren: bearbeitbar nicht auswählbar
-  - Bugfix 1738:  Entwürfe können nicht gelöscht werden
-  - Bugfix 1759: Währung bei Kunden / Lieferanten vorbelegen
-  - Bugfix 1770: Währung / currency überlebt Workflow über Lieferschein nicht
-  - Bugfix 1770: (zweiter Teil) Preisgruppen überleben Workflow nicht
-  - Bugfix 1773: SQL Fehler bei Anzeige von Angeboten
-  - Bugfix 1725: In Mahnungen steht currency nicht als Variable zur Verfügung?
-  - Bugfix 1771: Zahlungsausgang: Lieferant wird nicht ausgewählt, wenn Name 2 Leerzeichen hintereinander enthält
-  - Bugfix 1566: Variablen für Verkäufer und USTID in Mahnungsdruck hinzugefügt
-  - Bugfix 1588: Einzelteile eines Erzeugnisses von Verkaufsbericht ausnehmen
-  - Bugfix 1756: Ertrag in Bruttorechnungen korrekt berechnen
-  - Bugfix 1760 - 1760: Bei einem Lieferschein wird die Abteilung nicht mitgespeichert
-  - Bugfix 1752: Rechnung -> Druckvorschau ignoriert Änderung des Steuersatz beim Beleg
-  - Bugfix 1708: Fehlender Übertrag der Lieferadresse von Angebot -> Auftragsbestätigung
   - Bugfix 1648: bebuchte Konten sollten nicht in Überschriften umgewandelt werden können
+  - Bugfix 1649: Preisgruppe wird nicht angezeigt über: Auftrag -> Lieferschein -> Rechnung
+  - Bugfix 1669: parameter eur sollte Mandantenabhaengig sein und nicht Installationsabhaengig
+  - Bugfix 1670: mod_fcgid: HTTP request length 134525 (so far) exceeds MaxRequestLen (131072)
+  - Bugfix 1673: Auftrag drucken druckt nicht und Problem mit Workflow "Als neu speichern"
+  - Bugfix 1675: Anführungszeichen in der Artikelbeschreibung werden ersetzt.
+  - Bugfix 1676: DATEV Export bei gemischter Rechnung/Gutschrift schlägt fehl
+  - Bugfix 1677: Artikel-fremd-sprachen werden nicht verwendet
+  - Bugfix 1678: Autoreload bei Änderungen in lx_office.conf
+  - Bugfix 1679: missing javascript referenced in templates/webpages/ir/form_header.html
+  - Bugfix 1681: Stammdaten - Berichte - Erzeugnisse: Spalte Einkaufspreise nicht gerundet
+  - Bugfix 1683: Druck -> Lieferschein: Fehlende Rechte
+  - Bugfix 1684: Benutzte Einheiten lassen sich umbenennen
+  - Bugfix 1685: UStVA HTML Vorschau Zahlenformat
+  - Bugfix 1687: git edbbcd58bbc9e0: FastCGI: incomplete headers beim Speichern einer Ware
+  - Bugfix 1690: "PDF (OpenDocument/OASIS)" nicht mehr in Druckformatauswahl nach Update 2.6.1 -> 2.6.3
+  - Bugfix 1693: Soll und Istversteurung / Steuerrecht Deutschland
+  - Bugfix 1696: Listenpreis wird in der Detailanzeige falsch dargestellt
+  - Bugfix 1698: Erneuern löscht Bemerkungen bei Debitorenbuchung erfassen
+  - Bugfix 1699: SEPA-Zahlungsverkehr funktioniert nicht
+  - Bugfix 1702: Software Error beim Aufruf der Lizenzen unter commit aae0a190cc593
+  - Bugfix 1703: XUL Menues funktionieren mit Firefox6 nicht mehr
+  - Bugfix 1705: Firefox 6 und XUL - Druckerbutton funktioniert nicht
+  - Bugfix 1706: Firefox 6 und XUL - Menue haengt immer wieder mal (loest keine Aktionen mehr aus bis reload)
+  - Bugfix 1708: Fehlender Übertrag der Lieferadresse von Angebot -> Auftragsbestätigung
+  - Bugfix 1712: ergenzung der Doku/Dokumentvariabeln
+  - Bugfix 1713: Schreibfehler Menüeintrag
+  - Bugfix 1715: Benutzername in der Kopfzeile nicht angezeigt
+  - Bugfix 1717: Im Lieferschein kann mehr ausgelagert werden, als dort als Menge angegeben ist
+  - Bugfix 1720: locale/$dir/LANGUAGE wird nicht als UTF8 eingelesen
+  - Bugfix 1723: Drucken vor dem Speichern - Button mißverständlich
+  - Bugfix 1724: Falsche Funktionalität der Buttons, wenn "Drucken" vor "Speichern" geklickt wird
+  - Bugfix 1725: In Mahnungen steht currency nicht als Variable zur Verfügung?
+  - Bugfix 1728: URL auf Debitorenbuchungen bei Mahnungen zeigt auf Rechnugsmaske
+  - Bugfix 1730: Kunde wird falsch angezeigt bei bestimmter Auswahllistenbegrenzung
+  - Bugfix 1731: Illegal division by zero
+  - Bugfix 1733: sumcarriedforward stimmt nicht bei englischen Rechnungen bzw mit 1,000.00 Nummernformat
+  - Bugfix 1734: Als "periodic invoice" erstellte Rechnung läßt sich nicht löschen.
+  - Bugfix 1735: PDF-Dateiname (Druck / eMail-Attachment) nach Benutzer anstatt nach Rechnungs-Sprache lokalisiert
+  - Bugfix 1737: Lieferschein speichern setzt zugehörigen Auftrag auf geliefert.
+  - Bugfix 1738: Entwürfe können nicht gelöscht werden
+  - Bugfix 1740: Feature Request: Variablen im Druckbefehl
+  - Bugfix 1743: Beim installation_check auf Developer-Pakete hinweisen
+  - Bugfix 1745: add missing LaTeX escaping for "soft hyphen" "­" -> "\-"
+  - Bugfix 1747: Name der temporären Druckdateien nicht "zufällig" genug
+  - Bugfix 1749: 07ccbf8dd hat Zahlungseingang kaputtgemacht
+  - Bugfix 1752: Rechnung -> Druckvorschau ignoriert Änderung des Steuersatz beim Beleg
+  - Bugfix 1753: Benutzerdefinierte Variable f. Waren: bearbeitbar nicht auswählbar.
+  - Bugfix 1756: Ertrag in Bruttorechnung ist falsch
+  - Bugfix 1758: Detailansicht Kunde Link Auftrag / Angebot Rechtefehler
+  - Bugfix 1759: Währung bei Kunden / Lieferanten vorbelegen
+  - Bugfix 1762: Artikel-Suchmaske ignoriert Kundengruppen-Rabatte
+  - Bugfix 1765: Dienstleistungen koennen auch mehrere Lieferanten haben
+  - Bugfix 1767: zurück-Knopf bei "Was ist dieser Artikel?" liefert Fehlermeldung
+  - Bugfix 1769: Sprache speichern oder löschen gibt Fehler "action= nicht definiert!"
+  - Bugfix 1770: Währung / currency überlebt Workflow über Lieferschein nicht
+  - Bugfix 1771: Zahlungsausgang: Lieferant wird nicht ausgewählt, wenn Name 2 Leerzeichen hintereinander enthält
+  - Bugfix 1773: SQL Fehler bei Anzeige von Angeboten
+  - Bugfix 1774: Benutzergruppen lassen sich nicht mehr speichern.
   - Bugfix 1775: Wechselkurs in Einkaufrechnung kann nicht eingegeben werden
-
+  - Bugfix 1778: Kundenauswahl Angebote, etc.
+  - Bugfix 1779: Berichte zu Verkaufslieferscheinen, Checkbox "Verkaeufer" hat keine Funktion
+  - Bugfix 1782: Release Management Dokumentation
+  - Bugfix 1787: Winstonexport with . instead of , in numbers
+  - Bugfix 1789: Metainformationen fehlen bei Mahnungen
+  - Bugfix 1794: undef error - Can't locate object method "full_name_dep"
+  - Bugfix 1797: GuV wirft SQL Fehler
 
 2011-06-15 - Release 2.6.3
 
