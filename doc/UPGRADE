@@ -4,6 +4,30 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+Upgrade auf v2.7.0
+==================
+
+1. Templateumstellungen
+
+Das Druckvorlagensystem wurde umgestellt, dadurch ist der Name "print" für
+Druckvorlagen jetzt reserviert. Wenn eine Ihrer Vorlagensätze "print" heisst,
+benennen Sie ihn um bevor Sie das Update starten.
+
+2. Neue Abhängigkeiten
+
+Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
+
+$ scripts/installation_check.pl
+
+Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
+der Installationsanweisung.
+
+Es sind zwei neue Abhängigkeiten dazugekommen.
+
+* JSON
+* String::ShellQuote
+
+
 Upgrade auf v2.6.3
 ==================
 
