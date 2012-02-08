@@ -1446,7 +1446,7 @@ sub print_form {
   format_dates($output_dateformat, $output_longdates,
                qw(invdate orddate quodate pldate duedate reqdate transdate
                   shippingdate deliverydate validitydate paymentdate
-                  datepaid transdate_oe deliverydate_oe
+                  datepaid transdate_oe deliverydate_oe dodate
                   employee_startdate employee_enddate
                   ),
                grep({ /^datepaid_\d+$/ ||

@@ -4,7 +4,8 @@
 [% L.javascript_tag('jquery.checkall') %]
 [% SET all_active = 1 %][% FOREACH row = DUNNINGS %][% IF !row.active %][% SET all_active = 0 %][% LAST %][% END %][% END %]
 [% SET all_email = 1 %][% FOREACH row = DUNNINGS %][% IF !row.email %][% SET all_email = 0 %][% LAST %][% END %][% END %]
-<body>
+<body [% IF onload %] onload="[% onload %]"[% END %]>
+
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
@@ -28,6 +29,7 @@
    </th>
 
    <th class="listheading">[% 'Customername' | $T8 %]</th>
+   <th class="listheading">[% 'Language' | $T8 %]</th>
    <th class="listheading">[% 'Invno.' | $T8 %]</th>
    <th class="listheading">[% 'Invdate' | $T8 %]</th>
    <th class="listheading">[% 'Inv. Duedate' | $T8 %]</th>
@@ -57,6 +59,7 @@
      <td><input type="checkbox" name="active_[% loop.count %]" value="1" [% IF row.active %]checked[% END %]></td>
      <td><input type="checkbox" name="email_[% loop.count %]" value="1" [% IF row.email %]checked[% END %]></td>
      <td><input type="hidden" name="customername_[% loop.count %]" size="6" value="[% HTML.escape(row.customername) %]">[% HTML.escape(row.customername) %]</td>
+     <td><input type="hidden" name="language_id_[% loop.count %]" size="6" value="[% HTML.escape(row.language_id) %]">[% HTML.escape(row.language) %]</td>
      <td>
       <input type="hidden" name="invnumber_[% loop.count %]" size="6" value="[% HTML.escape(row.invnumber) %]">
       <a href="is.pl?action=edit&type=invoice&id=[% row.id | url %]">[% HTML.escape(row.invnumber) %]</a>
@@ -74,6 +77,8 @@
 
   <hr size=3 noshade>
 
+  <input type="checkbox" name="force_lang" size="6" value="1" onclick="document.getElementsByName('language_id')[0].disabled = !document.getElementsByName('force_lang')[0].checked;">
+  [% 'Override invoice language' | T8 %]
   [% PRINT_OPTIONS %]
 
   <br>

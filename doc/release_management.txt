@@ -1,0 +1,180 @@
+Dieses Dokument listet die Arbeiten die für ein Lx-Office Release nötig sind,
+als freundliche Checkliste zum ausdrucken und erweitern.
+
+0. IM VORFELD
+=============
+
+* Etwa zwei Monate vor dem Release gibt es meistens einen Bugsprint.
+
+* Nach dem Bugsprint sollten alle Bugs die noch gefixt werden müssen mit einem
+  Target versehen werden.
+
+* Neue Bugs nach dem Bugsprint werden später separat behandelt.
+
+* Etwa einen Monat vor dem Release wird eine Beta herausgegeben.
+
+* (TODO: Reease Candidates Zeitplan).
+
+
+
+1. KONSISTENZ DES PROGRAMMS
+===========================
+
+* Freeze auf der Mailingliste ansagen.
+
+  - Featurefreeze für beta
+  - Commitfreeze für finales Release
+
+* Status Bugzilla
+
+  - Aus dem Bugsprint sollten keine Bugs mit Target der neuen Version mehr
+    offen sein.
+  - Neue Bugs seit dem Bugsprint müssen bewertet, gegebenenfalls behoben
+    werden.
+  - Sollten noch schwere Probleme existieren, Release verschieben.
+
+* Changelog aktualisieren.
+
+  - Im Changelog sollten sämtliche behobenen Bugs seit der letzten Version
+    aufgeführt sein. (TODO ist mit ein bisschen SQL Magie direkt aus der
+    Bugzilla Datenbank holbar, diese Magie hier möglichst dokumentieren).
+  - Ausserdem einmal durch das git scrollen und sinnvolle grössere Änderungen
+    ins changelog übertragen. Muss nur einmal gemacht werden, möglichst danach
+    nur noch inkrementell.
+
+* Perlabhängigkeiten prüfen
+
+  $ scripts/find-use.pl
+
+  Die Ausgabe zeigt alle "use *", "use parent qw()", require "" etc an, und
+  sucht nach Abhängigkeiten dadrin. Die Farbcodes bedeuten:
+
+  grün: Alles gut, das Modul ist entweder seit Ewigkeiten im perl core, oder
+        ist in modules/* dabei.
+  gelb: Das Modul ist nach 5.8.0 in den core gekommen, oder steht ordnungsgemäß
+        im InstallationCheck.pm
+  rot:  Noch nie gesehen das Modul. muss eingepflegt werden.
+
+  Sollte es nicht dokumentierte Abhängigkeiten geben, muss Folgendes gemacht
+  werden:
+
+  1. Wo kriegt man das Modul her?
+    - debian paket?
+    - cpan paket?
+    - cpan devel version?
+
+  2. Welche Mindestversion funktioniert sicher?
+    - zuindest deine aktuelle. ansonsten auch mal im cpan changelog schauen wie
+      alt die ist, und was alles dazugekommen ist.
+
+  3. Das Modul in SL/InstallationCheck.pm eintragen. Testen.
+
+  4. Das Modul in der Installationsanleitung eintragen.
+
+* doc/UPGRADE doku aktualisieren und auf Vollständigkeit prüfen.
+
+  Upgrade muss mindestens folgende Informationen enthalten:
+  - Neue Pakete und Abhängigkeiten
+  - Alles was nicht in der normalen Updatedoku steht und nötig ist, um eine
+    Version bis zum erfolgreichen Login der neuen Version zu kriegen.
+  - Bekannte Probleme die im testing auftraten dokumentieren.
+
+* doc/Lx-Office-Dokumentation.pdf erstellen
+ (TODO: commands)
+
+* scripts/rose_auto_create_model.pl update machen.
+
+  Das ist nicht ganz einfach, dafür gibt es keinen einfachen Knopf. Folgende
+  Constraints sollten eingehalten werden:
+
+  - Alle Datenbank Upgrades seit der letzten Version müssen eingepflegt werden.
+  - Alle noch nicht normalisierten Tabellen müssen weiterhin ignoriert werden.
+  - Alle Felder die von der crm, von bob, von lx-cars oder sonstwo in die
+    Datenbank gekommen sind, müssen ignoriert werden.
+  - Wenn die Reihenfolge der Spalten in der Datenbank moniert wird, dann sollte
+    das auch ignoriert werden. (Kann passieren, wenn DB Upgrades in
+    verschiedener Reihenfolge eingespielt werden.)
+  - Wenn Metastatements dazukommen, wie zum Beispiel
+    "allow_inline_column_values => 1," dann ist die Ausgabe der neusten
+    Rose::DB::Object Version zu wählen die kompatibel zu älteren Versionen
+    bleibt.
+
+  Zum Prüfen was sich geändert hat eignen sich folgende Befehle:
+
+  # listet alle Dateien in denen sich etwas Ändern würde
+  $ scripts/rose_auto_create_model.pl --user=<login> -n --all
+
+  # listet die entsprechenden Diffs:
+  $ scripts/rose_auto_create_model.pl --user=<login> --diff -n --all
+
+* SL::DB::Helper::ALL auf Vollständigkeit prüfen
+
+  (TODO: Mag da einer ein Script für schreiben?)
+
+* VERSION updaten
+
+  Zu den Versionierungen:
+
+  - Das Programm heißt Lx-Office (großes LO, mit Bindestrich dazwischen)
+  - Das Paket heißt lx-office-erp (klein, plus "-erp")
+  - Der Standardpfad ist lxoffice-erp-<version> (fehlender Bindestrich)
+  - Der git tag ist "release-<version>"
+  - Das DB Ipgradescript ist "release_<snake_case_version>"
+
+* Datenbankupgradescript "release_2_6_1" (mit aktueller Releasenummer)
+  erstellen und alle Leafscripte als Abhängigkeit einsetzen. Leafscripte
+  kriegt man mit
+
+  $ scripts/dbupgrade2_tool.pl --nodeps
+
+* Voraussichtliches finales Releasedatum im changelog eintragen
+
+* Finaler Testlauf:
+
+  t/test.sh
+
+  - Im Moment sind 4 Fehler optimal (die sind noch nicht angegangen):
+    o  bin/mozilla/ar.pl contains at least 190 html tags.
+    o  bin/mozilla/ic.pl contains at least 130 html tags.
+    o  bin/mozilla/ap.pl contains at least 183 html tags.
+    o  bin/mozilla/admin.pl DOES NOT use proper system or exec calls
+  - Einige Tests setzen eine korrekt aufgesetzte Datenbank für tests voraus.
+    TODO: diese Tests korrekt skippen wenn keine DB gefunden wurde.
+    TODO: Dokumeniteren wie der Releasemanager sich so eine DB baut, die
+          sollten vor einem Release zumindest durchlaufen.
+    TODO: Evtl eine Klasse von Releasetests einführen)
+
+* Alle Änderungen einchecken.
+
+
+
+2. RELEASE
+
+* Annotated tag erstellen und pushen
+
+  $ git tag -a release-2.6.1
+  $ git push origin tgs/release-2.6.1
+
+* Tarball erstellen
+
+  $ git archive --format=tar --remote=<master repo>        \
+        --prefix=lxoffice-erp-2.6.1/ release-2.6.1 | gzip  \
+        > lx-office-erp-2.6.1.tar.gz
+
+  (der trailing slash bei prefix ist wichtig)
+
+* Tarball testen, wird das richtig entpackt?
+
+* SHA1 und MD5 von tarball machen und in *.sha1 bzw. *.md5 speichern
+
+* Alles auf Sourceforge hochladen
+
+* Releasemessages schreiben für folgende Ziele:
+
+  - lx-office.org: deutsch, prosa, formell
+  - freshmeat.net: englisch, max 600 zeichen, technische stichpunkte aus dem changelog
+  - mailinglisten: deutsch, freitext, informell
+
+* Alle Releasemessages von mindestens einer Person Korrektur lesen lassen
+
+* Webseite aktualisieren, Releasemessages auf freshmeat und Mailinglisten posten

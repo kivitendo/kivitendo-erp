@@ -855,9 +855,9 @@ sub generate_ustva {
 
       my $temp_numberformat = $myconfig{numberformat};
 
-      # Numberformat must be '1000.00' for Winston
+      # Numberformat must be '1000,00' for Winston
 
-      $myconfig{numberformat} = '1000.00';
+      $myconfig{numberformat} = '1000,00';
 
       foreach my $number (@category_cent) {
         $form->{$number} = ( $form->{$number} !=0 ) ? $form->format_amount(\%myconfig, $form->{$number}, '2', '') : '';

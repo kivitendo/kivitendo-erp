@@ -213,9 +213,9 @@ sub get_accounts {
 
   # if l_ob is selected l_cb is always ignored
   if ( $form->{l_ob} ) {
-    $where .= ' AND ob_transaction is true  ' 
+    $where .= ' AND ac.ob_transaction is true  ' 
   } elsif ( not $form->{l_cb} ) {
-    $where .= ' AND cb_transaction is false ';
+    $where .= ' AND ac.cb_transaction is false ';
   };
 
   if ($fromdate) {
@@ -471,7 +471,7 @@ sub get_accounts_g {
   my $inwhere = "";
   my $item;
 
-  $where .= ' AND cb_transaction is false ' unless $form->{l_cb};
+  $where .= ' AND ac.cb_transaction is false ' unless $form->{l_cb};
 
   if ($fromdate) {
     $fromdate = conv_dateq($fromdate);
@@ -521,7 +521,7 @@ sub get_accounts_g {
                      FROM acc_trans acc
                      INNER JOIN chart c ON (acc.chart_id = c.id AND c.link LIKE '%AR_paid%')
                      WHERE 1=1 $inwhere AND acc.trans_id = ac.trans_id)
-                  / (SELECT amount FROM ar WHERE id = ac.trans_id)
+                  / COALESCE((SELECT amount FROM ar WHERE id = ac.trans_id and amount != 0 ), 1)
                 ) AS amount, c.pos_eur
        FROM acc_trans ac
        LEFT JOIN chart c ON (c.id  = ac.chart_id)

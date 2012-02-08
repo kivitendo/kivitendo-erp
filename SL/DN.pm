@@ -41,6 +41,8 @@ use SL::IS;
 use SL::Mailer;
 use SL::MoreCommon;
 use SL::Template;
+use SL::DB::Printer;
+use SL::DB::Language;
 
 use strict;
 
@@ -403,14 +405,53 @@ sub set_template_options {
     $form->{printer_code} = "_" . $form->{printer_code};
   }
 
-  $form->{IN}  = "$form->{formname}$form->{language}$form->{printer_code}.html";
-  $form->{pdf} = 1;
+  my $extension = 'html';
+  if ($form->{format} eq 'postscript') {
+    $form->{postscript}   = 1;
+    $extension            = 'tex';
 
-  if ($form->{"format"} =~ /opendocument/) {
-    $form->{IN} =~ s/html$/odt/;
-  } else {
-    $form->{IN} =~ s/html$/tex/;
+  } elsif ($form->{"format"} =~ /pdf/) {
+    $form->{pdf}          = 1;
+    $extension            = $form->{'format'} =~ m/opendocument/i ? 'odt' : 'tex';
+
+  } elsif ($form->{"format"} =~ /opendocument/) {
+    $form->{opendocument} = 1;
+    $extension            = 'odt';
+  } elsif ($form->{"format"} =~ /excel/) {
+    $form->{excel} = 1;
+    $extension            = 'xls';
   }
+
+
+  # search for the template
+  my @template_files;
+  push @template_files, "$form->{formname}_email$form->{language}$form->{printer_code}.$extension" if $form->{media} eq 'email';
+  push @template_files, "$form->{formname}$form->{language}$form->{printer_code}.$extension";
+  push @template_files, "$form->{formname}.$extension";
+  push @template_files, "default.$extension";
+
+  $form->{IN} = undef;
+  for my $filename (@template_files) {
+    if (-f "$form->{templates}/$filename") {
+      $form->{IN} = $filename;
+      last;
+    }
+  }
+
+  if (!defined $form->{IN}) {
+    $::form->error($::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files));
+  }
+
+  # prepare meta information for template introspection
+  $form->{template_meta} = {
+    formname  => $form->{formname},
+    language  => SL::DB::Manager::Language->find_by_or_create(id => $form->{language_id}),
+    format    => $form->{format},
+    media     => $form->{media},
+    extension => $extension,
+    printer   => SL::DB::Manager::Printer->find_by_or_create(id => $form->{printer_id}),
+    today     => DateTime->today,
+  };
 
   $main::lxdebug->leave_sub();
 }
@@ -468,7 +509,7 @@ sub get_invoices {
 
   $query =
     qq|SELECT
-         a.id, a.ordnumber, a.transdate, a.invnumber, a.amount,
+         a.id, a.ordnumber, a.transdate, a.invnumber, a.amount, a.language_id,
          ct.name AS customername, a.customer_id, a.duedate,
          a.amount - a.paid AS open_amount,
 
@@ -628,7 +669,7 @@ sub get_dunning {
   my $sortorder = join ', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} };
 
   my $query =
-    qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount,
+    qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount, a.language_id,
          ct.name AS customername, ct.id AS customer_id, a.duedate, da.fee,
          da.interest, dn.dunning_description, da.transdate AS dunning_date,
          da.duedate AS dunning_duedate, da.dunning_id, da.dunning_config_id,
