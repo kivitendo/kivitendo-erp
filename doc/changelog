@@ -47,6 +47,12 @@
 - Mastertemplates für den Ausdruck sind in eigene Unterverzeichnisse gewandert.
   Dadurch wird das Hinzufügen neuer Vorlagensätze einfacher.
 
+- Zwei Rechterweiterung für 'eingeschränktere' Vertriebspartnerfunktion
+   Schreibschutz für Preise in Angebot und Suchfunktion in Stammdaten Kunden nur für Mitarbeiter freigeben, die auch
+   gleichzeitig als Verkäufer für den Kunden eingetragen sind. Rechtebeschreibung im Admin-Menü wie folgt:
+    * Preise und Rabatt in Formularen frei anpassen (falls deaktiviert,
+      wird allerdings NUR das textfield auf READONLY gesetzt / kann je nach Browserversion und technischen Fähigkeiten des Anwenders umgangen werden).
+    * Kunden und Lieferanten erfassen. Alle Lieferanten bearbeiten. Nur Kunden bearbeiten bei denen der Verkäufer gleich Bearbeiter (login) ist
 
   Kleinere neue Features und Detailverbesserungen:
   - á (LATIN SMALL LETTER A WITH ACUTE) wird in Latex-Vorlagen nicht mehr durch

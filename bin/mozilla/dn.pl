@@ -133,6 +133,10 @@ sub show_invoices {
       map { $_->{SELECTED} = $_->{id} == $row->{next_dunning_config_id} } @{ $row->{DUNNING_CONFIG } };
     }
     map { $row->{$_} = $form->format_amount(\%myconfig, $row->{$_} * 1, -2) } qw(amount open_amount fee interest);
+
+    if ($row->{'language_id'}) {
+      $row->{language} = SL::DB::Manager::Language->find_by('id' => $row->{'language_id'})->{'description'};
+    }
   }
 
   $form->get_lists('printers'  => 'printers',
@@ -150,6 +154,8 @@ sub show_invoices {
                                           'no_opendocument' => 1,);
 
   $form->header();
+  $form->{onload} = "document.getElementsByName('language_id')[0].disabled =
+        !document.getElementsByName('force_lang')[0].checked;";
   print $form->parse_html_template("dunning/show_invoices");
 
   $main::lxdebug->leave_sub();
@@ -199,6 +205,8 @@ sub save_dunning {
   my @rows = ();
   undef($form->{DUNNING_PDFS});
 
+  my $saved_language_id = $form->{language_id};
+
   if ($form->{groupinvoices}) {
     my %dunnings_for;
 
@@ -214,6 +222,7 @@ sub save_dunning {
       push @{ $level }, { "row"                    => $i,
                           "invoice_id"             => $form->{"inv_id_$i"},
                           "customer_id"            => $form->{"customer_id_$i"},
+                          "language_id"            => $form->{"language_id_$i"},
                           "next_dunning_config_id" => $form->{"next_dunning_config_id_$i"},
                           "email"                  => $form->{"email_$i"}, };
     }
@@ -221,7 +230,9 @@ sub save_dunning {
     foreach my $levels (values %dunnings_for) {
       foreach my $level (values %{ $levels }) {
         next unless scalar @{ $level };
-
+        if (!$form->{force_lang}) {
+          $form->{language_id} = @{$level}[0]->{language_id};
+        }
         DN->save_dunning(\%myconfig, $form, $level);
       }
     }
@@ -233,11 +244,17 @@ sub save_dunning {
       my $level = [ { "row"                    => $i,
                       "invoice_id"             => $form->{"inv_id_$i"},
                       "customer_id"            => $form->{"customer_id_$i"},
+                      "language_id"            => $form->{"language_id_$i"},
                       "next_dunning_config_id" => $form->{"next_dunning_config_id_$i"},
                       "email"                  => $form->{"email_$i"}, } ];
+      if (!$form->{force_lang}) {
+        $form->{language_id} = @{$level}[0]->{language_id};
+      }
       DN->save_dunning(\%myconfig, $form, $level);
     }
   }
+
+  $form->{language_id} = $saved_language_id;
 
   if($form->{DUNNING_PDFS}) {
     DN->melt_pdfs(\%myconfig, $form, $form->{copies});
@@ -352,6 +369,7 @@ sub show_dunning {
     'checkbox'            => { 'text' => '', 'visible' => 'HTML' },
     'dunning_description' => { 'text' => $locale->text('Dunning Level') },
     'customername'        => { 'text' => $locale->text('Customername') },
+    'language'            => { 'text' => $locale->text('Language') },
     'invnumber'           => { 'text' => $locale->text('Invnumber') },
     'transdate'           => { 'text' => $locale->text('Invdate') },
     'duedate'             => { 'text' => $locale->text('Invoice Duedate') },
@@ -364,12 +382,12 @@ sub show_dunning {
   );
 
   $report->set_columns(%column_defs);
-  $report->set_column_order(qw(checkbox dunning_description customername invnumber transdate
+  $report->set_column_order(qw(checkbox dunning_description customername language invnumber transdate
                                duedate amount dunning_date dunning_duedate fee interest salesman));
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
 
   my $edit_url  = sub { build_std_url('script=' . ($_[0]->{invoice} ? 'is' : 'ar') . '.pl', 'action=edit', 'callback') . '&id=' . $::form->escape($_[0]->{id}) };
-  my $print_url = build_std_url('action=print_dunning', 'format=pdf', 'media=screen') . '&dunning_id=';
+  my $print_url = sub { build_std_url('action=print_dunning', 'format=pdf', 'media=screen', 'dunning_id='.$_[0]->{dunning_id}, 'language_id=' . $_[0]->{language_id}) };
   my $sort_url  = build_std_url('action=show_dunning', grep { $form->{$_} } @filter_field_list);
 
   foreach my $name (qw(dunning_description customername invnumber transdate duedate dunning_date dunning_duedate salesman)) {
@@ -396,6 +414,10 @@ sub show_dunning {
       $first_row_for_dunning = 1;
     }
 
+    if ($ref->{'language_id'}) {
+      $ref->{language} = SL::DB::Manager::Language->find_by('id' => $ref->{'language_id'})->{'description'};
+    }
+
     my $row = { };
     foreach my $column (keys %{ $ref }) {
       $row->{$column} = {
@@ -404,7 +426,7 @@ sub show_dunning {
         'align' => $alignment{$column},
 
         'link'  => (  $column eq 'invnumber'           ? $edit_url->($ref)
-                    : $column eq 'dunning_description' ? $print_url . E($ref->{dunning_id})
+                    : $column eq 'dunning_description' ? $print_url->($ref)
                     :                                    ''),
       };
     }
@@ -415,6 +437,13 @@ sub show_dunning {
       'valign'   => 'center',
       'align'    => 'center',
     };
+
+    if ($first_row_for_dunning) {
+      $row->{language} = {'raw_data' => $cgi->hidden('-name' => "language_id_$i", '-value' => $ref->{language_id})
+                                        . " $ref->{language}" };
+    } else {
+      $row->{language} = { };
+    }
 
     push @{ $current_dunning_rows }, $row;
 
@@ -432,6 +461,8 @@ sub show_dunning {
 
   $report->set_options_from_form();
 
+  $form->{onload} = "document.getElementsByName('language_id')[0].disabled =
+        !document.getElementsByName('force_lang')[0].checked;";
   $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();
@@ -448,6 +479,7 @@ sub print_dunning {
   $form->{rowcount}     = 1;
   $form->{selected_1}   = 1;
   $form->{dunning_id_1} = $form->{dunning_id};
+  $form->{language_id_1} = $form->{language_id};
 
   print_multiple();
 
@@ -466,6 +498,7 @@ sub print_multiple {
   $form->{title} = $locale->text('Print dunnings');
 
   my @dunning_ids = map { $form->{"dunning_id_$_"} } grep { $form->{"selected_$_"} } (1..$form->{rowcount});
+  my @language_ids = map { $form->{"language_id_$_"} } grep { $form->{"selected_$_"} } (1..$form->{rowcount});
 
   if (!scalar @dunning_ids) {
     $form->error($locale->text('No dunnings have been selected for printing.'));
@@ -473,10 +506,17 @@ sub print_multiple {
 
   $form->{DUNNING_PDFS} = [];
 
+  my $saved_language_id = $form->{language_id};
+  my $i = 0;
   foreach my $dunning_id (@dunning_ids) {
+    if (!$form->{force_lang}) {
+      $form->{language_id} = $language_ids[$i];
+    }
     DN->print_invoice_for_fees(\%myconfig, $form, $dunning_id);
     DN->print_dunning(\%myconfig, $form, $dunning_id);
+    $i++;
   }
+  $form->{language_id} = $saved_language_id;
 
   if (scalar @{ $form->{DUNNING_PDFS} }) {
     $form->{dunning_id} = strftime("%Y%m%d", localtime time);

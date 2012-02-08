@@ -509,7 +509,7 @@ sub get_invoices {
 
   $query =
     qq|SELECT
-         a.id, a.ordnumber, a.transdate, a.invnumber, a.amount,
+         a.id, a.ordnumber, a.transdate, a.invnumber, a.amount, a.language_id,
          ct.name AS customername, a.customer_id, a.duedate,
          a.amount - a.paid AS open_amount,
 
@@ -669,7 +669,7 @@ sub get_dunning {
   my $sortorder = join ', ', map { "$_ $sortdir" } @{ $sort_columns{$sortkey} };
 
   my $query =
-    qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount,
+    qq|SELECT a.id, a.ordnumber, a.invoice, a.transdate, a.invnumber, a.amount, a.language_id,
          ct.name AS customername, ct.id AS customer_id, a.duedate, da.fee,
          da.interest, dn.dunning_description, da.transdate AS dunning_date,
          da.duedate AS dunning_duedate, da.dunning_id, da.dunning_config_id,

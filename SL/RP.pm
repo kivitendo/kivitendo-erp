@@ -521,7 +521,7 @@ sub get_accounts_g {
                      FROM acc_trans acc
                      INNER JOIN chart c ON (acc.chart_id = c.id AND c.link LIKE '%AR_paid%')
                      WHERE 1=1 $inwhere AND acc.trans_id = ac.trans_id)
-                  / (SELECT amount FROM ar WHERE id = ac.trans_id)
+                  / COALESCE((SELECT amount FROM ar WHERE id = ac.trans_id and amount != 0 ), 1)
                 ) AS amount, c.pos_eur
        FROM acc_trans ac
        LEFT JOIN chart c ON (c.id  = ac.chart_id)
