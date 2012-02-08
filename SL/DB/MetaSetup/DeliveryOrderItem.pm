@@ -32,6 +32,7 @@ __PACKAGE__->meta->setup(
     marge_price_factor => { type => 'numeric', default => 1, precision => 5, scale => 15 },
     itime              => { type => 'timestamp', default => 'now()' },
     mtime              => { type => 'timestamp' },
+    pricegroup_id      => { type => 'integer' },
   ],
 
   primary_key_columns => [ 'id' ],
