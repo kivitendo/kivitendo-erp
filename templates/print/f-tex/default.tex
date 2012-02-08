@@ -103,10 +103,10 @@
 \newcommand{\transdate}{<%transdate%>}                     % Lieferscheindatum
 \newcommand{\terms}{<%terms%>}                             % Zahlungsfrist
 \newcommand{\duedate}{<%duedate%>}                         % Fälligkeitsdatum
-\newcommand{\invtotal}{<%invtotal%>}                       % Gesamtbetrag
-\newcommand{\paid}{<%paid%>}                               % Schon bezahlt
-\newcommand{\total}{<%total%>}                             % Restbetrag
-\newcommand{\subtotal}{<%subtotal NOFORMAT%>}                       % Restbetrag
+\newcommand{\invtotal}{<%invtotal NOFORMAT%>}              % Gesamtbetrag
+\newcommand{\paid}{<%paid NOFORMAT%>}                      % Schon bezahlt
+\newcommand{\total}{<%total NOFORMAT%>}                    % Restbetrag
+\newcommand{\subtotal}{<%subtotal NOFORMAT%>}              % Restbetrag
 \newcommand{\paymentterms}{<%payment_terms%>}              % Zahlungsbedingungen
 \newcommand{\paymentPrivatEnd}{E}                          % Endung bei Privatkunden
 \newcommand{\paymenttype}{<%payment_description%>}         % name der Zahlungs-art - fuer Steuerung brutto/netto
@@ -357,7 +357,7 @@
 %======Die eigentliche-Tabelle========================================
 
 % temporaere Datei mit Tabelle anlegen
-\begin{filecontents}{tabelle.tex}
+\begin{filecontents}{<%tmpfile%>.table.tex}
 \mainfont
 \resetlaufsumme
 
@@ -489,7 +489,7 @@
   }
 \end{filecontents}  % Ende der Hilfsdatei.
 
-\LTXtable{\textwidth}{tabelle.tex}
+\LTXtable{\textwidth}{<%tmpfile%>.table.tex}
 
 \rule{\textwidth}{0pt}   % Ein (unsichtbarer) Strich quer ueber die Seite
 \vspace{ 5mm}
