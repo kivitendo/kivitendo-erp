@@ -26,6 +26,7 @@ __PACKAGE__->meta->setup(
     addr4     => { type => 'text' },
     homephone => { type => 'text' },
     workphone => { type => 'text' },
+    deleted   => { type => 'boolean', default => 'false' },
   ],
 
   primary_key_columns => [ 'id' ],
