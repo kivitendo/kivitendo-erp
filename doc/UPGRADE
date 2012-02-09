@@ -27,6 +27,14 @@ Es sind zwei neue Abhängigkeiten dazugekommen.
 * JSON
 * String::ShellQuote
 
+3. CSV-Import wurde neu in Perl implementiert
+
+Der PHP-Code wurde entfernt. Automatische Skripte, die per Aufruf von
+lxo-import/partsB.php?cron=1 die Datei parts.csv importiert haben,
+funktionieren nicht mehr.  Stattdessen kann scripts/csv-import-from-shell.sh
+benutzt werden. Im Unterschied zur PHP-Version werden unbekannte Warengruppen
+nicht mehr automatisch angelegt, stattdessen bricht das Skript ab.
+
 
 Upgrade auf v2.6.3
 ==================
