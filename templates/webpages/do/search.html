@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %][% USE LxERP %]<body onload="on_load();">
 
  [%- IF vc == 'customer' %]
@@ -72,27 +73,13 @@
 
     <tr>
      <th align="right">[% 'Employee' | $T8 %]</th>
-     <td>
-      <select name="employee_id" class="fixed_width">
-       <option></option>
-       [%- FOREACH row = ALL_EMPLOYEES %]
-       <option value="[% HTML.escape(row.id) %]">[% IF row.name %][% HTML.escape(row.name) %][% ELSE %][% HTML.escape(row.login) %][% END %]</option>
-       [%- END %]
-      </select>
-     </td>
+     <td>[% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, title='safe_name', with_empty=1), class='fixed_width') %]</td>
     </tr>
 
     [%- IF is_customer %]
     <tr>
      <th align="right">[% 'Salesman' | $T8 %]</th>
-     <td>
-      <select name="salesman_id" class="fixed_width">
-       <option></option>
-       [%- FOREACH row = ALL_SALESMEN %]
-       <option value="[% HTML.escape(row.id) %]">[% IF row.name %][% HTML.escape(row.name) %][% ELSE %][% HTML.escape(row.login) %][% END %]</option>
-       [%- END %]
-      </select>
-     </td>
+     <td>[% L.select_tag('salesman_id', L.options_for_select(ALL_EMPLOYEES, title='safe_name', with_empty=1), class='fixed_width') %]</td>
     </tr>
     [%- END %]
 

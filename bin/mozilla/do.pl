@@ -448,9 +448,8 @@ sub search {
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS",
                                        "all" => 1 },
-                   "employees"    => "ALL_EMPLOYEES",
-                   "salesmen"     => "ALL_SALESMEN",
                    "$form->{vc}s" => "ALL_VC");
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
   $form->{jsscript}          = 1;
