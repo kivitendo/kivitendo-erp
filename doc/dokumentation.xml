@@ -398,7 +398,6 @@ user     = postgres
 password =
 
 [system]
-eur = 1
 dbcharset = UTF-8</programlisting>
 
         <para>Nutzt man wiederkehrende Rechnungen, kann man unter

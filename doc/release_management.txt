@@ -36,8 +36,20 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Changelog aktualisieren.
 
   - Im Changelog sollten sämtliche behobenen Bugs seit der letzten Version
-    aufgeführt sein. (TODO ist mit ein bisschen SQL Magie direkt aus der
-    Bugzilla Datenbank holbar, diese Magie hier möglichst dokumentieren).
+    aufgeführt sein.
+
+    Beispiel für semiautomatisches bearbeiten:
+
+    o Letztes Releasedatum: git log --pretty=format:%cd <release-tag> | head -1
+    o Alle Bugs seit dem mit der Buzilla advanced search suchen:
+      + Bugs changed
+      + Only bugs changed between <letztes Releasedatum> and Now
+      + where only one or more of the following changed: "Resolution"
+      + and the new value was: "FIXED"
+    o columns ändern auf nur "Full Summary"
+    o copy&paste in eine Datei
+    o perl -pale '$_="  - Bugfix $F[0]: @F[1..$#F]"' oder awk/sed drüber
+
   - Ausserdem einmal durch das git scrollen und sinnvolle grössere Änderungen
     ins changelog übertragen. Muss nur einmal gemacht werden, möglichst danach
     nur noch inkrementell.
@@ -109,7 +121,9 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * SL::DB::Helper::ALL auf Vollständigkeit prüfen
 
-  (TODO: Mag da einer ein Script für schreiben?)
+  (TODO: Mag da einer ein Script für schreiben?
+     find SL/DB -type f | grep -v MetaSetup | grep -v Helper | grep -v Manager | sort
+   hilft, kriegt aber die Sortierung durcheinander)
 
 * VERSION updaten
 
@@ -121,13 +135,13 @@ als freundliche Checkliste zum ausdrucken und erweitern.
   - Der git tag ist "release-<version>"
   - Das DB Ipgradescript ist "release_<snake_case_version>"
 
-* Datenbankupgradescript "release_2_6_1" (mit aktueller Releasenummer)
-  erstellen und alle Leafscripte als Abhängigkeit einsetzen. Leafscripte
-  kriegt man mit
+* Nur finales Release: Datenbankupgradescript "release_2_6_1" (mit aktueller
+  Releasenummer) erstellen und alle Leafscripte als Abhängigkeit einsetzen.
+  Leafscripte kriegt man mit
 
   $ scripts/dbupgrade2_tool.pl --nodeps
 
-* Voraussichtliches finales Releasedatum im changelog eintragen
+* Voraussichtliches Releasedatum im changelog eintragen
 
 * Finaler Testlauf:
 

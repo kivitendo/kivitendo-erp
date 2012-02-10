@@ -20,6 +20,8 @@ __PACKAGE__->meta->setup(
   ],
 
   primary_key_columns => [ 'assembly_id' ],
+
+  allow_inline_column_values => 1,
 );
 
 1;

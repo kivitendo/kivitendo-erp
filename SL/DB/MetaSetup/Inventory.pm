@@ -23,7 +23,7 @@ __PACKAGE__->meta->setup(
     trans_id      => { type => 'integer', not_null => 1 },
     trans_type_id => { type => 'integer', not_null => 1 },
     project_id    => { type => 'integer' },
-    chargenumber  => { type => 'text' },
+    chargenumber  => { type => 'text', default => '', not_null => 1 },
     comment       => { type => 'text' },
     bestbefore    => { type => 'date' },
     id            => { type => 'serial', not_null => 1 },
