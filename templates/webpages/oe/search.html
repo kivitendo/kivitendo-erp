@@ -54,34 +54,11 @@
     </tr>
     <tr>
      <th align="right">[% 'Employee' | $T8 %]</th>
-     <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name          = 'employee_id',
-                 style         = 'width: 250px',
-                 DATA          =  ALL_EMPLOYEES,
-                 id_key        = 'id',
-                 label_sub     = 'employee_labels',
-                 limit         = vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 0,
-                 default       = ' ',
-            -%]
-     </td>
+     <td>[% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, title='safe_name', with_empty=1), style='width:250px') %]</td>
     </tr>
     <tr>
      <th align="right">[% 'Salesman' | $T8 %]</th>
-     <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name          = 'salesman_id',
-                 style         = 'width: 250px',
-                 DATA          =  ALL_SALESMEN,
-                 id_key        = 'id',
-                 label_sub     = 'salesman_labels',
-                 limit         = vclimit,
-                 show_empty    = 1,
-                 allow_textbox = 0,
-            -%]
-     </td>
+     <td>[% L.select_tag('salesman_id', L.options_for_select(ALL_EMPLOYEES, title='safe_name', with_empty=1), style='width:250px') %]</td>
     </tr>
     <tr>
      <th align="right">[% 'Transaction description' | $T8 %]</th>

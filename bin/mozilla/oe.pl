@@ -708,16 +708,13 @@ sub search {
   # setup vendor / customer data
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "employees"    => "ALL_EMPLOYEES",
-                   "salesmen"     => "ALL_SALESMEN",
                    "departments"  => "ALL_DEPARTMENTS",
                    "$form->{vc}s" => "ALL_VC");
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   # constants and subs for template
   $form->{jsscript}        = 1;
-  $form->{employee_labels} = sub { $_[0]->{"name"} || $_[0]->{"login"} };
   $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
-  $form->{salesman_labels} = $form->{employee_labels};
 
   $form->header();
 
