@@ -217,8 +217,8 @@ sub search {
   $::form->all_departments(\%::myconfig);
   $::form->get_lists(
     projects  => { key => "ALL_PROJECTS", all => 1 },
-    employees => "ALL_EMPLOYEES",
   );
+  $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   my $onload = "focus()"
              . qq|;setupDateFormat('|. $::myconfig{dateformat} . qq|', '| . $::locale->text("Falsches Datumsformat!") . qq|')|

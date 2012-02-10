@@ -44,7 +44,7 @@
         </tr>
  <tr>
     <th align=right>[% 'Employee' | $T8 %]</th>
-    <td colspan=3>[% L.select_tag('employee', L.options_for_select(ALL_EMPLOYEES, value_sub=\employee_label, title='name', with_empty=1)) %]</td>
+    <td colspan=3>[% L.select_tag('employee', L.options_for_select(ALL_EMPLOYEES, title='safe_name', with_empty=1)) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Filter date by' | $T8 %]</th>
