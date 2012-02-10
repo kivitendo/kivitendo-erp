@@ -8,9 +8,13 @@
 
 use strict;
 use File::Find;
-use LWP::Simple;
-use Test::More tests => 1;
-use URI::Find;
+use Test::More;
+
+if (eval " use LWP::Simple; use URI::Find; 1 ") {
+  plan tests => 1;
+} else {
+  plan skip_all => "LWP::Simple or URI::Find not installed";
+}
 
 my @fails;
 
