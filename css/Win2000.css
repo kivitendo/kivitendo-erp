@@ -109,7 +109,7 @@ body.menu {
     border-width:thin;
 }
 
-.listtop {
+.listtop,h1 {
   background-color: #b8d1f3;
   text-align:left;
   padding:5px;
