@@ -30,6 +30,11 @@ sub redirect_to {
   my $self = shift;
   my $url  = $self->url_for(@_);
 
+  if ($self->delay_flash_on_redirect) {
+    require SL::Helper::Flash;
+    SL::Helper::Flash::delay_flash();
+  }
+
   print $::request->{cgi}->redirect($url);
 }
 
@@ -150,6 +155,14 @@ sub _run_hooks {
       $self->$sub;
     }
   }
+}
+
+#
+#  behaviour. override these
+#
+
+sub delay_flash_on_redirect {
+  0;
 }
 
 #
@@ -481,6 +494,12 @@ If neither restriction is used then the code will be run for any
 action.
 
 The hook's return values are discarded.
+
+=item delay_flash_on_redirect
+
+May be overridden by a controller. If this method returns true, redirect_to
+will delay all flash messages for the current request. Defaults to false for
+compatibility reasons.
 
 =back
 
