@@ -331,8 +331,6 @@ sub form_header {
                    "projects"      => { "key"      => "ALL_PROJECTS",
                                         "all"      => 0,
                                         "old_id"   => \@old_project_ids },
-                   "employees"     => "ALL_EMPLOYEES",
-                   "salesmen"      => "ALL_SALESMEN",
                    "taxzones"      => "ALL_TAXZONES",
                    "payments"      => "ALL_PAYMENTS",
                    "currencies"    => "ALL_CURRENCIES",
@@ -342,6 +340,8 @@ sub form_header {
                    "price_factors" => "ALL_PRICE_FACTORS");
 
   # label subs
+  $TMPL_VAR{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
+  $TMPL_VAR{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all(query => [
     or => [
       cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
