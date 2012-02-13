@@ -119,6 +119,11 @@ als freundliche Checkliste zum ausdrucken und erweitern.
   # listet die entsprechenden Diffs:
   $ scripts/rose_auto_create_model.pl --user=<login> --diff -n --all
 
+* Locales auf Vollständigkeit prüfen
+
+  $ scripts/locales.pl de
+  $ scripts/locales.pl de_DE
+
 * SL::DB::Helper::ALL auf Vollständigkeit prüfen
 
   (TODO: Mag da einer ein Script für schreiben?
