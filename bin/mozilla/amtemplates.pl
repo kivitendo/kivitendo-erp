@@ -63,7 +63,7 @@ sub display_template {
 
   my $form     = $main::form;
 
-  $main::auth->assert('config');
+  $main::auth->assert('admin');
 
   $form->{edit} = 0;
   display_template_form();
@@ -76,7 +76,7 @@ sub edit_template {
 
   my $form     = $main::form;
 
-  $main::auth->assert('config');
+  $main::auth->assert('admin');
 
   $form->{edit} = 1;
   display_template_form();
@@ -91,7 +91,7 @@ sub save_template {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('config');
+  $main::auth->assert('admin');
 
   $form->isblank("formname", $locale->text("You're not editing a file.")) unless ($form->{type} eq "stylesheet");
 
@@ -113,7 +113,7 @@ sub display_template_form {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('config');
+  $main::auth->assert('admin');
 
   if ($form->{"formname"} =~ m|\.\.| || $form->{"formname"} =~ m|^/|) {
     $form->{"formname"} =~ s|.*/||;
