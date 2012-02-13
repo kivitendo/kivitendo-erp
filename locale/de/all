@@ -152,6 +152,7 @@ $self->{texts} = {
   'Add unit'                    => 'Einheit hinzuf&uuml;gen',
   'Address'                     => 'Adresse',
   'Administration'              => 'Administration',
+  'Administration (Used to access instance administration from user logins)' => 'Administration (Für die Verwaltung der aktuellen Instanz aus einem Userlogin heraus)',
   'Administration area'         => 'Administration',
   'Advance turnover tax return' => 'Umsatzsteuervoranmeldung',
   'Aktion'                      => 'Aktion',
