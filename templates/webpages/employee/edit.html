@@ -1,0 +1,9 @@
+<h1>[% title | html %]</h1>
+
+[% PROCESS 'common/flash.html' %]
+
+[% PROCESS 'employee/_form.html' employee=SELF.employee %]
+
+<hr>
+
+[% PROCESS 'employee/_list.html' %]
