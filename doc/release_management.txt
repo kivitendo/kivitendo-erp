@@ -13,7 +13,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * Etwa einen Monat vor dem Release wird eine Beta herausgegeben.
 
-* (TODO: Reease Candidates Zeitplan).
+* (TODO: Release Candidates Zeitplan).
 
 
 
