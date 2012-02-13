@@ -192,3 +192,8 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Alle Releasemessages von mindestens einer Person Korrektur lesen lassen
 
 * Webseite aktualisieren, Releasemessages auf freshmeat und Mailinglisten posten
+
+
+3. POST RELEASE
+
+* Im Bugzilla die aktuelle Version ergänzen, damit dafür Bugs eingespielt werden können.
