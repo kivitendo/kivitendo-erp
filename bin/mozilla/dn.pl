@@ -301,8 +301,8 @@ sub search {
   $main::auth->assert('dunning_edit');
 
   $form->get_lists("customers"   => "ALL_CUSTOMERS",
-                   "departments" => "ALL_DEPARTMENTS",
-                   "salesmen"     => "ALL_SALESMEN");
+                   "departments" => "ALL_DEPARTMENTS");
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   DN->get_config(\%myconfig, \%$form);
 
@@ -313,7 +313,6 @@ sub search {
   $form->{jsscript} = 1;
   $form->{title}    = $locale->text('Dunnings');
   $form->{fokus}    = "search.customer";
-  $form->{salesman_labels} = sub { $_[0]->{"name"} || $_[0]->{"login"} };
 
   $form->header();
 
