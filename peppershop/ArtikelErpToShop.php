@@ -1,0 +1,75 @@
+<?php
+$api = php_sapi_name();
+if ( $api != "cli" ) {
+    echo "<html>\n<head>\n<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>\n</head>\n<body>\n";
+    @apache_setenv('no-gzip', 1);
+    @ini_set('zlib.output_compression', 0);
+    @ini_set('implicit_flush', 1);
+    $shopnr = $_GET["Shop"];
+    $nofiles = ( $_GET["nofiles"] == '1' )?true:false;
+} else {
+    if ( $argc > 1 ) {
+        $tmp = explode("=",trim($argv[1]));
+        if ( count($tmp) != 2 ) {
+            echo "Falscher Aufruf: php <scriptname.php> shop=1\n";
+            exit (-1);
+        } else {
+            $shopnr = $tmp[1];
+        }
+    }
+}
+
+include_once("conf$shopnr.php");
+include_once("error.php");
+include_once("dblib.php");
+include_once("pepper.php");
+include_once("erplib.php");
+include_once("Picture.php");
+
+//Fehlerinstanz
+$err = new error($api);
+
+//Bilder
+$pict = new picture($ERPftphost,$ERPftpuser,$ERPftppwd,$ERPimgdir,$SHOPftphost,$SHOPftpuser,$SHOPftppwd,$SHOPimgdir,$err);
+//$pict->original = false;
+
+//ERP-Instanz
+$erpdb = new mydb($ERPhost,$ERPdbname,$ERPuser,$ERPpass,$ERPport,'pgsql',$err);
+if ($erpdb->db->connected_database_name == $ERPdbname) {
+    $erp = new erp($erpdb,$err,$divStd,$divVerm,$auftrnr,$kdnum,$preA,$preK,$invbrne,$mwstS,$OEinsPart,$lager);
+} else {
+    $err->out('Keine Verbindung zur ERP',true);
+    exit();
+}
+//Shop-Instanz
+$shopdb = new mydb($SHOPhost,$SHOPdbname,$SHOPuser,$SHOPpass,$SHOPport,'mysql',$err);
+if ($shopdb->db->connected_database_name == $SHOPdbname) {
+     $shop = new pepper($shopdb,$err,$SHOPdbname,$divStd,$divVerm,$minder,$nachn,$versandS,$versandV,$paypal,$treuhand,$mwstLX,$mwstS,$variantnr,$pict,$nopic,$nopicerr,$nofiles);
+} else {
+    $err->out('Keine Verbindung zum Shop',true);
+    exit();
+}
+$artikel = $erp->getParts($pricegroup);
+$lang = $shop->getLang("de");
+$cnt = 0;
+$errors = 0;
+
+if ( $api != 'cli' ) ob_start();
+
+$err->out("Artikelexport für Shop $shopnr",true);
+
+if ($artikel) foreach ($artikel as $row) {
+    $rc = $shop->saveArtikel($row,"de");
+    if ($rc) { 
+       $cnt++;
+       if ( $cnt % 10 == 0 ) $err->out(".");  
+    } else {
+       $errors++;
+    }
+}
+$err->out('',true);
+$err->out("$cnt Artikel übertragen, $errors Artikel nicht",true);
+if ( $api != "cli" ) {
+    echo "</body>\n</html>\n";
+}
+?>
