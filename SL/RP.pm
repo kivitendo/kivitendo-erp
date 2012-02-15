@@ -522,7 +522,7 @@ sub get_accounts_g {
                      INNER JOIN chart c ON (acc.chart_id = c.id AND c.link LIKE '%AR_paid%')
                      WHERE 1=1 $inwhere AND acc.trans_id = ac.trans_id)
                   / COALESCE((SELECT amount FROM ar WHERE id = ac.trans_id and amount != 0 ), 1)
-                ) AS amount, c.pos_eur
+                ) AS amount, c.$category
        FROM acc_trans ac
        LEFT JOIN chart c ON (c.id  = ac.chart_id)
        LEFT JOIN ar      ON (ar.id = ac.trans_id)
@@ -535,7 +535,7 @@ sub get_accounts_g {
                                 )
       WHERE ac.trans_id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE 1=1 $subwhere)
 
-      GROUP BY c.pos_eur
+      GROUP BY c.$category
 
 /*
        SELECT SUM(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
