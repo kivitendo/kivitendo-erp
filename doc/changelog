@@ -73,6 +73,11 @@ Sicherheit:
 
 - Passwörter werden jetzt per Default als SHA256 gespeichert.
 
+- Der Vorlageneditor wurde unter ein neues Recht "Administration" gestellt.
+  Es ist möglich LaTeX Vorlagen zu erstellen, die Schadcode auf dem Hostsystem
+  ausführen. Es ist jetzt Benutzern mit Administratorrechten vorbehalten diese
+  zu editieren.
+
 
 API-Änderungen:
 
@@ -162,12 +167,14 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1085: Wiederkehrende/zyklische Rechnungen
   - Bugfix 1179: Ort des Perl-Binaries muss konfigurierbar sein
   - Bugfix 1187: Lieferschein-Verkaeufer-Bug - Die Dritte
+  - Bugfix 1190: GuV-Rechnung falsch bei EÜR und teilgezahlten Rechnungen
   - Bugfix 1191: Update vom Freitag hat Benutzerdefinierte Variablen/Kundenverwaltung geschossen
   - Bugfix 1275: Alte Lieferadressen lassen sich nicht entsorgen
   - Bugfix 1361: Bestelldatum als Feld einführen / Systemdatum
   - Bugfix 1413: Anzeige des Kreditlimits während der Rechnungserstellung zeigt sinnlose Werte
   - Bugfix 1415: Typo in UstVA-Vorschau
   - Bugfix 1420: Loeschen von Stornos bereitet eine Reihe von Problemen: (1)Stornorechnungen nicht beschreibbar
+  - Bugfix 1426: Artikelpreise in gebuchten Rechnungen falsch
   - Bugfix 1434: Saldo bei Lagerbewegungen aufnehmen
   - Bugfix 1443: Berichte der Waren: Bericht nach Projekt nicht moeglich
   - Bugfix 1446: Username + Passwort
@@ -184,6 +191,7 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1609: malformed script header beim speichern einer ware
   - Bugfix 1610: Berichte Waren zusätzlicher Button "alle" erwünscht
   - Bugfix 1611: Sammelrechnug offene Forderung leer
+  - Bugfix 1628: deb: Fehler im postinst
   - Bugfix 1635: Berichte Waren zeigt falsche Verkaufszahlen
   - Bugfix 1640: Buchungen werden falsch zugeordnet, wenn man Konten umkonfiguriert
   - Bugfix 1648: bebuchte Konten sollten nicht in Überschriften umgewandelt werden können
@@ -197,6 +205,7 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1678: Autoreload bei Änderungen in lx_office.conf
   - Bugfix 1679: missing javascript referenced in templates/webpages/ir/form_header.html
   - Bugfix 1681: Stammdaten - Berichte - Erzeugnisse: Spalte Einkaufspreise nicht gerundet
+  - Bugfix 1682: Gelöschte Benutzer werden in Auswahllisten angezeigt.
   - Bugfix 1683: Druck -> Lieferschein: Fehlende Rechte
   - Bugfix 1684: Benutzte Einheiten lassen sich umbenennen
   - Bugfix 1685: UStVA HTML Vorschau Zahlenformat
@@ -228,6 +237,7 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1737: Lieferschein speichern setzt zugehörigen Auftrag auf geliefert.
   - Bugfix 1738: Entwürfe können nicht gelöscht werden
   - Bugfix 1740: Feature Request: Variablen im Druckbefehl
+  - Bugfix 1742: Latex Vorlageneditor - potentielles Sicherheitsrisiko
   - Bugfix 1743: Beim installation_check auf Developer-Pakete hinweisen
   - Bugfix 1745: add missing LaTeX escaping for "soft hyphen" "­" -> "\-"
   - Bugfix 1747: Name der temporären Druckdateien nicht "zufällig" genug
@@ -251,8 +261,11 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1782: Release Management Dokumentation
   - Bugfix 1787: Winstonexport with . instead of , in numbers
   - Bugfix 1789: Metainformationen fehlen bei Mahnungen
+  - Bugfix 1792: Button Karte zu tief
   - Bugfix 1794: undef error - Can't locate object method "full_name_dep"
   - Bugfix 1797: GuV wirft SQL Fehler
+
+
 
 2011-06-15 - Release 2.6.3
 
