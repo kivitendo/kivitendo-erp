@@ -272,13 +272,14 @@ sub form_header {
                      "all"          => 0,
                      "old_id"       => \@old_project_ids
                    },
-                   "employees"      => "ALL_EMPLOYEES",
-                   "salesmen"       => "ALL_SALESMEN",
                    $vc              => "ALL_VC",
                    "price_factors"  => "ALL_PRICE_FACTORS",
                    "departments"    => "ALL_DEPARTMENTS",
                    "business_types" => "ALL_BUSINESS_TYPES",
     );
+
+  $::form->{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
+  $::form->{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $::form->{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all(query => [
     or => [
       cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
@@ -448,9 +449,8 @@ sub search {
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS",
                                        "all" => 1 },
-                   "employees"    => "ALL_EMPLOYEES",
-                   "salesmen"     => "ALL_SALESMEN",
                    "$form->{vc}s" => "ALL_VC");
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
   $form->{jsscript}          = 1;

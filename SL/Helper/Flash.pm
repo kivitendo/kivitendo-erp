@@ -5,7 +5,12 @@ use strict;
 require Exporter;
 our @ISA       = qw(Exporter);
 our @EXPORT    = qw(flash flash_later);
-our @EXPORT_OK = qw(render_flash);
+our @EXPORT_OK = qw(render_flash delay_flash);
+
+my %valid_categories = (
+  map({$_ => 'info'} qw(information message)),
+  map({$_ => $_}     qw(info error warning)),
+);
 
 #
 # public functions
@@ -19,6 +24,11 @@ sub flash_later {
   $::auth->set_session_value({ key => "FLASH", value => _store_flash($::auth->get_session_value('FLASH'), @_), auto_restore => 1 });
 }
 
+sub delay_flash {
+  my $store = $::form->{FLASH} || { };
+  flash_later($_ => @{ $store->{$_} || [] }) for keys %$store;
+}
+
 sub render_flash {
   return $::form->parse_html_template('common/flash');
 }
@@ -29,14 +39,22 @@ sub render_flash {
 
 sub _store_flash {
   my $store    = shift || { };
-  my $category = shift;
-  $category    = 'info' if $category eq 'information';
+  my $category = _check_category(+shift);
 
-  $store                ||= { };
   $store->{ $category } ||= [ ];
   push @{ $store->{ $category } }, @_;
 
   return $store;
+}
+
+sub _check_category {
+  my ($c) = @_;
+  return $valid_categories{$c}
+    ||  do {
+      require Carp;
+      Carp->import;
+      croak("invalid category '$c' for flash");
+    };
 }
 
 1;
@@ -94,6 +112,13 @@ Outputs the flash message by parsing the C<common/flash.html> template
 file.
 
 This function is not exported by default.
+
+=item C<delay_flash>
+
+Delays flash, as if all flash messages in this request would have been
+C<flash_later>
+
+Not exported by default.
 
 =back
 

@@ -213,7 +213,7 @@ sub get_accounts {
 
   # if l_ob is selected l_cb is always ignored
   if ( $form->{l_ob} ) {
-    $where .= ' AND ac.ob_transaction is true  ' 
+    $where .= ' AND ac.ob_transaction is true  '
   } elsif ( not $form->{l_cb} ) {
     $where .= ' AND ac.cb_transaction is false ';
   };
@@ -1237,7 +1237,7 @@ sub aging {
     WHERE ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null))
       AND NOT COALESCE (${arap}.storno, 'f')
       AND (${arap}.${ct}_id = ${ct}.id)
-      $where_dpt 
+      $where_dpt
       AND (${ct}.id = ?)
       AND (transdate <= (date $todate) $fromwhere )
       $review_of_aging_list

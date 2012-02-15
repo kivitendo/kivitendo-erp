@@ -155,14 +155,14 @@
         <tr>
           <th align="right">[% 'Employee' | $T8 %]</th>
           <td>
-            [% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, default=employee_id, title_sub=\sales_employee_labels)) %]
+            [% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, default=employee_id, title='safe_name')) %]
           </td>
         </tr>
 [%- IF ALL_SALESMEN.size %]
         <tr>
           <th align="right">[% 'Salesman' | $T8 %]</th>
           <td>
-            [% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=(salesman_id ? salesman_id : employee_id), title_sub=\sales_employee_labels)) %]
+            [% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=(salesman_id ? salesman_id : employee_id), title='safe_name')) %]
           </td>
         </tr>
 [%- END %]

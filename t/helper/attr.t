@@ -1,4 +1,4 @@
-use Test::More tests => 29;
+use Test::More tests => 32;
 
 use lib 't';
 
@@ -49,4 +49,14 @@ is($i->taxamount_as_number, '0,00');
 $i->amount(12);
 $i->netamount(10.34);
 is($i->taxamount_as_number, '1,66');
+
+$o->closed(1);
+is $o->closed_as_bool_yn, 'Ja', 'bool 1';
+$o->closed(0);
+is $o->closed_as_bool_yn, 'Nein', 'bool 2';
+
+# undef test: this only works for columns without default, rose will set
+# defaults according to the database
+$i->taxincluded(undef);
+is $i->taxincluded_as_bool_yn, '', 'bool 3';
 

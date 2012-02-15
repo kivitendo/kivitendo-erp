@@ -314,17 +314,17 @@ sub form_header {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->get_lists(employees  => "ALL_EMPLOYEES",
-                   taxzones   => "ALL_TAXZONES",
+  $form->get_lists(taxzones   => "ALL_TAXZONES",
                    currencies => "ALL_CURRENCIES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
   $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::lx_office_conf{features}->{vertreter};
+  $form->{ALL_EMPLOYEES}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{FU_created_for_user},  deleted => 0 ] ]);
+  $form->{ALL_SALESMEN}           = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
+  $form->{USER}                   = SL::DB::Manager::Employee->current;
 
-  $form->{ALL_SALESMEN}   = $form->{ALL_EMPLOYEES};
   $form->{taxincluded}    = ($form->{taxincluded}) ? "checked" : "";
   $form->{is_customer}    = $form->{db}     eq 'customer';
-  $form->{salesman_label} = sub { $_[0]->{name} ne "" ? $_[0]->{name} : $_[0]->{login} };
   $form->{shipto_label}   = \&_shipto_label;
   $form->{contacts_label} = \&_contacts_label;
   $form->{taxzone_id}     = 0                                                               if !$form->{id};

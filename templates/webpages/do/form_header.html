@@ -258,13 +258,7 @@
          [% IF row.id == employee_id %][%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %][% END %]
          [%- END %]
          [%- ELSE %]
-         <select name="employee_id">
-          [%- FOREACH row = ALL_EMPLOYEES %]
-          <option value="[% HTML.escape(row.id) %]"[% IF row.id == employee_id %] selected[% END %]>
-           [%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %]
-          </option>
-          [%- END %]
-         </select>
+           [% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, default=employee_id, title='safe_name')) %]
          [%- END %]
         </td>
        </tr>
@@ -284,13 +278,7 @@
          [% IF row.id == the_salesman_id %][%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %][% END %]
          [%- END %]
          [%- ELSE %]
-         <select name="salesman_id">
-          [%- FOREACH row = ALL_SALESMEN %]
-          <option value="[% HTML.escape(row.id) %]"[% IF row.id == the_salesman_id %] selected[% END %]>
-           [%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %]
-          </option>
-          [%- END %]
-         </select>
+          [% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=(salesman_id ? salesman_id : employee_id), title='safe_name')) %]
          [%- END %]
         </td>
        </tr>

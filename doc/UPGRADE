@@ -7,33 +7,51 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 Upgrade auf v2.7.0
 ==================
 
-1. Templateumstellungen
+* In der Version 2.7.0 wird das XUL Menü entfernt. Alle Benutzer die das XUL
+  Menü noch eingestellt haben, werden beim ersten Einloggen auf ein anderes
+  Menü gesetzt.
 
-Das Druckvorlagensystem wurde umgestellt, dadurch ist der Name "print" für
-Druckvorlagen jetzt reserviert. Wenn eine Ihrer Vorlagensätze "print" heisst,
-benennen Sie ihn um bevor Sie das Update starten.
+* Das Lizenzenfeature wurde ersatzlos entfernt.
 
-2. Neue Abhängigkeiten
+* In den LaTeX Vorlagen wurde der Befehl "pagebreak" und die dazugehörigen
+  "sumcarriedforward" und "lastpage" entfernt. Alle Vorlagen die auf diesen
+  Informationen basieren müssen überarbeitet werden. Die Standardvorlagen sind
+  entsprechend angepasst worden, und müssen in der Administration neu angelegt
+  werden.
 
-Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
+* Das Druckvorlagensystem wurde umgestellt, dadurch ist der Name "print" für
+  Druckvorlagen jetzt reserviert. Wenn eine Ihrer Vorlagensätze "print" heisst,
+  benennen Sie ihn um bevor Sie das Update starten.
 
-$ scripts/installation_check.pl
+* Neue Abhängigkeiten
 
-Sollten Module als fehlend markiert sein, folgen Sie bitte den Anweisungen in
-der Installationsanweisung.
+  * JSON
+  * String::ShellQuote
 
-Es sind zwei neue Abhängigkeiten dazugekommen.
+  Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
-* JSON
-* String::ShellQuote
+  $ scripts/installation_check.pl
 
-3. CSV-Import wurde neu in Perl implementiert
+* CSV-Import wurde neu in Perl implementiert
 
-Der PHP-Code wurde entfernt. Automatische Skripte, die per Aufruf von
-lxo-import/partsB.php?cron=1 die Datei parts.csv importiert haben,
-funktionieren nicht mehr.  Stattdessen kann scripts/csv-import-from-shell.sh
-benutzt werden. Im Unterschied zur PHP-Version werden unbekannte Warengruppen
-nicht mehr automatisch angelegt, stattdessen bricht das Skript ab.
+  Der PHP-Code wurde entfernt. Automatische Skripte, die per Aufruf von
+  lxo-import/partsB.php?cron=1 die Datei parts.csv importiert haben,
+  funktionieren nicht mehr.  Stattdessen kann scripts/csv-import-from-shell.sh
+  benutzt werden. Im Unterschied zur PHP-Version werden unbekannte Warengruppen
+  nicht mehr automatisch angelegt, stattdessen bricht das Skript ab.
+
+* Rechteverwaltung
+
+  * Das Recht "Kunden und Lieferanten bearbeiten" wurde aufgespalten in zwei
+    einzelne Rechte. Ein Updatescript passt bestehende Gruppenaentsprechend an.
+  * Das Recht "Preise nd Rabatte bearbeiten" wurde neu eingeführt und ist
+    notwendig um in Belegen Preise ändern zu können. Es wird beim Upgrade
+    automatisch allen Benutzern erteilt.
+  * Das Recht "Administration" wurde neu eingeführt, und ist dazu da
+    administrative Tätigkeiten an der Mandantendatenbank aus einm Benutzerlogin
+    heraus durchzuführen. Es ist standardmäßig NICHT vergeben.
+  * Der Vorlageneditor wurde unter das Recht Administration gestellt, warvorher
+    Konfiguration.
 
 
 Upgrade auf v2.6.3

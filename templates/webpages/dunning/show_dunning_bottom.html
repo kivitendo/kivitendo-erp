@@ -3,7 +3,7 @@
 
   <p>
     <input type="checkbox" name="force_lang" size="6" value="1" onclick="document.getElementsByName('language_id')[0].disabled = !document.getElementsByName('force_lang')[0].checked;">
-    [% 'Override invoice language' | T8 %]
+    [% 'Override invoice language' | $T8 %]
     [% PRINT_OPTIONS %]
   </p>
 

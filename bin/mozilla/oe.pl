@@ -331,8 +331,6 @@ sub form_header {
                    "projects"      => { "key"      => "ALL_PROJECTS",
                                         "all"      => 0,
                                         "old_id"   => \@old_project_ids },
-                   "employees"     => "ALL_EMPLOYEES",
-                   "salesmen"      => "ALL_SALESMEN",
                    "taxzones"      => "ALL_TAXZONES",
                    "payments"      => "ALL_PAYMENTS",
                    "currencies"    => "ALL_CURRENCIES",
@@ -342,6 +340,8 @@ sub form_header {
                    "price_factors" => "ALL_PRICE_FACTORS");
 
   # label subs
+  $TMPL_VAR{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
+  $TMPL_VAR{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all(query => [
     or => [
       cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
@@ -708,16 +708,13 @@ sub search {
   # setup vendor / customer data
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "employees"    => "ALL_EMPLOYEES",
-                   "salesmen"     => "ALL_SALESMEN",
                    "departments"  => "ALL_DEPARTMENTS",
                    "$form->{vc}s" => "ALL_VC");
+  $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   # constants and subs for template
   $form->{jsscript}        = 1;
-  $form->{employee_labels} = sub { $_[0]->{"name"} || $_[0]->{"login"} };
   $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
-  $form->{salesman_labels} = $form->{employee_labels};
 
   $form->header();
 

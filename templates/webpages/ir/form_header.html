@@ -125,13 +125,7 @@
       <table>
         <tr>
           <th align="right">[% 'Employee' | $T8 %]</th>
-          <td>
-            [%- INCLUDE 'generic/multibox.html'
-                 name       = 'employee_id',
-                 DATA       = ALL_EMPLOYEES,
-                 id_key     = 'id',
-                 label_sub  = 'sales_employee_labels' -%]
-          </td>
+          <td>[% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, default=employee_id, title='safe_name')) %]</td>
         </tr>
 
 [%- IF is_type_credit_note %]

@@ -979,6 +979,7 @@ sub all_rights_full {
     ["--others",                       $locale->text("Others")],
     ["email_bcc",                      $locale->text("May set the BCC field when sending emails")],
     ["config",                         $locale->text("Change Lx-Office installation settings (all menu entries beneath 'System')")],
+    ["admin",                          $locale->text("Administration (Used to access instance administration from user logins)")],
     );
 
   return @all_rights;

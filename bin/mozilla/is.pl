@@ -304,14 +304,14 @@ sub form_header {
                    "projects"      => { "key"    => "ALL_PROJECTS",
                                         "all"    => 0,
                                         "old_id" => \@old_project_ids },
-                   "employees"     => "ALL_EMPLOYEES",
-                   "salesmen"      => "ALL_SALESMEN",
                    "taxzones"      => "ALL_TAXZONES",
                    "currencies"    => "ALL_CURRENCIES",
                    "customers"     => "ALL_CUSTOMERS",
                    "departments"   => "all_departments",
                    "price_factors" => "ALL_PRICE_FACTORS");
 
+  $TMPL_VAR{ALL_EMPLOYEES}         = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{employee_id},  deleted => 0 ] ]);
+  $TMPL_VAR{ALL_SALESMEN}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $TMPL_VAR{ALL_CONTACTS}          = SL::DB::Manager::Contact->get_all(query => [
     or => [
       cp_cv_id => $::form->{"$::form->{vc}_id"} * 1,
@@ -321,7 +321,6 @@ sub form_header {
       ]
     ]
   ]);
-  $TMPL_VAR{sales_employee_labels} = sub { $_[0]->{name} || $_[0]->{login} };
   $TMPL_VAR{shipto_labels}         = sub { join "; ", grep { $_ } map { $_[0]->{"shipto${_}" } } qw(name department_1 street city) };
   $TMPL_VAR{department_labels}     = sub { "$_[0]->{description}--$_[0]->{id}" };
 

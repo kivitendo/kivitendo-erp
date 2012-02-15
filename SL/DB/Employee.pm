@@ -12,4 +12,10 @@ sub has_right {
   return $::auth->check_right($self->login, $right);
 }
 
+sub safe_name {
+  my ($self) = @_;
+
+  return $self->name || $self->login;
+}
+
 1;

@@ -279,15 +279,7 @@
       </td>
       [%- IF is_customer && !conf_vertreter %]
       <th align="right">[% 'Salesman' | $T8 %]</th>
-      <td>
-       [%- INCLUDE generic/multibox.html
-             name       = 'salesman_id',
-             DATA       = ALL_SALESMEN,
-             show_empty = 1,
-             id_key     = 'id',
-             label_sub  = 'salesman_label',
-       -%]
-      </td>
+      <td>[% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=salesman_id, show_empty=1, title='safe_name')) %]</td>
       [%- END %]
      </tr>
     </table>
@@ -407,13 +399,7 @@
         <input name="FU_date" id="FU_date" value="[% HTML.escape(FU_date) %]" size="12">
         <input type="button" name="FU_date_button" id="FU_date_trigger" value="?">
         [% 'for' | $T8 %]
-        <select name="FU_created_for_user">
-         [%- FOREACH row = ALL_EMPLOYEES %]
-         <option value="[% HTML.escape(row.id) %]"[% IF (NOTE_id && (row.id == FU_created_for_user)) || (row.login == login) %] selected[% END %]>
-          [%- IF row.name %][%- HTML.escape(row.name) %] ([% HTML.escape(row.login) %])[% ELSE %][% HTML.escape(row.login) %][% END %]
-         </option>
-         [%- END %]
-        </select>
+        [% L.select_tag('FU_created_for_user', L.options_for_select(ALL_EMPLOYEES, default=(FU_created_for_user ? FU_created_for_user : USER.id), title='safe_name')) %]
        </td>
       </tr>
 
