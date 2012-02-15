@@ -172,7 +172,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Annotated tag erstellen und pushen
 
   $ git tag -a release-2.6.1
-  $ git push origin tgs/release-2.6.1
+  $ git push origin tags/release-2.6.1
 
 * Tarball erstellen
 
