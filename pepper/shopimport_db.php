@@ -71,7 +71,7 @@ global $db2,$pricegroup;
 }
 
 // Ab hier Import der Daten in den Shop
-function createCategory($name,$maingroup,$tab) {
+function createCategory($name,$maingroup,$tab,$PID) {
 global $db,$langs;
 	$newID=uniqid(rand());
 	$sql="insert into kategorien (Bild_gross,Bild_last_modified) values ('$newID',now())";
@@ -84,9 +84,12 @@ global $db,$langs;
 		$sql="select max(Positions_Nr) as Max from kategorien where  Unterkategorie_von $u";
 		$rs=$db->getAll($sql,DB_FETCHMODE_ASSOC);
 		$pos=$rs[0]["Max"]+1;
-		$sql="update kategorien set Unterkategorie_von=%s, Name='%s', Positions_Nr=%d,MwSt_Satz=%0.2f, Details_anzeigen='N', Bild_gross = Null where kategorie_ID=%d";
+		//$sql="update kategorien set Unterkategorie_von=%s, Name='%s', Positions_Nr=%d,MwSt_Satz=%0.2f, Details_anzeigen='N', Bild_gross = Null where kategorie_ID=%d";
+                $sql="update kategorien set Unterkategorie_von=%s, Name='%s', Tab_text='%s', ist_sichtbar='Y',";
+                $sql.="Positions_Nr=%d,MwSt_Satz=%0.2f, Details_anzeigen='N', Bild_gross = Null, Parent_ID=%d where kategorie_ID=%d";
 		echo "($name) ";
-		$rc=$db->query(sprintf($sql,$maingroup,$name,$pos,$mwst,$id));
+		//$rc=$db->query(sprintf($sql,$maingroup,$name,$pos,$mwst,$id));
+                $rc=$db->query(sprintf($sql,$maingroup,$name,$tab,$pos,$mwst,$PID,$id));
 		return ($rc)?$id:false;
 	} else {
 		return false;
@@ -95,6 +98,7 @@ global $db,$langs;
 function getCategory($name) {
 global $db;
 	if (empty($name)) $name="Default";
+	$name = utf8_decode($name);
 	preg_match("/^(\[(.*)\])?([^!]+)!?(.*)/",$name,$ref);
 	if ($ref[1]<>""){
 		$tab=$ref[2];
@@ -128,7 +132,7 @@ global $db;
 	if ($rs[0]["Kategorie_ID"]) {  // gefunden
 		$maingroup=$rs[0]["Kategorie_ID"];
 	} else {					// nicht gefunden, anlegen
-		$maingroup=createCategory($main,"Null","$tab");
+		$maingroup=createCategory($main,"Null","$tab",0);
 	}
 	echo $maingroup.":".$main." ";
 	if ($sub && $maingroup) {
@@ -138,37 +142,34 @@ global $db;
 		if ($rs[0]["Kategorie_ID"]) {  // gefunden
 			$maingroup=$rs[0]["Kategorie_ID"];
 		} else {					// nicht gefunden, anlegen
-			$maingroup=createCategory($sub,"'$main'","");
+			$maingroup=createCategory($sub,"'$main'","",$maingroup);
 		}
 	};
 	echo $sub." ";
 	return $maingroup;
 }
 function bilder($width,$height,$dest) {
-	if (!function_exists("imagick_readimage")) { echo "Imagick-Extention nicht installiert"; return false; };
-	$handle=imagick_readimage("./tmp/tmp.file_org");
-	if (!$handle) {
-		$reason      = imagick_failedreason( $handle ) ;
-		print "Lesen: $reason<BR>\n" ; flush();
-		return false;
-	}
-	if (!imagick_resize( $handle, $width, $height, IMAGICK_FILTER_UNKNOWN, 0)) {
-		$reason      = imagick_failedreason( $handle ) ;
-		print "Resize: $reason<BR>\n" ;	flush();
-		return false;
-	}
-	if (!imagick_writeimage( $handle,"./tmp/tmp.file_$dest")) {
-		$reason      = imagick_failedreason( $handle ) ;
-		print "Schreiben: $reason<BR>\n" ; 	flush();
-		return false;
-	}
-	return true;
+	if (!class_exists("Imagick")) { echo "Imagick-Extention nicht installiert"; return false; };
+	$handle= new Imagick();
+   	if (!$handle->readImage("./tmp/tmp.file_org")) return false;
+    $d = $handle->getImageGeometry();
+    if ($d["width"]<$d["height"]) {
+        $f = $d["width"]/$d["height"];
+        $w = floor($width*$f);
+        $h = $height;
+    } else {
+        $f = $d["height"]/$d["width"];
+        $w = $width;
+        $h = floor($height*$f);
+    }
+	$handle->thumbnailImage( $w, $h);
+	return $handle->writeImage( "./tmp/tmp.file_$dest");
 }
 function uploadImage($image,$ArtNr) {
 global $db,$ERPftphost,$ERPftpuser,$ERPftppwd,$ERPimgdir,
 		   $SHOPftphost,$SHOPftpuser,$SHOPftppwd,$SHOPimgdir,$iconsize;
 	if ($ERPftphost=="localhost") {
-		exec("cp $ERPimgdir/$image ./tmp/tmp.file_org",$aus,$rc2);
+		echo exec("cp $ERPimgdir/$image ./tmp/tmp.file_org",$aus,$rc2);
 		if ($rc2>0) { echo "[Downloadfehler: $image]<br>"; return false; };
 	} else {
 		$conn_id = ftp_connect($ERPftphost);
@@ -179,12 +180,13 @@ global $db,$ERPftphost,$ERPftpuser,$ERPftppwd,$ERPimgdir,
 		ftp_quit($conn_id);
 	};
 	bilder($iconsize,$iconsize,"smal");
+	bilder(550,550,"big");
 	$rc=preg_match("#(.+/)?([^\.]+)\.(.+)$#",$image,$treffer);
 	$gr=$treffer[2]."_gr.".$treffer[3];
 	$kl=$treffer[2]."_kl.".$treffer[3];
 	if ($SHOPftphost=="localhost") {
 		$dst=$SHOPimgdir."/".$gr;
-		exec("cp ./tmp/tmp.file_org $dst",$aus,$rc2);
+		exec("cp ./tmp/tmp.file_big $dst",$aus,$rc2);
 		if ($rc2>0) { echo "[Uploadfehler: $dst]<br>";  return false; };
 		$dst=$SHOPimgdir."/".$kl;
 		exec("cp ./tmp/tmp.file_smal $dst",$aus,$rc2);
@@ -193,7 +195,7 @@ global $db,$ERPftphost,$ERPftpuser,$ERPftppwd,$ERPimgdir,
 		$conn_id = ftp_connect($SHOPftphost);
 		ftp_login($conn_id,$SHOPftpuser,$SHOPftppwd);
 		ftp_chdir($conn_id,$SHOPimgdir);
-		$upload=ftp_put($conn_id,$SHOPimgdir."/$gr","tmp/tmp.file_org",FTP_BINARY);
+		$upload=ftp_put($conn_id,$SHOPimgdir."/$gr","tmp/tmp.file_big",FTP_BINARY);
 		if (!$upload) { echo "[Ftp Uploadfehler! $gr]<br>"; return false; };
 		$upload=ftp_put($conn_id,$SHOPimgdir."/$kl","tmp/tmp.file_smal",FTP_BINARY);
 		if (!$upload) { echo "[Ftp Uploadfehler! $kl]<br>"; return false; };
@@ -222,7 +224,7 @@ global $db,$bugru,$mwst;
 	$sql.="Name='%s',Beschreibung='%s',Lagerbestand=%d  where Artikel_ID=%d";
 	$preis=($data["sellprice"]>0)?$data["sellprice"]:$data["stdprice"];
 	if ($mwst) $preis+=$preis/100*$bugru[$data["bugru"]];
-	$sql=sprintf($sql,$preis,$data["weight"],$bugru[$data["bugru"]],$data["description"],$data["notes"],$data["onhand"],$id);
+	$sql=sprintf($sql,$preis,$data["weight"],$bugru[$data["bugru"]],utf8_decode($data["description"]),utf8_decode($data["notes"]),$data["onhand"],$id);
 	$rc=$db->query($sql);
 	$sql="update artikel_kategorie set FK_Kategorie_ID=".$data["categories_id"]." where FK_Artikel_ID=$id";
 	$rc=$db->query($sql);
@@ -263,6 +265,7 @@ global $db,$shop2erp,$mwst;
 
 $artikel=shopartikel();
 echo "Artikelexport ERP -&gt; PHPepper :".count($artikel)." Artikel markiert.<br>";
+flush();
 if ($artikel) {
     $bugru=getBugru();
 	$sql="select Thumbnail_Breite from shop_settings";
