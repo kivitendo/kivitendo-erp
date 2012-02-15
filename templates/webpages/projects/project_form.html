@@ -37,7 +37,7 @@
       <td>
        [%- SET rows = LxERP.numtextrows(project.description, 60) %]
        [%- IF rows > 1 %]
-       <textarea name="project.description" rows="rows" cols="60" style="width: 100%" wrap="soft">[% HTML.escape(project.description) %]</textarea>
+       <textarea name="project.description" rows="[% rows %]" cols="60" style="width: 100%" wrap="soft">[% HTML.escape(project.description) %]</textarea>
        [%- ELSE %]
        <input name="project.description" size="60" value="[% HTML.escape(project.description) %]">
        [%- END %]
