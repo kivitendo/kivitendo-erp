@@ -34,7 +34,9 @@ BEGIN {
   { name => "YAML",            version => '0.62',  url => "http://search.cpan.org/~ingy/",      debian => 'libyaml-perl' },
 );
 
-@optional_modules = ();
+@optional_modules = (
+  { name => "Digest::SHA",                         url => "http://search.cpan.org/~mshelor/",   debian => 'libdigest-sha-perl' },
+);
 
 @developer_modules = (
   { name => "Devel::REPL",                         url => "http://search.cpan.org/~doy/",       debian => 'libdevel-repl-perl' },
