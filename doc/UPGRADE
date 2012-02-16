@@ -14,10 +14,10 @@ Upgrade auf v2.7.0
 * Das Lizenzenfeature wurde ersatzlos entfernt.
 
 * In den LaTeX Vorlagen wird der Befehl "pagebreak" und die dazugehörigen
-  "sumcarriedforward" und "lastpage" nicht mehr offiziell unterstuetzt. Diese 
-  Methoden gelten als "deprecated" und werden in der naechsten Version gaenzlich 
-  entfernt. Sie sollten bereitss jetzt nicht mehr verwendet werden da sie mehrere 
-  Fehler beinhalten. Die Standardvorlagen sind entsprechend angepasst worden 
+  "sumcarriedforward" und "lastpage" nicht mehr offiziell unterstuetzt. Diese
+  Methoden gelten als "deprecated" und werden in der naechsten Version gaenzlich
+  entfernt. Sie sollten bereitss jetzt nicht mehr verwendet werden da sie mehrere
+  Fehler beinhalten. Die Standardvorlagen sind entsprechend angepasst worden
   und müssen in der Administration neu angelegt werden.
 
 * Das Druckvorlagensystem wurde umgestellt, dadurch ist der Name "print" für
@@ -28,10 +28,11 @@ Upgrade auf v2.7.0
 
   * JSON
   * String::ShellQuote
+  * Digest::SHA (optional, empfohlen)
 
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
-  $ scripts/installation_check.pl
+  $ scripts/installation_check.pl -ro
 
 * CSV-Import wurde neu in Perl implementiert
 
