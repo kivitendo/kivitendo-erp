@@ -58,8 +58,9 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
   $ scripts/find-use.pl
 
-  Die Ausgabe zeigt alle "use *", "use parent qw()", require "" etc an, und
-  sucht nach Abhängigkeiten dadrin. Die Farbcodes bedeuten:
+  Die Ausgabe zeigt alle "use *", "use parent qw()" etc an, und
+  sucht nach Abhängigkeiten dadrin. Achtung: require wird im Moment nicht
+  erkannt. Die Farbcodes bedeuten:
 
   grün: Alles gut, das Modul ist entweder seit Ewigkeiten im perl core, oder
         ist in modules/* dabei.
