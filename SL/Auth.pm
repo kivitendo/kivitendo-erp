@@ -54,7 +54,7 @@ sub get_user_dbh {
   my ($self, $login, %params) = @_;
   my $may_fail = delete $params{may_fail};
 
-  my %user = $self->read_user($login);
+  my %user = $self->read_user(login => $login);
   my $dbh  = SL::DBConnect->connect(
     $user{dbconnect},
     $user{dbuser},
@@ -244,9 +244,9 @@ sub dbdisconnect {
 sub check_tables {
   $main::lxdebug->enter_sub();
 
-  my $self    = shift;
+  my ($self, $dbh)    = @_;
 
-  my $dbh     = $self->dbconnect();
+  $dbh   ||= $self->dbconnect();
   my $query   = qq|SELECT COUNT(*) FROM pg_tables WHERE (schemaname = 'auth') AND (tablename = 'user')|;
 
   my ($count) = $dbh->selectrow_array($query);
@@ -438,15 +438,25 @@ sub read_all_users {
 sub read_user {
   $main::lxdebug->enter_sub();
 
-  my $self  = shift;
-  my $login = shift;
+  my ($self, %params) = @_;
 
   my $dbh   = $self->dbconnect();
+
+  my (@where, @values);
+  if ($params{login}) {
+    push @where,  'u.login = ?';
+    push @values, $params{login};
+  }
+  if ($params{id}) {
+    push @where,  'u.id = ?';
+    push @values, $params{id};
+  }
+  my $where = join ' AND ', '1 = 1', @where;
   my $query = qq|SELECT u.id, u.login, cfg.cfg_key, cfg.cfg_value
                  FROM auth.user_config cfg
                  LEFT JOIN auth."user" u ON (cfg.user_id = u.id)
-                 WHERE (u.login = ?)|;
-  my $sth   = prepare_execute_query($main::form, $dbh, $query, $login);
+                 WHERE $where|;
+  my $sth   = prepare_execute_query($main::form, $dbh, $query, @values);
 
   my %user_data;
 
@@ -485,23 +495,26 @@ sub delete_user {
   my $self  = shift;
   my $login = shift;
 
-  my $u_dbh = $self->get_user_dbh($login, may_fail => 1);
   my $dbh   = $self->dbconnect;
-
-  $dbh->begin_work;
-
-  my $query = qq|SELECT id FROM auth."user" WHERE login = ?|;
-
-  my ($id)  = selectrow_query($::form, $dbh, $query, $login);
+  my $id    = $self->get_user_id($login);
+  my $user_db_exists;
 
   $dbh->rollback and return $::lxdebug->leave_sub if (!$id);
 
+  my $u_dbh = $self->get_user_dbh($login, may_fail => 1);
+  $user_db_exists = $self->check_tables($u_dbh) if $u_dbh;
+
+  $u_dbh->begin_work if $u_dbh && $user_db_exists;
+
+  $dbh->begin_work;
+
   do_query($::form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
   do_query($::form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
-  do_query($::form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login) if $u_dbh;
+  do_query($::form, $dbh, qq|DELETE FROM auth.user WHERE id = ?|, $id);
+  do_query($::form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login) if $u_dbh && $user_db_exists;
 
   $dbh->commit;
-  $u_dbh->commit if $u_dbh;
+  $u_dbh->commit if $u_dbh && $user_db_exists;
 
   $::lxdebug->leave_sub;
 }

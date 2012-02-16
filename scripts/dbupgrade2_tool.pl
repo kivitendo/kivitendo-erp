@@ -429,7 +429,7 @@ if ($opt_user) {
                  "and to create them.");
   }
 
-  %myconfig = $auth->read_user($opt_user);
+  %myconfig = $auth->read_user(login => $opt_user);
 
   if (!$myconfig{login}) {
     $form->error($form->format_string("The user '#1' does not exist.", $opt_user));

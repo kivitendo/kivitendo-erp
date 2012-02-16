@@ -61,7 +61,7 @@ sub run {
     $action = 'login';
   }
   if ($action) {
-    %::myconfig = $auth->read_user($form->{login}) if ($form->{login});
+    %::myconfig = $auth->read_user(login => $form->{login}) if ($form->{login});
     $::locale   = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
 
     if (SL::Auth::OK != $auth->authenticate($::myconfig{login}, $form->{password})) {
@@ -106,7 +106,7 @@ sub login {
     ::end_of_request();
   }
 
-  my $user = new User $form->{login};
+  my $user = User->new(login => $form->{login});
 
   # if we get an error back, bale out
   my $result;

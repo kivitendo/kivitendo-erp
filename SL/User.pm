@@ -49,12 +49,12 @@ use strict;
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type, $login) = @_;
+  my ($type, %params) = @_;
 
   my $self = {};
 
-  if ($login ne "") {
-    my %user_data = $main::auth->read_user($login);
+  if ($params{id} || $params{login}) {
+    my %user_data = $main::auth->read_user(%params);
     map { $self->{$_} = $user_data{$_} } keys %user_data;
   }
 
@@ -102,7 +102,7 @@ sub login {
   my $rc = -3;
 
   if ($self->{login}) {
-    my %myconfig = $main::auth->read_user($self->{login});
+    my %myconfig = $main::auth->read_user(login => $self->{login});
 
     # check if database is down
     my $dbh = SL::DBConnect->connect($myconfig{dbconnect}, $myconfig{dbuser}, $myconfig{dbpasswd})
@@ -785,6 +785,10 @@ sub error {
   die "Error: $msg\n";
 
   $main::lxdebug->leave_sub();
+}
+
+sub data {
+  +{ %{ $_[0] } }
 }
 
 1;

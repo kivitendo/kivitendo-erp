@@ -205,7 +205,7 @@ sub handle_request {
 
     } else {
       show_error('login/password_error', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
-      %::myconfig = $::auth->read_user($::form->{login});
+      %::myconfig = $::auth->read_user(login => $::form->{login});
 
       show_error('login/password_error', 'password') unless $::myconfig{login};
 

@@ -33,7 +33,7 @@ sub _login {
 
   require "bin/mozilla/common.pl";
 
-  die "cannot find user $login"            unless %::myconfig = $::auth->read_user($login);
+  die "cannot find user $login"            unless %::myconfig = $::auth->read_user(login => $login);
 
   $::form->{login} = $login; # normaly implicit at login
 
