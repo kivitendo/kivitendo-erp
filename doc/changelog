@@ -71,7 +71,9 @@ Sicherheit:
 
 - Passwörter tauchen jetzt nicht mehr in der Sessiontabelle auf
 
-- Passwörter werden jetzt per Default als SHA256 gespeichert.
+- Sicherere Hashalgorithmen
+  Passwörter werden jetzt per Default mit SHA256 gespeichert, sofern
+  das optionale Paket Digest::SHA verfügbar ist.
 
 - Der Vorlageneditor wurde unter ein neues Recht "Administration" gestellt.
   Es ist möglich LaTeX Vorlagen zu erstellen, die Schadcode auf dem Hostsystem

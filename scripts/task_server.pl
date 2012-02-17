@@ -50,7 +50,7 @@ sub lxinit {
 
   require "bin/mozilla/common.pl";
 
-  die "cannot find user $login"            unless %::myconfig = $::auth->read_user($login);
+  die "cannot find user $login"            unless %::myconfig = $::auth->read_user(login => $login);
   die "cannot find locale for user $login" unless $::locale   = Locale->new('de');
 }
 

@@ -73,6 +73,16 @@ our $form;
 our $locale;
 our $auth;
 
+my @valid_dateformats = qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd);
+my @valid_numberformats = ('1,000.00', '1000.00', '1.000,00', '1000,00');
+my @all_stylesheets = qw(lx-office-erp.css Win2000.css);
+my @all_menustyles = (
+  { id => 'old', title => $::locale->text('Old (on the side)') },
+  { id => 'v3',  title => $::locale->text('Top (CSS)') },
+  { id => 'v4',  title => $::locale->text('Top (CSS) new') },
+  { id => 'neu', title => $::locale->text('Top (Javascript)') },
+);
+
 sub run {
   $::lxdebug->enter_sub;
   my $session_result = shift;
@@ -366,14 +376,12 @@ sub list_users {
 }
 
 sub add_user {
-  my $form         = $main::form;
-  my $locale       = $main::locale;
-
-  $form->{title}   = "Lx-Office ERP " . $locale->text('Administration') . " / " . $locale->text('Add User');
+  $::form->{title}   = "Lx-Office ERP " . $::locale->text('Administration') . " / " . $::locale->text('Add User');
 
 # Note: Menu Style 'v3' is not compatible to all browsers!
 # "menustyle"    => "old" sets the HTML Menu to default.
-  my $myconfig     = {
+# User does not have a well behaved new constructor, so we#Ll just have to build one ourself
+  my $user     = bless {
     "vclimit"      => 200,
     "countrycode"  => "de",
     "numberformat" => "1.000,00",
@@ -383,179 +391,122 @@ sub add_user {
     dbport         => $::auth->{DB_config}->{port} || 5432,
     dbuser         => $::auth->{DB_config}->{user} || 'lxoffice',
     dbhost         => $::auth->{DB_config}->{host} || 'localhost',
-  };
+  }, 'User';
 
-
-  edit_user_form($myconfig);
+  edit_user_form($user);
 }
 
 sub edit_user {
-  my $form       = $main::form;
-  my $locale     = $main::locale;
-
-  $form->{title} = "Lx-Office ERP " . $locale->text('Administration') . " / " . $locale->text('Edit User');
-  $form->{edit}  = 1;
-
-  $form->isblank("login", $locale->text("The login is missing."));
+  $::form->{title} = "Lx-Office ERP " . $::locale->text('Administration') . " / " . $::locale->text('Edit User');
+  $::form->{edit}  = 1;
 
   # get user
-  my $myconfig = new User($form->{login});
+  my $user = User->new(id => $::form->{user}{id});
 
   # strip basedir from templates directory
-  $myconfig->{templates} =~ s|.*/||;
+  $user->{templates} =~ s|.*/||;
 
-  edit_user_form($myconfig);
+  edit_user_form($user);
 }
 
 sub edit_user_form {
-  my ($myconfig) = @_;
+  my ($user) = @_;
 
-  my $form       = $main::form;
-  my $locale     = $main::locale;
-
-  my @valid_dateformats = qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd);
-  $form->{ALL_DATEFORMATS} = [ map { { "format" => $_, "selected" => $_ eq $myconfig->{dateformat} } } @valid_dateformats ];
-
-  my @valid_numberformats = ('1,000.00', '1000.00', '1.000,00', '1000,00');
-  $form->{ALL_NUMBERFORMATS} = [ map { { "format" => $_, "selected" => $_ eq $myconfig->{numberformat} } } @valid_numberformats ];
-
-  my %countrycodes = User->country_codes;
-  $form->{ALL_COUNTRYCODES} = [];
-  foreach my $countrycode (sort { $countrycodes{$a} cmp $countrycodes{$b} } keys %countrycodes) {
-    push @{ $form->{ALL_COUNTRYCODES} }, { "value"    => $countrycode,
-                                           "name"     => $countrycodes{$countrycode},
-                                           "selected" => $countrycode eq $myconfig->{countrycode} };
-  }
-
-  # is there a templates basedir
-  if (!-d $::lx_office_conf{paths}->{templates}) {
-    $form->error(sprintf($locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
-  }
-
-  opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
-  my @all     = readdir(TEMPLATEDIR);
-  my @alldir  = sort grep { -d ($::lx_office_conf{paths}->{templates} . "/$_") && !/^\.\.?$/ } @all;
-  closedir TEMPLATEDIR;
-
-  @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
-  @alldir = grep !/^(webpages|print|\.svn)$/, @alldir;
-
-  $form->{ALL_TEMPLATES} = [ map { { "name", => $_, "selected" => $_ eq $myconfig->{templates} } } @alldir ];
-
-  # mastertemplates
-  opendir TEMPLATEDIR, "$::lx_office_conf{paths}->{templates}/print" or $form->error("$::lx_office_conf{paths}->{templates}/print" . " : $ERRNO");
-  my @allmaster = readdir(TEMPLATEDIR);
-  closedir TEMPLATEDIR;
-
-  @allmaster  = sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ } @allmaster;
-  @allmaster = reverse grep !/Default/, @allmaster;
-  push @allmaster, 'Default';
-  @allmaster = reverse @allmaster;
-
-  foreach my $item (@allmaster) {
-    push @{ $form->{ALL_MASTER_TEMPLATES} }, { "name" => $item, "selected" => $item eq "German" };
-  }
-
-  # css dir has styles that are not intended as general layouts.
-  # reverting to hardcoded list
-  $form->{ALL_STYLESHEETS} = [ map { { "name" => $_, "selected" => $_ eq $myconfig->{stylesheet} } } qw(lx-office-erp.css Win2000.css) ];
-
-  $form->{"menustyle_" . $myconfig->{menustyle} } = 1;
-
-  map { $form->{"myc_${_}"} = $myconfig->{$_} } keys %{ $myconfig };
-
+  my %cc = $user->country_codes;
+  my @all_countrycodes = map { id => $_, title => $cc{$_} }, sort { $cc{$a} cmp $cc{$b} } keys %cc;
+  my ($all_dir, $all_master) = _search_templates();
   my $groups = [];
 
-  if ($form->{edit}) {
-    my $user_id    = $main::auth->get_user_id($form->{login});
-    my $all_groups = $main::auth->read_groups();
+  if ($::form->{edit}) {
+    my $user_id    = $::auth->get_user_id($user->{login});
+    my $all_groups = $::auth->read_groups();
 
-    foreach my $group (values %{ $all_groups }) {
+    for my $group (values %{ $all_groups }) {
       push @{ $groups }, $group if (grep { $user_id == $_ } @{ $group->{members} });
     }
 
     $groups = [ sort { lc $a->{name} cmp lc $b->{name} } @{ $groups } ];
   }
 
-  $form->{CAN_CHANGE_PASSWORD} = $main::auth->can_change_password();
-
-  $form->header();
-  print $form->parse_html_template("admin/edit_user", { 'GROUPS' => $groups });
+  $::form->header;
+  print $::form->parse_html_template("admin/edit_user", {
+    GROUPS               => $groups,
+    CAN_CHANGE_PASSWORD  => $::auth->can_change_password,
+    user                 => $user->data,
+    all_stylesheets      => \@all_stylesheets,
+    all_numberformats    => \@valid_numberformats,
+    all_dateformats      => \@valid_dateformats,
+    all_countrycodes     => \@all_countrycodes,
+    all_menustyles       => \@all_menustyles,
+    all_templates        => $all_dir,
+    all_master_templates => $all_master,
+  });
 }
 
 sub save_user {
   my $form          = $main::form;
   my $locale        = $main::locale;
 
-  $form->{dbdriver} = 'Pg';
+  my $user = $form->{user};
 
-  # no spaces allowed in login name
-  $form->{login} =~ s|\s||g;
-  $form->isblank("login", $locale->text('Login name missing!'));
+  $user->{dbdriver} = 'Pg';
 
-  # check for duplicates
-  if (!$form->{edit}) {
-    my %members = $main::auth->read_all_users();
-    if ($members{$form->{login}}) {
-      $form->show_generic_error($locale->text('Another user with the login #1 does already exist.', $form->{login}), 'back_button' => 1);
+  if (!$::form->{edit}) {
+    # no spaces allowed in login name
+    $user->{login} =~ s/\s//g;
+    $::form->show_generic_error($::locale->text('Login name missing!')) unless $user->{login};
+
+    # check for duplicates
+    my %members = $::auth->read_all_users;
+    if ($members{$user->{login}}) {
+      $::form->show_generic_error($locale->text('Another user with the login #1 does already exist.', $user->{login}), 'back_button' => 1);
     }
   }
 
   # no spaces allowed in directories
-  ($form->{newtemplates}) = split / /, $form->{newtemplates};
-
-  if ($form->{newtemplates}) {
-    $form->{templates} = $form->{newtemplates};
-  } else {
-    $form->{templates} =
-      ($form->{usetemplates}) ? $form->{usetemplates} : $form->{login};
-  }
+  ($::form->{newtemplates}) = split / /, $::form->{newtemplates};
+  $user->{templates} = $::form->{newtemplates} || $::form->{usetemplates} || $user->{login};
 
   # is there a basedir
   if (!-d $::lx_office_conf{paths}->{templates}) {
-    $form->error(sprintf($locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
+    $::form->error(sprintf($::locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
   }
 
   # add base directory to $form->{templates}
-  $form->{templates} =~ s|.*/||;
-  $form->{templates} =  $::lx_office_conf{paths}->{templates} . "/$form->{templates}";
+  $user->{templates} =~ s|.*/||;
+  $user->{templates} =  $::lx_office_conf{paths}->{templates} . "/$user->{templates}";
 
-  my $myconfig = new User($form->{login});
+  my $myconfig = new User(id => $form->{id});
 
-  $form->isblank("dbname", $locale->text('Dataset missing!'));
-  $form->isblank("dbuser", $locale->text('Database User missing!'));
+  $::form->show_generic_error($::locale->text('Dataset missing!'))       unless $user->{dbname};
+  $::form->show_generic_error($::locale->text('Database User missing!')) unless $user->{dbuser};
 
-  foreach my $item (keys %{$form}) {
-    $myconfig->{$item} = $form->{$item};
+  foreach my $item (keys %{$user}) {
+    $myconfig->{$item} = $user->{$item};
   }
 
-  delete $myconfig->{stylesheet};
-  if ($form->{userstylesheet}) {
-    $myconfig->{stylesheet} = $form->{userstylesheet};
-  }
+  $myconfig->save_member;
 
-  $myconfig->save_member();
-
-  $form->{templates}       =~ s|.*/||;
-  $form->{templates}       =  $::lx_office_conf{paths}->{templates} . "/$form->{templates}";
-  $form->{mastertemplates} =~ s|.*/||;
+  $user->{templates}       =~ s|.*/||;
+  $user->{templates}       =  $::lx_office_conf{paths}->{templates} . "/$user->{templates}";
+  $::form->{mastertemplates} =~ s|.*/||;
 
   # create user template directory and copy master files
-  if (!-d "$form->{templates}") {
+  if (!-d "$user->{templates}") {
     umask(002);
 
-    if (mkdir "$form->{templates}", oct("771")) {
+    if (mkdir "$user->{templates}", oct("771")) {
 
       umask(007);
 
       # copy templates to the directory
 
       my $oldcurrdir = getcwd();
-      if (!chdir("$::lx_office_conf{paths}->{templates}/print/$form->{mastertemplates}")) {
-        $form->error("$ERRNO: chdir $::lx_office_conf{paths}->{templates}/print/$form->{mastertemplates}");
+      if (!chdir("$::lx_office_conf{paths}->{templates}/print/$::form->{mastertemplates}")) {
+        $form->error("$ERRNO: chdir $::lx_office_conf{paths}->{templates}/print/$::form->{mastertemplates}");
       }
 
-      my $newdir = File::Spec->catdir($oldcurrdir, $form->{templates});
+      my $newdir = File::Spec->catdir($oldcurrdir, $user->{templates});
 
       find(
         sub
@@ -584,14 +535,14 @@ sub save_user {
       chdir($oldcurrdir);
 
     } else {
-      $form->error("$ERRNO: $form->{templates}");
+      $form->error("$ERRNO: $user->{templates}");
     }
   }
 
   # Add new user to his groups.
   if (ref $form->{new_user_group_ids} eq 'ARRAY') {
     my $all_groups = $main::auth->read_groups();
-    my %user       = $main::auth->read_user($form->{login});
+    my %user       = $main::auth->read_user(login => $user->{login});
 
     foreach my $group_id (@{ $form->{new_user_group_ids} }) {
       my $group = $all_groups->{$group_id};
@@ -604,26 +555,27 @@ sub save_user {
   }
 
   if ($main::auth->can_change_password()
-      && defined $form->{new_password}
-      && ($form->{new_password} ne '********')) {
+      && defined $::form->{new_password}
+      && ($::form->{new_password} ne '********')) {
     my $verifier = SL::Auth::PasswordPolicy->new;
-    my $result   = $verifier->verify($form->{new_password}, 1);
+    my $result   = $verifier->verify($::form->{new_password}, 1);
 
     if ($result != SL::Auth::PasswordPolicy->OK()) {
       $form->error($::locale->text('The settings were saved, but the password was not changed.') . ' ' . join(' ', $verifier->errors($result)));
     }
 
-    $main::auth->change_password($form->{login}, $form->{new_password});
+    $main::auth->change_password($user->{login}, $::form->{new_password});
   }
 
-  $form->redirect($locale->text('User saved!'));
+  $::form->redirect($::locale->text('User saved!'));
 }
 
 sub save_user_as_new {
   my $form       = $main::form;
 
-  $form->{login} = $form->{new_user_login};
-  delete @{$form}{qw(edit new_user_login)};
+  $form->{user}{login} = $::form->{new_user_login};
+  delete $form->{user}{id};
+  delete @{$form}{qw(id edit new_user_login)};
 
   save_user();
 }
@@ -632,16 +584,22 @@ sub delete_user {
   my $form      = $main::form;
   my $locale    = $main::locale;
 
-  my %members   = $main::auth->read_all_users();
-  my $templates = $members{$form->{login}}->{templates};
+  my $user = $::form->{user} || {};
 
-  $main::auth->delete_user($form->{login});
+  $::form->show_generic_error($::locale->text('Missing user id!')) unless $user->{id};
+
+  my $loaded_user = User->new(id => $user->{id});
+
+  my %members   = $main::auth->read_all_users();
+  my $templates = $members{$loaded_user->{login}}->{templates};
+
+  $main::auth->delete_user($loaded_user->{login});
 
   if ($templates) {
     my $templates_in_use = 0;
 
     foreach my $login (keys %members) {
-      next if $form->{login} eq $login;
+      next if $loaded_user->{login} eq $login;
       next if $members{$login}->{templates} ne $templates;
       $templates_in_use = 1;
       last;
@@ -1231,6 +1189,33 @@ sub _apply_dbupgrade_scripts {
 
 sub _nologin_file_name {
   return $::lx_office_conf{paths}->{userspath} . '/nologin';
+}
+
+sub _search_templates {
+  # is there a templates basedir
+  if (!-d $::lx_office_conf{paths}->{templates}) {
+    $::form->error(sprintf($::locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
+  }
+
+  opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $::form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
+  my @all     = readdir(TEMPLATEDIR);
+  my @alldir  = sort grep { -d ($::lx_office_conf{paths}->{templates} . "/$_") && !/^\.\.?$/ } @all;
+  closedir TEMPLATEDIR;
+
+  @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
+  @alldir = grep !/^(webpages|print|\.svn)$/, @alldir;
+
+  # mastertemplates
+  opendir TEMPLATEDIR, "$::lx_office_conf{paths}->{templates}/print" or $::form->error("$::lx_office_conf{paths}->{templates}/print" . " : $ERRNO");
+  my @allmaster = readdir(TEMPLATEDIR);
+  closedir TEMPLATEDIR;
+
+  @allmaster  = sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ } @allmaster;
+  @allmaster = reverse grep !/Default/, @allmaster;
+  push @allmaster, 'Default';
+  @allmaster = reverse @allmaster;
+
+  return \@alldir, \@allmaster;
 }
 
 1;

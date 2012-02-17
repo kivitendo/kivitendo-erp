@@ -29,11 +29,15 @@ GetOptions(
 );
 
 # if nothing is requested check "required"
-$check{r} = 1 unless defined $check{a} ||
-                     defined $check{l} ||
-                     defined $check{o} ||
-                     defined $check{d};
-my $default_run ='1' if $check{r};  # no parameter, therefore print a note after default run
+my $default_run;
+if (!defined $check{a}
+ && !defined $check{l}
+ && !defined $check{o}
+ && !defined $check{d}) {
+  $check{r} = 1;
+  $default_run ='1';  # no parameter, therefore print a note after default run
+}
+
 if ($check{a}) {
   foreach my $check (keys %check) {
     $check{$check} = 1 unless defined $check{$check};

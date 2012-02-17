@@ -20,7 +20,7 @@ sub hash {
       return '{' . $params{algorithm} . '}' . Digest::SHA::sha256_hex($salt . $params{password});
 
     } elsif ($params{fallback_algorithm}) {
-      return $class->hash_password(%params, algorithm => $params{fallback_algorithm});
+      return $class->hash(%params, algorithm => $params{fallback_algorithm});
 
     } else {
       die 'Digest::SHA is not available';
@@ -34,7 +34,7 @@ sub hash {
       return '{' . $params{algorithm} . '}' . Digest::SHA1::sha1_hex($salt . $params{password});
 
     } elsif ($params{fallback_algorithm}) {
-      return $class->hash_password(%params, algorithm => $params{fallback_algorithm});
+      return $class->hash(%params, algorithm => $params{fallback_algorithm});
 
     } else {
       die 'Neither Digest::SHA nor Digest::SHA1 is available';
