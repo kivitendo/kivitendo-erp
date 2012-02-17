@@ -418,7 +418,7 @@ sub edit_user_form {
   my $groups = [];
 
   if ($::form->{edit}) {
-    my $user_id    = $::auth->get_user_id($::form->{login});
+    my $user_id    = $::auth->get_user_id($user->{login});
     my $all_groups = $::auth->read_groups();
 
     for my $group (values %{ $all_groups }) {
