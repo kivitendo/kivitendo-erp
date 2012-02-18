@@ -125,6 +125,9 @@ API-Änderungen:
   eingebaute Vorlageneditor zeigt alle *.tex-Dateien an und lässt sie
   bearbeiten.
 
+- Anzeige Stammdaten -> Waren
+  in der Suchmaske muss nun "Lagermenge" explizit angewaehlt werden, wenn die
+  Warenbestände im Suchergebnis angezeigt werden sollen.
 
 Entfernte Features:
 
