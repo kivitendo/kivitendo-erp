@@ -1,0 +1,23 @@
+;; This file was produced by lx-office
+;; for using in taxbird. 
+;; You probably don't want to touch this 
+;; file. In case you do want it anyway, 
+;; be warned: BE CAREFUL!!
+;;
+'("Umsatzsteuervoranmeldung <%year%>" (
+("vend-id" . "74931")
+("land-lieferant" . "<%elsterland%>")
+("name-lieferant" . "<%company%>")
+("berufsbez" . "")
+("strasse-lieferant" . "<%co_street%>")
+("plz-lieferant" . "<%co_zip%> ")
+("ort-lieferant" . "<%co_city%>")
+("vorwahl" . "<%co_phone_prefix%>")
+("anschluss" . "<%co_phone%>")
+("land" . "<%taxbird_land_nr%>")
+("zeitraum" . "<%taxbird_period%>")
+("stnr" . "<%taxbird_steuernummer%>")
+
+<%foreach id%>
+("<%id%>" . "<%amount%>")<%end%>
+))
