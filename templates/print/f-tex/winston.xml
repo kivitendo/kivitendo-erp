@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!-- Diese Datei ist mit Lx-Office <%version%> generiert -->
+<WinstonAusgang>
+  <Formular Typ="UST"></Formular>
+  <Ordnungsnummer><%elsterFFFF%><%elstersteuernummer%></Ordnungsnummer>
+  <AnmeldeJahr><%year%></AnmeldeJahr>
+  <AnmeldeZeitraum><%period%></AnmeldeZeitraum>
+
+<%foreach id%>
+  <Kennzahl nr="<%id%>"><%amount%></Kennzahl>
+<%end%>
+
+</WinstonAusgang>
+
