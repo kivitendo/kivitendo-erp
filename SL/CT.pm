@@ -1050,6 +1050,7 @@ sub _delete_selected_notes {
   $main::lxdebug->leave_sub();
 }
 
+# TODO: remove in 2.7.0 stable
 sub delete_shipto {
   $main::lxdebug->enter_sub();
 
