@@ -1,6 +1,6 @@
 % German USTVA template for taxreports
-%
-% Contributed by Jens Koerner, Peter Schorer, Udo Spallek
+% Contributed by Jacky und Stefan Tenne 
+% Based on template by Jens Koerner, Peter Schorer, Udo Spallek
 %
 %
 \documentclass[twoside]{scrartcl}
@@ -12,7 +12,7 @@
 \usepackage{tabularx}
 \usepackage{times, german}
 \usepackage{german}
-\setlength{\voffset}{-0.8cm} %hier wird die HÃ¶henverschiebung getÃ€tigt
+\setlength{\voffset}{-0.7cm} %hier wird die HÃ¶henverschiebung getÃ€tigt
 \setlength{\hoffset}{-1cm}  %und hier die Verschiebung seitwÃ€rts
 \setlength{\topmargin}{0cm}
 \setlength{\headheight}{0cm}
@@ -23,29 +23,29 @@
 \setlength{\textwidth}{20.9cm}
 \setlength{\textheight}{29.6cm}
 \setlength{\footskip}{-0cm}
-\setlength{\parindent}{0pt}
+\setlength{\parindent}{1mm}
 
 \begin{document}
 
 \fontfamily{cmss}\fontshape{n}\large\selectfont
 \pagestyle{myheadings}
-\markboth{\hspace{7mm}\protect\includegraphics[viewport = 60 700 700 790]{ustva2.pdf}}
-{\protect\includegraphics[viewport = 60 700 700 790]{ustva1.pdf}}
+\markboth{\protect\scalebox{1.045}[1.045]{\protect\includegraphics[viewport = 54 783 700 790,page=2]{ustva-2008.pdf}}}%Seite 2
+{\protect\scalebox{1.045}[1.045]{\protect\includegraphics[viewport = 70 700 700 790,page=1]{ustva-2008.pdf}}}%Seite 1
 \hspace{1mm}
-\begin{tabular}[b]{p{7mm}p{5cm}p{22.5mm}p{24mm}p{5mm}p{27mm}p{3mm}}
+\begin{tabular}[b]{p{7mm}p{5cm}p{22.5mm}p{24mm}p{7mm}p{28mm}p{3mm}}
 \multicolumn{7}{c}{}\\[-2mm]
  &  \multicolumn{6}{l}{<%steuernummer%>}\\
 \multicolumn{7}{c}{}\\[15mm]
 \multicolumn{2}{p{7.5cm}}{<%FA_Name%>} & & & & &\\[-4mm]
-\multicolumn{2}{p{7.5cm}}{}  & & & & &\\[1mm]
+\multicolumn{2}{p{7.5cm}}{}  & & & & &\\[3mm]
 \multicolumn{2}{p{7.5cm}}{<%FA_Strasse%>} & &<%0401%>&<%0407%>&&<%0441%>\\[1.2mm]
 \multicolumn{2}{p{7.5cm}}{} & &<%0402%>&<%0408%>&&<%0442%>\\[1.25mm]
-\multicolumn{2}{p{7.5cm}}{<%FA_PLZ%> <%FA_Ort%>} & &<%0403%>&<%0409%>&&<%0443%>\\[1.25mm]
+\multicolumn{2}{p{7.5cm}}{<%FA_PLZ%> <%FA_Ort%>} & &<%0403%>&<%0409%>&&<%0443%>\\[3mm]
 \multicolumn{2}{p{7.5cm}}{} & &<%0404%>&<%0410%>&&<%0444%>\\[1.25mm]
 \multicolumn{2}{p{7.5cm}}{} & &<%0405%>&<%0411%>&&\\[1.25mm]
 \multicolumn{2}{p{7.5cm}}{\small{<%company%>}} & &<%0406%>&<%0412%>&&\\[-1mm]
-\multicolumn{2}{p{7.5cm}}{\small{<%company_street%>}}& & & & &\\[-1mm]
-\multicolumn{2}{p{7.5cm}}{\small{<%company_city%>}}& & & & &\\[1mm]
+\multicolumn{2}{p{7.5cm}}{\small{<%co_street%>}}& & & & &\\[-1mm]
+\multicolumn{2}{p{7.5cm}}{\small{<%co_city%>}}& & & &<%FA_10%> &\\[1mm]
 \multicolumn{2}{p{7.5cm}}{
 <%if tel%>
 \small{Tel: <%tel%>}~--~
@@ -53,32 +53,29 @@
 <%if fax%>
 \small{Fax: <%fax%>}
 <%end fax%>
-}& & & &<%FA_10%> &\\[-1mm]
+}& & & & &\\[1.8mm]
 \multicolumn{2}{p{7.5cm}}{\small{<%email%>}}& & & & &\\[-1mm]
-\end{tabular}\\[28.5mm]
-\begin{tabular}[b]{p{95mm}p{28mm}p{2.55mm}p{4mm}p{35mm}}
-&&&&\\[42mm]
-\multicolumn{2}{r}{<%51%>} & & \multicolumn{2}{r}{<%51r%>}\\[1.5mm]
-\multicolumn{2}{r}{<%86%>} & & \multicolumn{2}{r}{<%86r%>}\\[46mm]
-\multicolumn{2}{r}{<%97%>} & & \multicolumn{2}{r}{<%97r%>}\\[1.5mm]
-\multicolumn{2}{r}{<%93%>} & & \multicolumn{2}{r}{<%93r%>}\\[7.9mm]
-\multicolumn{2}{r}{<%94%>} & & \multicolumn{2}{r}{<%96%>}\\[14mm]
-\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%43%>}\\
-%\multicolumn{2}{||r|}{1000} & & & \\
-%\multicolumn{2}{||r|}{1000} & & \multicolumn{2}{r}{100.000.000~~00}\\
-%\multicolumn{3}{||r|}{1.000.000.000~~00} & \multicolumn{2}{r}{100.000.000~~00}\\
+\end{tabular}\\[29.5mm]
+\begin{tabular}[b]{p{99mm}p{26.5mm}p{4.55mm}p{4mm}p{35mm}}
+&&&&\\[15.6mm]
+\multicolumn{2}{r}{<%48%>} & & \multicolumn{2}{r}{}\\[8.5mm]
+\multicolumn{2}{r}{<%81%>} & & \multicolumn{2}{r}{<%811%>}\\[1.8mm]
+\multicolumn{2}{r}{<%86%>} & & \multicolumn{2}{r}{<%861%>}\\[41.7mm]
+\multicolumn{2}{r}{<%97%>} & & \multicolumn{2}{r}{<%971%>}\\[1.5mm]
+\multicolumn{2}{r}{<%93%>} & & \multicolumn{2}{r}{<%931%>}\\[8.5mm]
+\multicolumn{2}{r}{<%94%>} & & \multicolumn{2}{r}{<%96%>}\\[28.5mm]
+\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%Z43%>}\\
 \end{tabular}
-
 \newpage
 
-\vspace*{-10mm}\hspace{27mm}<%steuernummer%>\\[-2.5mm]
-\begin{tabular}[b]{p{95mm}p{28mm}p{2.55mm}p{4mm}p{35mm}}
-&&&&\\
-\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%45%>}\\[46mm]
-\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%43%>}\\[7.9mm]
-\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%66%>}\\[7.9mm]
-\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%62%>}\\[58.5mm]
-\multicolumn{2}{r}{} & & \multicolumn{2}{r}{\textbf{<%67%>}}\\[26mm]
+\vspace*{-9.5mm}\hspace{27mm}<%steuernummer%>\\[-2.7mm]
+\begin{tabular}[b]{p{99mm}p{25.2mm}p{2.55mm}p{10mm}p{32mm}}
+&&&&\\[0.75mm]
+\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%Z45%>}\\[48.3mm]
+\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%Z53%>}\\[8.4mm]
+\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%66%>}\\[41.7mm]
+\multicolumn{2}{r}{} & & \multicolumn{2}{r}{<%Z62%>}\\[28.4mm]
+\multicolumn{2}{r}{} & & \multicolumn{2}{r}{\textbf{<%83%>}}\\[25.6mm]
 \end{tabular}\\[35mm]
 <%if FA_steuerberater%>
 \vspace{11mm}
@@ -118,3 +115,13 @@
 \end{list}
 <%end FA_steuerberater%>
 \end{document}
+
+
+
+
+
+
+
+
+
+
