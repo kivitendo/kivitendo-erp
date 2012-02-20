@@ -734,18 +734,23 @@ sub delete_contact {
   $::lxdebug->enter_sub;
   $::auth->assert('customer_vendor_edit');
 
-  CT->get_contact(\%::myconfig, $::form);
-
-  my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
-
-  if ($contact->used) {
-    $contact->detach;
-    flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
+  if (!$::form->{cp_id}) {
+    flash('error', $::locale->text('No contact selected to delete'));
   } else {
-    $contact->delete;
-    flash('info', $::locale->text('Contact deleted.'));
+
+    CT->get_contact(\%::myconfig, $::form);
+
+    my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
+
+    if ($contact->used) {
+      $contact->detach;
+      flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
+    } else {
+      $contact->delete;
+      flash('info', $::locale->text('Contact deleted.'));
+    }
+    delete $::form->{$_} for grep /^cp_/, keys %$::form;
   }
-  delete $::form->{$_} for grep /^cp_/, keys %$::form;
 
   edit();
 
