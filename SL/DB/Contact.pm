@@ -32,7 +32,7 @@ sub used {
 
 sub detach {
   $_[0]->cp_cv_id(undef);
-  $_[0]->save;
+  $_[0];
 }
 
 sub full_name {

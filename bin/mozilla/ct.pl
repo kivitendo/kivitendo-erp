@@ -743,7 +743,7 @@ sub delete_contact {
     my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
 
     if ($contact->used) {
-      $contact->detach;
+      $contact->detach->save;
       flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
     } else {
       $contact->delete;
