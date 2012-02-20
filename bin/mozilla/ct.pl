@@ -711,23 +711,30 @@ sub get_delivery {
 }
 
 sub delete_shipto {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('customer_vendor_edit');
 
-  $main::auth->assert('customer_vendor_edit');
+  if (!$::form->{shipto_id}) {
+    flash('error', $::locale->text('No shipto selected to delete'));
+  } else {
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+    CT->get_shipto(\%::myconfig, $::form);
 
-  CT->get_shipto(\%myconfig, \%$form);
+    my $shipto = SL::DB::Manager::Shipto->find_by(shipto_id => $::form->{shipto_id});
 
-  unless ($form->{shiptoused}) {
-    CT->delete_shipto($form->{shipto_id});
-    @$form{ grep /^shipto/, keys %$form } = undef;
+    if ($shipto->used) {
+      $shipto->detach->save;
+      flash('info', $::locale->text('Shipto is in use and was flagged invalid.'));
+    } else {
+      $shipto->delete;
+      flash('info', $::locale->text('Shipto deleted.'));
+    }
+    delete $::form->{$_} for grep /^shipto/, keys %$::form;
   }
 
   edit();
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub delete_contact {
