@@ -1067,6 +1067,7 @@ sub delete_shipto {
   $main::lxdebug->leave_sub();
 }
 
+# TODO: remove in 2.7.0 stable
 sub delete_contact {
   $main::lxdebug->enter_sub();
 
