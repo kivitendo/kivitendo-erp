@@ -283,8 +283,7 @@ sub form_header {
   my @old_project_ids = ($form->{"globalproject_id"});
   map { push @old_project_ids, $form->{"project_id_$_"} if $form->{"project_id_$_"}; } 1..$form->{"rowcount"};
 
-  $form->get_lists("shipto"        => "ALL_SHIPTO",
-                   "projects"      => { "key"    => "ALL_PROJECTS",
+  $form->get_lists("projects"      => { "key"    => "ALL_PROJECTS",
                                         "all"    => 0,
                                         "old_id" => \@old_project_ids },
                    "taxzones"      => "ALL_TAXZONES",
