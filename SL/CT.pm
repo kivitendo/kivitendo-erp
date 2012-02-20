@@ -868,6 +868,9 @@ sub get_contact {
   $main::lxdebug->enter_sub();
 
   my ( $self, $myconfig, $form ) = @_;
+
+  die 'Missing argument: cp_id' unless $::form->{cp_id};
+
   my $dbh   = $form->dbconnect($myconfig);
   my $query =
     qq|SELECT * FROM contacts c | .
