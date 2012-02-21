@@ -2347,7 +2347,10 @@ DHTMLSuite.menuBar.prototype = {
 		DHTMLSuite.commonObj.addEvent(document.documentElement,"click",this.hideSubMenus);		
         var menu = this;
         $('#win1').load(function(){
-            $('#win1').contents().mousedown(menu.hideSubMenus);
+            $('#win1').contents().mousedown(function(){
+                menu.hideSubMenus();
+                menu.menuBarState = false;
+            });
         })
 	}
 }
