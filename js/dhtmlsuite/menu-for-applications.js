@@ -2345,6 +2345,10 @@ DHTMLSuite.menuBar.prototype = {
 	__setBasicEvents : function()
 	{
 		DHTMLSuite.commonObj.addEvent(document.documentElement,"click",this.hideSubMenus);		
+        var menu = this;
+        $('#win1').load(function(){
+            $('#win1').contents().mousedown(menu.hideSubMenus);
+        })
 	}
 }
 
