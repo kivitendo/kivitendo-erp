@@ -2227,6 +2227,13 @@ DHTMLSuite.menuBar.prototype = {
 				shortRef.style.left = DHTMLSuite.commonObj.getLeftPos(this.menuItem_objects[parentId].divElement) + 'px';
 				shortRef.style.top = (DHTMLSuite.commonObj.getTopPos(this.menuItem_objects[parentId].divElement) + this.menuItem_objects[parentId].divElement.offsetHeight) + 'px';
 			}else{
+              var too_large = DHTMLSuite.commonObj.getLeftPos(this.menuItem_objects[parentId].divElement)
+                            + this.menuItem_objects[parentId].divElement.offsetWidth
+                            + shortRef.offsetWidth
+                            > $('#main_menu_div').width();
+              if (too_large)
+                shortRef.style.left = (DHTMLSuite.commonObj.getLeftPos(this.menuItem_objects[parentId].divElement) - shortRef.offsetWidth) + 'px';
+              else
 				shortRef.style.left = (DHTMLSuite.commonObj.getLeftPos(this.menuItem_objects[parentId].divElement) + this.menuItem_objects[parentId].divElement.offsetWidth) + 'px';
 				shortRef.style.top = (DHTMLSuite.commonObj.getTopPos(this.menuItem_objects[parentId].divElement)) + 'px';		
 			}	

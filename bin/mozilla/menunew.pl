@@ -137,10 +137,21 @@ sub create_menu {
 
     if ($menu_item->{submenu} || !defined($menu_item->{module}) || ($menu_item->{module} eq "menu.pl")) {
       $item->{subitems} = [];
+      $item->{image} = _icon_path("$name.png");
       create_menu($menu, $item->{subitems}, "${parent}${name}", $depth * 1 + 1);
 
     } else {
+      $item->{image} = _icon_path("${parent}${name}.png");
       $menu->menuitem_new("${parent}${name}", $item);
     }
   }
 }
+
+sub _icon_path {
+  my ($label, $size) = @_;
+
+  $size ||= 16;
+
+  return "image/icons/${size}x${size}/$label";
+}
+
