@@ -2335,6 +2335,7 @@ DHTMLSuite.menuBar.prototype = {
 	}
 	// }}}	
 	,
+    unsetMenuBarState : function() { this.menuBarState = false },
 	// {{{ __setBasicEvents()
     /**
      *	Set basic events for the menu widget.
@@ -2346,6 +2347,7 @@ DHTMLSuite.menuBar.prototype = {
 	{
 		DHTMLSuite.commonObj.addEvent(document.documentElement,"click",this.hideSubMenus);		
         var menu = this;
+        $(document).mousedown(function(){ menu.unsetMenuBarState(); });
         $('#win1').load(function(){
             $('#win1').contents().mousedown(function(){
                 menu.hideSubMenus();
