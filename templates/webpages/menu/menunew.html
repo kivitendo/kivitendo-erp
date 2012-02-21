@@ -38,7 +38,7 @@ window.onload=clockon
  <ul id="main_menu_model">
  [%- FOREACH mainitem = menu_items %]
   [%- SET main_id = main_id + 1 %]
-  <li id="[% main_id %]">
+  <li id="[% main_id %]"[% IF mainitem.image %] itemIcon="[% mainitem.image %]"[% END %]>
    <a href="[% IF mainitem.href %][% mainitem.href %][% ELSE %]#[% END %]"[% IF mainitem.target %] target="[% mainitem.target %]"[% END %]>
     [%- HTML.escape(mainitem.title) %]
    </a>
@@ -47,7 +47,7 @@ window.onload=clockon
      [%- SET sub1_id = main_id * 100 %]
      [%- FOREACH sub1item = mainitem.subitems %]
       [%- SET sub1_id = sub1_id + 1 %]
-      <li id="[% sub1_id %]">
+      <li id="[% sub1_id %]"[% IF sub1item.image %] itemIcon="[% sub1item.image %]"[% END %]>
        <a href="[% IF sub1item.href %][% sub1item.href %][% ELSE %]#[% END %]"[% IF sub1item.target %] target="[% sub1item.target %]"[% END %]>
         [%- HTML.escape(sub1item.title) %]
        </a>
@@ -56,7 +56,7 @@ window.onload=clockon
          [%- SET sub2_id = sub1_id * 100 %]
          [%- FOREACH sub2item = sub1item.subitems %]
           [%- SET sub2_id = sub2_id + 1 %]
-          <li id="[% sub2_id %]">
+          <li id="[% sub2_id %]"[% IF sub2item.image %] itemIcon="[% sub2item.image %]"[% END %]>
            <a href="[% IF sub2item.href %][% sub2item.href %][% ELSE %]#[% END %]"[% IF sub2item.target %] target="[% sub2item.target %]"[% END %]>
             [%- HTML.escape(sub2item.title) %]
            </a>
