@@ -72,6 +72,9 @@ window.onload=clockon
  [%- END %]
  </ul>
 
+ <iframe id="win1" src="[% callback %]" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
+  <p>[% 'MSG_BROWSER_DOES_NOT_SUPPORT_IFRAMES' | $T8 %]</p>
+ </iframe>
  <script type="text/javascript">
   <!--
 
@@ -96,8 +99,5 @@ function open_url(url, target) {
     -->
  </script>
 
- <iframe id="win1" src="[% callback %]" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
-  <p>[% 'MSG_BROWSER_DOES_NOT_SUPPORT_IFRAMES' | $T8 %]</p>
- </iframe>
 </body>
 </html>
