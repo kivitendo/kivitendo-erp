@@ -63,7 +63,7 @@
         <tr>
           <th align="right">[% 'Shipping Address' | $T8 %]</th>
           <td>
-            [% L.select_tag('shipto_id', L.options_for_select(ALL_SHIPTO, default=shipto_id, value='shipto_id', title_sub=\shipto_labels, with_empty=1), style='width: 250px', onChange="document.getElementById('update_button').click();") %]
+            [% L.select_tag('shipto_id', L.options_for_select(ALL_SHIPTO, default=shipto_id, value='shipto_id', title='displayable_id', with_empty=1), style='width: 250px', onChange="document.getElementById('update_button').click();") %]
           </td>
         </tr>
 [%- END %]

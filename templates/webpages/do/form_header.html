@@ -159,17 +159,7 @@
           [%- END %]
 
           [%- ELSE %]
-          <select name="shipto_id" class="fixed_width" >
-           <option></option>
-           [%- FOREACH row = ALL_SHIPTO %]
-           <option value="[% HTML.escape(row.shipto_id) %]"[% IF shipto_id == row.shipto_id %] selected[% END %]>
-            [%- HTML.escape(row.shiptoname) -%]
-            [%- IF row.shiptodepartment_1 %]; [% HTML.escape(row.shiptodepartment_1) -%][% END -%]
-            [%- IF row.shiptostreet %]; [% HTML.escape(row.shiptostreet) -%][% END -%]
-            [%- IF row.shiptocity %]; [% HTML.escape(row.shiptocity) -%][% END -%]
-           </option>
-           [%- END %]
-          </select>
+            [% L.select_tag('shipto_id', L.options_for_select(ALL_SHIPTO, default=shipto_id, value='shipto_id', title='displayable_id', with_empty=1), class='fixed_width') %]
           [%- END %]
          </td>
         </tr>

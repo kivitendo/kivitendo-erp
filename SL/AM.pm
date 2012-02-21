@@ -1116,7 +1116,7 @@ sub save_preferences {
 
   $form->{businessnumber} =  $businessnumber;
 
-  $myconfig = new User($form->{login});
+  $myconfig = User->new(login => $form->{login});
 
   foreach my $item (keys %$form) {
     $myconfig->{$item} = $form->{$item};

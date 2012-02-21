@@ -476,7 +476,7 @@ sub save_user {
   $user->{templates} =~ s|.*/||;
   $user->{templates} =  $::lx_office_conf{paths}->{templates} . "/$user->{templates}";
 
-  my $myconfig = new User(id => $form->{id});
+  my $myconfig = new User(id => $user->{id});
 
   $::form->show_generic_error($::locale->text('Dataset missing!'))       unless $user->{dbname};
   $::form->show_generic_error($::locale->text('Database User missing!')) unless $user->{dbuser};

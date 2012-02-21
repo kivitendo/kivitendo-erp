@@ -868,6 +868,9 @@ sub get_contact {
   $main::lxdebug->enter_sub();
 
   my ( $self, $myconfig, $form ) = @_;
+
+  die 'Missing argument: cp_id' unless $::form->{cp_id};
+
   my $dbh   = $form->dbconnect($myconfig);
   my $query =
     qq|SELECT * FROM contacts c | .
@@ -1047,6 +1050,7 @@ sub _delete_selected_notes {
   $main::lxdebug->leave_sub();
 }
 
+# TODO: remove in 2.7.0 stable
 sub delete_shipto {
   $main::lxdebug->enter_sub();
 
@@ -1064,6 +1068,7 @@ sub delete_shipto {
   $main::lxdebug->leave_sub();
 }
 
+# TODO: remove in 2.7.0 stable
 sub delete_contact {
   $main::lxdebug->enter_sub();
 

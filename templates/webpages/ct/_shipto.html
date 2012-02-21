@@ -3,8 +3,8 @@
      <tr>
       <th align="right">[% 'Shipping Address' | $T8 %]</th>
       <td>
-       [% L.select_tag('shipto_id', L.options_for_select(SHIPTO, default => shipto_id, value => 'shipto_id', title_sub => \shipto_label, with_empty => 1),
-                       onchange => "\$('#shipto_table').load('ct.pl?action=get_shipto&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)") %]
+       [% L.select_tag('shipto_id', L.options_for_select(SHIPTO, default => shipto_id, value => 'shipto_id', title_sub => \shipto_label, with_empty => 1, empty_title => LxERP.t8('New shipto')),
+                       onchange => "\$('#shipto').load('ct.pl?action=get_shipto&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)") %]
       </td>
      </tr>
 
@@ -59,3 +59,8 @@
       <td><input id="shiptoemail" name="shiptoemail" size="45" value="[% HTML.escape(shiptoemail) %]"></td>
      </tr>
     </table>
+
+[%- IF shipto_id %]
+    <input type="submit" id="delete_shipto" name="action" value="[% 'Delete Shipto' | $T8 %]">
+    <br style="clear: left" />
+[%- END %]

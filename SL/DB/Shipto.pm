@@ -19,4 +19,23 @@ sub displayable_id {
   return $text;
 }
 
+sub used {
+  my ($self) = @_;
+
+  return unless $self->shipto_id;
+
+  require SL::DB::Order;
+  require SL::DB::Invoice;
+  require SL::DB::DeliveryOrder;
+
+  return SL::DB::Manager::Order->get_all_count(query => [ shipto_id => $self->shipto_id ])
+      || SL::DB::Manager::Invoice->get_all_count(query => [ shipto_id => $self->shipto_id ])
+      || SL::DB::Manager::DeliveryOrder->get_all_count(query => [ shipto_id => $self->shipto_id ]);
+}
+
+sub detach {
+  $_[0]->trans_id(undef);
+  $_[0];
+}
+
 1;

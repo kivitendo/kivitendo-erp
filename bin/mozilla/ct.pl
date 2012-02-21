@@ -711,41 +711,53 @@ sub get_delivery {
 }
 
 sub delete_shipto {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('customer_vendor_edit');
 
-  $main::auth->assert('customer_vendor_edit');
+  if (!$::form->{shipto_id}) {
+    flash('error', $::locale->text('No shipto selected to delete'));
+  } else {
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+    CT->get_shipto(\%::myconfig, $::form);
 
-  CT->get_shipto(\%myconfig, \%$form);
+    my $shipto = SL::DB::Manager::Shipto->find_by(shipto_id => $::form->{shipto_id});
 
-  unless ($form->{shiptoused}) {
-    CT->delete_shipto($form->{shipto_id});
-    @$form{ grep /^shipto/, keys %$form } = undef;
+    if ($shipto->used) {
+      $shipto->detach->save;
+      flash('info', $::locale->text('Shipto is in use and was flagged invalid.'));
+    } else {
+      $shipto->delete;
+      flash('info', $::locale->text('Shipto deleted.'));
+    }
+    delete $::form->{$_} for grep /^shipto/, keys %$::form;
   }
 
   edit();
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub delete_contact {
   $::lxdebug->enter_sub;
   $::auth->assert('customer_vendor_edit');
 
-  CT->get_contact(\%::myconfig, $::form);
-
-  my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
-
-  if ($contact->used) {
-    $contact->detach;
-    flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
+  if (!$::form->{cp_id}) {
+    flash('error', $::locale->text('No contact selected to delete'));
   } else {
-    $contact->delete;
-    flash('info', $::locale->text('Contact deleted.'));
+
+    CT->get_contact(\%::myconfig, $::form);
+
+    my $contact = SL::DB::Manager::Contact->find_by(cp_id => $::form->{cp_id});
+
+    if ($contact->used) {
+      $contact->detach->save;
+      flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
+    } else {
+      $contact->delete;
+      flash('info', $::locale->text('Contact deleted.'));
+    }
+    delete $::form->{$_} for grep /^cp_/, keys %$::form;
   }
-  delete $::form->{$_} for grep /^cp_/, keys %$::form;
 
   edit();
 
