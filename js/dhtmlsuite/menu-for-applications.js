@@ -1597,7 +1597,7 @@ DHTMLSuite.menuBar = function()
 	this.targetId = false;
 	this.activeSubItemsOnMouseOver = false;
 	this.menuItemCssPrefix = false;
-	this.createIframesForOldIeBrowsers = true;
+	this.createIframesForOldIeBrowsers = false;
 	if(!standardObjectsCreated)DHTMLSuite.createStandardObjects();	
 	
 	
