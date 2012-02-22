@@ -171,7 +171,7 @@ class erp {
             $this->db->rollback();
             return false;
         } else {
-            $this->err->out(" Auftrag: ".$data["ordnumber"]." ");
+            $this->error->out(" Auftrag: ".$data["ordnumber"]." ");
             return $rs['id'];
         }
     }
@@ -224,7 +224,7 @@ class erp {
         return true;
     }
     function insCustomer($data) {
-        $this->err->out('Insert:'.$data["name"].' ');
+        $this->error->out('Insert:'.$data["name"].' ');
         if ($this->docustnr == 1) {
             $data['customernumber'] = $this->getNewNr('customer');
         } else {
@@ -239,7 +239,7 @@ class erp {
                 $sql = "SELECT id FROM customer WHERE customernumber = '".$data['customernumber']."'";
                 $rs = $this->db->getOne($sql);
                 $rc = $rs['id'];
-                $this->err->out("Kd-Nr: ".$data['customernumber'].":".$rs['id']);
+                $this->error->out("Kd-Nr: ".$data['customernumber'].":".$rs['id']);
             } else {
                 $this->error->write('erplib','Kunde anlegen: '.$data["name"]);
                 $this->db->rollback();
@@ -252,7 +252,7 @@ class erp {
             $sql = "SELECT * FROM customer WHERE id = ".$data['customer_id'];
             $rs = $this->db->getOne($sql);
             if ($rs['id'] == $data['customer_id']) {
-                 $this->err->out('Update:'.$data['customer_id'].' ');
+                 $this->error->out('Update:'.$data['customer_id'].' ');
                  $sql  = "UPDATE customer SET greeting = :greeting,name = :name,street = :street,city = :city,country = :country,";
                  $sql .= "zipcode = :zipcode,contact = :contact,phone = :phone,email = :email WHERE id = :customer_id";
                  $rc =  $this->db->update($sql,$data);
@@ -295,7 +295,7 @@ class erp {
             $this->error->write('erplib','Auftrag anlegen');
             return -1;
         }
-        $this->err->out($data["customer"]["firma"]." ");
+        $this->error->out($data["customer"]["firma"]." ");
         $rc = $this->db->Commit();
         return $data["customer_id"];
     }
@@ -351,7 +351,7 @@ class erp {
            } else {
                return $rs['id'];
            }
-       } else if ($this->mkPart and $new) {
+       } else if ($new and $this->mkPart) {
            $data['id'] = $this->mkNewPart($data);
            if ($long) {
                return $data;
@@ -409,7 +409,7 @@ class erp {
        $sql .= ":image,:buchungsgruppen_id,1,1,1)";
        $rc = $this->db->insert($sql,$data);
        $x =  $this->chkPartnumber($data,False);
-       $this->err->out('Neuer Artikel: '.$data['partnumber'],true);
+       $this->error->out('Neuer Artikel: '.$data['partnumber'],true);
        $this->error->write('erplib','Artikel neu: '.$data['partnumber']);
        return $x;
     }
