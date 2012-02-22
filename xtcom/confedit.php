@@ -252,7 +252,7 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 					fputs($f,"\$Language[$key]=array(\"ERP\"=>$val,\"SHOP\"=>".$_POST["SHOPlang"][$key].");\n");
 			}
 			if (!$DefaultLangOk) {
-				fputs($f,"\$SHOPdbname=\"\";\n");
+				//fputs($f,"\$SHOPdbname=\"\";\n");
 				echo "Es wurde keine ERP-Sprache der Shopdefaultsprache zugewiesen.";
 				echo "Verbindung zum Shop abgebrochen<br>";
 			}
