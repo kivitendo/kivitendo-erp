@@ -1,6 +1,6 @@
 % Sprachüberprüfung
-\IfSubStringInString{\_EN}{\lxtmpfile}{\input{english.tex}}{
-  \IfSubStringInString{\_DE}{\lxtmpfile}{\input{deutsch.tex}}{\input{deutsch.tex}}
+\ifthenelse{\equal{\lxlangcode}{EN}}{\input{english.tex}}{
+  \ifthenelse{\equal{\lxlangcode}{DE}}{\input{deutsch.tex}}{\input{deutsch.tex}}
 } % Ende EN
 
 
@@ -10,8 +10,8 @@
 % Hat man mehrere Mandanten muß man statt "Firma1" den Datenbanknamen seines
 % Mandanten eingeben.
 
-\IfSubStringInString{Firma1}{\lxcompany}{\newcommand{\identpath}{firma1}}{
-  \IfSubStringInString{Firma2}{\lxcompany}{\newcommand{\identpath}{firma2}}
+\IfSubStringInString{Firma1}{\lxtitlebar}{\newcommand{\identpath}{firma1}}{
+  \IfSubStringInString{Firma2}{\lxtitlebar}{\newcommand{\identpath}{firma2}}
     {\newcommand{\identpath}{firma}} % sonst
 } % Ende Firma1
 
@@ -90,10 +90,11 @@
 \cfoot{
   {\normalfont\fontfamily{cmss} \tiny
      \begin{tabular}{p{5cm}p{4.5cm}lr}
-        \firma    & \email              & \textKontonummer & \kontonummer \\
-        \strasse  & \homepage           & \textBank        & \bank \\
-        \ort      & \textUstid\ \ustid  & \textIban        & \iban \\
+        \firma                 & \email              & \textKontonummer & \kontonummer \\
+        \strasse               & \homepage           & \textBank        & \bank \\
+        \ort                   & \textUstid\ \ustid  & \textIban        & \iban \\
+        \textTelefon~\telefon  & \finanzamt          & \textBic         & \bic \\
+        \ifthenelse{\equal{\fax}{}}{}{\textFax~\fax} &&& \\
      \end{tabular}
   }
 }
-
