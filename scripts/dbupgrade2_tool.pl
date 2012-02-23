@@ -436,7 +436,7 @@ if ($opt_user) {
   }
 
   $locale = new Locale($myconfig{countrycode}, "all");
-  $user   = new User($opt_user);
+  $user   = new User(login => $opt_user);
 
   map { $form->{$_} = $myconfig{$_} } keys %myconfig;
 }

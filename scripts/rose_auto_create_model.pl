@@ -59,7 +59,7 @@ sub setup {
   $::locale       = Locale->new("de");
   $::form         = new Form;
   $::auth         = SL::Auth->new();
-  $::user         = User->new($login);
+  $::user         = User->new(login => $login);
   %::myconfig     = $auth->read_user(login => $login);
   $::request      = { cgi => CGI->new({}) };
   $form->{script} = 'rose_meta_data.pl';
