@@ -2,7 +2,7 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
-2012-02-15 - Release 2.7.0 beta 2
+2012-02-22 - Release 2.7.0 release candidate 1
 
 Größere neue Features
 
@@ -65,6 +65,10 @@ Kleinere neue Features und Detailverbesserungen:
 - Kunden und Lieferantenstammdaten
   Hier kann jetzt eine Währung eingestellt werden, die als Voreinstellung in
   den Ver- und Einkaufsmasken dient.
+
+- Verbessertes Javascriptmenü
+  Das Verhalten des Javascriptmenüs wurde an das verhalten von
+  Desktopapplikationen angepasst, und ersetzt das XUL Menü.
 
 
 Sicherheit:
@@ -129,16 +133,26 @@ API-Änderungen:
   in der Suchmaske muss nun "Lagermenge" explizit angewaehlt werden, wenn die
   Warenbestände im Suchergebnis angezeigt werden sollen.
 
+
 Entfernte Features:
 
 - Der PHP basierte CSV-Import wurde zugunsten des neuen Imports entfernt.
 
 - Das Feature "Lizenzverwaltung" wurde entfernt.
+  Die Modellierung von Lizenzen war irreführend und widersprüchlich, und bot
+  keinerlei Funkionalität ausser dem Speichern von Lizenzschlüsseln.
 
 - Das XUL Menü wurde ersatzlos entfernt.
   Das Menü funktionierte nur nur mit Firefox, und wurde wegen
   Sicherheitsproblemen und eingestellter Unterstützung für XUL seitens der
-  Firefox-Entwickler entfernt.
+  Firefoxentwickler entfernt. Das Javasriptmenü wird als Alternative
+  vorgschlagen.
+
+- USTVA Vorlagen
+  Die LaTeX-Vorlagen für die USTVA der Jahre 2011 und früher wurden entfernt.
+  Grund ist der Wartungsaufwand für die zunehmende Anzahl von Vorlagen in
+  verbindung mit der Tatsache dass die Erklärung nicht mehr in PDF Form
+  eingereicht werden kann.
 
 
 Experimentelle Features:
@@ -160,7 +174,9 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 415: Ware erfassen Layout
   - Bugfix 550: Fehlende Variable
   - Bugfix 635: Fehlendes Feld "Konto-Inhaber" bei Kunden/Lieferanten
+  - Bugfix 732: Sackgasse bei Meldung "Ist gelöscht ..."
   - Bugfix 807: InstallationCheck prueft nicht Version von Template-Toolkit, v2 ist aber erforderlich
+  - Bugfix 842: JavaScriptmenü zu breit
   - Bugfix 865: Beim PDF- Export Kontenblätter wird ab Seite 2 Zeile 1 und 3 vertauscht und "Soll" und "Haben" aufeinandergedruckt
   - Bugfix 872: Lieferdatum erscheint nicht bei Rechnungsposten
   - Bugfix 910: mod_perl Kompatibilität
@@ -249,6 +265,7 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1749: 07ccbf8dd hat Zahlungseingang kaputtgemacht
   - Bugfix 1752: Rechnung -> Druckvorschau ignoriert Änderung des Steuersatz beim Beleg
   - Bugfix 1753: Benutzerdefinierte Variable f. Waren: bearbeitbar nicht auswählbar.
+  - Bugfix 1754: Löschen und Neuanlegen von Lieferadressen nicht möglich
   - Bugfix 1756: Ertrag in Bruttorechnung ist falsch
   - Bugfix 1758: Detailansicht Kunde Link Auftrag / Angebot Rechtefehler
   - Bugfix 1759: Währung bei Kunden / Lieferanten vorbelegen
@@ -264,12 +281,15 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1778: Kundenauswahl Angebote, etc.
   - Bugfix 1779: Berichte zu Verkaufslieferscheinen, Checkbox "Verkaeufer" hat keine Funktion
   - Bugfix 1782: Release Management Dokumentation
+  - Bugfix 1783: Verhalten des Javascript-Menues aendern
   - Bugfix 1787: Winstonexport with . instead of , in numbers
   - Bugfix 1789: Metainformationen fehlen bei Mahnungen
   - Bugfix 1792: Button Karte zu tief
   - Bugfix 1794: undef error - Can't locate object method "full_name_dep"
   - Bugfix 1797: GuV wirft SQL Fehler
-
+  - Bugfix 1801: Benutzerfreundliche Links
+  - Bugfix 1805: Error on fresh install of lx-office on CentOS 5.7, hash_password not found
+  - Bugfix 1808: Userlogin leakt in die Adminmasken
 
 
 2011-06-15 - Release 2.6.3

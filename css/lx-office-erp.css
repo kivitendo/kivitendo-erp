@@ -15,7 +15,7 @@ input:focus, textarea:focus, select:focus {
 }
 
 body {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   font-size: 10pt;
   background-color: white;
   background-image: url("../image/fade.png"); background-repeat:repeat-x;
@@ -27,7 +27,7 @@ body {
 } */
 
 td {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   color: black;
   font-size: 8pt;
   font-weight: normal;
@@ -45,7 +45,7 @@ td.hover:hover {
 
 
 th {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   color: black;
   font-size: 8pt;
   font-weight: normal;
@@ -53,7 +53,7 @@ th {
 
 /* login and admin */
 .login {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
 }
 body.login {
   background: #b8d1f3;
@@ -80,7 +80,7 @@ body.admin {
 
 body.menu {
   background-image: url("../image/fade.png");background-repeat:repeat-x;
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   font-size:8pt;
   color: black;
 }
@@ -230,11 +230,11 @@ body.menu {
 
 
 .submit {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   color: #000000;
 }
 .checkbox, .radio {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   color: #778899;
 }
 

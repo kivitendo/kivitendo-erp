@@ -1597,7 +1597,7 @@ DHTMLSuite.menuBar = function()
 	this.targetId = false;
 	this.activeSubItemsOnMouseOver = false;
 	this.menuItemCssPrefix = false;
-	this.createIframesForOldIeBrowsers = true;
+	this.createIframesForOldIeBrowsers = false;
 	if(!standardObjectsCreated)DHTMLSuite.createStandardObjects();	
 	
 	
@@ -2343,6 +2343,14 @@ DHTMLSuite.menuBar.prototype = {
 	// }}}	
 	,
     unsetMenuBarState : function() { this.menuBarState = false },
+    changeMenuBarState: function (target) {
+	   var parentId = target.id.replace(/[^0-9]/gi,'');
+	   this.menuBarState = !this.menuBarState;
+       this.hideSubMenus();
+	   if(this.menuBarState) {
+	   	this.__expandGroup(parentId);
+       }
+    },
 	// {{{ __setBasicEvents()
     /**
      *	Set basic events for the menu widget.
@@ -2352,9 +2360,12 @@ DHTMLSuite.menuBar.prototype = {
      */	
 	__setBasicEvents : function()
 	{
-		DHTMLSuite.commonObj.addEvent(document.documentElement,"click",this.hideSubMenus);		
         var menu = this;
-        $(document).mousedown(function(){ menu.unsetMenuBarState(); });
+        $('div.DHTMLSuite_menuBar_sub').click(function() { menu.hideSubMenus(); menu.unsetMenuBarState() });
+        $('div.DHTMLSuite_menuBar_top > div > div[objectref!="0"]').click(function() { menu.changeMenuBarState(this) });
+        $('div.DHTMLSuite_menuBar_top').click(function(e) {
+          if ($(e.target).attr('class') == 'DHTMLSuite_menuBar_top') { menu.hideSubMenus(); menu.unsetMenuBarState() }
+        });
         $('#win1').load(function(){
             $('#win1').contents().mousedown(function(){
                 menu.hideSubMenus();

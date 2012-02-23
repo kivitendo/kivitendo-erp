@@ -8,21 +8,29 @@ Upgrade auf v2.7.0
 ==================
 
 * In der Version 2.7.0 wird das XUL Menü entfernt. Alle Benutzer die das XUL
-  Menü noch eingestellt haben, werden beim ersten Einloggen auf ein anderes
-  Menü gesetzt.
+  Menü noch eingestellt haben, werden beim ersten Einloggen auf ein
+  Kompatibilitätsmenü gesetzt. Das Javascriptmenü wurde entsprechend erweitert
+  um der Funktionalität nahe zu kommen.
 
 * Das Lizenzenfeature wurde ersatzlos entfernt.
 
-* In den LaTeX Vorlagen wird der Befehl "pagebreak" und die dazugehörigen
-  "sumcarriedforward" und "lastpage" nicht mehr offiziell unterstuetzt. Diese
-  Methoden gelten als "deprecated" und werden in der naechsten Version gaenzlich
-  entfernt. Sie sollten bereitss jetzt nicht mehr verwendet werden da sie mehrere
-  Fehler beinhalten. Die Standardvorlagen sind entsprechend angepasst worden
+* In den LaTeX Vorlagen gilt der Befehl "pagebreak" und die dazugehörigen
+  "sumcarriedforward" und "lastpage" als deprecated und werden in einer
+  kommenden Version komplett entfernt. Die Mechanik ist anfällig gegenüber
+  subtilen Formatierungsfehlern bei bestimmten Zahlenformaten und ist
+  grundsätzlich fehlerhaft in den gemachten Annahmen über den verfügbaren Platz
+  auf einer Seite. Die Standardvorlagen sind entsprechend angepasst worden
   und müssen in der Administration neu angelegt werden.
 
 * Das Druckvorlagensystem wurde umgestellt, dadurch ist der Name "print" für
   Druckvorlagen jetzt reserviert. Wenn eine Ihrer Vorlagensätze "print" heisst,
   benennen Sie ihn um bevor Sie das Update starten.
+
+* Die Druckvorlagen für USTVA vor 2012 wurden entfernt und das Ausdrucken von
+  USTVA als PDF ist deprecated. Da die Eingabe von Erklärungen als PDF nicht
+  mehr gestattet ist, sollten Archivkopien der USTVA direkt bei Elster bezogen
+  werden, oder auf anderem Wege erstellt werden. Der Prozess dazu wird sich in
+  einer kommenden Version ändern.
 
 * Neue Abhängigkeiten
 

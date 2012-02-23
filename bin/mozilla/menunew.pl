@@ -152,6 +152,9 @@ sub _icon_path {
 
   $size ||= 16;
 
-  return "image/icons/${size}x${size}/$label";
+  my $img = "image/icons/${size}x${size}/$label";
+
+  return unless -f $img;
+  return $img;
 }
 

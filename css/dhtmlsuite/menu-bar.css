@@ -4,12 +4,12 @@
 	(C) www.dhtmlgoodies.com, August 2006
 
 	CSS for the DHTMLsuite_tableWidget class.
-	
+
 	Terms of use:
 	Look at the terms of use at http://www.dhtmlgoodies.com/index.html?page=termsOfUse
-	
+
 	Thank you!
-	
+
 	www.dhtmlgoodies.com
 	Alf Magne Kalleland
 
@@ -20,7 +20,7 @@
 	height:26px;
 	width:100%;
 	background-repeat:repeat-x;
-	font-family: Arial;
+	font-family: sans-serif, Verdana, Arial, Helvetica;
 	font-size:12px;
 	z-index:100000;
 	padding-left:10px;

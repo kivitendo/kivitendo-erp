@@ -24,26 +24,26 @@ input:focus, textarea:focus, select:focus {
 }
 
 body {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   font-size: 8pt;
   background-color: #D4D0C8;
   color: black
 }
 td {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   color: black;
   font-size: 8pt;
   font-weight: normal;
 }
 th {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   color: black;
   font-size: 8pt;
   font-weight: normal;
 }
 /* login and admin */
 .login {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
 }
 body.login {
   background: #b8d1f3;
@@ -68,7 +68,7 @@ body.admin {
 }
 body.menu {
   background-color: white;
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   font-size:8pt;
   color: black;
 }
@@ -145,11 +145,11 @@ body.menu {
 .listtotal { border-top: 1px double black; font-size: 8pt; background-color: #b8d1f3; color: black; font-weight: bolder;}
 .submit {
   font-size: 8pt;
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   color: #000000;
 }
 .checkbox, .radio {
-  font-family: Verdana, Arial, Helvetica;
+  font-family: sans-serif, Verdana, Arial, Helvetica;
   color: #778899;
 }
 .plus0 {    /* font color for negative numbers */
