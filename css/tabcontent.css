@@ -5,7 +5,7 @@ padding: 3px 0;
 margin-left: 0;
 margin-top: 1px;
 margin-bottom: 0;
-font: bold 12px sans-serif, Verdana;
+font: bold 12px Verdana, sans-serif;
 list-style-type: none;
 text-align: left; /*set to left, center, or right to align the menu as desired*/
 }

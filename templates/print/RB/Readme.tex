@@ -24,28 +24,23 @@
 %   Dokument vorher mit \newcommand neu definiert.
 %
 % Sprachen:
-%   In 'insettings.tex' wird anhand des herangezogenen
-%   Vorlagen-Dateinamens die Sprache unterschieden und eine
-%   entsprechende Übersetzungsdatei geladen, die Textbausteine
-%   bzw. -Schnipsel enthält. Die Vorlagen verwenden nur diese
-%   Schnipsel. Im Moment sind die Vorlagenkürzel DE und EN in
+%   In 'insettings.tex' wird anhand des verwendeten Sprachkürzels die
+%   Sprache unterschieden und eine entsprechende Übersetzungsdatei geladen,
+%   die Textbausteine  bzw. -Schnipsel enthält. Die Vorlagen verwenden nur
+%   diese Schnipsel. Im Moment werden die Vorlagenkürzel DE und EN in
 %   Benutzung mit den entsprechenden Übersetzungsdateien 'deutsch.tex'
-%   und 'english.tex'.
-%
-%   Die eigentlichen Vorlagen sind gleich, deshalb sind die Dateien
-%   für die Sprachen (z.B. invoice_DE.tex) nur symbolische Links auf
-%   die Default-Datei ohne Sprachkürzel (z.B. invoice.tex).
-%
+%   und 'english.tex' unterschieden.
 %
 % Mandanten / Firma:
 %   Um gleiche Vorlagen für verschiedene Firmen verwenden zu können, wird je
-%   nach dem Wert der Lx-Office-Variablen <%employee_company%> ein
+%   nach dem Wert der Lx-Office-Variablen <%titlebar%> ein
 %   Firmenverzeichnis ausgewählt (siehe 'insettings.tex'), in dem Briefkopf,
 %   Identitäten und Währungs-/Kontoeinstellungen hinterlegt sind.
-%   <%employee_company%> entspricht dem Feld "Firma" bei den
-%   Benutzereinstellungen. Ist kein Firmenname eingetragen, so wird das
+%   <%titlebar%> enthält den Namen des Benutzers und der verwendeten
+%   Mandantendatenbank. Ist kein Firmenname eingetragen, so wird das
 %   generische Unterverzeichnis 'firma' verwendet.
-
+%   Das heißt, dass ein Firmenverzeichnis mit dem Namen der Mandantendatenbank
+%   angelegt werden sollte.
 %
 % Identitäten:
 %    In jedem Firmen-Unterverzeichnis soll eine Datei 'ident.tex'

@@ -1964,7 +1964,7 @@ sub get_employee_data {
   my ($login)  = selectrow_query($self, $dbh, qq|SELECT login FROM employee WHERE id = ?|, conv_i($params{id}));
 
   if ($login) {
-    my $user = User->new($login);
+    my $user = User->new(login => $login);
     map { $self->{$params{prefix} . "_${_}"} = $user->{$_}; } qw(address businessnumber co_ustid company duns email fax name signature taxnumber tel);
 
     $self->{$params{prefix} . '_login'}   = $login;
