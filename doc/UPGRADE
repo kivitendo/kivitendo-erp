@@ -32,6 +32,10 @@ Upgrade auf v2.7.0
   werden, oder auf anderem Wege erstellt werden. Der Prozess dazu wird sich in
   einer kommenden Version ändern.
 
+* Die Namen der von LaTeX generierten PDF-Dateien sind jetzt in der
+  eingestellten Dokumentensprache, nicht mehr in der Oberflächensprache des
+  Bearbeiters.
+
 * Neue Abhängigkeiten
 
   * JSON
