@@ -1,31 +1,31 @@
 <html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>4.3. SQL-Upgradedateien</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. Translations and languages"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. SQL-Upgradedateien</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. SQL-Upgradedateien"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="db-upgrade-files"></a>4.3. SQL-Upgradedateien</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>Der alte Mechanismus für SQL-Upgradescripte, der auf einer
-        Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script für
-        diese Versionsnummer sucht, schränkt sehr ein, z.B. was die parallele
-        Entwicklung im stable- und unstable-Baum betrifft.</p><p>Dieser Mechanismus wurde für Lx-Office 2.4.1 deutlich erweitert.
-        Es werden weiterhin alle Scripte aus sql/Pg-upgrade ausgeführt.
-        Zusätzlich gibt es aber ein zweites Verzeichnis, sql/Pg-upgrade2. In
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>4.3. SQL-Upgradedateien</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. Translations and languages"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. SQL-Upgradedateien</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">ZurÃ¼ck</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. SQL-Upgradedateien"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="db-upgrade-files"></a>4.3. SQL-Upgradedateien</h2></div></div></div><div class="sect2" title="4.3.1. EinfÃ¼hrung"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.introduction"></a>4.3.1. EinfÃ¼hrung</h3></div></div></div><p>Der alte Mechanismus fÃ¼r SQL-Upgradescripte, der auf einer
+        Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script fÃ¼r
+        diese Versionsnummer sucht, schrÃ¤nkt sehr ein, z.B. was die parallele
+        Entwicklung im stable- und unstable-Baum betrifft.</p><p>Dieser Mechanismus wurde fÃ¼r Lx-Office 2.4.1 deutlich erweitert.
+        Es werden weiterhin alle Scripte aus sql/Pg-upgrade ausgefÃ¼hrt.
+        ZusÃ¤tzlich gibt es aber ein zweites Verzeichnis, sql/Pg-upgrade2. In
         diesem Verzeichnis muss pro Datenbankupgrade eine Datei existieren,
-        die neben den eigentlich auszuführenden SQL- oder Perl-Befehlen einige
-        Kontrollinformationen enthält.</p><p>Neu sind die Kontrollinformationen, die Abhängigkeiten und
-        Prioritäten definieren können werden, sodass Datenbankscripte zwar in
-        einer sicheren Reihenfolge ausgeführt werden (z.B. darf ein "ALTER
-        TABLE" erst ausgeführt werden, wenn die Tabelle mit "CREATE TABLE"
+        die neben den eigentlich auszufÃ¼hrenden SQL- oder Perl-Befehlen einige
+        Kontrollinformationen enthÃ¤lt.</p><p>Neu sind die Kontrollinformationen, die AbhÃ¤ngigkeiten und
+        PrioritÃ¤ten definieren kÃ¶nnen werden, sodass Datenbankscripte zwar in
+        einer sicheren Reihenfolge ausgefÃ¼hrt werden (z.B. darf ein "ALTER
+        TABLE" erst ausgefÃ¼hrt werden, wenn die Tabelle mit "CREATE TABLE"
         angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man
         keine Versionsnummern mehr braucht.</p><p>Lx-Office merkt sich dabei, welches der Upgradescripte in
-        sql/Pg-upgrade2 bereits durchgeführt wurde und führt diese nicht
+        sql/Pg-upgrade2 bereits durchgefÃ¼hrt wurde und fÃ¼hrt diese nicht
         erneut aus. Dazu dient die Tabelle "schema_info", die bei der
         Anmeldung automatisch angelegt wird.</p></div><div class="sect2" title="4.3.2. Format der Kontrollinformationen"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.format"></a>4.3.2. Format der Kontrollinformationen</h3></div></div></div><p>Die Kontrollinformationen sollten sich am Anfang der jeweiligen
-        Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthält,
-        hat dabei das folgende Format:</p><p>Für SQL-Upgradedateien:</p><pre class="programlisting">-- @key: value</pre><p>Für Perl-Upgradedateien:</p><pre class="programlisting"># @key: value</pre><p>Leerzeichen vor "<code class="varname">value</code>" werden
-        entfernt.</p><p>Die folgenden Schlüsselworte werden verarbeitet:</p><div class="variablelist"><dl><dt><span class="term">
+        Upgradedatei befinden. Jede Zeile, die Kontrollinformationen enthÃ¤lt,
+        hat dabei das folgende Format:</p><p>FÃ¼r SQL-Upgradedateien:</p><pre class="programlisting">-- @key: value</pre><p>FÃ¼r Perl-Upgradedateien:</p><pre class="programlisting"># @key: value</pre><p>Leerzeichen vor "<code class="varname">value</code>" werden
+        entfernt.</p><p>Die folgenden SchlÃ¼sselworte werden verarbeitet:</p><div class="variablelist"><dl><dt><span class="term">
                      <code class="varname">tag</code>
-                  </span></dt><dd><p>Wird zwingend benötigt. Dies ist der "Name" des Upgrades.
+                  </span></dt><dd><p>Wird zwingend benÃ¶tigt. Dies ist der "Name" des Upgrades.
               Dieser "tag" kann von anderen Kontrolldateien in ihren
-              Abhängigkeiten verwendet werden (Schlüsselwort
+              AbhÃ¤ngigkeiten verwendet werden (SchlÃ¼sselwort
               "<code class="varname">depends</code>"). Der "tag" ist auch der Name, der
-              in der Datenbank eingetragen wird.</p><p>Normalerweise sollte die Kontrolldatei genau so heißen wie
+              in der Datenbank eingetragen wird.</p><p>Normalerweise sollte die Kontrolldatei genau so heiÃŸen wie
               der "tag", nur mit der Endung ".sql" bzw. "pl".</p><p>Ein Tag darf nur aus alphanumerischen Zeichen sowie den
               Zeichen _ - ( ) bestehen. Insbesondere sind Leerzeichen nicht
               erlaubt und sollten stattdessen mit Unterstrichen ersetzt
@@ -33,73 +33,73 @@
                      <code class="varname">charset</code>
                   </span></dt><dd><p>Empfohlen. Gibt den Zeichensatz an, in dem das Script
               geschrieben wurde, z.B. "<code class="literal">UTF-8</code>". Aus
-              Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei
+              KompatibilitÃ¤tsgrÃ¼nden mit alten Upgrade-Scripten wird bei
               Abwesenheit des Tags der Zeichensatz
               "<code class="literal">ISO-8859-15</code>" angenommen.</p></dd><dt><span class="term">
                      <code class="varname">description</code>
-                  </span></dt><dd><p>Benötigt. Eine Beschreibung, was in diesem Update
+                  </span></dt><dd><p>BenÃ¶tigt. Eine Beschreibung, was in diesem Update
               passiert. Diese wird dem Benutzer beim eigentlichen
-              Datenbankupdate angezeigt. Während der Tag in englisch gehalten
+              Datenbankupdate angezeigt. WÃ¤hrend der Tag in englisch gehalten
               sein sollte, sollte die Beschreibung auf Deutsch
               erfolgen.</p></dd><dt><span class="term">
                      <code class="varname">depends</code>
                   </span></dt><dd><p>Optional. Eine mit Leerzeichen getrennte Liste von "tags",
-              von denen dieses Upgradescript abhängt. Lx-Office stellt sicher,
-              dass die in dieser Liste aufgeführten Scripte bereits
-              durchgeführt wurden, bevor dieses Script ausgeführt wird.</p><p>Abhängigkeiten werden rekursiv betrachtet. Wenn also ein
-              Script "b" existiert, das von Änderungen in "a" abhängt, und
-              eine neue Kontrolldatei für "c" erstellt wird, die von
-              Änderungen in "a" und "b" abhängt, so genügt es, in "c" nur den
-              Tag "b" als Abhängigkeit zu definieren.</p><p>Es ist nicht erlaubt, sich selbst referenzierende
-              Abhängigkeiten zu definieren (z.B. "a" -&gt; "b", "b" -&gt; "c"
+              von denen dieses Upgradescript abhÃ¤ngt. Lx-Office stellt sicher,
+              dass die in dieser Liste aufgefÃ¼hrten Scripte bereits
+              durchgefÃ¼hrt wurden, bevor dieses Script ausgefÃ¼hrt wird.</p><p>AbhÃ¤ngigkeiten werden rekursiv betrachtet. Wenn also ein
+              Script "b" existiert, das von Ã„nderungen in "a" abhÃ¤ngt, und
+              eine neue Kontrolldatei fÃ¼r "c" erstellt wird, die von
+              Ã„nderungen in "a" und "b" abhÃ¤ngt, so genÃ¼gt es, in "c" nur den
+              Tag "b" als AbhÃ¤ngigkeit zu definieren.</p><p>Es ist nicht erlaubt, sich selbst referenzierende
+              AbhÃ¤ngigkeiten zu definieren (z.B. "a" -&gt; "b", "b" -&gt; "c"
               und "c" -&gt; "a").</p></dd><dt><span class="term">
                      <code class="varname">priority</code>
                   </span></dt><dd><p>Optional. Ein Zahlenwert, der die Reihenfolge bestimmt, in
-              der Scripte ausgeführt werden, die die gleichen
-              Abhängigkeitstiefen besitzen. Fehlt dieser Parameter, so wird
-              der Wert 1000 benutzt.</p><p>Dies ist reine Kosmetik. Für echte Reihenfolgen muss
-              "depends" benutzt werden. Lx-Office sortiert die auszuführenden
-              Scripte zuerst nach der Abhängigkeitstiefe (wenn "z" von "y"
-              abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von
-              2, "y" von 1 und "x" von 0. "x" würde hier zuerst ausgeführt,
-              dann "y", dann "z"), dann nach der Priorität und bei gleicher
-              Priorität alphabetisch nach dem "tag".</p></dd><dt><span class="term">
+              der Scripte ausgefÃ¼hrt werden, die die gleichen
+              AbhÃ¤ngigkeitstiefen besitzen. Fehlt dieser Parameter, so wird
+              der Wert 1000 benutzt.</p><p>Dies ist reine Kosmetik. FÃ¼r echte Reihenfolgen muss
+              "depends" benutzt werden. Lx-Office sortiert die auszufÃ¼hrenden
+              Scripte zuerst nach der AbhÃ¤ngigkeitstiefe (wenn "z" von "y"
+              abhÃ¤ngt und "y" von "x", so hat "z" eine AbhÃ¤ngigkeitstiefe von
+              2, "y" von 1 und "x" von 0. "x" wÃ¼rde hier zuerst ausgefÃ¼hrt,
+              dann "y", dann "z"), dann nach der PrioritÃ¤t und bei gleicher
+              PrioritÃ¤t alphabetisch nach dem "tag".</p></dd><dt><span class="term">
                      <code class="varname">ignore</code>
                   </span></dt><dd><p>Optional. Falls der Wert auf 1 (true) steht, wird das
               Skript bei der Anmeldung ignoriert und entsprechend nicht
-              ausgeführt.</p></dd></dl></div></div><div class="sect2" title="4.3.3. Hilfsscript dbupgrade2_tool.pl"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.dbupgrade-tool"></a>4.3.3. Hilfsscript dbupgrade2_tool.pl</h3></div></div></div><p>Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern,
+              ausgefÃ¼hrt.</p></dd></dl></div></div><div class="sect2" title="4.3.3. Hilfsscript dbupgrade2_tool.pl"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.dbupgrade-tool"></a>4.3.3. Hilfsscript dbupgrade2_tool.pl</h3></div></div></div><p>Um die Arbeit mit den AbhÃ¤ngigkeiten etwas zu erleichtern,
         existiert ein Hilfsscript namens
         "<code class="filename">scripts/dbupgrade2_tool.pl</code>". Es muss aus dem
         Lx-Office-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
         liest alle Datenbankupgradescripte aus dem Verzeichnis
-        <code class="filename">sql/Pg-upgrade2</code> aus. Es benutzt dafür die
+        <code class="filename">sql/Pg-upgrade2</code> aus. Es benutzt dafÃ¼r die
         gleichen Methoden wie Lx-Office selber, sodass alle Fehlersituationen
-        von der Kommandozeile überprüft werden können.</p><p>Wird dem Script kein weiterer Parameter übergeben, so wird nur
-        eine Überprüfung der Felder und Abhängigkeiten vorgenommen. Man kann
+        von der Kommandozeile Ã¼berprÃ¼ft werden kÃ¶nnen.</p><p>Wird dem Script kein weiterer Parameter Ã¼bergeben, so wird nur
+        eine ÃœberprÃ¼fung der Felder und AbhÃ¤ngigkeiten vorgenommen. Man kann
         sich aber auch Informationen auf verschiedene Art ausgeben
         lassen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Listenform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
             --list</strong></span>"</p><p>Gibt eine Liste aller Scripte aus. Die Liste ist in der
-            Reihenfolge sortiert, in der Lx-Office die Scripte ausführen
-            würde. Es werden neben der Listenposition der Tag, die
-            Abhängigkeitstiefe und die Priorität ausgegeben.</p></li><li class="listitem"><p>Baumform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
+            Reihenfolge sortiert, in der Lx-Office die Scripte ausfÃ¼hren
+            wÃ¼rde. Es werden neben der Listenposition der Tag, die
+            AbhÃ¤ngigkeitstiefe und die PrioritÃ¤t ausgegeben.</p></li><li class="listitem"><p>Baumform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
             --tree</strong></span>"</p><p>Listet alle Tags in Baumform basierend auf den
-            Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte, von
-            denen keine anderen abhängen. Die Unterknoten sind Scripte, die
-            beim übergeordneten Script als Abhängigkeit eingetragen
+            AbhÃ¤ngigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte, von
+            denen keine anderen abhÃ¤ngen. Die Unterknoten sind Scripte, die
+            beim Ã¼bergeordneten Script als AbhÃ¤ngigkeit eingetragen
             sind.</p></li><li class="listitem"><p><a name="db-upgrade-files.dbupgrade-tool.reverse-tree"></a>Umgekehrte Baumform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
             --rtree</strong></span>"</p><p>Listet alle Tags in Baumform basierend auf den
-            Abhängigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte mit
-            der geringsten Abhängigkeitstiefe. Die Unterknoten sind Scripte,
-            die das übergeordnete Script als Abhängigkeit eingetragen
+            AbhÃ¤ngigkeiten auf. Die "Wurzelknoten" sind dabei die Scripte mit
+            der geringsten AbhÃ¤ngigkeitstiefe. Die Unterknoten sind Scripte,
+            die das Ã¼bergeordnete Script als AbhÃ¤ngigkeit eingetragen
             haben.</p></li><li class="listitem"><p>Baumform mit Postscriptausgabe:
             "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
-            --graphviz</strong></span>"</p><p>Benötigt das Tool "<span class="command"><strong>graphviz</strong></span>", um mit
+            --graphviz</strong></span>"</p><p>BenÃ¶tigt das Tool "<span class="command"><strong>graphviz</strong></span>", um mit
             seiner Hilfe die <a class="link" href="ch04s03.html#db-upgrade-files.dbupgrade-tool.reverse-tree">umgekehrte
             Baumform</a> in eine Postscriptdatei namens
             "<code class="filename">db_dependencies.ps</code>" auszugeben. Dies ist
-            vermutlich die übersichtlichste Form, weil hierbei jeder Knoten
+            vermutlich die Ã¼bersichtlichste Form, weil hierbei jeder Knoten
             nur einmal ausgegeben wird. Bei den Textmodusbaumformen hingegen
-            können Knoten und all ihre Abhängigkeiten mehrfach ausgegeben
-            werden.</p></li><li class="listitem"><p>Scripte, von denen kein anderes Script abhängt:
+            kÃ¶nnen Knoten und all ihre AbhÃ¤ngigkeiten mehrfach ausgegeben
+            werden.</p></li><li class="listitem"><p>Scripte, von denen kein anderes Script abhÃ¤ngt:
             "<span class="command"><strong>./scripts/dbupgrade2_tool.pl --nodeps</strong></span>"</p><p>Listet die Tags aller Scripte auf, von denen keine anderen
-            Scripte abhängen.</p></li></ul></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">4.2. Entwicklung unter FastCGI&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.4. Translations and languages</td></tr></table></div></body></html>
+            Scripte abhÃ¤ngen.</p></li></ul></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch04s02.html">ZurÃ¼ck</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch04.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">4.2. Entwicklung unter FastCGI&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.4. Translations and languages</td></tr></table></div></body></html>
