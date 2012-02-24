@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <!-- This file is part of DobuDish                                           -->
 
@@ -25,5 +25,7 @@
 
   <xsl:import href="../../../system/custom-xsl/html-book.xsl"/>
   <xsl:import href="common.xsl"/>
+
+  <xsl:param name="chunker.output.encoding" select="'UTF-8'"/>
 
 </xsl:stylesheet>

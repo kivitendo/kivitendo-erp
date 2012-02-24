@@ -1,7 +1,7 @@
 <html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>Kapitel 4. Entwicklerdokumentation</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="prev" href="ch03s03.html" title="3.3. Excel-Vorlagen"><link rel="next" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Kapitel 4. Entwicklerdokumentation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s02.html">Weiter</a></td></tr></table><hr></div><div class="chapter" title="Kapitel 4. Entwicklerdokumentation"><div class="titlepage"><div><div><h2 class="title"><a name="d0e4344"></a>Kapitel 4. Entwicklerdokumentation</h2></div></div></div><div class="sect1" title="4.1. Globale Variablen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.globals"></a>4.1. Globale Variablen</h2></div></div></div><div class="sect2" title="4.1.1. Wie sehen globale Variablen in Perl aus?"><div class="titlepage"><div><div><h3 class="title"><a name="d0e4350"></a>4.1.1. Wie sehen globale Variablen in Perl aus?</h3></div></div></div><p>Globale Variablen liegen in einem speziellen namespace namens
-        "main", der von überall erreichbar ist. Darüber hinaus sind bareword
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>Kapitel 4. Entwicklerdokumentation</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="prev" href="ch03s03.html" title="3.3. Excel-Vorlagen"><link rel="next" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Kapitel 4. Entwicklerdokumentation</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch03s03.html">ZurÃ¼ck</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s02.html">Weiter</a></td></tr></table><hr></div><div class="chapter" title="Kapitel 4. Entwicklerdokumentation"><div class="titlepage"><div><div><h2 class="title"><a name="d0e4344"></a>Kapitel 4. Entwicklerdokumentation</h2></div></div></div><div class="sect1" title="4.1. Globale Variablen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.globals"></a>4.1. Globale Variablen</h2></div></div></div><div class="sect2" title="4.1.1. Wie sehen globale Variablen in Perl aus?"><div class="titlepage"><div><div><h3 class="title"><a name="d0e4350"></a>4.1.1. Wie sehen globale Variablen in Perl aus?</h3></div></div></div><p>Globale Variablen liegen in einem speziellen namespace namens
+        "main", der von Ã¼berall erreichbar ist. DarÃ¼ber hinaus sind bareword
         globs global und die meisten speziellen Variablen sind...
         speziell.</p><p>Daraus ergeben sich folgende Formen:</p><div class="variablelist"><dl><dt><span class="term">
                      <code class="literal">$main::form</code>
@@ -12,33 +12,33 @@
                   </span></dt><dd><p>
                         <code class="varname">FILE</code> ist global</p></dd><dt><span class="term">
                      <code class="literal">$_</code>
-                  </span></dt><dd><p>speziell</p></dd></dl></div><p>Im Gegensatz zu <span class="productname">PHP</span>&#8482; gibt es kein
-        Schlüsselwort wie "<code class="function">global</code>", mit dem man
+                  </span></dt><dd><p>speziell</p></dd></dl></div><p>Im Gegensatz zu <span class="productname">PHP</span>â„¢ gibt es kein
+        SchlÃ¼sselwort wie "<code class="function">global</code>", mit dem man
         importieren kann. <code class="function">my</code>, <code class="function">our</code>
         und <code class="function">local</code> machen was anderes.</p><div class="variablelist"><dl><dt><span class="term">
                      <code class="literal">my $form</code>
-                  </span></dt><dd><p>lexikalische Variable, gültig bis zum Ende des
+                  </span></dt><dd><p>lexikalische Variable, gÃ¼ltig bis zum Ende des
               Scopes</p></dd><dt><span class="term">
                      <code class="literal">our $form</code>
                   </span></dt><dd><p>
                         <code class="varname">$form</code> referenziert ab hier
               <code class="varname">$PACKAGE::form</code>.</p></dd><dt><span class="term">
                      <code class="literal">local $form</code>
-                  </span></dt><dd><p>Alle Änderungen an <code class="varname">$form</code> werden am Ende
-              des scopes zurückgesetzt</p></dd></dl></div></div><div class="sect2" title="4.1.2. Warum sind globale Variablen ein Problem?"><div class="titlepage"><div><div><h3 class="title"><a name="d0e4451"></a>4.1.2. Warum sind globale Variablen ein Problem?</h3></div></div></div><p>Das erste Problem ist <span class="productname">FCGI</span>&#8482;.</p><p>
-               <span class="productname">SQL-Ledger</span>&#8482; hat fast alles im globalen
+                  </span></dt><dd><p>Alle Ã„nderungen an <code class="varname">$form</code> werden am Ende
+              des scopes zurÃ¼ckgesetzt</p></dd></dl></div></div><div class="sect2" title="4.1.2. Warum sind globale Variablen ein Problem?"><div class="titlepage"><div><div><h3 class="title"><a name="d0e4451"></a>4.1.2. Warum sind globale Variablen ein Problem?</h3></div></div></div><p>Das erste Problem ist <span class="productname">FCGI</span>â„¢.</p><p>
+               <span class="productname">SQL-Ledger</span>â„¢ hat fast alles im globalen
         namespace abgelegt, und erwartet, dass es da auch wiederzufinden ist.
-        Unter <span class="productname">FCGI</span>&#8482; müssen diese Sachen aber wieder
-        aufgeräumt werden, damit sie nicht in den nächsten Request kommen.
-        Einige Sachen wiederum sollen nicht gelöscht werden, wie zum Beispiel
+        Unter <span class="productname">FCGI</span>â„¢ mÃ¼ssen diese Sachen aber wieder
+        aufgerÃ¤umt werden, damit sie nicht in den nÃ¤chsten Request kommen.
+        Einige Sachen wiederum sollen nicht gelÃ¶scht werden, wie zum Beispiel
         Datenbankverbindungen, weil die sehr lange zum Initialisieren
         brauchen.</p><p>Das zweite Problem ist <code class="function">strict</code>. Unter
         <code class="function">strict</code> werden alle Variablen die nicht explizit
         mit <code class="function">Package</code>, <code class="function">my</code> oder
         <code class="function">our</code> angegeben werden als Tippfehler angemarkert,
-        dies hat, seit der Einführung, u.a. schon so manche langwierige
-        Bug-Suche verkürzt. Da globale Variablen aber implizit mit Package
-        angegeben werden, werden die nicht geprüft, und somit kann sich
+        dies hat, seit der EinfÃ¼hrung, u.a. schon so manche langwierige
+        Bug-Suche verkÃ¼rzt. Da globale Variablen aber implizit mit Package
+        angegeben werden, werden die nicht geprÃ¼ft, und somit kann sich
         schnell ein Tippfehler einschleichen.</p></div><div class="sect2" title="4.1.3. Kanonische globale Variablen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e4484"></a>4.1.3. Kanonische globale Variablen</h3></div></div></div><p>Um dieses Problem im Griff zu halten gibt es einige wenige
         globale Variablen, die kanonisch sind, d.h. sie haben bestimmte
         vorgegebenen Eigenschaften, und alles andere sollte anderweitig
@@ -60,72 +60,72 @@
                      <code class="varname">$::dispatcher</code>
                   </p></li><li class="listitem"><p>
                      <code class="varname">$::request</code>
-                  </p></li></ul></div><p>Damit diese nicht erneut als Müllhalde missbraucht werden, im
-        Folgenden eine kurze Erläuterung der bestimmten vorgegebenen
+                  </p></li></ul></div><p>Damit diese nicht erneut als MÃ¼llhalde missbraucht werden, im
+        Folgenden eine kurze ErlÃ¤uterung der bestimmten vorgegebenen
         Eigenschaften (Konventionen):</p><div class="sect3" title="4.1.3.1. $::form"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4548"></a>4.1.3.1. $::form</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Ist ein Objekt der Klasse
-              "<code class="classname">Form</code>"</p></li><li class="listitem"><p>Wird nach jedem Request gelöscht</p></li><li class="listitem"><p>Muss auch in Tests und Konsolenscripts vorhanden
-              sein.</p></li><li class="listitem"><p>Enthält am Anfang eines Requests die Requestparameter vom
-              User</p></li><li class="listitem"><p>Kann zwar intern über Requestgrenzen ein Datenbankhandle
-              cachen, das wird aber momentan absichtlich zerstört</p></li></ul></div><p>
+              "<code class="classname">Form</code>"</p></li><li class="listitem"><p>Wird nach jedem Request gelÃ¶scht</p></li><li class="listitem"><p>Muss auch in Tests und Konsolenscripts vorhanden
+              sein.</p></li><li class="listitem"><p>EnthÃ¤lt am Anfang eines Requests die Requestparameter vom
+              User</p></li><li class="listitem"><p>Kann zwar intern Ã¼ber Requestgrenzen ein Datenbankhandle
+              cachen, das wird aber momentan absichtlich zerstÃ¶rt</p></li></ul></div><p>
                   <code class="varname">$::form</code> wurde unter <span class="productname">SQL
-          Ledger</span>&#8482; als Gottobjekt für alles misbraucht. Sämtliche
+          Ledger</span>â„¢ als Gottobjekt fÃ¼r alles misbraucht. SÃ¤mtliche
           alten Funktionen unter SL/ mutieren <code class="varname">$::form</code>, das
-          heißt, alles was einem lieb ist (alle Variablen die einem ans Herz
+          heiÃŸt, alles was einem lieb ist (alle Variablen die einem ans Herz
           gewachsen sind), sollte man vor einem Aufruf (!) von zum Beispiel
           <code class="function">IS-&gt;retrieve_customer()</code> in Sicherheit
           bringen.</p><p>Z.B. das vom Benutzer eingestellte Zahlenformat, bevor man
-          Berechnung in einem bestimmten Format durchführt (SL/Form.pm Zeile
+          Berechnung in einem bestimmten Format durchfÃ¼hrt (SL/Form.pm Zeile
           3552, Stand version 2.7beta), um dies hinterher wieder auf den
           richtigen Wert zu setzen:</p><pre class="programlisting">  my $saved_numberformat    = $::myconfig{numberformat};
   $::myconfig{numberformat} = $numberformat;
   # (...) div Berechnungen
   $::myconfig{numberformat} = $saved_numberformat;</pre><p>Das Objekt der Klasse Form hat leider im Moment noch viele
-          zentrale Funktionen die vom internen Zustand abhängen, deshalb bitte
-          nie einfach zerstören oder überschreiben (zumindestens nicht kurz
-          vor einem Release oder in Absprache über bspw. die devel-Liste ;-).
+          zentrale Funktionen die vom internen Zustand abhÃ¤ngen, deshalb bitte
+          nie einfach zerstÃ¶ren oder Ã¼berschreiben (zumindestens nicht kurz
+          vor einem Release oder in Absprache Ã¼ber bspw. die devel-Liste ;-).
           Es geht ziemlich sicher etwas kaputt.</p><p>
                   <code class="varname">$::form</code> ist gleichzeitig der Standard Scope
-          in den <span class="productname">Template::Toolkit</span>&#8482; Templates
-          außerhalb der Controller: der Ausdruck <code class="function">[% var
+          in den <span class="productname">Template::Toolkit</span>â„¢ Templates
+          auÃŸerhalb der Controller: der Ausdruck <code class="function">[% var
           %]</code> greift auf <code class="varname">$::form-&gt;{var}</code> zu.
           Unter Controllern ist der Standard Scope anders, da lautet der
           Zugriff <code class="function">[% FORM.var %]</code>. In Druckvorlagen sind
           normale Variablen ebenfall im <code class="varname">$::form</code> Scope, d.h.
           <code class="function">&lt;%var%&gt;</code> zeigt auf
           <code class="varname">$::form-&gt;{var}</code>. Nochmal von der anderen Seite
-          erläutert, innerhalb von (Web-)Templates sieht man häufiger solche
+          erlÃ¤utert, innerhalb von (Web-)Templates sieht man hÃ¤ufiger solche
           Konstrukte:</p><pre class="programlisting">[%- IF business %]
 # (... Zeig die Auswahlliste Kunden-/Lieferantentyp an)
 [%- END %]</pre><p>Entweder wird hier dann $::form-&gt;{business} ausgewertet
           oder aber der Funktion
           <code class="function">$form-&gt;parse_html_template</code> wird explizit
-          noch ein zusätzlicher Hash übergeben, der dann auch in den
-          (Web-)Templates zu Verfügung steht, bspw. so:</p><pre class="programlisting">$form-&gt;parse_html_template("is/form_header", \%TMPL_VAR);</pre><p>Innerhalb von Schleifen wird
+          noch ein zusÃ¤tzlicher Hash Ã¼bergeben, der dann auch in den
+          (Web-)Templates zu VerfÃ¼gung steht, bspw. so:</p><pre class="programlisting">$form-&gt;parse_html_template("is/form_header", \%TMPL_VAR);</pre><p>Innerhalb von Schleifen wird
           <code class="varname">$::form-&gt;{TEMPLATE_ARRAYS}{var}[$index]</code>
           bevorzugt, wenn vorhanden. Ein Beispiel findet sich in SL/DO.pm,
-          welches über alle Positionen eines Lieferscheins in Schleife
-          läuft:</p><pre class="programlisting">for $i (1 .. $form-&gt;{rowcount}) {
+          welches Ã¼ber alle Positionen eines Lieferscheins in Schleife
+          lÃ¤uft:</p><pre class="programlisting">for $i (1 .. $form-&gt;{rowcount}) {
   # ...
   push @{ $form-&gt;{TEMPLATE_ARRAYS}{runningnumber} },   $position;
   push @{ $form-&gt;{TEMPLATE_ARRAYS}{number} },          $form-&gt;{"partnumber_$i"};
   push @{ $form-&gt;{TEMPLATE_ARRAYS}{description} },     $form-&gt;{"description_$i"};
   # ...
-}</pre></div><div class="sect3" title="4.1.3.2. %::myconfig"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4632"></a>4.1.3.2. %::myconfig</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Das einzige Hash unter den globalen Variablen</p></li><li class="listitem"><p>Wird spätestens benötigt wenn auf die Datenbank
-              zugegriffen wird</p></li><li class="listitem"><p>Wird bei jedem Request neu erstellt.</p></li><li class="listitem"><p>Enthält die Userdaten des aktuellen Logins</p></li><li class="listitem"><p>Sollte nicht ohne Filterung irgendwo gedumpt werden oder
+}</pre></div><div class="sect3" title="4.1.3.2. %::myconfig"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4632"></a>4.1.3.2. %::myconfig</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Das einzige Hash unter den globalen Variablen</p></li><li class="listitem"><p>Wird spÃ¤testens benÃ¶tigt wenn auf die Datenbank
+              zugegriffen wird</p></li><li class="listitem"><p>Wird bei jedem Request neu erstellt.</p></li><li class="listitem"><p>EnthÃ¤lt die Userdaten des aktuellen Logins</p></li><li class="listitem"><p>Sollte nicht ohne Filterung irgendwo gedumpt werden oder
               extern serialisiert werden, weil da auch der Datenbankzugriff
-              für diesen user drinsteht.</p></li><li class="listitem"><p>Enthält unter anderem Listenbegrenzung vclimit,
-              Datumsformat dateformat und Nummernformat numberformat</p></li><li class="listitem"><p>Enthält Datenbankzugriffinformationen</p></li></ul></div><p>
-                  <code class="varname">%::myconfig</code> ist im Moment der Ersatz für
+              fÃ¼r diesen user drinsteht.</p></li><li class="listitem"><p>EnthÃ¤lt unter anderem Listenbegrenzung vclimit,
+              Datumsformat dateformat und Nummernformat numberformat</p></li><li class="listitem"><p>EnthÃ¤lt Datenbankzugriffinformationen</p></li></ul></div><p>
+                  <code class="varname">%::myconfig</code> ist im Moment der Ersatz fÃ¼r
           ein Userobjekt. Die meisten Funktionen, die etwas anhand des
-          aktuellen Users entscheiden müssen, befragen
+          aktuellen Users entscheiden mÃ¼ssen, befragen
           <code class="varname">%::myconfig</code>. Innerhalb der Anwendungen sind dies
-          überwiegend die Daten, die sich unter <span class="guimenu">Programm</span>
+          Ã¼berwiegend die Daten, die sich unter <span class="guimenu">Programm</span>
           -&gt; <span class="guimenuitem">Einstellungen</span> befinden, bzw. die
-          Informationen über den Benutzer die über die
-          Administrator-Schnittstelle (admin.pl) eingegeben wurden.</p></div><div class="sect3" title="4.1.3.3. $::locale"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4671"></a>4.1.3.3. $::locale</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "Locale"</p></li><li class="listitem"><p>Wird pro Request erstellt</p></li><li class="listitem"><p>Muss auch für Tests und Scripte immer verfügbar
-              sein.</p></li><li class="listitem"><p>Cached intern über Requestgrenzen hinweg benutzte
-              Locales</p></li></ul></div><p>Lokalisierung für den aktuellen User. Alle Übersetzungen,
-          Zahlen- und Datumsformatierungen laufen über dieses Objekt.</p></div><div class="sect3" title="4.1.3.4. $::lxdebug"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4689"></a>4.1.3.4. $::lxdebug</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "LXDebug"</p></li><li class="listitem"><p>Wird global gecached</p></li><li class="listitem"><p>Muss immer verfügbar sein, in nahezu allen
+          Informationen Ã¼ber den Benutzer die Ã¼ber die
+          Administrator-Schnittstelle (admin.pl) eingegeben wurden.</p></div><div class="sect3" title="4.1.3.3. $::locale"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4671"></a>4.1.3.3. $::locale</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "Locale"</p></li><li class="listitem"><p>Wird pro Request erstellt</p></li><li class="listitem"><p>Muss auch fÃ¼r Tests und Scripte immer verfÃ¼gbar
+              sein.</p></li><li class="listitem"><p>Cached intern Ã¼ber Requestgrenzen hinweg benutzte
+              Locales</p></li></ul></div><p>Lokalisierung fÃ¼r den aktuellen User. Alle Ãœbersetzungen,
+          Zahlen- und Datumsformatierungen laufen Ã¼ber dieses Objekt.</p></div><div class="sect3" title="4.1.3.4. $::lxdebug"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4689"></a>4.1.3.4. $::lxdebug</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "LXDebug"</p></li><li class="listitem"><p>Wird global gecached</p></li><li class="listitem"><p>Muss immer verfÃ¼gbar sein, in nahezu allen
               Funktionen</p></li></ul></div><p>
                   <code class="varname">$::lxdebug</code> stellt Debuggingfunktionen
           bereit, wie "<code class="function">enter_sub</code>" und
@@ -138,54 +138,54 @@
 $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{vc});</pre></div><div class="sect3" title="4.1.3.5. $::auth"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4726"></a>4.1.3.5. $::auth</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse "SL::Auth"</p></li><li class="listitem"><p>Wird global gecached</p></li><li class="listitem"><p>Hat eine permanente DB Verbindung zur Authdatenbank</p></li><li class="listitem"><p>Wird nach jedem Request resettet.</p></li></ul></div><p>
                   <code class="varname">$::auth</code> stellt Funktionen bereit um die
           Rechte des aktuellen Users abzufragen. Obwohl diese Informationen
-          vom aktuellen User abhängen wird das Objekt aus
-          Geschwindigkeitsgründen nur einmal angelegt und dann nach jedem
+          vom aktuellen User abhÃ¤ngen wird das Objekt aus
+          GeschwindigkeitsgrÃ¼nden nur einmal angelegt und dann nach jedem
           Request kurz resettet.</p></div><div class="sect3" title="4.1.3.6. $::lx_office_conf"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4747"></a>4.1.3.6. $::lx_office_conf</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
-              "<code class="classname">SL::LxOfficeConf</code>"</p></li><li class="listitem"><p>Global gecached</p></li><li class="listitem"><p>Repräsentation der
+              "<code class="classname">SL::LxOfficeConf</code>"</p></li><li class="listitem"><p>Global gecached</p></li><li class="listitem"><p>ReprÃ¤sentation der
               <code class="filename">config/lx_office.conf[.default]</code>-Dateien</p></li></ul></div><p>Globale Konfiguration. Configdateien werden zum Start gelesen
           und danach nicht mehr angefasst. Es ist derzeit nicht geplant, dass
-          das Programm die Konfiguration ändern kann oder sollte.</p><p>Beispielsweise ist über den Konfigurationseintrag [debug] die
+          das Programm die Konfiguration Ã¤ndern kann oder sollte.</p><p>Beispielsweise ist Ã¼ber den Konfigurationseintrag [debug] die
           Debug- und Trace-Log-Datei wie folgt konfiguriert und
-          verfügbar:</p><pre class="programlisting">[debug]
+          verfÃ¼gbar:</p><pre class="programlisting">[debug]
 file = /tmp/lx-office-debug.log</pre><p>ist der Key <code class="varname">file</code> im Programm als
           <code class="varname">$::lx_office_conf-&gt;{debug}{file}</code>
-          erreichbar.</p><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="../../../../system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>Zugriff auf die Konfiguration erfolgt im Moment über
+          erreichbar.</p><div class="warning" title="Warnung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Warning"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Warnung]" src="../../../../system/docbook-xsl/images/warning.png"></td><th align="left">Warnung</th></tr><tr><td align="left" valign="top"><p>Zugriff auf die Konfiguration erfolgt im Moment Ã¼ber
             Hashkeys, sind also nicht gegen Tippfehler abgesichert.</p></td></tr></table></div></div><div class="sect3" title="4.1.3.7. $::instance_conf"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4783"></a>4.1.3.7. $::instance_conf</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
               "<code class="classname">SL::InstanceConfiguration</code>"</p></li><li class="listitem"><p>wird pro Request neu erstellt</p></li></ul></div><p>Funktioniert wie <code class="varname">$::lx_office_conf</code>,
-          speichert aber Daten die von der Instanz abhängig sind. Eine Instanz
-          ist hier eine Mandantendatenbank. Beispielsweise überprüft
+          speichert aber Daten die von der Instanz abhÃ¤ngig sind. Eine Instanz
+          ist hier eine Mandantendatenbank. Beispielsweise Ã¼berprÃ¼ft
           </p><pre class="programlisting">$::instance_conf-&gt;get_inventory_system eq 'perpetual'</pre><p>
-          ob die berüchtigte Bestandsmethode zur Anwendung kommt.</p></div><div class="sect3" title="4.1.3.8. $::dispatcher"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4804"></a>4.1.3.8. $::dispatcher</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
-              "<code class="varname">SL::Dispatcher</code>"</p></li><li class="listitem"><p>wird pro Serverprozess erstellt.</p></li><li class="listitem"><p>enthält Informationen über die technische Verbindung zum
+          ob die berÃ¼chtigte Bestandsmethode zur Anwendung kommt.</p></div><div class="sect3" title="4.1.3.8. $::dispatcher"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4804"></a>4.1.3.8. $::dispatcher</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Objekt der Klasse
+              "<code class="varname">SL::Dispatcher</code>"</p></li><li class="listitem"><p>wird pro Serverprozess erstellt.</p></li><li class="listitem"><p>enthÃ¤lt Informationen Ã¼ber die technische Verbindung zum
               Server</p></li></ul></div><p>Der dritte Punkt ist auch der einzige Grund warum das Objekt
           global gespeichert wird. Wird vermutlich irgendwann in einem anderen
-          Objekt untergebracht.</p></div><div class="sect3" title="4.1.3.9. $::request"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4822"></a>4.1.3.9. $::request</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Hashref (evtl später Objekt)</p></li><li class="listitem"><p>Wird pro Request neu initialisiert.</p></li><li class="listitem"><p>Keine Unterstruktur garantiert.</p></li></ul></div><p>
+          Objekt untergebracht.</p></div><div class="sect3" title="4.1.3.9. $::request"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4822"></a>4.1.3.9. $::request</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Hashref (evtl spÃ¤ter Objekt)</p></li><li class="listitem"><p>Wird pro Request neu initialisiert.</p></li><li class="listitem"><p>Keine Unterstruktur garantiert.</p></li></ul></div><p>
                   <code class="varname">$::request</code> ist ein generischer Platz um
-          Daten "für den aktuellen Request" abzulegen. Sollte nicht für action
+          Daten "fÃ¼r den aktuellen Request" abzulegen. Sollte nicht fÃ¼r action
           at a distance benutzt werden, sondern um lokales memoizing zu
-          ermöglichen, das garantiert am Ende des Requests zerstört
+          ermÃ¶glichen, das garantiert am Ende des Requests zerstÃ¶rt
           wird.</p><p>Vieles von dem, was im moment in <code class="varname">$::form</code>
           liegt, sollte eigentlich hier liegen. Die groben
-          Differentialkriterien sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Kommt es vom User, und soll unverändert wieder an den
+          Differentialkriterien sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Kommt es vom User, und soll unverÃ¤ndert wieder an den
               User? Dann <code class="varname">$::form</code>, steht da eh schon</p></li><li class="listitem"><p>Sind es Daten aus der Datenbank, die nur bis zum Ende des
               Requests gebraucht werden? Dann
               <code class="varname">$::request</code>
                      </p></li><li class="listitem"><p>Muss ich von anderen Teilen des Programms lesend drauf
-              zugreifen? Dann <code class="varname">$::request</code>, aber Zugriff über
+              zugreifen? Dann <code class="varname">$::request</code>, aber Zugriff Ã¼ber
               Wrappermethode</p></li></ul></div></div></div><div class="sect2" title="4.1.4. Ehemalige globale Variablen"><div class="titlepage"><div><div><h3 class="title"><a name="d0e4864"></a>4.1.4. Ehemalige globale Variablen</h3></div></div></div><p>Die folgenden Variablen waren einmal im Programm, und wurden
-        entfernt.</p><div class="sect3" title="4.1.4.1. $::cgi"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4869"></a>4.1.4.1. $::cgi</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>war nötig, weil cookie Methoden nicht als
+        entfernt.</p><div class="sect3" title="4.1.4.1. $::cgi"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4869"></a>4.1.4.1. $::cgi</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>war nÃ¶tig, weil cookie Methoden nicht als
               Klassenfunktionen funktionieren</p></li><li class="listitem"><p>Aufruf als Klasse erzeugt Dummyobjekt was im
-              Klassennamespace gehalten wird und über Requestgrenzen
+              Klassennamespace gehalten wird und Ã¼ber Requestgrenzen
               leaked</p></li><li class="listitem"><p>liegt jetzt unter
               <code class="varname">$::request-&gt;{cgi}</code>
-                     </p></li></ul></div></div><div class="sect3" title="4.1.4.2. $::all_units"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4885"></a>4.1.4.2. $::all_units</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>war nötig, weil einige Funktionen in Schleifen zum Teil
+                     </p></li></ul></div></div><div class="sect3" title="4.1.4.2. $::all_units"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4885"></a>4.1.4.2. $::all_units</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>war nÃ¶tig, weil einige Funktionen in Schleifen zum Teil
               ein paar hundert mal pro Request eine Liste der Einheiten
               brauchen, und de als Parameter durch einen Riesenstack von
-              Funktionen geschleift werden müssten.</p></li><li class="listitem"><p>Liegt jetzt unter
+              Funktionen geschleift werden mÃ¼ssten.</p></li><li class="listitem"><p>Liegt jetzt unter
               <code class="varname">$::request-&gt;{cache}{all_units}</code>
                      </p></li><li class="listitem"><p>Wird nur in
               <code class="function">AM-&gt;retrieve_all_units()</code> gesetzt oder
               gelesen.</p></li></ul></div></div><div class="sect3" title="4.1.4.3. %::called_subs"><div class="titlepage"><div><div><h4 class="title"><a name="d0e4904"></a>4.1.4.3. %::called_subs</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>wurde benutzt um callsub deep recursions
               abzufangen.</p></li><li class="listitem"><p>Wurde entfernt, weil callsub nur einen Bruchteil der
-              möglichen Rekursioenen darstellt, und da nie welche
-              auftreten.</p></li><li class="listitem"><p>komplette recursion protection wurde entfernt.</p></li></ul></div></div></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s03.html">Zurück</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s02.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.3. Excel-Vorlagen&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.2. Entwicklung unter FastCGI</td></tr></table></div></body></html>
+              mÃ¶glichen Rekursioenen darstellt, und da nie welche
+              auftreten.</p></li><li class="listitem"><p>komplette recursion protection wurde entfernt.</p></li></ul></div></div></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch03s03.html">ZurÃ¼ck</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch04s02.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">3.3. Excel-Vorlagen&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;4.2. Entwicklung unter FastCGI</td></tr></table></div></body></html>
