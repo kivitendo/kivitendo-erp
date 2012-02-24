@@ -576,7 +576,7 @@ sub update {
 
         $form->{creditremaining} -= $amount;
 
-        map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces) } qw(sellprice listprice lastcost);
+        map { $form->{"${_}_$i"} = $form->format_amount(\%myconfig, $form->{"${_}_$i"}, $decimalplaces) } qw(sellprice lastcost);
 
         $form->{"qty_$i"} = $form->format_amount(\%myconfig, $form->{"qty_$i"});
 
@@ -937,6 +937,12 @@ sub credit_note {
 
 #  map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
 #    qw(creditlimit creditremaining);
+
+  for my $i (1 .. $form->{rowcount}) {
+    for (qw(listprice)) {
+      $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if $form->{"${_}_${i}"};
+    }
+  }
 
   my $currency = $form->{currency};
   &invoice_links;
