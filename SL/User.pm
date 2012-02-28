@@ -697,7 +697,6 @@ sub save_member {
   $main::lxdebug->enter_sub();
 
   my ($self) = @_;
-  my $form   = \%main::form;
 
   # format dbconnect and dboptions string
   dbconnect_vars($self, $self->{dbname});
@@ -708,7 +707,7 @@ sub save_member {
 
   my $dbh = SL::DBConnect->connect($self->{dbconnect}, $self->{dbuser}, $self->{dbpasswd});
   if ($dbh) {
-    $self->create_employee_entry($form, $dbh, $self, 1);
+    $self->create_employee_entry($::form, $dbh, $self, 1);
     $dbh->disconnect();
   }
 
