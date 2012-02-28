@@ -730,13 +730,16 @@ sub create_employee_entry {
 
   # add login to employee table if it does not exist
   # no error check for employee table, ignore if it does not exist
-  my ($id)  = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $self->{login});
+  my ($id)         = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $self->{login});
+  my ($good_db)    = selectrow_query($form, $dbh, qq|select * from pg_tables where tablename = ? and schemaname = ?|, 'schema_info', 'public');
+  my  $can_delete;
+     ($can_delete) = selectrow_query($form, $dbh, qq|SELECT tag FROM schema_info WHERE tag = ?|, 'employee_deleted') if $good_db;
 
   if (!$id) {
     my $query = qq|INSERT INTO employee (login, name, workphone, role) VALUES (?, ?, ?, ?)|;
     do_query($form, $dbh, $query, ($self->{login}, $myconfig->{name}, $myconfig->{tel}, "user"));
 
-  } elsif ($update_existing) {
+  } elsif ($update_existing && $can_delete) {
     my $query = qq|UPDATE employee SET name = ?, workphone = ?, role = 'user', deleted = 'f' WHERE id = ?|;
     do_query($form, $dbh, $query, $myconfig->{name}, $myconfig->{tel}, $id);
   }
