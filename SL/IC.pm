@@ -164,28 +164,25 @@ sub get_part {
   #correct rows
   $form->{price_rows} = $i - 1;
 
-  unless ($form->{item} eq 'service') {
+  # get makes
+  if ($form->{makemodel}) {
+  #hli
+    $query = qq|SELECT m.make, m.model,m.lastcost,m.lastcost,m.lastupdate,m.sortorder FROM makemodel m | .
+             qq|WHERE m.parts_id = ? order by m.sortorder asc|;
+    my @values = ($form->{id});
+    $sth = $dbh->prepare($query);
+    $sth->execute(@values) || $form->dberror("$query (" . join(', ', @values) . ")");
 
-    # get makes
-    if ($form->{makemodel}) {
-    #hli
-      $query = qq|SELECT m.make, m.model,m.lastcost,m.lastcost,m.lastupdate,m.sortorder FROM makemodel m | .
-               qq|WHERE m.parts_id = ? order by m.sortorder asc|;
-      my @values = ($form->{id});
-      $sth = $dbh->prepare($query);
-      $sth->execute(@values) || $form->dberror("$query (" . join(', ', @values) . ")");
+    my $i = 1;
 
-      my $i = 1;
-
-      while (($form->{"make_$i"}, $form->{"model_$i"}, $form->{"old_lastcost_$i"},
-                $form->{"lastcost_$i"}, $form->{"lastupdate_$i"}, $form->{"sortorder_$i"}) = $sth->fetchrow_array)
-      {
-        $i++;
-      }
-      $sth->finish;
-      $form->{makemodel_rows} = $i - 1;
-
+    while (($form->{"make_$i"}, $form->{"model_$i"}, $form->{"old_lastcost_$i"},
+              $form->{"lastcost_$i"}, $form->{"lastupdate_$i"}, $form->{"sortorder_$i"}) = $sth->fetchrow_array)
+    {
+      $i++;
     }
+    $sth->finish;
+    $form->{makemodel_rows} = $i - 1;
+
   }
 
   # get translations
@@ -330,10 +327,8 @@ sub save {
     }
     $sth->finish;
 
-    if ($form->{item} ne 'service') {
-      # delete makemodel records
-      do_query($form, $dbh, qq|DELETE FROM makemodel WHERE parts_id = ?|, conv_i($form->{id}));
-    }
+    # delete makemodel records
+    do_query($form, $dbh, qq|DELETE FROM makemodel WHERE parts_id = ?|, conv_i($form->{id}));
 
     if ($form->{item} eq 'assembly') {
       # delete assembly records
