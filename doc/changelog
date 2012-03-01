@@ -282,6 +282,7 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1779: Berichte zu Verkaufslieferscheinen, Checkbox "Verkaeufer" hat keine Funktion
   - Bugfix 1782: Release Management Dokumentation
   - Bugfix 1783: Verhalten des Javascript-Menues aendern
+  - Bugfix 1786: Erweiterte Suche: Keine Ergebnisse mit benutzerdefinierten Attributen
   - Bugfix 1787: Winstonexport with . instead of , in numbers
   - Bugfix 1789: Metainformationen fehlen bei Mahnungen
   - Bugfix 1792: Button Karte zu tief
@@ -290,6 +291,15 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1801: Benutzerfreundliche Links
   - Bugfix 1805: Error on fresh install of lx-office on CentOS 5.7, hash_password not found
   - Bugfix 1808: Userlogin leakt in die Adminmasken
+  - Bugfix 1817: Benutzerdefinierte Variablen nicht editierbar
+  - Bugfix 1820: Druckvariablen salesman_name und employee_name werden mit Login-IDs befüllt
+  - Bugfix 1821: Rechnung per Mail verschicken: $attachment_filename wird nicht übersetzt
+  - Bugfix 1822: Feldbenennung "Firmenname" taucht in Zeiterfassung wieder auf
+  - Bugfix 1823: Lieferanschriften "lecken" in fremde Kunden
+  - Bugfix 1824: Schnellsuche nach Personen mit Umlauten
+  - Bugfix 1827: Neue DB plus neuer Nutzer erzeugt Fehler
+  - Bugfix 1828: Erzeugen neuer Preisgruppen muendet in Fehler
+  - Bugfix 1829: Lieferanten zu Dienstleistungen werden nicht gespeichert
 
 
 2011-06-15 - Release 2.6.3
