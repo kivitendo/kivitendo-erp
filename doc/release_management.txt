@@ -169,6 +169,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 
 2. RELEASE
+==========
 
 * Annotated tag erstellen und pushen
 
@@ -189,6 +190,8 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * Alles auf Sourceforge hochladen
 
+* Auf Sourceforge den Standarddownloadlink setzen
+
 * Releasemessages schreiben für folgende Ziele:
 
   - lx-office.org: deutsch, prosa, formell
@@ -201,5 +204,8 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 
 3. POST RELEASE
+===============
 
 * Im Bugzilla die aktuelle Version ergänzen, damit dafür Bugs eingespielt werden können.
+
+* Nach einem Major Release alle Bugs die den Milestone hatten und nicht gefixt wurden zurücksetzen
