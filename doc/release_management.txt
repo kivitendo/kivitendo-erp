@@ -195,12 +195,12 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Releasemessages schreiben für folgende Ziele:
 
   - lx-office.org: deutsch, prosa, formell
-  - freshmeat.net: englisch, max 600 zeichen, technische stichpunkte aus dem changelog
+  - freecode.com: englisch, max 600 zeichen, technische stichpunkte aus dem changelog (ehemals freshmeat.net)
   - mailinglisten: deutsch, freitext, informell
 
 * Alle Releasemessages von mindestens einer Person Korrektur lesen lassen
 
-* Webseite aktualisieren, Releasemessages auf freshmeat und Mailinglisten posten
+* Webseite aktualisieren, Releasemessages auf freecode und Mailinglisten posten
 
 
 3. POST RELEASE
