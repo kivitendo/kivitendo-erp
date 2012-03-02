@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]<body style="padding:0px; margin:0px;">
+[% USE HTML %]<body class="menunew">
 
  <script type="text/javascript">
 <!--
@@ -16,15 +16,15 @@ window.onload=clockon
 
  <script type="text/javascript" src="js/dhtmlsuite/menu-for-applications.js"></script>
 
- <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
+ <table class="menunew">
   <tr>
-   <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;">
+   <td>
     &nbsp;
     [<a href="menunew.pl?action=display" target="_blank">[% 'new Window' | $T8 %]</a>]
     &nbsp;
     [<a href="JavaScript:top.main_window.print()">[% 'print' | $T8 %]</a>]
    </td>
-   <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
+   <td align="right" nowrap>
     [[% 'User' | $T8 %]: [% HTML.escape(login) %] -
     <a href="login.pl?action=logout" target="_top">[% 'logout' | $T8 %]</a>]
     [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
@@ -80,7 +80,7 @@ window.onload=clockon
 
 DHTMLSuite.createStandardObjects();
 
-DHTMLSuite.configObj.setCssPath('css/dhtmlsuite/');
+DHTMLSuite.configObj.setCssPath('[% myconfig.css_path %]/dhtmlsuite/');
 DHTMLSuite.configObj.setImagePath('image/dhtmlsuite/');
 
 var menu_model = new DHTMLSuite.menuModel();

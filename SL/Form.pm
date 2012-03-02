@@ -460,6 +460,17 @@ sub use_stylesheet {
   return @{ $self->{stylesheet} };
 }
 
+sub get_stylesheet_for_user {
+  my $css_path = 'css';
+  if (my $user_style = $::myconfig{stylesheet}) {
+    $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnand of pre 2.7.0 stylesheet handling
+    $css_path = "$css_path/$user_style" if -d "$css_path/$user_style";
+  }
+  $::myconfig{css_path} = $css_path; # needed for menunew, FIXME: don't do this here
+
+  return $css_path;
+}
+
 sub header {
   $::lxdebug->enter_sub;
 
@@ -470,6 +481,8 @@ sub header {
   my @header;
 
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
+
+  my $css_path = $self->get_stylesheet_for_user;
 
   $self->{favicon} ||= "favicon.ico";
   $self->{titlebar}  = "$self->{title} - $self->{titlebar}" if $self->{title};
@@ -485,17 +498,10 @@ sub header {
 
   push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
-  push @header, '<script type="text/javascript" src="js/jquery.js"></script>',
-                '<script type="text/javascript" src="js/common.js"></script>',
-                '<link rel="stylesheet" type="text/css" href="js/jscalendar/calendar-win2k-1.css">',
-                '<script type="text/javascript" src="js/jscalendar/calendar.js"></script>',
-                '<script type="text/javascript" src="js/jscalendar/lang/calendar-de.js"></script>',
-                '<script type="text/javascript" src="js/jscalendar/calendar-setup.js"></script>',
-                '<script type="text/javascript" src="js/part_selection.js"></script>',
-                '<script type="text/javascript" src="js/jquery-ui.js"></script>',
-                '<script type="text/javascript" src="js/jqModal.js"></script>',
-                '<link rel="stylesheet" type="text/css" href="css/ui-lightness/jquery-ui-1.8.12.custom.css">';
-  push @header, $self->{javascript} if $self->{javascript};
+  push @header, map { qq|<script type="text/javascript" src="js/$_.js"></script>| }
+       qw(jquery common jscalendar/calendar jscalendar/lang/calendar-de jscalendar/calendar-setup part_selection jquery-ui jqModal switchmenuframe);
+  push @header, map { qq|<link rel="stylesheet" type="text/css" href="$css_path/$_.css">| }
+       qw(main menu tabcontent list_accounts jquery.autocomplete jquery.multiselect2side frame_header/header);
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
   push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
   push @header, sprintf "<script type='text/javascript'>top.document.title='%s';</script>",
@@ -531,9 +537,7 @@ sub header {
 EOT
   print "  $_\n" for @header;
   print <<EOT;
-  <link rel="stylesheet" href="css/jquery.autocomplete.css" type="text/css">
   <meta name="robots" content="noindex,nofollow">
-  <link rel="stylesheet" type="text/css" href="css/tabcontent.css">
   <script type="text/javascript" src="js/tabcontent.js">
 
   /***********************************************

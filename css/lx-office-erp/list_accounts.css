@@ -14,7 +14,7 @@
 .coa_listheading {
   background-color:rgb(236,233,216);
   color: black;
-  background-image:url("../image/fade.png");
+  background-image:url("../../image/fade.png");
 }
 
 .coa_listheading_element {
@@ -40,7 +40,7 @@
 
 .coa_amount {
   text-align:right;
-  font-familiy:monospace;
+  font-family:monospace;
 }
 
 .coa_account_header {

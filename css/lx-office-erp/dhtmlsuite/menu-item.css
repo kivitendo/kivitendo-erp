@@ -12,7 +12,7 @@
 	padding-right:4px;
 	margin-right:2px;
 	padding-top:1px;
-	padding-bottom:1px;	
+	padding-bottom:1px;
 	cursor:pointer;
 	line-height:16px;
 	margin-top:2px;
@@ -61,7 +61,7 @@
 	padding-bottom:1px;
 	cursor:default;
 	line-height:16px;
-	margin-top:2px;	
+	margin-top:2px;
 }
 
 .DHTMLSuite_menuItem_top_disabled img,.DHTMLSuite_menuItem_top_disabled div{	/* Sub divs of disabled top level items. A menu item is a div with some subdivs(one for the icon, one for text etc.). this is the css for these sub divs */
@@ -82,8 +82,8 @@
 	width:12px;	/* Width of item */
 	background-repeat:no-repeat;	/* No background repeat for the arrow */
 	background-position:center center;	/* Position of the arrow. at the center of this div */
-	background-image: url('../../image/dhtmlsuite/menu_strip_down_arrow.png');	/* Relative path to the arrow */
-	margin:0px;	
+	background-image: url('../../../image/dhtmlsuite/menu_strip_down_arrow.png');	/* Relative path to the arrow */
+	margin:0px;
 	margin-right:-1px;	/* -1 pixel is added to get the arrow a little bit more to the right. this is because of the right padding of top level items */
 	padding:0px;
 	height:16px;
@@ -108,15 +108,15 @@
 	padding-left:3px;
 	padding-right:3px;
 	background-repeat:repeat-y;
-	background-image:url('../../image/dhtmlsuite/menu_strip_separator.gif');
-	
+	background-image:url('../../../image/dhtmlsuite/menu_strip_separator.gif');
+
 }
 
 
 /* CSS FOR MENU ITEM OF TYPE "sub" */
 
 .DHTMLSuite_menuItem_sub_regular, .DHTMLSuite_menuItem_sub_over,.DHTMLSuite_menuItem_sub_click,.DHTMLSuite_menuItem_sub_disabled,.DHTMLSuite_menuItem_sub_active{	/* Commom css for regular, mouse over and mouse click items */
-	clear:both;			
+	clear:both;
 	line-height:18px;	/* Height of menu item */
 	height:18px;		/* Height of menu item */
 	padding-left:25px;	/* Space inside the menu item - the 25 pixels are used in order to avoid text overlapping menu item icon */
@@ -146,7 +146,7 @@
 	border:1px solid #006;	/* Border around mouse over items, click items and active items */
 }
 
-.DHTMLSuite_menuItem_sub_over,.DHTMLSuite_menuItem_sub_active{	/* Mouse over effect */	
+.DHTMLSuite_menuItem_sub_over,.DHTMLSuite_menuItem_sub_active{	/* Mouse over effect */
 	background-color:#FFEEC2;		/* Background color of mouse over items and active items(Active item = parent elements of the menu item the mouse is currently over */
 }
 
@@ -158,14 +158,14 @@
 	float:left;		/* To get the icons and text of sub elements side by side */
 	padding-left:1px;
 	padding-right:1px;
-	
+
 }
 .DHTMLSuite_menuItem_sub_arrowShowSub{	/* Arrow div for sub elements (Right pointing arrow ) */
 	position:absolute;	/* Never change this one */
-	background-image:url('../../image/dhtmlsuite/menu-bar-right-arrow.png');	/* Path relative to the css file */
+	background-image:url('../../../image/dhtmlsuite/menu-bar-right-arrow.png');	/* Path relative to the css file */
 	width:18px;
 	height:18px;
-	text-align:right;	
+	text-align:right;
 	right:0px;
 	background-repeat:no-repeat;	/* No background repeat */
 	background-position: center right;	/* Position of arrow */

@@ -68,7 +68,6 @@ sub show_error {
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!.')                   if ($error_type eq 'password');
   $::myconfig{countrycode} = $::lx_office_conf{system}->{language};
-  $::form->{stylesheet}    = 'css/lx-office-erp.css';
 
   $::form->header;
   print $::form->parse_html_template($template);
@@ -221,7 +220,7 @@ sub handle_request {
       if ($action) {
         $::instance_conf->init;
 
-        map { $::form->{$_} = $::myconfig{$_} } qw(stylesheet charset)
+        map { $::form->{$_} = $::myconfig{$_} } qw(charset)
           unless $action eq 'save' && $::form->{type} eq 'preferences';
 
         $::form->set_standard_title;
@@ -374,7 +373,6 @@ sub _check_for_old_config_files {
   return unless @old_files;
 
   $::form->{title}      = $::locale->text('Old configuration files');
-  $::form->{stylesheet} = 'lx-office-erp.css';
   $::form->header;
   print $::form->parse_html_template('login/old_configuration_files', { FILES => \@old_files });
 

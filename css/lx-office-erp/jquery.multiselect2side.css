@@ -3,7 +3,7 @@
 	width: 100%;
 	padding: 1px;
 	float: left;
-	background : url('') repeat-x; // HACK FOR CHROME
+	background : url('') repeat-x; /* HACK FOR CHROME */
 }
 
 .ms2side__select {
@@ -33,14 +33,14 @@
 .ms2side__options p, .ms2side__updown p {
 	margin: 2px 0;
 	padding: 0;
-	cursor: hand;
+	cursor: pointer;
 	border: 1px solid black;
 }
 
 .ms2side__options p.ms2side_hover, .ms2side__updown p.ms2side_hover {
 	background-color: #F0F0FF;
 	border-color: #0000FF;
-	cursor: hand;
+	cursor: pointer;
 }
 
 .ms2side__options p.ms2side__hide, .ms2side__updown p.ms2side__hide {

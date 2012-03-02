@@ -1,0 +1,45 @@
+.frame-header-element a:link,
+.frame-header-element a:visited,
+.frame-header-element a:hover,
+.frame-header-element a:active {
+  color: white;
+  background: none;
+  text-decoration: underline;
+}
+
+body.frame-header {
+  background: url('../../../image/fade.png') repeat-x;
+}
+
+div.frame-header {
+  background: url('../../../image/bg_titel.gif') repeat-x;
+}
+
+.frame-header {
+  margin: 0;
+  padding: 0;
+  color: white;
+  border: 0;
+  overflow: hidden;
+  width: 100%;
+  border-spacing: 0;
+  text-align: center;
+}
+
+.frame-header-left {
+  float: left;
+}
+.frame-header-right {
+  float: right;
+}
+
+.frame-header-left,
+.frame-header-center,
+.frame-header-right  {
+  border-spacing: 0;
+  color: white;
+  padding: 0;
+  font-size: 12px;
+  font-family: verdana,arial,sans-serif;
+  vertical-align: middle;
+}
