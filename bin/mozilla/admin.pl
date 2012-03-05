@@ -542,7 +542,7 @@ sub save_user {
   # Add new user to his groups.
   if (ref $form->{new_user_group_ids} eq 'ARRAY') {
     my $all_groups = $main::auth->read_groups();
-    my %user       = $main::auth->read_user(login => $user->{login});
+    my %user       = $main::auth->read_user(login => $myconfig->{login});
 
     foreach my $group_id (@{ $form->{new_user_group_ids} }) {
       my $group = $all_groups->{$group_id};
@@ -564,7 +564,7 @@ sub save_user {
       $form->error($::locale->text('The settings were saved, but the password was not changed.') . ' ' . join(' ', $verifier->errors($result)));
     }
 
-    $main::auth->change_password($user->{login}, $::form->{new_password});
+    $main::auth->change_password($myconfig->{login}, $::form->{new_password});
   }
 
   $::form->redirect($::locale->text('User saved!'));

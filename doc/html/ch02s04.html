@@ -1,40 +1,40 @@
 <html><head>
-      <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-   <title>2.4. Anpassung der PostgreSQL-Konfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s03.html" title="2.3. Lx-Office-Konfigurationsdatei"><link rel="next" href="ch02s05.html" title="2.5. Webserver-Konfiguration"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.4. Anpassung der PostgreSQL-Konfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.4. Anpassung der PostgreSQL-Konfiguration"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Anpassung-der-PostgreSQL-Konfiguration"></a>2.4. Anpassung der PostgreSQL-Konfiguration</h2></div></div></div><p>PostgreSQL muss auf verschiedene Weisen angepasst werden.</p><div class="sect2" title="2.4.1. Zeichensätze/die Verwendung von UTF-8"><div class="titlepage"><div><div><h3 class="title"><a name="Zeichens%C3%A4tze-die-Verwendung-von-UTF-8"></a>2.4.1. Zeichensätze/die Verwendung von UTF-8</h3></div></div></div><p>Lx-Office kann komplett mit UTF-8 als Zeichensatz verwendet
+      <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+   <title>2.4. Anpassung der PostgreSQL-Konfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s03.html" title="2.3. Lx-Office-Konfigurationsdatei"><link rel="next" href="ch02s05.html" title="2.5. Webserver-Konfiguration"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.4. Anpassung der PostgreSQL-Konfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s03.html">ZurÃ¼ck</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.4. Anpassung der PostgreSQL-Konfiguration"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Anpassung-der-PostgreSQL-Konfiguration"></a>2.4. Anpassung der PostgreSQL-Konfiguration</h2></div></div></div><p>PostgreSQL muss auf verschiedene Weisen angepasst werden.</p><div class="sect2" title="2.4.1. ZeichensÃ¤tze/die Verwendung von UTF-8"><div class="titlepage"><div><div><h3 class="title"><a name="Zeichens%C3%A4tze-die-Verwendung-von-UTF-8"></a>2.4.1. ZeichensÃ¤tze/die Verwendung von UTF-8</h3></div></div></div><p>Lx-Office kann komplett mit UTF-8 als Zeichensatz verwendet
         werden. Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in
         Version 8.2 oder neuer benutzt werden, und der
         PostgreSQL-Datenbankcluster muss ebenfalls mit UTF-8 als Locale
-        angelegt worden sein.</p><p>Dieses ist kann überprüft werden: ist das Encoding der Datenbank
-        &#8220;template1&#8221; &#8220;UTF8&#8221;, so kann auch Lx-Office mit UTF-8 betrieben werden.
+        angelegt worden sein.</p><p>Dieses ist kann Ã¼berprÃ¼ft werden: ist das Encoding der Datenbank
+        â€œtemplate1â€ â€œUTF8â€, so kann auch Lx-Office mit UTF-8 betrieben werden.
         Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
-        Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl
-        getan werden:</p><pre class="programlisting">pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2 clustername</pre><p>Die Datenbankversionsnummer muss an die tatsächlich verwendete
-        Versionsnummer angepasst werden.</p><p>Unter anderen Distributionen gibt es ähnliche Methoden.</p><p>Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und
-        ist ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
+        Ubuntu kann dies z.B. fÃ¼r PostgreSQL 8.2 mit dem folgenden Befehl
+        getan werden:</p><pre class="programlisting">pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2 clustername</pre><p>Die Datenbankversionsnummer muss an die tatsÃ¤chlich verwendete
+        Versionsnummer angepasst werden.</p><p>Unter anderen Distributionen gibt es Ã¤hnliche Methoden.</p><p>Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und
+        ist ein Neuanlegen eines weiteren Clusters nicht mÃ¶glich, so kann
         Lx-Office mit ISO-8859-15 als Encoding betrieben werden.</p><p>Das Encoding einer Datenbank kann in <span class="command"><strong>psql</strong></span> mit
-        <code class="literal">\l</code> geprüft werden.</p></div><div class="sect2" title="2.4.2. Änderungen an Konfigurationsdateien"><div class="titlepage"><div><div><h3 class="title"><a name="%C3%84nderungen-an-Konfigurationsdateien"></a>2.4.2. Änderungen an Konfigurationsdateien</h3></div></div></div><p>In der Datei <code class="filename">postgresql.conf</code>, die je nach
+        <code class="literal">\l</code> geprÃ¼ft werden.</p></div><div class="sect2" title="2.4.2. Ã„nderungen an Konfigurationsdateien"><div class="titlepage"><div><div><h3 class="title"><a name="%C3%84nderungen-an-Konfigurationsdateien"></a>2.4.2. Ã„nderungen an Konfigurationsdateien</h3></div></div></div><p>In der Datei <code class="filename">postgresql.conf</code>, die je nach
         Distribution in verschiedenen Verzeichnissen liegen kann (z.B.
         <code class="filename">/var/lib/pgsql/data/</code> oder
         <code class="filename">/etc/postgresql/</code>, muss sichergestellt werden,
-        dass TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
+        dass TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird Ã¼ber den
         Parameter <code class="varname">listen_address</code> gesteuert. Laufen
         PostgreSQL und Lx-Office auf demselben Rechner, so kann dort der Wert
-        <code class="literal">localhost</code> verwendet werden. Andernfalls müssen
+        <code class="literal">localhost</code> verwendet werden. Andernfalls mÃ¼ssen
         Datenbankverbindungen auch von anderen Rechnern aus zugelassen werden,
         was mit dem Wert <code class="literal">*</code> geschieht.</p><p>In der Datei <code class="filename">pg_hba.conf</code>, die im gleichen
         Verzeichnis wie die <code class="filename">postgresql.conf</code> zu finden
-        sein sollte, müssen die Berichtigungen für den Zugriff geändert
-        werden. Hier gibt es mehrere Möglichkeiten. Eine besteht darin, lokale
+        sein sollte, mÃ¼ssen die Berichtigungen fÃ¼r den Zugriff geÃ¤ndert
+        werden. Hier gibt es mehrere MÃ¶glichkeiten. Eine besteht darin, lokale
         Verbindungen immer zuzulassen:</p><pre class="programlisting">local all all trust
-host all all 127.0.0.1 255.0.0.0 trust</pre><p>Besser ist es, für eine bestimmte Datenbank Zugriff nur per
+host all all 127.0.0.1 255.0.0.0 trust</pre><p>Besser ist es, fÃ¼r eine bestimmte Datenbank Zugriff nur per
         Passwort zuzulassen. Beispielsweise:</p><pre class="programlisting">local all lxoffice password
-host all lxoffice 127.0.0.1 255.255.255.255 password</pre></div><div class="sect2" title="2.4.3. Erweiterung für servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.4.3. Erweiterung für servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
-        Unterstützung für servergespeicherte Prozeduren eingerichet werden.
-        Melden Sie sich dafür als Benutzer &#8220;postgres&#8221; an der Datenbank an, und
-        führen Sie die folgenden Kommandos aus:</p><pre class="programlisting">create language 'plpgsql';</pre></div><div class="sect2" title="2.4.4. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.4.4. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser &#8220;postgres&#8221; zum Zugriff
+host all lxoffice 127.0.0.1 255.255.255.255 password</pre></div><div class="sect2" title="2.4.3. Erweiterung fÃ¼r servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.4.3. Erweiterung fÃ¼r servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
+        UnterstÃ¼tzung fÃ¼r servergespeicherte Prozeduren eingerichet werden.
+        Melden Sie sich dafÃ¼r als Benutzer â€œpostgresâ€ an der Datenbank an, und
+        fÃ¼hren Sie die folgenden Kommandos aus:</p><pre class="programlisting">create language 'plpgsql';</pre></div><div class="sect2" title="2.4.4. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.4.4. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser â€œpostgresâ€ zum Zugriff
         benutzen wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
-        können:</p><pre class="programlisting">su - postgres createuser -d -P lxoffice</pre><p>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
-        Sie den evtl. voreingestellten Benutzer &#8220;postgres&#8221; auf &#8220;lxoffice&#8221; bzw.
-        den hier gewählten Benutzernamen.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s03.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.3. Lx-Office-Konfigurationsdatei&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.5. Webserver-Konfiguration</td></tr></table></div></body></html>
+        kÃ¶nnen:</p><pre class="programlisting">su - postgres createuser -d -P lxoffice</pre><p>Wenn Sie spÃ¤ter einen Datenbankzugriff konfigurieren, verÃ¤ndern
+        Sie den evtl. voreingestellten Benutzer â€œpostgresâ€ auf â€œlxofficeâ€ bzw.
+        den hier gewÃ¤hlten Benutzernamen.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s03.html">ZurÃ¼ck</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.3. Lx-Office-Konfigurationsdatei&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.5. Webserver-Konfiguration</td></tr></table></div></body></html>

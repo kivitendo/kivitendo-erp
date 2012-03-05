@@ -962,6 +962,9 @@ sub edit_e_mail {
     $form->{"email"} = $form->{"cp_email"} if $form->{"cp_email"};
   }
 
+  $form->{language} = $form->get_template_language(\%myconfig);
+  $form->{language} = "_" . $form->{language} if $form->{language};
+
   my $title = $locale->text('E-mail') . " " . $form->get_formname_translation();
 
   $form->{oldmedia} = $form->{media};

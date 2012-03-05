@@ -18,13 +18,9 @@ body {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 10pt;
   background-color: white;
-  background-image: url("../image/fade.png"); background-repeat:repeat-x;
+  background-image: url("../../image/fade.png"); background-repeat:repeat-x;
   color: black;
 }
-
-/* .bg {
-  background-image: url("mn_hauptmenu.png");
-} */
 
 td {
   font-family: Verdana, Arial, Helvetica, sans-serif;
@@ -75,13 +71,6 @@ th.login {
 
 body.admin {
   background-color:#ffffff;
-  color: black;
-}
-
-body.menu {
-  background-image: url("../image/fade.png");background-repeat:repeat-x;
-  font-family: Verdana, Arial, Helvetica, sans-serif;
-  font-size:8pt;
   color: black;
 }
 
@@ -147,14 +136,14 @@ body.menu {
 
 
 .listelement {
-    background-image: url("../image/fade2.png");
+    background-image: url("../../image/fade2.png");
     background-repeat:repeat-x;
     border-style:dashed;
     border-width:thin;
 }
 
 .listelement2 {
-    background-image: url("../image/fade2.png");
+    background-image: url("../../image/fade2.png");
     background-repeat:repeat-x;
     border-style:dashed;
     border-width:thin;
@@ -168,7 +157,7 @@ body.menu {
     color: black;
     font-weight: bolder;
     text-align:left;
-    background-image: url("../image/fade.png");
+    background-image: url("../../image/fade.png");
     border-style:dotted;
     border-width:thin;
 }
@@ -355,4 +344,42 @@ label {
 
 .jqmOverlay {
   background-color: #000;
+}
+
+/* Kontenliste Styles */
+
+.coa_listrow1 {
+  background-color: rgb(208,207,201);
+  color: black;
+  vertical-align: top;
+}
+
+.coa_listrow0 {
+  background-color: rgb(236,233,216);
+  color: black;
+  vertical-align: top;
+}
+
+.coa_detail_emph {
+  font-size:10pt;
+  font-weight:bold;
+  color:darkred;
+}
+
+.coa_details_header {
+  font-size:8pt;
+  padding:3px;
+  font-weight:bolder;
+  text-align:center;
+  border-style:none;
+  border-width:thin;
+}
+
+.coa_details_header2 {
+  font-size:8pt;
+  padding:3px;
+  font-weight:normal;
+  text-align:left;
+  border-style:none;
+  border-width:thin;
 }

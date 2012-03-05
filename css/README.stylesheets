@@ -1,0 +1,16 @@
+2012-03-02 - Stylesheet normalization
+
+After this, the stylesheets follow these conventions:
+
+* Every directory in css/ is considered a style to be chosen.
+* lx-office-erp is used as the fallback style if no style was found or the
+  style chosen was invalid.
+* Missing stylesheets for the other styles have been
+  linked from lx-office-erp, so that they will used like before.
+* If you edit a file, make sure it's not a symlink.
+* The previous named stylesheets are now main.css in their respective directories.
+* menuv3 and menuv4 are now distict so that it's possible to include both
+  without overriding each other.
+* All relative image links needed to get bumped an additional ../
+* If you add another style, be sure to test tabs, calendars, all menus,
+  autocompletion, charts, and multiselect.

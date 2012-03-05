@@ -776,7 +776,7 @@ sub generate_ustva {
         dec_places  => '2',
     });
 
-    push @category_cent, qw(83  Z43  Z45  Z53  Z62  Z65  Z67);
+    push @category_cent, qw(Z43  Z45  Z53  Z62  Z65  Z67);
 
     my @category_euro = $ustva->report_variables({
         myconfig    => \%myconfig,

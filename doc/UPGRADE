@@ -60,8 +60,8 @@ Upgrade auf v2.7.0
   * Das Recht "Administration" wurde neu eingeführt, und ist dazu da
     administrative Tätigkeiten an der Mandantendatenbank aus einm Benutzerlogin
     heraus durchzuführen. Es ist standardmäßig NICHT vergeben.
-  * Der Vorlageneditor wurde unter das Recht Administration gestellt, warvorher
-    Konfiguration.
+  * Der Vorlageneditor wurde unter das Recht Administration gestellt, war
+    vorher Konfiguration.
 
 
 Upgrade auf v2.6.3
