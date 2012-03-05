@@ -465,6 +465,8 @@ sub get_stylesheet_for_user {
   if (my $user_style = $::myconfig{stylesheet}) {
     $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnand of pre 2.7.0 stylesheet handling
     $css_path = "$css_path/$user_style" if -d "$css_path/$user_style";
+  } else {
+    $css_path = "$css_path/lx-office-erp";
   }
   $::myconfig{css_path} = $css_path; # needed for menunew, FIXME: don't do this here
 
