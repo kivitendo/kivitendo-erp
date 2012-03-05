@@ -138,7 +138,7 @@ sub download {
   $main::auth->assert('datev_export');
 
   my $tmp_name = Common->tmpname();
-  my $zip_name = strftime("lx-office-datev-export-%Y%m%d.zip", localtime(time()));
+  my $zip_name = strftime("kivitendo-datev-export-%Y%m%d.zip", localtime(time()));
 
   my $cwd = getcwd();
 

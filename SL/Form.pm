@@ -1108,7 +1108,7 @@ sub parse_template {
   $suffix =  $self->{IN};
   $suffix =~ s/.*\.//;
   ($temp_fh, $self->{tmpfile}) = File::Temp::tempfile(
-    'lx-office-printXXXXXX',
+    'kivitendo-printXXXXXX',
     SUFFIX => '.' . ($suffix || 'tex'),
     DIR    => $userspath,
     UNLINK => 1,
