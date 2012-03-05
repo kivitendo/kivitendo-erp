@@ -13,6 +13,7 @@ body.frame-header {
 
 div.frame-header {
   background: url('../../../image/bg_titel.gif') repeat-x;
+  text-align: center;
 }
 
 .frame-header {
@@ -23,7 +24,6 @@ div.frame-header {
   overflow: hidden;
   width: 100%;
   border-spacing: 0;
-  text-align: center;
 }
 
 .frame-header-left {
@@ -39,7 +39,6 @@ div.frame-header {
   border-spacing: 0;
   color: white;
   padding: 0;
-  font-size: 12px;
   font-family: verdana,arial,sans-serif;
   vertical-align: middle;
 }
