@@ -465,6 +465,8 @@ sub get_stylesheet_for_user {
   if (my $user_style = $::myconfig{stylesheet}) {
     $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnand of pre 2.7.0 stylesheet handling
     $css_path = "$css_path/$user_style" if -d "$css_path/$user_style";
+  } else {
+    $css_path = "$css_path/lx-office-erp";
   }
   $::myconfig{css_path} = $css_path; # needed for menunew, FIXME: don't do this here
 
@@ -501,7 +503,8 @@ sub header {
   push @header, map { qq|<script type="text/javascript" src="js/$_.js"></script>| }
        qw(jquery common jscalendar/calendar jscalendar/lang/calendar-de jscalendar/calendar-setup part_selection jquery-ui jqModal switchmenuframe);
   push @header, map { qq|<link rel="stylesheet" type="text/css" href="$css_path/$_.css">| }
-       qw(main menu tabcontent list_accounts jquery.autocomplete jquery.multiselect2side frame_header/header);
+       qw(main menu tabcontent list_accounts jquery.autocomplete jquery.multiselect2side frame_header/header ui-lightness/jquery-ui-1.8.12.custom);
+  push @header, map { qq|<link rel="stylesheet" type="text/css" href="js/jscalendar/calendar-win2k-1.css">| }
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
   push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
   push @header, sprintf "<script type='text/javascript'>top.document.title='%s';</script>",
