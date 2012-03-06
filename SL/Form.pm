@@ -464,7 +464,12 @@ sub get_stylesheet_for_user {
   my $css_path = 'css';
   if (my $user_style = $::myconfig{stylesheet}) {
     $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnand of pre 2.7.0 stylesheet handling
-    $css_path = "$css_path/$user_style" if -d "$css_path/$user_style";
+    if (-d "$css_path/$user_style" &&
+        -f "$css_path/$user_style/main.css") {
+      $css_path = "$css_path/$user_style";
+    } else {
+      $css_path = "$css_path/lx-office-erp";
+    }
   } else {
     $css_path = "$css_path/lx-office-erp";
   }
