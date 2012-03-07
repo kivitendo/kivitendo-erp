@@ -1861,13 +1861,27 @@ sub _render_custom_variables_inputs {
 
   my $valid = CVar->custom_variables_validity_by_trans_id(trans_id => $params{part_id});
 
+  # get partsgroup_id from part
+  my $partsgroup_id;
+  if ($params{part_id}) {
+    $partsgroup_id = SL::DB::Part->new(id => $params{part_id})->load->partsgroup_id;
+  }
+
   my $num_visible_cvars = 0;
   foreach my $cvar (@{ $form->{CVAR_CONFIGS}->{IC} }) {
     $cvar->{valid} = $params{part_id} && $valid->($cvar->{id});
 
+    # set partsgroup filter
+    my $partsgroup_filtered = 0;
+    if ($cvar->{flag_partsgroup_filter}) {
+      if (!$partsgroup_id || (!grep {$partsgroup_id == $_} @{ $cvar->{partsgroups} })) {
+        $partsgroup_filtered = 1;
+      }
+    }
+
     my $show = 0;
     my $description = '';
-    if ($cvar->{flag_editable} && $cvar->{valid}) {
+    if (($cvar->{flag_editable} && $cvar->{valid}) && !$partsgroup_filtered) {
       $num_visible_cvars++;
       $description = $cvar->{description} . ' ';
       $show = 1;
@@ -1886,6 +1900,7 @@ sub _render_custom_variables_inputs {
          name_postfix      => "_$params{row}",
          valid             => $cvar->{valid},
          value             => CVar->parse($::form->{$form_key}, $cvar),
+         partsgroup_filtered => $partsgroup_filtered,
       }
     };
   }

@@ -28,6 +28,7 @@ use SL::DB::CsvImportReportStatus;
 use SL::DB::Currency;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
+use SL::DB::CustomVariableConfigPartsgroup;
 use SL::DB::CustomVariableValidity;
 use SL::DB::Customer;
 use SL::DB::Datev;

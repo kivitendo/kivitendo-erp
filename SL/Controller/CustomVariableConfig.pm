@@ -8,6 +8,7 @@ use List::Util qw(first);
 
 use SL::DB::CustomVariableConfig;
 use SL::DB::CustomVariableValidity;
+use SL::DB::PartsGroup;
 use SL::Helper::Flash;
 use SL::Locale::String;
 use Data::Dumper;
@@ -66,6 +67,9 @@ sub show_form {
     split m/:/, ($self->config->flags || '')
   });
 
+  $params{all_partsgroups} = SL::DB::Manager::PartsGroup->get_all();
+
+  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
   $self->render('custom_variable_config/form', %params);
 }
 
@@ -89,6 +93,9 @@ sub action_update {
 
 sub action_destroy {
   my ($self) = @_;
+
+  # delete relationship to partsgroups (for filter) before cvar can be deleted
+  $self->config->update_attributes(partsgroups => []);
 
   if (eval { $self->config->delete; 1; }) {
     flash_later('info',  t8('The custom variable has been deleted.'));
@@ -166,6 +173,14 @@ sub create_or_update {
   my $params = delete($::form->{config}) || { };
   delete $params->{id};
 
+  if ($self->module eq 'IC') {
+    $params->{partsgroups} = [] if !$params->{flag_partsgroup_filter};
+  } else {
+    delete $params->{flag_partsgroup_filter};
+    $params->{partsgroups} = [];
+  }
+
+  $params->{partsgroups}       ||= []; # The list is empty, if control is not send by the browser.
   $params->{default_value}       = $::form->parse_amount(\%::myconfig, $params->{default_value}) if $params->{type} eq 'number';
   $params->{included_by_default} = 0                                                             if !$params->{includeable};
   $params->{flags}               = join ':', map { m/^flag_(.*)/; "${1}=" . delete($params->{$_}) } grep { m/^flag_/ } keys %{ $params };

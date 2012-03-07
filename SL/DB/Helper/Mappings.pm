@@ -111,6 +111,7 @@ my %kivitendo_package_names = (
   csv_import_report_rows         => 'csv_import_report_row',
   csv_import_report_status       => 'csv_import_report_status',
   currencies                     => 'currency',
+  custom_variable_config_partsgroups => 'custom_variable_config_partsgroup',
   custom_variable_configs        => 'custom_variable_config',
   custom_variables               => 'custom_variable',
   custom_variables_validity      => 'custom_variable_validity',

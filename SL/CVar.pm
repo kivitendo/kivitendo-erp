@@ -55,6 +55,10 @@ SQL
       }
 
       $self->_unpack_flags($config);
+
+      my $cvar_config = SL::DB::CustomVariableConfig->new(id => $config->{id})->load;
+      @{$config->{'partsgroups'}} = map {$_->id} @{$cvar_config->partsgroups};
+
     }
     $::form->{CVAR_CONFIGS}->{$params{module}} = $configs;
   }
@@ -279,13 +283,20 @@ sub render_inputs {
   my $myconfig = \%main::myconfig;
   my $form     = $main::form;
 
-  my %options  = ( name_prefix       => "$params{name_prefix}",
-                   name_postfix      => "$params{name_postfix}",
-                   hide_non_editable => $params{hide_non_editable},
+  my %options  = ( name_prefix           => "$params{name_prefix}",
+                   name_postfix          => "$params{name_postfix}",
+                   hide_non_editable     => $params{hide_non_editable},
                    show_disabled_message => $params{show_disabled_message},
                  );
 
+  # should this cvar be filtered by partsgroups?
   foreach my $var (@{ $params{variables} }) {
+    if ($var->{flag_partsgroup_filter}) {
+      if (!$params{partsgroup_id} || (!grep {$params{partsgroup_id} == $_} @{ $var->{partsgroups} })) {
+        $var->{partsgroup_filtered} = 1;
+      }
+    }
+
     $var->{HTML_CODE} = $form->parse_html_template('amcvar/render_inputs',     { var => $var, %options });
     $var->{VALID_BOX} = $form->parse_html_template('amcvar/render_checkboxes', { var => $var, %options });
   }

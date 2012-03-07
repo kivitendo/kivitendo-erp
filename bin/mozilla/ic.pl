@@ -1628,7 +1628,9 @@ sub form_header {
 
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'IC', 'trans_id' => $form->{id});
 
-  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}, show_disabled_message => 1)
+  my ($null, $partsgroup_id) = split /--/, $form->{partsgroup};
+
+  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}, show_disabled_message => 1, partsgroup_id => $partsgroup_id)
     if (scalar @{ $form->{CUSTOM_VARIABLES} });
 
   $::request->layout->use_javascript("${_}.js") for qw(ckeditor/ckeditor ckeditor/adapters/jquery);

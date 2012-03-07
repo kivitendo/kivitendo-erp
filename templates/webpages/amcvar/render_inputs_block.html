@@ -10,7 +10,7 @@
       SET render_cvar_tag_options.no_id = 1;
     END;
 %]
-[%- IF cvar.hide_non_editable && !cvar.var.flag_editable %]
+[%- IF (cvar.hide_non_editable && !cvar.var.flag_editable) || cvar.partsgroup_filtered %]
 [%- L.hidden_tag(cvar_tag_name, cvar.var.value, render_cvar_tag_options) %]
 [%- ELSIF !cvar.valid %]
   [%- IF show_disabled_message %]

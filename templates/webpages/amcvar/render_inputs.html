@@ -4,7 +4,7 @@
 
 [%- SET var_name = HTML.escape(name_prefix) _ "cvar_" _ HTML.escape(var.name) _ HTML.escape(name_postfix) -%]
 
-[%- IF hide_non_editable && !var.flag_editable %]
+[%- IF (hide_non_editable && !var.flag_editable) || var.partsgroup_filtered %]
 <input type="hidden" name="[% var_name %]" value="[% HTML.escape(var.value) %]">
 
 [%- ELSIF !var.valid %]

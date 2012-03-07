@@ -7,6 +7,13 @@ use strict;
 
 use SL::DB::MetaSetup::PartsGroup;
 
+__PACKAGE__->meta->add_relationship(
+  custom_variable_configs => {
+    type                  => 'many to many',
+    map_class             => 'SL::DB::CustomVariableConfigPartsgroup',
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
