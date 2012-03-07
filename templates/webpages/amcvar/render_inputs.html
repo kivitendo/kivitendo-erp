@@ -31,7 +31,7 @@
 
 <select name="[% var_name %]">
  [%- FOREACH option = var.OPTIONS %]
- <option[% IF option.value == var.value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
+ <option value="[% option.value | html %]"[% IF option.value == var.value %] selected[% END %]>[% HTML.escape(option.value) %]</option>
  [%- END %]
 </select>
 
