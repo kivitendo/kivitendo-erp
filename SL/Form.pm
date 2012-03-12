@@ -2549,9 +2549,13 @@ sub all_vc {
   my ($count) = selectrow_query($self, $dbh, $query);
 
   # build selection list
-  if ($count <= $myconfig->{vclimit}) {
+  # Hotfix für Bug 1837 - Besser wäre es alte Buchungsbelege
+  # OHNE Auswahlliste (reines Textfeld) zu laden. Hilft aber auch
+  # nicht für veränderbare Belege (oe, do, ...)
+  my $obsolete = "WHERE NOT obsolete" unless $self->{id};
+  if ($count < $myconfig->{vclimit}) {
     $query = qq|SELECT id, name, salesman_id
-                FROM $table WHERE NOT obsolete
+                FROM $table $obsolete
                 ORDER BY name|;
     $self->{"all_$table"} = selectall_hashref_query($self, $dbh, $query);
   }
