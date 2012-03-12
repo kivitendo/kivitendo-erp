@@ -2550,7 +2550,7 @@ sub all_vc {
   # OHNE Auswahlliste (reines Textfeld) zu laden. Hilft aber auch
   # nicht für veränderbare Belege (oe, do, ...)
   my $obsolete = "WHERE NOT obsolete" unless $self->{id};
-  my $query = qq|SELECT count(*) FROM $table WHERE NOT $obsolete|;
+  my $query = qq|SELECT count(*) FROM $table $obsolete|;
   my ($count) = selectrow_query($self, $dbh, $query);
 
   if ($count < $myconfig->{vclimit}) {
