@@ -2545,14 +2545,14 @@ sub all_vc {
 
   $table = $table eq "customer" ? "customer" : "vendor";
 
-  my $query = qq|SELECT count(*) FROM $table WHERE NOT obsolete|;
-  my ($count) = selectrow_query($self, $dbh, $query);
-
   # build selection list
   # Hotfix für Bug 1837 - Besser wäre es alte Buchungsbelege
   # OHNE Auswahlliste (reines Textfeld) zu laden. Hilft aber auch
   # nicht für veränderbare Belege (oe, do, ...)
   my $obsolete = "WHERE NOT obsolete" unless $self->{id};
+  my $query = qq|SELECT count(*) FROM $table WHERE NOT $obsolete|;
+  my ($count) = selectrow_query($self, $dbh, $query);
+
   if ($count < $myconfig->{vclimit}) {
     $query = qq|SELECT id, name, salesman_id
                 FROM $table $obsolete
