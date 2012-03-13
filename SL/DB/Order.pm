@@ -84,6 +84,11 @@ sub is_type {
   return shift->type eq shift;
 }
 
+sub is_sales {
+  croak 'not an accessor' if @_ > 1;
+  return shift->customer_id;
+}
+
 sub invoices {
   my $self   = shift;
   my %params = @_;
