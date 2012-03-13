@@ -464,7 +464,12 @@ sub get_stylesheet_for_user {
   my $css_path = 'css';
   if (my $user_style = $::myconfig{stylesheet}) {
     $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnand of pre 2.7.0 stylesheet handling
-    $css_path = "$css_path/$user_style" if -d "$css_path/$user_style";
+    if (-d "$css_path/$user_style" &&
+        -f "$css_path/$user_style/main.css") {
+      $css_path = "$css_path/$user_style";
+    } else {
+      $css_path = "$css_path/lx-office-erp";
+    }
   } else {
     $css_path = "$css_path/lx-office-erp";
   }
@@ -2540,13 +2545,17 @@ sub all_vc {
 
   $table = $table eq "customer" ? "customer" : "vendor";
 
-  my $query = qq|SELECT count(*) FROM $table WHERE NOT obsolete|;
+  # build selection list
+  # Hotfix für Bug 1837 - Besser wäre es alte Buchungsbelege
+  # OHNE Auswahlliste (reines Textfeld) zu laden. Hilft aber auch
+  # nicht für veränderbare Belege (oe, do, ...)
+  my $obsolete = "WHERE NOT obsolete" unless $self->{id};
+  my $query = qq|SELECT count(*) FROM $table $obsolete|;
   my ($count) = selectrow_query($self, $dbh, $query);
 
-  # build selection list
-  if ($count <= $myconfig->{vclimit}) {
+  if ($count < $myconfig->{vclimit}) {
     $query = qq|SELECT id, name, salesman_id
-                FROM $table WHERE NOT obsolete
+                FROM $table $obsolete
                 ORDER BY name|;
     $self->{"all_$table"} = selectall_hashref_query($self, $dbh, $query);
   }
