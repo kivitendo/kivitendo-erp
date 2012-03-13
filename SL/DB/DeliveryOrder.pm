@@ -13,7 +13,7 @@ use List::Util qw(first);
 __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many',
                                                     class        => 'SL::DB::DeliveryOrderItem',
                                                     column_map   => { id => 'delivery_order_id' },
-                                                    manager_args => { with_objects => [ 'part' ] }
+                                                    manager_args => { with_objects => [ 'parts' ] }
                                                   },
                                     shipto => { type       => 'one to one',
                                                 class      => 'SL::DB::Shipto',
