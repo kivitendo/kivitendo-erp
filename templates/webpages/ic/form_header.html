@@ -25,6 +25,9 @@
 
   <ul id="maintab" class="shadetabs">
    <li class="selected"><a href="#" rel="master_data">[% 'Basic Data' | $T8 %]</a></li>
+   [%- IF id %]
+   <li><a href="#" rel="sales_price_information">[% 'Price information' | $T8 %]</a></li>
+   [%- END %]
    [%- IF CUSTOM_VARIABLES.size %]
    <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
    [%- END %]
