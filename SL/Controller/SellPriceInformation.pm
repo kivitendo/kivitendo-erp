@@ -71,13 +71,13 @@ sub prepare_report {
   my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(orddate ordnumber customer ship qty sellprice discount amount);
-  my @visible  = qw(orddate ordnumber customer ship qty sellprice discount amount);
-  my @sortable = qw(orddate ordnumber customer          sellprice discount       );
+  my @columns  = qw(transdate ordnumber customer ship qty sellprice discount amount);
+  my @visible  = qw(transdate ordnumber customer ship qty sellprice discount amount);
+  my @sortable = qw(transdate ordnumber customer          sellprice discount       );
 
   my %column_defs = (
-    orddate                 => { text => $::locale->text('Date'),
-                                  sub => sub { $_[0]->order->orddate_as_date }},
+    transdate               => { text => $::locale->text('Date'),
+                                  sub => sub { $_[0]->order->transdate_as_date }},
     ordnumber               => { text => $::locale->text('Number'),
                                   sub => sub { $_[0]->order->ordnumber },
                              obj_link => sub { $self->link_to($_[0]->order) }},
