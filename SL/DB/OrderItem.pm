@@ -2,6 +2,9 @@ package SL::DB::OrderItem;
 
 use strict;
 
+use List::Util qw(sum);
+use SL::AM;
+
 use SL::DB::MetaSetup::OrderItem;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'orderitems',
@@ -44,6 +47,15 @@ sub is_price_update_available {
   return $self->origprice > $self->part->sellprice;
 }
 
+sub shipped_qty {
+  my ($self) = @_;
+
+  my $d_orders = $self->order->linked_records(direction => 'to', to => 'SL::DB::DeliveryOrder');
+  my @doi      = grep { $_->parts_id == $self->parts_id } map { $_->orderitems } @$d_orders;
+
+  return sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi);
+}
+
 package SL::DB::Manager::OrderItem;
 
 use SL::DB::Helper::Paginated;
@@ -57,7 +69,10 @@ sub _sort_spec {
                         ordnumber     => [ 'order.ordnumber'      ],
                         customer      => [ 'lower(customer.name)', ],
                         position      => [ 'trans_id', 'runningnumber' ],
-                        transdate     => [ 'transdate', 'lower(order.reqdate::text)' ],
+                        reqdate       => [ 'COALESCE(orderitems.reqdate, order.transdate)' ],
+                        orddate       => [ 'order.orddate' ],
+                        sellprice     => [ 'sellprice' ],
+                        discount      => [ 'discount' ],
                       },
            default => [ 'position', 1 ],
            nulls   => { }

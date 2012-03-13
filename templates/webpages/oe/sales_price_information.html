@@ -1,0 +1,113 @@
+[% USE HTML %]
+[% USE LxERP %]
+[% USE T8 %]
+[%- IF !TABDIALOG %]
+<body>
+
+ <p><div class="listtop">[% 'Price information' | $T8 %]</div></p>
+
+ <p>
+  <input type="button" class="submit" onclick="window.close()" value="[% 'Close window' | $T8 %]">
+ </p>
+
+ <p>
+  <table>
+   <tr>
+    <td>[% 'Part Number' | $T8 %]:</td>
+    <td>[% HTML.escape(part_info.partnumber) %]</td>
+   </tr>
+
+   <tr>
+    <td>[% 'Description' | $T8 %]:</td>
+    <td>[% HTML.escape(part_info.description) %]</td>
+   </tr>
+
+   [%- UNLESS part_info.type == 'service' %]
+    <tr>
+     <td>[% 'Stocked' | $T8 %]:</td>
+     <td>[% HTML.escape(LxERP.format_amount_units(stocked, part_info.unit, part_info.unit)) %]</td>
+    </tr>
+   [%- END %]
+  </table>
+ </p>
+
+[%- END %]
+
+ <p>
+  <table>
+   [%- SET custom_texts = {
+          sales_order       => {
+            head   => LxERP.t8('Sales Orders'),
+            empty  => LxERP.t8('This part has not been used in a sales order yet.'),
+            date   => LxERP.t8('Order Date'),
+            number => LxERP.t8('Order Number'),
+            vc     => LxERP.t8('Customer'),
+          },
+          sales_quotation   => {
+            head   => LxERP.t8('Quotations'),
+            empty  => LxERP.t8('This part has not been used in a quotation yet.'),
+            date   => LxERP.t8('Quotation Date'),
+            number => LxERP.t8('Quotation Number'),
+            vc     => LxERP.t8('Customer'),
+          },
+          purchase_order    => {
+            head   => LxERP.t8('Purchase Orders'),
+            empty  => LxERP.t8('This part has not been used in a purchase order yet.'),
+            date   => LxERP.t8('Order Date'),
+            number => LxERP.t8('Order Number'),
+            vc     => LxERP.t8('Vendor'),
+          },
+          request_quotation => {
+            head   => LxERP.t8('RFQs'),
+            empty  => LxERP.t8('This part has not been used in a request quotation yet.'),
+            date   => LxERP.t8('Quotation Date'),
+            number => LxERP.t8('Quotation Number'),
+            vc     => LxERP.t8('Vendor'),
+          },
+        }
+   %]
+   [%- FOREACH type = ['sales_order', 'sales_quotation', 'purchase_order', 'request_quotation'] %]
+
+    <tr>
+     <th class="listtop" colspan="8">[% custom_texts.$type.head %]</th>
+    </tr>
+
+    [%- IF !PRICE_INFO.$type.size %]
+    <tr>
+     <td colspan="7">[% custom_texts.$type.empty %]</td>
+    </tr>
+
+    [%- ELSE %]
+
+     <tr>
+      <th class="listheading">[% custom_texts.$type.date %]</th>
+      <th class="listheading">[% custom_texts.$type.number %]</th>
+      <th class="listheading">[% custom_texts.$type.vc %]</th>
+      <th class="listheading">[% 'Delivered' | $T8 %]</th>
+      <th class="listheading" align="right">[% 'Quantity' | $T8 %]</th>
+      <th class="listheading" align="right">[% 'Unit price' | $T8 %]</th>
+      <th class="listheading" align="right">[% 'Discount' | $T8 %]</th>
+      <th class="listheading" align="right">[% 'Line total' | $T8 %]</th>
+     </tr>
+
+     [%- FOREACH row = PRICE_INFO.$type %]
+      <tr class="listrow[% loop.count % 2 %]">
+       <td>[% HTML.escape(row.date) %]</td>
+       <td><a href="oe.pl?action=edit&type=[% type | html %]&id=[% row.id | html %]">[% HTML.escape(row.number) %]</a></td>
+       <td>[% HTML.escape(row.vc) %]</td>
+       <td align="right">[% HTML.escape(LxERP.format_amount(row.ship)) %] [% HTML.escape(row.unit) %]</td>
+       <td align="right">[% HTML.escape(LxERP.format_amount(row.qty)) %] [% HTML.escape(row.unit) %]</td>
+       <td align="right">[% HTML.escape(LxERP.format_amount(row.sellprice, 2)) %]</td>
+       <td align="right">[% HTML.escape(LxERP.format_amount(row.discount * 100)) %]</td>
+       <td align="right">[% HTML.escape(LxERP.format_amount(row.linetotal, 2)) %]</td>
+      </tr>
+     [%- END %]
+    [%- END %]
+   [%- END %]
+  </table>
+ </p>
+
+[%- IF !TABDIALOG %]
+</body>
+</html>
+[%- END %]
