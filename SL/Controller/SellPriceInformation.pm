@@ -20,7 +20,7 @@ sub action_list {
   );
 
   my $db_args = $self->setup_for_list(%list_params);
-  $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args, per_page => 5);
+  $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args, per_page => 10);
 
   my $bottom = $::form->parse_html_template('price_information/report_bottom', { SELF => $self });
 
@@ -51,8 +51,6 @@ sub setup_for_list {
     page    => $params{page},
   );
 
-#  $args{query} = [ @{ $args{query} || [] } ];
-
   return \%args;
 }
 
@@ -62,6 +60,33 @@ sub set_sort_params {
   ($self->{sort_by}, $self->{sort_dir}, $sort_str) =
     SL::DB::Manager::OrderItem->make_sort_string(%params);
   return $sort_str;
+}
+
+sub column_defs {
+  my ($self) = @_;
+  return {
+    transdate   => { text => $::locale->text('Date'),
+                      sub => sub { $_[0]->order->transdate_as_date }},
+    ordnumber   => { text => $::locale->text('Number'),
+                      sub => sub { $_[0]->order->ordnumber },
+                 obj_link => sub { $self->link_to($_[0]->order) }},
+    customer    => { text => $::locale->text('Customer'),
+                      sub => sub { $_[0]->order->customer->name },
+                 obj_link => sub { $self->link_to($_[0]->order->customer) }},
+    customer    => { text => $::locale->text('Customer'),
+                      sub => sub { $_[0]->order->customer->name },
+                 obj_link => sub { $self->link_to($_[0]->order->customer) }},
+    ship        => { text => $::locale->text('Delivered'),
+                      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty) . ' ' . $_[0]->unit }},
+    qty         => { text => $::locale->text('Qty'),
+                      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
+    sellprice   => { text => $::locale->text('Sell Price'),
+                      sub => sub { $_[0]->sellprice_as_number }},
+    discount    => { text => $::locale->text('Discount'),
+                      sub => sub { $_[0]->discount_as_percent . "%" }},
+    amount      => { text => $::locale->text('Amount'),
+                      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty * $_[0]->sellprice * (1 - $_[0]->discount), 2) }},
+  };
 }
 
 sub prepare_report {
@@ -75,41 +100,19 @@ sub prepare_report {
   my @visible  = qw(transdate ordnumber customer ship qty sellprice discount amount);
   my @sortable = qw(transdate ordnumber customer          sellprice discount       );
 
-  my %column_defs = (
-    transdate               => { text => $::locale->text('Date'),
-                                  sub => sub { $_[0]->order->transdate_as_date }},
-    ordnumber               => { text => $::locale->text('Number'),
-                                  sub => sub { $_[0]->order->ordnumber },
-                             obj_link => sub { $self->link_to($_[0]->order) }},
-    customer                => { text => $::locale->text('Customer'),
-                                  sub => sub { $_[0]->order->customer->name },
-                             obj_link => sub { $self->link_to($_[0]->order->customer) }},
-    customer                => { text => $::locale->text('Customer'),
-                                  sub => sub { $_[0]->order->customer->name },
-                             obj_link => sub { $self->link_to($_[0]->order->customer) }},
-    ship                    => { text => $::locale->text('Delivered'),
-                                  sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty) . ' ' . $_[0]->unit }},
-    qty                     => { text => $::locale->text('Qty'),
-                                  sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
-    sellprice               => { text => $::locale->text('Sell Price'),
-                                  sub => sub { $_[0]->sellprice_as_number }},
-    discount                => { text => $::locale->text('Discount'),
-                                  sub => sub { $_[0]->discount_as_percent . "%" }},
-    amount                  => { text => $::locale->text('Amount'),
-                                  sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty * $_[0]->sellprice * (1 - $_[0]->discount), 2) }},
-  );
+  my $column_defs = $self->column_defs;
 
   for my $col (@sortable) {
-    $column_defs{$col}{link} = $self->self_url(
+    $column_defs->{$col}{link} = $self->self_url(
       sort_by  => $col,
       sort_dir => ($self->{sort_by} eq $col ? 1 - $self->{sort_dir} : $self->{sort_dir}),
       page     => $self->{pages}{cur},
     );
   }
 
-  map { $column_defs{$_}->{visible} = 1 } @visible;
+  map { $column_defs->{$_}{visible} = 1 } @visible;
 
-  $report->set_columns(%column_defs);
+  $report->set_columns(%$column_defs);
   $report->set_column_order(@columns);
   $report->set_options(allow_pdf_export => 0, allow_csv_export => 0);
   $report->set_sort_indicator(%params);
@@ -117,13 +120,13 @@ sub prepare_report {
   $report->set_options(
     %{ $params{report_generator_options} || {} },
     output_format        => 'HTML',
-    top_info_text        => $::locale->text('Sales Price Information'),
+    top_info_text        => $self->displayable_filter($::form->{filter}),
     title                => $::locale->text('Sales Price information'),
   );
   $report->set_options_from_form;
 
   $self->{report_data} = {
-    column_defs => \%column_defs,
+    column_defs => $column_defs,
     columns     => \@columns,
     visible     => \@visible,
     sortable    => \@sortable,
@@ -179,11 +182,24 @@ sub _pre_parse_filter {
   return $filter;
 }
 
+sub displayable_filter {
+  my ($self, $filter) = @_;
+
+  my $column_defs = $self->column_defs;
+  my @texts;
+
+  push @texts, [ $::locale->text('Type'),    $::locale->text($filter->{order}{type}) ] if $filter->{order}{type};
+  push @texts, [ $::locale->text('Sort By'), $column_defs->{$self->{sort_by}}{text}  ] if $column_defs->{$self->{sort_by}}{text};
+  push @texts, [ $::locale->text('Page'),    $::locale->text($self->{pages}{cur})    ] if $self->{pages}{cur} != 1;
+
+  return join '; ', map { "$_->[0]: $_->[1]" } @texts;
+}
+
 sub self_url {
   my ($self, %params) = @_;
   %params = (
     action   => $self->{action},
-    sort_by  => $self->{sort},
+    sort_by  => $self->{sort_by},
     sort_dir => $self->{sort_dir},
     page     => $self->{pages}{cur},
     filter   => $::form->{filter},
