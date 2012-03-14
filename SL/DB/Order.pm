@@ -84,6 +84,18 @@ sub is_type {
   return shift->type eq shift;
 }
 
+sub displayable_type {
+  my $type = shift->type;
+
+  return $::locale->text('Sales quotation')   if $type eq 'sales_quotation';
+  return $::locale->text('Request quotation') if $type eq 'request_quotation';
+  return $::locale->text('Sales Order')       if $type eq 'sales_order';
+  return $::locale->text('Purchase Order')    if $type eq 'purchase_order';
+
+  die 'invalid type';
+}
+
+
 sub is_sales {
   croak 'not an accessor' if @_ > 1;
   return shift->customer_id;
@@ -103,6 +115,12 @@ sub invoices {
       ]
     );
   }
+}
+
+sub displayable_state {
+  my ($self) = @_;
+
+  return $self->closed ? $::locale->text('closed') : $::locale->text('open');
 }
 
 sub abschlag_invoices {

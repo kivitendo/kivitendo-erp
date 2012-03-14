@@ -45,4 +45,16 @@ sub sales_order {
   return first { $_->is_type('sales_order') } @{ $orders };
 }
 
+sub type {
+  return shift->customer_id ? 'sales_delivery_order' : 'purchase_delivery_order';
+}
+
+sub displayable_state {
+  my ($self) = @_;
+
+  return join '; ',
+    ($self->closed    ? $::locale->text('closed')    : $::locale->text('open')),
+    ($self->delivered ? $::locale->text('delivered') : $::locale->text('not delivered'));
+}
+
 1;
