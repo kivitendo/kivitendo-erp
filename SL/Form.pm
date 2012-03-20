@@ -507,6 +507,7 @@ sub header {
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
   push @header, map { qq|<script type="text/javascript" src="js/$_.js"></script>| }
        qw(jquery common jscalendar/calendar jscalendar/lang/calendar-de jscalendar/calendar-setup part_selection jquery-ui jqModal switchmenuframe);
+  push @header, $self->{javascript} if $self->{javascript};
   push @header, map { qq|<link rel="stylesheet" type="text/css" href="$css_path/$_.css">| }
        qw(main menu tabcontent list_accounts jquery.autocomplete jquery.multiselect2side frame_header/header ui-lightness/jquery-ui-1.8.12.custom);
   push @header, map { qq|<link rel="stylesheet" type="text/css" href="js/jscalendar/calendar-win2k-1.css">| }
