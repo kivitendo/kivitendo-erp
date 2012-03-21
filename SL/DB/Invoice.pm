@@ -236,6 +236,22 @@ sub _post_update_allocated {
   }
 }
 
+sub invoice_type {
+  my ($self) = @_;
+
+  return 'ar_transaction'     if !$self->invoice;
+  return 'credit_note'        if $self->type eq 'credit_note' && $self->amount < 0 && !$self->storno;
+  return 'invoice_storno'     if $self->type ne 'credit_note' && $self->amount < 0 &&  $self->storno;
+  return 'credit_note_storno' if $self->type eq 'credit_note' && $self->amount > 0 &&  $self->storno;
+  return 'invoice';
+}
+
+sub displayable_state {
+  my $self = shift;
+
+  return $self->closed ? $::locale->text('closed') : $::locale->text('open');
+}
+
 1;
 
 __END__

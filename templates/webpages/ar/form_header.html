@@ -1,0 +1,279 @@
+[%- USE HTML %]
+[%- USE L %]
+[%- USE T8 %]
+[%- USE LxERP %]
+
+<body onLoad="[% onload %]">
+
+<form method=post name="arledger" action="[% script %]">
+
+[% L.hidden_tag('id', id) %]
+[% L.hidden_tag('sort', sort) %]
+[% L.hidden_tag('closedto', closedto) %]
+[% L.hidden_tag('locked', locked) %]
+[% L.hidden_tag('title', title_str) %]
+[% L.hidden_tag('follow_up_trans_id_1', id) %]
+[% L.hidden_tag('follow_up_trans_type_1', 'ar_transaction') %]
+[% L.hidden_tag('follow_up_trans_info_1', follow_up_trans_info) %]
+[% L.hidden_tag('follow_up_rowcount', 1) %]
+
+[%- IF saved_message %]<p>[% saved_message | html  %]</p>[% END %]
+
+<table width=100%>
+  <tr class=listtop>
+    <th class=listtop>[% title | html %]</th>
+  </tr>
+  <tr height="5"></tr>
+  <tr valign=top>
+    <td>
+      <table width=100%>
+        <tr valign=top>
+          <td>
+            <table>
+              <tr>
+                <th align="right" nowrap>[% 'Customer' | $T8 %]</th>
+                <td colspan=3>
+[%- IF selectcustomer %]
+    <select name="customer" onchange="document.getElementById('update_button').click();">[% selectcustomer %]</select>
+[%- ELSE %]
+    <input name=customer value="[% customer | html %]" size=35>
+[%- END %]
+                <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('customer')"></td>
+                [% L.hidden_tag('selectcustomer', selectcustomer) %]
+                [% L.hidden_tag('oldcustomer', oldcustomer) %]
+                [% L.hidden_tag('oldcustomer', oldcustomer) %]
+                [% L.hidden_tag('terms', terms) %]
+              </tr>
+              <tr>
+                <td></td>
+                <td colspan=3>
+                  <table width=100%>
+                    <tr>
+                      <th align=left nowrap>[% 'Credit Limit' | $T8 %]</th>
+                      <td>[% LxERP.format_amount(creditlimit, 0) %][% L.hidden_tag('creditlimit', LxERP.format_amount(creditlimit, 0)) %]</td>
+                      <th align=left nowrap>[% 'Remaining' | $T8 %]</th>
+                      <td class="plus[% creditlimit < 0 ? 0 : 1 %]">[% LxERP.format_amount(creditremaining, 0) %][% L.hidden_tag('creditremaining', LxERP.format_amount(creditremaining, 0)) %]</td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <th align=right>[% 'Currency' | $T8 %]</th>
+                <td><select name=currency>[% selectcurrency %]</select></td>
+                [% L.hidden_tag('selectcurrency', selectcurrency) %]
+                [% L.hidden_tag('defaultcurrency', defaultcurrency) %]
+                [% L.hidden_tag('fxgain_accno', fxgain_accno) %]
+                [% L.hidden_tag('fxloss_accno', fxloss_accno) %]
+
+                [% L.hidden_tag('forex', forex) %]
+                [% IF show_exch %]
+                   <th align=right>[% 'Exchangerate' | $T8 %]</th>
+                   <td>[%- IF forex %][% L.hidden_tag(exchangerate, LxERP.format_amount(exchangerate, 2)) %][% LxERP.format_amount(exchangerate, 2) %][%- ELSE %][% L.input_tag(exchangerate, LxERP.format_amount(exchangerate, 2), size=10) %][%- END %]</td>
+                [% END %]
+              </tr>
+              [% department_html %]
+              [%- IF selectdepartment %]
+              <tr>
+                <th align="right" nowrap>[% 'Department' | $T8 %]</th>
+                <td colspan=3><select name=department>[% selectdepartment %]</select>
+                <input type=hidden name=selectdepartment value="[% selectdepartment | html %]">
+                </td>
+              </tr>
+              [%- END %]
+              <tr>
+                <td align=right>[% L.checkbox_tag('taxincluded', checked=taxincluded) %]</td>
+                <th align=left nowrap>[% 'Tax Included' | $T8 %]</th>
+              </tr>
+            </table>
+          </td>
+          <td align=right>
+            <table>
+[%- IF selectemployee %]
+              <tr>
+                <th align=right nowrap>[% 'Salesperson' | $T8 %]</th>
+                <td  colspan=2><select name=employee>[% selectemployee %]</select>[% L.hidden_tag('selectemployee', selectemployee) %]</td>
+              </tr>
+[%- ELSE %]
+                [% L.hidden_tag('employee', employee) %]
+[%- END %]
+              <tr>
+                <th align=right nowrap>[% 'Invoice Number' | $T8 %]</th>
+                <td><input name=invnumber size=11 value="[% invnumber | html %]"></td>
+              </tr>
+              <tr>
+                <th align=right nowrap>[% 'Order Number' | $T8 %]</th>
+                <td><input name=ordnumber size=11 value="[% ordnumber | html %]"></td>
+              </tr>
+              <tr>
+                <th align=right nowrap>[% 'Invoice Date' | $T8 %]</th>
+                <td>[% L.date_tag('transdate', transdate) %]</td>
+              </tr>
+              <tr>
+                <th align=right nowrap>[% 'Due Date' | $T8 %]</th>
+                <td>[% L.date_tag('duedate', duedate) %]</td>
+              </tr>
+              <tr>
+                <th align=right nowrap>[% 'Project Number' | $T8 %]</th>
+                <td>[% L.select_tag('globalproject_id', L.options_for_select(ALL_PROJECTS, title='projectnumber', default=globalproject_id, with_empty=1)) %]</td>
+              </tr>
+     </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+                [% L.hidden_tag('rowcount', rowcount) %]
+  <tr>
+      <td>
+          <table width=100%>
+           <tr class=listheading>
+          <th class=listheading style="width:15%">[% 'Account' | $T8 %]</th>
+          <th class=listheading style="width:10%">[% 'Amount' | $T8 %]</th>
+          <th class=listheading style="width:10%">[% 'Tax' | $T8 %]</th>
+          <th class=listheading style="width:5%">[% 'Taxkey' | $T8 %]</th>
+          <th class=listheading style="width:10%">[% 'Project' | $T8 %]</th>
+        </tr>
+
+
+[%- FOREACH row IN transactions %]
+        <tr>
+          <td>[% row.selectAR_amount %]</td>
+          <td>[% L.input_tag('amount_' _ loop.count, LxERP.format_amount(row.amount, 2)) %]</td>
+          <td>[% L.input_tag('tax_' _ loop.count, LxERP.format_tax(row.tax, 2)) %][% LxERP.format_tax(row.tax, 2) | html %]</td>
+          <td>[% row.tax %]</td>
+          <td>[% L.select_tag('project_id_' _ loop.count, L.options_for_select(ALL_PROJECTS, title='projectnumber', default=row.project_id, with_empty=1)) %]</td>
+        </tr>
+[%- END %]
+
+        <tr>
+          <td colspan=6>
+            <hr noshade>
+          </td>
+        </tr>
+        <tr>
+          <td>[% ARselected %]</td>
+          <th align=left>[% LxERP.format_amount(invtotal, 2) | html %]</th>
+
+          <input type=hidden name=oldinvtotal value='[% oldinvtotal %]'>
+          <input type=hidden name=oldtotalpaid value='[% oldtotalpaid %]'>
+
+          <input type=hidden name=taxaccounts value="[% taxaccounts | html %]">
+
+          <td colspan=4></td>
+
+
+        </tr>
+        </table>
+        </td>
+    </tr>
+    <tr>
+      <td>
+        <table width=100%>
+        <tr>
+          <th align=left width=1%>[% 'Notes' | $T8 %]</th>
+          <td align=left><textarea name=notes rows="[% rows %]" cols=50 wrap=soft>[% notes | html %]</textarea></td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <table width=100%>
+        <tr class=listheading>
+          <th colspan=7 class=listheading>[% 'Incoming Payments' | $T8 %]</th>
+        </tr>
+
+        <tr>
+         <th>[% 'Date' | $T8 %]</th>
+         <th>[% 'Source' | $T8 %]</th>
+         <th>[% 'Memo' | $T8 %]</th>
+         <th>[% 'Amount' | $T8 %]</th>
+[%- IF show_exch %]
+         <th>[% 'Exch' | $T8 %]</th>
+[%- END %]
+         <th>[% 'Account' | $T8 %]</th>
+         <th>[% 'Project Number' | $T8 %]</th>
+        </tr>
+
+[%- FOREACH row IN payments %]
+        <tr>
+         <td align=center>
+  [%- IF row.changeable %]
+          [% L.date_tag('datepaid_' _ loop.count, row.datepaid) %]
+  [%- ELSE %]
+         [% row.datepaid | html %][% L.hidden_tag('datepaid_' _ loop.count, row.datepaid) %]
+  [%- END %]
+         </td>
+         <td align=center>
+  [%- IF row.changeable %]
+          <input name="source_[% loop.count %]" size=11 value="[% row.source | html %]">
+  [%- ELSE %]
+         [% row.source | html %]<input type=hidden name="source_[% loop.count %]" value="[% row.source | html %]">
+  [%- END %]
+         </td>
+         <td align=center>
+  [%- IF row.changeable %]
+          <input name="memo_[% loop.count %]" size=11 value="[% row.memo | html %]">
+  [%- ELSE %]
+         [% row.memo | html %]<input type=hidden name="memo_[% loop.count %]" value="[% row.memo | html %]">
+  [%- END %]
+         </td>
+         <td align=center>
+  [%- IF row.changeable %]
+          <input name="paid_[% loop.count %]" size=11 value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]" onBlur="check_right_number_format(this)">
+  [%- ELSE %]
+         [% row.paid | html %]<input type=hidden name="paid_[% loop.count %]" value="[% row.paid ? LxERP.format_amount(row.paid, 2) : '' | html %]">
+  [%- END %]
+         </td>
+[%- IF show_exch %]
+         <td align=center>
+    [%- IF row.forex || !row.changeable%]
+          <input type=hidden name="exchangerate_[% loop.count %]" value='[% row.exchangerate | html %]'>[% row.exchangerate | html %]
+    [%- ELSE %]
+          <input name="exchangerate_[% loop.count %]" size=10 value='[% row.exchangerate | html %]'>
+    [%- END %]
+          <input type=hidden name="forex_[% loop.count %]" value='[% row.forex | html %]'>
+         </td>
+[%- END %]
+         <td align=center>
+  [%- IF row.changeable %]
+          [% row.selectAR_paid %]
+  [%- ELSE %]
+         [% row.AR_paid | html %]<input type=hidden name="AR_paid_[% loop.count %]" value='[% row.AR_paid | html %]'>
+  [%- END %]
+         </td>
+         <td>
+  [%- IF row.changeable %]
+          [% L.select_tag('paid_project_id_' _ loop.count, L.options_for_select(ALL_PROJECTS, title='projectnumber', default=row.paid_project_id, with_empty=1)) %]
+  [%- ELSE %]
+          [% project_labels.${row.paid_project_id} | html %]
+          <input type=hidden name="paid_project_id_[% loop.count %]" value='[% row.paid_project_id %]'>
+  [%- END %]
+         </td>
+
+         <input type=hidden name="acc_trans_id_[% loop.count %]" value='[% row.acc_trans_id | html %]'>
+         <input type=hidden name="gldate_[% loop.count %]" value='[% row.gldate | html %]'>
+        </tr>
+[%- END %]
+        <tr>
+          <td></td>
+          <td></td>
+          <td align="center">[% 'Total' | $T8 %]</td>
+          <td align="center">[% LxERP.format_amount(totalpaid, 2) | html %]</td>
+        </tr>
+        <tr>
+          <td></td>
+          <td></td>
+          <td align="center">[% 'Missing amount' | $T8 %]</td>
+          <td align="center">[% LxERP.format_amount(paid_missing, 2) | html %]</td>
+        </tr>
+        <input type=hidden name=paidaccounts value='[% paidaccounts %]'>
+
+      </table>
+    </td>
+  </tr>
+  <tr>
+    <td><hr size=3 noshade></td>
+  </tr>
+</table>

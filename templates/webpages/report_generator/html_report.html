@@ -36,7 +36,7 @@
      [%- IF col.align %] align="[% HTML.escape(col.align) %]" style="text-align: [% HTML.escape(col.align) %]"[% END -%]
      [%- IF col.colspan && col.colspan > 1 %] colspan="[% HTML.escape(col.colspan) %]"[% END -%]
      >
-      [%- IF col.link -%]<a href="[% col.link %]">[%- END -%]
+      [%- IF col.link -%]<a class='report-generator-header-link' href="[% col.link %]">[%- END -%]
       [%- col.text -%]
       [%- IF col.show_sort_indicator -%]<img border="0" src="image/[% IF col.sort_indicator_direction %]down[% ELSE %]up[% END %].png">[%- END -%]
       [%- IF col.link -%]</a>[%- END -%]

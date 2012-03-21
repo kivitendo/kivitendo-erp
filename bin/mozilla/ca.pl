@@ -359,7 +359,7 @@ sub list_transactions {
 
   $form->{callback} = $link . '&sort=' . E($form->{sort});
 
-  my %column_alignment = map { $_ => 'right' } qw(debit credit);
+  my %column_alignment = map { $_ => 'right' } qw(debit credit balance);
 
   my @custom_headers = ();
  # Zeile 1:
