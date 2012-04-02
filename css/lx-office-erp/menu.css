@@ -13,7 +13,7 @@ table.menunew {
   border-spacing: 0;
 }
 
-table.menunew > td {
+table.menunew td {
   padding: 0;
   color:white;
   font-family: Verdana, Arial, sans-serif;
