@@ -429,8 +429,7 @@ sub _get_transactions {
       if (   !$ref->{invoice}   # we have a non-invoice booking (=gl)
           &&  $ref->{is_tax}    # that has "is_tax" set
           && !($prev_ref->{is_tax})  # previous line wasn't is_tax
-          &&  (_sign($ref->{amount}) == _sign($prev_ref->{amount})))  # and sign same as previous sign
-          {
+          &&  (_sign($ref->{amount}) == _sign($prev_ref->{amount}))) {  # and sign same as previous sign
         $trans->[$i - 1]->{tax_amount} = $ref->{amount};
       }
     }
