@@ -43,7 +43,7 @@ sub unique_id {
 }
 
 sub tmpname {
-  return "/tmp/lx-office-tmp-" . unique_id();
+  return "/tmp/kivitendo-tmp-" . unique_id();
 }
 
 sub retrieve_parts {

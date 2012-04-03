@@ -1,0 +1,355 @@
+/* Stylesheet for kivitendo * Name:kivitendo.css*/
+/* Colortable
+
+Background: 	#EBEBEB burlywood
+Links:		 	#006400 DarkGreen
+Link-hover		#FE5F14 Orange / #FFFFE0 lightyellow
+Titles, BG/VG:	#79B61B Mid-green FFFFFF White
+Tabcolor: #CAFFA3
+*/
+
+
+body {
+	font-family: Verdana, Arial, Helvetica;
+	background-color: #FFFFFF;
+	color: #000000;
+    font-size: 9pt;
+}
+
+
+/* The look of links */
+a {
+	padding: 0 0.2em;
+	text-decoration: none;
+	/* border-bottom: thin solid; */
+	/* font-weight: bold; */
+}
+A:link, A:visited, A:active {
+	color: #000000;
+	border-bottom: thin solid #FE5F14;
+}
+a:hover {
+	color: #FE5F14;
+	background-color: #D1D1D1;
+}
+a.selected:hover {
+	color:#EBEBEB;
+}
+a.nomobile {
+	background-color:transparent;
+	border:none;
+}
+
+table {
+    font-size: 90% !important;
+	table-layout: auto;
+	border-spacing: 0.3em;
+}
+
+/* table a {
+	color:#FE5F14 !important;
+	border-bottom:none;
+} */
+
+ul {
+}
+
+hr {
+	background-color: #006400;
+	border: none;
+	color: #79B61B;
+	height: 2px;
+}
+
+/* I.E. & Chrome können das nicht! */
+/* input[type="radio"], input[type="checkbox"]{
+	width:1.15em;
+	height:1.15em;
+	border:1px solid;
+	color: #006400;
+} */
+input:focus, textarea:focus, select:focus {
+	background-color: #FFFFA0;
+	border: 2px solid #FE5F14;
+	/* border-bottom: medium solid #FE5F14; */
+}
+/* Fängt den "Schrink" beim focus - problem für i.e. und chrome */
+/* input[type="radio"]:focus, input[type="checkbox"]:focus{
+	width:1.2em;
+	height:1.2em;
+} */
+td {
+	color: #000000;
+	font-weight: normal;
+}
+/* td.hover:hover {
+	color: #006400;
+	background-color: #FFFFE0;
+} */
+th {
+	color: #000000;
+	font-weight: bold;
+}
+/* login and admin */
+.login a, .login a:visited, .login a:hover {
+	text-decoration: none !important;
+	background-color:transparent !important;
+	border:none;
+}
+.login a:hover {
+	background: none;
+}
+body.login {
+	background-color: #FFFFE0;
+	color: #000000;
+}
+h1.login {
+}
+table.login {
+	background-color: #FFFFE0;
+	padding: 20px;
+}
+td.login {
+	text-align: center;
+}
+th.login {
+	text-align: right;
+}
+body.admin {
+	background-color: #FFFFE0;
+	color: #000000;
+}
+body.menu {
+	color: #000000;
+}
+/* Warnings */
+.message_error_login {
+	color: #000000;
+	border: 1px solid #8b0000;
+	background-color: #ffcccc;
+	padding: 3px;
+}
+.message_ok {
+	padding: 5px;
+	background-color: #ADFFB6;
+	color: black;
+	font-weight: bolder;
+	text-align: center;
+	border-style: solid;
+	border-width: thin;
+}
+.message_error {
+	padding: 5px;
+	background-color: #CC0000;
+	color: black;
+	font-weight: bolder;
+	text-align: center;
+	border-style: solid;
+	border-width: thin;
+}
+.message_hint {
+	padding: 0.5em;
+	background-color: #FFEE66;
+	color: black;
+	font-weight: bolder;
+	text-align: center;
+	border-style: solid;
+	border-width: thin;
+}
+.message_error_label {
+	padding: 0.5em;
+	background-color: #E00000;
+	font-weight: normal;
+	text-align: left;
+	border-style: solid;
+	border-width: thin;
+}
+/*    Headings */
+.listtop, h1, .tabcontent .listheading {
+    font-size:125%;
+	background-color: #006400;
+	text-align: left;
+	padding: 0.5em;
+	color: #FFFFFF;
+	font-weight: bolder;
+	border-style: none;
+	border-width: thin;
+	-moz-border-radius:0.4em; /* Firefox */
+	-webkit-border-radius:0.4em; /* Safari, Chrome */
+	-khtml-border-radius:0.4em; /* Konqueror */
+	border-radius:0.4em; /* CSS3 */
+	behavior:url(border-radius.htc);
+}
+
+/* .listelement {
+	background-color: #f8ffb3;
+	color: #000000;
+}
+.listelement2 {
+	background-color: #8ee085;
+	color: #000000;
+} */
+.listheading {
+	padding: 0.2em;
+	background-color: #EBEBEB;
+	color: #006400;
+	font-weight: bolder;
+	text-align: left;
+	border-style: none;
+}
+
+/* .listheadingcontent {
+	background-color: #EBEBEB;
+	color: #006400;
+	font-weight: bolder;
+	text-align: left;
+} */
+
+.accountlistheading {
+	padding: 0.3em;
+	color: #006400;
+	font-weight: bold;
+	text-align: left;
+	background-color: #EBEBEB;
+}
+.subsubheading {
+	color: #000000;
+	font-weight: bolder;
+	text-decoration: underline;
+}
+.optionen {
+	border: dashed;
+	border-width: 1px;
+	background: #FFFFE0;
+}
+.listrow1 {
+	background-color: #FFFFFF;
+	color: black;
+	vertical-align: top;
+}
+.listrow0 {
+	background-color: #FFFF99;
+	color: black;
+	vertical-align: top;
+}
+.listsubtotal {
+	background-color: rgb(236,233,216);
+	color: black;
+	font-weight: bolder;
+}
+.listtotal, .listtotal td {
+	background-color: rgb(236,233,216);
+	color: black;
+	font-weight: bolder;
+}
+/* Verkaufsbericht */
+.listmainsortheader {
+	background-color: rgb(236,233,216);
+	color: red;
+	font-weight: bolder;
+	padding-left: 10px;
+	padding-top: 0px;
+}
+.listmainsortsubtotal {
+	background-color: rgb(236,233,216);
+	color: red;
+	font-weight: bolder;
+	padding-left: 10px;
+}
+.listsubsortheader {
+	background-color: rgb(236,233,216);
+	color: green;
+	font-weight: bolder;
+	padding-left: 20px
+}
+.listsubsortsubtotal {
+	background-color: rgb(236,233,216);
+	color: green;
+	font-weight: bolder;
+	padding-left: 20px
+}
+.listsortdescription {
+	background-color: rgb(236,233,216);
+	color: black;
+	font-weight: normal;
+	padding-left: 30px
+}
+.submit {
+	font-family: Verdana, Arial, Helvetica;
+	color: #000000;
+}
+.checkbox, .radio {
+	font-family: Verdana, Arial, Helvetica;
+	color: #778899;
+}
+.plus0 {
+/* font color for negative numbers */
+	color: red;
+}
+.plus1 {
+	color: green;
+}
+h2.confirm {
+	color: blue;
+}
+h2.error {
+	color: red;
+}
+fieldset {
+	margin-top: 15px;
+	color: black;
+	font-weight: bolder;
+}
+/* media stuff */
+@media screen {
+.noscreen {
+/* items with this class won't display */
+	display: none;
+}
+}
+@media print {
+.noprint {
+/* items with this class won't print */
+	display: none;
+}
+}
+.filecontent {
+	border: 1px solid blue;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+label {
+	cursor: pointer;
+	vertical-align: top;
+}
+.unbalanced_ledger {
+	background-color: #ffa0a0;
+}
+.clearfix:after {
+	clear: both;
+	content: ".";
+	display: block;
+	height: 0;
+	visibility: hidden;
+}
+.flash_message_error {
+	background-color: #FFD6D6;
+	border: 1px solid #AE0014;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
+}
+.flash_message_warning {
+	background-color: #FFE8C7;
+	border: 1px solid #FF6600;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
+}
+.flash_message_info {
+	background-color: #DCF2FF;
+	border: 1px solid #4690FF;
+	margin-top: 5px;
+	margin-bottom: 5px;
+	padding: 5px;
+}
