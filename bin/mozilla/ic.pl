@@ -1844,7 +1844,7 @@ sub save {
         qw(weight listprice sellprice rop);
 
       $form->{assembly_rows}--;
-      $i = $newform{rowcount};
+      $i = $form->{assembly_rows};
       $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
 
       $form->{sellprice} -= $form->{"sellprice_$i"} * $form->{"qty_$i"};
