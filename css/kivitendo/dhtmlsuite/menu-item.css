@@ -4,11 +4,11 @@
 	height:19px;
 	line-height:16px;
 	margin-right:2px;
-	margin-top:2px;
+	margin-top:1px;
 	padding-left:4px;
 	padding-right:4px;
-	padding-top:1px;
-	padding-bottom:1px;
+	padding-top:2px;
+	padding-bottom:2px;
 }
 .DHTMLSuite_menuItem_top_regular div,.DHTMLSuite_menuItem_top_over div,.DHTMLSuite_menuItem_top_click div,.DHTMLSuite_menuItem_top_disabled div,.DHTMLSuite_menuItem_top_active div{
 	padding-top:2px;
