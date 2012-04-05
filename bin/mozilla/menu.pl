@@ -84,7 +84,7 @@ sub acc_menu {
   my $framesize    = _calc_framesize() - 2;
   my $menu         = Menu->new("menu.ini");
   $mainlevel       = $::form->{level};
-  $::form->{title} = $::locale->text('Lx-Office');
+  $::form->{title} = $::locale->text('kivitendo');
   $::form->header;
 
   print qq|
