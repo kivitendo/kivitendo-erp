@@ -168,7 +168,7 @@ sub company_logo {
   $form->{todo_list}  =  create_todo_list('login_screen' => 1) if (!$form->{no_todo_list});
 
   $form->{stylesheet} =  $myconfig{stylesheet};
-  $form->{title}      =  $::locale->text('Lx-Office');
+  $form->{title}      =  $::locale->text('kivitendo');
   $form->{interface}  = $::dispatcher->interface_type;
 
   # create the logo screen

@@ -124,7 +124,7 @@ sub adminlogin {
   my $form   = $main::form;
   my $locale = $main::locale;
 
-  $form->{title} = qq|Lx-Office ERP $form->{version} | . $locale->text('Administration');
+  $form->{title} = qq|kivitendo $form->{version} | . $locale->text('Administration');
 
   $form->header();
   print $form->parse_html_template('admin/adminlogin');
@@ -367,7 +367,7 @@ sub list_users {
     $_->{login_url} =  $::locale->is_utf8 ? Encode::encode('utf-8-strict', $_->{login}) : $_->{login_url};
   }
 
-  $form->{title}   = "Lx-Office ERP " . $locale->text('Administration');
+  $form->{title}   = "kivitendo " . $locale->text('Administration');
   $form->{LOCKED}  = -e _nologin_file_name();
   $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
 
@@ -376,7 +376,7 @@ sub list_users {
 }
 
 sub add_user {
-  $::form->{title}   = "Lx-Office ERP " . $::locale->text('Administration') . " / " . $::locale->text('Add User');
+  $::form->{title}   = "kivitendo " . $::locale->text('Administration') . " / " . $::locale->text('Add User');
 
 # Note: Menu Style 'v3' is not compatible to all browsers!
 # "menustyle"    => "old" sets the HTML Menu to default.
@@ -397,7 +397,7 @@ sub add_user {
 }
 
 sub edit_user {
-  $::form->{title} = "Lx-Office ERP " . $::locale->text('Administration') . " / " . $::locale->text('Edit User');
+  $::form->{title} = "kivitendo " . $::locale->text('Administration') . " / " . $::locale->text('Edit User');
   $::form->{edit}  = 1;
 
   # get user
@@ -653,7 +653,7 @@ sub dbselect_source {
   $form->{dbdefault} = 'template1';
   $form->{dbhost}    = $::auth->{DB_config}->{host} || 'localhost';
 
-  $form->{title}     = "Lx-Office ERP / " . $locale->text('Database Administration');
+  $form->{title}     = "kivitendo / " . $locale->text('Database Administration');
 
   # Intentionnaly disabled unless fixed to work with the authentication DB.
   $form->{ALLOW_DBBACKUP} = 0; # "$pg_dump_exe" ne "DISABLED";
@@ -689,7 +689,7 @@ sub update_dataset {
   my $form              = $main::form;
   my $locale            = $main::locale;
 
-  $form->{title}        = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Update Dataset');
+  $form->{title}        = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Update Dataset');
 
   my @need_updates      = User->dbneedsupdate($form);
   $form->{NEED_UPDATES} = \@need_updates;
@@ -794,7 +794,7 @@ sub create_dataset {
     }
   }
 
-  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Create Dataset');
+  $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Create Dataset');
 
   $form->header();
   print $form->parse_html_template("admin/create_dataset");
@@ -808,7 +808,7 @@ sub dbcreate {
 
   User->dbcreate(\%$form);
 
-  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Create Dataset');
+  $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Create Dataset');
 
   $form->header();
   print $form->parse_html_template("admin/dbcreate");
@@ -821,7 +821,7 @@ sub delete_dataset {
   my @dbsources = User->dbsources_unused($form);
   $form->error($locale->text('Nothing to delete!')) unless @dbsources;
 
-  $form->{title}     = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Delete Dataset');
+  $form->{title}     = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Delete Dataset');
   $form->{DBSOURCES} = [ map { { "name", $_ } } sort @dbsources ];
 
   $form->header();
@@ -838,7 +838,7 @@ sub dbdelete {
 
   User->dbdelete(\%$form);
 
-  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Delete Dataset');
+  $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Delete Dataset');
   $form->header();
   print $form->parse_html_template("admin/dbdelete");
 }
@@ -847,7 +847,7 @@ sub backup_dataset {
   my $form       = $main::form;
   my $locale     = $main::locale;
 
-  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
+  $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
   if ($::lx_office_conf{applications}->{pg_dump} eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
@@ -859,7 +859,7 @@ sub backup_dataset {
 
   my $username  = getpwuid $UID || "unknown-user";
   my $hostname  = hostname() || "unknown-host";
-  $form->{from} = "Lx-Office Admin <${username}\@${hostname}>";
+  $form->{from} = "kivitendo Admin <${username}\@${hostname}>";
 
   $form->header();
   print $form->parse_html_template("admin/backup_dataset");
@@ -869,7 +869,7 @@ sub backup_dataset_start {
   my $form       = $main::form;
   my $locale     = $main::locale;
 
-  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
+  $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
   my $pg_dump_exe = $::lx_office_conf{applications}->{pg_dump} || "pg_dump";
 
@@ -945,7 +945,7 @@ sub backup_dataset_start {
     unlink "${tmpdir}/.pgpass", $tmp;
     rmdir $tmpdir;
 
-    $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
+    $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Backup Dataset');
 
     $form->header();
     print $form->parse_html_template("admin/backup_dataset_email_done");
@@ -956,7 +956,7 @@ sub restore_dataset {
   my $form       = $main::form;
   my $locale     = $main::locale;
 
-  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
+  $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
   if ($::lx_office_conf{applications}->{pg_restore} eq "DISABLED") {
     $form->error($locale->text('Database backups and restorations are disabled in the configuration.'));
@@ -981,7 +981,7 @@ sub restore_dataset_start {
   my $form       = $main::form;
   my $locale     = $main::locale;
 
-  $form->{title} = "Lx-Office ERP " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
+  $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Restore Dataset');
 
   my $pg_restore_exe = $::lx_office_conf{applications}->{pg_restore} || "pg_restore";
 
