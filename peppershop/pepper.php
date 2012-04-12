@@ -35,8 +35,8 @@ class pepper {
                             "waehrung"=>"currency","beschreibung"=>"notes",
                             "mwst"=>"mwst","versandart"=>"shipvia");
     var $orderparts = array("artikelname"=>"description","name"=>"description","preis"=>"sellprice","anzahl"=>"qty","artikel_nr"=>"partnumber",
-                            "partsgroup"=>"partsgroup","beschreibung"=>"longdescription","gewicht"=>"weight",
-                            "mwst_satz"=>"taxrate","bild_gross"=>"image","anzahl_einheit"=>"unit");
+                            "partsgroup"=>"partsgroup","beschreibung"=>"longdescription","gewicht"=>"weight","shoppreis"=>"shoppreis",
+                            "mwst_satz"=>"taxrate","bild_gross"=>"image","anzahl_einheit"=>"unit","lagerbestand"=>"onhand");
     var $pic = false;
 
     function pepper($db,$error,$dbname,
@@ -418,6 +418,7 @@ class pepper {
             $row['partsgroup'] = $this->_toERP($this->Kategorien[$row['katid']]);
             $row['name'] = $this->_toERP($row['name']);
             $row['beschreibung'] = $this->_toERP($row['beschreibung']);
+            $row['shoppreis'] = $row['preis'];
             if (!$this->mwstLX) $row['preis'] = round(($row['preis'] / (100 + $row['mwst_satz']) * 100),$this->dezimal);
             $data[] = $this->translateTable($row,"orderparts");
         }
