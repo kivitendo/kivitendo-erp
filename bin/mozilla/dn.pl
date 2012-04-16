@@ -135,7 +135,7 @@ sub show_invoices {
     map { $row->{$_} = $form->format_amount(\%myconfig, $row->{$_} * 1, -2) } qw(amount open_amount fee interest);
 
     if ($row->{'language_id'}) {
-      $row->{language} = SL::DB::Manager::Language->find_by('id' => $row->{'language_id'})->{'description'};
+      $row->{language} = SL::DB::Manager::Language->find_by_or_create('id' => $row->{'language_id'})->{'description'};
     }
   }
 

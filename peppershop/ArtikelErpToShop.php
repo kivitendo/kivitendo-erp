@@ -1,4 +1,7 @@
 <?php
+
+$debug = False;
+
 $api = php_sapi_name();
 if ( $api != "cli" ) {
     echo "<html>\n<head>\n<meta http-equiv='Content-Type' content='text/html; charset=UTF-8'>\n</head>\n<body>\n";
@@ -21,22 +24,23 @@ if ( $api != "cli" ) {
 
 include_once("conf$shopnr.php");
 include_once("error.php");
+//Fehlerinstanz
+$err = new error($api);
+
 include_once("dblib.php");
 include_once("pepper.php");
 include_once("erplib.php");
 include_once("Picture.php");
 
-//Fehlerinstanz
-$err = new error($api);
 
 //Bilder
 $pict = new picture($ERPftphost,$ERPftpuser,$ERPftppwd,$ERPimgdir,$SHOPftphost,$SHOPftpuser,$SHOPftppwd,$SHOPimgdir,$err);
 //$pict->original = false;
 
 //ERP-Instanz
-$erpdb = new mydb($ERPhost,$ERPdbname,$ERPuser,$ERPpass,$ERPport,'pgsql',$err);
+$erpdb = new mydb($ERPhost,$ERPdbname,$ERPuser,$ERPpass,$ERPport,'pgsql',$err,$debug);
 if ($erpdb->db->connected_database_name == $ERPdbname) {
-    $erp = new erp($erpdb,$err,$divStd,$divVerm,$auftrnr,$kdnum,$preA,$preK,$invbrne,$mwstS,$OEinsPart,$lager);
+    $erp = new erp($erpdb,$err,$divStd,$divVerm,$auftrnr,$kdnum,$preA,$preK,$invbrne,$mwstS,$OEinsPart,$lager,$pricegroup,$ERPusrID);
 } else {
     $err->out('Keine Verbindung zur ERP',true);
     exit();

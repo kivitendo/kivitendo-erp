@@ -204,8 +204,11 @@ sub set_custom_headers {
 sub get_attachment_basename {
   my $self     = shift;
   my $filename =  $self->{options}->{attachment_basename} || 'report';
+
+  # FIXME: this is bonkers. add a real sluggify method somewhere or import one.
   $filename    =~ s|.*\\||;
   $filename    =~ s|.*/||;
+  $filename    =~ s| |_|g;
 
   return $filename;
 }
@@ -228,6 +231,7 @@ sub generate_with_headers {
     print $self->generate_html_content();
 
   } elsif ($format eq 'csv') {
+    # FIXME: don't do mini http in here
     my $filename = $self->get_attachment_basename();
     print qq|content-type: text/csv\n|;
     print qq|content-disposition: attachment; filename=${filename}.csv\n\n|;

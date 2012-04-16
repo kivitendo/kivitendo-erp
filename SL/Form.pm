@@ -501,7 +501,7 @@ sub header {
     push @header, "<meta http-equiv='refresh' content='$refresh_time;$refresh_url'>";
   }
 
-  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Lx-Office stylesheet">| } $self->use_stylesheet;
+  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $self->use_stylesheet;
 
   push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
@@ -595,7 +595,7 @@ sub set_standard_title {
   $::lxdebug->enter_sub;
   my $self = shift;
 
-  $self->{titlebar}  = "Lx-Office " . $::locale->text('Version') . " $self->{version}";
+  $self->{titlebar}  = "kivitendo " . $::locale->text('Version') . " $self->{version}";
   $self->{titlebar} .= "- $::myconfig{name}"   if $::myconfig{name};
   $self->{titlebar} .= "- $::myconfig{dbname}" if $::myconfig{name};
 
@@ -1114,7 +1114,7 @@ sub parse_template {
   $suffix =  $self->{IN};
   $suffix =~ s/.*\.//;
   ($temp_fh, $self->{tmpfile}) = File::Temp::tempfile(
-    'lx-office-printXXXXXX',
+    'kivitendo-printXXXXXX',
     SUFFIX => '.' . ($suffix || 'tex'),
     DIR    => $userspath,
     UNLINK => 1,
