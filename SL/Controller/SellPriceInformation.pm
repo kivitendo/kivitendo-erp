@@ -68,7 +68,7 @@ sub column_defs {
     transdate   => { text => $::locale->text('Date'),
                       sub => sub { $_[0]->order->transdate_as_date }},
     ordnumber   => { text => $::locale->text('Number'),
-                      sub => sub { $_[0]->order->ordnumber },
+                      sub => sub { $_[0]->order->number },
                  obj_link => sub { $self->link_to($_[0]->order) }},
     customer    => { text => $::locale->text('Customer'),
                       sub => sub { $_[0]->order->customer->name },
