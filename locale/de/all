@@ -422,6 +422,7 @@ $self->{texts} = {
   'Contact deleted.'            => 'Ansprechpartner gelöscht.',
   'Contact is in use and was flagged invalid.' => 'Ansprechpartner ist noch in Verwendung, und wurde als ungültig markiert.',
   'Contact person (surname)'    => 'Ansprechpartner (Nachname)',
+  'Contact persons'             => 'Ansprechpartner',
   'Contacts'                    => 'Ansprechpartner',
   'Continue'                    => 'Weiter',
   'Contra'                      => 'gegen',

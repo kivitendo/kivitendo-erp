@@ -60,6 +60,7 @@ our %translations = ('text'      => $locale->text('Free-form text'),
 our @types = qw(text textfield number date bool select customer); # timestamp
 
 our @modules = ({ module => 'CT',       description => $locale->text('Customers and vendors')          },
+                { module => 'Contacts', description => $locale->text('Contact persons')                },
                 { module => 'IC',       description => $locale->text('Parts, services and assemblies') },
                 { module => 'Projects', description => $locale->text('Projects')                       },
                );

@@ -114,6 +114,19 @@
       <th align="left" nowrap>[% 'Bcc' | $T8 %]</th>
       <td><input name="bcc" size="40" value="[% HTML.escape(bcc) %]"></td>
      </tr>
+     [% IF CUSTOM_VARIABLES.Contacts.size %]
+     <tr>
+      <td colspan="2"><hr></td>
+     </tr>
+
+     [%- FOREACH var = CUSTOM_VARIABLES.Contacts %]
+     <tr>
+      <th align="left" valign="top" nowrap>[% HTML.escape(var.description) %]</th>
+      <td valign="top">[% var.HTML_CODE %]</td>
+     </tr>
+     [%- END %]
+     [%- END %]
+
     </table>
 
 [% IF cp_id %]

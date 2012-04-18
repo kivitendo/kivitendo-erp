@@ -17,7 +17,7 @@
    <li><a href="#" rel="deliveries">[% 'Supplies' | $T8 %]</a></li>
 [%- END %]
    <li><a href="#" rel="vcnotes">[% 'Notes' | $T8 %]</a></li>
-   [%- IF CUSTOM_VARIABLES.size %]
+   [%- IF CUSTOM_VARIABLES.CT.size %]
    <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
    [%- END %]
   </ul>
@@ -413,12 +413,12 @@
     <br style="clear: left" />
    </div>
 
-   [%- IF CUSTOM_VARIABLES.size %]
+   [%- IF CUSTOM_VARIABLES.CT.size %]
    <div id="custom_variables" class="tabcontent">
 
     <p>
      <table>
-      [%- FOREACH var = CUSTOM_VARIABLES %]
+      [%- FOREACH var = CUSTOM_VARIABLES.CT %]
       <tr>
        <td align="right" valign="top">[% HTML.escape(var.description) %]</td>
        <td valign="top">[% var.HTML_CODE %]</td>

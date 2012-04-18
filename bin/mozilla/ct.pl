@@ -353,9 +353,18 @@ sub form_header {
     $form->{currency} = $form->{curr};
   }
 
-  $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'CT', 'trans_id' => $form->{id});
+  $::form->{CUSTOM_VARIABLES} = { };
+  my %specs = ( CT       => { field => 'id',    name_prefix => '',   },
+                Contacts => { field => 'cp_id', name_prefix => 'cp', },
+              );
 
-  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });
+  for my $module (keys %specs) {
+    my $spec = $specs{$module};
+
+    $::form->{CUSTOM_VARIABLES}->{$module} = CVar->get_custom_variables(module => $module, trans_id => $::form->{ $spec->{field} });
+    CVar->render_inputs(variables => $::form->{CUSTOM_VARIABLES}->{$module}, name_prefix => $spec->{name_prefix})
+      if scalar @{ $::form->{CUSTOM_VARIABLES}->{$module} };
+  }
 
   $form->header;
   print $form->parse_html_template('ct/form_header');
@@ -671,6 +680,10 @@ sub get_contact {
   CT->populate_drop_down_boxes(\%::myconfig, $::form);
   CT->query_titles_and_greetings(\%::myconfig, $::form);
   CT->get_contact(\%::myconfig, $::form) if $::form->{cp_id};
+
+  $::form->{CUSTOM_VARIABLES}{Contacts} = CVar->get_custom_variables(module => 'Contacts', trans_id => $::form->{cp_id});
+  CVar->render_inputs(variables => $::form->{CUSTOM_VARIABLES}{Contacts}, name_prefix => 'cp')
+    if scalar @{ $::form->{CUSTOM_VARIABLES}->{Contacts} };
 
   $::form->{contacts_label} = \&_contacts_label;
 
