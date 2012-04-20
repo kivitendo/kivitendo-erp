@@ -279,7 +279,7 @@
       </td>
       [%- IF is_customer && !conf_vertreter %]
       <th align="right">[% 'Salesman' | $T8 %]</th>
-      <td>[% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=salesman_id, show_empty=1, title='safe_name')) %]</td>
+      <td>[% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=salesman_id, with_empty=1, title='safe_name')) %]</td>
       [%- END %]
      </tr>
     </table>
