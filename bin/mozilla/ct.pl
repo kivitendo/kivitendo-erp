@@ -337,7 +337,19 @@ sub list_contacts {
 
   my $report     = SL::ReportGenerator->new(\%::myconfig, $::form);
 
-  my @options    = $::locale->text('Search term') . ': ' . $::form->{search_term};
+  my @options;
+  push @options, $::locale->text('Search term') . ': ' . $::form->{search_term} if $::form->{search_term};
+  for (qw(cp_name cp_givenname cp_title cp_email cp_abteilung cp_project)) {
+    push @options, $column_defs{$_}{text} . ': ' . $::form->{filter}{$_} if $::form->{filter}{$_};
+  }
+  if ($::form->{filter}{status}) {
+    push @options, $::locale->text('Status') . ': ' . (
+      $::form->{filter}{status} =~ /active/   ? $::locale->text('Active')   :
+      $::form->{filter}{status} =~ /orphaned/ ? $::locale->text('Orphaned') :
+      $::form->{filter}{status} =~ /all/      ? $::locale->text('All')      : ''
+    );
+  }
+
 
   $report->set_options('top_info_text'       => join("\n", @options),
                        'output_format'       => 'HTML',
