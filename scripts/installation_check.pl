@@ -50,7 +50,7 @@ $| = 1;
 if ($check{r}) {
   print_header('Checking Required Modules');
   check_module($_, required => 1) for @SL::InstallationCheck::required_modules;
-  print_header('Standard check for required modules done. See additional parameters for more checks (-- help)') if $default_run;
+  print_header('Standard check for required modules done. See additional parameters for more checks (--help)') if $default_run;
 }
 if ($check{o}) {
   print_header('Checking Optional Modules');
