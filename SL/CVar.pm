@@ -402,6 +402,7 @@ sub render_search_options {
 
   $params{include_prefix}   = 'l_' unless defined($params{include_prefix});
   $params{include_value}  ||= '1';
+  $params{filter_prefix}  ||= '';
 
   my $filter  = $form->parse_html_template('amcvar/search_filter',  \%params);
   my $include = $form->parse_html_template('amcvar/search_include', \%params);

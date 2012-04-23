@@ -8,7 +8,7 @@
     <td valign="top">
 
      [%- IF var.type == 'bool' %]
-     <select name="cvar_[% HTML.escape(var.name) %]">
+     <select name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]">
       <option value="">---</option>
       <option value="yes">[% 'Yes' | $T8 %]</option>
       <option value="no">[% 'No' | $T8 %]</option>
@@ -16,10 +16,10 @@
 
      [%- ELSIF var.type == 'date' %]
      [% 'from (time)' | $T8 %]
-     <input name="cvar_[% HTML.escape(var.name) %]_from" id="cvar_[% HTML.escape(var.name) %]_from" size="12">
+     <input name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]_from" id="cvar_[% HTML.escape(var.name) %]_from" size="12">
      <input type="button" name="cvar_[% HTML.escape(var.name) %]_from_button" id="cvar_[% HTML.escape(var.name) %]_from_trigger" value="?">
      [% 'to (time)' | $T8 %]
-     <input name="cvar_[% HTML.escape(var.name) %]_to" id="cvar_[% HTML.escape(var.name) %]_to" size="12">
+     <input name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]_to" id="cvar_[% HTML.escape(var.name) %]_to" size="12">
      <input type="button" name="cvar_[% HTML.escape(var.name) %]_to_button" id="cvar_[% HTML.escape(var.name) %]_to_trigger" value="?">
 
      <script type="text/javascript">
@@ -36,7 +36,7 @@
      </script>
 
      [%- ELSIF var.type == 'number' %]
-     <select name="cvar_[% HTML.escape(var.name) %]_qtyop">
+     <select name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]_qtyop">
       <option selected>==</option>
       <option>=/=</option>
       <option>&gt;</option>
@@ -47,10 +47,10 @@
      <input name="cvar_[% HTML.escape(var.name) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
 
      [%- ELSIF var.type == 'customer' %]
-     <input name="cvar_[% var.name | html %]">
+     <input name="[% filter_prefix %]cvar_[% var.name | html %]">
 
      [% ELSIF var.type == 'select' %]
-     <select name="cvar_[% HTML.escape(var.name) %]">
+     <select name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]">
       <option value="" selected>---</option>
       [%- FOREACH option = var.OPTIONS %]
       <option>[% HTML.escape(option.value) %]</option>
@@ -58,7 +58,7 @@
      </select>
 
      [%- ELSE %]
-     <input name="cvar_[% HTML.escape(var.name) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
+     <input name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
 
      [%- END %]
     </td>
