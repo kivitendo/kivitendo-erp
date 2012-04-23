@@ -115,7 +115,13 @@ sub search_contact {
   $::lxdebug->enter_sub;
   $::auth->assert('customer_vendor_edit');
 
-  $::form->{fokus}    = 'Form.name';
+
+  $::form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'Contacts');
+  ($::form->{CUSTOM_VARIABLES_FILTER_CODE},
+   $::form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'    => $::form->{CUSTOM_VARIABLES},
+                                                                           'include_prefix' => 'l.',
+                                                                           'filter_prefix'  => 'filter.',
+                                                                           'include_value'  => 'Y');
 
   $::form->header;
   print $::form->parse_html_template('ct/search_contact');
@@ -292,10 +298,18 @@ sub list_contacts {
     filter      => $::form->{filter},
   );
 
+  my $cvar_configs = CVar->get_configs('module' => 'Contacts');
+
   my @columns      = qw(
     cp_id vcname vcnumber cp_name cp_givenname cp_street cp_phone1 cp_phone2
     cp_mobile1 cp_mobile2 cp_email cp_abteilung cp_birthday cp_gender
   );
+
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
+  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+
+  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   my @visible_columns;
   if ($::form->{l}) {
@@ -321,6 +335,7 @@ sub list_contacts {
     'cp_abteilung' => { 'text' => $::locale->text('Department'), },
     'cp_birthday'  => { 'text' => $::locale->text('Birthday'), },
     'cp_gender'    => { 'text' => $::locale->text('Gender'), },
+    %column_defs_cvars,
   );
 
   map { $column_defs{$_}->{visible} = 1 } @visible_columns;
@@ -364,6 +379,13 @@ sub list_contacts {
   $report->set_export_options('list_contacts', @hidden_variables);
 
   $report->set_sort_indicator($::form->{sort}, $::form->{sortdir});
+
+  CVar->add_custom_variables_to_report('module'         => 'Contacts',
+                                       'trans_id_field' => 'cp_id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => \@contacts);
+
 
   foreach my $ref (@contacts) {
     my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };

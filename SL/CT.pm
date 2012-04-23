@@ -1254,6 +1254,15 @@ sub search_contacts {
     push @where_tokens, map { "($_)" } join ' OR ', @tokens;
   }
 
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'Contacts',
+                                                            'trans_id_field' => 'cp.cp_id',
+                                                            'filter'         => $params{filter});
+
+  if ($cvar_where) {
+    push @where_tokens, $cvar_where;
+    push @values, @cvar_values;
+  }
+
   if (my $filter = $params{filter}) {
     for (qw(name title givenname email project abteilung)) {
       next unless $filter->{"cp_$_"};
