@@ -11,6 +11,7 @@ BEGIN {
 @required_modules = (
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
   { name => "Archive::Zip",    version => '1.16',  url => "http://search.cpan.org/~adamk/",     debian => 'libarchive-zip-perl' },
+  { name => "Clone",                               url => "http://search.cpan.org/~rdf/",       debian => 'libclone-perl' },
   { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
   { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-perl' },
   { name => "DBI",             version => '1.50',  url => "http://search.cpan.org/~timb/",      debian => 'libdbi-perl' },
