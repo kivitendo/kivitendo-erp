@@ -141,7 +141,7 @@ body.menu {
 .message_error {
 	padding: 5px;
 	background-color: #CC0000;
-	color: black;
+	color: white;
 	font-weight: bolder;
 	text-align: center;
 	border-style: solid;
@@ -159,6 +159,7 @@ body.menu {
 .message_error_label {
 	padding: 0.5em;
 	background-color: #E00000;
+  color: white;
 	font-weight: normal;
 	text-align: left;
 	border-style: solid;
