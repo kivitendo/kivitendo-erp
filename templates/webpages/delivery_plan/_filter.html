@@ -23,7 +23,11 @@
    <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, size = 20) %]</td>
   </tr>
   <tr>
-   <th align="right">[% 'Delivery Date' | $T8 %]</th>
+   <th align="right">[% 'Delivery Date' | $T8 %] [% 'From Date' | $T8 %]</th>
+   <td>[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge, cal_align = 'BR') %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Delivery Date' | $T8 %] [% 'To Date' | $T8 %]</th>
    <td>[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le, cal_align = 'BR') %]</td>
   </tr>
   <tr>
@@ -33,6 +37,10 @@
   <tr>
    <th align="right">[% 'Customer' | $T8 %]</th>
    <td>[% L.input_tag('filter.order.customer.name:substr::ilike', filter.order.customer.name_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Customer Number' | $T8 %]</th>
+   <td>[% L.input_tag('filter.order.customer.customernumber:substr::ilike', filter.order.customer.customernumber_substr__ilike, size = 20) %]</td>
   </tr>
   <tr>
    <th align="right">[% 'Type' | $T8 %]</th>

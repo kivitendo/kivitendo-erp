@@ -145,6 +145,8 @@ sub prepare_report {
                              obj_link => sub { $self->link_to($_[0]->part) }},
     qty                     => { text => $::locale->text('Qty'),
                                   sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
+    missing                 => { text => $::locale->text('Missing qty'),
+                                  sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
     shipped_qty             => { text => $::locale->text('shipped'),
                                   sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
     ordnumber               => { text => $::locale->text('Order'),
@@ -210,6 +212,16 @@ sub list_objects {
   return $self->{report}->generate_with_headers;
 }
 
+sub make_filter_summary {
+  my ($self) = @_;
+
+  my $filter = $::form->{filter};
+  my @filter_strings;
+  push @filter_strings, $::locale->text('Search Style') . ' ' . ($filter->{searchstyle} eq 'open' ? $::locale->text('Search for undelivered parts') : $::locale->text('Search for delivered parts')) if $filter->{searchstyle} =~ /open|delivered/;
+
+  $self->{filter_summary} = join ', ', @filter_strings;
+}
+
 sub link_to {
   my ($self, $object, %params) = @_;
 
@@ -252,16 +264,23 @@ sub _pre_parse_filter {
     push @{ $filter->{and} }, or => [ @part_filters ] if @part_filters;
   }
 
-  if ($filter->{'reqdate:date::le'}) {
-    $launder_to->{'reqdate_date__le'} = delete $filter->{'reqdate:date::le'};
-    my $parsed_date = DateTime->from_lxoffice($launder_to->{'reqdate_date__le'});
-    push @{ $filter->{and} }, or => [
-      'reqdate' => { le => $parsed_date },
-      and => [
-        'reqdate' => undef,
-        'order.reqdate' => { le => $parsed_date },
-      ]
-    ] if $parsed_date;
+  for my $op (qw(le ge)) {
+    if ($filter->{"reqdate:date::$op"}) {
+      $launder_to->{"reqdate_date__$op"} = delete $filter->{"reqdate:date::$op"};
+      my $parsed_date = DateTime->from_lxoffice($launder_to->{"reqdate_date__$op"});
+      push @{ $filter->{and} }, or => [
+        'reqdate' => { $op => $parsed_date },
+        and => [
+          'reqdate' => undef,
+          'order.reqdate' => { $op => $parsed_date },
+        ]
+      ] if $parsed_date;
+    }
+  }
+
+  if (my $style = delete $filter->{searchstyle}) {
+    $self->{searchstyle}       = $style;
+    $launder_to->{searchstyle} = $style;
   }
 
   return $filter;
