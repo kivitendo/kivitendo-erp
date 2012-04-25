@@ -36,6 +36,8 @@ BEGIN {
 
 @optional_modules = (
   { name => "Digest::SHA",                         url => "http://search.cpan.org/~mshelor/",   debian => 'libdigest-sha-perl' },
+  { name => "IO::Socket::SSL",                     url => "http://search.cpan.org/~sullr/",     debian => 'libio-socket-ssl-perl' },
+  { name => "Net::LDAP",                           url => "http://search.cpan.org/~gbarr/",     debian => 'libnet-ldap-perl' },
 );
 
 @developer_modules = (
@@ -97,7 +99,7 @@ my %conditional_dependencies;
 sub check_for_conditional_dependencies {
   return if $conditional_dependencies{net_ldap}++;
 
-  push @required_modules, { 'name' => 'Net::LDAP', 'url' => 'http://search.cpan.org/~gbarr/' }
+  push @required_modules, grep { $_->{name} eq 'Net::LDAP' } @optional_modules
     if $::lx_office_conf{authentication} && ($::lx_office_conf{authentication}->{module} eq 'LDAP');
 }
 
