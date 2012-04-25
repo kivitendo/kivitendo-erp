@@ -115,9 +115,6 @@ sub search_contact {
   $::lxdebug->enter_sub;
   $::auth->assert('customer_vendor_edit');
 
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
   $::form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'Contacts');
   ($::form->{CUSTOM_VARIABLES_FILTER_CODE},
    $::form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'    => $::form->{CUSTOM_VARIABLES},
@@ -125,7 +122,7 @@ sub search_contact {
                                                                            'filter_prefix'  => 'filter.',
                                                                            'include_value'  => 'Y');
 
-  $form->{title} = $locale->text('Search contacts');
+  $::form->{title} = $::locale->text('Search contacts');
   $::form->header;
   print $::form->parse_html_template('ct/search_contact');
 
