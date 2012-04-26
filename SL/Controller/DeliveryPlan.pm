@@ -22,6 +22,7 @@ sub action_list {
   my $db_args = $self->setup_for_list(%list_params);
   $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args);
   $self->{flat_filter} = { map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') };
+  $self->make_filter_summary;
 
   my $top    = $::form->parse_html_template('delivery_plan/report_top', { FORM => $::form, SELF => $self });
   my $bottom = $::form->parse_html_template('delivery_plan/report_bottom', { SELF => $self });
@@ -217,7 +218,30 @@ sub make_filter_summary {
 
   my $filter = $::form->{filter};
   my @filter_strings;
-  push @filter_strings, $::locale->text('Search Style') . ' ' . ($filter->{searchstyle} eq 'open' ? $::locale->text('Search for undelivered parts') : $::locale->text('Search for delivered parts')) if $filter->{searchstyle} =~ /open|delivered/;
+
+  my @filters = (
+    [ $filter->{order}{"ordnumber:substr::ilike"}, $::locale->text('Number') ],
+    [ $filter->{part}{"partnumber:substr::ilike"}, $::locale->text('Part Number') ],
+    [ $filter->{"description:substr::ilike"}, $::locale->text('Part Description') ],
+    [ $filter->{"reqdate:date::ge"}, $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
+    [ $filter->{"reqdate:date::le"}, $::locale->text('Delivery Date') . " " . $::locale->text('To Date') ],
+    [ $filter->{"qty:number"}, $::locale->text('Quantity') ],
+    [ $filter->{order}{customer}{"name:substr::ilike"}, $::locale->text('Customer') ],
+    [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number') ],
+  );
+
+  my @flags = (
+    [ $filter->{part}{type}{part}, $::locale->text('Parts') ],
+    [ $filter->{part}{type}{service}, $::locale->text('Services') ],
+    [ $filter->{part}{type}{assembly}, $::locale->text('Assemblies') ],
+  );
+
+  for (@flags) {
+    push @filter_strings, "$_->[1]" if $_->[0];
+  }
+  for (@filters) {
+    push @filter_strings, "$_->[1]: $_->[0]" if $_->[0];
+  }
 
   $self->{filter_summary} = join ', ', @filter_strings;
 }
