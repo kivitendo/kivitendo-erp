@@ -216,7 +216,7 @@ sub list_objects {
 sub make_filter_summary {
   my ($self) = @_;
 
-  my $filter = $::form->{filter};
+  my $filter = $::form->{filter} || {};
   my @filter_strings;
 
   my @filters = (
