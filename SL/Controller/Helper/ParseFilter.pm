@@ -20,11 +20,13 @@ my %filters = (
 );
 
 my %methods = (
-  lt     => sub { +{ lt    => $_[0] } },
-  gt     => sub { +{ gt    => $_[0] } },
-  ilike  => sub { +{ ilike => $_[0] } },
-  like   => sub { +{ like  => $_[0] } },
   enable => sub { ;;;; },
+  map {
+    # since $_ is an alias it can't be used in a closure. even "".$_ or "$_"
+    # does not work, we need a real copy.
+    my $_copy = "$_";
+    $_   => sub { +{ $_copy    => $_[0] } },
+  } qw(similar match imatch regex regexp like ilike rlike is is_not ne eq lt gt le ge),
 );
 
 sub parse_filter {

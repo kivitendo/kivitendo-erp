@@ -342,6 +342,36 @@ autocomplete_customer('#$name_e\_name');
 JS
 }
 
+# simple version with select_tag
+sub vendor_selector {
+  my ($self, $name, $value, %params) = @_;
+
+  my $actual_vendor_id = (defined $::form->{"$name"})? ((ref $::form->{"$name"}) ? $::form->{"$name"}->id : $::form->{"$name"}) :
+                         (ref $value && $value->can('id')) ? $value->id : '';
+  my $options_str = $self->options_for_select(SL::DB::Manager::Vendor->get_all(),
+                                              default      => $actual_vendor_id,
+                                              title_sub    => sub { $_[0]->vendornumber . " : " . $_[0]->name },
+                                              'with_empty' => 1);
+  
+  return $self->select_tag($name, $options_str, %params);
+}
+
+
+# simple version with select_tag
+sub part_selector {
+  my ($self, $name, $value, %params) = @_;
+
+  my $actual_part_id = (defined $::form->{"$name"})? ((ref $::form->{"$name"})? $::form->{"$name"}->id : $::form->{"$name"}) :
+                       (ref $value && $value->can('id')) ? $value->id : '';
+  my $options_str = $self->options_for_select(SL::DB::Manager::Part->get_all(),
+                                              default      => $actual_part_id,
+                                              title_sub    => sub { $_[0]->partnumber . " : " . $_[0]->description },
+                                              'with_empty' => 1);
+  
+  return $self->select_tag($name, $options_str, %params);
+}
+
+
 sub javascript_tag {
   my $self = shift;
   my $code = '';

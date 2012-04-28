@@ -2,27 +2,51 @@ package SL::LxOfficeConf;
 
 use strict;
 
-use Config::Std;
-use Encode;
-
 my $environment_initialized;
 
-sub read {
-  my ($class, $file_name) = @_;
+sub safe_require {
+  my ($class, $may_fail);
+  my $failed;
+  $failed = !eval {
+    require Config::Std;
+    require Encode;
+  };
 
-  read_config 'config/lx_office.conf.default' => %::lx_office_conf;
+  if ($failed) {
+    if ($may_fail) {
+      warn $@;
+      return 0;
+    } else {
+      die $@;
+    }
+  }
+
+  Config::Std->import;
+  Encode->import;
+
+  return 1;
+}
+
+sub read {
+  my ($class, $file_name, $may_fail) = @_;
+
+  return unless $class->safe_require($may_fail);
+
+  read_config('config/lx_office.conf.default' => \%::lx_office_conf);
   _decode_recursively(\%::lx_office_conf);
 
   $file_name ||= 'config/lx_office.conf';
 
   if (-f $file_name) {
-    read_config $file_name => my %local_conf;
+    read_config($file_name => \ my %local_conf);
     _decode_recursively(\%local_conf);
     _flat_merge(\%::lx_office_conf, \%local_conf);
   }
 
   _init_environment();
   _determine_application_paths();
+
+  return 1;
 }
 
 sub _decode_recursively {

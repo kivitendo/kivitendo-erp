@@ -115,7 +115,6 @@ sub search_contact {
   $::lxdebug->enter_sub;
   $::auth->assert('customer_vendor_edit');
 
-
   $::form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'Contacts');
   ($::form->{CUSTOM_VARIABLES_FILTER_CODE},
    $::form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'    => $::form->{CUSTOM_VARIABLES},
@@ -123,6 +122,7 @@ sub search_contact {
                                                                            'filter_prefix'  => 'filter.',
                                                                            'include_value'  => 'Y');
 
+  $::form->{title} = $::locale->text('Search contacts');
   $::form->header;
   print $::form->parse_html_template('ct/search_contact');
 
@@ -329,8 +329,8 @@ sub list_contacts {
     'cp_street'    => { 'text' => $::locale->text('Street'), },
     'cp_phone1'    => { 'text' => $::locale->text('Phone1'), },
     'cp_phone2'    => { 'text' => $::locale->text('Phone2'), },
-    'cp_mobile1'   => { 'text' => $::locale->text('Mobile 1'), },
-    'cp_mobile2'   => { 'text' => $::locale->text('Mobile 2'), },
+    'cp_mobile1'   => { 'text' => $::locale->text('Mobile1'), },
+    'cp_mobile2'   => { 'text' => $::locale->text('Mobile2'), },
     'cp_email'     => { 'text' => $::locale->text('E-mail'), },
     'cp_abteilung' => { 'text' => $::locale->text('Department'), },
     'cp_birthday'  => { 'text' => $::locale->text('Birthday'), },

@@ -11,6 +11,7 @@ BEGIN {
 @required_modules = (
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
   { name => "Archive::Zip",    version => '1.16',  url => "http://search.cpan.org/~adamk/",     debian => 'libarchive-zip-perl' },
+  { name => "Clone",                               url => "http://search.cpan.org/~rdf/",       debian => 'libclone-perl' },
   { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
   { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-perl' },
   { name => "DBI",             version => '1.50',  url => "http://search.cpan.org/~timb/",      debian => 'libdbi-perl' },
@@ -36,6 +37,8 @@ BEGIN {
 
 @optional_modules = (
   { name => "Digest::SHA",                         url => "http://search.cpan.org/~mshelor/",   debian => 'libdigest-sha-perl' },
+  { name => "IO::Socket::SSL",                     url => "http://search.cpan.org/~sullr/",     debian => 'libio-socket-ssl-perl' },
+  { name => "Net::LDAP",                           url => "http://search.cpan.org/~gbarr/",     debian => 'libnet-ldap-perl' },
 );
 
 @developer_modules = (
@@ -97,7 +100,7 @@ my %conditional_dependencies;
 sub check_for_conditional_dependencies {
   return if $conditional_dependencies{net_ldap}++;
 
-  push @required_modules, { 'name' => 'Net::LDAP', 'url' => 'http://search.cpan.org/~gbarr/' }
+  push @required_modules, grep { $_->{name} eq 'Net::LDAP' } @optional_modules
     if $::lx_office_conf{authentication} && ($::lx_office_conf{authentication}->{module} eq 'LDAP');
 }
 

@@ -30,6 +30,12 @@
 [%- ELSIF cvar.var.type == 'customer' %]
 [%- L.customer_picker(render_input_blocks__cvar_name, cvar.value) %]
 
+[%- ELSIF cvar.var.type == 'vendor' %]
+[% L.vendor_selector(render_input_blocks__cvar_name, cvar.value) %]
+
+[%- ELSIF cvar.var.type == 'part' %]
+[% L.part_selector(render_input_blocks__cvar_name, cvar.value) %]
+
 [%- ELSIF cvar.var.type == 'number' %]
 [%- L.input_tag(render_input_blocks__cvar_name, LxERP.format_amount(cvar.value, -2)) %]
 
