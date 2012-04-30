@@ -38,6 +38,7 @@
 
 use Carp;
 use CGI;
+use List::MoreUtils qw(uniq);
 use List::Util qw(min max first);
 
 use SL::CVar;
@@ -1504,14 +1505,8 @@ sub print_form {
   push @template_files, "$form->{formname}$form->{language}$printer_code.$extension";
   push @template_files, "$form->{formname}.$extension";
   push @template_files, "default.$extension";
-
-  $form->{IN} = undef;
-  for my $filename (@template_files) {
-    if (-f "$myconfig{templates}/$filename") {
-      $form->{IN} = $filename;
-      last;
-    }
-  }
+  @template_files = uniq @template_files;
+  $form->{IN}     = first { -f "$myconfig{templates}/$_" } @template_files;
 
   if (!defined $form->{IN}) {
     $::form->error($::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files));

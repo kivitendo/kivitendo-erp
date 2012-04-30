@@ -49,6 +49,7 @@ use POSIX qw(strftime);
 
 use SL::CT;
 use SL::CVar;
+use SL::Request qw(flatten);
 use SL::DB::Business;
 use SL::DB::Default;
 use SL::Helper::Flash;
@@ -108,6 +109,24 @@ sub search {
   print $form->parse_html_template('ct/search');
 
   $main::lxdebug->leave_sub();
+}
+
+sub search_contact {
+  $::lxdebug->enter_sub;
+  $::auth->assert('customer_vendor_edit');
+
+  $::form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'Contacts');
+  ($::form->{CUSTOM_VARIABLES_FILTER_CODE},
+   $::form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'    => $::form->{CUSTOM_VARIABLES},
+                                                                           'include_prefix' => 'l.',
+                                                                           'filter_prefix'  => 'filter.',
+                                                                           'include_value'  => 'Y');
+
+  $::form->{title} = $::locale->text('Search contacts');
+  $::form->header;
+  print $::form->parse_html_template('ct/search_contact');
+
+  $::lxdebug->leave_sub;
 }
 
 sub list_names {
@@ -268,6 +287,121 @@ sub list_names {
   $main::lxdebug->leave_sub();
 }
 
+sub list_contacts {
+  $::lxdebug->enter_sub;
+  $::auth->assert('customer_vendor_edit');
+
+  $::form->{sortdir} = 1 unless defined $::form->{sortdir};
+
+  my @contacts     = CT->search_contacts(
+    search_term => $::form->{search_term},
+    filter      => $::form->{filter},
+  );
+
+  my $cvar_configs = CVar->get_configs('module' => 'Contacts');
+
+  my @columns      = qw(
+    cp_id vcname vcnumber cp_name cp_givenname cp_street cp_phone1 cp_phone2
+    cp_mobile1 cp_mobile2 cp_email cp_abteilung cp_birthday cp_gender
+  );
+
+  my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
+  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
+
+  push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
+
+  my @visible_columns;
+  if ($::form->{l}) {
+    @visible_columns = grep { $::form->{l}{$_} } @columns;
+    push @visible_columns, qw(cp_phone1 cp_phone2)   if $::form->{l}{cp_phone};
+    push @visible_columns, qw(cp_mobile1 cp_mobile2) if $::form->{l}{cp_mobile};
+  } else {
+   @visible_columns = qw(vcname vcnumber cp_name cp_givenname cp_phone1 cp_phone2 cp_mobile1 cp_email);
+  }
+
+  my %column_defs  = (
+    'cp_id'        => { 'text' => $::locale->text('ID'), },
+    'vcname'       => { 'text' => $::locale->text('Customer/Vendor'), },
+    'vcnumber'     => { 'text' => $::locale->text('Customer/Vendor Number'), },
+    'cp_name'      => { 'text' => $::locale->text('Name'), },
+    'cp_givenname' => { 'text' => $::locale->text('Given Name'), },
+    'cp_street'    => { 'text' => $::locale->text('Street'), },
+    'cp_phone1'    => { 'text' => $::locale->text('Phone1'), },
+    'cp_phone2'    => { 'text' => $::locale->text('Phone2'), },
+    'cp_mobile1'   => { 'text' => $::locale->text('Mobile1'), },
+    'cp_mobile2'   => { 'text' => $::locale->text('Mobile2'), },
+    'cp_email'     => { 'text' => $::locale->text('E-mail'), },
+    'cp_abteilung' => { 'text' => $::locale->text('Department'), },
+    'cp_birthday'  => { 'text' => $::locale->text('Birthday'), },
+    'cp_gender'    => { 'text' => $::locale->text('Gender'), },
+    %column_defs_cvars,
+  );
+
+  map { $column_defs{$_}->{visible} = 1 } @visible_columns;
+
+  my @hidden_variables  = (qw(search_term filter l));
+  my $hide_vars         = { map { $_ => $::form->{$_} } @hidden_variables };
+  my @hidden_nondefault = grep({ $::form->{$_} } @hidden_variables);
+  my $callback          = build_std_url('action=list_contacts', join '&', map { E($_->[0]) . '=' . E($_->[1]) } @{ flatten($hide_vars) });
+  $::form->{callback}     = "$callback&sort=" . E($::form->{sort});
+
+  map { $column_defs{$_}->{link} = "${callback}&sort=${_}&sortdir=" . ($::form->{sort} eq $_ ? 1 - $::form->{sortdir} : $::form->{sortdir}) } @columns;
+
+  $::form->{title} = $::locale->text('Contacts');
+
+  my $report     = SL::ReportGenerator->new(\%::myconfig, $::form);
+
+  my @options;
+  push @options, $::locale->text('Search term') . ': ' . $::form->{search_term} if $::form->{search_term};
+  for (qw(cp_name cp_givenname cp_title cp_email cp_abteilung cp_project)) {
+    push @options, $column_defs{$_}{text} . ': ' . $::form->{filter}{$_} if $::form->{filter}{$_};
+  }
+  if ($::form->{filter}{status}) {
+    push @options, $::locale->text('Status') . ': ' . (
+      $::form->{filter}{status} =~ /active/   ? $::locale->text('Active')   :
+      $::form->{filter}{status} =~ /orphaned/ ? $::locale->text('Orphaned') :
+      $::form->{filter}{status} =~ /all/      ? $::locale->text('All')      : ''
+    );
+  }
+
+
+  $report->set_options('top_info_text'       => join("\n", @options),
+                       'output_format'       => 'HTML',
+                       'title'               => $::form->{title},
+                       'attachment_basename' => $::locale->text('contact_list') . strftime('_%Y%m%d', localtime time),
+    );
+  $report->set_options_from_form;
+
+  $report->set_columns(%column_defs);
+  $report->set_column_order(@columns);
+
+  $report->set_export_options('list_contacts', @hidden_variables);
+
+  $report->set_sort_indicator($::form->{sort}, $::form->{sortdir});
+
+  CVar->add_custom_variables_to_report('module'         => 'Contacts',
+                                       'trans_id_field' => 'cp_id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => \@contacts);
+
+
+  foreach my $ref (@contacts) {
+    my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };
+
+    $row->{vcname}->{link}   = build_std_url('action=edit', 'id=' . E($ref->{vcid}), 'db=' . E($ref->{db}), 'callback', @hidden_nondefault);
+    $row->{vcnumber}->{link} = $row->{vcname}->{link};
+    $row->{cp_email}->{link} = 'mailto:' . E($ref->{cp_email});
+
+    $report->add_data($row);
+  }
+
+  $report->generate_with_headers;
+
+  $::lxdebug->leave_sub;
+}
+
 sub edit {
   $main::lxdebug->enter_sub();
 
@@ -353,9 +487,18 @@ sub form_header {
     $form->{currency} = $form->{curr};
   }
 
-  $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'CT', 'trans_id' => $form->{id});
+  $::form->{CUSTOM_VARIABLES} = { };
+  my %specs = ( CT       => { field => 'id',    name_prefix => '',   },
+                Contacts => { field => 'cp_id', name_prefix => 'cp', },
+              );
 
-  CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });
+  for my $module (keys %specs) {
+    my $spec = $specs{$module};
+
+    $::form->{CUSTOM_VARIABLES}->{$module} = CVar->get_custom_variables(module => $module, trans_id => $::form->{ $spec->{field} });
+    CVar->render_inputs(variables => $::form->{CUSTOM_VARIABLES}->{$module}, name_prefix => $spec->{name_prefix})
+      if scalar @{ $::form->{CUSTOM_VARIABLES}->{$module} };
+  }
 
   $form->header;
   print $form->parse_html_template('ct/form_header');
@@ -671,6 +814,10 @@ sub get_contact {
   CT->populate_drop_down_boxes(\%::myconfig, $::form);
   CT->query_titles_and_greetings(\%::myconfig, $::form);
   CT->get_contact(\%::myconfig, $::form) if $::form->{cp_id};
+
+  $::form->{CUSTOM_VARIABLES}{Contacts} = CVar->get_custom_variables(module => 'Contacts', trans_id => $::form->{cp_id});
+  CVar->render_inputs(variables => $::form->{CUSTOM_VARIABLES}{Contacts}, name_prefix => 'cp')
+    if scalar @{ $::form->{CUSTOM_VARIABLES}->{Contacts} };
 
   $::form->{contacts_label} = \&_contacts_label;
 

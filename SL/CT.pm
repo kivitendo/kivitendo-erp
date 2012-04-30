@@ -448,6 +448,12 @@ sub save_customer {
                               'trans_id'  => $form->{id},
                               'variables' => $form,
                               'always_valid' => 1);
+  CVar->save_custom_variables('dbh'       => $dbh,
+                              'module'    => 'Contacts',
+                              'trans_id'  => $form->{cp_id},
+                              'variables' => $form,
+                              'name_prefix'  => 'cp',
+                              'always_valid' => 1);
 
   my $rc = $dbh->commit();
 
@@ -656,6 +662,12 @@ sub save_vendor {
                               'module'    => 'CT',
                               'trans_id'  => $form->{id},
                               'variables' => $form,
+                              'always_valid' => 1);
+  CVar->save_custom_variables('dbh'       => $dbh,
+                              'module'    => 'Contacts',
+                              'trans_id'  => $form->{cp_id},
+                              'variables' => $form,
+                              'name_prefix'  => 'cp',
                               'always_valid' => 1);
 
   my $rc = $dbh->commit();
@@ -1194,5 +1206,92 @@ sub parse_excel_file {
 
   $main::lxdebug->leave_sub();
 }
+
+sub search_contacts {
+  $::lxdebug->enter_sub;
+
+  my $self      = shift;
+  my %params    = @_;
+
+  my $dbh       = $params{dbh} || $::form->get_standard_dbh;
+  my $vc        = $params{db} eq 'customer' ? 'customer' : 'vendor';
+
+  my %sortspecs = (
+    'cp_name'   => 'cp_name, cp_givenname',
+    'vcname'    => 'vcname, cp_name, cp_givenname',
+    'vcnumber'  => 'vcnumber, cp_name, cp_givenname',
+    );
+
+  my %sortcols  = map { $_ => 1 } qw(cp_name cp_givenname cp_phone1 cp_phone2 cp_mobile1 cp_email vcname vcnumber);
+
+  my $order_by  = $sortcols{$::form->{sort}} ? $::form->{sort} : 'cp_name';
+  $::form->{sort} = $order_by;
+  $order_by     = $sortspecs{$order_by} if ($sortspecs{$order_by});
+
+  my $sortdir   = $::form->{sortdir} ? 'ASC' : 'DESC';
+  $order_by     =~ s/,/ ${sortdir},/g;
+  $order_by    .= " $sortdir";
+
+  my @where_tokens = ();
+  my @values;
+
+  if ($params{search_term}) {
+    my @tokens;
+    push @tokens,
+      'cp.cp_name      ILIKE ?',
+      'cp.cp_givenname ILIKE ?',
+      'cp.cp_email     ILIKE ?';
+    push @values, ('%' . $params{search_term} . '%') x 3;
+
+    if (($params{search_term} =~ m/\d/) && ($params{search_term} !~ m/[^\d \(\)+\-]/)) {
+      my $number =  $params{search_term};
+      $number    =~ s/[^\d]//g;
+      $number    =  join '[ /\(\)+\-]*', split(m//, $number);
+
+      push @tokens, map { "($_ ~ '$number')" } qw(cp_phone1 cp_phone2 cp_mobile1 cp_mobile2);
+    }
+
+    push @where_tokens, map { "($_)" } join ' OR ', @tokens;
+  }
+
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'Contacts',
+                                                            'trans_id_field' => 'cp.cp_id',
+                                                            'filter'         => $params{filter});
+
+  if ($cvar_where) {
+    push @where_tokens, $cvar_where;
+    push @values, @cvar_values;
+  }
+
+  if (my $filter = $params{filter}) {
+    for (qw(name title givenname email project abteilung)) {
+      next unless $filter->{"cp_$_"};
+      add_token(\@where_tokens, \@values, col =>  "cp.cp_$_", val => $filter->{"cp_$_"}, method => 'ILIKE', esc => 'substr');
+    }
+
+    push @where_tokens, 'cp.cp_cv_id IS NOT NULL' if $filter->{status} eq 'active';
+    push @where_tokens, 'cp.cp_cv_id IS NULL'     if $filter->{status} eq 'orphaned';
+  }
+
+  my $where = @where_tokens ? 'WHERE ' . join ' AND ', @where_tokens : '';
+
+  my $query     = qq|SELECT cp.*,
+                       COALESCE(c.id,             v.id)           AS vcid,
+                       COALESCE(c.name,           v.name)         AS vcname,
+                       COALESCE(c.customernumber, v.vendornumber) AS vcnumber,
+                       CASE WHEN c.name IS NULL THEN 'vendor' ELSE 'customer' END AS db
+                     FROM contacts cp
+                     LEFT JOIN customer c ON (cp.cp_cv_id = c.id)
+                     LEFT JOIN vendor v   ON (cp.cp_cv_id = v.id)
+                     $where
+                     ORDER BY $order_by|;
+
+  my $contacts  = selectall_hashref_query($::form, $dbh, $query, @values);
+
+  $::lxdebug->leave_sub;
+
+  return @{ $contacts };
+}
+
 
 1;

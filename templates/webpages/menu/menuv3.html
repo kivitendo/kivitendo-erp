@@ -1,8 +1,33 @@
 [%- USE T8 %]
 [% USE HTML %]<body style="padding:0px; margin:0px;">
 
+ <script type="text/javascript" src="js/jquery.js"></script>
  <script type="text/javascript">
-<!--
+ <!--
+function on_keydown_quicksearch(e) {
+  var key;
+
+  if (window.event)
+    key = window.event.keyCode;   // IE
+  else
+    key = e.which;                // Firefox
+
+  if (key != 13)
+    return true;
+
+  var search_term = $("#search_term");
+  var value       = search_term.val();
+  if (!value)
+    return true;
+
+  var url = "ct.pl?action=list_contacts&INPUT_ENCODING=utf-8&filter.status=active&search_term=" + encodeURIComponent(value);
+
+  search_term.val('');
+  $("#win1").attr('src', url);
+
+  return false;
+}
+
 function clockon() {
   var now = new Date();
   var h = now.getHours();
@@ -16,11 +41,13 @@ window.onload=clockon
 
  <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
   <tr>
-   <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;">
+   <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
     &nbsp;
     [<a href="menuv3.pl?action=display" target="_blank">[% 'new Window' | $T8 %]</a>]
     &nbsp;
     [<a href="JavaScript:top.main_window.print()">[% 'print' | $T8 %]</a>]
+    &nbsp;
+    [[% 'Search contacts' | $T8 %] <input size="15" name="search_term" id="search_term" onkeydown="return on_keydown_quicksearch(event)">]
    </td>
    <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
     [[% 'User' | $T8 %]: [% HTML.escape(login) %] -

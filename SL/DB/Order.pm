@@ -149,6 +149,19 @@ sub convert_to_invoice {
   return $invoice;
 }
 
+sub number {
+  my $self = shift;
+
+  my %number_method = (
+    sales_order       => 'ordnumber',
+    sales_quotation   => 'quonumber',
+    puchase_order     => 'ordnumber',
+    request_quotation => 'quonumber',
+  );
+
+  return $self->${ \ $number_method{$self->type} }(@_);
+}
+
 1;
 
 __END__

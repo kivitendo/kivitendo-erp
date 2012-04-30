@@ -19,6 +19,14 @@ sub conv_i {
   return (defined($value) && "$value" ne "") ? $value * 1 : $default;
 }
 
+# boolean escape
+sub conv_b {
+  my ($value, $default) = @_;
+  return !defined $value && defined $default ? $default
+       :          $value                     ? 't'
+       :                                       'f';
+}
+
 sub conv_date {
   my ($value) = @_;
   return (defined($value) && "$value" ne "") ? $value : undef;
@@ -307,15 +315,28 @@ sub add_token {
   my %params = @_;
   my $col    = $params{col};
   my $val    = $params{val};
-  my $method = $params{method} || '=';
   my $escape = $params{esc} || sub { $_ };
+  my $method = $params{esc} =~ /^start|end|substr$/ ? 'ILIKE' : $params{method} || '=';
 
   $val = [ $val ] unless ref $val eq 'ARRAY';
 
   my %escapes = (
     id     => \&conv_i,
+    bool   => \&conv_b,
     date   => \&conv_date,
+    start  => sub { $_[0] . '%' },
+    end    => sub { '%' . $_[0] },
+    substr => sub { '%' . $_[0] . '%' },
   );
+
+  my $_long_token = sub {
+    my $op = shift;
+    sub {
+      my $col = shift;
+      return scalar @_ ? join ' OR ', ("$col $op ?") x scalar @_,
+           :             undef;
+    }
+  };
 
   my %methods = (
     '=' => sub {
@@ -324,6 +345,7 @@ sub add_token {
            : scalar @_ == 1 ? sprintf '%s = ?',     $col
            :                  undef;
     },
+    map({ $_ => $_long_token->($_) } qw(LIKE ILIKE >= <= > <)),
   );
 
   $method = $methods{$method} || $method;

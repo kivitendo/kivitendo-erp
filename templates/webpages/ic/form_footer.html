@@ -28,6 +28,12 @@
  <br style="clear: left" />
 </div>
 
+[%- IF id %]
+<div id="sales_price_information" class="tabcontent">
+  [% PROCESS ic/sales_price_information.html id=id %]
+</div>
+[%- END %]
+
 [%- IF CUSTOM_VARIABLES.size %]
 <div id="custom_variables" class="tabcontent">
 

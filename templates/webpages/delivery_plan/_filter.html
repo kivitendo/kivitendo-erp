@@ -1,0 +1,66 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE LxERP %]
+[%- USE HTML %]
+<form action='controller.pl' method='post'>
+<div class='filter_toggle'>
+<a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Show Filter' | $T8 %]</a>
+  [% SELF.filter_summary %]
+</div>
+<div class='filter_toggle' style='display:none'>
+<a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Hide Filter' | $T8 %]</a>
+ <table id='filter_table'>
+  <tr>
+   <th align="right">[% 'Number' | $T8 %]</th>
+   <td>[% L.input_tag('filter.order.ordnumber:substr::ilike', filter.order.ordnumber_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Part Number' | $T8 %]</th>
+   <td>[% L.input_tag('filter.part.partnumber:substr::ilike', filter.part.partnumber_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Part Description' | $T8 %]</th>
+   <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Delivery Date' | $T8 %] [% 'From Date' | $T8 %]</th>
+   <td>[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge, cal_align = 'BR') %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Delivery Date' | $T8 %] [% 'To Date' | $T8 %]</th>
+   <td>[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le, cal_align = 'BR') %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Quantity' | $T8 %]</th>
+   <td>[% L.input_tag('filter.qty:number', filter.qty_number, size = 20) %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Customer' | $T8 %]</th>
+   <td>[% L.input_tag('filter.order.customer.name:substr::ilike', filter.order.customer.name_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Customer Number' | $T8 %]</th>
+   <td>[% L.input_tag('filter.order.customer.customernumber:substr::ilike', filter.order.customer.customernumber_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
+   <th align="right">[% 'Type' | $T8 %]</th>
+   <td>
+     [% L.checkbox_tag('filter.part.type.part',     checked=filter.part.type.part,     label=LxERP.t8('Part')) %]
+     [% L.checkbox_tag('filter.part.type.service',  checked=filter.part.type.service,  label=LxERP.t8('Service')) %]
+     [% L.checkbox_tag('filter.part.type.assembly', checked=filter.part.type.assembly, label=LxERP.t8('Assembly')) %]
+   </td>
+  </tr>
+ </table>
+
+[% L.hidden_tag('action', 'DeliveryPlan/dispatch') %]
+[% L.hidden_tag('sort_by', FORM.sort_by) %]
+[% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+[% L.hidden_tag('page', FORM.page) %]
+[% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
+
+
+<a href='#' onClick='javascript:$("#filter_table input").attr("value","");$("#filter_table option").attr("selected","")'>[% 'Reset' | $T8 %]</a>
+
+</div>
+
+</form>

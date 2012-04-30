@@ -1335,9 +1335,16 @@ sub generate_report {
 
     # set module stuff
     if ($ref->{module} eq 'oe') {
-      my $edit_oe_link = build_std_url("script=oe.pl", 'action=edit', 'type=' . E($ref->{cv} eq 'vendor' ? 'purchase_order' : 'sales_order'), 'id=' . E($ref->{trans_id}), 'callback');
-      $row->{ordnumber}{link} = $edit_oe_link;
-      $row->{quonumber}{link} = $edit_oe_link if (!$ref->{ordnumber});
+      # für oe gibt es vier fälle, jeweils nach kunde oder lieferant unterschiedlich:
+      #
+      # | ist bestellt  | Vom Kunde bestellt |  -> edit_oe_ord_link
+      # | Anfrage       | Angebot            |  -> edit_oe_quo_link
+
+      my $edit_oe_ord_link = build_std_url("script=oe.pl", 'action=edit', 'type=' . E($ref->{cv} eq 'vendor' ? 'purchase_order' : 'sales_order'), 'id=' . E($ref->{trans_id}), 'callback');
+      my $edit_oe_quo_link = build_std_url("script=oe.pl", 'action=edit', 'type=' . E($ref->{cv} eq 'vendor' ? 'request_quotation' : 'sales_quotation'), 'id=' . E($ref->{trans_id}), 'callback');
+
+      $row->{ordnumber}{link} = $edit_oe_ord_link;
+      $row->{quonumber}{link} = $edit_oe_quo_link if (!$ref->{ordnumber});
 
     } else {
       $row->{invnumber}{link} = build_std_url("script=$ref->{module}.pl", 'action=edit', 'type=invoice', 'id=' . E($ref->{trans_id}), 'callback');

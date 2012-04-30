@@ -6,12 +6,13 @@ use SL::Common;
 use SL::MoreCommon qw(uri_encode uri_decode);
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(all any apply);
+use Exporter qw(import);
+
+our @EXPORT_OK = qw(flatten unflatten read_cgi_input);
 
 sub _store_value {
-  $::lxdebug->enter_sub(2);
-
   my ($target, $key, $value) = @_;
-  my @tokens = split /((?:\[\+?\])?(?:\.|$))/, $key;
+  my @tokens = split /((?:\[\+?\])?(?:\.)|(?:\[\+?\]))/, $key;
   my $curr;
 
   if (scalar @tokens) {
@@ -22,15 +23,15 @@ sub _store_value {
     my $sep = shift @tokens;
     my $key = shift @tokens;
 
-    $curr = \ $$curr->[++$#$$curr], next if $sep eq '[]';
+    $curr = \ $$curr->[$#$$curr], next   if $sep eq '[]' && @tokens;
+    $curr = \ $$curr->[++$#$$curr], next if $sep eq '[]' && !@tokens;
+    $curr = \ $$curr->[++$#$$curr], next if $sep eq '[+]';
     $curr = \ $$curr->[max 0, $#$$curr]  if $sep eq '[].';
     $curr = \ $$curr->[++$#$$curr]       if $sep eq '[+].';
     $curr = \ $$curr->{$key}
   }
 
   $$curr = $value;
-
-  $::lxdebug->leave_sub(2);
 
   return $curr;
 }
@@ -249,20 +250,216 @@ sub read_cgi_input {
   return $target;
 }
 
+sub flatten {
+  my ($source, $target, $prefix, $in_array) = @_;
+  $target ||= [];
+
+  # there are two edge cases that need attention. first: more than one hash
+  # inside an array.  only the first of each nested can have a [+].  second: if
+  # an array contains mixed values _store_value will rely on autovivification.
+  # so any type change must have a [+]
+  # this closure decides one recursion step AFTER an array has been found if a
+  # [+] needs to be generated
+  my $arr_prefix = sub {
+    return $_[0] ? '[+]' : '[]' if $in_array;
+    return '';
+  };
+
+  for (ref $source) {
+    /^HASH$/ && do {
+      my $first = 1;
+      for my $key (keys %$source) {
+        flatten($source->{$key} => $target, (defined $prefix ? $prefix . $arr_prefix->($first) . '.' : '') . $key);
+        $first = 0;
+      };
+      next;
+    };
+    /^ARRAY$/ && do {
+      for my $i (0 .. $#$source) {
+        flatten($source->[$i] => $target, $prefix . $arr_prefix->($i == 0), '1');
+      }
+      next;
+    };
+    !$_ && do {
+      die "can't flatten a pure scalar" unless defined $prefix;
+      push @$target, [ $prefix . $arr_prefix->(0) => $source ];
+      next;
+    };
+    die "unrecognized reference of a data structure $_. cannot serialize refs, globs and code yet. to serialize Form please use the method there";
+  }
+
+  return $target;
+}
+
+
+sub unflatten {
+  my ($data, $target) = @_;
+  $target ||= {};
+
+  for my $pair (@$data) {
+    _store_value($target, @$pair) if defined $pair->[0];
+  }
+
+  return $target;
+}
+
 1;
 
 __END__
 
 =head1 NAME
 
-SL::Form.pm - main data object.
+SL::Request.pm - request parsing and data serialization
 
 =head1 SYNOPSIS
 
-This module handles unpacking of cgi parameters. usually you donÄt want to call
-anything in here directly,
+This module handles unpacking of cgi parameters. usually you don't want to call
+anything in here directly.
 
-  SL::Request::read_cgi_input($target_hash_ref);
+  use SL::Request qw(read_cgi_input);
+
+  # read cgi input depending on request type, unflatten and recode
+  read_cgi_input($target_hash_ref);
+
+  # $hashref and $new_hashref should be identical
+  my $new_arrayref = flatten($hashref);
+  my $new_hashref  = unflatten($new_arrayref);
+
+
+=head1 DESCRIPTION
+
+This module handles flattening and unflattening of data for request
+roundtrip purposes. Lx-Office uses the format as described below:
+
+=over 4
+
+=item Hashes
+
+Hash entries will be connected with a dot (C<.>). A simple hash like this
+
+  order => {
+    item     => 2,
+    customer => 5
+  }
+
+will be serialized to
+
+  [ order.item     => 2 ],
+  [ order.customer => 5 ],
+
+=item Arrays
+
+Arrays will by trailing empty brackets (C<[]>). An hash like this
+
+  selected_id => [ 2, 6, 8, 9 ]
+
+will be flattened to
+
+  [ selected_id[] => 2 ],
+  [ selected_id[] => 6 ],
+  [ selected_id[] => 8 ],
+  [ selected_id[] => 9 ],
+
+Since this will produce identical keys, the resulting flattened list can not be
+used as a hash. It is however very easy to use this in a template to generate
+input:
+
+  [% FOREACH id = selected_ids %]
+    <input type="hidden" name="selected_id[]" value="[% id | html %]">
+  [% END %]
+
+=item Nested structures
+
+A special version of this are nested hashs in an array, which is very common.
+The combined operator (C<[].>) will be used. As a special case, every time a new
+array slice is started, the special convention (C<[+].>) will be used. Again this
+is because it's easy to write a template with it.
+
+So this
+
+  order => {
+    orderitems => [
+      {
+        id   => 1,
+        part => 15
+      },
+      {
+        id   => 2,
+        part => 7
+      },
+    ]
+  }
+
+will be
+
+  [ order.orderitems[+].id  => 1  ],
+  [ order.orderitems[].part => 15 ],
+  [ order.orderitems[+].id  => 2  ],
+  [ order.orderitems[].part => 7  ],
+
+=item Limitations
+
+  The format currently does have certain limitations when compared to other
+  serialization formats.
+
+=over 4
+
+=item Order
+
+The order of serialized values matters to reconstruct arrays properly. This
+should rarely be a problem if you just flatten and dump into a url or a field
+of hiddens.
+
+=item Empty Keys
+
+The current implementation of flatten does produce correct serialization of
+empty keys, but unflatten is unable to resolve these. Do no use C<''> or
+C<undef> as keys. C<0> is fine.
+
+=item Key Escaping
+
+You cannot use the tokens C<[]>, C<[+]> and C<.> in keys. No way around it.
+
+=item Sparse Arrays
+
+It is not possible to serialize somehing like
+
+  sparse_array => do { my $sa = []; $sa[100] = 1; $sa },
+
+This is a feature, as perl doesn't do well with very large arrays.
+
+=item Recursion
+
+There is currently no support nor prevention for flattening a circular structure.
+
+=item Custom Delimiter
+
+No support for other delimiters, sorry.
+
+=item Other References
+
+No support for globs, scalar refs, code refs, filehandles and the like. These will die.
+
+=back
+
+=back
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<flatten HASHREF [ ARRAYREF ]>
+
+This function will flatten the provided hash ref into the provided array ref.
+The array ref may be non empty, but will be changed in this case.
+
+Return value is the flattened array ref.
+
+=item C<unflatten ARRAYREF [ HASHREF ]>
+
+This function will parse the array ref, and will store the contents into the hash ref. The hash ref may be non empty, in this case any new keys will override the old ones only on leafs with same type. Type changes on a node will die.
+
+=back
 
 =head1 SPECIAL FUNCTIONS
 
@@ -271,7 +468,7 @@ anything in here directly,
 parses a complex var name, and stores it in the form.
 
 syntax:
-  $form->_store_value($key, $value);
+  _store_value($target, $key, $value);
 
 keys must start with a string, and can contain various tokens.
 supported key structures are:

@@ -7,7 +7,7 @@ use Scalar::Util qw(blessed);
 use Data::Dumper;
 
 use SL::DBUtils;
-use SL::MoreCommon qw(listify);
+use SL::MoreCommon qw(any listify);
 
 sub get_configs {
   $main::lxdebug->enter_sub();
@@ -243,6 +243,8 @@ sub get_custom_variables {
                      : $cvar->{type} eq 'timestamp' ? $act_var->{timestamp_value}
                      : $cvar->{type} eq 'number'    ? $act_var->{number_value}
                      : $cvar->{type} eq 'customer'  ? $act_var->{number_value}
+                     : $cvar->{type} eq 'vendor'    ? $act_var->{number_value}
+                     : $cvar->{type} eq 'part'      ? $act_var->{number_value}
                      : $cvar->{type} eq 'bool'      ? $act_var->{bool_value}
                      :                                $act_var->{text_value};
       $cvar->{valid} = $valid;
@@ -279,6 +281,12 @@ sub get_custom_variables {
     } elsif ($cvar->{type} eq 'customer') {
       require SL::DB::Customer;
       $cvar->{value} = SL::DB::Manager::Customer->find_by(id => $cvar->{value} * 1);
+    } elsif ($cvar->{type} eq 'vendor') {
+      require SL::DB::Vendor;
+      $cvar->{value} = SL::DB::Manager::Vendor->find_by(id => $cvar->{value} * 1);
+    } elsif ($cvar->{type} eq 'part') {
+      require SL::DB::Part;
+      $cvar->{value} = SL::DB::Manager::Part->find_by(id => $cvar->{value} * 1);
     }
   }
 
@@ -340,7 +348,7 @@ sub save_custom_variables {
 
     } elsif ($config->{type} eq 'bool') {
       push @values, $value ? 't' : 'f', undef, undef, undef;
-    } elsif ($config->{type} eq 'customer') {
+    } elsif (any { $config->{type} eq $_ } qw(customer vendor part)) {
       push @values, undef, undef, undef, $value * 1;
     }
 
@@ -402,6 +410,7 @@ sub render_search_options {
 
   $params{include_prefix}   = 'l_' unless defined($params{include_prefix});
   $params{include_value}  ||= '1';
+  $params{filter_prefix}  ||= '';
 
   my $filter  = $form->parse_html_template('amcvar/search_filter',  \%params);
   my $include = $form->parse_html_template('amcvar/search_include', \%params);
@@ -497,10 +506,16 @@ sub build_filter_query {
 
       $not = 'NOT' if ($params{filter}->{$name} eq 'no');
       push @sub_where,  qq|COALESCE(cvar.bool_value, false) = TRUE|;
-    } elsif ($config->{type} eq 'customer') {
+    } elsif (any { $config->{type} eq $_ } qw(customer vendor part)) {
       next unless $params{filter}->{$name};
 
-      push @sub_where, qq|cvar.number_value * 1 IN (SELECT id FROM customer WHERE name ILIKE ?)|;
+      my $table = $config->{type};
+      push @sub_where, qq|cvar.number_value * 1 IN (SELECT id FROM $table WHERE name ILIKE ?)|;
+      push @sub_values, "%$params{filter}->{$name}%";
+    } elsif ($config->{type} eq 'part') {
+      next unless $params{filter}->{$name};
+
+      push @sub_where, qq|cvar.number_value * 1 IN (SELECT id FROM parts WHERE partnumber ILIKE ?)|;
       push @sub_values, "%$params{filter}->{$name}%";
     }
 
@@ -576,6 +591,8 @@ sub add_custom_variables_to_report {
         : $cfg->{type} eq 'timestamp' ? $ref->{timestamp_value}
         : $cfg->{type} eq 'number'    ? $form->format_amount($myconfig, $ref->{number_value} * 1, $cfg->{precision})
         : $cfg->{type} eq 'customer'  ? (SL::DB::Manager::Customer->find_by(id => 1*$ref->{number_value}) || SL::DB::Customer->new)->name
+        : $cfg->{type} eq 'vendor'    ? (SL::DB::Manager::Vendor->find_by(id => 1*$ref->{number_value})   || SL::DB::Vendor->new)->name
+        : $cfg->{type} eq 'part'      ? (SL::DB::Manager::Part->find_by(id => 1*$ref->{number_value})     || SL::DB::Part->new)->partnumber
         : $cfg->{type} eq 'bool'      ? ($ref->{bool_value} ? $locale->text('Yes') : $locale->text('No'))
         :                               $ref->{text_value};
     }
