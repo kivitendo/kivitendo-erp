@@ -51,7 +51,7 @@ sub invoice_transactions {
   my @values;
 
   my $query =
-    qq|SELECT cus.name,cus.customernumber,ar.invnumber,ar.id,ar.transdate,p.partnumber,i.parts_id,i.qty,i.price_factor,i.discount,i.description,i.lastcost,i.sellprice,i.marge_total,i.marge_percent,i.unit | .
+    qq|SELECT cus.name,cus.customernumber,ar.invnumber,ar.id,ar.transdate,p.partnumber,i.parts_id,i.qty,i.price_factor,i.discount,i.description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit | .
     qq|FROM invoice i | .  
     qq|join ar on (i.trans_id = ar.id) | .
     qq|join parts p on (i.parts_id = p.id) | .
