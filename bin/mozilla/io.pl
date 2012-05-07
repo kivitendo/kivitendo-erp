@@ -1232,7 +1232,7 @@ sub print_form {
   $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
   $form->{templates} = $defaults->templates;
 
-  my ($old_form) = @_;
+  my ($old_form, %params) = @_;
 
   my $inv       = "inv";
   my $due       = "due";
@@ -1662,7 +1662,10 @@ sub print_form {
       ($form->{media} eq 'printer')
       ? $locale->text('sent to printer')
       : $locale->text('emailed to') . " $form->{email}";
-    $form->redirect(qq|$form->{label} $form->{"${inv}number"} $msg|);
+
+    if (!$params{no_redirect}) {
+      $form->redirect(qq|$form->{label} $form->{"${inv}number"} $msg|);
+    }
   }
   if ($form->{printing}) {
    call_sub($display_form);
