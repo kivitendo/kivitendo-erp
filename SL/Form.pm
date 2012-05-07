@@ -594,8 +594,11 @@ sub _prepare_html_template {
   if (-f "templates/webpages/${file}.html") {
     $file = "templates/webpages/${file}.html";
 
+  } elsif (ref $file eq 'SCALAR') {
+    # file is a scalarref, use inline mode
   } else {
     my $info = "Web page template '${file}' not found.\n";
+    $::form->header;
     print qq|<pre>$info</pre>|;
     ::end_of_request();
   }
