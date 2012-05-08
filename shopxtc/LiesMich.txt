@@ -1,0 +1,33 @@
+Varianten können in LxO eigene Artikelnummern haben.
+Die Artikelnummer wird dann automatisch ergänzt um "-" und die Variarions-ID.
+Aus "A1001" wird z.B. "A1001-1" für die erste (Standard) Variante.
+Variations-IDs MÜSSEN!! Lückenlos bei 1 beginnen, da sonst der Shop ins Schleudern kommt!!!!!
+
+Preise werden berechnet: Grundpreis + Preis für die Variante
+Text wird ergänzt: Standardtext + ", Variantengruppe: Variante"
+
+Ein beschreibbares Verzeichnis "tmp" wird als Unterverzeichnis erwartet. 
+z.B.:
+ln -s /tmp
+
+Wenn ein Platzhalterbild eingesetzt werden soll, so muß das Bild zuerst auf 
+den Shopserver übertragen werden.
+<bildname>.jpg 
+
+Dann den Namen <bildname> in der Maske eintragen. Man kann bestimmen, ob
+das Bild immer genommen wird, wenn kein Bild angegeben wird oder nur wenn
+der Upload schief gegangen ist.
+
+Artikelexport (Lx -> Shop) kann ohne Bilderupload durchgeführt werden.
+Spart Bandbreite und Zeit, wenn nur Updates gemacht werden.
+Parameterübergabe:  nofiles=1
+[Shop--Warenexport]
+module=shopxtc/ArtikelErpToShop.php
+nofiles=1
+
+Shop ist Mehrshopfähig. Shopnummer muß beim Aufruf übergeben werden:
+Shop=1
+
+Die Im-/Exportmodule lassen sich auch auf der Konsole oder per Cron-Job aufrufen:
+
+php ArtikelShopToErp.php shop=1 > /tmp/export.log
