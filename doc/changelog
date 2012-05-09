@@ -2,6 +2,17 @@
 # Veränderungen von Lx-Office ERP #
 ###################################
 
+2012-03-01 - Release 2.7.1-unstable
+
+Experimentelle Features:
+
+- Es ist möglich benutzerdefinierte Variablen vom Typ "Lieferant" und "Ware"
+  anzulegen. Für die Auswahl in den webpages steht ein L.vendor_selector und
+  ein L.part_selector zur Verfügung, der einfach das select_tag verwendet.
+  Diese selectoren können/sollen später durch picker ersetzt werden.
+  Die Details werden sich wahrscheinlich noch ändern.
+
+
 2012-03-01 - Release 2.7.0
 
 Größere neue Features
