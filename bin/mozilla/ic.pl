@@ -2016,6 +2016,10 @@ sub parts_language_selection {
 
         $language->{translation}     = $translation;
         $language->{longdescription} = $longdescription;
+
+        $language->{translation_area}     = ($language->{translation_rows} = $form->numtextrows($language->{translation}, 40)) > 1;
+        $language->{longdescription_rows} = max 4, $form->numtextrows($language->{longdescription}, 40);
+
         last;
       }
     }

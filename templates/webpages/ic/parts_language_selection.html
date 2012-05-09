@@ -21,8 +21,14 @@
     [%- FOREACH row = LANGUAGES %]
     <tr class="listrow[% loop.count % 2 %]">
      <td><input type="hidden" id="id_[% loop.count %]" name="id_[% loop.count %]" value="[% HTML.escape(row.id) %]">[% HTML.escape(row.description) %]</td>
-     <td><input  id="translation_[% loop.count %]" name="translation_[% loop.count %]" value="[% HTML.escape(row.translation) %]"></td>
-     <td><input  id="longdescription_[% loop.count %]" name="longdescription_[% loop.count %]" value="[% HTML.escape(row.longdescription) %]"></td>
+     <td>
+       [%- IF row.translation_area %]
+         <textarea id="translation_[% loop.count %]" name="translation_[% loop.count %]" rows="[% HTML.escape(row.translation_rows) %]" cols=40 wrap="soft">[% HTML.escape(row.translation) %]</textarea>
+       [%- ELSE %]
+         <input  id="translation_[% loop.count %]" name="translation_[% loop.count %]" value="[% HTML.escape(row.translation) %]">
+       [%- END %]
+     </td>
+     <td><textarea id="longdescription_[% loop.count %]" name="longdescription_[% loop.count %]" rows="[% HTML.escape(row.longdescription_rows) %]" cols=40 wrap="soft">[% HTML.escape(row.longdescription) %]</textarea></td>
     </tr>
 
     [%- IF loop.last %]
