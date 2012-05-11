@@ -550,8 +550,7 @@ host all lxoffice 127.0.0.1 255.255.255.255 password</programlisting>
 Alias /lx-erp/ /var/www/lx-erp/
 
 &lt;Directory /var/www/lx-erp&gt;
- Options ExecCGI
- Includes FollowSymlinks
+ Options ExecCGI Includes FollowSymlinks
 &lt;/Directory&gt;
 
 &lt;Directory /var/www/lx-erp/users&gt;
