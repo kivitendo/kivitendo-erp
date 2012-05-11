@@ -1298,6 +1298,7 @@ SL::Auth - Authentication and session handling
 =over 4
 
 =item C<set_session_value @values>
+
 =item C<set_session_value %values>
 
 Store all values of C<@values> or C<%values> in the session. Each

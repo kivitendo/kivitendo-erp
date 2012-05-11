@@ -201,6 +201,7 @@ The exceptions are documented here.
 =over 4
 
 =item save_form
+
 =item restore_form
 
 A lot of the old sql-ledger routines are strictly procedural. They search for params in the $form object, do stuff with it, and return a status code.

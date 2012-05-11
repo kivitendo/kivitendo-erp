@@ -1023,6 +1023,8 @@ An expiration date. Note that this is not by default used by C<warehouse_report>
 
 =head1 BUGS
 
+None yet.
+
 =head1 AUTHOR
 
 =cut
