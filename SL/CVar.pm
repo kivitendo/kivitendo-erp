@@ -42,6 +42,15 @@ SQL
       } elsif ($config->{type} eq 'number') {
         $config->{precision} = $1 if ($config->{options} =~ m/precision=(\d+)/i);
 
+      } elsif ($config->{type} eq 'textfield') {
+        $config->{width}  = 30;
+        $config->{height} =  5;
+        $config->{width}  = $1 if ($config->{options} =~ m/width=(\d+)/i);
+        $config->{height} = $1 if ($config->{options} =~ m/height=(\d+)/i);
+
+      } elsif ($config->{type} eq 'text') {
+        $config->{maxlength} = $1 if ($config->{options} =~ m/maxlength=(\d+)/i);
+
       }
 
       $self->_unpack_flags($config);
