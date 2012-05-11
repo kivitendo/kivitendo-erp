@@ -129,6 +129,8 @@ sub _as_bool_yn {
 
 __END__
 
+=encoding utf-8
+
 =head1 NAME
 
 SL::DB::Helper::Attr - attribute helpers
@@ -144,10 +146,18 @@ SL::DB::Helper::Attr - attribute helpers
 
 =head1 DESCRIPTION
 
+Makes attribute helpers.
+
 =head1 FUNCTIONS
+
+see for yourself.
 
 =head1 BUGS
 
+None yet.
+
 =head1 AUTHOR
+
+Sven Schöling <s.schoeling@linet-services.de>
 
 =cut
