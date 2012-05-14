@@ -26,7 +26,7 @@
 [% FOREACH i = paid_indices %]
   [% SET changeable    = 'changeable_'    _ i %]
   [% SET acc_trans_id  = 'acc_trans_id_'  _ i %]
-  [% SET gldate        = 'gldate_'        _ i %]
+  [% SET p_gldate      = 'gldate_'        _ i %]
   [% SET datepaid      = 'datepaid_'      _ i %]
   [% SET source        = 'source_'        _ i %]
   [% SET memo          = 'memo_'          _ i %]
@@ -36,7 +36,7 @@
      <tr style='display:none'>
        <td>
          <input type=hidden name="acc_trans_id_[% i %]" value="[% $acc_trans_id %]">
-         <input type=hidden name="gldate_[% i %]" value="[% $gldate %]">
+         <input type=hidden name="gldate_[% i %]" value="[% $p_gldate %]">
        </td>
      </tr>
 
