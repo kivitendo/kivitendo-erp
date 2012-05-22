@@ -51,7 +51,7 @@ sub new {
 
   my $self = { "FILE" => $file };
 
-  open FH, "$file" or Form->error("$file : $!");
+  open FH, "$file" or $::form->error("$file : $!");
 
   while (<FH>) {
     chomp;
@@ -101,7 +101,7 @@ sub write {
   my ($self) = @_;
 
   my $file = $self->{FILE};
-  my $fh   = IO::File->new($file, "w") || Form->error("$file : $!");
+  my $fh   = IO::File->new($file, "w") || $::form->error("$file : $!");
 
   foreach my $section_name (sort keys %{ $self }) {
     next if $section_name =~ m/^[A-Z]+$/;
@@ -118,4 +118,3 @@ sub write {
 }
 
 1;
-
