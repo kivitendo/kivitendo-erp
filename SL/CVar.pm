@@ -739,6 +739,8 @@ sub parse {
   return $::form->parse_amount(\%::myconfig, $value)          if $config->{type} eq 'number';
   return DateTime->from_lxoffice($value)                      if $config->{type} eq 'date';
   return !ref $value ? SL::DB::Manager::Customer->find_by(id => $value * 1) : $value  if $config->{type} eq 'customer';
+  return !ref $value ? SL::DB::Manager::Vendor->find_by(id => $value * 1)   : $value  if $config->{type} eq 'vendor';
+  return !ref $value ? SL::DB::Manager::Part->find_by(id => $value * 1)     : $value  if $config->{type} eq 'part';
   return $value;
 }
 

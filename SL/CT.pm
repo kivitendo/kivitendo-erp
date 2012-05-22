@@ -448,12 +448,14 @@ sub save_customer {
                               'trans_id'  => $form->{id},
                               'variables' => $form,
                               'always_valid' => 1);
-  CVar->save_custom_variables('dbh'       => $dbh,
-                              'module'    => 'Contacts',
-                              'trans_id'  => $form->{cp_id},
-                              'variables' => $form,
-                              'name_prefix'  => 'cp',
-                              'always_valid' => 1);
+  if ($form->{cp_id}) {
+    CVar->save_custom_variables('dbh'       => $dbh,
+                                'module'    => 'Contacts',
+                                'trans_id'  => $form->{cp_id},
+                                'variables' => $form,
+                                'name_prefix'  => 'cp',
+                                'always_valid' => 1);
+  }
 
   my $rc = $dbh->commit();
 
@@ -663,12 +665,14 @@ sub save_vendor {
                               'trans_id'  => $form->{id},
                               'variables' => $form,
                               'always_valid' => 1);
-  CVar->save_custom_variables('dbh'       => $dbh,
-                              'module'    => 'Contacts',
-                              'trans_id'  => $form->{cp_id},
-                              'variables' => $form,
-                              'name_prefix'  => 'cp',
-                              'always_valid' => 1);
+  if ($form->{cp_id}) {
+    CVar->save_custom_variables('dbh'       => $dbh,
+                                'module'    => 'Contacts',
+                                'trans_id'  => $form->{cp_id},
+                                'variables' => $form,
+                                'name_prefix'  => 'cp',
+                                'always_valid' => 1);
+  }
 
   my $rc = $dbh->commit();
 
