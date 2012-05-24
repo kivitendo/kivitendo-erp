@@ -196,7 +196,7 @@ sub get_spoolfiles {
     }
   }
 
-  if ($form->{type} =~ /(invoice|sales_order|sales_quotation|puchase_order|request_quotation|packing_list)$/) {
+  if ($form->{type} =~ /(invoice|sales_order|sales_quotation|purchase_order|request_quotation|packing_list)$/) {
     if ($form->{transdatefrom}) {
       $query .= " AND a.transdate >= ?";
       push(@values, $form->{transdatefrom});

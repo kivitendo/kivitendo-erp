@@ -41,6 +41,9 @@ paramater
 varsion
 fomr
 puhs
+invoce
+CONTANTS
+puchase
 );
 
 $testcount = scalar(@Support::Files::testitems);

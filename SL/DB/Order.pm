@@ -155,7 +155,7 @@ sub number {
   my %number_method = (
     sales_order       => 'ordnumber',
     sales_quotation   => 'quonumber',
-    puchase_order     => 'ordnumber',
+    purchase_order    => 'ordnumber',
     request_quotation => 'quonumber',
   );
 
