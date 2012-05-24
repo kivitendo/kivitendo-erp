@@ -29,7 +29,7 @@ use POSIX qw(strftime getcwd);
 use Archive::Zip qw(:ERROR_CODES :CONSTANTS);
 
 use SL::Common;
-use SL::DATEV;
+use SL::DATEV qw(:CONSTANTS);
 
 use strict;
 
@@ -45,9 +45,10 @@ sub export {
   $::lxdebug->enter_sub;
   $::auth->assert('datev_export');
 
-  DATEV->get_datev_stamm(\%::myconfig, $::form);
+  my $stamm = SL::DATEV->new->get_datev_stamm;
+
   $::form->header;
-  print $::form->parse_html_template('datev/export');
+  print $::form->parse_html_template('datev/export', $stamm);
 
   $::lxdebug->leave_sub;
 }
@@ -85,48 +86,41 @@ sub export_stammdaten {
 }
 
 sub export3 {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('datev_export');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+  my %data = (
+    exporttype => $::form->{exporttype} ? DATEV_ET_STAMM : DATEV_ET_BUCHUNGEN,
+    format     => $::form->{kne}        ? DATEV_FORMAT_KNE : DATEV_FORMAT_OBE,
+  );
 
-  $main::auth->assert('datev_export');
-
-  DATEV::clean_temporary_directories();
-
-  DATEV->save_datev_stamm(\%myconfig, \%$form);
-
-  my $link = "datev.pl?action=download&download_token=";
-
-  if ($form->{kne}) {
-    my $result = DATEV->kne_export(\%myconfig, \%$form);
-    if ($result && @{ $result->{filenames} }) {
-      $link .= Q($result->{download_token});
-
-      print(qq|<br><b>| . $locale->text('KNE-Export erfolgreich!') . qq|</b><br><br><a href="$link">Download</a>|);
-
-      print $form->parse_html_template('datev/net_gross_difference') if @{ $form->{net_gross_differences} };
-
-    } else {
-      $form->error("KNE-Export schlug fehl.");
-    }
+  if ($::form->{exporttype} == DATEV_ET_STAMM) {
+    $data{accnofrom}  = $::form->{accnofrom},
+    $data{accnoto}    = $::form->{accnoto},
+  } elsif ($::form->{exporttype} == DATEV_ET_BUCHUNGEN) {
+    @data{qw(from to)} = _get_dates(
+      $::form->{zeitraum}, $::form->{monat}, $::form->{quartal},
+      $::form->{transdatefrom}, $::form->{transdateto},
+    );
   } else {
-    # OBE-Export nicht implementiert.
-
-    # my @filenames = DATEV->obe_export(\%myconfig, \%$form);
-    # if (@filenames) {
-    #   print(qq|<br><b>| . $locale->text('OBE-Export erfolgreich!') . qq|</b><br>|);
-    #   $link .= "&filenames=" . $form->escape(join(":", @filenames));
-    #   print(qq|<br><a href="$link">Download</a>|);
-    # } else {
-    #   $form->error("OBE-Export schlug fehl.");
-    # }
+    die 'invalid exporttype';
   }
 
-  print("</body></html>");
+  my $datev = SL::DATEV->new(%data);
 
-  $main::lxdebug->leave_sub();
+  $datev->clean_temporary_directories;
+  $datev->save_datev_stamm($::form);
+
+  $datev->export;
+
+  if (!$datev->errors) {
+    $::form->header;
+    print $::form->parse_html_template('datev/export3', { datev => $datev });
+  } else {
+    $::form->error("Export schlug fehl.\n" . join "\n", $datev->errors);
+  }
+
+  $::lxdebug->leave_sub;
 }
 
 sub download {
@@ -135,14 +129,16 @@ sub download {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  $main::auth->assert('datev_export');
+  $::auth->assert('datev_export');
 
   my $tmp_name = Common->tmpname();
   my $zip_name = strftime("kivitendo-datev-export-%Y%m%d.zip", localtime(time()));
 
   my $cwd = getcwd();
 
-  my $path = DATEV::get_path_for_download_token($form->{download_token});
+  my $datev = SL::DATEV->new(download_token => $form->{download_token});
+
+  my $path = $datev->export_path;
   if (!$path) {
     $form->error($locale->text("Your download does not exist anymore. Please re-run the DATEV export assistant."));
   }
@@ -153,7 +149,6 @@ sub download {
 
   if (!@filenames) {
     chdir($cwd);
-    DATEV::clean_temporary_directories();
     $form->error($locale->text("Your download does not exist anymore. Please re-run the DATEV export assistant."));
   }
 
@@ -175,7 +170,31 @@ sub download {
 
   unlink($tmp_name);
 
-  DATEV::clean_temporary_directories();
-
   $main::lxdebug->leave_sub();
+}
+
+sub _get_dates {
+  $::lxdebug->enter_sub;
+
+  my ($mode, $month, $quarter, $transdatefrom, $transdateto) = @_;
+  my ($fromdate, $todate);
+
+  if ($mode eq "monat") {
+    $fromdate = DateTime->new(day => 1, month => $month, year => DateTime->today->year);
+    $todate   = $fromdate->clone->add(months => 1)->add(days => -1);
+  } elsif ($mode eq "quartal") {
+    die 'quarter out of of bounds' if $quarter < 1 || $quarter > 4;
+    $fromdate = DateTime->new(day => 1, month => (3 * $quarter - 2), year => DateTime->today->year);
+    $todate   = $fromdate->clone->add(months => 3)->add(days => -1);
+  } elsif ($mode eq "zeit") {
+    $fromdate = DateTime->from_lxoffice($transdatefrom);
+    $todate   = DateTime->from_lxoffice($transdateto);
+    die 'need from and to time' unless $fromdate && $todate;
+  } else {
+    die 'undefined interval mode';
+  }
+
+  $::lxdebug->leave_sub;
+
+  return ($fromdate, $todate);
 }

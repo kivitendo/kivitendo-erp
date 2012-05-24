@@ -1,0 +1,24 @@
+[%- USE T8 %]
+[%- USE HTML %]
+<html>
+<body>
+  Export in Bearbeitung<br>
+
+  <br>
+  Done.
+  <br>
+
+  <br><b>[% 'KNE-Export erfolgreich!' | $T8 %]</b>
+  <br>
+  <br>
+  <a href="datev.pl?action=download&download_token=[% datev.download_token | html %]">Download</a>
+
+[% IF datev.net_gross_differences.size %]
+[% INCLUDE 'datev/net_gross_difference'
+  net_gross_differences     = datev.net_gross_differences,
+  sum_net_gross_differences = datev.sum_net_gross_differences
+%]
+[% END %]
+
+</body>
+</html>

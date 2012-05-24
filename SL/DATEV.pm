@@ -24,7 +24,7 @@
 # Datev export module
 #======================================================================
 
-package DATEV;
+package SL::DATEV;
 
 use utf8;
 use strict;
@@ -34,15 +34,64 @@ use SL::DATEV::KNEFile;
 use SL::Taxkeys;
 
 use Data::Dumper;
+use DateTime;
+use Exporter qw(import);
 use File::Path;
-use List::Util qw(max);
+use List::Util qw(max sum);
 use Time::HiRes qw(gettimeofday);
+
+{
+  my $i = 0;
+  use constant {
+    DATEV_ET_BUCHUNGEN => $i++,
+    DATEV_ET_STAMM     => $i++,
+
+    DATEV_FORMAT_KNE   => $i++,
+    DATEV_FORMAT_OBE   => $i++,
+  };
+}
+
+my @export_constants = qw(DATEV_ET_BUCHUNGEN DATEV_ET_STAMM DATEV_FORMAT_KNE DATEV_FORMAT_OBE);
+our @EXPORT_OK = (@export_constants);
+our %EXPORT_TAGS = (CONSTANTS => [ @export_constants ]);
+
+
+sub new {
+  my $class = shift;
+  my %data  = @_;
+
+  my $obj = bless {}, $class;
+
+  $obj->$_($data{$_}) for keys %data;
+
+  $obj;
+}
+
+sub exporttype {
+  my $self = shift;
+  $self->{exporttype} = $_[0] if @_;
+  return $self->{exporttype};
+}
+
+sub has_exporttype {
+  defined $_[0]->{exporttype};
+}
+
+sub format {
+  my $self = shift;
+  $self->{format} = $_[0] if @_;
+  return $self->{format};
+}
+
+sub has_format {
+  defined $_[0]->{format};
+}
 
 sub _get_export_path {
   $main::lxdebug->enter_sub();
 
   my ($a, $b) = gettimeofday();
-  my $path    = get_path_for_download_token("${a}-${b}-${$}");
+  my $path    = _get_path_for_download_token("${a}-${b}-${$}");
 
   mkpath($path) unless (-d $path);
 
@@ -51,14 +100,14 @@ sub _get_export_path {
   return $path;
 }
 
-sub get_path_for_download_token {
+sub _get_path_for_download_token {
   $main::lxdebug->enter_sub();
 
-  my $token = shift;
+  my $token = shift || '';
   my $path;
 
   if ($token =~ m|^(\d+)-(\d+)-(\d+)$|) {
-    $path = $::lx_office_conf{paths}->{userspath} . "/datev-export-${1}-${2}-${3}";
+    $path = $::lx_office_conf{paths}->{userspath} . "/datev-export-${1}-${2}-${3}/";
   }
 
   $main::lxdebug->leave_sub();
@@ -66,7 +115,7 @@ sub get_path_for_download_token {
   return $path;
 }
 
-sub get_download_token_for_path {
+sub _get_download_token_for_path {
   $main::lxdebug->enter_sub();
 
   my $path = shift;
@@ -81,11 +130,110 @@ sub get_download_token_for_path {
   return $token;
 }
 
+sub download_token {
+  my $self = shift;
+  $self->{download_token} = $_[0] if @_;
+  return $self->{download_token} ||= _get_download_token_for_path($self->export_path);
+}
+
+sub export_path {
+  my ($self) = @_;
+
+  return  $self->{export_path} ||= _get_path_for_download_token($self->{download_token}) || _get_export_path();
+}
+
+sub add_filenames {
+  my $self = shift;
+  push @{ $self->{filenames} ||= [] }, @_;
+}
+
+sub filenames {
+  return @{ $_[0]{filenames} || [] };
+}
+
+sub add_error {
+  my $self = shift;
+  push @{ $self->{errors} ||= [] }, @_;
+}
+
+sub errors {
+  return @{ $_[0]{errors} || [] };
+}
+
+sub add_net_gross_differences {
+  my $self = shift;
+  push @{ $self->{net_gross_differences} ||= [] }, @_;
+}
+
+sub net_gross_differences {
+  return @{ $_[0]{net_gross_differences} || [] };
+}
+
+sub sum_net_gross_differences {
+  return sum $_[0]->net_gross_differences;
+}
+
+sub from {
+ my $self = shift;
+
+ if (@_) {
+   $self->{from} = $_[0];
+ }
+
+ return $self->{from};
+}
+
+sub to {
+ my $self = shift;
+
+ if (@_) {
+   $self->{to} = $_[0];
+ }
+
+ return $self->{to};
+}
+
+sub accnofrom {
+ my $self = shift;
+
+ if (@_) {
+   $self->{accnofrom} = $_[0];
+ }
+
+ return $self->{accnofrom};
+}
+
+sub accnoto {
+ my $self = shift;
+
+ if (@_) {
+   $self->{accnoto} = $_[0];
+ }
+
+ return $self->{accnoto};
+}
+
+
+sub dbh {
+  my $self = shift;
+
+  if (@_) {
+    $self->{dbh} = $_[0];
+    $self->{provided_dbh} = 1;
+  }
+
+  $self->{dbh} ||= $::form->get_standard_dbh;
+}
+
+sub provided_dbh {
+  $_[0]{provided_dbh};
+}
+
 sub clean_temporary_directories {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
 
   foreach my $path (glob($::lx_office_conf{paths}->{userspath} . "/datev-export-*")) {
-    next unless (-d $path);
+    next unless -d $path;
 
     my $mtime = (stat($path))[9];
     next if ((time() - $mtime) < 8 * 60 * 60);
@@ -93,7 +241,7 @@ sub clean_temporary_directories {
     rmtree $path;
   }
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub _fill {
@@ -120,225 +268,88 @@ sub _fill {
 }
 
 sub get_datev_stamm {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $query = qq|SELECT * FROM datev|;
-  my $sth   = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  my $ref = $sth->fetchrow_hashref("NAME_lc");
-
-  map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  $sth->finish;
-  $dbh->disconnect;
-  $main::lxdebug->leave_sub();
+  return $_[0]{stamm} ||= selectfirst_hashref_query($::form, $_[0]->dbh, 'SELECT * FROM datev');
 }
 
 sub save_datev_stamm {
-  $main::lxdebug->enter_sub();
+  my ($self, $data) = @_;
 
-  my ($self, $myconfig, $form) = @_;
+  do_query($::form, $self->dbh, 'DELETE FROM datev');
 
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my @columns = qw(beraternr beratername dfvkz mandantennr datentraegernr abrechnungsnr);
 
-  my $query = qq|DELETE FROM datev|;
-  $dbh->do($query) || $form->dberror($query);
+  my $query = "INSERT INTO datev (" . join(', ', @columns) . ") VALUES (" . join(', ', ('?') x @columns) . ")";
+  do_query($::form, $self->dbh, $query, map { $data->{$_} } @columns);
 
-  $query = qq|INSERT INTO datev
-              (beraternr, beratername, dfvkz, mandantennr, datentraegernr, abrechnungsnr) VALUES
-              (|
-    . $dbh->quote($form->{beraternr}) . qq|,|
-    . $dbh->quote($form->{beratername}) . qq|,|
-    . $dbh->quote($form->{dfvkz}) . qq|,
-              |
-    . $dbh->quote($form->{mandantennr}) . qq|,|
-    . $dbh->quote($form->{datentraegernr}) . qq|,|
-    . $dbh->quote($form->{abrechnungsnr}) . qq|)|;
-  my $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-  $sth->finish;
+  $self->dbh->commit unless $self->provided_dbh;
+}
 
-  $dbh->commit;
-  $dbh->disconnect;
-  $main::lxdebug->leave_sub();
+sub export {
+  my ($self) = @_;
+  my $result;
+
+  die 'no format set!' unless $self->has_format;
+
+  if ($self->format == DATEV_FORMAT_KNE) {
+    $result = $self->kne_export;
+  } elsif ($self->format == DATEV_FORMAT_OBE) {
+    $result = $self->obe_export;
+  } else {
+    die 'unrecognized export format';
+  }
+
+  return $result;
 }
 
 sub kne_export {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
+  my ($self) = @_;
   my $result;
 
-  if ($form->{exporttype} == 0) {
-    $result = kne_buchungsexport($myconfig, $form);
-  } else {
-    $result = kne_stammdatenexport($myconfig, $form);
-  }
+  die 'no exporttype set!' unless $self->has_exporttype;
 
-  $main::lxdebug->leave_sub();
+  if ($self->exporttype == DATEV_ET_BUCHUNGEN) {
+    $result = $self->kne_buchungsexport;
+  } elsif ($self->exporttype == DATEV_ET_STAMM) {
+    $result = $self->kne_stammdatenexport;
+  } else {
+    die 'unrecognized exporttype';
+  }
 
   return $result;
 }
 
 sub obe_export {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
-  $dbh->commit;
-  $dbh->disconnect;
-  $main::lxdebug->leave_sub();
+  die 'not yet implemented';
 }
 
-sub get_dates {
-  $main::lxdebug->enter_sub();
+sub fromto {
+  my ($self) = @_;
 
-  my ($zeitraum, $monat, $quartal, $transdatefrom, $transdateto) = @_;
-  my ($fromto, $jahr, $leap);
+  return unless $self->from && $self->to;
 
-  my $form = $main::form;
-
-  $fromto = "transdate >= ";
-
-  my @a = localtime;
-  $a[5] += 1900;
-  $jahr = $a[5];
-  if ($zeitraum eq "monat") {
-  SWITCH: {
-      $monat eq "1" && do {
-        $form->{fromdate} = "1.1.$jahr";
-        $form->{todate}   = "31.1.$jahr";
-        last SWITCH;
-      };
-      $monat eq "2" && do {
-        $form->{fromdate} = "1.2.$jahr";
-
-        #this works from 1901 to 2099, 1900 and 2100 fail.
-        $leap = ($jahr % 4 == 0) ? "29" : "28";
-        $form->{todate} = "$leap.2.$jahr";
-        last SWITCH;
-      };
-      $monat eq "3" && do {
-        $form->{fromdate} = "1.3.$jahr";
-        $form->{todate}   = "31.3.$jahr";
-        last SWITCH;
-      };
-      $monat eq "4" && do {
-        $form->{fromdate} = "1.4.$jahr";
-        $form->{todate}   = "30.4.$jahr";
-        last SWITCH;
-      };
-      $monat eq "5" && do {
-        $form->{fromdate} = "1.5.$jahr";
-        $form->{todate}   = "31.5.$jahr";
-        last SWITCH;
-      };
-      $monat eq "6" && do {
-        $form->{fromdate} = "1.6.$jahr";
-        $form->{todate}   = "30.6.$jahr";
-        last SWITCH;
-      };
-      $monat eq "7" && do {
-        $form->{fromdate} = "1.7.$jahr";
-        $form->{todate}   = "31.7.$jahr";
-        last SWITCH;
-      };
-      $monat eq "8" && do {
-        $form->{fromdate} = "1.8.$jahr";
-        $form->{todate}   = "31.8.$jahr";
-        last SWITCH;
-      };
-      $monat eq "9" && do {
-        $form->{fromdate} = "1.9.$jahr";
-        $form->{todate}   = "30.9.$jahr";
-        last SWITCH;
-      };
-      $monat eq "10" && do {
-        $form->{fromdate} = "1.10.$jahr";
-        $form->{todate}   = "31.10.$jahr";
-        last SWITCH;
-      };
-      $monat eq "11" && do {
-        $form->{fromdate} = "1.11.$jahr";
-        $form->{todate}   = "30.11.$jahr";
-        last SWITCH;
-      };
-      $monat eq "12" && do {
-        $form->{fromdate} = "1.12.$jahr";
-        $form->{todate}   = "31.12.$jahr";
-        last SWITCH;
-      };
-    }
-    $fromto .=
-      "'" . $form->{fromdate} . "' and transdate <= '" . $form->{todate} . "'";
-  }
-
-  elsif ($zeitraum eq "quartal") {
-    if ($quartal == 1) {
-      $fromto .=
-        "'01.01." . $jahr . "' and transdate <= '31.03." . $jahr . "'";
-    } elsif ($quartal == 2) {
-      $fromto .=
-        "'01.04." . $jahr . "' and transdate <= '30.06." . $jahr . "'";
-    } elsif ($quartal == 3) {
-      $fromto .=
-        "'01.07." . $jahr . "' and transdate <= '30.09." . $jahr . "'";
-    } elsif ($quartal == 4) {
-      $fromto .=
-        "'01.10." . $jahr . "' and transdate <= '31.12." . $jahr . "'";
-    }
-  }
-
-  elsif ($zeitraum eq "zeit") {
-    $fromto            .= "'" . $transdatefrom . "' and transdate <= '" . $transdateto . "'";
-    my ($yy, $mm, $dd)  = $main::locale->parse_date(\%main::myconfig, $transdatefrom);
-    $jahr               = $yy;
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return ($fromto, $jahr);
+  return "transdate >= '" . $self->from->to_lxoffice . "' and transdate <= '" . $self->to->to_lxoffice . "'";
 }
 
 sub _sign {
-  my $value = shift;
-
-  return $value < 0 ? -1
-    :    $value > 0 ?  1
-    :                  0;
+  $_[0] <=> 0;
 }
 
 sub _get_transactions {
   $main::lxdebug->enter_sub();
-
+  my $self     = shift;
   my $fromto   =  shift;
+  my $progress_callback = shift || sub {};
 
-  my $myconfig =  \%main::myconfig;
   my $form     =  $main::form;
 
-  my $dbh      =  $form->get_standard_dbh($myconfig);
-
   my ($notsplitindex);
-  my @errors   = ();
-
-  $form->{net_gross_differences}     = [];
-  $form->{sum_net_gross_differences} = 0;
 
   $fromto      =~ s/transdate/ac\.transdate/g;
 
   my $taxkeys  = Taxkeys->new();
   my $filter   = '';            # Useful for debugging purposes
 
-  my %all_taxchart_ids = selectall_as_map($form, $dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
+  my %all_taxchart_ids = selectall_as_map($form, $self->dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
 
   my $query    =
     qq|SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
@@ -385,14 +396,14 @@ sub _get_transactions {
 
        ORDER BY trans_id, acc_trans_id|;
 
-  my $sth = prepare_execute_query($form, $dbh, $query);
-  $form->{DATEV} = [];
+  my $sth = prepare_execute_query($form, $self->dbh, $query);
+  $self->{DATEV} = [];
 
   my $counter = 0;
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
     $counter++;
     if (($counter % 500) == 0) {
-      print("$counter ");
+      $progress_callback->($counter);
     }
 
     my $trans    = [ $ref ];
@@ -406,8 +417,8 @@ sub _get_transactions {
       last unless ($ref2);
 
       if ($ref2->{trans_id} != $trans->[0]->{trans_id}) {
-        $form->error("Unbalanced ledger! old trans_id " . $trans->[0]->{trans_id} . " new trans_id " . $ref2->{trans_id} . " count $count");
-        ::end_of_request();
+        $self->add_error("Unbalanced ledger! old trans_id " . $trans->[0]->{trans_id} . " new trans_id " . $ref2->{trans_id} . " count $count");
+        return;
       }
 
       push @{ $trans }, $ref2;
@@ -437,7 +448,7 @@ sub _get_transactions {
     my %taxid_taxkeys = ();
     my $absumsatz     = 0;
     if (scalar(@{$trans}) <= 2) {
-      push @{ $form->{DATEV} }, $trans;
+      push @{ $self->{DATEV} }, $trans;
       next;
     }
 
@@ -471,7 +482,7 @@ sub _get_transactions {
         $new_trans{'umsatz'}      = abs($trans->[$j]->{'amount'}) * $ml;
         $trans->[$j]->{'umsatz'}  = abs($trans->[$j]->{'amount'}) * $ml;
 
-        push @{ $form->{DATEV} }, [ \%new_trans, $trans->[$j] ];
+        push @{ $self->{DATEV} }, [ \%new_trans, $trans->[$j] ];
 
       } elsif (($j != $notsplitindex) && !$trans->[$j]->{is_tax}) {
         my %tax_info = $taxkeys->get_full_tax_info('transdate' => $trans->[$j]->{transdate});
@@ -500,8 +511,8 @@ sub _get_transactions {
           $absumsatz               -= $rounded;
         }
 
-        push @{ $form->{DATEV} }, [ \%new_trans, $trans->[$j] ];
-        push @taxed, $form->{DATEV}->[-1];
+        push @{ $self->{DATEV} }, [ \%new_trans, $trans->[$j] ];
+        push @taxed, $self->{DATEV}->[-1];
       }
     }
 
@@ -545,92 +556,55 @@ sub _get_transactions {
 
     $absumsatz = $form->round_amount($absumsatz, 2);
     if (abs($absumsatz) >= (0.01 * (1 + scalar @taxed))) {
-      push @errors, "Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz)\n";
+      $self->add_error("Datev-Export fehlgeschlagen! Bei Transaktion $trans->[0]->{trans_id} ($absumsatz)");
 
     } elsif (abs($absumsatz) >= 0.01) {
-      push @{ $form->{net_gross_differences} }, $absumsatz;
-      $form->{sum_net_gross_differences} += $absumsatz;
+      $self->add_net_gross_differences($absumsatz);
     }
   }
 
   $sth->finish();
 
-  $form->error(join("<br>\n", @errors)) if (@errors);
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub make_kne_data_header {
   $main::lxdebug->enter_sub();
 
-  my ($myconfig, $form, $fromto, $start_jahr) = @_;
+  my ($self, $form) = @_;
   my ($primanota);
 
-  my $jahr = $start_jahr;
-  if (!$jahr) {
-    my @a = localtime;
-    $jahr = $a[5];
-  }
+  my $stamm = $self->get_datev_stamm;
+
+  my $jahr = $self->from ? $self->from->year : DateTime->today->year;
 
   #Header
   my $header  = "\x1D\x181";
-  $header    .= _fill($form->{datentraegernr}, 3, ' ', 'left');
-  $header    .= ($fromto) ? "11" : "13"; # Anwendungsnummer
-  $header    .= _fill($form->{dfvkz}, 2, '0');
-  $header    .= _fill($form->{beraternr}, 7, '0');
-  $header    .= _fill($form->{mandantennr}, 5, '0');
-  $header    .= _fill($form->{abrechnungsnr} . $jahr, 6, '0');
+  $header    .= _fill($stamm->{datentraegernr}, 3, ' ', 'left');
+  $header    .= ($self->fromto) ? "11" : "13"; # Anwendungsnummer
+  $header    .= _fill($stamm->{dfvkz}, 2, '0');
+  $header    .= _fill($stamm->{beraternr}, 7, '0');
+  $header    .= _fill($stamm->{mandantennr}, 5, '0');
+  $header    .= _fill($stamm->{abrechnungsnr} . $jahr, 6, '0');
 
-  $fromto         =~ s/transdate|>=|and|\'|<=//g;
-  my ($from, $to) =  split /   /, $fromto;
-  $from           =~ s/ //g;
-  $to             =~ s/ //g;
+  $header .= $self->from ? $self->from->strftime('%d%m%y') : '';
+  $header .= $self->to   ? $self->to->strftime('%d%m%y')   : '';
 
-  if ($from ne "") {
-    my ($fday, $fmonth, $fyear) = split(/\./, $from);
-    if (length($fmonth) < 2) {
-      $fmonth = "0" . $fmonth;
-    }
-    if (length($fday) < 2) {
-      $fday = "0" . $fday;
-    }
-    $from = $fday . $fmonth . substr($fyear, -2, 2);
-  } else {
-    $from = "";
-  }
-
-  $header .= $from;
-
-  if ($to ne "") {
-    my ($tday, $tmonth, $tyear) = split(/\./, $to);
-    if (length($tmonth) < 2) {
-      $tmonth = "0" . $tmonth;
-    }
-    if (length($tday) < 2) {
-      $tday = "0" . $tday;
-    }
-    $to = $tday . $tmonth . substr($tyear, -2, 2);
-  } else {
-    $to = "";
-  }
-  $header .= $to;
-
-  if ($fromto ne "") {
+  if ($self->fromto) {
     $primanota = "001";
     $header .= $primanota;
   }
 
-  $header .= _fill($form->{passwort}, 4, '0');
+  $header .= _fill($stamm->{passwort}, 4, '0');
   $header .= " " x 16;       # Anwendungsinfo
   $header .= " " x 16;       # Inputinfo
   $header .= "\x79";
 
   #Versionssatz
-  my $versionssatz  = $form->{exporttype} == 0 ? "\xB5" . "1," : "\xB6" . "1,";
+  my $versionssatz  = $self->exporttype == DATEV_ET_BUCHUNGEN ? "\xB5" . "1," : "\xB6" . "1,";
 
-  my $dbh           = $form->get_standard_dbh($myconfig);
   my $query         = qq|SELECT accno FROM chart LIMIT 1|;
-  my $ref           = selectfirst_hashref_query($form, $dbh, $query);
+  my $ref           = selectfirst_hashref_query($form, $self->dbh, $query);
 
   $versionssatz    .= length $ref->{accno};
   $versionssatz    .= ",";
@@ -683,12 +657,12 @@ sub trim_leading_zeroes {
 sub make_ed_versionset {
   $main::lxdebug->enter_sub();
 
-  my ($header, $filename, $blockcount, $fromto) = @_;
+  my ($self, $header, $filename, $blockcount) = @_;
 
   my $versionset  = "V" . substr($filename, 2, 5);
   $versionset    .= substr($header, 6, 22);
 
-  if ($fromto ne "") {
+  if ($self->fromto) {
     $versionset .= "0000" . substr($header, 28, 19);
   } else {
     my $datum = " " x 16;
@@ -709,12 +683,14 @@ sub make_ed_versionset {
 sub make_ev_header {
   $main::lxdebug->enter_sub();
 
-  my ($form, $fileno) = @_;
+  my ($self, $form, $fileno) = @_;
 
-  my $ev_header  = _fill($form->{datentraegernr}, 3, ' ', 'left');
+  my $stamm = $self->get_datev_stamm;
+
+  my $ev_header  = _fill($stamm->{datentraegernr}, 3, ' ', 'left');
   $ev_header    .= "   ";
-  $ev_header    .= _fill($form->{beraternr}, 7, ' ', 'left');
-  $ev_header    .= _fill($form->{beratername}, 9, ' ', 'left');
+  $ev_header    .= _fill($stamm->{beraternr}, 7, ' ', 'left');
+  $ev_header    .= _fill($stamm->{beratername}, 9, ' ', 'left');
   $ev_header    .= " ";
   $ev_header    .= (_fill($fileno, 5, '0')) x 2;
   $ev_header    .= " " x 95;
@@ -727,47 +703,39 @@ sub make_ev_header {
 sub kne_buchungsexport {
   $main::lxdebug->enter_sub();
 
-  my ($myconfig, $form) = @_;
+  my ($self) = @_;
+
+  my $form = $::form;
 
   my @filenames;
 
-  my $export_path = _get_export_path() . "/";
   my $filename    = "ED00000";
   my $evfile      = "EV01";
   my @ed_versionset;
   my $fileno = 0;
 
-  $form->header;
-  print qq|
-  <html>
-  <body>Export in Bearbeitung<br>
-  Buchungss&auml;tze verarbeitet:
-|;
+  my $fromto = $self->fromto;
 
-  my ($fromto, $start_jahr) =
-    &get_dates($form->{zeitraum}, $form->{monat},
-               $form->{quartal},  $form->{transdatefrom},
-               $form->{transdateto});
-  _get_transactions($fromto);
+  $self->_get_transactions($fromto);
+
+  return if $self->errors;
+
   my $counter = 0;
-  print qq|<br>2. Durchlauf:|;
-  while (scalar(@{ $form->{DATEV} })) {
+
+  while (scalar(@{ $self->{DATEV} || [] })) {
     my $umsatzsumme = 0;
     $filename++;
-    my $ed_filename = $export_path . $filename;
+    my $ed_filename = $self->export_path . $filename;
     push(@filenames, $filename);
-    my $header = &make_kne_data_header($myconfig, $form, $fromto, $start_jahr);
+    my $header = $self->make_kne_data_header($form);
 
     my $kne_file = SL::DATEV::KNEFile->new();
     $kne_file->add_block($header);
 
-    while (scalar(@{ $form->{DATEV} }) > 0) {
-      my $transaction = shift @{ $form->{DATEV} };
+    while (scalar(@{ $self->{DATEV} }) > 0) {
+      my $transaction = shift @{ $self->{DATEV} };
       my $trans_lines = scalar(@{$transaction});
       $counter++;
-      if (($counter % 500) == 0) {
-        print("$counter ");
-      }
 
       my $umsatz         = 0;
       my $gegenkonto     = "";
@@ -885,13 +853,13 @@ sub kne_buchungsexport {
     print(ED $kne_file->get_data());
     close(ED);
 
-    $ed_versionset[$fileno] = &make_ed_versionset($header, $filename, $kne_file->get_block_count(), $fromto);
+    $ed_versionset[$fileno] = $self->make_ed_versionset($header, $filename, $kne_file->get_block_count());
     $fileno++;
   }
 
   #Make EV Verwaltungsdatei
-  my $ev_header = &make_ev_header($form, $fileno);
-  my $ev_filename = $export_path . $evfile;
+  my $ev_header = $self->make_ev_header($form, $fileno);
+  my $ev_filename = $self->export_path . $evfile;
   push(@filenames, $evfile);
   open(EV, ">", $ev_filename) or die "can't open outputfile: EV01\n";
   print(EV $ev_header);
@@ -900,29 +868,25 @@ sub kne_buchungsexport {
     print(EV $ed_versionset[$file]);
   }
   close(EV);
-  print qq|<br>Done. <br>
-|;
   ###
+
+  $self->add_filenames(@filenames);
+
   $main::lxdebug->leave_sub();
 
-  return { 'download_token' => get_download_token_for_path($export_path), 'filenames' => \@filenames };
+  return { 'download_token' => $self->download_token, 'filenames' => \@filenames };
 }
 
 sub kne_stammdatenexport {
   $main::lxdebug->enter_sub();
 
-  my ($myconfig, $form) = @_;
-  $form->{abrechnungsnr} = "99";
+  my ($self) = @_;
+  my $form = $::form;
 
-  $form->header;
-  print qq|
-  <html>
-  <body>Export in Bearbeitung<br>
-|;
+  $self->get_datev_stamm->{abrechnungsnr} = "99";
 
   my @filenames;
 
-  my $export_path = _get_export_path() . "/";
   my $filename    = "ED00000";
   my $evfile      = "EV01";
   my @ed_versionset;
@@ -933,26 +897,22 @@ sub kne_stammdatenexport {
   my $total_bytes     = 256;
   my $buchungssatz    = "";
   $filename++;
-  my $ed_filename = $export_path . $filename;
+  my $ed_filename = $self->export_path . $filename;
   push(@filenames, $filename);
   open(ED, ">", $ed_filename) or die "can't open outputfile: $!\n";
-  my $header = &make_kne_data_header($myconfig, $form, "");
+  my $header = $self->make_kne_data_header($form);
   $remaining_bytes -= length($header);
 
   my $fuellzeichen;
-  our $fromto;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
 
   my (@where, @values) = ((), ());
-  if ($form->{accnofrom}) {
+  if ($self->accnofrom) {
     push @where, 'c.accno >= ?';
-    push @values, $form->{accnofrom};
+    push @values, $self->accnofrom;
   }
-  if ($form->{accnoto}) {
+  if ($self->accnoto) {
     push @where, 'c.accno <= ?';
-    push @values, $form->{accnoto};
+    push @values, $self->accnoto;
   }
 
   my $where_str = @where ? ' WHERE ' . join(' AND ', map { "($_)" } @where) : '';
@@ -962,7 +922,7 @@ sub kne_stammdatenexport {
                      $where_str
                      ORDER BY c.accno|;
 
-  my $sth = $dbh->prepare($query);
+  my $sth = $self->dbh->prepare($query);
   $sth->execute(@values) || $form->dberror($query);
 
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
@@ -1002,10 +962,10 @@ sub kne_stammdatenexport {
 
   #Make EV Verwaltungsdatei
   $ed_versionset[0] =
-    &make_ed_versionset($header, $filename, $blockcount, $fromto);
+    $self->make_ed_versionset($header, $filename, $blockcount);
 
-  my $ev_header = &make_ev_header($form, $fileno);
-  my $ev_filename = $export_path . $evfile;
+  my $ev_header = $self->make_ev_header($form, $fileno);
+  my $ev_filename = $self->export_path . $evfile;
   push(@filenames, $evfile);
   open(EV, ">", $ev_filename) or die "can't open outputfile: EV01\n";
   print(EV $ev_header);
@@ -1015,15 +975,277 @@ sub kne_stammdatenexport {
   }
   close(EV);
 
-  $dbh->disconnect;
-  ###
-
-  print qq|<br>Done. <br>
-|;
+  $self->add_filenames(@filenames);
 
   $main::lxdebug->leave_sub();
 
-  return { 'download_token' => get_download_token_for_path($export_path), 'filenames' => \@filenames };
+  return { 'download_token' => $self->download_token, 'filenames' => \@filenames };
+}
+
+sub DESTROY {
+  clean_temporary_directories();
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::DATEV - Lx-Office DATEV Export module
+
+=head1 SYNOPSIS
+
+  use SL::DATEV qw(:CONSTANTS);
+
+  my $datev = SL::DATEV->new(
+    exporttype => DATEV_ET_BUCHUNGEN,
+    format     => DATEV_FORMAT_KNE,
+    from       => $startdate,
+    to         => $enddate,
+  );
+
+  my $datev = SL::DATEV->new(
+    exporttype => DATEV_ET_STAMM,
+    format     => DATEV_FORMAT_KNE,
+    accnofrom  => $start_account_number,
+    accnoto    => $end_account_number,
+  );
+
+  # get or set datev stamm
+  my $hashref = $datev->get_datev_stamm;
+  $datev->save_datev_stamm($hashref);
+
+  # manually clean up temporary directories
+  $datev->clean_temporary_directories;
+
+  # export
+  $datev->export;
+
+  if ($datev->errors) {
+    die join "\n", $datev->error;
+  }
+
+  # get relevant data for saving the export:
+  my $dl_token = $datev->download_token;
+  my $path     = $datev->export_path;
+  my @files    = $datev->filenames;
+
+  # retrieving an export at a later time
+  my $datev = SL::DATEV->new(
+    download_token => $dl_token_from_user,
+  );
+
+  my $path     = $datev->export_path;
+  my @files    = glob("$path/*");
+
+=head1 DESCRIPTION
+
+This module implements the DATEV export standard. For usage see above.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item new PARAMS
+
+Generic constructor. See section attributes for information about hat to pass.
+
+=item get_datev_stamm
+
+Loads DATEV Stammdaten and returns as hashref.
+
+=item save_datev_stamm HASHREF
+
+Saves DATEV Stammdaten from provided hashref.
+
+=item exporttype
+
+See L<CONSTANTS> for possible values
+
+=item has_exporttype
+
+Returns true if an exporttype has been set. Without exporttype most report functions won't work.
+
+=item format
+
+Specifies the designated format of the export. Currently only KNE export is implemented.
+
+See L<CONSTANTS> for possible values
+
+=item has_format
+
+Returns true if a format has been set. Without format most report functions won't work.
+
+=item download_token
+
+Returns a download token for this DATEV object.
+
+Note: If either a download_token or export_path were set at the creation these are infered, otherwise randomly generated.
+
+=item export_path
+
+Returns an export_path for this DATEV object.
+
+Note: If either a download_token or export_path were set at the creation these are infered, otherwise randomly generated.
+
+=item filenames
+
+Returns a list of filenames generated by this DATEV object. This only works if th files were generated during it's lifetime, not if the object was created from a download_token.
+
+=item net_gross_differences
+
+If there were any net gross differences during calculation they will be collected here.
+
+=item sum_net_gross_differences
+
+Sum of all differences.
+
+=item clean_temporary_directories
+
+Forces a garbage collection on previous exports which will delete all exports that are older than 8 hours. It will be automatically called on destruction of the object, but is advised to be called manually before delivering results of an export to the user.
+
+=item errors
+
+Returns a list of errors that occured. If no errors occured, the export was a success.
+
+=item export
+
+Exports data. You have to have set L<exporttype> and L<format> or an error will
+occur. OBE exports are currently not implemented.
+
+=back
+
+=head1 ATTRIBUTES
+
+This is a list of attributes set in either the C<new> or a method of the same name.
+
+=over 4
+
+=item dbh
+
+Set a database handle to use in the process. This allows for an export to be
+done on a transaction in progress without committing first.
+
+=item exporttype
+
+See L<CONSTANTS> for possible values. This MUST be set before export is called.
+
+=item format
+
+See L<CONSTANTS> for possible values. This MUST be set before export is called.
+
+=item download_token
+
+Can be set on creation to retrieve a prior export for download.
+
+=item from
+
+=item to
+
+Set boundary dates for the export. Currently thse MUST be set for the export to work.
+
+=item accnofrom
+
+=item accnoto
+
+Set boundary account numbers for the export. Only useful for a stammdaten export.
+
+=back
+
+=head1 CONSTANTS
+
+=head2 Supplied to L<exporttype>
+
+=over 4
+
+=item DATEV_ET_BUCHUNGEN
+
+=item DATEV_ET_STAMM
+
+=back
+
+=head2 Supplied to L<format>.
+
+=over 4
+
+=item DATEV_FORMAT_KNE
+
+=item DATEV_FORMAT_OBE
+
+=back
+
+=head1 ERROR HANDLING
+
+This module will die in the following cases:
+
+=over 4
+
+=item *
+
+No or unrecognized exporttype or format was provided for an export
+
+=item *
+
+OBE rxport was called, which is not yet implemented.
+
+=item *
+
+general I/O errors
+
+=back
+
+Errors that occur during th actual export will be collected in L<errors>. The following types can occur at the moment:
+
+=over 4
+
+=item *
+
+C<Unbalanced Ledger!>. Exactly that, your ledger is unbalanced. Should never occur.
+
+=item *
+
+C<Datev-Export fehlgeschlagen! Bei Transaktion %d (%f).>  This error occurs if a
+transaction could not be reliably sorted out, or had rounding errors over the acceptable threshold.
+
+=back
+
+=head1 BUGS AND CAVEATS
+
+=over 4
+
+=item *
+
+Handling of Vollvorlauf is currently not fully implemented. You must provide both from and to to get a working export.
+
+=item *
+
+OBE export is currently not implemented.
+
+=back
+
+=head1 TODO
+
+- handling of export_path and download token is a bit dodgy, clean that up.
+
+=head1 SEE ALSO
+
+L<SL::DATEV::KNEFile>
+
+=head1 AUTHORS
+
+Philip Reetz E<lt>p.reetz@linet-services.deE<gt>,
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>,
+
+Jan Büren E<lt>jan@lx-office-hosting.deE<gt>,
+
+Geoffrey Richardson E<lt>information@lx-office-hosting.deE<gt>,
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>,
+
+Stephan Köhler
+
+=cut
