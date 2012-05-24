@@ -40,6 +40,7 @@ use SL::AM;
 use SL::ARAP;
 use SL::CVar;
 use SL::Common;
+use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::DO;
 use SL::GenericTranslations;
@@ -1079,6 +1080,27 @@ sub post_invoice {
   ARAP->close_orders_if_billed('dbh'     => $dbh,
                                'arap_id' => $form->{id},
                                'table'   => 'ar',);
+
+  # safety check datev export
+  if ($::lx_office_conf{datev_check}{check_on_sales_invoice}) {
+    my $transdate = $::form->{invdate} ? DateTime->from_lxoffice($::form->{invdate}) : undef;
+    $transdate  ||= DateTime->today;
+
+    my $datev = SL::DATEV->new(
+      exporttype => DATEV_ET_BUCHUNGEN,
+      format     => DATEV_FORMAT_KNE,
+      dbh        => $dbh,
+      from       => $transdate,
+      to         => $transdate,
+    );
+
+    $datev->export;
+
+    if ($datev->errors) {
+      $dbh->rollback;
+      die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
+    }
+  }
 
   my $rc = 1;
   $dbh->commit if !$provided_dbh;

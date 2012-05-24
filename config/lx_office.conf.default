@@ -163,6 +163,27 @@ email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
 # The template file used for the email's body.
 email_template = templates/webpages/oe/periodic_invoices_email.txt
 
+[datev_check]
+# it is possible to make a quick DATEV export everytime you post a record to ensure things
+# work nicely with their data requirements. This will result in a slight overhead though
+# you can enable this for each type of record independantly.
+
+# check when a sales invoice or a payment for a sales invoice is posted
+check_on_sales_invoice = 0
+# check when a purchase invoice or a payment for a purchase invoice is posted
+check_on_purchase_invoice = 0
+# check when an ar transaction is posted
+check_on_ar_transaction = 0
+# check when an ap transaction is posted
+check_on_ap_transaction = 0
+# check when a gl transaction is posted
+check_on_gl_transaction = 0
+
+# not implemented yet:
+#check_on_cash_and_receipt = 0
+#check_on_dunning = 0
+#check_on_sepa_import = 0
+
 [console]
 # autologin to use if none is given
 login =

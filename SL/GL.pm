@@ -39,6 +39,7 @@
 package GL;
 
 use Data::Dumper;
+use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 
 use strict;
@@ -182,6 +183,27 @@ sub post_transaction {
 
   if ($form->{storno} && $form->{storno_id}) {
     do_query($form, $dbh, qq|UPDATE gl SET storno = 't' WHERE id = ?|, conv_i($form->{storno_id}));
+  }
+
+  # safety check datev export
+  if ($::lx_office_conf{datev_check}{check_on_gl_transaction}) {
+    my $transdate = $::form->{transdate} ? DateTime->from_lxoffice($::form->{transdate}) : undef;
+    $transdate  ||= DateTime->today;
+
+    my $datev = SL::DATEV->new(
+      exporttype => DATEV_ET_BUCHUNGEN,
+      format     => DATEV_FORMAT_KNE,
+      dbh        => $dbh,
+      from       => $transdate,
+      to         => $transdate,
+    );
+
+    $datev->export;
+
+    if ($datev->errors) {
+      $dbh->rollback;
+      die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
+    }
   }
 
   # commit and redirect

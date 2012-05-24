@@ -34,6 +34,7 @@
 
 package AP;
 
+use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
@@ -352,6 +353,27 @@ sub post_transaction {
   }
 
   IO->set_datepaid(table => 'ap', id => $form->{id}, dbh => $dbh);
+
+  # safety check datev export
+  if ($::lx_office_conf{datev_check}{check_on_ap_transaction}) {
+    my $transdate = $::form->{transdate} ? DateTime->from_lxoffice($::form->{transdate}) : undef;
+    $transdate  ||= DateTime->today;
+
+    my $datev = SL::DATEV->new(
+      exporttype => DATEV_ET_BUCHUNGEN,
+      format     => DATEV_FORMAT_KNE,
+      dbh        => $dbh,
+      from       => $transdate,
+      to         => $transdate,
+    );
+
+    $datev->export;
+
+    if ($datev->errors) {
+      $dbh->rollback;
+      die join "\n", $::locale->text('DATEV check returned errors:'), $datev->errors;
+    }
+  }
 
   if (!$provided_dbh) {
     $dbh->commit();
