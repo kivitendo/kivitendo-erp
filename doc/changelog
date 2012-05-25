@@ -4,6 +4,17 @@
 
 2012-03-01 - Release 2.7.1-unstable
 
+Größere neue Features:
+
+- Automatischer DATEV Konsistenzcheck bei Buchungen.
+  Es ist jetzt möglich Buchungen aus den fünf Hauptmasken Verkaufsrechnung,
+  Einkaufsrechnung, Kreditorenbuchung, Debitorenbuchung und Dialogbuchen
+  automatisch auf korrekten DATEV Export zu prüfen. Wenn ein Problem beim
+  Export auftreten sollte, wird die Buchung abgebrochen, so dass die Datenbank
+  konsistent bleibt und eine Fehlermeldung ausgegeben. Das Feature kann in der
+  Konfiguration unter [datev_check] angeschaltet werden.
+
+
 Experimentelle Features:
 
 - Es ist möglich benutzerdefinierte Variablen vom Typ "Lieferant" und "Ware"
