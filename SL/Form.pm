@@ -1117,7 +1117,7 @@ sub parse_template {
     'kivitendo-printXXXXXX',
     SUFFIX => '.' . ($suffix || 'tex'),
     DIR    => $userspath,
-    UNLINK => 1,
+    UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
   close $temp_fh;
 
