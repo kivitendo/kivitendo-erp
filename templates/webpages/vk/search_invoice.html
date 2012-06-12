@@ -3,24 +3,73 @@
 
  <form method=post name="search_invoice" action=[% script %]>
 
-  <table width=100%>
+  <table width=100% border="0">
   <tr><th class=listtop>[% title %]</th></tr>
   <tr height="5"></tr>
   <tr>
    <td>
-    <table>
+    <table border="0">
      <tr>
-       <td>[% 'Main sorting' | $T8 %]</td>
-       <td colspan="3">
-        <input name="sortby" id="artikelsort" class="radio" type="radio" value="artikelsort" checked>
-        <label for="artikelsort">[% 'Parts' | $T8 %]</label>
-        <input name="sortby" id="customersort" class="radio" type="radio" value="customersort">
-        <label for="customersort">[% 'Customer' | $T8 %]</label>
-       </td>
+     <td>
+      <table border="1">
+       <tr>
+        <th align=left nowrap>[% 'Configuration' | $T8 %]</th>
+        <td>
+         <table border="0">
+           <tr>
+             <td align="right">[% 'Main sorting' | $T8 %]</td>
+             <td>
+               <select name="mainsort" id="mainsort">
+               <option value="description">[% 'Part' | $T8 %]</option>
+               <option value="customername">[% 'Customer' | $T8 %]</option>
+               <option value="country">[% 'Country' | $T8 %]</option>
+               <option value="partsgroup">[% 'Group' | $T8 %]</option>
+               <option value="business">[% 'Customer type' | $T8 %]</option>
+               <option value="salesman" selected="selected">[% 'Salesman' | $T8 %]</option>
+               <option value="month">[% 'Month' | $T8 %]</option>
+               </select>
+             </td>
+             <td align=left><input name="l_headers_mainsort" class=checkbox type=checkbox value="Y" checked> [% 'Heading' | $T8 %]</td>
+             <td align=left><input name="l_subtotal_mainsort" class=checkbox type=checkbox value="Y" checked> [% 'Subtotal' | $T8 %]</td>
+             </tr>
+             <tr>
+               <td align="right">[% 'Secondary sorting' | $T8 %]</td>
+               <td>
+                 <select name="subsort" id="subsort">
+                 <option value="description">[% 'Part' | $T8 %]</option>
+                 <option value="customername">[% 'Customer' | $T8 %]</option>
+                 <option value="country">[% 'Country' | $T8 %]</option>
+                 <option value="partsgroup">[% 'Group' | $T8 %]</option>
+                 <option value="business">[% 'Customer type' | $T8 %]</option>
+                 <option value="salesman">[% 'Salesman' | $T8 %]</option>
+                 <option value="month" selected="selected">[% 'Month' | $T8 %]</option>
+                 </select>
+                 </td>
+               <td align=left><input name="l_headers_subsort" class=checkbox type=checkbox value=Y checked> [% 'Heading' | $T8 %]</td>
+               <td align=left><input name="l_subtotal_subsort" class=checkbox type=checkbox value=Y checked> [% 'Subtotal' | $T8 %]</td>
+             </tr>
+           <tr>
+           <th align="right">[% 'Item mode' | $T8 %]</th>
+           <td colspan="3" align=left><input name="l_parts" class=checkbox type=checkbox value="Y"> ([%'Show items from invoices individually' | $T8 %]) </td>
+          </tr>
+          <tr> 
+           <th align="right">
+             [% 'Total sum' | $T8 %]
+           </th>
+           <td colspan="1" align=left><input name="l_total" class=checkbox type=checkbox value="Y" checked></td>
+            <td align="right" nowrap>[% 'Decimalplaces' | $T8 %]: </td>
+            <td colspan="2"><input name="decimalplaces" size="2" value="2"></td>
+          </tr>
+    </table>
+    </td>
+       <tr>
+        <th align=left nowrap>[% 'Filter' | $T8 %]</th>
+        <td>
+         <table border="0">
+           <tr>
+      <tr>
+        <th align=left colspan="4"><br>[% 'Filter' | $T8 %]:</br></th>
       </tr>
-
-
-
      <tr>
       <th align=right>[% 'Customer' | $T8 %]</th>
       <td colspan=3>
@@ -40,11 +89,11 @@
      </tr>
       <tr>
        <th align="right" nowrap>[% 'Customer Number' | $T8 %]</th>
-       <td><input name="customernumber" size="20"></td>
+       <td colspan="3"><input name="customernumber" size="20"></td>
       </tr>
      <tr>
       <th align=right nowrap>[% 'Department' | $T8 %]</th>
-      <td>
+      <td colspan="3">
             [%- INCLUDE 'generic/multibox.html'
                  name          = 'department',
                  style         = 'width: 250px',
@@ -73,14 +122,78 @@
      </tr>
       <tr>
        <th align="right" nowrap>[% 'Part Number' | $T8 %]</th>
-       <td><input name="partnumber" size="20"></td>
+       <td colspan="3"><input name="partnumber" size="20"></td>
       </tr>
       <tr>
        <th align="right" nowrap>[% 'Part Description' | $T8 %]</th>
        <td colspan="3"><input name="description" size="40"></td>
       </tr>
      <tr>
-      <th align=right nowrap>[% 'From' | $T8 %]</th>
+      <th align="right">[% 'Group' | $T8 %]</th>
+      <td>
+             [%- INCLUDE 'generic/multibox.html'
+                  name          = 'partsgroup_id',
+                  style         = 'width: 250px',
+                  DATA          =  ALL_PARTSGROUPS,
+                  id_key        = 'id',
+                  label_key     = 'partsgroup',
+                  show_empty    = 1,
+                  allow_textbox = 0,
+             -%]
+      </td>
+     </tr>
+      <tr>
+       <td align="right" nowrap>[% 'Country' | $T8 %]</td>
+       <td colspan="3"><input name="country" size="20"></td>
+      </tr>
+     <tr>
+      <th align="right">[% 'Employee' | $T8 %]</th>
+      <td>
+             [%- INCLUDE 'generic/multibox.html'
+                  name          = 'employee_id',
+                  style         = 'width: 250px',
+                  DATA          =  ALL_EMPLOYEES,
+                  id_key        = 'id',
+                  label_sub     = 'employee_labels',
+                  limit         = vclimit,
+                  show_empty    = 1,
+                  allow_textbox = 0,
+                  default       = ' ',
+             -%]
+      </td>
+     </tr>
+    <tr>
+     <th align="right">[% 'Salesman' | $T8 %]</th>
+     <td>
+            [%- INCLUDE 'generic/multibox.html'
+                 name          = 'salesman_id',
+                 style         = 'width: 250px',
+                 DATA          =  ALL_SALESMEN,
+                 id_key        = 'id',
+                 label_sub     = 'salesman_labels',
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 0,
+            -%]
+     </td>
+     </tr>
+     <tr>
+      <th align="right">[% 'Customer type' | $T8 %]</th>
+      <td colspan="3">
+            [%- INCLUDE 'generic/multibox.html'
+                 name          =  'business_id',
+                 style         = "width: 250px",
+                 DATA          =  ALL_BUSINESS_TYPES,
+                 id_key        = 'id',
+                 label_key     = 'description',
+                 limit         = vclimit,
+                 show_empty    = 1,
+                 allow_textbox = 0,
+            -%]
+      </td>
+     </tr>
+     <tr>
+      <th align=right nowrap>[% 'Invoice Date' | $T8 %] [% 'From' | $T8 %]</th>
       <td>
        <input name=transdatefrom id=transdatefrom size=11 title="[% dateformat | html %]" onBlur="check_right_date_format(this)">
        <input type=button name=transdatefrom id="trigger1" value=[% 'button' | $T8 %]>
@@ -91,67 +204,83 @@
       <input type=button name=transdateto name=transdateto id="trigger2" value=[% 'button' | $T8 %]>
      </td>
     </tr>
+    <tr>
+        <th align=left colspan="4"><br>[% 'Filter for customer variables' | $T8 %]:</br></th>
+    </tr>
+   [% CUSTOM_VARIABLES_FILTER_CODE_CT %]
+    <tr>
+        <th align=left colspan="4"><br>[% 'Filter for item variables' | $T8 %]:</br></th>
+    </tr>
+   [% CUSTOM_VARIABLES_FILTER_CODE_IC %]
    <input type=hidden name=sort value=transdate>
    </table>
+
     </td>
-    </tr>
-    <tr>
-     <td>
-      <table>
-       <tr>
+      <tr>
         <th align=right nowrap>[% 'Include in Report' | $T8 %]</th>
         <td>
-         <table width=100%>
+         <table border="0">
+          <td colspan="4">
+            [% 'Cumulated or averaged values' | $T8 %] ([% 'invoice mode or item mode' | $T8 %]):
+          </td>
           <tr>
-           <td align=right><input name="l_description" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Description' | $T8 %]</td>
-           <td align=right><input name="l_partnumber" class=checkbox type=checkbox value=Y></td>
-           <td nowrap>[% 'Part Number' | $T8 %]</td>
-           <td align=right><input name="l_invnumber" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Invnumber' | $T8 %]</td>
-           <td align=right><input name="l_transdate" class=checkbox type=checkbox value="Y" checked></td>
-           <td nowrap>[% 'Invdate' | $T8 %]</td>
+           <td align=left><input name="l_sellprice_total" class=checkbox type=checkbox value=Y checked>[% 'Sales price total' | $T8 %]</td>
+           <td align=left><input name="l_lastcost_total" class=checkbox type=checkbox value=Y checked>[% 'Purchase price total' | $T8 %]</td>
+           <td align=left><input name="l_marge_total" class=checkbox type=checkbox value=Y checked>[% 'Margetotal' | $T8 %]</td>
+           <td colspan="4"> ([% 'Single values in item mode, cumulated values in invoice mode' | $T8 %])
+           
           </tr>
           <tr>
-           <td align=right><input name="l_qty" class=checkbox type=checkbox value="Y" checked></td>
-           <td nowrap>[% 'Quantity' | $T8 %]</td>
-           <td align=right><input name="l_discount" class=checkbox type=checkbox value="Y"></td>
-           <td nowrap>[% 'Discount' | $T8 %]</td>
-           <td align=right><input name="l_unit" class=checkbox type=checkbox value="Y"></td>
-           <td nowrap>[% 'Unit' | $T8 %]</td>
+           <td align=left><input name="l_sellprice" class=checkbox type=checkbox value=Y checked>[% 'Sales price' | $T8 %]</td>
+           <td align=left><input name="l_lastcost" class=checkbox type=checkbox value=Y checked>[% 'Purchase price' | $T8 %]</td>
+           <td align=left><input name="l_marge_percent" class=checkbox type=checkbox value=Y checked>[% 'Margepercent' | $T8 %]</td>
+           <td colspan="4">([% 'averaged values, in invoice mode only useful when filtered by a part' | $T8 %])</td>
           </tr>
           <tr>
-           <td align=right><input name="l_sellprice" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Sales price' | $T8 %]</td>
-           <td align=right><input name="l_sellprice_total" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Sales price total' | $T8 %]</td>
-           <td align=right><input name="l_lastcost" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Purchase price' | $T8 %]</td>
-           <td align=right><input name="l_lastcost_total" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Purchase price total' | $T8 %]</td>
+           <td align=left><input name="l_qty" class=checkbox type=checkbox value="Y" checked>[% 'Quantity' | $T8 %]</td>
+           <td align=left><input name="l_discount" class=checkbox type=checkbox value="Y">[% 'Discount' | $T8 %]</td>
+           <td></td>
+           <td colspan="4">([% 'averaged values, in invoice mode only useful when filtered by a part' | $T8 %])</td>
+          </tr>
+          <tr><td colspan="7">&nbsp;</td></tr>
+          <td colspan="4" align="left">
+          [% 'Item values' | $T8 %] ([% 'Only shown in item mode' | $T8 %])
+          </td>
+          <tr>
+           <td align=left><input name="l_description" class=checkbox type=checkbox value=Y checked>[% 'Description' | $T8 %]</td>
+           <td align=left><input name="l_partnumber" class=checkbox type=checkbox value=Y>[% 'Part Number' | $T8 %]</td>
+           <td align=left><input name="l_invnumber" class=checkbox type=checkbox value=Y>[% 'Invnumber' | $T8 %]</td>
+           <td align=left><input name="l_transdate" class=checkbox type=checkbox value="Y">[% 'Invdate' | $T8 %]</td>
           </tr>
           <tr>
-           <td align=right><input name="l_marge_total" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Margetotal' | $T8 %]</td>
-           <td align=right><input name="l_marge_percent" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Margepercent' | $T8 %]</td>
+           <td align=left><input name="l_unit" class=checkbox type=checkbox value="Y">[% 'Unit' | $T8 %]</td>
+           <td align=left><input name="l_partsgroup" class=checkbox type=checkbox value=Y>[% 'Group' | $T8 %]</td>
+           <td align=left><input name="l_salesman" class=checkbox type=checkbox value=Y>[% 'Salesperson' | $T8 %]</td>
+           <td align=left><input name="l_employee" class=checkbox type=checkbox value=Y>[% 'Employee' | $T8 %]</td>
           </tr>
           <tr>
-           <td align=right><input name="l_subtotal" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Subtotal' | $T8 %]</td>
-           <td align=right><input name="l_total" class=checkbox type=checkbox value="Y" checked></td>
-           <td nowrap>[% 'Total' | $T8 %]</td>
-           <td align=right><input name="l_headers" class=checkbox type=checkbox value="Y" checked></td>
-           <td nowrap>[% 'Headings' | $T8 %]</td>
+           <td align=left><input name="l_customernumber" class=checkbox type=checkbox value=Y>[% 'Customer Number' | $T8 %]</td>
+           <td align=left><input name="l_customername" class=checkbox type=checkbox value=Y>[% 'Customer Name' | $T8 %]</td>
+           <td align=left><input name="l_country" class=checkbox type=checkbox value=Y>[% 'Country' | $T8 %]</td>
+           <td align=left><input name="l_business" class=checkbox type=checkbox value=Y>[% 'Customer type' | $T8 %]</td>
           </tr>
           <tr>
-           <td align=right><input name="l_customernumber" class=checkbox type=checkbox value=Y checked></td>
-           <td nowrap>[% 'Customer Number' | $T8 %]</td>
           </tr>
-          <tr>
-            <th align="right" nowrap>[% 'Decimalplaces' | $T8 %]</th>
-            <td colspan="4"><input name="decimalplaces" size="2" value="2"></td>
-          </tr>
+     <tr><td colspan="7">&nbsp;</td></tr>
+    <tr>
+    <th colspan="4" align="left">
+    [% 'Customer variables' | $T8 %] ([% 'Only shown in item mode' | $T8 %])
+    </th>
+    </tr>
+        [% CUSTOM_VARIABLES_INCLUSION_CODE_CT %]
+ 
+     <tr><td colspan="7">&nbsp;</td></tr>
+    <tr>
+    <th colspan="4" align="left">
+    [% 'Item variables' | $T8 %] ([% 'Only shown in item mode' | $T8 %])
+    </th>
+    </tr>
+      [% CUSTOM_VARIABLES_INCLUSION_CODE_IC %]
          </table>
         </td>
        </tr>
@@ -159,7 +288,6 @@
      </td>
     </tr>
     <tr>
-     <td><hr size=3 noshade></td>
     </tr>
    </table>
    <input type=hidden name=nextsub value=[% nextsub %]>
