@@ -51,7 +51,7 @@ sub invoice_transactions {
   my @values;
 
   my $query =
-    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as description,i.lastcost,i.sellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month | .
+    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as description,i.lastcost,i.sellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth | .
     qq|FROM invoice i | .  
     qq|JOIN ar on (i.trans_id = ar.id) | .
     qq|JOIN parts p on (i.parts_id = p.id) | .
@@ -78,24 +78,25 @@ sub invoice_transactions {
   $where .= " AND i.assemblyitem is not true ";
 
   my $sortorder;
-  # sorting by month is a special case:
-  # Sorting by month, using salesman as an example:
-  # Sorting with month as mainsort: ORDER BY month,salesman,ar.transdate,ar.invnumber
-  # Sorting with month as subsort:  ORDER BY salesman,ar.transdate,month,ar.invnumber
+
+  # sorting by month is a special case, we don't want to sort alphabetically by
+  # month name, so we also extract a numerical month in the from YYYYMM to sort
+  # by in case of month sorting
+  # Sorting by month, using description as an example:
+  # Sorting with month as mainsort: ORDER BY nummonth,description,ar.transdate,ar.invnumber
+  # Sorting with month as subsort:  ORDER BY description,nummonth,ar.transdate,ar.invnumber
   if ($form->{mainsort} eq 'month') {
-    $sortorder .= "ar.transdate,month,"
+    $sortorder .= "nummonth,"
   } else {
     $sortorder .= $form->{mainsort} . ",";
   };
   if ($form->{subsort} eq 'month') {
-    $sortorder .= "ar.transdate,month,"
+    $sortorder .= "nummonth,"
   } else {
     $sortorder .= $form->{subsort} . ",";
   };
-  $sortorder .= 'ar.transdate,' unless $form->{subsort} eq 'month';
-  $sortorder .= 'ar.invnumber';
+  $sortorder .= 'ar.transdate,ar.invnumber';  # Default sorting order after mainsort und subsort
 
-#  $sortorder =~ s/month/ar.transdate/;
 
   if ($form->{customer_id}) {
     $where .= " AND ar.customer_id = ?";
