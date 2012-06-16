@@ -102,6 +102,10 @@ sub _read_auth_config {
   my $self = shift;
 
   map { $self->{$_} = $::lx_office_conf{authentication}->{$_} } keys %{ $::lx_office_conf{authentication} };
+
+  # Prevent password leakage to log files when dumping Auth instances.
+  $self->{admin_password} = sub { $::lx_office_conf{authentication}->{admin_password} };
+
   $self->{DB_config}   = $::lx_office_conf{'authentication/database'};
   $self->{LDAP_config} = $::lx_office_conf{'authentication/ldap'};
 
@@ -143,7 +147,7 @@ sub authenticate_root {
   my ($self, $password) = @_;
 
   $password             = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $password);
-  my $admin_password    = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $self->{admin_password});
+  my $admin_password    = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $self->{admin_password}->());
 
   $main::lxdebug->leave_sub();
 
