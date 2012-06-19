@@ -11,14 +11,23 @@ if ( $api != "cli" ) {
     $shopnr = $_GET["Shop"];
     $nofiles = ( $_GET["nofiles"] == '1' )?true:false;
 } else {
+    $p = array('shopnr','nofiles');
     if ( $argc > 1 ) {
-        $tmp = explode("=",trim($argv[1]));
-        if ( count($tmp) != 2 ) {
-             echo "Falscher Aufruf: php <scriptname.php> shop=1\n";
-             exit (-1);
-         } else {
-              $shopnr = $tmp[1];
-         }
+        for( $i=1; $i<count($argv); $i++)  {
+                $tmp = explode("=",trim($argv[$i]));
+                if ( count($tmp) < 2 ) {
+                    echo "Falscher Aufruf: php ArtikelErpToShop.php shopnr=1 [nofiles=1]\n";
+                    exit (-1);
+                };
+                if ( ! in_array(strtolower($tmp[0]),$p) ) {
+                    echo "Falscher Aufruf: php ArtikelErpToShop.php shopnr=1 [nofiles=1]\n";
+                    exit (-1);
+                };
+                ${$tmp[0]} = trim($tmp[1]);
+        }
+    } else {
+        $shopnr=false;
+        $nofiles=false;
     }
 }
 
