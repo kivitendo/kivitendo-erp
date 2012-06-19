@@ -37,12 +37,12 @@ class picture {
             $faktor = $d["width"]/$d["height"];
         }
         $smallheight = floor($this->smallwidth*$faktor);
-        $handle->thumbnailImage($this->smallwidth, $smallheight);
+        $handle->thumbnailImage($this->smallwidth, $smallheight, true);
         $rc = $handle->writeImage( "./tmp/tmp.file_small");
         if ( !$this->original ) {
             $handle->readImage("./tmp/tmp.file_org");
             $bigheight = floor($this->bigwidth * $faktor);
-            $handle->thumbnailImage( $this->bigwidth, $bigheight);
+            $handle->thumbnailImage( $this->bigwidth, $bigheight,true);
             return $handle->writeImage( "./tmp/tmp.file_org");
         }
         return $rc;

@@ -11,7 +11,7 @@ class pepper {
     var $divVerm = false;
     var $minder = false;
     var $paypal = false;
-    var $treuh = false;
+    var $treuhand = false;
     var $nachn = false;
     var $shopcode = 'ISO-8859-1';
     var $erpcode = 'UTF-8';
@@ -85,7 +85,7 @@ class pepper {
     function translateTable($data,$table) {
         $newdata = array();
         foreach ($data as $key=>$val) {
-             if ($this->{$table}[$key]) 
+             if (array_key_exists($key, $this->{$table}))
                  $newdata[$this->{$table}[$key]] = $val;
         }
         return $newdata;
@@ -257,8 +257,8 @@ class pepper {
                  $artikel[]   = array("partnumber"=>$this->paypal['NR'],"description"=>$this->paypal['TXT'],"taxrate"=>$this->paypal['TAX'],
                                       "qty"=>1,"unit"=>$this->paypal['Unit'],"sellprice"=>round($row["paypalkosten"],2));
              if ($row["treuhandkosten"]>0) 
-                 $artikel[] = array("partnumber"=>$this->treuh['NR'],"description"=>$this->treuh['TXT'],"taxrate"=>$this->treuh['TAX'],
-                                      "qty"=>1,"unit"=>$this->treuh['Unit'],"sellprice"=>$row["treuhandkosten"]);
+                 $artikel[] = array("partnumber"=>$this->treuhand['NR'],"description"=>$this->treuhand['TXT'],"taxrate"=>$this->treuhand['TAX'],
+                                      "qty"=>1,"unit"=>$this->treuhand['Unit'],"sellprice"=>$row["treuhandkosten"]);
              if ($row["mindermengenzuschlag"]>0) 
                  $artikel[] = array("partnumber"=>$this->minder['NR'],"description"=>$this->minder['TXT'],"taxrate"=>$this->minder['TAX'],
                                     "qty"=>1,"unit"=>$this->minder['Unit'],"sellprice"=>$row["mindermengenzuschlag"]);

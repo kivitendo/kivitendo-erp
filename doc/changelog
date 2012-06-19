@@ -14,6 +14,8 @@ Größere neue Features:
   konsistent bleibt und eine Fehlermeldung ausgegeben. Das Feature kann in der
   Konfiguration unter [datev_check] angeschaltet werden.
 
+- Verkaufsbericht: Sortierung um Land, Warengruppen, Kundentyp, Verkäufer und
+  Monat erweitert, sowie benutzerdefinierte Variablen eingebunden
 
 Experimentelle Features:
 
