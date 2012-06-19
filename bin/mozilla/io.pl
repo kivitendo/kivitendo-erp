@@ -1535,22 +1535,31 @@ sub print_form {
     my %queued = map { s|.*/|| } split / /, $form->{queued};
 
     my $filename;
+    my $suffix = ($form->{postscript}) ? '.ps' : '.pdf';
     if ($filename = $queued{ $form->{formname} }) {
       $form->{queued} =~ s/\Q$form->{formname} $filename\E//;
       unlink $::lx_office_conf{paths}->{spool} . "/$filename";
       $filename =~ s/\..*$//g;
+      $filename .= $suffix;
+      $form->{OUT} = $::lx_office_conf{paths}->{spool} . "/$filename";
+      $form->{OUT_MODE} = '>';
     } else {
-      $filename = time;
-      $filename .= $$;
+      my $temp_fh;
+      ($temp_fh, $filename) = File::Temp::tempfile(
+        'kivitendo-spoolXXXXXX',
+        SUFFIX => "$suffix",
+        DIR => $::lx_office_conf{paths}->{spool},
+      );
+      close $temp_fh;
+      $form->{OUT} = "$filename";
+      # use >> for OUT_MODE because file is already created by File::Temp
+      $form->{OUT_MODE} = '>>';
+      # strip directory so that only filename is stored in table status
+      ($filename) = $filename =~ /^$::lx_office_conf{paths}->{spool}\/(.*)/;
     }
-
-    $filename .= ($form->{postscript}) ? '.ps' : '.pdf';
-    $form->{OUT} = $::lx_office_conf{paths}->{spool} . "/$filename";
-    $form->{OUT_MODE} = '>';
 
     # add type
     $form->{queued} .= " $form->{formname} $filename";
-
     $form->{queued} =~ s/^ //;
   }
   my $queued = $form->{queued};
