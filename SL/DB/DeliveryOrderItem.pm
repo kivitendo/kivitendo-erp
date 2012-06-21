@@ -13,6 +13,8 @@ use SL::DB::Helper::CustomVariables (
 
 __PACKAGE__->meta->make_manager_class;
 
+__PACKAGE__->meta->initialize;
+
 # methods
 
 sub part {
