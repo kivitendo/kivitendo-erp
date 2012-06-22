@@ -9,6 +9,7 @@ use SL::DB::Customer;
 use SL::DB::Language;
 use SL::DB::PaymentTerm;
 use SL::DB::Vendor;
+use SL::DB::Contact;
 
 use parent qw(Rose::Object);
 
