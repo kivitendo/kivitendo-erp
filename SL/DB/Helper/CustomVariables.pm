@@ -18,7 +18,7 @@ sub import {
 
   $params{module}     ||= _calc_modules_from_overloads(%params) if $params{overloads};
   $params{sub_module} ||= '';
-  $params{id}         ||= 'id';
+  $params{id}         ||= _get_primary_key_column($caller_package);
 
   $params{module} || $params{sub_module}  or croak 'need param module or sub_module';
 
@@ -51,7 +51,7 @@ sub make_cvar_accessor {
     custom_variables => {
       type         => 'one to many',
       class        => 'SL::DB::CustomVariable',
-      column_map   => { ($params{id} || 'id') => 'trans_id' },
+      column_map   => { $params{id} => 'trans_id' },
       query_args   => [ sub_module => $params{sub_module}, @module_filter ],
     }
   );
@@ -165,6 +165,17 @@ sub _calc_modules_from_overloads {
   return [ keys %modules ];
 }
 
+sub _get_primary_key_column {
+  my ($caller_package) = @_;
+  my $meta             = $caller_package->meta;
+
+  my $column_name;
+  $column_name = $meta->{primary_key}->{columns}->[0] if $meta->{primary_key} && (ref($meta->{primary_key}->{columns}) eq 'ARRAY') && (1 == scalar(@{ $meta->{primary_key}->{columns} }));
+
+  croak "Unable to retrieve primary key column name: meta information for package $caller_package not set up correctly" unless $column_name;
+
+  return $column_name;
+}
 
 1;
 
