@@ -301,7 +301,7 @@ sub list_contacts {
   my $cvar_configs = CVar->get_configs('module' => 'Contacts');
 
   my @columns      = qw(
-    cp_id vcname vcnumber cp_name cp_givenname cp_street cp_phone1 cp_phone2
+    cp_id vcname vcnumber cp_name cp_givenname cp_street cp_zipcode cp_city cp_phone1 cp_phone2
     cp_mobile1 cp_mobile2 cp_email cp_abteilung cp_birthday cp_gender
   );
 
@@ -327,6 +327,8 @@ sub list_contacts {
     'cp_name'      => { 'text' => $::locale->text('Name'), },
     'cp_givenname' => { 'text' => $::locale->text('Given Name'), },
     'cp_street'    => { 'text' => $::locale->text('Street'), },
+    'cp_zipcode'   => { 'text' => $::locale->text('Zipcode'), },
+    'cp_city'      => { 'text' => $::locale->text('City'), },
     'cp_phone1'    => { 'text' => $::locale->text('Phone1'), },
     'cp_phone2'    => { 'text' => $::locale->text('Phone2'), },
     'cp_mobile1'   => { 'text' => $::locale->text('Mobile1'), },
