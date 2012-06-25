@@ -9,16 +9,15 @@
       </td>
      </tr>
 
-    <tr>
-     <th align="left" nowrap>[% 'Gender' | $T8 %]</th>
-     <td>
-      <select id="cp_gender" name="cp_gender">
-       <option value="m"[% IF cp_gender == 'm' %] selected[% END %]>[% 'male' | $T8 %]</option>
-       <option value="f"[% IF cp_gender == 'f' %] selected[% END %]>[% 'female' | $T8 %]</option>
-      </select>
-     </td>
-    </tr>
-    <tr>
+     <tr>
+      <th align="left" nowrap>[% 'Gender' | $T8 %]</th>
+      <td>
+       <select id="cp_gender" name="cp_gender">
+        <option value="m"[% IF cp_gender == 'm' %] selected[% END %]>[% 'male' | $T8 %]</option>
+        <option value="f"[% IF cp_gender == 'f' %] selected[% END %]>[% 'female' | $T8 %]</option>
+       </select>
+      </td>
+     </tr>
 
      <tr>
       <th align="left" nowrap>[% 'Title' | $T8 %]</th>
@@ -44,6 +43,11 @@
      <tr>
       <th align="left" nowrap>[% 'Name' | $T8 %]</th>
       <td><input id="cp_name" name="cp_name" size="40" maxlength="75" value="[% HTML.escape(cp_name) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'E-mail' | $T8 %]</th>
+      <td><input id="cp_email" name="cp_email" size="40" value="[% HTML.escape(cp_email) %]"></td>
      </tr>
 
      <tr>
@@ -87,8 +91,16 @@
      </tr>
 
      <tr>
-      <th align="left" nowrap>[% 'E-mail' | $T8 %]</th>
-      <td><input id="cp_email" name="cp_email" size="40" value="[% HTML.escape(cp_email) %]"></td>
+      <th align="left" nowrap>[% 'Street' | $T8 %]</th>
+      <td><input id="cp_street" name="cp_street" size="40" maxlength="75" value="[% HTML.escape(cp_street) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="left" nowrap>[% 'Zip, City' | $T8 %]</th>
+      <td>
+       <input id="cp_zipcode" name="cp_zipcode" size="5" maxlength="10" value="[% HTML.escape(cp_zipcode) %]">
+       <input id="cp_city" name="cp_city" size="25" maxlength="75" value="[% HTML.escape(cp_city) %]">
+      </td>
      </tr>
 
      <tr>

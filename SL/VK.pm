@@ -77,8 +77,13 @@ sub invoice_transactions {
   # Bestandteile von Erzeugnissen herausfiltern
   $where .= " AND i.assemblyitem is not true ";
 
-  my $sortorder;
+  # filter allowed parameters for mainsort and subsort as passed by POST
+  my @databasefields = qw(description customername country partsgroup business salesman month);
+  my ($mainsort) = grep { /^$form->{mainsort}$/ } @databasefields;
+  my ($subsort) = grep { /^$form->{subsort}$/ } @databasefields;
+  die "illegal parameter for mainsort or subsort" unless $mainsort and $subsort;
 
+  my $sortorder;
   # sorting by month is a special case, we don't want to sort alphabetically by
   # month name, so we also extract a numerical month in the from YYYYMM to sort
   # by in case of month sorting
@@ -88,15 +93,14 @@ sub invoice_transactions {
   if ($form->{mainsort} eq 'month') {
     $sortorder .= "nummonth,"
   } else {
-    $sortorder .= $form->{mainsort} . ",";
+    $sortorder .= $mainsort . ",";
   };
   if ($form->{subsort} eq 'month') {
     $sortorder .= "nummonth,"
   } else {
-    $sortorder .= $form->{subsort} . ",";
+    $sortorder .= $subsort . ",";
   };
   $sortorder .= 'ar.transdate,ar.invnumber';  # Default sorting order after mainsort und subsort
-
 
   if ($form->{customer_id}) {
     $where .= " AND ar.customer_id = ?";

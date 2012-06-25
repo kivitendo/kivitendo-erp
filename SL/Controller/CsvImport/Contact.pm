@@ -3,6 +3,8 @@ package SL::Controller::CsvImport::Contact;
 use strict;
 
 use SL::Helper::Csv;
+use SL::DB::CustomVariable;
+use SL::DB::CustomVariableConfig;
 
 use parent qw(SL::Controller::CsvImport::Base);
 
@@ -16,6 +18,12 @@ sub init_class {
   $self->class('SL::DB::Contact');
 }
 
+sub init_all_cvar_configs {
+  my ($self) = @_;
+
+  return SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'Contacts' ]);
+}
+
 sub check_objects {
   my ($self) = @_;
 
@@ -23,9 +31,11 @@ sub check_objects {
     $self->check_name($entry);
     $self->check_vc($entry, 'cp_cv_id');
     $self->check_gender($entry);
+    $self->handle_cvars($entry);
   }
 
   $self->add_info_columns({ header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
+  $self->add_cvar_raw_data_columns;
 }
 
 sub check_name {
@@ -87,6 +97,7 @@ sub setup_displayable_columns {
   my ($self) = @_;
 
   $self->SUPER::setup_displayable_columns;
+  $self->add_cvar_columns_to_displayable_columns;
 
   $self->add_displayable_columns({ name => 'cp_abteilung',   description => $::locale->text('Department')                    },
                                  { name => 'cp_birthday',    description => $::locale->text('Birthday')                      },

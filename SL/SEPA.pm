@@ -403,6 +403,12 @@ sub post_payment {
     # Update the invoice to reflect the new paid amount.
     do_statement($form, @{ $handles{update_arap} }, $orig_item->{amount}, $orig_item->{"${arap}_id"});
 
+    # Update datepaid of invoice. set_datepaid (which has some extra logic)
+    # finds the date from acc_trans, where the payment has already been
+    # recorded above, so we don't need to explicitly pass
+    # $item->{execution_date}
+    IO->set_datepaid(table => "$arap", id => $orig_item->{"${arap}_id"}, dbh => $dbh);
+
     # Update the item to reflect that it has been posted.
     do_statement($form, @{ $handles{finish_item} }, $item->{execution_date}, $item_id);
 
