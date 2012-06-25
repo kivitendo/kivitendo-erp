@@ -8,22 +8,26 @@ if (!isset($_SERVER['PHP_AUTH_USER'])) {
 } else {
         if (!$_POST) {
             //Je Shop ein Conf-File == Multishop
-        $Shop=$_GET["Shop"];
-        if ($Shop != "" and file_exists ("conf$Shop.php")) {
-            require "conf$Shop.php";
-            $out = "Konfiguration für Shop $Shop gelesen";
-        } else {
-             //Singleshop oder noch kein Shop definiert
-            require "conf.php";
-             $out = "Standard-Konfiguration gelesen";
-        }
-        if ($_SERVER['PHP_AUTH_USER']<>$ERPftpuser || $_SERVER['PHP_AUTH_PW']<>$ERPftppwd) {
-            Header("WWW-Authenticate: Basic realm='My Realm'");
-            Header("HTTP/1.0 401 Unauthorized");
-            echo "Sie m&uuml;ssen sich autentifizieren\n";
-            exit;
-        }
-        echo $out;
+            if( isset($_GET["Shop"]) ) {
+                 $Shop = $_GET["Shop"];
+            } else {
+                 $Shop = '';
+            };
+            if ( $Shop != "" and file_exists ('conf'.$Shop.'.php') ) {
+                require 'conf'.$Shop.'.php';
+                $out = "Konfiguration für Shop $Shop gelesen";
+            } else {
+                 //Singleshop oder noch kein Shop definiert
+                require "conf.php";
+                 $out = "Standard-Konfiguration gelesen";
+            }
+            if ( $_SERVER['PHP_AUTH_USER']<>$ERPftpuser || $_SERVER['PHP_AUTH_PW']<>$ERPftppwd ) {
+                Header("WWW-Authenticate: Basic realm='My Realm'");
+                Header("HTTP/1.0 401 Unauthorized");
+                echo "Sie m&uuml;ssen sich autentifizieren\n";
+                exit;
+            }
+            echo $out;
     }
 }
 
@@ -107,7 +111,7 @@ function fputsA($f,$key,$var,$bg=false) {
     if ($bg) fputs($f,'$'.$key.'["TAX"]=\''. $var['TAX'].'\';'.$lf);
 }
 
-if ($_POST["ok"]=="sichern") {
+if ( isset($_POST["ok"]) ) {
     foreach ($_POST as $key=>$val) {
         ${$key} = $val;
     }
@@ -189,9 +193,9 @@ if ($_POST["ok"]=="sichern") {
         echo "Keine Verbindung zum Shop<br>";
         $dbM=false;
     };
-if ($_POST["ok"]=="sichern") {
+if ( isset($_POST["ok"]) ) {
    $lf = "\n";
-   $f = @fopen("conf$Shop.php","w");
+   $f = @fopen('conf'.$Shop.'.php','w');
    if ($f) {
         $v="1.5";
         $d=date("Y/m/d H:i:s");
