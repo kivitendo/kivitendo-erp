@@ -49,7 +49,7 @@ class erp {
             $sql  = "SELECT warehouse_id from bin where id = ".$this->lager;
             $rs = $this->db->getOne($sql);
             if ( $rs['warehouse_id'] > 0 ) {
-		$this->warehouse_id = $rs['warehouse_id'];
+		        $this->warehouse_id = $rs['warehouse_id'];
                 $sql = "SELECT id from transfer_type WHERE direction = 'in' and description = 'stock'";
                 $rs = $this->db->getOne($sql);
                 $this->transtype = $rs['id'];
@@ -69,7 +69,7 @@ class erp {
         $rs = $this->db->getAll($sql);
         if ($rs) foreach ($rs as $row) {
             $nr = $row['bugru'];
-            if (!$this->TAX[$nr]) {
+            if ( !$this->TAX[$nr] || !array_key_exists($nr, $this->TAX) ) {
                 $data = array();
                 $data['startdate'] =     $row['startdate'];
                 $data['rate'] =     $row['rate'];
