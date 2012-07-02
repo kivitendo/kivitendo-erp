@@ -23,6 +23,9 @@ use SL::DBUtils;
 
 use strict;
 
+use constant SESSION_KEY_ROOT_AUTH => 'session_auth_status_root';
+use constant SESSION_KEY_USER_AUTH => 'session_auth_status_user';
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -146,14 +149,27 @@ sub authenticate_root {
 
   my ($self, $password) = @_;
 
-  $password             = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $password);
+  my $session_root_auth = $self->get_session_value(SESSION_KEY_ROOT_AUTH);
+  if (defined $session_root_auth && $session_root_auth == OK) {
+    $::lxdebug->leave_sub;
+    return OK;
+  }
+
+  if (!defined $password) {
+    $::lxdebug->leave_sub;
+    return ERR_PASSWORD;
+  }
+
+  $password             = SL::Auth::Password->hash(login => 'root', password => $password);
   my $admin_password    = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $self->{admin_password}->());
 
-  $main::lxdebug->leave_sub();
+  my $result = $password eq $admin_password ? OK : ERR_PASSWORD;
+  $self->set_session_value(SESSION_KEY_ROOT_AUTH ,=> $result);
 
-  return OK if $password eq $admin_password;
-  sleep 5;
-  return ERR_PASSWORD;
+  sleep 5 if $result != OK;
+
+  $::lxdebug->leave_sub;
+  return $result;
 }
 
 sub authenticate {
@@ -161,31 +177,24 @@ sub authenticate {
 
   my ($self, $login, $password) = @_;
 
-  $main::lxdebug->leave_sub();
-
-  my $result = $login ? $self->{authenticator}->authenticate($login, $password) : ERR_USER;
-  return OK if $result eq OK;
-  sleep 5;
-  return $result;
-}
-
-sub store_credentials_in_session {
-  my ($self, %params) = @_;
-
-  if (!$self->{authenticator}->requires_cleartext_password) {
-    $params{password} = SL::Auth::Password->hash_if_unhashed(login             => $params{login},
-                                                             password          => $params{password},
-                                                             look_up_algorithm => 1,
-                                                             auth              => $self);
+  my $session_auth = $self->get_session_value(SESSION_KEY_USER_AUTH);
+  if (defined $session_auth && $session_auth == OK) {
+    $::lxdebug->leave_sub;
+    return OK;
   }
 
-  $self->set_session_value(login => $params{login}, password => $params{password});
-}
+  if (!defined $password) {
+    $::lxdebug->leave_sub;
+    return ERR_PASSWORD;
+  }
 
-sub store_root_credentials_in_session {
-  my ($self, $rpw) = @_;
+  my $result = $login ? $self->{authenticator}->authenticate($login, $password) : ERR_USER;
+  $self->set_session_value(SESSION_KEY_USER_AUTH ,=> $result, login => $login);
 
-  $self->set_session_value(rpw => SL::Auth::Password->hash_if_unhashed(login => 'root', password => $rpw));
+  sleep 5 if $result != OK;
+
+  $::lxdebug->leave_sub;
+  return $result;
 }
 
 sub get_stored_password {
@@ -403,11 +412,6 @@ sub change_password {
   my ($self, $login, $new_password) = @_;
 
   my $result = $self->{authenticator}->change_password($login, $new_password);
-
-  $self->store_credentials_in_session(login             => $login,
-                                      password          => $new_password,
-                                      look_up_algorithm => 1,
-                                      auth              => $self);
 
   $main::lxdebug->leave_sub();
 

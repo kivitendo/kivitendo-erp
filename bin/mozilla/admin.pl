@@ -91,8 +91,6 @@ sub run {
   $locale = $::locale;
   $auth   = $::auth;
 
-  $::auth->store_root_credentials_in_session($form->{rpw}) if $session_result == SL::Auth->SESSION_OK;
-
   $form->{stylesheet} = "lx-office-erp.css";
   $form->{favicon}    = "favicon.ico";
 
@@ -103,7 +101,6 @@ sub run {
       adminlogin();
     } else {
       if ($auth->session_tables_present()) {
-        $::auth->store_root_credentials_in_session($::form->{rpw});
         delete $::form->{rpw};
         _apply_dbupgrade_scripts();
       }

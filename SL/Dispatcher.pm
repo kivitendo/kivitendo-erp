@@ -204,15 +204,18 @@ sub handle_request {
 
     } else {
       show_error('login/password_error', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
-      %::myconfig = $::auth->read_user(login => $::form->{login});
+
+      my $login = $::auth->get_session_value('login');
+      show_error('login/password_error', 'password') if not defined $login;
+
+      %::myconfig = $::auth->read_user(login => $login);
 
       show_error('login/password_error', 'password') unless $::myconfig{login};
 
       $::locale = Locale->new($::myconfig{countrycode});
 
-      show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($::form->{login}, $::form->{password});
+      show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($login, undef);
 
-      $::auth->store_credentials_in_session(login => $::form->{login}, password => $::form->{password});
       $::auth->create_or_refresh_session;
       $::auth->delete_session_value('FLASH');
       delete $::form->{password};
