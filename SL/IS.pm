@@ -2113,7 +2113,7 @@ sub get_pricegroups_for_parts {
       $pkr->{price_ufmt} = $pkr->{price};
       $pkr->{price} = $form->format_amount($myconfig, $pkr->{price}, 5);
 
-      if ($selectedpricegroup_id eq undef) {
+      if (!defined $selectedpricegroup_id) {
         # new entries in article list, either old invoice was loaded (edit) or a new article was added
         # Case A: open old invoice, no pricegroup selected
         # Case B: add new article to invoice, no pricegroup selected
