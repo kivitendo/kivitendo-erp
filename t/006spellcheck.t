@@ -30,6 +30,7 @@ use Support::Files;
 BEGIN { # yes the indenting is off, deal with it
 #add the words to check here:
 @evilwords = qw(
+CONTANTS
 anyways
 arbitary
 custemer
@@ -37,13 +38,14 @@ databasa
 dependan
 existance
 existant
-paramater
-varsion
 fomr
-puhs
 invoce
-CONTANTS
+paramater
 puchase
+puhs
+sekf
+sucess
+varsion
 );
 
 $testcount = scalar(@Support::Files::testitems);
