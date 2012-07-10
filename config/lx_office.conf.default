@@ -163,6 +163,29 @@ email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
 # The template file used for the email's body.
 email_template = templates/webpages/oe/periodic_invoices_email.txt
 
+[self_test]
+
+# modules to be tested
+# Add without SL::BackgroundJob::SelfTest:: prefix
+# Separate with space.
+modules = Transactions
+
+# you probably don't want to be spammed with "everything ok" every day. enable
+# this when you add new tests to make sure they run correctly for a few days
+send_email_on_success = 0
+
+# will log into the standard logfile
+log_to_file = 0
+
+# user login (!) to send the email to.
+send_email_to  =
+# will be used to send your report mail
+email_from     =
+# The subject line for your report mail
+email_subject  = kivitendo self test report
+# template. currently txt and html templates are recognized and correctly mime send.
+email_template = templates/mail/self_test/status_mail.txt
+
 [datev_check]
 # it is possible to make a quick DATEV export everytime you post a record to ensure things
 # work nicely with their data requirements. This will result in a slight overhead though

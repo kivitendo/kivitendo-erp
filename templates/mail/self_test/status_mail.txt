@@ -1,0 +1,18 @@
+kivitendo selftest report.
+
+Host:   [% host %]
+Path:   [% path %]
+DB:     [% database %]
+Result: [% SELF.aggreg.get_status %]
+
+------------
+Full report:
+------------
+
+[% FOREACH module = SELF.diag_per_module.keys %]
+Module: [% module %]
+--------------------
+
+[% SELF.diag_per_module.$module %]
+
+[% END %]

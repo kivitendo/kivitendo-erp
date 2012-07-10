@@ -19,6 +19,16 @@ Größere neue Features:
 
 Experimentelle Features:
 
+- Automatisierte Selbsttests
+  Es gibt jetzt ein Grundgerüst um Selbsttests durchzuführen, und bei Problemen
+  einen Administrator per Mail zu benachrichtigen. Die Selbsttests werden Über
+  das SelfTest Modul für den Taskserver verwaltet, und in config/lx_office.conf
+  im Block [self_test] konfiguriert. Die Tests werden in TAP ausgeliefert und
+  können bei Bedarf weiter maschinell ausgewertet werden.
+
+  Zur Demonstration gibt es einen Selbsttest Transactions, der die Datenbank
+  auf Fehlbuchungen untersucht.
+
 - Es ist möglich benutzerdefinierte Variablen vom Typ "Lieferant" und "Ware"
   anzulegen. Für die Auswahl in den webpages steht ein L.vendor_selector und
   ein L.part_selector zur Verfügung, der einfach das select_tag verwendet.
