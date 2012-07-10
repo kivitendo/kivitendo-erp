@@ -44,8 +44,8 @@ my $num_sent = 0;
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type) = @_;
-  my $self = {};
+  my ($type, %params) = @_;
+  my $self = { %params };
 
   $main::lxdebug->leave_sub();
 
