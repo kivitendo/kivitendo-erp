@@ -336,7 +336,7 @@ sub form_header {
   for my $i (1 .. $form->{rowcount}) {
     my $transaction = {
       amount     => $form->{"amount_$i"},
-      tax        => $form->{"tax$i"},
+      tax        => $form->{"tax_$i"},
       project_id => $form->{"project_id_$i"},
     };
 
@@ -375,7 +375,7 @@ sub form_header {
       . $cgi->hidden('-name' => "previous_AR_amount_$i",
                      '-default' => $selected_accno_full);
 
-    $transaction->{tax} =
+    $transaction->{taxchart} =
       NTI($cgi->popup_menu('-name' => "taxchart_$i",
                            '-id' => "taxchart_$i",
                            '-style' => 'width:200px',

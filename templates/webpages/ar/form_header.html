@@ -140,8 +140,8 @@
         <tr>
           <td>[% row.selectAR_amount %]</td>
           <td>[% L.input_tag('amount_' _ loop.count, LxERP.format_amount(row.amount, 2)) %]</td>
-          <td>[% L.input_tag('tax_' _ loop.count, LxERP.format_tax(row.tax, 2)) %][% LxERP.format_tax(row.tax, 2) | html %]</td>
-          <td>[% row.tax %]</td>
+          <td>[% L.hidden_tag('tax_' _ loop.count, LxERP.format_tax(row.tax, 2)) %][% LxERP.format_amount(row.tax, 2) | html %]</td>
+          <td>[% row.taxchart %]</td>
           <td>[% L.select_tag('project_id_' _ loop.count, L.options_for_select(ALL_PROJECTS, title='projectnumber', default=row.project_id, with_empty=1)) %]</td>
         </tr>
 [%- END %]
