@@ -264,6 +264,24 @@ namespace('kivi.Part', function(ns) {
     $("#makemodel_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
   };
 
+  // businessmodel
+  ns.delete_businessmodel_row = function(clicked) {
+    var row = $(clicked).closest('tr');
+    $(row).remove();
+  };
+
+  ns.add_businessmodel_row = function() {
+    if ($('#add_businessmodel').val() === '') return;
+
+    var data = $('#businessmodel_table :input').serializeArray();
+    data.push({ name: 'action', value: 'Part/add_businessmodel_row' });
+
+    $.post("controller.pl", data, kivi.eval_json_result);
+  };
+
+  ns.focus_last_businessmodel_input = function () {
+    $("#businessmodel_rows tr:last").find('input[type=text]').filter(':visible:first').focus();
+  };
 
   // customerprice
   ns.customerprice_renumber_positions = function() {

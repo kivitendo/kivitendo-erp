@@ -15,6 +15,8 @@ use Text::CSV_XS;
 
 use SL::CVar;
 use SL::Controller::Helper::GetModels;
+use SL::DB::Business;
+use SL::DB::BusinessModel;
 use SL::DB::Helper::ValidateAssembly qw(validate_assembly);
 use SL::DB::History;
 use SL::DB::Part;
@@ -31,14 +33,15 @@ use SL::Presenter::Tag qw(select_tag);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => [ qw(parts models part p warehouses multi_items_models
-                                  makemodels shops_not_assigned
+                                  makemodels businessmodels shops_not_assigned
                                   customerprices
                                   orphaned
                                   assortment assortment_items assembly assembly_items
                                   all_pricegroups all_translations all_partsgroups all_units
                                   all_buchungsgruppen all_payment_terms all_warehouses
                                   parts_classification_filter
-                                  all_languages all_units all_price_factors) ],
+                                  all_languages all_units all_price_factors
+                                  all_businesses) ],
   'scalar'                => [ qw(warehouse bin stock_amounts journal) ],
 );
 
@@ -525,6 +528,36 @@ sub action_add_makemodel_row {
     ->render;
 }
 
+sub action_add_businessmodel_row {
+  my ($self) = @_;
+
+  my $business_id = $::form->{add_businessmodel};
+
+  my $business = SL::DB::Manager::Business->find_by(id => $business_id) or
+    return $self->js->error(t8("No business selected or found!"))->render;
+
+  if ( grep { $business_id == $_->business_id } @{ $self->businessmodels } ) {
+    $self->js->flash('info', t8("This business has already been added."));
+  };
+
+  my $bm = SL::DB::BusinessModel->new(#parts_id             => $::form->{part}->{id},
+                                      business             => $business,
+                                      model                => '',
+                                      part_description     => '',
+                                      part_longdescription => '',
+  ) or die "Can't create BusinessModel object";
+
+  my $row_as_html = $self->p->render('part/_businessmodel_row',
+                                     businessmodel => $bm);
+
+  # after selection focus on the model field in the row that was just added
+  $self->js
+    ->append('#businessmodel_rows', $row_as_html)  # append in tbody
+    ->val('#add_businessmodel', '')
+    ->run('kivi.Part.focus_last_businessmodel_input')
+    ->render;
+}
+
 sub action_add_customerprice_row {
   my ($self) = @_;
 
@@ -906,6 +939,7 @@ sub parse_form {
 
   $self->parse_form_customerprices;
   $self->parse_form_makemodels;
+  $self->parse_form_businessmodels;
 }
 
 sub parse_form_prices {
@@ -977,6 +1011,33 @@ sub parse_form_makemodels {
   };
 }
 
+sub parse_form_businessmodels {
+  my ($self) = @_;
+
+  my $make_key = sub { return $_[0]->parts_id . '+' . $_[0]->business_id; };
+
+  my $businessmodels_map;
+  if ( $self->part->businessmodels ) { # check for new parts or parts without businessmodels
+    $businessmodels_map = { map { $make_key->($_) => Rose::DB::Object::Helpers::clone($_) } @{$self->part->businessmodels} };
+  };
+
+  $self->part->businessmodels([]);
+
+  my $businessmodels = delete($::form->{businessmodels}) || [];
+  foreach my $businessmodel ( @{$businessmodels} ) {
+    next unless $businessmodel->{business_id};
+
+    my $bm = SL::DB::BusinessModel->new( #parts_id            => $self->part->id,            # will be assigned by row add_businessmodels
+                                         business_id          => $businessmodel->{business_id},
+                                         model                => $businessmodel->{model} || '',
+                                         part_description     => $businessmodel->{part_description} || '',
+                                         part_longdescription => $businessmodel->{part_longdescription} || '',
+    );
+
+    $self->part->add_businessmodels($bm);
+  };
+}
+
 sub parse_form_customerprices {
   my ($self) = @_;
 
@@ -1044,7 +1105,7 @@ sub init_part {
   # used by edit, save, delete and add
 
   if ( $::form->{part}{id} ) {
-    return SL::DB::Part->new(id => $::form->{part}{id})->load(with => [ qw(makemodels customerprices prices translations partsgroup shop_parts shop_parts.shop) ]);
+    return SL::DB::Part->new(id => $::form->{part}{id})->load(with => [ qw(makemodels businessmodels customerprices prices translations partsgroup shop_parts shop_parts.shop) ]);
   } elsif ( $::form->{id} ) {
     return SL::DB::Part->new(id => $::form->{id})->load; # used by inventory tab
   } else {
@@ -1125,6 +1186,28 @@ sub init_makemodels {
     push(@makemodel_array, $mm);
   };
   return \@makemodel_array;
+}
+
+sub init_businessmodels {
+  my ($self) = @_;
+
+  my @businessmodel_array = ();
+  my $businessmodels = delete($::form->{businessmodels}) || [];
+
+  foreach my $businessmodel ( @{$businessmodels} ) {
+    next unless $businessmodel->{business_id};
+
+    my $bm = SL::DB::BusinessModel->new(#parts_id            => $self->part->id,             # will be assigned by row add_businessmodels
+                                        business_id          => $businessmodel->{business_id},
+                                        model                => $businessmodel->{model} || '',
+                                        part_description     => $businessmodel->{part_description} || '',
+                                        part_longdescription => $businessmodel->{part_longdescription} || '',
+                                  ) or die "Can't create bm";
+
+    push(@businessmodel_array, $bm);
+  };
+
+  return \@businessmodel_array;
 }
 
 sub init_customerprices {
@@ -1233,6 +1316,10 @@ sub init_all_price_factors {
 
 sub init_all_pricegroups {
   SL::DB::Manager::Pricegroup->get_all_sorted(query => [ obsolete => 0 ]);
+}
+
+sub init_all_businesses {
+  SL::DB::Manager::Business->get_all_sorted;
 }
 
 # model used to filter/display the parts in the multi-items dialog
