@@ -909,6 +909,27 @@ sub prepare_parts_for_printing {
 
   $sth->finish();
 
+
+  $query            = qq|SELECT bm.parts_id,
+                         bm.model                AS business_model,
+                         bm.part_description     AS bm_part_description,
+                         bm.part_longdescription AS bm_part_longdescription,
+                         b.description           AS business_make
+                         FROM business_models bm
+                         LEFT JOIN business b ON (bm.business_id = b.id)
+                         WHERE bm.parts_id IN ($placeholders)|;
+
+  my %businessmodel = ();
+
+  $sth              = prepare_execute_query($form, $dbh, $query, @part_ids);
+
+  while (my $ref = $sth->fetchrow_hashref()) {
+    $businessmodel{$ref->{parts_id}} ||= [];
+    push @{ $businessmodel{$ref->{parts_id}} }, $ref;
+  }
+
+  $sth->finish();
+
   $query           = qq|SELECT
                         cp.parts_id,
                         cp.customer_partnumber  AS customer_model,
@@ -939,7 +960,7 @@ sub prepare_parts_for_printing {
   my %data    = selectall_as_map($form, $dbh, $query, 'id', \@columns, @part_ids);
 
   my %template_arrays;
-  map { $template_arrays{$_} = [] } (qw(make model mm_part_description mm_part_longdescription customer_make customer_model cm_part_description cm_part_longdescription), @columns);
+  map { $template_arrays{$_} = [] } (qw(make model mm_part_description mm_part_longdescription business_make business_model bm_part_description bm_part_longdescription customer_make customer_model cm_part_description cm_part_longdescription), @columns);
 
   foreach my $i (1 .. $rowcount) {
     my $id = $form->{"${prefix}${i}"};
@@ -958,6 +979,17 @@ sub prepare_parts_for_printing {
     if ($makemodel{$id}) {
       foreach my $ref (@{ $makemodel{$id} }) {
         map { push @{ $template_arrays{$_}->[-1] }, $ref->{$_} } qw(make model mm_part_description mm_part_longdescription);
+      }
+    }
+
+    push @{ $template_arrays{business_make} },           [];
+    push @{ $template_arrays{business_model} },          [];
+    push @{ $template_arrays{bm_part_description} },     [];
+    push @{ $template_arrays{bm_part_longdescription} }, [];
+
+    if ($businessmodel{$id}) {
+      foreach my $ref (@{ $businessmodel{$id} }) {
+        map { push @{ $template_arrays{$_}->[-1] }, $ref->{$_} } qw(business_make business_model bm_part_description bm_part_longdescription);
       }
     }
 

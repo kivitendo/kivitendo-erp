@@ -110,6 +110,7 @@ my %kivitendo_package_names = (
   buchungsgruppen                => 'buchungsgruppe',
   bin                            => 'bin',
   business                       => 'business',
+  business_models                => 'business_model',
   chart                          => 'chart',
   contact_departments            => 'contact_department',
   contact_titles                 => 'contact_title',
