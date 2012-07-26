@@ -1121,6 +1121,26 @@ sub all_parts {
     $form->{parts} = \@assemblies;
   }
 
+  if ($form->{l_pricegroups} ) {
+    my $query = <<SQL;
+       SELECT parts_id, price, pricegroup_id
+       FROM prices
+       WHERE parts_id = ?
+SQL
+
+    my $sth = prepare_query($form, $dbh, $query);
+
+    foreach my $part (@{ $form->{parts} }) {
+      do_statement($form, $sth, $query, conv_i($part->{id}));
+
+      while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+        $part->{"pricegroup_$ref->{pricegroup_id}"} = $ref->{price};
+      }
+      $sth->finish;
+    }
+  };
+
+
   $main::lxdebug->leave_sub();
 
   return wantarray ? @{ $form->{parts} } : $form->{parts};

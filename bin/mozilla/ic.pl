@@ -1010,7 +1010,7 @@ sub addtop100 {
 #  bought sold onorder ordered rfq quoted
 #  l_partnumber l_description l_serialnumber l_unit l_listprice l_sellprice l_lastcost
 #  l_linetotal l_priceupdate l_bin l_rop l_weight l_image l_drawing l_microfiche
-#  l_partsgroup l_subtotal l_soldtotal l_deliverydate
+#  l_partsgroup l_subtotal l_soldtotal l_deliverydate l_pricegroups
 #
 # hiddens:
 #  nextsub revers lastsort sort ndxs_counter
@@ -1220,18 +1220,33 @@ sub generate_report {
     transdate name serialnumber deliverydate ean projectnumber projectdescription
   );
 
+  my $pricegroups = SL::DB::Manager::Pricegroup->get_all(sort => 'id');
+  my @pricegroup_columns;
+  my %column_defs_pricegroups;
+  if ($form->{l_pricegroups}) {
+    @pricegroup_columns      = map { "pricegroup_" . $_->id } @{ $pricegroups };
+    %column_defs_pricegroups = map {
+      "pricegroup_" . $_->id => {
+        text    => $::locale->text('Pricegroup') . ' ' . $_->pricegroup,
+        visible => 1,
+      },
+    }  @{ $pricegroups };
+  }
+  push @columns, @pricegroup_columns;
+
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
   my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
   my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @includeable_custom_variables;
 
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
-  %column_defs = (%column_defs,%column_defs_cvars); # nochmal die cvars als überschrift hinzufügen
-    map { $column_defs{$_}->{visible} = $form->{"l_$_"} ? 1 : 0 } @columns;
-  map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal);
+  %column_defs = (%column_defs, %column_defs_cvars, %column_defs_pricegroups);
+  map { $column_defs{$_}->{visible} ||= $form->{"l_$_"} ? 1 : 0 } @columns;
+  map { $column_defs{$_}->{align}   = 'right' } qw(onhand sellprice listprice lastcost linetotalsellprice linetotallastcost linetotallistprice rop weight soldtotal), @pricegroup_columns;
 
-  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom), @itemstatus_keys, @callback_keys,
+  my @hidden_variables = (qw(l_subtotal l_linetotal searchitems itemstatus bom l_pricegroups), @itemstatus_keys, @callback_keys,
                               map({ "cvar_$_->{name}" } @searchable_custom_variables), map { "l_$_" } @columns);
+
   my $callback         = build_std_url('action=generate_report', grep { $form->{$_} } @hidden_variables);
 
   my @sort_full        = qw(partnumber description onhand soldtotal deliverydate);
@@ -1319,6 +1334,10 @@ sub generate_report {
       $row->{$_}{data}            = $form->format_amount(\%myconfig, $ref->{$_}, -2);
       $row->{"linetotal$_"}{data} = $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{$_}, 2);
     }
+    foreach ( @pricegroup_columns ) {
+      $row->{$_}{data}            = $form->format_amount(\%myconfig, $ref->{"$_"}, -2);
+    };
+
 
     map { $row->{$_}{data} = $form->format_amount(\%myconfig, $ref->{$_}); } qw(onhand rop weight soldtotal);
 
