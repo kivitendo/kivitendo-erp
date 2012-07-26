@@ -1752,8 +1752,11 @@ sub update {
   # parse pricegroups. and no, don't rely on check_form for this...
   map { $form->{"price_$_"} = $form->parse_amount(\%myconfig, $form->{"price_$_"}) } 1 .. $form->{price_rows};
 
-  # same for lastcosts
-  map { $form->{"lastcost_$_"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$_"}) } 1 .. $form->{"makemodel_rows"};
+  # same for makemodel lastcosts
+  # but parse_amount not necessary for assembly component lastcosts
+  unless ($form->{item} eq "assembly") {
+    map { $form->{"lastcost_$_"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$_"}) } 1 .. $form->{"makemodel_rows"};
+  };
 
   if ($form->{item} eq "assembly") {
     my $i = $form->{assembly_rows};
