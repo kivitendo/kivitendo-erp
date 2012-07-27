@@ -1,5 +1,7 @@
 package SL::BackgroundJob::SelfTest::Base;
 
+use strict;
+
 use Test::Builder;
 
 use parent qw(Rose::Object);
