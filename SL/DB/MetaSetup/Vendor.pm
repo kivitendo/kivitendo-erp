@@ -19,7 +19,7 @@ __PACKAGE__->meta->setup(
     city           => { type => 'varchar', length => 75 },
     country        => { type => 'varchar', length => 75 },
     contact        => { type => 'varchar', length => 75 },
-    phone          => { type => 'varchar', length => 30 },
+    phone          => { type => 'text' },
     fax            => { type => 'varchar', length => 30 },
     homepage       => { type => 'text' },
     email          => { type => 'text' },
