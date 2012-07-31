@@ -194,7 +194,10 @@ sub check_existing {
 
   my $object = $entry->{object};
 
-  $entry->{part} = $self->parts_by->{partnumber}->{ $object->type }->{ $object->partnumber };
+  $entry->{part} = SL::DB::Manager::Part->find_by(
+    SL::DB::Manager::Part->type_filter($object->type),
+    ( partnumber => $object->partnumber )                 x!! $object->partnumber,
+  );
 
   if ($self->settings->{article_number_policy} eq 'update_prices') {
     if ($entry->{part}) {
