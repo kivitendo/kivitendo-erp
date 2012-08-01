@@ -111,6 +111,14 @@ sub _check_header {
     ]) unless $header;
   }
 
+  # Special case: utf8 BOM.
+  # certain software (namely MS Office and notepad.exe insist on prefixing
+  # data with a discouraged but valid byte order mark
+  # if not removed, the first header field will not be recognized
+  if ($header && $header->[0] && $self->encoding =~ /utf-?8/i) {
+    $header->[0] =~ s/^\x{FEFF}//;
+  }
+
   return unless $header;
   return $self->header([ map { lc } @$header ]);
 }

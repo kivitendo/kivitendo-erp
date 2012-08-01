@@ -182,7 +182,6 @@ sub field_lengths {
            city           => 75,
            country        => 75,
            contact        => 75,
-           phone          => 30,
            fax            => 30,
            account_number => 15,
            bank_code      => 10,

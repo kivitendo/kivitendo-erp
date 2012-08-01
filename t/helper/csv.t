@@ -1,4 +1,4 @@
-use Test::More tests => 40;
+use Test::More tests => 41;
 
 use lib 't';
 
@@ -285,11 +285,21 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive hea
 #####
 
 $csv = SL::Helper::Csv->new(
-  file   => \"Kaffee",
-  header => [ 'Description' ],
-  class  => 'SL::DB::Part',
+file   => \"Kaffee",
+header => [ 'Description' ],
+class  => 'SL::DB::Part',
 );
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive header as param works';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"\x{FEFF}description\nKaffee",
+  class  => 'SL::DB::Part',
+  encoding => 'utf8',
+);
+$csv->parse;
+is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'utf8 BOM works (bug 1872)';
 
 # vim: ft=perl
