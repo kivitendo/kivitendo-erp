@@ -615,8 +615,7 @@ sub orders {
     };
 
     $row->{donumber}->{link}  = $edit_url       . "&id=" . E($dord->{id})      . "&callback=${callback}";
-    $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}";
-
+    $row->{ordnumber}->{link} = $edit_order_url . "&id=" . E($dord->{oe_id})   . "&callback=${callback}" if $dord->{oe_id};
     $report->add_data($row);
 
     $idx++;
