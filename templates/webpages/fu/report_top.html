@@ -1,3 +1,7 @@
+[%- IF SAVED_MESSAGE %]
+  <p>[% SAVED_MESSAGE %]</p>
+[%- END %]
+
 [%- IF OPTIONS.size %]
 <p>
  [%- FOREACH option = OPTIONS %]
