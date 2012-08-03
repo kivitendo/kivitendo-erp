@@ -371,7 +371,7 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>
+       <td><input name=transdate onchange="set_duedate()" id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
        |;
@@ -389,7 +389,7 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>|;
+      qq|<td><input name=transdate onchange="set_duedate()" id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>|;
     $button2 =
       qq|<td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\" $readonly></td>|;
   }
@@ -854,6 +854,24 @@ sub form_footer {
   print qq|
 
 $follow_ups_block
+
+<script type="text/javascript">
+<!--
+function set_duedate() {
+   \$.ajax({
+     url: 'is.pl?action=set_duedate',
+     data: {
+       invdate: \$('#transdate').val(),
+       vendor_id: \$('[name=vendor_id]').val(),
+     },
+     dataType: 'text',
+     success: function(data) {
+       \$('#duedate').val(data);
+     }
+   });
+ }
+//-->
+</script>
 
 <input name=callback type=hidden value="$form->{callback}">
 <input name="gldate" type="hidden" value="| . Q($form->{gldate}) . qq|">

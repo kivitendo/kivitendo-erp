@@ -1995,8 +1995,17 @@ sub get_duedate {
   $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
 
   my $dbh         = $self->get_standard_dbh($myconfig);
+  my $payment_id;
+
+  if($self->{payment_id}) {
+    $payment_id = $self->{payment_id};
+  } elsif($self->{vendor_id}) {
+    my $query = 'SELECT payment_id FROM vendor WHERE id = ?';
+    ($payment_id) = selectrow_query($self, $dbh, $query, $self->{vendor_id});
+  }
+
   my $query       = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
-  my ($duedate)   = selectrow_query($self, $dbh, $query, $self->{payment_id});
+  my ($duedate)   = selectrow_query($self, $dbh, $query, $payment_id);
 
   $main::lxdebug->leave_sub();
 
