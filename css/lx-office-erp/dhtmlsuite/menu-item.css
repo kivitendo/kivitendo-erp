@@ -181,4 +181,9 @@
 	background-color:#6A8CCB;	/* background color for the separator - blue */
 }
 
-
+.DHTMLSuite_menuItem_textContent
+{
+  border-bottom-style: none !important;
+  background-color: inherit !important;
+  color: inherit !important;
+}
