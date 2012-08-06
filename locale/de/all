@@ -1115,6 +1115,7 @@ $self->{texts} = {
   'Main sorting'                => 'Hauptsortierung',
   'Make'                        => 'Lieferant',
   'Make (with X being a number)' => 'Lieferant (X ist eine fortlaufende Zahl)',
+  'Make compatible for import'  => 'Für den Import kompatibel machen',
   'Make default profile'        => 'Zu Standardprofil machen',
   'Manage Custom Variables'     => 'Benutzerdefinierte Variablen',
   'Mandantennummer'             => 'Mandantennummer',

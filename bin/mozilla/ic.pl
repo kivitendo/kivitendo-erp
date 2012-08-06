@@ -1401,7 +1401,7 @@ sub generate_report {
     $idx++;
   }
 
-  if ($form->{"l_linetotal"}) {
+  if ($form->{"l_linetotal"} && !$form->{report_generator_csv_options_for_import}) {
     my $row = { map { $_ => { 'class' => 'listtotal', } } @columns };
 
     map { $row->{"linetotal$_"}->{data} = $form->format_amount(\%myconfig, $totals{$_}, 2) } @subtotal_columns;

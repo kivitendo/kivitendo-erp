@@ -896,7 +896,7 @@ sub generate_report {
 
     my $row_set = [ { map { $_ => { 'data' => $entry->{$_}, 'align' => $column_alignment{$_} } } @columns } ];
 
-    if (($form->{subtotal} eq 'Y')
+    if ( ($form->{subtotal} eq 'Y' && !$form->{report_generator_csv_options_for_import} )
         && (($idx == (scalar @contents - 1))
             || ($entry->{$sort_col} ne $contents[$idx + 1]->{$sort_col}))) {
 
@@ -916,7 +916,7 @@ sub generate_report {
     $idx++;
   }
 
-  if ($column_defs{stock_value}->{visible}) {
+  if ( $column_defs{stock_value}->{visible} && !$form->{report_generator_csv_options_for_import} ) {
     $report->add_separator();
 
     my $row                      = { map { $_ => { 'data' => '', 'class' => 'listsubtotal', } } @columns };

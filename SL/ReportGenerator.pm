@@ -72,6 +72,12 @@ sub set_columns {
   foreach my $column (values %{ $self->{columns} }) {
     $column->{visible} = $self->{options}->{std_column_visibility} unless defined $column->{visible};
   }
+  
+  if( $::form->{report_generator_csv_options_for_import} ) {
+    foreach my $key (keys %{ $self->{columns} }) {
+      $self->{columns}{$key}{text} = $key;
+    }
+  }
 
   $self->set_column_order(sort keys %{ $self->{columns} });
 }

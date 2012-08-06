@@ -466,7 +466,7 @@ sub generate_report {
 
     my $row_set = [ $row ];
 
-    if (($form->{l_subtotal} eq 'Y')
+    if ( ($form->{l_subtotal} eq 'Y' && !$form->{report_generator_csv_options_for_import} )
         && (($idx == (scalar @{ $form->{GL} } - 1))
             || ($ref->{ $form->{sort} } ne $form->{GL}->[$idx + 1]->{ $form->{sort} }))) {
       push @{ $row_set }, create_subtotal_row(\%subtotals, \@columns, \%column_alignment, [ qw(debit credit) ], 'listsubtotal');
@@ -476,8 +476,6 @@ sub generate_report {
 
     $idx++;
   }
-
-  $report->add_separator();
 
   # = 0 for balanced ledger
   my $balanced_ledger = $totals{debit} + $totals{debit_tax} - $totals{credit} - $totals{credit_tax};
@@ -496,8 +494,11 @@ sub generate_report {
   $data .= $sh;
 
   $row->{balance}->{data}        = $data;
-
-  $report->add_data($row);
+    
+  if ( !$form->{report_generator_csv_options_for_import} ) {
+    $report->add_separator();
+    $report->add_data($row);
+  }
 
   my $raw_bottom_info_text;
 
