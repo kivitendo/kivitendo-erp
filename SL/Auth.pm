@@ -424,15 +424,30 @@ sub read_all_users {
   my $self  = shift;
 
   my $dbh   = $self->dbconnect();
-  my $query = qq|SELECT u.id, u.login, cfg.cfg_key, cfg.cfg_value
-                 FROM auth.user_config cfg
-                 LEFT JOIN auth."user" u ON (cfg.user_id = u.id)|;
+  my $query = qq|SELECT u.id, u.login, cfg.cfg_key, cfg.cfg_value, s.mtime AS last_action
+
+                 FROM auth."user" AS  u
+
+                 LEFT JOIN auth.user_config AS cfg
+                   ON (cfg.user_id = u.id)
+
+                 LEFT JOIN auth.session_content AS sc_login
+                   ON (sc_login.sess_key = 'login' AND sc_login.sess_value = ('--- ' \|\| u.login \|\| '\n'))
+
+                 LEFT JOIN auth.session AS s
+                   ON (s.id = sc_login.session_id)
+              |;
   my $sth   = prepare_execute_query($main::form, $dbh, $query);
 
   my %users;
 
   while (my $ref = $sth->fetchrow_hashref()) {
-    $users{$ref->{login}}                    ||= { 'login' => $ref->{login}, 'id' => $ref->{id} };
+
+    $users{$ref->{login}}                    ||= {
+                                                'login' => $ref->{login},
+                                                'id' => $ref->{id},
+                                                'last_action' => $ref->{last_action},
+                                             };
     $users{$ref->{login}}->{$ref->{cfg_key}}   = $ref->{cfg_value} if (($ref->{cfg_key} ne 'login') && ($ref->{cfg_key} ne 'id'));
   }
 
