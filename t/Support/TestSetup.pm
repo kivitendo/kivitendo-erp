@@ -11,7 +11,6 @@ use SL::LXDebug;
 use Data::Dumper;
 use SL::LxOfficeConf;
 use SL::InstanceConfiguration;
-SL::LxOfficeConf->read;
 
 sub _login {
   my $login = shift;
@@ -45,6 +44,8 @@ sub _login {
 }
 
 sub login {
+  SL::LxOfficeConf->read;
+
   my $login        = shift || $::lx_office_conf{testing}{login}        || 'demo';
   _login($login);
 }
