@@ -808,8 +808,8 @@ Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</prog
           Core)</title>
 
           <para>Kopieren Sie die Datei
-          <filename>scripts/boot/system-v/lx-office-task-server</filename>
-          nach <filename>/etc/init.d/lx-office-task-server</filename>. Passen
+          <filename>scripts/boot/system-v/kivitendo-server</filename>
+          nach <filename>/etc/init.d/kivitendo-server</filename>. Passen
           Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
           <literal>DAEMON=....</literal>). Binden Sie das Script in den
           Boot-Prozess ein. Dies ist distributionsabhängig:</para>
@@ -818,20 +818,20 @@ Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</prog
             <listitem>
               <para>Debian-basierende Systeme:</para>
 
-              <programlisting>update-rc.d lx-office-task-server defaults
+              <programlisting>update-rc.d kivitendo-task-server defaults
 # Nur bei Debian Squeeze und neuer:
-insserv lx-office-task-server</programlisting>
+insserv kivitendo-task-server</programlisting>
             </listitem>
 
             <listitem>
               <para>OpenSuSE und Fedora Core:</para>
 
-              <programlisting>chkconfig --add lx-office-task-server</programlisting>
+              <programlisting>chkconfig --add kivitendo-task-server</programlisting>
             </listitem>
           </itemizedlist>
 
           <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
-          werden: <command>/etc/init.d/lx-office-task-server
+          werden: <command>/etc/init.d/kivitendo-task-server
           start</command></para>
         </sect3>
 
@@ -839,13 +839,13 @@ insserv lx-office-task-server</programlisting>
           <title>Upstart-basierende Systeme (z.B. Ubuntu)</title>
 
           <para>Kopieren Sie die Datei
-          <filename>scripts/boot/upstart/lx-office-task-server.conf</filename>
-          nach <filename>/etc/init/lx-office-task-server.conf</filename>.
+          <filename>scripts/boot/upstart/kivitendo-task-server.conf</filename>
+          nach <filename>/etc/init/kivitendo-task-server.conf</filename>.
           Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
           <literal>exec ....</literal>).</para>
 
           <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
-          werden: <command>service lx-office-task-server
+          werden: <command>service kivitendo-task-server
           start</command></para>
         </sect3>
       </sect2>

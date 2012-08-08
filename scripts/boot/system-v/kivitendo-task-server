@@ -1,20 +1,20 @@
 #!/bin/sh
 
 ### BEGIN INIT INFO
-# Provides:          lx-office-task-server
+# Provides:          kivitendo-task-server
 # Required-Start:    $local_fs $remote_fs $network $syslog $named
 # Required-Stop:     $local_fs $remote_fs $network $syslog $named
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # X-Interactive:     true
-# Short-Description: Start/stop the Lx-Office task server
+# Short-Description: Start/stop the Kivitendo task server
 ### END INIT INFO
 
 set -e
 
-# Change this to point to the Lx-Office "task_server.pl" location.
-DAEMON="/opt/lx-office/scripts/task_server.pl"
-TOPIC="Lx-Office task server"
+# Change this to point to the Kivitendo "task_server.pl" location.
+DAEMON="/opt/kivitendo/scripts/task_server.pl"
+TOPIC="Kivitendo task server"
 
 if [ ! -x $DAEMON ] ; then
   echo "$TOPIC executable not found"
@@ -43,7 +43,7 @@ case $1 in
     fi
     ;;
   *)
-    echo "Usage: /etc/init.d/lx-office-task-server {start|stop|reload|status}"
+    echo "Usage: /etc/init.d/kivitendo-task-server {start|stop|reload|status}"
     exit 1
     ;;
 esac
