@@ -125,7 +125,16 @@ sub gd_run {
     }
 
     my $seconds = 60 - (localtime)[0];
-    sleep($seconds < 30 ? $seconds + 60 : $seconds);
+    if (!eval {
+      local $SIG{'ALRM'} = sub {
+        $::lxdebug->message(0, "Got woken up by SIGALRM") if $lx_office_conf{task_server}->{debug};
+        die "Alarm!\n"
+      };
+      sleep($seconds < 30 ? $seconds + 60 : $seconds);
+      1;
+    }) {
+      die $@ unless $@ eq "Alarm!\n";
+    }
   }
 }
 
@@ -136,7 +145,7 @@ mkdir($pidbase) if !-d $pidbase;
 
 my $file = -f "${cwd}/config/lx_office.conf" ? "${cwd}/config/lx_office.conf" : "${cwd}/config/lx_office.conf.default";
 newdaemon(configfile => $file,
-          progname   => 'lx-office-task-server',
+          progname   => 'kivitendo-task-server',
           pidbase    => "${pidbase}/",
           );
 

@@ -210,7 +210,7 @@ sub post_invoice {
 
       # update parts table by setting lastcost to current price, don't allow negative values by using abs
       $query = qq|UPDATE parts SET lastcost = ? WHERE id = ?|;
-      @values = (abs($form->{"sellprice_$i"}), conv_i($form->{"id_$i"}));
+      @values = (abs($form->{"sellprice_$i"} / $basefactor), conv_i($form->{"id_$i"}));
       do_query($form, $dbh, $query, @values);
 
       # check if we sold the item already and
@@ -338,7 +338,7 @@ sub post_invoice {
 
       # update lastcost
       $query = qq|UPDATE parts SET lastcost = ? WHERE id = ?|;
-      do_query($form, $dbh, $query, $form->{"sellprice_$i"}, conv_i($form->{"id_$i"}));
+      do_query($form, $dbh, $query, $form->{"sellprice_$i"} / $basefactor, conv_i($form->{"id_$i"}));
     }
 
     next if $payments_only;
