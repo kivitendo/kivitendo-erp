@@ -53,6 +53,10 @@ sub _input_to_hash {
 sub _parse_multipart_formdata {
   my ($target, $temp_target, $input) = @_;
   my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous, $p_attachment, $encoding, $transfer_encoding);
+  my $data_start = 0;
+
+  # teach substr and length to use good ol' bytes, not 'em fancy characters
+  use bytes;
 
   # We SHOULD honor encodings and transfer-encodings here, but as hard as I
   # looked I couldn't find a reasonably recent webbrowser that makes use of
@@ -63,12 +67,21 @@ sub _parse_multipart_formdata {
   $ENV{'CONTENT_TYPE'} =~ /multipart\/form-data\s*;\s*boundary\s*=\s*(.+)$/;
   my $boundary = '--' . $1;
 
+  my $index = 0;
+  my $line_length;
   foreach my $line (split m/\n/, $input) {
-    last if (($line eq "${boundary}--") || ($line eq "${boundary}--\r"));
+    $line_length = length $line;
 
-    if (($line eq $boundary) || ($line eq "$boundary\r")) {
-      ${ $previous } =~ s|\r?\n$|| if $previous;
-      ${ $previous } =  Encode::decode($encoding, $$previous) if $previous && !$filename && !$transfer_encoding eq 'binary';
+    if ($line =~ /^\Q$boundary\E(--)?\r?$/) {
+      my $last_boundary = $1;
+      my $data       =  substr $input, $data_start, $index - $data_start;
+      $data =~ s/\r?\n$//;
+
+      if ($previous && !$filename && $transfer_encoding && $transfer_encoding ne 'binary') {
+        ${ $previous } = Encode::decode($encoding, $data);
+      } else {
+        ${ $previous } = $data;
+      }
 
       undef $previous;
       undef $filename;
@@ -79,7 +92,7 @@ sub _parse_multipart_formdata {
       $need_cr        = 0;
       $encoding       = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
       $transfer_encoding = undef;
-
+      last if $last_boundary;
       next;
     }
 
@@ -90,6 +103,7 @@ sub _parse_multipart_formdata {
 
       if (!$line) {
         $headers_done = 1;
+        $data_start = $index + $line_length + 1;
         next;
       }
 
@@ -159,10 +173,9 @@ sub _parse_multipart_formdata {
 
     next unless $previous;
 
-    ${ $previous } .= "${line}\n";
+  } continue {
+    $index += $line_length + 1;
   }
-
-  ${ $previous } =~ s|\r?\n$|| if $previous;
 
   $::lxdebug->leave_sub(2);
 }

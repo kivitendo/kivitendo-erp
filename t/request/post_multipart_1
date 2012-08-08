@@ -1,0 +1,101 @@
+-----------------------------23281168279961
+Content-Disposition: form-data; name="action"
+
+CsvImport/dispatch
+-----------------------------23281168279961
+Content-Disposition: form-data; name="profile.type"
+
+parts
+-----------------------------23281168279961
+Content-Disposition: form-data; name="profile.name"
+
+
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.numberformat"
+
+1.000,00
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.charset"
+
+UTF-8
+-----------------------------23281168279961
+Content-Disposition: form-data; name="sep_char"
+
+semicolon
+-----------------------------23281168279961
+Content-Disposition: form-data; name="custom_sep_char"
+
+
+-----------------------------23281168279961
+Content-Disposition: form-data; name="quote_char"
+
+quote
+-----------------------------23281168279961
+Content-Disposition: form-data; name="custom_quote_char"
+
+
+-----------------------------23281168279961
+Content-Disposition: form-data; name="escape_char"
+
+quote
+-----------------------------23281168279961
+Content-Disposition: form-data; name="custom_escape_char"
+
+
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.duplicates"
+
+no_check
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.article_number_policy"
+
+update_prices
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.sellprice_places"
+
+2
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.sellprice_adjustment"
+
+0
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.sellprice_adjustment_type"
+
+percent
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.shoparticle_if_missing"
+
+0
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.parts_type"
+
+part
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.default_buchungsgruppe"
+
+815
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.apply_buchungsgruppe"
+
+all
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.default_unit"
+
+g
+-----------------------------23281168279961
+Content-Disposition: form-data; name="settings.full_preview"
+
+0
+-----------------------------23281168279961
+Content-Disposition: form-data; name="file"; filename="from_wikipedia.csv"
+Content-Type: text/comma-separated-values
+
+﻿Stunde;Montag;Dienstag;Mittwoch;Donnerstag;Freitag
+1;Mathe;Deutsch;Englisch;Mathe;Kunst
+2;Sport;Französisch;Geschichte;Sport;Geschichte
+3;Sport;"Religion ev;kath";Kunst;;Kunst
+-----------------------------23281168279961
+Content-Disposition: form-data; name="action_test"
+
+Test und Vorschau
+-----------------------------23281168279961--
