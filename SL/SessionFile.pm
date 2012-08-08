@@ -24,6 +24,8 @@ sub new {
   $file_name =~ s:.*/::g;
   $file_name =  "${path}/${file_name}";
 
+  $self->file_name($file_name);
+
   if ($params{mode}) {
     my $mode = $params{mode};
 
@@ -35,9 +37,12 @@ sub new {
     $self->fh(IO::File->new($file_name, $mode));
   }
 
-  $self->file_name($file_name);
-
   return $self;
+}
+
+sub open {
+  my ($self, $mode) = @_;
+  return $self->fh(IO::File->new($self->file_name, $mode));
 }
 
 sub exists {
@@ -138,6 +143,10 @@ Returns the instance of C<IO::File> associated with the file.
 Returns the full relative file name associated with this instance. If
 it has been created for "customer.csv" then the value returned might
 be C<users/session_files/e8789b98721347/customer.csv>.
+
+=item C<open, %params]>
+
+Opens the file_name given at creation with the given parameters.
 
 =item C<exists>
 
