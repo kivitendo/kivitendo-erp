@@ -143,7 +143,7 @@ mkdir($pidbase) if !-d $pidbase;
 
 my $file = -f "${cwd}/config/lx_office.conf" ? "${cwd}/config/lx_office.conf" : "${cwd}/config/lx_office.conf.default";
 newdaemon(configfile => $file,
-          progname   => 'lx-office-task-server',
+          progname   => 'kivitendo-task-server',
           pidbase    => "${pidbase}/",
           );
 
