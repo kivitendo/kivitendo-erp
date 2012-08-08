@@ -95,7 +95,7 @@ destroyed or expires
   use SL::SessionFile;
 
   # Create a session file named "customer.csv" (relative names only)
-  my $sfile = SL::SessionFile->new("customer.csv", "w");
+  my $sfile = SL::SessionFile->new('customer.csv', mode => 'w');
   $sfile->fh->print("col1;col2;col3\n" .
                     "value1;value2;value3\n");
   $sfile->fh->close;
