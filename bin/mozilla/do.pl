@@ -258,9 +258,6 @@ sub form_header {
   # use JavaScript Calendar or not
   $form->{jsscript} = 1;
 
-  #write Trigger
-  my $jsscript = Form->write_trigger(\%myconfig, "2", "transdate", "BL", "trigger1", "reqdate", "BL", "trigger2");
-
   my @old_project_ids = ($form->{"globalproject_id"});
   map({ push(@old_project_ids, $form->{"project_id_$_"})
           if ($form->{"project_id_$_"}); } (1..$form->{"rowcount"}));
