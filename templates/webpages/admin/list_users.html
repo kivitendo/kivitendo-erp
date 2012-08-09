@@ -32,10 +32,10 @@
       <td>&nbsp;[% IF row.dbhost %][% HTML.escape(row.dbhost) %][% ELSE %]localhost[% END %]</td>
       <td>&nbsp;
         [% IF( row.last_action ) %]
-      	  [% HTML.escape(row.last_action) %]
-  	    [% ELSE %]
-  	      [% 'not logged in' | $T8 %]
-  	    [% END %]</td>
+          [% HTML.escape(row.last_action) %]
+        [% ELSE %]
+          [% 'not logged in' | $T8 %]
+        [% END %]</td>
 <!--  <td>&nbsp;[% HTML.escape(row.dbdriver) %]</td> -->
      </tr>
     [% END %]
