@@ -2576,18 +2576,14 @@ sub all_vc {
   # setup sales contacts
   $query = qq|SELECT e.id, e.name
               FROM employee e
-              WHERE (e.sales = '1') AND (NOT e.id = ?)|;
+              WHERE (e.sales = '1') AND (NOT e.id = ?)
+              ORDER BY name|;
   $self->{all_employees} = selectall_hashref_query($self, $dbh, $query, $self->{employee_id});
 
   # this is for self
   push(@{ $self->{all_employees} },
        { id   => $self->{employee_id},
          name => $self->{employee} });
-
-  # sort the whole thing
-  @{ $self->{all_employees} } =
-    sort { $a->{name} cmp $b->{name} } @{ $self->{all_employees} };
-
 
     # prepare query for departments
     $query = qq|SELECT id, description
