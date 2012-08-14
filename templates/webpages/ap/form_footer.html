@@ -1,0 +1,70 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE L %]
+[%- USE LxERP %]
+
+[%- IF (num_follow_ups && num_due) %]
+  <p>[% 'There are #1 unfinished follow-ups of which #2 are due.' | $T8(num_follow_ups, num_due) %]</p>
+[%- END %]
+
+<input name=callback type=hidden value="[% callback | html %]">
+<input name=gldate type=hidden value="[% gldate | html %]">
+<input type=hidden name=draft_id value="[% draft_id %]">
+<input type=hidden name=draft_description value="[% draft_description | html %]">
+
+[%- IF ( !id && draft_id ) %]
+  [% L.checkbox_tag('remove_draft', checked=remove_draft, label=LxERP.t8('Remove draft when posting')) %]
+  <br>
+[%- END %]
+
+<br>
+
+<input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+
+[%- IF id %]
+  [%- IF radier %]
+    <input class=submit type=submit name=action value="[% 'Post' | $T8 %]">
+    <input class=submit type=submit name=action value="[% 'Delete' | $T8 %]">
+  [%- END %]
+
+  [%- IF show_storno %]
+    <input class=submit type=submit name=action value="[% 'Storno' | $T8 %]">
+  [%- END %]
+
+  <input class=submit type=submit name=action value="[% 'Post Payment' | $T8 %]">
+  <input class=submit type=submit name=action value="[% 'Use As Template' | $T8 %]">
+  <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
+
+[%- ELSIF show_post_draft %]
+    <input class=submit type=submit name=action value="[% 'Post' | $T8 %]">
+    <input type="submit" name="action" value="[% 'Save draft' | $T8 %]" class="submit">
+[%- END %]
+
+[%- IF id %]
+  <input type="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
+  <input type="submit" name="action" value="[% 'mark as paid' | $T8 %]">
+[%- END %]
+
+</form>
+
+<script type="text/javascript">
+<!--
+function set_duedate() {
+   $.ajax({
+     url: 'is.pl?action=set_duedate',
+     data: {
+       invdate: $('#transdate').val(),
+       vendor_id: $('[name=vendor_id]').val(),
+     },
+     dataType: 'text',
+     success: function(data) {
+       $('#duedate').val(data);
+     }
+   });
+ }
+//-->
+</script>
+
+
+</body>
+</html>
