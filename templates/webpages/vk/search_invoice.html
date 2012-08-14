@@ -29,8 +29,8 @@
                <option value="month">[% 'Month' | $T8 %]</option>
                </select>
              </td>
-             <td align=left><input name="l_headers_mainsort" class=checkbox type=checkbox value="Y" checked> [% 'Heading' | $T8 %]</td>
-             <td align=left><input name="l_subtotal_mainsort" class=checkbox type=checkbox value="Y" checked> [% 'Subtotal' | $T8 %]</td>
+             <td align=left><input name="l_headers_mainsort" class=checkbox type=checkbox value=Y checked> [% 'Heading' | $T8 %]</td>
+             <td align=left><input name="l_subtotal_mainsort" class=checkbox type=checkbox value=Y checked> [% 'Subtotal' | $T8 %]</td>
              </tr>
              <tr>
                <td align="right">[% 'Secondary sorting' | $T8 %]</td>
@@ -50,13 +50,13 @@
              </tr>
            <tr>
            <th align="right">[% 'Item mode' | $T8 %]</th>
-           <td colspan="3" align=left><input name="l_parts" class=checkbox type=checkbox value="Y"> ([%'Show items from invoices individually' | $T8 %]) </td>
+           <td colspan="3" align=left><input name="l_parts" class=checkbox type=checkbox value=Y> ([%'Show items from invoices individually' | $T8 %]) </td>
           </tr>
           <tr> 
            <th align="right">
              [% 'Total sum' | $T8 %]
            </th>
-           <td colspan="1" align=left><input name="l_total" class=checkbox type=checkbox value="Y" checked></td>
+           <td colspan="1" align=left><input name="l_total" class=checkbox type=checkbox value=Y checked></td>
             <td align="right" nowrap>[% 'Decimalplaces' | $T8 %]: </td>
             <td colspan="2"><input name="decimalplaces" size="2" value="2"></td>
           </tr>
@@ -237,8 +237,8 @@
            <td colspan="4">([% 'averaged values, in invoice mode only useful when filtered by a part' | $T8 %])</td>
           </tr>
           <tr>
-           <td align=left><input name="l_qty" class=checkbox type=checkbox value="Y" checked>[% 'Quantity' | $T8 %]</td>
-           <td align=left><input name="l_discount" class=checkbox type=checkbox value="Y">[% 'Discount' | $T8 %]</td>
+           <td align=left><input name="l_qty" class=checkbox type=checkbox value=Y checked>[% 'Quantity' | $T8 %]</td>
+           <td align=left><input name="l_discount" class=checkbox type=checkbox value=Y>[% 'Discount' | $T8 %]</td>
            <td></td>
            <td colspan="4">([% 'averaged values, in invoice mode only useful when filtered by a part' | $T8 %])</td>
           </tr>
@@ -250,10 +250,10 @@
            <td align=left><input name="l_description" class=checkbox type=checkbox value=Y checked>[% 'Description' | $T8 %]</td>
            <td align=left><input name="l_partnumber" class=checkbox type=checkbox value=Y>[% 'Part Number' | $T8 %]</td>
            <td align=left><input name="l_invnumber" class=checkbox type=checkbox value=Y>[% 'Invnumber' | $T8 %]</td>
-           <td align=left><input name="l_transdate" class=checkbox type=checkbox value="Y">[% 'Invdate' | $T8 %]</td>
+           <td align=left><input name="l_transdate" class=checkbox type=checkbox value=Y>[% 'Invdate' | $T8 %]</td>
           </tr>
           <tr>
-           <td align=left><input name="l_unit" class=checkbox type=checkbox value="Y">[% 'Unit' | $T8 %]</td>
+           <td align=left><input name="l_parts_unit" class=checkbox type=checkbox value=Y>[% 'Base unit' | $T8 %]</td>
            <td align=left><input name="l_partsgroup" class=checkbox type=checkbox value=Y>[% 'Group' | $T8 %]</td>
            <td align=left><input name="l_salesman" class=checkbox type=checkbox value=Y>[% 'Salesperson' | $T8 %]</td>
            <td align=left><input name="l_employee" class=checkbox type=checkbox value=Y>[% 'Employee' | $T8 %]</td>

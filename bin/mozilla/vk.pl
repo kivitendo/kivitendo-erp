@@ -34,6 +34,7 @@
 use POSIX qw(strftime);
 use List::Util qw(sum first);
 
+use SL::AM;
 use SL::VK;
 use SL::IS;
 use SL::ReportGenerator;
@@ -149,7 +150,7 @@ sub invoice_transactions {
   $form->{title} = $locale->text('Sales Report');
 
   @columns =
-    qw(description invnumber transdate customernumber customername partnumber partsgroup country business transdate qty unit sellprice sellprice_total discount lastcost lastcost_total marge_total marge_percent employee salesman);
+    qw(description invnumber transdate customernumber customername partnumber partsgroup country business transdate qty parts_unit sellprice sellprice_total discount lastcost lastcost_total marge_total marge_percent employee salesman);
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs_ic }, @{ $cvar_configs_ct };
   my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs_ic }, @{ $cvar_configs_ct };
@@ -184,7 +185,7 @@ sub invoice_transactions {
     'invnumber'               => { 'text' => $locale->text('Invoice Number'), },
     'transdate'               => { 'text' => $locale->text('Invoice Date'), },
     'qty'                     => { 'text' => $locale->text('Quantity'), },
-    'unit'                    => { 'text' => $locale->text('Unit'), },
+    'parts_unit'              => { 'text' => $locale->text('Base unit'), },
     'sellprice'               => { 'text' => $locale->text('Sales price'), },
     'sellprice_total'         => { 'text' => $locale->text('Sales net amount'), },
     'lastcost_total'          => { 'text' => $locale->text('Purchase net amount'), },
@@ -203,7 +204,7 @@ sub invoice_transactions {
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
 
-  my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total unit discount marge_total marge_percent qty);
+  my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total parts_unit discount marge_total marge_percent qty);
 
   
   # so now the check-box "Description" is only used as switch for part description in invoice-mode
@@ -322,15 +323,20 @@ sub invoice_transactions {
 
   my $idx = 0;
 
+  my $basefactor;
+  my $all_units = AM->retrieve_all_units();
+
   foreach my $ar (@{ $form->{AR} }) {
+    $basefactor = $all_units->{$ar->{unit}}->{factor} / $all_units->{$ar->{parts_unit}}->{factor};
+    $basefactor = 1 unless $basefactor;
 
     $ar->{price_factor} = 1 unless $ar->{price_factor};
     # calculate individual sellprice
     # discount was already accounted for in db sellprice
-    $ar->{sellprice} = $ar->{sellprice} / $ar->{price_factor};
+    $ar->{sellprice} = $ar->{sellprice} / $ar->{price_factor} / $basefactor;
     $ar->{lastcost} = $ar->{lastcost} / $ar->{price_factor};
-    $ar->{sellprice_total} = $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) ;
-    $ar->{lastcost_total}  = $ar->{qty} * $ar->{lastcost};
+    $ar->{sellprice_total} = $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) / $ar->{price_factor};
+    $ar->{lastcost_total}  = $ar->{qty} * $ar->{lastcost} * $basefactor;
     # marge_percent wird neu berechnet, da Wert in invoice leer ist (Bug)
     $ar->{marge_percent} = $ar->{sellprice_total} ? (($ar->{sellprice_total}-$ar->{lastcost_total}) / $ar->{sellprice_total} * 100) : 0;
     # marge_total neu berechnen
@@ -414,6 +420,10 @@ sub invoice_transactions {
     # Ertrag prozentual:  (Summe VK betrag - Summe EK betrag) / Summe VK betrag
     # wird laufend bei jeder Position neu berechnet
     $totals{marge_percent}    = $totals{sellprice_total}    ? ( ($totals{sellprice_total} - $totals{lastcost_total}) / $totals{sellprice_total}   ) * 100 : 0;
+
+    #passt die qty an die gewählte Einheit an
+    #qty wurde bisher noch für andere Berechnungen benötigt und daher erst am Schluss überschrieben
+    $ar->{qty} *= $basefactor;
 
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(marge_total marge_percent);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(lastcost sellprice sellprice_total lastcost_total);
