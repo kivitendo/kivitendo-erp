@@ -725,9 +725,6 @@ sub retrieve {
 
   my ($query, $query_add, @values, @ids, $sth);
 
-  my $ic_cvar_configs = CVar->get_configs(module => 'IC',
-                                          dbh    => $dbh);
-
   # translate the ids (given by id_# and trans_id_#) into one array of ids, so we can join them later
   map {
     push @ids, $form->{"trans_id_$_"}
