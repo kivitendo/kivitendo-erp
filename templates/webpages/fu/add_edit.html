@@ -1,10 +1,10 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %]<body onload="on_load();">
 
  <script type="text/javascript">
   <!--
       function on_load() {
-        Calendar.setup({ inputField : "follow_up_date", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "follow_up_date_trigger" });
         document.Form.subject.focus();
       }
     -->
@@ -41,8 +41,7 @@
     <tr>
      <td valign="right">[% 'Follow-Up Date' | $T8 %]</td>
      <td>
-      <input name="follow_up_date" id="follow_up_date" value="[% HTML.escape(follow_up_date) %]" size="12">
-      <input type="button" name="follow_up_date_button" id="follow_up_date_trigger" value="?">
+       [% L.date_tag('follow_up_date', follow_up_date) %]
     </tr>
 
     <tr>

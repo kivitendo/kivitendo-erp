@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %][% USE JavaScript %][% USE LxERP %]<body onload="on_load(); [% onload %]">
 
  <script type="text/javascript" src="js/common.js"></script>
@@ -110,8 +111,7 @@
     <tr>
      <th align="right" nowrap>[% 'Best Before' | $T8 %]</th>
      <td>
-       <input name="bestbefore" id="bestbefore" size="11" value="[% HTML.escape(bestbefore) %]" title="[% myconfig_dateformat %]">
-       <input type="button" name="b_bestbefore" id="bestbefore_trigger" value="?">
+      [% L.date_tag('bestbefore', bestbefore) %]
      </td>
     </tr>
     [% END %]
@@ -141,19 +141,6 @@
    [%- END %]
   </p>
  </form>
-
- [% IF conf_show_best_before %]
- <script type="text/javascript">
-   <!--
-     Calendar.setup( {
-     inputField : "bestbefore",
-     ifFormat :"[% myconfig_jsc_dateformat %]",
-     align : "BR",
-     button : "bestbefore_trigger"
-     });
-   //-->
- </script>
- [% END %]
 
 </body>
 </html>

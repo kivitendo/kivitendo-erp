@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %]
 
    [%- FOREACH var = variables %]
@@ -16,24 +17,10 @@
 
      [%- ELSIF var.type == 'date' %]
      [% 'from (time)' | $T8 %]
-     <input name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]_from" id="cvar_[% HTML.escape(var.name) %]_from" size="12">
-     <input type="button" name="cvar_[% HTML.escape(var.name) %]_from_button" id="cvar_[% HTML.escape(var.name) %]_from_trigger" value="?">
-     [% 'to (time)' | $T8 %]
-     <input name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]_to" id="cvar_[% HTML.escape(var.name) %]_to" size="12">
-     <input type="button" name="cvar_[% HTML.escape(var.name) %]_to_button" id="cvar_[% HTML.escape(var.name) %]_to_trigger" value="?">
+     [% L.date_tag(filter_prefix _'cvar_'_ HTML.escape(var.name) _'_from') %]
 
-     <script type="text/javascript">
-      <!--
-          Calendar.setup({ inputField : "cvar_[% HTML.escape(var.name) %]_from",
-                           ifFormat   :"[% myconfig_jsc_dateformat %]",
-                           align      : "BR",
-                           button     : "cvar_[% HTML.escape(var.name) %]_from_trigger" });
-          Calendar.setup({ inputField : "cvar_[% HTML.escape(var.name) %]_to",
-                           ifFormat   :"[% myconfig_jsc_dateformat %]",
-                           align      : "BR",
-                           button     : "cvar_[% HTML.escape(var.name) %]_to_trigger" });
-        -->
-     </script>
+     [% 'to (time)' | $T8 %]
+     [% L.date_tag(filter_prefix _'cvar_'_ HTML.escape(var.name) _'_to') %]
 
      [%- ELSIF var.type == 'number' %]
      <select name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]_qtyop">

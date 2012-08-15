@@ -11,8 +11,6 @@
  <script type="text/javascript">
   <!--
       function on_load() {
-        Calendar.setup({ inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdatefrom_trigger" });
-        Calendar.setup({ inputField : "transdateto",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdateto_trigger" });
         document.Form.donumber.focus();
       }
     -->
@@ -108,13 +106,11 @@
     <tr>
      <th align="right">[% 'From' | $T8 %]</th>
      <td>
-      <input name="transdatefrom" id="transdatefrom" size="11" title="[% myconfig_dateformat %]" onBlur="check_right_date_format(this)">
-      <input type="button" name="transdatefrom_button" id="transdatefrom_trigger" value="?">
+      [% L.date_tag('transdatefrom') %]
      </td>
      <th align="right">[% 'Bis' | $T8 %]</th>
      <td>
-      <input name="transdateto" id="transdateto" size="11" title="[% myconfig_dateformat %]" onBlur="check_right_date_format(this)">
-      <input type="button" name="transdateto_button" id="transdateto_trigger" value="?">
+      [% L.date_tag('transdateto') %]
      </td>
     </tr>
 

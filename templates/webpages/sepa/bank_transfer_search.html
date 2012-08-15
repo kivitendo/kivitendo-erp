@@ -1,5 +1,7 @@
 [%- USE T8 %]
-[% USE HTML %][% USE LxERP %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
 <body>
 
  <p><div class="listtop">[% title %]</div></p>
@@ -20,33 +22,27 @@
     <tr>
      <td align="right">[% 'Export date from' | $T8 %]</td>
      <td>
-      <input name="f_export_date_from" id="f_export_date_from" size="11">
-      <input type="button" name="f_export_date_from_trigger" id="f_export_date_from_trigger" value="?">
-      [% 'to (time)' | $T8 %]
-      <input name="f_export_date_to" id="f_export_date_to" size="11">
-      <input type="button" name="f_export_date_to_trigger" id="f_export_date_to_trigger" value="?">
+       [% L.date_tag('f_export_date_from') %]
+       [% 'to (time)' | $T8 %]
+       [% L.date_tag('f_export_date_to') %]
      </td>
     </tr>
 
     <tr>
      <td align="right">[% 'Requested execution date from' | $T8 %]</td>
      <td>
-      <input name="f_requested_execution_date_from" id="f_requested_execution_date_from" size="11">
-      <input type="button" name="f_requested_execution_date_from_trigger" id="f_requested_execution_date_from_trigger" value="?">
-      [% 'to (time)' | $T8 %]
-      <input name="f_requested_execution_date_to" id="f_requested_execution_date_to" size="11">
-      <input type="button" name="f_requested_execution_date_to_trigger" id="f_requested_execution_date_to_trigger" value="?">
+       [% L.date_tag('f_requested_execution_date_from') %]
+       [% 'to (time)' | $T8 %]
+       [% L.date_tag('f_requested_execution_date_to') %]
      </td>
     </tr>
 
     <tr>
      <td align="right">[% 'Execution date from' | $T8 %]</td>
      <td>
-      <input name="f_execution_date_from" id="f_execution_date_from" size="11">
-      <input type="button" name="f_execution_date_from_trigger" id="f_execution_date_from_trigger" value="?">
-      [% 'to (time)' | $T8 %]
-      <input name="f_execution_date_to" id="f_execution_date_to" size="11">
-      <input type="button" name="f_execution_date_to_trigger" id="f_execution_date_to_trigger" value="?">
+       [% L.date_tag('f_execution_date_from') %]
+       [% 'to (time)' | $T8 %]
+       [% L.date_tag('f_execution_date_to') %]
      </td>
     </tr>
 
@@ -90,38 +86,5 @@
    <input type="submit" class="submit" name="action_bank_transfer_list" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
-
- <script type="text/javascript">
-  <!--
-     Calendar.setup({ inputField : "f_export_date_from",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BL",
-                      button     : "f_export_date_from_trigger" });
-     Calendar.setup({ inputField : "f_export_date_to",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BL",
-                      button     : "f_export_date_to_trigger" });
-
-     Calendar.setup({ inputField : "f_requested_execution_date_from",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BL",
-                      button     : "f_requested_execution_date_from_trigger" });
-     Calendar.setup({ inputField : "f_requested_execution_date_to",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BL",
-                      button     : "f_requested_execution_date_to_trigger" });
-
-     Calendar.setup({ inputField : "f_execution_date_from",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BL",
-                      button     : "f_execution_date_from_trigger" });
-     Calendar.setup({ inputField : "f_execution_date_to",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BL",
-                      button     : "f_execution_date_to_trigger" });
-
-    -->
- </script>
-
 </body>
 </html>

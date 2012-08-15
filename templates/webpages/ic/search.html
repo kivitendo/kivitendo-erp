@@ -1,6 +1,7 @@
-[%- USE T8 %]
+%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
+[%- USE L %]
 <body>
 
  <form method="post" action="ic.pl">
@@ -147,11 +148,9 @@
            <table>
             <tr>
              <th>[% 'From' | $T8 %]</th>
-             <td><input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(dateformat) %]"></td>
-             <td><input type="button" name="transdatefrom" id="trigger1" value="[% 'button' | $T8 %]"></td>
+             <td>[% L.date_tag('transdatefrom') %]</td>
              <th>[% 'To (time)' | $T8 %]</th>
-             <td><input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(dateformat) %]"></td>
-             <td><input type="button" name="transdateto" name="transdateto" id="trigger2" value="[% 'button' | $T8 %]"></td>
+             <td>[% L.date_tag('transdateto') %]</td>
             </tr>
            </table>
           </td>
@@ -296,13 +295,6 @@
    </tr>
    <tr><td colspan="4"><hr size="3" noshade></td></tr>
   </table>
-
-  <script type="text/javascript">
-   <!--
-       Calendar.setup({ inputField : "transdatefrom",  ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" });
-       Calendar.setup({ inputField : "transdateto",    ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
-       //-->
-  </script>
 
   <p>
    <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">

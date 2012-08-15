@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %][% USE LxERP %][% USE JavaScript %]<body[% UNLESS delivered %] onload="on_load();"[% END %]>
 
  [%- UNLESS delivered %]
@@ -129,8 +130,7 @@
      <td><input name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]"></td>
      [% IF conf_show_best_before %]
      <td>
-       <input name="bestbefore_[% loop.count %]" id="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]" size="11" title="[% myconfig_dateformat %]">
-       <input type="button" name="b_bestbefore_[% loop.count %]" id="bestbefore_trigger_[% loop.count %]" value="?">
+       [% L.date_tag('bestbefore_'_ loop.count, row.bestbefore) %]
      </td>
      [% END %]
      <td><input name="qty_[% loop.count %]" size="12" value="[% HTML.escape(LxERP.format_amount(row.qty)) %]"></td>
@@ -161,24 +161,6 @@
    [%- END %]
   </p>
  </form>
-
- [%- IF NOT delivered %]
- [% IF conf_show_best_before %]
-  <script type="text/javascript">
-    <!--
-    [%- FOREACH row = STOCK_INFO %]
-    Calendar.setup( {
-      inputField : "bestbefore_[% loop.count %]",
-      ifFormat :"[% myconfig_jsc_dateformat %]",
-      align : "BR",
-      button : "bestbefore_trigger_[% loop.count %]"
-    });
-    [%- END %]
-    //-->
-  </script>
-  [% END %]
-  [%- END %]
-
 </body>
 </html>
 

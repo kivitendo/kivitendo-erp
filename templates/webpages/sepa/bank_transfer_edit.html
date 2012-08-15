@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [% USE HTML %]
 [% USE LxERP %]
+[%- USE L %]
 [% IF vc == 'vendor' %]
  [% SET is_vendor = 1 %]
  [% SET arap = 'ap' %]
@@ -46,8 +47,7 @@
      [%- IF show_post_payments_button %]
       <th class="listheading" colspan="3">&nbsp;</th>
       <th class="listheading">
-       <input name="set_all_execution_date" id="set_all_execution_date" size="11">
-       <input type="button" name="set_all_execution_date_trigger" id="set_all_execution_date_trigger" value="?">
+        [% L.date_tag('set_all_execution_date') %]
       </th>
      [%- ELSE %]
       <th class="listheading" colspan="4">&nbsp;</th>
@@ -82,9 +82,7 @@
        [%- ELSIF item.export_closed %]
         [% 'not executed' | $T8 %]
        [%- ELSE %]
-        <input name="items[].execution_date" id="execution_date_[% loop.count %]" size="11"
-               value="[% IF item.requested_execution_date %][% HTML.escape(item.requested_execution_date) %][% ELSE %][% HTML.escape(current_date) %][% END %]">
-        <input type="button" name="execution_date_[% loop.count %]_trigger" id="execution_date_[% loop.count %]_trigger" value="?">
+         [% L.date_tag('items[].execution_date', item.requested_execution_date || current_date) %]
        [%- END %]
       </td>
      </tr>
@@ -116,23 +114,6 @@
           $(this).attr('checked', checked);
         });
       });
-
-      [%- IF show_post_payments_button %]
-       Calendar.setup({ inputField : "set_all_execution_date",
-                        ifFormat   : "[% myconfig_jsc_dateformat %]",
-                        align      : "BL",
-                        button     : "set_all_execution_date_trigger",
-                        onUpdate   : set_all_execution_date_fields });
-
-       [%- FOREACH item = export.items %]
-        [%- IF !item.executed %]
-         Calendar.setup({ inputField : "execution_date_[% loop.count %]",
-                          ifFormat   : "[% myconfig_jsc_dateformat %]",
-                          align      : "BL",
-                          button     : "execution_date_[% loop.count %]_trigger" });
-        [%- END %]
-       [%- END %]
-      [%- END %]
     });
      -->
   </script>

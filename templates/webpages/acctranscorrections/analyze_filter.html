@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %]
+[%- USE L %]
 <body>
  <p><div class="listheading">[% title %]</div></p>
 
@@ -25,11 +26,9 @@
      <td>
       [% 'Period:' | $T8 %]
       [% 'from (time)' | $T8 %]
-      <input name="transdate_from" id="transdate_from" size="10">
-      <input type="button" name="transdate_from_trigger" id="transdate_from_trigger" value="?">
+      [% L.date_tag('transdate_from') %]
       [% 'to (time)' | $T8 %]
-      <input name="transdate_to" id="transdate_to" size="10">
-      <input type="button" name="transdate_to_trigger" id="transdate_to_trigger" value="?">
+      [% L.date_tag('transdate_to') %]
      </td>
     </tr>
    </table>
@@ -41,12 +40,5 @@
 
   <input type="hidden" name="action" value="analyze">
  </form>
-
- <script type="text/javascript">
-  <!--
-    Calendar.setup({ inputField : "transdate_from", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdate_from_trigger" });
-    Calendar.setup({ inputField : "transdate_to",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdate_to_trigger" });
-  //-->
- </script>
 </body>
 </html>

@@ -202,8 +202,7 @@
                      [%- END %]
                     </th>
                     <td nowrap>
-                      <input name=transdate id=transdate size=11 title="[% HTML.escape(dateformat) %]" value="[% transdate %]" onBlur="check_right_date_format(this)">
-                      <input type=button name=transdate id="trigger1" value="[% 'button' | $T8 %]">
+                      [% L.date_tag('transdate', transdate) %]
                     </td>
                   </tr>
                   <tr>
@@ -215,8 +214,7 @@
                      [%- END %]
                     </th>
                     <td nowrap>
-                      <input name=reqdate id=reqdate size=11 title="[% HTML.escape(dateformat) %]" value="[% reqdate %]" onBlur="check_right_date_format(this)">
-                      <input type=button name=reqdate id="trigger2" value="[% 'button' | $T8 %]">
+                      [% L.date_tag('reqdate', reqdate) %]
                     </td>
                   </tr>
                   <tr>

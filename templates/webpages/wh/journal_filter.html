@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %][% USE JavaScript %]<body onload="on_load();">
 
  <script type="text/javascript">
@@ -109,8 +110,7 @@
        <tr>
         <th align="right" nowrap>[% 'Best Before' | $T8 %]:</th>
         <td>
-         <input name="bestbefore" id="bestbefore" size="11" title="[% myconfig_dateformat %]">
-         <input type="button" name="b_bestbefore" id="bestbefore_trigger" value="?">
+          [% L.date_tag('bestbefore') %]
         </td>
        </tr>
        [% END %]
@@ -132,15 +132,13 @@
        <tr>
         <th align="right" nowrap>[% 'From Date' | $T8 %]</th>
         <td>
-         <input name="fromdate" id="fromdate" size="11" title="[% myconfig_dateformat %]">
-         <input type="button" name="b_fromdate" id="fromdate_trigger" value="?">
+          [% L.date_tag('fromdate') %]
         </td>
        </tr>
        <tr>
         <th align="right">[% 'To Date' | $T8 %]</th>
         <td>
-         <input name="todate" id="todate" size="11" title="[% myconfig_dateformat %]">
-         <input type="button" name="b_todate" id="todate_trigger" value="?">
+          [% L.date_tag('todate') %]
         </td>
        </tr>
       </table>
@@ -210,33 +208,6 @@
    <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
-
-  <script type="text/javascript">
-    <!--
-    [% IF conf_show_best_before %]
-    Calendar.setup( {
-      inputField : "bestbefore",
-      ifFormat :"[% myconfig_jsc_dateformat %]",
-      align : "BR",
-      button : "bestbefore_trigger"
-    });
-    [% END %]
-
-    Calendar.setup( {
-      inputField : "fromdate",
-      ifFormat :"[% myconfig_jsc_dateformat %]",
-      align : "BR",
-      button : "fromdate_trigger"
-    });
-
-     Calendar.setup( {
-      inputField : "todate",
-      ifFormat :"[% myconfig_jsc_dateformat %]",
-      align : "BL",
-      button : "todate_trigger"
-    });
-     //-->
-  </script>
 
 </body>
 </html>

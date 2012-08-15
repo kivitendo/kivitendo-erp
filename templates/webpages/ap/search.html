@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 <body>
 
  <form method=post name="search" action=[% script %]>
@@ -70,13 +71,11 @@
      <tr>
       <th align=right nowrap>[% 'From' | $T8 %]</th>
       <td>
-       <input name=transdatefrom id=transdatefrom size=11 title="dateformat | html %]" onBlur=\"check_right_date_format(this)\">
-       <input type=button name=transdatefrom id="trigger1" value=[% 'button' | $T8 %]>
+       [% L.date_tag('transdatefrom') %]
       </td>
      <th align=right>[% 'Bis' | $T8 %]</th>
      <td>
-      <input name=transdateto id=transdateto size=11 title="[% dateformat | html %]" onBlur=\"check_right_date_format(this)\">
-      <input type=button name=transdateto name=transdateto id="trigger2" value=[% 'button' | $T8 %]>
+      [% L.date_tag('transdateto') %]
      </td>
     </tr>
    <input type=hidden name=sort value=transdate>
@@ -176,8 +175,6 @@
  </body>
  <script type="text/javascript">
  <!--
-   Calendar.setup( { inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger1" });
-   Calendar.setup( { inputField : "transdateto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger2" });
    $(document).ready(function(){
     focus();
     setupDateFormat('[% dateformat | html %]','[% 'Falsches Datumsformat!' | $T8 %]');

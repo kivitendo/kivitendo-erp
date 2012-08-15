@@ -318,13 +318,17 @@
      <tr>
       <th align="right" nowrap>[% 'From' | $T8 %]</th>
       <td>
-       <input id="from" name="from" size="10" maxlength="10" onChange="get_delivery(['shipto_id__' + delivery_id.value, 'from__' + this.value, 'to__' + to.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])" value="[% HTML.escape(from) %]">
-       <input type="button" name="fromB" id="trigger_from" value="?">
+        [% L.date_tag('from',
+                      from,
+                      onchange => "\$('#delivery').load('ct.pl?action=get_delivery&shipto_id='+ \$('#delivery_id').val() +'&from='+ \$('#from').val() +'&to='+ \$('#to').val() +'&id='+ \$('#cvid').val() +'&db='+ \$('#db').val())")
+        %]
       </td>
       <th align="right" nowrap>[% 'To (time)' | $T8 %]</th>
       <td>
-       <input id="to" name="to" size="10" maxlength="10" onChange="get_delivery(['shipto_id__' + delivery_id.value, 'from__' + from.value, 'to__' + this.value, 'id__' + cvid.value, 'db__' + db.value], ['delivery'])" value="[% HTML.escape(to) %]">
-       <input type="button" name="toB" id="trigger_to" value="?">
+       [% L.date_tag('to',
+                      to,
+                      onchange => "\$('#delivery').load('ct.pl?action=get_delivery&shipto_id='+ \$('#delivery_id').val() +'&from='+ \$('#from').val() +'&to='+ \$('#to').val() +'&id='+ \$('#cvid').val() +'&db='+ \$('#db').val())")
+       %]
       </td>
      </tr>
 
@@ -393,8 +397,7 @@
       <tr>
        <td valign="right">[% 'Follow-Up On' | $T8 %]</td>
        <td>
-        <input name="FU_date" id="FU_date" value="[% HTML.escape(FU_date) %]" size="12">
-        <input type="button" name="FU_date_button" id="FU_date_trigger" value="?">
+        [% L.date_tag('FU_date', FU_date) %]
         [% 'for' | $T8 %]
         [% L.select_tag('FU_created_for_user', L.options_for_select(ALL_EMPLOYEES, default=(FU_created_for_user ? FU_created_for_user : USER.id), title='safe_name')) %]
        </td>

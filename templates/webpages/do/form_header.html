@@ -19,10 +19,6 @@
         [% IF onload %][% onload %];[% END %]
         setupDateFormat('[% myconfig_dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
         setupPoints('[% myconfig_numberformat %]', '[% 'wrongformat' | $T8 %]');
-
-        [%- UNLESS delivered %]
-        Calendar.setup({ inputField : "transdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "transdate_trigger" });
-        [%- END %]
       }
     -->
  </script>
@@ -47,7 +43,6 @@
  [%- SET is_customer = '0' %]
  [%- END %]
  [%- IF delivered %]
- [%- SET RO = ' readonly' %]
  [%- SET DISABLED = ' disabled' %]
  [%- END %]
 
@@ -292,9 +287,7 @@
        <tr>
         <th align="right" nowrap>[% 'Delivery Order Date' | $T8 %]</th>
         <td nowrap>
-         <input name="transdate" id="transdate" size="11" title="[% HTML.escape(myconfig_dateformat) %]" value="[% HTML.escape(transdate) %]"
-                onBlur="check_right_date_format(this)"[% RO %]>
-         [% UNLESS delivered %]<input type="button" name="b_transdate" id="transdate_trigger" value="?">[% END %]
+         [% L.date_tag('transdate', transdate, readonly => delivered) %]
         </td>
        </tr>
 

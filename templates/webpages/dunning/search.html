@@ -73,26 +73,22 @@
       <tr>
        <th align="right" nowrap>[% 'Invdate from' | $T8 %]</th>
        <td>
-        <input name="transdatefrom" id="transdatefrom" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
-        <input type="button" name="transdatefrom" id="trigger1" value="?">
+         [% L.date_tag('transdatefrom') %]
        </td>
        <th align="right" nowrap>[% 'To (time)' | $T8 %]</th>
        <td>
-        <input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
-        <input type="button" name="transdateto" id="trigger2" value="?">
+         [% L.date_tag('transdateto') %]
        </td>
       </tr>
 
       <tr>
        <th align="right" nowrap>[% 'Dunning Date from' | $T8 %]</th>
        <td>
-        <input name="dunningfrom" id="dunningfrom" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
-        <input type="button" name="dunningfrom" id="trigger3" value="?">
+        [% L.date_tag('dunningfrom') %]
        </td>
        <th align="right" nowrap>[% 'To (time)' | $T8 %]</th>
        <td>
-        <input name="dunningto" id="dunningto" size="11" title="[% HTML.escape(myconfig_dateformat) %]" onBlur="check_right_date_format(this)">
-        <input type="button" name="dunningto" id="trigger4" value="?">
+        [% L.date_tag('dunningto') %]
        </td>
       </tr>
       <tr>
@@ -126,16 +122,6 @@
   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
 
  </form>
-
- <script type="text/javascript">
-  <!--
-      Calendar.setup({ inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger1" });
-      Calendar.setup({ inputField : "transdateto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger2" });
-      Calendar.setup({ inputField : "dunningfrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger3" });
-      Calendar.setup({ inputField : "dunningto", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BR", button : "trigger4" });
-    -->
- </script>
-
 </body>
 
 </html>

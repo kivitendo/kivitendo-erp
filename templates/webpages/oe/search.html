@@ -82,25 +82,21 @@
     <tr>
      <th align="right">[% IF is_order %][% 'Order Date' | $T8 %][% ELSE %][% 'Quotation Date' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>
-      <input name="transdatefrom" id="transdatefrom" size="11" title="[% dateformat | html %]" onBlur="check_right_date_format(this)">
-      <input type="button" name="transdatefrom" id="trigger3" value="?">
+       [% L.date_tag('transdatefrom') %]
      </td>
      <th align="right">[% 'Bis' | $T8 %]</th>
      <td>
-      <input name="transdateto" id="transdateto" size="11" title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
-      <input type="button" name="transdateto" name="transdateto" id="trigger4" value="?">
+      [% L.date_tag('transdateto') %]
      </td>
     </tr>
     <tr>
      <th align="right">[% IF is_order %][% 'Delivery Date' | $T8 %][% ELSE %][% 'Valid until' | $T8 %][% END %] [% 'From' | $T8 %]</th>
      <td>
-      <input name=reqdatefrom id=reqdatefrom size=11 title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
-      <input type=button name=reqdatefrom id="trigger5" value=?>
+       [% L.date_tag('reqdatefrom') %]
      </td>
      <th align="right">[% 'Bis' | $T8 %]</th>
      <td>
-      <input name=reqdateto id=reqdateto size=11 title="[% HTML.escape(dateformat) %]" onBlur="check_right_date_format(this)">
-      <input type=button name=reqdateto name=reqdateto id="trigger6" value=?>
+       [% L.date_tag('reqdateto') %]
      </td>
     </tr>
     <tr>
@@ -244,15 +240,6 @@
   </td>
  </tr>
 </table>
-
-<script type="text/javascript">
- <!--
-   Calendar.setup({ inputField : "transdatefrom", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger3" });
-   Calendar.setup({ inputField : "transdateto",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger4" });
-   Calendar.setup({ inputField : "reqdatefrom",   ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger5" });
-   Calendar.setup({ inputField : "reqdateto",     ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger6" });
- //-->
-</script>
 
 <br>
 <input type="hidden" name="nextsub" value="orders">

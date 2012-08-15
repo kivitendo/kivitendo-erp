@@ -1,4 +1,5 @@
 [%- USE T8 %]
+[%- USE L %]
 [% USE HTML %][% USE LxERP %]
 [% IF vc == 'vendor' %]
  [% SET is_vendor = 1 %]
@@ -104,11 +105,7 @@
       <td><input name="bank_transfers[].reference" value="[% HTML.escape(bank_transfer.reference) %]"></td>
       <td align="right"><input name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right"></td>
       <td nowrap>
-       <input name="bank_transfers[].requested_execution_date"
-              id="requested_execution_date_[% loop.count %]"
-              value="[% HTML.escape(bank_transfer.requested_execution_date) %]"
-              size="11">
-       <input type="button" name="requested_execution_date_[% loop.count %]_trigger" id="requested_execution_date_[% loop.count %]_trigger" value="?">
+        [% L.date_tag('requested_execution_date_'_ loop.count, bank_transfer.requested_execution_date) %]
       </td>
      </tr>
     [%- END %]
@@ -127,17 +124,6 @@
   <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
   <input type="hidden" name="confirmation" value="1">
  </form>
-
- <script type="text/javascript">
-  <!--
-    [%- FOREACH row = BANK_TRANSFERS %]
-     Calendar.setup({ inputField : "requested_execution_date_[% loop.count %]",
-                      ifFormat   : "[% myconfig_jsc_dateformat %]",
-                      align      : "BL",
-                      button     : "requested_execution_date_[% loop.count %]_trigger" });
-    [%- END %]
-    -->
- </script>
 
 </body>
 </html>

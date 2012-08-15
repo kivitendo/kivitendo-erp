@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE LxERP %]
+[%- USE L %]
   <tr>
    <td>
     <table width="100%">
@@ -42,8 +43,7 @@
 
     <td align="center">
     [% IF $changeable %]
-      <input id="datepaid_[% i %]" name="datepaid_[% i %]" size="11" title="[% dateformat %]" value="[% $datepaid %]">
-      <input type="button" name="datepaid_[% i %]" id="trigger_datepaid_[% i %]" value="?">
+      [% L.date_tag('datepaid_'_ i, $datepaid) %]
     [% ELSE %]
       <input type="hidden" name="datepaid_[% i %]" value="[% $datepaid %]">[% $datepaid %]
     [% END %]
@@ -101,7 +101,6 @@
     </tr>
   [% IF $changeable %]
     <script type='text/javascript'>
-     Calendar.setup({ inputField : "datepaid_[% i %]", ifFormat :"[% myconfig_jsc_dateformat %]", align : "TR", button : "trigger_datepaid_[% i %]" });
      $('input[name="paid_[% i %]"]').blur(function(){ check_right_number_format(this) });
      $('#datepaid_[% i %]').blur(function(){ check_right_date_format(this) });
     </script>
