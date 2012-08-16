@@ -24,7 +24,7 @@ sub init {
   }
 
   $params{path_suffix} ||= '';
-  $params{schame}      ||= '';
+  $params{schema}      ||= '';
 
   map { $self->{$_} = $params{$_} } keys %params;
 
