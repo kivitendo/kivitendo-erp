@@ -201,7 +201,7 @@ sub check_existing {
 
   if ($self->settings->{article_number_policy} eq 'update_prices') {
     if ($entry->{part}) {
-      map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ } qw(sellprice listprice lastcost);   
+      map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ } qw(sellprice listprice lastcost);
 
       # merge prices
       my %prices_by_pricegroup_id = map { $_->pricegroup->id => $_ } $entry->{part}->prices, $object->prices;
@@ -210,7 +210,8 @@ sub check_existing {
       push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
       $entry->{object_to_save} = $entry->{part};
     }
-
+  } elsif ( $self->settings->{article_number_policy} eq 'skip' ) {
+    push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database')) if ( $entry->{part} );
   } else {
     $object->partnumber('####') if $entry->{part};
   }
