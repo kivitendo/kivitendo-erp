@@ -436,3 +436,281 @@ sub sort_dbupdate_controls {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::DBUpgrade2 - Parse database upgrade files stored in
+C<sql/Pg-upgrade2> and C<sql/Pg-upgrade2-auth> (and also in
+C<SQL/Pg-upgrade>)
+
+=head1 SYNOPSIS
+
+  use SL::User;
+  use SL::DBUpgrade2;
+
+  # Apply outstanding updates to the authentication database
+  my $scripts = SL::DBUpgrade2->new(
+    form     => $::form,
+    dbdriver => 'Pg',
+    auth     => 1
+  );
+  $scripts->apply_admin_dbupgrade_scripts(1);
+
+  # Apply updates to a user database
+  my $scripts = SL::DBUpgrade2->new(
+    form     => $::form,
+    dbdriver => $::form->{dbdriver},
+    auth     => 1
+  );
+  User->dbupdate2($form, $scripts->parse_dbupdate_controls);
+
+=head1 OVERVIEW
+
+Database upgrade files are used to upgrade the database structure and
+content of both the authentication database and the user
+databases. They're applied when a user logs in. As long as the
+authentication database is not up to date users cannot log in in
+general, and the admin has to log in first in order to get his
+database updated.
+
+Database scripts form a tree by specifying which upgrade file depends
+on which other upgrade file. This means that such files are always
+applied in a well-defined order.
+
+Each script is run in a separate transaction. If a script fails the
+current transaction is rolled back and the whole upgrade process is
+stopped. The user/admin is required to fix the issue manually.
+
+A list of applied upgrade scripts is maintained in a table called
+C<schema_info> for the user database and C<auth.schema_info>) for the
+authentication database. They contain the tags, the login name of the
+user having applied the script and the timestamp when the script was
+applied.
+
+Database upgrade files come in two flavours: SQL files and Perl
+files. For both there are control fields that determine the order in
+which they're executed, what charset the scripts are written in
+etc. The control fields are tag/value pairs contained in comments.
+
+=head1 OLD UPGRADE FILES
+
+The files in C<sql/Pg-upgrade> are so old that I don't bother
+documenting them. They're handled by this class, too, but new files
+are only created as C<Pg-upgrade2> files.
+
+=head1 CONTROL FIELDS
+
+=head2 SYNTAX
+
+Control fields for Perl files:
+
+  # @tag1: value1
+  # @tag2: some more values
+  sub do_stuff {
+  }
+  1;
+
+Control fields for SQL files:
+
+  -- @tag1: value1
+  -- @tag2: some more values
+  ALTER TABLE ...;
+
+=head2 TAGS AND THEIR MEANING
+
+The following tags are recognized:
+
+=over 4
+
+=item tag
+
+The name for this file. The C<tag> is also used for dependency
+resolution (see C<depends>).
+
+This is mandatory.
+
+=item description
+
+A description presented to the user when the update is applied.
+
+This is mandatory.
+
+=item depends
+
+A space-separated list of tags of scripts this particular script
+depends on. All other upgrades listed in C<depends> will be applied
+before the current one is applied.
+
+=item charset
+
+The charset this file uses. Defaults to C<ISO-8859-15> if missing.
+
+=item priority
+
+Ordering the scripts by their dependencies alone produces a lot of
+groups of scripts that could be applied at the same time (e.g. if both
+B and C depend only on A then B could be applied before C or the other
+way around). This field determines the order inside such a
+group. Scripts with lower priority fields are executed before scripts
+with higher priority fields.
+
+If two scripts have equal priorities then their tag name decides.
+
+The priority defaults to 1000.
+
+=back
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<apply_admin_dbupgrade_scripts $called_from_admin>
+
+Applies all unapplied upgrade files to the authentication/admin
+database. The parameter C<$called_from_admin> should be truish if the
+function is called from the web interface and falsish if it's called
+from e.g. a command line script like C<scripts/dbupgrade2_tool.pl>.
+
+=item C<init %params>
+
+Initializes the object. Is called directly from L<new> and should not
+be called again.
+
+=item C<new %params>
+
+Creates a new object. Possible parameters are:
+
+=over 4
+
+=item path
+
+Path to the upgrade files to parse. Required.
+
+=item form
+
+C<SL::Form> object to use. Required.
+
+=item dbdriver
+
+Name of the database driver. Currently only C<Pg> for PostgreSQL is
+supported.
+
+=item auth
+
+Optional parameter defaulting to 0. If trueish then the scripts read
+are the ones applying to the authentication database.
+
+=back
+
+=item C<parse_dbupdate_controls>
+
+Parses all files located in C<path> (see L<new>), ananlyzes their
+control fields, builds the tree, and signals errors if control fields
+are missing/wrong (e.g. a tag name listed in C<depends> is not
+found). Sets C<$Self-&gt;{all_controls}> to the list of database
+scripts.
+
+=item C<process_file $dbh, $filename, $version_or_control, $db_charset>
+
+Applies a single database upgrade file. Calls L<process_perl_script>
+for Perl update files and C<process_query> for SQL update
+files. Requires an open database handle(C<$dbh>), the file name
+(C<$filename>), a hash structure of the file's control fields as
+produced by L<parse_dbupdate_controls> (C<$version_or_control>) and
+the database charset (for on-the-fly charset recoding of the script if
+required, C<$db_charset>).
+
+Returns the result of the actual function called.
+
+=item C<process_perl_script $dbh, $filename, $version_or_control, $db_charset>
+
+Applies a single Perl database upgrade file. Requires an open database
+handle(C<$dbh>), the file name (C<$filename>), a hash structure of the
+file's control fields as produced by L<parse_dbupdate_controls>
+(C<$version_or_control>) and the database charset (for on-the-fly
+charset recoding of the script if required, C<$db_charset>).
+
+Perl scripts are executed via L<eval>. If L<eval> returns falsish then
+an error is expected. There are two special return values: If the
+script returns C<1> then the update was successful. Return code C<2>
+means "needs more interaction from the user; remove users/nologin and
+end current upgrade process". All other return codes are fatal errors.
+
+Inside the Perl script several local variables exist that can be used:
+
+=over 4
+
+=item $dbup_locale
+
+A locale object for translating messages
+
+=item $dbh
+
+The database handle (inside a transaction).
+
+=item $::form
+
+The global C<SL::Form> object.
+
+=back
+
+A Perl script can actually implement queries that fail while
+continueing the process by handling the transaction itself, e.g. with
+the following function:
+
+  sub do_query {
+    my ($query, $may_fail) = @_;
+
+    if (!$dbh->do($query)) {
+      die($dbup_locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr) unless $may_fail;
+      $dbh->rollback();
+      $dbh->begin_work();
+    }
+  }
+
+=item C<process_query $dbh, $filename, $version_or_control, $db_charset>
+
+Applies a single SQL database upgrade file. Requires an open database
+handle(C<$dbh>), the file name (C<$filename>), a hash structure of the
+ofile's control fields as produced by L<parse_dbupdate_controls>
+(C<$version_or_control>) and the database charset (for on-the-fly
+charset recoding of the script if required, C<$db_charset>).
+
+=item C<sort_dbupdate_controls>
+
+Sorts the database upgrade scripts according to their C<tag> and
+C<priority> control fields. Returns a list of their hash
+representations that can be applied in order.
+
+=item C<unapplied_upgrade_scripts $dbh>
+
+Returns a list if upgrade scripts (their internal hash representation)
+that haven't been applied to a database yet. C<$dbh> is an open handle
+to the database that is checked.
+
+Requires that the scripts have been parsed.
+
+=item C<update2_available $dbh>
+
+Returns trueish if at least one upgrade script hasn't been applied to
+a database yet. C<$dbh> is an open handle to the database that is
+checked.
+
+Requires that the scripts have been parsed.
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut
