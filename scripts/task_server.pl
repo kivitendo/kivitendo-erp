@@ -27,6 +27,7 @@ use SL::DB::BackgroundJob;
 use SL::BackgroundJob::ALL;
 use SL::Form;
 use SL::Helper::DateTime;
+use SL::InstanceConfiguration;
 use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::Locale;
@@ -38,11 +39,12 @@ sub lxinit {
 
   package main;
 
-  $::lxdebug = LXDebug->new;
-  $::locale  = Locale->new($::lx_office_conf{system}->{language});
-  $::form    = Form->new;
-  $::auth    = SL::Auth->new;
-  $::request = { cgi => CGI->new({}) };
+  $::lxdebug       = LXDebug->new;
+  $::locale        = Locale->new($::lx_office_conf{system}->{language});
+  $::form          = Form->new;
+  $::auth          = SL::Auth->new;
+  $::instance_conf = SL::InstanceConfiguration->new;
+  $::request       = { cgi => CGI->new({}) };
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 

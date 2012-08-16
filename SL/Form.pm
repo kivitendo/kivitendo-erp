@@ -1995,8 +1995,17 @@ sub get_duedate {
   $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
 
   my $dbh         = $self->get_standard_dbh($myconfig);
+  my $payment_id;
+
+  if($self->{payment_id}) {
+    $payment_id = $self->{payment_id};
+  } elsif($self->{vendor_id}) {
+    my $query = 'SELECT payment_id FROM vendor WHERE id = ?';
+    ($payment_id) = selectrow_query($self, $dbh, $query, $self->{vendor_id});
+  }
+
   my $query       = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
-  my ($duedate)   = selectrow_query($self, $dbh, $query, $self->{payment_id});
+  my ($duedate)   = selectrow_query($self, $dbh, $query, $payment_id);
 
   $main::lxdebug->leave_sub();
 
@@ -2567,18 +2576,14 @@ sub all_vc {
   # setup sales contacts
   $query = qq|SELECT e.id, e.name
               FROM employee e
-              WHERE (e.sales = '1') AND (NOT e.id = ?)|;
+              WHERE (e.sales = '1') AND (NOT e.id = ?)
+              ORDER BY name|;
   $self->{all_employees} = selectall_hashref_query($self, $dbh, $query, $self->{employee_id});
 
   # this is for self
   push(@{ $self->{all_employees} },
        { id   => $self->{employee_id},
          name => $self->{employee} });
-
-  # sort the whole thing
-  @{ $self->{all_employees} } =
-    sort { $a->{name} cmp $b->{name} } @{ $self->{all_employees} };
-
 
     # prepare query for departments
     $query = qq|SELECT id, description

@@ -371,7 +371,7 @@ sub form_header {
 
     # with JavaScript Calendar
     $button1 = qq|
-       <td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>
+       <td><input name=transdate onchange="set_duedate()" id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>
        <td><input type=button name=transdate id="trigger1" value=|
       . $locale->text('button') . qq|></td>
        |;
@@ -389,7 +389,7 @@ sub form_header {
 
     # without JavaScript Calendar
     $button1 =
-      qq|<td><input name=transdate id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>|;
+      qq|<td><input name=transdate onchange="set_duedate()" id=transdate size=11 title="$myconfig{dateformat}" value="$form->{transdate}" onBlur=\"check_right_date_format(this)\" $readonly></td>|;
     $button2 =
       qq|<td><input name=duedate id=duedate size=11 title="$myconfig{dateformat}" value="$form->{duedate}" onBlur=\"check_right_date_format(this)\" $readonly></td>|;
   }
@@ -832,90 +832,37 @@ $jsscript
 }
 
 sub form_footer {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub;
+  $::auth->assert('general_ledger');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-  my $cgi      = $::request->{cgi};
+  my $num_due;
+  my $num_follow_ups;
+  if ($::form->{id}) {
+    my $follow_ups = FU->follow_ups('trans_id' => $::form->{id});
 
-  $main::auth->assert('general_ledger');
-
-  my $follow_ups_block;
-  if ($form->{id}) {
-    my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
-
-    if (@{ $follow_ups} ) {
-      my $num_due       = sum map { $_->{due} * 1 } @{ $follow_ups };
-      $follow_ups_block = qq|<p>| . $locale->text("There are #1 unfinished follow-ups of which #2 are due.", scalar @{ $follow_ups }, $num_due) . qq|</p>|;
+    if (@{ $follow_ups }) {
+      $num_due        = sum map { $_->{due} * 1 } @{ $follow_ups };
+      $num_follow_ups = scalar @{ $follow_ups }
     }
   }
 
-  print qq|
+  my $transdate = $::form->datetonum($::form->{transdate}, \%::myconfig);
+  my $closedto  = $::form->datetonum($::form->{closedto},  \%::myconfig);
 
-$follow_ups_block
+  my $storno = $::form->{id}
+            && !IS->has_storno(\%::myconfig, $::form, 'ap')
+            && !IS->is_storno( \%::myconfig, $::form, 'ap', $::form->{id})
+            && ($::form->{totalpaid} == 0 || $::form->{totalpaid} eq '');
 
-<input name=callback type=hidden value="$form->{callback}">
-<input name="gldate" type="hidden" value="| . Q($form->{gldate}) . qq|">
-|
-. $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
-. $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
-. qq|
+  $::form->header;
+  print $::form->parse_html_template('ap/form_footer', {
+    num_due         => $num_due,
+    num_follow_ups  => $num_follow_ups,
+    show_post_draft => ($transdate > $closedto) && !$::form->{id},
+    show_storno     => $storno,
+  });
 
-<br>
-|;
-
-  if (!$form->{id} && $form->{draft_id}) {
-    print(NTI($cgi->checkbox('-name' => 'remove_draft', '-id' => 'remove_draft',
-                             '-value' => 1, '-checked' => $form->{remove_draft},
-                             '-label' => '')) .
-          qq|&nbsp;<label for="remove_draft">| .
-          $locale->text("Remove draft when posting") .
-          qq|</label><br>|);
-  }
-
-  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
-  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
-
-  print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">|;
-
-  if ($form->{id}) {
-    if ($form->{radier}) {
-      print qq| <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|">
-                <input class=submit type=submit name=action value="| . $locale->text('Delete') . qq|">
-|;
-    }
-    # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
-    print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
-      if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ap') && !IS->is_storno(\%myconfig, $form, 'ap', $form->{id}) && (($form->{totalpaid} == 0) || ($form->{totalpaid} eq "")));
-
-    print qq| <input class=submit type=submit name=action value="| . $locale->text('Post Payment') . qq|">
-              <input class=submit type=submit name=action value="| . $locale->text('Use As Template') . qq|">
-              <input type="button" class="submit" onclick="follow_up_window()" value="| . $locale->text('Follow-Up') . qq|">
-|;
-  } elsif (($transdate > $closedto) && !$form->{id}) {
-    print qq|
-      <input class=submit type=submit name=action value="| . $locale->text('Post') . qq|"> | .
-      NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'), '-class' => 'submit'));
-  }
-  # button for saving history
-  if($form->{id} ne "") {
-    print qq| <input type="button" class="submit" onclick="set_history_window($form->{id});" name="history" id="history" value="| . $locale->text('history') . qq|"> |;
-  }
-  # /button for saving history
-  # mark_as_paid button
-  if($form->{id} ne "") {
-    print qq| <input type="submit" class="submit" name="action" value="| . $locale->text('mark as paid') . qq|"> |;
-  }
-  # /mark_as_paid button
-  print "
-</form>
-
-</body>
-</html>
-";
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 sub mark_as_paid {

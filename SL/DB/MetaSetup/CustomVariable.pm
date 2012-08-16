@@ -19,7 +19,7 @@ __PACKAGE__->meta->setup(
     number_value    => { type => 'numeric', precision => 5, scale => 25 },
     itime           => { type => 'timestamp', default => 'now()' },
     mtime           => { type => 'timestamp' },
-    sub_module      => { type => 'text' },
+    sub_module      => { type => 'text', default => '', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],

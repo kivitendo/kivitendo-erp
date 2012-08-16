@@ -374,13 +374,13 @@ sub link_details {
 
   } elsif ($params{trans_type} eq 'ar_transaction') {
     $link = {
-      'url'   => 'ar.pl?action=editid=' . $params{trans_id},
+      'url'   => 'ar.pl?action=edit&id=' . $params{trans_id},
       'title' => $locale->text('AR Transaction') . " $params{trans_info}",
     };
 
   } elsif ($params{trans_type} eq 'ap_transaction') {
     $link = {
-      'url'   => 'ap.pl?action=editid=' . $params{trans_id},
+      'url'   => 'ap.pl?action=edit&id=' . $params{trans_id},
       'title' => $locale->text('AP Transaction') . " $params{trans_info}",
     };
 

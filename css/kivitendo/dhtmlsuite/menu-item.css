@@ -155,4 +155,9 @@
 	background-color:#D1D1D1;
 }
 
-
+.DHTMLSuite_menuItem_textContent
+{
+  border-bottom-style: none !important;
+  background-color: inherit !important;
+  color: inherit !important;
+}

@@ -1187,7 +1187,7 @@ DHTMLSuite.menuItem.prototype =
 		}else{		
 			/* Add events */
 			var tmpVar = this.objectIndex/1;
-			this.divElement.onclick = function(e) { DHTMLSuite.variableStorage.arrayOfDhtmlSuiteObjects[tmpVar].__navigate(e); }
+			//this.divElement.onclick = function(e) { DHTMLSuite.variableStorage.arrayOfDhtmlSuiteObjects[tmpVar].__navigate(e); }
 			this.divElement.onmousedown = this.__clickMenuItem;			// on mouse down effect
 			this.divElement.onmouseup = this.__rolloverMenuItem;		// on mouse up effect
 			this.divElement.onmouseover = this.__rolloverMenuItem;		// mouse over effect
@@ -1264,7 +1264,17 @@ DHTMLSuite.menuItem.prototype =
 			parentEl.style.backgroundPosition = 'left center';	
 		}
 		if(this.modelItemRef.itemText){
-			var div = document.createElement('DIV');
+		  var div;
+		  if( this.modelItemRef.url )
+		  {
+			  div = document.createElement('a');
+			  div.href = this.modelItemRef.url;
+			  div.target = this.modelItemRef.frameTarget;
+			  div.style.display = 'block';
+			}
+			else
+			  div = document.createElement('div');
+			  
 			div.className = 'DHTMLSuite_textContent';
 			div.innerHTML = this.modelItemRef.itemText;	
 			div.className = this.cssPrefix + 'menuItem_textContent';
