@@ -1724,9 +1724,14 @@ sub assembly_row {
       }
       push @row_hiddens,        qw(unit description partnumber partsgroup);
       $row{unit}{data}        = $form->{"unit_$i"};
-      $row{description}{data} = $form->{"description_$i"};
-      $row{partsgroup}{data}  = $form->{"partsgroup_$i"};
-      $row{bom}{align}        = 'center';
+      #Bei der Artikelbeschreibung und Warengruppe können Sonderzeichen verwendet
+      #werden, die den HTML Code stören. Daher sollen diese im Template escaped werden
+      #dies geschieht, wenn die Variable escape gesetzt ist
+      $row{description}{data}   = $form->{"description_$i"};
+      $row{description}{escape} = 1;
+      $row{partsgroup}{data}    = $form->{"partsgroup_$i"};
+      $row{partsgroup}{escape}  = 1;
+      $row{bom}{align}          = 'center';
     }
 
     $row{lastcost}{data}      = $line_purchase_price;

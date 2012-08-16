@@ -17,7 +17,11 @@
      <tr>
  [%- FOREACH col = COLUMNS %]
   [%- SET rcol = row.$col %]
+  [%- IF rcol.escape %]
+      <td[% ' align=' _ rcol.align IF rcol.align %]>[%- HTML.escape(rcol.data) %]</td>
+  [%- ELSE %]
       <td[% ' align=' _ rcol.align IF rcol.align %]>[%- rcol.data %]</td>
+  [%- END %]
  [%- END %]
  [%- FOREACH hidden = row.hiddens %]
       <input type=hidden name="[% HTML.escape(hidden.name) %]" value="[% HTML.escape(hidden.value) %]">
