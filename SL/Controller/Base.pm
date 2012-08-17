@@ -167,6 +167,11 @@ sub delay_flash_on_redirect {
   0;
 }
 
+sub get_auth_level {
+  # Ignore the 'action' parameter.
+  return 'user';
+}
+
 #
 # private functions -- for use in Base only
 #
@@ -502,6 +507,15 @@ The hook's return values are discarded.
 May be overridden by a controller. If this method returns true, redirect_to
 will delay all flash messages for the current request. Defaults to false for
 compatibility reasons.
+
+=item C<get_auth_level $action>
+
+May be overridden by a controller. Determines what kind of
+authentication is required for a particular action. Must return either
+C<admin> (which means that authentication as an admin is required),
+C<user> (authentication as a normal user suffices) with a possible
+future value C<none> (which would require no authentication but is not
+yet implemented).
 
 =back
 

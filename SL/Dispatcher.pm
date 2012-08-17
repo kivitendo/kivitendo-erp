@@ -17,6 +17,7 @@ use List::MoreUtils qw(all);
 use List::Util qw(first);
 use POSIX;
 use SL::Auth;
+use SL::Dispatcher::AuthHandler;
 use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::Locale;
@@ -37,6 +38,7 @@ sub new {
 
   my $self           = bless {}, $class;
   $self->{interface} = lc($interface || 'cgi');
+  $self->{auth_handler} = SL::Dispatcher::AuthHandler->new;
 
   return $self;
 }
@@ -63,6 +65,7 @@ sub show_error {
   $::lxdebug->enter_sub;
   my $template             = shift;
   my $error_type           = shift || '';
+  my %params               = @_;
 
   $::locale                = Locale->new($::lx_office_conf{system}->{language});
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
@@ -70,7 +73,7 @@ sub show_error {
   $::myconfig{countrycode} = $::lx_office_conf{system}->{language};
 
   $::form->header;
-  print $::form->parse_html_template($template);
+  print $::form->parse_html_template($template, \%params);
   $::lxdebug->leave_sub;
 
   ::end_of_request();
@@ -143,10 +146,11 @@ sub require_main_code {
 sub _require_controller {
   my $controller =  shift;
   $controller    =~ s|[^A-Za-z0-9_]||g;
+  $controller    =  "SL/Controller/${controller}";
 
   eval {
     package main;
-    require "SL/Controller/${controller}.pm";
+    require "${controller}.pm";
   } or die $EVAL_ERROR;
 }
 
@@ -163,8 +167,6 @@ sub handle_request {
 
   my ($script, $path, $suffix, $script_name, $action, $routing_type);
 
-  $script_name = $ENV{SCRIPT_NAME};
-
   $self->unrequire_bin_mozilla;
 
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
@@ -177,7 +179,7 @@ sub handle_request {
 
   $::form->read_cgi_input;
 
-  eval { ($routing_type, $script_name, $action) = _route_request($script_name); 1; } or return;
+  eval { ($routing_type, $script_name, $action) = _route_request($ENV{SCRIPT_NAME}); 1; } or return;
 
   if ($routing_type eq 'old') {
     $::form->{action}  =  lc $::form->{action};
@@ -205,23 +207,15 @@ sub handle_request {
     } else {
       show_error('login/password_error', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
 
-      my $login = $::auth->get_session_value('login');
-      show_error('login/password_error', 'password') if not defined $login;
-
-      %::myconfig = $::auth->read_user(login => $login);
-
-      show_error('login/password_error', 'password') unless $::myconfig{login};
-
-      $::locale = Locale->new($::myconfig{countrycode});
-
-      show_error('login/password_error', 'password') if SL::Auth::OK != $::auth->authenticate($login, undef);
-
-      $::auth->create_or_refresh_session;
-      $::auth->delete_session_value('FLASH');
-      delete $::form->{password};
+      my $auth_level = $self->{auth_handler}->handle(
+        routing_type => $routing_type,
+        script       => $script,
+        controller   => $script_name,
+        action       => $action,
+      );
 
       if ($action) {
-        $::instance_conf->init;
+        $::instance_conf->init if $auth_level eq 'user';
 
         map { $::form->{$_} = $::myconfig{$_} } qw(charset)
           unless $action eq 'save' && $::form->{type} eq 'preferences';
