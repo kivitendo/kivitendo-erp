@@ -7,6 +7,7 @@ use SL::DB::Business;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
 use SL::DB::PaymentTerm;
+use SL::TransNumber;
 
 use parent qw(SL::Controller::CsvImport::Base);
 
@@ -167,7 +168,18 @@ sub save_objects {
   my $with_number    = [ grep { $_->{object}->$numbercolumn ne '####' } @{ $self->controller->data } ];
   my $without_number = [ grep { $_->{object}->$numbercolumn eq '####' } @{ $self->controller->data } ];
 
-  map { $_->{object}->$numbercolumn('') } @{ $without_number };
+  foreach my $entry (@{$with_number}, @{$without_number}) {
+    my $object = $entry->{object};
+
+    my $number = SL::TransNumber->new(type        => $self->table(),
+                                      number      => $object->$numbercolumn(),
+                                      business_id => $object->business_id(),
+                                      save        => 1);
+
+    if ( $object->$numbercolumn eq '####' || !$number->is_unique() ) {
+      $object->$numbercolumn($number->create_unique());
+    }
+  }
 
   $self->SUPER::save_objects(data => $with_number);
   $self->SUPER::save_objects(data => $without_number);
