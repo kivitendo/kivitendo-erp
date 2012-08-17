@@ -8,13 +8,13 @@
      <a href="http://www.kivitendo.de" target="_top"><img src="image/kivitendo.png" border="0"></a>
      <h3 class="login" align="center">[% 'kivitendo' | $T8 %] [% version %]</h3>
 
-     [% IF error_message %]
-     <p><span class="message_error_login">[% error_message %]</span></p>
+     [% IF error %]
+     <p><span class="message_error_login">[% error %]</span></p>
      [% END %]
 
      <p>
 
-      <form method="post" name="loginscreen" action="login.pl" target="_top">
+      <form method="post" name="loginscreen" action="controller.pl" target="_top">
 
        <input type="hidden" name="show_dbupdate_warning" value="1">
 
@@ -33,7 +33,7 @@
           </table>
 
           <br>
-          <input type="hidden" name="action" value="login">
+          <input type="hidden" name="action" value="LoginScreen/login">
           <input type="submit" value="[% 'Login' | $T8 %]" tabindex="3">
 
          </td>

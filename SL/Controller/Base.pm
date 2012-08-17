@@ -21,11 +21,20 @@ sub url_for {
 
   my %params      = ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_;
   my $controller  = delete($params{controller}) || $self->_controller_name;
-  my $action      = delete($params{action})     || 'dispatch';
-  $params{action} = "${controller}/${action}";
+  my $action      = $params{action}             || 'dispatch';
+
+  my $script;
+  if ($controller =~ m/\.pl$/) {
+    # Old-style controller
+    $script = $controller;
+  } else {
+    $params{action} = "${controller}/${action}";
+    $script         = "controller.pl";
+  }
+
   my $query       = join '&', map { uri_encode($_->[0]) . '=' . uri_encode($_->[1]) } @{ flatten(\%params) };
 
-  return "controller.pl?${query}";
+  return "${script}?${query}";
 }
 
 sub redirect_to {
@@ -170,6 +179,10 @@ sub delay_flash_on_redirect {
 sub get_auth_level {
   # Ignore the 'action' parameter.
   return 'user';
+}
+
+sub keep_auth_vars_in_form {
+  return 0;
 }
 
 #
@@ -516,6 +529,13 @@ C<admin> (which means that authentication as an admin is required),
 C<user> (authentication as a normal user suffices) with a possible
 future value C<none> (which would require no authentication but is not
 yet implemented).
+
+=item C<keep_auth_vars_in_form>
+
+May be overridden by a controller. If falsish (the default) all form
+variables whose name starts with C<{AUTH}> are removed before the
+request is routed. Only controllers that handle login requests
+themselves should return trueish for this function.
 
 =back
 

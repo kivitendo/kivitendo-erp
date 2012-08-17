@@ -56,7 +56,7 @@ sub pre_request_checks {
       ::run();
       ::end_of_request();
     } else {
-      show_error('login/auth_db_unreachable');
+      show_error('login_screen/auth_db_unreachable');
     }
   }
 }
@@ -67,10 +67,10 @@ sub show_error {
   my $error_type           = shift || '';
   my %params               = @_;
 
-  $::locale                = Locale->new($::lx_office_conf{system}->{language});
+  $::myconfig{countrycode} = delete($params{countrycode}) || $::lx_office_conf{system}->{language};
+  $::locale                = Locale->new($::myconfig{countrycode});
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
-  $::form->{error}         = $::locale->text('Incorrect password!.')                   if ($error_type eq 'password');
-  $::myconfig{countrycode} = $::lx_office_conf{system}->{language};
+  $::form->{error}         = $::locale->text('Incorrect password!')                    if ($error_type eq 'password');
 
   $::form->header;
   print $::form->parse_html_template($template, \%params);
@@ -200,24 +200,29 @@ sub handle_request {
 
     $::form->error($::locale->text('System currently down for maintenance!')) if -e ($::lx_office_conf{paths}->{userspath} . "/nologin") && $script ne 'admin';
 
-    if ($script eq 'login' or $script eq 'admin') {
-      $::form->{titlebar} = "Lx-Office " . $::locale->text('Version') . " $::form->{version}";
+    ($routing_type, $script, $script_name, $action) = qw(controller controller LoginScreen login) if ($script eq 'login') && ($action eq 'login');
+
+    if (($script eq 'login') && !$action) {
+      print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login');
+
+    } elsif ($script eq 'admin') {
+      $::form->{titlebar} = "kivitendo " . $::locale->text('Version') . " $::form->{version}";
       ::run($session_result);
 
     } else {
-      show_error('login/password_error', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
+      show_error('login_screen/user_login', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
 
-      my $auth_level = $self->{auth_handler}->handle(
+      my %auth_result = $self->{auth_handler}->handle(
         routing_type => $routing_type,
         script       => $script,
         controller   => $script_name,
         action       => $action,
       );
 
-      delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } };
+      delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } } unless $auth_result{keep_auth_vars};
 
       if ($action) {
-        $::instance_conf->init if $auth_level eq 'user';
+        $::instance_conf->init if $auth_result{auth_level} eq 'user';
 
         map { $::form->{$_} = $::myconfig{$_} } qw(charset)
           unless $action eq 'save' && $::form->{type} eq 'preferences';
@@ -371,9 +376,9 @@ sub _check_for_old_config_files {
   my @old_files = grep { -f "config/${_}" } qw(authentication.pl console.conf lx-erp.conf lx-erp-local.conf);
   return unless @old_files;
 
-  $::form->{title}      = $::locale->text('Old configuration files');
+  $::form->{title} = $::locale->text('Old configuration files');
   $::form->header;
-  print $::form->parse_html_template('login/old_configuration_files', { FILES => \@old_files });
+  print $::form->parse_html_template('login_screen/old_configuration_files', { FILES => \@old_files });
 
   ::end_of_request();
 }

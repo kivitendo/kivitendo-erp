@@ -10,8 +10,8 @@
 
   <h2>[% 'Administration' | $T8 %]</h2>
 
-  [% IF error_message %]
-  <p><span class="message_error_login">[% error_message %]</span></p>
+  [% IF error %]
+  <p><span class="message_error_login">[% error %]</span></p>
   [% END %]
 
   <form method="post" action="admin.pl">
@@ -29,7 +29,7 @@
 
   <p>[% 'kivitendo Homepage' | $T8 %]: <a href="http://kivitendo.de" target="_blank" title="[% 'kivitendo Homepage' | $T8 %]">http://kivitendo.de</a></p>
 
-  <p><a href="login.pl" target="_top">[%- LxERP.t8('Back to the login page') %]</a></p>
+  <p><a href="controller.pl?action=LoginScreen/user_login" target="_top">[%- LxERP.t8('Back to the login page') %]</a></p>
 
  </div>
 

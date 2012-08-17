@@ -51,7 +51,7 @@ window.onload=clockon
    </td>
    <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
     [[% 'User' | $T8 %]: [% HTML.escape(login) %] -
-    <a href="login.pl?action=logout" target="_top">[% 'logout' | $T8 %]</a>]
+    <a href="controller.pl?action=LoginScreen/logout" target="_top">[% 'logout' | $T8 %]</a>]
     [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
    </td>
   </tr>

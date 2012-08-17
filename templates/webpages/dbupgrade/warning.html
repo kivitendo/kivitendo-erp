@@ -1,9 +1,9 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
-<form name="Form" method="post" action="login.pl">
+<form name="Form" method="post" action="controller.pl">
 
- <input type="hidden" name="action" value="login">
+ <input type="hidden" name="action" value="LoginScreen/login">
  <p><input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]"></p>
  <p class="message_hint">
   [% LxERP.t8('kivitendo is about to update the database [ #1 ].', dbname) | html %]

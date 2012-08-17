@@ -79,7 +79,7 @@ sub clock_line {
 
   my $login = "[Nutzer "
     . $form->{login}
-    . " - <a href=\"login.pl?action=logout\" target=\"_top\">"
+    . " - <a href=\"controller.pl?action=LoginScreen/logout\" target=\"_top\">"
     . $::locale->text('Logout')
     . "</a>] ";
   my ($Sekunden, $Minuten,   $Stunden,   $Monatstag, $Monat,

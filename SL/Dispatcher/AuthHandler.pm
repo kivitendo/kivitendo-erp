@@ -5,7 +5,10 @@ use strict;
 use parent qw(Rose::Object);
 
 use SL::Dispatcher::AuthHandler::Admin;
+use SL::Dispatcher::AuthHandler::None;
 use SL::Dispatcher::AuthHandler::User;
+
+my %valid_auth_levels = map { ($_ => 1) } qw(user admin none);
 
 sub handle {
   my ($self, %param) = @_;
@@ -16,7 +19,10 @@ sub handle {
   $self->{handlers}->{$handler_name} ||= $handler_name->new;
   $self->{handlers}->{$handler_name}->handle;
 
-  return $auth_level;
+  return (
+    auth_level     => $auth_level,
+    keep_auth_vars => $self->get_keep_auth_vars(%param),
+  );
 }
 
 sub get_auth_level {
@@ -26,7 +32,13 @@ sub get_auth_level {
                  : $param{routing_type} eq 'controller' ? "SL::Controller::$param{controller}"->get_auth_level($param{action})
                  :                                        'user';
 
-  return $auth_level eq 'user' ? 'user' : 'admin';
+  return $valid_auth_levels{$auth_level} ? $auth_level : 'user';
+}
+
+sub get_keep_auth_vars {
+  my ($self, %param) = @_;
+
+  return $param{routing_type} eq 'controller' ? "SL::Controller::$param{controller}"->keep_auth_vars_in_form : 0;
 }
 
 1;

@@ -149,7 +149,7 @@ sub authenticate_root {
 
   my ($self, $password) = @_;
 
-  my $session_root_auth = $self->get_session_value(SESSION_KEY_ROOT_AUTH);
+  my $session_root_auth = $self->get_session_value(SESSION_KEY_ROOT_AUTH());
   if (defined $session_root_auth && $session_root_auth == OK) {
     $::lxdebug->leave_sub;
     return OK;
@@ -164,9 +164,7 @@ sub authenticate_root {
   my $admin_password    = SL::Auth::Password->hash_if_unhashed(login => 'root', password => $self->{admin_password}->());
 
   my $result = $password eq $admin_password ? OK : ERR_PASSWORD;
-  $self->set_session_value(SESSION_KEY_ROOT_AUTH ,=> $result);
-
-  sleep 5 if $result != OK;
+  $self->set_session_value(SESSION_KEY_ROOT_AUTH() => $result);
 
   $::lxdebug->leave_sub;
   return $result;
@@ -177,7 +175,7 @@ sub authenticate {
 
   my ($self, $login, $password) = @_;
 
-  my $session_auth = $self->get_session_value(SESSION_KEY_USER_AUTH);
+  my $session_auth = $self->get_session_value(SESSION_KEY_USER_AUTH());
   if (defined $session_auth && $session_auth == OK) {
     $::lxdebug->leave_sub;
     return OK;
@@ -189,12 +187,14 @@ sub authenticate {
   }
 
   my $result = $login ? $self->{authenticator}->authenticate($login, $password) : ERR_USER;
-  $self->set_session_value(SESSION_KEY_USER_AUTH ,=> $result, login => $login);
-
-  sleep 5 if $result != OK;
+  $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login);
 
   $::lxdebug->leave_sub;
   return $result;
+}
+
+sub punish_wrong_login {
+  sleep 5;
 }
 
 sub get_stored_password {

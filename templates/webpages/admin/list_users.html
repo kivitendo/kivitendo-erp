@@ -62,7 +62,8 @@
   </div>
  </form>
 
- <form method="post" action="login.pl">
+ <form method="post" action="controller.pl">
+  <input type="hidden" name="action" value="LoginScreen/login">
 
   <div class="listheading">[% 'User Login' | $T8 %]</div>
 
@@ -75,7 +76,7 @@
    <tr>
     <th align="right">[% 'Password' | $T8 %]</th>
     <td><input class="login" type="password" name="{AUTH}password"></td>
-    <td><input type="submit" name="action" value="[% 'Login' | $T8 %]"></td>
+    <td><input type="submit" value="[% 'Login' | $T8 %]"></td>
    </tr>
   </table>
 
