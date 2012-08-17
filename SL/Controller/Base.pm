@@ -502,7 +502,7 @@ action.
 
 The hook's return values are discarded.
 
-=item delay_flash_on_redirect
+=item C<delay_flash_on_redirect>
 
 May be overridden by a controller. If this method returns true, redirect_to
 will delay all flash messages for the current request. Defaults to false for
