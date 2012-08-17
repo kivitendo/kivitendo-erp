@@ -74,7 +74,7 @@ sub parse_dbupdate_controls {
 
     next if ($control->{ignore});
 
-    $control->{charset} ||= Common::DEFAULT_CHARSET;
+    $control->{charset} = $control->{charset} || $control->{encoding} || Common::DEFAULT_CHARSET;
 
     if (!$control->{"tag"}) {
       _control_error($form, $file_name, $locale->text("Missing 'tag' field.")) ;
@@ -136,7 +136,7 @@ sub process_query {
   my $file_charset = Common::DEFAULT_CHARSET;
   while (<$fh>) {
     last if !/^--/;
-    next if !/^--\s*\@charset:\s*(.+)/;
+    next if !/^--\s*\@(?:charset|encoding):\s*(.+)/;
     $file_charset = $1;
     last;
   }
@@ -233,7 +233,7 @@ sub process_perl_script {
   } else {
     while (<$fh>) {
       last if !/^--/;
-      next if !/^--\s*\@charset:\s*(.+)/;
+      next if !/^--\s*\@(?:charset|encoding):\s*(.+)/;
       $file_charset = $1;
       last;
     }
@@ -547,8 +547,10 @@ depends on. All other upgrades listed in C<depends> will be applied
 before the current one is applied.
 
 =item charset
+=item encoding
 
-The charset this file uses. Defaults to C<ISO-8859-15> if missing.
+The charset this file uses. Defaults to C<ISO-8859-15> if
+missing. Both terms are recognized.
 
 =item priority
 
