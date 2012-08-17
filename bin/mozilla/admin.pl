@@ -95,13 +95,13 @@ sub run {
   $form->{favicon}    = "favicon.ico";
 
   if ($form->{action}) {
-    if ($auth->authenticate_root($form->{rpw}) != $auth->OK()) {
+    if ($auth->authenticate_root($form->{'{AUTH}admin_password'}) != $auth->OK()) {
       $form->{error_message} = $locale->text('Incorrect Password!');
-      $auth->delete_session_value('rpw');
+      $auth->delete_session_value('admin_password');
       adminlogin();
     } else {
       if ($auth->session_tables_present()) {
-        delete $::form->{rpw};
+        delete $::form->{'{AUTH}admin_password'};
         _apply_dbupgrade_scripts();
       }
 
@@ -194,7 +194,7 @@ sub create_auth_tables {
   my $locale = $main::locale;
 
   $main::auth->create_tables();
-  $main::auth->set_session_value('rpw', $form->{rpw});
+  $main::auth->set_session_value('admin_password', $form->{'{AUTH}admin_password'});
   $main::auth->create_or_refresh_session();
 
   my $memberfile = $::lx_office_conf{paths}->{memberfile};

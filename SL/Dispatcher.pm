@@ -214,6 +214,8 @@ sub handle_request {
         action       => $action,
       );
 
+      delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } };
+
       if ($action) {
         $::instance_conf->init if $auth_level eq 'user';
 

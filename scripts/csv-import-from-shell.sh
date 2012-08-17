@@ -107,8 +107,8 @@ function do_curl {
     -F 'settings.sellprice_adjustment_type=percent' \
     -F 'settings.sellprice_places=2' \
     -F 'settings.shoparticle_if_missing=0' \
-    -F "login=${login}" \
-    -F "password=${password}" \
+    -F "{AUTH}login=${login}" \
+    -F "{AUTH}password=${password}" \
     -F "file=@${file}" \
     ${url}
 }
