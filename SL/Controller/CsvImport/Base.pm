@@ -15,7 +15,7 @@ use parent qw(Rose::Object);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar                  => [ qw(controller file csv) ],
+ scalar                  => [ qw(controller file csv save_with_cascade) ],
  'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by all_vc vc_by) ],
 );
 
@@ -305,7 +305,7 @@ sub save_objects {
 
     my $object = $entry->{object_to_save} || $entry->{object};
 
-    if (!$object->save) {
+    if ( !$object->save(cascade => !!$self->save_with_cascade()) ) {
       push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $entry->{object}->db->error);
     } else {
       $self->controller->num_imported($self->controller->num_imported + 1);
