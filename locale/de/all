@@ -1065,6 +1065,7 @@ $self->{texts} = {
   'Last Service Number'         => 'Letzte Dienstleistungsnr.',
   'Last Transaction'            => 'Letzte Buchung',
   'Last Vendor Number'          => 'Letzte Lieferantennummer',
+  'Lastcost (with X being a number)' => 'Einkaufspreis (X ist eine fortlaufende Zahl)',
   'Lead'                        => 'Kundenquelle',
   'Leave host and port field empty unless you want to make a remote connection.' => 'F&uuml;r lokale Verbindungen "Rechner" und "Port" freilassen.',
   'Left'                        => 'Links',

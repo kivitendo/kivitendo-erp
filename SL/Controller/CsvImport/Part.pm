@@ -129,7 +129,7 @@ sub check_objects {
   $self->add_cvar_raw_data_columns;
   map { $self->add_raw_data_columns("pricegroup_${_}") } (1..scalar(@{ $self->all_pricegroups }));
   map { $self->add_raw_data_columns($_) if exists $self->controller->data->[0]->{raw_data}->{$_} } @{ $self->translation_columns };
-  map { $self->add_raw_data_columns("make_${_}", "model_${_}") } sort { $a <=> $b } keys %{ $self->makemodel_columns };
+  map { $self->add_raw_data_columns("make_${_}", "model_${_}", "lastcost_${_}") } sort { $a <=> $b } keys %{ $self->makemodel_columns };
 }
 
 sub check_duplicates {
@@ -379,8 +379,10 @@ sub handle_makemodel {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid vendor in column make_#1', $idx);
 
     } else {
-      push @makemodels, SL::DB::MakeModel->new(make  => $vendor->id,
-                                               model => $entry->{raw_data}->{"model_${idx}"});
+      push @makemodels, SL::DB::MakeModel->new(make               => $vendor->id,
+                                               model              => $entry->{raw_data}->{"model_${idx}"},
+                                               lastcost_as_number => $entry->{raw_data}->{"lastcost_${idx}"});
+
       $self->makemodel_columns->{$idx}    = 1;
       $entry->{raw_data}->{"make_${idx}"} = $vendor->name;
     }
@@ -438,6 +440,7 @@ sub setup_displayable_columns {
                                  { name => 'make_X',             description => $::locale->text('Make (with X being a number)')                         },
                                  { name => 'microfiche',         description => $::locale->text('Microfiche')                                           },
                                  { name => 'model_X',            description => $::locale->text('Model (with X being a number)')                        },
+                                 { name => 'lastcost_X',         description => $::locale->text('Lastcost (with X being a number)')                     },
                                  { name => 'not_discountable',   description => $::locale->text('Not Discountable')                                     },
                                  { name => 'notes',              description => $::locale->text('Notes')                                                },
                                  { name => 'obsolete',           description => $::locale->text('Obsolete')                                             },
