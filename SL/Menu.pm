@@ -66,32 +66,27 @@ sub menuitem {
   my $module = $self->{$item}{module} || $form->{script};
   my $action = $self->{$item}{action} || "section_menu";
   my $target = $self->{$item}{target} || "";
-
   my $level  = $form->escape($item);
-
-  my $style  = 'style="vertical-align:top"';
-  my $target_token = ($target)
-     ? "target='$target'" : '';
+  my $target_token = ($target) ? "target='$target'" : '';
 
   my $href = ($self->{$item}{href})
            ? $form->escape($self->{$item}{href})
-           : "$module?action=$action&amp;level=$level";
+           : "$module?action=$action";
 
-  my @vars = ($self->{$item}{href})
-           ? qw(module        target href)
-           : qw(module action target href);
-
-#  map { delete $self->{$item}{$_} } @vars;
-
+#  my @vars = ($self->{$item}{href})
+#           ? qw(module        target href)
+#           : qw(module action target href);
+#
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
+    next if $key =~ /target|module|action/;
     $href .= "&amp;" . $form->escape($key, 1) . "=";
     my ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
     $value = $myconfig->{$value} . "/$conf" if ($conf);
     $href .= $form->escape($value, 1);
   }
 
-  my $str = "<a href='$href' $target_token $style>";
+  my $str = "<a href='$href' $target_token>";
 
   $main::lxdebug->leave_sub();
 

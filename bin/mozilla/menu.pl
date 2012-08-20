@@ -87,17 +87,10 @@ sub acc_menu {
   $::form->{title} = $::locale->text('kivitendo');
   $::form->header;
 
-  print qq|
-<body class="menu">
-
-<div align="left">\n<table width="$framesize" border="0">\n|;
-
-  section_menu($menu);
-
-  print qq|</table></div>
-</body>
-</html>
-|;
+  print $::form->parse_html_template('menu/menu', {
+    framesize => $framesize,
+    sections  => [ section_menu($menu) ],
+  });
 
   $::lxdebug->leave_sub;
 }
@@ -106,6 +99,7 @@ sub section_menu {
   $::lxdebug->enter_sub;
   my ($menu, $level) = @_;
   my @menuorder = $menu->access_control(\%::myconfig, $level);
+  my @items;
 
   for my $item (@menuorder) {
     my $menuitem   = $menu->{$item};
@@ -125,44 +119,40 @@ sub section_menu {
 
     if (!$level) { # toplevel
       my $ml_    = $::form->escape($ml);
-      my $image  = make_image(icon => $item . '.png', size => 24, label => $label, valign => 'middle');
+      my $image  = make_image(icon => $item . '.png', size => 24, label => $label);
       my $anchor = "<a href='menu.pl?action=acc_menu&level=$ml_' class='nohover' title='$label'>";
 
-      print make_item(a => $anchor, img => $image, label => $label, height => 24);
-      section_menu($menu, $item);
+      push @items, make_item(a => $anchor, img => $image, label => $label, height => 24, class => 'menu');
+      push @items, section_menu($menu, $item);
 
     } elsif ($menuitem->{submenu}) {
       my $image = make_image(submenu => 1);
       if ($mainlevel && $item =~ /^\Q$mainlevel\E/) {
-        print make_item(spacer => $spacer, bold => 1, img => $image, label => $label) if $show;
-        section_menu($menu, $item);
+        push @items, make_item(spacer => $spacer, bold => 1, img => $image, label => $label, class => 'submenu') if $show;
+        push @items, section_menu($menu, $item);
       } else {
-        print make_item(spacer => $spacer, a => $anchor, img => $image, label => $label . '&nbsp;...') if $show;
+        push @items, make_item(spacer => $spacer, a => $anchor, img => $image, label => $label . '&nbsp;...', class => 'submenu') if $show;
       }
     } elsif ($menuitem->{module}) {
       my $image = make_image(label => $label, icon => $label_icon);
-      print make_item(img => $image, a => $anchor, spacer => $spacer, label => $label) if $show;
-      section_menu($menu, $item) if $show && $::form->{$item} && $::form->{level} eq $item;
+      push @items, make_item(img => $image, a => $anchor, spacer => $spacer, label => $label, class => 'item') if $show;
+      push @items, section_menu($menu, $item) if $show && $::form->{$item} && $::form->{level} eq $item;
     }
   }
   $::lxdebug->leave_sub;
+  return @items;
 }
 
 sub make_item {
   my %params = @_;
-  my $anchor = $params{a} || '';
-  my @chunks = multiline($params{label});
-  my $spacer = $params{spacer} || '';
-  my $image  = $params{img};
-  my $height = $params{height} || 16;
-  my $a_end  = $anchor       ? '</a>' : '';
-  my $bold   = $params{bold} ?  '<b>' : '';
-  my $b_end  = $bold         ? '</b>' : '';
-  my $hidden_image = make_image(hidden => 1);
-  return join "\n",
-        "<tr><td class='hover' height='$height'>$bold$spacer$anchor$image$chunks[0]$a_end$b_end</td></tr>\n",
-    map "<tr style='vertical-align:top'><td class='hover'>$bold$spacer$hidden_image$anchor$chunks[$_]$a_end$b_end</td></tr>\n",
-      1..$#chunks;
+  $params{a}      ||= '';
+  $params{spacer} ||= '';
+  $params{height} ||= 16;
+
+  return {
+    %params,
+    chunks => [ multiline($params{label}) ],
+  };
 }
 
 # multi line hack, sschoeling jul06
@@ -190,23 +180,20 @@ sub make_image {
 
   my $label  = $params{label};
   my $icon   = $params{icon};
-  my $hidden = $params{hidden};
   my $size   = $params{size}   || 16;
-  my $valign = $params{valign} || 'text-top';
 
   return unless _show_images();
 
   my $icon_found = $icon && -f _icon_path($icon, $size);
 
   my $image_url = $icon_found ? _icon_path($icon, $size) : "image/unterpunkt.png";
-  my $style     = $hidden     ? "visibility:hidden"      : "vertical-align:$valign";
-  my $width     = $hidden     ? "width='$size'"          : '';
+  my $width     = $icon_found ? $size : 24;
 
-  my $padding   = $size == 16 && $icon_found || $hidden ? $nbsp x 2
-                : $size == 24                           ? $nbsp
-                :                                         '';
+  my $padding   = $size == 16 && $icon_found ? $nbsp x 2
+                : $size == 24                ? $nbsp
+                :                            '';
 
-  return "<img src='$image_url' border='0' style='$style' title='$label' $width>$padding";
+  return "<img src='$image_url' title='$label' width='$width' height='$size'>$padding";
 }
 
 sub _calc_framesize {
