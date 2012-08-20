@@ -200,7 +200,13 @@ sub handle_request {
 
     $::form->error($::locale->text('System currently down for maintenance!')) if -e ($::lx_office_conf{paths}->{userspath} . "/nologin") && $script ne 'admin';
 
-    ($routing_type, $script, $script_name, $action) = qw(controller controller LoginScreen login) if ($script eq 'login') && ($action eq 'login');
+    # For compatibility with a lot of database upgrade scripts etc:
+    # Re-write request to old 'login.pl?action=login' to new
+    # 'LoginScreen' controller. Make sure to load its code!
+    if (($script eq 'login') && ($action eq 'login')) {
+      ($routing_type, $script, $script_name, $action) = qw(controller controller LoginScreen login);
+      _require_controller('LoginScreen');
+    }
 
     if (($script eq 'login') && !$action) {
       print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login');
