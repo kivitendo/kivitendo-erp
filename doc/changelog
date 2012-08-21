@@ -15,7 +15,9 @@ Größere neue Features:
   Konfiguration unter [datev_check] angeschaltet werden.
 
 - Verkaufsbericht: Sortierung um Land, Warengruppen, Kundentyp, Verkäufer und
-  Monat erweitert, sowie benutzerdefinierte Variablen eingebunden
+  Monat erweitert, sowie benutzerdefinierte Variablen eingebunden.
+  Warengewicht kann angezeigt werden und damit eignet sich der Verkaufsbericht
+  auch als Grundlage für die Intrastat-Meldung.
 
 Experimentelle Features:
 
