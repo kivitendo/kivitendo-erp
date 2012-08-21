@@ -185,7 +185,7 @@ sub handle_cvars {
     my $value  = $entry->{raw_data}->{ "cvar_" . $config->name };
     my $column = $type_to_column{ $config->type } || die "Program logic error: unknown custom variable storage type";
 
-    push @cvars, SL::DB::CustomVariable->new(config_id => $config->id, $column => $value);
+    push @cvars, SL::DB::CustomVariable->new(config_id => $config->id, $column => $value, sub_module => '');
   }
 
   $entry->{object}->custom_variables(\@cvars);
