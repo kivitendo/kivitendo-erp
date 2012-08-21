@@ -344,6 +344,12 @@ sub invoice_transactions {
     $ar->{marge_total} = $ar->{sellprice_total} ? $ar->{sellprice_total}-$ar->{lastcost_total}  : 0;
     $ar->{discount} *= 100;  # für Ausgabe formatieren, 10% stored as 0.1 in db
 
+    #adapt qty to the chosen unit
+    $ar->{qty} *= $basefactor;
+
+    #weight is the still the weight per part, but here we want the total weight
+    $ar->{weight} *= $ar->{qty};
+
     # Anfangshauptüberschrift
     if ( $form->{l_headers_mainsort} eq "Y" && ( $idx == 0 or $ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx - 1]->{ $form->{'mainsort'} } )) {
       my $headerrow;
@@ -422,14 +428,8 @@ sub invoice_transactions {
     # wird laufend bei jeder Position neu berechnet
     $totals{marge_percent}    = $totals{sellprice_total}    ? ( ($totals{sellprice_total} - $totals{lastcost_total}) / $totals{sellprice_total}   ) * 100 : 0;
 
-    #passt die qty an die gewählte Einheit an
-    #qty wurde bisher noch für andere Berechnungen benötigt und daher erst am Schluss überschrieben
-    $ar->{qty} *= $basefactor;
-
-    #weight is the still the weight per part, but here we want the total weight
-    $ar->{weight} *= $ar->{qty};
-
-    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(marge_total marge_percent);
+    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(marge_total marge_percent qty);
+    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 3) } qw(weight);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(lastcost sellprice sellprice_total lastcost_total);
 
     my $row = { };
@@ -521,8 +521,8 @@ sub create_subtotal_row_invoice {
     $row->{description}->{data} = $locale->text('Total') . ' ' . $name;
   };
 
-  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } qw(marge_total marge_percent weight);
-  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 0) } qw(qty);
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } qw(marge_total marge_percent qty);
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 3) } qw(weight);
   map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, $form->{decimalplaces}) } qw(lastcost sellprice sellprice_total lastcost_total);
 
 
