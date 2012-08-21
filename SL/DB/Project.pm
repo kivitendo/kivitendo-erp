@@ -4,7 +4,13 @@ use strict;
 
 use SL::DB::MetaSetup::Project;
 
+use SL::DB::Helper::CustomVariables(
+  module      => 'Project',
+  cvars_alias => 1,
+);
+
 __PACKAGE__->meta->make_manager_class;
+__PACKAGE__->meta->initialize;
 
 1;
 
