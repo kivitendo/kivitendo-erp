@@ -150,7 +150,7 @@ sub invoice_transactions {
   $form->{title} = $locale->text('Sales Report');
 
   @columns =
-    qw(description invnumber transdate customernumber customername partnumber partsgroup country business transdate qty parts_unit sellprice sellprice_total discount lastcost lastcost_total marge_total marge_percent employee salesman);
+    qw(description invnumber transdate customernumber customername partnumber partsgroup country business transdate qty parts_unit weight sellprice sellprice_total discount lastcost lastcost_total marge_total marge_percent employee salesman);
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs_ic }, @{ $cvar_configs_ct };
   my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs_ic }, @{ $cvar_configs_ct };
@@ -186,6 +186,7 @@ sub invoice_transactions {
     'transdate'               => { 'text' => $locale->text('Invoice Date'), },
     'qty'                     => { 'text' => $locale->text('Quantity'), },
     'parts_unit'              => { 'text' => $locale->text('Base unit'), },
+    'weight'                  => { 'text' => $locale->text('Weight'), },
     'sellprice'               => { 'text' => $locale->text('Sales price'), },
     'sellprice_total'         => { 'text' => $locale->text('Sales net amount'), },
     'lastcost_total'          => { 'text' => $locale->text('Purchase net amount'), },
@@ -204,7 +205,7 @@ sub invoice_transactions {
 
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
 
-  my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total parts_unit discount marge_total marge_percent qty);
+  my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total parts_unit discount marge_total marge_percent qty weight);
 
   
   # so now the check-box "Description" is only used as switch for part description in invoice-mode
@@ -311,7 +312,7 @@ sub invoice_transactions {
   # escape callback for href
   $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(qty sellprice sellprice_total lastcost lastcost_total marge_total marge_percent discount);
+  my @subtotal_columns = qw(qty weight sellprice sellprice_total lastcost lastcost_total marge_total marge_percent discount);
   # Gesamtsumme:
   # Summe von sellprice_total, lastcost_total und marge_total
   # Durchschnitt von marge_percent
@@ -425,6 +426,9 @@ sub invoice_transactions {
     #qty wurde bisher noch für andere Berechnungen benötigt und daher erst am Schluss überschrieben
     $ar->{qty} *= $basefactor;
 
+    #weight is the still the weight per part, but here we want the total weight
+    $ar->{weight} *= $ar->{qty};
+
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(marge_total marge_percent);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(lastcost sellprice sellprice_total lastcost_total);
 
@@ -517,7 +521,7 @@ sub create_subtotal_row_invoice {
     $row->{description}->{data} = $locale->text('Total') . ' ' . $name;
   };
 
-  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } qw(marge_total marge_percent);
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } qw(marge_total marge_percent weight);
   map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 0) } qw(qty);
   map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, $form->{decimalplaces}) } qw(lastcost sellprice sellprice_total lastcost_total);
 
