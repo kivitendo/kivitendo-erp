@@ -35,7 +35,7 @@ sub substitute_vars {
 sub format_string {
   my ($self, $variable) = @_;
 
-  return shell_quote_best_effort($variable);
+  return shell_quote($variable);
 }
 
 sub get_mime_type {
