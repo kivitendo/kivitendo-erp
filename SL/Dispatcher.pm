@@ -253,6 +253,7 @@ sub handle_request {
     if ($EVAL_ERROR ne END_OF_REQUEST) {
       print STDERR $EVAL_ERROR;
       $::form->{label_error} = $::request->{cgi}->pre($EVAL_ERROR);
+      chdir SL::System::Process::exe_dir;
       eval { show_error('generic/error') };
     }
   };
