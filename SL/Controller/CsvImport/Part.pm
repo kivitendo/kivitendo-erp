@@ -367,6 +367,8 @@ sub handle_pricegroups {
 
 sub handle_makemodel {
   my ($self, $entry) = @_;
+  my $object = $entry->{object};
+  my $found_any;
 
   my @makemodels;
   foreach my $idx (map { substr $_, 5 } grep { m/^make_\d+$/ && $entry->{raw_data}->{$_} } keys %{ $entry->{raw_data} }) {
@@ -379,6 +381,7 @@ sub handle_makemodel {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid vendor in column make_#1', $idx);
 
     } else {
+      $found_any = 1;
       push @makemodels, SL::DB::MakeModel->new(make               => $vendor->id,
                                                model              => $entry->{raw_data}->{"model_${idx}"},
                                                lastcost_as_number => $entry->{raw_data}->{"lastcost_${idx}"});
@@ -388,8 +391,31 @@ sub handle_makemodel {
     }
   }
 
-  $entry->{object}->makemodels(\@makemodels);
-  $entry->{object}->makemodel(scalar(@makemodels) ? 1 : 0);
+  $object->makemodels(\@makemodels);
+  $object->makemodel(scalar(@makemodels) ? 1 : 0);
+
+  if ( !$entry->{part} || $self->settings->{article_number_policy} ne 'update_prices' ) {
+    return;
+  }
+
+  my %old_makemodels_by_make = map { $_->make => $_ } $entry->{part}->makemodels;
+
+  foreach my $makemodel ($object->makemodels()) {
+    my $makemodel_orig = $old_makemodels_by_make{$makemodel->make};
+    $found_any = 1;
+
+    if ($makemodel_orig) {
+      $makemodel_orig->model($makemodel->model);
+      $makemodel_orig->lastcost($makemodel->lastcost);
+
+    } else {
+      $entry->{part}->add_makemodels($makemodel);
+    }
+  }
+
+  $entry->{part}->makemodel($object->makemodel);
+
+  $self->save_with_cascade(1) if $found_any;
 }
 
 sub set_various_fields {
