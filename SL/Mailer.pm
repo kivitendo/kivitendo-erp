@@ -52,6 +52,25 @@ sub new {
   bless $self, $type;
 }
 
+sub _create_driver {
+  my ($self) = @_;
+
+  my %params = (
+    mailer   => $self,
+    form     => $::form,
+    myconfig => \%::myconfig,
+  );
+
+  my $cfg = $::lx_office_conf{mail_delivery};
+  if (($cfg->{method} || 'smtp') ne 'smtp') {
+    require SL::Mailer::Sendmail;
+    return SL::Mailer::Sendmail->new(%params);
+  } else {
+    require SL::Mailer::SMTP;
+    return SL::Mailer::SMTP->new(%params);
+  }
+}
+
 sub mime_quote_text {
   $main::lxdebug->enter_sub();
 
@@ -99,7 +118,7 @@ sub send {
 
   my ($self) = @_;
 
-  local (*IN, *OUT);
+  local (*IN);
 
   $num_sent++;
   my $boundary    = time() . "-$$-${num_sent}";
@@ -111,16 +130,10 @@ sub send {
   my $form        =  $main::form;
   my $myconfig    =  \%main::myconfig;
 
-  my $email       =  $self->recode($myconfig->{email});
-  $email          =~ s/[^\w\.\-\+=@]//ig;
-
-  my %temp_form   = ( %{ $form }, 'myconfig_email' => $email );
-  my $template    = SL::Template::create(type => 'PlainText', form => \%temp_form);
-  my $sendmail    = $template->parse_block($::lx_office_conf{applications}->{sendmail});
-
-  if (!open(OUT, "|$sendmail")) {
+  my $driver = eval { $self->_create_driver };
+  if (!$driver) {
     $main::lxdebug->leave_sub();
-    return "$sendmail : $!";
+    return "send email : $@";
   }
 
   $self->{charset}     ||= Common::DEFAULT_CHARSET;
@@ -137,13 +150,17 @@ sub send {
 
   $self->{from} = $self->recode($self->{from});
 
+  my %addresses;
   my $headers = '';
   foreach my $item (qw(from to cc bcc)) {
+    $addresses{$item} = [];
     next unless ($self->{$item});
+
     my (@addr_objects) = Email::Address->parse($self->{$item});
     next unless (scalar @addr_objects);
 
     foreach my $addr_obj (@addr_objects) {
+      push @{ $addresses{$item} }, $addr_obj->address;
       my $phrase = $addr_obj->phrase();
       if ($phrase) {
         $phrase =~ s/^\"//;
@@ -151,28 +168,28 @@ sub send {
         $addr_obj->phrase($self->mime_quote_text($phrase));
       }
 
-      $headers .= sprintf("%s: %s\n", ucfirst($item), $addr_obj->format());
+      $headers .= sprintf("%s: %s\n", ucfirst($item), $addr_obj->format()) unless $driver->keep_from_header($item);
     }
   }
 
   $headers .= sprintf("Subject: %s\n", $self->mime_quote_text($self->recode($self->{subject}), 60));
 
-  print OUT qq|${headers}Message-ID: <$msgid>
+  $driver->start_mail(from => $self->{from}, to => [ map { @{ $addresses{$_} } } qw(to cc bcc) ]);
+
+  $driver->print(qq|${headers}Message-ID: <$msgid>
 X-Mailer: Lx-Office $self->{version}
 MIME-Version: 1.0
-|;
+|);
 
   if ($self->{attachments}) {
-    print OUT qq|Content-Type: multipart/mixed; boundary="$boundary"
-
-|;
+    $driver->print(qq|Content-Type: multipart/mixed; boundary="$boundary"\n\n|);
     if ($self->{message}) {
-      print OUT qq|--${boundary}
+      $driver->print(qq|--${boundary}
 Content-Type: $self->{contenttype}; charset="$self->{charset}"
 
 | . $self->recode($self->{message}) . qq|
 
-|;
+|);
     }
 
     foreach my $attachment (@{ $self->{attachments} }) {
@@ -195,7 +212,6 @@ Content-Type: $self->{contenttype}; charset="$self->{charset}"
 
       open(IN, $attachment);
       if ($?) {
-        close(OUT);
         $main::lxdebug->leave_sub();
         return "$attachment : $!";
       }
@@ -207,31 +223,31 @@ Content-Type: $self->{contenttype}; charset="$self->{charset}"
         $attachment_charset = qq|; charset="$self->{charset}" |;
       }
 
-      print OUT qq|--${boundary}
+      $driver->print(qq|--${boundary}
 Content-Type: ${content_type}; name="$filename"$attachment_charset
 Content-Transfer-Encoding: BASE64
-Content-Disposition: attachment; filename="$filename"\n\n|;
+Content-Disposition: attachment; filename="$filename"\n\n|);
 
       my $msg = "";
       while (<IN>) {
         ;
         $msg .= $_;
       }
-      print OUT &encode_base64($msg);
+      $driver->print(encode_base64($msg));
 
       close(IN);
 
     }
-    print OUT qq|--${boundary}--\n|;
+    $driver->print(qq|--${boundary}--\n|);
 
   } else {
-    print OUT qq|Content-Type: $self->{contenttype}; charset="$self->{charset}"
+    $driver->print(qq|Content-Type: $self->{contenttype}; charset="$self->{charset}"
 
 | . $self->recode($self->{message}) . qq|
-|;
+|);
   }
 
-  close(OUT);
+  $driver->send;
 
   $main::lxdebug->leave_sub();
 
@@ -274,4 +290,3 @@ sub recode {
 }
 
 1;
-

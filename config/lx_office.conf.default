@@ -102,9 +102,29 @@ templates = templates
 # Path to the old memberfile (ignored on new installations)
 memberfile = users/members
 
-[applications]
-# Location of sendmail
+[mail_delivery]
+# Delivery method can be 'sendmail' or 'smtp' (the default). For
+# 'method = sendmail' the parameter 'mail_delivery.sendmail' is used
+# as the executable to call. If 'applications.sendmail' still exists
+# (backwards compatibility) then 'applications.sendmail' will be used
+# instead of 'mail_delivery.sendmail'.
+method = smtp
+# Location of sendmail for 'method = sendmail'
 sendmail = /usr/sbin/sendmail -t<%if myconfig_email%> -f <%myconfig_email%><%end%>
+# Settings for 'method = smtp'.
+host = localhost
+port = 25
+# Security can be 'tls', 'ssl' or 'none'. Unset equals 'none'. This
+# determines whether or not encryption is used and which kind. For
+# 'tls' the module 'Net::SMTP::TLS' is required; for 'ssl'
+# 'Net::SMTP::TLS' is required and 'none' only uses 'Net::SMTP'.
+security = tls
+# Authentication is only used if 'login' is set. You should only use
+# that with 'tls' or 'ssl' encryption.
+login =
+password =
+
+[applications]
 # Location of OpenOffice.org writer
 openofficeorg_writer = oowriter
 # Location of the X virtual frame buffer used for OpenOffice
