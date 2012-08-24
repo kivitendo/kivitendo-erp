@@ -50,7 +50,7 @@
    </tr>
   </table>
 
-  <input type="hidden" name="rpw" value="[% HTML.escape(rpw) %]">
+  <input type="hidden" name="{AUTH}admin_password" value="[% HTML.escape(admin_password) %]">
   <input type="hidden" name="action" value="create_auth_db">
 
   <input type="submit" class="submit" value="[% 'Create Dataset' | $T8 %]">

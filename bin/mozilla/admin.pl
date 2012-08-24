@@ -146,6 +146,8 @@ sub check_auth_db_and_tables {
 
   map { $params{"db_${_}"} = $main::auth->{DB_config}->{$_} } keys %{ $auth->{DB_config} };
 
+  $params{admin_password} = $::lx_office_conf{authentication}->{admin_password};
+
   if (!$main::auth->check_database()) {
     $form->{title} = $locale->text('Authentification database creation');
     $form->header();
