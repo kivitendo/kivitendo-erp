@@ -2,6 +2,11 @@ package SL::Dispatcher;
 
 use strict;
 
+# Force scripts/locales.pl to parse these templates:
+#   parse_html_template('login_screen/auth_db_unreachable')
+#   parse_html_template('login_screen/user_login')
+#   parse_html_template('generic/error')
+
 BEGIN {
   use SL::System::Process;
   my $exe_dir = SL::System::Process::exe_dir;
