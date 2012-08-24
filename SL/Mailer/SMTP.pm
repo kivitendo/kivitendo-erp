@@ -49,7 +49,26 @@ sub start_mail {
 sub print {
   my $self = shift;
 
-  $self->{smtp}->datasend(@_);
+  # SMTP requires at most 1000 characters per line. Each line must be
+  # terminated with <CRLF>, meaning \r\n in Perl.
+
+  # First, normalize the string by removing all \r in order to fix
+  # possible wrong combinations like \n\r.
+  my $str = join '', @_;
+  $str    =~ s/\r//g;
+
+  # Now remove the very last newline so that we don't create a
+  # superfluous empty line at the very end.
+  $str =~ s/\n$//;
+
+  # Split the string on newlines keeping trailing empty parts. This is
+  # requires so that input like "Content-Disposition: ..... \n\n" is
+  # treated correctly. That's also why we had to remove the very last
+  # \n in the prior step.
+  my @lines = split /\n/, $str, -1;
+
+  # Send each line terminating it with \r\n.
+  $self->{smtp}->datasend("$_\r\n") for @lines;
 }
 
 sub send {
