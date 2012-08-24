@@ -39,7 +39,7 @@ sub run {
 
   $self->controller->errors([ $self->csv->errors ]) if $self->csv->errors;
 
-  return unless $self->csv->header;
+  return if ( !$self->csv->header || $self->csv->errors ) ;
 
   my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header } ] };
   $headers->{methods} = [ map { $profile->{$_} } @{ $headers->{headers} } ];
@@ -328,3 +328,5 @@ sub fix_field_lengths {
 }
 
 1;
+
+
