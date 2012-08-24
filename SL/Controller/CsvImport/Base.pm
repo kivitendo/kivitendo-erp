@@ -39,7 +39,7 @@ sub run {
 
   $self->controller->errors([ $self->csv->errors ]) if $self->csv->errors;
 
-  return if ( !$self->csv->header || $self->csv->errors ) ;
+  return if ( !$self->csv->header || $self->csv->errors );
 
   my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header } ] };
   $headers->{methods} = [ map { $profile->{$_} } @{ $headers->{headers} } ];
@@ -53,7 +53,10 @@ sub run {
   $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [], information => [], info_data => {} } } @objects, @raw_data ]);
 
   $self->check_objects;
-  $self->check_duplicates if $self->controller->profile->get('duplicates', 'no_check') ne 'no_check';
+  if ( $self->controller->profile->get('duplicates', 'no_check') ne 'no_check' ) {
+    $self->check_std_duplicates();
+    $self->check_duplicates();
+  }
   $self->fix_field_lengths;
 
   $::myconfig{numberformat} = $old_numberformat;
@@ -269,6 +272,60 @@ sub check_objects {
 sub check_duplicates {
 }
 
+sub check_std_duplicates {
+  my $self = shift;
+
+  my $duplicates = {};
+
+  my $all_fields = $self->get_duplicate_check_fields();
+
+  foreach my $key (keys(%{ $all_fields })) {
+    if ( $self->controller->profile->get('duplicates_'. $key) && (!exists($all_fields->{$key}->{std_check}) || $all_fields->{$key}->{std_check} )  ) {
+      $duplicates->{$key} = {};
+    }
+  }
+
+  my @duplicates_keys = keys(%{ $duplicates });
+
+  if ( !scalar(@duplicates_keys) ) {
+    return;
+  }
+
+  if ( $self->controller->profile->get('duplicates') eq 'check_db' ) {
+    foreach my $object (@{ $self->existing_objects }) {
+      foreach my $key (@duplicates_keys) {
+        my $value = exists($all_fields->{$key}->{maker}) ? $all_fields->{$key}->{maker}->($object, $self) : $object->$key;
+        $duplicates->{$key}->{$value} = 'db';
+      }
+    }
+  }
+
+  foreach my $entry (@{ $self->controller->data }) {
+    if ( @{ $entry->{errors} } ) {
+      next;
+    }
+
+    my $object = $entry->{object};
+
+    foreach my $key (@duplicates_keys) {
+      my $value = exists($all_fields->{$key}->{maker}) ? $all_fields->{$key}->{maker}->($object, $self) : $object->$key;
+
+      if ( exists($duplicates->{$key}->{$value}) ) {
+        push(@{ $entry->{errors} }, $duplicates->{$key}->{$value} eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file'));
+        last;
+      } else {
+        $duplicates->{$key}->{$value} = 'csv';
+      }
+
+    }
+  }
+
+}
+
+sub get_duplicate_check_fields {
+  return {};
+}
+
 sub check_payment {
   my ($self, $entry) = @_;
 
@@ -328,5 +385,4 @@ sub fix_field_lengths {
 }
 
 1;
-
 

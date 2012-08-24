@@ -54,33 +54,24 @@ sub check_gender {
   push @{ $entry->{errors} }, $::locale->text('Error: Gender (cp_gender) missing or invalid') if ($entry->{object}->cp_gender ne 'm') && ($entry->{object}->cp_gender ne 'f');
 }
 
-sub check_duplicates {
-  my ($self, %params) = @_;
-
-  my $normalizer = sub { my $name = $_[0]; $name =~ s/[\s,\.\-]//g; return $name; };
-
-  my %by_id_and_name;
-  if ('check_db' eq $self->controller->profile->get('duplicates')) {
-    foreach my $type (qw(customers vendors)) {
-      foreach my $vc (@{ $self->all_vc->{$type} }) {
-        $by_id_and_name{ $vc->id } = { map { ( $normalizer->($_->cp_name) => 'db' ) } @{ $vc->contacts } };
+sub get_duplicate_check_fields {
+  return {
+    cp_name => {
+      label     => $::locale->text('Name'),
+      default   => 1,
+      maker     => sub {
+        my $o = shift;
+        return join(
+                 '--',
+                 $o->cp_cv_id,
+                 map(
+                   { s/[\s,\.\-]//g; $_ }
+                   $o->cp_name
+                 )
+        );
       }
-    }
-  }
-
-  foreach my $entry (@{ $self->controller->data }) {
-    next if @{ $entry->{errors} };
-
-    my $name = $normalizer->($entry->{object}->cp_name);
-
-    $by_id_and_name{ $entry->{vc}->id } ||= { };
-    if (!$by_id_and_name{ $entry->{vc}->id }->{ $name }) {
-      $by_id_and_name{ $entry->{vc}->id }->{ $name } = 'csv';
-
-    } else {
-      push @{ $entry->{errors} }, $by_id_and_name{ $entry->{vc}->id }->{ $name } eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file');
-    }
-  }
+    },
+  };
 }
 
 sub field_lengths {

@@ -1,4 +1,7 @@
-[% USE HTML %][% USE LxERP %][% USE L %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+[%- USE T8 %]
 <body>
 
  <div class="listtop">[% FORM.title %]</div>
@@ -6,6 +9,7 @@
  [%- INCLUDE 'common/flash.html' %]
 
  <form method="post" action="controller.pl" enctype="multipart/form-data">
+  [% L.hidden_tag('form_sent', '1') %]
   [% L.hidden_tag('action', 'CsvImport/dispatch') %]
   [% L.hidden_tag('profile.type', SELF.profile.type) %]
 
@@ -157,15 +161,30 @@
     </td>
    </tr>
 
-   <tr>
-    <th align="right">[%- LxERP.t8('Check for duplicates') %]:</th>
-    <td colspan="10">
-     [% opts = [ [ 'no_check',  LxERP.t8('Do not check for duplicates') ],
-                 [ 'check_csv', LxERP.t8('Discard duplicate entries in CSV file') ],
-                 [ 'check_db',  LxERP.t8('Discard entries with duplicates in database or CSV file') ] ] %]
-     [% L.select_tag('settings.duplicates', L.options_for_select(opts, default => SELF.profile.get('duplicates')), style => 'width: 300px') %]
-    </td>
-   </tr>
+   [% duplicate_fields = SELF.worker.get_duplicate_check_fields() %]
+   [% IF ( duplicate_fields.size ) %]
+     <tr>
+       <th align="right">[%- LxERP.t8('Check for duplicates') %]:</th>
+
+       <td colspan=10>
+         [% FOREACH key = duplicate_fields.keys %]
+           <input type="checkbox" name="settings.duplicates_[% key | html %]" id="settings.duplicates_[% key | html %]" value="1"[% IF ( SELF.profile.get('duplicates_'_ key) || (duplicate_fields.$key.default && !FORM.form_sent ) ) %] checked="checked"[% END %]\>
+           <label for="settings.duplicates_[% key | html %]">[% duplicate_fields.$key.label | html %]</label>
+         [% END %]
+       </td>
+     </tr>
+
+     <tr>
+       <th align="right"></th>
+
+       <td colspan=10>
+         [% opts = [ [ 'no_check',  LxERP.t8('Do not check for duplicates') ],
+                     [ 'check_csv', LxERP.t8('Discard duplicate entries in CSV file') ],
+                     [ 'check_db',  LxERP.t8('Discard entries with duplicates in database or CSV file') ] ] %]
+         [% L.select_tag('settings.duplicates', L.options_for_select(opts, default => SELF.profile.get('duplicates')), style => 'width: 300px') %]
+       </td>
+     </tr>
+   [% END %]
 
 [%- IF SELF.type == 'parts' %]
  [%- INCLUDE 'csv_import/_form_parts.html' %]

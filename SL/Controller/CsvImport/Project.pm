@@ -34,31 +34,14 @@ sub check_objects {
   $self->add_cvar_raw_data_columns;
 }
 
-sub check_duplicates {
-  my $self = shift;
-
-  my %duplicates_by_number;
-
-  if ( $self->controller->profile->get('duplicates') eq 'check_db' ) {
-    foreach my $object (@{$self->existing_objects}) {
-      $duplicates_by_number{$object->{projectnumber}} = 'db';
-    }
-  }
-
-  foreach my $entry (@{ $self->controller->data }) {
-
-    my $object = $entry->{object};
-
-    if ( $duplicates_by_number{$object->projectnumber()} )
-    {
-      push( @{$entry->{errors}},
-            $duplicates_by_number{$object->projectnumber()} eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file')
-      );
-    } else {
-      $duplicates_by_number{$object->projectnumber()} = 'csv';
-    }
-
-  }
+sub get_duplicate_check_fields {
+  return {
+    projectnumber => {
+      label     => $::locale->text('Project Number'),
+      default   => 1,
+      std_check => 1
+    },
+  };
 }
 
 sub setup_displayable_columns {
