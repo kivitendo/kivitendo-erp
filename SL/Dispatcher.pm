@@ -2,9 +2,18 @@ package SL::Dispatcher;
 
 use strict;
 
+# Force scripts/locales.pl to parse these templates:
+#   parse_html_template('login_screen/auth_db_unreachable')
+#   parse_html_template('login_screen/user_login')
+#   parse_html_template('generic/error')
+
 BEGIN {
-  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+  use SL::System::Process;
+  my $exe_dir = SL::System::Process::exe_dir;
+
+  unshift @INC, "${exe_dir}/modules/override"; # Use our own versions of various modules (e.g. YAML).
+  push    @INC, "${exe_dir}/modules/fallback"; # Only use our own versions of modules if there's no system version.
+  unshift @INC, $exe_dir;
 }
 
 use CGI qw( -no_xhtml);
@@ -249,6 +258,7 @@ sub handle_request {
     if ($EVAL_ERROR ne END_OF_REQUEST) {
       print STDERR $EVAL_ERROR;
       $::form->{label_error} = $::request->{cgi}->pre($EVAL_ERROR);
+      chdir SL::System::Process::exe_dir;
       eval { show_error('generic/error') };
     }
   };
