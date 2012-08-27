@@ -5,6 +5,7 @@ crm
 /users/session_files/
 /users/pid/
 /config/lx_office.conf
+/config/kivitendo.conf
 /doc/online/*/*.html
 pod2html*
 /doc/build/dobudish*
