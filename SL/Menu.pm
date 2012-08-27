@@ -73,10 +73,6 @@ sub menuitem {
            ? $form->escape($self->{$item}{href})
            : "$module?action=$action";
 
-#  my @vars = ($self->{$item}{href})
-#           ? qw(module        target href)
-#           : qw(module action target href);
-#
   # add other params
   foreach my $key (keys %{ $self->{$item} }) {
     next if $key =~ /target|module|action/;
