@@ -14,6 +14,11 @@ use SL::User;
 sub action_user_login {
   my ($self) = @_;
 
+  # If the user is already logged in then redirect to the proper menu
+  # script.
+  return if $self->_redirect_to_main_script_if_already_logged_in;
+
+  # Otherwise show the login form.
   $self->render('login_screen/user_login');
 }
 
@@ -55,6 +60,27 @@ sub action_login {
   # Everything is fine.
   $::auth->set_cookie_environment_variable();
 
+  $self->_redirect_to_main_script($user);
+}
+
+#
+# settings
+#
+sub get_auth_level {
+  return 'none';
+}
+
+sub keep_auth_vars_in_form {
+  return 1;
+}
+
+#
+# private methods
+#
+
+sub _redirect_to_main_script {
+  my ($self, $user) = @_;
+
   return $self->redirect_to($::form->{callback}) if $::form->{callback};
 
   my %style_to_script_map = (
@@ -68,14 +94,25 @@ sub action_login {
   $self->redirect_to(controller => "menu${menu_script}.pl", action => 'display');
 }
 
-#
-# settings
-#
-sub get_auth_level {
-  return 'none';
-}
+sub _redirect_to_main_script_if_already_logged_in {
+  my ($self) = @_;
 
-sub keep_auth_vars_in_form {
+  # Get 'login' from valid session.
+  my $login = $::auth->get_session_value('login');
+  return unless $login;
+
+  # See whether or not the user exists in the database.
+  my %user = $::auth->read_user(login => $login);
+  return if ($user{login} || '') ne $login;
+
+  # Check if the session is logged in correctly.
+  return if SL::Auth::OK() != $::auth->authenticate($login, undef);
+
+  $::auth->create_or_refresh_session;
+  $::auth->delete_session_value('FLASH');
+
+  $self->_redirect_to_main_script(\%user);
+
   return 1;
 }
 
