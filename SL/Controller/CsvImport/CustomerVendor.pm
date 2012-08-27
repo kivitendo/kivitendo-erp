@@ -72,27 +72,18 @@ sub check_objects {
   $self->add_cvar_raw_data_columns;
 }
 
-sub check_duplicates {
-  my ($self, %params) = @_;
-
-  my $normalizer = sub { my $name = $_[0]; $name =~ s/[\s,\.\-]//g; return $name; };
-
-  my %by_name;
-  if ('check_db' eq $self->controller->profile->get('duplicates')) {
-    %by_name = map { ( $normalizer->($_->name) => 'db' ) } @{ $self->existing_objects };
-  }
-
-  foreach my $entry (@{ $self->controller->data }) {
-    next if @{ $entry->{errors} };
-
-    my $name = $normalizer->($entry->{object}->name);
-    if (!$by_name{$name}) {
-      $by_name{$name} = 'csv';
-
-    } else {
-      push @{ $entry->{errors} }, $by_name{$name} eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file');
-    }
-  }
+sub get_duplicate_check_fields {
+  return {
+    name => {
+      label     => $::locale->text('Customer Name'),
+      default   => 1,
+      maker     => sub {
+        my $name = shift->name;
+        $name =~ s/[\s,\.\-]//g;
+        return $name;
+      }
+    },
+  };
 }
 
 sub check_name {

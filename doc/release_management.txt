@@ -20,6 +20,30 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 1. KONSISTENZ DES PROGRAMMS
 ===========================
 
+* Testlauf t/test.sh
+
+  - Im Moment sind 4 Fehler optimal (die sind noch nicht angegangen):
+    o  bin/mozilla/ar.pl contains at least 190 html tags.
+    o  bin/mozilla/ic.pl contains at least 130 html tags.
+    o  bin/mozilla/ap.pl contains at least 183 html tags.
+    o  bin/mozilla/admin.pl DOES NOT use proper system or exec calls
+  - Einige Tests setzen eine korrekt aufgesetzte Datenbank für tests voraus.
+    TODO: diese Tests korrekt skippen wenn keine DB gefunden wurde.
+    TODO: Dokumeniteren wie der Releasemanager sich so eine DB baut, die
+          sollten vor einem Release zumindest durchlaufen.
+    TODO: Evtl eine Klasse von Releasetests einführen)
+
+* Testinstallation aus dem git mit neuer auth Datenbank.
+
+  - Änderungen die die auth Systeme betreffen zerreissen gerne mal die initiale
+    Installation.
+
+* Testupgrade auf einer Vorversion.
+
+  - Dito nur mit Upgradescripten. Fehlerhafte Abhängigkeiten können dazu
+    führen, dass Upgradescripte nicht in der richtigen Reihenfolge ausgeführt
+    werden, was bei inkrementellem Testen nicht auffällt.
+
 * Freeze auf der Mailingliste ansagen.
 
   - Featurefreeze für beta
@@ -153,16 +177,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
   t/test.sh
 
-  - Im Moment sind 4 Fehler optimal (die sind noch nicht angegangen):
-    o  bin/mozilla/ar.pl contains at least 190 html tags.
-    o  bin/mozilla/ic.pl contains at least 130 html tags.
-    o  bin/mozilla/ap.pl contains at least 183 html tags.
-    o  bin/mozilla/admin.pl DOES NOT use proper system or exec calls
-  - Einige Tests setzen eine korrekt aufgesetzte Datenbank für tests voraus.
-    TODO: diese Tests korrekt skippen wenn keine DB gefunden wurde.
-    TODO: Dokumeniteren wie der Releasemanager sich so eine DB baut, die
-          sollten vor einem Release zumindest durchlaufen.
-    TODO: Evtl eine Klasse von Releasetests einführen)
+  Siehe oben für mögliche Ergebnisse.
 
 * Alle Änderungen einchecken.
 

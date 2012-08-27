@@ -132,29 +132,23 @@ sub check_objects {
   map { $self->add_raw_data_columns("make_${_}", "model_${_}", "lastcost_${_}") } sort { $a <=> $b } keys %{ $self->makemodel_columns };
 }
 
-sub check_duplicates {
-  my ($self, %params) = @_;
+sub get_duplicate_check_fields {
+  return {
+    partnumber => {
+      label     => $::locale->text('Part Number'),
+      default   => 0
+    },
 
-  my $normalizer = sub { my $name = $_[0]; $name =~ s/[\s,\.\-]//g; return $name; };
-  my $name_maker = sub { return $normalizer->($_[0]->description) };
-
-  my %by_name;
-  if ('check_db' eq $self->controller->profile->get('duplicates')) {
-    %by_name = map { ( $name_maker->($_) => 'db' ) } @{ $self->existing_objects };
-  }
-
-  foreach my $entry (@{ $self->controller->data }) {
-    next if @{ $entry->{errors} };
-
-    my $name = $name_maker->($entry->{object});
-
-    if (!$by_name{ $name }) {
-      $by_name{ $name } = 'csv';
-
-    } else {
-      push @{ $entry->{errors} }, $by_name{ $name } eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file');
-    }
-  }
+    description => {
+      label     => $::locale->text('Description'),
+      default   => 1,
+      maker     => sub {
+        my $desc = shift->description;
+        $desc =~ s/[\s,\.\-]//g;
+        return $desc;
+      }
+    },
+  };
 }
 
 sub check_buchungsgruppe {

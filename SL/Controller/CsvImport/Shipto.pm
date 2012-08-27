@@ -27,34 +27,57 @@ sub check_objects {
   $self->add_info_columns({ header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
 }
 
-sub check_duplicates {
-  my ($self, %params) = @_;
-
-  my $normalizer = sub { my $name = $_[0]; $name =~ s/[\s,\.\-]//g; return $name; };
-  my $name_maker = sub { return $normalizer->($_[0]->shiptoname) . '--' . $normalizer->($_[0]->shiptostreet) };
-
-  my %by_id_and_name;
-  if ('check_db' eq $self->controller->profile->get('duplicates')) {
-    foreach my $type (qw(customers vendors)) {
-      foreach my $vc (@{ $self->all_vc->{$type} }) {
-        $by_id_and_name{ $vc->id } = { map { ( $name_maker->($_) => 'db' ) } @{ $vc->shipto } };
+sub get_duplicate_check_fields {
+  return {
+    shiptoname_and_shiptostreet => {
+      label     => $::locale->text('Name and Street'),
+      default   => 1,
+      maker     => sub {
+        my $o = shift;
+        return join(
+                 '--',
+                 $o->trans_id,
+                 map(
+                   { s/[\s,\.\-]//g; $_ }
+                   $o->shiptoname,
+                   $o->shiptostreet
+                 )
+        );
       }
-    }
-  }
+    },
 
-  foreach my $entry (@{ $self->controller->data }) {
-    next if @{ $entry->{errors} };
+    shiptoname => {
+      label     => $::locale->text('Name'),
+      default   => 1,
+      maker     => sub {
+        my $o = shift;
+        return join(
+                 '--',
+                 $o->trans_id,
+                 map(
+                   { s/[\s,\.\-]//g; $_ }
+                   $o->shiptoname
+                 )
+        );
+      }
+    },
 
-    my $name = $name_maker->($entry->{object});
-
-    $by_id_and_name{ $entry->{vc}->id } ||= { };
-    if (!$by_id_and_name{ $entry->{vc}->id }->{ $name }) {
-      $by_id_and_name{ $entry->{vc}->id }->{ $name } = 'csv';
-
-    } else {
-      push @{ $entry->{errors} }, $by_id_and_name{ $entry->{vc}->id }->{ $name } eq 'db' ? $::locale->text('Duplicate in database') : $::locale->text('Duplicate in CSV file');
-    }
-  }
+    shiptostreet => {
+      label     => $::locale->text('Street'),
+      default   => 1,
+      maker     => sub {
+        my $o = shift;
+        return join(
+                 '--',
+                 $o->trans_id,
+                 map(
+                   { s/[\s,\.\-]//g; $_ }
+                   $o->shiptostreet
+                 )
+        );
+      }
+    },
+  };
 }
 
 sub field_lengths {

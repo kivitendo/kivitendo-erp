@@ -1175,6 +1175,7 @@ $self->{texts} = {
   'Multibyte Encoding'          => 'Zeichenkodierung',
   'MwSt. inkl.'                 => 'MwSt. inkl.',
   'Name'                        => 'Name',
+  'Name and Street'             => 'Name und Straße',
   'Name missing!'               => 'Name fehlt!',
   'National'                    => 'Inand',
   'National Expenses'           => 'Aufwand Inland',

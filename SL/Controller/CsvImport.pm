@@ -19,8 +19,9 @@ use parent qw(SL::Controller::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
-                import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns) ],
+ scalar                  => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
+                                 import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns file) ],
+ 'scalar --get_set_init' => [ qw(worker) ]
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -172,7 +173,10 @@ sub test_and_import {
     return $self->action_new;
   }
 
-  my $worker = $self->create_worker($file);
+  $self->file($file);
+
+  my $worker = $self->worker();
+
   $worker->run;
 
   $self->num_imported(0);
@@ -253,21 +257,27 @@ sub csv_file_name {
   return "csv-import-" . $self->type . ".csv";
 }
 
-sub create_worker {
-  my ($self, $file) = @_;
+sub init_worker {
+  my $self = shift;
 
-  return $self->{type} eq 'customers_vendors' ? SL::Controller::CsvImport::CustomerVendor->new(controller => $self, file => $file)
-       : $self->{type} eq 'contacts'          ? SL::Controller::CsvImport::Contact->new(       controller => $self, file => $file)
-       : $self->{type} eq 'addresses'         ? SL::Controller::CsvImport::Shipto->new(        controller => $self, file => $file)
-       : $self->{type} eq 'parts'             ? SL::Controller::CsvImport::Part->new(          controller => $self, file => $file)
-       : $self->{type} eq 'projects'          ? SL::Controller::CsvImport::Project->new(       controller => $self, file => $file)
+  my @args = (controller => $self);
+
+  if ( $self->file() ) {
+    push(@args, file => $self->file());
+  }
+
+  return $self->{type} eq 'customers_vendors' ? SL::Controller::CsvImport::CustomerVendor->new(@args)
+       : $self->{type} eq 'contacts'          ? SL::Controller::CsvImport::Contact->new(@args)
+       : $self->{type} eq 'addresses'         ? SL::Controller::CsvImport::Shipto->new(@args)
+       : $self->{type} eq 'parts'             ? SL::Controller::CsvImport::Part->new(@args)
+       : $self->{type} eq 'projects'          ? SL::Controller::CsvImport::Project->new(@args)
        :                                        die "Program logic error";
 }
 
 sub setup_help {
   my ($self) = @_;
 
-  $self->create_worker->setup_displayable_columns;
+  $self->worker->setup_displayable_columns;
 }
 
 
