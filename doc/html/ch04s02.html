@@ -1,6 +1,6 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>4.2. Entwicklung unter FastCGI</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="next" href="ch04s03.html" title="4.3. SQL-Upgradedateien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.2. Entwicklung unter FastCGI</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s03.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.2. Entwicklung unter FastCGI"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.fcgi"></a>4.2. Entwicklung unter FastCGI</h2></div></div></div><div class="sect2" title="4.2.1. Allgemeines"><div class="titlepage"><div><div><h3 class="title"><a name="devel.fcgi.general"></a>4.2.1. Allgemeines</h3></div></div></div><p>Wenn Änderungen in der Konfiguration von Lx-Office gemacht
+   <title>4.2. Entwicklung unter FastCGI</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="next" href="ch04s03.html" title="4.3. SQL-Upgradedateien"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.2. Entwicklung unter FastCGI</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s03.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.2. Entwicklung unter FastCGI"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="devel.fcgi"></a>4.2. Entwicklung unter FastCGI</h2></div></div></div><div class="sect2" title="4.2.1. Allgemeines"><div class="titlepage"><div><div><h3 class="title"><a name="devel.fcgi.general"></a>4.2.1. Allgemeines</h3></div></div></div><p>Wenn Änderungen in der Konfiguration von kivitendo gemacht
         werden, muss der Webserver neu gestartet werden.</p><p>Bei der Entwicklung für FastCGI ist auf ein paar Fallstricke zu
         achten. Dadurch, dass das Programm in einer Endlosschleife läuft,
         müssen folgende Aspekte beachtet werden.</p></div><div class="sect2" title="4.2.2. Programmende und Ausnahmen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.fcgi.exiting"></a>4.2.2. Programmende und Ausnahmen</h3></div></div></div><p>Betrifft die Funktionen <code class="function">warn</code>,
@@ -9,13 +9,13 @@
         Fehler), werden mit dem FastCGI Dispatcher abgefangen, um das Programm
         am Laufen zu halten. Man kann mit <code class="function">die</code>,
         <code class="function">confess</code> oder <code class="function">carp</code> Fehler
-        ausgeben, die dann vom Dispatcher angezeigt werden. Die Lx-Office
+        ausgeben, die dann vom Dispatcher angezeigt werden. Die kivitendo
         eigene <code class="function">$::form-</code>error()&gt; tut im Prinzip das
         Gleiche, mit ein paar Extraoptionen. <code class="function">warn</code> und
         <code class="function">exit</code> hingegen werden nicht abgefangen.
         <code class="function">warn</code> wird direkt nach STDERR, also in Server Log
         eine Nachricht schreiben (sofern in der Konfiguration nicht die
-        Warnungen in das Lx-Office Log umgeleitet wurden), und
+        Warnungen in das kivitendo Log umgeleitet wurden), und
         <code class="function">exit</code> wird die Ausführung beenden.</p><p>Prinzipiell ist es kein Beinbruch, wenn sich der Prozess
         beendet, fcgi wird ihn sofort neu starten. Allerdings sollte das die
         Ausnahme sein. Quintessenz: Bitte kein <code class="function">exit</code>
@@ -30,7 +30,7 @@
         dokumentieren.</p><p>Datenbankverbindungen wird noch ein Guide verfasst werden, wie
         man sicher geht, dass man die richtige erwischt.</p></div><div class="sect2" title="4.2.4. Performance und Statistiken"><div class="titlepage"><div><div><h3 class="title"><a name="devel.fcgi.performance"></a>4.2.4. Performance und Statistiken</h3></div></div></div><p>Die kritischen Pfade des Programms sind die Belegmasken, und
         unter diesen ganz besonders die Verkaufsrechnungsmaske. Ein Aufruf der
-        Rechnungsmaske in Lx-Office 2.4.3 stable dauert auf einem Core2duo mit
+        Rechnungsmaske in kivitendo 2.4.3 stable dauert auf einem Core2duo mit
         4GB Arbeitsspeicher und Ubuntu 9.10 eine halbe Sekunde. In der 2.6.0
         sind es je nach Menge der definierten Variablen 1-2s. Ab der
         Moose/Rose::DB Version sind es 5-6s.</p><p>Mit FastCGI ist die neuste Version auf 0,26 Sekunden selbst in
