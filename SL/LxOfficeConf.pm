@@ -2,15 +2,14 @@ package SL::LxOfficeConf;
 
 use strict;
 
+use Encode;
+
 my $environment_initialized;
 
 sub safe_require {
   my ($class, $may_fail);
-  my $failed;
-  $failed = !eval {
-    require Config::Std;
-    require Encode;
-  };
+
+  my $failed = !eval { require Config::Std; };
 
   if ($failed) {
     if ($may_fail) {
@@ -22,7 +21,6 @@ sub safe_require {
   }
 
   Config::Std->import;
-  Encode->import;
 
   return 1;
 }
