@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.2//EN"
 "http://www.oasis-open.org/docbook/xml/4.2/docbookx.dtd">
-<book id="lx-office-documentation" lang="de">
-  <title>Lx-Office: Installation, Konfiguration, Entwicklung</title>
+<book id="kivitendo-documentation" lang="de">
+  <title>kivitendo: Installation, Konfiguration, Entwicklung</title>
 
   <chapter id="Aktuelle-Hinweise">
     <title>Aktuelle Hinweise</title>
@@ -11,18 +11,13 @@
 
     <itemizedlist>
       <listitem>
-        <para>auf der Lx-Office-Homepage unter <ulink
-        url="http://lx-office.org/index.php?id=dokumentation">http://lx-office.org/index.php?id=dokumentation</ulink></para>
+        <para>im kivitendo-Forum: <ulink
+        url="https://forum.kivitendo.org/">https://forum.kivitendo.org/</ulink></para>
       </listitem>
 
       <listitem>
-        <para>im Lx-Office-Wiki unter Dokumentation (<ulink
-        url="http://wiki.lx-office.org/index.php/Lx-Office_ERP">http://wiki.lx-office.org/index.php/Lx-Office_ERP</ulink>)</para>
-      </listitem>
-
-      <listitem>
-        <para>im Lx-Office-Forum: <ulink
-        url="http://www.lx-office.org/forum/">http://www.lx-office.org/forum/</ulink></para>
+        <para>im alten Lx-Office-Wiki unter Dokumentation (<ulink
+        url="http://wiki.lx-office.org/index.php?title=Installation_Lx-Office_ERP">http://wiki.lx-office.org/index.php?title=Installation_Lx-Office_ERP</ulink>)</para>
       </listitem>
     </itemizedlist>
   </chapter>
@@ -36,20 +31,19 @@
       <sect2 id="Betriebssystem">
         <title>Betriebssystem</title>
 
-        <para>Lx-Office ist für Linux konzipiert, und sollte auf jedem
+        <para>kivitendo ist für Linux konzipiert, und sollte auf jedem
         unixoiden Betriebssystem zum Laufen zu kriegen sein. Getestet ist
         diese Version im speziellen auf Debian und Ubuntu, grundsätzlich wurde
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</para>
 
-        <para>Anfang 2012 sind das folgende Systeme, von denen bekannt ist,
-        dass Lx-Office auf ihnen läuft:</para>
+        <para>Mitte 2012 sind das folgende Systeme, von denen bekannt ist,
+        dass kivitendo auf ihnen läuft:</para>
 
         <itemizedlist>
           <listitem>
-            <para>Ubuntu 8.04 LTS Hardy Heron, 10.04 LTS Lucid Lynx bis 11.10
-            Oneiric Ocelot</para>
+            <para>Ubuntu 10.04 LTS Lucid Lynx bis 12.04 Precise Pangolin</para>
           </listitem>
 
           <listitem>
@@ -65,47 +59,19 @@
           </listitem>
 
           <listitem>
-            <para>Fedora 13 bis 15</para>
+            <para>Fedora 13 bis 16</para>
           </listitem>
         </itemizedlist>
-
-        <para>Ubuntu 8.04 LTS hat zusätzlich die Schwierigkeit, dass die
-        Module im Archiv recht alt sind, und das viele der benötigten Module
-        nicht einfach zu installieren sind. Dafür sollte es kurz nach dem
-        Release ein eigenes .deb geben.</para>
-
-        <para>Alternativ dazu kann die normale Installation durchgeführt
-        werden (siehe <xref
-        linkend="Manuelle-Installation-des-Programmpaketes" />), wenn vorher
-        ein Kompatibilitätspaket installiert wird, das die fehlenden Pakete
-        bereitstellt. Das Paket ist auf <ulink
-        url="https://sourceforge.net/projects/lx-office/files/Lx-Office%20ERP/2.6.3/">Sourceforge</ulink>
-        unter dem Namen <filename>lx-erp-perl-libs-compat-v2.tar.gz</filename>
-        hinterlegt.</para>
-
-        <para>Zur Installation das Paket in das entpackte Lx-Office
-        Verzeichnis entpacken:</para>
-
-        <programlisting>tar xzf lx-erp-perl-libs-compat-v2.tar.gz /path/to/lx-office/</programlisting>
-
-        <para>Zusätzlich müssen dann noch die folgenden Pakete installiert
-        weerden</para>
-
-        <programlisting>apt-get install libbit-vector-perl libsub-exporter-perl libclone-perl \
-  libclass-factory-util-perl</programlisting>
-
-        <para>Danach sollte der Installationscheck (siehe <xref
-        linkend="Pakete" />) die enthaltenen Pakete erkennen.</para>
       </sect2>
 
       <sect2 id="Pakete" xreflabel="Pakete">
         <title>Pakete</title>
 
-        <para>Zum Betrieb von Lx-Office werden zwingend ein Webserver (meist
+        <para>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
         benötigt.</para>
 
-        <para>Zusätzlich benötigt Lx-Office die folgenden Perl-Pakete, die
+        <para>Zusätzlich benötigt kivitendo die folgenden Perl-Pakete, die
         nicht Bestandteil einer Standard-Perl-Installation sind:</para>
 
         <itemizedlist>
@@ -192,7 +158,7 @@
 
         <para>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
         hinzugekommen, <literal>URI</literal> und
-        <literal>XML::Writer</literal> sind notwendig. Ohne startet Lx-Office
+        <literal>XML::Writer</literal> sind notwendig. Ohne startet kivitendo
         nicht.</para>
 
         <para>Gegenüber Version 2.6.1 sind <literal>parent</literal>,
@@ -205,7 +171,7 @@
 
         <para><literal>Email::Address</literal> und
         <literal>List::MoreUtils</literal> sind schon länger feste
-        Abhängigkeiten, wurden aber bisher mit Lx-Office mitgeliefert. Beide
+        Abhängigkeiten, wurden aber bisher mit kivitendo mitgeliefert. Beide
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
@@ -244,7 +210,7 @@
         <literal>Rose::*</literal> Pakete sind derzeit nicht für SuSE gepackt,
         und müssen anderweitig nachinstalliert werden.</para>
 
-        <para>Lx-Office enthält ein Script, mit dem überprüft werden kann, ob
+        <para>kivitendo enthält ein Script, mit dem überprüft werden kann, ob
         alle benötigten Perl-Module installiert sind. Der Aufruf lautet wie
         folgt:</para>
 
@@ -256,19 +222,18 @@
            xreflabel="Manuelle Installation des Programmpaketes">
       <title>Manuelle Installation des Programmpaketes</title>
 
-      <para>Die Lx-Office ERP Installationsdatei (lxoffice-erp-2.6.3.tgz) wird
+      <para>Die kivitendo ERP Installationsdatei (kivitendo-erp-2.6.3.tgz) wird
       im Dokumentenverzeichnis des Webservers (z.B.
       <filename>/var/www/html/</filename>,
       <filename>/srv/www/htdocs</filename> oder
       <filename>/var/www/</filename>) entpackt:</para>
 
-      <programlisting>cd /var/www tar xvzf
-lxoffice-erp-2.6.3.tgz</programlisting>
+      <programlisting>cd /var/www
+tar xvzf kivitendo-erp-2.6.3.tgz</programlisting>
 
-      <para>Verändern Sie evtl. noch den Namen des Verzeichnisses und wechseln Sie in es:</para>
+      <para>Wechseln Sie in das entpackte Verzeichnis:</para>
 
-      <programlisting>mv lxoffice-erp/ lx-erp/
-cd lx-erp</programlisting>
+      <programlisting>cd kivitendo-erp</programlisting>
 
       <para>Alternativ können Sie auch einen Alias in der
       Webserverkonfiguration benutzen, um auf das tatsächliche
@@ -285,35 +250,42 @@ cd lx-erp</programlisting>
       <programlisting>chown -R www-data users spool webdav</programlisting>
 
       <para>Weiterhin muss der Webserver-Benutzer in den Verzeichnissen <filename>templates</filename> und <filename>users</filename>
-      Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in Lx-Office angelegt wird:</para>
+      Unterverzeichnisse für jeden neuen Benutzer anlegen dürfen, der in kivitendo angelegt wird:</para>
 
       <programlisting>chown www-data templates users</programlisting>
     </sect1>
 
     <sect1 id="config.config-file">
-      <title>Lx-Office-Konfigurationsdatei</title>
+      <title>kivitendo-Konfigurationsdatei</title>
 
       <sect2 id="config.config-file.introduction"
              xreflabel="Einführung in die Konfigurationsdatei">
         <title>Einführung</title>
 
-        <para>Seit Lx-Office 2.6.3. gibt es nur noch eine Konfigurationsdatei
-        die benötigt wird: <filename>config/lx_office.conf</filename> (kurz:
+        <para>In kivitendo gibt es nur noch eine Konfigurationsdatei,
+        die benötigt wird: <filename>config/kivitendo.conf</filename> (kurz:
         "die Hauptkonfigurationsdatei"). Diese muss bei der Erstinstallation
-        von Lx-Office bzw. der Migration von älteren Versionen angelegt
+        von kivitendo bzw. der Migration von älteren Versionen angelegt
         werden.</para>
 
         <para>Als Vorlage dient die Datei
-        <filename>config/lx_office.conf.default</filename> (kurz: "die
+        <filename>config/kivitendo.conf.default</filename> (kurz: "die
         Default-Datei"):</para>
 
-        <programlisting>$ cp config/lx_office.conf.default config/lx_office.conf</programlisting>
+        <programlisting>$ cp config/kivitendo.conf.default config/kivitendo.conf</programlisting>
 
         <para>Die Default-Datei wird immer zuerst eingelesen. Werte, die in
         der Hauptkonfigurationsdatei stehen, überschreiben die Werte aus der
         Default-Datei. Die Hauptkonfigurationsdatei muss also nur die
         Abschnitte und Werte enthalten, die von denen der Default-Datei
         abweichen.</para>
+
+        <note>
+         <para>
+          Vor der Umbenennung in kivitendo hieß diese Datei noch <filename>config/lx_office.conf</filename>. Aus Gründen der Kompatibilität
+          wird diese Datei eingelesen, sofern die Datei <filename>config/kivitendo.conf</filename> nicht existiert.
+         </para>
+        </note>
 
         <para>Diese Hauptkonfigurationsdatei ist dann eine
         installationsspezifische Datei, d.h. sie enthält bspw. lokale
@@ -393,7 +365,7 @@ admin_password = geheim
 [authentication/database]
 host     = localhost
 port     = 5432
-db       = lxerp_auth
+db       = kivitendo_auth
 user     = postgres
 password =
 
@@ -409,7 +381,7 @@ dbcharset = UTF-8</programlisting>
         linkend="config.task-server">Taskserver</link> für <link
         linkend="features.periodic-invoices">wiederkehrende Rechnungen</link>,
         muss unter <varname>[task_server]</varname> ein Login eines Benutzers
-        angegeben werden, mit dem sich der Taskserver an Lx-Office bei der
+        angegeben werden, mit dem sich der Taskserver an kivitendo bei der
         Datenbank anmeldet, die dem Benutzer zugewiesen ist.</para>
 
         <para>Für Entwickler finden sich unter <varname>[debug]</varname>
@@ -419,7 +391,7 @@ dbcharset = UTF-8</programlisting>
       <sect2 id="config.config-file.prior-versions">
         <title>Versionen vor 2.6.3</title>
 
-        <para>In älteren Lx-Office Versionen gab es im Verzeichnis
+        <para>In älteren kivitendo Versionen gab es im Verzeichnis
         <filename>config</filename> die Dateien
         <filename>authentication.pl</filename> und
         <filename>lx-erp.conf</filename>, die jeweils Perl-Dateien waren. Es
@@ -427,10 +399,10 @@ dbcharset = UTF-8</programlisting>
         zu erstellen (<filename>lx-erp-local.conf</filename>). Dies ist ab
         2.6.3 nicht mehr möglich, aber auch nicht mehr nötig.</para>
 
-        <para>Beim Update von einer Lx-Office-Version vor 2.6.3 auf 2.6.3 oder
+        <para>Beim Update von einer kivitendo-Version vor 2.6.3 auf 2.6.3 oder
         jünger müssen die Einstellungen aus den alten Konfigurationsdateien
         manuell übertragen und die alten Konfigurationsdateien anschließend
-        gelöscht oder verschoben werden. Ansonsten zeigt Lx-Office eine
+        gelöscht oder verschoben werden. Ansonsten zeigt kivitendo eine
         entsprechende Fehlermeldung an.</para>
       </sect2>
     </sect1>
@@ -443,14 +415,14 @@ dbcharset = UTF-8</programlisting>
       <sect2 id="Zeichensätze-die-Verwendung-von-UTF-8">
         <title>Zeichensätze/die Verwendung von UTF-8</title>
 
-        <para>Lx-Office kann komplett mit UTF-8 als Zeichensatz verwendet
+        <para>kivitendo kann komplett mit UTF-8 als Zeichensatz verwendet
         werden. Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in
         Version 8.2 oder neuer benutzt werden, und der
         PostgreSQL-Datenbankcluster muss ebenfalls mit UTF-8 als Locale
         angelegt worden sein.</para>
 
         <para>Dieses ist kann überprüft werden: ist das Encoding der Datenbank
-        “template1” “UTF8”, so kann auch Lx-Office mit UTF-8 betrieben werden.
+        “template1” “UTF8”, so kann auch kivitendo mit UTF-8 betrieben werden.
         Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
         Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl
@@ -465,7 +437,7 @@ dbcharset = UTF-8</programlisting>
 
         <para>Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und
         ist ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
-        Lx-Office mit ISO-8859-15 als Encoding betrieben werden.</para>
+        kivitendo mit ISO-8859-15 als Encoding betrieben werden.</para>
 
         <para>Das Encoding einer Datenbank kann in <command>psql</command> mit
         <literal>\l</literal> geprüft werden.</para>
@@ -480,7 +452,7 @@ dbcharset = UTF-8</programlisting>
         <filename>/etc/postgresql/</filename>, muss sichergestellt werden,
         dass TCP/IP-Verbindungen aktiviert sind. Das Verhalten wird über den
         Parameter <varname>listen_address</varname> gesteuert. Laufen
-        PostgreSQL und Lx-Office auf demselben Rechner, so kann dort der Wert
+        PostgreSQL und kivitendo auf demselben Rechner, so kann dort der Wert
         <literal>localhost</literal> verwendet werden. Andernfalls müssen
         Datenbankverbindungen auch von anderen Rechnern aus zugelassen werden,
         was mit dem Wert <literal>*</literal> geschieht.</para>
@@ -497,8 +469,8 @@ host all all 127.0.0.1 255.0.0.0 trust</programlisting>
         <para>Besser ist es, für eine bestimmte Datenbank Zugriff nur per
         Passwort zuzulassen. Beispielsweise:</para>
 
-        <programlisting>local all lxoffice password
-host all lxoffice 127.0.0.1 255.255.255.255 password</programlisting>
+        <programlisting>local all kivitendo password
+host all kivitendo 127.0.0.1 255.255.255.255 password</programlisting>
       </sect2>
 
       <sect2 id="Erweiterung-für-servergespeicherte-Prozeduren">
@@ -520,10 +492,10 @@ host all lxoffice 127.0.0.1 255.255.255.255 password</programlisting>
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
         können:</para>
 
-        <programlisting>su - postgres createuser -d -P lxoffice</programlisting>
+        <programlisting>su - postgres createuser -d -P kivitendo</programlisting>
 
         <para>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
-        Sie den evtl. voreingestellten Benutzer “postgres” auf “lxoffice” bzw.
+        Sie den evtl. voreingestellten Benutzer “postgres” auf “kivitendo” bzw.
         den hier gewählten Benutzernamen.</para>
       </sect2>
     </sect1>
@@ -547,19 +519,19 @@ host all lxoffice 127.0.0.1 255.255.255.255 password</programlisting>
         wird:</para>
 
         <programlisting>AddHandler cgi-script .pl
-Alias /lx-erp/ /var/www/lx-erp/
+Alias /kivitendo-erp/ /var/www/kiviteno-erp/
 
-&lt;Directory /var/www/lx-erp&gt;
+&lt;Directory /var/www/kivitendo-erp&gt;
  Options ExecCGI Includes FollowSymlinks
 &lt;/Directory&gt;
 
-&lt;Directory /var/www/lx-erp/users&gt;
+&lt;Directory /var/www/kivitendo-erp/users&gt;
  Order Deny,Allow
  Deny from All
 &lt;/Directory&gt;</programlisting>
 
         <para>Ersetzen Sie dabei die Pfade durch diejenigen, in die Sie vorher
-        das Lx-Office-Archiv entpacket haben.</para>
+        das kivitendo-Archiv entpacket haben.</para>
 
         <note>
           <para>Vor den einzelnen Optionen muss bei einigen Distributionen ein
@@ -594,16 +566,16 @@ Alias /lx-erp/ /var/www/lx-erp/
         <sect3 id="Apache-Konfiguration.FCGI.Warum">
           <title>Warum FastCGI?</title>
 
-          <para>Perl Programme (wie Lx-Office eines ist) werden nicht statisch
+          <para>Perl Programme (wie kivitendo eines ist) werden nicht statisch
           kompiliert. Stattdessen werden die Quelldateien bei jedem Start
           übersetzt, was bei kurzen Laufzeiten einen Großteil der Laufzeit
           ausmacht. Während SQL Ledger einen Großteil der Funktionalität in
           einzelne Module kapselt, um immer nur einen kleinen Teil laden zu
-          müssen, ist die Funktionalität von Lx-Office soweit gewachsen, dass
+          müssen, ist die Funktionalität von kivitendo soweit gewachsen, dass
           immer mehr Module auf den Rest des Programms zugreifen. Zusätzlich
           benutzen wir umfangreiche Bibliotheken um Funktionaltät nicht selber
           entwickeln zu müssen, die zusätzliche Ladezeit kosten. All dies
-          führt dazu dass ein Lx-Office Aufruf der Kernmasken mittlerweile
+          führt dazu dass ein kivitendo Aufruf der Kernmasken mittlerweile
           deutlich länger dauert als früher, und dass davon 90% für das Laden
           der Module verwendet wird.</para>
 
@@ -635,7 +607,7 @@ Alias /lx-erp/ /var/www/lx-erp/
 
           <warning>
             <para>FCGI 0.69 und höher ist extrem strict in der Behandlung von
-            Unicode, und verweigert bestimmte Eingaben von Lx-Office. Falls es
+            Unicode, und verweigert bestimmte Eingaben von kivitendo. Falls es
             Probleme mit Umlauten in Ihrere Installation gibt, muss auf die
             Vorgängerversion FCGI 0.68 ausgewichen werden.</para>
 
@@ -649,7 +621,7 @@ Alias /lx-erp/ /var/www/lx-erp/
         <sect3 id="Apache-Konfiguration.FCGI.Konfiguration">
           <title>Konfiguration des Webservers</title>
 
-          <para>Bevor Sie versuchen, eine Lx-Office Installation unter FCGI
+          <para>Bevor Sie versuchen, eine kivitendo Installation unter FCGI
           laufen zu lassen, empfliehlt es sich die Installation ersteinmal
           unter CGI aufzusetzen. FCGI macht es nicht einfach Fehler zu
           debuggen die beim ersten aufsetzen auftreten können. Sollte die
@@ -660,28 +632,28 @@ Alias /lx-erp/ /var/www/lx-erp/
 
           <programlisting>a2enmod fcgid</programlisting>
 
-          <para>Die Konfiguration für die Verwendung von Lx-Office mit FastCGI
+          <para>Die Konfiguration für die Verwendung von kivitendo mit FastCGI
           erfolgt durch Anpassung der vorhandenen <function>Alias</function>-
           und <function>Directory</function>-Direktiven. Dabei wird zwischen
-          dem Installationspfad von Lx-Office im Dateisystem
-          ("<filename>/path/to/lx-office-erp</filename>") und der URL
-          unterschieden, unter der Lx-Office im Webbrowser erreichbar ist
-          ("<filename>/url/for/lx-office-erp</filename>").</para>
+          dem Installationspfad von kivitendo im Dateisystem
+          ("<filename>/path/to/kivitendo-erp</filename>") und der URL
+          unterschieden, unter der kivitendo im Webbrowser erreichbar ist
+          ("<filename>/url/for/kivitendo-erp</filename>").</para>
 
           <para>Folgender Konfigurationsschnipsel funktioniert mit
           mod_fastcgi:</para>
 
-          <programlisting>AliasMatch ^/url/for/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fcgi
-Alias       /url/for/lx-office-erp/          /path/to/lx-office-erp/
+          <programlisting>AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fcgi
+Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 
-&lt;Directory /path/to/lx-office-erp&gt;
+&lt;Directory /path/to/kivitendo-erp&gt;
   AllowOverride All
   Options ExecCGI Includes FollowSymlinks
   Order Allow,Deny
   Allow from All
 &lt;/Directory&gt;
 
-&lt;DirectoryMatch /path/to/lx-office-erp/users&gt;
+&lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
   Order Deny,Allow
   Deny from All
 &lt;/DirectoryMatch&gt;</programlisting>
@@ -695,18 +667,18 @@ Alias       /url/for/lx-office-erp/          /path/to/lx-office-erp/
           <para>Das ganze sollte dann so aussehen:</para>
 
           <programlisting>AddHandler fcgid-script .fpl
-AliasMatch ^/url/for/lx-office-erp/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
-Alias       /url/for/lx-office-erp/          /path/to/lx-office-erp/
+AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
+Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 FcgidMaxRequestLen 10485760
 
-&lt;Directory /path/to/lx-office-erp&gt;
+&lt;Directory /path/to/kivitendo-erp&gt;
   AllowOverride All
   Options ExecCGI Includes FollowSymlinks
   Order Allow,Deny
   Allow from All
 &lt;/Directory&gt;
 
-&lt;DirectoryMatch /path/to/lx-office-erp/users&gt;
+&lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
   Order Deny,Allow
   Deny from All
 &lt;/DirectoryMatch&gt;</programlisting>
@@ -716,20 +688,20 @@ FcgidMaxRequestLen 10485760
           Dadurch, dass zur Laufzeit öfter mal Scripte neu geladen werden,
           gibt es hier kleine Performance-Einbußen.</para>
 
-          <para>Es ist möglich, die gleiche Lx-Office Version parallel unter
+          <para>Es ist möglich, die gleiche kivitendo Version parallel unter
           CGI und FastCGI zu betreiben. Dafür bleiben die Directorydirektiven
           wie oben beschrieben, die URLs werden aber umgeleitet:</para>
 
           <programlisting># Zugriff über CGI
-Alias       /url/for/lx-office-erp                /path/to/lx-office-erp
+Alias       /url/for/kivitendo-erp                /path/to/kivitendo-erp
 
 # Zugriff mit mod_fcgid:
-AliasMatch ^/url/for/lx-office-erp-fcgid/[^/]+\.pl /path/to/lx-office-erp/dispatcher.fpl
-Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</programlisting>
+AliasMatch ^/url/for/kivitendo-erp-fcgid/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
+Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</programlisting>
 
-          <para>Dann ist unter <filename>/url/for/lx-office-erp/</filename>
+          <para>Dann ist unter <filename>/url/for/kivitendo-erp/</filename>
           die normale Version erreichbar, und unter
-          <constant>/url/for/lx-office-erp-fcgid/</constant> die
+          <constant>/url/for/kivitendo-erp-fcgid/</constant> die
           FastCGI-Version.</para>
         </sect3>
       </sect2>
@@ -750,7 +722,7 @@ Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</prog
 
         <para>Die Konfiguration erfolgt über den Abschnitt
         <literal>[task_server]</literal> in der Datei
-        <filename>config/lx_office.conf</filename>. Die dort verfügbaren
+        <filename>config/kivitendo.conf</filename>. Die dort verfügbaren
         Optionen sind:</para>
 
         <variablelist>
@@ -758,7 +730,7 @@ Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</prog
             <term><varname>login</varname></term>
 
             <listitem>
-              <para>gültiger Lx-Office-Benutzername, der benutzt wird, um die
+              <para>gültiger kivitendo-Benutzername, der benutzt wird, um die
               zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss
               in der Administration angelegt werden. Diese Option muss
               angegeben werden.</para>
@@ -795,7 +767,7 @@ Alias       /url/for/lx-office-erp-fcgid/          /path/to/lx-office-erp/</prog
 
         <para>Der Task-Server verhält sich von seinen Optionen her wie ein
         reguläres SystemV-kompatibles Boot-Script. Außerdem wechselt er beim
-        Starten automatisch in das Lx-Office-Installationsverzeichnis.</para>
+        Starten automatisch in das kivitendo-Installationsverzeichnis.</para>
 
         <para>Deshalb ist es möglich, ihn durch Setzen eines symbolischen
         Links aus einem der Runlevel-Verzeichnisse heraus in den Boot-Prozess
@@ -884,7 +856,7 @@ insserv kivitendo-task-server</programlisting>
         </itemizedlist>
 
         <para>Der Task-Server wechselt beim Starten automatisch in das
-        Lx-Office-Installationsverzeichnis.</para>
+        kivitendo-Installationsverzeichnis.</para>
 
         <para>Dieselben Optionen können auch für die SystemV-basierenden
         Runlevel-Scripte benutzt werden (siehe oben).</para>
@@ -900,27 +872,27 @@ insserv kivitendo-task-server</programlisting>
       <sect2 id="Grundlagen-zur-Benutzerauthentifizierung">
         <title>Grundlagen zur Benutzerauthentifizierung</title>
 
-        <para>Lx-Office verwaltet die Benutzerinformationen in einer
+        <para>kivitendo verwaltet die Benutzerinformationen in einer
         Datenbank, die im folgenden “Authentifizierungsdatenbank” genannt
         wird. Für jeden Benutzer kann dort eine eigene Datenbank für die
         eigentlichen Finanzdaten hinterlegt sein. Diese beiden Datenbanken
         können, müssen aber nicht unterschiedlich sein.</para>
 
-        <para>Im einfachsten Fall gibt es für Lx-Office nur eine einzige
+        <para>Im einfachsten Fall gibt es für kivitendo nur eine einzige
         Datenbank, in der sowohl die Benutzerinformationen als auch die Daten
         abgelegt werden.</para>
 
-        <para>Zusätzlich ermöglicht es Lx-Office, dass die Benutzerpasswörter
+        <para>Zusätzlich ermöglicht es kivitendo, dass die Benutzerpasswörter
         entweder gegen die Authentifizierungsdatenbank oder gegen einen
         LDAP-Server überprüft werden.</para>
 
-        <para>Welche Art der Passwortüberprüfung Lx-Office benutzt und wie
-        Lx-Office die Authentifizierungsdatenbank erreichen kann, wird in der
-        Konfigurationsdatei <filename>config/lx_office.conf</filename>
+        <para>Welche Art der Passwortüberprüfung kivitendo benutzt und wie
+        kivitendo die Authentifizierungsdatenbank erreichen kann, wird in der
+        Konfigurationsdatei <filename>config/kivitendo.conf</filename>
         festgelegt. Diese muss bei der Installation und bei einem Upgrade von
         einer Version vor v2.6.0 angelegt werden. Eine
         Beispielkonfigurationsdatei
-        <filename>config/lx_office.conf.default</filename> existiert, die als
+        <filename>config/kivitendo.conf.default</filename> existiert, die als
         Vorlage benutzt werden kann.</para>
       </sect2>
 
@@ -971,7 +943,7 @@ insserv kivitendo-task-server</programlisting>
             <term><literal>user</literal></term>
 
             <listitem>
-              <para>Der Benutzername, mit dem sich Lx-Office beim
+              <para>Der Benutzername, mit dem sich kivitendo beim
               Datenbankserver anmeldet (z.B.
               "<literal>postgres</literal>")</para>
             </listitem>
@@ -986,14 +958,14 @@ insserv kivitendo-task-server</programlisting>
           </varlistentry>
         </variablelist>
 
-        <para>Die Datenbank muss noch nicht existieren. Lx-Office kann sie
+        <para>Die Datenbank muss noch nicht existieren. kivitendo kann sie
         automatisch anlegen (mehr dazu siehe unten).</para>
       </sect2>
 
       <sect2 id="Passwortüberprüfung">
         <title>Passwortüberprüfung</title>
 
-        <para>Lx-Office unterstützt Passwortüberprüfung auf zwei Arten: gegen
+        <para>kivitendo unterstützt Passwortüberprüfung auf zwei Arten: gegen
         die Authentifizierungsdatenbank und gegen einen externen LDAP- oder
         Active-Directory-Server. Welche davon benutzt wird, regelt der
         Parameter <varname>module</varname> im Abschnitt
@@ -1003,7 +975,7 @@ insserv kivitendo-task-server</programlisting>
         gespeichert werden, so muss der Parameter <varname>module</varname>
         den Wert <literal>DB</literal> enthalten. In diesem Fall können sowohl
         der Administrator als auch die Benutzer selber ihre Psaswörter in
-        Lx-Office ändern.</para>
+        kivitendo ändern.</para>
 
         <para>Soll hingegen ein externer LDAP- oder Active-Directory-Server
         benutzt werden, so muss der Parameter <varname>module</varname> auf
@@ -1095,7 +1067,7 @@ insserv kivitendo-task-server</programlisting>
       <sect2 id="Name-des-Session-Cookies">
         <title>Name des Session-Cookies</title>
 
-        <para>Sollen auf einem Server mehrere Lx-Office-Installationen
+        <para>Sollen auf einem Server mehrere kivitendo-Installationen
         aufgesetzt werden, so müssen die Namen der Session-Cookies für alle
         Installationen unterschiedlich sein. Der Name des Cookies wird mit dem
         Parameter <varname>cookie_name</varname> im Abschnitt
@@ -1109,13 +1081,13 @@ insserv kivitendo-task-server</programlisting>
         <title>Anlegen der Authentifizierungsdatenbank</title>
 
         <para>Nachdem alle Einstellungen in
-        <filename>config/lx_office.conf</filename> vorgenommen wurden, muss
-        Lx-Office die Authentifizierungsdatenbank anlegen. Dieses geschieht
+        <filename>config/kivitendo.conf</filename> vorgenommen wurden, muss
+        kivitendo die Authentifizierungsdatenbank anlegen. Dieses geschieht
         automatisch, wenn Sie sich im Administrationsmodul anmelden, das unter
         der folgenden URL erreichbar sein sollte:</para>
 
         <para><ulink
-        url="http://localhost/lx-erp/admin.pl">http://localhost/lx-erp/admin.pl</ulink></para>
+        url="http://localhost/kivitendo-erp/admin.pl">http://localhost/kivitendo-erp/admin.pl</ulink></para>
       </sect2>
     </sect1>
 
@@ -1127,17 +1099,17 @@ insserv kivitendo-task-server</programlisting>
       folgender URL finden:</para>
 
       <para><ulink
-      url="http://localhost/lx-erp/admin.pl">http://localhost/lx-erp/admin.pl</ulink></para>
+      url="http://localhost/kivitendo-erp/admin.pl">http://localhost/kivitendo-erp/admin.pl</ulink></para>
 
       <para>Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
-      <filename>config/lx_office.conf</filename> eingetragen haben.</para>
+      <filename>config/kivitendo.conf</filename> eingetragen haben.</para>
 
       <sect2 id="Zusammenhänge">
         <title>Zusammenhänge</title>
 
-        <para>Lx-Office verwendet eine Datenbank zum Speichern all seiner
+        <para>kivitendo verwendet eine Datenbank zum Speichern all seiner
         Informationen wie Kundendaten, Artikel, Angebote, Rechnungen etc. Um
-        mit Lx-Office arbeiten zu können, muss eine Person einen
+        mit kivitendo arbeiten zu können, muss eine Person einen
         Benutzeraccount haben. Jedem Benutzeraccount wiederum wird genau eine
         Datenbank zugewiesen, mit der dieser Benutzer arbeiten kann. Es ist
         möglich und normal, dass mehreren Benutzern die selbe Datenbank
@@ -1148,17 +1120,17 @@ insserv kivitendo-task-server</programlisting>
         eingegeben werden können, werden in einer zweiten Datenbank
         gespeichert, der bereits erwähnten Authentifizierungsdatenbank. Diese
         ist also den Produktivdaten enthaltenden Datenbanken vorgeschaltet.
-        Pro Lx-Office-Installation gibt es nur eine
+        Pro kivitendo-Installation gibt es nur eine
         Authentifizierungsdatenbank, aber beliebig viele Datenbanken mit
         Firmendaten.</para>
 
-        <para>Lx-Office kann seinen Benutzern Zugriff auf bestimmte
+        <para>kivitendo kann seinen Benutzern Zugriff auf bestimmte
         Funktionsbereiche erlauben oder verbieten. Wird der Zugriff nicht
         gestattet, so werden der entsprechenden Menüpunkte auch nicht
         angezeigt. Diese Rechte werden ebenfalls in der
         Authentifizierungsdatenbank gespeichert.</para>
 
-        <para>Um Rechte verteilen zu können, verwendet Lx-Office ein
+        <para>Um Rechte verteilen zu können, verwendet kivitendo ein
         Gruppen-Prinzip. Einer Gruppe kann der Zugriff auf bestimmte Bereiche
         erlaubt werden. Ein Benutzer wiederum kann Mitglied in einer oder
         mehrerer Gruppen sein. Der Benutzer hat Zugriff auf alle diejenigen
@@ -1192,19 +1164,14 @@ insserv kivitendo-task-server</programlisting>
 
         <para>Zuerst muss eine Datenbank angelegt werden. Verwenden Sie für
         den Datenbankzugriff den vorhin angelegten Benutzer (in unseren
-        Beispielen ist dies ‘<literal>lxoffice</literal>’).</para>
+        Beispielen ist dies ‘<literal>kivitendo</literal>’).</para>
 
-        <para>Wenn Sie für die Lx-Office-Installation nicht den europäischen
-        Schriftsatz ISO-8859-15 sondern UTF-8 (Unicode) benutzen wollen, so
-        müssen Sie vor dem Anlegen der Datenbank in der Datei
-        <filename>config/lx_office.conf</filename> die Variable
-        <literal>dbcharset</literal> im Abschnitt <literal>system</literal>
-        auf den Wert ‘<literal>UTF-8</literal>’ setzen. Zusätzlich muss beim
-        Anlegen der Datenbank ‘<literal>UTF-8 Unicode</literal>’ als
-        Schriftsatz ausgewählt werden.</para>
+        <para>Wenn Sie für die kivitendo-Installation nicht Unicode (UTF-8) sondern den europäischen Schriftsatz ISO-8859-15 benutzen
+        wollen, so müssen Sie vor dem Anlegen der Datenbank in der Datei <filename>config/kivitendo.conf</filename> die Variable
+        <literal>dbcharset</literal> im Abschnitt <literal>system</literal> auf den Wert ‘<literal>ISO-8859-15</literal>’ setzen.</para>
 
         <para>Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
-        verwenden müssen, da diese Einstellungen momentan global in Lx-Office
+        verwenden müssen, da diese Einstellungen momentan global in kivitendo
         vorgenommen wird und nicht nach Datenbank unterschieden werden kann.
         Auch die Authentifizierungsdatenbank muss mit diesem Zeichensatz
         angelegt worden sein.</para>
@@ -1266,31 +1233,31 @@ insserv kivitendo-task-server</programlisting>
       <sect2 id="Migration-alter-Installationen">
         <title>Migration alter Installationen</title>
 
-        <para>Wenn Lx-Office 2.6.3 über eine ältere Version installiert wird,
+        <para>Wenn kivitendo 2.6.3 über eine ältere Version installiert wird,
         in der die Benutzerdaten noch im Dateisystem im Verzeichnis
-        <literal>users</literal> verwaltet wurden, so bietet Lx-Office die
+        <literal>users</literal> verwaltet wurden, so bietet kivitendo die
         Möglichkeit, diese Benutzerdaten automatisch in die
         Authentifizierungsdatenbank zu übernehmen. Dies geschieht, wenn man
         sich nach dem Update der Installation das erste Mal im
-        Administrationsbereich anmeldet. Findet Lx-Office die Datei
+        Administrationsbereich anmeldet. Findet kivitendo die Datei
         <literal>users/members</literal>, so wird der Migrationsprozess
         gestartet.</para>
 
         <para>Der Migrationsprozess ist nahezu vollautomatisch. Alle
         Benutzerdaten können übernommen werden. Nach den Benutzerdaten bietet
-        Lx-Office noch die Möglichkeit an, dass automatisch eine
+        kivitendo noch die Möglichkeit an, dass automatisch eine
         Benutzergruppe angelegt wird. Dieser Gruppe wird Zugriff auf alle
-        Funktionen von Lx-Office gewährt. Alle migrierten Benutzern werden
-        Mitglied in dieser Gruppe. Damit wird das Verhalten von Lx-Office bis
+        Funktionen von kivitendo gewährt. Alle migrierten Benutzern werden
+        Mitglied in dieser Gruppe. Damit wird das Verhalten von kivitendo bis
         Version 2.4.3 inklusive wiederhergestellt, und die Benutzer können
         sich sofort wieder anmelden und mit dem System arbeiten.</para>
       </sect2>
     </sect1>
 
-    <sect1 id="Drucken-mit-Lx-Office">
-      <title>Drucken mit Lx-Office</title>
+    <sect1 id="Drucken-mit-kivitendo">
+      <title>Drucken mit kivitendo</title>
 
-      <para>Das Drucksystem von Lx-Office benutzt von Haus aus LaTeX Vorlagen.
+      <para>Das Drucksystem von kivitendo benutzt von Haus aus LaTeX Vorlagen.
       Um drucken zu können, braucht der Server ein geeignetes LaTeX System. Am
       einfachsten ist dazu eine <literal>texlive</literal> Installation. Unter
       Debianoiden Betriebssystemen sind das die Pakete:</para>
@@ -1338,18 +1305,18 @@ insserv kivitendo-task-server</programlisting>
     <sect1 id="OpenDocument-Vorlagen">
       <title>OpenDocument-Vorlagen</title>
 
-      <para>Lx-Office unterstützt die Verwendung von Vorlagen im
+      <para>kivitendo unterstützt die Verwendung von Vorlagen im
       OpenDocument-Format, wie es OpenOffice.org ab Version 2 erzeugt.
-      Lx-Office kann dabei sowohl neue OpenDocument-Dokumente als auch aus
+      kivitendo kann dabei sowohl neue OpenDocument-Dokumente als auch aus
       diesen direkt PDF-Dateien erzeugen. Um die Unterstützung von
       OpenDocument-Vorlagen zu aktivieren muss in der Datei
-      <filename>config/lx_office.conf</filename> die Variable
+      <filename>config/kivitendo.conf</filename> die Variable
       <literal>opendocument</literal> im Abschnitt
       <literal>print_templates</literal> auf ‘<literal>1</literal>’ stehen.
       Dieses ist die Standardeinstellung.</para>
 
       <para>Weiterhin muss in der Datei
-      <filename>config/lx_office.conf</filename> die Variable
+      <filename>config/kivitendo.conf</filename> die Variable
       <literal>dbcharset</literal> im Abschnitt <literal>system</literal> auf
       die Zeichenkodierung gesetzt werden, die auch bei der Speicherung der
       Daten in der Datenbank verwendet wird. Diese ist in den meisten Fällen
@@ -1363,14 +1330,14 @@ insserv kivitendo-task-server</programlisting>
       Andere Distributionen enthalten ihn in anderen Paketen.</para>
 
       <para>Nach der Installation müssen in der Datei
-      <filename>config/lx_config.conf</filename> zwei weitere Variablen
+      <filename>config/kivitendo.conf</filename> zwei weitere Variablen
       angepasst werden: <literal>openofficeorg_writer</literal> muss den
       vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
       <literal>xvfb</literal> muss den Pfad zum “X virtual frame buffer”
       enthalten. Beide stehen im Abschnitt
       <literal>applications</literal>.</para>
 
-      <para>Zusätzlich gibt es zwei verschiedene Arten, wie Lx-Office mit
+      <para>Zusätzlich gibt es zwei verschiedene Arten, wie kivitendo mit
       OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn die
       Variable <literal>$openofficeorg_daemon</literal> gesetzt ist, startet
       ein OpenOffice, das auch nach der Umwandlung des Dokumentes gestartet
@@ -1418,10 +1385,10 @@ insserv kivitendo-task-server</programlisting>
              xreflabel="Einführung in die Konfiguration zur EUR">
         <title>Einführung</title>
 
-        <para>Lx-Office besaß bis inklusive Version 2.6.3 einen
+        <para>kivitendo besaß bis inklusive Version 2.6.3 einen
         Konfigurationsparameter namens <varname>eur</varname>, der sich in der
         Konfigurationsdatei <filename>config/lx_office.conf</filename>
-        befindet. Somit galt er für alle Mandanten, die in dieser Installation
+        befand. Somit galt er für alle Mandanten, die in dieser Installation
         benutzt wurden.</para>
 
         <para>Mit der nachfolgenden Version wurde der Parameter zum Einen in
@@ -1483,7 +1450,7 @@ insserv kivitendo-task-server</programlisting>
         <para>Die Konfiguration "<varname>eur</varname>" unter
         <varname>[system]</varname> in der <link
         linkend="config.config-file">Konfigurationsdatei</link>
-        <filename>config/lx_office.conf</filename> wird nun nicht mehr
+        <filename>config/kivitendo.conf</filename> wird nun nicht mehr
         benötigt und kann entfernt werden. Dies muss manuell geschehen.</para>
       </sect2>
 
@@ -1510,7 +1477,7 @@ insserv kivitendo-task-server</programlisting>
         <title>Bemerkungen zu Bestandsmethode</title>
 
         <para>Die Bestandsmethode ist eigentlich eine sehr elegante Methode,
-        funktioniert in Lx-Office aber nur unter bestimmten Bedingungen:
+        funktioniert in kivitendo aber nur unter bestimmten Bedingungen:
         Voraussetzung ist, daß auch immer alle Einkaufsrechnungen gepflegt
         werden, und man beim Jahreswechsel nicht mit einer leeren Datenbank
         anfängt, da bei jedem Verkauf anhand der gesamten Rechnungshistorie
@@ -1547,7 +1514,7 @@ insserv kivitendo-task-server</programlisting>
 
         <para>Die Umsatzsteuerumstellung auf 19% für SKR04 für die
         Steuerschlüssel "EU ohne USt-ID Nummer" ist erst 2010 erfolgt.
-        Lx-Office beinhaltet ein Upgradeskript, das das Konto 3804 automatisch
+        kivitendo beinhaltet ein Upgradeskript, das das Konto 3804 automatisch
         erstellt und die Steuereinstellungen korrekt einstellt. Hat der
         Benutzer aber schon selber das Konto 3804 angelegt, oder gab es schon
         Buchungen im Zeitraum nach dem 01.01.2007 auf das Konto 3803, wird das
@@ -1647,19 +1614,19 @@ insserv kivitendo-task-server</programlisting>
       </sect2>
     </sect1>
 
-    <sect1 id="Lx-Office-ERP-verwenden">
-      <title>Lx-Office ERP verwenden</title>
+    <sect1 id="kivitendo-ERP-verwenden">
+      <title>kivitendo ERP verwenden</title>
 
       <para>Nach erfolgreicher Installation ist der Loginbildschirm unter
       folgender URL erreichbar:</para>
 
       <para><ulink
-      url="http://localhost/lx-office-erp/login.pl">http://localhost/lx-office-erp/login.pl</ulink></para>
+      url="http://localhost/kivitendo-erp/login.pl">http://localhost/kivitendo-erp/login.pl</ulink></para>
 
       <para>Die Administrationsseite erreichen Sie unter:</para>
 
       <para><ulink
-      url="http://localhost/lx-office-erp/admin.pl">http://localhost/lx-office-erp/admin.pl</ulink></para>
+      url="http://localhost/kivitendo-erp/admin.pl">http://localhost/kivitendo-erp/admin.pl</ulink></para>
     </sect1>
   </chapter>
 
@@ -1784,7 +1751,7 @@ insserv kivitendo-task-server</programlisting>
         Informationen zu den erstellten Rechnungen verschickt werden.
         Konfiguriert wird dies in der <link
         linkend="config.config-file.sections-parameters">Konfigurationsdatei</link>
-        <filename>config/lx_office.conf</filename> im Abschnitt
+        <filename>config/kivitendo.conf</filename> im Abschnitt
         <varname>[periodic_invoices]</varname>.</para>
       </sect2>
 
@@ -1835,7 +1802,7 @@ insserv kivitendo-task-server</programlisting>
         linkend="dokumentenvorlagen-und-variablen.tag-style" />).</para>
 
         <para>Früher wurde hier nur über LaTeX gesprochen. Inzwischen
-        unterstützt Lx-Office aber auch OpenDocument-Vorlagen. Sofern es nicht
+        unterstützt kivitendo aber auch OpenDocument-Vorlagen. Sofern es nicht
         ausdrücklich eingeschränkt wird, gilt das im Folgenden gesagte für
         alle Vorlagenarten.</para>
 
@@ -1943,7 +1910,7 @@ insserv kivitendo-task-server</programlisting>
 
         <programlisting>% config: tag-style=($ $)</programlisting>
 
-        <para>Dies würde Lx-Office dazu veranlassen, Variablen zu ersetzen,
+        <para>Dies würde kivitendo dazu veranlassen, Variablen zu ersetzen,
         wenn sie wie folgt aussehen: <function>($customer$)</function>. Das
         äquivalente Beispiel für HTML-Dokumentenvorlagen sieht so aus:</para>
 
@@ -4170,9 +4137,9 @@ Beschreibung: &lt;%description%&gt;
         <title>Markup-Code zur Textformatierung innerhalb von
         Formularen</title>
 
-        <para>Wenn der Benutzer innhalb von Formularen in Lx-Office Text
+        <para>Wenn der Benutzer innhalb von Formularen in kivitendo Text
         anders formatiert haben möchte, so ist dies begrenzt möglich.
-        Lx-Office unterstützt die Textformatierung mit HTML-ähnlichen Tags.
+        kivitendo unterstützt die Textformatierung mit HTML-ähnlichen Tags.
         Der Benutzer kann z.B. bei der Artikelbeschreibung auf einer Rechnung
         Teile des Texts zwischen Start- und Endtags setzen. Dieser Teil wird
         dann automatisch in Anweisungen für das ausgewählte Vorlagenformat
@@ -4662,7 +4629,7 @@ Beschreibung: &lt;%description%&gt;
           brauchbares Tracing gebaut ist, "<function>log_time</function>", mit
           der man die Wallclockzeit seit Requeststart loggen kann, sowie
           "<function>message</function>" und "<function>dump</function>" mit
-          denen man flott Informationen ins Log (tmp/lx-office-debug.log)
+          denen man flott Informationen ins Log (tmp/kivitendo-debug.log)
           packen kann.</para>
 
           <para>Beispielsweise so:</para>
@@ -4714,7 +4681,7 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
 
             <listitem>
               <para>Repräsentation der
-              <filename>config/lx_office.conf[.default]</filename>-Dateien</para>
+              <filename>config/kivitendo.conf[.default]</filename>-Dateien</para>
             </listitem>
           </itemizedlist>
 
@@ -4727,7 +4694,7 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
           verfügbar:</para>
 
           <programlisting>[debug]
-file = /tmp/lx-office-debug.log</programlisting>
+file = /tmp/kivitendo-debug.log</programlisting>
 
           <para>ist der Key <varname>file</varname> im Programm als
           <varname>$::lx_office_conf-&gt;{debug}{file}</varname>
@@ -4913,7 +4880,7 @@ file = /tmp/lx-office-debug.log</programlisting>
       <sect2 id="devel.fcgi.general">
         <title>Allgemeines</title>
 
-        <para>Wenn Änderungen in der Konfiguration von Lx-Office gemacht
+        <para>Wenn Änderungen in der Konfiguration von kivitendo gemacht
         werden, muss der Webserver neu gestartet werden.</para>
 
         <para>Bei der Entwicklung für FastCGI ist auf ein paar Fallstricke zu
@@ -4932,13 +4899,13 @@ file = /tmp/lx-office-debug.log</programlisting>
         Fehler), werden mit dem FastCGI Dispatcher abgefangen, um das Programm
         am Laufen zu halten. Man kann mit <function>die</function>,
         <function>confess</function> oder <function>carp</function> Fehler
-        ausgeben, die dann vom Dispatcher angezeigt werden. Die Lx-Office
+        ausgeben, die dann vom Dispatcher angezeigt werden. Die kivitendo
         eigene <function>$::form-</function>error()&gt; tut im Prinzip das
         Gleiche, mit ein paar Extraoptionen. <function>warn</function> und
         <function>exit</function> hingegen werden nicht abgefangen.
         <function>warn</function> wird direkt nach STDERR, also in Server Log
         eine Nachricht schreiben (sofern in der Konfiguration nicht die
-        Warnungen in das Lx-Office Log umgeleitet wurden), und
+        Warnungen in das kivitendo Log umgeleitet wurden), und
         <function>exit</function> wird die Ausführung beenden.</para>
 
         <para>Prinzipiell ist es kein Beinbruch, wenn sich der Prozess
@@ -4971,7 +4938,7 @@ file = /tmp/lx-office-debug.log</programlisting>
 
         <para>Die kritischen Pfade des Programms sind die Belegmasken, und
         unter diesen ganz besonders die Verkaufsrechnungsmaske. Ein Aufruf der
-        Rechnungsmaske in Lx-Office 2.4.3 stable dauert auf einem Core2duo mit
+        Rechnungsmaske in kivitendo 2.4.3 stable dauert auf einem Core2duo mit
         4GB Arbeitsspeicher und Ubuntu 9.10 eine halbe Sekunde. In der 2.6.0
         sind es je nach Menge der definierten Variablen 1-2s. Ab der
         Moose/Rose::DB Version sind es 5-6s.</para>
@@ -5008,7 +4975,7 @@ file = /tmp/lx-office-debug.log</programlisting>
         diese Versionsnummer sucht, schränkt sehr ein, z.B. was die parallele
         Entwicklung im stable- und unstable-Baum betrifft.</para>
 
-        <para>Dieser Mechanismus wurde für Lx-Office 2.4.1 deutlich erweitert.
+        <para>Dieser Mechanismus wurde für kivitendo 2.4.1 deutlich erweitert.
         Es werden weiterhin alle Scripte aus sql/Pg-upgrade ausgeführt.
         Zusätzlich gibt es aber ein zweites Verzeichnis, sql/Pg-upgrade2. In
         diesem Verzeichnis muss pro Datenbankupgrade eine Datei existieren,
@@ -5022,7 +4989,7 @@ file = /tmp/lx-office-debug.log</programlisting>
         angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man
         keine Versionsnummern mehr braucht.</para>
 
-        <para>Lx-Office merkt sich dabei, welches der Upgradescripte in
+        <para>kivitendo merkt sich dabei, welches der Upgradescripte in
         sql/Pg-upgrade2 bereits durchgeführt wurde und führt diese nicht
         erneut aus. Dazu dient die Tabelle "schema_info", die bei der
         Anmeldung automatisch angelegt wird.</para>
@@ -5099,7 +5066,7 @@ file = /tmp/lx-office-debug.log</programlisting>
 
             <listitem>
               <para>Optional. Eine mit Leerzeichen getrennte Liste von "tags",
-              von denen dieses Upgradescript abhängt. Lx-Office stellt sicher,
+              von denen dieses Upgradescript abhängt. kivitendo stellt sicher,
               dass die in dieser Liste aufgeführten Scripte bereits
               durchgeführt wurden, bevor dieses Script ausgeführt wird.</para>
 
@@ -5125,7 +5092,7 @@ file = /tmp/lx-office-debug.log</programlisting>
               der Wert 1000 benutzt.</para>
 
               <para>Dies ist reine Kosmetik. Für echte Reihenfolgen muss
-              "depends" benutzt werden. Lx-Office sortiert die auszuführenden
+              "depends" benutzt werden. kivitendo sortiert die auszuführenden
               Scripte zuerst nach der Abhängigkeitstiefe (wenn "z" von "y"
               abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von
               2, "y" von 1 und "x" von 0. "x" würde hier zuerst ausgeführt,
@@ -5153,10 +5120,10 @@ file = /tmp/lx-office-debug.log</programlisting>
         <para>Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern,
         existiert ein Hilfsscript namens
         "<filename>scripts/dbupgrade2_tool.pl</filename>". Es muss aus dem
-        Lx-Office-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
+        kivitendo-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
         liest alle Datenbankupgradescripte aus dem Verzeichnis
         <filename>sql/Pg-upgrade2</filename> aus. Es benutzt dafür die
-        gleichen Methoden wie Lx-Office selber, sodass alle Fehlersituationen
+        gleichen Methoden wie kivitendo selber, sodass alle Fehlersituationen
         von der Kommandozeile überprüft werden können.</para>
 
         <para>Wird dem Script kein weiterer Parameter übergeben, so wird nur
@@ -5170,7 +5137,7 @@ file = /tmp/lx-office-debug.log</programlisting>
             --list</command>"</para>
 
             <para>Gibt eine Liste aller Scripte aus. Die Liste ist in der
-            Reihenfolge sortiert, in der Lx-Office die Scripte ausführen
+            Reihenfolge sortiert, in der kivitendo die Scripte ausführen
             würde. Es werden neben der Listenposition der Tag, die
             Abhängigkeitstiefe und die Priorität ausgegeben.</para>
           </listitem>
@@ -5236,7 +5203,7 @@ file = /tmp/lx-office-debug.log</programlisting>
           internationalen Übersetzern die Arbeit zu erleichtern.</para>
         </note>
 
-        <para>This section describes how localization packages in Lx-Office
+        <para>This section describes how localization packages in kivitendo
         are built. Currently the only language fully supported is German, and
         since most of the internal messages are held in English the English
         version is usable too.</para>
@@ -5249,9 +5216,9 @@ file = /tmp/lx-office-debug.log</programlisting>
              xreflabel="File structure">
         <title>File structure</title>
 
-        <para>The structure of locales in Lx-Office is:</para>
+        <para>The structure of locales in kivitendo is:</para>
 
-        <programlisting>lx-office/locale/&lt;langcode&gt;/</programlisting>
+        <programlisting>kivitendo/locale/&lt;langcode&gt;/</programlisting>
 
         <para>where &lt;langcode&gt; stands for an abbreviation of the
         language package. The builtin packages use two letter <ulink
@@ -5350,7 +5317,7 @@ English - 0.6% - 2015/2028 missing</programlisting>
             <term>special_chars</term>
 
             <listitem>
-              <para>Lx-Office comes with a lot of interfaces to different
+              <para>kivitendo comes with a lot of interfaces to different
               formats, some of which are rather picky with their accepted
               charset. The <filename>special_chars</filename> file contains a
               listing of chars not suited for different file format and
@@ -5585,7 +5552,7 @@ map { $form-&gt;{sum} += $form-&gt;{"row_$_"} } 1..$rowcount;</programlisting>
             <listitem>
               <para>Sämtliche Kommentare und Sonstiges im Quellcode ist bitte
               auf Englisch zu verfassen. So wie ich keine Lust habe,
-              französischen Quelltext zu lesen, sollte auch der Lx-Office
+              französischen Quelltext zu lesen, sollte auch der kivitendo
               Quelltext für nicht-Deutschsprachige lesbar sein.
               Beispiel:</para>
 
@@ -5659,7 +5626,7 @@ $some_hash{42}    = 54;</programlisting>
           <para><varname>STDERR</varname> ist tabu. Unkonditionale
           Debugmeldungen auch.</para>
 
-          <para>Lx-Office bietet mit dem Modul <classname>LXDebug</classname>
+          <para>kivitendo bietet mit dem Modul <classname>LXDebug</classname>
           einen brauchbaren Trace-/Debug-Mechanismus. Es gibt also keinen
           Grund, nach <varname>STDERR</varname> zu schreiben.</para>
 
@@ -5705,11 +5672,11 @@ $some_hash{42}    = 54;</programlisting>
         <para>Bei <productname>DocBook</productname> ist Prinzip, dass
         ausschließlich die XML-Quelldatei bearbeitet wird. Aus dieser werden
         dann mit entsprechenden Stylesheets andere Formate wie PDF oder HTML
-        erzeugt. Bei Lx-Office übernimmt diese Aufgabe das Shell-Script
+        erzeugt. Bei kivitendo übernimmt diese Aufgabe das Shell-Script
         <command>scripts/build_doc.sh</command>.</para>
 
         <para>Das Script benötigt zur Konvertierung verschiedene
-        Softwarekomponenten, die im normalen Lx-Office-Betrieb nicht benötigt
+        Softwarekomponenten, die im normalen kivitendo-Betrieb nicht benötigt
         werden:</para>
 
         <itemizedlist>
@@ -5757,7 +5724,7 @@ unzip $HOME/Downloads/dobudish-nojre-1.1.4.zip</programlisting>
 
         <para>Die eigentliche Konvertierung erfolgt nach Installation der
         benötigten Software mit einem einfachen Aufruf direkt aus dem
-        Lx-Office-Installationsverzeichnis heraus:</para>
+        kivitendo-Installationsverzeichnis heraus:</para>
 
         <programlisting>./scripts/build_doc.sh</programlisting>
       </sect2>

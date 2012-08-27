@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Usage:
-#   cd /path/to/lx-office
+#   cd /path/to/kivitendo
 #   ./scripts/build_doc.sh
 
 set -e
@@ -60,7 +60,7 @@ cp -R ${doc}/build/custom-cfg/* ${custom}/
 
 if [[ $pdf = 1 ]] ; then
   ./generator.sh dokumentation pdf
-  cp ${output}/pdf/dokumentation.pdf ${doc}/Lx-Office-Dokumentation.pdf
+  cp ${output}/pdf/dokumentation.pdf ${doc}/kivitendo-Dokumentation.pdf
 fi
 
 if [[ $html = 1 ]]; then

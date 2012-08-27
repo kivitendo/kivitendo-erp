@@ -6,11 +6,11 @@ admin_password = admin123
 
 # Which module to use for authentication. Valid values are 'DB' and
 # 'LDAP'.  If 'LDAP' is used then users cannot change their password
-# via Lx-Office.
+# via kivitendo.
 module = DB
 
 # The cookie name can be changed if desired.
-cookie_name = lx_office_erp_session_id
+cookie_name = kivitendo_session_id
 
 # The number of minutes a session is valid. The default value is eight
 # hours.
@@ -26,7 +26,7 @@ session_timeout = 480
 # users' passwords.
 host     = localhost
 port     = 5432
-db       = lxerp_auth
+db       = kivitendo_auth
 user     = postgres
 password =
 
@@ -167,7 +167,7 @@ openofficeorg_daemon_port = 2002
 [task_server]
 # User name to use for database access
 login =
-# Set to 1 for debug messages in /tmp/lx-office-debug.log
+# Set to 1 for debug messages in /tmp/kivitendo-debug.log
 debug = 1
 # Chose a system user the daemon should run under when started as root.
 run_as =
@@ -177,7 +177,7 @@ run_as =
 # to.
 send_email_to  = mb
 # The "From:" header for said email.
-email_from     = Lx-Office Daemon <root@localhost>
+email_from     = kivitendo Daemon <root@localhost>
 # The subject for said email.
 email_subject  = Benachrichtigung: automatisch erstellte Rechnungen
 # The template file used for the email's body.
@@ -242,8 +242,8 @@ login =
 history_file = users/console_history
 
 # location of a separate log file for the console. everything normally written
-# to the lx-office log will be put here if triggered from the console
-log_file = /tmp/lxoffice_console_debug.log
+# to the kivitendo log will be put here if triggered from the console
+log_file = /tmp/kivitendo_console_debug.log
 
 [testing]
 
@@ -312,4 +312,4 @@ keep_temp_files = 0
 restart_fcgi_process_on_changes = 0
 
 # The file name where the debug messages are written to.
-file_name = /tmp/lx-office-debug.log
+file_name = /tmp/kivitendo-debug.log

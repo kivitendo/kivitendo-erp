@@ -1,9 +1,9 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>4.3. SQL-Upgradedateien</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="Lx-Office: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. Translations and languages"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. SQL-Upgradedateien</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. SQL-Upgradedateien"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="db-upgrade-files"></a>4.3. SQL-Upgradedateien</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>Der alte Mechanismus für SQL-Upgradescripte, der auf einer
+   <title>4.3. SQL-Upgradedateien</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch04.html" title="Kapitel 4. Entwicklerdokumentation"><link rel="prev" href="ch04s02.html" title="4.2. Entwicklung unter FastCGI"><link rel="next" href="ch04s04.html" title="4.4. Translations and languages"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">4.3. SQL-Upgradedateien</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch04s02.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 4. Entwicklerdokumentation</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch04s04.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="4.3. SQL-Upgradedateien"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="db-upgrade-files"></a>4.3. SQL-Upgradedateien</h2></div></div></div><div class="sect2" title="4.3.1. Einführung"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.introduction"></a>4.3.1. Einführung</h3></div></div></div><p>Der alte Mechanismus für SQL-Upgradescripte, der auf einer
         Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script für
         diese Versionsnummer sucht, schränkt sehr ein, z.B. was die parallele
-        Entwicklung im stable- und unstable-Baum betrifft.</p><p>Dieser Mechanismus wurde für Lx-Office 2.4.1 deutlich erweitert.
+        Entwicklung im stable- und unstable-Baum betrifft.</p><p>Dieser Mechanismus wurde für kivitendo 2.4.1 deutlich erweitert.
         Es werden weiterhin alle Scripte aus sql/Pg-upgrade ausgeführt.
         Zusätzlich gibt es aber ein zweites Verzeichnis, sql/Pg-upgrade2. In
         diesem Verzeichnis muss pro Datenbankupgrade eine Datei existieren,
@@ -13,7 +13,7 @@
         einer sicheren Reihenfolge ausgeführt werden (z.B. darf ein "ALTER
         TABLE" erst ausgeführt werden, wenn die Tabelle mit "CREATE TABLE"
         angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man
-        keine Versionsnummern mehr braucht.</p><p>Lx-Office merkt sich dabei, welches der Upgradescripte in
+        keine Versionsnummern mehr braucht.</p><p>kivitendo merkt sich dabei, welches der Upgradescripte in
         sql/Pg-upgrade2 bereits durchgeführt wurde und führt diese nicht
         erneut aus. Dazu dient die Tabelle "schema_info", die bei der
         Anmeldung automatisch angelegt wird.</p></div><div class="sect2" title="4.3.2. Format der Kontrollinformationen"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.format"></a>4.3.2. Format der Kontrollinformationen</h3></div></div></div><p>Die Kontrollinformationen sollten sich am Anfang der jeweiligen
@@ -44,7 +44,7 @@
               erfolgen.</p></dd><dt><span class="term">
                      <code class="varname">depends</code>
                   </span></dt><dd><p>Optional. Eine mit Leerzeichen getrennte Liste von "tags",
-              von denen dieses Upgradescript abhängt. Lx-Office stellt sicher,
+              von denen dieses Upgradescript abhängt. kivitendo stellt sicher,
               dass die in dieser Liste aufgeführten Scripte bereits
               durchgeführt wurden, bevor dieses Script ausgeführt wird.</p><p>Abhängigkeiten werden rekursiv betrachtet. Wenn also ein
               Script "b" existiert, das von Änderungen in "a" abhängt, und
@@ -58,7 +58,7 @@
               der Scripte ausgeführt werden, die die gleichen
               Abhängigkeitstiefen besitzen. Fehlt dieser Parameter, so wird
               der Wert 1000 benutzt.</p><p>Dies ist reine Kosmetik. Für echte Reihenfolgen muss
-              "depends" benutzt werden. Lx-Office sortiert die auszuführenden
+              "depends" benutzt werden. kivitendo sortiert die auszuführenden
               Scripte zuerst nach der Abhängigkeitstiefe (wenn "z" von "y"
               abhängt und "y" von "x", so hat "z" eine Abhängigkeitstiefe von
               2, "y" von 1 und "x" von 0. "x" würde hier zuerst ausgeführt,
@@ -70,16 +70,16 @@
               ausgeführt.</p></dd></dl></div></div><div class="sect2" title="4.3.3. Hilfsscript dbupgrade2_tool.pl"><div class="titlepage"><div><div><h3 class="title"><a name="db-upgrade-files.dbupgrade-tool"></a>4.3.3. Hilfsscript dbupgrade2_tool.pl</h3></div></div></div><p>Um die Arbeit mit den Abhängigkeiten etwas zu erleichtern,
         existiert ein Hilfsscript namens
         "<code class="filename">scripts/dbupgrade2_tool.pl</code>". Es muss aus dem
-        Lx-Office-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
+        kivitendo-ERP-Basisverzeichnis heraus aufgerufen werden. Dieses Tool
         liest alle Datenbankupgradescripte aus dem Verzeichnis
         <code class="filename">sql/Pg-upgrade2</code> aus. Es benutzt dafür die
-        gleichen Methoden wie Lx-Office selber, sodass alle Fehlersituationen
+        gleichen Methoden wie kivitendo selber, sodass alle Fehlersituationen
         von der Kommandozeile überprüft werden können.</p><p>Wird dem Script kein weiterer Parameter übergeben, so wird nur
         eine Überprüfung der Felder und Abhängigkeiten vorgenommen. Man kann
         sich aber auch Informationen auf verschiedene Art ausgeben
         lassen:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Listenform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
             --list</strong></span>"</p><p>Gibt eine Liste aller Scripte aus. Die Liste ist in der
-            Reihenfolge sortiert, in der Lx-Office die Scripte ausführen
+            Reihenfolge sortiert, in der kivitendo die Scripte ausführen
             würde. Es werden neben der Listenposition der Tag, die
             Abhängigkeitstiefe und die Priorität ausgegeben.</p></li><li class="listitem"><p>Baumform: "<span class="command"><strong>./scripts/dbupgrade2_tool.pl
             --tree</strong></span>"</p><p>Listet alle Tags in Baumform basierend auf den

@@ -2,15 +2,14 @@ package SL::LxOfficeConf;
 
 use strict;
 
+use Encode;
+
 my $environment_initialized;
 
 sub safe_require {
   my ($class, $may_fail);
-  my $failed;
-  $failed = !eval {
-    require Config::Std;
-    require Encode;
-  };
+
+  my $failed = !eval { require Config::Std; };
 
   if ($failed) {
     if ($may_fail) {
@@ -22,7 +21,6 @@ sub safe_require {
   }
 
   Config::Std->import;
-  Encode->import;
 
   return 1;
 }
@@ -32,10 +30,13 @@ sub read {
 
   return unless $class->safe_require($may_fail);
 
-  read_config('config/lx_office.conf.default' => \%::lx_office_conf);
+  # Backwards compatibility: read lx_office.conf.default if
+  # kivitendo.conf.default does't exist.
+  my $default_config = -f "config/kivitendo.conf.default" ? 'kivitendo' : 'lx_office';
+  read_config("config/${default_config}.conf.default" => \%::lx_office_conf);
   _decode_recursively(\%::lx_office_conf);
 
-  $file_name ||= 'config/lx_office.conf';
+  $file_name ||= -f 'config/kivitendo.conf' ? 'config/kivitendo.conf' : 'config/lx_office.conf';
 
   if (-f $file_name) {
     read_config($file_name => \ my %local_conf);
