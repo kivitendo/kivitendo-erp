@@ -70,7 +70,7 @@ sub _calculate_item {
   croak("Undefined unit " . $item->unit)       if !$item_unit;
 
   $item->base_qty($item_unit->convert_to($item->qty, $part_unit));
-  $item->fxsellprice($item->sellprice);
+  $item->fxsellprice($item->sellprice) if $data->{is_invoice};
 
   my $num_dec   = _num_decimal_places($item->sellprice);
   my $discount  = _round($item->sellprice * ($item->discount || 0), $num_dec);
@@ -126,7 +126,9 @@ sub _calculate_item {
   if ($item->part->is_assembly) {
     _calculate_assembly_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj));
   } elsif ($item->part->is_part) {
-    $item->allocated(_calculate_part_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj)));
+    if ($data->{is_invoice}) {
+      $item->allocated(_calculate_part_item($self, $data, $item->part, $item->base_qty, $item->unit_obj->convert_to(1, $item->part->unit_obj)));
+    }
   }
 
   $data->{last_incex_chart_id} = $chart->id if $data->{is_sales};
