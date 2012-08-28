@@ -11,6 +11,7 @@ use SL::DB::Manager::BackgroundJob;
 use SL::DB::BackgroundJobHistory;
 
 use SL::BackgroundJob::Test;
+use SL::System::Process;
 
 sub update_next_run_at {
   my $self = shift;
@@ -65,6 +66,26 @@ sub data_as_hash {
   return $self->data               if ref($self->{data}) eq 'HASH';
   return YAML::Load($self->{data}) if !ref($self->{data});
   return {};
+}
+
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+
+  push @errors, $::locale->text('The execution type is invalid.') if ($self->type         || '') !~ m/^(?: once | interval )$/x;
+
+  if (   (($self->package_name || '') !~ m/^ [A-Z][A-Za-z0-9]+ $/x)
+      || ! -f (SL::System::Process::exe_dir() . "/SL/BackgroundJob/" . $self->package_name . ".pm")) {
+    push @errors, $::locale->text('The package name is invalid.');
+  }
+
+  eval {
+    DateTime::Event::Cron->new_from_cron($self->cron_spec)->next(DateTime->now_local);
+    1;
+  } or push @errors, $::locale->text('The execution schedule is invalid.');
+
+  return @errors;
 }
 
 1;
