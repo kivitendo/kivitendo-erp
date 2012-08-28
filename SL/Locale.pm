@@ -277,73 +277,74 @@ sub date {
 
   my ($self, $myconfig, $date, $longformat) = @_;
 
+  if (!$date) {
+    $main::lxdebug->leave_sub();
+    return '';
+  }
+
   my $longdate  = "";
   my $longmonth = ($longformat) ? 'LONG_MONTH' : 'SHORT_MONTH';
 
   my ($spc, $yy, $mm, $dd);
 
-  if ($date) {
-
     # get separator
-    $spc = $myconfig->{dateformat};
-    $spc =~ s/\w//g;
-    $spc = substr($spc, 1, 1);
+  $spc = $myconfig->{dateformat};
+  $spc =~ s/\w//g;
+  $spc = substr($spc, 1, 1);
 
-    if ($date =~ /\D/) {
-      if ($myconfig->{dateformat} =~ /^yy/) {
-        ($yy, $mm, $dd) = split /\D/, $date;
-      }
-      if ($myconfig->{dateformat} =~ /^mm/) {
-        ($mm, $dd, $yy) = split /\D/, $date;
-      }
-      if ($myconfig->{dateformat} =~ /^dd/) {
-        ($dd, $mm, $yy) = split /\D/, $date;
-      }
-    } else {
-      $date = substr($date, 2);
-      ($yy, $mm, $dd) = ($date =~ /(..)(..)(..)/);
+  if ($date =~ /\D/) {
+    if ($myconfig->{dateformat} =~ /^yy/) {
+      ($yy, $mm, $dd) = split /\D/, $date;
     }
-
-    $dd *= 1;
-    $mm--;
-    $yy = ($yy < 70) ? $yy + 2000 : $yy;
-    $yy = ($yy >= 70 && $yy <= 99) ? $yy + 1900 : $yy;
-
+    if ($myconfig->{dateformat} =~ /^mm/) {
+      ($mm, $dd, $yy) = split /\D/, $date;
+    }
     if ($myconfig->{dateformat} =~ /^dd/) {
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$dd$spc$mm$spc$yy";
-      } else {
-        $longdate = "$dd";
-        $longdate .= ($spc eq '.') ? ". " : " ";
-        $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
-      }
-    } elsif ($myconfig->{dateformat} eq "yyyy-mm-dd") {
-
-      # Use German syntax with the ISO date style "yyyy-mm-dd" because
-      # Lx-Office is mainly used in Germany or German speaking countries.
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$yy-$mm-$dd";
-      } else {
-        $longdate = "$dd. ";
-        $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
-      }
-    } else {
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$mm$spc$dd$spc$yy";
-      } else {
-        $longdate = &text($self, $self->{$longmonth}[$mm]) . " $dd, $yy";
-      }
+      ($dd, $mm, $yy) = split /\D/, $date;
     }
+  } else {
+    $date = substr($date, 2);
+    ($yy, $mm, $dd) = ($date =~ /(..)(..)(..)/);
+  }
 
+  $dd *= 1;
+  $mm--;
+  $yy = ($yy < 70) ? $yy + 2000 : $yy;
+  $yy = ($yy >= 70 && $yy <= 99) ? $yy + 1900 : $yy;
+
+  if ($myconfig->{dateformat} =~ /^dd/) {
+    if (defined $longformat && $longformat == 0) {
+      $mm++;
+      $dd = "0$dd" if ($dd < 10);
+      $mm = "0$mm" if ($mm < 10);
+      $longdate = "$dd$spc$mm$spc$yy";
+    } else {
+      $longdate = "$dd";
+      $longdate .= ($spc eq '.') ? ". " : " ";
+      $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
+    }
+  } elsif ($myconfig->{dateformat} eq "yyyy-mm-dd") {
+
+    # Use German syntax with the ISO date style "yyyy-mm-dd" because
+    # Lx-Office is mainly used in Germany or German speaking countries.
+    if (defined $longformat && $longformat == 0) {
+      $mm++;
+      $dd = "0$dd" if ($dd < 10);
+      $mm = "0$mm" if ($mm < 10);
+      $longdate = "$yy-$mm-$dd";
+    } else {
+      $longdate = "$dd. ";
+      $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
+    }
+  } else {
+    if (defined $longformat && $longformat == 0) {
+      $mm++;
+      $dd = "0$dd" if ($dd < 10);
+      $mm = "0$mm" if ($mm < 10);
+      $longdate = "$mm$spc$dd$spc$yy";
+    } else {
+      $longdate = &text($self, $self->{$longmonth}[$mm]) . " $dd, $yy";
+    }
   }
 
   $main::lxdebug->leave_sub();
@@ -394,6 +395,28 @@ sub parse_date_to_object {
   my ($yy, $mm, $dd) = $self->parse_date(@_);
 
   return $yy && $mm && $dd ? DateTime->new(year => $yy, month => $mm, day => $dd) : undef;
+}
+
+sub format_date_object {
+  my ($self, $datetime, %params)    = @_;
+
+  my $format             =  $::myconfig{dateformat} || 'yyyy-mm-dd';
+  $format                =~ s/yyyy/\%Y/;
+  $format                =~ s/yy/\%y/;
+  $format                =~ s/mm/\%m/;
+  $format                =~ s/dd/\%d/;
+
+  my $precision          =  $params{precision} || 'day';
+  $precision             =~ s/s$//;
+  my %precision_spec_map = (
+    second => '%H:%M:%S',
+    minute => '%H:%M',
+    hour   => '%H',
+  );
+
+  $format .= ' ' . $precision_spec_map{$precision} if $precision_spec_map{$precision};
+
+  return $datetime->strftime($format);
 }
 
 sub reformat_date {
@@ -516,3 +539,140 @@ sub get_local_time_zone {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+Locale - Functions for dealing with locale-dependant information
+
+=head1 SYNOPSIS
+
+  use Locale;
+  use DateTime;
+
+  my $locale = Locale->new('de');
+  my $now    = DateTime->now_local;
+  print "Current date and time: ", $::locale->format_date_object($now, precision => 'second'), "\n";
+
+=head1 OVERVIEW
+
+TODO: write overview
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<date>
+
+TODO: Describe date
+
+=item C<findsub>
+
+TODO: Describe findsub
+
+=item C<format_date>
+
+TODO: Describe format_date
+
+=item C<format_date_object $datetime, %params>
+
+Formats the C<$datetime> object accoring to the user's locale setting.
+
+The parameter C<precision> can control whether or not the time
+component is formatted as well:
+
+=over 4
+
+=item * C<day>
+
+Only format the year, month and day. This is also the default.
+
+=item * C<hour>
+
+Add the hour to the date.
+
+=item * C<minute>
+
+Add hour:minute to the date.
+
+=item * C<second>
+
+Add hour:minute:second to the date.
+
+=back
+
+=item C<get_local_time_zone>
+
+TODO: Describe get_local_time_zone
+
+=item C<is_utf8>
+
+TODO: Describe is_utf8
+
+=item C<lang_to_locale>
+
+TODO: Describe lang_to_locale
+
+=item C<new>
+
+TODO: Describe new
+
+=item C<parse_date>
+
+TODO: Describe parse_date
+
+=item C<parse_date_to_object>
+
+TODO: Describe parse_date_to_object
+
+=item C<quote_special_chars>
+
+TODO: Describe quote_special_chars
+
+=item C<raw_io_active>
+
+TODO: Describe raw_io_active
+
+=item C<reformat_date>
+
+TODO: Describe reformat_date
+
+=item C<remap_special_chars>
+
+TODO: Describe remap_special_chars
+
+=item C<restore_numberformat>
+
+TODO: Describe restore_numberformat
+
+=item C<set_numberformat_wo_thousands_separator>
+
+TODO: Describe set_numberformat_wo_thousands_separator
+
+=item C<text>
+
+TODO: Describe text
+
+=item C<unquote_special_chars>
+
+TODO: Describe unquote_special_chars
+
+=item C<with_raw_io>
+
+TODO: Describe with_raw_io
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut

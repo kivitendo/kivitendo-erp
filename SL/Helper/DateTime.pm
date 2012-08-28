@@ -11,7 +11,9 @@ sub today_local {
 }
 
 sub to_lxoffice {
-  return $::locale->format_date(\%::myconfig, $_[0]);
+  my $self   = shift;
+  my %params = (scalar(@_) == 1) && (ref($_[0]) eq 'HASH') ? %{ $_[0] } : @_;
+  return $::locale->format_date_object($self, %params);
 }
 
 sub from_lxoffice {
@@ -40,15 +42,18 @@ Returns the current time with the time zone set to the local time zone.
 
 Returns the current date with the time zone set to the local time zone.
 
-=item C<to_lxoffice>
+=item C<to_lxoffice %param>
 
-Formats the date according to the current Lx-Office user's date
-format.
+Formats the date and time according to the current Lx-Office user's
+date format with L<Locale::format_datetime_object>.
 
-=item C<from_lxoffice>
+=item C<from_lxoffice $string>
 
 Parses a date string formatted in the current Lx-Office user's date
 format and returns an instance of L<DateTime>.
+
+Note that only dates can be parsed at the moment, not the time
+component (as opposed to L<to_lxoffice>).
 
 =back
 
