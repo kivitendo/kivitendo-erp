@@ -742,7 +742,7 @@ sub language_header {
 
   print $::form->parse_html_template('am/language_header', {
     numberformats => [ '1,000.00', '1000.00', '1.000,00', '1000,00' ],
-    dateformats => [ qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ],
+    dateformats => [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd) ],
   });
 
   $::lxdebug->leave_sub;
@@ -1006,7 +1006,7 @@ sub config {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  _build_cfg_options('dateformat', qw(mm-dd-yy mm/dd/yy dd-mm-yy dd/mm/yy dd.mm.yy yyyy-mm-dd));
+  _build_cfg_options('dateformat', qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd));
   _build_cfg_options('numberformat', ('1,000.00', '1000.00', '1.000,00', '1000,00'));
 
   my @formats = ();

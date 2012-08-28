@@ -38,9 +38,7 @@ sub create {
 my %_dateformats = ( 'yy-mm-dd'   => 'ISO',
                      'yyyy-mm-dd' => 'ISO',
                      'mm/dd/yy'   => 'SQL, US',
-                     'mm-dd-yy'   => 'POSTGRES, US',
                      'dd/mm/yy'   => 'SQL, EUROPEAN',
-                     'dd-mm-yy'   => 'POSTGRES, EUROPEAN',
                      'dd.mm.yy'   => 'GERMAN'
                    );
 

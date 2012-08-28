@@ -788,10 +788,8 @@ sub write_trigger {
   # default
   my %dateformats = (
     "dd.mm.yy" => "%d.%m.%Y",
-    "dd-mm-yy" => "%d-%m-%Y",
     "dd/mm/yy" => "%d/%m/%Y",
     "mm/dd/yy" => "%m/%d/%Y",
-    "mm-dd-yy" => "%m-%d-%Y",
     "yyyy-mm-dd" => "%Y-%m-%d",
     );
 
