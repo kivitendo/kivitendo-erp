@@ -13,6 +13,15 @@ use SL::DB::BackgroundJobHistory;
 use SL::BackgroundJob::Test;
 use SL::System::Process;
 
+__PACKAGE__->before_save('_before_save_set_next_run_at');
+
+sub _before_save_set_next_run_at {
+  my ($self) = @_;
+
+  $self->update_next_run_at if !$self->next_run_at;
+  return 1;
+}
+
 sub update_next_run_at {
   my $self = shift;
 
