@@ -1,0 +1,52 @@
+[% USE HTML %][% USE L %][% USE LxERP %]
+<body>
+
+ <form method="post" action="controller.pl">
+  <div class="listtop">[% FORM.title %]</div>
+
+[%- INCLUDE 'common/flash.html' %]
+
+  <table>
+   <tr>
+    <td>[%- LxERP.t8('Active') %]</td>
+    <td>[% L.yes_no_tag("background_job.active", SELF.background_job.active) %]</td>
+   </tr>
+
+   <tr>
+    <td>[%- LxERP.t8('Execution type') %]</td>
+    <td>[% L.select_tag("background_job.type", L.options_for_select([ [ 'once', LxERP.t8('one-time execution') ], [ 'interval', LxERP.t8('repeated execution') ] ],
+                                                                    'default' => SELF.background_job.type)) %]</td>
+   </tr>
+
+   <tr>
+    <td>[%- LxERP.t8('Package name') %]</td>
+    <td>[% L.input_tag("background_job.package_name", SELF.background_job.package_name, 'size' => 40) %]</td>
+   </tr>
+
+   <tr>
+    <td>[%- LxERP.t8('Execution schedule') %]</td>
+    <td>[% L.input_tag("background_job.cron_spec", SELF.background_job.cron_spec, 'size' => 40) %]</td>
+   </tr>
+
+   <tr>
+    <td>[%- LxERP.t8('Data') %]</td>
+    <td>[% L.textarea_tag("background_job.data", SELF.background_job.data, 'cols' => 80, 'rows' => 10) %]</td>
+   </tr>
+
+  </table>
+
+  <p>
+   [% L.hidden_tag("id", SELF.background_job.id) %]
+   [% L.hidden_tag("action", "BackgroundJob/dispatch") %]
+   [% L.submit_tag("action_" _  (SELF.background_job.id ? "update" : "create"), LxERP.t8('Save')) %]
+   [%- IF SELF.background_job.id %]
+    [% L.submit_tag("action_execute", LxERP.t8("Execute now")) %]
+    [% L.submit_tag("action_destroy", LxERP.t8("Delete"), "confirm", LxERP.t8("Are you sure you want to delete this background job?")) %]
+   [%- ELSE %]
+    [% L.submit_tag("action_save_and_execute", LxERP.t8("Save and execute")) %]
+   [%- END %]
+   <a href="[% SELF.url_for(action => 'list') %]">[%- LxERP.t8('Abort') %]</a>
+  </p>
+ </form>
+</body>
+</html>
