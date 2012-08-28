@@ -1,18 +1,19 @@
 package SL::MenuItem;
 
+use strict;
+
 sub new {
-  my ($class, %values) = @_;
+  my ($class, %params) = @_;
 
   my $obj = bless {}, $class;
-  $obj->{ACCESS} = delete $values{ACCESS};
-  $obj->{module} = delete $values{module} || die 'menuitem - need module';
-  $obj->{action} = delete $values{action} || die 'menuitem - need action';
+  $obj->{fullname} = $params{name};
+  my $values       = $params{item};
 
-  $obj->{params} = \%values;
-}
+  $obj->{ACCESS} = delete $values->{ACCESS};
+  $obj->{module} = delete $values->{module} || die 'menuitem - need module';
+  $obj->{action} = delete $values->{action} || die 'menuitem - need action';
 
-sub access {
-
+  $obj->{params} = $values;
 }
 
 sub ACCESS { $_[0]{ACCESS} }
@@ -20,7 +21,18 @@ sub action { $_[0]{action} }
 sub module { $_[0]{module} }
 sub params { $_[0]{params} }
 
-sub
+sub name { $_[0]{name} ||= $_[0]->_init_name }
+sub _init_name { my $name = $_[0]{fullname}; $name =~ s/.*--//; $name }
+sub path { @{ $_[0]{path} ||= [ $_[0]->_init_path ] } }
+sub _init_path { my $name = $_[0]{fullname}; split /--/, $name }
+
+sub children { }
+sub siblings {}
+sub parent {}
+
+
+###### internal stuff #######
+
 
 
 1;

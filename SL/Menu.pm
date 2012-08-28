@@ -58,6 +58,18 @@ sub new {
   return $self;
 }
 
+sub menuitems {
+  my ($self) = @_;
+
+  map {
+    SL::MenuItem->new(
+      name => $_,
+      menu => $self,
+      item => $self->{$_}
+    );
+  } $self->access_control;
+}
+
 sub menuitem {
   $main::lxdebug->enter_sub();
 
