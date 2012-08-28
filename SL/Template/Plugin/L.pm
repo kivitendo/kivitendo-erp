@@ -360,7 +360,7 @@ sub vendor_selector {
                                               default      => $actual_vendor_id,
                                               title_sub    => sub { $_[0]->vendornumber . " : " . $_[0]->name },
                                               'with_empty' => 1);
-  
+
   return $self->select_tag($name, $options_str, %params);
 }
 
@@ -375,7 +375,7 @@ sub part_selector {
                                               default      => $actual_part_id,
                                               title_sub    => sub { $_[0]->partnumber . " : " . $_[0]->description },
                                               'with_empty' => 1);
-  
+
   return $self->select_tag($name, $options_str, %params);
 }
 
