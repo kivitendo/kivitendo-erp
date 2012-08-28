@@ -277,73 +277,74 @@ sub date {
 
   my ($self, $myconfig, $date, $longformat) = @_;
 
+  if (!$date) {
+    $main::lxdebug->leave_sub();
+    return '';
+  }
+
   my $longdate  = "";
   my $longmonth = ($longformat) ? 'LONG_MONTH' : 'SHORT_MONTH';
 
   my ($spc, $yy, $mm, $dd);
 
-  if ($date) {
-
     # get separator
-    $spc = $myconfig->{dateformat};
-    $spc =~ s/\w//g;
-    $spc = substr($spc, 1, 1);
+  $spc = $myconfig->{dateformat};
+  $spc =~ s/\w//g;
+  $spc = substr($spc, 1, 1);
 
-    if ($date =~ /\D/) {
-      if ($myconfig->{dateformat} =~ /^yy/) {
-        ($yy, $mm, $dd) = split /\D/, $date;
-      }
-      if ($myconfig->{dateformat} =~ /^mm/) {
-        ($mm, $dd, $yy) = split /\D/, $date;
-      }
-      if ($myconfig->{dateformat} =~ /^dd/) {
-        ($dd, $mm, $yy) = split /\D/, $date;
-      }
-    } else {
-      $date = substr($date, 2);
-      ($yy, $mm, $dd) = ($date =~ /(..)(..)(..)/);
+  if ($date =~ /\D/) {
+    if ($myconfig->{dateformat} =~ /^yy/) {
+      ($yy, $mm, $dd) = split /\D/, $date;
     }
-
-    $dd *= 1;
-    $mm--;
-    $yy = ($yy < 70) ? $yy + 2000 : $yy;
-    $yy = ($yy >= 70 && $yy <= 99) ? $yy + 1900 : $yy;
-
+    if ($myconfig->{dateformat} =~ /^mm/) {
+      ($mm, $dd, $yy) = split /\D/, $date;
+    }
     if ($myconfig->{dateformat} =~ /^dd/) {
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$dd$spc$mm$spc$yy";
-      } else {
-        $longdate = "$dd";
-        $longdate .= ($spc eq '.') ? ". " : " ";
-        $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
-      }
-    } elsif ($myconfig->{dateformat} eq "yyyy-mm-dd") {
-
-      # Use German syntax with the ISO date style "yyyy-mm-dd" because
-      # Lx-Office is mainly used in Germany or German speaking countries.
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$yy-$mm-$dd";
-      } else {
-        $longdate = "$dd. ";
-        $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
-      }
-    } else {
-      if (defined $longformat && $longformat == 0) {
-        $mm++;
-        $dd = "0$dd" if ($dd < 10);
-        $mm = "0$mm" if ($mm < 10);
-        $longdate = "$mm$spc$dd$spc$yy";
-      } else {
-        $longdate = &text($self, $self->{$longmonth}[$mm]) . " $dd, $yy";
-      }
+      ($dd, $mm, $yy) = split /\D/, $date;
     }
+  } else {
+    $date = substr($date, 2);
+    ($yy, $mm, $dd) = ($date =~ /(..)(..)(..)/);
+  }
 
+  $dd *= 1;
+  $mm--;
+  $yy = ($yy < 70) ? $yy + 2000 : $yy;
+  $yy = ($yy >= 70 && $yy <= 99) ? $yy + 1900 : $yy;
+
+  if ($myconfig->{dateformat} =~ /^dd/) {
+    if (defined $longformat && $longformat == 0) {
+      $mm++;
+      $dd = "0$dd" if ($dd < 10);
+      $mm = "0$mm" if ($mm < 10);
+      $longdate = "$dd$spc$mm$spc$yy";
+    } else {
+      $longdate = "$dd";
+      $longdate .= ($spc eq '.') ? ". " : " ";
+      $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
+    }
+  } elsif ($myconfig->{dateformat} eq "yyyy-mm-dd") {
+
+    # Use German syntax with the ISO date style "yyyy-mm-dd" because
+    # Lx-Office is mainly used in Germany or German speaking countries.
+    if (defined $longformat && $longformat == 0) {
+      $mm++;
+      $dd = "0$dd" if ($dd < 10);
+      $mm = "0$mm" if ($mm < 10);
+      $longdate = "$yy-$mm-$dd";
+    } else {
+      $longdate = "$dd. ";
+      $longdate .= &text($self, $self->{$longmonth}[$mm]) . " $yy";
+    }
+  } else {
+    if (defined $longformat && $longformat == 0) {
+      $mm++;
+      $dd = "0$dd" if ($dd < 10);
+      $mm = "0$mm" if ($mm < 10);
+      $longdate = "$mm$spc$dd$spc$yy";
+    } else {
+      $longdate = &text($self, $self->{$longmonth}[$mm]) . " $dd, $yy";
+    }
   }
 
   $main::lxdebug->leave_sub();
