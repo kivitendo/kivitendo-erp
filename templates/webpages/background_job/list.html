@@ -1,0 +1,75 @@
+[% USE HTML %][% USE L %][% USE LxERP %]
+
+<body>
+ <div class="listtop">[% FORM.title %]</div>
+
+[%- INCLUDE 'common/flash.html' %]
+
+ <form method="post" action="controller.pl">
+  [% IF !BACKGROUND_JOBS.size %]
+   <p>
+    [%- LxERP.t8('No background job has been created yet.') %]
+   </p>
+
+  [%- ELSE %]
+   <table id="background_job_list" width="100%">
+    <thead>
+    <tr class="listheading">
+     <th>[%- LxERP.t8('Execution type') %]</th>
+     <th>[%- LxERP.t8('Package name') %]</th>
+     <th>[%- LxERP.t8('Active') %]</th>
+     <th>[%- LxERP.t8('Execution schedule') %]</th>
+     <th>[%- LxERP.t8('Last run at') %]</th>
+     <th>[%- LxERP.t8('Next run at') %]</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    [%- FOREACH background_job = BACKGROUND_JOBS %]
+    <tr class="listrow[% loop.count % 2 %]" id="background_job_id_[% background_job.id %]">
+     <td>
+      [%- IF background_job.type == 'once' %]
+       [%- LxERP.t8('one-time execution') %]
+      [%- ELSIF background_job.type == 'interval' %]
+       [%- LxERP.t8('repeated execution') %]
+      [% ELSE %]
+       [%- HTML.escape(background_job.type) %]
+      [%- END %]
+     <td>
+      <a href="[% SELF.url_for(action => 'edit', id => background_job.id) %]">
+       [%- HTML.escape(background_job.package_name) %]
+      </a>
+     </td>
+     <td align="right">[% IF background_job.active %][%- LxERP.t8('yes') %][% ELSE %][%- LxERP.t8('no') %][%- END %]</td>
+     <td>[%- HTML.escape(background_job.cron_spec) %]</td>
+     <td>
+      [%- IF background_job.last_run_at %]
+       [%- HTML.escape(background_job.last_run_at.to_lxoffice('precision' => 'second')) %]
+      [%- ELSE %]
+       [%- LxERP.t8('never') %]
+      [%- END %]
+     </td>
+
+     <td>
+      [%- IF background_job.next_run_at %]
+       [%- HTML.escape(background_job.next_run_at.to_lxoffice('precision' => 'second')) %]
+      [%- ELSE %]
+       [%- LxERP.t8('not set') %]
+      [%- END %]
+     </td>
+    </tr>
+    [%- END %]
+    </tbody>
+   </table>
+  [%- END %]
+
+  <hr size="3" noshade>
+
+  <p>
+   <a href="[% SELF.url_for(action => 'new') %]">[%- LxERP.t8('Create new background job') %]</a>
+   |
+   <a href="[% SELF.url_for(controller => 'TaskServer', action => 'show') %]">[%- LxERP.t8('Task server control') %]</a>
+  </p>
+ </form>
+</body>
+</html>

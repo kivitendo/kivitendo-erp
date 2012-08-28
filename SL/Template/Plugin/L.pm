@@ -252,6 +252,14 @@ sub options_for_select {
   return $code;
 }
 
+sub yes_no_tag {
+  my ($self, $name, $value) = splice @_, 0, 3;
+  my %attributes            = _hashify(@_);
+
+  my $options               = $self->options_for_select([ [ 1, $::locale->text('Yes') ], [ 0, $::locale->text('No') ] ], default => $value ? 1 : 0);
+  return $self->select_tag($name, $options, %attributes);
+}
+
 sub javascript {
   my ($self, $data) = @_;
   return $self->html_tag('script', $data, type => 'text/javascript');
@@ -352,7 +360,7 @@ sub vendor_selector {
                                               default      => $actual_vendor_id,
                                               title_sub    => sub { $_[0]->vendornumber . " : " . $_[0]->name },
                                               'with_empty' => 1);
-  
+
   return $self->select_tag($name, $options_str, %params);
 }
 
@@ -367,7 +375,7 @@ sub part_selector {
                                               default      => $actual_part_id,
                                               title_sub    => sub { $_[0]->partnumber . " : " . $_[0]->description },
                                               'with_empty' => 1);
-  
+
   return $self->select_tag($name, $options_str, %params);
 }
 
@@ -628,6 +636,13 @@ The C<$options_string> is usually created by the
 L</options_for_select> function. If C<$options_string> is an array
 reference then it will be passed to L</options_for_select>
 automatically.
+
+=item C<yes_no_tag $name, $value, %attributes>
+
+Creates a HTML 'select' tag with the two entries C<yes> and C<no> by
+calling L<select_tag> and L<options_for_select>. C<$value> determines
+which entry is selected. The C<%attributes> are passed through to
+L<select_tag>.
 
 =item C<input_tag $name, $value, %attributes>
 
