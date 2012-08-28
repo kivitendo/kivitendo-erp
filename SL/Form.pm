@@ -871,6 +871,8 @@ sub format_amount {
     $amount = 0;
   }
 
+  $amount *= 1;
+
   # Hey watch out! The amount can be an exponential term like 1.13686837721616e-13
 
   my $neg = ($amount =~ s/^-//);
