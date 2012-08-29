@@ -70,37 +70,6 @@ sub menuitems {
   } $self->access_control;
 }
 
-sub menuitem {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form, $item) = @_;
-
-  my $module = $self->{$item}{module} || $form->{script};
-  my $action = $self->{$item}{action} || "section_menu";
-  my $target = $self->{$item}{target} || "";
-  my $level  = $form->escape($item);
-  my $target_token = ($target) ? "target='$target'" : '';
-
-  my $href = ($self->{$item}{href})
-           ? $form->escape($self->{$item}{href})
-           : "$module?action=$action";
-
-  # add other params
-  foreach my $key (keys %{ $self->{$item} }) {
-    next if $key =~ /target|module|action/;
-    $href .= "&amp;" . $form->escape($key, 1) . "=";
-    my ($value, $conf) = split(/=/, $self->{$item}{$key}, 2);
-    $value = $myconfig->{$value} . "/$conf" if ($conf);
-    $href .= $form->escape($value, 1);
-  }
-
-  my $str = "<a href='$href' $target_token>";
-
-  $main::lxdebug->leave_sub();
-
-  return $str;
-}
-
 sub menuitem_js {
   my ($self, $myconfig, $form, $item) = @_;
 
