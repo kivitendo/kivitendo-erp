@@ -113,34 +113,56 @@ sub section_menu {
 
     $label         = $::locale->text($label);
 
-    $menuitem->{target} ||= "main_window";
+    menuitem($menuitem);
 
-    my $anchor     = $menu->menuitem(\%::myconfig, $::form, $item, $level);
+    my $anchor = $menuitem->{href};
 
     if (!$level) { # toplevel
       my $ml_    = $::form->escape($ml);
       my $image  = make_image(icon => $item . '.png', size => 24, label => $label);
-      my $anchor = "<a href='menu.pl?action=acc_menu&level=$ml_' class='nohover' title='$label'>";
+      my $anchor = "menu.pl?action=acc_menu&level=$ml_";
 
-      push @items, make_item(a => $anchor, img => $image, label => $label, height => 24, class => 'menu');
+      push @items, make_item(href => $anchor, img => $image, label => $label, height => 24, class => 'menu');
       push @items, section_menu($menu, $item);
 
     } elsif ($menuitem->{submenu}) {
       my $image = make_image(submenu => 1);
       if ($mainlevel && $item =~ /^\Q$mainlevel\E/) {
-        push @items, make_item(spacer => $spacer, bold => 1, img => $image, label => $label, class => 'submenu') if $show;
+        push @items, make_item(target => $menuitem->{target}, spacer => $spacer, bold => 1, img => $image, label => $label, class => 'submenu') if $show;
         push @items, section_menu($menu, $item);
       } else {
-        push @items, make_item(spacer => $spacer, a => $anchor, img => $image, label => $label . '&nbsp;...', class => 'submenu') if $show;
+        push @items, make_item(spacer => $spacer, href => $anchor, img => $image, label => $label . '&nbsp;...', class => 'submenu') if $show;
       }
     } elsif ($menuitem->{module}) {
       my $image = make_image(label => $label, icon => $label_icon);
-      push @items, make_item(img => $image, a => $anchor, spacer => $spacer, label => $label, class => 'item') if $show;
+      push @items, make_item(target => $menuitem->{target}, img => $image, href => $anchor, spacer => $spacer, label => $label, class => 'item') if $show;
       push @items, section_menu($menu, $item) if $show && $::form->{$item} && $::form->{level} eq $item;
     }
   }
   $::lxdebug->leave_sub;
   return @items;
+}
+
+sub menuitem {
+  my ($item, $name) = @_;
+
+  $item->{module} ||= $::form->{script};
+  $item->{action} ||= "section_menu";
+  $item->{target} ||= "main_window";
+  $item->{href}   ||= "$item->{module}?action=$item->{action}";
+
+  # add other params
+  foreach my $key (keys %$item) {
+    next if $key =~ /target|module|action|href/;
+    $item->{href} .= "&" . $::form->escape($key, 1) . "=";
+    my ($value, $conf) = split(/=/, $item->{$key}, 2);
+    $value = $::myconfig{$value} . "/$conf" if ($conf);
+    $item->{href} .= $::form->escape($value, 1);
+  }
+
+#  my $str = "<a href='$href' $target_token>";
+#
+#  return $str;
 }
 
 sub make_item {

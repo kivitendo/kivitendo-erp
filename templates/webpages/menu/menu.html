@@ -1,7 +1,6 @@
-
+[%- USE L %]
 <style type='text/css'>
-  .bold { font-weight: bold; }
-  #html-menu { float:left }
+  #html-menu { float:left; white-space: nowrap; }
   #html-menu tr { vertical-align: top; }
   #html-menu img { vertical-align: middle; }
   #html-menu div.menuitem { padding: 2px 4px 1px 4px; }
@@ -17,7 +16,13 @@
 [%- FOREACH item IN sections %]
    <div class='menu-multiline'>
  [%- FOREACH chunk IN item.chunks %]
-     <div class='menuitem [% item.class %] hover'>[% item.spacer %][% item.a %][% item.img %][% chunk %][% '</a>' IF item.a %]</div>
+     <div class='menuitem [% item.class %] hover'>[% item.spacer %]
+     [%- IF item.href %]
+       [% L.link(item.href, item.img _ chunk, target=item.target) %]
+     [%- ELSE %]
+       [% item.img _ chunk %]
+     [%- END %]
+     </div>
  [%- END %]
    </div>
 [%- END %]
