@@ -61,12 +61,14 @@ sub wake_up {
 sub _read_pid {
   my ($self) = @_;
 
-  my $exe_dir       = SL::System::Process->exe_dir;
-  my $pid_file_name = join '.', splitdir($exe_dir), 'config.lx_office.conf.pid';
-  my $pid_file_path = catfile(catdir($exe_dir, 'users', 'pid'), $pid_file_name);
+  my $exe_dir = SL::System::Process->exe_dir;
 
-  return undef unless -f $pid_file_path;
-  return join('', read_file($pid_file_path)) * 1;
+  foreach my $conf (qw(kivitendo.conf lx_office.conf kivitendo.conf.default)) {
+    my $pid_file_name = join '.', splitdir($exe_dir), "config.${conf}.pid";
+    my $pid_file_path = catfile(catdir($exe_dir, 'users', 'pid'), $pid_file_name);
+
+    return join('', read_file($pid_file_path)) * 1 if -f $pid_file_path;
+  }
 }
 
 sub _run_script_command {

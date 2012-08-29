@@ -21,6 +21,7 @@ use Daemon::Generic;
 use Data::Dumper;
 use DateTime;
 use English qw(-no_match_vars);
+use List::Util qw(first);
 use POSIX qw(setuid setgid);
 use SL::Auth;
 use SL::DB::BackgroundJob;
@@ -143,7 +144,7 @@ my $pidbase = "${cwd}/users/pid";
 
 mkdir($pidbase) if !-d $pidbase;
 
-my $file = -f "${cwd}/config/lx_office.conf" ? "${cwd}/config/lx_office.conf" : "${cwd}/config/lx_office.conf.default";
+my $file = first { -f } ("${cwd}/config/kivitendo.conf", "${cwd}/config/lx_office.conf", "${cwd}/config/kivitendo.conf.default");
 newdaemon(configfile => $file,
           progname   => 'kivitendo-task-server',
           pidbase    => "${pidbase}/",
