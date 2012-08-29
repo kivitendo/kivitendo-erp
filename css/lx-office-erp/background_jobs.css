@@ -1,14 +1,14 @@
 /* Jobverwaltung */
-.background_job_history_list    tbody pre,
-.background_job_history_details tbody pre {
+.background_job_list    tbody pre,
+.background_job_details tbody pre {
   margin: 0px;
 }
 
-.background_job_history_details tbody th {
+.background_job_details tbody th {
   text-align: right;
   vertical-align: top;
 }
 
-.background_job_history_details tbody td {
+.background_job_details tbody td {
   vertical-align: top;
 }
