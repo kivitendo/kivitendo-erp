@@ -83,7 +83,10 @@ sub action_execute {
     flash_later('error', $::locale->text('There was an error executing the background job.'));
   }
 
-  $self->redirect_to(controller => 'BackgroundJobHistory', action => 'show', id => $history->id);
+  $self->redirect_to(controller => 'BackgroundJobHistory',
+                     action     => 'show',
+                     id         => $history->id,
+                     back_to    => $self->url_for(action => 'edit', id => $self->background_job->id));
 }
 
 #

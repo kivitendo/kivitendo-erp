@@ -8,29 +8,29 @@
 
   <table>
    <tr>
-    <td>[%- LxERP.t8('Active') %]</td>
+    <th align="right">[%- LxERP.t8('Active') %]</th>
     <td>[% L.yes_no_tag("background_job.active", SELF.background_job.active) %]</td>
    </tr>
 
    <tr>
-    <td>[%- LxERP.t8('Execution type') %]</td>
+    <th align="right">[%- LxERP.t8('Execution type') %]</th>
     <td>[% L.select_tag("background_job.type", L.options_for_select([ [ 'once', LxERP.t8('one-time execution') ], [ 'interval', LxERP.t8('repeated execution') ] ],
                                                                     'default' => SELF.background_job.type)) %]</td>
    </tr>
 
    <tr>
-    <td>[%- LxERP.t8('Package name') %]</td>
+    <th align="right">[%- LxERP.t8('Package name') %]</th>
     <td>[% L.input_tag("background_job.package_name", SELF.background_job.package_name, 'size' => 40) %]</td>
    </tr>
 
    <tr>
-    <td>[%- LxERP.t8('Execution schedule') %]</td>
+    <th align="right">[%- LxERP.t8('Execution schedule') %]</th>
     <td>[% L.input_tag("background_job.cron_spec", SELF.background_job.cron_spec, 'size' => 40) %]</td>
    </tr>
 
    <tr>
-    <td>[%- LxERP.t8('Data') %]</td>
-    <td>[% L.textarea_tag("background_job.data", SELF.background_job.data, 'cols' => 80, 'rows' => 10) %]</td>
+    <th align="right" valign="top">[%- LxERP.t8('Data') %]</th>
+    <td valign="top">[% L.textarea_tag("background_job.data", SELF.background_job.data, 'cols' => 80, 'rows' => 10) %]</td>
    </tr>
 
   </table>
