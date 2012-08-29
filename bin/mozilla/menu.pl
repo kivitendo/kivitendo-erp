@@ -215,7 +215,7 @@ sub make_image {
                 : $size == 24                ? $nbsp
                 :                            '';
 
-  return "<img src='$image_url' title='$label' width='$width' height='$size'>$padding";
+  return "<img src='$image_url' alt='$label' width='$width' height='$size'>$padding";
 }
 
 sub _calc_framesize {
