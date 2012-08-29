@@ -788,10 +788,8 @@ sub write_trigger {
   # default
   my %dateformats = (
     "dd.mm.yy" => "%d.%m.%Y",
-    "dd-mm-yy" => "%d-%m-%Y",
     "dd/mm/yy" => "%d/%m/%Y",
     "mm/dd/yy" => "%m/%d/%Y",
-    "mm-dd-yy" => "%m-%d-%Y",
     "yyyy-mm-dd" => "%Y-%m-%d",
     );
 
@@ -870,6 +868,8 @@ sub format_amount {
   if ($amount eq "") {
     $amount = 0;
   }
+
+  $amount *= 1;
 
   # Hey watch out! The amount can be an exponential term like 1.13686837721616e-13
 

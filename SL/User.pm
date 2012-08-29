@@ -199,18 +199,14 @@ sub dbconnect_vars {
         'Pg' => { 'yy-mm-dd'   => 'set DateStyle to \'ISO\'',
                   'yyyy-mm-dd' => 'set DateStyle to \'ISO\'',
                   'mm/dd/yy'   => 'set DateStyle to \'SQL, US\'',
-                  'mm-dd-yy'   => 'set DateStyle to \'POSTGRES, US\'',
                   'dd/mm/yy'   => 'set DateStyle to \'SQL, EUROPEAN\'',
-                  'dd-mm-yy'   => 'set DateStyle to \'POSTGRES, EUROPEAN\'',
                   'dd.mm.yy'   => 'set DateStyle to \'GERMAN\''
         },
         'Oracle' => {
           'yy-mm-dd'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'YY-MM-DD\'',
           'yyyy-mm-dd' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'YYYY-MM-DD\'',
           'mm/dd/yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'MM/DD/YY\'',
-          'mm-dd-yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'MM-DD-YY\'',
           'dd/mm/yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD/MM/YY\'',
-          'dd-mm-yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD-MM-YY\'',
           'dd.mm.yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD.MM.YY\'',
         });
 
