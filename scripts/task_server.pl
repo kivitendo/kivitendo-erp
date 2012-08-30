@@ -3,16 +3,14 @@
 use strict;
 
 BEGIN {
-  require Cwd;
+  use SL::System::Process;
+  my $exe_dir = SL::System::Process::exe_dir;
 
-  my $dir =  $0;
-  $dir    =  Cwd::getcwd() . '/' . $dir unless $dir =~ m|^/|;
-  $dir    =~ s|[^/]+$|..|;
+  unshift @INC, "${exe_dir}/modules/override"; # Use our own versions of various modules (e.g. YAML).
+  push    @INC, "${exe_dir}/modules/fallback"; # Only use our own versions of modules if there's no system version.
+  unshift @INC, $exe_dir;
 
-  chdir($dir) || die "Cannot change directory to ${dir}\n";
-
-  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+  chdir($exe_dir) || die "Cannot change directory to ${exe_dir}\n";
 }
 
 use CGI qw( -no_xhtml);
