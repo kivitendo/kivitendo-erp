@@ -547,7 +547,7 @@ __END__
 
 =head1 NAME
 
-Locale - Functions for dealing with locale-dependant information
+Locale - Functions for dealing with locale-dependent information
 
 =head1 SYNOPSIS
 
