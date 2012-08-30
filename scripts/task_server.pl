@@ -2,9 +2,11 @@
 
 use strict;
 
+my $exe_dir;
+
 BEGIN {
   use SL::System::Process;
-  my $exe_dir = SL::System::Process::exe_dir;
+  $exe_dir = SL::System::Process::exe_dir;
 
   unshift @INC, "${exe_dir}/modules/override"; # Use our own versions of various modules (e.g. YAML).
   push    @INC, "${exe_dir}/modules/fallback"; # Only use our own versions of modules if there's no system version.
@@ -111,6 +113,8 @@ sub gd_run {
         # them somehow.
         $::locale = Locale->new($::lx_office_conf{system}->{language});
         $::form   = Form->new;
+
+        chdir $exe_dir;
 
         $job->run;
       }
