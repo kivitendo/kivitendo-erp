@@ -729,7 +729,7 @@ sub post {
   ($form->{AR_paid})   = split /--/, $form->{AR_paid};
   $form->{storno}    ||= 0;
 
-  $form->{label} = $locale->text('Invoice');
+  $form->{label} = $form->{type} eq 'credit_note' ? $locale->text('Credit Note') : $locale->text('Invoice');
 
   $form->{id} = 0 if $form->{postasnew};
 
@@ -748,7 +748,7 @@ sub post {
   remove_draft() if $form->{remove_draft};
 
   if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
+    $form->{snumbers} =  'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
     $form->{addition} = $form->{print_and_post} ? "PRINTED AND POSTED" :
                         $form->{storno}         ? "STORNO"             :
                                                   "POSTED";
@@ -985,7 +985,7 @@ sub yes {
   if (IS->delete_invoice(\%myconfig, \%$form)) {
     # saving the history
     if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|invnumber_| . $form->{invnumber};
+      $form->{snumbers} = 'invnumber' .'_'. $form->{invnumber}; # ($form->{type} eq 'credit_note' ? 'cnnumber' : 'invnumber') .'_'. $form->{invnumber};
       $form->{addition} = "DELETED";
       $form->save_history;
     }
