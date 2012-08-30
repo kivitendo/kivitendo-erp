@@ -10,7 +10,6 @@ use SL::DB::Manager::BackgroundJob;
 
 use SL::DB::BackgroundJobHistory;
 
-use SL::BackgroundJob::Test;
 use SL::System::Process;
 
 __PACKAGE__->before_save('_before_save_set_next_run_at');
@@ -38,6 +37,7 @@ sub run {
   my $history;
 
   my $ok = eval {
+    eval "require $package" or die $@;
     my $result = $package->new->run($self);
 
     $history = SL::DB::BackgroundJobHistory
