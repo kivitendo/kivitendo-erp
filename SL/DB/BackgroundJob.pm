@@ -90,7 +90,7 @@ sub validate {
   }
 
   eval {
-    DateTime::Event::Cron->new_from_cron($self->cron_spec)->next(DateTime->now_local);
+    DateTime::Event::Cron->new_from_cron($self->cron_spec || '* * * * *')->next(DateTime->now_local);
     1;
   } or push @errors, $::locale->text('The execution schedule is invalid.');
 
