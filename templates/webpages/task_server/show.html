@@ -1,0 +1,37 @@
+[% USE HTML %][% USE L %][% USE LxERP %]
+<body>
+
+ <div class="listtop">[% FORM.title %]</div>
+
+[%- INCLUDE 'common/flash.html' %]
+
+ <table id="background_job_history_details" class="background_job_details">
+  <tbody>
+   <tr class="listrow0">
+    <th>[%- LxERP.t8('Current status') %]</th>
+    <td>[% IF SELF.task_server.is_running %][%- LxERP.t8('running') %][%- ELSE %][%- LxERP.t8('not running') %][%- END %]</td>
+   </tr>
+
+[%- IF last_command_output %]
+   <tr class="listrow1">
+    <th>[%- LxERP.t8('Last command output') %]</th>
+    <td><pre>[% HTML.escape(last_command_output) %]</pre></td>
+   </tr>
+[%- END %]
+
+  </tbody>
+ </table>
+
+ <p>
+[% IF SELF.task_server.is_running %]
+  <a href="[% SELF.url_for(action => 'stop') %]">[%- LxERP.t8('Stop task server') %]</a>
+[%- ELSE %]
+  <a href="[% SELF.url_for(action => 'start') %]">[%- LxERP.t8('Start task server') %]</a>
+[%- END %]
+  |
+  <a href="[% SELF.url_for(controller => 'BackgroundJob', action => 'list') %]">[%- LxERP.t8('View background jobs') %]</a>
+  |
+  <a href="[% SELF.url_for(controller => 'BackgroundJobHistory', action => 'list') %]">[%- LxERP.t8('View background job history') %]</a>
+ </p>
+</body>
+</html>

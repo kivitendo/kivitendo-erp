@@ -10,6 +10,7 @@ use Rose::Object::MakeMethods::Generic (
 
 use File::Slurp;
 use File::Spec::Functions qw(:ALL);
+use File::Temp qw(tempfile);
 
 use SL::System::Process;
 
@@ -18,6 +19,8 @@ use constant {
   ERR_PID_FILE => -1,
   ERR_PROCESS  => -2,
 };
+
+use constant PID_BASE => "users/pid";
 
 sub status {
   my ($self) = @_;
@@ -61,19 +64,26 @@ sub wake_up {
 sub _read_pid {
   my ($self) = @_;
 
-  my $exe_dir       = SL::System::Process->exe_dir;
-  my $pid_file_name = join '.', splitdir($exe_dir), 'config.lx_office.conf.pid';
-  my $pid_file_path = catfile(catdir($exe_dir, 'users', 'pid'), $pid_file_name);
+  my $exe_dir = SL::System::Process->exe_dir;
 
-  return undef unless -f $pid_file_path;
-  return join('', read_file($pid_file_path)) * 1;
+  foreach my $conf (qw(kivitendo.conf lx_office.conf kivitendo.conf.default)) {
+    my $pid_file_path = catfile(catdir($exe_dir, splitdir(PID_BASE())), "config.${conf}.pid");
+
+    return join('', read_file($pid_file_path)) * 1 if -f $pid_file_path;
+  }
 }
 
 sub _run_script_command {
   my ($self, $command) = @_;
 
-  my $exe = catfile(catdir(SL::System::Process->exe_dir, 'scripts'), 'task_server.pl');
-  $self->last_command_output(`${exe} ${command}`);
+  my ($fh, $file_name) = tempfile();
+  my $exe              = catfile(catdir(SL::System::Process->exe_dir, 'scripts'), 'task_server.pl');
+
+  system "${exe} ${command} >> ${file_name} 2>&1";
+
+  $fh->close;
+
+  $self->last_command_output(read_file($file_name));
 
   return $? == 0 ? 1 : undef;
 }

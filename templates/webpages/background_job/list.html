@@ -14,14 +14,14 @@
   [%- ELSE %]
    <table id="background_job_list" width="100%">
     <thead>
-    <tr class="listheading">
-     <th>[%- LxERP.t8('Execution type') %]</th>
-     <th>[%- LxERP.t8('Package name') %]</th>
-     <th>[%- LxERP.t8('Active') %]</th>
-     <th>[%- LxERP.t8('Execution schedule') %]</th>
-     <th>[%- LxERP.t8('Last run at') %]</th>
-     <th>[%- LxERP.t8('Next run at') %]</th>
-    </tr>
+     <tr class="listheading">
+      <th>[%- LxERP.t8('Execution type') %]</th>
+      <th>[%- LxERP.t8('Package name') %]</th>
+      <th>[%- LxERP.t8('Active') %]</th>
+      <th>[%- LxERP.t8('Execution schedule') %]</th>
+      <th>[%- LxERP.t8('Last run at') %]</th>
+      <th>[%- LxERP.t8('Next run at') %]</th>
+     </tr>
     </thead>
 
     <tbody>
@@ -35,6 +35,7 @@
       [% ELSE %]
        [%- HTML.escape(background_job.type) %]
       [%- END %]
+     </td>
      <td>
       <a href="[% SELF.url_for(action => 'edit', id => background_job.id) %]">
        [%- HTML.escape(background_job.package_name) %]
@@ -67,6 +68,8 @@
 
   <p>
    <a href="[% SELF.url_for(action => 'new') %]">[%- LxERP.t8('Create new background job') %]</a>
+   |
+   <a href="[% SELF.url_for(controller => 'BackgroundJobHistory', action => 'list') %]">[%- LxERP.t8('View background job history') %]</a>
    |
    <a href="[% SELF.url_for(controller => 'TaskServer', action => 'show') %]">[%- LxERP.t8('Task server control') %]</a>
   </p>

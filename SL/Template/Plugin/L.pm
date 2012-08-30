@@ -570,6 +570,18 @@ sub dump {
   return '<pre>' . Data::Dumper::Dumper(@_) . '</pre>';
 }
 
+sub truncate {
+  my ($self, $text, @slurp) = @_;
+  my %params                = _hashify(@slurp);
+
+  $params{at}             ||= 50;
+  $params{at}               =  3 if 3 > $params{at};
+  $params{at}              -= 3;
+
+  return $text if length($text) < $params{at};
+  return substr($text, 0, $params{at}) . '...';
+}
+
 1;
 
 __END__
@@ -917,6 +929,16 @@ some occasion. In this case the supplied block won't even get processed, and
 the resulting tab will get ignored by C<tabbed>:
 
   L.tab('Awesome tab wih much info', '_much_info.html', if => SELF.wants_all)
+
+=item C<truncate $text, %params>
+
+Returns the C<$text> truncated after a certain number of
+characters.
+
+The number of characters to truncate at is determined by the parameter
+C<at> which defaults to 50. If the text is longer than C<$params{at}>
+then it will be truncated and postfixed with '...'. Otherwise it will
+be returned unmodified.
 
 =back
 

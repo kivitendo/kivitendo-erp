@@ -2,17 +2,17 @@
 
 use strict;
 
+my $exe_dir;
+
 BEGIN {
-  require Cwd;
+  use SL::System::Process;
+  $exe_dir = SL::System::Process::exe_dir;
 
-  my $dir =  $0;
-  $dir    =  Cwd::getcwd() . '/' . $dir unless $dir =~ m|^/|;
-  $dir    =~ s|[^/]+$|..|;
+  unshift @INC, "${exe_dir}/modules/override"; # Use our own versions of various modules (e.g. YAML).
+  push    @INC, "${exe_dir}/modules/fallback"; # Only use our own versions of modules if there's no system version.
+  unshift @INC, $exe_dir;
 
-  chdir($dir) || die "Cannot change directory to ${dir}\n";
-
-  unshift @INC, "modules/override"; # Use our own versions of various modules (e.g. YAML).
-  push    @INC, "modules/fallback"; # Only use our own versions of modules if there's no system version.
+  chdir($exe_dir) || die "Cannot change directory to ${exe_dir}\n";
 }
 
 use CGI qw( -no_xhtml);
@@ -21,6 +21,8 @@ use Daemon::Generic;
 use Data::Dumper;
 use DateTime;
 use English qw(-no_match_vars);
+use File::Spec;
+use List::Util qw(first);
 use POSIX qw(setuid setgid);
 use SL::Auth;
 use SL::DB::BackgroundJob;
@@ -31,6 +33,7 @@ use SL::InstanceConfiguration;
 use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::Locale;
+use SL::System::TaskServer;
 
 our %lx_office_conf;
 
@@ -113,6 +116,8 @@ sub gd_run {
         $::locale = Locale->new($::lx_office_conf{system}->{language});
         $::form   = Form->new;
 
+        chdir $exe_dir;
+
         $job->run;
       }
 
@@ -138,15 +143,19 @@ sub gd_run {
   }
 }
 
-my $cwd     = getcwd();
-my $pidbase = "${cwd}/users/pid";
+chdir $exe_dir;
 
-mkdir($pidbase) if !-d $pidbase;
+mkdir SL::System::TaskServer::PID_BASE() if !-d SL::System::TaskServer::PID_BASE();
 
-my $file = -f "${cwd}/config/lx_office.conf" ? "${cwd}/config/lx_office.conf" : "${cwd}/config/lx_office.conf.default";
+my $file = first { -f } ("${exe_dir}/config/kivitendo.conf", "${exe_dir}/config/lx_office.conf", "${exe_dir}/config/kivitendo.conf.default");
+
+die "No configuration file found." unless $file;
+
+$file = File::Spec->abs2rel(Cwd::abs_path($file), Cwd::abs_path($exe_dir));
+
 newdaemon(configfile => $file,
           progname   => 'kivitendo-task-server',
-          pidbase    => "${pidbase}/",
+          pidbase    => SL::System::TaskServer::PID_BASE() . '/',
           );
 
 1;
