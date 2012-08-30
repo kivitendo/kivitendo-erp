@@ -113,7 +113,19 @@ sub section_menu {
 
     $label         = $::locale->text($label);
 
-    menuitem($menuitem);
+    $menuitem->{module} ||= $::form->{script};
+    $menuitem->{action} ||= "section_menu";
+    $menuitem->{target} ||= "main_window";
+    $menuitem->{href}   ||= "$item->{module}?action=$item->{action}";
+
+    # add other params
+    foreach my $key (keys %$item) {
+      next if $key =~ /target|module|action|href/;
+      $menuitem->{href} .= "&" . $::form->escape($key, 1) . "=";
+      my ($value, $conf) = split(/=/, $item->{$key}, 2);
+      $value = $::myconfig{$value} . "/$conf" if ($conf);
+      $item->{href} .= $::form->escape($value, 1);
+    }
 
     my $anchor = $menuitem->{href};
 
@@ -141,28 +153,6 @@ sub section_menu {
   }
   $::lxdebug->leave_sub;
   return @items;
-}
-
-sub menuitem {
-  my ($item, $name) = @_;
-
-  $item->{module} ||= $::form->{script};
-  $item->{action} ||= "section_menu";
-  $item->{target} ||= "main_window";
-  $item->{href}   ||= "$item->{module}?action=$item->{action}";
-
-  # add other params
-  foreach my $key (keys %$item) {
-    next if $key =~ /target|module|action|href/;
-    $item->{href} .= "&" . $::form->escape($key, 1) . "=";
-    my ($value, $conf) = split(/=/, $item->{$key}, 2);
-    $value = $::myconfig{$value} . "/$conf" if ($conf);
-    $item->{href} .= $::form->escape($value, 1);
-  }
-
-#  my $str = "<a href='$href' $target_token>";
-#
-#  return $str;
 }
 
 sub make_item {
