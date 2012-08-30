@@ -182,7 +182,10 @@
        <tr>
         <th align="right" nowrap>[% 'Department' | $T8 %]</th>
         <td colspan="3">
-         [% L.select_tag('department_id', L.options_for_select(ALL_DEPARTMENTS, default=department_id, title="description", with_empty=1), style='width: 250px', disabled => delivered )%]
+          [% IF ( delivered ) %]
+            [% L.hidden_tag('department_id', department_id) %]
+          [% END %]
+          [% L.select_tag('department_id', L.options_for_select(ALL_DEPARTMENTS, default=department_id, title="description", with_empty=1), style='width: 250px', disabled => delivered )%]
        </td>
        </tr>
        [%- END %]
