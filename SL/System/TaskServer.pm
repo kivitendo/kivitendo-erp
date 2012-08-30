@@ -20,6 +20,8 @@ use constant {
   ERR_PROCESS  => -2,
 };
 
+use constant PID_BASE => "users/pid";
+
 sub status {
   my ($self) = @_;
 
@@ -65,8 +67,7 @@ sub _read_pid {
   my $exe_dir = SL::System::Process->exe_dir;
 
   foreach my $conf (qw(kivitendo.conf lx_office.conf kivitendo.conf.default)) {
-    my $pid_file_name = join '.', splitdir($exe_dir), "config.${conf}.pid";
-    my $pid_file_path = catfile(catdir($exe_dir, 'users', 'pid'), $pid_file_name);
+    my $pid_file_path = catfile(catdir($exe_dir, splitdir(PID_BASE())), "config.${conf}.pid");
 
     return join('', read_file($pid_file_path)) * 1 if -f $pid_file_path;
   }
