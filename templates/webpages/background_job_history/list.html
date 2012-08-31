@@ -15,11 +15,11 @@
    <table id="background_job_history_list" class="background_job_list" width="100%">
     <thead>
      <tr class="listheading">
-      <th>[%- LxERP.t8('Package name') %]</th>
-      <th>[%- LxERP.t8('Run at') %]</th>
-      <th>[%- LxERP.t8('Execution status') %]</th>
-      <th>[%- LxERP.t8('Result') %]</th>
-      <th>[%- LxERP.t8('Error') %]</th>
+      <th>[% L.sortable_table_header('package_name') %]</th>
+      <th>[% L.sortable_table_header('run_at') %]</th>
+      <th>[% L.sortable_table_header('status') %]</th>
+      <th>[% L.sortable_table_header('result') %]</th>
+      <th>[% L.sortable_table_header('error') %]</th>
      </tr>
     </thead>
 
@@ -27,7 +27,7 @@
     [%- FOREACH entry = ENTRIES %]
     <tr class="listrow[% loop.count % 2 %]" id="background_job_history_id_[% entry.id %]">
      <td>
-      <a href="[% SELF.url_for(action => 'show', id => entry.id) %]">
+      <a href="[% SELF.url_for(action => 'show', id => entry.id, back_to => SELF.get_callback) %]">
        [%- HTML.escape(entry.package_name) %]
       </a>
      </td>

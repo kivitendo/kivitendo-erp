@@ -4,6 +4,8 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::Sorted;
 use SL::DB::BackgroundJobHistory;
 use SL::Helper::Flash;
 use SL::System::TaskServer;
@@ -18,6 +20,20 @@ __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('add_stylesheet');
 __PACKAGE__->run_before('check_task_server');
 
+__PACKAGE__->make_sorted(
+  DEFAULT_BY   => 'run_at',
+  DEFAULT_DIR  => 1,
+  MODEL        => 'BackgroundJobHistory',
+  FORM_PARAMS  => [ qw(sort_by sort_dir) ],
+  ONLY         => [ qw(list) ],
+
+  package_name => $::locale->text('Package name'),
+  run_at       => $::locale->text('Run at'),
+  status       => $::locale->text('Execution status'),
+  result       => $::locale->text('Result'),
+  error        => $::locale->text('Error'),
+);
+
 #
 # actions
 #
@@ -27,7 +43,7 @@ sub action_list {
 
   $self->render('background_job_history/list',
                 title   => $::locale->text('Background job history'),
-                ENTRIES => SL::DB::Manager::BackgroundJobHistory->get_all_sorted);
+                ENTRIES => $self->get_models);
 }
 
 sub action_show {
