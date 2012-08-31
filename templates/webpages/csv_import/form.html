@@ -27,7 +27,7 @@
     <tr>
      <th align="right">[%- LxERP.t8('Existing profiles') %]:</th>
      <td>
-      [% L.select_tag('profile.id', L.options_for_select(SELF.all_profiles, title => 'name', default => SELF.profile.id), style => 'width: 300px') %]
+      [% L.select_tag('profile.id', SELF.all_profiles, title_key = 'name', default = SELF.profile.id, style = 'width: 300px') %]
      </td>
      <td>
       [% L.submit_tag('action_new', LxERP.t8('Load profile')) %]
@@ -103,14 +103,13 @@
    <tr>
     <th align="right">[%- LxERP.t8('Number Format') %]:</th>
     <td colspan="10">
-     [% SET options = L.options_for_select([ '1.000,00', '1000,00', '1,000.00', '1000.00' ], default => SELF.profile.get('numberformat')) %]
-     [% L.select_tag('settings.numberformat', options, style => 'width: 300px') %]
+     [% L.select_tag('settings.numberformat', ['1.000,00', '1000,00', '1,000.00', '1000.00'], default = SELF.profile.get('numberformat'), style = 'width: 300px') %]
     </td>
    </tr>
 
    <tr>
     <th align="right">[%- LxERP.t8('Charset') %]:</th>
-    <td colspan="10">[% L.select_tag('settings.charset', L.options_for_select(SELF.all_charsets, default => SELF.profile.get('charset')), style => 'width: 300px') %]</td>
+    <td colspan="10">[% L.select_tag('settings.charset', SELF.all_charsets, default = SELF.profile.get('charset'), style = 'width: 300px') %]</td>
    </tr>
 
    <tr>
@@ -181,7 +180,7 @@
          [% opts = [ [ 'no_check',  LxERP.t8('Do not check for duplicates') ],
                      [ 'check_csv', LxERP.t8('Discard duplicate entries in CSV file') ],
                      [ 'check_db',  LxERP.t8('Discard entries with duplicates in database or CSV file') ] ] %]
-         [% L.select_tag('settings.duplicates', L.options_for_select(opts, default => SELF.profile.get('duplicates')), style => 'width: 300px') %]
+         [% L.select_tag('settings.duplicates', opts, default = SELF.profile.get('duplicates'), style = 'width: 300px') %]
        </td>
      </tr>
    [% END %]

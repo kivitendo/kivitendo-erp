@@ -25,7 +25,7 @@
         [%- IF all_departments %]
         <tr>
           <th align=right nowrap>[% 'Department' | $T8 %]</th>
-          <td colspan=3>[% L.select_tag('department', L.options_for_select(all_departments, value_title_sub=\department_label, with_empty=1)) %]</td>
+          <td colspan=3>[% L.select_tag('department', all_departments, value_title_sub = \department_label, with_empty = 1) %]</td>
         </tr>
         [%- END %]
         <tr>
@@ -40,11 +40,11 @@
         </tr>
         <tr>
           <th align=right>[% 'Project Number' | $T8 %]</th>
-          <td colspan=3>[% L.select_tag('project_id', L.options_for_select(ALL_PROJECTS, title='projectnumber', with_empty=1)) %]</td>
+          <td colspan=3>[% L.select_tag('project_id', ALL_PROJECTS, title_key = 'projectnumber', with_empty = 1) %]</td>
         </tr>
  <tr>
     <th align=right>[% 'Employee' | $T8 %]</th>
-    <td colspan=3>[% L.select_tag('employee', L.options_for_select(ALL_EMPLOYEES, title='safe_name', with_empty=1)) %]</td>
+    <td colspan=3>[% L.select_tag('employee', ALL_EMPLOYEES, title_key = 'safe_name', with_empty = 1) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Filter date by' | $T8 %]</th>

@@ -30,7 +30,7 @@
 [% IF show_accounts %]
   <tr>
     <th align=right>[% 'Account' | $T8 %]</th>
-    <td colspan=3>[% L.select_tag('account', L.options_for_select(accounts, value_title_sub=\account_sub)) %]</td>
+    <td colspan=3>[% L.select_tag('account', accounts, value_title_sub=\account_sub) %]</td>
   </tr>
 [% END %]
 [%- IF label.$type.invnumber %]

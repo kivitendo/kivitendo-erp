@@ -86,13 +86,122 @@ sub html_tag {
 sub select_tag {
   my $self            = shift;
   my $name            = shift;
-  my $options_str     = shift;
+  my $collection      = shift;
   my %attributes      = _hashify(@_);
 
   $attributes{id}   ||= $self->name_to_id($name);
-  $options_str        = $self->options_for_select($options_str) if ref $options_str;
 
-  return $self->html_tag('select', $options_str, %attributes, name => $name);
+  my $value_key       = delete($attributes{value_key}) || 'id';
+  my $title_key       = delete($attributes{title_key}) || $value_key;
+  my $default_key     = delete($attributes{default_key}) || 'selected';
+
+
+  my $value_title_sub = delete($attributes{value_title_sub});
+
+  my $value_sub       = delete($attributes{value_sub});
+  my $title_sub       = delete($attributes{title_sub});
+  my $default_sub     = delete($attributes{default_sub});
+
+
+  my %selected;
+
+  if ( ref($attributes{default}) eq 'ARRAY' ) {
+
+    foreach my $entry (@{$attributes{default}}) {
+      $selected{$entry} = 1;
+    }
+  } elsif ( defined($attributes{default}) ) {
+    $selected{$attributes{default}} = 1;
+  }
+
+  delete($attributes{default});
+
+
+  my @options;
+
+  if ( delete($attributes{with_empty}) ) {
+    push(@options, [undef, $attributes{empty_title} || '']);
+  }
+
+  my $normalize_entry = sub {
+
+    my ($type, $entry, $sub, $key) = @_;
+
+    if ( $sub ) {
+      return $sub->($entry);
+    }
+
+    my $ref = ref($entry);
+
+    if ( !$ref ) {
+
+      if ( $type eq 'value' || $type eq 'title' ) {
+        return $entry;
+      }
+
+      return 0;
+    }
+
+    if ( $ref eq 'ARRAY' ) {
+
+      if ( $type eq 'value' ) {
+        return $entry->[0];
+      }
+
+      if ( $type eq 'title' ) {
+        return $entry->[1];
+      }
+
+      return $entry->[2];
+    }
+
+    if ( $ref eq 'HASH' ) {
+      return $entry->{$key};
+    }
+
+    if ( $type ne 'default' || $entry->can($key) ) {
+      return $entry->$key;
+    }
+
+    return undef;
+  };
+
+  foreach my $entry ( @{ $collection } ) {
+    my $value;
+    my $title;
+
+    if ( $value_title_sub ) {
+      ($value, $title) = $value_title_sub->($entry);
+    } else {
+
+      $value = $normalize_entry->('value', $entry, $value_sub, $value_key);
+      $title = $normalize_entry->('title', $entry, $title_sub, $title_key);
+    }
+
+    my $default = $normalize_entry->('default', $entry, $default_sub, $default_key);
+
+    push(@options, [$value, $title, $default]);
+  }
+
+  foreach my $entry (@options) {
+    if ( exists($selected{$entry->[0]}) ) {
+      $entry->[2] = 1;
+    }
+  }
+
+  my $code = '';
+
+  foreach my $entry (@options) {
+    my %args = (value => $entry->[0]);
+
+    $args{selected} = $entry->[2];
+
+    $code .= $self->html_tag('option', _H($entry->[1]), %args);
+  }
+
+  $code = $self->html_tag('select', $code, %attributes, name => $name);
+
+  return $code;
 }
 
 sub textarea_tag {
@@ -207,57 +316,11 @@ sub button_tag {
   return $self->html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
 }
 
-sub options_for_select {
-  my $self            = shift;
-  my $collection      = shift;
-  my %options         = _hashify(@_);
-
-  my $value_key       = $options{value} || 'id';
-  my $title_key       = $options{title} || $value_key;
-
-  my $value_sub       = $options{value_sub};
-  my $title_sub       = $options{title_sub};
-
-  my $value_title_sub = $options{value_title_sub};
-
-  my %selected        = map { ( $_ => 1 ) } @{ ref($options{default}) eq 'ARRAY' ? $options{default} : defined($options{default}) ? [ $options{default} ] : [] };
-
-  my $access = sub {
-    my ($element, $index, $key, $sub) = @_;
-    my $ref = ref $element;
-    return  $sub            ? $sub->($element)
-         : !$ref            ? $element
-         :  $ref eq 'ARRAY' ? $element->[$index]
-         :  $ref eq 'HASH'  ? $element->{$key}
-         :                    $element->$key;
-  };
-
-  my @elements = ();
-  push @elements, [ undef, $options{empty_title} || '' ] if $options{with_empty};
-  push @elements, map [
-    $value_title_sub ? @{ $value_title_sub->($_) } : (
-      $access->($_, 0, $value_key, $value_sub),
-      $access->($_, 1, $title_key, $title_sub),
-    )
-  ], @{ $collection } if $collection && ref $collection eq 'ARRAY';
-
-  my $code = '';
-  foreach my $result (@elements) {
-    my %attributes = ( value => $result->[0] );
-    $attributes{selected} = 'selected' if $selected{ defined($result->[0]) ? $result->[0] : '' };
-
-    $code .= $self->html_tag('option', _H($result->[1]), %attributes);
-  }
-
-  return $code;
-}
-
 sub yes_no_tag {
   my ($self, $name, $value) = splice @_, 0, 3;
   my %attributes            = _hashify(@_);
 
-  my $options               = $self->options_for_select([ [ 1, $::locale->text('Yes') ], [ 0, $::locale->text('No') ] ], default => $value ? 1 : 0);
-  return $self->select_tag($name, $options, %attributes);
+  return $self->select_tag($name, [ [ 1 => $::locale->text('Yes') ], [ 0 => $::locale->text('No') ] ], default => $value ? 1 : 0, %attributes);
 }
 
 sub javascript {
@@ -356,12 +419,12 @@ sub vendor_selector {
 
   my $actual_vendor_id = (defined $::form->{"$name"})? ((ref $::form->{"$name"}) ? $::form->{"$name"}->id : $::form->{"$name"}) :
                          (ref $value && $value->can('id')) ? $value->id : '';
-  my $options_str = $self->options_for_select(SL::DB::Manager::Vendor->get_all(),
-                                              default      => $actual_vendor_id,
-                                              title_sub    => sub { $_[0]->vendornumber . " : " . $_[0]->name },
-                                              'with_empty' => 1);
 
-  return $self->select_tag($name, $options_str, %params);
+  return $self->select_tag($name, SL::DB::Manager::Vendor->get_all(),
+                                  default      => $actual_vendor_id,
+                                  title_sub    => sub { $_[0]->vendornumber . " : " . $_[0]->name },
+                                  'with_empty' => 1,
+                                  %params);
 }
 
 
@@ -371,12 +434,12 @@ sub part_selector {
 
   my $actual_part_id = (defined $::form->{"$name"})? ((ref $::form->{"$name"})? $::form->{"$name"}->id : $::form->{"$name"}) :
                        (ref $value && $value->can('id')) ? $value->id : '';
-  my $options_str = $self->options_for_select(SL::DB::Manager::Part->get_all(),
-                                              default      => $actual_part_id,
-                                              title_sub    => sub { $_[0]->partnumber . " : " . $_[0]->description },
-                                              'with_empty' => 1);
 
-  return $self->select_tag($name, $options_str, %params);
+  return $self->select_tag($name, SL::DB::Manager::Part->get_all(),
+                           default      => $actual_part_id,
+                           title_sub    => sub { $_[0]->partnumber . " : " . $_[0]->description },
+                           with_empty   => 1,
+                           %params);
 }
 
 
@@ -619,11 +682,15 @@ Usage from a template:
 
   [% USE L %]
 
-  [% L.select_tag('direction', [ [ 'left', 'To the left' ], [ 'right', 'To the right' ] ]) %]
+  [% L.select_tag('direction', [ [ 'left', 'To the left' ], [ 'right', 'To the right', 1 ] ]) %]
 
-  [% L.select_tag('direction', L.options_for_select([ { direction => 'left',  display => 'To the left'  },
-                                                      { direction => 'right', display => 'To the right' } ],
-                                                    value => 'direction', title => 'display', default => 'right')) %]
+  [% L.select_tag('direction', [ { direction => 'left',  display => 'To the left'  },
+                                 { direction => 'right', display => 'To the right' } ],
+                               value_key => 'direction', title_key => 'display', default => 'right')) %]
+
+  [% L.select_tag('direction', [ { direction => 'left',  display => 'To the left'  },
+                                 { direction => 'right', display => 'To the right', selected => 1 } ],
+                               value_key => 'direction', title_key => 'display')) %]
 
 =head1 DESCRIPTION
 
@@ -661,21 +728,60 @@ C<$content_string> is not HTML escaped.
 
 =over 4
 
-=item C<select_tag $name, $options_string, %attributes>
+=item C<select_tag $name, \@collection, %attributes>
 
-Creates a HTML 'select' tag named C<$name> with the contents
-C<$options_string> and with arbitrary HTML attributes from
-C<%attributes>. The tag's C<id> defaults to C<name_to_id($name)>.
+Creates a HTML 'select' tag named C<$name> with the contents of one
+'E<lt>optionE<gt>' tag for each element in C<\@collection> and with arbitrary
+HTML attributes from C<%attributes>. The value
+to use and the title to display are extracted from the elements in
+C<\@collection>. Each element can be one of four things:
 
-The C<$options_string> is usually created by the
-L</options_for_select> function. If C<$options_string> is an array
-reference then it will be passed to L</options_for_select>
-automatically.
+=over 12
+
+=item 1. An array reference with at least two elements. The first element is
+the value, the second element is its title. The third element is optional and and should contain a boolean.
+If it is true, than the element will be used as default.
+
+=item 2. A scalar. The scalar is both the value and the title.
+
+=item 3. A hash reference. In this case C<%attributes> must contain
+I<value_key>, I<title_key> and may contain I<default_key> keys that name the keys in the element to use
+for the value, title and default respectively.
+
+=item 4. A blessed reference. In this case C<%attributes> must contain
+I<value_key>, I<title_key> and may contain I<default_key> keys that name functions called on the blessed
+reference whose return values are used as the value, title and default
+respectively.
+
+=back
+
+For cases 3 and 4 C<$attributes{value_key}> defaults to C<id>,
+C<$attributes{title_key}> defaults to C<$attributes{value_key}>
+and C<$attributes{default_key}> defaults to C<selected>.
+
+In addition to pure keys/method you can also provide coderefs as I<value_sub>
+and/or I<title_sub> and/or I<default_sub>. If present, these take precedence over keys or methods,
+and are called with the element as first argument. It must return the value, title or default.
+
+Lastly a joint coderef I<value_title_sub> may be provided, which in turn takes
+precedence over the C<value_sub> and C<title_sub> subs. It will only be called once for each
+element and must return a list of value and title.
+
+If the option C<with_empty> is set then an empty element (value
+C<undef>) will be used as the first element. The title to display for
+this element can be set with the option C<empty_title> and defaults to
+an empty string.
+
+The option C<default> can be either a scalar or an array reference
+containing the values of the options which should be set to be
+selected.
+
+The tag's C<id> defaults to C<name_to_id($name)>.
 
 =item C<yes_no_tag $name, $value, %attributes>
 
 Creates a HTML 'select' tag with the two entries C<yes> and C<no> by
-calling L<select_tag> and L<options_for_select>. C<$value> determines
+calling L<select_tag>. C<$value> determines
 which entry is selected. The C<%attributes> are passed through to
 L<select_tag>.
 
@@ -908,52 +1014,6 @@ overview and further usage instructions.
 =head2 CONVERSION FUNCTIONS
 
 =over 4
-
-=item C<options_for_select \@collection, %options>
-
-Creates a string suitable for a HTML 'select' tag consisting of one
-'E<lt>optionE<gt>' tag for each element in C<\@collection>. The value
-to use and the title to display are extracted from the elements in
-C<\@collection>. Each element can be one of four things:
-
-=over 12
-
-=item 1. An array reference with at least two elements. The first element is
-the value, the second element is its title.
-
-=item 2. A scalar. The scalar is both the value and the title.
-
-=item 3. A hash reference. In this case C<%options> must contain
-I<value> and I<title> keys that name the keys in the element to use
-for the value and title respectively.
-
-=item 4. A blessed reference. In this case C<%options> must contain
-I<value> and I<title> keys that name functions called on the blessed
-reference whose return values are used as the value and title
-respectively.
-
-=back
-
-For cases 3 and 4 C<$options{value}> defaults to C<id> and
-C<$options{title}> defaults to C<$options{value}>.
-
-In addition to pure keys/method you can also provide coderefs as I<value_sub>
-and/or I<title_sub>. If present, these take precedence over keys or methods,
-and are called with the element as first argument. It must return the value or
-title.
-
-Lastly a joint coderef I<value_title_sub> may be provided, which in turn takes
-precedence over each individual sub. It will only be called once for each
-element and must return a list of value and title.
-
-If the option C<with_empty> is set then an empty element (value
-C<undef>) will be used as the first element. The title to display for
-this element can be set with the option C<empty_title> and defaults to
-an empty string.
-
-The option C<default> can be either a scalar or an array reference
-containing the values of the options which should be set to be
-selected.
 
 =item C<tab, description, target, %PARAMS>
 

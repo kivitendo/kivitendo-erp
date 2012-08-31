@@ -57,7 +57,7 @@
     <th align="right" nowrap>[% LxERP.t8('Gender') %]</th>
     <td></td>
     <td>
-     [% L.select_tag("shiptocp_gender", L.options_for_select([ [ "m", LxERP.t8("male") ], [ "f", LxERP.t8("female") ] ], "default", shiptocp_gender)) %]
+     [% L.select_tag('shiptocp_gender', [ [ 'm', LxERP.t8('male') ], [ 'f', LxERP.t8('female') ] ], 'default' = shiptocp_gender) %]
     </td>
    </tr>
    <tr>

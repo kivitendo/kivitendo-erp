@@ -77,7 +77,7 @@
 [% L.submit_tag('action', LxERP.t8('Remove'), confirm=LxERP.t8('Are you sure you want to remove the marked entries from the queue?')) %]
 [% L.submit_tag('action', LxERP.t8('Print')) %]
 
-[% L.select_tag('printer', L.options_for_select(ALL_PRINTERS, title='printer_description')) %]
+[% L.select_tag('printer', ALL_PRINTERS, title_key = 'printer_description') %]
 
 </form>
 

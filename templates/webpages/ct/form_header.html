@@ -215,7 +215,7 @@
       <td><input name="bic" size="10" maxlength="100" value="[% HTML.escape(bic) %]"></td>
       [%- IF ALL_CURRENCIES.size %]
         <th align="right">[% 'Currency' | $T8 %]</th>
-        <td>[% L.select_tag('currency', L.options_for_select(ALL_CURRENCIES, default=currency, with_empty=1)) %]</td>
+        <td>[% L.select_tag('currency', ALL_CURRENCIES, default = currency, with_empty = 1) %]</td>
       [%- END %]
      </tr>
 
@@ -279,7 +279,7 @@
       </td>
       [%- IF is_customer && !conf_vertreter %]
       <th align="right">[% 'Salesman' | $T8 %]</th>
-      <td>[% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=salesman_id, with_empty=1, title='safe_name')) %]</td>
+      <td>[% L.select_tag('salesman_id', ALL_SALESMEN, default = salesman_id, with_empty = 1, title_key = 'safe_name') %]</td>
       [%- END %]
      </tr>
     </table>
@@ -310,8 +310,8 @@
      <tr>
       <th align="right">[% 'Shipping Address' | $T8 %]</th>
       <td colspan="3">
-       [% L.select_tag('delivery_id', L.options_for_select(SHIPTO_ALL, title_sub => \shipto_label, with_empty => 1),
-                       onchange => "\$('#delivery').load('ct.pl?action=get_delivery&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)") %]
+       [% L.select_tag('delivery_id', SHIPTO_ALL, title_sub = \shipto_label, with_empty = 1,
+                       onchange = "\$('#delivery').load('ct.pl?action=get_delivery&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)") %]
       </td>
      </tr>
 
@@ -399,7 +399,7 @@
        <td>
         [% L.date_tag('FU_date', FU_date) %]
         [% 'for' | $T8 %]
-        [% L.select_tag('FU_created_for_user', L.options_for_select(ALL_EMPLOYEES, default=(FU_created_for_user ? FU_created_for_user : USER.id), title='safe_name')) %]
+        [% L.select_tag('FU_created_for_user', ALL_EMPLOYEES, default = (FU_created_for_user ? FU_created_for_user : USER.id), title='safe_name') %]
        </td>
       </tr>
 

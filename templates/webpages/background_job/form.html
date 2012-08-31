@@ -14,8 +14,13 @@
 
    <tr>
     <th align="right">[%- LxERP.t8('Execution type') %]</th>
-    <td>[% L.select_tag("background_job.type", L.options_for_select([ [ 'once', LxERP.t8('one-time execution') ], [ 'interval', LxERP.t8('repeated execution') ] ],
-                                                                    'default' => SELF.background_job.type)) %]</td>
+    <td>
+      [% L.select_tag('background_job.type', [
+                [ 'once', LxERP.t8('one-time execution') ],
+                [ 'interval', LxERP.t8('repeated execution') ]
+              ],
+              'default' = SELF.background_job.type) %]
+    </td>
    </tr>
 
    <tr>

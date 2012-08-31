@@ -17,7 +17,7 @@
   <h3 class="listheading">[%- LxERP.t8('Edit membership') %]</h3>
 
   <div class="clearfix">
-   [% L.select_tag("user_ids[]", L.options_for_select(ALL_USERS, value => 'id', title => 'login', default => USER_IDS_IN_GROUP), 'multiple' => 'multiple') %]
+   [% L.select_tag('user_ids[]', ALL_USERS, value_key = 'id', title_key = 'login', default = USER_IDS_IN_GROUP, multiple = 1) %]
   </div>
 
   <h3 class="listheading">[% 'Edit rights' | $T8 %]</h3>

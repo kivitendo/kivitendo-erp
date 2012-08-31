@@ -80,21 +80,13 @@
      <tr>
       <th align="right">[% 'Date Format' | $T8 %]</th>
       <td>
-       <select name="dateformat">
-        [%- FOREACH row = DATEFORMATS %]
-        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-        [%- END %]
-       </select>
+        [% L.select_tag('dateformat', DATEFORMATS, value_key = 'value', title_key = 'name') %]
       </td>
      </tr>
      <tr>
       <th align="right">[% 'Output Number Format' | $T8 %]</th>
       <td>
-       <select name="numberformat">
-        [%- FOREACH row = NUMBERFORMATS %]
-        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-        [%- END %]
-       </select>
+        [% L.select_tag('numberformat', NUMBERFORMATS, value_key = 'value', title_key = 'name') %]
       </td>
      </tr>
 
@@ -106,22 +98,14 @@
      <tr>
       <th align="right">[% 'Language' | $T8 %]</th>
       <td>
-       <select name="countrycode">
-        [%- FOREACH row = COUNTRYCODES %]
-        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-        [%- END %]
-       </select>
+        [% L.select_tag('countrycode', COUNTRYCODES, value_key = 'value', title_key = 'name') %]
       </td>
      </tr>
 
      <tr>
       <th align="right">[% 'Stylesheet' | $T8 %]</th>
       <td>
-       <select name="usestylesheet">
-        [%- FOREACH row = STYLESHEETS %]
-        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-        [%- END %]
-       </select>
+        [% L.select_tag('usestylesheet', STYLESHEETS, value_key = 'value', title_key = 'name') %]
       </td>
      </tr>
 
@@ -169,29 +153,21 @@
      <tr>
       <th align="right">[% 'Default template format' | $T8 %]</th>
       <td>
-       <select name="template_format">
-        [%- FOREACH row = TEMPLATE_FORMATS %]
-        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-        [%- END %]
-       </select>
+        [% L.select_tag('template_format', TEMPLATE_FORMATS, value_key = 'value', title_key = 'name') %]
       </td>
      </tr>
 
      <tr>
       <th align="right">[% 'Default output medium' | $T8 %]</th>
       <td>
-       <select name="default_media">
-        [%- FOREACH row = MEDIA %]
-        <option value="[% HTML.escape(row.value) %]"[% IF row.selected %] selected[% END %]>[% HTML.escape(row.name) %]</option>
-        [%- END %]
-       </select>
+        [% L.select_tag('default_media', MEDIA, value_key = 'value', title_key = 'name') %]
       </td>
      </tr>
 
      <tr>
       <th align="right">[% 'Default printer' | $T8 %]</th>
       <td>
-       [% L.select_tag('default_printer_id', L.options_for_select(PRINTERS, default => myconfig_default_printer_id, title => 'printer_description', with_empty => 1)) %]
+       [% L.select_tag('default_printer_id', PRINTERS, default = myconfig_default_printer_id, title_key = 'printer_description', with_empty = 1) %]
       </td>
      </tr>
 

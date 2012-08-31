@@ -54,7 +54,7 @@
         <tr>
           <th align="right">[% 'Contact Person' | $T8 %]</th>
           <td>
-            [% L.select_tag('cp_id', L.options_for_select(ALL_CONTACTS, default=cp_id, value='cp_id', title='full_name_dep', with_empty=1), style='width: 250px') %]
+            [% L.select_tag('cp_id', ALL_CONTACTS, default = cp_id, value_key = 'cp_id', title_key = 'full_name_dep', with_empty = 1, style = 'width: 250px') %]
           </td>
         </tr>
 [%- END %]
@@ -125,7 +125,7 @@
       <table>
         <tr>
           <th align="right">[% 'Employee' | $T8 %]</th>
-          <td>[% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, default=employee_id, title='safe_name')) %]</td>
+          <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title_key = 'safe_name') %]</td>
         </tr>
 
 [%- IF is_type_credit_note %]

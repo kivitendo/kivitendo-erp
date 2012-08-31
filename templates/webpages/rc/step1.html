@@ -11,7 +11,7 @@
 <table>
   <tr>
     <th align=right nowrap>[% 'Account' | $T8 %]</th>
-    <td colspan=3>[% L.select_tag('accno', L.options_for_select(PR, value_title_sub=\selection_sub)) %]</td>
+    <td colspan=3>[% L.select_tag('accno', PR, value_title_sub=\selection_sub) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'From' | $T8 %]</th>

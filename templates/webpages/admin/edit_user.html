@@ -109,12 +109,12 @@
      <table>
       <tr>
        <th align="right">[% 'Date Format' | $T8 %]</th>
-       <td>[% L.select_tag('user.dateformat', L.options_for_select(all_dateformats, default=user.dateformat)) %]</td>
+       <td>[% L.select_tag('user.dateformat', all_dateformats, default = user.dateformat) %]</td>
       </tr>
 
       <tr>
        <th align="right">[% 'Number Format' | $T8 %]</th>
-       <td>[% L.select_tag('user.numberformat', L.options_for_select(all_numberformats, default=user.numberformat)) %]</td>
+       <td>[% L.select_tag('user.numberformat', all_numberformats, default = user.numberformat) %]</td>
       </tr>
 
       <tr>
@@ -124,12 +124,12 @@
 
       <tr>
        <th align="right">[% 'Language' | $T8 %]</th>
-       <td>[% L.select_tag('user.countrycode', L.options_for_select(all_countrycodes, title='title', default=user.countrycode)) %]</td>
+       <td>[% L.select_tag('user.countrycode', all_countrycodes, title_key = 'title', default = user.countrycode) %]</td>
       </tr>
 
       <tr>
        <th align="right">[% 'Stylesheet' | $T8 %]</th>
-       <td>[% L.select_tag('user.stylesheet', L.options_for_select(all_stylesheets, default=user.stylesheet)) %]</td>
+       <td>[% L.select_tag('user.stylesheet', all_stylesheets, default = user.stylesheet) %]</td>
       </tr>
 
       <tr>
@@ -138,7 +138,7 @@
       </tr>
       <tr>
        <th align="right">[% 'Use Templates' | $T8 %]</th>
-       <td>[% L.select_tag('usetemplates', L.options_for_select(all_templates, default=user.templates)) %]</td>
+       <td>[% L.select_tag('usetemplates', all_templates, default = user.templates) %]</td>
       </tr>
       <tr>
        <th align="right">[% 'New Templates' | $T8 %]</th>
@@ -146,11 +146,11 @@
       </tr>
       <tr>
        <th align="right">[% 'Setup Templates' | $T8 %]</th>
-       <td>[% L.select_tag('mastertemplates', L.options_for_select(all_master_templates, default='German')) %]</td>
+       <td>[% L.select_tag('mastertemplates', all_master_templates, default = 'German') %]</td>
       </tr>
       <tr>
        <th align="right">[% 'Setup Menu' | $T8 %]</th>
-       <td>[% L.select_tag('user.menustyle', L.options_for_select(all_menustyles, title='title', default=user.menustyle)) %]</td>
+       <td>[% L.select_tag('user.menustyle', all_menustyles, title_key = 'title', default = user.menustyle) %]</td>
       </tr>
       <tr>
        <th align='right'>[% 'Mandatory Departments' | $T8 %]</th>

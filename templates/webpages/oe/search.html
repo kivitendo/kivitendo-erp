@@ -54,11 +54,11 @@
     </tr>
     <tr>
      <th align="right">[% 'Employee' | $T8 %]</th>
-     <td>[% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, title='safe_name', with_empty=1), style='width:250px') %]</td>
+     <td>[% L.select_tag('employee_id', ALL_EMPLOYEES, title_key='safe_name', with_empty=1, style='width:250px') %]</td>
     </tr>
     <tr>
      <th align="right">[% 'Salesman' | $T8 %]</th>
-     <td>[% L.select_tag('salesman_id', L.options_for_select(ALL_EMPLOYEES, title='safe_name', with_empty=1), style='width:250px') %]</td>
+     <td>[% L.select_tag('salesman_id', ALL_EMPLOYEES, title_key='safe_name', with_empty=1, style='width:250px') %]</td>
     </tr>
     <tr>
      <th align="right">[% 'Transaction description' | $T8 %]</th>

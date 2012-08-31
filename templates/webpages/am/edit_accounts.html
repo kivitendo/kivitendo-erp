@@ -63,16 +63,18 @@ window.onload = function() {
       <td>
 [% IF AccountIsPosted %]
         [% L.select_tag('dummy_charttype',
-                        L.options_for_select(all_charttypes,
-                                             title => 'name', value => 'value',
-                                             default => selected_charttype),
+                        all_charttypes,
+                        title_key => 'name',
+                        value_key => 'value',
+                        default => selected_charttype,
                         disabled => '1') %]
         [% L.hidden_tag('charttype', selected_charttype) %]
 [% ELSE %]
         [% L.select_tag('charttype',
-                        L.options_for_select(all_charttypes,
-                                             title => 'name', value => 'value',
-                                             default => selected_charttype)) %]
+                        all_charttypes,
+                        title_key => 'name',
+                        value_key => 'value',
+                        default => selected_charttype) %]
 [% END %]
       </td>
     </tr>

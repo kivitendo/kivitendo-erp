@@ -55,7 +55,7 @@
         <tr>
           <th align="right">[% 'Contact Person' | $T8 %]</th>
           <td>
-            [% L.select_tag('cp_id', L.options_for_select(ALL_CONTACTS, default=cp_id, value='cp_id', title='full_name_dep', with_empty=1), style='width: 250px') %]
+            [% L.select_tag('cp_id', ALL_CONTACTS, default = cp_id, value_key = 'cp_id', title_key = 'full_name_dep', with_empty = 1, style = 'width: 250px') %]
           </td>
         </tr>
 [%- END %]
@@ -63,7 +63,7 @@
         <tr>
           <th align="right">[% 'Shipping Address' | $T8 %]</th>
           <td>
-            [% L.select_tag('shipto_id', L.options_for_select(ALL_SHIPTO, default=shipto_id, value='shipto_id', title='displayable_id', with_empty=1), style='width: 250px', onChange="document.getElementById('update_button').click();") %]
+            [% L.select_tag('shipto_id', ALL_SHIPTO, default = shipto_id, value_key = 'shipto_id', title_key = 'displayable_id', with_empty = 1, style='width: 250px', onChange = "document.getElementById('update_button').click();") %]
           </td>
         </tr>
 [%- END %]
@@ -98,7 +98,7 @@
         <tr>
           <th align="right">[% 'Steuersatz' | $T8 %]</th>
           <td>
-            [% L.select_tag('taxzone_id', L.options_for_select(ALL_TAXZONES, default=taxzone_id, title='description'), disabled=(id ? 1 : 0), style='width: 250px', onchange="document.getElementById('update_button').click();") %]
+            [% L.select_tag('taxzone_id', ALL_TAXZONES, default = taxzone_id, title_key = 'description', disabled = (id ? 1 : 0), style='width: 250px', onchange = "document.getElementById('update_button').click();") %]
   [%- IF id %]
           <input type='hidden' name='taxzone_id' value='[% taxzone_id %]'>
   [%- END %]
@@ -108,7 +108,7 @@
         <tr>
           <th align="right" nowrap>[% 'Department' | $T8 %]</th>
           <td colspan="3">
-            [% L.select_tag('department_id', L.options_for_select(all_departments, default=department_id, title_sub=\department_labels, with_empty=1), style='width:250px') %]
+            [% L.select_tag('department_id', all_departments, default = department_id, title_sub = \department_labels, with_empty = 1, style = 'width:250px') %]
           </td>
         </tr>
 [%- END %]
@@ -155,14 +155,14 @@
         <tr>
           <th align="right">[% 'Employee' | $T8 %]</th>
           <td>
-            [% L.select_tag('employee_id', L.options_for_select(ALL_EMPLOYEES, default=employee_id, title='safe_name')) %]
+            [% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title_key = 'safe_name') %]
           </td>
         </tr>
 [%- IF ALL_SALESMEN.size %]
         <tr>
           <th align="right">[% 'Salesman' | $T8 %]</th>
           <td>
-            [% L.select_tag('salesman_id', L.options_for_select(ALL_SALESMEN, default=(salesman_id ? salesman_id : employee_id), title='safe_name')) %]
+            [% L.select_tag('salesman_id', ALL_SALESMEN, default = (salesman_id ? salesman_id : employee_id), title_key = 'safe_name') %]
           </td>
         </tr>
 [%- END %]
@@ -226,7 +226,7 @@
         <tr>
           <th align="right" nowrap>[% 'Project Number' | $T8 %]</th>
           <td>
-            [%- L.select_tag('globalproject_id', L.options_for_select(ALL_PROJECTS, title='projectnumber', default=globalproject_id, with_empty='1'), onChange="document.getElementById('update_button').click();") %]
+            [%- L.select_tag('globalproject_id', ALL_PROJECTS, title='projectnumber', default = globalproject_id, with_empty = '1', onChange = "document.getElementById('update_button').click();") %]
           </td>
         </tr>
       </table>

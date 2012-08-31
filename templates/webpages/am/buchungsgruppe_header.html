@@ -19,7 +19,7 @@
 [%- IF INSTANCE_CONF.get_inventory_system == 'perpetual' %]
   <tr>
    <th align=right>[% 'Inventory' | $T8 %]</th>
-   <td>[% L.select_tag('inventory_accno_id', L.options_for_select(accounts.IC, title_sub=\account_label, default=invetory_accno_id)) %]</td>
+   <td>[% L.select_tag('inventory_accno_id', accounts.IC, title_sub=\account_label, default=invetory_accno_id) %]</td>
   </tr>
 [%- ELSE %]
   <tr style='display:none'>
@@ -28,35 +28,35 @@
 [%- END %]
   <tr>
     <th align=right>[% 'National Revenues' | $T8 %]</th>
-    <td>[% L.select_tag('income_accno_id_0', L.options_for_select(accounts.IC_income, title_sub=\account_label, default=income_accno_id_0)) %]</td>
+    <td>[% L.select_tag('income_accno_id_0', accounts.IC_income, title_sub=\account_label, default=income_accno_id_0) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'National Expenses' | $T8 %]</th>
-    <td>[% L.select_tag('expense_accno_id_0', L.options_for_select(accounts.IC_expense, title_sub=\account_label, default=expense_accno_id_0)) %]</td>
+    <td>[% L.select_tag('expense_accno_id_0', accounts.IC_expense, title_sub=\account_label, default=expense_accno_id_0) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Revenues EU with UStId' | $T8 %]</th>
-    <td>[% L.select_tag('income_accno_id_1', L.options_for_select(accounts.IC_income, title_sub=\account_label, default=income_accno_id_1)) %]</td>
+    <td>[% L.select_tag('income_accno_id_1', accounts.IC_income, title_sub=\account_label, default=income_accno_id_1) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Expenses EU with UStId' | $T8 %]</th>
-    <td>[% L.select_tag('expense_accno_id_1', L.options_for_select(accounts.IC_expense, title_sub=\account_label, default=expense_accno_id_1)) %]</td>
+    <td>[% L.select_tag('expense_accno_id_1', accounts.IC_expense, title_sub=\account_label, default=expense_accno_id_1) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Revenues EU without UStId' | $T8 %]</th>
-    <td>[% L.select_tag('income_accno_id_2', L.options_for_select(accounts.IC_income, title_sub=\account_label, default=income_accno_id_2)) %]</td>
+    <td>[% L.select_tag('income_accno_id_2', accounts.IC_income, title_sub=\account_label, default=income_accno_id_2) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Expenses EU without UStId' | $T8 %]</th>
-    <td>[% L.select_tag('expense_accno_id_2', L.options_for_select(accounts.IC_expense, title_sub=\account_label, default=expense_accno_id_2)) %]</td>
+    <td>[% L.select_tag('expense_accno_id_2', accounts.IC_expense, title_sub=\account_label, default=expense_accno_id_2) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Foreign Revenues' | $T8 %]</th>
-    <td>[% L.select_tag('income_accno_id_3', L.options_for_select(accounts.IC_income, title_sub=\account_label, default=income_accno_id_3)) %]</td>
+    <td>[% L.select_tag('income_accno_id_3', accounts.IC_income, title_sub=\account_label, default=income_accno_id_3) %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Foreign Expenses' | $T8 %]</th>
-    <td>[% L.select_tag('expense_accno_id_3', L.options_for_select(accounts.IC_expense, title_sub=\account_label, default=expense_accno_id_3)) %]</td>
+    <td>[% L.select_tag('expense_accno_id_3', accounts.IC_expense, title_sub=\account_label, default=expense_accno_id_3) %]</td>
   </tr>
   <td colspan=2><hr size=3 noshade></td>
   </tr>

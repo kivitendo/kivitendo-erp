@@ -28,11 +28,11 @@
   </tr>
   <tr>
     <th align=right>[% 'Number Format' | $T8 %]</th>
-    <td><select name="output_numberformat">[% L.options_for_select(numberformats, default=output_numberformat, with_empty=1, empty_title=LxERP.t8('use program settings')) %]</select></td>
+    <td><select name="output_numberformat">[% numberformats, default = output_numberformat, with_empty = 1, empty_title = LxERP.t8('use program settings') %]</select></td>
   </tr>
   <tr>
     <th align=right>[% 'Date Format' | $T8 %]</th>
-    <td><select name="output_dateformat">[% L.options_for_select(dateformats, default=output_dateformat, with_empty=1, empty_title=LxERP.t8('use program settings')) %]</select></td>
+    <td><select name="output_dateformat">[% dateformats, default = output_dateformat, with_empty = 1, empty_title=LxERP.t8('use program settings') %]</select></td>
   </tr>
   <tr>
     <th align=right>[% 'Long Dates' | $T8 %]</th>
