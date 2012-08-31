@@ -116,15 +116,15 @@ sub section_menu {
     $menuitem->{module} ||= $::form->{script};
     $menuitem->{action} ||= "section_menu";
     $menuitem->{target} ||= "main_window";
-    $menuitem->{href}   ||= "$item->{module}?action=$item->{action}";
+    $menuitem->{href}   ||= "$menuitem->{module}?action=$menuitem->{action}";
 
     # add other params
-    foreach my $key (keys %$item) {
+    foreach my $key (keys %$menuitem) {
       next if $key =~ /target|module|action|href/;
       $menuitem->{href} .= "&" . $::form->escape($key, 1) . "=";
-      my ($value, $conf) = split(/=/, $item->{$key}, 2);
+      my ($value, $conf) = split(/=/, $menuitem->{$key}, 2);
       $value = $::myconfig{$value} . "/$conf" if ($conf);
-      $item->{href} .= $::form->escape($value, 1);
+      $menuitem->{href} .= $::form->escape($value, 1);
     }
 
     my $anchor = $menuitem->{href};
