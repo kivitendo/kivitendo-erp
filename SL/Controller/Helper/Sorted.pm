@@ -23,7 +23,7 @@ sub make_sorted {
   }
 
   $specs{DEFAULT_DIR}   = $specs{DEFAULT_DIR} || !defined($specs{DEFAULT_DIR}) ? 1 : 0;
-  $specs{DEFAULT_BY}  ||= "SL::DB::$specs{MODEL}::Manager"->_get_sort_spec($class)->{default}->[0];
+  $specs{DEFAULT_BY}  ||= { "SL::DB::Manager::$specs{MODEL}"->_sort_spec }->{default}->[0];
   $specs{FORM_PARAMS} ||= [ qw(sort_by sort_dir) ];
   $specs{ONLY}        ||= [];
   $specs{ONLY}          = [ $specs{ONLY} ] if !ref $specs{ONLY};
