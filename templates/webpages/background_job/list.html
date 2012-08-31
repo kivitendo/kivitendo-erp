@@ -28,6 +28,11 @@
     [%- FOREACH background_job = BACKGROUND_JOBS %]
     <tr class="listrow[% loop.count % 2 %]" id="background_job_id_[% background_job.id %]">
      <td>
+      <a href="[% SELF.url_for(action => 'edit', id => background_job.id) %]">
+       [%- HTML.escape(background_job.package_name) %]
+      </a>
+     </td>
+     <td>
       [%- IF background_job.type == 'once' %]
        [%- LxERP.t8('one-time execution') %]
       [%- ELSIF background_job.type == 'interval' %]
@@ -35,11 +40,6 @@
       [% ELSE %]
        [%- HTML.escape(background_job.type) %]
       [%- END %]
-     </td>
-     <td>
-      <a href="[% SELF.url_for(action => 'edit', id => background_job.id) %]">
-       [%- HTML.escape(background_job.package_name) %]
-      </a>
      </td>
      <td align="right">[% IF background_job.active %][%- LxERP.t8('yes') %][% ELSE %][%- LxERP.t8('no') %][%- END %]</td>
      <td>[%- HTML.escape(background_job.cron_spec) %]</td>
