@@ -22,8 +22,9 @@ sub make_sorted {
     $spec->{model_column} ||= $column;
   }
 
-  $specs{DEFAULT_DIR}   = $specs{DEFAULT_DIR} || !defined($specs{DEFAULT_DIR}) ? 1 : 0;
-  $specs{DEFAULT_BY}  ||= { "SL::DB::Manager::$specs{MODEL}"->_sort_spec }->{default}->[0];
+  my %model_sort_spec   = "SL::DB::Manager::$specs{MODEL}"->_sort_spec;
+  $specs{DEFAULT_DIR}   = $specs{DEFAULT_DIR} ? 1 : defined($specs{DEFAULT_DIR}) ? $specs{DEFAULT_DIR} * 1 : $model_sort_spec{default}->[1];
+  $specs{DEFAULT_BY}  ||= $model_sort_spec{default}->[0];
   $specs{FORM_PARAMS} ||= [ qw(sort_by sort_dir) ];
   $specs{ONLY}        ||= [];
   $specs{ONLY}          = [ $specs{ONLY} ] if !ref $specs{ONLY};
@@ -186,6 +187,9 @@ calls to e.g. C<SL::DB::Manager::SomeModel::get_all>.
 A template on the other hand can use the method
 C<sortable_table_header> from the layout helper module C<L>.
 
+This module requires that the Rose model managers use their C<Sorted>
+helper.
+
 The C<Sorted> helper hooks into the controller call to the action via
 a C<run_before> hook. This is done so that it can remember the sort
 parameters that were used in the current view.
@@ -207,23 +211,9 @@ that can be used for sorting (similar to database column names). The
 second kind are also the indexes you use in a template when calling
 C<[% L.sorted_table_header(...) %]>.
 
-Control parameters include the following (all required parameters
-occur first):
+Control parameters include the following:
 
 =over 4
-
-=item * C<DEFAULT_BY>
-
-Required. A string: the index to sort by if the user hasn't clicked on
-any column yet (meaning: if the C<$::form> parameters for sorting do
-not contain a valid index).
-
-=item * C<DEFAULT_DIR>
-
-Optional. Default sort direction (ascending for trueish values,
-descrending for falsish values).
-
-Defaults to C<1> if missing.
 
 =item * C<MODEL>
 
@@ -232,6 +222,21 @@ as a default in certain cases. If this parameter is missing then it is
 derived from the controller's package (e.g. for the controller
 C<SL::Controller::BackgroundJobHistory> the C<MODEL> would default to
 C<BackgroundJobHistory>).
+
+=item * C<DEFAULT_BY>
+
+Optional. A string: the index to sort by if the user hasn't clicked on
+any column yet (meaning: if the C<$::form> parameters for sorting do
+not contain a valid index).
+
+Defaults to the underlying database model's default sort column name.
+
+=item * C<DEFAULT_DIR>
+
+Optional. Default sort direction (ascending for trueish values,
+descrending for falsish values).
+
+Defaults to the underlying database model's default sort direction.
 
 =item * C<FORM_PARAMS>
 
