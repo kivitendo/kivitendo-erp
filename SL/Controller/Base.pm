@@ -204,7 +204,7 @@ sub _run_action {
 }
 
 sub _controller_name {
-  return (split(/::/, ref($_[0])))[-1];
+  return (split(/::/, ref($_[0]) || $_[0]))[-1];
 }
 
 sub _dispatch {
