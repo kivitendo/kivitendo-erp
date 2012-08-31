@@ -160,10 +160,10 @@ sub _run_hooks {
          || ($hook->{except} &&  $hook->{except}->{$action});
 
     if (ref($hook->{code}) eq 'CODE') {
-      $hook->{code}->($self);
+      $hook->{code}->($self, $action);
     } else {
       my $sub = $hook->{code};
-      $self->$sub;
+      $self->$sub($action);
     }
   }
 }
@@ -327,6 +327,10 @@ action is called. The controller package defines the hooks, and those
 hooks themselves are run as instance methods.
 
 Hooks are run in the order they're added.
+
+The hooks receive a single parameter: the name of the action that is
+about to be called (for C<before> hooks) / was called (for C<after>
+hooks).
 
 The return value of the hooks is discarded.
 
