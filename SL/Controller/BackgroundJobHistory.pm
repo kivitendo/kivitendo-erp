@@ -21,10 +21,6 @@ __PACKAGE__->run_before('add_stylesheet');
 __PACKAGE__->run_before('check_task_server');
 
 __PACKAGE__->make_sorted(
-  DEFAULT_BY   => 'run_at',
-  DEFAULT_DIR  => 1,
-  MODEL        => 'BackgroundJobHistory',
-  FORM_PARAMS  => [ qw(sort_by sort_dir) ],
   ONLY         => [ qw(list) ],
 
   package_name => $::locale->text('Package name'),
