@@ -582,6 +582,29 @@ sub truncate {
   return substr($text, 0, $params{at}) . '...';
 }
 
+sub sortable_table_header {
+  my ($self, $by, @slurp) = @_;
+  my %params              = _hashify(@slurp);
+
+  my $controller          = $self->{CONTEXT}->stash->get('SELF');
+  my $sort_spec           = $controller->get_sort_spec;
+  my $by_spec             = $sort_spec->{$by};
+  my %current_sort_params = $controller->get_current_sort_params;
+  my ($image, $new_dir)   = ('', $current_sort_params{dir});
+  my $title               = delete($params{title}) || $by_spec->{title};
+
+  if ($current_sort_params{by} eq $by) {
+    my $current_dir = $current_sort_params{dir} ? 'up' : 'down';
+    $image          = '<img border="0" src="image/' . $current_dir . '.png">';
+    $new_dir        = 1 - ($current_sort_params{dir} || 0);
+  }
+
+  $params{ $sort_spec->{FORM_PARAMS}->[0] } = $by;
+  $params{ $sort_spec->{FORM_PARAMS}->[1] } = ($new_dir ? '1' : '0');
+
+  return '<a href="' . $controller->get_callback(%params) . '">' . _H($title) . $image . '</a>';
+}
+
 1;
 
 __END__
@@ -863,6 +886,22 @@ containing the values C<[ 6, 2, 15 ]>.
 =item C<dump REF>
 
 Dumps the Argument using L<Data::Dumper> into a E<lt>preE<gt> block.
+
+=item C<sortable_table_header $by, %params>
+
+Create a link and image suitable for placement in a table
+header. C<$by> must be an index set up by the controller with
+L<SL::Controller::Helper::make_sorted>.
+
+The optional parameter C<$params{title}> can override the column title
+displayed to the user. Otherwise the column title from the
+controller's sort spec is used.
+
+The other parameters in C<%params> are passed unmodified to the
+underlying call to L<SL::Controller::Base::url_for>.
+
+See the documentation of L<SL::Controller::Helper::Sorted> for an
+overview and further usage instructions.
 
 =back
 
