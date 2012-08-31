@@ -4,6 +4,8 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::Sorted;
 use SL::DB::BackgroundJob;
 use SL::Helper::Flash;
 use SL::System::TaskServer;
@@ -11,12 +13,23 @@ use SL::System::TaskServer;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(background_job) ],
-  'scalar --get_set_init' => [ qw(task_server) ],
+  'scalar --get_set_init' => [ qw(task_server back_to) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_task_server');
 __PACKAGE__->run_before('load_background_job', only => [ qw(edit update destroy execute) ]);
+
+__PACKAGE__->make_sorted(
+  ONLY         => [ qw(list) ],
+
+  package_name => $::locale->text('Package name'),
+  type         => $::locale->text('Execution type'),
+  active       => $::locale->text('Active'),
+  cron_spec    => $::locale->text('Execution schedule'),
+  last_run_at  => $::locale->text('Last run at'),
+  next_run_at  => $::locale->text('Next run at'),
+);
 
 #
 # actions
@@ -27,7 +40,7 @@ sub action_list {
 
   $self->render('background_job/list',
                 title           => $::locale->text('Background jobs'),
-                BACKGROUND_JOBS => SL::DB::Manager::BackgroundJob->get_all_sorted);
+                BACKGROUND_JOBS => $self->get_models);
 }
 
 sub action_new {
@@ -63,7 +76,7 @@ sub action_destroy {
     flash_later('error', $::locale->text('The background job could not be destroyed.'));
   }
 
-  $self->redirect_to(action => 'list');
+  $self->redirect_to($self->back_to);
 }
 
 sub action_save_and_execute {
@@ -123,7 +136,7 @@ sub create_or_update {
   flash_later('info', $is_new ? $::locale->text('The background job has been created.') : $::locale->text('The background job has been saved.'));
   return if $return;
 
-  $self->redirect_to(action => 'list');
+  $self->redirect_to($self->back_to);
 }
 
 sub load_background_job {
@@ -138,6 +151,11 @@ sub init_task_server {
 sub check_task_server {
   my ($self) = @_;
   flash('warning', $::locale->text('The task server does not appear to be running.')) if !$self->task_server->is_running;
+}
+
+sub init_back_to {
+  my ($self) = @_;
+  return $::form->{back_to} || $self->url_for(action => 'list');
 }
 
 1;
