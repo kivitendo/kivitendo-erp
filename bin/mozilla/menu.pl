@@ -40,12 +40,10 @@
 use strict;
 
 use SL::Menu;
-use Data::Dumper;
 use URI;
 
 use List::MoreUtils qw(apply);
 
-my $menufile = "menu.ini";
 my $nbsp     = '&nbsp;';
 my $mainlevel;
 
@@ -140,7 +138,7 @@ sub section_menu {
     } elsif ($menuitem->{submenu}) {
       my $image = make_image(submenu => 1);
       if ($mainlevel && $item =~ /^\Q$mainlevel\E/) {
-        push @items, make_item(target => $menuitem->{target}, spacer => $spacer, bold => 1, img => $image, label => $label, class => 'submenu') if $show;
+        push @items, make_item(target => $menuitem->{target}, spacer => $spacer, img => $image, label => $label, class => 'submenu') if $show;
         push @items, section_menu($menu, $item);
       } else {
         push @items, make_item(spacer => $spacer, href => $anchor, img => $image, label => $label . '&nbsp;...', class => 'submenu') if $show;
@@ -190,22 +188,23 @@ sub multiline {
 sub make_image {
   my (%params) = @_;
 
-  my $label  = $params{label};
   my $icon   = $params{icon};
   my $size   = $params{size}   || 16;
 
   return unless _show_images();
 
   my $icon_found = $icon && -f _icon_path($icon, $size);
+  my $padding    = $size == 16 && $icon_found ? $nbsp x 2
+                 : $size == 24                ? $nbsp
+                 :                            '';
 
-  my $image_url = $icon_found ? _icon_path($icon, $size) : "image/unterpunkt.png";
-  my $width     = $icon_found ? $size : 24;
-
-  my $padding   = $size == 16 && $icon_found ? $nbsp x 2
-                : $size == 24                ? $nbsp
-                :                            '';
-
-  return "<img src='$image_url' alt='$label' width='$width' height='$size'>$padding";
+  return  {
+    src     => $icon_found ? _icon_path($icon, $size) : "image/unterpunkt.png",
+    alt     => $params{label},
+    width   => $icon_found ? $size : 24,
+    height  => $size,
+    padding => $padding,
+  }
 }
 
 sub _calc_framesize {
