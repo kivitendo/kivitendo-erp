@@ -9,18 +9,18 @@ our @EXPORT = qw(paginate disable_paginating);
 use List::MoreUtils qw(any);
 
 sub paginate {
-  my ($self, %params) = @_;
-  my $page = $params{page} || 1;
-  my %args = %{ $params{args} || {} };
+  my ($self, %params)     = @_;
+  my $page                = $params{page} || 1;
+  my %args                = %{ $params{args} || {} };
 
-  my $ret = { };
+  my $ret                 = { };
 
-  $ret->{per_page} = per_page($self, %params);
-  $ret->{max}    = ceil($self->get_all_count(%args), $ret->{per_page}) || 1;
-  $ret->{cur}    = $page < 1 ? 1
-                 : $page > $ret->{max} ? $ret->{max}
-                 : $page;
-  $ret->{common} = make_common_pages($ret->{cur}, $ret->{max});
+  $ret->{per_page}        = per_page($self, %params);
+  $ret->{max}             = ceil($self->get_all_count(%args), $ret->{per_page}) || 1;
+  $ret->{cur}             = $page < 1 ? 1
+                          : $page > $ret->{max} ? $ret->{max}
+                          : $page;
+  $ret->{common}          = make_common_pages($ret->{cur}, $ret->{max});
 
   $params{args}{page}     = $ret->{cur};
   $params{args}{per_page} = $ret->{per_page};
