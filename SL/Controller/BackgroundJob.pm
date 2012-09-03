@@ -5,6 +5,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
 use SL::DB::BackgroundJob;
 use SL::Helper::Flash;
@@ -19,6 +20,8 @@ use Rose::Object::MakeMethods::Generic
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_task_server');
 __PACKAGE__->run_before('load_background_job', only => [ qw(edit update destroy execute) ]);
+
+__PACKAGE__->make_paginated(ONLY => [ qw(list) ]);
 
 __PACKAGE__->make_sorted(
   ONLY         => [ qw(list) ],
