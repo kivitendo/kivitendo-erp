@@ -33,7 +33,6 @@ use SL::Locale;
 use SL::Common;
 use SL::Form;
 use SL::Helper::DateTime;
-use SL::Controller::LoginScreen;
 use SL::InstanceConfiguration;
 use SL::Template::Plugin::HTMLFixes;
 
