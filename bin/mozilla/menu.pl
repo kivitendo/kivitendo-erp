@@ -83,8 +83,6 @@ sub acc_menu {
   $::form->{title} = $::locale->text('kivitendo');
   $::form->header;
 
-  $::lxdebug->dump(0,  "menu", $menu);
-
   my $sections = section_menu($menu);
 
   print $::form->parse_html_template('menu/menu', {
