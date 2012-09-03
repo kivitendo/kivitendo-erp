@@ -144,7 +144,7 @@ In a controller:
   sub action_list {
     my ($self) = @_;
 
-    my $sorted_models = $self->get_sorted;
+    my $sorted_models = $self->get_models;
     $self->render('controller/list', ENTRIES => $sorted_models);
   }
 
