@@ -83,6 +83,15 @@ sub html_tag {
   return "<${tag}${attributes}>${content}</${tag}>";
 }
 
+sub img_tag {
+  my ($self, @slurp) = @_;
+  my %options = _hashify(@slurp);
+
+  $options{alt} ||= '';
+
+  return $self->html_tag('img', undef, %options);
+}
+
 sub select_tag {
   my $self            = shift;
   my $name            = shift;
