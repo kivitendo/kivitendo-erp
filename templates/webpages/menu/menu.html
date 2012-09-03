@@ -39,6 +39,6 @@
   [%- IF item.href %]
     [% L.link(item.href, L.html_tag('span', L.img_tag(item.img), class='menu-spacer') _ chunk, class='menu-link', target=item.target) %]
   [%- ELSE %]
-    [% L.img_tag(item.img) _ chunk %]
+    [% L.html_tag('span', L.img_tag(item.img), class='menu-spacer') _ chunk %]
   [%- END %]
 [%- END %]
