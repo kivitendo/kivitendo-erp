@@ -19,17 +19,17 @@
 </html>
 [%- BLOCK sections %]
 [%- FOREACH item IN sections %]
-   <div class='menu-multiline'>
-   [% SET menuouterloopcount = loop.count %]
+ <div class='menu-multiline'>
+ [% SET menuouterloopcount = loop.count %]
  [%- FOREACH chunk IN item.chunks %]
-     <div id='menuitem[% menulevel %]_[% menuouterloopcount %]' class='menuitem [% item.class %] hover'>[% PROCESS item %]</div>
+   <div id='menuitem[% menulevel %]_[% menuouterloopcount %]' class='menuitem [% item.class %] hover'>[% PROCESS item %]</div>
  [%- END %]
-     [%- IF item.subitems.size %]
-       <div id='menuitem[% menulevel %]_[% loop.count %]_submenu'>
-       [% INCLUDE sections sections=item.subitems, menulevel='_'+loop.count %]
-       </div>
-     [%- END %]
+   [%- IF item.subitems.size %]
+   <div id='menuitem[% menulevel %]_[% loop.count %]_submenu' class='menu-submenu[% menulevel %]'>
+   [% INCLUDE sections sections=item.subitems, menulevel='_'+loop.count %]
    </div>
+  [%- END %]
+ </div>
 [%- END %]
 [%- END  %]
 [%- BLOCK item %]
@@ -45,9 +45,10 @@
 
 <script type='text/javascript'>
   $(function(){
-    $('#html-menu div[id$=submenu]').hide();
-    $('#html-menu div.menu').each(function() {
+    $('#html-menu div.menu-submenu').hide();
+    $('#html-menu div.menu, #html-menu div.submenu').each(function() {
       $(this).click(function(){
+        $('#html-menu div.menu-submenu').not('#' + $(this).attr('id') + '_submenu').hide();
         $('#' + $(this).attr('id') + '_submenu').toggle();
       });
     });
