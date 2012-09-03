@@ -605,6 +605,33 @@ sub sortable_table_header {
   return '<a href="' . $controller->get_callback(%params) . '">' . _H($title) . $image . '</a>';
 }
 
+sub paginate_controls {
+  my ($self)          = @_;
+
+  my $controller      = $self->{CONTEXT}->stash->get('SELF');
+  my $paginate_spec   = $controller->get_paginate_spec;
+  my %paginate_params = $controller->get_current_paginate_params;
+
+  my %template_params = (
+    pages             => {
+      cur             => $paginate_params{page},
+      max             => $paginate_params{num_pages},
+      common          => $paginate_params{common_pages},
+    },
+    url_maker         => sub {
+      my %url_params                                    = _hashify(@_);
+      $url_params{ $paginate_spec->{FORM_PARAMS}->[0] } = delete $url_params{page};
+      $url_params{ $paginate_spec->{FORM_PARAMS}->[1] } = delete $url_params{per_page} if exists $url_params{per_page};
+
+      return $controller->get_callback(%url_params);
+    },
+  );
+
+  my $output;
+  $controller->_template_obj->process('templates/webpages/common/paginate.html', \%template_params, \$output);
+  return $output;
+}
+
 1;
 
 __END__
@@ -901,6 +928,13 @@ The other parameters in C<%params> are passed unmodified to the
 underlying call to L<SL::Controller::Base::url_for>.
 
 See the documentation of L<SL::Controller::Helper::Sorted> for an
+overview and further usage instructions.
+
+=item C<paginate_controls>
+
+Create a set of links used to paginate a list view.
+
+See the documentation of L<SL::Controller::Helper::Paginated> for an
 overview and further usage instructions.
 
 =back

@@ -1,10 +1,18 @@
 [%- USE T8 %]
-<span class='paginate'>
+[%- MACRO build_url BLOCK %]
+ [%- IF base_url %]
+  [%- base_url %]&page=[% page %]
+ [%- ELSE %]
+  [% url_maker('page' => page) %]
+ [%- END %]
+[%- END %]
 [%- IF pages.max > 1 %]
-[%- IF pages.cur > 1 %]<a class='paginate-prev' href='[% base_url _ "&page=" _ (pages.cur - 1) %]'>&laquo; [% 'prev' | $T8 %]</a> [% ELSE %]<b>&laquo;</b> [% END %]
+<span class='paginate'>
+[%- IF pages.cur > 1 %]<a class='paginate-prev' href='[% build_url(page=pages.cur - 1) %]'>&laquo; [% 'prev' | $T8 %]</a> [% ELSE %]<b>&laquo;</b> [% END %]
 [%- FOR p = pages.common %]
   [%- NEXT UNLESS p.visible %]
-  [%- IF p.active %]<a class='paginate-page' href="[% base_url _ "&page=" _ p.page %]">[% p.page %]</a> [% ELSE %]<b>[% p.page %]</b> [%- END %]
+  [%- IF p.active %]<a class='paginate-page' href="[% build_url(page=p.page) %]">[% p.page %]</a> [% ELSE %]<b>[% p.page %]</b> [%- END %]
 [%- END %]
-[%- IF pages.cur < pages.max %]<a class='paginate-next' href='[% base_url _ "&page=" _ (pages.cur + 1) %]'>[% 'next' | $T8 %] &raquo;</a>[% ELSE %]<b>&raquo;</b>[%- END %]
+[%- IF pages.cur < pages.max %]<a class='paginate-next' href='[% build_url(page=pages.cur + 1) %]'>[% 'next' | $T8 %] &raquo;</a>[% ELSE %]<b>&raquo;</b>[%- END %]
+</span>
 [%- END %]

@@ -38,7 +38,7 @@
   </tr>
   [%- END %]
  </table>
- <p align=right>[% PROCESS 'common/paginate.html' pages=SELF.pages, base_url=SELF.url_for(action='list', sort_dir=SELF.sort_dir, sort_by=SELF.sort_by) %]</p>
+ [% PROCESS 'common/paginate.html' pages=SELF.pages, base_url=SELF.url_for(action='list', sort_dir=SELF.sort_dir, sort_by=SELF.sort_by) %]
 
 [%- END %]
 </div>
