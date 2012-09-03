@@ -128,7 +128,6 @@ sub section_menu {
 
     if (!$level) { # toplevel
       push @items, make_item(
-        href     => '#',
         img      =>  make_image(icon => $item . '.png', size => 24, label => $label),
         label    => $label,
         height   => 24,

@@ -300,4 +300,6 @@ div#menuv4 li li li li:hover ul
 #html-menu a { vertical-align: top }
 #html-menu .item span.menu-spacer { display: inline-block; width: 24px }
 #html-menu .menu span.menu-spacer { display: inline-block; width: 32px }
+#html-menu div.menu div.menuitemchunk { color:blue;}
+#html-menu div.menu div.menuitemchunk:hover { color:blue; background-color: lemonchiffon; cursor: pointer; }
 

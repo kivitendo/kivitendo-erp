@@ -4,18 +4,31 @@
 <div id='html-menu'>
   [% INCLUDE sections %]
 </div>
+<script type='text/javascript'>
+  $(function(){
+    $('#html-menu div.menu-submenu').hide();
+    $('#html-menu div.menu').each(function() {
+      $(this).click(function(){
+        $('#html-menu div.menu-submenu').not('#' + $(this).attr('id') + '_submenu').hide();
+        $('#' + $(this).attr('id') + '_submenu').toggle();
+      });
+    });
+  });
+</script>
 </body>
 </html>
 [%- BLOCK sections %]
 [%- FOREACH item IN sections %]
  <div class='menu-multiline'>
  [% SET menuouterloopcount = loop.count %]
- [%- FOREACH chunk IN item.chunks %]
-   <div id='menuitem[% menulevel %]_[% menuouterloopcount %]' class='menuitem [% item.class %] hover'>[% PROCESS item %]</div>
- [%- END %]
+  <div id='menuitem[% menulevel %]_[% menuouterloopcount %]' class='menuitem [% item.class %] hover'>
+   [%- FOREACH chunk IN item.chunks %]
+   <div class='menuitemchunk hover'>[% PROCESS item %]</div>
+   [%- END %]
+  </div>
    [%- IF item.subitems.size %]
    <div id='menuitem[% menulevel %]_[% loop.count %]_submenu' class='menu-submenu[% menulevel %]'>
-   [% INCLUDE sections sections=item.subitems, menulevel='_'+loop.count %]
+   [% INCLUDE sections sections=item.subitems, menulevel= menulevel _ '_' _ loop.count %]
    </div>
   [%- END %]
  </div>
@@ -24,24 +37,8 @@
 [%- BLOCK item %]
   [% item.spacer %]
   [%- IF item.href %]
-    [% L.link(item.href, L.html_tag('span', L.html_tag('img', undef, item.img), class='menu-spacer') _ chunk, target=item.target) %]
+    [% L.link(item.href, L.html_tag('span', L.img_tag(item.img), class='menu-spacer') _ chunk, class='menu-link', target=item.target) %]
   [%- ELSE %]
-    [% L.html_tag('img', undef, item.img) _ chunk %]
+    [% L.img_tag(item.img) _ chunk %]
   [%- END %]
 [%- END %]
-
-</body>
-
-<script type='text/javascript'>
-  $(function(){
-    $('#html-menu div.menu-submenu').hide();
-    $('#html-menu div.menu, #html-menu div.submenu').each(function() {
-      $(this).click(function(){
-        $('#html-menu div.menu-submenu').not('#' + $(this).attr('id') + '_submenu').hide();
-        $('#' + $(this).attr('id') + '_submenu').toggle();
-      });
-    });
-  });
-</script>
-
-</html>
