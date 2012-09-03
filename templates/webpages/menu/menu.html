@@ -7,24 +7,49 @@
   #html-menu img { vertical-align: middle; visibility:hidden; border: 0; }
   #html-menu div.menuitem:first-child img { visibility:visible }
   #html-menu a { vertical-align: top }
+  #html-menu .item span.menu-spacer { display: inline-block; width: 24px }
+  #html-menu .menu span.menu-spacer { display: inline-block; width: 32px }
 </style>
 <body class="menu">
 
 <div id='html-menu'>
-
-[%- FOREACH item IN sections %]
-   <div class='menu-multiline'>
- [%- FOREACH chunk IN item.chunks %]
-     <div class='menuitem [% item.class %] hover'>[% item.spacer %]
-     [%- IF item.href %]
-       [% L.link(item.href, L.html_tag('img', undef, item.img) _ chunk, target=item.target) %]
-     [%- ELSE %]
-       [% L.html_tag('img', undef, item.img) _ chunk %]
-     [%- END %]
-     </div>
- [%- END %]
-   </div>
-[%- END %]
- </div>
+  [% INCLUDE sections %]
+</div>
 </body>
 </html>
+[%- BLOCK sections %]
+[%- FOREACH item IN sections %]
+   <div class='menu-multiline'>
+   [% SET menuouterloopcount = loop.count %]
+ [%- FOREACH chunk IN item.chunks %]
+     <div id='menuitem[% menulevel %]_[% menuouterloopcount %]' class='menuitem [% item.class %] hover'>[% PROCESS item %]</div>
+ [%- END %]
+     [%- IF item.subitems.size %]
+       <div id='menuitem[% menulevel %]_[% loop.count %]_submenu'>
+       [% INCLUDE sections sections=item.subitems, menulevel='_'+loop.count %]
+       </div>
+     [%- END %]
+   </div>
+[%- END %]
+[%- END  %]
+[%- BLOCK item %]
+  [% item.spacer %]
+  [%- IF item.href %]
+    [% L.link(item.href, L.html_tag('span', L.html_tag('img', undef, item.img), class='menu-spacer') _ chunk, target=item.target) %]
+  [%- ELSE %]
+    [% L.html_tag('img', undef, item.img) _ chunk %]
+  [%- END %]
+[%- END %]
+
+</body>
+
+<script type='text/javascript'>
+  $(function(){
+    $('#html-menu div[id$=submenu]').hide();
+    $('#html-menu div.menu').each(function() {
+      $(this).click(function(){
+        $('#' + $(this).attr('id') + '_submenu').toggle();
+      });
+    });
+  });
+</script>

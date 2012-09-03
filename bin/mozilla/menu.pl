@@ -45,7 +45,6 @@ use URI;
 use List::MoreUtils qw(apply);
 
 my $nbsp     = '&nbsp;';
-my $mainlevel;
 
 # end of main
 
@@ -81,13 +80,16 @@ sub acc_menu {
 
   my $framesize    = _calc_framesize() - 2;
   my $menu         = Menu->new("menu.ini");
-  $mainlevel       = $::form->{level};
   $::form->{title} = $::locale->text('kivitendo');
   $::form->header;
 
+  $::lxdebug->dump(0,  "menu", $menu);
+
+  my $sections = section_menu($menu);
+
   print $::form->parse_html_template('menu/menu', {
     framesize => $framesize,
-    sections  => [ section_menu($menu) ],
+    sections  => $sections,
   });
 
   $::lxdebug->leave_sub;
@@ -103,7 +105,6 @@ sub section_menu {
     my $menuitem   = $menu->{$item};
     my $label      = apply { s/.*--// } $item;
     my $ml         = apply { s/--.*// } $item;
-    my $show       = $ml eq $mainlevel;
     my $spacer     = $nbsp x (($item =~ s/--/--/g) * 2);
     my $label_icon = $level . "--" . $label . ".png";
 
@@ -128,34 +129,40 @@ sub section_menu {
     my $anchor = $menuitem->{href};
 
     if (!$level) { # toplevel
-      my $ml_    = $::form->escape($ml);
-      my $image  = make_image(icon => $item . '.png', size => 24, label => $label);
-      my $anchor = "menu.pl?action=acc_menu&level=$ml_";
-
-      push @items, make_item(href => $anchor, img => $image, label => $label, height => 24, class => 'menu');
-      push @items, section_menu($menu, $item);
-
+      push @items, make_item(
+        href     => '#',
+        img      =>  make_image(icon => $item . '.png', size => 24, label => $label),
+        label    => $label,
+        height   => 24,
+        class    => 'menu',
+        subitems => section_menu($menu, $item)
+      );
     } elsif ($menuitem->{submenu}) {
-      my $image = make_image(submenu => 1);
-      if ($mainlevel && $item =~ /^\Q$mainlevel\E/) {
-        push @items, make_item(target => $menuitem->{target}, spacer => $spacer, img => $image, label => $label, class => 'submenu') if $show;
-        push @items, section_menu($menu, $item);
-      } else {
-        push @items, make_item(spacer => $spacer, href => $anchor, img => $image, label => $label . '&nbsp;...', class => 'submenu') if $show;
-      }
+      push @items, make_item(
+        target   => $menuitem->{target},
+        spacer   => $spacer,
+        img      => make_image(submenu => 1),
+        label    => $label,
+        class    => 'submenu',
+        subitems => section_menu($menu, $item),
+      );
     } elsif ($menuitem->{module}) {
-      my $image = make_image(label => $label, icon => $label_icon);
-      push @items, make_item(target => $menuitem->{target}, img => $image, href => $anchor, spacer => $spacer, label => $label, class => 'item') if $show;
-      push @items, section_menu($menu, $item) if $show && $::form->{$item} && $::form->{level} eq $item;
+      push @items, make_item(
+        target => $menuitem->{target},
+        img    => make_image(label => $label, icon => $label_icon),
+        href   => $anchor,
+        spacer => $spacer,
+        label  => $label,
+        class  => 'item',
+      );
     }
   }
   $::lxdebug->leave_sub;
-  return @items;
+  return \@items;
 }
 
 sub make_item {
   my %params = @_;
-  $params{a}      ||= '';
   $params{spacer} ||= '';
   $params{height} ||= 16;
 
@@ -203,7 +210,6 @@ sub make_image {
     alt     => $params{label},
     width   => $icon_found ? $size : 24,
     height  => $size,
-    padding => $padding,
   }
 }
 
