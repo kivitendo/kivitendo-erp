@@ -2,7 +2,7 @@
 <body class="menu">
 
 <div id='html-menu'>
-  [% INCLUDE sections %]
+  [% PROCESS sections %]
 </div>
 <script type='text/javascript'>
   $(function(){
@@ -19,26 +19,17 @@
 </html>
 [%- BLOCK sections %]
 [%- FOREACH item IN sections %]
- <div class='menu-multiline'>
- [% SET menuouterloopcount = loop.count %]
-  <div id='menuitem[% menulevel %]_[% menuouterloopcount %]' class='menuitem [% item.class %] hover'>
-   [%- FOREACH chunk IN item.chunks %]
-   <div class='menuitemchunk hover'>[% PROCESS item %]</div>
-   [%- END %]
-  </div>
-   [%- IF item.subitems.size %]
-   <div id='menuitem[% menulevel %]_[% loop.count %]_submenu' class='menu-submenu[% menulevel %]'>
-   [% INCLUDE sections sections=item.subitems, menulevel= menulevel _ '_' _ loop.count %]
-   </div>
+ <div id='menuitem[% menulevel %]_[% loop.count %]' class='menuitem menuitemchunk [% item.spacer %] [% item.class %] hover'>
+  [%- IF item.href %]
+     <a href="[% item.href | html %]" class='menu-link' target='[% item.target %]'><span class="menuitemicon menu-spacer">[% L.img_tag(item.img) %]</span><span class='menuitemchunk hover'>[% item.label %]</span></a>
+  [%- ELSE %]
+   <span class="menuitemicon menu-spacer">[% L.img_tag(item.img) %]</span><span class='menuitemchunk hover'>[% item.label %]</span>
   [%- END %]
  </div>
+ [%- IF item.subitems.size %]
+  <div id='menuitem[% menulevel %]_[% loop.count %]_submenu' class='menu-submenu[% menulevel %]'>
+   [% INCLUDE sections sections=item.subitems, menulevel= menulevel _ '_' _ loop.count %]
+  </div>
+ [%- END %]
 [%- END %]
 [%- END  %]
-[%- BLOCK item %]
-  [% item.spacer %]
-  [%- IF item.href %]
-    [% L.link(item.href, L.html_tag('span', L.img_tag(item.img), class='menu-spacer') _ chunk, class='menu-link', target=item.target) %]
-  [%- ELSE %]
-    [% L.html_tag('span', L.img_tag(item.img), class='menu-spacer') _ chunk %]
-  [%- END %]
-[%- END %]

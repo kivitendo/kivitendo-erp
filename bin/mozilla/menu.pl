@@ -103,7 +103,7 @@ sub section_menu {
     my $menuitem   = $menu->{$item};
     my $label      = apply { s/.*--// } $item;
     my $ml         = apply { s/--.*// } $item;
-    my $spacer     = $nbsp x (($item =~ s/--/--/g) * 2);
+    my $spacer     = "spacer" . (0 + $item =~ s/--/--/g);
     my $label_icon = $level . "--" . $label . ".png";
 
     next if $level && $item ne "$level--$label";
@@ -132,6 +132,7 @@ sub section_menu {
         label    => $label,
         height   => 24,
         class    => 'menu',
+        spacer   => $spacer,
         subitems => section_menu($menu, $item)
       );
     } elsif ($menuitem->{submenu}) {
@@ -165,7 +166,7 @@ sub make_item {
 
   return {
     %params,
-    chunks => [ multiline($params{label}) ],
+#    chunks => [ multiline($params{label}) ],
   };
 }
 
@@ -206,7 +207,7 @@ sub make_image {
     src     => $icon_found ? _icon_path($icon, $size) : "image/unterpunkt.png",
     alt     => $params{label},
     width   => $icon_found ? $size : 24,
-    height  => $size,
+    height  => $icon_found ? $size : 15,
   }
 }
 
