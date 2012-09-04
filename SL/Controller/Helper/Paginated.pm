@@ -54,7 +54,10 @@ sub get_current_paginate_params {
     per_page            => ($params{per_page} * 1) || $spec->{PER_PAGE},
   );
 
-  my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => {});
+  my $paginate_args     = ref($spec->{PAGINATE_ARGS}) eq 'CODE' ? $spec->{PAGINATE_ARGS}->($self)
+                        :     $spec->{PAGINATE_ARGS}            ? do { my $sub = $spec->{PAGINATE_ARGS}; $self->$sub() }
+                        :                                         {};
+  my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => $paginate_args);
   %paginate_params      = (
     %paginate_params,
     num_pages    => $calculated_params->{max},
@@ -210,6 +213,19 @@ as a default in certain cases. If this parameter is missing then it is
 derived from the controller's package (e.g. for the controller
 C<SL::Controller::BackgroundJobHistory> the C<MODEL> would default to
 C<BackgroundJobHistory>).
+
+=item * C<PAGINATE_ARGS>
+
+Optional. Either a code reference or the name of function to be called
+on the controller importing this helper.
+
+If this funciton is given then the paginate helper calls it whenever
+it has to count the total number of models for calculating the number
+of pages to display. The function must return a hash reference with
+elements suitable for passing to a Rose model manager's C<get_all>
+function.
+
+This can be used e.g. when filtering is used.
 
 =item * C<PER_PAGE>
 
