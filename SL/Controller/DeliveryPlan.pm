@@ -5,10 +5,31 @@ use parent qw(SL::Controller::Base);
 
 use Clone qw(clone);
 use SL::DB::OrderItem;
+use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
 
+use Rose::Object::MakeMethods::Generic
+(
+  scalar => [ qw(db_args) ],
+);
+
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
+
+__PACKAGE__->get_models_url_params(sub {
+  my ($self) = @_;
+  return (
+    %{ $self->{flat_filter} || {} },
+    sort_dir => $self->{sort_dir},
+    sort_by  => $self->{sort_by},
+  );
+});
+__PACKAGE__->make_paginated(
+  MODEL         => 'OrderItem',
+  PAGINATE_ARGS => 'db_args',
+  ONLY          => [ qw(list) ],
+);
 
 sub action_list {
   my ($self) = @_;
@@ -16,11 +37,9 @@ sub action_list {
     sort_by  => $::form->{sort_by} || 'reqdate',
     sort_dir => $::form->{sort_dir},
     filter   => $::form->{filter},
-    page     => $::form->{page},
   );
 
-  my $db_args = $self->setup_for_list(%list_params);
-  $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args);
+  $self->db_args($self->setup_for_list(%list_params));
   $self->{flat_filter} = { map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') };
   $self->make_filter_summary;
 
@@ -36,10 +55,9 @@ sub action_list {
     report_generator_export_options => [
       'list', qw(filter sort_by sort_dir),
     ],
-    db_args => $db_args,
   );
 
-  $self->{orderitems} = SL::DB::Manager::OrderItem->get_all(%$db_args);
+  $self->{orderitems} = $self->get_models(%{ $self->db_args });
 
   $self->list_objects;
 }
@@ -56,7 +74,6 @@ sub setup_for_list {
       launder_to => $self->{filter},
     ),
     sort_by => $self->set_sort_params(%params),
-    page    => $params{page},
   );
 
   $args{query} = [ @{ $args{query} || [] },
@@ -160,12 +177,9 @@ sub prepare_report {
 
 
   for my $col (@sortable) {
-    $column_defs{$col}{link} = $self->url_for(
-      action   => 'list',
+    $column_defs{$col}{link} = $self->get_callback(
       sort_by  => $col,
       sort_dir => ($self->{sort_by} eq $col ? 1 - $self->{sort_dir} : $self->{sort_dir}),
-      page     => $self->{pages}{cur},
-      %{ $self->{flat_filter} },
     );
   }
 
@@ -184,7 +198,7 @@ sub prepare_report {
   );
   $report->set_options_from_form;
 
-  SL::DB::Manager::OrderItem->disable_paginating(args => $params{db_args}) if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
 
   $self->{report_data} = {
     column_defs => \%column_defs,
