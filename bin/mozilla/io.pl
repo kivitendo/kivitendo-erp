@@ -226,6 +226,7 @@ sub display_row {
     # adjust prices by unit, ignore if pricegroup changed
     if ((!$form->{"prices_$i"}) || ($form->{"new_pricegroup_$i"} == $form->{"old_pricegroup_$i"})) {
         $form->{"sellprice_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
+        $form->{"lastcost_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
         $form->{"unit_old_$i"}   = $form->{"selected_unit_$i"};
     }
     my $this_unit = $form->{"unit_$i"};
@@ -358,7 +359,7 @@ sub display_row {
     } else {
       $real_sellprice            = $linetotal;
     };
-    my $real_lastcost            = $form->{"lastcost_$i"} * $form->{"qty_$i"} / ( $form->{"marge_price_factor_$i"} || 1 );
+    my $real_lastcost            = $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"} / $price_factor, 2);
     my $marge_percent_warn       = $myconfig{marge_percent_warn} * 1 || 15;
     my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;
 
