@@ -3,7 +3,7 @@ package SL::Controller::Helper::GetModels;
 use strict;
 
 use Exporter qw(import);
-our @EXPORT = qw(get_callback get_models);
+our @EXPORT = qw(get_models_url_params get_callback get_models);
 
 use constant PRIV => '__getmodelshelperpriv';
 
@@ -19,6 +19,22 @@ sub register_get_models_handlers {
   $class->run_before(sub { $_[0]->{PRIV()} = { current_action => $_[1] }; }, %hook_params);
 
   map { push @{ $registered_handlers{$_} }, $additional_handlers{$_} if $additional_handlers{$_} } keys %registered_handlers;
+}
+
+sub get_models_url_params {
+  my ($class, $sub_name_or_code) = @_;
+
+  my $code     = (ref($sub_name_or_code) || '') eq 'CODE' ? $sub_name_or_code : sub { shift->$sub_name_or_code(@_) };
+  my $callback = sub {
+    my ($self, %params)   = @_;
+    my @additional_params = $code->($self);
+    return (
+      %params,
+      (scalar(@additional_params) == 1) && (ref($additional_params[0]) eq 'HASH') ? %{ $additional_params[0] } : @additional_params,
+    );
+  };
+
+  push @{ $registered_handlers{callback} }, $callback;
 }
 
 sub get_callback {
@@ -101,6 +117,19 @@ in L<get_callback>.
 =head1 PACKAGE FUNCTIONS
 
 =over 4
+
+=item C<get_models_url_params $class, $sub>
+
+Register one of the controller's subs to be called whenever an URL has
+to be generated (e.g. for sort and pagination links). This is a way
+for the controller to add additional parameters to the URL (e.g. for
+filter parameters).
+
+The C<$sub> parameter can be either a code reference or the name of
+one of the controller's functions.
+
+The value returned by this C<$sub> must be either a single hash
+reference or a hash of key/value pairs to add to the URL.
 
 =item C<register_get_models_handlers $class, %handlers>
 
