@@ -28,8 +28,8 @@ sub _H {
 }
 
 sub _J {
-  my $string =  "" . shift;
-  $string    =~ s/\"/\\\"/g;
+  my $string = shift;
+  $string    =~ s/(\"|\'|\\)/\\$1/g;
   return $string;
 }
 
