@@ -12,7 +12,7 @@ my $controller_paginate_spec;
 sub make_paginated {
   my ($class, %specs)       = @_;
 
-  $specs{MODEL}           ||=  $class->_controller_name;
+  $specs{MODEL}           ||=  $class->controller_name;
   $specs{MODEL}             =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
   $specs{PER_PAGE}        ||= "SL::DB::Manager::$specs{MODEL}"->default_objects_per_page;
   $specs{FORM_PARAMS}     ||= [ qw(page per_page) ];

@@ -12,7 +12,7 @@ my $controller_sort_spec;
 sub make_sorted {
   my ($class, %specs) = @_;
 
-  $specs{MODEL} ||=  $class->_controller_name;
+  $specs{MODEL} ||=  $class->controller_name;
   $specs{MODEL}   =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
 
   while (my ($column, $spec) = each %specs) {

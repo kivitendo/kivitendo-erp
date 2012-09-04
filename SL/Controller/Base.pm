@@ -10,6 +10,11 @@ use List::Util qw(first);
 use SL::Request qw(flatten);
 use SL::MoreCommon qw(uri_encode);
 
+use Rose::Object::MakeMethods::Generic
+(
+  scalar => [ qw(action_name) ],
+);
+
 #
 # public/helper functions
 #
@@ -20,7 +25,7 @@ sub url_for {
   return $_[0] if (scalar(@_) == 1) && !ref($_[0]);
 
   my %params      = ref($_[0]) eq 'HASH' ? %{ $_[0] } : @_;
-  my $controller  = delete($params{controller}) || $self->_controller_name;
+  my $controller  = delete($params{controller}) || $self->controller_name;
   my $action      = $params{action}             || 'dispatch';
 
   my $script;
@@ -124,6 +129,12 @@ sub send_file {
   $file->close;
 }
 
+sub controller_name {
+  my $class = ref($_[0]) || $_[0];
+  $class    =~ s/^SL::Controller:://;
+  return $class;
+}
+
 #
 # Before/after run hooks
 #
@@ -198,15 +209,10 @@ sub _run_action {
 
   $::form->error("Invalid action '${action}' for controller " . ref($self)) if !$self->can($sub);
 
+  $self->action_name($action);
   $self->_run_hooks('before', $action);
   $self->$sub(@_);
   $self->_run_hooks('after', $action);
-}
-
-sub _controller_name {
-  my $class = ref($_[0]) || $_[0];
-  $class    =~ s/^SL::Controller:://;
-  return $class;
 }
 
 sub _dispatch {
@@ -218,6 +224,7 @@ sub _dispatch {
   my $sub     = "action_${action}";
 
   if ($self->can($sub)) {
+    $self->action_name($action);
     $self->_run_hooks('before', $action);
     $self->$sub(@_);
     $self->_run_hooks('after', $action);
@@ -470,7 +477,7 @@ parameter or as a normal hash.
 
 The controller to call is given by C<$params{controller}>. It defaults
 to the current controller as returned by
-L</_controller_name>.
+L</controller_name>.
 
 The action to call is given by C<$params{action}>. It defaults to
 C<dispatch>.
@@ -543,6 +550,18 @@ variables whose name starts with C<{AUTH}> are removed before the
 request is routed. Only controllers that handle login requests
 themselves should return trueish for this function.
 
+=item C<controller_name>
+
+Returns the name of the curernt controller package without the
+C<SL::Controller::> prefix. This method can be called both as a class
+method and an instance method.
+
+=item C<action_name>
+
+Returns the name of the currently executing action. If the dispatcher
+mechanism was used then this is not C<dispatch> but the actual method
+name the dispatching resolved to.
+
 =back
 
 =head2 PRIVATE FUNCTIONS
@@ -550,11 +569,6 @@ themselves should return trueish for this function.
 These functions are supposed to be used from this base class only.
 
 =over 4
-
-=item C<_controller_name>
-
-Returns the name of the curernt controller package without the
-C<SL::Controller::> prefix.
 
 =item C<_dispatch>
 
