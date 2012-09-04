@@ -301,7 +301,9 @@ sub submit_tag {
   my ($self, $name, $value, @slurp) = @_;
   my %attributes = _hashify(@slurp);
 
-  $attributes{onclick} = "if (confirm('" . delete($attributes{confirm}) . "')) return true; else return false;" if $attributes{confirm};
+  if ( $attributes{confirm} ) {
+    $attributes{onclick} = 'return confirm("'. _J(delete($attributes{confirm})) .'");';
+  }
 
   return $self->input_tag($name, $value, %attributes, type => 'submit', class => 'submit');
 }
