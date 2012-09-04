@@ -291,19 +291,21 @@ div#menuv4 li li li li:hover ul
 /* End of non-anchor hover selectors */
 
 
-#html-menu { float:left; }
-#html-menu tr { vertical-align: top; }
-#html-menu div.menuitem { padding: 2px 0px 2px 0px; white-space: nowrap; }
+#html-menu { float:left; width: 183px; }
+#html-menu div.mi { margin-top: 4px; margin-bottom: 3px; white-space: nowrap; clear:both }
 #html-menu div.submenu { font-weight: bold }
-#html-menu img { vertical-align: middle; border: 0; }
+#html-menu img { vertical-align: top; border: 0; }
 #html-menu a { vertical-align: top }
-#html-menu .item span.menu-spacer { display: inline-block; width: 24px }
-#html-menu .menu span.menu-spacer { display: inline-block; width: 28px }
-#html-menu div.menu span.menuitemchunk { color:blue; }
-#html-menu div.menu span.menuitemchunk:hover { color:blue; background-color: lemonchiffon; cursor: pointer; }
-#html-menu span.menuitemchunk { white-space: normal; }
-#html-menu .spacer0 { position:relative; left: 2px }
-#html-menu .spacer1 { position:relative; left: 6px }
-#html-menu .spacer2 { position:relative; left: 12px }
+#html-menu .item span.ms { float:left; width: 24px }
+#html-menu .menu span.ms { float:left; width: 32px }
+#html-menu div.menu { height: 24px }
+#html-menu div.menu span.mic { color:blue; position: relative; top: 5px; }
+#html-menu div.menu:hover,
+#html-menu div.item:hover { color:blue; background-color: lemonchiffon; cursor: pointer; }
+#html-menu span.mic { white-space: normal; display: inline-block; vertical-align: top; line-height: 1.2; }
+#html-menu a.ml span.mic { width: 145px } /* fix deep indents */
+#html-menu div.spacer0 { position:relative; padding-left: 2px }
+#html-menu div.spacer1 { position:relative; padding-left: 8px }
+#html-menu div.spacer2 { position:relative; padding-left: 16px }
 
 

@@ -6,11 +6,11 @@
 </div>
 <script type='text/javascript'>
   $(function(){
-    $('#html-menu div.menu-submenu').hide();
+    $('#html-menu div.item, #html-menu div.submenu').hide();
     $('#html-menu div.menu').each(function() {
       $(this).click(function(){
-        $('#html-menu div.menu-submenu').not('#' + $(this).attr('id') + '_submenu').hide();
-        $('#' + $(this).attr('id') + '_submenu').toggle();
+        $('#html-menu div.mi').not('div.menu').not('[id^=' + $(this).attr('id') + '_]').hide();
+        $('#html-menu div.mi[id^=' + $(this).attr('id') + '_]').toggle();
       });
     });
   });
@@ -19,17 +19,15 @@
 </html>
 [%- BLOCK sections %]
 [%- FOREACH item IN sections %]
- <div id='menuitem[% menulevel %]_[% loop.count %]' class='menuitem menuitemchunk [% item.spacer %] [% item.class %] hover'>
-  [%- IF item.href %]
-     <a href="[% item.href | html %]" class='menu-link' target='[% item.target %]'><span class="menuitemicon menu-spacer">[% L.img_tag(item.img) %]</span><span class='menuitemchunk hover'>[% item.label %]</span></a>
-  [%- ELSE %]
-   <span class="menuitemicon menu-spacer">[% L.img_tag(item.img) %]</span><span class='menuitemchunk hover'>[% item.label %]</span>
-  [%- END %]
+ <div id='mi[% menulevel %]_[% loop.count %]' class='mi [% item.spacer %] [% item.class %]'>
+ [%- IF item.href %]
+  <a href="[% item.href | html %]" class='ml' target='[% item.target %]'><span class="mii ms">[% L.img_tag(item.img) %]</span><span class='mic'>[% item.label %]</span></a>
+ [%- ELSE %]
+  <span class="mii ms">[% L.img_tag(item.img) %]</span><span class='mic'>[% item.label %]</span>
+ [%- END %]
  </div>
  [%- IF item.subitems.size %]
-  <div id='menuitem[% menulevel %]_[% loop.count %]_submenu' class='menu-submenu[% menulevel %]'>
-   [% INCLUDE sections sections=item.subitems, menulevel= menulevel _ '_' _ loop.count %]
-  </div>
+  [% INCLUDE sections sections=item.subitems, menulevel= menulevel _ '_' _ loop.count %]
  [%- END %]
 [%- END %]
 [%- END  %]
