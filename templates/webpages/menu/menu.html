@@ -2,14 +2,19 @@
 <body class="menu">
 
 <div id='html-menu'>
-  [% PROCESS sections %]
+[%- FOREACH item IN sections %]
+ <div id='mi[% item.item_id %]' class='mi [% item.spacer %] [% item.class %]'>[%- IF item.href %]
+  <a href="[% item.href | html %]" class='ml' target='[% item.target %]'><span class="mii ms">[% L.img_tag(item.img) %]</span><span class='mic'>[% item.label %]</span></a>[%- ELSE %]
+  <span class="mii ms">[% L.img_tag(item.img) %]</span><span class='mic'>[% item.label %]</span>[%- END %]
+ </div>
+[%- END %]
 </div>
 <script type='text/javascript'>
   $(function(){
-    $('#html-menu div.item, #html-menu div.submenu').hide();
-    $('#html-menu div.menu').each(function() {
+    $('#html-menu div.i, #html-menu div.sm').hide();
+    $('#html-menu div.m').each(function() {
       $(this).click(function(){
-        $('#html-menu div.mi').not('div.menu').not('[id^=' + $(this).attr('id') + '_]').hide();
+        $('#html-menu div.mi').not('div.m').not('[id^=' + $(this).attr('id') + '_]').hide();
         $('#html-menu div.mi[id^=' + $(this).attr('id') + '_]').toggle();
       });
     });
@@ -17,17 +22,3 @@
 </script>
 </body>
 </html>
-[%- BLOCK sections %]
-[%- FOREACH item IN sections %]
- <div id='mi[% menulevel %]_[% loop.count %]' class='mi [% item.spacer %] [% item.class %]'>
- [%- IF item.href %]
-  <a href="[% item.href | html %]" class='ml' target='[% item.target %]'><span class="mii ms">[% L.img_tag(item.img) %]</span><span class='mic'>[% item.label %]</span></a>
- [%- ELSE %]
-  <span class="mii ms">[% L.img_tag(item.img) %]</span><span class='mic'>[% item.label %]</span>
- [%- END %]
- </div>
- [%- IF item.subitems.size %]
-  [% INCLUDE sections sections=item.subitems, menulevel= menulevel _ '_' _ loop.count %]
- [%- END %]
-[%- END %]
-[%- END  %]

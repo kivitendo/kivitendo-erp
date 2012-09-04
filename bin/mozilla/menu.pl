@@ -44,8 +44,6 @@ use URI;
 
 use List::MoreUtils qw(apply);
 
-my $nbsp     = '&nbsp;';
-
 # end of main
 
 sub display {
@@ -83,7 +81,7 @@ sub acc_menu {
   $::form->{title} = $::locale->text('kivitendo');
   $::form->header;
 
-  my $sections = section_menu($menu);
+  my $sections = [ section_menu($menu) ];
 
   print $::form->parse_html_template('menu/menu', {
     framesize => $framesize,
@@ -95,15 +93,17 @@ sub acc_menu {
 
 sub section_menu {
   $::lxdebug->enter_sub;
-  my ($menu, $level) = @_;
+  my ($menu, $level, $id_prefix) = @_;
   my @menuorder = $menu->access_control(\%::myconfig, $level);
   my @items;
+
+  my $id = 0;
 
   for my $item (@menuorder) {
     my $menuitem   = $menu->{$item};
     my $label      = apply { s/.*--// } $item;
     my $ml         = apply { s/--.*// } $item;
-    my $spacer     = "spacer" . (0 + $item =~ s/--/--/g);
+    my $spacer     = "s" . (0 + $item =~ s/--/--/g);
     my $label_icon = $level . "--" . $label . ".png";
 
     next if $level && $item ne "$level--$label";
@@ -126,68 +126,40 @@ sub section_menu {
 
     my $anchor = $menuitem->{href};
 
+    my %common_args = (
+        label   => $label,
+        spacer  => $spacer,
+        target  => $menuitem->{target},
+        item_id => "$id_prefix\_$id",
+        height  => 16,
+    );
+
     if (!$level) { # toplevel
-      push @items, make_item(
+      push @items, { %common_args,
         img      =>  make_image(icon => $item . '.png', size => 24, label => $label),
-        label    => $label,
         height   => 24,
-        class    => 'menu',
-        spacer   => $spacer,
-        subitems => section_menu($menu, $item)
-      );
+        class    => 'm',
+      };
+      push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{submenu}) {
-      push @items, make_item(
-        target   => $menuitem->{target},
-        spacer   => $spacer,
+      push @items, { %common_args,
         img      => make_image(submenu => 1),
-        label    => $label,
-        class    => 'submenu',
-        subitems => section_menu($menu, $item),
-      );
+        class    => 'sm',
+      };
+      push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{module}) {
-      push @items, make_item(
-        target => $menuitem->{target},
-        img    => make_image(label => $label, icon => $label_icon),
-        href   => $anchor,
-        spacer => $spacer,
-        label  => $label,
-        class  => 'item',
-      );
+      push @items, { %common_args,
+        img     => make_image(label => $label, icon => $label_icon),
+        href    => $anchor,
+        class   => 'i',
+      };
     }
+  } continue {
+    $id++;
   }
+
   $::lxdebug->leave_sub;
-  return \@items;
-}
-
-sub make_item {
-  my %params = @_;
-  $params{spacer} ||= '';
-  $params{height} ||= 16;
-
-  return {
-    %params,
-#    chunks => [ multiline($params{label}) ],
-  };
-}
-
-# multi line hack, sschoeling jul06
-# if a label is too long, try to split it at whitespaces, then join it to chunks of less
-# than 20 chars and store it in an array.
-# use this array later instead of the &nbsp;-ed label
-sub multiline {
-  my ($label) = @_;
-  my @chunks;
-  my $l = 20;
-  for (split / /, $label) {
-    $l += length $_;
-    if ($l < 20) {
-      $chunks[-1] .= " $_";
-    } else {
-      $l = length $_;
-      push @chunks, $_;
-    }
-  }
-  return @chunks;
+  return @items;
 }
 
 sub make_image {
@@ -199,9 +171,6 @@ sub make_image {
   return unless _show_images();
 
   my $icon_found = $icon && -f _icon_path($icon, $size);
-  my $padding    = $size == 16 && $icon_found ? $nbsp x 2
-                 : $size == 24                ? $nbsp
-                 :                            '';
 
   return  {
     src     => $icon_found ? _icon_path($icon, $size) : "image/unterpunkt.png",
