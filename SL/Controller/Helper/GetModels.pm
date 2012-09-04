@@ -5,7 +5,8 @@ use strict;
 use Exporter qw(import);
 our @EXPORT = qw(get_callback get_models);
 
-my $current_action;
+use constant PRIV => '__getmodelshelperpriv';
+
 my %registered_handlers = ( callback => [], get_models => [] );
 
 sub register_get_models_handlers {
@@ -15,7 +16,7 @@ sub register_get_models_handlers {
   $only           = [ $only ] if !ref $only;
   my %hook_params = @{ $only } ? ( only => $only ) : ();
 
-  $class->run_before(sub { $current_action = $_[1]; }, %hook_params);
+  $class->run_before(sub { $_[0]->{PRIV()} = { current_action => $_[1] }; }, %hook_params);
 
   map { push @{ $registered_handlers{$_} }, $additional_handlers{$_} if $additional_handlers{$_} } keys %registered_handlers;
 }
@@ -23,7 +24,7 @@ sub register_get_models_handlers {
 sub get_callback {
   my ($self, %override_params) = @_;
 
-  my %default_params = _run_handlers($self, 'callback', action => $current_action);
+  my %default_params = _run_handlers($self, 'callback', action => ($self->{PRIV()} || {})->{current_action});
 
   return $self->url_for(%default_params, %override_params);
 }
