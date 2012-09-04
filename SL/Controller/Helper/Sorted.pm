@@ -5,7 +5,9 @@ use strict;
 use Exporter qw(import);
 our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params _save_current_sort_params _get_models_handler_for_sorted _callback_handler_for_sorted);
 
-my ($controller_sort_spec, $current_sort_by, $current_sort_dir);
+use constant PRIV => '__sortedhelperpriv';
+
+my $controller_sort_spec;
 
 sub make_sorted {
   my ($class, %specs) = @_;
@@ -56,8 +58,9 @@ sub get_current_sort_params {
   my $sort_spec = $self->get_sort_spec;
 
   if (!$params{sort_by}) {
-    $params{sort_by}  = $current_sort_by;
-    $params{sort_dir} = $current_sort_dir;
+    my $priv          = $self->{PRIV()} || {};
+    $params{sort_by}  = $priv->{by};
+    $params{sort_dir} = $priv->{dir};
   }
 
   my $by          = $params{sort_by} || $sort_spec->{DEFAULT_BY};
@@ -74,22 +77,25 @@ sub get_current_sort_params {
 #
 
 sub _save_current_sort_params {
-  my ($self) = @_;
+  my ($self)      = @_;
 
-  my $sort_spec     = $self->get_sort_spec;
-  $current_sort_by  =   $::form->{ $sort_spec->{FORM_PARAMS}->[0] };
-  $current_sort_dir = !!$::form->{ $sort_spec->{FORM_PARAMS}->[1] } * 1;
+  my $sort_spec   = $self->get_sort_spec;
+  $self->{PRIV()} = {
+    by            =>   $::form->{ $sort_spec->{FORM_PARAMS}->[0] },
+    dir           => !!$::form->{ $sort_spec->{FORM_PARAMS}->[1] } * 1,
+  };
 
-  # $::lxdebug->message(0, "saving current sort params to $current_sort_by / $current_sort_dir");
+  # $::lxdebug->message(0, "saving current sort params to " . $self->{PRIV()}->{by} . ' / ' . $self->{PRIV()}->{dir});
 }
 
 sub _callback_handler_for_sorted {
   my ($self, %params) = @_;
 
-  if ($current_sort_by) {
+  my $priv = $self->{PRIV()} || {};
+  if ($priv->{by}) {
     my $sort_spec                             = $self->get_sort_spec;
-    $params{ $sort_spec->{FORM_PARAMS}->[0] } = $current_sort_by;
-    $params{ $sort_spec->{FORM_PARAMS}->[1] } = $current_sort_dir;
+    $params{ $sort_spec->{FORM_PARAMS}->[0] } = $priv->{by};
+    $params{ $sort_spec->{FORM_PARAMS}->[1] } = $priv->{dir};
   }
 
   # $::lxdebug->dump(0, "CB handler for sorted; params nach modif:", \%params);

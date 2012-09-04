@@ -5,7 +5,9 @@ use strict;
 use Exporter qw(import);
 our @EXPORT = qw(make_paginated get_paginate_spec get_current_paginate_params _save_current_paginate_params _get_models_handler_for_paginated _callback_handler_for_paginated);
 
-my ($controller_paginate_spec, $current_page, $current_per_page);
+use constant PRIV => '__paginatedhelper_priv';
+
+my $controller_paginate_spec;
 
 sub make_paginated {
   my ($class, %specs)       = @_;
@@ -43,8 +45,9 @@ sub get_current_paginate_params {
 
   my $spec              = $self->get_paginate_spec;
 
-  $params{page}         = $current_page     unless defined $params{page};
-  $params{per_page}     = $current_per_page unless defined $params{per_page};
+  my $priv              = $self->{PRIV()} || {};
+  $params{page}         = $priv->{page}     unless defined $params{page};
+  $params{per_page}     = $priv->{per_page} unless defined $params{per_page};
 
   my %paginate_params   =  (
     page                => ($params{page}     * 1) || 1,
@@ -71,19 +74,22 @@ sub _save_current_paginate_params {
   my ($self)        = @_;
 
   my $paginate_spec = $self->get_paginate_spec;
-  $current_page     = $::form->{ $paginate_spec->{FORM_PARAMS}->[0] } || 1;
-  $current_per_page = $::form->{ $paginate_spec->{FORM_PARAMS}->[1] } * 1;
+  $self->{PRIV()}   = {
+    page            => $::form->{ $paginate_spec->{FORM_PARAMS}->[0] } || 1,
+    per_page        => $::form->{ $paginate_spec->{FORM_PARAMS}->[1] } * 1,
+  };
 
-  # $::lxdebug->message(0, "saving current paginate params to $current_page / $current_per_page");
+  # $::lxdebug->message(0, "saving current paginate params to " . $self->{PRIV()}->{page} . ' / ' . $self->{PRIV()}->{per_page});
 }
 
 sub _callback_handler_for_paginated {
   my ($self, %params) = @_;
+  my $priv            = $self->{PRIV()} || {};
 
-  if ($current_page) {
+  if ($priv->{page}) {
     my $paginate_spec                             = $self->get_paginate_spec;
-    $params{ $paginate_spec->{FORM_PARAMS}->[0] } = $current_page;
-    $params{ $paginate_spec->{FORM_PARAMS}->[1] } = $current_per_page if $current_per_page;
+    $params{ $paginate_spec->{FORM_PARAMS}->[0] } = $priv->{page};
+    $params{ $paginate_spec->{FORM_PARAMS}->[1] } = $priv->{per_page} if $priv->{per_page};
   }
 
   # $::lxdebug->dump(0, "CB handler for paginated; params nach modif:", \%params);
