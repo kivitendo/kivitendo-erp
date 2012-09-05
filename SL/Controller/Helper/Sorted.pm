@@ -5,7 +5,9 @@ use strict;
 use Exporter qw(import);
 our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params _save_current_sort_params _get_models_handler_for_sorted _callback_handler_for_sorted);
 
-my ($controller_sort_spec, $current_sort_by, $current_sort_dir);
+use constant PRIV => '__sortedhelperpriv';
+
+my $controller_sort_spec;
 
 sub make_sorted {
   my ($class, %specs) = @_;
@@ -22,8 +24,9 @@ sub make_sorted {
     $spec->{model_column} ||= $column;
   }
 
-  $specs{DEFAULT_DIR}   = $specs{DEFAULT_DIR} || !defined($specs{DEFAULT_DIR}) ? 1 : 0;
-  $specs{DEFAULT_BY}  ||= { "SL::DB::Manager::$specs{MODEL}"->_sort_spec }->{default}->[0];
+  my %model_sort_spec   = "SL::DB::Manager::$specs{MODEL}"->_sort_spec;
+  $specs{DEFAULT_DIR}   = $specs{DEFAULT_DIR} ? 1 : defined($specs{DEFAULT_DIR}) ? $specs{DEFAULT_DIR} * 1 : $model_sort_spec{default}->[1];
+  $specs{DEFAULT_BY}  ||= $model_sort_spec{default}->[0];
   $specs{FORM_PARAMS} ||= [ qw(sort_by sort_dir) ];
   $specs{ONLY}        ||= [];
   $specs{ONLY}          = [ $specs{ONLY} ] if !ref $specs{ONLY};
@@ -55,8 +58,9 @@ sub get_current_sort_params {
   my $sort_spec = $self->get_sort_spec;
 
   if (!$params{sort_by}) {
-    $params{sort_by}  = $current_sort_by;
-    $params{sort_dir} = $current_sort_dir;
+    my $priv          = $self->{PRIV()} || {};
+    $params{sort_by}  = $priv->{by};
+    $params{sort_dir} = $priv->{dir};
   }
 
   my $by          = $params{sort_by} || $sort_spec->{DEFAULT_BY};
@@ -73,22 +77,25 @@ sub get_current_sort_params {
 #
 
 sub _save_current_sort_params {
-  my ($self) = @_;
+  my ($self)      = @_;
 
-  my $sort_spec     = $self->get_sort_spec;
-  $current_sort_by  =   $::form->{ $sort_spec->{FORM_PARAMS}->[0] };
-  $current_sort_dir = !!$::form->{ $sort_spec->{FORM_PARAMS}->[1] } * 1;
+  my $sort_spec   = $self->get_sort_spec;
+  $self->{PRIV()} = {
+    by            =>   $::form->{ $sort_spec->{FORM_PARAMS}->[0] },
+    dir           => !!$::form->{ $sort_spec->{FORM_PARAMS}->[1] } * 1,
+  };
 
-  # $::lxdebug->message(0, "saving current sort params to $current_sort_by / $current_sort_dir");
+  # $::lxdebug->message(0, "saving current sort params to " . $self->{PRIV()}->{by} . ' / ' . $self->{PRIV()}->{dir});
 }
 
 sub _callback_handler_for_sorted {
   my ($self, %params) = @_;
 
-  if ($current_sort_by) {
+  my $priv = $self->{PRIV()} || {};
+  if ($priv->{by}) {
     my $sort_spec                             = $self->get_sort_spec;
-    $params{ $sort_spec->{FORM_PARAMS}->[0] } = $current_sort_by;
-    $params{ $sort_spec->{FORM_PARAMS}->[1] } = $current_sort_dir;
+    $params{ $sort_spec->{FORM_PARAMS}->[0] } = $priv->{by};
+    $params{ $sort_spec->{FORM_PARAMS}->[1] } = $priv->{dir};
   }
 
   # $::lxdebug->dump(0, "CB handler for sorted; params nach modif:", \%params);
@@ -143,7 +150,7 @@ In a controller:
   sub action_list {
     my ($self) = @_;
 
-    my $sorted_models = $self->get_sorted;
+    my $sorted_models = $self->get_models;
     $self->render('controller/list', ENTRIES => $sorted_models);
   }
 
@@ -186,6 +193,9 @@ calls to e.g. C<SL::DB::Manager::SomeModel::get_all>.
 A template on the other hand can use the method
 C<sortable_table_header> from the layout helper module C<L>.
 
+This module requires that the Rose model managers use their C<Sorted>
+helper.
+
 The C<Sorted> helper hooks into the controller call to the action via
 a C<run_before> hook. This is done so that it can remember the sort
 parameters that were used in the current view.
@@ -207,23 +217,9 @@ that can be used for sorting (similar to database column names). The
 second kind are also the indexes you use in a template when calling
 C<[% L.sorted_table_header(...) %]>.
 
-Control parameters include the following (all required parameters
-occur first):
+Control parameters include the following:
 
 =over 4
-
-=item * C<DEFAULT_BY>
-
-Required. A string: the index to sort by if the user hasn't clicked on
-any column yet (meaning: if the C<$::form> parameters for sorting do
-not contain a valid index).
-
-=item * C<DEFAULT_DIR>
-
-Optional. Default sort direction (ascending for trueish values,
-descrending for falsish values).
-
-Defaults to C<1> if missing.
 
 =item * C<MODEL>
 
@@ -232,6 +228,21 @@ as a default in certain cases. If this parameter is missing then it is
 derived from the controller's package (e.g. for the controller
 C<SL::Controller::BackgroundJobHistory> the C<MODEL> would default to
 C<BackgroundJobHistory>).
+
+=item * C<DEFAULT_BY>
+
+Optional. A string: the index to sort by if the user hasn't clicked on
+any column yet (meaning: if the C<$::form> parameters for sorting do
+not contain a valid index).
+
+Defaults to the underlying database model's default sort column name.
+
+=item * C<DEFAULT_DIR>
+
+Optional. Default sort direction (ascending for trueish values,
+descrending for falsish values).
+
+Defaults to the underlying database model's default sort direction.
 
 =item * C<FORM_PARAMS>
 

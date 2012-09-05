@@ -1,7 +1,7 @@
 [% USE HTML %][% USE L %][% USE LxERP %]
 
 <body>
- <div class="listtop">[% FORM.title %]</div>
+ <h1>[% FORM.title %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
 
@@ -15,12 +15,12 @@
    <table id="background_job_list" width="100%">
     <thead>
      <tr class="listheading">
-      <th>[%- LxERP.t8('Package name') %]</th>
-      <th>[%- LxERP.t8('Execution type') %]</th>
-      <th>[%- LxERP.t8('Active') %]</th>
-      <th>[%- LxERP.t8('Execution schedule') %]</th>
-      <th>[%- LxERP.t8('Last run at') %]</th>
-      <th>[%- LxERP.t8('Next run at') %]</th>
+      <th>[% L.sortable_table_header('package_name') %]</th>
+      <th>[% L.sortable_table_header('type') %]</th>
+      <th>[% L.sortable_table_header('active') %]</th>
+      <th>[% L.sortable_table_header('cron_spec') %]</th>
+      <th>[% L.sortable_table_header('last_run_at') %]</th>
+      <th>[% L.sortable_table_header('next_run_at') %]</th>
      </tr>
     </thead>
 
@@ -28,7 +28,7 @@
     [%- FOREACH background_job = BACKGROUND_JOBS %]
     <tr class="listrow[% loop.count % 2 %]" id="background_job_id_[% background_job.id %]">
      <td>
-      <a href="[% SELF.url_for(action => 'edit', id => background_job.id) %]">
+      <a href="[% SELF.url_for(action => 'edit', id => background_job.id, back_to => SELF.get_callback) %]">
        [%- HTML.escape(background_job.package_name) %]
       </a>
      </td>
@@ -64,10 +64,12 @@
    </table>
   [%- END %]
 
+  [% L.paginate_controls %]
+
   <hr size="3" noshade>
 
   <p>
-   <a href="[% SELF.url_for(action => 'new') %]">[%- LxERP.t8('Create new background job') %]</a>
+   <a href="[% SELF.url_for(action => 'new', back_to => SELF.get_callback) %]">[%- LxERP.t8('Create new background job') %]</a>
    |
    <a href="[% SELF.url_for(controller => 'BackgroundJobHistory', action => 'list') %]">[%- LxERP.t8('View background job history') %]</a>
    |

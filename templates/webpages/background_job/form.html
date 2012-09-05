@@ -1,11 +1,11 @@
 [% USE HTML %][% USE L %][% USE LxERP %]
 <body>
 
- <form method="post" action="controller.pl">
-  <div class="listtop">[% FORM.title %]</div>
+ <h1>[% FORM.title %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
 
+ <form method="post" action="controller.pl">
   <table>
    <tr>
     <th align="right">[%- LxERP.t8('Active') %]</th>
@@ -42,6 +42,7 @@
 
   <p>
    [% L.hidden_tag("id", SELF.background_job.id) %]
+   [% L.hidden_tag("back_to", SELF.back_to) %]
    [% L.hidden_tag("action", "BackgroundJob/dispatch") %]
    [% L.submit_tag("action_" _  (SELF.background_job.id ? "update" : "create"), LxERP.t8('Save')) %]
    [%- IF SELF.background_job.id %]

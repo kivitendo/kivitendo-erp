@@ -204,7 +204,9 @@ sub _run_action {
 }
 
 sub _controller_name {
-  return (split(/::/, ref($_[0]) || $_[0]))[-1];
+  my $class = ref($_[0]) || $_[0];
+  $class    =~ s/^SL::Controller:://;
+  return $class;
 }
 
 sub _dispatch {

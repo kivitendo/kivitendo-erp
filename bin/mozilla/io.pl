@@ -226,6 +226,7 @@ sub display_row {
     # adjust prices by unit, ignore if pricegroup changed
     if ((!$form->{"prices_$i"}) || ($form->{"new_pricegroup_$i"} == $form->{"old_pricegroup_$i"})) {
         $form->{"sellprice_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
+        $form->{"lastcost_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
         $form->{"unit_old_$i"}   = $form->{"selected_unit_$i"};
     }
     my $this_unit = $form->{"unit_$i"};
@@ -248,7 +249,10 @@ sub display_row {
     $column_data{"unit"} = AM->unit_select_html($all_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
 # / unit ending
 
+#count the max of decimalplaces of sellprice and lastcost, so the same number of decimalplaces
+#is shown for lastcost and sellprice.
     my $decimalplaces = ($form->{"sellprice_$i"} =~ /\.(\d+)/) ? max 2, length $1 : 2;
+    $decimalplaces = ($form->{"lastcost_$i"} =~ /\.(\d+)/) ? max $decimalplaces, length $1 : $decimalplaces;
 
     my $price_factor   = $price_factors{$form->{"price_factor_id_$i"}} || 1;
     my $discount       = $form->round_amount($form->{"qty_$i"} * $form->{"sellprice_$i"} *        $form->{"discount_$i"}  / 100 / $price_factor, 2);
@@ -355,7 +359,7 @@ sub display_row {
     } else {
       $real_sellprice            = $linetotal;
     };
-    my $real_lastcost            = $form->{"lastcost_$i"} * $form->{"qty_$i"} / ( $form->{"marge_price_factor_$i"} || 1 );
+    my $real_lastcost            = $form->round_amount($form->{"lastcost_$i"} * $form->{"qty_$i"} / $price_factor, 2);
     my $marge_percent_warn       = $myconfig{marge_percent_warn} * 1 || 15;
     my $marge_adjust_credit_note = $form->{type} eq 'credit_note' ? -1 : 1;
 
@@ -377,7 +381,7 @@ sub display_row {
         &nbsp;<b>%s</b> <input size="5" name="lastcost_$i" value="%s">|,
                    $marge_color, $locale->text('Ertrag'),$form->{"marge_absolut_$i"}, $form->{"marge_percent_$i"},
                    $locale->text('LP'), $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2),
-                   $locale->text('EK'), $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, 2) }
+                   $locale->text('EK'), $form->format_amount(\%myconfig, $form->{"lastcost_$i"}, $decimalplaces) }
       if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/ || $form->{type} =~ /^credit_note$/ ) && !$is_delivery_order;
 
     $form->{"listprice_$i"} = $form->format_amount(\%myconfig, $form->{"listprice_$i"}, 2)

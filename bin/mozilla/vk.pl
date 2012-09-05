@@ -334,8 +334,8 @@ sub invoice_transactions {
     $ar->{price_factor} = 1 unless $ar->{price_factor};
     # calculate individual sellprice
     # discount was already accounted for in db sellprice
-    $ar->{sellprice} = $ar->{sellprice} / $ar->{price_factor} / $basefactor;
-    $ar->{lastcost} = $ar->{lastcost} / $ar->{price_factor};
+    $ar->{sellprice}       = $ar->{sellprice}  / $ar->{price_factor} / $basefactor;
+    $ar->{lastcost}        = $ar->{lastcost}   / $ar->{price_factor} / $basefactor;
     $ar->{sellprice_total} = $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) / $ar->{price_factor};
     $ar->{lastcost_total}  = $ar->{qty} * $ar->{lastcost} * $basefactor;
     # marge_percent wird neu berechnet, da Wert in invoice leer ist (Bug)

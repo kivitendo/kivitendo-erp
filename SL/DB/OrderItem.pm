@@ -6,6 +6,7 @@ use List::Util qw(sum);
 use SL::AM;
 
 use SL::DB::MetaSetup::OrderItem;
+use SL::DB::Manager::OrderItem;
 use SL::DB::Helper::CustomVariables (
   sub_module  => 'orderitems',
   cvars_alias => 1,
@@ -37,9 +38,6 @@ __PACKAGE__->meta->add_relationship(
   },
 );
 
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
-
 __PACKAGE__->meta->initialize;
 
 sub is_price_update_available {
@@ -55,31 +53,5 @@ sub shipped_qty {
 
   return sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi);
 }
-
-package SL::DB::Manager::OrderItem;
-
-use SL::DB::Helper::Paginated;
-use SL::DB::Helper::Sorted;
-
-sub _sort_spec {
-  return ( columns => { delivery_date => [ 'deliverydate',        ],
-                        description   => [ 'lower(orderitems.description)',  ],
-                        partnumber    => [ 'part.partnumber',     ],
-                        qty           => [ 'qty'                  ],
-                        ordnumber     => [ 'order.ordnumber'      ],
-                        customer      => [ 'lower(customer.name)', ],
-                        position      => [ 'trans_id', 'runningnumber' ],
-                        reqdate       => [ 'COALESCE(orderitems.reqdate, order.reqdate)' ],
-                        orddate       => [ 'order.orddate' ],
-                        sellprice     => [ 'sellprice' ],
-                        discount      => [ 'discount' ],
-                        transdate     => [ 'transdate::date', 'order.reqdate' ],
-                      },
-           default => [ 'position', 1 ],
-           nulls   => { }
-         );
-}
-
-sub default_objects_per_page { 40 }
 
 1;
