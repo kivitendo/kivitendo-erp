@@ -60,7 +60,7 @@ sub action_list {
       raw_bottom_info_text => $bottom,
       controller_class     => 'DeliveryPlan',
     },
-    report_generator_export_options => [ qw(list filter sort_by sort_dir) ],
+    report_generator_export_options => [ qw(list filter) ],
   );
 
   $self->{orderitems} = $self->get_models(%{ $self->db_args });
@@ -166,22 +166,11 @@ sub prepare_report {
 
   map { $column_defs{$_}->{text} = $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
-  my %current_sort_params = $self->get_current_sort_params;
-
-  for my $col (@sortable) {
-    $column_defs{$col}{link} = $self->get_callback(
-      # TODO: column header links from helper
-      sort_by  => $col,
-      sort_dir => ($current_sort_params{by} eq $col ? 1 - $current_sort_params{dir} : $current_sort_params{dir}),
-    );
-  }
-
   map { $column_defs{$_}->{visible} = 1 } @visible;
 
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
   $report->set_options(allow_pdf_export => 1, allow_csv_export => 1);
-  $report->set_sort_indicator($current_sort_params{by}, $current_sort_params{dir});
   $report->set_export_options(@{ $params{report_generator_export_options} || [] });
   $report->set_options(
     %{ $params{report_generator_options} || {} },
@@ -190,6 +179,7 @@ sub prepare_report {
     title                => $::locale->text('Delivery Plan'),
   );
   $report->set_options_from_form;
+  $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 
   $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
 
