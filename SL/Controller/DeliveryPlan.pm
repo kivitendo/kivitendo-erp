@@ -200,19 +200,19 @@ sub make_filter_summary {
   my @filter_strings;
 
   my @filters = (
-    [ $filter->{order}{"ordnumber:substr::ilike"}, $::locale->text('Number') ],
-    [ $filter->{part}{"partnumber:substr::ilike"}, $::locale->text('Part Number') ],
-    [ $filter->{"description:substr::ilike"}, $::locale->text('Part Description') ],
-    [ $filter->{"reqdate:date::ge"}, $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
-    [ $filter->{"reqdate:date::le"}, $::locale->text('Delivery Date') . " " . $::locale->text('To Date') ],
-    [ $filter->{"qty:number"}, $::locale->text('Quantity') ],
-    [ $filter->{order}{customer}{"name:substr::ilike"}, $::locale->text('Customer') ],
-    [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number') ],
+    [ $filter->{order}{"ordnumber:substr::ilike"},                $::locale->text('Number')                                             ],
+    [ $filter->{part}{"partnumber:substr::ilike"},                $::locale->text('Part Number')                                        ],
+    [ $filter->{"description:substr::ilike"},                     $::locale->text('Part Description')                                   ],
+    [ $filter->{"reqdate:date::ge"},                              $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
+    [ $filter->{"reqdate:date::le"},                              $::locale->text('Delivery Date') . " " . $::locale->text('To Date')   ],
+    [ $filter->{"qty:number"},                                    $::locale->text('Quantity')                                           ],
+    [ $filter->{order}{customer}{"name:substr::ilike"},           $::locale->text('Customer')                                           ],
+    [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number')                                    ],
   );
 
   my @flags = (
-    [ $filter->{part}{type}{part}, $::locale->text('Parts') ],
-    [ $filter->{part}{type}{service}, $::locale->text('Services') ],
+    [ $filter->{part}{type}{part},     $::locale->text('Parts')      ],
+    [ $filter->{part}{type}{service},  $::locale->text('Services')   ],
     [ $filter->{part}{type}{assembly}, $::locale->text('Assemblies') ],
   );
 
