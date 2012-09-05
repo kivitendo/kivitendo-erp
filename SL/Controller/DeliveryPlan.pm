@@ -35,7 +35,6 @@ __PACKAGE__->make_sorted(
   description => 'Description',
   partnumber  => 'Part Number',
   qty         => 'Qty',
-  missing     => 'Missing qty',
   shipped_qty => 'shipped',
   ordnumber   => 'Order',
   customer    => 'Customer',
@@ -43,25 +42,12 @@ __PACKAGE__->make_sorted(
 
 sub action_list {
   my ($self) = @_;
-  my %list_params = (
-    filter   => $::form->{filter},
-  );
 
-  $self->db_args($self->setup_for_list(%list_params));
+  $self->db_args($self->setup_for_list(filter => $::form->{filter}));
   $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });
   $self->make_filter_summary;
 
-  my $top    = $::form->parse_html_template('delivery_plan/report_top', { FORM => $::form, SELF => $self });
-  my $bottom = $::form->parse_html_template('delivery_plan/report_bottom', { SELF => $self });
-
-  $self->prepare_report(
-    report_generator_options => {
-      raw_top_info_text    => $top,
-      raw_bottom_info_text => $bottom,
-      controller_class     => 'DeliveryPlan',
-    },
-    report_generator_export_options => [ qw(list filter) ],
-  );
+  $self->prepare_report;
 
   $self->{orderitems} = $self->get_models(%{ $self->db_args });
 
@@ -139,55 +125,52 @@ sub setup_for_list {
 }
 
 sub prepare_report {
-  my ($self, %params) = @_;
+  my ($self)      = @_;
 
-  my $objects  = $params{objects} || [];
-  my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(reqdate customer ordnumber partnumber description qty shipped_qty);
-  my @visible  = qw(reqdate partnumber description qty shipped_qty ordnumber customer);
-  my @sortable = qw(reqdate partnumber description                 ordnumber customer);
+  my @columns     = qw(reqdate customer ordnumber partnumber description qty shipped_qty);
+  my @sortable    = qw(reqdate customer ordnumber partnumber description                );
 
   my %column_defs = (
-    reqdate                 => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date }},
-    description             => {      sub => sub { $_[0]->description },
-                                 obj_link => sub { $self->link_to($_[0]->part) }},
-    partnumber              => {      sub => sub { $_[0]->part->partnumber },
-                                 obj_link => sub { $self->link_to($_[0]->part) }},
-    qty                     => {      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
-    missing                 => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
-    shipped_qty             => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
-    ordnumber               => {      sub => sub { $_[0]->order->ordnumber },
-                                 obj_link => sub { $self->link_to($_[0]->order) }},
-    customer                => {      sub => sub { $_[0]->order->customer->name },
-                                 obj_link => sub { $self->link_to($_[0]->order->customer) }},
+    reqdate       => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date                         } },
+    description   => {      sub => sub { $_[0]->description                                                              },
+                       obj_link => sub { $self->link_to($_[0]->part)                                                     } },
+    partnumber    => {      sub => sub { $_[0]->part->partnumber                                                         },
+                       obj_link => sub { $self->link_to($_[0]->part)                                                     } },
+    qty           => {      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit                                        } },
+    shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit } },
+    ordnumber     => {      sub => sub { $_[0]->order->ordnumber                                                         },
+                       obj_link => sub { $self->link_to($_[0]->order)                                                    } },
+    customer      => {      sub => sub { $_[0]->order->customer->name                                                    },
+                       obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
   );
 
   map { $column_defs{$_}->{text} = $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
-  map { $column_defs{$_}->{visible} = 1 } @visible;
-
+  $report->set_options(
+    std_column_visibility => 1,
+    controller_class      => 'DeliveryPlan',
+    output_format         => 'HTML',
+    top_info_text         => $::locale->text('Delivery Plan for currently outstanding sales orders'),
+    raw_top_info_text     => $self->render('delivery_plan/report_top',    { no_output => 1, partial => 1 }),
+    raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { no_output => 1, partial => 1 }),
+    title                 => $::locale->text('Delivery Plan'),
+    allow_pdf_export      => 1,
+    allow_csv_export      => 1,
+  );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_options(allow_pdf_export => 1, allow_csv_export => 1);
-  $report->set_export_options(@{ $params{report_generator_export_options} || [] });
-  $report->set_options(
-    %{ $params{report_generator_options} || {} },
-    output_format        => 'HTML',
-    top_info_text        => $::locale->text('Delivery Plan for currently outstanding sales orders'),
-    title                => $::locale->text('Delivery Plan'),
-  );
+  $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
   $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 
   $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
 
   $self->{report_data} = {
-    column_defs => \%column_defs,
-    columns     => \@columns,
-    visible     => \@visible,
-    sortable    => \@sortable,
+    column_defs        => \%column_defs,
+    columns            => \@columns,
   };
 }
 
