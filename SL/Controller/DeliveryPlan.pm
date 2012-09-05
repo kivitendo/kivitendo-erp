@@ -7,40 +7,48 @@ use Clone qw(clone);
 use SL::DB::OrderItem;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
+use SL::Controller::Helper::Sorted;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
 
-use Rose::Object::MakeMethods::Generic
-(
-  scalar => [ qw(db_args) ],
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(db_args flat_filter) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
 
-__PACKAGE__->get_models_url_params(sub {
-  my ($self) = @_;
-  return (
-    %{ $self->{flat_filter} || {} },
-    sort_dir => $self->{sort_dir},
-    sort_by  => $self->{sort_by},
-  );
-});
+__PACKAGE__->get_models_url_params('flat_filter');
 __PACKAGE__->make_paginated(
   MODEL         => 'OrderItem',
   PAGINATE_ARGS => 'db_args',
   ONLY          => [ qw(list) ],
 );
 
+__PACKAGE__->make_sorted(
+  MODEL       => 'OrderItem',
+  ONLY        => [ qw(list) ],
+
+  DEFAULT_BY  => 'reqdate',
+  DEFAULT_DIR => 1,
+
+  reqdate     => 'Reqdate',
+  description => 'Description',
+  partnumber  => 'Part Number',
+  qty         => 'Qty',
+  missing     => 'Missing qty',
+  shipped_qty => 'shipped',
+  ordnumber   => 'Order',
+  customer    => 'Customer',
+);
+
 sub action_list {
   my ($self) = @_;
   my %list_params = (
-    sort_by  => $::form->{sort_by} || 'reqdate',
-    sort_dir => $::form->{sort_dir},
     filter   => $::form->{filter},
   );
 
   $self->db_args($self->setup_for_list(%list_params));
-  $self->{flat_filter} = { map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') };
+  $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });
   $self->make_filter_summary;
 
   my $top    = $::form->parse_html_template('delivery_plan/report_top', { FORM => $::form, SELF => $self });
@@ -52,9 +60,7 @@ sub action_list {
       raw_bottom_info_text => $bottom,
       controller_class     => 'DeliveryPlan',
     },
-    report_generator_export_options => [
-      'list', qw(filter sort_by sort_dir),
-    ],
+    report_generator_export_options => [ qw(list filter sort_by sort_dir) ],
   );
 
   $self->{orderitems} = $self->get_models(%{ $self->db_args });
@@ -73,7 +79,6 @@ sub setup_for_list {
       with_objects => [ 'order', 'order.customer', 'part' ],
       launder_to => $self->{filter},
     ),
-    sort_by => $self->set_sort_params(%params),
   );
 
   $args{query} = [ @{ $args{query} || [] },
@@ -133,14 +138,6 @@ sub setup_for_list {
   return \%args;
 }
 
-sub set_sort_params {
-  my ($self, %params) = @_;
-  my $sort_str;
-  ($self->{sort_by}, $self->{sort_dir}, $sort_str) =
-    SL::DB::Manager::OrderItem->make_sort_string(%params);
-  return $sort_str;
-}
-
 sub prepare_report {
   my ($self, %params) = @_;
 
@@ -153,33 +150,29 @@ sub prepare_report {
   my @sortable = qw(reqdate partnumber description                 ordnumber customer);
 
   my %column_defs = (
-    reqdate                 => { text => $::locale->text('Reqdate'),
-                                  sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date }},
-    description             => { text => $::locale->text('Description'),
-                                  sub => sub { $_[0]->description },
-                             obj_link => sub { $self->link_to($_[0]->part) }},
-    partnumber              => { text => $::locale->text('Part Number'),
-                                  sub => sub { $_[0]->part->partnumber },
-                             obj_link => sub { $self->link_to($_[0]->part) }},
-    qty                     => { text => $::locale->text('Qty'),
-                                  sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
-    missing                 => { text => $::locale->text('Missing qty'),
-                                  sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
-    shipped_qty             => { text => $::locale->text('shipped'),
-                                  sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
-    ordnumber               => { text => $::locale->text('Order'),
-                                  sub => sub { $_[0]->order->ordnumber },
-                             obj_link => sub { $self->link_to($_[0]->order) }},
-    customer                => { text => $::locale->text('Customer'),
-                                  sub => sub { $_[0]->order->customer->name },
-                             obj_link => sub { $self->link_to($_[0]->order->customer) }},
+    reqdate                 => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date }},
+    description             => {      sub => sub { $_[0]->description },
+                                 obj_link => sub { $self->link_to($_[0]->part) }},
+    partnumber              => {      sub => sub { $_[0]->part->partnumber },
+                                 obj_link => sub { $self->link_to($_[0]->part) }},
+    qty                     => {      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
+    missing                 => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
+    shipped_qty             => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
+    ordnumber               => {      sub => sub { $_[0]->order->ordnumber },
+                                 obj_link => sub { $self->link_to($_[0]->order) }},
+    customer                => {      sub => sub { $_[0]->order->customer->name },
+                                 obj_link => sub { $self->link_to($_[0]->order->customer) }},
   );
 
+  map { $column_defs{$_}->{text} = $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+
+  my %current_sort_params = $self->get_current_sort_params;
 
   for my $col (@sortable) {
     $column_defs{$col}{link} = $self->get_callback(
+      # TODO: column header links from helper
       sort_by  => $col,
-      sort_dir => ($self->{sort_by} eq $col ? 1 - $self->{sort_dir} : $self->{sort_dir}),
+      sort_dir => ($current_sort_params{by} eq $col ? 1 - $current_sort_params{dir} : $current_sort_params{dir}),
     );
   }
 
@@ -188,7 +181,7 @@ sub prepare_report {
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
   $report->set_options(allow_pdf_export => 1, allow_csv_export => 1);
-  $report->set_sort_indicator(%params);
+  $report->set_sort_indicator($current_sort_params{by}, $current_sort_params{dir});
   $report->set_export_options(@{ $params{report_generator_export_options} || [] });
   $report->set_options(
     %{ $params{report_generator_options} || {} },
