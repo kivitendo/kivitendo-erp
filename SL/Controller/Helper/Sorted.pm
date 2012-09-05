@@ -2,8 +2,11 @@ package SL::Controller::Helper::Sorted;
 
 use strict;
 
+use Carp;
+
 use Exporter qw(import);
-our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params _save_current_sort_params _get_models_handler_for_sorted _callback_handler_for_sorted);
+our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params set_report_generator_sort_options
+                 _save_current_sort_params _get_models_handler_for_sorted _callback_handler_for_sorted);
 
 use constant PRIV => '__sortedhelperpriv';
 
@@ -70,6 +73,23 @@ sub get_current_sort_params {
   );
 
   return %sort_params;
+}
+
+sub set_report_generator_sort_options {
+  my ($self, %params) = @_;
+
+  $params{$_} or croak("Missing parameter '$_'") for qw(report sortable_columns);
+
+  my %current_sort_params = $self->get_current_sort_params;
+
+  foreach my $col (@{ $params{sortable_columns} }) {
+    $params{report}->{columns}->{$col}->{link} = $self->get_callback(
+      sort_by  => $col,
+      sort_dir => ($current_sort_params{by} eq $col ? 1 - $current_sort_params{dir} : $current_sort_params{dir}),
+    );
+  }
+
+  $params{report}->set_sort_indicator($current_sort_params{by}, 1 - $current_sort_params{dir});
 }
 
 #
@@ -319,6 +339,19 @@ The key C<dir> is either C<1> or C<0>.
 Returns a hash reference to the sort spec structure given in the call
 to L<make_sorted> after normalization (hash reference construction,
 applying default parameters etc).
+
+=item C<set_report_generator_sort_options %params>
+
+This function sets two things in an instance of
+L<SL::ReportGenerator>: the sort indicator and the links for those
+column headers that are sortable.
+
+The report generator instance must be passed as the parameter
+C<report>. The parameter C<sortable_columns> must be an array
+reference of column names that are sortable.
+
+The report generator instance must already have its columns set via a
+call to its L<SL::ReportGenerator::set_columns> function.
 
 =back
 
