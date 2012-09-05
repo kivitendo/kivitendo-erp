@@ -3,6 +3,7 @@ package SL::Controller::Helper::Sorted;
 use strict;
 
 use Carp;
+use List::MoreUtils qw(uniq);
 
 use Exporter qw(import);
 our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params set_report_generator_sort_options
@@ -90,6 +91,13 @@ sub set_report_generator_sort_options {
   }
 
   $params{report}->set_sort_indicator($current_sort_params{by}, 1 - $current_sort_params{dir});
+
+  if ($params{report}->{export}) {
+    $params{report}->{export}->{variable_list} = [ uniq(
+      @{ $params{report}->{export}->{variable_list} },
+      @{ $self->get_sort_spec->{FORM_PARAMS} }
+    )];
+  }
 }
 
 #
@@ -342,16 +350,28 @@ applying default parameters etc).
 
 =item C<set_report_generator_sort_options %params>
 
-This function sets two things in an instance of
-L<SL::ReportGenerator>: the sort indicator and the links for those
-column headers that are sortable.
+This function does three things with an instance of
+L<SL::ReportGenerator>:
+
+=over 4
+
+=item 1. it sets the sort indicator,
+
+=item 2. it sets the the links for those column headers that are
+sortable and
+
+=item 3. it adds the C<FORM_PARAMS> fields to the list of variables in
+the report generator's export options.
+
+=back
 
 The report generator instance must be passed as the parameter
 C<report>. The parameter C<sortable_columns> must be an array
 reference of column names that are sortable.
 
-The report generator instance must already have its columns set via a
-call to its L<SL::ReportGenerator::set_columns> function.
+The report generator instance must already have its columns and export
+options set via calls to its L<SL::ReportGenerator::set_columns> and
+L<SL::ReportGenerator::set_export_options> functions.
 
 =back
 
