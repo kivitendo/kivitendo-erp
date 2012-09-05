@@ -26,11 +26,11 @@ __PACKAGE__->make_paginated(ONLY => [ qw(list) ]);
 __PACKAGE__->make_sorted(
   ONLY         => [ qw(list) ],
 
-  package_name => $::locale->text('Package name'),
-  run_at       => $::locale->text('Run at'),
-  status       => $::locale->text('Execution status'),
-  result       => $::locale->text('Result'),
-  error        => $::locale->text('Error'),
+  package_name => 'Package name',
+  run_at       => 'Run at',
+  status       => 'Execution status',
+  result       => 'Result',
+  error        => 'Error',
 );
 
 #

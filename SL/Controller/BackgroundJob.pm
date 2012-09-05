@@ -26,12 +26,12 @@ __PACKAGE__->make_paginated(ONLY => [ qw(list) ]);
 __PACKAGE__->make_sorted(
   ONLY         => [ qw(list) ],
 
-  package_name => $::locale->text('Package name'),
-  type         => $::locale->text('Execution type'),
-  active       => $::locale->text('Active'),
-  cron_spec    => $::locale->text('Execution schedule'),
-  last_run_at  => $::locale->text('Last run at'),
-  next_run_at  => $::locale->text('Next run at'),
+  package_name => 'Package name',
+  type         => 'Execution type',
+  active       => 'Active',
+  cron_spec    => 'Execution schedule',
+  last_run_at  => 'Last run at',
+  next_run_at  => 'Next run at',
 );
 
 #

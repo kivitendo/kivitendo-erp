@@ -277,6 +277,9 @@ Required. A user-displayable title to be used by functions like the
 layout helper's C<sortable_table_header>. Does not have a default
 value.
 
+Note that this string must be the untranslated English version of the
+string. The titles will be translated whenever they're requested.
+
 =item * C<model>
 
 Optional. The name of a Rose database model this sort index refers

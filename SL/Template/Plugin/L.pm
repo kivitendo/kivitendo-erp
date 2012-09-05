@@ -591,7 +591,7 @@ sub sortable_table_header {
   my $by_spec             = $sort_spec->{$by};
   my %current_sort_params = $controller->get_current_sort_params;
   my ($image, $new_dir)   = ('', $current_sort_params{dir});
-  my $title               = delete($params{title}) || $by_spec->{title};
+  my $title               = delete($params{title}) || $::locale->text($by_spec->{title});
 
   if ($current_sort_params{by} eq $by) {
     my $current_dir = $current_sort_params{dir} ? 'up' : 'down';
