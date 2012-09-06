@@ -9,6 +9,7 @@ use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
 use SL::DB::BackgroundJobHistory;
 use SL::Helper::Flash;
+use SL::Locale::String;
 use SL::System::TaskServer;
 
 use Rose::Object::MakeMethods::Generic
@@ -26,11 +27,11 @@ __PACKAGE__->make_paginated(ONLY => [ qw(list) ]);
 __PACKAGE__->make_sorted(
   ONLY         => [ qw(list) ],
 
-  package_name => 'Package name',
-  run_at       => 'Run at',
-  status       => 'Execution status',
-  result       => 'Result',
-  error        => 'Error',
+  package_name => t8('Package name'),
+  run_at       => t8('Run at'),
+  status       => t8('Execution status'),
+  result       => t8('Result'),
+  error        => t8('Error'),
 );
 
 #

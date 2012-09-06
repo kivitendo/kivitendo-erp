@@ -10,6 +10,7 @@ use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
+use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
@@ -31,13 +32,13 @@ __PACKAGE__->make_sorted(
   DEFAULT_BY  => 'reqdate',
   DEFAULT_DIR => 1,
 
-  reqdate     => 'Reqdate',
-  description => 'Description',
-  partnumber  => 'Part Number',
-  qty         => 'Qty',
-  shipped_qty => 'shipped',
-  ordnumber   => 'Order',
-  customer    => 'Customer',
+  reqdate     => t8('Reqdate'),
+  description => t8('Description'),
+  partnumber  => t8('Part Number'),
+  qty         => t8('Qty'),
+  shipped_qty => t8('shipped'),
+  ordnumber   => t8('Order'),
+  customer    => t8('Customer'),
 );
 
 sub action_list {
