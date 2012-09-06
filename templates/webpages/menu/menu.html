@@ -11,6 +11,20 @@
 [%- END %]
 </div>
 <script type='text/javascript'>
+  function make_img(i){
+    var img=$('<img>');
+    $.each(i, function(k,v){ img.attr(k,v) });
+    return img;
+  }
+  function make_menu_item(b){
+    var span1 = $('<span class="mii ms">').append(make_img(b.img));
+    var span2 = '<span class="mic">' + b.label + '</span>';
+    var a = $('<a class="ml">').append(span1, span2);
+    if (b.href) a.attr('href', b.href);
+    if (b.target) a.attr('target', b.target);
+    var mi = $('<div class="mi">').addClass(b.cl).addClass(b.spacer).attr('id', b.item_id).append(a);
+    $('#html-menu').append(mi);
+  }
   $(function(){
     $('#html-menu div.i, #html-menu div.sm').hide();
     $('#html-menu div.m').each(function() {
