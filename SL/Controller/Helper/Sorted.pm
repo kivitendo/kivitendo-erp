@@ -22,7 +22,7 @@ sub make_sorted {
   while (my ($column, $spec) = each %specs) {
     next if $column =~ m/^[A-Z_]+$/;
 
-    $spec = $specs{$column} = { title => $spec } if !ref $spec;
+    $spec = $specs{$column} = { title => $spec } if (ref($spec) || '') ne 'HASH';
 
     $spec->{model}        ||= $specs{MODEL};
     $spec->{model_column} ||= $column;
