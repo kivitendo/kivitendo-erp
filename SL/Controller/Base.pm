@@ -245,6 +245,7 @@ sub _template_obj {
                     INCLUDE_PATH => '.:templates/webpages',
                     COMPILE_EXT  => '.tcc',
                     COMPILE_DIR  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
+                    ERROR        => 'templates/webpages/generic/exception.html',
                   }) || croak;
 
   return $self->{__basepriv_template_obj};
