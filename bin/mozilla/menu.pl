@@ -76,6 +76,8 @@ sub display {
 sub acc_menu {
   $::lxdebug->enter_sub;
 
+  $::form->{stylesheet} = [ qw(css/icons16.css css/icons24.css ) ];
+
   my $framesize    = _calc_framesize() - 2;
   my $menu         = Menu->new("menu.ini");
   $::form->{title} = $::locale->text('kivitendo');
@@ -101,14 +103,14 @@ sub section_menu {
 
   for my $item (@menuorder) {
     my $menuitem   = $menu->{$item};
-    my $label      = apply { s/.*--// } $item;
+    my $olabel     = apply { s/.*--// } $item;
     my $ml         = apply { s/--.*// } $item;
+    my $icon_class = apply { y/ /-/   } $item;
     my $spacer     = "s" . (0 + $item =~ s/--/--/g);
-    my $label_icon = $level . "--" . $label . ".png";
 
-    next if $level && $item ne "$level--$label";
+    next if $level && $item ne "$level--$olabel";
 
-    $label         = $::locale->text($label);
+    my $label         = $::locale->text($olabel);
 
     $menuitem->{module} ||= $::form->{script};
     $menuitem->{action} ||= "section_menu";
@@ -136,20 +138,20 @@ sub section_menu {
 
     if (!$level) { # toplevel
       push @items, { %common_args,
-        img      =>  make_image(icon => $item . '.png', size => 24, label => $label),
+        img      => "icon24 $icon_class",   #  make_image(size => 24, label => $item),
         height   => 24,
         class    => 'm',
       };
       push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{submenu}) {
       push @items, { %common_args,
-        img      => make_image(submenu => 1),
+        img      => "icon16 submenu",   #make_image(label => 'submenu'),
         class    => 'sm',
       };
       push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{module}) {
       push @items, { %common_args,
-        img     => make_image(label => $label, icon => $label_icon),
+        img     => "icon16 $icon_class",  #make_image(size => 16, label => $item),
         href    => $anchor,
         class   => 'i',
       };
@@ -160,24 +162,6 @@ sub section_menu {
 
   $::lxdebug->leave_sub;
   return @items;
-}
-
-sub make_image {
-  my (%params) = @_;
-
-  my $icon   = $params{icon};
-  my $size   = $params{size}   || 16;
-
-  return unless _show_images();
-
-  my $icon_found = $icon && -f _icon_path($icon, $size);
-
-  return  {
-    src     => $icon_found ? _icon_path($icon, $size) : "image/unterpunkt.png",
-    alt     => $params{label},
-    width   => $icon_found ? $size : 24,
-    height  => $icon_found ? $size : 15,
-  }
 }
 
 sub _calc_framesize {
@@ -193,14 +177,6 @@ sub _calc_framesize {
 sub _show_images {
   # don't show images in links
   _calc_framesize() != 240;
-}
-
-sub _icon_path {
-  my ($label, $size) = @_;
-
-  $size ||= 16;
-
-  return "image/icons/${size}x${size}/$label";
 }
 
 1;

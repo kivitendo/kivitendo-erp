@@ -5,8 +5,8 @@
 <div id='html-menu'>
 [%- FOREACH item IN sections %]
  <div id='mi[% item.item_id %]' class='mi [% item.spacer %] [% item.class %]'>[%- IF item.href %]
-  <a href="[% item.href | html %]" class='ml' target='[% item.target %]'><span class="mii ms">[% L.img_tag(item.img) %]</span><span class='mic'>[% item.label %]</span></a>[%- ELSE %]
-  <span class="mii ms">[% L.img_tag(item.img) %]</span><span class='mic'>[% item.label %]</span>[%- END %]
+  <a href="[% item.href | html %]" class='ml' target='[% item.target %]'><span class="mii ms"><div class="[% item.img %]"></div></span><span class='mic'>[% item.label %]</span></a>[%- ELSE %]
+  <span class="mii ms"><div class="[% item.img %]"></div></span><span class='mic'>[% item.label %]</span>[%- END %]
  </div>
 [%- END %]
 </div>
