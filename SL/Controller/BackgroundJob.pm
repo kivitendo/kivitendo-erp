@@ -9,6 +9,7 @@ use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
 use SL::DB::BackgroundJob;
 use SL::Helper::Flash;
+use SL::Locale::String;
 use SL::System::TaskServer;
 
 use Rose::Object::MakeMethods::Generic
@@ -26,12 +27,12 @@ __PACKAGE__->make_paginated(ONLY => [ qw(list) ]);
 __PACKAGE__->make_sorted(
   ONLY         => [ qw(list) ],
 
-  package_name => $::locale->text('Package name'),
-  type         => $::locale->text('Execution type'),
-  active       => $::locale->text('Active'),
-  cron_spec    => $::locale->text('Execution schedule'),
-  last_run_at  => $::locale->text('Last run at'),
-  next_run_at  => $::locale->text('Next run at'),
+  package_name => t8('Package name'),
+  type         => t8('Execution type'),
+  active       => t8('Active'),
+  cron_spec    => t8('Execution schedule'),
+  last_run_at  => t8('Last run at'),
+  next_run_at  => t8('Next run at'),
 );
 
 #

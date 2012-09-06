@@ -2,8 +2,12 @@ package SL::Controller::Helper::Sorted;
 
 use strict;
 
+use Carp;
+use List::MoreUtils qw(uniq);
+
 use Exporter qw(import);
-our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params _save_current_sort_params _get_models_handler_for_sorted _callback_handler_for_sorted);
+our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params set_report_generator_sort_options
+                 _save_current_sort_params _get_models_handler_for_sorted _callback_handler_for_sorted);
 
 use constant PRIV => '__sortedhelperpriv';
 
@@ -12,13 +16,13 @@ my $controller_sort_spec;
 sub make_sorted {
   my ($class, %specs) = @_;
 
-  $specs{MODEL} ||=  $class->_controller_name;
+  $specs{MODEL} ||=  $class->controller_name;
   $specs{MODEL}   =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
 
   while (my ($column, $spec) = each %specs) {
     next if $column =~ m/^[A-Z_]+$/;
 
-    $spec = $specs{$column} = { title => $spec } if !ref $spec;
+    $spec = $specs{$column} = { title => $spec } if (ref($spec) || '') ne 'HASH';
 
     $spec->{model}        ||= $specs{MODEL};
     $spec->{model_column} ||= $column;
@@ -70,6 +74,30 @@ sub get_current_sort_params {
   );
 
   return %sort_params;
+}
+
+sub set_report_generator_sort_options {
+  my ($self, %params) = @_;
+
+  $params{$_} or croak("Missing parameter '$_'") for qw(report sortable_columns);
+
+  my %current_sort_params = $self->get_current_sort_params;
+
+  foreach my $col (@{ $params{sortable_columns} }) {
+    $params{report}->{columns}->{$col}->{link} = $self->get_callback(
+      sort_by  => $col,
+      sort_dir => ($current_sort_params{by} eq $col ? 1 - $current_sort_params{dir} : $current_sort_params{dir}),
+    );
+  }
+
+  $params{report}->set_sort_indicator($current_sort_params{by}, 1 - $current_sort_params{dir});
+
+  if ($params{report}->{export}) {
+    $params{report}->{export}->{variable_list} = [ uniq(
+      @{ $params{report}->{export}->{variable_list} },
+      @{ $self->get_sort_spec->{FORM_PARAMS} }
+    )];
+  }
 }
 
 #
@@ -277,6 +305,9 @@ Required. A user-displayable title to be used by functions like the
 layout helper's C<sortable_table_header>. Does not have a default
 value.
 
+Note that this string must be the untranslated English version of the
+string. The titles will be translated whenever they're requested.
+
 =item * C<model>
 
 Optional. The name of a Rose database model this sort index refers
@@ -316,6 +347,31 @@ The key C<dir> is either C<1> or C<0>.
 Returns a hash reference to the sort spec structure given in the call
 to L<make_sorted> after normalization (hash reference construction,
 applying default parameters etc).
+
+=item C<set_report_generator_sort_options %params>
+
+This function does three things with an instance of
+L<SL::ReportGenerator>:
+
+=over 4
+
+=item 1. it sets the sort indicator,
+
+=item 2. it sets the the links for those column headers that are
+sortable and
+
+=item 3. it adds the C<FORM_PARAMS> fields to the list of variables in
+the report generator's export options.
+
+=back
+
+The report generator instance must be passed as the parameter
+C<report>. The parameter C<sortable_columns> must be an array
+reference of column names that are sortable.
+
+The report generator instance must already have its columns and export
+options set via calls to its L<SL::ReportGenerator::set_columns> and
+L<SL::ReportGenerator::set_export_options> functions.
 
 =back
 

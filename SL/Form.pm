@@ -695,6 +695,8 @@ sub init_template {
 
   return $self->template if $self->template;
 
+  # Force scripts/locales.pl to pick up the exception handling template.
+  # parse_html_template('generic/exception')
   return $self->template(Template->new({
      'INTERPOLATE'  => 0,
      'EVAL_PERL'    => 0,
@@ -704,6 +706,7 @@ sub init_template {
      'INCLUDE_PATH' => '.:templates/webpages',
      'COMPILE_EXT'  => '.tcc',
      'COMPILE_DIR'  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
+     'ERROR'        => 'templates/webpages/generic/exception.html',
   })) || die;
 }
 

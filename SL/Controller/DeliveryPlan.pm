@@ -5,41 +5,52 @@ use parent qw(SL::Controller::Base);
 
 use Clone qw(clone);
 use SL::DB::OrderItem;
+use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::Paginated;
+use SL::Controller::Helper::Sorted;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
+use SL::Locale::String;
+
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(db_args flat_filter) ],
+);
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
 
+__PACKAGE__->get_models_url_params('flat_filter');
+__PACKAGE__->make_paginated(
+  MODEL         => 'OrderItem',
+  PAGINATE_ARGS => 'db_args',
+  ONLY          => [ qw(list) ],
+);
+
+__PACKAGE__->make_sorted(
+  MODEL       => 'OrderItem',
+  ONLY        => [ qw(list) ],
+
+  DEFAULT_BY  => 'reqdate',
+  DEFAULT_DIR => 1,
+
+  reqdate     => t8('Reqdate'),
+  description => t8('Description'),
+  partnumber  => t8('Part Number'),
+  qty         => t8('Qty'),
+  shipped_qty => t8('shipped'),
+  ordnumber   => t8('Order'),
+  customer    => t8('Customer'),
+);
+
 sub action_list {
   my ($self) = @_;
-  my %list_params = (
-    sort_by  => $::form->{sort_by} || 'reqdate',
-    sort_dir => $::form->{sort_dir},
-    filter   => $::form->{filter},
-    page     => $::form->{page},
-  );
 
-  my $db_args = $self->setup_for_list(%list_params);
-  $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args);
-  $self->{flat_filter} = { map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') };
+  $self->db_args($self->setup_for_list(filter => $::form->{filter}));
+  $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });
   $self->make_filter_summary;
 
-  my $top    = $::form->parse_html_template('delivery_plan/report_top', { FORM => $::form, SELF => $self });
-  my $bottom = $::form->parse_html_template('delivery_plan/report_bottom', { SELF => $self });
+  $self->prepare_report;
 
-  $self->prepare_report(
-    report_generator_options => {
-      raw_top_info_text    => $top,
-      raw_bottom_info_text => $bottom,
-      controller_class     => 'DeliveryPlan',
-    },
-    report_generator_export_options => [
-      'list', qw(filter sort_by sort_dir),
-    ],
-    db_args => $db_args,
-  );
-
-  $self->{orderitems} = SL::DB::Manager::OrderItem->get_all(%$db_args);
+  $self->{orderitems} = $self->get_models(%{ $self->db_args });
 
   $self->list_objects;
 }
@@ -55,8 +66,6 @@ sub setup_for_list {
       with_objects => [ 'order', 'order.customer', 'part' ],
       launder_to => $self->{filter},
     ),
-    sort_by => $self->set_sort_params(%params),
-    page    => $params{page},
   );
 
   $args{query} = [ @{ $args{query} || [] },
@@ -116,81 +125,53 @@ sub setup_for_list {
   return \%args;
 }
 
-sub set_sort_params {
-  my ($self, %params) = @_;
-  my $sort_str;
-  ($self->{sort_by}, $self->{sort_dir}, $sort_str) =
-    SL::DB::Manager::OrderItem->make_sort_string(%params);
-  return $sort_str;
-}
-
 sub prepare_report {
-  my ($self, %params) = @_;
+  my ($self)      = @_;
 
-  my $objects  = $params{objects} || [];
-  my $report = SL::ReportGenerator->new(\%::myconfig, $::form);
+  my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns  = qw(reqdate customer ordnumber partnumber description qty shipped_qty);
-  my @visible  = qw(reqdate partnumber description qty shipped_qty ordnumber customer);
-  my @sortable = qw(reqdate partnumber description                 ordnumber customer);
+  my @columns     = qw(reqdate customer ordnumber partnumber description qty shipped_qty);
+  my @sortable    = qw(reqdate customer ordnumber partnumber description                );
 
   my %column_defs = (
-    reqdate                 => { text => $::locale->text('Reqdate'),
-                                  sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date }},
-    description             => { text => $::locale->text('Description'),
-                                  sub => sub { $_[0]->description },
-                             obj_link => sub { $self->link_to($_[0]->part) }},
-    partnumber              => { text => $::locale->text('Part Number'),
-                                  sub => sub { $_[0]->part->partnumber },
-                             obj_link => sub { $self->link_to($_[0]->part) }},
-    qty                     => { text => $::locale->text('Qty'),
-                                  sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit }},
-    missing                 => { text => $::locale->text('Missing qty'),
-                                  sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
-    shipped_qty             => { text => $::locale->text('shipped'),
-                                  sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit }},
-    ordnumber               => { text => $::locale->text('Order'),
-                                  sub => sub { $_[0]->order->ordnumber },
-                             obj_link => sub { $self->link_to($_[0]->order) }},
-    customer                => { text => $::locale->text('Customer'),
-                                  sub => sub { $_[0]->order->customer->name },
-                             obj_link => sub { $self->link_to($_[0]->order->customer) }},
+    reqdate       => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date                         } },
+    description   => {      sub => sub { $_[0]->description                                                              },
+                       obj_link => sub { $self->link_to($_[0]->part)                                                     } },
+    partnumber    => {      sub => sub { $_[0]->part->partnumber                                                         },
+                       obj_link => sub { $self->link_to($_[0]->part)                                                     } },
+    qty           => {      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit                                        } },
+    shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit } },
+    ordnumber     => {      sub => sub { $_[0]->order->ordnumber                                                         },
+                       obj_link => sub { $self->link_to($_[0]->order)                                                    } },
+    customer      => {      sub => sub { $_[0]->order->customer->name                                                    },
+                       obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
   );
 
+  map { $column_defs{$_}->{text} = $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
-  for my $col (@sortable) {
-    $column_defs{$col}{link} = $self->url_for(
-      action   => 'list',
-      sort_by  => $col,
-      sort_dir => ($self->{sort_by} eq $col ? 1 - $self->{sort_dir} : $self->{sort_dir}),
-      page     => $self->{pages}{cur},
-      %{ $self->{flat_filter} },
-    );
-  }
-
-  map { $column_defs{$_}->{visible} = 1 } @visible;
-
+  $report->set_options(
+    std_column_visibility => 1,
+    controller_class      => 'DeliveryPlan',
+    output_format         => 'HTML',
+    top_info_text         => $::locale->text('Delivery Plan for currently outstanding sales orders'),
+    raw_top_info_text     => $self->render('delivery_plan/report_top',    { no_output => 1, partial => 1 }),
+    raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { no_output => 1, partial => 1 }),
+    title                 => $::locale->text('Delivery Plan'),
+    allow_pdf_export      => 1,
+    allow_csv_export      => 1,
+  );
   $report->set_columns(%column_defs);
   $report->set_column_order(@columns);
-  $report->set_options(allow_pdf_export => 1, allow_csv_export => 1);
-  $report->set_sort_indicator(%params);
-  $report->set_export_options(@{ $params{report_generator_export_options} || [] });
-  $report->set_options(
-    %{ $params{report_generator_options} || {} },
-    output_format        => 'HTML',
-    top_info_text        => $::locale->text('Delivery Plan for currently outstanding sales orders'),
-    title                => $::locale->text('Delivery Plan'),
-  );
+  $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
+  $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 
-  SL::DB::Manager::OrderItem->disable_paginating(args => $params{db_args}) if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
 
   $self->{report_data} = {
-    column_defs => \%column_defs,
-    columns     => \@columns,
-    visible     => \@visible,
-    sortable    => \@sortable,
+    column_defs        => \%column_defs,
+    columns            => \@columns,
   };
 }
 
@@ -220,19 +201,19 @@ sub make_filter_summary {
   my @filter_strings;
 
   my @filters = (
-    [ $filter->{order}{"ordnumber:substr::ilike"}, $::locale->text('Number') ],
-    [ $filter->{part}{"partnumber:substr::ilike"}, $::locale->text('Part Number') ],
-    [ $filter->{"description:substr::ilike"}, $::locale->text('Part Description') ],
-    [ $filter->{"reqdate:date::ge"}, $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
-    [ $filter->{"reqdate:date::le"}, $::locale->text('Delivery Date') . " " . $::locale->text('To Date') ],
-    [ $filter->{"qty:number"}, $::locale->text('Quantity') ],
-    [ $filter->{order}{customer}{"name:substr::ilike"}, $::locale->text('Customer') ],
-    [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number') ],
+    [ $filter->{order}{"ordnumber:substr::ilike"},                $::locale->text('Number')                                             ],
+    [ $filter->{part}{"partnumber:substr::ilike"},                $::locale->text('Part Number')                                        ],
+    [ $filter->{"description:substr::ilike"},                     $::locale->text('Part Description')                                   ],
+    [ $filter->{"reqdate:date::ge"},                              $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
+    [ $filter->{"reqdate:date::le"},                              $::locale->text('Delivery Date') . " " . $::locale->text('To Date')   ],
+    [ $filter->{"qty:number"},                                    $::locale->text('Quantity')                                           ],
+    [ $filter->{order}{customer}{"name:substr::ilike"},           $::locale->text('Customer')                                           ],
+    [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number')                                    ],
   );
 
   my @flags = (
-    [ $filter->{part}{type}{part}, $::locale->text('Parts') ],
-    [ $filter->{part}{type}{service}, $::locale->text('Services') ],
+    [ $filter->{part}{type}{part},     $::locale->text('Parts')      ],
+    [ $filter->{part}{type}{service},  $::locale->text('Services')   ],
     [ $filter->{part}{type}{assembly}, $::locale->text('Assemblies') ],
   );
 

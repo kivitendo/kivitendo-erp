@@ -404,7 +404,7 @@ sub scanfile {
           }
         }
 
-        my ($found) = /locale->text.*?\(/;
+        my ($found) = / (?: locale->text | \b t8 ) \b .*? \(/x;
         $postmatch = "$'";
 
         if ($found) {

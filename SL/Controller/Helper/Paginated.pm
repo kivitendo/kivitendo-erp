@@ -3,7 +3,7 @@ package SL::Controller::Helper::Paginated;
 use strict;
 
 use Exporter qw(import);
-our @EXPORT = qw(make_paginated get_paginate_spec get_current_paginate_params _save_current_paginate_params _get_models_handler_for_paginated _callback_handler_for_paginated);
+our @EXPORT = qw(make_paginated get_paginate_spec get_current_paginate_params _save_current_paginate_params _get_models_handler_for_paginated _callback_handler_for_paginated disable_pagination);
 
 use constant PRIV => '__paginatedhelper_priv';
 
@@ -12,12 +12,13 @@ my $controller_paginate_spec;
 sub make_paginated {
   my ($class, %specs)       = @_;
 
-  $specs{MODEL}           ||=  $class->_controller_name;
+  $specs{MODEL}           ||=  $class->controller_name;
   $specs{MODEL}             =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
   $specs{PER_PAGE}        ||= "SL::DB::Manager::$specs{MODEL}"->default_objects_per_page;
   $specs{FORM_PARAMS}     ||= [ qw(page per_page) ];
   $specs{ONLY}            ||= [];
   $specs{ONLY}              = [ $specs{ONLY} ] if !ref $specs{ONLY};
+  $specs{ONLY_MAP}          = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
 
   $controller_paginate_spec = \%specs;
 
@@ -45,7 +46,7 @@ sub get_current_paginate_params {
 
   my $spec              = $self->get_paginate_spec;
 
-  my $priv              = $self->{PRIV()} || {};
+  my $priv              = _priv($self);
   $params{page}         = $priv->{page}     unless defined $params{page};
   $params{per_page}     = $priv->{per_page} unless defined $params{per_page};
 
@@ -54,7 +55,10 @@ sub get_current_paginate_params {
     per_page            => ($params{per_page} * 1) || $spec->{PER_PAGE},
   );
 
-  my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => {});
+  my %paginate_args     = ref($spec->{PAGINATE_ARGS}) eq 'CODE' ? %{ $spec->{PAGINATE_ARGS}->($self) }
+                        :     $spec->{PAGINATE_ARGS}            ? do { my $sub = $spec->{PAGINATE_ARGS}; %{ $self->$sub() } }
+                        :                                         ();
+  my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => \%paginate_args);
   %paginate_params      = (
     %paginate_params,
     num_pages    => $calculated_params->{max},
@@ -66,12 +70,19 @@ sub get_current_paginate_params {
   return %paginate_params;
 }
 
+sub disable_pagination {
+  my ($self)               = @_;
+  _priv($self)->{disabled} = 1;
+}
+
 #
 # private functions
 #
 
 sub _save_current_paginate_params {
   my ($self)        = @_;
+
+  return if !_is_enabled($self);
 
   my $paginate_spec = $self->get_paginate_spec;
   $self->{PRIV()}   = {
@@ -84,9 +95,9 @@ sub _save_current_paginate_params {
 
 sub _callback_handler_for_paginated {
   my ($self, %params) = @_;
-  my $priv            = $self->{PRIV()} || {};
+  my $priv            = _priv($self);
 
-  if ($priv->{page}) {
+  if (_is_enabled($self) && $priv->{page}) {
     my $paginate_spec                             = $self->get_paginate_spec;
     $params{ $paginate_spec->{FORM_PARAMS}->[0] } = $priv->{page};
     $params{ $paginate_spec->{FORM_PARAMS}->[1] } = $priv->{per_page} if $priv->{per_page};
@@ -99,13 +110,25 @@ sub _callback_handler_for_paginated {
 
 sub _get_models_handler_for_paginated {
   my ($self, %params)    = @_;
-  $params{model}       ||= $self->get_paginate_spec->{MODEL};
+  my $spec               = $self->get_paginate_spec;
+  $params{model}       ||= $spec->{MODEL};
 
-  "SL::DB::Manager::$params{model}"->paginate($self->get_current_paginate_params, args => \%params);
+  "SL::DB::Manager::$params{model}"->paginate($self->get_current_paginate_params, args => \%params) if _is_enabled($self);
 
-  # $::lxdebug->dump(0, "GM handler for paginated; params nach modif:", \%params);
+  # $::lxdebug->dump(0, "GM handler for paginated; params nach modif (is_enabled? " . _is_enabled($self) . ")", \%params);
 
   return %params;
+}
+
+sub _priv {
+  my ($self)        = @_;
+  $self->{PRIV()} ||= {};
+  return $self->{PRIV()};
+}
+
+sub _is_enabled {
+  my ($self) = @_;
+  return !_priv($self)->{disabled} && ($self->get_paginate_spec->{ONLY_MAP}->{$self->action_name} || $self->get_paginate_spec->{ONLY_MAP}->{'__ALL__'});
 }
 
 1;
@@ -211,6 +234,19 @@ derived from the controller's package (e.g. for the controller
 C<SL::Controller::BackgroundJobHistory> the C<MODEL> would default to
 C<BackgroundJobHistory>).
 
+=item * C<PAGINATE_ARGS>
+
+Optional. Either a code reference or the name of function to be called
+on the controller importing this helper.
+
+If this funciton is given then the paginate helper calls it whenever
+it has to count the total number of models for calculating the number
+of pages to display. The function must return a hash reference with
+elements suitable for passing to a Rose model manager's C<get_all>
+function.
+
+This can be used e.g. when filtering is used.
+
 =item * C<PER_PAGE>
 
 Optional. An integer: the number of models to return per page.
@@ -277,6 +313,12 @@ displayed).
 Returns a hash reference to the paginate spec structure given in the call
 to L<make_paginated> after normalization (hash reference construction,
 applying default parameters etc).
+
+=item C<disable_pagination>
+
+Disable pagination for the duration of the current action. Can be used
+when using the attribute C<ONLY> to L<make_paginated> does not
+cover all cases.
 
 =back
 

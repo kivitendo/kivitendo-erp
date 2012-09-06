@@ -1,4 +1,2 @@
-[% SET report_bottom_url_args = {} %]
-[%     report_bottom_url_args.import(SELF.flat_filter) %]
-[%     report_bottom_url_args.import({action='list', sort_dir=SELF.sort_dir, sort_by=SELF.sort_by}) %]
-[% PROCESS 'common/paginate.html' pages=SELF.pages, base_url=SELF.url_for(report_bottom_url_args) %]
+[% USE L %]
+[%- L.paginate_controls %]

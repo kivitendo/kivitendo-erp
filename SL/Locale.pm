@@ -214,6 +214,8 @@ sub text {
   my $self = shift;
   my $text = shift;
 
+  return $text->translated if (ref($text) || '') eq 'SL::Locale::String';
+
   if ($self->{texts}->{$text}) {
     $text = $self->{iconv}->convert($self->{texts}->{$text});
   } else {
