@@ -475,6 +475,18 @@ sub form_footer {
   $TMPL_VAR{notes}    = qq|<textarea name=notes rows="$rows" cols="25">| . H($form->{notes}) . qq|</textarea>|;
   $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
 
+  IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
+
+  if ( $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
+    if ( $form->{taxincluded_checked} eq 'y' ) {
+      $form->{taxincluded} = 1;
+    } elsif ( $form->{taxincluded_checked} eq 'n' ) {
+      $form->{taxincluded} = 0;
+    } else {
+      $form->{taxincluded} = $myconfig{taxincluded_checked};
+    }
+  }
+
   if (!$form->{taxincluded}) {
 
     foreach my $item (split / /, $form->{taxaccounts}) {

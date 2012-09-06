@@ -754,7 +754,7 @@ sub config_vars {
     taxnumber co_ustid duns menustyle template_format default_media
     default_printer_id copies show_form_details favorites
     pdonumber sdonumber hide_cvar_search_options mandatory_departments
-    sepa_creditor_id);
+    sepa_creditor_id taxincluded_checked);
 
   $main::lxdebug->leave_sub();
 

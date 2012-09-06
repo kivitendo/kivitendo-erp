@@ -319,7 +319,8 @@ sub save_customer {
     qq|user_password = ?, | .
     qq|c_vendor_id = ?, | .
     qq|klass = ?, | .
-    qq|curr = ? | .
+    qq|curr = ?, | .
+    qq|taxincluded_checked = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{customernumber},
@@ -362,6 +363,7 @@ sub save_customer {
     $form->{c_vendor_id},
     conv_i($form->{klass}),
     substr($form->{currency}, 0, 3),
+    $form->{taxincluded_checked},
     $form->{id}
     );
   do_query( $form, $dbh, $query, @values );
@@ -483,7 +485,8 @@ sub save_vendor {
     qq|  username = ?, | .
     qq|  user_password = ?, | .
     qq|  v_customer_id = ?, | .
-    qq|  curr = ? | .
+    qq|  curr = ?, | .
+    qq|  taxincluded_checked = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{vendornumber},
@@ -524,6 +527,7 @@ sub save_vendor {
     $form->{user_password},
     $form->{v_customer_id},
     substr($form->{currency}, 0, 3),
+    $form->{taxincluded_checked},
     $form->{id}
     );
   do_query($form, $dbh, $query, @values);

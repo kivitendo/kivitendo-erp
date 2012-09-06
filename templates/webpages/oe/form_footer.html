@@ -70,8 +70,10 @@
           </td>
 [%- END %]
           <td align="right">
+
 [%- IF taxaccounts %]
-            <input name="taxincluded" class="checkbox" type="checkbox" value="1"[% IF taxincluded %] checked[% END %]><b>[% 'Tax Included' | $T8 %]</b><br><br>
+            <input type="hidden" name="taxincluded_changed_by_user" id="taxincluded_changed_by_user" value="[% taxincluded_changed_by_user ? '1' : '0' %]">
+            <input name="taxincluded" class="checkbox" onclick="document.getElementById('taxincluded_changed_by_user').value = '1';" type="checkbox" value="1"[% IF taxincluded %] checked[% END %]><b>[% 'Tax Included' | $T8 %]</b><br><br>
 [%- END %]
             <table>
 [%- IF NOT taxincluded %]

@@ -1676,6 +1676,7 @@ sub get_customer {
          c.email, c.cc, c.bcc, c.language_id, c.payment_id,
          c.street, c.zipcode, c.city, c.country,
          c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, c.curr,
+         c.taxincluded_checked,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.discount AS tradediscount, b.description AS business
        FROM customer c

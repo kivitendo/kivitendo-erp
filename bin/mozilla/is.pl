@@ -405,6 +405,18 @@ sub form_footer {
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];
 
+  IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
+
+  if ( $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
+    if ( $form->{taxincluded_checked} eq 'y' ) {
+      $form->{taxincluded} = 1;
+    } elsif ( $form->{taxincluded_checked} eq 'n' ) {
+      $form->{taxincluded} = 0;
+    } else {
+      $form->{taxincluded} = $myconfig{taxincluded_checked};
+    }
+  }
+
   foreach my $item (@{ $form->{taxaccounts_array} }) {
     if ($form->{"${item}_base"}) {
       if ($form->{taxincluded}) {

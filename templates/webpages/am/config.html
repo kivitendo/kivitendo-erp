@@ -69,6 +69,14 @@
       <th align="right">[% 'SEPA creditor ID' | $T8 %]</th>
       <td><input name="sepa_creditor_id" size="30" maxlength="35" value="[% HTML.escape(myconfig_sepa_creditor_id) %]"></td>
      </tr>
+
+       <tr>
+        <th align="right"q>[% 'taxincluded checked' | $T8 %]</th>
+        <td>
+          [% L.yes_no_tag('taxincluded_checked', myconfig_taxincluded_checked) %]
+        </td>
+      </tr>
+
     </table>
 
     <br style="clear: left" />
