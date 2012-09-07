@@ -1629,11 +1629,25 @@ sub save_as_new {
     delete($form->{$idx});
   }
 
-  # clear reqdate unless changed
-  if ($form->{reqdate} && $form->{id}) {
+  # clear reqdate and transdate unless changed
+  if ( $form->{reqdate} && $form->{id} ) {
     my $saved_order = OE->retrieve_simple(id => $form->{id});
-    if ($saved_order && $saved_order->{reqdate} eq $form->{reqdate}) {
-      delete $form->{reqdate};
+    if ( $saved_order && $saved_order->{reqdate} eq $form->{reqdate} && $saved_order->{transdate} eq $form->{transdate} ) {
+
+      my $dbh = $form->get_standard_dbh;
+
+      my $wday         = (localtime(time))[6];
+      my $next_workday = $wday == 5 ? 3 : $wday == 6 ? 2 : 1;
+
+      my $query = 'SELECT
+                     date(current_date + interval \''. $next_workday .' days\') AS reqdate,
+                     date(current_date) AS transdate';
+      my $ref = selectfirst_hashref_query($form, $dbh, $query);
+
+      map(
+        { $form->{$_} = $ref->{$_} }
+        keys %{$ref}
+      );
     }
   }
 
