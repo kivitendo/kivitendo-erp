@@ -119,7 +119,7 @@ sub leave_sub {
   my ($dummy1, $self_filename, $self_line) = caller(0);
 
   my $indent = " " x --$self->{"calldepth"};
-  my $time = $self->want_request_timer ? $self->get_request_time : '';
+  my $time = $self->want_request_timer ? $self->get_request_time || '' : '';
 
   if (!defined($package)) {
     $self->_write('sub' . $level, $indent . "/ $time top-level?\n");
