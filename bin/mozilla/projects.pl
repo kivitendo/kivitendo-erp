@@ -119,8 +119,6 @@ sub project_report {
   my $report       = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @columns      = qw(projectnumber description active);
-  my @hidden_vars  = ('filter');
-  my $href         = build_std_url('action=project_report', @hidden_vars);
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
   my %column_defs_cvars            = ();
@@ -132,6 +130,11 @@ sub project_report {
   }
 
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
+
+
+  my @hidden_vars  = ('filter', map { ('cvar_'. $_->{name} , 'l_cvar_'. $_->{name}) } @includeable_custom_variables);
+  my $href         = build_std_url('action=project_report', @hidden_vars);
+
 
   my %column_defs  = (
     'projectnumber'            => { 'text' => $locale->text('Number'), },
@@ -149,6 +152,13 @@ sub project_report {
   $report->set_column_order(@columns);
 
   $report->set_export_options('project_report', @hidden_vars, 'sort');
+
+  CVar->add_custom_variables_to_report('module'         => 'Project',
+                                       'trans_id_field' => 'id',
+                                       'configs'        => $cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => $form->{project_list},
+                                       );
 
   $report->set_sort_indicator($form->{sort}, 1);
 
