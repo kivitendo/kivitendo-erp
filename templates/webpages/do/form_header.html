@@ -154,7 +154,7 @@
           [%- END %]
 
           [%- ELSE %]
-            [% L.select_tag('shipto_id', ALL_SHIPTO, default = shipto_id, value = 'shipto_id', title = 'displayable_id', with_empty = 1, class = 'fixed_width') %]
+            [% L.select_tag('shipto_id', ALL_SHIPTO, default = shipto_id, value_key = 'shipto_id', title_key = 'displayable_id', with_empty = 1, class = 'fixed_width') %]
           [%- END %]
          </td>
         </tr>
