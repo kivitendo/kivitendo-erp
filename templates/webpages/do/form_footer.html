@@ -74,6 +74,7 @@
    [%- END %]
    [%- END %]
    [%- IF id %]
+     <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
    [%- UNLESS closed %]
    <input class="submit" type="submit" name="action_mark_closed" value="[% 'Mark closed' | $T8 %]">
    [%- END %]

@@ -307,6 +307,11 @@ sub form_header {
     $form->{onload} .= "document.do.submit();"
   }
 
+  my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
+  $follow_up_vc                   =~ s/--\d*\s*$//;
+
+  $form->{follow_up_trans_info} = $form->{donumber} .'('. $follow_up_vc .')';
+
   $form->header();
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
   # und Erweiterung für Bug 1760:

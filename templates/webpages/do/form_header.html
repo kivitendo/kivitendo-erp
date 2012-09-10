@@ -12,6 +12,7 @@
  <script type="text/javascript" src="js/vendor_selection.js"></script>
  <script type="text/javascript" src="js/calculate_qty.js"></script>
  <script type="text/javascript" src="js/stock_in_out.js"></script>
+ <script type="text/javascript" src="js/follow_up.js"></script>
 
  <script type="text/javascript">
   <!--
@@ -55,6 +56,12 @@
  [%- END %]
 
  <form method="post" name="do" action="do.pl">
+
+  <input type="hidden" name="follow_up_trans_id_1" value="[% HTML.escape(id) %]">
+  <input type="hidden" name="follow_up_trans_type_1" value="[% HTML.escape(type) %]">
+  <input type="hidden" name="follow_up_trans_info_1" value="[% HTML.escape(follow_up_trans_info) %]">
+  <input type="hidden" name="follow_up_rowcount" value="1">
+
 
   <input type="hidden" name="action" value="[% HTML.escape(action) %]">
   <input type="hidden" name="bcc" value="[% HTML.escape(bcc) %]">
