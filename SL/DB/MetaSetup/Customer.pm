@@ -54,7 +54,7 @@ __PACKAGE__->meta->setup(
     bic                 => { type => 'varchar', length => 100 },
     direct_debit        => { type => 'boolean', default => 'false' },
     curr                => { type => 'character', length => 3 },
-    taxincluded_checked => { type => 'varchar', length => 1 },
+    taxincluded_checked => { type => 'boolean' },
   ],
 
   primary_key_columns => [ 'id' ],

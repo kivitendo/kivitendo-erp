@@ -363,7 +363,7 @@ sub save_customer {
     $form->{c_vendor_id},
     conv_i($form->{klass}),
     substr($form->{currency}, 0, 3),
-    $form->{taxincluded_checked},
+    $form->{taxincluded_checked} ne '' ? $form->{taxincluded_checked} : undef,
     $form->{id}
     );
   do_query( $form, $dbh, $query, @values );

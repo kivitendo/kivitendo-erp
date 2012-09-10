@@ -478,13 +478,7 @@ sub form_footer {
   IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
 
   if ( $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
-    if ( $form->{taxincluded_checked} eq 'y' ) {
-      $form->{taxincluded} = 1;
-    } elsif ( $form->{taxincluded_checked} eq 'n' ) {
-      $form->{taxincluded} = 0;
-    } else {
-      $form->{taxincluded} = $myconfig{taxincluded_checked};
-    }
+    $form->{taxincluded} = defined($form->{taxincluded_checked}) ? $form->{taxincluded_checked} : $myconfig{taxincluded_checked};
   }
 
   if (!$form->{taxincluded}) {
