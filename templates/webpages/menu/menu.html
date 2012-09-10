@@ -1,9 +1,6 @@
-[%- USE L %]
-[%- USE HTML %]
 [%- USE JSON %]
 <body class="menu">
-<div id='html-menu'>
-</div>
+<div id='html-menu'></div>
 <script type='text/javascript'>$(function(){$([% JSON.json(sections) %]).each(function(i,b){var a=$('<a class="ml">').append($('<span class="mii ms">').append($('<div>').addClass(b.i)),$('<span class="mic">').append(b.l));if(b.h)a.attr('href', b.h);if(b.t)a.attr('target', b.t);$('#html-menu').append($('<div class="mi">').addClass(b.c).addClass(b.s).attr('id','mi'+b.id).append(a));});$('#html-menu div.i, #html-menu div.sm').hide();$('#html-menu div.m').each(function(){$(this).click(function(){$('#html-menu div.mi').not('div.m').not('[id^='+$(this).attr('id')+'_]').hide();$('#html-menu div.mi[id^='+$(this).attr('id')+'_]').toggle()})})})</script>
 </body>
 </html>
