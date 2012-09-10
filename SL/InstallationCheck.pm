@@ -39,7 +39,7 @@ BEGIN {
   { name => "Digest::SHA",                         url => "http://search.cpan.org/~mshelor/",   debian => 'libdigest-sha-perl' },
   { name => "IO::Socket::SSL",                     url => "http://search.cpan.org/~sullr/",     debian => 'libio-socket-ssl-perl' },
   { name => "Net::LDAP",                           url => "http://search.cpan.org/~gbarr/",     debian => 'libnet-ldap-perl' },
-  # Net::LDAP is core since 5.7.3
+  # Net::SMTP is core since 5.7.3
   { name => "Net::SMTP::SSL",  version => '1.01',  url => "http://search.cpan.org/~cwest/",     debian => 'libnet-smtp-ssl-perl' },
   { name => "Net::SMTP::TLS",  version => '0.12',  url => "http://search.cpan.org/~awestholm/", debian => 'libnet-smtp-tls-perl' },
 );
