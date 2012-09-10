@@ -485,8 +485,7 @@ sub save_vendor {
     qq|  username = ?, | .
     qq|  user_password = ?, | .
     qq|  v_customer_id = ?, | .
-    qq|  curr = ?, | .
-    qq|  taxincluded_checked = ? | .
+    qq|  curr = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{vendornumber},
@@ -527,7 +526,6 @@ sub save_vendor {
     $form->{user_password},
     $form->{v_customer_id},
     substr($form->{currency}, 0, 3),
-    $form->{taxincluded_checked},
     $form->{id}
     );
   do_query($form, $dbh, $query, @values);
