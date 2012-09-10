@@ -19,7 +19,8 @@ sub _login {
 
   package main;
 
-  $::lxdebug       = LXDebug->new(file => \*STDERR);
+  $::lxdebug       = LXDebug->new(target => LXDebug::STDERR_TARGET);
+  $::lxdebug->disable_sub_tracing;
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::auth          = SL::Auth->new;
