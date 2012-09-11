@@ -97,9 +97,7 @@ sub section_menu {
     my %common_args = (
         l   => $label,
         s  => $spacer,
-        t  => $menuitem->{target},
         id => "$id_prefix\_$id",
-        height  => 16,
     );
 
     if (!$level) { # toplevel
