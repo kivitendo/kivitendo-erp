@@ -488,7 +488,7 @@ sub orders {
   my @columns = qw(
     ids                     transdate
     id                      donumber
-    ordnumber
+    ordnumber               customernumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
     transaction_description
@@ -516,6 +516,7 @@ sub orders {
     'id'                      => { 'text' => $locale->text('ID'), },
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
+    'customernumber'          => { 'text' => $locale->text('Customer Number'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
     'employee'                => { 'text' => $locale->text('Employee'), },
     'salesman'                => { 'text' => $locale->text('Salesman'), },
