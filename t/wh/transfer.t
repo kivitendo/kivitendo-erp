@@ -8,10 +8,16 @@ use_ok 'SL::DB::Part';
 use_ok 'SL::DB::Warehouse';
 use_ok 'SL::WH';
 
+use_ok('SL::DB::Inventory');
+
+
 Support::TestSetup::login();
 
-my $part = SL::DB::Manager::Part->get_first;
-is(ref $part, 'SL::DB::Part', 'loading a part to test with id ' . $part->id);
+my $part = SL::DB::Part->new(unit => 'mg', description => 'TestObject');
+$part->save();
+
+is(ref($part), 'SL::DB::Part', 'loading a part to test with id ' . $part->id);
+
 
 my $wh = SL::DB::Manager::Warehouse->get_first;
 is(ref $wh, 'SL::DB::Warehouse', 'loading a warehouse to test with id ' . $wh->id);
@@ -68,6 +74,20 @@ test { shift->{qty}, shift->{qty} - 4, 'and back' } {
    src_bin_id       => $bin2->id,
    dst_bin_id       => $bin1->id,
    qty              => 4,
+   chargenumber     => '',
+};
+
+#################################################
+
+test {shift->{qty}, shift->{qty} + 4000000000, 'transfer one way with unit'} {
+   transfer_type    => 'transfer',
+   parts_id         => $part->id,
+   src_warehouse_id => $wh->id,
+   dst_warehouse_id => $wh->id,
+   src_bin_id       => $bin1->id,
+   dst_bin_id       => $bin2->id,
+   qty              => 4,
+   unit             => 't',
    chargenumber     => '',
 };
 
@@ -137,6 +157,10 @@ test { shift->{qty}, shift->{qty}, 'warehouse reduced interface' } {
    qty              => 1,
 };
 
+
+SL::DB::Manager::Inventory->delete_objects(where => [parts_id => $part->id]);
+
+$part->delete();
 
 done_testing;
 

@@ -111,8 +111,7 @@ sub transfer {
       );
 
       if ($unit) {
-        $qty *= $unit->factor           || 1;
-        $qty /= $part->unit_obj->factor || 1 if $part->unit;
+        $qty = $unit->convert_to($qty, $part->unit_obj);
       }
 
       $params{chargenumber} ||= '';
