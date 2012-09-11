@@ -295,7 +295,7 @@ div#menuv4 li li li li:hover ul
    each line is a mi (menuitem) and has one mii (menu-item-icon) whcih is ms (menu-spacer)
    and one mic (menu-item-chunk)
    indenting is done with the levels s0, s1, s2 */
-#html-menu { float:left; width: 183px; }
+#html-menu { float:left; width: 183px; font-size: 8pt }
 #html-menu div.mi { margin-top: 4px; margin-bottom: 3px; white-space: nowrap; clear:both; position:relative; }
 #html-menu div.sm { font-weight: bold }
 #html-menu img { vertical-align: top; border: 0; }

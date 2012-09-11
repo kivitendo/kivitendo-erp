@@ -17,6 +17,8 @@
   overflow: hidden;
   width: 100%;
   border-spacing: 0;
+  font-size: 12px;
+  margin-bottom:10px;
 }
 
 #frame-header .frame-header-left {
