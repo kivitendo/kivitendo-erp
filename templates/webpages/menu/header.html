@@ -1,8 +1,5 @@
 [%- USE T8 %]
-[%- UNLESS inline %]
-<body class="frame-header">
-[%- END %]
-<div class="frame-header">
+<div id="frame-header">
 [% UNLESS is_links %]
  <span class="frame-header-element frame-header-left">
     [<a href="JavaScript:Switch_Menu();" title="[% 'Switch Menu on / off' | $T8 %]">[% 'Menu' | $T8 %]</a>]
@@ -30,7 +27,3 @@
   [% now.hms %]
  </span>
 </div>
-[%- UNLESS inline %]
-</body>
-</html>
-[%- END %]
