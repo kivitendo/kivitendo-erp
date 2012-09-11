@@ -509,7 +509,7 @@ sub header {
   push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
   push @header, map { qq|<script type="text/javascript" src="js/$_.js"></script>| }
-       qw(jquery common jscalendar/calendar jscalendar/lang/calendar-de jscalendar/calendar-setup part_selection jquery-ui jqModal switchmenuframe);
+       qw(jquery common jscalendar/calendar jscalendar/lang/calendar-de jscalendar/calendar-setup part_selection jquery-ui jquery.cookie jqModal switchmenuframe);
   push @header, $self->{javascript} if $self->{javascript};
   push @header, map { qq|<link rel="stylesheet" type="text/css" href="$css_path/$_.css">| }
        qw(main menu tabcontent list_accounts jquery.autocomplete jquery.multiselect2side frame_header/header ui-lightness/jquery-ui-1.8.12.custom);
