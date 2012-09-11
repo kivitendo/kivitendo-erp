@@ -84,7 +84,7 @@ sub render {
 
     } else {
       $::form->{title} = $locals{title} if $locals{title};
-      $::form->header;
+      $::form->header(no_menu => $options->{no_menu});
     }
   }
 

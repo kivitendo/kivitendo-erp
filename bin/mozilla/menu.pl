@@ -44,57 +44,23 @@ use URI;
 
 use List::MoreUtils qw(apply);
 
-# end of main
-
-sub display {
+sub render {
   $::lxdebug->enter_sub;
 
-  my $callback  = $::form->unescape($::form->{callback});
-  $callback     = URI->new($callback)->rel($callback) if $callback;
-  $callback     = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
-  my $framesize = _calc_framesize();
+  $::form->use_stylesheet(qw(css/icons16.css css/icons24.css));
 
-  $::form->header(doctype => 'frameset');
-
-  print qq|
-<frameset rows="28px,*" cols="*" framespacing="0" frameborder="0">
-  <frame  src="controller.pl?action=FrameHeader/header" scrolling="NO">
-  <frameset cols="$framesize,*" framespacing="0" frameborder="0" border="0" id="menuframe" name="menuframe">
-    <frame src="$::form->{script}?action=acc_menu" name="acc_menu"  scrolling="auto" noresize marginwidth="0">
-    <frame src="$callback" name="main_window" scrolling="auto">
-  </frameset>
-  <noframes>
-  You need a browser that can read frames to see this page.
-  </noframes>
-</frameset>
-</HTML>
-|;
-
-  $::lxdebug->leave_sub;
-}
-
-sub acc_menu {
-  $::lxdebug->enter_sub;
-
-  $::form->{stylesheet} = [ qw(css/icons16.css css/icons24.css ) ];
-
-  my $framesize    = _calc_framesize() - 2;
   my $menu         = Menu->new("menu.ini");
-  $::form->{title} = $::locale->text('kivitendo');
-  $::form->header;
 
   my $sections = [ section_menu($menu) ];
 
-  print $::form->parse_html_template('menu/menu', {
-    framesize => $framesize,
+  $::form->parse_html_template('menu/menu', {
     sections  => $sections,
+    inline    => 1,
   });
-
-  $::lxdebug->leave_sub;
 }
 
 sub section_menu {
-  $::lxdebug->enter_sub;
+  $::lxdebug->enter_sub(2);
   my ($menu, $level, $id_prefix) = @_;
   my @menuorder = $menu->access_control(\%::myconfig, $level);
   my @items;
@@ -114,7 +80,6 @@ sub section_menu {
 
     $menuitem->{module} ||= $::form->{script};
     $menuitem->{action} ||= "section_menu";
-    $menuitem->{target} ||= "main_window";
     $menuitem->{href}   ||= "$menuitem->{module}?action=$menuitem->{action}";
 
     # add other params
@@ -159,7 +124,7 @@ sub section_menu {
     $id++;
   }
 
-  $::lxdebug->leave_sub;
+  $::lxdebug->leave_sub(2);
   return @items;
 }
 

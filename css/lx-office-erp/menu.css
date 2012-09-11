@@ -304,7 +304,7 @@ div#menuv4 li li li li:hover ul
 #html-menu .m span.ms { float: left; width: 32px }
 #html-menu .sm span.ms { float: left; width: 24px; background: url(../../image/unterpunkt.png); }
 #html-menu div.m { height: 24px }
-#html-menu div.m span.mic { color:blue; position: relative; top: 5px; }
+#html-menu div.m span.mic { color:blue; position: relative; top: 4px }
 #html-menu div.m:hover,
 #html-menu div.i:hover { color:blue; background-color: lemonchiffon; cursor: pointer; }
 #html-menu span.mic { white-space: normal; display: inline-block; vertical-align: top; line-height: 1.2; }
@@ -313,4 +313,6 @@ div#menuv4 li li li li:hover ul
 #html-menu div.s1 { padding-left: 8px }
 #html-menu div.s2 { padding-left: 16px }
 
+#content { margin-left: 190px }
 
+body { margin: 0 }

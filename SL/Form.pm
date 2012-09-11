@@ -489,6 +489,9 @@ sub header {
 
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
 
+  my $layout;
+  $layout = $self->layout unless $params{no_menu};
+
   my $css_path = $self->get_stylesheet_for_user;
 
   $self->{favicon} ||= "favicon.ico";
@@ -515,19 +518,6 @@ sub header {
   push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
   push @header, sprintf "<script type='text/javascript'>top.document.title='%s';</script>",
     join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
-
-  # if there is a title, we put some JavaScript in to the page, wich writes a
-  # meaningful title-tag for our frameset.
-  my $title_hack = '';
-  if ($self->{title}) {
-    $title_hack = qq|
-    <script type="text/javascript">
-    <!--
-      // Write a meaningful title-tag for our frameset.
-      top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - V| . $self->{"version"} . qq|";
-    //-->
-    </script>|;
-  }
 
   my  %doctypes = (
     strict       => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">|,
@@ -557,10 +547,13 @@ EOT
 
   </script>
   $params{extra_code}
-  $title_hack
  </head>
+ <body>
 
 EOT
+  print $layout;
+
+  print "<div id='content'>\n";
 
   $::lxdebug->leave_sub;
 }
@@ -3588,6 +3581,30 @@ sub reformat_numbers {
   }
 
   $::myconfig{numberformat} = $saved_numberformat;
+}
+
+sub layout {
+  my ($self) = @_;
+  $::lxdebug->enter_sub;
+
+  my %style_to_script_map = (
+    v3  => 'v3',
+    neu => 'new',
+    v4  => 'v4',
+  );
+
+  my $menu_script = $style_to_script_map{$::myconfig{menustyle}} || '';
+
+  package main;
+  require "bin/mozilla/menu$menu_script.pl";
+  package Form;
+  require SL::Controller::FrameHeader;
+
+
+  my $layout = SL::Controller::FrameHeader->new->action_header . ::render();
+
+  $::lxdebug->leave_sub;
+  return $layout;
 }
 
 1;

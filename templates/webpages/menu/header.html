@@ -1,5 +1,7 @@
 [%- USE T8 %]
+[%- UNLESS inline %]
 <body class="frame-header">
+[%- END %]
 <div class="frame-header">
 [% UNLESS is_links %]
  <span class="frame-header-element frame-header-left">
@@ -28,5 +30,7 @@
   [% now.hms %]
  </span>
 </div>
+[%- UNLESS inline %]
 </body>
 </html>
+[%- END %]
