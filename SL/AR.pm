@@ -472,6 +472,10 @@ sub ar_transactions {
     qq|LEFT JOIN department d ON (d.id = a.department_id)|;
 
   my $where = "1 = 1";
+  if ($form->{customernumber}) {
+    $where .= " AND c.customernumber = ?";
+    push(@values, $form->{customernumber});
+  }
   if ($form->{customer_id}) {
     $where .= " AND a.customer_id = ?";
     push(@values, $form->{customer_id});
