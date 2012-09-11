@@ -22,11 +22,16 @@ sub new {
 }
 
 sub dispatch {
-  my ($self, $obj, $line) = @_;
+  my ($self, $line) = @_;
+
+  eval "require " . $self->_csv->profile->{class};
+  my $obj = $self->_csv->profile->{class}->new;
 
   for my $spec (@{ $self->_specs }) {
     $self->apply($obj, $spec, $line->{$spec->{key}});
   }
+
+  return $obj;
 }
 
 sub apply {
@@ -66,7 +71,7 @@ sub parse_profile {
   my ($self, %params) = @_;
 
   my $header  = $self->_csv->header;
-  my $profile = $self->_csv->profile;
+  my $profile = $self->_csv->profile->{profile};
   my @specs;
 
   for my $col (@$header) {
@@ -98,7 +103,7 @@ sub make_spec {
 
   return unless $path;
 
-  my $cur_class = $self->_csv->class;
+  my $cur_class = $self->_csv->profile->{class};
 
   return unless $cur_class;
 

@@ -31,8 +31,7 @@ sub run {
   my $profile = $self->profile;
   $self->csv(SL::Helper::Csv->new(file                   => $self->file->file_name,
                                   encoding               => $self->controller->profile->get('charset'),
-                                  class                  => $self->class,
-                                  profile                => $profile,
+                                  profile                => { profile => $profile, class => $self->class },
                                   ignore_unknown_columns => 1,
                                   strict_profile         => 1,
                                   case_insensitive_header => 1,

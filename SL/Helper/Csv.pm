@@ -9,7 +9,7 @@ use IO::File;
 use Params::Validate qw(:all);
 use Text::CSV_XS;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
-  file encoding sep_char quote_char escape_char header profile class
+  file encoding sep_char quote_char escape_char header profile
   numberformat dateformat ignore_unknown_columns strict_profile _io _csv
   _objects _parsed _data _errors all_cvar_configs case_insensitive_header
 ) ];
@@ -29,7 +29,6 @@ sub new {
     profile                => { type    => HASHREF,  optional => 1 },
     file                   => 1,
     encoding               => 0,
-    class                  => 0,
     numberformat           => 0,
     dateformat             => 0,
     ignore_unknown_columns => 0,
@@ -71,7 +70,6 @@ sub get_data {
 
 sub get_objects {
   my ($self, %params) = @_;
-  croak 'no class given'   unless $self->class;
   croak 'must parse first' unless $self->_parsed;
 
   $self->_make_objects unless $self->_objects;
@@ -188,13 +186,11 @@ sub _make_objects {
   my ($self, %params) = @_;
   my @objs;
 
-  eval "require " . $self->class;
   local $::myconfig{numberformat} = $self->numberformat if $self->numberformat;
   local $::myconfig{dateformat}   = $self->dateformat   if $self->dateformat;
 
   for my $line (@{ $self->_data }) {
-    my $tmp_obj = $self->class->new;
-    $self->dispatcher->dispatch($tmp_obj, $line);
+    my $tmp_obj = $self->dispatcher->dispatch($line);
     push @objs, $tmp_obj;
   }
 
@@ -248,8 +244,7 @@ SL::Helper::Csv - take care of csv file uploads
     quote_char  => '\'',    # default '"'
     escape_char => '"',     # default '"'
     header      => [qw(id text sellprice word)], # see later
-    profile     => { sellprice => 'sellprice_as_number' },
-    class       => 'SL::DB::CsvLine',   # if present, map lines to this
+    profile     => { profile => { sellprice => 'sellprice_as_number'}, class => SL::DB::Part },
   );
 
   my $status  = $csv->parse;
@@ -348,11 +343,14 @@ Same as in L<Text::CSV>
 Can be an array of columns, in this case the first line is not used as a
 header. Empty header fields will be ignored in objects.
 
-=item C<profile> \%ACCESSORS
+=item C<profile> {profile => \%ACCESSORS, class => class}
 
-May be used to map header fields to custom accessors. Example:
+This is a HASHREF to hash which may contain the keys C<profile> and C<class>.
 
-  { listprice => listprice_as_number }
+The C<profile> is a HASHREF which may be used to map header fields to custom
+accessors. Example:
+
+  {profile => { listprice => listprice_as_number }}
 
 In this case C<listprice_as_number> will be used to read in values from the
 C<listprice> column.
@@ -360,7 +358,7 @@ C<listprice> column.
 In case of a One-To-One relationsship these can also be set over
 relationsships by sparating the steps with a dot (C<.>). This will work:
 
-  { customer => 'customer.name' }
+  {profile => { customer => 'customer.name' }}
 
 And will result in something like this:
 
@@ -373,15 +371,7 @@ these information are unique, and should be connected to preexisting data, you
 will have to do that for yourself. Since you provided the profile, it is
 assumed you know what to do in this case.
 
-If no profile is given, any header field found will be taken as is.
-
-If the path in a profile entry is empty, the field will be subjected to
-C<strict_profile> and C<case_insensitive_header> checking, will be parsed into
-C<get_data>, but will not be attempted to be dispatched into objects.
-
-=item C<class>
-
-If present, the line will be handed to the new sub of this class,
+If C<class> is present, the line will be handed to the new sub of this class,
 and the return value used instead of the line itself.
 
 =item C<ignore_unknown_columns>
@@ -442,18 +432,20 @@ Encoding errors are not dealt with properly.
 Dispatch to child objects, like this:
 
  $csv = SL::Helper::Csv->new(
-   file  => ...
-   class => SL::DB::Part,
-   profile => [
-     makemodel => {
-       make_1  => make,
-       model_1 => model,
-     },
-     makemodel => {
-       make_2  => make,
-       model_2 => model,
-     },
-   ]
+   file    => ...
+   profile => {
+     profile => [
+       makemodel => {
+         make_1  => make,
+         model_1 => model,
+       },
+       makemodel => {
+         make_2  => make,
+         model_2 => model,
+       },
+     ],
+     class   => SL::DB::Part,
+   }
  );
 
 =head1 AUTHOR
