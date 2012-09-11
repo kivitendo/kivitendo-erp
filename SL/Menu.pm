@@ -39,17 +39,10 @@ use SL::Inifile;
 
 use strict;
 
-my $instance;
-
 sub new {
   $main::lxdebug->enter_sub();
 
   my ($type, $menufile) = @_;
-
-  if ($instance) {
-    $::lxdebug->leave_sub;
-    return $instance;
-  }
 
   my $self    = {};
   my $inifile = Inifile->new($menufile);
@@ -62,7 +55,7 @@ sub new {
 
   $main::lxdebug->leave_sub();
 
-  return $instance = $self;
+  return $self;
 }
 
 sub menuitem_js {
