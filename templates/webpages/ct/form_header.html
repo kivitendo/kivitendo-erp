@@ -404,7 +404,7 @@
        <td>
         [% L.date_tag('FU_date', FU_date) %]
         [% 'for' | $T8 %]
-        [% L.select_tag('FU_created_for_user', ALL_EMPLOYEES, default = (FU_created_for_user ? FU_created_for_user : USER.id), title='safe_name') %]
+        [% L.select_tag('FU_created_for_user', ALL_EMPLOYEES, default = (FU_created_for_user ? FU_created_for_user : USER.id), title_key='safe_name') %]
        </td>
       </tr>
 
