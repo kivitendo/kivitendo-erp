@@ -153,6 +153,8 @@ sub edit {
 
   check_oe_access();
 
+  $form->{taxincluded_changed_by_user} = 1;
+
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   #/show hhistory button
