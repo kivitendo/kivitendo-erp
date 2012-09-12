@@ -31,7 +31,7 @@ sub _error {
   my $self = shift;
 
   $::auth->punish_wrong_login;
-  SL::Dispatcher::show_error('login_screen/user_login', 'password', @_);
+  print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login&error=password');
 }
 
 1;

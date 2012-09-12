@@ -81,7 +81,7 @@ sub show_error {
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!')                    if ($error_type eq 'password');
 
-  $::form->header;
+  $::form->header(no_menu => 1);
   print $::form->parse_html_template($template, \%params);
   $::lxdebug->leave_sub;
 
@@ -225,7 +225,9 @@ sub handle_request {
       ::run($session_result);
 
     } else {
-      show_error('login_screen/user_login', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
+      if (SL::Auth::SESSION_EXPIRED == $session_result) {
+        print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login&error=session');
+      }
 
       my %auth_result = $self->{auth_handler}->handle(
         routing_type => $routing_type,

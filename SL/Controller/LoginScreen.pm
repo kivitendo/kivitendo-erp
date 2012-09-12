@@ -19,7 +19,7 @@ sub action_user_login {
   return if $self->_redirect_to_main_script_if_already_logged_in;
 
   # Otherwise show the login form.
-  $self->render('login_screen/user_login', { no_menu => 1 });
+  $self->render('login_screen/user_login', { no_menu => 1 }, error => error_state($::form->{error}));
 }
 
 sub action_logout {
@@ -106,6 +106,13 @@ sub _redirect_to_main_script_if_already_logged_in {
   $self->_redirect_to_main_script(\%user);
 
   return 1;
+}
+
+sub error_state {
+  return {
+    session  => $::locale->text('The session is invalid or has expired.'),
+    password => $::locale->text('Incorrect password!'),
+  }->{$_[0]};
 }
 
 1;
