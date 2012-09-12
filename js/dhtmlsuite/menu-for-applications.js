@@ -242,6 +242,7 @@ DHTMLSuite.common.prototype = {
 	getTopPos : function(inputObj)
 	{		
 	  var returnValue = inputObj.offsetTop;
+      if (returnValue > 700) returnValue = 0;
 	  while((inputObj = inputObj.offsetParent) != null){
 	  	if(inputObj.tagName!='HTML'){
 	  		returnValue += (inputObj.offsetTop - inputObj.scrollTop);
@@ -2384,12 +2385,10 @@ DHTMLSuite.menuBar.prototype = {
         $('div.DHTMLSuite_menuBar_top').click(function(e) {
           if ($(e.target).attr('class') == 'DHTMLSuite_menuBar_top') { menu.hideSubMenus(); menu.unsetMenuBarState() }
         });
-        $('#win1').load(function(){
-            $('#win1').contents().mousedown(function(){
-                menu.hideSubMenus();
-                menu.menuBarState = false;
-            });
-        })
+        $('#content').mousedown(function(){
+            menu.hideSubMenus();
+            menu.menuBarState = false;
+        });
 	}
 }
 
