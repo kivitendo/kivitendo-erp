@@ -86,7 +86,7 @@ sub transfer_warehouse_selection {
 
   my $units      = AM->retrieve_units(\%myconfig, $form);
   # der zweite Parameter von unit_select_data gibt den default-Namen (selected) vor
-  $form->{UNITS} = AM->unit_select_data($units, $form->{partunit}, 0, $form->{partunit});
+  $form->{UNITS} = AM->unit_select_data($units, $form->{unit}, 0, $form->{unit});
 
   if (scalar @{ $form->{WAREHOUSES} }) {
     $form->{warehouse_id} ||= $form->{WAREHOUSES}->[0]->{id};

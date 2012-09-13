@@ -139,7 +139,7 @@
           [%- HTML.escape(row.cp_name) %][%- IF row.cp_abteilung %] ([% HTML.escape(row.cp_abteilung) %])[% END -%]
           [%- END %]
           [%- ELSE %]
-            [% L.select_tag('cp_id', ALL_CONTACTS, default = cp_id, value = 'cp_id', title = 'full_name_dep', with_empty = 1, style='width: 250px') %]
+            [% L.select_tag('cp_id', ALL_CONTACTS, default = cp_id, value_key = 'cp_id', title_key = 'full_name_dep', with_empty = 1, style='width: 250px') %]
           [%- END %]
          </td>
         </tr>
@@ -192,7 +192,7 @@
           [% IF ( delivered ) %]
             [% L.hidden_tag('department_id', department_id) %]
           [% END %]
-          [% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title = 'description', with_empty = 1, style = 'width: 250px', disabled = delivered )%]
+          [% L.select_tag('department_id', ALL_DEPARTMENTS, default = department_id, title_key = 'description', with_empty = 1, style = 'width: 250px', disabled = delivered )%]
        </td>
        </tr>
        [%- END %]
@@ -253,7 +253,7 @@
          [% IF row.id == employee_id %][%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %][% END %]
          [%- END %]
          [%- ELSE %]
-           [% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title = 'safe_name') %]
+           [% L.select_tag('employee_id', ALL_EMPLOYEES, default = employee_id, title_key = 'safe_name') %]
          [%- END %]
         </td>
        </tr>
@@ -273,7 +273,7 @@
          [% IF row.id == the_salesman_id %][%- IF row.name %][%- HTML.escape(row.name) %][%- ELSE %][% HTML.escape(row.login) %][%- END %][% END %]
          [%- END %]
          [%- ELSE %]
-          [% L.select_tag('salesman_id', ALL_SALESMEN, default = (salesman_id ? salesman_id : employee_id), title = 'safe_name') %]
+          [% L.select_tag('salesman_id', ALL_SALESMEN, default = (salesman_id ? salesman_id : employee_id), title_key = 'safe_name') %]
          [%- END %]
         </td>
        </tr>
