@@ -2336,6 +2336,7 @@ $self->{texts} = {
   'not logged in'               => 'nicht eingeloggt',
   'not running'                 => 'läuft nicht',
   'not set'                     => 'nicht gesetzt',
+  'not shipped'                 => 'nicht geliefert',
   'not transferred in yet'      => 'noch nicht eingelagert',
   'not transferred out yet'     => 'noch nicht ausgelagert',
   'not yet executed'            => 'Noch nicht ausgeführt',
