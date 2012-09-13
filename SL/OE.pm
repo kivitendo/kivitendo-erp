@@ -78,7 +78,7 @@ sub transactions {
 
   $query =
     qq|SELECT o.id, o.ordnumber, o.transdate, o.reqdate, | .
-    qq|  o.amount, ct.name, o.netamount, o.${vc}_id, o.globalproject_id, | .
+    qq|  o.amount, ct.${vc}number, ct.name, o.netamount, o.${vc}_id, o.globalproject_id, | .
     qq|  o.closed, o.delivered, o.quonumber, o.shippingpoint, o.shipvia, | .
     qq|  o.transaction_description, | .
     qq|  o.marge_total, o.marge_percent, | .

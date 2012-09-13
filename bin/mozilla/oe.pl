@@ -779,6 +779,7 @@ sub orders {
   my @columns = (
     "transdate",               "reqdate",
     "id",                      $ordnumber,
+    "customernumber", 
     "name",                    "netamount",
     "tax",                     "amount",
     "curr",                    "employee",
@@ -838,6 +839,7 @@ sub orders {
     'ordnumber'               => { 'text' => $locale->text('Order'), },
     'quonumber'               => { 'text' => $form->{type} eq "request_quotation" ? $locale->text('RFQ') : $locale->text('Quotation'), },
     'name'                    => { 'text' => $form->{vc} eq 'customer' ? $locale->text('Customer') : $locale->text('Vendor'), },
+    'customernumber'          => { 'text' => $locale->text('Customer Number'), },
     'netamount'               => { 'text' => $locale->text('Amount'), },
     'tax'                     => { 'text' => $locale->text('Tax'), },
     'amount'                  => { 'text' => $locale->text('Total'), },

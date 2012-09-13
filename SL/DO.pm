@@ -62,7 +62,7 @@ sub transactions {
 
   my $query =
     qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.transdate,
-         ct.name, dord.${vc}_id, dord.globalproject_id,
+         ct.${vc}number, ct.name, dord.${vc}_id, dord.globalproject_id,
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
          dord.transaction_description,
          pr.projectnumber AS globalprojectnumber,

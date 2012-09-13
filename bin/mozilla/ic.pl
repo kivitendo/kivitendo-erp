@@ -1841,7 +1841,6 @@ sub save {
   $form->error($locale->text('Partnumber must not be set to empty!')) if $form->{id} && !$form->{partnumber};
 
   # save part
-  $lxdebug->message($LXDebug::DEBUG1, "ic.pl: sellprice in save = $form->{sellprice}\n");
   if (IC->save(\%myconfig, \%$form) == 3) {
     $form->error($locale->text('Partnumber not unique!'));
   }
@@ -1909,8 +1908,6 @@ sub save {
         $form->{"sellprice_$i"} /= $form->{exchangerate};
       }
 
-      $lxdebug->message($LXDebug::DEBUG1, qq|sellprice_$i in previousform 2 = | . $form->{"sellprice_$i"} . qq|\n|);
-
       map { $form->{"taxaccounts_$i"} .= "$_ " } split / /, $newform{taxaccount};
       chop $form->{"taxaccounts_$i"};
       foreach my $item (qw(description rate taxnumber)) {
@@ -1959,7 +1956,6 @@ sub save {
     }
     $form->{callback} = $callback;
   }
-  $lxdebug->message($LXDebug::DEBUG1, qq|ic.pl: sellprice_$i nach sub save = | . $form->{"sellprice_$i"} . qq|\n|);
 
   # redirect
   $form->redirect;

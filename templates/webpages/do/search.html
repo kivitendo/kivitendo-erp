@@ -173,6 +173,13 @@
          <input name="l_name" id="l_name" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_name">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</label>
         </td>
+
+        [% IF is_customer %]
+        <td>
+         <input name="l_customernumber" id="l_customernumber" class="checkbox" type="checkbox" value="Y">
+         <label for="l_customernumber">[% 'Customer Number' | $T8 %]</label>
+        </td>
+        [% END %]
        </tr>
 
        <tr>

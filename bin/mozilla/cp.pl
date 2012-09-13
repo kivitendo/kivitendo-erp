@@ -36,6 +36,7 @@ use SL::IS;
 use SL::IR;
 use SL::AR;
 use SL::AP;
+use Data::Dumper;
 use strict;
 #use warnings;
 
@@ -71,13 +72,14 @@ sub payment {
   # für bugfix 1771 (doppelte Leerzeichen werden nicht 'gepostet')
   $form->{"select$form->{vc}"} = "";
 
+  $form->{selectcustomer} .= "<option value=\"\"></option>\n" if $form->{vc} eq "customer";
+
   if ($form->{"all_$form->{vc}"}) {
     # s.o. jb 12.10.2010
     $form->{"$form->{vc}_id"} = $form->{"all_$form->{vc}"}->[0]->{id};
     map { $form->{"select$form->{vc}"} .= "<option value=\"$_->{name}--$_->{id}\">$_->{name}--$_->{id}</option>\n" }
       @{ $form->{"all_$form->{vc}"} };
   }
-
   CP->paymentaccounts(\%myconfig, \%$form);
 
   # Standard Konto für Umlaufvermögen
@@ -134,6 +136,13 @@ sub form_header {
 
   if ($form->{ $form->{vc} } eq "") {
     map { $form->{"addr$_"} = "" } (1 .. 4);
+  }
+
+  # sometimes it happens that values in customer arrive without the signs '--'
+  # but in order to select the right option field we need values with '--'
+  if ($form->{vc} eq "customer"){
+    my ($customername) = split /--/, $form->{ $form->{vc} };
+    $form->{ $form->{vc} } = $customername . "--" . $form->{customer_id};
   }
   # bugfix 1771
   # geändert von <option>asdf--2929
@@ -252,15 +261,30 @@ sub update {
     }
   }
 
+  # search by customernumber
+  # the customernumber has to be correct otherwise nothing is found
+  if ($form->{vc} eq 'customer' and $form->{customernumber} and $form->{ARAP} eq 'AR') {
+    $form->{open} ='Y'; # only open invoices
+    # ar_transactions automatically searches by $form->{customer_id} or else
+    # $form->{customer} if available, and these variables will always be set
+    # so we have to empty these values first
+    $form->{customer_id} = '';
+    $form->{customer} = '';
+    AR->ar_transactions(\%myconfig, \%$form);
+
+    # Here we just take the first returned value even if the custumernumber
+    # may not be unique
+    $form->{customer} = $form->{AR}[0]{name};
+    $form->{customer_id} = $form->{AR}[0]{customer_id};
+  }
+
   # search by invoicenumber, 
   if ($form->{invnumber}) { 
-    $form->{open} ='Y'; # nur die offenen rechnungen
+    $form->{open} ='Y'; # only open invoices
     if ($form->{ARAP} eq 'AR'){
-
       # ar_transactions automatically searches by $form->{customer_id} or else
       # $form->{customer} if available, and these variables will always be set
-      # when we have a dropdown field rather than an input field, so we have to
-      # empty these values first
+      # so we have to empty these values first
       $form->{customer_id} = '';
       $form->{customer} = '';
       AR->ar_transactions(\%myconfig, \%$form);
@@ -296,7 +320,7 @@ sub update {
   }
 
   # determine customer/vendor
-  if ( $form->{customer_id} and $form->{invnumber} ) {
+  if ( $form->{customer_id} and ($form->{invnumber} or $form->{customernumber}) ) {
     # we already know the exact customer_id, so fill $form with customer data
     IS->get_customer(\%myconfig, \%$form);
     $updated = 1;

@@ -25,7 +25,7 @@
         <tr>
           <th align=right>[% is_customer ? LxERP.t8('Customer') : LxERP.t8('Vendor') %]</th>
           <td>[% vccontent %]</td>
-          [% IF vc == 'customer' %]
+         [% IF vc == 'customer' %]
            [% L.hidden_tag('selectcustomer', selectcustomer) %]
            [% L.hidden_tag('customer_id', customer_id) %]
            [% L.hidden_tag('oldcustomer', oldcustomer) %]
@@ -35,6 +35,12 @@
            [% L.hidden_tag('oldvendor', oldvendor) %]
           [% END %]
         </tr>
+        [% IF vc == 'customer' %]
+        <tr>
+          <th align=right>[% 'Customer Number' | $T8 %]</th>
+          <td><input name="customernumber" size="35"</td>
+        </tr>
+        [% END %]
         <tr>
           <th align=right>[% 'Invoice Number' | $T8 %]</th>
           <td><input name="invnumber" size="35"</td>
