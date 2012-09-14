@@ -389,7 +389,6 @@ sub update_prices {
 #
 #</form>
 #</body>
-#</html>
 #|;
 #  $lxdebug->leave_sub();
 #}    #end list()
@@ -983,7 +982,6 @@ sub addtop100 {
   </form>
 
 </body>
-</html>
 |;
 
   $lxdebug->leave_sub();

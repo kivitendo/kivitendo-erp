@@ -549,7 +549,6 @@ $follow_ups_block
 </form>
 
 </body>
-</html>
 ";
 
   $main::lxdebug->leave_sub();
@@ -873,7 +872,6 @@ sub delete {
 </form>
 
 </body>
-</html>
 |;
 
   $main::lxdebug->leave_sub();

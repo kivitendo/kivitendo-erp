@@ -251,7 +251,6 @@ sub select_name {
 </form>
 
 </body>
-</html>
 |;
 
   $main::lxdebug->leave_sub();

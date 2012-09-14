@@ -1514,7 +1514,6 @@ sub backorder_exchangerate {
 </form>
 
 </body>
-</html>
 |;
 
   $main::lxdebug->leave_sub();

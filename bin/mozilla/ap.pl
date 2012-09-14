@@ -1187,7 +1187,6 @@ sub delete {
 </form>
 
 </body>
-</html>
 |;
 
   $main::lxdebug->leave_sub();
