@@ -11,17 +11,8 @@ sub new {
   my ($class, @slurp) = @_;
 
   my $self = $class->SUPER::new(@slurp);
-  $self->{top} = SL::Controller::Layout::Top->new;
+  $self->add_sub_layouts(SL::Controller::Layout::Top->new);
   $self;
-}
-
-sub pre_content {
-  $_[0]{top}->render .
-  &render;
-}
-
-sub stylesheets {
-  $_[0]{top}->stylesheets
 }
 
 sub start_content {
@@ -32,7 +23,7 @@ sub end_content {
   "</div>\n";
 }
 
-sub render {
+sub pre_content {
   my ($self) = @_;
 
   $self->{sub_class} = 1;
@@ -40,6 +31,8 @@ sub render {
   my $callback            = $::form->unescape($::form->{callback});
   $callback               = URI->new($callback)->rel($callback) if $callback;
   $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
+
+  $self->SUPER::pre_content .
 
   $self->SUPER::render('menu/menuv4', { no_menu => 1, no_output => 1 },
     force_ul_width => 1,

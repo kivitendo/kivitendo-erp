@@ -11,33 +11,12 @@ sub new {
 
   my $self = $class->SUPER::new(@slurp);
 
-  $self->{top}  = SL::Controller::Layout::Top->new;
-  $self->{left} = SL::Controller::Layout::MenuLeft->new;
-
-  $self->use_stylesheet(
-    $self->{top}->stylesheets,
-    $self->{left}->stylesheets,
-  );
-
-  $self->use_javascript(
-    $self->{top}->javascripts,
-    $self->{left}->javascripts,
-  );
+  $self->add_sub_layouts([
+    SL::Controller::Layout::Top->new,
+    SL::Controller::Layout::MenuLeft->new,
+  ]);
 
   $self;
-}
-
-sub pre_content {
-  $_[0]{top}->render .
-  $_[0]{left}->render;
-}
-
-sub start_content {
-  "<div id='content' class='html-menu'>\n";
-}
-
-sub end_content {
-  "</div>\n";
 }
 
 1;

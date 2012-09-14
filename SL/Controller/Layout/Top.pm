@@ -3,7 +3,7 @@ package SL::Controller::Layout::Top;
 use strict;
 use parent qw(SL::Controller::Layout::Base);
 
-sub render {
+sub pre_content {
   my ($self) = @_;
 
   $self->SUPER::render('menu/header', { partial => 1, no_output => 1 },

@@ -5,6 +5,12 @@ use parent qw(SL::Controller::Base);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => qw(menu),
+  'array'                 => [
+    'add_stylesheets_inline' => { interface => 'add', hash_key => 'stylesheets_inline' },
+    'add_javascripts_inline' => { interface => 'add', hash_key => 'javascripts_inline' },
+    'sub_layouts',
+    'add_sub_layouts'         => { interface => 'add', hash_key => 'sub_layouts' },
+  ],
 );
 
 use SL::Menu;
@@ -26,22 +32,31 @@ sub init_menu {
 ##########################################
 
 sub pre_content {
+  join '', map { $_->pre_content } $_[0]->sub_layouts;
 }
 
 sub start_content {
+  join '', map { $_->start_content } $_[0]->sub_layouts;
 }
 
 sub end_content {
+  join '', map { $_->end_content } $_[0]->sub_layouts;
 }
 
 sub post_content {
+  join '', map { $_->post_content } $_[0]->sub_layouts;
 }
 
 sub stylesheets_inline {
+  ( map { $_->stylesheets_inline } $_[0]->sub_layouts ),
+  @{ $_[0]->{stylesheets_inline} || [] };
 }
 
-sub javascript_inline {
+sub javascripts_inline {
+  ( map { $_->javascripts_inline } $_[0]->sub_layouts ),
+  @{ $_[0]->{javascripts_inline} || [] };
 }
+
 
 #########################################
 # Interface
@@ -57,7 +72,8 @@ sub stylesheets {
   my ($self) = @_;
   my $css_path = $self->get_stylesheet_for_user;
 
-  return grep { $_ } map { $self->_find_stylesheet($_, $css_path)  } $self->use_stylesheet;
+  return grep { $_ } map { $self->_find_stylesheet($_, $css_path)  }
+    $self->use_stylesheet, map { $_->stylesheets } $self->sub_layouts;
 }
 
 sub _find_stylesheet {
@@ -89,7 +105,6 @@ sub get_stylesheet_for_user {
 
 sub use_javascript {
   my $self = shift;
-  $::lxdebug->dump(0,  "class", \@_);
   push @{ $self->{javascripts} ||= [] }, @_ if @_;
   @{ $self->{javascripts} ||= [] };
 }
@@ -97,7 +112,8 @@ sub use_javascript {
 sub javascripts {
   my ($self) = @_;
 
-  return map { $self->_find_javascript($_)  } $self->use_javascript;
+  return map { $self->_find_javascript($_)  }
+    $self->use_javascript, map { $_->javascripts } $self->sub_layouts;
 }
 
 sub _find_javascript {

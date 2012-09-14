@@ -537,10 +537,10 @@ sub footer {
 
   print $::request->{layout}->end_content;
   print $::request->{layout}->post_content;
-#  print "<script type='text/javascript' src='$_'></script>\n" for $::request->{layout}->javascripts;
-#  if (my @inline_scripts = $::request->{layout}->javascript_inline) {
-#    print "<script type='text/javascript'>$_</script>\n" for @inline_scripts;
-#  }
+
+  if (my @inline_scripts = $::request->{layout}->javascripts_inline) {
+    print "<script type='text/javascript'>$_</script>\n" for @inline_scripts;
+  }
 
   print <<EOL
  </body>

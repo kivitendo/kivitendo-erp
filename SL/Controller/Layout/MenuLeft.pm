@@ -12,18 +12,31 @@ sub new {
 
   my $self = $class->SUPER::new(@slurp);
 
-  $self->use_stylesheet(qw(css/icons16.css css/icons24.css));
-
   $self;
 }
 
-sub render {
-  my ($self) = @_;
-  my $sections = [ section_menu($self->menu) ];
+sub stylesheets {
+  qw(css/icons16.css css/icons24.css)
+}
 
-  $self->SUPER::render('menu/menu', { no_menu => 1, no_output => 1 },
+sub javascripts_inline {
+  my $self = shift;
+  my $sections = [ section_menu($self->menu) ];
+  $self->render('menu/menu', { no_menu => 1, no_output => 1 },
     sections  => $sections,
-  );
+  )
+}
+
+sub pre_content {
+  "<div id='html-menu'></div>\n";
+}
+
+sub start_content {
+  "<div id='content' class='html-menu'>\n";
+}
+
+sub end_content {
+  "</div>\n";
 }
 
 sub section_menu {
