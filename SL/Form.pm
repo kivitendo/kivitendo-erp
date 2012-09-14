@@ -866,48 +866,36 @@ sub format_amount {
   $main::lxdebug->enter_sub(2);
 
   my ($self, $myconfig, $amount, $places, $dash) = @_;
-  $dash ||= '';
+  $amount ||= 0;
+  $dash   ||= '';
+  my $neg = $amount < 0;
+  my $force_places = defined $places && $places >= 0;
 
-  if ($amount eq "") {
-    $amount = 0;
-  }
+  $amount = $self->round_amount($amount, abs $places) if $force_places;
+  $amount = sprintf "%.*f", ($force_places ? $places : 10), abs $amount; # 6 is default for %fa
 
-  $amount *= 1;
+  # before the sprintf amount was a number, afterwards it's a string. because of the dynamic nature of perl
+  # this is easy to confuse, so keep in mind: before this comment no s///, m//, concat or other strong ops on
+  # $amount. after this comment no +,-,*,/,abs. it will only introduce subtle bugs.
 
-  # Hey watch out! The amount can be an exponential term like 1.13686837721616e-13
-
-  my $neg = ($amount =~ s/^-//);
-  my $exp = ($amount =~ m/[e]/) ? 1 : 0;
-
-  if (defined($places) && ($places ne '')) {
-    if (not $exp) {
-      if ($places < 0) {
-        $amount *= 1;
-        $places *= -1;
-
-        if ($amount =~ /\.(\d+)/) {
-          my $actual_places = length $1;
-          $places = $actual_places if $actual_places > $places;
-        }
-      }
-    }
-    $amount = $self->round_amount($amount, $places);
-  }
+  $amount =~ s/0*$//;                                                    # cull trailing 0s
 
   my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
-  my @p = split(/\./, $amount); # split amount at decimal point
+  my @p = split(/\./, $amount);                                          # split amount at decimal point
 
-  $p[0] =~ s/\B(?=(...)*$)/$d[1]/g if $d[1]; # add 1,000 delimiters
-
+  $p[0] =~ s/\B(?=(...)*$)/$d[1]/g if $d[1];                             # add 1,000 delimiters
   $amount = $p[0];
-  $amount .= $d[0].($p[1]||'').(0 x ($places - length ($p[1]||''))) if ($places || $p[1] ne '');
+  if ($places || $p[1]) {
+    $amount .= $d[0]
+            .  ( $p[1] || '' )
+            .  (0 x (abs($places || 0) - length ($p[1]||'')));           # pad the fraction
+  }
 
   $amount = do {
     ($dash =~ /-/)    ? ($neg ? "($amount)"                            : "$amount" )                              :
     ($dash =~ /DRCR/) ? ($neg ? "$amount " . $main::locale->text('DR') : "$amount " . $main::locale->text('CR') ) :
                         ($neg ? "-$amount"                             : "$amount" )                              ;
   };
-
 
   $main::lxdebug->leave_sub(2);
   return $amount;
