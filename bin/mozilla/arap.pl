@@ -169,8 +169,6 @@ sub select_name {
   my $title = $locale->text('Select from one of the names below');
 
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 
 <table width=100%>

@@ -494,7 +494,7 @@ sub generate_report {
   $data .= $sh;
 
   $row->{balance}->{data}        = $data;
-    
+
   if ( !$form->{report_generator_csv_options_for_import} ) {
     $report->add_separator();
     $report->add_data($row);
@@ -928,8 +928,6 @@ sub delete {
   $form->header;
 
   print qq|
-<body>
-
 <form method=post action=gl.pl>
 |;
 

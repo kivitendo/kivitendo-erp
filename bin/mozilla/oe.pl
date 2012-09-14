@@ -1459,8 +1459,6 @@ sub backorder_exchangerate {
   $form->header;
 
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 |;
 

@@ -847,8 +847,6 @@ sub delete {
   delete $form->{header};
 
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 |;
 

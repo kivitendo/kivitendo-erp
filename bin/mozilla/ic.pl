@@ -288,7 +288,6 @@ sub update_prices {
 #  $form->header;
 #
 #  print qq|
-#<body>
 #  <form method=post action=ic.pl>
 #    <table width=100%>
 #     <tr>
@@ -723,8 +722,6 @@ sub addtop100 {
   my $colspan = $#column_index + 1;
 
   print qq|
-<body>
-
 <table width=100%>
   <tr>
     <th class=listtop colspan=$colspan>$form->{title}</th>

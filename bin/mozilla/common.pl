@@ -524,7 +524,6 @@ sub mark_as_paid_common {
     }
     $referer = $script . "?action=mark_as_paid&mark_as_paid=1&id=$form->{id}" . $callback;
     $form->header();
-    print qq|<body>|;
     print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;
     print qq|<input type="button" value="|.$locale->text('yes').qq|" onclick="document.location.href='|.$referer.qq|'">&nbsp;|;
     print qq|<input type="button" value="|.$locale->text('no').qq|" onclick="javascript:history.back();">|;
