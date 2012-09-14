@@ -97,7 +97,6 @@ sub use_javascript {
 sub javascripts {
   my ($self) = @_;
 
-  $::lxdebug->dump(0,  "called", [ map { $self->find_javascript($_)  } $self->use_javascript ]);
   return map { $self->_find_javascript($_)  } $self->use_javascript;
 }
 
@@ -106,6 +105,19 @@ sub _find_javascript {
 
   return "js/$javascript"        if -f "js/$javascript";
   return $javascript             if -f $javascript;
+}
+
+
+############################################
+# track state of form header
+############################################
+
+sub header_done {
+  $_[0]{_header_done} = 1;
+}
+
+sub need_footer {
+  $_[0]{_header_done};
 }
 
 1;

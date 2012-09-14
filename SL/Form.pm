@@ -485,7 +485,7 @@ sub header {
   push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $layout->stylesheets;
   push @header, "<style type='text/css'>\@page { size:landscape; }</style> "                     if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>"         if -f $self->{favicon};
-  push @header, map { qq|<script type="text/javascript" src="$_"></script>| }                 $layout->javascripts;
+  push @header, map { qq|<script type="text/javascript" src="$_"></script>| }                    $layout->javascripts;
   push @header, $self->{javascript} if $self->{javascript};
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
   push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
@@ -525,11 +525,15 @@ EOT
   print $::request->{layout}->pre_content;
   print $::request->{layout}->start_content;
 
+  $layout->header_done;
+
   $::lxdebug->leave_sub;
 }
 
 sub footer {
   # TODO: fix abort conditions
+
+  return unless $::request->{layout}->need_footer;
 
   print $::request->{layout}->end_content;
   print $::request->{layout}->post_content;

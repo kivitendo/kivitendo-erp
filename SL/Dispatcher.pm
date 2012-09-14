@@ -269,6 +269,8 @@ sub handle_request {
     }
   };
 
+  $::form->footer;
+
   # cleanup
   $::auth->save_session;
   $::auth->expire_sessions;
