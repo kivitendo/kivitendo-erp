@@ -531,8 +531,6 @@ EOT
 }
 
 sub footer {
-  # TODO: fix abort conditions
-
   return unless $::request->{layout}->need_footer;
 
   print $::request->{layout}->end_content;
