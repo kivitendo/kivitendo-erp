@@ -2,7 +2,6 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE HTML %]
-<body>
 <form method=post action=bp.pl>
 
 <h1>[% 'Print' | $T8 %] [% label.$type.title %]</h1>[% L.hidden_tag('title', LxERP.t8('Print') _ ' ' _ label.$type.title) %]
