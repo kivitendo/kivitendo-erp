@@ -7,14 +7,6 @@ use URI;
 
 use List::MoreUtils qw(apply);
 
-sub new {
-  my ($class, @slurp) = @_;
-
-  my $self = $class->SUPER::new(@slurp);
-
-  $self;
-}
-
 sub stylesheets {
   qw(css/icons16.css css/icons24.css)
 }
@@ -73,30 +65,19 @@ sub section_menu {
 
     my $anchor = $menuitem->{href};
 
-    my %common_args = (
-        l   => $label,
-        s  => $spacer,
-        id => "$id_prefix\_$id",
-    );
+    my @common_args = ($label, $spacer, "$id_prefix\_$id");
 
     if (!$level) { # toplevel
-      push @items, { %common_args,
-        i      => "icon24 $icon_class",   #  make_image(size => 24, label => $item),
-        c    => 'm',
-      };
+      push @items, [ @common_args, "icon24 $icon_class", 'm' ];
+      #  make_image(size => 24, label => $item),
       push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{submenu}) {
-      push @items, { %common_args,
-        i      => "icon16 submenu",   #make_image(label => 'submenu'),
-        c    => 'sm',
-      };
+      push @items, [ @common_args, "icon16 submenu", 'sm' ];
+      #make_image(label => 'submenu'),
       push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{module}) {
-      push @items, { %common_args,
-        i     => "icon16 $icon_class",  #make_image(size => 16, label => $item),
-        h    => $anchor,
-        c   => 'i',
-      };
+      push @items, [ @common_args, "icon16 $icon_class", 'i', $anchor ];
+      #make_image(size => 16, label => $item),
     }
   } continue {
     $id++;
