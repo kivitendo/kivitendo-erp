@@ -55,7 +55,7 @@ __PACKAGE__->before_save('_before_save_set_partnumber');
 sub _before_save_set_partnumber {
   my ($self) = @_;
 
-  $self->create_trans_number if $self->partnumber eq '';
+  $self->create_trans_number if !$self->partnumber;
   return 1;
 }
 
