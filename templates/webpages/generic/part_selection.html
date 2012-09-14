@@ -1,5 +1,6 @@
 [%- USE T8 %]
-[% USE HTML %]<body [% IF onload %]onload="[% onload %]"[% END %]>
+[%- USE HTML %]
+<body [%- IF onload %]onload="[%- onload %]"[%- END %]>
 
  <form action="[% HTML.escape(script) %]" method="post" name="Form">
 
