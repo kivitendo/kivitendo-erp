@@ -547,8 +547,6 @@ $follow_ups_block
 
   print "
 </form>
-
-</body>
 ";
 
   $main::lxdebug->leave_sub();
@@ -870,8 +868,6 @@ sub delete {
 <input name=action class=submit type=submit value="|
     . $locale->text('Yes') . qq|">
 </form>
-
-</body>
 |;
 
   $main::lxdebug->leave_sub();

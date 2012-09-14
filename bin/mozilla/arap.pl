@@ -249,8 +249,6 @@ sub select_name {
 <input class=submit type=submit name=action value="|
     . $locale->text('Continue') . qq|">
 </form>
-
-</body>
 |;
 
   $main::lxdebug->leave_sub();

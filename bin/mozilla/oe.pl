@@ -1512,8 +1512,6 @@ sub backorder_exchangerate {
     . $locale->text('Continue') . qq|">
 
 </form>
-
-</body>
 |;
 
   $main::lxdebug->leave_sub();

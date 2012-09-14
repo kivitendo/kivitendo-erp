@@ -528,7 +528,6 @@ sub mark_as_paid_common {
     print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;
     print qq|<input type="button" value="|.$locale->text('yes').qq|" onclick="document.location.href='|.$referer.qq|'">&nbsp;|;
     print qq|<input type="button" value="|.$locale->text('no').qq|" onclick="javascript:history.back();">|;
-    print qq|</body>|;
   }
 
   $main::lxdebug->leave_sub();

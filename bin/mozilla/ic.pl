@@ -388,7 +388,6 @@ sub update_prices {
 #    . $locale->text('TOP100') . qq|">
 #
 #</form>
-#</body>
 #|;
 #  $lxdebug->leave_sub();
 #}    #end list()
@@ -980,8 +979,6 @@ sub addtop100 {
     . $locale->text('choice') . qq|">
 
   </form>
-
-</body>
 |;
 
   $lxdebug->leave_sub();
