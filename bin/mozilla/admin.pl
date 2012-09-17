@@ -91,7 +91,7 @@ sub run {
   $locale = $::locale;
   $auth   = $::auth;
 
-  $request->{layout}->use_stylesheet("lx-office-erp.css");
+  $::request->{layout}->use_stylesheet("lx-office-erp.css");
   $form->{favicon}    = "favicon.ico";
 
   if ($form->{action}) {
