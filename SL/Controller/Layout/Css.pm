@@ -1,5 +1,7 @@
 package SL::Controller::Layout::Css;
 
+use strict;
+
 use List::Util qw(max);
 use Exporter qw(import);
 
