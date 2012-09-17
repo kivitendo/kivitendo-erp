@@ -31,7 +31,7 @@ sub run {
   my $profile = $self->profile;
   $self->csv(SL::Helper::Csv->new(file                   => $self->file->file_name,
                                   encoding               => $self->controller->profile->get('charset'),
-                                  profile                => { profile => $profile, class => $self->class },
+                                  profile                => [{ profile => $profile, class => $self->class }],
                                   ignore_unknown_columns => 1,
                                   strict_profile         => 1,
                                   case_insensitive_header => 1,
@@ -47,11 +47,15 @@ sub run {
 
   $self->controller->track_progress(progress => 50);
 
+  if ($self->csv->is_multiplexed) {
+    die "controller for multiplex data is not implemented yet";
+  }
+
   $self->controller->errors([ $self->csv->errors ]) if $self->csv->errors;
 
   return if ( !$self->csv->header || $self->csv->errors );
 
-  my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header } ] };
+  my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header->[0] } ] };
   $headers->{methods} = [ map { $profile->{$_} } @{ $headers->{headers} } ];
   $headers->{used}    = { map { ($_ => 1) }      @{ $headers->{headers} } };
   $self->controller->headers($headers);

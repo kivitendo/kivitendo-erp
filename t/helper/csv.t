@@ -1,4 +1,4 @@
-use Test::More tests => 47;
+use Test::More tests => 56;
 
 use lib 't';
 use utf8;
@@ -11,9 +11,9 @@ use_ok 'SL::Helper::Csv';
 Support::TestSetup::login();
 
 my $csv = SL::Helper::Csv->new(
-  file    => \"Kaffee\n",
-  header  => [ 'description' ],
-  profile => { class  => 'SL::DB::Part', },
+  file    => \"Kaffee\n",       # " # make emacs happy
+  header  => [[ 'description' ]],
+  profile => [{ class  => 'SL::DB::Part', }],
 );
 
 isa_ok $csv->_csv, 'Text::CSV_XS';
@@ -29,9 +29,9 @@ $::myconfig{dateformat} = 'dd.mm.yyyy';
 
 $csv = SL::Helper::Csv->new(
   file    => \"Kaffee;0.12;12,2;1,5234\n",
-  header  => [ 'description', 'sellprice', 'lastcost_as_number', 'listprice' ],
-  profile => {profile => { listprice => 'listprice_as_number' },
-              class   => 'SL::DB::Part',},
+  header  => [[ 'description', 'sellprice', 'lastcost_as_number', 'listprice' ]],
+  profile => [{profile => { listprice => 'listprice_as_number' },
+               class   => 'SL::DB::Part',}],
 );
 $csv->parse;
 
@@ -49,8 +49,8 @@ Kaffee,0.12,'12,2','1,5234'
 EOL
   sep_char => ',',
   quote_char => "'",
-  profile => {profile => { listprice => 'listprice_as_number' },
-              class   => 'SL::DB::Part',}
+  profile => [{profile => { listprice => 'listprice_as_number' },
+               class   => 'SL::DB::Part',}]
 );
 $csv->parse;
 is scalar @{ $csv->get_objects }, 1, 'auto header works';
@@ -64,7 +64,7 @@ $csv = SL::Helper::Csv->new(
 ;;description;sellprice;lastcost_as_number;
 #####;Puppy;Kaffee;0.12;12,2;1,5234
 EOL
-  profile => {class  => 'SL::DB::Part'},
+  profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
 is scalar @{ $csv->get_objects }, 1, 'bozo header doesn\'t blow things up';
@@ -77,7 +77,7 @@ description;partnumber;sellprice;lastcost_as_number;
 Kaffee;;0.12;12,2;1,5234
 Beer;1123245;0.12;12,2;1,5234
 EOL
-  profile => {class  => 'SL::DB::Part'},
+  profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
 is scalar @{ $csv->get_objects }, 2, 'multiple objects work';
@@ -93,7 +93,7 @@ Kaffee;;0.12;1,221.52
 Beer;1123245;0.12;1.5234
 EOL
   numberformat => '1,000.00',
-  profile => {class  => 'SL::DB::Part'},
+  profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
 is $csv->get_objects->[0]->lastcost, '1221.52', 'formatnumber';
@@ -107,7 +107,7 @@ Kaffee;;0.12;1,221.52
 Beer;1123245;0.12;1.5234
 EOL
   numberformat => '1,000.00',
-  profile => {class  => 'SL::DB::Part'},
+  profile => [{class  => 'SL::DB::Part'}],
 );
 is $csv->parse, undef, 'broken csv header won\'t get parsed';
 
@@ -120,7 +120,7 @@ description;partnumber;sellprice;lastcost_as_number;
 Beer;1123245;0.12;1.5234
 EOL
   numberformat => '1,000.00',
-  profile => {class  => 'SL::DB::Part'},
+  profile => [{class  => 'SL::DB::Part'}],
 );
 is $csv->parse, undef, 'broken csv content won\'t get parsed';
 is_deeply $csv->errors, [ '"Kaf"fee";;0.12;1,221.52'."\n", 2023, 'EIQ - QUO character not allowed', 5, 2 ], 'error';
@@ -136,7 +136,7 @@ Beer;1123245;0.12;1.5234;nein kein wieder
 EOL
   numberformat => '1,000.00',
   ignore_unknown_columns => 1,
-  profile => {class  => 'SL::DB::Part'},
+  profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
 is $csv->get_objects->[0]->lastcost, '1221.52', 'ignore_unkown_columns works';
@@ -150,10 +150,10 @@ Kaffee;;0.12;1,221.52;Standard 7%
 Beer;1123245;0.12;1.5234;16 %
 EOL
   numberformat => '1,000.00',
-  profile => {
+  profile => [{
     profile => {buchungsgruppe => "buchungsgruppen.description"},
     class  => 'SL::DB::Part',
-  }
+  }]
 );
 $csv->parse;
 isa_ok $csv->get_objects->[0]->buchungsgruppe, 'SL::DB::Buchungsgruppe', 'deep dispatch auto vivify works';
@@ -169,13 +169,13 @@ description;partnumber;sellprice;lastcost_as_number;make_1;model_1;
 Beer;1123245;0.12;1.5234;
 EOL
   numberformat => '1,000.00',
-  profile => {
+  profile => [{
     profile => {
       make_1 => "makemodels.0.make",
       model_1 => "makemodels.0.model",
     },
     class  => 'SL::DB::Part',
-  },
+  }],
 );
 $csv->parse;
 my @mm = $csv->get_objects->[0]->makemodel;
@@ -191,7 +191,7 @@ description;partnumber;sellprice;lastcost_as_number;make_1;model_1;make_2;model_
  Kaffee;;0.12;1,221.52;213;Chair 0815;523;Table 15
 EOL
   numberformat => '1,000.00',
-  profile => {
+  profile => [{
     profile => {
       make_1 => "makemodels.0.make",
       model_1 => "makemodels.0.model",
@@ -199,7 +199,7 @@ EOL
       model_2 => "makemodels.1.model",
     },
     class  => 'SL::DB::Part',
-  }
+  }]
 );
 $csv->parse;
 
@@ -219,10 +219,10 @@ $csv = SL::Helper::Csv->new(
 description;partnumber;sellprice;lastcost_as_number;buchungsgruppe;
 EOL
   numberformat => '1,000.00',
-  profile => {
+  profile => [{
     profile => {buchungsgruppe => "buchungsgruppen.1.description"},
     class  => 'SL::DB::Part',
-  }
+  }]
 );
 is $csv->parse, undef, 'wrong profile gets rejected';
 is_deeply $csv->errors, [ 'buchungsgruppen.1.description', undef, "Profile path error. Indexed relationship is not OneToMany around here: 'buchungsgruppen.1'", undef ,0 ], 'error indicates wrong header';
@@ -239,10 +239,10 @@ EOL
   numberformat => '1,000.00',
   ignore_unknown_columns => 1,
   strict_profile => 1,
-  profile => {
+  profile => [{
     profile => {lastcost => 'lastcost_as_number'},
     class  => 'SL::DB::Part',
-  }
+  }]
 );
 $csv->parse;
 is $csv->get_objects->[0]->lastcost, '1221.52', 'strict_profile with ignore';
@@ -258,10 +258,10 @@ Beer;1123245;0.12;1.5234;nein kein wieder
 EOL
   numberformat => '1,000.00',
   strict_profile => 1,
-  profile => {
+  profile => [{
     profile => {lastcost => 'lastcost_as_number'},
     class  => 'SL::DB::Part',
-  }
+  }]
 );
 $csv->parse;
 
@@ -271,8 +271,8 @@ is_deeply( ($csv->errors)[0], [ 'description', undef, 'header field \'descriptio
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",
-  header => [ 'description' ],
-  profile => {class  => 'SL::DB::Part'},
+  header =>  [[ 'description' ]],
+  profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'eol bug at the end of files';
@@ -302,7 +302,7 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive hea
 
 $csv = SL::Helper::Csv->new(
   file   => \"\x{EF}\x{BB}\x{BF}description\nKaffee",
-  profile => {class  => 'SL::DB::Part'},
+  profile => [{class  => 'SL::DB::Part'}],
   encoding => 'utf8',
 );
 $csv->parse;
@@ -313,7 +313,7 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'utf8 BOM works (bug 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",
   header => [ 'Description' ],
-  class  => 'SL::DB::Part',
+  profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
 is_deeply $csv->get_data, undef, 'case insensitive header without flag ignores';
@@ -365,3 +365,7 @@ $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'without profile and class works';
 
 # vim: ft=perl
+# set emacs to perl mode
+# Local Variables:
+# mode: perl
+# End:
