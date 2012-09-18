@@ -78,7 +78,7 @@
      <td align="center">
   [% SET forex        = 'forex_'        _ i %]
   [% SET exchangerate = 'exchangerate_' _ i %]
-  [% IF forex %]
+  [% IF $forex %]
         <input type="hidden" name="exchangerate_[% i %]" value="[% LxERP.format_amount($exchangerate, 2) %]">
         [% LxERP.format_amount($forex, 2) %]
   [% ELSE %]
