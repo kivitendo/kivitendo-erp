@@ -173,12 +173,12 @@ __END__
 
 =head1 NAME
 
-SL::BackgroundJob::TelfTests - pluggable self testing
+SL::BackgroundJob::SelfTest - pluggable self testing
 
 =head1 SYNOPSIS
 
-  use SL::BackgroundJob::SelfTests;
-  SL::BackgroundJob::SelfTests->new->run;;
+  use SL::BackgroundJob::SelfTest;
+  SL::BackgroundJob::SelfTest->new->run;;
 
 =head1 DESCRIPTION
 

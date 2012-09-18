@@ -167,8 +167,8 @@ sub check_summe_stornobuchungen {
       AND a.transdate >= ? and a.transdate <= ?|;
   my ($summe_stornobuchungen_ap) = selectfirst_array_query($::form, $self->dbh, $query, $self->fromdate, $self->todate);
 
-  $self->tester->ok($summe_stornobuchungen_ap == 0, 'Summe aller Einkaufsrechnungen (stornos + stronierte) soll 0 sein');
-  $self->tester->ok($summe_stornobuchungen_ar == 0, 'Summe aller Verkaufsrechnungen (stornos + stronierte) soll 0 sein');
+  $self->tester->ok($summe_stornobuchungen_ap == 0, 'Summe aller Einkaufsrechnungen (stornos + stornierte) soll 0 sein');
+  $self->tester->ok($summe_stornobuchungen_ar == 0, 'Summe aller Verkaufsrechnungen (stornos + stornierte) soll 0 sein');
   $self->tester->diag("Summe Einkaufsrechnungen (ar): $summe_stornobuchungen_ar") if $summe_stornobuchungen_ar;
   $self->tester->diag("Summe Einkaufsrechnungen (ap): $summe_stornobuchungen_ap") if $summe_stornobuchungen_ap;
 }
@@ -391,8 +391,8 @@ Several tests for data integrity.
 
 =head1 AUTHOR
 
-Geoffrey Richardsom E<lt>information@richardsonbueren.deE<gt>
-Jan Büren E<lt>information@richardsonbueren.deE<gt>
+G. Richardson E<lt>information@richardson-bueren.deE<gt>
+Jan Büren E<lt>information@richardson-bueren.deE<gt>
 Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
