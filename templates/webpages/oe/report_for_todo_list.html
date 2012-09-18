@@ -20,7 +20,7 @@
    <td>[% HTML.escape(row.transdate) %]</td>
    <td>[% HTML.escape(row.reqdate) %]</td>
    <td>
-    <a href="[% edit_url %]&vc=[% HTML.url(row.vc) %]&type=[% IF row.vc == 'customer' %]sales_quotation[% ELSE %]request_quotation[% END %]&id=[% HTML.url(row.id) %]">
+    <a href="[% edit_url | html %]&amp;vc=[% row.vc | html %]&amp;type=[% IF row.vc == 'customer' %]sales_quotation[% ELSE %]request_quotation[% END %]&amp;id=[% row.id | html %]">
      [% IF row.vc == 'customer' %]
      [% 'Sales quotation' | $T8 %]
      [% ELSE %]
