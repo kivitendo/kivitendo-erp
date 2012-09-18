@@ -1,11 +1,4 @@
 [%- USE T8 %]
-[%- USE HTML %]
- <table width="100%">
-  <tr>
-   <th class="message_ok">[% IF title_information %][% title_information %][% ELSE %][% 'Information' | $T8 %][% END %]</th>
-  </tr>
-  <tr height="5"></tr>
-
-  <tr><td>[% label_information %]</td></tr>
- </table>
+<div class="message_ok">[% IF title_information %][% title_information %][% ELSE %][% 'Information' | $T8 %][% END %]</div>
+<p>[% label_information %]</p>
 
