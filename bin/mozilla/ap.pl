@@ -409,8 +409,6 @@ sub form_header {
                          '-default' => $form->{"globalproject_id"} ));
 
   $form->header;
-  my $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
 <body onLoad="$onload">
 

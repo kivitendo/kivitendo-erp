@@ -221,8 +221,6 @@ sub search {
   $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   my $onload = "focus()"
-             . qq|;setupDateFormat('|. $::myconfig{dateformat} . qq|', '| . $::locale->text("Falsches Datumsformat!") . qq|')|
-             . qq|;setupPoints('|. $::myconfig{numberformat} .   qq|', '| . $::locale->text("wrongformat") . qq|')|;
 
   $::form->header;
   print $::form->parse_html_template('gl/search', {

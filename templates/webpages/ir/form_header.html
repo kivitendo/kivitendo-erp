@@ -196,8 +196,6 @@
 [% ELSE %]
        focus();
 [% END %]
-       setupDateFormat('[% dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
-       setupPoints('[% numberformat %]', '[% 'wrongformat' | $T8 %]');
      });
      function set_duedate() {
        $.ajax({

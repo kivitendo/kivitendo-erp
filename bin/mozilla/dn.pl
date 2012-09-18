@@ -317,8 +317,6 @@ sub search {
   $form->header();
 
   $form->{onload} = qq|focus()|
-    . qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|
-    . qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
   print $form->parse_html_template("dunning/search");
 

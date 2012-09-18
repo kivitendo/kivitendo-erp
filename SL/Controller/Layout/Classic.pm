@@ -14,6 +14,7 @@ sub new {
   $self->add_sub_layouts([
     SL::Controller::Layout::Top->new,
     SL::Controller::Layout::MenuLeft->new,
+    SL::Controller::Layout::None->new,
   ]);
 
   $self;

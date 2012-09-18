@@ -327,7 +327,6 @@ sub form_header {
     qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
 
   $onload = qq|focus()|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
 #  $amount  = $locale->text('Amount');
 #  $project = $locale->text('Project');

@@ -6,6 +6,18 @@ use SL::Controller::Layout::Css;
 
 use URI;
 
+sub new {
+  my ($class, @slurp) = @_;
+
+  my $self = $class->SUPER::new(@slurp);
+
+  $self->add_sub_layouts([
+    SL::Controller::Layout::None->new,
+  ]);
+
+  $self;
+}
+
 sub pre_content {
   &render;
 }

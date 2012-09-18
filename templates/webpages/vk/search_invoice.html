@@ -52,7 +52,7 @@
            <th align="right">[% 'Item mode' | $T8 %]</th>
            <td colspan="3" align=left><input name="l_parts" class=checkbox type=checkbox value=Y> ([%'Show items from invoices individually' | $T8 %]) </td>
           </tr>
-          <tr> 
+          <tr>
            <th align="right">
              [% 'Total sum' | $T8 %]
            </th>
@@ -226,7 +226,7 @@
            <td align=left><input name="l_lastcost_total" class=checkbox type=checkbox value=Y checked>[% 'Purchase price total' | $T8 %]</td>
            <td align=left><input name="l_marge_total" class=checkbox type=checkbox value=Y checked>[% 'Margetotal' | $T8 %]</td>
            <td colspan="4"> ([% 'Single values in item mode, cumulated values in invoice mode' | $T8 %])
-           
+
           </tr>
           <tr>
            <td align=left><input name="l_sellprice" class=checkbox type=checkbox value=Y checked>[% 'Sales price' | $T8 %]</td>
@@ -274,7 +274,7 @@
     </th>
     </tr>
         [% CUSTOM_VARIABLES_INCLUSION_CODE_CT %]
- 
+
      <tr><td colspan="7">&nbsp;</td></tr>
     <tr>
     <th colspan="4" align="left">
@@ -299,8 +299,6 @@
  <!--
    $(document).ready(function(){
     $('customer').focus();
-    setupDateFormat('[% dateformat | html %]','[% 'Falsches Datumsformat!' | $T8 %]');
-    setupPoints('[% numberformat | html %]','[% 'wrongformat' | $T8 %]');
    })
  //-->
  </script>
