@@ -316,7 +316,8 @@ sub form_header {
   my @values = map { $_       } @{ $form->{ALL_CURRENCIES} };
   my %labels = map { $_ => $_ } @{ $form->{ALL_CURRENCIES} };
   $form->{currency}            = $form->{defaultcurrency} unless $form->{currency};
-  $TMPL_VAR{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
+  # show_exchangerate is also later needed in another template
+  $form->{show_exchangerate} = $form->{currency} ne $form->{defaultcurrency};
   $TMPL_VAR{currencies}        = NTI($cgi->popup_menu('-name' => 'currency', '-default' => $form->{"currency"},
                                                       '-values' => \@values, '-labels' => \%labels,
                                                       '-onchange' => "document.getElementById('update_button').click();"
