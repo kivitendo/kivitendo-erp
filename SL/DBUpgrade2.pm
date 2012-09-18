@@ -162,13 +162,25 @@ sub process_query {
       if (@quote_chars) {
         if ($char eq $quote_chars[-1]) {
           pop(@quote_chars);
+        } elsif (length $quote_chars[-1] > 1
+             &&  substr($_, $i, length $quote_chars[-1]) eq $quote_chars[-1]) {
+          $i   += length $quote_chars[-1] - 1;
+          $char = $quote_chars[-1];
+          pop(@quote_chars);
         }
         $query .= $char;
 
       } else {
+        my ($tag, $tag_end);
         if (($char eq "'") || ($char eq "\"")) {
           push(@quote_chars, $char);
 
+        } elsif ($char eq '$'                                            # start of dollar quoting
+             && ($tag_end  = index($_, '$', $i + 1)) > -1                # ends on same line
+             && (do { $tag = substr($_, $i + 1, $tag_end - $i - 1); 1 }) # extract tag
+             &&  $tag      =~ /^ (?= [A-Za-z_] [A-Za-z0-9_]* | ) $/x) {  # tag is identifier
+          push @quote_chars, $char = '$' . $tag . '$';
+          $i = $tag_end;
         } elsif ($char eq ";") {
 
           # Query is complete. Send it.

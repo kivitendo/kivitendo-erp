@@ -2231,6 +2231,14 @@ DHTMLSuite.menuBar.prototype = {
 		try{
 			var shortRef = this.submenuGroups[parentId];	
 			
+			if( shortRef.style.visible == 'hidden' )
+		  {
+			  shortRef.style.display = 'none';
+			  return;
+		  }
+			else
+			  shortRef.style.display = 'block';
+			
 			var depth = this.menuItems[parentId].depth;
 			var dir = this.menuItemObj.submenuType[depth];
 			if(dir=='top'){			
