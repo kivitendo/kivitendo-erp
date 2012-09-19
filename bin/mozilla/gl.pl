@@ -220,11 +220,8 @@ sub search {
   );
   $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
-  my $onload = "focus()";
-
   $::form->header;
   print $::form->parse_html_template('gl/search', {
-    onload => $onload,
     department_label => sub { ("$_[0]{description}--$_[0]{id}")x2 },
     employee_label => sub { "$_[0]{id}--$_[0]{name}" },
   });

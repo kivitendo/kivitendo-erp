@@ -253,7 +253,6 @@
 [% ELSIF creditwarning != '' %]
        alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
 [% ELSE %]
-       focus();
 [% END %]
      });
      function set_duedate() {

@@ -316,8 +316,6 @@ sub search {
 
   $form->header();
 
-  $form->{onload} = qq|focus()|;
-
   print $form->parse_html_template("dunning/search");
 
   $main::lxdebug->leave_sub();

@@ -132,7 +132,6 @@ sub form_header {
   $auth->assert('cash');
 
   my ($vc, $arap, $exchangerate);
-  my ($onload);
 
   if ($form->{ $form->{vc} } eq "") {
     map { $form->{"addr$_"} = "" } (1 .. 4);
@@ -167,12 +166,10 @@ sub form_header {
   $form->header;
 
   $arap = lc $form->{ARAP};
-  $onload = qq|focus()|;
 
   print $::form->parse_html_template('cp/form_header', {
     is_customer => $form->{vc}   eq 'customer',
     is_receipt  => $form->{type} eq 'receipt',
-    onload      => $onload,
     arap        => $arap,
     vccontent   => $vc,
   });

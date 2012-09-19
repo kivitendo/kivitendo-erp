@@ -219,7 +219,6 @@ sub form_header {
 
   my ($title, $readonly, $exchangerate, $rows);
   my ($notes, $department, $customer, $employee, $amount, $project);
-  my ($onload);
   my ($ARselected);
 
 
@@ -325,8 +324,6 @@ sub form_header {
   $form->{javascript} .=
     qq|<script type="text/javascript" src="js/show_vc_details.js"></script>| .
     qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
-
-  $onload = qq|focus()|;
 
 #  $amount  = $locale->text('Amount');
 #  $project = $locale->text('Project');
@@ -442,7 +439,6 @@ sub form_header {
     project_labels       => \%project_labels,
     rows                 => $rows,
     ARselected           => $ARselected,
-    onload               => $onload,
     title_str            => $title,
     follow_up_trans_info => $follow_up_trans_info,
   });
@@ -905,7 +901,7 @@ sub search {
   my $cgi      = $::request->{cgi};
 
   my ($customer, $department);
-  my ($jsscript, $button1, $button2, $onload);
+  my ($jsscript, $button1, $button2);
 
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");
