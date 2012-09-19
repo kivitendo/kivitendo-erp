@@ -220,7 +220,7 @@ sub search {
   );
   $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
-  my $onload = "focus()"
+  my $onload = "focus()";
 
   $::form->header;
   print $::form->parse_html_template('gl/search', {

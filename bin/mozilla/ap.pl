@@ -410,7 +410,7 @@ sub form_header {
 
   $form->header;
   print qq|
-<body onLoad="$onload">
+<body>
 
 <form method=post action=$form->{script}>
 

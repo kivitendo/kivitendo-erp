@@ -316,7 +316,7 @@ sub search {
 
   $form->header();
 
-  $form->{onload} = qq|focus()|
+  $form->{onload} = qq|focus()|;
 
   print $form->parse_html_template("dunning/search");
 
