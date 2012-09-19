@@ -7,6 +7,7 @@ use version 0.77;
 use Carp;
 use IO::File;
 use Params::Validate qw(:all);
+use List::MoreUtils qw(all);
 use Text::CSV_XS;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
   file encoding sep_char quote_char escape_char header profile
@@ -108,21 +109,15 @@ sub _check_multiplexed {
   if ($self->profile) {
     my @profile = @{ $self->profile };
     if (scalar @profile > 1) {
-      my $info_ok = 1;
       # Each profile needs a class and a row_ident
-      foreach my $p (@profile) {
-        if ( !defined $p->{class} || !defined $p->{row_ident} ) {
-          $info_ok = 0;
-          last;
-        }
-      }
+      my $info_ok = all { defined $_->{class} && defined $_->{row_ident} } @profile;
 
       # If header is given, there need to be a header for each profile
+      # and no empty headers.
       if ($info_ok && $self->header) {
         my @header = @{ $self->header };
-        if (scalar @profile != scalar @header) {
-          $info_ok = 0;
-        }
+        $info_ok = $info_ok && scalar @profile == scalar @header;
+        $info_ok = $info_ok && all { scalar @$_ > 0} @header;
       }
       $self->is_multiplexed($info_ok);
       return $info_ok;
@@ -158,26 +153,14 @@ sub _check_header {
   # data with a discouraged but valid byte order mark
   # if not removed, the first header field will not be recognized
   if ($header) {
-    foreach my $h (@{ $header }) {
-      if ($h && $h->[0] && $self->encoding =~ /utf-?8/i) {
-        $h->[0] =~ s/^\x{FEFF}//;
-      }
+    my $h = $header->[0];
+    if ($h && $h->[0] && $self->encoding =~ /utf-?8/i) {
+      $h->[0] =~ s/^\x{FEFF}//;
     }
   }
 
   # check, if all header fields are parsed well
-  my $all_ok = 1;
-  if ($header) {
-    foreach my $h (@{ $header }) {
-      if (!$h) {
-        $all_ok = 0;
-        last;
-      }
-    }
-  } else {
-    $all_ok = 0;
-  }
-  return unless $all_ok;
+  return unless $header && all { $_ } @$header;
 
   # Special case: human stupidity
   # people insist that case sensitivity doesn't exist and try to enter all
@@ -207,7 +190,6 @@ sub _parse_data {
     my $row = $self->_csv->getline($self->_io);
     if ($row) {
       my $header = $self->_header_by_row($row);
-      $self->_csv->column_names(@{ $header });
       my %hr;
       @hr{@{ $header }} = @$row;
       push @data, \%hr;
@@ -243,7 +225,7 @@ sub _header_by_row {
   if ($self->is_multiplexed) {
     my $i = 0;
     foreach my $profile (@{ $self->profile }) {
-      if (@{ $row }[0] eq $profile->{row_ident}) {
+      if ($row->[0] eq $profile->{row_ident}) {
         return $header[$i];
       }
       $i++;

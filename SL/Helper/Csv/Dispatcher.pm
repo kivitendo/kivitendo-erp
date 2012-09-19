@@ -55,7 +55,7 @@ sub _class_by_line {
       }
     }
   } else {
-    $class = @{ $self->_csv->profile }[0]->{class};
+    $class = $self->_csv->profile->[0]->{class};
   }
 
   return $class;
@@ -70,13 +70,13 @@ sub _specs_by_line {
     foreach my $p (@{ $self->_csv->profile }) {
       my $row_ident = $p->{row_ident};
       if ($line->{datatype} eq $row_ident) {
-        $spec = @{ $self->_specs }[$i];
+        $spec = $self->_specs->[$i];
         last;
       }
       $i++;
     }
   } else {
-    $spec = @{ $self->_specs }[0];
+    $spec = $self->_specs->[0];
   }
 
   return $spec;
@@ -128,8 +128,8 @@ sub parse_profile {
   foreach my $h (@{ $self->_csv->header }) {
     $header = $h;
     if ($self->_csv->profile) {
-      $profile = @{ $self->_csv->profile }[$i]->{profile};
-      $class   = @{ $self->_csv->profile }[$i]->{class};
+      $profile = $self->_csv->profile->[$i]->{profile};
+      $class   = $self->_csv->profile->[$i]->{class};
     }
 
     my $spec = $self->_parse_profile(profile => $profile,
