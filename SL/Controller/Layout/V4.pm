@@ -12,7 +12,7 @@ sub new {
 
   my $self = $class->SUPER::new(@slurp);
   $self->add_sub_layouts(
-    SL::Controller::Layout::Top->new
+    SL::Controller::Layout::Top->new,
     SL::Controller::Layout::None->new,
   );
   $self;
