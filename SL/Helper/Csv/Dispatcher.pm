@@ -5,8 +5,9 @@ use strict;
 use Data::Dumper;
 use Carp;
 use Scalar::Util qw(weaken);
+use List::MoreUtils qw(all pairwise);
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
-  _specs _errors
+  _specs _row_class _row_spec _errors
 ) ];
 
 use SL::Helper::Csv::Error;
@@ -38,48 +39,34 @@ sub dispatch {
   return $obj;
 }
 
-# return class for given line
-# if only one profile is given, return this profiles class
-# if more than one profile is given, identify class by first
-# column???
 sub _class_by_line {
   my ($self, $line) = @_;
 
-  my $class;
-  if ($self->_csv->is_multiplexed) {
-    foreach my $p (@{ $self->_csv->profile }) {
-      my $row_ident = $p->{row_ident};
-      if ($line->{datatype} eq $row_ident) {
-        $class = $p->{class};
-        last;
-      }
-    }
-  } else {
-    $class = $self->_csv->profile->[0]->{class};
+  # initialize lookup hash if not already done
+  if ($self->_csv->is_multiplexed && ! defined $self->_row_class ) {
+    $self->_row_class({ map { $_->{row_ident} => $_->{class} } @{ $self->_csv->profile } });
   }
 
-  return $class;
+  if ($self->_csv->is_multiplexed) {
+    return $self->_row_class->{$line->{datatype}};
+  } else {
+    return $self->_csv->profile->[0]->{class};
+  }
 }
 
 sub _specs_by_line {
   my ($self, $line) = @_;
 
-  my $spec;
-  my $i = 0;
-  if ($self->_csv->is_multiplexed) {
-    foreach my $p (@{ $self->_csv->profile }) {
-      my $row_ident = $p->{row_ident};
-      if ($line->{datatype} eq $row_ident) {
-        $spec = $self->_specs->[$i];
-        last;
-      }
-      $i++;
-    }
-  } else {
-    $spec = $self->_specs->[0];
+  # initialize lookup hash if not already done
+  if ($self->_csv->is_multiplexed && ! defined $self->_row_spec ) {
+    $self->_row_spec({ pairwise { $a->{row_ident} => $b } @{ $self->_csv->profile }, @{ $self->_specs } });
   }
 
-  return $spec;
+  if ($self->_csv->is_multiplexed) {
+    return $self->_row_spec->{$line->{datatype}};
+  } else {
+    return $self->_specs->[0];
+  }
 }
 
 

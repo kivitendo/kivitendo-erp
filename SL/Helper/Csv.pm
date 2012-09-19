@@ -7,12 +7,12 @@ use version 0.77;
 use Carp;
 use IO::File;
 use Params::Validate qw(:all);
-use List::MoreUtils qw(all);
+use List::MoreUtils qw(all pairwise);
 use Text::CSV_XS;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
   file encoding sep_char quote_char escape_char header profile
   numberformat dateformat ignore_unknown_columns strict_profile is_multiplexed
-  _io _csv _objects _parsed _data _errors all_cvar_configs case_insensitive_header
+  _row_header _io _csv _objects _parsed _data _errors all_cvar_configs case_insensitive_header
 ) ];
 
 use SL::Helper::Csv::Dispatcher;
@@ -221,17 +221,15 @@ sub _parse_data {
 sub _header_by_row {
   my ($self, $row) = @_;
 
-  my @header = @{ $self->header };
+  # initialize lookup hash if not already done
+  if ($self->is_multiplexed && ! defined $self->_row_header ) {
+    $self->_row_header({ pairwise { $a->{row_ident} => $b } @{ $self->profile }, @{ $self->header } });
+  }
+    
   if ($self->is_multiplexed) {
-    my $i = 0;
-    foreach my $profile (@{ $self->profile }) {
-      if ($row->[0] eq $profile->{row_ident}) {
-        return $header[$i];
-      }
-      $i++;
-    }
+    return $self->_row_header->{$row->[0]}
   } else {
-    return $header[0];
+    return $self->header->[0];
   }
 }
 
