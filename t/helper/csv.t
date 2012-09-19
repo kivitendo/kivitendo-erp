@@ -1,4 +1,4 @@
-use Test::More tests => 56;
+use Test::More tests => 58;
 
 use lib 't';
 use utf8;
@@ -446,8 +446,48 @@ $csv = SL::Helper::Csv->new(
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'without profile and class works';
 
+######
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+datatype;description
+"datatype;name
+P;Kaffee
+C;Meier
+P;Beer
+EOL
+# " # make emacs happy
+  profile => [
+              {class  => 'SL::DB::Part',     row_ident => 'P'},
+              {class  => 'SL::DB::Customer', row_ident => 'C'},
+             ],
+  ignore_unknown_columns => 1,
+);
+is $csv->parse, undef, 'multiplex: broken csv header won\'t get parsed';
+
+######
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+datatype;description
+P;Kaffee
+C;Meier
+P;Beer
+EOL
+# " # make emacs happy
+  profile => [
+              {class  => 'SL::DB::Part',     row_ident => 'P'},
+              {class  => 'SL::DB::Customer', row_ident => 'C'},
+             ],
+  header  => [ [], ['name'] ],
+  ignore_unknown_columns => 1,
+);
+ok !$csv->_check_multiplexed, 'multiplex check detects empty header';
+
+
 # vim: ft=perl
 # set emacs to perl mode
 # Local Variables:
 # mode: perl
 # End:
+
