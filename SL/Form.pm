@@ -488,7 +488,6 @@ sub header {
   push @header, map { qq|<script type="text/javascript" src="$_"></script>| }                    $layout->javascripts;
   push @header, $self->{javascript} if $self->{javascript};
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
-  push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
 
   my  %doctypes = (
     strict       => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">|,

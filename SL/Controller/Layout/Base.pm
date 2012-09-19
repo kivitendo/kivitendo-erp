@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => qw(menu),
+  'scalar'                => qw(focus),
   'array'                 => [
     'add_stylesheets_inline' => { interface => 'add', hash_key => 'stylesheets_inline' },
     'add_javascripts_inline' => { interface => 'add', hash_key => 'javascripts_inline' },
