@@ -282,7 +282,7 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'eol bug at the end o
 $csv = SL::Helper::Csv->new(
   file   => \"Description\nKaffee",
   case_insensitive_header => 1,
-  profile => {profile => { description => 'description' }, class  => 'SL::DB::Part'},
+  profile => [ {profile => { description => 'description' }, class  => 'SL::DB::Part'} ],
 );
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive header from csv works';
@@ -291,9 +291,8 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive hea
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",
-  header => [ 'Description' ],
-  case_insensitive_header => 1,
-  profile => {profile => { description => 'description' }, class  => 'SL::DB::Part'},
+  header =>  [[ 'Description' ]],
+  profile => [{profile => { description => 'description' }, {class  => 'SL::DB::Part'}],
 );
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive header as param works';
@@ -312,55 +311,138 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'utf8 BOM works (bug 
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",
-  header => [ 'Description' ],
+  header => [[ 'Description' ]],
   profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
 is_deeply $csv->get_data, undef, 'case insensitive header without flag ignores';
 
 #####
-
 $csv = SL::Helper::Csv->new(
-  file   => \"Kaffee",
-  header => [ 'foo' ],
-  class  => 'SL::DB::Part',
-  profile => { foo => '' },
+  file    => \"Kaffee;1,50\nSchoke;0,89\n",
+  header  => [
+    [ 'datatype', 'description', 'sellprice' ],
+  ],
+  profile => [
+    { profile   => { sellprice => 'sellprice_as_number' },
+      class     => 'SL::DB::Part',}
+  ],
+);
+
+ok $csv->_check_multiplexed, 'multiplex check works on not-multiplexed data';
+ok !$csv->is_multiplexed, 'not-multiplexed data is recognized';
+
+#####
+$csv = SL::Helper::Csv->new(
+  file    => \"P;Kaffee;1,50\nC;Meier\n",
+  header  => [
+    [ 'datatype', 'description', 'listprice' ],
+    [ 'datatype', 'name' ],
+  ],
+  profile => [
+    { profile   => { listprice => 'listprice_as_number' },
+      class     => 'SL::DB::Part',
+      row_ident => 'P' },
+    { class  => 'SL::DB::Customer',
+      row_ident => 'C' }
+  ],
 );
 $csv->parse;
 
-is_deeply $csv->get_data, [ { foo => 'Kaffee' } ], 'empty path still gets parsed into data';
-ok $csv->get_objects->[0], 'empty path gets ignored in object creation';
+ok $csv->_check_multiplexed, 'multiplex check works on multiplexed data';
+ok $csv->is_multiplexed, 'multiplexed data is recognized';
+
+#####
+$csv = SL::Helper::Csv->new(
+  file    => \"P;Kaffee;1,50\nC;Meier\n",
+  header  => [
+    [ 'datatype', 'description', 'listprice' ],
+    [ 'datatype', 'name' ],
+  ],
+  profile => [
+    { profile   => { listprice => 'listprice_as_number' },
+      class     => 'SL::DB::Part', },
+    { class  => 'SL::DB::Customer',
+      row_ident => 'C' }
+  ],
+);
+
+ok !$csv->_check_multiplexed, 'multiplex check works on multiplexed data an detects missing row_ident';
+
+#####
+$csv = SL::Helper::Csv->new(
+  file    => \"P;Kaffee;1,50\nC;Meier\n",
+  header  => [
+    [ 'datatype', 'description', 'listprice' ],
+    [ 'datatype', 'name' ],
+  ],
+  profile => [
+    { profile   => { listprice => 'listprice_as_number' },
+      row_ident => 'P' },
+    { class  => 'SL::DB::Customer',
+      row_ident => 'C' }
+  ],
+);
+$csv->parse;
+
+ok !$csv->_check_multiplexed, 'multiplex check works on multiplexed data an detects missing class';
+
+#####
+$csv = SL::Helper::Csv->new(
+  file    => \"P;Kaffee;1,50\nC;Meier\n",  # " # make emacs happy
+  header  => [
+    [ 'datatype', 'description', 'listprice' ],
+  ],
+  profile => [
+    { profile   => { listprice => 'listprice_as_number' },
+      class     => 'SL::DB::Part',
+      row_ident => 'P' },
+    { class  => 'SL::DB::Customer',
+      row_ident => 'C' }
+  ],
+);
+
+ok !$csv->_check_multiplexed, 'multiplex check works on multiplexed data an detects missing header';
 
 #####
 
 $csv = SL::Helper::Csv->new(
-  file   => \"Kaffee",
-  header => [ 'foo' ],
-  class  => 'SL::DB::Part',
-  strict_profile => 1,
-  profile => { foo => '' },
+  file    => \"P;Kaffee;1,50\nC;Meier\n",  # " # make emacs happy
+  header  => [
+    [ 'datatype', 'description', 'listprice' ],
+    [ 'datatype', 'name' ],
+  ],
+  profile => [
+    { profile   => { listprice => 'listprice_as_number' },
+      class     => 'SL::DB::Part',
+      row_ident => 'P' },
+    { class  => 'SL::DB::Customer',
+      row_ident => 'C' }
+  ],
+  ignore_unknown_columns => 1,
 );
 $csv->parse;
+is_deeply $csv->get_data,
+    [ { datatype => 'P', description => 'Kaffee', listprice => '1,50' }, { datatype => 'C', name => 'Meier' } ],
+    'multiplex: simple case works';
+is scalar @{ $csv->get_objects }, 2, 'multiplex: multiple objects work';
+is $csv->get_objects->[0]->description, 'Kaffee', 'multiplex: first object';
+is $csv->get_objects->[1]->name,        'Meier',  'multiplex: second object';
 
-is_deeply $csv->get_data, [ { foo => 'Kaffee' } ], 'empty path still gets parsed into data (strict profile)';
-ok $csv->get_objects->[0], 'empty path gets ignored in object creation (strict profile)';
-
-$csv = SL::Helper::Csv->new(
-  file   => \"Phil",
-  header => [ 'CVAR_grOUnDHog' ],
-  class  => 'SL::DB::Part',
-  strict_profile => 1,
-  case_insensitive_header => 1,
-  profile => { cvar_Groundhog => '' },
-);
-$csv->parse;
-
-is_deeply $csv->get_data, [ { cvar_Groundhog => 'Phil' } ], 'using empty path to get cvars working';
-ok $csv->get_objects->[0], '...and not destorying the objects';
+#####
 
 $csv = SL::Helper::Csv->new(
-  file   => \"description\nKaffee",
+  file    => \"datatype;description;listprice\ndatatype;name\nP;Kaffee;1,50\nC;Meier\n",  # " # make emacs happy
+  profile => [
+    { profile   => { listprice => 'listprice_as_number' },
+      class     => 'SL::DB::Part',
+      row_ident => 'P' },
+    { class  => 'SL::DB::Customer',
+      row_ident => 'C' }
+  ],
+  ignore_unknown_columns => 1,
 );
+
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'without profile and class works';
 
