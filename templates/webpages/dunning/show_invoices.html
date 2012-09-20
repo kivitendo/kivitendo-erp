@@ -4,8 +4,6 @@
 [% L.javascript_tag('jquery.checkall') %]
 [% SET all_active = 1 %][% FOREACH row = DUNNINGS %][% IF !row.active %][% SET all_active = 0 %][% LAST %][% END %][% END %]
 [% SET all_email = 1 %][% FOREACH row = DUNNINGS %][% IF !row.email %][% SET all_email = 0 %][% LAST %][% END %][% END %]
-<body [% IF onload %] onload="[% onload %]"[% END %]>
-
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/dunning.js"></script>
 
