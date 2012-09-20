@@ -521,9 +521,7 @@ sub form_footer {
 }
 
 sub _do_save {
-  $main::auth->assert('customer_vendor_edit & ' .
-                      '(general_ledger         | invoice_edit         | vendor_invoice_edit | ' .
-                      ' request_quotation_edit | sales_quotation_edit | sales_order_edit    | purchase_order_edit)');
+  $main::auth->assert('customer_vendor_edit');
 
   $::form->isblank("name", $::locale->text("Name missing!"));
 
