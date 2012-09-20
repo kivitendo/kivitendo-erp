@@ -1,7 +1,11 @@
 [%- USE T8 %]
 [% USE HTML %]
 [% USE LxERP%]
-<body class="admin" onload="document.getElementById('rpw').focus()">
+<body class="admin">
+
+ <script type='text/javascript'>
+    $(function(){ document.getElementsById('rpw').focus();});
+ </script>
  <div align="center">
 
   <a href="http://www.kivitendo.org"><img src="image/kivitendo.png" border="0"></a>
