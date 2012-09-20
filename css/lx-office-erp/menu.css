@@ -300,7 +300,7 @@ div#menuv4 li li li li:hover ul
 #html-menu div.sm { font-weight: bold }
 #html-menu img { vertical-align: top; border: 0; }
 #html-menu a { vertical-align: top }
-#html-menu .i span.ms { float: left; width: 24px; margin-bottom: 2px; }
+#html-menu .i span.ms { float: left; width: 24px; margin-bottom: 4px; }
 #html-menu .m span.ms { float: left; width: 32px }
 #html-menu .sm span.ms { float: left; width: 24px; background: url(../../image/unterpunkt.png); }
 #html-menu div.m { height: 24px }
