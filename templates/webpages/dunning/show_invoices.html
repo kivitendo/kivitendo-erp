@@ -77,7 +77,7 @@
 
   <hr size=3 noshade>
 
-  <input type="checkbox" name="force_lang" size="6" value="1" onclick="document.getElementsByName('language_id')[0].disabled = !document.getElementsByName('force_lang')[0].checked;">
+  <input type="checkbox" id='force_lang' name="force_lang" size="6" value="1">
   [% 'Override invoice language' | $T8 %]
   [% PRINT_OPTIONS %]
 
@@ -95,3 +95,8 @@
          [% UNLESS DEBUG_DUNNING %]onclick="this.disabled=true; this.value='[% 'The dunning process started' | $T8 %]'; document.Form.submit()"[% END %]>
 
  </form>
+ <script type='text/javascript'>
+   $(function(){$("select[name='language_id']").attr('disabled', $('#force_lang').attr('checked') ? '' : 'disabled')})
+   $('#force_lang').click(function(){ $('select[name="language_id"]').attr('disabled', $('#force_lang').attr('checked') ? '' : 'disabled') })
+ </script>
+

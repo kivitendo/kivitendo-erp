@@ -18,13 +18,13 @@
        <th align="right">[% 'Customer' | $T8 %]</th>
        <td colspan="3">
         [% IF SHOW_CUSTOMER_DDBOX %]
-         <select name="customer_id">
+         <select id='customer' name="customer_id">
           <option value=""></option>
           [% FOREACH row = ALL_CUSTOMERS %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.name) %]</option>
           [% END %]
          </select>
          [% ELSE %]
-         <input name="customer" size="35">
+         <input id='customer' name="customer" size="35">
         [% END %]
        </td>
       </tr>
