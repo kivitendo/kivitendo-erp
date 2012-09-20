@@ -402,19 +402,19 @@ sub form_header {
     }
   }
 
-  my $onload = "";
+  my $dispatch_to_popup = '';
   if ($form->{resubmit} && ($form->{format} eq "html")) {
-      $onload  = "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';";
-      $onload .= "document.do.submit();";
+      $dispatch_to_popup  = "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';";
+      $dispatch_to_popup .= "document.do.submit();";
   } elsif ($form->{resubmit}) {
     # emulate click for resubmitting actions
-    $onload  = "document.oe.${_}.click(); " for grep { /^action_/ } keys %$form;
-    $onload .= "document.oe.submit();";
+    $dispatch_to_popup  = "document.oe.${_}.click(); " for grep { /^action_/ } keys %$form;
+    $dispatch_to_popup .= "document.oe.submit();";
   } elsif ($creditwarning) {
-    $onload = "alert('$credittext')";
+    $::request->{layout}->add_javascripts_inline("alert('$credittext')");
   }
 
-  $TMPL_VAR{onload} = $onload;
+  $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};
   $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 

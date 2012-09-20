@@ -297,14 +297,15 @@ sub form_header {
   $form->{oldvcname}         =  $form->{"old$form->{vc}"};
   $form->{oldvcname}         =~ s/--.*//;
 
-  $form->{onload} = "";
   if ($form->{resubmit}) {
+    my $dispatch_to_popup = '';
     if ($form->{format} eq "html") {
-      $form->{onload} = "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
+      $dispatch_to_popup .= "window.open('about:blank','Beleg'); document.do.target = 'Beleg';";
     }
     # emulate click for resubmitting actions
-    $form->{onload} .= "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
-    $form->{onload} .= "document.do.submit();"
+    $dispatch_to_popup .= "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
+    $dispatch_to_popup .= "document.do.submit();";
+    $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup)");
   }
 
   my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
