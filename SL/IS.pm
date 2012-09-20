@@ -933,18 +933,16 @@ sub post_invoice {
 
       # exchangerate difference
       $form->{fx}{$accno}{ $form->{"datepaid_$i"} } +=
-      $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1) + $diff;
+        $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1) + $diff;
 
       # gain/loss
       $amount =
-      $form->{"paid_$i"} * $form->{exchangerate} - $form->{"paid_$i"} *
-      $form->{"exchangerate_$i"};
+        $form->{"paid_$i"} * $form->{exchangerate} - $form->{"paid_$i"} *
+        $form->{"exchangerate_$i"};
       if ($amount > 0) {
-        $form->{fx}{ $form->{fxgain_accno} }{ $form->{"datepaid_$i"} } +=
-        $amount;
+        $form->{fx}{ $form->{fxgain_accno} }{ $form->{"datepaid_$i"} } += $amount;
       } else {
-        $form->{fx}{ $form->{fxloss_accno} }{ $form->{"datepaid_$i"} } +=
-        $amount;
+        $form->{fx}{ $form->{fxloss_accno} }{ $form->{"datepaid_$i"} } += $amount;
       }
 
       $diff = 0;
@@ -963,6 +961,22 @@ sub post_invoice {
 
   IO->set_datepaid(table => 'ar', id => $form->{id}, dbh => $dbh);
 
+  # record exchange rate differences and gains/losses
+  foreach my $accno (keys %{ $form->{fx} }) {
+    foreach my $transdate (keys %{ $form->{fx}{$accno} }) {
+      $form->{fx}{$accno}{$transdate} = $form->round_amount($form->{fx}{$accno}{$transdate}, 2);
+      if ( $form->{fx}{$accno}{$transdate} != 0 ) {
+
+        $query =
+          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction, taxkey, project_id)
+             VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, '0', '1',
+             (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
+        @values = (conv_i($form->{"id"}), $accno, $form->{fx}{$accno}{$transdate}, conv_date($transdate), $accno, conv_i($project_id));
+        do_query($form, $dbh, $query, @values);
+      }
+    }
+  }
+
   if ($payments_only) {
     $query = qq|UPDATE ar SET paid = ? WHERE id = ?|;
     do_query($form, $dbh, $query,  $form->{paid}, conv_i($form->{id}));
@@ -971,25 +985,6 @@ sub post_invoice {
 
     $main::lxdebug->leave_sub();
     return;
-  }
-
-  # record exchange rate differences and gains/losses
-  foreach my $accno (keys %{ $form->{fx} }) {
-    foreach my $transdate (keys %{ $form->{fx}{$accno} }) {
-      if (
-          ($form->{fx}{$accno}{$transdate} =
-           $form->round_amount($form->{fx}{$accno}{$transdate}, 2)
-          ) != 0
-        ) {
-
-        $query =
-          qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction, taxkey, project_id)
-             VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, '0', '1',
-             (SELECT taxkey_id FROM chart WHERE accno = ?), ?)|;
-        @values = (conv_i($form->{"id"}), $accno, $form->{fx}{$accno}{$transdate}, conv_date($transdate), $accno, $project_id);
-        do_query($form, $dbh, $query, @values);
-      }
-    }
   }
 
   $amount = $netamount + $tax;
