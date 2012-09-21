@@ -13,8 +13,28 @@ BEGIN {
   $master_templates = './templates/print/';
 }
 
+unless (eval { require Config::Std; 1 }){
+  print STDERR <<EOL ;
++------------------------------------------------------------------------------+
+  Perl Modul Config::Std could not be loaded.
+
+  Debian: you may install the needed *.deb package with:
+    apt-get install libconfig-std-perl
+
+  RPM: There is a rpm package "perl-Config-Std"
+
+  Suse: you may install the needed *.rpm package with:
+    zypper install perl-Config-Std
+
++------------------------------------------------------------------------------+
+EOL
+
+  exit 72;
+}
+
 use SL::InstallationCheck;
 use SL::LxOfficeConf;
+
 
 my %check;
 Getopt::Long::Configure ("bundling");

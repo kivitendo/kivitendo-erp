@@ -346,6 +346,9 @@ sub update {
     }
   }
 
+  if (!$form->{forex}) {        # read exchangerate from input field (not hidden)
+    $form->{exchangerate} = $form->parse_amount(\%myconfig, $form->{exchangerate});
+  }
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{datepaid}, $buysell);
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 

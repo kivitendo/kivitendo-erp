@@ -139,11 +139,7 @@
     <input class="submit" type="submit" name="action" value="[% 'Delete' | $T8 %]">
     <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
 [% END %]
-
-  [%- UNLESS locked %]
-       <input class="submit" type="submit" name="action" value="[% 'Order' | $T8 %]">
-  [%- END %]
-
+    <input class="submit" type="submit" name="action" value="[% 'Order' | $T8 %]">
     <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
 
  [% ELSE # no id %]

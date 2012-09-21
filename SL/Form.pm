@@ -878,7 +878,7 @@ sub format_amount {
   # this is easy to confuse, so keep in mind: before this comment no s///, m//, concat or other strong ops on
   # $amount. after this comment no +,-,*,/,abs. it will only introduce subtle bugs.
 
-  $amount =~ s/0*$//;                                                    # cull trailing 0s
+  $amount =~ s/0*$// unless defined $places && $places == 0;             # cull trailing 0s
 
   my @d = map { s/\d//g; reverse split // } my $tmp = $myconfig->{numberformat}; # get delim chars
   my @p = split(/\./, $amount);                                          # split amount at decimal point
