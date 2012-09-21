@@ -69,9 +69,9 @@ th.login {
   text-align: right;
 }
 
-body.admin {
-  background-color:#ffffff;
+div.admin {
   color: black;
+  margin: 8px;
 }
 
 .message_error_login {

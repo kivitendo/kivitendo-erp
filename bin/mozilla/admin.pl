@@ -91,6 +91,7 @@ sub run {
   $locale = $::locale;
   $auth   = $::auth;
 
+  $::request->{layout} = SL::Controller::Layout->new(style => 'admin');
   $::request->{layout}->use_stylesheet("lx-office-erp.css");
   $form->{favicon}    = "favicon.ico";
 
