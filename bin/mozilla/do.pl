@@ -1150,7 +1150,7 @@ sub display_stock_in_form {
 
   get_basic_bin_wh_info($stock_info);
 
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template('do/stock_in_form', { 'UNITS'      => $units_data,
                                                          'STOCK_INFO' => $stock_info,
                                                          'PART_INFO'  => $part_info, });
@@ -1244,7 +1244,7 @@ sub stock_out_form {
     }
   }
 
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template('do/stock_out_form', { 'UNITS'      => $units_data,
                                                           'WHCONTENTS' => $form->{delivered} ? $stock_info : \@contents,
                                                           'PART_INFO'  => $part_info, });

@@ -1999,7 +1999,7 @@ sub edit_periodic_invoices_config {
   $::form->{AR}    = [ grep { $_->{link} =~ m/(?:^|:)AR(?::|$)/ } @{ $::form->{ALL_CHARTS} } ];
   $::form->{title} = $::locale->text('Edit the configuration for periodic invoices');
 
-  $::form->header();
+  $::form->header(no_layout => 1);
   print $::form->parse_html_template('oe/edit_periodic_invoices_config', $config);
 
   $::lxdebug->leave_sub();

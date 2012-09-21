@@ -454,9 +454,13 @@ sub header {
   my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   my @header;
 
-  my $layout = $::request->{layout};
-
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
+
+  if ($params{no_layout}) {
+    $::request->{layout} = SL::Controller::Layout->new(style => 'none');
+  }
+
+  my $layout = $::request->{layout};
 
   # standard css for all
   $layout->use_stylesheet("$_.css") for qw(

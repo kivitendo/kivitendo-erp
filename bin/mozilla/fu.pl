@@ -93,7 +93,7 @@ sub display_form {
 
   $form->{jsscript}   = 1;
 
-  $form->header();
+  $form->header(no_layout => $::form->{POPUP_MODE});
   print $form->parse_html_template('fu/add_edit');
 
   $main::lxdebug->leave_sub();

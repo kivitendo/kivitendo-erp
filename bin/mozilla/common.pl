@@ -196,7 +196,7 @@ sub part_selection_internal {
   $form->{formname} ||= 'Form';
 
   $form->{title} = $locale->text("Select a part");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/part_selection", { "HEADER" => \@header,
                                                                "PARTS"  => $parts, });
 
@@ -244,7 +244,7 @@ sub delivery_customer_selection {
         @header_sort);
 
   $form->{"title"} = $locale->text("Select a Customer");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/select_delivery_customer", { "HEADER"   => \@header,
                                                                          "DELIVERY" => $delivery, });
 
@@ -292,7 +292,7 @@ sub vendor_selection {
         @header_sort);
 
   $form->{"title"} = $locale->text("Select a Customer");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/select_vendor", { "HEADER" => \@header,
                                                               "VENDOR" => $vendor, });
 
@@ -334,7 +334,7 @@ sub calculate_qty {
 
   $form->{formel} = $formel;
   $form->{title}  = $locale->text("Please enter values");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/calculate_qty", { "HEADER"    => \@header,
                                                               "VARIABLES" => \@variable, });
 
@@ -350,7 +350,7 @@ sub set_longdescription {
   my $locale   = $main::locale;
 
   $form->{title} = $locale->text("Enter longdescription");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/set_longdescription");
 
   $main::lxdebug->leave_sub();
@@ -399,12 +399,12 @@ sub show_history {
   $sort =~ s/.*\.(.*)/$1/;
 
   $form->{title} = $locale->text("History");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template( "common/show_history", {
     "DATEN"        => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
     "SUCCESS"      => ($form->get_history($dbh,$form->{input_name}) ne "0"),
     uc($sort)      => 1,
-    uc($sort)."BY" => $sortby
+    uc($sort)."BY" => $sortby,
   } );
 
   $dbh->disconnect();
@@ -458,7 +458,7 @@ sub show_vc_details {
 
   $form->{title} = $form->{vc} eq "customer" ?
     $locale->text("Customer details") : $locale->text("Vendor details");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("common/show_vc_details", { "is_customer" => $form->{vc} eq "customer" });
 
   $main::lxdebug->leave_sub();

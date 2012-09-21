@@ -410,8 +410,6 @@ sub form_header {
 
   $form->header;
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 
 <input type=hidden name=id value=$form->{id}>
