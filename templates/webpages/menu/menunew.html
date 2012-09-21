@@ -2,13 +2,14 @@
 [% USE HTML %]
  <script type="text/javascript">
 <!--
-$(function() {
+function clockon() {
   var now = new Date();
   var h = now.getHours();
   var m = now.getMinutes();
   document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m);
   var timer=setTimeout("clockon()", 10000);
-})
+}
+$(clockon);
 //-->
  </script>
 
