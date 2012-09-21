@@ -7,6 +7,7 @@ use parent qw(SL::Controller::Base);
 use SL::Dispatcher::AuthHandler::User;
 use SL::User;
 
+__PACKAGE__->run_before('set_layout');
 #
 # actions
 #
@@ -114,6 +115,10 @@ sub error_state {
     session  => $::locale->text('The session is invalid or has expired.'),
     password => $::locale->text('Incorrect password!'),
   }->{$_[0]};
+}
+
+sub set_layout {
+  $::request->{layout} = SL::Controller::Layout->new(style => 'login');
 }
 
 1;

@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use SL::Menu;
 use SL::Controller::Layout::Admin;
+use SL::Controller::Layout::Login;
 use SL::Controller::Layout::Classic;
 use SL::Controller::Layout::V3;
 use SL::Controller::Layout::V4;
@@ -20,6 +21,7 @@ sub new {
   return SL::Controller::Layout::V4->new         if $params{style} eq 'v4';
   return SL::Controller::Layout::Javascript->new if $params{style} eq 'neu';
   return SL::Controller::Layout::Admin->new      if $params{style} eq 'admin';
+  return SL::Controller::Layout::Login->new      if $params{style} eq 'login';
   return SL::Controller::Layout::None->new;
 }
 

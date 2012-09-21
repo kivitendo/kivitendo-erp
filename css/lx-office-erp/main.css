@@ -14,12 +14,17 @@ input:focus, textarea:focus, select:focus {
   background-color: yellow;
 }
 
+html {
+  height: 100%;
+}
+
 body {
   font-family: Verdana, Arial, Helvetica, sans-serif;
   font-size: 10pt;
   background-color: white;
   background-image: url("../../image/fade.png"); background-repeat:repeat-x;
   color: black;
+  height: 100%;
 }
 
 td {
@@ -51,7 +56,10 @@ th {
 .login {
   font-family: Verdana, Arial, Helvetica, sans-serif;
 }
-body.login {
+div.login {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
   background: #b8d1f3;
   color: #A0A0A0;
 }
