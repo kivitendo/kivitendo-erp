@@ -1,15 +1,19 @@
-var vSwitch_Menu = 1;
-var Frame;
-var FrameSize;
-
+var vSwitch_Menu = 0;
 function Switch_Menu() {
-  if (Frame) {
-    Frame.attr('cols',vSwitch_Menu ? '30,*' : FrameSize);
-    vSwitch_Menu=!vSwitch_Menu;
+  vSwitch_Menu=!vSwitch_Menu;
+  SetMenuFolded(vSwitch_Menu);
+  $.cookie('html-menu-folded', vSwitch_Menu);
+}
+function SetMenuFolded(on) {
+  if (on) {
+    $('#html-menu').removeClass('folded');
+    $('#content').removeClass('folded');
+  } else {
+    $('#html-menu').addClass('folded');
+    $('#content').addClass('folded');
   }
 }
-
 $(function(){
-  Frame = $(parent.document.getElementById('menuframe'));
-  FrameSize = Frame.attr('cols');
+  vSwitch_Menu = $.cookie('html-menu-folded');
+  SetMenuFolded(vSwitch_Menu);
 })
