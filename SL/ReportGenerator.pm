@@ -72,7 +72,7 @@ sub set_columns {
   foreach my $column (values %{ $self->{columns} }) {
     $column->{visible} = $self->{options}->{std_column_visibility} unless defined $column->{visible};
   }
-  
+
   if( $::form->{report_generator_csv_options_for_import} ) {
     foreach my $key (keys %{ $self->{columns} }) {
       $self->{columns}{$key}{text} = $key;
@@ -220,7 +220,7 @@ sub get_attachment_basename {
 }
 
 sub generate_with_headers {
-  my $self   = shift;
+  my ($self, %params) = @_;
   my $format = lc $self->{options}->{output_format};
   my $form   = $self->{form};
 
@@ -231,7 +231,7 @@ sub generate_with_headers {
   if ($format eq 'html') {
     my $title      = $form->{title};
     $form->{title} = $self->{title} if ($self->{title});
-    $form->header();
+    $form->header(no_layout => $params{no_layout});
     $form->{title} = $title;
 
     print $self->generate_html_content();
@@ -410,7 +410,9 @@ sub generate_html_content {
   my $self      = shift;
   my $variables = $self->prepare_html_content();
 
-  return $self->{form}->parse_html_template($self->{options}->{html_template}, $variables);
+  my $stuff  = $self->{form}->parse_html_template($self->{options}->{html_template}, $variables);
+  $::lxdebug->dump(0,  "stuff", $stuff);
+  return $stuff;
 }
 
 sub _cm2bp {
