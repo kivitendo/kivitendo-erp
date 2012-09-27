@@ -1,8 +1,7 @@
-var vSwitch_Menu = 0;
+var vSwitch_Menu = 1;
 function Switch_Menu() {
   vSwitch_Menu=!vSwitch_Menu;
   SetMenuFolded(vSwitch_Menu);
-  $.cookie('html-menu-folded', vSwitch_Menu);
 }
 function SetMenuFolded(on) {
   if (on) {
@@ -14,6 +13,5 @@ function SetMenuFolded(on) {
   }
 }
 $(function(){
-  vSwitch_Menu = $.cookie('html-menu-folded');
   SetMenuFolded(vSwitch_Menu);
 })
