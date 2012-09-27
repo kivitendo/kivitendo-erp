@@ -16,6 +16,10 @@ cookie_name = kivitendo_session_id
 # hours.
 session_timeout = 480
 
+# The number of seconds to penalize failed login attempts. 0 disables
+# it.
+failed_login_penalty = 5
+
 [authentication/database]
 # Connection information for the database with the user and group
 # inforamtion.  This information is always needed, even if LDAP is
