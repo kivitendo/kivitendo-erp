@@ -861,6 +861,22 @@ insserv kivitendo-task-server</programlisting>
         <para>Dieselben Optionen können auch für die SystemV-basierenden
         Runlevel-Scripte benutzt werden (siehe oben).</para>
       </sect2>
+      <sect2 id="Prozesskontrolle2">
+        <title>Task-Server mit mehreren Mandanten</title>
+
+        <para>Beim Task-Server wird der Login-Name des Benutzers, unter dem der
+        Task-Server laufen soll, in die Konfigurationsdatei geschrieben. Hat
+        man mehrere Mandanten muß man auch mehrere Konfigurationsdateien
+        anlegen.</para>
+
+        <para>Die Konfigurationsdatei ist eine Kopie der Datei kivitendo.conf,
+        wo in der Kategorie [task_server] der gewünschte "login" steht.</para>
+
+        <para>Der alternative Task-Server wird dann mit folgendem Befehl
+        gestartet:</para>
+
+        <programlisting>./scripts/task_server.pl -c config/DATEINAME.conf</programlisting>
+      </sect2>
     </sect1>
 
     <sect1 id="Benutzerauthentifizierung-und-Administratorpasswort">
