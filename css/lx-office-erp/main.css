@@ -9,9 +9,61 @@ A:hover { color: black;
            background-color: lemonchiffon;
            text-decoration: none;
          }
+a, div {
+  transition: background-color 0.2s;
+  -moz-transition: background-color 0.2s;
+  -webkit-transition: background-color 0.2s;
+}
+
+input, textarea, select {
+  border: 1px;
+  border-color: darkgray lightgray lightgray;
+  border-style: solid;
+  padding: 1px;
+  background-color: white;
+}
+
+select {
+  padding: 0px;
+}
 
 input:focus, textarea:focus, select:focus {
-  background-color: yellow;
+  background-color: whitesmoke;
+  border: 1px;
+  border-color: gray lightgray lightgray;
+  border-style: solid;
+}
+
+input:hover, textarea:hover, select:hover {
+  border-color: dimgray darkgray darkgray;
+}
+
+input[type="button"],
+input[type="submit"],
+button,
+input[type="button"]:focus,
+input[type="submit"]:focus,
+button:focus {
+  border: 1px;
+  border-color: darkgray;
+  border-style: solid;
+  padding: 0px 4px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  background-color: whitesmoke;
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  border: 1px;
+  background-color: lightgray;
+  border-color: gray;
+  border-style: solid;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
 }
 
 html {
@@ -391,3 +443,5 @@ label {
   border-style:none;
   border-width:thin;
 }
+
+
