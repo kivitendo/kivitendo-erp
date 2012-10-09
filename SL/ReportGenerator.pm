@@ -411,7 +411,6 @@ sub generate_html_content {
   my $variables = $self->prepare_html_content();
 
   my $stuff  = $self->{form}->parse_html_template($self->{options}->{html_template}, $variables);
-  $::lxdebug->dump(0,  "stuff", $stuff);
   return $stuff;
 }
 
