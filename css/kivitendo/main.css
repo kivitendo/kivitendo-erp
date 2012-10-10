@@ -192,8 +192,8 @@ body.menu {
 } */
 .listheading {
 	padding: 0.2em;
-	background-color: #EBEBEB;
-	color: #006400;
+	background-color: #006400;
+	color: white;
 	font-weight: bolder;
 	text-align: left;
 	border-style: none;
