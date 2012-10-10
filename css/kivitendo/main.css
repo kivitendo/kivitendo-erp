@@ -203,6 +203,10 @@ body.menu {
 	color: white;
 }
 
+.listheading th {
+  color: white;
+}
+
 /* .listheadingcontent {
 	background-color: #EBEBEB;
 	color: #006400;
