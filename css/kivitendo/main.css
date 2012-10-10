@@ -199,6 +199,10 @@ body.menu {
 	border-style: none;
 }
 
+.listheading A:link, .listheading A:visited, .listheading A:active {
+	color: white;
+}
+
 /* .listheadingcontent {
 	background-color: #EBEBEB;
 	color: #006400;
