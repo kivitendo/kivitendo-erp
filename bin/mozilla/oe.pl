@@ -477,7 +477,9 @@ sub form_footer {
   $TMPL_VAR{notes}    = qq|<textarea name=notes rows="$rows" cols="25">| . H($form->{notes}) . qq|</textarea>|;
   $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
 
-  IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
+  my $paymet_id = $::form->{payment_id};
+  IS->get_customer(\%myconfig, $::form) if $form->{type} =~ /sales_(order|quotation)/;
+  $::form->{payment_id} = $paymet_id;
 
   if ( $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
     $form->{taxincluded} = defined($form->{taxincluded_checked}) ? $form->{taxincluded_checked} : $myconfig{taxincluded_checked};
@@ -779,7 +781,7 @@ sub orders {
   my @columns = (
     "transdate",               "reqdate",
     "id",                      $ordnumber,
-    "customernumber", 
+    "customernumber",
     "name",                    "netamount",
     "tax",                     "amount",
     "curr",                    "employee",

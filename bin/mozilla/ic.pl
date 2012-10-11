@@ -1331,11 +1331,11 @@ sub generate_report {
     $row->{description}->{link} = $edit_link;
 
     foreach (qw(sellprice listprice lastcost)) {
-      $row->{$_}{data}            = $form->format_amount(\%myconfig, $ref->{$_}, -2);
+      $row->{$_}{data}            = $form->format_amount(\%myconfig, $ref->{$_}, 2);
       $row->{"linetotal$_"}{data} = $form->format_amount(\%myconfig, $ref->{onhand} * $ref->{$_}, 2);
     }
     foreach ( @pricegroup_columns ) {
-      $row->{$_}{data}            = $form->format_amount(\%myconfig, $ref->{"$_"}, -2);
+      $row->{$_}{data}            = $form->format_amount(\%myconfig, $ref->{"$_"}, 2);
     };
 
 
