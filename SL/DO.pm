@@ -66,13 +66,16 @@ sub transactions {
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
          dord.transaction_description,
          pr.projectnumber AS globalprojectnumber,
+         dep.description AS department,
          e.name AS employee,
          sm.name AS salesman
        FROM delivery_orders dord
        LEFT JOIN $vc ct ON (dord.${vc}_id = ct.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
        LEFT JOIN employee sm ON (dord.salesman_id = sm.id)
-       LEFT JOIN project pr ON (dord.globalproject_id = pr.id)|;
+       LEFT JOIN project pr ON (dord.globalproject_id = pr.id)
+       LEFT JOIN department dep ON (dord.department_id = dep.id)
+|;
 
   push @where, ($form->{type} eq 'sales_delivery_order' ? '' : 'NOT ') . qq|COALESCE(dord.is_sales, FALSE)|;
 
@@ -147,7 +150,8 @@ sub transactions {
     "employee"                => "e.name",
     "salesman"                => "sm.name",
     "shipvia"                 => "dord.shipvia",
-    "transaction_description" => "dord.transaction_description"
+    "transaction_description" => "dord.transaction_description",
+    "department"              => "lower(dep.description)",
   );
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
