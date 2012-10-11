@@ -31,7 +31,7 @@
 
  [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
 
- <a name="billing"><div class="listheading">[% 'Billing Address' | $T8 %]</div></a>
+ <a name="billing"><h1>[% 'Billing Address' | $T8 %]</h1></a>
 
  <table>
   <tr>
@@ -167,7 +167,7 @@
 
   [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
 
-  <a name="shipping[% loop.count %]"><div class="listheading">[% 'Shipping Address' | $T8 %] &quot;[% HTML.escape(row.shiptoname) %]&quot;</div></a>
+  <a name="shipping[% loop.count %]"><h1>[% 'Shipping Address' | $T8 %] &quot;[% HTML.escape(row.shiptoname) %]&quot;</h1></a>
 
   <table>
    <tr>
@@ -233,7 +233,7 @@
 
   [%- INCLUDE jump_block CONTACTS = CONTACTS, SHIPTO = SHIPTO %]
 
-  <a name="contact[% loop.count %]"><div class="listheading">[% 'Contact Person' | $T8 %] &quot;[% HTML.escape(row.cp_name) %]&quot;</div></a>
+  <a name="contact[% loop.count %]"><h1>[% 'Contact Person' | $T8 %] &quot;[% HTML.escape(row.cp_name) %]&quot;</h1></a>
 
   <table>
    <tr>

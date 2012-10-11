@@ -166,7 +166,7 @@ body.menu {
 	border-width: thin;
 }
 /*    Headings */
-.listtop, h1, .tabcontent .listheading {
+.listtop, h1 {
     font-size:125%;
 	background-color: #006400;
 	text-align: left;
@@ -192,19 +192,11 @@ body.menu {
 } */
 .listheading {
 	padding: 0.2em;
-	background-color: #006400;
-	color: white;
+	background-color: #EBEBEB;
+	color: #006400;
 	font-weight: bolder;
 	text-align: left;
 	border-style: none;
-}
-
-.listheading A:link, .listheading A:visited, .listheading A:active {
-	color: white;
-}
-
-.listheading th {
-  color: white;
 }
 
 /* .listheadingcontent {

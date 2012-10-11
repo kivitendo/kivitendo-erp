@@ -8,7 +8,8 @@
 
   <p><a href="admin.pl?action=login">[% 'Back' | $T8 %]</a></p>
 
- <div class="listheading">[% 'Add a new group' | $T8 %]</div>
+ <h1>[% 'Add a new group' | $T8 %]</h1>
+
  <form method="post" action="admin.pl">
  <br>
   <table border="0">
@@ -17,13 +18,11 @@
   </table>
    <input type="hidden" name="add_nextsub" value="add_group">
    <p><input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]"></p>
-  <hr>
  </form>
 
+ <h1>[% 'Edit and delete a group' | $T8 %]</h1>
 
  <form name="Form" method="post" action="admin.pl">
-  <div class="listheading">[% 'Edit and delete a group' | $T8 %]</div>
-
   [% IF num_groups %]
   <p>
    <select name="group_id" size="10">
@@ -46,9 +45,7 @@
   </p>
  </form>
 
- <hr size="2" noshade>
-
- <div class="listheading">[% 'Group membership' | $T8 %]</div>
+ <h1>[% 'Group membership' | $T8 %]</h1>
 
  <p>[% 'Edit the membership of all users in all groups:' | $T8 %]</p>
 
@@ -59,8 +56,6 @@
   </p>
 
  </form>
-
- <hr size="2" noshade>
 
 </body>
 </html>
