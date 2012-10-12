@@ -4093,7 +4093,7 @@ insserv kivitendo-task-server</programlisting>
           Mittels <function>!=</function> anstelle von <function>==</function>
           würde auf Ungleichheit getestet.</para>
 
-          <programlisting>%if var1 == var2%&gt;</programlisting>
+          <programlisting>&lt;%if var1 == var2%&gt;</programlisting>
 
           <para>Testet die Variable <varname>var1</varname> auf
           übereinstimmung mit der Variablen <varname>var2</varname>. Mittel
