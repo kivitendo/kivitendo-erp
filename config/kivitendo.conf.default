@@ -90,7 +90,7 @@ parts_image_css = border:0;float:left;max-width:250px;margin-top:20px:margin-rig
 parts_listing_images = 0
 
 # Should payments be changeable after posting (0 = never; 1 = every time; 2 = on the same day)
-payments_changeable = 1
+payments_changeable = 0
 
 [paths]
 # path to temporary files (must be writeable by the web server)
@@ -212,15 +212,15 @@ email_template = templates/mail/self_test/status_mail.txt
 # you can enable this for each type of record independantly.
 
 # check when a sales invoice or a payment for a sales invoice is posted
-check_on_sales_invoice = 0
+check_on_sales_invoice = 1
 # check when a purchase invoice or a payment for a purchase invoice is posted
-check_on_purchase_invoice = 0
+check_on_purchase_invoice = 1
 # check when an ar transaction is posted
-check_on_ar_transaction = 0
+check_on_ar_transaction = 1
 # check when an ap transaction is posted
-check_on_ap_transaction = 0
+check_on_ap_transaction = 1
 # check when a gl transaction is posted
-check_on_gl_transaction = 0
+check_on_gl_transaction = 1
 
 # not implemented yet:
 #check_on_cash_and_receipt = 0
@@ -248,7 +248,7 @@ log_file = /tmp/kivitendo_console_debug.log
 [testing]
 
 # autologin to use if none is given
-login = demo
+login = myxplace_standard
 
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
