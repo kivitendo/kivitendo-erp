@@ -483,6 +483,7 @@ sub get_invoices {
     "ordnumber" => "a.ordnumber",
     "invnumber" => "a.invnumber",
     "notes"     => "a.notes",
+    "country"   => "ct.country",
     );
   foreach my $key (keys(%columns)) {
     next unless ($form->{$key});
