@@ -407,7 +407,9 @@ sub form_footer {
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];
 
+  my $paymet_id = $::form->{payment_id};
   IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
+  $::form->{payment_id} = $paymet_id;
 
   if ( $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
     $form->{taxincluded} = defined($form->{taxincluded_checked}) ? $form->{taxincluded_checked} : $myconfig{taxincluded_checked};
@@ -519,7 +521,7 @@ sub update {
     map { $form->{"${_}_$i"} = $form->parse_amount(\%myconfig, $form->{"${_}_$i"}) } qw(paid exchangerate);
     if (!$form->{"forex_$i"}) {   #read exchangerate from input field (not hidden)
       $form->{exchangerate} = $form->{"exchangerate_$i"};
-    } 
+    }
     $form->{"forex_$i"}        = $form->check_exchangerate(\%myconfig, $form->{currency}, $form->{"datepaid_$i"}, 'buy');
     $form->{"exchangerate_$i"} = $form->{"forex_$i"} if $form->{"forex_$i"};
   }

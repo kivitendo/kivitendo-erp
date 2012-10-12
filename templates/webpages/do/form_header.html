@@ -302,6 +302,15 @@
        </tr>
 
        <tr>
+        <th align="right" nowrap>[% 'Reqdate' | $T8 %]</th>
+        <td nowrap>
+         <input name="reqdate" id="reqdate" size="11" title="[% HTML.escape(myconfig_dateformat) %]" value="[% HTML.escape(reqdate) %]"
+                onBlur="check_right_date_format(this)"[% RO %]>
+         <input type="button" name="b_reqdate" id="reqdate_trigger" value="?">
+        </td>
+       </tr>
+
+       <tr>
         <th width="70%" align="right" nowrap>[% 'Project Number' | $T8 %]</th>
         <td>
          [%- IF delivered %]

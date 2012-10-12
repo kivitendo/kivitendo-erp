@@ -258,8 +258,7 @@ sub invoice_details {
         $subtotal_header     = 0;
 
       } else {
-        push @{ $form->{TEMPLATE_ARRAYS}->{discount_sub} },   "";
-        push @{ $form->{TEMPLATE_ARRAYS}->{nodiscount_sub} }, "";
+        push @{ $form->{TEMPLATE_ARRAYS}->{$_} }, "" for qw(discount_sub nodiscount_sub discount_sub_nofmt nodiscount_sub_nofmt);
       }
 
       if (!$form->{"discount_$i"}) {

@@ -62,7 +62,7 @@
       <select name="department" class="fixed_width">
        <option></option>
        [%- FOREACH row = ALL_DEPARTMENTS %]
-       <option[% IF department == row.value %] selected[% END %]>[% HTML.escape(row.description) %]--[% HTML.escape(row.id) %]</option>
+       <option[% IF department == row.id %] selected[% END %]>[% HTML.escape(row.description) %]--[% HTML.escape(row.id) %]</option>
        [%- END %]
       </select>
      </td>
@@ -184,6 +184,18 @@
 
        <tr>
         <td>
+         <input name="l_department" id="l_department" class="checkbox" type="checkbox" value="Y">
+         <label for="l_department">[% "Department" | $T8 %]</label>
+        </td>
+
+        <td>
+         <input name="l_shipvia" id="l_shipvia" class="checkbox" type="checkbox" value="Y">
+         <label for="l_shipvia">[% 'Ship via' | $T8 %]</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
          <input name="l_employee" id="l_employee" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_employee">[% 'Employee' | $T8 %]</label>
         </td>
@@ -191,11 +203,6 @@
         <td>
          <input name="l_salesman" id="l_salesman" class="checkbox" type="checkbox" value="Y">
          <label for="l_salesman">[% 'Salesman' | $T8 %]</label>
-        </td>
-
-        <td>
-         <input name="l_shipvia" id="l_shipvia" class="checkbox" type="checkbox" value="Y">
-         <label for="l_shipvia">[% 'Ship via' | $T8 %]</label>
         </td>
        </tr>
 
@@ -230,4 +237,3 @@
 
 </body>
 </html>
-

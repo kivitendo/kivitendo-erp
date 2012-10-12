@@ -453,6 +453,7 @@ sub search {
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS",
                                        "all" => 1 },
+                   "departments"  => "ALL_DEPARTMENTS",
                    "$form->{vc}s" => "ALL_VC");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
@@ -477,6 +478,7 @@ sub orders {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
+  $form->{department_id} = (split /--/, $form->{department})[-1];
   ($form->{ $form->{vc} }, $form->{"$form->{vc}_id"}) = split(/--/, $form->{ $form->{vc} });
 
   report_generator_set_default_sort('transdate', 1);
@@ -491,7 +493,7 @@ sub orders {
     ordnumber               customernumber
     name                    employee  salesman
     shipvia                 globalprojectnumber
-    transaction_description
+    transaction_description department
     open                    delivered
   );
 
@@ -525,9 +527,10 @@ sub orders {
     'transaction_description' => { 'text' => $locale->text('Transaction description'), },
     'open'                    => { 'text' => $locale->text('Open'), },
     'delivered'               => { 'text' => $locale->text('Delivered'), },
+    'department'              => { 'text' => $locale->text('Department'), },
   );
 
-  foreach my $name (qw(id transdate donumber ordnumber name employee salesman shipvia transaction_description)) {
+  foreach my $name (qw(id transdate donumber ordnumber name employee salesman shipvia transaction_description department)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }

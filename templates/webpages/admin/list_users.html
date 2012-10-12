@@ -1,9 +1,9 @@
 [%- USE T8 %]
 [% USE HTML %]<body class="admin" onload="">
 
- <form method="post" action="admin.pl">
+ <h1>[% title %]</h1>
 
-  <div class="listtop" width="100%">[% title %]</div>
+ <form method="post" action="admin.pl">
 
   <p>
    <table width="100%">
@@ -62,10 +62,10 @@
   </div>
  </form>
 
+ <h1>[% 'User Login' | $T8 %]</h1>
+
  <form method="post" action="controller.pl">
   <input type="hidden" name="action" value="LoginScreen/login">
-
-  <div class="listheading">[% 'User Login' | $T8 %]</div>
 
   <table border="0">
    <tr>

@@ -166,7 +166,7 @@ body.menu {
 	border-width: thin;
 }
 /*    Headings */
-.listtop, h1, .tabcontent .listheading {
+.listtop, h1 {
     font-size:125%;
 	background-color: #006400;
 	text-align: left;

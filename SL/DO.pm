@@ -66,13 +66,16 @@ sub transactions {
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
          dord.transaction_description,
          pr.projectnumber AS globalprojectnumber,
+         dep.description AS department,
          e.name AS employee,
          sm.name AS salesman
        FROM delivery_orders dord
        LEFT JOIN $vc ct ON (dord.${vc}_id = ct.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
        LEFT JOIN employee sm ON (dord.salesman_id = sm.id)
-       LEFT JOIN project pr ON (dord.globalproject_id = pr.id)|;
+       LEFT JOIN project pr ON (dord.globalproject_id = pr.id)
+       LEFT JOIN department dep ON (dord.department_id = dep.id)
+|;
 
   push @where, ($form->{type} eq 'sales_delivery_order' ? '' : 'NOT ') . qq|COALESCE(dord.is_sales, FALSE)|;
 
@@ -147,7 +150,8 @@ sub transactions {
     "employee"                => "e.name",
     "salesman"                => "sm.name",
     "shipvia"                 => "dord.shipvia",
-    "transaction_description" => "dord.transaction_description"
+    "transaction_description" => "dord.transaction_description",
+    "department"              => "lower(dep.description)",
   );
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
@@ -228,7 +232,7 @@ sub save {
   }
 
   my $project_id;
-  my $reqdate;
+  my $items_reqdate;
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
   my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
@@ -284,7 +288,7 @@ sub save {
     $price_factor = $price_factors{ $form->{"price_factor_id_$i"} } || 1;
     my $linetotal    = $form->round_amount($form->{"sellprice_$i"} * $form->{"qty_$i"} / $price_factor, 2);
 
-    $reqdate = ($form->{"reqdate_$i"}) ? $form->{"reqdate_$i"} : undef;
+    $items_reqdate = ($form->{"reqdate_$i"}) ? $form->{"reqdate_$i"} : undef;
 
     do_statement($form, $h_item_id, $q_item_id);
     my ($item_id) = $h_item_id->fetchrow_array();
@@ -294,7 +298,7 @@ sub save {
                $form->{"description_$i"}, $form->{"longdescription_$i"},
                $form->{"qty_$i"}, $baseqty,
                $form->{"sellprice_$i"}, $form->{"discount_$i"} / 100,
-               $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),
+               $form->{"unit_$i"}, conv_date($items_reqdate), conv_i($form->{"project_id_$i"}),
                $form->{"serialnumber_$i"},
                $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
                $form->{"cusordnumber_$i"},
@@ -327,6 +331,8 @@ sub save {
   $h_item_stock->finish();
 
 
+  # reqdate is last items reqdate (?: old behaviour) if not already set
+  $form->{reqdate} ||= $items_reqdate;
   # save DO record
   $query =
     qq|UPDATE delivery_orders SET
@@ -341,7 +347,7 @@ sub save {
   @values = ($form->{donumber}, $form->{ordnumber},
              $form->{cusordnumber}, conv_date($form->{transdate}),
              conv_i($form->{vendor_id}), conv_i($form->{customer_id}),
-             conv_date($reqdate), $form->{shippingpoint}, $form->{shipvia},
+             conv_date($form->{reqdate}), $form->{shippingpoint}, $form->{shipvia},
              $form->{notes}, $form->{intnotes},
              $form->{closed} ? 't' : 'f', $form->{delivered} ? "t" : "f",
              conv_i($form->{department_id}), conv_i($form->{language_id}), conv_i($form->{shipto_id}),
@@ -573,8 +579,11 @@ sub retrieve {
   my $mode = !$params{ids} ? 'default' : ref $params{ids} eq 'ARRAY' ? 'multi' : 'single';
 
   if ($mode eq 'default') {
-    $ref = selectfirst_hashref_query($form, $dbh, qq|SELECT current_date AS transdate, current_date AS reqdate|);
+    $ref = selectfirst_hashref_query($form, $dbh, qq|SELECT current_date AS transdate|);
     map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+    # if reqdate is not set from oe-workflow, set it to transdate (which is current date)
+    $form->{reqdate} ||= $form->{transdate};
 
     # get last name used
     $form->lastname_used($dbh, $myconfig, $vc) unless $form->{"${vc}_id"};

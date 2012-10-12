@@ -194,7 +194,8 @@ sub authenticate {
 }
 
 sub punish_wrong_login {
-  sleep 5;
+  my $failed_login_penalty = ($::lx_office_conf{authentication} || {})->{failed_login_penalty};
+  sleep $failed_login_penalty if $failed_login_penalty;
 }
 
 sub get_stored_password {
