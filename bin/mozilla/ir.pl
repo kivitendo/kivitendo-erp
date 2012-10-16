@@ -575,6 +575,9 @@ sub storno {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
+  $form->error($locale->text('Cannot post storno for a closed period!'))
+    if ( $form->date_closed($form->{invdate}, \%myconfig));
+
   my $employee_id = $form->{employee_id};
   invoice_links();
   prepare_invoice();

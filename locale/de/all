@@ -366,6 +366,7 @@ $self->{texts} = {
   'Cannot post invoice!'        => 'Rechnung kann nicht gebucht werden!',
   'Cannot post payment for a closed period!' => 'Es können keine Zahlungen für abgeschlossene Bücher gebucht werden!',
   'Cannot post payment!'        => 'Zahlung kann nicht gebucht werden!',
+  'Cannot post storno for a closed period!' => 'Für einen geschlossenen Zeitraum können keine Stornos gebucht werden!',
   'Cannot post transaction for a closed period!' => 'Für einen bereits abgeschlossenen Zeitraum kann keine Buchung angelegt werden!',
   'Cannot post transaction with a debit and credit entry for the same account!' => 'Kann Soll und Haben nicht auf dasselbe Konto buchen!',
   'Cannot post transaction!'    => 'Rechnung kann nicht gebucht werden!',

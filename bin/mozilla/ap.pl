@@ -1445,6 +1445,9 @@ sub storno {
     $form->error($locale->text("Transaction has already been cancelled!"));
   }
 
+  $form->error($locale->text('Cannot post storno for a closed period!'))
+    if ( $form->date_closed($form->{transdate}, \%myconfig));
+
   AP->storno($form, \%myconfig, $form->{id});
 
   # saving the history
