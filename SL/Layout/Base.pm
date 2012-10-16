@@ -11,8 +11,8 @@ use Rose::Object::MakeMethods::Generic (
   'array'                 => [
     'add_stylesheets_inline' => { interface => 'add', hash_key => 'stylesheets_inline' },
     'add_javascripts_inline' => { interface => 'add', hash_key => 'javascripts_inline' },
-    'sub_layouts',
-    'add_sub_layouts'         => { interface => 'add', hash_key => 'sub_layouts' },
+    'sub_layouts',           => { interface => 'get_set_init' },
+    'add_sub_layouts'        => { interface => 'add', hash_key => 'sub_layouts' },
   ],
 );
 
@@ -59,6 +59,8 @@ sub javascripts_inline {
   uniq ( map { $_->javascripts_inline } $_[0]->sub_layouts ),
   @{ $_[0]->{javascripts_inline} || [] };
 }
+
+sub init_sub_layouts { [] }
 
 
 #########################################

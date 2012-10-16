@@ -7,15 +7,11 @@ use SL::Layout::Top;
 
 use URI;
 
-sub new {
-  my ($class, @slurp) = @_;
-
-  my $self = $class->SUPER::new(@slurp);
-  $self->add_sub_layouts(
+sub init_sub_layouts {
+  [
     SL::Layout::Top->new,
     SL::Layout::None->new,
-  );
-  $self;
+  ]
 }
 
 sub start_content {
