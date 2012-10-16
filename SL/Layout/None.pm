@@ -10,12 +10,12 @@ sub javascripts_inline {
 
 
 sub _setup_formats {
-  $::form->parse_html_template('generic/javascript_setup')
+  $::form->parse_html_template('layout/javascript_setup')
 }
 
 sub _setup_focus {
   if ($::request->{layout}->focus || $::form->{fokus}) {
-    return $::form->parse_html_template('generic/focus_setup', {
+    return $::form->parse_html_template('layout/focus_setup', {
       focus => $::request->{layout}->focus,
       fokus => $::form->{fokus},
     })
