@@ -65,6 +65,10 @@ sub javascripts_inline {
 # Interface
 ########################################
 
+sub add_stylesheets {
+  &use_stylesheet;
+}
+
 sub use_stylesheet {
   my $self = shift;
   push @{ $self->{stylesheets} ||= [] }, @_ if @_;
@@ -105,6 +109,9 @@ sub get_stylesheet_for_user {
   return $css_path;
 }
 
+sub add_javascripts {
+  &use_javascript
+}
 
 sub use_javascript {
   my $self = shift;
