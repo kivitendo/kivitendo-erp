@@ -1,7 +1,7 @@
-package SL::Controller::Layout::Javascript;
+package SL::Layout::Javascript;
 
 use strict;
-use parent qw(SL::Controller::Layout::Base);
+use parent qw(SL::Layout::Base);
 
 use List::Util qw(max);
 use URI;
@@ -12,7 +12,7 @@ sub new {
   my $self = $class->SUPER::new(@slurp);
 
   $self->add_sub_layouts([
-    SL::Controller::Layout::None->new,
+    SL::Layout::None->new,
   ]);
 
   $self;

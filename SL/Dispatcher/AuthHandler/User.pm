@@ -3,7 +3,7 @@ package SL::Dispatcher::AuthHandler::User;
 use strict;
 use parent qw(Rose::Object);
 
-use SL::Controller::Layout;
+use SL::Layout::Dispatcher;
 
 sub handle {
   my ($self, %param) = @_;
@@ -16,7 +16,7 @@ sub handle {
   $self->_error(%param) unless $::myconfig{login};
 
   $::locale = Locale->new($::myconfig{countrycode});
-  $::request->{layout} = SL::Controller::Layout->new(style => $::myconfig{menustyle});
+  $::request->{layout} = SL::Layout::Dispatcher->new(style => $::myconfig{menustyle});
 
   my $ok   =  $::form->{'{AUTH}login'} && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $::form->{'{AUTH}password'}));
   $ok    ||= !$::form->{'{AUTH}login'} && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, undef));

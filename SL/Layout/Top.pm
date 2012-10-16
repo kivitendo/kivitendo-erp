@@ -1,7 +1,7 @@
-package SL::Controller::Layout::Top;
+package SL::Layout::Top;
 
 use strict;
-use parent qw(SL::Controller::Layout::Base);
+use parent qw(SL::Layout::Base);
 
 sub pre_content {
   my ($self) = @_;

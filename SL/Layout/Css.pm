@@ -1,4 +1,4 @@
-package SL::Controller::Layout::Css;
+package SL::Layout::Css;
 
 use strict;
 

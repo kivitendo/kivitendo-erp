@@ -1,7 +1,7 @@
-package SL::Controller::Layout::Login;
+package SL::Layout::Admin;
 
 use strict;
-use parent qw(SL::Controller::Layout::Base);
+use parent qw(SL::Layout::Base);
 
 sub new {
   my ($class, @slurp) = @_;
@@ -9,14 +9,14 @@ sub new {
   my $self = $class->SUPER::new(@slurp);
 
   $self->add_sub_layouts([
-    SL::Controller::Layout::None->new,
+    SL::Layout::None->new,
   ]);
 
   $self;
 }
 
 sub start_content {
-  "<div id='login' class='login'>\n";
+  "<div id='admin' class='admin'>\n";
 }
 
 sub end_content {

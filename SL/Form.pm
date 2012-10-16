@@ -56,6 +56,7 @@ use SL::DBUtils;
 use SL::DO;
 use SL::IC;
 use SL::IS;
+use SL::Layout::Dispatcher;
 use SL::Locale;
 use SL::Mailer;
 use SL::Menu;
@@ -457,7 +458,7 @@ sub header {
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
 
   if ($params{no_layout}) {
-    $::request->{layout} = SL::Controller::Layout->new(style => 'none');
+    $::request->{layout} = SL::Layout::Dispatcher->new(style => 'none');
   }
 
   my $layout = $::request->{layout};

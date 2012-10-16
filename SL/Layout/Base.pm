@@ -1,4 +1,4 @@
-package SL::Controller::Layout::Base;
+package SL::Layout::Base;
 
 use strict;
 use parent qw(SL::Controller::Base);

@@ -1,7 +1,7 @@
-package SL::Controller::Layout::None;
+package SL::Layout::None;
 
 use strict;
-use parent qw(SL::Controller::Layout::Base);
+use parent qw(SL::Layout::Base);
 
 sub javascripts_inline {
   _setup_formats(),

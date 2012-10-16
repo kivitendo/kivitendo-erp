@@ -1,9 +1,9 @@
-package SL::Controller::Layout::V4;
+package SL::Layout::V4;
 
 use strict;
-use parent qw(SL::Controller::Layout::Base);
-use SL::Controller::Layout::Css;
-use SL::Controller::Layout::Top;
+use parent qw(SL::Layout::Base);
+use SL::Layout::Css;
+use SL::Layout::Top;
 
 use URI;
 
@@ -12,8 +12,8 @@ sub new {
 
   my $self = $class->SUPER::new(@slurp);
   $self->add_sub_layouts(
-    SL::Controller::Layout::Top->new,
-    SL::Controller::Layout::None->new,
+    SL::Layout::Top->new,
+    SL::Layout::None->new,
   );
   $self;
 }

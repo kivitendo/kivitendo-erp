@@ -35,7 +35,7 @@ use SL::Form;
 use SL::Helper::DateTime;
 use SL::InstanceConfiguration;
 use SL::Template::Plugin::HTMLFixes;
-use SL::Controller::Layout::None;
+use SL::Layout::None;
 
 # Trailing new line is added so that Perl will not add the line
 # number 'die' was called in.
@@ -184,7 +184,7 @@ sub handle_request {
   $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = {
     cgi => CGI->new({}),
-    layout => SL::Controller::Layout::None->new,
+    layout => SL::Layout::None->new,
   };
 
   my $session_result = $::auth->restore_session;

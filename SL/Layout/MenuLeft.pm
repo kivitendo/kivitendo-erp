@@ -1,7 +1,7 @@
-package SL::Controller::Layout::MenuLeft;
+package SL::Layout::MenuLeft;
 
 use strict;
-use parent qw(SL::Controller::Layout::Base);
+use parent qw(SL::Layout::Base);
 
 use URI;
 
