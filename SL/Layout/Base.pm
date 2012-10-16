@@ -3,6 +3,8 @@ package SL::Layout::Base;
 use strict;
 use parent qw(SL::Controller::Base);
 
+use List::MoreUtils qw(uniq);
+
 use Rose::Object::MakeMethods::Generic (
   'scalar --get_set_init' => qw(menu),
   'scalar'                => qw(focus),
@@ -49,12 +51,12 @@ sub post_content {
 }
 
 sub stylesheets_inline {
-  ( map { $_->stylesheets_inline } $_[0]->sub_layouts ),
+  uniq ( map { $_->stylesheets_inline } $_[0]->sub_layouts ),
   @{ $_[0]->{stylesheets_inline} || [] };
 }
 
 sub javascripts_inline {
-  ( map { $_->javascripts_inline } $_[0]->sub_layouts ),
+  uniq ( map { $_->javascripts_inline } $_[0]->sub_layouts ),
   @{ $_[0]->{javascripts_inline} || [] };
 }
 
@@ -73,7 +75,7 @@ sub stylesheets {
   my ($self) = @_;
   my $css_path = $self->get_stylesheet_for_user;
 
-  return grep { $_ } map { $self->_find_stylesheet($_, $css_path)  }
+  return uniq grep { $_ } map { $self->_find_stylesheet($_, $css_path)  }
     $self->use_stylesheet, map { $_->stylesheets } $self->sub_layouts;
 }
 
@@ -113,7 +115,7 @@ sub use_javascript {
 sub javascripts {
   my ($self) = @_;
 
-  return map { $self->_find_javascript($_)  }
+  return uniq map { $self->_find_javascript($_)  }
     $self->use_javascript, map { $_->javascripts } $self->sub_layouts;
 }
 
