@@ -30,6 +30,14 @@ sub end_content {
   "</div>\n";
 }
 
+sub stylesheets {
+  $_[0]->add_stylesheets(qw(
+    dhtmlsuite/menu-item.css
+    dhtmlsuite/menu-bar.css
+  ));
+  $_[0]->SUPER::stylesheets;
+}
+
 sub display {
   my ($self) = @_;
   my $form     = $main::form;
