@@ -39,7 +39,7 @@ sub action_login {
   $::form->{login} = $::myconfig{login};
   $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
   my $user         = User->new(login => $::myconfig{login});
-  $::request->{layout} = SL::Layout->new(style => $user->{menustyle});
+  $::request->{layout} = SL::Layout::Dispatcher->new(style => $user->{menustyle});
 
   # if we get an error back, bale out
   my $result = $user->login($::form);
