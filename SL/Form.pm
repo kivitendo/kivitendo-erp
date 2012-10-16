@@ -464,6 +464,7 @@ sub header {
   my $layout = $::request->{layout};
 
   # standard css for all
+  # this should gradually move to the layouts that need it
   $layout->use_stylesheet("$_.css") for qw(
     main menu tabcontent list_accounts jquery.autocomplete
     jquery.multiselect2side frame_header/header
