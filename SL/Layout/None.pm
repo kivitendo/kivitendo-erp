@@ -13,7 +13,7 @@ sub javascripts {
 }
 
 sub stylesheets {
-  'main'
+  'main.css'
 }
 
 sub _setup_formats {
