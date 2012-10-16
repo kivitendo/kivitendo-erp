@@ -13,7 +13,7 @@ sub pre_content {
 }
 
 sub stylesheets {
-# 'frame_header/header.css';
+ 'frame_header/header.css';
 }
 
 1;

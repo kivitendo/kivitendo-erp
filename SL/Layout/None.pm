@@ -8,6 +8,13 @@ sub javascripts_inline {
   _setup_focus(),
 }
 
+sub javascripts {
+  'js/common.js'
+}
+
+sub stylesheets {
+  'main'
+}
 
 sub _setup_formats {
   $::form->parse_html_template('layout/javascript_setup')

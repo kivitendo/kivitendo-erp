@@ -8,7 +8,7 @@ use URI;
 use List::MoreUtils qw(apply);
 
 sub stylesheets {
-  qw(css/icons16.css css/icons24.css)
+  qw(icons16.css icons24.css menu.css)
 }
 
 sub javascripts_inline {
@@ -17,6 +17,10 @@ sub javascripts_inline {
   $self->render('menu/menu', { partial => 1, no_output => 1 },
     sections  => $sections,
   )
+}
+
+sub javascripts {
+ 'js/jquery.cookie.js';
 }
 
 sub pre_content {
