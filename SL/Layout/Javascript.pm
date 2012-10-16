@@ -38,13 +38,12 @@ sub display {
   $callback               = URI->new($callback)->rel($callback) if $callback;
   $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
 
-  $form->parse_html_template("menu/menunew", {
-#  $self->render("menu/menunew", { no_menu => 1, no_output => 1 }, # buggy, no idea why
+  $self->render("menu/menunew", { partial => 1, no_output => 1 },
     force_ul_width  => 1,
     date            => $self->clock_line,
     menu_items      => $self->acc_menu,
     callback        => $callback,
-  });
+  );
 }
 
 sub clock_line {

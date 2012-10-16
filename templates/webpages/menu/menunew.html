@@ -24,7 +24,7 @@ $(clockon);
     [<a href="JavaScript:top.main_window.print()">[% 'print' | $T8 %]</a>]
    </td>
    <td align="right" nowrap>
-    [[% 'User' | $T8 %]: [% HTML.escape(login) %] -
+    [[% 'User' | $T8 %]: [% HTML.escape(MYCONFIG.login) %] -
     <a href="controller.pl?action=LoginScreen/logout" target="_top">[% 'logout' | $T8 %]</a>]
     [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
    </td>
