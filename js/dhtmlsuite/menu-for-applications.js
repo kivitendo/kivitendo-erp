@@ -1138,7 +1138,7 @@ DHTMLSuite.menuItem = function()
 	var cssPrefix;							// Css prefix for the menu items.
 	var modelItemRef;						// Reference to menuModelItem
 
-	this.layoutCSS = 'menu-item.css';
+//	this.layoutCSS = 'menu-item.css';
 	this.cssPrefix = 'DHTMLSuite_';
 	
 	if(!standardObjectsCreated)DHTMLSuite.createStandardObjects();	
@@ -1160,7 +1160,7 @@ DHTMLSuite.menuItem.prototype =
 	*/
 	createItem : function(menuModelItemObj)
 	{
-		DHTMLSuite.commonObj.loadCSS(this.layoutCSS);	// Load css
+//		DHTMLSuite.commonObj.loadCSS(this.layoutCSS);	// Load css
 		
 		DHTMLSuite.variableStorage.arrayOfDhtmlSuiteObjects[this.objectIndex] = this;
 			
@@ -1594,7 +1594,7 @@ DHTMLSuite.menuBar = function()
 	var globalObjectIndex;			// Global index of this object - used to refer to the object of this class outside
 	this.cssPrefix = 'DHTMLSuite_';
 	this.menuItemLayoutCss = false;	// false = use default for the menuItem class.
-	this.layoutCSS = 'menu-bar.css';
+//	this.layoutCSS = 'menu-bar.css';
 	this.menuBarBackgroundImage = 'menu_strip_bg.jpg';
 	this.menuItem_objects = new Array();
 	DHTMLSuite.variableStorage.menuBar_highlightedItems = new Array();
@@ -1630,7 +1630,7 @@ DHTMLSuite.menuBar.prototype = {
 	init : function()
 	{
 		
-		DHTMLSuite.commonObj.loadCSS(this.layoutCSS);	
+//		DHTMLSuite.commonObj.loadCSS(this.layoutCSS);	
 		this.__createDivs();	// Create general divs
 		this.__createMenuItems();	// Create menu items
 		this.__setBasicEvents();	// Set basic events.
