@@ -1,6 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]<body style="padding:0px; margin:0px;">
-
+[% USE HTML %]
  <script type="text/javascript" src="js/jquery.js"></script>
  <script type="text/javascript">
  <!--
@@ -57,17 +56,9 @@ window.onload=clockon
   </tr>
  </table>
 
-
  <div id="menuv3">
 
   [% menu %]
 
  </div>
-
  <div style="clear: both;"></div>
-
- <iframe id="win1" src="[% callback %]" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
-  <p>[% 'MSG_BROWSER_DOES_NOT_SUPPORT_IFRAMES' | $T8 %]</p>
- </iframe>
-</body>
-</html>

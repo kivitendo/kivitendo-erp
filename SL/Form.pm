@@ -451,11 +451,15 @@ sub use_stylesheet {
   my $self = shift;
 
   $self->{stylesheet} = [ $self->{stylesheet} ] unless ref $self->{stylesheet} eq 'ARRAY';
-  $self->{stylesheet} = [ grep { -f                       }
-                          map  { m:^css/: ? $_ : "css/$_" }
-                          grep { $_                       }
-                               (@{ $self->{stylesheet} }, @_)
-                        ];
+
+  if (@_) {
+    $self->{stylesheet} =
+      [ grep { -f                       }
+        map  { m:^css/: ? $_ : "css/$_" }
+        grep { $_                       }
+             (@{ $self->{stylesheet} }, @_)
+      ];
+  }
 
   return @{ $self->{stylesheet} };
 }
@@ -489,13 +493,10 @@ sub header {
 
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
 
-  my $layout;
-  $layout = $self->layout unless $params{no_menu};
-
   my $css_path = $self->get_stylesheet_for_user;
 
   $self->{favicon} ||= "favicon.ico";
-  $self->{titlebar}  = "$self->{title} - $self->{titlebar}" if $self->{title};
+  $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
 
   # build includes
   if ($self->{refresh_url} || $self->{refresh_time}) {
@@ -504,7 +505,7 @@ sub header {
     push @header, "<meta http-equiv='refresh' content='$refresh_time;$refresh_url'>";
   }
 
-  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $self->use_stylesheet;
+  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $self->use_stylesheet, $::request->{layout}->stylesheets;
 
   push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
@@ -516,8 +517,6 @@ sub header {
   push @header, map { qq|<link rel="stylesheet" type="text/css" href="js/jscalendar/calendar-win2k-1.css">| }
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
   push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
-  push @header, sprintf "<script type='text/javascript'>top.document.title='%s';</script>",
-    join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
 
   my  %doctypes = (
     strict       => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">|,
@@ -551,11 +550,25 @@ EOT
  <body>
 
 EOT
-  print $layout;
-
-  print "<div id='content'>\n";
+  print $::request->{layout}->pre_content;
+  print $::request->{layout}->start_content;
 
   $::lxdebug->leave_sub;
+}
+
+sub footer {
+  # TODO: fix abort conditions
+
+  print $::request->{layout}->post_content;
+  print "<script type='text/javascript' src='$_'></script>\n" for $::request->{layout}->javascripts;
+  if (my @inline_scripts = $::request->{layout}->javascript_inline) {
+    print "<script type='text/javascript'>$_</script>\n" for @inline_scripts;
+  }
+
+  print <<EOL
+ </body>
+</html>
+EOL
 }
 
 sub ajax_response_header {

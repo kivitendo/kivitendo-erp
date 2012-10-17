@@ -1,6 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]<body class="menunew">
-
+[% USE HTML %]
  <script type="text/javascript">
 <!--
 function clockon() {
@@ -35,11 +34,11 @@ window.onload=clockon
  <div id="main_menu_div"></div>
 
  [%- SET main_id = '100' %]
- <ul id="main_menu_model">
+ <ul id="main_menu_model"  style='display:none'>
  [%- FOREACH mainitem = menu_items %]
   [%- SET main_id = main_id + 1 %]
   <li id="[% main_id %]"[% IF mainitem.image %] itemIcon="[% mainitem.image %]"[% END %]>
-   <a href="[% IF mainitem.href %][% mainitem.href %][% ELSE %]#[% END %]"[% IF mainitem.target %] target="[% mainitem.target %]"[% END %]>
+   <a href="[% IF mainitem.href %][% mainitem.href %][% ELSE %]#[% END %]">
     [%- HTML.escape(mainitem.title) %]
    </a>
    [%- IF mainitem.subitems %]
@@ -48,7 +47,7 @@ window.onload=clockon
      [%- FOREACH sub1item = mainitem.subitems %]
       [%- SET sub1_id = sub1_id + 1 %]
       <li id="[% sub1_id %]"[% IF sub1item.image %] itemIcon="[% sub1item.image %]"[% END %]>
-       <a href="[% IF sub1item.href %][% sub1item.href %][% ELSE %]#[% END %]"[% IF sub1item.target %] target="[% sub1item.target %]"[% END %]>
+       <a href="[% IF sub1item.href %][% sub1item.href %][% ELSE %]#[% END %]">
         [%- HTML.escape(sub1item.title) %]
        </a>
        [%- IF sub1item.subitems %]
@@ -57,7 +56,7 @@ window.onload=clockon
          [%- FOREACH sub2item = sub1item.subitems %]
           [%- SET sub2_id = sub2_id + 1 %]
           <li id="[% sub2_id %]"[% IF sub2item.image %] itemIcon="[% sub2item.image %]"[% END %]>
-           <a href="[% IF sub2item.href %][% sub2item.href %][% ELSE %]#[% END %]"[% IF sub2item.target %] target="[% sub2item.target %]"[% END %]>
+           <a href="[% IF sub2item.href %][% sub2item.href %][% ELSE %]#[% END %]">
             [%- HTML.escape(sub2item.title) %]
            </a>
           </li>
@@ -72,25 +71,26 @@ window.onload=clockon
  [%- END %]
  </ul>
 
- <iframe id="win1" src="[% callback %]" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
-  <p>[% 'MSG_BROWSER_DOES_NOT_SUPPORT_IFRAMES' | $T8 %]</p>
- </iframe>
  <script type="text/javascript">
   <!--
 
-DHTMLSuite.createStandardObjects();
+$(function(){
+  DHTMLSuite.createStandardObjects();
 
-DHTMLSuite.configObj.setCssPath('[% myconfig.css_path %]/dhtmlsuite/');
-DHTMLSuite.configObj.setImagePath('image/dhtmlsuite/');
+  DHTMLSuite.configObj.setCssPath('[% myconfig.css_path %]/dhtmlsuite/');
+  DHTMLSuite.configObj.setImagePath('image/dhtmlsuite/');
 
-var menu_model = new DHTMLSuite.menuModel();
-menu_model.addItemsFromMarkup('main_menu_model');
-menu_model.init();
+  var menu_model = new DHTMLSuite.menuModel();
+  menu_model.addItemsFromMarkup('main_menu_model');
+  menu_model.init();
 
-var menu_bar = new DHTMLSuite.menuBar();
-menu_bar.addMenuItems(menu_model);
-menu_bar.setTarget('main_menu_div');
-menu_bar.init();
+  var menu_bar = new DHTMLSuite.menuBar();
+  menu_bar.addMenuItems(menu_model);
+  menu_bar.setTarget('main_menu_div');
+  menu_bar.init();
+});
+
+
 
 function open_url(url, target) {
 
@@ -98,6 +98,3 @@ function open_url(url, target) {
 
     -->
  </script>
-
-</body>
-</html>

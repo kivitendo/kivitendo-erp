@@ -35,6 +35,7 @@ use SL::Form;
 use SL::Helper::DateTime;
 use SL::InstanceConfiguration;
 use SL::Template::Plugin::HTMLFixes;
+use SL::Controller::Layout::None;
 
 # Trailing new line is added so that Perl will not add the line
 # number 'die' was called in.
@@ -181,7 +182,10 @@ sub handle_request {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = { cgi => CGI->new({}) };
+  $::request       = {
+    cgi => CGI->new({}),
+    layout => SL::Controller::Layout::None->new,
+  };
 
   my $session_result = $::auth->restore_session;
   $::auth->create_or_refresh_session;
