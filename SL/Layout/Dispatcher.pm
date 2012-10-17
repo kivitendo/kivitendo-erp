@@ -2,15 +2,12 @@ package SL::Layout::Dispatcher;
 
 use strict;
 
-use SL::Menu;
 use SL::Layout::Admin;
 use SL::Layout::Login;
 use SL::Layout::Classic;
 use SL::Layout::V3;
 use SL::Layout::V4;
 use SL::Layout::Javascript;
-
-my %menu_cache;
 
 sub new {
   my ($class, %params) = @_;
