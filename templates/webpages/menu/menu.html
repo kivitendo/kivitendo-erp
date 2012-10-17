@@ -1,31 +1,19 @@
 [%- USE L %]
 [%- USE HTML %]
+[%- USE JSON %]
 <body class="menu">
-
 <div id='html-menu'>
-[%- FOREACH item IN sections %]
- <div id='mi[% item.item_id %]' class='mi [% item.spacer %] [% item.class %]'>[%- IF item.href %]
-  <a href="[% item.href | html %]" class='ml' target='[% item.target %]'><span class="mii ms"><div class="[% item.img %]"></div></span><span class='mic'>[% item.label %]</span></a>[%- ELSE %]
-  <span class="mii ms"><div class="[% item.img %]"></div></span><span class='mic'>[% item.label %]</span>[%- END %]
- </div>
-[%- END %]
 </div>
 <script type='text/javascript'>
-  function make_img(i){
-    var img=$('<img>');
-    $.each(i, function(k,v){ img.attr(k,v) });
-    return img;
-  }
-  function make_menu_item(b){
-    var span1 = $('<span class="mii ms">').append(make_img(b.img));
-    var span2 = '<span class="mic">' + b.label + '</span>';
-    var a = $('<a class="ml">').append(span1, span2);
+  $(function(){
+    $([% JSON.json(sections) %]).each(function(i,b){
+    var a = $('<a class="ml">').append(
+     $('<span class="mii ms">').append($('<div>').addClass(b.img)),
+     $('<span class="mic">').append(b.label));
     if (b.href) a.attr('href', b.href);
     if (b.target) a.attr('target', b.target);
-    var mi = $('<div class="mi">').addClass(b.cl).addClass(b.spacer).attr('id', b.item_id).append(a);
-    $('#html-menu').append(mi);
-  }
-  $(function(){
+    $('#html-menu').append($('<div class="mi">').addClass(b.class).addClass(b.spacer).attr('id', 'mi' + b.item_id).append(a));
+    });
     $('#html-menu div.i, #html-menu div.sm').hide();
     $('#html-menu div.m').each(function() {
       $(this).click(function(){
