@@ -129,31 +129,30 @@ sub section_menu {
     my $anchor = $menuitem->{href};
 
     my %common_args = (
-        label   => $label,
-        spacer  => $spacer,
-        target  => $menuitem->{target},
-        item_id => "$id_prefix\_$id",
+        l   => $label,
+        s  => $spacer,
+        t  => $menuitem->{target},
+        id => "$id_prefix\_$id",
         height  => 16,
     );
 
     if (!$level) { # toplevel
       push @items, { %common_args,
-        img      => "icon24 $icon_class",   #  make_image(size => 24, label => $item),
-        height   => 24,
-        class    => 'm',
+        i      => "icon24 $icon_class",   #  make_image(size => 24, label => $item),
+        c    => 'm',
       };
       push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{submenu}) {
       push @items, { %common_args,
-        img      => "icon16 submenu",   #make_image(label => 'submenu'),
-        class    => 'sm',
+        i      => "icon16 submenu",   #make_image(label => 'submenu'),
+        c    => 'sm',
       };
       push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{module}) {
       push @items, { %common_args,
-        img     => "icon16 $icon_class",  #make_image(size => 16, label => $item),
-        href    => $anchor,
-        class   => 'i',
+        i     => "icon16 $icon_class",  #make_image(size => 16, label => $item),
+        h    => $anchor,
+        c   => 'i',
       };
     }
   } continue {
