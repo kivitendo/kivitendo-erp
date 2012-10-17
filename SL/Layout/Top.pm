@@ -17,3 +17,30 @@ sub stylesheets {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Layout::Top - Top line in classic and v4 menu.
+
+=head1 DOM MODEL
+
+The entire top line is rendered into a div with id C<frame-header>. The following classes are used:
+
+  frame-header-element: any continuous block of entries
+  frame-header-left:    the left floating part
+  frame-header-right:   the right floating part
+  frame-header-center:  the centered part
+
+=head1 BUGS
+
+none yet. :)
+
+=head1 AUTHOR
+
+Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
+
+=cut
