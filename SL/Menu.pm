@@ -58,18 +58,6 @@ sub new {
   return $self;
 }
 
-sub menuitems {
-  my ($self) = @_;
-
-  map {
-    SL::MenuItem->new(
-      name => $_,
-      menu => $self,
-      item => $self->{$_}
-    );
-  } $self->access_control;
-}
-
 sub menuitem_js {
   my ($self, $myconfig, $form, $item) = @_;
 
