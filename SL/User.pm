@@ -136,7 +136,6 @@ sub login {
     $dbh->disconnect;
 
     if ($update_available) {
-      $form->{"stylesheet"} = "lx-office-erp.css";
       $form->{"title"} = $main::locale->text("Dataset upgrade");
       $form->header();
       print $form->parse_html_template("dbupgrade/header");

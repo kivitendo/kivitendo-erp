@@ -14,6 +14,16 @@ sub new {
   $self->{top}  = SL::Controller::Layout::Top->new;
   $self->{left} = SL::Controller::Layout::MenuLeft->new;
 
+  $self->use_stylesheet(
+    $self->{top}->stylesheets,
+    $self->{left}->stylesheets,
+  );
+
+  $self->use_javascript(
+    $self->{top}->javascripts,
+    $self->{left}->javascripts,
+  );
+
   $self;
 }
 
@@ -28,16 +38,6 @@ sub start_content {
 
 sub end_content {
   "</div>\n";
-}
-
-sub stylesheets {
-  $_[0]{top}->stylesheets,
-  $_[0]{left}->stylesheets;
-}
-
-sub javascripts {
-  $_[0]{top}->javascripts,
-  $_[0]{left}->javascripts;
 }
 
 1;

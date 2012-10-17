@@ -835,7 +835,7 @@ sub storno {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
-  map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password stylesheet type))); } keys(%{ $form }));
+  map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
 
   invoice_links();
   prepare_invoice();

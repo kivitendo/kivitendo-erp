@@ -466,7 +466,7 @@ sub list_account {
     $ca->{link_edit_account} = $link_edit_account . '&id=' . E($ca->{id});
   }
 
-  $form->use_stylesheet("list_accounts.css");
+  $::request->{layout}->use_stylesheet("list_accounts.css");
   $form->{title}       = $locale->text('Chart of Accounts');
 
   $form->header;

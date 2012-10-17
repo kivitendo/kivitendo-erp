@@ -447,53 +447,30 @@ sub create_http_response {
   return $output;
 }
 
-sub use_stylesheet {
-  my $self = shift;
-
-  $self->{stylesheet} = [ $self->{stylesheet} ] unless ref $self->{stylesheet} eq 'ARRAY';
-
-  if (@_) {
-    $self->{stylesheet} =
-      [ grep { -f                       }
-        map  { m:^css/: ? $_ : "css/$_" }
-        grep { $_                       }
-             (@{ $self->{stylesheet} }, @_)
-      ];
-  }
-
-  return @{ $self->{stylesheet} };
-}
-
-sub get_stylesheet_for_user {
-  my $css_path = 'css';
-  if (my $user_style = $::myconfig{stylesheet}) {
-    $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnand of pre 2.7.0 stylesheet handling
-    if (-d "$css_path/$user_style" &&
-        -f "$css_path/$user_style/main.css") {
-      $css_path = "$css_path/$user_style";
-    } else {
-      $css_path = "$css_path/lx-office-erp";
-    }
-  } else {
-    $css_path = "$css_path/lx-office-erp";
-  }
-  $::myconfig{css_path} = $css_path; # needed for menunew, FIXME: don't do this here
-
-  return $css_path;
-}
-
 sub header {
   $::lxdebug->enter_sub;
 
-  # extra code is currently only used by menuv3 and menuv4 to set their css.
-  # it is strongly deprecated, and will be changed in a future version.
   my ($self, %params) = @_;
   my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   my @header;
 
+  my $layout = $::request->{layout};
+
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
 
-  my $css_path = $self->get_stylesheet_for_user;
+  # standard css for all
+  $layout->use_stylesheet("$_.css") for qw(
+    main menu tabcontent list_accounts jquery.autocomplete
+    jquery.multiselect2side frame_header/header
+    ui-lightness/jquery-ui-1.8.12.custom
+    js/jscalendar/calendar-win2k-1
+  );
+
+  $layout->use_javascript("$_.js") for qw(
+    jquery common jscalendar/calendar jscalendar/lang/calendar-de
+    jscalendar/calendar-setup part_selection jquery-ui jquery.cookie jqModal
+    switchmenuframe
+  );
 
   $self->{favicon} ||= "favicon.ico";
   $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
@@ -505,16 +482,11 @@ sub header {
     push @header, "<meta http-equiv='refresh' content='$refresh_time;$refresh_url'>";
   }
 
-  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $self->use_stylesheet, $::request->{layout}->stylesheets;
-
-  push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
-  push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
-  push @header, map { qq|<script type="text/javascript" src="js/$_.js"></script>| }
-       qw(jquery common jscalendar/calendar jscalendar/lang/calendar-de jscalendar/calendar-setup part_selection jquery-ui jquery.cookie jqModal switchmenuframe);
+  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $layout->stylesheets;
+  push @header, "<style type='text/css'>\@page { size:landscape; }</style> "                     if $self->{landscape};
+  push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>"         if -f $self->{favicon};
+  push @header, map { qq|<script type="text/javascript" src="$_"></script>| }                 $layout->javascripts;
   push @header, $self->{javascript} if $self->{javascript};
-  push @header, map { qq|<link rel="stylesheet" type="text/css" href="$css_path/$_.css">| }
-       qw(main menu tabcontent list_accounts jquery.autocomplete jquery.multiselect2side frame_header/header ui-lightness/jquery-ui-1.8.12.custom);
-  push @header, map { qq|<link rel="stylesheet" type="text/css" href="js/jscalendar/calendar-win2k-1.css">| }
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
   push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
 
@@ -522,6 +494,7 @@ sub header {
     strict       => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">|,
     transitional => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">|,
     frameset     => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">|,
+    html5        => qq|<!DOCTYPE html>|,
   );
 
   # output
@@ -545,7 +518,6 @@ EOT
    ***********************************************/
 
   </script>
-  $params{extra_code}
  </head>
  <body>
 
@@ -559,11 +531,12 @@ EOT
 sub footer {
   # TODO: fix abort conditions
 
+  print $::request->{layout}->end_content;
   print $::request->{layout}->post_content;
-  print "<script type='text/javascript' src='$_'></script>\n" for $::request->{layout}->javascripts;
-  if (my @inline_scripts = $::request->{layout}->javascript_inline) {
-    print "<script type='text/javascript'>$_</script>\n" for @inline_scripts;
-  }
+#  print "<script type='text/javascript' src='$_'></script>\n" for $::request->{layout}->javascripts;
+#  if (my @inline_scripts = $::request->{layout}->javascript_inline) {
+#    print "<script type='text/javascript'>$_</script>\n" for @inline_scripts;
+#  }
 
   print <<EOL
  </body>

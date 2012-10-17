@@ -7,8 +7,14 @@ use URI;
 
 use List::MoreUtils qw(apply);
 
-sub stylesheets {
-  qw(css/icons16.css css/icons24.css);
+sub new {
+  my ($class, @slurp) = @_;
+
+  my $self = $class->SUPER::new(@slurp);
+
+  $self->use_stylesheet(qw(css/icons16.css css/icons24.css));
+
+  $self;
 }
 
 sub render {
