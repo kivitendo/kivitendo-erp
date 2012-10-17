@@ -107,3 +107,79 @@ sub _show_images {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Layout::MenuLeft - ex html meanu, now only left menu
+
+=head1 DOM MODEL
+
+Data will be embedded into the page as a json array of entries.
+Each entry is another array with the following fields:
+
+  0: title
+  1: indentation classes
+  2: unique id
+  3: icon classes
+  4: role classes
+
+From each entry the following dom will be generated, with [0] being entry 0 of
+the data array:
+
+  <div id="mi[2]" class="mi [4] [1]">
+    <a class="ml">
+      <span class="mii ms">
+        <div class="[3]"></div>
+      </span>
+      <span class="mic">[0]</span>
+    </a>
+  </div>
+
+The classes are minified to keep the json somewhat in check, their meaning is as follows:
+
+=over 4
+
+=item Indentation Classes
+
+  s0: No indentation
+  s1: One level of indentation
+  s2: Two levels of indentation
+
+=item Icon Classes
+
+Each icon consists of two classes, one for the icon, and one for the size.
+The icon classes are taken from the file names, for example C<Master-Data> is
+the icon for master data, and refers to Master-Icon.png.
+
+  icon16: 16x16 icon
+  icon24: 24x24 icon
+  icon32: 32x32 icon
+
+=item Role Classes
+
+Role classes may be used to style types of links differently. Currently used:
+
+  ml:  menu link, any <a> tag will have this
+  mi:  menu item, the enclosing div for each entry has this
+  mii: menu item icon, the enclosing div for the icons has this
+  ms:  menu spacer, the first <span> in the link will have this
+  m:   menu, only top level entries have this
+  i:   item, only leaf entries have this
+  sm:  sub menu, eveything that is not top nor leaf has this
+  mic: menu item content, the span with the human readable description has this
+
+=back
+
+=head1 BUGS
+
+none yet
+
+=head1 AUTHOR
+
+Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
+
+=cut
