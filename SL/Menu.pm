@@ -46,7 +46,10 @@ sub new {
 
   my ($type, $menufile) = @_;
 
-  return $instance if $instance;
+  if ($instance) {
+    $::lxdebug->leave_sub;
+    return $instance;
+  }
 
   my $self    = {};
   my $inifile = Inifile->new($menufile);

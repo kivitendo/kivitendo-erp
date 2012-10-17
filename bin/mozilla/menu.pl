@@ -53,6 +53,7 @@ sub render {
 
   my $sections = [ section_menu($menu) ];
 
+  $::lxdebug->leave_sub;
   $::form->parse_html_template('menu/menu', {
     sections  => $sections,
     inline    => 1,
