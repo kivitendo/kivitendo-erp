@@ -84,7 +84,7 @@ sub payment {
 
   # Standard Konto für Umlaufvermögen
   my $accno_arap = IS->get_standard_accno_current_assets(\%myconfig, \%$form);
-  # Entsprechend präventiv die Auswahlliste für Kontonummer 
+  # Entsprechend präventiv die Auswahlliste für Kontonummer
   # auch mit value= zusammenbauen (s.a. oben bugfix 1771)
   # Wichtig: Auch das Template anpassen, damit hidden input korrekt die "
   # escaped.
@@ -114,7 +114,7 @@ sub payment {
   $form->{defaultcurrency} = $form->{currency} = $form->{oldcurrency} =
     $curr[0];
 
-  # Entsprechend präventiv die Auswahlliste für Währungen 
+  # Entsprechend präventiv die Auswahlliste für Währungen
   # auch mit value= zusammenbauen (s.a. oben bugfix 1771)
   $form->{selectcurrency} = "";
   map { $form->{selectcurrency} .= "<option value=\"$_\">$_</option>\n" } @curr;
@@ -132,7 +132,6 @@ sub form_header {
   $auth->assert('cash');
 
   my ($vc, $arap, $exchangerate);
-  my ($onload);
 
   if ($form->{ $form->{vc} } eq "") {
     map { $form->{"addr$_"} = "" } (1 .. 4);
@@ -167,14 +166,10 @@ sub form_header {
   $form->header;
 
   $arap = lc $form->{ARAP};
-  $onload = qq|focus()|;
-  $onload .= qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
   print $::form->parse_html_template('cp/form_header', {
     is_customer => $form->{vc}   eq 'customer',
     is_receipt  => $form->{type} eq 'receipt',
-    onload      => $onload,
     arap        => $arap,
     vccontent   => $vc,
   });
@@ -278,8 +273,8 @@ sub update {
     $form->{customer_id} = $form->{AR}[0]{customer_id};
   }
 
-  # search by invoicenumber, 
-  if ($form->{invnumber}) { 
+  # search by invoicenumber,
+  if ($form->{invnumber}) {
     $form->{open} ='Y'; # only open invoices
     if ($form->{ARAP} eq 'AR'){
       # ar_transactions automatically searches by $form->{customer_id} or else

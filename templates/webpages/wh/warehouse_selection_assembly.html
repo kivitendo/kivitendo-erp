@@ -1,7 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
-[% USE HTML %][% USE JavaScript %][% USE LxERP %]<body onload="on_load(); [% onload %]">
-
+[%- USE HTML %][%- USE JavaScript %][%- USE LxERP %]
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/part_selection.js"></script>
  <script type="text/javascript">
@@ -50,9 +49,9 @@
         control.options[bin_index].selected = true;
       }
 
-      function on_load() {
+      $(function() {
         warehouse_selected([% warehouse_id %], [% bin_id %]);
-      }
+      })
     -->
  </script>
 
@@ -142,5 +141,3 @@
   </p>
  </form>
 
-</body>
-</html>

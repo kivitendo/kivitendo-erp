@@ -1,6 +1,5 @@
 [%- USE T8 %]
-<body class="frame-header">
-<div class="frame-header">
+<div id="frame-header">
 [% UNLESS is_links %]
  <span class="frame-header-element frame-header-left">
     [<a href="JavaScript:Switch_Menu();" title="[% 'Switch Menu on / off' | $T8 %]">[% 'Menu' | $T8 %]</a>]
@@ -14,10 +13,10 @@
  <span class="frame-header-element frame-header-center">
   Debug:
   [<a href='controller.pl?action=DebugMenu/reload'>FCGI Reload</a>]
-  [<a href='controller.pl?action=DebugMenu/toggle&level=request_timer'>[% IF LXDEBUG.level_by_name('request_timer') %]<b>Timing</b>[% ELSE %]Timing[% END %]</a>]
-  [<a href='controller.pl?action=DebugMenu/toggle&level=trace'>[% IF LXDEBUG.level_by_name('trace') %]<b>Trace</b>[% ELSE %]Trace[% END %]</a>]
-  [<a href='controller.pl?action=DebugMenu/toggle&level=query'>[% IF LXDEBUG.level_by_name('query') %]<b>Query</b>[% ELSE %]Query[% END %]</a>]
-  [<a href='controller.pl?action=DebugMenu/toggle&level=warn'>[% IF LXDEBUG.level_by_name('warn') %]<b>Warnings</b>[% ELSE %]Warnings[% END %]</a>]
+  [<a href='controller.pl?action=DebugMenu/toggle&amp;level=request_timer'>[% IF LXDEBUG.level_by_name('request_timer') %]<b>Timing</b>[% ELSE %]Timing[% END %]</a>]
+  [<a href='controller.pl?action=DebugMenu/toggle&amp;level=trace'>[% IF LXDEBUG.level_by_name('trace') %]<b>Trace</b>[% ELSE %]Trace[% END %]</a>]
+  [<a href='controller.pl?action=DebugMenu/toggle&amp;level=query'>[% IF LXDEBUG.level_by_name('query') %]<b>Query</b>[% ELSE %]Query[% END %]</a>]
+  [<a href='controller.pl?action=DebugMenu/toggle&amp;level=warn'>[% IF LXDEBUG.level_by_name('warn') %]<b>Warnings</b>[% ELSE %]Warnings[% END %]</a>]
  </span>
 [%- END %]
  <span class="frame-header-element frame-header-right">
@@ -28,5 +27,3 @@
   [% now.hms %]
  </span>
 </div>
-</body>
-</html>

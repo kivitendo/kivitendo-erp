@@ -1,7 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
-[% USE HTML %]<body onload="fokus()">
-
+[%- USE HTML %]
  <form method="post" action="ct.pl" name="Form">
 
   <input type="hidden" name="db" value="[% HTML.escape(db) %]">
@@ -161,5 +160,3 @@
   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
  </form>
 
-</body>
-</html>

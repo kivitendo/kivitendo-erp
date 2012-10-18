@@ -151,8 +151,6 @@ sub report {
 
   $::form->get_lists("projects" => { "key" => "ALL_PROJECTS", "all" => 1 });
 
-  my $onload = qq|focus()|;
-
   my $is_projects         = $::form->{report} eq "projects";
   my $is_income_statement = $::form->{report} eq "income_statement";
   my $is_bwa              = $::form->{report} eq "bwa";
@@ -198,7 +196,6 @@ sub report {
     vc                  => $vc,
     label               => $label,
     year                => DateTime->today->year,
-    onload              => $onload,
     nextsub             => $nextsub,
     accrual             => $::instance_conf->get_accounting_method ne 'cash',
     cash                => $::instance_conf->get_accounting_method eq 'cash',

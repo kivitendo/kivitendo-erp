@@ -1,7 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
-[% USE HTML %][% USE LxERP %]<body onload="on_load();">
-
+[%- USE HTML %][%- USE LxERP %]
  [%- IF vc == 'customer' %]
  [%- SET is_customer = '1' %]
  [%- ELSE %]
@@ -9,11 +8,7 @@
  [%- END %]
 
  <script type="text/javascript">
-  <!--
-      function on_load() {
-        document.Form.donumber.focus();
-      }
-    -->
+   $(function(){ document.Form.donumber.focus(); });
  </script>
 
  <style type="text/css">
@@ -234,6 +229,3 @@
    <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
-
-</body>
-</html>

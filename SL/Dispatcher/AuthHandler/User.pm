@@ -1,8 +1,9 @@
 package SL::Dispatcher::AuthHandler::User;
 
 use strict;
-
 use parent qw(Rose::Object);
+
+use SL::Layout::Dispatcher;
 
 sub handle {
   my ($self, %param) = @_;
@@ -15,6 +16,7 @@ sub handle {
   $self->_error(%param) unless $::myconfig{login};
 
   $::locale = Locale->new($::myconfig{countrycode});
+  $::request->{layout} = SL::Layout::Dispatcher->new(style => $::myconfig{menustyle});
 
   my $ok   =  $::form->{'{AUTH}login'} && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $::form->{'{AUTH}password'}));
   $ok    ||= !$::form->{'{AUTH}login'} && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, undef));
@@ -31,7 +33,7 @@ sub _error {
   my $self = shift;
 
   $::auth->punish_wrong_login;
-  SL::Dispatcher::show_error('login_screen/user_login', 'password', @_);
+  print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login&error=password');
 }
 
 1;

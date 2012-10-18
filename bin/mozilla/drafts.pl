@@ -26,7 +26,7 @@ sub save_draft {
     restore_form($form->{SAVED_FORM}, 1) if ($form->{SAVED_FORM});
     delete $form->{SAVED_FORM};
 
-    $form->{SAVED_FORM}   = save_form(qw(stylesheet login password));
+    $form->{SAVED_FORM}   = save_form(qw(login password));
     $form->{remove_draft} = 1;
 
     $form->header();
@@ -79,7 +79,7 @@ sub load_draft_maybe {
   $draft_nextsub = "add" unless ($draft_nextsub);
 
   delete $form->{action};
-  my $saved_form = save_form(qw(stylesheet login password));
+  my $saved_form = save_form(qw(login password));
 
   $form->header();
   print($form->parse_html_template("drafts/load",
@@ -129,7 +129,7 @@ sub load_draft {
     $form->{draft_description}     = $description;
     $form->{remove_draft}          = 'checked';
   }
-  # Ich vergesse bei Rechnungsentwürfe das Rechnungsdatum zu ändern. Dadurch entstehen 
+  # Ich vergesse bei Rechnungsentwürfe das Rechnungsdatum zu ändern. Dadurch entstehen
   # ungültige Belege. Vielleicht geht es anderen ähnlich jan 19.2.2011
   $form->{invdate} = $form->current_date(\%myconfig); # Aktuelles Rechnungsdatum  ...
   $form->{duedate} = $form->current_date(\%myconfig); # Aktuelles Fälligkeitsdatum  ...

@@ -1,26 +1,9 @@
 [%- USE T8 %]
 [%- USE HTML %]
-<body class="frame-header menuv4">
- <div class="frame-header">
-  <span class="frame-header-element frame-header-left">
-   [<a href="menuv4.pl?action=display" target="_blank">[% 'new Window' | $T8 %]</a>]
-   [<a href="JavaScript:top.main_window.print()">[% 'print' | $T8 %]</a>]
-  </span>
-  <span class="frame-header-element frame-header-right">
-   [[% 'User' | $T8 %]: [% HTML.escape(login) %] -
-   <a href="controller.pl?action=LoginScreen/logout" target="_top">[% 'logout' | $T8 %]</a>]
-   [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
-  </span>
- </div>
  <div id="menuv4">
   [% menu %]
  </div>
  <div style="clear: both;"></div>
- <iframe id="win1" src="[% callback %]" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
-  <p>[% 'MSG_BROWSER_DOES_NOT_SUPPORT_IFRAMES' | $T8 %]</p>
- </iframe>
-</body>
-
 
  <script type="text/javascript">
 <!--
@@ -31,7 +14,6 @@ function clockon() {
   document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m);
   var timer=setTimeout("clockon()", 10000);
 }
-window.onload=clockon
+$(clockon);
 //-->
  </script>
-</html>

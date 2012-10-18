@@ -1,5 +1,4 @@
 [% USE T8 %][% USE HTML %][% USE L %][% USE LxERP -%]
-<body>
  [% L.stylesheet_tag('jquery.multiselect2side') %]
  [% L.javascript_tag('jquery.selectboxes', 'jquery.multiselect2side') %]
 
@@ -58,5 +57,3 @@
  </form>
 
  [% L.multiselect2side('user_ids_', labelsx => LxERP.t8('All users'), labeldx => LxERP.t8('Users in this group')) %]
-</body>
-</html>

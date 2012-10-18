@@ -3,7 +3,6 @@
  Edit templates/webpages/ustva/config_step1_master.html
  and run locale/<cc>/locales.pl -->
 
-<body>
 <form name="verzeichnis" method="post" action="[% HTML.escape(script) %]">
 <table width="100%">
    <tr>
@@ -111,4 +110,3 @@
        <input type="hidden" name="[% HTML.escape(var.variable) %]" value="[% HTML.escape(var.value) %]">
      [%- END %]
   </form>
-</body>

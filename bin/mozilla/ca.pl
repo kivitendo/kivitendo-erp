@@ -154,13 +154,8 @@ sub list {
 
   $::form->{title} = $::locale->text('List Transactions') . " - " . $::locale->text('Account') . " $::form->{accno}";
 
-  my $onload = qq|focus()|;
-  $onload .= qq|;setupDateFormat('$::myconfig{dateformat}', '|. $::locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('$::myconfig{numberformat}', '|. $::locale->text("wrongformat") .qq|')|;
-
   $::form->header;
   print $::form->parse_html_template('ca/list', {
-    onload => $onload,
     year => DateTime->today->year,
     cash => $::instance_conf->get_accounting_method eq 'cash',
   });

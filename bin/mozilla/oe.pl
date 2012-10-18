@@ -402,19 +402,19 @@ sub form_header {
     }
   }
 
-  my $onload = "";
+  my $dispatch_to_popup = '';
   if ($form->{resubmit} && ($form->{format} eq "html")) {
-      $onload  = "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';";
-      $onload .= "document.do.submit();";
+      $dispatch_to_popup  = "window.open('about:blank','Beleg'); document.oe.target = 'Beleg';";
+      $dispatch_to_popup .= "document.do.submit();";
   } elsif ($form->{resubmit}) {
     # emulate click for resubmitting actions
-    $onload  = "document.oe.${_}.click(); " for grep { /^action_/ } keys %$form;
-    $onload .= "document.oe.submit();";
+    $dispatch_to_popup  = "document.oe.${_}.click(); " for grep { /^action_/ } keys %$form;
+    $dispatch_to_popup .= "document.oe.submit();";
   } elsif ($creditwarning) {
-    $onload = "alert('$credittext')";
+    $::request->{layout}->add_javascripts_inline("alert('$credittext')");
   }
 
-  $TMPL_VAR{onload} = $onload;
+  $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
   $TMPL_VAR{dateformat}          = $myconfig{dateformat};
   $TMPL_VAR{numberformat}        = $myconfig{numberformat};
 
@@ -1225,7 +1225,7 @@ sub save {
 
   $form->{simple_save} = 1;
   if(!$form->{print_and_save}) {
-    delete @{$form}{ary_diff([keys %{ $form }], [qw(login stylesheet id script type cursor_fokus)])};
+    delete @{$form}{ary_diff([keys %{ $form }], [qw(login id script type cursor_fokus)])};
     edit();
     ::end_of_request();
   }
@@ -1459,8 +1459,6 @@ sub backorder_exchangerate {
   $form->header;
 
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 |;
 
@@ -1512,9 +1510,6 @@ sub backorder_exchangerate {
     . $locale->text('Continue') . qq|">
 
 </form>
-
-</body>
-</html>
 |;
 
   $main::lxdebug->leave_sub();
@@ -2004,7 +1999,7 @@ sub edit_periodic_invoices_config {
   $::form->{AR}    = [ grep { $_->{link} =~ m/(?:^|:)AR(?::|$)/ } @{ $::form->{ALL_CHARTS} } ];
   $::form->{title} = $::locale->text('Edit the configuration for periodic invoices');
 
-  $::form->header();
+  $::form->header(no_layout => 1);
   print $::form->parse_html_template('oe/edit_periodic_invoices_config', $config);
 
   $::lxdebug->leave_sub();

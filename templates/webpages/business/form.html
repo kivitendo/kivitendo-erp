@@ -1,5 +1,4 @@
 [% USE HTML %][% USE L %][% USE LxERP %]
-<body>
 
  <form method="post" action="controller.pl">
   <div class="listtop">[% FORM.title %]</div>
@@ -40,5 +39,3 @@
    <a href="[% SELF.url_for(action => 'list') %]">[%- LxERP.t8('Abort') %]</a>
   </p>
  </form>
-</body>
-</html>

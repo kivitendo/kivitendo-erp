@@ -154,8 +154,6 @@ sub show_invoices {
                                           'no_opendocument' => 1,);
 
   $form->header();
-  $form->{onload} = "document.getElementsByName('language_id')[0].disabled =
-        !document.getElementsByName('force_lang')[0].checked;";
   print $form->parse_html_template("dunning/show_invoices");
 
   $main::lxdebug->leave_sub();
@@ -285,7 +283,7 @@ sub set_email {
   $main::auth->assert('dunning_edit');
 
   $form->{"title"} = $locale->text("Set eMail text");
-  $form->header();
+  $form->header(no_layout => 1);
   print($form->parse_html_template("dunning/set_email"));
 
   $main::lxdebug->leave_sub();
@@ -312,13 +310,9 @@ sub search {
 
   $form->{jsscript} = 1;
   $form->{title}    = $locale->text('Dunnings');
-  $form->{fokus}    = "search.customer";
+  $::request->{layout}->focus('#customer');
 
   $form->header();
-
-  $form->{onload} = qq|focus()|
-    . qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|
-    . qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
   print $form->parse_html_template("dunning/search");
 
@@ -460,8 +454,6 @@ sub show_dunning {
 
   $report->set_options_from_form();
 
-  $form->{onload} = "document.getElementsByName('language_id')[0].disabled =
-        !document.getElementsByName('force_lang')[0].checked;";
   $report->generate_with_headers();
 
   $main::lxdebug->leave_sub();

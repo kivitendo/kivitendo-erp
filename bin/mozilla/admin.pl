@@ -91,7 +91,8 @@ sub run {
   $locale = $::locale;
   $auth   = $::auth;
 
-  $form->{stylesheet} = "lx-office-erp.css";
+  $::request->{layout} = SL::Layout::Dispatcher->new(style => 'admin');
+  $::request->{layout}->use_stylesheet("lx-office-erp.css");
   $form->{favicon}    = "favicon.ico";
 
   if ($form->{action}) {
@@ -703,7 +704,7 @@ sub dbupdate {
   my $form            = $main::form;
   my $locale          = $main::locale;
 
-  $form->{stylesheet} = "lx-office-erp.css";
+  $::request->{layout}->use_stylesheet("lx-office-erp.css");
   $form->{title}      = $locale->text("Dataset upgrade");
   $form->header();
 

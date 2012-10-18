@@ -1,8 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
-<body onLoad="[% onload %]">
-
  <script type="text/javascript" src="js/common.js"></script>
 
  <form method="post" name="search" action="dn.pl">
@@ -18,13 +16,13 @@
        <th align="right">[% 'Customer' | $T8 %]</th>
        <td colspan="3">
         [% IF SHOW_CUSTOMER_DDBOX %]
-         <select name="customer_id">
+         <select id='customer' name="customer_id">
           <option value=""></option>
           [% FOREACH row = ALL_CUSTOMERS %]<option value="[% HTML.escape(row.id) %]">[% HTML.escape(row.name) %]</option>
           [% END %]
          </select>
          [% ELSE %]
-         <input name="customer" size="35">
+         <input id='customer' name="customer" size="35">
         [% END %]
        </td>
       </tr>
@@ -122,6 +120,4 @@
   <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
 
  </form>
-</body>
 
-</html>

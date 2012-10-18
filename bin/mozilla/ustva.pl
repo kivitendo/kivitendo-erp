@@ -1177,10 +1177,6 @@ sub config_step2 {
 
   $form->header();
 
-#  print qq|
-#    <body>
-#  |;
-
   my $elsterland         = '';
   my $elster_amt         = '';
   my $elsterFFFF         = '';

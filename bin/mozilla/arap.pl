@@ -169,8 +169,6 @@ sub select_name {
   my $title = $locale->text('Select from one of the names below');
 
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 
 <table width=100%>
@@ -249,9 +247,6 @@ sub select_name {
 <input class=submit type=submit name=action value="|
     . $locale->text('Continue') . qq|">
 </form>
-
-</body>
-</html>
 |;
 
   $main::lxdebug->leave_sub();

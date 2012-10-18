@@ -9,9 +9,65 @@ A:hover { color: black;
            background-color: lemonchiffon;
            text-decoration: none;
          }
+a, div {
+  transition: background-color 0.2s;
+  -moz-transition: background-color 0.2s;
+  -webkit-transition: background-color 0.2s;
+}
+
+input, textarea, select {
+  border: 1px;
+  border-color: darkgray lightgray lightgray;
+  border-style: solid;
+  padding: 1px;
+  background-color: white;
+}
+
+select {
+  padding: 0px;
+}
 
 input:focus, textarea:focus, select:focus {
-  background-color: yellow;
+  background-color: whitesmoke;
+  border: 1px;
+  border-color: gray lightgray lightgray;
+  border-style: solid;
+}
+
+input:hover, textarea:hover, select:hover {
+  border-color: dimgray darkgray darkgray;
+}
+
+input[type="button"],
+input[type="submit"],
+button,
+input[type="button"]:focus,
+input[type="submit"]:focus,
+button:focus {
+  border: 1px;
+  border-color: darkgray;
+  border-style: solid;
+  padding: 0px 4px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  background-color: whitesmoke;
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  border: 1px;
+  background-color: lightgray;
+  border-color: gray;
+  border-style: solid;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+
+html {
+  height: 100%;
 }
 
 body {
@@ -20,6 +76,7 @@ body {
   background-color: white;
   background-image: url("../../image/fade.png"); background-repeat:repeat-x;
   color: black;
+  height: 100%;
 }
 
 td {
@@ -51,7 +108,10 @@ th {
 .login {
   font-family: Verdana, Arial, Helvetica, sans-serif;
 }
-body.login {
+div.login {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
   background: #b8d1f3;
   color: #A0A0A0;
 }
@@ -69,9 +129,9 @@ th.login {
   text-align: right;
 }
 
-body.admin {
-  background-color:#ffffff;
+div.admin {
   color: black;
+  margin: 8px;
 }
 
 .message_error_login {
@@ -383,3 +443,5 @@ label {
   border-style:none;
   border-width:thin;
 }
+
+

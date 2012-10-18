@@ -1,8 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
-[% USE JavaScript %]<body onload="on_load();">
-
+[%- USE JavaScript %]
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/part_selection.js"></script>
  <script type="text/javascript">
@@ -54,10 +53,10 @@
         control.options[bin_index].selected = true;
       }
 
-      function on_load() {
+      $(function() {
         warehouse_selected(0, 0);
         document.Form.partnumber.focus();
-      }
+      });
      -->
  </script>
 
@@ -140,5 +139,3 @@
   </p>
  </form>
 
-</body>
-</html>

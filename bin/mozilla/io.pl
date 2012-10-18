@@ -488,7 +488,7 @@ sub select_item {
   } @{ $::form->{item_list} };
 
   # delete action variable
-  delete @{$::form}{qw(action item_list header)};
+  delete @{$::form}{qw(action item_list)};
 
   print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM => $previous_form,
                                                          MODE          => $mode,

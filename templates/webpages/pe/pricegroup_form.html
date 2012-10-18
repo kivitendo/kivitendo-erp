@@ -2,7 +2,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [% L.javascript_tag('show_history.js') %]
-<body>
 
 <form method=post action="[% script %]">
 
@@ -40,5 +39,3 @@
 <input type=button onclick="set_history_window([% id %]);" name=history id=history value="[% 'history' | $T8 %]">
 </form>
 
-</body>
-</html>
