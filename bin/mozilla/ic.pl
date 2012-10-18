@@ -1024,6 +1024,7 @@ sub generate_report {
     'bin'                => { 'text' => $locale->text('Bin'), },
     'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
     'description'        => { 'text' => $locale->text('Part Description'), },
+    'notes'              => { 'text' => $locale->text('Notes'), },
     'drawing'            => { 'text' => $locale->text('Drawing'), },
     'ean'                => { 'text' => $locale->text('EAN'), },
     'image'              => { 'text' => $locale->text('Image'), },
@@ -1206,7 +1207,7 @@ sub generate_report {
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
-    partnumber description partsgroup bin onhand rop soldtotal unit listprice
+    partnumber description notes partsgroup bin onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription

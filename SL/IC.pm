@@ -793,7 +793,7 @@ sub all_parts {
   my @apoe_filters         = qw(transdate);
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
-  my @simple_l_switches    = (@all_columns, qw(listprice sellprice lastcost priceupdate weight unit bin rop image));
+  my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit bin rop image));
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
   my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
   my @deliverydate_flags   = qw(deliverydate);
@@ -1094,7 +1094,7 @@ sub all_parts {
   if ($form->{searchitems} eq 'assembly' && $form->{bom}) {
     $query =
       qq|SELECT p.id, p.partnumber, p.description, a.qty AS onhand,
-           p.unit, p.bin,
+           p.unit, p.bin, p.notes,
            p.sellprice, p.listprice, p.lastcost,
            p.rop, p.weight, p.priceupdate,
            p.image, p.drawing, p.microfiche,
