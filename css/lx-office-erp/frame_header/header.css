@@ -8,6 +8,9 @@
 }
 
 #frame-header {
+  position: fixed; 
+  top: 0px;
+  z-index: 99;
   background: url('../../../image/bg_titel.gif') repeat-x;
   text-align: center;
   margin: 0;
