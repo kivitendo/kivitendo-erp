@@ -8,11 +8,11 @@ sub javascripts_inline {
   _setup_focus(),
 }
 
-sub use_javascripts {
+sub use_javascript {
   'js/common.js'
 }
 
-sub use_stylesheets {
+sub use_stylesheet {
   'main.css'
 }
 
