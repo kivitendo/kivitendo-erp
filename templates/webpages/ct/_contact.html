@@ -141,8 +141,8 @@
 
     </table>
 
-[% IF cp_id %]
-    <input type="submit" id="delete_contact" name="action" value="[% 'Delete Contact' | $T8 %]">
-[% END %]
+    [% IF cp_id %]
+      <input type="button" id="delete_contact" onclick="submitInputBitton(this);" name="action" value="[% 'Delete Contact' | $T8 %]">
+    [% END %]
 
     <br style="clear: left" />
