@@ -524,10 +524,6 @@ $follow_ups_block
     }
   }
 
-  if ($form->{menubar}) {
-    require "bin/mozilla/menu.pl";
-    &menubar;
-  }
   # button for saving history
   if($form->{id} ne "") {
     print qq| <input type=button class=submit onclick=set_history_window($form->{id}); name=history id=history value=| . $locale->text('history') . qq|> |;
