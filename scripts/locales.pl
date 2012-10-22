@@ -254,20 +254,6 @@ sub handle_file {
     }
   }
 
-  # if this is the menu.pl file
-  if ($file eq 'menu.pl') {
-    foreach my $item (@menufiles) {
-      &scanmenu("$basedir/$item");
-    }
-  }
-
-  if ($file eq 'menunew.pl') {
-    foreach my $item (@menufiles) {
-      &scanmenu("$basedir/$item");
-      print "." if $opt_v;
-    }
-  }
-
   $file =~ s/\.pl//;
 
   foreach my $text (keys %$missing) {
