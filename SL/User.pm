@@ -172,13 +172,7 @@ sub login {
       # remove lock file
       unlink($::lx_office_conf{paths}->{userspath} . "/nologin");
 
-      my $menufile =
-        $self->{"menustyle"} eq "v3" ? "menuv3.pl" :
-        $self->{"menustyle"} eq "neu" ? "menunew.pl" :
-        $self->{"menustyle"} eq "js" ? "menujs.pl" :
-        "menu.pl";
-
-      print $form->parse_html_template("dbupgrade/footer", { "menufile" => $menufile });
+      print $form->parse_html_template("dbupgrade/footer");
 
       $rc = -2;
     }
