@@ -1741,10 +1741,9 @@ sub set_payment_options {
     $amounts{invtotal} = $self->{invtotal};
     $amounts{total}    = $self->{total};
   }
-  $amounts{skonto_in_percent} = 100.0 * $self->{percent_skonto};
-
   map { $amounts{$_} = $self->parse_amount($myconfig, $amounts{$_}) } keys %amounts;
 
+  $amounts{skonto_in_percent}  = 100.0 * $self->{percent_skonto};
   $amounts{skonto_amount}      = $amounts{invtotal} * $self->{percent_skonto};
   $amounts{invtotal_wo_skonto} = $amounts{invtotal} * (1 - $self->{percent_skonto});
   $amounts{total_wo_skonto}    = $amounts{total}    * (1 - $self->{percent_skonto});
