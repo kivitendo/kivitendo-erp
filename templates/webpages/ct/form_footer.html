@@ -38,6 +38,25 @@
       function enable_delete_shipto(used) { var s=document.getElementById('delete_shipto');  if (s) s.disabled = (used > 0 ? true : false); }
       function enable_delete_contact(used){ var s=document.getElementById('delete_contact'); if (s) s.disabled = (used > 0 ? true : false); }
 
+      function submitInputButton(button)
+      {
+        var hidden = document.createElement("input");
+        hidden.setAttribute("type", "hidden");
+
+        if( button.hasAttribute("name") )
+          hidden.setAttribute("name", button.getAttribute("name"));
+
+        if( button.hasAttribute("value") )
+          hidden.setAttribute("value", button.getAttribute("value"));
+
+
+        button.form.appendChild(hidden);
+
+        button.disabled = true;
+
+        button.form.submit();
+      }
+
       var maintab = new ddtabcontent("maintab");
       maintab.setpersist(true);
       maintab.setselectedClassTarget("link"); //"link" or "linkparent"
