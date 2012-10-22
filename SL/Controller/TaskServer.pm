@@ -21,7 +21,7 @@ __PACKAGE__->run_before('check_auth');
 sub action_show {
   my ($self) = @_;
 
-  $::form->use_stylesheet('lx-office-erp/background_jobs.css');
+  $::request->{layout}->use_stylesheet('background_jobs.css');
 
   flash('warning', $::locale->text('The task server does not appear to be running.')) if !$self->task_server->is_running;
 
