@@ -51,8 +51,7 @@ sub print_menu {
     my $menu_title = $::locale->text($item);
     my $menu_text = $menu_title;
 
-    if ($menu_item->{"submenu"} || !defined($menu_item->{"module"}) ||
-        ($menu_item->{"module"} eq "menu.pl")) {
+    if ($menu_item->{"submenu"} || !defined($menu_item->{"module"})) {
 
       my $h = $self->print_menu("${parent}${item}", $depth * 1 + 1)."\n";
       if (!$parent) {
