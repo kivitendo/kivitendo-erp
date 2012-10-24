@@ -43,8 +43,7 @@
 <tr>
  <th align="right" valign="top">[%- LxERP.t8('Default buchungsgruppe') %]:</th>
  <td colspan="10" valign="top">
-  [% opts = SELF.all_buchungsgruppen, title_key = 'description', default = SELF.profile.get('default_buchungsgruppe') %]
-  [% L.select_tag('settings.default_buchungsgruppe', opts, style => 'width: 300px') %]
+  [% L.select_tag('settings.default_buchungsgruppe', SELF.all_buchungsgruppen, title_key = 'description', default = SELF.profile.get('default_buchungsgruppe'), style => 'width: 300px') %]
   <br>
   [% opts = [ [ 'never', LxERP.t8('Do not set default buchungsgruppe') ], [ 'all', LxERP.t8('Apply to all parts') ], [ 'missing', LxERP.t8('Apply to parts without buchungsgruppe') ] ] %]
   [% L.select_tag('settings.apply_buchungsgruppe', opts, default = SELF.profile.get('apply_buchungsgruppe'), style = 'width: 300px') %]
@@ -54,7 +53,6 @@
 <tr>
  <th align="right" valign="top">[%- LxERP.t8('Default unit') %]:</th>
  <td colspan="10" valign="top">
-  [% opts = SELF.all_units, title_key = 'name', value_key = 'name', default = SELF.profile.get('default_unit') %]
-  [% L.select_tag('settings.default_unit', opts, style => 'width: 300px') %]
+  [% L.select_tag('settings.default_unit', SELF.all_units, title_key='name', value_key='name', default=SELF.profile.get('default_unit'), style = 'width: 300px') %]
  </td>
 </tr>
