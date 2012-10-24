@@ -162,6 +162,7 @@ float:left;
 background:url(../../image/bg_css_menu.png) repeat bottom;
 border:1px solid;
 border-color:#ccc #888 #555 #bbb;
+	margin-top: 14px;
 }
 
 #menuv4 a, #menuv4 h2, #menuv4 div.x {
