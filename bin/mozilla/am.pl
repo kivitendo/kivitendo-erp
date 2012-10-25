@@ -336,7 +336,7 @@ sub account_header {
 
   # account where AR_tax or AP_tax is set are not orphaned if they are used as
   # tax-o-matic account
-  if ( $form->{id} && !$form->{orphaned} && ($form->{link} =~ m/(AP_tax|AR_tax)/) ) {
+  if ( $form->{id} && $form->{orphaned} && ($form->{link} =~ m/(AP_tax|AR_tax)/) ) {
     if (SL::DB::Manager::Tax->find_by(chart_id => $form->{id})) {
       $form->{orphaned} = 0;
     }

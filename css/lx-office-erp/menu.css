@@ -296,8 +296,6 @@ div#menuv4 li li li li:hover ul
    and one mic (menu-item-chunk)
    indenting is done with the levels s0, s1, s2 */
 #content.html-menu, #html-menu {
-  position: relative;
-  top: 20px;
   transition:         margin-left 0.2s, width 0.2s;
   -moz-transition:    margin-left 0.2s, width 0.2s;
   -webkit-transition: margin-left 0.2s, width 0.2s;
