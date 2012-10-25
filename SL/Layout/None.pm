@@ -9,11 +9,20 @@ sub javascripts_inline {
 }
 
 sub use_javascript {
-  'js/common.js'
+  my $self = shift;
+  qw(
+    js/jquery.js
+    js/common.js
+  ),
+  $self->SUPER::use_javascript(@_);
 }
 
 sub use_stylesheet {
-  'main.css'
+  my $self = shift;
+  qw(
+    main.css
+  ),
+  $self->SUPER::use_stylesheet(@_);
 }
 
 sub _setup_formats {
