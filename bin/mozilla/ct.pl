@@ -465,8 +465,8 @@ sub form_header {
   $form->{contacts_label} = \&_contacts_label;
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
   $form->{jsscript}       = 1;
-  $form->{fokus}          = "ct.greeting";
   $form->{SHIPTO_ALL}     = [ +{ shipto_id => '0', shiptoname => $::locale->text('All') }, @{ $form->{SHIPTO} } ];
+  $::request->{layout}->focus("#greeting");
 
   $form->{title} = $form->{title_save}
                 || $locale->text("$form->{title} " . ucfirst $form->{db}) . ($form->{title} eq "Edit" ? " $form->{name}" : '');
