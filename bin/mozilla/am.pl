@@ -1590,7 +1590,7 @@ sub add_price_factor {
 
   $form->{title}      = $locale->text('Add Price Factor');
   $form->{callback} ||= build_std_url('action=add_price_factor');
-  $form->{fokus}      = 'description';
+  $::request->{layout}->focus('#description');
 
   $form->header();
   print $form->parse_html_template('am/edit_price_factor');
@@ -1609,7 +1609,7 @@ sub edit_price_factor {
 
   $form->{title}      = $locale->text('Edit Price Factor');
   $form->{callback} ||= build_std_url('action=add_price_factor');
-  $form->{fokus}      = 'description';
+  $::request->{layout}->focus('#description');
 
   AM->get_price_factor(\%myconfig, $form);
 
@@ -1697,7 +1697,7 @@ sub add_warehouse {
 
   $form->{title}      = $locale->text('Add Warehouse');
   $form->{callback} ||= build_std_url('action=add_warehouse');
-  $form->{fokus}      = 'description';
+  $::request->{layout}->focus('#description');
 
   $form->header();
   print $form->parse_html_template('am/edit_warehouse');
@@ -1720,7 +1720,7 @@ sub edit_warehouse {
 
   $form->{title}      = $locale->text('Edit Warehouse');
   $form->{callback} ||= build_std_url('action=list_warehouses');
-  $form->{fokus}      = 'description';
+  $::request->{layout}->focus('#description');
 
   $form->header();
   print $form->parse_html_template('am/edit_warehouse');
