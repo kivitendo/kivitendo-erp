@@ -106,7 +106,7 @@ sub add {
 
   $form->{title}    = $locale->text('Start Dunning Process');
   $form->{jsscript} = 1;
-  $form->{fokus}    = "search.customer";
+  $::request->{layout}->focus('#customer');
   $form->header();
 
   print $form->parse_html_template("dunning/add");
