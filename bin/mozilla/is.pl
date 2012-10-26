@@ -350,7 +350,7 @@ sub form_header {
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
-  $form->{fokus} = "invoice.customer";
+  $::request->{layout}->focus('#customer');
 
   my $follow_up_vc         =  $form->{customer};
   $follow_up_vc            =~ s/--\d*\s*$//;
