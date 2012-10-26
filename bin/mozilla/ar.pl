@@ -315,7 +315,7 @@ sub form_header {
     $taxcharts{$item->{id}} = $item;
   }
 
-  $form->{fokus} = "arledger.customer";
+  $::request->{layout}->focus("#customer");
 
   my $follow_up_vc         =  $form->{customer};
   $follow_up_vc            =~ s/--.*?//;
