@@ -30,10 +30,9 @@ sub _setup_formats {
 }
 
 sub _setup_focus {
-  if ($::request->{layout}->focus || $::form->{fokus}) {
+  if ($::request->{layout}->focus) {
     return $::form->parse_html_template('layout/focus_setup', {
       focus => $::request->{layout}->focus,
-      fokus => $::form->{fokus},
     })
   } else {
     return ();
