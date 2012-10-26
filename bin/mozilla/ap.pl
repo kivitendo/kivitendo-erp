@@ -1221,7 +1221,7 @@ sub search {
   $form->all_vc(\%myconfig, "vendor", "AP");
 
   $form->{title}    = $locale->text('AP Transactions');
-  $form->{fokus}    = "search.vendor";
+  $::request->{layout}->focus('#vendor');
   $form->{jsscript} = 1;
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
