@@ -874,7 +874,7 @@ sub form_header {
     s/option>\Q$::form->{department}\E/option selected>$::form->{department}/;
 
   if ($init) {
-    $::form->{fokus} = "gl.reference";
+    $::request->{layout}->focus("#reference");
     $::form->{taxincluded} = "1";
   } else {
     $::form->{fokus} = qq|gl.accno_$::form->{rowcount}|;
