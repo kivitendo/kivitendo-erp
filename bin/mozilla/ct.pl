@@ -103,7 +103,7 @@ sub search {
 
   $form->{jsscript} = 1;
   $form->{title}    = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
-  $form->{fokus}    = 'Form.name';
+  $::request->{layout}->focus('#name');
 
   $form->header();
   print $form->parse_html_template('ct/search');
