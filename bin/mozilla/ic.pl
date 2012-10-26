@@ -1593,7 +1593,7 @@ sub form_header {
 
   $form->{defaults} = AM->get_defaults();
 
-  $form->{fokus} = "ic.partnumber";
+  $::request->{layout}->focus("#partnumber");
 
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'IC', 'trans_id' => $form->{id});
 
