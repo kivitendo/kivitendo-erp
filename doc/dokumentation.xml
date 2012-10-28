@@ -2216,6 +2216,14 @@ insserv kivitendo-task-server</programlisting>
                 dem Kürzel das im Dateinamen verwendetet wird.</para>
               </listitem>
             </varlistentry>
+
+            <varlistentry>
+              <term><varname>template_meta.tmpfile</varname></term>
+
+              <listitem>
+                <para>Datei-Prefix für temporäre Dateien.</para>
+              </listitem>
+            </varlistentry>
           </variablelist>
         </sect3>
 
