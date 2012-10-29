@@ -269,6 +269,17 @@ sub save_account {
       $form->{valid_from} = '';
     };
 
+    $query = '
+      SELECT
+        accno
+      FROM chart
+      WHERE accno = ?';
+    my ($accno) = selectrow_query($form, $dbh, $query, $form->{accno});
+
+    if ($accno) {
+      $form->error($::locale->text('Account number not unique!'));
+    }
+
     $query = qq|UPDATE chart SET
                   accno = ?,
                   description = ?,
