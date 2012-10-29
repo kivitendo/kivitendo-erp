@@ -44,6 +44,7 @@ use SL::DO;
 use SL::GenericTranslations;
 use SL::IO;
 use SL::MoreCommon;
+use SL::DB::Default;
 use List::Util qw(min);
 
 use strict;
@@ -502,7 +503,7 @@ sub post_invoice {
   for my $i (1 .. $form->{paidaccounts}) {
     if ($form->{"acc_trans_id_$i"}
         && $payments_only
-        && ($::lx_office_conf{features}->{payments_changeable} == 0)) {
+        && (SL::DB::Default->get->payments_changeable == 0)) {
       next;
     }
 
@@ -1437,7 +1438,7 @@ sub post_payment {
   $old_form = save_form();
 
   # Delete all entries in acc_trans from prior payments.
-  if ($::lx_office_conf{features}->{payments_changeable} != 0) {
+  if (SL::DB::Default->get->payments_changeable != 0) {
     $self->_delete_payments($form, $dbh);
   }
 

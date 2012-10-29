@@ -38,6 +38,7 @@ use SL::AR;
 use SL::FU;
 use SL::IS;
 use SL::PE;
+use SL::DB::Default;
 use SL::ReportGenerator;
 
 require "bin/mozilla/arap.pl";
@@ -421,8 +422,8 @@ sub form_header {
 
 
     $payment->{changeable} =
-        $::lx_office_conf{features}->{payments_changeable} == 0 ? !$payment->{acc_trans_id} # never
-      : $::lx_office_conf{features}->{payments_changeable} == 2 ? $payment->{gldate} eq '' || $payment->{gldate} eq $now
+        SL::DB::Default->get->payments_changeable == 0 ? !$payment->{acc_trans_id} # never
+      : SL::DB::Default->get->payments_changeable == 2 ? $payment->{gldate} eq '' || $payment->{gldate} eq $now
       :                                                           1;
 
     push @payments, $payment;

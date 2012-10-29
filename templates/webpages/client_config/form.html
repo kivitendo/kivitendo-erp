@@ -1,0 +1,25 @@
+[%- USE T8 %][%- USE L %][% USE LxERP %]
+
+<h1>[% title | html %]</h1>
+
+[% PROCESS 'common/flash.html' %]
+
+<form action='controller.pl' method='POST'>
+
+<table>
+ <tr class='listheading'>
+   <th colspan="3">[% 'Posting Configuration' | $T8 %]</th>
+ </tr>
+ <tr>
+   <td align="right">[% 'Payments Changeable' | $T8 %]</td>
+   <td>[% L.select_tag('payments_changeable', SELF.payment_options, value_key => 'value', title_key => 'title', default => SELF.payments_changeable) %]</td>
+   <td>[% 'Should payments be and when should they be changeable after posting?' | $T8 %]</td>
+ </tr>
+</table>
+
+<br>
+
+[%- L.hidden_tag('action',  'ClientConfig/dispatch')  %]
+[%- L.submit_tag('action_save',  LxERP.t8('Save'))  %]
+
+</form>

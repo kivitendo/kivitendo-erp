@@ -47,6 +47,7 @@ __PACKAGE__->meta->setup(
     inventory_system           => { type => 'text' },
     profit_determination       => { type => 'text' },
     language_id                => { type => 'integer' },
+    payments_changeable        => { type => 'integer', default => '0', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
