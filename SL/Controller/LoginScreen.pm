@@ -7,6 +7,7 @@ use parent qw(SL::Controller::Base);
 use SL::Dispatcher::AuthHandler::User;
 use SL::User;
 
+__PACKAGE__->run_before('set_layout');
 #
 # actions
 #
@@ -19,7 +20,7 @@ sub action_user_login {
   return if $self->_redirect_to_main_script_if_already_logged_in;
 
   # Otherwise show the login form.
-  $self->render('login_screen/user_login');
+  $self->render('login_screen/user_login', { no_menu => 1 }, error => error_state($::form->{error}));
 }
 
 sub action_logout {
@@ -27,7 +28,7 @@ sub action_logout {
 
   $::auth->destroy_session;
   $::auth->create_or_refresh_session;
-  $self->render('login_screen/user_login', error => $::locale->text('You are logged out!'));
+  $self->render('login_screen/user_login', { no_menu => 1 }, error => $::locale->text('You are logged out!'));
 }
 
 sub action_login {
@@ -38,6 +39,7 @@ sub action_login {
   $::form->{login} = $::myconfig{login};
   $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
   my $user         = User->new(login => $::myconfig{login});
+  $::request->{layout} = SL::Layout::Dispatcher->new(style => $user->{menustyle});
 
   # if we get an error back, bale out
   my $result = $user->login($::form);
@@ -54,7 +56,7 @@ sub action_login {
   # Other login errors.
   if (0 > $result) {
     $::auth->punish_wrong_login;
-    return $self->render('login_screen/user_login', error => $::locale->text('Incorrect username or password!'));
+    return $self->render('login_screen/user_login', { no_menu => 1 }, error => $::locale->text('Incorrect username or password!'));
   }
 
   # Everything is fine.
@@ -83,15 +85,7 @@ sub _redirect_to_main_script {
 
   return $self->redirect_to($::form->{callback}) if $::form->{callback};
 
-  my %style_to_script_map = (
-    v3  => 'v3',
-    neu => 'new',
-    v4  => 'v4',
-  );
-
-  my $menu_script = $style_to_script_map{$user->{menustyle}} || '';
-
-  $self->redirect_to(controller => "menu${menu_script}.pl", action => 'display');
+  $self->redirect_to(controller => "login.pl", action => 'company_logo');
 }
 
 sub _redirect_to_main_script_if_already_logged_in {
@@ -114,6 +108,17 @@ sub _redirect_to_main_script_if_already_logged_in {
   $self->_redirect_to_main_script(\%user);
 
   return 1;
+}
+
+sub error_state {
+  return {
+    session  => $::locale->text('The session is invalid or has expired.'),
+    password => $::locale->text('Incorrect password!'),
+  }->{$_[0]};
+}
+
+sub set_layout {
+  $::request->{layout} = SL::Layout::Dispatcher->new(style => 'login');
 }
 
 1;

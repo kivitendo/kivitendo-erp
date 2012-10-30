@@ -1,11 +1,14 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>2.4. Anpassung der PostgreSQL-Konfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s03.html" title="2.3. kivitendo-Konfigurationsdatei"><link rel="next" href="ch02s05.html" title="2.5. Webserver-Konfiguration"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.4. Anpassung der PostgreSQL-Konfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.4. Anpassung der PostgreSQL-Konfiguration"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Anpassung-der-PostgreSQL-Konfiguration"></a>2.4. Anpassung der PostgreSQL-Konfiguration</h2></div></div></div><p>PostgreSQL muss auf verschiedene Weisen angepasst werden.</p><div class="sect2" title="2.4.1. Zeichensätze/die Verwendung von UTF-8"><div class="titlepage"><div><div><h3 class="title"><a name="Zeichens%C3%A4tze-die-Verwendung-von-UTF-8"></a>2.4.1. Zeichensätze/die Verwendung von UTF-8</h3></div></div></div><p>kivitendo kann komplett mit UTF-8 als Zeichensatz verwendet
-        werden. Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in
-        Version 8.2 oder neuer benutzt werden, und der
-        PostgreSQL-Datenbankcluster muss ebenfalls mit UTF-8 als Locale
-        angelegt worden sein.</p><p>Dieses ist kann überprüft werden: ist das Encoding der Datenbank
-        “template1” “UTF8”, so kann auch kivitendo mit UTF-8 betrieben werden.
+   <title>2.4. Anpassung der PostgreSQL-Konfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s03.html" title="2.3. kivitendo-Konfigurationsdatei"><link rel="next" href="ch02s05.html" title="2.5. Webserver-Konfiguration"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.4. Anpassung der PostgreSQL-Konfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s03.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.4. Anpassung der PostgreSQL-Konfiguration"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Anpassung-der-PostgreSQL-Konfiguration"></a>2.4. Anpassung der PostgreSQL-Konfiguration</h2></div></div></div><p>PostgreSQL muss auf verschiedene Weisen angepasst werden.</p><div class="sect2" title="2.4.1. Zeichensätze/die Verwendung von UTF-8"><div class="titlepage"><div><div><h3 class="title"><a name="Zeichens%C3%A4tze-die-Verwendung-von-UTF-8"></a>2.4.1. Zeichensätze/die Verwendung von UTF-8</h3></div></div></div><p>Bei aktuellen Serverinstallationen braucht man hier meist nicht
+	eingreifen</p><p>Dieses kann überprüft werden: ist das Encoding der Datenbank
+	“template1” “UTF8”, so braucht man nichts weiteres diesbezueglich
+	unternehmen. Zum Testen:
+
+        </p><pre class="programlisting">su postgres
+echo '\l' | psql
+exit </pre><p>
+
         Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
         Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl
@@ -25,16 +28,26 @@
         was mit dem Wert <code class="literal">*</code> geschieht.</p><p>In der Datei <code class="filename">pg_hba.conf</code>, die im gleichen
         Verzeichnis wie die <code class="filename">postgresql.conf</code> zu finden
         sein sollte, müssen die Berichtigungen für den Zugriff geändert
-        werden. Hier gibt es mehrere Möglichkeiten. Eine besteht darin, lokale
-        Verbindungen immer zuzulassen:</p><pre class="programlisting">local all all trust
-host all all 127.0.0.1 255.0.0.0 trust</pre><p>Besser ist es, für eine bestimmte Datenbank Zugriff nur per
-        Passwort zuzulassen. Beispielsweise:</p><pre class="programlisting">local all kivitendo password
+	werden. Hier gibt es mehrere Möglichkeiten. sinnvoll ist es nur die
+	nögiten Verbindungen immer zuzulassen, für eine lokal laufenden
+	Datenbank zum Beispiel:</p><pre class="programlisting">local all kivitendo password
 host all kivitendo 127.0.0.1 255.255.255.255 password</pre></div><div class="sect2" title="2.4.3. Erweiterung für servergespeicherte Prozeduren"><div class="titlepage"><div><div><h3 class="title"><a name="Erweiterung-f%C3%BCr-servergespeicherte-Prozeduren"></a>2.4.3. Erweiterung für servergespeicherte Prozeduren</h3></div></div></div><p>In der Datenbank <code class="literal">template1</code> muss die
         Unterstützung für servergespeicherte Prozeduren eingerichet werden.
-        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an, und
-        führen Sie die folgenden Kommandos aus:</p><pre class="programlisting">create language 'plpgsql';</pre></div><div class="sect2" title="2.4.4. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.4.4. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
+        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an:
+        </p><pre class="programlisting">su - postgres
+psql template1</pre><p>
+
+        führen Sie die folgenden Kommandos aus:</p><pre class="programlisting">create language 'plpgsql';
+\q</pre></div><div class="sect2" title="2.4.4. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.4.4. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
         benutzen wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
-        können:</p><pre class="programlisting">su - postgres createuser -d -P kivitendo</pre><p>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
+        können:</p>
+
+	Die Frage, ob der neue User Superuser sein soll, können Sie mit nein
+	beantworten, genauso ist die Berechtigung neue User (Roles) zu
+	generieren nicht nötig.
+	<pre class="programlisting">su - postgres
+createuser -d -P kivitendo
+exit</pre><p>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
         Sie den evtl. voreingestellten Benutzer “postgres” auf “kivitendo” bzw.
         den hier gewählten Benutzernamen.</p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s03.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s05.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.3. kivitendo-Konfigurationsdatei&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.5. Webserver-Konfiguration</td></tr></table></div></body></html>

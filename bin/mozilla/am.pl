@@ -336,7 +336,7 @@ sub account_header {
 
   # account where AR_tax or AP_tax is set are not orphaned if they are used as
   # tax-o-matic account
-  if ( $form->{id} && !$form->{orphaned} && ($form->{link} =~ m/(AP_tax|AR_tax)/) ) {
+  if ( $form->{id} && $form->{orphaned} && ($form->{link} =~ m/(AP_tax|AR_tax)/) ) {
     if (SL::DB::Manager::Tax->find_by(chart_id => $form->{id})) {
       $form->{orphaned} = 0;
     }
@@ -466,7 +466,7 @@ sub list_account {
     $ca->{link_edit_account} = $link_edit_account . '&id=' . E($ca->{id});
   }
 
-  $form->use_stylesheet("list_accounts.css");
+  $::request->{layout}->use_stylesheet("list_accounts.css");
   $form->{title}       = $locale->text('Chart of Accounts');
 
   $form->header;
@@ -1590,7 +1590,7 @@ sub add_price_factor {
 
   $form->{title}      = $locale->text('Add Price Factor');
   $form->{callback} ||= build_std_url('action=add_price_factor');
-  $form->{fokus}      = 'description';
+  $::request->{layout}->focus('#description');
 
   $form->header();
   print $form->parse_html_template('am/edit_price_factor');
@@ -1609,7 +1609,7 @@ sub edit_price_factor {
 
   $form->{title}      = $locale->text('Edit Price Factor');
   $form->{callback} ||= build_std_url('action=add_price_factor');
-  $form->{fokus}      = 'description';
+  $::request->{layout}->focus('#description');
 
   AM->get_price_factor(\%myconfig, $form);
 
@@ -1697,7 +1697,7 @@ sub add_warehouse {
 
   $form->{title}      = $locale->text('Add Warehouse');
   $form->{callback} ||= build_std_url('action=add_warehouse');
-  $form->{fokus}      = 'description';
+  $::request->{layout}->focus('#description');
 
   $form->header();
   print $form->parse_html_template('am/edit_warehouse');
@@ -1720,7 +1720,7 @@ sub edit_warehouse {
 
   $form->{title}      = $locale->text('Edit Warehouse');
   $form->{callback} ||= build_std_url('action=list_warehouses');
-  $form->{fokus}      = 'description';
+  $::request->{layout}->focus('#description');
 
   $form->header();
   print $form->parse_html_template('am/edit_warehouse');

@@ -1,13 +1,8 @@
 [%- USE T8 %]
 [%- USE L %]
-[% USE HTML %]<body onload="on_load();">
-
+[%- USE HTML %]
  <script type="text/javascript">
-  <!--
-      function on_load() {
-        document.Form.subject.focus();
-      }
-    -->
+   $(function(){ document.Form.subject.focus(); });
  </script>
 
  <form action="fu.pl" method="post" name="Form">
@@ -105,5 +100,3 @@
   <input type="hidden" name="trans_rowcount" value="[% LINKS.size %]">
  </form>
 
-</body>
-</html>

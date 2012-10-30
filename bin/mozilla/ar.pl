@@ -219,7 +219,6 @@ sub form_header {
 
   my ($title, $readonly, $exchangerate, $rows);
   my ($notes, $department, $customer, $employee, $amount, $project);
-  my ($onload);
   my ($ARselected);
 
 
@@ -316,7 +315,7 @@ sub form_header {
     $taxcharts{$item->{id}} = $item;
   }
 
-  $form->{fokus} = "arledger.customer";
+  $::request->{layout}->focus("#customer");
 
   my $follow_up_vc         =  $form->{customer};
   $follow_up_vc            =~ s/--.*?//;
@@ -325,9 +324,6 @@ sub form_header {
   $form->{javascript} .=
     qq|<script type="text/javascript" src="js/show_vc_details.js"></script>| .
     qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
-
-  $onload = qq|focus()|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
 
 #  $amount  = $locale->text('Amount');
 #  $project = $locale->text('Project');
@@ -443,7 +439,6 @@ sub form_header {
     project_labels       => \%project_labels,
     rows                 => $rows,
     ARselected           => $ARselected,
-    onload               => $onload,
     title_str            => $title,
     follow_up_trans_info => $follow_up_trans_info,
   });
@@ -529,10 +524,6 @@ $follow_ups_block
     }
   }
 
-  if ($form->{menubar}) {
-    require "bin/mozilla/menu.pl";
-    &menubar;
-  }
   # button for saving history
   if($form->{id} ne "") {
     print qq| <input type=button class=submit onclick=set_history_window($form->{id}); name=history id=history value=| . $locale->text('history') . qq|> |;
@@ -547,9 +538,6 @@ $follow_ups_block
 
   print "
 </form>
-
-</body>
-</html>
 ";
 
   $main::lxdebug->leave_sub();
@@ -850,8 +838,6 @@ sub delete {
   delete $form->{header};
 
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 |;
 
@@ -871,9 +857,6 @@ sub delete {
 <input name=action class=submit type=submit value="|
     . $locale->text('Yes') . qq|">
 </form>
-
-</body>
-</html>
 |;
 
   $main::lxdebug->leave_sub();
@@ -914,7 +897,7 @@ sub search {
   my $cgi      = $::request->{cgi};
 
   my ($customer, $department);
-  my ($jsscript, $button1, $button2, $onload);
+  my ($jsscript, $button1, $button2);
 
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");

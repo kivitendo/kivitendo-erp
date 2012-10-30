@@ -56,6 +56,7 @@ use SL::DBUtils;
 use SL::DO;
 use SL::IC;
 use SL::IS;
+use SL::Layout::Dispatcher;
 use SL::Locale;
 use SL::Mailer;
 use SL::Menu;
@@ -447,52 +448,38 @@ sub create_http_response {
   return $output;
 }
 
-sub use_stylesheet {
-  my $self = shift;
-
-  $self->{stylesheet} = [ $self->{stylesheet} ] unless ref $self->{stylesheet} eq 'ARRAY';
-  $self->{stylesheet} = [ grep { -f                       }
-                          map  { m:^css/: ? $_ : "css/$_" }
-                          grep { $_                       }
-                               (@{ $self->{stylesheet} }, @_)
-                        ];
-
-  return @{ $self->{stylesheet} };
-}
-
-sub get_stylesheet_for_user {
-  my $css_path = 'css';
-  if (my $user_style = $::myconfig{stylesheet}) {
-    $user_style =~ s/\.css$//; # nuke trailing .css, this is a remnand of pre 2.7.0 stylesheet handling
-    if (-d "$css_path/$user_style" &&
-        -f "$css_path/$user_style/main.css") {
-      $css_path = "$css_path/$user_style";
-    } else {
-      $css_path = "$css_path/lx-office-erp";
-    }
-  } else {
-    $css_path = "$css_path/lx-office-erp";
-  }
-  $::myconfig{css_path} = $css_path; # needed for menunew, FIXME: don't do this here
-
-  return $css_path;
-}
-
 sub header {
   $::lxdebug->enter_sub;
 
-  # extra code is currently only used by menuv3 and menuv4 to set their css.
-  # it is strongly deprecated, and will be changed in a future version.
   my ($self, %params) = @_;
   my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   my @header;
 
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
 
-  my $css_path = $self->get_stylesheet_for_user;
+  if ($params{no_layout}) {
+    $::request->{layout} = SL::Layout::Dispatcher->new(style => 'none');
+  }
+
+  my $layout = $::request->{layout};
+
+  # standard css for all
+  # this should gradually move to the layouts that need it
+  $layout->use_stylesheet("$_.css") for qw(
+    main menu tabcontent list_accounts jquery.autocomplete
+    jquery.multiselect2side frame_header/header
+    ui-lightness/jquery-ui-1.8.12.custom
+    js/jscalendar/calendar-win2k-1
+  );
+
+  $layout->use_javascript("$_.js") for qw(
+    jquery common jscalendar/calendar jscalendar/lang/calendar-de
+    jscalendar/calendar-setup part_selection jquery-ui jquery.cookie jqModal
+    switchmenuframe
+  );
 
   $self->{favicon} ||= "favicon.ico";
-  $self->{titlebar}  = "$self->{title} - $self->{titlebar}" if $self->{title};
+  $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
 
   # build includes
   if ($self->{refresh_url} || $self->{refresh_time}) {
@@ -501,38 +488,18 @@ sub header {
     push @header, "<meta http-equiv='refresh' content='$refresh_time;$refresh_url'>";
   }
 
-  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $self->use_stylesheet;
-
-  push @header, "<style type='text/css'>\@page { size:landscape; }</style>" if $self->{landscape};
-  push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>" if -f $self->{favicon};
-  push @header, map { qq|<script type="text/javascript" src="js/$_.js"></script>| }
-       qw(jquery common jscalendar/calendar jscalendar/lang/calendar-de jscalendar/calendar-setup part_selection jquery-ui jqModal switchmenuframe);
+  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $layout->stylesheets;
+  push @header, "<style type='text/css'>\@page { size:landscape; }</style> "                     if $self->{landscape};
+  push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>"         if -f $self->{favicon};
+  push @header, map { qq|<script type="text/javascript" src="$_"></script>| }                    $layout->javascripts;
   push @header, $self->{javascript} if $self->{javascript};
-  push @header, map { qq|<link rel="stylesheet" type="text/css" href="$css_path/$_.css">| }
-       qw(main menu tabcontent list_accounts jquery.autocomplete jquery.multiselect2side frame_header/header ui-lightness/jquery-ui-1.8.12.custom);
-  push @header, map { qq|<link rel="stylesheet" type="text/css" href="js/jscalendar/calendar-win2k-1.css">| }
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
-  push @header, "<script type='text/javascript'>function fokus(){ document.$self->{fokus}.focus(); }</script>" if $self->{fokus};
-  push @header, sprintf "<script type='text/javascript'>top.document.title='%s';</script>",
-    join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
-
-  # if there is a title, we put some JavaScript in to the page, wich writes a
-  # meaningful title-tag for our frameset.
-  my $title_hack = '';
-  if ($self->{title}) {
-    $title_hack = qq|
-    <script type="text/javascript">
-    <!--
-      // Write a meaningful title-tag for our frameset.
-      top.document.title="| . $self->{"title"} . qq| - | . $self->{"login"} . qq| - | . $::myconfig{dbname} . qq| - V| . $self->{"version"} . qq|";
-    //-->
-    </script>|;
-  }
 
   my  %doctypes = (
     strict       => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">|,
     transitional => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">|,
     frameset     => qq|<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Frameset//EN" "http://www.w3.org/TR/html4/frameset.dtd">|,
+    html5        => qq|<!DOCTYPE html>|,
   );
 
   # output
@@ -556,13 +523,32 @@ EOT
    ***********************************************/
 
   </script>
-  $params{extra_code}
-  $title_hack
  </head>
+ <body>
 
 EOT
+  print $::request->{layout}->pre_content;
+  print $::request->{layout}->start_content;
+
+  $layout->header_done;
 
   $::lxdebug->leave_sub;
+}
+
+sub footer {
+  return unless $::request->{layout}->need_footer;
+
+  print $::request->{layout}->end_content;
+  print $::request->{layout}->post_content;
+
+  if (my @inline_scripts = $::request->{layout}->javascripts_inline) {
+    print "<script type='text/javascript'>@inline_scripts</script>\n";
+  }
+
+  print <<EOL
+ </body>
+</html>
+EOL
 }
 
 sub ajax_response_header {
@@ -1111,6 +1097,7 @@ sub parse_template {
     UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
   close $temp_fh;
+  (undef, undef, $self->{template_meta}{tmpfile}) = File::Spec->splitpath( $self->{tmpfile} );
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out              = $self->{OUT};
@@ -1755,10 +1742,9 @@ sub set_payment_options {
     $amounts{invtotal} = $self->{invtotal};
     $amounts{total}    = $self->{total};
   }
-  $amounts{skonto_in_percent} = 100.0 * $self->{percent_skonto};
-
   map { $amounts{$_} = $self->parse_amount($myconfig, $amounts{$_}) } keys %amounts;
 
+  $amounts{skonto_in_percent}  = 100.0 * $self->{percent_skonto};
   $amounts{skonto_amount}      = $amounts{invtotal} * $self->{percent_skonto};
   $amounts{invtotal_wo_skonto} = $amounts{invtotal} * (1 - $self->{percent_skonto});
   $amounts{total_wo_skonto}    = $amounts{total}    * (1 - $self->{percent_skonto});
@@ -3588,6 +3574,30 @@ sub reformat_numbers {
   }
 
   $::myconfig{numberformat} = $saved_numberformat;
+}
+
+sub layout {
+  my ($self) = @_;
+  $::lxdebug->enter_sub;
+
+  my %style_to_script_map = (
+    v3  => 'v3',
+    neu => 'new',
+    v4  => 'v4',
+  );
+
+  my $menu_script = $style_to_script_map{$::myconfig{menustyle}} || '';
+
+  package main;
+  require "bin/mozilla/menu$menu_script.pl";
+  package Form;
+  require SL::Controller::FrameHeader;
+
+
+  my $layout = SL::Controller::FrameHeader->new->action_header . ::render();
+
+  $::lxdebug->leave_sub;
+  return $layout;
 }
 
 1;

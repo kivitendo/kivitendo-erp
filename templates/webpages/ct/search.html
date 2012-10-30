@@ -1,7 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
-[% USE HTML %]<body onload="fokus()">
-
+[%- USE HTML %]
  <form method="post" action="ct.pl" name="Form">
 
   <input type="hidden" name="db" value="[% HTML.escape(db) %]">
@@ -16,7 +15,7 @@
 
    <tr>
     <th align="right" nowrap>[% IF IS_CUSTOMER %][% 'Customer Name' | $T8 %][%- ELSE %][% 'Vendor Name' | $T8 %][%- END %]</th>
-    <td><input name="name" size="35"></td>
+    <td><input id="name" name="name" size="35"></td>
    </tr>
 
    <tr>
@@ -161,5 +160,3 @@
   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
  </form>
 
-</body>
-</html>

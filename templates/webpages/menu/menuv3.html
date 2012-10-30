@@ -1,6 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]<body style="padding:0px; margin:0px;">
-
+[% USE HTML %]
  <script type="text/javascript" src="js/jquery.js"></script>
  <script type="text/javascript">
  <!--
@@ -35,7 +34,7 @@ function clockon() {
   document.getElementById('clock_id').innerHTML = (h<10?'0'+h:h)+":"+(m<10?'0'+m:m);
   var timer=setTimeout("clockon()", 10000);
 }
-window.onload=clockon
+$(clockon);
 //-->
  </script>
 
@@ -43,9 +42,9 @@ window.onload=clockon
   <tr>
    <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
     &nbsp;
-    [<a href="menuv3.pl?action=display" target="_blank">[% 'new Window' | $T8 %]</a>]
+    [<a href="login.pl?action=company_logo" target="_blank">[% 'new Window' | $T8 %]</a>]
     &nbsp;
-    [<a href="JavaScript:top.main_window.print()">[% 'print' | $T8 %]</a>]
+    [<a href="JavaScript:top.print()">[% 'print' | $T8 %]</a>]
     &nbsp;
     [[% 'Search contacts' | $T8 %] <input size="15" name="search_term" id="search_term" onkeydown="return on_keydown_quicksearch(event)">]
    </td>
@@ -57,17 +56,9 @@ window.onload=clockon
   </tr>
  </table>
 
-
  <div id="menuv3">
 
   [% menu %]
 
  </div>
-
  <div style="clear: both;"></div>
-
- <iframe id="win1" src="[% callback %]" width="100%" height="94%" name="main_window" style="position: absolute; border: 0px; z-index: 99; ">
-  <p>[% 'MSG_BROWSER_DOES_NOT_SUPPORT_IFRAMES' | $T8 %]</p>
- </iframe>
-</body>
-</html>

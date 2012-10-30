@@ -1,5 +1,8 @@
 [%- USE T8 %]
-[% USE HTML %]<body onload="document.Form.name.focus();">
+[%- USE HTML %]
+  <script type='text/javascript'>
+    $(function(){document.Form.name.focus();});
+  </script>
 
  <style type="text/css">
   .small {
@@ -151,5 +154,3 @@
 
  </form>
 
-</body>
-</html>

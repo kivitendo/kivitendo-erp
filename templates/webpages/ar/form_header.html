@@ -3,8 +3,6 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 
-<body onLoad="[% onload %]">
-
 <form method=post name="arledger" action="[% script %]">
 
 [% L.hidden_tag('id', id) %]
@@ -34,9 +32,9 @@
                 <th align="right" nowrap>[% 'Customer' | $T8 %]</th>
                 <td colspan=3>
 [%- IF selectcustomer %]
-    <select name="customer" onchange="document.getElementById('update_button').click();">[% selectcustomer %]</select>
+    <select id='customer' name="customer" onchange="document.getElementById('update_button').click();">[% selectcustomer %]</select>
 [%- ELSE %]
-    <input name=customer value="[% customer | html %]" size=35>
+    <input id='customer' name=customer value="[% customer | html %]" size=35>
 [%- END %]
                 <input type="button" value="[% 'Details (one letter abbreviation)' | $T8 %]" onclick="show_vc_details('customer')"></td>
                 [% L.hidden_tag('selectcustomer', selectcustomer) %]

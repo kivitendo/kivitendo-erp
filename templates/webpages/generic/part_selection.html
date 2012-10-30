@@ -1,6 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]<body [% IF onload %]onload="[% onload %]"[% END %]>
-
+[%- USE HTML %]
  <form action="[% HTML.escape(script) %]" method="post" name="Form">
 
   <input type="hidden" name="input_partnumber" value="[% HTML.escape(input_partnumber) %]">
@@ -118,5 +117,3 @@
       //-->
  </script>
 
-</body>
-</html>

@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %][% USE LxERP %]<body>
+[%- USE HTML %][%- USE LxERP %]
  [%- DEFAULT myconfig_dbhost = 'localhost' %]
    <noscript>
    [% INCLUDE 'generic/information.html'
@@ -8,7 +8,7 @@
    %]
    </noscript>
  <center>
-  <a class="nomobile" href="http://www.kivitendo.de" target="_top"><img src="image/kivitendo.png" border="0" title="[% 'kivitendo Homepage' | $T8 %]"></a>
+  <a class="nomobile" href="http://www.kivitendo.de" target="_top"><img src="image/kivitendo.png" border="0" alt='[% 'kivitendo' | $T8 %]' title="[% 'kivitendo Homepage' | $T8 %]"></a>
 
   <h3 class="login">[% 'kivitendo' | $T8 %] [% version %]</h3>
 
@@ -57,5 +57,3 @@
 
  [%- todo_list %]
 
-</body>
-</html>

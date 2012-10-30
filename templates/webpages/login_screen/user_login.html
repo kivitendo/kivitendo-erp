@@ -1,6 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]<body class="login" onLoad="document.loginscreen.login.focus()">
-
+[%- USE HTML %]
  <center>
   <table class="login" border="3" cellpadding="20">
    <tr>
@@ -24,7 +23,7 @@
           <table>
            <tr>
             <th align="right">[% 'Login Name' | $T8 %]</th>
-            <td><input class="login" name="{AUTH}login" size="30" tabindex="1"></td>
+            <td><input id='login' class="login" name="{AUTH}login" size="30" tabindex="1"></td>
            </tr>
            <tr>
             <th align="right">[% 'Password' | $T8 %]</th>
@@ -45,6 +44,6 @@
     </td>
    </tr>
   </table>
-
-</body>
-</html>
+  <script type='text/javascript'>
+    $(function(){ $('#login').focus() })
+  </script>

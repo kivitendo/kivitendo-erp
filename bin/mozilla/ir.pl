@@ -328,7 +328,7 @@ sub form_header {
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
-  $form->{fokus} = "invoice.vendor";
+  $::request->{layout}->focus('#vendor');
 
   my $follow_up_vc         =  $form->{vendor};
   $follow_up_vc            =~ s/--\d*\s*$//;
@@ -575,6 +575,9 @@ sub storno {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
+  $form->error($locale->text('Cannot post storno for a closed period!'))
+    if ( $form->date_closed($form->{invdate}, \%myconfig));
+
   my $employee_id = $form->{employee_id};
   invoice_links();
   prepare_invoice();
@@ -777,8 +780,6 @@ sub delete {
 
   $form->header;
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 |;
 

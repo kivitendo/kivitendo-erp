@@ -1,6 +1,5 @@
 [%- USE T8 %]
 [%- USE L %]
-<body>
 
  <form method=post name="search" action=[% script %]>
 
@@ -222,10 +221,6 @@
  <!--
    $(document).ready(function(){
     $('customer').focus();
-    setupDateFormat('[% dateformat | html %]','[% 'Falsches Datumsformat!' | $T8 %]');
-    setupPoints('[% numberformat | html %]','[% 'wrongformat' | $T8 %]');
    })
  //-->
  </script>
- </body>
-</html>

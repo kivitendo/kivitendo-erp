@@ -1,9 +1,13 @@
 [%- USE T8 %]
-[% USE HTML %]<body class="admin" onload="set_subject(); document.getElementsByName('to')[0].focus(); ">
-
+[%- USE HTML %]
  <script type="text/javascript">
   <!--
-      function set_subject() {
+      $(function(){
+        document.getElementsByName('to')[0].focus();
+        set_subject();
+      });
+
+      function set_subject () {
         var subject_template = "[% 'Backup of dataset' | $T8 %]";
         var subject = document.Form.subject.value;
 
@@ -93,5 +97,3 @@
 
  [% END %]
 
-</body>
-</html>

@@ -3,7 +3,6 @@
 [%- USE LxERP %]
 [%- USE L %]
 [%- SET follow_up_trans_info = invnumber _ ' (' _ vendor_name _ ')' %]
-<body>
 <script type="text/javascript" src="js/common.js"></script>
 <script type="text/javascript" src="js/vendor_selection.js"></script>
 <script type="text/javascript" src="js/calculate_qty.js"></script>
@@ -34,6 +33,7 @@
           <th align="right">[% 'Vendor' | $T8 %]</th>
           <td>
             [%- INCLUDE 'generic/multibox.html'
+                 id            = 'vendor',
                  name          = 'vendor',
                  style         = 'width: 250px',
                  DATA          = ALL_VENDORS,
@@ -195,10 +195,7 @@
 [% IF creditwarning != '' %]
        alert('[% 'Credit Limit exceeded!!!' | $T8 %]');
 [% ELSE %]
-       focus();
 [% END %]
-       setupDateFormat('[% dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
-       setupPoints('[% numberformat %]', '[% 'wrongformat' | $T8 %]');
      });
      function set_duedate() {
        $.ajax({

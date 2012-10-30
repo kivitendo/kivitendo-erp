@@ -1,17 +1,5 @@
 [%- USE T8 %]
 [% USE HTML %]<script type="text/javascript" src="js/common.js"></script>
-<script type="text/javascript">
- <!--
-     function setup_controls() {
-       fokus();
-       setupDateFormat('[% myconfig_dateformat %]', '[% 'Wrong date format!' | $T8 %]');
-       setupPoints('[% myconfig_numberformat %]', '[% 'wrongformat' | $T8 %]');
-     }
-   -->
-</script>
-
-<body onLoad="setup_controls();">
-
  <div class="listtop">[% title %]</div>
 
  <form method="post" name="search" action="dn.pl">
@@ -94,6 +82,4 @@
 
  </form>
 
-</body>
 
-</html>

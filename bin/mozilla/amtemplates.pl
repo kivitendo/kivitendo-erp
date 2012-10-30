@@ -272,7 +272,7 @@ sub display_template_form {
     $options{"CAN_EDIT"} = $form->{"edit"};
 
     if ($form->{edit}) {
-      $form->{fokus} = "Form.content";
+      $::request->{layout}->focus("#edit_content");
 
     } else {
       $options{"content"}                 = "\n\n" if (!$options{"content"});

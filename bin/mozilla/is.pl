@@ -350,7 +350,7 @@ sub form_header {
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
-  $form->{fokus} = "invoice.customer";
+  $::request->{layout}->focus('#customer');
 
   my $follow_up_vc         =  $form->{customer};
   $follow_up_vc            =~ s/--\d*\s*$//;
@@ -835,7 +835,7 @@ sub storno {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
 
-  map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password stylesheet type))); } keys(%{ $form }));
+  map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
 
   invoice_links();
   prepare_invoice();
@@ -885,8 +885,6 @@ sub delete {
   $form->header;
 
   print qq|
-<body>
-
 <form method="post" action="$form->{script}">
 |;
 

@@ -1,65 +1,50 @@
-#=====================================================================
-# LX-Office ERP
-# Copyright (C) 2004
-# Based on SQL-Ledger Version 2.1.9
-# Web http://www.lx-office.org
-#
-######################################################################
-# SQL-Ledger Accounting
-# Copyright (c) 1998-2002
-#
-#  Author: Dieter Simader
-#   Email: dsimader@sql-ledger.org
-#     Web: http://www.sql-ledger.org
-#
-#  Contributors: Christopher Browne
-#
-# This program is free software; you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation; either version 2 of the License, or
-# (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-#######################################################################
-#
-# thre frame layout with refractured menu
-#
-#######################################################################
+package SL::Layout::Javascript;
 
-use English qw(-no_match_vars);
+use strict;
+use parent qw(SL::Layout::Base);
+
 use List::Util qw(max);
 use URI;
 
-use SL::Menu;
+sub init_sub_layouts {
+  [ SL::Layout::None->new ]
+}
 
-use strict;
+sub pre_content {
+  &display
+}
 
-1;
+sub start_content {
+  "<div id='content'>\n";
+}
 
-# end of main
+sub end_content {
+  "</div>\n";
+}
+
+sub stylesheets {
+  $_[0]->add_stylesheets(qw(
+    dhtmlsuite/menu-item.css
+    dhtmlsuite/menu-bar.css
+    menu.css
+  ));
+  $_[0]->SUPER::stylesheets;
+}
 
 sub display {
+  my ($self) = @_;
   my $form     = $main::form;
 
-  $form->header();
-
-#   $form->{force_ul_width} = $ENV{HTTP_USER_AGENT} =~ m/MSIE\s+6\./;
-#   $form->{force_ul_width} = $ENV{HTTP_USER_AGENT} !~ m/Opera/;
-  $form->{force_ul_width} = 1;
-  $form->{date}           = clock_line();
-  $form->{menu_items}     = acc_menu();
   my $callback            = $form->unescape($form->{callback});
   $callback               = URI->new($callback)->rel($callback) if $callback;
   $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
-  $form->{callback}       = $callback;
 
-  print $form->parse_html_template("menu/menunew");
+  $self->render("menu/menunew", { partial => 1, no_output => 1 },
+    force_ul_width  => 1,
+    date            => $self->clock_line,
+    menu_items      => $self->acc_menu,
+    callback        => $callback,
+  );
 }
 
 sub clock_line {
@@ -87,17 +72,12 @@ sub clock_line {
 }
 
 sub acc_menu {
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+  my ($self) = @_;
 
-  my $mainlevel =  $form->{level};
-  $mainlevel    =~ s/\Q$mainlevel\E--//g;
-  my $menu      = Menu->new('menu.ini');
-
-  $English::AUTOFLUSH    =  1;
+  my $menu      = $self->menu;
 
   my $all_items = [];
-  create_menu($menu, $all_items);
+  $self->create_menu($menu, $all_items);
 
   my $item = { 'subitems' => $all_items };
   calculate_width($item);
@@ -116,7 +96,7 @@ sub calculate_width {
 }
 
 sub create_menu {
-  my ($menu, $all_items, $parent, $depth) = @_;
+  my ($self, $menu, $all_items, $parent, $depth) = @_;
   my $html;
 
   my $form     = $main::form;
@@ -135,10 +115,10 @@ sub create_menu {
     my $item      = { 'title' => $::locale->text($name) };
     push @{ $all_items }, $item;
 
-    if ($menu_item->{submenu} || !defined($menu_item->{module}) || ($menu_item->{module} eq "menu.pl")) {
+    if ($menu_item->{submenu} || !defined($menu_item->{module})) {
       $item->{subitems} = [];
       $item->{image} = _icon_path("$name.png");
-      create_menu($menu, $item->{subitems}, "${parent}${name}", $depth * 1 + 1);
+      $self->create_menu($menu, $item->{subitems}, "${parent}${name}", $depth * 1 + 1);
 
     } else {
       $item->{image} = _icon_path("${parent}${name}.png");
@@ -158,3 +138,4 @@ sub _icon_path {
   return $img;
 }
 
+1;

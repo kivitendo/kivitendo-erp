@@ -166,7 +166,6 @@ $(document).ready(function () {
   });
   // legacy. sone forms install these
   if (typeof fokus == 'function') { fokus(); return; }
-  if (focus_by_name('fokus'))        return;
   if (focus_by_name('cursor_fokus')) return;
   set_cursor_to_first_element();
 });

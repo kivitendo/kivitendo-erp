@@ -290,4 +290,38 @@ div#menuv4 li li li li:hover ul
 
 /* End of non-anchor hover selectors */
 
+/* html menu */
+/* types of lines: m sm i (menu submenu item)
+   each line is a mi (menuitem) and has one mii (menu-item-icon) whcih is ms (menu-spacer)
+   and one mic (menu-item-chunk)
+   indenting is done with the levels s0, s1, s2 */
+#content.html-menu, #html-menu {
+  transition:         margin-left 0.2s, width 0.2s;
+  -moz-transition:    margin-left 0.2s, width 0.2s;
+  -webkit-transition: margin-left 0.2s, width 0.2s;
+  -o-transition:      margin-left 0.2s, width 0.2s;
+}
+#content.html-menu { margin-left: 190px; }
+#content.html-menu.folded { margin-left: 40px }
+#html-menu.folded:hover + #content.html-menu.folded { margin-left: 190px }
+#html-menu { float:left; width: 183px; font-size: 8pt; margin-top: 10px; overflow:hidden; }
+#html-menu.folded { width: 32px; }
+#html-menu.folded:hover { width: 183px; }
+#html-menu div.mi { margin-top: 4px; margin-bottom: 3px; white-space: nowrap; clear:both; position:relative; }
+#html-menu div.sm { font-weight: bold }
+#html-menu img { vertical-align: top; border: 0; }
+#html-menu a { vertical-align: top }
+#html-menu .i span.ms { float: left; width: 24px; margin-bottom: 4px; }
+#html-menu .m span.ms { float: left; width: 32px }
+#html-menu .sm span.ms { float: left; width: 24px; background: url(../../image/unterpunkt.png); }
+#html-menu div.m { height: 24px }
+#html-menu div.m span.mic { color:blue; position: relative; top: 4px }
+#html-menu div.m:hover,
+#html-menu div.i:hover { color:blue; background-color: lemonchiffon; cursor: pointer; }
+#html-menu span.mic { white-space: normal; display: inline-block; vertical-align: top; line-height: 1.2; }
+#html-menu a.ml span.mic { width: 145px } /* fix deep indents */
+#html-menu div.s0 { padding-left: 2px }
+#html-menu div.s1 { padding-left: 8px }
+#html-menu div.s2 { padding-left: 16px }
 
+body { margin: 0 }

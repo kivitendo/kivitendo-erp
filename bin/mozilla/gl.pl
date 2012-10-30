@@ -220,13 +220,8 @@ sub search {
   );
   $::form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
-  my $onload = "focus()"
-             . qq|;setupDateFormat('|. $::myconfig{dateformat} . qq|', '| . $::locale->text("Falsches Datumsformat!") . qq|')|
-             . qq|;setupPoints('|. $::myconfig{numberformat} .   qq|', '| . $::locale->text("wrongformat") . qq|')|;
-
   $::form->header;
   print $::form->parse_html_template('gl/search', {
-    onload => $onload,
     department_label => sub { ("$_[0]{description}--$_[0]{id}")x2 },
     employee_label => sub { "$_[0]{id}--$_[0]{name}" },
   });
@@ -494,7 +489,7 @@ sub generate_report {
   $data .= $sh;
 
   $row->{balance}->{data}        = $data;
-    
+
   if ( !$form->{report_generator_csv_options_for_import} ) {
     $report->add_separator();
     $report->add_data($row);
@@ -879,10 +874,10 @@ sub form_header {
     s/option>\Q$::form->{department}\E/option selected>$::form->{department}/;
 
   if ($init) {
-    $::form->{fokus} = "gl.reference";
+    $::request->{layout}->focus("#reference");
     $::form->{taxincluded} = "1";
   } else {
-    $::form->{fokus} = qq|gl.accno_$::form->{rowcount}|;
+    $::request->{layout}->focus("#accno_$::form->{rowcount}");
   }
 
   $::form->{previous_id}     ||= "--";
@@ -928,8 +923,6 @@ sub delete {
   $form->header;
 
   print qq|
-<body>
-
 <form method=post action=gl.pl>
 |;
 

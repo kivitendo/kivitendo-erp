@@ -35,6 +35,7 @@ use SL::Form;
 use SL::Helper::DateTime;
 use SL::InstanceConfiguration;
 use SL::Template::Plugin::HTMLFixes;
+use SL::Layout::None;
 
 # Trailing new line is added so that Perl will not add the line
 # number 'die' was called in.
@@ -81,7 +82,7 @@ sub show_error {
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!')                    if ($error_type eq 'password');
 
-  $::form->header;
+  $::form->header(no_menu => 1);
   print $::form->parse_html_template($template, \%params);
   $::lxdebug->leave_sub;
 
@@ -181,7 +182,10 @@ sub handle_request {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = { cgi => CGI->new({}) };
+  $::request       = {
+    cgi => CGI->new({}),
+    layout => SL::Layout::None->new,
+  };
 
   my $session_result = $::auth->restore_session;
   $::auth->create_or_refresh_session;
@@ -225,7 +229,9 @@ sub handle_request {
       ::run($session_result);
 
     } else {
-      show_error('login_screen/user_login', 'session') if SL::Auth::SESSION_EXPIRED == $session_result;
+      if (SL::Auth::SESSION_EXPIRED == $session_result) {
+        print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login&error=session');
+      }
 
       my %auth_result = $self->{auth_handler}->handle(
         routing_type => $routing_type,
@@ -262,6 +268,8 @@ sub handle_request {
       eval { show_error('generic/error') };
     }
   };
+
+  $::form->footer;
 
   # cleanup
   $::auth->save_session;

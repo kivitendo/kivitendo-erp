@@ -1,7 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
-[% USE HTML %][% USE JavaScript %]<body onload="on_load();">
-
+[%- USE HTML %][%- USE JavaScript %]
  <script type="text/javascript">
    <!--
       warehouses = new Array();
@@ -57,10 +56,10 @@
         control.options[bin_index].selected = true;
       }
 
-      function on_load() {
+      $(function () {
         warehouse_selected(0, 0);
         document.Form.partnumber.focus();
-      }
+      });
      -->
  </script>
 
@@ -194,5 +193,3 @@
   </p>
  </form>
 
-</body>
-</html>

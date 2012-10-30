@@ -1,6 +1,5 @@
 [% USE HTML %][% USE L %][% USE LxERP %]
 
-<body>
  <h1>[% FORM.title %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
@@ -59,5 +58,3 @@
    <a href="[% SELF.url_for(controller => 'TaskServer', action => 'show') %]">[%- LxERP.t8('Task server control') %]</a>
   </p>
  </form>
-</body>
-</html>

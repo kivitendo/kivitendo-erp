@@ -3,7 +3,6 @@
 
 <script type="text/javascript" src="js/jquery-ui.js"></script>
 
-<body>
 
  [% IF saved_message %]<p>[% saved_message %]</p>[% END %]
 
@@ -41,5 +40,3 @@
 
  [% L.sortable_element('#warehouse_list tbody', url => 'controller.pl?action=Warehouse/reorder', with => 'warehouse_id') %]
 
-</body>
-</html>

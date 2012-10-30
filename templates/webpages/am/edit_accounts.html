@@ -8,12 +8,11 @@
 </script>
 
 <script type="text/javascript">
-window.onload = function() {
+$(function() {
     setupDependencies('EditAccount'); //name of form(s). Seperate each with a comma (ie: 'weboptions', 'myotherform' )
-  };
+});
 </script>
 
-<body>
 <form method="post" name="EditAccount" action="am.pl">
 
 <input type="hidden" name="id"                 value="[% HTML.escape(id) %]">

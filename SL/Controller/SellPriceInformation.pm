@@ -149,7 +149,7 @@ sub list_objects {
     });
   }
 
-  return $self->{report}->generate_with_headers;
+  return $self->{report}->generate_with_headers(no_layout => 1);
 }
 
 sub link_to {

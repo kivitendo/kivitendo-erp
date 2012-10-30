@@ -288,7 +288,6 @@ sub update_prices {
 #  $form->header;
 #
 #  print qq|
-#<body>
 #  <form method=post action=ic.pl>
 #    <table width=100%>
 #     <tr>
@@ -388,8 +387,6 @@ sub update_prices {
 #    . $locale->text('TOP100') . qq|">
 #
 #</form>
-#</body>
-#</html>
 #|;
 #  $lxdebug->leave_sub();
 #}    #end list()
@@ -725,8 +722,6 @@ sub addtop100 {
   my $colspan = $#column_index + 1;
 
   print qq|
-<body>
-
 <table width=100%>
   <tr>
     <th class=listtop colspan=$colspan>$form->{title}</th>
@@ -981,9 +976,6 @@ sub addtop100 {
     . $locale->text('choice') . qq|">
 
   </form>
-
-</body>
-</html>
 |;
 
   $lxdebug->leave_sub();
@@ -1032,6 +1024,7 @@ sub generate_report {
     'bin'                => { 'text' => $locale->text('Bin'), },
     'deliverydate'       => { 'text' => $locale->text('deliverydate'), },
     'description'        => { 'text' => $locale->text('Part Description'), },
+    'notes'              => { 'text' => $locale->text('Notes'), },
     'drawing'            => { 'text' => $locale->text('Drawing'), },
     'ean'                => { 'text' => $locale->text('EAN'), },
     'image'              => { 'text' => $locale->text('Image'), },
@@ -1214,7 +1207,7 @@ sub generate_report {
   IC->all_parts(\%myconfig, \%$form);
 
   my @columns = qw(
-    partnumber description partsgroup bin onhand rop soldtotal unit listprice
+    partnumber description notes partsgroup bin onhand rop soldtotal unit listprice
     linetotallistprice sellprice linetotalsellprice lastcost linetotallastcost
     priceupdate weight image drawing microfiche invnumber ordnumber quonumber
     transdate name serialnumber deliverydate ean projectnumber projectdescription
@@ -1600,7 +1593,7 @@ sub form_header {
 
   $form->{defaults} = AM->get_defaults();
 
-  $form->{fokus} = "ic.partnumber";
+  $::request->{layout}->focus("#partnumber");
 
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'IC', 'trans_id' => $form->{id});
 

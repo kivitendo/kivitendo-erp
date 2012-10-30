@@ -169,12 +169,11 @@ sub part_selection_internal {
   map { $form->{$_} = $options{$_} if ($options{$_}) } qw(no_services no_assemblies assemblies click_button);
 
   my $parts = Common->retrieve_parts(\%myconfig, $form, $order_by, $order_dir);
-  my $onload;
 
   if (0 == scalar(@{$parts})) {
     $form->show_generic_information($locale->text("No part was found matching the search parameters."));
   } elsif (1 == scalar(@{$parts})) {
-    $onload = "part_selected('1')";
+    $::request->{layout}->add_javascripts_inline("part_selected('1')");
   }
 
   map { $parts->[$_]->{selected} = $_ ? 0 : 1; } (0..$#{$parts});
@@ -197,10 +196,9 @@ sub part_selection_internal {
   $form->{formname} ||= 'Form';
 
   $form->{title} = $locale->text("Select a part");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/part_selection", { "HEADER" => \@header,
-                                                               "PARTS"  => $parts,
-                                                               "onload" => $onload });
+                                                               "PARTS"  => $parts, });
 
   $main::lxdebug->leave_sub();
 }
@@ -222,11 +220,10 @@ sub delivery_customer_selection {
   my $delivery = Common->retrieve_delivery_customer(\%myconfig, $form, $order_by, $order_dir);
   map({ $delivery->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$delivery}));
 
-  my $onload;
   if (0 == scalar(@{$delivery})) {
     $form->show_generic_information($locale->text("No Customer was found matching the search parameters."));
   } elsif (1 == scalar(@{$delivery})) {
-    $onload = "customer_selected('1')";
+    $::request->{layout}->add_javascripts_inline("customer_selected('1')");
   }
 
   my $callback = "$form->{script}?action=delivery_customer_selection&";
@@ -247,10 +244,9 @@ sub delivery_customer_selection {
         @header_sort);
 
   $form->{"title"} = $locale->text("Select a Customer");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/select_delivery_customer", { "HEADER"   => \@header,
-                                                                         "DELIVERY" => $delivery,
-                                                                         "onload"   => $onload });
+                                                                         "DELIVERY" => $delivery, });
 
   $main::lxdebug->leave_sub();
 }
@@ -272,11 +268,10 @@ sub vendor_selection {
   my $vendor = Common->retrieve_vendor(\%myconfig, $form, $order_by, $order_dir);
   map({ $vendor->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$vendor}));
 
-  my $onload;
   if (0 == scalar(@{$vendor})) {
     $form->show_generic_information($locale->text("No Vendor was found matching the search parameters."));
   } elsif (1 == scalar(@{$vendor})) {
-    $onload = "vendor_selected('1')";
+    $::request->{layout}->add_javascripts_inline("vendor_selected('1')");
   }
 
   my $callback = "$form->{script}?action=vendor_selection&";
@@ -297,10 +292,9 @@ sub vendor_selection {
         @header_sort);
 
   $form->{"title"} = $locale->text("Select a Customer");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/select_vendor", { "HEADER" => \@header,
-                                                              "VENDOR" => $vendor,
-                                                              "onload" => $onload });
+                                                              "VENDOR" => $vendor, });
 
   $main::lxdebug->leave_sub();
 }
@@ -317,7 +311,6 @@ sub calculate_qty {
 
   my ($variable_string, $formel) = split /###/,$form->{formel};
   my @variable;
-  my $onload; # note! this sub is mostly called over a javascript invocation, and it's unlikey that onload is set.
 
   foreach my $item (split m/;/, $variable_string) {
     next unless $item =~ m/^ \s* (\w+) \s* = \s* (\w+) \s* (\w+) \s* $/x;
@@ -341,10 +334,9 @@ sub calculate_qty {
 
   $form->{formel} = $formel;
   $form->{title}  = $locale->text("Please enter values");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/calculate_qty", { "HEADER"    => \@header,
-                                                              "VARIABLES" => \@variable,
-                                                              "onload"    => $onload });
+                                                              "VARIABLES" => \@variable, });
 
   $main::lxdebug->leave_sub();
 }
@@ -358,7 +350,7 @@ sub set_longdescription {
   my $locale   = $main::locale;
 
   $form->{title} = $locale->text("Enter longdescription");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("generic/set_longdescription");
 
   $main::lxdebug->leave_sub();
@@ -407,12 +399,12 @@ sub show_history {
   $sort =~ s/.*\.(.*)/$1/;
 
   $form->{title} = $locale->text("History");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template( "common/show_history", {
     "DATEN"        => $form->get_history($dbh,$form->{input_name},"",$form->{order}),
     "SUCCESS"      => ($form->get_history($dbh,$form->{input_name}) ne "0"),
     uc($sort)      => 1,
-    uc($sort)."BY" => $sortby
+    uc($sort)."BY" => $sortby,
   } );
 
   $dbh->disconnect();
@@ -466,7 +458,7 @@ sub show_vc_details {
 
   $form->{title} = $form->{vc} eq "customer" ?
     $locale->text("Customer details") : $locale->text("Vendor details");
-  $form->header();
+  $form->header(no_layout => 1);
   print $form->parse_html_template("common/show_vc_details", { "is_customer" => $form->{vc} eq "customer" });
 
   $main::lxdebug->leave_sub();
@@ -524,11 +516,9 @@ sub mark_as_paid_common {
     }
     $referer = $script . "?action=mark_as_paid&mark_as_paid=1&id=$form->{id}" . $callback;
     $form->header();
-    print qq|<body>|;
     print qq|<p><b>|.$locale->text('Mark as paid?').qq|</b></p>|;
     print qq|<input type="button" value="|.$locale->text('yes').qq|" onclick="document.location.href='|.$referer.qq|'">&nbsp;|;
     print qq|<input type="button" value="|.$locale->text('no').qq|" onclick="javascript:history.back();">|;
-    print qq|</body></html>|;
   }
 
   $main::lxdebug->leave_sub();
@@ -551,11 +541,10 @@ sub cov_selection_internal {
   my $covs = Common->retrieve_customers_or_vendors(\%myconfig, $form, $order_by, $order_dir, $form->{"is_vendor"}, $form->{"allow_both"});
   map({ $covs->[$_]->{"selected"} = $_ ? 0 : 1; } (0..$#{$covs}));
 
-  my $onload;
   if (0 == scalar(@{$covs})) {
     $form->show_generic_information(sprintf($locale->text("No %s was found matching the search parameters."), $type));
   } elsif (1 == scalar(@{$covs})) {
-    $onload = "cov_selected('1')";
+    $::request->{layout}->add_javascripts_inline("cov_selected('1')");
   }
 
   my $callback = "$form->{script}?action=cov_selection_internal&";
@@ -587,8 +576,7 @@ sub cov_selection_internal {
   $form->{"title"} = $form->{is_vendor} ? $locale->text("Select a vendor") : $locale->text("Select a customer");
   $form->header();
   print($form->parse_html_template("generic/cov_selection", { "HEADER" => \@header,
-                                                              "COVS" => $covs,
-                                                              "onload" => $onload }));
+                                                              "COVS" => $covs, }));
 
   $main::lxdebug->leave_sub();
 }

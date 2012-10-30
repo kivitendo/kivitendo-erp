@@ -1,8 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
-<body onLoad="fokus()">
-
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/parts_language_selection.js"></script>
 
@@ -52,7 +50,7 @@
             <table>
              <tr>
               <th align="right">[% 'Part Number' | $T8 %]</th>
-              <td><input name="partnumber" value="[% HTML.escape(partnumber) %]" size="40"></td>
+              <td><input id='partnumber' name="partnumber" value="[% HTML.escape(partnumber) %]" size="40"></td>
              </tr>
              <tr>
               <th align="right">[% 'Part Description' | $T8 %]</th>

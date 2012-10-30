@@ -1,5 +1,8 @@
 [%- USE T8 %]
-[% USE HTML %]<body class="admin" onload="document.getElementsByName('dbname')[0].focus(); ">
+[%- USE HTML %]
+  <script type='text/javascript'>
+    $(function(){ document.getElementsByName('dbname')[0].focus();});
+  </script>
 
  <h2>[% title %]</h2>
 
@@ -54,5 +57,3 @@
 
  </form>
 
-</body>
-</html>

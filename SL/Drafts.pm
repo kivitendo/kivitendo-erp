@@ -36,7 +36,7 @@ sub get_module {
   return ($module, $submodule);
 }
 
-my @dont_save = qw(login password stylesheet action);
+my @dont_save = qw(login password action);
 
 sub save {
   $main::lxdebug->enter_sub();

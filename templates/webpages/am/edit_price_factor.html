@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]<body>
+[%- USE HTML %]
 
  [% IF MESSAGE %]<p>[% MESSAGE %]</p>[% END %]
 
@@ -11,7 +11,7 @@
    <table border="0">
     <tr>
      <td align="right">[% 'Description' | $T8 %]</td>
-     <td><input name="description" value="[% HTML.escape(description) %]"></td>
+     <td><input id="description" name="description" value="[% HTML.escape(description) %]"></td>
     </tr>
 
     <tr>
@@ -32,5 +32,3 @@
   </p>
  </form>
 
-</body>
-</html>

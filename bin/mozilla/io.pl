@@ -488,7 +488,7 @@ sub select_item {
   } @{ $::form->{item_list} };
 
   # delete action variable
-  delete @{$::form}{qw(action item_list header)};
+  delete @{$::form}{qw(action item_list)};
 
   print $::form->parse_html_template('io/select_item', { PREVIOUS_FORM => $previous_form,
                                                          MODE          => $mode,
@@ -978,7 +978,7 @@ sub edit_e_mail {
   my $attachment_filename = $form->generate_attachment_filename();
   my $subject             = $form->{subject} || $form->generate_email_subject();
 
-  $form->{"fokus"} = $form->{"email"} ? "Form.subject" : "Form.email";
+  $::request->{layout}->focus($form->{"email"} ? "#subject" : "#email");
   $form->header;
 
   my (@dont_hide_key_list, %dont_hide_key, @hidden_keys);

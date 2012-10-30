@@ -1,4 +1,4 @@
-package SL::Dispatcher::AuthHandler;
+  package SL::Dispatcher::AuthHandler;
 
 use strict;
 
@@ -14,6 +14,7 @@ sub handle {
   my ($self, %param) = @_;
 
   my $auth_level                       = $self->get_auth_level(%param);
+
   my $handler_name                     = "SL::Dispatcher::AuthHandler::" . ucfirst($auth_level);
   $self->{handlers}                  ||= {};
   $self->{handlers}->{$handler_name} ||= $handler_name->new;

@@ -1,7 +1,6 @@
 [%- USE T8 %]
 [%- USE L %]
-[% USE HTML %][% USE LxERP %][% USE JavaScript %]<body[% UNLESS delivered %] onload="on_load();"[% END %]>
-
+[%- USE HTML %][%- USE LxERP %][%- USE JavaScript %]
  [%- UNLESS delivered %]
  <script type="text/javascript">
   <!--
@@ -29,7 +28,7 @@
         control.options[initial_bin_index].selected = true;
       }
 
-      function on_load() {
+      $(function(){
         [%- USE STOCK_INFO_it = Iterator(STOCK_INFO) %][%- FOREACH si = STOCK_INFO_it %]
           // new si for wh [% si.warehouse_id %] bin [% si.bin_id %]
           [%- SET warehouse_selected = '0' %]
@@ -47,7 +46,7 @@
           warehouse_selected([% STOCK_INFO_it.count %], 0);
           [%- END %]
         [%- END %]
-      }
+      });
     -->
  </script>
  [%- END %]
@@ -161,6 +160,4 @@
    [%- END %]
   </p>
  </form>
-</body>
-</html>
 

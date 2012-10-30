@@ -409,11 +409,7 @@ sub form_header {
                          '-default' => $form->{"globalproject_id"} ));
 
   $form->header;
-  my $onload = qq|;setupDateFormat('|. $myconfig{dateformat} .qq|', '|. $locale->text("Falsches Datumsformat!") .qq|')|;
-  $onload .= qq|;setupPoints('|. $myconfig{numberformat} .qq|', '|. $locale->text("wrongformat") .qq|')|;
   print qq|
-<body onLoad="$onload">
-
 <form method=post action=$form->{script}>
 
 <input type=hidden name=id value=$form->{id}>
@@ -1164,8 +1160,6 @@ sub delete {
   delete $form->{header};
 
   print qq|
-<body>
-
 <form method=post action=$form->{script}>
 |;
 
@@ -1185,9 +1179,6 @@ sub delete {
 <input name=action class=submit type=submit value="|
     . $locale->text('Yes') . qq|">
 </form>
-
-</body>
-</html>
 |;
 
   $main::lxdebug->leave_sub();
@@ -1230,7 +1221,7 @@ sub search {
   $form->all_vc(\%myconfig, "vendor", "AP");
 
   $form->{title}    = $locale->text('AP Transactions');
-  $form->{fokus}    = "search.vendor";
+  $::request->{layout}->focus('#vendor');
   $form->{jsscript} = 1;
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
@@ -1444,6 +1435,9 @@ sub storno {
     $form->{title} = $locale->text("Cancel Accounts Payables Transaction");
     $form->error($locale->text("Transaction has already been cancelled!"));
   }
+
+  $form->error($locale->text('Cannot post storno for a closed period!'))
+    if ( $form->date_closed($form->{transdate}, \%myconfig));
 
   AP->storno($form, \%myconfig, $form->{id});
 
