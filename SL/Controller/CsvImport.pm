@@ -53,7 +53,7 @@ sub action_import {
 sub action_save {
   my ($self) = @_;
 
-  $self->profile_from_form(SL::DB::Manager::CsvImportProfile->find_by(name => $::form->{profile}->{name}));
+  $self->profile_from_form(SL::DB::Manager::CsvImportProfile->find_by(name => $::form->{profile}->{name}, login => $::myconfig{login}));
   $self->profile->save;
 
   flash_later('info', $::locale->text("The profile has been saved under the name '#1'.", $self->profile->name));
@@ -63,7 +63,7 @@ sub action_save {
 sub action_destroy {
   my $self = shift;
 
-  my $profile = SL::DB::CsvImportProfile->new(id => $::form->{profile}->{id});
+  my $profile = SL::DB::CsvImportProfile->new(id => $::form->{profile}->{id}, login => $::myconfig{login});
   $profile->delete(cascade => 1);
 
   flash_later('info', $::locale->text('The profile \'#1\' has been deleted.', $profile->name));
@@ -193,21 +193,26 @@ sub test_and_import {
 sub load_default_profile {
   my ($self) = @_;
 
+  my $profile;
   if ($::form->{profile}->{id}) {
-    $self->profile(SL::DB::CsvImportProfile->new(id => $::form->{profile}->{id})->load);
-
-  } else {
-    $self->profile(SL::DB::Manager::CsvImportProfile->find_by(type => $self->{type}, is_default => 1));
-    $self->profile(SL::DB::CsvImportProfile->new(type => $self->{type})) unless $self->profile;
+    $profile = SL::DB::Manager::CsvImportProfile->find_by(id => $::form->{profile}->{id}, login => $::myconfig{login});
   }
+  $profile ||= SL::DB::Manager::CsvImportProfile->find_by(type => $self->{type}, is_default => 1, login => $::myconfig{login});
+  $profile ||= SL::DB::CsvImportProfile->new(type => $self->{type}, login => $::myconfig{login});
 
+  $self->profile($profile);
   $self->profile->set_defaults;
 }
 
 sub load_all_profiles {
   my ($self, %params) = @_;
 
-  $self->all_profiles(SL::DB::Manager::CsvImportProfile->get_all(where => [ type => $self->type ], sort_by => 'name'));
+  $self->all_profiles(SL::DB::Manager::CsvImportProfile->get_all(
+    where => [
+      type  => $self->type,
+      login => $::myconfig{login},
+    ],
+  sort_by => 'name'));
 }
 
 sub profile_from_form {
@@ -230,7 +235,7 @@ sub profile_from_form {
   }
 
   delete $::form->{profile}->{id};
-  $self->profile($existing_profile || SL::DB::CsvImportProfile->new);
+  $self->profile($existing_profile || SL::DB::CsvImportProfile->new(login => $::myconfig{login}));
   $self->profile->assign_attributes(%{ $::form->{profile} });
   $self->profile->settings(map({ { key => $_, value => $::form->{settings}->{$_} } } keys %{ $::form->{settings} }),
                            @settings);

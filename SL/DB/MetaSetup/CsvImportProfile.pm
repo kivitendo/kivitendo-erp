@@ -14,6 +14,7 @@ __PACKAGE__->meta->setup(
     name       => { type => 'text', not_null => 1 },
     type       => { type => 'varchar', length => 20, not_null => 1 },
     is_default => { type => 'boolean', default => 'false' },
+    login      => { type => 'text' },
   ],
 
   primary_key_columns => [ 'id' ],
