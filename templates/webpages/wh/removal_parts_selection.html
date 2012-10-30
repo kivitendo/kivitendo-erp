@@ -35,7 +35,7 @@
      <th class="listheading">[% 'Part Number' | $T8 %]</th>
      <th class="listheading">[% 'Part Description' | $T8 %]</th>
      <th class="listheading">[% 'Charge Number' | $T8 %]</th>
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <th class="listheading">[% 'Best Before' | $T8 %]</th>
      [% END %]
      <th class="listheading">[% 'EAN' | $T8 %]</th>
@@ -50,7 +50,7 @@
      <input type="hidden" name="partnumber_[% loop.count %]" value="[% HTML.escape(row.partnumber) %]">
      <input type="hidden" name="partdescription_[% loop.count %]" value="[% HTML.escape(row.partdescription) %]">
      <input type="hidden" name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]">
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <input type="hidden" name="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]">
      [% END %]
      <input type="hidden" name="ean_[% loop.count %]" value="[% HTML.escape(row.ean) %]">
@@ -58,7 +58,7 @@
      <td>[% HTML.escape(row.partnumber) %]</td>
      <td>[% HTML.escape(row.partdescription) %]</td>
      <td>[% HTML.escape(row.chargenumber) %]</td>
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <td>[% HTML.escape(row.bestbefore) %]</td>
      [% END %]
      <td>[% HTML.escape(row.ean) %]</td>

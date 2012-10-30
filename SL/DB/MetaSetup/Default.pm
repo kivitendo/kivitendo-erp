@@ -48,6 +48,7 @@ __PACKAGE__->meta->setup(
     profit_determination       => { type => 'text' },
     language_id                => { type => 'integer' },
     payments_changeable        => { type => 'integer', default => '0', not_null => 1 },
+    show_bestbefore            => { type => 'boolean', default => 'false' },
   ],
 
   primary_key_columns => [ 'id' ],

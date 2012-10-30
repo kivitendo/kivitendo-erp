@@ -7,6 +7,7 @@
 <form action='controller.pl' method='POST'>
 
 <table>
+
  <tr class='listheading'>
    <th colspan="3">[% 'Posting Configuration' | $T8 %]</th>
  </tr>
@@ -15,6 +16,29 @@
    <td>[% L.select_tag('payments_changeable', SELF.payment_options, value_key => 'value', title_key => 'title', default => SELF.payments_changeable) %]</td>
    <td>[% 'Should payments be and when should they be changeable after posting?' | $T8 %]</td>
  </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr class='listheading'>
+   <th colspan="3">[% 'Warehouse' | $T8 %]</th>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show Bestbefore' | $T8 %]</td>
+   <td>
+     [% L.yes_no_tag('show_bestbefore', SELF.show_bestbefore) %]
+   </td>
+   <td>
+     [% 'Show fields used for the best before date?' | $T8 %]<br>
+     [% 'ATTENTION! If you enabled this feature you can not simply turn it off again without taking care that best_before fields are emptied in the database.' | $T8 %]<br>
+     [% 'This can be done with the following query:' | $T8 %]<br>
+     <br>
+     UPDATE inventory SET bestbefore = NULL; <br>
+     <br>
+     [% 'Any stock contents containing a best before date will be impossible to stock out otherwise.' | $T8 %]
+   </td>
+ </tr>
+
 </table>
 
 <br>

@@ -49,6 +49,11 @@ sub get_profit_determination {
   return $self->{data}->{profit_determination};
 }
 
+sub get_show_bestbefore {
+  my ($self) = @_;
+  return $self->{data}->{show_bestbefore};
+}
+
 1;
 
 __END__
@@ -100,6 +105,10 @@ Returns the default inventory system, perpetual or periodic
 =item C<get_profit_determination>
 
 Returns the default profit determination method, balance or income
+
+=item C<get_show_bestbefore>
+
+Returns the default behavior for showing best before date, true or false
 
 =back
 

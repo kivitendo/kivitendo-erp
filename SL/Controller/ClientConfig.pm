@@ -17,6 +17,7 @@ sub action_edit {
                                { title => $::locale->text("on the same day"), value => 2 }, ];
 
   $self->{payments_changeable} = SL::DB::Default->get->payments_changeable;
+  $self->{show_bestbefore}     = SL::DB::Default->get->show_bestbefore;
 
   $self->render('client_config/form', title => $::locale->text('Client Configuration'));
 }
@@ -26,6 +27,7 @@ sub action_save {
   my ($self, %params) = @_;
 
   SL::DB::Default->get->update_attributes('payments_changeable' => $::form->{payments_changeable});
+  SL::DB::Default->get->update_attributes('show_bestbefore'     => $::form->{show_bestbefore});
 
   flash_later('info', $::locale->text('Client Configuration saved!'));
 
