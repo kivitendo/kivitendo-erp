@@ -494,10 +494,7 @@ psql template1</programlisting>
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
         können:</para>
 
-	Die Frage, ob der neue User Superuser sein soll, können Sie mit nein
-	beantworten, genauso ist die Berechtigung neue User (Roles) zu
-	generieren nicht nötig.
-	<programlisting>su - postgres
+	      <programlisting>su - postgres
 createuser -d -P kivitendo
 exit</programlisting>
 
