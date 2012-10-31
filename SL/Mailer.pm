@@ -32,6 +32,7 @@ package Mailer;
 
 use Email::Address;
 use Encode;
+use File::Slurp;
 
 use SL::Common;
 use SL::MIME;
@@ -205,16 +206,16 @@ Content-Type: $self->{contenttype}; charset="$self->{charset}"
         $filename =~ s/(.*\/|\Q$self->{fileid}\E)//g;
       }
 
+      my $attachment_content = eval { read_file($attachment) };
+      if (!defined $attachment_content) {
+        $main::lxdebug->leave_sub();
+        return "$attachment : $!";
+      }
+
       my $application    = ($attachment =~ /(^\w+$)|\.(html|text|txt|sql)$/) ? "text" : "application";
       my $content_type   = SL::MIME->mime_type_from_ext($filename);
       $content_type      = "${application}/$self->{format}" if (!$content_type && $self->{format});
       $content_type    ||= 'application/octet-stream';
-
-      open(IN, $attachment);
-      if ($?) {
-        $main::lxdebug->leave_sub();
-        return "$attachment : $!";
-      }
 
       # only set charset for attachements of type text. every other type should not have this field
       # refer to bug 883 for detailed information
@@ -228,15 +229,7 @@ Content-Type: ${content_type}; name="$filename"$attachment_charset
 Content-Transfer-Encoding: BASE64
 Content-Disposition: attachment; filename="$filename"\n\n|);
 
-      my $msg = "";
-      while (<IN>) {
-        ;
-        $msg .= $_;
-      }
-      $driver->print(encode_base64($msg));
-
-      close(IN);
-
+      $driver->print(encode_base64($attachment_content));
     }
     $driver->print(qq|--${boundary}--\n|);
 
