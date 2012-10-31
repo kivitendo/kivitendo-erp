@@ -25,10 +25,15 @@ sub init {
 
   $params{path_suffix} ||= '';
   $params{schema}      ||= '';
+  $params{path}          = "sql/" . $params{dbdriver} . "-upgrade2" . $params{path_suffix};
 
   map { $self->{$_} = $params{$_} } keys %params;
 
   return $self;
+}
+
+sub path {
+  $_[0]{path};
 }
 
 sub parse_dbupdate_controls {
@@ -42,7 +47,7 @@ sub parse_dbupdate_controls {
   local *IN;
   my %all_controls;
 
-  my $path = "sql/" . $self->{dbdriver} . "-upgrade2" . $self->{path_suffix};
+  my $path = $self->path;
 
   foreach my $file_name (<$path/*.sql>, <$path/*.pl>) {
     next unless (open(IN, $file_name));

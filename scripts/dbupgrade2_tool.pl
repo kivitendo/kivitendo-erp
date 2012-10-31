@@ -43,7 +43,8 @@ use SL::Dispatcher;
 
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
 my ($opt_user, $opt_apply, $opt_applied, $opt_unapplied, $opt_format, $opt_test_utf8);
-my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword);
+my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword, $opt_create, $opt_type);
+my ($opt_description, $opt_encoding, @opt_depends);
 
 our (%myconfig, $form, $user, $auth, $locale, $controls, $dbupgrader);
 
@@ -231,6 +232,48 @@ sub dump_nodeps {
     "\n\n";
 }
 
+sub create_upgrade {
+  my (%params) = @_;
+
+  my $filename    = $params{filename};
+  my $dbupgrader  = $params{dbupgrader};
+  my $type        = $params{type}        || '';
+  my $description = $params{description} || '';
+  my $encoding    = $params{encoding}    || 'utf-8';
+  my @depends     = @{ $params{depends} };
+
+  if (!@depends) {
+    my @releases = grep { /^release_/ } keys %$controls;
+    @depends = ((sort @releases)[-1]);
+  }
+
+  my $comment;
+  if ($type eq 'sql') {
+    $comment = '--';
+  } elsif ($type eq 'pl') {
+    $comment = '#';
+  } elsif (!$type) {
+    die 'Error: No --type was given but is required for --create.';
+  } else {
+    die 'Error: Unknown --type. Try "sql" or "pl".';
+  }
+
+  my $full_filename = $dbupgrader->path . '/' . $filename . '.' . $type;
+
+  die "file '$full_filename' already exists, aborting" if -f $full_filename;
+
+
+  open my $fh, ">:utf8", $full_filename or die "can't open $full_filename";
+  print $fh "$comment \@tag: $filename\n";
+  print $fh "$comment \@description: $description\n";
+  print $fh "$comment \@depends: @depends\n";
+  print $fh "$comment \@encoding: $encoding\n";
+  close $fh;
+
+  system("\$EDITOR $full_filename");
+  exit 0;
+}
+
 sub apply_upgrade {
   my $name = shift;
 
@@ -399,6 +442,11 @@ GetOptions("list"         => \$opt_list,
            "user=s"       => \$opt_user,
            "apply=s"      => \$opt_apply,
            "applied"      => \$opt_applied,
+           "create=s"     => \$opt_create,
+           "type=s"       => \$opt_type,
+           "encoding=s"   => \$opt_encoding,
+           "description=s" => \$opt_description,
+           "depends=s"    => \@opt_depends,
            "unapplied"    => \$opt_unapplied,
            "test-utf8"    => \$opt_test_utf8,
            "dbhost:s"     => \$opt_dbhost,
@@ -420,6 +468,12 @@ dump_tree_reverse()                         if ($opt_rtree);
 dump_graphviz('file_name' => $opt_graphviz,
               'format'    => $opt_format)   if (defined $opt_graphviz);
 dump_nodeps()                               if ($opt_nodeps);
+create_upgrade(filename   => $opt_create,
+               dbupgrader  => $dbupgrader,
+               type        => $opt_type,
+               description => $opt_description,
+               encoding    => $opt_encoding,
+               depends     => \@opt_depends) if ($opt_create);
 
 if ($opt_user) {
   $auth = SL::Auth->new();
@@ -455,6 +509,7 @@ if ($opt_unapplied) {
   $form->error("--unapplied used but no user name given with --user.") if (!$user);
   dump_unapplied();
 }
+
 
 if ($opt_test_utf8) {
   $form->error("--test-utf8 used but no database name given with --dbname.") if (!$opt_dbname);
