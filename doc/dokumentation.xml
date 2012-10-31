@@ -5429,6 +5429,148 @@ filenames</programlisting>
       </sect2>
     </sect1>
 
+    <sect1 id="devel.testsuite">
+      <title>Die kivitendo-Test-Suite</title>
+
+      <sect2 id="devel.testsuite.intro">
+        <title>Einführung</title>
+
+        <para>kivitendo enthält eine Suite für automatisierte Tests. Sie basiert auf dem Standard-Perl-Modul <literal>Test::More</literal>.</para>
+
+        <para>Die grundlegenden Fakten sind:</para>
+
+        <itemizedlist>
+          <listitem><para>Alle Tests liegen im Unterverzeichnis <filename>t/</filename>.</para></listitem>
+
+          <listitem><para>Ein Script (bzw. ein Test) in <filename>f/</filename> enthält einen oder mehrere Testfälle.</para></listitem>
+
+          <listitem><para>Alle Dateinamen von Tests enden auf <literal>.t</literal>. Es sind selbstständig ausführbare Perl-Scripte.</para></listitem>
+
+          <listitem><para>Die Test-Suite besteht aus der Gesamtheit aller Tests, sprich aller Scripte in <filename>f/</filename>, deren
+          Dateiname auf <literal>.t</literal> endet.</para></listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2 id="devel.testsuite.prerequisites">
+        <title>Voraussetzungen</title>
+
+        <para>Für die Ausführung werden neben den für kivitendo eh schon benötigten Module noch weitere Perl-Module benötigt. Diese sind:</para>
+
+        <itemizedlist>
+          <listitem><para><literal>Test::Deep</literal> (Debian-Paketname: <literal>libtest-deep-perl</literal>; Fedora Core:
+          <literal>perl-Test-Deep</literal>; openSuSE: <literal>perl-Test-Deep</literal>)</para></listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2 id="devel.testsuite.execution">
+        <title>
+          Existierende Tests ausführen
+        </title>
+
+        <para>Es gibt mehrere Möglichkeiten zum Ausführen der Tests: entweder, man lässt alle Tests auf einmal ausführen, oder man führt
+        gezielt einzelne Scripte aus. Für beide Fälle gibt es das Helferscript <filename>t/test.sh</filename>.</para>
+
+        <para>Will man die komplette Test-Suite ausführen, so muss man einfach nur <filename>t/test.sh</filename> ohne weitere Parameter aus
+        dem kivitendo-Basisverzeichnis heraus ausführen.</para>
+
+        <para>Um einzelne Test-Scripte auszuführen, übergibt man deren Namen an <filename>t/test.sh</filename>. Beispielsweise:</para>
+
+        <programlisting>t/test.sh t/form/format_amount.t t/background_job/known_jobs.t</programlisting>
+      </sect2>
+
+
+      <sect2 id="devel.testsuite.meaning_of_scripts">
+        <title>
+          Bedeutung der verschiedenen Test-Scripte
+        </title>
+
+        <para>Die Test-Suite umfasst Tests sowohl für Funktionen als auch für Programmierstil. Einige besonders zu erwähnende, weil auch
+        während der Entwicklung nützliche Tests sind:</para>
+
+        <itemizedlist>
+          <listitem><para><filename>t/001compile.t</filename> -- compiliert alle Quelldateien und bricht bei Fehlern sofort ab</para></listitem>
+          <listitem><para><filename>t/002goodperl.t</filename> -- überprüft alle Perl-Dateien auf Anwesenheit von '<literal>use strict</literal>'-Anweisungen</para></listitem>
+          <listitem><para><filename>t/003safesys.t</filename> -- überprüft Aufrufe von <function>system()</function> und <function>exec()</function> auf Gültigkeit</para></listitem>
+          <listitem><para><filename>t/005no_tabs.t</filename> -- überprüft, ob Dateien Tab-Zeichen enthalten</para></listitem>
+          <listitem><para><filename>t/006spelling.t</filename> -- sucht nach häufigen Rechtschreibfehlern</para></listitem>
+          <listitem><para><filename>t/011pod.t</filename> -- überprüft die Syntax von Dokumentation im POD-Format auf Gültigkeit</para></listitem>
+        </itemizedlist>
+
+        <para>Weitere Test-Scripte überprüfen primär die Funktionsweise einzelner Funktionen und Module.</para>
+      </sect2>
+
+      <sect2 id="devel.testsuite.create_new">
+        <title>
+          Neue Test-Scripte erstellen
+        </title>
+
+        <para>Es wird sehr gern gesehen, wenn neue Funktionalität auch gleich mit einem Test-Script abgesichert wird. Auch bestehende
+        Funktion darf und soll ausdrücklich nachträglich mit Test-Scripten abgesichert werden.</para>
+
+        <sect3 id="devel.testsuite.ideas_for_non_function_tests">
+          <title>
+            Ideen für neue Test-Scripte, die keine konkreten Funktionen testen
+          </title>
+
+          <para> Ideen, die abgesehen von Funktions noch nicht umgesetzt wurden:</para>
+
+          <itemizedlist>
+            <listitem><para>Überprüfung auf fehlende symbolische Links</para></listitem>
+            <listitem><para>Suche nach Nicht-ASCII-Zeichen in Perl-Code-Dateien (mit gewissen Einschränkungen wie das Erlauben von deutschen Umlauten)</para></listitem>
+            <listitem><para>Test auf DOS-Zeilenenden (\r\n anstelle von nur \n)</para></listitem>
+            <listitem><para>Überprüfung auf Leerzeichen am Ende von Zeilen</para></listitem>
+            <listitem><para>Test, ob alle zu übersetzenden Strings in <filename>locale/de/all</filename> vorhanden sind</para></listitem>
+            <listitem><para>Test, ob alle Webseiten-Templates in <filename>templates/webpages</filename> mit vom Perl-Modul <literal>Template</literal> compiliert werden können</para></listitem>
+          </itemizedlist>
+        </sect3>
+
+        <sect3 id="devel.testsuite.directory_and_test_names">
+          <title>
+            Konvention für Verzeichnis- und Dateinamen
+          </title>
+
+          <para>Es gibt momentan eine wenige Richtlinien, wie Test-Scripte zu benennen sind. Bitte die folgenden Punkte als Richtlinie betrachten und ihnen soweit es geht folgen:</para>
+
+          <itemizedlist>
+            <listitem><para>Die Dateiendung muss <filename>.t</filename> lauten.</para></listitem>
+
+            <listitem><para>Namen sind englisch, komplett klein geschrieben und einzelne Wörter mit Unterstrichten getrennt (beispielsweise
+            <filename>bad_function_params.t</filename>).</para></listitem>
+
+            <listitem><para>Unterverzeichnisse sollten grob nach dem Themenbereich benannt sind, mit dem sich die Scripte darin befassen
+            (beispielsweise <filename>background_jobs</filename> für Tests rund um Hintergrund-Jobs).</para></listitem>
+
+            <listitem><para>Test-Scripte sollten einen überschaubaren Bereich von Funktionalität testen, der logisch zusammenhängend ist
+            (z.B. nur Tests für eine einzelne Funktion in einem Modul). Lieber mehrere Test-Scripte schreiben.</para></listitem>
+          </itemizedlist>
+        </sect3>
+
+        <sect3 id="devel.testsuite.minimal_example">
+          <title>
+            Minimales Skelett für eigene Scripte
+          </title>
+
+          <para>Der folgenden Programmcode enthält das kleinstmögliche Testscript und kann als Ausgangspunkt für eigene Tests verwendet werden:</para>
+
+          <programlisting>use Test::More tests =&gt; 0;
+
+use lib 't';
+
+use Support::TestSetup;
+
+Support::TestSetup::login();</programlisting>
+
+          <para>Wird eine vollständig initialisierte kivitendo-Umgebung benötigt (Stichwort: alle globalen Variablen wie
+          <varname>$::auth</varname>, <varname>$::form</varname> oder <varname>$::lxdebug</varname>), so muss in der Konfigurationsdatei
+          <filename>config/kivitendo.conf</filename> im Abschnitt <literal>testing.login</literal> ein gültiger Login-Name eingetragen
+          sein. Dieser wird für die Datenbankverbindung benötigt.</para>
+
+          <para>Wir keine vollständig initialisierte Umgebung benötigt, so kann die letzte Zeile <code>Support::TestSetup::login();</code>
+          weggelassen werden, was die Ausführungszeit des Scripts leicht verringert.</para>
+        </sect3>
+      </sect2>
+    </sect1>
+
     <sect1 id="devel.style-guide">
       <title>Stil-Richtlinien</title>
 
