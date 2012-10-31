@@ -115,12 +115,14 @@ memberfile = users/members
 method = smtp
 # Location of sendmail for 'method = sendmail'
 sendmail = /usr/sbin/sendmail -t<%if myconfig_email%> -f <%myconfig_email%><%end%>
-# Settings for 'method = smtp'.
+# Settings for 'method = smtp'. Only set 'port' if your SMTP server
+# runs on a non-standard port (25 for 'security=none' or
+# 'security=tls', 465 for 'security=ssl').
 host = localhost
-port = 25
+#port = 25
 # Security can be 'tls', 'ssl' or 'none'. Unset equals 'none'. This
 # determines whether or not encryption is used and which kind. For
-# 'tls' the module 'Net::SMTP::TLS' is required; for 'ssl'
+# 'tls' the module 'Net::SSLGlue' is required; for 'ssl'
 # 'Net::SMTP::SSL' is required and 'none' only uses 'Net::SMTP'.
 security = none
 # Authentication is only used if 'login' is set. You should only use
