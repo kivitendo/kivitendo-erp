@@ -415,14 +415,17 @@ dbcharset = UTF-8</programlisting>
       <sect2 id="Zeichensätze-die-Verwendung-von-UTF-8">
         <title>Zeichensätze/die Verwendung von UTF-8</title>
 
-        <para>kivitendo kann komplett mit UTF-8 als Zeichensatz verwendet
-        werden. Dabei gibt es zwei Punkte zu beachten: PostgreSQL muss in
-        Version 8.2 oder neuer benutzt werden, und der
-        PostgreSQL-Datenbankcluster muss ebenfalls mit UTF-8 als Locale
-        angelegt worden sein.</para>
+	<para>Bei aktuellen Serverinstallationen braucht man hier meist nicht
+	eingreifen</para>
 
-        <para>Dieses ist kann überprüft werden: ist das Encoding der Datenbank
-        “template1” “UTF8”, so kann auch kivitendo mit UTF-8 betrieben werden.
+        <para>Dieses kann überprüft werden: ist das Encoding der Datenbank
+	“template1” “UTF8”, so braucht man nichts weiteres diesbezueglich
+	unternehmen. Zum Testen:
+
+        <programlisting>su postgres
+echo '\l' | psql
+exit </programlisting>
+
         Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
         Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl
@@ -460,14 +463,9 @@ dbcharset = UTF-8</programlisting>
         <para>In der Datei <filename>pg_hba.conf</filename>, die im gleichen
         Verzeichnis wie die <filename>postgresql.conf</filename> zu finden
         sein sollte, müssen die Berichtigungen für den Zugriff geändert
-        werden. Hier gibt es mehrere Möglichkeiten. Eine besteht darin, lokale
-        Verbindungen immer zuzulassen:</para>
-
-        <programlisting>local all all trust
-host all all 127.0.0.1 255.0.0.0 trust</programlisting>
-
-        <para>Besser ist es, für eine bestimmte Datenbank Zugriff nur per
-        Passwort zuzulassen. Beispielsweise:</para>
+	werden. Hier gibt es mehrere Möglichkeiten. sinnvoll ist es nur die
+	nögiten Verbindungen immer zuzulassen, für eine lokal laufenden
+	Datenbank zum Beispiel:</para>
 
         <programlisting>local all kivitendo password
 host all kivitendo 127.0.0.1 255.255.255.255 password</programlisting>
@@ -478,10 +476,14 @@ host all kivitendo 127.0.0.1 255.255.255.255 password</programlisting>
 
         <para>In der Datenbank <literal>template1</literal> muss die
         Unterstützung für servergespeicherte Prozeduren eingerichet werden.
-        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an, und
+        Melden Sie sich dafür als Benutzer “postgres” an der Datenbank an:
+        <programlisting>su - postgres
+psql template1</programlisting>
+
         führen Sie die folgenden Kommandos aus:</para>
 
-        <programlisting>create language 'plpgsql';</programlisting>
+        <programlisting>create language 'plpgsql';
+\q</programlisting>
       </sect2>
 
       <sect2 id="Datenbankbenutzer-anlegen">
@@ -492,7 +494,12 @@ host all kivitendo 127.0.0.1 255.255.255.255 password</programlisting>
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
         können:</para>
 
-        <programlisting>su - postgres createuser -d -P kivitendo</programlisting>
+	Die Frage, ob der neue User Superuser sein soll, können Sie mit nein
+	beantworten, genauso ist die Berechtigung neue User (Roles) zu
+	generieren nicht nötig.
+	<programlisting>su - postgres
+createuser -d -P kivitendo
+exit</programlisting>
 
         <para>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
         Sie den evtl. voreingestellten Benutzer “postgres” auf “kivitendo” bzw.
@@ -2207,6 +2214,14 @@ insserv kivitendo-task-server</programlisting>
               <listitem>
                 <para>Vorlagenürzel des ausgewählten Druckers, identisch mit
                 dem Kürzel das im Dateinamen verwendetet wird.</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>template_meta.tmpfile</varname></term>
+
+              <listitem>
+                <para>Datei-Prefix für temporäre Dateien.</para>
               </listitem>
             </varlistentry>
           </variablelist>

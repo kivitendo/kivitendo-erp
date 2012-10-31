@@ -794,7 +794,6 @@ sub report {
 
   $form->{jsscript} = 1;
 
-#  $form->{fokus}   = "partnumber";
   $form->{title}   = $locale->text("Report about warehouse contents");
 
   $form->header();

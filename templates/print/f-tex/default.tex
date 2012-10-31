@@ -357,7 +357,7 @@
 %======Die eigentliche-Tabelle========================================
 
 % temporaere Datei mit Tabelle anlegen
-\begin{filecontents}{<%tmpfile%>.table.tex}
+\begin{filecontents}{<%template_meta.tmpfile%>.table.tex}
 \mainfont
 \resetlaufsumme
 
@@ -489,7 +489,7 @@
   }
 \end{filecontents}  % Ende der Hilfsdatei.
 
-\LTXtable{\textwidth}{<%tmpfile%>.table.tex}
+\LTXtable{\textwidth}{<%template_meta.tmpfile%>.table.tex}
 
 \rule{\textwidth}{0pt}   % Ein (unsichtbarer) Strich quer ueber die Seite
 \vspace{ 5mm}

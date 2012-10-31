@@ -93,6 +93,7 @@ $self->{texts} = {
   'Account for interest'        => 'Konto f&uuml;r Zinsen',
   'Account number'              => 'Kontonummer',
   'Account number #1, bank code #2, #3' => 'Kontonummer #1, BLZ #2, #3',
+  'Account number not unique!'  => 'Kontonummer bereits vorhanden!',
   'Account saved!'              => 'Konto gespeichert!',
   'Accounting Group deleted!'   => 'Buchungsgruppe gel&ouml;scht!',
   'Accounting Group saved!'     => 'Buchungsgruppe gespeichert!',

@@ -1097,6 +1097,7 @@ sub parse_template {
     UNLINK => ($::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files})? 0 : 1,
   );
   close $temp_fh;
+  (undef, undef, $self->{template_meta}{tmpfile}) = File::Spec->splitpath( $self->{tmpfile} );
 
   if ($template->uses_temp_file() || $self->{media} eq 'email') {
     $out              = $self->{OUT};
