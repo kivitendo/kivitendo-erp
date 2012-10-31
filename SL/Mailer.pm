@@ -124,7 +124,7 @@ sub send {
   $num_sent++;
   my $boundary    = time() . "-$$-${num_sent}";
   $boundary       =  "kivitendo-$self->{version}-$boundary";
-  my $domain      =  $self->recode($self->{from});
+  my $domain      =  $self->{from};
   $domain         =~ s/(.*?\@|>)//g;
   my $msgid       =  "$boundary\@$domain";
 
@@ -142,14 +142,11 @@ sub send {
 
   foreach my $item (qw(to cc bcc)) {
     next unless ($self->{$item});
-    $self->{$item} =  $self->recode($self->{$item});
     $self->{$item} =~ s/\&lt;/</g;
     $self->{$item} =~ s/\$<\$/</g;
     $self->{$item} =~ s/\&gt;/>/g;
     $self->{$item} =~ s/\$>\$/>/g;
   }
-
-  $self->{from} = $self->recode($self->{from});
 
   my %addresses;
   my $headers = '';
@@ -173,7 +170,7 @@ sub send {
     }
   }
 
-  $headers .= sprintf("Subject: %s\n", $self->mime_quote_text($self->recode($self->{subject}), 60));
+  $headers .= sprintf("Subject: %s\n", $self->mime_quote_text($self->{subject}, 60));
 
   $driver->start_mail(from => $self->{from}, to => [ map { @{ $addresses{$_} } } qw(to cc bcc) ]);
 
@@ -188,7 +185,7 @@ MIME-Version: 1.0
       $driver->print(qq|--${boundary}
 Content-Type: $self->{contenttype}; charset="$self->{charset}"
 
-| . $self->recode($self->{message}) . qq|
+$self->{message}
 
 |);
     }
@@ -236,7 +233,7 @@ Content-Disposition: attachment; filename="$filename"\n\n|);
   } else {
     $driver->print(qq|Content-Type: $self->{contenttype}; charset="$self->{charset}"
 
-| . $self->recode($self->{message}) . qq|
+$self->{message}
 |);
   }
 
@@ -273,13 +270,6 @@ sub encode_base64 ($;$) {
   $main::lxdebug->leave_sub();
 
   return $res;
-}
-
-sub recode {
-  my $self = shift;
-  my $text = shift;
-
-  return $::locale->is_utf8 ? Encode::encode('utf-8-strict', $text) : $text;
 }
 
 1;

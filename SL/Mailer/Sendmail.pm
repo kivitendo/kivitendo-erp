@@ -26,6 +26,7 @@ sub init {
   $sendmail         = $template->parse_block($sendmail);
 
   $self->{sendmail} = IO::File->new("|$sendmail") || die "sendmail($sendmail): $!";
+  $self->{sendmail}->binmode(':utf8') if $::locale->is_utf8;
 }
 
 sub start_mail {
