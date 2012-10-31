@@ -121,7 +121,7 @@ port = 25
 # Security can be 'tls', 'ssl' or 'none'. Unset equals 'none'. This
 # determines whether or not encryption is used and which kind. For
 # 'tls' the module 'Net::SMTP::TLS' is required; for 'ssl'
-# 'Net::SMTP::TLS' is required and 'none' only uses 'Net::SMTP'.
+# 'Net::SMTP::SSL' is required and 'none' only uses 'Net::SMTP'.
 security = none
 # Authentication is only used if 'login' is set. You should only use
 # that with 'tls' or 'ssl' encryption.
