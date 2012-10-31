@@ -122,7 +122,7 @@ sub send {
 
   $num_sent++;
   my $boundary    = time() . "-$$-${num_sent}";
-  $boundary       =  "LxOffice-$self->{version}-$boundary";
+  $boundary       =  "kivitendo-$self->{version}-$boundary";
   my $domain      =  $self->recode($self->{from});
   $domain         =~ s/(.*?\@|>)//g;
   my $msgid       =  "$boundary\@$domain";
@@ -177,7 +177,7 @@ sub send {
   $driver->start_mail(from => $self->{from}, to => [ map { @{ $addresses{$_} } } qw(to cc bcc) ]);
 
   $driver->print(qq|${headers}Message-ID: <$msgid>
-X-Mailer: Lx-Office $self->{version}
+X-Mailer: kivitendo $self->{version}
 MIME-Version: 1.0
 |);
 
