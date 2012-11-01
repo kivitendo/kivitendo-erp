@@ -6,10 +6,54 @@
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</p><p>Mitte 2012 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Ubuntu 10.04 LTS Lucid Lynx bis 12.04 Precise Pangolin</p></li><li class="listitem"><p>Debian 5.0 Lenny und 6.0 Squeeze</p></li><li class="listitem"><p>openSUSE 11.2 und 11.3</p></li><li class="listitem"><p>SuSE Linux Enterprice Server 11</p></li><li class="listitem"><p>Fedora 13 bis 16</p></li></ul></div></div><div class="sect2" title="2.1.2. Pakete"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.1.2. Pakete</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
+        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Ubuntu 10.04 LTS Lucid Lynx bis 12.10 Oneiric Ocelot</p></li><li class="listitem"><p>Debian 5.0 Lenny und 6.0 Squeeze</p></li><li class="listitem"><p>openSUSE 11.2 und 11.3</p></li><li class="listitem"><p>SuSE Linux Enterprice Server 11</p></li><li class="listitem"><p>Fedora 13 bis 16</p></li></ul></div></div><div class="sect2" title="2.1.2. Pakete"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.1.2. Pakete</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
         benötigt.</p><p>Zusätzlich benötigt kivitendo die folgenden Perl-Pakete, die
-        nicht Bestandteil einer Standard-Perl-Installation sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>parent</p></li><li class="listitem"><p>Archive::Zip</p></li><li class="listitem"><p>Config::Std</p></li><li class="listitem"><p>DateTime</p></li><li class="listitem"><p>DBI</p></li><li class="listitem"><p>DBD::Pg</p></li><li class="listitem"><p>Email::Address</p></li><li class="listitem"><p>Email::MIME</p></li><li class="listitem"><p>JSON</p></li><li class="listitem"><p>List::MoreUtils</p></li><li class="listitem"><p>Net::SMTP::SSL (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<a class="link" href="ch02s09.html#config.sending-email.smtp" title="2.9.2. Versand über einen SMTP-Server">E-Mail-Versand aus kivitendo heraus</a>")</p></li><li class="listitem"><p>Net::SSLGlue (optional, bei E-Mail-Versand über TLS; siehe Abschnitt "<a class="link" href="ch02s09.html#config.sending-email.smtp" title="2.9.2. Versand über einen SMTP-Server">E-Mail-Versand aus kivitendo heraus</a>")</p></li><li class="listitem"><p>Params::Validate</p></li><li class="listitem"><p>PDF::API2</p></li><li class="listitem"><p>Rose::Object</p></li><li class="listitem"><p>Rose::DB</p></li><li class="listitem"><p>Rose::DB::Object</p></li><li class="listitem"><p>Template</p></li><li class="listitem"><p>Text::CSV_XS</p></li><li class="listitem"><p>Text::Iconv</p></li><li class="listitem"><p>URI</p></li><li class="listitem"><p>XML::Writer</p></li><li class="listitem"><p>YAML</p></li></ul></div><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
+        nicht Bestandteil einer Standard-Perl-Installation sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="literal">parent</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Archive::Zip</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Config::Std</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">DateTime</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">DBI</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">DBD::Pg</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Email::Address</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Email::MIME</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">JSON</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">List::MoreUtils</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Net::SMTP::SSL</code> (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<a class="xref" href="ch02s09.html#config.sending-email.smtp" title="2.9.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
+                     <code class="literal">Net::SSLGlue</code> (optional, bei E-Mail-Versand über TLS; siehe Abschnitt "<a class="xref" href="ch02s09.html#config.sending-email.smtp" title="2.9.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
+                     <code class="literal">Params::Validate</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">PDF::API2</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Rose::Object</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Rose::DB</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Rose::DB::Object</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Template</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Text::CSV_XS</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Text::Iconv</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">URI</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">XML::Writer</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">YAML</code>
+                  </p></li></ul></div><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
         <code class="literal">Net::SSLGlue</code>.</p><p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
         hinzugekommen, <code class="literal">URI</code> und
         <code class="literal">XML::Writer</code> sind notwendig. Ohne startet kivitendo

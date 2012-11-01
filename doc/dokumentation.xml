@@ -43,7 +43,7 @@
 
         <itemizedlist>
           <listitem>
-            <para>Ubuntu 10.04 LTS Lucid Lynx bis 12.04 Precise Pangolin</para>
+            <para>Ubuntu 10.04 LTS Lucid Lynx bis 12.10 Oneiric Ocelot</para>
           </listitem>
 
           <listitem>
@@ -75,95 +75,53 @@
         nicht Bestandteil einer Standard-Perl-Installation sind:</para>
 
         <itemizedlist>
-          <listitem>
-            <para>parent</para>
-          </listitem>
+          <listitem><para><literal>parent</literal></para></listitem>
 
-          <listitem>
-            <para>Archive::Zip</para>
-          </listitem>
+          <listitem><para><literal>Archive::Zip</literal></para></listitem>
 
-          <listitem>
-            <para>Config::Std</para>
-          </listitem>
+          <listitem><para><literal>Config::Std</literal></para></listitem>
 
-          <listitem>
-            <para>DateTime</para>
-          </listitem>
+          <listitem><para><literal>DateTime</literal></para></listitem>
 
-          <listitem>
-            <para>DBI</para>
-          </listitem>
+          <listitem><para><literal>DBI</literal></para></listitem>
 
-          <listitem>
-            <para>DBD::Pg</para>
-          </listitem>
+          <listitem><para><literal>DBD::Pg</literal></para></listitem>
 
-          <listitem>
-            <para>Email::Address</para>
-          </listitem>
+          <listitem><para><literal>Email::Address</literal></para></listitem>
 
-          <listitem>
-            <para>Email::MIME</para>
-          </listitem>
+          <listitem><para><literal>Email::MIME</literal></para></listitem>
 
-          <listitem>
-            <para>JSON</para>
-          </listitem>
+          <listitem><para><literal>JSON</literal></para></listitem>
 
-          <listitem>
-            <para>List::MoreUtils</para>
-          </listitem>
+          <listitem><para><literal>List::MoreUtils</literal></para></listitem>
 
-          <listitem><para>Net::SMTP::SSL (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<link
-          linkend="config.sending-email.smtp">E-Mail-Versand aus kivitendo heraus</link>")</para></listitem>
+          <listitem><para><literal>Net::SMTP::SSL</literal> (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<xref
+          linkend="config.sending-email.smtp"/>")</para></listitem>
 
-          <listitem><para>Net::SSLGlue (optional, bei E-Mail-Versand über TLS; siehe Abschnitt "<link
-          linkend="config.sending-email.smtp">E-Mail-Versand aus kivitendo heraus</link>")</para></listitem>
+          <listitem><para><literal>Net::SSLGlue</literal> (optional, bei E-Mail-Versand über TLS; siehe Abschnitt "<xref
+          linkend="config.sending-email.smtp"/>")</para></listitem>
 
-          <listitem>
-            <para>Params::Validate</para>
-          </listitem>
+          <listitem><para><literal>Params::Validate</literal></para></listitem>
 
-          <listitem>
-            <para>PDF::API2</para>
-          </listitem>
+          <listitem><para><literal>PDF::API2</literal></para></listitem>
 
-          <listitem>
-            <para>Rose::Object</para>
-          </listitem>
+          <listitem><para><literal>Rose::Object</literal></para></listitem>
 
-          <listitem>
-            <para>Rose::DB</para>
-          </listitem>
+          <listitem><para><literal>Rose::DB</literal></para></listitem>
 
-          <listitem>
-            <para>Rose::DB::Object</para>
-          </listitem>
+          <listitem><para><literal>Rose::DB::Object</literal></para></listitem>
 
-          <listitem>
-            <para>Template</para>
-          </listitem>
+          <listitem><para><literal>Template</literal></para></listitem>
 
-          <listitem>
-            <para>Text::CSV_XS</para>
-          </listitem>
+          <listitem><para><literal>Text::CSV_XS</literal></para></listitem>
 
-          <listitem>
-            <para>Text::Iconv</para>
-          </listitem>
+          <listitem><para><literal>Text::Iconv</literal></para></listitem>
 
-          <listitem>
-            <para>URI</para>
-          </listitem>
+          <listitem><para><literal>URI</literal></para></listitem>
 
-          <listitem>
-            <para>XML::Writer</para>
-          </listitem>
+          <listitem><para><literal>XML::Writer</literal></para></listitem>
 
-          <listitem>
-            <para>YAML</para>
-          </listitem>
+          <listitem><para><literal>YAML</literal></para></listitem>
         </itemizedlist>
 
         <para>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <literal>Email::MIME</literal>, <literal>Net::SMTP::SSL</literal>,
@@ -312,62 +270,34 @@ tar xvzf kivitendo-erp-2.6.3.tgz</programlisting>
         entsprechend kommentiert sind:</para>
 
         <itemizedlist>
-          <listitem>
-            <para><literal>authentication</literal></para>
-          </listitem>
+          <listitem><para><literal>authentication</literal> (siehe Abschnitt "<xref
+          linkend="Benutzerauthentifizierung-und-Administratorpasswort"/>" in diesem Kapitel)</para></listitem>
 
-          <listitem>
-            <para><literal>authentication/database</literal></para>
-          </listitem>
+          <listitem><para><literal>authentication/database</literal></para></listitem>
 
-          <listitem>
-            <para><literal>authentication/ldap</literal></para>
-          </listitem>
+          <listitem><para><literal>authentication/ldap</literal></para></listitem>
 
-          <listitem>
-            <para><literal>system</literal></para>
-          </listitem>
+          <listitem><para><literal>system</literal></para></listitem>
 
-          <listitem>
-            <para><literal>features</literal></para>
-          </listitem>
+          <listitem><para><literal>features</literal> (siehe Kapitel "<xref linkend="features"/>")</para></listitem>
 
-          <listitem>
-            <para><literal>paths</literal></para>
-          </listitem>
+          <listitem><para><literal>paths</literal></para></listitem>
 
-          <listitem>
-            <para><literal>applications</literal></para>
-          </listitem>
+          <listitem><para><literal>applications</literal></para></listitem>
 
-          <listitem>
-            <para><literal>environment</literal></para>
-          </listitem>
+          <listitem><para><literal>environment</literal></para></listitem>
 
-          <listitem>
-            <para><literal>mail_delivery</literal> (siehe Abschnitt "<link linkend="config.sending-email.smtp">E-Mail-Versand aus kivitendo
-            heraus</link>")</para>
-          </listitem>
+          <listitem><para><literal>mail_delivery</literal> (siehe Abschnitt "<xref linkend="config.sending-email.smtp"/>)</para></listitem>
 
-          <listitem>
-            <para><literal>print_templates</literal></para>
-          </listitem>
+          <listitem><para><literal>print_templates</literal></para></listitem>
 
-          <listitem>
-            <para><literal>task_server</literal></para>
-          </listitem>
+          <listitem><para><literal>task_server</literal></para></listitem>
 
-          <listitem>
-            <para><literal>periodic_invoices</literal></para>
-          </listitem>
+          <listitem><para><literal>periodic_invoices</literal></para></listitem>
 
-          <listitem>
-            <para><literal>console</literal></para>
-          </listitem>
+          <listitem><para><literal>console</literal></para></listitem>
 
-          <listitem>
-            <para><literal>debug</literal></para>
-          </listitem>
+          <listitem><para><literal>debug</literal></para></listitem>
         </itemizedlist>
 
         <para>Die üblicherweise wichtigsten Parameter, die am Anfang
@@ -624,10 +554,9 @@ Alias /kivitendo-erp/ /var/www/kiviteno-erp/
           verwendet.</para>
 
           <warning>
-            <para>FCGI 0.69 und höher ist extrem strict in der Behandlung von
-            Unicode, und verweigert bestimmte Eingaben von kivitendo. Falls es
-            Probleme mit Umlauten in Ihrere Installation gibt, muss auf die
-            Vorgängerversion FCGI 0.68 ausgewichen werden.</para>
+            <para>FCGI-Versionen ab 0.69 und bis zu 0.71 inklusive sind extrem strict in der Behandlung von Unicode, und verweigern
+            bestimmte Eingaben von kivitendo. Falls es Probleme mit Umlauten in Ihrere Installation gibt, muss zwingend Version 0.68 oder
+            aber Version 0.72 und neuer eingesetzt werden.</para>
 
             <para>Mit CPAN lässt sie sich die Vorgängerversion wie folgt
             installieren:</para>
@@ -1288,7 +1217,7 @@ insserv kivitendo-task-server</programlisting>
       </sect2>
     </sect1>
 
-<sect1 id="config.sending-email">
+    <sect1 id="config.sending-email" xreflabel="E-Mail-Versand aus kivitendo heraus">
       <title>E-Mail-Versand aus kivitendo heraus</title>
 
       <para>kivitendo kann direkt aus dem Programm heraus E-Mails versenden, z.B. um ein Angebot direkt an einen Kunden zu
@@ -1300,7 +1229,7 @@ insserv kivitendo-task-server</programlisting>
       <para>Welche Methode und welcher Server verwendet werden, wird über die Konfigurationsdatei <filename>config/kivitendo.conf</filename>
       festgelegt. Dort befinden sich alle Einstellungen zu diesem Thema im Abschnitt '<literal>[mail_delivery]</literal>'.</para>
 
-      <sect2 id="config.sending-email.sendmail">
+      <sect2 id="config.sending-email.sendmail" xreflabel="E-Mail-Versand über lokalen E-Mail-Server">
         <title>Versand über lokalen E-Mail-Server</title>
 
         <para>Diese Methode bietet sich an, wenn auf dem Server, auf dem kivitendo läuft, bereits ein funktionsfähiger E-Mail-Server wie
@@ -1317,7 +1246,7 @@ insserv kivitendo-task-server</programlisting>
         E-Mail-Servers verwiesen.</para>
       </sect2>
 
-      <sect2 id="config.sending-email.smtp">
+      <sect2 id="config.sending-email.smtp" xreflabel="E-Mail-Versand über einen SMTP-Server">
         <title>Versand über einen SMTP-Server</title>
 
         <para>Diese Methode bietet sich an, wenn kein lokaler E-Mail-Server vorhanden oder zwar einer vorhanden, dieser aber nicht
