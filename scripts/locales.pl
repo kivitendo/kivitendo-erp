@@ -9,15 +9,16 @@
 use utf8;
 use strict;
 
+use Carp;
 use Data::Dumper;
 use English;
+use File::Slurp qw(slurp);
 use FileHandle;
 use Getopt::Long;
+use IO::Dir;
 use List::Util qw(first);
 use POSIX;
 use Pod::Usage;
-use Carp;
-use File::Slurp qw(slurp);
 
 $OUTPUT_AUTOFLUSH = 1;
 
@@ -43,30 +44,24 @@ my ($ALL_HEADER, $MISSING_HEADER, $LOST_HEADER);
 init();
 
 sub find_files {
-  my ($dir_name, $files) = @_;
+  my ($top_dir_name) = @_;
 
-  $files ||= [];
+  my (@files, $finder);
 
-  my @dirs_to_check;
+  $finder = sub {
+    my ($dir_name) = @_;
 
-  opendir my $dir, $dir_name or die "$! $dir_name";
+    tie my %dir_h, 'IO::Dir', $dir_name;
 
-  foreach my $name (readdir $dir) {
-    next if $name eq '.' || $name eq '..';
+    push @files,   grep { -f } map { "${dir_name}/${_}" }                       keys %dir_h;
+    my @sub_dirs = grep { -d } map { "${dir_name}/${_}" } grep { ! m/^\.\.?$/ } keys %dir_h;
 
-    my $full_name = "${dir_name}/${name}";
-    if (-d $full_name) {
-      push @dirs_to_check, $full_name;
-    } else {
-      push @{ $files }, $full_name;
-    }
-  }
+    $finder->($_) for @sub_dirs;
+  };
 
-  closedir $dir;
+  $finder->($top_dir_name);
 
-  map { find_files($_, $files) } @dirs_to_check;
-
-  return @{ $files };
+  return @files;
 }
 
 my @bindir_files = find_files($bindir);
@@ -76,25 +71,22 @@ my @customfiles  = grep /_custom/, @bindir_files;
 push @progfiles, map { m:^(.+)/([^/]+)$:; [ $2, $1 ] } grep { /\.pm$/ } map { find_files($_) } @progdirs;
 
 # put customized files into @customfiles
-my @menufiles;
+my (@menufiles, %dir_h);
 
 if ($opt_n) {
   @customfiles = ();
   @menufiles   = ($menufile);
 } else {
-  opendir DIR, "$basedir" or die "$!";
-  @menufiles = grep { /.*?_$menufile$/ } readdir DIR;
-  closedir DIR;
+  tie %dir_h, 'IO::Dir', $basedir;
+  @menufiles = grep { /.*?_$menufile$/ } keys %dir_h;
   unshift @menufiles, $menufile;
 }
 
-opendir DIR, $dbupdir or die "$!";
-my @dbplfiles = grep { /\.pl$/ } readdir DIR;
-closedir DIR;
+tie %dir_h, 'IO::Dir', $dbupdir;
+my @dbplfiles = grep { /\.pl$/ } keys %dir_h;
 
-opendir DIR, $dbupdir2 or die "$!";
-my @dbplfiles2 = grep { /\.pl$/ } readdir DIR;
-closedir DIR;
+tie %dir_h, 'IO::Dir', $dbupdir2;
+my @dbplfiles2 = grep { /\.pl$/ } keys %dir_h;
 
 # slurp the translations in
 our $self    = {};
@@ -119,9 +111,9 @@ chomp $charset;
 
 my %old_texts = %{ $self->{texts} || {} };
 
-map({ handle_file(@{ $_ }); } @progfiles);
-map({ handle_file($_, $dbupdir); } @dbplfiles);
-map({ handle_file($_, $dbupdir2); } @dbplfiles2);
+handle_file(@{ $_ })       for @progfiles;
+handle_file($_, $dbupdir)  for @dbplfiles;
+handle_file($_, $dbupdir2) for @dbplfiles2;
 
 # generate all
 generate_file(
@@ -430,14 +422,15 @@ sub scanfile {
 
   }
 
-  map { $alllocales{$_} = 1 }   keys %{$cached{$file}{all}};
-  map { $locale{$_} = 1 }       keys %{$cached{$file}{locale}};
-  map { $submit{$_} = 1 }       keys %{$cached{$file}{submit}};
-  map { &scanfile($_, 0, $scanned_files) } keys %{$cached{$file}{scan}};
-  map { &scanfile($_, 1, $scanned_files) } keys %{$cached{$file}{scannosubs}};
-  map { &scanhtmlfile($_)  }    keys %{$cached{$file}{scanh}};
+  $alllocales{$_} = 1             for keys %{$cached{$file}{all}};
+  $locale{$_}     = 1             for keys %{$cached{$file}{locale}};
+  $submit{$_}     = 1             for keys %{$cached{$file}{submit}};
 
-  @referenced_html_files{keys %{$cached{$file}{scanh}}} = (1) x scalar keys %{$cached{$file}{scanh}};
+  scanfile($_, 0, $scanned_files) for keys %{$cached{$file}{scan}};
+  scanfile($_, 1, $scanned_files) for keys %{$cached{$file}{scannosubs}};
+  scanhtmlfile($_)                for keys %{$cached{$file}{scanh}};
+
+  $referenced_html_files{$_} = 1  for keys %{$cached{$file}{scanh}};
 }
 
 sub scanmenu {
@@ -555,13 +548,13 @@ sub scanhtmlfile {
   }
 
   # copy back into global arrays
-  map { $alllocales{$_} = 1 } keys %{$cached{$file}{all}};
-  map { $locale{$_} = 1 }     keys %{$cached{$file}{html}};
-  map { $submit{$_} = 1 }     keys %{$cached{$file}{submit}};
+  $alllocales{$_} = 1            for keys %{$cached{$file}{all}};
+  $locale{$_}     = 1            for keys %{$cached{$file}{html}};
+  $submit{$_}     = 1            for keys %{$cached{$file}{submit}};
 
-  map { scanhtmlfile($_)  }   keys %{$cached{$file}{scanh}};
+  scanhtmlfile($_)               for keys %{$cached{$file}{scanh}};
 
-  @referenced_html_files{keys %{$cached{$file}{scanh}}} = (1) x scalar keys %{$cached{$file}{scanh}};
+  $referenced_html_files{$_} = 1 for keys %{$cached{$file}{scanh}};
 }
 
 sub search_unused_htmlfiles {
