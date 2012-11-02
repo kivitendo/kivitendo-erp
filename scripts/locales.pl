@@ -78,8 +78,8 @@ if ($opt_n) {
   @menufiles   = ($menufile);
 } else {
   tie %dir_h, 'IO::Dir', $basedir;
-  @menufiles = grep { /.*?_$menufile$/ } keys %dir_h;
-  unshift @menufiles, $menufile;
+  @menufiles = map { "$basedir/$_" } grep { /.*?_$menufile$/ } keys %dir_h;
+  unshift @menufiles, "$basedir/$menufile";
 }
 
 tie %dir_h, 'IO::Dir', $dbupdir;
@@ -114,6 +114,7 @@ my %old_texts = %{ $self->{texts} || {} };
 handle_file(@{ $_ })       for @progfiles;
 handle_file($_, $dbupdir)  for @dbplfiles;
 handle_file($_, $dbupdir2) for @dbplfiles2;
+scanmenu($_)               for @menufiles;
 
 # generate all
 generate_file(
