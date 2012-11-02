@@ -21,6 +21,41 @@
  <tr> </tr>
 
  <tr class='listheading'>
+   <th colspan="3">[% 'DATEV check configuration' | $T8 %]</th>
+ </tr>
+ <tr>
+   <td colspan="3">[% 'It is possible to make a quick DATEV export everytime you post a record to ensure things work nicely with their data requirements. This will result in a slight overhead though you can enable this for each type of record independantly.' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on sales invoice' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_sales_invoice', SELF.datev_check_on_sales_invoice) %]</td>
+   <td>[% 'Perform check when a sales invoice or a payment for a sales invoice is posted?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on purchase invoice' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_purchase_invoice', SELF.datev_check_on_purchase_invoice) %]</td>
+   <td>[% 'Perform check when a purchase invoice or a payment for a purchase invoice is posted?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on ar transaction' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_ar_transaction', SELF.datev_check_on_ar_transaction) %]</td>
+   <td>[% 'Perform check when an ar transaction is posted?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on ap transaction' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_ap_transaction', SELF.datev_check_on_ap_transaction) %]</td>
+   <td>[% 'Perform check when an ap transaction is posted?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on gl transaction' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_gl_transaction', SELF.datev_check_on_gl_transaction) %]</td>
+   <td>[% 'Perform check when a gl transaction is posted?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr class='listheading'>
    <th colspan="3">[% 'Warehouse' | $T8 %]</th>
  </tr>
  <tr>

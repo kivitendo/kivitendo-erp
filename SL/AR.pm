@@ -276,7 +276,7 @@ sub post_transaction {
   IO->set_datepaid(table => 'ar', id => $form->{id}, dbh => $dbh);
 
   # safety check datev export
-  if ($::lx_office_conf{datev_check}{check_on_ar_transaction}) {
+  if ($::instance_conf->get_datev_check_on_ar_transaction) {
     my $transdate = $::form->{transdate} ? DateTime->from_lxoffice($::form->{transdate}) : undef;
     $transdate  ||= DateTime->today;
 

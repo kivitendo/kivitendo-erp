@@ -686,7 +686,7 @@ sub post_invoice {
                                'table'   => 'ap',);
 
   # safety check datev export
-  if ($::lx_office_conf{datev_check}{check_on_purchase_invoice}) {
+  if ($::instance_conf->get_datev_check_on_purchase_invoice) {
     my $transdate = $::form->{invdate} ? DateTime->from_lxoffice($::form->{invdate}) : undef;
     $transdate  ||= DateTime->today;
 

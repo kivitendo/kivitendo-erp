@@ -49,6 +49,31 @@ sub get_profit_determination {
   return $self->{data}->{profit_determination};
 }
 
+sub get_datev_check_on_sales_invoice {
+  my ($self) = @_;
+  return $self->{data}->{datev_check_on_sales_invoice};
+}
+
+sub get_datev_check_on_purchase_invoice {
+  my ($self) = @_;
+  return $self->{data}->{datev_check_on_purchase_invoice};
+}
+
+sub get_datev_check_on_ar_transaction {
+  my ($self) = @_;
+  return $self->{data}->{datev_check_on_ar_transaction};
+}
+
+sub get_datev_check_on_ap_transaction {
+  my ($self) = @_;
+  return $self->{data}->{datev_check_on_ap_transaction};
+}
+
+sub get_datev_check_on_gl_transaction {
+  my ($self) = @_;
+  return $self->{data}->{datev_check_on_gl_transaction};
+}
+
 sub get_show_bestbefore {
   my ($self) = @_;
   return $self->{data}->{show_bestbefore};
@@ -105,6 +130,26 @@ Returns the default inventory system, perpetual or periodic
 =item C<get_profit_determination>
 
 Returns the default profit determination method, balance or income
+
+=item C<get_datev_check_on_sales_invoice>
+
+Returns true if datev check should be performed on sales invoices
+
+=item C<get_datev_check_on_purchase_invoice>
+
+Returns true if datev check should be performed on purchase invoices
+
+=item C<get_datev_check_on_ar_transaction>
+
+Returns true if datev check should be performed on ar transactions
+
+=item C<get_datev_check_on_ap_transaction>
+
+Returns true if datev check should be performed on ap transactions
+
+=item C<get_datev_check_on_gl_transaction>
+
+Returns true if datev check should be performed on gl transactions
 
 =item C<get_show_bestbefore>
 
