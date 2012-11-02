@@ -16,6 +16,24 @@
    <td>[% L.select_tag('payments_changeable', SELF.payment_options, value_key => 'value', title_key => 'title', default => SELF.payments_changeable) %]</td>
    <td>[% 'Should payments be and when should they be changeable after posting?' | $T8 %]</td>
  </tr>
+ <tr>
+   <td align="right">[% 'Accounting method' | $T8 %]</td>
+   <td>[% L.select_tag('accounting_method', SELF.accounting_options, value_key => 'value', title_key => 'title', default => SELF.accounting_method) %]</td>
+   <td>[% 'This option controls the posting and calculation behavior for the accounting method.' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Inventory system' | $T8 %]</td>
+   <td>[% L.select_tag('inventory_system', SELF.inventory_options, value_key => 'value', title_key => 'title', default => SELF.inventory_system) %]</td>
+   <td>
+     [% 'This option controls the inventory system.' | $T8 %]<br>
+     [% 'ATTENTION! You can not simply change it from periodic to perpetual once you started posting.' | $T8 %]
+   </td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Profit determination' | $T8 %]</td>
+   <td>[% L.select_tag('profit_determination', SELF.profit_options, value_key => 'value', title_key => 'title', default => SELF.profit_determination) %]</td>
+   <td>[% 'This option controls the method used for profit determination.' | $T8 %]</td>
+ </tr>
 
  <tr> </tr>
  <tr> </tr>

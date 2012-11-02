@@ -15,8 +15,17 @@ sub action_edit {
   $self->{payment_options} = [ { title => $::locale->text("never"), value => 0 },
                                { title => $::locale->text("every time"), value => 1 },
                                { title => $::locale->text("on the same day"), value => 2 }, ];
+  $self->{accounting_options} = [ { title => $::locale->text("accrual"), value => "accrual" },
+                                  { title => $::locale->text("cash"), value => "cash" }, ];
+  $self->{inventory_options} = [ { title => $::locale->text("perpetual"), value => "perpetual" },
+                                 { title => $::locale->text("periodic"), value => "periodic" }, ];
+  $self->{profit_options} = [ { title => $::locale->text("balance"), value => "balance" },
+                              { title => $::locale->text("income"), value => "income" }, ];
 
   $self->{payments_changeable} = SL::DB::Default->get->payments_changeable;
+
+  map { $self->{$_} = SL::DB::Default->get->$_ } qw(accounting_method inventory_system profit_determination);
+
   $self->{show_bestbefore}     = SL::DB::Default->get->show_bestbefore;
 
   map { $self->{$_} = SL::DB::Default->get->$_ } qw(datev_check_on_sales_invoice datev_check_on_purchase_invoice datev_check_on_ar_transaction datev_check_on_ap_transaction datev_check_on_gl_transaction);
@@ -33,6 +42,9 @@ sub action_save {
   my ($self, %params) = @_;
 
   SL::DB::Default->get->update_attributes('payments_changeable' => $::form->{payments_changeable});
+
+  map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(accounting_method inventory_system profit_determination);
+
   SL::DB::Default->get->update_attributes('show_bestbefore'     => $::form->{show_bestbefore});
 
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(datev_check_on_sales_invoice datev_check_on_purchase_invoice datev_check_on_ar_transaction datev_check_on_ap_transaction datev_check_on_gl_transaction);
