@@ -2,6 +2,7 @@ package SL::Mailer::Sendmail;
 
 use strict;
 
+use Encode;
 use IO::File;
 use SL::Template;
 
@@ -17,7 +18,7 @@ sub init {
 
   Rose::Object::init(@_);
 
-  my $email         =  $self->mailer->recode($self->myconfig->{email});
+  my $email         =  $::locale->is_utf8 ? Encode::encode('utf-8', $self->myconfig->{email}) : $self->myconfig->{email};
   $email            =~ s/[^\w\.\-\+=@]//ig;
 
   my %temp_form     = ( %{ $self->form }, myconfig_email => $email );
