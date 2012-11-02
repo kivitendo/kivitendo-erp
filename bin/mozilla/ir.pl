@@ -35,6 +35,7 @@ use SL::FU;
 use SL::IR;
 use SL::IS;
 use SL::PE;
+use SL::DB::Default;
 use List::Util qw(max sum);
 
 require "bin/mozilla/io.pl";
@@ -415,10 +416,10 @@ sub form_footer {
 
   for my $i (1 .. $form->{paidaccounts}) {
     $form->{"changeable_$i"} = 1;
-    if ($::lx_office_conf{features}->{payments_changeable} == 0) {
+    if (SL::DB::Default->get->payments_changeable == 0) {
       # never
       $form->{"changeable_$i"} = ($form->{"acc_trans_id_$i"})? 0 : 1;
-    } elsif ($::lx_office_conf{features}->{payments_changeable} == 2) {
+    } elsif (SL::DB::Default->get->payments_changeable == 2) {
       # on the same day
       $form->{"changeable_$i"} = (($form->{"gldate_$i"} eq '') ||
                                   ($form->current_date(\%myconfig) eq $form->{"gldate_$i"}));

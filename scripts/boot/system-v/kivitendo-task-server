@@ -7,14 +7,14 @@
 # Default-Start:     2 3 4 5
 # Default-Stop:      0 1 6
 # X-Interactive:     true
-# Short-Description: Start/stop the Kivitendo task server
+# Short-Description: Start/stop the kivitendo task server
 ### END INIT INFO
 
 set -e
 
-# Change this to point to the Kivitendo "task_server.pl" location.
+# Change this to point to the kivitendo "task_server.pl" location.
 DAEMON="/opt/kivitendo/scripts/task_server.pl"
-TOPIC="Kivitendo task server"
+TOPIC="kivitendo task server"
 
 if [ ! -x $DAEMON ] ; then
   echo "$TOPIC executable not found"

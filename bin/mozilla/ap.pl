@@ -40,6 +40,7 @@ use SL::IR;
 use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
+use SL::DB::Default;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
@@ -693,11 +694,11 @@ $jsscript
     print qq|<input type=hidden name="acc_trans_id_$i" value=$form->{"acc_trans_id_$i"}>\n|;
     print qq|<input type=hidden name="gldate_$i" value=$form->{"gldate_$i"}>\n|;
     my $changeable = 1;
-    if ($::lx_office_conf{features}->{payments_changeable} == 0) {
+    if (SL::DB::Default->get->payments_changeable == 0) {
       # never
       $changeable = ($form->{"acc_trans_id_$i"})? 0 : 1;
     }
-    if ($::lx_office_conf{features}->{payments_changeable} == 2) {
+    if (SL::DB::Default->get->payments_changeable == 2) {
       # on the same day
       $changeable = (($form->{"gldate_$i"} eq '') || $form->current_date(\%myconfig) eq $form->{"gldate_$i"});
     }

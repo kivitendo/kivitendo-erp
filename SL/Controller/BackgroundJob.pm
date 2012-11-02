@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::BackgroundJob::Base;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
@@ -50,13 +51,18 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  $self->background_job(SL::DB::BackgroundJob->new(cron_spec => '* * * * *'));
-  $self->render('background_job/form', title => $::locale->text('Create a new background job'));
+  $self->background_job(SL::DB::BackgroundJob->new(cron_spec => '* * * * *',  package_name => 'Test'));
+  $self->render('background_job/form',
+                title       => $::locale->text('Create a new background job'),
+                JOB_CLASSES => [ SL::BackgroundJob::Base->get_known_job_classes ]);
 }
 
 sub action_edit {
   my ($self) = @_;
-  $self->render('background_job/form', title => $::locale->text('Edit background job'));
+
+  $self->render('background_job/form',
+                title       => $::locale->text('Edit background job'),
+                JOB_CLASSES => [ SL::BackgroundJob::Base->get_known_job_classes ]);
 }
 
 sub action_create {

@@ -9,33 +9,31 @@ use Rose::Object::MakeMethods::Generic
   scalar => [ qw(myconfig mailer form) ]
 );
 
+my %security_config = (
+  none => { require_module => 'Net::SMTP',          package => 'Net::SMTP',      port =>  25 },
+  tls  => { require_module => 'Net::SSLGlue::SMTP', package => 'Net::SMTP',      port =>  25 },
+  ssl  => { require_module => 'Net::SMTP::SSL',     package => 'Net::SMTP::SSL', port => 465 },
+);
+
 sub init {
   my ($self) = @_;
 
   Rose::Object::init(@_);
 
   my $cfg           = $::lx_office_conf{mail_delivery} || {};
-  $self->{security} = lc($cfg->{security} || 'none');
+  $self->{security} = exists $security_config{lc $cfg->{security}} ? lc $cfg->{security} : 'none';
+  my $sec_cfg       = $security_config{ $self->{security} };
 
-  if ($self->{security} eq 'tls') {
-    require Net::SMTP::TLS;
-    my %params;
-    if ($cfg->{login}) {
-      $params{User}     = $cfg->{user};
-      $params{Password} = $cfg->{password};
-    }
-    $self->{smtp} = Net::SMTP::TLS->new($cfg->{host} || 'localhost', Port => $cfg->{port} || 25, %params);
+  eval "require $sec_cfg->{require_module}" or die "$@";
 
-  } else {
-    my $module       = $self->{security} eq 'ssl' ? 'Net::SMTP::SSL' : 'Net::SMTP';
-    my $default_port = $self->{security} eq 'ssl' ? 465              : 25;
-    eval "require $module" or die $@;
-
-    $self->{smtp} = $module->new($cfg->{host} || 'localhost', Port => $cfg->{port} || $default_port);
-    $self->{smtp}->auth($cfg->{user}, $cfg->{password}) if $cfg->{login};
-  }
-
+  $self->{smtp} = $sec_cfg->{package}->new($cfg->{host} || 'localhost', Port => $cfg->{port} || $sec_cfg->{port});
   die unless $self->{smtp};
+
+  $self->{smtp}->starttls(SSL_verify_mode => 0) || die if $self->{security} eq 'tls';
+
+  return 1 unless $cfg->{login};
+
+  $self->{smtp}->auth($cfg->{user}, $cfg->{password}) or die;
 }
 
 sub start_mail {
