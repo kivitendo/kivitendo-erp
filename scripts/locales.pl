@@ -37,6 +37,9 @@ my $dbupdir      = "$basedir/sql/Pg-upgrade";
 my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
 my $menufile     = "menu.ini";
 my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
+our $self        = {};
+our $missing     = {};
+our @lost        = ();
 
 my (%referenced_html_files, %locale, %htmllocale, %alllocales, %cached, %submit);
 my ($ALL_HEADER, $MISSING_HEADER, $LOST_HEADER);
@@ -64,6 +67,15 @@ sub find_files {
   return @files;
 }
 
+sub merge_texts {
+# overwrite existing entries with the ones from 'missing'
+  $self->{texts}->{$_} = $missing->{$_} for grep { $missing->{$_} } keys %alllocales;
+
+  # try to set missing entries from lost ones
+  my %lost_by_text = map { ($_->{text} => $_->{translation}) } @lost;
+  $self->{texts}->{$_} = $lost_by_text{$_} for grep { !$self->{texts}{$_} } keys %alllocales;
+}
+
 my @bindir_files = find_files($bindir);
 my @progfiles    = map { m:^(.+)/([^/]+)$:; [ $2, $1 ]  } grep { /\.pl$/ && !/_custom/ } @bindir_files;
 my @customfiles  = grep /_custom/, @bindir_files;
@@ -89,11 +101,6 @@ tie %dir_h, 'IO::Dir', $dbupdir2;
 my @dbplfiles2 = grep { /\.pl$/ } keys %dir_h;
 
 # slurp the translations in
-our $self    = {};
-our $missing = {};
-our @missing = ();
-our @lost    = ();
-
 if (-f "$locales_dir/all") {
   require "$locales_dir/all";
 }
@@ -116,6 +123,9 @@ handle_file($_, $dbupdir)  for @dbplfiles;
 handle_file($_, $dbupdir2) for @dbplfiles2;
 scanmenu($_)               for @menufiles;
 
+# merge entries to translate with entries from files 'missing' and 'lost'
+merge_texts();
+
 # generate all
 generate_file(
   file      => "$locales_dir/all",
@@ -124,15 +134,24 @@ generate_file(
   data_sub  => sub { _print_line($_, $self->{texts}{$_}, @_) for sort keys %alllocales },
 );
 
-# calc and generate missing
-push @missing, grep { !$self->{texts}{$_} } sort keys %alllocales;
+  foreach my $text (keys %$missing) {
+    if ($locale{$text} || $htmllocale{$text}) {
+      unless ($self->{texts}{$text}) {
+        $self->{texts}{$text} = $missing->{$text};
+      }
+    }
+  }
 
-if (@missing) {
+
+# calc and generate missing
+my @new_missing = grep { !$self->{texts}{$_} } sort keys %alllocales;
+
+if (@new_missing) {
   generate_file(
     file      => "$locales_dir/missing",
     header    => $MISSING_HEADER,
     data_name => '$missing',
-    data_sub  => sub { _print_line($_, '', @_) for @missing },
+    data_sub  => sub { _print_line($_, '', @_) for @new_missing },
   );
 }
 
@@ -161,7 +180,7 @@ chomp $trlanguage;
 search_unused_htmlfiles() if $opt_c;
 
 my $count  = scalar keys %alllocales;
-my $notext = scalar @missing;
+my $notext = scalar @new_missing;
 my $per    = sprintf("%.1f", ($count - $notext) / $count * 100);
 print "\n$trlanguage - ${per}%";
 print " - $notext/$count missing" if $notext;
@@ -248,14 +267,6 @@ sub handle_file {
   }
 
   $file =~ s/\.pl//;
-
-  foreach my $text (keys %$missing) {
-    if ($locale{$text} || $htmllocale{$text}) {
-      unless ($self->{texts}{$text}) {
-        $self->{texts}{$text} = $missing->{$text};
-      }
-    }
-  }
 }
 
 sub extract_text_between_parenthesis {
