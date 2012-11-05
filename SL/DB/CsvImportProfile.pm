@@ -5,6 +5,7 @@ use strict;
 use List::Util qw(first);
 
 use SL::DB::MetaSetup::CsvImportProfile;
+use Rose::DB::Object::Helpers qw(clone_and_reset);
 
 __PACKAGE__->meta->add_relationship(
   settings => {
@@ -92,6 +93,16 @@ sub _set_defaults {
   }
 
   return $self;
+}
+
+sub clone_and_reset_deep {
+  my ($self) = @_;
+
+  my $clone = $self->clone_and_reset;
+  $clone->settings(map { $_->clone_and_reset } $self->settings);
+  $clone->name('');
+
+  return $clone;
 }
 
 #

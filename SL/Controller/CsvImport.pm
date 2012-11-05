@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
+use SL::DB::CsvImportReport;
 use SL::DB::Unit;
 use SL::Helper::Flash;
 use SL::SessionFile;
@@ -26,7 +27,7 @@ use Rose::Object::MakeMethods::Generic
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('ensure_form_structure');
-__PACKAGE__->run_before('check_type');
+__PACKAGE__->run_before('check_type', except => [ qw(report) ]);
 __PACKAGE__->run_before('load_all_profiles');
 
 #
@@ -182,6 +183,8 @@ sub test_and_import {
   $self->num_imported(0);
   $worker->save_objects if !$params{test};
 
+  $self->save_report;
+
   $self->num_importable(scalar grep { !$_ } map { scalar @{ $_->{errors} } } @{ $self->data || [] });
   $self->import_status($params{test} ? 'tested' : 'imported');
 
@@ -255,6 +258,61 @@ sub char_map {
                        "'" => [ 'singlequote', $::locale->text('Single quotes') ],
                      },
          );
+}
+
+sub save_report {
+  my ($self, $report_id) = @_;
+
+  my $clone_profile = $self->profile->clone_and_reset_deep;
+  $clone_profile->save; # weird bug. if this isn't saved before adding it to the report, it will default back to the last profile.
+
+  my $report = SL::DB::CsvImportReport->new(
+    session_id => $::auth->create_or_refresh_session,
+    profile    => $clone_profile,
+    type       => $self->type,
+    file       => '',
+  )->save(cascade => 1);
+
+  my $dbh = $::form->get_standard_dbh;
+  $dbh->begin_work;
+
+  my $query = 'INSERT INTO csv_import_report_rows (csv_import_report_id, col, row, value) VALUES (?, ?, ?, ?)';
+
+  my $sth = $dbh->prepare($query);
+
+  # save headers
+  my @headers = (
+    @{ $self->info_headers->{headers} || [] },
+    @{ $self->headers->{headers} || [] },
+    @{ $self->raw_data_headers->{headers} || [] },
+  );
+  my @info_methods = keys %{ $self->info_headers->{methods} || {} };
+  my @methods      = @{ $self->headers->{methods} || [] };
+  my @raw_methods  = keys %{ $self->raw_data_headers->{used} || {} };
+
+  $sth->execute($report->id, $_, 0, $headers[$_]) for 0 .. $#headers;
+
+  # col offsets
+  my $o1 =       @info_methods;
+  my $o2 = $o1 + @methods;
+
+  for my $row (0 .. $#{ $self->data }) {
+    my $data_row = $self->{data}[$row];
+
+    $sth->execute($report->id,       $_, $row + 1, $data_row->{info_data}{ $info_methods[$_] }) for 0 .. $#info_methods;
+    $sth->execute($report->id, $o1 + $_, $row + 1, $data_row->{object}->${ \ $methods[$_] })    for 0 .. $#methods;
+    $sth->execute($report->id, $o2 + $_, $row + 1, $data_row->{raw_data}{ $raw_methods[$_] })   for 0 .. $#raw_methods;
+  }
+
+  $dbh->commit;
+}
+
+sub action_report {
+  my ($self) = @_;
+
+  $self->{report} = SL::DB::Manager::CsvImportReport->find_by(id => $::form->{id});
+
+  $self->render('csv_import/report');
 }
 
 sub csv_file_name {
