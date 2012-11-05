@@ -104,6 +104,26 @@ sub get_show_bestbefore {
   return $self->{data}->{show_bestbefore};
 }
 
+sub get_is_show_mark_as_paid {
+  my ($self) = @_;
+  return $self->{data}->{is_show_mark_as_paid};
+}
+
+sub get_ir_show_mark_as_paid {
+  my ($self) = @_;
+  return $self->{data}->{ir_show_mark_as_paid};
+}
+
+sub get_ar_show_mark_as_paid {
+  my ($self) = @_;
+  return $self->{data}->{ar_show_mark_as_paid};
+}
+
+sub get_ap_show_mark_as_paid {
+  my ($self) = @_;
+  return $self->{data}->{ap_show_mark_as_paid};
+}
+
 1;
 
 __END__
@@ -193,6 +213,17 @@ Returns true if datev check should be performed on gl transactions
 =item C<get_show_bestbefore>
 
 Returns the default behavior for showing best before date, true or false
+
+=item C<get_is_show_mark_as_paid>
+
+=item C<get_ir_show_mark_as_paid>
+
+=item C<get_ar_show_mark_as_paid>
+
+=item C<get_ap_show_mark_as_paid>
+
+Returns the default behavior for showing the mark as paid button for the
+corresponding record type (true or false).
 
 =back
 

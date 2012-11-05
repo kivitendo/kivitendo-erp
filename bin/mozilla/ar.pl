@@ -533,7 +533,7 @@ $follow_ups_block
   }
   # /button for saving history
   # mark_as_paid button
-  if($form->{id} ne "") {
+  if(($form->{id} ne "") && $::instance_conf->get_ar_show_mark_as_paid) {
     print qq|<input type="submit" class="submit" name="action" value="|
           . $locale->text('mark as paid') . qq|">|;
   }

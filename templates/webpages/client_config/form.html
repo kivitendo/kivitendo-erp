@@ -51,6 +51,30 @@
  <tr> </tr>
 
  <tr>
+   <td align="right">[% 'Show "mark as paid" in sales invoices' | $T8 %]</td>
+   <td>[% L.yes_no_tag('is_show_mark_as_paid', SELF.is_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed on sales invoices?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in purchase invoices' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ir_show_mark_as_paid', SELF.ir_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in purchase invoices?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in ar transactions' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ar_show_mark_as_paid', SELF.ar_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in ar transactions?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in ap transactions' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ap_show_mark_as_paid', SELF.ap_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in ap transactions?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr>
    <td align="right">[% 'Accounting method' | $T8 %]</td>
    <td>[% L.select_tag('accounting_method', SELF.accounting_options, value_key => 'value', title_key => 'title', default => SELF.accounting_method) %]</td>
    <td>[% 'This option controls the posting and calculation behavior for the accounting method.' | $T8 %]</td>

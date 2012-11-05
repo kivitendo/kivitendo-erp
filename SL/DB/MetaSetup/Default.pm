@@ -59,6 +59,10 @@ __PACKAGE__->meta->setup(
     ar_changeable                   => { type => 'integer', default => 2, not_null => 1 },
     ap_changeable                   => { type => 'integer', default => 2, not_null => 1 },
     gl_changeable                   => { type => 'integer', default => 2, not_null => 1 },
+    is_show_mark_as_paid            => { type => 'boolean', default => 'true' },
+    ir_show_mark_as_paid            => { type => 'boolean', default => 'true' },
+    ar_show_mark_as_paid            => { type => 'boolean', default => 'true' },
+    ap_show_mark_as_paid            => { type => 'boolean', default => 'true' },
   ],
 
   primary_key_columns => [ 'id' ],

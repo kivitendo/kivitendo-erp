@@ -855,10 +855,10 @@ sub form_footer {
 
   $::form->header;
   print $::form->parse_html_template('ap/form_footer', {
-    num_due         => $num_due,
-    num_follow_ups  => $num_follow_ups,
-    show_post_draft => ($transdate > $closedto) && !$::form->{id},
-    show_storno     => $storno,
+    num_due           => $num_due,
+    num_follow_ups    => $num_follow_ups,
+    show_post_draft   => ($transdate > $closedto) && !$::form->{id},
+    show_storno       => $storno,
   });
 
   $::lxdebug->leave_sub;

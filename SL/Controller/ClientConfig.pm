@@ -29,6 +29,8 @@ sub action_edit {
 
   $self->{payments_changeable} = SL::DB::Default->get->payments_changeable;
 
+  map { $self->{$_} = SL::DB::Default->get->$_ } qw(is_show_mark_as_paid ir_show_mark_as_paid ar_show_mark_as_paid ap_show_mark_as_paid);
+
   map { $self->{$_} = SL::DB::Default->get->$_ } qw(accounting_method inventory_system profit_determination);
 
   $self->{show_bestbefore}     = SL::DB::Default->get->show_bestbefore;
@@ -49,6 +51,8 @@ sub action_save {
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(is_changeable ir_changeable ar_changeable ap_changeable gl_changeable);
 
   SL::DB::Default->get->update_attributes('payments_changeable' => $::form->{payments_changeable});
+
+  map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(is_show_mark_as_paid ir_show_mark_as_paid ar_show_mark_as_paid ap_show_mark_as_paid);
 
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(accounting_method inventory_system profit_determination);
 
