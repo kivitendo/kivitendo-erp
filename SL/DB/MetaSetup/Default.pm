@@ -54,6 +54,11 @@ __PACKAGE__->meta->setup(
     datev_check_on_ar_transaction   => { type => 'boolean', default => 'true' },
     datev_check_on_ap_transaction   => { type => 'boolean', default => 'true' },
     datev_check_on_gl_transaction   => { type => 'boolean', default => 'true' },
+    is_changeable                   => { type => 'integer', default => 2, not_null => 1 },
+    ir_changeable                   => { type => 'integer', default => 2, not_null => 1 },
+    ar_changeable                   => { type => 'integer', default => 2, not_null => 1 },
+    ap_changeable                   => { type => 'integer', default => 2, not_null => 1 },
+    gl_changeable                   => { type => 'integer', default => 2, not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],

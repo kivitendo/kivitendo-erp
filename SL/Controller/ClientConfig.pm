@@ -12,6 +12,9 @@ __PACKAGE__->run_before('check_auth');
 sub action_edit {
   my ($self, %params) = @_;
 
+  $self->{posting_options} = [ { title => $::locale->text("never"), value => 0 },
+                               { title => $::locale->text("every time"), value => 1 },
+                               { title => $::locale->text("on the same day"), value => 2 }, ];
   $self->{payment_options} = [ { title => $::locale->text("never"), value => 0 },
                                { title => $::locale->text("every time"), value => 1 },
                                { title => $::locale->text("on the same day"), value => 2 }, ];
@@ -21,6 +24,8 @@ sub action_edit {
                                  { title => $::locale->text("periodic"), value => "periodic" }, ];
   $self->{profit_options} = [ { title => $::locale->text("balance"), value => "balance" },
                               { title => $::locale->text("income"), value => "income" }, ];
+
+  map { $self->{$_} = SL::DB::Default->get->$_ } qw(is_changeable ir_changeable ar_changeable ap_changeable gl_changeable);
 
   $self->{payments_changeable} = SL::DB::Default->get->payments_changeable;
 
@@ -40,6 +45,8 @@ sub action_edit {
 
 sub action_save {
   my ($self, %params) = @_;
+
+  map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(is_changeable ir_changeable ar_changeable ap_changeable gl_changeable);
 
   SL::DB::Default->get->update_attributes('payments_changeable' => $::form->{payments_changeable});
 

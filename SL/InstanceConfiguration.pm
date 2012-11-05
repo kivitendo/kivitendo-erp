@@ -49,6 +49,31 @@ sub get_profit_determination {
   return $self->{data}->{profit_determination};
 }
 
+sub get_is_changeable {
+  my ($self) = @_;
+  return $self->{data}->{is_changeable};
+}
+
+sub get_ir_changeable {
+  my ($self) = @_;
+  return $self->{data}->{ir_changeable};
+}
+
+sub get_ar_changeable {
+  my ($self) = @_;
+  return $self->{data}->{ar_changeable};
+}
+
+sub get_ap_changeable {
+  my ($self) = @_;
+  return $self->{data}->{ap_changeable};
+}
+
+sub get_gl_changeable {
+  my ($self) = @_;
+  return $self->{data}->{gl_changeable};
+}
+
 sub get_datev_check_on_sales_invoice {
   my ($self) = @_;
   return $self->{data}->{datev_check_on_sales_invoice};
@@ -130,6 +155,20 @@ Returns the default inventory system, perpetual or periodic
 =item C<get_profit_determination>
 
 Returns the default profit determination method, balance or income
+
+
+=item C<get_is_changeable>
+
+=item C<get_ir_changeable>
+
+=item C<get_ar_changeable>
+
+=item C<get_ap_changeable>
+
+=item C<get_gl_changeable>
+
+Returns if and when these record types are changeable or deleteable after
+posting. 0 means never, 1 means always and 2 means on the same day.
 
 =item C<get_datev_check_on_sales_invoice>
 
