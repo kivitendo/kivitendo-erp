@@ -73,6 +73,10 @@ dbupgrade2_tool.pl [options]
                          for it\'s option \'-T\' are acceptable.
     --nodeps             List all database upgrades that no other upgrade
                          depends on
+    --create=tag         Creates a new upgrade with the supplied tag. This
+                         action accepts several optional other options. See
+                         the option section for those. After creating the
+                         upgrade file your \$EDITOR will be called with it.
     --apply=tag          Applies the database upgrades \'tag\' and all
                          upgrades it depends on. If \'--apply\' is used
                          then the option \'--user\' must be used as well.
@@ -87,7 +91,7 @@ dbupgrade2_tool.pl [options]
                          and --dbpassword.
     --help               Show this help and exit.
 
-  Options:
+  General Options:
     --user=name          The name of the user configuration to use for
                          database connectivity.
     --dbname=name        Database connection options for the UTF-8
@@ -95,6 +99,16 @@ dbupgrade2_tool.pl [options]
     --dbport=port
     --dbuser=user
     --dbpassword=pw
+
+  Options for --create:
+    --type               \'sql\' or \'pl\'. Defaults to sql.
+    --description        The description field of the generated upgrade.
+    --encoding           Encoding used for the file. Defaults to \'utf8\'.
+                         Note: Your editor will not be told to open the file in
+                         this encoding.
+    --depends            Tags of upgrades which this upgrade depends upon.
+                         Defaults to the latest stable release upgrade.
+                         Multiple values possible.
 
 END_HELP
 ;
@@ -237,7 +251,7 @@ sub create_upgrade {
 
   my $filename    = $params{filename};
   my $dbupgrader  = $params{dbupgrader};
-  my $type        = $params{type}        || '';
+  my $type        = $params{type}        || 'sql';
   my $description = $params{description} || '';
   my $encoding    = $params{encoding}    || 'utf-8';
   my @depends     = @{ $params{depends} };
@@ -269,6 +283,8 @@ sub create_upgrade {
   print $fh "$comment \@depends: @depends\n";
   print $fh "$comment \@encoding: $encoding\n";
   close $fh;
+
+  print "File $full_filename created.\n";
 
   system("\$EDITOR $full_filename");
   exit 0;
