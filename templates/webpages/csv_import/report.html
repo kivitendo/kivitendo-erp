@@ -14,13 +14,14 @@
    <th>[%- LxERP.t8('Notes') %]</th>
   </tr>
  [%- ELSE %]
-  <tr class="[% IF row.errors.size %]redrow[% ELSE %]listrow[% END %][% loop.count % 2 %]">
+  [% csv_import_report_errors = SELF.report.folded_status.${loop.index}.errors %]
+  <tr class="[% IF csv_import_report_errors.size %]redrow[% ELSE %]listrow[% END %][% loop.count % 2 %]">
   [%- FOREACH value = row %]
    <td>[%- value | html  %]</td>
   [%- END %]
    <td>
-    [%- FOREACH error = row.errors %][%- HTML.escape(error) %][% UNLESS loop.last %]<br>[%- END %][%- END %]
-    [%- FOREACH info  = row.information %][% IF !loop.first || row.errors.size %]<br>[%- END %][%- HTML.escape(info) %][%- END %]
+    [%- FOREACH error = csv_import_report_errors %][%- error | html %][% UNLESS loop.last %]<br>[%- END %][%- END %]
+    [%- FOREACH info  = SELF.report.folded_status.${loop.index}.information %][% IF !loop.first || csv_import_report_errors.size %]<br>[%- END %][%- info | html %][%- END %]
    </td>
   </tr>
  [%- END %]

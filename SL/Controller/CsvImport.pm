@@ -276,9 +276,11 @@ sub save_report {
   my $dbh = $::form->get_standard_dbh;
   $dbh->begin_work;
 
-  my $query = 'INSERT INTO csv_import_report_rows (csv_import_report_id, col, row, value) VALUES (?, ?, ?, ?)';
+  my $query  = 'INSERT INTO csv_import_report_rows (csv_import_report_id, col, row, value) VALUES (?, ?, ?, ?)';
+  my $query2 = 'INSERT INTO csv_import_report_status (csv_import_report_id, row, type, value) VALUES (?, ?, ?, ?)';
 
   my $sth = $dbh->prepare($query);
+  my $sth2 = $dbh->prepare($query2);
 
   # save headers
   my @headers = (
@@ -302,6 +304,9 @@ sub save_report {
     $sth->execute($report->id,       $_, $row + 1, $data_row->{info_data}{ $info_methods[$_] }) for 0 .. $#info_methods;
     $sth->execute($report->id, $o1 + $_, $row + 1, $data_row->{object}->${ \ $methods[$_] })    for 0 .. $#methods;
     $sth->execute($report->id, $o2 + $_, $row + 1, $data_row->{raw_data}{ $raw_methods[$_] })   for 0 .. $#raw_methods;
+
+    $sth2->execute($report->id, $row + 1, 'information', $_) for @{ $data_row->{information} || [] };
+    $sth2->execute($report->id, $row + 1, 'errors', $_)      for @{ $data_row->{errors}      || [] };
   }
 
   $dbh->commit;

@@ -13,6 +13,11 @@ __PACKAGE__->meta->add_relationships(
     class        => 'SL::DB::CsvImportReportRow',
     column_map   => { id => 'csv_import_report_id' },
   },
+  status => {
+    type         => 'one to many',
+    class        => 'SL::DB::CsvImportReportStatus',
+    column_map   => { id => 'csv_import_report_id' },
+  },
 );
 
 __PACKAGE__->meta->make_manager_class;
@@ -26,16 +31,35 @@ sub folded_rows {
   return $self->{folded_rows};
 }
 
+sub folded_status {
+  my ($self) = @_;
+
+  $self->_fold_status unless $self->{folded_status};
+
+  return $self->{folded_status};
+}
+
 sub _fold_rows {
   my ($self) = @_;
 
   $self->{folded_rows} = [];
 
   for my $row_obj (@{ $self->rows }) {
-    $::lxdebug->dump(0,  "adding", $row_obj->row . ' ' . $row_obj->col . ' ' . $row_obj->value);
     $self->{folded_rows}->[ $row_obj->row ] ||= [];
     $self->{folded_rows}->[ $row_obj->row ][ $row_obj->col ] = $row_obj->value;
-    $::lxdebug->dump(0,  "now", $self->{folded_rows});
+  }
+}
+
+sub _fold_status {
+  my ($self) = @_;
+
+  $self->{folded_status} = [];
+
+  for my $status_obj (@{ $self->status }) {
+    $self->{folded_status}->[ $status_obj->row ] ||= {};
+    $self->{folded_status}->[ $status_obj->row ]{information} ||= [];
+    $self->{folded_status}->[ $status_obj->row ]{errors} ||= [];
+    push @{ $self->{folded_status}->[ $status_obj->row ]{ $status_obj->type } }, $status_obj->value;
   }
 }
 

@@ -19,9 +19,10 @@ CREATE TABLE csv_import_report_rows (
   value                TEXT
 );
 
-CREATE TABLE csv_import_report_row_status (
+CREATE TABLE csv_import_report_status (
   id                   SERIAL PRIMARY KEY,
-  csv_import_report_row_id INTEGER NOT NULL REFERENCES csv_import_report_rows(id),
+  csv_import_report_id INTEGER NOT NULL REFERENCES csv_import_reports(id),
+  row                  INTEGER NOT NULL,
   type                 TEXT NOT NULL,
   value                TEXT
 );
