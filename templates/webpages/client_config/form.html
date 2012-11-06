@@ -132,6 +132,33 @@
  <tr> </tr>
 
  <tr class='listheading'>
+   <th colspan="3">[% 'Orders / Delivery Orders deleteable' | $T8 %]</th>
+ </tr>
+ <tr>
+   <td align="right">[% 'Sales Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('sales_order_show_delete', SELF.sales_order_show_delete) %]</td>
+   <td>[% 'Show delete button in sales orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Purchase Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('purchase_order_show_delete', SELF.purchase_order_show_delete) %]</td>
+   <td>[% 'Show delete button in purchase orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Sales Delivery Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('sales_delivery_order_show_delete', SELF.sales_delivery_order_show_delete) %]</td>
+   <td>[% 'Show delete button in sales delivery orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Purchase Delivery Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('purchase_delivery_order_show_delete', SELF.purchase_delivery_order_show_delete) %]</td>
+   <td>[% 'Show delete button in purchase delivery orders?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr class='listheading'>
    <th colspan="3">[% 'Warehouse' | $T8 %]</th>
  </tr>
  <tr>
@@ -156,5 +183,7 @@
 
 [%- L.hidden_tag('action',  'ClientConfig/dispatch')  %]
 [%- L.submit_tag('action_save',  LxERP.t8('Save'))  %]
+
+<br><br>
 
 </form>

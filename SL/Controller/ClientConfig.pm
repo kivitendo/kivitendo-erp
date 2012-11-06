@@ -41,6 +41,8 @@ sub action_edit {
   #check_on_dunning = 0
   #check_on_sepa_import = 0
 
+  map { $self->{$_} = SL::DB::Default->get->$_ } qw(sales_order_show_delete purchase_order_show_delete sales_delivery_order_show_delete purchase_delivery_order_show_delete);
+
   $self->render('client_config/form', title => $::locale->text('Client Configuration'));
 }
 
@@ -59,6 +61,8 @@ sub action_save {
   SL::DB::Default->get->update_attributes('show_bestbefore'     => $::form->{show_bestbefore});
 
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(datev_check_on_sales_invoice datev_check_on_purchase_invoice datev_check_on_ar_transaction datev_check_on_ap_transaction datev_check_on_gl_transaction);
+
+  map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(sales_order_show_delete purchase_order_show_delete sales_delivery_order_show_delete purchase_delivery_order_show_delete);
 
   flash_later('info', $::locale->text('Client Configuration saved!'));
 

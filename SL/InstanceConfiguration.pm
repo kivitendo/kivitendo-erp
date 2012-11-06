@@ -124,6 +124,26 @@ sub get_ap_show_mark_as_paid {
   return $self->{data}->{ap_show_mark_as_paid};
 }
 
+sub get_sales_order_show_delete {
+  my ($self) = @_;
+  return $self->{data}->{sales_order_show_delete};
+}
+
+sub get_purchase_order_show_delete {
+  my ($self) = @_;
+  return $self->{data}->{purchase_order_show_delete};
+}
+
+sub get_sales_delivery_order_show_delete {
+  my ($self) = @_;
+  return $self->{data}->{sales_delivery_order_show_delete};
+}
+
+sub get_purchase_delivery_order_show_delete {
+  my ($self) = @_;
+  return $self->{data}->{purchase_delivery_order_show_delete};
+}
+
 1;
 
 __END__
@@ -223,6 +243,17 @@ Returns the default behavior for showing best before date, true or false
 =item C<get_ap_show_mark_as_paid>
 
 Returns the default behavior for showing the mark as paid button for the
+corresponding record type (true or false).
+
+=item C<get_sales_order_show_delete>
+
+=item C<get_purchase_order_show_delete>
+
+=item C<get_sales_delivery_order_show_delete>
+
+=item C<get_purchase_delivery_order_show_delete>
+
+Returns the default behavior for showing the delete button for the
 corresponding record type (true or false).
 
 =back
