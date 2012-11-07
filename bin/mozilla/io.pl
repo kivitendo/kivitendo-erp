@@ -1536,7 +1536,7 @@ sub print_form {
   my $emailed = $form->{emailed};
 
   if ($form->{media} eq 'queue') {
-    my %queued = map { s|.*/|| } split / /, $form->{queued};
+    my %queued = map { s|.*[/\\]||; $_ } split / /, $form->{queued};
 
     my $filename;
     my $suffix = ($form->{postscript}) ? '.ps' : '.pdf';
