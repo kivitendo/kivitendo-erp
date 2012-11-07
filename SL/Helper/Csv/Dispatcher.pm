@@ -78,7 +78,11 @@ sub parse_profile {
         $self->unknown_column($col, undef);
       }
     } else {
-      push @specs, $self->make_spec($col, $profile->{$col} || $col);
+      if (exists $profile->{$col}) {
+        push @specs, $self->make_spec($col, $profile->{$col});
+      } else {
+        push @specs, $self->make_spec($col, $col);
+      }
     }
   }
 
@@ -91,6 +95,9 @@ sub make_spec {
   my ($self, $col, $path) = @_;
 
   my $spec = { key => $col, steps => [] };
+
+  return unless $path;
+
   my $cur_class = $self->_csv->class;
 
   return unless $cur_class;
