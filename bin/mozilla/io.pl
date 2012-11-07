@@ -49,6 +49,7 @@ use SL::IO;
 
 use SL::DB::Language;
 use SL::DB::Printer;
+use SL::Helper::Flash;
 
 require "bin/mozilla/common.pl";
 
@@ -802,6 +803,7 @@ sub validate_items {
 
   # check if items are valid
   if ($form->{rowcount} == 1) {
+    flash('warning', $::locale->text('The action you\'ve chosen has not been executed because the document does not contain any item yet.'));
     &update;
     ::end_of_request();
   }
