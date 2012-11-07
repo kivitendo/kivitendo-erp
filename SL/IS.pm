@@ -2028,7 +2028,7 @@ sub get_pricegroups_for_parts {
 
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
 
-    # sellprice has format 13,0000 or 0,00000, can't check for 0 numerically
+    # sellprice has format 13,0000 or 0,00000,  can't check for 0 numerically
     my $sellprice = $form->{"sellprice_$i"};
     my $pricegroup_id = $form->{"pricegroup_id_$i"};
     $form->{"new_pricegroup_$i"} = $selectedpricegroup_id;
