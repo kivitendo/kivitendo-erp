@@ -6,13 +6,31 @@
 
 Größere neue Features:
 
+- Mandantenkonfiguration
+  Mit dem Recht "Administration (Für die Verwaltung der aktuellen Instanz aus
+  einem Userlogin heraus)" gibt es nun den Menüpnunkt
+  System->Mandantenkonfiguration, unter dem sich verschiedene
+  mandantenspezifische Einstellungen vornehmen lassen, die vorher entweder gar
+  nicht, nur beim Anlegen einer Mandantendatenbank oder in der
+  Konfigurationsdatei einstellbar waren. Es folgende Einstellungen:
+  * Änderbarkeit von Rechnungen/Zahlungen/Buchungen immer, nie oder am selben
+    Tag
+  * Durchführung des automatischen DATEV Konsistenzcheck bei Buchungen.
+  * Löschbarkeit von Aufträgen und Lieferscheinen
+  * Anzeige bzw. Eingabe des Mindeshaltbarkeitsdatums
+
+  Die Einstellungen show_best_before und payments_changeable (Abschnitt
+  [features]) sowie die Einstellungen unter im Abschnitt [datev_check] in der
+  Konfigurationsdatei werden bei einem Datenbank-Upgrade übernommen und können
+  danach aus der Konfigurationsdatei gelöscht werden.
+
 - Automatischer DATEV Konsistenzcheck bei Buchungen.
   Es ist jetzt möglich Buchungen aus den fünf Hauptmasken Verkaufsrechnung,
   Einkaufsrechnung, Kreditorenbuchung, Debitorenbuchung und Dialogbuchen
   automatisch auf korrekten DATEV Export zu prüfen. Wenn ein Problem beim
   Export auftreten sollte, wird die Buchung abgebrochen, so dass die Datenbank
-  konsistent bleibt und eine Fehlermeldung ausgegeben. Das Feature kann in der
-  Konfiguration unter [datev_check] angeschaltet werden.
+  konsistent bleibt und eine Fehlermeldung ausgegeben. Das Feature kann unter
+  "System->Mandantenkonfiguration" angeschaltet werden.
 
 - Verkaufsbericht: Sortierung um Land, Warengruppen, Kundentyp, Verkäufer und
   Monat erweitert, sowie benutzerdefinierte Variablen eingebunden.
