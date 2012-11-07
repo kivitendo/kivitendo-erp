@@ -42,7 +42,7 @@ $(clockon);
     [%- HTML.escape(mainitem.title) %]
    </a>
    [%- IF mainitem.subitems %]
-    <ul[%- IF force_ul_width %] width="[% mainitem.max_width * 12 %]"[% END %]>
+    <ul[%- IF force_ul_width %] width="[% mainitem.max_width * 10 %]"[% END %]>
      [%- SET sub1_id = main_id * 100 %]
      [%- FOREACH sub1item = mainitem.subitems %]
       [%- SET sub1_id = sub1_id + 1 %]
@@ -51,7 +51,7 @@ $(clockon);
         [%- HTML.escape(sub1item.title) %]
        </a>
        [%- IF sub1item.subitems %]
-        <ul[%- IF force_ul_width %] width="[% sub1item.max_width * 12 %]"[% END %]>
+        <ul[%- IF force_ul_width %] width="[% sub1item.max_width * 10 %]"[% END %]>
          [%- SET sub2_id = sub1_id * 100 %]
          [%- FOREACH sub2item = sub1item.subitems %]
           [%- SET sub2_id = sub2_id + 1 %]
