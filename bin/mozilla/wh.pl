@@ -44,6 +44,8 @@ use SL::WH;
 use SL::OE;
 use SL::ReportGenerator;
 
+use SL::DB::Part;
+
 use Data::Dumper;
 
 require "bin/mozilla/common.pl";
@@ -85,8 +87,16 @@ sub transfer_warehouse_selection {
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
   my $units      = AM->retrieve_units(\%myconfig, $form);
+
+  my $part = 0;
+  if ( $form->{parts_id} ) {
+    $part = SL::DB::Part->new();
+    $part->id($form->{parts_id});
+    $part->load();
+  }
+
   # der zweite Parameter von unit_select_data gibt den default-Namen (selected) vor
-  $form->{UNITS} = AM->unit_select_data($units, $form->{unit}, 0, $form->{unit});
+  $form->{UNITS} = AM->unit_select_data($units, $form->{unit}, 0, $part ? $part->unit : 0);
 
   if (scalar @{ $form->{WAREHOUSES} }) {
     $form->{warehouse_id} ||= $form->{WAREHOUSES}->[0]->{id};
