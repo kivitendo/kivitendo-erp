@@ -106,7 +106,7 @@
      <td><input name="chargenumber" size="30" value="[% HTML.escape(chargenumber) %]"></td>
     </tr>
 
-    [% IF conf_show_best_before %]
+    [% IF INSTANCE_CONF.get_show_bestbefore %]
     <tr>
      <th align="right" nowrap>[% 'Best Before' | $T8 %]</th>
      <td>

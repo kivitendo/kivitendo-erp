@@ -41,12 +41,7 @@ psql template1</pre><p>
 \q</pre></div><div class="sect2" title="2.4.4. Datenbankbenutzer anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbankbenutzer-anlegen"></a>2.4.4. Datenbankbenutzer anlegen</h3></div></div></div><p>Wenn Sie nicht den Datenbanksuperuser “postgres” zum Zugriff
         benutzen wollen, so sollten Sie bei PostgreSQL einen neuen Benutzer
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
-        können:</p>
-
-	Die Frage, ob der neue User Superuser sein soll, können Sie mit nein
-	beantworten, genauso ist die Berechtigung neue User (Roles) zu
-	generieren nicht nötig.
-	<pre class="programlisting">su - postgres
+        können:</p><pre class="programlisting">su - postgres
 createuser -d -P kivitendo
 exit</pre><p>Wenn Sie später einen Datenbankzugriff konfigurieren, verändern
         Sie den evtl. voreingestellten Benutzer “postgres” auf “kivitendo” bzw.

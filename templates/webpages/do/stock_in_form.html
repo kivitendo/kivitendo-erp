@@ -93,7 +93,7 @@
      <th class="listheading">[% 'Warehouse' | $T8 %]</th>
      <th class="listheading">[% 'Bin' | $T8 %]</th>
      <th class="listheading">[% 'Charge Number' | $T8 %]</th>
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <th class="listheading">[% 'Best Before' | $T8 %]</th>
      [% END %]
      <th align="right" class="listheading">[% 'Qty' | $T8 %]</th>
@@ -109,7 +109,7 @@
      <td>[% HTML.escape(row.warehouse_description) %]</td>
      <td>[% HTML.escape(row.bin_description) %]</td>
      <td>[% HTML.escape(row.chargenumber) %]</td>
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <td>[% HTML.escape(row.bestbefore) %]</td>
      [% END %]
      <td>[% HTML.escape(LxERP.format_amount(row.qty)) %]</td>
@@ -127,7 +127,7 @@
 
      <td><select name="bin_id_[% loop.count %]" id="bin_id_[% loop.count %]"></select></td>
      <td><input name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]"></td>
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <td>
        [% L.date_tag('bestbefore_'_ loop.count, row.bestbefore) %]
      </td>
