@@ -1433,11 +1433,9 @@ insserv kivitendo-task-server</programlisting>
              xreflabel="Einführung in die Konfiguration zur EUR">
         <title>Einführung</title>
 
-        <para>kivitendo besaß bis inklusive Version 2.6.3 einen
-        Konfigurationsparameter namens <varname>eur</varname>, der sich in der
-        Konfigurationsdatei <filename>config/lx_office.conf</filename>
-        befand. Somit galt er für alle Mandanten, die in dieser Installation
-        benutzt wurden.</para>
+        <para>kivitendo besaß bis inklusive Version 2.6.3 einen Konfigurationsparameter namens <varname>eur</varname>, der sich in der
+        Konfigurationsdatei <filename>config/kivitendo.conf</filename> (damals noch <filename>config/lx_office.conf</filename>)
+        befand. Somit galt er für alle Mandanten, die in dieser Installation benutzt wurden.</para>
 
         <para>Mit der nachfolgenden Version wurde der Parameter zum Einen in
         die Mandantendatenbank verschoben und dabei auch gleich in drei
@@ -1514,11 +1512,15 @@ insserv kivitendo-task-server</programlisting>
         ändert.</para>
 
         <para>Die aktuelle Konfiguration wird unter Nummernkreise und
-        Standardkonten unter dem neuen Punkt "Einstellungen" angezeigt
-        (read-only). Eine spätere Änderung ist für einen bestehenden Mandanten
-        nicht mehr möglich. Dies war auch vorher nicht möglich, bzw.
-        vorhandene Daten wurden so belassen und haben damit die Ergebnisse
-        verfälscht.</para>
+        Standardkonten unter dem neuen Punkt "Einstellungen" (read-only)
+        angezeigt. Unter <guimenu>System</guimenu>
+        -&gt; <guisubmenu>Mandantenkonfiguration</guisubmenu> können
+        die Einstellungen auch geändert werden. Dabei ist zu beachten,
+        dass eine Änderung vorhandene Daten so belässt und damit
+        evtl. die Ergebnisse verfälscht. Dies gilt vor Allem für die
+        Warenbuchungsmethode (siehe auch
+        <link linkend="config.eur.inventory-system-perpetual">
+        Bemerkungen zu Bestandsmethode</link>).</para>
       </sect2>
 
       <sect2 id="config.eur.inventory-system-perpetual">
@@ -1660,6 +1662,33 @@ insserv kivitendo-task-server</programlisting>
           </mediaobject>
         </screenshot>
       </sect2>
+    </sect1>
+
+    <sect1 id="config.client">
+      <title>Einstellungen pro Mandant</title>
+
+      <para>Einige Einstellungen können von einem Benutzer mit dem
+      <link linkend="Zusammenhänge">Recht</link> "Administration
+      (Für die Verwaltung der aktuellen Instanz aus einem Userlogin heraus)"
+      gemacht werden. Diese Einstellungen sind dann für die aktuellen
+      Mandanten-Datenbank gültig. Die Einstellungen sind
+      unter <guimenu>System</guimenu>
+      -&gt; <guisubmenu>Mandantenkonfiguration</guisubmenu> erreichbar.</para>
+
+      <para>Bitte beachten Sie die Hinweise zu den einzelnen
+      Einstellungen. Einige Einstellungen sollten nicht ohne Weiteres
+      im laufenden Betrieb geändert werden (siehe
+      auch <link linkend="config.eur.inventory-system-perpetual">Bemerkungen zu
+      Bestandsmethode</link>).</para>
+
+      <para>Die Einstellungen <literal>show_bestbefore</literal>
+      und <literal>payments_changeable</literal> aus dem
+      Abschnitt <literal>features</literal> und die Einstellungen im
+      Abschnitt <literal>datev_check</literal> (sofern schon vorhanden)
+      der <link linkend="config.config-file">kivitendo-Konfigurationsdatei</link>
+      werden bei einem Datenbankupdate einer älteren Version automatisch
+      übernommen. Diese Einträge können danach aus der Konfigurationsdatei
+      entfernt werden.</para>
     </sect1>
 
     <sect1 id="kivitendo-ERP-verwenden">
