@@ -119,6 +119,26 @@ sub setup_for_list {
               rl.from_table ='oe' AND
               rl.to_table = 'delivery_orders'
           )
+
+        UNION ALL
+
+        -- 5. In case someone deleted a line of the delivery_order there will be a record_link (4 fails)
+        --    but there won't be a delivery_order_items to find (3 fails too). Search for orphaned orderitems this way
+        SELECT oi.id FROM orderitems AS oi, oe, record_links AS rl
+        WHERE
+          rl.from_table = 'oe' AND
+          rl.to_table = 'delivery_orders' AND
+
+          oi.trans_id = rl.from_id AND
+          oi.parts_id NOT IN (
+            SELECT doi.parts_id FROM delivery_order_items AS doi WHERE doi.delivery_order_id = rl.to_id
+          ) AND
+
+          oe.id = oi.trans_id AND
+
+          oe.customer_id IS NOT NULL AND
+          (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+          NOT oe.closed
       " ],
     )
   ];

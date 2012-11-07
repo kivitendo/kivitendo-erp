@@ -17,6 +17,7 @@ BEGIN {
   { name => "DBI",             version => '1.50',  url => "http://search.cpan.org/~timb/",      debian => 'libdbi-perl' },
   { name => "DBD::Pg",         version => '1.49',  url => "http://search.cpan.org/~dbdpg/",     debian => 'libdbd-pg-perl' },
   { name => "Email::Address",                      url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-address-perl' },
+  { name => "Email::MIME",                         url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-mime-perl' },
   { name => "FCGI",            version => '0.72',  url => "http://search.cpan.org/~mstrout/",   debian => 'libfcgi-perl' },
   { name => "JSON",                                url => "http://search.cpan.org/~makamaka",   debian => 'libjson-perl' },
   { name => "List::MoreUtils", version => '0.21',  url => "http://search.cpan.org/~vparseval/", debian => 'liblist-moreutils-perl' },
@@ -41,7 +42,7 @@ BEGIN {
   { name => "Net::LDAP",                           url => "http://search.cpan.org/~gbarr/",     debian => 'libnet-ldap-perl' },
   # Net::SMTP is core since 5.7.3
   { name => "Net::SMTP::SSL",  version => '1.01',  url => "http://search.cpan.org/~cwest/",     debian => 'libnet-smtp-ssl-perl' },
-  { name => "Net::SMTP::TLS",  version => '0.12',  url => "http://search.cpan.org/~awestholm/", debian => 'libnet-smtp-tls-perl' },
+  { name => "Net::SSLGlue",    version => '1.01',  url => "http://search.cpan.org/~sullr/",     debian => 'libnet-sslglue-perl' },
 );
 
 @developer_modules = (

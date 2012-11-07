@@ -43,7 +43,7 @@
 
         <itemizedlist>
           <listitem>
-            <para>Ubuntu 10.04 LTS Lucid Lynx bis 12.04 Precise Pangolin</para>
+            <para>Ubuntu 10.04 LTS Lucid Lynx bis 12.10 Oneiric Ocelot</para>
           </listitem>
 
           <listitem>
@@ -75,86 +75,57 @@
         nicht Bestandteil einer Standard-Perl-Installation sind:</para>
 
         <itemizedlist>
-          <listitem>
-            <para>parent</para>
-          </listitem>
+          <listitem><para><literal>parent</literal></para></listitem>
 
-          <listitem>
-            <para>Archive::Zip</para>
-          </listitem>
+          <listitem><para><literal>Archive::Zip</literal></para></listitem>
 
-          <listitem>
-            <para>Config::Std</para>
-          </listitem>
+          <listitem><para><literal>Config::Std</literal></para></listitem>
 
-          <listitem>
-            <para>DateTime</para>
-          </listitem>
+          <listitem><para><literal>DateTime</literal></para></listitem>
 
-          <listitem>
-            <para>DBI</para>
-          </listitem>
+          <listitem><para><literal>DBI</literal></para></listitem>
 
-          <listitem>
-            <para>DBD::Pg</para>
-          </listitem>
+          <listitem><para><literal>DBD::Pg</literal></para></listitem>
 
-          <listitem>
-            <para>Email::Address</para>
-          </listitem>
+          <listitem><para><literal>Email::Address</literal></para></listitem>
 
-          <listitem>
-            <para>JSON</para>
-          </listitem>
+          <listitem><para><literal>Email::MIME</literal></para></listitem>
 
-          <listitem>
-            <para>List::MoreUtils</para>
-          </listitem>
+          <listitem><para><literal>JSON</literal></para></listitem>
 
-          <listitem>
-            <para>Params::Validate</para>
-          </listitem>
+          <listitem><para><literal>List::MoreUtils</literal></para></listitem>
 
-          <listitem>
-            <para>PDF::API2</para>
-          </listitem>
+          <listitem><para><literal>Net::SMTP::SSL</literal> (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<xref
+          linkend="config.sending-email.smtp"/>")</para></listitem>
 
-          <listitem>
-            <para>Rose::Object</para>
-          </listitem>
+          <listitem><para><literal>Net::SSLGlue</literal> (optional, bei E-Mail-Versand über TLS; siehe Abschnitt "<xref
+          linkend="config.sending-email.smtp"/>")</para></listitem>
 
-          <listitem>
-            <para>Rose::DB</para>
-          </listitem>
+          <listitem><para><literal>Params::Validate</literal></para></listitem>
 
-          <listitem>
-            <para>Rose::DB::Object</para>
-          </listitem>
+          <listitem><para><literal>PDF::API2</literal></para></listitem>
 
-          <listitem>
-            <para>Template</para>
-          </listitem>
+          <listitem><para><literal>Rose::Object</literal></para></listitem>
 
-          <listitem>
-            <para>Text::CSV_XS</para>
-          </listitem>
+          <listitem><para><literal>Rose::DB</literal></para></listitem>
 
-          <listitem>
-            <para>Text::Iconv</para>
-          </listitem>
+          <listitem><para><literal>Rose::DB::Object</literal></para></listitem>
 
-          <listitem>
-            <para>URI</para>
-          </listitem>
+          <listitem><para><literal>Template</literal></para></listitem>
 
-          <listitem>
-            <para>XML::Writer</para>
-          </listitem>
+          <listitem><para><literal>Text::CSV_XS</literal></para></listitem>
 
-          <listitem>
-            <para>YAML</para>
-          </listitem>
+          <listitem><para><literal>Text::Iconv</literal></para></listitem>
+
+          <listitem><para><literal>URI</literal></para></listitem>
+
+          <listitem><para><literal>XML::Writer</literal></para></listitem>
+
+          <listitem><para><literal>YAML</literal></para></listitem>
         </itemizedlist>
+
+        <para>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <literal>Email::MIME</literal>, <literal>Net::SMTP::SSL</literal>,
+        <literal>Net::SSLGlue</literal>.</para>
 
         <para>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
         hinzugekommen, <literal>URI</literal> und
@@ -184,31 +155,27 @@
 
         <programlisting>apt-get install apache2 postgresql libparent-perl libarchive-zip-perl \
   libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl \
-  libemail-address-perl liblist-moreutils-perl libpdf-api2-perl \
+  libemail-address-perl libemail-mime-perl liblist-moreutils-perl libpdf-api2-perl \
   librose-object-perl librose-db-perl librose-db-object-perl \
   libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl \
   libxml-writer-perl libyaml-perl libconfig-std-perl \
-  libparams-validate-perl libjson-perl libclass-accessor-perl</programlisting>
+  libparams-validate-perl libjson-perl libclass-accessor-perl \
+  libnet-sslglue-perl libnet-smtp-ssl-perl</programlisting>
 
         <para>Für Fedora Core benötigen Sie diese Pakete:</para>
 
         <programlisting>yum install httpd postgresql-server perl-parent perl-DateTime \
-  perl-DBI perl-DBD-Pg perl-Email-Address perl-List-MoreUtils \
+  perl-DBI perl-DBD-Pg perl-Email-Address perl-Email-MIME perl-List-MoreUtils \
   perl-PDF-API2 perl-Rose-Object perl-Rose-DB perl-Rose-DB-Object \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
-  perl-XML-Writer perl-YAML</programlisting>
+  perl-XML-Writer perl-YAML perl-Net-SSLGlue perl-Net-SMTP-SSL</programlisting>
 
         <para>Für OpenSuSE benötigen Sie diese Pakete:</para>
 
         <programlisting>zypper install apache2 postgresql-server perl-Archive-Zip \
-  perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-List-MoreUtils \
+  perl-DateTime perl-DBI perl-DBD-Pg perl-Email-MIME perl-MailTools perl-List-MoreUtils \
   perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
-  perl-URI perl-XML-Writer perl-YAML</programlisting>
-
-        <para>Bei openSuSE 11 ist <literal>parent</literal> bereits enthalten,
-        und braucht nicht nachinstalliert werden. Die
-        <literal>Rose::*</literal> Pakete sind derzeit nicht für SuSE gepackt,
-        und müssen anderweitig nachinstalliert werden.</para>
+  perl-URI perl-XML-Writer perl-YAML perl-Net-SSLGlue perl-Net-SMTP-SSL</programlisting>
 
         <para>kivitendo enthält ein Script, mit dem überprüft werden kann, ob
         alle benötigten Perl-Module installiert sind. Der Aufruf lautet wie
@@ -303,57 +270,34 @@ tar xvzf kivitendo-erp-2.6.3.tgz</programlisting>
         entsprechend kommentiert sind:</para>
 
         <itemizedlist>
-          <listitem>
-            <para><literal>authentication</literal></para>
-          </listitem>
+          <listitem><para><literal>authentication</literal> (siehe Abschnitt "<xref
+          linkend="Benutzerauthentifizierung-und-Administratorpasswort"/>" in diesem Kapitel)</para></listitem>
 
-          <listitem>
-            <para><literal>authentication/database</literal></para>
-          </listitem>
+          <listitem><para><literal>authentication/database</literal></para></listitem>
 
-          <listitem>
-            <para><literal>authentication/ldap</literal></para>
-          </listitem>
+          <listitem><para><literal>authentication/ldap</literal></para></listitem>
 
-          <listitem>
-            <para><literal>system</literal></para>
-          </listitem>
+          <listitem><para><literal>system</literal></para></listitem>
 
-          <listitem>
-            <para><literal>features</literal></para>
-          </listitem>
+          <listitem><para><literal>features</literal> (siehe Kapitel "<xref linkend="features"/>")</para></listitem>
 
-          <listitem>
-            <para><literal>paths</literal></para>
-          </listitem>
+          <listitem><para><literal>paths</literal></para></listitem>
 
-          <listitem>
-            <para><literal>applications</literal></para>
-          </listitem>
+          <listitem><para><literal>applications</literal></para></listitem>
 
-          <listitem>
-            <para><literal>environment</literal></para>
-          </listitem>
+          <listitem><para><literal>environment</literal></para></listitem>
 
-          <listitem>
-            <para><literal>print_templates</literal></para>
-          </listitem>
+          <listitem><para><literal>mail_delivery</literal> (siehe Abschnitt "<xref linkend="config.sending-email.smtp"/>)</para></listitem>
 
-          <listitem>
-            <para><literal>task_server</literal></para>
-          </listitem>
+          <listitem><para><literal>print_templates</literal></para></listitem>
 
-          <listitem>
-            <para><literal>periodic_invoices</literal></para>
-          </listitem>
+          <listitem><para><literal>task_server</literal></para></listitem>
 
-          <listitem>
-            <para><literal>console</literal></para>
-          </listitem>
+          <listitem><para><literal>periodic_invoices</literal></para></listitem>
 
-          <listitem>
-            <para><literal>debug</literal></para>
-          </listitem>
+          <listitem><para><literal>console</literal></para></listitem>
+
+          <listitem><para><literal>debug</literal></para></listitem>
         </itemizedlist>
 
         <para>Die üblicherweise wichtigsten Parameter, die am Anfang
@@ -494,10 +438,7 @@ psql template1</programlisting>
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
         können:</para>
 
-	Die Frage, ob der neue User Superuser sein soll, können Sie mit nein
-	beantworten, genauso ist die Berechtigung neue User (Roles) zu
-	generieren nicht nötig.
-	<programlisting>su - postgres
+	      <programlisting>su - postgres
 createuser -d -P kivitendo
 exit</programlisting>
 
@@ -613,10 +554,9 @@ Alias /kivitendo-erp/ /var/www/kiviteno-erp/
           verwendet.</para>
 
           <warning>
-            <para>FCGI 0.69 und höher ist extrem strict in der Behandlung von
-            Unicode, und verweigert bestimmte Eingaben von kivitendo. Falls es
-            Probleme mit Umlauten in Ihrere Installation gibt, muss auf die
-            Vorgängerversion FCGI 0.68 ausgewichen werden.</para>
+            <para>FCGI-Versionen ab 0.69 und bis zu 0.71 inklusive sind extrem strict in der Behandlung von Unicode, und verweigern
+            bestimmte Eingaben von kivitendo. Falls es Probleme mit Umlauten in Ihrere Installation gibt, muss zwingend Version 0.68 oder
+            aber Version 0.72 und neuer eingesetzt werden.</para>
 
             <para>Mit CPAN lässt sie sich die Vorgängerversion wie folgt
             installieren:</para>
@@ -1277,6 +1217,91 @@ insserv kivitendo-task-server</programlisting>
       </sect2>
     </sect1>
 
+    <sect1 id="config.sending-email" xreflabel="E-Mail-Versand aus kivitendo heraus">
+      <title>E-Mail-Versand aus kivitendo heraus</title>
+
+      <para>kivitendo kann direkt aus dem Programm heraus E-Mails versenden, z.B. um ein Angebot direkt an einen Kunden zu
+      verschicken. Damit dies funktioniert, muss eingestellt werden, über welchen Server die E-Mails verschickt werden sollen. kivitendo
+      unterstützt dabei zwei Mechanismen: Versand über einen lokalen E-Mail-Server (z.B. mit <productname>Postfix</productname> oder
+      <productname>Exim</productname>, was auch die standardmäßig aktive Methode ist) sowie Versand über einen SMTP-Server (z.B. der des
+      eigenen Internet-Providers).</para>
+
+      <para>Welche Methode und welcher Server verwendet werden, wird über die Konfigurationsdatei <filename>config/kivitendo.conf</filename>
+      festgelegt. Dort befinden sich alle Einstellungen zu diesem Thema im Abschnitt '<literal>[mail_delivery]</literal>'.</para>
+
+      <sect2 id="config.sending-email.sendmail" xreflabel="E-Mail-Versand über lokalen E-Mail-Server">
+        <title>Versand über lokalen E-Mail-Server</title>
+
+        <para>Diese Methode bietet sich an, wenn auf dem Server, auf dem kivitendo läuft, bereits ein funktionsfähiger E-Mail-Server wie
+        z.B. <productname>Postfix</productname>, <productname>Exim</productname> oder <productname>Sendmail</productname> läuft.</para>
+
+        <para>Um diese Methode auszuwählen, muss der Konfigurationsparameter '<literal>method = sendmail</literal>' gesetzt sein. Dies ist
+        gleichzeitig der Standardwert, falls er nicht verändert wird.</para>
+
+        <para>Um zu kontrollieren, wie das Programm zum Einliefern gestartet wird, dient der Parameter '<literal>sendmail =
+        ...</literal>'. Der Standardwert verweist auf das Programm <filename>/usr/bin/sendmail</filename>, das bei allen oben genannten
+        E-Mail-Serverprodukten für diesen Zweck funktionieren sollte.</para>
+
+        <para>Die Konfiguration des E-Mail-Servers selber würde den Rahmen dieses sprengen. Hierfür sei auf die Dokumentation des
+        E-Mail-Servers verwiesen.</para>
+      </sect2>
+
+      <sect2 id="config.sending-email.smtp" xreflabel="E-Mail-Versand über einen SMTP-Server">
+        <title>Versand über einen SMTP-Server</title>
+
+        <para>Diese Methode bietet sich an, wenn kein lokaler E-Mail-Server vorhanden oder zwar einer vorhanden, dieser aber nicht
+        konfiguriert ist.</para>
+
+        <para>Um diese Methode auszuwählen, muss der Konfigurationsparameter '<literal>method = smtp</literal>' gesetzt sein. Die folgenden
+        Parameter dienen dabei der weiteren Konfiguration:</para>
+
+        <variablelist>
+          <varlistentry>
+            <term><varname>hostname</varname></term>
+
+            <listitem><para>Name oder IP-Adresse des SMTP-Servers. Standardwert: '<literal>localhost</literal>'</para></listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>port</varname></term>
+
+            <listitem><para>Portnummer. Der Standardwert hängt von der verwendeten Verschlüsselungsmethode ab. Gilt '<literal>security =
+            none</literal>' oder '<literal>security = tls</literal>', so ist 25 die Standardportnummer. Für '<literal>security =
+            ssl</literal>' ist 465 die Portnummer. Muss normalerweise nicht geändert werden.</para></listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>security</varname></term>
+
+            <listitem><para>Wahl der zu verwendenden Verschlüsselung der Verbindung mit dem Server. Standardwert ist
+            '<literal>none</literal>', wodurch keine Verschlüsselung verwendet wird. Mit '<literal>tls</literal>' wird TLS-Verschlüsselung
+            eingeschaltet, und mit '<literal>ssl</literal>' wird Verschlüsselung via SSL eingeschaltet. Achtung: Für
+            '<literal>tls</literal>' und '<literal>ssl</literal>' werden zusätzliche Perl-Module benötigt (siehe unten).</para></listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>login</varname> und <varname>password</varname></term>
+
+            <listitem><para>Falls der E-Mail-Server eine Authentifizierung verlangt, so können mit diesen zwei Parametern der Benutzername
+            und das Passwort angegeben werden. Wird Authentifizierung verwendet, so sollte aus Sicherheitsgründen auch eine Form von
+            Verschlüsselung aktiviert werden.</para></listitem>
+          </varlistentry>
+        </variablelist>
+
+        <para>Wird Verschlüsselung über TLS oder SSL aktiviert, so werden zusätzliche Perl-Module benötigt. Diese sind:</para>
+
+        <itemizedlist>
+          <listitem><para>TLS-Verschlüsselung: Modul <literal>Net::SSLGlue</literal> (Debian-Paketname
+          <literal>libnet-sslglue-perl</literal>, Fedora Core: <literal>perl-Net-SSLGlue</literal>, openSuSE:
+          <literal>perl-Net-SSLGlue</literal></para></listitem>
+
+          <listitem><para>SSL-Verschlüsselung: Modul <literal>Net::SMTP::SSL</literal> (Debian-Paketname
+          <literal>libnet-smtp-ssl-perl</literal>, Fedora Core: <literal>perl-Net-SMTP-SSL</literal>, openSuSE:
+          <literal>perl-Net-SMTP-SSL</literal></para></listitem>
+        </itemizedlist>
+      </sect2>
+    </sect1>
+
     <sect1 id="Drucken-mit-kivitendo">
       <title>Drucken mit kivitendo</title>
 
@@ -1408,11 +1433,9 @@ insserv kivitendo-task-server</programlisting>
              xreflabel="Einführung in die Konfiguration zur EUR">
         <title>Einführung</title>
 
-        <para>kivitendo besaß bis inklusive Version 2.6.3 einen
-        Konfigurationsparameter namens <varname>eur</varname>, der sich in der
-        Konfigurationsdatei <filename>config/lx_office.conf</filename>
-        befand. Somit galt er für alle Mandanten, die in dieser Installation
-        benutzt wurden.</para>
+        <para>kivitendo besaß bis inklusive Version 2.6.3 einen Konfigurationsparameter namens <varname>eur</varname>, der sich in der
+        Konfigurationsdatei <filename>config/kivitendo.conf</filename> (damals noch <filename>config/lx_office.conf</filename>)
+        befand. Somit galt er für alle Mandanten, die in dieser Installation benutzt wurden.</para>
 
         <para>Mit der nachfolgenden Version wurde der Parameter zum Einen in
         die Mandantendatenbank verschoben und dabei auch gleich in drei
@@ -1489,11 +1512,15 @@ insserv kivitendo-task-server</programlisting>
         ändert.</para>
 
         <para>Die aktuelle Konfiguration wird unter Nummernkreise und
-        Standardkonten unter dem neuen Punkt "Einstellungen" angezeigt
-        (read-only). Eine spätere Änderung ist für einen bestehenden Mandanten
-        nicht mehr möglich. Dies war auch vorher nicht möglich, bzw.
-        vorhandene Daten wurden so belassen und haben damit die Ergebnisse
-        verfälscht.</para>
+        Standardkonten unter dem neuen Punkt "Einstellungen" (read-only)
+        angezeigt. Unter <guimenu>System</guimenu>
+        -&gt; <guisubmenu>Mandantenkonfiguration</guisubmenu> können
+        die Einstellungen auch geändert werden. Dabei ist zu beachten,
+        dass eine Änderung vorhandene Daten so belässt und damit
+        evtl. die Ergebnisse verfälscht. Dies gilt vor Allem für die
+        Warenbuchungsmethode (siehe auch
+        <link linkend="config.eur.inventory-system-perpetual">
+        Bemerkungen zu Bestandsmethode</link>).</para>
       </sect2>
 
       <sect2 id="config.eur.inventory-system-perpetual">
@@ -1635,6 +1662,33 @@ insserv kivitendo-task-server</programlisting>
           </mediaobject>
         </screenshot>
       </sect2>
+    </sect1>
+
+    <sect1 id="config.client">
+      <title>Einstellungen pro Mandant</title>
+
+      <para>Einige Einstellungen können von einem Benutzer mit dem
+      <link linkend="Zusammenhänge">Recht</link> "Administration
+      (Für die Verwaltung der aktuellen Instanz aus einem Userlogin heraus)"
+      gemacht werden. Diese Einstellungen sind dann für die aktuellen
+      Mandanten-Datenbank gültig. Die Einstellungen sind
+      unter <guimenu>System</guimenu>
+      -&gt; <guisubmenu>Mandantenkonfiguration</guisubmenu> erreichbar.</para>
+
+      <para>Bitte beachten Sie die Hinweise zu den einzelnen
+      Einstellungen. Einige Einstellungen sollten nicht ohne Weiteres
+      im laufenden Betrieb geändert werden (siehe
+      auch <link linkend="config.eur.inventory-system-perpetual">Bemerkungen zu
+      Bestandsmethode</link>).</para>
+
+      <para>Die Einstellungen <literal>show_bestbefore</literal>
+      und <literal>payments_changeable</literal> aus dem
+      Abschnitt <literal>features</literal> und die Einstellungen im
+      Abschnitt <literal>datev_check</literal> (sofern schon vorhanden)
+      der <link linkend="config.config-file">kivitendo-Konfigurationsdatei</link>
+      werden bei einem Datenbankupdate einer älteren Version automatisch
+      übernommen. Diese Einträge können danach aus der Konfigurationsdatei
+      entfernt werden.</para>
     </sect1>
 
     <sect1 id="kivitendo-ERP-verwenden">
@@ -5429,6 +5483,148 @@ filenames</programlisting>
             </listitem>
           </varlistentry>
         </variablelist>
+      </sect2>
+    </sect1>
+
+    <sect1 id="devel.testsuite">
+      <title>Die kivitendo-Test-Suite</title>
+
+      <sect2 id="devel.testsuite.intro">
+        <title>Einführung</title>
+
+        <para>kivitendo enthält eine Suite für automatisierte Tests. Sie basiert auf dem Standard-Perl-Modul <literal>Test::More</literal>.</para>
+
+        <para>Die grundlegenden Fakten sind:</para>
+
+        <itemizedlist>
+          <listitem><para>Alle Tests liegen im Unterverzeichnis <filename>t/</filename>.</para></listitem>
+
+          <listitem><para>Ein Script (bzw. ein Test) in <filename>f/</filename> enthält einen oder mehrere Testfälle.</para></listitem>
+
+          <listitem><para>Alle Dateinamen von Tests enden auf <literal>.t</literal>. Es sind selbstständig ausführbare Perl-Scripte.</para></listitem>
+
+          <listitem><para>Die Test-Suite besteht aus der Gesamtheit aller Tests, sprich aller Scripte in <filename>f/</filename>, deren
+          Dateiname auf <literal>.t</literal> endet.</para></listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2 id="devel.testsuite.prerequisites">
+        <title>Voraussetzungen</title>
+
+        <para>Für die Ausführung werden neben den für kivitendo eh schon benötigten Module noch weitere Perl-Module benötigt. Diese sind:</para>
+
+        <itemizedlist>
+          <listitem><para><literal>Test::Deep</literal> (Debian-Paketname: <literal>libtest-deep-perl</literal>; Fedora Core:
+          <literal>perl-Test-Deep</literal>; openSuSE: <literal>perl-Test-Deep</literal>)</para></listitem>
+        </itemizedlist>
+      </sect2>
+
+      <sect2 id="devel.testsuite.execution">
+        <title>
+          Existierende Tests ausführen
+        </title>
+
+        <para>Es gibt mehrere Möglichkeiten zum Ausführen der Tests: entweder, man lässt alle Tests auf einmal ausführen, oder man führt
+        gezielt einzelne Scripte aus. Für beide Fälle gibt es das Helferscript <filename>t/test.sh</filename>.</para>
+
+        <para>Will man die komplette Test-Suite ausführen, so muss man einfach nur <filename>t/test.sh</filename> ohne weitere Parameter aus
+        dem kivitendo-Basisverzeichnis heraus ausführen.</para>
+
+        <para>Um einzelne Test-Scripte auszuführen, übergibt man deren Namen an <filename>t/test.sh</filename>. Beispielsweise:</para>
+
+        <programlisting>t/test.sh t/form/format_amount.t t/background_job/known_jobs.t</programlisting>
+      </sect2>
+
+
+      <sect2 id="devel.testsuite.meaning_of_scripts">
+        <title>
+          Bedeutung der verschiedenen Test-Scripte
+        </title>
+
+        <para>Die Test-Suite umfasst Tests sowohl für Funktionen als auch für Programmierstil. Einige besonders zu erwähnende, weil auch
+        während der Entwicklung nützliche Tests sind:</para>
+
+        <itemizedlist>
+          <listitem><para><filename>t/001compile.t</filename> -- compiliert alle Quelldateien und bricht bei Fehlern sofort ab</para></listitem>
+          <listitem><para><filename>t/002goodperl.t</filename> -- überprüft alle Perl-Dateien auf Anwesenheit von '<literal>use strict</literal>'-Anweisungen</para></listitem>
+          <listitem><para><filename>t/003safesys.t</filename> -- überprüft Aufrufe von <function>system()</function> und <function>exec()</function> auf Gültigkeit</para></listitem>
+          <listitem><para><filename>t/005no_tabs.t</filename> -- überprüft, ob Dateien Tab-Zeichen enthalten</para></listitem>
+          <listitem><para><filename>t/006spelling.t</filename> -- sucht nach häufigen Rechtschreibfehlern</para></listitem>
+          <listitem><para><filename>t/011pod.t</filename> -- überprüft die Syntax von Dokumentation im POD-Format auf Gültigkeit</para></listitem>
+        </itemizedlist>
+
+        <para>Weitere Test-Scripte überprüfen primär die Funktionsweise einzelner Funktionen und Module.</para>
+      </sect2>
+
+      <sect2 id="devel.testsuite.create_new">
+        <title>
+          Neue Test-Scripte erstellen
+        </title>
+
+        <para>Es wird sehr gern gesehen, wenn neue Funktionalität auch gleich mit einem Test-Script abgesichert wird. Auch bestehende
+        Funktion darf und soll ausdrücklich nachträglich mit Test-Scripten abgesichert werden.</para>
+
+        <sect3 id="devel.testsuite.ideas_for_non_function_tests">
+          <title>
+            Ideen für neue Test-Scripte, die keine konkreten Funktionen testen
+          </title>
+
+          <para> Ideen, die abgesehen von Funktions noch nicht umgesetzt wurden:</para>
+
+          <itemizedlist>
+            <listitem><para>Überprüfung auf fehlende symbolische Links</para></listitem>
+            <listitem><para>Suche nach Nicht-ASCII-Zeichen in Perl-Code-Dateien (mit gewissen Einschränkungen wie das Erlauben von deutschen Umlauten)</para></listitem>
+            <listitem><para>Test auf DOS-Zeilenenden (\r\n anstelle von nur \n)</para></listitem>
+            <listitem><para>Überprüfung auf Leerzeichen am Ende von Zeilen</para></listitem>
+            <listitem><para>Test, ob alle zu übersetzenden Strings in <filename>locale/de/all</filename> vorhanden sind</para></listitem>
+            <listitem><para>Test, ob alle Webseiten-Templates in <filename>templates/webpages</filename> mit vom Perl-Modul <literal>Template</literal> compiliert werden können</para></listitem>
+          </itemizedlist>
+        </sect3>
+
+        <sect3 id="devel.testsuite.directory_and_test_names">
+          <title>
+            Konvention für Verzeichnis- und Dateinamen
+          </title>
+
+          <para>Es gibt momentan eine wenige Richtlinien, wie Test-Scripte zu benennen sind. Bitte die folgenden Punkte als Richtlinie betrachten und ihnen soweit es geht folgen:</para>
+
+          <itemizedlist>
+            <listitem><para>Die Dateiendung muss <filename>.t</filename> lauten.</para></listitem>
+
+            <listitem><para>Namen sind englisch, komplett klein geschrieben und einzelne Wörter mit Unterstrichten getrennt (beispielsweise
+            <filename>bad_function_params.t</filename>).</para></listitem>
+
+            <listitem><para>Unterverzeichnisse sollten grob nach dem Themenbereich benannt sind, mit dem sich die Scripte darin befassen
+            (beispielsweise <filename>background_jobs</filename> für Tests rund um Hintergrund-Jobs).</para></listitem>
+
+            <listitem><para>Test-Scripte sollten einen überschaubaren Bereich von Funktionalität testen, der logisch zusammenhängend ist
+            (z.B. nur Tests für eine einzelne Funktion in einem Modul). Lieber mehrere Test-Scripte schreiben.</para></listitem>
+          </itemizedlist>
+        </sect3>
+
+        <sect3 id="devel.testsuite.minimal_example">
+          <title>
+            Minimales Skelett für eigene Scripte
+          </title>
+
+          <para>Der folgenden Programmcode enthält das kleinstmögliche Testscript und kann als Ausgangspunkt für eigene Tests verwendet werden:</para>
+
+          <programlisting>use Test::More tests =&gt; 0;
+
+use lib 't';
+
+use Support::TestSetup;
+
+Support::TestSetup::login();</programlisting>
+
+          <para>Wird eine vollständig initialisierte kivitendo-Umgebung benötigt (Stichwort: alle globalen Variablen wie
+          <varname>$::auth</varname>, <varname>$::form</varname> oder <varname>$::lxdebug</varname>), so muss in der Konfigurationsdatei
+          <filename>config/kivitendo.conf</filename> im Abschnitt <literal>testing.login</literal> ein gültiger Login-Name eingetragen
+          sein. Dieser wird für die Datenbankverbindung benötigt.</para>
+
+          <para>Wir keine vollständig initialisierte Umgebung benötigt, so kann die letzte Zeile <code>Support::TestSetup::login();</code>
+          weggelassen werden, was die Ausführungszeit des Scripts leicht verringert.</para>
+        </sect3>
       </sect2>
     </sect1>
 

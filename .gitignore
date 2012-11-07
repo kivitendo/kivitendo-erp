@@ -9,3 +9,4 @@ crm
 /doc/online/*/*.html
 pod2html*
 /doc/build/dobudish*
+/spool/*

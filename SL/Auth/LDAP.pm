@@ -49,20 +49,20 @@ sub _connect {
   $self->{ldap} = Net::LDAP->new($cfg->{host}, 'port' => $port);
 
   if (!$self->{ldap}) {
-    $main::form->error($main::locale->text('The LDAP server "#1:#2" is unreachable. Please check config/lx_office.conf.', $cfg->{host}, $port));
+    $main::form->error($main::locale->text('The LDAP server "#1:#2" is unreachable. Please check config/kivitendo.conf.', $cfg->{host}, $port));
   }
 
   if ($cfg->{tls}) {
     my $mesg = $self->{ldap}->start_tls('verify' => 'none');
     if ($mesg->is_error()) {
-      $main::form->error($main::locale->text('The connection to the LDAP server cannot be encrypted (SSL/TLS startup failure). Please check config/lx_office.conf.'));
+      $main::form->error($main::locale->text('The connection to the LDAP server cannot be encrypted (SSL/TLS startup failure). Please check config/kivitendo.conf.'));
     }
   }
 
   if ($cfg->{bind_dn}) {
     my $mesg = $self->{ldap}->bind($cfg->{bind_dn}, 'password' => $cfg->{bind_password});
     if ($mesg->is_error()) {
-      $main::form->error($main::locale->text('Binding to the LDAP server as "#1" failed. Please check config/lx_office.conf.', $cfg->{bind_dn}));
+      $main::form->error($main::locale->text('Binding to the LDAP server as "#1" failed. Please check config/kivitendo.conf.', $cfg->{bind_dn}));
     }
   }
 
@@ -204,11 +204,11 @@ sub verify_config {
   my $cfg  = $self->{auth}->{LDAP_config};
 
   if (!$cfg) {
-    $form->error($locale->text('config/lx_office.conf: Key "authentication/ldap" is missing.'));
+    $form->error($locale->text('config/kivitendo.conf: Key "authentication/ldap" is missing.'));
   }
 
   if (!$cfg->{host} || !$cfg->{attribute} || !$cfg->{base_dn}) {
-    $form->error($locale->text('config/lx_office.conf: Missing parameters in "authentication/ldap". Required parameters are "host", "attribute" and "base_dn".'));
+    $form->error($locale->text('config/kivitendo.conf: Missing parameters in "authentication/ldap". Required parameters are "host", "attribute" and "base_dn".'));
   }
 
   $main::lxdebug->leave_sub();

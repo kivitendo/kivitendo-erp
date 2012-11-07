@@ -438,7 +438,7 @@ sub create_assembly {
     $form->error($locale->text('The warehouse or the bin is missing.'));
   }
 
-  if (!$::lx_office_conf{features}->{show_best_before}) {
+  if (!$::instance_conf->get_show_bestbefore) {
       $form->{bestbefore} = '';
   }
 

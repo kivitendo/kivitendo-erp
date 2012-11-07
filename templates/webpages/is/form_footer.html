@@ -157,8 +157,9 @@
   [% IF id %]
       [%#- button for saving history %]
       <input type="button" class="submit" onclick="set_history_window([% id | html %]);" name="history" id="history" value="[% 'history' | $T8 %]">
-
-      <input type="submit" class="submit" name="action" value="[% 'mark as paid' | $T8 %]">
+      [% IF INSTANCE_CONF.get_is_show_mark_as_paid %]
+          <input type="submit" class="submit" name="action" value="[% 'mark as paid' | $T8 %]">
+      [% END %]
   [% END %]
 
 <input type="hidden" name="rowcount" value="[% rowcount %]">

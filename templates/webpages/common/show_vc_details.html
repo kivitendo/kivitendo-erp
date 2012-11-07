@@ -2,6 +2,7 @@
 [% USE HTML %]
 
 [% BLOCK jump_block %]
+[%- IF SHIPTO.size || CONTACTS.size %]
  <p>
   [% 'Jump to' | $T8 %] <a href="#billing">[% 'Billing Address' | $T8 %]</a>
   [%- FOREACH shipto = SHIPTO %]
@@ -21,6 +22,7 @@
  </p>
 
  <hr>
+[%- END %]
 [% END %]
 
 
@@ -323,4 +325,3 @@
   </table>
 
  [% END %]
-

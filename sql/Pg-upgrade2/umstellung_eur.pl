@@ -3,7 +3,7 @@
 # @depends: release_2_6_3
 # @charset: utf-8
 
-# this script relies on $eur still being set in lx_office.conf, and the
+# this script relies on $eur still being set in kivitendo.conf, and the
 # variable available in $::lx_office_conf{system}->{eur}
 
 use utf8;
