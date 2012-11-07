@@ -82,8 +82,8 @@
   <p>
    [% 'Workflow Delivery Order' | $T8 %]<br>
    <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]">
-   [% UNLESS delivered %]
-   <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
+   [% UNLESS delivered || (vc == 'customer' && !INSTANCE_CONF.get_sales_delivery_order_show_delete) || (vc == 'vendor' && !INSTANCE_CONF.get_purchase_delivery_order_show_delete) %]
+     <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
    [% END %]
    <input class="submit" type="submit" name="action_invoice" value="[% 'Invoice' | $T8 %]">
   </p>

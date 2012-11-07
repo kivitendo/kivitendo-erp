@@ -1,0 +1,189 @@
+[%- USE T8 %][%- USE L %][% USE LxERP %]
+
+<h1>[% title | html %]</h1>
+
+[% PROCESS 'common/flash.html' %]
+
+<form action='controller.pl' method='POST'>
+
+<table>
+
+ <tr class='listheading'>
+   <th colspan="3">[% 'Posting Configuration' | $T8 %]</th>
+ </tr>
+
+ <tr>
+   <td align="right">[% 'Sales invoices changeable' | $T8 %]</td>
+   <td>[% L.select_tag('is_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.is_changeable) %]</td>
+   <td>[% 'Should sales invoices be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Purchase invoices changeable' | $T8 %]</td>
+   <td>[% L.select_tag('ir_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ir_changeable) %]</td>
+   <td>[% 'Should purchase invoices be and when should they be deleteable after posting?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'AR transactions changeable' | $T8 %]</td>
+   <td>[% L.select_tag('ar_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ar_changeable) %]</td>
+   <td>[% 'Should ar transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'AP transactions changeable' | $T8 %]</td>
+   <td>[% L.select_tag('ap_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ap_changeable) %]</td>
+   <td>[% 'Should ap transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'GL transactions changeable' | $T8 %]</td>
+   <td>[% L.select_tag('gl_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.gl_changeable) %]</td>
+   <td>[% 'Should gl transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr>
+   <td align="right">[% 'Payments Changeable' | $T8 %]</td>
+   <td>[% L.select_tag('payments_changeable', SELF.payment_options, value_key => 'value', title_key => 'title', default => SELF.payments_changeable) %]</td>
+   <td>[% 'Should payments be and when should they be changeable after posting?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in sales invoices' | $T8 %]</td>
+   <td>[% L.yes_no_tag('is_show_mark_as_paid', SELF.is_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed on sales invoices?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in purchase invoices' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ir_show_mark_as_paid', SELF.ir_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in purchase invoices?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in ar transactions' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ar_show_mark_as_paid', SELF.ar_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in ar transactions?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in ap transactions' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ap_show_mark_as_paid', SELF.ap_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in ap transactions?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr>
+   <td align="right">[% 'Accounting method' | $T8 %]</td>
+   <td>[% L.select_tag('accounting_method', SELF.accounting_options, value_key => 'value', title_key => 'title', default => SELF.accounting_method) %]</td>
+   <td>[% 'This option controls the posting and calculation behavior for the accounting method.' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Inventory system' | $T8 %]</td>
+   <td>[% L.select_tag('inventory_system', SELF.inventory_options, value_key => 'value', title_key => 'title', default => SELF.inventory_system) %]</td>
+   <td>
+     [% 'This option controls the inventory system.' | $T8 %]<br>
+     [% 'ATTENTION! You can not simply change it from periodic to perpetual once you started posting.' | $T8 %]
+   </td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Profit determination' | $T8 %]</td>
+   <td>[% L.select_tag('profit_determination', SELF.profit_options, value_key => 'value', title_key => 'title', default => SELF.profit_determination) %]</td>
+   <td>[% 'This option controls the method used for profit determination.' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr class='listheading'>
+   <th colspan="3">[% 'DATEV check configuration' | $T8 %]</th>
+ </tr>
+ <tr>
+   <td colspan="3">[% 'It is possible to make a quick DATEV export everytime you post a record to ensure things work nicely with their data requirements. This will result in a slight overhead though you can enable this for each type of record independantly.' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on sales invoice' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_sales_invoice', SELF.datev_check_on_sales_invoice) %]</td>
+   <td>[% 'Perform check when a sales invoice or a payment for a sales invoice is posted?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on purchase invoice' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_purchase_invoice', SELF.datev_check_on_purchase_invoice) %]</td>
+   <td>[% 'Perform check when a purchase invoice or a payment for a purchase invoice is posted?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on ar transaction' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_ar_transaction', SELF.datev_check_on_ar_transaction) %]</td>
+   <td>[% 'Perform check when an ar transaction is posted?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on ap transaction' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_ap_transaction', SELF.datev_check_on_ap_transaction) %]</td>
+   <td>[% 'Perform check when an ap transaction is posted?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Check on gl transaction' | $T8 %]</td>
+   <td>[% L.yes_no_tag('datev_check_on_gl_transaction', SELF.datev_check_on_gl_transaction) %]</td>
+   <td>[% 'Perform check when a gl transaction is posted?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr class='listheading'>
+   <th colspan="3">[% 'Orders / Delivery Orders deleteable' | $T8 %]</th>
+ </tr>
+ <tr>
+   <td align="right">[% 'Sales Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('sales_order_show_delete', SELF.sales_order_show_delete) %]</td>
+   <td>[% 'Show delete button in sales orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Purchase Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('purchase_order_show_delete', SELF.purchase_order_show_delete) %]</td>
+   <td>[% 'Show delete button in purchase orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Sales Delivery Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('sales_delivery_order_show_delete', SELF.sales_delivery_order_show_delete) %]</td>
+   <td>[% 'Show delete button in sales delivery orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Purchase Delivery Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('purchase_delivery_order_show_delete', SELF.purchase_delivery_order_show_delete) %]</td>
+   <td>[% 'Show delete button in purchase delivery orders?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr class='listheading'>
+   <th colspan="3">[% 'Warehouse' | $T8 %]</th>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show Bestbefore' | $T8 %]</td>
+   <td>
+     [% L.yes_no_tag('show_bestbefore', SELF.show_bestbefore) %]
+   </td>
+   <td>
+     [% 'Show fields used for the best before date?' | $T8 %]<br>
+     [% 'ATTENTION! If you enabled this feature you can not simply turn it off again without taking care that best_before fields are emptied in the database.' | $T8 %]<br>
+     [% 'This can be done with the following query:' | $T8 %]<br>
+     <br>
+     UPDATE inventory SET bestbefore = NULL; <br>
+     <br>
+     [% 'Any stock contents containing a best before date will be impossible to stock out otherwise.' | $T8 %]
+   </td>
+ </tr>
+
+</table>
+
+<br>
+
+[%- L.hidden_tag('action',  'ClientConfig/dispatch')  %]
+[%- L.submit_tag('action_save',  LxERP.t8('Save'))  %]
+
+<br><br>
+
+</form>
