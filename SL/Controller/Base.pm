@@ -410,7 +410,7 @@ The template itself has access to the following variables:
 
 =item * C<LOCALE> -- C<$::locale>
 
-=item * C<LXCONFIG> -- all parameters from C<config/lx_office.conf>
+=item * C<LXCONFIG> -- all parameters from C<config/kivitendo.conf>
 with the same name they appear in the file (first level is the
 section, second the actual variable, e.g. C<system.dbcharset>,
 C<features.webdav> etc)

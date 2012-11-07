@@ -418,7 +418,7 @@ Shortcut for C<INFO | QUERY | TRACE | BACKTRACE_ON_ERROR | REQUEST_TIMER>.
 =head1 CONFIGURATION
 
 C<SL::LXDebug> gets its configuration from the C<[debug]> section of
-the C<config/lx_office.conf> configuration file. The available options
+the C<config/kivitendo.conf> configuration file. The available options
 are:
 
 =over 4

@@ -1,7 +1,7 @@
 [%- USE T8 %]
 [% USE HTML %]<p>[% '...done' | $T8 %]</p>
 
-<form action="[% IF is_admin %]admin.pl[% ELSE %][% login.pl %][% END %]">
+<form action="[% IF is_admin %]admin.pl[% ELSE %]login.pl[% END %]">
 
  <input type="hidden" name="action" value="[% IF is_admin %]login[% ELSE %]company_logo[% END %]">
 
