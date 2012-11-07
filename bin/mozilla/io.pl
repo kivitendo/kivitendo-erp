@@ -1553,6 +1553,7 @@ sub print_form {
         'kivitendo-spoolXXXXXX',
         SUFFIX => "$suffix",
         DIR => $::lx_office_conf{paths}->{spool},
+        UNLINK => 0,
       );
       close $temp_fh;
       $form->{OUT} = "$filename";
