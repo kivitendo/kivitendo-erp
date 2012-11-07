@@ -59,7 +59,7 @@ sub new {
 }
 
 sub menuitem_new {
-  $main::lxdebug->enter_sub();
+  $main::lxdebug->enter_sub(LXDebug::DEBUG2());
 
   my ($self, $name, $item) = @_;
 
@@ -84,7 +84,7 @@ sub menuitem_new {
     $item->{href}      .= "&" . $form->escape($key) . "=" . $form->escape($value);
   }
 
-  $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub(LXDebug::DEBUG2());
 }
 
 sub access_control {

@@ -1874,6 +1874,7 @@ $self->{texts} = {
   'The access rights have been saved.' => 'Die Zugriffsrechte wurden gespeichert.',
   'The account 3804 already exists, the update will be skipped.' => 'Das Konto 3804 existiert schon, das Update wird übersprungen.',
   'The account 3804 will not be added automatically.' => 'Das Konto 3804 wird nicht automatisch hinzugefügt.',
+  'The action you\'ve chosen has not been executed because the document does not contain any item yet.' => 'Die von Ihnen ausgewählte Aktion wurde nicht ausgeführt, weil der Beleg noch keine Positionen enthält.',
   'The application "#1" was not found on the system.' => 'Die Anwendung "#1" wurde auf dem System nicht gefunden.',
   'The assembly has been created.' => 'Das Erzeugnis wurde hergestellt.',
   'The assistant could not find anything wrong with #1. Maybe the problem has been solved in the meantime.' => 'Der Korrekturassistent konnte kein Problem bei #1 feststellen. Eventuell wurde das Problem in der Zwischenzeit bereits behoben.',

@@ -78,6 +78,7 @@ sub check_name {
 
       $form->{"${name}_id"} = $new_id;
 
+      _reset_salesman_id();
       IS->get_customer(\%myconfig, \%$form) if ($name eq 'customer');
       IR->get_vendor(\%myconfig, \%$form) if ($name eq 'vendor');
 
@@ -119,6 +120,7 @@ sub check_name {
         $form->{$name}        = $form->{name_list}[0]->{name};
         $form->{"old$name"}   = qq|$form->{$name}--$form->{"${name}_id"}|;
 
+        _reset_salesman_id();
         IS->get_customer(\%myconfig, \%$form) if ($name eq 'customer');
         IR->get_vendor(\%myconfig, \%$form) if ($name eq 'vendor');
 
@@ -266,6 +268,8 @@ sub name_selected {
   # index for new item
   my $i = $form->{ndx};
 
+  _reset_salesman_id();
+
   $form->{ $form->{vc} }    = $form->{"new_name_$i"};
   $form->{"$form->{vc}_id"} = $form->{"new_id_$i"};
   $form->{"old$form->{vc}"} =
@@ -284,6 +288,14 @@ sub name_selected {
   &update(1);
 
   $main::lxdebug->leave_sub();
+}
+
+# Reset the $::form field 'salesman_id' to the ID of the currently
+# logged in user. Useful when changing to a customer/vendor that has
+# no salesman listed in their master data.
+sub _reset_salesman_id {
+  my $current_employee   = SL::DB::Manager::Employee->current;
+  $::form->{salesman_id} = $current_employee->id if $current_employee && exists $::form->{salesman_id};
 }
 
 sub check_project {

@@ -57,7 +57,7 @@
       <select name="inventory_system">
        [% FOREACH row = INVENTORY_SYSTEMS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
       </select>
-     [% '* there are restrictions for the perpetual method, look at chapter "Bemerkungen zu Bestandsmethode"  in' | $T8 %] <a href="doc/Lx-Office-Dokumentation.pdf">Lx-Office-Dokumentation.pdf</a>.
+     [% '* there are restrictions for the perpetual method, look at chapter "Bemerkungen zu Bestandsmethode"  in' | $T8 %] <a href="doc/kivitendo-Dokumentation.pdf">kivitendo-Dokumentation.pdf</a>.
      </td>
 
     </tr>
