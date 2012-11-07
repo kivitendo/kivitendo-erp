@@ -426,10 +426,6 @@ sub save_as_new_account {
   }
 
   $form->{id} = 0;
-  if ($form->{"original_accno"} &&
-      ($form->{"accno"} eq $form->{"original_accno"})) {
-    $form->error($locale->text('Account Number already used!'));
-  }
   $form->redirect($locale->text('Account saved!'))
     if (AM->save_account(\%myconfig, \%$form));
   $form->error($locale->text('Cannot save account!'));
