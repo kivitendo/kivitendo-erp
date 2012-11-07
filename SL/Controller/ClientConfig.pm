@@ -18,7 +18,7 @@ sub action_edit {
   $self->{payment_options} = [ { title => $::locale->text("never"), value => 0 },
                                { title => $::locale->text("every time"), value => 1 },
                                { title => $::locale->text("on the same day"), value => 2 }, ];
-  $self->{accounting_options} = [ { title => $::locale->text("accrual"), value => "accrual" },
+  $self->{accounting_options} = [ { title => $::locale->text("Accrual"), value => "accrual" },
                                   { title => $::locale->text("cash"), value => "cash" }, ];
   $self->{inventory_options} = [ { title => $::locale->text("perpetual"), value => "perpetual" },
                                  { title => $::locale->text("periodic"), value => "periodic" }, ];
