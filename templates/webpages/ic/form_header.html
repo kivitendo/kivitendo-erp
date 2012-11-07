@@ -6,6 +6,8 @@
 
  <p><div class="listtop">[% title %]  [% HTML.escape(partnumber) %]  [% HTML.escape(description) %]</div></p>
 
+[% PROCESS 'common/flash.html' %]
+
  <form method="post" name="ic" action="[% script %]">
 
   <input name="id" type="hidden" value="[% HTML.escape(id) %]">
