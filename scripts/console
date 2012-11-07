@@ -188,8 +188,8 @@ of the classes they were created with.
 
 Configuration of this script is located in:
 
- config/lx_office.conf
- config/lx_office.conf.default
+ config/kivitendo.conf
+ config/kivitendo.conf.default
 
 See there for interesting options.
 

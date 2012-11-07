@@ -1433,11 +1433,9 @@ insserv kivitendo-task-server</programlisting>
              xreflabel="Einführung in die Konfiguration zur EUR">
         <title>Einführung</title>
 
-        <para>kivitendo besaß bis inklusive Version 2.6.3 einen
-        Konfigurationsparameter namens <varname>eur</varname>, der sich in der
-        Konfigurationsdatei <filename>config/lx_office.conf</filename>
-        befand. Somit galt er für alle Mandanten, die in dieser Installation
-        benutzt wurden.</para>
+        <para>kivitendo besaß bis inklusive Version 2.6.3 einen Konfigurationsparameter namens <varname>eur</varname>, der sich in der
+        Konfigurationsdatei <filename>config/kivitendo.conf</filename> (damals noch <filename>config/lx_office.conf</filename>)
+        befand. Somit galt er für alle Mandanten, die in dieser Installation benutzt wurden.</para>
 
         <para>Mit der nachfolgenden Version wurde der Parameter zum Einen in
         die Mandantendatenbank verschoben und dabei auch gleich in drei
