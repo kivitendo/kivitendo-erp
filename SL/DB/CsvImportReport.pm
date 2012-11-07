@@ -4,6 +4,7 @@
 package SL::DB::CsvImportReport;
 
 use strict;
+use SL::DBUtils;
 
 use SL::DB::MetaSetup::CsvImportReport;
 
@@ -61,6 +62,26 @@ sub _fold_status {
     $self->{folded_status}->[ $status_obj->row ]{errors} ||= [];
     push @{ $self->{folded_status}->[ $status_obj->row ]{ $status_obj->type } }, $status_obj->value;
   }
+}
+
+# implementes cascade delete as per documentation
+sub destroy {
+  my ($self) = @_;
+
+  my $dbh = $self->db->dbh;
+
+  $dbh->begin_work;
+
+  do_query($::form, $dbh, 'DELETE FROM csv_import_report_status WHERE csv_import_report_id = ?', $self->id);
+  do_query($::form, $dbh, 'DELETE FROM csv_import_report_rows WHERE csv_import_report_id = ?', $self->id);
+  do_query($::form, $dbh, 'DELETE FROM csv_import_reports WHERE id = ?', $self->id);
+
+  if ($self->profile_id) {
+    do_query($::form, $dbh, 'DELETE FROM csv_import_profile_settings WHERE csv_import_profile_id = ?', $self->profile_id);
+    do_query($::form, $dbh, 'DELETE FROM csv_import_profiles WHERE id = ?', $self->profile_id);
+  }
+
+  $dbh->commit;
 }
 
 1;
