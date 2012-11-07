@@ -440,7 +440,9 @@ sub form_footer {
     totalpaid           => $totalpaid,
     paid_missing        => $form->{invtotal} - $totalpaid,
     show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap") && !$totalpaid,
-    show_delete         => ($form->current_date(\%myconfig) eq $form->{gldate}),
+    show_delete         => ($::instance_conf->get_ir_changeable == 2)
+                             ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                             : ($::instance_conf->get_ir_changeable == 1),
   });
 ##print $form->parse_html_template('ir/_payments'); # parser
 ##print $form->parse_html_template('webdav/_list'); # parser

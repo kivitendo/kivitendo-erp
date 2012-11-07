@@ -49,6 +49,31 @@ sub get_profit_determination {
   return $self->{data}->{profit_determination};
 }
 
+sub get_is_changeable {
+  my ($self) = @_;
+  return $self->{data}->{is_changeable};
+}
+
+sub get_ir_changeable {
+  my ($self) = @_;
+  return $self->{data}->{ir_changeable};
+}
+
+sub get_ar_changeable {
+  my ($self) = @_;
+  return $self->{data}->{ar_changeable};
+}
+
+sub get_ap_changeable {
+  my ($self) = @_;
+  return $self->{data}->{ap_changeable};
+}
+
+sub get_gl_changeable {
+  my ($self) = @_;
+  return $self->{data}->{gl_changeable};
+}
+
 sub get_datev_check_on_sales_invoice {
   my ($self) = @_;
   return $self->{data}->{datev_check_on_sales_invoice};
@@ -77,6 +102,46 @@ sub get_datev_check_on_gl_transaction {
 sub get_show_bestbefore {
   my ($self) = @_;
   return $self->{data}->{show_bestbefore};
+}
+
+sub get_is_show_mark_as_paid {
+  my ($self) = @_;
+  return $self->{data}->{is_show_mark_as_paid};
+}
+
+sub get_ir_show_mark_as_paid {
+  my ($self) = @_;
+  return $self->{data}->{ir_show_mark_as_paid};
+}
+
+sub get_ar_show_mark_as_paid {
+  my ($self) = @_;
+  return $self->{data}->{ar_show_mark_as_paid};
+}
+
+sub get_ap_show_mark_as_paid {
+  my ($self) = @_;
+  return $self->{data}->{ap_show_mark_as_paid};
+}
+
+sub get_sales_order_show_delete {
+  my ($self) = @_;
+  return $self->{data}->{sales_order_show_delete};
+}
+
+sub get_purchase_order_show_delete {
+  my ($self) = @_;
+  return $self->{data}->{purchase_order_show_delete};
+}
+
+sub get_sales_delivery_order_show_delete {
+  my ($self) = @_;
+  return $self->{data}->{sales_delivery_order_show_delete};
+}
+
+sub get_purchase_delivery_order_show_delete {
+  my ($self) = @_;
+  return $self->{data}->{purchase_delivery_order_show_delete};
 }
 
 1;
@@ -131,6 +196,20 @@ Returns the default inventory system, perpetual or periodic
 
 Returns the default profit determination method, balance or income
 
+
+=item C<get_is_changeable>
+
+=item C<get_ir_changeable>
+
+=item C<get_ar_changeable>
+
+=item C<get_ap_changeable>
+
+=item C<get_gl_changeable>
+
+Returns if and when these record types are changeable or deleteable after
+posting. 0 means never, 1 means always and 2 means on the same day.
+
 =item C<get_datev_check_on_sales_invoice>
 
 Returns true if datev check should be performed on sales invoices
@@ -154,6 +233,28 @@ Returns true if datev check should be performed on gl transactions
 =item C<get_show_bestbefore>
 
 Returns the default behavior for showing best before date, true or false
+
+=item C<get_is_show_mark_as_paid>
+
+=item C<get_ir_show_mark_as_paid>
+
+=item C<get_ar_show_mark_as_paid>
+
+=item C<get_ap_show_mark_as_paid>
+
+Returns the default behavior for showing the mark as paid button for the
+corresponding record type (true or false).
+
+=item C<get_sales_order_show_delete>
+
+=item C<get_purchase_order_show_delete>
+
+=item C<get_sales_delivery_order_show_delete>
+
+=item C<get_purchase_delivery_order_show_delete>
+
+Returns the default behavior for showing the delete button for the
+corresponding record type (true or false).
 
 =back
 

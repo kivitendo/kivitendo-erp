@@ -239,7 +239,9 @@ sub form_header {
   }
   my $readonly = ($form->{id}) ? "readonly" : "";
 
-  $form->{radier} = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  $form->{radier} = ($::instance_conf->get_ap_changeable == 2)
+                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                      : ($::instance_conf->get_ap_changeable == 1);
   $readonly       = ($form->{radier}) ? "" : $readonly;
 
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
@@ -853,10 +855,10 @@ sub form_footer {
 
   $::form->header;
   print $::form->parse_html_template('ap/form_footer', {
-    num_due         => $num_due,
-    num_follow_ups  => $num_follow_ups,
-    show_post_draft => ($transdate > $closedto) && !$::form->{id},
-    show_storno     => $storno,
+    num_due           => $num_due,
+    num_follow_ups    => $num_follow_ups,
+    show_post_draft   => ($transdate > $closedto) && !$::form->{id},
+    show_storno       => $storno,
   });
 
   $::lxdebug->leave_sub;

@@ -11,11 +11,69 @@
  <tr class='listheading'>
    <th colspan="3">[% 'Posting Configuration' | $T8 %]</th>
  </tr>
+
+ <tr>
+   <td align="right">[% 'Sales invoices changeable' | $T8 %]</td>
+   <td>[% L.select_tag('is_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.is_changeable) %]</td>
+   <td>[% 'Should sales invoices be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Purchase invoices changeable' | $T8 %]</td>
+   <td>[% L.select_tag('ir_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ir_changeable) %]</td>
+   <td>[% 'Should purchase invoices be and when should they be deleteable after posting?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'AR transactions changeable' | $T8 %]</td>
+   <td>[% L.select_tag('ar_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ar_changeable) %]</td>
+   <td>[% 'Should ar transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'AP transactions changeable' | $T8 %]</td>
+   <td>[% L.select_tag('ap_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ap_changeable) %]</td>
+   <td>[% 'Should ap transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'GL transactions changeable' | $T8 %]</td>
+   <td>[% L.select_tag('gl_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.gl_changeable) %]</td>
+   <td>[% 'Should gl transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
  <tr>
    <td align="right">[% 'Payments Changeable' | $T8 %]</td>
    <td>[% L.select_tag('payments_changeable', SELF.payment_options, value_key => 'value', title_key => 'title', default => SELF.payments_changeable) %]</td>
    <td>[% 'Should payments be and when should they be changeable after posting?' | $T8 %]</td>
  </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in sales invoices' | $T8 %]</td>
+   <td>[% L.yes_no_tag('is_show_mark_as_paid', SELF.is_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed on sales invoices?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in purchase invoices' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ir_show_mark_as_paid', SELF.ir_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in purchase invoices?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in ar transactions' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ar_show_mark_as_paid', SELF.ar_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in ar transactions?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Show "mark as paid" in ap transactions' | $T8 %]</td>
+   <td>[% L.yes_no_tag('ap_show_mark_as_paid', SELF.ap_show_mark_as_paid) %]</td>
+   <td>[% 'Should the "mark as paid" button showed in ap transactions?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
  <tr>
    <td align="right">[% 'Accounting method' | $T8 %]</td>
    <td>[% L.select_tag('accounting_method', SELF.accounting_options, value_key => 'value', title_key => 'title', default => SELF.accounting_method) %]</td>
@@ -74,6 +132,33 @@
  <tr> </tr>
 
  <tr class='listheading'>
+   <th colspan="3">[% 'Orders / Delivery Orders deleteable' | $T8 %]</th>
+ </tr>
+ <tr>
+   <td align="right">[% 'Sales Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('sales_order_show_delete', SELF.sales_order_show_delete) %]</td>
+   <td>[% 'Show delete button in sales orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Purchase Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('purchase_order_show_delete', SELF.purchase_order_show_delete) %]</td>
+   <td>[% 'Show delete button in purchase orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Sales Delivery Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('sales_delivery_order_show_delete', SELF.sales_delivery_order_show_delete) %]</td>
+   <td>[% 'Show delete button in sales delivery orders?' | $T8 %]</td>
+ </tr>
+ <tr>
+   <td align="right">[% 'Purchase Delivery Orders deleteable' | $T8 %]</td>
+   <td>[% L.yes_no_tag('purchase_delivery_order_show_delete', SELF.purchase_delivery_order_show_delete) %]</td>
+   <td>[% 'Show delete button in purchase delivery orders?' | $T8 %]</td>
+ </tr>
+
+ <tr> </tr>
+ <tr> </tr>
+
+ <tr class='listheading'>
    <th colspan="3">[% 'Warehouse' | $T8 %]</th>
  </tr>
  <tr>
@@ -98,5 +183,7 @@
 
 [%- L.hidden_tag('action',  'ClientConfig/dispatch')  %]
 [%- L.submit_tag('action_save',  LxERP.t8('Save'))  %]
+
+<br><br>
 
 </form>
