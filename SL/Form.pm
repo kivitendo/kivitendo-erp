@@ -634,11 +634,9 @@ sub _prepare_html_template {
   $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
   $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
   $additional_params->{"conf_vertreter"}              = $::lx_office_conf{features}->{vertreter};
-  $additional_params->{"conf_show_best_before"}       = $::lx_office_conf{features}->{show_best_before};
   $additional_params->{"conf_parts_image_css"}        = $::lx_office_conf{features}->{parts_image_css};
   $additional_params->{"conf_parts_listing_images"}   = $::lx_office_conf{features}->{parts_listing_images};
   $additional_params->{"conf_parts_show_image"}       = $::lx_office_conf{features}->{parts_show_image};
-  $additional_params->{"conf_payments_changeable"}    = $::lx_office_conf{features}->{payments_changeable};
   $additional_params->{"INSTANCE_CONF"}               = $::instance_conf;
 
   if (my $debug_options = $::lx_office_conf{debug}{options}) {

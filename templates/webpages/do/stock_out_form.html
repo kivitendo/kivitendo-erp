@@ -61,7 +61,7 @@
      <th class="listheading">[% 'Warehouse' | $T8 %]</th>
      <th class="listheading">[% 'Bin' | $T8 %]</th>
      <th class="listheading">[% 'Charge Number' | $T8 %]</th>
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <th class="listheading">[% 'Best Before' | $T8 %]</th>
      [% END %]
      [%- UNLESS delivered %]
@@ -77,7 +77,7 @@
      <td>[% HTML.escape(row.warehousedescription) %]</td>
      <td>[% HTML.escape(row.bindescription) %]</td>
      <td>[% HTML.escape(row.chargenumber) %]</td>
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <td>[% HTML.escape(row.bestbefore) %]</td>
      [% END %]
      [%- IF delivered %]
@@ -109,7 +109,7 @@
     <input type="hidden" name="warehouse_id_[% loop.count %]" value="[% HTML.escape(row.warehouse_id) %]">
     <input type="hidden" name="bin_id_[% loop.count %]"       value="[% HTML.escape(row.bin_id) %]">
     <input type="hidden" name="chargenumber_[% loop.count %]" value="[% HTML.escape(row.chargenumber) %]">
-    [% IF conf_show_best_before %]
+    [% IF INSTANCE_CONF.get_show_bestbefore %]
     <input type="hidden" name="bestbefore_[% loop.count %]" value="[% HTML.escape(row.bestbefore) %]">
     [% END %]
     [%- END %]

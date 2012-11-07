@@ -74,17 +74,6 @@ dbcharset = UTF-8
 webdav = 0
 vertreter = 0
 
-# Show fields used for the best before date
-# ATTENTION! If you enabled this feature you can not simply turn it off again
-# without taking care that best_before fields are emptied in the database.
-# This can be done with the following query:
-#
-#  UPDATE inventory SET bestbefore = NULL;
-#
-# Any stock contents containing a best before date will be impossible to stock
-# out otherwise.
-show_best_before = 0
-
 ## Pictures for parts
 # Show the picture in the part form
 parts_show_image = 1
@@ -92,9 +81,6 @@ parts_show_image = 1
 parts_image_css = border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;
 # Show the picture in the results when you search for parts
 parts_listing_images = 0
-
-# Should payments be changeable after posting (0 = never; 1 = every time; 2 = on the same day)
-payments_changeable = 0
 
 [paths]
 # path to temporary files (must be writeable by the web server)
@@ -211,27 +197,6 @@ email_from     =
 email_subject  = kivitendo self test report
 # template. currently txt and html templates are recognized and correctly mime send.
 email_template = templates/mail/self_test/status_mail.txt
-
-[datev_check]
-# it is possible to make a quick DATEV export everytime you post a record to ensure things
-# work nicely with their data requirements. This will result in a slight overhead though
-# you can enable this for each type of record independantly.
-
-# check when a sales invoice or a payment for a sales invoice is posted
-check_on_sales_invoice = 1
-# check when a purchase invoice or a payment for a purchase invoice is posted
-check_on_purchase_invoice = 1
-# check when an ar transaction is posted
-check_on_ar_transaction = 1
-# check when an ap transaction is posted
-check_on_ap_transaction = 1
-# check when a gl transaction is posted
-check_on_gl_transaction = 1
-
-# not implemented yet:
-#check_on_cash_and_receipt = 0
-#check_on_dunning = 0
-#check_on_sepa_import = 0
 
 [console]
 # autologin to use if none is given

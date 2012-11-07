@@ -40,6 +40,7 @@ use SL::IR;
 use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
+use SL::DB::Default;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
@@ -238,7 +239,9 @@ sub form_header {
   }
   my $readonly = ($form->{id}) ? "readonly" : "";
 
-  $form->{radier} = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  $form->{radier} = ($::instance_conf->get_ap_changeable == 2)
+                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                      : ($::instance_conf->get_ap_changeable == 1);
   $readonly       = ($form->{radier}) ? "" : $readonly;
 
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
@@ -693,11 +696,11 @@ $jsscript
     print qq|<input type=hidden name="acc_trans_id_$i" value=$form->{"acc_trans_id_$i"}>\n|;
     print qq|<input type=hidden name="gldate_$i" value=$form->{"gldate_$i"}>\n|;
     my $changeable = 1;
-    if ($::lx_office_conf{features}->{payments_changeable} == 0) {
+    if (SL::DB::Default->get->payments_changeable == 0) {
       # never
       $changeable = ($form->{"acc_trans_id_$i"})? 0 : 1;
     }
-    if ($::lx_office_conf{features}->{payments_changeable} == 2) {
+    if (SL::DB::Default->get->payments_changeable == 2) {
       # on the same day
       $changeable = (($form->{"gldate_$i"} eq '') || $form->current_date(\%myconfig) eq $form->{"gldate_$i"});
     }
@@ -852,10 +855,10 @@ sub form_footer {
 
   $::form->header;
   print $::form->parse_html_template('ap/form_footer', {
-    num_due         => $num_due,
-    num_follow_ups  => $num_follow_ups,
-    show_post_draft => ($transdate > $closedto) && !$::form->{id},
-    show_storno     => $storno,
+    num_due           => $num_due,
+    num_follow_ups    => $num_follow_ups,
+    show_post_draft   => ($transdate > $closedto) && !$::form->{id},
+    show_storno       => $storno,
   });
 
   $::lxdebug->leave_sub;

@@ -39,6 +39,7 @@ use SL::DATEV qw(:CONSTANTS);
 use SL::DBUtils;
 use SL::IO;
 use SL::MoreCommon;
+use SL::DB::Default;
 
 use strict;
 
@@ -203,7 +204,7 @@ sub post_transaction {
   # add paid transactions
   for my $i (1 .. $form->{paidaccounts}) {
 
-    if ($form->{"acc_trans_id_$i"} && $payments_only && ($::lx_office_conf{features}->{payments_changeable} == 0)) {
+    if ($form->{"acc_trans_id_$i"} && $payments_only && (SL::DB::Default->get->payments_changeable == 0)) {
       next;
     }
 
@@ -275,7 +276,7 @@ sub post_transaction {
   IO->set_datepaid(table => 'ar', id => $form->{id}, dbh => $dbh);
 
   # safety check datev export
-  if ($::lx_office_conf{datev_check}{check_on_ar_transaction}) {
+  if ($::instance_conf->get_datev_check_on_ar_transaction) {
     my $transdate = $::form->{transdate} ? DateTime->from_lxoffice($::form->{transdate}) : undef;
     $transdate  ||= DateTime->today;
 
@@ -356,7 +357,7 @@ sub post_payment {
   $old_form = save_form();
 
   # Delete all entries in acc_trans from prior payments.
-  if ($::lx_office_conf{features}->{payments_changeable} != 0) {
+  if (SL::DB::Default->get->payments_changeable != 0) {
     $self->_delete_payments($form, $dbh);
   }
 

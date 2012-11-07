@@ -903,7 +903,9 @@ sub form_footer {
     $follow_ups_due = sum map { $_->{due} * 1 } @{ $follow_ups || [] };
   }
 
-  my $radieren = $::form->current_date(\%::myconfig) eq $::form->{gldate};
+  my $radieren = ($::instance_conf->get_gl_changeable == 2)
+                    ? ($::form->current_date(\%::myconfig) eq $::form->{gldate})
+                    : ($::instance_conf->get_gl_changeable == 1);
 
   print $::form->parse_html_template('gl/form_footer', {
     radieren       => $radieren,

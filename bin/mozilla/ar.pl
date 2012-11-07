@@ -38,6 +38,7 @@ use SL::AR;
 use SL::FU;
 use SL::IS;
 use SL::PE;
+use SL::DB::Default;
 use SL::ReportGenerator;
 
 require "bin/mozilla/arap.pl";
@@ -251,7 +252,9 @@ sub form_header {
   #/show history button js
   $readonly = ($form->{id}) ? "readonly" : "";
 
-  $form->{radier} = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  $form->{radier} = ($::instance_conf->get_ar_changeable == 2)
+                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                      : ($::instance_conf->get_ar_changeable == 1);
   $readonly = ($form->{radier}) ? "" : $readonly;
 
   # set option selected
@@ -421,8 +424,8 @@ sub form_header {
 
 
     $payment->{changeable} =
-        $::lx_office_conf{features}->{payments_changeable} == 0 ? !$payment->{acc_trans_id} # never
-      : $::lx_office_conf{features}->{payments_changeable} == 2 ? $payment->{gldate} eq '' || $payment->{gldate} eq $now
+        SL::DB::Default->get->payments_changeable == 0 ? !$payment->{acc_trans_id} # never
+      : SL::DB::Default->get->payments_changeable == 2 ? $payment->{gldate} eq '' || $payment->{gldate} eq $now
       :                                                           1;
 
     push @payments, $payment;
@@ -530,7 +533,7 @@ $follow_ups_block
   }
   # /button for saving history
   # mark_as_paid button
-  if($form->{id} ne "") {
+  if(($form->{id} ne "") && $::instance_conf->get_ar_show_mark_as_paid) {
     print qq|<input type="submit" class="submit" name="action" value="|
           . $locale->text('mark as paid') . qq|">|;
   }
