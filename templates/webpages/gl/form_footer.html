@@ -21,18 +21,18 @@
 <br>
 
 [%- IF id %]
+  [% L.submit_tag('action', LxERP.t8('Update'), id='update_button') %]
 
- [%- IF !storno %]
-      [% L.submit_tag('action', LxERP.t8('Storno')) %]
- [%- END %]
+  [% IF !locked && radieren %]
+    [% L.submit_tag('action', LxERP.t8('Post'), accesskey='b') %]
+    [% L.submit_tag('action', LxERP.t8('Delete')) %]
+  [%- END %]
 
- [% IF !locked && radieren %]
-      [% L.submit_tag('action', LxERP.t8('Post'), accesskey='b') %]
-      [% L.submit_tag('action', LxERP.t8('Delete')) %]
- [%- END %]
-      [% L.submit_tag('action', LxERP.t8('Update'), id='update_button') %]
-      [% L.submit_tag('action', LxERP.t8('Follow-Up'), onclick='follow_up_window()') %]
+  [%- IF !storno %]
+    [% L.submit_tag('action', LxERP.t8('Storno')) %]
+  [%- END %]
 
+  [% L.submit_tag('action', LxERP.t8('Follow-Up'), onclick='follow_up_window()') %]
 [%- ELSE %]
 
  [%- IF draft_id %]
