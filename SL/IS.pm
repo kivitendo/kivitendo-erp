@@ -2130,14 +2130,12 @@ sub get_pricegroups_for_parts {
 
           $pkr->{selected}  = ' selected'; # unless $form->{selected};
           # no customer pricesgroup set
-          if ($pkr->{price_unfmt} == $pkr->{default_sellprice}) {
+          if ($pkr->{price_unfmt} == $pkr->{default_sellprice} || $form->{'sellprice_'.$i} * 1 > 1) {
 
             $pkr->{price} = $form->{"sellprice_$i"};
 
           } else {
 
-# this sub should not set anything and only return. --sschoeling, 20090506
-# is this correct? put in again... -- grichardson 20110119
             $form->{"sellprice_$i"} = $pkr->{price};
           }
 
