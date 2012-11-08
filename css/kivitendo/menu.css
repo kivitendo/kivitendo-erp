@@ -29,12 +29,6 @@ body.menuv4 {
 	margin: 0;
 	padding: 0.3em 1em;
 }
-#menuv4 h2:before {
-	content: " ";
-}
-#menuv4 h2:after {
-	content: " ";
-}
 #menuv4 h2 {
 	background-color: #ffffff;
 	color: #000000;

@@ -244,11 +244,18 @@ sub save_account {
   }
 
   $query = '
-    SELECT
-    accno
+    SELECT accno
     FROM chart
     WHERE accno = ?';
-  my ($accno) = selectrow_query($form, $dbh, $query, $form->{accno});
+
+  my @values = ($form->{accno});
+
+  if ( $form->{id} ) {
+    $query .= ' AND NOT id = ?';
+    push(@values, $form->{id});
+  }
+
+  my ($accno) = selectrow_query($form, $dbh, $query, @values);
 
   if ($accno) {
     $form->error($::locale->text('Account number not unique!'));
