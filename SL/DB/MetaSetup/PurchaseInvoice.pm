@@ -23,7 +23,7 @@ __PACKAGE__->meta->setup(
     duedate                 => { type => 'date' },
     invoice                 => { type => 'boolean', default => 'false' },
     ordnumber               => { type => 'text' },
-    curr                    => { type => 'character', length => 3 },
+    curr                    => { type => 'text' },
     notes                   => { type => 'text' },
     employee_id             => { type => 'integer' },
     quonumber               => { type => 'text' },
