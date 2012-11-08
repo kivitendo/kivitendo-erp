@@ -263,7 +263,7 @@ sub create_upgrade {
   die "file '$full_filename' already exists, aborting" if -f $full_filename;
 
 
-  open my $fh, ">:utf8", $full_filename or die "can't open $full_filename";
+  open my $fh, ">:encoding($encoding)", $full_filename or die "can't open $full_filename";
   print $fh "$comment \@tag: $filename\n";
   print $fh "$comment \@description: $description\n";
   print $fh "$comment \@depends: @depends\n";
