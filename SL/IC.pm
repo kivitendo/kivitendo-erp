@@ -1008,7 +1008,7 @@ sub all_parts {
   $joins_needed{makemodel}   = 1 if grep { $form->{$_} || $form->{"l_$_"} } @makemodel_filters;
   $joins_needed{mv}          = 1 if $joins_needed{makemodel};
   $joins_needed{cv}          = 1 if $bsooqr;
-  $joins_needed{apoe}        = 1 if $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
+  $joins_needed{apoe}        = 1 if $joins_needed{project} || $joins_needed{cv}   || grep { $form->{$_} || $form->{"l_$_"} } @apoe_filters;
   $joins_needed{invoice_oi}  = 1 if $joins_needed{project} || $joins_needed{apoe} || grep { $form->{$_} || $form->{"l_$_"} } @invoice_oi_filters;
 
   # special case for description search.
@@ -1565,6 +1565,11 @@ sub retrieve_accounts {
     } else {
       $transdate = $form->{deliverydate};
     }
+  } elsif (($form->{type} eq "credit_note") and $form->{deliverydate}) {
+    # if credit_note has a deliverydate, use this instead of invdate
+    # useful for credit_notes of invoices from an old period with different tax
+    # if there is no deliverydate then invdate is used, old default (see next elsif)
+    $transdate = $form->{deliverydate};
   } elsif (($form->{type} eq "credit_note") || ($form->{script} eq 'ir.pl')) {
     $transdate = $form->{invdate};
   } else {

@@ -162,7 +162,6 @@ sub parse_args {
   GetOptions(
     'login|user=s'      => \ my $login,
     all                 => \ my $all,
-    sugar               => \ my $sugar,
     'no-commit|dry-run' => \ my $nocommit,
     help                => sub { pod2usage(verbose => 99, sections => 'NAME|SYNOPSIS|OPTIONS') },
     verbose             => \ my $verbose,
@@ -170,7 +169,6 @@ sub parse_args {
   );
 
   $options->{login}    = $login if $login;
-  $options->{sugar}    = $sugar;
   $options->{all}      = $all;
   $options->{nocommit} = $nocommit;
   $options->{verbose}  = $verbose;
@@ -205,17 +203,16 @@ sub usage {
 
 sub make_tables {
   my @tables;
-  if ($config{all} || $config{sugar}) {
-    my ($type, $prefix) = $config{sugar} ? ('SUGAR', 'sugar_') : ('LXOFFICE', '');
-    my $db              = SL::DB::create(undef, $type);
-    @tables             =
-      map { $package_names{$type}->{$_} ? "$_=" . $package_names{$type}->{$_} : $prefix ? "$_=$prefix$_" : $_ }
-      grep { my $table = $_; !any { $_ eq $table } @{ $blacklist{$type} } }
+  if ($config{all}) {
+    my $db  = SL::DB::create(undef, 'LXOFFICE');
+    @tables =
+      map { $package_names{LXOFFICE}->{$_} ? "$_=" . $package_names{LXOFFICE}->{$_} : $_ }
+      grep { my $table = $_; !any { $_ eq $table } @{ $blacklist{LXOFFICE} } }
       $db->list_tables;
   } elsif (@ARGV) {
     @tables = @ARGV;
   } else {
-    error("You specified neither --sugar nor --all nor any specific tables.");
+    error("You specified neither --all nor any specific tables.");
     usage();
   }
 
@@ -254,7 +251,7 @@ rose_auto_create_model - mana Rose::DB::Object classes for Lx-Office
 =head1 SYNOPSIS
 
   scripts/rose_create_model.pl --login login table1[=package1] [table2[=package2] ...]
-  scripts/rose_create_model.pl --login login [--all|-a] [--sugar|-s]
+  scripts/rose_create_model.pl --login login [--all|-a]
 
   # updates all models
   scripts/rose_create_model.pl --login login --all
@@ -324,12 +321,8 @@ C<devel/login>. If that too is not found, an error is thrown.
 Process all tables from the database. Only those that are blacklistes in
 L<SL::DB::Helper::Mappings> are excluded.
 
-=item C<--sugar, -s>
-
-Process tables in sugar schema instead of standard schema. Rarely useful unless
-you debug schema awareness of the RDBO layer.
-
 =item C<--no-commit, -n>
+
 =item C<--dry-run>
 
 Do not write back generated files. This will do everything as usual but not

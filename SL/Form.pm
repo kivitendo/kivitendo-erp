@@ -1607,7 +1607,7 @@ sub get_exchangerate {
   my ($self, $dbh, $curr, $transdate, $fld) = @_;
   my ($query);
 
-  unless ($transdate) {
+  unless ($transdate && $curr) {
     $main::lxdebug->leave_sub();
     return 1;
   }

@@ -1586,7 +1586,7 @@ sub form_header {
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
   @{ $form->{BUCHUNGSGRUPPEN} } = grep { $_->{id} eq $form->{buchungsgruppen_id} || ($form->{id} && $form->{orphaned}) || !$form->{id} } @{ $form->{BUCHUNGSGRUPPEN} };
 
-  if (!SL::TransNumber->new(number => $form->{partnumber}, type => $form->{item}, id => $form->{id})->is_unique) {
+  if (($form->{partnumber} ne '') && !SL::TransNumber->new(number => $form->{partnumber}, type => $form->{item}, id => $form->{id})->is_unique) {
     flash('info', $::locale->text('This partnumber is not unique. You should change it.'));
   }
 

@@ -940,7 +940,7 @@ sub edit_defaults {
   # default language
   my $all_languages = SL::DB::Manager::Language->get_all;
 
-# EÜR = cash, Bilanzierung = accrual
+# cash = IST-Versteuerung, accrual = SOLL-Versteuerung
 
   foreach my $key (keys %{ $form->{IC} }) {
     foreach my $accno (sort keys %{ $form->{IC}->{$key} }) {

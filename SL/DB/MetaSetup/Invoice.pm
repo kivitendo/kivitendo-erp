@@ -26,7 +26,7 @@ __PACKAGE__->meta->setup(
     shippingpoint             => { type => 'text' },
     terms                     => { type => 'integer', default => '0' },
     notes                     => { type => 'text' },
-    curr                      => { type => 'character', length => 3 },
+    curr                      => { type => 'text' },
     ordnumber                 => { type => 'text' },
     employee_id               => { type => 'integer' },
     quonumber                 => { type => 'text' },

@@ -1685,12 +1685,12 @@ sub bwa {
       $form->{ "$key" . "gesamtkosten" };
     $form->{ "$key" . "neutraleraufwand" } =
       $form->{30}{$key} + $form->{31}{$key};
-    $form->{ "$key" . "neutralertrag" } =
+    $form->{ "$key" . "neutralerertrag" } =
       $form->{32}{$key} + $form->{33}{$key} + $form->{34}{$key};
     $form->{ "$key" . "ergebnisvorsteuern" } =
       $form->{ "$key" . "betriebsergebnis" } -
       $form->{ "$key" . "neutraleraufwand" } +
-      $form->{ "$key" . "neutralertrag" };
+      $form->{ "$key" . "neutralerertrag" };
     $form->{ "$key" . "ergebnis" } =
       $form->{ "$key" . "ergebnisvorsteuern" } - $form->{35}{$key};
 

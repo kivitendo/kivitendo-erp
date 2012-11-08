@@ -492,6 +492,9 @@ sub read_user {
   # The XUL/XML backed menu has been removed.
   $user_data{menustyle} = 'v3' if lc($user_data{menustyle} || '') eq 'xml';
 
+  # Set default language if selected language does not exist (anymore).
+  $user_data{countrycode} = $::lx_office_conf{system}->{language} unless $user_data{countrycode} && -d "locale/$user_data{countrycode}";
+
   $sth->finish();
 
   $main::lxdebug->leave_sub();

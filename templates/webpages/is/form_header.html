@@ -197,12 +197,11 @@
         <th align="right" nowrap>[% 'Delivery Order Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="donumber" value="[% HTML.escape(donumber) %]"></td>
         </tr>
+[%- END %]
         <tr>
           <th align="right">[% 'Delivery Date' | $T8 %]</th>
           <td>[% L.date_tag('deliverydate', deliverydate, cal_align='BL') %]</td>
         </tr>
-[%- END %]
-
         <tr>
           <th align="right" nowrap>[% 'Order Number' | $T8 %]</th>
           <td colspan="3"><input size='11' name="ordnumber" value="[% HTML.escape(ordnumber) %]"></td>
