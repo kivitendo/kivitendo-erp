@@ -28,9 +28,12 @@ __PACKAGE__->meta->setup(
     cp_project     => { type => 'text' },
     cp_privatphone => { type => 'text' },
     cp_privatemail => { type => 'text' },
-    cp_birthday    => { type => 'text' },
     cp_abteilung   => { type => 'text' },
     cp_gender      => { type => 'character', length => 1 },
+    cp_street      => { type => 'text' },
+    cp_zipcode     => { type => 'text' },
+    cp_city        => { type => 'text' },
+    cp_birthday    => { type => 'date' },
   ],
 
   primary_key_columns => [ 'cp_id' ],

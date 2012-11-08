@@ -115,7 +115,9 @@
 
      <tr>
       <th align="left" nowrap>[% 'Birthday' | $T8 %]</th>
-      <td><input id="cp_birthday" name="cp_birthday" size="40" value="[% HTML.escape(cp_birthday) %]"></td>
+      <td>
+        [% L.date_tag('cp_birthday', cp_birthday) %]
+      </td>
      </tr>
 
      <tr>
