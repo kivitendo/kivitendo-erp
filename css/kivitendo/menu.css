@@ -318,3 +318,10 @@ div#menuv3 li:hover ul, div#menuv3 li li:hover ul, div#menuv3 li li li:hover ul,
 #html-menu div.s2 { padding-left: 16px }
 
 body { margin: 0 }
+
+@media print {
+  #menuv3, #menuv4, #html-menu, #frame-header, #js-menu {   /* items with this class won't print */
+    display: none;
+  }
+  #content.html-menu { margin-left: 0; }
+}
