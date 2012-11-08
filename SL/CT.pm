@@ -552,7 +552,18 @@ sub _save_contact {
   my @columns = qw(cp_title cp_givenname cp_name cp_email cp_phone1 cp_phone2 cp_abteilung cp_fax
                    cp_mobile1 cp_mobile2 cp_satphone cp_satfax cp_project cp_privatphone cp_privatemail cp_birthday cp_gender
                    cp_street cp_zipcode cp_city);
-  my @values  = map { $_ eq 'cp_gender' ? ($form->{$_} eq 'f' ? 'f' : 'm') : $form->{$_} } @columns;
+  my @values  = map(
+    {
+      if ( $_ eq 'cp_gender' ) {
+        $form->{$_} eq 'f' ? 'f' : 'm';
+      } elsif ( $_ eq 'cp_birthday' && $form->{cp_birthday} eq '' ) {
+        undef;
+      } else {
+        $form->{$_};
+      }
+    }
+    @columns
+  );
 
   my ($query, $cp_id);
   if ($form->{cp_id}) {
