@@ -29,6 +29,7 @@ sub run {
                                   profile                => $profile,
                                   ignore_unknown_columns => 1,
                                   strict_profile         => 1,
+                                  case_insensitive_header => 1,
                                   map { ( $_ => $self->controller->profile->get($_) ) } qw(sep_char escape_char quote_char),
                                  ));
 
@@ -210,6 +211,12 @@ sub init_profile {
       :                                                                     $col->name;
 
     $profile{$col} = $name;
+  }
+
+  if ($self->can('all_cvar_configs')) {
+    for (@{ $self->all_cvar_configs }) {
+      $profile{ 'cvar_' . $_->name } = '';
+    }
   }
 
   $self->profile(\%profile);

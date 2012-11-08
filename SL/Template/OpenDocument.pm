@@ -270,14 +270,14 @@ sub parse {
 
   $zip->contents("content.xml", Encode::encode('utf-8-strict', $new_contents));
 
-  my $styles = $zip->contents("styles.xml");
+  my $styles = Encode::decode('utf-8-strict', $zip->contents("styles.xml"));
   if ($contents) {
     my $new_styles = $self->parse_block($styles);
     if (!defined($new_contents)) {
       $main::lxdebug->leave_sub();
       return 0;
     }
-    $zip->contents("styles.xml", $new_styles);
+    $zip->contents("styles.xml", Encode::encode('utf-8-strict', $new_styles));
   }
 
   $zip->writeToFileNamed($form->{"tmpfile"}, 1);

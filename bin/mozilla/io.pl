@@ -49,6 +49,7 @@ use SL::IO;
 
 use SL::DB::Language;
 use SL::DB::Printer;
+use SL::Helper::Flash;
 
 require "bin/mozilla/common.pl";
 
@@ -802,6 +803,7 @@ sub validate_items {
 
   # check if items are valid
   if ($form->{rowcount} == 1) {
+    flash('warning', $::locale->text('The action you\'ve chosen has not been executed because the document does not contain any item yet.'));
     &update;
     ::end_of_request();
   }
@@ -1536,23 +1538,27 @@ sub print_form {
   my $emailed = $form->{emailed};
 
   if ($form->{media} eq 'queue') {
-    my %queued = map { s|.*/|| } split / /, $form->{queued};
+    my %queued = map { s|.*[/\\]||; $_ } split / /, $form->{queued};
 
     my $filename;
     my $suffix = ($form->{postscript}) ? '.ps' : '.pdf';
     if ($filename = $queued{ $form->{formname} }) {
-      $form->{queued} =~ s/\Q$form->{formname} $filename\E//;
       unlink $::lx_office_conf{paths}->{spool} . "/$filename";
-      $filename =~ s/\..*$//g;
-      $filename .= $suffix;
-      $form->{OUT} = $::lx_office_conf{paths}->{spool} . "/$filename";
-      $form->{OUT_MODE} = '>';
+      delete $queued{ $form->{formname} };
+
+      $form->{queued}    =  join ' ', %queued;
+      $filename          =~ s/\..*$//g;
+      $filename         .=  $suffix;
+      $form->{OUT}       =  $::lx_office_conf{paths}->{spool} . "/$filename";
+      $form->{OUT_MODE}  =  '>';
+
     } else {
       my $temp_fh;
       ($temp_fh, $filename) = File::Temp::tempfile(
         'kivitendo-spoolXXXXXX',
         SUFFIX => "$suffix",
-        DIR => $::lx_office_conf{paths}->{spool},
+        DIR    => $::lx_office_conf{paths}->{spool},
+        UNLINK => 0,
       );
       close $temp_fh;
       $form->{OUT} = "$filename";
