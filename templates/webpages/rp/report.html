@@ -83,7 +83,7 @@
 <table border="0">
 [%- IF selectdepartment %]
   <tr>
-    <th align=right nowrap>[% 'Department' | $T8 %]</th>
+    <th align="left" nowrap>[% 'Department' | $T8 %]</th>
     <td colspan=3><select name=department>[% selectdepartment %]</select></td>
   </tr>
 [%- END %]
@@ -182,23 +182,32 @@
 
 [%- IF is_aging %]
   <tr>
-    <th align=right>[% label %]</th>
+    <th align=left>[% label %]</th>
     <td>[% vc %]</td>
   </tr>
+</table>
+<table border="0">
   <tr>
-    <td>[% 'Review of Aging list' | $T8 %]</td>
-    <td><select name="review_of_aging_list">
+    <td colspan=5><hr size=1 noshade></td>
+  </tr>
+  <tr>
+    <th align=left><input name=reporttype class=radio type=radio value="custom" checked><b>[% 'Reference day' | $T8 %]</b>&nbsp; </th>
+     <td align="right" colspan="4">[% 'Review of Aging list' | $T8 %] <select name="review_of_aging_list">
         <option></option>
         <option>0-30</option>
         <option>30-60</option>
         <option>60-90</option>
         <option>90-120</option>
         <option>&gt; 120</option>
-        </select>
+        </select> [% 'for date' | $T8 %] [% L.date_tag('fordate', today) %]
     </td>
   </tr>
   <tr>
-    <td align=left colspan=4>
+    <td colspan=5><hr size=3 noshade></td>
+ </tr>
+ <tr>
+    <th align=left><input name=reporttype class=radio type=radio value="free"><b>[% 'Free report period' | $T8 %]</b>&nbsp; </th>
+    <td align="right" colspan=4>
       [% 'From' | $T8 %] [% L.date_tag('fromdate', fromdate) %]
       [% 'Bis' | $T8 %] [% L.date_tag('todate') %]
     </td>

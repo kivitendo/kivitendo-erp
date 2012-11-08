@@ -196,6 +196,7 @@ sub report {
     vc                  => $vc,
     label               => $label,
     year                => DateTime->today->year,
+    today               => DateTime->today,
     nextsub             => $nextsub,
     accrual             => $::instance_conf->get_accounting_method ne 'cash',
     cash                => $::instance_conf->get_accounting_method eq 'cash',

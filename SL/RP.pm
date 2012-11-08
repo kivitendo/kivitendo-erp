@@ -1171,6 +1171,8 @@ sub aging {
 
   my ($invoice, $arap, $buysell, $ct, $ct_id, $ml);
 
+  # falls customer ziehen wir die offene forderungsliste
+  # anderfalls für die lieferanten die offenen verbindlichkeitne
   if ($form->{ct} eq "customer") {
     $invoice = "is";
     $arap = "ar";
@@ -1186,12 +1188,42 @@ sub aging {
   }
   $ct_id = "${ct}_id";
 
-  $form->{todate} = $form->current_date($myconfig) unless ($form->{todate});
-  my $todate = conv_dateq($form->{todate});
-  my $fromdate = conv_dateq($form->{fromdate});
+  # erweiterung um einen freien zeitraum oder einen stichtag
+  # mit entsprechender altersstrukturliste (s.a. Bug 1842)
+  # eine neue variable an der oberfläche eingeführt, somit ist
+  # todate == freier zeitrau und fordate == stichtag
 
-  my $fromwhere = ($form->{fromdate} ne "") ? " AND (transdate >= (date $fromdate)) " : "";
+  my ($review_of_aging_list, $todate, $fromdate, $fromwhere, $fordate);
 
+  if ($form->{reporttype} eq 'custom') {  # altersstrukturliste
+
+    # explizit rausschmeissen was man für diesen bericht nicht braucht
+    delete $form->{fromdate};
+    delete $form->{todate};
+
+    # an der oberfläche ist das tagesaktuelle datum vorausgewählt
+    # falls es dennoch per Benutzereingabe gelöscht wird, lieber wieder vorbelegen
+    # ferner muss für die spätere DB-Abfrage muss todate gesetzt sein.
+    $form->{fordate}  = $form->current_date($myconfig) unless ($form->{fordate});
+    $fordate          = conv_dateq($form->{fordate});
+    $todate           = $fordate;
+
+    if ($form->{review_of_aging_list}) { # falls die liste leer ist, alles anzeigen
+      if ($form->{review_of_aging_list} =~ m "-") {             # ..  periode von bis
+        my @period = split(/-/, $form->{review_of_aging_list}); # ... von periode bis periode
+        $review_of_aging_list = " AND $period[0] <  (date $fordate) - duedate
+                                  AND (date $fordate) - duedate  < $period[1]";
+      } else {
+        $form->{review_of_aging_list} =~ s/[^0-9]//g;   # größer 120 das substitute ist nur für das '>' zeichen
+        $review_of_aging_list = " AND $form->{review_of_aging_list} < (date $fordate) - duedate";
+      }
+    }
+  } else {  # freier zeitraum OHNE review_of_aging_list
+    $form->{todate}  = $form->current_date($myconfig) unless ($form->{todate});
+    $todate = conv_dateq($form->{todate});
+    $fromdate = conv_dateq($form->{fromdate});
+    $fromwhere = ($form->{fromdate} ne "") ? " AND (transdate >= (date $fromdate)) " : "";
+  }
   my $where = " 1 = 1 ";
   my ($name, $null);
 
@@ -1209,19 +1241,7 @@ sub aging {
     $where .= qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
     $where_dpt = qq| AND (${arap}.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
   }
-  my $review_of_aging_list;
-  if ($form->{review_of_aging_list}) {
-    if ($form->{review_of_aging_list} =~ m "-"){
-      my @period = split(/-/, $form->{review_of_aging_list});
-      $review_of_aging_list = " AND $period[0] < date_part('days', now() - duedate)
-                                AND date_part('days', now() - duedate)  < $period[1]";
-    } else {
-      $form->{review_of_aging_list} =~ s/[^0-9]//g;
-      $review_of_aging_list = " AND $form->{review_of_aging_list} < date_part('days', now() - duedate)";
-    }
-  }
-
-  my $q_details = qq|
+ my $q_details = qq|
 
     SELECT ${ct}.id AS ctid, ${ct}.name,
       street, zipcode, city, country, contact, email,
