@@ -53,7 +53,7 @@ __PACKAGE__->meta->setup(
     iban                => { type => 'varchar', length => 100 },
     bic                 => { type => 'varchar', length => 100 },
     direct_debit        => { type => 'boolean', default => 'false' },
-    curr                => { type => 'character', length => 3 },
+    curr                => { type => 'text' },
     taxincluded_checked => { type => 'boolean' },
   ],
 

@@ -39,7 +39,7 @@ __PACKAGE__->meta->setup(
     taxzone_id              => { type => 'integer' },
     taxincluded             => { type => 'boolean' },
     terms                   => { type => 'integer' },
-    curr                    => { type => 'character', length => 3 },
+    curr                    => { type => 'text' },
   ],
 
   primary_key_columns => [ 'id' ],
