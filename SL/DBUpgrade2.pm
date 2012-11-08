@@ -164,7 +164,7 @@ sub process_query {
           pop(@quote_chars);
         } elsif (length $quote_chars[-1] > 1
              &&  substr($_, $i, length $quote_chars[-1]) eq $quote_chars[-1]) {
-          $i   += length $quote_chars[-1] - 1;
+          $i   += length($quote_chars[-1]) - 1;
           $char = $quote_chars[-1];
           pop(@quote_chars);
         }
