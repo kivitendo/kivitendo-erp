@@ -1604,6 +1604,7 @@ $self->{texts} = {
   'Review of Aging list'        => 'Altersstrukturliste',
   'Right'                       => 'Rechts',
   'Row #1: amount has to be different from zero.' => 'Zeile #1: Der Wert darf nicht 0 sein.',
+  'Row number'                  => 'Zeilennummer',
   'Run at'                      => 'Ausgeführt um',
   'SAVED'                       => 'Gespeichert',
   'SAVED FOR DUNNING'           => 'Gespeichert',
