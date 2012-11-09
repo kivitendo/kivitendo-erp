@@ -223,7 +223,6 @@
             [% HTML.escape(defaults.weightunit) %]
            </td>
           </tr>
-        [%- END %]
           <tr>
            <th align="right" nowrap>[% 'On Hand' | $T8 %]</th>
            <th align="left" nowrap class="plus[% IF onhand > 0 %]1[% ELSE %]0[% END %]">&nbsp;[% LxERP.format_amount(onhand) %]</th>
@@ -236,6 +235,7 @@
            <th align="right" nowrap="true">[% 'Bin' | $T8 %]</th>
            <td><input name="bin" size="10" value="[% HTML.escape(bin) %]"></td>
           </tr>
+        [%- END %]
           <tr>
            <th align="right" nowrap="true">[% 'Verrechnungseinheit' | $T8 %]</th>
            <td><input name="ve" size="10" value="[% HTML.escape(ve) %]"></td>
@@ -254,10 +254,12 @@
            <td><input name="obsolete" id="obsolete" type="checkbox" class="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
           </tr>
         [%- END %]
+        [%- UNLESS is_service %]
           <tr>
            <th align="right" nowrap><label for="has_sernumber">[% 'Has serial number' | $T8 %]</label></th>
            <td><input class="checkbox" type="checkbox" name="has_sernumber" id="has_sernumber" value="1" [% IF has_sernumber %]checked[% END %]></td>
           </tr>
+        [%- END %]
           <tr>
            <th align="right" nowrap><label for="shop">[% 'Shopartikel' | $T8 %]</label></th>
            <td><input class="checkbox" type="checkbox" name="shop" id="shop" value="1" [% IF shop %]checked[% END %]></td>
