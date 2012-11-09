@@ -305,7 +305,7 @@ sub form_header {
     # emulate click for resubmitting actions
     $dispatch_to_popup .= "document.do.${_}.click(); " for grep { /^action_/ } keys %$form;
     $dispatch_to_popup .= "document.do.submit();";
-    $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup)");
+    $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
   }
 
   my $follow_up_vc                =  $form->{ $form->{vc} eq 'customer' ? 'customer' : 'vendor' };
