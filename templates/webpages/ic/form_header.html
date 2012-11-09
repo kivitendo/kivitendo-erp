@@ -136,21 +136,17 @@
             <table>
              <tr>
               <th align="left">[% 'Part Notes' | $T8 %]</th>
-              [%- UNLESS is_service %]
               <th align="left">[% 'Formula' | $T8 %]</th>
-              [%- END %]
              </tr>
              <tr>
               <td>
                <textarea name="notes" rows="[% HTML.escape(notes_rows) %]" cols="45" wrap="soft">[% HTML.escape(notes) %]</textarea>
               </td>
-              [%- UNLESS is_service %]
               <td>
                <ilayer>
                 <layer onmouseover="this.T_STICKY=true;this.T_STATIC=true;return escape('[% 'The formula needs the following syntax:<br>For regular article:<br>Variablename= Variable Unit;<br>Variablename2= Variable2 Unit2;<br>...<br>###<br>Variable + ( Variable2 / Variable )<br><b>Please be beware of the spaces in the formula</b><br>' | $T8 %]')">
                  <textarea name="formel" rows="[% HTML.escape(notes_rows) %]" cols="30" wrap="soft">[% HTML.escape(formel) %]</textarea></layer></ilayer>
                </td>
-              [%- END %]
              </tr>
             </table>
            </td>
@@ -274,7 +270,6 @@
     </tr>
 
 
-    [% UNLESS is_service %]
     <tr>
      <td>
       <table>
@@ -291,7 +286,6 @@
       </table>
      </td>
     </tr>
-    [%- END %]
 
     <script type="text/javascript">
      <!-- Calendar.setup({ inputField : "priceupdate", ifFormat :"[% myconfig_jsc_dateformat %]", align : "BL", button : "trigger1" }); //-->
