@@ -161,9 +161,6 @@ sub create_links {
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{rowcount}    = 1;
 
-  # notes
-  $form->{notes} = $form->{intnotes} unless $form->{notes};
-
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -617,12 +614,9 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
 
-  my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1 customer_id);
+  my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1 customer_id notes);
 
   &check_name("customer");
-
-  # check_name loads customer notes into notes, but ar only knows intnotes, so copy them
-  $form->{notes} = $form->{intnotes} if $saved_variables{customer_id} != $form->{customer_id};
 
   $form->{AR} = $saved_variables{AR};
   if ($saved_variables{AR_amount_1} =~ m/.--./) {
