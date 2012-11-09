@@ -153,9 +153,6 @@ sub create_links {
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
 
-  # notes
-  $form->{notes} = $form->{intnotes} unless $form->{notes};
-
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -287,6 +284,7 @@ sub form_header {
   }
   my $notes =
     qq|<textarea name=notes rows=$rows cols=50 wrap=soft $readonly>$form->{notes}</textarea>|;
+  my $intnotes = qq|<textarea name=intnotes rows=$rows cols=50 wrap=soft readonly>$form->{intnotes}</textarea>|;
 
   my $department;
   $department = qq|
@@ -627,6 +625,9 @@ $jsscript
         <tr>
           <th align=left width=1%>| . $locale->text('Notes') . qq|</th>
           <td align=left>$notes</td>
+
+          <th align=left width=1%>| . $locale->text('Notes for vendor') . qq|</th>
+          <td align=left>$intnotes</td>
         </tr>
       </table>
     </td>
@@ -929,7 +930,7 @@ sub update {
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
-  my %saved_variables = map +( $_ => $form->{$_} ), qw(AP AP_amount_1 taxchart_1);
+  my %saved_variables = map +( $_ => $form->{$_} ), qw(AP AP_amount_1 taxchart_1 notes);
 
   my $vendor_changed = &check_name("vendor");
 
@@ -965,9 +966,6 @@ sub update {
      $form->{oldinvtotal});
   $form->{oldinvtotal}  = $form->{invtotal};
   $form->{oldtotalpaid} = $totalpaid;
-
-  # notes
-  $form->{notes} = $form->{intnotes} if $vendor_changed;
 
   &display_form;
 
