@@ -4,9 +4,10 @@
 [%- USE LxERP %]
 <table width=100%>
   <tr>
-    <th class=listheading colspan="6">[% 'Invoices' | $T8 %]</th>
+    <th class=listheading colspan="7">[% 'Invoices' | $T8 %]</th>
   </tr>
   <tr>
+   <th nowrap class=listheading>[% 'Row number' | $T8 %]</th>
    <th nowrap class=listheading>[% 'Invoice' | $T8 %]</th>
    <th nowrap class=listheading width="15%">[% 'Date' | $T8 %]</th>
    <th nowrap class=listheading width="15%">[% 'Amount' | $T8 %]</th>
@@ -16,6 +17,7 @@
   </tr>
 [%- FOREACH row = invoices %]
   <tr class="listrow[% loop.count % 2 %]">
+    <td>[% loop.count %]</td>
     <td>[% row.invnumber | html %][% L.hidden_tag('invnumber_' _ loop.count, row.invnumber); L.hidden_tag('id_' _ loop.count, row.id) %]</td>
     <td>[% row.transdate | html %][% L.hidden_tag('transdate_' _ loop.count, row.transdate) %]</td>
     <td class="numeric">[% LxERP.format_amount(row.amount, 2) %][% L.hidden_tag('amount_' _ loop.count, LxERP.format_amount(row.amount, 2)) %]</td>
@@ -25,6 +27,7 @@
   </tr>
 [%- END %]
   <tr class='tisttotal'>
+   <td class="listtotal">&nbsp;</td>
    <td class="listtotal">&nbsp;</td>
    <td class="listtotal">&nbsp;</td>
    <td class="listtotal" align="right">[% LxERP.format_amount(totals.amount, 2) %]</td>
