@@ -333,7 +333,7 @@ sub form_header {
     my $transaction = {
       amount     => $form->{"amount_$i"},
       tax        => $form->{"tax_$i"},
-      project_id => $form->{"project_id_$i"},
+      project_id => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
     };
 
     my $selected_accno_full;
