@@ -365,7 +365,7 @@ sub handle_makemodel {
   my $found_any;
 
   my @makemodels;
-  foreach my $idx (map { substr $_, 5 } grep { m/^make_\d+$/ && $entry->{raw_data}->{$_} } keys %{ $entry->{raw_data} }) {
+  foreach my $idx (sort map { substr $_, 5 } grep { m/^make_\d+$/ && $entry->{raw_data}->{$_} } keys %{ $entry->{raw_data} }) {
     my $vendor = $entry->{raw_data}->{"make_${idx}"};
     $vendor    = $self->vc_by->{id}->               { $vendor }
               || $self->vc_by->{number}->{vendors}->{ $vendor }
@@ -457,10 +457,10 @@ sub setup_displayable_columns {
                                  { name => 'image',              description => $::locale->text('Image')                                                },
                                  { name => 'lastcost',           description => $::locale->text('Last Cost')                                            },
                                  { name => 'listprice',          description => $::locale->text('List Price')                                           },
-                                 { name => 'make_X',             description => $::locale->text('Make (with X being a number)')                         },
+                                 { name => 'make_X',             description => $::locale->text('Make (vendor\'s database ID, number or name; with X being a number)') . ' [1]' },
                                  { name => 'microfiche',         description => $::locale->text('Microfiche')                                           },
-                                 { name => 'model_X',            description => $::locale->text('Model (with X being a number)')                        },
-                                 { name => 'lastcost_X',         description => $::locale->text('Lastcost (with X being a number)')                     },
+                                 { name => 'model_X',            description => $::locale->text('Model (with X being a number)') . ' [1]'               },
+                                 { name => 'lastcost_X',         description => $::locale->text('Lastcost (with X being a number)') . ' [1]'            },
                                  { name => 'not_discountable',   description => $::locale->text('Not Discountable')                                     },
                                  { name => 'notes',              description => $::locale->text('Notes')                                                },
                                  { name => 'obsolete',           description => $::locale->text('Obsolete')                                             },
