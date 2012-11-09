@@ -1736,13 +1736,14 @@ sub purchase_order {
 
   $form->{cp_id} *= 1;
 
+  my $source_type = $form->{type};
   $form->{title} = $locale->text('Add Purchase Order');
   $form->{vc}    = "vendor";
   $form->{type}  = "purchase_order";
 
   $form->get_employee();
 
-  &poso;
+  poso(source_type => $form->{type});
 
   delete $form->{sales_order_to_purchase_order};
 
@@ -1764,13 +1765,14 @@ sub sales_order {
 
   $form->{cp_id} *= 1;
 
+  my $source_type = $form->{type};
   $form->{title}  = $locale->text('Add Sales Order');
   $form->{vc}     = "customer";
   $form->{type}   = "sales_order";
 
   $form->get_employee();
 
-  &poso;
+  poso(source_type => $source_type);
 
   $main::lxdebug->leave_sub();
 }
@@ -1778,6 +1780,7 @@ sub sales_order {
 sub poso {
   $main::lxdebug->enter_sub();
 
+  my %param    = @_;
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
@@ -1786,6 +1789,11 @@ sub poso {
 
   $form->{transdate} = $form->current_date(\%myconfig);
   delete $form->{duedate};
+
+  # "reqdate" is the validity date for a quotation and the delivery
+  # date for an order. Therefore it makes no sense to keep the value
+  # when converting from one into the other.
+  delete $form->{reqdate} if ($param{source_type} =~ /_quotation$/) == ($form->{type} =~ /_quotation$/);
 
   $form->{convert_from_oe_ids} = $form->{id};
   $form->{closed}              = 0;
