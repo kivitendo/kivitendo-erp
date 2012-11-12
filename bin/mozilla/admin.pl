@@ -388,7 +388,7 @@ sub add_user {
     "countrycode"  => "de",
     "numberformat" => "1.000,00",
     "dateformat"   => "dd.mm.yy",
-    "stylesheet"   => "lx-office-erp.css",
+    "stylesheet"   => "kivitendo.css",
     "menustyle"    => "old",
     dbport         => $::auth->{DB_config}->{port} || 5432,
     dbuser         => $::auth->{DB_config}->{user} || 'lxoffice',
