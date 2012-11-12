@@ -1211,10 +1211,7 @@ sub _search_templates {
   my @allmaster = readdir(TEMPLATEDIR);
   closedir TEMPLATEDIR;
 
-  @allmaster  = sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ } @allmaster;
-  @allmaster = reverse grep !/Default/, @allmaster;
-  push @allmaster, 'Default';
-  @allmaster = reverse @allmaster;
+  @allmaster = ('Standard', sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ && !/^Standard$/ } @allmaster);
 
   return \@alldir, \@allmaster;
 }
