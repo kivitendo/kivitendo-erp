@@ -4,6 +4,44 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+
+Upgrade auf v2.7.1
+==================
+
+* Neue Abhängigkeiten
+
+  * Clone 1.16
+  * Email::MIME
+  * FCGI jetzt min Version 0.72
+  * Test::Harness 3.00
+  * IO::Socket::SSL
+  * Net::LDAP
+  * Met::SMTP::SSL  1.01
+  * Met::SSLGlue 1.01
+
+  Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
+
+  $ scripts/installation_check.pl -ro
+
+* Neue Entwicklerabhängigkeiten
+
+  * Test::Deep
+  * GD 2.00
+
+* Diverse umstrittene Features zum nicht standardkonformen Umgang mit gebuchten
+  Rechnungen sind jetzt standardmässig deaktiviert, und müssen unter System
+  -> Mandantenkonfiguration aktiviert werden.
+
+* Die Übersetzungen "de_DE" und "fr" für die alternative deutsche Version und
+  französische Version respektive wurden entfernt. Es bleiben offiziell
+  unterstützt die deutsche "de" und englische "en" Übersetzung.
+
+* Dieses ist die letzte Version die perl Versionen vor 5.10.1 unterstützen wird.
+  Ab dem nächsten Release werden Sprachkonstrukte verwendet werden, die nicht mehr
+  in 5.8 kompilieren, und es werden alle Coremodule bis einschließlich 5.10.1
+  nicht mehr als Abhängigkeiten gelistet.
+
+
 Upgrade auf v2.7.0
 ==================
 

@@ -1,10 +1,15 @@
-####################################
-# Veränderungen von Lx-Office ERP #
-###################################
+###############################
+# Veränderungen von kivitendo #
+###############################
 
-2012-03-01 - Release 2.7.1-unstable
+2012-11-12 - Release 2.7.1-beta
 
 Größere neue Features:
+
+- kivitendo rebranding und Stylesheet
+  Der Name Lx-Office war irreführund und wenig einprägsam, und ist ausserdem
+  mit anderen Produktnamen kollidiert. Zur Einführung gibt es ein passdendes
+  Stylesheet in weiß/grün gehalten.
 
 - Mandantenkonfiguration
   Mit dem Recht "Administration (Für die Verwaltung der aktuellen Instanz aus
@@ -24,7 +29,7 @@ Größere neue Features:
   Konfigurationsdatei werden bei einem Datenbank-Upgrade übernommen und können
   danach aus der Konfigurationsdatei gelöscht werden.
 
-- Automatischer DATEV Konsistenzcheck bei Buchungen.
+- Automatischer DATEV Konsistenzcheck bei Buchungen
   Es ist jetzt möglich Buchungen aus den fünf Hauptmasken Verkaufsrechnung,
   Einkaufsrechnung, Kreditorenbuchung, Debitorenbuchung und Dialogbuchen
   automatisch auf korrekten DATEV Export zu prüfen. Wenn ein Problem beim
@@ -32,10 +37,70 @@ Größere neue Features:
   konsistent bleibt und eine Fehlermeldung ausgegeben. Das Feature kann unter
   "System->Mandantenkonfiguration" angeschaltet werden.
 
-- Verkaufsbericht: Sortierung um Land, Warengruppen, Kundentyp, Verkäufer und
-  Monat erweitert, sowie benutzerdefinierte Variablen eingebunden.
-  Warengewicht kann angezeigt werden und damit eignet sich der Verkaufsbericht
-  auch als Grundlage für die Intrastat-Meldung.
+- Verkaufsbericht:
+  Sortierung um Land, Warengruppen, Kundentyp, Verkäufer und Monat erweitert,
+  sowie benutzerdefinierte Variablen eingebunden. Warengewicht kann angezeigt
+  werden und damit eignet sich der Verkaufsbericht auch als Grundlage für die
+  Intrastat-Meldung.
+
+- Verkaufspreisinformationen
+  In Warenstammdaten ist jetzt ein Überblick über die Verkaufshistorie des
+  Artikels verfügbar, in dem vergangene Preise gelistet sind.
+
+- Lieferplan
+  Im Verkauf ist ein neuer Bericht "Lieferplan" verfügbar, der zu liefernde
+  Artikel in Aufträgen listet, die nocht nicht in einem Lieferschein erfasst
+  sind.
+
+Kleinere neue Features und Detailverbesserungen
+
+- neue xtCommerce Schnittstelle
+  Die Schnittstelle wurde auf Basis der PepperShop Schnittstelle neu gebaut
+
+- Benutzerdefinierte Variablen sind jetzt in Ansprechpartnern verfügbar
+
+- Mailversand über SMTP
+  Es ist jetzt möglich statt einem sendmail kompatiblen Mailer ein SMTP Konto
+  anzugeben, an das Mails versendet werden.
+
+- Taskserver Steuerung
+  Es ist jetzt möglich den Taskserver aus der Weboberfläche zu steuern. Im Menü
+  unter "System" -> "Hintergrund-Jobs und Task-Server"
+
+API-Änderungen
+
+- Benutzerdefinierte Variablen vom Typ "Lieferant" und "Ware"
+  Für die Auswahl in den webpages steht ein L.vendor_selector und
+  ein L.part_selector zur Verfügung, der einfach das select_tag verwendet.
+  Diese selectoren können/sollen später durch picker ersetzt werden.
+  Die Details werden sich wahrscheinlich noch ändern.
+
+- Die Funktion L.options_for_select wurde entfernt und in L.select_tag integriert
+  Siehe Doku in SL::Template::Plguns::L
+
+- Die Engine beherrscht jetzt Layouts
+  Das Layout wurde von Frames mit einem Contentframe auf ein Layout umgestellt, bei
+  dem die Menüelemente im Request eingepflegt werden. Siehe SL::Layout für Details.
+
+- Printtemplates
+  Wenn in einem <%if var%> die variable eine Referenz auf ein Array ist, wird
+  genau dann wahr zurückgegeben, wenn das Array nicht leer ist.
+
+Entfernte Features:
+
+- Die französische Programmübersetzung wurde entfernt, weil sie nicht gepflegt wurde.
+
+- Die deutsche Programmübersetzung "de_DE" wurde entfernt.
+
+- Die Supportstrukturen für Debian Pakete wurden entfernt.
+  Es wurde auf dem Bugsprint entschieden, dass Support von Debian Paketen zu
+  komplex ist, und eine Einfachheit suggeriert, die wir nicht erfüllen können.
+
+Zukünftig zu entfernende Features:
+
+- Die Unterstützung für perl Versionen vor 5.10.1 wird entfernt werden.
+  Insbesondere ist dies das letzte geplante Release mit Unterstützung für perl
+  5.8.x und 5.10.0.
 
 Experimentelle Features:
 
@@ -49,11 +114,100 @@ Experimentelle Features:
   Zur Demonstration gibt es einen Selbsttest Transactions, der die Datenbank
   auf Fehlbuchungen untersucht.
 
-- Es ist möglich benutzerdefinierte Variablen vom Typ "Lieferant" und "Ware"
-  anzulegen. Für die Auswahl in den webpages steht ein L.vendor_selector und
-  ein L.part_selector zur Verfügung, der einfach das select_tag verwendet.
-  Diese selectoren können/sollen später durch picker ersetzt werden.
-  Die Details werden sich wahrscheinlich noch ändern.
+Liste gefixter Bugs us dem Bugtracker
+
+  - Bugfix #456: Preisgruppen werden nicht richtig gespeichert
+  - Bugfix #798: Cursor-Positions-Fix
+  - Bugfix #1692: Gelöschter Auftrag erscheint bei Auflisten des entsprechenden Lieferscheins erneut
+  - Bugfix #1697: Produktivität -> Wiedervorlage erstellen -> Speichern -> Übersicht (?)
+  - Bugfix #1814: Bei Gutschrift buchen erhält man die Statusmeldung "Rechnung XXX gebucht"
+  - Bugfix #1819: CVar Auswahl funktioniert nicht mit leading/trailing whitespace
+  - Bugfix #1828: Erzeugen neuer Preisgruppen muendet in Fehler
+  - Bugfix #1829: Lieferanten zu Dienstleistungen werden nicht gespeichert
+  - Bugfix #1834: Buchungsliste - Bilanzspalte
+  - Bugfix #1837: Lieferant auf ungültig setzen, verfälscht Kreditorenbuchungsmaske (mulitbox <-> obsolete?)
+  - Bugfix #1841: falsche Finanzamtnummern
+  - Bugfix #1842: Offene Posten Alterstrukturliste prüft nur auf tagesaktuellem Datum
+  - Bugfix #1849: Buttons "Loeschen" und "Buchen" bei frischen Rechnungen verschwindet nach "Erneuern"
+  - Bugfix #1851: Spaltenueberschriften Export auf Import abgleichen
+  - Bugfix #1853: Administrationsoberflaeche - aktive User anzeigen
+  - Bugfix #1858: Debitorenbuchung: Bereits beschriebenes Kommentarfeld wird bei Kundenwechsel geloescht
+  - Bugfix #1859: Nicht gespeichertes Angebot/Auftrag/Rechnung... -> Drucken -> "Keine Aktion definiert"
+  - Bugfix #1861: Umlaute in Rechnungen fehlerhaft bei <%employee..%>
+  - Bugfix #1863: report_generator parst bei dateiausgabe keine Leerzeichen
+  - Bugfix #1865: templatesystem $form{'tmpfile'} und chdir
+  - Bugfix #1866: Menüs und neues CSS
+  - Bugfix #1867: Debitorenbuchung erfassen nicht möglich
+  - Bugfix #1868: Debitorenbuchung: Kundendetails werden nicht angezeigt
+  - Bugfix #1869: Artikel: Inkonsistente Zustände bzgl. eindeutige Artikelnummern (war: Dienstleistung: neuer Preis lässt sich nicht speichern)
+  - Bugfix #1871: Datumsformat dd-mm-yy verursacht Fehler in Rose::DB::Object
+  - Bugfix #1872: CSVImport verliert die erste Spalte, wenn die Importdatei UTF8 mit BOM ist
+  - Bugfix #1877: Installations Check preuft nicht gegen Net::LDAP
+  - Bugfix #1878: Programm Icon kivitendo
+  - Bugfix #1889: Fälligkeitsdatum aus Rechnungsdatum
+  - Bugfix #1890: Kontenabgleich: Spaltenüberschrift vertauscht
+  - Bugfix #1892: Nach Update Can't use string ("Form") as a HASH....
+  - Bugfix #1894: Stammdaten - Berichte - Kunden: Auswahl Rechnungen, Aufträge, Angebote wirkt als Filter
+  - Bugfix #1895: Negative Beträge bei Zahlungseingang für Gutschriften
+  - Bugfix #1900: Warenbericht: Projekt in Bericht aufnhemen ergibt SQL-Fehler
+  - Bugfix #1901: Warenimport (csv): Bei Update werden make_X etc nicht beruecksichtigt
+  - Bugfix #1904: Fehler bei Artikelmenge über 999999
+  - Bugfix #1907: CSV-Import: Projekte
+  - Bugfix #1921: JS-Menü unterscheidet nicht Links- vs Mittel-Klick
+  - Bugfix #1922: Link "Springe zu Rechnungsadresse" macht so keinen Sinn
+  - Bugfix #1924: CSV-Import Kunde mit benutzerdefinierter Variable geht nur "halb"
+  - Bugfix #1926: Zufälliger Dateiname für PDF Spooldateien
+  - Bugfix #1930: Bearbeitung eines bestehenden Buchungsbeleges: Enter loest Storno aus
+  - Bugfix #1931: Bericht Ansprechpartner lässt Straße auswählen/anzeigen, das Feld existiert aber nicht
+  - Bugfix #1934: Umstellung von keine Währung auf Währung
+  - Bugfix #1936: Autom. Update des Faelligkeitsdatums bei Kreditorenbuchungen funktioniert nicht zuverlaessig
+  - Bugfix #1939: Kreditorenbuchungen: Projektnummer wird nicht autom. in Zeilen uebernommen
+  - Bugfix #1940: Sprung von Wiedervorlage zu Kreditorenbuchung in Kreditorenbuchung funktioniert nicht
+  - Bugfix #1949: Falsche Zuordnung Verkäufer/-in bei Kunden-Stammdaten
+  - Bugfix #1950: Abteilung wird aus ausgelagerten Lieferscheinen nicht in Rechnung übernommen.
+  - Bugfix #1952: Lieferscheine werden nicht nach Abteilung gefiltert
+  - Bugfix #1954: CSV-Import benutzerdef. Variablen mit Großbuchstaben geht nicht
+  - Bugfix #1956: Erzeugnis-Anzeigefehler nach Einzelkomponentenbearbeitung
+  - Bugfix #1959: Lieferdatum verschwindet bei "Workflow Auftrag -> als neu speichern"
+  - Bugfix #1960: Bei CSV-Import wird listprice mit 0 überschrieben
+  - Bugfix #1961: Stammdaten-EK wird bei Eingangsrechnung bei Einheitenumrechnung im Beleg
+  - Bugfix #1964: CsvImport::Parts prüft Duplikate inkonsistent
+  - Bugfix #1965: CsvImport::Parts - Es fehlt eine Option Artiekl mit existierender Nummer zu überspringen
+  - Bugfix #1967: Doc: SL::SessionFile POD ist outdated
+  - Bugfix #1969: oe.reqdate Funktion uneindeutig
+  - Bugfix #1972: CSV-Kundenimport berücksichtigt kundentyp-Spezifischen Nummernkreis nicht
+  - Bugfix #1973: CSS-Menue: Aufklappen ueber aktuell offenen Zweig verhindert Zugriff auf Menuepunkte
+  - Bugfix #1975: SKR03: Gewährte Skonti (8731, 8735) sollten Erlös- statt Aufwandskonten sein
+  - Bugfix #1976: BWA: Übrige Steuern (19) gehören nicht auf Gesamtkosten sondern auf neutralen Aufwand
+  - Bugfix #1978: Keine CVars beim Export von Projekten
+  - Bugfix #1979: BWA: Neutraler Ertrag wird nicht angezeigt
+  - Bugfix #1981: Wiedervorlagen fuer Lieferscheine
+  - Bugfix #1982: Form::format_amount ist für sehr kleine Zahlen bei hoher Präzision kaputt
+  - Bugfix #1983: Einlagern mit anderer Einheit benutzt Grundeinheit
+  - Bugfix #1985: Stammdateneinstellung um immer Bruttorechnungen auszustellen fehlt (Checkbox "Steuer im Preis inbegriffen" als Default setzen)
+  - Bugfix #1987: lxerp_auth wird nach Inst. nicht erstellt
+  - Bugfix #1999: Gewählte Einheit wird nicht übernommen beim Erneuern
+  - Bugfix #2000: Fehler beim Aufrufen bestehender/alter Lieferscheine aus Berichten
+  - Bugfix #2002: In Lieferscheinen werden die Mitarbeiter-IDs statt namen nun angezeigt
+  - Bugfix #2004: Berichte - Dienstleistungen: Bericht zeigt auch uneditierbare Felder
+  - Bugfix #2008: Lieferdatum in Gutschrift / Umsatzsteuererhöhung
+  - Bugfix #2009: Falsche Menge bei Lager»Erzeugnis fertigen
+  - Bugfix #2015: Zahlungsbedingungen lassen sich nicht mehr ändern
+  - Bugfix #2016: Benutzerdefinierte Variablen/Ansprechpersonen werden nicht gespeichert
+  - Bugfix #2018: Lieferplan nicht vollständig
+  - Bugfix #2020: Ansprechpartner wird gelöscht, wenn Eingabetaste gedrückt
+  - Bugfix #2021: Geburtstags Datum als Datumsfeld
+  - Bugfix #2025: Kein Datepicker im Wiedervorlagen-Popup
+  - Bugfix #2027: Menüvariante "Oben (mit CSS, neu)" (v4) seit Abschaffung der Frames kaputt
+  - Bugfix #2028: Seit No Frames gibt es kein HTML-Menü (Links) mehr bei einigen Masken
+  - Bugfix #2030: Unverständliche Fehlermeldung
+  - Bugfix #2031: Anlegen der Tabellen zur Benutzerauthentifizierung: Hinweis auf lx_office.conf ersetzen
+  - Bugfix #2035: Probleme mit Zeichenkodierung beim Mailversand
+  - Bugfix #2038: Unroutable request -- inavlid controller/action. nach Datenbankaktualisierung des Mandanten
+  - Bugfix #2039: No-Frames bedeutet f. HTML-Druckvorlagen immer das Menü mitzudrucken
+  - Bugfix #2041: 'Konto schon vorhanden' beim Speichern eines bestehenden Kontos nach Änderung
+  - Bugfix #2044: fehlender Benutzername bei Menue CSS (v4)
+  - Bugfix #2048: Menu verschwindet
 
 
 2012-03-01 - Release 2.7.0
