@@ -85,10 +85,12 @@
         <input name="itemstatus" id="itemstatus_active" class="radio" type="radio" value="active" checked>
         <label for="itemstatus_active">[% 'Active' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_onhand" class="radio" type="radio" value="onhand">
+      [%- UNLESS is_service %]
         <label for="itemstatus_onhand">[% 'On Hand' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_short" class="radio" type="radio" value="short">
         <label for="itemstatus_short">[% 'Short' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_obsolete" class="radio" type="radio" value="obsolete">
+      [%- END %]
         <label for="itemstatus_obsolete">[% 'Obsolete' | $T8 %]</label>
         <input name="itemstatus" id="itemstatus_orphaned" class="radio" type="radio" value="orphaned">
         <label for="itemstatus_orphaned">[% 'Orphaned' | $T8 %]</label>
@@ -177,10 +179,12 @@
            <input name="l_description" id="l_description" class="checkbox" type="checkbox" value="Y" checked>
            <label for="l_description">[% 'Part Description' | $T8 %]</label>
           </td>
+      [%- UNLESS is_service %]
           <td>
            <input name="l_serialnumber" id="l_serialnumber" class="checkbox" type="checkbox" value="Y">
            <label for="l_serialnumber">[% 'Serial Number' | $T8 %]</label>
           </td>
+      [%- END %]
           <td>
            <input name="l_unit" id="l_unit" class="checkbox" type="checkbox" value="Y" checked>
            <label for="l_unit">[% 'Unit of measure' | $T8 %]</label>
@@ -218,6 +222,7 @@
            <input name="l_deliverydate" id="l_deliverydate" class="checkbox" type="checkbox" value="Y">
            <label for="l_deliverydate">[% 'deliverydate' | $T8 %]</label>
           </td>
+      [%- UNLESS is_service %]
           <td>
            <input name="l_rop" id="l_rop" class="checkbox" type="checkbox" value="Y">
            <label for="l_rop">[% 'ROP' | $T8 %]</label>
@@ -226,6 +231,7 @@
            <input name="l_weight" id="l_weight" class="checkbox" type="checkbox" value="Y">
            <label for="l_weight">[% 'Weight' | $T8 %]</label>
           </td>
+      [%- END %]
          </tr>
 
          <tr>
@@ -267,10 +273,12 @@
          </tr>
 
          <tr>
+      [%- UNLESS is_service %]
           <td>
            <input name="l_onhand" id="l_onhand" class="checkbox" type="checkbox" value="Y">
            <label for="l_onhand">[% 'Stocked Qty' | $T8 %]</label>
           </td>
+      [%- END %]
           <td>
            <input name="l_projectnumber" id="l_projectnumber" class="checkbox" type="checkbox" value="Y">
            <label for="l_projectnumber">[% 'Project Number' | $T8 %]</label>
@@ -307,4 +315,3 @@
    <input class="submit" type="submit" name="action" value="[% 'TOP100' | $T8 %]">
   </p>
  </form>
-
