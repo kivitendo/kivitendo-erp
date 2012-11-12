@@ -1470,7 +1470,7 @@ sub print_form {
   reformat_numbers($output_numberformat, 2,
                    qw(invtotal ordtotal quototal subtotal linetotal
                       listprice sellprice netprice discount
-                      tax taxbase total paid),
+                      tax taxbase total paid payment),
                    grep({ /^(?:linetotal|nodiscount_linetotal|listprice|sellprice|netprice|taxbase|discount|p_discount|discount_sub|nodiscount_sub|paid|subtotal|total|tax)_\d+$/ } keys(%{$form})));
 
   reformat_numbers($output_numberformat, undef,
