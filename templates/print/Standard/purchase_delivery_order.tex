@@ -1,0 +1,100 @@
+% purchase_delivery_order.tex für LX-Office ab V2.6.3
+% Bestell-Eingangslieferschein
+% ----------
+% Überarbeitet von Norbert Simon, n.simon@linet-services.de
+% Version 2.1 vom 21.Oktober 2011
+% Basiert auf der Arbeit von kmk@lilalaser.de / 2007
+% Diese Vorlage steht unter der GPL-Lizenz, Version 3
+% siehe http://www.gnu.de/licenses/gpl-3.0.html             
+% ----------
+% config: tag-style=$( )$
+% ----------
+
+\documentclass[twoside]{scrartcl}
+\usepackage[frame]{xy}
+\usepackage{tabularx}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\setlength{\voffset}{0.5cm}
+\setlength{\hoffset}{-2.0cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{1.0cm}
+\setlength{\evensidemargin}{1.0cm}
+\setlength{\textwidth}{17cm}
+\setlength{\textheight}{24.7cm}
+\setlength{\footskip}{1cm}
+\setlength{\parindent}{0pt}
+\renewcommand{\baselinestretch}{1}
+
+\begin{document}
+
+\pagestyle{myheadings}
+\thispagestyle{empty}
+
+\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+\markboth{$(company)$\hfill $(ordnumber)$}{$(company)$\hfill $(ordnumber)$}
+
+\vspace*{0.5cm}
+
+\parbox[t]{1cm}{\hfill}
+\parbox[t]{.5\textwidth}{
+\textbf{Von}
+\vspace{0.7cm}
+
+$(name)$ \\
+$(street)$ \\
+$(zipcode)$ \\
+$(city)$ \\
+$(country)$
+}
+\hfill
+
+\vspace{1cm}
+
+\textbf{Eingangslieferschein}
+\hfill
+
+\vspace{1cm}
+
+\begin{tabularx}{\textwidth}{*{6}{|X}|} \hline
+  \textbf{BestellNr. \#} & \textbf{Datum} & \textbf{Kontakt}
+  $(if warehouse)$
+  & \textbf{Lager}
+  $(end warehouse)$
+  & \textbf{Lagerplatz} & \textbf{Lieferung mit} \\ [0.5em]
+  \hline
+
+  $(ordnumber)$
+  $(if shippingdate)$
+  & $(shippingdate)$
+  $(end shippingdate)$
+  $(if not shippingdate)$
+  & $(orddate)$
+  $(end shippingdate)$
+  & $(employee)$
+  $(if warehouse)$
+  & $(warehouse)$
+  $(end warehouse)$
+  & $(shippingpoint)$ & $(shipvia)$ \\
+  \hline
+\end{tabularx}
+
+\vspace{1cm}
+
+\begin{tabularx}{\textwidth}{@{}rlXllrrll@{}}
+  \textbf{Pos} & \textbf{Nummer} & \textbf{Beschreibung} & \textbf{Seriennumner} & & \textbf{Menge} & \textbf{Erh} & & \textbf{Lagerplatz} \\
+
+$(foreach number)$
+  $(runningnumber)$ & $(number)$ & $(description)$ & $(serialnumber)$ &
+  $(deliverydate)$ & $(qty)$ & $(ship)$ & $(unit)$ & $(bin)$ \\
+$(end number)$
+\end{tabularx}
+
+
+\rule{\textwidth}{2pt}
+
+\end{document}

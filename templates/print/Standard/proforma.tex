@@ -1,5 +1,5 @@
-% sales_order.tex
-% Auftragsbestätigung Verkauf
+% proforma.tex  für LX-Office ab V2.6.3
+% Proforma Rechnung Verkauf
 % Überarbeitet von Norbert Simon, n.simon@linet-services.de
 % Version 2.5 vom 15. November 2011
 % Basiert auf der Arbeit von kmk@lilalaser.de / 2007
@@ -27,9 +27,8 @@
 \usepackage{microtype,relsize} %Feinpositionierung, Sperren von Text
 \newcommand*{\sperren}[1]{\normalsize\textls*[200]{#1}} %Sperrung Überrschriften
 
-
-% ---------- Report-Variablen zur Verwendung in kivitendobriefkopf.tex ----------
-% ----------  Die eigenen Daten ----------
+% ---------- Report-Variablen für kivitendobriefkopf.tex ----------
+% ---------- Die eigenen Daten ----------
 \newcommand{\employeename}{$(employee_name)$}
 \newcommand{\employeecompany}{$(employee_company)$}
 \newcommand{\employeeaddress}{$(employee_address)$}
@@ -40,7 +39,7 @@
 \newcommand{\employeetaxnumber}{$(employee_taxnumber)$}
 \newcommand{\employeetable}{tabelle$(employee_login)$.tex}
 
-% ---------- Eigene Bankverbindung falls nicht im Briefkopf gesetzt ----------
+% ---------- eigene Bankverbindung falls nicht im Briefkopf ----------
 % \newcommand{\companybank}{$(company_bank)$}
 % \newcommand{\companybankcode}{$(company_bank_code)$}
 % \newcommand{\companyaccountnumber}{$(company_account_number)$}
@@ -69,10 +68,11 @@
 }
 
 % ---------- Bestellvariablen ----------
-\newcommand{\quonumber}{$(quonumber)$}
-\newcommand{\ordnumber}{$(ordnumber)$}
-\newcommand{\docnumber}{{\quonumber}}
-\newcommand{\orddate}{$(orddate)$}
+\newcommand{\quonumber}{$(quonumber)$}		% Angebotsnummer
+\newcommand{\ordnumber}{$(ordnumber)$}		% Auftragsnummer bei uns
+\newcommand{\cusordnumber}{$(cusordnumber)$}	% Auftragsnummer beim Kunden
+\newcommand{\invnumber}{$(invnumber)$}		% Rechnungsnummer
+\newcommand{\docnumber}{Proforma ReNr. {\ordnumber}} % \quonumber
 \newcommand{\quodate}{$(quodate)$}
 \newcommand{\kundennummer}{$(customernumber)$}
 \newcommand{\reqdate}{$(reqdate)$}
@@ -90,7 +90,7 @@
 \newcommand{\shiptozipcode}{$(shiptozipcode)$}
 \newcommand{\shiptofax}{$(shiptofax)$}
 
-% ---------- Währungszeichen ----------
+% ---------- Währung setzen  ----------
 \newcommand{\currency}{$(currency)$}
 \ifthenelse{\equal{\currency}{EUR}}{\let\currency\euro}{}
 \ifthenelse{\equal{\currency}{YEN}}{\let\currency\textyen}{}
@@ -107,24 +107,28 @@
 % \fontfamily{cmss}\fontsize{10}{12pt plus 0.12pt minus 0.1pt}\selectfont
 % ---------- Schrift Helvetica ------------------------
 \fontfamily{phv}\fontsize{10}{12pt plus 0.12pt minus 0.1pt}\selectfont
-% ---------- Firmenlogo nur erste Seite ----------
-\thispagestyle{briefkopf}
+% ---------- Firmenlogo nur auf Seite 1 ----------
+	\thispagestyle{briefkopf}
 
-% ---------- Datum und Nummern ----------
+% ---------- Datum und Nummern unterhalb des Briefkopfs ----------
 % Position unterhalb des Briefkopfs
 \vspace*{\vlogospacing}
 \renewcommand{\arraystretch}{0.9}
 \begin{minipage}[b]{177mm}
-\sperren{\textbf{Auftragsbestätigung Nr. \ordnumber}}
+\ifthenelse{\isempty{\invnumber}}
+{\sperren{\textbf{Proforma-Rechnung Nr. \quonumber}}}
+{\sperren{\textbf{Proforma-Rechnung Nr. \invnumber}}}
+{\tiny Bitte stets angeben}
 \hfill
 	\small
 	\begin{tabular}[b]{r@{\hspace{2mm}}p{\hlogospacing}}
 		\textbf{Seite} & {\thepage} von \pageref{LastPage}\\
-  		\textbf{Datum} & \orddate \\
+  		\textbf{Datum} & \transdate \\
 		\textbf{Kunden Nr.} & \kundennummer\\
-		\textbf{Angebot Nr.} & \docnumber\\
-		\textbf{Auftragsbestätigung Nr.} & \ordnumber\\
-		\nonemptyline{\textbf{Vorraussichtl. Lieferdatum} &}{\reqdate}
+		\ifthenelse{\isempty{\invnumber}}
+		{\textbf{Proforma-Rechnung Nr.} & \quonumber\\}
+		{\textbf{Proforma-Rechnung Nr.} & \invnumber\\}
+		\nonemptyline{\textbf{Vorraussichliches Lieferdatum:} &}{\reqdate}
 		\textbf{Ansprechpartner} & \employeename\\
 		\nonemptyline{\textbf{Durchwahl} &}{\employeetel}
 		\nonemptyline{\textbf{E-Mail} &}{\employeeemail}
@@ -133,17 +137,16 @@
 \renewcommand{\arraystretch}{1}
 \normalsize
 % ---------- Begrüßung und Bemerkungen ----------
-\vspace{5mm}
+\vspace{ 5mm}
 \lettergreeting
-wir bedanken uns für Ihren Auftrag %
-\ifthenelse{\equal{\orddate}{\leer}}{}{vom \orddate{ }}%
-und bestätigen Ihnen diesen wie folgt.\\
-%Für Nachfragen steht Ihnen \employeename \ per Telefon (\employeetel) oder per E-Mail (\employeeemail) gerne zur Verfügung.\\[1\baselineskip]
+bitte überweisen Sie den ausgewiesenen Rechnungsbetrag für Ihre
+nachfolgend aufgeführte Bestellung auf das unten angegebene Konto.
 \ifthenelse{\isempty{$(notes)$}}{}{
-      $(notes)$\\[1\baselineskip]
-      }%
-%Mit freundlichen Grüßen\\[1\baselineskip]
-%\employeename\\[1\baselineskip]
+      \newline
+      $(notes)$
+      }
+\vspace{5mm}
+
 % ---------- Die eigentliche-Tabelle ----------
 % ---------- Tabelle puffern ----------
 \begin{filecontents}{\employeetable}
@@ -190,9 +193,7 @@ und bestätigen Ihnen diesen wie folgt.\\
  	\renewcommand{\baselinestretch}{1}\footnotesize
  	{\footnotesize $(longdescription)$
  	\renewcommand{\baselinestretch}{1}\normalsize
- 	}}
- 	\ifthenelse{\equal{$(deliverydate_oe)$}{\leer}}{}{
- 	        \newline Lieferdatum:~$(deliverydate_oe)$} &
+ 	}} &
 	$(qty)$ &
 	$(unit)$ &
 	\ifthenelse{\isempty{$(sellprice)$}}{&}{
@@ -207,6 +208,7 @@ und bestätigen Ihnen diesen wie folgt.\\
 \end{filecontents}
 % ---------- Puffertabelle öffnen ----------
 \LTXtable{\textwidth}{\employeetable}
+%---------- Bereich für die Summen ----------
 \parbox{\textwidth}{
 %---------- Summenbereich nach recht schieben  ----------
 \hfill
@@ -220,7 +222,9 @@ und bestätigen Ihnen diesen wie folgt.\\
 		{$(taxdescription)$}:  & \numprint{$(tax)$}& \currency\\
    $(end tax)$
    \midrule
-   {\textbf{Gesamtbetrag:}} & \bfseries\numprint{$(ordtotal)$} & \textbf{\currency}\\
+	\ifthenelse{\isempty{$(ordtotal)$}}
+	{{\textbf{Gesamtbetrag:}} & \bfseries\numprint{$(invtotal)$} & \textbf{\currency}\\}
+	{{\textbf{Gesamtbetrag:}} & \bfseries\numprint{$(ordtotal)$} & \textbf{\currency}\\}
    \bottomrule
 \end{tabular}
 }
@@ -238,7 +242,6 @@ $(end)$
      \equal{\shiptocity}{\city}
      }{}{
 % ---------- Umbruch dazwischen verhindern ----------
-\vspace*{0.5em}
 \parbox{\textwidth}{
 % ---------- Bereich für Lieferadresse ----------
 \textbf{Lieferanschrift:}\hfill\parbox[t]{0.7\textwidth}{
@@ -252,22 +255,30 @@ $(end)$
         }%ende parbox
 }% ende parbox
 }% ende ifthenelse
+% ---------- Nachbemerkung mit variablem Abstand ----------
+$(if reqdate)$
+\vspace*{0.5em}
+\textbf{Das Angebot ist gültig bis zum \reqdate.}\\
+$(end)$
 $(if payment_terms)$
 \vspace*{0.5em}
-\textbf{Zahlungsbedingungen:}\hfill\parbox[t]{0.7\textwidth}{$(payment_terms)$}\\[1em]
+\textbf{Zahlungsbedingungen:}\hfill\parbox[t]{0.7\textwidth}{$(payment_terms)$}\\
 $(end)$
 \vspace*{0.5em}
-%Nutzen Sie bitte für Fragen oder Änderungswünsche die oben angegebenen Kontaktmöglichkeiten.\\ \vfil
+Die Ware bleibt bis zur vollständigen Bezahlung unser Eigentum.
+$(if reqdate)$
+\vspace*{0.5em}
+Sollte bis zum \reqdate{ }kein Zahlungseingang erfolgen, ist der Vertrag hinfällig.
+$(end)$
+\vspace*{0.5em}
+Nutzen Sie bitte für Fragen oder Änderungswünsche die oben angegebenen Kontaktmöglichkeiten.\\ \vfil
 \parbox{\textwidth}{
-Für Nachfragen steht Ihnen \employeename \ per Telefon (\employeetel) oder per E-Mail (\employeeemail) gerne zur Verfügung.\\
-
-Wir sichern Ihnen eine termin- und fachgerechte Ausführung zu.\\
-
-\vspace{1.5\baselineskip}
+\vspace*{1em}
 Mit freundlichen Grüßen\\ \vfil
 \employeename
-}% Ende Parbox
+} % parbox
 \vfill
 \footnotesize
-Es gelten unsere Liefer- und Zahlungsbedingungen, die wir Ihnen auf Wunsch gerne zukommen lassen.
+Es gelten unsere AGB, die wir Ihnen -- falls nicht zur Hand oder unbekannt -- gern zusenden.
+
 \end{document}
