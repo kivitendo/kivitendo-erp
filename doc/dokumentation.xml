@@ -1401,7 +1401,7 @@ Administration -> Benutzerverwaltung -> [ein Benutzer]
         <sect3 id="f-tex-installation">
           <title>f-tex Die Installation</title>
           <itemizedlist>
-            <listitem>Vorlagenverzeichnis mit Option f-tex anlegen, siehe: 
+            <listitem>Vorlagenverzeichnis mit Option f-tex anlegen, siehe:
               <xref linkend="Vorlagenverzeichnis-anlegen"/>
               Das Vorlagensystem funktioniert jetzt schon, hat allerdings noch einen
               Beispiel Briefkopf
@@ -4411,6 +4411,18 @@ Administration -> Benutzerverwaltung -> [ein Benutzer]
           <para>Eine normale "if-then"-Bedingung. Die Zeilen zwischen dem "if"
           und dem "end" werden nur ausgegeben, wenn die Variable
           <varname>variablenname</varname> gesetzt und ungleich 0 ist.</para>
+
+          <para>Handelt es sich bei der benannten Variable um ein Array, also um einen Variablennamen, über den man mit
+          <command>&lt;%foreach variablenname%&gt;</command> iteriert, so wird mit diesem Konstrukt darauf getestet, ob das Array Elemente
+          enthält. Somit würde im folgenden Beispiel nur dann eine Liste von Zahlungseingängen samt ihrer Überschrift "Zahlungseingänge"
+          ausgegeben, wenn tatsächlich welche getätigt wurden:</para>
+
+          <programlisting>&lt;%if payment%&gt;
+Zahlungseingänge:
+ &lt;%foreach payment%&gt;
+   Am &lt;%paymentdate%&gt;: &lt;%payment%&gt; €
+ &lt;%end foreach%&gt;
+&lt;%end if%&gt;</programlisting>
 
           <para>Die Bedingung kann auch negiert werden, indem das Wort
           <function>not</function> nach dem <filename>if</filename> verwendet
