@@ -7,7 +7,6 @@
 [% L.hidden_tag('accno', accno) %]
 [% L.hidden_tag('decription', description) %]
 [% L.hidden_tag('sort', 'transdate') %]
-[% L.hidden_tag('eur', cash) %]
 [% L.hidden_tag('accounttype', accounttype) %]
 
 <table border=0 width=100%>
@@ -71,11 +70,6 @@
                    <td colspan=5><hr size=3 noshade></td>
         </tr>
         <tr>
-          <th align=leftt>[% 'Method' | $T8 %]</th>
-          <td colspan=3>[% L.radio_button_tag('method', value='accrual', checked=!cash, label=LxERP.t8('Accrual')) %]
-                        [% L.radio_button_tag('method', value='cash', checked=cash, label=LxERP.t8('EUR')) %]</td>
-        </tr>
-        <tr>
          <th align=right colspan=4>[% 'Decimalplaces' | $T8 %]</th>
          <td><input name=decimalplaces size=3 value="2"></td>
         </tr>
@@ -88,4 +82,3 @@
 
 <br>[% L.submit_tag('action', LxERP.t8('List Transactions')) %]
 </form>
-

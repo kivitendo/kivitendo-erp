@@ -157,7 +157,6 @@ sub list {
   $::form->header;
   print $::form->parse_html_template('ca/list', {
     year => DateTime->today->year,
-    cash => $::instance_conf->get_accounting_method eq 'cash',
   });
 
   $::lxdebug->leave_sub;
