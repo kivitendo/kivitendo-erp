@@ -29,7 +29,7 @@
         Links aus einem der Runlevel-Verzeichnisse heraus in den Boot-Prozess
         einzubinden. Da das bei neueren Linux-Distributionen aber nicht
         zwangsläufig funktioniert, werden auch Start-Scripte mitgeliefert, die
-        anstelle eines symbolischen Links verwendet werden können.</p><div class="sect3" title="2.6.2.1. SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora Core)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e776"></a>2.6.2.1. SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora
+        anstelle eines symbolischen Links verwendet werden können.</p><div class="sect3" title="2.6.2.1. SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora Core)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e779"></a>2.6.2.1. SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora
           Core)</h4></div></div></div><p>Kopieren Sie die Datei
           <code class="filename">scripts/boot/system-v/kivitendo-server</code>
           nach <code class="filename">/etc/init.d/kivitendo-server</code>. Passen
@@ -40,7 +40,7 @@
 insserv kivitendo-task-server</pre></li><li class="listitem"><p>OpenSuSE und Fedora Core:</p><pre class="programlisting">chkconfig --add kivitendo-task-server</pre></li></ul></div><p>Danach kann der Task-Server mit dem folgenden Befehl gestartet
           werden: <span class="command"><strong>/etc/init.d/kivitendo-task-server
           start</strong></span>
-               </p></div><div class="sect3" title="2.6.2.2. Upstart-basierende Systeme (z.B. Ubuntu)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e806"></a>2.6.2.2. Upstart-basierende Systeme (z.B. Ubuntu)</h4></div></div></div><p>Kopieren Sie die Datei
+               </p></div><div class="sect3" title="2.6.2.2. Upstart-basierende Systeme (z.B. Ubuntu)"><div class="titlepage"><div><div><h4 class="title"><a name="d0e809"></a>2.6.2.2. Upstart-basierende Systeme (z.B. Ubuntu)</h4></div></div></div><p>Kopieren Sie die Datei
           <code class="filename">scripts/boot/upstart/kivitendo-task-server.conf</code>
           nach <code class="filename">/etc/init/kivitendo-task-server.conf</code>.
           Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
