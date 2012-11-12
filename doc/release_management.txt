@@ -167,13 +167,21 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * VERSION updaten
 
-  Zu den Versionierungen:
+  Zu den Versionierungen vor 3.0.0:
 
   - Das Programm heißt Lx-Office (großes LO, mit Bindestrich dazwischen)
   - Das Paket heißt lx-office-erp (klein, plus "-erp")
   - Der Standardpfad ist lxoffice-erp-<version> (fehlender Bindestrich)
   - Der git tag ist "release-<version>"
-  - Das DB Ipgradescript ist "release_<snake_case_version>"
+  - Das DB Upgradescript ist "release_<snake_case_version>"
+
+  Zu den Versionierungen ab 3.0.0:
+
+  - Das Programm heißt kivitendo (alles klein)
+  - Das Paket heißt kivitendo
+  - Der Standardpfad ist kivitendo-<version>
+  - Der git tag ist "release-<version>"
+  - Das DB Upgradescript ist "release_<snake_case_version>"
 
 * Nur finales Release: Datenbankupgradescript "release_2_6_1" (mit aktueller
   Releasenummer) erstellen und alle Leafscripte als Abhängigkeit einsetzen.

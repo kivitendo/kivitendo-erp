@@ -717,7 +717,6 @@ $self->{texts} = {
   'EU with VAT ID'              => 'EU mit UstId-Nummer',
   'EU without VAT ID'           => 'EU ohne UstId-Nummer',
   'EUER'                        => 'Einnahmen-/Überschussrechnung',
-  'EUR'                         => 'E/Ü-Rechnung',
   'Earlier versions of kivitendo contained bugs which might have led to wrong entries in the general ledger.' => 'Frühere Versionen von kivitendo enthielten Bugs, die zu falschen Einträgen im Hauptbuch geführt haben können.',
   'Edit'                        => 'Bearbeiten',
   'Edit Access Rights'          => 'Zugriffsrechte bearbeiten',
