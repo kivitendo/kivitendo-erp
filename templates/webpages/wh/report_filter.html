@@ -105,7 +105,7 @@
         <th align="right" nowrap>[% 'Charge Number' | $T8 %]:</th>
         <td><input name="chargenumber" size=40></td>
        </tr>
-       [% IF conf_show_best_before %]
+       [% IF INSTANCE_CONF.get_show_bestbefore %]
        <tr>
         <th align="right" nowrap>[% 'Best Before' | $T8 %]:</th>
         <td>
@@ -160,7 +160,7 @@
         <td nowrap><label for="l_partnumber">[% 'Part Number' | $T8 %]</label></td>
         <td align="right"><input name="l_chargenumber" id="l_chargenumber" class="checkbox" type="checkbox" value="Y" checked></td>
         <td nowrap><label for="l_chargenumber">[% 'Charge Number' | $T8 %]</label></td>
-        [% IF conf_show_best_before %]
+        [% IF INSTANCE_CONF.get_show_bestbefore %]
         <td align="right"><input name="l_bestbefore" id="l_bestbefore" class="checkbox" type="checkbox" value="Y" checked></td>
         <td nowrap><label for="l_bestbefore">[% 'Best Before' | $T8 %]</label></td>
         [% END %]

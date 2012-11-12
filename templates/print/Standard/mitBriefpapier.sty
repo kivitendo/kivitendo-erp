@@ -1,0 +1,68 @@
+\ProvidesFile{versionEins.sty}
+\usepackage[utf8]{inputenc}
+\usepackage{german}
+\usepackage{graphicx}
+% \usepackage{colortbl}
+% \usepackage{lastpage}
+% \usepackage{tabularx}
+
+% \pageref
+
+\setlength{\voffset}{-0.3cm}
+\setlength{\hoffset}{-2.5cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{2cm}
+\setlength{\textwidth}{16.4cm}
+\setlength{\textheight}{20.5cm}
+\setlength{\footskip}{1cm}
+\setlength{\parindent}{0pt}
+
+\setlength{\tabcolsep}{0.2cm}
+\setlength{\unitlength}{1cm}
+
+\newcommand{\myhead}{%
+  \fontfamily{cmss}\fontsize{10pt}{10pt}\fontseries{m}\selectfont
+  \begin{picture}(0,0)
+    \put(-2.025,-26.95){\includegraphics*{kivitendo-seite1.pdf}}
+  \end{picture}
+}
+
+\newcommand{\myfoot}{%
+}
+
+\newcommand{\plainfoot}{%
+  \fontfamily{cmss}\fontsize{10pt}{10pt}\fontseries{m}\selectfont
+  \begin{minipage}[t][1cm][t]{\textwidth}
+    \begin{minipage}[t][1cm][t]{5cm}
+      \refnr
+    \end{minipage} \hspace*{10.25cm}
+    \begin{minipage}[t][1cm][t]{2cm}
+      Seite \thepage \\
+    \end{minipage}
+  \end{minipage}
+}
+
+\newcommand{\plainhead}{%
+  \fontfamily{cmss}\fontsize{10pt}{10pt}\fontseries{m}\selectfont
+  \begin{picture}(0,0)
+    \put(-2.025,-26.95){\includegraphics*{kivitendo-seiteff.pdf}}
+  \end{picture}
+}
+
+
+\renewcommand{\ps@headings}{%
+  \renewcommand{\@oddhead}{\myhead}
+  \renewcommand{\@evenhead}{\@oddhead}%
+  \renewcommand{\@oddfoot}{\myfoot}
+  \renewcommand{\@evenfoot}{\@oddfoot}%
+}
+
+\renewcommand{\ps@plain}{%
+  \renewcommand{\@oddhead}{\plainhead}
+  \renewcommand{\@evenhead}{\@oddhead}%
+  \renewcommand{\@oddfoot}{\plainfoot}
+  \renewcommand{\@evenfoot}{\@oddfoot}%
+}

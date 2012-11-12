@@ -38,24 +38,18 @@ $(clockon);
 //-->
  </script>
 
- <table border="0" width="100%" background="image/bg_titel.gif" cellpadding="0" cellspacing="0">
-  <tr>
-   <td style="color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
-    &nbsp;
+<div id="frame-header">
+ <span class="frame-header-element frame-header-left">
     [<a href="login.pl?action=company_logo" target="_blank">[% 'new Window' | $T8 %]</a>]
-    &nbsp;
     [<a href="JavaScript:top.print()">[% 'print' | $T8 %]</a>]
-    &nbsp;
     [[% 'Search contacts' | $T8 %] <input size="15" name="search_term" id="search_term" onkeydown="return on_keydown_quicksearch(event)">]
-   </td>
-   <td align="right" style="vertical-align:middle; color:white; font-family:verdana,arial,sans-serif; font-size: 12px;" nowrap>
-    [[% 'User' | $T8 %]: [% HTML.escape(login) %] -
+ </span>
+ <span class="frame-header-element frame-header-right">
+    [[% 'User' | $T8 %]: [% MYCONFIG.login | html %] -
     <a href="controller.pl?action=LoginScreen/logout" target="_top">[% 'logout' | $T8 %]</a>]
     [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
-   </td>
-  </tr>
- </table>
-
+ </span>
+</div>
  <div id="menuv3">
 
   [% menu %]

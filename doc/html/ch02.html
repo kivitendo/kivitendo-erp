@@ -6,10 +6,55 @@
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</p><p>Mitte 2012 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Ubuntu 10.04 LTS Lucid Lynx bis 12.04 Precise Pangolin</p></li><li class="listitem"><p>Debian 5.0 Lenny und 6.0 Squeeze</p></li><li class="listitem"><p>openSUSE 11.2 und 11.3</p></li><li class="listitem"><p>SuSE Linux Enterprice Server 11</p></li><li class="listitem"><p>Fedora 13 bis 16</p></li></ul></div></div><div class="sect2" title="2.1.2. Pakete"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.1.2. Pakete</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
+        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>6.0 Squeeze (hier muss allerdings das Modul FCGI in der Version &gt;= 0.72 compiled werden)</p></li><li class="listitem"><p>7.0 Wheezy</p></li></ul></div></li><li class="listitem"><p>Ubuntu 10.04 LTS Lucid Lynx bis 12.10 Oneiric Ocelot</p></li><li class="listitem"><p>openSUSE 11.2 und 11.3</p></li><li class="listitem"><p>SuSE Linux Enterprice Server 11</p></li><li class="listitem"><p>Fedora 13 bis 16</p></li></ul></div></div><div class="sect2" title="2.1.2. Pakete"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.1.2. Pakete</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
         benötigt.</p><p>Zusätzlich benötigt kivitendo die folgenden Perl-Pakete, die
-        nicht Bestandteil einer Standard-Perl-Installation sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>parent</p></li><li class="listitem"><p>Archive::Zip</p></li><li class="listitem"><p>Config::Std</p></li><li class="listitem"><p>DateTime</p></li><li class="listitem"><p>DBI</p></li><li class="listitem"><p>DBD::Pg</p></li><li class="listitem"><p>Email::Address</p></li><li class="listitem"><p>JSON</p></li><li class="listitem"><p>List::MoreUtils</p></li><li class="listitem"><p>Params::Validate</p></li><li class="listitem"><p>PDF::API2</p></li><li class="listitem"><p>Rose::Object</p></li><li class="listitem"><p>Rose::DB</p></li><li class="listitem"><p>Rose::DB::Object</p></li><li class="listitem"><p>Template</p></li><li class="listitem"><p>Text::CSV_XS</p></li><li class="listitem"><p>Text::Iconv</p></li><li class="listitem"><p>URI</p></li><li class="listitem"><p>XML::Writer</p></li><li class="listitem"><p>YAML</p></li></ul></div><p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
+        nicht Bestandteil einer Standard-Perl-Installation sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
+                     <code class="literal">parent</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Archive::Zip</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Config::Std</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">DateTime</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">DBI</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">DBD::Pg</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Email::Address</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Email::MIME</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">JSON</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">List::MoreUtils</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Net::SMTP::SSL</code> (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<a class="xref" href="ch02s09.html#config.sending-email.smtp" title="2.9.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
+                     <code class="literal">Net::SSLGlue</code> (optional, bei E-Mail-Versand über TLS; siehe Abschnitt "<a class="xref" href="ch02s09.html#config.sending-email.smtp" title="2.9.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
+                     <code class="literal">Params::Validate</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">PDF::API2</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Rose::Object</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Rose::DB</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Rose::DB::Object</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Template</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Text::CSV_XS</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">Text::Iconv</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">URI</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">XML::Writer</code>
+                  </p></li><li class="listitem"><p>
+                     <code class="literal">YAML</code>
+                  </p></li></ul></div><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
+        <code class="literal">Net::SSLGlue</code>.</p><p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
         hinzugekommen, <code class="literal">URI</code> und
         <code class="literal">XML::Writer</code> sind notwendig. Ohne startet kivitendo
         nicht.</p><p>Gegenüber Version 2.6.1 sind <code class="literal">parent</code>,
@@ -26,20 +71,18 @@
         installieren.</p><p>Die zu installierenden Pakete können in den verschiedenen
         Distributionen unterschiedlich heißen.</p><p>Für Debian oder Ubuntu benötigen Sie diese Pakete:</p><pre class="programlisting">apt-get install apache2 postgresql libparent-perl libarchive-zip-perl \
   libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl \
-  libemail-address-perl liblist-moreutils-perl libpdf-api2-perl \
+  libemail-address-perl libemail-mime-perl liblist-moreutils-perl libpdf-api2-perl \
   librose-object-perl librose-db-perl librose-db-object-perl \
   libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl \
   libxml-writer-perl libyaml-perl libconfig-std-perl \
-  libparams-validate-perl libjson-perl libclass-accessor-perl</pre><p>Für Fedora Core benötigen Sie diese Pakete:</p><pre class="programlisting">yum install httpd postgresql-server perl-parent perl-DateTime \
-  perl-DBI perl-DBD-Pg perl-Email-Address perl-List-MoreUtils \
+  libparams-validate-perl libjson-perl libclass-accessor-perl \
+  libnet-sslglue-perl libnet-smtp-ssl-perl</pre><p>Für Fedora Core benötigen Sie diese Pakete:</p><pre class="programlisting">yum install httpd postgresql-server perl-parent perl-DateTime \
+  perl-DBI perl-DBD-Pg perl-Email-Address perl-Email-MIME perl-List-MoreUtils \
   perl-PDF-API2 perl-Rose-Object perl-Rose-DB perl-Rose-DB-Object \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
-  perl-XML-Writer perl-YAML</pre><p>Für OpenSuSE benötigen Sie diese Pakete:</p><pre class="programlisting">zypper install apache2 postgresql-server perl-Archive-Zip \
-  perl-DateTime perl-DBI perl-DBD-Pg perl-MailTools perl-List-MoreUtils \
+  perl-XML-Writer perl-YAML perl-Net-SSLGlue perl-Net-SMTP-SSL</pre><p>Für OpenSuSE benötigen Sie diese Pakete:</p><pre class="programlisting">zypper install apache2 postgresql-server perl-Archive-Zip \
+  perl-DateTime perl-DBI perl-DBD-Pg perl-Email-MIME perl-MailTools perl-List-MoreUtils \
   perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
-  perl-URI perl-XML-Writer perl-YAML</pre><p>Bei openSuSE 11 ist <code class="literal">parent</code> bereits enthalten,
-        und braucht nicht nachinstalliert werden. Die
-        <code class="literal">Rose::*</code> Pakete sind derzeit nicht für SuSE gepackt,
-        und müssen anderweitig nachinstalliert werden.</p><p>kivitendo enthält ein Script, mit dem überprüft werden kann, ob
+  perl-URI perl-XML-Writer perl-YAML perl-Net-SSLGlue perl-Net-SMTP-SSL</pre><p>kivitendo enthält ein Script, mit dem überprüft werden kann, ob
         alle benötigten Perl-Module installiert sind. Der Aufruf lautet wie
         folgt:</p><pre class="programlisting">./scripts/installation_check.pl</pre></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch01.html">Zurück</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s02.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitel 1. Aktuelle Hinweise&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.2. Manuelle Installation des Programmpaketes</td></tr></table></div></body></html>

@@ -35,6 +35,7 @@ use SL::FU;
 use SL::IR;
 use SL::IS;
 use SL::PE;
+use SL::DB::Default;
 use List::Util qw(max sum);
 
 require "bin/mozilla/io.pl";
@@ -328,7 +329,7 @@ sub form_header {
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
-  $form->{fokus} = "invoice.vendor";
+  $::request->{layout}->focus('#vendor');
 
   my $follow_up_vc         =  $form->{vendor};
   $follow_up_vc            =~ s/--\d*\s*$//;
@@ -415,10 +416,10 @@ sub form_footer {
 
   for my $i (1 .. $form->{paidaccounts}) {
     $form->{"changeable_$i"} = 1;
-    if ($::lx_office_conf{features}->{payments_changeable} == 0) {
+    if (SL::DB::Default->get->payments_changeable == 0) {
       # never
       $form->{"changeable_$i"} = ($form->{"acc_trans_id_$i"})? 0 : 1;
-    } elsif ($::lx_office_conf{features}->{payments_changeable} == 2) {
+    } elsif (SL::DB::Default->get->payments_changeable == 2) {
       # on the same day
       $form->{"changeable_$i"} = (($form->{"gldate_$i"} eq '') ||
                                   ($form->current_date(\%myconfig) eq $form->{"gldate_$i"}));
@@ -439,7 +440,9 @@ sub form_footer {
     totalpaid           => $totalpaid,
     paid_missing        => $form->{invtotal} - $totalpaid,
     show_storno         => $form->{id} && !$form->{storno} && !IS->has_storno(\%myconfig, $form, "ap") && !$totalpaid,
-    show_delete         => ($form->current_date(\%myconfig) eq $form->{gldate}),
+    show_delete         => ($::instance_conf->get_ir_changeable == 2)
+                             ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                             : ($::instance_conf->get_ir_changeable == 1),
   });
 ##print $form->parse_html_template('ir/_payments'); # parser
 ##print $form->parse_html_template('webdav/_list'); # parser

@@ -4,7 +4,14 @@ use strict;
 
 use parent qw(Rose::Object);
 
+use IO::Dir;
 use SL::DB::BackgroundJob;
+use SL::System::Process;
+
+sub get_known_job_classes {
+  tie my %dir_h, 'IO::Dir', File::Spec->catdir(File::Spec->splitdir(SL::System::Process->exe_dir), 'SL', 'BackgroundJob');
+  return sort map { s/\.pm$//; $_ } grep { m/\.pm$/ && !m/(?: ALL | Base) \.pm$/x } keys %dir_h;
+}
 
 sub create_standard_job {
   my $self_or_class = shift;

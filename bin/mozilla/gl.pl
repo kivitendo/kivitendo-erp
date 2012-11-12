@@ -874,10 +874,10 @@ sub form_header {
     s/option>\Q$::form->{department}\E/option selected>$::form->{department}/;
 
   if ($init) {
-    $::form->{fokus} = "gl.reference";
+    $::request->{layout}->focus("#reference");
     $::form->{taxincluded} = "1";
   } else {
-    $::form->{fokus} = qq|gl.accno_$::form->{rowcount}|;
+    $::request->{layout}->focus("#accno_$::form->{rowcount}");
   }
 
   $::form->{previous_id}     ||= "--";
@@ -903,7 +903,9 @@ sub form_footer {
     $follow_ups_due = sum map { $_->{due} * 1 } @{ $follow_ups || [] };
   }
 
-  my $radieren = $::form->current_date(\%::myconfig) eq $::form->{gldate};
+  my $radieren = ($::instance_conf->get_gl_changeable == 2)
+                    ? ($::form->current_date(\%::myconfig) eq $::form->{gldate})
+                    : ($::instance_conf->get_gl_changeable == 1);
 
   print $::form->parse_html_template('gl/form_footer', {
     radieren       => $radieren,

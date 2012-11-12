@@ -21,7 +21,7 @@
      <th class="listheading">[% 'Charge number' | $T8 %]</th>
      [% END %]
      [% IF has_bestbefore %]
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <th class="listheading">[% 'Best Before' | $T8 %]</th>
      [% END %]
      [% END %]
@@ -55,7 +55,7 @@
      </td>
      [% END %]
      [% IF has_bestbefore %]
-     [% IF conf_show_best_before %]
+     [% IF INSTANCE_CONF.get_show_bestbefore %]
      <td>
       <input type="hidden" name="new_bestbefore_id_[% loop.count %]" value="[% HTML.escape(part.bestbefore_id) %]">
       <input type="hidden" name="new_bestbefore_[% loop.count %]" value="[% HTML.escape(part.bestbefore) %]">

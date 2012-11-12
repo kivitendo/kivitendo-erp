@@ -10,7 +10,7 @@ use Text::CSV_XS;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
   file encoding sep_char quote_char escape_char header profile class
   numberformat dateformat ignore_unknown_columns strict_profile _io _csv
-  _objects _parsed _data _errors
+  _objects _parsed _data _errors all_cvar_configs case_insensitive_header
 ) ];
 
 use SL::Helper::Csv::Dispatcher;
@@ -33,6 +33,7 @@ sub new {
     dateformat             => 0,
     ignore_unknown_columns => 0,
     strict_profile         => 0,
+    case_insensitive_header => 0,
   });
   my $self = bless {}, $class;
 
@@ -120,7 +121,25 @@ sub _check_header {
   }
 
   return unless $header;
-  return $self->header([ map { lc } @$header ]);
+
+  # Special case: human stupidity
+  # people insist that case sensitivity doesn't exist and try to enter all
+  # sorts of stuff. at this point we've got a profile (with keys that represent
+  # valid methods), and a header full of strings. if two of them match, the user
+  # mopst likely meant that field, so rewrite the header
+  if ($self->case_insensitive_header) {
+    die 'case_insensitive_header is only possible with profile' unless $self->profile;
+    my @names = (
+      keys %{ $self->profile || {} },
+    );
+    for my $name (@names) {
+      for my $i (0..$#$header) {
+        $header->[$i] = $name if lc $header->[$i] eq lc $name;
+      }
+    }
+  }
+
+  return $self->header($header);
 }
 
 sub _parse_data {
@@ -345,6 +364,12 @@ these information are unique, and should be connected to preexisting data, you
 will have to do that for yourself. Since you provided the profile, it is
 assumed you know what to do in this case.
 
+If no profile is given, any header field found will be taken as is.
+
+If the path in a profile entry is empty, the field will be subjected to
+C<strict_profile> and C<case_insensitive_header> checking, will be parsed into
+C<get_data>, but will not be attempted to be dispatched into objects.
+
 =item C<class>
 
 If present, the line will be handed to the new sub of this class,
@@ -355,10 +380,23 @@ and the return value used instead of the line itself.
 If set, the import will ignore unkown header columns. Useful for lazy imports,
 but deactivated by default.
 
+=item C<case_insensitive_header>
+
+If set, header columns will be matched against profile entries case
+insensitive, and on match the profile name will be taken.
+
+Only works if a profile is given, will die otherwise.
+
+If both C<case_insensitive_header> and C<strict_profile> is set, matched header
+columns will be accepted.
+
 =item C<strict_profile>
 
 If set, all columns to be parsed must be specified in C<profile>. Every header
 field not listed there will be treated like an unknown column.
+
+If both C<case_insensitive_header> and C<strict_profile> is set, matched header
+columns will be accepted.
 
 =back
 

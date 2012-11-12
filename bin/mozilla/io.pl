@@ -49,6 +49,7 @@ use SL::IO;
 
 use SL::DB::Language;
 use SL::DB::Printer;
+use SL::Helper::Flash;
 
 require "bin/mozilla/common.pl";
 
@@ -802,6 +803,7 @@ sub validate_items {
 
   # check if items are valid
   if ($form->{rowcount} == 1) {
+    flash('warning', $::locale->text('The action you\'ve chosen has not been executed because the document does not contain any item yet.'));
     &update;
     ::end_of_request();
   }
@@ -978,7 +980,7 @@ sub edit_e_mail {
   my $attachment_filename = $form->generate_attachment_filename();
   my $subject             = $form->{subject} || $form->generate_email_subject();
 
-  $form->{"fokus"} = $form->{"email"} ? "Form.subject" : "Form.email";
+  $::request->{layout}->focus($form->{"email"} ? "#subject" : "#email");
   $form->header;
 
   my (@dont_hide_key_list, %dont_hide_key, @hidden_keys);
@@ -1468,7 +1470,7 @@ sub print_form {
   reformat_numbers($output_numberformat, 2,
                    qw(invtotal ordtotal quototal subtotal linetotal
                       listprice sellprice netprice discount
-                      tax taxbase total paid),
+                      tax taxbase total paid payment),
                    grep({ /^(?:linetotal|nodiscount_linetotal|listprice|sellprice|netprice|taxbase|discount|p_discount|discount_sub|nodiscount_sub|paid|subtotal|total|tax)_\d+$/ } keys(%{$form})));
 
   reformat_numbers($output_numberformat, undef,
@@ -1536,23 +1538,27 @@ sub print_form {
   my $emailed = $form->{emailed};
 
   if ($form->{media} eq 'queue') {
-    my %queued = map { s|.*/|| } split / /, $form->{queued};
+    my %queued = map { s|.*[/\\]||; $_ } split / /, $form->{queued};
 
     my $filename;
     my $suffix = ($form->{postscript}) ? '.ps' : '.pdf';
     if ($filename = $queued{ $form->{formname} }) {
-      $form->{queued} =~ s/\Q$form->{formname} $filename\E//;
       unlink $::lx_office_conf{paths}->{spool} . "/$filename";
-      $filename =~ s/\..*$//g;
-      $filename .= $suffix;
-      $form->{OUT} = $::lx_office_conf{paths}->{spool} . "/$filename";
-      $form->{OUT_MODE} = '>';
+      delete $queued{ $form->{formname} };
+
+      $form->{queued}    =  join ' ', %queued;
+      $filename          =~ s/\..*$//g;
+      $filename         .=  $suffix;
+      $form->{OUT}       =  $::lx_office_conf{paths}->{spool} . "/$filename";
+      $form->{OUT_MODE}  =  '>';
+
     } else {
       my $temp_fh;
       ($temp_fh, $filename) = File::Temp::tempfile(
         'kivitendo-spoolXXXXXX',
         SUFFIX => "$suffix",
-        DIR => $::lx_office_conf{paths}->{spool},
+        DIR    => $::lx_office_conf{paths}->{spool},
+        UNLINK => 0,
       );
       close $temp_fh;
       $form->{OUT} = "$filename";

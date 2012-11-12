@@ -10,7 +10,7 @@ __PACKAGE__->meta->setup(
   table   => 'exchangerate',
 
   columns => [
-    curr      => { type => 'character', length => 3 },
+    curr      => { type => 'text' },
     transdate => { type => 'date' },
     buy       => { type => 'numeric', precision => 5, scale => 15 },
     sell      => { type => 'numeric', precision => 5, scale => 15 },

@@ -21,7 +21,7 @@ __PACKAGE__->meta->setup(
     taxincluded          => { type => 'boolean' },
     shippingpoint        => { type => 'text' },
     notes                => { type => 'text' },
-    curr                 => { type => 'character', length => 3 },
+    curr                 => { type => 'text' },
     employee_id          => { type => 'integer' },
     closed               => { type => 'boolean', default => 'false' },
     quotation            => { type => 'boolean', default => 'false' },

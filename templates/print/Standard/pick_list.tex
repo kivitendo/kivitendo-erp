@@ -1,0 +1,164 @@
+% pick_list.tex
+% Sammelliste Verkauf
+% Überarbeitet von Norbert Simon, n.simon@linet-services.de
+% Version 2.5 vom 16.Oktober 2011
+% Basiert auf der Arbeit von kmk@lilalaser.de / 2007
+% Diese Vorlage steht unter der GPL-Lizenz, Version 3
+% siehe http://www.gnu.de/licenses/gpl-3.0.html
+% ----------
+% config: tag-style=$( )$
+% ----------
+
+\documentclass[twoside]{scrartcl}
+\usepackage[frame]{xy}
+\usepackage{tabularx}
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\setlength{\voffset}{0.5cm}
+\setlength{\hoffset}{-2.0cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0pt}
+\setlength{\oddsidemargin}{1.0cm}
+\setlength{\evensidemargin}{1.0cm}
+\setlength{\textwidth}{17cm}
+\setlength{\textheight}{24.7cm}
+\setlength{\footskip}{1cm}
+\setlength{\parindent}{0pt}
+\renewcommand{\baselinestretch}{1}
+
+\begin{document}
+
+\newlength{\descrwidth}\setlength{\descrwidth}{9cm}
+\fontfamily{cmss}\fontsize{10pt}{12pt}\selectfont
+
+\pagestyle{myheadings}
+\thispagestyle{empty}
+
+\vspace*{-1.3cm}
+
+\parbox{\textwidth}{
+  \parbox[b]{.42\textwidth}{
+    $(company)$
+
+    $(address)$
+  }\hfill
+  \begin{tabular}[b]{rr@{}}
+  Tel & $(tel)$\\
+  Fax & $(fax)$
+  \end{tabular}
+
+  \rule[1.5ex]{\textwidth}{0.5pt}
+}
+
+
+%$(pagebreak 90 27 37)$
+%\end{tabular*}
+
+%\newpage
+
+\markboth{$(company)$\hfill $(ordnumber)$}{$(company)$\hfill $(ordnumber)$}
+
+\vspace*{-12pt}
+
+%\begin{tabular*}{\textwidth}{@{}lp{\descrwidth}@{\extracolsep\fill}rcll@{}}
+%  \textbf{Pos} & \textbf{Nummer} & \textbf{Beschreibung} &
+%  \textbf{Menge} & \textbf{Lagerausgang} & & \textbf{Lagerplatz} \\
+%$(end pagebreak)$
+
+
+\vspace*{0.5cm}
+
+\parbox[t]{1cm}{\hfill}
+\parbox[t]{.5\textwidth}{
+  \textbf{Lieferanschrift}
+} \hfill
+
+\vspace{0.7cm}
+
+\parbox[t]{1cm}{\hfill}
+\parbox[t]{.5\textwidth}{
+
+$(shiptoname)$ \\
+$(shiptostreet)$ \\
+$(shiptozipcode)$ \\
+$(shiptocity)$ \\
+$(shiptocountry)$
+}
+\parbox[t]{.4\textwidth}{
+  $(shiptocontact)$
+
+  $(if shiptophone)$
+  Tel: $(shiptophone)$
+  $(end shiptophone)$
+
+  $(if shiptofax)$
+  Fax: $(shiptofax)$
+  $(end shiptofax)$
+
+  $(shiptoemail)$
+}
+\hfill
+
+\vspace{1cm}
+
+\textbf{S A M M E L L I S T E}
+\hfill
+
+\vspace{1cm}
+\typeout{hier?}
+\begin{tabularx}{\textwidth}{*{6}{|X}|} \hline
+  \textbf{BestellNr. \#} &
+  \textbf{Datum} &
+  \textbf{Kontakt} &
+  $(if warehouse)$ \textbf{Lager} & $(end warehouse)$
+  \textbf{Lagerplatz} &
+  \textbf{Lieferung mit} \\ [0.5em]
+  \hline
+	$(ordnumber)$ &
+	$(if shippingdate)$ $(shippingdate)$ &$(end shippingdate)$
+	$(if not shippingdate)$ $(orddate)$ &$(end shippingdate)$
+	$(employee)$ &
+	$(if warehouse)$ $(warehouse)$ &$(end warehouse)$
+	$(shippingpoint)$ &
+	$(shipvia)$ \\
+  \hline
+\end{tabularx}
+
+\vspace{1cm}
+
+%\begin{tabular*}{\textwidth}{@{}rlp{\descrwidth}@{\extracolsep\fill}rcll@{}}
+\setlength{\tabcolsep}{0mm}
+\begin{tabularx}{\textwidth}{p{1.5cm}p{6cm}p{2cm}p{2cm}p{4cm}p{1.5cm}}
+  \textbf{Art-Nr} &
+  \textbf{Beschreibung} &
+  \textbf{Serien-Nr} &
+  \textbf{Menge} &
+  \textbf{Lager} &
+  \textbf{Lagerplatz} \\
+$(foreach number)$
+ $(if si_qty)$
+  $(foreach si_number)$
+   $(si_number)$ &
+   $(si_description)$ &
+   $(si_chargenumber)$ &
+   \hfill $(si_qty)$ $(si_unit)$ &
+   $(si_warehouse)$ &
+   $(si_bin)$\\[1em]
+  $(end si_number)$
+ $(else)$
+  $(number)$ &
+  $(description)$ &
+  &
+  \hfill $(qty)$ $(unit)$ &
+  & \\[1em]
+ $(end si_qty)$
+$(end number)$
+\end{tabularx}
+
+\parbox{\textwidth}{
+\rule{\textwidth}{2pt}
+}
+
+\end{document}

@@ -42,7 +42,9 @@
 
 [%- IF id %]
   <input type="submit" onclick="set_history_window([% id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
-  <input type="submit" name="action" value="[% 'mark as paid' | $T8 %]">
+  [% IF INSTANCE_CONF.get_ap_show_mark_as_paid %]
+    <input type="submit" name="action" value="[% 'mark as paid' | $T8 %]">
+  [% END %]
 [%- END %]
 
 </form>

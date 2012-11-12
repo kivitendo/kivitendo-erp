@@ -410,11 +410,24 @@ sub _get_transactions {
 
     my $count    = $ref->{amount};
     my $firstrun = 1;
+
+    # if the amount of a booking in a group is smaller than 0.02, any tax
+    # amounts will likely be smaller than 1 cent, so go into subcent mode
     my $subcent  = abs($count) < 0.02;
 
+    # records from acc_trans are ordered by trans_id and acc_trans_id
+    # first check for unbalanced ledger inside one trans_id
+    # there may be several groups inside a trans_id, e.g. the original booking and the payment
+    # each group individually should be exactly balanced and each group
+    # individually needs its own datev lines
+
+    # keep fetching new acc_trans lines until the end of a balanced group is reached
     while (abs($count) > 0.01 || $firstrun || ($subcent && abs($count) > 0.005)) {
       my $ref2 = $sth->fetchrow_hashref("NAME_lc");
       last unless ($ref2);
+
+      # check if trans_id of current acc_trans line is still the same as the
+      # trans_id of the first line in group
 
       if ($ref2->{trans_id} != $trans->[0]->{trans_id}) {
         $self->add_error("Unbalanced ledger! old trans_id " . $trans->[0]->{trans_id} . " new trans_id " . $ref2->{trans_id} . " count $count");
@@ -452,7 +465,23 @@ sub _get_transactions {
       next;
     }
 
+    # determine at which array position the reference value (called absumsatz) is 
+    # and which amount it has
+
     for my $j (0 .. (scalar(@{$trans}) - 1)) {
+      
+      # Three cases:
+      # 1: gl transaction (Dialogbuchung), invoice is false, no double split booking allowed
+
+      # 2: sales or vendor invoice (Verkaufs- und Einkaufsrechnung): invoice is
+      # true, instead of absumsatz use link AR/AP (there should only be one
+      # entry)
+
+      # 3. AR/AP transaction (Kreditoren- und Debitorenbuchung): invoice is false,
+      # instead of absumsatz use link AR/AP (there should only be one, so jump
+      # out of search as soon as you find it )
+
+      # case 1 and 2
       # for gl-bookings no split is allowed and there is no AR/AP account, so we always use the maximum value as a reference
       # for ap/ar bookings we can always search for AR/AP in link and use that
       if ( ( not $trans->[$j]->{'invoice'} and abs($trans->[$j]->{'amount'}) > abs($absumsatz) )
@@ -460,11 +489,25 @@ sub _get_transactions {
         $absumsatz     = $trans->[$j]->{'amount'};
         $notsplitindex = $j;
       }
+
+      # case 3
+      # Problem: we can't distinguish between AR and AP and normal invoices via boolean "invoice"
+      # for AR and AP transaction exit the loop as soon as an AR or AP account is found
+      # there must be only one AR or AP chart in the booking
+      if ( $trans->[$j]->{'link'} eq 'AR' or $trans->[$j]->{'link'} eq 'AP') {
+        $notsplitindex = $j;   # position in booking with highest amount
+        $absumsatz     = $trans->[$j]->{'amount'};
+        last;
+      };
     }
 
     my $ml             = ($trans->[0]->{'umsatz'} > 0) ? 1 : -1;
     my $rounding_error = 0;
     my @taxed;
+
+    # go through each line and determine if it is a tax booking or not
+    # skip all tax lines and notsplitindex line
+    # push all other accounts (e.g. income or expense) with corresponding taxkey
 
     for my $j (0 .. (scalar(@{$trans}) - 1)) {
       if (   ($j != $notsplitindex)

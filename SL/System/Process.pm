@@ -35,7 +35,7 @@ SL::System::Process - assorted system-relevant functions
 
 =head1 SYNOPSIS
 
-  # Get base path to Kivitendo scripts
+  # Get base path to kivitendo scripts
   my $path = SL::System::Process->exe_dir;
 
 =head1 FUNCTIONS
@@ -44,7 +44,7 @@ SL::System::Process - assorted system-relevant functions
 
 =item C<exe_dir>
 
-Returns the absolute path to the directory the Kivitendo executables
+Returns the absolute path to the directory the kivitendo executables
 (C<login.pl> etc.) and modules (sub-directory C<SL/> etc.) are located
 in.
 

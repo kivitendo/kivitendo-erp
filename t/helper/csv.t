@@ -1,11 +1,11 @@
-use Test::More tests => 41;
+use Test::More tests => 47;
 
 use lib 't';
-
-use Data::Dumper;
 use utf8;
 
-use_ok 'Support::TestSetup';
+use Data::Dumper;
+use Support::TestSetup;
+
 use_ok 'SL::Helper::Csv';
 
 Support::TestSetup::login();
@@ -278,6 +278,8 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'eol bug at the end o
 $csv = SL::Helper::Csv->new(
   file   => \"Description\nKaffee",
   class  => 'SL::DB::Part',
+  case_insensitive_header => 1,
+  profile => { description => 'description' },
 );
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive header from csv works';
@@ -285,9 +287,11 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive hea
 #####
 
 $csv = SL::Helper::Csv->new(
-file   => \"Kaffee",
-header => [ 'Description' ],
-class  => 'SL::DB::Part',
+  file   => \"Kaffee",
+  header => [ 'Description' ],
+  class  => 'SL::DB::Part',
+  case_insensitive_header => 1,
+  profile => { description => 'description' },
 );
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive header as param works';
@@ -301,5 +305,55 @@ $csv = SL::Helper::Csv->new(
 );
 $csv->parse;
 is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'utf8 BOM works (bug 1872)';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"Kaffee",
+  header => [ 'Description' ],
+  class  => 'SL::DB::Part',
+);
+$csv->parse;
+is_deeply $csv->get_data, undef, 'case insensitive header without flag ignores';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"Kaffee",
+  header => [ 'foo' ],
+  class  => 'SL::DB::Part',
+  profile => { foo => '' },
+);
+$csv->parse;
+
+is_deeply $csv->get_data, [ { foo => 'Kaffee' } ], 'empty path still gets parsed into data';
+ok $csv->get_objects->[0], 'empty path gets ignored in object creation';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"Kaffee",
+  header => [ 'foo' ],
+  class  => 'SL::DB::Part',
+  strict_profile => 1,
+  profile => { foo => '' },
+);
+$csv->parse;
+
+is_deeply $csv->get_data, [ { foo => 'Kaffee' } ], 'empty path still gets parsed into data (strict profile)';
+ok $csv->get_objects->[0], 'empty path gets ignored in object creation (strict profile)';
+
+$csv = SL::Helper::Csv->new(
+  file   => \"Phil",
+  header => [ 'CVAR_grOUnDHog' ],
+  class  => 'SL::DB::Part',
+  strict_profile => 1,
+  case_insensitive_header => 1,
+  profile => { cvar_Groundhog => '' },
+);
+$csv->parse;
+
+is_deeply $csv->get_data, [ { cvar_Groundhog => 'Phil' } ], 'using empty path to get cvars working';
+ok $csv->get_objects->[0], '...and not destorying the objects';
 
 # vim: ft=perl

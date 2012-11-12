@@ -48,6 +48,7 @@ use SL::MoreCommon;
 use SL::IC;
 use SL::IO;
 use SL::TransNumber;
+use SL::DB::Default;
 use Data::Dumper;
 
 use strict;
@@ -221,12 +222,18 @@ sub invoice_details {
       my ($dec)         = ($sellprice =~ /\.(\d+)/);
       my $decimalplaces = max 2, length($dec);
 
-      my $parsed_discount      = $form->parse_amount($myconfig, $form->{"discount_$i"});
-      my $linetotal_exact      =                     $form->{"qty_$i"} * $sellprice * (100 - $parsed_discount) / 100 / $price_factor->{factor};
-      my $linetotal            = $form->round_amount($linetotal_exact, 2);
-      my $discount             = $form->round_amount($form->{"qty_$i"} * $sellprice * $parsed_discount / 100 / $price_factor->{factor} - ($linetotal - $linetotal_exact),
-                                                     $decimalplaces);
-      my $nodiscount_linetotal = $form->round_amount($form->{"qty_$i"} * $sellprice / $price_factor->{factor}, 2);
+      my $parsed_discount            = $form->parse_amount($myconfig, $form->{"discount_$i"});
+
+      my $linetotal_exact            = $form->{"qty_$i"} * $sellprice * (100 - $parsed_discount) / 100 / $price_factor->{factor};
+      my $linetotal                  = $form->round_amount($linetotal_exact, 2);
+
+      my $nodiscount_exact_linetotal = $form->{"qty_$i"} * $sellprice                                  / $price_factor->{factor};
+      my $nodiscount_linetotal       = $form->round_amount($nodiscount_exact_linetotal,2);
+
+      my $discount                   = $nodiscount_linetotal - $linetotal; # is always rounded because $nodiscount_linetotal and $linetotal are rounded
+
+      my $discount_round_error       = $discount + ($linetotal_exact - $nodiscount_exact_linetotal); # not used
+
       $form->{"netprice_$i"}   = $form->round_amount($form->{"qty_$i"} ? ($linetotal / $form->{"qty_$i"}) : 0, 2);
 
       push @{ $form->{TEMPLATE_ARRAYS}->{netprice} },       ($form->{"netprice_$i"} != 0) ? $form->format_amount($myconfig, $form->{"netprice_$i"}, $decimalplaces) : '';
@@ -886,7 +893,7 @@ sub post_invoice {
 
       if ($form->{"acc_trans_id_$i"}
           && $payments_only
-          && ($::lx_office_conf{features}->{payments_changeable} == 0)) {
+          && (SL::DB::Default->get->payments_changeable == 0)) {
         next;
       }
 
@@ -1076,7 +1083,7 @@ sub post_invoice {
                                'table'   => 'ar',);
 
   # safety check datev export
-  if ($::lx_office_conf{datev_check}{check_on_sales_invoice}) {
+  if ($::instance_conf->get_datev_check_on_sales_invoice) {
     my $transdate = $::form->{invdate} ? DateTime->from_lxoffice($::form->{invdate}) : undef;
     $transdate  ||= DateTime->today;
 
@@ -1157,7 +1164,7 @@ sub post_payment {
   $old_form = save_form();
 
   # Delete all entries in acc_trans from prior payments.
-  if ($::lx_office_conf{features}->{payments_changeable} != 0) {
+  if (SL::DB::Default->get->payments_changeable != 0) {
     $self->_delete_payments($form, $dbh);
   }
 
@@ -2027,7 +2034,7 @@ sub get_pricegroups_for_parts {
 
     my $pricegroup_old = $form->{"pricegroup_old_$i"};
 
-    # sellprice has format 13,0000 or 0,00000, can't check for 0 numerically
+    # sellprice has format 13,0000 or 0,00000,  can't check for 0 numerically
     my $sellprice = $form->{"sellprice_$i"};
     my $pricegroup_id = $form->{"pricegroup_id_$i"};
     $form->{"new_pricegroup_$i"} = $selectedpricegroup_id;
@@ -2129,14 +2136,12 @@ sub get_pricegroups_for_parts {
 
           $pkr->{selected}  = ' selected'; # unless $form->{selected};
           # no customer pricesgroup set
-          if ($pkr->{price_unfmt} == $pkr->{default_sellprice}) {
+          if ($pkr->{price_unfmt} == $pkr->{default_sellprice} || $form->{'sellprice_'.$i} * 1 > 1) {
 
             $pkr->{price} = $form->{"sellprice_$i"};
 
           } else {
 
-# this sub should not set anything and only return. --sschoeling, 20090506
-# is this correct? put in again... -- grichardson 20110119
             $form->{"sellprice_$i"} = $pkr->{price};
           }
 

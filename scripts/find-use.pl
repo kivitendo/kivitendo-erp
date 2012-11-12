@@ -35,7 +35,14 @@ my (%uselines, %modules, %supplied, %requires);
   },
   'Devel::REPL' => {
     'namespace::clean'                   => 1,
-  }
+  },
+  'Email::MIME' => {
+    'Email::MIME::Creator'               => 1,
+  },
+  'Test::Harness' => {
+    'TAP::Parser'                        => 1,
+    'TAP::Parser::Aggregator'            => 1,
+  },
 );
 
 GetOptions(
@@ -105,6 +112,11 @@ for my $useline (keys %uselines) {
     $requires{$orig_module}{$module}++;
   }
 }
+
+# have all documented modules mentioned here
+$modules{$_->{name}} ||= { status => 'required' } for @SL::InstallationCheck::required_modules;
+$modules{$_->{name}} ||= { status => 'optional' } for @SL::InstallationCheck::optional_modules;
+$modules{$_->{name}} ||= { status => 'developer' } for @SL::InstallationCheck::developer_modules;
 
 # build transitive closure for documented dependancies
 my $changed = 1;

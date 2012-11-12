@@ -115,13 +115,11 @@ position:absolute;
 z-index:500;
 top:auto;
 display:none;
-background:#000;
 }
 
 #menuv3 ul ul ul {
 top:0;
 left:100%;
-background:#000;
 }
 
 /* Begin non-anchor hover selectors */
@@ -176,12 +174,6 @@ margin:0;
 padding:1px 0 1px 3px;
 }
 
-#menuv4 h2:before {
-    content:" ";
-}
-#menuv4 h2:after {
-    content:" ";
-}
 #menuv4 h2 {
 color:#fff;
 padding:2px 10px;
@@ -223,11 +215,6 @@ float:none;
 border:0;
 }
 
-#menuv4 li.sub {
-left:-25px;
-top:-3px;
-}
-
 /* IE6 spacing bug fix, <li>s without a bottom border get spaced to far
  * correction: the bug will change the height of the parent element! this will also cause the whole menu to grow
  * so the only method to get this pile of crap going is to add a bottom border to the <li>s, where the enclosing <ul> already has
@@ -255,7 +242,7 @@ display:none;
 
 #menuv4 ul ul ul {
 top:0;
-left:100%;
+left:90%;
 }
 
 /* Begin non-anchor hover selectors */
@@ -286,7 +273,7 @@ div#menuv4 li:hover ul,
 div#menuv4 li li:hover ul,
 div#menuv4 li li li:hover ul,
 div#menuv4 li li li li:hover ul
-{display:block; left:10px;}
+{display:block;}
 
 /* End of non-anchor hover selectors */
 
@@ -325,3 +312,11 @@ div#menuv4 li li li li:hover ul
 #html-menu div.s2 { padding-left: 16px }
 
 body { margin: 0 }
+
+
+@media print {
+  #menuv3, #menuv4, #html-menu, #frame-header, #js-menu {   /* items with this class won't print */
+    display: none;
+  }
+  #content.html-menu { margin-left: 0; }
+}

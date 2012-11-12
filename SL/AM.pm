@@ -243,6 +243,25 @@ sub save_account {
     $form->{id} = "";
   }
 
+  $query = '
+    SELECT accno
+    FROM chart
+    WHERE accno = ?';
+
+  my @values = ($form->{accno});
+
+  if ( $form->{id} ) {
+    $query .= ' AND NOT id = ?';
+    push(@values, $form->{id});
+  }
+
+  my ($accno) = selectrow_query($form, $dbh, $query, @values);
+
+  if ($accno) {
+    $form->error($::locale->text('Account number not unique!'));
+  }
+
+
   if (!$form->{id} || $form->{id} eq "") {
     $query = qq|SELECT nextval('id')|;
     ($form->{"id"}) = selectrow_query($form, $dbh, $query);
@@ -250,7 +269,7 @@ sub save_account {
     do_query($form, $dbh, $query, $form->{"id"}, $form->{"accno"});
   }
 
-  my @values;
+  @values = ();
 
 
   if ($form->{id}) {

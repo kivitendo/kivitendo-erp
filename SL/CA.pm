@@ -203,22 +203,6 @@ sub all_transactions {
     $project = qq| AND ac.project_id = ? |;
     @project_values = (conv_i($form->{project_id}));
   }
-  my $acc_cash_where = "";
-  my $ar_cash_where = "";
-  my $ap_cash_where = "";
-
-
-  if ($form->{method} eq "cash") {
-    $where = qq| (ac.trans_id IN (SELECT id FROM ar WHERE datepaid>= ? AND datepaid<= ? UNION SELECT id FROM ap WHERE datepaid>= ? AND datepaid<= ? UNION SELECT id FROM gl WHERE transdate>= ? AND transdate<= ?)) |;
-    @where_values = ();
-    push(@where_values, conv_date($form->{fromdate}));
-    push(@where_values, conv_date($form->{todate}));
-    push(@where_values, conv_date($form->{fromdate}));
-    push(@where_values, conv_date($form->{todate}));
-    push(@where_values, conv_date($form->{fromdate}));
-    push(@where_values, conv_date($form->{todate}));
- }
-
 
   if ($form->{accno}) {
 

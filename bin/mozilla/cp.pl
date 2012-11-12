@@ -464,14 +464,11 @@ sub check_form {
   $form->error($locale->text('Date missing!')) unless $form->{datepaid};
   my $selected_check = 1;
   for my $i (1 .. $form->{rowcount}) {
-    if ($form->{"checked_$i"}) {
-      if ($form->parse_amount(\%myconfig, $form->{"paid_$i"}, 2) <= 0) { # negativen Betrag eingegeben
-          $form->error($locale->text('Amount has to be greater then zero! Wrong row number: ') . $i);
-      }
-        undef($selected_check);
-        # last; # ich muss doch über alle buchungen laufen, da ich noch
-        # die freitext-eingabe der werte prüfen will
+    next unless $form->{"checked_$i"};
+    if (abs($form->parse_amount(\%myconfig, $form->{"paid_$i"}, 2)) < 0.01) {
+      $form->error($locale->text('Row #1: amount has to be different from zero.', $i));
     }
+    undef $selected_check;
   }
   $form->error($locale->text('No transaction selected!')) if $selected_check;
 

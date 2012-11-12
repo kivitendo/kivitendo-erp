@@ -1,0 +1,169 @@
+% overdue-notice-a.tex
+% Verkauf Mahnung
+% Überarbeitet von Norbert Simon, n.simon@linet-services.de
+% Version 2.5 vom 16. November 2011
+% Basiert auf der Arbeit von kmk@lilalaser.de / 2007
+% Diese Vorlage steht unter der GPL-Lizenz, Version 3
+% siehe http://www.gnu.de/licenses/gpl-3.0.html
+% ----------
+% config: tag-style=$( )$
+% ----------
+\documentclass[twoside]{scrartcl}
+\usepackage{fancyhdr}       % Für den Seitenkopf und -Fuß
+\usepackage{ifpdf}          % Erlaubt eine Code-Weiche für PDF, oder DVI Ausgabe
+\usepackage{xifthen}        % Allgemeine Code-Weiche
+\usepackage{graphicx}       % Fuer die Einbindung der Logo-Graphik
+\usepackage{german}         % Deutsche Trenn-Tabelle
+\usepackage[utf8]{inputenc} % Umlaute direkt eingeben
+\usepackage{textcomp}       % Sonderzeichen
+\usepackage{lastpage}       % Fuer die Angabe "Seite 2 von 5"
+\usepackage{filecontents}   % Um von latex aus eine Datei schreiben zu koennen
+\usepackage{etex}           % Damit Marken verwendet werden koennen
+\usepackage{ltxtable}       % Mehrseiten-Tabellen mit variabler Spaltenbreite
+\usepackage{booktabs}	    % Striche in Tabellen
+\usepackage{numprint}       % Zahlen formatiert ausgeben
+\usepackage[$(if myconfig_output_numberformat =~ "1.000,00")$german$(else)$$(if myconfig_output_numberformat =~ "1000,00")$germannosep$(else)$$(if myconfig_output_numberformat =~ "1,000.00")$english$(else)$englishnosep$(end)$$(end)$$(end)$]{zwischensumme}  % Lokales Makro zur Berechnung der Zwischensummen
+\usepackage{microtype,relsize} %Feinpositionierung, Sperren von Text
+\newcommand*{\sperren}[1]{\normalsize\textls*[200]{#1}} %Sperrung Überrschriften
+
+% ---------- Report-Variablen zur Verwendung in kivitendobriefkopf.tex ----------
+% ----------  Die eigenen Daten ----------
+\newcommand{\employeename}{$(employee_name)$}
+\newcommand{\employeecompany}{$(employee_company)$}
+\newcommand{\employeeaddress}{$(employee_address)$}
+\newcommand{\employeetel}{$(employee_tel)$}
+\newcommand{\employeefax}{$(employee_fax)$}
+\newcommand{\employeeemail}{$(employee_email)$}
+\newcommand{\employeecoustid}{$(employee_co_ustid)$}
+\newcommand{\employeetaxnumber}{$(employee_taxnumber)$}
+\newcommand{\employeetable}{tabelle$(employee_login)$.tex}
+
+% ---------- Eigene Bankverbindung falls nicht im Briefkopf gesetzt ----------
+% \newcommand{\companybank}{$(company_bank)$}
+% \newcommand{\companybankcode}{$(company_bank_code)$}
+% \newcommand{\companyaccountnumber}{$(company_account_number)$}
+
+% ---------- Adressat ----------
+\newcommand{\name}{$(name)$}
+\newcommand{\departmentone}{$(department_1)$}
+\newcommand{\departmenttwo}{$(department_2)$}
+\newcommand{\cpgreeting}{$(cp_greeting)$}
+\newcommand{\cptitle}{$(cp_title)$}
+\newcommand{\cpgivenname}{$(cp_givenname)$}
+\newcommand{\cpname}{$(cp_name)$}
+\newcommand{\street}{$(street)$}
+\newcommand{\country}{$(country)$}
+\newcommand{\zipcode}{$(zipcode)$}
+\newcommand{\city}{$(city)$}
+\newcommand{\phone}{$(customerphone)$}
+\newcommand{\fax}{$(customerfax)$}
+\newcommand{\lettergreeting}{
+	\ifthenelse{\equal{$(cp_gender)$}{f}}
+	 {Sehr geehrte Frau $(cp_name)$,}
+	{\ifthenelse{\equal{$(cp_gender)$}{m}}
+	  {Sehr geehrter Herr $(cp_name)$,}
+	  {Sehr geehrte Damen und Herren,}
+	}\\[1\baselineskip]
+}
+
+
+% ---------- Rechnungsvariablen ----------
+\newcommand{\kundennummer}{$(customernumber)$}
+\newcommand{\quonumber}{$(quonumber)$}		% Angebotsnummer
+\newcommand{\ordnumber}{$(ordnumber)$}		% Auftragsnummer bei uns
+\newcommand{\cusordnumber}{$(cusordnumber)$}	% Auftragsnummer beim Kunden
+\newcommand{\invnumber}{$(invnumber)$}		% Rechnungsnummer
+\newcommand{\docnumber}{Rechnungsnummer: \invnumber}
+\newcommand{\quodate}{$(quodate)$}		% Angebotsdatum
+\newcommand{\orddate}{$(orddate)$}		% Auftragsdatum
+\newcommand{\reqdate}{$(reqdate)$}		% gewuenschtes Lieferdatum
+\newcommand{\deliverydate}{$(deliverydate)$}    % Lieferdatum
+\newcommand{\invdate}{$(invdate)$}		% Rechnungsdatum
+\newcommand{\terms}{$(terms)$}			% Zahlungsfrist
+\newcommand{\duedate}{$(duedate)$}		% Fälligkeitsdatum
+\newcommand{\invtotal}{$(invtotal)$}		% Gesamtbetrag
+\newcommand{\paid}{$(paid)$}			% Schon bezahlt
+\newcommand{\total}{$(total)$}			% Restbetrag
+\newcommand{\dunningid}{$(dunning_id)$}	% ID Zahlungserinnerung
+\newcommand{\dunningdate}{$(dunning_date)$}	% Datum der Zahlungserinnerung
+
+
+% ---------- Lieferadresse ----------
+\newcommand{\shiptoname}{$(shiptoname)$}
+\newcommand{\shiptocontact}{$(shiptocontact)$}
+\newcommand{\shiptodepartmentone}{$(shiptodepartment_1)$}
+\newcommand{\shiptodepartmenttwo}{$(shiptodepartment_2)$}
+\newcommand{\shiptostreet}{$(shiptostreet)$}
+\newcommand{\shiptocity}{$(shiptocity)$}
+\newcommand{\shiptocountry}{$(shiptocountry)$}
+\newcommand{\shiptophone}{$(shiptophone)$}
+\newcommand{\shiptozipcode}{$(shiptozipcode)$}
+\newcommand{\shiptofax}{$(shiptofax)$}
+
+% ---------- Währungszeichen ----------
+\newcommand{\currency}{$(currency)$}
+\ifthenelse{\equal{\currency}{EUR}}{\let\currency\euro}{}
+\ifthenelse{\equal{\currency}{YEN}}{\let\currency\textyen}{}
+\ifthenelse{\equal{\currency}{GBP}}{\let\currency\pounds}{}
+\ifthenelse{\equal{\currency}{USD}}{\let\currency\$}{}
+
+% ---------- Ende Reportvariablen-Umsetzung ----------
+
+% ---------- Briefkopf dazuladen ----------
+\input{kivitendobriefkopf}
+
+\begin{document}
+% ---------- Schrift Hauptdokuments (Computermodern-sanserif)  ----------
+% \fontfamily{cmss}\fontsize{10}{12pt plus 0.12pt minus 0.1pt}\selectfont
+% ---------- Schrift Helvetica ------------------------
+\fontfamily{phv}\fontsize{10}{12pt plus 0.12pt minus 0.1pt}\selectfont
+
+% ---------- Firmenlogo nur erste Seite ----------
+\thispagestyle{briefkopf}
+
+% ---------- Datum und Nummern ----------
+% Position unterhalb des Briefkopfs
+\vspace*{\vlogospacing}
+\renewcommand{\arraystretch}{0.9}
+\begin{minipage}[b]{177mm}
+\sperren{\textbf{Mahnrechnung Nr. \invnumber}}
+\hfill
+	\small
+	\begin{tabular}[b]{r@{\hspace{2mm}}p{\hlogospacing}}
+		\textbf{Seite} & {\thepage} von \pageref{LastPage}\\
+  		\textbf{Datum} & \invdate \\
+		\textbf{Kunden Nr.} & \kundennummer\\
+		\textbf{Rechnung Nr.} & \invnumber\\
+		\textbf{Ansprechpartner} & \employeename\\
+		\nonemptyline{\textbf{Durchwahl} &}{\employeetel}
+		\nonemptyline{\textbf{E-Mail} &}{\employeeemail}
+	\end{tabular}\\[10mm plus 20mm minus 10mm]
+\end{minipage}
+\renewcommand{\arraystretch}{1}
+\normalsize
+% ---------- Begrüßung und Bemerkungen ----------
+\vspace{ 5mm}
+\lettergreeting
+
+Hiermit erlauben wir uns, Ihnen zu Mahnung $(dunning_id)$
+die nachfolgenden Positionen in Rechnung zu stellen.\\
+
+Für Nachfragen steht Ihnen \employeename \ per Telefon (\employeetel)
+oder per E-Mail (\employeeemail) gerne zur Verfügung.\\[1\baselineskip]
+
+\vspace*{0.5cm}
+
+Bitte begleichen Sie diese Forderung bis zum $(duedate)$.
+
+\vspace*{0.5cm}
+
+\begin{tabularx}{\textwidth}{Xr}
+  \textbf{Posten} & \multicolumn{1}{l}{\textbf{Betrag}}\\
+  \hline
+  Mahngebühren & $(fee)$ EUR \\
+  Zinsen & $(interest)$ EUR \\
+  \cline{2-2}
+  Gesamtsumme & $(invamount)$ EUR\\
+\end{tabularx}
+
+\end{document}

@@ -40,6 +40,7 @@ use SL::IR;
 use SL::IS;
 use SL::PE;
 use SL::ReportGenerator;
+use SL::DB::Default;
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
@@ -152,9 +153,6 @@ sub create_links {
   # build the popup menus
   $form->{taxincluded} = ($form->{id}) ? $form->{taxincluded} : "checked";
 
-  # notes
-  $form->{notes} = $form->{intnotes} unless $form->{notes};
-
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -238,7 +236,9 @@ sub form_header {
   }
   my $readonly = ($form->{id}) ? "readonly" : "";
 
-  $form->{radier} = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  $form->{radier} = ($::instance_conf->get_ap_changeable == 2)
+                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                      : ($::instance_conf->get_ap_changeable == 1);
   $readonly       = ($form->{radier}) ? "" : $readonly;
 
   $form->{forex}        = $form->check_exchangerate( \%myconfig, $form->{currency}, $form->{transdate}, 'sell');
@@ -284,6 +284,7 @@ sub form_header {
   }
   my $notes =
     qq|<textarea name=notes rows=$rows cols=50 wrap=soft $readonly>$form->{notes}</textarea>|;
+  my $intnotes = qq|<textarea name=intnotes rows=$rows cols=50 wrap=soft readonly>$form->{intnotes}</textarea>|;
 
   my $department;
   $department = qq|
@@ -624,6 +625,9 @@ $jsscript
         <tr>
           <th align=left width=1%>| . $locale->text('Notes') . qq|</th>
           <td align=left>$notes</td>
+
+          <th align=left width=1%>| . $locale->text('Notes for vendor') . qq|</th>
+          <td align=left>$intnotes</td>
         </tr>
       </table>
     </td>
@@ -693,11 +697,11 @@ $jsscript
     print qq|<input type=hidden name="acc_trans_id_$i" value=$form->{"acc_trans_id_$i"}>\n|;
     print qq|<input type=hidden name="gldate_$i" value=$form->{"gldate_$i"}>\n|;
     my $changeable = 1;
-    if ($::lx_office_conf{features}->{payments_changeable} == 0) {
+    if (SL::DB::Default->get->payments_changeable == 0) {
       # never
       $changeable = ($form->{"acc_trans_id_$i"})? 0 : 1;
     }
-    if ($::lx_office_conf{features}->{payments_changeable} == 2) {
+    if (SL::DB::Default->get->payments_changeable == 2) {
       # on the same day
       $changeable = (($form->{"gldate_$i"} eq '') || $form->current_date(\%myconfig) eq $form->{"gldate_$i"});
     }
@@ -852,10 +856,10 @@ sub form_footer {
 
   $::form->header;
   print $::form->parse_html_template('ap/form_footer', {
-    num_due         => $num_due,
-    num_follow_ups  => $num_follow_ups,
-    show_post_draft => ($transdate > $closedto) && !$::form->{id},
-    show_storno     => $storno,
+    num_due           => $num_due,
+    num_follow_ups    => $num_follow_ups,
+    show_post_draft   => ($transdate > $closedto) && !$::form->{id},
+    show_storno       => $storno,
   });
 
   $::lxdebug->leave_sub;
@@ -926,7 +930,7 @@ sub update {
   $form->{exchangerate} = $form->{forex} if $form->{forex};
 
   $form->{invdate} = $form->{transdate};
-  my %saved_variables = map +( $_ => $form->{$_} ), qw(AP AP_amount_1 taxchart_1);
+  my %saved_variables = map +( $_ => $form->{$_} ), qw(AP AP_amount_1 taxchart_1 notes);
 
   my $vendor_changed = &check_name("vendor");
 
@@ -962,9 +966,6 @@ sub update {
      $form->{oldinvtotal});
   $form->{oldinvtotal}  = $form->{invtotal};
   $form->{oldtotalpaid} = $totalpaid;
-
-  # notes
-  $form->{notes} = $form->{intnotes} if $vendor_changed;
 
   &display_form;
 
@@ -1221,7 +1222,7 @@ sub search {
   $form->all_vc(\%myconfig, "vendor", "AP");
 
   $form->{title}    = $locale->text('AP Transactions');
-  $form->{fokus}    = "search.vendor";
+  $::request->{layout}->focus('#vendor');
   $form->{jsscript} = 1;
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },

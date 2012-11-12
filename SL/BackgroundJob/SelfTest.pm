@@ -37,6 +37,7 @@ sub setup {
   $self->config($::lx_office_conf{self_test} || {});
 
   $self->tester(Test::Builder->new);
+  $self->tester->reset; # stupid Test::Builder mplementation uses class variables
   $self->aggreg(TAP::Parser::Aggregator->new);
 
   $self->modules(split /\s+/, $self->config->{modules});

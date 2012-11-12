@@ -38,6 +38,7 @@ use SL::AR;
 use SL::FU;
 use SL::IS;
 use SL::PE;
+use SL::DB::Default;
 use SL::ReportGenerator;
 
 require "bin/mozilla/arap.pl";
@@ -160,9 +161,6 @@ sub create_links {
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{rowcount}    = 1;
 
-  # notes
-  $form->{notes} = $form->{intnotes} unless $form->{notes};
-
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
@@ -251,7 +249,9 @@ sub form_header {
   #/show history button js
   $readonly = ($form->{id}) ? "readonly" : "";
 
-  $form->{radier} = ($form->current_date(\%myconfig) eq $form->{gldate}) ? 1 : 0;
+  $form->{radier} = ($::instance_conf->get_ar_changeable == 2)
+                      ? ($form->current_date(\%myconfig) eq $form->{gldate})
+                      : ($::instance_conf->get_ar_changeable == 1);
   $readonly = ($form->{radier}) ? "" : $readonly;
 
   # set option selected
@@ -315,7 +315,7 @@ sub form_header {
     $taxcharts{$item->{id}} = $item;
   }
 
-  $form->{fokus} = "arledger.customer";
+  $::request->{layout}->focus("#customer");
 
   my $follow_up_vc         =  $form->{customer};
   $follow_up_vc            =~ s/--.*?//;
@@ -421,8 +421,8 @@ sub form_header {
 
 
     $payment->{changeable} =
-        $::lx_office_conf{features}->{payments_changeable} == 0 ? !$payment->{acc_trans_id} # never
-      : $::lx_office_conf{features}->{payments_changeable} == 2 ? $payment->{gldate} eq '' || $payment->{gldate} eq $now
+        SL::DB::Default->get->payments_changeable == 0 ? !$payment->{acc_trans_id} # never
+      : SL::DB::Default->get->payments_changeable == 2 ? $payment->{gldate} eq '' || $payment->{gldate} eq $now
       :                                                           1;
 
     push @payments, $payment;
@@ -530,7 +530,7 @@ $follow_ups_block
   }
   # /button for saving history
   # mark_as_paid button
-  if($form->{id} ne "") {
+  if(($form->{id} ne "") && $::instance_conf->get_ar_show_mark_as_paid) {
     print qq|<input type="submit" class="submit" name="action" value="|
           . $locale->text('mark as paid') . qq|">|;
   }
@@ -614,12 +614,9 @@ sub update {
 
   $form->{invdate} = $form->{transdate};
 
-  my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1 customer_id);
+  my %saved_variables = map +( $_ => $form->{$_} ), qw(AR AR_amount_1 taxchart_1 customer_id notes);
 
   &check_name("customer");
-
-  # check_name loads customer notes into notes, but ar only knows intnotes, so copy them
-  $form->{notes} = $form->{intnotes} if $saved_variables{customer_id} != $form->{customer_id};
 
   $form->{AR} = $saved_variables{AR};
   if ($saved_variables{AR_amount_1} =~ m/.--./) {

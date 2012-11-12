@@ -121,19 +121,19 @@ sub _read_auth_config {
 
   if (!$self->{authenticator}) {
     my $locale = Locale->new('en');
-    $self->mini_error($locale->text('No or an unknown authenticantion module specified in "config/lx_office.conf".'));
+    $self->mini_error($locale->text('No or an unknown authenticantion module specified in "config/kivitendo.conf".'));
   }
 
   my $cfg = $self->{DB_config};
 
   if (!$cfg) {
     my $locale = Locale->new('en');
-    $self->mini_error($locale->text('config/lx_office.conf: Key "DB_config" is missing.'));
+    $self->mini_error($locale->text('config/kivitendo.conf: Key "DB_config" is missing.'));
   }
 
   if (!$cfg->{host} || !$cfg->{db} || !$cfg->{user}) {
     my $locale = Locale->new('en');
-    $self->mini_error($locale->text('config/lx_office.conf: Missing parameters in "authentication/database". Required parameters are "host", "db" and "user".'));
+    $self->mini_error($locale->text('config/kivitendo.conf: Missing parameters in "authentication/database". Required parameters are "host", "db" and "user".'));
   }
 
   $self->{authenticator}->verify_config();
@@ -491,6 +491,9 @@ sub read_user {
 
   # The XUL/XML backed menu has been removed.
   $user_data{menustyle} = 'v3' if lc($user_data{menustyle} || '') eq 'xml';
+
+  # Set default language if selected language does not exist (anymore).
+  $user_data{countrycode} = $::lx_office_conf{system}->{language} unless $user_data{countrycode} && -d "locale/$user_data{countrycode}";
 
   $sth->finish();
 

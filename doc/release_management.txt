@@ -22,8 +22,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * Testlauf t/test.sh
 
-  - Im Moment sind 4 Fehler optimal (die sind noch nicht angegangen):
-    o  bin/mozilla/ar.pl contains at least 190 html tags.
+  - Im Moment sind 3 Fehler optimal (die sind noch nicht angegangen):
     o  bin/mozilla/ic.pl contains at least 130 html tags.
     o  bin/mozilla/ap.pl contains at least 183 html tags.
     o  bin/mozilla/admin.pl DOES NOT use proper system or exec calls
@@ -52,7 +51,9 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Status Bugzilla
 
   - Aus dem Bugsprint sollten keine Bugs mit Target der neuen Version mehr
-    offen sein.
+    offen sein, ist aber unrealistisch. Die noch offenen Bugs müssen bewertet
+    werden. Kritische Bugs müssen behoben, weniger kritische evtl auf die
+    nächste Version verschoben werden.
   - Neue Bugs seit dem Bugsprint müssen bewertet, gegebenenfalls behoben
     werden.
   - Sollten noch schwere Probleme existieren, Release verschieben.
@@ -73,6 +74,16 @@ als freundliche Checkliste zum ausdrucken und erweitern.
     o columns ändern auf nur "Full Summary"
     o copy&paste in eine Datei
     o perl -pale '$_="  - Bugfix $F[0]: @F[1..$#F]"' oder awk/sed drüber
+
+    Das gleiche für trac:
+    o Individuelle Abfrage
+      + geändert zwischen <letztes Releasedatum> und <heute>
+      + Status closed
+      + Lösung behobena
+      + Komponente ist Lx-Office ERP
+    o Spalten: nur Zusammenfassung
+    o sortieren nach Ticketnummer
+    o rest weiter ab copy&paste
 
   - Ausserdem einmal durch das git scrollen und sinnvolle grössere Änderungen
     ins changelog übertragen. Muss nur einmal gemacht werden, möglichst danach
@@ -147,7 +158,6 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Locales auf Vollständigkeit prüfen
 
   $ scripts/locales.pl de
-  $ scripts/locales.pl de_DE
 
 * SL::DB::Helper::ALL auf Vollständigkeit prüfen
 

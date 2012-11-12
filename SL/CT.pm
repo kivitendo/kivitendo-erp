@@ -552,7 +552,18 @@ sub _save_contact {
   my @columns = qw(cp_title cp_givenname cp_name cp_email cp_phone1 cp_phone2 cp_abteilung cp_fax
                    cp_mobile1 cp_mobile2 cp_satphone cp_satfax cp_project cp_privatphone cp_privatemail cp_birthday cp_gender
                    cp_street cp_zipcode cp_city);
-  my @values  = map { $_ eq 'cp_gender' ? ($form->{$_} eq 'f' ? 'f' : 'm') : $form->{$_} } @columns;
+  my @values  = map(
+    {
+      if ( $_ eq 'cp_gender' ) {
+        $form->{$_} eq 'f' ? 'f' : 'm';
+      } elsif ( $_ eq 'cp_birthday' && $form->{cp_birthday} eq '' ) {
+        undef;
+      } else {
+        $form->{$_};
+      }
+    }
+    @columns
+  );
 
   my ($query, $cp_id);
   if ($form->{cp_id}) {
@@ -598,6 +609,7 @@ sub search {
   my $dbh = $form->dbconnect($myconfig);
 
   my $cv = $form->{db} eq "customer" ? "customer" : "vendor";
+  my $join_records = $form->{l_invnumber} || $form->{l_ordnumber} || $form->{l_quonumber};
 
   my $where = "1 = 1";
   my @values;
@@ -611,7 +623,7 @@ sub search {
   $form->{sort} = $sortorder;
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-  if ($sortorder !~ /(business|id)/ && 1 >= scalar grep { $form->{$_} } qw(l_ordnumber l_quonumber l_invnumber )) {
+  if ($sortorder !~ /(business|id)/ && !$join_records) {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
@@ -705,21 +717,22 @@ sub search {
 
   my $query =
     qq|SELECT ct.*, b.description AS business | .
+    (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
     qq|FROM $cv ct | .
     qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
     qq|WHERE $where|;
 
   my @saved_values = @values;
   # redo for invoices, orders and quotations
-  if ($form->{l_invnumber} || $form->{l_ordnumber} || $form->{l_quonumber}) {
-    my ($ar, $union, $module);
-    $query = "";
+  if ($join_records) {
+    my $union = "UNION";
 
     if ($form->{l_invnumber}) {
       my $ar = $cv eq 'customer' ? 'ar' : 'ap';
       my $module = $ar eq 'ar' ? 'is' : 'ir';
-
-      $query =
+      push(@values, @saved_values);
+      $query .=
+        qq| UNION | .
         qq|SELECT ct.*, b.description AS business, | .
         qq|  a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
         qq|  '$module' AS module, 'invoice' AS formtype, | .
@@ -728,16 +741,12 @@ sub search {
         qq|JOIN $ar a ON (a.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
         qq|WHERE $where AND (a.invoice = '1')|;
-
-      $union = qq|UNION|;
     }
 
     if ( $form->{l_ordnumber} ) {
-      if ($union eq "UNION") {
-        push(@values, @saved_values);
-      }
+      push(@values, @saved_values);
       $query .=
-        qq| $union | .
+        qq| UNION | .
         qq|SELECT ct.*, b.description AS business,| .
         qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'order' AS formtype, o.closed | .
@@ -745,16 +754,12 @@ sub search {
         qq|JOIN oe o ON (o.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
         qq|WHERE $where AND (o.quotation = '0')|;
-
-      $union = qq|UNION|;
     }
 
     if ( $form->{l_quonumber} ) {
-      if ($union eq "UNION") {
-        push(@values, @saved_values);
-      }
+      push(@values, @saved_values);
       $query .=
-        qq| $union | .
+        qq| UNION | .
         qq|SELECT ct.*, b.description AS business, | .
         qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'quotation' AS formtype, o.closed | .
