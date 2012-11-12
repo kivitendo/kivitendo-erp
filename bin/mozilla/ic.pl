@@ -1694,7 +1694,7 @@ sub assembly_row {
     $form->{"qty_$i"}    = $form->format_amount(\%myconfig, $form->{"qty_$i"});
     $linetotal           = $form->format_amount(\%myconfig, $linetotal, 2);
     $line_purchase_price = $form->format_amount(\%myconfig, $line_purchase_price, 2);
-    $href                = qq|$form->{script}?action=edit&id=$form->{"id_$i"}&rowcount=$i&previousform=$previousform|;
+    $href                = build_std_url("action=edit", qq|id=$form->{"id_$i"}|, "rowcount=$numrows", "currow=$i", "previousform=$previousform");
     map { $row{$_}{data} = "" } qw(qty unit partnumber description bom partsgroup runningnumber);
 
     # last row
@@ -1714,7 +1714,8 @@ sub assembly_row {
         $row{bom}{data}           = $form->{"bom_$i"} ? "x" : "&nbsp;";
         $row{qty}{align}          = 'right';
       } else {
-        $row{partnumber}{data}    = qq|<a href=$href>$form->{"partnumber_$i"}</a>|;
+        $row{partnumber}{data}    = qq|$form->{"partnumber_$i"}|;
+        $row{partnumber}{link}     = $href;
         $row{qty}{data}           = qq|<input name="qty_$i" size=5 value="$form->{"qty_$i"}">|;
         $row{runningnumber}{data} = qq|<input name="runningnumber_$i" size=3 value="$i">|;
         $row{bom}{data}   = sprintf qq|<input name="bom_$i" type=checkbox class=checkbox value=1 %s>|,
@@ -1875,7 +1876,11 @@ sub save {
         qw(weight listprice sellprice rop);
 
       $form->{assembly_rows}--;
-      $i = $form->{assembly_rows};
+      if ($newform{currow}) {
+        $i = $newform{currow};
+      } else {
+        $i = $form->{assembly_rows};
+      }
       $form->{"qty_$i"} = 1 unless ($form->{"qty_$i"});
 
       $form->{sellprice} -= $form->{"sellprice_$i"} * $form->{"qty_$i"};

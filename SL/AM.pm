@@ -269,7 +269,7 @@ sub save_account {
     do_query($form, $dbh, $query, $form->{"id"}, $form->{"accno"});
   }
 
-  my @values;
+  @values = ();
 
 
   if ($form->{id}) {
