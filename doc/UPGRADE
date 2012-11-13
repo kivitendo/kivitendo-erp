@@ -29,17 +29,18 @@ Upgrade auf v2.7.1
   * GD 2.00
 
 * Diverse umstrittene Features zum nicht standardkonformen Umgang mit gebuchten
-  Rechnungen sind jetzt standardmässig deaktiviert, und müssen unter System
-  -> Mandantenkonfiguration aktiviert werden.
+  Rechnungen sind jetzt standardmässig deaktiviert und müssen unter "System"
+  -> "Mandantenkonfiguration" aktiviert werden.
 
 * Die Übersetzungen "de_DE" und "fr" für die alternative deutsche Version und
   französische Version respektive wurden entfernt. Es bleiben offiziell
-  unterstützt die deutsche "de" und englische "en" Übersetzung.
+  unterstützte Übersetzungen in Deutsch ("de") und English ("en").
 
-* Dieses ist die letzte Version die perl Versionen vor 5.10.1 unterstützen wird.
-  Ab dem nächsten Release werden Sprachkonstrukte verwendet werden, die nicht mehr
-  in 5.8 kompilieren, und es werden alle Coremodule bis einschließlich 5.10.1
-  nicht mehr als Abhängigkeiten gelistet.
+* Dieses ist die letzte Version, die Perl-Versionen vor 5.10.1
+  unterstützen wird.  Ab dem nächsten Release werden Sprachkonstrukte
+  verwendet werden, die nicht mehr in 5.8 kompilieren, und Module, die
+  bis v5.10.1 zu den Coremodulen gehören, werden ab dann nicht mehr
+  als explizite Abhängigkeiten gelistet.
 
 
 Upgrade auf v2.7.0
