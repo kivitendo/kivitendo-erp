@@ -16,8 +16,8 @@ Upgrade auf v2.7.1
   * Test::Harness 3.00
   * IO::Socket::SSL
   * Net::LDAP
-  * Met::SMTP::SSL  1.01
-  * Met::SSLGlue 1.01
+  * Net::SMTP::SSL  1.01
+  * Net::SSLGlue 1.01
 
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
