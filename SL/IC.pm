@@ -471,25 +471,19 @@ sub save {
   # delete price records
   do_query($form, $dbh, qq|DELETE FROM prices WHERE parts_id = ?|, conv_i($form->{id}));
 
+  $query = qq|INSERT INTO prices (parts_id, pricegroup_id, price) VALUES(?, ?, ?)|;
+  $sth   = prepare_query($form, $dbh, $query);
+
   # insert price records only if different to sellprice
   for my $i (1 .. $form->{price_rows}) {
     my $price = $form->parse_amount($myconfig, $form->{"price_$i"});
-    if ($price == 0) {
-      $form->{"price_$i"} = $form->{sellprice};
-    }
-    if (
-        (   $price
-         || $form->{"klass_$i"}
-         || $form->{"pricegroup_id_$i"})
-        and $price != $form->{sellprice}
-      ) {
-      #$klass = $form->parse_amount($myconfig, $form->{"klass_$i"});
-      $query = qq|INSERT INTO prices (parts_id, pricegroup_id, price) | .
-               qq|VALUES(?, ?, ?)|;
-      @values = (conv_i($form->{id}), conv_i($form->{"pricegroup_id_$i"}), $price);
-      do_query($form, $dbh, $query, @values);
-    }
+    next unless $price && ($price != $form->{sellprice});
+
+    @values = (conv_i($form->{id}), conv_i($form->{"pricegroup_id_$i"}), $price);
+    do_statement($form, $sth, $query, @values);
   }
+
+  $sth->finish;
 
   # insert makemodel records
     my $lastupdate = '';
