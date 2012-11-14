@@ -155,7 +155,7 @@
         <para>Die zu installierenden Pakete können in den verschiedenen
         Distributionen unterschiedlich heißen.</para>
 
-        <para>Für Debian oder Ubuntu benötigen Sie diese Pakete:</para>
+        <para>Für Debian oder Ubuntu benötigen Sie diese Pakete (bei Ubuntu ab 12.04 <literal>libparent-perl</literal> weglassen):</para>
 
         <programlisting>apt-get install apache2 postgresql libparent-perl libarchive-zip-perl \
   libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl \
