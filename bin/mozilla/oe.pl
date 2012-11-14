@@ -922,7 +922,7 @@ sub orders {
   my %totals    = map { $_ => 0 } @subtotal_columns;
   my %subtotals = map { $_ => 0 } @subtotal_columns;
 
-  my $idx = 0;
+  my $idx = 1;
 
   my $edit_url = build_std_url('action=edit', 'type', 'vc');
 
@@ -964,8 +964,8 @@ sub orders {
     my $row_set = [ $row ];
 
     if (($form->{l_subtotal} eq 'Y')
-        && (($idx == (scalar @{ $form->{OE} } - 1))
-            || ($oe->{ $form->{sort} } ne $form->{OE}->[$idx + 1]->{ $form->{sort} }))) {
+        && (($idx == (scalar @{ $form->{OE} }))
+            || ($oe->{ $form->{sort} } ne $form->{OE}->[$idx]->{ $form->{sort} }))) {
       push @{ $row_set }, create_subtotal_row(\%subtotals, \@columns, \%column_alignment, \@subtotal_columns, 'listsubtotal');
     }
 
