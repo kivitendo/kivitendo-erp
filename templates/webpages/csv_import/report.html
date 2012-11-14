@@ -15,7 +15,7 @@
   </tr>
  [%- ELSE %]
   [% csv_import_report_errors = SELF.report.folded_status.${loop.index}.errors %]
-  <tr class="[% IF csv_import_report_errors.size %]redrow[% ELSE %]listrow[% END %][% loop.count % 2 %]">
+  <tr class="[% IF csv_import_report_errors.size %]redrow[% ELSE %]listrow[% END %][% 1 - loop.count % 2 %]">
   [%- FOREACH value = row %]
    <td>[%- value | html  %]</td>
   [%- END %]

@@ -282,15 +282,19 @@ sub save_report {
   my $sth = $dbh->prepare($query);
   my $sth2 = $dbh->prepare($query2);
 
+#  $::lxdebug->dump(0,  "self", $self->info_headers);
+#  $::lxdebug->dump(0,  "self", $self->headers);
+#  $::lxdebug->dump(0,  "self", $self->raw_data_headers);
+
   # save headers
   my @headers = (
-    @{ $self->info_headers->{headers} || [] },
-    @{ $self->headers->{headers} || [] },
-    @{ $self->raw_data_headers->{headers} || [] },
+    grep({ $self->info_headers->{used}->{$_}     } @{ $self->info_headers->{headers} }),
+    grep({ $self->headers->{used}->{$_}          } @{ $self->headers->{headers} }),
+    grep({ $self->raw_data_headers->{used}->{$_} } @{ $self->raw_data_headers->{headers} }),
   );
-  my @info_methods = keys %{ $self->info_headers->{methods} || {} };
-  my @methods      = @{ $self->headers->{methods} || [] };
-  my @raw_methods  = keys %{ $self->raw_data_headers->{used} || {} };
+  my @info_methods = grep { $self->info_headers->{used}->{$_}     } @{ $self->info_headers->{headers} };
+  my @methods      = grep { $self->headers->{used}->{$_}          } @{ $self->headers->{methods} };
+  my @raw_methods  = grep { $self->raw_data_headers->{used}->{$_} } @{ $self->raw_data_headers->{headers} };
 
   $sth->execute($report->id, $_, 0, $headers[$_]) for 0 .. $#headers;
 
