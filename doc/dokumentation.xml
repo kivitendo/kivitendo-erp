@@ -79,7 +79,7 @@
         nicht Bestandteil einer Standard-Perl-Installation sind:</para>
 
         <itemizedlist>
-          <listitem><para><literal>parent</literal></para></listitem>
+          <listitem><para><literal>parent</literal> (nur bei Perl vor 5.10.1)</para></listitem>
 
           <listitem><para><literal>Archive::Zip</literal></para></listitem>
 
@@ -157,7 +157,7 @@
 
         <para>Für Debian oder Ubuntu benötigen Sie diese Pakete:</para>
 
-        <programlisting>apt-get install apache2 postgresql libparent-perl libarchive-zip-perl \
+        <programlisting>apt-get install apache2 postgresql libarchive-zip-perl \
   libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl \
   libemail-address-perl libemail-mime-perl liblist-moreutils-perl libpdf-api2-perl \
   librose-object-perl librose-db-perl librose-db-object-perl \

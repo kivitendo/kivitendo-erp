@@ -10,8 +10,7 @@
         Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
         benötigt.</p><p>Zusätzlich benötigt kivitendo die folgenden Perl-Pakete, die
         nicht Bestandteil einer Standard-Perl-Installation sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                     <code class="literal">parent</code>
-                  </p></li><li class="listitem"><p>
+                     <code class="literal">parent</code> (nur bei Perl vor 5.10.1)</p></li><li class="listitem"><p>
                      <code class="literal">Archive::Zip</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Config::Std</code>
@@ -69,7 +68,7 @@
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
         installieren.</p><p>Die zu installierenden Pakete können in den verschiedenen
-        Distributionen unterschiedlich heißen.</p><p>Für Debian oder Ubuntu benötigen Sie diese Pakete:</p><pre class="programlisting">apt-get install apache2 postgresql libparent-perl libarchive-zip-perl \
+        Distributionen unterschiedlich heißen.</p><p>Für Debian oder Ubuntu benötigen Sie diese Pakete:</p><pre class="programlisting">apt-get install apache2 postgresql libarchive-zip-perl \
   libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl \
   libemail-address-perl libemail-mime-perl liblist-moreutils-perl libpdf-api2-perl \
   librose-object-perl librose-db-perl librose-db-object-perl \
