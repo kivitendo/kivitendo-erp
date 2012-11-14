@@ -5,10 +5,10 @@ package SL::DB::CsvImportProfileSetting;
 
 use strict;
 
-use SL::DB::MetaSetup::CsvImportProfileSetting;
 use Rose::DB::Object::Helpers qw(clone);
 
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
+require SL::DB::MetaSetup::CsvImportProfileSetting;
+
 __PACKAGE__->meta->make_manager_class;
 
 # Helpers' clone_and_reset also kills compund keys like in this case kay+id
