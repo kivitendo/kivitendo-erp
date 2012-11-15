@@ -14,8 +14,8 @@
     });
   }
   $(document).ready(function(){
-    $('#progressbar').progressbar({ value: [% progress * 1 %] });
-    window.setTimeout(reload_results, 2000);
+    $('#progressbar').progressbar({ value: [% SELF.background_job.data_as_hash.progress * 1 %] });
+    window.setTimeout(reload_results, 100);
   })
 </script>
 [% END %]
