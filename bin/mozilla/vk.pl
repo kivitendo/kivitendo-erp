@@ -134,7 +134,7 @@ sub invoice_transactions {
 
   VK->invoice_transactions(\%myconfig, \%$form);
 
-  
+
   if ( $form->{mainsort} eq 'month' or $form->{subsort} eq 'month' ) {
 
     # Data already comes out of SELECT statement in correct month order, but
@@ -162,8 +162,8 @@ sub invoice_transactions {
   # hidden variables für pdf/csv export übergeben
   # einmal mit l_ um zu bestimmen welche Spalten ausgegeben werden sollen
   # einmal optionen für die Überschrift (z.B. transdatefrom, partnumber, ...)
-  my @hidden_variables  = (qw(l_headers_mainsort l_headers_subsort l_subtotal_mainsort l_subtotal_subsort l_total l_parts l_customername l_customernumber transdatefrom transdateto decimalplaces customer customername customer_id department partnumber partsgroup country business description project_id customernumber salesman employee salesman_id employee_id business_id partsgroup_id mainsort subsort), 
-      "$form->{db}number", 
+  my @hidden_variables  = (qw(l_headers_mainsort l_headers_subsort l_subtotal_mainsort l_subtotal_subsort l_total l_parts l_customername l_customernumber transdatefrom transdateto decimalplaces customer customername customer_id department partnumber partsgroup country business description project_id customernumber salesman employee salesman_id employee_id business_id partsgroup_id mainsort subsort),
+      "$form->{db}number",
       map({ "cvar_$_->{name}" } @searchable_custom_variables),
       map { "l_$_" } @columns
       );
@@ -207,7 +207,7 @@ sub invoice_transactions {
 
   my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total parts_unit discount marge_total marge_percent qty weight);
 
-  
+
   # so now the check-box "Description" is only used as switch for part description in invoice-mode
   # always fill the column "Description" if we are in Zwischensummenmode
   if (not defined $form->{"l_parts"}) {
@@ -534,4 +534,3 @@ sub create_subtotal_row_invoice {
 }
 
 1;
-
