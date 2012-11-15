@@ -844,6 +844,10 @@ sub display_rows {
 
 }
 
+sub _get_radieren {
+  return ($::instance_conf->get_gl_changeable == 2) ? ($::form->current_date(\%::myconfig) eq $::form->{gldate}) : ($::instance_conf->get_gl_changeable == 1);
+}
+
 sub form_header {
   $::lxdebug->enter_sub;
   $::auth->assert('general_ledger');
@@ -886,6 +890,7 @@ sub form_header {
   $::form->header;
   print $::form->parse_html_template('gl/form_header', {
     hide_title => $title,
+    readonly   => $::form->{id} && ($::form->{locked} || !_get_radieren()),
   });
 
   $::lxdebug->leave_sub;
@@ -903,12 +908,8 @@ sub form_footer {
     $follow_ups_due = sum map { $_->{due} * 1 } @{ $follow_ups || [] };
   }
 
-  my $radieren = ($::instance_conf->get_gl_changeable == 2)
-                    ? ($::form->current_date(\%::myconfig) eq $::form->{gldate})
-                    : ($::instance_conf->get_gl_changeable == 1);
-
   print $::form->parse_html_template('gl/form_footer', {
-    radieren       => $radieren,
+    radieren       => _get_radieren(),
     follow_ups     => $follow_ups,
     follow_ups_due => $follow_ups_due,
   });
