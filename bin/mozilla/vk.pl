@@ -210,70 +210,29 @@ sub invoice_transactions {
 
   # so now the check-box "Description" is only used as switch for part description in invoice-mode
   # always fill the column "Description" if we are in Zwischensummenmode
-  if (not defined $form->{"l_parts"}) {
-    $form->{"l_description"} = "Y";
-  };
+  $form->{"l_description"} = "Y" if not defined $form->{"l_parts"};;
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
   my @options;
 
-  if ($form->{description}) {
-    push @options, $locale->text('Description') . " : $form->{description}";
-  }
-  if ($form->{customer}) {
-    push @options, $locale->text('Customer') . " : $form->{customername}";
-  }
-  if ($form->{customernumber}) {
-    push @options, $locale->text('Customer Number') . " : $form->{customernumber}";
-  }
-# TODO: es wird nur id übergeben
-  if ($form->{department}) {
-    my ($department) = split /--/, $form->{department};
-    push @options, $locale->text('Department') . " : $department";
-  }
-  if ($form->{invnumber}) {
-    push @options, $locale->text('Invoice Number') . " : $form->{invnumber}";
-  }
-  if ($form->{invdate}) {
-    push @options, $locale->text('Invoice Date') . " : $form->{invdate}";
-  }
-  if ($form->{partnumber}) {
-    push @options, $locale->text('Part Number') . " : $form->{partnumber}";
-  }
-  if ($form->{partsgroup_id}) {
-    my $partsgroup = SL::DB::PartsGroup->new(id => $form->{partsgroup_id})->load;
-    push @options, $locale->text('Group') . " : $partsgroup->{partsgroup}";
-  }
-  if ($form->{country}) {
-    push @options, $locale->text('Country') . " : $form->{country}";
-  }
-  if ($form->{employee_id}) {
-    my $employee = SL::DB::Employee->new(id => $form->{employee_id})->load;
-    push @options, $locale->text('Employee') . ' : ' . $employee->name;
-  }
-  if ($form->{salesman_id}) {
-    my $salesman = SL::DB::Employee->new(id => $form->{salesman_id})->load;
-    push @options, $locale->text('Salesman') . ' : ' . $salesman->name;
-  }
-  if ($form->{business_id}) {
-    my $business = SL::DB::Business->new(id => $form->{business_id})->load;
-    push @options, $locale->text('Customer type') . ' : ' . $business->description;
-  }
-  if ($form->{ordnumber}) {
-    push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
-  }
-  if ($form->{notes}) {
-    push @options, $locale->text('Notes') . " : $form->{notes}";
-  }
-  if ($form->{transaction_description}) {
-    push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
-  }
-  if ($form->{transdatefrom}) {
-    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
-  }
-  if ($form->{transdateto}) {
-    push @options, $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{transdateto}, 1);
-  }
+  push @options, $locale->text('Description')             . " : $form->{description}"                                                       if $form->{description};
+  push @options, $locale->text('Customer')                . " : $form->{customername}"                                                      if $form->{customer};
+  push @options, $locale->text('Customer Number')         . " : $form->{customernumber}"                                                    if $form->{customernumber};
+  # TODO: es wird nur id übergeben
+  push @options, $locale->text('Department')              . " : " . (split /--/, $form->{department})[0]                                    if $form->{department};
+  push @options, $locale->text('Invoice Number')          . " : $form->{invnumber}"                                                         if $form->{invnumber};
+  push @options, $locale->text('Invoice Date')            . " : $form->{invdate}"                                                           if $form->{invdate};
+  push @options, $locale->text('Part Number')             . " : $form->{partnumber}"                                                        if $form->{partnumber};
+  push @options, $locale->text('Group')                   . " : " . SL::DB::PartsGroup->new(id => $form->{partsgroup_id})->load->partsgroup if $form->{partsgroup_id};
+  push @options, $locale->text('Country')                 . " : $form->{country}"                                                           if $form->{country};
+  push @options, $locale->text('Employee')                . ' : ' . SL::DB::Employee->new(id => $form->{employee_id})->load->name           if $form->{employee_id};
+  push @options, $locale->text('Salesman')                . ' : ' . SL::DB::Employee->new(id => $form->{salesman_id})->load->name           if $form->{salesman_id};
+  push @options, $locale->text('Customer type')           . ' : ' . SL::DB::Business->new(id => $form->{business_id})->load->description    if $form->{business_id};
+  push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                                                         if $form->{ordnumber};
+  push @options, $locale->text('Notes')                   . " : $form->{notes}"                                                             if $form->{notes};
+  push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"                                           if $form->{transaction_description};
+  push @options, $locale->text('From')                    . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)                      if $form->{transdatefrom};
+  push @options, $locale->text('Bis')                     . " " . $locale->date(\%myconfig, $form->{transdateto}, 1)                        if $form->{transdateto};
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
@@ -318,7 +277,7 @@ sub invoice_transactions {
   # Durchschnitt von marge_percent
   my @total_columns = qw(sellprice_total lastcost_total marge_total marge_percent );
 
-  my %totals    = map { $_ => 0 } @total_columns;
+  my %totals     = map { $_ => 0 } @total_columns;
   my %subtotals1 = map { $_ => 0 } @subtotal_columns;
   my %subtotals2 = map { $_ => 0 } @subtotal_columns;
 
@@ -352,18 +311,12 @@ sub invoice_transactions {
 
     # Anfangshauptüberschrift
     if ( $form->{l_headers_mainsort} eq "Y" && ( $idx == 0 or $ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx - 1]->{ $form->{'mainsort'} } )) {
-      my $headerrow;
-
-      # use $emptyname for mainsort header if mainsort is empty
-      if ( $ar->{$form->{'mainsort'}} ) {
-        $headerrow->{description}->{data} = $ar->{$form->{'mainsort'}};
-      } else {
-        $headerrow->{description}->{data} = $locale->text('empty');
+      my $headerrow = {
+        # use $emptyname for mainsort header if mainsort is empty
+        data  => $ar->{$form->{'mainsort'}} || $locale->text('empty'),
+        class => "listmainsortheader",
       };
-
-      $headerrow->{description}->{class} = "listmainsortheader";
-      my $headerrow_set = [ $headerrow ];
-      $report->add_data($headerrow_set);
+      $report->add_data([ { description => $headerrow } ]);
 
       # add empty row after main header
 #      my $emptyheaderrow->{description}->{data} = "";
@@ -373,22 +326,19 @@ sub invoice_transactions {
     };
 
     # subsort überschriften
-    if ( $idx == 0
-      or $ar->{ $form->{'subsort'} }  ne $form->{AR}->[$idx - 1]->{ $form->{'subsort'} }
-      or $ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx - 1]->{ $form->{'mainsort'} }
+    # special case: subsort headers only makes (aesthetical) sense if we show individual parts
+    if ((   $idx == 0
+         or $ar->{ $form->{'subsort'} }  ne $form->{AR}->[$idx - 1]->{ $form->{'subsort'} }
+         or $ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx - 1]->{ $form->{'mainsort'} })
+        && ($form->{l_headers_subsort} eq "Y")
+        && $form->{l_parts}
     ) {
-      my $headerrow;
-
-      # if subsort name is defined, use that name in header, otherwise use $emptyname
-      if ( $ar->{$form->{'subsort'}} ) {
-        $headerrow->{description}->{data} = $ar->{$form->{'subsort'}};
-      } else {
-        $headerrow->{description}->{data} = $locale->text('empty');
+      my $headerrow = {
+        # if subsort name is defined, use that name in header, otherwise use $emptyname
+        data  => $ar->{$form->{'subsort'}} || $locale->text('empty'),
+        class => "listsubsortheader",
       };
-      $headerrow->{description}->{class} = "listsubsortheader";
-      my $headerrow_set = [ $headerrow ];
-      # special case: subsort headers only makes (aesthetical) sense if we show individual parts
-      $report->add_data($headerrow_set) if $form->{l_headers_subsort} eq "Y" and $form->{l_parts};
+      $report->add_data([ { description => $headerrow } ]);
     };
 
     map { $subtotals1{$_} += $ar->{$_};
@@ -401,7 +351,7 @@ sub invoice_transactions {
       # calculate averages for subtotals1 and subtotals2
       # credited positions reduce both total and qty and thus don't influence average prices
       $subtotals1{sellprice} = $subtotals1{sellprice_total} / $subtotals1{qty};
-      $subtotals1{lastcost} = $subtotals1{lastcost_total} / $subtotals1{qty};
+      $subtotals1{lastcost}  = $subtotals1{lastcost_total}  / $subtotals1{qty};
     } else {
       # qty is zero, so we have a special case where each position in subtotal
       # group has a corresponding credit note so that the total qty is zero in
@@ -409,15 +359,15 @@ sub invoice_transactions {
       # rather than leaving the last value in sellprice/lastcost
 
       $subtotals1{sellprice} = 0;
-      $subtotals1{lastcost} = 0;
+      $subtotals1{lastcost}  = 0;
     };
 
     if ( $subtotals2{qty} != 0 ) {
       $subtotals2{sellprice} = $subtotals2{sellprice_total} / $subtotals2{qty};
-      $subtotals2{lastcost} = $subtotals2{lastcost_total} / $subtotals2{qty};
+      $subtotals2{lastcost}  = $subtotals2{lastcost_total}  / $subtotals2{qty};
     } else {
       $subtotals2{sellprice} = 0;
-      $subtotals2{lastcost} = 0;
+      $subtotals2{lastcost}  = 0;
     };
 
     # Ertrag prozentual in den Summen: (summe VK - summe Ertrag) / summe VK
