@@ -89,7 +89,6 @@ sub do_import {
   if ($c->errors) {
     $job->set_data(
       errors   => $c->errors,
-      progress => -1,
     )->save;
   } else {
 

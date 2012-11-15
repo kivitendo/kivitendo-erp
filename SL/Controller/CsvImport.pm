@@ -93,10 +93,10 @@ sub action_result {
     flash('error', $::locale->text('There was an error parsing the csv file: #1 in line #2.', $first_error->[2], $first_error->[0]));
   }
 
-  if (!$data->{progress}{finished}) {
-    $self->render('csv_import/_deferred_results', { no_layout => 1 });
-  } else {
+  if ($data->{progress}{finished} || $data->{errors}) {
     $self->action_report(report_id => $data->{report_id}, no_layout => 1);
+  } else {
+    $self->render('csv_import/_deferred_results', { no_layout => 1 });
   }
 }
 
