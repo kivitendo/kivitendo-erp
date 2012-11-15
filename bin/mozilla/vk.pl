@@ -103,7 +103,7 @@ sub invoice_transactions {
   my ($callback, $href, @columns);
 
   # can't currently be configured from report, empty line between main sortings
-  my $addemptylines = '1';
+  my $addemptylines = 1;
 
   if ( $form->{customer} =~ /--/ ) {
     # Felddaten kommen aus Dropdownbox
@@ -265,6 +265,15 @@ sub invoice_transactions {
       'data'           => $form->{AR}
   );
 
+  my $num_visible_columns = scalar $report->get_visible_columns;
+  my %empty_row           = (
+    description           => {
+      data                => '',
+      class               => 'listrowempty',
+      colspan             => $num_visible_columns,
+    },
+  );
+
   # add sort and escape callback, this one we use for the add sub
   $form->{callback} = $href .= "&sort=$form->{mainsort}";
 
@@ -313,8 +322,9 @@ sub invoice_transactions {
     if ( $form->{l_headers_mainsort} eq "Y" && ( $idx == 0 or $ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx - 1]->{ $form->{'mainsort'} } )) {
       my $headerrow = {
         # use $emptyname for mainsort header if mainsort is empty
-        data  => $ar->{$form->{'mainsort'}} || $locale->text('empty'),
-        class => "listmainsortheader",
+        data    => $ar->{$form->{'mainsort'}} || $locale->text('empty'),
+        class   => "listmainsortheader",
+        colspan => $num_visible_columns,
       };
       $report->add_data([ { description => $headerrow } ]);
 
@@ -335,8 +345,9 @@ sub invoice_transactions {
     ) {
       my $headerrow = {
         # if subsort name is defined, use that name in header, otherwise use $emptyname
-        data  => $ar->{$form->{'subsort'}} || $locale->text('empty'),
-        class => "listsubsortheader",
+        data    => $ar->{$form->{'subsort'}} || $locale->text('empty'),
+        class   => "listsubsortheader",
+        colspan => $num_visible_columns,
       };
       $report->add_data([ { description => $headerrow } ]);
     };
@@ -382,52 +393,43 @@ sub invoice_transactions {
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 3) } qw(weight);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(lastcost sellprice sellprice_total lastcost_total);
 
-    my $row = { };
-
-    foreach my $column (@columns) {
-      $row->{$column} = {
-        'data'  => $ar->{$column},
-        'align' => $column_alignment{$column},
-      };
-    }
-
-   $row->{description}->{class} = 'listsortdescription';
-
-    $row->{invnumber}->{link} = build_std_url("script=is.pl", 'action=edit')
-      . "&id=" . E($ar->{id}) . "&callback=${callback}";
-
     # Einzelzeilen nur zeigen wenn l_parts gesetzt ist, nützlich, wenn man nur
     # Subtotals und Totals sehen möchte
-    my $row_set = $form->{l_parts} ? [ $row ] : [ ];
+    if ($form->{l_parts}) {
+      my %row = (
+        map { ($_ => { data => $ar->{$_}, align => $column_alignment{$_} }) } @columns
+      );
+
+      $row{invnumber}->{link} = build_std_url("script=is.pl", 'action=edit') . "&id=" . E($ar->{id}) . "&callback=${callback}";
+
+      $report->add_data(\%row);
+    }
 
     # hier wird bei l_subtotal nicht differenziert zwischen mainsort und subsort
     # macht man l_subtotal_mainsort aus wird l_subtotal_subsort auch nicht ausgeführt
-    if (($form->{l_subtotal_mainsort} eq 'Y')
+    if (   ($form->{l_subtotal_mainsort} eq 'Y')
+        && ($form->{l_subtotal_subsort}  eq 'Y')
         && (($idx == (scalar @{ $form->{AR} } - 1))   # last element always has a subtotal
           || ($ar->{ $form->{'subsort'} } ne $form->{AR}->[$idx + 1]->{ $form->{'subsort'}   })
           || ($ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx + 1]->{ $form->{'mainsort'} })
           )) {   # if value that is sorted by changes, print subtotal
 
-      if ($form->{l_subtotal_subsort} eq 'Y') {
-        push @{ $row_set }, create_subtotal_row_invoice(\%subtotals2, \@columns, \%column_alignment, \@subtotal_columns, 'listsubsortsubtotal', $ar->{ $form->{'subsort'} }) ;
-        push @{ $row_set }, insert_empty_row() if $form->{l_parts} and $addemptylines;
-      };
+      $report->add_data(create_subtotal_row_invoice(\%subtotals2, \@columns, \%column_alignment, \@subtotal_columns, $form->{l_parts} ? 'listsubtotal' : undef, $ar->{ $form->{'subsort'} }));
+      $report->add_data({ %empty_row }) if $form->{l_parts} and $addemptylines;
     }
 
     # if last mainsort is reached or mainsort has changed, add mainsort subtotal and empty row
-    if (($form->{l_subtotal_mainsort} eq 'Y')
+    if (   ($form->{l_subtotal_mainsort} eq 'Y')
+        && ($form->{l_subtotal_mainsort} eq 'Y')
+        && ($form->{mainsort}            ne $form->{subsort})
         && (($idx == (scalar @{ $form->{AR} } - 1))   # last element always has a subtotal
             || ($ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx + 1]->{ $form->{'mainsort'} })
             )) {   # if value that is sorted by changes, print subtotal
-      if ($form->{l_subtotal_mainsort} eq 'Y' and $form->{mainsort} ne $form->{subsort} ) {
         # subtotal is overriden if mainsort and subsort are equal, don't print
         # subtotal line even if it is selected
-        push @{ $row_set }, create_subtotal_row_invoice(\%subtotals1, \@columns, \%column_alignment, \@subtotal_columns, 'listmainsortsubtotal', $ar->{$form->{mainsort}});
-        push @{ $row_set }, insert_empty_row() if $addemptylines; # insert empty row after mainsort
-      };
+      $report->add_data(create_subtotal_row_invoice(\%subtotals1, \@columns, \%column_alignment, \@subtotal_columns, 'listsubtotal', $ar->{$form->{mainsort}}));
+      $report->add_data({ %empty_row }) if $addemptylines; # insert empty row after mainsort
     }
-
-    $report->add_data($row_set);
 
     $idx++;
   }
@@ -440,16 +442,6 @@ sub invoice_transactions {
   $main::lxdebug->leave_sub();
 }
 
-
-sub insert_empty_row {
-    my $dummyrow;
-    $dummyrow->{description}->{data} = "";
-    my $dummyrowset = [ $dummyrow ];
-    return $dummyrow;
-};
-
-
-
 sub create_subtotal_row_invoice {
   $main::lxdebug->enter_sub();
 
@@ -459,7 +451,7 @@ sub create_subtotal_row_invoice {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  my $row = { map { $_ => { 'data' => '', 'class' => $class, 'align' => $column_alignment->{$_}, } } @{ $columns } };
+  my $row = { map { $_ => { data => '', class => $class, align => $column_alignment->{$_}, } } @{ $columns } };
 
   # set name as "empty" if no value is given, except if we are dealing with the
   # absolute total, then just write "Total sum"
