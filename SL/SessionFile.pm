@@ -13,6 +13,7 @@ use POSIX qw(strftime);
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(fh file_name) ],
+ 'scalar --get_set_init' => [ qw(session_id) ],
 );
 
 sub new {
@@ -64,16 +65,20 @@ sub displayable_mtime {
 }
 
 sub get_path {
-  die "No session ID" unless $::auth->get_session_id;
-  return "users/session_files/" . $::auth->get_session_id;
+  die "No session ID" unless $_[0]->session_id;
+  return "users/session_files/" . $_[0]->session_id;
 }
 
 sub prepare_path {
-  my $path = get_path();
+  my $path = $_[0]->get_path;
   return $path if -d $path;
   mkpath $path;
   die "Creating ${path} failed" unless -d $path;
   return $path;
+}
+
+sub init_session_id {
+  $::auth->get_session_id;
 }
 
 sub destroy_session {
