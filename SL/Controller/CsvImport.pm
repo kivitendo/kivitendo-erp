@@ -341,10 +341,6 @@ sub save_report {
   my $sth = $dbh->prepare($query);
   my $sth2 = $dbh->prepare($query2);
 
-#  $::lxdebug->dump(0,  "self", $self->info_headers);
-#  $::lxdebug->dump(0,  "self", $self->headers);
-#  $::lxdebug->dump(0,  "self", $self->raw_data_headers);
-
   # save headers
   my @headers = (
     grep({ $self->info_headers->{used}->{$_}     } @{ $self->info_headers->{headers} }),
