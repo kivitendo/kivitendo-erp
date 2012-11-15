@@ -342,14 +342,29 @@ sub save_report {
   my $sth2 = $dbh->prepare($query2);
 
   # save headers
-  my @headers = (
-    grep({ $self->info_headers->{used}->{$_}     } @{ $self->info_headers->{headers} }),
-    grep({ $self->headers->{used}->{$_}          } @{ $self->headers->{headers} }),
-    grep({ $self->raw_data_headers->{used}->{$_} } @{ $self->raw_data_headers->{headers} }),
+  my (@headers, @info_methods, @raw_methods, @methods);
+
+  for my $i (0 .. $#{ $self->info_headers->{headers} }) {
+    next unless         $self->info_headers->{used}->{ $self->info_headers->{headers}->[$i] };
+    push @headers,      $self->info_headers->{headers}->[$i];
+    push @info_methods, $self->info_headers->{methods}->[$i];
+  }
+  for my $i (0 .. $#{ $self->headers->{headers} }) {
+    next unless         $self->headers->{used}->{ $self->headers->{headers}->[$i] };
+    push @headers,      $self->headers->{headers}->[$i];
+    push @methods,      $self->headers->{methods}->[$i];
+  }
+  for my $i (0 .. $#{ $self->raw_data_headers->{headers} }) {
+    next unless         $self->raw_data_headers->{used}->{ $self->raw_data_headers->{headers}->[$i] };
+    push @headers,      $self->raw_data_headers->{headers}->[$i];
+    push @raw_methods,  $self->raw_data_headers->{headers}->[$i];
+  }
+
+  $::lxdebug->dump(0,  "methods",
+    [ \@info_methods,
+     \@methods,
+     \@raw_methods  ]
   );
-  my @info_methods = grep { $self->info_headers->{used}->{$_}     } @{ $self->info_headers->{headers} };
-  my @methods      = grep { $self->headers->{used}->{$_}          } @{ $self->headers->{methods} };
-  my @raw_methods  = grep { $self->raw_data_headers->{used}->{$_} } @{ $self->raw_data_headers->{headers} };
 
   $sth->execute($report->id, $_, 0, $headers[$_]) for 0 .. $#headers;
 
