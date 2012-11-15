@@ -5,6 +5,7 @@ use strict;
 use parent qw(SL::BackgroundJob::Base);
 
 use YAML ();
+use SL::Controller::CsvImport;
 use SL::DB::CsvImportProfile;
 use SL::SessionFile::Random;
 
@@ -15,12 +16,13 @@ sub create_job {
   $package          =~ s/SL::BackgroundJob:://;
 
   my $profile = delete $params{profile} || SL::DB::CsvImportProfile->new;
-  my $result  = delete $params{result}  || SL::SessionFile::Random->new;
+  my $new_profile = $profile->clone_and_reset_deep;
+  $new_profile->save;
 
   my %data = (
-    profile => { $profile->flatten },
-    result  => $result->file_name,
     %params,
+    profile_id => $new_profile->id,
+    session_id => $::auth->get_session_id,
   );
 
   my $job = SL::DB::BackgroundJob->new(
@@ -34,14 +36,11 @@ sub create_job {
 }
 
 sub profile {
-  my ($self, $db_obj) = @_;
+  my ($self) = @_;
 
   if (!$self->{profile}) {
-    $self->{profile} = SL::DB::CsvImportProfile->new;
-    my $data = YAML::Load($db_obj->data);
-    for (keys %$data) {
-      $self->{profile}->set($_ => $data->{$_});
-    }
+    my $data = YAML::Load($self->{db_obj}->data);
+    $self->{profile} = SL::DB::Manager::CsvImportProfile->find_by(id => $data->{profile_id});
   }
 
   return $self->{profile};
@@ -60,10 +59,25 @@ sub do_import {
   my ($self) = @_;
 
   my $c = SL::Controller::CsvImport->new;
-  $c->profile($self->{profile});
-  $c->test_and_import(test => $self->);
 
+  $c->profile($self->profile);
+  $c->type($self->{db_obj}->data_as_hash->{type});
+  $c->add_progress_tracker($self);
 
+  $c->test_and_import(test => 1, session_id => $self->{db_obj}->data_as_hash->{session_id});
+
+  my $report_id = $c->save_report;
+  $self->{db_obj}->set_data(report_id => $report_id);
+  $self->{db_obj}->save;
+
+  $c->track_progress(100);
+}
+
+sub track_progress {
+  my ($self, $progress) = @_;
+
+  $self->{db_obj}->set_data(progress => $progress);
+  $self->{db_obj}->save;
 }
 
 sub cleanup {

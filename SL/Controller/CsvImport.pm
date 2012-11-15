@@ -24,7 +24,11 @@ use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
                                  import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns file) ],
- 'scalar --get_set_init' => [ qw(worker) ]
+ 'scalar --get_set_init' => [ qw(worker) ],
+ 'array'                 => [
+   progress_tracker     => { },
+   add_progress_tracker => {  interface => 'add', hash_key => 'progress_tracker' },
+ ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -81,18 +85,14 @@ sub action_result {
 
   my $data = $self->{background_job}->data_as_hash;
 
-  my $profile = SL::DB::CsvImportProfile->new(type => $data->{type});
-  my $profile_data = $data->{profile};
-  for (keys %$profile_data) {
-    $profile->set($_ => $profile_data->{$_});
-  }
+  my $profile = SL::DB::Manager::CsvImportProfile->find_by(id => $data->{profile_id});
 
   $self->profile($profile);
 
   if ($data->{progress} < 100) {
     $self->render('csv_import/_deferred_results', { no_layout => 1 });
   } else {
-   die 'what? done? panic, no idea what to do';
+    $self->action_report(report_id => $data->{report_id}, no_layout => 1);
   }
 }
 
@@ -221,19 +221,12 @@ sub test_and_import_deferred {
 sub test_and_import {
   my ($self, %params) = @_;
 
-  $self->profile_from_form;
-
-  if ($::form->{file}) {
-    my $file = SL::SessionFile->new($self->csv_file_name, mode => '>');
-    $file->fh->print($::form->{file});
-    $file->fh->close;
-  }
-
-  my $file = SL::SessionFile->new($self->csv_file_name, mode => '<', encoding => $self->profile->get('charset'));
-  if (!$file->fh) {
-    flash('error', $::locale->text('No file has been uploaded yet.'));
-    return $self->action_new;
-  }
+  my $file = SL::SessionFile->new(
+    $self->csv_file_name,
+    mode       => '<',
+    encoding   => $self->profile->get('charset'),
+    session_id => $params{session_id}
+  );
 
   $self->file($file);
 
@@ -244,12 +237,10 @@ sub test_and_import {
   $self->num_imported(0);
   $worker->save_objects if !$params{test};
 
-  $self->save_report;
-
   $self->num_importable(scalar grep { !$_ } map { scalar @{ $_->{errors} } } @{ $self->data || [] });
   $self->import_status($params{test} ? 'tested' : 'imported');
 
-  flash('info', $::locale->text('Objects have been imported.')) if !$params{test};
+#  flash('info', $::locale->text('Objects have been imported.')) if !$params{test};
 }
 
 sub load_default_profile {
@@ -399,6 +390,14 @@ sub setup_help {
   my ($self) = @_;
 
   $self->worker->setup_displayable_columns;
+}
+
+sub track_progress {
+  my ($self, $progress) = @_;
+
+  for my $tracker ($self->progress_tracker) {
+    $tracker->track_progress($progress);
+  }
 }
 
 

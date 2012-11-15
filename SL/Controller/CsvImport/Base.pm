@@ -22,6 +22,8 @@ use Rose::Object::MakeMethods::Generic
 sub run {
   my ($self) = @_;
 
+  $self->controller->track_progress(0);
+
   my $profile = $self->profile;
   $self->csv(SL::Helper::Csv->new(file                   => $self->file->file_name,
                                   encoding               => $self->controller->profile->get('charset'),
@@ -33,10 +35,14 @@ sub run {
                                   map { ( $_ => $self->controller->profile->get($_) ) } qw(sep_char escape_char quote_char),
                                  ));
 
+  $self->controller->track_progress(1);
+
   my $old_numberformat      = $::myconfig{numberformat};
   $::myconfig{numberformat} = $self->controller->profile->get('numberformat');
 
   $self->csv->parse;
+
+  $self->controller->track_progress(3);
 
   $self->controller->errors([ $self->csv->errors ]) if $self->csv->errors;
 
@@ -49,9 +55,21 @@ sub run {
   $self->controller->raw_data_headers({ used => { }, headers => [ ] });
   $self->controller->info_headers({ used => { }, headers => [ ] });
 
+  $::lxdebug->dump(0,  "self", $self->controller->info_headers);
+  $::lxdebug->dump(0,  "self", $self->controller->headers);
+  $::lxdebug->dump(0,  "self", $self->controller->raw_data_headers);
+
   my @objects  = $self->csv->get_objects;
+
+  $self->controller->track_progress(4);
+
   my @raw_data = @{ $self->csv->get_data };
+
+  $self->controller->track_progress(4.5);
+
   $self->controller->data([ pairwise { { object => $a, raw_data => $b, errors => [], information => [], info_data => {} } } @objects, @raw_data ]);
+
+  $self->controller->track_progress(5);
 
   $self->check_objects;
   if ( $self->controller->profile->get('duplicates', 'no_check') ne 'no_check' ) {
@@ -59,6 +77,8 @@ sub run {
     $self->check_duplicates();
   }
   $self->fix_field_lengths;
+
+  $self->controller->track_progress(99);
 
   $::myconfig{numberformat} = $old_numberformat;
 }
@@ -364,7 +384,14 @@ sub save_objects {
 
   my $data = $params{data} || $self->controller->data;
 
-  foreach my $entry (@{ $data }) {
+  return unless $data->[0];
+  return unless $data->[0]{object};
+
+  my $dbh = $data->[0]{object}->db;
+
+  $dbh->begin_work;
+  foreach my $entry_index (0 .. $#$data) {
+    my $entry = $data->[$entry_index];
     next if @{ $entry->{errors} };
 
     my $object = $entry->{object_to_save} || $entry->{object};
@@ -374,7 +401,14 @@ sub save_objects {
     } else {
       $self->controller->num_imported($self->controller->num_imported + 1);
     }
+  } continue {
+    if ($entry_index % 100 == 0) {
+      $dbh->commit;
+      $self->controller->track_progress(45 + $entry_index/scalar(@$data) * 50); # scale from 45..95%;
+      $dbh->begin_work;
+    }
   }
+  $dbh->commit;
 }
 
 sub field_lengths {

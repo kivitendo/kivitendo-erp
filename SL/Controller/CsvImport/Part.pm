@@ -105,7 +105,11 @@ sub check_objects {
 
   $self->makemodel_columns({});
 
+  my $i;
+  my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
+    $self->controller->track_progress(8 + ($i/$num_data * 40)) if $i % 100 == 0; # scale from 5..45%
+
     $self->check_buchungsgruppe($entry);
     $self->check_type($entry);
     $self->check_unit($entry);
@@ -120,6 +124,8 @@ sub check_objects {
     $self->handle_cvars($entry);
     $self->handle_makemodel($entry);
     $self->set_various_fields($entry);
+  } continue {
+    $i++;
   }
 
   $self->add_columns(qw(type)) if $self->settings->{parts_type} eq 'mixed';
