@@ -116,6 +116,15 @@ sub action_download_sample {
   $self->send_file($file->file_name, name => $file_name);
 }
 
+sub action_report {
+  my ($self, %params) = @_;
+
+  $self->{report} = SL::DB::Manager::CsvImportReport->find_by(id => $params{report_id} || $::form->{id});
+
+  $self->render('csv_import/report', { no_layout => $params{no_layout} });
+}
+
+
 #
 # filters
 #
@@ -364,14 +373,8 @@ sub save_report {
   }
 
   $dbh->commit;
-}
 
-sub action_report {
-  my ($self) = @_;
-
-  $self->{report} = SL::DB::Manager::CsvImportReport->find_by(id => $::form->{id});
-
-  $self->render('csv_import/report');
+  return $report->id;
 }
 
 sub csv_file_name {
