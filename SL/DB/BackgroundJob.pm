@@ -83,6 +83,8 @@ sub set_data {
   my $data = YAML::Load($self->data);
   $data->{$_} = $data{$_} for keys %data;
   $self->data(YAML::Dump($data));
+
+  $self;
 }
 
 sub validate {

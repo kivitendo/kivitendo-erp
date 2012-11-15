@@ -59,23 +59,49 @@ sub do_import {
   my ($self) = @_;
 
   my $c = SL::Controller::CsvImport->new;
+  my $job = $self->{db_obj};
 
   $c->profile($self->profile);
-  $c->type($self->{db_obj}->data_as_hash->{type});
+  $c->type($job->data_as_hash->{type});
+
+  my $test = $job->data_as_hash->{test};
+
+  $self->track_progress(
+    progress => 0,
+    plan => {
+      'parsing csv'     => 1,
+      'building data'   => 2,
+    ( 'saving data'     => 3, )x!!$test,
+      'building report' => ($test ? 3 : 4),
+    },
+    num_phases => ($test ? 3 : 4),
+  );
   $c->add_progress_tracker($self);
 
-  $c->test_and_import(test => 1, session_id => $self->{db_obj}->data_as_hash->{session_id});
 
-  my $report_id = $c->save_report;
-  $self->{db_obj}->set_data(report_id => $report_id);
-  $self->{db_obj}->save;
+  $c->test_and_import(test => 1, session_id => $job->data_as_hash->{session_id});
 
-  $c->track_progress(100);
+  if ($c->errors) {
+    $job->set_data(
+      errors   => $c->errors,
+      progress => -1,
+    )->save;
+  } else {
+
+    my $report_id = $c->save_report;
+    $job->set_data(report_id => $report_id)->save;
+
+    $c->track_progress(finished => 1);
+  }
 }
 
 sub track_progress {
-  my ($self, $progress) = @_;
+  my ($self, %params) = @_;
 
+  my $data = $self->{db_obj}->data_as_hash;
+  my $progress = $data->{progress} || {};
+
+  $progress->{$_} = $params{$_} for keys %params;
   $self->{db_obj}->set_data(progress => $progress);
   $self->{db_obj}->save;
 }

@@ -103,12 +103,14 @@ sub check_objects {
 
   return unless @{ $self->controller->data };
 
+  $self->controller->track_progress(phase => 'building data', progress => 0);
+
   $self->makemodel_columns({});
 
   my $i;
   my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
-    $self->controller->track_progress(8 + ($i/$num_data * 40)) if $i % 100 == 0; # scale from 5..45%
+    $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     $self->check_buchungsgruppe($entry);
     $self->check_type($entry);

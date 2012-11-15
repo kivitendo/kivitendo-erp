@@ -89,7 +89,11 @@ sub action_result {
 
   $self->profile($profile);
 
-  if ($data->{progress} < 100) {
+  if ($data->{errors} and my $first_error =  $data->{errors}->[0]) {
+    flash('error', $::locale->text('There was an error parsing the csv file: #1 in line #2.', $first_error->[2], $first_error->[0]));
+  }
+
+  if (!$data->{progress}{finished}) {
     $self->render('csv_import/_deferred_results', { no_layout => 1 });
   } else {
     $self->action_report(report_id => $data->{report_id}, no_layout => 1);
@@ -206,6 +210,7 @@ sub test_and_import_deferred {
     file    => $self->csv_file_name,
     profile => $self->profile,
     type    => $self->profile->type,
+    test    => $params{test},
   )->save;
 
   SL::System::TaskServer->start_if_not_running;
@@ -233,6 +238,8 @@ sub test_and_import {
   my $worker = $self->worker();
 
   $worker->run;
+
+  return if $self->errors;
 
   $self->num_imported(0);
   $worker->save_objects if !$params{test};
@@ -313,6 +320,8 @@ sub char_map {
 sub save_report {
   my ($self, $report_id) = @_;
 
+  $self->track_progress(phase => 'building report', progress => 0);
+
   my $clone_profile = $self->profile->clone_and_reset_deep;
   $clone_profile->save; # weird bug. if this isn't saved before adding it to the report, it will default back to the last profile.
 
@@ -349,6 +358,7 @@ sub save_report {
   my $o2 = $o1 + @methods;
 
   for my $row (0 .. $#{ $self->data }) {
+    $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 100 == 0;
     my $data_row = $self->{data}[$row];
 
     $sth->execute($report->id,       $_, $row + 1, $data_row->{info_data}{ $info_methods[$_] }) for 0 .. $#info_methods;
@@ -393,10 +403,10 @@ sub setup_help {
 }
 
 sub track_progress {
-  my ($self, $progress) = @_;
+  my ($self, %params) = @_;
 
   for my $tracker ($self->progress_tracker) {
-    $tracker->track_progress($progress);
+    $tracker->track_progress(%params);
   }
 }
 

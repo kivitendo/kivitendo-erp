@@ -1,5 +1,12 @@
+[%- USE L %]
+[%- USE T8 %]
+[%- USE HTML %]
+
+<h2>[% 'Import Status' | $T8 %]</h2>
+
+[% PROCESS 'common/flash.html' %]
+<div id='progress_description'></div>
 <div id='progressbar'></div>
-[% IF progress < 100 %]
 <script type='text/javascript'>
   function reload_results () {
     $.ajax({
@@ -13,9 +20,11 @@
       error: function(e) { alert(e) },
     });
   }
+[%- UNLESS SELF.background_job.data_as_hash.progress < 0 %]
   $(document).ready(function(){
-    $('#progressbar').progressbar({ value: [% SELF.background_job.data_as_hash.progress * 1 %] });
+    $('#progress_description').html('[% SELF.background_job.data_as_hash.progress.plan.${SELF.background_job.data_as_hash.progress.phase} %] / [% SELF.background_job.data_as_hash.progress.num_phases %] [% SELF.background_job.data_as_hash.progress.phase | $T8 | html %]');
+    $('#progressbar').progressbar({ value: [% SELF.background_job.data_as_hash.progress.progress * 1 %] });
     window.setTimeout(reload_results, 100);
   })
+[%- END %]
 </script>
-[% END %]
