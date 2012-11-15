@@ -11,7 +11,7 @@ our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params set_report_ge
 
 use constant PRIV => '__sortedhelperpriv';
 
-my $controller_sort_spec;
+my %controller_sort_spec;
 
 sub make_sorted {
   my ($class, %specs) = @_;
@@ -35,7 +35,7 @@ sub make_sorted {
   $specs{ONLY}        ||= [];
   $specs{ONLY}          = [ $specs{ONLY} ] if !ref $specs{ONLY};
 
-  $controller_sort_spec = \%specs;
+  $controller_sort_spec{$class} = \%specs;
 
   my %hook_params = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
   $class->run_before('_save_current_sort_params', %hook_params);
@@ -53,7 +53,7 @@ sub make_sorted {
 sub get_sort_spec {
   my ($class_or_self) = @_;
 
-  return $controller_sort_spec;
+  return $controller_sort_spec{ref($class_or_self) || $class_or_self};
 }
 
 sub get_current_sort_params {
