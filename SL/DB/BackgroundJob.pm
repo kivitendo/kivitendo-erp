@@ -5,10 +5,10 @@ use strict;
 use DateTime::Event::Cron;
 use English qw(-no_match_vars);
 
-use SL::DB::MetaSetup::BackgroundJob;
-use SL::DB::Manager::BackgroundJob;
+require SL::DB::MetaSetup::BackgroundJob;
+require SL::DB::Manager::BackgroundJob;
 
-use SL::DB::BackgroundJobHistory;
+require SL::DB::BackgroundJobHistory;
 
 use SL::System::Process;
 
@@ -75,6 +75,14 @@ sub data_as_hash {
   return $self->data               if ref($self->{data}) eq 'HASH';
   return YAML::Load($self->{data}) if !ref($self->{data});
   return {};
+}
+
+sub set_data {
+  my ($self, %data) = @_;
+
+  my $data = YAML::Load($self->data);
+  $data->{$_} = $data{$_} for keys %data;
+  $self->data(YAML::Dump($data));
 }
 
 sub validate {
