@@ -66,6 +66,11 @@ sub do_import {
 
   my $test = $job->data_as_hash->{test};
 
+
+  # $::locale->text('parsing csv')
+  # $::locale->text('building data')
+  # $::locale->text('saving data')
+  # $::locale->text('building report')
   $self->track_progress(
     progress => 0,
     plan => {
