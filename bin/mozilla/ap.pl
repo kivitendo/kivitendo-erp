@@ -156,24 +156,19 @@ sub create_links {
   # currencies
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 
-  map { $form->{selectcurrency} .= "<option>$_\n" } $form->get_all_currencies(\%myconfig);
+  map { my $quoted = H($_); $form->{selectcurrency} .= "<option value=\"${quoted}\">${quoted}\n" } $form->get_all_currencies(\%myconfig);
 
   # vendors
   if (@{ $form->{all_vendor} || [] }) {
     $form->{vendor} = qq|$form->{vendor}--$form->{vendor_id}|;
-    map { $form->{selectvendor} .= "<option>$_->{name}--$_->{id}\n" }
+    map { my $quoted = H($_->{name} . "--" . $_->{id}); $form->{selectvendor} .= "<option value=\"${quoted}\">${quoted}\n" }
       (@{ $form->{all_vendor} });
   }
 
   # departments
   if (@{ $form->{all_departments} || [] }) {
-    $form->{selectdepartment} = "<option>\n";
     $form->{department}       = "$form->{department}--$form->{department_id}";
-
-    map {
-      $form->{selectdepartment} .=
-        "<option>$_->{description}--$_->{id}\n"
-    } (@{ $form->{all_departments} || [] });
+    $form->{selectdepartment} = "<option>\n" . join('', map { my $quoted = H("$_->{description}--$_->{id}"); "<option value=\"${quoted}\">${quoted}\n"} @{ $form->{all_departments} || [] });
   }
 
   $form->{employee} = "$form->{employee}--$form->{employee_id}";
@@ -230,9 +225,9 @@ sub form_header {
 
   # set option selected
   foreach my $item (qw(vendor currency department)) {
+    my $to_replace         =  H($form->{$item});
     $form->{"select$item"} =~ s/ selected//;
-    $form->{"select$item"} =~
-      s/option>\Q$form->{$item}\E/option selected>$form->{$item}/;
+    $form->{"select$item"} =~ s/>\Q${to_replace}\E/ selected>${to_replace}/;
   }
   my $readonly = ($form->{id}) ? "readonly" : "";
 
@@ -291,7 +286,7 @@ sub form_header {
               <tr>
                 <th align="right" nowrap>| . $locale->text('Department') . qq|</th>
                 <td colspan=3><select name=department>$form->{selectdepartment}</select>
-                <input type=hidden name=selectdepartment value="$form->{selectdepartment}">
+                <input type=hidden name=selectdepartment value="| . H($form->{selectdepartment}) . qq|">
                 </td>
               </tr>
 | if $form->{selectdepartment};
@@ -462,7 +457,7 @@ sub form_header {
               <tr>
                 <th align=right nowrap>| . $locale->text('Currency') . qq|</th>
                 <td><select name=currency>$form->{selectcurrency}</select></td>
-                <input type=hidden name=selectcurrency value="$form->{selectcurrency}">
+                <input type=hidden name=selectcurrency value="| . H($form->{selectcurrency}) . qq|">
                 <input type=hidden name=defaultcurrency value=$form->{defaultcurrency}>
                 <input type=hidden name=fxgain_accno value=$form->{fxgain_accno}>
                 <input type=hidden name=fxloss_accno value=$form->{fxloss_accno}>
