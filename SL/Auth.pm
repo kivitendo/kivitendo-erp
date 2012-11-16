@@ -713,6 +713,17 @@ sub destroy_session {
   $main::lxdebug->leave_sub();
 }
 
+sub active_session_ids {
+  my $self  = shift;
+  my $dbh   = $self->dbconnect;
+
+  my $query = qq|SELECT id FROM auth.session|;
+
+  my @ids   = selectall_array_query($::form, $dbh, $query);
+
+  return @ids;
+}
+
 sub expire_sessions {
   $main::lxdebug->enter_sub();
 

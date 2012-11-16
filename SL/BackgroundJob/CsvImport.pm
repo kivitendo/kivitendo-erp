@@ -51,8 +51,6 @@ sub run {
   $self->{db_obj} = shift;
 
   $self->do_import;
-
-  $self->cleanup;
 }
 
 sub do_import {
@@ -108,10 +106,6 @@ sub track_progress {
   $progress->{$_} = $params{$_} for keys %params;
   $self->{db_obj}->set_data(progress => $progress);
   $self->{db_obj}->save;
-}
-
-sub cleanup {
-
 }
 
 1;

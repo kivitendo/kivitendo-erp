@@ -7,6 +7,7 @@ use strict;
 use SL::DBUtils;
 
 use SL::DB::MetaSetup::CsvImportReport;
+use SL::DB::Manager::CsvImportReport;
 
 __PACKAGE__->meta->add_relationships(
   rows => {
@@ -21,7 +22,6 @@ __PACKAGE__->meta->add_relationships(
   },
 );
 
-__PACKAGE__->meta->make_manager_class;
 __PACKAGE__->meta->initialize;
 
 sub folded_rows {
