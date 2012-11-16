@@ -7,7 +7,7 @@ our @EXPORT = qw(make_paginated get_paginate_spec get_current_paginate_params _s
 
 use constant PRIV => '__paginatedhelper_priv';
 
-my $controller_paginate_spec;
+my %controller_paginate_spec;
 
 sub make_paginated {
   my ($class, %specs)       = @_;
@@ -20,7 +20,7 @@ sub make_paginated {
   $specs{ONLY}              = [ $specs{ONLY} ] if !ref $specs{ONLY};
   $specs{ONLY_MAP}          = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
 
-  $controller_paginate_spec = \%specs;
+  $controller_paginate_spec{$class} = \%specs;
 
   my %hook_params           = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
   $class->run_before('_save_current_paginate_params', %hook_params);
@@ -38,7 +38,7 @@ sub make_paginated {
 sub get_paginate_spec {
   my ($class_or_self) = @_;
 
-  return $controller_paginate_spec;
+  return $controller_paginate_spec{ref($class_or_self) || $class_or_self};
 }
 
 sub get_current_paginate_params {

@@ -62,12 +62,12 @@
         </tr>
         <tr>
           <th align=right>[% 'Reference' | $T8 %]</th>
-          <td>[% L.input_tag('reference', reference,  size=20, readonly=id) %]</td>
+          <td>[% L.input_tag('reference', reference,  size=20, readonly=readonly) %]</td>
           <td align=left>
             <table>
               <tr>
                 <th align=right width=50% nowrap>[% 'Date' | $T8 %]</th>
-                <td>[% L.date_tag('transdate', transdate, readonly=id) %]</td>
+                <td>[% L.date_tag('transdate', transdate, readonly=readonly) %]</td>
               </tr>
             </table>
           </td>
@@ -75,12 +75,12 @@
 [%- IF id %]
         <tr>
           <th align=right>[% 'Belegnummer' | $T8 %]</th>
-          <td>[% L.input_tag('id', id,  size=20, readonly=id) %]</td>
+          <td>[% L.input_tag('id', id,  size=20, readonly=readonly) %]</td>
           <td align=left>
           <table>
               <tr>
                 <th align=right width=50%>[% 'Buchungsdatum' | $T8 %]</th>
-                <td align=left>[% L.date_tag('gldate', gldate, readonly=id) %]</td>
+                <td align=left>[% L.date_tag('gldate', gldate, readonly=1) %]</td>
               </tr>
             </table>
           </td>
@@ -97,7 +97,7 @@
 
         <tr>
           <th align=right width=1%>[% 'Description' | $T8 %]</th>
-          <td width=1%>[% L.areainput_tag('description', description, cols=50, readonly=id) %]</td>
+          <td width=1%>[% L.areainput_tag('description', description, cols=50, readonly=readonly) %]</td>
           <td>
             <table>
               <tr>
@@ -111,7 +111,7 @@
             <table width=100%>
               <tr>
                 <th align=right width=50%>[% 'Mitarbeiter' | $T8 %]</th>
-                <td align=left>[% L.input_tag('employee', employee, size=20, readonly=id) %]</td>
+                <td align=left>[% L.input_tag('employee', employee, size=20, readonly=readonly) %]</td>
               </tr>
             </table>
           </td>

@@ -52,7 +52,7 @@ Größere neue Features:
   Artikel in Aufträgen listet, die nocht nicht in einem Lieferschein erfasst
   sind.
 
-Kleinere neue Features und Detailverbesserungen
+Kleinere neue Features und Detailverbesserungen:
 
 - neue xtCommerce Schnittstelle
   Die Schnittstelle wurde auf Basis der PepperShop Schnittstelle neu gebaut
@@ -67,7 +67,7 @@ Kleinere neue Features und Detailverbesserungen
   Es ist jetzt möglich den Taskserver aus der Weboberfläche zu steuern. Im Menü
   unter "System" -> "Hintergrund-Jobs und Task-Server"
 
-API-Änderungen
+API-Änderungen:
 
 - Benutzerdefinierte Variablen vom Typ "Lieferant" und "Ware"
   Für die Auswahl in den webpages steht ein L.vendor_selector und

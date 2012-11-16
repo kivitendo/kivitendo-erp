@@ -109,60 +109,20 @@ sub get_part {
   $form->{amount}{IC_expense} = $form->{expense_accno};
   $form->{amount}{IC_cogs}    = $form->{expense_accno};
 
-  my @pricegroups          = ();
-  my @pricegroups_not_used = ();
-
   # get prices
-  $query =
-    qq|SELECT p.parts_id, p.pricegroup_id, p.price,
-         (SELECT pg.pricegroup
-          FROM pricegroup pg
-          WHERE pg.id = p.pricegroup_id) AS pricegroup
-       FROM prices p
-       WHERE (parts_id = ?)
-       ORDER BY pricegroup|;
-  $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
+  $query = <<SQL;
+    SELECT pg.pricegroup, pg.id AS pricegroup_id, COALESCE(pr.price, 0) AS price
+    FROM pricegroup pg
+    LEFT JOIN prices pr ON (pr.pricegroup_id = pg.id) AND (pr.parts_id = ?)
+    ORDER BY lower(pg.pricegroup)
+SQL
 
-  #for pricegroups
-  my $i = 1;
-  while (($form->{"klass_$i"}, $form->{"pricegroup_id_$i"},
-          $form->{"price_$i"}, $form->{"pricegroup_$i"})
-         = $sth->fetchrow_array()) {
-    push @pricegroups, $form->{"pricegroup_id_$i"};
-    $i++;
+  my $row = 1;
+  foreach $ref (selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}))) {
+    $form->{"${_}_${row}"} = $ref->{$_} for qw(pricegroup_id pricegroup price);
+    $row++;
   }
-
-  $sth->finish;
-
-  # get pricegroups
-  $query = qq|SELECT id, pricegroup FROM pricegroup|;
-  $form->{PRICEGROUPS} = selectall_hashref_query($form, $dbh, $query);
-
-  #find not used pricegroups
-  while (my $tmp = pop(@{ $form->{PRICEGROUPS} })) {
-    my $in_use = 0;
-    foreach my $item (@pricegroups) {
-      if ($item eq $tmp->{id}) {
-        $in_use = 1;
-        last;
-      }
-    }
-    push(@pricegroups_not_used, $tmp) unless ($in_use);
-  }
-
-  # if not used pricegroups are avaible
-  if (@pricegroups_not_used) {
-
-    foreach my $name (@pricegroups_not_used) {
-      $form->{"klass_$i"} = "$name->{id}";
-      $form->{"pricegroup_id_$i"} = "$name->{id}";
-      $form->{"pricegroup_$i"}    = "$name->{pricegroup}";
-      $i++;
-    }
-  }
-
-  #correct rows
-  $form->{price_rows} = $i - 1;
+  $form->{price_rows} = $row - 1;
 
   # get makes
   if ($form->{makemodel}) {
@@ -241,7 +201,7 @@ sub get_pricegroups {
   my $dbh = $form->dbconnect($myconfig);
 
   # get pricegroups
-  my $query = qq|SELECT id, pricegroup FROM pricegroup|;
+  my $query = qq|SELECT id, pricegroup FROM pricegroup ORDER BY lower(pricegroup)|;
   my $pricegroups = selectall_hashref_query($form, $dbh, $query);
 
   my $i = 1;
@@ -471,25 +431,19 @@ sub save {
   # delete price records
   do_query($form, $dbh, qq|DELETE FROM prices WHERE parts_id = ?|, conv_i($form->{id}));
 
+  $query = qq|INSERT INTO prices (parts_id, pricegroup_id, price) VALUES(?, ?, ?)|;
+  $sth   = prepare_query($form, $dbh, $query);
+
   # insert price records only if different to sellprice
   for my $i (1 .. $form->{price_rows}) {
     my $price = $form->parse_amount($myconfig, $form->{"price_$i"});
-    if ($price == 0) {
-      $form->{"price_$i"} = $form->{sellprice};
-    }
-    if (
-        (   $price
-         || $form->{"klass_$i"}
-         || $form->{"pricegroup_id_$i"})
-        and $price != $form->{sellprice}
-      ) {
-      #$klass = $form->parse_amount($myconfig, $form->{"klass_$i"});
-      $query = qq|INSERT INTO prices (parts_id, pricegroup_id, price) | .
-               qq|VALUES(?, ?, ?)|;
-      @values = (conv_i($form->{id}), conv_i($form->{"pricegroup_id_$i"}), $price);
-      do_query($form, $dbh, $query, @values);
-    }
+    next unless $price && ($price != $form->{sellprice});
+
+    @values = (conv_i($form->{id}), conv_i($form->{"pricegroup_id_$i"}), $price);
+    do_statement($form, $sth, $query, @values);
   }
+
+  $sth->finish;
 
   # insert makemodel records
     my $lastupdate = '';

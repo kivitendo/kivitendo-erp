@@ -1,88 +1,18 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>Kapitel 2. Installation und Grundkonfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="up" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="prev" href="ch01.html" title="Kapitel 1. Aktuelle Hinweise"><link rel="next" href="ch02s02.html" title="2.2. Manuelle Installation des Programmpaketes"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Kapitel 2. Installation und Grundkonfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch01.html">Zurück</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s02.html">Weiter</a></td></tr></table><hr></div><div class="chapter" title="Kapitel 2. Installation und Grundkonfiguration"><div class="titlepage"><div><div><h2 class="title"><a name="config"></a>Kapitel 2. Installation und Grundkonfiguration</h2></div></div></div><div class="sect1" title="2.1. Benötigte Software und Pakete"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Ben%C3%B6tigte-Software-und-Pakete"></a>2.1. Benötigte Software und Pakete</h2></div></div></div><div class="sect2" title="2.1.1. Betriebssystem"><div class="titlepage"><div><div><h3 class="title"><a name="Betriebssystem"></a>2.1.1. Betriebssystem</h3></div></div></div><p>kivitendo ist für Linux konzipiert, und sollte auf jedem
-        unixoiden Betriebssystem zum Laufen zu kriegen sein. Getestet ist
-        diese Version im speziellen auf Debian und Ubuntu, grundsätzlich wurde
-        bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
-        ohne große Probleme auf den derzeit aktuellen verbreiteten
-        Distributionen läuft.</p><p>Mitte 2012 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>6.0 Squeeze (hier muss allerdings das Modul FCGI in der Version &gt;= 0.72 compiled werden)</p></li><li class="listitem"><p>7.0 Wheezy</p></li></ul></div></li><li class="listitem"><p>Ubuntu 10.04 LTS Lucid Lynx bis 12.10 Oneiric Ocelot</p></li><li class="listitem"><p>openSUSE 11.2 und 11.3</p></li><li class="listitem"><p>SuSE Linux Enterprice Server 11</p></li><li class="listitem"><p>Fedora 13 bis 16</p></li></ul></div></div><div class="sect2" title="2.1.2. Pakete"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.1.2. Pakete</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
-        Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
-        benötigt.</p><p>Zusätzlich benötigt kivitendo die folgenden Perl-Pakete, die
-        nicht Bestandteil einer Standard-Perl-Installation sind:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>
-                     <code class="literal">parent</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Archive::Zip</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Config::Std</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">DateTime</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">DBI</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">DBD::Pg</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Email::Address</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Email::MIME</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">JSON</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">List::MoreUtils</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Net::SMTP::SSL</code> (optional, bei E-Mail-Versand über SSL; siehe Abschnitt "<a class="xref" href="ch02s09.html#config.sending-email.smtp" title="2.9.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
-                     <code class="literal">Net::SSLGlue</code> (optional, bei E-Mail-Versand über TLS; siehe Abschnitt "<a class="xref" href="ch02s09.html#config.sending-email.smtp" title="2.9.2. Versand über einen SMTP-Server">E-Mail-Versand über einen SMTP-Server</a>")</p></li><li class="listitem"><p>
-                     <code class="literal">Params::Validate</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">PDF::API2</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Rose::Object</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Rose::DB</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Rose::DB::Object</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Template</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Text::CSV_XS</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">Text::Iconv</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">URI</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">XML::Writer</code>
-                  </p></li><li class="listitem"><p>
-                     <code class="literal">YAML</code>
-                  </p></li></ul></div><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
-        <code class="literal">Net::SSLGlue</code>.</p><p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
-        hinzugekommen, <code class="literal">URI</code> und
-        <code class="literal">XML::Writer</code> sind notwendig. Ohne startet kivitendo
-        nicht.</p><p>Gegenüber Version 2.6.1 sind <code class="literal">parent</code>,
-        <code class="literal">DateTime</code>, <code class="literal">Rose::Object</code>,
-        <code class="literal">Rose::DB</code> und <code class="literal">Rose::DB::Object</code>
-        neu hinzugekommen. <code class="literal">IO::Wrap</code> wurde entfernt.</p><p>Gegenüber Version 2.6.3 ist <code class="literal">JSON</code> neu
-        hinzugekommen.</p><p>
-               <code class="literal">Email::Address</code> und
-        <code class="literal">List::MoreUtils</code> sind schon länger feste
-        Abhängigkeiten, wurden aber bisher mit kivitendo mitgeliefert. Beide
-        sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
-        zukünftigen Version aber aus dem Paket entfernt werden. Es wird
-        empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><p>Die zu installierenden Pakete können in den verschiedenen
-        Distributionen unterschiedlich heißen.</p><p>Für Debian oder Ubuntu benötigen Sie diese Pakete:</p><pre class="programlisting">apt-get install apache2 postgresql libparent-perl libarchive-zip-perl \
-  libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl \
-  libemail-address-perl libemail-mime-perl liblist-moreutils-perl libpdf-api2-perl \
-  librose-object-perl librose-db-perl librose-db-object-perl \
-  libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl \
-  libxml-writer-perl libyaml-perl libconfig-std-perl \
-  libparams-validate-perl libjson-perl libclass-accessor-perl \
-  libnet-sslglue-perl libnet-smtp-ssl-perl</pre><p>Für Fedora Core benötigen Sie diese Pakete:</p><pre class="programlisting">yum install httpd postgresql-server perl-parent perl-DateTime \
-  perl-DBI perl-DBD-Pg perl-Email-Address perl-Email-MIME perl-List-MoreUtils \
-  perl-PDF-API2 perl-Rose-Object perl-Rose-DB perl-Rose-DB-Object \
-  perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
-  perl-XML-Writer perl-YAML perl-Net-SSLGlue perl-Net-SMTP-SSL</pre><p>Für OpenSuSE benötigen Sie diese Pakete:</p><pre class="programlisting">zypper install apache2 postgresql-server perl-Archive-Zip \
-  perl-DateTime perl-DBI perl-DBD-Pg perl-Email-MIME perl-MailTools perl-List-MoreUtils \
-  perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
-  perl-URI perl-XML-Writer perl-YAML perl-Net-SSLGlue perl-Net-SMTP-SSL</pre><p>kivitendo enthält ein Script, mit dem überprüft werden kann, ob
-        alle benötigten Perl-Module installiert sind. Der Aufruf lautet wie
-        folgt:</p><pre class="programlisting">./scripts/installation_check.pl</pre></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch01.html">Zurück</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s02.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitel 1. Aktuelle Hinweise&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.2. Manuelle Installation des Programmpaketes</td></tr></table></div></body></html>
+   <title>Kapitel 2. Installation und Grundkonfiguration</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="up" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="prev" href="ch01.html" title="Kapitel 1. Aktuelle Hinweise"><link rel="next" href="ch02s02.html" title="2.2. Benötigte Software und Pakete"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">Kapitel 2. Installation und Grundkonfiguration</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch01.html">Zurück</a>&nbsp;</td><th width="60%" align="center">&nbsp;</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s02.html">Weiter</a></td></tr></table><hr></div><div class="chapter" title="Kapitel 2. Installation und Grundkonfiguration"><div class="titlepage"><div><div><h2 class="title"><a name="config"></a>Kapitel 2. Installation und Grundkonfiguration</h2></div></div></div><div class="sect1" title="2.1. Übersicht"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Installation-%C3%9Cbersicht"></a>2.1. Übersicht</h2></div></div></div><p>
+        Die Installation von kivitendo umfasst mehrere Schritte. Die folgende Liste kann sowohl für Neulinge als auch für alte Hasen als
+        Übersicht und Stichpunktliste zum Abhaken dienen, um eine Version mit minimalen Features möglichst schnell zum Laufen zu kriegen.
+      </p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
+                  <span class="emphasis"><em>Voraussetzungen überprüfen</em></span>: kivitendo benötigt gewisse Ressourcen und benutzt weitere
+        Programme. Das Kapitel "<a class="xref" href="ch02s02.html" title="2.2. Benötigte Software und Pakete">Abschnitt&nbsp;2.2, „Benötigte Software und Pakete“</a>" erläutert diese. Auch die Liste der benötigten Perl-Module
+        befindet sich hier.</p></li><li class="listitem"><p>
+                  <span class="emphasis"><em>Installation von kivitendo</em></span>: Diese umfasst die "<a class="xref" href="ch02s03.html" title="2.3. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>" sowie grundlegende Einstellungen, die der "<a class="xref" href="ch02s04.html" title="2.4. kivitendo-Konfigurationsdatei">Abschnitt&nbsp;2.4, „kivitendo-Konfigurationsdatei“</a>" erläutert.</p></li><li class="listitem"><p>
+                  <span class="emphasis"><em>Konfiguration externer Programme</em></span>: hierzu gehören die Datenbank ("<a class="xref" href="ch02s05.html" title="2.5. Anpassung der PostgreSQL-Konfiguration">Abschnitt&nbsp;2.5, „Anpassung der PostgreSQL-Konfiguration“</a>") und der Webserver ("<a class="xref" href="ch02s06.html" title="2.6. Webserver-Konfiguration">Abschnitt&nbsp;2.6, „Webserver-Konfiguration“</a>"). </p></li><li class="listitem"><p>
+                  <span class="emphasis"><em>Benutzerinformationen speichern können</em></span>: man benötigt mindestens eine Datenbank, in der
+        Informationen zur Authentifizierung sowie die Nutzdaten gespeichert werden. Wie man das als Administrator macht, verrät "<a class="xref" href="ch02s08.html" title="2.8. Benutzerauthentifizierung und Administratorpasswort">Abschnitt&nbsp;2.8, „Benutzerauthentifizierung und Administratorpasswort“</a>".</p></li><li class="listitem"><p>
+                  <span class="emphasis"><em>Benutzer, Gruppen und Datenbanken anlegen</em></span>: wie dies alles zusammenspielt erläutert "<a class="xref" href="ch02s09.html" title="2.9. Benutzer- und Gruppenverwaltung">Abschnitt&nbsp;2.9, „Benutzer- und Gruppenverwaltung“</a>".</p></li><li class="listitem"><p>
+                  <span class="emphasis"><em>Los geht's</em></span>: alles soweit erledigt? Dann kann es losgehen: "<a class="xref" href="ch02s16.html" title="2.16. kivitendo ERP verwenden">Abschnitt&nbsp;2.16, „kivitendo ERP verwenden“</a>"</p></li></ol></div><p>
+        Alle weiteren Unterkapitel in diesem Kapitel sind ebenfalls wichtig und dienen sollten vor einer ernsthaften Inbetriebnahme gelesen
+        werden.
+      </p></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch01.html">Zurück</a>&nbsp;</td><td width="20%" align="center">&nbsp;</td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s02.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">Kapitel 1. Aktuelle Hinweise&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.2. Benötigte Software und Pakete</td></tr></table></div></body></html>
