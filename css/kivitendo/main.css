@@ -117,10 +117,9 @@ td.login {
 th.login {
 	text-align: right;
 }
-div.admin {
-	background-color: #FFFFE0;
-    padding: 8px;
-	color: #000000;
+.admin h1 {
+	background-color: #fe5f14;
+  text-color: #ffffff;
 }
 body.menu {
 	color: #000000;
