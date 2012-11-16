@@ -47,10 +47,15 @@ sub init_languages_by {
 sub check_objects {
   my ($self) = @_;
 
+  $self->controller->track_progress(phase => 'building data', progress => 0);
+
   my $numbercolumn  = $self->controller->profile->get('table') . "number";
   my %vcs_by_number = map { ( $_->$numbercolumn => 1 ) } @{ $self->existing_objects };
 
+  my $i;
+  my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
+    $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
     my $object = $entry->{object};
 
     $self->check_name($entry);
@@ -66,6 +71,8 @@ sub check_objects {
     } else {
       $vcs_by_number{ $object->$numbercolumn } = $object;
     }
+  } continue {
+    $i++;
   }
 
   $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(language business payment));

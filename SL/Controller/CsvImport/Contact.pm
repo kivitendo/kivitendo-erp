@@ -27,11 +27,19 @@ sub init_all_cvar_configs {
 sub check_objects {
   my ($self) = @_;
 
+  $self->controller->track_progress(phase => 'building data', progress => 0);
+
+  my $i;
+  my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
+    $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
+
     $self->check_name($entry);
     $self->check_vc($entry, 'cp_cv_id');
     $self->check_gender($entry);
     $self->handle_cvars($entry);
+  } continue {
+    $i++;
   }
 
   $self->add_info_columns({ header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
