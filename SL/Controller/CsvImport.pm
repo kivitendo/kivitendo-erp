@@ -402,12 +402,6 @@ sub save_report {
     push @raw_methods,  $self->raw_data_headers->{headers}->[$i];
   }
 
-  $::lxdebug->dump(0,  "methods",
-    [ \@info_methods,
-     \@methods,
-     \@raw_methods  ]
-  );
-
   $sth->execute($report->id, $_, 0, $headers[$_]) for 0 .. $#headers;
 
   # col offsets
