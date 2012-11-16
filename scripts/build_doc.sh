@@ -15,14 +15,17 @@ doc=${PWD}/doc
 
 html=1
 pdf=1
+images=1
 
 if [[ ! -z $1 ]] ; then
   html=0
   pdf=0
+  images=0
   while [[ ! -z $1 ]] ; do
     case $1 in
-      html) html=1 ;;
-      pdf)  pdf=1  ;;
+      html)   html=1   ;;
+      pdf)    pdf=1    ;;
+      images) images=1 ;;
       *)
         echo "Unknown parameter $1"
         exit 1
@@ -68,4 +71,16 @@ if [[ $html = 1 ]]; then
   rm -rf ${doc}/html
   mkdir ${doc}/html
   cp -R ${output}/html ${doc}/
+fi
+
+if [[ $images = 1 ]]; then
+  # copy system images from Dobudish directory
+  image_list=$(mktemp)
+  perl -nle 'print $1 while m{ (?: \.\./ )+ ( system/ [^\"]+ ) }xg' ${doc}/html/*.html | sort | uniq > $image_list
+  if [[ -s $image_list ]]; then
+    tar -c -f - -T $image_list | tar -x -f - -C ${doc}/html
+    perl -pi -e 's{ (\.\./)+ system }{system}xg' ${doc}/html/*.html
+  fi
+
+  rm $image_list
 fi
