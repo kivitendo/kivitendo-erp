@@ -1085,6 +1085,7 @@ $self->{texts} = {
   'Language missing!'           => 'Sprache fehlt!',
   'Language saved!'             => 'Sprache gespeichert!',
   'Languages'                   => 'Sprachen',
+  'Languages and translations'  => 'Sprachen und Übersetzungen',
   'Last Action'                 => 'Letzte Aktivität',
   'Last Article Number'         => 'Letzte Artikelnummer',
   'Last Cost'                   => 'Einkaufspreis',
