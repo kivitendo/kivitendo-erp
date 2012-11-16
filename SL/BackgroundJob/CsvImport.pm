@@ -74,7 +74,7 @@ sub do_import {
     plan => {
       'parsing csv'     => 1,
       'building data'   => 2,
-    ( 'saving data'     => 3, )x!!$test,
+    ( 'saving data'     => 3, )x!$test,
       'building report' => ($test ? 3 : 4),
     },
     num_phases => ($test ? 3 : 4),
@@ -82,7 +82,7 @@ sub do_import {
   $c->add_progress_tracker($self);
 
 
-  $c->test_and_import(test => 1, session_id => $job->data_as_hash->{session_id});
+  $c->test_and_import(test => $test, session_id => $job->data_as_hash->{session_id});
 
   if ($c->errors) {
     $job->set_data(
