@@ -38,6 +38,8 @@ __PACKAGE__->run_before('ensure_form_structure');
 __PACKAGE__->run_before('check_type', except => [ qw(report) ]);
 __PACKAGE__->run_before('load_all_profiles');
 
+__PACKAGE__->run_after('cleanup_reports');
+
 #
 # actions
 #
@@ -461,5 +463,9 @@ sub track_progress {
   }
 }
 
+
+sub cleanup_reports {
+  SL::DB::Manager::CsvImportReport->cleanup;
+}
 
 1;
