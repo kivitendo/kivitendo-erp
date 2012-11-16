@@ -1,9 +1,9 @@
 [% USE HTML %]
 [% USE LxERP %]
 [% USE L %]
-
  <h3>[%- LxERP.t8('Import result') %]</h3>
 
+[%- PROCESS 'common/paginate.html' pages=SELF.pages, base_url = SELF.base_url %]
  <table>
 [%- FOREACH rownum = SELF.display_rows %]
  [%- IF loop.first %]
@@ -29,7 +29,7 @@
 
  </table>
 
-[%- PROCESS 'common/paginate.html' pages=SELF.pages %]
+[%- PROCESS 'common/paginate.html' pages=SELF.pages, base_url = SELF.base_url %]
 
 <script type='text/javascript'>
   $(function(){ $('#action_import').show() });

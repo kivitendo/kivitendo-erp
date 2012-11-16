@@ -96,7 +96,7 @@ sub action_result {
   }
 
   if ($data->{progress}{finished} || $data->{errors}) {
-    $self->action_report(report_id => $data->{report_id}, no_layout => 1);
+    $self->render('csv_import/_deferred_report', { no_layout => 1 });
   } else {
     $self->render('csv_import/_deferred_results', { no_layout => 1 });
   }
@@ -165,10 +165,9 @@ sub action_report {
   $self->{report_rows}   = $self->{report}->folded_rows(rows => $rows);
   $self->{report_status} = $self->{report}->folded_status(status => $status);
   $self->{pages} = $pages;
+  $self->{base_url} = $self->url_for(action => 'report', id => $report_id, no_layout => $params{no_layout} || $::form->{no_layout} );
 
-  my $base_url = $self->url_for(action => 'report', id => $report_id);
-
-  $self->render('csv_import/report', { no_layout => $params{no_layout} }, base_url => $base_url);
+  $self->render('csv_import/report', { no_layout => $params{no_layout} || $::form->{no_layout} });
 }
 
 
