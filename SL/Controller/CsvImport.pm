@@ -6,6 +6,7 @@ use SL::DB::Buchungsgruppe;
 use SL::DB::CsvImportProfile;
 use SL::DB::CsvImportReport;
 use SL::DB::Unit;
+use SL::DB::Helper::Paginated ();
 use SL::Helper::Flash;
 use SL::SessionFile;
 use SL::Controller::CsvImport::Contact;
@@ -17,6 +18,7 @@ use SL::BackgroundJob::CsvImport;
 use SL::System::TaskServer;
 
 use List::MoreUtils qw(none);
+use List::Util qw(min);
 
 use parent qw(SL::Controller::Base);
 
@@ -123,9 +125,50 @@ sub action_download_sample {
 sub action_report {
   my ($self, %params) = @_;
 
-  $self->{report} = SL::DB::Manager::CsvImportReport->find_by(id => $params{report_id} || $::form->{id});
+  my $report_id = $params{report_id} || $::form->{id};
 
-  $self->render('csv_import/report', { no_layout => $params{no_layout} });
+  $self->{report}      = SL::DB::Manager::CsvImportReport->find_by(id => $report_id);
+  my $num_rows         = SL::DB::Manager::CsvImportReportRow->get_all_count(query => [ csv_import_report_id => $report_id ]);
+  my $num_cols         = SL::DB::Manager::CsvImportReportRow->get_all_count(query => [ csv_import_report_id => $report_id, row => 0 ]);
+
+  # manual paginating, yuck
+  my $page = $::form->{page} || 1;
+  my $pages = {};
+  $pages->{per_page}        = $::form->{per_page} || 20;
+  $pages->{max}             = SL::DB::Helper::Paginated::ceil($num_rows / ($num_cols || 1), $pages->{per_page}) || 1;
+  $pages->{cur}             = $page < 1 ? 1
+                            : $page > $pages->{max} ? $pages->{max}
+                            : $page;
+  $pages->{common}          = SL::DB::Helper::Paginated::make_common_pages($pages->{cur}, $pages->{max});
+
+  $self->{display_rows} = [
+    0,
+    $pages->{per_page} * ($pages->{cur}-1) + 1
+      ..
+    min($pages->{per_page} * $pages->{cur}, $num_rows / ($num_cols || 1) - 1)
+  ];
+
+  my @query = (
+    csv_import_report_id => $report_id,
+    or => [
+      row => 0,
+      and => [
+        row => { gt => $pages->{per_page} * ($pages->{cur}-1) },
+        row => { le => $pages->{per_page} * $pages->{cur} },
+      ]
+    ]
+  );
+
+  my $rows             = SL::DB::Manager::CsvImportReportRow->get_all(query => \@query);
+  my $status           = SL::DB::Manager::CsvImportReportStatus->get_all(query => \@query);
+
+  $self->{report_rows}   = $self->{report}->folded_rows(rows => $rows);
+  $self->{report_status} = $self->{report}->folded_status(status => $status);
+  $self->{pages} = $pages;
+
+  my $base_url = $self->url_for(action => 'report', id => $report_id);
+
+  $self->render('csv_import/report', { no_layout => $params{no_layout} }, base_url => $base_url);
 }
 
 

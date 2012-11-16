@@ -25,43 +25,31 @@ __PACKAGE__->meta->add_relationships(
 __PACKAGE__->meta->initialize;
 
 sub folded_rows {
-  my ($self) = @_;
+  my ($self, %params) = @_;
 
-  $self->_fold_rows unless $self->{folded_rows};
+  my $folded_rows = {};
 
-  return $self->{folded_rows};
+  for my $row_obj (@{ $params{rows} || $self->rows }) {
+    $folded_rows->{ $row_obj->row } ||= [];
+    $folded_rows->{ $row_obj->row }[ $row_obj->col ] = $row_obj->value;
+  }
+
+  $folded_rows;
 }
 
 sub folded_status {
-  my ($self) = @_;
+  my ($self, %params) = @_;
 
-  $self->_fold_status unless $self->{folded_status};
+  my $folded_status = {};
 
-  return $self->{folded_status};
-}
-
-sub _fold_rows {
-  my ($self) = @_;
-
-  $self->{folded_rows} = [];
-
-  for my $row_obj (@{ $self->rows }) {
-    $self->{folded_rows}->[ $row_obj->row ] ||= [];
-    $self->{folded_rows}->[ $row_obj->row ][ $row_obj->col ] = $row_obj->value;
+  for my $status_obj (@{ $params{status} || $self->status }) {
+    $folded_status->{ $status_obj->row } ||= {};
+    $folded_status->{ $status_obj->row }{information} ||= [];
+    $folded_status->{ $status_obj->row }{errors} ||= [];
+    push @{ $folded_status->{ $status_obj->row }{ $status_obj->type } }, $status_obj->value;
   }
-}
 
-sub _fold_status {
-  my ($self) = @_;
-
-  $self->{folded_status} = [];
-
-  for my $status_obj (@{ $self->status }) {
-    $self->{folded_status}->[ $status_obj->row ] ||= {};
-    $self->{folded_status}->[ $status_obj->row ]{information} ||= [];
-    $self->{folded_status}->[ $status_obj->row ]{errors} ||= [];
-    push @{ $self->{folded_status}->[ $status_obj->row ]{ $status_obj->type } }, $status_obj->value;
-  }
+  $folded_status;
 }
 
 # implementes cascade delete as per documentation
