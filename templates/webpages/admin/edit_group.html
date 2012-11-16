@@ -2,12 +2,12 @@
  [% L.stylesheet_tag('jquery.multiselect2side') %]
  [% L.javascript_tag('jquery.selectboxes', 'jquery.multiselect2side') %]
 
+<h1>[% 'Edit group ' | $T8 %]:  [% HTML.escape(name) %]</h1>
+
  <form name="Form" method="post" action="admin.pl">
   [% IF message %]
   <p class="message_ok">[% message %]</p>
   [% END %]
-
-  <div class="listtop">[% 'Edit group ' | $T8 %]:  [% HTML.escape(name) %]</div>
 
   <p><a href="admin.pl?action=edit_groups">[% 'Back' | $T8 %]</a></p>
 
