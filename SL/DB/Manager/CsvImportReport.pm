@@ -15,9 +15,7 @@ sub cleanup {
 
   # get expired reports
   my $objects = $self->get_all(query => [
-    session_id => [
-      not => [ $::auth->active_session_ids ]
-    ]
+   '!session_id' => [ $::auth->active_session_ids ]
   ]);
 
   $_->destroy for @$objects;
