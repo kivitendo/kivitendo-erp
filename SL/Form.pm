@@ -3581,7 +3581,6 @@ sub layout {
   my %style_to_script_map = (
     v3  => 'v3',
     neu => 'new',
-    v4  => 'v4',
   );
 
   my $menu_script = $style_to_script_map{$::myconfig{menustyle}} || '';

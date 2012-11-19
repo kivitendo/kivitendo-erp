@@ -80,7 +80,6 @@ my @all_stylesheets = qw(lx-office-erp.css Win2000.css Mobile.css kivitendo.css)
 my @all_menustyles = (
   { id => 'old', title => $::locale->text('Old (on the side)') },
   { id => 'v3',  title => $::locale->text('Top (CSS)') },
-  { id => 'v4',  title => $::locale->text('Top (CSS) new') },
   { id => 'neu', title => $::locale->text('Top (Javascript)') },
 );
 
@@ -380,16 +379,14 @@ sub list_users {
 sub add_user {
   $::form->{title}   = "kivitendo " . $::locale->text('Administration') . " / " . $::locale->text('Add User');
 
-# Note: Menu Style 'v3' is not compatible to all browsers!
-# "menustyle"    => "old" sets the HTML Menu to default.
-# User does not have a well behaved new constructor, so we#Ll just have to build one ourself
+  # User does not have a well behaved new constructor, so we'll just have to build one ourself
   my $user     = bless {
     "vclimit"      => 200,
     "countrycode"  => "de",
     "numberformat" => "1.000,00",
     "dateformat"   => "dd.mm.yy",
     "stylesheet"   => "kivitendo.css",
-    "menustyle"    => "old",
+    "menustyle"    => "neu",
     dbport         => $::auth->{DB_config}->{port} || 5432,
     dbuser         => $::auth->{DB_config}->{user} || 'lxoffice',
     dbhost         => $::auth->{DB_config}->{host} || 'localhost',

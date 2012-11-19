@@ -4,139 +4,6 @@ orangemenu color #FFFFFF
 whiteMenu Hover background color #FFFFE0
 DarkGreensubenu pointer
 */
-body.menuv4 {
-	behavior: url("css/csshover.htc");
-	/*font-size: 14pt;*/
-	line-height: 20pt;
-	font-family: Verdana, Geneva, Tahoma, sans-serif;
-	background-color: #FFFFFF;
-	color: #000000;
-}
-#menuv4 {
-	/*font-size: 85%;*/
-	width: 99.8%;
-	float: left;
-	/*border: 3px solid;*/
-	background-color: #FFFFFF;
-	color: #000000;
-}
-#menuv4 a, #menuv4 h2, #menuv4 div.x {
-	font-size: 80%;
-	line-height: 120%;
-	display: block;
-	border: 0;
-	white-space: nowrap;
-	margin: 0;
-	padding: 0.3em 1em;
-}
-#menuv4 h2 {
-	background-color: #ffffff;
-	color: #000000;
-	/*padding: 2px 15px;*/
-/* Firefox */
-	-moz-border-radius: 0.4em 0.4em 0;
-/* Safari, Chrome */
-	-webkit-border-radius: 0.4em 0.4em 0;
-/* Konqueror */
-	-khtml-border-radius: 0.4em 0.4em 0;
-/* CSS3 */
-	border-radius: 0.4em 0.4em 0 0;
-/* 	behavior: url(border-radius.htc); */
-}
-#menuv4 ul:hover h2 {
-	background-color:#DCDCDC;
-}
-#menuv4 a, #menuv4 a:visited, #menuv4 div.x, #menuv4 div.x:visited {
-	color: #000000;
-	text-decoration: none;
-	padding-right: 10px;
-}
-#menuv4 a {
-	background: #EBEBEB;
-}
-#menuv4 div.x, #menuv4 div.x:visited {
-	background-color: #EBEBEB;
-	border-right: 1em solid #FE5F14;
-}
-#menuv4 div.x:hover {
-	border-right: none;
-}
-#menuv4 a:hover, #menuv4 div.x:hover {
-	color: #FE5F14;
-	background-color: #EBEBEB;
-}
-#menuv4 a:active, #menuv4 div.x:active {
-	color: #FE5F14;
-	background-color: #EBEBEB;
-}
-#menuv4 ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	float: left;
-}
-
-#menuv4 li {
-	position: relative;
-	float: none;
-	border: 0;
-}
-li.sub {
-	position: relativ;
-	left: 0.2em;
-	top: 0px;
-	background-color: #FFFFFF;
-}
-/* IE6 spacing bug fix, <li>s without a bottom border get spaced to far  * correction:the bug will change the height of the parent element! this will also cause the whole menu to grow  * so the only method to get this pile of crap going is to add a bottom border to the <li>s, where the enclosing <ul> already has * a bottom border, which just looks ugly * the trick:color the bottom border with the same color as the bottom pixel of the background image - noone notices */
-#menuv4 ul li {
-	/* border: solid;
-	border-color: #991900;
-	border-width: 0 0 1px 0;
-*/
-}
-#menuv4 ul ul {
-	padding: 0 2em 2em 2em;
-	margin: 0 -2em -2em -2em;
-}
-#menuv4 ul ul li {
-	/*padding-top: 0.01em;*/
-	background-color: #FFFFFF;
-}
-/* IE6 event bug fix, without a background there hovers will be occassionally lost between the li's to the layer below  * causing the menu to close. Opera 9 has the same bug btw. */
-#menuv4 ul ul {
-	position: absolute;
-	z-index: 500;
-	top: auto;
-	display: none;
-}
-#menuv4 ul ul ul {
-	top: 0;
-	left: 99%;
-	padding: 2em;
-	margin: -2em;
-}
-#menuv4 ul ul ul li {
-	border-left: 0.2em solid #EBEBEB;
-}
-/* Begin non-anchor hover selectors */
-/* Enter the more specific element (div) selectoron non-anchor hovers for IE5.x to comply with theolder version of csshover.htc - V1.21.041022. Itimproves IE's performance speed to use the olderfile and this method */
-div#menuv4 h2:hover {
-	background: #EBEBEB;
-	color: #FE5F14;
-}
-div#menuv4 li:hover {
-	cursor: pointer;
-	z-index: 100;
-}
-div#menuv4 li:hover ul ul, div#menuv4 li li:hover ul ul, div#menuv4 li li li:hover ul ul, div#menuv4 li li li li:hover ul ul {
-	display: none;
-}
-div#menuv4 li:hover ul, div#menuv4 li li:hover ul, div#menuv4 li li li:hover ul, div#menuv4 li li li li:hover ul {
-	display: block;
-	position: relativ: left: 10px;
-}
-/* End of non-anchor hover selectors */
-
 body.menuv3 {
 	behavior: url("css/csshover.htc");
 	/*font-size: 14pt;*/
@@ -152,7 +19,6 @@ body.menuv3 {
 	/*border: 3px solid;*/
 	background-color: #FFFFFF;
 	color: #000000;
-	margin-top: 0.2em;
 }
 #menuv3 a, #menuv3 h2, #menuv3 div.x {
 	font-size: 80%;
@@ -162,12 +28,6 @@ body.menuv3 {
 	white-space: nowrap;
 	margin: 0;
 	padding: 0.3em 1em;
-}
-#menuv3 h2:before {
-	content: " ";
-}
-#menuv3 h2:after {
-	content: " ";
 }
 #menuv3 h2 {
 	background-color: #ffffff;
@@ -277,6 +137,13 @@ div#menuv3 li:hover ul, div#menuv3 li li:hover ul, div#menuv3 li li li:hover ul,
 }
 /* End of non-anchor hover selectors */
 
+li.sub {
+	position: relativ;
+	left: 0.2em;
+	top: 0px;
+	background-color: #FFFFFF;
+}
+
 /* html menu */
 /* types of lines: m sm i (menu submenu item)
    each line is a mi (menuitem) and has one mii (menu-item-icon) whcih is ms (menu-spacer)
@@ -314,7 +181,7 @@ div#menuv3 li:hover ul, div#menuv3 li li:hover ul, div#menuv3 li li li:hover ul,
 body { margin: 0 }
 
 @media print {
-  #menuv3, #menuv4, #html-menu, #frame-header, #js-menu {   /* items with this class won't print */
+  #menuv3, #html-menu, #frame-header, #js-menu {   /* items with this class won't print */
     display: none;
   }
   #content.html-menu { margin-left: 0; }
