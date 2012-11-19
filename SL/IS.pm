@@ -2136,7 +2136,7 @@ sub get_pricegroups_for_parts {
 
           $pkr->{selected}  = ' selected'; # unless $form->{selected};
           # no customer pricesgroup set
-          if ($pkr->{price_unfmt} == $pkr->{default_sellprice}) {
+          if ($pkr->{price_ufmt} == $pkr->{default_sellprice}) {
 
             $pkr->{price} = $form->{"sellprice_$i"};
 
@@ -2147,7 +2147,7 @@ sub get_pricegroups_for_parts {
             $form->{"sellprice_$i"} = $pkr->{price};
           }
 
-        } elsif ($pkr->{price_unfmt} == $pkr->{default_sellprice} and $pkr->{default_sellprice} != 0) {
+        } elsif ($pkr->{price_ufmt} == $pkr->{default_sellprice} and $pkr->{default_sellprice} != 0) {
           $pkr->{price}    = $form->{"sellprice_$i"};
           $pkr->{selected} = ' selected';
         }

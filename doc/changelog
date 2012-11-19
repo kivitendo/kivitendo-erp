@@ -126,6 +126,7 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1829: Lieferanten zu Dienstleistungen werden nicht gespeichert
   - Bugfix #1834: Buchungsliste - Bilanzspalte
   - Bugfix #1837: Lieferant auf ungültig setzen, verfälscht Kreditorenbuchungsmaske (mulitbox <-> obsolete?)
+  - Bugfix #1840: Für Auswahl "Drucker" bzw. "Warteschlange" müssen Latex-Vorlagen zwingend aktiviert sein
   - Bugfix #1841: falsche Finanzamtnummern
   - Bugfix #1842: Offene Posten Alterstrukturliste prüft nur auf tagesaktuellem Datum
   - Bugfix #1849: Buttons "Loeschen" und "Buchen" bei frischen Rechnungen verschwindet nach "Erneuern"
@@ -142,11 +143,14 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1869: Artikel: Inkonsistente Zustände bzgl. eindeutige Artikelnummern (war: Dienstleistung: neuer Preis lässt sich nicht speichern)
   - Bugfix #1871: Datumsformat dd-mm-yy verursacht Fehler in Rose::DB::Object
   - Bugfix #1872: CSVImport verliert die erste Spalte, wenn die Importdatei UTF8 mit BOM ist
+  - Bugfix #1873: Preise zu Preisgruppen werden nicht mehr korrekt gespeichert
   - Bugfix #1877: Installations Check preuft nicht gegen Net::LDAP
   - Bugfix #1878: Programm Icon kivitendo
+  - Bugfix #1886: doppelte Leerzeichen im Lieferantenname werden in Auswahlliste für Kreditorenbuchung nicht richtig geparst
   - Bugfix #1889: Fälligkeitsdatum aus Rechnungsdatum
   - Bugfix #1890: Kontenabgleich: Spaltenüberschrift vertauscht
   - Bugfix #1892: Nach Update Can't use string ("Form") as a HASH....
+  - Bugfix #1893: Falscher Bezug bei Kontoliste
   - Bugfix #1894: Stammdaten - Berichte - Kunden: Auswahl Rechnungen, Aufträge, Angebote wirkt als Filter
   - Bugfix #1895: Negative Beträge bei Zahlungseingang für Gutschriften
   - Bugfix #1900: Warenbericht: Projekt in Bericht aufnhemen ergibt SQL-Fehler
@@ -163,7 +167,9 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1936: Autom. Update des Faelligkeitsdatums bei Kreditorenbuchungen funktioniert nicht zuverlaessig
   - Bugfix #1939: Kreditorenbuchungen: Projektnummer wird nicht autom. in Zeilen uebernommen
   - Bugfix #1940: Sprung von Wiedervorlage zu Kreditorenbuchung in Kreditorenbuchung funktioniert nicht
+  - Bugfix #1942: Dialogbuchen: Datumsaenderung innerhalb des Erstellungstages nicht moeglich
   - Bugfix #1949: Falsche Zuordnung Verkäufer/-in bei Kunden-Stammdaten
+  - Bugfix #1945: Aufbereitung USTVA falsch in 2.7.0
   - Bugfix #1950: Abteilung wird aus ausgelagerten Lieferscheinen nicht in Rechnung übernommen.
   - Bugfix #1952: Lieferscheine werden nicht nach Abteilung gefiltert
   - Bugfix #1954: CSV-Import benutzerdef. Variablen mit Großbuchstaben geht nicht
@@ -208,6 +214,14 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #2041: 'Konto schon vorhanden' beim Speichern eines bestehenden Kontos nach Änderung
   - Bugfix #2044: fehlender Benutzername bei Menue CSS (v4)
   - Bugfix #2048: Menu verschwindet
+  - Bugfix #2049: Vorlagen-Templates aufraeumen
+  - Bugfix #2053: Link zur Dokumentation ins Menü einbauen
+  - Bugfix #2054: oberster Auftrag wird ignoriert bei Mehrfachauswahl zum Zusammenfassen von Aufträgen
+  - Bugfix #2055: Zusammenfassen von Aufträgen wirft Fehlermeldung
+  - Bugfix #2056: Stark abweichende Optik des Verkaufsberichtes
+  - Bugfix #2059: Falsches Icon im Programm-Menü
+  - Bugfix #2060: Sprache hinzufügen schlägt fehl
+  - Bugfix #2061: Fehler im Menü Programm bei Menü-Varianten "oben mit css" und "oben mit css neu"
 
 
 2012-03-01 - Release 2.7.0
