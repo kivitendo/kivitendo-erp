@@ -250,6 +250,12 @@ sub test_and_import_deferred {
     $file->fh->close;
   }
 
+  my $file = SL::SessionFile->new($self->csv_file_name, mode => '<', encoding => $self->profile->get('charset'));
+  if (!$file->fh) {
+    flash('error', $::locale->text('No file has been uploaded yet.'));
+    return $self->action_new;
+  }
+
   $self->{background_job} = SL::BackgroundJob::CsvImport->create_job(
     file    => $self->csv_file_name,
     profile => $self->profile,
