@@ -182,7 +182,7 @@ sub select_tag {
     my $title;
 
     if ( $value_title_sub ) {
-      ($value, $title) = $value_title_sub->($entry);
+      ($value, $title) = @{ $value_title_sub->($entry) };
     } else {
 
       $value = $normalize_entry->('value', $entry, $value_sub, $value_key);
