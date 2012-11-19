@@ -121,6 +121,7 @@ sub project_report {
   my @columns      = qw(projectnumber description active);
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
+  my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
   my %column_defs_cvars            = ();
   foreach (@includeable_custom_variables) {
     $column_defs_cvars{"cvar_$_->{name}"} = {
@@ -132,7 +133,11 @@ sub project_report {
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
 
-  my @hidden_vars  = ('filter', map { ('cvar_'. $_->{name} , 'l_cvar_'. $_->{name}) } @includeable_custom_variables);
+  my @hidden_vars  = (
+    'filter',
+    map({ ('cvar_'. $_->{name} , 'l_cvar_'. $_->{name}) } @includeable_custom_variables),
+    map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables)),
+  );
   my $href         = build_std_url('action=project_report', @hidden_vars);
 
 
