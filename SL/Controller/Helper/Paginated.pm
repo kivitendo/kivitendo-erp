@@ -7,6 +7,8 @@ our @EXPORT = qw(make_paginated get_paginate_spec get_current_paginate_params _s
 
 use constant PRIV => '__paginatedhelper_priv';
 
+use List::Util qw(min);
+
 my %controller_paginate_spec;
 
 sub make_paginated {
@@ -60,7 +62,8 @@ sub get_current_paginate_params {
                         :                                         ();
   my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => \%paginate_args);
   %paginate_params      = (
-    %paginate_params,
+    page         => min($paginate_params{page}, $calculated_params->{max}),
+    per_page     => $paginate_params{per_page},
     num_pages    => $calculated_params->{max},
     common_pages => $calculated_params->{common},
   );
