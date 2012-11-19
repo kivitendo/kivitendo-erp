@@ -1244,6 +1244,7 @@ $self->{texts} = {
   'No department has been created yet.' => 'Es wurde noch keine Abteilung erfasst.',
   'No dunnings have been selected for printing.' => 'Es wurden keine Mahnungen zum Drucken ausgew&auml;hlt.',
   'No entries were found which had no unit assigned to them.' => 'Es wurden keine Eintr&auml;ge gefunden, denen keine Einheit zugeordnet war.',
+  'No file has been uploaded yet.' => 'Es wurde noch keine Datei hochgeladen.',
   'No group has been selected, or the group does not exist anymore.' => 'Es wurde keine Gruppe ausgew&auml;hlt, oder die Gruppe wurde in der Zwischenzeit gel&ouml;scht.',
   'No groups have been added yet.' => 'Es wurden noch keine Gruppen angelegt.',
   'No or an unknown authenticantion module specified in "config/kivitendo.conf".' => 'Es wurde kein oder ein unbekanntes Authentifizierungsmodul in "config/kivitendo.conf" angegeben.',
