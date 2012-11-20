@@ -56,25 +56,25 @@ automatisch berechnet.</small></p>
 <table width="100%">
 <tr align="left">
   <td class="text">Steuernummer: <%steuernummer%></td>
-  <td class="text" width="100px">&nbsp</td>
+  <td class="text" width="100px">&nbsp;</td>
   <td class="text" align="right">Datum (<%Datum_heute%>)</td>
 </tr>
 <tr>
-  <td class="text" colspan="3"><br /></td>
+  <td class="text" colspan="3"><br></td>
 </tr>
 <tr align="left">
   <td class="text">
-    Finanzamt <%FA_Name%><br />
-    <%FA_Strasse%><br />
-    <%FA_PLZ%> <%FA_Ort%><br />
+    Finanzamt <%FA_Name%><br>
+    <%FA_Strasse%><br>
+    <%FA_PLZ%> <%FA_Ort%><br>
     Fax: <%FA_FAX%>
   </td>
   <td class="text">&nbsp;</td>
   <td class="text">
-    Firma <%company%><br />
+    Firma <%company%><br>
     <%if company_street%>
-      <%company_street%><br />
-      <%company_city%><br />
+      <%company_street%><br>
+      <%company_city%><br>
     <%end company_street%>
     <%if not company_street%>
     <%address%><!--used Address-->
@@ -82,7 +82,7 @@ automatisch berechnet.</small></p>
   </td>
 </tr>
 <tr>
-  <td class="text" colspan="3"><br />
+  <td class="text" colspan="3"><br>
   </td>
 </tr>
 </table>
@@ -127,7 +127,7 @@ Umsatzsteuer-Vorauszahlung </b></td>
     </tr>
     <tr>
       <td class="text2">Steuerfreie Ums&auml;tze ohne
-Vorsteuerabzug. </b><br />Ums&auml;tze nach &sect; 4 Nr. 8 bis 20 UStG</td>
+Vorsteuerabzug. </b><br>Ums&auml;tze nach &sect; 4 Nr. 8 bis 20 UStG</td>
       <td class="spalte ausfuellen"><span class="nodis">(Spalte </span>48<span class="nodis">)</span></td>
       <td class="betrag ausfuellen" width="70"><%48%><br></td>
       <td class="spalte"><span class="nodis"></span></td>
@@ -426,10 +426,10 @@ Vorsteuerabzug. </b><br />Ums&auml;tze nach &sect; 4 Nr. 8 bis 20 UStG</td>
 </table>
 <%if FA_steuerberater%>
 <p>
-Steuerberater:<br />
-<%FA_steuerberater_name%><br />
-<%FA_steuerberater_street%><br />
-<%FA_steuerberater_city%><br />
+Steuerberater:<br>
+<%FA_steuerberater_name%><br>
+<%FA_steuerberater_street%><br>
+<%FA_steuerberater_city%><br>
 Tel:&nbsp;<%FA_steuerberater_tel%></p>
 <%end FA_steuerberater%>
 </body>
