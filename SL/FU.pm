@@ -426,10 +426,10 @@ sub save_access_rights {
 
   my ($id)     = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $form->{login});
 
+  do_query($form, $dbh, qq|DELETE FROM follow_up_access WHERE what = ?|, $id);
+
   my $query    = qq|INSERT INTO follow_up_access (who, what) VALUES (?, ?)|;
   my $sth      = prepare_query($form, $dbh, $query);
-
-  do_query($form, $dbh, qq|DELETE FROM follow_up_access WHERE what = ?|, $id);
 
   while (my ($who, $access_allowed) = each %{ $params{access} }) {
     next unless ($access_allowed);
