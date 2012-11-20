@@ -190,7 +190,7 @@ body { margin: 0 }
 
 
 @media print {
-  #menuv3, #html-menu, #frame-header, #js-menu {   /* items with this class won't print */
+  #menuv3, #html-menu, #frame-header, #main_menu_div, #js-header {   /* items with this class won't print */
     display: none;
   }
   #content.html-menu { margin-left: 0; }
