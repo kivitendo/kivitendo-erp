@@ -51,7 +51,7 @@ padding:1px 0 1px 3px;
 
 #menuv3 h2 {
 color:#fff;
-padding:0 5px;
+padding:2px 10px;
 }
 
 #menuv3 a, #menuv3 a:visited, #menuv3 div.x, #menuv3 div.x:visited {
@@ -63,7 +63,6 @@ padding-right:10px;
 #menuv3 a {
 background:#eee;
 }
-
 #menuv3 div.x, #menuv3 div.x:visited {
 background:#eee url(../../image/right.gif) no-repeat right;
 }
@@ -83,7 +82,6 @@ list-style:none;
 margin:0;
 padding:0;
 float:left;
-min-width:7em;
 }
 
 #menuv3 li {
@@ -119,7 +117,7 @@ display:none;
 
 #menuv3 ul ul ul {
 top:0;
-left:100%;
+left:90%;
 }
 
 /* Begin non-anchor hover selectors */
@@ -150,129 +148,6 @@ div#menuv3 li:hover ul,
 div#menuv3 li li:hover ul,
 div#menuv3 li li li:hover ul,
 div#menuv3 li li li li:hover ul
-{display:block;}
-
-/* End of non-anchor hover selectors */
-
-#menuv4 {
-width:99.8%;
-float:left;
-background:url(../../image/bg_css_menu.png) repeat bottom;
-border:1px solid;
-border-color:#ccc #888 #555 #bbb;
-}
-
-#menuv4 a, #menuv4 h2, #menuv4 div.x {
-font:11px/16px arial,helvetica,sans-serif;
-display:block;
-border:0;
-border-right:1px;
-border-style:solid;
-border-color:#ccc #888 #555 #bbb;
-white-space:nowrap;
-margin:0;
-padding:1px 0 1px 3px;
-}
-
-#menuv4 h2 {
-color:#fff;
-padding:2px 10px;
-}
-
-#menuv4 a, #menuv4 a:visited, #menuv4 div.x, #menuv4 div.x:visited {
-color:#000;
-text-decoration:none;
-padding-right:10px;
-}
-
-#menuv4 a {
-background:#eee;
-}
-#menuv4 div.x, #menuv4 div.x:visited {
-background:#eee url(../../image/right.gif) no-repeat right;
-}
-
-#menuv4 a:hover, #menuv4 div.x:hover {
-color:#a00;
-background-color:#ddd;
-}
-
-#menuv4 a:active, #menuv4 div.x:active {
-color:#060;
-background-color:#ccc;
-}
-
-#menuv4 ul {
-list-style:none;
-margin:0;
-padding:0;
-float:left;
-}
-
-#menuv4 li {
-position:relative;
-float:none;
-border:0;
-}
-
-/* IE6 spacing bug fix, <li>s without a bottom border get spaced to far
- * correction: the bug will change the height of the parent element! this will also cause the whole menu to grow
- * so the only method to get this pile of crap going is to add a bottom border to the <li>s, where the enclosing <ul> already has
- * a bottom border, which just looks ugly
- * the trick: color the bottom border with the same color as the bottom pixel of the background image - noone notices */
-#menuv4 ul li {
-border:solid;
-border-color:#ccd5e5;
-border-width:0 0 1px 0;
-}
-
-#menuv4 ul ul li {
-border:solid;
-border-width:0 0 1px 0;
-}
-
-/* IE6 event bug fix, without a background there hovers will be occassionally lost between the li's to the layer below
- * causing the menu to close. Opera 9 has the same bug btw. */
-#menuv4 ul ul {
-position:absolute;
-z-index:500;
-top:auto;
-display:none;
-}
-
-#menuv4 ul ul ul {
-top:0;
-left:90%;
-}
-
-/* Begin non-anchor hover selectors */
-
-/* Enter the more specific element (div) selector
-on non-anchor hovers for IE5.x to comply with the
-older version of csshover.htc - V1.21.041022. It
-improves IE's performance speed to use the older
-file and this method */
-
-div#menuv4 h2:hover {
-background:#A3C5FF;
-color:#a00;
-}
-
-div#menuv4 li:hover {
-cursor:pointer;
-z-index:100;
-}
-
-div#menuv4 li:hover ul ul,
-div#menuv4 li li:hover ul ul,
-div#menuv4 li li li:hover ul ul,
-div#menuv4 li li li li:hover ul ul
-{display:none;}
-
-div#menuv4 li:hover ul,
-div#menuv4 li li:hover ul,
-div#menuv4 li li li:hover ul,
-div#menuv4 li li li li:hover ul
 {display:block;}
 
 /* End of non-anchor hover selectors */
@@ -315,7 +190,7 @@ body { margin: 0 }
 
 
 @media print {
-  #menuv3, #menuv4, #html-menu, #frame-header, #js-menu {   /* items with this class won't print */
+  #menuv3, #html-menu, #frame-header, #main_menu_div, #js-header {   /* items with this class won't print */
     display: none;
   }
   #content.html-menu { margin-left: 0; }

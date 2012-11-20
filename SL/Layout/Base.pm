@@ -101,10 +101,10 @@ sub get_stylesheet_for_user {
         -f "$css_path/$user_style/main.css") {
       $css_path = "$css_path/$user_style";
     } else {
-      $css_path = "$css_path/lx-office-erp";
+      $css_path = "$css_path/kivitendo";
     }
   } else {
-    $css_path = "$css_path/lx-office-erp";
+    $css_path = "$css_path/kivitendo";
   }
   $::myconfig{css_path} = $css_path; # needed for menunew, FIXME: don't do this here
 

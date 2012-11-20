@@ -292,9 +292,7 @@
        <tr>
         <th align="right" nowrap>[% 'Reqdate' | $T8 %]</th>
         <td nowrap>
-         <input name="reqdate" id="reqdate" size="11" title="[% HTML.escape(myconfig_dateformat) %]" value="[% HTML.escape(reqdate) %]"
-                onBlur="check_right_date_format(this)"[% RO %]>
-         <input type="button" name="b_reqdate" id="reqdate_trigger" value="?">
+         [% L.date_tag('reqdate', reqdate, readonly => delivered) %]
         </td>
        </tr>
 

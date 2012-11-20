@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
- <h2>[% title %]</h2>
+ <h1>[% title %]</h1>
  <p><a href="admin.pl?action=pg_database_administration">[% 'Back' | $T8 %]</a></p>
  [% IF ALL_UPDATED %]
   [% 'All Datasets up to date!' | $T8 %]
@@ -51,4 +51,3 @@
   </form>
 
  [% END %]
-

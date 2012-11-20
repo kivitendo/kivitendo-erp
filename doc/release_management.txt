@@ -77,13 +77,21 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
     Das gleiche für trac:
     o Individuelle Abfrage
-      + geändert zwischen <letztes Releasedatum> und <heute>
+      + geändert zwischen <letztes Releasedatum> und <heute+1>
       + Status closed
       + Lösung behobena
       + Komponente ist Lx-Office ERP
     o Spalten: nur Zusammenfassung
     o sortieren nach Ticketnummer
     o rest weiter ab copy&paste
+
+    Achtung: trac hat im Moment noch Probleme, so dass Bugs zum teil mit nicht
+    existenten Lösungen geschlossen werden.  Besser ist es, sich die Lösung als
+    eigene Spalte anzeigen zu lassen, die Lösungen zu filtern, die nicht
+    erwünscht sind, und den Rest zu formatieren (TODO: Script erweitern)
+
+    Achtung: trac benutzt Datum 00:00:00 als obere Grenze, dass heisst, immer
+    einen Tag mehr angeben.
 
   - Ausserdem einmal durch das git scrollen und sinnvolle grössere Änderungen
     ins changelog übertragen. Muss nur einmal gemacht werden, möglichst danach
