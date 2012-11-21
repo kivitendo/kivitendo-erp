@@ -811,6 +811,7 @@ sub use_as_template {
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
+  $form->{duedate} = $form->get_duedate(\%myconfig, $form->{invdate}) || $form->{invdate};
 
   # remember pricegroups for "use as template"
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
