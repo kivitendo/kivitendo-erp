@@ -1,0 +1,38 @@
+#frame-header .frame-header-element a:link,
+#frame-header .frame-header-element a:visited,
+#frame-header .frame-header-element a:hover,
+#frame-header .frame-header-element a:active {
+  color: white;
+  background: none;
+  text-decoration: underline;
+}
+
+#frame-header {
+  background: url('../../../image/bg_kivi_titel.png') repeat-x;
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  color: white;
+  border: 0;
+  overflow: hidden;
+  width: 100%;
+  border-spacing: 0;
+  font-size: 12px;
+}
+
+#frame-header .frame-header-left {
+  float: left;
+}
+#frame-header .frame-header-right {
+  float: right;
+}
+
+#frame-header .frame-header-left,
+#frame-header .frame-header-center,
+#frame-header .frame-header-right  {
+  border-spacing: 0;
+  color: white;
+  padding: 0;
+  font-family: verdana,arial,sans-serif;
+  vertical-align: middle;
+}

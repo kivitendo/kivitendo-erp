@@ -1,1 +1,14 @@
-../lx-office-erp/background_jobs.css
+/* Jobverwaltung */
+.background_job_list    tbody pre,
+.background_job_details tbody pre {
+  margin: 0px;
+}
+
+.background_job_details tbody th {
+  text-align: right;
+  vertical-align: top;
+}
+
+.background_job_details tbody td {
+  vertical-align: top;
+}
