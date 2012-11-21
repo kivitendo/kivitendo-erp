@@ -32,7 +32,7 @@
   [%- END %]
 
   <input class=submit type=submit name=action value="[% 'Post Payment' | $T8 %]">
-  <input class=submit type=submit name=action value="[% 'Use As Template' | $T8 %]">
+  <input class=submit type=submit name=action value="[% 'Use As New' | $T8 %]">
   <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
 
 [%- ELSIF show_post_draft %]
@@ -66,5 +66,3 @@ function set_duedate() {
  }
 //-->
 </script>
-
-

@@ -799,7 +799,7 @@ sub print_and_post {
 
 }
 
-sub use_as_template {
+sub use_as_new {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -813,7 +813,7 @@ sub use_as_template {
   $form->{invdate} = $form->current_date(\%myconfig);
   $form->{duedate} = $form->get_duedate(\%myconfig, $form->{invdate}) || $form->{invdate};
 
-  # remember pricegroups for "use as template"
+  # remember pricegroups for "use as new"
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
   set_pricegroup($_) for 1 .. $form->{rowcount};
 
