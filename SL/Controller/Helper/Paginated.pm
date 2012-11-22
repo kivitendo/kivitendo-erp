@@ -7,7 +7,9 @@ our @EXPORT = qw(make_paginated get_paginate_spec get_current_paginate_params _s
 
 use constant PRIV => '__paginatedhelper_priv';
 
-my $controller_paginate_spec;
+use List::Util qw(min);
+
+my %controller_paginate_spec;
 
 sub make_paginated {
   my ($class, %specs)       = @_;
@@ -20,7 +22,7 @@ sub make_paginated {
   $specs{ONLY}              = [ $specs{ONLY} ] if !ref $specs{ONLY};
   $specs{ONLY_MAP}          = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
 
-  $controller_paginate_spec = \%specs;
+  $controller_paginate_spec{$class} = \%specs;
 
   my %hook_params           = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
   $class->run_before('_save_current_paginate_params', %hook_params);
@@ -38,7 +40,7 @@ sub make_paginated {
 sub get_paginate_spec {
   my ($class_or_self) = @_;
 
-  return $controller_paginate_spec;
+  return $controller_paginate_spec{ref($class_or_self) || $class_or_self};
 }
 
 sub get_current_paginate_params {
@@ -60,7 +62,8 @@ sub get_current_paginate_params {
                         :                                         ();
   my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => \%paginate_args);
   %paginate_params      = (
-    %paginate_params,
+    page         => min($paginate_params{page}, $calculated_params->{max}),
+    per_page     => $paginate_params{per_page},
     num_pages    => $calculated_params->{max},
     common_pages => $calculated_params->{common},
   );

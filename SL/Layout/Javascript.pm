@@ -115,7 +115,7 @@ sub create_menu {
     my $item      = { 'title' => $::locale->text($name) };
     push @{ $all_items }, $item;
 
-    if ($menu_item->{submenu} || !defined($menu_item->{module})) {
+    if ($menu_item->{submenu} || (!defined($menu_item->{module}) && !defined($menu_item->{href}))) {
       $item->{subitems} = [];
       $item->{image} = _icon_path("$name.png");
       $self->create_menu($menu, $item->{subitems}, "${parent}${name}", $depth * 1 + 1);

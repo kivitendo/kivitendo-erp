@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE HTML %]
+[%- USE L %]
   <tr class=listheading>
    <th class=listheading>[% 'Individual Items' | $T8 %]</th>
   </tr>
@@ -20,7 +21,7 @@
   [%- IF rcol.escape %]
       <td[% ' align=' _ rcol.align IF rcol.align %]>[%- HTML.escape(rcol.data) %]</td>
   [%- ELSE %]
-      <td[% ' align=' _ rcol.align IF rcol.align %]>[%- rcol.data %]</td>
+      <td[% ' align=' _ rcol.align IF rcol.align %]>[%- IF rcol.link %][% L.link(rcol.link, rcol.data) %][% ELSE %][% rcol.data %][% END %]</td>
   [%- END %]
  [%- END %]
  [%- FOREACH hidden = row.hiddens %]

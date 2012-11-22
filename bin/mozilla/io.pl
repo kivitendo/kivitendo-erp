@@ -38,7 +38,7 @@
 
 use Carp;
 use CGI;
-use List::MoreUtils qw(uniq);
+use List::MoreUtils qw(any uniq);
 use List::Util qw(min max first);
 
 use SL::CVar;
@@ -1089,11 +1089,12 @@ sub print_options {
     opthash("inline",                $form->{SM}{inline},              $locale->text('In-line'))
       if ($form->{media} eq 'email');
 
+  my $printable_templates = any { $::lx_office_conf{print_templates}->{$_} } qw(latex opendocument);
   push @MEDIA, grep $_,
       opthash("screen",              $form->{OP}{screen},              $locale->text('Screen')),
-    ($form->{printers} && scalar @{ $form->{printers} } && $::lx_office_conf{print_templates}->{latex}) ?
+    ($printable_templates && $form->{printers} && scalar @{ $form->{printers} }) ?
       opthash("printer",             $form->{OP}{printer},             $locale->text('Printer')) : undef,
-    ($::lx_office_conf{print_templates}->{latex} && !$options{no_queue}) ?
+    ($printable_templates && !$options{no_queue}) ?
       opthash("queue",               $form->{OP}{queue},               $locale->text('Queue')) : undef
         if ($form->{media} ne 'email');
 
@@ -1470,7 +1471,7 @@ sub print_form {
   reformat_numbers($output_numberformat, 2,
                    qw(invtotal ordtotal quototal subtotal linetotal
                       listprice sellprice netprice discount
-                      tax taxbase total paid),
+                      tax taxbase total paid payment),
                    grep({ /^(?:linetotal|nodiscount_linetotal|listprice|sellprice|netprice|taxbase|discount|p_discount|discount_sub|nodiscount_sub|paid|subtotal|total|tax)_\d+$/ } keys(%{$form})));
 
   reformat_numbers($output_numberformat, undef,

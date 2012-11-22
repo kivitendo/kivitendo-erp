@@ -1,14 +1,14 @@
 [%- USE T8 %]
 [%- USE HTML %]
 
-  <div class="listtop">[% 'Edit groups' | $T8 %]</div>
+  <h1>[% 'Edit groups' | $T8 %]</h1>
   [% IF message %]
   <p class="message_ok">[% message %]</p>
   [% END %]
 
   <p><a href="admin.pl?action=login">[% 'Back' | $T8 %]</a></p>
 
- <h1>[% 'Add a new group' | $T8 %]</h1>
+ <h2>[% 'Add a new group' | $T8 %]</h2>
 
  <form method="post" action="admin.pl">
  <br>
@@ -20,7 +20,7 @@
    <p><input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]"></p>
  </form>
 
- <h1>[% 'Edit and delete a group' | $T8 %]</h1>
+ <h2>[% 'Edit and delete a group' | $T8 %]</h2>
 
  <form name="Form" method="post" action="admin.pl">
   [% IF num_groups %]
@@ -45,7 +45,7 @@
   </p>
  </form>
 
- <h1>[% 'Group membership' | $T8 %]</h1>
+ <h2>[% 'Group membership' | $T8 %]</h2>
 
  <p>[% 'Edit the membership of all users in all groups:' | $T8 %]</p>
 

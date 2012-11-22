@@ -609,7 +609,7 @@ sub storno {
 
 }
 
-sub use_as_template {
+sub use_as_new {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;

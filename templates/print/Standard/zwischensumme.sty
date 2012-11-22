@@ -1,0 +1,188 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Makros zur Berechnung und Ausgabe einer Zwischensumme bei langen Tabellen
+% Der Hack der longtable Ausgabe ist von Heiko Oberdiek, das Paket zref auch.
+%                            ---<(kaimartin)>---(August, 2007)
+%Angepasst an 2.6.3 von n.simon@linet-services.de, 15. November 2011
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Diese Datei steht unter der GPL-Lizenz, Version 3
+% siehe http://www.gnu.de/licenses/gpl-3.0.html
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\usepackage{etex}           % Damit Marken verwendet werden koennen
+\usepackage[savepos,user]{zref}  % Um die jeweils aktuelle Position zu merken
+\usepackage{fltpoint}       % Rechnen mit Komma-Zahlen
+\usepackage{numprint}       % Zahlen formatiert ausgeben
+\usepackage{eurosym}        % Das Euro-Zeichen
+\usepackage{calc}           % Fuer das Makro \widthof{}
+
+% Globale Einstellungen fuer numprint
+\nprounddigits{2}   % Zwei Nachkommasstellen
+%% ",00" nicht durch ",--" ersetzen
+\npprintnull
+
+\fpDecimalSign{.}
+
+\newcommand{\lxNumberFormatGermanInput}{\makeatletter\renewcommand*\nprt@ignorelist{.}\renewcommand*\nprt@dotlist{,}\makeatother}
+\newcommand{\lxNumberFormatEnglishInput}{\makeatletter\renewcommand*\nprt@ignorelist{,}\renewcommand*\nprt@dotlist{.}\makeatother}
+
+\newcommand{\lxNumberFormatGerman}{\lxNumberFormatGermanInput\npthousandsep{.}\npdecimalsign{,}}
+\newcommand{\lxNumberFormatGermanNoSeparator}{\lxNumberFormatGermanInput\npthousandsep{}\npdecimalsign{,}}
+
+\newcommand{\lxNumberFormatEnglish}{\lxNumberFormatEnglishInput\npthousandsep{,}\npdecimalsign{.}}
+\newcommand{\lxNumberFormatEnglishNoSeparator}{\lxNumberFormatEnglishInput\npthousandsep{}\npdecimalsign{.}}
+
+\newcommand{\lxNumberFormatToUse}{\lxNumberFormatGerman}
+
+% Paketoptionen: Dezimaltrennzeichen und Tausendertrennzeichen
+\DeclareOption{german}{\renewcommand{\lxNumberFormatToUse}{\lxNumberFormatGerman}}
+\DeclareOption{germannosep}{\renewcommand{\lxNumberFormatToUse}{\lxNumberFormatGermanNoSeparator}}
+\DeclareOption{english}{\renewcommand{\lxNumberFormatToUse}{\lxNumberFormatEnglish}}
+\DeclareOption{englishnosep}{\renewcommand{\lxNumberFormatToUse}{\lxNumberFormatEnglishNoSeparator}}
+
+\ProcessOptions
+
+\lxNumberFormatToUse
+
+%%%%%%%%%%%%%%Befehle zur Berechnung der Zwischensumme%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand*\laufsumme{0}
+\newcommand*\resetlaufsumme{\global\def\laufsumme{0}}
+\newcommand*\addlaufsumme[1]{\fpAdd{\laufsumme}{\laufsumme}{#1}%
+                                 \global\let\laufsumme\laufsumme}
+\newcommand*\printwert[1]{%
+\lxNumberFormatToUse%
+\lxNumberFormatEnglishInput%
+\numprint{#1}%
+\lxNumberFormatToUse}
+
+%%%%%%%%Plaintex-Hack fuer Positionierung der Zwischensummen%%%%%%%%%%%%%%%%%%
+
+
+\makeatletter  % Das at-Zeichen in Variablen zulassen
+
+% Variablen bereit stellen
+  \newdimen\drx
+  \newdimen\dry
+
+  \newmarks\ltm@marks
+  \def\ltm@setmarks#1{%
+    \marks\ltm@marks{#1}%
+    }
+  \def\ltm@getmarks{%
+    \botmarks\ltm@marks
+    }
+
+
+% Den aktuellen Wert der Laufsumme berechnen und merken
+\newcommand*{\Wert}[1]{%
+  \addlaufsumme{#1}%  Den uebergebenen Wert zur Laufsumme addieren
+  \expandafter\ltm@setmarks\expandafter{\laufsumme}% Die Laufsumme merken
+}
+
+% Merken der aktuellen Position
+\newcommand*{\MarkZwsumPos}{%
+  \leavevmode
+     \zsavepos{zwsumpos\thepage}%
+     \zrefused{zwsumpos\thepage}%
+}
+
+\newcommand*{\MarkUebertrPos}{%
+  \leavevmode
+     \zsavepos{uebertrpos\thepage}%
+     \zrefused{uebertrpos\thepage}%
+}
+
+
+% Ausgabe der Zwischensumme
+\def\ltm@insertfoot#1{%
+    \vbox to\z@{%
+      \vss
+      \hb@xt@\z@{%
+        \color@begingroup
+           \zsavepos{tabende\thepage}%   % Die aktuelle Position merken
+           \drx=0sp
+           \dry=0sp
+           % Die aktuelle Position abziehen und die gemerkte addieren
+           \advance \drx by -\zposx{tabende\thepage}sp
+           \advance \drx by \zposx{zwsumpos\thepage}sp
+           \advance \dry by -\zposy{tabende\thepage}sp
+           \advance \dry by \zposy{zwsumpos\thepage}sp
+           \smash{\kern\drx\raise\dry%
+             \hbox{\makebox[0cm][r]{Zwischensumme:\hspace*{2em}\printwert{#1} \currency}}%
+             }% end smash
+        \color@endgroup
+      }%
+    }%
+}
+
+% Ausgabe des Uebertrags
+% Wie die Ausgabe der Zwischensumme, nur ohne neu gemerkte Position
+\def\ltm@inserthead#1{%
+    \vbox to\z@{%
+      \vss
+      \hb@xt@\z@{%
+        \color@begingroup
+           \zsavepos{tabstart\thepage}%   % Die aktuelle Position merken
+           \drx=0sp
+           \dry=0sp
+           % Die Position des Tabellenendes abziehen und zur gemerkten gehen
+           \advance \drx by -\zposx{tabstart\thepage}sp
+           \advance \drx by \zposx{uebertrpos\thepage}sp
+           \advance \dry by -\zposy{tabstart\thepage}sp
+           \advance \dry by \zposy{uebertrpos\thepage}sp
+           \smash{\kern\drx\raise\dry%
+             \hbox{\makebox[0cm][r]{Übertrag:\hspace*{2em}\printwert{#1} \currency}}%
+             }% end smash
+        \color@endgroup
+      }%
+    }%
+}
+
+\def\ltm@lastfoot{}
+\def\ltm@foot{\ltm@insertfoot{\ltm@getmarks}}
+\def\ltm@head{\ltm@inserthead{\ltm@getmarks}}
+
+
+% Ueberschreiben der Output-Routine von longtable
+\def\LT@output{%
+  \ifnum\outputpenalty <-\@Mi
+    \ifnum\outputpenalty > -\LT@end@pen
+      \LT@err{floats and marginpars %
+              not allowed in a longtable}\@ehc
+    \else
+      \setbox\z@\vbox{\unvbox\@cclv}%
+      \ifdim \ht\LT@lastfoot>\ht\LT@foot
+        \dimen@\pagegoal
+        \advance\dimen@-\ht\LT@lastfoot
+        \ifdim\dimen@<\ht\z@
+          \setbox\@cclv\vbox{%
+            \unvbox\z@\copy\LT@foot\ltm@foot\vss
+          }%
+          \@makecol
+          \@outputpage
+          \setbox\z@\vbox{\box\LT@head}%
+        \fi
+      \fi
+      \global\@colroom\@colht
+      \global\vsize\@colht
+      \vbox{%
+        \unvbox\z@
+        \box\ifvoid\LT@lastfoot
+          \LT@foot\ltm@foot
+        \else
+          \LT@lastfoot\ltm@lastfoot
+        \fi
+      }%
+    \fi
+  \else
+    \setbox\@cclv\vbox{%
+      \unvbox\@cclv\copy\LT@foot\ltm@foot\vss
+    }%
+    \@makecol
+    \@outputpage
+    \global\vsize\@colroom
+    \copy\LT@head\ltm@head
+  \fi
+}
+
+\makeatother    % Das at-Zeichen in Variablen wieder verbieten
+%%%%%%%%%%%%%%%%%%%%Ende plaintex-Hack%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

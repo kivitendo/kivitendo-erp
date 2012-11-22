@@ -1970,7 +1970,7 @@ sub get_duedate {
   $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
 
   my $dbh         = $self->get_standard_dbh($myconfig);
-  my $payment_id;
+  my ($payment_id, $duedate);
 
   if($self->{payment_id}) {
     $payment_id = $self->{payment_id};
@@ -1979,8 +1979,10 @@ sub get_duedate {
     ($payment_id) = selectrow_query($self, $dbh, $query, $self->{vendor_id});
   }
 
-  my $query       = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
-  my ($duedate)   = selectrow_query($self, $dbh, $query, $payment_id);
+  if ($payment_id) {
+    my $query  = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
+    ($duedate) = selectrow_query($self, $dbh, $query, $payment_id);
+  }
 
   $main::lxdebug->leave_sub();
 
@@ -3581,7 +3583,6 @@ sub layout {
   my %style_to_script_map = (
     v3  => 'v3',
     neu => 'new',
-    v4  => 'v4',
   );
 
   my $menu_script = $style_to_script_map{$::myconfig{menustyle}} || '';

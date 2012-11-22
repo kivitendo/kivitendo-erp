@@ -40,6 +40,7 @@ use File::Copy;
 use File::Find;
 use File::Spec;
 use Cwd;
+use IO::Dir;
 use IO::File;
 use POSIX qw(strftime);
 use Sys::Hostname;
@@ -79,7 +80,6 @@ my @all_stylesheets = qw(lx-office-erp.css Win2000.css Mobile.css kivitendo.css)
 my @all_menustyles = (
   { id => 'old', title => $::locale->text('Old (on the side)') },
   { id => 'v3',  title => $::locale->text('Top (CSS)') },
-  { id => 'v4',  title => $::locale->text('Top (CSS) new') },
   { id => 'neu', title => $::locale->text('Top (Javascript)') },
 );
 
@@ -379,16 +379,14 @@ sub list_users {
 sub add_user {
   $::form->{title}   = "kivitendo " . $::locale->text('Administration') . " / " . $::locale->text('Add User');
 
-# Note: Menu Style 'v3' is not compatible to all browsers!
-# "menustyle"    => "old" sets the HTML Menu to default.
-# User does not have a well behaved new constructor, so we#Ll just have to build one ourself
+  # User does not have a well behaved new constructor, so we'll just have to build one ourself
   my $user     = bless {
     "vclimit"      => 200,
     "countrycode"  => "de",
     "numberformat" => "1.000,00",
     "dateformat"   => "dd.mm.yy",
-    "stylesheet"   => "lx-office-erp.css",
-    "menustyle"    => "old",
+    "stylesheet"   => "kivitendo.css",
+    "menustyle"    => "neu",
     dbport         => $::auth->{DB_config}->{port} || 5432,
     dbuser         => $::auth->{DB_config}->{user} || 'lxoffice',
     dbhost         => $::auth->{DB_config}->{host} || 'localhost',
@@ -745,35 +743,17 @@ sub create_dataset {
 
   $form->{CHARTS}    = [];
 
-  opendir SQLDIR, "sql/." or $form->error($ERRNO);
-  foreach my $item (sort grep /-chart\.sql\z/, readdir SQLDIR) {
-    next if ($item eq 'Default-chart.sql');
-    $item =~ s/-chart\.sql//;
-    push @{ $form->{CHARTS} }, { "name"     => $item,
-                                 "selected" => $item eq "Germany-DATEV-SKR03EU" };
+  tie my %dir_h, 'IO::Dir', 'sql/';
+  foreach my $item (map { s/-chart\.sql$//; $_ } sort grep { /-chart\.sql\z/ && !/Default-chart.sql\z/ } keys %dir_h) {
+    push @{ $form->{CHARTS} }, { name     => $item,
+                                 selected => $item eq "Germany-DATEV-SKR03EU" };
   }
-  closedir SQLDIR;
 
-  $form->{ACCOUNTING_METHODS} = [];
-  foreach my $item ( qw(accrual cash) ) {
-    push @{ $form->{ACCOUNTING_METHODS} }, { "name"     => $item,
-                                 "selected" => $item eq "cash" };
-  };
+  $form->{ACCOUNTING_METHODS}    = [ map { { name => $_, selected => $_ eq 'cash'     } } qw(accrual cash)       ];
+  $form->{INVENTORY_SYSTEMS}     = [ map { { name => $_, selected => $_ eq 'periodic' } } qw(perpetual periodic) ];
+  $form->{PROFIT_DETERMINATIONS} = [ map { { name => $_, selected => $_ eq 'income'   } } qw(balance income)     ];
 
-  $form->{INVENTORY_SYSTEMS} = [];
-  foreach my $item ( qw(perpetual periodic) ) {
-    push @{ $form->{INVENTORY_SYSTEMS} }, { "name"     => $item,
-                                 "selected" => $item eq "periodic" };
-  };
-
-  $form->{PROFIT_DETERMINATIONS} = [];
-  foreach my $item ( qw(balance income) ) {
-    push @{ $form->{PROFIT_DETERMINATIONS} }, { "name"     => $item,
-                                 "selected" => $item eq "income" };
-  };
-
-  my $default_charset = $::lx_office_conf{system}->{dbcharset};
-  $default_charset ||= Common::DEFAULT_CHARSET;
+  my $default_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
 
   my $cluster_encoding = User->dbclusterencoding($form);
   if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i)) {
@@ -786,13 +766,7 @@ sub create_dataset {
     $form->{FORCE_DBENCODING} = 'UNICODE';
 
   } else {
-    $form->{DBENCODINGS} = [];
-
-    foreach my $encoding (@Common::db_encodings) {
-      push @{ $form->{DBENCODINGS} }, { "dbencoding" => $encoding->{dbencoding},
-                                        "label"      => $encoding->{label},
-                                        "selected"   => $encoding->{charset} eq $default_charset };
-    }
+    $form->{DBENCODINGS} = [ map { { %{$_}, selected => $_->{charset} eq $default_charset } } @Common::db_encodings ];
   }
 
   $form->{title} = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Create Dataset');
@@ -1198,23 +1172,17 @@ sub _search_templates {
     $::form->error(sprintf($::locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
   }
 
-  opendir TEMPLATEDIR, $::lx_office_conf{paths}->{templates} or $::form->error($::lx_office_conf{paths}->{templates} . " : $ERRNO");
-  my @all     = readdir(TEMPLATEDIR);
-  my @alldir  = sort grep { -d ($::lx_office_conf{paths}->{templates} . "/$_") && !/^\.\.?$/ } @all;
-  closedir TEMPLATEDIR;
+  tie my %dir_h, 'IO::Dir', $::lx_office_conf{paths}->{templates};
 
-  @alldir = grep !/\.(html|tex|sty|odt|xml|txb)$/, @alldir;
-  @alldir = grep !/^(webpages|print|\.svn)$/, @alldir;
+  my @alldir  = sort grep {
+       -d ($::lx_office_conf{paths}->{templates} . "/$_")
+    && !/^\.\.?$/
+    && !m/\.(?:html|tex|sty|odt|xml|txb)$/
+    && !m/^(?:webpages$|print$|\.)/
+  } keys %dir_h;
 
-  # mastertemplates
-  opendir TEMPLATEDIR, "$::lx_office_conf{paths}->{templates}/print" or $::form->error("$::lx_office_conf{paths}->{templates}/print" . " : $ERRNO");
-  my @allmaster = readdir(TEMPLATEDIR);
-  closedir TEMPLATEDIR;
-
-  @allmaster  = sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ } @allmaster;
-  @allmaster = reverse grep !/Default/, @allmaster;
-  push @allmaster, 'Default';
-  @allmaster = reverse @allmaster;
+  tie %dir_h, 'IO::Dir', "$::lx_office_conf{paths}->{templates}/print";
+  my @allmaster = ('Standard', sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ && !/^Standard$/ } keys %dir_h);
 
   return \@alldir, \@allmaster;
 }

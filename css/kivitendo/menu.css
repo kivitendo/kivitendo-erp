@@ -1,280 +1,155 @@
-/* kivitendo menu Colors:
-Menu Background color #FE5F14
-orangemenu color #FFFFFF
-whiteMenu Hover background color #FFFFE0
-DarkGreensubenu pointer
-*/
-body.menuv4 {
-	behavior: url("css/csshover.htc");
-	/*font-size: 14pt;*/
-	line-height: 20pt;
-	font-family: Verdana, Geneva, Tahoma, sans-serif;
-	background-color: #FFFFFF;
-	color: #000000;
-}
-#menuv4 {
-	/*font-size: 85%;*/
-	width: 99.8%;
-	float: left;
-	/*border: 3px solid;*/
-	background-color: #FFFFFF;
-	color: #000000;
-}
-#menuv4 a, #menuv4 h2, #menuv4 div.x {
-	font-size: 80%;
-	line-height: 120%;
-	display: block;
-	border: 0;
-	white-space: nowrap;
-	margin: 0;
-	padding: 0.3em 1em;
-}
-#menuv4 h2 {
-	background-color: #ffffff;
-	color: #000000;
-	/*padding: 2px 15px;*/
-/* Firefox */
-	-moz-border-radius: 0.4em 0.4em 0;
-/* Safari, Chrome */
-	-webkit-border-radius: 0.4em 0.4em 0;
-/* Konqueror */
-	-khtml-border-radius: 0.4em 0.4em 0;
-/* CSS3 */
-	border-radius: 0.4em 0.4em 0 0;
-/* 	behavior: url(border-radius.htc); */
-}
-#menuv4 ul:hover h2 {
-	background-color:#DCDCDC;
-}
-#menuv4 a, #menuv4 a:visited, #menuv4 div.x, #menuv4 div.x:visited {
-	color: #000000;
-	text-decoration: none;
-	padding-right: 10px;
-}
-#menuv4 a {
-	background: #EBEBEB;
-}
-#menuv4 div.x, #menuv4 div.x:visited {
-	background-color: #EBEBEB;
-	border-right: 1em solid #FE5F14;
-}
-#menuv4 div.x:hover {
-	border-right: none;
-}
-#menuv4 a:hover, #menuv4 div.x:hover {
-	color: #FE5F14;
-	background-color: #EBEBEB;
-}
-#menuv4 a:active, #menuv4 div.x:active {
-	color: #FE5F14;
-	background-color: #EBEBEB;
-}
-#menuv4 ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	float: left;
+
+body.menu {
+  background-image: url("../../image/fade.png");background-repeat:repeat-x;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size:8pt;
+  color: black;
 }
 
-#menuv4 li {
-	position: relative;
-	float: none;
-	border: 0;
+table.menunew {
+  border: 0;
+  width: 100%;
+  background-image: url("../../image/bg_kivi_titel.png");
+  border-spacing: 0;
 }
-li.sub {
-	position: relativ;
-	left: 0.2em;
-	top: 0px;
-	background-color: #FFFFFF;
-}
-/* IE6 spacing bug fix, <li>s without a bottom border get spaced to far  * correction:the bug will change the height of the parent element! this will also cause the whole menu to grow  * so the only method to get this pile of crap going is to add a bottom border to the <li>s, where the enclosing <ul> already has * a bottom border, which just looks ugly * the trick:color the bottom border with the same color as the bottom pixel of the background image - noone notices */
-#menuv4 ul li {
-	/* border: solid;
-	border-color: #991900;
-	border-width: 0 0 1px 0;
-*/
-}
-#menuv4 ul ul {
-	padding: 0 2em 2em 2em;
-	margin: 0 -2em -2em -2em;
-}
-#menuv4 ul ul li {
-	/*padding-top: 0.01em;*/
-	background-color: #FFFFFF;
-}
-/* IE6 event bug fix, without a background there hovers will be occassionally lost between the li's to the layer below  * causing the menu to close. Opera 9 has the same bug btw. */
-#menuv4 ul ul {
-	position: absolute;
-	z-index: 500;
-	top: auto;
-	display: none;
-}
-#menuv4 ul ul ul {
-	top: 0;
-	left: 99%;
-	padding: 2em;
-	margin: -2em;
-}
-#menuv4 ul ul ul li {
-	border-left: 0.2em solid #EBEBEB;
-}
-/* Begin non-anchor hover selectors */
-/* Enter the more specific element (div) selectoron non-anchor hovers for IE5.x to comply with theolder version of csshover.htc - V1.21.041022. Itimproves IE's performance speed to use the olderfile and this method */
-div#menuv4 h2:hover {
-	background: #EBEBEB;
-	color: #FE5F14;
-}
-div#menuv4 li:hover {
-	cursor: pointer;
-	z-index: 100;
-}
-div#menuv4 li:hover ul ul, div#menuv4 li li:hover ul ul, div#menuv4 li li li:hover ul ul, div#menuv4 li li li li:hover ul ul {
-	display: none;
-}
-div#menuv4 li:hover ul, div#menuv4 li li:hover ul, div#menuv4 li li li:hover ul, div#menuv4 li li li li:hover ul {
-	display: block;
-	position: relativ: left: 10px;
-}
-/* End of non-anchor hover selectors */
 
-body.menuv3 {
-	behavior: url("css/csshover.htc");
-	/*font-size: 14pt;*/
-	line-height: 20pt;
-	font-family: Verdana, Geneva, Tahoma, sans-serif;
-	background-color: #FFFFFF;
-	color: #000000;
+table.menunew td {
+  padding: 0;
+  color:white;
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 12px;
 }
+
+body.menunew {
+  padding:0px;
+  margin:0px;
+}
+
+body {
+behavior:url("csshover.htc");
+}
+
 #menuv3 {
-	/*font-size: 85%;*/
-	width: 99.8%;
-	float: left;
-	/*border: 3px solid;*/
-	background-color: #FFFFFF;
-	color: #000000;
-	margin-top: 0.2em;
+width:99.8%;
+float:left;
+background:url(../../image/bg_css_kivi_menu.png) repeat bottom;
+border:1px solid;
+border-color:#ccc #888 #555 #bbb;
 }
+
 #menuv3 a, #menuv3 h2, #menuv3 div.x {
-	font-size: 80%;
-	line-height: 120%;
-	display: block;
-	border: 0;
-	white-space: nowrap;
-	margin: 0;
-	padding: 0.3em 1em;
+font:11px/16px arial,helvetica,sans-serif;
+display:block;
+border:0;
+border-right:1px;
+border-style:solid;
+border-color:#ccc #888 #555 #bbb;
+white-space:nowrap;
+margin:0;
+padding:1px 0 1px 3px;
 }
-#menuv3 h2:before {
-	content: " ";
-}
-#menuv3 h2:after {
-	content: " ";
-}
+
 #menuv3 h2 {
-	background-color: #ffffff;
-	color: #000000;
-	/*padding: 2px 15px;*/
-/* Firefox */
-	-moz-border-radius: 0.4em 0.4em 0;
-/* Safari, Chrome */
-	-webkit-border-radius: 0.4em 0.4em 0;
-/* Konqueror */
-	-khtml-border-radius: 0.4em 0.4em 0;
-/* CSS3 */
-	border-radius: 0.4em 0.4em 0 0;
-/* 	behavior: url(border-radius.htc); */
+color:#fff;
+padding:2px 10px;
 }
-#menuv3 ul:hover h2 {
-	background-color:#DCDCDC;
-}
+
 #menuv3 a, #menuv3 a:visited, #menuv3 div.x, #menuv3 div.x:visited {
-	color: #000000;
-	text-decoration: none;
-	padding-right: 10px;
+color:#000;
+text-decoration:none;
+padding-right:10px;
 }
+
 #menuv3 a {
-	background: #EBEBEB;
+background:#eee;
 }
 #menuv3 div.x, #menuv3 div.x:visited {
-	background-color: #EBEBEB;
-	border-right: 1em solid #FE5F14;
+background:#eee url(../../image/right.gif) no-repeat right;
 }
-#menuv3 div.x:hover {
-	border-right: none;
-}
+
 #menuv3 a:hover, #menuv3 div.x:hover {
-	color: #FE5F14;
-	background-color: #EBEBEB;
+color:#a00;
+background-color:#ddd;
 }
+
 #menuv3 a:active, #menuv3 div.x:active {
-	color: #FE5F14;
-	background-color: #EBEBEB;
+color:#060;
+background-color:#ccc;
 }
+
 #menuv3 ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
-	float: left;
+list-style:none;
+margin:0;
+padding:0;
+float:left;
 }
 
 #menuv3 li {
-	position: relative;
-	float: none;
-	border: 0;
+position:relative;
+float:none;
+border:0;
 }
-li.sub {
-	position: relativ;
-	left: 0.2em;
-	top: 0px;
-	background-color: #FFFFFF;
-}
-/* IE6 spacing bug fix, <li>s without a bottom border get spaced to far  * correction:the bug will change the height of the parent element! this will also cause the whole menu to grow  * so the only method to get this pile of crap going is to add a bottom border to the <li>s, where the enclosing <ul> already has * a bottom border, which just looks ugly * the trick:color the bottom border with the same color as the bottom pixel of the background image - noone notices */
+
+/* IE6 spacing bug fix, <li>s without a bottom border get spaced to far
+ * correction: the bug will change the height of the parent element! this will also cause the whole menu to grow
+ * so the only method to get this pile of crap going is to add a bottom border to the <li>s, where the enclosing <ul> already has
+ * a bottom border, which just looks ugly
+ * the trick: color the bottom border with the same color as the bottom pixel of the background image - noone notices */
 #menuv3 ul li {
-	/* border: solid;
-	border-color: #991900;
-	border-width: 0 0 1px 0;
-*/
+border:solid;
+border-color:#ccd5e5;
+border-width:0 0 1px 0;
 }
-#menuv3 ul ul {
-	padding: 0 2em 2em 2em;
-	margin: 0 -2em -2em -2em;
-}
+
 #menuv3 ul ul li {
-	/*padding-top: 0.01em;*/
-	background-color: #FFFFFF;
+border:solid;
+border-width:0 0 1px 0;
 }
-/* IE6 event bug fix, without a background there hovers will be occassionally lost between the li's to the layer below  * causing the menu to close. Opera 9 has the same bug btw. */
+
+/* IE6 event bug fix, without a background there hovers will be occassionally lost between the li's to the layer below
+ * causing the menu to close. Opera 9 has the same bug btw. */
 #menuv3 ul ul {
-	position: absolute;
-	z-index: 500;
-	top: auto;
-	display: none;
+position:absolute;
+z-index:500;
+top:auto;
+display:none;
 }
+
 #menuv3 ul ul ul {
-	top: 0;
-	left: 99%;
-	padding: 2em;
-	margin: -2em;
+top:0;
+left:90%;
 }
-#menuv3 ul ul ul li {
-	border-left: 0.2em solid #EBEBEB;
-}
+
 /* Begin non-anchor hover selectors */
-/* Enter the more specific element (div) selectoron non-anchor hovers for IE5.x to comply with theolder version of csshover.htc - V1.21.041022. Itimproves IE's performance speed to use the olderfile and this method */
+
+/* Enter the more specific element (div) selector
+on non-anchor hovers for IE5.x to comply with the
+older version of csshover.htc - V1.21.041022. It
+improves IE's performance speed to use the older
+file and this method */
+
 div#menuv3 h2:hover {
-	background: #EBEBEB;
-	color: #FE5F14;
+background:##94b150;
+color:#a00;
 }
+
 div#menuv3 li:hover {
-	cursor: pointer;
-	z-index: 100;
+cursor:pointer;
+z-index:100;
 }
-div#menuv3 li:hover ul ul, div#menuv3 li li:hover ul ul, div#menuv3 li li li:hover ul ul, div#menuv3 li li li li:hover ul ul {
-	display: none;
-}
-div#menuv3 li:hover ul, div#menuv3 li li:hover ul, div#menuv3 li li li:hover ul, div#menuv3 li li li li:hover ul {
-	display: block;
-	position: relativ: left: 10px;
-}
+
+div#menuv3 li:hover ul ul,
+div#menuv3 li li:hover ul ul,
+div#menuv3 li li li:hover ul ul,
+div#menuv3 li li li li:hover ul ul
+{display:none;}
+
+div#menuv3 li:hover ul,
+div#menuv3 li li:hover ul,
+div#menuv3 li li li:hover ul,
+div#menuv3 li li li li:hover ul
+{display:block;}
+
 /* End of non-anchor hover selectors */
 
 /* html menu */
@@ -295,16 +170,16 @@ div#menuv3 li:hover ul, div#menuv3 li li:hover ul, div#menuv3 li li li:hover ul,
 #html-menu.folded { width: 32px; }
 #html-menu.folded:hover { width: 183px; }
 #html-menu div.mi { margin-top: 4px; margin-bottom: 3px; white-space: nowrap; clear:both; position:relative; }
-#html-menu div.sm { font-weight: bold }
+#html-menu div.sm { font-weight: bold; color: #597d12; }
 #html-menu img { vertical-align: top; border: 0; }
 #html-menu a { vertical-align: top }
 #html-menu .i span.ms { float: left; width: 24px; margin-bottom: 4px; }
 #html-menu .m span.ms { float: left; width: 32px }
 #html-menu .sm span.ms { float: left; width: 24px; background: url(../../image/unterpunkt.png); }
 #html-menu div.m { height: 24px }
-#html-menu div.m span.mic { color:black; position: relative; top: 4px }
+#html-menu div.m span.mic { color:#597d12; position: relative; top: 4px }
 #html-menu div.m:hover,
-#html-menu div.i:hover { color:blue; background-color: #d1d1d1; cursor: pointer; }
+#html-menu div.i:hover { color:#fe5f14; background-color: #bec6a2; cursor: pointer; }
 #html-menu span.mic { white-space: normal; display: inline-block; vertical-align: top; line-height: 1.2; }
 #html-menu a.ml span.mic { width: 145px } /* fix deep indents */
 #html-menu div.s0 { padding-left: 2px }
@@ -313,8 +188,9 @@ div#menuv3 li:hover ul, div#menuv3 li li:hover ul, div#menuv3 li li li:hover ul,
 
 body { margin: 0 }
 
+
 @media print {
-  #menuv3, #menuv4, #html-menu, #frame-header, #js-menu {   /* items with this class won't print */
+  #menuv3, #html-menu, #frame-header, #main_menu_div, #js-header {   /* items with this class won't print */
     display: none;
   }
   #content.html-menu { margin-left: 0; }

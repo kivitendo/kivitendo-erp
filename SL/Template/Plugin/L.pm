@@ -111,6 +111,8 @@ sub select_tag {
   my $title_sub       = delete($attributes{title_sub});
   my $default_sub     = delete($attributes{default_sub});
 
+  my $with_empty      = delete($attributes{with_empty});
+  my $empty_title     = delete($attributes{empty_title});
 
   my %selected;
 
@@ -128,8 +130,8 @@ sub select_tag {
 
   my @options;
 
-  if ( delete($attributes{with_empty}) ) {
-    push(@options, [undef, $attributes{empty_title} || '']);
+  if ( $with_empty ) {
+    push(@options, [undef, $empty_title || '']);
   }
 
   my $normalize_entry = sub {
@@ -180,7 +182,7 @@ sub select_tag {
     my $title;
 
     if ( $value_title_sub ) {
-      ($value, $title) = $value_title_sub->($entry);
+      ($value, $title) = @{ $value_title_sub->($entry) };
     } else {
 
       $value = $normalize_entry->('value', $entry, $value_sub, $value_key);

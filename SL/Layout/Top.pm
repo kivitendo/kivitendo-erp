@@ -24,7 +24,7 @@ __END__
 
 =head1 NAME
 
-SL::Layout::Top - Top line in classic and v4 menu.
+SL::Layout::Top - Top line in classic and v3 menu.
 
 =head1 DOM MODEL
 

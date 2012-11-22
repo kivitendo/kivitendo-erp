@@ -31,7 +31,7 @@
       <option>&lt;</option>
       <option>&lt;=</option>
      </select>
-     <input name="cvar_[% HTML.escape(var.name) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
+     <input name="[% filter_prefix %]cvar_[% HTML.escape(var.name) %]"[% IF var.maxlength %]maxlength="[% HTML.escape(var.maxlength) %]"[% END %]>
 
      [%- ELSIF var.type == 'customer' %]
      <input name="[% filter_prefix %]cvar_[% var.name | html %]">

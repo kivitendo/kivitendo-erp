@@ -21,9 +21,9 @@
     -->
  </script>
 
- <form name="Form" id="Form" method="post" action="admin.pl">
+ <h1>[% title %]</h1>
 
-  <div class="listtop" width="100%">[% title %]</div>
+ <form name="Form" id="Form" method="post" action="admin.pl">
   <p><a href="admin.pl?action=list_users">[% 'Back' | $T8 %]</a></p>
 
   <table width="100%">
@@ -144,7 +144,7 @@
       </tr>
       <tr>
        <th align="right">[% 'Setup Templates' | $T8 %]</th>
-       <td>[% L.select_tag('mastertemplates', all_master_templates, default = 'German') %]</td>
+       <td>[% L.select_tag('mastertemplates', all_master_templates, default = 'Standard') %]</td>
       </tr>
       <tr>
        <th align="right">[% 'Setup Menu' | $T8 %]</th>
@@ -254,4 +254,3 @@
     });
     -->
  </script>
-

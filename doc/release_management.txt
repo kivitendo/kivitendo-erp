@@ -22,8 +22,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * Testlauf t/test.sh
 
-  - Im Moment sind 4 Fehler optimal (die sind noch nicht angegangen):
-    o  bin/mozilla/ar.pl contains at least 190 html tags.
+  - Im Moment sind 3 Fehler optimal (die sind noch nicht angegangen):
     o  bin/mozilla/ic.pl contains at least 130 html tags.
     o  bin/mozilla/ap.pl contains at least 183 html tags.
     o  bin/mozilla/admin.pl DOES NOT use proper system or exec calls
@@ -52,7 +51,9 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Status Bugzilla
 
   - Aus dem Bugsprint sollten keine Bugs mit Target der neuen Version mehr
-    offen sein.
+    offen sein, ist aber unrealistisch. Die noch offenen Bugs müssen bewertet
+    werden. Kritische Bugs müssen behoben, weniger kritische evtl auf die
+    nächste Version verschoben werden.
   - Neue Bugs seit dem Bugsprint müssen bewertet, gegebenenfalls behoben
     werden.
   - Sollten noch schwere Probleme existieren, Release verschieben.
@@ -73,6 +74,24 @@ als freundliche Checkliste zum ausdrucken und erweitern.
     o columns ändern auf nur "Full Summary"
     o copy&paste in eine Datei
     o perl -pale '$_="  - Bugfix $F[0]: @F[1..$#F]"' oder awk/sed drüber
+
+    Das gleiche für trac:
+    o Individuelle Abfrage
+      + geändert zwischen <letztes Releasedatum> und <heute+1>
+      + Status closed
+      + Lösung behobena
+      + Komponente ist Lx-Office ERP
+    o Spalten: nur Zusammenfassung
+    o sortieren nach Ticketnummer
+    o rest weiter ab copy&paste
+
+    Achtung: trac hat im Moment noch Probleme, so dass Bugs zum teil mit nicht
+    existenten Lösungen geschlossen werden.  Besser ist es, sich die Lösung als
+    eigene Spalte anzeigen zu lassen, die Lösungen zu filtern, die nicht
+    erwünscht sind, und den Rest zu formatieren (TODO: Script erweitern)
+
+    Achtung: trac benutzt Datum 00:00:00 als obere Grenze, dass heisst, immer
+    einen Tag mehr angeben.
 
   - Ausserdem einmal durch das git scrollen und sinnvolle grössere Änderungen
     ins changelog übertragen. Muss nur einmal gemacht werden, möglichst danach
@@ -147,7 +166,6 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Locales auf Vollständigkeit prüfen
 
   $ scripts/locales.pl de
-  $ scripts/locales.pl de_DE
 
 * SL::DB::Helper::ALL auf Vollständigkeit prüfen
 
@@ -157,13 +175,21 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * VERSION updaten
 
-  Zu den Versionierungen:
+  Zu den Versionierungen vor 3.0.0:
 
   - Das Programm heißt Lx-Office (großes LO, mit Bindestrich dazwischen)
   - Das Paket heißt lx-office-erp (klein, plus "-erp")
   - Der Standardpfad ist lxoffice-erp-<version> (fehlender Bindestrich)
   - Der git tag ist "release-<version>"
-  - Das DB Ipgradescript ist "release_<snake_case_version>"
+  - Das DB Upgradescript ist "release_<snake_case_version>"
+
+  Zu den Versionierungen ab 3.0.0:
+
+  - Das Programm heißt kivitendo (alles klein)
+  - Das Paket heißt kivitendo
+  - Der Standardpfad ist kivitendo-<version>
+  - Der git tag ist "release-<version>"
+  - Das DB Upgradescript ist "release_<snake_case_version>"
 
 * Nur finales Release: Datenbankupgradescript "release_2_6_1" (mit aktueller
   Releasenummer) erstellen und alle Leafscripte als Abhängigkeit einsetzen.

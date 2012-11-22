@@ -14,16 +14,49 @@
         <para>im kivitendo-Forum: <ulink
         url="https://forum.kivitendo.org/">https://forum.kivitendo.org/</ulink></para>
       </listitem>
-
-      <listitem>
-        <para>im alten Lx-Office-Wiki unter Dokumentation (<ulink
-        url="http://wiki.lx-office.org/index.php?title=Installation_Lx-Office_ERP">http://wiki.lx-office.org/index.php?title=Installation_Lx-Office_ERP</ulink>)</para>
-      </listitem>
     </itemizedlist>
   </chapter>
 
   <chapter id="config">
     <title>Installation und Grundkonfiguration</title>
+
+    <sect1 id="Installation-Übersicht">
+      <title>Übersicht</title>
+
+      <para>
+        Die Installation von kivitendo umfasst mehrere Schritte. Die folgende Liste kann sowohl für Neulinge als auch für alte Hasen als
+        Übersicht und Stichpunktliste zum Abhaken dienen, um eine Version mit minimalen Features möglichst schnell zum Laufen zu kriegen.
+      </para>
+
+      <orderedlist>
+        <listitem><para><emphasis>Voraussetzungen überprüfen</emphasis>: kivitendo benötigt gewisse Ressourcen und benutzt weitere
+        Programme. Das Kapitel "<xref linkend="Benötigte-Software-und-Pakete"/>" erläutert diese. Auch die Liste der benötigten Perl-Module
+        befindet sich hier.</para></listitem>
+
+        <listitem><para><emphasis>Installation von kivitendo</emphasis>: Diese umfasst die "<xref
+        linkend="Manuelle-Installation-des-Programmpaketes"/>" sowie grundlegende Einstellungen, die der "<xref
+        linkend="config.config-file"/>" erläutert.</para></listitem>
+
+        <listitem><para><emphasis>Konfiguration externer Programme</emphasis>: hierzu gehören die Datenbank ("<xref
+        linkend="Anpassung-der-PostgreSQL-Konfiguration"/>") und der Webserver ("<xref
+        linkend="Apache-Konfiguration"/>"). </para></listitem>
+
+        <listitem><para><emphasis>Benutzerinformationen speichern können</emphasis>: man benötigt mindestens eine Datenbank, in der
+        Informationen zur Authentifizierung sowie die Nutzdaten gespeichert werden. Wie man das als Administrator macht, verrät "<xref
+        linkend="Benutzerauthentifizierung-und-Administratorpasswort"/>".</para></listitem>
+
+        <listitem><para><emphasis>Benutzer, Gruppen und Datenbanken anlegen</emphasis>: wie dies alles zusammenspielt erläutert "<xref
+        linkend="Benutzer--und-Gruppenverwaltung"/>".</para></listitem>
+
+        <listitem><para><emphasis>Los geht's</emphasis>: alles soweit erledigt? Dann kann es losgehen: "<xref
+        linkend="kivitendo-ERP-verwenden"/>"</para></listitem>
+      </orderedlist>
+
+      <para>
+        Alle weiteren Unterkapitel in diesem Kapitel sind ebenfalls wichtig und dienen sollten vor einer ernsthaften Inbetriebnahme gelesen
+        werden.
+      </para>
+    </sect1>
 
     <sect1 id="Benötigte-Software-und-Pakete">
       <title>Benötigte Software und Pakete</title>
@@ -42,12 +75,21 @@
         dass kivitendo auf ihnen läuft:</para>
 
         <itemizedlist>
+
           <listitem>
-            <para>Ubuntu 10.04 LTS Lucid Lynx bis 12.10 Oneiric Ocelot</para>
+            <para>Debian</para>
+            <itemizedlist>
+               <listitem>
+                 <para>6.0 Squeeze (hier muss allerdings das Modul FCGI in der Version >= 0.72 compiled werden)</para>
+               </listitem>
+               <listitem>
+                 <para>7.0 Wheezy</para>
+               </listitem>
+            </itemizedlist>
           </listitem>
 
           <listitem>
-            <para>Debian 5.0 Lenny und 6.0 Squeeze</para>
+            <para>Ubuntu 10.04 LTS Lucid Lynx bis 12.10 Oneiric Ocelot</para>
           </listitem>
 
           <listitem>
@@ -75,7 +117,7 @@
         nicht Bestandteil einer Standard-Perl-Installation sind:</para>
 
         <itemizedlist>
-          <listitem><para><literal>parent</literal></para></listitem>
+          <listitem><para><literal>parent</literal> (nur bei Perl vor 5.10.1)</para></listitem>
 
           <listitem><para><literal>Archive::Zip</literal></para></listitem>
 
@@ -153,7 +195,7 @@
 
         <para>Für Debian oder Ubuntu benötigen Sie diese Pakete:</para>
 
-        <programlisting>apt-get install apache2 postgresql libparent-perl libarchive-zip-perl \
+        <programlisting>apt-get install apache2 postgresql libarchive-zip-perl \
   libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl \
   libemail-address-perl libemail-mime-perl liblist-moreutils-perl libpdf-api2-perl \
   librose-object-perl librose-db-perl librose-db-object-perl \
@@ -363,7 +405,7 @@ dbcharset = UTF-8</programlisting>
 	eingreifen</para>
 
         <para>Dieses kann überprüft werden: ist das Encoding der Datenbank
-	“template1” “UTF8”, so braucht man nichts weiteres diesbezueglich
+	“template1” “UTF8”, so braucht man nichts weiteres diesbezüglich
 	unternehmen. Zum Testen:
 
         <programlisting>su postgres
@@ -438,6 +480,9 @@ psql template1</programlisting>
         anlegen. Ein Beispiel, wie Sie einen neuen Benutzer anlegen
         können:</para>
 
+	<para>Die Frage, ob der neue User Superuser sein soll, können Sie mit nein
+	beantworten, genauso ist die Berechtigung neue User (Roles) zu
+	generieren nicht nötig.</para>
 	      <programlisting>su - postgres
 createuser -d -P kivitendo
 exit</programlisting>
@@ -558,7 +603,7 @@ Alias /kivitendo-erp/ /var/www/kiviteno-erp/
             bestimmte Eingaben von kivitendo. Falls es Probleme mit Umlauten in Ihrere Installation gibt, muss zwingend Version 0.68 oder
             aber Version 0.72 und neuer eingesetzt werden.</para>
 
-            <para>Mit CPAN lässt sie sich die Vorgängerversion wie folgt
+            <para>Mit <ulink url="http://www.cpan.org">CPAN</ulink> lässt sie sich die Vorgängerversion wie folgt
             installieren:</para>
 
             <programlisting>force install M/MS/MSTROUT/FCGI-0.68.tar.gz</programlisting>
@@ -1305,49 +1350,279 @@ insserv kivitendo-task-server</programlisting>
     <sect1 id="Drucken-mit-kivitendo">
       <title>Drucken mit kivitendo</title>
 
-      <para>Das Drucksystem von kivitendo benutzt von Haus aus LaTeX Vorlagen.
-      Um drucken zu können, braucht der Server ein geeignetes LaTeX System. Am
-      einfachsten ist dazu eine <literal>texlive</literal> Installation. Unter
-      Debianoiden Betriebssystemen sind das die Pakete:</para>
+      <para>Das Drucksystem von kivitendo benutzt von Haus aus LaTeX-Vorlagen.  Um drucken zu können, braucht der Server ein geeignetes
+      LaTeX System. Am einfachsten ist dazu eine <literal>texlive</literal> Installation. Unter Debianoiden Betriebssystemen installiert man
+      die Pakete mit:</para>
 
-      <para><literal>texlive-latex-base texlive-latex-extra
-      texlive-fonts-recommended</literal></para>
+      <para><programlisting>aptitude install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
+  texlive-latex-extra texlive-lang-german texlive-generic-extra</programlisting></para>
 
-      <para>Diese hinteren beiden enthalten Bibliotheken und Schriftarten die
-      von den Standardvorlagen verwendet werden.</para>
+      <para>TODO: RPM-Pakete.</para>
 
-      <para>TODO: rpm Pakete.</para>
-
-      <para>In den allermeisten Installationen sollte drucken jetzt schon
-      funktionieren. Sollte ein Fehler auftreten wirft TeX sehr lange
-      Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste Zeite
-      die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler sind zum
-      Beispiel:</para>
-
+      <para>kivitendo bringt drei alternative Vorlagensätze mit:</para>
       <itemizedlist>
-        <listitem>
-          <para>! LaTeX Error: File `eurosym.sty' not found. Die entsprechende
-          LaTeX-Bibliothek wurde nicht gefunden. Das tritt vor allem bei
-          Vorlagen aus der Community auf. Installieren Sie die entsprechenden
-          Pakete.</para>
-        </listitem>
-
-        <listitem>
-          <para>! Package inputenc Error: Unicode char \u8:æ¡ not set up for
-          use with LaTeX. Dieser Fehler tritt auf, wenn sie versuchen mit
-          einer Standardinstallation exotische utf8 Zeichen zu drucken.
-          TeXLive unterstützt von Haus nur romanische Schriften und muss mit
-          diversen Tricks dazu gebracht werden andere Zeichen zu akzeptieren.
-          Adere TeX Systeme wie XeTeX schaffen hier Abhilfe.</para>
-        </listitem>
+        <listitem><para>Standard</para></listitem>
+        <listitem><para>f-tex</para></listitem>
+        <listitem><para>RB</para></listitem>
       </itemizedlist>
 
-      <para>Wird garkein Fehler angezeigt sondern nur der Name des Templates,
-      heißt das normalerweise, dass das LaTeX Binary nicht gefunden wurde.
-      Prüfen Sie den Namen in der Konfiguration (Standard:
-      <literal>pdflatex</literal>), und stellen Sie sicher, dass pdflatex
-      (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
-      darf.</para>
+      <sect2 id="Vorlagenverzeichnis-anlegen" xreflabel="Vorlagenverzeichnis anlegen">
+        <title>Vorlagenverzeichnis anlegen</title>
+        <para>Im Administrationsbereich lässt sich bei einem Benutzer/Mandanten einer dieser Vorlagensätze als Basis für die zu
+        druckenden Dokumente auswählen. Rufen Sie dazu die <guimenu>Benutzerverwaltung</guimenu> auf.</para>
+
+        <para>Wählen Sie dort einen Benutzer aus oder legen Sie einen neuen an. In der Benutzerbearbeiten-Maske müssen Sie zwei Dinge
+        angeben:</para>
+
+        <orderedlist>
+          <listitem><para><option>Name</option>: Der Verzeichnisname für den neuen Vorlagensatz. Dieser kann im Rahmen der üblichen
+          Bedingungen für Verzeichnisnamen frei gewählt werden.</para></listitem>
+          <listitem><para><option>Vorlagen auswählen</option>: Wählen Sie hier den Vorlagensatz aus, der kopiert werden soll
+          (<filename>Standard</filename>, <filename>f-tex</filename> oder <filename>RB</filename>.)</para></listitem>
+        </orderedlist>
+
+        <para>Der gleiche Vorlagensatz kann, wenn er mal angelegt ist, bei mehreren Benutzern verwendet werden.</para>
+
+        <para>Die Abhängigkeiten kann man prüfen mit:</para>
+
+        <programlisting>/scripts/installation_check.pl -l</programlisting>
+
+      </sect2>
+      <sect2 id="Vorlagen-Standard">
+        <title>Standard</title>
+
+        <para>Der Standard-Vorlagensatz von Kivitendo. Wie unter <ulink url="http://demo.kivitendo.org">http://demo.kivitendo.org</ulink> zu
+        sehen.</para>
+
+      </sect2>
+
+      <sect2 id="f-tex">
+        <title>f-tex</title>
+
+        <para>Ein Vorlagensatz, der in wenigen Minuten alle Dokumente zur Verfügung stellt.</para>
+
+        <sect3 id="f-tex-Feature-Übersicht">
+          <title>Feature-Übersicht</title>
+          <itemizedlist>
+            <listitem><para>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage für alle briefartigen Dokumente verwendet. Also
+            Angebot, Rechnung, Performarechnung, Lieferschein, aber eben nicht für Paketaufkleber etc..</para></listitem>
+
+            <listitem><para>Leichte Anpassung an das Firmen-Layout durch verwendung eines Hintergrund-PDF. Dieses kann leicht mit dem
+            eigenen Lieblingsprogramm erstellt werden (Openoffice, Inkscape, Gimp, Adobe*)</para></listitem>
+
+            <listitem><para>Hintergrund-PDF umschaltbar auf "nur erste Seite" (Standard) oder "alle Seiten" (Option
+            "<option>bgPdfFirstPageOnly</option>" in Datei <filename>letter.lco</filename>)</para></listitem>
+
+            <listitem><para>Hintergrund-PDF für Ausdruck auf bereits bedrucktem Briefpapier abschaltbar. Es wird dann nur bei per E-Mail
+            versendeten Dokumenten eingebunden (Option "<option>bgPdfEmailOnly</option>" in Datei
+            <filename>letter.lco</filename>).</para></listitem>
+
+            <listitem><para>Nutzung der Layout-Funktionen von LaTeX für Seitenumbruch, Wiederholung von Kopfzeilen, Zwischensummen
+            etc. (danke an Kai-Martin Knaak für die Vorarbeit)</para></listitem>
+
+            <listitem><para>Anzeige des Empfängerlandes im Adressfeld nur, wenn es vom Land des eigenen Unternehmens abweicht (also die
+            Rechnung das Land verlässt).</para></listitem>
+
+            <listitem><para>Multisprachfähig leicht um weitere Sprachen zu erweitern, alle Übersetzungen in der Datei
+            <filename>translatinos.tex</filename>.</para></listitem>
+
+            <listitem><para>Auflistung von Bruttopreisen für Endverbraucher.</para></listitem>
+          </itemizedlist>
+        </sect3>
+
+        <sect3 id="f-tex-Installation">
+          <title>Die Installation</title>
+          <itemizedlist>
+            <listitem><para>Vorlagenverzeichnis mit Option f-tex anlegen, siehe: <xref linkend="Vorlagenverzeichnis-anlegen"/>. Das
+            Vorlagensystem funktioniert jetzt schon, hat allerdings noch einen Beispiel-Briefkopf.</para></listitem>
+
+            <listitem><para>Erstelle eine pdf-Hintergrund Datei und verlinke sie nach <filename>./letter_head.pdf</filename>.</para></listitem>
+            <listitem><para>Editiere den Bereich "<option>settings</option>" in der datei <filename>letter.lco</filename>.</para></listitem>
+          </itemizedlist>
+
+          <para>oder etwas Detaillierter:</para>
+
+          <para>
+            Es wird eine Datei <filename>sample.lco</filename> erstellt und diese nach <filename>letter.lco</filename> verlinkt.  Eigentlich
+            ist dies die Datei die für die Firmenspezifischen Anpassungen gedacht ist.  Da die Einstiegshürde in LaTeX nicht ganz niedrig
+            ist, wird in dieser Datei auf ein Hintergrundpdf verwiesen. Ich empfehle über dieses PDF die persönlichen Layoutanpassungen
+            vorzunehmen und <filename>sample.lco</filename> unverändert zu lassen. Die die Anpassung über eine
+            <filename>*.lco</filename>-Datei die letztlich auf <filename>letter.lco</filename> verlinkt ist ist aber auch möglich.
+          </para>
+
+          <para>
+            Es wird eine Datei <filename>sample_head.pdf</filename> mit ausgeliefert, diese wird nach <filename>letter_head.pdf</filename>
+            verlinkt. Damit gibt es schon mal eine Funktionsfähige Vorlage. Schau Dir nach Abschluss der Installation die Datei
+            <filename>sample_haed.pdf</filename> an und erstelle ein entsprechendes PDF passend zum Briefkopf Deiner Firma, diese dann im
+            Template Verzeichniss ablegen und statt <filename>sample_head.pdf</filename> nach <filename>letter_head.pdf</filename>
+            verlinken.
+          </para>
+
+          <para>
+            letzlich muss <filename>letter_head.pdf</filename> auf das passende Hintergrund-PDF verweisen, welches gewünschten Briefkopf
+            enthält. Bei Updates oder nach erneutem
+          </para>
+
+          <para>
+            Es wird eine Datei <filename>mydata.tex.example</filename> ausgeliefert, die nach <filename>mytdata.tex</filename> verlinkt
+            ist. Bei verwendetem Hintergrund-PDF wird nur der Eintrag für das Land verwendet. Die Datei muss also nicht angefasst
+            werden. Die Anderen Werte sind für das Modul 'lp' (Label Print in erp - zur Zeit nicht im öffentlichen Zweig).
+          </para>
+          <para>
+            Alle Anpassungen zum Briefkopf, Fusszeilen, Firmenlogos, etc.  sollten über die Hintergrund-PDF-Datei oder die
+            <filename>*.lco</filename>-Datei erfolgen.
+          </para>
+        </sect3>
+
+        <sect3 id="f-tex-Funktionsübersicht">
+          <title>f-tex Funktionsübersicht</title>
+          <para>
+            Das Konzept von kivitendo sieht vor, für jedes Dokument (Auftragsbestätigung, Lieferschein, Rechnung, etc.) eine LaTeX-Vorlage
+            vorzuhalten, dies ist sehr Wartungsunfreundlich. Auch das Einlesen einer einheitlichen Quelle für den Briefkopf bringt nur
+            bedingte Vorteile, da hier leicht die Pflege der Artikel-Tabellen aus dem Ruder läuft. Bei dem vorliegenden Ansatz wird für alle
+            briefartigen Dokumente mit Artikel-Tabellen eine einheitliche LaTeX-Vorlage verwendet, welche über Codeweichen die
+            Besonderheiten der jeweiligen Dokumente Berücksichtigt.
+          </para>
+
+          <itemizedlist>
+            <listitem><para>Tabellen mit oder ohne Preis</para></listitem>
+            <listitem><para>Sprache der Tabellenüberschriften etc.</para></listitem>
+            <listitem><para>Anpassung der Bezugs-Zeile (z.B. Rechnungsnummer versus Angebotsnummer)</para></listitem>
+            <listitem><para>Darstellung von Brutto oder Netto-Preisen in der Auflistung (Endverbraucher versus Gewerblicher
+            Kunde)</para></listitem>
+           </itemizedlist>
+
+           <para>Nachteil:</para>
+
+           <para>
+             LaTeX hat ohnehin eine sehr steile Lehrnkurve. Die Datei <filename>letter.tex</filename> ist sehr komplex und verstärkt damit
+             diesen Effekt noch einmal erheblich.  Wer LaTeX-Erfahrung hat, oder geübt ist Scriptsparachen nachzuvollziehen kann natürlich
+             auch innerhalb der Tabellendarstellung gut persönliche Anpassungen vornehmen. Aber man kann sich hier bei Veränderungen sehr
+             schnell häftig in den Fuss schiessen.
+           </para>
+
+           <para>Wer nicht so tief in die Materie einsteigen will oder leicht zu frustrieren ist, sollte sein Hintergrund PDF auf Basis der
+           mitglieferten Datei <filename>sample_head.pdf</filename> erstellen, und sich an der Form der dargestellten Tabellen wie sie
+           ausgeliefert werden, erfreuen.
+           </para>
+
+           <para>Kleiner Tipp: Nicht zu viel auf einmal wollen, lieber kleine kontinuierliche Schritte gehen.</para>
+
+        </sect3>
+
+        <sect3 id="f-tex-Bruttopreise">
+          <title>Bruttopreise für Endverbraucher</title>
+
+	         <para>Der auszuweisende Bruttopreis wird innerhalb der LaTeX-Umgebung berechnet. Es gibt zwar ein Feld, um bei Aufträgen "alle
+	         Preise Brutto" auszuwählen, aber:</para>
+          <itemizedlist>
+            <listitem>
+              <para>hierfür müssen die Preise auch in Brutto in der Datenbank stehen (ja - das lässt sich über die Preisgruppen und die
+              Zuordung einer Default-Preisgruppe handhaben)</para>
+            </listitem>
+            <listitem>
+              <para>man darf beim Anlegen des Vorgangs nicht vergessen Dieses Häkchen zu setzen.  (das ist in der Praxis wenn man sowohl
+              Endverbraucher- wie Gewerbekunden beliefert der eigentliche Knackpunkt)</para>
+            </listitem>
+          </itemizedlist>
+
+          <para>
+            Es gibt mit f-tex eine weitere Alternative. Die Information ob Brutto oder Nettorechnung wird mit den Zahlarten
+            verknüpft. Zahlarten bei denen Rechnungen, Angebote, etc, in Brutto ausgegeben werden sollen, enden mit "_E" (für
+            Endverbraucher). Falls identische Zahlarten für Gewerbekunden und Endverbraucher vorhanden sind, legt man diese einfach doppelt
+            an (einmal mit der Namensendung "_E"). Gewinn:</para>
+
+          <itemizedlist>
+            <listitem><para>Die Entscheidung, ob Netopreise ausgewiesen werden, ist nicht mehr fix mit einer Preisliste Verbunden.</para></listitem>
+            <listitem><para>Die Default-Zahlart kann im Kundendatensatz hinterlegt werden, und man muss nicht mehr daran denken, "alle Preise
+            Netto" auszuwählen.</para></listitem>
+            <listitem><para>Die Entscheidung, ob Netto- oder Bruttopreise ausgewiesen werden, kann direkt beim Drucken reviediert werden,
+            ohne dass sich der Auftragswert ändert.</para></listitem>
+          </itemizedlist>
+        </sect3>
+
+        <sect3 id="f-tex-lieferadressen">
+          <title>Lieferadressen</title>
+
+          <para>In Lieferscheinen kommen <varname>shipto*</varname>-Variablen im Adressfeld zum Einsatz. Wenn die
+          <varname>shipto*</varname>-Variable leer ist, wird die entsprechende Adressvariable eingesetzt.  Wenn also die Lieferadresse in
+          Straße, Hausnummer und Ort abweicht, müssen auch nur diese Felder in der Lieferadresse ausgefüllt werden. Für den Firmenname wird
+          der Wert der Hauptadresse angezeigt.
+          </para>
+        </sect3>
+      </sect2>
+
+      <sect2 id="Vorlagen-RB">
+        <title>RB</title>
+
+        <para>Vollständiger Dokumentensatz mit alternativem Design</para>
+
+      </sect2>
+
+      <sect2 id="allgemeine-hinweise-zu-latex">
+        <title>Allgemeine Hinweise zu LaTeX Vorlagen</title>
+        <para>In den allermeisten Installationen sollte drucken jetzt schon
+        funktionieren. Sollte ein Fehler auftreten wirft TeX sehr lange
+        Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste Zeite
+        die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler sind zum
+        Beispiel:</para>
+
+        <itemizedlist>
+          <listitem>
+            <para>! LaTeX Error: File `eurosym.sty' not found. Die entsprechende
+            LaTeX-Bibliothek wurde nicht gefunden. Das tritt vor allem bei
+            Vorlagen aus der Community auf. Installieren Sie die entsprechenden
+            Pakete.</para>
+          </listitem>
+          <listitem>
+            <para>! Package inputenc Error: Unicode char \u8:... set up for
+            use with LaTeX. Dieser Fehler tritt auf, wenn sie versuchen mit
+            einer Standardinstallation exotische utf8 Zeichen zu drucken.
+            TeXLive unterstützt von Haus nur romanische Schriften und muss mit
+            diversen Tricks dazu gebracht werden andere Zeichen zu akzeptieren.
+            Adere TeX Systeme wie XeTeX schaffen hier Abhilfe.</para>
+          </listitem>
+        </itemizedlist>
+
+        <para>Wird garkein Fehler angezeigt sondern nur der Name des Templates,
+        heißt das normalerweise, dass das LaTeX Binary nicht gefunden wurde.
+        Prüfen Sie den Namen in der Konfiguration (Standard:
+        <literal>pdflatex</literal>), und stellen Sie sicher, dass pdflatex
+        (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
+        darf.</para>
+
+        <para>Wenn sich das Problem nicht auf Grund der ausgabe im Webbrowser verifizieren lässt:</para>
+        <itemizedlist>
+          <listitem>
+             <para> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_tmp_files" auf 1</para>
+             <para><programlisting>keep_temp_files = 1;</programlisting></para>
+          </listitem>
+          <listitem>
+             <para>bei fastcgi oder mod_perl den Webserver neu Starten</para>
+          </listitem>
+          <listitem>
+            <para>Nochmal einen Druckversuch im Webfrontend auslösen</para>
+          </listitem>
+          <listitem>
+            <para>wechsele in das users Verzeichnis von kivitendo</para>
+            <para><programlisting>cd [kivitendo-home]/users</programlisting></para>
+          </listitem>
+          <listitem>
+            <para>LaTeX Suchpfad anpassen:</para>
+            <para><programlisting>export TEXINPUTS=".:[kivitendo-home]/templates/[aktuelles_template_verzeichniss]:"</programlisting></para>
+          </listitem>
+          <listitem>
+            <para>Finde herraus welche Datei kivitendo beim letzten Durchlauf erstellt hat</para>
+            <para><programlisting>ls -lahtr ./1*.tex</programlisting></para>
+            <para>Es sollte die letzte Datei ganz unten sein</para>
+          </listitem>
+          <listitem>
+            <para>für besseren Hinweis auf Fehler texdatei nochmals übersetzen</para>
+            <para><programlisting>pdflatex ./1*.tex</programlisting></para>
+            <para>in der *.tex datei nach dem Fehler suchen.</para>
+          </listitem>
+        </itemizedlist>
+      </sect2>
     </sect1>
 
     <sect1 id="OpenDocument-Vorlagen">
@@ -4137,6 +4412,18 @@ insserv kivitendo-task-server</programlisting>
           und dem "end" werden nur ausgegeben, wenn die Variable
           <varname>variablenname</varname> gesetzt und ungleich 0 ist.</para>
 
+          <para>Handelt es sich bei der benannten Variable um ein Array, also um einen Variablennamen, über den man mit
+          <command>&lt;%foreach variablenname%&gt;</command> iteriert, so wird mit diesem Konstrukt darauf getestet, ob das Array Elemente
+          enthält. Somit würde im folgenden Beispiel nur dann eine Liste von Zahlungseingängen samt ihrer Überschrift "Zahlungseingänge"
+          ausgegeben, wenn tatsächlich welche getätigt wurden:</para>
+
+          <programlisting>&lt;%if payment%&gt;
+Zahlungseingänge:
+ &lt;%foreach payment%&gt;
+   Am &lt;%paymentdate%&gt;: &lt;%payment%&gt; €
+ &lt;%end foreach%&gt;
+&lt;%end if%&gt;</programlisting>
+
           <para>Die Bedingung kann auch negiert werden, indem das Wort
           <function>not</function> nach dem <filename>if</filename> verwendet
           wird. Beispiel:</para>
@@ -5516,6 +5803,9 @@ filenames</programlisting>
         <itemizedlist>
           <listitem><para><literal>Test::Deep</literal> (Debian-Paketname: <literal>libtest-deep-perl</literal>; Fedora Core:
           <literal>perl-Test-Deep</literal>; openSuSE: <literal>perl-Test-Deep</literal>)</para></listitem>
+          <listitem><para><literal>Test::Harness</literal> 3.0.0 oder höher. Dieses Modul ist ab Perl 5.10.1 Bestandteil der
+          Perl-Distribution und kann für frühere Versionen aus dem <ulink url="http://www.cpan.org">CPAN</ulink> bezogen
+          werden.</para></listitem>
         </itemizedlist>
       </sect2>
 

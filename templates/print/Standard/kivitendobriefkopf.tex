@@ -1,0 +1,200 @@
+% kivitendobriefkopf.tex
+% Erstellt von Norbert Simon, n.simon@linet-services.de
+% Version 2.1 vom 21.Oktober 2011
+% Basiert auf der Arbeit von kmk@lilalaser.de / 2007
+% Diese Vorlage steht unter der GPL-Lizenz, Version 3
+% siehe http://www.gnu.de/licenses/gpl-3.0.html             
+% ----------
+% config: tag-style=$( )$
+% ----------
+\usepackage {color}
+% ---------- Farbe für die Falzmarkierung ----------
+\definecolor{linecolor}{gray}{.75}  	
+\definecolor{rulerlineFirst}{RGB}{95,115,5} % Linienfarben Seite 1
+\definecolor{rulerlinePages}{rgb}{0,0,0} % Linienfarben Folgeseiten
+% ---------- Helvetica-Font für Fancyhdr -------------------------
+\newcommand{\helv}{%
+\fontfamily{phv}\fontsize{8}{11}\selectfont}
+% ---------- Helvetica Font einstellen ----------------------------
+\renewcommand{\familydefault}{\sfdefault}
+\fontfamily{phv}\fontsize{10}{12pt plus 0.12pt minus 0.1pt}\selectfont
+% Modern
+% \fontfamily{cmss}\fontsize{10}{12pt plus 0.12pt minus 0.1pt}\selectfont
+% ---------- Basiseinheiten für die Positionierung -----------------
+\newcommand{\vlogospacing}{63mm} % Erste Zeile unterhalb des Anschrift-Blocks
+\newcommand{\hlogospacing}{35mm} % Logo-Breite für Ausrichtung
+% ---------- Bankverbindung des Unternehmens ---------- 
+\newcommand{\companybank}{Bankname}
+\newcommand{\companybankcode}{xxx xxx xx}
+\newcommand{\companyaccountnumber}{xx xxx xxx xx}
+% ---------- Elemente nur dann ausgeben, wenn ein Wert gesetzt ist ---------- 
+\newcommand{\leer}{}
+\newcommand{\nonemptyline}[2]{\ifthenelse{\equal{#2}{\leer}}{}{#1#2\\}}
+\newcommand{\hasvalue}[2]{\ifthenelse{\equal{#1}{\leer}}{}{#2}}
+% ---------- Seitendefinition A4 ---------- 
+\setlength{\voffset}{-2.0cm}
+\setlength{\hoffset}{-2.0cm}
+\setlength{\topmargin}{0cm}
+\setlength{\headheight}{0.5cm}
+\setlength{\headsep}{1cm}
+\setlength{\topskip}{0cm}
+\setlength{\oddsidemargin}{1.5cm}
+\setlength{\evensidemargin}{1.5cm}
+\setlength{\textwidth}{174mm}
+\setlength{\textheight}{24cm}
+\setlength{\footskip}{1.8cm}
+\setlength{\parindent}{0cm}
+\renewcommand{\baselinestretch}{1}
+% ---------- Abstand Tabellenzeilen erhöhen ---------- 
+\renewcommand{\arraystretch}{1.3}
+%\fontfamily{cmss}\fontshape{n}\selectfont
+%\fontfamily{phv}\fontshape{n}\selectfont
+% ---------- Seitenköpfe und -Füße ----------
+
+\newsavebox{\fusszeile}
+\sbox{\fusszeile}{
+	\tiny
+	\begin{minipage}[t]{\textwidth}
+	\renewcommand{\arraystretch}{0.9}
+	\hspace*{5mm}
+	\begin{tabular}[t]{l}		
+		Firmenname 1 \\
+		Firmenname 2\\
+		Straße Nr\\
+		Plz Ort\\
+	\end{tabular}
+	\hfill
+	\begin{tabular}[t]{l}		
+		\textbf{Sitz der Gesellschaft}\\
+		Plz Ort\\
+                \textbf{Geschäftsführer}\\
+                Vorname Name\\
+	\end{tabular}
+	\hfill
+	\begin{tabular}[t]{l}		
+		\textbf{Handesregistereintrag}\\
+		Amtsgericht Woshaltis\\
+		HRB xxx\\
+	\end{tabular}
+	\hfill
+	\begin{tabular}[t]{l}		
+		USt-ID-Nr. DE xxxxxxxxx\\
+		Steuer Nr. xx xxx xxxxx\\
+	\end{tabular}
+	\hfill
+	 \begin{tabular}[t]{l}		
+			\textbf{Bankverbindung}\\
+			\companybank\\
+			BLZ \companybankcode\\
+			Konto \companyaccountnumber\\
+	 \end{tabular}
+	 \renewcommand{\arraystretch}{1}
+	\end{minipage}
+}%Ende sbox
+% ---------- Seitenstil-Definitionen ----------
+% pagestyle "plain" umdefinieren:
+\fancypagestyle{plain}{%
+	
+	\fancyhf{}   										% Erstmal alles löschen
+%	\fancyfoot[OL,EL]{\usebox{\fusszeile}}
+	\fancyhead[L]{\usebox{\plainpages}}
+%	\fancyhead[C]{\helv\footnotesize \docnumber}
+%	\fancyhead[R]{\helv\footnotesize Seite \thepage/\pageref{LastPage}\hspace*{12mm}}
+	\fancyfoot[L]{\helv\footnotesize Seite \thepage/\pageref{LastPage}\hspace*{12mm}}
+	\fancyfoot[C]{\helv\footnotesize \docnumber}
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt}
+	\fancyfootoffset{10mm}
+	\fancyheadoffset{10mm}
+	}
+
+%  pagestyle "briefkopf" definieren:
+\fancypagestyle{briefkopf}{%
+	\fancyhf{}  			 							% Erstmal alles löschen
+	\fancyhead[L]{\usebox{\kopf}}
+%	\fancyfoot[OL,EL]{\usebox{\fusszeile}}
+	\renewcommand{\headrulewidth}{0pt}
+	\renewcommand{\footrulewidth}{0pt}
+    \fancyfootoffset{10mm}
+	\fancyheadoffset{10mm}
+	}
+	
+\pagestyle{plain}     									% Alle Seiten bekommen plain als Default-Stil
+
+% ---------- Briefkopf ----------
+\newsavebox{\kopf}
+\sbox{\kopf}{
+	\setlength{\unitlength}{1mm}	 					% In der picture-Umgebung sollen alle Zahlen die Einheit 1mm haben.
+
+\begin{picture}(0,0) 
+% ---------- Logo ----------
+% Das Logo muss sich im lx-erp-Pfad im Ordner users/ befinden und kann das 
+% Format PDF, JPG, PNG oder EPS haben.  Mit einer EPS-Grafik kann lx nur einen
+% Ausdruck  nach Postscript machen. Die anderen Grafik-Formate erlauben nur
+% einen PDF-Ausdruck. 
+% Position (put) ist abhängig von der Größe
+%
+
+    \put(-12.5,-288){\includegraphics*{kivitendo-seite1.pdf}}
+  
+
+% ---------- mit Latex gesetzter Briefkopf, rechtsbündig ----------
+%	\put(146,-45){		
+%		\begin{minipage}[t]{35mm}
+%			\tiny \raggedright
+%			\small \raggedright
+%			\footnotesize \raggedright
+%			Firmenname 1\\
+%			Firemnname 2\\
+%			Straße Nr\\
+%			PLZ Ort\\
+%			\vspace{2mm}
+%			Telefon +49 xxx xxx xxx\\
+%			Telefax +49 xxx xxx xxx\\
+%			\vspace{2mm}
+%			E-Mail info@firma.de\\
+%			Web www.firma.de
+%		\end{minipage}
+%	}%Ende put
+
+% ---------- Adressat ----------
+%	\put(10,-45){\parbox{8cm}{
+%		\begin{raggedright}
+%			\tiny{\hspace*{2mm}Firma~\textbullet~Straße Nr~\textbullet~Plz Ort}
+%			\small{\hspace*{2mm}Firma~\textbullet~Straße Nr~\textbullet~Plz Ort}
+%		\end{raggedright}		
+%		}%parbox
+%	}%put
+		
+%	\put(10,-47){\color{rulerlineFirst}\rule{80mm}{0.3pt}}
+	\put(10,-52){
+		\parbox[t]{8cm}{   
+			\normalsize 
+			\name \\
+			\nonemptyline{\cpgreeting{ }\cptitle{ }\cpgivenname{ }}{\cpname}
+			\nonemptyline{}{\departmentone}
+			\nonemptyline{}{\departmenttwo}
+			\street \\
+			\country{ }\zipcode{ }\city\par
+			\vspace{3mm}
+			\nonemptyline{\small Fax:}{\fax}
+			\nonemptyline{\small Tel:}{\phone} 
+		}%Ende parbox
+	}%Ende put
+	% Falzlinien - Werte ergeben sich aus topoffset etc. - im PDF ausgemessen und für gut befunden	
+%	\put(-5,-95){\color{rulerlineFirst}\rule{2mm}{0.15pt}} 
+%	\put(-8,-138){\color{rulerlineFirst}\rule{3mm}{0.2pt}}
+%	\put(-5,-200){\color{rulerlineFirst}\rule{2mm}{0.15pt}}
+%	\put(7,-265){\color{rulerlineFirst}\rule{\textwidth}{0.2pt}}%Trennline Fußzeile
+\end{picture}	
+}%Ende sbox
+    
+%%%%%%%%%%%%%  Ende des Briefkopfes  %%%%%%%%%%%
+% ---------- Gestaltungselemente Plainseiten ----------
+\newsavebox{\plainpages}
+\sbox{\plainpages}{
+	\setlength{\unitlength}{1mm}	 					% In der picture-Umgebung sollen alle Zahlen die Einheit 1mm haben.
+	\begin{picture}(0,0) 
+	 \put(-12.5,-288){\includegraphics*{kivitendo-seiteff.pdf}}
+	\end{picture}	
+}%Ende Sbox

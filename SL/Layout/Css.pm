@@ -51,7 +51,7 @@ sub print_menu {
     my $menu_title = $::locale->text($item);
     my $menu_text = $menu_title;
 
-    if ($menu_item->{"submenu"} || !defined($menu_item->{"module"})) {
+    if ($menu_item->{"submenu"} || !defined($menu_item->{"module"}) && !defined($menu_item->{href})) {
 
       my $h = $self->print_menu("${parent}${item}", $depth * 1 + 1)."\n";
       if (!$parent) {
@@ -96,7 +96,7 @@ sub menuitem_v3 {
   my @vars = qw(module action target href);
 
   if ($menuitem->{href}) {
-    $str  = qq|<a href=$menuitem->{href}|;
+    $str  = qq|<a href="$menuitem->{href}|;
     @vars = qw(module target href);
   }
 

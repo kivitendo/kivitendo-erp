@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
-  <div class="listtop">[% 'Delete group' | $T8 %]: [% name %]</div>
+  <h1>[% 'Delete group' | $T8 %]: [% name %]</h1>
   <p class="message_hint">[ [% name %] ] - [% 'Do you really want to delete this group?' | $T8 %]</p>
 
    <form name="Form" method="post" action="admin.pl">
@@ -11,4 +11,3 @@
     <input type="hidden" name="delete_nextsub" value="delete_group">
     <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
    </form>
-

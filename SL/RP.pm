@@ -1649,7 +1649,7 @@ sub bwa {
 
   my @periods        = qw(jetzt kumm);
   my @gesamtleistung = qw(1 3);
-  my @gesamtkosten   = qw (10 11 12 13 14 15 16 17 18 19 20);
+  my @gesamtkosten   = qw (10 11 12 13 14 15 16 17 18 20);
   my @ergebnisse     =
     qw (rohertrag betriebrohertrag betriebsergebnis neutraleraufwand neutralerertrag ergebnisvorsteuern ergebnis gesamtleistung gesamtkosten);
 
@@ -1684,7 +1684,7 @@ sub bwa {
       $form->{ "$key" . "betriebrohertrag" } -
       $form->{ "$key" . "gesamtkosten" };
     $form->{ "$key" . "neutraleraufwand" } =
-      $form->{30}{$key} + $form->{31}{$key};
+      $form->{19}{$key} + $form->{30}{$key} + $form->{31}{$key};
     $form->{ "$key" . "neutralerertrag" } =
       $form->{32}{$key} + $form->{33}{$key} + $form->{34}{$key};
     $form->{ "$key" . "ergebnisvorsteuern" } =

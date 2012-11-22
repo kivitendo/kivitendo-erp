@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
-  <h2>[% title %]</h2>
+  <h1>[% title %]</h1>
 
   <form method="post" action="admin.pl">
    <a href="admin.pl?action=list_users">[% 'Back' | $T8 %]</a>
@@ -66,4 +66,3 @@
   <p>[% 'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!' | $T8 %]</p>
 
   <p>[% 'Leave host and port field empty unless you want to make a remote connection.' | $T8 %]</p>
-

@@ -4,6 +4,45 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
+
+Upgrade auf v3.0.0
+==================
+
+* Neue Abhängigkeiten
+
+  * Clone 1.16
+  * Email::MIME
+  * FCGI jetzt min Version 0.72
+  * Test::Harness 3.00
+  * IO::Socket::SSL
+  * Net::LDAP
+  * Net::SMTP::SSL  1.01
+  * Net::SSLGlue 1.01
+
+  Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
+
+  $ scripts/installation_check.pl -ro
+
+* Neue Entwicklerabhängigkeiten
+
+  * Test::Deep
+  * GD 2.00
+
+* Diverse umstrittene Features zum nicht standardkonformen Umgang mit gebuchten
+  Rechnungen sind jetzt standardmässig deaktiviert und müssen unter "System"
+  -> "Mandantenkonfiguration" aktiviert werden.
+
+* Die Übersetzungen "de_DE" und "fr" für die alternative deutsche Version und
+  französische Version respektive wurden entfernt. Es bleiben offiziell
+  unterstützte Übersetzungen in Deutsch ("de") und English ("en").
+
+* Dieses ist die letzte Version, die Perl-Versionen vor 5.10.1
+  unterstützen wird.  Ab dem nächsten Release werden Sprachkonstrukte
+  verwendet werden, die nicht mehr in 5.8 kompilieren, und Module, die
+  bis v5.10.1 zu den Coremodulen gehören, werden ab dann nicht mehr
+  als explizite Abhängigkeiten gelistet.
+
+
 Upgrade auf v2.7.0
 ==================
 

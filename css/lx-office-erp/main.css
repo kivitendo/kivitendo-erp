@@ -259,6 +259,7 @@ div.admin {
 
 .listrow1 { background-color: rgb(208,207,201); color: black; vertical-align: top; }
 .listrow0 { background-color: rgb(236,233,216); color: black; vertical-align: top; }
+.listrowempty { background-color: rgb(255,255,255); color: black; vertical-align: top; }
 
 .redrow1 { background-color: rgb(250,167, 161); color: black; vertical-align: top; }
 .redrow0 { background-color: rgb(255,193,176); color: black; vertical-align: top; }
@@ -443,5 +444,3 @@ label {
   border-style:none;
   border-width:thin;
 }
-
-

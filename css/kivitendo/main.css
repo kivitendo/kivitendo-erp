@@ -1,357 +1,452 @@
-/* Stylesheet for kivitendo * Name:kivitendo.css*/
-/* Colortable
-
-Background: 	#EBEBEB burlywood
-Links:		 	#006400 DarkGreen
-Link-hover		#FE5F14 Orange / #FFFFE0 lightyellow
-Titles, BG/VG:	#79B61B Mid-green FFFFFF White
-Tabcolor: #CAFFA3
-*/
-
-
-body {
-	font-family: Verdana, Arial, Helvetica;
-	background-color: #FFFFFF;
-	color: #000000;
-    font-size: 9pt;
-}
+/* Stylesheet for Lx-Office
 
 
 /* The look of links */
-a {
-	padding: 0 0.2em;
-	text-decoration: none;
-	/* border-bottom: thin solid; */
-	/* font-weight: bold; */
-}
-A:link, A:visited, A:active {
-	color: #000000;
-	border-bottom: thin solid #FE5F14;
-}
-a:hover {
-	color: #FE5F14;
-	background-color: #D1D1D1;
-}
-a.selected:hover {
-	color:#EBEBEB;
-}
-a.nomobile {
-	background-color:transparent;
-	border:none;
+A:link { color: #597d12; text-decoration: none; }
+A:visited { color: #597d12; text-decoration: none; }
+A:active { color: black; text-decoration: none; }
+A:hover { color: black;
+           background-color: #bec6a2;
+           text-decoration: none;
+         }
+a, div {
+  transition: background-color 0.2s;
+  -moz-transition: background-color 0.2s;
+  -webkit-transition: background-color 0.2s;
 }
 
-table {
-    font-size: 90% !important;
-	table-layout: auto;
-	border-spacing: 0.3em;
+input, textarea, select {
+  border: 1px;
+  border-color: darkgray lightgray lightgray;
+  border-style: solid;
+  padding: 1px;
+  background-color: white;
+}
+img:hover {
+  display:block !important;
 }
 
-/* table a {
-	color:#FE5F14 !important;
-	border-bottom:none;
-} */
-
-ul {
+select {
+  padding: 0px;
 }
 
-hr {
-	background-color: #006400;
-	border: none;
-	color: #79B61B;
-	height: 2px;
-}
-
-/* I.E. & Chrome können das nicht! */
-/* input[type="radio"], input[type="checkbox"]{
-	width:1.15em;
-	height:1.15em;
-	border:1px solid;
-	color: #006400;
-} */
 input:focus, textarea:focus, select:focus {
-	background-color: #FFFFA0;
-	border: 2px solid #FE5F14;
-	/* border-bottom: medium solid #FE5F14; */
+  background-color: whitesmoke;
+  border: 1px;
+  border-color: gray lightgray lightgray;
+  border-style: solid;
 }
-/* Fängt den "Schrink" beim focus - problem für i.e. und chrome */
-/* input[type="radio"]:focus, input[type="checkbox"]:focus{
-	width:1.2em;
-	height:1.2em;
-} */
+
+input:hover, textarea:hover, select:hover {
+  border-color: dimgray darkgray darkgray;
+}
+
+input[type="button"],
+input[type="submit"],
+button,
+input[type="button"]:focus,
+input[type="submit"]:focus,
+button:focus {
+  border: 1px;
+  border-color: darkgray;
+  border-style: solid;
+  padding: 0px 4px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  background-color: whitesmoke;
+}
+
+button:hover,
+input[type="button"]:hover,
+input[type="submit"]:hover {
+  border: 1px;
+  background-color: lightgray;
+  border-color: gray;
+  border-style: solid;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+
+html {
+  height: 100%;
+}
+
+body {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  font-size: 10pt;
+  background-color: white;
+  background-image: url("../../image/fade.png"); background-repeat:repeat-x;
+  color: black;
+  height: 100%;
+}
+
 td {
-	color: #000000;
-	font-weight: normal;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  color: black;
+  font-size: 8pt;
+  font-weight: normal;
 }
-/* td.hover:hover {
-	color: #006400;
-	background-color: #FFFFE0;
-} */
+td.hover:hover {
+    color: black;
+/*          background-color: #FFFFCC;
+          font-size: 8pt;
+          text-decoration: none;
+          border:none;
+          borderWidth:0px;
+          borderColor:2557AD;
+*/
+}
+
+
 th {
-	color: #000000;
-	font-weight: bold;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  color: black;
+  font-size: 8pt;
+  font-weight: normal;
 }
+
 /* login and admin */
-.login a, .login a:visited, .login a:hover {
-	text-decoration: none !important;
-	background-color:transparent !important;
-	border:none;
+.login {
+  font-family: Verdana, Arial, Helvetica, sans-serif;
 }
-.login a:hover {
-	background: none;
-}
-body.login {
-	background-color: #FFFFE0;
-	color: #000000;
+div.login {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  background: #bec6a2;
+  color: #A0A0A0;
 }
 h1.login {
+  font-size: 18pt;
+}
+h3.login {
+  color:#fe5f14;
 }
 table.login {
-	background-color: #FFFFE0;
-	padding: 20px;
+  background-color: #efedde;
+  padding: 20px;
 }
 td.login {
-	text-align: center;
+  text-align: center;
 }
 th.login {
-	text-align: right;
+  text-align: right;
 }
+
 div.admin {
-	background-color: #FFFFE0;
-    padding: 8px;
-	color: #000000;
+  color: black;
+  margin: 8px;
 }
-body.menu {
-	color: #000000;
-}
-/* Warnings */
+
 .message_error_login {
-	color: #000000;
-	border: 1px solid #8b0000;
-	background-color: #ffcccc;
-	padding: 3px;
+    color: #fe5f14;
+    border: 1px solid #fe5f14;
+    background-color: #ffffff;
+    padding: 3px;
 }
 .message_ok {
-	padding: 5px;
-	background-color: #ADFFB6;
-	color: black;
-	font-weight: bolder;
-	text-align: center;
-	border-style: solid;
-	border-width: thin;
+    font-size: 12pt;
+    padding:5px;
+    background-color: #ADFFB6;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
 }
 .message_error {
-	padding: 5px;
-	background-color: #CC0000;
-	color: white;
-	font-weight: bolder;
-	text-align: center;
-	border-style: solid;
-	border-width: thin;
+    font-size: 12pt;
+    padding:5px;
+    background-color: #FFAAAA;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
 }
 .message_hint {
-	padding: 0.5em;
-	background-color: #FFEE66;
-	color: black;
-	font-weight: bolder;
-	text-align: center;
-	border-style: solid;
-	border-width: thin;
+    font-size: 12pt;
+    padding:5px;
+    background-color: #FFFE66;
+    color: black;
+    font-weight: bolder;
+    text-align:center;
+    border-style:solid;
+    border-width:thin;
 }
 .message_error_label {
-	padding: 0.5em;
-	background-color: #E00000;
-  color: white;
-	font-weight: normal;
-	text-align: left;
-	border-style: solid;
-	border-width: thin;
+    font-size: 0.8em;
+    padding:5px;
+    background-color: #FEE;
+    font-weight:normal;
+    text-align:left;
+    border-style:solid;
+    border-width:thin;
 }
-/*    Headings */
+
+/*
+    Ãœberschriftsbalken
+*/
 .listtop, h1 {
-    font-size:125%;
-	background-color: #006400;
-	text-align: left;
-	padding: 0.5em;
-	color: #FFFFFF;
-	font-weight: bolder;
-	border-style: none;
-	border-width: thin;
-	-moz-border-radius:0.4em; /* Firefox */
-	-webkit-border-radius:0.4em; /* Safari, Chrome */
-	-khtml-border-radius:0.4em; /* Konqueror */
-	border-radius:0.4em; /* CSS3 */
-	behavior:url(border-radius.htc);
+    background-color: rgb(236,233,216);
+    text-align:center;
+    padding:5px;
+    font-size: 10pt;
+    color: black;
+    font-weight: bolder;
+    border-style:dashed;
+    border-width:thin;
 }
 
-/* .listelement {
-	background-color: #f8ffb3;
-	color: #000000;
+
+.listelement {
+    background-image: url("../../image/fade2.png");
+    background-repeat:repeat-x;
+    border-style:dashed;
+    border-width:thin;
 }
+
 .listelement2 {
-	background-color: #8ee085;
-	color: #000000;
-} */
-.listheading {
-	padding: 0.2em;
-	background-color: #EBEBEB;
-	color: #006400;
-	font-weight: bolder;
-	text-align: left;
-	border-style: none;
+    background-image: url("../../image/fade2.png");
+    background-repeat:repeat-x;
+    border-style:dashed;
+    border-width:thin;
 }
 
-/* .listheadingcontent {
-	background-color: #EBEBEB;
-	color: #006400;
-	font-weight: bolder;
-	text-align: left;
-} */
+.listheading, .listheading th {
+    font-size: 9pt;
+    padding:3px;
+    background-color:
+    rgb(236,233,216);
+    color: black;
+    font-weight: bolder;
+    text-align:left;
+    background-image: url("../../image/fade.png");
+    border-style:dotted;
+    border-width:thin;
+}
+
+.listheadingcontent {
+    font-size: 9pt;
+    background-color:
+    rgb(236,233,216);
+    color: black;
+    font-weight: bolder;
+    text-align:left;
+}
 
 .accountlistheading {
-	padding: 0.3em;
-	color: #006400;
-	font-weight: bold;
-	text-align: left;
-	background-color: #EBEBEB;
+    font-size: 10pt;
+    padding:3px;
+    color: white;
+    font-weight: bold;
+    text-align:left;
+    background-color:rgb(133,132,129);
 }
+
 .subsubheading {
-	color: #000000;
-	font-weight: bolder;
-	text-decoration: underline;
+  color: black;
+  font-weight: bolder;
+  text-decoration: underline;
 }
+
 .optionen {
-	border: dashed;
-	border-width: 1px;
-	background: #FFFFE0;
+    border:dashed;
+/*  padding-top:10px;
+    padding-bottom:10px;
+    padding-left:10px;
+*/
+    border-width:1px;
+    background:#efedde;
 }
-.listrow1 {
-	background-color: #FFFFFF;
-	color: black;
-	vertical-align: top;
-}
-.listrow0 {
-	background-color: #FFFF99;
-	color: black;
-	vertical-align: top;
-}
-.listsubtotal {
-	background-color: rgb(236,233,216);
-	color: black;
-	font-weight: bolder;
-}
-.listtotal, .listtotal td {
-	background-color: rgb(236,233,216);
-	color: black;
-	font-weight: bolder;
-}
+
+
+.listrow1 { background-color: rgb(208,207,201); color: black; vertical-align: top; }
+.listrow0 { background-color: rgb(236,233,216); color: black; vertical-align: top; }
+.listrowempty { background-color: rgb(255,255,255); color: black; vertical-align: top; }
+
+.redrow1 { background-color: rgb(250,167, 161); color: black; vertical-align: top; }
+.redrow0 { background-color: rgb(255,193,176); color: black; vertical-align: top; }
+
+.greenrow1 { background-color: rgb(0,250,0); color: black; vertical-align: top; }
+.greenrow0 { background-color: rgb(0,255,0); color: black; vertical-align: top; }
+
+.listsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
+
+.listtotal, .listtotal td { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: bolder;}
+
 /* Verkaufsbericht */
-.listmainsortheader {
-	background-color: rgb(236,233,216);
-	color: red;
-	font-weight: bolder;
-	padding-left: 10px;
-	padding-top: 0px;
-}
-.listmainsortsubtotal {
-	background-color: rgb(236,233,216);
-	color: red;
-	font-weight: bolder;
-	padding-left: 10px;
-}
-.listsubsortheader {
-	background-color: rgb(236,233,216);
-	color: green;
-	font-weight: bolder;
-	padding-left: 20px
-}
-.listsubsortsubtotal {
-	background-color: rgb(236,233,216);
-	color: green;
-	font-weight: bolder;
-	padding-left: 20px
-}
-.listsortdescription {
-	background-color: rgb(236,233,216);
-	color: black;
-	font-weight: normal;
-	padding-left: 30px
-}
+.listmainsortheader { font-size: 8pt; background-color: rgb(236,233,216); color: red; font-weight: bolder; padding-left: 10px; padding-top: 0px;}
+.listmainsortsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: red; font-weight: bolder; padding-left: 10px;}
+.listsubsortheader { font-size: 8pt; background-color: rgb(236,233,216); color: green; font-weight: bolder; padding-left: 20px}
+.listsubsortsubtotal { font-size: 8pt; background-color: rgb(236,233,216); color: green; font-weight: bolder; padding-left: 20px}
+.listsortdescription { font-size: 8pt; background-color: rgb(236,233,216); color: black; font-weight: normal; padding-left: 30px}
+
+
 .submit {
-	font-family: Verdana, Arial, Helvetica;
-	color: #000000;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  color: #000000;
 }
 .checkbox, .radio {
-	font-family: Verdana, Arial, Helvetica;
-	color: #778899;
+  font-family: Verdana, Arial, Helvetica, sans-serif;
+  color: #778899;
 }
-.plus0 {
-/* font color for negative numbers */
-	color: red;
+
+.plus0 {    /* font color for negative numbers */
+  color: red;
 }
+
 .plus1 {
-	color: green;
+  color: green;
 }
+
+td.numeric { /* class for numeric columns in tables */
+  text-align: right
+}
+
 h2.confirm {
-	color: blue;
+  color: blue;
+  font-size: 14pt;
 }
+
 h2.error {
-	color: red;
+  color: red;
+  font-size: 14pt;
 }
+
 fieldset {
-	margin-top: 15px;
-	color: black;
-	font-weight: bolder;
+  margin-top:15px;
+  color: black;
+  font-weight: bolder;
 }
+
 /* media stuff */
+
 @media screen {
-.noscreen {
-/* items with this class won't display */
-	display: none;
+  .noscreen {   /* items with this class won't display */
+    display: none;
+  }
 }
-}
+
 @media print {
-.noprint {
-/* items with this class won't print */
-	display: none;
+  .noprint {   /* items with this class won't print */
+    display: none;
+  }
 }
-}
+
 .filecontent {
-	border: 1px solid blue;
-	padding-left: 2px;
-	padding-right: 2px;
+  border: 1px solid blue;
+  padding-left: 2px;
+  padding-right: 2px;
 }
+
 label {
-	cursor: pointer;
-	vertical-align: top;
+  cursor:pointer;
 }
+
 .unbalanced_ledger {
-	background-color: #ffa0a0;
+  background-color: #ffa0a0;
 }
+
 .clearfix:after {
-	clear: both;
-	content: ".";
-	display: block;
-	height: 0;
-	visibility: hidden;
+  clear:both;
+  content:".";
+  display:block;
+  font-size:0;
+  height:0;
+  visibility:hidden;
 }
+
 .flash_message_error {
-	background-color: #FFD6D6;
-	border: 1px solid #AE0014;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	padding: 5px;
+  background-color:#FFD6D6;
+  border: 1px solid #AE0014;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
 }
+
 .flash_message_warning {
-	background-color: #FFE8C7;
-	border: 1px solid #FF6600;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	padding: 5px;
+  background-color:#FFE8C7;
+  border: 1px solid #FF6600;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
 }
+
 .flash_message_info {
-	background-color: #DCF2FF;
-	border: 1px solid #4690FF;
-	margin-top: 5px;
-	margin-bottom: 5px;
-	padding: 5px;
+  background-color:#DCF2FF;
+  border: 1px solid #4690FF;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding: 5px;
+}
+
+.jqmWindow {
+  display: none;
+
+  position: fixed;
+  top: 17%;
+  left: 40%;
+
+  margin-left: -200px;
+  width: 700px;
+
+  background-color: #bec6a2;
+  color: #333;
+  border: 1px solid black;
+  padding: 4px;
+}
+
+.jqmContent {
+  padding: 8px;
+}
+
+.jqmWindow h1 {
+  border: 0;
+  padding: 0;
+  background-color: #bec6a2;
+}
+
+.jqmOverlay {
+  background-color: #000;
+}
+
+/* Kontenliste Styles */
+
+.coa_listrow1 {
+  background-color: rgb(208,207,201);
+  color: black;
+  vertical-align: top;
+}
+
+.coa_listrow0 {
+  background-color: rgb(236,233,216);
+  color: black;
+  vertical-align: top;
+}
+
+.coa_detail_emph {
+  font-size:10pt;
+  font-weight:bold;
+  color:darkred;
+}
+
+.coa_details_header {
+  font-size:8pt;
+  padding:3px;
+  font-weight:bolder;
+  text-align:center;
+  border-style:none;
+  border-width:thin;
+}
+
+.coa_details_header2 {
+  font-size:8pt;
+  padding:3px;
+  font-weight:normal;
+  text-align:left;
+  border-style:none;
+  border-width:thin;
 }

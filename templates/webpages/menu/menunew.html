@@ -15,7 +15,7 @@ $(clockon);
 
  <script type="text/javascript" src="js/dhtmlsuite/menu-for-applications.js"></script>
 
- <table class="menunew">
+ <table id='js-header' class="menunew">
   <tr>
    <td>
     &nbsp;
@@ -38,7 +38,7 @@ $(clockon);
  [%- FOREACH mainitem = menu_items %]
   [%- SET main_id = main_id + 1 %]
   <li id="[% main_id %]"[% IF mainitem.image %] itemIcon="[% mainitem.image %]"[% END %]>
-   <a href="[% IF mainitem.href %][% mainitem.href %][% ELSE %]#[% END %]">
+   <a href="[% IF mainitem.href %][% mainitem.href %][% ELSE %]#[% END %]"[% IF mainitem.target && (mainitem.target != 'main_window') %] target="[% HTML.escape(mainitem.target) %]"[% END %]>
     [%- HTML.escape(mainitem.title) %]
    </a>
    [%- IF mainitem.subitems %]
@@ -47,7 +47,7 @@ $(clockon);
      [%- FOREACH sub1item = mainitem.subitems %]
       [%- SET sub1_id = sub1_id + 1 %]
       <li id="[% sub1_id %]"[% IF sub1item.image %] itemIcon="[% sub1item.image %]"[% END %]>
-       <a href="[% IF sub1item.href %][% sub1item.href %][% ELSE %]#[% END %]">
+       <a href="[% IF sub1item.href %][% sub1item.href %][% ELSE %]#[% END %]"[% IF sub1item.target && (sub1item.target != 'main_window') %] target="[% HTML.escape(sub1item.target) %]"[% END %]>
         [%- HTML.escape(sub1item.title) %]
        </a>
        [%- IF sub1item.subitems %]
@@ -56,7 +56,7 @@ $(clockon);
          [%- FOREACH sub2item = sub1item.subitems %]
           [%- SET sub2_id = sub2_id + 1 %]
           <li id="[% sub2_id %]"[% IF sub2item.image %] itemIcon="[% sub2item.image %]"[% END %]>
-           <a href="[% IF sub2item.href %][% sub2item.href %][% ELSE %]#[% END %]">
+           <a href="[% IF sub2item.href %][% sub2item.href %][% ELSE %]#[% END %]"[% IF sub2item.target && (sub2item.target != 'main_window') %] target="[% HTML.escape(sub2item.target) %]"[% END %]>
             [%- HTML.escape(sub2item.title) %]
            </a>
           </li>

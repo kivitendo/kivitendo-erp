@@ -197,6 +197,7 @@ sub _parse_block_if {
   }
 
   my $value = $self->_get_loop_variable($var, 0, @indices);
+  $value    = scalar(@{ $value }) if (ref($value) || '') eq 'ARRAY';
   my $hit   = 0;
 
   if ($operator_type) {

@@ -28,6 +28,8 @@ BEGIN {
   { name => "Rose::DB::Object",                    url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
   { name => "String::ShellQuote", version => 1.01, url => "http://search.cpan.org/~rosch/",     debian => 'libstring-shellquote-perl' },
   { name => "Sort::Naturally",                     url => "http://search.cpan.org/~sburke/",    debian => 'libsort-naturally-perl' },
+  # Test::Harness is core, so no Debian packages. Test::Harness 3.00 was first packaged in 5.10.1
+  { name => "Test::Harness",   version => '3.00',  url => "http://search.cpan.org/~petdance/",  },
   { name => "Template",        version => '2.18',  url => "http://search.cpan.org/~abw/",       debian => 'libtemplate-perl' },
   { name => "Text::CSV_XS",    version => '0.23',  url => "http://search.cpan.org/~hmbrand/",   debian => 'libtext-csv-xs-perl' },
   { name => "Text::Iconv",     version => '1.2',   url => "http://search.cpan.org/~mpiotr/",    debian => 'libtext-iconv-perl' },
@@ -41,8 +43,8 @@ BEGIN {
   { name => "IO::Socket::SSL",                     url => "http://search.cpan.org/~sullr/",     debian => 'libio-socket-ssl-perl' },
   { name => "Net::LDAP",                           url => "http://search.cpan.org/~gbarr/",     debian => 'libnet-ldap-perl' },
   # Net::SMTP is core since 5.7.3
-  { name => "Net::SMTP::SSL",  version => '1.01',  url => "http://search.cpan.org/~cwest/",     debian => 'libnet-smtp-ssl-perl' },
-  { name => "Net::SSLGlue",    version => '1.01',  url => "http://search.cpan.org/~sullr/",     debian => 'libnet-sslglue-perl' },
+  { name => "Net::SMTP::SSL",                      url => "http://search.cpan.org/~cwest/",     debian => 'libnet-smtp-ssl-perl' },
+  { name => "Net::SSLGlue",                        url => "http://search.cpan.org/~sullr/",     debian => 'libnet-sslglue-perl' },
 );
 
 @developer_modules = (

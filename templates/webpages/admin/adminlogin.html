@@ -1,37 +1,51 @@
 [%- USE T8 %]
 [% USE HTML %]
 [% USE LxERP%]
- <script type='text/javascript'>
-    $(function(){ document.getElementsById('rpw').focus();});
- </script>
- <div align="center">
+ <center>
+  <table class="login" border="3" cellpadding="20">
+   <tr>
+    <td class="login" align="center">
+     <a href="http://www.kivitendo.de" target="_top"><img src="image/kivitendo.png" border="0"></a>
+     <h1>[% 'kivitendo administration' | $T8 %] [% version %]</h1>
 
-  <a href="http://www.kivitendo.org"><img src="image/kivitendo.png" border="0"></a>
+     [% IF error %]
+     <p><span class="message_error_login">[% error %]</span></p>
+     [% END %]
 
-  <h3 class="login">[% 'kivitendo' | $T8 %] [% HTML.escape(version) %]</h3>
+     <p>
 
-  <h2>[% 'Administration' | $T8 %]</h2>
+      <form method="post" action="admin.pl">
 
-  [% IF error %]
-  <p><span class="message_error_login">[% error %]</span></p>
-  [% END %]
+       <table width="100%">
+        <tr>
+         <td align="center">
+          <table>
+           <tr>
+            <th align="right">[% 'Password' | $T8 %]</th>
+            <td><input class="login" type="password" name="{AUTH}admin_password" id="admin_password" size="30" tabindex="1"></td>
+           </tr>
+          </table>
 
-  <form method="post" action="admin.pl">
+          <br>
+          <input type="submit" value="[% 'Login' | $T8 %]" tabindex="2">
 
-   <table>
-    <tr>
-     <th>[% 'Password' | $T8 %]</th>
-     <td><input type="password" name="{AUTH}admin_password" id="rpw"></td>
-     <td><input type="submit" class="submit" name="action" value="[% 'Login' | $T8 %]"></td>
-    </tr>
-    <input type="hidden" name="action" value="login">
-   </table>
+         </td>
+        </tr>
+       </table>
 
-  </form>
+       <input type="hidden" name="action" value="login">
+      </form>
 
-  <p>[% 'kivitendo Homepage' | $T8 %]: <a href="http://kivitendo.de" target="_blank" title="[% 'kivitendo Homepage' | $T8 %]">http://kivitendo.de</a></p>
+    </td>
+   </tr>
+  </table>
 
-  <p><a href="controller.pl?action=LoginScreen/user_login" target="_top">[%- LxERP.t8('Back to the login page') %]</a></p>
+  <p>
+   <a href="controller.pl?action=LoginScreen/user_login" target="_top">[%- LxERP.t8('User login') %]</a>
+   &nbsp;|&nbsp;
+   <a href="doc/kivitendo-Dokumentation.pdf" target="_top">[%- LxERP.t8('Documentation') %]</a>
+  </p>
 
- </div>
-
+  <script type='text/javascript'>
+    $('#admin_password').focus();
+  </script>

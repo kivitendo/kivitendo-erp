@@ -1,58 +1,101 @@
 <html><head>
       <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-   <title>2.11. OpenDocument-Vorlagen</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s10.html" title="2.10. Drucken mit kivitendo"><link rel="next" href="ch02s12.html" title="2.12. Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung: EUR"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.11. OpenDocument-Vorlagen</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s10.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s12.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.11. OpenDocument-Vorlagen"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="OpenDocument-Vorlagen"></a>2.11. OpenDocument-Vorlagen</h2></div></div></div><p>kivitendo unterstützt die Verwendung von Vorlagen im
-      OpenDocument-Format, wie es OpenOffice.org ab Version 2 erzeugt.
-      kivitendo kann dabei sowohl neue OpenDocument-Dokumente als auch aus
-      diesen direkt PDF-Dateien erzeugen. Um die Unterstützung von
-      OpenDocument-Vorlagen zu aktivieren muss in der Datei
-      <code class="filename">config/kivitendo.conf</code> die Variable
-      <code class="literal">opendocument</code> im Abschnitt
-      <code class="literal">print_templates</code> auf ‘<code class="literal">1</code>’ stehen.
-      Dieses ist die Standardeinstellung.</p><p>Weiterhin muss in der Datei
-      <code class="filename">config/kivitendo.conf</code> die Variable
-      <code class="literal">dbcharset</code> im Abschnitt <code class="literal">system</code> auf
-      die Zeichenkodierung gesetzt werden, die auch bei der Speicherung der
-      Daten in der Datenbank verwendet wird. Diese ist in den meisten Fällen
-      "UTF-8".</p><p>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
-      weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
-      OpenOffice.org benötigt. Soll dieses Feature genutzt werden, so muss
-      neben OpenOffice.org ab Version 2 auch der “X virtual frame buffer”
-      (xvfb) installiert werden. Bei Debian ist er im Paket “xvfb” enthalten.
-      Andere Distributionen enthalten ihn in anderen Paketen.</p><p>Nach der Installation müssen in der Datei
-      <code class="filename">config/kivitendo.conf</code> zwei weitere Variablen
-      angepasst werden: <code class="literal">openofficeorg_writer</code> muss den
-      vollständigen Pfad zur OpenOffice.org Writer-Anwendung enthalten.
-      <code class="literal">xvfb</code> muss den Pfad zum “X virtual frame buffer”
-      enthalten. Beide stehen im Abschnitt
-      <code class="literal">applications</code>.</p><p>Zusätzlich gibt es zwei verschiedene Arten, wie kivitendo mit
-      OpenOffice kommuniziert. Die erste Variante, die benutzt wird, wenn die
-      Variable <code class="literal">$openofficeorg_daemon</code> gesetzt ist, startet
-      ein OpenOffice, das auch nach der Umwandlung des Dokumentes gestartet
-      bleibt. Bei weiteren Umwandlungen wird dann diese laufende Instanz
-      benutzt. Der Vorteil ist, dass die Zeit zur Umwandlung deutlich
-      reduziert wird, weil nicht für jedes Dokument ein OpenOffice gestartet
-      werden muss. Der Nachteil ist, dass diese Methode Python und die
-      Python-UNO-Bindings benötigt, die Bestandteil von OpenOffice 2
-      sind.</p><p>Ist <code class="literal">$openofficeorg_daemon</code> nicht gesetzt, so
-      wird für jedes Dokument OpenOffice neu gestartet und die Konvertierung
-      mit Hilfe eines Makros durchgeführt. Dieses Makro muss in der
-      Dokumentenvorlage enthalten sein und
-      “Standard.Conversion.ConvertSelfToPDF()” heißen. Die Beispielvorlage
-      ‘<code class="literal">templates/mastertemplates/German/invoice.odt</code>’
-      enthält ein solches Makro, das in jeder anderen Dokumentenvorlage
-      ebenfalls enthalten sein muss.</p><p>Als letztes muss herausgefunden werden, welchen Namen
-      OpenOffice.org Writer dem Verzeichnis mit den Benutzereinstellungen
-      gibt. Unter Debian ist dies momentan
-      <code class="literal">~/.openoffice.org2</code>. Sollte der Name bei Ihrer
-      OpenOffice.org-Installation anders sein, so muss das Verzeichnis
-      <code class="literal">users/.openoffice.org2</code> entsprechend umbenannt werden.
-      Ist der Name z.B. einfach nur <code class="literal">.openoffice</code>, so wäre
-      folgender Befehl auszuführen:</p><p>
-            <code class="literal">mv users/.openoffice.org2
-      users/.openoffice</code>
-         </p><p>Dieses Verzeichnis, wie auch das komplette
-      <code class="literal">users</code>-Verzeichnis, muss vom Webserver beschreibbar
-      sein. Dieses wurde bereits erledigt (siehe <a class="xref" href="ch02s02.html" title="2.2. Manuelle Installation des Programmpaketes">Manuelle Installation des Programmpaketes</a>), kann aber
-      erneut überprüft werden, wenn die Konvertierung nach PDF
-      fehlschlägt.</p></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s10.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s12.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.10. Drucken mit kivitendo&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.12. Konfiguration zur Einnahmenüberschussrechnung/Bilanzierung:
-      EUR</td></tr></table></div></body></html>
+   <title>2.11. Drucken mit kivitendo</title><link rel="stylesheet" type="text/css" href="style.css"><meta name="generator" content="DocBook XSL Stylesheets V1.76.1-RC2"><link rel="home" href="index.html" title="kivitendo: Installation, Konfiguration, Entwicklung"><link rel="up" href="ch02.html" title="Kapitel 2. Installation und Grundkonfiguration"><link rel="prev" href="ch02s10.html" title="2.10. E-Mail-Versand aus kivitendo heraus"><link rel="next" href="ch02s12.html" title="2.12. OpenDocument-Vorlagen"></head><body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="navheader"><table width="100%" summary="Navigation header"><tr><th colspan="3" align="center">2.11. Drucken mit kivitendo</th></tr><tr><td width="20%" align="left"><a accesskey="p" href="ch02s10.html">Zurück</a>&nbsp;</td><th width="60%" align="center">Kapitel 2. Installation und Grundkonfiguration</th><td width="20%" align="right">&nbsp;<a accesskey="n" href="ch02s12.html">Weiter</a></td></tr></table><hr></div><div class="sect1" title="2.11. Drucken mit kivitendo"><div class="titlepage"><div><div><h2 class="title" style="clear: both"><a name="Drucken-mit-kivitendo"></a>2.11. Drucken mit kivitendo</h2></div></div></div><p>Das Drucksystem von kivitendo benutzt von Haus aus LaTeX-Vorlagen.  Um drucken zu können, braucht der Server ein geeignetes
+      LaTeX System. Am einfachsten ist dazu eine <code class="literal">texlive</code> Installation. Unter Debianoiden Betriebssystemen installiert man
+      die Pakete mit:</p><p>
+            </p><pre class="programlisting">aptitude install texlive-base-bin texlive-latex-recommended texlive-fonts-recommended \
+  texlive-latex-extra texlive-lang-german texlive-generic-extra</pre><p>
+         </p><p>TODO: RPM-Pakete.</p><p>kivitendo bringt drei alternative Vorlagensätze mit:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Standard</p></li><li class="listitem"><p>f-tex</p></li><li class="listitem"><p>RB</p></li></ul></div><div class="sect2" title="2.11.1. Vorlagenverzeichnis anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagenverzeichnis-anlegen"></a>2.11.1. Vorlagenverzeichnis anlegen</h3></div></div></div><p>Im Administrationsbereich lässt sich bei einem Benutzer/Mandanten einer dieser Vorlagensätze als Basis für die zu
+        druckenden Dokumente auswählen. Rufen Sie dazu die <span class="guimenu">Benutzerverwaltung</span> auf.</p><p>Wählen Sie dort einen Benutzer aus oder legen Sie einen neuen an. In der Benutzerbearbeiten-Maske müssen Sie zwei Dinge
+        angeben:</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>
+                     <code class="option">Name</code>: Der Verzeichnisname für den neuen Vorlagensatz. Dieser kann im Rahmen der üblichen
+          Bedingungen für Verzeichnisnamen frei gewählt werden.</p></li><li class="listitem"><p>
+                     <code class="option">Vorlagen auswählen</code>: Wählen Sie hier den Vorlagensatz aus, der kopiert werden soll
+          (<code class="filename">Standard</code>, <code class="filename">f-tex</code> oder <code class="filename">RB</code>.)</p></li></ol></div><p>Der gleiche Vorlagensatz kann, wenn er mal angelegt ist, bei mehreren Benutzern verwendet werden.</p><p>Die Abhängigkeiten kann man prüfen mit:</p><pre class="programlisting">/scripts/installation_check.pl -l</pre></div><div class="sect2" title="2.11.2. Standard"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-Standard"></a>2.11.2. Standard</h3></div></div></div><p>Der Standard-Vorlagensatz von Kivitendo. Wie unter <a class="ulink" href="http://demo.kivitendo.org" target="_top">http://demo.kivitendo.org</a> zu
+        sehen.</p></div><div class="sect2" title="2.11.3. f-tex"><div class="titlepage"><div><div><h3 class="title"><a name="f-tex"></a>2.11.3. f-tex</h3></div></div></div><p>Ein Vorlagensatz, der in wenigen Minuten alle Dokumente zur Verfügung stellt.</p><div class="sect3" title="2.11.3.1. Feature-Übersicht"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Feature-%C3%9Cbersicht"></a>2.11.3.1. Feature-Übersicht</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Keine Redundanz. Es wird ein- und dieselbe LaTeX-Vorlage für alle briefartigen Dokumente verwendet. Also
+            Angebot, Rechnung, Performarechnung, Lieferschein, aber eben nicht für Paketaufkleber etc..</p></li><li class="listitem"><p>Leichte Anpassung an das Firmen-Layout durch verwendung eines Hintergrund-PDF. Dieses kann leicht mit dem
+            eigenen Lieblingsprogramm erstellt werden (Openoffice, Inkscape, Gimp, Adobe*)</p></li><li class="listitem"><p>Hintergrund-PDF umschaltbar auf "nur erste Seite" (Standard) oder "alle Seiten" (Option
+            "<code class="option">bgPdfFirstPageOnly</code>" in Datei <code class="filename">letter.lco</code>)</p></li><li class="listitem"><p>Hintergrund-PDF für Ausdruck auf bereits bedrucktem Briefpapier abschaltbar. Es wird dann nur bei per E-Mail
+            versendeten Dokumenten eingebunden (Option "<code class="option">bgPdfEmailOnly</code>" in Datei
+            <code class="filename">letter.lco</code>).</p></li><li class="listitem"><p>Nutzung der Layout-Funktionen von LaTeX für Seitenumbruch, Wiederholung von Kopfzeilen, Zwischensummen
+            etc. (danke an Kai-Martin Knaak für die Vorarbeit)</p></li><li class="listitem"><p>Anzeige des Empfängerlandes im Adressfeld nur, wenn es vom Land des eigenen Unternehmens abweicht (also die
+            Rechnung das Land verlässt).</p></li><li class="listitem"><p>Multisprachfähig leicht um weitere Sprachen zu erweitern, alle Übersetzungen in der Datei
+            <code class="filename">translatinos.tex</code>.</p></li><li class="listitem"><p>Auflistung von Bruttopreisen für Endverbraucher.</p></li></ul></div></div><div class="sect3" title="2.11.3.2. Die Installation"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Installation"></a>2.11.3.2. Die Installation</h4></div></div></div><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Vorlagenverzeichnis mit Option f-tex anlegen, siehe: <a class="xref" href="ch02s11.html#Vorlagenverzeichnis-anlegen" title="2.11.1. Vorlagenverzeichnis anlegen">Vorlagenverzeichnis anlegen</a>. Das
+            Vorlagensystem funktioniert jetzt schon, hat allerdings noch einen Beispiel-Briefkopf.</p></li><li class="listitem"><p>Erstelle eine pdf-Hintergrund Datei und verlinke sie nach <code class="filename">./letter_head.pdf</code>.</p></li><li class="listitem"><p>Editiere den Bereich "<code class="option">settings</code>" in der datei <code class="filename">letter.lco</code>.</p></li></ul></div><p>oder etwas Detaillierter:</p><p>
+            Es wird eine Datei <code class="filename">sample.lco</code> erstellt und diese nach <code class="filename">letter.lco</code> verlinkt.  Eigentlich
+            ist dies die Datei die für die Firmenspezifischen Anpassungen gedacht ist.  Da die Einstiegshürde in LaTeX nicht ganz niedrig
+            ist, wird in dieser Datei auf ein Hintergrundpdf verwiesen. Ich empfehle über dieses PDF die persönlichen Layoutanpassungen
+            vorzunehmen und <code class="filename">sample.lco</code> unverändert zu lassen. Die die Anpassung über eine
+            <code class="filename">*.lco</code>-Datei die letztlich auf <code class="filename">letter.lco</code> verlinkt ist ist aber auch möglich.
+          </p><p>
+            Es wird eine Datei <code class="filename">sample_head.pdf</code> mit ausgeliefert, diese wird nach <code class="filename">letter_head.pdf</code>
+            verlinkt. Damit gibt es schon mal eine Funktionsfähige Vorlage. Schau Dir nach Abschluss der Installation die Datei
+            <code class="filename">sample_haed.pdf</code> an und erstelle ein entsprechendes PDF passend zum Briefkopf Deiner Firma, diese dann im
+            Template Verzeichniss ablegen und statt <code class="filename">sample_head.pdf</code> nach <code class="filename">letter_head.pdf</code>
+            verlinken.
+          </p><p>
+            letzlich muss <code class="filename">letter_head.pdf</code> auf das passende Hintergrund-PDF verweisen, welches gewünschten Briefkopf
+            enthält. Bei Updates oder nach erneutem
+          </p><p>
+            Es wird eine Datei <code class="filename">mydata.tex.example</code> ausgeliefert, die nach <code class="filename">mytdata.tex</code> verlinkt
+            ist. Bei verwendetem Hintergrund-PDF wird nur der Eintrag für das Land verwendet. Die Datei muss also nicht angefasst
+            werden. Die Anderen Werte sind für das Modul 'lp' (Label Print in erp - zur Zeit nicht im öffentlichen Zweig).
+          </p><p>
+            Alle Anpassungen zum Briefkopf, Fusszeilen, Firmenlogos, etc.  sollten über die Hintergrund-PDF-Datei oder die
+            <code class="filename">*.lco</code>-Datei erfolgen.
+          </p></div><div class="sect3" title="2.11.3.3. f-tex Funktionsübersicht"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Funktions%C3%BCbersicht"></a>2.11.3.3. f-tex Funktionsübersicht</h4></div></div></div><p>
+            Das Konzept von kivitendo sieht vor, für jedes Dokument (Auftragsbestätigung, Lieferschein, Rechnung, etc.) eine LaTeX-Vorlage
+            vorzuhalten, dies ist sehr Wartungsunfreundlich. Auch das Einlesen einer einheitlichen Quelle für den Briefkopf bringt nur
+            bedingte Vorteile, da hier leicht die Pflege der Artikel-Tabellen aus dem Ruder läuft. Bei dem vorliegenden Ansatz wird für alle
+            briefartigen Dokumente mit Artikel-Tabellen eine einheitliche LaTeX-Vorlage verwendet, welche über Codeweichen die
+            Besonderheiten der jeweiligen Dokumente Berücksichtigt.
+          </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Tabellen mit oder ohne Preis</p></li><li class="listitem"><p>Sprache der Tabellenüberschriften etc.</p></li><li class="listitem"><p>Anpassung der Bezugs-Zeile (z.B. Rechnungsnummer versus Angebotsnummer)</p></li><li class="listitem"><p>Darstellung von Brutto oder Netto-Preisen in der Auflistung (Endverbraucher versus Gewerblicher
+            Kunde)</p></li></ul></div><p>Nachteil:</p><p>
+             LaTeX hat ohnehin eine sehr steile Lehrnkurve. Die Datei <code class="filename">letter.tex</code> ist sehr komplex und verstärkt damit
+             diesen Effekt noch einmal erheblich.  Wer LaTeX-Erfahrung hat, oder geübt ist Scriptsparachen nachzuvollziehen kann natürlich
+             auch innerhalb der Tabellendarstellung gut persönliche Anpassungen vornehmen. Aber man kann sich hier bei Veränderungen sehr
+             schnell häftig in den Fuss schiessen.
+           </p><p>Wer nicht so tief in die Materie einsteigen will oder leicht zu frustrieren ist, sollte sein Hintergrund PDF auf Basis der
+           mitglieferten Datei <code class="filename">sample_head.pdf</code> erstellen, und sich an der Form der dargestellten Tabellen wie sie
+           ausgeliefert werden, erfreuen.
+           </p><p>Kleiner Tipp: Nicht zu viel auf einmal wollen, lieber kleine kontinuierliche Schritte gehen.</p></div><div class="sect3" title="2.11.3.4. Bruttopreise für Endverbraucher"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-Bruttopreise"></a>2.11.3.4. Bruttopreise für Endverbraucher</h4></div></div></div><p>Der auszuweisende Bruttopreis wird innerhalb der LaTeX-Umgebung berechnet. Es gibt zwar ein Feld, um bei Aufträgen "alle
+	         Preise Brutto" auszuwählen, aber:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>hierfür müssen die Preise auch in Brutto in der Datenbank stehen (ja - das lässt sich über die Preisgruppen und die
+              Zuordung einer Default-Preisgruppe handhaben)</p></li><li class="listitem"><p>man darf beim Anlegen des Vorgangs nicht vergessen Dieses Häkchen zu setzen.  (das ist in der Praxis wenn man sowohl
+              Endverbraucher- wie Gewerbekunden beliefert der eigentliche Knackpunkt)</p></li></ul></div><p>
+            Es gibt mit f-tex eine weitere Alternative. Die Information ob Brutto oder Nettorechnung wird mit den Zahlarten
+            verknüpft. Zahlarten bei denen Rechnungen, Angebote, etc, in Brutto ausgegeben werden sollen, enden mit "_E" (für
+            Endverbraucher). Falls identische Zahlarten für Gewerbekunden und Endverbraucher vorhanden sind, legt man diese einfach doppelt
+            an (einmal mit der Namensendung "_E"). Gewinn:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Die Entscheidung, ob Netopreise ausgewiesen werden, ist nicht mehr fix mit einer Preisliste Verbunden.</p></li><li class="listitem"><p>Die Default-Zahlart kann im Kundendatensatz hinterlegt werden, und man muss nicht mehr daran denken, "alle Preise
+            Netto" auszuwählen.</p></li><li class="listitem"><p>Die Entscheidung, ob Netto- oder Bruttopreise ausgewiesen werden, kann direkt beim Drucken reviediert werden,
+            ohne dass sich der Auftragswert ändert.</p></li></ul></div></div><div class="sect3" title="2.11.3.5. Lieferadressen"><div class="titlepage"><div><div><h4 class="title"><a name="f-tex-lieferadressen"></a>2.11.3.5. Lieferadressen</h4></div></div></div><p>In Lieferscheinen kommen <code class="varname">shipto*</code>-Variablen im Adressfeld zum Einsatz. Wenn die
+          <code class="varname">shipto*</code>-Variable leer ist, wird die entsprechende Adressvariable eingesetzt.  Wenn also die Lieferadresse in
+          Straße, Hausnummer und Ort abweicht, müssen auch nur diese Felder in der Lieferadresse ausgefüllt werden. Für den Firmenname wird
+          der Wert der Hauptadresse angezeigt.
+          </p></div></div><div class="sect2" title="2.11.4. RB"><div class="titlepage"><div><div><h3 class="title"><a name="Vorlagen-RB"></a>2.11.4. RB</h3></div></div></div><p>Vollständiger Dokumentensatz mit alternativem Design</p></div><div class="sect2" title="2.11.5. Allgemeine Hinweise zu LaTeX Vorlagen"><div class="titlepage"><div><div><h3 class="title"><a name="allgemeine-hinweise-zu-latex"></a>2.11.5. Allgemeine Hinweise zu LaTeX Vorlagen</h3></div></div></div><p>In den allermeisten Installationen sollte drucken jetzt schon
+        funktionieren. Sollte ein Fehler auftreten wirft TeX sehr lange
+        Fehlerbeschreibungen, der eigentliche Fehler ist immer die erste Zeite
+        die mit einem Ausrufezeichen anfängt. Häufig auftretende Fehler sind zum
+        Beispiel:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>! LaTeX Error: File `eurosym.sty' not found. Die entsprechende
+            LaTeX-Bibliothek wurde nicht gefunden. Das tritt vor allem bei
+            Vorlagen aus der Community auf. Installieren Sie die entsprechenden
+            Pakete.</p></li><li class="listitem"><p>! Package inputenc Error: Unicode char \u8:... set up for
+            use with LaTeX. Dieser Fehler tritt auf, wenn sie versuchen mit
+            einer Standardinstallation exotische utf8 Zeichen zu drucken.
+            TeXLive unterstützt von Haus nur romanische Schriften und muss mit
+            diversen Tricks dazu gebracht werden andere Zeichen zu akzeptieren.
+            Adere TeX Systeme wie XeTeX schaffen hier Abhilfe.</p></li></ul></div><p>Wird garkein Fehler angezeigt sondern nur der Name des Templates,
+        heißt das normalerweise, dass das LaTeX Binary nicht gefunden wurde.
+        Prüfen Sie den Namen in der Konfiguration (Standard:
+        <code class="literal">pdflatex</code>), und stellen Sie sicher, dass pdflatex
+        (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
+        darf.</p><p>Wenn sich das Problem nicht auf Grund der ausgabe im Webbrowser verifizieren lässt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_tmp_files" auf 1</p><p>
+                     </p><pre class="programlisting">keep_temp_files = 1;</pre><p>
+                  </p></li><li class="listitem"><p>bei fastcgi oder mod_perl den Webserver neu Starten</p></li><li class="listitem"><p>Nochmal einen Druckversuch im Webfrontend auslösen</p></li><li class="listitem"><p>wechsele in das users Verzeichnis von kivitendo</p><p>
+                     </p><pre class="programlisting">cd [kivitendo-home]/users</pre><p>
+                  </p></li><li class="listitem"><p>LaTeX Suchpfad anpassen:</p><p>
+                     </p><pre class="programlisting">export TEXINPUTS=".:[kivitendo-home]/templates/[aktuelles_template_verzeichniss]:"</pre><p>
+                  </p></li><li class="listitem"><p>Finde herraus welche Datei kivitendo beim letzten Durchlauf erstellt hat</p><p>
+                     </p><pre class="programlisting">ls -lahtr ./1*.tex</pre><p>
+                  </p><p>Es sollte die letzte Datei ganz unten sein</p></li><li class="listitem"><p>für besseren Hinweis auf Fehler texdatei nochmals übersetzen</p><p>
+                     </p><pre class="programlisting">pdflatex ./1*.tex</pre><p>
+                  </p><p>in der *.tex datei nach dem Fehler suchen.</p></li></ul></div></div></div><div class="navfooter"><hr><table width="100%" summary="Navigation footer"><tr><td width="40%" align="left"><a accesskey="p" href="ch02s10.html">Zurück</a>&nbsp;</td><td width="20%" align="center"><a accesskey="u" href="ch02.html">Nach oben</a></td><td width="40%" align="right">&nbsp;<a accesskey="n" href="ch02s12.html">Weiter</a></td></tr><tr><td width="40%" align="left" valign="top">2.10. E-Mail-Versand aus kivitendo heraus&nbsp;</td><td width="20%" align="center"><a accesskey="h" href="index.html">Zum Anfang</a></td><td width="40%" align="right" valign="top">&nbsp;2.12. OpenDocument-Vorlagen</td></tr></table></div></body></html>

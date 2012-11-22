@@ -799,7 +799,7 @@ sub print_and_post {
 
 }
 
-sub use_as_template {
+sub use_as_new {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;
@@ -807,12 +807,13 @@ sub use_as_template {
 
   $main::auth->assert('invoice_edit');
 
-  map { delete $form->{$_} } qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked);
+  delete @{ $form }{qw(printed emailed queued invnumber invdate deliverydate id datepaid_1 gldate_1 acc_trans_id_1 source_1 memo_1 paid_1 exchangerate_1 AP_paid_1 storno locked)};
   $form->{paidaccounts} = 1;
   $form->{rowcount}--;
   $form->{invdate} = $form->current_date(\%myconfig);
+  $form->{duedate} = $form->get_duedate(\%myconfig, $form->{invdate}) || $form->{invdate};
 
-  # remember pricegroups for "use as template"
+  # remember pricegroups for "use as new"
   IS->get_pricegroups_for_parts(\%myconfig, \%$form);
   set_pricegroup($_) for 1 .. $form->{rowcount};
 
