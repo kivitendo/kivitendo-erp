@@ -333,7 +333,7 @@ sub form_header {
     my $transaction = {
       amount     => $form->{"amount_$i"},
       tax        => $form->{"tax_$i"},
-      project_id => $form->{"project_id_$i"},
+      project_id => ($i==$form->{rowcount}) ? $form->{globalproject_id} : $form->{"project_id_$i"},
     };
 
     my $selected_accno_full;
@@ -509,7 +509,7 @@ $follow_ups_block
     }
     if ($transdate > $closedto) {
       print qq|
-        <input class=submit type=submit name=action value="| . $locale->text('Use As Template') . qq|"> |;
+        <input class=submit type=submit name=action value="| . $locale->text('Use As New') . qq|"> |;
     }
     print qq|
         <input class=submit type=submit name=action value="| . $locale->text('Post Payment') .    qq|">
@@ -803,7 +803,7 @@ sub post_as_new {
   $main::lxdebug->leave_sub();
 }
 
-sub use_as_template {
+sub use_as_new {
   $main::lxdebug->enter_sub();
 
   $main::auth->assert('general_ledger');

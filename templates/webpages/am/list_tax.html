@@ -24,12 +24,5 @@
  </table>
 
  <p>
-  <form method="post" action="am.pl">
-
-   <input name="callback" type="hidden" value="[% HTML.escape(callback) %]">
-   <input type="hidden" name="type" value="tax">
-   <input class="submit" type="submit" name="action" value="[% 'Add' | $T8 %]">
-  </form>
+  <a href="am.pl?action=add&type=tax&callback=[% HTML.url(callback) %]">[%- 'Add' | $T8 %]</a>
  </p>
-
-

@@ -22,11 +22,5 @@
 </table>
 
 <br>
-<form method=post action=am.pl>
 
-<input name=callback type=hidden value="[% callback | html %]">
-<input type=hidden name=type value=lead>
-<input class=submit type=submit name=action value="[% 'Add' | $T8 %]">
-
-  </form>
-
+  <a href="am.pl?action=add&type=lead&callback=[% HTML.url(callback) %]">[%- 'Add' | $T8 %]</a>

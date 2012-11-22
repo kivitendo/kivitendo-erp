@@ -564,7 +564,7 @@ $jsscript
       NTI($cgi->popup_menu('-name' => "project_id_$i",
                            '-values' => \@project_values,
                            '-labels' => \%project_labels,
-                           '-default' => $form->{"project_id_$i"} ));
+                           '-default' => ($i==$form->{rowcount})? $form->{globalproject_id} : $form->{"project_id_$i"} ));
 
     print qq|
         <tr>
@@ -1124,7 +1124,7 @@ sub post_as_new {
   $main::lxdebug->leave_sub();
 }
 
-sub use_as_template {
+sub use_as_new {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;

@@ -1,10 +1,4 @@
 [% USE T8 %][% USE HTML %]
- <form action="dispatcher.pl?M=bankaccounts" method="post">
-  <p>
-   [%- 'New bank account' | $T8 %]<br>
-   <input type="submit" name="A_bank_account_add" value="[%- 'Add' | $T8 %]">
-  </p>
-
-  <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
- </form>
-
+ <p>
+  <a href="dispatcher.pl?M=bankaccounts&A=bank_account_add&callback=[% HTML.url(callback) %]">[%- 'New bank account' | $T8 %]</a>
+ </p>

@@ -130,7 +130,7 @@
     <input class="submit" type="submit" name="action" value="[% 'Storno' | $T8 %]">
 [% END %]
     <input class="submit" type="submit" name="action" value="[% 'Post Payment' | $T8 %]">
-    <input class="submit" type="submit" name="action" value="[% 'Use As Template' | $T8 %]">
+    <input class="submit" type="submit" name="action" value="[% 'Use As New' | $T8 %]">
 
 [% IF id && !is_type_credit_note %]
     <input class="submit" type="submit" name="action" value="[% 'Credit Note' | $T8 %]">
@@ -169,5 +169,3 @@
 <input type="hidden" name="customer_discount" value="[% customer_discount %]">
 <input type="hidden" name="gldate" value="[% gldate %]">
 </form>
-
-
