@@ -33,13 +33,7 @@
  <hr height="3">
 
  <p>
-  <form method="post" action="am.pl">
-   <input type="hidden" name="type" value="price_factor">
-   <input type="hidden" name="callback" value="[% HTML.escape(callback) %]">
-
-   <input type="submit" class="submit" name="action" value="[% 'Add' | $T8 %]">
-  </form>
+  <a href="am.pl?action=add&type=price_factor&callback=[% HTML.url(callback) %]">[%- 'Add' | $T8 %]</a>
  </p>
 
  [% L.sortable_element('#price_factor_list tbody', url => 'controller.pl?action=PriceFactor/reorder', with => 'price_factor_id') %]
-

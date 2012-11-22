@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE LxERP %]
+[%- USE HTML %]
 
 <form method=post action="[% script %]">
 
@@ -40,6 +41,6 @@
 
 <br>
 <input class=submit type=submit name=action value="[% 'Continue' | $T8 %]">
+|
+<a href="pe.pl?action=add&type=[% HTML.url(type) %]">[%- LxERP.t8('Add') %]</a>
 </form>
-
-

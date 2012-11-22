@@ -88,9 +88,8 @@
   <hr height="3">
 
   <p>
-   <input type="submit" class="submit" name="action_add_cvar_config" value="[% 'Add' | $T8 %]">
+   <a href="amcvar.pl?action=add_cvar_config&callback=[% HTML.url(callback) %]">[%- 'Add' | $T8 %]</a>
   </p>
  </form>
 
  [% L.sortable_element('#cvarcfg_list tbody', url => 'controller.pl?action=CustomVariableConfig/reorder', with => 'cvarcfg_id') %]
-
