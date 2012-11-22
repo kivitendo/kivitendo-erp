@@ -76,7 +76,7 @@ our $auth;
 
 my @valid_dateformats = qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd);
 my @valid_numberformats = ('1,000.00', '1000.00', '1.000,00', '1000,00');
-my @all_stylesheets = qw(lx-office-erp.css Win2000.css Mobile.css kivitendo.css);
+my @all_stylesheets = qw(lx-office-erp.css Mobile.css kivitendo.css);
 my @all_menustyles = (
   { id => 'old', title => $::locale->text('Old (on the side)') },
   { id => 'v3',  title => $::locale->text('Top (CSS)') },
