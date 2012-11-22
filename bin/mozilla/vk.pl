@@ -336,8 +336,8 @@ sub invoice_transactions {
     # discount was already accounted for in db sellprice
     $ar->{sellprice}       = $ar->{sellprice}  / $ar->{price_factor} / $basefactor;
     $ar->{lastcost}        = $ar->{lastcost}   / $ar->{price_factor} / $basefactor;
-    $ar->{sellprice_total} = $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) / $ar->{price_factor};
-    $ar->{lastcost_total}  = $ar->{qty} * $ar->{lastcost} * $basefactor;
+    $ar->{sellprice_total} = $form->round_amount( $ar->{qty} * ( $ar->{fxsellprice} * ( 1 - $ar->{discount} ) ) / $ar->{price_factor}, 2);
+    $ar->{lastcost_total}  = $form->round_amount( $ar->{qty} * $ar->{lastcost} * $basefactor, 2);
     # marge_percent wird neu berechnet, da Wert in invoice leer ist (Bug)
     $ar->{marge_percent} = $ar->{sellprice_total} ? (($ar->{sellprice_total}-$ar->{lastcost_total}) / $ar->{sellprice_total} * 100) : 0;
     # marge_total neu berechnen
@@ -428,9 +428,9 @@ sub invoice_transactions {
     # wird laufend bei jeder Position neu berechnet
     $totals{marge_percent}    = $totals{sellprice_total}    ? ( ($totals{sellprice_total} - $totals{lastcost_total}) / $totals{sellprice_total}   ) * 100 : 0;
 
-    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(marge_total marge_percent qty);
+    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(marge_total marge_percent qty sellprice_total lastcost_total);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 3) } qw(weight);
-    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(lastcost sellprice sellprice_total lastcost_total);
+    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(lastcost sellprice);
 
     my $row = { };
 
