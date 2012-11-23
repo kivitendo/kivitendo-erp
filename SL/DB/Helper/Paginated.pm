@@ -135,7 +135,7 @@ The returned hashref will have the following structure:
 
   { per_page => 20,   # how many entries per page
     max      => 5,    # number of the last page
-    cur      => 2,    # number of the current page
+    page     => 2,    # number of the current page
     common   => [     # an array of hashes for each page
       ...,
       { active  => 1, # set if this is the active page
@@ -146,7 +146,7 @@ The returned hashref will have the following structure:
     ]
   }
 
-You may assume that C<cur> is sanitized to be within 1..C<max>.
+You may assume that C<page> is sanitized to be within 1..C<max>.
 
 The common list is kept arbitrary by design, so that the algorithm to display
 the paginating controls can be changed by solely changing the
