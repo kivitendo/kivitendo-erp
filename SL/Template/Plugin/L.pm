@@ -689,11 +689,7 @@ sub paginate_controls {
   my %paginate_params = $controller->get_current_paginate_params;
 
   my %template_params = (
-    pages             => {
-      cur             => $paginate_params{page},
-      max             => $paginate_params{num_pages},
-      common          => $paginate_params{common_pages},
-    },
+    pages             => \%paginate_params,
     url_maker         => sub {
       my %url_params                                    = _hashify(@_);
       $url_params{ $paginate_spec->{FORM_PARAMS}->[0] } = delete $url_params{page};

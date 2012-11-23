@@ -61,16 +61,10 @@ sub get_current_paginate_params {
                         :     $spec->{PAGINATE_ARGS}            ? do { my $sub = $spec->{PAGINATE_ARGS}; %{ $self->$sub() } }
                         :                                         ();
   my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => \%paginate_args);
-  %paginate_params      = (
-    page         => min($paginate_params{page}, $calculated_params->{max}),
-    per_page     => $paginate_params{per_page},
-    num_pages    => $calculated_params->{max},
-    common_pages => $calculated_params->{common},
-  );
 
-  # $::lxdebug->dump(0, "get_current_paginate_params: ", \%paginate_params);
+  # $::lxdebug->dump(0, "get_current_paginate_params: ", $calculated_params);
 
-  return %paginate_params;
+  return %{ $calculated_params };
 }
 
 sub disable_pagination {

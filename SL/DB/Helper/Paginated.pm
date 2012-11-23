@@ -17,12 +17,12 @@ sub paginate {
 
   $ret->{per_page}        = per_page($self, %params);
   $ret->{max}             = ceil($self->get_all_count(%args), $ret->{per_page}) || 1;
-  $ret->{cur}             = $page < 1 ? 1
+  $ret->{page}            = $page < 1 ? 1
                           : $page > $ret->{max} ? $ret->{max}
                           : $page;
-  $ret->{common}          = make_common_pages($ret->{cur}, $ret->{max});
+  $ret->{common}          = make_common_pages($ret->{page}, $ret->{max});
 
-  $params{args}{page}     = $ret->{cur};
+  $params{args}{page}     = $ret->{page};
   $params{args}{per_page} = $ret->{per_page};
   delete $params{args}{limit};
   delete $params{args}{offset};
