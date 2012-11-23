@@ -153,21 +153,21 @@ sub prepare_report {
   $self->{report} = $report;
 
   my @columns     = qw(reqdate customer ordnumber partnumber description qty shipped_qty not_shipped_qty);
-  my @sortable    = qw(reqdate customer ordnumber partnumber description                );
+  my @sortable    = qw(reqdate customer ordnumber partnumber description);
 
   my %column_defs = (
     reqdate           => {      sub => sub { $_[0]->reqdate_as_date || $_[0]->order->reqdate_as_date                         } },
     description       => {      sub => sub { $_[0]->description                                                              },
-                            obj_link => sub { $self->link_to($_[0]->part)                                                     } },
+                           obj_link => sub { $self->link_to($_[0]->part)                                                     } },
     partnumber        => {      sub => sub { $_[0]->part->partnumber                                                         },
-                            obj_link => sub { $self->link_to($_[0]->part)                                                     } },
+                           obj_link => sub { $self->link_to($_[0]->part)                                                     } },
     qty               => {      sub => sub { $_[0]->qty_as_number . ' ' . $_[0]->unit                                        } },
     shipped_qty       => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit } },
     not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
-                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
+                           obj_link => sub { $self->link_to($_[0]->order)                                                    } },
     customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
-                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
+                           obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
   );
 
   map { $column_defs{$_}->{text} = $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
