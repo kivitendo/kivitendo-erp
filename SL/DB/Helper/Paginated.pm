@@ -114,7 +114,7 @@ In the template:
 
 Paginate will prepare information to be used for paginating, change the given
 args to use them, and return a data structure containing information for later
-display.
+display. See L<STRUCTURE OF PAGES> for information how the return is formatted.
 
 C<args> needs to contain a reference to a hash, which will be used as an
 argument for C<get_all>. After C<paginate> the keys C<page> and C<per_page>
@@ -126,6 +126,52 @@ sanitized.
 
 The parameter C<per_page> is optional. If not given the default value of the
 Manager will be used.
+
+=back
+
+=head1 STRUCTURE OF PAGES
+
+The returned hashref will have the following structure:
+
+  { per_page => 20,   # how many entries per page
+    max      => 5,    # number of the last page
+    cur      => 2,    # number of the current page
+    common   => [     # an array of hashes for each page
+      ...,
+      { active  => 1, # set if this is the active page
+        page    => 2, # the string to display for this page
+        visible => 1, # should this be displayed in the paginating controls
+      },
+      ...
+    ]
+  }
+
+You may assume that C<cur> is sanitized to be within 1..C<max>.
+
+The common list is kept arbitrary by design, so that the algorithm to display
+the paginating controls can be changed by solely changing the
+C<make_common_pages> algorithm. If you need different glyphs for the pages or
+different boundaries, translate the C<page> entry for the page.
+
+The initial algorithm will show the following pages:
+
+=over 4
+
+=item *
+
+1, 2, 3
+
+=item *
+
+Last page
+
+=item *
+
+Current page +/- 5 pages
+
+=item *
+
+Current page +/- 10, 50, 100, 500, 1000, 5000
 
 =back
 
