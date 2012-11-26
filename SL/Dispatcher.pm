@@ -231,6 +231,7 @@ sub handle_request {
     } else {
       if (SL::Auth::SESSION_EXPIRED == $session_result) {
         print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login&error=session');
+        ::end_of_request();
       }
 
       my %auth_result = $self->{auth_handler}->handle(
