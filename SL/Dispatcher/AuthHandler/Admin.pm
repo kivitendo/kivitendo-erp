@@ -8,6 +8,7 @@ use SL::Layout::Dispatcher;
 sub handle {
   %::myconfig = ();
 
+  return 1 if  $::auth->get_api_token_cookie;
   return 1 if  $::form->{'{AUTH}admin_password'} && ($::auth->authenticate_root($::form->{'{AUTH}admin_password'})            == $::auth->OK());
   return 1 if !$::form->{'{AUTH}admin_password'} && ($::auth->authenticate_root($::auth->get_session_value('admin_password')) == $::auth->OK());
 

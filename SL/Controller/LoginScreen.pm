@@ -34,8 +34,9 @@ sub action_logout {
 sub action_login {
   my ($self) = @_;
 
-  %::myconfig      = $::form->{'{AUTH}login'} ? $::auth->read_user(login => $::form->{'{AUTH}login'}) : ();
-  %::myconfig      = SL::Dispatcher::AuthHandler::User->new->handle(countrycode => $::myconfig{countrycode});
+  my $login        = $::form->{'{AUTH}login'} || $::auth->get_session_value('login');
+  %::myconfig      = $login ? $::auth->read_user(login => $login) : ();
+  SL::Dispatcher::AuthHandler::User->new->handle(countrycode => $::myconfig{countrycode});
   $::form->{login} = $::myconfig{login};
   $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
   my $user         = User->new(login => $::myconfig{login});
