@@ -241,6 +241,8 @@ sub handle_request {
         action       => $action,
       );
 
+      ::end_of_request() unless $auth_result{auth_ok};
+
       delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } } unless $auth_result{keep_auth_vars};
 
       if ($action) {

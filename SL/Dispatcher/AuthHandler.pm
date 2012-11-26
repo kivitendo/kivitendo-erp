@@ -18,11 +18,12 @@ sub handle {
   my $handler_name                     = "SL::Dispatcher::AuthHandler::" . ucfirst($auth_level);
   $self->{handlers}                  ||= {};
   $self->{handlers}->{$handler_name} ||= $handler_name->new;
-  $self->{handlers}->{$handler_name}->handle;
+  my $ok = $self->{handlers}->{$handler_name}->handle;
 
   return (
     auth_level     => $auth_level,
     keep_auth_vars => $self->get_keep_auth_vars(%param),
+    auth_ok        => $ok,
   );
 }
 
