@@ -28,7 +28,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
     o  bin/mozilla/admin.pl DOES NOT use proper system or exec calls
   - Einige Tests setzen eine korrekt aufgesetzte Datenbank für tests voraus.
     TODO: diese Tests korrekt skippen wenn keine DB gefunden wurde.
-    TODO: Dokumeniteren wie der Releasemanager sich so eine DB baut, die
+    TODO: Dokumentieren wie der Releasemanager sich so eine DB baut, die
           sollten vor einem Release zumindest durchlaufen.
     TODO: Evtl eine Klasse von Releasetests einführen)
 
@@ -46,7 +46,8 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 * Freeze auf der Mailingliste ansagen.
 
   - Featurefreeze für beta
-  - Commitfreeze für finales Release
+  - Commitfreeze für finales Release (Erfahrungswerte: 1 Tag für die erste
+    Beta, 2-4h für jedes weitere Release, 1 Tag fürs finale Release)
 
 * Status Bugzilla
 
