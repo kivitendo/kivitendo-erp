@@ -136,6 +136,7 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1859: Nicht gespeichertes Angebot/Auftrag/Rechnung... -> Drucken -> "Keine Aktion definiert"
   - Bugfix #1861: Umlaute in Rechnungen fehlerhaft bei <%employee..%>
   - Bugfix #1863: report_generator parst bei dateiausgabe keine Leerzeichen
+  - Bugfix #1864: Benutzerdefinierte Variable Numerisch filtert nicht korrekt beim CSV-Export
   - Bugfix #1865: templatesystem $form{'tmpfile'} und chdir
   - Bugfix #1866: Menüs und neues CSS
   - Bugfix #1867: Debitorenbuchung erfassen nicht möglich
@@ -192,6 +193,7 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1983: Einlagern mit anderer Einheit benutzt Grundeinheit
   - Bugfix #1985: Stammdateneinstellung um immer Bruttorechnungen auszustellen fehlt (Checkbox "Steuer im Preis inbegriffen" als Default setzen)
   - Bugfix #1987: lxerp_auth wird nach Inst. nicht erstellt
+  - Bugfix #1990: Rundung in Verkaufsrechnung/Verkaufsbericht
   - Bugfix #1999: Gewählte Einheit wird nicht übernommen beim Erneuern
   - Bugfix #2000: Fehler beim Aufrufen bestehender/alter Lieferscheine aus Berichten
   - Bugfix #2002: In Lieferscheinen werden die Mitarbeiter-IDs statt namen nun angezeigt
@@ -209,10 +211,12 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #2030: Unverständliche Fehlermeldung
   - Bugfix #2031: Anlegen der Tabellen zur Benutzerauthentifizierung: Hinweis auf lx_office.conf ersetzen
   - Bugfix #2035: Probleme mit Zeichenkodierung beim Mailversand
+  - Bugfix #2037: Preis in Rechnungen, Angebote, etc wird überschrieben
   - Bugfix #2038: Unroutable request -- inavlid controller/action. nach Datenbankaktualisierung des Mandanten
   - Bugfix #2039: No-Frames bedeutet f. HTML-Druckvorlagen immer das Menü mitzudrucken
   - Bugfix #2041: 'Konto schon vorhanden' beim Speichern eines bestehenden Kontos nach Änderung
   - Bugfix #2044: fehlender Benutzername bei Menue CSS (v4)
+  - Bugfix #2046: Drucken-Knopf geht erst beim 2. Mail (Angebot / Auftrag / Lieferschein)
   - Bugfix #2048: Menu verschwindet
   - Bugfix #2049: Vorlagen-Templates aufraeumen
   - Bugfix #2053: Link zur Dokumentation ins Menü einbauen
@@ -222,6 +226,11 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #2059: Falsches Icon im Programm-Menü
   - Bugfix #2060: Sprache hinzufügen schlägt fehl
   - Bugfix #2061: Fehler im Menü Programm bei Menü-Varianten "oben mit css" und "oben mit css neu"
+  - Bugfix #2065: Irreführende Bezeichnung für Funktion "Rechnung > als Vorlage verwenden"
+  - Bugfix #2067: Button "drucken und buchen" bei Rechnungen druckt nicht mehr
+  - Bugfix #2069: Lieferplan: Filteraufruf aus Folgeseite bringt falsches Ergebnis
+  - Bugfix #2076: Liefertermin im Lieferschein hat keine Kalender
+  - Bugfix #2079: System-Menü enthält überwiegend überflüssige Submenüs
 
 
 2012-03-01 - Release 2.7.0
