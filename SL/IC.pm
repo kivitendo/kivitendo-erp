@@ -1487,8 +1487,22 @@ sub retrieve_accounts {
 
   # transdate madness.
   my $transdate = "";
-  if ($form->{type} eq "invoice") {
-    if (($form->{vc} eq "vendor") || !$form->{deliverydate}) {
+  if ($form->{type} eq "invoice" or $form->{type} eq "credit_note") {
+    # use deliverydate for sales and purchase invoice, if it exists
+    # also use deliverydate for credit notes
+    if (!$form->{deliverydate}) {
+      $transdate = $form->{invdate};
+    } else {
+      $transdate = $form->{deliverydate};
+    }
+  } elsif ($form->{script} eq 'ir.pl') {
+    # when a purchase invoice is opened from the report of purchase invoices 
+    # $form->{type} isn't set, but $form->{script} is, not sure why this is or
+    # whether this distinction matters in some other scenario. Otherwise one
+    # could probably take out this elsif and add a
+    # " or $form->{script} eq 'ir.pl' "
+    # to the above if-statement
+    if (!$form->{deliverydate}) {
       $transdate = $form->{invdate};
     } else {
       $transdate = $form->{deliverydate};

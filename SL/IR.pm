@@ -1218,7 +1218,9 @@ sub retrieve_item {
 
   my $transdate = "";
   if ($form->{type} eq "invoice") {
-    $transdate = $form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
+    $transdate = $form->{deliverydate} ? $dbh->quote($form->{deliverydate}) 
+               : $form->{invdate} ? $dbh->quote($form->{invdate}) 
+               : "current_date";
   } else {
     $transdate = $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
   }
