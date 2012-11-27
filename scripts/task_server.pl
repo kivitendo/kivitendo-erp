@@ -5,6 +5,9 @@ use strict;
 my $exe_dir;
 
 BEGIN {
+  use FindBin;
+  use lib "$FindBin::Bin/..";
+
   use SL::System::Process;
   $exe_dir = SL::System::Process::exe_dir;
 
