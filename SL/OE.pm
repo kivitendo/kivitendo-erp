@@ -115,11 +115,11 @@ sub transactions {
 
   if ($form->{"projectnumber"}) {
     $query .= <<SQL;
-      AND (pr.projectnumber ILIKE ?) OR EXISTS (
+      AND ((pr.projectnumber ILIKE ?) OR EXISTS (
         SELECT * FROM orderitems oi
         LEFT JOIN project proi ON proi.id = oi.project_id
         WHERE proi.projectnumber ILIKE ? AND oi.trans_id = o.id
-      )
+      ))
 SQL
     push @values, "%" . $form->{"projectnumber"} . "%", "%" . $form->{"projectnumber"} . "%" ;
   }
