@@ -2,66 +2,41 @@
 
 .DHTMLSuite_menuItem_top_regular,.DHTMLSuite_menuItem_top_over,.DHTMLSuite_menuItem_top_click,.DHTMLSuite_menuItem_top_disabled,.DHTMLSuite_menuItem_top_active{
 	height:19px;
+	line-height:16px;
+	margin-right:2px;
+	margin-top:1px;
+	padding-left:4px;
+	padding-right:4px;
+	padding-top:2px;
+	padding-bottom:2px;
 }
 .DHTMLSuite_menuItem_top_regular div,.DHTMLSuite_menuItem_top_over div,.DHTMLSuite_menuItem_top_click div,.DHTMLSuite_menuItem_top_disabled div,.DHTMLSuite_menuItem_top_active div{
 	padding-top:2px;
 	padding-bottom:2px;
 }
 .DHTMLSuite_menuItem_top_regular{	/* Top level menu item - Regular state */
-	padding-left:4px;
-	padding-right:4px;
-	margin-right:2px;
-	padding-top:1px;
-	padding-bottom:1px;
 	cursor:pointer;
-	line-height:16px;
-	margin-top:2px;
 }
 
 .DHTMLSuite_menuItem_top_over{ /* Top level menu item - Mouse over state */
-	padding-left:3px;
-	padding-right:3px;
-	margin-right:2px;
-	border:1px solid #000;
-	color:#000;
-	background-color:#bec6a2;
+	color:#FE5F14;
+	background-color:#D1D1D1;
 	cursor:pointer;
-	line-height:16px;
-	margin-top:2px;
 }
 
 .DHTMLSuite_menuItem_top_active{	/* Top level menu item - Active state - this is typical the state for menu item 1 when a sub group is expanded and the mouse is located over one of the sub menu items */
-	padding-left:3px;
-	padding-right:3px;
-	margin-right:2px;
-	border:1px solid #000;
-	border-bottom:1px solid #FFF;
 	cursor:pointer;
-	line-height:16px;
-	margin-top:2px;
 }
 
 .DHTMLSuite_menuItem_top_click{	/* Top level menu item - Mouse click state */
-	padding-left:3px;
-	padding-right:3px;
-	margin-right:2px;
-	border:1px solid #000;
-	background-color:#bec6a2;
+	color:#FE5F14;
+	background-color:#D1D1D1;
 	cursor:pointer;
-	line-height:16px;
-	margin-top:2px;
 	z-index:20000;
 }
 
 .DHTMLSuite_menuItem_top_disabled{	/* Disabled menu item */
-	padding-left:4px;
-	padding-right:4px;
-	margin-right:2px;
-	padding-top:1px;
-	padding-bottom:1px;
 	cursor:default;
-	line-height:16px;
-	margin-top:2px;
 }
 
 .DHTMLSuite_menuItem_top_disabled img,.DHTMLSuite_menuItem_top_disabled div{	/* Sub divs of disabled top level items. A menu item is a div with some subdivs(one for the icon, one for text etc.). this is the css for these sub divs */
@@ -137,21 +112,19 @@
 	-khtml-opacity:.4;	/* Transparency */
 }
 .DHTMLSuite_menuItem_sub_regular,.DHTMLSuite_menuItem_sub_disabled{	/* Regular menu item */
-	margin-left:2px;	/* size of margin above + 1 pixel */
-	padding-top:3px;	/* Size of padding-top above + 1 pixel */
-	padding-bottom:3px;	/* Size of padding-bottom above + 1 pixel */
 }
 
 .DHTMLSuite_menuItem_sub_over,.DHTMLSuite_menuItem_sub_click,.DHTMLSuite_menuItem_sub_active{
-	border:1px solid #006;	/* Border around mouse over items, click items and active items */
 }
 
 .DHTMLSuite_menuItem_sub_over,.DHTMLSuite_menuItem_sub_active{	/* Mouse over effect */
-	background-color:#bec6a2;		/* Background color of mouse over items and active items(Active item = parent elements of the menu item the mouse is currently over */
+	color:#FE5F14;
+	background-color:#D1D1D1;
 }
 
 .DHTMLSuite_menuItem_sub_click{	/* Mouse click effect */
-	background-color:#bec6a2;	/* Background color when the mouse button is pressed down on a menu item */
+	color:#FE5F14;
+	background-color:#D1D1D1;
 }
 
 .DHTMLSuite_menuItem_sub_click div, .DHTMLSuite_menuItem_sub_regular div,.DHTMLSuite_menuItem_sub_over div,.DHTMLSuite_menuItem_sub_active div,.DHTMLSuite_menuItem_sub_disabled div{	/* divs for the text,icon and arrow of a menu item */
@@ -178,10 +151,13 @@
 	margin-bottom:1px;	/* Space below the separator */
 	margin-left:24px;	/* left margin because we don't want the separator to cover the gradient */
 	padding-right:3px;	/* space at the right of the separator */
-	background-color:#6A8CCB;	/* background color for the separator - blue */
+	color:#FE5F14;
+	background-color:#D1D1D1;
 }
 
 .DHTMLSuite_menuItem_textContent
 {
+  border-bottom-style: none !important;
+  background-color: inherit !important;
   color: inherit !important;
 }

@@ -16,7 +16,6 @@
 ************************************************************************************************************/
 
 .DHTMLSuite_menuBar_top{	/* The bar that is parent of the menu strip */
-	color:#FFF;
 	height:26px;
 	width:100%;
 	background-repeat:repeat-x;
@@ -24,15 +23,12 @@
 	font-size:12px;
 	z-index:100000;
 	padding-left:10px;
-/*	background-image:url('../../../image/dhtmlsuite/menu_strip_bg.jpg');*/
-	background-image:url('../../../image/bg_css_kivi_menu.png');
 }
 
 .DHTMLSuite_menuBar_sub{
 	position:absolute;
 	background-color:#FFF;
-	border:1px solid #000;
-	background-image:url('../../../image/dhtmlsuite/menu-bar-kivi-gradient.png');	/* Background image for sub menu items */
+	border:1px solid #D1D1D1;
 	background-repeat:repeat-y;
 	background-position: left center;
 	display:inline;
