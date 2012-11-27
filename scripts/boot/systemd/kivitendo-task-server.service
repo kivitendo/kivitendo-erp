@@ -1,0 +1,13 @@
+[Unit]
+Description=kivitendo background jobs server
+
+[Service]
+Type=forking
+ExecStart=/opt/kivitendo/scripts/task_server.pl start
+ExecStop=/opt/kivitendo/scripts/task_server.pl stop
+Restart=always
+Requires=postgresql.service
+After=postgresql.service
+
+[Install]
+WantedBy=multi-user.target
