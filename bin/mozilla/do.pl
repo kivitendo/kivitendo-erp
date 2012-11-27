@@ -976,7 +976,7 @@ sub save_as_new {
   map { delete $form->{$_} } qw(printed emailed queued);
   delete @{ $form }{ grep { m/^stock_(?:in|out)_\d+/ } keys %{ $form } };
 
-  # Let Lx-Office assign a new order number if the user hasn't changed the
+  # Let kivitendo assign a new order number if the user hasn't changed the
   # previous one. If it has been changed manually then use it as-is.
   $form->{donumber} =~ s/^\s*//g;
   $form->{donumber} =~ s/\s*$//g;

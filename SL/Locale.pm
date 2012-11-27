@@ -328,7 +328,7 @@ sub date {
   } elsif ($myconfig->{dateformat} eq "yyyy-mm-dd") {
 
     # Use German syntax with the ISO date style "yyyy-mm-dd" because
-    # Lx-Office is mainly used in Germany or German speaking countries.
+    # kivitendo is mainly used in Germany or German speaking countries.
     if (defined $longformat && $longformat == 0) {
       $mm++;
       $dd = "0$dd" if ($dd < 10);

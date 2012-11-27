@@ -6,7 +6,7 @@
 *License: non free
 *eMail: info@lx-system.de
 *Version: 1.0.0
-*ERP: Lx-Office ERP
+*ERP: kivitendo ERP 3.0.0
 ***************************************************************/
 ?>
 <html>

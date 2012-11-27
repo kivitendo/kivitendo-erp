@@ -645,7 +645,7 @@ __END__
 
 =head1 NAME
 
-locales.pl - Collect strings for translation in Lx-Office
+locales.pl - Collect strings for translation in kivitendo
 
 =head1 SYNOPSIS
 

@@ -791,7 +791,7 @@ __END__
 
 =head1 NAME
 
-SL::ReportGenerator.pm: the Lx-Office way of getting data in shape
+SL::ReportGenerator.pm: the kivitendo way of getting data in shape
 
 =head1 SYNOPSIS
 
@@ -815,7 +815,7 @@ Then there are some options made by the user, such as hidden columns. You add mo
 Then it lacks usability. You want it to be able to sort the data. You add code for that.
 Then there are too many results, you need pagination, you want to print or export that data..... and so on.
 
-The ReportGenerator class was designed because this exact scenario happened about half a dozen times in Lx-Office.
+The ReportGenerator class was designed because this exact scenario happened about half a dozen times in kivitendo.
 It's purpose is to manage all those formating, culling, sorting, and templating.
 Which makes it almost as complicated to use as doing the work for yourself.
 

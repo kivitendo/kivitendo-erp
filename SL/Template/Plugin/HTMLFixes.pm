@@ -12,7 +12,7 @@ use Encode;
 
 # Replacement for Template::Plugin::HTML::url.
 
-# Strings in Lx-Office are stored in Perl's internal encoding but have
+# Strings in kivitendo are stored in Perl's internal encoding but have
 # to be output as UTF-8. A normal regex replace doesn't do that
 # creating invalid UTF-8 characters upon URL-unescaping.
 

@@ -6,7 +6,7 @@
 *eMail: info@lx-system.de
 *Version: 1.0.1
 *Shop: PHPeppershop 1.5
-*ERP: Lx-Office ERP
+*ERP: kivitendo ERP
 ***************************************************************/
 // -----------------------------------------------------------------------
 // Damit jedes andere Modul ueberpruefen kann ob dieses hier schon "included" ist

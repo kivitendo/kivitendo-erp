@@ -167,9 +167,9 @@ sub check_module {
   return if $res;
 
   my $needed_text =
-      $role{optional} ? 'It is OPTIONAL for Lx-Office but RECOMMENDED for improved functionality.'
-    : $role{required} ? 'It is NEEDED by Lx-Office and must be installed.'
-    : $role{devel}    ? 'It is OPTIONAL for Lx-Office and only useful for developers.'
+      $role{optional} ? 'It is OPTIONAL for kivitendo but RECOMMENDED for improved functionality.'
+    : $role{required} ? 'It is NEEDED by kivitendo and must be installed.'
+    : $role{devel}    ? 'It is OPTIONAL for kivitendo and only useful for developers.'
     :                   'It is not listed as a dependancy yet. Please tell this the developers.';
 
   my @source_texts = module_source_texts($module);
@@ -241,7 +241,7 @@ __END__
 
 =head1 NAME
 
-scripts/installation_check.pl - check Lx-Office dependancies
+scripts/installation_check.pl - check kivitendo dependancies
 
 =head1 SYNOPSIS
 
@@ -249,9 +249,9 @@ scripts/installation_check.pl - check Lx-Office dependancies
 
 =head1 DESCRIPTION
 
-Check dependencys. List all perl modules needed by Lx-Office, probes for them,
+Check dependencys. List all perl modules needed by kivitendo, probes for them,
 and warns if one is not available.  List all LaTeX document classes and
-packages needed by Lx-Office master templates, probes for them, and warns if
+packages needed by kivitendo master templates, probes for them, and warns if
 one is not available.
 
 

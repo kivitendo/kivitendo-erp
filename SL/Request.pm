@@ -342,7 +342,7 @@ anything in here directly.
 =head1 DESCRIPTION
 
 This module handles flattening and unflattening of data for request
-roundtrip purposes. Lx-Office uses the format as described below:
+roundtrip purposes. kivitendo uses the format as described below:
 
 =over 4
 

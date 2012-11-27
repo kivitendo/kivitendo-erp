@@ -106,14 +106,14 @@ sub quit {
 sub help {
   print <<EOL;
 
-  Lx-Office Konsole
+  kivitendo Konsole
 
   ./scripts/console [login]
 
 Spezielle Kommandos:
 
   help                - zeigt diese Hilfe an.
-  lxinit 'login'      - lädt das Lx-Office Environment für den User 'login'.
+  lxinit 'login'      - lädt das kivitendo-Environment für den User 'login'.
   reload              - lädt modifizierte Module neu.
   pp DATA             - zeigt die Datenstruktur mit Data::Dumper an.
   quit                - beendet die Konsole
@@ -135,7 +135,7 @@ __END__
 
 =head1 NAME
 
-scripts/console - Lx-Office console
+scripts/console - kivitendo console
 
 =head1 SYNOPSIS
 

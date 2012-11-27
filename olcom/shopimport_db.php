@@ -7,7 +7,7 @@
 *eMail: info@lx-system.de
 *Version: 2.0
 *Shop: xt:Commerce 3.04
-*ERP: Lx-Office ERP 2.4.0
+*ERP: kivitendo ERP 3.0.0
 ***************************************************************/
 require_once "shoplib.php";
 

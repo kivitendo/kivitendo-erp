@@ -52,7 +52,7 @@ GetOptions(
 find(sub {
   return unless /(\.p[lm]|console)$/;
 
-  # remember modules shipped with Lx-Office
+  # remember modules shipped with kivitendo
   $supplied{modulize($File::Find::name)}++
     if $File::Find::dir =~ m#modules/#;
 
@@ -242,5 +242,3 @@ Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 Distributed under the terms of the GNU General Public License v2.
 
 =cut
-
-

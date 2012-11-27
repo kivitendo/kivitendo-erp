@@ -108,7 +108,7 @@ SL::DB::Helper::ALL: Dependency-only package for all SL::DB::* modules
 This module depends on all modules in SL/DB/*.pm for the convenience
 of being able to write a simple \C<use SL::DB::Helper::ALL> and
 having everything loaded. This is supposed to be used only in the
-Lx-Office console. Normal modules should C<use> only the modules they
+kivitendo console. Normal modules should C<use> only the modules they
 actually need.
 
 =head1 AUTHOR

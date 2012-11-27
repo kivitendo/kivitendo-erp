@@ -44,12 +44,12 @@ Returns the current date with the time zone set to the local time zone.
 
 =item C<to_lxoffice %param>
 
-Formats the date and time according to the current Lx-Office user's
+Formats the date and time according to the current kivitendo user's
 date format with L<Locale::format_datetime_object>.
 
 =item C<from_lxoffice $string>
 
-Parses a date string formatted in the current Lx-Office user's date
+Parses a date string formatted in the current kivitendo user's date
 format and returns an instance of L<DateTime>.
 
 Note that only dates can be parsed at the moment, not the time

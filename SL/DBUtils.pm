@@ -396,7 +396,7 @@ SL::DBUTils.pm: All about Databaseconections in Lx
 
 =head1 DESCRIPTION
 
-DBUtils is the attempt to reduce the amount of overhead it takes to retrieve information from the database in Lx-Office. Previously it would take about 15 lines of code just to get one single integer out of the database, including failure procedures and importing the necessary packages. Debugging would take even more.
+DBUtils is the attempt to reduce the amount of overhead it takes to retrieve information from the database in kivitendo. Previously it would take about 15 lines of code just to get one single integer out of the database, including failure procedures and importing the necessary packages. Debugging would take even more.
 
 Using DBUtils most database procedures can be reduced to defining the query, executing it, and retrieving the result. Let DBUtils handle the rest. Whenever there is a database operation not covered in DBUtils, add it here, rather than working around it in the backend code.
 
@@ -591,7 +591,7 @@ Sven Schoeling E<lt>s.schoeling@linet-services.deE<gt>
 
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2007 by Lx-Office Community
+Copyright 2007 by kivitendo Community
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

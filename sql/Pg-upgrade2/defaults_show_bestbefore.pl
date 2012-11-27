@@ -30,7 +30,7 @@ sub do_update {
   do_query(qq|ALTER TABLE defaults ADD COLUMN show_bestbefore boolean DEFAULT false|, 1);
 
   # check current configuration and set default variables accordingly, so that
-  # Lx-Office behaviour isn't changed by this update
+  # kivitendo behaviour isn't changed by this update
   # if show_best_before is not set in config set it to 0
   my $show_bestbefore = 0;
   if ($::lx_office_conf{features}->{show_best_before}) {

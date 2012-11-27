@@ -340,11 +340,11 @@ __END__
 
 =head1 NAME
 
-LXDebug - Lx-Office debugging facilities
+LXDebug - kivitendo debugging facilities
 
 =head1 SYNOPSIS
 
-This module provides functions for debugging Lx-Office. An instance is
+This module provides functions for debugging kivitendo. An instance is
 always created as the global variable C<$::lxdebug> at the earliest
 possible moment.
 
@@ -475,7 +475,7 @@ enabling and disabling certain debug levels.
 
 =back
 
-Note that these are only useful if Lx-Office is running as a FastCGI
+Note that these are only useful if kivitendo is running as a FastCGI
 application because otherwise the changes would be lost when the
 process exits in a normal CGI environment.
 

@@ -26,7 +26,7 @@ SL::DB::Helper::ALLAuth: Dependency-only package for all SL::DB::Auth* modules
 This module depends on all modules in SL/DB/Auth*.pm for the
 convenience of being able to write a simple \C<use
 SL::DB::Helper::ALLAuth> and having everything loaded. This is
-supposed to be used only in the Lx-Office console. Normal modules
+supposed to be used only in the kivitendo console. Normal modules
 should C<use> only the modules they actually need.
 
 =head1 AUTHOR

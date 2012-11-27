@@ -1,5 +1,5 @@
 #=====================================================================
-# Lx-Office ERP
+# kivitendo ERP
 # Copyright (c) 2004 by Udo Spallek, Aachen
 #
 #  Author: Udo Spallek
@@ -1426,4 +1426,3 @@ sub back {
   call_sub($::form->{"lastsub"});
   $::lxdebug->leave_sub();
 }
-

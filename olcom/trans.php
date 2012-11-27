@@ -7,7 +7,7 @@
 *eMail: info@lx-system.de
 *Version: 1.0.0
 *Shop: xt:Commerce 2.2
-*ERP: Lx-Office ERP
+*ERP: kivitendo ERP 3.0.0
 ***************************************************************/
 require_once "DB.php";
 require_once "conf.php";
