@@ -1,0 +1,14 @@
+[Unit]
+Description=kivitendo background jobs server
+
+[Service]
+Type=forking
+# Change these two to point to the kivitendo "task_server.pl" location.
+ExecStart=/var/www/kivitendo-erp/scripts/task_server.pl start
+ExecStop=/var/www/kivitendo-erp/scripts/task_server.pl stop
+Restart=always
+Requires=postgresql.service
+After=postgresql.service
+
+[Install]
+WantedBy=multi-user.target

@@ -768,8 +768,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         anstelle eines symbolischen Links verwendet werden können.</para>
 
         <sect3>
-          <title>SystemV-basierende Systeme (z.B. Debian, OpenSuSE, Fedora
-          Core)</title>
+          <title>SystemV-basierende Systeme (z.B. Debian, ältere OpenSuSE, ältere Fedora Core)</title>
 
           <para>Kopieren Sie die Datei
           <filename>scripts/boot/system-v/kivitendo-server</filename>
@@ -788,15 +787,16 @@ insserv kivitendo-task-server</programlisting>
             </listitem>
 
             <listitem>
-              <para>OpenSuSE und Fedora Core:</para>
+              <para>Ältere OpenSuSE und ältere Fedora Core:</para>
 
               <programlisting>chkconfig --add kivitendo-task-server</programlisting>
             </listitem>
           </itemizedlist>
 
           <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
-          werden: <command>/etc/init.d/kivitendo-task-server
-          start</command></para>
+          werden:</para>
+
+          <programlisting>/etc/init.d/kivitendo-task-server start</programlisting>
         </sect3>
 
         <sect3>
@@ -809,8 +809,28 @@ insserv kivitendo-task-server</programlisting>
           <literal>exec ....</literal>).</para>
 
           <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
-          werden: <command>service kivitendo-task-server
-          start</command></para>
+          werden:</para>
+
+          <programlisting>service kivitendo-task-server start</programlisting>
+        </sect3>
+
+        <sect3>
+          <title>systemd-basierende Systeme (z.B. neure OpenSuSE, neuere Fedora Core)</title>
+
+          <para>Verlinken Sie die Datei <filename>scripts/boot/systemd/kivitendo-task-server.service</filename> nach
+          <filename>/etc/systemd/system/</filename>. Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
+          <literal>ExecStart=....</literal> und <literal>ExecStop=...</literal>). Binden Sie das Script in den Boot-Prozess ein.
+          </para>
+
+          <para>Alle hierzu benötigten Befehle sehen so aus:</para>
+
+          <programlisting>cd /var/www/kivitendo-erp/scripts/boot/systemd
+ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
+
+          <para>Danach kann der Task-Server mit dem folgenden Befehl gestartet
+          werden:</para>
+
+          <programlisting>systemctl start kivitendo-task-server.service</programlisting>
         </sect3>
       </sect2>
 

@@ -13,7 +13,7 @@
 set -e
 
 # Change this to point to the kivitendo "task_server.pl" location.
-DAEMON="/opt/kivitendo/scripts/task_server.pl"
+DAEMON="/var/www/kivitendo-erp/scripts/task_server.pl"
 TOPIC="kivitendo task server"
 
 if [ ! -x $DAEMON ] ; then

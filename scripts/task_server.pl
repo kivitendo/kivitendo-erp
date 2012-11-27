@@ -5,6 +5,9 @@ use strict;
 my $exe_dir;
 
 BEGIN {
+  use FindBin;
+  use lib "$FindBin::Bin/..";
+
   use SL::System::Process;
   $exe_dir = SL::System::Process::exe_dir;
 
@@ -154,7 +157,7 @@ die "No configuration file found." unless $file;
 $file = File::Spec->abs2rel(Cwd::abs_path($file), Cwd::abs_path($exe_dir));
 
 newdaemon(configfile => $file,
-          progname   => 'kivitendo-task-server',
+          progname   => 'kivitendo-background-jobs',
           pidbase    => SL::System::TaskServer::PID_BASE() . '/',
           );
 
