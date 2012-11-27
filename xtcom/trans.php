@@ -7,7 +7,7 @@
 *eMail: info@lx-system.de
 *Version: 1.0.0
 *Shop: xt:Commerce 2.2
-*ERP: Lx-Office ERP
+*ERP: kivitendo ERP 3.0.0
 ***************************************************************/
 $login=($_GET["login"])?$_GET["login"]:$_POST["login"];
 require_once "DB.php";

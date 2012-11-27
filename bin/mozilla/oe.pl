@@ -1614,7 +1614,7 @@ sub save_as_new {
   $form->{saveasnew} = 1;
   map { delete $form->{$_} } qw(printed emailed queued delivered closed);
 
-  # Let Lx-Office assign a new order number if the user hasn't changed the
+  # Let kivitendo assign a new order number if the user hasn't changed the
   # previous one. If it has been changed manually then use it as-is.
   my $idx = $form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber";
   $form->{$idx} =~ s/^\s*//g;

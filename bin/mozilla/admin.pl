@@ -759,7 +759,7 @@ sub create_dataset {
   if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i)) {
     if ($::lx_office_conf{system}->{dbcharset} !~ m/^UTF-?8$/i) {
       $form->show_generic_error($locale->text('The selected  PostgreSQL installation uses UTF-8 as its encoding. ' .
-                                              'Therefore you have to configure Lx-Office to use UTF-8 as well.'),
+                                              'Therefore you have to configure kivitendo to use UTF-8 as well.'),
                                 'back_button' => 1);
     }
 

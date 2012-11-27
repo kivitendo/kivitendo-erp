@@ -1,5 +1,5 @@
 # @tag: USTVA_abstraction
-# @description: Abstraktion der USTVA Report Daten. Dies vereinfacht die Integration von Steuerberichten anderer Nationen in Lx-Office.
+# @description: Abstraktion der USTVA Report Daten. Dies vereinfacht die Integration von Steuerberichten anderer Nationen in kivitendo.
 # @depends: release_2_4_2
 
 # Abstraktionlayer between general Taxreports and USTVA

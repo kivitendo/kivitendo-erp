@@ -1,6 +1,6 @@
 =head1 Projekte erfassen
 
-Projekte sind in Lx-Office nur organisatorische Einheiten. Wenn Sie Projekte
+Projekte sind in kivitendo nur organisatorische Einheiten. Wenn Sie Projekte
 erfassen, können Sie C<Belegen> Projekte zuweisen, und Auswertungen hinterher
 nach den Projekten filtern. Projekte haben ansonsten keine weitere Funktion.
 

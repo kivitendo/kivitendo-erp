@@ -1,5 +1,5 @@
 #=====================================================================
-# Lx-Office ERP
+# kivitendo ERP
 # Copyright (c) 2004
 #
 #  Author: Philip Reetz

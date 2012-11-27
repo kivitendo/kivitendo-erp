@@ -171,7 +171,7 @@ C<22.01.2011 14:12:22>.
 =item C<get_path>
 
 Returns the name of the session-specific directory used for file
-storage relative to the Lx-Office installation folder.
+storage relative to the kivitendo installation folder.
 
 =item C<prepare_path>
 

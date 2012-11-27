@@ -192,7 +192,7 @@ SL::MoreCommon.pm - helper functions
 
 =head1 DESCRIPTION
 
-this is a collection of helper functions used in Lx-Office.
+this is a collection of helper functions used in kivitendo.
 Most of them are either obvious or too obscure to care about unless you really have to.
 The exceptions are documented here.
 

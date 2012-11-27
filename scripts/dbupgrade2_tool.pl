@@ -2,7 +2,7 @@
 
 BEGIN {
   if (! -d "bin" || ! -d "SL") {
-    print("This tool must be run from the Lx-Office ERP base directory.\n");
+    print("This tool must be run from the kivitendo ERP base directory.\n");
     exit(1);
   }
 

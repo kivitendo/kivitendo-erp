@@ -1078,7 +1078,8 @@ sub post_transaction {
   }
 
   if ($split_safety{-1} > 1 && $split_safety{1} > 1) {
-    $::form->error($::locale->text("Split entry detected. The values you have entered will result in an entry with more than one position on both debit and credit. Due to known problems involving accounting software Lx-Office does not allow these."));
+    $::form->error($::locale->text("Split entry detected. The values you have entered will result in an entry with more than one position on both debit and credit. " .
+                                   "Due to known problems involving accounting software kivitendo does not allow these."));
   }
 
   for my $i (1 .. $count) {

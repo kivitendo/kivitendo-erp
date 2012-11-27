@@ -6,7 +6,7 @@
 *eMail: info@lx-system.de
 *Version: 2.1
 *Shop: xt:Commerce 3.04
-*ERP: Lx-Office ERP 2.4.0
+*ERP: kivitendo ERP 3.0.0
 ***************************************************************/
 define("ExportMode","1");
 require_once "shoplib.php";
@@ -465,7 +465,7 @@ if ($artikel) { //Mit jedem Artikel in der Defaultsprache:
 	if ($debug) {
 		$log=fopen("tmp/shop.log","a");
 		fputs($log,$nun.": Fehler\n");
-	} 
+	}
 }
 require ("diff.php");
 

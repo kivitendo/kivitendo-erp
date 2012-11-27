@@ -330,7 +330,7 @@ sub create_database {
     my ($cluster_encoding) = $dbh->selectrow_array($query);
 
     if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i) && ($encoding !~ m/^(?:UTF-?8|UNICODE)$/i)) {
-      $error = $main::locale->text('Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure Lx-Office to use UTF-8 as well.');
+      $error = $main::locale->text('Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure kivitendo to use UTF-8 as well.');
     }
 
     $dbh->disconnect();
@@ -1047,7 +1047,7 @@ sub all_rights_full {
     ["batch_printing",                 $locale->text("Batch Printing")],
     ["--others",                       $locale->text("Others")],
     ["email_bcc",                      $locale->text("May set the BCC field when sending emails")],
-    ["config",                         $locale->text("Change Lx-Office installation settings (all menu entries beneath 'System')")],
+    ["config",                         $locale->text("Change kivitendo installation settings (all menu entries beneath 'System')")],
     ["admin",                          $locale->text("Administration (Used to access instance administration from user logins)")],
     );
 

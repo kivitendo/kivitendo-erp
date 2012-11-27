@@ -1,5 +1,5 @@
 #=====================================================================
-# Lx-Office ERP
+# kivitendo ERP
 # Copyright (c) 2004
 #
 #  Author: Philip Reetz
@@ -1037,7 +1037,7 @@ __END__
 
 =head1 NAME
 
-SL::DATEV - Lx-Office DATEV Export module
+SL::DATEV - kivitendo DATEV Export module
 
 =head1 SYNOPSIS
 

@@ -10,7 +10,7 @@ use version;
 # setting STDOUT to ":utf8" with "binmode".  Also FCGI starting with
 # 0.69 implements proper handling for UTF-8 flagged strings -- namely
 # by downgrading them into bytes. The combination of the two causes
-# Lx-Office's way of handling strings to go belly up (storing
+# kivitendo's way of handling strings to go belly up (storing
 # everything in Perl's internal encoding and using Perl's I/O layer
 # for automatic conversion on output).
 #

@@ -24,14 +24,14 @@ sub verify_installation {
 <html>
  <head>
   <link rel="stylesheet" href="css/lx-office-erp.css" type="text/css"
-        title="Lx-Office stylesheet">
+        title="kivitendo stylesheet">
   <title>| . $locale->text("One or more Perl modules missing") . qq|</title>
  </head>
  <body>
 
   <h1>| . $locale->text("One or more Perl modules missing") . qq|</h1>
 
-  <p>| . $locale->text("At least one Perl module that Lx-Office ERP " .
+  <p>| . $locale->text("At least one Perl module that kivitendo ERP " .
                        "requires for running is not installed on your " .
                        "system.") .
         " " .

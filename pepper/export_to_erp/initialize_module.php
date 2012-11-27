@@ -86,7 +86,7 @@ $moduldef['versionschecknummern'] = '1.4.008;1.5';
 
 //  4.) Kurzbeschreibung
 //      ! Formatierungen sollen via HTML-Tags eingegeben werden.
-$moduldef['kurzbeschreibung'] = 'Eportiert Kundendaten und Bestellungen f&uuml;r Lx-Office ERP.
+$moduldef['kurzbeschreibung'] = 'Eportiert Kundendaten und Bestellungen f&uuml;r kivitendo ERP.
 				 Neukunden werden in der ERP angelegt und die ERP-KdNr in Kundendaten eingepflegt,
 				 bei Bestandskunden werden die Kundendaten abgeglichen.
 				 Das Feld "Bestellung_bezahlt" ist der Merker f&uuml;r neue Bestellungen.

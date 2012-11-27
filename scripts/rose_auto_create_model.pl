@@ -246,7 +246,7 @@ __END__
 
 =head1 NAME
 
-rose_auto_create_model - mana Rose::DB::Object classes for Lx-Office
+rose_auto_create_model - mana Rose::DB::Object classes for kivitendo
 
 =head1 SYNOPSIS
 

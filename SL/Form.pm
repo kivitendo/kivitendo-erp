@@ -3609,7 +3609,7 @@ SL::Form.pm - main data object.
 
 =head1 SYNOPSIS
 
-This is the main data object of Lx-Office.
+This is the main data object of kivitendo.
 Unfortunately it also acts as a god object for certain data retrieval procedures used in the entry points.
 Points of interest for a beginner are:
 
@@ -3634,7 +3634,7 @@ will in this case not increase the value, and return undef.
 
 Generates a HTTP redirection header for the new C<$url>. Constructs an
 absolute URL including scheme, host name and port. If C<$url> is a
-relative URL then it is considered relative to Lx-Office base URL.
+relative URL then it is considered relative to kivitendo base URL.
 
 This function C<die>s if headers have already been created with
 C<$::form-E<gt>header>.

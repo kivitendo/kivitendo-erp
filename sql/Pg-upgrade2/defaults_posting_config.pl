@@ -30,7 +30,7 @@ sub do_update {
   do_query(qq|ALTER TABLE defaults ADD COLUMN payments_changeable integer NOT NULL DEFAULT 0|, 1);
 
   # check current configuration and set default variables accordingly, so that
-  # Lx-Office behaviour isn't changed by this update
+  # kivitendo behaviour isn't changed by this update
   # if payments_changeable is not set in config set it to 0
   my $payments_changeable = 0;
   if ($::lx_office_conf{features}->{payments_changeable} == 1 ) {

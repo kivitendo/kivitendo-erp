@@ -6,7 +6,7 @@
 *eMail: info@lx-system.de
 *Version: 1.6
 *Shop: xt::Commerce
-*ERP: Lx-Office ERP 2.4.x
+*ERP: kivitendo ERP 3.0.0
 ***************************************************************/
 /*
 * Noch einzubauen:

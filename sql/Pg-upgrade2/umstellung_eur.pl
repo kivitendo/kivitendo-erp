@@ -43,7 +43,7 @@ sub do_update {
   my $profit_determination;
 
   # check current configuration and set default variables accordingly, so that
-  # Lx-Office behaviour isn't changed by this update
+  # kivitendo behaviour isn't changed by this update
 
   if ($::lx_office_conf{system}->{eur} == 0 ) {
     $accounting_method = 'accrual';

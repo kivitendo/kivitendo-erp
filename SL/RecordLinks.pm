@@ -209,7 +209,7 @@ __END__
 
 =head1 NAME
 
-SL::RecordLinks - Verlinkung von Lx-Office Objekten.
+SL::RecordLinks - Verlinkung von kivitendo Objekten.
 
 =head1 SYNOPSIS
 
