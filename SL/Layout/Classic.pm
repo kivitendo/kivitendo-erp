@@ -9,9 +9,9 @@ use SL::Layout::None;
 
 sub init_sub_layouts {
   [
+    SL::Layout::None->new,
     SL::Layout::Top->new,
     SL::Layout::MenuLeft->new,
-    SL::Layout::None->new,
   ]
 }
 

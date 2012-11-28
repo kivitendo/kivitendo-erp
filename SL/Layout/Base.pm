@@ -125,7 +125,7 @@ sub javascripts {
   my ($self) = @_;
 
   return uniq map { $self->_find_javascript($_)  }
-    $self->use_javascript, map { $_->javascripts } $self->sub_layouts;
+    map({ $_->javascripts } $self->sub_layouts), $self->use_javascript;
 }
 
 sub _find_javascript {
