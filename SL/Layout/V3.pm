@@ -10,6 +10,14 @@ sub init_sub_layouts {
   [ SL::Layout::None->new ]
 }
 
+sub use_stylesheet {
+  my $self = shift;
+  qw(
+    frame_header/header.css
+  ),
+  $self->SUPER::use_stylesheet(@_);
+}
+
 sub pre_content {
   &render;
 }
