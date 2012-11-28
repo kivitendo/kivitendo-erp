@@ -80,20 +80,20 @@
             <para>Debian</para>
             <itemizedlist>
                <listitem>
-                 <para>6.0 Squeeze (hier muss allerdings das Modul FCGI in der Version >= 0.72 compiled werden)</para>
+                 <para>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version >= 0.72 compiled werden)</para>
                </listitem>
                <listitem>
-                 <para>7.0 Wheezy</para>
+                 <para>7.0 "Wheezy"</para>
                </listitem>
             </itemizedlist>
           </listitem>
 
           <listitem>
-            <para>Ubuntu 10.04 LTS Lucid Lynx bis 12.10 Oneiric Ocelot</para>
+            <para>Ubuntu 10.04 LTS "Lucid Lynx", 12.04 LTS "Precise Pangolin" und 12.10 "Oneiric Ocelot"`</para>
           </listitem>
 
           <listitem>
-            <para>openSUSE 11.2 und 11.3</para>
+            <para>openSUSE 12.1 und 12.2</para>
           </listitem>
 
           <listitem>
@@ -101,20 +101,25 @@
           </listitem>
 
           <listitem>
-            <para>Fedora 13 bis 16</para>
+            <para>Fedora 16 und 17</para>
           </listitem>
         </itemizedlist>
       </sect2>
 
       <sect2 id="Pakete" xreflabel="Pakete">
-        <title>Pakete</title>
+        <title>Benötigte Perl-Pakete installieren</title>
 
         <para>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
         benötigt.</para>
 
-        <para>Zusätzlich benötigt kivitendo die folgenden Perl-Pakete, die
-        nicht Bestandteil einer Standard-Perl-Installation sind:</para>
+        <para>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind. Um zu
+        überprüfen, ob die erforderlichen Pakete installiert und aktuell genug sind, wird ein Script mitgeliefert, das wie folgt aufgerufen
+        wird:</para>
+
+        <programlisting>./scripts/installation_check.pl</programlisting>
+
+        <para>Die vollständige Liste der benötigten Perl-Module lautet:</para>
 
         <itemizedlist>
           <listitem><para><literal>parent</literal> (nur bei Perl vor 5.10.1)</para></listitem>
@@ -132,6 +137,8 @@
           <listitem><para><literal>Email::Address</literal></para></listitem>
 
           <listitem><para><literal>Email::MIME</literal></para></listitem>
+
+          <listitem><para><literal>FCGI</literal> (nicht Versionen 0.68 bis 0.71 inklusive; siehe <xref linkend="Apache-Konfiguration.FCGI.WebserverUndPlugin"/>)</para></listitem>
 
           <listitem><para><literal>JSON</literal></para></listitem>
 
@@ -190,40 +197,62 @@
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
         installieren.</para>
 
-        <para>Die zu installierenden Pakete können in den verschiedenen
-        Distributionen unterschiedlich heißen.</para>
+        <sect3>
+          <title>Debian und Ubuntu</title>
 
-        <para>Für Debian oder Ubuntu benötigen Sie diese Pakete:</para>
+          <para>Alle benötigten Perl-Pakete stehen für Debian und Ubuntu als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl
+          installiert werden:</para>
 
-        <programlisting>apt-get install apache2 postgresql libarchive-zip-perl \
-  libdatetime-perl libdbi-perl libdbd-pg-perl libpg-perl \
-  libemail-address-perl libemail-mime-perl liblist-moreutils-perl libpdf-api2-perl \
-  librose-object-perl librose-db-perl librose-db-object-perl \
-  libtemplate-perl libtext-csv-xs-perl libtext-iconv-perl liburi-perl \
-  libxml-writer-perl libyaml-perl libconfig-std-perl \
-  libparams-validate-perl libjson-perl libclass-accessor-perl \
-  libnet-sslglue-perl libnet-smtp-ssl-perl</programlisting>
+          <programlisting>apt-get install apache2 libarchive-zip-perl libclone-perl \
+  libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
+  libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl \
+  liblist-moreutils-perl libnet-smtp-ssl-perl libnet-sslglue-perl \
+  libparams-validate-perl libpdf-api2-perl librose-db-object-perl \
+  librose-db-perl librose-object-perl libsort-naturally-perl \
+  libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
+  libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
+  postgresql</programlisting>
+        </sect3>
 
-        <para>Für Fedora Core benötigen Sie diese Pakete:</para>
+        <sect3>
+          <title>Fedora Core</title>
 
-        <programlisting>yum install httpd postgresql-server perl-parent perl-DateTime \
-  perl-DBI perl-DBD-Pg perl-Email-Address perl-Email-MIME perl-List-MoreUtils \
-  perl-PDF-API2 perl-Rose-Object perl-Rose-DB perl-Rose-DB-Object \
+          <para>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installeirt werden:</para>
+
+          <programlisting>yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
+  perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
+  perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
+  perl-PDF-API2 perl-Params-Validate perl-Rose-DB perl-Rose-DB-Object \
+  perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
-  perl-XML-Writer perl-YAML perl-Net-SSLGlue perl-Net-SMTP-SSL</programlisting>
+  perl-XML-Writer perl-YAML perl-parent postgresql-server</programlisting>
 
-        <para>Für OpenSuSE benötigen Sie diese Pakete:</para>
+          <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</para>
 
-        <programlisting>zypper install apache2 postgresql-server perl-Archive-Zip \
-  perl-DateTime perl-DBI perl-DBD-Pg perl-Email-MIME perl-MailTools perl-List-MoreUtils \
-  perl-PDF-API2 perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
-  perl-URI perl-XML-Writer perl-YAML perl-Net-SSLGlue perl-Net-SMTP-SSL</programlisting>
+          <programlisting>yum install perl-CPAN
+cpan Config::Std</programlisting>
 
-        <para>kivitendo enthält ein Script, mit dem überprüft werden kann, ob
-        alle benötigten Perl-Module installiert sind. Der Aufruf lautet wie
-        folgt:</para>
+        </sect3>
 
-        <programlisting>./scripts/installation_check.pl</programlisting>
+        <sect3>
+          <title>openSUSE</title>
+
+          <para>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
+          installiert werden:</para>
+
+          <programlisting>zypper install apache2 perl-Archive-Zip perl-Clone \
+  perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
+  perl-Email-MIME perl-FastCGI perl-JSON perl-List-MoreUtils \
+  perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PDF-API2 perl-Params-Validate \
+  perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
+  perl-URI perl-XML-Writer perl-YAML postgresql-server</programlisting>
+
+          <para>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</para>
+
+          <programlisting>yum install perl-CPAN
+cpan Rose::Db::Object</programlisting>
+
+        </sect3>
       </sect2>
     </sect1>
 
@@ -231,11 +260,8 @@
            xreflabel="Manuelle Installation des Programmpaketes">
       <title>Manuelle Installation des Programmpaketes</title>
 
-      <para>Die kivitendo ERP Installationsdatei (kivitendo-erp-2.6.3.tgz) wird
-      im Dokumentenverzeichnis des Webservers (z.B.
-      <filename>/var/www/html/</filename>,
-      <filename>/srv/www/htdocs</filename> oder
-      <filename>/var/www/</filename>) entpackt:</para>
+      <para>Die kivitendo ERP Installationsdatei (<filename>kivitendo-erp-2.6.3.tgz</filename>) wird im Dokumentenverzeichnis des Webservers
+      (z.B.  <filename>/var/www/html/</filename>, <filename>/srv/www/htdocs</filename> oder <filename>/var/www/</filename>) entpackt:</para>
 
       <programlisting>cd /var/www
 tar xvzf kivitendo-erp-2.6.3.tgz</programlisting>
@@ -251,7 +277,7 @@ tar xvzf kivitendo-erp-2.6.3.tgz</programlisting>
       <para>Die Verzeichnisse <filename>users</filename>, <filename>spool</filename> und <filename>webdav</filename> müssen für den Benutzer
       beschreibbar sein, unter dem der Webserver läuft. Die restlichen Dateien müssen für diesen Benutzer lesbar sein. Die Benutzer- und
       Gruppennamen sind bei verschiedenen Distributionen unterschiedlich (z.B. bei Debian/Ubuntu <constant>www-data</constant>, bei Fedora
-      core <constant>apache</constant> oder bei OpenSuSE <constant>wwwrun</constant>).</para>
+      core <constant>apache</constant> oder bei OpenSUSE <constant>wwwrun</constant>).</para>
 
       <para>Der folgende Befehl ändert den Besitzer für die oben genannten
       Verzeichnisse auf einem Debian/Ubuntu-System:</para>
@@ -768,7 +794,7 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
         anstelle eines symbolischen Links verwendet werden können.</para>
 
         <sect3>
-          <title>SystemV-basierende Systeme (z.B. Debian, ältere OpenSuSE, ältere Fedora Core)</title>
+          <title>SystemV-basierende Systeme (z.B. Debian, ältere OpenSUSE, ältere Fedora Core)</title>
 
           <para>Kopieren Sie die Datei
           <filename>scripts/boot/system-v/kivitendo-server</filename>
@@ -787,7 +813,7 @@ insserv kivitendo-task-server</programlisting>
             </listitem>
 
             <listitem>
-              <para>Ältere OpenSuSE und ältere Fedora Core:</para>
+              <para>Ältere OpenSUSE und ältere Fedora Core:</para>
 
               <programlisting>chkconfig --add kivitendo-task-server</programlisting>
             </listitem>
@@ -815,7 +841,7 @@ insserv kivitendo-task-server</programlisting>
         </sect3>
 
         <sect3>
-          <title>systemd-basierende Systeme (z.B. neure OpenSuSE, neuere Fedora Core)</title>
+          <title>systemd-basierende Systeme (z.B. neure OpenSUSE, neuere Fedora Core)</title>
 
           <para>Verlinken Sie die Datei <filename>scripts/boot/systemd/kivitendo-task-server.service</filename> nach
           <filename>/etc/systemd/system/</filename>. Passen Sie in der kopierten Datei den Pfad zum Task-Server an (Zeile
@@ -1357,11 +1383,11 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
 
         <itemizedlist>
           <listitem><para>TLS-Verschlüsselung: Modul <literal>Net::SSLGlue</literal> (Debian-Paketname
-          <literal>libnet-sslglue-perl</literal>, Fedora Core: <literal>perl-Net-SSLGlue</literal>, openSuSE:
+          <literal>libnet-sslglue-perl</literal>, Fedora Core: <literal>perl-Net-SSLGlue</literal>, openSUSE:
           <literal>perl-Net-SSLGlue</literal></para></listitem>
 
           <listitem><para>SSL-Verschlüsselung: Modul <literal>Net::SMTP::SSL</literal> (Debian-Paketname
-          <literal>libnet-smtp-ssl-perl</literal>, Fedora Core: <literal>perl-Net-SMTP-SSL</literal>, openSuSE:
+          <literal>libnet-smtp-ssl-perl</literal>, Fedora Core: <literal>perl-Net-SMTP-SSL</literal>, openSUSE:
           <literal>perl-Net-SMTP-SSL</literal></para></listitem>
         </itemizedlist>
       </sect2>
@@ -5822,7 +5848,7 @@ filenames</programlisting>
 
         <itemizedlist>
           <listitem><para><literal>Test::Deep</literal> (Debian-Paketname: <literal>libtest-deep-perl</literal>; Fedora Core:
-          <literal>perl-Test-Deep</literal>; openSuSE: <literal>perl-Test-Deep</literal>)</para></listitem>
+          <literal>perl-Test-Deep</literal>; openSUSE: <literal>perl-Test-Deep</literal>)</para></listitem>
           <listitem><para><literal>Test::Harness</literal> 3.0.0 oder höher. Dieses Modul ist ab Perl 5.10.1 Bestandteil der
           Perl-Distribution und kann für frühere Versionen aus dem <ulink url="http://www.cpan.org">CPAN</ulink> bezogen
           werden.</para></listitem>
