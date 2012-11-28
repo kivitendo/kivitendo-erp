@@ -20,7 +20,10 @@ sub javascripts_inline {
 }
 
 sub javascripts {
- 'js/jquery.cookie.js';
+  qw(
+    js/jquery.cookie.js
+    js/switchmenuframe.js
+  );
 }
 
 sub pre_content {
