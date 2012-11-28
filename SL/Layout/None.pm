@@ -21,6 +21,7 @@ sub use_stylesheet {
   my $self = shift;
   qw(
     main.css
+    menu.css
   ),
   $self->SUPER::use_stylesheet(@_);
 }
