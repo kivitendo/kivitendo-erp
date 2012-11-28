@@ -36,6 +36,9 @@
 <input type=submit class=submit name=action value="[% 'Delete' | $T8 %]">
 [%- END %]
 
-<input type=button onclick="set_history_window([% id %]);" name=history id=history value="[% 'history' | $T8 %]">
+[%- IF ( id ) %]
+  <input type=button onclick="set_history_window([% id %]);" name=history id=history value="[% 'history' | $T8 %]">
+[%- END %]
+
 </form>
 
