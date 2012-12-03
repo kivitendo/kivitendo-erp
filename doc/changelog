@@ -124,6 +124,7 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1819: CVar Auswahl funktioniert nicht mit leading/trailing whitespace
   - Bugfix #1828: Erzeugen neuer Preisgruppen muendet in Fehler
   - Bugfix #1829: Lieferanten zu Dienstleistungen werden nicht gespeichert
+  - Bugfix #1832: GUV mit Auswahl EÜR liefert unbrauchbares Ergebnis
   - Bugfix #1834: Buchungsliste - Bilanzspalte
   - Bugfix #1837: Lieferant auf ungültig setzen, verfälscht Kreditorenbuchungsmaske (mulitbox <-> obsolete?)
   - Bugfix #1840: Für Auswahl "Drucker" bzw. "Warteschlange" müssen Latex-Vorlagen zwingend aktiviert sein
@@ -172,6 +173,7 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1942: Dialogbuchen: Datumsaenderung innerhalb des Erstellungstages nicht moeglich
   - Bugfix #1949: Falsche Zuordnung Verkäufer/-in bei Kunden-Stammdaten
   - Bugfix #1945: Aufbereitung USTVA falsch in 2.7.0
+  - Bugfix #1946: normale linetotal Rundungsfehler landen in discount
   - Bugfix #1950: Abteilung wird aus ausgelagerten Lieferscheinen nicht in Rechnung übernommen.
   - Bugfix #1952: Lieferscheine werden nicht nach Abteilung gefiltert
   - Bugfix #1954: CSV-Import benutzerdef. Variablen mit Großbuchstaben geht nicht
@@ -232,7 +234,10 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #2069: Lieferplan: Filteraufruf aus Folgeseite bringt falsches Ergebnis
   - Bugfix #2076: Liefertermin im Lieferschein hat keine Kalender
   - Bugfix #2079: System-Menü enthält überwiegend überflüssige Submenüs
+  - Bugfix #2086: Historie-Button bei Warengruppen erfassen defekt
   - Bugfix #2087: init-Script kivitendo-task-server funktioniert nicht
+  - Bugfix #2092: Filter nach Projectnummer funktioniert nicht richtig bei niedrigem vclimit
+  - Bugfix #2102: Menüpunkübersetzung fehlt
 
 
 2012-03-01 - Release 2.7.0

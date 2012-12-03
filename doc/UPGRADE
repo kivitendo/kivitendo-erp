@@ -16,8 +16,8 @@ Upgrade auf v3.0.0
   * Test::Harness 3.00
   * IO::Socket::SSL
   * Net::LDAP
-  * Net::SMTP::SSL  1.01
-  * Net::SSLGlue 1.01
+  * Net::SMTP::SSL
+  * Net::SSLGlue
 
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
@@ -39,7 +39,7 @@ Upgrade auf v3.0.0
 * Dieses ist die letzte Version, die Perl-Versionen vor 5.10.1
   unterstützen wird.  Ab dem nächsten Release werden Sprachkonstrukte
   verwendet werden, die nicht mehr in 5.8 kompilieren, und Module, die
-  bis v5.10.1 zu den Coremodulen gehören, werden ab dann nicht mehr
+  seit v5.10.1 zu den Coremodulen gehören, werden ab dann nicht mehr
   als explizite Abhängigkeiten gelistet.
 
 
