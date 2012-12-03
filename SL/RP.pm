@@ -516,12 +516,16 @@ sub get_accounts_g {
   if ($form->{method} eq 'cash') {
     $query =
       qq|
-       SELECT SUM( ac.amount * CASE WHEN COALESCE((SELECT amount FROM ar WHERE id = ac.trans_id and amount != 0 ), 0) != 0 THEN
+       SELECT SUM( ac.amount * CASE WHEN COALESCE((SELECT amount FROM ar WHERE id = ac.trans_id), 0) != 0 THEN
+            /* ar amount is not zero, so we can divide by amount   */
                     (SELECT SUM(acc.amount) * -1
                      FROM acc_trans acc
                      INNER JOIN chart c ON (acc.chart_id = c.id AND c.link LIKE '%AR_paid%')
                      WHERE 1=1 $inwhere AND acc.trans_id = ac.trans_id)
-                  / (SELECT amount FROM ar WHERE id = ac.trans_id and amount != 0 ) ELSE 1 END
+                  / (SELECT amount FROM ar WHERE id = ac.trans_id) 
+            ELSE 0 
+            /* ar amount is zero, or we are checking with a non-ar-transaction, so we return 0 in both cases as multiplicator of ac.amount */
+            END
                 ) AS amount, c.$category
        FROM acc_trans ac
        LEFT JOIN chart c ON (c.id  = ac.chart_id)
