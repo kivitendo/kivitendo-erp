@@ -281,6 +281,15 @@ SQL
     push @values, conv_date($form->{expected_billing_date_to});
   }
 
+  my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'CT',
+                                                            'trans_id_field' => 'ct.id',
+                                                            'filter'         => $form,
+                                                           );
+  if ($cvar_where) {
+    $query .= qq| AND ($cvar_where)|;
+    push @values, @cvar_values;
+  }
+
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortorder = join(', ', map { "${_} ${sortdir} " } ("o.id", $form->sort_columns("transdate", $ordnumber, "name"), "o.itime"));
   my %allowed_sort_columns = (

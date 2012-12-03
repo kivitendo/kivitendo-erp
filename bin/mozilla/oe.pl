@@ -774,6 +774,12 @@ sub search {
                    "business_types" => "ALL_BUSINESS_TYPES",);
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all_sorted(query => [ deleted => 0 ]);
 
+  $form->{CT_CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'CT');
+  ($form->{CT_CUSTOM_VARIABLES_FILTER_CODE},
+   $form->{CT_CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $form->{CT_CUSTOM_VARIABLES},
+                                                                              'include_prefix' => 'l_',
+                                                                              'include_value'  => 'Y');
+
   # constants and subs for template
   $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
 
@@ -883,12 +889,20 @@ sub orders {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
+  my $ct_cvar_configs = CVar->get_configs('module' => 'CT');
+  my @ct_includeable_custom_variables = grep { $_->{includeable} } @{ $ct_cvar_configs };
+  my @ct_searchable_custom_variables  = grep { $_->{searchable} }  @{ $ct_cvar_configs };
+
+  my %column_defs_cvars            = map { +"cvar_$_->{name}" => { 'text' => $_->{description} } } @ct_includeable_custom_variables;
+  push @columns, map { "cvar_$_->{name}" } @ct_includeable_custom_variables;
+
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber cusordnumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
                                                         business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom insertdateto
                                                         order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to);
+  push @hidden_variables, map { "cvar_$_->{name}" } @ct_searchable_custom_variables;
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
   push @keys_for_url, 'taxzone_id' if $form->{taxzone_id} ne ''; # taxzone_id could be 0
@@ -930,6 +944,7 @@ sub orders {
     'order_probability'       => { 'text' => $locale->text('Order probability'), },
     'expected_billing_date'   => { 'text' => $locale->text('Exp. bill. date'), },
     'expected_netamount'      => { 'text' => $locale->text('Exp. netamount'), },
+    %column_defs_cvars,
   );
 
   foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate)) {
@@ -947,6 +962,12 @@ sub orders {
   $report->set_column_order(@columns);
   $report->set_export_options('orders', @hidden_variables, qw(sort sortdir));
   $report->set_sort_indicator($form->{sort}, $form->{sortdir});
+
+  CVar->add_custom_variables_to_report('module'         => 'CT',
+                                       'trans_id_field' => "$form->{vc}_id",
+                                       'configs'        => $ct_cvar_configs,
+                                       'column_defs'    => \%column_defs,
+                                       'data'           => $form->{OE});
 
   my @options;
   my ($department) = split m/--/, $form->{department};

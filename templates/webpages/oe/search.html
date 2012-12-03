@@ -159,6 +159,15 @@
      </td>
     </tr>
 [%- END %]
+
+[%- IF CT_CUSTOM_VARIABLES.size %]
+    <tr>
+      <td></td>
+      <td colspan=4 align=left><b>[% 'Custom variables for module' | $T8 %]: [%'Customers and vendors' | $T8 %]</td>
+    </tr>
+    [% CT_CUSTOM_VARIABLES_FILTER_CODE %]
+[%- END %]
+
     <tr>
      <th align="right">[% 'Include in Report' | $T8 %]</th>
      <td colspan="5">
@@ -328,6 +337,9 @@
          <label for="l_ustid">[% 'USt-IdNr.' | $T8 %]</label>
         </td>
        </tr>
+
+      [% CT_CUSTOM_VARIABLES_INCLUSION_CODE %]
+
 [%- IF type == 'sales_order' %]
        <tr><td colspan="3"><hr></td></tr>
 [%- END %]
