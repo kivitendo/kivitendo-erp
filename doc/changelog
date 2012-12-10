@@ -2,7 +2,7 @@
 # Veränderungen von kivitendo #
 ###############################
 
-2012-12-03 - Release 3.0.0-rc1
+2012-12-10 - Release 3.0.0
 
 Größere neue Features:
 
@@ -98,8 +98,8 @@ Entfernte Features:
 
 Zukünftig zu entfernende Features:
 
-- Die Unterstützung für perl Versionen vor 5.10.1 wird entfernt werden.
-  Insbesondere ist dies das letzte geplante Release mit Unterstützung für perl
+- Die Unterstützung für Perl Versionen vor 5.10.1 wird entfernt werden.
+  Insbesondere ist dies das letzte geplante Release mit Unterstützung für Perl
   5.8.x und 5.10.0.
 
 Experimentelle Features:
@@ -130,9 +130,11 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1840: Für Auswahl "Drucker" bzw. "Warteschlange" müssen Latex-Vorlagen zwingend aktiviert sein
   - Bugfix #1841: falsche Finanzamtnummern
   - Bugfix #1842: Offene Posten Alterstrukturliste prüft nur auf tagesaktuellem Datum
+  - Bugfix #1846: Historieneintraege - Wer hat's erfunden? (bzw gestartet)
   - Bugfix #1849: Buttons "Loeschen" und "Buchen" bei frischen Rechnungen verschwindet nach "Erneuern"
   - Bugfix #1851: Spaltenueberschriften Export auf Import abgleichen
   - Bugfix #1853: Administrationsoberflaeche - aktive User anzeigen
+  - Bugfix #1856: Preisanpassungen werden in alte Rechnungen übernommen
   - Bugfix #1858: Debitorenbuchung: Bereits beschriebenes Kommentarfeld wird bei Kundenwechsel geloescht
   - Bugfix #1859: Nicht gespeichertes Angebot/Auftrag/Rechnung... -> Drucken -> "Keine Aktion definiert"
   - Bugfix #1861: Umlaute in Rechnungen fehlerhaft bei <%employee..%>
@@ -146,11 +148,16 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1871: Datumsformat dd-mm-yy verursacht Fehler in Rose::DB::Object
   - Bugfix #1872: CSVImport verliert die erste Spalte, wenn die Importdatei UTF8 mit BOM ist
   - Bugfix #1873: Preise zu Preisgruppen werden nicht mehr korrekt gespeichert
+  - Bugfix #1874: GuV Betriebsausgaben nach Update auf 2.7 leer
+  - Bugfix #1875: Doppeltes DB-Update bei Aktualisierung auf 2.7.0
   - Bugfix #1877: Installations Check preuft nicht gegen Net::LDAP
   - Bugfix #1878: Programm Icon kivitendo
+  - Bugfix #1882: Beim Mailversand fehlt ein BCC-Feld
+  - Bugfix #1884: wiedervorlage, die user y für user x erstellt hat, wird bei user x nicht in der Übersicht angezeigt
   - Bugfix #1886: doppelte Leerzeichen im Lieferantenname werden in Auswahlliste für Kreditorenbuchung nicht richtig geparst
   - Bugfix #1889: Fälligkeitsdatum aus Rechnungsdatum
   - Bugfix #1890: Kontenabgleich: Spaltenüberschrift vertauscht
+  - Bugfix #1891: Vorzeichenfehler bei GUV
   - Bugfix #1892: Nach Update Can't use string ("Form") as a HASH....
   - Bugfix #1893: Falscher Bezug bei Kontoliste
   - Bugfix #1894: Stammdaten - Berichte - Kunden: Auswahl Rechnungen, Aufträge, Angebote wirkt als Filter
@@ -159,23 +166,29 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1901: Warenimport (csv): Bei Update werden make_X etc nicht beruecksichtigt
   - Bugfix #1904: Fehler bei Artikelmenge über 999999
   - Bugfix #1907: CSV-Import: Projekte
+  - Bugfix #1908: Preisgruppen: Wenn Grundpreis 0 EUR (nicht angegeben) greifen Preisgruppeneintraege nicht
   - Bugfix #1917: Kreditorenbuchung Vorsteuer mit demselben DATEV-Steuerschlüssel wird bei der Anzeige gefiltert
+  - Bugfix #1920: Warenberichte loesen Fehler aus wenn Projekt ausgewertet werden soll
   - Bugfix #1921: JS-Menü unterscheidet nicht Links- vs Mittel-Klick
   - Bugfix #1922: Link "Springe zu Rechnungsadresse" macht so keinen Sinn
   - Bugfix #1924: CSV-Import Kunde mit benutzerdefinierter Variable geht nur "halb"
   - Bugfix #1926: Zufälliger Dateiname für PDF Spooldateien
+  - Bugfix #1929: Preisänderung wird nach Löschen eines Artikels verworfen
   - Bugfix #1930: Bearbeitung eines bestehenden Buchungsbeleges: Enter loest Storno aus
   - Bugfix #1931: Bericht Ansprechpartner lässt Straße auswählen/anzeigen, das Feld existiert aber nicht
+  - Bugfix #1932: Liste offener Kreditoren oder Debitoren an bestimmten Stichtag
   - Bugfix #1934: Umstellung von keine Währung auf Währung
   - Bugfix #1936: Autom. Update des Faelligkeitsdatums bei Kreditorenbuchungen funktioniert nicht zuverlaessig
   - Bugfix #1939: Kreditorenbuchungen: Projektnummer wird nicht autom. in Zeilen uebernommen
   - Bugfix #1940: Sprung von Wiedervorlage zu Kreditorenbuchung in Kreditorenbuchung funktioniert nicht
+  - Bugfix #1941: DEMO: Gutschrift (LaTeX) bricht ab
   - Bugfix #1942: Dialogbuchen: Datumsaenderung innerhalb des Erstellungstages nicht moeglich
-  - Bugfix #1949: Falsche Zuordnung Verkäufer/-in bei Kunden-Stammdaten
   - Bugfix #1945: Aufbereitung USTVA falsch in 2.7.0
   - Bugfix #1946: normale linetotal Rundungsfehler landen in discount
+  - Bugfix #1949: Falsche Zuordnung Verkäufer/-in bei Kunden-Stammdaten
   - Bugfix #1950: Abteilung wird aus ausgelagerten Lieferscheinen nicht in Rechnung übernommen.
   - Bugfix #1952: Lieferscheine werden nicht nach Abteilung gefiltert
+  - Bugfix #1953: Einlagern in bestehenden EK-Lieferschein geht nicht
   - Bugfix #1954: CSV-Import benutzerdef. Variablen mit Großbuchstaben geht nicht
   - Bugfix #1956: Erzeugnis-Anzeigefehler nach Einzelkomponentenbearbeitung
   - Bugfix #1959: Lieferdatum verschwindet bei "Workflow Auftrag -> als neu speichern"
@@ -184,13 +197,16 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #1964: CsvImport::Parts prüft Duplikate inkonsistent
   - Bugfix #1965: CsvImport::Parts - Es fehlt eine Option Artiekl mit existierender Nummer zu überspringen
   - Bugfix #1967: Doc: SL::SessionFile POD ist outdated
+  - Bugfix #1968: Neuer Kunde - Kontaktperson, falsche Attribute
   - Bugfix #1969: oe.reqdate Funktion uneindeutig
   - Bugfix #1972: CSV-Kundenimport berücksichtigt kundentyp-Spezifischen Nummernkreis nicht
   - Bugfix #1973: CSS-Menue: Aufklappen ueber aktuell offenen Zweig verhindert Zugriff auf Menuepunkte
+  - Bugfix #1974: Nichteditierbare benutzerdefinierte Variablen stehen bei Ausdruck nicht zur Verfügung.
   - Bugfix #1975: SKR03: Gewährte Skonti (8731, 8735) sollten Erlös- statt Aufwandskonten sein
   - Bugfix #1976: BWA: Übrige Steuern (19) gehören nicht auf Gesamtkosten sondern auf neutralen Aufwand
   - Bugfix #1978: Keine CVars beim Export von Projekten
   - Bugfix #1979: BWA: Neutraler Ertrag wird nicht angezeigt
+  - Bugfix #1980: Bericht Ansprechpartner lässt Straße auswählen/anzeigen, wird aber nicht ausgewertet (#1931)
   - Bugfix #1981: Wiedervorlagen fuer Lieferscheine
   - Bugfix #1982: Form::format_amount ist für sehr kleine Zahlen bei hoher Präzision kaputt
   - Bugfix #1983: Einlagern mit anderer Einheit benutzt Grundeinheit
@@ -226,9 +242,12 @@ Liste gefixter Bugs us dem Bugtracker
   - Bugfix #2054: oberster Auftrag wird ignoriert bei Mehrfachauswahl zum Zusammenfassen von Aufträgen
   - Bugfix #2055: Zusammenfassen von Aufträgen wirft Fehlermeldung
   - Bugfix #2056: Stark abweichende Optik des Verkaufsberichtes
+  - Bugfix #2057: Debitorenbuchungsbericht (Verkauf)
   - Bugfix #2059: Falsches Icon im Programm-Menü
   - Bugfix #2060: Sprache hinzufügen schlägt fehl
   - Bugfix #2061: Fehler im Menü Programm bei Menü-Varianten "oben mit css" und "oben mit css neu"
+  - Bugfix #2062: Bei allen Lager-Aktionen kann in der Startmaske kein Lagerplatz ausgewählt werden
+  - Bugfix #2063: Fehler bei "Ja"-Einträgen in "Zugriff auf meine Wiedervorlagen regeln"
   - Bugfix #2065: Irreführende Bezeichnung für Funktion "Rechnung > als Vorlage verwenden"
   - Bugfix #2067: Button "drucken und buchen" bei Rechnungen druckt nicht mehr
   - Bugfix #2069: Lieferplan: Filteraufruf aus Folgeseite bringt falsches Ergebnis
