@@ -207,14 +207,14 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * Annotated tag erstellen und pushen
 
-  $ git tag -a release-2.6.1
-  $ git push origin tags/release-2.6.1
+  $ git tag -a release-3.0.0
+  $ git push origin tags/release-3.0.0
 
 * Tarball erstellen
 
-  $ git archive --format=tar --remote=<master repo>        \
-        --prefix=lxoffice-erp-2.6.1/ release-2.6.1 | gzip  \
-        > lx-office-erp-2.6.1.tar.gz
+  $ git archive --format=tar --remote=git@vc.linet-services.de:public/lx-office-erp.git \
+        --prefix=kivitendo-erp-3.0.0/ release-3.0.0 | gzip  \
+        > kivitendo-erp-3.0.0.tgz
 
   (der trailing slash bei prefix ist wichtig)
 
