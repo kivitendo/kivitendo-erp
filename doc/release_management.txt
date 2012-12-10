@@ -49,7 +49,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
   - Commitfreeze für finales Release (Erfahrungswerte: 1 Tag für die erste
     Beta, 2-4h für jedes weitere Release, 1 Tag fürs finale Release)
 
-* Status Bugzilla
+* Status Trac
 
   - Aus dem Bugsprint sollten keine Bugs mit Target der neuen Version mehr
     offen sein, ist aber unrealistisch. Die noch offenen Bugs müssen bewertet
@@ -67,34 +67,26 @@ als freundliche Checkliste zum ausdrucken und erweitern.
     Beispiel für semiautomatisches bearbeiten:
 
     o Letztes Releasedatum: git log --pretty=format:%cd <release-tag> | head -1
-    o Alle Bugs seit dem mit der Buzilla advanced search suchen:
-      + Bugs changed
-      + Only bugs changed between <letztes Releasedatum> and Now
-      + where only one or more of the following changed: "Resolution"
-      + and the new value was: "FIXED"
-    o columns ändern auf nur "Full Summary"
+    o Alle Bugs seitdem mit Trac suchen ("Tickets anzeigen" ->
+      "Individuelle Abfrage"):
+      + Status: [X] closed
+      + Geändert: zwischen <letztes Releasedatum> und <heute>
+      + Lösung: [x] behoben  [x] Duplikat  [x] funktioniert-bei-mir
+      + Komponente: ist kivitendo ERP
+      + Spalten: [x] Zusammenfassung
+    o sortieren nach Ticketnummer
     o copy&paste in eine Datei
     o perl -pale '$_="  - Bugfix $F[0]: @F[1..$#F]"' oder awk/sed drüber
 
-    Das gleiche für trac:
-    o Individuelle Abfrage
-      + geändert zwischen <letztes Releasedatum> und <heute+1>
-      + Status closed
-      + Lösung behobena
-      + Komponente ist Lx-Office ERP
-    o Spalten: nur Zusammenfassung
-    o sortieren nach Ticketnummer
-    o rest weiter ab copy&paste
-
-    Achtung: trac hat im Moment noch Probleme, so dass Bugs zum teil mit nicht
+    Achtung: Trac hat im Moment noch Probleme, sodass Bugs zum Teil mit nicht
     existenten Lösungen geschlossen werden.  Besser ist es, sich die Lösung als
     eigene Spalte anzeigen zu lassen, die Lösungen zu filtern, die nicht
     erwünscht sind, und den Rest zu formatieren (TODO: Script erweitern)
 
-    Achtung: trac benutzt Datum 00:00:00 als obere Grenze, dass heisst, immer
+    Achtung: Trac benutzt Datum 00:00:00 als obere Grenze, dass heißt, immer
     einen Tag mehr angeben.
 
-  - Ausserdem einmal durch das git scrollen und sinnvolle grössere Änderungen
+  - Ausserdem einmal durch das git scrollen und sinnvolle größere Änderungen
     ins changelog übertragen. Muss nur einmal gemacht werden, möglichst danach
     nur noch inkrementell.
 
@@ -106,22 +98,22 @@ als freundliche Checkliste zum ausdrucken und erweitern.
   sucht nach Abhängigkeiten dadrin. Achtung: require wird im Moment nicht
   erkannt. Die Farbcodes bedeuten:
 
-  grün: Alles gut, das Modul ist entweder seit Ewigkeiten im perl core, oder
+  grün: Alles gut, das Modul ist entweder seit Ewigkeiten im Perl core, oder
         ist in modules/* dabei.
-  gelb: Das Modul ist nach 5.8.0 in den core gekommen, oder steht ordnungsgemäß
+  gelb: Das Modul ist nach 5.8.0 in den Core gekommen, oder steht ordnungsgemäß
         im InstallationCheck.pm
-  rot:  Noch nie gesehen das Modul. muss eingepflegt werden.
+  rot:  Noch nie gesehen das Modul. Muss eingepflegt werden.
 
   Sollte es nicht dokumentierte Abhängigkeiten geben, muss Folgendes gemacht
   werden:
 
   1. Wo kriegt man das Modul her?
-    - debian paket?
-    - cpan paket?
-    - cpan devel version?
+    - Debian-Paket?
+    - CPAN-Paket?
+    - CPAN-Devel-Version?
 
   2. Welche Mindestversion funktioniert sicher?
-    - zuindest deine aktuelle. ansonsten auch mal im cpan changelog schauen wie
+    - zuindest deine aktuelle. ansonsten auch mal im CPAN changelog schauen, wie
       alt die ist, und was alles dazugekommen ist.
 
   3. Das Modul in SL/InstallationCheck.pm eintragen. Testen.
@@ -136,7 +128,7 @@ als freundliche Checkliste zum ausdrucken und erweitern.
     Version bis zum erfolgreichen Login der neuen Version zu kriegen.
   - Bekannte Probleme die im testing auftraten dokumentieren.
 
-* doc/Lx-Office-Dokumentation.pdf erstellen
+* doc/kivitendo-Dokumentation.pdf erstellen
  (TODO: commands)
 
 * scripts/rose_auto_create_model.pl update machen.
@@ -176,14 +168,6 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * VERSION updaten
 
-  Zu den Versionierungen vor 3.0.0:
-
-  - Das Programm heißt Lx-Office (großes LO, mit Bindestrich dazwischen)
-  - Das Paket heißt lx-office-erp (klein, plus "-erp")
-  - Der Standardpfad ist lxoffice-erp-<version> (fehlender Bindestrich)
-  - Der git tag ist "release-<version>"
-  - Das DB Upgradescript ist "release_<snake_case_version>"
-
   Zu den Versionierungen ab 3.0.0:
 
   - Das Programm heißt kivitendo (alles klein)
@@ -192,7 +176,15 @@ als freundliche Checkliste zum ausdrucken und erweitern.
   - Der git tag ist "release-<version>"
   - Das DB Upgradescript ist "release_<snake_case_version>"
 
-* Nur finales Release: Datenbankupgradescript "release_2_6_1" (mit aktueller
+  Zu den Versionierungen vor 3.0.0:
+
+  - Das Programm heißt Lx-Office (großes LO, mit Bindestrich dazwischen)
+  - Das Paket heißt lx-office-erp (klein, plus "-erp")
+  - Der Standardpfad ist lxoffice-erp-<version> (fehlender Bindestrich)
+  - Der git tag ist "release-<version>"
+  - Das DB Upgradescript ist "release_<snake_case_version>"
+
+* Nur finales Release: Datenbankupgradescript "release_3_0_0" (mit aktueller
   Releasenummer) erstellen und alle Leafscripte als Abhängigkeit einsetzen.
   Leafscripte kriegt man mit
 
@@ -236,9 +228,9 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 
 * Releasemessages schreiben für folgende Ziele:
 
-  - lx-office.org: deutsch, prosa, formell
+  - kivitendo.de: deutsch, prosa, formell
   - freecode.com: englisch, max 600 zeichen, technische stichpunkte aus dem changelog (ehemals freshmeat.net)
-  - mailinglisten: deutsch, freitext, informell
+  - Mailinglisten: deutsch, freitext, informell
 
 * Alle Releasemessages von mindestens einer Person Korrektur lesen lassen
 
@@ -248,6 +240,6 @@ als freundliche Checkliste zum ausdrucken und erweitern.
 3. POST RELEASE
 ===============
 
-* Im Bugzilla die aktuelle Version ergänzen, damit dafür Bugs eingespielt werden können.
+* Im Trac die aktuelle Version ergänzen, damit dafür Bugs eingespielt werden können.
 
 * Nach einem Major Release alle Bugs die den Milestone hatten und nicht gefixt wurden zurücksetzen
