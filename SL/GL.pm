@@ -159,11 +159,11 @@ sub post_transaction {
     if ($amount != 0) {
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                  source, memo, project_id, taxkey, ob_transaction, cb_transaction)
+                                  source, memo, project_id, taxkey, ob_transaction, cb_transaction, tax_id)
            VALUES (?, (SELECT id FROM chart WHERE accno = ?),
-                   ?, ?, ?, ?, ?, ?, ?, ?)|;
+                   ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
       @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{transdate}),
-                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f');
+                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f', conv_i($form->{"tax_id_$i"}));
       do_query($form, $dbh, $query, @values);
     }
 
@@ -171,12 +171,12 @@ sub post_transaction {
       # add taxentry
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                  source, memo, project_id, taxkey)
+                                  source, memo, project_id, taxkey, tax_id)
            VALUES (?, (SELECT chart_id FROM tax WHERE id = ?),
-                   ?, ?, ?, ?, ?, ?)|;
+                   ?, ?, ?, ?, ?, ?, ?)|;
       @values = (conv_i($form->{id}), conv_i($form->{"tax_id_$i"}),
                  $tax, conv_date($form->{transdate}), $form->{"source_$i"},
-                 $form->{"memo_$i"}, $project_id, $taxkey);
+                 $form->{"memo_$i"}, $project_id, $taxkey, conv_i($form->{"tax_id_$i"}));
       do_query($form, $dbh, $query, @values);
     }
   }

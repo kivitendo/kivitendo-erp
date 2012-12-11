@@ -172,27 +172,29 @@ sub post_transaction {
         my $project_id = conv_i($form->{"project_id_$i"});
 
         # insert detail records in acc_trans
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
-                     VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id)
+                     VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?)|;
         @values = (conv_i($form->{id}), $form->{AR_amounts}{"amount_$i"}, conv_i($form->{"amount_$i"}), conv_date($form->{transdate}), $project_id,
-                   conv_i($form->{"taxkey_$i"}));
+                   conv_i($form->{"taxkey_$i"}), conv_i($form->{"tax_id_$i"}));
         do_query($form, $dbh, $query, @values);
 
         if ($form->{"tax_$i"} != 0) {
           # insert detail records in acc_trans
-          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
-                       VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?)|;
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id)
+                       VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), ?, ?, ?, ?, ?)|;
           @values = (conv_i($form->{id}), $form->{AR_amounts}{"tax_$i"}, conv_i($form->{"tax_$i"}), conv_date($form->{transdate}), $project_id,
-                     conv_i($form->{"taxkey_$i"}));
+                     conv_i($form->{"taxkey_$i"}), conv_i($form->{"tax_id_$i"}));
           do_query($form, $dbh, $query, @values);
         }
       }
     }
 
     # add recievables
-    $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey)
-                 VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-    @values = (conv_i($form->{id}), $form->{AR_amounts}{receivables}, conv_i($form->{receivables}), conv_date($form->{transdate}), $form->{AR_amounts}{receivables});
+    $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id)
+                 VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?),
+                 (SELECT tax_id FROM taxkeys WHERE taxkey_id= (SELECT taxkey_id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+    @values = (conv_i($form->{id}), $form->{AR_amounts}{receivables}, conv_i($form->{receivables}), conv_date($form->{transdate}),
+                $form->{AR_amounts}{receivables}, $form->{AR_amounts}{receivables}, conv_date($form->{transdate}));
     do_query($form, $dbh, $query, @values);
 
   } else {
@@ -229,9 +231,10 @@ sub post_transaction {
 
       if ($amount != 0) {
         # add receivable
-        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey)
-                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-        @values = (conv_i($form->{id}), $form->{AR}{receivables}, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AR}{receivables});
+        $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id)
+                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?),
+                     (SELECT tax_id FROM taxkeys WHERE taxkey_id= (SELECT taxkey_id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+        @values = (conv_i($form->{id}), $form->{AR}{receivables}, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AR}{receivables}, $form->{AR}{receivables}, conv_date($form->{"datepaid_$i"}));
         do_query($form, $dbh, $query, @values);
       }
 
@@ -240,18 +243,22 @@ sub post_transaction {
         my $project_id = conv_i($form->{"paid_project_id_$i"});
         my $gldate = (conv_date($form->{"gldate_$i"}))? conv_date($form->{"gldate_$i"}) : conv_date($form->current_date($myconfig));
         $amount = $form->{"paid_$i"} * -1;
-        $query  = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, project_id, taxkey)
-                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-        @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount, conv_date($form->{"datepaid_$i"}), $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $form->{AR}{"paid_$i"});
+        $query  = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, project_id, taxkey, tax_id)
+                     VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE accno = ?),
+                     (SELECT tax_id FROM taxkeys WHERE taxkey_id= (SELECT taxkey_id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+        @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount, conv_date($form->{"datepaid_$i"}), $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $form->{AR}{"paid_$i"},
+                    $form->{AR}{"paid_$i"}, conv_date($form->{"datepaid_$i"}));
         do_query($form, $dbh, $query, @values);
 
         # exchangerate difference for payment
         $amount = $form->round_amount( $form->{"paid_$i"} * ($form->{"exchangerate_$i"} - 1) * -1, 2);
 
         if ($amount != 0) {
-          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey)
-                       VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-          @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AR}{"paid_$i"});
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey, tax_id)
+                       VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, (SELECT taxkey_id FROM chart WHERE accno = ?),
+                       (SELECT tax_id FROM taxkeys WHERE taxkey_id= (SELECT taxkey_id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+          @values = (conv_i($form->{id}), $form->{AR}{"paid_$i"}, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $form->{AR}{"paid_$i"},
+                    $form->{AR}{"paid_$i"}, conv_date($form->{"datepaid_$i"}));
           do_query($form, $dbh, $query, @values);
         }
 
@@ -260,9 +267,10 @@ sub post_transaction {
 
         if ($amount != 0) {
           my $accno = ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno};
-          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey)
-                       VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, (SELECT taxkey_id FROM chart WHERE accno = ?))|;
-          @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $accno);
+          $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey, tax_id)
+                       VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, (SELECT taxkey_id FROM chart WHERE accno = ?),
+                       (SELECT tax_id FROM taxkeys WHERE taxkey_id= (SELECT taxkey_id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+          @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{"datepaid_$i"}), $project_id, $accno, $accno, conv_date($form->{"datepaid_$i"}));
           do_query($form, $dbh, $query, @values);
         }
       }
