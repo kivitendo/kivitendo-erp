@@ -284,16 +284,22 @@ sub check_stornos_ohne_partner {
   my ($self) = @_;
 
   my $query = qq|
-      select ar.id,invnumber,storno,amount,transdate,type,customernumber
-    from ar
-    left join customer c on (c.id = ar.customer_id)
-    where storno_id is null and storno is true and ar.id not in (select storno_id from ar where storno_id is not null and storno is true);
+    SELECT (SELECT cast ('ar' as text)) as invoice ,ar.id,invnumber,storno,amount,transdate,type,customernumber as cv_number
+    FROM ar
+    LEFT JOIN customer c on (c.id = ar.customer_id)
+    WHERE storno_id is null AND storno is true AND ar.id not in (SELECT storno_id FROM ar WHERE storno_id is not null AND storno is true)
+    UNION
+    SELECT (SELECT cast ('ap' as text)) as invoice,ap.id,invnumber,storno,amount,transdate,type,vendornumber as cv_number
+    FROM ap
+    LEFT JOIN vendor v on (v.id = ap.vendor_id)
+    WHERE storno_id is null AND storno is true AND ap.id not in (SELECT storno_id FROM ap WHERE storno_id is not null AND storno is true);
   |;
+ 
   my $stornos_ohne_partner =  selectall_hashref_query($::form, $self->dbh, $query);
 
   $self->tester->ok(@$stornos_ohne_partner == 0, 'Es sollte keine Stornos ohne Partner geben');
   if (@$stornos_ohne_partner) {
-    $self->tester->diag("stornos ohne partner:   (kann passieren wenn Stornorechnung außerhalb Zeitraum liegt)");
+    $self->tester->diag("Stornos ohne Partner:   (kann passieren wenn Stornorechnung außerhalb Zeitraum liegt)");
     $self->tester->diag("gilt aber trotzdem als paid zu dem Zeitpunkt, oder?");
   }
   my $stornoheader = 0;
