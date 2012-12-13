@@ -21,7 +21,7 @@ function on_keydown_quicksearch(e) {
   var url = "ct.pl?action=list_contacts&INPUT_ENCODING=utf-8&filter.status=active&search_term=" + encodeURIComponent(value);
 
   search_term.val('');
-  $("#win1").attr('src', url);
+  window.location.href = url;
 
   return false;
 }
