@@ -4,6 +4,7 @@ crm
 /users/templates-cache/
 /users/session_files/
 /users/pid/
+/users/.cache/
 /config/lx_office.conf
 /config/kivitendo.conf
 /doc/online/*/*.html
