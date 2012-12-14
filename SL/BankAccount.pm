@@ -57,6 +57,28 @@ sub retrieve {
   return $account;
 }
 
+sub delete {
+  $::lxdebug->enter_sub();
+
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(id));
+
+  my $dbh = $params{dbh} || $::form->get_standard_dbh(%::myconfig);
+
+  my $query = '
+    DELETE
+    FROM bank_accounts
+    WHERE id = ?';
+
+  do_query($::form, $dbh, $query, conv_i($params{id}));
+
+  $dbh->commit();
+
+  $::lxdebug->leave_sub();
+}
+
 sub list {
   $main::lxdebug->enter_sub();
 

@@ -32,6 +32,16 @@ sub bank_account_edit {
   $main::lxdebug->leave_sub();
 }
 
+sub bank_account_delete {
+  $::lxdebug->enter_sub();
+
+  SL::BankAccount->delete(id => $::form->{account}{id});
+
+  print $::form->redirect_header('bankaccounts.pl?action=bank_account_list');
+
+  $::lxdebug->leave_sub();
+}
+
 sub bank_account_display_form {
   $main::lxdebug->enter_sub();
 
