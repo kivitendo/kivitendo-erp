@@ -33,7 +33,18 @@
       reduziert wird, weil nicht für jedes Dokument ein OpenOffice gestartet
       werden muss. Der Nachteil ist, dass diese Methode Python und die
       Python-UNO-Bindings benötigt, die Bestandteil von OpenOffice 2
-      sind.</p><p>Ist <code class="literal">$openofficeorg_daemon</code> nicht gesetzt, so
+      sind.</p><div class="note" title="Anmerkung" style="margin-left: 0.5in; margin-right: 0.5in;"><table border="0" summary="Note"><tr><td rowspan="2" align="center" valign="top" width="25"><img alt="[Anmerkung]" src="system/docbook-xsl/images/note.png"></td><th align="left">Anmerkung</th></tr><tr><td align="left" valign="top"><p>
+          Für die Verbindung zu OpenOffice wird normalerweise der Python-Interpreter <code class="filename">/usr/bin/python</code> benutzt. Sollte
+          dies nicht der richtige sein, so kann man mit zwei Konfigurationsvariablen entscheiden, welcher Python-Interpreter genutzt
+          wird. Mit der Option <code class="literal">python_uno</code> aus dem Abschnitt <code class="literal">applications</code> wird der Interpreter selber
+          festgelegt; sie steht standardmäßig auf dem eben erwähnten Wert <code class="literal">/usr/bin/python</code>.
+        </p><p>
+          Zusätzlich ist es möglich, Pfade anzugeben, in denen Python neben seinen normalen Suchpfaden ebenfalls nach Modulen gesucht wird,
+          z.B. falls sich diese in einem gesonderten OpenOffice-Verzeichnis befinden. Diese zweite Variable heißt
+          <code class="literal">python_uno_path</code> und befindet sich im Abschnitt <code class="literal">environment</code>. Sie ist standardmäßig
+          leer. Werden hier mehrere Pfade angegeben, so müssen diese durch Doppelpunkte voneinander getrennt werden. Der Inhalt wird an den
+          Python-Interpreter über die Umgebungsvariable <code class="literal">PYTHONPATH</code> übergeben.
+        </p></td></tr></table></div><p>Ist <code class="literal">$openofficeorg_daemon</code> nicht gesetzt, so
       wird für jedes Dokument OpenOffice neu gestartet und die Konvertierung
       mit Hilfe eines Makros durchgeführt. Dieses Makro muss in der
       Dokumentenvorlage enthalten sein und

@@ -416,11 +416,21 @@ sub spawn_xvfb {
   return $display;
 }
 
+sub _run_python_uno {
+  my ($self, @args) = @_;
+
+  local $ENV{PYTHONPATH};
+  $ENV{PYTHONPATH} = $::lx_office_conf{environment}->{python_uno_path} . ':' . $ENV{PYTHONPATH} if $::lx_office_conf{environment}->{python_uno_path};
+  my $cmd          = $::lx_office_conf{applications}->{python_uno} . ' ' . join(' ', @args);
+  return `$cmd`;
+}
+
 sub is_openoffice_running {
+  my ($self) = @_;
+
   $main::lxdebug->enter_sub();
 
-  my $cmd    = "./scripts/oo-uno-test-conn.py " . $::lx_office_conf{print_templates}->{openofficeorg_daemon_port} . " 2> /dev/null";
-  my $output = `$cmd`;
+  my $output = $self->_run_python_uno('./scripts/oo-uno-test-conn.py', $::lx_office_conf{print_templates}->{openofficeorg_daemon_port}, ' 2> /dev/null');
   chomp $output;
 
   my $res = ($? == 0) || $output;
@@ -508,26 +518,19 @@ sub convert_to_pdf {
     return 0;
   }
 
-  my @cmdline;
   if (!$::lx_office_conf{print_templates}->{openofficeorg_daemon}) {
-    @cmdline = ($::lx_office_conf{applications}->{openofficeorg_writer},
-                "-minimized", "-norestore", "-nologo", "-nolockcheck",
-                "-headless",
-                "file:${filename}.odt",
-                "macro://" . (split('/', $filename))[-1] .
-                "/Standard.Conversion.ConvertSelfToPDF()");
+    system($::lx_office_conf{applications}->{openofficeorg_writer},
+           "-minimized", "-norestore", "-nologo", "-nolockcheck", "-headless",
+           "file:${filename}.odt",
+           "macro://" . (split('/', $filename))[-1] . "/Standard.Conversion.ConvertSelfToPDF()");
   } else {
     if (!$self->spawn_openoffice()) {
       $main::lxdebug->leave_sub();
       return 0;
     }
 
-    @cmdline = ("./scripts/oo-uno-convert-pdf.py",
-                $::lx_office_conf{print_templates}->{openofficeorg_daemon_port},
-                "${filename}.odt");
+    $self->_run_python_uno('./scripts/oo-uno-convert-pdf.py', $::lx_office_conf{print_templates}->{openofficeorg_daemon_port}, "${filename}.odt");
   }
-
-  system(@cmdline);
 
   my $res = $?;
   if ((0 == $?) || (-f "${filename}.pdf" && -s "${filename}.pdf")) {
