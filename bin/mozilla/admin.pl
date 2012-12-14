@@ -1178,7 +1178,7 @@ sub _search_templates {
        -d ($::lx_office_conf{paths}->{templates} . "/$_")
     && !/^\.\.?$/
     && !m/\.(?:html|tex|sty|odt|xml|txb)$/
-    && !m/^(?:webpages$|print$|\.)/
+    && !m/^(?:webpages$|print$|mail$|\.)/
   } keys %dir_h;
 
   tie %dir_h, 'IO::Dir', "$::lx_office_conf{paths}->{templates}/print";
