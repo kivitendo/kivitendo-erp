@@ -973,8 +973,8 @@ sub addtop100 {
   print qq|
 <!--    <input type=hidden name=ndxs_counter value="$form->{ndxs_counter}">-->
 
-    <input class=submit type=submit name=action value="|
-    . $locale->text('choice') . qq|">
+<!--    <input class=submit type=submit name=action value="|
+    . $locale->text('choice') . qq|"> -->
 
   </form>
 |;
