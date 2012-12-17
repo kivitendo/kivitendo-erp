@@ -850,7 +850,7 @@ sub generate_report {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, qw(warehouse_id bin_id partnumber description chargenumber bestbefore qty_op qty qty_unit l_warehousedescription l_bindescription);
-  push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses);
+  push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses date);
 
   my %column_defs = (
     'warehousedescription' => { 'text' => $locale->text('Warehouse'), },
