@@ -204,7 +204,7 @@ SQL
     "quonumber"               => "o.quonumber",
     "name"                    => "ct.name",
     "employee"                => "e.name",
-    "salesman"                => "e.name",
+    "salesman"                => "s.name",
     "shipvia"                 => "o.shipvia",
     "transaction_description" => "o.transaction_description"
   );
