@@ -538,7 +538,7 @@ exit</programlisting>
         wird:</para>
 
         <programlisting>AddHandler cgi-script .pl
-Alias /kivitendo-erp/ /var/www/kiviteno-erp/
+Alias /kivitendo-erp/ /var/www/kivitendo-erp/
 
 &lt;Directory /var/www/kivitendo-erp&gt;
  Options ExecCGI Includes FollowSymlinks
