@@ -14,7 +14,7 @@
 # ---- Logindaten und URL anpassen: ----
 login=MyLxOfficeUserName
 password=MySecretPassword
-url='https://localhost/lx-office-erp/controller.pl'
+url='https://localhost/kivitendo-erp/controller.pl'
 
 function fail {
   echo "$@"
