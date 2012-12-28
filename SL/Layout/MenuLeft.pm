@@ -70,8 +70,6 @@ sub section_menu {
       $menuitem->{href} .= $::form->escape($value, 1);
     }
 
-    my $anchor = $menuitem->{href};
-
     my @common_args = ($label, $spacer, "$id_prefix\_$id");
 
     if (!$level) { # toplevel
@@ -83,7 +81,7 @@ sub section_menu {
       #make_image(label => 'submenu'),
       push @items, section_menu($menu, $item, "$id_prefix\_$id");
     } elsif ($menuitem->{module}) {
-      push @items, [ @common_args, "icon16 $icon_class", 'i', $anchor ];
+      push @items, [ @common_args, "icon16 $icon_class", 'i', $menuitem->{href}, $menuitem->{target} ];
       #make_image(size => 16, label => $item),
     }
   } continue {
@@ -129,6 +127,8 @@ Each entry is another array with the following fields:
   2: unique id
   3: icon classes
   4: role classes
+  5: href
+  6: target
 
 From each entry the following dom will be generated, with [0] being entry 0 of
 the data array:

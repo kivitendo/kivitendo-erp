@@ -87,18 +87,20 @@ sub menuitem_v3 {
     $action = $menuitem->{action};
   }
 
-  my $level = $::form->escape($item);
+  my $level  = $::form->escape($item);
 
-  my $str = qq|<a href="$module?action=| . $::form->escape($action) . qq|&level=| . $::form->escape($level);
-
-  my @vars = qw(module action target href);
+  my @vars;
+  my $target = $menuitem->{target} ? qq| target="| . $::form->escape($menuitem->{target}) . '"' : '';
+  my $str    = qq|<a${target} href="|;
 
   if ($menuitem->{href}) {
-    $str  = qq|<a href="$menuitem->{href}|;
-    @vars = qw(module target href);
+    $main::lxdebug->leave_sub();
+    return $str . $menuitem->{href} . '">';
   }
 
-  map { delete $menuitem->{$_} } @vars;
+  $str .= qq|$module?action=| . $::form->escape($action) . qq|&level=| . $::form->escape($level);
+
+  map { delete $menuitem->{$_} } qw(module action target href);
 
   # add other params
   foreach my $key (keys %{ $menuitem }) {
