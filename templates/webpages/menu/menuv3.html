@@ -1,31 +1,8 @@
 [%- USE T8 %]
 [% USE HTML %]
+ <script type="text/javascript" src="js/quicksearch_input.js"></script>
  <script type="text/javascript">
  <!--
-function on_keydown_quicksearch(e) {
-  var key;
-
-  if (window.event)
-    key = window.event.keyCode;   // IE
-  else
-    key = e.which;                // Firefox
-
-  if (key != 13)
-    return true;
-
-  var search_term = $("#search_term");
-  var value       = search_term.val();
-  if (!value)
-    return true;
-
-  var url = "ct.pl?action=list_contacts&INPUT_ENCODING=utf-8&filter.status=active&search_term=" + encodeURIComponent(value);
-
-  search_term.val('');
-  window.location.href = url;
-
-  return false;
-}
-
 function clockon() {
   var now = new Date();
   var h = now.getHours();
@@ -41,7 +18,7 @@ $(clockon);
  <span class="frame-header-element frame-header-left">
     [<a href="login.pl?action=company_logo" target="_blank">[% 'new Window' | $T8 %]</a>]
     [<a href="JavaScript:top.print()">[% 'print' | $T8 %]</a>]
-    [[% 'Search contacts' | $T8 %] <input size="15" name="search_term" id="search_term" onkeydown="return on_keydown_quicksearch(event)">]
+    [[% 'Search contacts' | $T8 %] <input size="15" name="search_term" id="search_term" onkeydown="return on_keydown_quicksearch($('#search_term'), event)">]
  </span>
  <span class="frame-header-element frame-header-right">
     [[% 'User' | $T8 %]: [% MYCONFIG.login | html %] -

@@ -10,6 +10,14 @@ sub init_sub_layouts {
   [ SL::Layout::None->new ]
 }
 
+sub use_javascript {
+  my $self = shift;
+  qw(
+    js/quicksearch_input.js
+  ),
+  $self->SUPER::use_javascript(@_);
+}
+
 sub pre_content {
   &display
 }

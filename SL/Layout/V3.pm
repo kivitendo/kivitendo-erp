@@ -18,6 +18,14 @@ sub use_stylesheet {
   $self->SUPER::use_stylesheet(@_);
 }
 
+sub use_javascript {
+  my $self = shift;
+  qw(
+    js/quicksearch_input.js
+  ),
+  $self->SUPER::use_javascript(@_);
+}
+
 sub pre_content {
   &render;
 }
