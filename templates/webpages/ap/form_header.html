@@ -25,7 +25,7 @@
 
 <script type="text/javascript" src="js/show_history.js"></script>
 
-<form method="post" action="[% script %]">
+<form method="post" action="[% script | html %]">
 
 <input type="hidden" name="selectvendor" value="[% selectvendor | html %]">
 <input type="hidden" name="selectdepartment" value="[% selectdepartment | html %]">
@@ -35,41 +35,41 @@
 <input type="hidden" name="vendor_id" value="[% vendor_id | html %]">
 <input type="hidden" name="terms" value="[% terms | html %]">
 
-<input type="hidden" name="creditlimit" value="[% creditlimit %]">
-<input type="hidden" name="creditremaining" value="[% creditremaining %]">
+<input type="hidden" name="creditlimit" value="[% creditlimit | html %]">
+<input type="hidden" name="creditremaining" value="[% creditremaining | html %]">
 
-<input type="hidden" name="forex" value="[% forex %]">
+<input type="hidden" name="forex" value="[% forex | html %]">
 
-<input type="hidden" name="id" value="[% id %]">
-<input type="hidden" name="sort" value="[% sort %]">
-<input type="hidden" name="closedto" value="[% closedto %]">
-<input type="hidden" name="locked" value="[% locked %]">
-<input type="hidden" name="title" value="[% title_ %]">
+<input type="hidden" name="id" value="[% id | html %]">
+<input type="hidden" name="sort" value="[% sort | html %]">
+<input type="hidden" name="closedto" value="[% closedto | html %]">
+<input type="hidden" name="locked" value="[% locked | html %]">
+<input type="hidden" name="title" value="[% title_ | html %]">
 
 <input type="hidden" name="follow_up_trans_id_1" value="[% id | html %]">
 <input type="hidden" name="follow_up_trans_type_1" value="ap_transaction">
 <input type="hidden" name="follow_up_trans_info_1" value="[% follow_up_trans_info | html %]">
 <input type="hidden" name="follow_up_rowcount" value="1">
 
-<input type="hidden" name="defaultcurrency" value="[% defaultcurrency | $T8 %]">
-<input type="hidden" name="fxgain_accno" value="[% fxgain_accno %]">
-<input type="hidden" name="fxloss_accno" value="[% fxloss_accno %]">
+<input type="hidden" name="defaultcurrency" value="[% defaultcurrency | html %]">
+<input type="hidden" name="fxgain_accno" value="[% fxgain_accno | html %]">
+<input type="hidden" name="fxloss_accno" value="[% fxloss_accno | html %]">
 
-<input type="hidden" name="oldinvtotal" value="[% oldinvtotal %]">
-<input type="hidden" name="oldtotalpaid" value="[% oldtotalpaid %]">
+<input type="hidden" name="oldinvtotal" value="[% oldinvtotal | html %]">
+<input type="hidden" name="oldtotalpaid" value="[% oldtotalpaid | html %]">
 
-<input type="hidden" name="taxaccounts" value="[% taxaccounts %]">
+<input type="hidden" name="taxaccounts" value="[% taxaccounts | html %]">
 
-<input type="hidden" name="rowcount" value="[% rowcount %]">
+<input type="hidden" name="rowcount" value="[% rowcount | html %]">
 
-<input type="hidden" name="paidaccounts" value="[% paidaccounts %]">
+<input type="hidden" name="paidaccounts" value="[% paidaccounts | html %]">
 
 [% FOREACH i IN [1..paidaccounts] %]
   [% temp = "acc_trans_id_"_ i %]
-  <input type="hidden" name="[% temp %]" value="[% $temp %]">
+  <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
 
   [% temp = "gldate_"_ i %]
-  <input type="hidden" name="[% temp %]" value="[% $temp %]">
+  <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
 [% END %]
 
 <h1>[% title | html %]</h1>
@@ -78,20 +78,20 @@
   <p>[% saved_message | html %]</p>
 [% END %]
 
-<table width=100%>
-  <tr valign=top>
+<table width="100%">
+  <tr valign="top">
     <td>
-      <table width=100%>
-        <tr valign=top>
+      <table width="100%">
+        <tr valign="top">
           <td>
             <table>
               <tr>
-                <th align=right nowrap>[% 'Vendor' | $T8 %]</th>
-                <td colspan=3>
+                <th align="right" nowrap>[% 'Vendor' | $T8 %]</th>
+                <td colspan="3">
                   [% IF ( selectvendor ) %]
                     <select name="vendor" onchange="document.getElementById('update_button').click();">[% selectvendor %]</select>
                   [% ELSE %]
-                    <input name=vendor value="[% vendor %]" size="35">
+                    <input name=vendor value="[% vendor | html %]" size="35">
                   [% END %]
                   <input type="button" value="D" onclick="show_vc_details('vendor')">
                 </td>
@@ -99,13 +99,13 @@
 
               <tr>
                 <td></td>
-                <td colspan=3>
+                <td colspan="3">
                   <table width="100%">
                     <tr>
                       <th align="left" nowrap>[% 'Credit Limit' | $T8 %]</th>
-                      <td>[% creditlimit %]</td>
+                      <td>[% creditlimit | html %]</td>
                       <th align="left" nowrap>[% 'Remaining' | $T8 %]</th>
-                      <td class="plus[% creditremaining_plus %]">[% creditremaining %]</td>
+                      <td class="plus[% creditremaining_plus %]">[% creditremaining | html %]</td>
                     </tr>
                   </table>
                 </td>
@@ -118,9 +118,9 @@
                 [% IF ( defaultcurrency && (currency != defaultcurrency) ) %]
                   <th align=right>[% 'Exchangerate' | $T8 %]</th>
                   [% IF ( forex ) %]
-                    <td><input type="hidden" name="exchangerate" value="[% exchangerate %]">[% exchangerate %]</td>
+                    <td><input type="hidden" name="exchangerate" value="[% exchangerate | html %]">[% exchangerate | html %]</td>
                   [% ELSE %]
-                    <td><input type="text" name="exchangerate" size="10" value="[% exchangerate %]"></td>
+                    <td><input type="text" name="exchangerate" size="10" value="[% exchangerate | html %]"></td>
                   [% END %]
                 [% END %]
 
@@ -146,11 +146,11 @@
             <table>
               <tr>
                 <th align="right" nowrap>[% 'Invoice Number' | $T8 %]</th>
-                <td><input name="invnumber" size="11" value="[% invnumber %]" [% readonly %]></td>
+                <td><input name="invnumber" size="11" value="[% invnumber | html %]" [% readonly %]></td>
               </tr>
               <tr>
                 <th align="right" nowrap>[% 'Order Number' | $T8 %]</th>
-                <td><input name="ordnumber" size="11" value="[% ordnumber %]" [% readonly %]></td>
+                <td><input name="ordnumber" size="11" value="[% ordnumber | html %]" [% readonly %]></td>
               </tr>
               <tr>
                 <th align="right" nowrap>[% 'Invoice Date' | $T8 %]</th>
@@ -186,13 +186,13 @@
           <tr>
             <td>
               [% temp = "selectAP_amount_"_ i %][% $temp %]
-              <input type="hidden" name="tax_[% i %]" value="[% temp = "tax"_ i %][% $temp %]">
+              <input type="hidden" name="tax_[% i %]" value="[% temp = "tax"_ i %][% $temp | html %]">
             </td>
             <td>
-              <input name="amount_[% i %]" size="10" value="[% temp = "amount_"_ i %][% $temp %]">
+              <input name="amount_[% i %]" size="10" value="[% temp = "amount_"_ i %][% $temp | html %]">
             </td>
             <td>
-              [% temp = "tax_"_ i %][% $temp %]
+              [% temp = "tax_"_ i %][% $temp | html %]
             </td>
             <td>
               [% temp = "select_tax_"_ i %][% $temp %]
@@ -204,30 +204,30 @@
         [% END %]
 
         <tr>
-          <td colspan=6>
+          <td colspan="6">
             <hr noshade>
           </td>
         </tr>
         <tr>
           <td>[% APselected %]</td>
-          <th align=left>[% invtotal %]</th>
-          <td colspan=4></td>
+          <th align="left">[% invtotal | html %]</th>
+          <td colspan="4"></td>
         </tr>
       </table>
      </td>
     </tr>
     <tr>
       <td>
-        <table width=100%>
+        <table width="100%">
         <tr>
-          <th align=left width=1%>[% 'Notes' | $T8 %]</th>
-          <td align=left>
-            <textarea name="notes" rows="[% textarea_rows %]" cols="50" wrap="soft" [% readonly %]>[% notes %]</textarea>
+          <th align="left" width="1%">[% 'Notes' | $T8 %]</th>
+          <td align="left">
+            <textarea name="notes" rows="[% textarea_rows %]" cols="50" wrap="soft" [% readonly %]>[% notes | html %]</textarea>
           </td>
 
-          <th align=left width=1%>[% 'Notes for vendor' | $T8 %]</th>
-          <td align=left>
-            <textarea name="intnotes" rows="[% textarea_rows %]" cols="50" wrap="soft" readonly>[% intnotes %]</textarea>
+          <th align="left" width=1%>[% 'Notes for vendor' | $T8 %]</th>
+          <td align="left">
+            <textarea name="intnotes" rows="[% textarea_rows %]" cols="50" wrap="soft" readonly>[% intnotes | html %]</textarea>
           </td>
         </tr>
       </table>
@@ -235,9 +235,9 @@
   </tr>
   <tr>
     <td>
-      <table width=100%>
-        <tr class=listheading>
-          <th class=listheading colspan=7>[% 'Payments' | $T8 %]</th>
+      <table width="100%">
+        <tr class="listheading">
+          <th class="listheading" colspan="7">[% 'Payments' | $T8 %]</th>
         </tr>
 
         <tr>
@@ -262,38 +262,38 @@
               [% IF( changeable ) %]
                 [% L.date_tag(temp, $temp) %]
               [% ELSE %]
-                [% $temp %]
-                <input type="hidden" name="[% temp %]" value="[% $temp %]">|;
+                [% $temp | html %]
+                <input type="hidden" name="[% temp %]" value="[% $temp | html %]">|;
               [% END %]
             </td>
 
             [% temp = "source_"_ i %]
             <td align="center">
               [% IF( changeable ) %]
-                <input name="[% temp %]" size="11" value="[% $temp %]">
+                <input name="[% temp %]" size="11" value="[% $temp | html %]">
               [% ELSE %]
-                [% $temp %]
-                <input type="hidden" name="[% temp %]" value="[% $temp %]">
+                [% $temp | html %]
+                <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
               [% END %]
             </td>
 
             [% temp = "memo_"_ i %]
             <td align="center">
               [% IF( changeable ) %]
-                <input name="[% temp %]" size="11" value="[% $temp %]">
+                <input name="[% temp %]" size="11" value="[% $temp | html %]">
               [% ELSE %]
-                [% $temp %]
-                <input type="hidden" name="[% temp %]" value="[% $temp %]">
+                [% $temp | html %]
+                <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
               [% END %]
             </td>
 
             [% temp = "paid_"_ i %]
             <td align="center">
               [% IF( changeable ) %]
-                <input name="[% temp %]" size="11" value="[% $temp %]" onBlur="check_right_number_format(this);">
+                <input name="[% temp %]" size="11" value="[% $temp | html %]" onBlur="check_right_number_format(this);">
               [% ELSE %]
-                [% $temp %]
-                <input type="hidden" name="[% temp %]" value="[% $temp %]">
+                [% $temp | html %]
+                <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
               [% END %]
             </td>
 
@@ -303,13 +303,13 @@
                 [% temp_forex = "forex_"_ i %]
 
                 [% IF( $temp_forex || !changeable ) %]
-                  [% $temp %]
-                  <input type="hidden" name="[% temp %]" value="[% $temp %]">
+                  [% $temp | html %]
+                  <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
                 [% ELSE %]
-                  <input name="[% temp %]" size="11" value="[% $temp %]">
+                  <input name="[% temp %]" size="11" value="[% $temp | html %]">
                 [% END %]
 
-                <input type=hidden name="[% temp_forex %]" value="[% $temp_forex %]">
+                <input type=hidden name="[% temp_forex %]" value="[% $temp_forex | html %]">
               </td>
             [% END %]
 
@@ -319,8 +319,8 @@
                 [% temp = "select"_ temp %]
                 [% $temp %]
               [% ELSE %]
-                [% $temp %]
-                <input type="hidden" name="[% temp %]" value="[% $temp %]">
+                [% $temp | html %]
+                <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
               [% END %]
             </td>
 
@@ -330,9 +330,9 @@
                 [% temp = "select"_ temp %]
                 [% $temp %]
               [% ELSE %]
-                <input type="hidden" name="[% temp %]" value="[% $temp %]">
+                <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
                 [% temp = "label"_ temp %]
-                [% $temp %]
+                [% $temp | html %]
               [% END %]
             </td>
           </tr>
