@@ -456,89 +456,29 @@ sub form_footer {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  my ($transdate, $closedto);
-
-  my $follow_ups_block;
-  if ($form->{id}) {
+  if ( $form->{id} ) {
     my $follow_ups = FU->follow_ups('trans_id' => $form->{id});
-
-    if (@{ $follow_ups} ) {
-      my $num_due       = sum map { $_->{due} * 1 } @{ $follow_ups };
-      $follow_ups_block = qq|<p>| . $locale->text("There are #1 unfinished follow-ups of which #2 are due.", scalar @{ $follow_ups }, $num_due) . qq|</p>|;
+    if ( @{ $follow_ups} ) {
+      $form->{follow_up_length} = scalar(@{$follow_ups});
+      $form->{follow_up_due_length} = sum(map({ $_->{due} * 1 } @{ $follow_ups }));
     }
   }
 
-  print qq|
+  my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
+  my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
 
-$follow_ups_block
-
-<input name=gldate type=hidden value="| . Q($form->{gldate}) . qq|">
-
-<input name=callback type=hidden value="$form->{callback}">
-|
-. $cgi->hidden('-name' => 'draft_id', '-default' => [$form->{draft_id}])
-. $cgi->hidden('-name' => 'draft_description', '-default' => [$form->{draft_description}])
-. qq|
-
-<br>
-|;
-
-  if (!$form->{id} && $form->{draft_id}) {
-    print(NTI($cgi->checkbox('-name' => 'remove_draft', '-id' => 'remove_draft',
-                             '-value' => 1, '-checked' => $form->{remove_draft},
-                             '-label' => '')) .
-          qq|&nbsp;<label for="remove_draft">| .
-          $locale->text("Remove draft when posting") .
-          qq|</label><br>|);
-  }
-
-  $transdate = $form->datetonum($form->{transdate}, \%myconfig);
-  $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
-
-  print qq|<input class="submit" type="submit" name="action" id="update_button" value="| . $locale->text('Update') . qq|">\n|;
+  $form->{is_closed} = $transdate <= $closedto;
 
   # ToDO: - insert a global check for stornos, so that a storno is only possible a limited time after saving it
-  print qq| <input class=submit type=submit name=action value="| . $locale->text('Storno') . qq|"> |
-    if ($form->{id} && !IS->has_storno(\%myconfig, $form, 'ar') && !IS->is_storno(\%myconfig, $form, 'ar') && (($form->{totalpaid} == 0) || ($form->{totalpaid} eq "")));
+  $form->{show_storno_button} =
+    $form->{id} &&
+    !IS->has_storno(\%myconfig, $form, 'ar') &&
+    !IS->is_storno(\%myconfig, $form, 'ar') &&
+    ($form->{totalpaid} == 0 || $form->{totalpaid} eq "");
 
-  if ($form->{id}) {
-    if ($form->{radier}) {
-      print qq|
-        <input class=submit type=submit name=action value="| . $locale->text('Post') .            qq|">
-        <input class=submit type=submit name=action value="| . $locale->text('Delete') .          qq|"> |;
-    }
-    if ($transdate > $closedto) {
-      print qq|
-        <input class=submit type=submit name=action value="| . $locale->text('Use As New') . qq|"> |;
-    }
-    print qq|
-        <input class=submit type=submit name=action value="| . $locale->text('Post Payment') .    qq|">
-        <input type="button" class="submit" onclick="follow_up_window()" value="|
-      . $locale->text('Follow-Up')
-      . qq|"> |;
+  $form->{show_mark_as_paid_button} = $form->{id} && $::instance_conf->get_ar_show_mark_as_paid();
 
-  } else {
-    if ($transdate > $closedto) {
-      print qq| <input class=submit type=submit name=action value="| . $locale->text('Post') .     qq|"> | .
-        NTI($cgi->submit('-name' => 'action', '-value' => $locale->text('Save draft'), '-class' => 'submit'));
-    }
-  }
-
-  # button for saving history
-  if($form->{id} ne "") {
-    print qq| <input type=button class=submit onclick=set_history_window($form->{id}); name=history id=history value=| . $locale->text('history') . qq|> |;
-  }
-  # /button for saving history
-  # mark_as_paid button
-  if(($form->{id} ne "") && $::instance_conf->get_ar_show_mark_as_paid) {
-    print qq|<input type="submit" class="submit" name="action" value="|
-          . $locale->text('mark as paid') . qq|">|;
-  }
-  # /mark_as_paid button
-
-  print "
-</form>
-";
+  print $::form->parse_html_template('ar/form_footer');
 
   $main::lxdebug->leave_sub();
 }
