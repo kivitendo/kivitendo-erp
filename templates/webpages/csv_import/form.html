@@ -174,7 +174,7 @@
 
        <td colspan=10>
          [% FOREACH key = duplicate_fields.keys %]
-           <input type="checkbox" name="settings.duplicates_[% key | html %]" id="settings.duplicates_[% key | html %]" value="1"[% IF ( SELF.profile.get('duplicates_'_ key) || (duplicate_fields.$key.default && !FORM.form_sent ) ) %] checked="checked"[% END %]\>
+           <input type="checkbox" name="settings.duplicates_[% key | html %]" id="settings.duplicates_[% key | html %]" value="1"[% IF ( SELF.profile.get('duplicates_'_ key) || (duplicate_fields.$key.default && !FORM.form_sent ) ) %] checked="checked"[% END %]>
            <label for="settings.duplicates_[% key | html %]">[% duplicate_fields.$key.label | html %]</label>
          [% END %]
        </td>
