@@ -255,48 +255,39 @@ sub form_header {
   );
 
   my %project_labels = ();
-  my @project_values = ("");
   foreach my $item (@{ $form->{"ALL_PROJECTS"} }) {
-    push(@project_values, $item->{id});
     $project_labels{$item->{id}} = $item->{projectnumber};
   }
 
-  my (%AP_amount_labels, @AP_amount_values);
-  my (%AP_labels, @AP_values);
-  my (%AP_paid_labels, @AP_paid_values);
   my %charts;
   my $taxchart_init;
 
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
-    if (grep({ $_ eq "AP_amount" } @{ $item->{link_split} })) {
-      $taxchart_init = $item->{tax_id} if ($taxchart_init eq "");
-      my $key = "$item->{accno}--$item->{tax_id}";
-      push(@AP_amount_values, $key);
-      $AP_amount_labels{$key} =
-        "$item->{accno}--$item->{description}";
+    if ( grep({ $_ eq 'AP_amount' } @{ $item->{link_split} }) ) {
+      if ( $taxchart_init eq '' ) {
+        $taxchart_init = $item->{tax_id};
+      }
 
-    } elsif (grep({ $_ eq "AP" } @{ $item->{link_split} })) {
-      push(@AP_values, $item->{accno});
-      $AP_labels{$item->{accno}} = "$item->{accno}--$item->{description}";
-
-    } elsif (grep({ $_ eq "AP_paid" } @{ $item->{link_split} })) {
-      push(@AP_paid_values, $item->{accno});
-      $AP_paid_labels{$item->{accno}} =
-        "$item->{accno}--$item->{description}";
+      push(@{ $form->{ALL_CHARTS_AP_amount} }, $item);
+    }
+    elsif ( grep({ $_ eq 'AP' } @{ $item->{link_split} }) ) {
+      push(@{ $form->{ALL_CHARTS_AP} }, $item);
+    }
+    elsif ( grep({ $_ eq 'AP_paid' } @{ $item->{link_split} }) ) {
+      push(@{ $form->{ALL_CHARTS_AP_paid} }, $item);
     }
 
     $charts{$item->{accno}} = $item;
   }
 
-  my %taxchart_labels = ();
-  my @taxchart_values = ();
   my %taxcharts = ();
   foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
-    my $key = "$item->{id}--$item->{rate}";
-    $taxchart_init = $key if ($taxchart_init eq $item->{id});
-    push(@taxchart_values, $key);
-    $taxchart_labels{$key} =
-      "$item->{taxdescription} " . ($item->{rate} * 100) . ' %';
+    my $key = $item->{id} .'--'. $item->{rate};
+
+    if ( $taxchart_init eq $item->{id} ) {
+      $taxchart_init = $key;
+    }
+
     $taxcharts{$item->{id}} = $item;
   }
 
@@ -310,13 +301,7 @@ sub form_header {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/follow_up.js"></script>|;
 
-  $form->{globalprojectnumber} =
-    NTI($cgi->popup_menu('-name' => "globalproject_id",
-                         '-values' => \@project_values,
-                         '-labels' => \%project_labels,
-                         '-default' => $form->{"globalproject_id"} ));
-
-  $form->header;
+  $form->header();
 
   for my $i (1 .. $form->{rowcount}) {
 
@@ -342,41 +327,45 @@ sub form_header {
 
     $selected_taxchart = $taxchart_init unless ($form->{"taxchart_$i"});
 
-    $form->{'selectAP_amount_'. $i} =
-      NTI($cgi->popup_menu('-name' => "AP_amount_$i",
-                           '-id' => "AP_amount_$i",
-                           '-style' => 'width:400px',
-                           '-onChange' => "setTaxkey(this, $i)",
-                           '-values' => \@AP_amount_values,
-                           '-labels' => \%AP_amount_labels,
-                           '-default' => $selected_accno_full))
-      . $cgi->hidden('-name' => "previous_AP_amount_$i",
-                     '-default' => $selected_accno_full);
+    $form->{'selected_accno_full_'. $i} = $selected_accno_full;
 
-    $form->{'select_tax_'. $i} =
-      NTI($cgi->popup_menu('-name' => "taxchart_$i",
-                           '-id' => "taxchart_$i",
-                           '-style' => 'width:200px',
-                           '-values' => \@taxchart_values,
-                           '-labels' => \%taxchart_labels,
-                           '-default' => $selected_taxchart));
-
-    $form->{'select_projectnumber_'. $i} =
-      NTI($cgi->popup_menu('-name' => "project_id_$i",
-                           '-values' => \@project_values,
-                           '-labels' => \%project_labels,
-                           '-default' => ($i==$form->{rowcount})? $form->{globalproject_id} : $form->{"project_id_$i"} ));
+    $form->{'selected_taxchart_'. $i} = $selected_taxchart;
   }
 
+  $form->{AP_amount_value_title_sub} = sub {
+    my $item = shift;
+    return [
+      $item->{accno} .'--'. $item->{tax_id},
+      $item->{accno} .'--'. $item->{description},
+    ];
+  };
+
+  $form->{taxchart_value_title_sub} = sub {
+    my $item = shift;
+    return [
+      $item->{id} .'--'. $item->{rate},
+      $item->{taxdescription} .' '. ($item->{rate} * 100) .' %',
+    ];
+  };
+
+  $form->{AP_paid_value_title_sub} = sub {
+    my $item = shift;
+    return [
+      $item->{accno},
+      $item->{accno} .'--'. $item->{description}
+    ];
+  };
+
+  $form->{APselected_value_title_sub} = sub {
+    my $item = shift;
+    return [
+      $item->{accno},
+      $item->{accno} .'--'. $item->{description}
+    ];
+  };
 
   $form->{invtotal_unformatted} = $form->{invtotal};
   $form->{invtotal} = $form->format_amount(\%myconfig, $form->{invtotal}, 2);
-
-  $form->{APselected} =
-    NTI($cgi->popup_menu('-name' => "APselected", '-id' => "APselected",
-                         '-style' => 'width:400px',
-                         '-values' => \@AP_values, '-labels' => \%AP_labels,
-                         '-default' => $form->{APselected}));
 
   $form->{totalpaid} = 0;
 
@@ -384,14 +373,6 @@ sub form_header {
     $form->{paidaccounts}++;
   }
   for my $i (1 .. $form->{paidaccounts}) {
-
-    $form->{'selectAP_paid_'. $i} =
-      NTI($cgi->popup_menu('-name' => "AP_paid_$i",
-                           '-id' => "AP_paid_$i",
-                           '-values' => \@AP_paid_values,
-                           '-labels' => \%AP_paid_labels,
-                           '-default' => $form->{"AP_paid_$i"}));
-
     $form->{totalpaid} += $form->{"paid_$i"};
 
     # format amounts
@@ -417,15 +398,7 @@ sub form_header {
 
     $form->{'paidaccount_changeable_'. $i} = $changeable;
 
-    if ( $changeable ) {
-      $form->{'selectpaid_project_id_'. $i} =
-        NTI($cgi->popup_menu('-name' => "paid_project_id_$i",
-          '-values' => \@project_values,
-          '-labels' => \%project_labels,
-          '-default' => $form->{"paid_project_id_$i"}));
-    } else {
-      $form->{'labelpaid_project_id_'. $i} = $project_labels{$form->{'paid_project_id_'. $i}};
-    }
+    $form->{'labelpaid_project_id_'. $i} = $project_labels{$form->{'paid_project_id_'. $i}};
   }
 
   $form->{paid_missing} = $form->{invtotal_unformatted} - $form->{totalpaid};

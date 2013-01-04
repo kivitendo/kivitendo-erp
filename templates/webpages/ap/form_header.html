@@ -162,7 +162,9 @@
               </tr>
               <tr>
                 <th align="right" nowrap>[% 'Project Number' | $T8 %]</th>
-                <td>[% globalprojectnumber %]</td>
+                <td>
+                  [% L.select_tag('globalproject_id', ALL_PROJECTS, with_empty = 1, default = globalproject_id, value_key = 'id', title_key = 'projectnumber') %]
+                </td>
               </tr>
             </table>
           </td>
@@ -185,7 +187,10 @@
         [% FOREACH i IN [1..rowcount] %]
           <tr>
             <td>
-              [% temp = "selectAP_amount_"_ i %][% $temp %]
+              [% selected_accno_full = "selected_accno_full_"_ i %]
+              [% L.select_tag('AP_amount_'_ i, ALL_CHARTS_AP_amount, value_title_sub = \AP_amount_value_title_sub, onchange = 'setTaxkey(this, '_ i _')', default = $selected_accno_full) %]
+
+              <input type="hidden" name="previous_AP_amount_[% i %]" value="[% $selected_accno_full %]">
               <input type="hidden" name="tax_[% i %]" value="[% temp = "tax"_ i %][% $temp | html %]">
             </td>
             <td>
@@ -195,10 +200,12 @@
               [% temp = "tax_"_ i %][% $temp | html %]
             </td>
             <td>
-              [% temp = "select_tax_"_ i %][% $temp %]
+              [% temp = 'selected_taxchart_'_ i %]
+              [% L.select_tag('taxchart_'_ i, ALL_TAXCHARTS, value_title_sub = \taxchart_value_title_sub, default = $temp) %]
             </td>
             <td>
-              [% temp = "select_projectnumber_"_ i %][% $temp %]
+              [% temp = "project_id_"_ i %]
+              [% L.select_tag(temp, ALL_PROJECTS, with_empty = 1, default = loop.last ? globalproject_id : $temp, value_key = 'id', title_key = 'projectnumber') %]
             </td>
           </tr>
         [% END %]
@@ -209,7 +216,9 @@
           </td>
         </tr>
         <tr>
-          <td>[% APselected %]</td>
+          <td>
+            [% L.select_tag('APselected', ALL_CHARTS_AP, value_title_sub = \APselected_value_title_sub, default = APselected) %]
+          </td>
           <th align="left">[% invtotal | html %]</th>
           <td colspan="4"></td>
         </tr>
@@ -316,19 +325,17 @@
             [% temp = "AP_paid_"_ i %]
             <td align="center">
               [% IF( changeable ) %]
-                [% temp = "select"_ temp %]
-                [% $temp %]
+                [% L.select_tag(temp, ALL_CHARTS_AP_paid, value_title_sub = \AP_paid_value_title_sub, default = $temp) %]
               [% ELSE %]
                 [% $temp | html %]
                 <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
               [% END %]
             </td>
 
-            [% temp = "paid_project_id_"_ i %]
             <td align="center">
+              [% temp = "paid_project_id_"_ i %]
               [% IF( changeable ) %]
-                [% temp = "select"_ temp %]
-                [% $temp %]
+                [% L.select_tag(temp, ALL_PROJECTS, with_empty = 1, default = $temp, value_key = 'id', title_key = 'projectnumber') %]
               [% ELSE %]
                 <input type="hidden" name="[% temp %]" value="[% $temp | html %]">
                 [% temp = "label"_ temp %]
