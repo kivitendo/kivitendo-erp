@@ -4,7 +4,7 @@
 [%- USE LxERP %]
 
 [%- IF (num_follow_ups && num_due) %]
-  <p>[% 'There are #1 unfinished follow-ups of which #2 are due.' | $T8(num_follow_ups, num_due) %]</p>
+  <p>[% LxERP.t8('There are #1 unfinished follow-ups of which #2 are due.', num_follow_ups, num_due) %]</p>
 [%- END %]
 
 <input name=callback type=hidden value="[% callback | html %]">
