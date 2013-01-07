@@ -138,9 +138,15 @@ sub _flatten_variables_rec {
     foreach my $idx (0 .. scalar @{ $curr->{$key} } - 1) {
       my $first_array_entry = 1;
 
-      foreach my $hash_key (sort keys %{ $curr->{$key}->[$idx] }) {
-        push @result, $self->_flatten_variables_rec($curr->{$key}->[$idx], $prefix . $key . ($first_array_entry ? '[+].' : '[].'), $hash_key);
-        $first_array_entry = 0;
+      my $element = $curr->{$key}[$idx];
+
+      if ('HASH' eq ref $element) {
+        foreach my $hash_key (sort keys %{ $element }) {
+          push @result, $self->_flatten_variables_rec($element, $prefix . $key . ($first_array_entry ? '[+].' : '[].'), $hash_key);
+          $first_array_entry = 0;
+        }
+      } else {
+        @result = ({ 'key' => $prefix . $key . ($first_array_entry ? '[+]' : '[]'), 'value' => $element });
       }
     }
   }
