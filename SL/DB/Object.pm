@@ -120,6 +120,8 @@ sub save {
       1;
     };
     SL::DB::Object::Hooks::run_hooks($self, 'after_save', $result);
+
+    return $result;
   };
 
   $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
@@ -140,6 +142,8 @@ sub delete {
       1;
     };
     SL::DB::Object::Hooks::run_hooks($self, 'after_delete', $result);
+
+    return $result;
   };
 
   $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
