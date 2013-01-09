@@ -15,6 +15,7 @@ __PACKAGE__->meta->setup(
     profile_id => { type => 'integer', not_null => 1 },
     type       => { type => 'text', not_null => 1 },
     file       => { type => 'text', not_null => 1 },
+    numrows    => { type => 'integer' },
   ],
 
   primary_key_columns => [ 'id' ],

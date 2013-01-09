@@ -8,7 +8,8 @@ CREATE TABLE csv_import_reports (
   session_id           TEXT NOT NULL,
   profile_id           INTEGER NOT NULL REFERENCES csv_import_profiles(id),
   type                 TEXT NOT NULL,
-  file                 TEXT NOT NULL
+  file                 TEXT NOT NULL,
+  numrows              INTEGER NOT NULL,
 );
 
 CREATE TABLE csv_import_report_rows (
@@ -28,3 +29,5 @@ CREATE TABLE csv_import_report_status (
 );
 
 ALTER TABLE csv_import_profiles DROP constraint "csv_import_profiles_name_key";
+
+CREATE INDEX "csv_import_report_rows_index_row" ON csv_import_report_rows (row);

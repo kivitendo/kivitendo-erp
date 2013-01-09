@@ -130,7 +130,7 @@ sub action_report {
   my $report_id = $params{report_id} || $::form->{id};
 
   $self->{report}      = SL::DB::Manager::CsvImportReport->find_by(id => $report_id);
-  my $num_rows         = SL::DB::Manager::CsvImportReportRow->get_all_count(query => [ csv_import_report_id => $report_id ]);
+  my $num_rows         = $self->{report}->numrows;
   my $num_cols         = SL::DB::Manager::CsvImportReportRow->get_all_count(query => [ csv_import_report_id => $report_id, row => 0 ]);
 
   # manual paginating, yuck
@@ -141,7 +141,7 @@ sub action_report {
   $pages->{cur}             = $page < 1 ? 1
                             : $page > $pages->{max} ? $pages->{max}
                             : $page;
-  $pages->{common}          = SL::DB::Helper::Paginated::make_common_pages($pages->{cur}, $pages->{max});
+  $pages->{common}          = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{cur}, $pages->{max}) } ];
 
   $self->{display_rows} = [
     0,
@@ -380,6 +380,7 @@ sub save_report {
     profile    => $clone_profile,
     type       => $self->type,
     file       => '',
+    numrows    => scalar @{ $self->data },
   )->save(cascade => 1);
 
   my $dbh = $::form->get_standard_dbh;
