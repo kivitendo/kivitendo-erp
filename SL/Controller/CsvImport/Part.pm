@@ -110,7 +110,7 @@ sub check_objects {
   my $i;
   my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
-    $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 1000 == 0;
+    $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     $self->check_buchungsgruppe($entry);
     $self->check_type($entry);

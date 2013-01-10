@@ -106,6 +106,13 @@
 
   <h2>[%- LxERP.t8('Settings') %]</h2>
 
+  <div class="settings_toggle"[% UNLESS SELF.deferred || SELF.import_status %] style="display:none"[% END %]>
+   <a href="#" onClick="javascript:$('.settings_toggle').toggle()">[% LxERP.t8("Show settings") %]</a>
+  </div>
+
+  <div class="settings_toggle"[% IF SELF.deferred || SELF.import_status %] style="display:none"[% END %]>
+   <p><a href="#" onClick="javascript:$('.settings_toggle').toggle()">[% LxERP.t8("Hide settings") %]</a></p>
+
   <table>
    <tr>
     <th align="right">[%- LxERP.t8('Number Format') %]:</th>
@@ -220,6 +227,9 @@
    [%- END %]
 
   </table>
+
+  </div>
+  <hr>
 
   [% L.submit_tag('action_test', LxERP.t8('Test and preview')) %]
   [% L.submit_tag('action_import', LxERP.t8('Import'), style='display:none') %]

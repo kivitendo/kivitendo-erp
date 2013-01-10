@@ -8,6 +8,7 @@ use SL::DB::CsvImportReport;
 use SL::DB::Unit;
 use SL::DB::Helper::Paginated ();
 use SL::Helper::Flash;
+use SL::Locale::String;
 use SL::SessionFile;
 use SL::Controller::CsvImport::Contact;
 use SL::Controller::CsvImport::CustomerVendor;
@@ -100,6 +101,15 @@ sub action_result {
   if ($data->{progress}{finished} || $data->{errors}) {
     $self->render('csv_import/_deferred_report', { no_layout => 1 });
   } else {
+    if (!$self->task_server->is_running) {
+      $self->task_server->start;
+      $self->{status_text} = t8('Task Server is not running, starting it now. If this does not change, please check your task server config');
+    } elsif (my $phase = $data->{progress}{phase}) {
+      $self->{status_text} = "$data->{progress}{plan}{$phase} / $data->{progress}{num_phases} " . t8($phase);
+    } else {
+      $self->{status_text} = t8('Import not started yet, please wait...');
+    }
+
     $self->render('csv_import/_deferred_results', { no_layout => 1 });
   }
 }
@@ -130,6 +140,10 @@ sub action_report {
   my $report_id = $params{report_id} || $::form->{id};
 
   $self->{report}      = SL::DB::Manager::CsvImportReport->find_by(id => $report_id);
+
+  if (!$self->{report}) {
+    $::form->error(t8('No report with id #1', $report_id));
+  }
   my $num_rows         = $self->{report}->numrows;
   my $num_cols         = SL::DB::Manager::CsvImportReportRow->get_all_count(query => [ csv_import_report_id => $report_id, row => 0 ]);
 
@@ -384,7 +398,9 @@ sub save_report {
     type       => $self->type,
     file       => '',
     numrows    => scalar @{ $self->data },
-  )->save(cascade => 1);
+  );
+
+  $report->save(cascade => 1) or die $report->db->error;
 
   my $dbh = $::form->get_standard_dbh;
   $dbh->begin_work;
@@ -421,7 +437,7 @@ sub save_report {
   my $o2 = $o1 + @methods;
 
   for my $row (0 .. $#{ $self->data }) {
-    $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 100 == 0;
+    $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 1000 == 0;
     my $data_row = $self->{data}[$row];
 
     $sth->execute($report->id,       $_, $row + 1, $data_row->{info_data}{ $info_methods[$_] }) for 0 .. $#info_methods;
