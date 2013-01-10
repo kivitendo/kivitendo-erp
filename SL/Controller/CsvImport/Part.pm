@@ -110,7 +110,7 @@ sub check_objects {
   my $i;
   my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
-    $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
+    $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 1000 == 0;
 
     $self->check_buchungsgruppe($entry);
     $self->check_type($entry);
@@ -135,7 +135,7 @@ sub check_objects {
   $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw (price_factor payment partsgroup));
   $self->add_columns(qw(shop)) if $self->settings->{shoparticle_if_missing};
   $self->add_cvar_raw_data_columns;
-  map { $self->add_raw_data_columns("pricegroup_${_}") } (1..scalar(@{ $self->all_pricegroups }));
+  map { $self->add_raw_data_columns("pricegroup_${_}") if exists $self->controller->data->[0]->{raw_data}->{"pricegroup_$_"} } (1..scalar(@{ $self->all_pricegroups }));
   map { $self->add_raw_data_columns($_) if exists $self->controller->data->[0]->{raw_data}->{$_} } @{ $self->translation_columns };
   map { $self->add_raw_data_columns("make_${_}", "model_${_}", "lastcost_${_}") } sort { $a <=> $b } keys %{ $self->makemodel_columns };
 }
@@ -431,6 +431,8 @@ sub init_profile {
 
   my $profile = $self->SUPER::init_profile;
   delete @{$profile}{qw(alternate assembly bom expense_accno_id income_accno_id inventory_accno_id makemodel priceupdate stockable type)};
+
+  $profile->{"pricegroup_$_"} = '' for 1 .. scalar @{ $_[0]->all_pricegroups };
 
   return $profile;
 }
