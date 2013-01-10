@@ -6,6 +6,7 @@ use parent qw(Rose::Object Exporter);
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(untranslated) ],
+  array  => [ qw(args) ],
 );
 
 our @EXPORT = qw(t8);
@@ -14,12 +15,14 @@ use overload '""' => \&translated;
 
 sub translated {
   my ($self) = @_;
-  return $::locale ? $::locale->text($self->untranslated) : $self->untranslated;
+  return $::locale ? $::locale->text($self->untranslated, $self->args) : $self->untranslated;
 }
 
 sub t8 {
-  my $string = $_[ ref($_[0]) || ($_[0] eq 'SL::Locale::String') ? 1 : 0 ];
-  return SL::Locale::String->new(untranslated => $string);
+  shift if $_[0] eq __PACKAGE__;
+
+  my $string = shift;
+  return SL::Locale::String->new(untranslated => $string, args => \@_);
 }
 
 1;
