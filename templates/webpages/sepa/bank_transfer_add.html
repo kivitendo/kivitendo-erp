@@ -47,7 +47,7 @@
      <tr class="listrow[% loop.count % 2 %]">
       <td align="center">
        [%- IF invoice.vc_bank_info_ok %]
-        <input type="checkbox" name="bank_transfers[].selected" value="1">
+        <input type="checkbox" name="bank_transfers[].selected" value="1"[% IF invoice.checked %] checked[% END %]>
        [%- END %]
       </td>
       <td>

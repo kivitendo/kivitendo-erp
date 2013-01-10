@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
+[%- USE L %]
   <tr>
    <td>
     <table width="100%">
@@ -29,6 +30,8 @@
                  show_empty    = 1
                  allow_textbox = 0 -%]
           <script type='text/javascript'>$('#payment_id').change(function(){ if (this.value) set_duedate()})</script>
+          <br>
+          [%- L.checkbox_tag('direct_debit', 'checked', direct_debit, 'label', LxERP.t8('direct debit')) %]
          </td>
         </tr>
 [%- IF id && follow_ups.size %]

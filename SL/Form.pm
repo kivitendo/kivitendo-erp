@@ -2736,6 +2736,9 @@ sub create_links {
     $self->{TAX} = selectall_hashref_query($self, $dbh, $query);
   }
 
+  my $extra_columns = '';
+  $extra_columns   .= 'a.direct_debit, ' if $module eq 'AR';
+
   if ($self->{id}) {
     $query =
       qq|SELECT
@@ -2743,7 +2746,7 @@ sub create_links {
            a.duedate, a.ordnumber, a.taxincluded, a.curr AS currency, a.notes,
            a.intnotes, a.department_id, a.amount AS oldinvtotal,
            a.paid AS oldtotalpaid, a.employee_id, a.gldate, a.type,
-           a.globalproject_id,
+           a.globalproject_id, ${extra_columns}
            c.name AS $table,
            d.description AS department,
            e.name AS employee

@@ -56,6 +56,7 @@ __PACKAGE__->meta->setup(
     marge_percent             => { type => 'numeric', precision => 5, scale => 15 },
     donumber                  => { type => 'text' },
     invnumber_for_credit_note => { type => 'text' },
+    direct_debit              => { type => 'boolean', default => 'false' },
   ],
 
   primary_key_columns => [ 'id' ],
