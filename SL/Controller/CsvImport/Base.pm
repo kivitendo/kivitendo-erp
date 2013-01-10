@@ -235,7 +235,7 @@ sub init_profile {
     }
   }
 
-  $self->profile(\%profile);
+  \%profile;
 }
 
 sub add_displayable_columns {
