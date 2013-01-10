@@ -146,18 +146,13 @@ sub create_links {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  my ($duedate, $taxincluded);
-
   $form->create_links("AR", \%myconfig, "customer");
-  $duedate = $form->{duedate};
 
-  $taxincluded = $form->{taxincluded};
-  my $id = $form->{id};
+  my %saved = map { ($_ => $form->{$_}) } qw(direct_debit duedate id taxincluded);
+
   IS->get_customer(\%myconfig, \%$form);
-  $form->{taxincluded} = $taxincluded;
-  $form->{id} = $id;
 
-  $form->{duedate}     = $duedate if $duedate;
+  $form->{$_}          = $saved{$_} for keys %saved;
   $form->{oldcustomer} = "$form->{customer}--$form->{customer_id}";
   $form->{rowcount}    = 1;
 

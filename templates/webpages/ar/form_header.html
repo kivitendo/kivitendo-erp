@@ -80,7 +80,11 @@
               [%- END %]
               <tr>
                 <td align=right>[% L.checkbox_tag('taxincluded', checked=taxincluded) %]</td>
-                <th align=left nowrap>[% 'Tax Included' | $T8 %]</th>
+                <th align="left" nowrap><label for="taxincluded">[% 'Tax Included' | $T8 %]</label></th>
+              </tr>
+              <tr>
+                <td align="right">[% L.checkbox_tag('direct_debit', checked=direct_debit) %]</td>
+                <th align="left" nowrap><label for="direct_debit">[% 'direct debit' | $T8 %]</label></th>
               </tr>
             </table>
           </td>
