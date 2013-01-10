@@ -40,6 +40,8 @@ sub bank_transfer_add {
     return;
   }
 
+  $_->{checked} = $_->{direct_debit} for @{ $invoices };
+
   my $bank_account_label_sub = sub { $locale->text('Account number #1, bank code #2, #3', $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank}) };
 
   my $translation_list = GenericTranslations->list(translation_type => 'sepa_remittance_info_pfx');
