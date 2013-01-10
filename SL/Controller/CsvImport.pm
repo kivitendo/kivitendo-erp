@@ -26,7 +26,7 @@ use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(type profile file all_profiles all_charsets sep_char all_sep_chars quote_char all_quote_chars escape_char all_escape_chars all_buchungsgruppen all_units
                                  import_status errors headers raw_data_headers info_headers data num_imported num_importable displayable_columns file) ],
- 'scalar --get_set_init' => [ qw(worker) ],
+ 'scalar --get_set_init' => [ qw(worker task_server) ],
  'array'                 => [
    progress_tracker     => { },
    add_progress_tracker => {  interface => 'add', hash_key => 'progress_tracker' },
@@ -263,8 +263,11 @@ sub test_and_import_deferred {
     test    => $params{test},
   )->save;
 
-  SL::System::TaskServer->start_if_not_running;
-  SL::System::TaskServer->wake_up;
+  if ($self->task_server->is_running) {
+    $self->task_server->wake_up;
+  } else {
+    $self->task_server->start;
+  }
 
   flash('info', $::locale->text('Your import is beig processed.'));
 
@@ -470,6 +473,9 @@ sub track_progress {
   }
 }
 
+sub init_task_server {
+  SL::System::TaskServer->new;
+}
 
 sub cleanup_reports {
   SL::DB::Manager::CsvImportReport->cleanup;
