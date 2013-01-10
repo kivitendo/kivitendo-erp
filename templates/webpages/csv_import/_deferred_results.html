@@ -26,7 +26,7 @@
   $(document).ready(function(){
     $('#progress_description').html('[% SELF.background_job.data_as_hash.progress.plan.${SELF.background_job.data_as_hash.progress.phase} %] / [% SELF.background_job.data_as_hash.progress.num_phases %] [% SELF.background_job.data_as_hash.progress.phase | $T8 | html %]');
     $('#progressbar').progressbar({ value: [% SELF.background_job.data_as_hash.progress.progress * 1 %] });
-    window.setTimeout(reload_results, 100);
+    window.setTimeout(reload_results, 500);
   })
 [%- END %]
 </script>
