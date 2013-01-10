@@ -258,10 +258,10 @@
      </tr>
 
      <tr>
-      <td align="right">[% 'Obsolete' | $T8 %]</td>
-      <td><input name="obsolete" class="checkbox" type="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
-      <td align="right">[% 'direct debit' | $T8 %]</td>
-      <td><input name="direct_debit" class="checkbox" type="checkbox" value="1" [% IF direct_debit %]checked[% END %]></td>
+      <td align="right"><label for="obsolete">[% 'Obsolete' | $T8 %]</label></td>
+      <td><input name="obsolete" id="obsolete" class="checkbox" type="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
+      <td align="right"><label for="direct_debit">[% 'direct debit' | $T8 %]</label></td>
+      <td><input name="direct_debit" id="direct_debit" class="checkbox" type="checkbox" value="1" [% IF direct_debit %]checked[% END %]></td>
      </tr>
 
      <tr>
