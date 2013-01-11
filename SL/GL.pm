@@ -664,12 +664,26 @@ sub transaction {
            (SELECT c1.accno
             FROM chart c1, tax t1
             WHERE (t1.id = t.id) AND (c1.id = t.chart_id)) AS taxaccno,
-            a.tax_id AS tax_id
+           (SELECT tk.tax_id
+            FROM taxkeys tk
+            WHERE (tk.chart_id = a.chart_id) AND (tk.startdate <= a.transdate)
+            ORDER BY tk.startdate desc LIMIT 1) AS tax_id
          FROM acc_trans a
          JOIN chart c ON (c.id = a.chart_id)
          LEFT JOIN project p ON (p.id = a.project_id)
          LEFT JOIN tax t ON
-           (t.id = a.tax_id)
+           (t.id =
+             (SELECT tk.tax_id
+              FROM taxkeys tk
+              WHERE (tk.taxkey_id = a.taxkey) AND
+                ((CASE WHEN a.chart_id IN
+                    (SELECT chart_id FROM taxkeys WHERE taxkey_id = a.taxkey)
+                  THEN tk.chart_id = a.chart_id
+                  ELSE 1 = 1
+                  END)
+                 OR (c.link LIKE '%tax%'))
+                AND (startdate <= a.transdate)
+              ORDER BY startdate DESC LIMIT 1))
          WHERE (a.trans_id = ?)
            AND (a.fx_transaction = '0')
          ORDER BY a.acc_trans_id, a.transdate|;
