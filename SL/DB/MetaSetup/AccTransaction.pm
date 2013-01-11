@@ -26,10 +26,11 @@ __PACKAGE__->meta->setup(
     taxkey         => { type => 'integer' },
     itime          => { type => 'timestamp', default => 'now()' },
     mtime          => { type => 'timestamp' },
-    tax_id         => { type => 'integer', not_null => 1 },
   ],
 
   primary_key_columns => [ 'acc_trans_id' ],
+
+  allow_inline_column_values => 1,
 
   foreign_keys => [
     chart => {
