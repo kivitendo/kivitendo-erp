@@ -1,5 +1,7 @@
 [%- USE HTML %]
 [%- USE T8 %]
+[%- USE L %]
+[%- USE LxERP %]
  <form method="post" action="ct.pl" name="Form">
 
   <input type="hidden" name="db" value="[% db | html %]">
@@ -110,6 +112,11 @@
         <input name="l.cp_abteilung" id="l_cp_abteilung" type="checkbox" class="checkbox" value="Y">
         <label for="l_cp_abteilung">[% 'Department' | $T8 %]</label>
        </td>
+
+       <td>[% L.checkbox_tag('l.cp_function', value='Y', label=LxERP.t8('Function/position'), class='checkbox') %]</td>
+      </tr>
+
+      <tr>
        <td>
         <input name="l.cp_gender" id="l_cp_gender" type="checkbox" class="checkbox" value="Y">
         <label for="l_cp_gender">[% 'Gender' | $T8 %]</label>
@@ -127,4 +134,3 @@
 
   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
  </form>
-

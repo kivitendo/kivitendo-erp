@@ -913,6 +913,7 @@ $self->{texts} = {
   'Full Access'                 => 'Vollzugriff',
   'Full Preview'                => 'Alles',
   'Full access to all functions' => 'Vollzugriff auf alle Funktionen',
+  'Function/position'           => 'Funktion/Position',
   'Fwd'                         => 'Vorw&auml;rts',
   'GL Transaction'              => 'Dialogbuchung',
   'GL transactions changeable'  => 'Änderbarkeit von Dialogbuchungen',

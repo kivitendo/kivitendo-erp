@@ -36,6 +36,11 @@
      </tr>
 
      <tr>
+      <th align="left" nowrap>[% 'Function/position' | $T8 %]</th>
+      <td>[% L.input_tag('cp_function', cp_function, size=40) %]</td>
+     </tr>
+
+     <tr>
       <th align="left" nowrap>[% 'Given Name' | $T8 %]</th>
       <td><input id="cp_givenname" name="cp_givenname" size="40" maxlength="75" value="[% HTML.escape(cp_givenname) %]"></td>
      </tr>

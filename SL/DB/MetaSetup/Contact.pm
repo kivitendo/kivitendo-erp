@@ -34,6 +34,7 @@ __PACKAGE__->meta->setup(
     cp_zipcode     => { type => 'text' },
     cp_city        => { type => 'text' },
     cp_birthday    => { type => 'date' },
+    cp_function    => { type => 'text' },
   ],
 
   primary_key_columns => [ 'cp_id' ],
