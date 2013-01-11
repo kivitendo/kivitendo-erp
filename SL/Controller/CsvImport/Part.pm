@@ -4,6 +4,7 @@ use strict;
 
 use SL::Helper::Csv;
 
+use SL::DBUtils;
 use SL::DB::Buchungsgruppe;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
@@ -60,13 +61,19 @@ sub init_units_by {
 sub init_parts_by {
   my ($self) = @_;
 
-  my $parts_by = { id         => { map { ( $_->id => $_ ) } grep { !$_->assembly } @{ $self->existing_objects } },
-                   partnumber => { part    => { },
-                                   service => { } } };
+#  my $parts_by = { id         => { map { ( $_->id => $_ ) } grep { !$_->assembly } @{ $self->existing_objects } },
+#                   partnumber => { part    => { },
+#                                   service => { } } };
+#
+#  foreach my $part (@{ $self->existing_objects }) {
+#    next if $part->assembly;
+#    $parts_by->{partnumber}->{ $part->type }->{ $part->partnumber } = $part;
+#  }
 
-  foreach my $part (@{ $self->existing_objects }) {
-    next if $part->assembly;
-    $parts_by->{partnumber}->{ $part->type }->{ $part->partnumber } = $part;
+  my $parts_by = {};
+  my $sth = prepare_execute_query($::form, $::form->get_standard_dbh, 'SELECT partnumber FROM parts');
+  while (my ($partnumber) = $sth->fetchrow_array()) {
+    $parts_by->{partnumber}{$partnumber} = 1;
   }
 
   return $parts_by;
@@ -196,12 +203,17 @@ sub check_existing {
 
   my $object = $entry->{object};
 
-  $entry->{part} = SL::DB::Manager::Part->find_by(
-    SL::DB::Manager::Part->type_filter($object->type),
-    ( partnumber => $object->partnumber )                 x!! $object->partnumber,
-  );
+  if (!$self->test_run && $object->partnumber && $self->parts_by->{partnumber}{$object->partnumber}) {
+    $entry->{part} = SL::DB::Manager::Part->find_by(
+      SL::DB::Manager::Part->type_filter($object->type),
+      ( partnumber => $object->partnumber )                 x!! $object->partnumber,
+    );
+  }
 
   if ($self->settings->{article_number_policy} eq 'update_prices') {
+    if ($object->partnumber && $self->parts_by->{partnumber}{$object->partnumber}) {
+      push @{ $entry->{information} }, $::locale->text('Updating prices of existing entry in database');
+    }
     if ($entry->{part}) {
       map { $entry->{part}->$_( $object->$_ ) if defined $object->$_ } qw(sellprice listprice lastcost);
 

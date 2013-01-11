@@ -305,7 +305,7 @@ sub test_and_import {
 
   my $worker = $self->worker();
 
-  $worker->run;
+  $worker->run(%params);
 
   return if $self->errors;
 

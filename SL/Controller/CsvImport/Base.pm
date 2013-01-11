@@ -15,12 +15,14 @@ use parent qw(Rose::Object);
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar                  => [ qw(controller file csv save_with_cascade) ],
+ scalar                  => [ qw(controller file csv test_run save_with_cascade) ],
  'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by all_vc vc_by) ],
 );
 
 sub run {
-  my ($self) = @_;
+  my ($self, %params) = @_;
+
+  $self->test_run($params{test_run});
 
   $self->controller->track_progress(phase => 'parsing csv', progress => 0);
 
