@@ -13,6 +13,8 @@ use SL::Controller::CsvImport::CustomerVendor;
 use SL::Controller::CsvImport::Part;
 use SL::Controller::CsvImport::Shipto;
 use SL::Controller::CsvImport::Project;
+use SL::BackgroundJob::CsvImport;
+use SL::System::TaskServer;
 
 use List::MoreUtils qw(none);
 
@@ -43,12 +45,12 @@ sub action_new {
 
 sub action_test {
   my ($self) = @_;
-  $self->test_and_import(test => 1);
+  $self->test_and_import_deferred(test => 1);
 }
 
 sub action_import {
   my $self = shift;
-  $self->test_and_import(test => 0);
+  $self->test_and_import_deferred(test => 0);
 }
 
 sub action_save {
@@ -69,6 +71,29 @@ sub action_destroy {
 
   flash_later('info', $::locale->text('The profile \'#1\' has been deleted.', $profile->name));
   $self->redirect_to(action => 'new', 'profile.type' => $self->type);
+}
+
+sub action_result {
+  my $self = shift;
+
+  # load resultobject
+  $self->{background_job} = SL::DB::Manager::BackgroundJob->find_by(id => $::form->{job});
+
+  my $data = $self->{background_job}->data_as_hash;
+
+  my $profile = SL::DB::CsvImportProfile->new(type => $data->{type});
+  my $profile_data = $data->{profile};
+  for (keys %$profile_data) {
+    $profile->set($_ => $profile_data->{$_});
+  }
+
+  $self->profile($profile);
+
+  if ($data->{progress} < 100) {
+    $self->render('csv_import/_deferred_results', { no_layout => 1 });
+  } else {
+   die 'what? done? panic, no idea what to do';
+  }
 }
 
 sub action_download_sample {
@@ -157,6 +182,33 @@ sub render_inputs {
   $self->render('csv_import/form', title => $title);
 }
 
+sub test_and_import_deferred {
+  my ($self, %params) = @_;
+
+  $self->profile_from_form;
+
+  if ($::form->{file}) {
+    my $file = SL::SessionFile->new($self->csv_file_name, mode => '>');
+    $file->fh->print($::form->{file});
+    $file->fh->close;
+  }
+
+  $self->{background_job} = SL::BackgroundJob::CsvImport->create_job(
+    file    => $self->csv_file_name,
+    profile => $self->profile,
+    type    => $self->profile->type,
+  )->save;
+
+  SL::System::TaskServer->start_if_not_running;
+  SL::System::TaskServer->wake_up;
+
+  flash('info', $::locale->text('Your import is beig processed.'));
+
+  $self->{deferred} = 1;
+
+  $self->render_inputs;
+}
+
 sub test_and_import {
   my ($self, %params) = @_;
 
@@ -189,8 +241,6 @@ sub test_and_import {
   $self->import_status($params{test} ? 'tested' : 'imported');
 
   flash('info', $::locale->text('Objects have been imported.')) if !$params{test};
-
-  $self->action_new;
 }
 
 sub load_default_profile {

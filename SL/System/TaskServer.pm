@@ -43,6 +43,12 @@ sub start {
   return $self->_run_script_command('start');
 }
 
+sub start_if_not_running {
+  my ($self) = @_;
+
+  $self->start unless $self->is_running;
+}
+
 sub stop {
   my ($self) = @_;
 

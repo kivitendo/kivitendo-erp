@@ -105,6 +105,14 @@ sub clone_and_reset_deep {
   return $clone;
 }
 
+sub flatten {
+  my ($self) = @_;
+
+  return map {
+    $_->key => $_->value
+  } $self->settings;
+}
+
 #
 # hooks
 #

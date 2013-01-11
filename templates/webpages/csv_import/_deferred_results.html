@@ -1,0 +1,21 @@
+<div id='progressbar'></div>
+[% IF progress < 100 %]
+<script type='text/javascript'>
+  function reload_results () {
+    $.ajax({
+      url: 'controller.pl',
+      data: {
+        action: 'CsvImport/result',
+        'profile.type': '[% SELF.profile.type %]',
+        job: '[% SELF.background_job.id %]'
+      },
+      success: function(data) { $('#results').html(data) },
+      error: function(e) { alert(e) },
+    });
+  }
+  $(document).ready(function(){
+    $('#progressbar').progressbar({ value: [% progress * 1 %] });
+    window.setTimeout(reload_results, 2000);
+  })
+</script>
+[% END %]
