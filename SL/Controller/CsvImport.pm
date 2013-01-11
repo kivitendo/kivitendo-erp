@@ -38,6 +38,7 @@ __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('ensure_form_structure');
 __PACKAGE__->run_before('check_type', except => [ qw(report) ]);
 __PACKAGE__->run_before('load_all_profiles');
+__PACKAGE__->run_before('check_task_server');
 
 __PACKAGE__->run_after('cleanup_reports');
 
@@ -495,6 +496,14 @@ sub init_task_server {
 
 sub cleanup_reports {
   SL::DB::Manager::CsvImportReport->cleanup;
+}
+
+sub check_task_server {
+  return 1 if $_[0]->task_server->is_running;
+
+  flash('info', t8('The task server is not running at the moment but needed for this module'));
+
+  1;
 }
 
 1;

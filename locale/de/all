@@ -10,6 +10,7 @@ use utf8;
 # run locales.pl from this directory to rebuild the translation files
 
 $self->{texts} = {
+  ' Accounts Payables Transaction' => '',
   ' Date missing!'              => ' Datum fehlt!',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   ' missing!'                   => ' fehlt!',
@@ -1254,6 +1255,7 @@ $self->{texts} = {
   'No payment term has been created yet.' => 'Es wurden noch keine Zahlungsbedingungen angelegt.',
   'No prices will be updated because no prices have been entered.' => 'Es werden keine Preise aktualisiert, weil keine gültigen Preisänderungen eingegeben wurden.',
   'No problems were recognized.' => 'Es wurden keine Probleme gefunden.',
+  'No report with id #1'        => 'Es gibt keinen Report mit der Id #1',
   'No shipto selected to delete' => 'Keine Lieferadresse zum Löschen ausgewählt',
   'No transaction selected!'    => 'Keine Transaktion ausgewählt',
   'No transfers were executed in this export.' => 'In diesem SEPA-Export wurden keine Überweisungen ausgeführt.',
@@ -2011,6 +2013,7 @@ $self->{texts} = {
   'The tabulator character'     => 'Das Tabulator-Symbol',
   'The task server does not appear to be running.' => 'Der Task-Server scheint nicht zu laufen.',
   'The task server is already running.' => 'Der Task-Server läuft bereits.',
+  'The task server is not running at the moment but needed for this module' => 'Der Taskserver wird für dieses Modul benötigt, läuft aber im Moment nicht.',
   'The task server is not running.' => 'Der Task-Server läuft nicht.',
   'The task server was started successfully.' => 'Der Task-Server wurde erfolgreich gestartet.',
   'The task server was stopped successfully.' => 'Der Task-Server wurde erfolgreich beendet.',
@@ -2318,7 +2321,6 @@ $self->{texts} = {
   'bis'                         => 'bis',
   'building data'               => 'Verarbeite Daten',
   'building report'             => 'Erstelle Bericht',
-  'button'                      => '?',
   'cash'                        => 'Ist-Versteuerung',
   'chargenumber #1'             => 'Chargennummer #1',
   'chart_of_accounts'           => 'kontenuebersicht',
