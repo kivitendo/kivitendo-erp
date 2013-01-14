@@ -293,3 +293,7 @@ restart_fcgi_process_on_changes = 0
 
 # The file name where the debug messages are written to.
 file_name = /tmp/kivitendo-debug.log
+
+# If set to 1 then the installation will be kept unlocked even if a
+# database upgrade fails.
+keep_installation_unlocked = 0

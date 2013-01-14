@@ -149,7 +149,7 @@ sub login {
       }
 
       # update the tables
-      if (!open(FH, ">", $::lx_office_conf{paths}->{userspath} . "/nologin")) {
+      if (!$::lx_office_conf{debug}->{keep_installation_unlocked} && !open(FH, ">", $::lx_office_conf{paths}->{userspath} . "/nologin")) {
         $form->show_generic_error($main::locale->text('A temporary file could not be created. ' .
                                                       'Please verify that the directory "#1" is writeable by the webserver.',
                                                       $::lx_office_conf{paths}->{userspath}),
@@ -783,4 +783,3 @@ sub data {
 }
 
 1;
-
