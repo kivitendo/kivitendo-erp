@@ -303,7 +303,7 @@ sub list_contacts {
 
   my @columns      = qw(
     cp_id vcname vcnumber cp_name cp_givenname cp_street cp_zipcode cp_city cp_phone1 cp_phone2
-    cp_mobile1 cp_mobile2 cp_email cp_abteilung cp_function cp_birthday cp_gender
+    cp_mobile1 cp_mobile2 cp_email cp_abteilung cp_position cp_birthday cp_gender
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -336,7 +336,7 @@ sub list_contacts {
     'cp_mobile2'   => { 'text' => $::locale->text('Mobile2'), },
     'cp_email'     => { 'text' => $::locale->text('E-mail'), },
     'cp_abteilung' => { 'text' => $::locale->text('Department'), },
-    'cp_function'  => { 'text' => $::locale->text('Function/position'), },
+    'cp_position'  => { 'text' => $::locale->text('Function/position'), },
     'cp_birthday'  => { 'text' => $::locale->text('Birthday'), },
     'cp_gender'    => { 'text' => $::locale->text('Gender'), },
     %column_defs_cvars,
