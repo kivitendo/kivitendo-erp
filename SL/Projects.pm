@@ -94,6 +94,23 @@ sub search_projects {
     push @filters, 'NOT COALESCE(p.active, FALSE)';
   }
 
+  if ($params{valid} eq "valid") {
+    push @filters, 'p.valid';
+
+  } elsif ($params{valid} eq "invalid") {
+    push @filters, 'NOT COALESCE(p.valid, FALSE)';
+  }
+
+  if ($params{customer}) {
+    push @filters, 'c.name ILIKE ?';
+    push @values,  '%' . $params{customer} . '%';
+  }
+
+  if ($params{type}) {
+    push @filters, 'p.type ILIKE ?';
+    push @values,  '%' . $params{type} . '%';
+  }
+
   my ($cvar_where, @cvar_values) = CVar->build_filter_query('module'         => 'Projects',
                                                             'trans_id_field' => 'p.id',
                                                             'filter'         => $form);
@@ -108,8 +125,10 @@ sub search_projects {
 
   my $sortorder =  $params{sort} ? $params{sort} : "projectnumber";
   $sortorder    =~ s/[^a-z_]//g;
-  my $query     = qq|SELECT p.id, p.projectnumber, p.description, p.active
+  my $query     = qq|SELECT p.id, p.projectnumber, p.description, p.active, p.valid, p.type,
+                       c.name AS customer
                      FROM project p
+                     LEFT JOIN customer c ON (p.customer_id = c.id)
                      $where
                      ORDER BY $sortorder|;
 
@@ -180,10 +199,13 @@ sub save_project {
     $params{active} = 1;
   }
 
-  my $query  = qq|UPDATE project SET projectnumber = ?, description = ?, active = ?
-               WHERE id = ?|;
+  my $query  = <<SQL;
+    UPDATE project
+    SET projectnumber = ?, description = ?, active = ?, customer_id = ?, type = ?, valid = ?
+    WHERE id = ?
+SQL
 
-  @values = ($params{projectnumber}, $params{description}, $params{active} ? 't' : 'f', conv_i($params{id}));
+  @values = ($params{projectnumber}, $params{description}, $params{active} ? 't' : 'f', conv_i($params{customer_id}), $params{type}, $params{valid} ? 't' : 'f', conv_i($params{id}));
   do_query($form, $dbh, $query, @values);
 
   CVar->save_custom_variables('dbh'       => $dbh,
@@ -220,4 +242,3 @@ sub delete_project {
 }
 
 1;
-

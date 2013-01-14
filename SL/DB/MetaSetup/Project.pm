@@ -16,6 +16,9 @@ __PACKAGE__->meta->setup(
     itime         => { type => 'timestamp', default => 'now()' },
     mtime         => { type => 'timestamp' },
     active        => { type => 'boolean', default => 'true' },
+    customer_id   => { type => 'integer' },
+    type          => { type => 'text' },
+    valid         => { type => 'boolean', default => 'true' },
   ],
 
   primary_key_columns => [ 'id' ],
@@ -23,6 +26,13 @@ __PACKAGE__->meta->setup(
   unique_key => [ 'projectnumber' ],
 
   allow_inline_column_values => 1,
+
+  foreign_keys => [
+    customer => {
+      class       => 'SL::DB::Customer',
+      key_columns => { customer_id => 'id' },
+    },
+  ],
 );
 
 1;

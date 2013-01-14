@@ -16,6 +16,16 @@
      <td><input name="filter.description" size="60"></td>
     </tr>
 
+    <tr>
+     <th align="right">[% 'Customer' | $T8 %]</th>
+     <td><input name="filter.customer" size="60"></td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Type' | $T8 %]</th>
+     <td><input name="filter.type" size="60"></td>
+    </tr>
+
     [% CUSTOM_VARIABLES_FILTER_CODE %]
 
     <tr>
@@ -34,6 +44,21 @@
         <td>
          <input type="radio" name="filter.active" id="active_both" value="both">
          <label for="active_both">[% 'Both' | $T8 %]</label>
+        </td>
+       </tr>
+
+       <tr>
+        <td>
+         <input type="radio" name="filter.valid" id="valid_valid" value="valid" checked>
+         <label for="valid_valid">[% 'Valid' | $T8 %]</label>
+        </td>
+        <td>
+         <input type="radio" name="filter.valid" id="valid_invalid" value="invalid">
+         <label for="valid_invalid">[% 'Invalid' | $T8 %]</label>
+        </td>
+        <td>
+         <input type="radio" name="filter.valid" id="valid_both" value="both">
+         <label for="valid_both">[% 'Both' | $T8 %]</label>
         </td>
        </tr>
 
@@ -64,4 +89,3 @@
    <input class="submit" type="submit" name="action" value="[% 'Continue' | $T8 %]">
   </p>
  </form>
-

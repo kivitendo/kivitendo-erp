@@ -118,7 +118,7 @@ sub project_report {
 
   my $report       = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my @columns      = qw(projectnumber description active);
+  my @columns      = qw(projectnumber description customer type active valid);
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
   my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs };
@@ -144,11 +144,14 @@ sub project_report {
   my %column_defs  = (
     'projectnumber'            => { 'text' => $locale->text('Number'), },
     'description'              => { 'text' => $locale->text('Description'), },
+    'customer'                 => { 'text' => $locale->text('Customer'), },
+    'type'                     => { 'text' => $locale->text('Type'), },
     'active'                   => { 'text' => $locale->text('Active'), 'visible' => 'both' eq $filter->{active}, },
+    'valid'                    => { 'text' => $locale->text('Valid'),  'visible' => 'both' eq $filter->{active}, },
     %column_defs_cvars,
     );
 
-  foreach (qw(projectnumber description)) {
+  foreach (qw(projectnumber description customer type)) {
     $column_defs{$_}->{link}    = $href . "&sort=$_";
     $column_defs{$_}->{visible} = 1;
   }
@@ -171,7 +174,9 @@ sub project_report {
   push @options, $locale->text('All')                                            if ($filter->{all});
   push @options, $locale->text('Orphaned')                                       if ($filter->{orphaned});
   push @options, $locale->text('Project Number') . " : $filter->{projectnumber}" if ($filter->{projectnumber});
-  push @options, $locale->text('Description') . " : $filter->{description}"      if ($filter->{description});
+  push @options, $locale->text('Description')    . " : $filter->{description}"   if ($filter->{description});
+  push @options, $locale->text('Customer')       . " : $filter->{customer}"      if ($filter->{customer});
+  push @options, $locale->text('Type')           . " : $filter->{type}"          if ($filter->{type});
   push @options, $locale->text('Active')                                         if ($filter->{active} eq 'active');
   push @options, $locale->text('Inactive')                                       if ($filter->{active} eq 'inactive');
   push @options, $locale->text('Orphaned')                                       if ($filter->{status} eq 'orphaned');
@@ -197,6 +202,7 @@ sub project_report {
 
   foreach my $project (@{ $form->{project_list} }) {
     $project->{active} = $project->{active} ? $locale->text('Yes')  : $locale->text('No');
+    $project->{valid}  = $project->{valid} ? $locale->text('Yes')  : $locale->text('No');
 
     my $row = { map { $_ => { 'data' => $project->{$_} } } keys %{ $project } };
 
@@ -222,6 +228,7 @@ sub display_project_form {
 
   $form->{title}     = $form->{project}->{id} ? $locale->text("Edit Project") : $locale->text("Add Project");
 
+  $form->{ALL_CUSTOMERS}    = SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, id => $form->{project}->{customer_id} ]]);
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'Projects', 'trans_id' => $form->{project}->{id});
 #  $main::lxdebug->dump(0, "cv", $form->{CUSTOM_VARIABLES});
   CVar->render_inputs('variables' => $form->{CUSTOM_VARIABLES}) if (scalar @{ $form->{CUSTOM_VARIABLES} });

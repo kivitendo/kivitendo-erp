@@ -29,7 +29,7 @@
     <table>
      <tr>
       <th align="right">[% 'Number' | $T8 %]</th>
-      <td><input name="project.projectnumber" size="20" value="[% HTML.escape(project.projectnumber) %]"></td>
+      <td><input name="project.projectnumber" size="60" value="[% HTML.escape(project.projectnumber) %]"></td>
      </tr>
 
      <tr>
@@ -44,13 +44,25 @@
       </td>
      </tr>
 
+     <tr>
+      <th align="right">[% 'Type' | $T8 %]</th>
+      <td>[% L.input_tag('project.type', project.type, size=60) %]</td>
+     </tr>
+
+     <tr>
+      <th align="right">[% 'Customer' | $T8 %]</th>
+      <td>[% L.select_tag('project.customer_id', ALL_CUSTOMERS, default=project.customer_id, title_key='name', style='width: 300px') %]</td>
+     </tr>
+
+     <tr>
+      <th align="right">[% 'Valid' | $T8 %]</th>
+      <td>[% L.select_tag('project.valid', [ [ 1, LxERP.t8('Valid') ], [ 0, LxERP.t8('Invalid') ] ], default=project.valid, style='width: 300px') %]</td>
+     </tr>
+
      [%- IF project.id %]
      <tr>
-      <th align="right">&nbsp;</th>
-      <td>
-       <input type="radio" name="project.active" id="active_1" value="1"[% IF project.active %] checked[% END %]><label for="active_1">[% 'Active' | $T8 %]</label>
-       <input type="radio" name="project.active" id="active_0" value="0"[% IF !project.active %] checked[% END %]><label for="active_0">[% 'Inactive' | $T8 %]</label>
-      </td>
+      <th align="right">[% 'Active' | $T8 %]</th>
+      <td>[% L.select_tag('project.active', [ [ 1, LxERP.t8('Active') ], [ 0, LxERP.t8('Inactive') ] ], default=project.valid, style='width: 300px') %]</td>
      </tr>
      [%- END %]
     </table>
