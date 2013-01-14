@@ -9,7 +9,7 @@ CREATE TABLE csv_import_reports (
   profile_id           INTEGER NOT NULL REFERENCES csv_import_profiles(id),
   type                 TEXT NOT NULL,
   file                 TEXT NOT NULL,
-  numrows              INTEGER NOT NULL,
+  numrows              INTEGER NOT NULL
 );
 
 CREATE TABLE csv_import_report_rows (
