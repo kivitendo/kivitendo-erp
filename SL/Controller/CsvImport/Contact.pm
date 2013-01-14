@@ -116,6 +116,7 @@ sub setup_displayable_columns {
                                  { name => 'cp_satfax',      description => $::locale->text('Sat. Fax')                      },
                                  { name => 'cp_satphone',    description => $::locale->text('Sat. Phone')                    },
                                  { name => 'cp_title',       description => $::locale->text('Title')                         },
+                                 { name => 'cp_position',    description => $::locale->text('Function/Position')             },
 
                                  { name => 'customer',       description => $::locale->text('Customer (name)')               },
                                  { name => 'customernumber', description => $::locale->text('Customer Number')               },
