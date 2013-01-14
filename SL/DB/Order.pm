@@ -31,11 +31,6 @@ __PACKAGE__->meta->add_relationship(
     class                  => 'SL::DB::PeriodicInvoicesConfig',
     column_map             => { id => 'oe_id' },
   },
-  periodic_invoices        => {
-    type                   => 'one to many',
-    class                  => 'SL::DB::PeriodicInvoice',
-    column_map             => { id => 'oe_id' },
-  },
   payment_term => {
     type       => 'one to one',
     class      => 'SL::DB::PaymentTerm',
