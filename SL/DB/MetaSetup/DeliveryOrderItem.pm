@@ -55,6 +55,11 @@ __PACKAGE__->meta->setup(
       key_columns => { price_factor_id => 'id' },
     },
 
+    pricegroup => {
+      class       => 'SL::DB::Pricegroup',
+      key_columns => { pricegroup_id => 'id' },
+    },
+
     project => {
       class       => 'SL::DB::Project',
       key_columns => { project_id => 'id' },

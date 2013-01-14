@@ -707,9 +707,13 @@ sub post_invoice {
         }
       }
 
-      # get pricegroup_id and save it
+      # Get pricegroup_id and save it. Unfortunately the interface
+      # also uses ID "0" for signalling that none is selected, but "0"
+      # must not be stored in the database. Therefore we cannot simply
+      # use conv_i().
       ($null, my $pricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
       $pricegroup_id *= 1;
+      $pricegroup_id  = undef if !$pricegroup_id;
 
       my ($invoice_id) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('invoiceid')|);
 
@@ -729,7 +733,7 @@ sub post_invoice {
                  $form->{"sellprice_$i"}, $fxsellprice,
                  $form->{"discount_$i"}, $allocated, 'f',
                  $form->{"unit_$i"}, conv_date($form->{"reqdate_$i"}), conv_i($form->{"project_id_$i"}),
-                 $form->{"serialnumber_$i"}, conv_i($pricegroup_id),
+                 $form->{"serialnumber_$i"}, $pricegroup_id,
                  $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
                  $form->{"cusordnumber_$i"}, $baseqty, $form->{"subtotal_$i"} ? 't' : 'f',
                  $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},

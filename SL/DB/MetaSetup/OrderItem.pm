@@ -48,6 +48,26 @@ __PACKAGE__->meta->setup(
       class       => 'SL::DB::Part',
       key_columns => { parts_id => 'id' },
     },
+
+    price_factor_obj => {
+      class       => 'SL::DB::PriceFactor',
+      key_columns => { price_factor_id => 'id' },
+    },
+
+    pricegroup => {
+      class       => 'SL::DB::Pricegroup',
+      key_columns => { pricegroup_id => 'id' },
+    },
+
+    project => {
+      class       => 'SL::DB::Project',
+      key_columns => { project_id => 'id' },
+    },
+
+    trans => {
+      class       => 'SL::DB::Order',
+      key_columns => { trans_id => 'id' },
+    },
   ],
 );
 

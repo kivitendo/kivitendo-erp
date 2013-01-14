@@ -12,6 +12,13 @@ use SL::DB::Helper::CustomVariables (
 );
 
 __PACKAGE__->meta->make_manager_class;
+__PACKAGE__->meta->add_relationship(
+  unit_obj       => {
+    type         => 'one to one',
+    class        => 'SL::DB::Unit',
+    column_map   => { unit => 'name' },
+  },
+);
 
 __PACKAGE__->meta->initialize;
 
@@ -19,7 +26,7 @@ __PACKAGE__->meta->initialize;
 
 sub part {
   # canonial alias for parts.
-  return shift->parts;
+  goto &parts;
 }
 
 1;

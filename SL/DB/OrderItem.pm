@@ -16,25 +16,10 @@ use SL::DB::Helper::CustomVariables (
 );
 
 __PACKAGE__->meta->add_relationship(
-  part => {
-    type         => 'one to one',
-    class        => 'SL::DB::Part',
-    column_map   => { parts_id => 'id' },
-  },
-  price_factor_obj => {
-    type           => 'one to one',
-    class          => 'SL::DB::PriceFactor',
-    column_map     => { price_factor_id => 'id' },
-  },
   unit_obj       => {
     type         => 'one to one',
     class        => 'SL::DB::Unit',
     column_map   => { unit => 'name' },
-  },
-  order => {
-    type         => 'one to one',
-    class        => 'SL::DB::Order',
-    column_map   => { trans_id => 'id' },
   },
 );
 
@@ -52,6 +37,16 @@ sub shipped_qty {
   my @doi      = grep { $_->parts_id == $self->parts_id } map { $_->orderitems } @$d_orders;
 
   return sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi);
+}
+
+sub part {
+  # canonial alias for parts.
+  goto &parts;
+}
+
+sub order {
+  # canonial alias for trans.
+  goto &trans;
 }
 
 1;

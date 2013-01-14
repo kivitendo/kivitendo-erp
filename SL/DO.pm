@@ -293,6 +293,13 @@ sub save {
     do_statement($form, $h_item_id, $q_item_id);
     my ($item_id) = $h_item_id->fetchrow_array();
 
+    # Get pricegroup_id and save it. Unfortunately the interface
+    # also uses ID "0" for signalling that none is selected, but "0"
+    # must not be stored in the database. Therefore we cannot simply
+    # use conv_i().
+    my $pricegroup_id = $form->{"pricegroup_id_$i"} * 1;
+    $pricegroup_id    = undef if !$pricegroup_id;
+
     # save detail record in delivery_order_items table
     @values = (conv_i($item_id), conv_i($form->{id}), conv_i($form->{"id_$i"}),
                $form->{"description_$i"}, $form->{"longdescription_$i"},
@@ -305,7 +312,7 @@ sub save {
                $form->{"lastcost_$i"},
                conv_i($form->{"price_factor_id_$i"}), conv_i($form->{"price_factor_id_$i"}),
                conv_i($form->{"marge_price_factor_$i"}),
-               conv_i($form->{"pricegroup_id_$i"}));
+               $pricegroup_id);
     do_statement($form, $h_item, $q_item, @values);
 
     my $stock_info = DO->unpack_stock_information('packed' => $form->{"stock_${in_out}_$i"});

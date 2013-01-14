@@ -419,9 +419,13 @@ sub save {
 
       $reqdate = ($form->{"reqdate_$i"}) ? $form->{"reqdate_$i"} : undef;
 
-      # get pricegroup_id and save ist
+      # Get pricegroup_id and save it. Unfortunately the interface
+      # also uses ID "0" for signalling that none is selected, but "0"
+      # must not be stored in the database. Therefore we cannot simply
+      # use conv_i().
       ($null, my $pricegroup_id) = split(/--/, $form->{"sellprice_pg_$i"});
       $pricegroup_id *= 1;
+      $pricegroup_id  = undef if !$pricegroup_id;
 
       # save detail record in orderitems table
       my $orderitems_id = $form->{"orderitems_id_$i"};
@@ -441,7 +445,7 @@ sub save {
            $form->{"qty_$i"}, $baseqty,
            $fxsellprice, $form->{"discount_$i"},
            $form->{"unit_$i"}, conv_date($reqdate), conv_i($form->{"project_id_$i"}),
-           $form->{"serialnumber_$i"}, $form->{"ship_$i"}, conv_i($pricegroup_id),
+           $form->{"serialnumber_$i"}, $form->{"ship_$i"}, $pricegroup_id,
            $form->{"ordnumber_$i"}, conv_date($form->{"transdate_$i"}),
            $form->{"cusordnumber_$i"}, $form->{"subtotal_$i"} ? 't' : 'f',
            $form->{"marge_percent_$i"}, $form->{"marge_absolut_$i"},

@@ -12,16 +12,6 @@ use SL::DB::Helper::CustomVariables (
 );
 
 __PACKAGE__->meta->add_relationship(
-  part => {
-    type         => 'one to one',
-    class        => 'SL::DB::Part',
-    column_map   => { parts_id => 'id' },
-  },
-  price_factor_obj => {
-    type           => 'one to one',
-    class          => 'SL::DB::PriceFactor',
-    column_map     => { price_factor_id => 'id' },
-  },
   unit_obj       => {
     type         => 'one to one',
     class        => 'SL::DB::Unit',
@@ -33,5 +23,10 @@ __PACKAGE__->meta->add_relationship(
 __PACKAGE__->meta->make_manager_class;
 
 __PACKAGE__->meta->initialize;
+
+sub part {
+  # canonial alias for parts.
+  goto &parts;
+}
 
 1;
