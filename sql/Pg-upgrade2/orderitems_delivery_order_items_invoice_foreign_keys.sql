@@ -10,6 +10,8 @@ UPDATE orderitems           SET project_id = NULL WHERE project_id NOT IN (SELEC
 UPDATE delivery_order_items SET project_id = NULL WHERE project_id NOT IN (SELECT id FROM project);
 UPDATE invoice              SET project_id = NULL WHERE project_id NOT IN (SELECT id FROM project);
 
+DELETE FROM orderitems WHERE trans_id NOT IN (SELECT id FROM oe);
+
 ALTER TABLE orderitems           ADD FOREIGN KEY (trans_id)        REFERENCES oe            (id);
 ALTER TABLE orderitems           ADD FOREIGN KEY (project_id)      REFERENCES project       (id);
 ALTER TABLE orderitems           ADD FOREIGN KEY (pricegroup_id)   REFERENCES pricegroup    (id);
