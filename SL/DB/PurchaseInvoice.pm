@@ -17,6 +17,7 @@ __PACKAGE__->meta->add_relationship(invoiceitems => { type         => 'one to ma
 
 __PACKAGE__->meta->initialize;
 
-sub items { goto &invoiceitems; }
+sub items        { goto &invoiceitems; }
+sub payment_term { goto &payment;      }
 
 1;

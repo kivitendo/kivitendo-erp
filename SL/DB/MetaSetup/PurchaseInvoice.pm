@@ -28,7 +28,7 @@ __PACKAGE__->meta->setup(
     employee_id             => { type => 'integer' },
     quonumber               => { type => 'text' },
     intnotes                => { type => 'text' },
-    department_id           => { type => 'integer', default => '0' },
+    department_id           => { type => 'integer' },
     itime                   => { type => 'timestamp', default => 'now()' },
     mtime                   => { type => 'timestamp' },
     shipvia                 => { type => 'text' },
@@ -50,9 +50,34 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
+    contact => {
+      class       => 'SL::DB::Contact',
+      key_columns => { cp_id => 'cp_id' },
+    },
+
+    department => {
+      class       => 'SL::DB::Department',
+      key_columns => { department_id => 'id' },
+    },
+
+    employee => {
+      class       => 'SL::DB::Employee',
+      key_columns => { employee_id => 'id' },
+    },
+
     globalproject => {
       class       => 'SL::DB::Project',
       key_columns => { globalproject_id => 'id' },
+    },
+
+    language => {
+      class       => 'SL::DB::Language',
+      key_columns => { language_id => 'id' },
+    },
+
+    payment => {
+      class       => 'SL::DB::PaymentTerm',
+      key_columns => { payment_id => 'id' },
     },
 
     storno_obj => {

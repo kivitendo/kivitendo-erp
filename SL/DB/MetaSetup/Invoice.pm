@@ -32,7 +32,7 @@ __PACKAGE__->meta->setup(
     quonumber                 => { type => 'text' },
     cusordnumber              => { type => 'text' },
     intnotes                  => { type => 'text' },
-    department_id             => { type => 'integer', default => '0' },
+    department_id             => { type => 'integer' },
     shipvia                   => { type => 'text' },
     itime                     => { type => 'timestamp', default => 'now()' },
     mtime                     => { type => 'timestamp' },
@@ -64,9 +64,19 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
+    contact => {
+      class       => 'SL::DB::Contact',
+      key_columns => { cp_id => 'cp_id' },
+    },
+
     customer => {
       class       => 'SL::DB::Customer',
       key_columns => { customer_id => 'id' },
+    },
+
+    department => {
+      class       => 'SL::DB::Department',
+      key_columns => { department_id => 'id' },
     },
 
     dunning_config => {
@@ -74,14 +84,34 @@ __PACKAGE__->meta->setup(
       key_columns => { dunning_config_id => 'id' },
     },
 
+    employee => {
+      class       => 'SL::DB::Employee',
+      key_columns => { employee_id => 'id' },
+    },
+
     globalproject => {
       class       => 'SL::DB::Project',
       key_columns => { globalproject_id => 'id' },
     },
 
+    language => {
+      class       => 'SL::DB::Language',
+      key_columns => { language_id => 'id' },
+    },
+
+    payment => {
+      class       => 'SL::DB::PaymentTerm',
+      key_columns => { payment_id => 'id' },
+    },
+
     salesman => {
       class       => 'SL::DB::Employee',
       key_columns => { salesman_id => 'id' },
+    },
+
+    shipto => {
+      class       => 'SL::DB::Shipto',
+      key_columns => { shipto_id => 'shipto_id' },
     },
 
     storno_obj => {

@@ -28,43 +28,14 @@ __PACKAGE__->meta->add_relationship(
       with_objects => [ 'part' ]
     }
   },
-  payment_term => {
-    type       => 'one to one',
-    class      => 'SL::DB::PaymentTerm',
-    column_map => { payment_id => 'id' },
-  },
-  contact      => {
-    type       => 'one to one',
-    class      => 'SL::DB::Contact',
-    column_map => { cp_id => 'cp_id' },
-  },
-  shipto       => {
-    type       => 'one to one',
-    class      => 'SL::DB::Shipto',
-    column_map => { shipto_id => 'shipto_id' },
-  },
-  department   => {
-    type       => 'one to one',
-    class      => 'SL::DB::Department',
-    column_map => { department_id => 'id' },
-  },
-  language     => {
-    type       => 'one to one',
-    class      => 'SL::DB::Language',
-    column_map => { language_id => 'id' },
-  },
-  employee     => {
-    type       => 'one to one',
-    class      => 'SL::DB::Employee',
-    column_map => { employee_id => 'id' },
-  },
 );
 
 __PACKAGE__->meta->initialize;
 
 # methods
 
-sub items { goto &invoiceitems; }
+sub items        { goto &invoiceitems; }
+sub payment_term { goto &payment;      }
 
 # it is assumed, that ordnumbers are unique here.
 sub first_order_by_ordnumber {
