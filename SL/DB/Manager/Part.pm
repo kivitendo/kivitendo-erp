@@ -65,3 +65,47 @@ SQL
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::DB::Manager::Part - RDBO manager for the C<parts> table
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<get_ordered_qty @part_ids>
+
+For each of the given part IDs the ordered quantity is
+calculated. This is done by summing over all open purchase orders.
+
+Returns a hash with the part IDs being the keys and the ordered
+quantities being the values.
+
+=item C<type_filter @types>
+
+Constructs a partial filter for matching any of the article types
+given with C<@types>. The returned partial filter is suitable for a
+Rose manager query.
+
+Each type can be either 'C<part>', 'C<service>' or 'C<assembly>'
+(their plurals are recognized as well). If multiple types are given
+then they're combined with C<OR>.
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>,
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut

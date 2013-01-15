@@ -156,7 +156,7 @@ and return a value. If it fails then it is due to exceptions.
 
 =item C<create_trans_number %params>
 
-Calls and returns </get_next_trans_number> with the parameters
+Calls and returns L</get_next_trans_number> with the parameters
 C<update_defaults = 1> and C<update_record = 1>. C<%params> is passed
 to it as well.
 
