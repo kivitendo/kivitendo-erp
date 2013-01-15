@@ -417,10 +417,8 @@ sub delete_transaction {
   # connect to database, turn AutoCommit off
   my $dbh = $form->dbconnect_noauto($myconfig);
 
+  # acc_trans entries are deleted by database triggers.
   my $query = qq|DELETE FROM ar WHERE id = ?|;
-  do_query($form, $dbh, $query, $form->{id});
-
-  $query = qq|DELETE FROM acc_trans WHERE trans_id = ?|;
   do_query($form, $dbh, $query, $form->{id});
 
   # commit

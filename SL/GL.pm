@@ -51,9 +51,8 @@ sub delete_transaction {
   # connect to database
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  my @values = (conv_i($form->{id}));
-  do_query($form, $dbh, qq|DELETE FROM acc_trans WHERE trans_id = ?|, @values);
-  do_query($form, $dbh, qq|DELETE FROM gl WHERE id = ?|, @values);
+  # acc_trans entries are deleted by database triggers.
+  do_query($form, $dbh, qq|DELETE FROM gl WHERE id = ?|, conv_i($form->{id}));
 
   # commit and redirect
   my $rc = $dbh->commit;
