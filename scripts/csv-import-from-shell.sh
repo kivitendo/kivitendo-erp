@@ -52,7 +52,10 @@ function do_curl {
   #   "UTF-8".
 
   #   "settings.duplicates": Doublettencheck; "no_check", "check_csv",
-  #   "check_db"
+  #   "check_db". Falls angestellt wird, werden weitere Einstellungen
+  #   "settings.duplicates_....=1" benötigt, die vom Programm logisch
+  #   mit "und" verknüpft werden. Diese Einstellungen sind für jeden
+  #   Typ weiter unten beschrieben.
 
   # Parameter für Artikel:
 
@@ -78,15 +81,36 @@ function do_curl {
   #   "settings.shoparticle_if_missing": Shopartikel setzen falls
   #   fehlt: "1", "0"
 
+  #   "settings.duplicates_partnumber=1": Doublettencheck nach
+  #   Artikelnummer (nur, wenn "settings.duplicates" auch gesetzt
+  #   ist).
+
+  #   "settings.duplicates_description=1": Doublettencheck nach
+  #   Artikelnummer (nur, wenn "settings.duplicates" auch gesetzt
+  #   ist).
+
   # Parameter für Kunden/Lieferanten:
 
   #   "settings.table": Zieltabelle: "customer", "vendor"
 
-  # Parameter für Ansprechpartner:
-  #   Nur die Standard-Parameter von oben
+  #   "settings.duplicates_name=1": Doublettencheck nach
+  #   Kunden-/Lieferantennamen (nur, wenn "settings.duplicates" auch
+  #   gesetzt ist).
+
+  # Parameter für Ansprechperson:
+
+  #   "settings.duplicates_cp_name=1": Doublettencheck nach Namen der
+  #   Ansprechperson (nur, wenn "settings.duplicates" auch gesetzt
+  #   ist).
 
   # Parameter für Lieferanschriten:
   #   Nur die Standard-Parameter von oben
+
+  # Parameter für Projekte:
+
+  #   "settings.duplicates_projectnumber=1": Doublettencheck nach
+  #   Projektnummer (nur, wenn "settings.duplicates" auch gesetzt
+  #   ist).
 
   curl \
     --silent --insecure \
