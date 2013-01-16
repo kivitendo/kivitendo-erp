@@ -124,10 +124,11 @@ SQL
 
   my %numbers_in_use = selectall_as_map($form, $self->dbh, $query, $filters{trans_number}, 'in_use');
 
-  my $number;
-  ($number)   = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ?|, $self->business_id) if $self->business_id;
-  ($number)   = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
-  $number   ||= '';
+  my $business_number;
+  ($business_number) = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ?|, $self->business_id) if $self->business_id;
+  my $number         = $business_number;
+  ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
+  $number          ||= '';
 
   do {
     if ($number =~ m/\d+$/) {
@@ -141,7 +142,7 @@ SQL
   } while ($numbers_in_use{$number});
 
   if ($self->save) {
-    if ($self->business_id) {
+    if ($self->business_id && $business_number) {
       do_query($form, $self->dbh, qq|UPDATE business SET customernumberinit = ? WHERE id = ?|, $number, $self->business_id);
     } else {
       do_query($form, $self->dbh, qq|UPDATE defaults SET $filters{numberfield} = ?|, $number);
