@@ -21,8 +21,8 @@ function fail {
   exit 1
 }
 
-test -z $1 && fail "Kein CSV-Dateiname angegeben."
-test -f $1 || fail "Datei '$1' nicht gefunden."
+test -z "$1" && fail "Kein CSV-Dateiname angegeben."
+test -f "$1" || fail "Datei '$1' nicht gefunden."
 file="$1"
 
 function do_curl {
