@@ -394,6 +394,17 @@ sub save_account {
 
   if ($form->{charttype} eq 'A'){
     $form->isblank("category",  $locale->text('Account Type missing!'));
+
+    my $found_valid_taxkey = 0;
+    foreach my $i (0 .. 10) { # 10 is maximum count of taxkeys in form
+      if ($form->{"taxkey_startdate_$i"} and !$form->{"taxkey_del_$i"}) {
+        $found_valid_taxkey = 1;
+        last;
+      }
+    }
+    if ($found_valid_taxkey == 0) {
+      $form->error($locale->text('A valid taxkey is missing!'));
+    }
   }
 
   $form->redirect($locale->text('Account saved!'))

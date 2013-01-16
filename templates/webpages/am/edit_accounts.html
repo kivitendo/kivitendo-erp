@@ -199,7 +199,6 @@ $(function() {
   <p style='font-weight:normal'>[% 'Note: Taxkeys must have a "valid from" date, and will not behave correctly without.' | $T8 %]</p>
 
             <table>
-[% IF account_exists %]
               <tr>
                 <th align="left">[% 'Taxkey' | $T8 %]</th>
                 <th align="left">[% 'valid from' | $T8 %]</th>
@@ -207,6 +206,7 @@ $(function() {
                 <th align="left">[% 'delete' | $T8 %] ? </th>
               </tr>
 [% FOREACH tk = ACCOUNT_TAXKEYS %]
+
               <tr>
     [% IF tk.id %]
                 <input type="hidden" name="taxkey_id_[% tk.runningnumber %]" value="[% tk.id %]">
@@ -218,20 +218,19 @@ $(function() {
     [% ELSE %]
                 <input type="hidden" name="taxkey_id_[% tk.runningnumber %]" value="NEW">
                 <td><select name="taxkey_tax_[% tk.runningnumber %]">[% tk.selecttaxkey %]</select></td>
+                [% IF account_exists %]
                 <td><input name="taxkey_startdate_[% tk.runningnumber %]" value="[% HTML.escape(tk.startdate) %]"></td>
+                [% ELSE %]
+                <td><input name="taxkey_startdate_[% tk.runningnumber %]" value="01.01.1970"></td>
+                [% END %]
                 <td><select name="taxkey_pos_ustva_[% tk.runningnumber %]">[% tk.select_tax %]</select></td>
                 <td>&nbsp;</td>
     [% END %]
               </tr>
 
+
 [% END %]
-[% ELSE %]
-<tr>
-  <td align="center" colspan="4"><p>[% 'Save account first to insert taxkeys' | $T8 %]</p>
-  </td>
-</tr>
-[% END %]
-            </table>
+    </table>
 </fieldset>
 
 <fieldset class="DEPENDS ON charttype BEING A">
