@@ -122,6 +122,11 @@ sub add_cvar_raw_data_columns {
   map { $self->add_raw_data_columns($_) if exists $self->controller->data->[0]->{raw_data}->{$_} } @{ $self->cvar_columns };
 }
 
+sub init_all_cvar_configs {
+  # Must be overridden by derived specialized importer classes.
+  return [];
+}
+
 sub init_cvar_columns {
   my ($self) = @_;
 
@@ -191,8 +196,6 @@ sub check_vc {
 sub handle_cvars {
   my ($self, $entry) = @_;
 
-  return unless $self->can('all_cvar_configs');
-
   my %type_to_column = ( text      => 'text_value',
                          textfield => 'text_value',
                          select    => 'text_value',
@@ -231,11 +234,7 @@ sub init_profile {
     $profile{$col} = $name;
   }
 
-  if ($self->can('all_cvar_configs')) {
-    for (@{ $self->all_cvar_configs }) {
-      $profile{ 'cvar_' . $_->name } = '';
-    }
-  }
+  $profile{ 'cvar_' . $_->name } = '' for @{ $self->all_cvar_configs };
 
   \%profile;
 }
@@ -265,8 +264,6 @@ sub setup_displayable_columns {
 
 sub add_cvar_columns_to_displayable_columns {
   my ($self) = @_;
-
-  return unless $self->can('all_cvar_configs');
 
   $self->add_displayable_columns(map { { name        => 'cvar_' . $_->name,
                                          description => $::locale->text('#1 (custom variable)', $_->description) } }
