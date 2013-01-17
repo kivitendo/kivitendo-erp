@@ -22,6 +22,13 @@ __PACKAGE__->meta->setup(
   primary_key_columns => [ 'id' ],
 
   allow_inline_column_values => 1,
+
+  foreign_keys => [
+    language => {
+      class       => 'SL::DB::Language',
+      key_columns => { language_id => 'id' },
+    },
+  ],
 );
 
 1;

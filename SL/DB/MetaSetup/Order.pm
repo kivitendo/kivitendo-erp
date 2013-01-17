@@ -28,7 +28,7 @@ __PACKAGE__->meta->setup(
     quonumber               => { type => 'text' },
     cusordnumber            => { type => 'text' },
     intnotes                => { type => 'text' },
-    department_id           => { type => 'integer', default => '0' },
+    department_id           => { type => 'integer' },
     itime                   => { type => 'timestamp', default => 'now()' },
     mtime                   => { type => 'timestamp' },
     shipvia                 => { type => 'text' },
@@ -53,12 +53,37 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
+    contact => {
+      class       => 'SL::DB::Contact',
+      key_columns => { cp_id => 'cp_id' },
+    },
+
     customer => {
       class       => 'SL::DB::Customer',
       key_columns => { customer_id => 'id' },
     },
 
+    delivery_customer => {
+      class       => 'SL::DB::Customer',
+      key_columns => { delivery_customer_id => 'id' },
+    },
+
+    delivery_vendor => {
+      class       => 'SL::DB::Vendor',
+      key_columns => { delivery_vendor_id => 'id' },
+    },
+
+    department => {
+      class       => 'SL::DB::Department',
+      key_columns => { department_id => 'id' },
+    },
+
     employee => {
+      class       => 'SL::DB::Employee',
+      key_columns => { employee_id => 'id' },
+    },
+
+    employee_obj => {
       class       => 'SL::DB::Employee',
       key_columns => { employee_id => 'id' },
     },
@@ -68,9 +93,24 @@ __PACKAGE__->meta->setup(
       key_columns => { globalproject_id => 'id' },
     },
 
+    language => {
+      class       => 'SL::DB::Language',
+      key_columns => { language_id => 'id' },
+    },
+
+    payment => {
+      class       => 'SL::DB::PaymentTerm',
+      key_columns => { payment_id => 'id' },
+    },
+
     salesman => {
       class       => 'SL::DB::Employee',
       key_columns => { salesman_id => 'id' },
+    },
+
+    shipto => {
+      class       => 'SL::DB::Shipto',
+      key_columns => { shipto_id => 'shipto_id' },
     },
 
     vendor => {

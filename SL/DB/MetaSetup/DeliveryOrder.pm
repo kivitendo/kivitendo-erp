@@ -57,6 +57,11 @@ __PACKAGE__->meta->setup(
       key_columns => { customer_id => 'id' },
     },
 
+    department => {
+      class       => 'SL::DB::Department',
+      key_columns => { department_id => 'id' },
+    },
+
     employee => {
       class       => 'SL::DB::Employee',
       key_columns => { employee_id => 'id' },
@@ -75,6 +80,11 @@ __PACKAGE__->meta->setup(
     salesman => {
       class       => 'SL::DB::Employee',
       key_columns => { salesman_id => 'id' },
+    },
+
+    shipto => {
+      class       => 'SL::DB::Shipto',
+      key_columns => { shipto_id => 'shipto_id' },
     },
 
     vendor => {

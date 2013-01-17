@@ -31,38 +31,14 @@ __PACKAGE__->meta->add_relationship(
     class                  => 'SL::DB::PeriodicInvoicesConfig',
     column_map             => { id => 'oe_id' },
   },
-  payment_term => {
-    type       => 'one to one',
-    class      => 'SL::DB::PaymentTerm',
-    column_map => { payment_id => 'id' },
-  },
-  contact      => {
-    type       => 'one to one',
-    class      => 'SL::DB::Contact',
-    column_map => { cp_id => 'cp_id' },
-  },
-  shipto       => {
-    type       => 'one to one',
-    class      => 'SL::DB::Shipto',
-    column_map => { shipto_id => 'shipto_id' },
-  },
-  department   => {
-    type       => 'one to one',
-    class      => 'SL::DB::Department',
-    column_map => { department_id => 'id' },
-  },
-  language     => {
-    type       => 'one to one',
-    class      => 'SL::DB::Language',
-    column_map => { language_id => 'id' },
-  },
 );
 
 __PACKAGE__->meta->initialize;
 
 # methods
 
-sub items { goto &orderitems; }
+sub items         { goto &orderitems; }
+sub payment_terms { goto &payment;    }
 
 sub type {
   my $self = shift;

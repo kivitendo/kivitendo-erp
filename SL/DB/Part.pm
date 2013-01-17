@@ -21,16 +21,6 @@ __PACKAGE__->meta->add_relationships(
     class        => 'SL::DB::Assembly',
     column_map   => { id => 'id' },
   },
-  partsgroup                     => {
-    type         => 'one to one',
-    class        => 'SL::DB::PartsGroup',
-    column_map   => { partsgroup_id => 'id' },
-  },
-  price_factor   => {
-    type         => 'one to one',
-    class        => 'SL::DB::PriceFactor',
-    column_map   => { price_factor_id => 'id' },
-  },
   prices         => {
     type         => 'one to many',
     class        => 'SL::DB::Price',

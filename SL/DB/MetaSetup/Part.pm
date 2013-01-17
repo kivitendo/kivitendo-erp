@@ -60,6 +60,21 @@ __PACKAGE__->meta->setup(
       key_columns => { buchungsgruppen_id => 'id' },
     },
 
+    partsgroup => {
+      class       => 'SL::DB::PartsGroup',
+      key_columns => { partsgroup_id => 'id' },
+    },
+
+    payment => {
+      class       => 'SL::DB::PaymentTerm',
+      key_columns => { payment_id => 'id' },
+    },
+
+    price_factor => {
+      class       => 'SL::DB::PriceFactor',
+      key_columns => { price_factor_id => 'id' },
+    },
+
     unit_obj => {
       class       => 'SL::DB::Unit',
       key_columns => { unit => 'name' },
