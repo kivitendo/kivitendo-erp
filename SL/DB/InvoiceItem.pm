@@ -13,7 +13,7 @@ use SL::DB::Helper::CustomVariables (
 
 __PACKAGE__->meta->add_relationship(
   unit_obj       => {
-    type         => 'one to one',
+    type         => 'many to one',
     class        => 'SL::DB::Unit',
     column_map   => { unit => 'name' },
   },

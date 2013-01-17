@@ -4,7 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::Tax;
 
-__PACKAGE__->meta->add_relationships(chart => { type         => 'one to one',
+__PACKAGE__->meta->add_relationships(chart => { type         => 'many to one',
                                                 class        => 'SL::DB::Chart',
                                                 column_map   => { chart_id => 'id' },
                                               },

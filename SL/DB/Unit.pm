@@ -7,7 +7,7 @@ use SL::DB::Manager::Unit;
 
 __PACKAGE__->meta->add_relationships(
   base => {
-    type         => 'one to one',
+    type         => 'many to one',
     class        => 'SL::DB::Unit',
     column_map   => { base_unit => 'name' },
   },

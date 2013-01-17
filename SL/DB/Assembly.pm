@@ -9,7 +9,7 @@ use SL::DB::MetaSetup::Assembly;
 
 __PACKAGE__->meta->add_relationships(
   part => {
-    type         => 'one to one',
+    type         => 'many to one',
     class        => 'SL::DB::Part',
     column_map   => { parts_id => 'id' },
   },

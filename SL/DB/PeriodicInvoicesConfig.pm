@@ -6,7 +6,7 @@ use SL::DB::MetaSetup::PeriodicInvoicesConfig;
 
 __PACKAGE__->meta->add_relationships(
   order        => {
-    type       => 'one to one',
+    type       => 'many to one',
     class      => 'SL::DB::Order',
     column_map => { oe_id => 'id' },
   },
