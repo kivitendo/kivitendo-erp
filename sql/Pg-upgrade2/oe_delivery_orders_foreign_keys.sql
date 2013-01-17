@@ -19,7 +19,6 @@ ALTER TABLE oe              ADD FOREIGN KEY (cp_id)                REFERENCES co
 ALTER TABLE oe              ADD FOREIGN KEY (delivery_customer_id) REFERENCES customer      (id);
 ALTER TABLE oe              ADD FOREIGN KEY (delivery_vendor_id)   REFERENCES vendor        (id);
 ALTER TABLE oe              ADD FOREIGN KEY (department_id)        REFERENCES department    (id);
-ALTER TABLE oe              ADD FOREIGN KEY (employee_id)          REFERENCES employee      (id);
 ALTER TABLE oe              ADD FOREIGN KEY (language_id)          REFERENCES language      (id);
 ALTER TABLE oe              ADD FOREIGN KEY (payment_id)           REFERENCES payment_terms (id);
 ALTER TABLE oe              ADD FOREIGN KEY (shipto_id)            REFERENCES shipto        (shipto_id);

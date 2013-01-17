@@ -83,11 +83,6 @@ __PACKAGE__->meta->setup(
       key_columns => { employee_id => 'id' },
     },
 
-    employee_obj => {
-      class       => 'SL::DB::Employee',
-      key_columns => { employee_id => 'id' },
-    },
-
     globalproject => {
       class       => 'SL::DB::Project',
       key_columns => { globalproject_id => 'id' },
