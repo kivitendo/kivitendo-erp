@@ -23,7 +23,7 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::OrderItem',
     column_map   => { id => 'trans_id' },
     manager_args => {
-      with_objects => [ 'part' ]
+      with_objects => [ 'parts' ]
     }
   },
   periodic_invoices_config => {
