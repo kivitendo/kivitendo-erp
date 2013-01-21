@@ -1898,3 +1898,36 @@ sub _render_custom_variables_inputs {
 
   $main::lxdebug->leave_sub(2);
 }
+
+sub _remove_billed_or_delivered_rows {
+  my (%params) = @_;
+
+  croak "Missing parameter 'quantities'" if !$params{quantities};
+
+  my @fields = map { s/_1$//; $_ } grep { m/_1$/ } keys %{ $::form };
+  my @new_rows;
+
+  my $removed_rows = 0;
+  my $row          = 0;
+  while ($row < $::form->{rowcount}) {
+    $row++;
+    next unless $::form->{"id_$row"};
+
+    my $parts_id                      = $::form->{"id_$row"};
+    my $base_qty                      = $::form->parse_amount(\%::myconfig, $::form->{"qty_$row"}) * SL::DB::Manager::Unit->find_by(name => $::form->{"unit_$row"})->base_factor;
+
+    my $sub_qty                       = min($base_qty, $params{quantities}->{$parts_id});
+    $params{quantities}->{$parts_id} -= $sub_qty;
+
+    if (!$sub_qty || ($sub_qty != $base_qty)) {
+      $::form->{"qty_${row}"} = $::form->format_amount(\%::myconfig, ($base_qty - $sub_qty) / SL::DB::Manager::Unit->find_by(name => $::form->{"unit_$row"})->base_factor);
+      push @new_rows, { map { $_ => $::form->{"${_}_${row}"} } @fields };
+
+    } else {
+      $removed_rows++;
+    }
+  }
+
+  $::form->redo_rows(\@fields, \@new_rows, scalar(@new_rows), $::form->{rowcount});
+  $::form->{rowcount} -= $removed_rows;
+}

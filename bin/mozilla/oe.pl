@@ -31,6 +31,8 @@
 # Quotation module
 #======================================================================
 
+
+use Carp;
 use POSIX qw(strftime);
 
 use SL::DO;
@@ -42,7 +44,7 @@ use SL::MoreCommon qw(ary_diff);
 use SL::PE;
 use SL::ReportGenerator;
 use List::MoreUtils qw(any none);
-use List::Util qw(max reduce sum);
+use List::Util qw(min max reduce sum);
 use Data::Dumper;
 
 require "bin/mozilla/io.pl";
@@ -1335,6 +1337,8 @@ sub invoice {
     ::end_of_request();
   }
 
+  _oe_remove_delivered_or_billed_rows(id => $form->{id}, type => 'billed');
+
   $form->{cp_id} *= 1;
 
   for my $i (1 .. $form->{rowcount}) {
@@ -1870,6 +1874,8 @@ sub delivery_order {
   $form->{old_employee_id}  = $form->{employee_id};
   $form->{old_salesman_id}  = $form->{salesman_id};
 
+  _oe_remove_delivered_or_billed_rows(id => $form->{id}, type => 'delivered');
+
   # reset
   delete @{$form}{qw(id subject message cc bcc printed emailed queued creditlimit creditremaining discount tradediscount oldinvtotal closed delivered)};
 
@@ -2041,6 +2047,32 @@ sub save_periodic_invoices_config {
   print $::form->parse_html_template('oe/save_periodic_invoices_config', $config);
 
   $::lxdebug->leave_sub();
+}
+
+sub _oe_remove_delivered_or_billed_rows {
+  my (%params) = @_;
+
+  return if !$params{id} || !$params{type};
+
+  my $ord_quot = SL::DB::Order->new(id => $params{id})->load;
+  return if !$ord_quot;
+
+  my %args    = (
+    direction => 'to',
+    to        =>   $params{type} eq 'delivered' ? 'DeliveryOrder' : 'Invoice',
+    via       => [ $params{type} eq 'delivered' ? qw(Order)       : qw(Order DeliveryOrder) ],
+  );
+
+  my %handled_base_qtys;
+  foreach my $record (@{ $ord_quot->linked_records(%args) }) {
+    next if $ord_quot->is_sales != $record->is_sales;
+
+    foreach my $item (@{ $record->items }) {
+      $handled_base_qtys{ $item->parts_id } += $item->qty * $item->unit_obj->base_factor;
+    }
+  }
+
+  _remove_billed_or_delivered_rows(quantities => \%handled_base_qtys);
 }
 
 sub dispatcher {
