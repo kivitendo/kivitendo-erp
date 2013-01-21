@@ -1,4 +1,4 @@
-use Test::More tests => 64;
+use Test::More tests => 71;
 
 use lib 't';
 use utf8;
@@ -548,6 +548,133 @@ EOL
   ignore_unknown_columns => 1,
 );
 ok !$csv->_check_multiplexed, 'multiplex check detects empty header';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"Datatype;Description\nDatatype;Name\nP;Kaffee\nC;Meier",        # " # make emacs happy
+  case_insensitive_header => 1,
+  ignore_unknown_columns => 1,
+  profile => [
+    {
+      profile   => { datatype => 'datatype', description => 'description' },
+      class     => 'SL::DB::Part',
+      row_ident => 'P'
+    },
+    {
+      profile   => { datatype => 'datatype', name => 'name' },
+      class     => 'SL::DB::Customer',
+      row_ident => 'C'
+    }
+  ],
+);
+$csv->parse;
+is_deeply $csv->get_data, [ { datatype => 'P', description => 'Kaffee' },
+                            { datatype => 'C', name => 'Meier'} ],
+                          'multiplex: case insensitive header from csv works';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"P;Kaffee\nC;Meier",          # " # make emacs happy
+  header =>  [[ 'Datatype', 'Description' ], [ 'Datatype', 'Name']],
+  case_insensitive_header => 1,
+  profile => [
+    {
+      profile   => { datatype => 'datatype', description => 'description' },
+      class     => 'SL::DB::Part',
+      row_ident => 'P'
+    },
+    {
+      profile => { datatype => 'datatype', name => 'name' },
+      class  => 'SL::DB::Customer',
+      row_ident => 'C'
+    }
+  ],
+);
+$csv->parse;
+is_deeply $csv->get_data, [ { datatype => 'P', description => 'Kaffee' },
+                            { datatype => 'C', name => 'Meier' } ],
+                          'multiplex: case insensitive header as param works';
+
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \"P;Kaffee\nC;Meier",          # " # make emacs happy
+  header =>  [[ 'Datatype', 'Description' ], [ 'Datatype', 'Name']],
+  profile => [
+    {
+      profile   => { datatype => 'datatype', description => 'description' },
+      class     => 'SL::DB::Part',
+      row_ident => 'P'
+    },
+    {
+      profile => { datatype => 'datatype', name => 'name' },
+      class  => 'SL::DB::Customer',
+      row_ident => 'C'
+    }
+  ],
+);
+$csv->parse;
+is_deeply $csv->get_data, undef, 'multiplex: case insensitive header without flag ignores';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+P;Kaffee;lecker
+C;Meier;froh
+EOL
+# " # make emacs happy
+  header => [[ 'datatype', 'Afoo', 'Abar' ], [ 'datatype', 'Bfoo', 'Bbar']],
+  profile => [{
+    profile   => { datatype => '', Afoo => '', Abar => '' },
+    class     => 'SL::DB::Part',
+    row_ident => 'P'
+  },
+  {
+    profile   => { datatype => '', Bfoo => '', Bbar => '' },
+    class     => 'SL::DB::Customer',
+    row_ident => 'C'
+  }],
+);
+$csv->parse;
+
+is_deeply $csv->get_data,
+    [ { datatype => 'P', Afoo => 'Kaffee', Abar => 'lecker' }, { datatype => 'C', Bfoo => 'Meier', Bbar => 'froh' } ],
+    'multiplex: empty path still gets parsed into data';
+ok $csv->get_objects->[0], 'multiplex: empty path gets ignored in object creation';
+
+#####
+
+$csv = SL::Helper::Csv->new(
+  file   => \<<EOL,
+P;Kaffee;lecker
+C;Meier;froh
+EOL
+# " # make emacs happy
+  header => [[ 'datatype', 'Afoo', 'Abar' ], [ 'datatype', 'Bfoo', 'Bbar']],
+  strict_profile => 1,
+  profile => [{
+    profile   => { datatype => '', Afoo => '', Abar => '' },
+    class     => 'SL::DB::Part',
+    row_ident => 'P'
+  },
+  {
+    profile   => { datatype => '', Bfoo => '', Bbar => '' },
+    class     => 'SL::DB::Customer',
+    row_ident => 'C'
+  }],
+);
+$csv->parse;
+
+is_deeply $csv->get_data,
+    [ { datatype => 'P', Afoo => 'Kaffee', Abar => 'lecker' }, { datatype => 'C', Bfoo => 'Meier', Bbar => 'froh' } ],
+    'multiplex: empty path still gets parsed into data (strict profile)';
+ok $csv->get_objects->[0], 'multiplex: empty path gets ignored in object creation (strict profile)';
+
+#####
 
 
 # vim: ft=perl

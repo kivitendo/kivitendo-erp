@@ -169,12 +169,18 @@ sub _check_header {
   # mopst likely meant that field, so rewrite the header
   if ($self->case_insensitive_header) {
     die 'case_insensitive_header is only possible with profile' unless $self->profile;
-    my @names = (
-      keys %{ $self->profile || {} },
-    );
-    for my $name (@names) {
-      for my $i (0..$#$header) {
-        $header->[$i] = $name if lc $header->[$i] eq lc $name;
+    if ($header) {
+      my $p_num = 0;
+      foreach my $h (@{ $header }) {
+        my @names = (
+          keys %{ $self->profile->[$p_num]->{profile} || {} },
+        );
+        for my $name (@names) {
+          for my $i (0..$#$h) {
+            $h->[$i] = $name if lc $h->[$i] eq lc $name;
+          }
+        }
+        $p_num++;
       }
     }
   }
@@ -447,6 +453,12 @@ simply receive objects that represent what the profile defined. If some of
 these information are unique, and should be connected to preexisting data, you
 will have to do that for yourself. Since you provided the profile, it is
 assumed you know what to do in this case.
+
+If no profile is given, any header field found will be taken as is.
+
+If the path in a profile entry is empty, the field will be subjected to
+C<strict_profile> and C<case_insensitive_header> checking, will be parsed into
+C<get_data>, but will not be attempted to be dispatched into objects.
 
 If C<class> is present, the line will be handed to the new sub of this class,
 and the return value used instead of the line itself.
