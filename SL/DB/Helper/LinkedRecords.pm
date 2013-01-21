@@ -210,23 +210,23 @@ from C<$self> (for C<direction> = C<from>). For C<direction = both>
 all records linked from or to C<$self> are returned.
 
 The optional parameter C<from> or C<to> (same as C<direction>)
-contains the package names of Rose models for table limitation. It can
-be a single model name as a single scalar or multiple model names in
-an array reference in which case all links matching any of the model
-names will be returned.
+contains the package names of Rose models for table limitation (the
+prefix C<SL::DB::> is optional). It can be a single model name as a
+single scalar or multiple model names in an array reference in which
+case all links matching any of the model names will be returned.
 
 If you only need invoices created from an order C<$order> then the
 call could look like this:
 
   my $invoices = $order->linked_records(direction => 'to',
-                                        to        => 'SL::DB::Invoice');
+                                        to        => 'Invoice');
 
 The optional parameter C<query> can be used to limit the records
 returned. The following call limits the earlier example to invoices
 created today:
 
   my $invoices = $order->linked_records(direction => 'to',
-                                        to        => 'SL::DB::Invoice',
+                                        to        => 'Invoice',
                                         query     => [ transdate => DateTime->today_local ]);
 
 The optional parameters C<$params{sort_by}> and C<$params{sort_dir}>
