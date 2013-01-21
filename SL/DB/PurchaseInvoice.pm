@@ -2,6 +2,8 @@ package SL::DB::PurchaseInvoice;
 
 use strict;
 
+use Carp;
+
 use SL::DB::MetaSetup::PurchaseInvoice;
 use SL::DB::Manager::PurchaseInvoice;
 use SL::DB::Helper::LinkedRecords;
@@ -19,5 +21,11 @@ __PACKAGE__->meta->initialize;
 
 sub items        { goto &invoiceitems; }
 sub payment_term { goto &payment;      }
+
+sub is_sales {
+  # For compatibility with Order, DeliveryOrder
+  croak 'not an accessor' if @_ > 1;
+  return 0;
+}
 
 1;

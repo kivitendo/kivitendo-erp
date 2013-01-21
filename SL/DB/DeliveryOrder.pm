@@ -2,6 +2,8 @@ package SL::DB::DeliveryOrder;
 
 use strict;
 
+use Carp;
+
 use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
 use SL::DB::Helper::LinkedRecords;

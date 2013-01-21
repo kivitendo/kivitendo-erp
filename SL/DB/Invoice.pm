@@ -37,6 +37,12 @@ __PACKAGE__->meta->initialize;
 sub items        { goto &invoiceitems; }
 sub payment_term { goto &payment;      }
 
+sub is_sales {
+  # For compatibility with Order, DeliveryOrder
+  croak 'not an accessor' if @_ > 1;
+  return 1;
+}
+
 # it is assumed, that ordnumbers are unique here.
 sub first_order_by_ordnumber {
   my $self = shift;
