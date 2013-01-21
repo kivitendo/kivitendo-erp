@@ -69,7 +69,7 @@ sub displayable_type {
 
 sub is_sales {
   croak 'not an accessor' if @_ > 1;
-  return shift->customer_id;
+  return !!shift->customer_id;
 }
 
 sub invoices {
