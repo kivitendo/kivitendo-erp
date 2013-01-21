@@ -45,35 +45,66 @@ sub _linked_records_implementation {
     return [ values %record_map ];
   }
 
-  my $myself   = $wanted eq 'from' ? 'to' : $wanted eq 'to' ? 'from' : croak("Invalid parameter `direction'");
-
-  my $my_table = SL::DB::Helper::Mappings::get_table_for_package(ref($self));
-
-  my @query    = ( "${myself}_table" => $my_table,
-                   "${myself}_id"    => $self->id );
-
-  if ($params{$wanted}) {
-    my $wanted_classes = ref($params{$wanted}) eq 'ARRAY' ? $params{$wanted} : [ $params{$wanted} ];
-    my $wanted_tables  = [ map { SL::DB::Helper::Mappings::get_table_for_package($_) || croak("Invalid parameter `${wanted}'") } @{ $wanted_classes } ];
-    push @query, ("${wanted}_table" => $wanted_tables);
+  if ($params{via}) {
+    croak("Cannot use 'via' without '${wanted}_table'")             if !$params{$wanted};
+    croak("Cannot use 'via' with '${wanted}_table' being an array") if ref $params{$wanted};
   }
 
-  my $links            = SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]);
+  my $myself           = $wanted eq 'from' ? 'to' : $wanted eq 'to' ? 'from' : croak("Invalid parameter `direction'");
+  my $my_table         = SL::DB::Helper::Mappings::get_table_for_package(ref($self));
 
   my $sub_wanted_table = "${wanted}_table";
   my $sub_wanted_id    = "${wanted}_id";
 
-  my $records          = [];
-  @query               = ref($params{query}) eq 'ARRAY' ? @{ $params{query} } : ();
-
-  foreach my $link (@{ $links }) {
-    my $manager_class = SL::DB::Helper::Mappings::get_manager_package_for_table($link->$sub_wanted_table);
-    my $object_class  = SL::DB::Helper::Mappings::get_package_for_table($link->$sub_wanted_table);
-    eval "require " . $object_class . "; 1;";
-    push @{ $records }, @{ $manager_class->get_all(query => [ id => $link->$sub_wanted_id, @query ]) };
+  my ($wanted_classes, $wanted_tables);
+  if ($params{$wanted}) {
+    $wanted_classes = ref($params{$wanted}) eq 'ARRAY' ? $params{$wanted} : [ $params{$wanted} ];
+    $wanted_tables  = [ map { SL::DB::Helper::Mappings::get_table_for_package($_) || croak("Invalid parameter `${wanted}'") } @{ $wanted_classes } ];
   }
 
-  return $records;
+  my @get_objects_query = ref($params{query}) eq 'ARRAY' ? @{ $params{query} } : ();
+  my $get_objects       = sub {
+    my $manager_class = SL::DB::Helper::Mappings::get_manager_package_for_table($_[0]->$sub_wanted_table);
+    my $object_class  = SL::DB::Helper::Mappings::get_package_for_table($_[0]->$sub_wanted_table);
+    eval "require " . $object_class . "; 1;";
+    return @{ $manager_class->get_all(query => [ id => $_[0]->$sub_wanted_id, @get_objects_query ]) };
+  };
+
+  # If no 'via' is given then use a simple(r) method for querying the wanted objects.
+  if (!$params{via}) {
+    my @query = ( "${myself}_table" => $my_table,
+                  "${myself}_id"    => $self->id );
+    push @query, ( "${wanted}_table" => $wanted_tables ) if $wanted_tables;
+
+    return [ map { $get_objects->($_) } @{ SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]) } ];
+  }
+
+  # More complex handling for the 'via' case.
+  my @sources = ( $self );
+  my @targets = map { SL::DB::Helper::Mappings::get_table_for_package($_) } @{ ref($params{via}) ? $params{via} : [ $params{via} ] };
+  push @targets, @{ $wanted_tables } if $wanted_tables;
+
+  my %seen = map { ($_->meta->table . $_->id => 1) } @sources;
+
+  while (@targets) {
+    my @new_sources = @sources;
+    foreach my $src (@sources) {
+      my @query = ( "${myself}_table" => $src->meta->table,
+                    "${myself}_id"    => $src->id,
+                    "${wanted}_table" => \@targets );
+      push @new_sources,
+           map  { $get_objects->($_) }
+           grep { !$seen{$_->$sub_wanted_table . $_->$sub_wanted_id} }
+           @{ SL::DB::Manager::RecordLink->get_all(query => [ and => \@query ]) };
+    }
+
+    @sources = @new_sources;
+    %seen    = map { ($_->meta->table . $_->id => 1) } @sources;
+    shift @targets;
+  }
+
+  my %wanted_tables_map = map  { ($_ => 1) } @{ $wanted_tables };
+  return [ grep { $wanted_tables_map{$_->meta->table} } @sources ];
 }
 
 sub link_to_record {
@@ -215,11 +246,29 @@ prefix C<SL::DB::> is optional). It can be a single model name as a
 single scalar or multiple model names in an array reference in which
 case all links matching any of the model names will be returned.
 
-If you only need invoices created from an order C<$order> then the
-call could look like this:
+The optional parameter C<via> can be used to retrieve all documents
+that may have intermediate documents inbetween. It is an array
+reference of Rose package names for the models that may be
+intermediate link targets. One example is retrieving all invoices for
+a given quotation no matter whether or not orders and delivery orders
+have been created. If C<via> is given then C<from> or C<to> (depending
+on C<direction>) must be given as well, and it must then not be an
+array reference.
+
+Examples:
+
+If you only need invoices created directly from an order C<$order> (no
+delivery orders inbetween) then the call could look like this:
 
   my $invoices = $order->linked_records(direction => 'to',
                                         to        => 'Invoice');
+
+Retrieving all invoices from a quotation no matter whether or not
+orders or delivery orders where created:
+
+  my $invoices = $quotation->linked_records(direction => 'to',
+                                            to        => 'Invoice',
+                                            via       => [ 'Order', 'DeliveryOrder' ]);
 
 The optional parameter C<query> can be used to limit the records
 returned. The following call limits the earlier example to invoices
