@@ -19,14 +19,14 @@ sub linked_records {
                           dir => delete($params{sort_dir}) );
   my $filter          =  delete $params{filter};
 
-  my $records         = linked_records_implementation($self, %params);
+  my $records         = _linked_records_implementation($self, %params);
   $records            = filter_linked_records($self, $filter, @{ $records })                       if $filter;
   $records            = sort_linked_records($self, $sort_spec{by}, $sort_spec{dir}, @{ $records }) if $sort_spec{by};
 
   return $records;
 }
 
-sub linked_records_implementation {
+sub _linked_records_implementation {
   my $self     = shift;
   my %params   = @_;
 
@@ -37,8 +37,8 @@ sub linked_records_implementation {
     my %from_to    = ( from => delete($params{from}) || $both,
                        to   => delete($params{to})   || $both);
 
-    my @records    = (@{ linked_records_implementation($self, %params, direction => 'from', from => $from_to{from}) },
-                      @{ linked_records_implementation($self, %params, direction => 'to',   to   => $from_to{to}  ) });
+    my @records    = (@{ _linked_records_implementation($self, %params, direction => 'from', from => $from_to{from}) },
+                      @{ _linked_records_implementation($self, %params, direction => 'to',   to   => $from_to{to}  ) });
 
     my %record_map = map { ( ref($_) . $_->id => $_ ) } @records;
 
