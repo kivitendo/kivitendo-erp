@@ -2,8 +2,10 @@ package SL::DB::Manager::Order;
 
 use strict;
 
-use SL::DB::Helper::Manager;
-use base qw(SL::DB::Helper::Manager);
+use parent qw(SL::DB::Helper::Manager);
+
+use SL::DB::Helper::Paginated;
+use SL::DB::Helper::Sorted;
 
 sub object_class { 'SL::DB::Order' }
 
@@ -21,5 +23,23 @@ sub type_filter {
 
   die "Unknown type $type";
 }
+
+sub _sort_spec {
+  return (
+    default                   => [ 'transdate', 1 ],
+    nulls                     => {
+      transaction_description => 'FIRST',
+      customer_name           => 'FIRST',
+      default                 => 'LAST',
+    },
+    columns                   => {
+      SIMPLE                  => 'ALL',
+      customer                => 'customer.name',
+      globalprojectnumber     => 'lower(globalproject.projectnumber)',
+      map { ( $_ => "lower(oe.$_)" ) } qw(ordnumber quonumber cusordnumber shippingpoint shipvia notes intnotes transaction_description),
+    });
+}
+
+sub default_objects_per_page { 40 }
 
 1;
