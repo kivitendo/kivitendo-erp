@@ -23,7 +23,7 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::OrderItem',
     column_map   => { id => 'trans_id' },
     manager_args => {
-      with_objects => [ 'parts' ]
+      with_objects => [ 'part' ]
     }
   },
   periodic_invoices_config => {
@@ -37,8 +37,7 @@ __PACKAGE__->meta->initialize;
 
 # methods
 
-sub items         { goto &orderitems; }
-sub payment_terms { goto &payment;    }
+sub items { goto &orderitems; }
 
 sub type {
   my $self = shift;

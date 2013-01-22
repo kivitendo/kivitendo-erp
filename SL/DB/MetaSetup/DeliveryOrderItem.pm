@@ -45,7 +45,7 @@ __PACKAGE__->meta->setup(
       key_columns => { delivery_order_id => 'id' },
     },
 
-    parts => {
+    part => {
       class       => 'SL::DB::Part',
       key_columns => { parts_id => 'id' },
     },

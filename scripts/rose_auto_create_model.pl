@@ -44,6 +44,16 @@ our $meta_path = "SL/DB/MetaSetup";
 
 my %config;
 
+our %foreign_key_name_map = (
+  oe                   => { payment => 'payment_terms', },
+  ar                   => { payment => 'payment_terms', },
+  ap                   => { payment => 'payment_terms', },
+
+  orderitems           => { parts => 'part', trans => 'order', },
+  delivery_order_items => { parts => 'part' },
+  invoice              => { parts => 'part' },
+);
+
 sub setup {
 
   SL::LxOfficeConf->read;
@@ -103,6 +113,11 @@ CODE
   }
 
   $definition =~ s/::AUTO::/::/g;
+
+  while (my ($auto_generated_name, $desired_name) = each %{ $foreign_key_name_map{$table} || {} }) {
+    $definition =~ s/( foreign_keys \s*=> \s*\[ .* ^\s+ ) ${auto_generated_name} \b/${1}${desired_name}/msx;
+  }
+
   my $full_definition = <<CODE;
 # This file has been auto-generated. Do not modify it; it will be overwritten
 # by $::script automatically.

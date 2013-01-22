@@ -46,7 +46,7 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
-    parts => {
+    part => {
       class       => 'SL::DB::Part',
       key_columns => { parts_id => 'id' },
     },

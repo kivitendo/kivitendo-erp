@@ -93,7 +93,7 @@ __PACKAGE__->meta->setup(
       key_columns => { language_id => 'id' },
     },
 
-    payment => {
+    payment_terms => {
       class       => 'SL::DB::PaymentTerm',
       key_columns => { payment_id => 'id' },
     },

@@ -39,14 +39,4 @@ sub shipped_qty {
   return sum(map { AM->convert_unit($_->unit => $self->unit) * $_->qty } @doi);
 }
 
-sub part {
-  # canonial alias for parts.
-  goto &parts;
-}
-
-sub order {
-  # canonial alias for trans.
-  goto &trans;
-}
-
 1;

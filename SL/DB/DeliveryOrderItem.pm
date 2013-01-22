@@ -24,9 +24,4 @@ __PACKAGE__->meta->initialize;
 
 # methods
 
-sub part {
-  # canonial alias for parts.
-  goto &parts;
-}
-
 1;

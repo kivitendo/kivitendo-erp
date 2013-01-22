@@ -24,9 +24,4 @@ __PACKAGE__->meta->make_manager_class;
 
 __PACKAGE__->meta->initialize;
 
-sub part {
-  # canonial alias for parts.
-  goto &parts;
-}
-
 1;

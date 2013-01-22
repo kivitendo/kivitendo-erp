@@ -25,7 +25,7 @@ __PACKAGE__->meta->add_relationship(
     class        => 'SL::DB::InvoiceItem',
     column_map   => { id => 'trans_id' },
     manager_args => {
-      with_objects => [ 'parts' ]
+      with_objects => [ 'part' ]
     }
   },
 );
@@ -34,8 +34,7 @@ __PACKAGE__->meta->initialize;
 
 # methods
 
-sub items        { goto &invoiceitems; }
-sub payment_term { goto &payment;      }
+sub items { goto &invoiceitems; }
 
 sub is_sales {
   # For compatibility with Order, DeliveryOrder
