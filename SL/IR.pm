@@ -270,13 +270,25 @@ sub post_invoice {
             # allocated >= 0
             # add entry for inventory, this one is for the sold item
             $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id) VALUES (?, ?, ?, ?, (SELECT taxkey_id FROM chart WHERE id = ?),
-                                (SELECT tax_id FROM taxkeys WHERE chart_id= (SELECT id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+                                (SELECT tax_id 
+                                FROM taxkeys 
+                                WHERE chart_id= (SELECT id  
+                                                 FROM chart 
+                                                 WHERE accno = ?) 
+                                AND startdate <= ?
+                                ORDER BY startdate DESC LIMIT 1))|;
             @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{inventory_accno_id}, $ref->{transdate});
             do_query($form, $dbh, $query, @values);
 
 # add expense
             $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id) VALUES (?, ?, ?, ?, (SELECT taxkey from tax WHERE chart_id = ?),
-                                (SELECT tax_id FROM taxkeys WHERE chart_id= (SELECT id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+                                (SELECT tax_id 
+                                 FROM taxkeys 
+                                 WHERE chart_id= (SELECT id  
+                                                  FROM chart 
+                                                  WHERE accno = ?) 
+                                 AND startdate <= ? 
+                                 ORDER BY startdate DESC LIMIT 1))|;
             @values = ($ref->{trans_id},  $ref->{expense_accno_id}, ($linetotal * -1), $ref->{transdate}, $ref->{expense_accno_id}, $ref->{expense_accno_id}, $ref->{transdate});
             do_query($form, $dbh, $query, @values);
           }
@@ -483,7 +495,13 @@ sub post_invoice {
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, tax_id)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
                   (SELECT taxkey_id  FROM chart WHERE accno = ?), ?,
-                  (SELECT tax_id FROM taxkeys WHERE chart_id= (SELECT id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+                  (SELECT tax_id 
+                   FROM taxkeys 
+                   WHERE chart_id= (SELECT id  
+                                    FROM chart 
+                                    WHERE accno = ?) 
+                   AND startdate <= ? 
+                   ORDER BY startdate DESC LIMIT 1))|;
       @values = ($trans_id, $accno, $form->{amount}{$trans_id}{$accno},
                  conv_date($form->{invdate}), $accno, $project_id, $accno, conv_date($form->{invdate}));
       do_query($form, $dbh, $query, @values);
@@ -523,7 +541,13 @@ sub post_invoice {
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, tax_id)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
                           (SELECT taxkey_id FROM chart WHERE accno = ?), ?,
-                          (SELECT tax_id FROM taxkeys WHERE chart_id= (SELECT id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+                          (SELECT tax_id 
+                           FROM taxkeys 
+                           WHERE chart_id= (SELECT id  
+                                            FROM chart 
+                                            WHERE accno = ?) 
+                           AND startdate <= ? 
+                           ORDER BY startdate DESC LIMIT 1))|;
       @values = (conv_i($form->{id}), $form->{AP}, $amount,
                  $form->{"datepaid_$i"}, $form->{AP}, $project_id, $form->{AP}, conv_date($form->{"datepaid_$i"}));
       do_query($form, $dbh, $query, @values);
@@ -536,7 +560,12 @@ sub post_invoice {
       qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, taxkey, project_id, tax_id)
                 VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?,
                 (SELECT taxkey_id FROM chart WHERE accno = ?), ?,
-                (SELECT tax_id FROM taxkeys WHERE chart_id= (SELECT id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+                (SELECT tax_id 
+                 FROM taxkeys 
+                 WHERE chart_id= (SELECT id  
+                                  FROM chart WHERE accno = ?) 
+                 AND startdate <= ? 
+                 ORDER BY startdate DESC LIMIT 1))|;
     @values = (conv_i($form->{id}), $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"},
                $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $accno, $project_id, $accno, conv_date($form->{"datepaid_$i"}));
     do_query($form, $dbh, $query, @values);
@@ -578,7 +607,13 @@ sub post_invoice {
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction, taxkey, project_id, tax_id)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, '0', '1', 0, ?,
-                  (SELECT tax_id FROM taxkeys WHERE chart_id= (SELECT id  FROM chart WHERE accno = ?) AND startdate <= ? ORDER BY startdate DESC LIMIT 1))|;
+                  (SELECT tax_id 
+                   FROM taxkeys 
+                   WHERE chart_id= (SELECT id  
+                                   FROM chart 
+                                   WHERE accno = ?) 
+                   AND startdate <= ? 
+                   ORDER BY startdate DESC LIMIT 1))|;
       @values = (conv_i($form->{id}), $accno, $form->{fx}{$accno}{$transdate}, conv_date($transdate), $project_id, $accno, $form->{fx}{$accno}{$transdate});
       do_query($form, $dbh, $query, @values);
     }

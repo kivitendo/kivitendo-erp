@@ -7,18 +7,18 @@
 
   --Spalte mit Werten füllen:
   UPDATE acc_trans ac SET tax_id=
-                (select tk.tax_id from taxkeys tk 
-                      where tk.taxkey_id=ac.taxkey 
+                (SELECT tk.tax_id FROM taxkeys tk 
+                      WHERE tk.taxkey_id=ac.taxkey 
                       AND tk.startdate <= COALESCE(
-                            (select ar.deliverydate from ar where ar.id=ac.trans_id), 
-                            (select ar.transdate from ar where ar.id=ac.trans_id), 
-                            (select ap.transdate from ap where ap.id=ac.trans_id), 
-                            (select gl.transdate from gl where gl.id=ac.trans_id), 
+                            (SELECT ar.deliverydate FROM ar WHERE ar.id=ac.trans_id), 
+                            (SELECT ar.transdate FROM ar WHERE ar.id=ac.trans_id), 
+                            (SELECT ap.transdate FROM ap WHERE ap.id=ac.trans_id), 
+                            (SELECT gl.transdate FROM gl WHERE gl.id=ac.trans_id), 
                             ac.transdate )
-                      order by startdate desc limit 1);
+                      ORDER BY startdate DESC LIMIT 1);
 
   --Spalten, die noch null sind (nur bei Einträgen möglich, wo auch taxkey null ist)
-  UPDATE acc_trans SET tax_id= (SELECT id FROM tax WHERE taxkey=0 LIMIT 1) where tax_id is null;
+  UPDATE acc_trans SET tax_id= (SELECT id FROM tax WHERE taxkey=0 LIMIT 1) WHERE tax_id IS NULL;
  
   --tax_id als Pflichtfeld definieren:
   ALTER TABLE acc_trans ALTER tax_id SET NOT NULL;
