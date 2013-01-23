@@ -1,5 +1,5 @@
 # @tag: charts_without_taxkey
-# @description: F&uuml;gt f&uuml;r jedes Konto, was keien Steuerschl&uuml;ssel hat, den Steuerschl&uuml;ssel 0 hinzu
+# @description: Fügt für jedes Konto, was keinen Steuerschlüssel hat, den Steuerschlüssel 0 hinzu
 # @depends:
 # @charset: UTF-8
 
