@@ -999,6 +999,10 @@ sub post_transaction {
   my $debitcredit;
   my %split_safety = ();
 
+  my $dbh = $form->dbconnect_noauto(\%myconfig);
+  my ($notax_id) = selectrow_query($form, $dbh, "SELECT id FROM tax WHERE taxkey = 0 LIMIT 1", );
+  $dbh->disconnect;
+
   my @flds = qw(accno debit credit projectnumber fx_transaction source memo tax taxchart);
 
   for my $i (1 .. $form->{rowcount}) {
@@ -1039,17 +1043,17 @@ sub post_transaction {
       $form->{debitlock} = 1;
     }
     if ($debitcredit && $credittax) {
-      $form->{"taxchart_$i"} = "0--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00";
     }
     if (!$debitcredit && $debittax) {
-      $form->{"taxchart_$i"} = "0--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00";
     }
     my $amount = ($form->{"debit_$i"} == 0)
             ? $form->{"credit_$i"}
             : $form->{"debit_$i"};
     my $j = $#a;
     if (($debitcredit && $credittax) || (!$debitcredit && $debittax)) {
-      $form->{"taxchart_$i"} = "0--0.00";
+      $form->{"taxchart_$i"} = "$notax_id--0.00";
       $form->{"tax_$i"}      = 0;
     }
     my ($taxkey, $rate) = split(/--/, $form->{"taxchart_$i"});
