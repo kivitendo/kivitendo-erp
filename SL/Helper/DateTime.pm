@@ -27,7 +27,7 @@ sub from_kivitendo {
 
 sub from_lxoffice {
   # Legacy name.
-  gofrom &from_kivitendo;
+  goto &from_kivitendo;
 }
 
 1;
