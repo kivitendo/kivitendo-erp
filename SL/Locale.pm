@@ -403,8 +403,7 @@ sub format_date_object {
   my ($self, $datetime, %params)    = @_;
 
   my $format             =  $::myconfig{dateformat} || 'yyyy-mm-dd';
-  $format                =~ s/yyyy/\%Y/;
-  $format                =~ s/yy/\%y/;
+  $format                =~ s/yy(?:yy)?/\%Y/;
   $format                =~ s/mm/\%m/;
   $format                =~ s/dd/\%d/;
 
