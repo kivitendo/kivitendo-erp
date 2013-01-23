@@ -144,7 +144,7 @@ sub account_header {
       rate           => '',
       taxkey_id      => '',
       pos_ustva      => '',
-      startdate      => '',
+      startdate      => $form->{account_exists} ? '' : DateTime->new(year => 1970, month => 1, day => 1)->to_lxoffice,
     };
 
     push @{ $form->{ACCOUNT_TAXKEYS} }, $newtaxkey_ref;

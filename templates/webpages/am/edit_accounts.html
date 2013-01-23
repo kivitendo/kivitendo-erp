@@ -218,11 +218,7 @@ $(function() {
     [% ELSE %]
                 <input type="hidden" name="taxkey_id_[% tk.runningnumber %]" value="NEW">
                 <td><select name="taxkey_tax_[% tk.runningnumber %]">[% tk.selecttaxkey %]</select></td>
-                [% IF account_exists %]
                 <td><input name="taxkey_startdate_[% tk.runningnumber %]" value="[% HTML.escape(tk.startdate) %]"></td>
-                [% ELSE %]
-                <td><input name="taxkey_startdate_[% tk.runningnumber %]" value="01.01.1970"></td>
-                [% END %]
                 <td><select name="taxkey_pos_ustva_[% tk.runningnumber %]">[% tk.select_tax %]</select></td>
                 <td>&nbsp;</td>
     [% END %]
