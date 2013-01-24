@@ -104,7 +104,7 @@ sub prepare_report {
 
   $report->set_options(
     std_column_visibility => 1,
-    controller_class      => 'FinancialControlling',
+    controller_class      => 'FinancialControllingReport',
     output_format         => 'HTML',
     top_info_text         => $::locale->text('Financial controlling report for open sales orders'),
     raw_top_info_text     => $self->render('financial_controlling_report/report_top',    { no_output => 1, partial => 1 }),
