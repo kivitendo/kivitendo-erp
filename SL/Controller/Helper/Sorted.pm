@@ -108,9 +108,10 @@ sub _save_current_sort_params {
   my ($self)      = @_;
 
   my $sort_spec   = $self->get_sort_spec;
+  my $dir_idx     = $sort_spec->{FORM_PARAMS}->[1];
   $self->{PRIV()} = {
     by            =>   $::form->{ $sort_spec->{FORM_PARAMS}->[0] },
-    dir           => !!$::form->{ $sort_spec->{FORM_PARAMS}->[1] } * 1,
+    dir           => defined($::form->{$dir_idx}) ? $::form->{$dir_idx} * 1 : undef,
   };
 
   # $::lxdebug->message(0, "saving current sort params to " . $self->{PRIV()}->{by} . ' / ' . $self->{PRIV()}->{dir});
