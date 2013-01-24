@@ -77,7 +77,7 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(customer globalprojectnumber ordnumber netamount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
+  my @columns     = qw(customer globalprojectnumber project_type ordnumber netamount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
                        billable_amount billable_amount_p other_amount);
   my @sortable    = qw(ordnumber transdate customer netamount globalprojectnumber);
   $self->{number_columns} = [ qw(netamount billed_amount billed_amount_p delivered_amount delivered_amount_p paid_amount paid_amount_p other_amount billable_amount billable_amount_p) ];
@@ -97,6 +97,8 @@ sub prepare_report {
     customer                => {      sub => sub { $_[0]->customer->name                                              },
                                  obj_link => sub { $self->link_to($_[0]->customer)                                    }  },
     globalprojectnumber     => {      sub => sub { $_[0]->globalproject_id ? $_[0]->globalproject->projectnumber : '' }  },
+    project_type            => { text     => $::locale->text('Project type'),
+                                 sub      => sub { $_[0]->globalproject_id ? $_[0]->globalproject->type          : '' }  },
   );
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
