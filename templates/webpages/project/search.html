@@ -1,0 +1,65 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE L %]
+[%- USE LxERP %]
+
+[%- INCLUDE 'common/flash.html' %]
+
+ <form method="post" action="controller.pl">
+
+  <div class="listtop">[% 'Search projects' | $T8 %]</div>
+
+  <p>
+   <table>
+    <tr>
+     <th align="right">[% 'Number' | $T8 %]</th>
+     <td>[% L.input_tag('filter.projectnumber:substr::ilike', filter.projectnumber_substr__ilike, size=60) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Description' | $T8 %]</th>
+     <td>[% L.input_tag('filter.description:substr::ilike', filter.description_substr__ilike, size=60) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Customer' | $T8 %]</th>
+     <td>[% L.input_tag('filter.customer.name:substr::ilike', filter.customer.name_substr__ilike, size=60) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Type' | $T8 %]</th>
+     <td>[% L.input_tag('filter.type:substr::ilike', filter.type_substr__ilike, size=20) %]</td>
+    </tr>
+
+    [% CUSTOM_VARIABLES_FILTER_CODE %]
+
+    <tr>
+     <th>[% 'Include in Report' | $T8 %]</th>
+     <td>
+      <table>
+       <tr>
+        <td>[% L.select_tag('filter.active', [ [ 'active', LxERP.t8('Active') ], [ 'inactive', LxERP.t8('Inactive') ], [ 'both', LxERP.t8('Both') ] ], default=filter.active, style="width: 200px") %]</td>
+       </tr>
+
+       <tr>
+        <td>[% L.select_tag('filter.valid', [ [ 'valid', LxERP.t8('Valid') ], [ 'invalid', LxERP.t8('Invalid') ], [ 'both', LxERP.t8('Both') ] ], default=filter.valid, style="width: 200px") %]</td>
+       </tr>
+
+       <tr>
+        <td>[% L.select_tag('filter.status', [ [ 'all', LxERP.t8('All') ], [ 'orphaned', LxERP.t8('Orphaned') ] ], default=filter.status, style="width: 200px") %]</td>
+       </tr>
+
+       [% CUSTOM_VARIABLES_INCLUSION_CODE %]
+
+      </table>
+     </td>
+    </tr>
+   </table>
+  </p>
+
+  <hr size="3" noshade>
+
+  [% L.hidden_tag('action', 'Project/list') %]
+
+  <p>[% L.submit_tag('dummy', LxERP.t8('Continue')) %]</p>
+ </form>

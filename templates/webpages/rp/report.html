@@ -89,10 +89,7 @@
 [%- END %]
 
 [%- IF is_projects %]
-  <tr>
-    <th align=right nowrap>[% 'Project' | $T8 %]</th>
-    <td colspan=5><input name=projectnumber size=25</td>
-  </tr>
+  [% INCLUDE projectnumber %]
   <input type=hidden name=nextsub value=generate_projects>
   <tr>
     <th align=right>[% 'as at' | $T8 %]</th>
@@ -364,4 +361,3 @@
 <input type=submit class=submit name=action value="[% 'Continue' | $T8 %]">
 
 </form>
-

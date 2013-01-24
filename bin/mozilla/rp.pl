@@ -37,11 +37,13 @@
 
 use POSIX qw(strftime);
 
+use SL::DB::Project;
 use SL::PE;
 use SL::RP;
 use SL::Iconv;
 use SL::ReportGenerator;
 use Data::Dumper;
+use List::MoreUtils qw(any);
 
 require "bin/mozilla/arap.pl";
 require "bin/mozilla/common.pl";
@@ -212,35 +214,6 @@ sub report {
 }
 
 sub continue { call_sub($main::form->{"nextsub"}); }
-
-sub get_project {
-  $main::lxdebug->enter_sub();
-
-  $main::auth->assert('report');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  my $nextsub = shift;
-
-  $form->{project_id} = $form->{project_id_1};
-  if ($form->{projectnumber} && !$form->{project_id}) {
-    $form->{rowcount} = 1;
-
-    # call this instead of update
-    $form->{update}          = $nextsub;
-    $form->{projectnumber_1} = $form->{projectnumber};
-
-    delete $form->{sort};
-    check_project('generate_projects');
-
-    # if there is one only, assign id
-    $form->{project_id} = $form->{project_id_1};
-  }
-
-  $main::lxdebug->leave_sub();
-}
 
 sub generate_income_statement {
   $main::lxdebug->enter_sub();
@@ -460,8 +433,8 @@ sub generate_projects {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  &get_project("generate_projects");
-  $form->{projectnumber} = $form->{projectnumber_1};
+  my $project            = $form->{project_id} ? SL::DB::Project->new(id => $form->{project_id})->load : undef;
+  $form->{projectnumber} = $project ? $project->projectnumber : '';
 
   $form->{nextsub} = "generate_projects";
   $form->{title}   = $locale->text('Project Transactions');

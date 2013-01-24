@@ -30,8 +30,6 @@
 # common routines for gl, ar, ap, is, ir, oe
 #
 
-use SL::Projects;
-
 use strict;
 
 # any custom scripts for this one
@@ -298,54 +296,6 @@ sub _reset_salesman_id {
   $::form->{salesman_id} = $current_employee->id if $current_employee && exists $::form->{salesman_id};
 }
 
-sub check_project {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
-                'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash         | report');
-
-  my $nextsub = shift || 'update';
-
-  for my $i (1 .. $form->{rowcount}) {
-    my $suffix = $i ? "_$i" : "";
-    my $prefix = $i ? "" : "global";
-    $form->{"${prefix}project_id${suffix}"} = "" unless $form->{"${prefix}projectnumber$suffix"};
-    if ($form->{"${prefix}projectnumber${suffix}"} ne $form->{"old${prefix}projectnumber${suffix}"}) {
-      if ($form->{"${prefix}projectnumber${suffix}"}) {
-
-        # get new project
-        $form->{projectnumber} = $form->{"${prefix}projectnumber${suffix}"};
-        my %params             = map { $_ => $form->{$_} } qw(projectnumber description active);
-        my $rows;
-        if (($rows = Projects->search_projects(%params)) > 1) {
-
-          # check form->{project_list} how many there are
-          $form->{rownumber} = $i;
-          &select_project($i ? undef : 1, $nextsub);
-          ::end_of_request();
-        }
-
-        if ($rows == 1) {
-          $form->{"${prefix}project_id${suffix}"}       = $form->{project_list}->[0]->{id};
-          $form->{"${prefix}projectnumber${suffix}"}    = $form->{project_list}->[0]->{projectnumber};
-          $form->{"old${prefix}projectnumber${suffix}"} = $form->{project_list}->[0]->{projectnumber};
-        } else {
-
-          # not on file
-          $form->error($locale->text('Project not on file!'));
-        }
-      } else {
-        $form->{"old${prefix}projectnumber${suffix}"} = "";
-      }
-    }
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
 sub select_project {
   $::lxdebug->enter_sub;
 
@@ -420,7 +370,6 @@ arap.pl - helper functions or customer/vendor retrieval
 =head1 SYNOPSIS
 
  check_name('vendor')
- check_project();
 
 =head1 DESCRIPTION
 

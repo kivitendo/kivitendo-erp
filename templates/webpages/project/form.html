@@ -1,0 +1,107 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE HTML %][%- USE LxERP %]
+
+[%- INCLUDE 'common/flash.html' %]
+
+ <div class="listtop">[% title %]</div>
+
+ <form method="post" action="controller.pl">
+  [% L.hidden_tag("callback", callback) %]
+  [% L.hidden_tag("id", SELF.project.id) %]
+
+  <ul id="maintab" class="shadetabs">
+   <li class="selected"><a href="#" rel="basic_data">[% 'Basic Data' | $T8 %]</a></li>
+   [%- IF CUSTOM_VARIABLES.size %]
+   <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
+   [%- END %]
+  </ul>
+
+  <div class="tabcontentstyle">
+
+   <div id="basic_data" class="tabcontent">
+
+    <table>
+     <tr>
+      <th align="right">[% 'Number' | $T8 %]</th>
+      <td>[% L.input_tag("project.projectnumber", SELF.project.projectnumber, size=60) %]</td>
+     </tr>
+
+     <tr>
+      <th align="right">[% 'Description' | $T8 %]</th>
+      <td>
+       [%- SET rows = LxERP.numtextrows(SELF.project.description, 60) %]
+       [%- IF rows > 1 %]
+        [%- L.textarea_tag("project.description", SELF.project.description, rows=row, size=60, style="width: 100%", wrap="soft") %]
+       [%- ELSE %]
+        [%- L.input_tag("project.description", SELF.project.description, size=60) %]
+       [%- END %]
+      </td>
+     </tr>
+
+     <tr>
+      <th align="right">[% 'Type' | $T8 %]</th>
+      <td>[% L.input_tag('project.type', SELF.project.type, size=60) %]</td>
+     </tr>
+
+     <tr>
+      <th align="right">[% 'Customer' | $T8 %]</th>
+      <td>[% L.select_tag('project.customer_id', ALL_CUSTOMERS, default=SELF.project.customer_id, title_key='name', style='width: 300px') %]</td>
+     </tr>
+
+     <tr>
+      <th align="right">[% 'Valid' | $T8 %]</th>
+      <td>[% L.select_tag('project.valid', [ [ 1, LxERP.t8('Valid') ], [ 0, LxERP.t8('Invalid') ] ], default=SELF.project.valid, style='width: 300px') %]</td>
+     </tr>
+
+     [%- IF SELF.project.id %]
+     <tr>
+      <th align="right">[% 'Active' | $T8 %]</th>
+      <td>[% L.select_tag('project.active', [ [ 1, LxERP.t8('Active') ], [ 0, LxERP.t8('Inactive') ] ], default=SELF.project.active, style='width: 300px') %]</td>
+     </tr>
+     [%- END %]
+    </table>
+
+    <br style="clear: left" />
+   </div>
+
+   [%- IF CUSTOM_VARIABLES.size %]
+   <div id="custom_variables" class="tabcontent">
+
+    <p>
+     <table>
+      [%- FOREACH var = CUSTOM_VARIABLES %]
+      <tr>
+       <td align="right" valign="top">[% HTML.escape(var.description) %]</td>
+       <td valign="top">[% var.HTML_CODE %]</td>
+      </tr>
+      [%- END %]
+     </table>
+    </p>
+
+    <br style="clear: left" />
+   </div>
+   [%- END %]
+
+  </div>
+
+  <p>
+   [% L.online_help_tag('add_project') %]
+   [% L.hidden_tag("action", "Project/dispatch") %]
+   [% L.submit_tag("action_" _  (SELF.project.id ? "update" : "create"), LxERP.t8('Save')) %]
+   [%- IF SELF.project.id %]
+    [% L.submit_tag("action_create", LxERP.t8('Save as new')) %]
+    [% L.submit_tag("action_destroy", LxERP.t8('Delete'), confirm=LxERP.t8('Do you really want to delete this object?')) IF !SELF.project.is_used %]
+   [%- END %]
+   <a href="[% IF callback %][% callback %][% ELSE %][% SELF.url_for(action => 'search') %][% END %]">[%- LxERP.t8('Abort') %]</a>
+  </p>
+ </form>
+
+ <script type="text/javascript">
+  <!--
+      var maintab = new ddtabcontent("maintab");
+      maintab.setpersist(true);
+      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
+      maintab.init();
+    -->
+ </script>
