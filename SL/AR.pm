@@ -143,7 +143,6 @@ sub post_transaction {
 
   # update department
   ($null, $form->{department_id}) = split(/--/, $form->{department});
-  $form->{department_id} *= 1;
 
   # amount for AR account
   $form->{receivables} = $form->round_amount($form->{amount}, 2) * -1;

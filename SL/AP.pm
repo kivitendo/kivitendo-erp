@@ -58,7 +58,6 @@ sub post_transaction {
   delete $form->{currency} unless $form->{defaultcurrency};
 
   ($null, $form->{department_id}) = split(/--/, $form->{department});
-  $form->{department_id} *= 1;
 
   if ($form->{currency} eq $form->{defaultcurrency}) {
     $form->{exchangerate} = 1;

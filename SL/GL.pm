@@ -109,7 +109,6 @@ sub post_transaction {
   }
 
   my ($null, $department_id) = split(/--/, $form->{department});
-  $department_id *= 1;
 
   $form->{ob_transaction} *= 1;
   $form->{cb_transaction} *= 1;
@@ -122,7 +121,7 @@ sub post_transaction {
        WHERE id = ?|;
 
   @values = ($form->{reference}, $form->{description}, $form->{notes},
-             conv_date($form->{transdate}), $department_id, $form->{taxincluded} ? 't' : 'f',
+             conv_date($form->{transdate}), conv_i($department_id), $form->{taxincluded} ? 't' : 'f',
              $form->{storno} ? 't' : 'f', conv_i($form->{storno_id}), $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f',
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
