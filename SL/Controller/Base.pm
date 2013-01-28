@@ -9,6 +9,7 @@ use IO::File;
 use List::Util qw(first);
 use SL::Request qw(flatten);
 use SL::MoreCommon qw(uri_encode);
+use SL::Presenter;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -62,18 +63,6 @@ sub render {
   $options->{type}       = lc($options->{type} || 'html');
   $options->{no_layout}  = 1 if $options->{type} eq 'js';
 
-  my $source;
-  if ($options->{inline}) {
-    $source = \$template;
-
-  } elsif($options->{raw}) {
-    $source =  $template;
-
-  } else {
-    $source = "templates/webpages/${template}." . $options->{type};
-    croak "Template file ${source} not found" unless -f $source;
-  }
-
   if (!$options->{partial} && !$options->{inline} && !$::form->{header}) {
     if ($options->{no_layout}) {
       $::form->{header} = 1;
@@ -88,24 +77,15 @@ sub render {
     }
   }
 
-  my %params = ( %locals,
-                 AUTH          => $::auth,
-                 FLASH         => $::form->{FLASH},
-                 FORM          => $::form,
-                 INSTANCE_CONF => $::instance_conf,
-                 LOCALE        => $::locale,
-                 LXCONFIG      => \%::lx_office_conf,
-                 LXDEBUG       => $::lxdebug,
-                 MYCONFIG      => \%::myconfig,
-                 SELF          => $self,
-               );
-
   my $output;
-  if (!$options->{raw}) {
-    my $parser = $self->_template_obj;
-    $parser->process($source, \%params, \$output) || croak $parser->error;
+  if ($options->{raw}) {
+    $output = $$template;
   } else {
-    $output = $$source;
+    $output = $self->presenter->render(
+      $template, $options,
+      %locals,
+      SELF => $self,
+    );
   }
 
   print $output unless $options->{inline} || $options->{no_output};
@@ -127,6 +107,10 @@ sub send_file {
 
   $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
   $file->close;
+}
+
+sub presenter {
+  return SL::Presenter->get;
 }
 
 sub controller_name {
@@ -231,24 +215,6 @@ sub _dispatch {
   } else {
     $::form->error($::locale->text('Oops. No valid action found to dispatch. Please report this case to the kivitendo team.'));
   }
-}
-
-sub _template_obj {
-  my ($self) = @_;
-
-  $self->{__basepriv_template_obj} ||=
-    Template->new({ INTERPOLATE  => 0,
-                    EVAL_PERL    => 0,
-                    ABSOLUTE     => 1,
-                    CACHE_SIZE   => 0,
-                    PLUGIN_BASE  => 'SL::Template::Plugin',
-                    INCLUDE_PATH => '.:templates/webpages',
-                    COMPILE_EXT  => '.tcc',
-                    COMPILE_DIR  => $::lx_office_conf{paths}->{userspath} . '/templates-cache',
-                    ERROR        => 'templates/webpages/generic/exception.html',
-                  }) || croak;
-
-  return $self->{__basepriv_template_obj};
 }
 
 1;
@@ -369,16 +335,18 @@ C<$options>, if present, must be a hash reference. All remaining
 parameters are slurped into C<%locals>.
 
 What is rendered and how C<$template> is interpreted is determined by
-the options I<type>, I<inline>, I<partial> and I<no_layout>.
+the options I<type>, I<inline>, I<partial> and I<no_layout>. The
+actual rendering is handled by L<SL::Presenter/render>.
 
 If C<< $options->{inline} >> is trueish then C<$template> is a string
 containing the template code to interprete. Additionally the output
 will not be sent to the browser. Instead it is only returned to the
 caller.
 
-If C<< $options->{raw} >> is trueish, the function will treat the input as
-already parsed, and will not filter the input through Template. Unlike
-C<inline>, the input is taked as a reference.
+If C<< $options->{raw} >> is trueish, the function will treat the
+input as already parsed, and will not filter the input through
+Template. This also means that L<SL::Presenter/render> is not
+called either. Unlike C<inline>, the input is taken as a reference.
 
 If C<< $options->{inline} >> is falsish then C<$template> is
 interpreted as the name of a template file. It is prefixed with
@@ -400,30 +368,8 @@ C<$locals{title}> (the latter only if C<$locals{title}> is
 trueish). Setting C<< $options->{no_layout} >> to trueish will prevent
 this.
 
-The template itself has access to the following variables:
-
-=over 2
-
-=item * C<AUTH> -- C<$::auth>
-
-=item * C<FORM> -- C<$::form>
-
-=item * C<LOCALE> -- C<$::locale>
-
-=item * C<LXCONFIG> -- all parameters from C<config/kivitendo.conf>
-with the same name they appear in the file (first level is the
-section, second the actual variable, e.g. C<system.dbcharset>,
-C<features.webdav> etc)
-
-=item * C<LXDEBUG> -- C<$::lxdebug>
-
-=item * C<MYCONFIG> -- C<%::myconfig>
-
-=item * C<SELF> -- the controller instance
-
-=item * All items from C<%locals>
-
-=back
+The template itself has access to several variables. These are listed
+in the documentation to L<SL::Presenter/render>.
 
 Unless C<< $options->{inline} >> is trueish the function will send the
 output to the browser.
@@ -562,6 +508,11 @@ method and an instance method.
 Returns the name of the currently executing action. If the dispatcher
 mechanism was used then this is not C<dispatch> but the actual method
 name the dispatching resolved to.
+
+=item C<presenter>
+
+Returns the global presenter object by calling
+L<SL::Presenter/get>.
 
 =back
 

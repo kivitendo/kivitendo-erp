@@ -6,6 +6,8 @@ use List::MoreUtils qw(apply);
 use List::Util qw(max);
 use Scalar::Util qw(blessed);
 
+use SL::Presenter;
+
 use strict;
 
 { # This will give you an id for identifying html tags and such.
@@ -675,9 +677,7 @@ sub paginate_controls {
     },
   );
 
-  my $output;
-  $controller->_template_obj->process('templates/webpages/common/paginate.html', \%template_params, \$output);
-  return $output;
+  return SL::Presenter->get->render('common/paginate', %template_params);
 }
 
 1;
