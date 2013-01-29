@@ -13,13 +13,17 @@ use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
 use SL::CVar;
 use SL::DB::Customer;
+use SL::DB::DeliveryOrder;
+use SL::DB::Invoice;
+use SL::DB::Order;
 use SL::DB::Project;
+use SL::DB::PurchaseInvoice;
 use SL::Helper::Flash;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(project db_args flat_filter) ],
+ scalar => [ qw(project db_args flat_filter linked_records) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -88,6 +92,16 @@ sub action_new {
 
 sub action_edit {
   my ($self) = @_;
+
+  $self->linked_records([
+    map  { @{ $_ } }
+    grep { $_      } (
+      SL::DB::Manager::Order->          get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::DeliveryOrder->  get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::Invoice->        get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer'           ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::PurchaseInvoice->get_all(where => [ globalproject_id => $self->project->id ], with_objects => [             'vendor' ], sort_by => 'transdate ASC'),
+    )]);
+
   $self->display_form(title    => $::locale->text('Edit project #1', $self->project->projectnumber),
                       callback => $::form->{callback} || $self->url_for(action => 'edit', id => $self->project->id));
 }

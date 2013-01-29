@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[%- USE L %]
+[%- USE L %][%- USE P %]
 [%- USE HTML %][%- USE LxERP %]
 
 [%- INCLUDE 'common/flash.html' %]
@@ -14,6 +14,9 @@
    <li class="selected"><a href="#" rel="basic_data">[% 'Basic Data' | $T8 %]</a></li>
    [%- IF CUSTOM_VARIABLES.size %]
    <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
+   [%- END %]
+   [%- IF SELF.project.id %]
+   <li><a href="#" rel="linked_records">[% 'Linked Records' | $T8 %]</a></li>
    [%- END %]
   </ul>
 
@@ -78,6 +81,15 @@
       [%- END %]
      </table>
     </p>
+
+    <br style="clear: left" />
+   </div>
+   [%- END %]
+
+   [%- IF SELF.project.id %]
+   <div id="linked_records" class="tabcontent">
+
+    [% P.grouped_record_list(SELF.linked_records) %]
 
     <br style="clear: left" />
    </div>
