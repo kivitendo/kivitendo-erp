@@ -1,0 +1,28 @@
+[% USE L %][% USE LxERP %]
+<div class="listtop">[%- P.escape(title) %]</div>
+
+<div style="padding-bottom: 15px">
+ <table style="width: 100%">
+  <thead>
+   <tr>
+    [%- FOREACH column = TABLE_HEADER %]
+    <th class="listheading"[% IF column.alignment %] align="[% column.alignment %]"[% END %]>[%- P.escape(column.value) %]</th>
+    [%- END %]
+   </tr>
+  </thead>
+
+  <tbody>
+   [%- FOREACH row = TABLE_ROWS %]
+   <tr class="listrow[% loop.count % 2 %]">
+    [%- FOREACH column = row %]
+    <td[% IF column.alignment %] align="[% column.alignment %]"[% END %]>
+     [%- IF column.link %]<a href="[% column.link %]">[%- END %]
+      [%- P.escape(column.value) %]
+      [%- IF column.link %]</a>[%- END %]
+    </td>
+    [%- END %]
+   </tr>
+   [%- END %]
+  </tbody>
+ </table>
+</div>
