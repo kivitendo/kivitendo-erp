@@ -199,7 +199,7 @@ by the calling function.
 
   my $content = $presenter->render(
     '[% USE JavaScript %][% JavaScript.replace_with("#someid", "js/something") %]',
-    { type => 'js' }
+    { type => 'js', inline => 1 }
   );
 
 =item C<escape $text>
