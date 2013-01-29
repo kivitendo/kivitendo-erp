@@ -35,7 +35,7 @@ sub fix_print_and_internal_encoding_after_0_68 {
   *FCGI::Stream::PRINT = sub {
     if (!$::locale || !$::locale->raw_io_active) {
       my $self = shift;
-      my @vals = map { $encoder->encode($_, Encode::FB_CROAK|Encode::LEAVE_SRC) } @_;
+      my @vals = map { $encoder->encode("$_", Encode::FB_CROAK|Encode::LEAVE_SRC) } @_;
       @_ = ($self, @vals);
     }
 
