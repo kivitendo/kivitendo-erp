@@ -71,24 +71,21 @@ sub record_list {
 
       my $method       =  $spec->{column} || $spec->{data};
       my $meta         =  $column_meta{ $spec->{data} };
-      my $type         =  lc ref $meta;
-      $type            =~ s/.*:://;
+      my $type         =  ref $meta;
       my $relationship =  $relationships{ $spec->{data} };
       my $rel_type     =  !$relationship ? '' : lc $relationship->class;
-      $rel_type        =~ s/.*:://;
+      $rel_type        =~ s/^sl::db:://;
 
       if (ref($spec->{data}) eq 'CODE') {
         $cell{value} = $spec->{data}->($obj);
 
       } else {
-        $cell{value} = $rel_type eq 'customer'        ? $self->customer($obj->$method, display => 'table-cell')
-                     : $rel_type eq 'vendor'          ? $self->vendor(  $obj->$method, display => 'table-cell')
-                     : $rel_type eq 'project'         ? $self->project( $obj->$method, display => 'table-cell')
-                     : $type eq 'date'                ? $call->($obj, $method . '_as_date')
-                     : $type =~ m/float|numeric|real/ ? $::form->format_amount(\%::myconfig, $call->($obj, $method), 2)
-                     : $type eq 'boolean'             ? $call->($obj, $method . '_as_bool_yn')
-                     : $type =~ m/int|serial/         ? $spec->{data} * 1
-                     :                                  $call->($obj, $method);
+        $cell{value} = $rel_type && $self->can($rel_type)                                       ? $self->$rel_type($obj->$method, display => 'table-cell')
+                     : $type eq 'Rose::DB::Object::Metadata::Column::Date'                      ? $call->($obj, $method . '_as_date')
+                     : $type =~ m/^Rose::DB::Object::Metadata::Column::(?:Float|Numeric|Real)$/ ? $::form->format_amount(\%::myconfig, $call->($obj, $method), 2)
+                     : $type eq 'Rose::DB::Object::Metadata::Column::Boolean'                   ? $call->($obj, $method . '_as_bool_yn')
+                     : $type =~ m/^Rose::DB::Object::Metadata::Column::(?:Integer|Serial)$/     ? $spec->{data} * 1
+                     :                                                                            $call->($obj, $method);
       }
 
       $cell{alignment} = 'right' if $type =~ m/int|serial|float|real|numeric/;
