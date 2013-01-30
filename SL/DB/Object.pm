@@ -96,6 +96,17 @@ sub call_sub_if {
   return $check ? $self->$sub(@_) : $self;
 }
 
+sub get_first_conflicting {
+  my ($self, @attributes) = @_;
+
+  my $primary_key         = ($self->meta->primary_key)[0];
+  my @where               = map { ($_ => $self->$_) } @attributes;
+
+  push @where, ("!$primary_key" => $self->$primary_key) if $self->$primary_key;
+
+  return $self->_get_manager_class->get_first(where => [ and => \@where ]);
+}
+
 # These three functions cannot sit in SL::DB::Object::Hooks because
 # mixins don't deal well with super classes (SUPER is the current
 # package's super class, not $self's).
@@ -223,6 +234,13 @@ whether or not C<$name> is called.
 
 Returns the sub's result if the check is positive and C<$self>
 otherwise.
+
+=item C<get_first_conflicting @attributes>
+
+Returns the first object for which all properties listed in
+C<@attributes> equal those in C<$self> but which is not C<$self>. Can
+be used to check whether or not an object's columns are unique before
+saving or during validation.
 
 =back
 
