@@ -331,6 +331,9 @@ sub apply_upgrade {
     exit 0;
   }
 
+  my $db_charset = $::lx_office_conf{system}->{dbcharset};
+  $db_charset ||= Common::DEFAULT_CHARSET();
+
   foreach my $control (@upgradescripts) {
     $control->{file} =~ /\.(sql|pl)$/;
     my $file_type = $1;
@@ -339,9 +342,9 @@ sub apply_upgrade {
     print "Applying upgrade $control->{file}\n";
 
     if ($file_type eq "sql") {
-      $dbupgrader->process_query($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control);
+      $dbupgrader->process_query($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control, $db_charset);
     } else {
-      $dbupgrader->process_perl_script($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control);
+      $dbupgrader->process_perl_script($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control, $db_charset);
     }
   }
 
