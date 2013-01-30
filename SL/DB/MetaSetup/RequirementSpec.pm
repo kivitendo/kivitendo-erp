@@ -1,0 +1,68 @@
+# This file has been auto-generated. Do not modify it; it will be overwritten
+# by rose_auto_create_model.pl automatically.
+package SL::DB::RequirementSpec;
+
+use strict;
+
+use base qw(SL::DB::Object);
+
+__PACKAGE__->meta->setup(
+  table   => 'requirement_specs',
+
+  columns => [
+    id                      => { type => 'serial', not_null => 1 },
+    type_id                 => { type => 'integer', not_null => 1 },
+    status_id               => { type => 'integer', not_null => 1 },
+    version_id              => { type => 'integer' },
+    customer_id             => { type => 'integer', not_null => 1 },
+    project_id              => { type => 'integer' },
+    title                   => { type => 'text', not_null => 1 },
+    hourly_rate             => { type => 'numeric', default => '0', not_null => 1, precision => 2, scale => 8 },
+    net_sum                 => { type => 'numeric', default => '0', not_null => 1, precision => 2, scale => 12 },
+    working_copy_id         => { type => 'integer' },
+    previous_section_number => { type => 'integer', not_null => 1 },
+    previous_fb_number      => { type => 'integer', not_null => 1 },
+    is_template             => { type => 'boolean', default => 'false' },
+    itime                   => { type => 'timestamp', default => 'now()' },
+    mtime                   => { type => 'timestamp' },
+  ],
+
+  primary_key_columns => [ 'id' ],
+
+  allow_inline_column_values => 1,
+
+  foreign_keys => [
+    customer => {
+      class       => 'SL::DB::Customer',
+      key_columns => { customer_id => 'id' },
+    },
+
+    project => {
+      class       => 'SL::DB::Project',
+      key_columns => { project_id => 'id' },
+    },
+
+    status => {
+      class       => 'SL::DB::RequirementSpecStatus',
+      key_columns => { status_id => 'id' },
+    },
+
+    type => {
+      class       => 'SL::DB::RequirementSpecType',
+      key_columns => { type_id => 'id' },
+    },
+
+    version => {
+      class       => 'SL::DB::RequirementSpecVersion',
+      key_columns => { version_id => 'id' },
+    },
+
+    working_copy => {
+      class       => 'SL::DB::RequirementSpec',
+      key_columns => { working_copy_id => 'id' },
+    },
+  ],
+);
+
+1;
+;
