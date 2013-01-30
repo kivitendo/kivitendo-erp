@@ -413,7 +413,7 @@ sub form_header {
     # emulate click for resubmitting actions
     $dispatch_to_popup  = "document.oe.${_}.click(); " for grep { /^action_/ } keys %$form;
   } elsif ($creditwarning) {
-    $::request->{layout}->add_javascripts_inline("alert('$credittext')");
+    $::request->{layout}->add_javascripts_inline("alert('$credittext');");
   }
 
   $::request->{layout}->add_javascripts_inline("\$(function(){$dispatch_to_popup})");
