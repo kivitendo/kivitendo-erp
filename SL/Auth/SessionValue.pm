@@ -2,6 +2,10 @@ package SL::Auth::SessionValue;
 
 use strict;
 
+# Classes that overload stringification must be known before
+# YAML::Load() is called.
+use SL::Locale::String ();
+
 use Scalar::Util qw(weaken);
 use YAML;
 
@@ -33,6 +37,7 @@ sub get {
 
 sub get_dumped {
   my ($self) = @_;
+  local $YAML::Stringify = 1;
   return YAML::Dump($self->get);
 }
 
