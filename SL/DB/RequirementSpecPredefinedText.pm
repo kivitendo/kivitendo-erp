@@ -11,8 +11,9 @@ sub validate {
   my ($self) = @_;
 
   my @errors;
-  push @errors, t8('The title is missing.')       if !$self->title;
-  push @errors, t8('The description is missing.') if !$self->description;
+  push @errors, t8('The description is missing.')    if !$self->description;
+  push @errors, t8('The description is not unique.') if  $self->get_first_conflicting('description');
+  push @errors, t8('The title is missing.')          if !$self->title;
 
   return @errors;
 }
