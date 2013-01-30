@@ -6,6 +6,7 @@ package SL::DB::Warehouse;
 use strict;
 
 use SL::DB::MetaSetup::Warehouse;
+use SL::DB::Helper::ActsAsList;
 
 __PACKAGE__->meta->make_manager_class;
 

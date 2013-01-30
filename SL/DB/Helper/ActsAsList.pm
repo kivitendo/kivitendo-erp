@@ -3,7 +3,7 @@ package SL::DB::Helper::ActsAsList;
 use strict;
 
 use parent qw(Exporter);
-our @EXPORT = qw(move_position_up move_position_down);
+our @EXPORT = qw(move_position_up move_position_down reorder_list);
 
 use Carp;
 
@@ -31,6 +31,27 @@ sub move_position_up {
 sub move_position_down {
   my ($self) = @_;
   do_move($self, 'down');
+}
+
+sub reorder_list {
+  my ($class_or_self, @ids) = @_;
+
+  return 1 unless @ids;
+
+  my $self   = ref($class_or_self) ? $class_or_self : $class_or_self->new;
+  my $column = column_name($self);
+  my $result = $self->db->do_transaction(sub {
+    my $query = qq|UPDATE | . $self->meta->table . qq| SET ${column} = ? WHERE id = ?|;
+    my $sth   = $self->db->dbh->prepare($query) || die $self->db->dbh->errstr;
+
+    foreach my $new_position (1 .. scalar(@ids)) {
+      $sth->execute($new_position, $ids[$new_position - 1]) || die $sth->errstr;
+    }
+
+    $sth->finish;
+  });
+
+  return $result;
 }
 
 #
@@ -138,6 +159,22 @@ regarding their sort order by exchanging their C<position> values.
 
 Swaps the object with the object one step below the current one
 regarding their sort order by exchanging their C<position> values.
+
+=item C<reorder_list @ids>
+
+Re-orders the objects given in C<@ids> by their position in C<@ids> by
+updating all of their positional columns. Each element in
+C<@positions> must be the ID of an object. The new position is the
+ID's index inside C<@ids> plus one (meaning the first element's new
+position will be 1 and not 0).
+
+This works by executing SQL "UPDATE" statements directly.
+
+Returns the result of the whole transaction (trueish in case of
+success).
+
+This method can be called both as a class method or an instance
+method.
 
 =back
 

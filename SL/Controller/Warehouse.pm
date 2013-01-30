@@ -15,12 +15,7 @@ __PACKAGE__->run_before('check_auth');
 sub action_reorder {
   my ($self) = @_;
 
-  my @ids = @{ $::form->{warehouse_id} || [] };
-  my $result = SL::DB::Warehouse->new->db->do_transaction(sub {
-    foreach my $idx (0 .. scalar(@ids) - 1) {
-      SL::DB::Warehouse->new(id => $ids[$idx])->load->update_attributes(sortkey => $idx + 1);
-    }
-  });
+  SL::DB::Warehouse->reorder_list(@{ $::form->{warehouse_id} || [] });
 
   $self->render('1;', { type => 'js', inline => 1 });
 }

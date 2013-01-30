@@ -15,12 +15,7 @@ __PACKAGE__->run_before('check_auth');
 sub action_reorder {
   my ($self) = @_;
 
-  my @ids = @{ $::form->{cvarcfg_id} || [] };
-  my $result = SL::DB::CustomVariableConfig->new->db->do_transaction(sub {
-    foreach my $idx (0 .. scalar(@ids) - 1) {
-      SL::DB::CustomVariableConfig->new(id => $ids[$idx])->load->update_attributes(sortkey => $idx + 1);
-    }
-  });
+  SL::DB::CustomVariableConfig->reorder_list(@{ $::form->{cvarcfg_id} || [] });
 
   $self->render('1;', { type => 'js', inline => 1 });
 }

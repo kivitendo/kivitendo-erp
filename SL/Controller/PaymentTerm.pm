@@ -68,12 +68,7 @@ sub action_destroy {
 sub action_reorder {
   my ($self) = @_;
 
-  my @ids = @{ $::form->{payment_term_id} || [] };
-  my $result = SL::DB::PaymentTerm->new->db->do_transaction(sub {
-    foreach my $idx (0 .. scalar(@ids) - 1) {
-      SL::DB::PaymentTerm->new(id => $ids[$idx])->load->update_attributes(sortkey => $idx + 1);
-    }
-  });
+  SL::DB::PaymentTerm->reorder_list(@{ $::form->{payment_term_id} || [] });
 
   $self->render('1;', { type => 'js', inline => 1 });
 }

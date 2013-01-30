@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::Unit;
 use SL::DB::Manager::Unit;
+use SL::DB::Helper::ActsAsList;
 
 __PACKAGE__->meta->add_relationships(
   base => {
