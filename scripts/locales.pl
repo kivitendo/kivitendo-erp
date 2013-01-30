@@ -421,7 +421,7 @@ sub scanfile {
         }
 
         # exit loop if there are no more locales on this line
-        ($rc) = ($postmatch =~ /locale->text/);
+        ($rc) = ($postmatch =~ /locale->text | \b t8/x);
 
         if (   ($postmatch =~ />/)
             || (!$found && ($sub_line_no != $line_no) && />/)) {
