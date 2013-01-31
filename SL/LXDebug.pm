@@ -453,32 +453,6 @@ following would not trigger a change:
   # This does trigger:
   $::form->{some_hash} = { something => 'else' };
 
-=item C<show_debug_menu>
-
-A boolean (C<1> or C<0>). If turned on then certain debug facilities
-are available from the v1 menu. These include e.g.
-
-=over 6
-
-=item *
-
-restarting the FastCGI process by forcefully exiting after the
-request,
-
-=item *
-
-enabling and disabling function tracing,
-
-=item *
-
-enabling and disabling certain debug levels.
-
-=back
-
-Note that these are only useful if kivitendo is running as a FastCGI
-application because otherwise the changes would be lost when the
-process exits in a normal CGI environment.
-
 =item C<keep_temp_files>
 
 A boolean (C<1> or C<0>). If turned on then certain temporary files
