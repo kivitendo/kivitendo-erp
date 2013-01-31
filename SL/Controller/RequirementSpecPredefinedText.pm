@@ -5,7 +5,6 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::DB::RequirementSpecPredefinedText;
-use SL::DB::Language;
 use SL::Helper::Flash;
 use SL::Locale::String;
 
