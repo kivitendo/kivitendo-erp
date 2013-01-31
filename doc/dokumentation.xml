@@ -2170,6 +2170,82 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         <varname>[periodic_invoices]</varname>.</para>
       </sect2>
 
+      <sect2 id="features.periodic-invoices.variables">
+        <title>Spezielle Variablen</title>
+
+        <para>
+          Um die erzeugten Rechnungen individualisieren zu können, werden beim Umwandeln des Auftrags in eine Rechnung einige speziell
+          formatierte Variablen durch für die jeweils aktuelle Abrechnungsperiode gültigen Werte ersetzt. Damit ist es möglich, z.B. den
+          Abrechnungszeitraum explizit auszuweisen. Eine Variable hat dabei die Syntax <literal>&lt;%variablenname%&gt;</literal>.
+        </para>
+
+        <para>
+          Diese Variablen werden in den folgenden Elementen des Auftrags ersetzt:
+        </para>
+
+        <itemizedlist>
+          <listitem><para>Bemerkungen</para></listitem>
+          <listitem><para>Interne Bemerkungen</para></listitem>
+          <listitem><para>Vorgangsbezeichnung</para></listitem>
+          <listitem><para>In den Beschreibungs- und Langtextfeldern aller Positionen</para></listitem>
+        </itemizedlist>
+
+        <para>Die zur Verfügung stehenden Variablen sind die Folgenden:</para>
+
+        <variablelist>
+          <varlistentry>
+            <term><varname>&lt;%current_quarter%&gt;</varname>, <varname>&lt;%previous_quarter%&gt;</varname>, <varname>&lt;%next_quarter%&gt;</varname></term>
+
+            <listitem>
+              <para>
+                Aktuelles, vorheriges und nächstes Quartal als Zahl zwischen <literal>1</literal> und <literal>4</literal>.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>&lt;%current_month%&gt;</varname>, <varname>&lt;%previous_month%&gt;</varname>, <varname>&lt;%next_month%&gt;</varname></term>
+
+            <listitem>
+              <para>
+                Aktueller, vorheriger und nächster Monat als Zahl zwischen <literal>1</literal> und <literal>12</literal>.
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>&lt;%current_month_long%&gt;</varname>, <varname>&lt;%previous_month_long%&gt;</varname>, <varname>&lt;%next_month_long%&gt;</varname></term>
+
+            <listitem>
+              <para>
+                Aktueller, vorheriger und nächster Monat als Name (<literal>Januar</literal>, <literal>Februar</literal> etc.).
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>&lt;%current_year%&gt;</varname>, <varname>&lt;%previous_year%&gt;</varname>, <varname>&lt;%next_year%&gt;</varname></term>
+
+            <listitem>
+              <para>
+                Aktuelles, vorheriges und nächstes Jahr als vierstellige Jahreszahl (<literal>2013</literal> etc.).
+              </para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
+            <term><varname>&lt;%period_start_date%&gt;</varname>, <varname>&lt;%period_end_date%&gt;</varname></term>
+
+            <listitem>
+              <para>
+                Formatiertes Datum des ersten und letzten Tages im Abrechnungszeitraum (z.B. bei quartalsweiser Abrechnung und im ersten
+                Quartal von 2013 wären dies der <literal>01.01.2013</literal> und <literal>31.03.2013</literal>).
+              </para>
+            </listitem>
+          </varlistentry>
+        </variablelist>
+      </sect2>
+
       <sect2 id="features.periodic-invoices.reports">
         <title>Auflisten</title>
 
