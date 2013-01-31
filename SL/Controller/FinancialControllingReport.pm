@@ -138,13 +138,18 @@ sub calculate_data {
   my ($self) = @_;
 
   foreach my $order (@{ $self->{orders} }) {
-    my $delivery_orders = $order->linked_records(direction => 'to', to => 'DeliveryOrder', via => 'Order', query => [ '!customer_id' => undef ]);
-    my $invoices        = $order->linked_records(direction => 'to', to => 'Invoice',       via => [ 'Order', 'DeliveryOrder' ]);
+    my @delivery_orders = @{ $order->linked_records(direction => 'to', to => 'DeliveryOrder', via => 'Order', query => [ '!customer_id' => undef ]) };
+    my @invoices        = @{ $order->linked_records(direction => 'to', to => 'Invoice',       via => [ 'Order', 'DeliveryOrder' ])                  };
 
-    $order->{delivered_amount}  = sum map { $self->sum_relevant_items(order => $order, other => $_, by_order => 1) } @{ $delivery_orders };
-    $order->{billed_amount}     = sum map { $self->sum_relevant_items(order => $order, other => $_)                } @{ $invoices        };
-    $order->{paid_amount}       = sum map { $_->paid                                                               } @{ $invoices        };
-    my $billed_amount           = sum map { $_->netamount                                                          } @{ $invoices        };
+    @invoices = (
+      grep({ !$_->storno_id } @invoices),
+      map({ @{ $_->storno_invoices } } grep { $_->storno && !$_->storno_id } @invoices),
+    );
+
+    $order->{delivered_amount}  = sum map { $self->sum_relevant_items(order => $order, other => $_, by_order => 1) } @delivery_orders;
+    $order->{billed_amount}     = sum map { $self->sum_relevant_items(order => $order, other => $_)                } @invoices;
+    $order->{paid_amount}       = sum map { $_->paid                                                               } @invoices;
+    my $billed_amount           = sum map { $_->netamount                                                          } @invoices;
     $order->{other_amount}      = $billed_amount             - $order->{billed_amount};
     $order->{billable_amount}   = $order->{delivered_amount} - $order->{billed_amount};
 
