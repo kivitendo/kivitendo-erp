@@ -1093,6 +1093,7 @@ $self->{texts} = {
   'History Search Engine'       => 'Historien Suchmaschine',
   'Homepage'                    => 'Homepage',
   'Host'                        => 'Datenbankcomputer',
+  'Hourly rate'                 => 'Stundensatz',
   'However, you can create a new part which will then be selected.' => 'Sie k&ouml;nnen jedoch einen neuen Artikel anlegen, der dann automatisch ausgew&auml;hlt wird.',
   'I'                           => 'I',
   'IBAN'                        => 'IBAN',
