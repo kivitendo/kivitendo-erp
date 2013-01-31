@@ -100,7 +100,8 @@ sub prepare_report {
     ordnumber               => { obj_link => sub { $self->link_to($_[0])                                              }  },
     customer                => {      sub => sub { $_[0]->customer->name                                              },
                                  obj_link => sub { $self->link_to($_[0]->customer)                                    }  },
-    globalprojectnumber     => {      sub => sub { $_[0]->globalproject_id ? $_[0]->globalproject->projectnumber : '' }  },
+    globalprojectnumber     => {      sub => sub { $_[0]->globalproject_id ? $_[0]->globalproject->projectnumber : '' },
+                                 obj_link => sub { $self->link_to($_[0]->globalproject)                               }  },
     globalproject_type      => { text     => $::locale->text('Project type'),
                                  sub      => sub { $_[0]->globalproject_id ? $_[0]->globalproject->project_type->description : '' }  },
   );
@@ -241,6 +242,10 @@ sub link_to {
   if ($object->isa('SL::DB::Customer')) {
     my $id     = $object->id;
     return "ct.pl?action=$action&id=$id&db=customer";
+  }
+  if ($object->isa('SL::DB::Project')) {
+    my $id     = $object->id;
+    return "controller.pl?action=Project/$action&id=$id";
   }
 }
 
