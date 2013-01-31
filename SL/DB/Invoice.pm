@@ -28,6 +28,11 @@ __PACKAGE__->meta->add_relationship(
       with_objects => [ 'part' ]
     }
   },
+  storno_invoices => {
+    type          => 'one to many',
+    class         => 'SL::DB::Invoice',
+    column_map    => { id => 'storno_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
