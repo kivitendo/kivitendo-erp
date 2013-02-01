@@ -70,7 +70,7 @@ sub action_reorder {
 
   SL::DB::RequirementSpecRisk->reorder_list(@{ $::form->{requirement_spec_risk_id} || [] });
 
-  $self->render('1;', { type => 'js', inline => 1 });
+  $self->render(\'', { type => 'json' });
 }
 
 #

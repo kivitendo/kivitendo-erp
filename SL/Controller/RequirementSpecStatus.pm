@@ -71,7 +71,7 @@ sub action_reorder {
 
   SL::DB::RequirementSpecStatus->reorder_list(@{ $::form->{requirement_spec_status_id} || [] });
 
-  $self->render('1;', { type => 'js', inline => 1 });
+  $self->render(\'', { type => 'json' });
 }
 
 #

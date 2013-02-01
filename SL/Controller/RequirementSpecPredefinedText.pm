@@ -70,7 +70,7 @@ sub action_reorder {
 
   SL::DB::RequirementSpecPredefinedText->reorder_list(@{ $::form->{requirement_spec_predefined_text_id} || [] });
 
-  $self->render('1;', { type => 'js', inline => 1 });
+  $self->render(\'', { type => 'json' });
 }
 
 #
