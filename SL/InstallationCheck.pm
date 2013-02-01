@@ -52,6 +52,8 @@ BEGIN {
   { name => "Moose::Role",                         url => "http://search.cpan.org/~doy/",       debian => 'libmoose-role-perl' },
   { name => "Perl::Tags",                          url => "http://search.cpan.org/~osfameron/", debian => 'libperl-tags-perl' },
   { name => "Test::Deep",                          url => "http://search.cpan.org/~rjbs/",      debian => 'libtest-deep-perl' },
+  { name => "Test::Exception",                     url => "http://search.cpan.org/~adie/",      debian => 'libtest-exception-perl' },
+  { name => "Test::Deep",                          url => "http://search.cpan.org/~bdfoy/",     debian => 'libtest-output-perl' },
   { name => "GD",              version => '2.00',  url => "http://search.cpan.org/~lds/",       debian => 'libgd-perl' },
 );
 

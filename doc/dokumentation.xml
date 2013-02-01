@@ -5942,6 +5942,10 @@ filenames</programlisting>
         <itemizedlist>
           <listitem><para><literal>Test::Deep</literal> (Debian-Paketname: <literal>libtest-deep-perl</literal>; Fedora Core:
           <literal>perl-Test-Deep</literal>; openSUSE: <literal>perl-Test-Deep</literal>)</para></listitem>
+          <listitem><para><literal>Test::Exception</literal> (Debian-Paketname: <literal>libtest-exception-perl</literal>; Fedora Core:
+          <literal>perl-Test-Exception</literal>; openSUSE: <literal>perl-Test-Exception</literal>)</para></listitem>
+          <listitem><para><literal>Test::Output</literal> (Debian-Paketname: <literal>libtest-output-perl</literal>; Fedora Core:
+          <literal>perl-Test-Output</literal>; openSUSE: <literal>perl-Test-Output</literal>)</para></listitem>
           <listitem><para><literal>Test::Harness</literal> 3.0.0 oder höher. Dieses Modul ist ab Perl 5.10.1 Bestandteil der
           Perl-Distribution und kann für frühere Versionen aus dem <ulink url="http://www.cpan.org">CPAN</ulink> bezogen
           werden.</para></listitem>
