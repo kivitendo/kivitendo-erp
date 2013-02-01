@@ -68,7 +68,7 @@ sub action_reorder {
 
   SL::DB::ProjectType->reorder_list(@{ $::form->{project_type_id} || [] });
 
-  $self->render('1;', { type => 'js', inline => 1 });
+  $self->render(\'', { type => 'json' });
 }
 
 #
