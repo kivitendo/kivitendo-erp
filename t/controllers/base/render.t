@@ -20,7 +20,7 @@ sub reset_test_env {
     layout => SL::Layout::Javascript->new,
   };
 
-  $::myconfig{stylesheet} = 'javascript';
+  $::myconfig{menustyle} = 'javascript';
 
   delete @{ $::form }{qw(header footer)};
 }
@@ -65,13 +65,13 @@ stdout_like { $ctrl->render(\'Hallo [% world %]', world => 'Welt') } qr/<html>/i
 
 # Menu yes/no:
 reset_test_env();
-stdout_like { $ctrl->render(\'Hallo [% world %]', world => 'Welt') } qr/<table.*class=.*menunew/i, 'HTML header & menu with header=1';
+stdout_like { $ctrl->render(\'Hallo [% world %]', world => 'Welt') } qr/<div.*id="main_menu_div".*<ul.*id="main_menu_model"/is, 'HTML header & menu with header=1';
 
 reset_test_env();
-stdout_unlike { $ctrl->render(\'Hallo [% world %]', { header => 0 }, world => 'Welt') } qr/<table.*class=.*menunew/i, 'HTML header & menu with header=0';
+stdout_unlike { $ctrl->render(\'Hallo [% world %]', { header => 0 }, world => 'Welt') } qr/<div.*id="main_menu_div".*<ul.*id="main_menu_model"/is, 'HTML header & menu with header=0';
 
 reset_test_env();
-stdout_unlike { $ctrl->render(\'Hallo [% world %]', { layout => 0 }, world => 'Welt') } qr/<table.*class=.*menunew/i, 'HTML header & menu with layout=0';
+stdout_unlike { $ctrl->render(\'Hallo [% world %]', { layout => 0 }, world => 'Welt') } qr/<div.*id="main_menu_div".*<ul.*id="main_menu_model"/is, 'HTML header & menu with layout=0';
 
 done_testing;
 
