@@ -115,7 +115,7 @@ sub prepare_report {
   $report->set_columns(%$column_defs);
   $report->set_column_order(@columns);
   $report->set_options(allow_pdf_export => 0, allow_csv_export => 0);
-  $report->set_sort_indicator(%params);
+  $report->set_sort_indicator($self->{sort_by}, $self->{sort_dir});
   $report->set_export_options(@{ $params{report_generator_export_options} || [] });
   $report->set_options(
     %{ $params{report_generator_options} || {} },
