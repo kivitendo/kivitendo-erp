@@ -6,4 +6,4 @@
   else
     echo -- "$@"
   fi
-} | HARNESS_OPTIONS=j:c xargs perl -Imodules/override -MTest::Harness -e 'BEGIN { push @INC, "modules/fallback" } runtests(@ARGV)'
+} | HARNESS_OPTIONS=j:c xargs perl -X -Imodules/override -MTest::Harness -e 'BEGIN { push @INC, "modules/fallback" } runtests(@ARGV)'

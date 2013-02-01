@@ -6,7 +6,7 @@ use parent qw(SL::Layout::Base);
 sub pre_content {
   my ($self) = @_;
 
-  $self->SUPER::render('menu/header', { partial => 1, no_output => 1 },
+  $self->SUPER::render('menu/header', { output => 0 },
                 now        => DateTime->now_local,
                 is_fastcgi => scalar($::dispatcher->interface_type =~ /fastcgi/i),
                 is_links   => scalar($ENV{HTTP_USER_AGENT}         =~ /links/i));

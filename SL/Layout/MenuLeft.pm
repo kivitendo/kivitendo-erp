@@ -14,7 +14,7 @@ sub stylesheets {
 sub javascripts_inline {
   my $self = shift;
   my $sections = [ section_menu($self->menu) ];
-  $self->render('menu/menu', { partial => 1, no_output => 1 },
+  $self->render('menu/menu', { output => 0 },
     sections  => $sections,
   )
 }

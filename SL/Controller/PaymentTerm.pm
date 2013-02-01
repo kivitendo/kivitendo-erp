@@ -70,7 +70,7 @@ sub action_reorder {
 
   SL::DB::PaymentTerm->reorder_list(@{ $::form->{payment_term_id} || [] });
 
-  $self->render('1;', { type => 'js', inline => 1 });
+  $self->render(\'', { type => 'json' });
 }
 
 #

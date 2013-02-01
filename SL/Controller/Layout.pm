@@ -3,7 +3,7 @@ package SL::Controller::Layout;
 use strict;
 use parent qw(SL::Controller::Base);
 
-use JSON ();
+use SL::JSON ();
 
 sub action_empty {
   my ($self) = @_;
@@ -20,7 +20,7 @@ sub action_empty {
       stylesheets_inline => [ $::request->{layout}->stylesheets_inline ],
     };
 
-    $self->render(\ JSON::to_json($layout), { type => 'js', raw => 1 });
+    $self->render(\ SL::JSON::to_json($layout), { type => 'json', process => 0 });
   }
 }
 

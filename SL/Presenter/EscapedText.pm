@@ -2,6 +2,8 @@ package SL::Presenter::EscapedText;
 
 use strict;
 
+use JSON ();
+
 use overload '""' => \&escaped;
 
 sub new {
@@ -18,6 +20,10 @@ sub new {
 sub escaped {
   my ($self) = @_;
   return $self->{text};
+}
+
+sub TO_JSON {
+  goto &escaped;
 }
 
 1;

@@ -21,7 +21,7 @@ sub json_converter {
   my ($self, %params) = @_;
 
   if (!$self->{json}) {
-    $self->{json} = JSON->new->allow_nonref(1);
+    $self->{json} = JSON->new->allow_nonref(1)->convert_blessed(1);
 
     my $args = $self->{json_args};
 

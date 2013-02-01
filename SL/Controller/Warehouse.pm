@@ -17,7 +17,7 @@ sub action_reorder {
 
   SL::DB::Warehouse->reorder_list(@{ $::form->{warehouse_id} || [] });
 
-  $self->render('1;', { type => 'js', inline => 1 });
+  $self->render(\'', { type => 'json' });
 }
 
 #

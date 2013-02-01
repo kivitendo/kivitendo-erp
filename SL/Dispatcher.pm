@@ -82,7 +82,7 @@ sub show_error {
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!')                    if ($error_type eq 'password');
 
-  $::form->header(no_menu => 1);
+  $::form->header;
   print $::form->parse_html_template($template, \%params);
   $::lxdebug->leave_sub;
 

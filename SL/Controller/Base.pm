@@ -60,35 +60,69 @@ sub render {
   my $template           = shift;
   my ($options, %locals) = (@_ && ref($_[0])) ? @_ : ({ }, @_);
 
-  $options->{type}       = lc($options->{type} || 'html');
-  $options->{no_layout}  = 1 if $options->{type} eq 'js';
+  # Set defaults for all available options.
+  my %defaults = (
+    type       => 'html',
+    output     => 1,
+    header     => 1,
+    layout     => 1,
+    process    => 1,
+  );
+  $options->{$_} //= $defaults{$_} for keys %defaults;
+  $options->{type} = lc $options->{type};
 
-  if (!$options->{partial} && !$options->{inline} && !$::form->{header}) {
-    if ($options->{no_layout}) {
+  # Check supplied options for validity.
+  foreach (keys %{ $options }) {
+    croak "Unsupported option: $_" unless $defaults{$_};
+  }
+
+  # Only certain types are supported.
+  croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json)$/;
+
+  # The "template" argument must be a string or a reference to one.
+  croak "Unsupported 'template' reference type: " . ref($template) if ref($template) && (ref($template) !~ m/^(?:SCALAR|SL::Presenter::EscapedText)$/);
+
+  # If all output is turned off then don't output the header either.
+  if (!$options->{output}) {
+    $options->{header} = 0;
+    $options->{layout} = 0;
+
+  } else {
+    # Layout only makes sense if we're outputting HTML.
+    $options->{layout} = 0 if $options->{type} ne 'html';
+  }
+
+  if ($options->{header}) {
+    # Output the HTTP response and the layout in case of HTML output.
+
+    if ($options->{layout}) {
+      $::form->{title} = $locals{title} if $locals{title};
+      $::form->header;
+
+    } else {
+      # No layout: just the standard HTTP response. Also notify
+      # $::form that the header has already been output so that
+      # $::form->header() won't output it again.
       $::form->{header} = 1;
-      my $content_type  = $options->{type} eq 'js' ? 'text/javascript' : 'text/html';
+      my $content_type  = $options->{type} eq 'html' ? 'text/html'
+                        : $options->{type} eq 'js'   ? 'text/javascript'
+                        :                              'application/json';
 
       print $::form->create_http_response(content_type => $content_type,
                                           charset      => $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET());
-
-    } else {
-      $::form->{title} = $locals{title} if $locals{title};
-      $::form->header(no_menu => $options->{no_menu});
     }
   }
 
-  my $output;
-  if ($options->{raw}) {
-    $output = $$template;
-  } else {
-    $output = $self->presenter->render(
-      $template, $options,
-      %locals,
-      SELF => $self,
-    );
-  }
+  # Let the presenter do the rest of the work.
+  my $output = $self->presenter->render(
+    $template,
+    { type => $options->{type}, process => $options->{process} },
+    %locals,
+    SELF => $self,
+  );
 
-  print $output unless $options->{inline} || $options->{no_output};
+  # Print the output if wanted.
+  print $output if $options->{output};
 
   return $output;
 }
@@ -334,45 +368,63 @@ C<Form::parse_html_template> does.
 C<$options>, if present, must be a hash reference. All remaining
 parameters are slurped into C<%locals>.
 
-What is rendered and how C<$template> is interpreted is determined by
-the options I<type>, I<inline>, I<partial> and I<no_layout>. The
+What is rendered and how C<$template> is interpreted is determined
+both by C<$template>'s reference type and by the supplied options. The
 actual rendering is handled by L<SL::Presenter/render>.
 
-If C<< $options->{inline} >> is trueish then C<$template> is a string
-containing the template code to interprete. Additionally the output
-will not be sent to the browser. Instead it is only returned to the
-caller.
+If C<$template> is a normal scalar (not a reference) then it is meant
+to be a template file name relative to the C<templates/webpages>
+directory. The file name to use is determined by the C<type> option.
 
-If C<< $options->{raw} >> is trueish, the function will treat the
-input as already parsed, and will not filter the input through
-Template. This also means that L<SL::Presenter/render> is not
-called either. Unlike C<inline>, the input is taken as a reference.
+If C<$template> is a reference to a scalar then the referenced
+scalar's content is used as the content to process. The C<type> option
+is not considered in this case.
 
-If C<< $options->{inline} >> is falsish then C<$template> is
-interpreted as the name of a template file. It is prefixed with
-"templates/webpages/" and postfixed with a file extension based on
-C<< $options->{type} >>. C<< $options->{type} >> can be either C<html>
-or C<js> and defaults to C<html>. An exception will be thrown if that
-file does not exist.
+Other reference types, unknown options and unknown arguments to the
+C<type> option cause the function to L<croak>.
 
-If C<< $options->{partial} >> or C<< $options->{inline} >> is trueish
-then neither the HTTP response header nor the standard HTML header is
-generated.
+The following options are available (defaults: C<type> = 'html',
+C<process> = 1, C<output> = 1, C<header> = 1, C<layout> = 1):
 
-Otherwise at least the HTTP response header will be generated based on
-the template type (C<< $options->{type} >>).
+=over 2
 
-If the template type is C<html> then the standard HTML header will be
-output via C<< $::form->header >> with C<< $::form->{title} >> set to
-C<$locals{title}> (the latter only if C<$locals{title}> is
-trueish). Setting C<< $options->{no_layout} >> to trueish will prevent
-this.
+=item C<type>
+
+The template type. Can be C<html> (the default), C<js> for JavaScript
+or C<json> for JSON content. Affects the extension that's added to the
+file name given with a non-reference C<$template> argument, the
+content type HTTP header that is output and whether or not the layout
+will be output as well (see description of C<layout> below).
+
+=item C<process>
+
+If trueish (which is also the default) it causes the template/content
+to be processed by the Template toolkit. Otherwise the
+template/content is output as-is.
+
+=item C<output>
+
+If trueish (the default) then the generated output will be sent to the
+browser in addition to being returned. If falsish then the options
+C<header> and C<layout> are set to 0 as well.
+
+=item C<header>
+
+Determines whether or not to output the HTTP response
+headers. Defaults to the same value that C<output> is set to. If set
+to falsish then the layout is not output either.
+
+=item C<layout>
+
+Determines whether or not the basic HTML layout structure should be
+output (HTML header, common JavaScript and stylesheet inclusions, menu
+etc.). Defaults to 0 if C<type> is not C<html> and to the same value
+C<header> is set to otherwise.
+
+=back
 
 The template itself has access to several variables. These are listed
 in the documentation to L<SL::Presenter/render>.
-
-Unless C<< $options->{inline} >> is trueish the function will send the
-output to the browser.
 
 The function will always return the output.
 
@@ -383,12 +435,13 @@ Example: Render a HTML template with a certain title and a few locals
                 TODO_ITEMS => SL::DB::Manager::Todo->get_all_sorted);
 
 Example: Render a string and return its content for further processing
-by the calling function. No header is generated due to C<inline>.
+by the calling function. No header is generated due to C<output>.
 
-  my $content = $self->render('[% USE JavaScript %][% JavaScript.replace_with("#someid", "js/something") %]',
-                              { type => 'js', inline => 1 });
+  my $content = $self->render(\'[% USE JavaScript %][% JavaScript.replace_with("#someid", "js/something") %]',
+                              { output => 0 });
 
-Example: Render a JavaScript template and send it to the
+Example: Render a JavaScript template
+"templates/webpages/todo/single_item.js" and send it to the
 browser. Typical use for actions called via AJAX:
 
   $self->render('todo/single_item', { type => 'js' },

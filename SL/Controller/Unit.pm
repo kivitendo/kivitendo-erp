@@ -17,7 +17,7 @@ sub action_reorder {
 
   SL::DB::Unit->reorder_list(@{ $::form->{unit_id} || [] });
 
-  $self->render('1;', { type => 'js', inline => 1 });
+  $self->render(\'', { type => 'json' });
 }
 
 #

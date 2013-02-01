@@ -22,6 +22,5 @@ sub action_ajax_autocomplete {
   $self->{customers} = SL::DB::Manager::Customer->get_all(query => [ @filter ], limit => $limit);
   $self->{value} = $::form->{column} || 'name';
 
-  $self->render('ct/ajax_autocomplete2', { no_layout => 1 });
+  $self->render('ct/ajax_autocomplete2', { layout => 0, type => 'json' });
 }
-

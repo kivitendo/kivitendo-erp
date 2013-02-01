@@ -20,7 +20,7 @@ sub action_user_login {
   return if $self->_redirect_to_main_script_if_already_logged_in;
 
   # Otherwise show the login form.
-  $self->render('login_screen/user_login', { no_menu => 1 }, error => error_state($::form->{error}));
+  $self->render('login_screen/user_login', error => error_state($::form->{error}));
 }
 
 sub action_logout {
@@ -28,7 +28,7 @@ sub action_logout {
 
   $::auth->destroy_session;
   $::auth->create_or_refresh_session;
-  $self->render('login_screen/user_login', { no_menu => 1 }, error => $::locale->text('You are logged out!'));
+  $self->render('login_screen/user_login', error => $::locale->text('You are logged out!'));
 }
 
 sub action_login {
@@ -57,7 +57,7 @@ sub action_login {
   # Other login errors.
   if (0 > $result) {
     $::auth->punish_wrong_login;
-    return $self->render('login_screen/user_login', { no_menu => 1 }, error => $::locale->text('Incorrect username or password!'));
+    return $self->render('login_screen/user_login', error => $::locale->text('Incorrect username or password!'));
   }
 
   # Everything is fine.

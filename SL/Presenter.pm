@@ -25,17 +25,54 @@ sub render {
   my $template           = shift;
   my ($options, %locals) = (@_ && ref($_[0])) ? @_ : ({ }, @_);
 
-  $options->{type}       = lc($options->{type} || 'html');
+  # Set defaults for all available options.
+  my %defaults = (
+    type       => 'html',
+    process    => 1,
+  );
+  $options->{$_} //= $defaults{$_} for keys %defaults;
+  $options->{type} = lc $options->{type};
 
-  my $source;
-  if ($options->{inline}) {
-    $source = \$template;
-
-  } else {
-    $source = "templates/webpages/${template}." . $options->{type};
-    croak "Template file ${source} not found" unless -f $source;
+  # Check supplied options for validity.
+  foreach (keys %{ $options }) {
+    croak "Unsupported option: $_" unless $defaults{$_};
   }
 
+  # Only certain types are supported.
+  croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json)$/;
+
+  # The "template" argument must be a string or a reference to one.
+  croak "Unsupported 'template' reference type: " . ref($template) if ref($template) && (ref($template) !~ m/^(?:SCALAR|SL::Presenter::EscapedText)$/);
+
+  # Look for the file given by $template if $template is not a reference.
+  my $source;
+  if (!ref $template) {
+    $source = "templates/webpages/${template}." . $options->{type};
+    croak "Template file ${source} not found" unless -f $source;
+
+  } elsif (ref($template) eq 'SCALAR') {
+    # Normal scalar reference: hand over to Template
+    $source = $template;
+
+  } else {
+    # Instance of SL::Presenter::EscapedText. Get reference to its content.
+    $source = \$template->{text};
+  }
+
+  # If no processing is requested then return the content.
+  if (!$options->{process}) {
+    # If $template is a reference then don't try to read a file.
+    return SL::Presenter::EscapedText->new(text => ${ $template }, is_escaped => 1) if ref $template;
+
+    # Otherwise return the file's content.
+    my $file    = IO::File->new($source, "r") || croak("Template file ${source} could not be read");
+    my $content = do { local $/ = ''; <$file> };
+    $file->close;
+
+    return SL::Presenter::EscapedText->new(text => $content, is_escaped => 1);
+  }
+
+  # Processing was requested. Set up all variables.
   my %params = ( %locals,
                  AUTH          => $::auth,
                  FLASH         => $::form->{FLASH},
@@ -147,20 +184,40 @@ controller. Therefore the presenter's L<render> function does not use
 all of the parameters for controlling the output that the controller's
 function does.
 
-What is rendered and how C<$template> is interpreted is determined by
-the options I<type> and I<inline>.
+What is rendered and how C<$template> is interpreted is determined
+both by C<$template>'s reference type and by the supplied options.
 
-If C<< $options->{inline} >> is trueish then C<$template> is a string
-containing the template code to interprete.
+If C<$template> is a normal scalar (not a reference) then it is meant
+to be a template file name relative to the C<templates/webpages>
+directory. The file name to use is determined by the C<type> option.
 
-If C<< $options->{inline} >> is falsish then C<$template> is
-interpreted as the name of a template file. It is prefixed with
-"templates/webpages/" and postfixed with a file extension based on
-C<< $options->{type} >>. C<< $options->{type} >> can be either C<html>
-or C<js> and defaults to C<html>. An exception will be thrown if that
-file does not exist.
+If C<$template> is a reference to a scalar then the referenced
+scalar's content is used as the content to process. The C<type> option
+is not considered in this case.
 
-The template itself has access to the following variables:
+Other reference types, unknown options and unknown arguments to the
+C<type> option cause the function to L<croak>.
+
+The following options are available:
+
+=over 2
+
+=item C<type>
+
+The template type. Can be C<html> (the default), C<js> for JavaScript
+or C<json> for JSON content. Affects only the extension that's added
+to the file name given with a non-reference C<$template> argument.
+
+=item C<process>
+
+If trueish (which is also the default) it causes the template/content
+to be processed by the Template toolkit. Otherwise the
+template/content is returned as-is.
+
+=back
+
+If template processing is requested then the template has access to
+the following variables:
 
 =over 2
 
@@ -197,9 +254,14 @@ Example: Render a HTML template with a certain title and a few locals
 Example: Render a string and return its content for further processing
 by the calling function.
 
-  my $content = $presenter->render(
-    '[% USE JavaScript %][% JavaScript.replace_with("#someid", "js/something") %]',
-    { type => 'js', inline => 1 }
+  my $content = $presenter->render(\'[% USE JavaScript %][% JavaScript.replace_with("#someid", "js/something") %]');
+
+Example: Return the content of a JSON template file without processing
+it at all:
+
+  my $template_content = $presenter->render(
+    'customer/contact',
+    { type => 'json', process => 0 }
   );
 
 =item C<escape $text>

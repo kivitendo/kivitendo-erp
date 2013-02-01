@@ -23,7 +23,7 @@ sub action_ajax_autocomplete {
   $self->{parts} = SL::DB::Manager::Part->get_all(query => [ @filter ], limit => $limit);
   $self->{value} = $::form->{column} || 'description';
 
-  $self->render('part/ajax_autocomplete', { no_layout => 1 });
+  $self->render('part/ajax_autocomplete', { layout => 0, type => 'json' });
 }
 
 

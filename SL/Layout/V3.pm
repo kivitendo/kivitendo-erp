@@ -164,7 +164,7 @@ sub render {
   $callback               = URI->new($callback)->rel($callback) if $callback;
   $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
 
-  $self->SUPER::render('menu/menuv3', { no_menu => 1, no_output => 1 },
+  $self->SUPER::render('menu/menuv3', { output => 0 },
     force_ul_width => 1,
     date           => $self->clock_line,
     menu           => $self->print_menu,
