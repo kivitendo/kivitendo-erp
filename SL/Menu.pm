@@ -94,7 +94,7 @@ sub access_control {
 
   my @menu = ();
 
-  if ($menulevel eq "") {
+  if (!$menulevel) {
     @menu = grep { !/--/ } @{ $self->{ORDER} };
   } else {
     @menu = grep { /^${menulevel}--/ } @{ $self->{ORDER} };
