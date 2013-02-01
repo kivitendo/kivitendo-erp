@@ -360,15 +360,23 @@ sub scanfile {
 
       # is this a template call?
       if (/(?:parse_html_template2?|render)\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
-        my $newfile = "$basedir/templates/webpages/$1.html";
+        my $new_file_base = "$basedir/templates/webpages/$1.";
         if (/parse_html_template2/) {
-          print "E: " . strip_base($file) . " is still using 'parse_html_template2' for " . strip_base($newfile) . ".\n";
+          print "E: " . strip_base($file) . " is still using 'parse_html_template2' for " . strip_base("${new_file_base}html") . ".\n";
         }
-        if (-f $newfile) {
-           $cached{$file}{scanh}{$newfile} = 1;
-          print "." if $opt_v;
-        } elsif ($opt_c) {
-          print "W: missing HTML template: " . strip_base($newfile) . " (referenced from " . strip_base($file) . ")\n";
+
+        my $found_one = 0;
+        foreach my $ext (qw(html js json)) {
+          my $new_file = "${new_file_base}${ext}";
+          if (-f $new_file) {
+            $cached{$file}{scanh}{$new_file} = 1;
+            print "." if $opt_v;
+            $found_one = 1;
+          }
+        }
+
+        if ($opt_c && !$found_one) {
+          print "W: missing HTML template: " . strip_base($new_file_base) . "{html,json,js} (referenced from " . strip_base($file) . ")\n";
         }
       }
 
