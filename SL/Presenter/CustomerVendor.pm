@@ -26,6 +26,8 @@ sub _customer_vendor {
 
   croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
 
+  my $callback = $params{callback} ? '&callback=' . $::form->escape($params{callback}) : '';
+
   my $text = join '', (
     $params{no_link} ? '' : '<a href="controller.pl?action=CustomerVendor/edit&amp;db=' . $type . '&amp;id=' . $self->escape($cv->id) . '">',
     $self->escape($cv->name),

@@ -3,6 +3,7 @@ package SL::DB::RequirementSpec;
 use strict;
 
 use SL::DB::MetaSetup::RequirementSpec;
+use SL::DB::Manager::RequirementSpec;
 use SL::Locale::String;
 
 __PACKAGE__->meta->add_relationship(
@@ -18,10 +19,9 @@ __PACKAGE__->meta->add_relationship(
   },
 );
 
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
-
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->before_save('_before_save_initialize_not_null_columns');
 
 sub validate {
   my ($self) = @_;
@@ -30,6 +30,15 @@ sub validate {
   push @errors, t8('The title is missing.') if !$self->title;
 
   return @errors;
+}
+
+sub _before_save_initialize_not_null_columns {
+  my ($self) = @_;
+
+  $self->previous_section_number(0) if !defined $self->previous_section_number;
+  $self->previous_fb_number(0)      if !defined $self->previous_fb_number;
+
+  return 1;
 }
 
 1;

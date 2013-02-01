@@ -1,0 +1,50 @@
+[%- USE HTML %][%- USE L %][%- USE LxERP %]
+
+<div class="filter_toggle">
+ <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8("Show Filter") %]</a>
+</div>
+
+<div class="filter_toggle" style="display:none">
+ <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8("Hide Filter") %]</a>
+
+ <form method="post" action="controller.pl">
+
+  <p>
+   <table class="rs_input_field">
+    <tr>
+     <th align="right">[% LxERP.t8("Title") %]</th>
+     <td>[% L.input_tag('filter.title:substr::ilike', filter.title_substr__ilike) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% LxERP.t8("Customer") %]</th>
+     <td>[% L.input_tag('filter.customer.name:substr::ilike', filter.customer.name_substr__ilike) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% LxERP.t8("Customer Number") %]</th>
+     <td>[% L.input_tag('filter.customer.customernumber:substr::ilike', filter.customer.customernumber_substr__ilike) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% LxERP.t8("Requirement Spec Type") %]</th>
+     <td>[% L.select_tag('filter.type_id', SELF.types, default=filter.type_id, title_key="description", with_empty=1) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% LxERP.t8("Requirement Spec Status") %]</th>
+     <td>[% L.select_tag('filter.status_id', SELF.statuses, default=filter.status_id, title_key="description", with_empty=1) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% LxERP.t8("Project") %]</th>
+     <td>[% L.select_tag('filter.project_id', SELF.projects, default=filter.project_id, title_key="full_description", with_empty=1) %]</td>
+    </tr>
+   </table>
+  </p>
+
+  [% L.hidden_tag("action", "RequirementSpec/list") %]
+
+  <p>[% L.submit_tag("dummy", LxERP.t8("Continue")) %]</p>
+ </form>
+</div>

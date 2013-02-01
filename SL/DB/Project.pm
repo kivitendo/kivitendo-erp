@@ -48,6 +48,28 @@ sub is_projectnumber_unique {
   return !SL::DB::Manager::Project->get_first(where => \@filter);
 }
 
+sub full_description {
+  my ($self, %params) = @_;
+
+  $params{style} ||= 'both';
+  my $description;
+
+  if ($params{style} =~ m/number/) {
+    $description = $self->projectnumber;
+
+  } elsif ($params{style} =~ m/description/) {
+    $description = $self->description;
+
+  } else {
+    $description = $self->projectnumber;
+    if ($self->description && do { my $desc = quotemeta $self->description; $self->projectnumber !~ m/$desc/ }) {
+      $description .= ' (' . $self->description . ')';
+    }
+  }
+
+  return $description;
+}
+
 1;
 
 __END__
@@ -82,6 +104,31 @@ database table. Returns a boolean value.
 Returns trueish if the project number is not used for any other
 project in the database. Also returns trueish if no project number has
 been set yet.
+
+=item C<full_description %params>
+
+Returns a full description for the project which can consist of the
+project number, its description or both. This is determined by the
+parameter C<style> which defaults to C<both>:
+
+=over 2
+
+=item C<both>
+
+Returns the project's number followed by its description in
+parenthesis (e.g. "12345 (Secret Combinations)"). If the project's
+description is already part of the project's number then it will not
+be appended.
+
+=item C<projectnumber> (or simply C<number>)
+
+Returns only the project's number.
+
+=item C<projectdescription> (or simply C<description>)
+
+Returns only the project's description.
+
+=back
 
 =back
 
