@@ -171,7 +171,7 @@ sub uri_encode {
 }
 
 sub uri_decode {
-  my ($str) = @_;
+  my $str = $_[0] || '';
 
   $str =~ tr/+/ /;
   $str =~ s/\\$//;

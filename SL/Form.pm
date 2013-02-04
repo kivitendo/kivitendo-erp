@@ -380,9 +380,10 @@ sub _get_request_uri {
   my $self = shift;
 
   return URI->new($ENV{HTTP_REFERER})->canonical() if $ENV{HTTP_X_FORWARDED_FOR};
+  return URI->new                                  if !$ENV{REQUEST_URI}; # for testing
 
   my $scheme =  $ENV{HTTPS} && (lc $ENV{HTTPS} eq 'on') ? 'https' : 'http';
-  my $port   =  $ENV{SERVER_PORT} || '';
+  my $port   =  $ENV{SERVER_PORT};
   $port      =  undef if (($scheme eq 'http' ) && ($port == 80))
                       || (($scheme eq 'https') && ($port == 443));
 
@@ -479,7 +480,7 @@ sub header {
   );
 
   $self->{favicon} ||= "favicon.ico";
-  $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title};
+  $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title} || !$self->{titlebar};
 
   # build includes
   if ($self->{refresh_url} || $self->{refresh_time}) {

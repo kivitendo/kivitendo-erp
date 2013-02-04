@@ -110,10 +110,13 @@ sub create_menu {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
+  $depth ||= 0;
+
   die if ($depth * 1 > 5);
 
   my @menuorder  = $menu->access_control(\%myconfig, $parent);
   $parent       .= "--" if ($parent);
+  $parent      ||= '';
 
   foreach my $name (@menuorder) {
     substr($name, 0, length($parent), "");
