@@ -100,7 +100,7 @@ sub action_result {
   }
 
   if ($data->{progress}{finished} || $data->{errors}) {
-    $self->render('csv_import/_deferred_report', { no_layout => 1 });
+    $self->render('csv_import/_deferred_report', { layout => 0 });
   } else {
     if (!$self->task_server->is_running) {
       $self->task_server->start;
@@ -111,7 +111,7 @@ sub action_result {
       $self->{status_text} = t8('Import not started yet, please wait...');
     }
 
-    $self->render('csv_import/_deferred_results', { no_layout => 1 });
+    $self->render('csv_import/_deferred_results', { layout => 0 });
   }
 }
 
@@ -184,7 +184,7 @@ sub action_report {
   $self->{pages} = $pages;
   $self->{base_url} = $self->url_for(action => 'report', id => $report_id, no_layout => $params{no_layout} || $::form->{no_layout} );
 
-  $self->render('csv_import/report', { no_layout => $params{no_layout} || $::form->{no_layout} });
+  $self->render('csv_import/report', { layout => !($params{no_layout} || $::form->{no_layout}) });
 }
 
 
