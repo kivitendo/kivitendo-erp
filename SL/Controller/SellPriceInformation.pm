@@ -32,9 +32,9 @@ sub action_list {
     db_args => $db_args,
   );
 
-  $self->{orderitems} = SL::DB::Manager::OrderItem->get_all(%$db_args);
+  my $orderitems = SL::DB::Manager::OrderItem->get_all(%$db_args);
 
-  $self->list_objects;
+  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems, options => { no_layout => 1 });
 }
 
 # private functions
@@ -124,32 +124,6 @@ sub prepare_report {
     title                => $::locale->text('Sales Price information'),
   );
   $report->set_options_from_form;
-
-  $self->{report_data} = {
-    column_defs => $column_defs,
-    columns     => \@columns,
-    visible     => \@visible,
-    sortable    => \@sortable,
-  };
-}
-
-sub list_objects {
-  my ($self) = @_;
-  my $column_defs = $self->{report_data}{column_defs};
-  for my $obj (@{ $self->{orderitems} || [] }) {
-    $self->{report}->add_data({
-      map {
-        $_ => {
-          data => $column_defs->{$_}{sub} ? $column_defs->{$_}{sub}->($obj)
-                : $obj->can($_)           ? $obj->$_
-                :                           $obj->{$_},
-          link => $column_defs->{$_}{obj_link} ? $column_defs->{$_}{obj_link}->($obj) : '',
-        },
-      } @{ $self->{report_data}{columns} || {} }
-    });
-  }
-
-  return $self->{report}->generate_with_headers(no_layout => 1);
 }
 
 sub link_to {
