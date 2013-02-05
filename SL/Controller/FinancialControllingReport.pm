@@ -127,11 +127,6 @@ sub prepare_report {
   $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 
   $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
-
-  $self->{report_data} = {
-    column_defs        => \%column_defs,
-    columns            => \@columns,
-  };
 }
 
 sub calculate_data {
@@ -194,25 +189,13 @@ sub sum_relevant_items {
 
 sub list_objects {
   my ($self)      = @_;
-  my $column_defs = $self->{report_data}->{column_defs};
+  my $modify_data = sub {
+    my ($data) = @_;
+    map { $data->{$_}->{data} = defined $data->{$_}->{data} ? int($data->{$_}->{data}) : ''  } grep {  m/_p$/ } @{ $self->{number_columns} };
+    map { $data->{$_}->{data} = $::form->format_amount(\%::myconfig, $data->{$_}->{data}, 2) } grep { !m/_p$/ } @{ $self->{number_columns} };
+  };
 
-  for my $obj (@{ $self->{orders} || [] }) {
-    my %data = map {
-      $_ => {
-        data => $column_defs->{$_}{sub} ? $column_defs->{$_}{sub}->($obj)
-              : $obj->can($_)           ? $obj->$_
-              :                           $obj->{$_},
-        link => $column_defs->{$_}{obj_link} ? $column_defs->{$_}{obj_link}->($obj) : '',
-      },
-    } @{ $self->{report_data}{columns} || {} };
-
-    map { $data{$_}->{data} = defined $data{$_}->{data} ? int($data{$_}->{data}) : ''    } grep {  m/_p$/ } @{ $self->{number_columns} };
-    map { $data{$_}->{data} = $::form->format_amount(\%::myconfig, $data{$_}->{data}, 2) } grep { !m/_p$/ } @{ $self->{number_columns} };
-
-    $self->{report}->add_data(\%data);
-  }
-
-  return $self->{report}->generate_with_headers;
+  return $self->report_generator_list_objects(report => $self->{report}, objects => $self->{orders}, data_callback => $modify_data);
 }
 
 sub make_filter_summary {
