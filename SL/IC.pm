@@ -321,7 +321,7 @@ sub save {
 
     $form->{orphaned} = 1;
   }
-  my $partsgroup_id = 0;
+  my $partsgroup_id = undef;
 
   if ($form->{partsgroup}) {
     (my $partsgroup, $partsgroup_id) = split(/--/, $form->{partsgroup});
