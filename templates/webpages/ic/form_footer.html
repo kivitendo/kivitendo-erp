@@ -24,18 +24,16 @@
     <td><hr size="3" noshade></td>
   </tr>
  </table>
-
- <br style="clear: left" />
 </div>
 
 [%- IF id %]
-<div id="sales_price_information" class="tabcontent">
+<div id="sales_price_information">
   [% PROCESS ic/sales_price_information.html id=id %]
 </div>
 [%- END %]
 
 [%- IF CUSTOM_VARIABLES.size %]
-<div id="custom_variables" class="tabcontent">
+<div id="custom_variables">
 
  <p>[% 'Unchecked custom variables will not appear in orders and invoices.' | $T8 %]</p>
 
@@ -50,8 +48,6 @@
    [%- END %]
   </table>
  </p>
-
- <br style="clear: left" />
 </div>
 [%- END %]
 
@@ -86,12 +82,3 @@
 </form>
 
 <script type="text/javascript" src="js/wz_tooltip.js"></script>
-<script type="text/javascript">
-<!--
-    var maintab = new ddtabcontent("maintab");
-    maintab.setpersist(true);
-    maintab.setselectedClassTarget("link"); //"link" or "linkparent"
-    maintab.init();
-  -->
-</script>
-

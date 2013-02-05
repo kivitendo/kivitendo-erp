@@ -8,22 +8,21 @@
 
  <form method="post" name="ct" action="ct.pl" >
 
-  <ul id="maintab" class="shadetabs">
-   <li class="selected"><a href="#" rel="billing">[% 'Billing Address' | $T8 %]</a></li>
-   <li><a href="#" rel="shipto">[% 'Shipping Address' | $T8 %]</a></li>
-   <li><a href="#" rel="contacts">[% 'Contacts' | $T8 %]</a></li>
+  <div class="tabwidget">
+   <ul>
+    <li><a href="#billing">[% 'Billing Address' | $T8 %]</a></li>
+    <li><a href="#shipto">[% 'Shipping Address' | $T8 %]</a></li>
+    <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
 [%- IF id %]
-   <li><a href="#" rel="deliveries">[% 'Supplies' | $T8 %]</a></li>
+    <li><a href="#deliveries">[% 'Supplies' | $T8 %]</a></li>
 [%- END %]
-   <li><a href="#" rel="vcnotes">[% 'Notes' | $T8 %]</a></li>
-   [%- IF CUSTOM_VARIABLES.CT.size %]
-   <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
-   [%- END %]
-  </ul>
+    <li><a href="#vcnotes">[% 'Notes' | $T8 %]</a></li>
+[%- IF CUSTOM_VARIABLES.CT.size %]
+    <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
+[%- END %]
+   </ul>
 
-  <div class="tabcontentstyle">
-
-   <div id="billing" class="tabcontent">
+   <div id="billing">
 
     <table width="100%">
      <tr height="5"></tr>
@@ -295,19 +294,17 @@
       <td><textarea name="notes" rows="3" cols="60" wrap="soft">[% HTML.escape(notes) %]</textarea></td>
      </tr>
     </table>
-
-    <br style="clear: left" />
    </div>
 
-   <div id="shipto" class="tabcontent">
+   <div id="shipto">
     [% INCLUDE 'ct/_shipto.html' %]
    </div>
 
-   <div id="contacts" class="tabcontent">
+   <div id="contacts">
     [% INCLUDE 'ct/_contact.html' %]
    </div>
 
-   <div id="deliveries" class="tabcontent">
+   <div id="deliveries">
     <table>
      <tr>
       <th align="right">[% 'Shipping Address' | $T8 %]</th>
@@ -341,11 +338,9 @@
       </td>
      </tr>
     </table>
-
-    <br style="clear: left" />
    </div>
 
-   <div id="vcnotes" class="tabcontent">
+   <div id="vcnotes">
 
     [%- IF NOTES && NOTES.size %]
     <p>
@@ -414,12 +409,10 @@
       </tr>
      </table>
     </p>
-
-    <br style="clear: left" />
    </div>
 
    [%- IF CUSTOM_VARIABLES.CT.size %]
-   <div id="custom_variables" class="tabcontent">
+   <div id="custom_variables">
 
     <p>
      <table>
@@ -431,8 +424,6 @@
       [%- END %]
      </table>
     </p>
-
-    <br style="clear: left" />
    </div>
    [%- END %]
 

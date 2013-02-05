@@ -467,9 +467,10 @@ sub header {
   # standard css for all
   # this should gradually move to the layouts that need it
   $layout->use_stylesheet("$_.css") for qw(
-    main menu tabcontent list_accounts jquery.autocomplete
+    main menu list_accounts jquery.autocomplete
     jquery.multiselect2side frame_header/header
     ui-lightness/jquery-ui-1.8.12.custom
+    jquery-ui.custom
     js/jscalendar/calendar-win2k-1
   );
 
@@ -515,15 +516,6 @@ EOT
   print "  $_\n" for @header;
   print <<EOT;
   <meta name="robots" content="noindex,nofollow">
-  <script type="text/javascript" src="js/tabcontent.js">
-
-  /***********************************************
-   * Tab Content script v2.2- © Dynamic Drive DHTML code library (www.dynamicdrive.com)
-   * This notice MUST stay intact for legal use
-   * Visit Dynamic Drive at http://www.dynamicdrive.com/ for full source code
-   ***********************************************/
-
-  </script>
  </head>
  <body>
 

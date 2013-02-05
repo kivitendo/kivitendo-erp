@@ -57,11 +57,6 @@
         button.form.submit();
       }
 
-      var maintab = new ddtabcontent("maintab");
-      maintab.setpersist(true);
-      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
-      maintab.init();
-
       function check_taxzone_and_ustid() {
         if (($('#taxzone_id').attr('value') == '1') && ($('#ustid').attr('value') == '')) {
           alert('[% LxERP.t8('Please enter the sales tax identification number.') %]');

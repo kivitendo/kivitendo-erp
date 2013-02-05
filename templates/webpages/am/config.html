@@ -1,24 +1,20 @@
 [%- USE T8 %]
 [%- USE LxERP %]
 [%- USE HTML %][%- USE L %]
- <p>
-  <div class="listtop">[% title %]</div>
- </p>
+ <div class="listtop">[% title %]</div>
 
  <form method="post" action="am.pl" name="Form">
-
-  <ul id="maintab" class="shadetabs">
-   <li class="selected"><a href="#" rel="page_personal_settings">[% 'Personal settings' | $T8 %]</a></li>
-   <li><a href="#" rel="page_display_options">[% 'Display options' | $T8 %]</a></li>
-   <li><a href="#" rel="page_print_options">[% 'Print options' | $T8 %]</a></li>
-   <li><a href="#" rel="page_todo_list_options">[% 'TODO list options' | $T8 %]</a></li>
-  </ul>
-
   <input type="hidden" name="type" value="preferences">
 
-  <div class="tabcontentstyle">
+  <div class="tabwidget">
+   <ul>
+    <li><a href="#page_personal_settings">[% 'Personal settings' | $T8 %]</a></li>
+    <li><a href="#page_display_options">[% 'Display options' | $T8 %]</a></li>
+    <li><a href="#page_print_options">[% 'Print options' | $T8 %]</a></li>
+    <li><a href="#page_todo_list_options">[% 'TODO list options' | $T8 %]</a></li>
+   </ul>
 
-   <div id="page_personal_settings" class="tabcontent">
+   <div id="page_personal_settings">
 
     <table>
      <tr>
@@ -77,11 +73,9 @@
       </tr>
 
     </table>
-
-    <br style="clear: left" />
    </div>
 
-   <div id="page_display_options" class="tabcontent">
+   <div id="page_display_options">
 
     <table>
      <tr>
@@ -147,11 +141,9 @@
       </td>
      </tr>
     </table>
-
-    <br style="clear: left" />
    </div>
 
-   <div id="page_print_options" class="tabcontent">
+   <div id="page_print_options">
 
     <table>
      <input name="printer" type="hidden" value="[% HTML.escape(myconfig_printer) %]">
@@ -182,11 +174,9 @@
       <td><input name="copies" size="10" value="[% HTML.escape(myconfig_copies) %]"></td>
      </tr>
     </table>
-
-    <br style="clear: left" />
    </div>
 
-   <div id="page_todo_list_options" class="tabcontent">
+   <div id="page_todo_list_options">
 
     <table>
      <tr>
@@ -229,19 +219,8 @@
      </tr>
      [%- END %]
     </table>
-
-    <br style="clear: left" />
    </div>
   </div>
 
   <p><input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]"></p>
  </form>
-
- <script type="text/javascript">
-  <!--
-      var maintab = new ddtabcontent("maintab");
-      maintab.setpersist(true);
-      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
-      maintab.init();
-    -->
- </script>

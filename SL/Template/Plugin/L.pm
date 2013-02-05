@@ -464,27 +464,15 @@ sub tabbed {
 
     next if $tab eq '';
 
-    my $selected = $params{selected} == $i;
-    my $tab_id   = "__tab_id_$i";
-    push @header, $self->li_tag(
-      $self->link('', $tab->{name}, rel => $tab_id),
-        ($selected ? (class => 'selected') : ())
-    );
-    push @blocks, $self->div_tag($tab->{data},
-      id => $tab_id, class => 'tabcontent');
+    my $tab_id = "__tab_id_$i";
+    push @header, $self->li_tag($self->link('#' . $tab_id, $tab->{name}));
+    push @blocks, $self->div_tag($tab->{data}, id => $tab_id);
   }
 
   return '' unless @header;
-  return $self->ul_tag(
-    join('', @header), id => $id, class => 'shadetabs'
-  ) .
-  $self->div_tag(
-    join('', @blocks), class => 'tabcontentstyle'
-  ) .
-  $self->javascript(
-    qq|var $id = new ddtabcontent("$id");$id.setpersist(true);| .
-    qq|$id.setselectedClassTarget("link");$id.init();|
-  );
+
+  my $ul = $self->ul_tag(join('', @header), id => $id);
+  return $self->div_tag(join('', $ul, @blocks), class => 'tabwidget');
 }
 
 sub tab {
@@ -889,9 +877,6 @@ C<tab>. Example:
     L.tab(LxERP.t8('Basic Data'),       'part/_main_tab.html'),
     L.tab(LxERP.t8('Custom Variables'), 'part/_cvar_tab.html', if => SELF.display_cvar_tab),
   ]) %]
-
-An optional attribute is C<selected>, which accepts the ordinal of a tab which
-should be selected by default.
 
 =item C<areainput_tag $name, $content, %PARAMS>
 

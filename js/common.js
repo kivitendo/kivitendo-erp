@@ -61,13 +61,13 @@ function check_right_number_format(input_name) {
   var forbidden = test_val.match(/[^\s\d\(\)\-\+\*\/\.]/g);
   if (forbidden && forbidden.length > 0 ){
     return show_alert_and_focus(input_name, wrongNumberFormat);
-  } 
+  }
 
-  try{ 
+  try{
     eval(test_val);
   }catch(err){
     return show_alert_and_focus(input_name, wrongNumberFormat);
-  } 
+  }
 
 }
 
@@ -161,6 +161,9 @@ function focus_by_name(name){
 }
 
 $(document).ready(function () {
+  // initialize all jQuery UI tab elements:
+  $(".tabwidget").each(function(idx, element) { $(element).tabs(); });
+
   $('input').focus(function(){
     if (focussable(this)) window.focused_element = this;
   });

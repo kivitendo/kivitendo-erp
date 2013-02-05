@@ -10,19 +10,18 @@
   [% L.hidden_tag("callback", callback) %]
   [% L.hidden_tag("id", SELF.project.id) %]
 
-  <ul id="maintab" class="shadetabs">
-   <li class="selected"><a href="#" rel="basic_data">[% 'Basic Data' | $T8 %]</a></li>
-   [%- IF CUSTOM_VARIABLES.size %]
-   <li><a href="#" rel="custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
-   [%- END %]
-   [%- IF SELF.project.id %]
-   <li><a href="#" rel="linked_records">[% 'Linked Records' | $T8 %]</a></li>
-   [%- END %]
-  </ul>
+  <div class="tabwidget">
+   <ul>
+    <li><a href="#basic_data">[% 'Basic Data' | $T8 %]</a></li>
+    [%- IF CUSTOM_VARIABLES.size %]
+    <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
+    [%- END %]
+    [%- IF SELF.project.id %]
+    <li><a href="#linked_records">[% 'Linked Records' | $T8 %]</a></li>
+    [%- END %]
+   </ul>
 
-  <div class="tabcontentstyle">
-
-   <div id="basic_data" class="tabcontent">
+   <div id="basic_data">
 
     <table>
      <tr>
@@ -64,12 +63,10 @@
      </tr>
      [%- END %]
     </table>
-
-    <br style="clear: left" />
    </div>
 
    [%- IF CUSTOM_VARIABLES.size %]
-   <div id="custom_variables" class="tabcontent">
+   <div id="custom_variables">
 
     <p>
      <table>
@@ -81,17 +78,12 @@
       [%- END %]
      </table>
     </p>
-
-    <br style="clear: left" />
    </div>
    [%- END %]
 
    [%- IF SELF.project.id %]
-   <div id="linked_records" class="tabcontent">
-
+   <div id="linked_records">
     [% P.grouped_record_list(SELF.linked_records) %]
-
-    <br style="clear: left" />
    </div>
    [%- END %]
 
@@ -108,12 +100,3 @@
    <a href="[% IF callback %][% callback %][% ELSE %][% SELF.url_for(action => 'search') %][% END %]">[%- LxERP.t8('Abort') %]</a>
   </p>
  </form>
-
- <script type="text/javascript">
-  <!--
-      var maintab = new ddtabcontent("maintab");
-      maintab.setpersist(true);
-      maintab.setselectedClassTarget("link"); //"link" or "linkparent"
-      maintab.init();
-    -->
- </script>
