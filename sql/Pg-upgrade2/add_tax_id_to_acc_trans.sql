@@ -1,6 +1,7 @@
 -- @tag: add_tax_id_to_acc_trans
 -- @description: Neue Spalte tax_id in der acc_trans
 -- @depends: release_2_7_0 
+-- @charset: utf-8
 
   --Neue Spalte tax_id in acc_trans:
   ALTER TABLE acc_trans ADD tax_id integer;
