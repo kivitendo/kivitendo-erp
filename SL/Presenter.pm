@@ -16,8 +16,7 @@ use SL::Presenter::Project;
 use SL::Presenter::Record;
 
 sub get {
-  $::request->{presenter} ||= SL::Presenter->new;
-  return $::request->{presenter};
+  return $::request->presenter;
 }
 
 sub render {

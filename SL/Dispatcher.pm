@@ -35,7 +35,6 @@ use SL::Form;
 use SL::Helper::DateTime;
 use SL::InstanceConfiguration;
 use SL::Template::Plugin::HTMLFixes;
-use SL::Layout::None;
 
 # Trailing new line is added so that Perl will not add the line
 # number 'die' was called in.
@@ -68,6 +67,10 @@ sub pre_request_checks {
     } else {
       show_error('login_screen/auth_db_unreachable');
     }
+  }
+
+  if ($::request->type !~ m/^ (?: html | js | json ) $/x) {
+    die $::locale->text("Invalid request type '#1'", $::request->type);
   }
 }
 
@@ -182,17 +185,21 @@ sub handle_request {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = {
+  $::request       = SL::Request->new(
     cgi => CGI->new({}),
     layout => SL::Layout::None->new,
-  };
+  );
 
   my $session_result = $::auth->restore_session;
   $::auth->create_or_refresh_session;
 
   $::form->read_cgi_input;
 
-  eval { ($routing_type, $script_name, $action) = _route_request($ENV{SCRIPT_NAME}); 1; } or return;
+  my %routing;
+  eval { %routing = _route_request($ENV{SCRIPT_NAME}); 1; } or return;
+  ($routing_type, $script_name, $action) = @routing{qw(type controller action)};
+
+  $::request->type(lc($routing{request_type} || 'html'));
 
   if ($routing_type eq 'old') {
     $::form->{action}  =  lc $::form->{action};
@@ -312,9 +319,9 @@ sub _interface_is_fcgi {
 sub _route_request {
   my $script_name = shift;
 
-  return $script_name =~ m/dispatcher\.pl$/ ? ('old',        _route_dispatcher_request())
-       : $script_name =~ m/controller\.pl/  ? ('controller', _route_controller_request())
-       :                                      ('old',        $script_name, $::form->{action});
+  return $script_name =~ m/dispatcher\.pl$/ ? (type => 'old',        _route_dispatcher_request())
+       : $script_name =~ m/controller\.pl/  ? (type => 'controller', _route_controller_request())
+       :                                      (type => 'old',        controller => $script_name, action => $::form->{action});
 }
 
 sub _route_dispatcher_request {
@@ -344,16 +351,18 @@ sub _route_dispatcher_request {
     show_error('generic/error');
   };
 
-  return ($script_name, $action);
+  return (controller => $script_name, action => $action);
 }
 
 sub _route_controller_request {
-  my ($controller, $action);
+  my ($controller, $action, $request_type);
 
   eval {
-    $::form->{action}      =~ m|^ ( [A-Z] [A-Za-z0-9_]* ) / ( [a-z] [a-z0-9_]* ) $|x || die "Unroutable request -- inavlid controller/action.\n";
+    $::form->{action}      =~ m|^ ( [A-Z] [A-Za-z0-9_]* ) / ( [a-z] [a-z0-9_]* ) ( \. [a-zA-Z]+ )? $|x || die "Unroutable request -- inavlid controller/action.\n";
     ($controller, $action) =  ($1, $2);
     delete $::form->{action};
+
+    $request_type = $3 ? lc(substr($3, 1)) : 'html';
 
     1;
   } or do {
@@ -361,7 +370,7 @@ sub _route_controller_request {
     show_error('generic/error');
   };
 
-  return ($controller, $action);
+  return (controller => $controller, action => $action, request_type => $request_type);
 }
 
 sub _cache_file_modification_times {
