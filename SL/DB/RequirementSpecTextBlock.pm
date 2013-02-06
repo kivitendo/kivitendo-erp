@@ -4,11 +4,20 @@ use strict;
 
 use SL::DB::MetaSetup::RequirementSpecTextBlock;
 use SL::DB::Manager::RequirementSpecTextBlock;
-# ActsAsList does not support position arguments grouped by other
-# columns, e.g. by the requirement_spec_id in this case. So we cannot
-# use it yet.
-# use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::ActsAsList;
 use SL::Locale::String;
+
+__PACKAGE__->meta->add_relationships(
+  requirement_spec => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpec',
+    column_map     => { requirement_spec_id => 'id' },
+  },
+);
+
+__PACKAGE__->meta->initialize;
+
+__PACKAGE__->configure_acts_as_list(group_by => [qw(requirement_spec_id output_position)]);
 
 sub validate {
   my ($self) = @_;
