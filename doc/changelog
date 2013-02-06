@@ -2,6 +2,19 @@
 # Veränderungen von kivitendo #
 ###############################
 
+
+
+
+
+Kleinere neue Features und Detailverbesserungen:
+
+- Stückliste für Lieferschein ausdrucken
+  Stücklisten-Details (Haken bei Warenliste) für Erzeugnisse wurden seit 2009
+  (TEMPLATE_ARRAY Änderung) nicht mehr ausgedruckt,
+  da hier die Code-Anpassungen vergessen wurde.
+
+
+
 2012-12-10 - Release 3.0.0
 
 Größere neue Features:

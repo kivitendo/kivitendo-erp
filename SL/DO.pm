@@ -874,13 +874,13 @@ sub order_details {
 
       while (my $ref = $h_pg->fetchrow_hashref("NAME_lc")) {
         if ($form->{groupitems} && $ref->{partsgroup} ne $sameitem) {
-          map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+          map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
           $sameitem = ($ref->{partsgroup}) ? $ref->{partsgroup} : "--";
-          push(@{ $form->{description} }, $sameitem);
+          push(@{ $form->{TEMPLATE_ARRAYS}->{description} }, $sameitem);
         }
-        push(@{ $form->{description} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq|, $ref->{partnumber}, $ref->{description}|);
+        push(@{ $form->{TEMPLATE_ARRAYS}->{"description"} }, $form->format_amount($myconfig, $ref->{qty} * $form->{"qty_$i"}) . qq| -- $ref->{partnumber}, $ref->{description}|);
 
-        map({ push(@{ $form->{$_} }, "") } grep({ $_ ne "description" } @arrays));
+        map({ push(@{ $form->{TEMPLATE_ARRAYS}->{$_} }, "") } grep({ $_ ne "description" } @arrays));
       }
     }
 
