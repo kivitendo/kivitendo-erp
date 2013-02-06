@@ -2,13 +2,44 @@ package SL::Request;
 
 use strict;
 
-use SL::Common;
-use SL::MoreCommon qw(uri_encode uri_decode);
+use parent qw(Rose::Object);
+
+use CGI qw(-no_xhtml);
 use List::Util qw(first max min sum);
 use List::MoreUtils qw(all any apply);
 use Exporter qw(import);
 
+use SL::Common;
+use SL::MoreCommon qw(uri_encode uri_decode);
+use SL::Layout::None;
+use SL::Presenter;
+
 our @EXPORT_OK = qw(flatten unflatten read_cgi_input);
+
+use Rose::Object::MakeMethods::Generic
+(
+  'scalar --get_set_init' => [ qw(cgi layout presenter is_ajax type) ],
+);
+
+sub init_cgi {
+  return CGI->new({});
+}
+
+sub init_layout {
+  return SL::Layout::None->new;
+}
+
+sub init_presenter {
+  return SL::Presenter->new;
+}
+
+sub init_is_ajax {
+  return ($ENV{HTTP_X_REQUESTED_WITH} || '') eq 'XMLHttpRequest' ? 1 : 0;
+}
+
+sub init_type {
+  return 'html';
+}
 
 sub _store_value {
   my ($target, $key, $value) = @_;
@@ -322,12 +353,13 @@ __END__
 
 =head1 NAME
 
-SL::Request.pm - request parsing and data serialization
+SL::Request.pm - request parsing, data serialization, request information
 
 =head1 SYNOPSIS
 
-This module handles unpacking of cgi parameters. usually you don't want to call
-anything in here directly.
+This module handles unpacking of CGI parameters. It also gives
+information about the request like whether or not it was done via AJAX
+or the requested content type.
 
   use SL::Request qw(read_cgi_input);
 
@@ -338,10 +370,19 @@ anything in here directly.
   my $new_arrayref = flatten($hashref);
   my $new_hashref  = unflatten($new_arrayref);
 
+  # Handle AJAX requests differently than normal requests:
+  if ($::request->is_ajax) {
+    $controller->render('json-mask', { type => 'json' });
+  } else {
+    $controller->render('full-mask');
+  }
 
 =head1 DESCRIPTION
 
-This module handles flattening and unflattening of data for request
+This module provides information about the request made by the
+browser.
+
+It also handles flattening and unflattening of data for request
 roundtrip purposes. kivitendo uses the format as described below:
 
 =over 4
@@ -471,6 +512,15 @@ Return value is the flattened array ref.
 =item C<unflatten ARRAYREF [ HASHREF ]>
 
 This function will parse the array ref, and will store the contents into the hash ref. The hash ref may be non empty, in this case any new keys will override the old ones only on leafs with same type. Type changes on a node will die.
+
+=item C<is_ajax>
+
+Returns trueish if the request is an XML HTTP request, also known as
+an 'AJAX' request.
+
+=item C<type>
+
+Returns the requested content type (either C<html>, C<js> or C<json>).
 
 =back
 
