@@ -100,7 +100,7 @@ sub add {
 
   AR->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
-  &create_links;
+  create_links(dont_save => 1);
   $form->{transdate} = $form->{initial_transdate};
   &display_form;
   $main::lxdebug->leave_sub();
@@ -119,7 +119,7 @@ sub edit {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/common.js"></script>|;
   $form->{title} = "Edit";
 
-  &create_links;
+  create_links();
   &display_form;
 
   $main::lxdebug->leave_sub();
@@ -143,12 +143,17 @@ sub create_links {
 
   $main::auth->assert('general_ledger');
 
+  my %params   = @_;
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
   $form->create_links("AR", \%myconfig, "customer");
 
-  my %saved = map { ($_ => $form->{$_}) } qw(direct_debit duedate id taxincluded);
+  my %saved;
+  if (!$params{dont_save}) {
+    %saved = map { ($_ => $form->{$_}) } qw(direct_debit id taxincluded);
+    $saved{duedate} = $form->{duedate} if $form->{duedate};
+  }
 
   IS->get_customer(\%myconfig, \%$form);
 
