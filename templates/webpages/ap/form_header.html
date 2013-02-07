@@ -139,6 +139,10 @@
                 <td align="right"><input name="taxincluded" class="checkbox" type="checkbox" value="1" [% IF ( taxincluded ) %]checked[% END %]></td>
                 <th align=left nowrap>[% 'Tax Included' | $T8 %]</th>
               </tr>
+              <tr>
+                <td align="right"><input name="direct_debit" class="checkbox" type="checkbox" value="1" [% IF direct_debit %]checked[% END %]></td>
+                <th align="left" nowrap>[% 'direct debit' | $T8 %]</th>
+              </tr>
             </table>
           </td>
 

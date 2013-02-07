@@ -186,7 +186,7 @@ sub post_transaction {
                 invnumber = ?, transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
                 amount = ?, duedate = ?, paid = ?, netamount = ?,
                 curr = ?, notes = ?, department_id = ?, storno = ?, storno_id = ?,
-                globalproject_id = ?
+                globalproject_id = ?, direct_debit = ?
                WHERE id = ?|;
     @values = ($form->{invnumber}, conv_date($form->{transdate}),
                   $form->{ordnumber}, conv_i($form->{vendor_id}),
@@ -196,6 +196,7 @@ sub post_transaction {
                   $form->{currency}, $form->{notes},
                   conv_i($form->{department_id}), $form->{storno},
                   $form->{storno_id}, conv_i($form->{globalproject_id}),
+                  $form->{direct_debit} ? 't' : 'f',
                   $form->{id});
     do_query($form, $dbh, $query, @values);
 

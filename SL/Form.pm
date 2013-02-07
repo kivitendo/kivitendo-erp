@@ -2529,7 +2529,7 @@ sub all_vc {
   # Hotfix für Bug 1837 - Besser wäre es alte Buchungsbelege
   # OHNE Auswahlliste (reines Textfeld) zu laden. Hilft aber auch
   # nicht für veränderbare Belege (oe, do, ...)
-  my $obsolete = "WHERE NOT obsolete" unless $self->{id};
+  my $obsolete = $self->{id} ? '' : "WHERE NOT obsolete";
   my $query = qq|SELECT count(*) FROM $table $obsolete|;
   my ($count) = selectrow_query($self, $dbh, $query);
 
@@ -2730,7 +2730,7 @@ sub create_links {
   }
 
   my $extra_columns = '';
-  $extra_columns   .= 'a.direct_debit, ' if $module eq 'AR';
+  $extra_columns   .= 'a.direct_debit, ' if ($module eq 'AR') || ($module eq 'AP');
 
   if ($self->{id}) {
     $query =

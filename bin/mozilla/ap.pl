@@ -97,7 +97,7 @@ sub add {
 
   AP->get_transdate(\%myconfig, $form);
   $form->{initial_transdate} = $form->{transdate};
-  &create_links;
+  create_links(dont_save => 1);
   $form->{transdate} = $form->{initial_transdate};
   &display_form;
 
@@ -113,7 +113,7 @@ sub edit {
 
   $form->{title} = "Edit";
 
-  &create_links;
+  create_links();
   &display_form;
 
   $main::lxdebug->leave_sub();
@@ -135,18 +135,23 @@ sub display_form {
 sub create_links {
   $main::lxdebug->enter_sub();
 
+  my %params   = @_;
+
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
   $main::auth->assert('general_ledger');
 
   $form->create_links("AP", \%myconfig, "vendor");
-  my $taxincluded = $form->{taxincluded};
-  my $duedate     = $form->{duedate};
+  my %saved;
+  if (!$params{dont_save}) {
+    %saved = map { ($_ => $form->{$_}) } qw(direct_debit taxincluded);
+    $saved{duedate} = $form->{duedate} if $form->{duedate};
+  }
 
   IR->get_vendor(\%myconfig, \%$form);
-  $form->{taxincluded} = $taxincluded;
-  $form->{duedate}   = $duedate if $duedate;
+
+  $form->{$_}        = $saved{$_} for keys %saved;
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
   $form->{rowcount}  = 1;
 
