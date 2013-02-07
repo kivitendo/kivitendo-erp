@@ -2,6 +2,8 @@ package SL::DB::RequirementSpec;
 
 use strict;
 
+use Carp;
+
 use SL::DB::MetaSetup::RequirementSpec;
 use SL::DB::Manager::RequirementSpec;
 use SL::Locale::String;
@@ -39,6 +41,20 @@ sub _before_save_initialize_not_null_columns {
   $self->previous_fb_number(0)      if !defined $self->previous_fb_number;
 
   return 1;
+}
+
+sub text_blocks_for_position {
+  my ($self, $output_position) = @_;
+
+  return [ sort { $a->position <=> $b->position } grep { $_->output_position == $output_position } @{ $self->text_blocks } ];
+}
+
+sub sections {
+  my ($self, @rest) = @_;
+
+  croak "This sub is not a writer" if @rest;
+
+  return [ sort { $a->position <=> $b->position } grep { !$_->parent_id } @{ $self->items } ];
 }
 
 1;
