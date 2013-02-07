@@ -1380,6 +1380,7 @@ $self->{texts} = {
   'Password'                    => 'Passwort',
   'Payables'                    => 'Verbindlichkeiten',
   'Payment'                     => 'Zahlungsausgang',
+  'Payment Options'             => 'Zahlungsoptionen',
   'Payment Reminder'            => 'Zahlungserinnerung',
   'Payment Terms'               => 'Zahlungsbedingungen',
   'Payment Terms missing in row ' => 'Zahlungsfrist fehlt in Zeile ',

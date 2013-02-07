@@ -43,6 +43,7 @@ __PACKAGE__->meta->setup(
     globalproject_id        => { type => 'integer' },
     transaction_description => { type => 'text' },
     storno_id               => { type => 'integer' },
+    direct_debit            => { type => 'boolean', default => 'false' },
   ],
 
   primary_key_columns => [ 'id' ],

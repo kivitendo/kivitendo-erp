@@ -658,7 +658,7 @@ sub post_invoice {
                 invoice      = ?, taxzone_id  = ?, notes         = ?, taxincluded = ?,
                 intnotes     = ?, curr        = ?, storno_id     = ?, storno      = ?,
                 cp_id        = ?, employee_id = ?, department_id = ?,
-                globalproject_id = ?
+                globalproject_id = ?, direct_debit = ?
               WHERE id = ?|;
   @values = (
                 $form->{invnumber},          $form->{ordnumber},           $form->{quonumber},      conv_date($form->{invdate}),
@@ -668,6 +668,7 @@ sub post_invoice {
                 $form->{intnotes},           $form->{currency},     conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
          conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}),
          conv_i($form->{globalproject_id}),
+                $form->{direct_debit} ? 't' : 'f',
          conv_i($form->{id})
   );
   do_query($form, $dbh, $query, @values);
@@ -911,7 +912,7 @@ sub retrieve_invoice {
   $query = qq|SELECT cp_id, invnumber, transdate AS invdate, duedate,
                 orddate, quodate, globalproject_id,
                 ordnumber, quonumber, paid, taxincluded, notes, taxzone_id, storno, gldate,
-                intnotes, curr AS currency
+                intnotes, curr AS currency, direct_debit
               FROM ap
               WHERE id = ?|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{id}));
@@ -1061,7 +1062,7 @@ sub get_vendor {
          v.id AS vendor_id, v.name AS vendor, v.discount as vendor_discount,
          v.creditlimit, v.terms, v.notes AS intnotes,
          v.email, v.cc, v.bcc, v.language_id, v.payment_id,
-         v.street, v.zipcode, v.city, v.country, v.taxzone_id, v.curr,
+         v.street, v.zipcode, v.city, v.country, v.taxzone_id, v.curr, v.direct_debit,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.description AS business
        FROM vendor v

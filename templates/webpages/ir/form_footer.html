@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
+[%- USE L %]
   <tr>
    <td>
     <table width="100%">
@@ -10,6 +11,7 @@
         <tr>
          <th align="left">[% 'Notes' | $T8 %]</th>
          <th align="left">[% 'Internal Notes' | $T8 %]</th>
+         <th align="left">[% 'Payment Options' | $T8 %]</th>
         </tr>
         <tr valign="top">
          <td>
@@ -17,6 +19,9 @@
          </td>
          <td>
           <textarea name="intnotes" rows="[% rows %]" cols="35" wrap="soft">[% intnotes %]</textarea>
+         </td>
+         <td>
+          [%- L.checkbox_tag('direct_debit', 'checked', direct_debit, 'label', LxERP.t8('direct debit')) %]
          </td>
         </tr>
 [%- IF id && follow_ups.size %]
