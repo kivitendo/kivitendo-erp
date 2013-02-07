@@ -18,12 +18,11 @@ sub retrieve_open_invoices {
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
   my $arap     = $params{vc} eq 'customer' ? 'ar'       : 'ap';
   my $vc       = $params{vc} eq 'customer' ? 'customer' : 'vendor';
-  my $extra_columns = $arap  eq 'ar' ? 'ar.direct_debit, ' : '';
 
   my $query =
     qq|
        SELECT ${arap}.id, ${arap}.invnumber, ${arap}.${vc}_id as vc_id, ${arap}.amount AS invoice_amount, ${arap}.invoice,
-         vc.name AS vcname, vc.language_id, ${arap}.duedate as duedate, ${extra_columns}
+         vc.name AS vcname, vc.language_id, ${arap}.duedate as duedate, ${arap}.direct_debit,
 
          COALESCE(vc.iban, '') <> '' AND COALESCE(vc.bic, '') <> '' AS vc_bank_info_ok,
 
