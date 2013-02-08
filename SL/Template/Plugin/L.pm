@@ -283,7 +283,8 @@ sub input_tag {
 }
 
 sub hidden_tag {
-  return shift->input_tag(@_, type => 'hidden');
+  my ($self, $name, $value, @slurp) = @_;
+  return $self->input_tag($name, $value, _hashify(@slurp), type => 'hidden');
 }
 
 sub div_tag {
