@@ -3,7 +3,7 @@ package SL::DB::Helper::ActsAsList;
 use strict;
 
 use parent qw(Exporter);
-our @EXPORT = qw(move_position_up move_position_down reorder_list configure_acts_as_list);
+our @EXPORT = qw(move_position_up move_position_down add_to_list remove_from_list reorder_list configure_acts_as_list);
 
 use Carp;
 
@@ -33,6 +33,83 @@ sub move_position_up {
 sub move_position_down {
   my ($self) = @_;
   do_move($self, 'down');
+}
+
+sub remove_from_list {
+  my ($self) = @_;
+
+  my $worker = sub {
+    remove_position($self);
+
+    # Set to NULL manually because $self->update_attributes() would
+    # trigger the before_save() hook from this very plugin assigning a
+    # number at the end of the list again.
+    my $table           = $self->meta->table;
+    my $column          = column_name($self);
+    my $primary_key_col = ($self->meta->primary_key)[0];
+    my $sql             = <<SQL;
+      UPDATE ${table}
+      SET ${column} = NULL
+      WHERE ${primary_key_col} = ?
+SQL
+    $self->db->dbh->do($sql, undef, $self->$primary_key_col);
+    $self->$column(undef);
+  };
+
+  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+}
+
+sub add_to_list {
+  my ($self, %params) = @_;
+
+  croak "Invalid parameter 'position'" unless ($params{position} || '') =~ m/^ (?: before | after | first | last ) $/x;
+
+  if ($params{position} eq 'last') {
+    set_position($self);
+    $self->save;
+    return;
+  }
+
+  my $table               = $self->meta->table;
+  my $primary_key_col     = ($self->meta->primary_key)[0];
+  my $column              = column_name($self);
+  my ($group_by, @values) = get_group_by_where($self);
+  $group_by               = " AND ${group_by}" if $group_by;
+  my $new_position;
+
+  if ($params{position} eq 'first') {
+    $new_position = 1;
+
+  } else {
+    # Can only be 'before' or 'after' -- 'last' has been checked above
+    # already.
+
+    my $reference = $params{reference};
+    croak "Missing parameter 'reference'" if !$reference;
+
+    my $reference_pos;
+    if (ref $reference) {
+      $reference_pos = $reference->$column;
+    } else {
+      ($reference_pos) = $self->db->dbh->selectrow_array(qq|SELECT ${column} FROM ${table} WHERE ${primary_key_col} = ?|, undef, $reference);
+    }
+
+    $new_position = $params{position} eq 'before' ? $reference_pos : $reference_pos + 1;
+  }
+
+  my $query = <<SQL;
+    UPDATE ${table}
+    SET ${column} = ${column} + 1
+    WHERE (${column} > ?)
+      ${group_by}
+SQL
+
+  my $worker = sub {
+    $self->db->dbh->do($query, undef, $new_position - 1, @values);
+    $self->update_attributes($column => $new_position);
+  };
+
+  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
 }
 
 sub reorder_list {
@@ -75,9 +152,14 @@ sub get_group_by_where {
   my $group_by = get_spec(ref $self, 'group_by') || [];
   $group_by    = [ $group_by ] if $group_by && !ref $group_by;
 
-  my @where    = map { my $value = $self->$_; defined($value) ? "(${_} = " . $value . ")" : "(${_} IS NULL)" } @{ $group_by };
+  my (@where, @values);
+  foreach my $column (@{ $group_by }) {
+    my $value = $self->$column;
+    push @values, $value if defined $value;
+    push @where,  defined($value) ? "(${column} = ?)" : "(${column} IS NULL)";
+  }
 
-  return join ' AND ', @where;
+  return (join(' AND ', @where), @values);
 }
 
 sub set_position {
@@ -86,16 +168,16 @@ sub set_position {
 
   return 1 if defined $self->$column;
 
-  my $table        = $self->meta->table;
-  my $where        = get_group_by_where($self);
-  $where           = " WHERE ${where}" if $where;
-  my $sql = <<SQL;
-    SELECT COALESCE(max(${column}), 0)
+  my $table               = $self->meta->table;
+  my ($group_by, @values) = get_group_by_where($self);
+  my $where               = $group_by ? " WHERE ${group_by}" : '';
+  my $sql                 = <<SQL;
+    SELECT COALESCE(MAX(${column}), 0)
     FROM ${table}
     ${where}
 SQL
 
-  my $max_position = $self->db->dbh->selectrow_arrayref($sql)->[0];
+  my $max_position = $self->db->dbh->selectrow_arrayref($sql, undef, @values)->[0];
   $self->$column($max_position + 1);
 
   return 1;
@@ -108,17 +190,18 @@ sub remove_position {
   $self->load;
   return 1 unless defined $self->$column;
 
-  my $table    = $self->meta->table;
-  my $value    = $self->$column;
-  my $group_by = get_group_by_where($self);
-  $group_by    = ' AND ' . $group_by if $group_by;
-  my $sql      = <<SQL;
+  my $table               = $self->meta->table;
+  my $value               = $self->$column;
+  my ($group_by, @values) = get_group_by_where($self);
+  $group_by               = ' AND ' . $group_by if $group_by;
+  my $sql                 = <<SQL;
     UPDATE ${table}
     SET ${column} = ${column} - 1
-    WHERE (${column} > ${value}) ${group_by}
+    WHERE (${column} > ?)
+     ${group_by}
 SQL
 
-  $self->db->dbh->do($sql);
+  $self->db->dbh->do($sql, undef, $value, @values);
 
   return 1;
 }
@@ -132,28 +215,28 @@ sub do_move {
 
   my $table                                        = $self->meta->table;
   my $old_position                                 = $self->$column;
-  my ($comp_sel, $comp_upd, $min_max, $plus_minus) = $direction eq 'up' ? ('<', '>=', 'max', '+') : ('>', '<=', 'min', '-');
-  my $group_by                                     = get_group_by_where($self);
+  my ($comp_sel, $comp_upd, $min_max, $plus_minus) = $direction eq 'up' ? ('<', '>=', 'MAX', '+') : ('>', '<=', 'MIN', '-');
+  my ($group_by, @values)                          = get_group_by_where($self);
   $group_by                                        = ' AND ' . $group_by if $group_by;
   my $sql                                          = <<SQL;
     SELECT ${min_max}(${column})
     FROM ${table}
-    WHERE (${column} ${comp_sel} ${old_position})
+    WHERE (${column} ${comp_sel} ?)
       ${group_by}
 SQL
 
-  my $new_position = $self->db->dbh->selectrow_arrayref($sql)->[0];
+  my $new_position = $self->db->dbh->selectrow_arrayref($sql, undef, $old_position, @values)->[0];
 
   return undef unless defined $new_position;
 
   $sql = <<SQL;
     UPDATE ${table}
-    SET ${column} = ${old_position}
-    WHERE (${column} = ${new_position})
+    SET ${column} = ?
+    WHERE (${column} = ?)
      ${group_by};
 SQL
 
-  $self->db->dbh->do($sql);
+  $self->db->dbh->do($sql, undef, $old_position, $new_position, @values);
 
   $self->update_attributes($column => $new_position);
 }
@@ -262,6 +345,28 @@ regarding their sort order by exchanging their C<position> values.
 
 Swaps the object with the object one step below the current one
 regarding their sort order by exchanging their C<position> values.
+
+=item C<add_to_list %params>
+
+Adds this item to the list. The parameter C<position> is required and
+can be one of C<first>, C<last>, C<before> and C<after>. With C<first>
+the item is inserted as the first item in the list and all other
+item's positions are shifted up by one. For C<position = last> the
+item is inserted at the end of the list.
+
+For C<before> and C<after> an additional parameter C<reference> is
+required. This is either a Rose model instance or the primary key of
+one. The current item will then be inserted either before or after the
+referenced item by shifting all the appropriate item positions up by
+one.
+
+After this function C<$self>'s positional column has been set and
+saved to the database.
+
+=item C<remove_from_list>
+
+Sets this items positional column to C<undef>, saves it and moves all
+following items up by 1.
 
 =item C<reorder_list @ids>
 
