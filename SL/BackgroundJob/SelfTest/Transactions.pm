@@ -15,9 +15,10 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 14);
+  $self->tester->plan(tests => 15);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
+  $self->check_bilanzkonten_mit_pos_eur;
   $self->check_balanced_individual_transactions;
   $self->check_verwaiste_acc_trans_eintraege;
   $self->check_netamount_laut_invoice_ar;
@@ -67,6 +68,20 @@ sub check_konten_mit_saldo_nicht_in_guv {
     for my $konto (@$konten_nicht_in_guv) {
       $self->tester->diag($konto);
     }
+  }
+}
+
+sub check_bilanzkonten_mit_pos_eur {
+  my ($self) = @_;
+
+  my $query = qq|SELECT accno, description FROM chart WHERE (category = 'A' OR category = 'L' OR category = 'Q') AND (pos_eur IS NOT NULL OR pos_eur != 0)|;
+
+  my $bilanzkonten_mit_pos_eur = selectall_hashref_query($::form, $self->dbh, $query);
+  if (@$bilanzkonten_mit_pos_eur) {
+     $self->tester->ok(0, "Es gibt Bilanzkonten die der GuV/EÜR zugeordnet sind)");
+     $self->tester->diag("$_->{accno}  $_->{description}") for @$bilanzkonten_mit_pos_eur;
+  } else {
+     $self->tester->ok(1, "Keine Bilanzkonten in der GuV");
   }
 }
 
