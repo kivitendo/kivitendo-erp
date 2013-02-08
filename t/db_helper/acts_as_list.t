@@ -139,19 +139,19 @@ test_positions "reoder_list called as class method", [ 1, undef, 1 ], [ 2, undef
 # Aus Liste entfernen
 reset_state();
 get_item(3)->remove_from_list;
-test_positions "remove_from_list on top", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, undef ], [ 4, 1, 1 ], [ 5, 1, 2 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
+test_positions "remove_from_list on top", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, -1 ], [ 4, 1, 1 ], [ 5, 1, 2 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
 
 reset_state();
 get_item(4)->remove_from_list;
-test_positions "remove_from_list on middle", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, undef ], [ 5, 1, 2 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
+test_positions "remove_from_list on middle", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, -1 ], [ 5, 1, 2 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
 
 reset_state();
 get_item(5)->remove_from_list;
-test_positions "remove_from_list on bottom", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, undef ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
+test_positions "remove_from_list on bottom", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, -1 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
 
 reset_state();
 get_item(8)->remove_from_list;
-test_positions "remove_from_list on only item in list", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, undef ];
+test_positions "remove_from_list on only item in list", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, -1 ];
 
 reset_state();
 $item = get_item(3); $item->remove_from_list; $item->delete;

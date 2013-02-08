@@ -41,7 +41,7 @@ sub remove_from_list {
   my $worker = sub {
     remove_position($self);
 
-    # Set to NULL manually because $self->update_attributes() would
+    # Set to -1 manually because $self->update_attributes() would
     # trigger the before_save() hook from this very plugin assigning a
     # number at the end of the list again.
     my $table           = $self->meta->table;
@@ -49,7 +49,7 @@ sub remove_from_list {
     my $primary_key_col = ($self->meta->primary_key)[0];
     my $sql             = <<SQL;
       UPDATE ${table}
-      SET ${column} = NULL
+      SET ${column} = -1
       WHERE ${primary_key_col} = ?
 SQL
     $self->db->dbh->do($sql, undef, $self->$primary_key_col);
@@ -165,16 +165,18 @@ sub get_group_by_where {
 sub set_position {
   my ($self) = @_;
   my $column = column_name($self);
+  my $value  = $self->$column;
 
-  return 1 if defined $self->$column;
+  return 1 if defined($value) && ($value != -1);
 
   my $table               = $self->meta->table;
   my ($group_by, @values) = get_group_by_where($self);
-  my $where               = $group_by ? " WHERE ${group_by}" : '';
+  $group_by               = " AND ${group_by}" if $group_by;
   my $sql                 = <<SQL;
     SELECT COALESCE(MAX(${column}), 0)
     FROM ${table}
-    ${where}
+    WHERE (${column} <> -1)
+      ${group_by}
 SQL
 
   my $max_position = $self->db->dbh->selectrow_arrayref($sql, undef, @values)->[0];
@@ -188,10 +190,10 @@ sub remove_position {
   my $column = column_name($self);
 
   $self->load;
-  return 1 unless defined $self->$column;
+  my $value = $self->$column;
+  return 1 unless defined($value) && ($value != -1);
 
   my $table               = $self->meta->table;
-  my $value               = $self->$column;
   my ($group_by, @values) = get_group_by_where($self);
   $group_by               = ' AND ' . $group_by if $group_by;
   my $sql                 = <<SQL;
@@ -208,20 +210,22 @@ SQL
 
 sub do_move {
   my ($self, $direction) = @_;
-  my $column             = column_name($self);
 
   croak "Object has not been saved yet" unless $self->id;
-  croak "No position set yet"           unless defined $self->$column;
+
+  my $column       = column_name($self);
+  my $old_position = $self->$column;
+  croak "No position set yet" unless defined($old_position) && ($old_position != -1);
 
   my $table                                        = $self->meta->table;
-  my $old_position                                 = $self->$column;
   my ($comp_sel, $comp_upd, $min_max, $plus_minus) = $direction eq 'up' ? ('<', '>=', 'MAX', '+') : ('>', '<=', 'MIN', '-');
   my ($group_by, @values)                          = get_group_by_where($self);
   $group_by                                        = ' AND ' . $group_by if $group_by;
   my $sql                                          = <<SQL;
     SELECT ${min_max}(${column})
     FROM ${table}
-    WHERE (${column} ${comp_sel} ?)
+    WHERE (${column} <>          -1)
+      AND (${column} ${comp_sel} ?)
       ${group_by}
 SQL
 
@@ -365,7 +369,7 @@ saved to the database.
 
 =item C<remove_from_list>
 
-Sets this items positional column to C<undef>, saves it and moves all
+Sets this items positional column to C<-1>, saves it and moves all
 following items up by 1.
 
 =item C<reorder_list @ids>
