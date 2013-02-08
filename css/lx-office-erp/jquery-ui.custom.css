@@ -57,11 +57,8 @@
 .tabwidget ul li.ui-tabs-selected a, .tabwidget.ui-tabs-nav li.ui-state-disabled a, .tabwidget.ui-tabs-nav li.ui-state-processing a { cursor: text; }
 .tabwidget ul li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; }
 
-.tabwidget div {
+.tabwidget > div {
   display: none;
-}
-
-.tabwidget.ui-state-active {
 }
 
 .tabwidget .ui-widget-header {
@@ -69,7 +66,6 @@
   border: 0;
   color: #000000;
 }
-
 
 .tabwidget .ui-state-active a, .tabwidget .ui-state-active a:link, .tabwidget .ui-state-active a:visited {
   color: #000000;
