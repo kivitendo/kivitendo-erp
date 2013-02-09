@@ -2765,6 +2765,22 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
             </varlistentry>
 
             <varlistentry>
+              <term><varname>c_vendor_id</varname></term>
+
+              <listitem>
+                <para>Lieferantennummer beim Kunden (nur Kunden)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
+              <term><varname>v_customer_id</varname></term>
+
+              <listitem>
+                <para>Kundennummer beim Lieferanten (nur Lieferanten)</para>
+              </listitem>
+            </varlistentry>
+
+            <varlistentry>
               <term><varname>cp_email</varname></term>
 
               <listitem>
