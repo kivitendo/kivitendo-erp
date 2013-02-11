@@ -40,7 +40,12 @@ sub bank_transfer_add {
     return;
   }
 
-  $_->{checked} = $_->{direct_debit} for @{ $invoices };
+  # Only include those per default that require manual action from our
+  # side. For sales invoices these are the ones for which direct debit
+  # has been selected. For purchase invoices it's the other way
+  # around: if direct debit is active then the vendor will collect
+  # from us automatically and we don't have to send money manually.
+  $_->{checked} = ($vc eq 'customer' ? $_->{direct_debit} : !$_->{direct_debit}) for @{ $invoices };
 
   my $bank_account_label_sub = sub { $locale->text('Account number #1, bank code #2, #3', $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank}) };
 
