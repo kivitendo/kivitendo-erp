@@ -12,6 +12,10 @@
 
   <h3 class="login">[% 'kivitendo' | $T8 %] [% version %]</h3>
 
+[%- IF git_head %]
+  <p>[%- LxERP.t8("Git revision: #1, #2 #3", git_head.hash.substr(0, 7), git_head.author_date.to_kivitendo, git_head.author_date.strftime('%H:%M:%S %Z')) %]</p>
+[%- END %]
+
   <p>[% 'companylogo_subtitle' | $T8 %]</p>
   <p>
    <b>
@@ -56,4 +60,3 @@
  </center>
 
  [%- todo_list %]
-

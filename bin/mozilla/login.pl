@@ -31,6 +31,7 @@ use DBI;
 use SL::Auth;
 use SL::User;
 use SL::Form;
+use SL::Git;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/todo.pl";
@@ -50,6 +51,9 @@ sub company_logo {
   $form->{stylesheet} =  $myconfig{stylesheet};
   $form->{title}      =  $::locale->text('kivitendo');
   $form->{interface}  = $::dispatcher->interface_type;
+
+  my $git             = SL::Git->new;
+  ($form->{git_head}) = $git->get_log(since => 'HEAD~1', until => 'HEAD') if $git->is_git_installation;
 
   # create the logo screen
   $form->header() unless $form->{noheader};

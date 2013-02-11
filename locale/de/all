@@ -930,6 +930,7 @@ $self->{texts} = {
   'General ledger and cash'     => 'Finanzbuchhaltung und Zahlungsverkehr',
   'General ledger corrections'  => 'Korrekturen im Hauptbuch',
   'Generic Tax Report'          => 'USTVA Bericht',
+  'Git revision: #1, #2 #3'     => 'Git-Revision: #1, #2 #3',
   'Given Name'                  => 'Vorname',
   'Go one step back'            => 'Einen Schritt zur&uuml;ck',
   'Go one step forward'         => 'Einen Schritt vorw&auml;rts',
