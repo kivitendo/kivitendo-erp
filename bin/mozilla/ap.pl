@@ -198,7 +198,7 @@ sub form_header {
   $main::auth->assert('general_ledger');
 
   $form->{title_} = $form->{title};
-  $form->{title} = $locale->text($form->{title} .' Accounts Payables Transaction');
+  $form->{title} = $form->{title} eq 'Add' ? $locale->text('Add Accounts Payables Transaction') : $locale->text('Edit Accounts Payables Transaction');
 
   # type=submit $locale->text('Add Accounts Payables Transaction')
   # type=submit $locale->text('Edit Accounts Payables Transaction')

@@ -10,7 +10,6 @@ use utf8;
 # run locales.pl from this directory to rebuild the translation files
 
 $self->{texts} = {
-  ' Accounts Payables Transaction' => '',
   ' Date missing!'              => ' Datum fehlt!',
   ' Part Number missing!'       => ' Artikelnummer fehlt!',
   ' missing!'                   => ' fehlt!',
