@@ -1156,6 +1156,7 @@ $self->{texts} = {
   'Manage Custom Variables'     => 'Benutzerdefinierte Variablen',
   'Mandantennummer'             => 'Mandantennummer',
   'Mandatory Departments'       => 'Benutzer muss Abteilungen vergeben',
+  'Map'                         => 'Karte',
   'Mar'                         => 'März',
   'March'                       => 'März',
   'Margepercent'                => 'Ertrag prozentual',

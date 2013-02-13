@@ -106,7 +106,16 @@
 
      <tr>
       <th align="right" nowrap>[% 'Street' | $T8 %]</th>
-      <td><input name="street" size="35" maxlength="75" value="[% HTML.escape(street) %]"></td>
+      <td>
+        <input name="street" size="35" maxlength="75" value="[% HTML.escape(street) %]">
+        <a
+          href="#"
+          onclick="window.open('https://maps.google.com/maps?q='+ encodeURIComponent($('#billing input[name=street]').val() +', '+ $('#billing input[name=zipcode]').val() +' '+ $('#billing input[name=city]').val() +', '+ $('#billing input[name=country]').val()), '_blank'); window.focus();"
+          title="[% 'Map' | $T8 %]"
+          >
+            <img src="image/map.png" alt="[% 'Map' | $T8 %]" />
+          </a>
+      </td>
      </tr>
 
      <tr>
