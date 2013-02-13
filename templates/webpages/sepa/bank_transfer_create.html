@@ -114,6 +114,10 @@
   </p>
 
   <p>
+   [% 'Sum open amount' | $T8 %]: [% LxERP.format_amount(total_trans, -2) %]
+  </p>
+
+  <p>
    [%- IF is_vendor %]
     <input type="submit" class="submit" name="action_bank_transfer_create" value="[% 'Create bank transfer' | $T8 %]">
    [%- ELSE %]

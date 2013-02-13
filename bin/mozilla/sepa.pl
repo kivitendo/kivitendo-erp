@@ -1,7 +1,7 @@
 use strict;
 
 use List::MoreUtils qw(any none uniq);
-use List::Util qw(first);
+use List::Util qw(sum first);
 use POSIX qw(strftime);
 
 use SL::BankAccount;
@@ -105,6 +105,8 @@ sub bank_transfer_create {
     $form->error($locale->text('You have selected none of the invoices.'));
   }
 
+  my $total_trans = sum map { $_->{open_amount} } @bank_transfers;
+
   my ($vc_bank_info);
   my $error_message;
 
@@ -136,6 +138,7 @@ sub bank_transfer_create {
                                        'bank_account_label' => $bank_account_label_sub,
                                        'error_message'      => $error_message,
                                        'vc'                 => $vc,
+                                       'total_trans'        => $total_trans,
                                      });
 
   } else {

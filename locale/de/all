@@ -2000,6 +2000,7 @@ $self->{texts} = {
   'Sum Credit'                  => 'Summe Haben',
   'Sum Debit'                   => 'Summe Soll',
   'Sum for'                     => 'Summe für',
+  'Sum open amount'             => 'Summierter offener Betrag',
   'Sum per'                     => 'Summe per',
   'Summen- und Saldenliste'     => 'Summen- und Saldenliste',
   'Superuser name'              => 'Datenbankadministrator',
