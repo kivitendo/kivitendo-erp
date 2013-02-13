@@ -457,10 +457,19 @@ sub spawn_openoffice {
       last;
     }
 
+    if ($::dispatcher->interface_type eq 'FastCGI') {
+      $::dispatcher->{request}->Detach;
+    }
+
     if (!$spawned_oo) {
       my $pid = fork();
       if (0 == $pid) {
         $main::lxdebug->message(LXDebug->DEBUG2(), "  Child daemonizing\n");
+
+        if ($::dispatcher->interface_type eq 'FastCGI') {
+          $::dispatcher->{request}->Finish;
+          $::dispatcher->{request}->LastCall;
+        }
         chdir('/');
         open(STDIN, '/dev/null');
         open(STDOUT, '>/dev/null');
@@ -474,6 +483,11 @@ sub spawn_openoffice {
                        "-accept=socket,host=localhost,port=" .
                        $::lx_office_conf{print_templates}->{openofficeorg_daemon_port} . ";urp;");
         exec(@cmdline);
+      } else {
+        # parent
+        if ($::dispatcher->interface_type eq 'FastCGI') {
+          $::dispatcher->{request}->Attach;
+        }
       }
 
       $main::lxdebug->message(LXDebug->DEBUG2(), "  Parent after fork\n");
