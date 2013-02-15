@@ -156,6 +156,17 @@ sub pobj {
   return "<${ref} " . join(' ', @columns) . '>';
 }
 
+sub sql {
+  my $dbh            = ref($_[0]) ? shift : $::form->get_standard_dbh;
+  my ($query, @args) = @_;
+
+  if ($query =~ m/^\s*select/i) {
+    ptab($dbh->selectall_arrayref($query, { Slice => {} }, @args));
+  } else {
+    $dbh->do($query, { Slice => {} }, @args);
+  }
+}
+
 1;
 
 __END__
@@ -215,6 +226,23 @@ Undefined values are represented by C<UNDEF>.
 Example usage:
 
     pobj(SL::DB::Manager::Employee->find_by(login => 'demo'));
+
+=head2 sql C<[ $dbh, ] $query, @bind_values>
+
+Executes an SQL query using the optional bind values. If the first
+parameter is a database handle then that database handle is used;
+otherwise the handle returned by L<SL::Form/get_standard_dbh> is used.
+
+If the query is a C<SELECT> then the result is filtered through
+L<ptab()>. Otherwise the result of C<$dbh-&gt;do($query, undef, @bind_values)>
+is returned.
+
+Example usage:
+
+    sql(qq|SELECT * FROM employee|);
+    sql(SL::DB::Employee->new->db->dbh,
+        qq|UPDATE employee SET notes = ? WHERE login = ?|,
+        'This guy is evil!', 'demo');
 
 =head2 lxinit C<login>
 
