@@ -357,8 +357,8 @@ sub post_payment {
                                AND ((c.link LIKE '%:${ARAP}') OR (c.link LIKE '${ARAP}:%') OR (c.link = '${ARAP}'))
                              LIMIT 1| ],
 
-    'add_acc_trans'  => [ qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate,       source, memo)
-                             VALUES                (?,        ?,        ?,      ?,         current_date, ?,      '')| ],
+    'add_acc_trans'  => [ qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate,       source, memo, taxkey, tax_id)
+                             VALUES                (?,        ?,        ?,      ?,         current_date, ?,      '',   0,      (SELECT id FROM tax WHERE taxkey=0 LIMIT 1))| ],
 
     'update_arap'    => [ qq|UPDATE ${arap}
                              SET paid = paid + ?
