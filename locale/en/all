@@ -1814,6 +1814,7 @@ $self->{texts} = {
   'Taxes'                       => '',
   'Taxkey'                      => '',
   'Taxkey  missing!'            => '',
+  'Taxkey 0 is reserved for rate 0' => '',
   'Taxkey_coa'                  => '',
   'Taxkeys and Taxreport Preferences' => '',
   'Taxlink_coa'                 => '',

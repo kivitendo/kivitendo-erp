@@ -1858,6 +1858,7 @@ $self->{texts} = {
   'Taxes'                       => 'Steuern',
   'Taxkey'                      => 'Steuerschlüssel',
   'Taxkey  missing!'            => 'Steuerschlüssel fehlt!',
+  'Taxkey 0 is reserved for rate 0' => 'Der Steuerschlüssel 0 darf keinen Steuersatz über 0 haben.',
   'Taxkey_coa'                  => 'Steuerschlüssel',
   'Taxkeys and Taxreport Preferences' => 'Steuerautomatik und UStVA',
   'Taxlink_coa'                 => 'Steuerautomatik',

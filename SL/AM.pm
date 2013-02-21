@@ -1779,7 +1779,9 @@ sub get_tax {
                    taxkey,
                    taxdescription,
                    round(rate * 100, 2) AS rate,
-                   chart_id
+                   chart_id, 
+                   (id IN (SELECT tax_id 
+                           FROM acc_trans)) AS tax_already_used
                  FROM tax
                  WHERE id = ? |;
 
