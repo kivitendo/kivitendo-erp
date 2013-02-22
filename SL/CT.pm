@@ -617,7 +617,7 @@ sub search {
   my %allowed_sort_columns =
     map { $_, 1 } qw(
       id customernumber vendornumber name contact phone fax email street
-      taxnumber business invnumber ordnumber quonumber zipcode city
+      taxnumber business invnumber ordnumber quonumber zipcode city country salesman
     );
   my $sortorder    = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
   $form->{sort} = $sortorder;
@@ -659,6 +659,19 @@ sub search {
     push @values, ('%' . $form->{addr_city} . '%') x 2;
   }
 
+  if ($form->{addr_country}) {
+    $where .= " AND ((lower(ct.country) LIKE lower(?))
+                     OR
+                     (ct.id IN (
+                        SELECT trans_id
+                        FROM shipto
+                        WHERE (module = 'CT')
+                          AND (lower(shiptocountry) LIKE lower(?))
+                      ))
+                     )";
+    push @values, ('%' . $form->{addr_country} . '%') x 2;
+  }
+
   if ( $form->{status} eq 'orphaned' ) {
     $where .=
       qq| AND ct.id NOT IN | .
@@ -676,7 +689,7 @@ sub search {
         qq|  WHERE cv.id = a.vendor_id)|;
     }
     $form->{l_invnumber} = $form->{l_ordnumber} = $form->{l_quonumber} = "";
-  }
+  };
 
   if ($form->{obsolete} eq "Y") {
     $where .= qq| AND obsolete|;
@@ -716,10 +729,11 @@ sub search {
   }
 
   my $query =
-    qq|SELECT ct.*, b.description AS business | .
+    qq|SELECT ct.*, b.description AS business, e.name as salesman | .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
     qq|FROM $cv ct | .
     qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
+    qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
     qq|WHERE $where|;
 
   my @saved_values = @values;
@@ -733,13 +747,14 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business, | .
+        qq|SELECT ct.*, b.description AS business, e.name as salesman, | .
         qq|  a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
         qq|  '$module' AS module, 'invoice' AS formtype, | .
         qq|  (a.amount = a.paid) AS closed | .
         qq|FROM $cv ct | .
         qq|JOIN $ar a ON (a.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
+        qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|WHERE $where AND (a.invoice = '1')|;
     }
 
@@ -747,12 +762,13 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business,| .
+        qq|SELECT ct.*, b.description AS business, e.name as salesman, | .
         qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'order' AS formtype, o.closed | .
         qq|FROM $cv ct | .
         qq|JOIN oe o ON (o.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
+        qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|WHERE $where AND (o.quotation = '0')|;
     }
 
@@ -760,12 +776,13 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business, | .
+        qq|SELECT ct.*, b.description AS business, e.name as salesman, | .
         qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'quotation' AS formtype, o.closed | .
         qq|FROM $cv ct | .
         qq|JOIN oe o ON (o.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
+        qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|WHERE $where AND (o.quotation = '1')|;
     }
   }

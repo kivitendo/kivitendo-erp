@@ -161,6 +161,7 @@ sub list_names {
   push @options, $locale->text('Billing/shipping address (city)')    . " : $form->{addr_city}" if $form->{addr_city};
   push @options, $locale->text('Billing/shipping address (zipcode)') . " : $form->{zipcode}"   if $form->{addr_zipcode};
   push @options, $locale->text('Billing/shipping address (street)')  . " : $form->{street}"    if $form->{addr_street};
+  push @options, $locale->text('Billing/shipping address (country)') . " : $form->{country}"   if $form->{addr_country};
 
   if ($form->{business_id}) {
     my $business = SL::DB::Manager::Business->find_by(id => $form->{business_id});
@@ -171,9 +172,9 @@ sub list_names {
   }
 
   my @columns = (
-    'id',        'name',      "$form->{db}number",   'contact',  'phone',
-    'fax',       'email',     'taxnumber',           'street',   'zipcode' , 'city',
-    'business',  'invnumber', 'ordnumber',           'quonumber'
+    'id',        'name',      "$form->{db}number",   'contact',   'phone',
+    'fax',       'email',     'taxnumber',           'street',    'zipcode' , 'city',
+    'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country' 
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -199,6 +200,8 @@ sub list_names {
     'street'            => { 'text' => $locale->text('Street'), },
     'zipcode'           => { 'text' => $locale->text('Zipcode'), },
     'city'              => { 'text' => $locale->text('City'), },
+    'country'           => { 'text' => $locale->text('Country'), },
+    'salesman'          => { 'text' => $locale->text('Salesman'), },
     %column_defs_cvars,
   );
 

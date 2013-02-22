@@ -284,6 +284,7 @@ $self->{texts} = {
   'Bilanz'                      => 'Bilanz',
   'Billing Address'             => 'Rechnungsadresse',
   'Billing/shipping address (city)' => 'Rechnungsadresse (Stadt)',
+  'Billing/shipping address (country)' => 'Rechnungsadresse (Land)',
   'Billing/shipping address (street)' => 'Rechnungsadresse (Straße)',
   'Billing/shipping address (zipcode)' => 'Rechnungsadresse (PLZ)',
   'Bin'                         => 'Lagerplatz',
