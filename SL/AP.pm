@@ -211,7 +211,7 @@ sub post_transaction {
           qq|INSERT INTO acc_trans | .
           qq|  (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link)| .
           qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-          qq|  ?, ?, ?, ?, ?| .
+          qq|  ?, ?, ?, ?, ?,| .
           qq| (SELECT c.link FROM chart c WHERE c.accno = ?))|;
         @values = ($form->{id}, $form->{AP_amounts}{"amount_$i"},
                    $form->{"amount_$i"}, conv_date($form->{transdate}),
@@ -225,7 +225,7 @@ sub post_transaction {
             qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, | .
             qq|  project_id, taxkey, tax_id, chart_link) | .
             qq|VALUES (?, (SELECT c.id FROM chart c WHERE c.accno = ?), | .
-            qq|  ?, ?, ?, ?, ?)| .
+            qq|  ?, ?, ?, ?, ?,| .
             qq| (SELECT c.link FROM chart c WHERE c.accno = ?))|;
           @values = ($form->{id}, $form->{AP_amounts}{"tax_$i"},
                      $form->{"tax_$i"}, conv_date($form->{transdate}),

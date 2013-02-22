@@ -170,16 +170,21 @@ sub _post_add_acctrans {
   my ($self, $entries) = @_;
 
   my $default_tax_id = SL::DB::Manager::Tax->find_by(taxkey => 0)->id;
+  my $chart_link;
 
   while (my ($chart_id, $spec) = each %{ $entries }) {
     $spec = { taxkey => 0, tax_id => $default_tax_id, amount => $spec } unless ref $spec;
+    $chart_link = SL::DB::Manager::Chart->find_by(id => $chart_id)->{'link'};
+    $chart_link ||= '';
+
     SL::DB::AccTransaction->new(trans_id   => $self->id,
                                 chart_id   => $chart_id,
                                 amount     => $spec->{amount},
                                 tax_id     => $spec->{tax_id},
                                 taxkey     => $spec->{taxkey},
                                 project_id => $self->globalproject_id,
-                                transdate  => $self->transdate)->save;
+                                transdate  => $self->transdate,
+                                chart_link => $chart_link)->save;
   }
 }
 
