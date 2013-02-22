@@ -1491,7 +1491,11 @@ sub edit_tax {
 
   $form->header();
 
+  #set readonly if the there are entries in acc_trans with the tax
+  my $readonly = $form->{tax_already_used} ? 'readonly' : '';
+
   my $parameters_ref = {
+    readonly => $readonly, 
   };
 
   # Ausgabe des Templates
@@ -1552,11 +1556,15 @@ sub save_tax {
 
   $main::auth->assert('config');
 
-  $form->isblank("rate", $locale->text('Taxrate missing!'));
-  $form->isblank("taxdescription", $locale->text('Taxdescription  missing!'));
-  $form->isblank("taxkey", $locale->text('Taxkey  missing!'));
+  $form->error($locale->text('Taxkey  missing!')) unless length($form->{taxkey}) != 0;
+  $form->error($locale->text('Taxdescription  missing!')) unless length($form->{taxdescription}) != 0;
+  $form->error($locale->text('Taxrate missing!')) unless length($form->{rate}) != 0;
 
   $form->{rate} = $form->parse_amount(\%myconfig, $form->{rate});
+
+  if ($form->{taxkey} == 0 and $form->{rate} > 0) {
+    $form->error($locale->text('Taxkey 0 is reserved for rate 0'));
+  }
 
   if ( $form->{rate} < 0 || $form->{rate} >= 100 ) {
     $form->error($locale->text('Tax Percent is a number between 0 and 100'));
