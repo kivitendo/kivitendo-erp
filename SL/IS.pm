@@ -870,9 +870,16 @@ sub post_invoice {
                                        WHERE accno = ?) 
                       AND startdate <= ? 
                       ORDER BY startdate DESC LIMIT 1),
-                     (SELECT taxkey_id  FROM chart WHERE accno = ?), ?,
+                     (SELECT taxkey_id
+                      FROM taxkeys 
+                      WHERE chart_id= (SELECT id  
+                                       FROM chart 
+                                       WHERE accno = ?) 
+                      AND startdate <= ? 
+                      ORDER BY startdate DESC LIMIT 1),
+                     ?,
                      (SELECT link FROM chart WHERE accno = ?))|;
-        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_i($project_id), $accno);
+        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
         do_query($form, $dbh, $query, @values);
         $form->{amount}{$trans_id}{$accno} = 0;
       }
@@ -892,9 +899,16 @@ sub post_invoice {
                                        WHERE accno = ?) 
                       AND startdate <= ? 
                       ORDER BY startdate DESC LIMIT 1),
-                     (SELECT taxkey_id FROM chart WHERE accno = ?), ?,
+                     (SELECT taxkey_id 
+                      FROM taxkeys 
+                      WHERE chart_id= (SELECT id 
+                                       FROM chart 
+                                       WHERE accno = ?) 
+                      AND startdate <= ? 
+                      ORDER BY startdate DESC LIMIT 1),
+                     ?,
                      (SELECT link FROM chart WHERE accno = ?))|;
-        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_i($project_id), $accno);
+        @values = (conv_i($trans_id), $accno, $form->{amount}{$trans_id}{$accno}, conv_date($form->{invdate}), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
         do_query($form, $dbh, $query, @values);
       }
     }
@@ -949,9 +963,16 @@ sub post_invoice {
                                      WHERE accno = ?) 
                     AND startdate <= ? 
                     ORDER BY startdate DESC LIMIT 1),
-                   (SELECT taxkey_id FROM chart WHERE accno = ?), ?,
+                   (SELECT taxkey_id 
+                    FROM taxkeys 
+                    WHERE chart_id= (SELECT id  
+                                     FROM chart 
+                                     WHERE accno = ?) 
+                    AND startdate <= ? 
+                    ORDER BY startdate DESC LIMIT 1),
+                   ?,
                    (SELECT link FROM chart WHERE accno = ?))|;
-        @values = (conv_i($form->{"id"}), $form->{AR}, $amount, $form->{"datepaid_$i"}, $form->{AR}, conv_date($taxdate), $form->{AR}, $project_id, $form->{AR});
+        @values = (conv_i($form->{"id"}), $form->{AR}, $amount, $form->{"datepaid_$i"}, $form->{AR}, conv_date($taxdate), $form->{AR}, conv_date($taxdate), $project_id, $form->{AR});
         do_query($form, $dbh, $query, @values);
       }
 
@@ -969,10 +990,17 @@ sub post_invoice {
                                    WHERE accno = ?) 
                   AND startdate <= ? 
                   ORDER BY startdate DESC LIMIT 1),
-                 (SELECT taxkey_id FROM chart WHERE accno = ?), ?,
+                 (SELECT taxkey_id 
+                  FROM taxkeys 
+                  WHERE chart_id= (SELECT id  
+                                   FROM chart 
+                                   WHERE accno = ?) 
+                  AND startdate <= ? 
+                  ORDER BY startdate DESC LIMIT 1),
+                 ?,
                  (SELECT link FROM chart WHERE accno = ?))|;
       @values = (conv_i($form->{"id"}), $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"},
-                 $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $accno, conv_date($taxdate), $accno, $project_id, $accno);
+                 $gldate, $form->{"source_$i"}, $form->{"memo_$i"}, $accno, conv_date($taxdate), $accno, conv_date($taxdate), $project_id, $accno);
       do_query($form, $dbh, $query, @values);
 
       # exchangerate difference
@@ -1021,9 +1049,16 @@ sub post_invoice {
                                    WHERE accno = ?) 
                   AND startdate <= ? 
                   ORDER BY startdate DESC LIMIT 1),
-                 (SELECT taxkey_id FROM chart WHERE accno = ?), ?,
+                 (SELECT taxkey_id 
+                  FROM taxkeys 
+                  WHERE chart_id= (SELECT id  
+                                   FROM chart 
+                                   WHERE accno = ?) 
+                  AND startdate <= ? 
+                  ORDER BY startdate DESC LIMIT 1),
+                 ?,
                  (SELECT link FROM chart WHERE accno = ?))|;
-        @values = (conv_i($form->{"id"}), $accno, $form->{fx}{$accno}{$transdate}, conv_date($transdate), $accno, conv_date($taxdate), $accno, conv_i($project_id), $accno);
+        @values = (conv_i($form->{"id"}), $accno, $form->{fx}{$accno}{$transdate}, conv_date($transdate), $accno, conv_date($taxdate), $accno, conv_date($taxdate), conv_i($project_id), $accno);
         do_query($form, $dbh, $query, @values);
       }
     }
