@@ -154,12 +154,14 @@
         <label for="l_country">[% 'Country' | $T8 %]</label>
       </td>
       </tr>
+      [% IF IS_CUSTOMER %]
       <tr>
        <td>
         <input name="l_salesman" id="l_salesman" type="checkbox" class="checkbox" value="Y">
-        <label for="l_salesman">[% IF IS_CUSTOMER %][% 'Salesman' | $T8 %][% END %]</label>
+        <label for="l_salesman">[% 'Salesman' | $T8 %]</label>
        </td>
       </tr>
+      [% END %]
 
       [% CUSTOM_VARIABLES_INCLUSION_CODE %]
 
