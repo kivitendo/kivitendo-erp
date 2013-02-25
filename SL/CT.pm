@@ -614,12 +614,36 @@ sub search {
   my $where = "1 = 1";
   my @values;
 
-  my %allowed_sort_columns =
-    map { $_, 1 } qw(
-      id customernumber vendornumber name contact phone fax email street
-      taxnumber business invnumber ordnumber quonumber zipcode city country salesman
+  my %allowed_sort_columns = (
+      "id" => "id",
+      "customernumber" => "customernumber",
+      "vendornumber" => "vendornumber",
+      "name" => "ct.name",
+      "contact" => "contact",
+      "phone" => "phone",
+      "fax" => "fax",
+      "email" => "email",
+      "street" => "street",
+      "taxnumber" => "taxnumber",
+      "business" => "business",
+      "invnumber" => "invnumber",
+      "ordnumber" => "ordnumber",
+      "quonumber" => "quonumber",
+      "zipcode" => "zipcode",
+      "city" => "city",
+      "country" => "country",
+      "salesman" => "e.name"
     );
-  my $sortorder    = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
+
+  my $sortorder;
+  if ( $join_records ) {
+    # in UNION case order by hash key, e.g. salesman
+    # the UNION created an implicit select around the result 
+    $sortorder = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
+  } else {
+    # in not UNION case order by hash value, e.g. e.name
+    $sortorder = $form->{sort} && $allowed_sort_columns{$form->{sort}} ?  $allowed_sort_columns{$form->{sort}} : "ct.name";
+  };
   $form->{sort} = $sortorder;
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
@@ -788,7 +812,7 @@ sub search {
   }
 
   $query .= qq| ORDER BY $sortorder|;
-
+  
   $form->{CT} = selectall_hashref_query($form, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
