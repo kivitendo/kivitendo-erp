@@ -70,6 +70,12 @@ sub setup_db_args_for_list {
   $args{query} = [
     @{ $args{query} || [] },
     SL::DB::Manager::Order->type_filter('sales_order'),
+    or => [
+      globalproject_id => undef,
+      and              => [
+        'globalproject.active' => 1,
+        'globalproject.valid'  => 1,
+      ]],
   ];
 
   return \%args;
