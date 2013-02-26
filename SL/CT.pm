@@ -644,7 +644,7 @@ sub search {
   } else {
     # in not UNION case order by hash value, e.g. e.name
     $sortorder = $allowed_sort_columns{$form->{sort}} ?  $allowed_sort_columns{$form->{sort}} : "ct.name";
-  };
+  }
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
   if ($sortorder !~ /(business|id)/ && !$join_records) {
@@ -713,7 +713,7 @@ sub search {
         qq|  WHERE cv.id = a.vendor_id)|;
     }
     $form->{l_invnumber} = $form->{l_ordnumber} = $form->{l_quonumber} = "";
-  };
+  }
 
   if ($form->{obsolete} eq "Y") {
     $where .= qq| AND obsolete|;
