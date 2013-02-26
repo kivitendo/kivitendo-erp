@@ -105,6 +105,13 @@
    <td>[% HTML.escape(discount) %]%</td>
   </tr>
 
+  [% IF is_customer %]
+  <tr>
+   <td align="right">[% 'Pricegroup' | $T8 %]</td>
+   <td>[% HTML.escape(pricegroup) %]</td>
+  </tr>
+  [% END %]
+
   <tr>
    <td align="right">[% 'Payment Terms' | $T8 %]</td>
    <td>[% HTML.escape(payment_terms) %]</td>
