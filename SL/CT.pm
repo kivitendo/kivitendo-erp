@@ -639,7 +639,7 @@ sub search {
   my $sortorder;
   if ( $join_records ) {
     # in UNION case order by hash key, e.g. salesman
-    # the UNION created an implicit select around the result 
+    # the UNION created an implicit select around the result
     $sortorder = $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
   } else {
     # in not UNION case order by hash value, e.g. e.name
@@ -812,7 +812,7 @@ sub search {
   }
 
   $query .= qq| ORDER BY $sortorder|;
-  
+
   $form->{CT} = selectall_hashref_query($form, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();
