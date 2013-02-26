@@ -70,7 +70,8 @@ sub setup_db_args_for_list {
   $args{query} = [
     @{ $args{query} || [] },
     SL::DB::Manager::Order->type_filter('sales_order'),
-    or => [
+    '!closed' => 1,
+    or        => [
       globalproject_id => undef,
       and              => [
         'globalproject.active' => 1,
