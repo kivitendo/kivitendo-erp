@@ -209,7 +209,7 @@ sub list_names {
 
   my @hidden_variables  = ( qw(
       db status obsolete name contact email cp_name addr_street addr_zipcode
-      addr_city business_id
+      addr_city addr_country business_id
     ), "$form->{db}number",
     map({ "cvar_$_->{name}" } @searchable_custom_variables),
     map({'cvar_'. $_->{name} .'_qtyop'} grep({$_->{type} eq 'number'} @searchable_custom_variables)),
