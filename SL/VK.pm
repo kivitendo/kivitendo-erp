@@ -52,7 +52,7 @@ sub invoice_transactions {
 
   my $query =
     qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight | .
-    qq|FROM invoice i | .  
+    qq|FROM invoice i | .
     qq|JOIN ar on (i.trans_id = ar.id) | .
     qq|JOIN parts p on (i.parts_id = p.id) | .
     qq|LEFT JOIN partsgroup pg on (p.partsgroup_id = pg.id) | .
@@ -157,7 +157,7 @@ sub invoice_transactions {
     push(@values, $form->{"project_id"}, $form->{"project_id"});
   }
   if ($form->{business_id}) {
-    $where .= qq| AND ct.business_id = ? |; 
+    $where .= qq| AND ct.business_id = ? |;
     push(@values, $form->{"business_id"});
   }
 
@@ -179,7 +179,7 @@ sub invoice_transactions {
     $where .= qq| AND ($cvar_where_ic)|;
     push @values, @cvar_values_ic;
   }
-  
+
   $query .= " WHERE $where ORDER BY $sortorder "; # LIMIT 5000";
 
   my @result = selectall_hashref_query($form, $dbh, $query, @values);

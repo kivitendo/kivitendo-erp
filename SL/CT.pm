@@ -635,16 +635,16 @@ sub search {
       "salesman" => "e.name"
     );
 
+  $form->{sort} ||= "name";
   my $sortorder;
   if ( $join_records ) {
     # in UNION case order by hash key, e.g. salesman
-    # the UNION created an implicit select around the result 
-    $sortorder = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
+    # the UNION created an implicit select around the result
+    $sortorder = $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
   } else {
     # in not UNION case order by hash value, e.g. e.name
-    $sortorder = $form->{sort} && $allowed_sort_columns{$form->{sort}} ?  $allowed_sort_columns{$form->{sort}} : "ct.name";
-  };
-  $form->{sort} = $sortorder;
+    $sortorder = $allowed_sort_columns{$form->{sort}} ?  $allowed_sort_columns{$form->{sort}} : "ct.name";
+  }
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
   if ($sortorder !~ /(business|id)/ && !$join_records) {
@@ -713,7 +713,7 @@ sub search {
         qq|  WHERE cv.id = a.vendor_id)|;
     }
     $form->{l_invnumber} = $form->{l_ordnumber} = $form->{l_quonumber} = "";
-  };
+  }
 
   if ($form->{obsolete} eq "Y") {
     $where .= qq| AND obsolete|;
@@ -812,7 +812,7 @@ sub search {
   }
 
   $query .= qq| ORDER BY $sortorder|;
-  
+
   $form->{CT} = selectall_hashref_query($form, $dbh, $query, @values);
 
   $main::lxdebug->leave_sub();

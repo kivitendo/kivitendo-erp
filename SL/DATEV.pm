@@ -465,11 +465,11 @@ sub _get_transactions {
       next;
     }
 
-    # determine at which array position the reference value (called absumsatz) is 
+    # determine at which array position the reference value (called absumsatz) is
     # and which amount it has
 
     for my $j (0 .. (scalar(@{$trans}) - 1)) {
-      
+
       # Three cases:
       # 1: gl transaction (Dialogbuchung), invoice is false, no double split booking allowed
 

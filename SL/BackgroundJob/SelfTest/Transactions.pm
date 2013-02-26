@@ -309,7 +309,7 @@ sub check_stornos_ohne_partner {
     LEFT JOIN vendor v on (v.id = ap.vendor_id)
     WHERE storno_id is null AND storno is true AND ap.id not in (SELECT storno_id FROM ap WHERE storno_id is not null AND storno is true);
   |;
- 
+
   my $stornos_ohne_partner =  selectall_hashref_query($::form, $self->dbh, $query);
 
   $self->tester->ok(@$stornos_ohne_partner == 0, 'Es sollte keine Stornos ohne Partner geben');

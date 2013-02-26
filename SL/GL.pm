@@ -284,7 +284,7 @@ sub all_transactions {
     push(@arvalues, '%' . $form->{description} . '%');
     push(@apvalues, '%' . $form->{description} . '%');
   }
- 
+
   if ($form->{employee} =~ /--/) {
     ($form->{employee_id},$form->{employee_name}) = split(/--/,$form->{employee});
   #if ($form->{employee_id}) {
@@ -370,7 +370,7 @@ sub all_transactions {
     'source'          => { 'gl' => 'ac.source',     'arap' => 'ac.source',   },
     'description'     => { 'gl' => 'g.description', 'arap' => 'ct.name',     },
     );
-  
+
   # sortdir = sort direction (ascending or descending)
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : $form->{datesort};  # default used to be transdate
