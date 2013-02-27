@@ -9,8 +9,10 @@ use SL::Form;
 use SL::Locale;
 use SL::LXDebug;
 use Data::Dumper;
+use SL::Layout::None;
 use SL::LxOfficeConf;
 use SL::InstanceConfiguration;
+use SL::Request;
 
 sub _login {
   my $login = shift;
@@ -25,7 +27,7 @@ sub _login {
   $::form          = Form->new;
   $::auth          = SL::Auth->new;
   $::instance_conf = SL::InstanceConfiguration->new;
-  $::request       = { cgi => CGI->new({}) };
+  $::request       = SL::Request->new( cgi => CGI->new({}), layout => SL::Layout::None->new );
 
   die 'cannot reach auth db'               unless $::auth->session_tables_present;
 
