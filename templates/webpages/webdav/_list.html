@@ -1,25 +1,23 @@
+[% USE HTML %][% USE T8 %]
 
-[%- IF webdav %]
+[%- IF conf_webdav %]
+<div id="ui-tabs-webdav">
+
+ <div class="listtop" align="left">[% 'Documents in the WebDAV repository' | $T8 %]</div>
+
+ <table width="100%">
   <tr>
-   <td><hr size="3" noshade></td>
+   <td align="left" width="30%"><b>[% 'File name' | $T8 %]</b></td>
+   <td align="left" width="70%"><b>[% 'WebDAV link' | $T8 %]</b></td>
   </tr>
+
+[%- FOREACH file = WEBDAV %]
   <tr>
-   <th class="listtop" align="left">Dokumente im Webdav-Repository</th>
+   <td align="left">[% HTML.escape(file.name) %]</td>
+   <td align="left"><a href="[% HTML.escape(file.link) %]">[% HTML.escape(file.type) %]</a></td>
   </tr>
-  <tr>
-   <td>
-   <table width="100%">
-    <tr>
-     <td align="left" width="30%"><b>Dateiname</b></td>
-     <td align="left" width="70%"><b>Webdavlink</b></td>
-    </tr>
- [%- FOREACH file = WEBDAV %]
-    <tr>
-     <td align="left">[% file.name %]</td>
-     <td align="left"><a href="[% file.link %]">[% file.type %]</a></td>
-    </tr>
- [%- END %]
-   </table>
-   </td>
-  </tr>
-[% END %]
+[%- END %]
+ </table>
+</div>
+
+[%- END %]

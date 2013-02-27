@@ -1,7 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
-[%- USE L %]
+[%- USE L %][%- USE P -%]
   <tr>
    <td>
     <table width="100%">
@@ -107,21 +107,18 @@
    </td>
   </tr>
 
-[% PROCESS 'webdav/_list.html' %]
-
 [% PROCESS 'is/_payments.html' %]
-
-  <tr>
-    <td><hr size="3" noshade></td>
-  </tr>
-  <tr>
-    <td>
-[% print_options %]
-    </td>
-  </tr>
  </table>
+</div>
+[% PROCESS 'webdav/_list.html' %]
+<div id="ui-tabs-1">
+ [% LxERP.t8('Loading...') %]
+</div>
+</div>
 
+<hr size="3" noshade>
 
+<p>[% print_options %]</p>
 
   [% IF id %]
 
