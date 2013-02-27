@@ -27,6 +27,7 @@ __PACKAGE__->meta->setup(
     itime          => { type => 'timestamp', default => 'now()' },
     mtime          => { type => 'timestamp' },
     tax_id         => { type => 'integer', not_null => 1 },
+    chart_link     => { type => 'text', not_null => 1 },
   ],
 
   primary_key_columns => [ 'acc_trans_id' ],
@@ -40,6 +41,11 @@ __PACKAGE__->meta->setup(
     project => {
       class       => 'SL::DB::Project',
       key_columns => { project_id => 'id' },
+    },
+
+    tax => {
+      class       => 'SL::DB::Tax',
+      key_columns => { tax_id => 'id' },
     },
   ],
 );

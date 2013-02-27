@@ -9,7 +9,7 @@
   <table width="100%">
    <tr>
     <td>[% 'tax_taxkey' | $T8 %]</td>
-    <td><input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]"></td>
+    <td><input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]" [% readonly %]></td>
    </tr>
 
    <tr>
@@ -19,7 +19,7 @@
 
    <tr>
     <td>[% 'tax_percent' | $T8 %]</td>
-    <td><input name="rate" size="10" value="[% HTML.escape(rate) %]"> %</td>
+    <td><input name="rate" size="10" value="[% HTML.escape(rate) %]" [% readonly %]> %</td>
    </tr>
 
    <tr>
@@ -42,7 +42,7 @@
 
   <input type="submit" class="submit" name="action" value="[% 'Save' | $T8 %]">
 
-  [% IF orphaned %]
+  [% IF orphaned AND NOT tax_already_used %]
   <input type="submit" class="submit" name="action" value="[% 'Delete' | $T8 %]">
   [% END %]
 

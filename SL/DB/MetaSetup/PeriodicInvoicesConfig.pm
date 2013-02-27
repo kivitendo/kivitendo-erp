@@ -32,7 +32,7 @@ __PACKAGE__->meta->setup(
       key_columns => { ar_chart_id => 'id' },
     },
 
-    oe => {
+    order => {
       class       => 'SL::DB::Order',
       key_columns => { oe_id => 'id' },
     },

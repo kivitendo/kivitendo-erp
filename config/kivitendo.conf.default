@@ -293,3 +293,9 @@ file_name = /tmp/kivitendo-debug.log
 # If set to 1 then the installation will be kept unlocked even if a
 # database upgrade fails.
 keep_installation_unlocked = 0
+
+# If set to 1 then all resource links (JavaScript, CSS files) output
+# via $::request->{layout}->use_stylesheet() / use_javascript() will
+# be made unique by appending a random GET parameter. This will cause
+# the web browser to always reload the resources.
+auto_reload_resources = 0

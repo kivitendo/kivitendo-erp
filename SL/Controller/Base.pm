@@ -80,6 +80,7 @@ sub render {
   croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json)$/;
 
   # The "template" argument must be a string or a reference to one.
+  $template = ${ $template }                                       if ((ref($template) || '') eq 'REF') && (ref(${ $template }) eq 'SL::Presenter::EscapedText');
   croak "Unsupported 'template' reference type: " . ref($template) if ref($template) && (ref($template) !~ m/^(?:SCALAR|SL::Presenter::EscapedText)$/);
 
   # If all output is turned off then don't output the header either.
@@ -379,6 +380,11 @@ directory. The file name to use is determined by the C<type> option.
 If C<$template> is a reference to a scalar then the referenced
 scalar's content is used as the content to process. The C<type> option
 is not considered in this case.
+
+C<$template> can also be an instance of L<SL::Presenter::EscapedText>
+or a reference to such an instance. Both of these cases are handled
+the same way as if C<$template> were a reference to a scalar: its
+content is processed, and C<type> is not considered.
 
 Other reference types, unknown options and unknown arguments to the
 C<type> option cause the function to L<croak>.

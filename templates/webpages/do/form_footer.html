@@ -23,30 +23,14 @@
    </table>
   </p>
 
-  <hr size="3" noshade>
+ </div>
+[% PROCESS 'webdav/_list.html' %]
+ <div id="ui-tabs-1">
+  [%- LxERP.t8("Loading...") %]
+ </div>
+</div>
 
-  [%- IF conf_webdav %]
-  <div class="listtop" align="left">[% 'Documents in the WebDAV repository' | $T8 %]</div>
-
-  <p>
-   <table width="100%">
-    <tr>
-     <td align="left" width="30%"><b>[% 'File name' | $T8 %]</b></td>
-     <td align="left" width="70%"><b>[% 'WebDAV link' | $T8 %]</b></td>
-    </tr>
-
-    [%- FOREACH file = WEBDAV %]
-    <tr>
-     <td align="left">[% HTML.escape(file.name) %]</td>
-     <td align="left"><a href="[% HTML.escape(file.link) %]">[% HTML.escape(file.type) %]</a></td>
-    </tr>
-    [%- END %]
-
-   </table>
-  </p>
-
-  <hr size="3" noshade>
-  [%- END %]
+<hr size="3" noshade>
 
   <p>[% PRINT_OPTIONS %]</p>
 

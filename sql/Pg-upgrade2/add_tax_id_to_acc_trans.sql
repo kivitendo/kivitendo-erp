@@ -1,6 +1,6 @@
 -- @tag: add_tax_id_to_acc_trans
 -- @description: Neue Spalte tax_id in der acc_trans
--- @depends: release_2_7_0 
+-- @depends: release_3_0_0 charts_without_taxkey
 -- @charset: utf-8
 
   --Neue Spalte tax_id in acc_trans:

@@ -48,6 +48,7 @@ use SL::InstanceConfiguration;
 use SL::Locale;
 use SL::LXDebug;
 use Data::Dumper;
+use List::Util qw(max);
 
 # this is a cleaned up version of am.pl
 # it lacks redirection, some html setup and most of the authentication process.
@@ -129,6 +130,43 @@ sub pp {
   Data::Dumper::Dumper(@_);
 }
 
+sub ptab {
+  my @rows = ref($_[0]) eq 'ARRAY' ? @{ $_[0] } : @_;
+  return '<empty result set>' unless @rows;
+
+  my @columns = sort keys %{ $rows[0] };
+  my @widths  = map { max @{ $_ } } map { my $column = $_; [ length($column), map { length("" . ($_->{$column} // '')) } @rows ] } @columns;
+  my @output  = (join ' | ', map { my $width = $widths[$_]; sprintf "\%-${width}s", $columns[$_] } (0..@columns - 1));
+  push @output, join('-+-', map { '-' x $_ } @widths);
+  push @output, map { my $row = $_; join(' | ', map { my $width = $widths[$_]; sprintf "\%-${width}s", $row->{ $columns[$_] } // '' } (0..@columns - 1) ) } @rows;
+
+  return join("\n", @output);
+}
+
+sub pobj {
+  my ($obj) = @_;
+  return '<no object>' unless $obj;
+
+  my $ref        =  ref $obj;
+  $ref           =~ s/^SL::DB:://;
+  my %primaries  =  map { ($_ => 1) } $obj->meta->primary_key;
+  my @columns    =  map { "${_}:" . ($obj->$_ // 'UNDEF') } sort $obj->meta->primary_key;
+  push @columns,    map { "${_}:" . ($obj->$_ // 'UNDEF') } grep { !$primaries{$_} } sort map { $_->{name} } $obj->meta->columns;
+
+  return "<${ref} " . join(' ', @columns) . '>';
+}
+
+sub sql {
+  my $dbh            = ref($_[0]) ? shift : $::form->get_standard_dbh;
+  my ($query, @args) = @_;
+
+  if ($query =~ m/^\s*select/i) {
+    ptab($dbh->selectall_arrayref($query, { Slice => {} }, @args));
+  } else {
+    $dbh->do($query, { Slice => {} }, @args);
+  }
+}
+
 1;
 
 __END__
@@ -164,6 +202,47 @@ given C<DATA>. Use it to see what is going on.
 Currently C<pp> will set the Data::Dumper depth to 2, so if you need a
 different depth, you'll have to change that. A nice feature would be to
 configure that, or at least to be able to change it at runtime.
+
+=head2 ptab C<@data>
+
+Returns a tabular representation of C<@data>. C<@data> must be an
+array or array reference containing hash references. Column widths are
+calculated automatically.
+
+Undefined values are represented by an empty column.
+
+Example usage:
+
+    ptab($dbh->selectall_arrayref("SELECT * FROM employee", { Slice => {} }));
+
+=head2 pobj C<$obj>
+
+Returns a textual representation of the L<Rose::DB> instance
+C<$obj>. This includes the class name, then the primary key columns as
+name/value pairs and then all other columns as name/value pairs.
+
+Undefined values are represented by C<UNDEF>.
+
+Example usage:
+
+    pobj(SL::DB::Manager::Employee->find_by(login => 'demo'));
+
+=head2 sql C<[ $dbh, ] $query, @bind_values>
+
+Executes an SQL query using the optional bind values. If the first
+parameter is a database handle then that database handle is used;
+otherwise the handle returned by L<SL::Form/get_standard_dbh> is used.
+
+If the query is a C<SELECT> then the result is filtered through
+L<ptab()>. Otherwise the result of C<$dbh-&gt;do($query, undef, @bind_values)>
+is returned.
+
+Example usage:
+
+    sql(qq|SELECT * FROM employee|);
+    sql(SL::DB::Employee->new->db->dbh,
+        qq|UPDATE employee SET notes = ? WHERE login = ?|,
+        'This guy is evil!', 'demo');
 
 =head2 lxinit C<login>
 

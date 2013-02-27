@@ -157,11 +157,11 @@ sub post_transaction {
     if ($amount != 0) {
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                  source, memo, project_id, taxkey, ob_transaction, cb_transaction, tax_id)
+                                  source, memo, project_id, taxkey, ob_transaction, cb_transaction, tax_id, chart_link)
            VALUES (?, (SELECT id FROM chart WHERE accno = ?),
-                   ?, ?, ?, ?, ?, ?, ?, ?, ?)|;
+                   ?, ?, ?, ?, ?, ?, ?, ?, ?, (SELECT link FROM chart WHERE accno = ?))|;
       @values = (conv_i($form->{id}), $accno, $amount, conv_date($form->{transdate}),
-                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f', conv_i($form->{"tax_id_$i"}));
+                 $form->{"source_$i"}, $form->{"memo_$i"}, $project_id, $taxkey, $form->{ob_transaction} ? 't' : 'f', $form->{cb_transaction} ? 't' : 'f', conv_i($form->{"tax_id_$i"}), $accno);
       do_query($form, $dbh, $query, @values);
     }
 
@@ -169,12 +169,16 @@ sub post_transaction {
       # add taxentry
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
-                                  source, memo, project_id, taxkey, tax_id)
+                                  source, memo, project_id, taxkey, tax_id, chart_link)
            VALUES (?, (SELECT chart_id FROM tax WHERE id = ?),
-                   ?, ?, ?, ?, ?, ?, ?)|;
+                   ?, ?, ?, ?, ?, ?, ?, (SELECT link 
+                                         FROM chart 
+                                         WHERE id = (SELECT chart_id 
+                                                     FROM tax 
+                                                     WHERE id = ?)))|;
       @values = (conv_i($form->{id}), conv_i($form->{"tax_id_$i"}),
                  $tax, conv_date($form->{transdate}), $form->{"source_$i"},
-                 $form->{"memo_$i"}, $project_id, $taxkey, conv_i($form->{"tax_id_$i"}));
+                 $form->{"memo_$i"}, $project_id, $taxkey, conv_i($form->{"tax_id_$i"}), conv_i($form->{"tax_id_$i"}));
       do_query($form, $dbh, $query, @values);
     }
   }
@@ -280,7 +284,7 @@ sub all_transactions {
     push(@arvalues, '%' . $form->{description} . '%');
     push(@apvalues, '%' . $form->{description} . '%');
   }
- 
+
   if ($form->{employee} =~ /--/) {
     ($form->{employee_id},$form->{employee_name}) = split(/--/,$form->{employee});
   #if ($form->{employee_id}) {
@@ -366,7 +370,7 @@ sub all_transactions {
     'source'          => { 'gl' => 'ac.source',     'arap' => 'ac.source',   },
     'description'     => { 'gl' => 'g.description', 'arap' => 'ct.name',     },
     );
-  
+
   # sortdir = sort direction (ascending or descending)
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
   my $sortkey   = $sort_columns{$form->{sort}} ? $form->{sort} : $form->{datesort};  # default used to be transdate

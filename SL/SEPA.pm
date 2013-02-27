@@ -357,8 +357,8 @@ sub post_payment {
                                AND ((c.link LIKE '%:${ARAP}') OR (c.link LIKE '${ARAP}:%') OR (c.link = '${ARAP}'))
                              LIMIT 1| ],
 
-    'add_acc_trans'  => [ qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate,       source, memo)
-                             VALUES                (?,        ?,        ?,      ?,         current_date, ?,      '')| ],
+    'add_acc_trans'  => [ qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate,       source, memo, taxkey, tax_id ,                                     chart_link)
+                             VALUES                (?,        ?,        ?,      ?,         current_date, ?,      '',   0,      (SELECT id FROM tax WHERE taxkey=0 LIMIT 1), (SELECT link FROM chart WHERE id=?))| ],
 
     'update_arap'    => [ qq|UPDATE ${arap}
                              SET paid = paid + ?
@@ -397,8 +397,9 @@ sub post_payment {
     my ($arap_chart_id) = $handles{get_arap}->[0]->fetchrow_array();
 
     # Record the payment in acc_trans offsetting AR/AP.
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $arap_chart_id,         -1 * $mult * $orig_item->{amount}, $item->{execution_date}, '');
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $orig_item->{chart_id},      $mult * $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference});
+    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $arap_chart_id,         -1 * $mult * $orig_item->{amount}, $item->{execution_date}, '', $arap_chart_id);
+    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $orig_item->{chart_id},      $mult * $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference}, 
+                                                      $orig_item->{chart_id});
 
     # Update the invoice to reflect the new paid amount.
     do_statement($form, @{ $handles{update_arap} }, $orig_item->{amount}, $orig_item->{"${arap}_id"});

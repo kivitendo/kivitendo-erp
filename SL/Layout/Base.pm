@@ -4,9 +4,10 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use List::MoreUtils qw(uniq);
+use Time::HiRes qw();
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => qw(menu),
+  'scalar --get_set_init' => [ qw(menu auto_reload_resources_param) ],
   'scalar'                => qw(focus),
   'array'                 => [
     'add_stylesheets_inline' => { interface => 'add', hash_key => 'stylesheets_inline' },
@@ -28,6 +29,11 @@ sub new {
 
 sub init_menu {
   Menu->new('menu.ini');
+}
+
+sub init_auto_reload_resources_param {
+  return '' unless $::lx_office_conf{debug}->{auto_reload_resources};
+  return sprintf('?rand=%d-%d-%d', Time::HiRes::gettimeofday(), int(rand 1000000000000));
 }
 
 ##########################################

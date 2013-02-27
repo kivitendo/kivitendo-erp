@@ -41,6 +41,7 @@ sub render {
   croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json)$/;
 
   # The "template" argument must be a string or a reference to one.
+  $template = ${ $template }                                       if ((ref($template) || '') eq 'REF') && (ref(${ $template }) eq 'SL::Presenter::EscapedText');
   croak "Unsupported 'template' reference type: " . ref($template) if ref($template) && (ref($template) !~ m/^(?:SCALAR|SL::Presenter::EscapedText)$/);
 
   # Look for the file given by $template if $template is not a reference.
@@ -61,7 +62,9 @@ sub render {
   # If no processing is requested then return the content.
   if (!$options->{process}) {
     # If $template is a reference then don't try to read a file.
-    return SL::Presenter::EscapedText->new(text => ${ $template }, is_escaped => 1) if ref $template;
+    my $ref = ref $template;
+    return $template                                                                if $ref eq 'SL::Presenter::EscapedText';
+    return SL::Presenter::EscapedText->new(text => ${ $template }, is_escaped => 1) if $ref eq 'SCALAR';
 
     # Otherwise return the file's content.
     my $file    = IO::File->new($source, "r") || croak("Template file ${source} could not be read");
@@ -193,6 +196,11 @@ directory. The file name to use is determined by the C<type> option.
 If C<$template> is a reference to a scalar then the referenced
 scalar's content is used as the content to process. The C<type> option
 is not considered in this case.
+
+C<$template> can also be an instance of L<SL::Presenter::EscapedText>
+or a reference to such an instance. Both of these cases are handled
+the same way as if C<$template> were a reference to a scalar: its
+content is processed, and C<type> is not considered.
 
 Other reference types, unknown options and unknown arguments to the
 C<type> option cause the function to L<croak>.

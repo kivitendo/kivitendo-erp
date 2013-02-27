@@ -614,13 +614,37 @@ sub search {
   my $where = "1 = 1";
   my @values;
 
-  my %allowed_sort_columns =
-    map { $_, 1 } qw(
-      id customernumber vendornumber name contact phone fax email street
-      taxnumber business invnumber ordnumber quonumber zipcode city
+  my %allowed_sort_columns = (
+      "id" => "id",
+      "customernumber" => "customernumber",
+      "vendornumber" => "vendornumber",
+      "name" => "ct.name",
+      "contact" => "contact",
+      "phone" => "phone",
+      "fax" => "fax",
+      "email" => "email",
+      "street" => "street",
+      "taxnumber" => "taxnumber",
+      "business" => "business",
+      "invnumber" => "invnumber",
+      "ordnumber" => "ordnumber",
+      "quonumber" => "quonumber",
+      "zipcode" => "zipcode",
+      "city" => "city",
+      "country" => "country",
+      "salesman" => "e.name"
     );
-  my $sortorder    = $form->{sort} && $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
-  $form->{sort} = $sortorder;
+
+  $form->{sort} ||= "name";
+  my $sortorder;
+  if ( $join_records ) {
+    # in UNION case order by hash key, e.g. salesman
+    # the UNION created an implicit select around the result
+    $sortorder = $allowed_sort_columns{$form->{sort}} ? $form->{sort} : "name";
+  } else {
+    # in not UNION case order by hash value, e.g. e.name
+    $sortorder = $allowed_sort_columns{$form->{sort}} ?  $allowed_sort_columns{$form->{sort}} : "ct.name";
+  }
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
   if ($sortorder !~ /(business|id)/ && !$join_records) {
@@ -657,6 +681,19 @@ sub search {
                       ))
                      )";
     push @values, ('%' . $form->{addr_city} . '%') x 2;
+  }
+
+  if ($form->{addr_country}) {
+    $where .= " AND ((lower(ct.country) LIKE lower(?))
+                     OR
+                     (ct.id IN (
+                        SELECT trans_id
+                        FROM shipto
+                        WHERE (module = 'CT')
+                          AND (lower(shiptocountry) LIKE lower(?))
+                      ))
+                     )";
+    push @values, ('%' . $form->{addr_country} . '%') x 2;
   }
 
   if ( $form->{status} eq 'orphaned' ) {
@@ -716,10 +753,11 @@ sub search {
   }
 
   my $query =
-    qq|SELECT ct.*, b.description AS business | .
+    qq|SELECT ct.*, b.description AS business, e.name as salesman | .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
     qq|FROM $cv ct | .
     qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
+    qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
     qq|WHERE $where|;
 
   my @saved_values = @values;
@@ -733,13 +771,14 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business, | .
+        qq|SELECT ct.*, b.description AS business, e.name as salesman, | .
         qq|  a.invnumber, a.ordnumber, a.quonumber, a.id AS invid, | .
         qq|  '$module' AS module, 'invoice' AS formtype, | .
         qq|  (a.amount = a.paid) AS closed | .
         qq|FROM $cv ct | .
         qq|JOIN $ar a ON (a.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
+        qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|WHERE $where AND (a.invoice = '1')|;
     }
 
@@ -747,12 +786,13 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business,| .
+        qq|SELECT ct.*, b.description AS business, e.name as salesman, | .
         qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'order' AS formtype, o.closed | .
         qq|FROM $cv ct | .
         qq|JOIN oe o ON (o.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
+        qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|WHERE $where AND (o.quotation = '0')|;
     }
 
@@ -760,12 +800,13 @@ sub search {
       push(@values, @saved_values);
       $query .=
         qq| UNION | .
-        qq|SELECT ct.*, b.description AS business, | .
+        qq|SELECT ct.*, b.description AS business, e.name as salesman, | .
         qq|  ' ' AS invnumber, o.ordnumber, o.quonumber, o.id AS invid, | .
         qq|  'oe' AS module, 'quotation' AS formtype, o.closed | .
         qq|FROM $cv ct | .
         qq|JOIN oe o ON (o.${cv}_id = ct.id) | .
         qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
+        qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
         qq|WHERE $where AND (o.quotation = '1')|;
     }
   }

@@ -9,6 +9,7 @@
   color: #000000;
   font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
   font-size: 1.1em;
+  overflow: hidden;
 }
 
 .tabwidget ul {
@@ -25,7 +26,6 @@
   border: 0;
   color: #000000;
   margin: 0;
-  padding: .2em .2em 0;
 }
 
 .tabwidget ul::after {
@@ -88,3 +88,5 @@
   color: #000000;
   text-decoration: underline;
 }
+
+.ui-tabs .ui-tabs-nav li a { padding: .2em .7em; }

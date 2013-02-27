@@ -96,41 +96,18 @@
       </table>
     </td>
   </tr>
-  <tr>
-    <td><hr size="3" noshade></td>
-  </tr>
-
-[%- IF webdav %]
-  <tr>
-    <th class="listtop" align="left">Dokumente im Webdav-Repository</th>
-  </tr>
-  <tr>
-   <td>
-    <table width="100%">
-     <tr>
-      <td align="left" width="30%"><b>Dateiname</b></td>
-      <td align="left" width="70%"><b>Webdavlink</b></td>
-     </tr>
- [%- FOREACH file = WEBDAV %]
-      <tr>
-        <td align="left">[% HTML.escape(file.name) %]</td>
-        <td align="left"><a href="[% file.link %]">[% HTML.escape(file.type) %]</a></td>
-      </tr>
- [%- END %]
-    </table>
-   </td>
-  </tr>
-  <tr>
-    <td><hr size="3" noshade></td>
-  </tr>
-[%- END %]
-
-  <tr>
-    <td>
-      [% print_options %]
-    </td>
-  </tr>
 </table>
+
+</div>
+[%- PROCESS 'webdav/_list.html' %]
+<div id="ui-tabs-1">
+ [%- LxERP.t8("Loading...") %]
+</div>
+</div>
+
+<hr size="3" noshade>
+
+<p>[% PRINT_OPTIONS %]</p>
 
 [% label_edit %]<br>
 <input class="submit" type="submit" name="action_update" id="update_button" value="[% 'Update' | $T8 %]">
