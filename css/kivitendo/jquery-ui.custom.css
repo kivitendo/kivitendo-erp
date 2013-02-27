@@ -26,7 +26,6 @@
   border: 1px #dddddd;
   color: #fe5f14;
   margin: 0;
-  padding: .2em .2em 0;
 }
 
 .tabwidget ul::after {
@@ -87,3 +86,5 @@
 .tabwidget .ui-state-hover a, .tabwidget .ui-state-hover a:hover {
   color: #fe5f14;
 }
+
+.ui-tabs .ui-tabs-nav li a { padding: .2em .7em; }
