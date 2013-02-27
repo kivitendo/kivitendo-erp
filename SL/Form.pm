@@ -490,10 +490,12 @@ sub header {
     push @header, "<meta http-equiv='refresh' content='$refresh_time;$refresh_url'>";
   }
 
-  push @header, map { qq|<link rel="stylesheet" href="$_" type="text/css" title="Stylesheet">| } $layout->stylesheets;
+  my $auto_reload_resources_param = $layout->auto_reload_resources_param;
+
+  push @header, map { qq|<link rel="stylesheet" href="${_}${auto_reload_resources_param}" type="text/css" title="Stylesheet">| } $layout->stylesheets;
   push @header, "<style type='text/css'>\@page { size:landscape; }</style> "                     if $self->{landscape};
   push @header, "<link rel='shortcut icon' href='$self->{favicon}' type='image/x-icon'>"         if -f $self->{favicon};
-  push @header, map { qq|<script type="text/javascript" src="$_"></script>| }                    $layout->javascripts;
+  push @header, map { qq|<script type="text/javascript" src="${_}${auto_reload_resources_param}"></script>| }                    $layout->javascripts;
   push @header, $self->{javascript} if $self->{javascript};
   push @header, map { $_->show_javascript } @{ $self->{AJAX} || [] };
 
