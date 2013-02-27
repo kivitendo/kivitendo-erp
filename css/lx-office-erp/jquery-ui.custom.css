@@ -26,7 +26,6 @@
   border: 0;
   color: #000000;
   margin: 0;
-  padding: .2em .2em 0;
 }
 
 .tabwidget ul::after {
@@ -89,3 +88,5 @@
   color: #000000;
   text-decoration: underline;
 }
+
+.ui-tabs .ui-tabs-nav li a { padding: .2em .7em; }
