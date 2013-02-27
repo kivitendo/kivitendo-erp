@@ -511,8 +511,10 @@ sub scanhtmlfile {
 
       while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
         my $plugin = $1;
-        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator L));
+        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator JSON L P));
       }
+
+      $plugins{needed}->{T8} = 1 if $line =~ m/\[\%.*\|.*\$T8/;
 
       while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
                           (LxERP\.t8)\( #   LxERP.t8(                             ::Parameter $1::
