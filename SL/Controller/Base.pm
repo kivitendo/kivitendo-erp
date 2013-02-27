@@ -80,6 +80,7 @@ sub render {
   croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json)$/;
 
   # The "template" argument must be a string or a reference to one.
+  $template = ${ $template }                                       if ((ref($template) || '') eq 'REF') && (ref(${ $template }) eq 'SL::Presenter::EscapedText');
   croak "Unsupported 'template' reference type: " . ref($template) if ref($template) && (ref($template) !~ m/^(?:SCALAR|SL::Presenter::EscapedText)$/);
 
   # If all output is turned off then don't output the header either.
