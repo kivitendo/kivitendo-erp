@@ -23,7 +23,7 @@ sub action_ajax_list {
     my $model          = 'SL::DB::' . $::form->{object_model};
     my $object         = $model->new(id => $::form->{object_id})->load || die $::locale->text("Record not found");
     my $linked_records = $object->linked_records(direction => 'both');
-    my $output         = SL::Presenter->get->grouped_record_list($linked_records);
+    my $output         = SL::Presenter->get->grouped_record_list($linked_records, with_columns => [ qw(record_link_direction) ]);
     $self->render(\$output, { layout => 0, process => 0 });
 
     1;
