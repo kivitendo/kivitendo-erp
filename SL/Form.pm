@@ -469,7 +469,7 @@ sub header {
   $layout->use_stylesheet("$_.css") for qw(
     main menu list_accounts jquery.autocomplete
     jquery.multiselect2side frame_header/header
-    ui-lightness/jquery-ui-1.8.12.custom
+    ui-lightness/jquery-ui
     jquery-ui.custom
     js/jscalendar/calendar-win2k-1
   );

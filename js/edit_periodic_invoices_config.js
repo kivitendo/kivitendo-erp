@@ -3,8 +3,8 @@ function edit_periodic_invoices_config() {
   var height    = 550;
   var parm      = centerParms(width, height) + ",width=" + width + ",height=" + height + ",status=yes,scrollbars=yes";
 
-  var config    = $('#periodic_invoices_config').attr('value');
-  var transdate = $('#transdate').attr('value');
+  var config    = $('#periodic_invoices_config').val();
+  var transdate = $('#transdate').val();
 
   var url       = "oe.pl?" +
     "action=edit_periodic_invoices_config&" +

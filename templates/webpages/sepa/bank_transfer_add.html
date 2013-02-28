@@ -102,14 +102,8 @@
 
  <script type="text/javascript">
   <!--
-    $(document).ready(function() {
-      $("#select_all").click(function() {
-        var checked = $(this).attr('checked');
-        $('INPUT[name="bank_transfers[].selected"]').each(function() {
-          $(this).attr('checked', checked);
-        });
-      });
+    $(function() {
+      $("#select_all").checkall('INPUT[name="bank_transfers[].selected"]');
     });
     -->
  </script>
-

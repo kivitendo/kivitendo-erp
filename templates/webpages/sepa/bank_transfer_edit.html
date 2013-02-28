@@ -99,19 +99,15 @@
   <script type="text/javascript">
    <!--
     function set_all_execution_date_fields() {
-      var new_date = $('#set_all_execution_date').attr('value');
+      var new_date = $('#set_all_execution_date').val();
       $('INPUT[name="items[].execution_date"]').each(function() {
-        $(this).attr('value', new_date);
+        $(this).val(new_date);
       });
     }
 
-    $(document).ready(function() {
-      $("#select_all").click(function() {
-        var checked = $(this).attr('checked');
-        $('INPUT[name="items[].selected"]').each(function() {
-          $(this).attr('checked', checked);
-        });
-      });
+    $(function() {
+      $('#set_all_execution_date').change(set_all_execution_date_fields);
+      $("#select_all").checkall('INPUT[name="items[].selected"]');
     });
      -->
   </script>
@@ -131,4 +127,3 @@
 
      <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
  </form>
-

@@ -4,7 +4,7 @@
       <th align="right">[% 'Shipping Address' | $T8 %]</th>
       <td>
        [% L.select_tag('shipto_id', SHIPTO, default = shipto_id, value_key = 'shipto_id', title_sub = \shipto_label, with_empty = 1, empty_title = LxERP.t8('New shipto'),
-                       onchange = "\$('#shipto').load('ct.pl?action=get_shipto&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)") %]
+                       onchange = "\$('#shipto').load('ct.pl?action=get_shipto&id=' + \$('#cvid').val() + '&db=' + \$('#db').val() + '&shipto_id=' + this.value)") %]
       </td>
      </tr>
 

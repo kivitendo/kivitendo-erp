@@ -319,7 +319,7 @@
       <th align="right">[% 'Shipping Address' | $T8 %]</th>
       <td colspan="3">
        [% L.select_tag('delivery_id', SHIPTO_ALL, value_key = 'shipto_id', title_sub = \shipto_label, with_empty = 1,
-                       onchange = "\$('#delivery').load('ct.pl?action=get_delivery&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&shipto_id=' + this.value)") %]
+                       onchange = "\$('#delivery').load('ct.pl?action=get_delivery&id=' + \$('#cvid').val() + '&db=' + \$('#db').val() + '&shipto_id=' + this.value)") %]
       </td>
      </tr>
 

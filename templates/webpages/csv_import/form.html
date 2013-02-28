@@ -249,7 +249,7 @@
   <!--
     $(document).ready(function() {
       $('#action_save').click(function() {
-        if ($('#profile_name').attr('value') != '')
+        if ($('#profile_name').val() != '')
           return true;
         alert('[% LxERP.t8('Please enter a profile name.') %]');
         return false;

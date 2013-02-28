@@ -3,9 +3,9 @@
  <script type="text/javascript">
   <!--
       $(function(){
-        var row = $('#row').attr('value');
-        window.opener.document.getElementsByName("stock_" + $('#in_out').attr('value') + "_" + row)[0].value = $('#stock').attr('value');
-        $(window.opener.document.getElementById("stock_in_out_qty_display_" + row)).html($('#qty_display').attr('value'));
+        var row = $('#row').val();
+        $(window.opener.document.getElementsByName("stock_" + $('#in_out').prop('value') + "_" + row)).val($('#stock').val());
+        $(window.opener.document.getElementById("stock_in_out_qty_display_" + row)).html($('#qty_display').val());
         $(window.opener.document.getElementById("stock_in_out_qty_matches_" + row)).val([% qty_matches %]);
 
         window.close();
@@ -19,4 +19,3 @@
   <input type="hidden" name="in_out" id="in_out" value="[% HTML.escape(in_out) %]">
   <input type="hidden" name="qty_display" id="qty_display" value="[% HTML.escape(qty_display) %]">
  </form>
-

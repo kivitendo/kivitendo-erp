@@ -1,6 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
-[%- USE L %]
+[%- USE L %][%- USE LxERP -%]
  <script type="text/javascript">
   <!--
       function open_connection_test_window() {
@@ -230,7 +230,7 @@
    <input type="hidden" name="new_user_login" id="new_user_login" value="">
    <input type="hidden" name="action_save_user_as_new" id="action_save_user_as_new" value="">
    <input type="button" class="submit" id="save_as_new_button" value="[% 'Save as new' | $T8 %]">
-   <input type="submit" class="submit" name="action_delete_user" value="[% 'Delete' | $T8 %]">
+   [% L.submit_tag("action_delete_user", LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
    <input type="hidden" name="edit" value="1">
   [% END %]
 
@@ -244,9 +244,9 @@
         if (!new_user_login || (new_user_login == ''))
           return;
 
-        $("#action_save_user_as_new").attr('value', '1');
-        $("#new_user_login").attr('value', new_user_login);
-        $("#user_id").attr('value', '');
+        $("#action_save_user_as_new").val('1');
+        $("#new_user_login").val(new_user_login);
+        $("#user_id").val('');
         $("#Form").submit();
       });
     });
