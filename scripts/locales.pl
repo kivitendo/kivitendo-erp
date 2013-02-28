@@ -140,13 +140,13 @@ generate_file(
 );
 
 open(my $js_file, '>:encoding(utf8)', $locales_dir .'/js.js') || die;
-print $js_file '{'."\n";
+print $js_file '{';
 my $first_entry = 1;
 for my $key (sort(keys(%jslocale))) {
-  print $js_file (!$first_entry ? ',' : '') . _double_quote($key) .':'. _double_quote($self->{texts}{$key}) ."\n";
+  print $js_file ((!$first_entry ? ',' : '') ."\n". _double_quote($key) .':'. _double_quote($self->{texts}{$key}));
   $first_entry = 0;
 }
-print $js_file '}'."\n";
+print $js_file ("\n".'}'."\n");
 close($js_file);
 
   foreach my $text (keys %$missing) {
