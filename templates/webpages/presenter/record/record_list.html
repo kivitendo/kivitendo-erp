@@ -5,6 +5,7 @@
  <table style="width: 100%">
   <thead>
    <tr>
+    [%- IF edit_record_links %]<th class="listheading"></th>[%- END %]
     [%- FOREACH column = TABLE_HEADER %]
     <th class="listheading"[% IF column.alignment %] align="[% column.alignment %]"[% END %]>[%- P.escape(column.value) %]</th>
     [%- END %]
@@ -14,7 +15,10 @@
   <tbody>
    [%- FOREACH row = TABLE_ROWS %]
    <tr class="listrow[% loop.count % 2 %]">
-    [%- FOREACH column = row %]
+    [%- IF edit_record_links %]
+     <td>[%- L.checkbox_tag(form_prefix _ '_delete[]', 'value'=row.record_link.from_table _ '__' _ row.record_link.from_id _ '__' _ row.record_link.to_table _ '__' _ row.record_link.to_id, 'class'='record_links_delete') %]</td>
+    [%- END %]
+    [%- FOREACH column = row.columns %]
     <td[% IF column.alignment %] align="[% column.alignment %]"[% END %]>
      [%- IF column.link %]<a href="[% column.link %]">[%- END %]
       [%- P.escape(column.value) %]

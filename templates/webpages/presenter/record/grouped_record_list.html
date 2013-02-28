@@ -1,0 +1,39 @@
+[%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE JavaScript -%]
+
+<div id="[% form_prefix %]_list">
+ <p>[% nownow %]</p>
+
+ [% output %]
+
+[%- IF edit_record_links %]
+ <div>
+  [% L.button_tag(form_prefix _ '_delete()', LxERP.t8('Delete links')) %]
+ </div>
+
+ <script type="text/javascript">
+  <!--
+function [% form_prefix %]_delete() {
+  var checkboxes = $('.record_links_delete').filter(function () { return $(this).attr('checked'); });
+
+  if ((checkboxes.size() == 0) || !confirm('[% LxERP.t8('Do you really want to delete the selected links?') %]'))
+    return false;
+
+  var data = {
+   action:       'RecordLinks/ajax_delete',
+   object_model: '[% JavaScript.escape(object_model) %]',
+   object_id:    '[% JavaScript.escape(object_id) %]'
+  };
+
+  $.ajax({
+    url:     "controller.pl?" + checkboxes.serialize(),
+    data:    data,
+    success: function(new_data) { $('#[% form_prefix %]_list').replaceWith(new_data); }
+  });
+
+  return false;
+}
+
+ -->
+ </script>
+[%- END %]
+</div>

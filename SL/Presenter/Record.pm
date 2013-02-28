@@ -20,7 +20,8 @@ sub _arrayify {
 sub grouped_record_list {
   my ($self, $list, %params) = @_;
 
-  %params    = map { exists $params{$_} ? ($_ => $params{$_}) : () } qw(selectable with_columns);
+  %params                = map { exists $params{$_} ? ($_ => $params{$_}) : () } qw(edit_record_links form_prefix with_columns object_id object_model);
+  $params{form_prefix} ||= 'record_links';
 
   my %groups = _group_records($list);
   my $output = '';
@@ -36,6 +37,8 @@ sub grouped_record_list {
   $output .= _purchase_delivery_order_list($self, $groups{purchase_delivery_orders}, %params) if $groups{purchase_delivery_orders};
   $output .= _purchase_invoice_list(       $self, $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
   $output .= _ar_transaction_list(         $self, $groups{ar_transactions},          %params) if $groups{ar_transactions};
+
+  $output  = $self->render('presenter/record/grouped_record_list', %params, output => $output, nownow => DateTime->now) if $output;
 
   return $output || $self->empty_record_list;
 }
@@ -110,13 +113,15 @@ sub record_list {
       push @row, \%cell;
     }
 
-    push @data, \@row;
+    push @data, { columns => \@row, record_link => $obj->{_record_link} };
   }
 
   my @header =
     map +{ value     => $columns[$_]->{title},
-           alignment => $data[0]->[$_]->{alignment},
+           alignment => $data[0]->{columns}->[$_]->{alignment},
          }, (0..scalar(@columns) - 1);
+
+  $params{form_prefix} ||= 'record_links';
 
   return $self->render(
     'presenter/record/record_list',
@@ -425,6 +430,9 @@ The order in which the records are grouped is:
 
 Objects of unknown types are skipped.
 
+Parameters are passed to C<record_list> include C<with_objects> and
+C<edit_record_links>.
+
 =item C<record_list $list, %params>
 
 Returns a rendered version (actually an instance of
@@ -464,6 +472,26 @@ be linked.
 If the column spec is a hash reference then the same arguments are
 expected. The corresponding hash keys are C<title>, C<data> and
 C<link>.
+
+=item C<with_columns>
+
+Can be set by the caller to indicate additional columns to
+list. Currently supported:
+
+=over 2
+
+=item C<record_link_destination>
+
+The record link destination. Requires that the records to list have
+been retrieved via the L<SL::DB::Helper::LinkedRecords> helper.
+
+=back
+
+=item C<edit_record_links>
+
+If trueish additional controls will be rendered that allow the user to
+remove and add record links. Requires that the records to list have
+been retrieved via the L<SL::DB::Helper::LinkedRecords> helper.
 
 =back
 
