@@ -168,6 +168,7 @@ sub dump {
 
     my $dumper = Data::Dumper->new([$variable]);
     $dumper->Sortkeys(1);
+    $dumper->Indent(2);
     $self->message($level, "dumping ${name}:\n" . $dumper->Dump());
 
     $variable->{password} = $password if (defined $password);
