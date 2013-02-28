@@ -373,6 +373,13 @@ sub scanfile {
         $cached{$file}{scannosubs}{"../../SL/${module}.pm"} = 1;
       }
 
+      # Some calls to render() are split over multiple lines. Deal
+      # with that.
+      while (/(?:parse_html_template2?|render)\s*\( *$/) {
+        $_ .= <$fh>;
+        chomp;
+      }
+
       # is this a template call?
       if (/(?:parse_html_template2?|render)\s*\(\s*[\"\']([\w\/]+)\s*[\"\']/) {
         my $new_file_base = "$basedir/templates/webpages/$1.";
@@ -519,8 +526,10 @@ sub scanhtmlfile {
 
       while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
         my $plugin = $1;
-        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator L));
+        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator JSON L P));
       }
+
+      $plugins{needed}->{T8} = 1 if $line =~ m/\[\%.*\|.*\$T8/;
 
       while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
                           (LxERP\.t8)\( #   LxERP.t8(                             ::Parameter $1::
