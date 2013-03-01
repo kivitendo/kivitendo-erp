@@ -153,7 +153,6 @@ sub show_invoices {
                                           'no_html'         => 1,
                                           'no_opendocument' => 1,);
 
-  $::request->layout->use_javascript('jquery.checkall.js');
   $form->header();
   print $form->parse_html_template("dunning/show_invoices");
 

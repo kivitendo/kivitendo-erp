@@ -58,7 +58,6 @@ sub bank_transfer_add {
     $invoice->{reference_prefix}  = $prefix;
   }
 
-  $::request->layout->use_javascript('jquery.checkall.js');
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_add',
                                    { 'INVOICES'           => $invoices,
@@ -186,8 +185,6 @@ sub bank_transfer_list {
   my $locale = $main::locale;
   my $cgi    = $::request->{cgi};
   my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
-
-  $::request->layout->use_javascript('jquery.checkall.js');
 
   $form->{title}     = $vc eq 'customer' ? $::locale->text('List of bank collections') : $locale->text('List of bank transfers');
 
@@ -333,7 +330,6 @@ sub bank_transfer_edit {
     $form->error($locale->text('That export does not exist.'));
   }
 
-  $::request->layout->use_javascript('jquery.checkall.js');
   $form->{jsscript} = 1;
   $form->{title}    = $locale->text('View SEPA export');
   $form->header();

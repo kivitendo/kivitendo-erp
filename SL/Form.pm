@@ -476,7 +476,7 @@ sub header {
 
   $layout->use_javascript("$_.js") for qw(
     jquery common jscalendar/calendar jscalendar/lang/calendar-de
-    jscalendar/calendar-setup part_selection jquery-ui jquery.cookie jqModal
+    jscalendar/calendar-setup part_selection jquery-ui jquery.cookie jqModal jquery.checkall
     switchmenuframe
   );
 

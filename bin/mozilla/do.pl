@@ -314,7 +314,6 @@ sub form_header {
   $form->{follow_up_trans_info} = $form->{donumber} .'('. $follow_up_vc .')';
 
   $::request->layout->use_stylesheet('presenter/record/record_list.css');
-  $::request->layout->use_javascript('jquery.checkall.js');
 
   $form->header();
   # Fix für Bug 1082 Erwartet wird: 'abteilungsNAME--abteilungsID'
