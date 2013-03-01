@@ -416,7 +416,7 @@ sub save_report {
   my (@headers, @info_methods, @raw_methods, @methods);
 
   for my $i (0 .. $#{ $self->info_headers->{headers} }) {
-    next unless         $self->info_headers->{used}->{ $self->info_headers->{headers}->[$i] };
+    next unless         $self->info_headers->{used}->{ $self->info_headers->{methods}->[$i] };
     push @headers,      $self->info_headers->{headers}->[$i];
     push @info_methods, $self->info_headers->{methods}->[$i];
   }
