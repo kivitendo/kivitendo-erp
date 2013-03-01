@@ -99,12 +99,6 @@
      </td>
 
     </tr>
-  [% IF $changeable %]
-    <script type='text/javascript'>
-     $('input[name="paid_[% i %]"]').blur(function(){ check_right_number_format(this) });
-     $('#datepaid_[% i %]').blur(function(){ check_right_date_format(this) });
-    </script>
-  [% END %]
 
 [% END # foreach %]
 

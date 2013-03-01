@@ -24,11 +24,11 @@
   </tr>
   <tr>
    <th align="right">[% 'Delivery Date' | $T8 %] [% 'From Date' | $T8 %]</th>
-   <td>[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge, cal_align = 'BR') %]</td>
+   <td>[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge) %]</td>
   </tr>
   <tr>
    <th align="right">[% 'Delivery Date' | $T8 %] [% 'To Date' | $T8 %]</th>
-   <td>[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le, cal_align = 'BR') %]</td>
+   <td>[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le) %]</td>
   </tr>
   <tr>
    <th align="right">[% 'Quantity' | $T8 %]</th>

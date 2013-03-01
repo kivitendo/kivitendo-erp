@@ -471,14 +471,12 @@ sub header {
     jquery.multiselect2side frame_header/header
     ui-lightness/jquery-ui
     jquery-ui.custom
-    js/jscalendar/calendar-win2k-1
   );
 
-  $layout->use_javascript("$_.js") for qw(
-    jquery common jscalendar/calendar jscalendar/lang/calendar-de
-    jscalendar/calendar-setup part_selection jquery-ui jquery.cookie jqModal jquery.checkall
-    switchmenuframe
-  );
+  $layout->use_javascript("$_.js") for (qw(
+    jquery jquery-ui jquery.cookie jqModal jquery.checkall
+    common part_selection switchmenuframe
+  ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
   $self->{favicon} ||= "favicon.ico";
   $self->{titlebar} = join ' - ', grep $_, $self->{title}, $self->{login}, $::myconfig{dbname}, $self->{version} if $self->{title} || !$self->{titlebar};
