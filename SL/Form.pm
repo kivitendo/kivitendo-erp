@@ -757,51 +757,6 @@ sub show_generic_information {
   ::end_of_request();
 }
 
-# write Trigger JavaScript-Code ($qty = quantity of Triggers)
-# changed it to accept an arbitrary number of triggers - sschoeling
-sub write_trigger {
-  $main::lxdebug->enter_sub();
-
-  my $self     = shift;
-  my $myconfig = shift;
-  my $qty      = shift;
-
-  # set dateform for jsscript
-  # default
-  my %dateformats = (
-    "dd.mm.yy" => "%d.%m.%Y",
-    "dd/mm/yy" => "%d/%m/%Y",
-    "mm/dd/yy" => "%m/%d/%Y",
-    "yyyy-mm-dd" => "%Y-%m-%d",
-    );
-
-  my $ifFormat = defined($dateformats{$myconfig->{"dateformat"}}) ?
-    $dateformats{$myconfig->{"dateformat"}} : "%d.%m.%Y";
-
-  my @triggers;
-  while ($#_ >= 2) {
-    push @triggers, qq|
-       Calendar.setup(
-      {
-      inputField : "| . (shift) . qq|",
-      ifFormat :"$ifFormat",
-      align : "| .  (shift) . qq|",
-      button : "| . (shift) . qq|"
-      }
-      );
-       |;
-  }
-  my $jsscript = qq|
-       <script type="text/javascript">
-       <!--| . join("", @triggers) . qq|//-->
-        </script>
-        |;
-
-  $main::lxdebug->leave_sub();
-
-  return $jsscript;
-}    #end sub write_trigger
-
 sub _store_redirect_info_in_session {
   my ($self) = @_;
 
