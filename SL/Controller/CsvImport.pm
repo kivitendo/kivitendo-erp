@@ -152,7 +152,7 @@ sub action_report {
   my $page = $::form->{page} || 1;
   my $pages = {};
   $pages->{per_page}        = $::form->{per_page} || 20;
-  $pages->{max}             = SL::DB::Helper::Paginated::ceil($num_rows / ($num_cols || 1), $pages->{per_page}) || 1;
+  $pages->{max}             = SL::DB::Helper::Paginated::ceil($num_rows, $pages->{per_page}) || 1;
   $pages->{cur}             = $page < 1 ? 1
                             : $page > $pages->{max} ? $pages->{max}
                             : $page;
@@ -162,7 +162,7 @@ sub action_report {
     0,
     $pages->{per_page} * ($pages->{cur}-1) + 1
       ..
-    min($pages->{per_page} * $pages->{cur}, $num_rows / ($num_cols || 1) - 1)
+    min($pages->{per_page} * $pages->{cur}, $num_rows)
   ];
 
   my @query = (
