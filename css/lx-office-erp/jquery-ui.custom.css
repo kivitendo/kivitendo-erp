@@ -12,7 +12,7 @@
   overflow: hidden;
 }
 
-.tabwidget ul {
+.tabwidget > ul {
   margin: 0;
   padding: .2em .2em 0;
   outline: 0;
@@ -28,7 +28,7 @@
   margin: 0;
 }
 
-.tabwidget ul::after {
+.tabwidget > ul::after {
   content: ".";
   display: block;
   height: 0;
@@ -36,7 +36,7 @@
   visibility: hidden;
 }
 
-.tabwidget ul li {
+.tabwidget > ul li {
   list-style: none;
   float: left;
   position: relative;
@@ -52,10 +52,10 @@
   color: #000000;
 }
 
-.tabwidget ul li a { float: left; padding: .5em 1em; text-decoration: none; }
-.tabwidget ul li.ui-tabs-selected { margin-bottom: 0; padding-bottom: 1px; }
-.tabwidget ul li.ui-tabs-selected a, .tabwidget.ui-tabs-nav li.ui-state-disabled a, .tabwidget.ui-tabs-nav li.ui-state-processing a { cursor: text; }
-.tabwidget ul li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; }
+.tabwidget > ul li a { float: left; padding: .5em 1em; text-decoration: none; }
+.tabwidget > ul li.ui-tabs-selected { margin-bottom: 0; padding-bottom: 1px; }
+.tabwidget > ul li.ui-tabs-selected a, .tabwidget.ui-tabs-nav li.ui-state-disabled a, .tabwidget.ui-tabs-nav li.ui-state-processing a { cursor: text; }
+.tabwidget > ul li a, .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a { cursor: pointer; }
 
 .tabwidget > div {
   display: none;
