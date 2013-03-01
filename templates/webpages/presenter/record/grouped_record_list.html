@@ -1,19 +1,45 @@
 [%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE JavaScript -%]
 
-<div id="[% form_prefix %]_list">
- <p>[% nownow %]</p>
+<div id="record_links_list">
+ [%- IF output %]
+  [% output %]
+ [%- ELSE %]
+  <p class="message_hint">[% LxERP.t8('No data was found.') %]</p>
+ [%- END %]
 
- [% output %]
-
-[%- IF edit_record_links %]
- <div>
-  [% L.button_tag(form_prefix _ '_delete()', LxERP.t8('Delete links')) %]
- </div>
+ [%- IF edit_record_links %]
+  <div>
+   [% L.button_tag('record_links_add()', LxERP.t8('Add links')) %]
+   [% IF output %]
+    [% L.button_tag('record_links_delete()', LxERP.t8('Delete links')) %]
+   [%- END %]
+  </div>
 
  <script type="text/javascript">
   <!--
-function [% form_prefix %]_delete() {
-  var checkboxes = $('.record_links_delete').filter(function () { return $(this).attr('checked'); });
+$(function() {
+
+});
+
+function record_links_add() {
+  var url = "controller.pl?action=RecordLinks/ajax_add_filter&object_model=[% JavaScript.escape(object_model) %]&object_id=[% JavaScript.escape(object_id) %]&";
+  var id  = 'record_links_add';
+
+  $('#' + id).remove();
+  var div     = $('<div id="' + id + '" class="jqmWindow record_list_overlay"></div>').hide().appendTo('body');
+  var close   = $('<div class="close"></div>').appendTo(div);
+  var content = $('<div class="overlay_content"></div>').appendTo(div);
+  div.jqm({ modal: true });
+  div.jqmShow();
+  $.ajax({ url: url, success: function(new_html) { $(content).html(new_html); } });
+  $(close).click(function() {
+    div.jqmHide();
+    div.remove();
+  });
+}
+
+function record_links_delete() {
+  var checkboxes = $('.record_links_delete').filter(function () { return $(this).prop('checked'); });
 
   if ((checkboxes.size() == 0) || !confirm('[% LxERP.t8('Do you really want to delete the selected links?') %]'))
     return false;
@@ -27,7 +53,7 @@ function [% form_prefix %]_delete() {
   $.ajax({
     url:     "controller.pl?" + checkboxes.serialize(),
     data:    data,
-    success: function(new_data) { $('#[% form_prefix %]_list').replaceWith(new_data); }
+    success: function(new_data) { $('#record_links_list').replaceWith(new_data); }
   });
 
   return false;

@@ -20,8 +20,7 @@ sub _arrayify {
 sub grouped_record_list {
   my ($self, $list, %params) = @_;
 
-  %params                = map { exists $params{$_} ? ($_ => $params{$_}) : () } qw(edit_record_links form_prefix with_columns object_id object_model);
-  $params{form_prefix} ||= 'record_links';
+  %params    = map { exists $params{$_} ? ($_ => $params{$_}) : () } qw(edit_record_links with_columns object_id object_model);
 
   my %groups = _group_records($list);
   my $output = '';
@@ -38,14 +37,14 @@ sub grouped_record_list {
   $output .= _purchase_invoice_list(       $self, $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
   $output .= _ar_transaction_list(         $self, $groups{ar_transactions},          %params) if $groups{ar_transactions};
 
-  $output  = $self->render('presenter/record/grouped_record_list', %params, output => $output, nownow => DateTime->now) if $output;
+  $output  = $self->render('presenter/record/grouped_record_list', %params, output => $output);
 
-  return $output || $self->empty_record_list;
+  return $output;
 }
 
 sub empty_record_list {
-  my ($self) = @_;
-  return $self->render('presenter/record/empty_record_list');
+  my ($self, %params) = @_;
+  return $self->grouped_record_list([], %params);
 }
 
 sub record_list {
@@ -121,8 +120,6 @@ sub record_list {
            alignment => $data[0]->{columns}->[$_]->{alignment},
          }, (0..scalar(@columns) - 1);
 
-  $params{form_prefix} ||= 'record_links';
-
   return $self->render(
     'presenter/record/record_list',
     %params,
@@ -168,6 +165,7 @@ sub _sales_quotation_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('Sales Quotations'),
+    type    => 'sales_quotation',
     columns => [
       [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
       [ $::locale->text('Quotation Number'),        sub { $self->sales_quotation($_[0], display => 'table-cell') }   ],
@@ -187,9 +185,10 @@ sub _request_quotation_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('Request Quotations'),
+    type    => 'request_quotation',
     columns => [
       [ $::locale->text('Quotation Date'),          'transdate'                                                                ],
-      [ $::locale->text('Quotation Number'),        sub { $self->sales_quotation($_[0], display => 'table-cell') }   ],
+      [ $::locale->text('Quotation Number'),        sub { $self->request_quotation($_[0], display => 'table-cell') }   ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                   ],
       [ $::locale->text('Net amount'),              'netamount'                                                                ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
@@ -206,6 +205,7 @@ sub _sales_order_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('Sales Orders'),
+    type    => 'sales_order',
     columns => [
       [ $::locale->text('Order Date'),              'transdate'                                                                ],
       [ $::locale->text('Order Number'),            sub { $self->sales_order($_[0], display => 'table-cell') }   ],
@@ -226,9 +226,10 @@ sub _purchase_order_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('Purchase Orders'),
+    type    => 'purchase_order',
     columns => [
       [ $::locale->text('Order Date'),              'transdate'                                                                ],
-      [ $::locale->text('Order Number'),            sub { $self->sales_order($_[0], display => 'table-cell') }   ],
+      [ $::locale->text('Order Number'),            sub { $self->purchase_order($_[0], display => 'table-cell') }   ],
       [ $::locale->text('Request for Quotation'),   'quonumber' ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                 ],
       [ $::locale->text('Net amount'),              'netamount'                                                                ],
@@ -246,6 +247,7 @@ sub _sales_delivery_order_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('Sales Delivery Orders'),
+    type    => 'sales_delivery_order',
     columns => [
       [ $::locale->text('Delivery Order Date'),     'transdate'                                                                ],
       [ $::locale->text('Delivery Order Number'),   sub { $self->sales_delivery_order($_[0], display => 'table-cell') } ],
@@ -266,9 +268,10 @@ sub _purchase_delivery_order_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('Purchase Delivery Orders'),
+    type    => 'purchase_delivery_order',
     columns => [
       [ $::locale->text('Delivery Order Date'),     'transdate'                                                                ],
-      [ $::locale->text('Delivery Order Number'),   sub { $self->sales_delivery_order($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Delivery Order Number'),   sub { $self->purchase_delivery_order($_[0], display => 'table-cell') } ],
       [ $::locale->text('Order Number'),            'ordnumber' ],
       [ $::locale->text('Vendor'),                  'vendor'                                                                 ],
       [ $::locale->text('Transaction description'), 'transaction_description'                                                  ],
@@ -286,6 +289,7 @@ sub _sales_invoice_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('Sales Invoices'),
+    type    => 'sales_invoice',
     columns => [
       [ $::locale->text('Invoice Date'),            'transdate'               ],
       [ $::locale->text('Invoice Number'),          sub { $self->sales_invoice($_[0], display => 'table-cell') } ],
@@ -306,9 +310,10 @@ sub _purchase_invoice_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('Purchase Invoices'),
+    type    => 'purchase_invoice',
     columns => [
       [ $::locale->text('Invoice Date'),                 'transdate'               ],
-      [ $::locale->text('Invoice Number'),               sub { $self->sales_invoice($_[0], display => 'table-cell') } ],
+      [ $::locale->text('Invoice Number'),               sub { $self->purchase_invoice($_[0], display => 'table-cell') } ],
       [ $::locale->text('Request for Quotation Number'), 'quonumber' ],
       [ $::locale->text('Order Number'),                 'ordnumber' ],
       [ $::locale->text('Vendor'),                       'vendor'                 ],
@@ -326,6 +331,7 @@ sub _ar_transaction_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('AR Transactions'),
+    type    => 'ar_transaction',
     columns => [
       [ $::locale->text('Invoice Date'),            'transdate'               ],
       [ $::locale->text('Invoice Number'),          sub { $self->ar_transaction($_[0], display => 'table-cell') } ],
@@ -344,9 +350,10 @@ sub _ap_transaction_list {
   return $self->record_list(
     $list,
     title   => $::locale->text('AP Transactions'),
+    type    => 'ap_transaction',
     columns => [
       [ $::locale->text('Invoice Date'),            'transdate'                      ],
-      [ $::locale->text('Invoice Number'),          sub { $self->ar_transaction($_[0 ], display => 'table-cell') } ],
+      [ $::locale->text('Invoice Number'),          sub { $self->ap_transaction($_[0 ], display => 'table-cell') } ],
       [ $::locale->text('Vendor'),                  'vendor'                         ],
       [ $::locale->text('Net amount'),              'netamount'                      ],
       [ $::locale->text('Paid'),                    'paid'                           ],

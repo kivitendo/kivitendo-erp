@@ -1,0 +1,34 @@
+[%- USE T8 -%][%- USE HTML -%][%- USE LxERP -%][%- USE P -%][%- USE L -%]
+[%- IF !OBJECTS.size %]
+<p class="message_hint">[% 'No data was found.' | $T8 %]</p>
+[%- ELSE %]
+<table width="100%">
+ <tr class="listheading">
+  <th>[% L.checkbox_tag('record_links_check_all') %]</th>
+  <th>[% IF vc == 'customer' %][%- LxERP.t8("Customer") %][%- ELSE %][%- LxERP.t8("Vendor") %][%- END %]</th>
+  <th>[%- LxERP.t8("Number") %]</th>
+  <th>[%- LxERP.t8("Date") %]</th>
+  <th>[%- LxERP.t8("Transaction description") %]</th>
+  <th>[%- LxERP.t8("Project") %]</th>
+ </tr>
+
+ [%- FOREACH object = OBJECTS %]
+ <tr class="listrow[% loop.count % 2 %]">
+  <td>[% L.checkbox_tag('link_id[]', value=object.id) %]</td>
+  <td>[%- HTML.escape(object.$vc.name) %]</td>
+  <td>[%- HTML.escape(object.$number_column) %]</td>
+  <td>[%- HTML.escape(object.transdate.to_kivitendo) %]</td>
+  <td>[%- HTML.escape(object.transaction_description) %]</td>
+  <td>[%- P.project(object.globalproject, no_link=1) %]</td>
+ </tr>
+ [%- END %]
+</table>
+
+<script type="text/javascript">
+ <!--
+$(function() {
+  $('#record_links_check_all').checkall('INPUT[name="link_id[]"]');
+});
+-->
+</script>
+[%- END %]

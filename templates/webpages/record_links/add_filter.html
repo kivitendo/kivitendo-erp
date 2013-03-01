@@ -1,0 +1,96 @@
+[%- USE L -%][%- USE LxERP -%][%- USE JavaScript -%]
+[%- SET style='width: 500px' %]
+<div class="listtop">[%- LxERP.t8("Add link: select records to link with") %]</div>
+
+
+<form method="post" action="controller.pl">
+ [% L.hidden_tag('object_model',   SELF.object_model) %]
+ [% L.hidden_tag('object_id',      SELF.object_id) %]
+
+ <table>
+  <tr>
+   <td>[%- LxERP.t8("Link to") %]:</td>
+   <td>[% L.select_tag('link_type', LINK_TYPES, default=DEFAULT_LINK_TYPE, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td>[%- LxERP.t8("Link direction") %]:</td>
+   <td>[% L.select_tag('link_direction',
+                       [ [ 'from', LxERP.t8("The link target to add has been created from the existing record."), ],
+                         [ 'to',   LxERP.t8("The existing record has been created from the link target to add."), ], ],
+                       style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td>[%- LxERP.t8("Customer/Vendor Number") %]:</td>
+   <td>[% L.input_tag('vc_number', is_sales ? SELF.object.customer.customernumber : SELF.object.vendor.vendornumber, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td>[%- LxERP.t8("Customer/Vendor Name") %]:</td>
+   <td>[% L.input_tag('vc_name', is_sales ? SELF.object.customer.name : SELF.object.vendor.name, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td>[%- LxERP.t8("Project") %]:</td>
+   <td>[% L.select_tag('project_id', PROJECTS, default=SELF.object.globalproject_id, with_empty=1, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td>[%- LxERP.t8("Transaction description") %]:</td>
+   <td>[% L.input_tag('transaction_description', '', style=style) %]</td>
+  </tr>
+ </table>
+
+ <p>
+  [% L.button_tag('filter_record_links()', LxERP.t8("Search")) %]
+  [% L.button_tag('add_selected_record_links()', LxERP.t8("Add links"), id='add_selected_record_links_button', disabled=1) %]
+  <a href="#" onclick="record_links_reset_form();">[%- LxERP.t8("Reset") %]</a>
+  <a href="#" onclick="record_links_cancel();">[% LxERP.t8("Cancel") %]</a>
+ </p>
+
+ <hr>
+
+ <div id="record_list_filtered_list"></div>
+
+</form>
+
+<script type="text/javascript">
+<!--
+$(function() {
+  $('.jqmWindow input[name=vc_name]').focus();
+});
+
+function record_links_reset_form() {
+  $('.jqmWindow form input[type=text]').val('');
+  $('.jqmWindow form select').prop('selectedIndex', 0);
+}
+
+function record_links_cancel() {
+  $('.jqmWindow').jqmHide();
+  $('.jqmWindow').remove();
+}
+
+function filter_record_links() {
+  var url="controller.pl?action=RecordLinks/ajax_add_list&" + $(".jqmWindow form").serialize();
+  $.ajax({
+    url: url,
+    success: function(new_data) {
+      $("#record_list_filtered_list").html(new_data['html']);
+      $('#add_selected_record_links_button').prop('disabled', new_data['count'] == 0);
+    }
+  });
+}
+
+function add_selected_record_links() {
+  var url="controller.pl?action=RecordLinks/ajax_add_do&" + $(".jqmWindow form").serialize();
+  $.ajax({
+    url: url,
+    success: function(new_html) {
+      $('#record_links_list').replaceWith(new_html);
+      record_links_cancel();
+    }
+  });
+}
+-->
+</script>
