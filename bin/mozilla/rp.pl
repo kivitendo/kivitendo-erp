@@ -94,8 +94,6 @@ use strict;
 # $locale->text('Receipts')
 # $locale->text('Payments')
 # $locale->text('Project Transactions')
-# $locale->text('Non-taxable Sales')
-# $locale->text('Non-taxable Purchases')
 # $locale->text('Business evaluation')
 
 # $form->parse_html_template('rp/html_report_susa')
@@ -134,8 +132,6 @@ sub report {
     ap_aging             => $::locale->text('Search AP Aging'),
     tax_collected        => $::locale->text('Tax collected'),
     tax_paid             => $::locale->text('Tax paid'),
-    nontaxable_sales     => $::locale->text('Non-taxable Sales'),
-    nontaxable_purchases => $::locale->text('Non-taxable Purchases'),
     receipts             => $::locale->text('Receipts'),
     payments             => $::locale->text('Payments'),
     projects             => $::locale->text('Project Transactions'),

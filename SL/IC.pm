@@ -156,18 +156,6 @@ SQL
   }
   $trq->finish;
 
-  # now get accno for taxes
-  $query =
-    qq|SELECT c.accno
-       FROM chart c, partstax pt
-       WHERE (pt.chart_id = c.id) AND (pt.parts_id = ?)|;
-  $sth = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
-  while (my ($key) = $sth->fetchrow_array) {
-    $form->{amount}{$key} = $key;
-  }
-
-  $sth->finish;
-
   # is it an orphan
   my @referencing_tables = qw(invoice orderitems inventory rmaitems);
   my %column_map         = ( );
@@ -294,9 +282,6 @@ sub save {
       # delete assembly records
       do_query($form, $dbh, qq|DELETE FROM assembly WHERE id = ?|, conv_i($form->{id}));
     }
-
-    # delete tax records
-    do_query($form, $dbh, qq|DELETE FROM partstax WHERE parts_id = ?|, conv_i($form->{id}));
 
     # delete translations
     do_query($form, $dbh, qq|DELETE FROM translation WHERE parts_id = ?|, conv_i($form->{id}));
@@ -470,17 +455,6 @@ sub save {
       }
     }
 
-  # insert taxes
-  foreach my $item (split(/ /, $form->{taxaccounts})) {
-    if ($form->{"IC_tax_$item"}) {
-      $query =
-        qq|INSERT INTO partstax (parts_id, chart_id)
-           VALUES (?, (SELECT id FROM chart WHERE accno = ?))|;
-      @values = (conv_i($form->{id}), $item);
-      do_query($form, $dbh, $query, @values);
-    }
-  }
-
   # add assembly records
   if ($form->{item} eq 'assembly') {
 
@@ -617,7 +591,7 @@ sub delete {
 
   my %columns = ( "assembly" => "id", "parts" => "id" );
 
-  for my $table (qw(prices partstax makemodel inventory assembly translation parts)) {
+  for my $table (qw(prices makemodel inventory assembly translation parts)) {
     my $column = defined($columns{$table}) ? $columns{$table} : "parts_id";
     do_query($form, $dbh, qq|DELETE FROM $table WHERE $column = ?|, @values);
   }

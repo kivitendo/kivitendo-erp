@@ -522,8 +522,8 @@ sub get_accounts_g {
                      FROM acc_trans acc
                      INNER JOIN chart c ON (acc.chart_id = c.id AND c.link LIKE '%AR_paid%')
                      WHERE 1=1 $inwhere AND acc.trans_id = ac.trans_id)
-                  / (SELECT amount FROM ar WHERE id = ac.trans_id) 
-            ELSE 0 
+                  / (SELECT amount FROM ar WHERE id = ac.trans_id)
+            ELSE 0
             /* ar amount is zero, or we are checking with a non-ar-transaction, so we return 0 in both cases as multiplicator of ac.amount */
             END
                 ) AS amount, c.$category
@@ -1392,9 +1392,7 @@ sub tax_report {
   my $sortorder = join ', ', $form->sort_columns(qw(transdate invnumber name));
   $sortorder = $form->{sort} if ($form->{sort} && grep({ $_ eq $form->{sort} } qw(id transdate invnumber name netamount tax)));
 
-  my $query = '';
-  if ($form->{report} !~ /nontaxable/) {
-    $query =
+  my $query =
       qq|SELECT a.id, '0' AS invoice, $transdate AS transdate, a.invnumber, n.name, a.netamount,
           ac.amount * $ml AS tax
          FROM acc_trans ac
@@ -1416,42 +1414,11 @@ sub tax_report {
          JOIN $table n ON (n.id = a.${table}_id)
          JOIN ${table}tax t ON (t.${table}_id = n.id)
          JOIN invoice i ON (i.trans_id = a.id)
-         JOIN partstax p ON (p.parts_id = i.parts_id)
          WHERE
            $where
            $accno
            AND (a.invoice = '1')
          ORDER BY $sortorder|;
-  } else {
-    # only gather up non-taxable transactions
-    $query =
-      qq|SELECT a.id, '0' AS invoice, $transdate AS transdate, a.invnumber, n.name, a.netamount
-         FROM acc_trans ac
-         JOIN ${arap} a ON (a.id = ac.trans_id)
-         JOIN $table n ON (n.id = a.${table}_id)
-         WHERE
-           $where
-           AND (a.invoice = '0')
-           AND (a.netamount = a.amount)
-
-         UNION
-
-         SELECT a.id, '1' AS invoice, $transdate AS transdate, a.invnumber, n.name, i.sellprice * i.qty AS netamount
-         FROM acc_trans ac
-         JOIN ${arap} a ON (a.id = ac.trans_id)
-         JOIN $table n ON (n.id = a.${table}_id)
-         JOIN invoice i ON (i.trans_id = a.id)
-         WHERE
-           $where
-           AND (a.invoice = '1')
-           AND (
-             a.${table}_id NOT IN (SELECT ${table}_id FROM ${table}tax t (${table}_id))
-             OR
-             i.parts_id NOT IN (SELECT parts_id FROM partstax p (parts_id))
-           )
-         GROUP BY a.id, a.invnumber, $transdate, n.name, i.sellprice, i.qty
-         ORDER by $sortorder|;
-  }
 
   $form->{TR} = selectall_hashref_query($form, $dbh, $query);
 

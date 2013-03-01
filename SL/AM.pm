@@ -475,11 +475,9 @@ sub delete_account {
     do_query($form, $dbh, $query, $form->{id});
   }
 
-  foreach my $table (qw(partstax customertax vendortax tax)) {
-    $query = qq|DELETE FROM $table
-                WHERE chart_id = ?|;
-    do_query($form, $dbh, $query, $form->{id});
-  }
+  $query = qq|DELETE FROM tax
+              WHERE chart_id = ?|;
+  do_query($form, $dbh, $query, $form->{id});
 
   # delete chart of account record
   $query = qq|DELETE FROM chart
@@ -1779,8 +1777,8 @@ sub get_tax {
                    taxkey,
                    taxdescription,
                    round(rate * 100, 2) AS rate,
-                   chart_id, 
-                   (id IN (SELECT tax_id 
+                   chart_id,
+                   (id IN (SELECT tax_id
                            FROM acc_trans)) AS tax_already_used
                  FROM tax
                  WHERE id = ? |;
