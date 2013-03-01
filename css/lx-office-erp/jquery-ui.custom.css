@@ -5,7 +5,7 @@
   zoom: 1;
   -webkit-border-radius: 0;
   border-radius: 0;
-  border: 1px solid #000000;
+  border: 0;
   color: #000000;
   font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
   font-size: 1.1em;
@@ -59,10 +59,11 @@
 
 .tabwidget > div {
   display: none;
+  border: 1px solid black !important;
 }
 
 .tabwidget .ui-widget-header {
-  background: url("../../image/fade.png");
+  background: transparent;
   border: 0;
   color: #000000;
 }

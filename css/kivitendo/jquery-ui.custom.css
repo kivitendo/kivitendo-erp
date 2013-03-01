@@ -5,7 +5,7 @@
   zoom: 1;
   -webkit-border-radius: 4px;
   border-radius: 4px;
-  border: 1px solid #dddddd;
+  border: 0;
   color: #333333;
   font-family: Trebuchet MS, Tahoma, Verdana, Arial, sans-serif;
   font-size: 1.1em;
@@ -59,11 +59,12 @@
 
 .tabwidget > div {
   display: none;
+  border: 1px solid #999 !important;
 }
 
 .tabwidget .ui-widget-header {
-  background: #dddddd;
-  border: 1px #dddddd;
+  background: transparent;
+  border: 0px;
   color: #fe5f14;
 }
 
