@@ -29,6 +29,7 @@ my $debug  = 0;
 
 parse_args();
 
+my $locale;
 my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
@@ -37,6 +38,7 @@ my $dbupdir      = "$basedir/sql/Pg-upgrade";
 my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
 my $menufile     = "menu.ini";
 my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages');
+my $javascript_output_dir = $basedir .'/js';
 my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 our $self        = {};
 our $missing     = {};
@@ -139,7 +141,7 @@ generate_file(
   data_sub  => sub { _print_line($_, $self->{texts}{$_}, @_) for sort keys %alllocales },
 );
 
-open(my $js_file, '>:encoding(utf8)', $locales_dir .'/js.js') || die;
+open(my $js_file, '>:encoding(utf8)', $javascript_output_dir .'/locale/'. $locale .'js') || die;
 print $js_file '{';
 my $first_entry = 1;
 for my $key (sort(keys(%jslocale))) {
@@ -248,6 +250,9 @@ sub parse_args {
     my $ok  = 0;
     foreach my $dir ("../locale/$arg", "locale/$arg", "../$arg", $arg) {
       next unless -d $dir && -f "$dir/all" && -f "$dir/LANGUAGE";
+
+      $locale = $arg;
+
       $ok = chdir $dir;
       last;
     }
