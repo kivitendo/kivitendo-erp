@@ -270,32 +270,32 @@ sub post_invoice {
             # allocated >= 0
             # add entry for inventory, this one is for the sold item
             $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id) VALUES (?, ?, ?, ?,
-                               (SELECT taxkey_id 
-                                FROM taxkeys 
+                               (SELECT taxkey_id
+                                FROM taxkeys
                                 WHERE chart_id= ?
                                 AND startdate <= ?
                                 ORDER BY startdate DESC LIMIT 1),
-                               (SELECT tax_id 
-                                FROM taxkeys 
+                               (SELECT tax_id
+                                FROM taxkeys
                                 WHERE chart_id= ?
                                 AND startdate <= ?
                                 ORDER BY startdate DESC LIMIT 1),
                                (SELECT chart_link FROM chart WHERE id = ?))|;
-            @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{transdate}, 
+            @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{transdate},
                        $ref->{inventory_accno_id});
             do_query($form, $dbh, $query, @values);
 
 # add expense
             $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id) VALUES (?, ?, ?, ?,
-                                (SELECT taxkey_id 
-                                 FROM taxkeys 
+                                (SELECT taxkey_id
+                                 FROM taxkeys
                                  WHERE chart_id= ?
-                                 AND startdate <= ? 
+                                 AND startdate <= ?
                                  ORDER BY startdate DESC LIMIT 1),
-                                (SELECT tax_id 
-                                 FROM taxkeys 
+                                (SELECT tax_id
+                                 FROM taxkeys
                                  WHERE chart_id= ?
-                                 AND startdate <= ? 
+                                 AND startdate <= ?
                                  ORDER BY startdate DESC LIMIT 1),
                                 (SELECT chart_link FROM chart WHERE id = ?))|;
             @values = ($ref->{trans_id},  $ref->{expense_accno_id}, ($linetotal * -1), $ref->{transdate}, $ref->{expense_accno_id}, $ref->{transdate}, $ref->{expense_accno_id}, $ref->{transdate},
@@ -504,20 +504,20 @@ sub post_invoice {
 
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, tax_id, chart_link)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
-                  (SELECT taxkey_id 
-                   FROM taxkeys 
-                   WHERE chart_id= (SELECT id  
-                                    FROM chart 
-                                    WHERE accno = ?) 
-                   AND startdate <= ? 
+                  (SELECT taxkey_id
+                   FROM taxkeys
+                   WHERE chart_id= (SELECT id
+                                    FROM chart
+                                    WHERE accno = ?)
+                   AND startdate <= ?
                    ORDER BY startdate DESC LIMIT 1),
                   ?,
-                  (SELECT tax_id 
-                   FROM taxkeys 
-                   WHERE chart_id= (SELECT id  
-                                    FROM chart 
-                                    WHERE accno = ?) 
-                   AND startdate <= ? 
+                  (SELECT tax_id
+                   FROM taxkeys
+                   WHERE chart_id= (SELECT id
+                                    FROM chart
+                                    WHERE accno = ?)
+                   AND startdate <= ?
                    ORDER BY startdate DESC LIMIT 1),
                   (SELECT link FROM chart WHERE accno = ?))|;
       @values = ($trans_id, $accno, $form->{amount}{$trans_id}{$accno},
@@ -558,20 +558,20 @@ sub post_invoice {
     if ($form->{amount}{ $form->{id} }{ $form->{AP} } != 0) {
       $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, project_id, tax_id, chart_link)
                   VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
-                          (SELECT taxkey_id 
-                           FROM taxkeys 
-                           WHERE chart_id= (SELECT id  
-                                            FROM chart 
-                                            WHERE accno = ?) 
-                           AND startdate <= ? 
+                          (SELECT taxkey_id
+                           FROM taxkeys
+                           WHERE chart_id= (SELECT id
+                                            FROM chart
+                                            WHERE accno = ?)
+                           AND startdate <= ?
                            ORDER BY startdate DESC LIMIT 1),
                           ?,
-                          (SELECT tax_id 
-                           FROM taxkeys 
-                           WHERE chart_id= (SELECT id  
-                                            FROM chart 
-                                            WHERE accno = ?) 
-                           AND startdate <= ? 
+                          (SELECT tax_id
+                           FROM taxkeys
+                           WHERE chart_id= (SELECT id
+                                            FROM chart
+                                            WHERE accno = ?)
+                           AND startdate <= ?
                            ORDER BY startdate DESC LIMIT 1),
                           (SELECT link FROM chart WHERE accno = ?))|;
       @values = (conv_i($form->{id}), $form->{AP}, $amount,
@@ -585,18 +585,18 @@ sub post_invoice {
     $query =
       qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, taxkey, project_id, tax_id, chart_link)
                 VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?,
-                (SELECT taxkey_id 
-                 FROM taxkeys 
-                 WHERE chart_id= (SELECT id  
-                                  FROM chart WHERE accno = ?) 
-                 AND startdate <= ? 
+                (SELECT taxkey_id
+                 FROM taxkeys
+                 WHERE chart_id= (SELECT id
+                                  FROM chart WHERE accno = ?)
+                 AND startdate <= ?
                  ORDER BY startdate DESC LIMIT 1),
                 ?,
-                (SELECT tax_id 
-                 FROM taxkeys 
-                 WHERE chart_id= (SELECT id  
-                                  FROM chart WHERE accno = ?) 
-                 AND startdate <= ? 
+                (SELECT tax_id
+                 FROM taxkeys
+                 WHERE chart_id= (SELECT id
+                                  FROM chart WHERE accno = ?)
+                 AND startdate <= ?
                  ORDER BY startdate DESC LIMIT 1),
                 (SELECT link FROM chart WHERE accno = ?))|;
     @values = (conv_i($form->{id}), $accno, $form->{"paid_$i"}, $form->{"datepaid_$i"},
@@ -1314,7 +1314,6 @@ sub retrieve_item {
     my $i = 0;
     while (my $ptr = $stw->fetchrow_hashref("NAME_lc")) {
 
-      #    if ($customertax{$ref->{accno}}) {
       if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
         $i++;
         $ptr->{accno} = $i;

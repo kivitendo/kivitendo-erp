@@ -157,7 +157,7 @@ sub warn {
 }
 
 sub dump {
-  my ($self, $level, $name, $variable) = @_;
+  my ($self, $level, $name, $variable, %options) = @_;
 
   if ($data_dumper_available) {
     my $password;
@@ -168,6 +168,8 @@ sub dump {
 
     my $dumper = Data::Dumper->new([$variable]);
     $dumper->Sortkeys(1);
+    $dumper->Indent(2);
+    $dumper->$_($options{$_}) for keys %options;
     $self->message($level, "dumping ${name}:\n" . $dumper->Dump());
 
     $variable->{password} = $password if (defined $password);

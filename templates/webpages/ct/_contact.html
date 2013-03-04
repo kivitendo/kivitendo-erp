@@ -5,7 +5,7 @@
       <th align="left">[% 'Contacts' | $T8 %]</th>
       <td>
        [%- L.select_tag('cp_id', CONTACTS, default = cp_id, with_empty = 1, empty_title = LxERP.t8('New contact'), value_key = 'cp_id', title_sub = \contacts_label,
-                        onchange = "\$('#contacts').load('ct.pl?action=get_contact&id=' + \$('#cvid').attr('value') + '&db=' + \$('#db').attr('value') + '&cp_id=' + \$('#cp_id').attr('value'))") %]
+                        onchange = "\$('#contacts').load('ct.pl?action=get_contact&id=' + \$('#cvid').val() + '&db=' + \$('#db').val() + '&cp_id=' + \$('#cp_id').val())") %]
       </td>
      </tr>
 

@@ -56,7 +56,6 @@ my %lxoffice_package_names = (
   custom_variable_configs        => 'custom_variable_config',
   custom_variables               => 'custom_variable',
   custom_variables_validity      => 'custom_variable_validity',
-  customertax                    => 'customer_tax',
   datev                          => 'datev',
   defaults                       => 'default',
   delivery_orders                => 'delivery_order',
@@ -85,7 +84,6 @@ my %lxoffice_package_names = (
   oe                             => 'order',
   parts                          => 'part',
   partsgroup                     => 'parts_group',
-  partstax                       => 'parts_tax',
   payment_terms                  => 'payment_term',
   periodic_invoices              => 'periodic_invoice',
   periodic_invoices_configs      => 'periodic_invoices_config',
@@ -109,7 +107,6 @@ my %lxoffice_package_names = (
   units                          => 'unit',
   units_language                 => 'units_language',
   vendor                         => 'vendor',
-  vendortax                      => 'vendor_tax',
 );
 
 my (%lxoffice_tables_to_packages, %lxoffice_tables_to_manager_packages, %lxoffice_packages_to_tables);

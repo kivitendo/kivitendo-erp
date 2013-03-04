@@ -24,7 +24,7 @@ sub ar_transaction {
 sub purchase_invoice {
   my ($self, $invoice, %params) = @_;
 
-  return _is_ir_record($self, $invoice, 'is', %params);
+  return _is_ir_record($self, $invoice, 'ir', %params);
 }
 
 sub ap_transaction {

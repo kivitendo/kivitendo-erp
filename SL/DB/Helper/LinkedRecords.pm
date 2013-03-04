@@ -64,10 +64,15 @@ sub _linked_records_implementation {
 
   my @get_objects_query = ref($params{query}) eq 'ARRAY' ? @{ $params{query} } : ();
   my $get_objects       = sub {
-    my $manager_class = SL::DB::Helper::Mappings::get_manager_package_for_table($_[0]->$sub_wanted_table);
-    my $object_class  = SL::DB::Helper::Mappings::get_package_for_table($_[0]->$sub_wanted_table);
+    my ($link)        = @_;
+    my $manager_class = SL::DB::Helper::Mappings::get_manager_package_for_table($link->$sub_wanted_table);
+    my $object_class  = SL::DB::Helper::Mappings::get_package_for_table($link->$sub_wanted_table);
     eval "require " . $object_class . "; 1;";
-    return @{ $manager_class->get_all(query => [ id => $_[0]->$sub_wanted_id, @get_objects_query ]) };
+    return map {
+      $_->{_record_link_direction} = $wanted;
+      $_->{_record_link}           = $link;
+      $_
+    } @{ $manager_class->get_all(query => [ id => $link->$sub_wanted_id, @get_objects_query ]) };
   };
 
   # If no 'via' is given then use a simple(r) method for querying the wanted objects.
@@ -295,7 +300,22 @@ the current employee.
 
 =back
 
-Returns an array reference.
+Returns an array reference. Each element returned is a Rose::DB
+instance. Additionally several elements in the element returned are
+set to special values:
+
+=over 2
+
+=item C<_record_link_direction>
+
+Either C<from> or C<to> indicating the direction. C<from> means that
+this object is the source in the link.
+
+=item C<_record_link>
+
+The actual database link object (an instance of L<SL::DB::RecordLink>).
+
+=back
 
 =item C<link_to_record $record, %params>
 

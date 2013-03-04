@@ -13,6 +13,7 @@ sub stylesheets {
 
 sub javascripts_inline {
   my $self = shift;
+  $self->SUPER::javascripts_inline;
   my $sections = [ section_menu($self->menu) ];
   $self->render('menu/menu', { output => 0 },
     sections  => $sections,

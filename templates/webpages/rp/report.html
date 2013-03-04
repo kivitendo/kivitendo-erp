@@ -308,52 +308,6 @@
     </td>
   </tr>
 [%- END %]
-
-[%- IF 0 # is_nontaxable %]
-  <input type=hidden name=nextsub value=generate_tax_report>
-
-  <input type=hidden name=db value=[% db %]>
-  <input type=hidden name=sort value=transdate>
-  <input type=hidden name=report value='[% report %]'>
-
-  <tr>
-    <th align=right>[% 'From' | $T8 %]</th>
-    <td>[% L.date_tag('fromdate', fromdate) %]</td>
-    <th align=right>[% 'Bis' | $T8 %]</th>
-    <td>[% L.date_tag('todate', todate) %]</td>
-  </tr>
-[%- PROCESS cash_or_accrual %]
-  <tr>
-    <th align=right>[% 'Include in Report' | $T8 %]</th>
-    <td colspan=3>
-      <table>
-        <tr>
-          <td><input name="l_id" class=checkbox type=checkbox value=Y></td>
-          <td>[% 'ID' | $T8 %]</td>
-          <td><input name="l_invnumber" class=checkbox type=checkbox value=Y checked></td>
-          <td>[% 'Invoice' | $T8 %]</td>
-          <td><input name="l_transdate" class=checkbox type=checkbox value=Y checked></td>
-          <td>[% 'Date' | $T8 %]</td>
-        </tr>
-        <tr>
-          <td><input name="l_name" class=checkbox type=checkbox value=Y checked></td>
-          <td>
-            [% LxERP.t8('Customer') IF db == 'ar' %]
-            [% LxERP.t8('Vendor')   IF db == 'ap' %]
-       </td>
-          <td><input name="l_netamount" class=checkbox type=checkbox value=Y checked></td>
-          <td>[% 'Amount' | $T8 %]</td>
-          <td><input name="l_amount" class=checkbox type=checkbox value=Y></td>
-          <td>[% 'Total' | $T8 %]</td>
-        </tr>
-        <tr>
-          <td><input name="l_subtotal" class=checkbox type=checkbox value=Y></td>
-          <td>[% 'Subtotal' | $T8 %]</td>
-        </tr>
-      </table>
-    </td>
-  </tr>
-[%- END %]
 </table>
 
 <hr size=3 noshade>

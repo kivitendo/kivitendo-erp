@@ -434,6 +434,8 @@ sub form_header {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
+  $::request->layout->use_stylesheet('presenter/record/record_list.css');
+
   $form->header;
 
   $TMPL_VAR{HIDDENS} = [ map { name => $_, value => $form->{$_} },

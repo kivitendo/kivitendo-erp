@@ -526,7 +526,7 @@ sub scanhtmlfile {
 
       while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
         my $plugin = $1;
-        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript MultiColumnIterator JSON L P));
+        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript JSON L P));
       }
 
       $plugins{needed}->{T8} = 1 if $line =~ m/\[\%.*\|.*\$T8/;

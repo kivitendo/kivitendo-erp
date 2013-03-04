@@ -4,7 +4,6 @@
 [%- USE T8 %]
 [%- USE url %]
 [%- SET list_spool__callback = href _ '&sort=' _ sort %]
-[% L.javascript_tag('jquery.checkall') %]
 
 <h1>[% title | html %]</h1>
 
@@ -79,4 +78,3 @@
 [% L.select_tag('printer', ALL_PRINTERS, title_key = 'printer_description') %]
 
 </form>
-

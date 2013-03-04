@@ -863,19 +863,19 @@ sub post_invoice {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
              VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
-                     (SELECT tax_id 
-                      FROM taxkeys 
-                      WHERE chart_id= (SELECT id  
-                                       FROM chart 
-                                       WHERE accno = ?) 
-                      AND startdate <= ? 
+                     (SELECT tax_id
+                      FROM taxkeys
+                      WHERE chart_id= (SELECT id
+                                       FROM chart
+                                       WHERE accno = ?)
+                      AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
                      (SELECT taxkey_id
-                      FROM taxkeys 
-                      WHERE chart_id= (SELECT id  
-                                       FROM chart 
-                                       WHERE accno = ?) 
-                      AND startdate <= ? 
+                      FROM taxkeys
+                      WHERE chart_id= (SELECT id
+                                       FROM chart
+                                       WHERE accno = ?)
+                      AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
                      ?,
                      (SELECT link FROM chart WHERE accno = ?))|;
@@ -892,19 +892,19 @@ sub post_invoice {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
              VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
-                     (SELECT tax_id 
-                      FROM taxkeys 
-                      WHERE chart_id= (SELECT id 
-                                       FROM chart 
-                                       WHERE accno = ?) 
-                      AND startdate <= ? 
+                     (SELECT tax_id
+                      FROM taxkeys
+                      WHERE chart_id= (SELECT id
+                                       FROM chart
+                                       WHERE accno = ?)
+                      AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
-                     (SELECT taxkey_id 
-                      FROM taxkeys 
-                      WHERE chart_id= (SELECT id 
-                                       FROM chart 
-                                       WHERE accno = ?) 
-                      AND startdate <= ? 
+                     (SELECT taxkey_id
+                      FROM taxkeys
+                      WHERE chart_id= (SELECT id
+                                       FROM chart
+                                       WHERE accno = ?)
+                      AND startdate <= ?
                       ORDER BY startdate DESC LIMIT 1),
                      ?,
                      (SELECT link FROM chart WHERE accno = ?))|;
@@ -956,19 +956,19 @@ sub post_invoice {
         $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, tax_id, taxkey, project_id, chart_link)
            VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?,
-                   (SELECT tax_id 
-                    FROM taxkeys 
-                    WHERE chart_id= (SELECT id  
-                                     FROM chart 
-                                     WHERE accno = ?) 
-                    AND startdate <= ? 
+                   (SELECT tax_id
+                    FROM taxkeys
+                    WHERE chart_id= (SELECT id
+                                     FROM chart
+                                     WHERE accno = ?)
+                    AND startdate <= ?
                     ORDER BY startdate DESC LIMIT 1),
-                   (SELECT taxkey_id 
-                    FROM taxkeys 
-                    WHERE chart_id= (SELECT id  
-                                     FROM chart 
-                                     WHERE accno = ?) 
-                    AND startdate <= ? 
+                   (SELECT taxkey_id
+                    FROM taxkeys
+                    WHERE chart_id= (SELECT id
+                                     FROM chart
+                                     WHERE accno = ?)
+                    AND startdate <= ?
                     ORDER BY startdate DESC LIMIT 1),
                    ?,
                    (SELECT link FROM chart WHERE accno = ?))|;
@@ -983,19 +983,19 @@ sub post_invoice {
       $query =
       qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, tax_id, taxkey, project_id, chart_link)
          VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?,
-                 (SELECT tax_id 
-                  FROM taxkeys 
-                  WHERE chart_id= (SELECT id  
-                                   FROM chart 
-                                   WHERE accno = ?) 
-                  AND startdate <= ? 
+                 (SELECT tax_id
+                  FROM taxkeys
+                  WHERE chart_id= (SELECT id
+                                   FROM chart
+                                   WHERE accno = ?)
+                  AND startdate <= ?
                   ORDER BY startdate DESC LIMIT 1),
-                 (SELECT taxkey_id 
-                  FROM taxkeys 
-                  WHERE chart_id= (SELECT id  
-                                   FROM chart 
-                                   WHERE accno = ?) 
-                  AND startdate <= ? 
+                 (SELECT taxkey_id
+                  FROM taxkeys
+                  WHERE chart_id= (SELECT id
+                                   FROM chart
+                                   WHERE accno = ?)
+                  AND startdate <= ?
                   ORDER BY startdate DESC LIMIT 1),
                  ?,
                  (SELECT link FROM chart WHERE accno = ?))|;
@@ -1042,19 +1042,19 @@ sub post_invoice {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, cleared, fx_transaction, tax_id, taxkey, project_id, chart_link)
              VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, '0', '1',
-                 (SELECT tax_id 
-                  FROM taxkeys 
-                  WHERE chart_id= (SELECT id  
-                                   FROM chart 
-                                   WHERE accno = ?) 
-                  AND startdate <= ? 
+                 (SELECT tax_id
+                  FROM taxkeys
+                  WHERE chart_id= (SELECT id
+                                   FROM chart
+                                   WHERE accno = ?)
+                  AND startdate <= ?
                   ORDER BY startdate DESC LIMIT 1),
-                 (SELECT taxkey_id 
-                  FROM taxkeys 
-                  WHERE chart_id= (SELECT id  
-                                   FROM chart 
-                                   WHERE accno = ?) 
-                  AND startdate <= ? 
+                 (SELECT taxkey_id
+                  FROM taxkeys
+                  WHERE chart_id= (SELECT id
+                                   FROM chart
+                                   WHERE accno = ?)
+                  AND startdate <= ?
                   ORDER BY startdate DESC LIMIT 1),
                  ?,
                  (SELECT link FROM chart WHERE accno = ?))|;
@@ -2034,7 +2034,6 @@ sub retrieve_item {
     my $i = 0;
     while (my $ptr = $stw->fetchrow_hashref('NAME_lc')) {
 
-      #    if ($customertax{$ref->{accno}})
       if (($ptr->{accno} eq "") && ($ptr->{rate} == 0)) {
         $i++;
         $ptr->{accno} = $i;

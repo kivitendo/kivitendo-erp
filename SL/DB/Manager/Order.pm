@@ -30,11 +30,13 @@ sub _sort_spec {
     nulls                     => {
       transaction_description => 'FIRST',
       customer_name           => 'FIRST',
+      vendor_name             => 'FIRST',
       default                 => 'LAST',
     },
     columns                   => {
       SIMPLE                  => 'ALL',
       customer                => 'customer.name',
+      vendor                  => 'vendor.name',
       globalprojectnumber     => 'lower(globalproject.projectnumber)',
       map { ( $_ => "lower(oe.$_)" ) } qw(ordnumber quonumber cusordnumber shippingpoint shipvia notes intnotes transaction_description),
     });

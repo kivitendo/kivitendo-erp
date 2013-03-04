@@ -58,7 +58,7 @@
       }
 
       function check_taxzone_and_ustid() {
-        if (($('#taxzone_id').attr('value') == '1') && ($('#ustid').attr('value') == '')) {
+        if (($('#taxzone_id').val() == '1') && ($('#ustid').val() == '')) {
           alert('[% LxERP.t8('Please enter the sales tax identification number.') %]');
           return false;
         }

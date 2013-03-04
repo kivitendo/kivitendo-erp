@@ -75,8 +75,8 @@ sub _generate_time_period_variables {
   my $period_end_date   = $period_start_date->clone->truncate(to => 'month')->add(months => $config->get_period_length)->subtract(days => 1);
 
   my @month_names       = ('',
-                           'Januar', 'Februar', 'März',      'April',   'Mai',      'Juni',
-                           'Juli',   'August',  'September', 'Oktober', 'November', 'Dezember');
+                           $::locale->text('January'), $::locale->text('February'), $::locale->text('March'),     $::locale->text('April'),   $::locale->text('May'),      $::locale->text('June'),
+                           $::locale->text('July'),    $::locale->text('August'),   $::locale->text('September'), $::locale->text('October'), $::locale->text('November'), $::locale->text('December'));
 
   my $vars = { current_quarter     => $period_start_date->quarter,
                previous_quarter    => $period_start_date->clone->subtract(months => 3)->quarter,

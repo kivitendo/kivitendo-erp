@@ -3,7 +3,7 @@
  <script type="text/javascript">
   <!--
       $(function() {
-        window.opener.document.getElementsByName("periodic_invoices_config")[0].value = $("#periodic_invoices_config").attr('value');
+        window.opener.document.getElementsByName("periodic_invoices_config")[0].value = $("#periodic_invoices_config").prop('value');
         window.close();
       })
     -->
@@ -12,4 +12,3 @@
  <form name="Form">
   [% L.hidden_tag("periodic_invoices_config", periodic_invoices_config) %]
  </form>
-

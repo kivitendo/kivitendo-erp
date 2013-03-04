@@ -46,7 +46,7 @@
      [%- IF show_post_payments_button %]
       <th class="listheading" colspan="3">&nbsp;</th>
       <th class="listheading">
-        [% L.date_tag('set_all_execution_date') %]
+        [% L.date_tag('set_all_execution_date', '', onchange='set_all_execution_date_fields(this);') %]
       </th>
      [%- ELSE %]
       <th class="listheading" colspan="4">&nbsp;</th>
@@ -98,20 +98,15 @@
 
   <script type="text/javascript">
    <!--
-    function set_all_execution_date_fields() {
-      var new_date = $('#set_all_execution_date').attr('value');
+    function set_all_execution_date_fields(input) {
+      var new_date = $(input).val();
       $('INPUT[name="items[].execution_date"]').each(function() {
-        $(this).attr('value', new_date);
+        $(this).val(new_date);
       });
     }
 
-    $(document).ready(function() {
-      $("#select_all").click(function() {
-        var checked = $(this).attr('checked');
-        $('INPUT[name="items[].selected"]').each(function() {
-          $(this).attr('checked', checked);
-        });
-      });
+    $(function() {
+      $("#select_all").checkall('INPUT[name="items[].selected"]');
     });
      -->
   </script>
@@ -131,4 +126,3 @@
 
      <input type="hidden" name="vc" value="[% HTML.escape(vc) %]">
  </form>
-

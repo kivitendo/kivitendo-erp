@@ -1,7 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %]
 [% USE L %]
-[% L.javascript_tag('jquery.checkall') %]
 [% SET all_active = 1 %][% FOREACH row = DUNNINGS %][% IF !row.active %][% SET all_active = 0 %][% LAST %][% END %][% END %]
 [% SET all_email = 1 %][% FOREACH row = DUNNINGS %][% IF !row.email %][% SET all_email = 0 %][% LAST %][% END %][% END %]
  <script type="text/javascript" src="js/common.js"></script>
@@ -94,7 +93,8 @@
 
  </form>
  <script type='text/javascript'>
-   $(function(){$("select[name='language_id']").attr('disabled', $('#force_lang').attr('checked') ? '' : 'disabled')})
-   $('#force_lang').click(function(){ $('select[name="language_id"]').attr('disabled', $('#force_lang').attr('checked') ? '' : 'disabled') })
+   $(function() {
+     $("select[name='language_id']").prop('disabled', $('#force_lang').prop('checked'));
+     $('#force_lang').checkall('select[name="language_id"]', 'disabled');
+   });
  </script>
-

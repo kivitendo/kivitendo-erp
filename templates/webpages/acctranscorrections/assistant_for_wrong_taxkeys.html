@@ -128,15 +128,7 @@
  <script type="text/javascript">
   <!--
     function enable_fix_button_maybe() {
-      var all_set = true;
-      $("[name='fixes[].taxkey']").each(function () {
-        var val = $(this).attr('value');
-        if (val == '')
-          all_set = false;
-      });
-
-      $("#fix_transaction_button").attr('disabled', !all_set);
+      $("#fix_transaction_button").prop('disabled', $("[name='fixes[].taxkey'][value='']").size() != 0);
     }
     -->
  </script>
-

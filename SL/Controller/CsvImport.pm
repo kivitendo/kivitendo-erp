@@ -152,7 +152,7 @@ sub action_report {
   my $page = $::form->{page} || 1;
   my $pages = {};
   $pages->{per_page}        = $::form->{per_page} || 20;
-  $pages->{max}             = SL::DB::Helper::Paginated::ceil($num_rows / ($num_cols || 1), $pages->{per_page}) || 1;
+  $pages->{max}             = SL::DB::Helper::Paginated::ceil($num_rows, $pages->{per_page}) || 1;
   $pages->{cur}             = $page < 1 ? 1
                             : $page > $pages->{max} ? $pages->{max}
                             : $page;
@@ -162,7 +162,7 @@ sub action_report {
     0,
     $pages->{per_page} * ($pages->{cur}-1) + 1
       ..
-    min($pages->{per_page} * $pages->{cur}, $num_rows / ($num_cols || 1) - 1)
+    min($pages->{per_page} * $pages->{cur}, $num_rows)
   ];
 
   my @query = (
@@ -416,7 +416,7 @@ sub save_report {
   my (@headers, @info_methods, @raw_methods, @methods);
 
   for my $i (0 .. $#{ $self->info_headers->{headers} }) {
-    next unless         $self->info_headers->{used}->{ $self->info_headers->{headers}->[$i] };
+    next unless         $self->info_headers->{used}->{ $self->info_headers->{methods}->[$i] };
     push @headers,      $self->info_headers->{headers}->[$i];
     push @info_methods, $self->info_headers->{methods}->[$i];
   }

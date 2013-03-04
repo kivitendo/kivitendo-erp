@@ -3,6 +3,8 @@ package SL::Layout::None;
 use strict;
 use parent qw(SL::Layout::Base);
 
+use List::MoreUtils qw(apply);
+
 sub javascripts_inline {
   _setup_formats(),
   _setup_focus(),
@@ -28,7 +30,13 @@ sub use_stylesheet {
 }
 
 sub _setup_formats {
-  $::form->parse_html_template('layout/javascript_setup')
+  my $datefmt = apply {
+    s/d+/dd/gi;
+    s/m+/mm/gi;
+    s/y+/yy/gi;
+  } $::myconfig{dateformat};
+
+  $::form->parse_html_template('layout/javascript_setup', { datefmt => $datefmt });
 }
 
 sub _setup_focus {

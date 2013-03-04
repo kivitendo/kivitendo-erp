@@ -14,13 +14,8 @@
 
  <script type="text/javascript">
   <!--
-    $(document).ready(function() {
-      $("#select_all").click(function() {
-        var checked = $(this).attr('checked');
-        $('INPUT[name="exports[].selected"]').each(function() {
-          $(this).attr('checked', checked);
-        });
-      });
+    $(function() {
+      $("#select_all").checkall('INPUT[name="exports[].selected"]');
     });
     -->
  </script>

@@ -24,11 +24,11 @@
   </tr>
   <tr>
    <th align="right">[% 'Delivery Date' | $T8 %] [% 'From Date' | $T8 %]</th>
-   <td>[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge, cal_align = 'BR') %]</td>
+   <td>[% L.date_tag('filter.reqdate:date::ge', filter.reqdate_date__ge) %]</td>
   </tr>
   <tr>
    <th align="right">[% 'Delivery Date' | $T8 %] [% 'To Date' | $T8 %]</th>
-   <td>[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le, cal_align = 'BR') %]</td>
+   <td>[% L.date_tag('filter.reqdate:date::le', filter.reqdate_date__le) %]</td>
   </tr>
   <tr>
    <th align="right">[% 'Quantity' | $T8 %]</th>
@@ -59,7 +59,7 @@
 [% L.input_tag('action_list', LxERP.t8('Continue'), type = 'submit', class='submit')%]
 
 
-<a href='#' onClick='javascript:$("#filter_table input").attr("value","");$("#filter_table option").attr("selected","")'>[% 'Reset' | $T8 %]</a>
+<a href='#' onClick='javascript:$("#filter_table input").val("");$("#filter_table input[type=checkbox]").prop("checked", 0);'>[% 'Reset' | $T8 %]</a>
 
 </div>
 

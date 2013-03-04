@@ -358,41 +358,23 @@ sub stylesheet_tag {
   return $code;
 }
 
+my $date_tag_id_idx = 0;
 sub date_tag {
   my ($self, $name, $value, @slurp) = @_;
+
   my %params   = _hashify(@slurp);
-  my $name_e   = _H($name);
-  my $seq      = _tag_id();
-  my $datefmt  = apply {
-    s/d+/\%d/gi;
-    s/m+/\%m/gi;
-    s/y+/\%Y/gi;
-  } $::myconfig{"dateformat"};
+  my $id       = $self->name_to_id($name) . _tag_id();
+  my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
+  my @class    = $params{no_cal} || $params{readonly} ? () : (class => 'datepicker');
 
-  my $cal_align = delete $params{cal_align} || 'BR';
-  my $onchange  = delete $params{onchange};
-  my $str_value = blessed $value ? $value->to_lxoffice : $value;
-
-  $self->input_tag($name, $str_value,
-    id     => $name_e,
+  return $self->input_tag(
+    $name, blessed($value) ? $value->to_lxoffice : $value,
+    id     => $id,
     size   => 11,
-    title  => _H($::myconfig{dateformat}),
-    onBlur => 'check_right_date_format(this)',
-    ($onchange ? (
-    onChange => $onchange,
-    ) : ()),
+    onblur => "check_right_date_format(this);",
     %params,
-  ) . ((!$params{no_cal} && !$params{readonly}) ?
-  $self->html_tag('img', undef,
-    src    => 'image/calendar.png',
-    alt    => $::locale->text('Calendar'),
-    id     => "trigger$seq",
-    title  => _H($::myconfig{dateformat}),
-    %params,
-  ) .
-  $self->javascript(
-    "Calendar.setup({ inputField: '$name_e', ifFormat: '$datefmt', align: '$cal_align', button: 'trigger$seq' });"
-  ) : '');
+    @class, @onchange,
+  );
 }
 
 sub customer_picker {
@@ -829,13 +811,10 @@ If C<%attributes> contains a key C<checkall> then the value is taken as a
 JQuery selector and clicking this checkbox will also toggle all checkboxes
 matching the selector.
 
-=item C<date_tag $name, $value, cal_align =E<gt> $align_code, %attributes>
+=item C<date_tag $name, $value, %attributes>
 
 Creates a date input field, with an attached javascript that will open a
-calendar on click. The javascript ist by default anchoered at the bottom right
-sight. This can be overridden with C<cal_align>, see Calendar documentation for
-the details, usually you'll want a two letter abbreviation of the alignment.
-Right + Bottom becomes C<BL>.
+calendar on click.
 
 =item C<radio_button_tag $name, %attributes>
 
@@ -860,14 +839,6 @@ Creates a HTML 'E<lt>link rel="text/stylesheet" href="..."E<gt>' tag
 for each file name parameter passed. Each file name will be postfixed
 with '.css' if it isn't already and prefixed with 'css/' if it doesn't
 contain a slash.
-
-=item C<date_tag $name, $value, cal_align =E<gt> $align_code, %attributes>
-
-Creates a date input field, with an attached javascript that will open a
-calendar on click. The javascript ist by default anchoered at the bottom right
-sight. This can be overridden with C<cal_align>, see Calendar documentation for
-the details, usually you'll want a two letter abbreviation of the alignment.
-Right + Bottom becomes C<BL>.
 
 =item C<tabbed \@tab, %attributes>
 

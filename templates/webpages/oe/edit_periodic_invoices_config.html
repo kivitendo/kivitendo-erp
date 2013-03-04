@@ -95,10 +95,9 @@
  <script type="text/javascript">
   <!--
     function toggle_printer_id_ctrl() {
-      var disabled = !$('#print').attr('checked');
-      $('#printer_id').attr('disabled', disabled);
-      $('#copies').attr('disabled', disabled);
+      var disabled = !$('#print').prop('checked');
+      $('#printer_id').prop('disabled', disabled);
+      $('#copies').prop('disabled', disabled);
     }
     -->
  </script>
-
