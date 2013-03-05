@@ -3,7 +3,8 @@ package SL::DB::Helper::ActsAsList;
 use strict;
 
 use parent qw(Exporter);
-our @EXPORT = qw(move_position_up move_position_down add_to_list remove_from_list reorder_list configure_acts_as_list);
+our @EXPORT = qw(move_position_up move_position_down add_to_list remove_from_list reorder_list configure_acts_as_list
+                 get_previous_in_list get_next_in_list);
 
 use Carp;
 
@@ -110,6 +111,16 @@ SQL
   };
 
   return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+}
+
+sub get_next_in_list {
+  my ($self) = @_;
+  return get_previous_or_next($self, 'next');
+}
+
+sub get_previous_in_list {
+  my ($self) = @_;
+  return get_previous_or_next($self, 'previous');
 }
 
 sub reorder_list {
@@ -245,6 +256,30 @@ SQL
   $self->update_attributes($column => $new_position);
 }
 
+sub get_previous_or_next {
+  my ($self, $direction)  = @_;
+
+  my $asc_desc            = $direction eq 'next' ? 'ASC' : 'DESC';
+  my $comparator          = $direction eq 'next' ? '>'   : '<';
+  my $table               = $self->meta->table;
+  my $column              = column_name($self);
+  my $primary_key_col     = ($self->meta->primary_key)[0];
+  my ($group_by, @values) = get_group_by_where($self);
+  $group_by               = " AND ${group_by}" if $group_by;
+  my $sql                 = <<SQL;
+    SELECT ${primary_key_col}
+    FROM ${table}
+    WHERE (${column} ${comparator} ?)
+      ${group_by}
+    ORDER BY ${column} ${asc_desc}
+    LIMIT 1
+SQL
+
+  my $id = ($self->db->dbh->selectrow_arrayref($sql, undef, $self->$column, @values) || [])->[0];
+
+  return $id ? $self->_get_manager_class->find_by(id => $id) : undef;
+}
+
 sub column_name {
   my ($self) = @_;
   my $column = get_spec(ref $self, 'column_name');
@@ -371,6 +406,16 @@ saved to the database.
 
 Sets this items positional column to C<-1>, saves it and moves all
 following items up by 1.
+
+=item C<get_previous_in_list>
+
+Fetches the previous item in the list. Returns C<undef> if C<$self> is
+already the first one.
+
+=item C<get_next_in_list>
+
+Fetches the next item in the list. Returns C<undef> if C<$self> is
+already the last one.
 
 =item C<reorder_list @ids>
 
