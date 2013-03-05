@@ -1,4 +1,4 @@
-[%- USE T8 %]
+[%- USE T8 %][%- USE LxERP -%]
 <div id="frame-header">
 [% UNLESS is_links %]
  <span class="frame-header-element frame-header-left">
@@ -15,5 +15,8 @@
   [<a href="controller.pl?action=LoginScreen/logout" target="_top" title="[% 'Logout now' | $T8 %]">[% 'Logout' | $T8 %]</a>]
   [% now.to_lxoffice %] -
   [% now.hms %]
+ </span>
+ <span class="frame-header-element frame-header-right" id="ajax-spinner">
+  <img src="image/[% IF MYCONFIG.stylesheet == 'lx-office-erp.css' %]spinner-blue.gif[% ELSE %]spinner-white.gif[% END %]" alt="[% LxERP.t8('Loading...') %]">
  </span>
 </div>
