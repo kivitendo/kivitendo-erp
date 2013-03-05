@@ -8,6 +8,7 @@ use List::MoreUtils qw(apply);
 sub javascripts_inline {
   _setup_formats(),
   _setup_focus(),
+  _setup_ajax_spinner(),
 }
 
 sub use_javascript {
@@ -46,6 +47,10 @@ sub _setup_focus {
   } else {
     return ();
   }
+}
+
+sub _setup_ajax_spinner {
+  return SL::Presenter->get->render('layout/ajax_spinner_setup', { type => 'js' });
 }
 
 1;
