@@ -124,6 +124,16 @@ sub escaped_text {
   return SL::Presenter::EscapedText->new(text => $text, is_escaped => 1);
 }
 
+sub escape_js {
+  my ($self, $text) = @_;
+
+  $text =~ s|\\|\\\\|g;
+  $text =~ s|\"|\\\"|g;
+  $text =~ s|\n|\\n|g;
+
+  return SL::Presenter::EscapedText->new(text => $text, is_escaped => 1);
+}
+
 1;
 
 __END__
@@ -287,6 +297,16 @@ Returns an instance of L<SL::Presenter::EscapedText>. C<$text> is
 assumed to be a string that has already been HTML-escaped.
 
 It is safe to call C<escaped_text> on an instance of
+L<SL::Presenter::EscapedText>. This is a no-op (the same instance will
+be returned).
+
+=item C<escape_js $text>
+
+Returns a JavaScript-escaped version of C<$text>. Instead of a string
+an instance of the thin proxy-object L<SL::Presenter::EscapedText> is
+returned.
+
+It is safe to call C<escape> on an instance of
 L<SL::Presenter::EscapedText>. This is a no-op (the same instance will
 be returned).
 

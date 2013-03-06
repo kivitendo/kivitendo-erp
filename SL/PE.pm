@@ -172,7 +172,7 @@ sub pricegroups {
     my $first = 1;
 
     $where .= qq| AND id NOT IN (|;
-    foreach my $table (qw(invoice orderitems prices rmaitems)) {
+    foreach my $table (qw(invoice orderitems prices)) {
       $where .= "UNION " unless ($first);
       $first = 0;
       $where .=
@@ -253,7 +253,7 @@ sub get_pricegroup {
 
   my @values = ();
   $query = qq|SELECT |;
-  foreach my $table (qw(invoice orderitems prices rmaitems)) {
+  foreach my $table (qw(invoice orderitems prices)) {
     $query .= " + " unless ($first);
     $first = 0;
     $query .= qq|(SELECT COUNT(*) FROM $table WHERE pricegroup_id = ?) |;

@@ -170,7 +170,8 @@ sub dump {
     $dumper->Sortkeys(1);
     $dumper->Indent(2);
     $dumper->$_($options{$_}) for keys %options;
-    $self->message($level, "dumping ${name}:\n" . $dumper->Dump());
+    my $output = $dumper->Dump();
+    $self->message($level, "dumping ${name}:\n" . $output);
 
     $variable->{password} = $password if (defined $password);
 
@@ -181,10 +182,14 @@ sub dump {
       keys %{ $variable };
     }
 
+    return $output;
+
   } else {
     $self->message($level,
                    "dumping ${name}: Data::Dumper not available; "
                      . "variable cannot be dumped");
+
+    return undef;
   }
 }
 

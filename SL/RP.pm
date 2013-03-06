@@ -178,7 +178,7 @@ sub get_accounts {
 
   my $query;
   my $dpt_where = '';
-  my $dpt_join  = '';
+  my $dpt_where_without_arapgl = '';
   my $project   = '';
   my $where     = "1 = 1";
   my $glwhere   = "";
@@ -235,8 +235,7 @@ sub get_accounts {
   }
 
   if ($department_id) {
-    $dpt_join = qq| JOIN department t ON (a.department_id = t.id) |;
-    $dpt_where = qq| AND (t.id = | . conv_i($department_id, 'NULL') . qq|)|;
+    $dpt_where = qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|)|;
   }
 
   if ($form->{project_id}) {
@@ -251,7 +250,6 @@ sub get_accounts {
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN ar a ON (a.id = ac.trans_id)
-         $dpt_join
          WHERE $where
            $dpt_where
            $category
@@ -272,7 +270,6 @@ sub get_accounts {
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN ap a ON (a.id = ac.trans_id)
-         $dpt_join
          WHERE $where
            $dpt_where
            $category
@@ -293,7 +290,6 @@ sub get_accounts {
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN gl a ON (a.id = ac.trans_id)
-         $dpt_join
          WHERE $where
            $glwhere
            $dpt_where
@@ -313,7 +309,6 @@ sub get_accounts {
          JOIN ar a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
          JOIN chart c on (p.income_accno_id = c.id)
-         $dpt_join
          -- use transdate from subwhere
          WHERE (c.category = 'I')
            $subwhere
@@ -336,7 +331,6 @@ sub get_accounts {
          JOIN ap a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
          JOIN chart c on (p.expense_accno_id = c.id)
-         $dpt_join
          WHERE (c.category = 'E')
            $subwhere
            $dpt_where
@@ -354,17 +348,18 @@ sub get_accounts {
 
   } else {                      # if ($form->{method} eq 'cash')
     if ($department_id) {
-      $dpt_join = qq| JOIN dpt_trans t ON (t.trans_id = ac.trans_id) |;
-      $dpt_where = qq| AND t.department_id = | . conv_i($department_id);
+      $dpt_where = qq| AND a.department_id = | . conv_i($department_id);
+      $dpt_where_without_arapgl = qq| AND COALESCE((SELECT department_id FROM ar WHERE ar.id=ac.trans_id),
+                                                   (SELECT department_id FROM gl WHERE gl.id=ac.trans_id),
+                                                   (SELECT department_id FROM ap WHERE ap.id=ac.trans_id)) = | . conv_i($department_id);
     }
 
     $query = qq|
       SELECT c.accno, sum(ac.amount) AS amount, c.description, c.category
       FROM acc_trans ac
       JOIN chart c ON (c.id = ac.chart_id)
-      $dpt_join
       WHERE $where
-        $dpt_where
+        $dpt_where_without_arapgl
         $category
         $project
       GROUP BY c.accno, c.description, c.category |;
@@ -379,7 +374,6 @@ sub get_accounts {
       JOIN ar a ON (a.id = ac.trans_id)
       JOIN parts p ON (ac.parts_id = p.id)
       JOIN chart c on (p.income_accno_id = c.id)
-      $dpt_join
       -- use transdate from subwhere
       WHERE (c.category = 'I')
         $subwhere
@@ -394,7 +388,6 @@ sub get_accounts {
       JOIN ap a ON (a.id = ac.trans_id)
       JOIN parts p ON (ac.parts_id = p.id)
       JOIN chart c on (p.expense_accno_id = c.id)
-      $dpt_join
       WHERE (c.category = 'E')
         $subwhere
         $dpt_where
@@ -462,7 +455,7 @@ sub get_accounts_g {
 
   my $query;
   my $dpt_where;
-  my $dpt_join;
+  my $dpt_where_without_arapgl;
   my $project;
   my $where    = "1 = 1";
   my $glwhere  = "";
@@ -494,8 +487,7 @@ sub get_accounts_g {
   }
 
   if ($department_id) {
-    $dpt_join = qq| JOIN department t ON (a.department_id = t.id) |;
-    $dpt_where = qq| AND (t.id = | . conv_i($department_id, 'NULL') . qq|) |;
+    $dpt_where = qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|) |;
   }
 
   if ($form->{project_id}) {
@@ -546,7 +538,6 @@ sub get_accounts_g {
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN ar a ON (a.id = ac.trans_id)
-         $dpt_join
          WHERE $where $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a JOIN chart c ON (a.chart_id = c.id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
@@ -558,7 +549,6 @@ sub get_accounts_g {
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN ap a ON (a.id = ac.trans_id)
-         $dpt_join
          WHERE $where $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a JOIN chart c ON (a.chart_id = c.id) WHERE (link LIKE '%AP_paid%') $subwhere)
            $project
@@ -570,7 +560,6 @@ sub get_accounts_g {
          FROM acc_trans ac
          JOIN chart c ON (c.id = ac.chart_id)
          JOIN gl a ON (a.id = ac.trans_id)
-         $dpt_join
          WHERE $where $dpt_where $glwhere
            AND NOT ((c.link = 'AR') OR (c.link = 'AP'))
            $project
@@ -586,7 +575,6 @@ sub get_accounts_g {
          JOIN ar a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
          JOIN chart c on (p.income_accno_id = c.id)
-         $dpt_join
          WHERE (c.category = 'I') $prwhere $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a JOIN chart c ON (a.chart_id = c.id) WHERE (link LIKE '%AR_paid%') $subwhere)
            $project
@@ -599,7 +587,6 @@ sub get_accounts_g {
          JOIN ap a ON (a.id = ac.trans_id)
          JOIN parts p ON (ac.parts_id = p.id)
          JOIN chart c on (p.expense_accno_id = c.id)
-         $dpt_join
          WHERE (c.category = 'E') $prwhere $dpt_where
            AND ac.trans_id IN ( SELECT trans_id FROM acc_trans a JOIN chart c ON (a.chart_id = c.id) WHERE (link LIKE '%AP_paid%') $subwhere)
          $project
@@ -609,17 +596,18 @@ sub get_accounts_g {
 
   } else {                      # if ($form->{method} eq 'cash')
     if ($department_id) {
-      $dpt_join = qq| JOIN dpt_trans t ON (t.trans_id = ac.trans_id) |;
-      $dpt_where = qq| AND (t.department_id = | . conv_i($department_id, 'NULL') . qq|) |;
+      $dpt_where = qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|) |;
+      $dpt_where_without_arapgl = qq| AND COALESCE((SELECT department_id FROM ar WHERE ar.id=ac.trans_id),
+                                                   (SELECT department_id FROM gl WHERE gl.id=ac.trans_id),
+                                                   (SELECT department_id FROM ap WHERE ap.id=ac.trans_id)) = | . conv_i($department_id);
     }
 
     $query = qq|
         SELECT sum(ac.amount * chart_category_to_sgn(c.category)) AS amount, c.$category
         FROM acc_trans ac
         JOIN chart c ON (c.id = ac.chart_id)
-        $dpt_join
         WHERE $where
-          $dpt_where
+          $dpt_where_without_arapgl
           $project
         GROUP BY c.$category |;
 
@@ -632,7 +620,6 @@ sub get_accounts_g {
         JOIN ar a ON (a.id = ac.trans_id)
         JOIN parts p ON (ac.parts_id = p.id)
         JOIN chart c on (p.income_accno_id = c.id)
-        $dpt_join
         WHERE (c.category = 'I')
           $prwhere
           $dpt_where
@@ -646,7 +633,6 @@ sub get_accounts_g {
         JOIN ap a ON (a.id = ac.trans_id)
         JOIN parts p ON (ac.parts_id = p.id)
         JOIN chart c on (p.expense_accno_id = c.id)
-        $dpt_join
         WHERE (c.category = 'E')
           $prwhere
           $dpt_where
@@ -687,15 +673,17 @@ sub trial_balance {
   my ($null, $department_id) = split /--/, $form->{department};
   my @headingaccounts = ();
   my $dpt_where;
-  my $dpt_join;
+  my $dpt_where_without_arapgl;
   my $project;
 
   my $where    = "1 = 1";
   my $invwhere = $where;
 
   if ($department_id) {
-    $dpt_join = qq| JOIN dpt_trans t ON (ac.trans_id = t.trans_id) |;
-    $dpt_where = qq| AND (t.department_id = | . conv_i($department_id, 'NULL') . qq|) |;
+    $dpt_where = qq| AND (a.department_id = | . conv_i($department_id, 'NULL') . qq|) |;
+    $dpt_where_without_arapgl = qq| AND COALESCE((SELECT department_id FROM ar WHERE ar.id=ac.trans_id),
+                                                 (SELECT department_id FROM gl WHERE gl.id=ac.trans_id),
+                                                 (SELECT department_id FROM ap WHERE ap.id=ac.trans_id)) = | . conv_i($department_id);
   }
 
   # project_id only applies to getting transactions
@@ -743,9 +731,8 @@ sub trial_balance {
       my $min_max = $prefix eq 'from' ? 'min' : 'max';
       $query      = qq|SELECT ${min_max}(transdate)
                        FROM acc_trans ac
-                       $dpt_join
                        WHERE (1 = 1)
-                         $dpt_where
+                         $dpt_where_without_arapgl
                          $project|;
       ($form->{"${prefix}date"}) = selectfirst_array_query($form, $dbh, $query);
     }
@@ -755,9 +742,8 @@ sub trial_balance {
       qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount, c.description
           FROM acc_trans ac
           LEFT JOIN chart c ON (ac.chart_id = c.id)
-          $dpt_join
           WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction
-            $dpt_where
+            $dpt_where_without_arapgl
             $project
           GROUP BY c.accno, c.category, c.description |;
 
@@ -855,9 +841,8 @@ sub trial_balance {
        SELECT c.accno, c.description, c.category, SUM(ac.amount) AS amount
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
-       $dpt_join
        WHERE $where
-         $dpt_where
+         $dpt_where_without_arapgl
          $project
        GROUP BY c.accno, c.description, c.category |;
 
@@ -872,7 +857,6 @@ sub trial_balance {
       JOIN ar a ON (ac.trans_id = a.id)
       JOIN parts p ON (ac.parts_id = p.id)
       JOIN chart c ON (p.income_accno_id = c.id)
-      $dpt_join
       WHERE $invwhere
         $dpt_where
         $project
@@ -885,7 +869,6 @@ sub trial_balance {
       JOIN ap a ON (ac.trans_id = a.id)
       JOIN parts p ON (ac.parts_id = p.id)
       JOIN chart c ON (p.expense_accno_id = c.id)
-      $dpt_join
       WHERE $invwhere
         $dpt_where
         $project
@@ -914,9 +897,8 @@ sub trial_balance {
          (SELECT SUM(ac.amount) * -1
           FROM acc_trans ac
           JOIN chart c ON (c.id = ac.chart_id)
-          $dpt_join
           WHERE $where
-            $dpt_where
+            $dpt_where_without_arapgl
             $project
           AND (ac.amount < 0)
           AND (c.accno = ?)) AS debit,
@@ -924,27 +906,24 @@ sub trial_balance {
          (SELECT SUM(ac.amount)
           FROM acc_trans ac
           JOIN chart c ON (c.id = ac.chart_id)
-          $dpt_join
           WHERE $where
-            $dpt_where
+            $dpt_where_without_arapgl
             $project
           AND ac.amount > 0
           AND c.accno = ?) AS credit,
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
-         $dpt_join
          WHERE $saldowhere
-           $dpt_where
+           $dpt_where_without_arapgl
            $project
          AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)) AS saldo,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
-         $dpt_join
          WHERE $sumwhere
-           $dpt_where
+           $dpt_where_without_arapgl
            $project
          AND amount > 0
          AND c.accno = ?) AS sum_credit,
@@ -952,18 +931,16 @@ sub trial_balance {
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
-         $dpt_join
          WHERE $sumwhere
-           $dpt_where
+           $dpt_where_without_arapgl
            $project
          AND amount < 0
          AND c.accno = ?) AS sum_debit,
 
         (SELECT max(ac.transdate) FROM acc_trans ac
         JOIN chart c ON (ac.chart_id = c.id)
-        $dpt_join
         WHERE $where
-          $dpt_where
+          $dpt_where_without_arapgl
           $project
         AND c.accno = ?) AS last_transaction
 
@@ -981,7 +958,6 @@ sub trial_balance {
            JOIN parts p ON (ac.parts_id = p.id)
            JOIN ap a ON (ac.trans_id = a.id)
            JOIN chart c ON (p.expense_accno_id = c.id)
-           $dpt_join
            WHERE $invwhere
              $dpt_where
              $project
@@ -992,7 +968,6 @@ sub trial_balance {
            JOIN parts p ON (ac.parts_id = p.id)
            JOIN ar a ON (ac.trans_id = a.id)
            JOIN chart c ON (p.income_accno_id = c.id)
-           $dpt_join
            WHERE $invwhere
              $dpt_where
              $project
@@ -1001,18 +976,16 @@ sub trial_balance {
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
-         $dpt_join
          WHERE $saldowhere
-           $dpt_where
+           $dpt_where_without_arapgl
            $project
          AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)) AS saldo,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
-         $dpt_join
          WHERE $sumwhere
-           $dpt_where
+           $dpt_where_without_arapgl
            $project
          AND amount > 0
          AND c.accno = ?) AS sum_credit,
@@ -1020,9 +993,8 @@ sub trial_balance {
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
-         $dpt_join
          WHERE $sumwhere
-           $dpt_where
+           $dpt_where_without_arapgl
            $project
          AND amount < 0
          AND c.accno = ?) AS sum_debit,
@@ -1030,9 +1002,8 @@ sub trial_balance {
 
         (SELECT max(ac.transdate) FROM acc_trans ac
         JOIN chart c ON (ac.chart_id = c.id)
-        $dpt_join
         WHERE $where
-          $dpt_where
+          $dpt_where_without_arapgl
           $project
         AND c.accno = ?) AS last_transaction
  |;
@@ -1470,12 +1441,10 @@ sub payments {
   }
 
   my ($query, $sth);
-  my $dpt_join;
   my $where;
 
   if ($form->{department_id}) {
-    $dpt_join = qq| JOIN dpt_trans t ON (t.trans_id = ac.trans_id) |;
-    $where = qq| AND (t.department_id = | . conv_i($form->{department_id}, 'NULL') . qq|) |;
+    $where = qq| AND (a.department_id = | . conv_i($form->{department_id}, 'NULL') . qq|) |;
   }
 
   if ($form->{fromdate}) {
@@ -1493,7 +1462,7 @@ sub payments {
   if ($form->{reference}) {
     $reference = $dbh->quote('%' . $form->{reference} . '%');
     $invnumber = " AND (a.invnumber LIKE $reference)";
-    $reference = " AND (g.reference LIKE $reference)";
+    $reference = " AND (a.reference LIKE $reference)";
   }
   if ($form->{source}) {
     $where .= " AND (ac.source ILIKE " . $dbh->quote('%' . $form->{source} . '%') . ") ";
@@ -1510,10 +1479,10 @@ sub payments {
     'memo'         => [ qw(lower_memo)                           ],
     );
   my %lowered_columns =  (
-    'invnumber'       => { 'gl' => 'g.reference',   'arap' => 'a.invnumber', },
+    'invnumber'       => { 'gl' => 'a.reference',   'arap' => 'a.invnumber', },
     'memo'            => { 'gl' => 'ac.memo',       'arap' => 'ac.memo',     },
     'source'          => { 'gl' => 'ac.source',     'arap' => 'ac.source',   },
-    'name'            => { 'gl' => 'g.description', 'arap' => 'c.name',      },
+    'name'            => { 'gl' => 'a.description', 'arap' => 'c.name',      },
     );
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
@@ -1540,20 +1509,18 @@ sub payments {
          FROM acc_trans ac
          JOIN $arap a ON (ac.trans_id = a.id)
          JOIN $table c ON (c.id = a.${table}_id)
-         $dpt_join
          WHERE (ac.chart_id = ?)
            $where
            $invnumber
 
          UNION
 
-         SELECT g.description, g.reference, NULL AS ordnumber,
+         SELECT a.description, a.reference, NULL AS ordnumber,
            ac.transdate, ac.amount * $ml AS paid, ac.source,
-           '0' as invoice, g.id, ac.memo, 'gl' AS module
+           '0' as invoice, a.id, ac.memo, 'gl' AS module
            $columns_for_sorting{gl}
          FROM acc_trans ac
-         JOIN gl g ON (g.id = ac.trans_id)
-         $dpt_join
+         JOIN gl a ON (a.id = ac.trans_id)
          WHERE (ac.chart_id = ?)
            $where
            $reference
@@ -1791,89 +1758,6 @@ sub bwa {
     }
 
   }
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-}
-
-sub ustva {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  my $last_period     = 0;
-  my @categories_cent = qw(51r 511 86r 861 97r 971 93r 931
-    96 66 43 45 53 62 65 67);
-  my @categories_euro = qw(48 51 86 91 97 93 94);
-  $form->{decimalplaces} *= 1;
-
-  foreach my $item (@categories_cent) {
-    $form->{"$item"} = 0;
-  }
-  foreach my $item (@categories_euro) {
-    $form->{"$item"} = 0;
-  }
-
-  &get_accounts_g($dbh, $last_period, $form->{fromdate}, $form->{todate}, $form, "pos_ustva");
-
-  #   foreach $item (@categories_cent) {
-  #     if ($form->{$item}{"jetzt"} > 0) {
-  #       $form->{$item} = $form->{$item}{"jetzt"};
-  #       delete $form->{$item}{"jetzt"};
-  #     }
-  #   }
-  #   foreach $item (@categories_euro) {
-  #     if ($form->{$item}{"jetzt"} > 0) {
-  #       $form->{$item} = $form->{$item}{"jetzt"};
-  #       delete $form->{$item}{"jetzt"};
-  #     }  foreach $item (@categories_cent) {
-  #     if ($form->{$item}{"jetzt"} > 0) {
-  #       $form->{$item} = $form->{$item}{"jetzt"};
-  #       delete $form->{$item}{"jetzt"};
-  #     }
-  #   }
-  #   foreach $item (@categories_euro) {
-  #     if ($form->{$item}{"jetzt"} > 0) {
-  #       $form->{$item} = $form->{$item}{"jetzt"};
-  #       delete $form->{$item}{"jetzt"};
-  #     }
-  #   }
-  #
-  #    }
-
-  #
-  # Berechnung der USTVA Formularfelder
-  #
-  $form->{"51r"} = $form->{"511"};
-  $form->{"86r"} = $form->{"861"};
-  $form->{"97r"} = $form->{"971"};
-  $form->{"93r"} = $form->{"931"};
-
-  #$form->{"96"}  = $form->{"94"} * 0.16;
-  $form->{"43"} =
-    $form->{"51r"} + $form->{"86r"} + $form->{"97r"} + $form->{"93r"} +
-    $form->{"96"};
-  $form->{"45"} = $form->{"43"};
-  $form->{"53"} = $form->{"43"};
-  $form->{"62"} = $form->{"43"} - $form->{"66"};
-  $form->{"65"} = $form->{"43"} - $form->{"66"};
-  $form->{"67"} = $form->{"43"} - $form->{"66"};
-
-  foreach my $item (@categories_cent) {
-    $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 2),
-                           2, '0');
-  }
-
-  foreach my $item (@categories_euro) {
-    $form->{$item} =
-      $form->format_amount($myconfig, $form->round_amount($form->{$item}, 0),
-                           0, '0');
-  }
-
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();

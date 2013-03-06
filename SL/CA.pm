@@ -113,7 +113,7 @@ sub all_accounts {
     LEFT JOIN tax tx ON (tk.tax_id = tx.id)
     WHERE 1=1
     $where
-    GROUP BY c.accno, c.id, c.description, c.charttype, c.gifi_accno,
+    GROUP BY c.accno, c.id, c.description, c.charttype,
       c.category, c.link, c.pos_bwa, c.pos_bilanz, c.pos_eur, c.valid_from,
       c.datevautomatik
     ORDER BY c.accno

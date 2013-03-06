@@ -1,4 +1,4 @@
-use Test::More tests => 44;
+use Test::More tests => 50;
 use Test::Exception;
 
 use strict;
@@ -206,7 +206,14 @@ reset_state();
 $item = get_item(8); $item->remove_from_list; $item->parent_id(3); $item->add_to_list(position => 'first');
 test_positions "add_to_list position 'first' in empty", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 3, 1 ];
 
-
+reset_state();
+$item = get_item(4);
+is($item->get_next_in_list->id,                           5, 'Next of 4 is 5');
+is($item->get_previous_in_list->id,                       3, 'Previous of 4 is 5');
+is($item->get_next_in_list->get_previous_in_list->id,     4, 'Previous of Next of 4 is 4');
+is($item->get_previous_in_list->get_next_in_list->id,     4, 'Next of Previous of 4 is 4');
+is($item->get_next_in_list->get_next_in_list,         undef, 'Next of Next of 4 is undef');
+is($item->get_previous_in_list->get_previous_in_list, undef, 'Previous of Previous of 4 is undef');
 
 # Parametervalidierung
 throws_ok { new_item()->move_position_up   } qr/not.*been.*saved/i, 'move up not saved yet';

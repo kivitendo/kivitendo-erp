@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]
+[% USE HTML %][%- USE LxERP -%]
  <script type="text/javascript" src="js/quicksearch_input.js"></script>
  <script type="text/javascript">
  <!--
@@ -24,6 +24,9 @@ $(clockon);
     [[% 'User' | $T8 %]: [% MYCONFIG.login | html %] -
     <a href="controller.pl?action=LoginScreen/logout" target="_top">[% 'logout' | $T8 %]</a>]
     [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
+ </span>
+ <span class="frame-header-element frame-header-right" id="ajax-spinner">
+  <img src="image/[% IF MYCONFIG.stylesheet == 'lx-office-erp.css' %]spinner-blue.gif[% ELSE %]spinner-white.gif[% END %]" alt="[% LxERP.t8('Loading...') %]">
  </span>
 </div>
  <div id="menuv3">
