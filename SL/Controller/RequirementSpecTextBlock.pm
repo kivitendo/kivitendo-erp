@@ -17,7 +17,7 @@ use Rose::Object::MakeMethods::Generic
  scalar => [ qw(requirement_spec text_block) ],
 );
 
-__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit update dragged_and_dropped)]);
+__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete dragged_and_dropped)]);
 
 #
 # actions
@@ -70,12 +70,13 @@ sub action_ajax_edit {
   my $html             = $self->render('requirement_spec_text_block/_form', { output => 0 }, PREDEFINED_TEXTS => $predefined_texts);
 
   $js->hide('#text-block-' . $self->text_block->id)
+     ->remove('#edit_text_block_' . $self->text_block->id . '_form')
      ->insertAfter($html, '#text-block-' . $self->text_block->id)
      ->jstree->select_node('#tree', '#tb-' . $self->text_block->id)
      ->render($self);
 }
 
-sub action_update {
+sub action_ajax_update {
   my ($self, %params) = @_;
 
   my $prefix     = $::form->{form_prefix} || 'text_block';
@@ -96,6 +97,24 @@ sub action_update {
     ->render($self);
 }
 
+sub action_ajax_delete {
+  my ($self) = @_;
+
+  my $js = SL::ClientJS->new;
+
+  my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
+  if ($self->text_block->output_position == $current_where) {
+    $js->remove('#edit_text_block_' . $self->text_block->id . '_form')
+       ->remove('#text-block-' . $self->text_block->id);
+
+    $js->show('#text-block-list-empty') if 1 == scalar @{ $self->text_block->get_full_list };
+  }
+
+  $self->text_block->delete;
+
+  $js->jstree->delete_node('#tree', '#tb-' . $self->text_block->id)
+     ->render($self);
+}
 
 sub action_dragged_and_dropped {
   my ($self)       = @_;
@@ -153,10 +172,6 @@ sub action_dragged_and_dropped {
       }
     }
   }
-
-  $::lxdebug->message(0, "old $old_where current $current_where new $new_where");
-
-  $::lxdebug->dump(0, "actions", $js);
 
   $self->render($js);
 }

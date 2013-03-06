@@ -205,7 +205,7 @@ function delete_text_block(key, opt) {
 function submit_edit_text_block_form(id_base) {
   var url  = "controller.pl?" + $('#' + id_base + '_form').serialize();
   var data = {
-    action:      'RequirementSpecTextBlock/update.js',
+    action:      'RequirementSpecTextBlock/ajax_update',
     id:          $('#' + id_base + '_id').val(),
     form_prefix: id_base
   };

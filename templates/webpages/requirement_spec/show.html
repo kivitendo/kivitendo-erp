@@ -28,7 +28,7 @@
   [% L.hidden_tag('current_content_id',   SELF.requirement_spec_item.id) %]
 
   <div id="column-content">
-   [%- IF SELF.requirement_spec_item && SELF.requirement_spec_item.id -%]
+   [%- IF SELF.requirement_spec_item -%]
     [%- INCLUDE 'requirement_spec_item/_single_section.html' requirement_spec_item=SELF.requirement_spec_item -%]
    [%- ELSE -%]
     no section
@@ -101,7 +101,10 @@
          plugins: [ "themes", "json_data", "ui", "crrm", "dnd" ]
        })
        .bind("move_node.jstree", requirement_spec_tree_node_moved)
-       .bind("click.jstree",     requirement_spec_tree_node_clicked)
+       .bind("click.jstree",     requirement_spec_tree_node_clicked);
+[%- IF SELF.requirement_spec_item -%]
+       $.jstree._reference("#tree").select_node('fb-[% SELF.requirement_spec_item.id %]', true);
+[%- END -%]
      });
 
 function ask_delete_text_block(key, opt) {
