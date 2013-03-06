@@ -13,6 +13,8 @@ use Rose::Object::MakeMethods::Generic
 );
 
 my %supported_methods = (
+  # ## jQuery basics ##
+
   # Basic effects
   hide         => 1,
   show         => 1,
@@ -56,6 +58,31 @@ my %supported_methods = (
   # Data storage
   data         => 3,
   removeData   => 2,
+
+  # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
+
+  # Operations on the whole tree
+  'jstree:lock'          => 1,
+  'jstree:unlock'        => 1,
+
+  # Opening and closing nodes
+  'jstree:open_node'     => 2,
+  'jstree:open_all'      => 2,
+  'jstree:close_node'    => 2,
+  'jstree:close_all'     => 2,
+  'jstree:toggle_node'   => 2,
+  'jstree:save_opened'   => 1,
+  'jstree:reopen'        => 1,
+
+  # Modifying nodes
+  'jstree:rename_node'   => 3,
+  'jstree:delete_node'   => 2,
+  'jstree:move_node'     => 5,
+
+  # Selecting nodes (from the 'ui' plugin to jstree)
+  'jstree:select_node'   => 2,  # $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>, true)
+  'jstree:deselect_node' => 2,
+  'jstree:deselect_all'  => 1,
 );
 
 sub AUTOLOAD {
@@ -67,8 +94,8 @@ sub AUTOLOAD {
   $method           =~ s/.*:://;
   return if $method eq 'DESTROY';
 
+  $method      =  (delete($self->{_prefix}) || '') . $method;
   my $num_args =  $supported_methods{$method};
-  $::lxdebug->message(0, "autoload method $method");
 
   croak "Unsupported jQuery action: $method"                                                    unless defined $num_args;
   croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)" if     scalar(@args) != $num_args;
@@ -101,6 +128,12 @@ sub to_array {
 sub render {
   my ($self, $controller) = @_;
   return $controller->render(\$self->to_json, { type => 'json' });
+}
+
+sub jstree {
+  my ($self) = @_;
+  $self->{_prefix} = 'jstree:';
+  return $self;
 }
 
 1;
@@ -152,8 +185,17 @@ Now some Perl code:
     my $html = $self->render('SomeController/the_action', { output => 0 });
     $js->html('#id_with_new_content', $html);
 
+    # Operations on a jstree: rename a node and select it
+    my $text_block = SL::DB::RequirementSpecTextBlock->new(id => 4711)->load;
+    $js->jstree->rename_node('#tb-' . $text_block->id, $text_block->title)
+       ->jstree->select_node('#tb-' . $text_block->id);
+
     # Finally render the JSON response:
     $self->render($js);
+
+    # Rendering can also be chained, e.g.
+    $js->html('#selector', $html)
+       ->render($self);
   }
 
 =head1 OVERVIEW
@@ -210,6 +252,13 @@ to the following:
 
   $controller->render(\$self->to_json, { type => 'json' });
 
+=item C<jstree>
+
+Tells C<$self> that the next action is to be called on a jstree
+instance. For example:
+
+  $js->jstree->rename_node('tb-' . $text_block->id, $text_block->title);
+
 =back
 
 =head1 FUNCTIONS EVALUATED ON THE CLIENT SIDE
@@ -254,13 +303,38 @@ C<data>, C<removeData>
 
 =back
 
+=head2 JSTREE JQUERY PLUGIN
+
+The following functions of the C<jstree> plugin to jQuery are
+supported:
+
+=over 4
+
+=item Operations on the whole tree
+
+C<lock>, C<unlock>
+
+=item Opening and closing nodes
+
+C<open_node>, C<close_node>, C<toggle_node>, C<open_all>,
+C<close_all>, C<save_opened>, C<reopen>
+
+=item Modifying nodes
+
+C<rename_node>, C<delete_node>, C<move_node>
+
+=item Selecting nodes (from the 'ui' jstree plugin)
+
+C<select_node>, C<deselect_node>, C<deselect_all>
+
+=back
+
 =head1 ADDING SUPPORT FOR ADDITIONAL FUNCTIONS
 
 In order not having to maintain two files (this one and
 C<js/client_js.js>) there's a script that can parse this file's
-C<%supported_methods> definition and convert it into the appropriate
-code ready for manual insertion into C<js/client_js.js>. The steps
-are:
+C<%supported_methods> definition and generate the file
+C<js/client_js.js> accordingly. The steps are:
 
 =over 2
 
@@ -268,12 +342,16 @@ are:
 key is the function name and the value is the number of expected
 parameters.
 
-=item 2. Run C<scripts/generate_client_js_actions.pl>
+=item 2. Run C<scripts/generate_client_js_actions.pl>. It will
+generate C<js/client_js.js> automatically.
 
-=item 3. Edit C<js/client_js.js> and replace the type casing code with
-the output generated in step 2.
+=item 3. Reload the files in your browser (cleaning its cache can also
+help).
 
 =back
+
+The template file used for generated C<js/client_js.js> is
+C<scripts/generate_client_js_actions.tpl>.
 
 =head1 BUGS
 
