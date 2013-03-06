@@ -7,7 +7,7 @@ namespace("kivi", function(ns) {
     if( ns._localeLang ) {
       if( !ns._locales[ns._localeLang] ) {
         jQuery.ajax({
-          url: "locale/"+ ns._localeLang +"/js.js",
+          url: "js/locale/"+ ns._localeLang +".js",
           async: false,
           dataType: "json",
           success: function(res) {
