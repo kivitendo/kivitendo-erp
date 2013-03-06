@@ -13,7 +13,7 @@
 
  [%- IF PREDEFINED_TEXTS.size %]
   <tr>
-   <th align="right">[%- LxERP.t8("Pre-defined text block") %]:</th>
+   <th align="right">[%- LxERP.t8("Pre-defined Texts") %]:</th>
    <td>
     [%- L.select_tag(id_base _ '_predefined_text_block', PREDEFINED_TEXTS, title_key='description', style=style) %]
     <a href="#" onclick="insert_selected_predefined_text()">[%- LxERP.t8("Insert") %]</a>

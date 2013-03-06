@@ -24,7 +24,7 @@ sub action_list {
   my ($self) = @_;
 
   $self->render('requirement_spec_predefined_text/list',
-                title                             => t8('Predefined Texts'),
+                title                             => t8('Pre-defined Texts'),
                 REQUIREMENT_SPEC_PREDEFINED_TEXTS => SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted);
 }
 

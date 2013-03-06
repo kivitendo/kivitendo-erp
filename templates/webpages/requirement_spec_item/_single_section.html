@@ -14,12 +14,7 @@
 <div id="new_subitem_form" class="subitem-form clearfix">
 </div>
 <div id="new_subitem_link" class="highlight-box" style="[%- 'display:none' IF requirement_spec_item.children.size -%]">
-  [%#- link_to_remote LxERP.t8("FIXME no_function_blocks_have_been_created_for_this_section_yet) + " " + t(:create_a_function_block_now"),
-                      :url    => new_requirement_spec_requirement_spec_item_url(requirement_spec_item.requirement_spec,
-                      :requirement_spec_item_id => requirement_spec_item.id),
-                      :method => :get,
-                      :update => "new_subitem_form",
-                      :loading => "$('new_subitem_link').hide();" -%]
+ [%- LxERP.t8("No function blocks have been created yet.") %]
 </div>
 
 <script type="text/javascript">
