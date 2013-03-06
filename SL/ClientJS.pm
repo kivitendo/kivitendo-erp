@@ -98,6 +98,11 @@ sub to_array {
   return $self->_actions;
 }
 
+sub render {
+  my ($self, $controller) = @_;
+  return $controller->render(\$self->to_json, { type => 'json' });
+}
+
 1;
 __END__
 
@@ -197,6 +202,13 @@ are the function parameters.
 
 Returns the actions gathered so far as a JSON string ready to be sent
 to the client.
+
+=item C<render $controller>
+
+Renders C<$self> via the controller. Useful for chaining. Equivalent
+to the following:
+
+  $controller->render(\$self->to_json, { type => 'json' });
 
 =back
 
