@@ -1,4 +1,4 @@
-package SL::Presenter::RequirementSpec;
+package SL::Presenter::RequirementSpecTextBlock;
 
 use strict;
 
@@ -17,7 +17,7 @@ sub requirement_spec_text_block_jstree_data {
   return {
     data     => $text_block->title || '',
     metadata => { id =>         $text_block->id, type => 'textblock' },
-    attr     => { id => "tb-" . $text_block->id, href => $params{href} || '#' },
+    attr     => { id => "tb-" . $text_block->id, href => $params{href} || '#', class => 'text-block-context-menu' },
   };
 }
 
