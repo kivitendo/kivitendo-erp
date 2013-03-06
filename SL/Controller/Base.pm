@@ -60,6 +60,9 @@ sub render {
   my $template           = shift;
   my ($options, %locals) = (@_ && ref($_[0])) ? @_ : ({ }, @_);
 
+  # Special handling/shortcut for an instance of SL::ClientJS:
+  return $self->render(\$template->to_json, { type => 'json' }) if ref($template) eq 'SL::ClientJS';
+
   # Set defaults for all available options.
   my %defaults = (
     type       => 'html',
