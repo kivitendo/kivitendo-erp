@@ -4,7 +4,7 @@ use strict;
 
 use parent qw(Exporter);
 our @EXPORT = qw(move_position_up move_position_down add_to_list remove_from_list reorder_list configure_acts_as_list
-                 get_previous_in_list get_next_in_list);
+                 get_previous_in_list get_next_in_list get_full_list);
 
 use Carp;
 
@@ -121,6 +121,16 @@ sub get_next_in_list {
 sub get_previous_in_list {
   my ($self) = @_;
   return get_previous_or_next($self, 'previous');
+}
+
+sub get_full_list {
+  my ($self) = @_;
+
+  my $group_by = get_spec(ref $self, 'group_by') || [];
+  $group_by    = [ $group_by ] if $group_by && !ref $group_by;
+  my @where    = map { ($_ => $self->$_) } @{ $group_by };
+
+  return $self->_get_manager_class->get_all(where => \@where, sort_by => column_name($self) . ' ASC');
 }
 
 sub reorder_list {
@@ -416,6 +426,11 @@ already the first one.
 
 Fetches the next item in the list. Returns C<undef> if C<$self> is
 already the last one.
+
+=item C<get_full_list>
+
+Fetches all items in the same list as C<$self> and returns them as an
+array reference.
 
 =item C<reorder_list @ids>
 
