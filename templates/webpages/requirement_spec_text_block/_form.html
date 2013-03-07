@@ -1,6 +1,15 @@
 [%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE JavaScript -%][% SET style="width: 500px" %]
 [% DEFAULT id_base = 'edit_text_block_' _ SELF.text_block.id %]
 <form method="post" id="[% id_base %]_form">
+ <h2>
+  [%- IF SELF.text_block.id %]
+   [%- SET title = SELF.text_block.title || '(' _ LxERP.t8('No title yet') _ ')' %]
+   [%- LxERP.t8("Edit text block '#1'", title) %]
+  [%- ELSE %]
+   [%- LxERP.t8("Add text block") %]
+  [%- END %]
+ </h2>
+
  [% L.hidden_tag(id_base _ '_id',                  SELF.text_block.id) %]
  [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.text_block.requirement_spec_id) %]
  [% L.hidden_tag(id_base _ '.output_position',     SELF.text_block.output_position) %]
@@ -11,11 +20,11 @@
    <td>[% L.input_tag(id_base _ '.title', SELF.text_block.title, style = style) %]</td>
   </tr>
 
- [%- IF PREDEFINED_TEXTS.size %]
+ [%- IF SELF.predefined_texts.size %]
   <tr>
    <th align="right">[%- LxERP.t8("Pre-defined Texts") %]:</th>
    <td>
-    [%- L.select_tag(id_base _ '_predefined_text_block', PREDEFINED_TEXTS, title_key='description', style=style) %]
+    [%- L.select_tag(id_base _ '_predefined_text_block', SELF.predefined_texts, title_key='description', style=style) %]
     <a href="#" onclick="insert_selected_predefined_text()">[%- LxERP.t8("Insert") %]</a>
    </td>
   </tr>
@@ -32,12 +41,12 @@
   <a href="#" onclick="cancel_edit_text_block_form('[% id_base %]')">[%- LxERP.t8("Cancel") %]</a>
  </p>
 
-[%- IF PREDEFINED_TEXTS.size %]
+[%- IF SELF.predefined_texts.size %]
  <script type="text/javascript">
 <!--
 function insert_selected_predefined_text() {
   var data = {
-[%- FOREACH pt = PREDEFINED_TEXTS %]
+[%- FOREACH pt = SELF.predefined_texts %]
     [% HTML.escape(pt.id) %]: {
       title: "[% JavaScript.escape(pt.title) %]",
       text: "[% JavaScript.escape(pt.text) %]"

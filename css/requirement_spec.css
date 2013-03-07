@@ -14,11 +14,11 @@ table.rs_input_field input, table.rs_input_field select {
 #tree-column {
   float: left;
   width: 25%;
-  border-right: 1px solid black;
 }
 
 #content-column {
-  float: left;
+  float: right;
+  width: 74%;
   padding-left: 10px;
 }
 

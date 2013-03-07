@@ -23,7 +23,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('setup');
-__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    edit        update show destroy tree) ]);
+__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    edit        update show destroy) ]);
 __PACKAGE__->run_before('load_select_options',        only => [ qw(new edit create update list) ]);
 __PACKAGE__->run_before('load_search_select_options', only => [ qw(                       list) ]);
 
@@ -116,11 +116,6 @@ sub action_reorder {
   SL::DB::RequirementSpec->reorder_list(@{ $::form->{requirement_spec_id} || [] });
 
   $self->render('1;', { type => 'js', inline => 1 });
-}
-
-sub action_tree {
-  my ($self) = @_;
-  my $r = $self->render('requirement_spec/tree', now => DateTime->now);
 }
 
 #

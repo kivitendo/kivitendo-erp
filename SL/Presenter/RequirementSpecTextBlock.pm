@@ -16,7 +16,7 @@ sub requirement_spec_text_block_jstree_data {
 
   return {
     data     => $text_block->title || '',
-    metadata => { id =>         $text_block->id, type => 'textblock' },
+    metadata => { id =>         $text_block->id, type => 'text-block' },
     attr     => { id => "tb-" . $text_block->id, href => $params{href} || '#', class => 'text-block-context-menu' },
   };
 }

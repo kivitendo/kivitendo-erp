@@ -12,14 +12,7 @@
 </div>
 
 <div id="column-container">
- <div id="tree-column" style="border-right: 1px solid black">
-  <div style="min-height: 32px; height: 32px;">
-   <div style="float: left">
-    [% L.button_tag("new_section_form()", LxERP.t8("New section"), id="new-section-button") %]
-   </div>
-   <div id="spinner" class="clearfix" style="float: right; display: none; background:url('js/themes/requirement-spec/throbber.gif') center center no-repeat !important; min-height: 32px; height: 32px; min-width: 32px; width: 32px;"></div>
-  </div>
-
+ <div id="tree-column">
   <div id="tree"></div>
  </div>
 
@@ -42,7 +35,7 @@
  <!--
      var tree_data = [
        { data:     [% JSON.json(LxERP.t8("Text blocks front")) %],
-         metadata: { type: "textblocks-front" },
+         metadata: { type: "text-blocks-front" },
          attr:     { id: "tb-front", class: "text-block-context-menu" },
          children: [
 [% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(0) %]
@@ -63,7 +56,7 @@
        },
 
        { data:     [% JSON.json(LxERP.t8("Text blocks back")) %],
-         metadata: { type: "textblocks-back" },
+         metadata: { type: "text-blocks-back" },
          attr:     { id: "tb-back", class: "text-block-context-menu" },
          children: [
 [% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(1) %]
@@ -109,7 +102,7 @@
 
 function ask_delete_text_block(key, opt) {
   if (confirm("[% LxERP.t8("Are you sure?") %]"))
-    delete_text_block(key, opt);
+    standard_text_block_ajax_call(key, opt);
   return true;
 }
 
@@ -117,8 +110,8 @@ $(function(){
     $.contextMenu({
         selector: '.text-block-context-menu',
         items: {
-          add:    { name: "[% LxERP.t8('Add text block') %]", icon: "add", callback: add_text_block },
-          edit:   { name: "[% LxERP.t8('Edit text block') %]", icon: "edit", callback: edit_text_block, disabled: disable_edit_text_block_commands },
+          add:    { name: "[% LxERP.t8('Add text block') %]", icon: "add", callback: standard_text_block_ajax_call },
+          edit:   { name: "[% LxERP.t8('Edit text block') %]", icon: "edit", callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands },
           delete: { name: "[% LxERP.t8('Delete text block') %]", icon: "delete", callback: ask_delete_text_block, disabled: disable_edit_text_block_commands },
           sep1:   "---------",
           copy:   { name: "[% LxERP.t8('Copy') %]", icon: "copy", disabled: disable_edit_text_block_commands },

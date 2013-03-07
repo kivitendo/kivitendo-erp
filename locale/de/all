@@ -892,6 +892,7 @@ $self->{texts} = {
   'Edit section #1'             => 'Abschnitt #1 bearbeiten',
   'Edit templates'              => 'Vorlagen bearbeiten',
   'Edit text block'             => 'Textblock bearbeiten',
+  'Edit text block \'#1\''      => 'Textblock \'#1\' bearbeiten',
   'Edit the Delivery Order'     => 'Lieferschein bearbeiten',
   'Edit the configuration for periodic invoices' => 'Konfiguration für wiederkehrende Rechnungen bearbeiten',
   'Edit the currency names in order to rename them.' => 'Bearbeiten Sie den Namen, um eine Währung umzubennen.',
