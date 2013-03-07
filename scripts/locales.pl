@@ -29,6 +29,7 @@ my $debug  = 0;
 
 parse_args();
 
+my $locale;
 my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
@@ -36,12 +37,14 @@ my @progdirs     = ( "$basedir/SL" );
 my $dbupdir      = "$basedir/sql/Pg-upgrade";
 my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
 my $menufile     = "menu.ini";
+my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages');
+my $javascript_output_dir = $basedir .'/js';
 my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
 our $self        = {};
 our $missing     = {};
 our @lost        = ();
 
-my (%referenced_html_files, %locale, %htmllocale, %alllocales, %cached, %submit);
+my (%referenced_html_files, %locale, %htmllocale, %alllocales, %cached, %submit, %jslocale);
 my ($ALL_HEADER, $MISSING_HEADER, $LOST_HEADER);
 
 init();
@@ -123,6 +126,10 @@ handle_file($_, $dbupdir)  for @dbplfiles;
 handle_file($_, $dbupdir2) for @dbplfiles2;
 scanmenu($_)               for @menufiles;
 
+for my $file_name (map({find_files($_)} @javascript_dirs)) {
+  scan_javascript_file($file_name);
+}
+
 # merge entries to translate with entries from files 'missing' and 'lost'
 merge_texts();
 
@@ -133,6 +140,16 @@ generate_file(
   data_name => '$self->{texts}',
   data_sub  => sub { _print_line($_, $self->{texts}{$_}, @_) for sort keys %alllocales },
 );
+
+open(my $js_file, '>:encoding(utf8)', $javascript_output_dir .'/locale/'. $locale .'js') || die;
+print $js_file '{';
+my $first_entry = 1;
+for my $key (sort(keys(%jslocale))) {
+  print $js_file ((!$first_entry ? ',' : '') ."\n". _double_quote($key) .':'. _double_quote($self->{texts}{$key}));
+  $first_entry = 0;
+}
+print $js_file ("\n".'}'."\n");
+close($js_file);
 
   foreach my $text (keys %$missing) {
     if ($locale{$text} || $htmllocale{$text}) {
@@ -233,6 +250,9 @@ sub parse_args {
     my $ok  = 0;
     foreach my $dir ("../locale/$arg", "locale/$arg", "../$arg", $arg) {
       next unless -d $dir && -f "$dir/all" && -f "$dir/LANGUAGE";
+
+      $locale = $arg;
+
       $ok = chdir $dir;
       last;
     }
@@ -392,7 +412,7 @@ sub scanfile {
       while ($rc) {
         if (/Locale/) {
           unless (/^use /) {
-            my ($null, $country) = split /,/;
+            my ($null, $country) = split(/,/);
             $country =~ s/^ +[\"\']//;
             $country =~ s/[\"\'].*//;
           }
@@ -586,6 +606,31 @@ sub scanhtmlfile {
   $referenced_html_files{$_} = 1 for keys %{$cached{$file}{scanh}};
 }
 
+sub scan_javascript_file {
+  my ($file) = @_;
+
+  open(my $fh, $file) || die('can not open file: '. $file);
+
+  while( my $line = readline($fh) ) {
+    while( $line =~ m/
+                    kivi.t8
+                    \s*
+                    \(
+                    \s*
+                    ([\'\"])
+                    (.*?)
+                    (?<!\\)\1
+                    /ixg )
+    {
+      my $text = unescape_template_string($2);
+
+      $jslocale{$text} = 1;
+      $alllocales{$text} = 1;
+    }
+  }
+
+  close($fh);
+}
 sub search_unused_htmlfiles {
   my @unscanned_dirs = ('../../templates/webpages');
 
@@ -617,6 +662,12 @@ sub _single_quote {
   my $val = shift;
   $val =~ s/(\'|\\$)/\\$1/g;
   return  "'" . $val .  "'";
+}
+
+sub _double_quote {
+  my $val = shift;
+  $val =~ s/(\"|\\$)/\\$1/g;
+  return  '"'. $val .'"';
 }
 
 sub _print_line {

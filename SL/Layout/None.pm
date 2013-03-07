@@ -28,6 +28,7 @@ sub use_javascript {
   qw(
     js/jquery.js
     js/common.js
+    js/namespace.js
   ),
   $self->SUPER::use_javascript(@_);
 }
