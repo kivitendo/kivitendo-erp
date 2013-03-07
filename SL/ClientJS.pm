@@ -59,6 +59,9 @@ my %supported_methods = (
   data         => 3,
   removeData   => 2,
 
+  # Form Events
+  focus        => 1,
+
   # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
 
   # Operations on the whole tree
@@ -93,6 +96,11 @@ sub AUTOLOAD {
   my $method        =  $AUTOLOAD;
   $method           =~ s/.*:://;
   return if $method eq 'DESTROY';
+  return $self->action($method, @args);
+}
+
+sub action {
+  my ($self, $method, @args) = @_;
 
   $method      =  (delete($self->{_prefix}) || '') . $method;
   my $num_args =  $supported_methods{$method};
@@ -263,6 +271,36 @@ instance. For example:
 
 =head1 FUNCTIONS EVALUATED ON THE CLIENT SIDE
 
+=head2 GENERIC FUNCTION
+
+All of the following functions can be invoked in two ways: either by
+calling the function name directly on C<$self> or by calling
+L</action> with the function name as the first parameter. Therefore
+the following two calls are identical:
+
+  $js->insertAfter($html, '#some-id');
+  $js->action('insertAfter', $html, '#some-id');
+
+The second form, calling L</action>, is more to type but can be useful
+in situations in which you have to call one of two functions depending
+on context. For example, when you want to insert new code in a
+list. If the list is empty you might have to use C<appendTo>, if it
+isn't you might have to use C<insertAfter>. Example:
+
+  my $html = $self->render(...);
+  $js->action($list_is_empty ? 'appendTo' : 'insertAfter', $html, '#text-block-' . ($list_is_empty ? 'list' : $self->text_block->id));
+
+Instead of:
+
+  my $html = $self->render(...);
+  if ($list_is_empty) {
+    $js->appendTo($html, '#text-block-list');
+  } else {
+    $js->insertAfter($html, '#text-block-' . $self->text_block->id);
+  }
+
+The first variation is obviously better suited for chaining.
+
 =head2 JQUERY FUNCTIONS
 
 The following jQuery functions are supported:
@@ -300,6 +338,10 @@ C<attr>, C<prop>, C<removeAttr>, C<removeProp>, C<val>
 =item Data storage
 
 C<data>, C<removeData>
+
+=item Form Events
+
+C<focus>
 
 =back
 

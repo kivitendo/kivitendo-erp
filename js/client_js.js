@@ -60,6 +60,9 @@ function eval_json_result(data) {
       else if (action[0] == 'data')                 $(action[1]).data(action[2], action[3]);
       else if (action[0] == 'removeData')           $(action[1]).removeData(action[2]);
 
+      // Form Events
+      else if (action[0] == 'focus')                $(action[1]).focus();
+
       // ## jstree plugin ##
 
       // Operations on the whole tree
