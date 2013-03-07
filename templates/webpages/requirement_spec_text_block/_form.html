@@ -13,6 +13,9 @@
  [% L.hidden_tag(id_base _ '_id',                  SELF.text_block.id) %]
  [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.text_block.requirement_spec_id) %]
  [% L.hidden_tag(id_base _ '.output_position',     SELF.text_block.output_position) %]
+ [% IF insert_after %]
+  [% L.hidden_tag(id_base _ '.insert_after',       insert_after) %]
+ [% END %]
 
  <table>
   <tr>

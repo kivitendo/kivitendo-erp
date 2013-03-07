@@ -54,6 +54,34 @@ sub action_ajax_list {
   $self->render($js);
 }
 
+sub action_ajax_add {
+  my ($self) = @_;
+
+  my $js            = SL::ClientJS->new;
+
+  my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
+  my $new_where     = $self->output_position_from_id($::form->{id})                                                  // $::form->{output_position};
+
+  if ($new_where != $current_where) {
+    my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where, requirement_spec_id => $::form->{requirement_spec_id} ]);
+    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
+
+    $js->html('#column-content', $html);
+  }
+
+  $self->text_block(SL::DB::RequirementSpecTextBlock->new(
+    requirement_spec_id => $::form->{requirement_spec_id},
+    output_position     => $::form->{output_position},
+  ));
+
+  my $id_base = join('_', 'new_text_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  my $html    = $self->render('requirement_spec_text_block/_form', { output => 0 }, id_base => $id_base, insert_after => $::form->{id});
+
+  $js->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'))
+     ->focus('#' . $id_base . '_title')
+     ->render($self);
+}
+
 sub action_ajax_edit {
   my ($self) = @_;
 
@@ -79,39 +107,41 @@ sub action_ajax_edit {
      ->render($self);
 }
 
+sub action_ajax_create {
+  my ($self, %params) = @_;
+
+  my $attributes   = $::form->{ $::form->{form_prefix} } || die "Missing attributes";
+  my $insert_after = delete $attributes->{insert_after};
+
+  my @errors = $self->text_block(SL::DB::RequirementSpecTextBlock->new(%{ $attributes }))->validate;
+  return SL::ClientJS->new->error(@errors)->render($self) if @errors;
+
+  $self->text_block->save;
+  $self->text_block->add_to_list(position => 'after', reference => $insert_after) if $insert_after;
+
+  my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
+  my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
+
+  SL::ClientJS->new
+    ->replaceWith('#' . $::form->{form_prefix} . '_form', $html)
+    ->jstree->create_node('#tree', $insert_after ? ('#tb-' . $insert_after, 'after') : ('#tb-' . ($attributes->{output_position} == 0 ? 'front' : 'back'), 'last'), $node)
+    ->render($self);
+}
+
 sub action_ajax_update {
   my ($self, %params) = @_;
 
   my $prefix     = $::form->{form_prefix} || 'text_block';
   my $attributes = $::form->{$prefix}     || {};
 
-  foreach (qw(requirement_spec_id output_position)) {
+  foreach (qw(requirement_spec_id output_position position)) {
     delete $attributes->{$_} if !defined $attributes->{$_};
   }
 
-  $self->text_block->update_attributes(%{ $attributes });
+  my @errors = $self->text_block->assign_attributes(%{ $attributes })->validate;
+  return SL::ClientJS->new->error(@errors)->render($self) if @errors;
 
-  my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
-
-  SL::ClientJS->new
-    ->remove('#' . $prefix . '_form')
-    ->replaceWith('#text-block-' . $self->text_block->id, $html)
-    ->jstree->rename_node('#tree', '#tb-' . $self->text_block->id, $self->text_block->title)
-    ->render($self);
-}
-
-sub action_ajax_create {
-  # TODO: ajax_create
-  my ($self, %params) = @_;
-
-  my $prefix     = $::form->{form_prefix} || 'text_block';
-  my $attributes = $::form->{$prefix}     || {};
-
-  foreach (qw(requirement_spec_id output_position)) {
-    delete $attributes->{$_} if !defined $attributes->{$_};
-  }
-
-  $self->text_block->update_attributes(%{ $attributes });
+  $self->text_block->save;
 
   my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
 
@@ -138,34 +168,6 @@ sub action_ajax_delete {
   $self->text_block->delete;
 
   $js->jstree->delete_node('#tree', '#tb-' . $self->text_block->id)
-     ->render($self);
-}
-
-sub action_ajax_add {
-  my ($self) = @_;
-
-  my $js = SL::ClientJS->new;
-
-  my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
-  my $new_where     = $self->output_position_from_id($::form->{id})                                                  // $::form->{output_position};
-
-  if ($new_where != $current_where) {
-    my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where, requirement_spec_id => $::form->{requirement_spec_id} ]);
-    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
-
-    $js->html('#column-content', $html);
-  }
-
-  $self->text_block(SL::DB::RequirementSpecTextBlock->new(
-    requirement_spec_id => $::form->{requirement_spec_id},
-    output_position     => $::form->{output_position},
-  ));
-
-  my $id_base = join('_', 'new_text_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  my $html    = $self->render('requirement_spec_text_block/_form', { output => 0 }, id_base => $id_base);
-
-  $js->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'))
-     ->focus('#' . $id_base . '_title')
      ->render($self);
 }
 
