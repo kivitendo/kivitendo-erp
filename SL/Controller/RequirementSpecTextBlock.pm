@@ -11,7 +11,6 @@ use SL::DB::RequirementSpec;
 use SL::DB::RequirementSpecPredefinedText;
 use SL::DB::RequirementSpecTextBlock;
 use SL::Helper::Flash;
-use SL::JSON;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
