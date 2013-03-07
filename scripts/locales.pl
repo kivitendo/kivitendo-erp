@@ -10,6 +10,7 @@ use utf8;
 use strict;
 
 use Carp;
+use Cwd;
 use Data::Dumper;
 use English;
 use File::Slurp qw(slurp);
@@ -141,7 +142,7 @@ generate_file(
   data_sub  => sub { _print_line($_, $self->{texts}{$_}, @_) for sort keys %alllocales },
 );
 
-open(my $js_file, '>:encoding(utf8)', $javascript_output_dir .'/locale/'. $locale .'js') || die;
+open(my $js_file, '>:encoding(utf8)', $javascript_output_dir .'/locale/'. $locale .'.js') || die;
 print $js_file '{';
 my $first_entry = 1;
 for my $key (sort(keys(%jslocale))) {
@@ -267,6 +268,9 @@ sub parse_args {
       .   "and no locale directory name was given.\n";
     exit 1;
   }
+
+  $locale ||=  (grep { $_ } split m:/:, getcwd())[-1];
+  $locale   =~ s/\.+$//;
 }
 
 sub handle_file {
