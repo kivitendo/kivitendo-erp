@@ -94,6 +94,7 @@ function eval_json_result(data) {
       else if (action[0] == 'jstree:reopen')        $.jstree._reference($(action[1])).reopen();
 
       // Modifying nodes
+      else if (action[0] == 'jstree:create_node')   $.jstree._reference($(action[1])).create_node(action[2], action[3], action[4]);
       else if (action[0] == 'jstree:rename_node')   $.jstree._reference($(action[1])).rename_node(action[2], action[3]);
       else if (action[0] == 'jstree:delete_node')   $.jstree._reference($(action[1])).delete_node(action[2]);
       else if (action[0] == 'jstree:move_node')     $.jstree._reference($(action[1])).move_node(action[2], action[3], action[4], action[5]);

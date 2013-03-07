@@ -81,6 +81,7 @@ my %supported_methods = (
   'jstree:reopen'        => 1,
 
   # Modifying nodes
+  'jstree:create_node'   => 4,
   'jstree:rename_node'   => 3,
   'jstree:delete_node'   => 2,
   'jstree:move_node'     => 5,
