@@ -361,3 +361,7 @@ label {
 	margin-bottom: 5px;
 	padding: 5px;
 }
+
+.flash_title {
+  font-weight: bold;
+}

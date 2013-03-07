@@ -377,6 +377,10 @@ label {
   padding: 5px;
 }
 
+.flash_title {
+  font-weight: bold;
+}
+
 .jqmWindow {
   display: none;
 
