@@ -1,4 +1,4 @@
-use Test::More tests => 50;
+use Test::More tests => 51;
 use Test::Exception;
 
 use strict;
@@ -205,6 +205,10 @@ test_positions "add_to_list position 'last' in empty", [ 1, undef, 1 ], [ 2, und
 reset_state();
 $item = get_item(8); $item->remove_from_list; $item->parent_id(3); $item->add_to_list(position => 'first');
 test_positions "add_to_list position 'first' in empty", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 4, 1, 2 ], [ 5, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 3, 1 ];
+
+reset_state();
+$item = get_item(5); $item->add_to_list(position => 'after', reference => 3);
+test_positions "add_to_list without prior remove_from_list", [ 1, undef, 1 ], [ 2, undef, 2 ], [ 3, 1, 1 ], [ 5, 1, 2 ], [ 4, 1, 3 ], [ 6, 4, 1 ], [ 7, 4, 2 ], [ 8, 2, 1 ];
 
 reset_state();
 $item = get_item(4);

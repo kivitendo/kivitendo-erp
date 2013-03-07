@@ -65,6 +65,10 @@ sub add_to_list {
 
   croak "Invalid parameter 'position'" unless ($params{position} || '') =~ m/^ (?: before | after | first | last ) $/x;
 
+  my $column = column_name($self);
+
+  $self->remove_from_list if ($self->$column // -1) != -1;
+
   if ($params{position} eq 'last') {
     set_position($self);
     $self->save;
@@ -73,7 +77,6 @@ sub add_to_list {
 
   my $table               = $self->meta->table;
   my $primary_key_col     = ($self->meta->primary_key)[0];
-  my $column              = column_name($self);
   my ($group_by, @values) = get_group_by_where($self);
   $group_by               = " AND ${group_by}" if $group_by;
   my $new_position;
@@ -408,6 +411,10 @@ required. This is either a Rose model instance or the primary key of
 one. The current item will then be inserted either before or after the
 referenced item by shifting all the appropriate item positions up by
 one.
+
+If C<$self>'s positional column is already set when this function is
+called then L</remove_from_list> will be called first before anything
+else is done.
 
 After this function C<$self>'s positional column has been set and
 saved to the database.
