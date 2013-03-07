@@ -143,13 +143,14 @@ generate_file(
 );
 
 open(my $js_file, '>:encoding(utf8)', $javascript_output_dir .'/locale/'. $locale .'.js') || die;
-print $js_file '{';
+print $js_file 'namespace("kivi").setupLocale({';
 my $first_entry = 1;
 for my $key (sort(keys(%jslocale))) {
   print $js_file ((!$first_entry ? ',' : '') ."\n". _double_quote($key) .':'. _double_quote($self->{texts}{$key}));
   $first_entry = 0;
 }
-print $js_file ("\n".'}'."\n");
+print $js_file ("\n");
+print $js_file ('});'."\n");
 close($js_file);
 
   foreach my $text (keys %$missing) {

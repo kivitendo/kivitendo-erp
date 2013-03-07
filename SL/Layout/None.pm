@@ -29,7 +29,9 @@ sub use_javascript {
     js/jquery.js
     js/common.js
     js/namespace.js
+    js/kivi.js
   ),
+  'js/locale/'. $::myconfig{countrycode} .'.js',
   $self->SUPER::use_javascript(@_);
 }
 

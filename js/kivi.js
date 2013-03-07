@@ -1,25 +1,8 @@
 namespace("kivi", function(ns) {
-
-  ns._localeLang = false;
-  ns._locales = {};
+  ns._locale = {};
 
   ns.t8 = function(text, params) {
-    if( ns._localeLang ) {
-      if( !ns._locales[ns._localeLang] ) {
-        ns._locales[ns._localeLang] = {};
-
-        jQuery.ajax({
-          url: "js/locale/"+ ns._localeLang +".js",
-          async: false,
-          dataType: "json",
-          success: function(res) {
-            ns._locales[ns._localeLang] = res;
-          },
-        });
-      }
-
-      text = ns._locales[ns._localeLang][text] || text;
-    }
+    var text = ns._locale[text] || text;
 
     if( Object.prototype.toString.call( params ) === '[object Array]' ) {
       var len = params.length;
@@ -40,8 +23,9 @@ namespace("kivi", function(ns) {
     return text;
   };
 
-  ns.initLocale = function(localeLang) {
-    ns._localeLang = localeLang;
+  ns.setupLocale = function(locale) {
+    ns._locale = locale;
   };
-
 });
+
+kivi = namespace('kivi');
