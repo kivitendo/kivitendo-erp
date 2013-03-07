@@ -695,7 +695,6 @@ sub show_generic_error {
   }
 
   if ($::request->is_ajax) {
-    $::lxdebug->message(0, "trying to render AJAX response...");
     SL::ClientJS->new
       ->error($error)
       ->render(SL::Controller::Base->new);
