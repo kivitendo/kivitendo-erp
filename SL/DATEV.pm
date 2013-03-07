@@ -355,7 +355,7 @@ sub _get_transactions {
     qq|SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
          ar.invnumber, ar.duedate, ar.amount as umsatz,
          ct.name,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice
        FROM acc_trans ac
        LEFT JOIN ar          ON (ac.trans_id    = ar.id)
@@ -370,7 +370,7 @@ sub _get_transactions {
        SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey,
          ap.invnumber, ap.duedate, ap.amount as umsatz,
          ct.name,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice
        FROM acc_trans ac
        LEFT JOIN ap        ON (ac.trans_id  = ap.id)
@@ -385,7 +385,7 @@ sub _get_transactions {
        SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey,
          gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz,
          gl.description AS name,
-         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, c.link,
+         c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice
        FROM acc_trans ac
        LEFT JOIN gl      ON (ac.trans_id  = gl.id)
