@@ -37,6 +37,7 @@ use SL::PE;
 use SL::OE;
 use SL::DB::Default;
 use Data::Dumper;
+use SL::DBUtils;
 use List::Util qw(max sum);
 
 require "bin/mozilla/io.pl";
@@ -407,14 +408,19 @@ sub form_footer {
 
   # tax, total and subtotal calculations
   my ($tax, $subtotal);
-  $form->{taxaccounts_array} = [ split / /, $form->{taxaccounts} ];
+  $form->{taxaccounts_array} = [ split(/ /, $form->{taxaccounts}) ];
 
-  my $paymet_id = $::form->{payment_id};
-  IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
-  $::form->{payment_id} = $paymet_id;
+  if ( $form->{type} =~ /sales_(order|quotation)/ && $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
+    my $query = '
+      SELECT
+        taxincluded_checked
+      FROM
+        customer
+      WHERE
+        id = ?';
+    my $res = selectfirst_hashref_query($::form, $::form->get_standard_dbh(), $query, conv_i($::form->{customer_id}));
 
-  if ( $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
-    $form->{taxincluded} = defined($form->{taxincluded_checked}) ? $form->{taxincluded_checked} : $myconfig{taxincluded_checked};
+    $form->{taxincluded} = ($res && defined($res->{taxincluded_checked})) ? $res->{taxincluded_checked} : $myconfig{taxincluded_checked};
   }
 
   foreach my $item (@{ $form->{taxaccounts_array} }) {
