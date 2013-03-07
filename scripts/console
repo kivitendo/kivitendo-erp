@@ -11,18 +11,51 @@ BEGIN {
 
 use Data::Dumper;
 use Devel::REPL 1.002001;
+use File::Slurp;
+use Getopt::Long;
+use Pod::Usage;
 use Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
 
 use SL::LxOfficeConf;
 SL::LxOfficeConf->read;
 
-my $login        = shift || $::lx_office_conf{console}{login}        || 'demo';
-my $history_file =          $::lx_office_conf{console}{history_file} || '/tmp/lxoffice_console_history.log'; # fallback if users is not writable
-my $debug_file   =          $::lx_office_conf{console}{log_file}     || '/tmp/lxoffice_console_debug.log';
-my $autorun      =          $::lx_office_conf{console}{autorun};
+my $login        = $::lx_office_conf{console}{login}        || 'demo';
+my $history_file = $::lx_office_conf{console}{history_file} || '/tmp/kivitendo_console_history.log'; # fallback if users is not writable
+my $debug_file   = $::lx_office_conf{console}{log_file}     || '/tmp/kivitendo_console_debug.log';
+my $autorun      = $::lx_office_conf{console}{autorun};
+my ($execute_code, $execute_file, $help, $man);
+
+my $result = GetOptions(
+  "login|l=s"        => \$login,
+  "history-file|i=s" => \$history_file,
+  "log-file|o=s"     => \$debug_file,
+  "execute|e=s"      => \$execute_code,
+  "file|f=s"         => \$execute_file,
+  "help|h"           => \$help,
+  "man"              => \$man,
+);
+pod2usage(2)                               if !$result;
+pod2usage(1)                               if $help;
+pod2usage(-exitstatus => 0, -verbose => 2) if $man;
 
 # will be configed eventually
 my @plugins      = qw(History LexEnv Colors MultiLine::PPI FancyPrompt PermanentHistory AutoloadModules);
+
+sub execute_code {
+  my ($repl, $code) = @_;
+
+  my $result = $repl->eval($code);
+  if (ref($result) eq 'Devel::REPL::Error') {
+    $repl->print($result->message);
+    return 0;
+  }
+  if ($@) {
+    $repl->print($@);
+    return 0;
+  }
+
+  return 1;
+}
 
 my $repl = Devel::REPL->new;
 $repl->load_plugin($_) for @plugins;
@@ -30,10 +63,11 @@ $repl->load_history($history_file);
 $repl->eval('help');
 $repl->print("trying to auto login as '$login'...");
 $repl->print($repl->eval("lxinit '$login'"));
-if ($autorun) {
-  my $result = $repl->eval($autorun);
-  $repl->print($result->message) if ref($result) eq 'Devel::REPL::Error';
-}
+
+my @code_to_execute = grep { $_ } ($autorun, $execute_code, $execute_file ? join('', read_file($execute_file)) : undef);
+execute_code($repl, $_) || exit 1 for @code_to_execute;
+exit  if $execute_code || $execute_file;
+
 $repl->run;
 
 package Devel::REPL;
@@ -180,8 +214,50 @@ scripts/console - kivitendo console
 
 =head1 SYNOPSIS
 
-  ./script/console
+  ./script/console [options]
   > help               # displays a brief documentation
+
+=head1 OPTIONS
+
+The list of supported command line options includes:
+
+=over 8
+
+=item B<--help>, B<-h>
+
+Print this help message and exit.
+
+=item B<--man>
+
+Print the manual page and exit.
+
+=item B<-l>, B<--login>=C<username>
+
+Log in as C<username>. The default is to use the value from the
+configuration file and C<demo> if none is set there.
+
+=item B<-o>, B<--log-file>=C<filename>
+
+Use C<filename> as the log file. The default is to use the value from
+the configuration file and C</tmp/kivitendo_console_debug.log> if none
+is set there.
+
+=item B<-i>, B<--history-file>=C<filename>
+
+Use C<filename> as the history file for commands input by the
+user. The default is to use the value from the configuration file and
+C</tmp/kivitendo_console_history.log> if none is set there.
+
+=item B<-e>, B<--execute>=C<perl-code>
+
+Execute this code on startup and exit afterwards.
+
+=item B<-f>, B<--file>=C<filename>
+
+Execute the code from the file C<filename> on startup and exit
+afterwards.
+
+=back
 
 =head1 DESCRIPTION
 
