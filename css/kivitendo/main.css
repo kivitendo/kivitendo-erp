@@ -365,3 +365,8 @@ label {
 .flash_title {
   font-weight: bold;
 }
+
+.dimmed-text {
+  color: #ccc;
+  font-style: italic;
+}

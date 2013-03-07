@@ -448,3 +448,8 @@ label {
   border-style:none;
   border-width:thin;
 }
+
+.dimmed-text {
+  color: #aaa;
+  font-style: italic;
+}
