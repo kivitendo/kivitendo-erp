@@ -30,6 +30,7 @@ use SL::Dispatcher::AuthHandler;
 use SL::LXDebug;
 use SL::LxOfficeConf;
 use SL::Locale;
+use SL::ClientJS;
 use SL::Common;
 use SL::Form;
 use SL::Helper::DateTime;
@@ -74,6 +75,14 @@ sub pre_request_checks {
   }
 }
 
+sub render_error_ajax {
+  my ($error) = @_;
+
+  SL::ClientJS->new
+    ->error($error)
+    ->render(SL::Controller::Base->new);
+}
+
 sub show_error {
   $::lxdebug->enter_sub;
   my $template             = shift;
@@ -84,6 +93,8 @@ sub show_error {
   $::locale                = Locale->new($::myconfig{countrycode});
   $::form->{error}         = $::locale->text('The session is invalid or has expired.') if ($error_type eq 'session');
   $::form->{error}         = $::locale->text('Incorrect password!')                    if ($error_type eq 'password');
+
+  return render_error_ajax($::form->{error}) if $::request->is_ajax;
 
   $::form->header;
   print $::form->parse_html_template($template, \%params);
@@ -272,10 +283,16 @@ sub handle_request {
     1;
   } or do {
     if ($EVAL_ERROR ne END_OF_REQUEST) {
-      print STDERR $EVAL_ERROR;
-      $::form->{label_error} = $::request->{cgi}->pre($EVAL_ERROR);
-      chdir SL::System::Process::exe_dir;
-      eval { show_error('generic/error') };
+      my $error = $EVAL_ERROR;
+      print STDERR $error;
+
+      if ($::request->is_ajax) {
+        eval { render_error_ajax($error) };
+      } else {
+        $::form->{label_error} = $::request->{cgi}->pre($error);
+        chdir SL::System::Process::exe_dir;
+        eval { show_error('generic/error') };
+      }
     }
   };
 

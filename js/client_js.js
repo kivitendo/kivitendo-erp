@@ -4,9 +4,20 @@
 // "scripts/generate_client_js_actions.pl". See the documentation for
 // SL/ClientJS.pm for instructions.
 
+function display_flash(type, message) {
+  $('#flash_' + type + '_content').text(message);
+  $('#flash_' + type).show();
+}
+
 function eval_json_result(data) {
   if (!data)
     return;
+
+  if (data.error)
+    return display_flash('error', data.error);
+
+  $('#flash_error').hide();
+  $('#flash_error_content').empty();
 
   if ((data.js || '') != '')
     eval(data.js);
@@ -15,9 +26,13 @@ function eval_json_result(data) {
     $(data.eval_actions).each(function(idx, action) {
       // console.log("ACTION " + action[0] + " ON " + action[1]);
 
+      // ## Non-jQuery methods ##
+           if (action[0] == 'flash')                display_flash(action[1], action[2]);
+
       // ## jQuery basics ##
+
       // Basic effects
-           if (action[0] == 'hide')                 $(action[1]).hide();
+      else if (action[0] == 'hide')                 $(action[1]).hide();
       else if (action[0] == 'show')                 $(action[1]).show();
       else if (action[0] == 'toggle')               $(action[1]).toggle();
 
@@ -94,3 +109,7 @@ function eval_json_result(data) {
 
   // console.log("current_content_type " + $('#current_content_type').val() + ' ID ' + $('#current_content_id').val());
 }
+
+// Local Variables:
+// mode: js
+// End:

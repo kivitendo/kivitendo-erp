@@ -9,10 +9,13 @@ use SL::JSON ();
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(_actions) ],
+  'scalar --get_set_init' => [ qw(_actions _flash _error) ],
 );
 
 my %supported_methods = (
+  # ## Non-jQuery methods ##
+  flash        => 2,            # display_flash(<TARGET>, <ARGS>)
+
   # ## jQuery basics ##
 
   # Basic effects
@@ -123,8 +126,18 @@ sub init__actions {
   return [];
 }
 
+sub init__flash {
+  return {};
+}
+
+sub init__error {
+  return '';
+}
+
 sub to_json {
   my ($self) = @_;
+
+  return SL::JSON::to_json({ error        => $self->_error   }) if $self->_error;
   return SL::JSON::to_json({ eval_actions => $self->_actions });
 }
 
@@ -141,6 +154,29 @@ sub render {
 sub jstree {
   my ($self) = @_;
   $self->{_prefix} = 'jstree:';
+  return $self;
+}
+
+sub flash {
+  my ($self, $type, @messages) = @_;
+
+  my $message = join ' ', grep { $_ } @messages;
+
+  if (!$self->_flash->{$type}) {
+    $self->_flash->{$type} = [ 'flash', $type, $message ];
+    push @{ $self->_actions }, $self->_flash->{$type};
+  } else {
+    $self->_flash->{$type}->[-1] .= ' ' . $message;
+  }
+
+  return $self;
+}
+
+sub error {
+  my ($self, @messages) = @_;
+
+  $self->_error(join ' ', grep { $_ } ($self->_error, @messages));
+
   return $self;
 }
 
@@ -300,6 +336,29 @@ Instead of:
   }
 
 The first variation is obviously better suited for chaining.
+
+Additional functions:
+
+=over 4
+
+=item C<flash $type, $message>
+
+Display a C<$message> in the flash of type C<$type>. Multiple calls of
+C<flash> on the same C<$self> will be merged by type.
+
+On the client side the flash of this type will be cleared before the
+message is shown.
+
+=item C<error $message>
+
+Causes L<to_json> (and therefore L<render>) to output a JSON object
+that only contains an C<error> field set to this C<$message>. The
+client will then show the message in the 'error' flash.
+
+The messages of multiple calls of C<error> on the same C<$self> will
+be merged.
+
+=back
 
 =head2 JQUERY FUNCTIONS
 

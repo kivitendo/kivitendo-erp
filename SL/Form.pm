@@ -704,6 +704,14 @@ sub show_generic_error {
     return;
   }
 
+  if ($::request->is_ajax) {
+    $::lxdebug->message(0, "trying to render AJAX response...");
+    SL::ClientJS->new
+      ->error($error)
+      ->render(SL::Controller::Base->new);
+    ::end_of_request();
+  }
+
   my $add_params = {
     'title_error' => $params{title},
     'label_error' => $error,
