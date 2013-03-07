@@ -1,6 +1,7 @@
 [%- USE T8 %]
 $(function() {
 [% IF datefmt %]
+  namespace("kivi").initLocale("[% MYCONFIG.countrycode | html %]");
   setupPoints('[% MYCONFIG.numberformat %]', '[% 'wrongformat' | $T8 %]');
   setupDateFormat('[% MYCONFIG.dateformat %]', '[% 'Falsches Datumsformat!' | $T8 %]');
 
