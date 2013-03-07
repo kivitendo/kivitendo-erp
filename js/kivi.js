@@ -6,15 +6,14 @@ namespace("kivi", function(ns) {
   ns.t8 = function(text, params) {
     if( ns._localeLang ) {
       if( !ns._locales[ns._localeLang] ) {
+        ns._locales[ns._localeLang] = {};
+
         jQuery.ajax({
           url: "js/locale/"+ ns._localeLang +".js",
           async: false,
           dataType: "json",
           success: function(res) {
             ns._locales[ns._localeLang] = res;
-          },
-          error: function(xhr, textStatus, errorThrown) {
-            alert(textStatus +": "+ errorThrown);
           },
         });
       }
