@@ -24,16 +24,16 @@
  </div>
 
  <div id="content-column" class="clearfix">
-  <div id="section-container" class="section-container">
+  [% L.hidden_tag('current_content_type', SELF.requirement_spec_item.id ? 'section' : '') %]
+  [% L.hidden_tag('current_content_id',   SELF.requirement_spec_item.id) %]
 
-   <div id="section_content" class="section-content">
-    [%- IF SELF.requirement_spec_item && SELF.requirement_spec_item.id -%]
-     [%- INCLUDE 'requirement_spec_item/_single_section.html' requirement_spec_item=SELF.requirement_spec_item -%]
-    [%- ELSE -%]
-     no section
-     [%#- render :partial => 'requirement_spec_items/no_section' -%]
-    [%- END -%]
-   </div>
+  <div id="column-content">
+   [%- IF SELF.requirement_spec_item && SELF.requirement_spec_item.id -%]
+    [%- INCLUDE 'requirement_spec_item/_single_section.html' requirement_spec_item=SELF.requirement_spec_item -%]
+   [%- ELSE -%]
+    no section
+    [%#- render :partial => 'requirement_spec_items/no_section' -%]
+   [%- END -%]
   </div>
  </div>
 </div>
@@ -100,13 +100,8 @@
          },
          "plugins": [ "themes", "json_data", "ui", "crrm", "dnd" ]
        })
-       .bind("move_node.jstree", node_moved);
-
-       $(document).ajaxSend(function() {
-         $('#spinner').show();
-       }).ajaxStop(function() {
-         $('#spinner').hide();
-       });
+       .bind("move_node.jstree", node_moved)
+       .bind("click.jstree",     node_clicked)
      });
   -->
 </script>

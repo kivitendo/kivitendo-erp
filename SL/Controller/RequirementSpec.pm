@@ -132,7 +132,7 @@ sub setup {
 
   $::auth->assert('config');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
-  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu requirement_spec);
+  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu client_js requirement_spec);
   $self->is_template($::form->{is_template} ? 1 : 0);
 
   return 1;

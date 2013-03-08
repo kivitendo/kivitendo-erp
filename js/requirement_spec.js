@@ -49,17 +49,48 @@ function node_moved(event) {
   var dropped    = move_obj.r;
   var controller = dragged.data("type") == "textblock" ? "RequirementSpecTextBlock" : "RequirementSpecItem";
   var data       = {
-    action:              controller + "/dragged_and_dropped",
-    requirement_spec_id: $('#requirement_spec_id').val(),
-    id:                  dragged.data("id"),
-    dropped_id:          dropped.data("id"),
-    dropped_type:        dropped.data("type"),
-    position:            move_obj.p
+    action:               controller + "/dragged_and_dropped",
+    requirement_spec_id:  $('#requirement_spec_id').val(),
+    id:                   dragged.data("id"),
+    dropped_id:           dropped.data("id"),
+    dropped_type:         dropped.data("type"),
+    position:             move_obj.p,
+    current_content_type: $('#current_content_type').val(),
+    current_content_id:   $('#current_content_id').val()
   };
   // console.debug("controller: " + controller);
   // console.debug(data);
 
-  $.ajax({ url: "controller.pl", data: data });
+  $.post("controller.pl", data, eval_json_result);
+
+  return true;
+}
+
+function node_clicked(event) {
+  var node = $.jstree._reference('#tree')._get_node(event.target);
+  var type = node ? node.data('type') : undefined;
+
+  if (!type)
+    return;
+
+  if ('sections' ==  type) {
+    $('#current_content_type').val('sections');
+    $('#current_content_id').val('');
+    return;
+  }
+
+  var url = 'controller.pl?action='
+  $.get('controller.pl', {
+    action:               (/^textblock/ ? 'RequirementSpecTextBlock' : 'RequirementSpecItem') + '/ajax_list.js',
+    current_content_type: $('#current_content_type').val(),
+    current_content_id:   $('#current_content_id').val(),
+    clicked_type:         type,
+    clicked_id:           node.data('id')
+  }, function(new_data) {
+    $('#current_content_type').val(type);
+    $('#current_content_id').val(node.data('id'));
+    eval_json_result(new_data);
+  });
 }
 
 function section_form_requested(data) {

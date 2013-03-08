@@ -1,0 +1,14 @@
+[%- USE HTML -%][%- USE L -%][%- USE LxERP -%]
+<div id="text-block-[% HTML.escape(text_block.id) %]" class="requirement-spec-text-block">
+ <h2 class="requirement-spec-text-block-title">[%- HTML.escape(text_block.title) %]</h2>
+
+ [% IF !text_block.description %]
+  <div class="requirement-spec-text-block-empty-description">
+   [%- LxERP.t8("No description has been entered yet.") %]
+  </div>
+ [% ELSE %]
+  <div class="requirement-spec-text-block-description">
+   [% L.simple_format(text_block.description) %]
+  </div>
+ [% END %]
+</div>
