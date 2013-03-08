@@ -23,7 +23,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('setup');
-__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    edit        update destroy) ]);
+__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    edit        update destroy tree) ]);
 __PACKAGE__->run_before('load_select_options',        only => [ qw(new edit create update list) ]);
 __PACKAGE__->run_before('load_search_select_options', only => [ qw(                       list) ]);
 
@@ -109,6 +109,11 @@ sub action_reorder {
   $self->render('1;', { type => 'js', inline => 1 });
 }
 
+sub action_tree {
+  my ($self) = @_;
+  my $r = $self->render('requirement_spec/tree', now => DateTime->now);
+}
+
 #
 # filters
 #
@@ -117,10 +122,35 @@ sub setup {
   my ($self) = @_;
 
   $::auth->assert('config');
-  $::request->{layout}->use_stylesheet("requirement_spec.css");
+  $::request->{layout}->use_stylesheet("${_}.css") for qw(requirement_spec yaml/core/base.min);
+  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree requirement_spec);
   $self->is_template($::form->{is_template} ? 1 : 0);
 
   return 1;
+}
+
+sub load_requirement_spec {
+  my ($self) = @_;
+  $self->{requirement_spec} = SL::DB::RequirementSpec->new(id => $::form->{id})->load || die "No such requirement spec";
+}
+
+sub load_select_options {
+  my ($self) = @_;
+
+  my @filter = ('!obsolete' => 1);
+  if ($self->requirement_spec && $self->requirement_spec->customer_id) {
+    @filter = ( or => [ @filter, id => $self->requirement_spec->customer_id ] );
+  }
+
+  $self->customers(SL::DB::Manager::Customer->get_all_sorted(where => \@filter));
+  $self->statuses( SL::DB::Manager::RequirementSpecStatus->get_all_sorted);
+  $self->types(    SL::DB::Manager::RequirementSpecType->get_all_sorted);
+}
+
+sub load_search_select_options {
+  my ($self) = @_;
+
+  $self->projects(SL::DB::Manager::Project->get_all_sorted);
 }
 
 #
@@ -147,30 +177,6 @@ sub create_or_update {
 
   flash_later('info', $is_new ? t8('The requirement spec has been created.') : t8('The requirement spec has been saved.'));
   $self->redirect_to(action => 'list');
-}
-
-sub load_requirement_spec {
-  my ($self) = @_;
-  $self->{requirement_spec} = SL::DB::RequirementSpec->new(id => $::form->{id})->load;
-}
-
-sub load_select_options {
-  my ($self) = @_;
-
-  my @filter = ('!obsolete' => 1);
-  if ($self->requirement_spec && $self->requirement_spec->customer_id) {
-    @filter = ( or => [ @filter, id => $self->requirement_spec->customer_id ] );
-  }
-
-  $self->customers(SL::DB::Manager::Customer->get_all_sorted(where => \@filter));
-  $self->statuses( SL::DB::Manager::RequirementSpecStatus->get_all_sorted);
-  $self->types(    SL::DB::Manager::RequirementSpecType->get_all_sorted);
-}
-
-sub load_search_select_options {
-  my ($self) = @_;
-
-  $self->projects(SL::DB::Manager::Project->get_all_sorted);
 }
 
 sub setup_db_args_from_filter {

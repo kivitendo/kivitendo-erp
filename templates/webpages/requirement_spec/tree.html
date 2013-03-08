@@ -1,0 +1,131 @@
+[%- USE HTML %][%- USE L %][%- USE LxERP %][% USE P %][% USE JSON %]
+
+[%- L.hidden_tag('requirement_spec_id', SELF.requirement_spec.id) -%]
+
+<div id="page" class="ym-grid ym-equalize">
+ <div class="ym-g25 ym-gl" style="border-right: 1px solid black">
+  <div style="min-height: 32px; height: 32px;">
+   <div style="float: left">
+    [% L.button_tag("new_section_form()", LxERP.t8("New section"), id="new-section-button") %]
+   </div>
+   <div id="spinner" style="float: right; display: none; background:url('js/themes/requirement-spec/throbber.gif') center center no-repeat !important; min-height: 32px; height: 32px; min-width: 32px; width: 32px;"></div>
+   <div style="clear: both"></div>
+  </div>
+
+  <div id="tree"></div>
+ </div>
+
+ <div class="ym-gl">
+  <div id="content-column">
+   <p>There's beauty in the breakdown. 0</p>
+   <p>There's beauty in the breakdown. 1</p>
+   <p>There's beauty in the breakdown. 2</p>
+   <p>There's beauty in the breakdown. 3</p>
+   <p>There's beauty in the breakdown. 4</p>
+   <p>There's beauty in the breakdown. 5</p>
+   <p>There's beauty in the breakdown. 6</p>
+   <p>There's beauty in the breakdown. 7</p>
+   <p>There's beauty in the breakdown. 8</p>
+   <p>There's beauty in the breakdown. 9</p>
+   <p>There's beauty in the breakdown. 10</p>
+   <p>There's beauty in the breakdown. 11</p>
+   <p>There's beauty in the breakdown. 12</p>
+   <p>There's beauty in the breakdown. 13</p>
+   <p>There's beauty in the breakdown. 14</p>
+   <p>There's beauty in the breakdown. 15</p>
+   <p>There's beauty in the breakdown. 16</p>
+   <p>There's beauty in the breakdown. 17</p>
+   <p>There's beauty in the breakdown. 18</p>
+   <p>There's beauty in the breakdown. 19</p>
+   <p>There's beauty in the breakdown. 20</p>
+   <p>There's beauty in the breakdown. 21</p>
+   <p>There's beauty in the breakdown. 22</p>
+   <!-- <p>There's beauty in the breakdown. 23</p> -->
+   <!-- <p>There's beauty in the breakdown. 24</p> -->
+   <!-- <p>There's beauty in the breakdown. 25</p> -->
+   <!-- <p>There's beauty in the breakdown. 26</p> -->
+   <!-- <p>There's beauty in the breakdown. 27</p> -->
+   <!-- <p>There's beauty in the breakdown. 28</p> -->
+   <!-- <p>There's beauty in the breakdown. 29</p> -->
+   <!-- <p>There's beauty in the breakdown. 30</p> -->
+   <!-- <p>There's beauty in the breakdown. 31</p> -->
+   <!-- <p>There's beauty in the breakdown. 32</p> -->
+   <!-- <p>There's beauty in the breakdown. 33</p> -->
+   <!-- <p>There's beauty in the breakdown. 34</p> -->
+   <!-- <p>There's beauty in the breakdown. 35</p> -->
+  </div>
+ </div>
+</div>
+
+<script type="text/javascript">
+ <!--
+     var tree_data = [
+       { "data": [% JSON.json(LxERP.t8("Text blocks front")) %],
+         "metadata": { "type": "textblocks-front" },
+         "attr": { "id": "tb-front" },
+         "children": [
+[% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(0) %]
+ [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
+[% END %]
+         ]
+       },
+
+       { "data": [% JSON.json(LxERP.t8("Sections")) %],
+         "metadata": { "type": "sections" },
+         "attr": { "id": "sections" },
+         "children": [
+
+[% FOREACH section = SELF.requirement_spec.sections %]
+ [% P.requirement_spec_item_jstree_data(section).json %][% IF !loop.last %],[% END %]
+[% END %]
+         ]
+       },
+
+       { "data": [% JSON.json(LxERP.t8("Text blocks back")) %],
+         "metadata": { "type": "textblocks-back" },
+         "attr": { "id": "tb-back" },
+         "children": [
+[% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(1) %]
+ [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
+[% END %]
+         ]
+       }
+     ];
+
+     $(function() {
+       $('#tree').jstree({
+         "core": {
+           "animation": 0,
+           "initially_open": [ "tb-front", "tb-back", "sections"
+[%- FOREACH section = SELF.requirement_spec.sections -%]
+ , "fb-[% section.id %]"
+ [%- FOREACH function_block = section.children -%]
+  , "fb-[% function_block.id -%]"
+ [%- END -%]
+[%- END -%]
+ ]
+         },
+         "json_data": {
+           "data": tree_data
+         },
+         "crrm": {
+           "move": {
+             "check_move": check_move,
+             "open_move": true
+           }
+         },
+         "themes": {
+           "theme": "requirement-spec"
+         },
+         "plugins": [ "themes", "json_data", "ui", "crrm", "dnd" ]
+       })
+       .bind("move_node.jstree", node_moved);
+     });
+
+     $(document).ajaxSend(function() {
+       $('#spinner').show();
+     }).ajaxStop(function() {
+       $('#spinner').hide();
+     });
+  -->
+</script>

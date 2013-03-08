@@ -2,3 +2,7 @@ input.rs_input_field, select.rs_input_field,
 table.rs_input_field input, table.rs_input_field select {
   width: 300px;
 }
+
+#content-column {
+  margin-left: 10px;
+}

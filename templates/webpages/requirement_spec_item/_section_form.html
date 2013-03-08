@@ -1,0 +1,24 @@
+[%- USE HTML %][%- USE L %][%- USE LxERP %]
+[%- SET id_base="section-form-" _ HTML.escape(id) %]
+[%- IF title %]
+ <div class="listtop">[%- HTML.escape(title) %]</div>
+[%- END -%]
+
+<form id="[% id_base %]">
+ [% L.hidden_tag("requirment_spec_id", SELF.item.requirement_spec_id, id=(id_base _ "-requirement-spec-id")) %]
+
+ <p>
+  [%- LxERP.t8("Title") %]:<br>
+  [% L.input_tag("title", SELF.item.title, id=(id_base _ "-title")) %]
+ </p>
+
+ <p>
+  [%- LxERP.t8("Description") %]:<br>
+  [% L.textarea_tag("description", SELF.item.description, id=(id_base _ "-title"), rows=8, cols=80) %]
+ </p>
+
+ <p>
+  [% L.button_tag("submit_section_form('" _ HTML.escape(id) _ "')", LxERP.t8("Save")) %]
+  [% L.button_tag("cancel_section_form('" _ HTML.escape(id) _ "')", LxERP.t8("Cancel")) %]
+ </p>
+</form>

@@ -118,3 +118,8 @@
   text-align: left;
   font-size:125%;
 }
+
+/* jstree */
+.jstree a {
+  border-bottom: none;
+}
