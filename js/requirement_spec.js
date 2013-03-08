@@ -1,6 +1,6 @@
 /* Functions used for the requirement specs tree view */
 
-function check_move(data) {
+function requirement_spec_tree_check_move(data) {
   var dragged_type = data.o.data('type');
   var dropped_type = data.r.data('type');
 
@@ -42,7 +42,7 @@ function check_move(data) {
   return (2 <= dropped_depth) && ((dragged_depth + dropped_depth) <= 4);
 }
 
-function node_moved(event) {
+function requirement_spec_tree_node_moved(event) {
   console.debug("node moved");
   var move_obj   = $.jstree._reference('#tree')._get_move();
   var dragged    = move_obj.o;
@@ -66,7 +66,7 @@ function node_moved(event) {
   return true;
 }
 
-function node_clicked(event) {
+function requirement_spec_tree_node_clicked(event) {
   var node = $.jstree._reference('#tree')._get_node(event.target);
   var type = node ? node.data('type') : undefined;
 
@@ -82,6 +82,7 @@ function node_clicked(event) {
   var url = 'controller.pl?action='
   $.get('controller.pl', {
     action:               (/^textblock/ ? 'RequirementSpecTextBlock' : 'RequirementSpecItem') + '/ajax_list.js',
+    requirement_spec_id:  $('#requirement_spec_id').val(),
     current_content_type: $('#current_content_type').val(),
     current_content_id:   $('#current_content_id').val(),
     clicked_type:         type,
@@ -133,4 +134,89 @@ function submit_section_form(id) {
 
 function cancel_section_form(id) {
   $('#content-column').html('intentionally empty');
+}
+
+function find_text_block_id(clicked_elt) {
+  console.log("id: " + $(clicked_elt).attr('id'));
+  var id = $(clicked_elt).attr('id');
+  if (/^text-block-\d+$/.test(id)) {
+    console.log("find_text_block_id: case 1: " + id.substr(11));
+    return id.substr(11) * 1;
+  }
+
+  id = $(clicked_elt).closest("[id*=text-block-]").attr('id')
+  if (/^text-block-\d+$/.test(id)) {
+    console.log("find_text_block_id: case 2: " + id.substr(11));
+    return id.substr(11) * 1;
+  }
+
+  id = $(clicked_elt).closest("[id*=tb-]").attr('id')
+  if (/^tb-\d+$/.test(id)) {
+    console.log("find_text_block_id: case 3: " + id.substr(3));
+    return id.substr(3) * 1;
+  }
+
+  console.log("find_text_block_id: case undef");
+  return undefined;
+}
+
+function find_text_block_output_position(clicked_elt) {
+  var output_position = $(clicked_elt).closest('#text-block-list-container').find('#text_block_output_position').val();
+  if (output_position)
+    return output_position;
+
+  var type = $(clicked_elt).closest('#tb-back,#tb-front').data('type');
+  if (/^textblocks-(front|back)/.test(type))
+    return type == "textblocks-front" ? 0 : 1;
+
+  return undefined;
+}
+
+function disable_edit_text_block_commands(key, opt) {
+  return find_text_block_id(opt.$trigger) == undefined;
+}
+
+function edit_text_block(key, opt) {
+  var data = {
+    action:               "RequirementSpecTextBlock/ajax_edit",
+    id:                   find_text_block_id(opt.$trigger),
+    current_content_type: $('#current_content_type').val(),
+    current_content_id:   $('#current_content_id').val()
+  };
+  $.post("controller.pl", data, eval_json_result);
+  return true;
+}
+
+function add_text_block(key, opt) {
+  return true;
+}
+
+function delete_text_block(key, opt) {
+  var data = {
+    action:               "RequirementSpecTextBlock/ajax_delete",
+    id:                   find_text_block_id(opt.$trigger),
+    current_content_type: $('#current_content_type').val(),
+    current_content_id:   $('#current_content_id').val()
+  };
+  $.post("controller.pl", data, eval_json_result);
+  return true;
+}
+
+function submit_edit_text_block_form(id_base) {
+  var url  = "controller.pl?" + $('#' + id_base + '_form').serialize();
+  var data = {
+    action:      'RequirementSpecTextBlock/update.js',
+    id:          $('#' + id_base + '_id').val(),
+    form_prefix: id_base
+  };
+  console.log("posting edit text block: " + url);
+  console.log(data);
+  $.post(url, data, eval_json_result);
+}
+
+function cancel_edit_text_block_form(id_base) {
+  var id = $('#' + id_base + '_id').val();
+  $('#' + id_base + '_form').remove();
+  if (id)
+    $('#text-block-' + id).show();
 }

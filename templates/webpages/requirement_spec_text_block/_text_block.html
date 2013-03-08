@@ -1,14 +1,14 @@
 [%- USE HTML -%][%- USE L -%][%- USE LxERP -%]
-<div id="text-block-[% HTML.escape(text_block.id) %]" class="requirement-spec-text-block">
- <h2 class="requirement-spec-text-block-title">[%- HTML.escape(text_block.title) %]</h2>
+<div id="text-block-[% HTML.escape(text_block.id) %]" class="requirement-spec-text-block text-block-context-menu">
+ <h2 class="requirement-spec-text-block-title">[% IF !text_block.title %]<span class="dimmed-text">[%- LxERP.t8("No title yet") %]</span>[% END %][%- HTML.escape(text_block.title) %]</h2>
 
- [% IF !text_block.description %]
-  <div class="requirement-spec-text-block-empty-description">
-   [%- LxERP.t8("No description has been entered yet.") %]
+ [% IF !text_block.text %]
+  <div class="dimmed-text">
+   [%- LxERP.t8("No text has been entered yet.") %]
   </div>
  [% ELSE %]
-  <div class="requirement-spec-text-block-description">
-   [% L.simple_format(text_block.description) %]
+  <div class="requirement-spec-text-block-text">
+   [% L.simple_format(text_block.text) %]
   </div>
  [% END %]
 </div>

@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 
 use SL::ClientJS;
 use SL::DB::RequirementSpec;
+use SL::DB::RequirementSpecPredefinedText;
 use SL::DB::RequirementSpecTextBlock;
 use SL::Helper::Flash;
 use SL::JSON;
@@ -16,7 +17,7 @@ use Rose::Object::MakeMethods::Generic
  scalar => [ qw(requirement_spec text_block) ],
 );
 
-__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(dragged_and_dropped)]);
+__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit update dragged_and_dropped)]);
 
 #
 # actions
@@ -41,14 +42,60 @@ sub action_ajax_list {
   my $js = SL::ClientJS->new;
 
   if (!defined($current_where) || ($new_where != $current_where)) {
-    my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where ]);
-    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where, nownow => DateTime->now_local);
+    my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where, requirement_spec_id => $::form->{requirement_spec_id} ]);
+    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
 
     $js->html('#column-content', $html)
   }
 
   $self->render($js);
 }
+
+sub action_ajax_edit {
+  my ($self) = @_;
+
+  my $js = SL::ClientJS->new;
+
+  my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
+  if ($self->text_block->output_position != $current_where) {
+    my $text_blocks = $self->text_block->get_full_list;
+    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $self->text_block->output_position);
+
+    $js->html('#column-content', $html)
+       ->val('#current_content_type', 'text-block')
+       ->val('#current_content_id',   $self->text_block->id);
+  }
+
+  my $predefined_texts = SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted;
+  my $html             = $self->render('requirement_spec_text_block/_form', { output => 0 }, PREDEFINED_TEXTS => $predefined_texts);
+
+  $js->hide('#text-block-' . $self->text_block->id)
+     ->insertAfter($html, '#text-block-' . $self->text_block->id)
+     ->jstree->select_node('#tree', '#tb-' . $self->text_block->id)
+     ->render($self);
+}
+
+sub action_update {
+  my ($self, %params) = @_;
+
+  my $prefix     = $::form->{form_prefix} || 'text_block';
+  my $attributes = $::form->{$prefix}     || {};
+
+  foreach (qw(requirement_spec_id output_position)) {
+    delete $attributes->{$_} if !defined $attributes->{$_};
+  }
+
+  $self->text_block->update_attributes(%{ $attributes });
+
+  my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
+
+  SL::ClientJS->new
+    ->remove('#' . $prefix . '_form')
+    ->replaceWith('#text-block-' . $self->text_block->id, $html)
+    ->jstree->rename_node('#tree', '#tb-' . $self->text_block->id, $self->text_block->title)
+    ->render($self);
+}
+
 
 sub action_dragged_and_dropped {
   my ($self)       = @_;

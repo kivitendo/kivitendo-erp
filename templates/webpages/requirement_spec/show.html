@@ -41,20 +41,20 @@
 <script type="text/javascript">
  <!--
      var tree_data = [
-       { "data": [% JSON.json(LxERP.t8("Text blocks front")) %],
-         "metadata": { "type": "textblocks-front" },
-         "attr": { "id": "tb-front" },
-         "children": [
+       { data:     [% JSON.json(LxERP.t8("Text blocks front")) %],
+         metadata: { type: "textblocks-front" },
+         attr:     { id: "tb-front", class: "text-block-context-menu" },
+         children: [
 [% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(0) %]
  [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
 [% END %]
          ]
        },
 
-       { "data": [% JSON.json(LxERP.t8("Sections")) %],
-         "metadata": { "type": "sections" },
-         "attr": { "id": "sections" },
-         "children": [
+       { data:     [% JSON.json(LxERP.t8("Sections")) %],
+         metadata: { type: "sections" },
+         attr:     { id: "sections" },
+         children: [
 
 [% FOREACH section = SELF.requirement_spec.sections %]
  [% P.requirement_spec_item_jstree_data(section).json %][% IF !loop.last %],[% END %]
@@ -62,10 +62,10 @@
          ]
        },
 
-       { "data": [% JSON.json(LxERP.t8("Text blocks back")) %],
-         "metadata": { "type": "textblocks-back" },
-         "attr": { "id": "tb-back" },
-         "children": [
+       { data:     [% JSON.json(LxERP.t8("Text blocks back")) %],
+         metadata: { type: "textblocks-back" },
+         attr:     { id: "tb-back", class: "text-block-context-menu" },
+         children: [
 [% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(1) %]
  [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
 [% END %]
@@ -75,9 +75,9 @@
 
      $(function() {
        $('#tree').jstree({
-         "core": {
-           "animation": 0,
-           "initially_open": [ "tb-front", "tb-back", "sections"
+         core: {
+           animation: 0,
+           initially_open: [ "tb-front", "tb-back", "sections"
 [%- FOREACH section = SELF.requirement_spec.sections -%]
  , "fb-[% section.id %]"
  [%- FOREACH function_block = section.children -%]
@@ -86,22 +86,43 @@
 [%- END -%]
  ]
          },
-         "json_data": {
-           "data": tree_data
+         json_data: {
+           data: tree_data
          },
-         "crrm": {
-           "move": {
-             "check_move": check_move,
-             "open_move": true
+         crrm: {
+           move: {
+             check_move: requirement_spec_tree_check_move,
+             open_move:  true
            }
          },
-         "themes": {
-           "theme": "requirement-spec"
+         themes: {
+           theme: "requirement-spec"
          },
-         "plugins": [ "themes", "json_data", "ui", "crrm", "dnd" ]
+         plugins: [ "themes", "json_data", "ui", "crrm", "dnd" ]
        })
-       .bind("move_node.jstree", node_moved)
-       .bind("click.jstree",     node_clicked)
+       .bind("move_node.jstree", requirement_spec_tree_node_moved)
+       .bind("click.jstree",     requirement_spec_tree_node_clicked)
      });
+
+function ask_delete_text_block(key, opt) {
+  if (confirm("[% LxERP.t8("Are you sure?") %]"))
+    delete_text_block(key, opt);
+  return true;
+}
+
+$(function(){
+    $.contextMenu({
+        selector: '.text-block-context-menu',
+        items: {
+          add:    { name: "[% LxERP.t8('Add text block') %]", icon: "add", callback: add_text_block },
+          edit:   { name: "[% LxERP.t8('Edit text block') %]", icon: "edit", callback: edit_text_block, disabled: disable_edit_text_block_commands },
+          delete: { name: "[% LxERP.t8('Delete text block') %]", icon: "delete", callback: ask_delete_text_block, disabled: disable_edit_text_block_commands },
+          sep1:   "---------",
+          copy:   { name: "[% LxERP.t8('Copy') %]", icon: "copy", disabled: disable_edit_text_block_commands },
+          paste:  { name: "[% LxERP.t8('Paste') %]", icon: "paste", disabled: disable_edit_text_block_commands }
+        }
+      });
+});
+
   -->
 </script>

@@ -1,0 +1,76 @@
+[%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE JavaScript -%][% SET style="width: 500px" %]
+[% DEFAULT id_base = 'edit_text_block_' _ SELF.text_block.id %]
+<form method="post" id="[% id_base %]_form">
+ [% L.hidden_tag(id_base _ '_id',                  SELF.text_block.id) %]
+ [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.text_block.requirement_spec_id) %]
+ [% L.hidden_tag(id_base _ '.output_position',     SELF.text_block.output_position) %]
+
+ <table>
+  <tr>
+   <th align="right">[%- LxERP.t8("Title") %]:</th>
+   <td>[% L.input_tag(id_base _ '.title', SELF.text_block.title, style = style) %]</td>
+  </tr>
+
+ [%- IF PREDEFINED_TEXTS.size %]
+  <tr>
+   <th align="right">[%- LxERP.t8("Pre-defined text block") %]:</th>
+   <td>
+    [%- L.select_tag(id_base _ '_predefined_text_block', PREDEFINED_TEXTS, title_key='description', style=style) %]
+    <a href="#" onclick="insert_selected_predefined_text()">[%- LxERP.t8("Insert") %]</a>
+   </td>
+  </tr>
+ [%- END %]
+
+  <tr>
+   <th align="right" valign="top">[%- LxERP.t8("Description") %]:</th>
+   <td valign="top">[% L.textarea_tag(id_base _ '.text', SELF.text_block.text, style = style, rows = 10) %]</td>
+  </tr>
+ </table>
+
+ <p>
+  [% L.button_tag('submit_edit_text_block_form("' _ id_base _ '")', LxERP.t8('Save')) %]
+  <a href="#" onclick="cancel_edit_text_block_form('[% id_base %]')">[%- LxERP.t8("Cancel") %]</a>
+ </p>
+
+[%- IF PREDEFINED_TEXTS.size %]
+ <script type="text/javascript">
+<!--
+function insert_selected_predefined_text() {
+  var data = {
+[%- FOREACH pt = PREDEFINED_TEXTS %]
+    [% HTML.escape(pt.id) %]: {
+      title: "[% JavaScript.escape(pt.title) %]",
+      text: "[% JavaScript.escape(pt.text) %]"
+    }[% UNLESS loop.last %],[% END %]
+[% END %]
+  }
+
+  var id = $('#[% id_base %]_predefined_text_block').val();
+  var pt = data[id];
+  if (!pt) {
+    console.log("insert: case 1; id: " + id);
+    return false;
+  }
+
+  var title_ctrl = $('#[% id_base %]_title');
+
+  if (   ((title_ctrl.val() || '') != '')
+      && ((pt.title         || '') != '')
+      && confirm('[%- LxERP.t8("Do you want to overwrite your current title?") %]'))
+    title_ctrl.val(pt.title);
+
+  if ((pt.text || '') != '') {
+    var text_ctrl = $('#[% id_base %]_text');
+    var text      = text_ctrl.val() || '';
+    if (text != '')
+      text += "\n\n";
+
+    text_ctrl.val(text + pt.text);
+  }
+
+  return false;
+}
+-->
+ </script>
+[%- END %]
+</form>
