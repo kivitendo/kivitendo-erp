@@ -14,6 +14,7 @@ use SL::Presenter::Invoice;
 use SL::Presenter::Order;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
+use SL::Presenter::Text;
 
 sub get {
   return $::request->presenter;

@@ -52,6 +52,18 @@ sub _context {
   return $_[0]->{CONTEXT};
 }
 
+sub _call_presenter {
+  my ($method, @args) = @_;
+
+  my $presenter       = $::request->presenter;
+
+  return '' unless $presenter->can($method);
+
+  splice @args, -1, 1, %{ $args[-1] } if @args && (ref($args[-1]) eq 'HASH');
+
+  $presenter->$method(@args);
+}
+
 sub name_to_id {
   my $self =  shift;
   my $name =  shift;
@@ -596,15 +608,8 @@ sub dump {
 }
 
 sub truncate {
-  my ($self, $text, @slurp) = @_;
-  my %params                = _hashify(@slurp);
-
-  $params{at}             ||= 50;
-  $params{at}               =  3 if 3 > $params{at};
-  $params{at}              -= 3;
-
-  return $text if length($text) < $params{at};
-  return substr($text, 0, $params{at}) . '...';
+  my $self = shift;
+  return _call_presenter('truncate', @_);
 }
 
 sub sortable_table_header {
@@ -649,6 +654,11 @@ sub paginate_controls {
   );
 
   return SL::Presenter->get->render('common/paginate', %template_params);
+}
+
+sub simple_format {
+  my $self = shift;
+  return _call_presenter('simple_format', @_);
 }
 
 1;
@@ -1005,15 +1015,13 @@ the resulting tab will get ignored by C<tabbed>:
 
   L.tab('Awesome tab wih much info', '_much_info.html', if => SELF.wants_all)
 
-=item C<truncate $text, %params>
+=item C<truncate $text, [%params]>
 
-Returns the C<$text> truncated after a certain number of
-characters.
+See L<SL::Presenter::Text/truncate>.
 
-The number of characters to truncate at is determined by the parameter
-C<at> which defaults to 50. If the text is longer than C<$params{at}>
-then it will be truncated and postfixed with '...'. Otherwise it will
-be returned unmodified.
+=item C<simple_format $text>
+
+See L<SL::Presenter::Text/simple_format>.
 
 =back
 
