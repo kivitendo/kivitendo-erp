@@ -2344,6 +2344,7 @@ $self->{texts} = {
   'action= not defined!'        => 'action= nicht definiert!',
   'active'                      => 'aktiv',
   'all entries'                 => 'alle Einträge',
+  'and'                         => 'und',
   'ap_aging_list'               => 'liste_offene_verbindlichkeiten',
   'ar_aging_list'               => 'liste_offene_forderungen',
   'as at'                       => 'zum Stand',

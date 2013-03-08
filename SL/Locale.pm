@@ -539,7 +539,20 @@ sub get_local_time_zone {
   return $self->{local_time_zone};
 }
 
+sub language_join {
+  my ($self, $items, %params) = @_;
+
+  $items               ||= [];
+  $params{conjunction} ||= $::locale->text('and');
+  my $num                = scalar @{ $items };
+
+  return 0 == $num ? ''
+       : 1 == $num ? $items->[0]
+       :             join(', ', @{ $items }[0..$num - 2]) . ' ' . $params{conjunction} . ' ' . $items->[$num - 1];
+}
+
 1;
+
 __END__
 
 =pod
