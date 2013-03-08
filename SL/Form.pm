@@ -931,6 +931,11 @@ sub parse_amount {
 
   my ($self, $myconfig, $amount) = @_;
 
+  if (!defined($amount) || ($amount eq '')) {
+    $main::lxdebug->leave_sub(2);
+    return 0;
+  }
+
   if (   ($myconfig->{numberformat} eq '1.000,00')
       || ($myconfig->{numberformat} eq '1000,00')) {
     $amount =~ s/\.//g;
