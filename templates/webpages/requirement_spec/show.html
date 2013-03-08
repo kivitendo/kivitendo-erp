@@ -1,56 +1,40 @@
-[%- USE HTML %][%- USE L %][%- USE LxERP %][% USE P %][% USE JSON %]
+[%- USE JSON -%][%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE P -%]
+
+<h1>[%- HTML.escape(SELF.requirement_spec.displayable_name('format', 'with_customer')) %]
+  [% LxERP.t8("for") %]
+  [% HTML.escape(SELF.requirement_spec.customer.displayable_name) -%]
+</h1>
 
 [%- L.hidden_tag('requirement_spec_id', SELF.requirement_spec.id) -%]
 
+<div id="requirement_spec_version">
+  [%- INCLUDE 'requirement_spec/_version.html' requirement_spec=SELF.requirement_spec -%]
+</div>
+
 <div id="column-container">
- <div id="tree-column">
+ <div id="tree-column" style="border-right: 1px solid black">
   <div style="min-height: 32px; height: 32px;">
    <div style="float: left">
     [% L.button_tag("new_section_form()", LxERP.t8("New section"), id="new-section-button") %]
    </div>
-   <div style="clear: both"></div>
+   <div id="spinner" class="clearfix" style="float: right; display: none; background:url('js/themes/requirement-spec/throbber.gif') center center no-repeat !important; min-height: 32px; height: 32px; min-width: 32px; width: 32px;"></div>
   </div>
 
   <div id="tree"></div>
  </div>
 
  <div id="content-column" class="clearfix">
-  <p>There's beauty in the breakdown. 0</p>
-  <p>There's beauty in the breakdown. 1</p>
-  <p>There's beauty in the breakdown. 2</p>
-  <p>There's beauty in the breakdown. 3</p>
-  <p>There's beauty in the breakdown. 4</p>
-  <p>There's beauty in the breakdown. 5</p>
-  <p>There's beauty in the breakdown. 6</p>
-  <p>There's beauty in the breakdown. 7</p>
-  <p>There's beauty in the breakdown. 8</p>
-  <p>There's beauty in the breakdown. 9</p>
-  <p>There's beauty in the breakdown. 10</p>
-  <p>There's beauty in the breakdown. 11</p>
-  <p>There's beauty in the breakdown. 12</p>
-  <p>There's beauty in the breakdown. 13</p>
-  <p>There's beauty in the breakdown. 14</p>
-  <p>There's beauty in the breakdown. 15</p>
-  <p>There's beauty in the breakdown. 16</p>
-  <p>There's beauty in the breakdown. 17</p>
-  <p>There's beauty in the breakdown. 18</p>
-  <p>There's beauty in the breakdown. 19</p>
-  <p>There's beauty in the breakdown. 20</p>
-  <p>There's beauty in the breakdown. 21</p>
-  <p>There's beauty in the breakdown. 22</p>
-  <!-- <p>There's beauty in the breakdown. 23</p> -->
-  <!-- <p>There's beauty in the breakdown. 24</p> -->
-  <!-- <p>There's beauty in the breakdown. 25</p> -->
-  <!-- <p>There's beauty in the breakdown. 26</p> -->
-  <!-- <p>There's beauty in the breakdown. 27</p> -->
-  <!-- <p>There's beauty in the breakdown. 28</p> -->
-  <!-- <p>There's beauty in the breakdown. 29</p> -->
-  <!-- <p>There's beauty in the breakdown. 30</p> -->
-  <!-- <p>There's beauty in the breakdown. 31</p> -->
-  <!-- <p>There's beauty in the breakdown. 32</p> -->
-  <!-- <p>There's beauty in the breakdown. 33</p> -->
-  <!-- <p>There's beauty in the breakdown. 34</p> -->
-  <!-- <p>There's beauty in the breakdown. 35</p> -->
+  <div id="section-container" class="section-container">
+
+   <div id="section_content" class="section-content">
+    [%- IF SELF.requirement_spec_item && SELF.requirement_spec_item.id -%]
+     [%- INCLUDE 'requirement_spec_item/_single_section.html' requirement_spec_item=SELF.requirement_spec_item -%]
+    [%- ELSE -%]
+     no section
+     [%#- render :partial => 'requirement_spec_items/no_section' -%]
+    [%- END -%]
+   </div>
+  </div>
  </div>
 </div>
 
@@ -117,6 +101,12 @@
          "plugins": [ "themes", "json_data", "ui", "crrm", "dnd" ]
        })
        .bind("move_node.jstree", node_moved);
+
+       $(document).ajaxSend(function() {
+         $('#spinner').show();
+       }).ajaxStop(function() {
+         $('#spinner').hide();
+       });
      });
   -->
 </script>

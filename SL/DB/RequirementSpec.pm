@@ -57,4 +57,10 @@ sub sections {
   return [ sort { $a->position <=> $b->position } grep { !$_->parent_id } @{ $self->items } ];
 }
 
+sub displayable_name {
+  my ($self) = @_;
+
+  return sprintf('%s: "%s"', $self->type->description, $self->title);
+}
+
 1;

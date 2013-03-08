@@ -18,7 +18,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 # __PACKAGE__->run_before('load_requirement_spec');
-__PACKAGE__->run_before('load_requirement_spec_item', only => [qw(dragged_and_dropped)]);
+__PACKAGE__->run_before('load_requirement_spec_item', only => [qw(dragged_and_dropped edit_section update_section)]);
 
 #
 # actions
@@ -62,6 +62,24 @@ sub action_dragged_and_dropped {
   });
 
   $self->render(\'', { type => 'json' });
+}
+
+sub action_edit_section {
+  my ($self, %params) = @_;
+  $self->render('requirement_spec_item/_section_form', { layout => 0 });
+}
+
+sub action_update_section {
+  my ($self, %params) = @_;
+
+  $self->item->update_attributes(title => $::form->{title}, description => $::form->{description});
+
+  my $result = {
+    id          => $self->item->id,
+    header_html => $self->render('requirement_spec_item/_section_header', { layout => 0, output => 0 }, requirement_spec_item => $self->item),
+    node_name   => join(' ', map { $_ || '' } ($self->item->fb_number, $self->item->title)),
+  };
+  $self->render(\to_json($result), { type => 'json' });
 }
 
 #

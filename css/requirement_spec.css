@@ -3,6 +3,25 @@ table.rs_input_field input, table.rs_input_field select {
   width: 300px;
 }
 
+#column-container {
+  width: 100%;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#tree-column {
+  float: left;
+  width: 25%;
+  border-right: 1px solid black;
+}
+
 #content-column {
-  margin-left: 10px;
+  float: left;
+  padding-left: 10px;
+}
+
+.section-empty-description {
+  color: #bbb;
 }

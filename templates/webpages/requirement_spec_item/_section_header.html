@@ -1,0 +1,12 @@
+[%- USE HTML -%][%- USE L -%][%- USE LxERP -%]
+<h1>
+ [%- HTML.escape(requirement_spec_item.fb_number) %]: [% HTML.escape(requirement_spec_item.title) -%]
+</h1>
+
+[% IF requirement_spec_item.description %]
+ <div class="section-description">
+  [%- L.simple_format(requirement_spec_item.description) -%]
+ </div>
+[%- ELSE %]
+ <div class="section-empty-description">[%- LxERP.t8("No description has been entered yet.") %]</div>
+[%- END %]

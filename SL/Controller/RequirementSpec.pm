@@ -19,11 +19,11 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(requirement_spec customers projects types statuses db_args flat_filter is_template) ],
+ scalar => [ qw(requirement_spec requirement_spec_item customers projects types statuses db_args flat_filter is_template) ],
 );
 
 __PACKAGE__->run_before('setup');
-__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    edit        update destroy tree) ]);
+__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    edit        update show destroy tree) ]);
 __PACKAGE__->run_before('load_select_options',        only => [ qw(new edit create update list) ]);
 __PACKAGE__->run_before('load_search_select_options', only => [ qw(                       list) ]);
 
@@ -77,6 +77,15 @@ sub action_edit {
   $self->render('requirement_spec/form', title => t8('Edit requirement spec'));
 }
 
+sub action_show {
+  my ($self) = @_;
+
+  my $item = $::form->{requirement_spec_item_id} ? SL::DB::RequirementSpecItem->new(id => $::form->{requirement_spec_item_id})->load : @{ $self->requirement_spec->sections }[0];
+  $self->requirement_spec_item($item);
+
+  $self->render('requirement_spec/show', title => t8('Show requirement spec'));
+}
+
 sub action_create {
   my ($self) = @_;
 
@@ -122,8 +131,8 @@ sub setup {
   my ($self) = @_;
 
   $::auth->assert('config');
-  $::request->{layout}->use_stylesheet("${_}.css") for qw(requirement_spec yaml/core/base.min);
-  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree requirement_spec);
+  $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
+  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu requirement_spec);
   $self->is_template($::form->{is_template} ? 1 : 0);
 
   return 1;
