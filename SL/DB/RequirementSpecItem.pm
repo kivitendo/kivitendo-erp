@@ -5,6 +5,7 @@ use strict;
 use SL::DB::MetaSetup::RequirementSpecItem;
 use SL::DB::Manager::RequirementSpecItem;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::AttrDuration;
 
 __PACKAGE__->meta->add_relationship(
   children     => {
@@ -29,6 +30,7 @@ __PACKAGE__->meta->add_relationship(
 __PACKAGE__->meta->initialize;
 
 __PACKAGE__->configure_acts_as_list(group_by => [qw(requirement_spec_id parent_id)]);
+__PACKAGE__->attr_duration(qw(time_estimation));
 
 __PACKAGE__->before_delete(\&_before_delete_delete_children);
 
