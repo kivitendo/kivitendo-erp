@@ -60,6 +60,14 @@ sub _assign_attributes {
 
   my %types      = map { $_->name => $_->type } ref($self)->meta->columns;
 
+  # Special case for *_as_man_days/*_as_man_days_unit: the _unit
+  # variation must always be called after the non-unit method.
+  my @man_days_attributes = grep { m/_as_man_days$/ } keys %attributes;
+  foreach my $attribute (@man_days_attributes) {
+    my $value = delete $attributes{$attribute};
+    $self->$attribute(defined($value) && ($value eq '') ? undef : $value);
+  }
+
   while (my ($attribute, $value) = each %attributes) {
     my $type = lc($types{$attribute} || 'text');
     $value   = $type eq 'boolean'                ? ($value ? 't' : 'f')
