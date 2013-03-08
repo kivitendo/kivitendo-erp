@@ -37,4 +37,19 @@ sub sorted_children {
   return [ sort { $a->position <=> $b->position } @{ $self->children } ];
 }
 
+sub get_section {
+  my ($self) = @_;
+
+  $self = $self->parent while $self->parent_id;
+
+  return $self;
+}
+
+sub get_type {
+  my ($self) = @_;
+
+  return 'section' if !$self->parent_id;
+  return $self->parent->parent_id ? 'sub-function-block' : 'function-block';
+}
+
 1;

@@ -48,6 +48,8 @@ sub action_ajax_list {
     my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
 
     $js->html('#column-content', $html)
+       ->val('#current_content_type', 'text-blocks-' . (0 == $new_where ? 'front' : 'back'))
+       ->val('#current_content_id',   $::form->{clicked_id});
   }
 
   $self->render($js);

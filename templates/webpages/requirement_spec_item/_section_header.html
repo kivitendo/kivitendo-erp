@@ -1,12 +1,20 @@
 [%- USE HTML -%][%- USE L -%][%- USE LxERP -%]
 <h1>
- [%- HTML.escape(requirement_spec_item.fb_number) %]: [% HTML.escape(requirement_spec_item.title) -%]
+ [%- HTML.escape(requirement_spec_item.fb_number) %]: &lt;[% requirement_spec_item.id %]&gt;
+ [% IF requirement_spec_item.title %]
+  [% HTML.escape(requirement_spec_item.title) %]
+ [% ELSE %]
+  <div class="dimmed-text">
+   [%- LxERP.t8("No text has been entered yet.") %]
+  </div>
+ [% END %]
 </h1>
 
-[% IF requirement_spec_item.description %]
- <div class="section-description">
+<div class="section-description">
+ <div class="section-description-heading">[%- LxERP.t8("Preamble") %]</div>
+ [% IF requirement_spec_item.description %]
   [%- L.simple_format(requirement_spec_item.description) -%]
- </div>
-[%- ELSE %]
- <div class="section-empty-description">[%- LxERP.t8("No description has been entered yet.") %]</div>
-[%- END %]
+ [%- ELSE %]
+  <span class="dimmed-text">[%- LxERP.t8("No text has been entered yet.") %]</span>
+ [%- END %]
+</div>

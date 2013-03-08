@@ -14,7 +14,7 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(requirement_spec item) ],
+  scalar => [ qw(requirement_spec item visible_item visible_section) ],
 );
 
 # __PACKAGE__->run_before('load_requirement_spec');
@@ -23,6 +23,29 @@ __PACKAGE__->run_before('load_requirement_spec_item', only => [qw(dragged_and_dr
 #
 # actions
 #
+
+sub action_ajax_list {
+  my ($self) = @_;
+
+  my $js = SL::ClientJS->new;
+
+  if (!$::form->{clicked_id}) {
+    # Clicked on "sections" in the tree. Do nothing.
+    return $self->render($js);
+  }
+
+  $self->init_visible_section($::form->{current_content_id}, $::form->{current_content_type});
+  $self->item(SL::DB::RequirementSpecItem->new(id => $::form->{clicked_id})->load->get_section);
+
+  if (!$self->visible_section || ($self->visible_section->id != $self->item->id)) {
+    my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
+    $js->html('#column-content', $html)
+       ->val('#current_content_type', $self->item->get_type)
+       ->val('#current_content_id', $self->item->id);
+  }
+
+  $self->render($js);
+}
 
 sub action_new {
   my ($self) = @_;
@@ -106,6 +129,16 @@ sub create_random_id {
 
 sub format_exception {
   return join "\n", (split m/\n/, $@)[0..4];
+}
+
+sub init_visible_section {
+  my ($self, $content_id, $content_type) = @_;
+
+  return undef unless $content_id;
+  return undef unless $content_type =~ m/section|function-block/;
+
+  $self->visible_item(SL::DB::RequirementSpecItem->new(id => $content_id)->load);
+  return $self->visible_section($self->visible_item->get_section);
 }
 
 1;

@@ -25,3 +25,34 @@ table.rs_input_field input, table.rs_input_field select {
 .section-empty-description {
   color: #bbb;
 }
+
+.function-block {
+  border-bottom: 1px solid #bbb;
+}
+
+.section-description-heading {
+  font-weight: bold;
+}
+
+.section-description {
+  color: #000;
+  background: rgb(235, 235, 235);
+  border: 1px solid #ccc;
+  margin-bottom: 15px;
+}
+
+.sub-function-block {
+  border-bottom: 1px solid #ccc;
+}
+
+.sub-function-block-container {
+  margin: 10px 0px 10px 20px;
+  border: 1px solid #ccc;
+}
+
+.sub-function-block-header {
+  padding: 5px;
+  font-weight: bold;
+  color: #fff;
+  background: #ccc;
+}

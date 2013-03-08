@@ -13,12 +13,12 @@ sub requirement_spec_item_jstree_data {
   my ($self, $item, %params) = @_;
 
   my @children = map { $self->requirement_spec_item_jstree_data($_, %params) } @{ $item->sorted_children };
-  my $type     = !$item->parent_id ? 'section' : 'functionblock';
+  my $type     = !$item->parent_id ? 'section' : 'function-block';
 
   return {
-    data     => join(' ', map { $_ || '' } ($item->fb_number, $item->title)),
+    data     => join(' ', map { $_ || '' } ($item->fb_number, $item->title, '<' . $item->id . '>')),
     metadata => { id =>         $item->id, type => $type },
-    attr     => { id => "fb-" . $item->id, href => $params{href} || '#' },
+    attr     => { id => "fb-" . $item->id, href => $params{href} || '#', class => $type . '-context-menu' },
     children => \@children,
   };
 }
