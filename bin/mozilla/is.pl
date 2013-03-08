@@ -35,10 +35,11 @@ use SL::FU;
 use SL::IS;
 use SL::PE;
 use SL::OE;
-use SL::DB::Default;
 use Data::Dumper;
-use SL::DBUtils;
 use List::Util qw(max sum);
+
+use SL::DB::Default;
+use SL::DB::Customer;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/invoice_io.pl";
@@ -410,17 +411,9 @@ sub form_footer {
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split(/ /, $form->{taxaccounts}) ];
 
-  if ( $form->{type} =~ /sales_(order|quotation)/ && $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
-    my $query = '
-      SELECT
-        taxincluded_checked
-      FROM
-        customer
-      WHERE
-        id = ?';
-    my $res = selectfirst_hashref_query($::form, $::form->get_standard_dbh(), $query, conv_i($::form->{customer_id}));
-
-    $form->{taxincluded} = ($res && defined($res->{taxincluded_checked})) ? $res->{taxincluded_checked} : $myconfig{taxincluded_checked};
+  if ($form->{customer_id}) {
+    my $customer = SL::DB::Customer->new(id => $form->{customer_id})->load();
+    $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
   }
 
   foreach my $item (@{ $form->{taxaccounts_array} }) {

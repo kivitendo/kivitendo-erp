@@ -45,8 +45,9 @@ use SL::PE;
 use SL::ReportGenerator;
 use List::MoreUtils qw(any none);
 use List::Util qw(min max reduce sum);
-use SL::DBUtils;
 use Data::Dumper;
+
+use SL::DB::Customer;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -482,17 +483,9 @@ sub form_footer {
   $TMPL_VAR{notes}    = qq|<textarea name=notes rows="$rows" cols="25">| . H($form->{notes}) . qq|</textarea>|;
   $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
 
-  if ( $form->{type} =~ /sales_(order|quotation)/ && $form->{vc} eq 'customer' && !$form->{taxincluded_changed_by_user} ) {
-    my $query = '
-      SELECT
-        taxincluded_checked
-      FROM
-        customer
-      WHERE
-        id = ?';
-    my $res = selectfirst_hashref_query($::form, $::form->get_standard_dbh(), $query, conv_i($::form->{customer_id}));
-
-    $form->{taxincluded} = ($res && defined($res->{taxincluded_checked})) ? $res->{taxincluded_checked} : $myconfig{taxincluded_checked};
+  if ($form->{customer_id}) {
+    my $customer = SL::DB::Customer->new(id => $form->{customer_id})->load();
+    $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
   }
 
   if (!$form->{taxincluded}) {
