@@ -7,18 +7,21 @@ use parent qw(SL::Controller::Base);
 use Time::HiRes ();
 
 use SL::DB::RequirementSpec;
+use SL::DB::RequirementSpecComplexity;
 use SL::DB::RequirementSpecItem;
+use SL::DB::RequirementSpecRisk;
 use SL::Helper::Flash;
 use SL::JSON;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar => [ qw(requirement_spec item visible_item visible_section) ],
+  scalar                  => [ qw(requirement_spec item visible_item visible_section) ],
+  'scalar --get_set_init' => [ qw(complexities risks) ],
 );
 
 # __PACKAGE__->run_before('load_requirement_spec');
-__PACKAGE__->run_before('load_requirement_spec_item', only => [qw(dragged_and_dropped edit_section update_section)]);
+__PACKAGE__->run_before('load_requirement_spec_item', only => [qw(dragged_and_dropped ajax_update ajax_edit)]);
 
 #
 # actions
@@ -47,33 +50,8 @@ sub action_ajax_list {
   $self->render($js);
 }
 
-sub action_new {
-  my ($self) = @_;
-
-  eval {
-    my $type         = ($::form->{item_type} || '') =~ m/^ (?: section | (?: sub-)? function-block ) $/x ? $::form->{item_type} : die "Invalid item_type";
-    $self->{item}    = SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id});
-    my $section_form = $self->presenter->render("requirement_spec_item/_${type}_form", id => create_random_id(), title => t8('Create a new section'));
-
-    $self->render(\to_json({ status => 'ok', html => $section_form }), { type => 'json' });
-    1;
-  } or do {
-    $self->render(\to_json({ status => 'failed', error => "Exception:\n" . format_exception() }), { type => 'json' });
-  }
-}
-
-sub action_create {
-  my ($self) = @_;
-
-  my $type = ($::form->{item_type} || '') =~ m/^ (?: section | (?: sub-)? function-block ) $/x ? $::form->{item_type} : die "Invalid item_type";
-
-  $self->render(\to_json({ status => 'failed', error => 'not good, not good' }), { type => 'json' });
-}
-
 sub action_dragged_and_dropped {
   my ($self)       = @_;
-
-  $::lxdebug->dump(0, "form", $::form);
 
   my $dropped_item = SL::DB::RequirementSpecItem->new(id => $::form->{dropped_id})->load || die "No such dropped item";
   my $position     = $::form->{position} =~ m/^ (?: before | after | last ) $/x ? $::form->{position} : die "Unknown 'position' parameter";
@@ -87,22 +65,78 @@ sub action_dragged_and_dropped {
   $self->render(\'', { type => 'json' });
 }
 
-sub action_edit_section {
+sub action_ajax_edit {
   my ($self, %params) = @_;
-  $self->render('requirement_spec_item/_section_form', { layout => 0 });
+
+  $::lxdebug->dump(0, "form", $::form);
+
+  $self->init_visible_section($::form->{current_content_id}, $::form->{current_content_type});
+  $self->item(SL::DB::RequirementSpecItem->new(id => $::form->{id})->load);
+
+  my $js = SL::ClientJS->new;
+
+  die "TODO: edit section" if $self->item->get_type =~ m/section/;
+
+  if (!$self->visible_section || ($self->visible_section->id != $self->item->get_section->id)) {
+    my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
+    $js->html('#column-content', $html);
+  }
+
+  if ($self->item->get_type =~ m/function-block/) {
+    my $create_item = sub {
+      [ $_[0]->id, $self->presenter->truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description))) ]
+    };
+    my @dependencies =
+      map { [ $_->fb_number . ' ' . $_->title,
+              [ map { ( $create_item->($_),
+                        map { $create_item->($_, '->') } @{ $_->sorted_children })
+                    } @{ $_->sorted_children } ] ]
+          } @{ $self->item->requirement_spec->sections };
+
+    my @selected_dependencies = map { $_->id } @{ $self->item->dependencies };
+
+    my $html                  = $self->render('requirement_spec_item/_function_block_form', { output => 0 }, DEPENDENCIES => \@dependencies, SELECTED_DEPENDENCIES => \@selected_dependencies);
+    my $id_base               = $self->item->get_type . '-' . $self->item->id;
+    my $content_top_id        = '#' . $self->item->get_type . '-content-top-' . $self->item->id;
+
+    $js->hide($content_top_id)
+       ->remove("#edit_${id_base}_form")
+       ->insertAfter($html, $content_top_id)
+       ->jstree->select_node('#tree', '#fb-' . $self->item->id)
+       ->focus("#edit_${id_base}_description")
+       ->val('#current_content_type', $self->item->get_type)
+       ->val('#current_content_id', $self->item->id)
+       ->render($self);
+  }
 }
 
-sub action_update_section {
+sub action_ajax_update {
   my ($self, %params) = @_;
 
-  $self->item->update_attributes(title => $::form->{title}, description => $::form->{description});
+  my $js         = SL::ClientJS->new;
+  my $prefix     = $::form->{form_prefix} || 'text_block';
+  my $attributes = $::form->{$prefix}     || {};
 
-  my $result = {
-    id          => $self->item->id,
-    header_html => $self->render('requirement_spec_item/_section_header', { layout => 0, output => 0 }, requirement_spec_item => $self->item),
-    node_name   => join(' ', map { $_ || '' } ($self->item->fb_number, $self->item->title)),
-  };
-  $self->render(\to_json($result), { type => 'json' });
+  foreach (qw(requirement_spec_id parent_id position)) {
+    delete $attributes->{$_} if !defined $attributes->{$_};
+  }
+
+  my @errors = $self->item->assign_attributes(%{ $attributes })->validate;
+  return $js->error(@errors)->render($self) if @errors;
+
+  $self->item->save;
+
+  my $id_prefix    = $self->item->get_type eq 'function-block' ? '' : 'sub-';
+  my $html_top     = $self->render('requirement_spec_item/_function_block_content_top',    { output => 0 }, requirement_spec_item => $self->item, id_prefix => $id_prefix);
+  my $html_bottom  = $self->render('requirement_spec_item/_function_block_content_bottom', { output => 0 }, requirement_spec_item => $self->item, id_prefix => $id_prefix);
+  $id_prefix      .= 'function-block-content-';
+
+  SL::ClientJS->new
+    ->remove('#' . $prefix . '_form')
+    ->replaceWith('#' . $id_prefix . 'top-'    . $self->item->id, $html_top)
+    ->replaceWith('#' . $id_prefix . 'bottom-' . $self->item->id, $html_bottom)
+    ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item))
+    ->render($self);
 }
 
 #
@@ -139,6 +173,18 @@ sub init_visible_section {
 
   $self->visible_item(SL::DB::RequirementSpecItem->new(id => $content_id)->load);
   return $self->visible_section($self->visible_item->get_section);
+}
+
+sub init_complexities {
+  my ($self) = @_;
+
+  return SL::DB::Manager::RequirementSpecComplexity->get_all_sorted;
+}
+
+sub init_risks {
+  my ($self) = @_;
+
+  return SL::DB::Manager::RequirementSpecRisk->get_all_sorted;
 }
 
 1;

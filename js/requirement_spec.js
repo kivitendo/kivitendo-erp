@@ -191,20 +191,39 @@ function find_item_id(clicked_elt) {
 
 function standard_item_ajax_call(key, opt, other_data) {
   var data = {
-    action:               "RequirementSpecTextBlock/ajax_" + key,
+    action:               "RequirementSpecItem/ajax_" + key,
     requirement_spec_id:  $('#requirement_spec_id').val(),
     id:                   find_item_id(opt.$trigger),
     current_content_type: $('#current_content_type').val(),
     current_content_id:   $('#current_content_id').val()
   };
 
-  console.log("I would normally POST the following now:");
-  console.log(data);
-  // $.post("controller.pl", $.extend(data, other_data || {}), eval_json_result);
+  // console.log("I would normally POST the following now:");
+  // console.log(data);
+  $.post("controller.pl", $.extend(data, other_data || {}), eval_json_result);
 
   return true;
 }
 
 function disable_edit_item_commands(key, opt) {
-  return false; // find_item_id(opt.$trigger) == undefined;
+  return find_item_id(opt.$trigger) == undefined;
+}
+
+function submit_edit_item_form(id_base) {
+  var id   = $('#' + id_base + '_id').val();
+  var url  = "controller.pl?" + $('#' + id_base + '_form').serialize();
+  var data = {
+    action:      'RequirementSpecItem/ajax_' + (id ? 'update' : 'create'),
+    id:          id,
+    form_prefix: id_base
+  };
+  $.post(url, data, eval_json_result);
+  return true;
+}
+
+function cancel_edit_item_form(form_id_base, hidden_id_base) {
+  var id = $('#' + form_id_base + '_id').val();
+  $('#' + form_id_base + '_form').remove();
+  if (id)
+    $('#' + hidden_id_base + '-' + id).show();
 }

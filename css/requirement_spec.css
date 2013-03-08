@@ -56,3 +56,12 @@ table.rs_input_field input, table.rs_input_field select {
   color: #fff;
   background: #ccc;
 }
+
+.function-block-form {
+  background: rgb(235, 235, 235);
+  border: 1px solid rgb(0, 100, 0);
+}
+
+.function-block-form > div {
+  padding: 5px;
+}

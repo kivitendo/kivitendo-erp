@@ -43,6 +43,15 @@ sub _before_delete_delete_children {
   1;
 }
 
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, t8('The title is missing.') if !$self->parent_id && !$self->title;
+
+  return @errors;
+}
+
 sub sorted_children {
   my ($self) = @_;
 

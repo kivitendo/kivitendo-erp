@@ -34,72 +34,66 @@
 
 <script type="text/javascript">
  <!--
-     var tree_data = [
-       { data:     [% JSON.json(LxERP.t8("Text blocks front")) %],
-         metadata: { type: "text-blocks-front" },
-         attr:     { id: "tb-front", class: "text-block-context-menu" },
-         children: [
+$(function() {
+  var tree_data = [
+    { data:     [% JSON.json(LxERP.t8("Text blocks front")) %],
+      metadata: { type: "text-blocks-front" },
+      attr:     { id: "tb-front", class: "text-block-context-menu" },
+      children: [
 [% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(0) %]
  [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
 [% END %]
-         ]
-       },
+      ]},
 
-       { data:     [% JSON.json(LxERP.t8("Sections")) %],
-         metadata: { type: "sections" },
-         attr:     { id: "sections", class: "section-context-menu" },
-         children: [
-
+    { data:     [% JSON.json(LxERP.t8("Sections")) %],
+      metadata: { type: "sections" },
+      attr:     { id: "sections", class: "section-context-menu" },
+      children: [
 [% FOREACH section = SELF.requirement_spec.sections %]
  [% P.requirement_spec_item_jstree_data(section).json %][% IF !loop.last %],[% END %]
 [% END %]
-         ]
-       },
+      ]},
 
-       { data:     [% JSON.json(LxERP.t8("Text blocks back")) %],
-         metadata: { type: "text-blocks-back" },
-         attr:     { id: "tb-back", class: "text-block-context-menu" },
-         children: [
+    { data:     [% JSON.json(LxERP.t8("Text blocks back")) %],
+      metadata: { type: "text-blocks-back" },
+      attr:     { id: "tb-back", class: "text-block-context-menu" },
+      children: [
 [% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(1) %]
  [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
 [% END %]
-         ]
-       }
-     ];
+      ]}];
 
-     $(function() {
-       $('#tree').jstree({
-         core: {
-           animation: 0,
-           initially_open: [ "tb-front", "tb-back", "sections"
+  $('#tree').jstree({
+    core: {
+      animation: 0,
+      initially_open: [ "tb-front", "tb-back", "sections"
 [%- FOREACH section = SELF.requirement_spec.sections -%]
- , "fb-[% section.id %]"
+        , "fb-[% section.id %]"
  [%- FOREACH function_block = section.children -%]
-  , "fb-[% function_block.id -%]"
+        , "fb-[% function_block.id -%]"
  [%- END -%]
 [%- END -%]
- ]
-         },
-         json_data: {
-           data: tree_data
-         },
-         crrm: {
-           move: {
-             check_move: requirement_spec_tree_check_move,
-             open_move:  true
-           }
-         },
-         themes: {
-           theme: "requirement-spec"
-         },
-         plugins: [ "themes", "json_data", "ui", "crrm", "dnd" ]
-       })
-       .bind("move_node.jstree", requirement_spec_tree_node_moved)
-       .bind("click.jstree",     requirement_spec_tree_node_clicked);
-[%- IF SELF.requirement_spec_item -%]
-       $.jstree._reference("#tree").select_node('fb-[% SELF.requirement_spec_item.id %]', true);
-[%- END -%]
-     });
+    ]},
+    json_data: {
+      data: tree_data
+    },
+    crrm: {
+      move: {
+        check_move: requirement_spec_tree_check_move,
+        open_move:  true
+      }
+    },
+    themes: {
+      theme: "requirement-spec"
+    },
+    plugins: [ "themes", "json_data", "ui", "crrm", "dnd" ]
+  })
+  .bind("move_node.jstree", requirement_spec_tree_node_moved)
+  .bind("click.jstree",     requirement_spec_tree_node_clicked);
+[% IF SELF.requirement_spec_item %]
+  $.jstree._reference("#tree").select_node('#fb-[% SELF.requirement_spec_item.id %]', true);
+[% END %]
+});
 
 function ask_delete_text_block(key, opt) {
   if (confirm("[% LxERP.t8("Are you sure?") %]"))
@@ -131,7 +125,7 @@ $(function(){
     selector: '.section-context-menu',
     items: {
       add_section:        { name: "[% LxERP.t8('Add section') %]",        icon: "add",    callback: standard_item_ajax_call },
-      add_function_block: { name: "[% LxERP.t8('Add function block') %]", icon: "add",    callback: standard_text_block_ajax_call },
+      add_function_block: { name: "[% LxERP.t8('Add function block') %]", icon: "add",    callback: standard_text_block_ajax_call, disabled: disable_edit_item_commands },
       sep1:               "---------",
       edit:               { name: "[% LxERP.t8('Edit') %]",               icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
       delete:             { name: "[% LxERP.t8('Delete') %]",             icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands },

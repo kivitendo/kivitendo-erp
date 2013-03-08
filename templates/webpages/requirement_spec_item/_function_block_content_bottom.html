@@ -1,15 +1,15 @@
 [%- USE LxERP -%][%- USE P -%]<div id="[% id_prefix %]function-block-content-bottom-[% requirement_spec_item.id %]" class="smaller" style="text-align:right">
  [%- IF requirement_spec_item.dependencies.size -%]
  <span class="gray">
-  [%- LxERP.t8("Dependencies") -%]: [%- P.requirement_spec_item_dependency_list(requirement_spec_item.dependencies) -%]
+  [%- LxERP.t8("Dependencies") -%]: [%- P.requirement_spec_item_dependency_list(requirement_spec_item) -%]
  </span><br>
  [%- END -%]
  <span class="gray">
-  [%- LxERP.t8("Complexity") -%]: [%- requirement_spec_item.requirement_spec_complexity.description IF requirement_spec_item.requirement_spec_complexity -%]
+  [%- LxERP.t8("Complexity") -%]: [%- requirement_spec_item.complexity.description -%]
   &nbsp; | &nbsp;
-  [%- LxERP.t8("Risk") -%]: [%- requirement_spec_item.requirement_spec_risk.description IF requirement_spec_item.requirement_spec_risk -%]
+  [%- LxERP.t8("Risk") -%]: [%- requirement_spec_item.risk.description -%]
   &nbsp; | &nbsp;
-  [%- LxERP.t8("Effort") -%]: [%#- render :partial => 'requirement_spec_items/time_estimation_item', :locals => { :item => requirement_spec_item } -%]
+  [%- LxERP.t8("Time estimate") -%]: TODO: Zeitabschätzung
  </span>
 
 </div>
