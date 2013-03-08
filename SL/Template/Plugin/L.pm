@@ -128,6 +128,8 @@ sub select_tag {
   my $with_empty      = delete($attributes{with_empty});
   my $empty_title     = delete($attributes{empty_title});
 
+  my $with_optgroups  = delete($attributes{with_optgroups});
+
   my %selected;
 
   if ( ref($attributes{default}) eq 'ARRAY' ) {
@@ -142,91 +144,71 @@ sub select_tag {
   delete($attributes{default});
 
 
-  my @options;
-
-  if ( $with_empty ) {
-    push(@options, [undef, $empty_title || '']);
-  }
+  my @all_options;
+  push @all_options, [undef, $empty_title || ''] if $with_empty;
 
   my $normalize_entry = sub {
-
     my ($type, $entry, $sub, $key) = @_;
 
-    if ( $sub ) {
-      return $sub->($entry);
-    }
+    return $sub->($entry) if $sub;
 
     my $ref = ref($entry);
 
     if ( !$ref ) {
-
-      if ( $type eq 'value' || $type eq 'title' ) {
-        return $entry;
-      }
-
+      return $entry if $type eq 'value' || $type eq 'title';
       return 0;
     }
 
     if ( $ref eq 'ARRAY' ) {
-
-      if ( $type eq 'value' ) {
-        return $entry->[0];
-      }
-
-      if ( $type eq 'title' ) {
-        return $entry->[1];
-      }
-
-      return $entry->[2];
+      return $entry->[ $type eq 'value' ? 0 : $type eq 'title' ? 1 : 2 ];
     }
 
-    if ( $ref eq 'HASH' ) {
-      return $entry->{$key};
-    }
-
-    if ( $type ne 'default' || $entry->can($key) ) {
-      return $entry->$key;
-    }
-
+    return $entry->{$key} if $ref  eq 'HASH';
+    return $entry->$key   if $type ne 'default' || $entry->can($key);
     return undef;
   };
 
-  foreach my $entry ( @{ $collection } ) {
-    my $value;
-    my $title;
+  my $list_to_code = sub {
+    my ($sub_collection) = @_;
 
-    if ( $value_title_sub ) {
-      ($value, $title) = @{ $value_title_sub->($entry) };
-    } else {
+    my @options;
+    foreach my $entry ( @{ $sub_collection } ) {
+      my $value;
+      my $title;
 
-      $value = $normalize_entry->('value', $entry, $value_sub, $value_key);
-      $title = $normalize_entry->('title', $entry, $title_sub, $title_key);
+      if ( $value_title_sub ) {
+        ($value, $title) = @{ $value_title_sub->($entry) };
+      } else {
+
+        $value = $normalize_entry->('value', $entry, $value_sub, $value_key);
+        $title = $normalize_entry->('title', $entry, $title_sub, $title_key);
+      }
+
+      my $default = $normalize_entry->('default', $entry, $default_sub, $default_key);
+
+      push(@options, [$value, $title, $default]);
     }
 
-    my $default = $normalize_entry->('default', $entry, $default_sub, $default_key);
-
-    push(@options, [$value, $title, $default]);
-  }
-
-  foreach my $entry (@options) {
-    if ( exists($selected{$entry->[0]}) ) {
-      $entry->[2] = 1;
+    foreach my $entry (@options) {
+      $entry->[2] = 1 if $selected{$entry->[0]};
     }
+
+    return join '', map { $self->html_tag('option', _H($_->[1]), value => $_->[0], selected => $_->[2]) } @options;
+  };
+
+  my $code;
+
+  if (!$with_optgroups) {
+    $code = $list_to_code->($collection);
+
+  } else {
+    $code = join '', map {
+      my ($optgroup_title, $sub_collection) = @{ $_ };
+      $self->html_tag('optgroup', $list_to_code->($sub_collection), label => $optgroup_title)
+    } @{ $collection };
   }
 
-  my $code = '';
-
-  foreach my $entry (@options) {
-    my %args = (value => $entry->[0]);
-
-    $args{selected} = $entry->[2];
-
-    $code .= $self->html_tag('option', _H($entry->[1]), %args);
-  }
-
-  $code = $self->html_tag('select', $code, %attributes, name => $name);
-
-  return $code;
+  return $self->html_tag('select', $code, %attributes, name => $name);
 }
 
 sub textarea_tag {
@@ -770,6 +752,37 @@ containing the values of the options which should be set to be
 selected.
 
 The tag's C<id> defaults to C<name_to_id($name)>.
+
+If the option C<with_optgroups> is set then this function expects
+C<\@collection> to be one level deeper. The upper-most level is
+translated into a HTML C<optgroup> tag. So the structure becomes:
+
+=over 4
+
+=item 1. Array of array references. Each element in the
+C<\@collection> is converted into an optgroup.
+
+=item 2. The optgroup's C<label> attribute will be set to the the
+first element in the array element. The second array element is then
+converted to a list of C<option> tags like it is described above.
+
+=back
+
+Example for use of optgroups:
+
+  # First in a controller:
+  my @collection = (
+    [ t8("First optgroup with two items"),
+      [ { id => 42, name => "item one" },
+        { id => 54, name => "second item" },
+        { id => 23, name => "and the third one" },
+      ] ],
+    [ t8("Another optgroup, with a lot of items from Rose"),
+      SL::DB::Manager::Customer->get_all_sorted ],
+  );
+
+  # Later in the template:
+  [% L.select_tag('the_selection', COLLECTION, with_optgroups=1, title_key='name') %]
 
 =item C<yes_no_tag $name, $value, %attributes>
 
