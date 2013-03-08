@@ -1,6 +1,6 @@
 -- @tag: add_chart_link_to_acc_trans
 -- @description: Neue Spalte chart_link in der acc_trans
--- @depends: release_3_0_0 
+-- @depends: release_3_0_0 acc_trans_constraints
 
 --Spalte link in der chart updaten:
 UPDATE chart SET link = '' WHERE link IS NULL;
