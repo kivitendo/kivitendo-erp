@@ -15,6 +15,18 @@ __PACKAGE__->meta->setup(
   ],
 
   primary_key_columns => [ 'depending_item_id', 'depended_item_id' ],
+
+  foreign_keys => [
+    depended_item => {
+      class       => 'SL::DB::RequirementSpecItem',
+      key_columns => { depended_item_id => 'id' },
+    },
+
+    depending_item => {
+      class       => 'SL::DB::RequirementSpecItem',
+      key_columns => { depending_item_id => 'id' },
+    },
+  ],
 );
 
 1;

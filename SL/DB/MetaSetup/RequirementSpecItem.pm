@@ -47,21 +47,15 @@ __PACKAGE__->meta->setup(
       class       => 'SL::DB::RequirementSpecItem',
       key_columns => { parent_id => 'id' },
     },
-  ],
 
-  relationships => [
-    depended_items => {
-      map_class => 'SL::DB::RequirementSpecDependency',
-      map_from  => 'depending_item',
-      map_to    => 'depended_item',
-      type      => 'many to many',
+    requirement_spec => {
+      class       => 'SL::DB::RequirementSpec',
+      key_columns => { requirement_spec_id => 'id' },
     },
 
-    depending_items => {
-      map_class => 'SL::DB::RequirementSpecDependency',
-      map_from  => 'depended_item',
-      map_to    => 'depending_item',
-      type      => 'many to many',
+    risk => {
+      class       => 'SL::DB::RequirementSpecRisk',
+      key_columns => { risk_id => 'id' },
     },
   ],
 );

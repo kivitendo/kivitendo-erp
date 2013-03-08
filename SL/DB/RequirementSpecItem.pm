@@ -7,10 +7,22 @@ use SL::DB::Manager::RequirementSpecItem;
 use SL::DB::Helper::ActsAsList;
 
 __PACKAGE__->meta->add_relationship(
-  children       => {
-    type         => 'one to many',
-    class        => 'SL::DB::RequirementSpecItem',
-    column_map   => { id => 'parent_id' },
+  children     => {
+    type       => 'one to many',
+    class      => 'SL::DB::RequirementSpecItem',
+    column_map => { id => 'parent_id' },
+  },
+  dependencies => {
+    map_class  => 'SL::DB::RequirementSpecDependency',
+    map_from   => 'depending_item',
+    map_to     => 'depended_item',
+    type       => 'many to many',
+  },
+  dependents   => {
+    map_class  => 'SL::DB::RequirementSpecDependency',
+    map_from   => 'depended_item',
+    map_to     => 'depending_item',
+    type       => 'many to many',
   },
 );
 
