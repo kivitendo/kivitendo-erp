@@ -226,7 +226,7 @@ sub action_dragged_and_dropped {
       if ($prior_text_block) {
         $js->insertAfter($html, '#text-block-' . $prior_text_block->id);
       } else {
-        $js->appendTo($html, '#text-block-list');
+        $js->prependTo($html, '#text-block-list');
       }
     }
   }
