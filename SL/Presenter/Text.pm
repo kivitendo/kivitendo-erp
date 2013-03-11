@@ -5,7 +5,7 @@ use strict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(simple_format truncate);
+our @EXPORT = qw(format_man_days simple_format truncate);
 
 use Carp;
 
@@ -32,6 +32,21 @@ sub simple_format {
   return '<p>' . $text;
 }
 
+sub format_man_days {
+  my ($self, $value, %params) = @_;
+
+  return '---' if $params{skip_zero} && !$value;
+
+  return $self->escape($::locale->text('#1 h', $::form->format_amount(\%::myconfig, $value, 2))) if 8.0 > $value;
+
+  $value     /= 8.0;
+  my $output  = $::locale->text('#1 MD', int($value));
+  my $rest    = ($value - int($value)) * 8.0;
+  $output    .= ' ' . $::locale->text('#1 h', $::form->format_amount(\%::myconfig, $rest)) if $rest > 0.0;
+
+  return $self->escape($output);
+}
+
 1;
 __END__
 
@@ -52,6 +67,15 @@ SL::Presenter::Text - Presenter module for assorted text helpers
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<format_man_days $value, [%params]>
+
+C<$value> is interpreted to mean a number of hours (for C<$value> < 8)
+/ man days (if >= 8). Returns a translated, human-readable version of
+it, e.g. C<2 PT 2 h> for the value C<18> and German.
+
+If the parameter C<skip_zero> is trueish then C<---> is returned
+instead of the normal formatting if C<$value> equals 0.
 
 =item C<truncate $text, [%params]>
 
