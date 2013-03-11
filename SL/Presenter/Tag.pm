@@ -108,10 +108,6 @@ sub select_tag {
 
   delete($attributes{default});
 
-
-  my @all_options;
-  push @all_options, [undef, $empty_title || ''] if $with_empty;
-
   my $normalize_entry = sub {
     my ($type, $entry, $sub, $key) = @_;
 
@@ -161,13 +157,14 @@ sub select_tag {
     return join '', map { $self->html_tag('option', $self->escape($_->[1]), value => $_->[0], selected => $_->[2]) } @options;
   };
 
-  my $code;
+  my $code  = '';
+  $code    .= $self->html_tag('option', $self->escape($empty_title || '')) if $with_empty;
 
   if (!$with_optgroups) {
-    $code = $list_to_code->($collection);
+    $code .= $list_to_code->($collection);
 
   } else {
-    $code = join '', map {
+    $code .= join '', map {
       my ($optgroup_title, $sub_collection) = @{ $_ };
       $self->html_tag('optgroup', $list_to_code->($sub_collection), label => $optgroup_title)
     } @{ $collection };

@@ -97,7 +97,6 @@ sub orphaned {
     SL::DB::InvoiceItem
     SL::DB::OrderItem
     SL::DB::Inventory
-    SL::DB::RMAItem
   );
 
   for my $class (@relations) {

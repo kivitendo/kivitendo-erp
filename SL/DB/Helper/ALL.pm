@@ -65,8 +65,6 @@ use SL::DB::Price;
 use SL::DB::Printer;
 use SL::DB::Project;
 use SL::DB::PurchaseInvoice;
-use SL::DB::RMA;
-use SL::DB::RMAItem;
 use SL::DB::RecordLink;
 use SL::DB::SchemaInfo;
 use SL::DB::SepaExport;
