@@ -188,7 +188,7 @@
     <td colspan=5><hr size=1 noshade></td>
   </tr>
   <tr>
-    <th align=left><input name=reporttype class=radio type=radio value="custom" checked><b>[% 'Reference day' | $T8 %]</b>&nbsp; </th>
+    <th align=left><input name=reporttype class=radio type=radio value="custom" checked><b>[% 'Reference day' | $T8 %]</b> ([% 'Due Date' | $T8 %][% ', if set' | $T8 %])</b>&nbsp; </th>
      <td align="right" colspan="4">[% 'Review of Aging list' | $T8 %] <select name="review_of_aging_list">
         <option></option>
         <option>0-30</option>
@@ -203,7 +203,7 @@
     <td colspan=5><hr size=3 noshade></td>
  </tr>
  <tr>
-    <th align=left><input name=reporttype class=radio type=radio value="free"><b>[% 'Free report period' | $T8 %]</b>&nbsp; </th>
+    <th align=left><input name=reporttype class=radio type=radio value="free"><b>[% 'Free report period' | $T8 %]</b> ([% 'Invoice Date' | $T8 %])&nbsp; </th>
     <td align="right" colspan=4>
       [% 'From' | $T8 %] [% L.date_tag('fromdate', fromdate) %]
       [% 'Bis' | $T8 %] [% L.date_tag('todate') %]

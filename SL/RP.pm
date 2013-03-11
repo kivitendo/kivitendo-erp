@@ -1164,10 +1164,12 @@ sub aging {
   # mit entsprechender altersstrukturliste (s.a. Bug 1842)
   # eine neue variable an der oberfläche eingeführt, somit ist
   # todate == freier zeitrau und fordate == stichtag
+  # duedate_where == nur fällige rechnungen anzeigen
 
-  my ($review_of_aging_list, $todate, $fromdate, $fromwhere, $fordate);
+  my ($review_of_aging_list, $todate, $fromdate, $fromwhere, $fordate,
+      $duedate_where);
 
-  if ($form->{reporttype} eq 'custom') {  # altersstrukturliste
+  if ($form->{reporttype} eq 'custom') {  # altersstrukturliste, nur fällige
 
     # explizit rausschmeissen was man für diesen bericht nicht braucht
     delete $form->{fromdate};
@@ -1190,7 +1192,8 @@ sub aging {
         $review_of_aging_list = " AND $form->{review_of_aging_list} < (date $fordate) - duedate";
       }
     }
-  } else {  # freier zeitraum OHNE review_of_aging_list
+    $duedate_where = " AND (date $fordate) - duedate >= 0 ";
+  } else {  # freier zeitraum, nur rechnungsdatum und OHNE review_of_aging_list
     $form->{todate}  = $form->current_date($myconfig) unless ($form->{todate});
     $todate = conv_dateq($form->{todate});
     $fromdate = conv_dateq($form->{fromdate});
@@ -1233,6 +1236,7 @@ sub aging {
       AND (${ct}.id = ?)
       AND (transdate <= (date $todate) $fromwhere )
       $review_of_aging_list
+      $duedate_where
     ORDER BY ctid, transdate, invnumber |;
 
   my $sth_details = prepare_query($form, $dbh, $q_details);

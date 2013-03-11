@@ -21,6 +21,7 @@ $self->{texts} = {
   '* there are restrictions for the perpetual method, look at chapter "Bemerkungen zu Bestandsmethode"  in' => ' für die Bestandsmethode gibt es Einschränkungen, siehe Kapitel "Bemerkungen zu Bestandsmethode"  in',
   '*) Since version 2.7 these parameters ares set in the client database and not in the configuration file, details in chapter:' => '*) Seit 2.7 werden Gewinnermittlungsart, Versteuerungsart und Warenbuchungsmethode in der Mandanten-DB gesteuert und nicht mehr in der Konfigurationsdatei, Umstellungs-Details:',
   '*/'                          => '*/',
+  ', if set'                    => ', falls gesetzt',
   '---please select---'         => '---bitte auswählen---',
   '. Automatically generated.'  => '. Automatisch erzeugt.',
   '...after loggin in'          => '...nach dem Anmelden',
