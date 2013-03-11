@@ -13,7 +13,7 @@ __PACKAGE__->attr_duration('dummy');
 
 package main;
 
-use Test::More tests => 83;
+use Test::More tests => 91;
 use Test::Exception;
 
 use strict;
@@ -146,6 +146,18 @@ is(new_item->assign_attributes('dummy_as_man_days_unit', 'h',       'dummy_as_ma
 
 is(new_item->assign_attributes('dummy_as_man_days',      3,         'dummy_as_man_days_unit', 'man_day')->dummy, 24, 'assign_attributes array 3man_day');
 is(new_item->assign_attributes('dummy_as_man_days_unit', 'man_day', 'dummy_as_man_days',      3        )->dummy, 24, 'assign_attributes array man_day3');
+
+is(new_item->assign_attributes(dummy_as_man_days_string => '5,25',    dummy_as_man_days_unit   => 'h'   )->dummy, 5.25,  'assign_attributes hash string 5,25h');
+is(new_item->assign_attributes(dummy_as_man_days_unit   => 'h',       dummy_as_man_days_string => '5,25')->dummy, 5.25,  'assign_attributes hash string h5,25');
+
+is(new_item->assign_attributes(dummy_as_man_days_string => '5,25',    dummy_as_man_days_unit   => 'man_day')->dummy, 42, 'assign_attributes hash string 5,25man_day');
+is(new_item->assign_attributes(dummy_as_man_days_unit   => 'man_day', dummy_as_man_days_string => '5,25'   )->dummy, 42, 'assign_attributes hash string man_day5,25');
+
+is(new_item->assign_attributes('dummy_as_man_days_string', '5,25', 'dummy_as_man_days_unit',   'h'   )->dummy, 5.25,  'assign_attributes array 5,25h');
+is(new_item->assign_attributes('dummy_as_man_days_unit',   'h',    'dummy_as_man_days_string', '5,25')->dummy, 5.25,  'assign_attributes array h5,25');
+
+is(new_item->assign_attributes('dummy_as_man_days_string', '5,25',    'dummy_as_man_days_unit',   'man_day')->dummy, 42, 'assign_attributes array 5,25man_day');
+is(new_item->assign_attributes('dummy_as_man_days_unit',   'man_day', 'dummy_as_man_days_string', '5,25'   )->dummy, 42, 'assign_attributes array man_day5,25');
 
 # Parametervalidierung
 throws_ok { new_item()->dummy_as_man_days_unit('invalid') } qr/unknown.*unit/i, 'unknown unit';
