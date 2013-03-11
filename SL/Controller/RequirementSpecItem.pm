@@ -131,12 +131,19 @@ sub action_ajax_update {
   my $html_bottom  = $self->render('requirement_spec_item/_function_block_content_bottom', { output => 0 }, requirement_spec_item => $self->item, id_prefix => $id_prefix);
   $id_prefix      .= 'function-block-content-';
 
-  SL::ClientJS->new
+  my $js = SL::ClientJS->new
     ->remove('#' . $prefix . '_form')
     ->replaceWith('#' . $id_prefix . 'top-'    . $self->item->id, $html_top)
     ->replaceWith('#' . $id_prefix . 'bottom-' . $self->item->id, $html_bottom)
-    ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item))
-    ->render($self);
+    ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item));
+
+
+  if ($self->item->get_type eq 'sub-function-block') {
+    my $parent_html_bottom = $self->render('requirement_spec_item/_function_block_content_bottom', { output => 0 }, requirement_spec_item => $self->item->parent->load);
+    $js->replaceWith('#function-block-content-bottom-' . $self->item->parent->id, $parent_html_bottom);
+  }
+
+  $js->render($self);
 }
 
 #
