@@ -5,7 +5,7 @@ use strict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(html_tag input_tag name_to_id select_tag stringify_attributes);
+our @EXPORT = qw(html_tag input_tag man_days_tag name_to_id select_tag stringify_attributes);
 
 use Carp;
 
@@ -13,6 +13,12 @@ my %_valueless_attributes = map { $_ => 1 } qw(
   checked compact declare defer disabled ismap multiple noresize noshade nowrap
   readonly selected
 );
+
+sub _call_on {
+  my ($object, $method, @params) = @_;
+  return $object->$method(@params);
+}
+
 
 sub stringify_attributes {
   my ($self, %params) = @_;
@@ -43,6 +49,20 @@ sub input_tag {
   $attributes{type} ||= 'text';
 
   return $self->html_tag('input', undef, %attributes, name => $name, value => $value);
+}
+
+sub man_days_tag {
+  my ($self, $name, $object, %attributes) = @_;
+
+  my $size           =  delete($attributes{size})   || 5;
+  my $method         =  $name;
+  $method            =~ s/^.*\.//;
+
+  my $time_selection =  $self->input_tag( "${name}_as_man_days_string", _call_on($object, "${method}_as_man_days_string"), %attributes, size => $size);
+  my $unit_selection =  $self->select_tag("${name}_as_man_days_unit",   [[ 'h', $::locale->text('h') ], [ 'man_day', $::locale->text('MD') ]],
+                                          %attributes, default => _call_on($object, "${method}_as_man_days_unit"));
+
+  return $time_selection . $unit_selection;
 }
 
 sub name_to_id {
@@ -224,6 +244,26 @@ must not contain non-ASCII characters for browsers to accept them.
 Creates a HTML 'input type=text' tag named C<$name> with the value
 C<$value> and with arbitrary HTML attributes from C<%attributes>. The
 tag's C<id> defaults to C<name_to_id($name)>.
+
+=item C<man_days_tag $name, $object, %attributes>
+
+Creates two HTML inputs: a text input for entering a number and a drop
+down box for chosing the unit (either 'man days' or 'hours').
+
+C<$object> must be a L<Rose::DB::Object> instance using the
+L<SL::DB::Helper::AttrDuration> helper.
+
+C<$name> is supposed to be the name of the underlying column,
+e.g. C<time_estimation> for an instance of
+C<SL::DB::RequirementSpecItem>. If C<$name> has the form
+C<prefix.method> then the full C<$name> is used for the input's base
+names while the methods called on C<$object> are only the suffix. This
+makes it possible to write statements like e.g.
+
+  [% P.man_days_tag("requirement_spec_item.time_estimation", SELF.item) %]
+
+The attribute C<size> can be used to set the text input's size. It
+defaults to 5.
 
 =item C<select_tag $name, \@collection, %attributes>
 
