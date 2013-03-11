@@ -691,11 +691,6 @@ sub delete {
            qq|WHERE trans_id = ?|;
   do_query($form, $dbh, $query, @values);
 
-  # delete OE record
-  $query = qq|DELETE FROM oe | .
-           qq|WHERE id = ?|;
-  do_query($form, $dbh, $query, @values);
-
   # delete individual entries
   $query = qq|DELETE FROM orderitems | .
            qq|WHERE trans_id = ?|;
@@ -703,6 +698,11 @@ sub delete {
 
   $query = qq|DELETE FROM shipto | .
            qq|WHERE trans_id = ? AND module = 'OE'|;
+  do_query($form, $dbh, $query, @values);
+
+  # delete OE record
+  $query = qq|DELETE FROM oe | .
+           qq|WHERE id = ?|;
   do_query($form, $dbh, $query, @values);
 
   my $rc = $dbh->commit;
