@@ -29,7 +29,12 @@ sub AUTOLOAD {
   my $method        =  $AUTOLOAD;
   $method           =~ s/.*:://;
 
-  return '' unless $presenter->can($method);
+  return '' if $method eq 'DESTROY';
+
+  if (!$presenter->can($method)) {
+    $::lxdebug->message(LXDebug::WARN(), "SL::Presenter has no method named '$method'!");
+    return '';
+  }
 
   splice @args, -1, 1, %{ $args[-1] } if @args && (ref($args[-1]) eq 'HASH');
 
