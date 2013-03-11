@@ -1,4 +1,4 @@
-[%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE JavaScript -%][% SET style="width: 500px" %]
+[%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE JavaScript -%][%- USE P -%][% SET style="width: 500px" %]
 [% DEFAULT id_base = 'edit_function_block_' _ SELF.item.id %]
 <form method="post" id="[% id_base %]_form" class="function-block-form">
  [% L.hidden_tag(id_base _ '_id',                  SELF.item.id) %]
@@ -23,7 +23,7 @@
 
 [%- IF !SELF.item.children.size %]
    [%- LxERP.t8("Time estimate") %]:<br>
-   TODO: time estimate input
+   [%- P.man_days_tag(id_base _ '.time_estimation', SELF.item) %]
 [%- END %]
   </div>
 
