@@ -15,6 +15,7 @@ use SL::Presenter::Order;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
 use SL::Presenter::Text;
+use SL::Presenter::Tag;
 
 sub get {
   return $::request->presenter;

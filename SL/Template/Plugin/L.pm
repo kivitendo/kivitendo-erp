@@ -19,11 +19,6 @@ sub _tag_id {
 }
 }
 
-my %_valueless_attributes = map { $_ => 1 } qw(
-  checked compact declare defer disabled ismap multiple noresize noshade nowrap
-  readonly selected
-);
-
 sub _H {
   my $string = shift;
   return $::locale->quote_special_chars('HTML', $string);
@@ -53,49 +48,26 @@ sub _context {
 }
 
 sub _call_presenter {
-  my ($method, @args) = @_;
+  my ($method, $self, @args) = @_;
 
-  my $presenter       = $::request->presenter;
+  my $presenter              = $::request->presenter;
 
-  return '' unless $presenter->can($method);
+  if (!$presenter->can($method)) {
+    $::lxdebug->message(LXDebug::WARN(), "SL::Presenter has no method named '$method'!");
+    return '';
+  }
 
   splice @args, -1, 1, %{ $args[-1] } if @args && (ref($args[-1]) eq 'HASH');
 
   $presenter->$method(@args);
 }
 
-sub name_to_id {
-  my $self =  shift;
-  my $name =  shift;
-
-  $name    =~ s/[^\w_]/_/g;
-  $name    =~ s/_+/_/g;
-
-  return $name;
-}
-
-sub attributes {
-  my ($self, @slurp)    = @_;
-  my %options = _hashify(@slurp);
-
-  my @result = ();
-  while (my ($name, $value) = each %options) {
-    next unless $name;
-    next if $_valueless_attributes{$name} && !$value;
-    $value = '' if !defined($value);
-    push @result, $_valueless_attributes{$name} ? _H($name) : _H($name) . '="' . _H($value) . '"';
-  }
-
-  return @result ? ' ' . join(' ', @result) : '';
-}
-
-sub html_tag {
-  my ($self, $tag, $content, @slurp) = @_;
-  my $attributes = $self->attributes(@slurp);
-
-  return "<${tag}${attributes}>" unless defined($content);
-  return "<${tag}${attributes}>${content}</${tag}>";
-}
+sub name_to_id    { return _call_presenter('name_to_id',    @_); }
+sub html_tag      { return _call_presenter('html_tag',      @_); }
+sub select_tag    { return _call_presenter('select_tag',    @_); }
+sub input_tag     { return _call_presenter('input_tag',     @_); }
+sub truncate      { return _call_presenter('truncate',      @_); }
+sub simple_format { return _call_presenter('simple_format', @_); }
 
 sub img_tag {
   my ($self, @slurp) = @_;
@@ -104,111 +76,6 @@ sub img_tag {
   $options{alt} ||= '';
 
   return $self->html_tag('img', undef, %options);
-}
-
-sub select_tag {
-  my $self            = shift;
-  my $name            = shift;
-  my $collection      = shift;
-  my %attributes      = _hashify(@_);
-
-  $attributes{id}   ||= $self->name_to_id($name);
-
-  my $value_key       = delete($attributes{value_key}) || 'id';
-  my $title_key       = delete($attributes{title_key}) || $value_key;
-  my $default_key     = delete($attributes{default_key}) || 'selected';
-
-
-  my $value_title_sub = delete($attributes{value_title_sub});
-
-  my $value_sub       = delete($attributes{value_sub});
-  my $title_sub       = delete($attributes{title_sub});
-  my $default_sub     = delete($attributes{default_sub});
-
-  my $with_empty      = delete($attributes{with_empty});
-  my $empty_title     = delete($attributes{empty_title});
-
-  my $with_optgroups  = delete($attributes{with_optgroups});
-
-  my %selected;
-
-  if ( ref($attributes{default}) eq 'ARRAY' ) {
-
-    foreach my $entry (@{$attributes{default}}) {
-      $selected{$entry} = 1;
-    }
-  } elsif ( defined($attributes{default}) ) {
-    $selected{$attributes{default}} = 1;
-  }
-
-  delete($attributes{default});
-
-
-  my @all_options;
-  push @all_options, [undef, $empty_title || ''] if $with_empty;
-
-  my $normalize_entry = sub {
-    my ($type, $entry, $sub, $key) = @_;
-
-    return $sub->($entry) if $sub;
-
-    my $ref = ref($entry);
-
-    if ( !$ref ) {
-      return $entry if $type eq 'value' || $type eq 'title';
-      return 0;
-    }
-
-    if ( $ref eq 'ARRAY' ) {
-      return $entry->[ $type eq 'value' ? 0 : $type eq 'title' ? 1 : 2 ];
-    }
-
-    return $entry->{$key} if $ref  eq 'HASH';
-    return $entry->$key   if $type ne 'default' || $entry->can($key);
-    return undef;
-  };
-
-  my $list_to_code = sub {
-    my ($sub_collection) = @_;
-
-    my @options;
-    foreach my $entry ( @{ $sub_collection } ) {
-      my $value;
-      my $title;
-
-      if ( $value_title_sub ) {
-        ($value, $title) = @{ $value_title_sub->($entry) };
-      } else {
-
-        $value = $normalize_entry->('value', $entry, $value_sub, $value_key);
-        $title = $normalize_entry->('title', $entry, $title_sub, $title_key);
-      }
-
-      my $default = $normalize_entry->('default', $entry, $default_sub, $default_key);
-
-      push(@options, [$value, $title, $default]);
-    }
-
-    foreach my $entry (@options) {
-      $entry->[2] = 1 if $selected{$entry->[0]};
-    }
-
-    return join '', map { $self->html_tag('option', _H($_->[1]), value => $_->[0], selected => $_->[2]) } @options;
-  };
-
-  my $code;
-
-  if (!$with_optgroups) {
-    $code = $list_to_code->($collection);
-
-  } else {
-    $code = join '', map {
-      my ($optgroup_title, $sub_collection) = @{ $_ };
-      $self->html_tag('optgroup', $list_to_code->($sub_collection), label => $optgroup_title)
-    } @{ $collection };
-  }
-
-  return $self->html_tag('select', $code, %attributes, name => $name);
 }
 
 sub textarea_tag {
@@ -264,16 +131,6 @@ sub radio_button_tag {
   $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
 
   return $code;
-}
-
-sub input_tag {
-  my ($self, $name, $value, @slurp) = @_;
-  my %attributes      = _hashify(@slurp);
-
-  $attributes{id}   ||= $self->name_to_id($name);
-  $attributes{type} ||= 'text';
-
-  return $self->html_tag('input', undef, %attributes, name => $name, value => $value);
 }
 
 sub hidden_tag {
@@ -589,11 +446,6 @@ sub dump {
   return '<pre>' . Data::Dumper::Dumper(@_) . '</pre>';
 }
 
-sub truncate {
-  my $self = shift;
-  return _call_presenter('truncate', @_);
-}
-
 sub sortable_table_header {
   my ($self, $by, @slurp) = @_;
   my %params              = _hashify(@slurp);
@@ -638,11 +490,6 @@ sub paginate_controls {
   return SL::Presenter->get->render('common/paginate', %template_params);
 }
 
-sub simple_format {
-  my $self = shift;
-  return _call_presenter('simple_format', @_);
-}
-
 1;
 
 __END__
@@ -676,113 +523,33 @@ functions that create HTML tags from various kinds of data sources.
 
 =head2 LOW-LEVEL FUNCTIONS
 
-=over 4
+The following items are just forwarded to L<SL::Presenter::Tag>:
 
-=item C<name_to_id $name>
+=over 2
 
-Converts a name to a HTML id by replacing various characters.
+=item * C<name_to_id $name>
 
-=item C<attributes %items>
+=item * C<stringify_attributes %items>
 
-Creates a string from all elements in C<%items> suitable for usage as
-HTML tag attributes. Keys and values are HTML escaped even though keys
-must not contain non-ASCII characters for browsers to accept them.
-
-=item C<html_tag $tag_name, $content_string, %attributes>
-
-Creates an opening and closing HTML tag for C<$tag_name> and puts
-C<$content_string> between the two. If C<$content_string> is undefined
-or empty then only a E<lt>tag/E<gt> tag will be created. Attributes
-are key/value pairs added to the opening tag.
-
-C<$content_string> is not HTML escaped.
+=item * C<html_tag $tag_name, $content_string, %attributes>
 
 =back
 
 =head2 HIGH-LEVEL FUNCTIONS
 
-=over 4
+The following functions are just forwarded to L<SL::Presenter::Tag>:
 
-=item C<select_tag $name, \@collection, %attributes>
+=over 2
 
-Creates a HTML 'select' tag named C<$name> with the contents of one
-'E<lt>optionE<gt>' tag for each element in C<\@collection> and with arbitrary
-HTML attributes from C<%attributes>. The value
-to use and the title to display are extracted from the elements in
-C<\@collection>. Each element can be one of four things:
+=item * C<input_tag $name, $value, %attributes>
 
-=over 12
-
-=item 1. An array reference with at least two elements. The first element is
-the value, the second element is its title. The third element is optional and and should contain a boolean.
-If it is true, than the element will be used as default.
-
-=item 2. A scalar. The scalar is both the value and the title.
-
-=item 3. A hash reference. In this case C<%attributes> must contain
-I<value_key>, I<title_key> and may contain I<default_key> keys that name the keys in the element to use
-for the value, title and default respectively.
-
-=item 4. A blessed reference. In this case C<%attributes> must contain
-I<value_key>, I<title_key> and may contain I<default_key> keys that name functions called on the blessed
-reference whose return values are used as the value, title and default
-respectively.
+=item * C<select_tag $name, \@collection, %attributes>
 
 =back
 
-For cases 3 and 4 C<$attributes{value_key}> defaults to C<id>,
-C<$attributes{title_key}> defaults to C<$attributes{value_key}>
-and C<$attributes{default_key}> defaults to C<selected>.
-
-In addition to pure keys/method you can also provide coderefs as I<value_sub>
-and/or I<title_sub> and/or I<default_sub>. If present, these take precedence over keys or methods,
-and are called with the element as first argument. It must return the value, title or default.
-
-Lastly a joint coderef I<value_title_sub> may be provided, which in turn takes
-precedence over the C<value_sub> and C<title_sub> subs. It will only be called once for each
-element and must return a list of value and title.
-
-If the option C<with_empty> is set then an empty element (value
-C<undef>) will be used as the first element. The title to display for
-this element can be set with the option C<empty_title> and defaults to
-an empty string.
-
-The option C<default> can be either a scalar or an array reference
-containing the values of the options which should be set to be
-selected.
-
-The tag's C<id> defaults to C<name_to_id($name)>.
-
-If the option C<with_optgroups> is set then this function expects
-C<\@collection> to be one level deeper. The upper-most level is
-translated into a HTML C<optgroup> tag. So the structure becomes:
+Available high-level functions implemented in this module:
 
 =over 4
-
-=item 1. Array of array references. Each element in the
-C<\@collection> is converted into an optgroup.
-
-=item 2. The optgroup's C<label> attribute will be set to the the
-first element in the array element. The second array element is then
-converted to a list of C<option> tags like it is described above.
-
-=back
-
-Example for use of optgroups:
-
-  # First in a controller:
-  my @collection = (
-    [ t8("First optgroup with two items"),
-      [ { id => 42, name => "item one" },
-        { id => 54, name => "second item" },
-        { id => 23, name => "and the third one" },
-      ] ],
-    [ t8("Another optgroup, with a lot of items from Rose"),
-      SL::DB::Manager::Customer->get_all_sorted ],
-  );
-
-  # Later in the template:
-  [% L.select_tag('the_selection', COLLECTION, with_optgroups=1, title_key='name') %]
 
 =item C<yes_no_tag $name, $value, %attributes>
 
@@ -790,12 +557,6 @@ Creates a HTML 'select' tag with the two entries C<yes> and C<no> by
 calling L<select_tag>. C<$value> determines
 which entry is selected. The C<%attributes> are passed through to
 L<select_tag>.
-
-=item C<input_tag $name, $value, %attributes>
-
-Creates a HTML 'input type=text' tag named C<$name> with the value
-C<$value> and with arbitrary HTML attributes from C<%attributes>. The
-tag's C<id> defaults to C<name_to_id($name)>.
 
 =item C<hidden_tag $name, $value, %attributes>
 
