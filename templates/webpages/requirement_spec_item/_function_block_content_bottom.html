@@ -9,7 +9,7 @@
   &nbsp; | &nbsp;
   [%- LxERP.t8("Risk") -%]: [%- requirement_spec_item.risk.description -%]
   &nbsp; | &nbsp;
-  [%- LxERP.t8("Time estimate") -%]: TODO: Zeitabschätzung
+  [%- LxERP.t8("Time estimate") -%]: [% P.format_man_days(requirement_spec_item.time_estimation, skip_zero=1) %]
  </span>
 
 </div>
