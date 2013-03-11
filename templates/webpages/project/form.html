@@ -48,7 +48,7 @@
 
      <tr>
       <th align="right">[% 'Customer' | $T8 %]</th>
-      <td>[% L.select_tag('project.customer_id', ALL_CUSTOMERS, default=SELF.project.customer_id, title_key='name', style='width: 300px') %]</td>
+      <td>[% L.select_tag('project.customer_id', ALL_CUSTOMERS, default=SELF.project.customer_id, title_key='name', with_empty=1, style='width: 300px') %]</td>
      </tr>
 
      <tr>
