@@ -18,7 +18,7 @@ our %project_id_column_prefixes = (
   delivery_orders => 'global',
 );
 
-our @tables_with_project_id_cols = qw(acc_trans ap ar delivery_order_items delivery_orders invoice oe orderitems rmaitems);
+our @tables_with_project_id_cols = qw(acc_trans ap ar delivery_order_items delivery_orders invoice oe orderitems);
 
 sub _sort_spec {
   return (
