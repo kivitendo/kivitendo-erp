@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use List::MoreUtils qw(apply);
 use Time::HiRes ();
 
 use SL::DB::RequirementSpec;
@@ -21,7 +22,8 @@ use Rose::Object::MakeMethods::Generic
 );
 
 # __PACKAGE__->run_before('load_requirement_spec');
-__PACKAGE__->run_before('load_requirement_spec_item', only => [qw(dragged_and_dropped ajax_update ajax_edit)]);
+__PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit) ]);
+__PACKAGE__->run_before('init_visible_section',       only => [ qw(dragged_and_dropped ajax_list   ajax_edit) ]);
 
 #
 # actions
@@ -37,7 +39,6 @@ sub action_ajax_list {
     return $self->render($js);
   }
 
-  $self->init_visible_section($::form->{current_content_id}, $::form->{current_content_type});
   $self->item(SL::DB::RequirementSpecItem->new(id => $::form->{clicked_id})->load->get_section);
 
   if (!$self->visible_section || ($self->visible_section->id != $self->item->id)) {
@@ -51,26 +52,74 @@ sub action_ajax_list {
 }
 
 sub action_dragged_and_dropped {
-  my ($self)       = @_;
+  my ($self)             = @_;
 
-  my $dropped_item = SL::DB::RequirementSpecItem->new(id => $::form->{dropped_id})->load || die "No such dropped item";
-  my $position     = $::form->{position} =~ m/^ (?: before | after | last ) $/x ? $::form->{position} : die "Unknown 'position' parameter";
+  my $position           = $::form->{position} =~ m/^ (?: before | after | last ) $/x ? $::form->{position}                                             : die "Unknown 'position' parameter";
+  my $dropped_item       = $::form->{dropped_id}                                  ? SL::DB::RequirementSpecItem->new(id => $::form->{dropped_id})->load : undef;
+
+  my $visible_section_id = $self->visible_section ? $self->visible_section->id : undef;
+  my $old_parent_id      = $self->item->parent_id;
+  my $old_type           = $self->item->get_type;
 
   $self->item->db->do_transaction(sub {
     $self->item->remove_from_list;
     $self->item->parent_id($position =~ m/before|after/ ? $dropped_item->parent_id : $dropped_item->id);
-    $self->item->add_to_list(position => $position, reference => $dropped_item->id);
+    $self->item->add_to_list(position => $position, reference => $::form->{dropped_id} || undef);
   });
 
-  $self->render(\'', { type => 'json' });
+  my $js = SL::ClientJS->new;
+
+  $self->item(SL::DB::RequirementSpecItem->new(id => $self->item->id)->load);
+  my $new_section = $self->item->get_section;
+  my $new_type    = $self->item->get_type;
+
+  return $self->render($js) if !$visible_section_id || ($new_type eq 'section');
+
+  my $old_parent  = SL::DB::RequirementSpecItem->new(id => $old_parent_id)->load;
+  my $old_section = $old_parent->get_section;
+
+  # $::lxdebug->message(0, "old sec ID " . $old_section->id . " new " . $new_section->id . " visible $visible_section_id PARENT: old " . $old_parent->id . " new " . $self->item->parent_id . '/' . $self->item->parent->id);
+
+  if ($visible_section_id == $old_section->id) {
+    my $id_prefix = $old_type eq 'sub-function-block' ? 'sub-' : '';
+    $js->remove('#' . $id_prefix . 'function-block-' . $self->item->id);
+
+    if ($old_type eq 'sub-function-block') {
+      $self->replace_bottom($js, $old_parent) ;
+      $js->hide('#sub-function-block-container-' . $old_parent->id) if 0 == scalar(@{ $old_parent->children });
+
+    } elsif (0 == scalar(@{ $old_section->children })) {
+      $js->show('#section-list-empty');
+    }
+  }
+
+  if ($visible_section_id == $new_section->id) {
+    $js->hide('#section-list-empty');
+
+    my $id_prefix = $new_type eq 'sub-function-block' ? 'sub-' : '';
+    my $template  = apply { s/-/_/g; $_ } $new_type;
+    my $html      = "" . $self->render('requirement_spec_item/_' . $template, { output => 0 }, requirement_spec_item => $self->item);
+    my $next_item = $self->item->get_next_in_list;
+
+    if ($next_item) {
+      $js->insertBefore($html, '#' . $id_prefix . 'function-block-' . $next_item->id);
+    } else {
+      my $parent_is_section = $self->item->parent->get_type eq 'section';
+      $js->appendTo($html, $parent_is_section ? '#section-list' : '#sub-function-block-container-' . $self->item->parent_id);
+      $js->show('#sub-function-block-container-' . $self->item->parent_id) if !$parent_is_section;
+    }
+
+    $self->replace_bottom($js, $self->item->parent) if $new_type eq 'sub-function-block';
+  }
+
+  # $::lxdebug->dump(0, "js", $js->to_array);
+
+  $self->render($js);
 }
 
 sub action_ajax_edit {
   my ($self, %params) = @_;
 
-  $::lxdebug->dump(0, "form", $::form);
-
-  $self->init_visible_section($::form->{current_content_id}, $::form->{current_content_type});
   $self->item(SL::DB::RequirementSpecItem->new(id => $::form->{id})->load);
 
   my $js = SL::ClientJS->new;
@@ -114,7 +163,7 @@ sub action_ajax_update {
   my ($self, %params) = @_;
 
   my $js         = SL::ClientJS->new;
-  my $prefix     = $::form->{form_prefix} || 'text_block';
+  my $prefix     = $::form->{form_prefix} || 'function_block';
   my $attributes = $::form->{$prefix}     || {};
 
   foreach (qw(requirement_spec_id parent_id position)) {
@@ -128,20 +177,15 @@ sub action_ajax_update {
 
   my $id_prefix    = $self->item->get_type eq 'function-block' ? '' : 'sub-';
   my $html_top     = $self->render('requirement_spec_item/_function_block_content_top',    { output => 0 }, requirement_spec_item => $self->item, id_prefix => $id_prefix);
-  my $html_bottom  = $self->render('requirement_spec_item/_function_block_content_bottom', { output => 0 }, requirement_spec_item => $self->item, id_prefix => $id_prefix);
   $id_prefix      .= 'function-block-content-';
 
   my $js = SL::ClientJS->new
     ->remove('#' . $prefix . '_form')
-    ->replaceWith('#' . $id_prefix . 'top-'    . $self->item->id, $html_top)
-    ->replaceWith('#' . $id_prefix . 'bottom-' . $self->item->id, $html_bottom)
+    ->replaceWith('#' . $id_prefix . 'top-' . $self->item->id, $html_top)
     ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item));
 
-
-  if ($self->item->get_type eq 'sub-function-block') {
-    my $parent_html_bottom = $self->render('requirement_spec_item/_function_block_content_bottom', { output => 0 }, requirement_spec_item => $self->item->parent->load);
-    $js->replaceWith('#function-block-content-bottom-' . $self->item->parent->id, $parent_html_bottom);
-  }
+  $self->replace_bottom($js, $self->item, id_prefix => $id_prefix);
+  $self->replace_bottom($js, $self->item->parent) if $self->item->get_type eq 'sub-function-block';
 
   $js->render($self);
 }
@@ -173,7 +217,10 @@ sub format_exception {
 }
 
 sub init_visible_section {
-  my ($self, $content_id, $content_type) = @_;
+  my ($self)       = @_;
+
+  my $content_id   = $::form->{current_content_id};
+  my $content_type = $::form->{current_content_type};
 
   return undef unless $content_id;
   return undef unless $content_type =~ m/section|function-block/;
@@ -192,6 +239,15 @@ sub init_risks {
   my ($self) = @_;
 
   return SL::DB::Manager::RequirementSpecRisk->get_all_sorted;
+}
+
+sub replace_bottom {
+  my ($self, $js, $item_or_id) = @_;
+
+  my $item      = (ref($item_or_id) ? $item_or_id : SL::DB::RequirementSpecItem->new(id => $item_or_id))->load;
+  my $id_prefix = $item->get_type eq 'function-block' ? '' : 'sub-';
+  my $html      = $self->render('requirement_spec_item/_function_block_content_bottom', { output => 0 }, requirement_spec_item => $item, id_prefix => $id_prefix);
+  return $js->replaceWith('#' . $id_prefix . 'function-block-content-bottom-' . $item->id, $html);
 }
 
 1;
