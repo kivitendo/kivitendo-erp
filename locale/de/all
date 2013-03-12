@@ -1456,6 +1456,7 @@ $self->{texts} = {
   'No requirement spec statuses has been created yet.' => 'Es wurden noch keine Pflichtenheftstatus angelegt.',
   'No requirement spec type has been created yet.' => 'Es wurden noch keine Pflichtenhefttypen angelegt.',
   'No risks level has been created yet.' => 'Es wurden noch keine Risikograde angelegt.',
+  'No sections created yet'     => 'Keine Abschnitte erstellt',
   'No sections have been created so far.' => 'Bisher wurden noch keine Abschnitte angelegt.',
   'No shipto selected to delete' => 'Keine Lieferadresse zum Löschen ausgewählt',
   'No summary account'          => 'Kein Sammelkonto',
