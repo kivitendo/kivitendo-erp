@@ -47,7 +47,7 @@ function requirement_spec_tree_check_move(data) {
 }
 
 function requirement_spec_tree_node_moved(event) {
-  console.debug("node moved");
+  // console.debug("node moved");
   var move_obj   = $.jstree._reference('#tree')._get_move();
   var dragged    = move_obj.o;
   var dropped    = move_obj.r;
@@ -171,21 +171,21 @@ function cancel_edit_text_block_form(id_base) {
 // --------------------------------------------------------------------------------
 
 function find_item_id(clicked_elt) {
-  console.log("clicked id: " + $(clicked_elt).attr('id'));
+  // console.log("clicked id: " + $(clicked_elt).attr('id'));
   var id     = $(clicked_elt).attr('id');
   var result = /^(function-block|function-block-content|sub-function-block|sub-function-block-content|section|section-header)-(\d+)$/.exec(id);
   if (result) {
-    console.log("find_item_id: case 1: " + result[2]);
+    // console.log("find_item_id: case 1: " + result[2]);
     return result[2];
   }
 
   id = $(clicked_elt).closest("[id*=fb-]").attr('id')
   if (/^fb-\d+$/.test(id)) {
-    console.log("find_item_id: case 2: " + id.substr(3));
+    // console.log("find_item_id: case 2: " + id.substr(3));
     return id.substr(3) * 1;
   }
 
-  console.log("find_item_id: case undef");
+  // console.log("find_item_id: case undef");
   return undefined;
 }
 
