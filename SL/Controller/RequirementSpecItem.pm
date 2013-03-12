@@ -92,8 +92,8 @@ sub action_dragged_and_dropped {
     $js->hide('#section-list-empty');
 
     my $id_prefix = $new_type eq 'sub-function-block' ? 'sub-' : '';
-    my $template  = apply { s/-/_/g; $_ } $new_type;
-    my $html      = "" . $self->render('requirement_spec_item/_' . $template, { output => 0 }, requirement_spec_item => $self->item);
+    my $template  = 'requirement_spec_item/_' . (apply { s/-/_/g; $_ } $new_type);
+    my $html      = "" . $self->render($template, { output => 0 }, requirement_spec_item => $self->item);
     my $next_item = $self->item->get_next_in_list;
 
     if ($next_item) {
@@ -112,10 +112,49 @@ sub action_dragged_and_dropped {
   $self->render($js);
 }
 
-sub action_ajax_add {
+sub action_ajax_add_section {
   my ($self, %params) = @_;
 
-  die "TODO: add action";
+  die "Missing parameter 'requirement_spec_id'" if !$::form->{requirement_spec_id};
+
+  $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id}));
+
+  my $insert_after = $::form->{id} ? SL::DB::RequirementSpecItem->new(id => $::form->{id})->load->get_section->id : undef;
+  my $html         = $self->render('requirement_spec_item/_section_form', { output => 0 }, id_base => 'new_section', insert_after => $insert_after);
+
+  SL::ClientJS->new
+    ->remove('#new_section_form')
+    ->hide('#column-content > *')
+    ->appendTo($html, '#column-content')
+    ->focus('#new_section_title')
+    ->render($self);
+}
+
+sub action_ajax_create {
+  my ($self, %params) = @_;
+
+  my $js              = SL::ClientJS->new;
+  my $prefix          = $::form->{form_prefix} || die "Missing parameter 'form_prefix'";
+  my $attributes      = $::form->{$prefix}     || die "Missing parameter group '${prefix}'";
+  my $insert_after    = delete $attributes->{insert_after};
+
+  my @errors = $self->item(SL::DB::RequirementSpecItem->new(%{ $attributes }))->validate;
+  return $js->error(@errors)->render($self) if @errors;
+
+  $self->item->save;
+  $self->item->add_to_list(position => 'after', reference => $insert_after) if $insert_after;
+
+  my $type = $self->item->get_type;
+
+  if ($type eq 'section') {
+    my $node = $self->presenter->requirement_spec_item_jstree_data($self->item);
+    return $self->render_list($js, $self->item)
+      ->jstree->create_node('#tree', $insert_after ? ('#fb-' . $insert_after, 'after') : ('#sections', 'last'), $node)
+      ->jstree->select_node('#tree', '#fb-' . $self->item->id)
+      ->render($self);
+  }
+
+  die 'TODO: create item';
 }
 
 sub action_ajax_edit {
@@ -178,7 +217,7 @@ sub action_ajax_update {
   my ($self, %params) = @_;
 
   my $js         = SL::ClientJS->new;
-  my $prefix     = $::form->{form_prefix} || 'function_block';
+  my $prefix     = $::form->{form_prefix} || die "Missing parameter 'form_prefix'";
   my $attributes = $::form->{$prefix}     || {};
 
   foreach (qw(requirement_spec_id parent_id position)) {

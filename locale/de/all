@@ -892,6 +892,7 @@ $self->{texts} = {
   'Edit requirement spec status' => 'Pflichtenheftstatus bearbeiten',
   'Edit requirement spec type'  => 'Pflichtenhefttypen bearbeiten',
   'Edit risk level'             => 'Risikograd bearbeiten',
+  'Edit section #1'             => 'Abschnitt #1 bearbeiten',
   'Edit templates'              => 'Vorlagen bearbeiten',
   'Edit text block'             => 'Textblock bearbeiten',
   'Edit text block \'#1\''      => 'Textblock \'#1\' bearbeiten',
