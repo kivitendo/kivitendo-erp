@@ -382,7 +382,7 @@ sub save_objects {
   return unless $data->[0];
   return unless $data->[0]{object};
 
-  $self->controller->track_progress(phase => 'saving objects', progress => 0); # scale from 45..95%;
+  $self->controller->track_progress(phase => 'saving data', progress => 0); # scale from 45..95%;
 
   my $dbh = $data->[0]{object}->db;
 
