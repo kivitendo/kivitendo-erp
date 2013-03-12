@@ -72,7 +72,6 @@ my %lxoffice_package_names = (
   follow_up_links                => 'follow_up_link',
   follow_ups                     => 'follow_up',
   generic_translations           => 'generic_translation',
-  gifi                           => 'gifi',
   gl                             => 'GLTransaction',
   history_erp                    => 'history',
   inventory                      => 'inventory',

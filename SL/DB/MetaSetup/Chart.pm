@@ -16,7 +16,6 @@ __PACKAGE__->meta->setup(
     charttype      => { type => 'character', default => 'A', length => 1 },
     category       => { type => 'character', length => 1 },
     link           => { type => 'text' },
-    gifi_accno     => { type => 'text' },
     taxkey_id      => { type => 'integer' },
     pos_ustva      => { type => 'integer' },
     pos_bwa        => { type => 'integer' },

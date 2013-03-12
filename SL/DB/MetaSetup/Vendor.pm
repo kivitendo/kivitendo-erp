@@ -29,7 +29,6 @@ __PACKAGE__->meta->setup(
     vendornumber   => { type => 'text' },
     cc             => { type => 'text' },
     bcc            => { type => 'text' },
-    gifi_accno     => { type => 'text' },
     business_id    => { type => 'integer' },
     taxnumber      => { type => 'text' },
     discount       => { type => 'float', precision => 4 },

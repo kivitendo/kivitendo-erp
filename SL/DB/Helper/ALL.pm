@@ -42,7 +42,6 @@ use SL::DB::FollowUpAccess;
 use SL::DB::FollowUpLink;
 use SL::DB::GLTransaction;
 use SL::DB::GenericTranslation;
-use SL::DB::Gifi;
 use SL::DB::History;
 use SL::DB::Inventory;
 use SL::DB::Invoice;
