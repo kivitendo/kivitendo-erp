@@ -1,5 +1,13 @@
 [%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE JavaScript -%][%- USE P -%][% SET style="width: 500px" %]
 [% DEFAULT id_base = 'edit_function_block_' _ SELF.item.id %]
+[%- SET a_options = '' %]
+[%- IF SELF.item.id %]
+ [%- SET a_options = "to_show: '#" _ SELF.item.get_type _ "-content-top-" _ SELF.item.id _ "'" %]
+[%- END %]
+[%- IF SELF.item.get_type == 'sub-function-block' %]
+ [%- SET a_options = a_options ? a_options _ ', ' : a_options %]
+ [%- SET a_options = a_options _ "to_hide_if_empty: '#sub-function-block-container-" _ SELF.item.parent_id _ "'" %]
+[%- END %]
 <form method="post" id="[% id_base %]_form" class="function-block-form">
  [% L.hidden_tag(id_base _ '_id',                  SELF.item.id) %]
  [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.item.requirement_spec_id) %]
@@ -41,6 +49,6 @@
 
  <p>
   [% L.button_tag('submit_edit_item_form("' _ id_base _ '")', LxERP.t8('Save')) %]
-  <a href="#" onclick="cancel_edit_item_form('[% id_base %]', '[% '#' _ SELF.item.get_type _ '-content-top-' _ SELF.item.id %]')">[%- LxERP.t8("Cancel") %]</a>
+  <a href="#" onclick="cancel_edit_item_form('[% id_base %]', { [% a_options %] })">[%- LxERP.t8("Cancel") %]</a>
  </p>
 </form>

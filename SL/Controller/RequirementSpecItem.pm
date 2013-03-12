@@ -167,7 +167,18 @@ sub action_ajax_create {
       ->render($self);
   }
 
-  die 'TODO: create item';
+  my $template = 'requirement_spec_item/_' . (apply { s/-/_/g; $_ } $type);
+  my $html     = $self->render($template, { output => 0 }, requirement_spec_item => $self->item, id_prefix => $type eq 'function-block' ? '' : 'sub-');
+  my $node     = $self->presenter->requirement_spec_item_jstree_data($self->item);
+
+  $js->replaceWith('#' . $prefix . '_form', $html)
+     ->hide('#section-list-empty')
+     ->jstree->create_node('#tree', $insert_after ? ('#fb-' . $insert_after, 'after') : ('#fb-' . $self->item->parent_id, 'last'), $node)
+     ->jstree->select_node('#tree', '#fb-' . $self->item->id);
+
+  $self->replace_bottom($js, $self->item->parent) if $type eq 'sub-function-block';
+
+  $js->render($self);
 }
 
 sub action_ajax_edit {
@@ -270,7 +281,8 @@ sub action_ajax_update {
 sub action_ajax_delete {
   my ($self) = @_;
 
-  my $js = SL::ClientJS->new;
+  my $js        = SL::ClientJS->new;
+  my $full_list = $self->item->get_full_list;
 
   $self->item->delete;
 
@@ -297,7 +309,7 @@ sub action_ajax_delete {
 
     $self->replace_bottom($js, $self->item->parent_id) if $type eq 'sub-function-block';
 
-    if (1 == scalar @{ $self->item->get_full_list }) {
+    if (1 == scalar @{ $full_list }) {
       if ($type eq 'function-block') {
         $js->show('#section-list-empty');
       } elsif ($type eq 'sub-function-block') {
@@ -400,11 +412,13 @@ sub create_dependencies {
 sub add_function_block {
   my ($self, $new_type) = @_;
 
-  die "Invalid new_type '$new_type'"            if $new_type !~ m/^(?:sub-)?function-block$/;
-  die "Missing parameter 'id'"                  if !$::form->{id};
-  die "Missing parameter 'requirement_spec_id'" if !$::form->{requirement_spec_id};
+  my $clicked_id = $::form->{id} || ($self->visible_item ? $self->visible_item->id : undef);
 
-  my $clicked_item = SL::DB::RequirementSpecItem->new(id => $::form->{id})->load;
+  die "Invalid new_type '$new_type'"               if $new_type !~ m/^(?:sub-)?function-block$/;
+  die "Missing parameter 'id' and no visible item" if !$clicked_id;
+  die "Missing parameter 'requirement_spec_id'"    if !$::form->{requirement_spec_id};
+
+  my $clicked_item = SL::DB::RequirementSpecItem->new(id => $clicked_id)->load;
   my $clicked_type = $clicked_item->get_type;
 
   die "Invalid clicked_type '$clicked_type'" if $clicked_type !~ m/^(?: section | (?:sub-)? function-block )$/x;
@@ -430,7 +444,7 @@ sub add_function_block {
     SELECTED_DEPENDENCIES => [],
     requirement_spec_item => $self->item,
     id_base               => $id_base,
-    insert_after          => $insert_reference,
+    insert_after          => $insert_position eq 'insertAfter' ? $insert_reference : undef,
   );
 
   my $js = SL::ClientJS->new;
@@ -449,8 +463,11 @@ sub add_function_block {
   # $::lxdebug->message(0, "alright! clicked ID " . $::form->{id} . " type $clicked_type new_type $new_type insert_pos $insert_position ref " . ($insert_reference // '<undef>') . " parent $parent_id display_ref $display_reference");
 
   $js->action($insert_position, $html, $display_reference)
-     ->focus("#${id_base}_description")
-     ->render($self);
+     ->focus("#${id_base}_description");
+
+  $js->show('#sub-function-block-container-' . $parent_id) if $new_type eq 'sub-function-block';
+
+  $js->render($self);
 }
 
 1;

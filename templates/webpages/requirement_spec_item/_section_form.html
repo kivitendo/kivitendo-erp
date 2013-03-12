@@ -30,6 +30,6 @@
 
  <p>
   [% L.button_tag('submit_edit_item_form("' _ id_base _ '")', LxERP.t8('Save')) %]
-  <a href="#" onclick="cancel_edit_item_form('[% id_base %]', '[% hidden %]')">[%- LxERP.t8("Cancel") %]</a>
+  <a href="#" onclick="cancel_edit_item_form('[% id_base %]', { to_show: '[% hidden %]' })">[%- LxERP.t8("Cancel") %]</a>
  </p>
 </form>

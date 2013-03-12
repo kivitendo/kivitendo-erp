@@ -209,6 +209,12 @@ function disable_edit_item_commands(key, opt) {
   return find_item_id(opt.$trigger) == undefined;
 }
 
+function disable_add_function_block_command(key, opt) {
+  if (find_item_id(opt.$trigger))
+    return false;
+  return opt.$trigger.attr('id') != "section-list-empty";
+}
+
 function submit_edit_item_form(id_base) {
   var id   = $('#' + id_base + '_id').val();
   var url  = "controller.pl?" + $('#' + id_base + '_form').serialize();
@@ -221,8 +227,12 @@ function submit_edit_item_form(id_base) {
   return true;
 }
 
-function cancel_edit_item_form(form_id_base, to_show) {
+function cancel_edit_item_form(form_id_base, options) {
   $('#' + form_id_base + '_form').remove();
-  if (to_show)
-    $(to_show).show();
+  if (!options)
+    return;
+  if (options.to_show)
+    $(options.to_show).show();
+  if (options.to_hide_if_empty && (1 == $(options.to_hide_if_empty).children().size()))
+    $(options.to_hide_if_empty).hide();
 }

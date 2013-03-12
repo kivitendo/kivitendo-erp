@@ -125,7 +125,7 @@ $(function(){
     selector: '.section-context-menu',
     items: {
       add_section:        { name: "[% LxERP.t8('Add section') %]",        icon: "add",    callback: standard_item_ajax_call },
-      add_function_block: { name: "[% LxERP.t8('Add function block') %]", icon: "add",    callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
+      add_function_block: { name: "[% LxERP.t8('Add function block') %]", icon: "add",    callback: standard_item_ajax_call, disabled: disable_add_function_block_command },
       sep1:               "---------",
       edit:               { name: "[% LxERP.t8('Edit') %]",               icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
       delete:             { name: "[% LxERP.t8('Delete') %]",             icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands },
