@@ -142,7 +142,7 @@ $(function(){
       new_sub_item: { name: "[% LxERP.t8('Add sub function block') %]", icon: "add", callback: standard_item_ajax_call },
       sep1:         "---------",
       edit:         { name: "[% LxERP.t8('Edit') %]",   icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
-      delete:       { name: "[% LxERP.t8('Delete') %]", icon: "delete", callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
+      delete:       { name: "[% LxERP.t8('Delete') %]", icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands },
       sep2:         "---------",
       copy:         { name: "[% LxERP.t8('Copy') %]",  icon: "copy",  disabled: disable_edit_item_commands },
       paste:        { name: "[% LxERP.t8('Paste') %]", icon: "paste", disabled: disable_edit_item_commands }
