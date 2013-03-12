@@ -7,6 +7,7 @@ use parent qw(Rose::Object);
 use Carp;
 use List::MoreUtils qw(any none);
 use SL::DBUtils;
+use SL::PrefixedNumber;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -129,16 +130,10 @@ SQL
   my $number         = $business_number;
   ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
   $number          ||= '';
+  my $sequence       = SL::PrefixedNumber->new(number => $number);
 
   do {
-    if ($number =~ m/\d+$/) {
-      my $new_number = substr($number, $-[0]) * 1 + 1;
-      my $len_diff   = length($number) - $-[0] - length($new_number);
-      $number        = substr($number, 0, $-[0]) . ($len_diff > 0 ? '0' x $len_diff : '') . $new_number;
-
-    } else {
-      $number = $number . '1';
-    }
+    $number = $sequence->get_next;
   } while ($numbers_in_use{$number});
 
   if ($self->save) {

@@ -62,6 +62,7 @@ use SL::Mailer;
 use SL::Menu;
 use SL::MoreCommon qw(uri_encode uri_decode);
 use SL::OE;
+use SL::PrefixedNumber;
 use SL::Request;
 use SL::Template;
 use SL::User;
@@ -3189,15 +3190,7 @@ sub update_defaults {
   my ($var) = $sth->fetchrow_array;
   $sth->finish;
 
-  if ($var =~ m/\d+$/) {
-    my $new_var  = (substr $var, $-[0]) * 1 + 1;
-    my $len_diff = length($var) - $-[0] - length($new_var);
-    $var         = substr($var, 0, $-[0]) . ($len_diff > 0 ? '0' x $len_diff : '') . $new_var;
-
-  } else {
-    $var = $var . '1';
-  }
-
+  $var   = SL::PrefixedNumber->new(number => $var)->get_next;
   $query = qq|UPDATE defaults SET $fld = ?|;
   do_query($self, $dbh, $query, $var);
 

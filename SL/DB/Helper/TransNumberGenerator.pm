@@ -9,6 +9,7 @@ use Carp;
 use List::Util qw(max);
 
 use SL::DB::Default;
+use SL::PrefixedNumber;
 
 sub oe_scoping {
   SL::DB::Manager::Order->type_filter($_[0]);
@@ -50,34 +51,22 @@ sub get_next_trans_number {
 
   return $number if $self->id && $number;
 
-  my $re              = '^(.*?)(\d+)$';
-  my %conditions      = $scoping_conditions ? ( query => [ $scoping_conditions->($spec_type) ] ) : ();
-  my @numbers         = map { $_->$number_column } @{ $self->_get_manager_class->get_all(%conditions) };
-  my %numbers_in_use  = map { ( $_ => 1 )        } @numbers;
-  @numbers            = grep { $_ } map { my @matches = m/$re/; @matches ? $matches[-1] * 1 : undef } @numbers;
+  my %conditions     = $scoping_conditions ? ( query => [ $scoping_conditions->($spec_type) ] ) : ();
+  my @numbers        = map { $_->$number_column } @{ $self->_get_manager_class->get_all(%conditions) };
+  my %numbers_in_use = map { ( $_ => 1 )        } @numbers;
 
-  my $defaults        = SL::DB::Default->get;
-  my $number_range    = $defaults->$number_range_column;
-  my @matches         = $number_range =~ m/$re/;
-  my $prefix          = (2 != scalar(@matches)) ? ''  : $matches[ 0];
-  my $ref_number      = !@matches               ? '1' : $matches[-1];
-  my $min_places      = length($ref_number);
+  my $defaults       = SL::DB::Default->get;
+  my $sequence       = SL::PrefixedNumber->new(number => $defaults->$number_range_column);
 
-  my $new_number      = $fill_holes_in_range ? $ref_number : max($ref_number, @numbers);
-  my $new_number_full = undef;
+  $sequence->set_to_max(@numbers) if !$fill_holes_in_range;
 
-  while (1) {
-    $new_number      =  $new_number + 1;
-    my $new_number_s =  $new_number;
-    $new_number_s    =~ s/\.\d+//g;
-    $new_number_full =  $prefix . ('0' x max($min_places - length($new_number_s), 0)) . $new_number_s;
-    last if !$numbers_in_use{$new_number_full};
-  }
+  my $new_number = $sequence->get_next;
+  $new_number    = $sequence->get_next while $numbers_in_use{$new_number};
 
-  $defaults->update_attributes($number_range_column => $new_number_full) if $params{update_defaults};
-  $self->$number_column($new_number_full)                                if $params{update_record};
+  $defaults->update_attributes($number_range_column => $new_number) if $params{update_defaults};
+  $self->$number_column($new_number)                                if $params{update_record};
 
-  return $new_number_full;
+  return $new_number;
 }
 
 sub create_trans_number {
