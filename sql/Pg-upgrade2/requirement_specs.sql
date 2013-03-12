@@ -189,6 +189,7 @@ CREATE TABLE requirement_spec_text_blocks (
        text                TEXT,
        position            INTEGER   NOT NULL,
        output_position     INTEGER   NOT NULL DEFAULT 1,
+       is_flagged          BOOLEAN   NOT NULL DEFAULT FALSE,
        itime               TIMESTAMP NOT NULL DEFAULT now(),
        mtime               TIMESTAMP,
 

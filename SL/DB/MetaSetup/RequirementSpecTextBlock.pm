@@ -18,11 +18,19 @@ __PACKAGE__->meta->setup(
     output_position     => { type => 'integer', default => 1, not_null => 1 },
     itime               => { type => 'timestamp', default => 'now()', not_null => 1 },
     mtime               => { type => 'timestamp' },
+    is_flagged          => { type => 'boolean', default => 'false', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
 
   allow_inline_column_values => 1,
+
+  foreign_keys => [
+    requirement_spec => {
+      class       => 'SL::DB::RequirementSpec',
+      key_columns => { requirement_spec_id => 'id' },
+    },
+  ],
 );
 
 1;
