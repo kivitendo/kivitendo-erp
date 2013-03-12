@@ -17,7 +17,6 @@ __PACKAGE__->meta->setup(
     category       => { type => 'character', length => 1 },
     link           => { type => 'text' },
     taxkey_id      => { type => 'integer' },
-    pos_ustva      => { type => 'integer' },
     pos_bwa        => { type => 'integer' },
     pos_bilanz     => { type => 'integer' },
     pos_eur        => { type => 'integer' },
