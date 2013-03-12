@@ -5,6 +5,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use List::MoreUtils qw(apply);
+use List::Util qw(first);
 use Time::HiRes ();
 
 use SL::DB::RequirementSpec;
@@ -17,20 +18,19 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(requirement_spec item visible_item visible_section) ],
+  scalar                  => [ qw(item visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(complexities risks) ],
 );
 
-# __PACKAGE__->run_before('load_requirement_spec');
-__PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit) ]);
-__PACKAGE__->run_before('init_visible_section',       only => [ qw(dragged_and_dropped ajax_list   ajax_edit) ]);
+__PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit ajax_delete) ]);
+__PACKAGE__->run_before('init_visible_section',       only => [ qw(dragged_and_dropped ajax_list   ajax_edit ajax_delete) ]);
 
 #
 # actions
 #
 
 sub action_ajax_list {
-  my ($self) = @_;
+  my ($self, $js) = @_;
 
   my $js = SL::ClientJS->new;
 
@@ -41,12 +41,7 @@ sub action_ajax_list {
 
   $self->item(SL::DB::RequirementSpecItem->new(id => $::form->{clicked_id})->load->get_section);
 
-  if (!$self->visible_section || ($self->visible_section->id != $self->item->id)) {
-    my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
-    $js->html('#column-content', $html)
-       ->val('#current_content_type', $self->item->get_type)
-       ->val('#current_content_id', $self->item->id);
-  }
+  $self->render_list($js, $self->item) if !$self->visible_section || ($self->visible_section->id != $self->item->id);
 
   $self->render($js);
 }
@@ -190,6 +185,49 @@ sub action_ajax_update {
   $js->render($self);
 }
 
+sub action_ajax_delete {
+  my ($self) = @_;
+
+  my $js = SL::ClientJS->new;
+
+  $self->item->delete;
+
+  if ($self->visible_section && ($self->visible_section->id == $self->item->id)) {
+    # Currently visible section is deleted.
+
+    my $new_section = first { $_->id != $self->item->id } @{ $self->item->requirement_spec->sections };
+    if ($new_section) {
+      $self->render_list($js, $new_section);
+
+    } else {
+      my $html = $self->render('requirement_spec_item/_no_section', { output => 0 });
+      $js->html('#column-content', $html)
+         ->val('#current_content_type', '')
+         ->val('#current_content_id', '')
+    }
+
+  } elsif ($self->visible_section && ($self->visible_section->id == $self->item->get_section->id)) {
+    # Item in currently visible section is deleted.
+
+    my $type = $self->item->get_type;
+    $js->remove('#edit_function_block_' . $self->item->id . '_form')
+       ->remove('#' . $type . '-' . $self->item->id);
+
+    $self->replace_bottom($js, $self->item->parent_id) if $type eq 'sub-function-block';
+
+    if (1 == scalar @{ $self->item->get_full_list }) {
+      if ($type eq 'function-block') {
+        $js->show('#section-list-empty');
+      } elsif ($type eq 'sub-function-block') {
+        $js->hide('#sub-function-block-container-' . $self->item->parent_id);
+      }
+    }
+  }
+
+  $js->jstree->delete_node('#tree', '#fb-' . $self->item->id)
+     ->render($self);
+}
+
 #
 # filters
 #
@@ -225,7 +263,9 @@ sub init_visible_section {
   return undef unless $content_id;
   return undef unless $content_type =~ m/section|function-block/;
 
-  $self->visible_item(SL::DB::RequirementSpecItem->new(id => $content_id)->load);
+  $self->visible_item(SL::DB::Manager::RequirementSpecItem->find_by(id => $content_id));
+  return undef unless $self->visible_item;
+
   return $self->visible_section($self->visible_item->get_section);
 }
 
@@ -248,6 +288,16 @@ sub replace_bottom {
   my $id_prefix = $item->get_type eq 'function-block' ? '' : 'sub-';
   my $html      = $self->render('requirement_spec_item/_function_block_content_bottom', { output => 0 }, requirement_spec_item => $item, id_prefix => $id_prefix);
   return $js->replaceWith('#' . $id_prefix . 'function-block-content-bottom-' . $item->id, $html);
+}
+
+sub render_list {
+  my ($self, $js, $item) = @_;
+
+  my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $item);
+  $js->html('#column-content',      $html)
+     ->val( '#current_content_type', $item->get_type)
+     ->val( '#current_content_id',   $item->id)
+     ->jstree->select_node('#tree', '#fb-' . $item->id);
 }
 
 1;
