@@ -6,6 +6,9 @@ use SL::DB::MetaSetup::RequirementSpecItem;
 use SL::DB::Manager::RequirementSpecItem;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::AttrDuration;
+use SL::DB::Default;
+use SL::Locale::String;
+use SL::PrefixedNumber;
 
 __PACKAGE__->meta->add_relationship(
   children     => {
@@ -32,6 +35,7 @@ __PACKAGE__->meta->initialize;
 __PACKAGE__->configure_acts_as_list(group_by => [qw(requirement_spec_id parent_id)]);
 __PACKAGE__->attr_duration(qw(time_estimation));
 
+__PACKAGE__->before_save(\&_before_save_create_fb_number);
 __PACKAGE__->before_delete(\&_before_delete_delete_children);
 
 sub _before_delete_delete_children {
@@ -43,6 +47,25 @@ sub _before_delete_delete_children {
   }
 
   1;
+}
+
+sub _before_save_create_fb_number {
+  my ($self) = @_;
+
+  return 1 if  $self->fb_number;
+  return 0 if !$self->requirement_spec_id;
+
+  my $method      = 'previous_' . ($self->parent_id ? 'fb' : 'section') . '_number';
+  my $next_number = $self->requirement_spec->$method + 1;
+
+  $self->requirement_spec->update_attributes($method => $next_number) || return 0;
+
+  my $method = 'requirement_spec_' . ($self->parent_id ? 'function_block' : 'section') . '_number_format';
+  my $format = SL::DB::Default->get->$method;
+
+  $self->fb_number(SL::PrefixedNumber->new(number => $format || 0)->set_to($next_number));
+
+  return 1;
 }
 
 sub validate {
