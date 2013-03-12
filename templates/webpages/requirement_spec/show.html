@@ -150,34 +150,5 @@ $(function(){
   });
 });
 
-function edit_section_header() {
-  $.post("controller.pl?action=RequirementSpecItem/edit_section&id=" + encodeURIComponent($('#active_section_id').val()), function(data) {
-    var header = $('#section-header');
-    header.data('old-elements', header.children().detach());
-    header.html(data);
-  });
-}
-
-function submit_section_form() {
-  $.post("controller.pl?action=RequirementSpecItem/update_section&id=" + $('#section-form form').serialize(), function(data) {
-    var header = $('#section-header');
-    header.removeData('old-elements');
-    header.html(data['header_html']);
-    $('#tree').jstree('rename_node', '#fb-' + data['id'], data['node_name']);
-  });
-}
-
-function cancel_section_form() {
-  var header = $('#section-header');
-  header.empty();
-  header.append(header.data('old-elements'));
-  header.removeData('old-elements');
-}
-
-
-
-
-
-
   -->
 </script>

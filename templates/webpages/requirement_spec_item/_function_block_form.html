@@ -29,12 +29,12 @@
 
   <div style="width: 59%">
    [% LxERP.t8("Description of #1", SELF.item.fb_number) %]:<br>
-   [% L.textarea_tag(id_base _ '.description', SELF.item.description, id=id_base _ '_description', rows=8, style="width: 100%") %]
+   [% L.textarea_tag(id_base _ '.description', SELF.item.description, rows=8, style="width: 100%") %]
   </div>
  </div>
 
  <p>
   [% L.button_tag('submit_edit_item_form("' _ id_base _ '")', LxERP.t8('Save')) %]
-  <a href="#" onclick="cancel_edit_item_form('[% id_base %]', '[% SELF.item.get_type %]-content-top')">[%- LxERP.t8("Cancel") %]</a>
+  <a href="#" onclick="cancel_edit_item_form('[% id_base %]', '[% '#' _ SELF.item.get_type _ '-content-top-' _ SELF.item.id %]')">[%- LxERP.t8("Cancel") %]</a>
  </p>
 </form>

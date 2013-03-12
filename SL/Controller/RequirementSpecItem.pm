@@ -112,6 +112,12 @@ sub action_dragged_and_dropped {
   $self->render($js);
 }
 
+sub action_ajax_add {
+  my ($self, %params) = @_;
+
+  die "TODO: add action";
+}
+
 sub action_ajax_edit {
   my ($self, %params) = @_;
 
@@ -119,39 +125,53 @@ sub action_ajax_edit {
 
   my $js = SL::ClientJS->new;
 
-  die "TODO: edit section" if $self->item->get_type =~ m/section/;
-
   if (!$self->visible_section || ($self->visible_section->id != $self->item->get_section->id)) {
+    # Show section/item to edit if it is not visible.
+
     my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
     $js->html('#column-content', $html);
   }
 
-  if ($self->item->get_type =~ m/function-block/) {
-    my $create_item = sub {
-      [ $_[0]->id, $self->presenter->truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description))) ]
-    };
-    my @dependencies =
-      map { [ $_->fb_number . ' ' . $_->title,
-              [ map { ( $create_item->($_),
-                        map { $create_item->($_, '->') } @{ $_->sorted_children })
-                    } @{ $_->sorted_children } ] ]
-          } @{ $self->item->requirement_spec->sections };
+  if ($self->item->get_type =~ m/section/) {
+    # Edit the section header, not an item.
+    my $html = $self->render('requirement_spec_item/_section_form', { output => 0 });
 
-    my @selected_dependencies = map { $_->id } @{ $self->item->dependencies };
-
-    my $html                  = $self->render('requirement_spec_item/_function_block_form', { output => 0 }, DEPENDENCIES => \@dependencies, SELECTED_DEPENDENCIES => \@selected_dependencies);
-    my $id_base               = $self->item->get_type . '-' . $self->item->id;
-    my $content_top_id        = '#' . $self->item->get_type . '-content-top-' . $self->item->id;
-
-    $js->hide($content_top_id)
-       ->remove("#edit_${id_base}_form")
-       ->insertAfter($html, $content_top_id)
+    $js->hide('#section-header-' . $self->item->id)
+       ->remove("#edit_section_form")
+       ->insertAfter($html, '#section-header-' . $self->item->id)
        ->jstree->select_node('#tree', '#fb-' . $self->item->id)
-       ->focus("#edit_${id_base}_description")
-       ->val('#current_content_type', $self->item->get_type)
-       ->val('#current_content_id', $self->item->id)
+       ->focus("#edit_section_title")
+       ->val('#current_content_type', 'section')
+       ->val('#current_content_id',   $self->item->id)
        ->render($self);
+    return;
   }
+
+  # Edit a function block or a sub function block
+  my $create_item = sub {
+    [ $_[0]->id, $self->presenter->truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description))) ]
+  };
+  my @dependencies =
+    map { [ $_->fb_number . ' ' . $_->title,
+            [ map { ( $create_item->($_),
+                      map { $create_item->($_, '->') } @{ $_->sorted_children })
+                  } @{ $_->sorted_children } ] ]
+        } @{ $self->item->requirement_spec->sections };
+
+  my @selected_dependencies = map { $_->id } @{ $self->item->dependencies };
+
+  my $html                  = $self->render('requirement_spec_item/_function_block_form', { output => 0 }, DEPENDENCIES => \@dependencies, SELECTED_DEPENDENCIES => \@selected_dependencies);
+  my $id_base               = 'edit_function_block_' . $self->item->id;
+  my $content_top_id        = '#' . $self->item->get_type . '-content-top-' . $self->item->id;
+
+  $js->hide($content_top_id)
+     ->remove("#${id_base}_form")
+     ->insertAfter($html, $content_top_id)
+     ->jstree->select_node('#tree', '#fb-' . $self->item->id)
+     ->focus("#${id_base}_description")
+     ->val('#current_content_type', $self->item->get_type)
+     ->val('#current_content_id', $self->item->id)
+     ->render($self);
 }
 
 sub action_ajax_update {
@@ -170,7 +190,26 @@ sub action_ajax_update {
 
   $self->item->save;
 
-  my $id_prefix    = $self->item->get_type eq 'function-block' ? '' : 'sub-';
+  my $type = $self->item->get_type;
+
+  if ($type eq 'section') {
+    # Updated section, now update section header.
+
+    my $html = $self->render('requirement_spec_item/_section_header', { output => 0 }, requirement_spec_item => $self->item);
+
+    return SL::ClientJS->new
+      ->remove('#edit_section_form')
+      ->html('#section-header-' . $self->item->id, $html)
+      ->show('#section-header-' . $self->item->id)
+      ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item))
+      ->render($self);
+  }
+
+  # Updated function block or sub function block. Update (sub)
+  # function block and potentially the bottom of the parent function
+  # block.
+
+  my $id_prefix    = $type eq 'function-block' ? '' : 'sub-';
   my $html_top     = $self->render('requirement_spec_item/_function_block_content_top',    { output => 0 }, requirement_spec_item => $self->item, id_prefix => $id_prefix);
   $id_prefix      .= 'function-block-content-';
 
@@ -180,7 +219,7 @@ sub action_ajax_update {
     ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item));
 
   $self->replace_bottom($js, $self->item, id_prefix => $id_prefix);
-  $self->replace_bottom($js, $self->item->parent) if $self->item->get_type eq 'sub-function-block';
+  $self->replace_bottom($js, $self->item->parent) if $type eq 'sub-function-block';
 
   $js->render($self);
 }

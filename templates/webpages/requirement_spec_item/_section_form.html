@@ -1,25 +1,27 @@
 [%- USE HTML %][%- USE L %][%- USE LxERP %]
-[%- SET id_base="section-form" %]
-<div id="[% id_base %]">
+[%- DEFAULT id_base="edit_section" %]
+[%- SET style="width: 500px" %]
+<form id="[% id_base %]_form">
  <h1>[%- LxERP.t8("Edit section #1", SELF.item.fb_number) %]</h1>
 
- <form>
-  [% L.hidden_tag("requirement_spec_id", SELF.item.requirement_spec_id, id=(id_base _ "-requirement-spec-id")) %]
-  [% L.hidden_tag("id", SELF.item.id, id=(id_base _ "-requirement-spec-item-id")) %]
+ [% L.hidden_tag(id_base _ '_id',                  SELF.item.id) %]
+ [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.item.requirement_spec_id) %]
+ [% IF insert_after %]
+  [% L.hidden_tag(id_base _ '.insert_after',       insert_after) %]
+ [% END %]
 
-  <p>
-   [%- LxERP.t8("Title") %]:<br>
-   [% L.input_tag("title", SELF.item.title, id=(id_base _ "-title")) %]
-  </p>
+ <p>
+  [%- LxERP.t8("Title") %]:<br>
+  [% L.input_tag(id_base _ '.title', SELF.item.title, style=style) %]
+ </p>
 
-  <p>
-   [%- LxERP.t8("Description") %]:<br>
-   [% L.textarea_tag("description", SELF.item.description, id=(id_base _ "-description"), rows=8, cols=80) %]
-  </p>
+ <p>
+  [%- LxERP.t8("Description") %]:<br>
+  [% L.textarea_tag(id_base _ '.description', SELF.item.description, rows=8, cols=80, style=style) %]
+ </p>
 
-  <p>
-   [% L.button_tag("submit_section_form()", LxERP.t8("Save")) %]
-   <a href="#" onclick="cancel_section_form()">[% LxERP.t8("Cancel") %]</a>
-  </p>
- </form>
-</div>
+ <p>
+  [% L.button_tag('submit_edit_item_form("' _ id_base _ '")', LxERP.t8('Save')) %]
+  <a href="#" onclick="cancel_edit_item_form('[% id_base %]', '[% '#section-header-' _ SELF.item.id %]')">[%- LxERP.t8("Cancel") %]</a>
+ </p>
+</form>

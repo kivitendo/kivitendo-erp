@@ -221,9 +221,8 @@ function submit_edit_item_form(id_base) {
   return true;
 }
 
-function cancel_edit_item_form(form_id_base, hidden_id_base) {
-  var id = $('#' + form_id_base + '_id').val();
+function cancel_edit_item_form(form_id_base, to_show) {
   $('#' + form_id_base + '_form').remove();
-  if (id)
-    $('#' + hidden_id_base + '-' + id).show();
+  if (to_show)
+    $(to_show).show();
 }
