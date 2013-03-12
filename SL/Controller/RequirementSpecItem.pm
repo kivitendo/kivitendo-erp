@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use Carp;
 use List::MoreUtils qw(apply);
 use List::Util qw(first);
 use Time::HiRes ();
@@ -23,7 +24,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit ajax_delete) ]);
-__PACKAGE__->run_before('init_visible_section',       only => [ qw(dragged_and_dropped ajax_list   ajax_edit ajax_delete) ]);
+__PACKAGE__->run_before('init_visible_section');
 
 #
 # actions
@@ -130,6 +131,18 @@ sub action_ajax_add_section {
     ->render($self);
 }
 
+sub action_ajax_add_function_block {
+  my ($self, %params) = @_;
+
+  return $self->add_function_block('function-block');
+}
+
+sub action_ajax_add_sub_function_block {
+  my ($self, %params) = @_;
+
+  return $self->add_function_block('sub-function-block');
+}
+
 sub action_ajax_create {
   my ($self, %params) = @_;
 
@@ -187,16 +200,7 @@ sub action_ajax_edit {
   }
 
   # Edit a function block or a sub function block
-  my $create_item = sub {
-    [ $_[0]->id, $self->presenter->truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description))) ]
-  };
-  my @dependencies =
-    map { [ $_->fb_number . ' ' . $_->title,
-            [ map { ( $create_item->($_),
-                      map { $create_item->($_, '->') } @{ $_->sorted_children })
-                  } @{ $_->sorted_children } ] ]
-        } @{ $self->item->requirement_spec->sections };
-
+  my @dependencies          = $self->create_dependencies;
   my @selected_dependencies = map { $_->id } @{ $self->item->dependencies };
 
   my $html                  = $self->render('requirement_spec_item/_function_block_form', { output => 0 }, DEPENDENCIES => \@dependencies, SELECTED_DEPENDENCIES => \@selected_dependencies);
@@ -376,6 +380,77 @@ sub render_list {
      ->val( '#current_content_type', $item->get_type)
      ->val( '#current_content_id',   $item->id)
      ->jstree->select_node('#tree', '#fb-' . $item->id);
+}
+
+sub create_dependency_item {
+  my $self = shift;
+  [ $_[0]->id, $self->presenter->truncate(join(' ', grep { $_ } ($_[1], $_[0]->fb_number, $_[0]->description))) ];
+}
+
+sub create_dependencies {
+  my ($self) = @_;
+
+  return map { [ $_->fb_number . ' ' . $_->title,
+                 [ map { ( $self->create_dependency_item($_),
+                           map { $self->create_dependency_item($_, '->') } @{ $_->sorted_children })
+                       } @{ $_->sorted_children } ] ]
+             } @{ $self->item->requirement_spec->sections };
+}
+
+sub add_function_block {
+  my ($self, $new_type) = @_;
+
+  die "Invalid new_type '$new_type'"            if $new_type !~ m/^(?:sub-)?function-block$/;
+  die "Missing parameter 'id'"                  if !$::form->{id};
+  die "Missing parameter 'requirement_spec_id'" if !$::form->{requirement_spec_id};
+
+  my $clicked_item = SL::DB::RequirementSpecItem->new(id => $::form->{id})->load;
+  my $clicked_type = $clicked_item->get_type;
+
+  die "Invalid clicked_type '$clicked_type'" if $clicked_type !~ m/^(?: section | (?:sub-)? function-block )$/x;
+
+  my $case = "${clicked_type}:${new_type}";
+
+  my ($insert_position, $insert_reference, $parent_id, $display_reference)
+    = $case eq 'section:function-block'                ? ( 'appendTo',    $clicked_item->id,        $clicked_item->id,                '#section-list'                  )
+    : $case eq 'function-block:function-block'         ? ( 'insertAfter', $clicked_item->id,        $clicked_item->parent_id,         '#function-block-'               )
+    : $case eq 'function-block:sub-function-block'     ? ( 'appendTo'  ,  $clicked_item->id,        $clicked_item->id,                '#sub-function-block-container-' )
+    : $case eq 'sub-function-block:function-block'     ? ( 'insertAfter', $clicked_item->parent_id, $clicked_item->parent->parent_id, '#function-block-'               )
+    : $case eq 'sub-function-block:sub-function-block' ? ( 'insertAfter', $clicked_item->id,        $clicked_item->parent_id,         '#sub-function-block-'           )
+    :                                                    die "Invalid combination of 'clicked_type (section)/new_type ($new_type)'";
+
+  $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id}, parent_id => $parent_id));
+
+  $display_reference .= $insert_reference if $display_reference =~ m/-$/;
+  my $id_base         = join('_', 'new_function_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  my $html            = $self->render(
+    'requirement_spec_item/_function_block_form',
+    { output => 0 },
+    DEPENDENCIES          => [ $self->create_dependencies ],
+    SELECTED_DEPENDENCIES => [],
+    requirement_spec_item => $self->item,
+    id_base               => $id_base,
+    insert_after          => $insert_reference,
+  );
+
+  my $js = SL::ClientJS->new;
+
+  my $new_section = $self->item->get_section;
+  if (!$self->visible_section || ($self->visible_section->id != $new_section->id)) {
+    # Show section/item to edit if it is not visible.
+
+    $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $new_section);
+    $js->html('#column-content', $html)
+       ->val('#current_content_type', 'section')
+       ->val('#current_content_id',   $new_section->id)
+       ->jstree->select_node('#tree', '#fb-' . $new_section->id);
+  }
+
+  # $::lxdebug->message(0, "alright! clicked ID " . $::form->{id} . " type $clicked_type new_type $new_type insert_pos $insert_position ref " . ($insert_reference // '<undef>') . " parent $parent_id display_ref $display_reference");
+
+  $js->action($insert_position, $html, $display_reference)
+     ->focus("#${id_base}_description")
+     ->render($self);
 }
 
 1;

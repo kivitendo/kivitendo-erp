@@ -28,7 +28,13 @@
   </div>
 
   <div style="width: 59%">
-   [% LxERP.t8("Description of #1", SELF.item.fb_number) %]:<br>
+[%- IF SELF.item.id -%]
+   [% LxERP.t8("Description of #1", SELF.item.fb_number) %]
+[%- ELSIF SELF.item.get_type == 'function-block' -%]
+   [%- LxERP.t8("Add function block") %]
+[%- ELSE -%]
+   [%- LxERP.t8("Add sub function block") %]
+[%- END -%]:<br>
    [% L.textarea_tag(id_base _ '.description', SELF.item.description, rows=8, style="width: 100%") %]
   </div>
  </div>
