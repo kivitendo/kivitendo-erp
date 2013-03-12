@@ -158,7 +158,7 @@ sub select_tag {
   };
 
   my $code  = '';
-  $code    .= $self->html_tag('option', $self->escape($empty_title || '')) if $with_empty;
+  $code    .= $self->html_tag('option', $self->escape($empty_title || ''), value => '') if $with_empty;
 
   if (!$with_optgroups) {
     $code .= $list_to_code->($collection);
