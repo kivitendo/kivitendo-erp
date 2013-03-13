@@ -273,7 +273,7 @@ sub output_position_from_id {
     return undef                 if $type !~ m/text-block/;
   }
 
-  my $text_block = SL::DB::Manager::RequirementSpecTextBlock->find_by(id => $id);
+  my $text_block = $id ? SL::DB::Manager::RequirementSpecTextBlock->find_by(id => $id) : undef;
 
   return $text_block ? $text_block->output_position : undef;
 }
