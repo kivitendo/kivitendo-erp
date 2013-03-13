@@ -1,4 +1,4 @@
-use Test::More tests => 51;
+use Test::More;
 use Test::Exception;
 
 use strict;
@@ -9,9 +9,18 @@ use utf8;
 use Data::Dumper;
 use Support::TestSetup;
 
-use_ok 'SL::DB::RequirementSpec';
-use_ok 'SL::DB::RequirementSpecItem';
-use_ok 'SL::DB::RequirementSpecTextBlock';
+eval {
+  require 'SL::DB::RequirementSpec';
+  require 'SL::DB::RequirementSpecItem';
+  require 'SL::DB::RequirementSpecTextBlock';
+  1;
+} or my $skip = 'RequirementSpec is not available for this test';
+
+if ($skip) {
+  plan skip_all => $skip;
+} else {
+  plan tests => 48;
+}
 
 sub reset_state {
   "SL::DB::Manager::${_}"->delete_all(all => 1) for qw(RequirementSpecTextBlock RequirementSpecItem RequirementSpec);
