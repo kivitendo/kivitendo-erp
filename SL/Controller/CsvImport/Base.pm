@@ -416,7 +416,10 @@ sub save_objects {
 
     my $object = $entry->{object_to_save} || $entry->{object};
 
-    if ( !$object->save(cascade => !!$self->save_with_cascade()) ) {
+    my $ret;
+    if (!eval { $ret = $object->save(cascade => !!$self->save_with_cascade()); 1 }) {
+      push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $@);
+    } elsif ( !$ret ) {
       push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $entry->{object}->db->error);
     } else {
       $self->_save_history($object);
