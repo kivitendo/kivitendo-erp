@@ -159,18 +159,6 @@ function standard_text_block_ajax_call(key, opt, other_data) {
   return true;
 }
 
-function submit_edit_text_block_form(id_base) {
-  var id   = $('#' + id_base + '_id').val();
-  var url  = "controller.pl?" + $('#' + id_base + '_form').serialize();
-  var data = {
-    action:      'RequirementSpecTextBlock/ajax_' + (id ? 'update' : 'create'),
-    id:          id,
-    form_prefix: id_base
-  };
-  $.post(url, data, eval_json_result);
-  return true;
-}
-
 function cancel_edit_text_block_form(id_base) {
   var id = $('#' + id_base + '_id').val();
   $('#' + id_base + '_form').remove();

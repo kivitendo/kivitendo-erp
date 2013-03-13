@@ -10,7 +10,8 @@
   [%- END %]
  </h2>
 
- [% L.hidden_tag(id_base _ '_id',                  SELF.text_block.id) %]
+ [% L.hidden_tag('form_prefix',                    id_base,            id=id_base _ '_form_prefix') %]
+ [% L.hidden_tag('id',                             SELF.text_block.id, id=id_base _ '_id') %]
  [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.text_block.requirement_spec_id) %]
  [% L.hidden_tag(id_base _ '.output_position',     SELF.text_block.output_position) %]
  [% IF insert_after %]
@@ -40,7 +41,7 @@
  </table>
 
  <p>
-  [% L.button_tag('submit_edit_text_block_form("' _ id_base _ '")', LxERP.t8('Save')) %]
+  [%- L.ajax_submit_tag('controller.pl?action=RequirementSpecTextBlock/ajax_' _ (SELF.text_block.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
   <a href="#" onclick="cancel_edit_text_block_form('[% id_base %]')">[%- LxERP.t8("Cancel") %]</a>
  </p>
 
