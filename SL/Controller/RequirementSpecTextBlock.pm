@@ -126,6 +126,7 @@ sub action_ajax_create {
   SL::ClientJS->new
     ->replaceWith('#' . $::form->{form_prefix} . '_form', $html)
     ->jstree->create_node('#tree', $insert_after ? ('#tb-' . $insert_after, 'after') : ('#tb-' . ($attributes->{output_position} == 0 ? 'front' : 'back'), 'last'), $node)
+    ->jstree->select_node('#tree', '#tb-' . $self->text_block->id)
     ->render($self);
 }
 
