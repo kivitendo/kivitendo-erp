@@ -95,6 +95,9 @@ my %supported_methods = (
   'jstree:select_node'   => 2,  # $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>, true)
   'jstree:deselect_node' => 2,
   'jstree:deselect_all'  => 1,
+
+  # ## other stuff ##
+  redirect_to            => 1,  # window.location.href = <TARGET>
 );
 
 sub AUTOLOAD {
@@ -400,6 +403,14 @@ client will then show the message in the 'error' flash.
 
 The messages of multiple calls of C<error> on the same C<$self> will
 be merged.
+
+=item C<redirect_to $url>
+
+Redirects the browser window to the new URL by setting the JavaScript
+property C<window.location.href>. Note that
+L<SL::Controller::Base/redirect_to> is AJAX aware and uses this
+function if the current request is an AJAX request as determined by
+L<SL::Request/is_ajax>.
 
 =back
 

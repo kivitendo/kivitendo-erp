@@ -109,11 +109,20 @@ function eval_json_result(data) {
       else if (action[0] == 'jstree:deselect_node') $.jstree._reference($(action[1])).deselect_node(action[2]);
       else if (action[0] == 'jstree:deselect_all')  $.jstree._reference($(action[1])).deselect_all();
 
+      // ## other stuff ##
+      else if (action[0] == 'redirect_to')          window.location.href = action[1];
+
       else                                          console.log('Unknown action: ' + action[0]);
 
     });
 
   // console.log("current_content_type " + $('#current_content_type').val() + ' ID ' + $('#current_content_id').val());
+}
+
+function submit_ajax_form(url, form_selector, additional_data) {
+  var separator = /\?/.test(url) ? '&' : '?';
+  $.post(url + separator + $(form_selector).serialize(), additional_data, eval_json_result);
+  return true;
 }
 
 // Local Variables:

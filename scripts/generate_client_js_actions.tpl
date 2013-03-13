@@ -32,6 +32,12 @@ function eval_json_result(data) {
   // console.log("current_content_type " + $('#current_content_type').val() + ' ID ' + $('#current_content_id').val());
 }
 
+function submit_ajax_form(url, form_selector, additional_data) {
+  var separator = /\?/.test(url) ? '&' : '?';
+  $.post(url + separator + $(form_selector).serialize(), additional_data, eval_json_result);
+  return true;
+}
+
 // Local Variables:
 // mode: js
 // End:
