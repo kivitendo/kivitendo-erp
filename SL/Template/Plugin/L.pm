@@ -185,6 +185,16 @@ sub button_tag {
   return $self->html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
 }
 
+sub ajax_submit_tag {
+  my ($self, $url, $form_selector, $text, @slurp) = @_;
+
+  $url           = _J($url);
+  $form_selector = _J($form_selector);
+  my $onclick    = qq|submit_ajax_form('${url}', '${form_selector}')|;
+
+  return $self->button_tag($onclick, $text, @slurp);
+}
+
 sub yes_no_tag {
   my ($self, $name, $value) = splice @_, 0, 3;
   my %attributes            = _hashify(@_);
@@ -576,6 +586,14 @@ If C<$attributes{confirm}> is set then a JavaScript popup dialog will
 be added via the C<onclick> handler asking the question given with
 C<$attributes{confirm}>. The request is only submitted if the user
 clicks the dialog's ok/yes button.
+
+=item C<ajax_submit_tag $url, $form_selector, $text, %attributes>
+
+Creates a HTML 'input type="button"' tag with a very specific onclick
+handler that submits the form given by the jQuery selector
+C<$form_selector> to the URL C<$url> (the actual JavaScript function
+called for that is C<submit_ajax_form()> in C<js/client_js.js>). The
+button's label will be C<$text>.
 
 =item C<button_tag $onclick, $text, %attributes>
 
