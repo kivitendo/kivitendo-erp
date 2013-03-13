@@ -12,7 +12,8 @@
 
  [%- END %]
 
- [% L.hidden_tag(id_base _ '_id',                  SELF.item.id) %]
+ [% L.hidden_tag('form_prefix',                    id_base       id=id_base _ '_form_prefix') %]
+ [% L.hidden_tag('id',                             SELF.item.id, id=id_base _ '_id') %]
  [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.item.requirement_spec_id) %]
  [% IF insert_after %]
   [% L.hidden_tag(id_base _ '.insert_after',       insert_after) %]
@@ -29,7 +30,7 @@
  </p>
 
  <p>
-  [% L.button_tag('submit_edit_item_form("' _ id_base _ '")', LxERP.t8('Save')) %]
+  [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
   <a href="#" onclick="cancel_edit_item_form('[% id_base %]', { to_show: '[% hidden %]' })">[%- LxERP.t8("Cancel") %]</a>
  </p>
 </form>

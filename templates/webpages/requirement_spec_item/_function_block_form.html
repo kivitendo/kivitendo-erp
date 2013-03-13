@@ -9,7 +9,8 @@
  [%- SET a_options = a_options _ "to_hide_if_empty: '#sub-function-block-container-" _ SELF.item.parent_id _ "'" %]
 [%- END %]
 <form method="post" id="[% id_base %]_form" class="function-block-form">
- [% L.hidden_tag(id_base _ '_id',                  SELF.item.id) %]
+ [% L.hidden_tag('form_prefix',                    id_base,      id=id_base _ '_form_prefix') %]
+ [% L.hidden_tag('id',                             SELF.item.id, id=id_base _ '_id') %]
  [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.item.requirement_spec_id) %]
  [% L.hidden_tag(id_base _ '.parent_id',           SELF.item.parent_id) %]
  [% IF insert_after %]
@@ -48,7 +49,7 @@
  </div>
 
  <p>
-  [% L.button_tag('submit_edit_item_form("' _ id_base _ '")', LxERP.t8('Save')) %]
+  [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
   <a href="#" onclick="cancel_edit_item_form('[% id_base %]', { [% a_options %] })">[%- LxERP.t8("Cancel") %]</a>
  </p>
 </form>

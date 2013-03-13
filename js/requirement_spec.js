@@ -221,18 +221,6 @@ function disable_add_function_block_command(key, opt) {
   return opt.$trigger.attr('id') != "section-list-empty";
 }
 
-function submit_edit_item_form(id_base) {
-  var id   = $('#' + id_base + '_id').val();
-  var url  = "controller.pl?" + $('#' + id_base + '_form').serialize();
-  var data = {
-    action:      'RequirementSpecItem/ajax_' + (id ? 'update' : 'create'),
-    id:          id,
-    form_prefix: id_base
-  };
-  $.post(url, data, eval_json_result);
-  return true;
-}
-
 function cancel_edit_item_form(form_id_base, options) {
   $('#' + form_id_base + '_form').remove();
   if (!options)
