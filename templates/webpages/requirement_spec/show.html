@@ -2,32 +2,38 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
-<h1>[%- HTML.escape(SELF.requirement_spec.displayable_name('format', 'with_customer')) %]
-  [% LxERP.t8("for") %]
-  [% HTML.escape(SELF.requirement_spec.customer.displayable_name) -%]
-</h1>
+[%- INCLUDE 'requirement_spec/_header.html' %]
 
 [%- L.hidden_tag('requirement_spec_id', SELF.requirement_spec.id) -%]
 
-<div id="requirement_spec_version">
-  [%- INCLUDE 'requirement_spec/_version.html' requirement_spec=SELF.requirement_spec -%]
-</div>
+<div class="tabwidget">
+ <ul>
+  <li><a href="#function-blocks-tab">[%- LxERP.t8("Content") %]</a></li>
+  <li><a href="controller.pl?action=RequirementSpec/ajax_edit&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Basic settings") %]</a></li>
+ </ul>
 
-<div id="column-container">
- <div id="tree-column">
-  <div id="tree"></div>
- </div>
+ <div id="function-blocks-tab">
+  <div id="requirement_spec_version">
+    [%- INCLUDE 'requirement_spec/_version.html' requirement_spec=SELF.requirement_spec -%]
+  </div>
 
- <div id="content-column" class="clearfix">
-  [% L.hidden_tag('current_content_type', SELF.requirement_spec_item.id ? 'section' : '') %]
-  [% L.hidden_tag('current_content_id',   SELF.requirement_spec_item.id) %]
+  <div id="column-container" class="clearfix">
+   <div id="tree-column">
+    <div id="tree"></div>
+   </div>
 
-  <div id="column-content">
-   [%- IF SELF.requirement_spec_item -%]
-    [%- INCLUDE 'requirement_spec_item/_section.html' requirement_spec_item=SELF.requirement_spec_item -%]
-   [%- ELSE -%]
-    [%- INCLUDE 'requirement_spec_item/_no_section.html' -%]
-   [%- END -%]
+   <div id="content-column" class="clearfix">
+    [% L.hidden_tag('current_content_type', SELF.requirement_spec_item.id ? 'section' : '') %]
+    [% L.hidden_tag('current_content_id',   SELF.requirement_spec_item.id) %]
+
+    <div id="column-content">
+     [%- IF SELF.requirement_spec_item -%]
+      [%- INCLUDE 'requirement_spec_item/_section.html' requirement_spec_item=SELF.requirement_spec_item -%]
+     [%- ELSE -%]
+      [%- INCLUDE 'requirement_spec_item/_no_section.html' -%]
+     [%- END -%]
+    </div>
+   </div>
   </div>
  </div>
 </div>

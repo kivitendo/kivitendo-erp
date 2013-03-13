@@ -1,0 +1,8 @@
+[%- USE HTML -%][%- USE LxERP -%]
+<div id="requirement-spec-header">
+ <h1>
+  [%- HTML.escape(SELF.requirement_spec.displayable_name('format', 'with_customer')) %]
+  [% LxERP.t8("for") %]
+  [% HTML.escape(SELF.requirement_spec.customer.displayable_name) -%]
+ </h1>
+</div>

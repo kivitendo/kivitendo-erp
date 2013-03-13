@@ -1,4 +1,16 @@
-/* Functions used for the requirement specs tree view */
+/* Functions used for the requirement specs */
+
+// -----------------------------------------------------------------------------
+// ------------------------------ basic settings -------------------------------
+// -----------------------------------------------------------------------------
+
+function basic_settings_customer_changed(customer_ctrl, value_ctrl) {
+  $.get(
+    'controller.pl?action=Customer/get_hourly_rate',
+    { id: $(customer_ctrl).val() },
+    function(data) { if (data.hourly_rate_formatted) $(value_ctrl).val(data.hourly_rate_formatted); }
+  );
+}
 
 // -----------------------------------------------------------------------------
 // ------------------------------ the tree itself ------------------------------

@@ -304,6 +304,7 @@ $self->{texts} = {
   'Bank transfers via SEPA'     => 'Überweisungen via SEPA',
   'Base unit'                   => 'Basiseinheit',
   'Basic Data'                  => 'Basisdaten',
+  'Basic settings'              => 'Grundeinstellungen',
   'Batch Printing'              => 'Druck',
   'Bcc'                         => 'Bcc',
   'Bcc E-mail'                  => 'BCC (E-Mail)',

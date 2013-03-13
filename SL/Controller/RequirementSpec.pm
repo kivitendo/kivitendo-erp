@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::ClientJS;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
@@ -23,9 +24,9 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('setup');
-__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    edit        update show destroy) ]);
-__PACKAGE__->run_before('load_select_options',        only => [ qw(new edit create update list) ]);
-__PACKAGE__->run_before('load_search_select_options', only => [ qw(                       list) ]);
+__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    ajax_edit        update show destroy) ]);
+__PACKAGE__->run_before('load_select_options',        only => [ qw(new ajax_edit create update list) ]);
+__PACKAGE__->run_before('load_search_select_options', only => [ qw(                            list) ]);
 
 __PACKAGE__->get_models_url_params('flat_filter');
 __PACKAGE__->make_paginated(
@@ -68,13 +69,14 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  $self->{requirement_spec} = SL::DB::RequirementSpec->new;
-  $self->render('requirement_spec/form', title => t8('Create a new requirement spec'));
+  $self->requirement_spec(SL::DB::RequirementSpec->new);
+  $self->render('requirement_spec/new', title => t8('Create a new requirement spec'));
 }
 
-sub action_edit {
+sub action_ajax_edit {
   my ($self) = @_;
-  $self->render('requirement_spec/form', title => t8('Edit requirement spec'));
+
+  $self->render('requirement_spec/_form', { layout => 0 }, submit_as => 'ajax');
 }
 
 sub action_show {
@@ -89,7 +91,7 @@ sub action_show {
 sub action_create {
   my ($self) = @_;
 
-  $self->{requirement_spec} = SL::DB::RequirementSpec->new;
+  $self->requirement_spec(SL::DB::RequirementSpec->new);
   $self->create_or_update;
 }
 
@@ -101,7 +103,7 @@ sub action_update {
 sub action_destroy {
   my ($self) = @_;
 
-  if (eval { $self->{requirement_spec}->delete; 1; }) {
+  if (eval { $self->requirement_spec->delete; 1; }) {
     flash_later('info',  t8('The requirement spec has been deleted.'));
   } else {
     flash_later('error', t8('The requirement spec is in use and cannot be deleted.'));
@@ -135,7 +137,7 @@ sub setup {
 
 sub load_requirement_spec {
   my ($self) = @_;
-  $self->{requirement_spec} = SL::DB::RequirementSpec->new(id => $::form->{id})->load || die "No such requirement spec";
+  $self->requirement_spec(SL::DB::RequirementSpec->new(id => $::form->{id})->load || die "No such requirement spec");
 }
 
 sub load_select_options {
@@ -163,24 +165,34 @@ sub load_search_select_options {
 
 sub create_or_update {
   my $self   = shift;
-  my $is_new = !$self->{requirement_spec}->id;
+  my $is_new = !$self->requirement_spec->id;
   my $params = delete($::form->{requirement_spec}) || { };
   my $title  = $is_new ? t8('Create a new requirement spec') : t8('Edit requirement spec');
 
-  $self->{requirement_spec}->assign_attributes(%{ $params });
+  $self->requirement_spec->assign_attributes(%{ $params });
 
-  my @errors = $self->{requirement_spec}->validate;
+  my @errors = $self->requirement_spec->validate;
 
   if (@errors) {
+    return SL::ClientJS->new->error(@errors)->render($self) if $::request->is_ajax;
+
     flash('error', @errors);
-    $self->render('requirement_spec/form', title => $title);
+    $self->render('requirement_spec/new', title => $title);
     return;
   }
 
-  $self->{requirement_spec}->save;
+  $self->requirement_spec->save;
+
+  if ($::request->is_ajax) {
+    my $html = $self->render('requirement_spec/_header', { output => 0 });
+    return SL::ClientJS->new
+      ->replaceWith('#requirement-spec-header', $html)
+      ->flash('info', t8('The requirement spec has been saved.'))
+      ->render($self);
+  }
 
   flash_later('info', $is_new ? t8('The requirement spec has been created.') : t8('The requirement spec has been saved.'));
-  $self->redirect_to(action => 'list');
+  $self->redirect_to(action => 'show', id => $self->requirement_spec->id);
 }
 
 sub setup_db_args_from_filter {
@@ -214,7 +226,7 @@ sub prepare_report {
   my @sortable    = qw(title customer status type projectnumber);
 
   my %column_defs = (
-    title         => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
+    title         => { obj_link => sub { $self->url_for(action => 'show', id => $_[0]->id, callback => $callback) } },
     customer      => { raw_data => sub { $self->presenter->customer($_[0]->customer, display => 'table-cell', callback => $callback) },
                        sub      => sub { $_[0]->customer->name } },
     projectnumber => { raw_data => sub { $self->presenter->project($_[0]->project, display => 'table-cell', callback => $callback) },
