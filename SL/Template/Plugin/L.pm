@@ -180,6 +180,8 @@ sub button_tag {
   $attributes{id}   ||= $self->name_to_id($attributes{name}) if $attributes{name};
   $attributes{type} ||= 'button';
 
+  $onclick = 'if (!confirm("'. _J(delete($attributes{confirm})) .'")) return false; ' . $onclick if $attributes{confirm};
+
   return $self->html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
 }
 
@@ -572,8 +574,19 @@ tag's C<id> defaults to C<name_to_id($name)>.
 
 If C<$attributes{confirm}> is set then a JavaScript popup dialog will
 be added via the C<onclick> handler asking the question given with
-C<$attributes{confirm}>. If request is only submitted if the user
+C<$attributes{confirm}>. The request is only submitted if the user
 clicks the dialog's ok/yes button.
+
+=item C<button_tag $onclick, $text, %attributes>
+
+Creates a HTML 'input type="button"' tag with an onclick handler
+C<$onclick> and a value of C<$text>. The button does not have a name
+nor an ID by default.
+
+If C<$attributes{confirm}> is set then a JavaScript popup dialog will
+be prepended to the C<$onclick> handler asking the question given with
+C<$attributes{confirm}>. The request is only submitted if the user
+clicks the dialog's "ok/yes" button.
 
 =item C<textarea_tag $name, $value, %attributes>
 
