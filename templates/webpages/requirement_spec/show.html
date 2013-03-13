@@ -99,67 +99,8 @@ $(function() {
 [% IF SELF.requirement_spec_item %]
   $.jstree._reference("#tree").select_node('#fb-[% SELF.requirement_spec_item.id %]', true);
 [% END %]
-});
 
-function ask_delete_text_block(key, opt) {
-  if (confirm("[% LxERP.t8("Are you sure?") %]"))
-    standard_text_block_ajax_call(key, opt);
-  return true;
-}
-
-function ask_delete_item(key, opt) {
-  if (confirm("[% LxERP.t8("Are you sure?") %]"))
-    standard_item_ajax_call(key, opt);
-  return true;
-}
-
-$(function(){
-  $.contextMenu({
-    selector: '.text-block-context-menu',
-    items: {
-      add:    { name: "[% LxERP.t8('Add text block') %]",    icon: "add",    callback: standard_text_block_ajax_call },
-      edit:   { name: "[% LxERP.t8('Edit text block') %]",   icon: "edit",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands },
-      delete: { name: "[% LxERP.t8('Delete text block') %]", icon: "delete", callback: ask_delete_text_block,         disabled: disable_edit_text_block_commands },
-      sep1:   "---------",
-      flag:   { name: "[% LxERP.t8('Toggle marker') %]",     icon: "flag",  callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands },
-      sep2:   "---------",
-      copy:   { name: "[% LxERP.t8('Copy') %]",              icon: "copy",  disabled: disable_edit_text_block_commands },
-      paste:  { name: "[% LxERP.t8('Paste') %]",             icon: "paste", disabled: disable_edit_text_block_commands }
-    }
-  });
-
-
-  $.contextMenu({
-    selector: '.section-context-menu',
-    items: {
-      add_section:        { name: "[% LxERP.t8('Add section') %]",        icon: "add",    callback: standard_item_ajax_call },
-      add_function_block: { name: "[% LxERP.t8('Add function block') %]", icon: "add",    callback: standard_item_ajax_call, disabled: disable_add_function_block_command },
-      sep1:               "---------",
-      edit:               { name: "[% LxERP.t8('Edit') %]",               icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
-      delete:             { name: "[% LxERP.t8('Delete') %]",             icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands },
-      sep2:                   "---------",
-      flag:               { name: "[% LxERP.t8('Toggle marker') %]", icon: "flag", callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
-      sep3:               "---------",
-      copy:               { name: "[% LxERP.t8('Copy') %]",               icon: "copy",  disabled: disable_edit_item_commands },
-      paste:              { name: "[% LxERP.t8('Paste') %]",              icon: "paste", disabled: disable_edit_item_commands }
-    }
-  });
-
-  $.contextMenu({
-    selector: '.function-block-context-menu,.sub-function-block-context-menu',
-    items: {
-      add_function_block:     { name: "[% LxERP.t8('Add function block') %]",     icon: "add", callback: standard_item_ajax_call },
-      add_sub_function_block: { name: "[% LxERP.t8('Add sub function block') %]", icon: "add", callback: standard_item_ajax_call },
-      sep1:                   "---------",
-      edit:                   { name: "[% LxERP.t8('Edit') %]",   icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
-      delete:                 { name: "[% LxERP.t8('Delete') %]", icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands },
-      sep2:                   "---------",
-      flag:                   { name: "[% LxERP.t8('Toggle marker') %]", icon: "flag", callback: standard_item_ajax_call, disabled: disable_edit_item_commands },
-      sep3:                   "---------",
-      copy:                   { name: "[% LxERP.t8('Copy') %]",  icon: "copy",  disabled: disable_edit_item_commands },
-      paste:                  { name: "[% LxERP.t8('Paste') %]", icon: "paste", disabled: disable_edit_item_commands }
-    }
-  });
+  create_requirement_spec_context_menus();
 });
 
   -->

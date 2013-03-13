@@ -178,6 +178,12 @@ function cancel_edit_text_block_form(id_base) {
     $('#text-block-' + id).show();
 }
 
+function ask_delete_text_block(key, opt) {
+  if (confirm(kivi.t8("Are you sure?")))
+    standard_text_block_ajax_call(key, opt);
+  return true;
+}
+
 // --------------------------------------------------------------------------------
 // ------------------------------ sections and items ------------------------------
 // --------------------------------------------------------------------------------
@@ -247,4 +253,64 @@ function cancel_edit_item_form(form_id_base, options) {
     $(options.to_show).show();
   if (options.to_hide_if_empty && (1 == $(options.to_hide_if_empty).children().size()))
     $(options.to_hide_if_empty).hide();
+}
+
+function ask_delete_item(key, opt) {
+  if (confirm(kivi.t8("Are you sure?")))
+    standard_item_ajax_call(key, opt);
+  return true;
+}
+
+function create_requirement_spec_context_menus() {
+  $.contextMenu({
+    selector: '.text-block-context-menu',
+    items: {
+        add:    { name: kivi.t8('Add text block'),    icon: "add",    callback: standard_text_block_ajax_call }
+      , edit:   { name: kivi.t8('Edit text block'),   icon: "edit",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
+      , delete: { name: kivi.t8('Delete text block'), icon: "delete", callback: ask_delete_text_block,         disabled: disable_edit_text_block_commands }
+      , sep1:   "---------"
+      , flag:   { name: kivi.t8('Toggle marker'),     icon: "flag",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
+      , sep2:   "---------"
+      , copy:   { name: kivi.t8('Copy'),              icon: "copy",                                            disabled: function() { return true; } }
+      , paste:  { name: kivi.t8('Paste'),             icon: "paste",                                           disabled: function() { return true; } }
+      // , copy:   { name: kivi.t8('Copy'),              icon: "copy",                                            disabled: disable_edit_text_block_commands }
+      // , paste:  { name: kivi.t8('Paste'),             icon: "paste",                                           disabled: disable_edit_text_block_commands }
+    }
+  });
+
+  $.contextMenu({
+    selector: '.section-context-menu',
+    items: {
+        add_section:        { name: kivi.t8('Add section'),        icon: "add",    callback: standard_item_ajax_call }
+      , add_function_block: { name: kivi.t8('Add function block'), icon: "add",    callback: standard_item_ajax_call, disabled: disable_add_function_block_command }
+      , sep1:               "---------"
+      , edit:               { name: kivi.t8('Edit'),               icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
+      , delete:             { name: kivi.t8('Delete'),             icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands }
+      , sep2:               "---------"
+      , flag:               { name: kivi.t8('Toggle marker'),      icon: "flag",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
+      , sep3:               "---------"
+      , copy:               { name: kivi.t8('Copy'),               icon: "copy",                                      disabled: function() { return true; } }
+      , paste:              { name: kivi.t8('Paste'),              icon: "paste",                                     disabled: function() { return true; } }
+      // , copy:               { name: kivi.t8('Copy'),               icon: "copy",                                      disabled: disable_edit_item_commands }
+      // , paste:              { name: kivi.t8('Paste'),              icon: "paste",                                     disabled: disable_edit_item_commands }
+    }
+  });
+
+  $.contextMenu({
+    selector: '.function-block-context-menu,.sub-function-block-context-menu',
+    items: {
+        add_function_block:     { name: kivi.t8('Add function block'),     icon: "add",    callback: standard_item_ajax_call }
+      , add_sub_function_block: { name: kivi.t8('Add sub function block'), icon: "add",    callback: standard_item_ajax_call }
+      , sep1:                   "---------"
+      , edit:                   { name: kivi.t8('Edit'),                   icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
+      , delete:                 { name: kivi.t8('Delete'),                 icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands }
+      , sep2:                   "---------"
+      , flag:                   { name: kivi.t8('Toggle marker'),          icon: "flag",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
+      , sep3:                   "---------"
+      , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",                                      disabled: function() { return true; } }
+      , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",                                     disabled: function() { return true; } }
+      // , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",                                      disabled: disable_edit_item_commands }
+      // , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",                                     disabled: disable_edit_item_commands }
+    }
+  });
 }
