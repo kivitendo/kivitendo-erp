@@ -40,9 +40,14 @@ sub action_ajax_list {
     return $self->render($js);
   }
 
-  $self->item(SL::DB::RequirementSpecItem->new(id => $::form->{clicked_id})->load->get_section);
+  my $clicked_item = SL::DB::RequirementSpecItem->new(id => $::form->{clicked_id})->load;
+  $self->item($clicked_item->get_section);
 
-  $self->render_list($js, $self->item) if !$self->visible_section || ($self->visible_section->id != $self->item->id);
+  if (!$self->visible_section || ($self->visible_section->id != $self->item->id)) {
+    $self->render_list($js, $self->item, $clicked_item);
+  } else {
+    $self->select_node($js, $clicked_item);
+  }
 
   $self->render($js);
 }
@@ -398,11 +403,16 @@ sub replace_bottom {
 }
 
 sub render_list {
-  my ($self, $js, $item) = @_;
+  my ($self, $js, $item, $item_to_select) = @_;
 
   my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $item);
-  $js->html('#column-content',      $html)
-     ->val( '#current_content_type', $item->get_type)
+  $self->select_node($js->html('#column-content', $html), $item_to_select || $item);
+}
+
+sub select_node {
+  my ($self, $js, $item) = @_;
+
+  $js->val( '#current_content_type', $item->get_type)
      ->val( '#current_content_id',   $item->id)
      ->jstree->select_node('#tree', '#fb-' . $item->id);
 }
