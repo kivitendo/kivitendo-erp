@@ -43,8 +43,8 @@
   [%- END %]
   <a href="[% SELF.url_for(action="list") %]">[% LxERP.t8('Abort') %]</a>
 [% ELSE %]
-  [% L.button_tag("submit_ajax_form('controller.pl?action=RequirementSpec/update',  '#" _ id_prefix _ "')", LxERP.t8("Save")) %]
-  [% L.button_tag("submit_ajax_form('controller.pl?action=RequirementSpec/destroy', '#" _ id_prefix _ "')", LxERP.t8("Delete"), confirm=LxERP.t8("Do you really want to delete this object?")) %]
+  [% L.ajax_submit_tag("controller.pl?action=RequirementSpec/update",  "#" _ id_prefix, LxERP.t8("Save")) %]
+  [% L.ajax_submit_tag("controller.pl?action=RequirementSpec/destroy", "#" _ id_prefix, LxERP.t8("Delete"), confirm=LxERP.t8("Do you really want to delete this object?")) %]
 [% END %]
  </p>
 </form>
