@@ -19,7 +19,7 @@ use Rose::Object::MakeMethods::Generic
   'scalar --get_set_init' => [ qw(predefined_texts) ],
 );
 
-__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete dragged_and_dropped)]);
+__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete ajax_flag dragged_and_dropped)]);
 
 #
 # actions
@@ -170,6 +170,19 @@ sub action_ajax_delete {
 
   $js->jstree->delete_node('#tree', '#tb-' . $self->text_block->id)
      ->render($self);
+}
+
+sub action_ajax_flag {
+  my ($self) = @_;
+
+  $self->text_block->update_attributes(is_flagged => !$self->text_block->is_flagged);
+
+  my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type});
+
+  SL::ClientJS->new
+   ->action_if($current_where == $self->text_block->output_position, 'toggleClass', '#text-block-' . $self->text_block->id, 'flagged')
+   ->toggleClass('#tb-' . $self->text_block->id, 'flagged')
+   ->render($self);
 }
 
 sub action_dragged_and_dropped {

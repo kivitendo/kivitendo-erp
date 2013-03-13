@@ -1,3 +1,7 @@
+/* ------------------------------------------------------------ */
+/* General page layout */
+/* ------------------------------------------------------------ */
+
 input.rs_input_field, select.rs_input_field,
 table.rs_input_field input, table.rs_input_field select {
   width: 300px;
@@ -26,6 +30,26 @@ table.rs_input_field input, table.rs_input_field select {
   color: #bbb;
 }
 
+/* ------------------------------------------------------------ */
+/* Special things that apply to the tree */
+/* ------------------------------------------------------------ */
+
+#tree li.flagged > a > ins {
+ background-image: url("../image/flag-red.png") !important;
+ background-position: 0;
+}
+
+/* ------------------------------------------------------------ */
+/* Special things that apply to the context menu */
+/* ------------------------------------------------------------ */
+
+.context-menu-item.icon-flag { background-image: url("../image/flag-red.png"); }
+
+
+/* ------------------------------------------------------------ */
+/* Sections & function blocks */
+/* ------------------------------------------------------------ */
+
 .function-block {
   border-bottom: 1px solid #bbb;
 }
@@ -43,6 +67,7 @@ table.rs_input_field input, table.rs_input_field select {
 
 .sub-function-block {
   border-bottom: 1px solid #ccc;
+  background-color: #fff;
 }
 
 .sub-function-block-container {
@@ -62,6 +87,65 @@ table.rs_input_field input, table.rs_input_field select {
   border: 1px solid rgb(0, 100, 0);
 }
 
+.function-block-number {
+  font-weight: bold;
+}
+
 .function-block-form > div {
   padding: 5px;
+}
+
+/* Flagged sections, function blocks, text blocks */
+
+.section.flagged .section-description {
+  background-color: #feece3;
+  border: 1px solid #fe5f14;
+}
+
+.section.flagged .section-description > .section-description-heading {
+  background-color: #fe5f14;
+  color: #fff;
+}
+
+
+.function-block.flagged {
+  background-color: #feece3;
+  border: 1px solid #fe5f14;
+}
+
+.function-block.flagged > .function-block-content > div > .function-block-number {
+  background-color: #fe5f14;
+  color: #fff;
+}
+
+.sub-function-block.flagged {
+  background-color: #feece3;
+  border: 1px solid #fe5f14;
+}
+
+.sub-function-block.flagged > .sub-function-block-content > div > .function-block-number {
+  background-color: #fe5f14;
+  color: #fff;
+}
+
+/* ------------------------------------------------------------ */
+/* Text blocks */
+/* ------------------------------------------------------------ */
+
+.requirement-spec-text-block {
+  margin-top: 10px;
+}
+
+.requirement-spec-text-block > h2 {
+  margin-top: 0px;
+}
+
+.requirement-spec-text-block.flagged {
+  background-color: #feece3;
+  border: 1px solid #fe5f14;
+}
+
+.requirement-spec-text-block.flagged > h2 {
+  background-color: #fe5f14;
+  color: #fff;
 }

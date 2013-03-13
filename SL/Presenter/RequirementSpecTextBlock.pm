@@ -14,10 +14,13 @@ use SL::JSON;
 sub requirement_spec_text_block_jstree_data {
   my ($self, $text_block, %params) = @_;
 
+  my $class  = 'text-block-context-menu';
+  $class    .= ' flagged' if $text_block->is_flagged;
+
   return {
     data     => $text_block->title || '',
     metadata => { id =>         $text_block->id, type => 'text-block' },
-    attr     => { id => "tb-" . $text_block->id, href => $params{href} || '#', class => 'text-block-context-menu' },
+    attr     => { id => "tb-" . $text_block->id, href => $params{href} || '#', class => $class },
   };
 }
 

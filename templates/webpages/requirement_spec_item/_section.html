@@ -1,5 +1,5 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%]
-<div id="full-section-content">
+<div id="section-[% requirement_spec_item.id %]" class="section[%- IF requirement_spec_item.is_flagged -%]flagged[%- END -%]">
  <div class="section-context-menu" id="section-header-[% requirement_spec_item.id %]">
   [%- INCLUDE 'requirement_spec_item/_section_header.html' %]
  </div>

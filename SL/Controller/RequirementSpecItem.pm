@@ -23,7 +23,7 @@ use Rose::Object::MakeMethods::Generic
   'scalar --get_set_init' => [ qw(complexities risks) ],
 );
 
-__PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit ajax_delete) ]);
+__PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit ajax_delete ajax_flag) ]);
 __PACKAGE__->run_before('init_visible_section');
 
 #
@@ -320,6 +320,19 @@ sub action_ajax_delete {
 
   $js->jstree->delete_node('#tree', '#fb-' . $self->item->id)
      ->render($self);
+}
+
+sub action_ajax_flag {
+  my ($self) = @_;
+
+  $self->item->update_attributes(is_flagged => !$self->item->is_flagged);
+
+  my $is_visible = $self->visible_section && ($self->visible_section->id == $self->item->get_section->id);
+
+  SL::ClientJS->new
+   ->action_if($is_visible, 'toggleClass', '#' . $self->item->get_type . '-' . $self->item->id, 'flagged')
+   ->toggleClass('#fb-' . $self->item->id, 'flagged')
+   ->render($self);
 }
 
 #
