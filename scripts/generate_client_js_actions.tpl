@@ -16,8 +16,10 @@ function eval_json_result(data) {
   if (data.error)
     return display_flash('error', data.error);
 
-  $('#flash_error').hide();
-  $('#flash_error_content').empty();
+  $(['info', 'warning', 'error']).each(function(idx, category) {
+    $('#flash_' + category).hide();
+    $('#flash_' + category + '_content').empty();
+  });
 
   if ((data.js || '') != '')
     eval(data.js);
