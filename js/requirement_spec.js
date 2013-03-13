@@ -237,10 +237,50 @@ function ask_delete_item(key, opt) {
   return true;
 }
 
+function handle_text_block_popup_menu_markings(opt, add) {
+  var id = find_text_block_id(opt.$trigger);
+  if (id)
+    $('#text-block-' + id).toggleClass('selected', add);
+  return true;
+}
+
+function requirement_spec_text_block_popup_menu_shown(opt) {
+  return handle_text_block_popup_menu_markings(opt, true);
+}
+
+function requirement_spec_text_block_popup_menu_hidden(opt) {
+  return handle_text_block_popup_menu_markings(opt, false);
+}
+
+
+function handle_item_popup_menu_markings(opt, add) {
+  var id = find_item_id(opt.$trigger);
+  if (id)
+    $('#section-' + id + ',#function-block-' + id + ',#sub-function-block-' + id).toggleClass('selected', add);
+  return true;
+}
+
+function requirement_spec_item_popup_menu_shown(opt) {
+  return handle_item_popup_menu_markings(opt, true);
+}
+
+function requirement_spec_item_popup_menu_hidden(opt) {
+  return handle_item_popup_menu_markings(opt, false);
+}
+
 function create_requirement_spec_context_menus() {
+  var events = {
+    show: requirement_spec_text_block_popup_menu_shown,
+    hide: requirement_spec_text_block_popup_menu_hidden
+  };
+
   $.contextMenu({
     selector: '.text-block-context-menu',
-    items: {
+    events:   {
+        show: requirement_spec_text_block_popup_menu_shown
+      , hide: requirement_spec_text_block_popup_menu_hidden
+    },
+    items:    {
         add:    { name: kivi.t8('Add text block'),    icon: "add",    callback: standard_text_block_ajax_call }
       , edit:   { name: kivi.t8('Edit text block'),   icon: "edit",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
       , delete: { name: kivi.t8('Delete text block'), icon: "delete", callback: ask_delete_text_block,         disabled: disable_edit_text_block_commands }
@@ -254,9 +294,15 @@ function create_requirement_spec_context_menus() {
     }
   });
 
+  var events = {
+    show: requirement_spec_item_popup_menu_shown,
+    hide: requirement_spec_item_popup_menu_hidden
+  };
+
   $.contextMenu({
     selector: '.section-context-menu',
-    items: {
+    events:   events,
+    items:    {
         add_section:        { name: kivi.t8('Add section'),        icon: "add",    callback: standard_item_ajax_call }
       , add_function_block: { name: kivi.t8('Add function block'), icon: "add",    callback: standard_item_ajax_call, disabled: disable_add_function_block_command }
       , sep1:               "---------"
@@ -274,7 +320,8 @@ function create_requirement_spec_context_menus() {
 
   $.contextMenu({
     selector: '.function-block-context-menu,.sub-function-block-context-menu',
-    items: {
+    events:   events,
+    items:    {
         add_function_block:     { name: kivi.t8('Add function block'),     icon: "add",    callback: standard_item_ajax_call }
       , add_sub_function_block: { name: kivi.t8('Add sub function block'), icon: "add",    callback: standard_item_ajax_call }
       , sep1:                   "---------"
