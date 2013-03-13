@@ -53,14 +53,14 @@ sub action_ajax_list {
 }
 
 sub action_dragged_and_dropped {
-  my ($self)             = @_;
+  my ($self)              = @_;
 
-  my $position           = $::form->{position} =~ m/^ (?: before | after | last ) $/x ? $::form->{position}                                             : die "Unknown 'position' parameter";
-  my $dropped_item       = $::form->{dropped_id}                                  ? SL::DB::RequirementSpecItem->new(id => $::form->{dropped_id})->load : undef;
+  my $position            = $::form->{position} =~ m/^ (?: before | after | last ) $/x ? $::form->{position}                                             : die "Unknown 'position' parameter";
+  my $dropped_item        = $::form->{dropped_id}                                  ? SL::DB::RequirementSpecItem->new(id => $::form->{dropped_id})->load : undef;
 
-  my $visible_section_id = $self->visible_section ? $self->visible_section->id : undef;
-  my $old_parent_id      = $self->item->parent_id;
-  my $old_type           = $self->item->get_type;
+  my $old_visible_section = $self->visible_section ? $self->visible_section : undef;
+  my $old_parent_id       = $self->item->parent_id;
+  my $old_type            = $self->item->get_type;
 
   $self->item->db->do_transaction(sub {
     $self->item->remove_from_list;
@@ -71,17 +71,27 @@ sub action_dragged_and_dropped {
   my $js = SL::ClientJS->new;
 
   $self->item(SL::DB::RequirementSpecItem->new(id => $self->item->id)->load);
-  my $new_section = $self->item->get_section;
-  my $new_type    = $self->item->get_type;
+  my $new_section         = $self->item->get_section;
+  my $new_type            = $self->item->get_type;
+  my $new_visible_section = SL::DB::RequirementSpecItem->new(id => $self->visible_item->id)->load->get_section;
 
-  return $self->render($js) if !$visible_section_id || ($new_type eq 'section');
+  return $self->render($js) if !$old_visible_section || ($new_type eq 'section');
+
+  # From here on $old_visible_section is definitely set.
 
   my $old_parent  = SL::DB::RequirementSpecItem->new(id => $old_parent_id)->load;
   my $old_section = $old_parent->get_section;
 
-  # $::lxdebug->message(0, "old sec ID " . $old_section->id . " new " . $new_section->id . " visible $visible_section_id PARENT: old " . $old_parent->id . " new " . $self->item->parent_id . '/' . $self->item->parent->id);
+  # $::lxdebug->message(0, "old sec ID " . $old_section->id . " new " . $new_section->id . " old visible " . $old_visible_section->id . " new visible " . $new_visible_section->id
+  #                       . " PARENT: old " . $old_parent->id . " new " . $self->item->parent_id . '/' . $self->item->parent->id);
 
-  if ($visible_section_id == $old_section->id) {
+  if ($old_visible_section->id != $new_visible_section->id) {
+    # The currently visible item has been dragged to a different section.
+    return $self->render_list($js, $new_section, $self->item)
+      ->render($self);
+  }
+
+  if ($old_visible_section->id == $old_section->id) {
     my $id_prefix = $old_type eq 'sub-function-block' ? 'sub-' : '';
     $js->remove('#' . $id_prefix . 'function-block-' . $self->item->id);
 
@@ -94,7 +104,7 @@ sub action_dragged_and_dropped {
     }
   }
 
-  if ($visible_section_id == $new_section->id) {
+  if ($old_visible_section->id == $new_section->id) {
     $js->hide('#section-list-empty');
 
     my $id_prefix = $new_type eq 'sub-function-block' ? 'sub-' : '';
