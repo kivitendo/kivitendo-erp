@@ -6,7 +6,7 @@
 [%- PROCESS 'common/paginate.html' pages=SELF.pages, base_url = SELF.base_url %]
  <table>
 [%- FOREACH rownum = SELF.display_rows %]
- [%- IF loop.first %]
+ [%- IF rownum < SELF.report_numheaders %]
   <tr class="listheading">
   [%- FOREACH value = SELF.report_rows.${rownum} %]
    <th>[% value | html %]</th>
@@ -21,7 +21,7 @@
   [%- END %]
    <td>
     [%- FOREACH error = csv_import_report_errors %][%- error | html %][% UNLESS loop.last %]<br>[%- END %][%- END %]
-    [%- FOREACH info  = SELF.report_status.${rownum}.information %][% IF !loop.first || csv_import_report_errors.size %]<br>[%- END %][%- info | html %][%- END %]
+    [%- FOREACH info  = SELF.report_status.${rownum}.information %][% IF rownum >= SELF.report_numheaders || csv_import_report_errors.size %]<br>[%- END %][%- info | html %][%- END %]
    </td>
   </tr>
  [%- END %]
