@@ -11,6 +11,7 @@ use SL::DB::OrderItem;
 use SL::DB::Part;
 use SL::DB::PaymentTerm;
 use SL::DB::Contact;
+use SL::TransNumber;
 
 use parent qw(SL::Controller::CsvImport::BaseMulti);
 
@@ -403,7 +404,9 @@ sub save_objects {
     next if @{ $entry->{errors} };
 
     if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'} && !$entry->{object}->ordnumber) {
-      $entry->{object}->create_trans_number;
+      my $number = SL::TransNumber->new(type        => 'sales_order',
+                                        save        => 1);
+      $entry->{object}->ordnumber($number->create_unique());
     }
 
     push @{ $objects_to_save }, $entry;
