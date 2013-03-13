@@ -71,6 +71,11 @@ function eval_json_result(data) {
       else if (action[0] == 'removeProp')           $(action[1]).removeProp(action[2]);
       else if (action[0] == 'val')                  $(action[1]).val(action[2]);
 
+      // Class attribute
+      else if (action[0] == 'addClass')             $(action[1]).addClass(action[2]);
+      else if (action[0] == 'removeClass')          $(action[1]).removeClass(action[2]);
+      else if (action[0] == 'toggleClass')          $(action[1]).toggleClass(action[2]);
+
       // Data storage
       else if (action[0] == 'data')                 $(action[1]).data(action[2], action[3]);
       else if (action[0] == 'removeData')           $(action[1]).removeData(action[2]);

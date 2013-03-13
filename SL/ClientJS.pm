@@ -58,6 +58,11 @@ my %supported_methods = (
   removeProp   => 2,
   val          => 2,
 
+  # Class attribute
+  addClass     => 2,
+  removeClass  => 2,
+  toggleClass  => 2,
+
   # Data storage
   data         => 3,
   removeData   => 2,
@@ -121,6 +126,12 @@ sub action {
   push @{ $self->_actions }, [ $method, @args ];
 
   return $self;
+}
+
+sub action_if {
+  my ($self, $condition, @args) = @_;
+
+  return $condition ? $self->action(@args) : $self;
 }
 
 sub init__actions {
@@ -338,7 +349,38 @@ Instead of:
 
 The first variation is obviously better suited for chaining.
 
-Additional functions:
+=over 4
+
+=item C<action $method, @args>
+
+Call the function with the name C<$method> on C<$self> with arguments
+C<@args>. Returns the return value of the actual function
+called. Useful for chaining (see above).
+
+=item C<action_if $condition, $method, @args>
+
+Call the function with the name C<$method> on C<$self> with arguments
+C<@args> if C<$condition> is trueish. Does nothing otherwise.
+
+Returns the return value of the actual function called if
+C<$condition> is trueish and C<$self> otherwise. Useful for chaining
+(see above).
+
+This function is equivalent to the following:
+
+  if ($condition) {
+    $obj->$method(@args);
+  }
+
+But it is easier to integrate into a method call chain, e.g.:
+
+  $js->html('#content', $html)
+     ->action_if($item->is_flagged, 'toggleClass', '#marker', 'flagged')
+     ->render($self);
+
+=back
+
+=head2 ADDITIONAL FUNCTIONS
 
 =over 4
 
