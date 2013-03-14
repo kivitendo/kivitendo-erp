@@ -15,6 +15,7 @@
  [% L.hidden_tag('form_prefix',                    id_base       id=id_base _ '_form_prefix') %]
  [% L.hidden_tag('id',                             SELF.item.id, id=id_base _ '_id') %]
  [% L.hidden_tag(id_base _ '.requirement_spec_id', SELF.item.requirement_spec_id) %]
+ [% L.hidden_tag(id_base _ '.item_type',           'section') %]
  [% IF insert_after %]
   [% L.hidden_tag(id_base _ '.insert_after',       insert_after) %]
  [% END %]

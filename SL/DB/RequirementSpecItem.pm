@@ -2,6 +2,8 @@ package SL::DB::RequirementSpecItem;
 
 use strict;
 
+use Carp;
+
 use SL::DB::MetaSetup::RequirementSpecItem;
 use SL::DB::Manager::RequirementSpecItem;
 use SL::DB::Helper::ActsAsList;
@@ -78,24 +80,28 @@ sub validate {
 }
 
 sub sorted_children {
-  my ($self) = @_;
+  my ($self, @args) = @_;
+
+  croak "Not a writer" if @args;
 
   return [ sort { $a->position <=> $b->position } @{ $self->children } ];
 }
 
-sub get_section {
-  my ($self) = @_;
+sub section {
+  my ($self, @args) = @_;
 
+  croak "Not a writer" if @args;
   $self = $self->parent while $self->parent_id;
 
   return $self;
 }
 
-sub get_type {
-  my ($self) = @_;
+sub child_type {
+  my ($self, @args) = @_;
 
-  return 'section' if !$self->parent_id;
-  return $self->parent->parent_id ? 'sub-function-block' : 'function-block';
+  croak "Not a writer" if @args;
+
+  return $self->item_type eq 'section' ? 'function-block' : 'sub-function-block';
 }
 
 1;

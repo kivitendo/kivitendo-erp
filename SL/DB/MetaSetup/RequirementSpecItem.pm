@@ -12,6 +12,7 @@ __PACKAGE__->meta->setup(
   columns => [
     id                   => { type => 'serial', not_null => 1 },
     requirement_spec_id  => { type => 'integer', not_null => 1 },
+    item_type            => { type => 'text', not_null => 1 },
     parent_id            => { type => 'integer' },
     position             => { type => 'integer', not_null => 1 },
     fb_number            => { type => 'text', not_null => 1 },

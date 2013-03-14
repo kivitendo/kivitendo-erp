@@ -41,7 +41,7 @@ sub action_ajax_list {
   }
 
   my $clicked_item = SL::DB::RequirementSpecItem->new(id => $::form->{clicked_id})->load;
-  $self->item($clicked_item->get_section);
+  $self->item($clicked_item->section);
 
   if (!$self->visible_section || ($self->visible_section->id != $self->item->id)) {
     $self->render_list($js, $self->item, $clicked_item);
@@ -60,7 +60,7 @@ sub action_dragged_and_dropped {
 
   my $old_visible_section = $self->visible_section ? $self->visible_section : undef;
   my $old_parent_id       = $self->item->parent_id;
-  my $old_type            = $self->item->get_type;
+  my $old_type            = $self->item->item_type;
 
   $self->item->db->do_transaction(sub {
     $self->item->remove_from_list;
@@ -71,16 +71,16 @@ sub action_dragged_and_dropped {
   my $js = SL::ClientJS->new;
 
   $self->item(SL::DB::RequirementSpecItem->new(id => $self->item->id)->load);
-  my $new_section         = $self->item->get_section;
-  my $new_type            = $self->item->get_type;
-  my $new_visible_section = SL::DB::RequirementSpecItem->new(id => $self->visible_item->id)->load->get_section;
+  my $new_section         = $self->item->section;
+  my $new_type            = $self->item->item_type;
+  my $new_visible_section = SL::DB::RequirementSpecItem->new(id => $self->visible_item->id)->load->section;
 
   return $self->render($js) if !$old_visible_section || ($new_type eq 'section');
 
   # From here on $old_visible_section is definitely set.
 
   my $old_parent  = SL::DB::RequirementSpecItem->new(id => $old_parent_id)->load;
-  my $old_section = $old_parent->get_section;
+  my $old_section = $old_parent->section;
 
   # $::lxdebug->message(0, "old sec ID " . $old_section->id . " new " . $new_section->id . " old visible " . $old_visible_section->id . " new visible " . $new_visible_section->id
   #                       . " PARENT: old " . $old_parent->id . " new " . $self->item->parent_id . '/' . $self->item->parent->id);
@@ -115,7 +115,7 @@ sub action_dragged_and_dropped {
     if ($next_item) {
       $js->insertBefore($html, '#' . $id_prefix . 'function-block-' . $next_item->id);
     } else {
-      my $parent_is_section = $self->item->parent->get_type eq 'section';
+      my $parent_is_section = $self->item->parent->item_type eq 'section';
       $js->appendTo($html, $parent_is_section ? '#section-list' : '#sub-function-block-container-' . $self->item->parent_id);
       $js->show('#sub-function-block-container-' . $self->item->parent_id) if !$parent_is_section;
     }
@@ -133,9 +133,9 @@ sub action_ajax_add_section {
 
   die "Missing parameter 'requirement_spec_id'" if !$::form->{requirement_spec_id};
 
-  $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id}));
+  $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id}, item_type => 'section'));
 
-  my $insert_after = $::form->{id} ? SL::DB::RequirementSpecItem->new(id => $::form->{id})->load->get_section->id : undef;
+  my $insert_after = $::form->{id} ? SL::DB::RequirementSpecItem->new(id => $::form->{id})->load->section->id : undef;
   my $html         = $self->render('requirement_spec_item/_section_form', { output => 0 }, id_base => 'new_section', insert_after => $insert_after);
 
   SL::ClientJS->new
@@ -172,7 +172,7 @@ sub action_ajax_create {
   $self->item->save;
   $self->item->add_to_list(position => 'after', reference => $insert_after) if $insert_after;
 
-  my $type = $self->item->get_type;
+  my $type = $self->item->item_type;
 
   if ($type eq 'section') {
     my $node = $self->presenter->requirement_spec_item_jstree_data($self->item);
@@ -203,14 +203,14 @@ sub action_ajax_edit {
 
   my $js = SL::ClientJS->new;
 
-  if (!$self->visible_section || ($self->visible_section->id != $self->item->get_section->id)) {
+  if (!$self->visible_section || ($self->visible_section->id != $self->item->section->id)) {
     # Show section/item to edit if it is not visible.
 
     my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
     $js->html('#column-content', $html);
   }
 
-  if ($self->item->get_type =~ m/section/) {
+  if ($self->item->item_type =~ m/section/) {
     # Edit the section header, not an item.
     my $html = $self->render('requirement_spec_item/_section_form', { output => 0 });
 
@@ -231,14 +231,14 @@ sub action_ajax_edit {
 
   my $html                  = $self->render('requirement_spec_item/_function_block_form', { output => 0 }, DEPENDENCIES => \@dependencies, SELECTED_DEPENDENCIES => \@selected_dependencies);
   my $id_base               = 'edit_function_block_' . $self->item->id;
-  my $content_top_id        = '#' . $self->item->get_type . '-content-top-' . $self->item->id;
+  my $content_top_id        = '#' . $self->item->item_type . '-content-top-' . $self->item->id;
 
   $js->hide($content_top_id)
      ->remove("#${id_base}_form")
      ->insertAfter($html, $content_top_id)
      ->jstree->select_node('#tree', '#fb-' . $self->item->id)
      ->focus("#${id_base}_description")
-     ->val('#current_content_type', $self->item->get_type)
+     ->val('#current_content_type', $self->item->item_type)
      ->val('#current_content_id', $self->item->id)
      ->render($self);
 }
@@ -259,7 +259,7 @@ sub action_ajax_update {
 
   $self->item->save;
 
-  my $type = $self->item->get_type;
+  my $type = $self->item->item_type;
 
   if ($type eq 'section') {
     # Updated section, now update section header.
@@ -315,10 +315,10 @@ sub action_ajax_delete {
          ->val('#current_content_id', '')
     }
 
-  } elsif ($self->visible_section && ($self->visible_section->id == $self->item->get_section->id)) {
+  } elsif ($self->visible_section && ($self->visible_section->id == $self->item->section->id)) {
     # Item in currently visible section is deleted.
 
-    my $type = $self->item->get_type;
+    my $type = $self->item->item_type;
     $js->remove('#edit_function_block_' . $self->item->id . '_form')
        ->remove('#' . $type . '-' . $self->item->id);
 
@@ -342,10 +342,10 @@ sub action_ajax_flag {
 
   $self->item->update_attributes(is_flagged => !$self->item->is_flagged);
 
-  my $is_visible = $self->visible_section && ($self->visible_section->id == $self->item->get_section->id);
+  my $is_visible = $self->visible_section && ($self->visible_section->id == $self->item->section->id);
 
   SL::ClientJS->new
-   ->action_if($is_visible, 'toggleClass', '#' . $self->item->get_type . '-' . $self->item->id, 'flagged')
+   ->action_if($is_visible, 'toggleClass', '#' . $self->item->item_type . '-' . $self->item->id, 'flagged')
    ->toggleClass('#fb-' . $self->item->id, 'flagged')
    ->render($self);
 }
@@ -388,7 +388,7 @@ sub init_visible_section {
   $self->visible_item(SL::DB::Manager::RequirementSpecItem->find_by(id => $content_id));
   return undef unless $self->visible_item;
 
-  return $self->visible_section($self->visible_item->get_section);
+  return $self->visible_section($self->visible_item->section);
 }
 
 sub init_complexities {
@@ -407,7 +407,7 @@ sub replace_bottom {
   my ($self, $js, $item_or_id) = @_;
 
   my $item      = (ref($item_or_id) ? $item_or_id : SL::DB::RequirementSpecItem->new(id => $item_or_id))->load;
-  my $id_prefix = $item->get_type eq 'function-block' ? '' : 'sub-';
+  my $id_prefix = $item->item_type eq 'function-block' ? '' : 'sub-';
   my $html      = $self->render('requirement_spec_item/_function_block_content_bottom', { output => 0 }, requirement_spec_item => $item, id_prefix => $id_prefix);
   return $js->replaceWith('#' . $id_prefix . 'function-block-content-bottom-' . $item->id, $html);
 }
@@ -422,7 +422,7 @@ sub render_list {
 sub select_node {
   my ($self, $js, $item) = @_;
 
-  $js->val( '#current_content_type', $item->get_type)
+  $js->val( '#current_content_type', $item->item_type)
      ->val( '#current_content_id',   $item->id)
      ->jstree->select_node('#tree', '#fb-' . $item->id);
 }
@@ -452,7 +452,7 @@ sub add_function_block {
   die "Missing parameter 'requirement_spec_id'"    if !$::form->{requirement_spec_id};
 
   my $clicked_item = SL::DB::RequirementSpecItem->new(id => $clicked_id)->load;
-  my $clicked_type = $clicked_item->get_type;
+  my $clicked_type = $clicked_item->item_type;
 
   die "Invalid clicked_type '$clicked_type'" if $clicked_type !~ m/^(?: section | (?:sub-)? function-block )$/x;
 
@@ -466,7 +466,7 @@ sub add_function_block {
     : $case eq 'sub-function-block:sub-function-block' ? ( 'insertAfter', $clicked_item->id,        $clicked_item->parent_id,         '#sub-function-block-'           )
     :                                                    die "Invalid combination of 'clicked_type (section)/new_type ($new_type)'";
 
-  $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id}, parent_id => $parent_id));
+  $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id}, parent_id => $parent_id, item_type => $new_type));
 
   $display_reference .= $insert_reference if $display_reference =~ m/-$/;
   my $id_base         = join('_', 'new_function_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
@@ -482,7 +482,7 @@ sub add_function_block {
 
   my $js = SL::ClientJS->new;
 
-  my $new_section = $self->item->get_section;
+  my $new_section = $self->item->section;
   if (!$self->visible_section || ($self->visible_section->id != $new_section->id)) {
     # Show section/item to edit if it is not visible.
 
