@@ -34,6 +34,7 @@ sub get_log {
   my $in          = IO::File->new($self->git_exe . qq! log --format='tformat:\%H|\%an|\%ae|\%ai|\%s' ${since_until} |!);
 
   if (!$in) {
+    no warnings 'once';
     $::lxdebug->message(LXDebug::WARN(), "Error spawning git: $!");
     return ();
   }
