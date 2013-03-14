@@ -47,7 +47,7 @@ sub display {
   $callback               = URI->new($callback)->rel($callback) if $callback;
   $callback               = "login.pl?action=company_logo"      if $callback =~ /^(\.\/)?$/;
 
-  $self->render("menu/menunew", { output => 0 },
+  $self->presenter->render("menu/menunew",
     force_ul_width  => 1,
     date            => $self->clock_line,
     menu_items      => $self->acc_menu,

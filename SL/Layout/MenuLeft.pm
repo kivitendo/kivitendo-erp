@@ -15,7 +15,7 @@ sub javascripts_inline {
   my $self = shift;
   $self->SUPER::javascripts_inline;
   my $sections = [ section_menu($self->menu) ];
-  $self->render('menu/menu', { output => 0 },
+  $self->presenter->render('menu/menu',
     sections  => $sections,
   )
 }

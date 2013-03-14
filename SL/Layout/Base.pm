@@ -1,7 +1,7 @@
 package SL::Layout::Base;
 
 use strict;
-use parent qw(SL::Controller::Base);
+use parent qw(Rose::Object);
 
 use List::MoreUtils qw(uniq);
 use Time::HiRes qw();
@@ -18,6 +18,7 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 use SL::Menu;
+use SL::Presenter;
 
 my %menu_cache;
 
@@ -152,6 +153,10 @@ sub header_done {
 
 sub need_footer {
   $_[0]{_header_done};
+}
+
+sub presenter {
+  SL::Presenter->get;
 }
 
 1;
