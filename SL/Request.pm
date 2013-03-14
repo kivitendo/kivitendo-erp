@@ -522,6 +522,13 @@ an 'AJAX' request.
 
 Returns the requested content type (either C<html>, C<js> or C<json>).
 
+=item C<layout>
+
+Set and retrieve the layout object for the current request. Must be an instance
+of L<SL::Layout::Base>. Defaults to an isntance of L<SL::Layout::None>.
+
+For more information about layouts, see L<SL::Layout::Dispatcher>.
+
 =back
 
 =head1 SPECIAL FUNCTIONS
