@@ -37,8 +37,8 @@ find(sub {
 
   $finder->find(\$text);
 
-  }, "."
-);
+  }, "./templates", "./doc",
+  );
 
 if (@fails) {
   ok(0, join "\n", @fails);
