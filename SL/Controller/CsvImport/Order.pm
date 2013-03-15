@@ -12,6 +12,8 @@ use SL::DB::Part;
 use SL::DB::PaymentTerm;
 use SL::DB::Contact;
 use SL::DB::Department;
+use SL::DB::Project;
+use SL::DB::Shipto;
 use SL::TransNumber;
 
 use parent qw(SL::Controller::CsvImport::BaseMulti);
@@ -19,7 +21,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by all_parts parts_by all_contacts contacts_by all_departments departments_by all_projects projects_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by all_parts parts_by all_contacts contacts_by all_departments departments_by all_projects projects_by all_ct_shiptos ct_shiptos_by) ],
 );
 
 
@@ -85,7 +87,7 @@ sub setup_displayable_columns {
                                  { name => 'globalproject_id', description => $::locale->text('Document Project (database ID)') },
                                  { name => 'globalprojectnumber', description => $::locale->text('Document Project (number)')   },
                                  { name => 'globalproject',    description => $::locale->text('Document Project (description)') },
-
+                                 { name => 'shipto_id',        description => $::locale->text('Ship to (database ID)')          },
                                 );
 
   $self->add_displayable_columns('OrderItem',
@@ -154,6 +156,23 @@ sub init_projects_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_projects } } ) } qw(id projectnumber description) };
 }
 
+sub init_all_ct_shiptos {
+  my ($self) = @_;
+
+  return SL::DB::Manager::Shipto->get_all(query => [module => 'CT']);
+}
+
+sub init_ct_shiptos_by {
+  my ($self) = @_;
+
+  my $sby = { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_ct_shiptos } } ) } qw(shipto_id) };
+
+  # by trans_id  _and_  shipto_id
+  $sby->{'trans_id+shipto_id'} = { map { ( $_->trans_id . '+' . $_->shipto_id => $_ ) } @{ $self->all_ct_shiptos } };
+
+  return $sby;
+}
+
 sub check_objects {
   my ($self) = @_;
 
@@ -182,6 +201,7 @@ sub check_objects {
       $self->check_payment($entry);
       $self->check_department($entry);
       $self->check_project($entry, global => 1);
+      $self->check_ct_shipto($entry);
 
       if ($vc_obj) {
         # copy from customer if not given
@@ -405,6 +425,7 @@ sub check_contact {
   }
 
   # Map name to ID if given.
+  # Todo: names have not to be unique ... search all and check for matching customer/vendor?
   if (!$object->cp_id && $entry->{raw_data}->{contact}) {
     my $cp = $self->contacts_by->{cp_name}->{ $entry->{raw_data}->{contact} };
     if (!$cp) {
@@ -416,8 +437,10 @@ sub check_contact {
   }
 
   # Check if the contact belongs to this customer/vendor.
-  if ($object->cp_id && $object->customer_id && !$self->contacts_by->{'cp_cv_id+cp_id'}) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Contact not found for this customer/vendor');
+  my $trans_id = $object->customer_id || $object->vendor_id;
+  if ($object->cp_id && $trans_id
+      && !$self->contacts_by->{'cp_cv_id+cp_id'}->{ $trans_id . '+' . $object->cp_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid contact this customer/vendor');
     return 0;
   }
 
@@ -488,6 +511,28 @@ sub check_project {
     }
 
     $object->$id_column($proj->id);
+  }
+
+  return 1;
+}
+
+sub check_ct_shipto {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check wether or not shipto ID is valid.
+  if ($object->shipto_id && !$self->ct_shiptos_by->{shipto_id}->{ $object->shipto_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid shipto');
+    return 0;
+  }
+
+  # Check if the shipto belongs to this customer/vendor.
+  my $trans_id = $object->customer_id || $object->vendor_id;
+  if ($object->shipto_id && $trans_id
+      && !$self->ct_shiptos_by->{'trans_id+shipto_id'}->{ $trans_id . '+' . $object->shipto_id } ) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid shipto for this customer/vendor');
+    return 0;
   }
 
   return 1;
