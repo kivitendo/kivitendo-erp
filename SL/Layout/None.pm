@@ -14,9 +14,9 @@ sub javascripts_inline {
     s/y+/yy/gi;
   } $::myconfig{dateformat};
 
-  return $self->render(
+  return $self->presenter->render(
     'layout/javascript_setup',
-    { type => 'js', output => 0, },
+    { type => 'js' },
     datefmt      => $datefmt,
     focus        => $::request->layout->focus,
     ajax_spinner => 1,
