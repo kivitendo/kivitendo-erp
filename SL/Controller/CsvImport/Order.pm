@@ -93,8 +93,11 @@ sub setup_displayable_columns {
                                 );
 
   $self->add_displayable_columns('OrderItem',
-                                 { name => 'parts_id',       description => $::locale->text('Part (database ID)')          },
-                                 { name => 'partnumber',     description => $::locale->text('Part Number')                 },
+                                 { name => 'parts_id',      description => $::locale->text('Part (database ID)')    },
+                                 { name => 'partnumber',    description => $::locale->text('Part Number')           },
+                                 { name => 'project_id',    description => $::locale->text('Project (database ID)') },
+                                 { name => 'projectnumber', description => $::locale->text('Project (number)')      },
+                                 { name => 'project',       description => $::locale->text('Project (description)') },
                                 );
 }
 
@@ -245,6 +248,7 @@ sub check_objects {
 
   $self->add_info_columns($self->settings->{'order_column'},
                           { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
+  # Todo: access via ->[0] ok? Better: search first order column and use this
   $self->add_columns($self->settings->{'order_column'},
                      map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone));
   $self->add_columns($self->settings->{'order_column'}, 'globalproject_id') if exists $self->controller->data->[0]->{raw_data}->{globalprojectnumber};
@@ -264,11 +268,17 @@ sub check_objects {
       # set to 0 if not given
       $entry->{object}->discount(0)      unless $entry->{object}->discount;
       $entry->{object}->ship(0)          unless $entry->{object}->ship;
+
+      $self->check_project($entry, global => 0);
     }
   }
 
   $self->add_info_columns($self->settings->{'item_column'},
                           { header => $::locale->text('Part Number'), method => 'partnumber' });
+  # Todo: access via ->[1] ok? Better: search first item column and use this
+  $self->add_columns($self->settings->{'item_column'},
+                     map { "${_}_id" } grep { exists $self->controller->data->[1]->{raw_data}->{$_} } qw(project));
+  $self->add_columns($self->settings->{'item_column'}, 'project_id') if exists $self->controller->data->[1]->{raw_data}->{projectnumber};
 
   # add orderitems to order
   my $order_entry;
@@ -330,6 +340,7 @@ sub check_objects {
                     } );
 
   foreach my $tv (@to_verify) {
+    # Todo: access via ->[0] ok? Better: search first order column and use this
     if (exists $self->controller->data->[0]->{raw_data}->{ $tv->{raw_column} }) {
       $self->add_raw_data_columns($self->settings->{'order_column'}, $tv->{raw_column});
       $self->add_info_columns($self->settings->{'order_column'},
