@@ -14,6 +14,7 @@ use SL::DB::Contact;
 use SL::DB::Department;
 use SL::DB::Project;
 use SL::DB::Shipto;
+use SL::DB::TaxZone;
 use SL::TransNumber;
 
 use parent qw(SL::Controller::CsvImport::BaseMulti);
@@ -21,7 +22,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by all_parts parts_by all_contacts contacts_by all_departments departments_by all_projects projects_by all_ct_shiptos ct_shiptos_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by all_parts parts_by all_contacts contacts_by all_departments departments_by all_projects projects_by all_ct_shiptos ct_shiptos_by all_taxzones taxzones_by) ],
 );
 
 
@@ -79,7 +80,8 @@ sub setup_displayable_columns {
                                  { name => 'language',         description => $::locale->text('Language (name)')                },
                                  { name => 'payment_id',       description => $::locale->text('Payment terms (database ID)')    },
                                  { name => 'payment',          description => $::locale->text('Payment terms (name)')           },
-                                 { name => 'taxzone_id',       description => $::locale->text('Steuersatz')                     },
+                                 { name => 'taxzone_id',       description => $::locale->text('Steuersatz (database ID')        },
+                                 { name => 'taxzone',          description => $::locale->text('Steuersatz (description)')       },
                                  { name => 'cp_id',            description => $::locale->text('Contact Person (database ID)')   },
                                  { name => 'contact',          description => $::locale->text('Contact Person (name)')          },
                                  { name => 'department_id',    description => $::locale->text('Department (database ID)')       },
@@ -173,6 +175,18 @@ sub init_ct_shiptos_by {
   return $sby;
 }
 
+sub init_all_taxzones {
+  my ($self) = @_;
+
+  return SL::DB::Manager::TaxZone->get_all;
+}
+
+sub init_taxzones_by {
+  my ($self) = @_;
+
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_taxzones } } ) } qw(id description) };
+}
+
 sub check_objects {
   my ($self) = @_;
 
@@ -202,6 +216,7 @@ sub check_objects {
       $self->check_department($entry);
       $self->check_project($entry, global => 1);
       $self->check_ct_shipto($entry);
+      $self->check_taxzone($entry);
 
       if ($vc_obj) {
         # copy from customer if not given
@@ -231,7 +246,7 @@ sub check_objects {
   $self->add_info_columns($self->settings->{'order_column'},
                           { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
   $self->add_columns($self->settings->{'order_column'},
-                     map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject));
+                     map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone));
   $self->add_columns($self->settings->{'order_column'}, 'globalproject_id') if exists $self->controller->data->[0]->{raw_data}->{globalprojectnumber};
 
   foreach my $entry (@{ $self->controller->data }) {
@@ -538,6 +553,30 @@ sub check_ct_shipto {
   return 1;
 }
 
+sub check_taxzone {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check wether or not taxzone ID is valid.
+  if ($object->taxzone_id && !$self->taxzones_by->{id}->{ $object->taxzone_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid taxzone');
+    return 0;
+  }
+
+  # Map description to ID if given.
+  if (!$object->taxzone_id && $entry->{raw_data}->{taxzone}) {
+    my $taxzone = $self->taxzones_by->{description}->{ $entry->{raw_data}->{taxzone} };
+    if (!$taxzone) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid taxzone');
+      return 0;
+    }
+
+    $object->taxzone_id($taxzone->id);
+  }
+
+  return 1;
+}
 
 
 sub save_objects {
