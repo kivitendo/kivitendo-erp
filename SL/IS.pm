@@ -821,7 +821,7 @@ sub post_invoice {
   }
 
   $project_id = conv_i($form->{"globalproject_id"});
-
+  # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
   my $taxdate = $form->{deliverydate} ? $form->{deliverydate} : $form->{invdate};
 
   foreach my $trans_id (keys %{ $form->{amount_cogs} }) {

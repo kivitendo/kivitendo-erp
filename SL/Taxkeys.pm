@@ -78,7 +78,8 @@ sub get_tax_info {
   }
 
   my $sth = $self->{handles}->{get_tax_info};
-  do_statement($form, $sth, $self->{queries}->{get_tax_info}, $params{taxkey}, $params{transdate});
+  # Lieferdatum (deliverydate) ist entscheidend für den Steuersatz
+  do_statement($form, $sth, $self->{queries}->{get_tax_info}, $params{taxkey}, $params{deliverydate} || $params{transdate});
 
   my $ref = $sth->fetchrow_hashref() || { };
 
@@ -106,7 +107,7 @@ sub get_full_tax_info {
   my @all_taxkeys = map { $_->{taxkey} } (selectall_hashref_query($form, $form->get_standard_dbh(), qq|SELECT DISTINCT taxkey FROM tax WHERE taxkey IS NOT NULL|));
 
   foreach my $taxkey (@all_taxkeys) {
-    my $ref = $self->get_tax_info('transdate' => $params{transdate}, 'taxkey' => $taxkey);
+    my $ref = $self->get_tax_info('transdate' => $params{transdate}, 'taxkey' => $taxkey, 'deliverydate' => $params{deliverydate});
 
     $tax_info{taxkeys}->{$taxkey}            = $ref;
     $tax_info{accnos}->{$ref->{taxchart_id}} = $ref if ($ref->{taxchart_id});

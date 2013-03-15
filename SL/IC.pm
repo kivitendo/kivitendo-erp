@@ -1497,6 +1497,8 @@ sub retrieve_accounts {
     # if credit_note has a deliverydate, use this instead of invdate
     # useful for credit_notes of invoices from an old period with different tax
     # if there is no deliverydate then invdate is used, old default (see next elsif)
+    # Falls hier der Stichtag für Steuern anders bestimmt wird,
+    # entsprechend auch bei Taxkeys.pm anpassen
     $transdate = $form->{deliverydate};
   } elsif (($form->{type} eq "credit_note") || ($form->{script} eq 'ir.pl')) {
     $transdate = $form->{invdate};

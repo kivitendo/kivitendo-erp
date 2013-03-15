@@ -353,7 +353,7 @@ sub _get_transactions {
 
   my $query    =
     qq|SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
-         ar.invnumber, ar.duedate, ar.amount as umsatz,
+         ar.invnumber, ar.duedate, ar.amount as umsatz, ar.deliverydate,
          ct.name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice
@@ -368,7 +368,7 @@ sub _get_transactions {
        UNION ALL
 
        SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey,
-         ap.invnumber, ap.duedate, ap.amount as umsatz,
+         ap.invnumber, ap.duedate, ap.amount as umsatz, ap.deliverydate,
          ct.name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice
@@ -383,7 +383,7 @@ sub _get_transactions {
        UNION ALL
 
        SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey,
-         gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz,
+         gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz, NULL as deliverydate,
          gl.description AS name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice
@@ -528,7 +528,8 @@ sub _get_transactions {
         push @{ $self->{DATEV} }, [ \%new_trans, $trans->[$j] ];
 
       } elsif (($j != $notsplitindex) && !$trans->[$j]->{is_tax}) {
-        my %tax_info = $taxkeys->get_full_tax_info('transdate' => $trans->[$j]->{transdate});
+        my %tax_info = $taxkeys->get_full_tax_info('transdate' => $trans->[$j]->{transdate},
+                                                   'deliverydate' => $trans->[$j]->{deliverydate});
 
         my %new_trans = ();
         map { $new_trans{$_} = $trans->[$notsplitindex]->{$_}; } keys %{ $trans->[$notsplitindex] };
