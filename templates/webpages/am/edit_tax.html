@@ -9,7 +9,10 @@
   <table width="100%">
    <tr>
     <td>[% 'tax_taxkey' | $T8 %]</td>
-    <td><input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]" [% readonly %]></td>
+    <td>[% IF tax_already_used %]<p>[% HTML.escape(taxkey) %]</p>
+        <input type="hidden" name="taxkey" size="2" value="[% HTML.escape(taxkey) %]">
+        [% ELSE %]<input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]">
+        [% END %]</td>
    </tr>
 
    <tr>
@@ -19,7 +22,10 @@
 
    <tr>
     <td>[% 'tax_percent' | $T8 %]</td>
-    <td><input name="rate" size="10" value="[% HTML.escape(rate) %]" [% readonly %]> %</td>
+    <td>[% IF tax_already_used %]<p>[% HTML.escape(rate) %] %</p>
+        <input type="hidden" name="rate" size="10" value="[% HTML.escape(rate) %]">
+        [% ELSE %]<input name="rate" size="10" value="[% HTML.escape(rate) %]"> %
+        [% END %]</td>
    </tr>
 
    <tr>

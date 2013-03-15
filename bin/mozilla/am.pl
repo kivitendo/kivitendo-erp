@@ -1491,11 +1491,7 @@ sub edit_tax {
 
   $form->header();
 
-  #set readonly if the there are entries in acc_trans with the tax
-  my $readonly = $form->{tax_already_used} ? 'readonly' : '';
-
   my $parameters_ref = {
-    readonly => $readonly, 
   };
 
   # Ausgabe des Templates
