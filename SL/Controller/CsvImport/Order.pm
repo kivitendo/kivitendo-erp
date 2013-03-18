@@ -129,10 +129,13 @@ sub init_all_contacts {
 sub init_contacts_by {
   my ($self) = @_;
 
-  my $cby = { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_contacts } } ) } qw(cp_id cp_name) };
+  my $cby;
 
   # by customer/vendor id  _and_  contact person id
-  $cby->{'cp_cv_id+cp_id'} = { map { ( $_->cp_cv_id . '+' . $_->cp_id => $_ ) } @{ $self->all_contacts } };
+  $cby->{'cp_cv_id+cp_id'}   = { map { ( $_->cp_cv_id . '+' . $_->cp_id   => $_ ) } @{ $self->all_contacts } };
+  # by customer/vendor id  _and_  contact person name
+  $cby->{'cp_cv_id+cp_name'} = { map { ( $_->cp_cv_id . '+' . $_->cp_name => $_ ) } @{ $self->all_contacts } };
+
 
   return $cby;
 }
@@ -170,7 +173,7 @@ sub init_all_ct_shiptos {
 sub init_ct_shiptos_by {
   my ($self) = @_;
 
-  my $sby = { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_ct_shiptos } } ) } qw(shipto_id) };
+  my $sby;
 
   # by trans_id  _and_  shipto_id
   $sby->{'trans_id+shipto_id'} = { map { ( $_->trans_id . '+' . $_->shipto_id => $_ ) } @{ $self->all_ct_shiptos } };
@@ -250,8 +253,9 @@ sub check_objects {
                           { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
   # Todo: access via ->[0] ok? Better: search first order column and use this
   $self->add_columns($self->settings->{'order_column'},
-                     map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone));
+                     map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone cp));
   $self->add_columns($self->settings->{'order_column'}, 'globalproject_id') if exists $self->controller->data->[0]->{raw_data}->{globalprojectnumber};
+  $self->add_columns($self->settings->{'order_column'}, 'cp_id')            if exists $self->controller->data->[0]->{raw_data}->{contact};
 
   foreach my $entry (@{ $self->controller->data }) {
     if ($entry->{raw_data}->{datatype} eq $self->settings->{'item_column'} && $entry->{object}->can('part')) {
@@ -444,16 +448,18 @@ sub check_contact {
 
   my $object = $entry->{object};
 
+  my $cp_cv_id = $object->customer_id || $object->vendor_id;
+  return 0 unless $cp_cv_id;
+
   # Check wether or not contact ID is valid.
-  if ($object->cp_id && !$self->contacts_by->{cp_id}->{ $object->cp_id }) {
+  if ($object->cp_id && !$self->contacts_by->{'cp_cv_id+cp_id'}->{ $cp_cv_id . '+' . $object->cp_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid contact');
     return 0;
   }
 
   # Map name to ID if given.
-  # Todo: names have not to be unique ... search all and check for matching customer/vendor?
   if (!$object->cp_id && $entry->{raw_data}->{contact}) {
-    my $cp = $self->contacts_by->{cp_name}->{ $entry->{raw_data}->{contact} };
+    my $cp = $self->contacts_by->{'cp_cv_id+cp_name'}->{ $cp_cv_id . '+' . $entry->{raw_data}->{contact} };
     if (!$cp) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid contact');
       return 0;
@@ -462,16 +468,8 @@ sub check_contact {
     $object->cp_id($cp->cp_id);
   }
 
-  # Check if the contact belongs to this customer/vendor.
-  my $trans_id = $object->customer_id || $object->vendor_id;
-  if ($object->cp_id && $trans_id
-      && !$self->contacts_by->{'cp_cv_id+cp_id'}->{ $trans_id . '+' . $object->cp_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid contact this customer/vendor');
-    return 0;
-  }
-
   if ($object->cp_id) {
-    $entry->{info_data}->{contact} = $self->contacts_by->{cp_id}->{ $object->cp_id }->cp_name;
+    $entry->{info_data}->{contact} = $self->contacts_by->{'cp_cv_id+cp_id'}->{ $cp_cv_id . '+' . $object->cp_id }->cp_name;
   }
 
   return 1;
@@ -547,17 +545,12 @@ sub check_ct_shipto {
 
   my $object = $entry->{object};
 
-  # Check wether or not shipto ID is valid.
-  if ($object->shipto_id && !$self->ct_shiptos_by->{shipto_id}->{ $object->shipto_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid shipto');
-    return 0;
-  }
-
-  # Check if the shipto belongs to this customer/vendor.
   my $trans_id = $object->customer_id || $object->vendor_id;
-  if ($object->shipto_id && $trans_id
-      && !$self->ct_shiptos_by->{'trans_id+shipto_id'}->{ $trans_id . '+' . $object->shipto_id } ) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid shipto for this customer/vendor');
+  return 0 unless $trans_id;
+
+  # Check wether or not shipto ID is valid.
+  if ($object->shipto_id && !$self->ct_shiptos_by->{'trans_id+shipto_id'}->{ $trans_id . '+' . $object->shipto_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid shipto');
     return 0;
   }
 
