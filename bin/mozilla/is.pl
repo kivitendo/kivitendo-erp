@@ -411,7 +411,7 @@ sub form_footer {
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split(/ /, $form->{taxaccounts}) ];
 
-  if ($form->{customer_id}) {
+  if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
     my $customer = SL::DB::Customer->new(id => $form->{customer_id})->load();
     $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
   }
