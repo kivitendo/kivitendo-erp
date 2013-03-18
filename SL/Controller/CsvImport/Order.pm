@@ -22,7 +22,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by all_parts parts_by all_contacts contacts_by all_departments departments_by all_projects projects_by all_ct_shiptos ct_shiptos_by all_taxzones taxzones_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by taxzones_by) ],
 );
 
 
@@ -108,89 +108,58 @@ sub init_languages_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_languages } } ) } qw(id description article_code) };
 }
 
-sub init_all_parts {
-  my ($self) = @_;
-
-  return SL::DB::Manager::Part->get_all;
-}
-
 sub init_parts_by {
   my ($self) = @_;
 
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_parts } } ) } qw(id partnumber ean description) };
-}
-
-sub init_all_contacts {
-  my ($self) = @_;
-
-  return SL::DB::Manager::Contact->get_all;
+  my $all_parts = SL::DB::Manager::Part->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_parts } } ) } qw(id partnumber ean description) };
 }
 
 sub init_contacts_by {
   my ($self) = @_;
 
+  my $all_contacts = SL::DB::Manager::Contact->get_all;
+
   my $cby;
-
   # by customer/vendor id  _and_  contact person id
-  $cby->{'cp_cv_id+cp_id'}   = { map { ( $_->cp_cv_id . '+' . $_->cp_id   => $_ ) } @{ $self->all_contacts } };
+  $cby->{'cp_cv_id+cp_id'}   = { map { ( $_->cp_cv_id . '+' . $_->cp_id   => $_ ) } @{ $all_contacts } };
   # by customer/vendor id  _and_  contact person name
-  $cby->{'cp_cv_id+cp_name'} = { map { ( $_->cp_cv_id . '+' . $_->cp_name => $_ ) } @{ $self->all_contacts } };
-
+  $cby->{'cp_cv_id+cp_name'} = { map { ( $_->cp_cv_id . '+' . $_->cp_name => $_ ) } @{ $all_contacts } };
 
   return $cby;
-}
-
-sub init_all_departments {
-  my ($self) = @_;
-
-  return SL::DB::Manager::Department->get_all;
 }
 
 sub init_departments_by {
   my ($self) = @_;
 
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_departments } } ) } qw(id description) };
-}
-
-sub init_all_projects {
-  my ($self) = @_;
-
-  return SL::DB::Manager::Project->get_all;
+  my $all_departments = SL::DB::Manager::Department->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_departments } } ) } qw(id description) };
 }
 
 sub init_projects_by {
   my ($self) = @_;
 
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_projects } } ) } qw(id projectnumber description) };
-}
-
-sub init_all_ct_shiptos {
-  my ($self) = @_;
-
-  return SL::DB::Manager::Shipto->get_all(query => [module => 'CT']);
+  my $all_projects = SL::DB::Manager::Project->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_projects } } ) } qw(id projectnumber description) };
 }
 
 sub init_ct_shiptos_by {
   my ($self) = @_;
 
-  my $sby;
+  my $all_ct_shiptos = SL::DB::Manager::Shipto->get_all(query => [module => 'CT']);
 
+  my $sby;
   # by trans_id  _and_  shipto_id
-  $sby->{'trans_id+shipto_id'} = { map { ( $_->trans_id . '+' . $_->shipto_id => $_ ) } @{ $self->all_ct_shiptos } };
+  $sby->{'trans_id+shipto_id'} = { map { ( $_->trans_id . '+' . $_->shipto_id => $_ ) } @{ $all_ct_shiptos } };
 
   return $sby;
-}
-
-sub init_all_taxzones {
-  my ($self) = @_;
-
-  return SL::DB::Manager::TaxZone->get_all;
 }
 
 sub init_taxzones_by {
   my ($self) = @_;
 
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_taxzones } } ) } qw(id description) };
+  my $all_taxzones = SL::DB::Manager::TaxZone->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_taxzones } } ) } qw(id description) };
 }
 
 sub check_objects {
