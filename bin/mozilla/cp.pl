@@ -109,10 +109,9 @@ sub payment {
   # geben und hier reinparsen, oder besser multibox oder html auslagern?
   # Antwort: form->currency wird mit oldcurrency oder curr[0] überschrieben
   # Wofür macht das Sinn?
-  @curr = split(/:/, $form->{currencies});
-  chomp $curr[0];
+  @curr = $form->get_all_currencies();
   $form->{defaultcurrency} = $form->{currency} = $form->{oldcurrency} =
-    $curr[0];
+    $form->get_default_currency(\%myconfig);
 
   # Entsprechend präventiv die Auswahlliste für Währungen
   # auch mit value= zusammenbauen (s.a. oben bugfix 1771)

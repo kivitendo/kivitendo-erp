@@ -1063,10 +1063,6 @@ sub save_defaults {
   my %accnos;
   map { ($accnos{$_}) = split(m/--/, $form->{$_}) } qw(inventory_accno income_accno expense_accno fxgain_accno fxloss_accno ar_paid_accno);
 
-  $form->{curr}  =~ s/ //g;
-  my @currencies =  grep { $_ ne '' } split m/:/, $form->{curr};
-  my $currency   =  join ':', @currencies;
-
   # these defaults are database wide
 
   my $query =
@@ -1089,7 +1085,6 @@ sub save_defaults {
         servicenumber      = ?,
         sdonumber          = ?,
         pdonumber          = ?,
-        curr               = ?,
         businessnumber     = ?,
         weightunit         = ?,
         language_id        = ?|;
@@ -1101,10 +1096,23 @@ sub save_defaults {
                 $form->{customernumber},  $form->{vendornumber},
                 $form->{articlenumber},   $form->{servicenumber},
                 $form->{sdonumber},       $form->{pdonumber},
-                $currency,
                 $form->{businessnumber},  $form->{weightunit},
                 conv_i($form->{language_id}));
   do_query($form, $dbh, $query, @values);
+
+  $main::lxdebug->message(0, "es gibt rowcount: " . $form->{rowcount});
+
+  for my $i (1..$form->{rowcount}) {
+    if ($form->{"curr_$i"} ne $form->{"old_curr_$i"}) {
+      $query = qq|UPDATE currencies SET curr = '| . $form->{"curr_$i"} . qq|' WHERE curr = '| . $form->{"old_curr_$i"} . qq|'|;
+      do_query($form, $dbh, $query);
+    }
+  }
+
+  if (length($form->{new_curr}) > 0) {
+    $query = qq|INSERT INTO currencies (curr) VALUES ('| . $form->{new_curr} . qq|')|;
+    do_query($form, $dbh, $query);
+  }
 
   $dbh->commit();
 
@@ -1119,17 +1127,13 @@ sub save_preferences {
 
   my $dbh = $form->get_standard_dbh($myconfig);
 
-  my ($currency, $businessnumber) = selectrow_query($form, $dbh, qq|SELECT curr, businessnumber FROM defaults|);
+  my ($businessnumber) = selectrow_query($form, $dbh, qq|SELECT businessnumber FROM defaults|);
 
   # update name
   my $query = qq|UPDATE employee SET name = ? WHERE login = ?|;
   do_query($form, $dbh, $query, $form->{name}, $form->{login});
 
   my $rc = $dbh->commit();
-
-  # save first currency in myconfig
-  $currency               =~ s/:.*//;
-  $form->{currency}       =  $currency;
 
   $form->{businessnumber} =  $businessnumber;
 

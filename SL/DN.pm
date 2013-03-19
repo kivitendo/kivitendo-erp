@@ -228,7 +228,7 @@ sub create_invoice_for_fees {
          -- duedate:
          (SELECT duedate FROM dunning WHERE dunning_id = ? LIMIT 1),
          'f',                   -- invoice
-         ?,                     -- curr
+         (SELECT id FROM currencies WHERE curr = ?), -- curr
          ?,                     -- notes
          -- employee_id:
          (SELECT id FROM employee WHERE login = ?)
@@ -761,7 +761,7 @@ sub print_dunning {
          ar.transdate,       ar.duedate,      ar.customer_id,
          ar.invnumber,       ar.ordnumber,    ar.cp_id,
          ar.amount,          ar.netamount,    ar.paid,
-         ar.curr,
+         (SELECT cu.curr FROM currencies cu WHERE cu.id=ar.curr) AS curr,
          ar.amount - ar.paid AS open_amount,
          ar.amount - ar.paid + da.fee + da.interest AS linetotal
 
