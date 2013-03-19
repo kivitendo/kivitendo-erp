@@ -12,6 +12,8 @@ use SL::DB::Part;
 use SL::DB::PaymentTerm;
 use SL::DB::Contact;
 use SL::DB::Department;
+use SL::DB::PriceFactor;
+use SL::DB::Pricegroup;
 use SL::DB::Project;
 use SL::DB::Shipto;
 use SL::DB::TaxZone;
@@ -22,7 +24,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by taxzones_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by taxzones_by price_factors_by pricegroups_by) ],
 );
 
 
@@ -93,11 +95,15 @@ sub setup_displayable_columns {
                                 );
 
   $self->add_displayable_columns('OrderItem',
-                                 { name => 'parts_id',      description => $::locale->text('Part (database ID)')    },
-                                 { name => 'partnumber',    description => $::locale->text('Part Number')           },
-                                 { name => 'project_id',    description => $::locale->text('Project (database ID)') },
-                                 { name => 'projectnumber', description => $::locale->text('Project (number)')      },
-                                 { name => 'project',       description => $::locale->text('Project (description)') },
+                                 { name => 'parts_id',        description => $::locale->text('Part (database ID)')         },
+                                 { name => 'partnumber',      description => $::locale->text('Part Number')                },
+                                 { name => 'project_id',      description => $::locale->text('Project (database ID)')      },
+                                 { name => 'projectnumber',   description => $::locale->text('Project (number)')           },
+                                 { name => 'project',         description => $::locale->text('Project (description)')      },
+                                 { name => 'price_factor_id', description => $::locale->text('Price factor (database ID)') },
+                                 { name => 'price_factor',    description => $::locale->text('Price factor (name)')        },
+                                 { name => 'pricegroup_id',   description => $::locale->text('Price group (database ID)')  },
+                                 { name => 'pricegroup',      description => $::locale->text('Price group (name)')         },
                                 );
 }
 
@@ -160,6 +166,20 @@ sub init_taxzones_by {
 
   my $all_taxzones = SL::DB::Manager::TaxZone->get_all;
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_taxzones } } ) } qw(id description) };
+}
+
+sub init_price_factors_by {
+  my ($self) = @_;
+
+  my $all_price_factors = SL::DB::Manager::PriceFactor->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_price_factors } } ) } qw(id description) };
+}
+
+sub init_pricegroups_by {
+  my ($self) = @_;
+
+  my $all_pricegroups = SL::DB::Manager::Pricegroup->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_pricegroups } } ) } qw(id pricegroup) };
 }
 
 sub check_objects {
@@ -243,6 +263,9 @@ sub check_objects {
       $entry->{object}->ship(0)          unless $entry->{object}->ship;
 
       $self->check_project($entry, global => 0);
+      $self->check_price_factor($entry);
+      $self->check_pricegroup($entry);
+      
     }
   }
 
@@ -250,7 +273,7 @@ sub check_objects {
                           { header => $::locale->text('Part Number'), method => 'partnumber' });
   # Todo: access via ->[1] ok? Better: search first item column and use this
   $self->add_columns($self->settings->{'item_column'},
-                     map { "${_}_id" } grep { exists $self->controller->data->[1]->{raw_data}->{$_} } qw(project));
+                     map { "${_}_id" } grep { exists $self->controller->data->[1]->{raw_data}->{$_} } qw(project price_factor pricegroup));
   $self->add_columns($self->settings->{'item_column'}, 'project_id') if exists $self->controller->data->[1]->{raw_data}->{projectnumber};
 
   # add orderitems to order
@@ -546,6 +569,57 @@ sub check_taxzone {
     }
 
     $object->taxzone_id($taxzone->id);
+  }
+
+  return 1;
+}
+
+
+sub check_price_factor {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check wether or not price_factor ID is valid.
+  if ($object->price_factor_id && !$self->price_factors_by->{id}->{ $object->price_factor_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid price factor');
+    return 0;
+  }
+
+  # Map description to ID if given.
+  if (!$object->price_factor_id && $entry->{raw_data}->{price_factor}) {
+    my $price_factor = $self->price_factors_by->{description}->{ $entry->{raw_data}->{price_factor} };
+    if (!$price_factor) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid price factor');
+      return 0;
+    }
+
+    $object->price_factor_id($price_factor->id);
+  }
+
+  return 1;
+}
+
+sub check_pricegroup {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check wether or not pricegroup ID is valid.
+  if ($object->pricegroup_id && !$self->pricegroups_by->{id}->{ $object->pricegroup_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid price group');
+    return 0;
+  }
+
+  # Map pricegroup to ID if given.
+  if (!$object->pricegroup_id && $entry->{raw_data}->{pricegroup}) {
+    my $pricegroup = $self->pricegroups_by->{pricegroup}->{ $entry->{raw_data}->{pricegroup} };
+    if (!$pricegroup) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid price group');
+      return 0;
+    }
+
+    $object->pricegroup_id($pricegroup->id);
   }
 
   return 1;
