@@ -458,7 +458,7 @@ sub customer_details {
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as customernotes,
          ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
-         ct.curr AS currency
+         (SELECT cu.curr FROM currencies cu WHERE cu.id=ct.curr) AS currency
        FROM customer ct
        LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
        WHERE (ct.id = ?) $where
@@ -477,9 +477,6 @@ sub customer_details {
   }
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  # remove any trailing whitespace
-  $form->{currency} =~ s/\s*$// if ($form->{currency});
 
   if ($form->{delivery_customer_id}) {
     $query =
@@ -536,6 +533,8 @@ sub post_invoice {
   }
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  my $defaultcurrency = $form->{defaultcurrency};
+
   # Seit neuestem wird die department_id schon übergeben UND $form->department nicht mehr
   # korrekt zusammengebaut. Sehr wahrscheinlich beim Umstieg auf T8 kaputt gegangen
   # Ich lass den Code von 2005 erstmal noch stehen ;-) jb 03-2011
@@ -556,8 +555,8 @@ sub post_invoice {
       $query = qq|SELECT nextval('glid')|;
       ($form->{"id"}) = selectrow_query($form, $dbh, $query);
 
-      $query = qq|INSERT INTO ar (id, invnumber) VALUES (?, ?)|;
-      do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"});
+      $query = qq|INSERT INTO ar (id, invnumber, curr) VALUES (?, ?, (SELECT id FROM currencies WHERE curr=?))|;
+      do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"}, $form->{currency});
 
       if (!$form->{invnumber}) {
         $form->{invnumber} =
@@ -569,9 +568,6 @@ sub post_invoice {
 
   my ($netamount, $invoicediff) = (0, 0);
   my ($amount, $linetotal, $lastincomeaccno);
-
-  my ($currencies)    = selectfirst_array_query($form, $dbh, qq|SELECT curr FROM defaults|);
-  my $defaultcurrency = (split m/:/, $currencies)[0];
 
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
@@ -1085,7 +1081,8 @@ sub post_invoice {
                 amount      = ?, netamount     = ?, paid          = ?,
                 duedate     = ?, deliverydate  = ?, invoice       = ?, shippingpoint = ?,
                 shipvia     = ?, terms         = ?, notes         = ?, intnotes      = ?,
-                curr        = ?, department_id = ?, payment_id    = ?, taxincluded   = ?,
+                curr        = (SELECT id FROM currencies WHERE curr= ?),
+                department_id = ?, payment_id    = ?, taxincluded   = ?,
                 type        = ?, language_id   = ?, taxzone_id    = ?, shipto_id     = ?,
                 employee_id = ?, salesman_id   = ?, storno_id     = ?, storno        = ?,
                 cp_id       = ?, marge_total   = ?, marge_percent = ?,
@@ -1558,8 +1555,7 @@ sub retrieve_invoice {
          (SELECT c.accno FROM chart c WHERE d.income_accno_id = c.id)    AS income_accno,
          (SELECT c.accno FROM chart c WHERE d.expense_accno_id = c.id)   AS expense_accno,
          (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id)    AS fxgain_accno,
-         (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno,
-         d.curr AS currencies
+         (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno
          ${query_transdate}
        FROM defaults d|;
 
@@ -1578,7 +1574,7 @@ sub retrieve_invoice {
            a.orddate, a.quodate, a.globalproject_id,
            a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.gldate,
            a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes, a.taxzone_id,
-           a.duedate, a.taxincluded, a.curr AS currency, a.shipto_id, a.cp_id,
+           a.duedate, a.taxincluded, (SELECT cu.curr FROM currencies cu WHERE cu.id=a.curr) AS currency, a.shipto_id, a.cp_id,
            a.employee_id, a.salesman_id, a.payment_id,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
@@ -1589,9 +1585,6 @@ sub retrieve_invoice {
          WHERE a.id = ?|;
     $ref = selectfirst_hashref_query($form, $dbh, $query, $id);
     map { $form->{$_} = $ref->{$_} } keys %{ $ref };
-
-    # remove any trailing whitespace
-    $form->{currency} =~ s/\s*$//;
 
     $form->{exchangerate} = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "buy");
 
@@ -1757,7 +1750,7 @@ sub get_customer {
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit, c.terms,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id,
          c.street, c.zipcode, c.city, c.country,
-         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, c.curr,
+         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, (SELECT cu.curr FROM currencies cu WHERE cu.id=c.curr) AS curr,
          c.taxincluded_checked, c.direct_debit,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.discount AS tradediscount, b.description AS business
@@ -1772,11 +1765,8 @@ sub get_customer {
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  # remove any trailing whitespace
-  $form->{curr} =~ s/\s*$//;
-
-  # use customer currency if not empty
-  $form->{currency} = $form->{curr} if $form->{curr};
+  # use customer currency
+  $form->{currency} = $form->{curr};
 
   $query =
     qq|SELECT sum(amount - paid) AS dunning_amount

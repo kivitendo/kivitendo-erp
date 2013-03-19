@@ -1490,11 +1490,9 @@ sub update_exchangerate {
     $main::lxdebug->leave_sub();
     return;
   }
-  $query = qq|SELECT curr FROM defaults|;
+  $query = qq|SELECT curr FROM currencies WHERE id=(SELECT curr FROM defaults)|;
 
-  my ($currency) = selectrow_query($self, $dbh, $query);
-  my ($defaultcurrency) = split m/:/, $currency;
-
+  my ($defaultcurrency) = selectrow_query($self, $dbh, $query);
 
   if ($curr eq $defaultcurrency) {
     $main::lxdebug->leave_sub();
@@ -1502,7 +1500,7 @@ sub update_exchangerate {
   }
 
   $query = qq|SELECT e.curr FROM exchangerate e
-                 WHERE e.curr = ? AND e.transdate = ?
+                 WHERE e.curr = (SELECT cu.id FROM currencies cu WHERE cu.curr=?) AND e.transdate = ?
                  FOR UPDATE|;
   my $sth = prepare_execute_query($self, $dbh, $query, $curr, $transdate);
 
@@ -1528,12 +1526,12 @@ sub update_exchangerate {
   if ($sth->fetchrow_array) {
     $query = qq|UPDATE exchangerate
                 SET $set
-                WHERE curr = ?
+                WHERE curr = (SELECT id FROM currencies WHERE curr = ?)
                 AND transdate = ?|;
 
   } else {
     $query = qq|INSERT INTO exchangerate (curr, buy, sell, transdate)
-                VALUES (?, $buy, $sell, ?)|;
+                VALUES ((SELECT id FROM currencies WHERE curr = ?), $buy, $sell, ?)|;
   }
   $sth->finish;
   do_query($self, $dbh, $query, $curr, $transdate);
@@ -1573,18 +1571,17 @@ sub get_exchangerate {
     return 1;
   }
 
-  $query = qq|SELECT curr FROM defaults|;
+  $query = qq|SELECT curr FROM currencies WHERE id = (SELECT curr FROM defaults)|;
 
-  my ($currency) = selectrow_query($self, $dbh, $query);
-  my ($defaultcurrency) = split m/:/, $currency;
+  my ($defaultcurrency) = selectrow_query($self, $dbh, $query);
 
-  if ($currency eq $defaultcurrency) {
+  if ($curr eq $defaultcurrency) {
     $main::lxdebug->leave_sub();
     return 1;
   }
 
   $query = qq|SELECT e.$fld FROM exchangerate e
-                 WHERE e.curr = ? AND e.transdate = ?|;
+                 WHERE e.curr = (SELECT id FROM currencies WHERE curr = ?) AND e.transdate = ?|;
   my ($exchangerate) = selectrow_query($self, $dbh, $query, $curr, $transdate);
 
 
@@ -1617,7 +1614,7 @@ sub check_exchangerate {
 
   my $dbh   = $self->get_standard_dbh($myconfig);
   my $query = qq|SELECT e.$fld FROM exchangerate e
-                 WHERE e.curr = ? AND e.transdate = ?|;
+                 WHERE e.curr = (SELECT id FROM currencies WHERE curr = ?) AND e.transdate = ?|;
 
   my ($exchangerate) = selectrow_query($self, $dbh, $query, $currency, $transdate);
 
@@ -1632,11 +1629,16 @@ sub get_all_currencies {
   my $self     = shift;
   my $myconfig = shift || \%::myconfig;
   my $dbh      = $self->get_standard_dbh($myconfig);
+  my @currencies =();
 
-  my $query = qq|SELECT curr FROM defaults|;
+  my $query = qq|SELECT curr FROM currencies|;
 
-  my ($curr)     = selectrow_query($self, $dbh, $query);
-  my @currencies = grep { $_ } map { s/\s//g; $_ } split m/:/, $curr;
+  my $sth = prepare_execute_query($self, $dbh, $query);
+
+  while (my $ref = $sth->fetchrow_hashref()) {
+    push(@currencies, $ref->{curr});
+  }
+  $sth->finish;
 
   $main::lxdebug->leave_sub();
 
@@ -1647,11 +1649,14 @@ sub get_default_currency {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig) = @_;
-  my @currencies        = $self->get_all_currencies($myconfig);
+  my $dbh      = $self->get_standard_dbh($myconfig);
+  my $query = qq|SELECT curr FROM currencies WHERE id = (SELECT curr FROM defaults)|;
+
+  my ($defaultcurrency) = selectrow_query($self, $dbh, $query);
 
   $main::lxdebug->leave_sub();
 
-  return $currencies[0];
+  return $defaultcurrency;
 }
 
 sub set_payment_options {
@@ -2191,9 +2196,7 @@ $main::lxdebug->enter_sub();
 
   $key = "all_currencies" unless ($key);
 
-  my $query = qq|SELECT curr AS currency FROM defaults|;
-
-  $self->{$key} = [split(/\:/ , selectfirst_hashref_query($self, $dbh, $query)->{currency})];
+  $self->{$key} = [$self->get_all_currencies()];
 
   $main::lxdebug->leave_sub();
 }
@@ -2704,7 +2707,7 @@ sub create_links {
     $query =
       qq|SELECT
            a.cp_id, a.invnumber, a.transdate, a.${table}_id, a.datepaid,
-           a.duedate, a.ordnumber, a.taxincluded, a.curr AS currency, a.notes,
+           a.duedate, a.ordnumber, a.taxincluded, (SELECT cu.curr FROM currencies cu WHERE cu.id=a.curr) AS currency, a.notes,
            a.intnotes, a.department_id, a.amount AS oldinvtotal,
            a.paid AS oldtotalpaid, a.employee_id, a.gldate, a.type,
            a.globalproject_id, ${extra_columns}
@@ -2721,9 +2724,6 @@ sub create_links {
     foreach my $key (keys %$ref) {
       $self->{$key} = $ref->{$key};
     }
-
-    # remove any trailing whitespace
-    $self->{currency} =~ s/\s*$//;
 
     my $transdate = "current_date";
     if ($self->{transdate}) {
@@ -2808,9 +2808,11 @@ sub create_links {
     }
 
     $sth->finish;
+    #check das:
     $query =
       qq|SELECT
-           d.curr AS currencies, d.closedto, d.revtrans,
+           d.closedto, d.revtrans,
+           (SELECT cu.curr FROM currencies cu WHERE cu.id=d.curr) AS defaultcurrency,
            (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
            (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
          FROM defaults d|;
@@ -2822,7 +2824,8 @@ sub create_links {
     # get date
     $query =
        qq|SELECT
-            current_date AS transdate, d.curr AS currencies, d.closedto, d.revtrans,
+            current_date AS transdate, d.closedto, d.revtrans,
+            (SELECT cu.curr FROM currencies cu WHERE cu.id=d.curr) AS defaultcurrency,
             (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
             (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
           FROM defaults d|;
@@ -2832,7 +2835,7 @@ sub create_links {
     if ($self->{"$self->{vc}_id"}) {
 
       # only setup currency
-      ($self->{currency}) = split(/:/, $self->{currencies}) if !$self->{currency};
+      ($self->{currency}) = $self->{defaultcurrency} if !$self->{currency};
 
     } else {
 
@@ -2857,19 +2860,17 @@ sub lastname_used {
   my ($arap, $where);
 
   $table         = $table eq "customer" ? "customer" : "vendor";
-  my %column_map = ("a.curr"                  => "currency",
-                    "a.${table}_id"           => "${table}_id",
+  my %column_map = ("a.${table}_id"           => "${table}_id",
                     "a.department_id"         => "department_id",
                     "d.description"           => "department",
                     "ct.name"                 => $table,
-                    "ct.curr"                 => "cv_curr",
+                    "cu.curr"                 => "currency",
                     "current_date + ct.terms" => "duedate",
     );
 
   if ($self->{type} =~ /delivery_order/) {
     $arap  = 'delivery_orders';
-    delete $column_map{"a.curr"};
-    delete $column_map{"ct.curr"};
+    delete $column_map{"cu.currency"};
 
   } elsif ($self->{type} =~ /_order/) {
     $arap  = 'oe';
@@ -2898,17 +2899,11 @@ sub lastname_used {
                         FROM $arap a
                         LEFT JOIN $table     ct ON (a.${table}_id = ct.id)
                         LEFT JOIN department d  ON (a.department_id = d.id)
+                        LEFT JOIN currencies cu ON (cu.id=ct.curr)
                         WHERE a.id = ?|;
   my $ref          = selectfirst_hashref_query($self, $dbh, $query, $trans_id);
 
   map { $self->{$_} = $ref->{$_} } values %column_map;
-
-  # remove any trailing whitespace
-  $self->{currency} =~ s/\s*$// if $self->{currency};
-  $self->{cv_curr} =~ s/\s*$// if $self->{cv_curr};
-
-  # if customer/vendor currency is set use this
-  $self->{currency} = $self->{cv_curr} if $self->{cv_curr};
 
   $main::lxdebug->leave_sub();
 }
