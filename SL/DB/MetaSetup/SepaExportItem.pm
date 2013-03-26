@@ -18,11 +18,13 @@ __PACKAGE__->meta->columns(
   execution_date           => { type => 'date' },
   id                       => { type => 'integer', not_null => 1, sequence => 'id' },
   our_bic                  => { type => 'varchar', length => 100 },
+  our_depositor            => { type => 'text' },
   our_iban                 => { type => 'varchar', length => 100 },
   reference                => { type => 'varchar', length => 35 },
   requested_execution_date => { type => 'date' },
   sepa_export_id           => { type => 'integer', not_null => 1 },
   vc_bic                   => { type => 'varchar', length => 100 },
+  vc_depositor             => { type => 'text' },
   vc_iban                  => { type => 'varchar', length => 100 },
 );
 
