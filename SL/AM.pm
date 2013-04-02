@@ -213,8 +213,8 @@ sub save_account {
       qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice);
   }
 
-  if ($form->{AR_include_in_dropdown}) {
-    $form->{$form->{AR_include_in_dropdown}} = $form->{AR_include_in_dropdown};
+  for (qw(AR_include_in_dropdown AP_include_in_dropdown)) {
+    $form->{$form->{$_}} = $form->{$_} if $form->{$_};
   }
 
   $form->{link} = "";
