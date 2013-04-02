@@ -265,8 +265,8 @@ sub save_account {
   if (!$form->{id} || $form->{id} eq "") {
     $query = qq|SELECT nextval('id')|;
     ($form->{"id"}) = selectrow_query($form, $dbh, $query);
-    $query = qq|INSERT INTO chart (id, accno) VALUES (?, ?)|;
-    do_query($form, $dbh, $query, $form->{"id"}, $form->{"accno"});
+    $query = qq|INSERT INTO chart (id, accno, link) VALUES (?, ?, ?)|;
+    do_query($form, $dbh, $query, $form->{"id"}, $form->{"accno"}, '');
   }
 
   @values = ();
