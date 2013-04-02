@@ -216,9 +216,6 @@ sub save_account {
   if ($form->{AR_include_in_dropdown}) {
     $form->{$form->{AR_include_in_dropdown}} = $form->{AR_include_in_dropdown};
   }
-  if ($form->{AP_include_in_dropdown}) {
-    $form->{$form->{AP_include_in_dropdown}} = $form->{AP_include_in_dropdown};
-  }
 
   $form->{link} = "";
   foreach my $item ($form->{AR},            $form->{AR_amount},
