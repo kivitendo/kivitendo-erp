@@ -56,8 +56,8 @@
       <input type="hidden" name="vc_bank_info[].name" value="[% HTML.escape(vbi.name) %]">
       [% HTML.escape(vbi.name) %]
      </td>
-     <td><input name="vc_bank_info[].iban" size="20" value="[% HTML.escape(vbi.iban) %]"></td>
-     <td><input name="vc_bank_info[].bic" size="20" value="[% HTML.escape(vbi.bic) %]"></td>
+     <td><input name="vc_bank_info[].iban" size="34" value="[% HTML.escape(vbi.iban.substr(0, 34)) %]" maxlength="34"></td>
+     <td><input name="vc_bank_info[].bic" size="20" value="[% HTML.escape(vbi.bic.substr(0, 20)) %]" maxlength="20"></td>
      <td><input name="vc_bank_info[].bank" size="30" value="[% HTML.escape(vbi.bank) %]"></td>
     </tr>
     [%- END %]
@@ -101,8 +101,10 @@
 
       <td align="right">[% LxERP.format_amount(bank_transfer.invoice_amount, -2) %]</td>
       <td align="right">[% LxERP.format_amount(bank_transfer.open_amount, -2) %]</td>
-      <td><input name="bank_transfers[].reference" value="[% HTML.escape(bank_transfer.reference) %]"></td>
-      <td align="right"><input name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right"></td>
+      <td>
+       <input name="bank_transfers[].reference" value="[% HTML.escape(bank_transfer.reference.substr(0, 140)) %]" size="60" maxlength="140">
+      </td>
+      <td align="right"><input name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right" size="12"></td>
       <td nowrap>
         [% L.date_tag('requested_execution_date_'_ loop.count, bank_transfer.requested_execution_date) %]
       </td>
@@ -123,4 +125,3 @@
   <input type="hidden" name="vc" value="[%- HTML.escape(vc) %]">
   <input type="hidden" name="confirmation" value="1">
  </form>
-
