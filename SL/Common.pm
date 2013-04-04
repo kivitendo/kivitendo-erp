@@ -46,6 +46,21 @@ sub tmpname {
   return "/tmp/kivitendo-tmp-" . unique_id();
 }
 
+sub truncate {
+  my ($text, %params) = @_;
+
+  $params{at}       //= 50;
+  $params{at}         =  3 if 3 > $params{at};
+
+  $params{strip}    //= '';
+
+  $text =~ s/[\r\n]+$//g if $params{strip} =~ m/^(?: 1 | newlines? | full )$/x;
+  $text =~ s/[\r\n]+/ /g if $params{strip} =~ m/^(?:     newlines? | full )$/x;
+
+  return $text if length($text) <= $params{at};
+  return substr($text, 0, $params{at} - 3) . '...';
+}
+
 sub retrieve_parts {
   $main::lxdebug->enter_sub();
 
@@ -576,3 +591,46 @@ sub check_params_x {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+Common - Common routines used in a lot of places.
+
+=head1 SYNOPSIS
+
+  my $short_text = Common::truncate($long_text, at => 10);
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<truncate $text, %params>
+
+Truncates C<$text> at a position and insert an ellipsis if the text is
+longer. The maximum number of characters to return is given with the
+paramter C<at> which defaults to 50.
+
+The optional parameter C<strip> can be used to remove unwanted line
+feed/carriage return characters from the text before truncation. It
+can be set to C<1> (only strip those at the end of C<$text>) or
+C<full> (replace consecutive line feed/carriage return characters in
+the middle by a single space and remove tailing line feed/carriage
+return characters).
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>,
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
+
+=cut

@@ -12,12 +12,7 @@ use Carp;
 sub truncate {
   my ($self, $text, %params) = @_;
 
-  $params{at}             ||= 50;
-  $params{at}               =  3 if 3 > $params{at};
-  $params{at}              -= 3;
-
-  return $text if length($text) < $params{at};
-  return substr($text, 0, $params{at}) . '...';
+  return Common::truncate($text, %params);
 }
 
 sub simple_format {
@@ -77,15 +72,11 @@ it, e.g. C<2 PT 2 h> for the value C<18> and German.
 If the parameter C<skip_zero> is trueish then C<---> is returned
 instead of the normal formatting if C<$value> equals 0.
 
-=item C<truncate $text, [%params]>
+=item C<truncate $text, %params>
 
 Returns the C<$text> truncated after a certain number of
-characters.
-
-The number of characters to truncate at is determined by the parameter
-C<at> which defaults to 50. If the text is longer than C<$params{at}>
-then it will be truncated and postfixed with '...'. Otherwise it will
-be returned unmodified.
+characters. See L<Common/truncate> for the actual implementation and
+supported parameters.
 
 =item C<simple_format $text>
 
