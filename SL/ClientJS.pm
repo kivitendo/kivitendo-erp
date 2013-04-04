@@ -392,8 +392,8 @@ But it is easier to integrate into a method call chain, e.g.:
 Display a C<$message> in the flash of type C<$type>. Multiple calls of
 C<flash> on the same C<$self> will be merged by type.
 
-On the client side the flash of this type will be cleared before the
-message is shown.
+On the client side the flashes of all types will be cleared after each
+successful ClientJS call that did not end with C<$js-E<gt>error(...)>.
 
 =item C<error $message>
 
