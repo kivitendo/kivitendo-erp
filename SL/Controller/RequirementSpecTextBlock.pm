@@ -7,6 +7,7 @@ use parent qw(SL::Controller::Base);
 use Time::HiRes ();
 
 use SL::ClientJS;
+use SL::Clipboard;
 use SL::DB::RequirementSpec;
 use SL::DB::RequirementSpecPredefinedText;
 use SL::DB::RequirementSpecTextBlock;
@@ -19,7 +20,7 @@ use Rose::Object::MakeMethods::Generic
   'scalar --get_set_init' => [ qw(predefined_texts) ],
 );
 
-__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete ajax_flag dragged_and_dropped)]);
+__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete ajax_flag dragged_and_dropped ajax_copy)]);
 
 #
 # actions
@@ -246,6 +247,42 @@ sub action_dragged_and_dropped {
   }
 
   $self->render($js);
+}
+
+sub action_ajax_copy {
+  my ($self, %params) = @_;
+
+  SL::Clipboard->new->copy($self->text_block);
+  SL::ClientJS->new->render($self);
+}
+
+sub action_ajax_paste {
+  my ($self, %params) = @_;
+
+  my $copied = SL::Clipboard->new->get_entry(qr/^RequirementSpecTextBlock$/);
+  if (!$copied) {
+    return SL::ClientJS->new
+      ->error(t8("The clipboard does not contain anything that can be pasted here."))
+      ->render($self);
+  }
+
+  my $js                      = SL::ClientJS->new;
+  my $current_output_position = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type});
+  my $new_output_position     = $::form->{id} ? $self->output_position_from_id($::form->{id}) : $::form->{output_position};
+  my $front_back              = 0 == $new_output_position ? 'front' : 'back';
+
+  $self->text_block($copied->to_object);
+  $self->text_block->update_attributes(requirement_spec_id => $::form->{requirement_spec_id}, output_position => $new_output_position);
+  $self->text_block->add_to_list(position => 'after', reference => $::form->{id}) if $::form->{id};
+
+  if ($current_output_position == $new_output_position) {
+    my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
+    $js->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'));
+  }
+
+  my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
+  $js->jstree->create_node('#tree', $::form->{id} ? ('#tb-' . $::form->{id}, 'after') : ("#tb-${front_back}", 'last'), $node)
+     ->render($self);
 }
 
 #

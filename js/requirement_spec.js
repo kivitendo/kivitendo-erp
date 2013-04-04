@@ -287,10 +287,8 @@ function create_requirement_spec_context_menus() {
       , sep1:   "---------"
       , flag:   { name: kivi.t8('Toggle marker'),     icon: "flag",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
       , sep2:   "---------"
-      , copy:   { name: kivi.t8('Copy'),              icon: "copy",                                            disabled: function() { return true; } }
-      , paste:  { name: kivi.t8('Paste'),             icon: "paste",                                           disabled: function() { return true; } }
-      // , copy:   { name: kivi.t8('Copy'),              icon: "copy",                                            disabled: disable_edit_text_block_commands }
-      // , paste:  { name: kivi.t8('Paste'),             icon: "paste",                                           disabled: disable_edit_text_block_commands }
+      , copy:   { name: kivi.t8('Copy'),              icon: "copy",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
+      , paste:  { name: kivi.t8('Paste'),             icon: "paste",  callback: standard_text_block_ajax_call  }
     }
   });
 
@@ -311,10 +309,8 @@ function create_requirement_spec_context_menus() {
       , sep2:               "---------"
       , flag:               { name: kivi.t8('Toggle marker'),      icon: "flag",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
       , sep3:               "---------"
-      , copy:               { name: kivi.t8('Copy'),               icon: "copy",                                      disabled: function() { return true; } }
-      , paste:              { name: kivi.t8('Paste'),              icon: "paste",                                     disabled: function() { return true; } }
-      // , copy:               { name: kivi.t8('Copy'),               icon: "copy",                                      disabled: disable_edit_item_commands }
-      // , paste:              { name: kivi.t8('Paste'),              icon: "paste",                                     disabled: disable_edit_item_commands }
+      , copy:               { name: kivi.t8('Copy'),               icon: "copy",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
+      , paste:              { name: kivi.t8('Paste'),              icon: "paste",  callback: standard_item_ajax_call }
     }
   });
 
@@ -330,10 +326,8 @@ function create_requirement_spec_context_menus() {
       , sep2:                   "---------"
       , flag:                   { name: kivi.t8('Toggle marker'),          icon: "flag",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
       , sep3:                   "---------"
-      , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",                                      disabled: function() { return true; } }
-      , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",                                     disabled: function() { return true; } }
-      // , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",                                      disabled: disable_edit_item_commands }
-      // , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",                                     disabled: disable_edit_item_commands }
+      , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
+      , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",  callback: standard_item_ajax_call }
     }
   });
 }

@@ -9,6 +9,7 @@ use List::MoreUtils qw(apply);
 use List::Util qw(first);
 use Time::HiRes ();
 
+use SL::Clipboard;
 use SL::DB::RequirementSpec;
 use SL::DB::RequirementSpecComplexity;
 use SL::DB::RequirementSpecItem;
@@ -19,11 +20,11 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(item visible_item visible_section) ],
+  scalar                  => [ qw(item visible_item visible_section clicked_item sections) ],
   'scalar --get_set_init' => [ qw(complexities risks) ],
 );
 
-__PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit ajax_delete ajax_flag) ]);
+__PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit ajax_delete ajax_flag ajax_copy) ]);
 __PACKAGE__->run_before('init_visible_section');
 
 #
@@ -50,6 +51,28 @@ sub action_ajax_list {
   }
 
   $self->render($js);
+}
+
+sub insert_new_item_in_section_view {
+  my ($self, $js) = @_;
+
+  $js->hide('#section-list-empty');
+
+  my $new_type  = $self->item->item_type;
+  my $id_prefix = $new_type eq 'sub-function-block' ? 'sub-' : '';
+  my $template  = 'requirement_spec_item/_' . (apply { s/-/_/g; $_ } $new_type);
+  my $html      = "" . $self->render($template, { output => 0 }, requirement_spec_item => $self->item);
+  my $next_item = $self->item->get_next_in_list;
+
+  if ($next_item) {
+    $js->insertBefore($html, '#' . $id_prefix . 'function-block-' . $next_item->id);
+  } else {
+    my $parent_is_section = $self->item->parent->item_type eq 'section';
+    $js->appendTo($html, $parent_is_section ? '#section-list' : '#sub-function-block-container-' . $self->item->parent_id);
+    $js->show('#sub-function-block-container-' . $self->item->parent_id) if !$parent_is_section;
+  }
+
+  $self->replace_bottom($js, $self->item->parent) if $new_type eq 'sub-function-block';
 }
 
 sub action_dragged_and_dropped {
@@ -105,22 +128,7 @@ sub action_dragged_and_dropped {
   }
 
   if ($old_visible_section->id == $new_section->id) {
-    $js->hide('#section-list-empty');
-
-    my $id_prefix = $new_type eq 'sub-function-block' ? 'sub-' : '';
-    my $template  = 'requirement_spec_item/_' . (apply { s/-/_/g; $_ } $new_type);
-    my $html      = "" . $self->render($template, { output => 0 }, requirement_spec_item => $self->item);
-    my $next_item = $self->item->get_next_in_list;
-
-    if ($next_item) {
-      $js->insertBefore($html, '#' . $id_prefix . 'function-block-' . $next_item->id);
-    } else {
-      my $parent_is_section = $self->item->parent->item_type eq 'section';
-      $js->appendTo($html, $parent_is_section ? '#section-list' : '#sub-function-block-container-' . $self->item->parent_id);
-      $js->show('#sub-function-block-container-' . $self->item->parent_id) if !$parent_is_section;
-    }
-
-    $self->replace_bottom($js, $self->item->parent) if $new_type eq 'sub-function-block';
+    $self->insert_new_item_in_section_view($js);
   }
 
   # $::lxdebug->dump(0, "js", $js->to_array);
@@ -203,7 +211,7 @@ sub action_ajax_edit {
 
   my $js = SL::ClientJS->new;
 
-  if (!$self->visible_section || ($self->visible_section->id != $self->item->section->id)) {
+  if (!$self->is_item_visible) {
     # Show section/item to edit if it is not visible.
 
     my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
@@ -315,7 +323,7 @@ sub action_ajax_delete {
          ->val('#current_content_id', '')
     }
 
-  } elsif ($self->visible_section && ($self->visible_section->id == $self->item->section->id)) {
+  } elsif ($self->is_item_visible) {
     # Item in currently visible section is deleted.
 
     my $type = $self->item->item_type;
@@ -342,12 +350,118 @@ sub action_ajax_flag {
 
   $self->item->update_attributes(is_flagged => !$self->item->is_flagged);
 
-  my $is_visible = $self->visible_section && ($self->visible_section->id == $self->item->section->id);
-
   SL::ClientJS->new
-   ->action_if($is_visible, 'toggleClass', '#' . $self->item->item_type . '-' . $self->item->id, 'flagged')
+   ->action_if($self->is_item_visible, 'toggleClass', '#' . $self->item->item_type . '-' . $self->item->id, 'flagged')
    ->toggleClass('#fb-' . $self->item->id, 'flagged')
    ->render($self);
+}
+
+sub action_ajax_copy {
+  my ($self, %params) = @_;
+
+  SL::Clipboard->new->copy($self->item);
+  SL::ClientJS->new->render($self);
+}
+
+sub determine_paste_position {
+  my ($self) = @_;
+
+  if ($self->item->item_type eq 'section') {
+    # Sections are always pasted either directly after the
+    # clicked-upon section or at the very end.
+    return $self->clicked_item ? (undef, $self->clicked_item->section->id) : ();
+
+  } elsif ($self->item->item_type eq 'function-block') {
+    # A function block:
+    # - paste on section list: insert into last section as last element
+    # - paste on section: insert into that section as last element
+    # - paste on function block: insert after clicked-upon element
+    # - paste on sub function block: insert after parent function block of clicked-upon element
+    return !$self->clicked_item                                ? ( $self->sections->[-1]->id,              undef                          )
+         :  $self->clicked_item->item_type eq 'section'        ? ( $self->clicked_item->id,                undef                          )
+         :  $self->clicked_item->item_type eq 'function-block' ? ( $self->clicked_item->parent_id,         $self->clicked_item->id        )
+         :                                                       ( $self->clicked_item->parent->parent_id, $self->clicked_item->parent_id );
+
+  } else {                      # sub-function-block
+    # A sub function block:
+    # - paste on section list: promote to function block and insert into last section as last element
+    # - paste on section: promote to function block and insert into that section as last element
+    # - paste on function block: insert as last element in clicked-upon element
+    # - paste on sub function block: insert after clicked-upon element
+
+    # Promote sub function blocks to function blocks when pasting on a
+    # section or the section list.
+    $self->item->item_type('function-block') if !$self->clicked_item || ($self->clicked_item->item_type eq 'section');
+
+    return !$self->clicked_item                                ? ( $self->sections->[-1]->id,      undef                   )
+         :  $self->clicked_item->item_type eq 'section'        ? ( $self->clicked_item->id,        undef                   )
+         :  $self->clicked_item->item_type eq 'function-block' ? ( $self->clicked_item->id,        undef                   )
+         :                                                       ( $self->clicked_item->parent_id, $self->clicked_item->id );
+  }
+}
+
+sub assign_requirement_spec_id_rec {
+  my ($self, $item) = @_;
+
+  $item->requirement_spec_id($::form->{requirement_spec_id});
+  $self->assign_requirement_spec_id_rec($_) for @{ $item->children || [] };
+
+  return $item;
+}
+
+sub create_and_insert_node_rec {
+  my ($self, $js, $item, $new_parent_id, $insert_after) = @_;
+
+  my $node = $self->presenter->requirement_spec_item_jstree_data($item);
+  $js->jstree->create_node('#tree', $insert_after ? ('#fb-' . $insert_after, 'after') : $new_parent_id ? ('#fb-' . $new_parent_id, 'last') : ('#sections', 'last'), $node);
+
+  $self->create_and_insert_node_rec($js, $_, $item->id) for @{ $item->children || [] };
+
+  $js->jstree->open_node('#tree', '#fb-' . $item->id);
+}
+
+sub action_ajax_paste {
+  my ($self, %params) = @_;
+
+  my $js     = SL::ClientJS->new;
+  my $copied = SL::Clipboard->new->get_entry(qr/^RequirementSpecItem$/);
+
+  if (!$copied) {
+    return $js->error(t8("The clipboard does not contain anything that can be pasted here."))
+              ->render($self);
+  }
+
+  $self->item($self->assign_requirement_spec_id_rec($copied->to_object));
+  my $req_spec = SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id})->load;
+  $self->sections($req_spec->sections);
+
+  if (($self->item->item_type ne 'section') && !@{ $self->sections }) {
+    return $js->error(t8("You cannot paste function blocks or sub function blocks if there is no section."))
+              ->render($self);
+  }
+
+  $self->clicked_item($::form->{id} ? SL::DB::RequirementSpecItem->new(id => $::form->{id})->load : undef);
+
+  my ($new_parent_id, $insert_after) = $self->determine_paste_position;
+
+  # Store result in database.
+  $self->item->update_attributes(requirement_spec_id => $::form->{requirement_spec_id}, parent_id => $new_parent_id);
+  $self->item->add_to_list(position => 'after', reference => $insert_after) if $insert_after;
+
+  # Update the tree: create the node for all pasted objects.
+  $self->create_and_insert_node_rec($js, $self->item, $new_parent_id, $insert_after);
+
+  # Pasting the very first section?
+  if (!@{ $self->sections }) {
+    my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
+    $js->html('#column-content', $html)
+       ->jstree->select_node('#tree', '#fb-' . $self->item->id)
+  }
+
+  # Update the current view if required.
+  $self->insert_new_item_in_section_view($js) if $self->is_item_visible;
+
+  $js->render($self);
 }
 
 #
@@ -483,7 +597,7 @@ sub add_function_block {
   my $js = SL::ClientJS->new;
 
   my $new_section = $self->item->section;
-  if (!$self->visible_section || ($self->visible_section->id != $new_section->id)) {
+  if (!$self->is_item_visible) {
     # Show section/item to edit if it is not visible.
 
     $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $new_section);
@@ -501,6 +615,13 @@ sub add_function_block {
   $js->show('#sub-function-block-container-' . $parent_id) if $new_type eq 'sub-function-block';
 
   $js->render($self);
+}
+
+sub is_item_visible {
+  my ($self, $item) = @_;
+
+  $item ||= $self->item;
+  return $self->visible_section && ($self->visible_section->id == $item->section->id);
 }
 
 1;
