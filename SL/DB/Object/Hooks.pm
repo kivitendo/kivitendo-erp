@@ -44,9 +44,10 @@ sub run_hooks {
 
   foreach my $sub (@{ ( $hooks{$when} || { })->{ ref($object) } || [ ] }) {
     my $result = ref($sub) eq 'CODE' ? $sub->($object, @args) : $object->call_sub($sub, @args);
-    die SL::X::DBHookError->new(when   => $when,
-                                hook   => (ref($sub) eq 'CODE' ? '<anonymous sub>' : $sub),
-                                object => $object)
+    die SL::X::DBHookError->new(when        => $when,
+                                hook        => (ref($sub) eq 'CODE' ? '<anonymous sub>' : $sub),
+                                object      => $object,
+                                object_type => ref($object))
       if !$result;
   }
 }
