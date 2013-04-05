@@ -139,7 +139,7 @@ sub check_business {
   my $object = $entry->{object};
 
   # Check whether or not business ID is valid.
-  if ($object->business_id && !$self->businesss_by->{id}->{ $object->business_id }) {
+  if ($object->business_id && !$self->businesses_by->{id}->{ $object->business_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid business');
     return 0;
   }
