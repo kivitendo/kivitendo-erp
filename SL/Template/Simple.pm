@@ -56,6 +56,13 @@ sub set_tag_style {
   $self->{substitute_vars_re} = "$self->{tag_start_qm}(.+?)$self->{tag_end_qm}";
 }
 
+sub set_use_template_toolkit {
+  my $self                    = shift;
+  my $value                   = shift;
+
+  $self->{use_template_toolkit} = $value;
+}
+
 sub cleanup {
   my ($self) = @_;
 }

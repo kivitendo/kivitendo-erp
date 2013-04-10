@@ -17,7 +17,6 @@ sub new {
 
 sub format_string {
   my ($self, $variable) = @_;
-  my $form = $self->{"form"};
 
   $variable = $main::locale->quote_special_chars('Template/LaTeX', $variable);
 
@@ -257,6 +256,9 @@ sub _parse_config_option {
   if ($key eq 'tag-style') {
     $self->set_tag_style(split(m/\s+/, $value, 2));
   }
+  if ($key eq 'use-template-toolkit') {
+    $self->set_use_template_toolkit($value);
+  }
 }
 
 sub _parse_config_lines {
@@ -350,7 +352,14 @@ sub parse {
 
   $self->{"forced_pagebreaks"} = [];
 
-  my $new_contents = $self->parse_block($contents);
+  my $new_contents;
+  if ($self->{use_template_toolkit}) {
+    my $additional_params = $::form;
+
+    $::form->init_template->process(\$contents, $additional_params, \$new_contents) || die $::form->template->error;
+  } else {
+    $new_contents = $self->parse_block($contents);
+  }
   if (!defined($new_contents)) {
     $main::lxdebug->leave_sub();
     return 0;

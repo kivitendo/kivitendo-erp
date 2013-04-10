@@ -260,7 +260,14 @@ sub parse {
   $contents =~ s|</office:automatic-styles>|${new_styles}</office:automatic-styles>|;
   $contents =~ s|[\n\r]||gm;
 
-  my $new_contents = $self->parse_block($contents);
+  my $new_contents;
+  if ($self->{use_template_toolkit}) {
+    my $additional_params = $::form;
+
+    $::form->init_template->process(\$contents, $additional_params, \$new_contents) || die $::form->template->error;
+  } else {
+    $new_contents = $self->parse_block($contents);
+  }
   if (!defined($new_contents)) {
     $main::lxdebug->leave_sub();
     return 0;
