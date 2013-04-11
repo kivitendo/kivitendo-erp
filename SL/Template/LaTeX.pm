@@ -356,6 +356,10 @@ sub parse {
   if ($self->{use_template_toolkit}) {
     my $additional_params = $::form;
 
+    if ($self->{custom_tag_style}) {
+      $contents = "[% TAGS $self->{tag_start} $self->{tag_end} %]\n" . $contents;
+    }
+
     $::form->init_template->process(\$contents, $additional_params, \$new_contents) || die $::form->template->error;
   } else {
     $new_contents = $self->parse_block($contents);

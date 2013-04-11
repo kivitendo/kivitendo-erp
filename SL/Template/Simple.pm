@@ -48,6 +48,7 @@ sub set_tag_style {
   my $tag_start               = shift;
   my $tag_end                 = shift;
 
+  $self->{custom_tag_style}   = 1;
   $self->{tag_start}          = $tag_start;
   $self->{tag_end}            = $tag_end;
   $self->{tag_start_qm}       = quotemeta $tag_start;
