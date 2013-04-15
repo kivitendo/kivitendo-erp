@@ -81,7 +81,7 @@
   [% FOREACH row = Q %]
   <tr>
     <td></td>
-    <td>[% row.description %]</td>
+    <td>[% row.accno _ ' - ' IF l_accno and row.accno %][% row.description %]</td>
     <td align="right">[% LxERP.format_amount(row.this, decimalplaces) %]</td>
     [%- IF last_period %]
     <td align="right">[% LxERP.format_amount(row.last, decimalplaces) %]</td>
