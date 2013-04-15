@@ -1,0 +1,33 @@
+[%- USE T8 %]
+[% USE HTML %]<div class="listtop">[% 'Double partnumbers' | $T8 %]</div>
+
+<form name="Form" method="post" action="login.pl">
+<input type="hidden" name="action" value="login">
+
+<p>[% 'There are double partnumbers in your database.' | $T8 %]</p>
+<p>[% 'From this version on the partnumer of articles and assemblies have to be unique.' | $T8 %]</p>
+
+<p>[% 'Please change the partnumber of the following parts and run the update again:' | $T8 %]</p>
+<table>
+  <tr>
+    <th class="listheading">[% 'Partnumber' | $T8 %]</th>
+    <th class="listheading">[% 'Description' | $T8 %]</th>
+    <th class="listheading">[% 'Unit' | $T8 %]</th>
+    <th class="listheading">[% 'Notes' | $T8 %]</th>
+    <th class="listheading">[% 'EAN' | $T8 %]</th>
+    <th class="listheading">[% 'Service, assembly or part' | $T8 %]</th>
+  </tr>
+
+  [% SET row_odd = '1' %][% FOREACH row = PARTS %]
+  <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
+    <td align="right">[% HTML.escape(row.partnumber) %]</td>
+    <td align="left"> [% HTML.escape(row.description) %]</a></td>
+    <td align="right">[% HTML.escape(row.unit) %]</td>
+    <td align="right">[% HTML.escape(row.notes) %]</td>
+    <td align="right">[% HTML.escape(row.ean) %]</td>
+    <td align="right">[% IF row.assembly %] [% 'assembly' | $T8 %] [% ELSE %] [% IF row.inventory_accno_id %] [% 'part' | $T8 %] [% ELSE %] [% 'service' %] [% END %] [% END %]</td>
+  </tr>
+  [% END %]
+</table>
+
+</form>
