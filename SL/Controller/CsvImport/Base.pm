@@ -422,5 +422,20 @@ sub fix_field_lengths {
   }
 }
 
-1;
+sub clean_fields {
+  my ($self, $illegal_chars, $object, @fields) = @_;
 
+  my @cleaned_fields;
+  foreach my $field (grep { $object->can($_) } @fields) {
+    my $value = $object->$field;
+
+    next unless defined($value) && ($value =~ s/$illegal_chars/ /g);
+
+    $object->$field($value);
+    push @cleaned_fields, $field;
+  }
+
+  return @cleaned_fields;
+}
+
+1;
