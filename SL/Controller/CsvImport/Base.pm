@@ -428,7 +428,6 @@ sub clean_fields {
   my @cleaned_fields;
   foreach my $field (grep { $object->can($_) } @fields) {
     my $value = $object->$field;
-    $::lxdebug->message(0, "field $field value $value ill $illegal_chars");
 
     next unless defined($value) && ($value =~ s/$illegal_chars/ /g);
 
