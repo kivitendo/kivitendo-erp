@@ -69,6 +69,12 @@ sub check_objects {
 
     next if @{ $entry->{errors} };
 
+    my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(name department_1 department_2 street zipcode city country contact phone fax homepage email cc bcc
+                                                                     taxnumber account_number bank_code bank username greeting));
+
+    push @{ $entry->{information} }, $::locale->text('Illegal characters have been removed from the following fields: #1', join(', ', @cleaned_fields))
+      if @cleaned_fields;
+
     my $existing_vc = $vcs_by_number{ $object->$numbercolumn };
     if (!$existing_vc) {
       $vcs_by_number{ $object->$numbercolumn } = $object;
