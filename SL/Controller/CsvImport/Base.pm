@@ -423,4 +423,3 @@ sub fix_field_lengths {
 }
 
 1;
-

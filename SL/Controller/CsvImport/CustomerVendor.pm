@@ -49,8 +49,11 @@ sub check_objects {
 
   $self->controller->track_progress(phase => 'building data', progress => 0);
 
-  my $numbercolumn  = $self->controller->profile->get('table') . "number";
-  my %vcs_by_number = map { ( $_->$numbercolumn => 1 ) } @{ $self->existing_objects };
+  my $vc            = $self->controller->profile->get('table');
+  my $update_policy = $self->controller->profile->get('update_policy') || 'update_existing';
+  my $numbercolumn  = "${vc}number";
+  my %vcs_by_number = map { ( $_->$numbercolumn => $_ ) } @{ $self->existing_objects };
+  my $methods       = $self->controller->headers->{methods};
 
   my $i;
   my $num_data = scalar @{ $self->controller->data };
@@ -66,10 +69,23 @@ sub check_objects {
 
     next if @{ $entry->{errors} };
 
-    if ($vcs_by_number{ $object->$numbercolumn }) {
-      $entry->{object}->$numbercolumn('####');
-    } else {
+    my $existing_vc = $vcs_by_number{ $object->$numbercolumn };
+    if (!$existing_vc) {
       $vcs_by_number{ $object->$numbercolumn } = $object;
+
+    } elsif ($update_policy eq 'skip') {
+      push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database'));
+
+    } elsif ($update_policy eq 'update_existing') {
+      # Update existing customer/vendor records.
+      $entry->{object_to_save} = $existing_vc;
+
+      $existing_vc->$_( $entry->{object}->$_ ) for @{ $methods };
+
+      push @{ $entry->{information} }, $::locale->text('Updating existing entry in database');
+
+    } else {
+      $object->$numbercolumn('####');
     }
   } continue {
     $i++;
