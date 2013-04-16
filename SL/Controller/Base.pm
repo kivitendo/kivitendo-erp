@@ -82,7 +82,7 @@ sub render {
   }
 
   # Only certain types are supported.
-  croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json)$/;
+  croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json|text)$/;
 
   # The "template" argument must be a string or a reference to one.
   $template = ${ $template }                                       if ((ref($template) || '') eq 'REF') && (ref(${ $template }) eq 'SL::Presenter::EscapedText');
@@ -112,6 +112,7 @@ sub render {
       $::form->{header} = 1;
       my $content_type  = $options->{type} eq 'html' ? 'text/html'
                         : $options->{type} eq 'js'   ? 'text/javascript'
+                        : $options->{type} eq 'text' ? 'text/plain'
                         :                              'application/json';
 
       print $::form->create_http_response(content_type => $content_type,
@@ -401,11 +402,12 @@ C<process> = 1, C<output> = 1, C<header> = 1, C<layout> = 1):
 
 =item C<type>
 
-The template type. Can be C<html> (the default), C<js> for JavaScript
-or C<json> for JSON content. Affects the extension that's added to the
-file name given with a non-reference C<$template> argument, the
-content type HTTP header that is output and whether or not the layout
-will be output as well (see description of C<layout> below).
+The template type. Can be C<html> (the default), C<js> for JavaScript,
+C<json> for JSON and C<text> for plain text content. Affects the
+extension that's added to the file name given with a non-reference
+C<$template> argument, the content type HTTP header that is output and
+whether or not the layout will be output as well (see description of
+C<layout> below).
 
 =item C<process>
 
