@@ -269,20 +269,20 @@ sub process_payment {
 
       # add AR/AP
       $query =
-        qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount) | .
-        qq|VALUES (?, ?, ?, ?)|;
+        qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount, chart_link, taxkey, tax_id) | .
+        qq|VALUES (?, ?, ?, ?, (SELECT link FROM chart WHERE id=?), 0, (SELECT id FROM tax WHERE taxkey=0 LIMIT 1))|;
       do_query($form, $dbh, $query, $form->{"id_$i"}, $id,
-               conv_date($form->{datepaid}), $amount * $ml);
+               conv_date($form->{datepaid}), $amount * $ml, $id);
 
       # add payment
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount, | .
-        qq|                       source, memo) | .
-        qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?)|;
+        qq|                       source, memo, chart_link, taxkey, tax_id) | .
+        qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, (SELECT link FROM chart WHERE accno=?), 0, (SELECT id FROM tax WHERE taxkey=0 LIMIT 1))|;
       my @values = (conv_i($form->{"id_$i"}), $paymentaccno,
                     conv_date($form->{datepaid}),
                     $form->{"paid_$i"} * $ml * -1, $form->{source},
-                    $form->{memo});
+                    $form->{memo}, $paymentaccno);
       do_query($form, $dbh, $query, @values);
 
       # add exchangerate difference if currency ne defaultcurrency
@@ -293,11 +293,11 @@ sub process_payment {
         # exchangerate difference
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, amount, | .
-          qq|                       cleared, fx_transaction) | .
-          qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?)|;
+          qq|                       cleared, fx_transaction, chart_link, taxkey, tax_id) | .
+          qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, (SELECT link FROM chart WHERE accno = ?), 0, (SELECT id FROM tax WHERE taxkey=0 LIMIT 1))|;
         @values = (conv_i($form->{"id_$i"}), $paymentaccno,
                    conv_date($form->{datepaid}), ($amount * $ml * -1), '0',
-                   '1');
+                   '1', $paymentaccno);
         do_query($form, $dbh, $query, @values);
 
         # gain/loss
@@ -309,11 +309,11 @@ sub process_payment {
           my $accno_id = ($amount < 0) ? $fxgain_accno_id : $fxloss_accno_id;
           $query =
             qq|INSERT INTO acc_trans (trans_id, chart_id, transdate, | .
-            qq|                       amount, cleared, fx_transaction) | .
-            qq|VALUES (?, ?, ?, ?, ?, ?)|;
+            qq|                       amount, cleared, fx_transaction, chart_link, taxkey, tax_id) | .
+            qq|VALUES (?, ?, ?, ?, ?, ?, (SELECT link FROM chart WHERE id=?), 0, (SELECT id FROM tax WHERE taxkey=0 LIMIT 1))|;
           @values = (conv_i($form->{"id_$i"}), $accno_id,
                      conv_date($form->{datepaid}), $amount * $ml * -1, '0',
-                     '1');
+                     '1', $accno_id);
           do_query($form, $dbh, $query, @values);
         }
       }

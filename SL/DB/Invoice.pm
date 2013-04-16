@@ -90,7 +90,7 @@ sub new_from {
   croak("Unsupported source object type '" . ref($source) . "'") unless ref($source) =~ m/^ SL::DB:: (?: Order | DeliveryOrder ) $/x;
   croak("Cannot create invoices for purchase records")           unless $source->customer_id;
 
-  my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_term->terms_netto : 0;
+  my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms->terms_netto : 0;
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes curr salesman_id cusordnumber ordnumber quonumber
                                                 department_id cp_id language_id payment_id delivery_customer_id delivery_vendor_id taxzone_id shipto_id

@@ -571,7 +571,6 @@ sub item_selected {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(sellprice listprice weight);
 
-  $form->{sellprice} += ($form->{"sellprice_$i"} * $form->{"qty_$i"});
   $form->{weight}    += ($form->{"weight_$i"} * $form->{"qty_$i"});
 
   if ($form->{"not_discountable_$i"}) {
