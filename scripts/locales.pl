@@ -519,86 +519,89 @@ sub scanhtmlfile {
 
   my $file = shift;
 
-  if (!defined $cached{$file}) {
-    my %plugins = ( 'loaded' => { }, 'needed' => { } );
+  return if defined $cached{$file};
 
-    open(IN, $file) || die $file;
+  my %plugins = ( 'loaded' => { }, 'needed' => { } );
 
-    my $copying  = 0;
-    my $issubmit = 0;
-    my $text     = "";
-    while (my $line = <IN>) {
-      chomp($line);
+  if (!open(IN, $file)) {
+    print "E: template file '$file' not found\n";
+    return;
+  }
 
-      while ($line =~ m/\[\%[^\w]*use[^\w]+(\w+)[^\w]*?\%\]/gi) {
-        $plugins{loaded}->{$1} = 1;
-      }
+  my $copying  = 0;
+  my $issubmit = 0;
+  my $text     = "";
+  while (my $line = <IN>) {
+    chomp($line);
 
-      while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
-        my $plugin = $1;
-        $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript JSON L P));
-      }
-
-      $plugins{needed}->{T8} = 1 if $line =~ m/\[\%.*\|.*\$T8/;
-
-      while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
-                          (LxERP\.t8)\( #   LxERP.t8(                             ::Parameter $1::
-                          ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $2::
-                          (.*?)         #   Der zu übersetzende String            ::Parameter $3::
-                          (?<!\\)\2     #   Ende des zu übersetzenden Strings
-                        |               # Start von Variante 2: [% '...' | $T8 %]
-                          \[\%          #   Template-Start-Tag
-                          [\-~#]?       #   Whitespace-Unterdrückung
-                          \s*           #   Optional beliebig viele Whitespace
-                          ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $4::
-                          (.*?)         #   Der zu übersetzende String            ::Parameter $5::
-                          (?<!\\)\4     #   Ende des zu übersetzenden Strings
-                          \s*\|\s*      #   Pipe-Zeichen mit optionalen Whitespace davor und danach
-                          (\$T8)        #   Filteraufruf                          ::Parameter $6::
-                          .*?           #   Optionale Argumente für den Filter
-                          \s*           #   Whitespaces
-                          [\-~#]?       #   Whitespace-Unterdrückung
-                          \%\]          #   Template-Ende-Tag
-                        )
-                       /ix) {
-        my $module = $1 || $6;
-        my $string = $3 || $5;
-        print "Found filter >>>$string<<<\n" if $debug;
-        substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
-
-        $string                         = unescape_template_string($string);
-        $cached{$file}{all}{$string}    = 1;
-        $cached{$file}{html}{$string}   = 1;
-        $cached{$file}{submit}{$string} = 1 if $PREMATCH =~ /$submitsearch/;
-        $plugins{needed}->{T8}          = 1 if $module eq '$T8';
-        $plugins{needed}->{LxERP}       = 1 if $module eq 'LxERP.t8';
-      }
-
-      while ($line =~ m/\[\%          # Template-Start-Tag
-                        [\-~#]?       # Whitespace-Unterdrückung
-                        \s*           # Optional beliebig viele Whitespace
-                        (?:           # Die erkannten Template-Direktiven
-                          PROCESS
-                        |
-                          INCLUDE
-                        )
-                        \s+           # Mindestens ein Whitespace
-                        [\'\"]?       # Anfang des Dateinamens
-                        ([^\s]+)      # Beliebig viele Nicht-Whitespaces -- Dateiname
-                        \.html        # Endung ".html", ansonsten kann es der Name eines Blocks sein
-                       /ix) {
-        my $new_file_name = "$basedir/templates/webpages/$1.html";
-        $cached{$file}{scanh}{$new_file_name} = 1;
-        substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
-      }
+    while ($line =~ m/\[\%[^\w]*use[^\w]+(\w+)[^\w]*?\%\]/gi) {
+      $plugins{loaded}->{$1} = 1;
     }
 
-    close(IN);
-
-    foreach my $plugin (keys %{ $plugins{needed} }) {
-      next if ($plugins{loaded}->{$plugin});
-      print "E: " . strip_base($file) . " requires the Template plugin '$plugin', but is not loaded with '[\% USE $plugin \%]'.\n";
+    while ($line =~ m/\[\%[^\w]*(\w+)\.\w+\(/g) {
+      my $plugin = $1;
+      $plugins{needed}->{$plugin} = 1 if (first { $_ eq $plugin } qw(HTML LxERP JavaScript JSON L P));
     }
+
+    $plugins{needed}->{T8} = 1 if $line =~ m/\[\%.*\|.*\$T8/;
+
+    while ($line =~ m/(?:             # Start von Variante 1: LxERP.t8('...'); ohne darumliegende [% ... %]-Tags
+                        (LxERP\.t8)\( #   LxERP.t8(                             ::Parameter $1::
+                        ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $2::
+                        (.*?)         #   Der zu übersetzende String            ::Parameter $3::
+                        (?<!\\)\2     #   Ende des zu übersetzenden Strings
+                      |               # Start von Variante 2: [% '...' | $T8 %]
+                        \[\%          #   Template-Start-Tag
+                        [\-~#]?       #   Whitespace-Unterdrückung
+                        \s*           #   Optional beliebig viele Whitespace
+                        ([\'\"])      #   Anfang des zu übersetzenden Strings   ::Parameter $4::
+                        (.*?)         #   Der zu übersetzende String            ::Parameter $5::
+                        (?<!\\)\4     #   Ende des zu übersetzenden Strings
+                        \s*\|\s*      #   Pipe-Zeichen mit optionalen Whitespace davor und danach
+                        (\$T8)        #   Filteraufruf                          ::Parameter $6::
+                        .*?           #   Optionale Argumente für den Filter
+                        \s*           #   Whitespaces
+                        [\-~#]?       #   Whitespace-Unterdrückung
+                        \%\]          #   Template-Ende-Tag
+                      )
+                     /ix) {
+      my $module = $1 || $6;
+      my $string = $3 || $5;
+      print "Found filter >>>$string<<<\n" if $debug;
+      substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
+
+      $string                         = unescape_template_string($string);
+      $cached{$file}{all}{$string}    = 1;
+      $cached{$file}{html}{$string}   = 1;
+      $cached{$file}{submit}{$string} = 1 if $PREMATCH =~ /$submitsearch/;
+      $plugins{needed}->{T8}          = 1 if $module eq '$T8';
+      $plugins{needed}->{LxERP}       = 1 if $module eq 'LxERP.t8';
+    }
+
+    while ($line =~ m/\[\%          # Template-Start-Tag
+                      [\-~#]?       # Whitespace-Unterdrückung
+                      \s*           # Optional beliebig viele Whitespace
+                      (?:           # Die erkannten Template-Direktiven
+                        PROCESS
+                      |
+                        INCLUDE
+                      )
+                      \s+           # Mindestens ein Whitespace
+                      [\'\"]?       # Anfang des Dateinamens
+                      ([^\s]+)      # Beliebig viele Nicht-Whitespaces -- Dateiname
+                      \.html        # Endung ".html", ansonsten kann es der Name eines Blocks sein
+                     /ix) {
+      my $new_file_name = "$basedir/templates/webpages/$1.html";
+      $cached{$file}{scanh}{$new_file_name} = 1;
+      substr $line, $LAST_MATCH_START[1], $LAST_MATCH_END[0] - $LAST_MATCH_START[0], '';
+    }
+  }
+
+  close(IN);
+
+  foreach my $plugin (keys %{ $plugins{needed} }) {
+    next if ($plugins{loaded}->{$plugin});
+    print "E: " . strip_base($file) . " requires the Template plugin '$plugin', but is not loaded with '[\% USE $plugin \%]'.\n";
   }
 
   # copy back into global arrays
