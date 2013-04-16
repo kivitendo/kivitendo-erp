@@ -70,7 +70,7 @@ sub _get_filters {
     $filters{trans_number}  = "partnumber";
     $filters{numberfield}   = $type eq 'service' ? 'servicenumber' : 'articlenumber';
     $filters{table}         = "parts";
-    $filters{where}         = 'COALESCE(inventory_accno_id, 0) ' . ($type eq 'service' ? '=' : '<>') . ' 0';
+    $filters{where}         = $type =~/assembly/ ? 'assembly ' :  'COALESCE(inventory_accno_id, 0) ' . ($type eq 'service' ? '=' : '<>') . ' 0';
   }
 
   return %filters;
