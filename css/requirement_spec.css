@@ -43,8 +43,9 @@ table.rs_input_field input, table.rs_input_field select {
 /* Special things that apply to the context menu */
 /* ------------------------------------------------------------ */
 
-.context-menu-item.icon-flag { background-image: url("../image/flag-red.png"); }
-
+.context-menu-item.icon-flag  { background-image: url("../image/flag-red.png"); }
+.context-menu-item.icon-close { background-image: url("../image/document-close.png"); }
+.context-menu-item.icon-save  { background-image: url("../image/document-save.png"); }
 
 /* ------------------------------------------------------------ */
 /* Sections & function blocks */

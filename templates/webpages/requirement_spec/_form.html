@@ -29,7 +29,7 @@
 
   <tr>
    <td>[% LxERP.t8("Hourly Rate") %]</td>
-   <td>[% L.input_tag(form_prefix _ "hourly_rate_as_number", SELF.requirement_spec.hourly_rate_as_number, id=id_prefix _ '_hourly_rate_as_number') %]</td>
+   <td>[% L.input_tag("requirement_spec.hourly_rate_as_number", SELF.requirement_spec.hourly_rate_as_number, id=id_prefix _ '_hourly_rate_as_number') %]</td>
   </tr>
 
  </table>

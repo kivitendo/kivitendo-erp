@@ -10,8 +10,11 @@ use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
+use SL::Controller::Helper::RequirementSpec;
 use SL::DB::Customer;
 use SL::DB::Project;
+use SL::DB::RequirementSpecComplexity;
+use SL::DB::RequirementSpecRisk;
 use SL::DB::RequirementSpecStatus;
 use SL::DB::RequirementSpecType;
 use SL::DB::RequirementSpec;
@@ -20,13 +23,12 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(requirement_spec requirement_spec_item customers projects types statuses db_args flat_filter is_template) ],
+  scalar                  => [ qw(requirement_spec_item customers types statuses db_args flat_filter is_template visible_item visible_section) ],
+  'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects) ],
 );
 
 __PACKAGE__->run_before('setup');
-__PACKAGE__->run_before('load_requirement_spec',      only => [ qw(    ajax_edit        update show destroy) ]);
-__PACKAGE__->run_before('load_select_options',        only => [ qw(new ajax_edit create update list) ]);
-__PACKAGE__->run_before('load_search_select_options', only => [ qw(                            list) ]);
+__PACKAGE__->run_before('load_select_options',  only => [ qw(new ajax_edit create update list) ]);
 
 __PACKAGE__->get_models_url_params('flat_filter');
 __PACKAGE__->make_paginated(
@@ -53,6 +55,7 @@ __PACKAGE__->make_sorted(
 # actions
 #
 
+
 sub action_list {
   my ($self) = @_;
 
@@ -77,6 +80,59 @@ sub action_ajax_edit {
   my ($self) = @_;
 
   $self->render('requirement_spec/_form', { layout => 0 }, submit_as => 'ajax');
+}
+
+sub action_ajax_show_time_and_cost_estimate {
+  my ($self) = @_;
+
+  $self->render('requirement_spec/_show_time_and_cost_estimate', { layout => 0 });
+}
+
+sub action_ajax_cancel_time_and_cost_estimate {
+  my ($self) = @_;
+
+  my $html   = $self->render('requirement_spec/_show_time_and_cost_estimate', { output => 0 });
+
+  SL::ClientJS->new
+    ->replaceWith('#time_cost_estimate', $html)
+    ->render($self);
+}
+
+sub action_ajax_edit_time_and_cost_estimate {
+  my ($self) = @_;
+
+  my $html   = $self->render('requirement_spec/_edit_time_and_cost_estimate', { output => 0 });
+
+  SL::ClientJS->new
+    ->replaceWith('#time_cost_estimate', $html)
+    ->render($self);
+}
+
+sub action_ajax_save_time_and_cost_estimate {
+  my ($self) = @_;
+
+  $self->requirement_spec->db->do_transaction(sub {
+    # Make Emacs happy
+    1;
+    foreach my $attributes (@{ $::form->{requirement_spec_items} || [] }) {
+      SL::DB::RequirementSpecItem
+        ->new(id => delete $attributes->{id})
+        ->load
+        ->update_attributes(%{ $attributes });
+    }
+
+    1;
+  });
+
+  my $html = $self->render('requirement_spec/_show_time_and_cost_estimate', { output => 0 });
+  my $js   = SL::ClientJS->new->replaceWith('#time_cost_estimate', $html);
+
+  if ($self->visible_section) {
+    $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->visible_section);
+    $js->html('#column-content', $html);
+  }
+
+  $js->render($self);
 }
 
 sub action_show {
@@ -131,32 +187,40 @@ sub setup {
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
   $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu client_js requirement_spec);
   $self->is_template($::form->{is_template} ? 1 : 0);
+  $self->init_visible_section;
 
   return 1;
 }
 
-sub load_requirement_spec {
+sub init_complexities {
   my ($self) = @_;
-  $self->requirement_spec(SL::DB::RequirementSpec->new(id => $::form->{id})->load || die "No such requirement spec");
+  return SL::DB::Manager::RequirementSpecComplexity->get_all_sorted;
+}
+
+sub init_risks {
+  my ($self) = @_;
+  return SL::DB::Manager::RequirementSpecRisk->get_all_sorted;
+}
+
+sub init_projects {
+  my ($self) = @_;
+  $self->projects(SL::DB::Manager::Project->get_all_sorted);
+}
+
+sub init_requirement_spec {
+  my ($self) = @_;
+  $self->requirement_spec(SL::DB::RequirementSpec->new(id => $::form->{id})->load || die "No such requirement spec") if $::form->{id};
 }
 
 sub load_select_options {
   my ($self) = @_;
 
   my @filter = ('!obsolete' => 1);
-  if ($self->requirement_spec && $self->requirement_spec->customer_id) {
-    @filter = ( or => [ @filter, id => $self->requirement_spec->customer_id ] );
-  }
+  @filter    = ( or => [ @filter, id => $self->requirement_spec->customer_id ] ) if $self->requirement_spec && $self->requirement_spec->customer_id;
 
   $self->customers(SL::DB::Manager::Customer->get_all_sorted(where => \@filter));
   $self->statuses( SL::DB::Manager::RequirementSpecStatus->get_all_sorted);
   $self->types(    SL::DB::Manager::RequirementSpecType->get_all_sorted);
-}
-
-sub load_search_select_options {
-  my ($self) = @_;
-
-  $self->projects(SL::DB::Manager::Project->get_all_sorted);
 }
 
 #

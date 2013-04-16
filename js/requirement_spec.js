@@ -268,6 +268,32 @@ function requirement_spec_item_popup_menu_hidden(opt) {
   return handle_item_popup_menu_markings(opt, false);
 }
 
+// -------------------------------------------------------------------------
+// -------------------------- time/cost estimate ---------------------------
+// -------------------------------------------------------------------------
+
+function standard_time_cost_estimate_ajax_call(key, opt) {
+  if ((key == 'cancel') && !confirm(kivi.t8('Do you really want to cancel?')))
+    return true;
+
+  var data = "action=RequirementSpec/ajax_" + key + "_time_and_cost_estimate&";
+
+  if (key == 'save')
+    data += $('#edit_time_cost_estimate_form').serialize()
+         +  '&' + $('#current_content_type').serialize()
+         +  '&' + $('#current_content_id').serialize();
+  else
+    data += 'id=' + encodeURIComponent($('#requirement_spec_id').val());
+
+  $.post("controller.pl", data, eval_json_result);
+
+  return true;
+}
+
+// -------------------------------------------------------------------------
+// ----------------------------- context menus -----------------------------
+// -------------------------------------------------------------------------
+
 function create_requirement_spec_context_menus() {
   var events = {
     show: requirement_spec_text_block_popup_menu_shown,
@@ -328,6 +354,21 @@ function create_requirement_spec_context_menus() {
       , sep3:                   "---------"
       , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
       , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",  callback: standard_item_ajax_call }
+    }
+  });
+
+  $.contextMenu({
+    selector: '.time-cost-estimate-context-menu',
+    events:   events,
+    items:    { edit: { name: kivi.t8('Edit'), icon: "edit", callback: standard_time_cost_estimate_ajax_call } }
+  });
+
+  $.contextMenu({
+    selector: '.edit-time-cost-estimate-context-menu',
+    events:   events,
+    items:    {
+        save:   { name: kivi.t8('Save'),   icon: "save",  callback: standard_time_cost_estimate_ajax_call }
+      , cancel: { name: kivi.t8('Cancel'), icon: "close", callback: standard_time_cost_estimate_ajax_call }
     }
   });
 }
