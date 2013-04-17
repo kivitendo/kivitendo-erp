@@ -128,6 +128,9 @@ sub update {
   $::lxdebug->enter_sub;
   $::auth->assert('cash');
 
+  # reset difference as it doesn't always arrive here empty
+  $::form->{difference} = 0;
+
   RC->payment_transactions(\%::myconfig, $::form);
 
   my $i;
