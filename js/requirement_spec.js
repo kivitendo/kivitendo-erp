@@ -291,6 +291,29 @@ function standard_time_cost_estimate_ajax_call(key, opt) {
 }
 
 // -------------------------------------------------------------------------
+// ---------------------------- general actions ----------------------------
+// -------------------------------------------------------------------------
+
+function download_reqspec_pdf(key, opt) {
+  var data = {
+    action: "RequirementSpec/download_pdf",
+    id:     $('#requirement_spec_id').val()
+  };
+  $.download("controller.pl", data);
+}
+
+function copy_reqspec(key, opt) {
+  window.location.href = "controller.pl?action=RequirementSpec/new&copy_source_id=" + encodeURIComponent($('#requirement_spec_id').val());
+  return true;
+}
+
+function delete_reqspec(key, opt) {
+  if (confirm(kivi.t8("Are you sure?")))
+    window.location.href = "controller.pl?action=RequirementSpec/destroy&id=" + encodeURIComponent($('#requirement_spec_id').val());
+  return true;
+}
+
+// -------------------------------------------------------------------------
 // ----------------------------- context menus -----------------------------
 // -------------------------------------------------------------------------
 
@@ -300,22 +323,30 @@ function create_requirement_spec_context_menus() {
     hide: requirement_spec_text_block_popup_menu_hidden
   };
 
+  var general_actions = {
+      sep98:           "---------"
+    , general_actions: { name: kivi.t8('Requirement spec actions:') }
+    , sep99:           "---------"
+    , copy_reqspec:    { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: copy_reqspec   }
+    , delete_reqspec:  { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: delete_reqspec }
+  };
+
   $.contextMenu({
     selector: '.text-block-context-menu',
     events:   {
         show: requirement_spec_text_block_popup_menu_shown
       , hide: requirement_spec_text_block_popup_menu_hidden
     },
-    items:    {
-        add:    { name: kivi.t8('Add text block'),    icon: "add",    callback: standard_text_block_ajax_call }
-      , edit:   { name: kivi.t8('Edit text block'),   icon: "edit",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
-      , delete: { name: kivi.t8('Delete text block'), icon: "delete", callback: ask_delete_text_block,         disabled: disable_edit_text_block_commands }
-      , sep1:   "---------"
-      , flag:   { name: kivi.t8('Toggle marker'),     icon: "flag",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
-      , sep2:   "---------"
-      , copy:   { name: kivi.t8('Copy'),              icon: "copy",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
-      , paste:  { name: kivi.t8('Paste'),             icon: "paste",  callback: standard_text_block_ajax_call  }
-    }
+    items:    $.extend({
+        add:     { name: kivi.t8('Add text block'),        icon: "add",    callback: standard_text_block_ajax_call }
+      , edit:    { name: kivi.t8('Edit text block'),       icon: "edit",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
+      , delete:  { name: kivi.t8('Delete text block'),     icon: "delete", callback: ask_delete_text_block,         disabled: disable_edit_text_block_commands }
+      , sep1:    "---------"
+      , flag:    { name: kivi.t8('Toggle marker'),         icon: "flag",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
+      , sep2:    "---------"
+      , copy:    { name: kivi.t8('Copy'),                  icon: "copy",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
+      , paste:   { name: kivi.t8('Paste'),                 icon: "paste",  callback: standard_text_block_ajax_call  }
+    }, general_actions)
   });
 
   var events = {
@@ -326,7 +357,7 @@ function create_requirement_spec_context_menus() {
   $.contextMenu({
     selector: '.section-context-menu',
     events:   events,
-    items:    {
+    items:    $.extend({
         add_section:        { name: kivi.t8('Add section'),        icon: "add",    callback: standard_item_ajax_call }
       , add_function_block: { name: kivi.t8('Add function block'), icon: "add",    callback: standard_item_ajax_call, disabled: disable_add_function_block_command }
       , sep1:               "---------"
@@ -337,13 +368,13 @@ function create_requirement_spec_context_menus() {
       , sep3:               "---------"
       , copy:               { name: kivi.t8('Copy'),               icon: "copy",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
       , paste:              { name: kivi.t8('Paste'),              icon: "paste",  callback: standard_item_ajax_call }
-    }
+    }, general_actions)
   });
 
   $.contextMenu({
     selector: '.function-block-context-menu,.sub-function-block-context-menu',
     events:   events,
-    items:    {
+    items:    $.extend({
         add_function_block:     { name: kivi.t8('Add function block'),     icon: "add",    callback: standard_item_ajax_call }
       , add_sub_function_block: { name: kivi.t8('Add sub function block'), icon: "add",    callback: standard_item_ajax_call }
       , sep1:                   "---------"
@@ -354,21 +385,21 @@ function create_requirement_spec_context_menus() {
       , sep3:                   "---------"
       , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
       , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",  callback: standard_item_ajax_call }
-    }
+    }, general_actions)
   });
 
   $.contextMenu({
     selector: '.time-cost-estimate-context-menu',
     events:   events,
-    items:    { edit: { name: kivi.t8('Edit'), icon: "edit", callback: standard_time_cost_estimate_ajax_call } }
+    items:    $.extend({ edit: { name: kivi.t8('Edit'), icon: "edit", callback: standard_time_cost_estimate_ajax_call } }, general_actions)
   });
 
   $.contextMenu({
     selector: '.edit-time-cost-estimate-context-menu',
     events:   events,
-    items:    {
+    items:    $.extend({
         save:   { name: kivi.t8('Save'),   icon: "save",  callback: standard_time_cost_estimate_ajax_call }
       , cancel: { name: kivi.t8('Cancel'), icon: "close", callback: standard_time_cost_estimate_ajax_call }
-    }
+    }, general_actions)
   });
 }

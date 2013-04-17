@@ -4,6 +4,8 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use Rose::DB::Object::Helpers;
+
 use SL::ClientJS;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
@@ -24,11 +26,12 @@ use SL::Locale::String;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item customers types statuses db_args flat_filter is_template visible_item visible_section) ],
-  'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects) ],
+  'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects copy_source) ],
 );
 
 __PACKAGE__->run_before('setup');
 __PACKAGE__->run_before('load_select_options',  only => [ qw(new ajax_edit create update list) ]);
+
 
 __PACKAGE__->get_models_url_params('flat_filter');
 __PACKAGE__->make_paginated(
@@ -73,6 +76,11 @@ sub action_new {
   my ($self) = @_;
 
   $self->requirement_spec(SL::DB::RequirementSpec->new);
+
+  if ($self->copy_source) {
+    $self->requirement_spec->$_($self->copy_source->$_) for qw(type_id status_id customer_id title hourly_rate)
+  }
+
   $self->render('requirement_spec/new', title => t8('Create a new requirement spec'));
 }
 
@@ -212,6 +220,11 @@ sub init_requirement_spec {
   $self->requirement_spec(SL::DB::RequirementSpec->new(id => $::form->{id})->load || die "No such requirement spec") if $::form->{id};
 }
 
+sub init_copy_source {
+  my ($self) = @_;
+  $self->copy_source(SL::DB::RequirementSpec->new(id => $::form->{copy_source_id})->load) if $::form->{copy_source_id};
+}
+
 sub load_select_options {
   my ($self) = @_;
 
@@ -245,7 +258,22 @@ sub create_or_update {
     return;
   }
 
-  $self->requirement_spec->save;
+  my $db = $self->requirement_spec->db;
+  if (!$db->do_transaction(sub {
+    if ($self->copy_source) {
+      $self->requirement_spec($self->copy_source->create_copy(%{ $params }));
+    } else {
+      $self->requirement_spec->save;
+    }
+  })) {
+    $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
+    @errors = ($::locale->text('Saving failed. Erro message from the database: #1'), $db->error);
+    return SL::ClientJS->new->error(@errors)->render($self) if $::request->is_ajax;
+
+    $self->requirement_spec->id(undef) if $is_new;
+    flash('error', @errors);
+    return $self->render('requirement_spec/new', title => $title);
+  }
 
   if ($::request->is_ajax) {
     my $html = $self->render('requirement_spec/_header', { output => 0 });

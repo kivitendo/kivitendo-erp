@@ -34,6 +34,14 @@
 
  </table>
 
+[%- IF SELF.copy_source %]
+ [%- L.hidden_tag('copy_source_id', SELF.copy_source.id) %]
+
+ <p>
+  [%- LxERP.t8("The new requirement spec will be a copy of '#1' for customer '#2'.", SELF.copy_source.title, SELF.copy_source.customer.name) %]
+ </p>
+[%- END %]
+
  <p>
 [% IF submit_as == 'post' %]
   [% L.hidden_tag("action", "RequirementSpec/dispatch", id=id_prefix _ '_action') %]

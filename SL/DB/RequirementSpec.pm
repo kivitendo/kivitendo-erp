@@ -3,6 +3,7 @@ package SL::DB::RequirementSpec;
 use strict;
 
 use Carp;
+use Rose::DB::Object::Helpers;
 
 use SL::DB::MetaSetup::RequirementSpec;
 use SL::DB::Manager::RequirementSpec;
@@ -61,6 +62,61 @@ sub displayable_name {
   my ($self) = @_;
 
   return sprintf('%s: "%s"', $self->type->description, $self->title);
+}
+
+sub create_copy {
+  my ($self, %params) = @_;
+
+  return $self->_create_copy(%params) if $self->db->in_transaction;
+
+  my $copy;
+  if (!$self->db->do_transaction(sub { $copy = $self->_create_copy(%params) })) {
+    $::lxdebug->message(LXDebug->WARN(), "create_copy failed: " . join("\n", (split(/\n/, $self->db->error))[0..2]));
+    return undef;
+  }
+
+  return $copy;
+}
+
+sub _create_copy {
+  my ($self, %params) = @_;
+
+  my $copy = Rose::DB::Object::Helpers::clone_and_reset($self);
+  $copy->assign_attributes(%params);
+
+  # Clone text blocks.
+  $copy->text_blocks(map { Rose::DB::Object::Helpers::clone_and_reset($_) } @{ $self->text_blocks });
+
+  # Save new object -- we need its ID for the items.
+  $copy->save;
+
+  my %id_to_clone;
+
+  # Clone items.
+  my $clone_item;
+  $clone_item = sub {
+    my ($item) = @_;
+    my $cloned = Rose::DB::Object::Helpers::clone_and_reset($item);
+    $cloned->requirement_spec_id($copy->id);
+    $cloned->children(map { $clone_item->($_) } @{ $item->children });
+
+    $id_to_clone{ $item->id } = $cloned;
+
+    return $cloned;
+  };
+
+  $copy->items(map { $clone_item->($_) } @{ $self->sections });
+
+  # Save the items -- need to do that before setting dependencies.
+  $copy->save;
+
+  # Set dependencies.
+  foreach my $item (@{ $self->items }) {
+    next unless @{ $item->dependencies };
+    $id_to_clone{ $item->id }->update_attributes(dependencies => [ map { $id_to_clone{$_->id} } @{ $item->dependencies } ]);
+  }
+
+  return $copy;
 }
 
 1;
