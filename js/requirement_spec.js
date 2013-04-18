@@ -332,6 +332,11 @@ function create_requirement_spec_context_menus() {
   };
 
   $.contextMenu({
+    selector: '#content',
+    items:    general_actions
+  });
+
+  $.contextMenu({
     selector: '.text-block-context-menu',
     events:   {
         show: requirement_spec_text_block_popup_menu_shown
@@ -349,7 +354,7 @@ function create_requirement_spec_context_menus() {
     }, general_actions)
   });
 
-  var events = {
+  events = {
     show: requirement_spec_item_popup_menu_shown,
     hide: requirement_spec_item_popup_menu_hidden
   };

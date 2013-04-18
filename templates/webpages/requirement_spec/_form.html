@@ -46,13 +46,9 @@
 [% IF submit_as == 'post' %]
   [% L.hidden_tag("action", "RequirementSpec/dispatch", id=id_prefix _ '_action') %]
   [% L.submit_tag("action_" _ (SELF.requirement_spec.id ? "update" : "create"), LxERP.t8('Save'), id=id_prefix _ '_action_update') %]
-  [%- IF SELF.requirement_spec.id %]
-   [% L.submit_tag("action_destroy", LxERP.t8('Delete'), confirm=LxERP.t8('Do you really want to delete this object?'), id=id_prefix _ '_action_destroy') %]
-  [%- END %]
   <a href="[% SELF.url_for(action="list") %]">[% LxERP.t8('Abort') %]</a>
 [% ELSE %]
   [% L.ajax_submit_tag("controller.pl?action=RequirementSpec/update",  "#" _ id_prefix, LxERP.t8("Save")) %]
-  [% L.ajax_submit_tag("controller.pl?action=RequirementSpec/destroy", "#" _ id_prefix, LxERP.t8("Delete"), confirm=LxERP.t8("Do you really want to delete this object?")) %]
 [% END %]
  </p>
 </form>
