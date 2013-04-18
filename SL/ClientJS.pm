@@ -70,6 +70,11 @@ my %supported_methods = (
   # Form Events
   focus        => 1,
 
+  # ## jqModal plugin ##
+
+  # Closing and removing the popup
+  jqmClose               => 1,
+
   # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
 
   # Operations on the whole tree

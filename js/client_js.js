@@ -85,6 +85,11 @@ function eval_json_result(data) {
       // Form Events
       else if (action[0] == 'focus')                $(action[1]).focus();
 
+      // ## jqModal plugin ##
+
+      // Closing and removing the popup
+      else if (action[0] == 'jqmClose')             $(action[1]).jqmClose();
+
       // ## jstree plugin ##
 
       // Operations on the whole tree
