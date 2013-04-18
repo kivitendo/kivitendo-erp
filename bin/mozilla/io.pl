@@ -1335,7 +1335,7 @@ sub print_form {
       call_sub($display_form);
       # saving the history
       if(!exists $form->{addition}) {
-        $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
+        $form->{snumbers} = "${inv}number" . "_" . $form->{"${inv}number"};
         $form->{addition} = "PRINTED";
         $form->save_history;
       }
@@ -1576,7 +1576,7 @@ sub print_form {
 
 # saving the history
   if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
+    $form->{snumbers} = "${inv}number" . "_" . $form->{"${inv}number"};
     if($form->{media} =~ /printer/) {
       $form->{addition} = "PRINTED";
     }
