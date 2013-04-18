@@ -1110,6 +1110,7 @@ $self->{texts} = {
   'Languages and translations'  => 'Sprachen und Übersetzungen',
   'Last Action'                 => 'Letzte Aktivität',
   'Last Article Number'         => 'Letzte Artikelnummer',
+  'Last Assembly Number'        => 'Letzte Erzeugnisnummer',
   'Last Cost'                   => 'Einkaufspreis',
   'Last Credit Note Number'     => 'Letzte Gutschriftnummer',
   'Last Customer Number'        => 'Letzte Kundennummer',
