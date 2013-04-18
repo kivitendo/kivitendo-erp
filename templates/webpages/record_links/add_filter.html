@@ -46,7 +46,7 @@
   [% L.button_tag('filter_record_links()', LxERP.t8("Search")) %]
   [% L.button_tag('add_selected_record_links()', LxERP.t8("Add links"), id='add_selected_record_links_button', disabled=1) %]
   <a href="#" onclick="record_links_reset_form();">[%- LxERP.t8("Reset") %]</a>
-  <a href="#" onclick="record_links_cancel();">[% LxERP.t8("Cancel") %]</a>
+  <a href="#" onclick="$('#record_links_add').jqmClose();">[% LxERP.t8("Cancel") %]</a>
  </p>
 
  <hr>
@@ -64,11 +64,6 @@ $(function() {
 function record_links_reset_form() {
   $('.jqmWindow form input[type=text]').val('');
   $('.jqmWindow form select').prop('selectedIndex', 0);
-}
-
-function record_links_cancel() {
-  $('.jqmWindow').jqmHide();
-  $('.jqmWindow').remove();
 }
 
 function filter_record_links() {

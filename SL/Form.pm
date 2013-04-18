@@ -471,7 +471,7 @@ sub header {
     main menu list_accounts jquery.autocomplete
     jquery.multiselect2side frame_header/header
     ui-lightness/jquery-ui
-    jquery-ui.custom
+    jquery-ui.custom jqModal
   );
 
   $layout->use_javascript("$_.js") for (qw(

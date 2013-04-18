@@ -17,25 +17,14 @@
 
  <script type="text/javascript">
   <!--
-$(function() {
-
-});
-
 function record_links_add() {
-  var url = "controller.pl?action=RecordLinks/ajax_add_filter&object_model=[% JavaScript.escape(object_model) %]&object_id=[% JavaScript.escape(object_id) %]&";
-  var id  = 'record_links_add';
-
-  $('#' + id).remove();
-  var div     = $('<div id="' + id + '" class="jqmWindow record_list_overlay"></div>').hide().appendTo('body');
-  var close   = $('<div class="close"></div>').appendTo(div);
-  var content = $('<div class="overlay_content"></div>').appendTo(div);
-  div.jqm({ modal: true });
-  div.jqmShow();
-  $.ajax({ url: url, success: function(new_html) { $(content).html(new_html); } });
-  $(close).click(function() {
-    div.jqmHide();
-    div.remove();
-  });
+  open_jqm_window({ url:  'controller.pl',
+                    data: { action: 'RecordLinks/ajax_add_filter',
+                            object_model: '[% JavaScript.escape(object_model) %]',
+                            object_id: '[% JavaScript.escape(object_id) %]'
+                          },
+                    id:  'record_links_add' });
+  return true;
 }
 
 function record_links_delete() {

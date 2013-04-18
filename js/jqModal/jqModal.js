@@ -34,6 +34,7 @@ $.fn.jqmAddClose=function(e){return hs(this,e,'jqmHide');};
 $.fn.jqmAddTrigger=function(e){return hs(this,e,'jqmShow');};
 $.fn.jqmShow=function(t){return this.each(function(){t=t||window.event;$.jqm.open(this._jqm,t);});};
 $.fn.jqmHide=function(t){return this.each(function(){t=t||window.event;$.jqm.close(this._jqm,t)});};
+$.fn.jqmClose=function(t){return this.each(function(){t=t||window.event;$.jqm.close(this._jqm,t);this.remove();});};
 
 $.jqm = {
 hash:{},
