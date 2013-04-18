@@ -69,8 +69,9 @@ sub _get_filters {
   } elsif ($type =~ /part|service|assembly/) {
     $filters{trans_number}  = "partnumber";
     $filters{numberfield}   = $type eq 'service' ? 'servicenumber' : 'articlenumber';
+    $filters{numberfield}   = $type eq 'assembly' ? 'assemblynumber' : $filters{numberfield};
     $filters{table}         = "parts";
-    $filters{where}         = 'COALESCE(inventory_accno_id, 0) ' . ($type eq 'service' ? '=' : '<>') . ' 0';
+    $filters{where}         = 'COALESCE(inventory_accno_id, 0) ' . ($type eq 'service' ? '= 0' : '<> 0 OR assembly');
   }
 
   return %filters;
@@ -129,6 +130,10 @@ SQL
   ($business_number) = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ?|, $self->business_id) if $self->business_id;
   my $number         = $business_number;
   ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
+  if ($filters{numberfield} eq 'assemblynumber' and length($number) < 1) {
+    $filters{numberfield} = 'articlenumber';
+    ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
+  }
   $number          ||= '';
   my $sequence       = SL::PrefixedNumber->new(number => $number);
 

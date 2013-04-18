@@ -49,11 +49,16 @@
     <tr>
      <th align="right" nowrap>[% 'Last RFQ Number' | $T8 %]</th>
      <td><input name="rfqnumber" size="10" value="[% HTML.escape(defaults_rfqnumber) %]"></td>
+     <th align="right" nowrap>[% 'Last Assembly Number' | $T8 %]</th>
+     <td><input name="assemblynumber" size="10" value="[% HTML.escape(defaults_assemblynumber) %]"></td>
     </tr>
 
     <tr>
      <th align="right" nowrap>[% 'Last Sales Delivery Order Number' | $T8 %]</th>
      <td><input name="sdonumber" size="10" value="[% HTML.escape(defaults_sdonumber) %]"></td>
+    </tr>
+
+    <tr>
      <th align="right" nowrap>[% 'Last Purchase Delivery Order Number' | $T8 %]</th>
      <td><input name="pdonumber" size="10" value="[% HTML.escape(defaults_pdonumber) %]"></td>
     </tr>
