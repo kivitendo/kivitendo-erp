@@ -71,7 +71,6 @@ sub _get_filters {
     $filters{numberfield}   = $type eq 'service' ? 'servicenumber' : 'articlenumber';
     $filters{numberfield}   = $type eq 'assembly' ? 'assemblynumber' : $filters{numberfield};
     $filters{table}         = "parts";
-    $filters{where}         = 'COALESCE(inventory_accno_id, 0) ' . ($type eq 'service' ? '= 0' : '<> 0 OR assembly');
   }
 
   return %filters;
