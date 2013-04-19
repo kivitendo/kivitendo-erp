@@ -257,8 +257,8 @@ div.admin {
 }
 
 
-.listrow1 { background-color: rgb(208,207,201); color: black; vertical-align: top; }
-.listrow0 { background-color: rgb(236,233,216); color: black; vertical-align: top; }
+.listrow1, .listrow:nth-child(odd)  { background-color: rgb(208,207,201); color: black; vertical-align: top; }
+.listrow0, .listrow:nth-child(even) { background-color: rgb(236,233,216); color: black; vertical-align: top; }
 .listrowempty { background-color: rgb(255,255,255); color: black; vertical-align: top; }
 
 .redrow1 { background-color: rgb(250,167, 161); color: black; vertical-align: top; }
