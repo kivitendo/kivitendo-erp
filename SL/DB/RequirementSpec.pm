@@ -173,4 +173,14 @@ sub create_version {
   return $ok ? ($copy, $version) : ();
 }
 
+sub invalidate_version {
+  my ($self, %params) = @_;
+
+  $::lxdebug->message(0, "Invalidate version called for id " . $self->id . " version " . $self->version_id);
+  $::lxdebug->show_backtrace(1);
+
+  return if !$self->id || !$self->version_id;
+  $self->update_attributes(version_id => undef);
+}
+
 1;

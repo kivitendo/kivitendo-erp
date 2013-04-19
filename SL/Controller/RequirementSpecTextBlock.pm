@@ -16,7 +16,7 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(requirement_spec text_block) ],
+  scalar                  => [ qw(text_block) ],
   'scalar --get_set_init' => [ qw(predefined_texts) ],
 );
 
@@ -79,7 +79,8 @@ sub action_ajax_add {
   my $id_base = join('_', 'new_text_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
   my $html    = $self->render('requirement_spec_text_block/_form', { output => 0 }, id_base => $id_base, insert_after => $::form->{id});
 
-  $js->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'))
+  $self->invalidate_version($js)
+     ->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'))
      ->focus('#' . $id_base . '_title')
      ->render($self);
 }
@@ -124,7 +125,7 @@ sub action_ajax_create {
   my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
   my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
 
-  SL::ClientJS->new
+  $self->invalidate_version
     ->replaceWith('#' . $::form->{form_prefix} . '_form', $html)
     ->jstree->create_node('#tree', $insert_after ? ('#tb-' . $insert_after, 'after') : ('#tb-' . ($attributes->{output_position} == 0 ? 'front' : 'back'), 'last'), $node)
     ->jstree->select_node('#tree', '#tb-' . $self->text_block->id)
@@ -148,7 +149,7 @@ sub action_ajax_update {
 
   my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
 
-  SL::ClientJS->new
+  $self->invalidate_version
     ->remove('#' . $prefix . '_form')
     ->replaceWith('#text-block-' . $self->text_block->id, $html)
     ->jstree->rename_node('#tree', '#tb-' . $self->text_block->id, $self->text_block->title)
@@ -170,7 +171,8 @@ sub action_ajax_delete {
 
   $self->text_block->delete;
 
-  $js->jstree->delete_node('#tree', '#tb-' . $self->text_block->id)
+  $self->invalidate_version($js)
+     ->jstree->delete_node('#tree', '#tb-' . $self->text_block->id)
      ->render($self);
 }
 
@@ -205,7 +207,7 @@ sub action_dragged_and_dropped {
 
   # $::lxdebug->dump(0, "form", $::form);
 
-  return $self->render(\'', { type => 'json' }) if $::form->{current_content_type} !~ m/^text-block/;
+  return $self->invalidate_version->render($self) if $::form->{current_content_type} !~ m/^text-block/;
 
   my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
   my $new_where     = $self->text_block->output_position;
@@ -246,7 +248,8 @@ sub action_dragged_and_dropped {
     }
   }
 
-  $self->render($js);
+  $self->invalidate_version($js)
+    ->render($self);
 }
 
 sub action_ajax_copy {
@@ -281,18 +284,14 @@ sub action_ajax_paste {
   }
 
   my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
-  $js->jstree->create_node('#tree', $::form->{id} ? ('#tb-' . $::form->{id}, 'after') : ("#tb-${front_back}", 'last'), $node)
-     ->render($self);
+  $self->invalidate_version($js)
+    ->jstree->create_node('#tree', $::form->{id} ? ('#tb-' . $::form->{id}, 'after') : ("#tb-${front_back}", 'last'), $node)
+    ->render($self);
 }
 
 #
 # filters
 #
-
-sub load_requirement_spec {
-  my ($self) = @_;
-  $self->requirement_spec(SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id})->load || die "No such requirement spec");
-}
 
 sub load_requirement_spec_text_block {
   my ($self) = @_;
@@ -318,6 +317,15 @@ sub output_position_from_id {
 
 sub init_predefined_texts {
   return SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted;
+}
+
+sub invalidate_version {
+  my ($self, $js) = @_;
+
+  $js           ||= SL::ClientJS->new;
+  my $html        = $self->render('requirement_spec/_version', { output => 0 },
+                                  requirement_spec => SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id} || $self->text_block->requirement_spec_id)->load);
+  return $js->html('#requirement_spec_version', $html);
 }
 
 1;
