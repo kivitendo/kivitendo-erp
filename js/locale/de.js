@@ -7,6 +7,7 @@ namespace("kivi").setupLocale({
 "Are you sure?":"Sind Sie sicher?",
 "Copy":"Kopieren",
 "Copy requirement spec":"Pflichtenheft kopieren",
+"Create new version":"Neue Version anlegen",
 "Database Connection Test":"Test der Datenbankverbindung",
 "Delete":"Löschen",
 "Delete requirement spec":"Pflichtenheft löschen",

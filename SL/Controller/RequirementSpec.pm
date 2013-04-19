@@ -4,8 +4,6 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
-use Rose::DB::Object::Helpers;
-
 use SL::ClientJS;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
@@ -52,6 +50,8 @@ __PACKAGE__->make_sorted(
   type          => t8('Requirement Spec Type'),
   status        => t8('Requirement Spec Status'),
   projectnumber => t8('Project Number'),
+  version       => t8('Version'),
+  mtime         => t8('Last modification'),
 );
 
 #
@@ -191,7 +191,7 @@ sub action_reorder {
 sub setup {
   my ($self) = @_;
 
-  $::auth->assert('config');
+  $::auth->assert('sales_quotation_edit');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
   $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu client_js requirement_spec);
   $self->is_template($::form->{is_template} ? 1 : 0);
@@ -267,7 +267,7 @@ sub create_or_update {
     }
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
-    @errors = ($::locale->text('Saving failed. Erro message from the database: #1'), $db->error);
+    @errors = ($::locale->text('Saving failed. Error message from the database: #1'), $db->error);
     return SL::ClientJS->new->error(@errors)->render($self) if $::request->is_ajax;
 
     $self->requirement_spec->id(undef) if $is_new;
@@ -300,7 +300,8 @@ sub setup_db_args_from_filter {
   $args{where} = [
     and => [
       @{ $args{where} || [] },
-      is_template => $self->is_template
+      working_copy_id => undef,
+      is_template     => $self->is_template
     ]];
 
   $self->db_args(\%args);
@@ -314,8 +315,8 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(title customer status type projectnumber);
-  my @sortable    = qw(title customer status type projectnumber);
+  my @columns     = qw(title customer status type projectnumber mtime version);
+  my @sortable    = qw(title customer status type projectnumber mtime);
 
   my %column_defs = (
     title         => { obj_link => sub { $self->url_for(action => 'show', id => $_[0]->id, callback => $callback) } },
@@ -325,6 +326,8 @@ sub prepare_report {
                        sub      => sub { $_[0]->project_id ? $_[0]->project->projectnumber : '' } },
     status        => { sub      => sub { $_[0]->status->description } },
     type          => { sub      => sub { $_[0]->type->description } },
+    version       => { sub      => sub { $_[0]->version_id ? $_[0]->version->version_number : t8('Working copy without version') } },
+    mtime         => { sub      => sub { $_[0]->mtime->to_kivitendo(precision => 'minute') } },
   );
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;

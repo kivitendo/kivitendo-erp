@@ -10,15 +10,20 @@ use SL::DB::Manager::RequirementSpec;
 use SL::Locale::String;
 
 __PACKAGE__->meta->add_relationship(
-  items          => {
-    type         => 'one to many',
-    class        => 'SL::DB::RequirementSpecItem',
-    column_map   => { id => 'requirement_spec_id' },
+  items            => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpecItem',
+    column_map     => { id => 'requirement_spec_id' },
   },
-  text_blocks    => {
-    type         => 'one to many',
-    class        => 'SL::DB::RequirementSpecTextBlock',
-    column_map   => { id => 'requirement_spec_id' },
+  text_blocks      => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpecTextBlock',
+    column_map     => { id => 'requirement_spec_id' },
+  },
+  versioned_copies => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpec',
+    column_map     => { id => 'working_copy_id' },
   },
 );
 
@@ -117,6 +122,55 @@ sub _create_copy {
   }
 
   return $copy;
+}
+
+sub previous_version {
+  my ($self) = @_;
+
+  my $and    = $self->version_id ? " AND (version_id <> ?)" : "";
+  my $id     = $self->db->dbh->selectrow_array(<<SQL, undef, $self->id, ($self->version_id) x !!$self->version_id);
+   SELECT MAX(id)
+   FROM requirement_specs
+   WHERE (working_copy_id = ?) $and
+SQL
+
+  return $id ? SL::DB::RequirementSpec->new(id => $id)->load : undef;
+}
+
+sub is_working_copy {
+  my ($self) = @_;
+
+  return !$self->working_copy_id;
+}
+
+sub next_version_number {
+  my ($self) = @_;
+  my $max_number = $self->db->dbh->selectrow_array(<<SQL, undef, $self->id);
+    SELECT COALESCE(MAX(ver.version_number), 0)
+    FROM requirement_spec_versions ver
+    JOIN requirement_specs rs ON (rs.version_id = ver.id)
+    WHERE rs.working_copy_id = ?
+SQL
+
+  return $max_number + 1;
+}
+
+sub create_version {
+  my ($self, %attributes) = @_;
+
+  my ($copy, $version);
+  my $ok = $self->db->do_transaction(sub {
+    delete $attributes{version_number};
+
+    $version = SL::DB::RequirementSpecVersion->new(%attributes, version_number => $self->next_version_number)->save;
+    $copy    = $self->create_copy;
+    $copy->update_attributes(version_id => $version->id, working_copy_id => $self->id);
+    $self->update_attributes(version_id => $version->id);
+
+    1;
+  });
+
+  return $ok ? ($copy, $version) : ();
 }
 
 1;

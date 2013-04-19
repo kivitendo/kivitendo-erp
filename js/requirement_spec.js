@@ -313,20 +313,34 @@ function delete_reqspec(key, opt) {
   return true;
 }
 
+function disable_requirement_spec_commands(key, opt) {
+  if (key === "create_version")
+    return ($('#current_version_id').val() || '') == '' ? false : true;
+  return false;
+}
+
+// -------------------------------------------------------------------------
+// -------------------------------- versions -------------------------------
+// -------------------------------------------------------------------------
+
+function create_requirement_spec_version() {
+  open_jqm_window({ url:  'controller.pl',
+                    data: { action:              'RequirementSpecVersion/new',
+                            requirement_spec_id: $('#requirement_spec_id').val() },
+                    id:   'new_requirement_spec_version_window' });
+  return true;
+}
+
 // -------------------------------------------------------------------------
 // ----------------------------- context menus -----------------------------
 // -------------------------------------------------------------------------
 
 function create_requirement_spec_context_menus() {
-  var events = {
-    show: requirement_spec_text_block_popup_menu_shown,
-    hide: requirement_spec_text_block_popup_menu_hidden
-  };
-
   var general_actions = {
       sep98:           "---------"
     , general_actions: { name: kivi.t8('Requirement spec actions:') }
     , sep99:           "---------"
+    , create_version:  { name: kivi.t8('Create new version'),      icon: "new",    callback: create_requirement_spec_version, disabled: disable_requirement_spec_commands }
     , copy_reqspec:    { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: copy_reqspec   }
     , delete_reqspec:  { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: delete_reqspec }
   };
@@ -335,6 +349,11 @@ function create_requirement_spec_context_menus() {
     selector: '#content',
     items:    general_actions
   });
+
+  var events = {
+    show: requirement_spec_text_block_popup_menu_shown,
+    hide: requirement_spec_text_block_popup_menu_hidden
+  };
 
   $.contextMenu({
     selector: '.text-block-context-menu',

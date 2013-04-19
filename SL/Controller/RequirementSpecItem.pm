@@ -25,6 +25,7 @@ use Rose::Object::MakeMethods::Generic
   'scalar --get_set_init' => [ qw(complexities risks) ],
 );
 
+__PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_requirement_spec_item', only => [ qw(dragged_and_dropped ajax_update ajax_edit ajax_delete ajax_flag ajax_copy) ]);
 __PACKAGE__->run_before('init_visible_section');
 
@@ -468,6 +469,11 @@ sub action_ajax_paste {
 #
 # filters
 #
+
+sub check_auth {
+  my ($self) = @_;
+  $::auth->assert('sales_quotation_edit');
+}
 
 sub load_requirement_spec {
   my ($self) = @_;
