@@ -34,7 +34,7 @@ my %specs = ( ar                      => { number_column => 'invnumber',        
               vendor                  => { number_column => 'vendornumber',   number_range_column => 'vendornumber',                                                     },
               part                    => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping                        },
               service                 => { number_column => 'partnumber',     number_range_column => 'servicenumber',  scoping => \&parts_scoping                        },
-              assembly                => { number_column => 'partnumber',     number_range_column => 'articlenumber',  scoping => \&parts_scoping                        },
+              assembly                => { number_column => 'partnumber',     number_range_column => 'assemblynumber', scoping => \&parts_scoping                        },
             );
 
 sub get_next_trans_number {
@@ -56,6 +56,7 @@ sub get_next_trans_number {
   my %numbers_in_use = map { ( $_ => 1 )        } @numbers;
 
   my $defaults       = SL::DB::Default->get;
+  $number_range_column = 'articlenumber' if $number_range_column eq 'assemblynumber' and length($defaults->$number_range_column) < 1;
   my $sequence       = SL::PrefixedNumber->new(number => $defaults->$number_range_column);
 
   $sequence->set_to_max(@numbers) if !$fill_holes_in_range;
