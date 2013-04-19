@@ -25,7 +25,17 @@ sub do_query {
 }
 
 sub do_update {
-    my $query = qq|SELECT id, partnumber, description, unit, notes, assembly, ean, inventory_accno_id
+  if ( $main::form->{'continued'} ) {
+    my $update_query;
+    foreach my $i (1 .. $main::form->{rowcount}) {
+      $update_query = qq|UPDATE parts SET partnumber = '| . $main::form->{"partnumber_$i"} . qq|' WHERE id = | . $main::form->{"partid_$i"};
+      do_query($update_query);
+      print FH $i;
+    }
+    $dbh->commit();
+  }
+
+  my $query = qq|SELECT id, partnumber, description, unit, notes, assembly, ean, inventory_accno_id
                    FROM parts pa
                    WHERE (SELECT COUNT(*)
                           FROM parts p
@@ -38,12 +48,13 @@ sub do_update {
 
   $main::form->{PARTS} = [];
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+    map {$ref->{$_} = $::locale->{iconv_utf8}->convert($ref->{$_})} keys %$ref;
     push @{ $main::form->{PARTS} }, $ref;
   }
 
   if ( scalar @{ $main::form->{PARTS} } > 0 ) {
     &print_error_message;
-    return 0;
+    return 2;
   }
 
   $query = qq|ALTER TABLE parts ADD UNIQUE (partnumber)|;

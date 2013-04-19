@@ -3,9 +3,12 @@
 
 <form name="Form" method="post" action="login.pl">
 <input type="hidden" name="action" value="login">
+<input type="hidden" name="continued" value="1">
 
 <p>[% 'There are double partnumbers in your database.' | $T8 %]</p>
-<p>[% 'From this version on the partnumer of articles and assemblies have to be unique.' | $T8 %]</p>
+<p>[% 'From this version on the partnumber of services, articles and assemblies have to be unique.' | $T8 %]</p>
+<p>[% 'So far you could use one partnumber for severel parts, for example a service and an article.' | $T8 %]</p>
+<p>[% 'Because the useability gets worth if one partnumber is used for several parts (for example if you are searching a position for an invoice), partnumbers should be unique.' | $T8 %]</p>
 
 <p>[% 'Please change the partnumber of the following parts and run the update again:' | $T8 %]</p>
 <table>
@@ -20,14 +23,19 @@
 
   [% SET row_odd = '1' %][% FOREACH row = PARTS %]
   <tr class="listrow[% IF row_odd %]1[% SET row_odd = '0' %][% ELSE %]0[% SET row_odd = '1' %][% END %]">
-    <td align="right">[% HTML.escape(row.partnumber) %]</td>
+    <td align="right"><input name='partnumber_[% loop.count %]' value='[% HTML.escape(row.partnumber) %]'></td>
+    <input type="hidden" name='partid_[% loop.count %]' value='[% HTML.escape(row.id) %]'>
     <td align="left"> [% HTML.escape(row.description) %]</a></td>
     <td align="right">[% HTML.escape(row.unit) %]</td>
     <td align="right">[% HTML.escape(row.notes) %]</td>
     <td align="right">[% HTML.escape(row.ean) %]</td>
-    <td align="right">[% IF row.assembly %] [% 'assembly' | $T8 %] [% ELSE %] [% IF row.inventory_accno_id %] [% 'part' | $T8 %] [% ELSE %] [% 'service' %] [% END %] [% END %]</td>
+    <td align="right">[% IF row.assembly %] [% 'assembly' | $T8 %] [% ELSE %] [% IF row.inventory_accno_id %] [% 'part' | $T8 %] [% ELSE %] [% 'service' | $T8 %] [% END %] [% END %]</td>
   </tr>
+  [% SET rowcount = loop.count %]
   [% END %]
+  <input type="hidden" name="rowcount" value="[% rowcount %]">
 </table>
+
+<input type="submit" value="[% 'Continue' | $T8 %]">
 
 </form>
