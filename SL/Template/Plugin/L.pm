@@ -69,6 +69,11 @@ sub input_tag     { return _call_presenter('input_tag',     @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
 
+sub _set_id_attribute {
+  my ($attributes, $name) = @_;
+  SL::Presenter::Tag::_set_id_attribute($attributes, $name);
+}
+
 sub img_tag {
   my ($self, @slurp) = @_;
   my %options = _hashify(@slurp);
@@ -82,7 +87,7 @@ sub textarea_tag {
   my ($self, $name, $content, @slurp) = @_;
   my %attributes      = _hashify(@slurp);
 
-  $attributes{id}   ||= $self->name_to_id($name);
+  _set_id_attribute(\%attributes, $name);
   $attributes{rows}  *= 1; # required by standard
   $attributes{cols}  *= 1; # required by standard
   $content            = $content ? _H($content) : '';
@@ -94,7 +99,7 @@ sub checkbox_tag {
   my ($self, $name, @slurp) = @_;
   my %attributes       = _hashify(@slurp);
 
-  $attributes{id}    ||= $self->name_to_id($name);
+  _set_id_attribute(\%attributes, $name);
   $attributes{value}   = 1 unless defined $attributes{value};
   my $label            = delete $attributes{label};
   my $checkall         = delete $attributes{checkall};
@@ -117,8 +122,8 @@ sub radio_button_tag {
   my $name             = shift;
   my %attributes       = _hashify(@_);
 
+  _set_id_attribute(\%attributes, $name);
   $attributes{value}   = 1 unless defined $attributes{value};
-  $attributes{id}    ||= $self->name_to_id($name . "_" . $attributes{value});
   my $label            = delete $attributes{label};
 
   if ($attributes{checked}) {
@@ -177,7 +182,7 @@ sub button_tag {
   my ($self, $onclick, $value, @slurp) = @_;
   my %attributes = _hashify(@slurp);
 
-  $attributes{id}   ||= $self->name_to_id($attributes{name}) if $attributes{name};
+  _set_id_attribute(\%attributes, $attributes{name}) if $attributes{name};
   $attributes{type} ||= 'button';
 
   $onclick = 'if (!confirm("'. _J(delete($attributes{confirm})) .'")) return false; ' . $onclick if $attributes{confirm};
@@ -226,13 +231,12 @@ sub date_tag {
   my ($self, $name, $value, @slurp) = @_;
 
   my %params   = _hashify(@slurp);
-  my $id       = $self->name_to_id($name) . _tag_id();
+  _set_id_attribute(\%params, $name);
   my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
   my @class    = $params{no_cal} || $params{readonly} ? () : (class => 'datepicker');
 
   return $self->input_tag(
     $name, blessed($value) ? $value->to_lxoffice : $value,
-    id     => $id,
     size   => 11,
     onblur => "check_right_date_format(this);",
     %params,
@@ -530,6 +534,10 @@ Usage from a template:
 
 A module modeled a bit after Rails' ActionView helpers. Several small
 functions that create HTML tags from various kinds of data sources.
+
+The C<id> attribute is usually calculated automatically. This can be
+overridden by either specifying an C<id> attribute or by setting
+C<no_id> to trueish.
 
 =head1 FUNCTIONS
 
