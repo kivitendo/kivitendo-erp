@@ -67,7 +67,6 @@ __PACKAGE__->meta->setup(
     ir_show_mark_as_paid                => { type => 'boolean', default => 'true' },
     ar_show_mark_as_paid                => { type => 'boolean', default => 'true' },
     ap_show_mark_as_paid                => { type => 'boolean', default => 'true' },
-    deviating_fiscal_year               => { type => 'boolean' },
     assemblynumber                      => { type => 'text' },
   ],
 
