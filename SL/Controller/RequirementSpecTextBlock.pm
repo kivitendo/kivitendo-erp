@@ -17,7 +17,7 @@ use SL::Locale::String;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(text_block) ],
-  'scalar --get_set_init' => [ qw(predefined_texts) ],
+  'scalar --get_set_init' => [ qw(predefined_texts js) ],
 );
 
 __PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete ajax_flag dragged_and_dropped ajax_copy)]);
@@ -42,24 +42,21 @@ sub action_ajax_list {
 
   # $::lxdebug->message(0, "cur $current_where new $new_where");
 
-  my $js = SL::ClientJS->new;
-
   if (!defined($current_where) || ($new_where != $current_where)) {
     my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where, requirement_spec_id => $::form->{requirement_spec_id} ]);
     my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
 
-    $js->html('#column-content', $html)
+    $self->js
+       ->html('#column-content', $html)
        ->val('#current_content_type', 'text-blocks-' . (0 == $new_where ? 'front' : 'back'))
        ->val('#current_content_id',   $::form->{clicked_id});
   }
 
-  $self->render($js);
+  $self->render($self->js);
 }
 
 sub action_ajax_add {
   my ($self) = @_;
-
-  my $js            = SL::ClientJS->new;
 
   my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
   my $new_where     = $self->output_position_from_id($::form->{id})                                                  // $::form->{output_position};
@@ -68,7 +65,7 @@ sub action_ajax_add {
     my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where, requirement_spec_id => $::form->{requirement_spec_id} ]);
     my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
 
-    $js->html('#column-content', $html);
+    $self->js->html('#column-content', $html);
   }
 
   $self->text_block(SL::DB::RequirementSpecTextBlock->new(
@@ -79,7 +76,7 @@ sub action_ajax_add {
   my $id_base = join('_', 'new_text_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
   my $html    = $self->render('requirement_spec_text_block/_form', { output => 0 }, id_base => $id_base, insert_after => $::form->{id});
 
-  $self->invalidate_version($js)
+  $self->invalidate_version
      ->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'))
      ->focus('#' . $id_base . '_title')
      ->render($self);
@@ -88,21 +85,21 @@ sub action_ajax_add {
 sub action_ajax_edit {
   my ($self) = @_;
 
-  my $js = SL::ClientJS->new;
-
   my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
   if ($self->text_block->output_position != $current_where) {
     my $text_blocks = $self->text_block->get_full_list;
     my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $self->text_block->output_position);
 
-    $js->html('#column-content', $html)
+    $self->js
+       ->html('#column-content', $html)
        ->val('#current_content_type', 'text-block')
        ->val('#current_content_id',   $self->text_block->id);
   }
 
   my $html = $self->render('requirement_spec_text_block/_form', { output => 0 });
 
-  $js->hide('#text-block-' . $self->text_block->id)
+  $self->js
+     ->hide('#text-block-' . $self->text_block->id)
      ->remove('#edit_text_block_' . $self->text_block->id . '_form')
      ->insertAfter($html, '#text-block-' . $self->text_block->id)
      ->jstree->select_node('#tree', '#tb-' . $self->text_block->id)
@@ -159,19 +156,18 @@ sub action_ajax_update {
 sub action_ajax_delete {
   my ($self) = @_;
 
-  my $js = SL::ClientJS->new;
-
   my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
   if ($self->text_block->output_position == $current_where) {
-    $js->remove('#edit_text_block_' . $self->text_block->id . '_form')
+    $self->js
+       ->remove('#edit_text_block_' . $self->text_block->id . '_form')
        ->remove('#text-block-' . $self->text_block->id);
 
-    $js->show('#text-block-list-empty') if 1 == scalar @{ $self->text_block->get_full_list };
+    $self->js->show('#text-block-list-empty') if 1 == scalar @{ $self->text_block->get_full_list };
   }
 
   $self->text_block->delete;
 
-  $self->invalidate_version($js)
+  $self->invalidate_version
      ->jstree->delete_node('#tree', '#tb-' . $self->text_block->id)
      ->render($self);
 }
@@ -212,7 +208,6 @@ sub action_dragged_and_dropped {
   my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
   my $new_where     = $self->text_block->output_position;
   my $id            = $self->text_block->id;
-  my $js            = SL::ClientJS->new;
 
   # $::lxdebug->message(0, "old $old_where current $current_where new $new_where current_CID " . $::form->{current_content_id} . ' selfid ' . $self->text_block->id);
   if (($old_where != $new_where) && ($::form->{current_content_id} == $self->text_block->id)) {
@@ -221,34 +216,35 @@ sub action_dragged_and_dropped {
     my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where ]);
     my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
 
-    $js->val('#current_content_type', 'text-blocks-' . ($new_where == 0 ? 'front' : 'back'))
+    $self->js
+       ->val('#current_content_type', 'text-blocks-' . ($new_where == 0 ? 'front' : 'back'))
        ->html('#column-content', $html);
 
   } else {
     if ($old_where == $current_where) {
-      $js->remove('#text-block-' . $self->text_block->id);
+      $self->js->remove('#text-block-' . $self->text_block->id);
 
       if (0 == scalar(@{ SL::DB::Manager::RequirementSpecTextBlock->get_all(where => [ requirement_spec_id => $self->text_block->requirement_spec_id, output_position => $current_where ]) })) {
-        $js->show('#text-block-list-empty');
+        $self->js->show('#text-block-list-empty');
       }
     }
 
     if ($new_where == $current_where) {
-      $js->hide('#text-block-list-empty');
+      $self->js->hide('#text-block-list-empty');
 
       my $html             = "" . $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
       $html                =~ s/^\s+//;
       my $prior_text_block = $self->text_block->get_previous_in_list;
 
       if ($prior_text_block) {
-        $js->insertAfter($html, '#text-block-' . $prior_text_block->id);
+        $self->js->insertAfter($html, '#text-block-' . $prior_text_block->id);
       } else {
-        $js->prependTo($html, '#text-block-list');
+        $self->js->prependTo($html, '#text-block-list');
       }
     }
   }
 
-  $self->invalidate_version($js)
+  $self->invalidate_version
     ->render($self);
 }
 
@@ -269,7 +265,6 @@ sub action_ajax_paste {
       ->render($self);
   }
 
-  my $js                      = SL::ClientJS->new;
   my $current_output_position = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type});
   my $new_output_position     = $::form->{id} ? $self->output_position_from_id($::form->{id}) : $::form->{output_position};
   my $front_back              = 0 == $new_output_position ? 'front' : 'back';
@@ -280,11 +275,11 @@ sub action_ajax_paste {
 
   if ($current_output_position == $new_output_position) {
     my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $self->text_block);
-    $js->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'));
+    $self->js->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'));
   }
 
   my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
-  $self->invalidate_version($js)
+  $self->invalidate_version
     ->jstree->create_node('#tree', $::form->{id} ? ('#tb-' . $::form->{id}, 'after') : ("#tb-${front_back}", 'last'), $node)
     ->render($self);
 }
@@ -319,13 +314,17 @@ sub init_predefined_texts {
   return SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted;
 }
 
-sub invalidate_version {
-  my ($self, $js) = @_;
+sub init_js {
+  my ($self) = @_;
+  $self->js(SL::ClientJS->new);
+}
 
-  $js           ||= SL::ClientJS->new;
-  my $html        = $self->render('requirement_spec/_version', { output => 0 },
-                                  requirement_spec => SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id} || $self->text_block->requirement_spec_id)->load);
-  return $js->html('#requirement_spec_version', $html);
+sub invalidate_version {
+  my ($self) = @_;
+
+  my $html   = $self->render('requirement_spec/_version', { output => 0 },
+                             requirement_spec => SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id} || $self->text_block->requirement_spec_id)->load);
+  return $self->js->html('#requirement_spec_version', $html);
 }
 
 1;
