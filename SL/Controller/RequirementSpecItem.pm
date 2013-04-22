@@ -216,7 +216,7 @@ sub action_ajax_edit {
   if (!$self->is_item_visible) {
     # Show section/item to edit if it is not visible.
 
-    my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
+    my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item->section);
     $js->html('#column-content', $html);
   }
 
