@@ -274,7 +274,7 @@ sub create_or_update {
 
   if ($::request->is_ajax) {
     my $html = $self->render('requirement_spec/_header', { output => 0 });
-    return $self->js
+    return $self->invalidate_version
       ->replaceWith('#requirement-spec-header', $html)
       ->flash('info', t8('The requirement spec has been saved.'))
       ->render($self);
@@ -347,5 +347,16 @@ sub prepare_report {
 
   $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
 }
+
+sub invalidate_version {
+  my ($self) = @_;
+
+  my $rspec  = SL::DB::RequirementSpec->new(id => $self->requirement_spec->id)->load;
+  $rspec->invalidate_version;
+
+  my $html = $self->render('requirement_spec/_version', { output => 0 }, requirement_spec => $rspec);
+  return $self->js->html('#requirement_spec_version', $html);
+}
+
 
 1;
