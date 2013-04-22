@@ -97,6 +97,7 @@ $self->{texts} = {
   'Account Nummer'              => 'Kontonummer',
   'Account Type'                => 'Kontoart',
   'Account Type missing!'       => 'Kontoart fehlt!',
+  'Account categories'          => 'Kontoarten',
   'Account deleted!'            => 'Konto gelöscht!',
   'Account for fees'            => 'Konto f&uuml;r Geb&uuml;hren',
   'Account for interest'        => 'Konto f&uuml;r Zinsen',

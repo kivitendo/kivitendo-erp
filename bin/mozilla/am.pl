@@ -1461,6 +1461,13 @@ sub add_tax {
 
   _get_taxaccount_selection();
 
+  $form->{asset}      = 1;
+  $form->{liability}  = 1;
+  $form->{equity}     = 1;
+  $form->{revenue}    = 1;
+  $form->{expense}    = 1;
+  $form->{costs}      = 1;
+
   $form->header();
 
   my $parameters_ref = {
@@ -1485,7 +1492,15 @@ sub edit_tax {
   $form->{title} =  $locale->text('Edit');
 
   AM->get_tax(\%myconfig, \%$form);
+
   _get_taxaccount_selection();
+
+  $form->{asset}      = $form->{chart_categories} =~ 'A' ? 1 : 0;
+  $form->{liability}  = $form->{chart_categories} =~ 'L' ? 1 : 0;
+  $form->{equity}     = $form->{chart_categories} =~ 'Q' ? 1 : 0;
+  $form->{revenue}    = $form->{chart_categories} =~ 'I' ? 1 : 0;
+  $form->{expense}    = $form->{chart_categories} =~ 'E' ? 1 : 0;
+  $form->{costs}      = $form->{chart_categories} =~ 'C' ? 1 : 0;
 
   $form->{rate} = $form->format_amount(\%myconfig, $form->{rate}, 2);
 

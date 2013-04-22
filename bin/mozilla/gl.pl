@@ -686,7 +686,7 @@ sub display_rows {
   my %taxchart_labels = ();
   my @taxchart_values = ();
   my %taxcharts = ();
-  foreach my $item (@{ $form->{ALL_TAXCHARTS} }) {
+  foreach my $item (@{ $form->{TAX_ACCOUNTS} }) {
     my $key = $item->{id} . "--" . $item->{rate};
     $taxchart_init = $key if ($taxchart_init == $item->{id});
     push(@taxchart_values, $key);
@@ -730,7 +730,7 @@ sub display_rows {
     my $accno = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "accno_$i",
                            '-id' => "accno_$i",
-                           '-onChange' => "setTaxkey($i)",
+                           '-onChange' => "updateTaxes($i);",
                            '-style' => 'width:200px',
                            '-values' => \@chart_values,
                            '-labels' => \%chart_labels,
@@ -862,8 +862,10 @@ sub form_header {
                                     "all"       => 0,
                                     "old_id"    => \@old_project_ids },
                    "charts"    => { "key"       => "ALL_CHARTS",
-                                    "transdate" => $::form->{transdate} },
-                   "taxcharts" => "ALL_TAXCHARTS");
+                                    "transdate" => $::form->{transdate} });
+
+  $::form->{accno} = $::form->{ALL_CHARTS}[0]->{accno};
+  GL->get_tax_dropdown();
 
   GL->get_chart_balances('charts' => $::form->{ALL_CHARTS});
 
@@ -1217,6 +1219,23 @@ sub storno {
 
 sub continue {
   call_sub($main::form->{nextsub});
+}
+
+sub get_tax_dropdown {
+
+  my $form = $main::form;
+  $main::lxdebug->enter_sub();
+  GL->get_tax_dropdown();
+
+  foreach my $item (@{ $form->{TAX_ACCOUNTS} }) {
+    $item->{taxdescription} = $::locale->{iconv_utf8}->convert($item->{taxdescription});
+    $item->{taxdescription} .= ' ' . $form->round_amount($item->{rate} * 100);
+  }
+
+  print $form->ajax_response_header, $form->parse_html_template("gl/update_tax_accounts");
+
+  $main::lxdebug->leave_sub();
+
 }
 
 1;

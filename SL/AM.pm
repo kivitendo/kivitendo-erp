@@ -1777,6 +1777,7 @@ sub get_tax {
                    taxdescription,
                    round(rate * 100, 2) AS rate,
                    chart_id,
+                   chart_categories,
                    (id IN (SELECT tax_id
                            FROM acc_trans)) AS tax_already_used
                  FROM tax
@@ -1834,14 +1835,23 @@ sub save_tax {
 
   $form->{rate} = $form->{rate} / 100;
 
-  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, $form->{chart_id}, $form->{chart_id} );
+  my $chart_categories = '';
+  $chart_categories .= 'A' if $form->{asset};
+  $chart_categories .= 'L' if $form->{liability};
+  $chart_categories .= 'Q' if $form->{equity};
+  $chart_categories .= 'I' if $form->{revenue};
+  $chart_categories .= 'E' if $form->{expense};
+  $chart_categories .= 'C' if $form->{costs};
+
+  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, $form->{chart_id}, $form->{chart_id}, $chart_categories);
   if ($form->{id} ne "") {
     $query = qq|UPDATE tax SET
                   taxkey         = ?,
                   taxdescription = ?,
                   rate           = ?,
                   chart_id       = ?,
-                  taxnumber      = (SELECT accno FROM chart WHERE id= ? )
+                  taxnumber      = (SELECT accno FROM chart WHERE id= ? ),
+                  chart_categories = ?
                 WHERE id = ?|;
     push(@values, $form->{id});
 
@@ -1852,9 +1862,10 @@ sub save_tax {
                   taxdescription,
                   rate,
                   chart_id,
-                  taxnumber
+                  taxnumber,
+                  chart_categories
                 )
-                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?) )|;
+                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?), ? )|;
   }
   do_query($form, $dbh, $query, @values);
 
