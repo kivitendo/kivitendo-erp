@@ -96,7 +96,7 @@ sub action_dragged_and_dropped {
   my $new_type            = $self->item->item_type;
   my $new_visible_section = SL::DB::RequirementSpecItem->new(id => $self->visible_item->id)->load->section;
 
-  return $self->render($self->js) if !$old_visible_section || ($new_type eq 'section');
+  return $self->invalidate_version->render($self) if !$old_visible_section || ($new_type eq 'section');
 
   # From here on $old_visible_section is definitely set.
 
@@ -108,6 +108,7 @@ sub action_dragged_and_dropped {
 
   if ($old_visible_section->id != $new_visible_section->id) {
     # The currently visible item has been dragged to a different section.
+    $self->invalidate_version;
     return $self->render_list($new_section, $self->item)
       ->render($self);
   }
@@ -131,7 +132,7 @@ sub action_dragged_and_dropped {
 
   # $::lxdebug->dump(0, "js", $self->js->to_array);
 
-  $self->render($self->js);
+  $self->invalidate_version->render($self);
 }
 
 sub action_ajax_add_section {
@@ -181,6 +182,7 @@ sub action_ajax_create {
 
   if ($type eq 'section') {
     my $node = $self->presenter->requirement_spec_item_jstree_data($self->item);
+    $self->invalidate_version;
     return $self->render_list($self->item)
       ->jstree->create_node('#tree', $insert_after ? ('#fb-' . $insert_after, 'after') : ('#sections', 'last'), $node)
       ->jstree->select_node('#tree', '#fb-' . $self->item->id)
@@ -199,7 +201,7 @@ sub action_ajax_create {
 
   $self->replace_bottom($self->item->parent) if $type eq 'sub-function-block';
 
-  $self->js->render($self);
+  $self->invalidate_version->render($self);
 }
 
 sub action_ajax_edit {
@@ -271,7 +273,7 @@ sub action_ajax_update {
 
     my $html = $self->render('requirement_spec_item/_section_header', { output => 0 }, requirement_spec_item => $self->item);
 
-    return $self->js
+    return $self->invalidate_version
       ->remove('#edit_section_form')
       ->html('#section-header-' . $self->item->id, $html)
       ->show('#section-header-' . $self->item->id)
@@ -295,7 +297,7 @@ sub action_ajax_update {
   $self->replace_bottom($self->item, id_prefix => $id_prefix);
   $self->replace_bottom($self->item->parent) if $type eq 'sub-function-block';
 
-  $self->js->render($self);
+  $self->invalidate_version->render($self);
 }
 
 sub action_ajax_delete {
@@ -338,8 +340,9 @@ sub action_ajax_delete {
     }
   }
 
-  $self->js->jstree->delete_node('#tree', '#fb-' . $self->item->id)
-           ->render($self);
+  $self->invalidate_version
+    ->jstree->delete_node('#tree', '#fb-' . $self->item->id)
+    ->render($self);
 }
 
 sub action_ajax_flag {
@@ -457,7 +460,7 @@ sub action_ajax_paste {
   # Update the current view if required.
   $self->insert_new_item_in_section_view($self->js) if $self->is_item_visible;
 
-  $self->js->render($self);
+  $self->invalidate_version->render($self);
 }
 
 #
@@ -469,14 +472,9 @@ sub check_auth {
   $::auth->assert('sales_quotation_edit');
 }
 
-sub load_requirement_spec {
-  my ($self) = @_;
-  $self->requirement_spec(SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id})->load || die "No such requirement spec");
-}
-
 sub load_requirement_spec_item {
   my ($self) = @_;
-  $self->item(SL::DB::RequirementSpecItem->new(id => $::form->{id})->load || die "No such requirement spec item");
+  $self->item(SL::DB::RequirementSpecItem->new(id => $::form->{id})->load);
 }
 
 #
@@ -614,6 +612,14 @@ sub is_item_visible {
 
   $item ||= $self->item;
   return $self->visible_section && ($self->visible_section->id == $item->section->id);
+}
+
+sub invalidate_version {
+  my ($self) = @_;
+
+  my $html   = $self->render('requirement_spec/_version', { output => 0 },
+                             requirement_spec => SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id} || $self->item->requirement_spec_id)->load);
+  return $self->js->html('#requirement_spec_version', $html);
 }
 
 1;

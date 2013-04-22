@@ -3,6 +3,9 @@ package SL::DB::RequirementSpecItem;
 use strict;
 
 use Carp;
+use List::MoreUtils qw(any);
+use Rose::DB::Object::Helpers;
+use Rose::DB::Object::Util;
 
 use SL::DB::MetaSetup::RequirementSpecItem;
 use SL::DB::Manager::RequirementSpecItem;
@@ -38,7 +41,9 @@ __PACKAGE__->configure_acts_as_list(group_by => [qw(requirement_spec_id parent_i
 __PACKAGE__->attr_duration(qw(time_estimation));
 
 __PACKAGE__->before_save(\&_before_save_create_fb_number);
+__PACKAGE__->before_save(\  &_before_save_invalidate_requirement_spec_version);
 __PACKAGE__->before_delete(\&_before_delete_delete_children);
+__PACKAGE__->before_delete(\&_before_delete_invalidate_requirement_spec_version);
 
 sub _before_delete_delete_children {
   my ($self) = @_;
@@ -66,6 +71,33 @@ sub _before_save_create_fb_number {
   my $format = SL::DB::Default->get->$method;
 
   $self->fb_number(SL::PrefixedNumber->new(number => $format || 0)->set_to($next_number));
+
+  return 1;
+}
+
+sub _before_save_invalidate_requirement_spec_version {
+  my ($self, %params) = @_;
+
+  return 1 if !$self->requirement_spec_id;
+
+  my %changed_columns = map { $_ => 1 } (Rose::DB::Object::Helpers::dirty_columns($self));
+  my $has_changed     = !Rose::DB::Object::Util::is_in_db($self);
+  $has_changed      ||= any { $changed_columns{$_} } qw(requirement_spec_id parent_id position fb_number title description);
+
+  if (!$has_changed && $self->id) {
+    my $old_item = SL::DB::RequirementSpecItem->new(id => $self->id)->load;
+    $has_changed = join(':', sort map { $_->id } @{ $self->dependencies }) ne join(':', sort map { $_->id } @{ $old_item->dependencies });
+  }
+
+  $self->requirement_spec->invalidate_version if $has_changed;
+
+  return 1;
+}
+
+sub _before_delete_invalidate_requirement_spec_version {
+  my ($self, %params) = @_;
+
+  $self->requirement_spec->invalidate_version if $self->requirement_spec_id;
 
   return 1;
 }
