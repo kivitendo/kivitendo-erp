@@ -3190,6 +3190,7 @@ sub update_defaults {
   my ($var) = $sth->fetchrow_array;
   $sth->finish;
 
+  $var   = 0 if !defined($var) || ($var eq '');
   $var   = SL::PrefixedNumber->new(number => $var)->get_next;
   $query = qq|UPDATE defaults SET $fld = ?|;
   do_query($self, $dbh, $query, $var);
