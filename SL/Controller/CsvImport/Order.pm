@@ -37,7 +37,7 @@ sub init_class {
 sub init_settings {
   my ($self) = @_;
 
-  return { map { ( $_ => $self->controller->profile->get($_) ) } qw(order_column item_column) };
+  return { map { ( $_ => $self->controller->profile->get($_) ) } qw(order_column item_column max_amount_diff) };
 }
 
 
@@ -46,14 +46,25 @@ sub init_profile {
 
   my $profile = $self->SUPER::init_profile;
 
+  # SUPER::init_profile sets row_ident to the class name
+  # overwrite it with the user specified settings
   foreach my $p (@{ $profile }) {
-    my $prof = $p->{profile};
     if ($p->{row_ident} eq 'Order') {
-      # no need to handle
-      delete @{$prof}{qw(delivery_customer_id delivery_vendor_id proforma quotation amount netamount)};
-      # handable, but not handled by now
+      $p->{row_ident} = $self->settings->{'order_column'};
     }
     if ($p->{row_ident} eq 'OrderItem') {
+      $p->{row_ident} = $self->settings->{'item_column'};
+    }
+  }
+
+  foreach my $p (@{ $profile }) {
+    my $prof = $p->{profile};
+    if ($p->{row_ident} eq $self->settings->{'order_column'}) {
+      # no need to handle
+      delete @{$prof}{qw(delivery_customer_id delivery_vendor_id proforma quotation amount netamount)};
+    }
+    if ($p->{row_ident} eq $self->settings->{'item_column'}) {
+      # no need to handle
       delete @{$prof}{qw(trans_id)};
     }
   }
@@ -67,7 +78,7 @@ sub setup_displayable_columns {
 
   $self->SUPER::setup_displayable_columns;
 
-  $self->add_displayable_columns('Order',
+  $self->add_displayable_columns($self->settings->{'order_column'},
                                  { name => 'datatype',         description => $::locale->text('Zeilenkennung')                  },
                                  { name => 'closed',           description => $::locale->text('Closed')                         },
                                  { name => 'curr',             description => $::locale->text('Currency')                       },
@@ -111,7 +122,7 @@ sub setup_displayable_columns {
                                  { name => 'shipto_id',        description => $::locale->text('Ship to (database ID)')          },
                                 );
 
-  $self->add_displayable_columns('OrderItem',
+  $self->add_displayable_columns($self->settings->{'item_column'},
                                  { name => 'datatype',        description => $::locale->text('Zeilenkennung')              },
                                  { name => 'cusordnumber',    description => $::locale->text('Customer Order Number')      },
                                  { name => 'description',     description => $::locale->text('Description')                },
@@ -353,7 +364,6 @@ sub check_objects {
 
   # If amounts are given, show calculated amounts as info and given amounts (verify_xxx).
   # And throw an error if the differences are too big.
-  my $max_diff = 0.02;
   my @to_verify = ( { column      => 'amount',
                       raw_column  => 'verify_amount',
                       info_header => 'Calc. Amount',
@@ -381,7 +391,7 @@ sub check_objects {
       if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'}) {
         next if !$entry->{raw_data}->{ $tv->{raw_column} };
         my $parsed_value = $::form->parse_amount(\%::myconfig, $entry->{raw_data}->{ $tv->{raw_column} });
-        if (abs($entry->{object}->${ \$tv->{column} } - $parsed_value) > $max_diff) {
+        if (abs($entry->{object}->${ \$tv->{column} } - $parsed_value) > $self->settings->{'max_amount_diff'}) {
           push @{ $entry->{errors} }, $::locale->text($tv->{err_msg});
         }
       }

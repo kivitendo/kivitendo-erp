@@ -387,8 +387,7 @@ sub profile_from_form {
   }
 
   if ($self->type eq 'orders') {
-    $::form->{settings}->{order_column} = 'Order';
-    $::form->{settings}->{item_column}  = 'OrderItem';
+    $::form->{settings}->{max_amount_diff} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{max_amount_diff});
   }
 
   delete $::form->{profile}->{id};
