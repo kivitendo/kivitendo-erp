@@ -42,19 +42,7 @@ __PACKAGE__->attr_duration(qw(time_estimation));
 
 __PACKAGE__->before_save(\&_before_save_create_fb_number);
 __PACKAGE__->before_save(\  &_before_save_invalidate_requirement_spec_version);
-__PACKAGE__->before_delete(\&_before_delete_delete_children);
 __PACKAGE__->before_delete(\&_before_delete_invalidate_requirement_spec_version);
-
-sub _before_delete_delete_children {
-  my ($self) = @_;
-
-  foreach my $child (@{ SL::DB::Manager::RequirementSpecItem->get_all(where => [ parent_id => $self->id ]) }) {
-    my $result = $child->delete;
-    return $result if !$result;
-  }
-
-  1;
-}
 
 sub _before_save_create_fb_number {
   my ($self) = @_;
