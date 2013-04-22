@@ -176,14 +176,6 @@ sub action_destroy {
   $self->redirect_to(action => 'list');
 }
 
-sub action_reorder {
-  my ($self) = @_;
-
-  SL::DB::RequirementSpec->reorder_list(@{ $::form->{requirement_spec_id} || [] });
-
-  $self->render('1;', { type => 'js', inline => 1 });
-}
-
 #
 # filters
 #
