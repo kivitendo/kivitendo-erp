@@ -24,7 +24,7 @@ use SL::Locale::String;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item customers types statuses db_args flat_filter is_template visible_item visible_section) ],
-  'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects copy_source) ],
+  'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects copy_source js) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -101,9 +101,9 @@ sub action_ajax_cancel_time_and_cost_estimate {
 
   my $html   = $self->render('requirement_spec/_show_time_and_cost_estimate', { output => 0 });
 
-  SL::ClientJS->new
-    ->replaceWith('#time_cost_estimate', $html)
-    ->render($self);
+  $self->js
+   ->replaceWith('#time_cost_estimate', $html)
+   ->render($self);
 }
 
 sub action_ajax_edit_time_and_cost_estimate {
@@ -111,9 +111,9 @@ sub action_ajax_edit_time_and_cost_estimate {
 
   my $html   = $self->render('requirement_spec/_edit_time_and_cost_estimate', { output => 0 });
 
-  SL::ClientJS->new
-    ->replaceWith('#time_cost_estimate', $html)
-    ->render($self);
+  $self->js
+   ->replaceWith('#time_cost_estimate', $html)
+   ->render($self);
 }
 
 sub action_ajax_save_time_and_cost_estimate {
@@ -133,14 +133,14 @@ sub action_ajax_save_time_and_cost_estimate {
   });
 
   my $html = $self->render('requirement_spec/_show_time_and_cost_estimate', { output => 0 });
-  my $js   = SL::ClientJS->new->replaceWith('#time_cost_estimate', $html);
+  $self->js->replaceWith('#time_cost_estimate', $html);
 
   if ($self->visible_section) {
     $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->visible_section);
-    $js->html('#column-content', $html);
+    $self->js->html('#column-content', $html);
   }
 
-  $js->render($self);
+  $self->js->render($self);
 }
 
 sub action_show {
@@ -225,6 +225,11 @@ sub init_copy_source {
   $self->copy_source(SL::DB::RequirementSpec->new(id => $::form->{copy_source_id})->load) if $::form->{copy_source_id};
 }
 
+sub init_js {
+  my ($self) = @_;
+  $self->js(SL::ClientJS->new);
+}
+
 sub load_select_options {
   my ($self) = @_;
 
@@ -251,7 +256,7 @@ sub create_or_update {
   my @errors = $self->requirement_spec->validate;
 
   if (@errors) {
-    return SL::ClientJS->new->error(@errors)->render($self) if $::request->is_ajax;
+    return $self->js->error(@errors)->render($self) if $::request->is_ajax;
 
     flash('error', @errors);
     $self->render('requirement_spec/new', title => $title);
@@ -268,7 +273,7 @@ sub create_or_update {
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
     @errors = ($::locale->text('Saving failed. Error message from the database: #1'), $db->error);
-    return SL::ClientJS->new->error(@errors)->render($self) if $::request->is_ajax;
+    return $self->js->error(@errors)->render($self) if $::request->is_ajax;
 
     $self->requirement_spec->id(undef) if $is_new;
     flash('error', @errors);
@@ -277,7 +282,7 @@ sub create_or_update {
 
   if ($::request->is_ajax) {
     my $html = $self->render('requirement_spec/_header', { output => 0 });
-    return SL::ClientJS->new
+    return $self->js
       ->replaceWith('#requirement-spec-header', $html)
       ->flash('info', t8('The requirement spec has been saved.'))
       ->render($self);
