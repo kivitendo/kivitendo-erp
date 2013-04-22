@@ -232,7 +232,8 @@ sub _print_invoice {
   $form->{formname}     = $form->{type};
   $form->{format}       = 'pdf';
   $form->{media}        = 'printer';
-  $form->{OUT}          = "| " . $config->printer->printer_command;
+  $form->{OUT}          = $config->printer->printer_command;
+  $form->{OUT_MODE}     = '|-';
 
   $form->prepare_for_printing;
 
