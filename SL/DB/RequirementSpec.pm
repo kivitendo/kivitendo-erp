@@ -87,13 +87,25 @@ sub _create_copy {
   my ($self, %params) = @_;
 
   my $copy = Rose::DB::Object::Helpers::clone_and_reset($self);
-  $copy->assign_attributes(%params);
+  $copy->copy_from($self, %params);
+
+  return $copy;
+}
+
+sub copy_from {
+  my ($self, $source, %attributes) = @_;
+
+  croak "Missing parameter 'source'" unless $source;
+
+  # Copy attributes.
+  $self->assign_attributes(map({ ($_ => $source->$_) } qw(type_id status_id customer_id project_id title hourly_rate net_sum previous_section_number previous_fb_number is_template)),
+                           %attributes);
 
   # Clone text blocks.
-  $copy->text_blocks(map { Rose::DB::Object::Helpers::clone_and_reset($_) } @{ $self->text_blocks });
+  $self->text_blocks(map { Rose::DB::Object::Helpers::clone_and_reset($_) } @{ $source->text_blocks });
 
   # Save new object -- we need its ID for the items.
-  $copy->save;
+  $self->save;
 
   my %id_to_clone;
 
@@ -102,7 +114,7 @@ sub _create_copy {
   $clone_item = sub {
     my ($item) = @_;
     my $cloned = Rose::DB::Object::Helpers::clone_and_reset($item);
-    $cloned->requirement_spec_id($copy->id);
+    $cloned->requirement_spec_id($self->id);
     $cloned->children(map { $clone_item->($_) } @{ $item->children });
 
     $id_to_clone{ $item->id } = $cloned;
@@ -110,18 +122,18 @@ sub _create_copy {
     return $cloned;
   };
 
-  $copy->items(map { $clone_item->($_) } @{ $self->sections });
+  $self->items(map { $clone_item->($_) } @{ $source->sections });
 
   # Save the items -- need to do that before setting dependencies.
-  $copy->save;
+  $self->save;
 
   # Set dependencies.
-  foreach my $item (@{ $self->items }) {
+  foreach my $item (@{ $source->items }) {
     next unless @{ $item->dependencies };
     $id_to_clone{ $item->id }->update_attributes(dependencies => [ map { $id_to_clone{$_->id} } @{ $item->dependencies } ]);
   }
 
-  return $copy;
+  return $self;
 }
 
 sub previous_version {
