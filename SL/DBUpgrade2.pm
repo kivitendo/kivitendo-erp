@@ -250,13 +250,11 @@ sub process_perl_script {
     file_name => $filename,
     tag       => $version_or_control->{tag},
     dbh       => $dbh,
-    locale    => $::locale,
     myconfig  => \%dbup_myconfig,
   );
 
-  if (1 != $result) {
+  if (1 != ($result // 1)) {
     $dbh->rollback();
-    $dbh->disconnect();
   }
 
   if (!defined($result)) {
