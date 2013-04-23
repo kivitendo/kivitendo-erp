@@ -73,6 +73,7 @@
 
 [%- IF SELF.type == 'contacts' %]
    <p>
+    [%- LxERP.t8("You can update existing contacts by providing the 'cp_id' column with their database IDs. Otherwise: ") %]
     [%- LxERP.t8('At least one of the columns #1, customer, customernumber, vendor, vendornumber (depending on the target table) is required for matching the entry to an existing customer or vendor.', 'cp_cv_id') %]
    </p>
 
@@ -203,6 +204,8 @@
  [%- INCLUDE 'csv_import/_form_parts.html' %]
 [%- ELSIF SELF.type == 'customers_vendors' %]
  [%- INCLUDE 'csv_import/_form_customers_vendors.html' %]
+[%- ELSIF SELF.type == 'contacts' %]
+ [%- INCLUDE 'csv_import/_form_contacts.html' %]
 [%- END %]
 
    <tr>

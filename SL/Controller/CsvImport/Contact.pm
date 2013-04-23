@@ -24,20 +24,64 @@ sub init_all_cvar_configs {
   return SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'Contacts' ]);
 }
 
+sub force_allow_columns {
+  return qw(cp_id);
+}
+
 sub check_objects {
   my ($self) = @_;
 
   $self->controller->track_progress(phase => 'building data', progress => 0);
 
-  my $i;
-  my $num_data = scalar @{ $self->controller->data };
+  my $i              = 0;
+  my $num_data       = scalar @{ $self->controller->data };
+  my $update_policy  = $self->controller->profile->get('update_policy') || 'update_existing';
+  my %contacts_by_id = map { ( $_->cp_id => $_ ) } @{ $self->existing_objects };
+  my $methods        = $self->controller->headers->{methods};
+  my %used_methods   = map { ( $_ => 1 ) } @{ $methods };
+
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
+
+    my $object = $entry->{object};
+    if ($object->cp_id) {
+      my $existing_contact = $contacts_by_id{ $object->cp_id };
+      if (!$existing_contact) {
+        $contacts_by_id{ $object->cp_id } = $object;
+
+      } elsif ($update_policy eq 'skip') {
+        push(@{ $entry->{errors} }, $::locale->text('Skipping due to existing entry in database'));
+        next;
+
+      } elsif ($update_policy eq 'update_existing') {
+        # Update existing customer/vendor records.
+        $entry->{object_to_save} = $existing_contact;
+
+        $object->cp_cv_id($existing_contact->cp_cv_id);
+
+        foreach (qw(cp_name cp_gender)) {
+          $object->$_($existing_contact->$_) if !$object->$_;
+        }
+
+        $existing_contact->$_( $entry->{object}->$_ ) for @{ $methods };
+
+        push @{ $entry->{information} }, $::locale->text('Updating existing entry in database');
+
+      } else {
+        $object->cp_id(undef);
+      }
+    }
 
     $self->check_name($entry);
     $self->check_vc($entry, 'cp_cv_id');
     $self->check_gender($entry);
     $self->handle_cvars($entry);
+
+    my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(cp_title cp_givenname cp_name cp_email cp_phone1 cp_phone2 cp_fax cp_mobile1 cp_mobile2 cp_satphone cp_satfax
+                                                                     cp_privatphone cp_privatemail cp_abteilung cp_street cp_zipcode cp_city cp_position));
+
+    push @{ $entry->{information} }, $::locale->text('Illegal characters have been removed from the following fields: #1', join(', ', @cleaned_fields))
+      if @cleaned_fields;
   } continue {
     $i++;
   }
@@ -105,6 +149,7 @@ sub setup_displayable_columns {
                                  { name => 'cp_fax',         description => $::locale->text('Fax')                           },
                                  { name => 'cp_gender',      description => $::locale->text('Gender')                        },
                                  { name => 'cp_givenname',   description => $::locale->text('Given Name')                    },
+                                 { name => 'cp_id',          description => $::locale->text('Database ID')                   },
                                  { name => 'cp_mobile1',     description => $::locale->text('Mobile1')                       },
                                  { name => 'cp_mobile2',     description => $::locale->text('Mobile2')                       },
                                  { name => 'cp_name',        description => $::locale->text('Name')                          },

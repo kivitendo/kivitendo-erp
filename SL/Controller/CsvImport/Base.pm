@@ -153,6 +153,10 @@ sub init_all_vc {
            vendors   => SL::DB::Manager::Vendor->get_all };
 }
 
+sub force_allow_columns {
+  return ();
+}
+
 sub init_vc_by {
   my ($self)    = @_;
 
@@ -222,6 +226,8 @@ sub init_profile {
   eval "require " . $self->class;
 
   my %unwanted = map { ( $_ => 1 ) } (qw(itime mtime), map { $_->name } @{ $self->class->meta->primary_key_columns });
+  delete $unwanted{$_} for ($self->force_allow_columns);
+
   my %profile;
   for my $col ($self->class->meta->columns) {
     next if $unwanted{$col};
