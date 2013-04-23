@@ -5568,11 +5568,10 @@ file = /tmp/kivitendo-debug.log</programlisting>
             <term><varname>charset</varname></term>
 
             <listitem>
-              <para>Empfohlen. Gibt den Zeichensatz an, in dem das Script
-              geschrieben wurde, z.B. "<literal>UTF-8</literal>". Aus
-              Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei
-              Abwesenheit des Tags der Zeichensatz
-              "<literal>ISO-8859-15</literal>" angenommen.</para>
+              <para>Empfohlen. Gibt den Zeichensatz an, in dem das Script geschrieben wurde, z.B. "<literal>UTF-8</literal>". Aus
+              Kompatibilitätsgründen mit alten Upgrade-Scripten wird bei Abwesenheit des Tags für SQL-Upgradedateien der Zeichensatz
+              "<literal>ISO-8859-15</literal>" angenommen. Perl-Upgradescripte hingegen müssen immer in UTF-8 encodiert sein und sollten
+              demnach auch ein "<literal>use utf8;</literal>" enthalten.</para>
             </listitem>
           </varlistentry>
 
@@ -5638,6 +5637,48 @@ file = /tmp/kivitendo-debug.log</programlisting>
             </listitem>
           </varlistentry>
         </variablelist>
+      </sect2>
+
+      <sect2 id="db-upgrade-files.format-perl-files" xreflabel="Format von Perl-Upgradedateien">
+       <title>Format von in Perl geschriebenen Datenbankupgradescripten</title>
+
+       <para>In Perl geschriebene Datenbankscripte werden nicht einfach so ausgeführt sondern müssen sich an gewisse Konventionen
+       halten. Dafür bekommen sie aber auch einige Komfortfunktionen bereitgestellt.</para>
+
+       <para>Ein Upgradescript stellt dabei eine vollständige Objektklasse dar, die vom Elternobjekt
+       "<literal>SL::DBUpgrade2::Base</literal>" erben und eine Funktion namens "<literal>run</literal>" zur Verfügung stellen muss. Das
+       Script wird ausgeführt, indem eine Instanz dieser Klasse erzeugt und darauf die erwähnte "<literal>run</literal>" aufgerufen
+       wird.</para>
+
+       <para>Zu beachten ist, dass sich der Paketname der Datei aus dem Wert für "<literal>@tag</literal>" ableitet. Dabei werden alle
+       Zeichen, die in Paketnamen ungültig wären (gerade Bindestriche), durch Unterstriche ersetzt. Insgesamt sieht der Paketname wie folgt
+       aus: "<literal>SL::DBUpgrade2::tag</literal>".</para>
+
+       <para>Welche Komfortfunktionen zur Verfügung stehen, erfahren Sie in der Perl-Dokumentation zum oben genannten Modul; aufzurufen mit
+       "<command>perldoc SL/DBUpgrade2/Base.pm</command>".</para>
+
+       <para>Ein Mindestgerüst eines gültigen Perl-Upgradescriptes sieht wie folgt aus:</para>
+
+       <programlisting># @tag: beispiel-upgrade-file42
+# @description: Ein schönes Beispielscript
+# @depends: release_3_0_0
+package SL::DBUpgrade2::beispiel_upgrade_file42;
+
+use strict;
+use utf8;
+
+use parent qw(SL::DBUpgrade2::Base);
+
+sub run {
+  my ($self) = @_;
+
+  # hier Aktionen ausführen
+
+  return 1;
+}
+
+1;
+</programlisting>
       </sect2>
 
       <sect2 id="db-upgrade-files.dbupgrade-tool"
