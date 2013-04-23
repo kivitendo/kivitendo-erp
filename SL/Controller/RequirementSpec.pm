@@ -176,6 +176,23 @@ sub action_destroy {
   $self->redirect_to(action => 'list');
 }
 
+sub action_revert_to {
+  my ($self, %params) = @_;
+
+  return $self->js->error(t8('Cannot revert a versioned copy.'))->render($self) if $self->requirement_spec->working_copy_id;
+
+  my $versioned_copy = SL::DB::RequirementSpec->new(id => $::form->{versioned_copy_id})->load;
+
+  $self->requirement_spec->delete_items;
+  $self->requirement_spec->copy_from(
+    $versioned_copy,
+    version_id => $versioned_copy->version_id,
+  );
+
+  flash_later('info', t8('The requirement spec has been reverted to version #1.', $self->requirement_spec->version->version_number));
+  $self->js->redirect_to($self->url_for(action => 'show', id => $self->requirement_spec->id))->render($self);
+}
+
 #
 # filters
 #

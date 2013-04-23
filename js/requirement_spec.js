@@ -252,7 +252,6 @@ function requirement_spec_text_block_popup_menu_hidden(opt) {
   return handle_text_block_popup_menu_markings(opt, false);
 }
 
-
 function handle_item_popup_menu_markings(opt, add) {
   var id = find_item_id(opt.$trigger);
   if (id)
@@ -323,11 +322,43 @@ function disable_requirement_spec_commands(key, opt) {
 // -------------------------------- versions -------------------------------
 // -------------------------------------------------------------------------
 
+function find_versioned_copy_id(clicked_elt) {
+  var id = $(clicked_elt).find("[name=versioned_copy_id]");
+  return id ? id.val() : undefined;
+}
+
+function disable_versioned_copy_item_commands(key, opt) {
+  if (key === "revert_to_version")
+    return !find_versioned_copy_id(opt.$trigger);
+  return false;
+}
+
 function create_requirement_spec_version() {
   open_jqm_window({ url:  'controller.pl',
                     data: { action:              'RequirementSpecVersion/new',
                             requirement_spec_id: $('#requirement_spec_id').val() },
                     id:   'new_requirement_spec_version_window' });
+  return true;
+}
+
+function create_pdf_for_versioned_copy_ajax_call(key, opt) {
+  // TODO: create_pdf_for_versioned_copy_ajax_call
+
+  return true;
+}
+
+function revert_to_versioned_copy_ajax_call(key, opt) {
+  if (!confirm(kivi.t8('Do you really want to revert to this version?')))
+    return true;
+
+  var data = {
+    action:            'RequirementSpec/revert_to',
+    versioned_copy_id: find_versioned_copy_id(opt.$trigger),
+    id:                $('#requirement_spec_id').val()
+  };
+
+  $.post("controller.pl", data, eval_json_result);
+
   return true;
 }
 
@@ -414,16 +445,22 @@ function create_requirement_spec_context_menus() {
 
   $.contextMenu({
     selector: '.time-cost-estimate-context-menu',
-    events:   events,
     items:    $.extend({ edit: { name: kivi.t8('Edit'), icon: "edit", callback: standard_time_cost_estimate_ajax_call } }, general_actions)
   });
 
   $.contextMenu({
     selector: '.edit-time-cost-estimate-context-menu',
-    events:   events,
     items:    $.extend({
         save:   { name: kivi.t8('Save'),   icon: "save",  callback: standard_time_cost_estimate_ajax_call }
       , cancel: { name: kivi.t8('Cancel'), icon: "close", callback: standard_time_cost_estimate_ajax_call }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.versioned-copy-context-menu',
+    items:    $.extend({
+        // create_pdf:        { name: kivi.t8('Create PDF'),        icon: "pdf",    callback: create_pdf_for_versioned_copy_ajax_call                                                }
+      revert_to_version: { name: kivi.t8('Revert to version'), icon: "revert", callback: revert_to_versioned_copy_ajax_call,     disabled: disable_versioned_copy_item_commands }
     }, general_actions)
   });
 }
