@@ -1,23 +1,27 @@
 # @tag: contacts_convert_cp_birthday_to_date
 # @description: Umstellung cp_birthday von Freitext auf Datumsfeld
 # @depends: release_2_7_0
-package contacts_convert_cp_birthday_to_date;
-use strict;
+package SL::DBUpgrade2::contacts_convert_cp_birthday_to_date;
 
-die 'This script cannot be run from the command line.' if !$::form;
+use strict;
+use utf8;
+
+use parent qw(SL::DBUpgrade2::Base);
 
 sub convert_to_date {
-  my ($str) = @_;
+  my ($self, $str) = @_;
 
   return '' if !$str;
 
-  my $sth = $dbh->prepare('SELECT ?::date AS date') or return undef;
+  my $sth = $self->dbh->prepare('SELECT ?::date AS date') or return undef;
   $sth->execute($str)                               or return undef;
 
   return $sth->fetchrow_hashref->{date};
 }
 
-sub update {
+sub run {
+  my ($self) = @_;
+
   my @data      = ();
   my @auto_data = ();
   my $sql       = <<SQL;
@@ -30,13 +34,13 @@ sub update {
     ORDER BY cp_id;
 SQL
 
-  my $sth = $dbh->prepare($sql) or die $dbh->errstr;
-  $sth->execute or die $dbh->errstr;
+  my $sth = $self->dbh->prepare($sql) or die $self->dbh->errstr;
+  $sth->execute or die $self->dbh->errstr;
 
   my $i = -1;
   while (my $row = $sth->fetchrow_hashref) {
     $i++;
-    $row->{cp_birthday} = convert_to_date($::form->{form_submitted} ? $::form->{'cp_birthday_'. $i} : $row->{cp_birthday_old});
+    $row->{cp_birthday} = $self->convert_to_date($::form->{form_submitted} ? $::form->{'cp_birthday_'. $i} : $row->{cp_birthday_old});
     $row->{row_index}   = $i;
 
     if ( defined($row->{cp_birthday}) ) {
@@ -59,7 +63,7 @@ SQL
       ALTER TABLE contacts ADD COLUMN cp_birthday date;
 SQL
 
-    $dbh->do($sql);
+    $self->dbh->do($sql);
 
     $sql = <<SQL;
       UPDATE contacts
@@ -67,14 +71,14 @@ SQL
       WHERE cp_id = ?
 SQL
 
-    $sth = $dbh->prepare($sql) or die $dbh->errstr;
+    $sth = $self->dbh->prepare($sql) or die $self->dbh->errstr;
 
     foreach (grep { $_->{cp_birthday} ne '' } @auto_data) {
-      $sth->execute($_->{cp_birthday}, $_->{cp_id}) or die $dbh->errstr;
+      $sth->execute($_->{cp_birthday}, $_->{cp_id}) or die $self->dbh->errstr;
     }
 
     return 1;
   }
 }
 
-return update();
+1;

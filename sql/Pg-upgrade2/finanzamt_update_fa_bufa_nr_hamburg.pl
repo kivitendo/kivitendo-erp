@@ -1,24 +1,17 @@
 # @tag: finanzamt_update_fa_bufa_nr_hamburg
-# @description: Aktualisiert die fa_bufa_nr für Hamburg
+# @description: Aktualisiert die fa_bufa_nr fÃ¼r Hamburg
 # @depends: release_2_7_0
-# @charset: utf-8
-package finanzamt_update_fa_bufa_nr_hamburg;
-use utf8;
+package SL::DBUpgrade2::finanzamt_update_fa_bufa_nr_hamburg;
+
 use strict;
+use utf8;
 
-if ( !$::form ) {
-  die('This script cannot be run from the command line.');
-}
+use parent qw(SL::DBUpgrade2::Base);
 
-sub query {
-  my ($query) = @_;
+sub run {
+  my ($self) = @_;
 
-  if ( !$dbh->do($query) ) {
-    die($dbup_locale->text('Database update error:') .'<br>'. $query .'<br>'. $DBI::errstr);
-  }
-}
-
-my @data = (
+  my @data = (
     ['02', '41'],
     ['57', '42'],
     ['71', '43'],
@@ -33,14 +26,17 @@ my @data = (
     ['08', '51'],
   );
 
-foreach my $entry (@data) {
-  query('
+  foreach my $entry (@data) {
+    $self->db_query('
     UPDATE finanzamt
     SET
       fa_bufa_nr = \'22'. $entry->[1] .'\'
     WHERE
           fa_land_nr = \'2\'
-      AND fa_bufa_nr = \'22'. $entry->[0] .'\';');
+      AND fa_bufa_nr = \'22'. $entry->[0] .'\'');
+  }
+
+  return 1;
 }
 
-return 1;
+1;

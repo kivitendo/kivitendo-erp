@@ -1,36 +1,23 @@
 # @tag: acc_trans_constraints
 # @description: Fügt NOT-NULL-Constraints ein für die Spalten
 # @depends:
-# @charset: UTF-8
+package SL::DBUpgrade2::acc_trans_constraints;
 
 use utf8;
 use strict;
 
-die("This script cannot be run from the command line.") unless ($main::form);
+use parent qw(SL::DBUpgrade2::Base);
 
-sub mydberror {
-  my ($msg) = @_;
-  die($dbup_locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr);
-}
+sub run {
+  my ($self) = @_;
 
-sub do_query {
-  my ($query, $may_fail) = @_;
-
-  if (!$dbh->do($query)) {
-    mydberror($query) unless ($may_fail);
-    $dbh->rollback();
-    $dbh->begin_work();
-  }
-}
-
-sub do_update {
   my $query = qq|SELECT count(*) FROM acc_trans WHERE chart_id IS NULL|;
-  my ($no_chart_id) = $dbh->selectrow_array($query);
+  my ($no_chart_id) = $self->dbh->selectrow_array($query);
   $query = qq|SELECT count(*) FROM acc_trans WHERE trans_id IS NULL|;
-  my ($no_trans_id) = $dbh->selectrow_array($query);
+  my ($no_trans_id) = $self->dbh->selectrow_array($query);
 
-  $form->{no_chart_id}=$no_chart_id;
-  $form->{no_trans_id}=$no_trans_id;
+  $::form->{no_chart_id}=$no_chart_id;
+  $::form->{no_trans_id}=$no_trans_id;
 
   if ($no_chart_id > 0 or $no_trans_id > 0){
     #list all invalid transactions where only chart_id is null:
@@ -97,13 +84,12 @@ sub do_update {
                 LEFT JOIN project p ON (p.id=acc.project_id)
                 WHERE acc.chart_id IS NULL;|;
 
-    my $sth = $dbh->prepare($query);
-    $sth->execute || $main::form->dberror($query);
+    my $sth = $self->dbh->prepare($query);
+    $sth->execute || $::form->dberror($query);
 
-    $main::form->{NO_CHART_ID} = [];
+    $::form->{NO_CHART_ID} = [];
     while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-      map {$ref->{$_} = $::locale->{iconv_utf8}->convert($ref->{$_})} keys %$ref;
-      push @{ $main::form->{NO_CHART_ID} }, $ref;
+      push @{ $::form->{NO_CHART_ID} }, $ref;
     }
     $sth->finish;
 
@@ -123,12 +109,11 @@ sub do_update {
                 LEFT JOIN project p ON (p.id=acc.project_id)
                 WHERE acc.trans_id IS NULL;|;
 
-    $sth = $dbh->prepare($query);
-    $sth->execute || $main::form->dberror($query);
+    $sth = $self->dbh->prepare($query);
+    $sth->execute || $::form->dberror($query);
 
-    $main::form->{NO_TRANS_ID} = [];
+    $::form->{NO_TRANS_ID} = [];
     while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-      map {$ref->{$_} = $::locale->{iconv_utf8}->convert($ref->{$_})} keys %$ref;
       $ref->{category} = ($ref->{category} eq 'A') ? $::locale->text('Account Category A')
         : ($ref->{category} eq 'E') ? $::locale->text('Account Category E')
         : ($ref->{category} eq 'L') ? $::locale->text('Account Category L')
@@ -137,7 +122,7 @@ sub do_update {
         : ($ref->{category} eq 'C') ? $::locale->text('Account Category C')
         : ($ref->{category} eq 'G') ? $::locale->text('Account Category G')
         : $::locale->text('Unknown Category') . ': ' . $ref->{category};
-      push @{ $main::form->{NO_TRANS_ID} }, $ref;
+      push @{ $::form->{NO_TRANS_ID} }, $ref;
     }
     $sth->finish;
 
@@ -148,12 +133,12 @@ sub do_update {
   $query = qq|ALTER TABLE acc_trans ALTER COLUMN chart_id SET NOT NULL;|;
   $query .= qq|ALTER TABLE acc_trans ALTER COLUMN trans_id SET NOT NULL;|;
 
-  do_query($query);
+  $self->db_query($query);
   return 1;
 }
 
 sub print_error_message {
-  print $main::form->parse_html_template("dbupgrade/acc_trans_constraints");
+  print $::form->parse_html_template("dbupgrade/acc_trans_constraints");
 }
 
-return do_update();
+1;

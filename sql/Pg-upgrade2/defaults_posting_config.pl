@@ -1,33 +1,18 @@
 # @tag: defaults_posting_config
 # @description: Einstellung, ob und wann Zahlungen änderbar sind, vom Config-File in die DB verlagern.
 # @depends: release_2_7_0
-# @charset: utf-8
+package SL::DBUpgrade2::defaults_posting_config;
 
-use utf8;
 use strict;
+use utf8;
 
-die("This script cannot be run from the command line.") unless ($main::form);
+use parent qw(SL::DBUpgrade2::Base);
 
-sub mydberror {
-  my ($msg) = @_;
-  die($dbup_locale->text("Database update error:") .
-      "<br>$msg<br>" . $DBI::errstr);
-}
-
-sub do_query {
-  my ($query, $may_fail) = @_;
-
-  if (!$dbh->do($query)) {
-    mydberror($query) unless ($may_fail);
-    $dbh->rollback();
-    $dbh->begin_work();
-  }
-}
-
-sub do_update {
+sub run {
+  my ($self) = @_;
 
   # this query will fail if column already exist (new database)
-  do_query(qq|ALTER TABLE defaults ADD COLUMN payments_changeable integer NOT NULL DEFAULT 0|, 1);
+  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN payments_changeable integer NOT NULL DEFAULT 0|, 1);
 
   # check current configuration and set default variables accordingly, so that
   # kivitendo behaviour isn't changed by this update
@@ -40,10 +25,9 @@ sub do_update {
   }
 
   my $update_column = "UPDATE defaults SET payments_changeable = '$payments_changeable';";
-  do_query($update_column);
+  $self->db_query($update_column);
 
   return 1;
 }
 
-return do_update();
-
+1;

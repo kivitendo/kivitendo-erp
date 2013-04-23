@@ -1,28 +1,16 @@
 # @tag: fix_acc_trans_ap_taxkey_bug
-# @description: Korrektur falscher Steuerschlüssel in acc_trans bei Eingangsrechnungen
+# @description: Korrektur falscher SteuerschlÃ¼ssel in acc_trans bei Eingangsrechnungen
 # @depends: release_2_6_0
+package SL::DBUpgrade2::fix_acc_trans_ap_taxkey_bug;
 
 use strict;
+use utf8;
 
-die "This script cannot be run from the command line." unless $::form;
+use parent qw(SL::DBUpgrade2::Base);
 
-sub mydberror {
-  my $msg = shift;
-  die $dbup_locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr;
-}
+sub run {
+  my ($self) = @_;
 
-sub do_query {
-  my $query    = shift;
-  my $may_fail = shift;
-
-  if (!$dbh->do($query)) {
-    mydberror($query) unless $may_fail;
-    $dbh->rollback();
-    $dbh->begin_work();
-  }
-}
-
-sub do_update {
   my $q_find = <<SQL;
     SELECT * FROM (
       SELECT
@@ -86,25 +74,23 @@ SQL
     WHERE acc_trans_id = ?
 SQL
 
-  my $h_find   = $dbh->prepare($q_find)   || mydberror($q_find);
-  my $h_change = $dbh->prepare($q_change) || mydberror($q_change);
+  my $h_find   = $self->dbh->prepare($q_find)   || $self->db_error($q_find);
+  my $h_change = $self->dbh->prepare($q_change) || $self->db_error($q_change);
 
-  $h_find->execute() || mydberror($q_find);
+  $h_find->execute() || $self->db_error($q_find);
 
   my $num_changed = 0;
 
   while (my $ref = $h_find->fetchrow_hashref()) {
     # $::lxdebug->dump(0, "ref", $ref);
-    $h_change->execute($ref->{wanted_taxkey}, $ref->{acc_trans_id}) || mydberror($q_change);
+    $h_change->execute($ref->{wanted_taxkey}, $ref->{acc_trans_id}) || $self->db_error($q_change);
     $num_changed++;
   }
 
   $h_find->finish();
   $h_change->finish();
 
-  print $dbup_locale->text('Number of entries changed: #1', $num_changed) . "<br/>\n";
+  print $::locale->text('Number of entries changed: #1', $num_changed) . "<br/>\n";
 }
 
-do_update();
-return 1;
-
+1;
