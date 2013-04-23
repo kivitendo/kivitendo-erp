@@ -305,8 +305,8 @@ sub list_contacts {
   my $cvar_configs = CVar->get_configs('module' => 'Contacts');
 
   my @columns      = qw(
-    cp_id vcname vcnumber cp_name cp_givenname cp_street cp_zipcode cp_city cp_phone1 cp_phone2
-    cp_mobile1 cp_mobile2 cp_email cp_abteilung cp_position cp_birthday cp_gender
+    cp_id vcname vcnumber cp_name cp_givenname cp_street cp_zipcode cp_city cp_phone1 cp_phone2 cp_privatphone
+    cp_mobile1 cp_mobile2 cp_fax cp_email cp_privatemail cp_abteilung cp_position cp_birthday cp_gender
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -342,6 +342,9 @@ sub list_contacts {
     'cp_position'  => { 'text' => $::locale->text('Function/position'), },
     'cp_birthday'  => { 'text' => $::locale->text('Birthday'), },
     'cp_gender'    => { 'text' => $::locale->text('Gender'), },
+    'cp_fax'       => { 'text' => $::locale->text('Fax'), },
+    'cp_privatphone' => { 'text' => $::locale->text('Private Phone') },
+    'cp_privatemail' => { 'text' => $::locale->text('Private E-Mail') },
     %column_defs_cvars,
   );
 
@@ -399,7 +402,10 @@ sub list_contacts {
 
     $row->{vcname}->{link}   = build_std_url('action=edit', 'id=' . E($ref->{vcid}), 'db=' . E($ref->{db}), 'callback', @hidden_nondefault);
     $row->{vcnumber}->{link} = $row->{vcname}->{link};
-    $row->{cp_email}->{link} = 'mailto:' . E($ref->{cp_email});
+
+    for (qw(cp_email cp_privatemail)) {
+      $row->{$_}->{link} = 'mailto:' . E($ref->{$_}) if $ref->{$_};
+    }
 
     $report->add_data($row);
   }
