@@ -7,6 +7,7 @@ use List::Util qw(max);
 use Scalar::Util qw(blessed);
 
 use SL::Presenter;
+use SL::Util qw(_hashify);
 
 use strict;
 
@@ -28,10 +29,6 @@ sub _J {
   my $string = shift;
   $string    =~ s/(\"|\'|\\)/\\$1/g;
   return $string;
-}
-
-sub _hashify {
-  return (@_ && (ref($_[0]) eq 'HASH')) ? %{ $_[0] } : @_;
 }
 
 sub new {
@@ -75,8 +72,7 @@ sub _set_id_attribute {
 }
 
 sub img_tag {
-  my ($self, @slurp) = @_;
-  my %options = _hashify(@slurp);
+  my ($self, %options) = _hashify(1, @_);
 
   $options{alt} ||= '';
 
@@ -84,8 +80,7 @@ sub img_tag {
 }
 
 sub textarea_tag {
-  my ($self, $name, $content, @slurp) = @_;
-  my %attributes      = _hashify(@slurp);
+  my ($self, $name, $content, %attributes) = _hashify(3, @_);
 
   _set_id_attribute(\%attributes, $name);
   $attributes{rows}  *= 1; # required by standard
@@ -96,8 +91,7 @@ sub textarea_tag {
 }
 
 sub checkbox_tag {
-  my ($self, $name, @slurp) = @_;
-  my %attributes       = _hashify(@slurp);
+  my ($self, $name, %attributes) = _hashify(2, @_);
 
   _set_id_attribute(\%attributes, $name);
   $attributes{value}   = 1 unless defined $attributes{value};
@@ -118,9 +112,7 @@ sub checkbox_tag {
 }
 
 sub radio_button_tag {
-  my $self             = shift;
-  my $name             = shift;
-  my %attributes       = _hashify(@_);
+  my ($self, $name, %attributes) = _hashify(2, @_);
 
   _set_id_attribute(\%attributes, $name);
   $attributes{value}   = 1 unless defined $attributes{value};
@@ -139,8 +131,8 @@ sub radio_button_tag {
 }
 
 sub hidden_tag {
-  my ($self, $name, $value, @slurp) = @_;
-  return $self->input_tag($name, $value, _hashify(@slurp), type => 'hidden');
+  my ($self, $name, $value, %attributes) = _hashify(3, @_);
+  return $self->input_tag($name, $value, %attributes, type => 'hidden');
 }
 
 sub div_tag {
@@ -159,8 +151,7 @@ sub li_tag {
 }
 
 sub link {
-  my ($self, $href, $content, @slurp) = @_;
-  my %params = _hashify(@slurp);
+  my ($self, $href, $content, %params) = _hashify(3, @_);
 
   $href ||= '#';
 
@@ -168,8 +159,7 @@ sub link {
 }
 
 sub submit_tag {
-  my ($self, $name, $value, @slurp) = @_;
-  my %attributes = _hashify(@slurp);
+  my ($self, $name, $value, %attributes) = _hashify(3, @_);
 
   if ( $attributes{confirm} ) {
     $attributes{onclick} = 'return confirm("'. _J(delete($attributes{confirm})) .'");';
@@ -179,8 +169,7 @@ sub submit_tag {
 }
 
 sub button_tag {
-  my ($self, $onclick, $value, @slurp) = @_;
-  my %attributes = _hashify(@slurp);
+  my ($self, $onclick, $value, %attributes) = _hashify(3, @_);
 
   _set_id_attribute(\%attributes, $attributes{name}) if $attributes{name};
   $attributes{type} ||= 'button';
@@ -201,8 +190,7 @@ sub ajax_submit_tag {
 }
 
 sub yes_no_tag {
-  my ($self, $name, $value) = splice @_, 0, 3;
-  my %attributes            = _hashify(@_);
+  my ($self, $name, $value, %attributes) = _hashify(3, @_);
 
   return $self->select_tag($name, [ [ 1 => $::locale->text('Yes') ], [ 0 => $::locale->text('No') ] ], default => $value ? 1 : 0, %attributes);
 }
@@ -228,9 +216,8 @@ sub stylesheet_tag {
 
 my $date_tag_id_idx = 0;
 sub date_tag {
-  my ($self, $name, $value, @slurp) = @_;
+  my ($self, $name, $value, %params) = _hashify(3, @_);
 
-  my %params   = _hashify(@slurp);
   _set_id_attribute(\%params, $name);
   my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
   my @class    = $params{no_cal} || $params{readonly} ? () : (class => 'datepicker');
@@ -299,8 +286,7 @@ sub javascript_tag {
 }
 
 sub tabbed {
-  my ($self, $tabs, @slurp) = @_;
-  my %params   = _hashify(@slurp);
+  my ($self, $tabs, %params) = _hashify(2, @_);
   my $id       = $params{id} || 'tab_' . _tag_id();
 
   $params{selected} *= 1;
@@ -326,8 +312,7 @@ sub tabbed {
 }
 
 sub tab {
-  my ($self, $name, $src, @slurp) = @_;
-  my %params = _hashify(@slurp);
+  my ($self, $name, $src, %params) = _hashify(3, @_);
 
   $params{method} ||= 'process';
 
@@ -348,8 +333,7 @@ sub tab {
 }
 
 sub areainput_tag {
-  my ($self, $name, $value, @slurp) = @_;
-  my %attributes      = _hashify(@slurp);
+  my ($self, $name, $value, %attributes) = _hashify(3, @_);
 
   my ($rows, $cols);
   my $min  = delete $attributes{min_rows} || 1;
@@ -367,8 +351,7 @@ sub areainput_tag {
 }
 
 sub multiselect2side {
-  my ($self, $id, @slurp) = @_;
-  my %params              = _hashify(@slurp);
+  my ($self, $id, %params) = _hashify(2, @_);
 
   $params{labelsx}        = "\"" . _J($params{labelsx} || $::locale->text('Available')) . "\"";
   $params{labeldx}        = "\"" . _J($params{labeldx} || $::locale->text('Selected'))  . "\"";
@@ -387,8 +370,7 @@ EOCODE
 }
 
 sub sortable_element {
-  my ($self, $selector, @slurp) = @_;
-  my %params                    = _hashify(@slurp);
+  my ($self, $selector, %params) = _hashify(2, @_);
 
   my %attributes = ( distance => 5,
                      helper   => <<'JAVASCRIPT' );
@@ -445,8 +427,7 @@ JAVASCRIPT
 }
 
 sub online_help_tag {
-  my ($self, $tag, @slurp) = @_;
-  my %params               = _hashify(@slurp);
+  my ($self, $tag, %params) = _hashify(2, @_);
   my $cc                   = $::myconfig{countrycode};
   my $file                 = "doc/online/$cc/$tag.html";
   my $text                 = $params{text} || $::locale->text('Help');
@@ -463,8 +444,7 @@ sub dump {
 }
 
 sub sortable_table_header {
-  my ($self, $by, @slurp) = @_;
-  my %params              = _hashify(@slurp);
+  my ($self, $by, %params) = _hashify(2, @_);
 
   my $controller          = $self->{CONTEXT}->stash->get('SELF');
   my $sort_spec           = $controller->get_sort_spec;
@@ -495,7 +475,7 @@ sub paginate_controls {
   my %template_params = (
     pages             => \%paginate_params,
     url_maker         => sub {
-      my %url_params                                    = _hashify(@_);
+      my %url_params                                    = _hashify(0, @_);
       $url_params{ $paginate_spec->{FORM_PARAMS}->[0] } = delete $url_params{page};
       $url_params{ $paginate_spec->{FORM_PARAMS}->[1] } = delete $url_params{per_page} if exists $url_params{per_page};
 
