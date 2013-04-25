@@ -47,6 +47,7 @@ table.rs_input_field input, table.rs_input_field select {
 .context-menu-item.icon-close  { background-image: url("../image/document-close.png"); }
 .context-menu-item.icon-save   { background-image: url("../image/document-save.png"); }
 .context-menu-item.icon-revert { background-image: url("../image/edit-undo.png"); }
+.context-menu-item.icon-pdf    { background-image: url("../image/application-pdf.png"); }
 
 /* ------------------------------------------------------------ */
 /* Sections & function blocks */

@@ -542,8 +542,8 @@ sub create_dependencies {
 
   return map { [ $_->fb_number . ' ' . $_->title,
                  [ map { ( $self->create_dependency_item($_),
-                           map { $self->create_dependency_item($_, '->') } @{ $_->sorted_children })
-                       } @{ $_->sorted_children } ] ]
+                           map { $self->create_dependency_item($_, '->') } @{ $_->children_sorted })
+                       } @{ $_->children_sorted } ] ]
              } @{ $self->item->requirement_spec->sections };
 }
 

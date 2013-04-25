@@ -1,6 +1,7 @@
 package SL::Controller::RequirementSpec;
 
 use strict;
+use utf8;
 
 use parent qw(SL::Controller::Base);
 
@@ -20,6 +21,7 @@ use SL::DB::RequirementSpecType;
 use SL::DB::RequirementSpec;
 use SL::Helper::Flash;
 use SL::Locale::String;
+use SL::Template::LaTeX;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -191,6 +193,22 @@ sub action_revert_to {
 
   flash_later('info', t8('The requirement spec has been reverted to version #1.', $self->requirement_spec->version->version_number));
   $self->js->redirect_to($self->url_for(action => 'show', id => $self->requirement_spec->id))->render($self);
+}
+
+sub action_create_pdf {
+  my ($self, %params) = @_;
+
+  my %result = SL::Template::LaTeX->parse_and_create_pdf('requirement_spec.tex', SELF => $self, rspec => $self->requirement_spec);
+
+  $::form->error(t8('Conversion to PDF failed: #1', $result{error})) if $result{error};
+
+  my $attachment_name  =  $self->requirement_spec->type->description . ' ' . ($self->requirement_spec->working_copy_id || $self->requirement_spec->id);
+  $attachment_name    .=  ' (v' . $self->requirement_spec->version->version_number . ')' if $self->requirement_spec->version;
+  $attachment_name    .=  '.pdf';
+  $attachment_name     =~ s/[^\wäöüÄÖÜß \-\+\(\)\[\]\{\}\.,]+/_/g;
+
+  $self->send_file($result{file_name}, type => 'application/pdf', name => $attachment_name);
+  unlink $result{file_name};
 }
 
 #

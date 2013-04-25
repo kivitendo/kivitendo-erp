@@ -10,7 +10,7 @@
  </div>
 
  <div id="section-list" class="section">
-  [%- FOREACH function_block = requirement_spec_item.sorted_children -%]
+  [%- FOREACH function_block = requirement_spec_item.children_sorted -%]
    [%- INCLUDE 'requirement_spec_item/_function_block.html' requirement_spec_item=function_block -%]
   [%- END -%]
  </div>

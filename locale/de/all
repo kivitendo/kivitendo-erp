@@ -516,6 +516,7 @@ $self->{texts} = {
   'Continue'                    => 'Weiter',
   'Contra'                      => 'gegen',
   'Conversion of "birthday" contact person attribute' => 'Umstellung des Kontaktpersonenfeldes "Geburtstag"',
+  'Conversion to PDF failed: #1' => 'Konvertierung zu PDF schlug fehl: #1',
   'Copies'                      => 'Kopien',
   'Copy file from #1 to #2 failed: #3' => 'Kopieren der Datei von #1 nach #2 schlug fehl: #3',
   'Copy'                        => 'Kopieren',

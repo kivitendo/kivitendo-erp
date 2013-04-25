@@ -48,7 +48,7 @@ $(function() {
       metadata: { type: "text-blocks-front" },
       attr:     { id: "tb-front", class: "text-block-context-menu" },
       children: [
-[% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(0) %]
+[% FOREACH tb = SELF.requirement_spec.text_blocks_sorted(output_position=0) %]
  [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
 [% END %]
       ]},
@@ -66,7 +66,7 @@ $(function() {
       metadata: { type: "text-blocks-back" },
       attr:     { id: "tb-back", class: "text-block-context-menu" },
       children: [
-[% FOREACH tb = SELF.requirement_spec.text_blocks_for_position(1) %]
+[% FOREACH tb = SELF.requirement_spec.text_blocks_sorted(output_position=1) %]
  [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
 [% END %]
       ]}];

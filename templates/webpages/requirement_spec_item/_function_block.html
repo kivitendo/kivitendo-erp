@@ -9,7 +9,7 @@
    <div class="sub-function-block-header" id="sub-function-block_header_[%- requirement_spec_item.id -%]">
     [%- LxERP.t8("Sub function blocks") -%]
    </div>
-   [%- FOREACH sub_function_block = requirement_spec_item.sorted_children -%]
+   [%- FOREACH sub_function_block = requirement_spec_item.children_sorted -%]
     [%- INCLUDE 'requirement_spec_item/_sub_function_block.html' requirement_spec_item=sub_function_block -%]
    [%- END -%]
   </div>

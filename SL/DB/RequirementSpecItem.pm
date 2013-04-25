@@ -99,12 +99,13 @@ sub validate {
   return @errors;
 }
 
-sub sorted_children {
+sub children_sorted {
   my ($self, @args) = @_;
 
   croak "Not a writer" if @args;
 
-  return [ sort { $a->position <=> $b->position } @{ $self->children } ];
+  my @children = sort { $a->position <=> $b->position } $self->children;
+  return wantarray ? @children : \@children;
 }
 
 sub section {

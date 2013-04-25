@@ -18,7 +18,7 @@ sub requirement_spec_item_tree_node_title {
 sub requirement_spec_item_jstree_data {
   my ($self, $item, %params) = @_;
 
-  my @children = map { $self->requirement_spec_item_jstree_data($_, %params) } @{ $item->sorted_children };
+  my @children = map { $self->requirement_spec_item_jstree_data($_, %params) } @{ $item->children_sorted };
   my $type     = !$item->parent_id ? 'section' : 'function-block';
   my $class    = $type . '-context-menu';
   $class      .= ' flagged' if $item->is_flagged;

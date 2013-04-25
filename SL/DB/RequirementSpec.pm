@@ -8,6 +8,7 @@ use Rose::DB::Object::Helpers;
 use SL::DB::MetaSetup::RequirementSpec;
 use SL::DB::Manager::RequirementSpec;
 use SL::Locale::String;
+use SL::Util qw(_hashify);
 
 __PACKAGE__->meta->add_relationship(
   items            => {
@@ -49,24 +50,41 @@ sub _before_save_initialize_not_null_columns {
   return 1;
 }
 
-sub text_blocks_for_position {
-  my ($self, $output_position) = @_;
+sub text_blocks_sorted {
+  my ($self, %params) = _hashify(1, @_);
 
-  return [ sort { $a->position <=> $b->position } grep { $_->output_position == $output_position } @{ $self->text_blocks } ];
+  my @text_blocks = @{ $self->text_blocks };
+  @text_blocks    = grep { $_->output_position == $params{output_position} } @text_blocks if exists $params{output_position};
+  @text_blocks    = sort { $a->position        <=> $b->position            } @text_blocks;
+
+  return wantarray ? @text_blocks : \@text_blocks;
 }
 
-sub sections {
+sub sections_sorted {
   my ($self, @rest) = @_;
 
   croak "This sub is not a writer" if @rest;
 
-  return [ sort { $a->position <=> $b->position } grep { !$_->parent_id } @{ $self->items } ];
+  my @sections = sort { $a->position <=> $b->position } grep { !$_->parent_id } @{ $self->items };
+  return wantarray ? @sections : \@sections;
 }
+
+sub sections { &sections_sorted; }
 
 sub displayable_name {
   my ($self) = @_;
 
   return sprintf('%s: "%s"', $self->type->description, $self->title);
+}
+
+sub versioned_copies_sorted {
+  my ($self, %params) = _hashify(1, @_);
+
+  my @copies = @{ $self->versioned_copies };
+  @copies    = grep { $_->version->version_number <=  $params{max_version_number} } @copies if $params{max_version_number};
+  @copies    = sort { $a->version->version_number <=> $b->version->version_number } @copies;
+
+  return wantarray ? @copies : \@copies;
 }
 
 sub create_copy {
@@ -195,6 +213,8 @@ SQL
 sub create_version {
   my ($self, %attributes) = @_;
 
+  croak "Cannot work on a versioned copy" if $self->working_copy_id;
+
   my ($copy, $version);
   my $ok = $self->db->do_transaction(sub {
     delete $attributes{version_number};
@@ -213,8 +233,7 @@ sub create_version {
 sub invalidate_version {
   my ($self, %params) = @_;
 
-  $::lxdebug->message(0, "Invalidate version called for id " . $self->id . " version " . $self->version_id);
-  $::lxdebug->show_backtrace(1);
+  croak "Cannot work on a versioned copy" if $self->working_copy_id;
 
   return if !$self->id || !$self->version_id;
   $self->update_attributes(version_id => undef);
