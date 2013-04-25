@@ -344,7 +344,7 @@ sub list_contacts {
     'cp_gender'    => { 'text' => $::locale->text('Gender'), },
     'cp_fax'       => { 'text' => $::locale->text('Fax'), },
     'cp_privatphone' => { 'text' => $::locale->text('Private Phone') },
-    'cp_privatemail' => { 'text' => $::locale->text('Private E-Mail') },
+    'cp_privatemail' => { 'text' => $::locale->text('Private E-mail') },
     %column_defs_cvars,
   );
 
