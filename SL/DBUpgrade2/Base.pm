@@ -4,7 +4,13 @@ use strict;
 
 use parent qw(Rose::Object);
 
+use Carp;
 use English qw(-no_match_vars);
+use File::Basename ();
+use File::Copy ();
+use File::Path ();
+use List::MoreUtils qw(uniq);
+
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(dbh myconfig) ],
 );
@@ -64,6 +70,44 @@ sub is_coa_empty {
   return !$empty;
 }
 
+sub add_print_templates {
+  my ($self, $src_dir, @files) = @_;
+
+  $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: src_dir $src_dir files " . join('  ', @files));
+
+  foreach (@files) {
+    croak "File '${src_dir}/$_' does not exist" unless -f "${src_dir}/$_";
+  }
+
+  my %users         = $::auth->read_all_users;
+  my @template_dirs = uniq map { $_ = $_->{templates}; s:/+$::; $_ } values %users;
+
+  $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: template_dirs " . join('  ', @template_dirs));
+
+  foreach my $src_file (@files) {
+    foreach my $template_dir (@template_dirs) {
+      my $dest_file = $template_dir . '/' . $src_file;
+
+      if (-f $dest_file) {
+        $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: dest_file exists, skipping: ${dest_file}");
+        next;
+      }
+
+      my $dest_dir = File::Basename::dirname($dest_file);
+
+      if ($dest_dir && !-d $dest_dir) {
+        File::Path::make_path($dest_dir) or die "Cannot create directory '${dest_dir}': $!";
+      }
+
+      File::Copy::copy($src_dir . '/' . $src_file, $dest_file) or die "Cannot copy '${src_dir}/${src_file}' to '${dest_file}': $!";
+
+      $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: copied '${src_dir}/${src_file}' to '${dest_file}'");
+    }
+  }
+
+  return 1;
+}
+
 1;
 __END__
 
@@ -105,10 +149,51 @@ the current database.
 
 =back
 
-
 =head1 FUNCTIONS
 
 =over 4
+
+=item C<add_print_templates $source_dir, @files>
+
+Adds (copies) new print templates to existing users. All existing
+users in the authentication database are read. The listed C<@files>
+are copied to each user's configured templates directory preserving
+sub-directory structure (non-existing sub-directories will be
+created). If a template with the same name exists it will be skipped.
+
+The source file names must all be relative to the source directory
+C<$source_dir>. This way only the desired sub-directories are created
+in the users' template directories. Example:
+
+  $self->add_print_templates(
+    'templates/print/Standard',
+    qw(receipt.tex common.sty images/background.png)
+  );
+
+Let's assume a user's template directory is
+C<templates/big-money-inc>. The call above would trigger five actions:
+
+=over 2
+
+=item 1. Create the directory C<templates/big-money-inc> if it doesn't
+exist.
+
+=item 2. Copy C<templates/print/Standard/receipt.tex> to
+C<templates/big-money-inc/receipt.tex> if there's no such file in that
+directory.
+
+=item 3. Copy C<templates/print/Standard/common.sty> to
+C<templates/big-money-inc/common.sty> if there's no such file in that
+directory.
+
+=item 4. Create the directory C<templates/big-money-inc/images> if it
+doesn't exist.
+
+=item 5. Copy C<templates/print/Standard/images/background.png> to
+C<templates/big-money-inc/images/background.png> if there's no such
+file in that directory.
+
+=back
 
 =item C<check_coa $coa_name>
 
