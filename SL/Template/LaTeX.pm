@@ -4,7 +4,12 @@ use parent qw(SL::Template::Simple);
 
 use strict;
 
+use Carp;
 use Cwd;
+use English qw(-no_match_vars);
+use File::Basename;
+use File::Temp;
+use List::MoreUtils qw(any);
 use Unicode::Normalize qw();
 
 sub new {
@@ -304,7 +309,7 @@ sub _force_mandatory_packages {
       $used_packages{$1} = 1;
       $last_usepackage_line = $i;
 
-    } elsif ($lines->[$i] =~ m/\\begin{document}/) {
+    } elsif ($lines->[$i] =~ m/\\begin\{document\}/) {
       $document_start_line = $i;
       last;
 
@@ -328,7 +333,7 @@ sub parse {
   my $form = $self->{"form"};
 
   if (!open(IN, "$form->{templates}/$form->{IN}")) {
-    $self->{"error"} = "$!";
+    $self->{"error"} = "$form->{templates}/$form->{IN}: $!";
     return 0;
   }
   binmode IN, ":utf8" if $::locale->is_utf8;
@@ -354,13 +359,11 @@ sub parse {
 
   my $new_contents;
   if ($self->{use_template_toolkit}) {
-    my $additional_params = $::form;
-
     if ($self->{custom_tag_style}) {
       $contents = "[% TAGS $self->{tag_start} $self->{tag_end} %]\n" . $contents;
     }
 
-    $::form->init_template->process(\$contents, $additional_params, \$new_contents) || die $::form->template->error;
+    $::form->init_template->process(\$contents, $form, \$new_contents) || die $::form->template->error;
   } else {
     $new_contents = $self->parse_block($contents);
   }
@@ -391,6 +394,7 @@ sub convert_to_postscript {
   my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
 
   # Convert the tex file to postscript
+  local $ENV{TEXINPUTS} = ".:" . $form->{cwd} . "/" . $form->{templates} . ":" . $ENV{TEXINPUTS};
 
   if (!chdir("$userspath")) {
     $self->{"error"} = "chdir : $!";
@@ -440,6 +444,7 @@ sub convert_to_pdf {
   my ($form, $userspath) = ($self->{"form"}, $self->{"userspath"});
 
   # Convert the tex file to PDF
+  local $ENV{TEXINPUTS} = ".:" . $form->{cwd} . "/" . $form->{templates} . ":" . $ENV{TEXINPUTS};
 
   if (!chdir("$userspath")) {
     $self->{"error"} = "chdir : $!";
@@ -471,6 +476,8 @@ sub convert_to_pdf {
   $form->{tmpfile} =~ s/tex$/pdf/;
 
   $self->cleanup();
+
+  return 1;
 }
 
 sub _get_latex_path {
@@ -489,6 +496,56 @@ sub get_mime_type() {
 
 sub uses_temp_file {
   return 1;
+}
+
+sub parse_and_create_pdf {
+  my ($class, $template_file_name, %params) = @_;
+
+  my $keep_temp                = $::lx_office_conf{debug} && $::lx_office_conf{debug}->{keep_temp_files};
+  my ($tex_fh, $tex_file_name) = File::Temp::tempfile(
+    'kivitendo-printXXXXXX',
+    SUFFIX => '.tex',
+    DIR    => $::lx_office_conf{paths}->{userspath},
+    UNLINK => $keep_temp ? 0 : 1,,
+  );
+
+  my $old_wd               = getcwd();
+
+  my $local_form           = Form->new('');
+  $local_form->{cwd}       = $old_wd;
+  $local_form->{IN}        = $template_file_name;
+  $local_form->{tmpdir}    = $::lx_office_conf{paths}->{userspath};
+  $local_form->{tmpfile}   = $tex_file_name;
+  $local_form->{templates} = $::myconfig{templates};
+
+  foreach (keys %params) {
+    croak "The parameter '$_' must not be used." if exists $local_form->{$_};
+    $local_form->{$_} = $params{$_};
+  }
+
+  my $error;
+  eval {
+    my $template = SL::Template::LaTeX->new($template_file_name, $local_form, \%::myconfig, $::lx_office_conf{paths}->{userspath});
+    my $result   = $template->parse($tex_fh) && $template->convert_to_pdf;
+
+    die $template->{error} unless $result;
+
+    1;
+  } or do { $error = $EVAL_ERROR; };
+
+  chdir $old_wd;
+  close $tex_fh;
+
+  if ($keep_temp) {
+    chmod(((stat $tex_file_name)[2] & 07777) | 0660, $tex_file_name);
+  } else {
+    my $tmpfile =  $tex_file_name;
+    $tmpfile    =~ s/\.\w+$//;
+    unlink(grep { !m/\.pdf$/ } <$tmpfile.*>);
+  }
+
+  return (error     => $error) if $error;
+  return (file_name => do { $tex_file_name =~ s/tex$/pdf/; $tex_file_name });
 }
 
 1;

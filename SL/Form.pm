@@ -998,7 +998,6 @@ sub parse_template {
     $ext_for_format = $self->{"format"} =~ m/pdf/ ? 'pdf' : 'odt';
 
   } elsif ($self->{"format"} =~ /(postscript|pdf)/i) {
-    $ENV{"TEXINPUTS"} = ".:" . getcwd() . "/" . $myconfig->{"templates"} . ":" . $ENV{"TEXINPUTS"};
     $template_type    = 'LaTeX';
     $ext_for_format   = 'pdf';
 

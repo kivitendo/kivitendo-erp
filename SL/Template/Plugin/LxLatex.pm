@@ -1,7 +1,7 @@
 package SL::Template::Plugin::LxLatex;
 
 use strict;
-use parent qw( Template::Plugin );
+use parent qw( Template::Plugin::Filter );
 
 my $cached_instance;
 
@@ -14,7 +14,7 @@ sub new {
 sub init {
   my $self = shift;
 
-  $self->install_filter($self->{ _ARGS }->[0] || 'T8');
+  $self->install_filter($self->{ _ARGS }->[0] || 'LxLatex');
 
   return $self;
 }
