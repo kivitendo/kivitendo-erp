@@ -37,7 +37,7 @@ sub execute_script {
 sub db_error {
   my ($self, $msg) = @_;
 
-  die $self->locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr;
+  die $::locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr;
 }
 
 sub db_query {
