@@ -203,7 +203,10 @@ sub action_dragged_and_dropped {
 
   # $::lxdebug->dump(0, "form", $::form);
 
-  return $self->invalidate_version->render($self) if $::form->{current_content_type} !~ m/^text-block/;
+  $self->invalidate_version
+    ->jstree->open_node('#tree', '#tb-' . (!$self->text_block->output_position ? 'front' : 'back'));
+
+  return $self->js->render($self) if $::form->{current_content_type} !~ m/^text-block/;
 
   my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
   my $new_where     = $self->text_block->output_position;
@@ -244,8 +247,7 @@ sub action_dragged_and_dropped {
     }
   }
 
-  $self->invalidate_version
-    ->render($self);
+  $self->js->render($self);
 }
 
 sub action_ajax_copy {
