@@ -83,7 +83,7 @@ function add_selected_record_links() {
     url: url,
     success: function(new_html) {
       $('#record_links_list').replaceWith(new_html);
-      record_links_cancel();
+      $('#record_links_add').jqmClose();
     }
   });
 }
