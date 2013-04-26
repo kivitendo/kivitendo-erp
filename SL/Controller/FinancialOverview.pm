@@ -130,8 +130,8 @@ sub list_data {
 
   for my $month (1..12) {
     my %data  = (
-      map({ ($_ => { data => $self->data->{$_}->[$month - 1]                                                 }) } @non_type_columns),
-      map({ ($_ => { data => $::form->format_amount(\%::myconfig, $self->data->{$_}->{months}->[$month - 1]) }) } @type_columns    ),
+      map({ ($_ => { data => $self->data->{$_}->[$month - 1]                                                    }) } @non_type_columns),
+      map({ ($_ => { data => $::form->format_amount(\%::myconfig, $self->data->{$_}->{months}->[$month - 1], 2) }) } @type_columns    ),
     );
 
     $self->report->add_data(\%data);
@@ -140,7 +140,7 @@ sub list_data {
       my %subtotal =  (
         year       => { data => $self->year },
         month      => { data => $::locale->text('Total') },
-        map { ($_ => { data => $::form->format_amount(\%::myconfig, $self->data->{$_}->{quarters}->[int(($month - 1) / 3)]) }) } @type_columns,
+        map { ($_ => { data => $::form->format_amount(\%::myconfig, $self->data->{$_}->{quarters}->[int(($month - 1) / 3)], 2) }) } @type_columns,
       );
 
       $subtotal{$_}->{class} = 'listsubtotal' for @visible_columns;
@@ -152,7 +152,7 @@ sub list_data {
   my %data  =  (
     year    => { data => $self->year },
     quarter => { data => $::locale->text('Total') },
-    map { ($_ => { data => $::form->format_amount(\%::myconfig, $self->data->{$_}->{year}) }) } @type_columns,
+    map { ($_ => { data => $::form->format_amount(\%::myconfig, $self->data->{$_}->{year}, 2) }) } @type_columns,
   );
 
   $data{$_}->{class} = 'listtotal' for @visible_columns;
