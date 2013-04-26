@@ -25,7 +25,7 @@
      <td valign="top">
       [% L.radio_button_tag("periodicity", value => "m", label => LxERP.t8("monthly"),   checked => periodicity == 'm') %]
       <br>
-      [% L.radio_button_tag("periodicity", value => "q", label => LxERP.t8("quarterly"), checked => periodicity == 'q') %]
+      [% L.radio_button_tag("periodicity", value => "q", label => LxERP.t8("every third month"), checked => periodicity == 'q') %]
       <br>
       [% L.radio_button_tag("periodicity", value => "y", label => LxERP.t8("yearly"),    checked => periodicity == 'y') %]
      </td>
