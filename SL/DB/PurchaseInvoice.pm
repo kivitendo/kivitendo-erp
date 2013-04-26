@@ -27,4 +27,8 @@ sub is_sales {
   return 0;
 }
 
+sub date {
+  goto &transdate;
+}
+
 1;

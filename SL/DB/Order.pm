@@ -132,6 +132,10 @@ sub number {
   return $self->${ \ $number_method{$self->type} }(@_);
 }
 
+sub date {
+  goto &transdate;
+}
+
 1;
 
 __END__

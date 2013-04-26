@@ -241,6 +241,10 @@ sub displayable_state {
   return $self->closed ? $::locale->text('closed') : $::locale->text('open');
 }
 
+sub date {
+  goto &transdate;
+}
+
 1;
 
 __END__

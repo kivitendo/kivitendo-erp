@@ -22,7 +22,7 @@ sub grouped_record_list {
 
   %params    = map { exists $params{$_} ? ($_ => $params{$_}) : () } qw(edit_record_links with_columns object_id object_model);
 
-  my %groups = _group_records($list);
+  my %groups = _sort_grouped_lists(_group_records($list));
   my $output = '';
 
   $output .= _sales_quotation_list(        $self, $groups{sales_quotations},         %params) if $groups{sales_quotations};
@@ -155,6 +155,14 @@ sub _group_records {
     $groups{$type} ||= [];
     push @{ $groups{$type} }, $record;
   }
+
+  return %groups;
+}
+
+sub _sort_grouped_lists {
+  my (%groups) = @_;
+
+  $groups{$_} = [ sort { $a->date <=> $b->date } @{ $groups{$_} } ] for keys %groups;
 
   return %groups;
 }
