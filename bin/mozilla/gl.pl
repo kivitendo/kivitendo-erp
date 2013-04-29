@@ -304,11 +304,13 @@ sub generate_report {
   );
 
   # add employee here, so that variable is still known and passed in url when choosing a different sort order in resulting table
-  my @hidden_variables = qw(accno source reference department description notes project_id datefrom dateto employee datesort category l_subtotal);
+  my @hidden_variables = qw(accno source reference department description notes project_id datefrom dateto employee_id datesort category l_subtotal);
   push @hidden_variables, map { "l_${_}" } @columns;
   foreach ( @hidden_variables ) {
       print URL "$_\n";
   };
+
+  my $employee = $form->{employee_id} ? SL::DB::Employee->new(id => $form->{employee_id})->load->name : '';
 
   my (@options, @date_options);
   push @options,      $locale->text('Account')     . " : $form->{accno} $form->{account_description}" if ($form->{accno});
@@ -316,7 +318,7 @@ sub generate_report {
   push @options,      $locale->text('Reference')   . " : $form->{reference}"                          if ($form->{reference});
   push @options,      $locale->text('Description') . " : $form->{description}"                        if ($form->{description});
   push @options,      $locale->text('Notes')       . " : $form->{notes}"                              if ($form->{notes});
-  push @options,      $locale->text('Employee')       . " : $form->{employee_name}"                              if ($form->{employee_name});
+  push @options,      $locale->text('Employee')    . " : $employee"                                   if $employee;
   my $datesorttext = $form->{datesort} eq 'transdate' ? $locale->text('Invoice Date') :  $locale->text('Booking Date');
   push @date_options,      "$datesorttext"                              if ($form->{datesort} and ($form->{datefrom} or $form->{dateto}));
   push @date_options, $locale->text('From'), $locale->date(\%myconfig, $form->{datefrom}, 1)          if ($form->{datefrom});

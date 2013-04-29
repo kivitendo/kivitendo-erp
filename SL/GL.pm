@@ -285,9 +285,7 @@ sub all_transactions {
     push(@apvalues, '%' . $form->{description} . '%');
   }
 
-  if ($form->{employee} =~ /--/) {
-    ($form->{employee_id},$form->{employee_name}) = split(/--/,$form->{employee});
-  #if ($form->{employee_id}) {
+  if ($form->{employee_id}) {
     $glwhere .= " AND g.employee_id = ? ";
     $arwhere .= " AND a.employee_id = ? ";
     $apwhere .= " AND a.employee_id = ? ";
