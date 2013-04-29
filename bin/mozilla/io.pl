@@ -1393,7 +1393,7 @@ sub print_form {
 
   # create the form variables
   if ($form->{type} =~ /_delivery_order$/) {
-    DO->order_details();
+    DO->order_details(\%myconfig, \%$form);
   } elsif ($order) {
     OE->order_details(\%myconfig, \%$form);
   } else {

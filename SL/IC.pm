@@ -1632,8 +1632,8 @@ sub prepare_parts_for_printing {
   my $self     = shift;
   my %params   = @_;
 
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
+  my $myconfig = $params{myconfig} || \%main::myconfig;
+  my $form     = $params{form}     || $main::form;
 
   my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
 
