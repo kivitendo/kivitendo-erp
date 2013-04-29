@@ -1717,7 +1717,7 @@ sub taxes {
                    (SELECT accno FROM chart WHERE id = chart_id) AS taxnumber,
                    (SELECT description FROM chart WHERE id = chart_id) AS account_description
                  FROM tax t
-                 ORDER BY taxkey|;
+                 ORDER BY taxkey, rate|;
 
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);

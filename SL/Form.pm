@@ -2106,7 +2106,7 @@ sub _get_taxcharts {
 
   my $where = @where ? ' WHERE ' . join(' AND ', map { "($_)" } @where) : '';
 
-  my $query = qq|SELECT * FROM tax $where ORDER BY taxkey|;
+  my $query = qq|SELECT * FROM tax $where ORDER BY taxkey, rate|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
