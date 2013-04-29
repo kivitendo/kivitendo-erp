@@ -144,7 +144,7 @@ sub invoice_details {
 
   $form->{discount} = [];
 
-  IC->prepare_parts_for_printing();
+  IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
 

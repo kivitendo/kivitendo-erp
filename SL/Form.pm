@@ -3407,7 +3407,7 @@ sub prepare_for_printing {
   IC->retrieve_accounts(\%::myconfig, $self, map { $_ => $self->{"id_$_"} } 1 .. $self->{rowcount});
 
   if ($self->{type} =~ /_delivery_order$/) {
-    DO->order_details();
+    DO->order_details(\%::myconfig, $self);
   } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order/) {
     OE->order_details(\%::myconfig, $self);
   } else {
