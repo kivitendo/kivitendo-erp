@@ -18,6 +18,7 @@ sub flatten_to_form {
                                     employee_id salesman_id closed department_id language_id payment_id delivery_customer_id delivery_vendor_id shipto_id proforma
                                     globalproject_id delivered transaction_description container_type accepted_by_customer invoice terms storno storno_id dunning_config_id
                                     orddate quodate reqdate gldate duedate deliverydate datepaid transdate));
+  $form->{currency} = $form->{curr}; # curr is called currency in almost all forms
 
   if (_has($self, 'transdate')) {
     my $transdate_idx = ref($self) eq 'SL::DB::Order'   ? ($self->quotation ? 'quodate' : 'orddate')
