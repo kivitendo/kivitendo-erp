@@ -216,14 +216,16 @@ sub post_invoice {
 
       # check if we sold the item already and
       # make an entry for the expense and inventory
+      my $taxzone = $form->{taxzone_id} * 1;
       $query =
         qq|SELECT i.id, i.qty, i.allocated, i.trans_id, i.base_qty,
-             p.inventory_accno_id, p.expense_accno_id, a.transdate
-           FROM invoice i, ar a, parts p
+             bg.inventory_accno_id, bg.expense_accno_id_${taxzone} AS expense_accno_id, a.transdate
+           FROM invoice i, ar a, parts p, buchungsgruppen bg
            WHERE (i.parts_id = p.id)
              AND (i.parts_id = ?)
              AND ((i.base_qty + i.allocated) > 0)
              AND (i.trans_id = a.id)
+             AND (p.buchungsgruppen_id = bg.id)
            ORDER BY transdate|;
            # ORDER BY transdate guarantees FIFO
 
