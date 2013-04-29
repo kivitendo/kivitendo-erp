@@ -269,7 +269,7 @@ sub post_invoice {
 
             # allocated >= 0
             # add entry for inventory, this one is for the sold item
-            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id) VALUES (?, ?, ?, ?,
+            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id, chart_link) VALUES (?, ?, ?, ?,
                                (SELECT taxkey_id
                                 FROM taxkeys
                                 WHERE chart_id= ?
@@ -280,13 +280,13 @@ sub post_invoice {
                                 WHERE chart_id= ?
                                 AND startdate <= ?
                                 ORDER BY startdate DESC LIMIT 1),
-                               (SELECT chart_link FROM chart WHERE id = ?))|;
+                               (SELECT link FROM chart WHERE id = ?))|;
             @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{transdate},
                        $ref->{inventory_accno_id});
             do_query($form, $dbh, $query, @values);
 
 # add expense
-            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id) VALUES (?, ?, ?, ?,
+            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id, chart_link) VALUES (?, ?, ?, ?,
                                 (SELECT taxkey_id
                                  FROM taxkeys
                                  WHERE chart_id= ?
@@ -297,7 +297,7 @@ sub post_invoice {
                                  WHERE chart_id= ?
                                  AND startdate <= ?
                                  ORDER BY startdate DESC LIMIT 1),
-                                (SELECT chart_link FROM chart WHERE id = ?))|;
+                                (SELECT link FROM chart WHERE id = ?))|;
             @values = ($ref->{trans_id},  $ref->{expense_accno_id}, ($linetotal * -1), $ref->{transdate}, $ref->{expense_accno_id}, $ref->{transdate}, $ref->{expense_accno_id}, $ref->{transdate},
                        $ref->{expense_accno_id});
             do_query($form, $dbh, $query, @values);
