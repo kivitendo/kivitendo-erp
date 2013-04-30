@@ -167,9 +167,12 @@ sub sum_items {
   my %vals;
 
   foreach my $item (@{ $params{obj}->items }) {
-    $vals{$item->parts_id}            ||= { parts_id => $item->parts_id, amount => 0, base_qty => 0 };
-    $vals{$item->parts_id}->{amount}   += $item->qty * $item->sellprice * (1 - $item->discount) / (($item->price_factor * 1) || 1);
-    $vals{$item->parts_id}->{base_qty} += $item->qty * $item->unit_obj->base_factor;
+    my $key  = $item->parts_id;
+    $key    .= ':' . $item->serialnumber if $item->serialnumber;
+
+    $vals{$key}            ||= { parts_id => $item->parts_id, serialnumber => $item->serialnumber, amount => 0, base_qty => 0 };
+    $vals{$key}->{amount}   += $item->qty * $item->sellprice * (1 - $item->discount) / (($item->price_factor * 1) || 1);
+    $vals{$key}->{base_qty} += $item->qty * $item->unit_obj->base_factor;
   }
 
   return \%vals;
@@ -183,12 +186,19 @@ sub sum_relevant_items {
   my $total                               = 0;
 
   foreach my $item (grep { $params{order}->{amounts_by_parts_id}->{ $_->{parts_id} } } values %{ $sums }) {
-    my $order_item = $params{order}->{amounts_by_parts_id}->{ $item->{parts_id} };
-    if ($params{by_order} && $order_item->{base_qty}) {
-      $total += $order_item->{amount} * $item->{base_qty} / $order_item->{base_qty};
-    } else {
-      $total += $item->{amount};
+    my $key = $item->{parts_id};
+
+    if ($params{by_order}) {
+      $key           .= ':' . $item->{serialnumber};
+      my $order_item  = $params{order}->{amounts_by_parts_id}->{ $key } || $params{order}->{amounts_by_parts_id}->{ $item->{parts_id} };
+
+      if ($order_item && $order_item->{base_qty}) {
+        $total += $order_item->{amount} * $item->{base_qty} / $order_item->{base_qty};
+        next;
+      }
     }
+
+    $total += $item->{amount};
   }
 
   return $total;
