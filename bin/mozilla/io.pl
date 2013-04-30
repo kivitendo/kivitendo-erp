@@ -1769,7 +1769,7 @@ sub set_duedate {
   my $invdate = $form->{invdate} eq 'undefined' ? undef : $form->{invdate};
   my $duedate = $form->get_duedate(\%myconfig, $invdate);
 
-  print $form->ajax_response_header() . $duedate;
+  print $form->ajax_response_header() . ($duedate || $invdate);
 
   $main::lxdebug->leave_sub();
 }
