@@ -6,7 +6,7 @@ use parent qw(Exporter);
 
 use Carp;
 
-our @EXPORT_OK = qw(_hashify);
+our @EXPORT_OK = qw(_hashify camelify snakify);
 
 sub _hashify {
   my $keep = shift;
@@ -16,6 +16,19 @@ sub _hashify {
   return @_[0..scalar(@_) - 1] if $keep >= scalar(@_);
   return ($keep ? @_[0..$keep - 1] : (),
           ((1 + $keep) == scalar(@_)) && ((ref($_[$keep]) || '') eq 'HASH') ? %{ $_[$keep] } : @_[$keep..scalar(@_) - 1]);
+}
+
+sub camelify {
+  my ($str) = @_;
+  $str =~ s/_+([[:lower:]])/uc($1)/ge;
+  ucfirst $str;
+}
+
+sub snakify {
+  my ($str) = @_;
+  $str =~ s/_([[:upper:]])/'_' . lc($1)/ge;
+  $str =~ s/(?<!^)([[:upper:]])/'_' . lc($1)/ge;
+  lc $str;
 }
 
 1;
@@ -60,6 +73,22 @@ Template code both. Example:
     my ($self, %params) = _hashify(1, @_);
     # Now do stuff, obviously!
   }
+
+=item C<camilify $string>
+
+Returns C<$string> converted from underscore-style to
+camel-case-style, e.g. for the string C<stupid_example_dude> it will
+return C<StupidExampleDude>.
+
+L</snakify> does the reverse.
+
+=item C<snakify $string>
+
+Returns C<$string> converted from camel-case-style to
+underscore-style, e.g. for the string C<EvenWorseExample> it will
+return C<even_worse_example>.
+
+L</camilify> does the reverse.
 
 =back
 

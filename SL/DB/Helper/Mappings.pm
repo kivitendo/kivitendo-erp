@@ -3,6 +3,8 @@ package SL::DB::Helper::Mappings;
 use utf8;
 use strict;
 
+use SL::Util qw(camelify);
+
 require Exporter;
 our @ISA       = qw(Exporter);
 our @EXPORT_OK = qw(get_table_for_package get_package_for_table get_package_names);
@@ -155,18 +157,6 @@ sub db {
   }
 
   die "Can't resolve '$string' as a database model, sorry. Did you perhaps forgot to load it?";
-}
-
-sub camelify {
-  my ($str) = @_;
-  $str =~ s/_+(.)/uc($1)/ge;
-  ucfirst $str;
-}
-
-sub snakify {
-  my ($str) = @_;
-  $str =~ s/(?<!^)\u(.)/'_' . lc($1)/ge;
-  lcfirst $str;
 }
 
 sub plurify {
