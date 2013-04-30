@@ -2068,7 +2068,9 @@ sub _oe_remove_delivered_or_billed_rows {
     next if $ord_quot->is_sales != $record->is_sales;
 
     foreach my $item (@{ $record->items }) {
-      $handled_base_qtys{ $item->parts_id } += $item->qty * $item->unit_obj->base_factor;
+      my $key  = $item->parts_id;
+      $key    .= ':' . $item->serialnumber if $item->serialnumber;
+      $handled_base_qtys{$key} += $item->qty * $item->unit_obj->base_factor;
     }
   }
 
