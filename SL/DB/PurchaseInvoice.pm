@@ -17,6 +17,12 @@ __PACKAGE__->meta->add_relationship(
     column_map   => { id => 'trans_id' },
     manager_args => { with_objects => [ 'part' ] }
   },
+  sepa_export_items => {
+    type            => 'one to many',
+    class           => 'SL::DB::SepaExportItem',
+    column_map      => { id => 'ap_id' },
+    manager_args    => { with_objects => [ 'sepa_export' ] }
+  },
 );
 
 __PACKAGE__->meta->initialize;

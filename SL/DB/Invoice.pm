@@ -33,6 +33,12 @@ __PACKAGE__->meta->add_relationship(
     class         => 'SL::DB::Invoice',
     column_map    => { id => 'storno_id' },
   },
+  sepa_export_items => {
+    type            => 'one to many',
+    class           => 'SL::DB::SepaExportItem',
+    column_map      => { id => 'ar_id' },
+    manager_args    => { with_objects => [ 'sepa_export' ] }
+  },
 );
 
 __PACKAGE__->meta->initialize;
