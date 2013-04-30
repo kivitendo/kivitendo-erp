@@ -871,6 +871,7 @@ $self->{texts} = {
   'Expenses EU with UStId'      => 'Aufwand EU m. UStId',
   'Expenses EU without UStId'   => 'Aufwand EU o. UStId',
   'Export Buchungsdaten'        => 'Export Buchungsdaten',
+  'Export Number'               => 'Exportnummer',
   'Export Stammdaten'           => 'Export Stammdaten',
   'Export as CSV'               => 'Als CSV exportieren',
   'Export as PDF'               => 'Als PDF exportieren',
