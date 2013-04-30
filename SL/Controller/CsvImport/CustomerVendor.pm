@@ -77,7 +77,7 @@ sub check_objects {
 
     my $existing_vc = $vcs_by_number{ $object->$numbercolumn };
     if (!$existing_vc) {
-      $vcs_by_number{ $object->$numbercolumn } = $object;
+      $vcs_by_number{ $object->$numbercolumn } = $object if $object->$numbercolumn;
 
     } elsif ($update_policy eq 'skip') {
       push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database'));

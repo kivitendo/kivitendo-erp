@@ -47,7 +47,7 @@ sub check_objects {
     if ($object->cp_id) {
       my $existing_contact = $contacts_by_id{ $object->cp_id };
       if (!$existing_contact) {
-        $contacts_by_id{ $object->cp_id } = $object;
+        $contacts_by_id{ $object->cp_id } = $object if $object->cp_id;
 
       } elsif ($update_policy eq 'skip') {
         push(@{ $entry->{errors} }, $::locale->text('Skipping due to existing entry in database'));
