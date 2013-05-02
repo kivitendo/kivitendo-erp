@@ -247,33 +247,42 @@ CREATE TABLE requirement_spec_item_dependencies (
 ALTER TABLE customer ADD COLUMN hourly_rate NUMERIC(8, 2);
 
 
+CREATE TABLE trigger_information (
+       id    SERIAL PRIMARY KEY,
+       key   TEXT   NOT NULL,
+       value TEXT,
+
+       UNIQUE (key, value)
+);
+
 -- Trigger for updating time_estimation of function blocks from their
 -- children (not for sections, not for sub function blocks).
 CREATE OR REPLACE FUNCTION update_requirement_spec_item_time_estimation(item_id INTEGER) RETURNS BOOLEAN AS $$
   DECLARE
-    item   RECORD;
-    parent RECORD;
+    item RECORD;
   BEGIN
     IF item_id IS NULL THEN
       RAISE DEBUG 'updateRSIE: item_id IS NULL';
       RETURN FALSE;
     END IF;
 
-    SELECT * INTO item FROM requirement_spec_items WHERE id = item_id;
-    RAISE DEBUG 'updateRSIE: item_id % parent_id %', item_id, item.parent_id;
-
-    IF item.parent_id IS NULL THEN
-      -- Don't do anything for sections.
-      RAISE DEBUG 'updateRSIE: this is a section.';
+    IF EXISTS(
+      SELECT *
+      FROM trigger_information
+      WHERE (key   = 'deleting_requirement_spec_item')
+        AND (value = CAST(item_id AS TEXT))
+      LIMIT 1
+    ) THEN
+      RAISE DEBUG 'updateRSIE: item_id % is about to be deleted; do not update', item_id;
       RETURN FALSE;
     END IF;
 
-    SELECT * INTO parent FROM requirement_spec_items WHERE id = item.parent_id;
-    RAISE DEBUG 'updateRSIE: parent_id of parent of item: %', parent.parent_id;
+    SELECT * INTO item FROM requirement_spec_items WHERE id = item_id;
+    RAISE DEBUG 'updateRSIE: item_id % item_type %', item_id, item.item_type;
 
-    IF parent.parent_id IS NOT NULL THEN
-      -- Don't do anything for sub function blocks.
-      RAISE DEBUG 'updateRSIE: this is sub function block.';
+    IF (item.item_type = 'section') OR (item.item_type = 'sub-function-block') THEN
+      -- Don't do anything for sections and sub-function-blocks.
+      RAISE DEBUG 'updateRSIE: this is a section/sub-function-block, not updating.';
       RETURN FALSE;
     END IF;
 
@@ -292,13 +301,27 @@ CREATE OR REPLACE FUNCTION update_requirement_spec_item_time_estimation(item_id 
 $$ LANGUAGE plpgsql;
 
 CREATE OR REPLACE FUNCTION requirement_spec_item_time_estimation_updater_trigger() RETURNS trigger AS $$
+  DECLARE
+    do_new BOOLEAN;
   BEGIN
+    RAISE DEBUG 'updateRSITE op %', TG_OP;
     IF ((TG_OP = 'UPDATE') OR (TG_OP = 'DELETE')) THEN
+      RAISE DEBUG 'UPDATE trigg op % OLD.id % OLD.parent_id %', TG_OP, OLD.id, OLD.parent_id;
       PERFORM update_requirement_spec_item_time_estimation(OLD.parent_id);
+      RAISE DEBUG 'UPDATE trigg op % END %', TG_OP, OLD.id;
     END IF;
-    IF ((TG_OP = 'UPDATE') OR (TG_OP = 'INSERT')) THEN
+    do_new = FALSE;
+
+    IF (TG_OP = 'UPDATE') THEN
+      do_new = OLD.parent_id <> NEW.parent_id;
+    END IF;
+
+    IF (do_new OR (TG_OP = 'INSERT')) THEN
+      RAISE DEBUG 'UPDATE trigg op % NEW.id % NEW.parent_id %', TG_OP, NEW.id, NEW.parent_id;
       PERFORM update_requirement_spec_item_time_estimation(NEW.parent_id);
+      RAISE DEBUG 'UPDATE trigg op % END %', TG_OP, NEW.id;
     END IF;
+
     RETURN NULL;
   END;
 $$ LANGUAGE plpgsql;
@@ -313,9 +336,11 @@ FOR EACH ROW EXECUTE PROCEDURE requirement_spec_item_time_estimation_updater_tri
 CREATE OR REPLACE FUNCTION requirement_spec_item_before_delete_trigger() RETURNS trigger AS $$
   BEGIN
     RAISE DEBUG 'delete trig RSitem old id %', OLD.id;
+    INSERT INTO trigger_information (key, value) VALUES ('deleting_requirement_spec_item', CAST(OLD.id AS TEXT));
     DELETE FROM requirement_spec_item_dependencies WHERE (depending_item_id = OLD.id) OR (depended_item_id = OLD.id);
     DELETE FROM requirement_spec_items             WHERE (parent_id         = OLD.id);
-
+    DELETE FROM trigger_information                WHERE (key = 'deleting_requirement_spec_item') AND (value = CAST(OLD.id AS TEXT));
+    RAISE DEBUG 'delete trig END %', OLD.id;
     RETURN OLD;
   END;
 $$ LANGUAGE plpgsql;
