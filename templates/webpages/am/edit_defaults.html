@@ -142,8 +142,18 @@
     </tr>
 
     <tr>
-     <th align="right">[% 'Currencies' | $T8 %] <sup>(1)</sup></th>
-     <td colspan="3"><input name="curr" size="20" value="[% HTML.escape(defaults_curr) %]"></td>
+     <th align="right">[% 'Default currency' | $T8 %]</th>
+     <td colspan="3">[% HTML.escape(defaultcurrency) %]</td>
+    </tr>
+
+    <tr>
+     <input type="hidden" name="rowcount" value="[% CURRENCIES.size %]">
+     <th align="right">[% 'Currencies' | $T8 %]</th>
+     <td colspan="3">[% FOREACH row = CURRENCIES %]<input name="curr_[% loop.count %]" size="3" value="[% HTML.escape(row.curr) %]">
+                                                   <input type=hidden name="old_curr_[% loop.count %]" value="[% HTML.escape(defaults_curr) %]">
+                     [% END %]
+                     <input name="new_curr" size="3" value="">
+     </td>
     </tr>
 
     <tr>
@@ -210,8 +220,5 @@
 
   <hr height="3" noshade>
 
-  <p>
-   (1) [% 'Enter the abbreviations separated by a colon (i.e CAD:USD:EUR) for your native and foreign currencies' | $T8 %]
-       [% 'IMPORTANT NOTE: You cannot safely change currencies, IF you have already booking entries!' | $T8 %]
   </p>
  </form>
