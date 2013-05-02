@@ -1,0 +1,39 @@
+/* the overlayed element */
+.jqModal_overlay {
+  position: fixed;
+  top: 50%;
+  margin-top: -250px;
+  height: 500px;
+
+  left: 50%;
+  margin-left: -400px;
+  width: 800px;
+
+  background-image: url("../../image/fade.png");
+  background-repeat: repeat-x;
+  background-color: #fff;
+  border: 1px solid #333;
+
+  /* CSS3 styling for latest browsers */
+  box-shadow: 0 0 90px 5px #000;
+  -moz-box-shadow: 0 0 90px 5px #000;
+  -webkit-box-shadow: 0 0 90px #000;
+
+  padding: 10px;
+}
+
+.jqModal_overlay .overlay_content {
+  width: 790px;
+  height: 490px;
+  overflow: auto;
+}
+
+.jqModal_overlay .close {
+  background-image: url(../../image/dialog-close.png);
+  position: absolute;
+  right: -16px;
+  top: -16px;
+  cursor: pointer;
+  height: 32px;
+  width: 32px;
+}

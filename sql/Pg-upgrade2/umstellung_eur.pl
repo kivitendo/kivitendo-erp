@@ -1,33 +1,18 @@
 # @tag: umstellung_eur
 # @description: Variable eur umstellen: bitte in doc/dokumentation.pdf das entsprechende Kapitel zur Konfiguration von EUR lesen
 # @depends: release_2_6_3
-# @charset: utf-8
+package SL::DBUpgrade2::umstellung_eur;
+
+use strict;
+use utf8;
+
+use parent qw(SL::DBUpgrade2::Base);
 
 # this script relies on $eur still being set in kivitendo.conf, and the
 # variable available in $::lx_office_conf{system}->{eur}
 
-use utf8;
-#use strict;
-use Data::Dumper;
-die("This script cannot be run from the command line.") unless ($main::form);
-
-sub mydberror {
-  my ($msg) = @_;
-  die($dbup_locale->text("Database update error:") .
-      "<br>$msg<br>" . $DBI::errstr);
-}
-
-sub do_query {
-  my ($query, $may_fail) = @_;
-
-  if (!$dbh->do($query)) {
-    mydberror($query) unless ($may_fail);
-    $dbh->rollback();
-    $dbh->begin_work();
-  }
-}
-
-sub do_update {
+sub run {
+  my ($self) = @_;
 
   # check if accounting_method has already been set (new database), if so return
   # only set variables according to eur for update of existing database
@@ -35,7 +20,7 @@ sub do_update {
 
   foreach my $column (qw(accounting_method inventory_system profit_determination)) {
     # this query will fail if columns already exist (new database)
-    do_query(qq|ALTER TABLE defaults ADD COLUMN ${column} TEXT|, 1);
+    $self->db_query(qq|ALTER TABLE defaults ADD COLUMN ${column} TEXT|, 1);
   }
 
   my $accounting_method;
@@ -65,10 +50,9 @@ sub do_update {
   my $update_eur = "UPDATE defaults set accounting_method = '$accounting_method' where accounting_method is null;" .
                    "UPDATE defaults set inventory_system = '$inventory_system' where inventory_system is null; " .
                    "UPDATE defaults set profit_determination = '$profit_determination' where profit_determination is null;";
-  do_query($update_eur);
+  $self->db_query($update_eur);
 
   return 1;
 }
 
-return do_update();
-
+1;

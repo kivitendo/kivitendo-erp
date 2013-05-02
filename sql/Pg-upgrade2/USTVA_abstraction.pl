@@ -1,6 +1,12 @@
 # @tag: USTVA_abstraction
 # @description: Abstraktion der USTVA Report Daten. Dies vereinfacht die Integration von Steuerberichten anderer Nationen in kivitendo.
 # @depends: release_2_4_2
+package SL::DBUpgrade2::USTVA_abstraction;
+
+use strict;
+use utf8;
+
+use parent qw(SL::DBUpgrade2::Base);
 
 # Abstraktionlayer between general Taxreports and USTVA
 # Most of the data and structures are not used yet, but maybe in future,
@@ -8,28 +14,8 @@
 
 ###################
 
-use strict;
-
-die("This script cannot be run from the command line.") unless ($main::form);
-
-sub mydberror {
-  my ($msg) = @_;
-  die($dbup_locale->text("Database update error:") .
-      "<br>$msg<br>" . $DBI::errstr);
-}
-
-sub do_query {
-  my ($query, $may_fail) = @_;
-
-  if (!$dbh->do($query)) {
-    mydberror($query) unless ($may_fail);
-    $dbh->rollback();
-    $dbh->begin_work();
-  }
-}
-
-
 sub create_tables {
+  my ($self) = @_;
 
   # Watch out, SCHEMAs are new in Lx!
   my @queries = ( # Watch out, it's a normal array!
@@ -61,14 +47,15 @@ sub create_tables {
       },
   );
 
-  do_query("DROP SCHEMA tax CASCADE;", 1);
-  map({ do_query($_, 0); } @queries);
+  $self->db_query("DROP SCHEMA tax CASCADE;", 1);
+  map({ $self->db_query($_, 0); } @queries);
 
   return 1;
 
 }
 
 sub do_copy {
+  my ($self) = @_;
 
   my @copy_statements = (
     "INSERT INTO tax.report_categorys (id, description, subdescription) VALUES (?, ?, ?)",
@@ -78,85 +65,89 @@ sub do_copy {
 
   my @copy_data = (
     [ "0;;",
-      "1;Lieferungen und sonstige Leistungen;(einschlieﬂlich unentgeltlicher Wertabgaben)",
+      "1;Lieferungen und sonstige Leistungen;(einschlie√ülich unentgeltlicher Wertabgaben)",
       "2;Innergemeinschaftliche Erwerbe;",
-      "3;Erg‰nzende Angaben zu Ums‰tzen;",
+      "3;Erg√§nzende Angaben zu Ums√§tzen;",
       "99;Summe;",
     ],
     ["0;0;;;",
-     "1;1;received;Steuerfreie Ums‰tze mit Vorsteuerabzug;",
-     "2;1;recieved;Steuerfreie Ums‰tze ohne Vorsteuerabzug;",
-     "3;1;recieved;Steuerpflichtige Ums‰tze;(Lieferungen und sonstige Leistungen einschl. unentgeltlicher Wertabgaben)",
+     "1;1;received;Steuerfreie Ums√§tze mit Vorsteuerabzug;",
+     "2;1;recieved;Steuerfreie Ums√§tze ohne Vorsteuerabzug;",
+     "3;1;recieved;Steuerpflichtige Ums√§tze;(Lieferungen und sonstige Leistungen einschl. unentgeltlicher Wertabgaben)",
      "4;2;recieved;Steuerfreie innergemeinschaftliche Erwerbe;",
      "5;2;recieved;Steuerpflichtige innergemeinschaftliche Erwerbe;",
-     "6;3;recieved;Ums‰tze, f¸r die als Leistungsempf‰nger die Steuer nach ß 13b Abs. 2 UStG geschuldet wird;",
+     "6;3;recieved;Ums√§tze, f√ºr die als Leistungsempf√§nger die Steuer nach ¬ß 13b Abs. 2 UStG geschuldet wird;",
      "66;3;recieved;;",
-     "7;3;paied;Abziehbare Vorsteuerbetr‰ge;",
-     "8;3;paied;Andere Steuerbetr‰ge;",
+     "7;3;paied;Abziehbare Vorsteuerbetr√§ge;",
+     "8;3;paied;Andere Steuerbetr√§ge;",
      "99;99;;Summe;",
     ],
     ["0;keine;0;< < < keine UStVa Position > > >;;;19700101",
-     "1;41;1;Innergemeinschaftliche Lieferungen (ß 4 Nr. 1 Buchst. b UStG) an Abnehmer mit USt-IdNr.;0;0;19700101",
+     "1;41;1;Innergemeinschaftliche Lieferungen (¬ß 4 Nr. 1 Buchst. b UStG) an Abnehmer mit USt-IdNr.;0;0;19700101",
      "2;44;1;neuer Fahrzeuge an Abnehmer ohne USt-IdNr.;0;0;19700101",
-     "3;49;1;neuer Fahrzeuge auﬂerhalb eines Unternehmens (ß 2a UStG);0;0;19700101",
-     "4;43;1;Weitere steuerfreie Ums‰tze mit Vorsteuerabzug;0;0;19700101",
-     "5;48;2;Ums‰tze nach ß 4 Nr. 8 bis 28 UStG;0;0;19700101",
+     "3;49;1;neuer Fahrzeuge au√üerhalb eines Unternehmens (¬ß 2a UStG);0;0;19700101",
+     "4;43;1;Weitere steuerfreie Ums√§tze mit Vorsteuerabzug;0;0;19700101",
+     "5;48;2;Ums√§tze nach ¬ß 4 Nr. 8 bis 28 UStG;0;0;19700101",
      "6;51;3;zum Steuersatz von 16 %;0;0;19700101",
      "7;511;3;;6;2;19700101",
      "8;81;3;zum Steuersatz von 19 %;0;0;19700101",
      "9;811;3;;8;2;19700101",
      "10;86;3;zum Steuersatz von 7 %;0;0;19700101",
      "11;861;3;;10;2;19700101",
-     "12;35;3;Ums‰tze, die anderen Steuers‰tzen unterliegen;0;0;19700101",
+     "12;35;3;Ums√§tze, die anderen Steuers√§tzen unterliegen;0;0;19700101",
      "13;36;3;;12;2;19700101",
-     "14;77;3;Lieferungen in das ¸brige Gemeinschaftsgebiet an Abnehmer mit USt-IdNr.;0;0;19700101",
-     "15;76;3;Ums‰tze, f¸r die eine Steuer nach ß 24 UStG zu entrichten ist;0;0;19700101",
+     "14;77;3;Lieferungen in das √ºbrige Gemeinschaftsgebiet an Abnehmer mit USt-IdNr.;0;0;19700101",
+     "15;76;3;Ums√§tze, f√ºr die eine Steuer nach ¬ß 24 UStG zu entrichten ist;0;0;19700101",
      "16;80;3;;15;2;19700101",
-     "17;91;4;Erwerbe nach ß 4b UStG;0;0;19700101",
+     "17;91;4;Erwerbe nach ¬ß 4b UStG;0;0;19700101",
      "18;97;5;zum Steuersatz von 16 %;0;0;19700101",
      "19;971;5;;18;2;19700101",
      "20;89;5;zum Steuersatz von 19 %;0;0;19700101",
      "21;891;5;;20;2;19700101",
      "22;93;5;zum Steuersatz von 7 %;0;0;19700101",
      "23;931;5;;22;2;19700101",
-     "24;95;5;zu anderen Steuers‰tzen;0;0;19700101",
+     "24;95;5;zu anderen Steuers√§tzen;0;0;19700101",
      "25;98;5;;24;2;19700101",
      "26;94;5;neuer Fahrzeuge von Lieferern ohne USt-IdNr. zum allgemeinen Steuersatz;0;0;19700101",
      "27;96;5;;26;2;19700101",
-     "28;42;66;Lieferungen des ersten Abnehmers bei innergemeinschaftlichen Dreiecksgesch‰ften (ß 25b Abs. 2 UStG);0;0;19700101",
-     "29;60;66;Steuerpflichtige Ums‰tze im Sinne des ß 13b Abs. 1 Satz 1 Nr. 1 bis 5 UStG, f¸r die der Leistungsempf‰nger die Steuer schuldet;0;0;19700101",
-     "30;45;66;Nicht steuerbare Ums‰tze (Leistungsort nicht im Inland);0;0;19700101",
-     "31;52;6;Leistungen eines im Ausland ans‰ssigen Unternehmers (ß 13b Abs. 1 Satz 1 Nr. 1 und 5 UStG);0;0;19700101",
+     "28;42;66;Lieferungen des ersten Abnehmers bei innergemeinschaftlichen Dreiecksgesch√§ften (¬ß 25b Abs. 2 UStG);0;0;19700101",
+     "29;60;66;Steuerpflichtige Ums√§tze im Sinne des ¬ß 13b Abs. 1 Satz 1 Nr. 1 bis 5 UStG, f√ºr die der Leistungsempf√§nger die Steuer schuldet;0;0;19700101",
+     "30;45;66;Nicht steuerbare Ums√§tze (Leistungsort nicht im Inland);0;0;19700101",
+     "31;52;6;Leistungen eines im Ausland ans√§ssigen Unternehmers (¬ß 13b Abs. 1 Satz 1 Nr. 1 und 5 UStG);0;0;19700101",
      "32;53;6;;31;2;19700101",
-     "33;73;6;Lieferungen sicherungs¸bereigneter Gegenst‰nde und Ums‰tze, die unter das GrEStG fallen (ß 13b Abs. 1 Satz 1 Nr. 2 und 3 UStG);0;0;19700101",
+     "33;73;6;Lieferungen sicherungs√ºbereigneter Gegenst√§nde und Ums√§tze, die unter das GrEStG fallen (¬ß 13b Abs. 1 Satz 1 Nr. 2 und 3 UStG);0;0;19700101",
      "34;74;6;;33;2;19700101",
-     "35;84;6;Bauleistungen eines im Inland ans‰ssigen Unternehmers (ß 13b Abs. 1 Satz 1 Nr. 4 UStG);0;0;19700101",
+     "35;84;6;Bauleistungen eines im Inland ans√§ssigen Unternehmers (¬ß 13b Abs. 1 Satz 1 Nr. 4 UStG);0;0;19700101",
      "36;85;6;;35;2;19700101",
-     "37;65;6;Steuer infolge Wechsels der Besteuerungsform sowie Nachsteuer auf versteuerte Anzahlungen u. ‰. wegen Steuersatz‰nderung;;2;19700101",
-     "38;66;7;Vorsteuerbetr‰ge aus Rechnungen von anderen Unternehmern (ß 15 Abs. 1 Satz 1 Nr. 1 UStG), aus Leistungen im Sinne des ß 13a Abs. 1 Nr. 6 UStG (ß 15 Abs. 1 Satz 1 Nr. 5 UStG) und aus innergemeinschaftlichen Dreiecksgesch‰ften (ß 25b Abs. 5 UStG);;2;19700101",
-     "39;61;7;Vorsteuerbetr‰ge aus dem innergemeinschaftlichen Erwerb von Gegenst‰nden (ß 15 Abs. 1 Satz 1 Nr. 3 UStG);;2;19700101",
-     "40;62;7;Entrichtete Einfuhrumsatzsteuer (ß 15 Abs. 1 Satz 1 Nr. 2 UStG);;2;19700101",
-     "41;67;7;Vorsteuerbetr‰ge aus Leistungen im Sinne des ß 13b Abs. 1 UStG (ß 15 Abs. 1 Satz 1 Nr. 4 UStG);;2;19700101",
-     "42;63;7;Vorsteuerbetr‰ge, die nach allgemeinen Durchschnittss‰tzen berechnet sind (ßß 23 und 23a UStG);;2;19700101",
-     "43;64;7;Berichtigung des Vorsteuerabzugs (ß 15a UStG);;2;19700101",
-     "44;59;7;Vorsteuerabzug f¸r innergemeinschaftliche Lieferungen neuer Fahrzeuge auﬂerhalb eines Unternehmens (ß 2a UStG) sowie von Kleinunternehmern im Sinne des ß 19 Abs. 1 UStG (ß 15 Abs. 4a UStG);;2;19700101",
-     "45;69;8;in Rechnungen unrichtig oder unberechtigt ausgewiesene Steuerbetr‰ge (ß 14c UStG) sowie Steuerbetr‰ge, die nach ß 4 Nr. 4a Satz 1 Buchst. a Satz 2, ß 6a Abs. 4 Satz 2, ß 17 Abs. 1 Satz 6 oder ß 25b Abs. 2 UStG geschuldet werden;;2;19700101",
-     "46;39;8;Anrechnung (Abzug) der festgesetzten Sondervorauszahlung f¸r Dauerfristverl‰ngerung (nur auszuf¸llen in der letzten Voranmeldung des Besteuerungszeitraums, in der Regel Dezember);;2;19700101",
+     "37;65;6;Steuer infolge Wechsels der Besteuerungsform sowie Nachsteuer auf versteuerte Anzahlungen u. √§. wegen Steuersatz√§nderung;;2;19700101",
+     "38;66;7;Vorsteuerbetr√§ge aus Rechnungen von anderen Unternehmern (¬ß 15 Abs. 1 Satz 1 Nr. 1 UStG), aus Leistungen im Sinne des ¬ß 13a Abs. 1 Nr. 6 UStG (¬ß 15 Abs. 1 Satz 1 Nr. 5 UStG) und aus innergemeinschaftlichen Dreiecksgesch√§ften (¬ß 25b Abs. 5 UStG);;2;19700101",
+     "39;61;7;Vorsteuerbetr√§ge aus dem innergemeinschaftlichen Erwerb von Gegenst√§nden (¬ß 15 Abs. 1 Satz 1 Nr. 3 UStG);;2;19700101",
+     "40;62;7;Entrichtete Einfuhrumsatzsteuer (¬ß 15 Abs. 1 Satz 1 Nr. 2 UStG);;2;19700101",
+     "41;67;7;Vorsteuerbetr√§ge aus Leistungen im Sinne des ¬ß 13b Abs. 1 UStG (¬ß 15 Abs. 1 Satz 1 Nr. 4 UStG);;2;19700101",
+     "42;63;7;Vorsteuerbetr√§ge, die nach allgemeinen Durchschnittss√§tzen berechnet sind (¬ß¬ß 23 und 23a UStG);;2;19700101",
+     "43;64;7;Berichtigung des Vorsteuerabzugs (¬ß 15a UStG);;2;19700101",
+     "44;59;7;Vorsteuerabzug f√ºr innergemeinschaftliche Lieferungen neuer Fahrzeuge au√üerhalb eines Unternehmens (¬ß 2a UStG) sowie von Kleinunternehmern im Sinne des ¬ß 19 Abs. 1 UStG (¬ß 15 Abs. 4a UStG);;2;19700101",
+     "45;69;8;in Rechnungen unrichtig oder unberechtigt ausgewiesene Steuerbetr√§ge (¬ß 14c UStG) sowie Steuerbetr√§ge, die nach ¬ß 4 Nr. 4a Satz 1 Buchst. a Satz 2, ¬ß 6a Abs. 4 Satz 2, ¬ß 17 Abs. 1 Satz 6 oder ¬ß 25b Abs. 2 UStG geschuldet werden;;2;19700101",
+     "46;39;8;Anrechnung (Abzug) der festgesetzten Sondervorauszahlung f√ºr Dauerfristverl√§ngerung (nur auszuf√ºllen in der letzten Voranmeldung des Besteuerungszeitraums, in der Regel Dezember);;2;19700101",
   ],
   );
 
   for my $statement ( 0 .. $#copy_statements ) {
-    my $query = $iconv->convert($copy_statements[$statement]);
-    my $sth   = $dbh->prepare($query) || mydberror($query);
+    my $query = $copy_statements[$statement];
+    my $sth   = $self->dbh->prepare($query) || $self->db_error($query);
 
     for my $copy_line ( 0 .. $#{$copy_data[$statement]} ) {
       #print $copy_data[$statement][$copy_line] . "<br />"
-      $sth->execute(split m/;/, $iconv->convert($copy_data[$statement][$copy_line]), -1) || mydberror($query);
+      $sth->execute(split m/;/, $copy_data[$statement][$copy_line], -1) || $self->db_error($query);
     }
     $sth->finish();
   }
   return 1;
 }
 
+sub run {
+  my ($self) = @_;
+  return $self->create_tables && $self->do_copy;
+}
 
-return create_tables() && do_copy();
+1;

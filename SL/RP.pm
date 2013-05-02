@@ -211,12 +211,24 @@ sub get_accounts {
 
   $sth->finish;
 
+  # filter for opening and closing bookings
   # if l_ob is selected l_cb is always ignored
-  if ( $form->{l_ob} ) {
-    $where .= ' AND ac.ob_transaction is true  '
-  } elsif ( not $form->{l_cb} ) {
-    $where .= ' AND ac.cb_transaction is false ';
+  if ( $last_period ) {
+    # ob/cb-settings for "compared to" balance
+    if ( $form->{l_ob_compared} ) {
+      $where .= ' AND ac.ob_transaction is true  '
+    } elsif ( not $form->{l_cb_compared} ) {
+      $where .= ' AND ac.cb_transaction is false ';
+    };
+  } else {
+    # ob/cb-settings for "as of" balance
+    if ( $form->{l_ob} ) {
+      $where .= ' AND ac.ob_transaction is true  '
+    } elsif ( not $form->{l_cb} ) {
+      $where .= ' AND ac.cb_transaction is false ';
+    };
   };
+
 
   if ($fromdate) {
     $fromdate = conv_dateq($fromdate);

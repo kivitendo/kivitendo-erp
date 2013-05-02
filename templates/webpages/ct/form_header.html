@@ -152,6 +152,17 @@
      </tr>
 
      <tr>
+      <th align="right" nowrap>[% 'Cc E-mail' | $T8 %]</th>
+      <td><input name="cc" size="45" value="[% HTML.escape(cc) %]"></td>
+     </tr>
+
+     <tr>
+      <th align="right" nowrap>[% 'Bcc E-mail' | $T8 %]</th>
+      <td><input name="bcc" size="45" value="[% HTML.escape(bcc) %]"></td>
+     </tr>
+
+
+     <tr>
       <th align="right" nowrap>
       [% IF homepage %]<a href="[% HTML.escape(homepage) %]" title="[% 'Open this Website' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>
       [% ELSE %][% 'Homepage' | $T8 %]
@@ -196,30 +207,30 @@
       <td><input name="taxnumber" size="20" value="[% HTML.escape(taxnumber) %]"></td>
       <!-- Anm.: R&B 15.11.2008     VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein -->
       <th align="right">[% 'sales tax identification number' | $T8 %]</th>
-      <td><input name="ustid" id="ustid" maxlength="14" size="20" value="[% HTML.escape(ustid) %]"></td>
+      <td>[% L.input_tag('ustid', ustid, maxlength=14, size=30) %]</td>
       [%- IF is_customer %]
       <th align="right">[% 'our vendor number at customer' | $T8 %]</th>
-      <td><input name="c_vendor_id" size="10" value="[% HTML.escape(c_vendor_id) %]"></td>
+      <td>[% L.input_tag('c_vendor_id', c_vendor_id, size=30) %]</td>
       [%- ELSE %]
       <th align="right">[% 'Customer Number' | $T8 %]</th>
-      <td><input name="v_customer_id" size="10" value="[% HTML.escape(v_customer_id) %]"></td>
+      <td>[% L.input_tag('v_customer_id', v_customer_id, size=30) %]</td>
       [%- END %]
      </tr>
 
      <tr>
       <th align="right">[% 'Account Number' | $T8 %]</th>
-      <td><input name="account_number" size="10" maxlength="100" value="[% HTML.escape(account_number) %]"></td>
+      <td>[% L.input_tag('account_number', account_number, size=30) %]</td>
       <th align="right">[% 'Bank Code Number' | $T8 %]</th>
-      <td><input name="bank_code" size="10" maxlength="100" value="[% HTML.escape(bank_code) %]"></td>
+      <td>[% L.input_tag('bank_code', bank_code, size=30) %]</td>
       <th align="right">[% 'Bank' | $T8 %]</th>
-      <td><input name="bank" size="20" value="[% HTML.escape(bank) %]"></td>
+      <td>[% L.input_tag('bank', bank, size=30) %]</td>
      </tr>
 
      <tr>
       <th align="right">[% 'IBAN' | $T8 %]</th>
-      <td><input name="iban" size="10" maxlength="100" value="[% HTML.escape(iban) %]"></td>
+      <td>[% L.input_tag('iban', iban, maxlength=100, size=30) %]</td>
       <th align="right">[% 'BIC' | $T8 %]</th>
-      <td><input name="bic" size="10" maxlength="100" value="[% HTML.escape(bic) %]"></td>
+      <td>[% L.input_tag('bic', bic, maxlength=100, size=30) %]</td>
       [%- IF ALL_CURRENCIES.size %]
         <th align="right">[% 'Currency' | $T8 %]</th>
         <td>[% L.select_tag('currency', ALL_CURRENCIES, default = currency, with_empty = 1) %]</td>

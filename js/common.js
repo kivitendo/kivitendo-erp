@@ -160,6 +160,30 @@ function focus_by_name(name){
   return false;
 }
 
+function open_jqm_window(params) {
+  params = params || { };
+  var url = params.url;
+  var id  = params.id ? params.id : 'jqm_popup_dialog';
+
+  if (params.data) {
+    var data  = typeof params.data === "string" ? params.data : $.param(params.data);
+    url      += (/\?/.exec(url) ? "&" : "?") + data;
+  }
+
+  $('#' + id).remove();
+  var div     = $('<div id="' + id + '" class="jqmWindow jqModal_overlay ' + (params.class || '') + '"></div>').hide().appendTo('body');
+  var close   = $('<div class="close"></div>').appendTo(div);
+  var content = $('<div class="overlay_content"></div>').appendTo(div);
+  div.jqm({ modal: true });
+  div.jqmShow();
+  $.ajax({ url: url, success: function(new_html) { $(content).html(new_html); } });
+  $(close).click(function() {
+    div.jqmClose();
+  });
+
+  return true;
+}
+
 $(document).ready(function () {
   // initialize all jQuery UI tab elements:
   $(".tabwidget").each(function(idx, element) { $(element).tabs(); });

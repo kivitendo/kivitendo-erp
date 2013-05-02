@@ -7,6 +7,7 @@ use parent qw(Rose::Object);
 use Carp;
 use List::MoreUtils qw(any none);
 use SL::DBUtils;
+use SL::PrefixedNumber;
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -68,8 +69,8 @@ sub _get_filters {
   } elsif ($type =~ /part|service|assembly/) {
     $filters{trans_number}  = "partnumber";
     $filters{numberfield}   = $type eq 'service' ? 'servicenumber' : 'articlenumber';
+    $filters{numberfield}   = $type eq 'assembly' ? 'assemblynumber' : $filters{numberfield};
     $filters{table}         = "parts";
-    $filters{where}         = 'COALESCE(inventory_accno_id, 0) ' . ($type eq 'service' ? '=' : '<>') . ' 0';
   }
 
   return %filters;
@@ -128,17 +129,15 @@ SQL
   ($business_number) = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ?|, $self->business_id) if $self->business_id;
   my $number         = $business_number;
   ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
+  if ($filters{numberfield} eq 'assemblynumber' and length($number) < 1) {
+    $filters{numberfield} = 'articlenumber';
+    ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
+  }
   $number          ||= '';
+  my $sequence       = SL::PrefixedNumber->new(number => $number);
 
   do {
-    if ($number =~ m/\d+$/) {
-      my $new_number = substr($number, $-[0]) * 1 + 1;
-      my $len_diff   = length($number) - $-[0] - length($new_number);
-      $number        = substr($number, 0, $-[0]) . ($len_diff > 0 ? '0' x $len_diff : '') . $new_number;
-
-    } else {
-      $number = $number . '1';
-    }
+    $number = $sequence->get_next;
   } while ($numbers_in_use{$number});
 
   if ($self->save) {

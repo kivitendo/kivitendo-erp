@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [%- USE HTML %]
+[%- USE L %]
  <form method="post" action="am.pl">
   <input type="hidden" name="id" value="[% HTML.escape(id) %]">
   <input type="hidden" name="type" value="tax">
@@ -9,7 +10,10 @@
   <table width="100%">
    <tr>
     <td>[% 'tax_taxkey' | $T8 %]</td>
-    <td><input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]" [% readonly %]></td>
+    <td>[% IF tax_already_used %]<p>[% HTML.escape(taxkey) %]</p>
+        <input type="hidden" name="taxkey" size="2" value="[% HTML.escape(taxkey) %]">
+        [% ELSE %]<input name="taxkey" size="2" value="[% HTML.escape(taxkey) %]">
+        [% END %]</td>
    </tr>
 
    <tr>
@@ -19,7 +23,10 @@
 
    <tr>
     <td>[% 'tax_percent' | $T8 %]</td>
-    <td><input name="rate" size="10" value="[% HTML.escape(rate) %]" [% readonly %]> %</td>
+    <td>[% IF tax_already_used %]<p>[% HTML.escape(rate) %] %</p>
+        <input type="hidden" name="rate" size="10" value="[% HTML.escape(rate) %]">
+        [% ELSE %]<input name="rate" size="10" value="[% HTML.escape(rate) %]"> %
+        [% END %]</td>
    </tr>
 
    <tr>
@@ -27,6 +34,71 @@
     <td><select name="chart_id"><option value="0">[% 'None' | $T8 %]</option>[% FOREACH row = ACCOUNTS %]<option value="[% HTML.escape(row.id) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.taxaccount) %]</option>[% END %]</select></td>
    </tr>
 
+    <td>[% 'Account categories' | $T8 %]</td>
+    <td><table>
+          <colgroup>
+            <col width="10">
+            <col width="130">
+            <col width="10">
+            <col width="130">
+            <col width="10">
+            <col width="130">
+            <col width="10">
+            <col width="130">
+            <col width="10">
+            <col width="130">
+            <col width="10">
+            <col width="130">
+          </colgroup>
+          <tr>
+            <td align="right">[% IF asset %]
+                                [% L.checkbox_tag('asset', value => 1, checked => 1, class => 'checkbox') %]
+                              [% ELSE %]
+                                [% L.checkbox_tag('asset', value => 1, checked => 0, class => 'checkbox') %]
+                              [% END %]
+            </td>
+            <td align="left">[% 'Asset' | $T8 %] (A)</td>
+            <td align="right">[% IF liability %]
+                                [% L.checkbox_tag('liability', value => 1, checked => 1, class => 'checkbox') %]
+                              [% ELSE %]
+                                [% L.checkbox_tag('liability', value => 1, checked => 0, class => 'checkbox') %]
+                              [% END %]
+            </td>
+            <td align="left">[% 'Liability' | $T8 %] (L)</td>
+            <td align="right">[% IF equity %]
+                                [% L.checkbox_tag('equity', value => 1, checked => 1, class => 'checkbox') %]
+                              [% ELSE %]
+                                [% L.checkbox_tag('equity', value => 1, checked => 0, class => 'checkbox') %]
+                              [% END %]
+            </td>
+            <td align="left">[% 'Equity' | $T8 %] (Q)</td>
+            <td align="right">[% IF revenue %]
+                                [% L.checkbox_tag('revenue', value => 1, checked => 1, class => 'checkbox') %]
+                              [% ELSE %]
+                                [% L.checkbox_tag('revenue', value => 1, checked => 0, class => 'checkbox') %]
+                              [% END %]
+            </td>
+            <td align="left">[% 'Revenue' | $T8 %] (I)</td>
+            <td align="right">[% IF expense %]
+                                [% L.checkbox_tag('expense', value => 1, checked => 1, class => 'checkbox') %]
+                              [% ELSE %]
+                                [% L.checkbox_tag('expense', value => 1, checked => 0, class => 'checkbox') %]
+                              [% END %]
+            </td>
+            <td align="left">[% 'Expense' | $T8 %] (E)</td>
+            <td align="right">[% IF costs %]
+                                [% L.checkbox_tag('costs', value => 1, checked => 1, class => 'checkbox') %]
+                              [% ELSE %]
+                                [% L.checkbox_tag('costs', value => 1, checked => 0, class => 'checkbox') %]
+                              [% END %]
+            </td>
+            <td align="left">[% 'Costs' | $T8 %] (C)</td>
+          </tr>
+        </table>
+     </td>
+   </tr>
+
+  </table>
   </table>
 
   [% UNLESS orphaned %]

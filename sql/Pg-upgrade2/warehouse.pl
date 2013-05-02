@@ -1,92 +1,25 @@
 # @tag: warehouse
 # @description:  Diverse neue Tabellen und Spalten zur Mehrlagerf&auml;higkeit inkl. Migration
 # @depends: release_2_4_3
+package SL::DBUpgrade2::warehouse;
 
 use strict;
+use utf8;
 
-die("This script cannot be run from the command line.") unless ($main::form);
+use parent qw(SL::DBUpgrade2::Base);
 
-my $do_sql_migration = 0;
-my ($check_sql, $sqlcode);
-
-sub mydberror {
-  my ($msg) = @_;
-  die($dbup_locale->text("Database update error:") .
-      "<br>$msg<br>" . $DBI::errstr);
-}
-
-sub do_query {
-  my ($query, $may_fail) = @_;
-
-  if (!$dbh->do($query)) {
-    mydberror($query) unless ($may_fail);
-    $dbh->rollback();
-    $dbh->begin_work();
-  }
-}
-
+use SL::DBUtils;
 
 sub print_question {
-  print $main::form->parse_html_template("dbupgrade/warehouse_form");
+  print $::form->parse_html_template("dbupgrade/warehouse_form");
 }
 
-sub do_update {
-  if (!$main::form->{do_migrate}
-      && (selectfirst_array_query($main::form, $dbh, $check_sql))[0]) { # check if update is needed
-    print_question();
-    return 2;
-  } else {
-    if ($main::form->{do_migrate} eq 'Y') {
-      # if yes, both warehouse and bin must be given
-      if (!$main::form->{import_warehouse} || !$main::form->{bin_default}) {
-        print_question();
-        return 2;
-      }
-      # flag for extra code
-      $do_sql_migration = 1;
-    }
-  }
-  my $warehouse = $main::form->{import_warehouse} ne '' ? $main::form->{import_warehouse} : "Transfer";
-  my $bin       = $main::form->{bin_default}      ne '' ? $main::form->{bin_default}      : "1";
+sub run {
+  my ($self)           = @_;
 
-  $warehouse    = $dbh->quote($warehouse);
-  $bin          = $dbh->quote($bin);
-
-  my $migration_code = <<EOF
-
--- Adjust warehouse
-INSERT INTO warehouse (description, sortkey, invalid) VALUES ($warehouse, 1, FALSE);
-
-UPDATE tmp_parts SET bin = NULL WHERE bin = '';
-
--- Restore old onhand
-INSERT INTO bin
- (warehouse_id, description)
- (SELECT DISTINCT warehouse.id, COALESCE(bin, $bin)
-   FROM warehouse, tmp_parts
-   WHERE warehouse.description=$warehouse);
-INSERT INTO inventory
- (warehouse_id, parts_id, bin_id, qty, employee_id, trans_id, trans_type_id, chargenumber)
- (SELECT warehouse.id, tmp_parts.id, bin.id, onhand, (SELECT id FROM employee LIMIT 1), nextval('id'), transfer_type.id, ''
-  FROM transfer_type, warehouse, tmp_parts, bin
-  WHERE warehouse.description = $warehouse
-    AND COALESCE(bin, $bin) = bin.description
-    AND transfer_type.description = 'stock');
-EOF
-;
-
-  # do standard code
-  my $query  = $sqlcode;
-     $query .= $migration_code if $do_sql_migration;
-
-  do_query($query);
-
-  return 1;
-}
-
-
-
-$sqlcode = <<EOF
+  my $do_sql_migration = 0;
+  my $check_sql        = qq|SELECT COUNT(id) FROM parts WHERE onhand > 0;|;
+  my $sqlcode          = <<SQL;
 -- Table "bin" for bins.
 CREATE TABLE bin (
   id integer NOT NULL DEFAULT nextval('id'),
@@ -200,13 +133,59 @@ END;
 CREATE TRIGGER trig_update_onhand
   AFTER INSERT OR UPDATE OR DELETE ON inventory
   FOR EACH ROW EXECUTE PROCEDURE update_onhand();
+SQL
+
+  if (!$::form->{do_migrate}
+      && (selectfirst_array_query($::form, $self->dbh, $check_sql))[0]) { # check if update is needed
+    print_question();
+    return 2;
+  } else {
+    if ($::form->{do_migrate} eq 'Y') {
+      # if yes, both warehouse and bin must be given
+      if (!$::form->{import_warehouse} || !$::form->{bin_default}) {
+        print_question();
+        return 2;
+      }
+      # flag for extra code
+      $do_sql_migration = 1;
+    }
+  }
+  my $warehouse = $::form->{import_warehouse} ne '' ? $::form->{import_warehouse} : "Transfer";
+  my $bin       = $::form->{bin_default}      ne '' ? $::form->{bin_default}      : "1";
+
+  $warehouse    = $self->dbh->quote($warehouse);
+  $bin          = $self->dbh->quote($bin);
+
+  my $migration_code = <<EOF
+
+-- Adjust warehouse
+INSERT INTO warehouse (description, sortkey, invalid) VALUES ($warehouse, 1, FALSE);
+
+UPDATE tmp_parts SET bin = NULL WHERE bin = '';
+
+-- Restore old onhand
+INSERT INTO bin
+ (warehouse_id, description)
+ (SELECT DISTINCT warehouse.id, COALESCE(bin, $bin)
+   FROM warehouse, tmp_parts
+   WHERE warehouse.description=$warehouse);
+INSERT INTO inventory
+ (warehouse_id, parts_id, bin_id, qty, employee_id, trans_id, trans_type_id, chargenumber)
+ (SELECT warehouse.id, tmp_parts.id, bin.id, onhand, (SELECT id FROM employee LIMIT 1), nextval('id'), transfer_type.id, ''
+  FROM transfer_type, warehouse, tmp_parts, bin
+  WHERE warehouse.description = $warehouse
+    AND COALESCE(bin, $bin) = bin.description
+    AND transfer_type.description = 'stock');
 EOF
 ;
 
+  # do standard code
+  my $query  = $sqlcode;
+     $query .= $migration_code if $do_sql_migration;
 
-$check_sql = <<EOF
-SELECT COUNT(id) FROM parts WHERE onhand > 0;
-EOF
-;
+  $self->db_query($query);
 
-return do_update();
+  return 1;
+}
+
+1;

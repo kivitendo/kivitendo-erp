@@ -49,8 +49,11 @@ sub check_objects {
 
   $self->controller->track_progress(phase => 'building data', progress => 0);
 
-  my $numbercolumn  = $self->controller->profile->get('table') . "number";
-  my %vcs_by_number = map { ( $_->$numbercolumn => 1 ) } @{ $self->existing_objects };
+  my $vc            = $self->controller->profile->get('table');
+  my $update_policy = $self->controller->profile->get('update_policy') || 'update_existing';
+  my $numbercolumn  = "${vc}number";
+  my %vcs_by_number = map { ( $_->$numbercolumn => $_ ) } @{ $self->existing_objects };
+  my $methods       = $self->controller->headers->{methods};
 
   my $i;
   my $num_data = scalar @{ $self->controller->data };
@@ -66,10 +69,29 @@ sub check_objects {
 
     next if @{ $entry->{errors} };
 
-    if ($vcs_by_number{ $object->$numbercolumn }) {
-      $entry->{object}->$numbercolumn('####');
+    my @cleaned_fields = $self->clean_fields(qr{[\r\n]}, $object, qw(name department_1 department_2 street zipcode city country contact phone fax homepage email cc bcc
+                                                                     taxnumber account_number bank_code bank username greeting));
+
+    push @{ $entry->{information} }, $::locale->text('Illegal characters have been removed from the following fields: #1', join(', ', @cleaned_fields))
+      if @cleaned_fields;
+
+    my $existing_vc = $vcs_by_number{ $object->$numbercolumn };
+    if (!$existing_vc) {
+      $vcs_by_number{ $object->$numbercolumn } = $object if $object->$numbercolumn;
+
+    } elsif ($update_policy eq 'skip') {
+      push(@{$entry->{errors}}, $::locale->text('Skipping due to existing entry in database'));
+
+    } elsif ($update_policy eq 'update_existing') {
+      # Update existing customer/vendor records.
+      $entry->{object_to_save} = $existing_vc;
+
+      $existing_vc->$_( $entry->{object}->$_ ) for @{ $methods };
+
+      push @{ $entry->{information} }, $::locale->text('Updating existing entry in database');
+
     } else {
-      $vcs_by_number{ $object->$numbercolumn } = $object;
+      $object->$numbercolumn('####');
     }
   } continue {
     $i++;
@@ -139,7 +161,7 @@ sub check_business {
   my $object = $entry->{object};
 
   # Check whether or not business ID is valid.
-  if ($object->business_id && !$self->businesss_by->{id}->{ $object->business_id }) {
+  if ($object->business_id && !$self->businesses_by->{id}->{ $object->business_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid business');
     return 0;
   }

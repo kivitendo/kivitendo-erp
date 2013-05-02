@@ -215,14 +215,16 @@ sub post_invoice {
 
       # check if we sold the item already and
       # make an entry for the expense and inventory
+      my $taxzone = $form->{taxzone_id} * 1;
       $query =
         qq|SELECT i.id, i.qty, i.allocated, i.trans_id, i.base_qty,
-             p.inventory_accno_id, p.expense_accno_id, a.transdate
-           FROM invoice i, ar a, parts p
+             bg.inventory_accno_id, bg.expense_accno_id_${taxzone} AS expense_accno_id, a.transdate
+           FROM invoice i, ar a, parts p, buchungsgruppen bg
            WHERE (i.parts_id = p.id)
              AND (i.parts_id = ?)
              AND ((i.base_qty + i.allocated) > 0)
              AND (i.trans_id = a.id)
+             AND (p.buchungsgruppen_id = bg.id)
            ORDER BY transdate|;
            # ORDER BY transdate guarantees FIFO
 
@@ -268,7 +270,7 @@ sub post_invoice {
 
             # allocated >= 0
             # add entry for inventory, this one is for the sold item
-            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id) VALUES (?, ?, ?, ?,
+            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id, chart_link) VALUES (?, ?, ?, ?,
                                (SELECT taxkey_id
                                 FROM taxkeys
                                 WHERE chart_id= ?
@@ -279,13 +281,13 @@ sub post_invoice {
                                 WHERE chart_id= ?
                                 AND startdate <= ?
                                 ORDER BY startdate DESC LIMIT 1),
-                               (SELECT chart_link FROM chart WHERE id = ?))|;
+                               (SELECT link FROM chart WHERE id = ?))|;
             @values = ($ref->{trans_id},  $ref->{inventory_accno_id}, $linetotal, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{transdate}, $ref->{inventory_accno_id}, $ref->{transdate},
                        $ref->{inventory_accno_id});
             do_query($form, $dbh, $query, @values);
 
 # add expense
-            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id) VALUES (?, ?, ?, ?,
+            $query = qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id, chart_link) VALUES (?, ?, ?, ?,
                                 (SELECT taxkey_id
                                  FROM taxkeys
                                  WHERE chart_id= ?
@@ -296,7 +298,7 @@ sub post_invoice {
                                  WHERE chart_id= ?
                                  AND startdate <= ?
                                  ORDER BY startdate DESC LIMIT 1),
-                                (SELECT chart_link FROM chart WHERE id = ?))|;
+                                (SELECT link FROM chart WHERE id = ?))|;
             @values = ($ref->{trans_id},  $ref->{expense_accno_id}, ($linetotal * -1), $ref->{transdate}, $ref->{expense_accno_id}, $ref->{transdate}, $ref->{expense_accno_id}, $ref->{transdate},
                        $ref->{expense_accno_id});
             do_query($form, $dbh, $query, @values);
@@ -1210,7 +1212,9 @@ sub retrieve_item {
 
   my $transdate = "";
   if ($form->{type} eq "invoice") {
-    $transdate = $form->{invdate} ? $dbh->quote($form->{invdate}) : "current_date";
+    $transdate = $form->{deliverydate} ? $dbh->quote($form->{deliverydate}) 
+               : $form->{invdate} ? $dbh->quote($form->{invdate}) 
+               : "current_date";
   } else {
     $transdate = $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
   }

@@ -4,22 +4,38 @@
 [%- USE L %]
 <script type="text/javascript">
   <!--
-  function setTaxkey(row) {
-    var accno  = document.getElementById('accno_' + row);
-    var taxkey = accno.options[accno.selectedIndex].value;
-    var reg = /--([0-9]*)/;
-    var found = reg.exec(taxkey);
-    var index = found[1];
-    index = parseInt(index);
-    var tax = 'taxchart_' + row;
-    for (var i = 0; i < document.getElementById(tax).options.length; ++i) {
-      var reg2 = new RegExp("^"+ index, "");
-      if (reg2.exec(document.getElementById(tax).options[i].value)) {
-        document.getElementById(tax).options[i].selected = true;
-        break;
-      }
+function updateTaxes(row)
+{
+  var accno  = document.getElementById('accno_' + row);
+  var taxkey = accno.options[accno.selectedIndex].value;
+  var reg = /--([0-9]*)/;
+  var found = reg.exec(taxkey);
+  var index = found[1];
+  index = parseInt(index);
+  var tax = 'taxchart_' + row;
+  var taxkeyposition = taxkey.lastIndexOf(found[0]);
+  var account = taxkey.substr(0, taxkeyposition);
+
+  var xmlhttp;
+  if (window.XMLHttpRequest)
+  {// code for IE7+, Firefox, Chrome, Opera, Safari
+    xmlhttp=new XMLHttpRequest();
+  }
+  else
+  {// code for IE6, IE5
+    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+  }
+  xmlhttp.onreadystatechange=function()
+  {
+    if (xmlhttp.readyState==4 && xmlhttp.status==200)
+    {
+      var element = document.getElementById("taxchart_" + row);
+      element.innerHTML = xmlhttp.responseText;
     }
-  };
+  }
+  xmlhttp.open("GET","gl.pl?action=get_tax_dropdown&accno=" + account + "&select_index=" + index,true);
+  xmlhttp.send();
+};
 
   function copy_debit_to_credit() {
     var txt = document.getElementsByName('debit_1')[0].value;

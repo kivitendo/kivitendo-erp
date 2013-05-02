@@ -44,6 +44,7 @@ sub action_ajax_list {
 
   eval {
     my $linked_records = $self->object->linked_records(direction => 'both');
+    push @{ $linked_records }, $self->object->sepa_export_items if $self->object->can('sepa_export_items');
     my $output         = SL::Presenter->get->grouped_record_list(
       $linked_records,
       with_columns      => [ qw(record_link_direction) ],

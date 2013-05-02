@@ -16,8 +16,10 @@ function eval_json_result(data) {
   if (data.error)
     return display_flash('error', data.error);
 
-  $('#flash_error').hide();
-  $('#flash_error_content').empty();
+  $(['info', 'warning', 'error']).each(function(idx, category) {
+    $('#flash_' + category).hide();
+    $('#flash_' + category + '_content').empty();
+  });
 
   if ((data.js || '') != '')
     eval(data.js);
@@ -71,12 +73,22 @@ function eval_json_result(data) {
       else if (action[0] == 'removeProp')           $(action[1]).removeProp(action[2]);
       else if (action[0] == 'val')                  $(action[1]).val(action[2]);
 
+      // Class attribute
+      else if (action[0] == 'addClass')             $(action[1]).addClass(action[2]);
+      else if (action[0] == 'removeClass')          $(action[1]).removeClass(action[2]);
+      else if (action[0] == 'toggleClass')          $(action[1]).toggleClass(action[2]);
+
       // Data storage
       else if (action[0] == 'data')                 $(action[1]).data(action[2], action[3]);
       else if (action[0] == 'removeData')           $(action[1]).removeData(action[2]);
 
       // Form Events
       else if (action[0] == 'focus')                $(action[1]).focus();
+
+      // ## jqModal plugin ##
+
+      // Closing and removing the popup
+      else if (action[0] == 'jqmClose')             $(action[1]).jqmClose();
 
       // ## jstree plugin ##
 
@@ -104,11 +116,20 @@ function eval_json_result(data) {
       else if (action[0] == 'jstree:deselect_node') $.jstree._reference($(action[1])).deselect_node(action[2]);
       else if (action[0] == 'jstree:deselect_all')  $.jstree._reference($(action[1])).deselect_all();
 
+      // ## other stuff ##
+      else if (action[0] == 'redirect_to')          window.location.href = action[1];
+
       else                                          console.log('Unknown action: ' + action[0]);
 
     });
 
   // console.log("current_content_type " + $('#current_content_type').val() + ' ID ' + $('#current_content_id').val());
+}
+
+function submit_ajax_form(url, form_selector, additional_data) {
+  var separator = /\?/.test(url) ? '&' : '?';
+  $.post(url + separator + $(form_selector).serialize(), additional_data, eval_json_result);
+  return true;
 }
 
 // Local Variables:

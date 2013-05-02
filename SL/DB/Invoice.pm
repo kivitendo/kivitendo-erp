@@ -33,6 +33,12 @@ __PACKAGE__->meta->add_relationship(
     class         => 'SL::DB::Invoice',
     column_map    => { id => 'storno_id' },
   },
+  sepa_export_items => {
+    type            => 'one to many',
+    class           => 'SL::DB::SepaExportItem',
+    column_map      => { id => 'ar_id' },
+    manager_args    => { with_objects => [ 'sepa_export' ] }
+  },
 );
 
 __PACKAGE__->meta->initialize;
@@ -90,7 +96,7 @@ sub new_from {
   croak("Unsupported source object type '" . ref($source) . "'") unless ref($source) =~ m/^ SL::DB:: (?: Order | DeliveryOrder ) $/x;
   croak("Cannot create invoices for purchase records")           unless $source->customer_id;
 
-  my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_term->terms_netto : 0;
+  my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms->terms_netto : 0;
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes curr salesman_id cusordnumber ordnumber quonumber
                                                 department_id cp_id language_id payment_id delivery_customer_id delivery_vendor_id taxzone_id shipto_id
@@ -239,6 +245,10 @@ sub displayable_state {
   my $self = shift;
 
   return $self->closed ? $::locale->text('closed') : $::locale->text('open');
+}
+
+sub date {
+  goto &transdate;
 }
 
 1;

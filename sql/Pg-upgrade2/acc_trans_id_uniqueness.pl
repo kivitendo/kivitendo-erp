@@ -1,30 +1,18 @@
 # @tag: acc_trans_id_uniqueness
 # @description: Sorgt dafür, dass acc_trans.acc_trans_id eindeutig ist
 # @depends: release_2_6_1
-# @charset: utf-8
+package SL::DBUpgrade2::acc_trans_id_uniqueness;
 
 use utf8;
 use strict;
-use Data::Dumper;
 
-die "This script cannot be run from the command line." unless $::form;
+use parent qw(SL::DBUpgrade2::Base);
 
-sub mydberror {
-  my ($msg) = @_;
-  die $dbup_locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr;
-}
+use SL::DBUtils;
 
-sub do_query {
-  my ($query, $may_fail) = @_;
+sub run {
+  my ($self) = @_;
 
-  return if $dbh->do($query);
-
-  mydberror($query) unless ($may_fail);
-  $dbh->rollback();
-  $dbh->begin_work();
-}
-
-sub do_update {
   my $query = <<SQL;
     SELECT acc_trans_id, trans_id, itime, mtime
     FROM acc_trans
@@ -34,7 +22,7 @@ sub do_update {
     ORDER BY trans_id, itime, mtime NULLS FIRST
 SQL
 
-  my @entries = selectall_hashref_query($form, $dbh, $query);
+  my @entries = selectall_hashref_query($::form, $self->dbh, $query);
 
   return 1 unless @entries;
 
@@ -45,7 +33,7 @@ SQL
     ))
 SQL
 
-  do_query($query, 0);
+  $self->db_query($query, 0);
 
   my %skipped_acc_trans_ids;
   foreach my $entry (@entries) {
@@ -62,11 +50,11 @@ SQL
           AND (mtime $mtime)
 SQL
 
-      do_query($query, 0);
+      $self->db_query($query, 0);
     }
   }
 
   return 1;
 }
 
-return do_update();
+1;

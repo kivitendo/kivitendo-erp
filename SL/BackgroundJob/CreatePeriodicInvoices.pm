@@ -64,9 +64,9 @@ sub run {
 }
 
 sub _log_msg {
-  # my $message  = join('', @_);
-  # $message    .= "\n" unless $message =~ m/\n$/;
-  # $::lxdebug->message(0, $message);
+  my $message  = join('', @_);
+  $message    .= "\n" unless $message =~ m/\n$/;
+  $::lxdebug->message(LXDebug::DEBUG1(), $message);
 }
 
 sub _generate_time_period_variables {
@@ -232,7 +232,8 @@ sub _print_invoice {
   $form->{formname}     = $form->{type};
   $form->{format}       = 'pdf';
   $form->{media}        = 'printer';
-  $form->{OUT}          = "| " . $config->printer->printer_command;
+  $form->{OUT}          = $config->printer->printer_command;
+  $form->{OUT_MODE}     = '|-';
 
   $form->prepare_for_printing;
 

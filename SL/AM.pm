@@ -213,11 +213,8 @@ sub save_account {
       qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice);
   }
 
-  if ($form->{AR_include_in_dropdown}) {
-    $form->{$form->{AR_include_in_dropdown}} = $form->{AR_include_in_dropdown};
-  }
-  if ($form->{AP_include_in_dropdown}) {
-    $form->{$form->{AP_include_in_dropdown}} = $form->{AP_include_in_dropdown};
+  for (qw(AR_include_in_dropdown AP_include_in_dropdown)) {
+    $form->{$form->{$_}} = $form->{$_} if $form->{$_};
   }
 
   $form->{link} = "";
@@ -265,8 +262,8 @@ sub save_account {
   if (!$form->{id} || $form->{id} eq "") {
     $query = qq|SELECT nextval('id')|;
     ($form->{"id"}) = selectrow_query($form, $dbh, $query);
-    $query = qq|INSERT INTO chart (id, accno) VALUES (?, ?)|;
-    do_query($form, $dbh, $query, $form->{"id"}, $form->{"accno"});
+    $query = qq|INSERT INTO chart (id, accno, link) VALUES (?, ?, ?)|;
+    do_query($form, $dbh, $query, $form->{"id"}, $form->{"accno"}, '');
   }
 
   @values = ();
@@ -1083,6 +1080,7 @@ sub save_defaults {
         vendornumber       = ?,
         articlenumber      = ?,
         servicenumber      = ?,
+        assemblynumber     = ?,
         sdonumber          = ?,
         pdonumber          = ?,
         businessnumber     = ?,
@@ -1095,6 +1093,7 @@ sub save_defaults {
                 $form->{sqnumber},        $form->{rfqnumber},
                 $form->{customernumber},  $form->{vendornumber},
                 $form->{articlenumber},   $form->{servicenumber},
+                $form->{assemblynumber},
                 $form->{sdonumber},       $form->{pdonumber},
                 $form->{businessnumber},  $form->{weightunit},
                 conv_i($form->{language_id}));
@@ -1744,7 +1743,7 @@ sub taxes {
                    (SELECT accno FROM chart WHERE id = chart_id) AS taxnumber,
                    (SELECT description FROM chart WHERE id = chart_id) AS account_description
                  FROM tax t
-                 ORDER BY taxkey|;
+                 ORDER BY taxkey, rate|;
 
   my $sth = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
@@ -1804,6 +1803,7 @@ sub get_tax {
                    taxdescription,
                    round(rate * 100, 2) AS rate,
                    chart_id,
+                   chart_categories,
                    (id IN (SELECT tax_id
                            FROM acc_trans)) AS tax_already_used
                  FROM tax
@@ -1861,14 +1861,23 @@ sub save_tax {
 
   $form->{rate} = $form->{rate} / 100;
 
-  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, $form->{chart_id}, $form->{chart_id} );
+  my $chart_categories = '';
+  $chart_categories .= 'A' if $form->{asset};
+  $chart_categories .= 'L' if $form->{liability};
+  $chart_categories .= 'Q' if $form->{equity};
+  $chart_categories .= 'I' if $form->{revenue};
+  $chart_categories .= 'E' if $form->{expense};
+  $chart_categories .= 'C' if $form->{costs};
+
+  my @values = ($form->{taxkey}, $form->{taxdescription}, $form->{rate}, $form->{chart_id}, $form->{chart_id}, $chart_categories);
   if ($form->{id} ne "") {
     $query = qq|UPDATE tax SET
                   taxkey         = ?,
                   taxdescription = ?,
                   rate           = ?,
                   chart_id       = ?,
-                  taxnumber      = (SELECT accno FROM chart WHERE id= ? )
+                  taxnumber      = (SELECT accno FROM chart WHERE id= ? ),
+                  chart_categories = ?
                 WHERE id = ?|;
     push(@values, $form->{id});
 
@@ -1879,9 +1888,10 @@ sub save_tax {
                   taxdescription,
                   rate,
                   chart_id,
-                  taxnumber
+                  taxnumber,
+                  chart_categories
                 )
-                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?) )|;
+                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?), ? )|;
   }
   do_query($form, $dbh, $query, @values);
 

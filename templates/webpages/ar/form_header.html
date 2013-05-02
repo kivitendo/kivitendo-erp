@@ -15,13 +15,20 @@
 [% L.hidden_tag('follow_up_trans_info_1', follow_up_trans_info) %]
 [% L.hidden_tag('follow_up_rowcount', 1) %]
 
+<h1>[% title | html %]</h1>
+
 [%- IF saved_message %]<p>[% saved_message | html  %]</p>[% END %]
 
+<div class="tabwidget">
+ <ul>
+  <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+[%- IF id %]
+  <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=Invoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
+[%- END %]
+ </ul>
+
+<div id="ui-tabs-basic-data">
 <table width=100%>
-  <tr class=listtop>
-    <th class=listtop>[% title | html %]</th>
-  </tr>
-  <tr height="5"></tr>
   <tr valign=top>
     <td>
       <table width=100%>
@@ -278,7 +285,6 @@
       </table>
     </td>
   </tr>
-  <tr>
-    <td><hr size=3 noshade></td>
-  </tr>
 </table>
+</div>
+</div>

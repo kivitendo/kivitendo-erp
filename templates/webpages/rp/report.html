@@ -137,8 +137,14 @@
   <tr>
     <th align=right>[% 'as at' | $T8 %]</th>
     <td> [% L.date_tag('asofdate', asofdate) %]</td>
+    <td><input name=l_cb class=checkbox type=checkbox value=Y>&nbsp;[% 'CB Transactions' | $T8 %]</td>
+    <td><input name=l_ob class=checkbox type=checkbox value=Y>&nbsp;[% 'only OB Transactions' | $T8 %]</td>
+  </tr>
+  </tr>
     <th align=right nowrap>[% 'Compare to' | $T8 %]</th>
     <td>[% L.date_tag('compareasofdate', compareasofdate) %]</td>
+    <td><input name=l_cb_compared class=checkbox type=checkbox value=Y>&nbsp;[% 'CB Transactions' | $T8 %]</td>
+    <td><input name=l_ob_compared class=checkbox type=checkbox value=Y>&nbsp;[% 'only OB Transactions' | $T8 %]</td>
   </tr>
   <tr>
     <th align=right>[% 'Decimalplaces' | $T8 %]</th>
@@ -152,11 +158,6 @@
     <td><input name=l_heading class=checkbox type=checkbox value=Y>&nbsp;[% 'Heading' | $T8 %]
     <input name=l_subtotal class=checkbox type=checkbox value=Y>&nbsp;[% 'Subtotal' | $T8 %]
     <input name=l_accno class=checkbox type=checkbox value=Y>&nbsp;[% 'Account Number' | $T8 %]</td>
-  </tr>
-  <tr>
-    <th></th>
-    <td><input name=l_cb class=checkbox type=checkbox value=Y>&nbsp;[% 'CB Transactions' | $T8 %]
-    <input name=l_ob class=checkbox type=checkbox value=Y>&nbsp;[% 'only OB Transactions' | $T8 %]</td>
   </tr>
 [%- END %]
 

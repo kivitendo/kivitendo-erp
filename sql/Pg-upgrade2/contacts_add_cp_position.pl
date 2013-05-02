@@ -1,18 +1,19 @@
 # @tag: contacts_add_cp_position
 # @description: Feld 'Funktion/Position' zu Kontakten
 # @depends: release_3_0_0
-# @charset: utf-8
+package SL::DBUpgrade2::contacts_add_cp_position;
 
-package contacts_add_cp_position;
 use strict;
+use utf8;
 
-die 'This script cannot be run from the command line.' if !$::form;
+use parent qw(SL::DBUpgrade2::Base);
 
-my $query = 'ALTER TABLE contacts ADD COLUMN cp_position VARCHAR(75)';
+sub run {
+  my ($self) = @_;
 
-if (!$dbh->do($query)) {
-  $dbh->rollback;
-  $dbh->begin_work;
+  $self->db_query('ALTER TABLE contacts ADD COLUMN cp_position VARCHAR(75)', 1);
+
+  return 1;
 }
 
 1;

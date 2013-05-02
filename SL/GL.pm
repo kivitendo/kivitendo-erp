@@ -285,9 +285,7 @@ sub all_transactions {
     push(@apvalues, '%' . $form->{description} . '%');
   }
 
-  if ($form->{employee} =~ /--/) {
-    ($form->{employee_id},$form->{employee_name}) = split(/--/,$form->{employee});
-  #if ($form->{employee_id}) {
+  if ($form->{employee_id}) {
     $glwhere .= " AND g.employee_id = ? ";
     $arwhere .= " AND a.employee_id = ? ";
     $apwhere .= " AND a.employee_id = ? ";
@@ -803,5 +801,24 @@ sub get_chart_balances {
   $main::lxdebug->leave_sub();
 }
 
+sub get_tax_dropdown {
+  my $myconfig = \%main::myconfig;
+  my $form = $main::form;
+
+  my $dbh = $form->get_standard_dbh($myconfig);
+
+  my $query = qq|SELECT category FROM chart WHERE accno = ?|;
+  my ($category) = selectrow_query($form, $dbh, $query, $form->{accno});
+
+  $query = qq|SELECT * FROM tax WHERE chart_categories like '%$category%' order by taxkey, rate|;
+
+  my $sth = prepare_execute_query($form, $dbh, $query);
+
+  $form->{TAX_ACCOUNTS} = [];
+  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+    push(@{ $form->{TAX_ACCOUNTS} }, $ref);
+  }
+
+}
 
 1;

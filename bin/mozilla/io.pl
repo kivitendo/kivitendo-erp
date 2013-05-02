@@ -571,7 +571,6 @@ sub item_selected {
   map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
     qw(sellprice listprice weight);
 
-  $form->{sellprice} += ($form->{"sellprice_$i"} * $form->{"qty_$i"});
   $form->{weight}    += ($form->{"weight_$i"} * $form->{"qty_$i"});
 
   if ($form->{"not_discountable_$i"}) {
@@ -1336,7 +1335,7 @@ sub print_form {
       call_sub($display_form);
       # saving the history
       if(!exists $form->{addition}) {
-        $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
+        $form->{snumbers} = "${inv}number" . "_" . $form->{"${inv}number"};
         $form->{addition} = "PRINTED";
         $form->save_history;
       }
@@ -1394,7 +1393,7 @@ sub print_form {
 
   # create the form variables
   if ($form->{type} =~ /_delivery_order$/) {
-    DO->order_details();
+    DO->order_details(\%myconfig, \%$form);
   } elsif ($order) {
     OE->order_details(\%myconfig, \%$form);
   } else {
@@ -1577,7 +1576,7 @@ sub print_form {
 
 # saving the history
   if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
+    $form->{snumbers} = "${inv}number" . "_" . $form->{"${inv}number"};
     if($form->{media} =~ /printer/) {
       $form->{addition} = "PRINTED";
     }
@@ -1597,11 +1596,11 @@ sub print_form {
   # prepare meta information for template introspection
   $form->{template_meta} = {
     formname  => $form->{formname},
-    language  => SL::DB::Manager::Language->find_by_or_create(id => $form->{language_id}),
+    language  => SL::DB::Manager::Language->find_by_or_create(id => $form->{language_id} || undef),
     format    => $form->{format},
     media     => $form->{media},
     extension => $extension,
-    printer   => SL::DB::Manager::Printer->find_by_or_create(id => $form->{printer_id}),
+    printer   => SL::DB::Manager::Printer->find_by_or_create(id => $form->{printer_id} || undef),
     today     => DateTime->today,
   };
 
@@ -1770,7 +1769,7 @@ sub set_duedate {
   my $invdate = $form->{invdate} eq 'undefined' ? undef : $form->{invdate};
   my $duedate = $form->get_duedate(\%myconfig, $invdate);
 
-  print $form->ajax_response_header() . $duedate;
+  print $form->ajax_response_header() . ($duedate || $invdate);
 
   $main::lxdebug->leave_sub();
 }

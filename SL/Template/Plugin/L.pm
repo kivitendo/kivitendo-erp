@@ -7,6 +7,7 @@ use List::Util qw(max);
 use Scalar::Util qw(blessed);
 
 use SL::Presenter;
+use SL::Util qw(_hashify);
 
 use strict;
 
@@ -28,10 +29,6 @@ sub _J {
   my $string = shift;
   $string    =~ s/(\"|\'|\\)/\\$1/g;
   return $string;
-}
-
-sub _hashify {
-  return (@_ && (ref($_[0]) eq 'HASH')) ? %{ $_[0] } : @_;
 }
 
 sub new {
@@ -69,9 +66,13 @@ sub input_tag     { return _call_presenter('input_tag',     @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
 
+sub _set_id_attribute {
+  my ($attributes, $name) = @_;
+  SL::Presenter::Tag::_set_id_attribute($attributes, $name);
+}
+
 sub img_tag {
-  my ($self, @slurp) = @_;
-  my %options = _hashify(@slurp);
+  my ($self, %options) = _hashify(1, @_);
 
   $options{alt} ||= '';
 
@@ -79,10 +80,9 @@ sub img_tag {
 }
 
 sub textarea_tag {
-  my ($self, $name, $content, @slurp) = @_;
-  my %attributes      = _hashify(@slurp);
+  my ($self, $name, $content, %attributes) = _hashify(3, @_);
 
-  $attributes{id}   ||= $self->name_to_id($name);
+  _set_id_attribute(\%attributes, $name);
   $attributes{rows}  *= 1; # required by standard
   $attributes{cols}  *= 1; # required by standard
   $content            = $content ? _H($content) : '';
@@ -91,10 +91,9 @@ sub textarea_tag {
 }
 
 sub checkbox_tag {
-  my ($self, $name, @slurp) = @_;
-  my %attributes       = _hashify(@slurp);
+  my ($self, $name, %attributes) = _hashify(2, @_);
 
-  $attributes{id}    ||= $self->name_to_id($name);
+  _set_id_attribute(\%attributes, $name);
   $attributes{value}   = 1 unless defined $attributes{value};
   my $label            = delete $attributes{label};
   my $checkall         = delete $attributes{checkall};
@@ -113,12 +112,10 @@ sub checkbox_tag {
 }
 
 sub radio_button_tag {
-  my $self             = shift;
-  my $name             = shift;
-  my %attributes       = _hashify(@_);
+  my ($self, $name, %attributes) = _hashify(2, @_);
 
+  _set_id_attribute(\%attributes, $name);
   $attributes{value}   = 1 unless defined $attributes{value};
-  $attributes{id}    ||= $self->name_to_id($name . "_" . $attributes{value});
   my $label            = delete $attributes{label};
 
   if ($attributes{checked}) {
@@ -134,8 +131,8 @@ sub radio_button_tag {
 }
 
 sub hidden_tag {
-  my ($self, $name, $value, @slurp) = @_;
-  return $self->input_tag($name, $value, _hashify(@slurp), type => 'hidden');
+  my ($self, $name, $value, %attributes) = _hashify(3, @_);
+  return $self->input_tag($name, $value, %attributes, type => 'hidden');
 }
 
 sub div_tag {
@@ -154,8 +151,7 @@ sub li_tag {
 }
 
 sub link {
-  my ($self, $href, $content, @slurp) = @_;
-  my %params = _hashify(@slurp);
+  my ($self, $href, $content, %params) = _hashify(3, @_);
 
   $href ||= '#';
 
@@ -163,8 +159,7 @@ sub link {
 }
 
 sub submit_tag {
-  my ($self, $name, $value, @slurp) = @_;
-  my %attributes = _hashify(@slurp);
+  my ($self, $name, $value, %attributes) = _hashify(3, @_);
 
   if ( $attributes{confirm} ) {
     $attributes{onclick} = 'return confirm("'. _J(delete($attributes{confirm})) .'");';
@@ -174,18 +169,28 @@ sub submit_tag {
 }
 
 sub button_tag {
-  my ($self, $onclick, $value, @slurp) = @_;
-  my %attributes = _hashify(@slurp);
+  my ($self, $onclick, $value, %attributes) = _hashify(3, @_);
 
-  $attributes{id}   ||= $self->name_to_id($attributes{name}) if $attributes{name};
+  _set_id_attribute(\%attributes, $attributes{name}) if $attributes{name};
   $attributes{type} ||= 'button';
+
+  $onclick = 'if (!confirm("'. _J(delete($attributes{confirm})) .'")) return false; ' . $onclick if $attributes{confirm};
 
   return $self->html_tag('input', undef, %attributes, value => $value, onclick => $onclick);
 }
 
+sub ajax_submit_tag {
+  my ($self, $url, $form_selector, $text, @slurp) = @_;
+
+  $url           = _J($url);
+  $form_selector = _J($form_selector);
+  my $onclick    = qq|submit_ajax_form('${url}', '${form_selector}')|;
+
+  return $self->button_tag($onclick, $text, @slurp);
+}
+
 sub yes_no_tag {
-  my ($self, $name, $value) = splice @_, 0, 3;
-  my %attributes            = _hashify(@_);
+  my ($self, $name, $value, %attributes) = _hashify(3, @_);
 
   return $self->select_tag($name, [ [ 1 => $::locale->text('Yes') ], [ 0 => $::locale->text('No') ] ], default => $value ? 1 : 0, %attributes);
 }
@@ -211,16 +216,14 @@ sub stylesheet_tag {
 
 my $date_tag_id_idx = 0;
 sub date_tag {
-  my ($self, $name, $value, @slurp) = @_;
+  my ($self, $name, $value, %params) = _hashify(3, @_);
 
-  my %params   = _hashify(@slurp);
-  my $id       = $self->name_to_id($name) . _tag_id();
+  _set_id_attribute(\%params, $name);
   my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
   my @class    = $params{no_cal} || $params{readonly} ? () : (class => 'datepicker');
 
   return $self->input_tag(
     $name, blessed($value) ? $value->to_lxoffice : $value,
-    id     => $id,
     size   => 11,
     onblur => "check_right_date_format(this);",
     %params,
@@ -283,8 +286,7 @@ sub javascript_tag {
 }
 
 sub tabbed {
-  my ($self, $tabs, @slurp) = @_;
-  my %params   = _hashify(@slurp);
+  my ($self, $tabs, %params) = _hashify(2, @_);
   my $id       = $params{id} || 'tab_' . _tag_id();
 
   $params{selected} *= 1;
@@ -310,8 +312,7 @@ sub tabbed {
 }
 
 sub tab {
-  my ($self, $name, $src, @slurp) = @_;
-  my %params = _hashify(@slurp);
+  my ($self, $name, $src, %params) = _hashify(3, @_);
 
   $params{method} ||= 'process';
 
@@ -332,8 +333,7 @@ sub tab {
 }
 
 sub areainput_tag {
-  my ($self, $name, $value, @slurp) = @_;
-  my %attributes      = _hashify(@slurp);
+  my ($self, $name, $value, %attributes) = _hashify(3, @_);
 
   my ($rows, $cols);
   my $min  = delete $attributes{min_rows} || 1;
@@ -351,8 +351,7 @@ sub areainput_tag {
 }
 
 sub multiselect2side {
-  my ($self, $id, @slurp) = @_;
-  my %params              = _hashify(@slurp);
+  my ($self, $id, %params) = _hashify(2, @_);
 
   $params{labelsx}        = "\"" . _J($params{labelsx} || $::locale->text('Available')) . "\"";
   $params{labeldx}        = "\"" . _J($params{labeldx} || $::locale->text('Selected'))  . "\"";
@@ -371,8 +370,7 @@ EOCODE
 }
 
 sub sortable_element {
-  my ($self, $selector, @slurp) = @_;
-  my %params                    = _hashify(@slurp);
+  my ($self, $selector, %params) = _hashify(2, @_);
 
   my %attributes = ( distance => 5,
                      helper   => <<'JAVASCRIPT' );
@@ -429,8 +427,7 @@ JAVASCRIPT
 }
 
 sub online_help_tag {
-  my ($self, $tag, @slurp) = @_;
-  my %params               = _hashify(@slurp);
+  my ($self, $tag, %params) = _hashify(2, @_);
   my $cc                   = $::myconfig{countrycode};
   my $file                 = "doc/online/$cc/$tag.html";
   my $text                 = $params{text} || $::locale->text('Help');
@@ -447,8 +444,7 @@ sub dump {
 }
 
 sub sortable_table_header {
-  my ($self, $by, @slurp) = @_;
-  my %params              = _hashify(@slurp);
+  my ($self, $by, %params) = _hashify(2, @_);
 
   my $controller          = $self->{CONTEXT}->stash->get('SELF');
   my $sort_spec           = $controller->get_sort_spec;
@@ -479,7 +475,7 @@ sub paginate_controls {
   my %template_params = (
     pages             => \%paginate_params,
     url_maker         => sub {
-      my %url_params                                    = _hashify(@_);
+      my %url_params                                    = _hashify(0, @_);
       $url_params{ $paginate_spec->{FORM_PARAMS}->[0] } = delete $url_params{page};
       $url_params{ $paginate_spec->{FORM_PARAMS}->[1] } = delete $url_params{per_page} if exists $url_params{per_page};
 
@@ -518,6 +514,10 @@ Usage from a template:
 
 A module modeled a bit after Rails' ActionView helpers. Several small
 functions that create HTML tags from various kinds of data sources.
+
+The C<id> attribute is usually calculated automatically. This can be
+overridden by either specifying an C<id> attribute or by setting
+C<no_id> to trueish.
 
 =head1 FUNCTIONS
 
@@ -572,8 +572,27 @@ tag's C<id> defaults to C<name_to_id($name)>.
 
 If C<$attributes{confirm}> is set then a JavaScript popup dialog will
 be added via the C<onclick> handler asking the question given with
-C<$attributes{confirm}>. If request is only submitted if the user
+C<$attributes{confirm}>. The request is only submitted if the user
 clicks the dialog's ok/yes button.
+
+=item C<ajax_submit_tag $url, $form_selector, $text, %attributes>
+
+Creates a HTML 'input type="button"' tag with a very specific onclick
+handler that submits the form given by the jQuery selector
+C<$form_selector> to the URL C<$url> (the actual JavaScript function
+called for that is C<submit_ajax_form()> in C<js/client_js.js>). The
+button's label will be C<$text>.
+
+=item C<button_tag $onclick, $text, %attributes>
+
+Creates a HTML 'input type="button"' tag with an onclick handler
+C<$onclick> and a value of C<$text>. The button does not have a name
+nor an ID by default.
+
+If C<$attributes{confirm}> is set then a JavaScript popup dialog will
+be prepended to the C<$onclick> handler asking the question given with
+C<$attributes{confirm}>. The request is only submitted if the user
+clicks the dialog's "ok/yes" button.
 
 =item C<textarea_tag $name, $value, %attributes>
 

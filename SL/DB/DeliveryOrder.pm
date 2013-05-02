@@ -51,4 +51,8 @@ sub displayable_state {
     ($self->delivered ? $::locale->text('delivered') : $::locale->text('not delivered'));
 }
 
+sub date {
+  goto &transdate;
+}
+
 1;

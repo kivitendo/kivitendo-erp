@@ -78,6 +78,15 @@
   <p>[% saved_message | html %]</p>
 [% END %]
 
+<div class="tabwidget">
+ <ul>
+  <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
+[%- IF id %]
+  <li><a href="controller.pl?action=RecordLinks/ajax_list&object_model=PurchaseInvoice&object_id=[% HTML.url(id) %]">[% 'Linked Records' | $T8 %]</a></li>
+[%- END %]
+ </ul>
+
+<div id="ui-tabs-basic-data">
 <table width="100%">
   <tr valign="top">
     <td>
@@ -364,7 +373,6 @@
       </table>
     </td>
   </tr>
-  <tr>
-    <td><hr size="3" noshade></td>
-  </tr>
 </table>
+</div>
+</div>

@@ -436,8 +436,6 @@ sub form_header {
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_history.js"></script>|;
   $form->{javascript} .= qq|<script type="text/javascript" src="js/show_vc_details.js"></script>|;
 
-  $::request->layout->use_stylesheet('presenter/record/record_list.css');
-
   $form->header;
 
   $TMPL_VAR{HIDDENS} = [ map { name => $_, value => $form->{$_} },
@@ -483,7 +481,7 @@ sub form_footer {
   $TMPL_VAR{notes}    = qq|<textarea name=notes rows="$rows" cols="25">| . H($form->{notes}) . qq|</textarea>|;
   $TMPL_VAR{intnotes} = qq|<textarea name=intnotes rows="$introws" cols="35">| . H($form->{intnotes}) . qq|</textarea>|;
 
-  if ($form->{customer_id}) {
+  if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
     my $customer = SL::DB::Customer->new(id => $form->{customer_id})->load();
     $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
   }

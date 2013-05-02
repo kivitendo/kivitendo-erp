@@ -1674,15 +1674,15 @@ sub assembly_row {
   }
 
   my %header = (
-   runningnumber => { text =>  $locale->text('No.'),              nowrap => 1, width => '5%'  },
-   qty           => { text =>  $locale->text('Qty'),              nowrap => 1, width => '10%' },
-   unit          => { text =>  $locale->text('Unit'),             nowrap => 1, width => '5%'  },
-   partnumber    => { text =>  $locale->text('Part Number'),      nowrap => 1, width => '20%' },
-   description   => { text =>  $locale->text('Part Description'), nowrap => 1, width => '50%' },
-   lastcost      => { text =>  $locale->text('Purchase Prices'),  nowrap => 1, width => '50%' },
-   total         => { text =>  $locale->text('Sale Prices'),      nowrap => 1,                },
-   bom           => { text =>  $locale->text('BOM'),                                          },
-   partsgroup    => { text =>  $locale->text('Group'),                                        },
+   runningnumber => { text =>  $locale->text('No.'),              nowrap => 1, width => '5%',  align => 'left',},
+   qty           => { text =>  $locale->text('Qty'),              nowrap => 1, width => '10%', align => 'left',},
+   unit          => { text =>  $locale->text('Unit'),             nowrap => 1, width => '5%',  align => 'left',},
+   partnumber    => { text =>  $locale->text('Part Number'),      nowrap => 1, width => '20%', align => 'left',},
+   description   => { text =>  $locale->text('Part Description'), nowrap => 1, width => '50%', align => 'left',},
+   lastcost      => { text =>  $locale->text('Purchase Prices'),  nowrap => 1, width => '50%', align => 'right',},
+   total         => { text =>  $locale->text('Sale Prices'),      nowrap => 1,                 align => 'right',},
+   bom           => { text =>  $locale->text('BOM'),                                           align => 'center',},
+   partsgroup    => { text =>  $locale->text('Group'),                                         align => 'left',},
   );
 
   my @ROWS;
@@ -1760,12 +1760,14 @@ sub update {
 
   # parse pricegroups. and no, don't rely on check_form for this...
   map { $form->{"price_$_"} = $form->parse_amount(\%myconfig, $form->{"price_$_"}) } 1 .. $form->{price_rows};
+  $form->{sellprice} = $form->parse_amount(\%myconfig, $form->{sellprice});
 
   # same for makemodel lastcosts
   # but parse_amount not necessary for assembly component lastcosts
   unless ($form->{item} eq "assembly") {
     map { $form->{"lastcost_$_"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$_"}) } 1 .. $form->{"makemodel_rows"};
   };
+  $form->{listprice} = $form->parse_amount(\%myconfig, $form->{listprice});
 
   if ($form->{item} eq "assembly") {
     my $i = $form->{assembly_rows};

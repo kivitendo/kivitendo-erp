@@ -737,10 +737,7 @@ sub retrieve {
 sub order_details {
   $main::lxdebug->enter_sub();
 
-  my ($self)   = @_;
-
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
+  my ($self, $myconfig, $form) = @_;
 
   # connect to database
   my $dbh = $form->get_standard_dbh($myconfig);
@@ -805,7 +802,7 @@ sub order_details {
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
 
   $form->{TEMPLATE_ARRAYS} = { };
-  IC->prepare_parts_for_printing();
+  IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
 
   my @arrays =
     qw(runningnumber number description longdescription qty unit

@@ -144,7 +144,7 @@ sub invoice_details {
 
   $form->{discount} = [];
 
-  IC->prepare_parts_for_printing();
+  IC->prepare_parts_for_printing(myconfig => $myconfig, form => $form);
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC');
 
@@ -817,7 +817,7 @@ sub post_invoice {
   }
 
   $project_id = conv_i($form->{"globalproject_id"});
-
+  # entsprechend auch beim Bestimmen des Steuerschlüssels in Taxkey.pm berücksichtigen
   my $taxdate = $form->{deliverydate} ? $form->{deliverydate} : $form->{invdate};
 
   foreach my $trans_id (keys %{ $form->{amount_cogs} }) {

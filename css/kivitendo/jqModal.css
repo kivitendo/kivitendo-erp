@@ -1,5 +1,5 @@
 /* the overlayed element */
-.record_list_overlay {
+.jqModal_overlay {
   position: fixed;
   top: 50%;
   margin-top: -250px;
@@ -20,14 +20,14 @@
   padding: 10px;
 }
 
-.record_list_overlay .overlay_content {
+.jqModal_overlay .overlay_content {
   width: 790px;
   height: 490px;
   overflow: auto;
 }
 
-.record_list_overlay .close {
-  background-image: url(../../../image/dialog-close.png);
+.jqModal_overlay .close {
+  background-image: url(../../image/dialog-close.png);
   position: absolute;
   right: -16px;
   top: -16px;

@@ -97,17 +97,17 @@
         <input name="l.cp_mobile" id="l_cp_mobile" type="checkbox" class="checkbox" value="Y" checked>
         <label for="l_cp_mobile">[% 'Mobile' | $T8 %]</label>
        </td>
-       <td>
-        <input name="l.cp_email" id="l_cp_email" type="checkbox" class="checkbox" value="Y" checked>
-        <label for="l_cp_email">[% 'E-mail' | $T8 %]</label>
-       </td>
+
+       <td>[%- L.checkbox_tag('l.cp_privatphone', value='Y', label=LxERP.t8('Private Phone'), class='checkbox', checked=1) %]</td>
       </tr>
 
       <tr>
-       <td>
-        <input name="l.cp_birthday" id="l_cp_birthday" type="checkbox" class="checkbox" value="Y">
-        <label for="l_cp_birthday">[% 'Birthday' | $T8 %]</label>
-       </td>
+       <td>[%- L.checkbox_tag('l.cp_fax',         value='Y', label=LxERP.t8('Fax'),            class='checkbox') %]</td>
+       <td>[%- L.checkbox_tag('l.cp_email',       value='Y', label=LxERP.t8('E-mail'),         class='checkbox', checked=1) %]</td>
+       <td>[%- L.checkbox_tag('l.cp_privatemail', value='Y', label=LxERP.t8('Private E-mail'), class='checkbox') %]</td>
+      </tr>
+
+      <tr>
        <td>
         <input name="l.cp_abteilung" id="l_cp_abteilung" type="checkbox" class="checkbox" value="Y">
         <label for="l_cp_abteilung">[% 'Department' | $T8 %]</label>
@@ -120,6 +120,11 @@
        <td>
         <input name="l.cp_gender" id="l_cp_gender" type="checkbox" class="checkbox" value="Y">
         <label for="l_cp_gender">[% 'Gender' | $T8 %]</label>
+       </td>
+
+       <td>
+        <input name="l.cp_birthday" id="l_cp_birthday" type="checkbox" class="checkbox" value="Y">
+        <label for="l_cp_birthday">[% 'Birthday' | $T8 %]</label>
        </td>
       </tr>
 

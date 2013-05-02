@@ -7,6 +7,8 @@ use parent qw(Exporter);
 use Exporter qw(import);
 our @EXPORT = qw(grouped_record_list empty_record_list record_list);
 
+use SL::Util;
+
 use Carp;
 use List::Util qw(first);
 
@@ -22,7 +24,7 @@ sub grouped_record_list {
 
   %params    = map { exists $params{$_} ? ($_ => $params{$_}) : () } qw(edit_record_links with_columns object_id object_model);
 
-  my %groups = _group_records($list);
+  my %groups = _sort_grouped_lists(_group_records($list));
   my $output = '';
 
   $output .= _sales_quotation_list(        $self, $groups{sales_quotations},         %params) if $groups{sales_quotations};
@@ -36,6 +38,9 @@ sub grouped_record_list {
   $output .= _purchase_delivery_order_list($self, $groups{purchase_delivery_orders}, %params) if $groups{purchase_delivery_orders};
   $output .= _purchase_invoice_list(       $self, $groups{purchase_invoices},        %params) if $groups{purchase_invoices};
   $output .= _ar_transaction_list(         $self, $groups{ar_transactions},          %params) if $groups{ar_transactions};
+
+  $output .= _sepa_collection_list(        $self, $groups{sepa_collections},         %params) if $groups{sepa_collections};
+  $output .= _sepa_transfer_list(          $self, $groups{sepa_transfers},           %params) if $groups{sepa_transfers};
 
   $output  = $self->render('presenter/record/grouped_record_list', %params, output => $output);
 
@@ -92,8 +97,9 @@ sub record_list {
       my $meta         =  $column_meta{ $spec->{data} };
       my $type         =  ref $meta;
       my $relationship =  $relationships{ $spec->{data} };
-      my $rel_type     =  !$relationship ? '' : lc $relationship->class;
-      $rel_type        =~ s/^sl::db:://;
+      my $rel_type     =  !$relationship ? '' : $relationship->class;
+      $rel_type        =~ s/^SL::DB:://;
+      $rel_type        =  SL::Util::snakify($rel_type);
 
       if (ref($spec->{data}) eq 'CODE') {
         $cell{value} = $spec->{data}->($obj);
@@ -146,6 +152,8 @@ sub _group_records {
     purchase_delivery_orders => sub { (ref($_[0]) eq 'SL::DB::DeliveryOrder')   && !$_[0]->is_sales                     },
     purchase_invoices        => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') &&  $_[0]->invoice                      },
     ap_transactions          => sub { (ref($_[0]) eq 'SL::DB::PurchaseInvoice') && !$_[0]->invoice                      },
+    sepa_collections         => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ar_id                        },
+    sepa_transfers           => sub { (ref($_[0]) eq 'SL::DB::SepaExportItem')  &&  $_[0]->ap_id                        },
   );
 
   my %groups;
@@ -154,6 +162,21 @@ sub _group_records {
     my $type         = (first { $matchers{$_}->($record) } keys %matchers) || 'other';
     $groups{$type} ||= [];
     push @{ $groups{$type} }, $record;
+  }
+
+  return %groups;
+}
+
+sub _sort_grouped_lists {
+  my (%groups) = @_;
+
+  foreach my $group (keys %groups) {
+    next unless @{ $groups{$group} };
+    if ($groups{$group}->[0]->can('compare_to')) {
+      $groups{$group} = [ sort { $a->compare_to($b)    } @{ $groups{$group} } ];
+    } else {
+      $groups{$group} = [ sort { $a->date <=> $b->date } @{ $groups{$group} } ];
+    }
   }
 
   return %groups;
@@ -363,6 +386,41 @@ sub _ap_transaction_list {
   );
 }
 
+sub _sepa_export_list {
+  my ($self, $list, %params) = @_;
+
+  my ($source, $destination) = $params{type} eq 'sepa_transfer' ? qw(our vc)                                 : qw(vc our);
+  $params{title}             = $params{type} eq 'sepa_transfer' ? $::locale->text('Bank transfers via SEPA') : $::locale->text('Bank collections via SEPA');
+  $params{with_columns}      = [ grep { $_ ne 'record_link_direction' } @{ $params{with_columns} || [] } ];
+
+  delete $params{edit_record_links};
+
+  return $self->record_list(
+    $list,
+    columns => [
+      [ $::locale->text('Export Number'),    'sepa_export',                                  ],
+      [ $::locale->text('Execution date'),   'execution_date'                                ],
+      [ $::locale->text('Export date'),      sub { $_[0]->sepa_export->itime->to_kivitendo } ],
+      [ $::locale->text('Source BIC'),       "${source}_bic"                                 ],
+      [ $::locale->text('Source IBAN'),      "${source}_iban"                                ],
+      [ $::locale->text('Destination BIC'),  "${destination}_bic"                            ],
+      [ $::locale->text('Destination IBAN'), "${destination}_iban"                           ],
+      [ $::locale->text('Amount'),           'amount'                                        ],
+    ],
+    %params,
+  );
+}
+
+sub _sepa_transfer_list {
+  my ($self, $list, %params) = @_;
+  _sepa_export_list($self, $list, %params, type => 'sepa_transfer');
+}
+
+sub _sepa_collection_list {
+  my ($self, $list, %params) = @_;
+  _sepa_export_list($self, $list, %params, type => 'sepa_collection');
+}
+
 1;
 
 __END__
@@ -432,6 +490,10 @@ The order in which the records are grouped is:
 =item * purchase invoices
 
 =item * AP transactions
+
+=item * SEPA collections
+
+=item * SEPA transfers
 
 =back
 

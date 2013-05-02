@@ -349,7 +349,7 @@ sub prepare_html_content {
         $col->{CELL_ROWS} = [ ];
         foreach my $i (0 .. scalar(@{ $col->{data} }) - 1) {
           push @{ $col->{CELL_ROWS} }, {
-            'data' => $self->html_format($col->{data}->[$i]),
+            'data' => '' . $self->html_format($col->{data}->[$i]),
             'link' => $col->{link}->[$i],
           };
         }

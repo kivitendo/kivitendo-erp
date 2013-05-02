@@ -62,6 +62,7 @@ use SL::Mailer;
 use SL::Menu;
 use SL::MoreCommon qw(uri_encode uri_decode);
 use SL::OE;
+use SL::PrefixedNumber;
 use SL::Request;
 use SL::Template;
 use SL::User;
@@ -470,11 +471,11 @@ sub header {
     main menu list_accounts jquery.autocomplete
     jquery.multiselect2side frame_header/header
     ui-lightness/jquery-ui
-    jquery-ui.custom
+    jquery-ui.custom jqModal
   );
 
   $layout->use_javascript("$_.js") for (qw(
-    jquery jquery-ui jquery.cookie jqModal jquery.checkall
+    jquery jquery-ui jquery.cookie jqModal jquery.checkall jquery.download
     common part_selection switchmenuframe
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
@@ -997,7 +998,6 @@ sub parse_template {
     $ext_for_format = $self->{"format"} =~ m/pdf/ ? 'pdf' : 'odt';
 
   } elsif ($self->{"format"} =~ /(postscript|pdf)/i) {
-    $ENV{"TEXINPUTS"} = ".:" . getcwd() . "/" . $myconfig->{"templates"} . ":" . $ENV{"TEXINPUTS"};
     $template_type    = 'LaTeX';
     $ext_for_format   = 'pdf';
 
@@ -2111,7 +2111,7 @@ sub _get_taxcharts {
 
   my $where = @where ? ' WHERE ' . join(' AND ', map { "($_)" } @where) : '';
 
-  my $query = qq|SELECT * FROM tax $where ORDER BY taxkey|;
+  my $query = qq|SELECT * FROM tax $where ORDER BY taxkey, rate|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
@@ -3184,15 +3184,8 @@ sub update_defaults {
   my ($var) = $sth->fetchrow_array;
   $sth->finish;
 
-  if ($var =~ m/\d+$/) {
-    my $new_var  = (substr $var, $-[0]) * 1 + 1;
-    my $len_diff = length($var) - $-[0] - length($new_var);
-    $var         = substr($var, 0, $-[0]) . ($len_diff > 0 ? '0' x $len_diff : '') . $new_var;
-
-  } else {
-    $var = $var . '1';
-  }
-
+  $var   = 0 if !defined($var) || ($var eq '');
+  $var   = SL::PrefixedNumber->new(number => $var)->get_next;
   $query = qq|UPDATE defaults SET $fld = ?|;
   do_query($self, $dbh, $query, $var);
 
@@ -3409,7 +3402,7 @@ sub prepare_for_printing {
   IC->retrieve_accounts(\%::myconfig, $self, map { $_ => $self->{"id_$_"} } 1 .. $self->{rowcount});
 
   if ($self->{type} =~ /_delivery_order$/) {
-    DO->order_details();
+    DO->order_details(\%::myconfig, $self);
   } elsif ($self->{type} =~ /sales_order|sales_quotation|request_quotation|purchase_order/) {
     OE->order_details(\%::myconfig, $self);
   } else {

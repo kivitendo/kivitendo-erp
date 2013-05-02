@@ -45,7 +45,7 @@ sub html_tag {
 sub input_tag {
   my ($self, $name, $value, %attributes) = @_;
 
-  $attributes{id}   ||= $self->name_to_id($name);
+  _set_id_attribute(\%attributes, $name);
   $attributes{type} ||= 'text';
 
   return $self->html_tag('input', undef, %attributes, name => $name, value => $value);
@@ -77,7 +77,7 @@ sub name_to_id {
 sub select_tag {
   my ($self, $name, $collection, %attributes) = @_;
 
-  $attributes{id}   ||= $self->name_to_id($name);
+  _set_id_attribute(\%attributes, $name);
 
   my $value_key       = delete($attributes{value_key})   || 'id';
   my $title_key       = delete($attributes{title_key})   || $value_key;
@@ -173,6 +173,14 @@ sub select_tag {
   return $self->html_tag('select', $code, %attributes, name => $name);
 }
 
+sub _set_id_attribute {
+  my ($attributes, $name) = @_;
+
+  $attributes->{id} = name_to_id(undef, $name) if !delete($attributes->{no_id}) && !$attributes->{id};
+
+  return %{ $attributes };
+}
+
 1;
 __END__
 
@@ -204,6 +212,10 @@ Usage from a template:
 
 A module modeled a bit after Rails' ActionView helpers. Several small
 functions that create HTML tags from various kinds of data sources.
+
+The C<id> attribute is usually calculated automatically. This can be
+overridden by either specifying an C<id> attribute or by setting
+C<no_id> to trueish.
 
 =head1 FUNCTIONS
 

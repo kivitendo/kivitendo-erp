@@ -2,6 +2,8 @@ package DateTime;
 
 use strict;
 
+use SL::Util qw(_hashify);
+
 sub now_local {
   return shift->now(time_zone => $::locale->get_local_time_zone);
 }
@@ -11,8 +13,7 @@ sub today_local {
 }
 
 sub to_kivitendo {
-  my $self   = shift;
-  my %params = (scalar(@_) == 1) && (ref($_[0]) eq 'HASH') ? %{ $_[0] } : @_;
+  my ($self, %params) = _hashify(1, @_);
   return $::locale->format_date_object($self, %params);
 }
 

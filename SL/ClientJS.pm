@@ -58,12 +58,22 @@ my %supported_methods = (
   removeProp   => 2,
   val          => 2,
 
+  # Class attribute
+  addClass     => 2,
+  removeClass  => 2,
+  toggleClass  => 2,
+
   # Data storage
   data         => 3,
   removeData   => 2,
 
   # Form Events
   focus        => 1,
+
+  # ## jqModal plugin ##
+
+  # Closing and removing the popup
+  jqmClose               => 1,
 
   # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
 
@@ -90,6 +100,9 @@ my %supported_methods = (
   'jstree:select_node'   => 2,  # $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>, true)
   'jstree:deselect_node' => 2,
   'jstree:deselect_all'  => 1,
+
+  # ## other stuff ##
+  redirect_to            => 1,  # window.location.href = <TARGET>
 );
 
 sub AUTOLOAD {
@@ -121,6 +134,12 @@ sub action {
   push @{ $self->_actions }, [ $method, @args ];
 
   return $self;
+}
+
+sub action_if {
+  my ($self, $condition, @args) = @_;
+
+  return $condition ? $self->action(@args) : $self;
 }
 
 sub init__actions {
@@ -338,7 +357,38 @@ Instead of:
 
 The first variation is obviously better suited for chaining.
 
-Additional functions:
+=over 4
+
+=item C<action $method, @args>
+
+Call the function with the name C<$method> on C<$self> with arguments
+C<@args>. Returns the return value of the actual function
+called. Useful for chaining (see above).
+
+=item C<action_if $condition, $method, @args>
+
+Call the function with the name C<$method> on C<$self> with arguments
+C<@args> if C<$condition> is trueish. Does nothing otherwise.
+
+Returns the return value of the actual function called if
+C<$condition> is trueish and C<$self> otherwise. Useful for chaining
+(see above).
+
+This function is equivalent to the following:
+
+  if ($condition) {
+    $obj->$method(@args);
+  }
+
+But it is easier to integrate into a method call chain, e.g.:
+
+  $js->html('#content', $html)
+     ->action_if($item->is_flagged, 'toggleClass', '#marker', 'flagged')
+     ->render($self);
+
+=back
+
+=head2 ADDITIONAL FUNCTIONS
 
 =over 4
 
@@ -347,8 +397,8 @@ Additional functions:
 Display a C<$message> in the flash of type C<$type>. Multiple calls of
 C<flash> on the same C<$self> will be merged by type.
 
-On the client side the flash of this type will be cleared before the
-message is shown.
+On the client side the flashes of all types will be cleared after each
+successful ClientJS call that did not end with C<$js-E<gt>error(...)>.
 
 =item C<error $message>
 
@@ -358,6 +408,14 @@ client will then show the message in the 'error' flash.
 
 The messages of multiple calls of C<error> on the same C<$self> will
 be merged.
+
+=item C<redirect_to $url>
+
+Redirects the browser window to the new URL by setting the JavaScript
+property C<window.location.href>. Note that
+L<SL::Controller::Base/redirect_to> is AJAX aware and uses this
+function if the current request is an AJAX request as determined by
+L<SL::Request/is_ajax>.
 
 =back
 

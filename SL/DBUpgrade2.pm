@@ -4,6 +4,7 @@ use IO::File;
 use List::MoreUtils qw(any);
 
 use SL::Common;
+use SL::DBUpgrade2::Base;
 use SL::DBUtils;
 use SL::Iconv;
 
@@ -79,6 +80,7 @@ sub parse_dbupdate_controls {
 
     next if ($control->{ignore});
 
+    $control->{charset} = 'UTF-8' if $file =~ m/\.pl$/;
     $control->{charset} = $control->{charset} || $control->{encoding} || Common::DEFAULT_CHARSET;
 
     if (!$control->{"tag"}) {
@@ -240,49 +242,23 @@ sub process_perl_script {
 
   my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
-  my $form         = $self->{form};
-  my $fh           = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
-  my $file_charset = Common::DEFAULT_CHARSET;
+  $dbh->begin_work;
 
-  if (ref($version_or_control) eq "HASH") {
-    $file_charset = $version_or_control->{charset};
+  # setup dbup_ export vars & run script
+  my %dbup_myconfig = map { ($_ => $::form->{$_}) } qw(dbname dbuser dbpasswd dbhost dbport dbconnect);
+  my $result        = SL::DBUpgrade2::Base::execute_script(
+    file_name => $filename,
+    tag       => $version_or_control->{tag},
+    dbh       => $dbh,
+    myconfig  => \%dbup_myconfig,
+  );
 
-  } else {
-    while (<$fh>) {
-      last if !/^--/;
-      next if !/^--\s*\@(?:charset|encoding):\s*(.+)/;
-      $file_charset = $1;
-      last;
-    }
-    $fh->seek(0, SEEK_SET);
-  }
-
-  my $contents = join "", <$fh>;
-  $fh->close();
-
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
-  my $iconv = SL::Iconv->new($file_charset, $db_charset);
-
-  $dbh->begin_work();
-
-  # setup dbup_ export vars
-  my %dbup_myconfig = ();
-  map({ $dbup_myconfig{$_} = $form->{$_}; } qw(dbname dbuser dbpasswd dbhost dbport dbconnect));
-
-  my $dbup_locale = $::locale;
-
-  my $result = eval($contents);
-
-  if (1 != $result) {
+  if (1 != ($result // 1)) {
     $dbh->rollback();
-    $dbh->disconnect();
   }
 
   if (!defined($result)) {
-    print $form->parse_html_template("dbupgrade/error",
-                                     { "file"  => $filename,
-                                       "error" => $@ });
+    print $::form->parse_html_template("dbupgrade/error", { file  => $filename, error => $@ });
     ::end_of_request();
   } elsif (1 != $result) {
     unlink("users/nologin") if (2 == $result);
@@ -290,7 +266,7 @@ sub process_perl_script {
   }
 
   if (ref($version_or_control) eq "HASH") {
-    $dbh->do("INSERT INTO " . $self->{schema} . "schema_info (tag, login) VALUES (" . $dbh->quote($version_or_control->{"tag"}) . ", " . $dbh->quote($form->{"login"}) . ")");
+    $dbh->do("INSERT INTO " . $self->{schema} . "schema_info (tag, login) VALUES (" . $dbh->quote($version_or_control->{tag}) . ", " . $dbh->quote($::form->{login}) . ")");
   } elsif ($version_or_control) {
     $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
   }

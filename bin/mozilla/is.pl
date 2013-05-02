@@ -382,7 +382,6 @@ sub form_header {
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
   $form->{jsscript} = 1;
-  $::request->layout->use_stylesheet('presenter/record/record_list.css');
   $form->header();
 
   print $form->parse_html_template("is/form_header", \%TMPL_VAR);
@@ -411,7 +410,7 @@ sub form_footer {
   my ($tax, $subtotal);
   $form->{taxaccounts_array} = [ split(/ /, $form->{taxaccounts}) ];
 
-  if ($form->{customer_id}) {
+  if( $form->{customer_id} && !$form->{taxincluded_changed_by_user} ) {
     my $customer = SL::DB::Customer->new(id => $form->{customer_id})->load();
     $form->{taxincluded} = defined($customer->taxincluded_checked) ? $customer->taxincluded_checked : $myconfig{taxincluded_checked};
   }

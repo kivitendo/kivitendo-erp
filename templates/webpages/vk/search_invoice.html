@@ -9,6 +9,60 @@
 
 
   <table>
+
+    <tr>
+      <td align="right">[% 'Main sorting' | $T8 %]</td>
+      <td>
+        <select name="mainsort" id="mainsort">
+          <option value="description">[% 'Part' | $T8 %]</option>
+          <option value="customername">[% 'Customer' | $T8 %]</option>
+          <option value="country">[% 'Country' | $T8 %]</option>
+          <option value="partsgroup">[% 'Group' | $T8 %]</option>
+          <option value="business">[% 'Customer type' | $T8 %]</option>
+          <option value="salesman" selected="selected">[% 'Salesman' | $T8 %]</option>
+          <option value="month">[% 'Month' | $T8 %]</option>
+        </select>
+      </td>
+      <td align=left><input name="l_headers_mainsort" class=checkbox type=checkbox value=Y checked> [% 'Heading' | $T8 %]</td>
+      <td align=left><input name="l_subtotal_mainsort" class=checkbox type=checkbox value=Y checked> [% 'Subtotal' | $T8 %]</td>
+    </tr>
+
+    <tr>
+      <td align="right">[% 'Secondary sorting' | $T8 %]</td>
+      <td>
+        <select name="subsort" id="subsort">
+          <option value="description">[% 'Part' | $T8 %]</option>
+          <option value="customername">[% 'Customer' | $T8 %]</option>
+          <option value="country">[% 'Country' | $T8 %]</option>
+          <option value="partsgroup">[% 'Group' | $T8 %]</option>
+          <option value="business">[% 'Customer type' | $T8 %]</option>
+          <option value="salesman">[% 'Salesman' | $T8 %]</option>
+          <option value="month" selected="selected">[% 'Month' | $T8 %]</option>
+        </select>
+      </td>
+      <td align=left><input name="l_headers_subsort" class=checkbox type=checkbox value=Y checked> [% 'Heading' | $T8 %]</td>
+      <td align=left><input name="l_subtotal_subsort" class=checkbox type=checkbox value=Y checked> [% 'Subtotal' | $T8 %]</td>
+    </tr>
+
+    <tr>
+      <th align="right">[% 'Item mode' | $T8 %]</th>
+      <td colspan="3" align=left><input name="l_parts" class=checkbox type=checkbox value=Y> ([%'Show items from invoices individually' | $T8 %]) </td>
+    </tr>
+
+    <tr>
+      <th align="right">[% 'Total sum' | $T8 %]</th>
+      <td colspan="1" align=left><input name="l_total" class=checkbox type=checkbox value=Y checked></td>
+      <td align="right" nowrap>[% 'Decimalplaces' | $T8 %]: </td>
+      <td colspan="2"><input name="decimalplaces" size="2" value="2"></td>
+    </tr>
+
+    <tr>
+      <td></td>
+      <td colspan="7">
+        <hr size="1" noshade="">
+      </td>
+    <tr>
+
     <tr>
       <th align=right>[% 'Customer' | $T8 %]</th>
       <td>
@@ -265,62 +319,6 @@
       </td>
     </tr>
 
-
-
-    <tr>
-      <td></td>
-      <td colspan="7">
-        <hr size="1" noshade="">
-      </td>
-    <tr>
-
-
-
-    <tr>
-      <td align="right">[% 'Main sorting' | $T8 %]</td>
-      <td>
-        <select name="mainsort" id="mainsort">
-          <option value="description">[% 'Part' | $T8 %]</option>
-          <option value="customername">[% 'Customer' | $T8 %]</option>
-          <option value="country">[% 'Country' | $T8 %]</option>
-          <option value="partsgroup">[% 'Group' | $T8 %]</option>
-          <option value="business">[% 'Customer type' | $T8 %]</option>
-          <option value="salesman" selected="selected">[% 'Salesman' | $T8 %]</option>
-          <option value="month">[% 'Month' | $T8 %]</option>
-        </select>
-      </td>
-      <td align=left><input name="l_headers_mainsort" class=checkbox type=checkbox value=Y checked> [% 'Heading' | $T8 %]</td>
-      <td align=left><input name="l_subtotal_mainsort" class=checkbox type=checkbox value=Y checked> [% 'Subtotal' | $T8 %]</td>
-    </tr>
-
-    <tr>
-      <td align="right">[% 'Secondary sorting' | $T8 %]</td>
-      <td>
-        <select name="subsort" id="subsort">
-          <option value="description">[% 'Part' | $T8 %]</option>
-          <option value="customername">[% 'Customer' | $T8 %]</option>
-          <option value="country">[% 'Country' | $T8 %]</option>
-          <option value="partsgroup">[% 'Group' | $T8 %]</option>
-          <option value="business">[% 'Customer type' | $T8 %]</option>
-          <option value="salesman">[% 'Salesman' | $T8 %]</option>
-          <option value="month" selected="selected">[% 'Month' | $T8 %]</option>
-        </select>
-      </td>
-      <td align=left><input name="l_headers_subsort" class=checkbox type=checkbox value=Y checked> [% 'Heading' | $T8 %]</td>
-      <td align=left><input name="l_subtotal_subsort" class=checkbox type=checkbox value=Y checked> [% 'Subtotal' | $T8 %]</td>
-    </tr>
-
-    <tr>
-      <th align="right">[% 'Item mode' | $T8 %]</th>
-      <td colspan="3" align=left><input name="l_parts" class=checkbox type=checkbox value=Y> ([%'Show items from invoices individually' | $T8 %]) </td>
-    </tr>
-
-    <tr>
-      <th align="right">[% 'Total sum' | $T8 %]</th>
-      <td colspan="1" align=left><input name="l_total" class=checkbox type=checkbox value=Y checked></td>
-      <td align="right" nowrap>[% 'Decimalplaces' | $T8 %]: </td>
-      <td colspan="2"><input name="decimalplaces" size="2" value="2"></td>
-    </tr>
   </table>
 
   <hr size="3" noshade="">

@@ -7,6 +7,8 @@ use lib 't';
 use Support::TestSetup;
 
 use SL::Presenter;
+use SL::Controller::Base;
+use SL::Layout::Javascript;
 
 no warnings 'uninitialized';
 

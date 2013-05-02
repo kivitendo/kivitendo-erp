@@ -1,13 +1,18 @@
-#!/usr/bin/perl
 # @tag: emmvee_background_jobs_2
 # @description: Hintergrundjobs einrichten
 # @depends: emmvee_background_jobs
-# @charset: utf-8
+package SL::DBUpgrade2::emmvee_background_jobs_2;
 
 use strict;
+use utf8;
+
+use parent qw(SL::DBUpgrade2::Base);
 
 use SL::BackgroundJob::CleanBackgroundJobHistory;
 
-SL::BackgroundJob::CleanBackgroundJobHistory->create_job;
+sub run {
+  SL::BackgroundJob::CleanBackgroundJobHistory->create_job;
+  return 1;
+}
 
 1;

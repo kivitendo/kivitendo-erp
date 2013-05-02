@@ -14,6 +14,7 @@ use SL::Presenter::Invoice;
 use SL::Presenter::Order;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
+use SL::Presenter::SepaExport;
 use SL::Presenter::Text;
 use SL::Presenter::Tag;
 
@@ -40,7 +41,7 @@ sub render {
   }
 
   # Only certain types are supported.
-  croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json)$/;
+  croak "Unsupported type: " . $options->{type} unless $options->{type} =~ m/^(?:html|js|json|text)$/;
 
   # The "template" argument must be a string or a reference to one.
   $template = ${ $template }                                       if ((ref($template) || '') eq 'REF') && (ref(${ $template }) eq 'SL::Presenter::EscapedText');
@@ -49,7 +50,8 @@ sub render {
   # Look for the file given by $template if $template is not a reference.
   my $source;
   if (!ref $template) {
-    $source = "templates/webpages/${template}." . $options->{type};
+    my $ext = $options->{type} eq 'text' ? 'txt' : $options->{type};
+    $source = "templates/webpages/${template}.${ext}";
     croak "Template file ${source} not found" unless -f $source;
 
   } elsif (ref($template) eq 'SCALAR') {
@@ -223,9 +225,10 @@ The following options are available:
 
 =item C<type>
 
-The template type. Can be C<html> (the default), C<js> for JavaScript
-or C<json> for JSON content. Affects only the extension that's added
-to the file name given with a non-reference C<$template> argument.
+The template type. Can be C<html> (the default), C<js> for JavaScript,
+C<json> for JSON and C<text> for plain text content. Affects only the
+extension that's added to the file name given with a non-reference
+C<$template> argument.
 
 =item C<process>
 

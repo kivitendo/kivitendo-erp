@@ -1,21 +1,19 @@
 # @tag: auth_enable_sales_all_edit
 # @description: Neues gruppenbezogenes Recht für den Bereich Verkauf hinzugefügt (sales_all_edit := Nur wenn angehakt, können Verkaufsdokumente von anderen Bearbeitern eingesehen werden) Das Skript hakt standardmässig dieses Recht an, sodass es keinen Unterschied zu vorhergehenden Version gibt.
 # @depends: release_2_6_0
-# @charset: utf-8
+package SL::DBUpgrade2::auth_enable_sales_all_edit;
 
-use utf8;
 use strict;
-use Data::Dumper;
-die("This script cannot be run from the command line.") unless ($main::form);
+use utf8;
 
-sub mydberror {
-  my ($msg) = @_;
-  die($dbup_locale->text("Database update error:") .
-      "<br>$msg<br>" . $DBI::errstr);
-}
+use parent qw(SL::DBUpgrade2::Base);
 
-sub do_update {
-  my $dbh   = $main::auth->dbconnect();
+use SL::DBUtils;
+
+sub run {
+  my ($self) = @_;
+
+  $self->dbh($::auth->dbconnect);
   my $query = <<SQL;
     SELECT id
     FROM auth."group"
@@ -27,24 +25,23 @@ sub do_update {
     )
 SQL
 
-  my @group_ids = selectall_array_query($form, $dbh, $query);
+  my @group_ids = selectall_array_query($::form, $self->dbh, $query);
   if (@group_ids) {
     $query = <<SQL;
       INSERT INTO auth.group_rights (group_id, "right",          granted)
       VALUES                        (?,        'sales_all_edit', TRUE)
 SQL
-    my $sth = prepare_query($form, $dbh, $query);
+    my $sth = prepare_query($::form, $self->dbh, $query);
 
     foreach my $id (@group_ids) {
-      do_statement($form, $sth, $query, $id);
+      do_statement($::form, $sth, $query, $id);
     }
 
     $sth->finish();
-    $dbh->commit();
+    $self->dbh->commit();
   }
 
   return 1;
 }
 
-return do_update();
-
+1;
