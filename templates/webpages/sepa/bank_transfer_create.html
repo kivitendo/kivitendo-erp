@@ -106,7 +106,7 @@
       </td>
       <td align="right"><input name="bank_transfers[].amount" value="[% LxERP.format_amount(bank_transfer.amount, -2) %]" style="text-align: right" size="12"></td>
       <td nowrap>
-        [% L.date_tag('requested_execution_date_'_ loop.count, bank_transfer.requested_execution_date) %]
+        [% L.date_tag('bank_transfers[].requested_execution_date', bank_transfer.requested_execution_date) %]
       </td>
      </tr>
     [%- END %]
