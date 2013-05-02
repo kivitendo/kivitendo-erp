@@ -15,6 +15,23 @@ Kleinere neue Features und Detailverbesserungen:
 - Offene Forderungen / Verbindlichkeiten
   Stichtagsbezogene Auswahl korrekt mit Fälligkeit verrechnet
 
+- Handhabung mit Währungen
+  Währungen werden nun nicht mehr, wie bisher durch eine Zeichenkette ge-
+  speichert, sondern in einer eigenen Tabelle. Neue Währungen werden daher
+  nicht mehr wie bisher durch einen Doppelpunkt eingegeben, sonder in ein
+  zusätzliches Textfeld.
+  Es ist auch möglich bestehende Währungen umzubenennen. Allerdings kann die
+  Standardwährung weiterhin nicht geändert werden.
+
+- Filterung von Steuern in Dialogbuchungen
+  Bei Steuern lässt sich nun eine weitere Einstellung vornehmen, und zwar,
+  für welche Kontoarten diese Steuer in Dialogbuchungen angezeigt werden
+  soll. Setzt man z.B. im Admin-Menü das Häkchen nur bei Aufwandskonten,
+  so erscheint diese Steuer auch nur in der Maske für Dialogbuchungen,
+  wenn man ein Aufwandskonto auswählt.
+  Dies verhindert vor allem Verwechslungen mit Vor- und Umsatzsteuer. Allerdings
+  können Steuern auch völlig ausgeblendet werden, wenn diese nicht mehr be-
+  nutzt werden (wie z.B. 16% Umsatzsteuer).
 
 2012-12-10 - Release 3.0.0
 
