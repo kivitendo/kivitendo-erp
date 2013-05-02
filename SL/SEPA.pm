@@ -178,7 +178,7 @@ sub retrieve_export {
     my ($columns, $joins);
 
     if ($params{details}) {
-      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, vc.name AS vc_name, c.accno AS chart_accno, c.description AS chart_description|;
+      $columns = qq|, arap.invnumber, arap.invoice, arap.transdate AS reference_date, vc.name AS vc_name, vc.${vc}number AS vc_number, c.accno AS chart_accno, c.description AS chart_description|;
       $joins   = qq|LEFT JOIN ${arap} arap ON (sei.${arap}_id = arap.id)
                     LEFT JOIN ${vc} vc     ON (arap.${vc}_id  = vc.id)
                     LEFT JOIN chart c      ON (sei.chart_id   = c.id)|;
@@ -398,7 +398,7 @@ sub post_payment {
 
     # Record the payment in acc_trans offsetting AR/AP.
     do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $arap_chart_id,         -1 * $mult * $orig_item->{amount}, $item->{execution_date}, '', $arap_chart_id);
-    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $orig_item->{chart_id},      $mult * $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference}, 
+    do_statement($form, @{ $handles{add_acc_trans} }, $orig_item->{"${arap}_id"}, $orig_item->{chart_id},      $mult * $orig_item->{amount}, $item->{execution_date}, $orig_item->{reference},
                                                       $orig_item->{chart_id});
 
     # Update the invoice to reflect the new paid amount.

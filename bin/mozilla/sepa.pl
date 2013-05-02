@@ -511,6 +511,7 @@ sub bank_transfer_download_sepa_xml {
                                  'dst_iban'       => $item->{vc_iban},
                                  'dst_bic'        => $item->{vc_bic},
                                  'company'        => $item->{vc_name},
+                                 'company_number' => $item->{vc_number},
                                  'amount'         => $item->{amount},
                                  'reference'      => $item->{reference},
                                  'reference_date' => $item->{reference_date},
