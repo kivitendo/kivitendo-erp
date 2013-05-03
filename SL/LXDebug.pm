@@ -152,29 +152,29 @@ sub warn {
 sub dump {
   my ($self, $level, $name, $variable, %options) = @_;
 
-    my $password;
-    if ($variable && ('Form' eq ref $variable) && defined $variable->{password}) {
-      $password             = $variable->{password};
-      $variable->{password} = 'X' x 8;
-    }
+  my $password;
+  if ($variable && ('Form' eq ref $variable) && defined $variable->{password}) {
+    $password             = $variable->{password};
+    $variable->{password} = 'X' x 8;
+  }
 
-    my $dumper = Data::Dumper->new([$variable]);
-    $dumper->Sortkeys(1);
-    $dumper->Indent(2);
-    $dumper->$_($options{$_}) for keys %options;
-    my $output = $dumper->Dump();
-    $self->message($level, "dumping ${name}:\n" . $output);
+  my $dumper = Data::Dumper->new([$variable]);
+  $dumper->Sortkeys(1);
+  $dumper->Indent(2);
+  $dumper->$_($options{$_}) for keys %options;
+  my $output = $dumper->Dump();
+  $self->message($level, "dumping ${name}:\n" . $output);
 
-    $variable->{password} = $password if (defined $password);
+  $variable->{password} = $password if (defined $password);
 
-    # Data::Dumper does not reset the iterator belonging to this hash
-    # if 'Sortkeys' is true. Therefore clear the iterator manually.
-    # See "perldoc -f each".
-    if ($variable && (('HASH' eq ref $variable) || ('Form' eq ref $variable))) {
-      keys %{ $variable };
-    }
+  # Data::Dumper does not reset the iterator belonging to this hash
+  # if 'Sortkeys' is true. Therefore clear the iterator manually.
+  # See "perldoc -f each".
+  if ($variable && (('HASH' eq ref $variable) || ('Form' eq ref $variable))) {
+    keys %{ $variable };
+  }
 
-    return $output;
+  return $output;
 }
 
 sub dump_yaml {
