@@ -37,13 +37,15 @@ sub action_new {
 
   $self->version(SL::DB::RequirementSpecVersion->new);
 
-  my $previous_version = $self->requirement_spec->previous_version;
-  my %differences      = $self->calculate_differences(current => $self->requirement_spec, previous => $previous_version);
+  my $previous_version = $self->requirement_spec->highest_version;
+  $::lxdebug->message(0, "vers num " . $previous_version->version->version_number . " id " . $previous_version->version_id);
 
   if (!$previous_version) {
     $self->version->description(t8('Initial version.'));
 
   } else {
+    my %differences = $self->calculate_differences(current => $self->requirement_spec, previous => $previous_version);
+
     my @lines;
 
     my $fb_diff = $differences{function_blocks};
@@ -124,7 +126,10 @@ sub init_versioned_copies {
 sub has_item_changed {
   my ($previous, $current) = @_;
   croak "Missing previous/current" if !$previous || !$current;
-  return any { ($previous->$_ || '') ne ($current->$_ || '') } qw(item_type parent_id fb_number title description complexity_id risk_id time_estimation net_sum);
+
+  return 1 if any { ($previous->$_ || '') ne ($current->$_ || '') } qw(item_type fb_number title description complexity_id risk_id);
+  return 0 if !$current->parent_id;
+  return $previous->parent->fb_number ne $current->parent->fb_number;
 }
 
 sub has_text_block_changed {

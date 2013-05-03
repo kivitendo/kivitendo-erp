@@ -126,3 +126,52 @@ sub child_type {
 }
 
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::DB::RequirementSpecItem - Items for requirement specs
+
+=head1 OVERVIEW
+
+Please see L<SL::DB::RequirementSpec> for the architectual overview.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<child_type>
+
+Returns the C<item_type> for children of C<$self>.
+
+=item C<children_sorted>
+
+Returns an array (or an array reference depending on context) of
+direct children (not of grandchildren) for C<$self> ordered by their
+positional column in ascending order.
+
+=item C<section>
+
+Returns the section this item belongs to. It can be C<$self> if
+C<$self> is already a section, its parent or grandparent.
+
+=item C<validate>
+
+Validates before saving and returns an array of human-readable error
+messages in case of an error.
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut
