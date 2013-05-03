@@ -126,4 +126,65 @@ sub _flatten_settings {
   return %flattened;
 }
 
+sub with_transaction {
+  my ($self, $code, @args) = @_;
+
+  return $self->in_transaction ? $code->(@args) : $self->do_transaction(sub { $code->(@args) });
+}
+
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::DB - Database access class for all RDB objects
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<create $domain, $type>
+
+Registers the database information with Rose, creates a cached
+connection and executes initial SQL statements. Those can include
+setting the time & date format to the user's preferences.
+
+=item C<dbi_connect $dsn, $login, $password, $options>
+
+Forwards the call to L<SL::DBConnect/connect> which connects to the
+database. This indirection allows L<SL::DBConnect/connect> to route
+the calls through L<DBIx::Log4Perl> if this is enabled in the
+configuration.
+
+=item C<with_transaction $code_ref, @args>
+
+Executes C<$code_ref> within a transaction, starting one if none is
+currently active. This is just a shortcut for the following code:
+
+  # Verbose code in caller (an RDBO instance):
+  my $worker = sub {
+    # do stuff with $self
+  };
+  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
+
+Now the version using C<with_transaction>:
+
+  return $self->db->with_transaction(sub {
+    # do stuff with $self
+  });
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut
