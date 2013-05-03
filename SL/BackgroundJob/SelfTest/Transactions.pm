@@ -31,6 +31,7 @@ sub run {
   $self->check_paid_stornos;
   $self->check_stornos_ohne_partner;
   $self->check_overpayments;
+  $self->check_every_account_with_taxkey;
   $self->calc_saldenvortraege;
 }
 
@@ -390,6 +391,19 @@ sub calc_saldenvortraege {
       select sum(amount) from acc_trans where chart_id = (select id from chart where accno = ?) and transdate <= ?|;
   my ($saldo_9000_jahresende) = selectfirst_array_query($::form, $self->dbh, $query, $saldenvortragskonto, DateTime->new(day => 31, month => 12, year => DateTime->today->year));
   $self->tester->diag("Saldo $saldenvortragskonto am 31.12.@{[DateTime->today->year]}: @{[ $saldo_9000_jahresende * 1 ]}    (sollte 0 sein)");
+}
+
+sub check_every_account_with_taxkey {
+  my ($self) = @_;
+
+  my $query = qq|SELECT 1 FROM chart WHERE id NOT IN (select chart_id from taxkeys) LIMIT 1|;
+  my ($account_without_chart) = selectfirst_array_query($::form, $self->dbh, $query);
+
+  if ($account_without_chart){
+    $self->tester->ok(0, "Es sollte keine Konten ohne Steuerschlüssel geben!");
+  } else {
+    $self->tester->ok(1, "Jedes Konto hat einen gültigen Steuerschlüssel!");
+  }
 }
 
 1;
