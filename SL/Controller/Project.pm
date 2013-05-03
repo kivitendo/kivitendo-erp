@@ -71,15 +71,7 @@ sub action_new {
 sub action_edit {
   my ($self) = @_;
 
-  $self->linked_records([
-    map  { @{ $_ } }
-    grep { $_      } (
-      SL::DB::Manager::Order->          get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::DeliveryOrder->  get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::Invoice->        get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer'           ], sort_by => 'transdate ASC'),
-      SL::DB::Manager::PurchaseInvoice->get_all(where => [ globalproject_id => $self->project->id ], with_objects => [             'vendor' ], sort_by => 'transdate ASC'),
-    )]);
-
+  $self->get_linked_records;
   $self->display_form(title    => $::locale->text('Edit project #1', $self->project->projectnumber),
                       callback => $::form->{callback} || $self->url_for(action => 'edit', id => $self->project->id));
 }
@@ -174,6 +166,19 @@ sub create_or_update {
 sub load_project {
   my ($self) = @_;
   $self->project(SL::DB::Project->new(id => $::form->{id})->load);
+}
+
+sub get_linked_records {
+  my ($self) = @_;
+
+  $self->linked_records([
+    map  { @{ $_ } }
+    grep { $_      } (
+      SL::DB::Manager::Order->          get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::DeliveryOrder->  get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer', 'vendor' ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::Invoice->        get_all(where => [ globalproject_id => $self->project->id ], with_objects => [ 'customer'           ], sort_by => 'transdate ASC'),
+      SL::DB::Manager::PurchaseInvoice->get_all(where => [ globalproject_id => $self->project->id ], with_objects => [             'vendor' ], sort_by => 'transdate ASC'),
+    )]);
 }
 
 sub setup_db_args_from_filter {

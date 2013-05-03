@@ -1,0 +1,45 @@
+[%- USE T8 %]
+[%- USE L %]
+[%- USE P %]
+[%- USE HTML %]
+[%- USE LxERP %]
+<table>
+ <tr>
+  <th align="right">[% 'Number' | $T8 %]</th>
+  <td>[% L.input_tag("project.projectnumber", SELF.project.projectnumber, size=60, class="initial_focus") %]</td>
+ </tr>
+
+ <tr>
+  <th align="right">[% 'Description' | $T8 %]</th>
+  <td>
+   [%- SET rows = LxERP.numtextrows(SELF.project.description, 60) %]
+   [%- IF rows > 1 %]
+    [%- L.textarea_tag("project.description", SELF.project.description, rows=row, size=60, style="width: 100%", wrap="soft") %]
+   [%- ELSE %]
+    [%- L.input_tag("project.description", SELF.project.description, size=60) %]
+   [%- END %]
+  </td>
+ </tr>
+
+ <tr>
+  <th align="right">[% 'Project Type' | $T8 %]</th>
+  <td>[% L.select_tag('project.project_type_id', ALL_PROJECT_TYPES, default=SELF.project.project_type_id, title_key='description', style='width: 300px') %]</td>
+ </tr>
+
+ <tr>
+  <th align="right">[% 'Customer' | $T8 %]</th>
+  <td>[% L.select_tag('project.customer_id', ALL_CUSTOMERS, default=SELF.project.customer_id, title_key='name', with_empty=1, style='width: 300px') %]</td>
+ </tr>
+
+ <tr>
+  <th align="right">[% 'Valid' | $T8 %]</th>
+  <td>[% L.select_tag('project.valid', [ [ 1, LxERP.t8('Valid') ], [ 0, LxERP.t8('Invalid') ] ], default=SELF.project.valid, style='width: 300px') %]</td>
+ </tr>
+
+ [%- IF SELF.project.id %]
+ <tr>
+  <th align="right">[% 'Active' | $T8 %]</th>
+  <td>[% L.select_tag('project.active', [ [ 1, LxERP.t8('Active') ], [ 0, LxERP.t8('Inactive') ] ], default=SELF.project.active, style='width: 300px') %]</td>
+ </tr>
+ [%- END %]
+</table>
