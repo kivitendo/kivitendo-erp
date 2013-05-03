@@ -15,7 +15,7 @@ sub run {
   my $categories;
   my $tax_id;
 
-  if ( $::form->{'continued'} ) {
+  if ( $::form->{continued_tax} ) {
     my $update_query;
     foreach my $i (1 .. $::form->{rowcount}) {
       $tax_id = $::form->{"tax_id_$i"};
