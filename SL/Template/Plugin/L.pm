@@ -116,7 +116,7 @@ sub radio_button_tag {
   my ($self, $name, %attributes) = _hashify(2, @_);
 
   _set_id_attribute(\%attributes, $name);
-  $attributes{value}   = 1 unless defined $attributes{value};
+  $attributes{value}   = 1 unless exists $attributes{value};
   my $label            = delete $attributes{label};
 
   if ($attributes{checked}) {
