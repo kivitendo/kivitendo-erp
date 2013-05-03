@@ -15,7 +15,7 @@ sub run {
 
   $self->_setup;
 
-  $self->tester->plan(tests => 15);
+  $self->tester->plan(tests => 16);
 
   $self->check_konten_mit_saldo_nicht_in_guv;
   $self->check_bilanzkonten_mit_pos_eur;
@@ -396,11 +396,15 @@ sub calc_saldenvortraege {
 sub check_every_account_with_taxkey {
   my ($self) = @_;
 
-  my $query = qq|SELECT 1 FROM chart WHERE id NOT IN (select chart_id from taxkeys) LIMIT 1|;
-  my ($account_without_chart) = selectfirst_array_query($::form, $self->dbh, $query);
+  my $query = qq|SELECT accno, description FROM chart WHERE id NOT IN (select chart_id from taxkeys)|;
+  my $accounts_without_tk = selectall_hashref_query($::form, $self->dbh, $query);
 
-  if ($account_without_chart){
-    $self->tester->ok(0, "Es sollte keine Konten ohne Steuerschlüssel geben!");
+  if ( scalar @{ $accounts_without_tk } > 0 ){
+    $self->tester->ok(0, "Folgende Konten haben keinen gültigen Steuerschlüssel:");
+
+    for my $account_without_tk (@{ $accounts_without_tk } ) {
+      $self->tester->diag("Kontonummer: $account_without_tk->{accno} Beschreibung: $account_without_tk->{description}");
+    }
   } else {
     $self->tester->ok(1, "Jedes Konto hat einen gültigen Steuerschlüssel!");
   }
