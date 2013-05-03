@@ -73,8 +73,8 @@
       <tr>
        <td></td>
        <td colspan="3">
-        <input name="null" id="null_1" class="radio" type="radio" value="1" checked>&nbsp;<label for="null_1">[% 'Top Level' | $T8 %]</label>
-        <input name="bom" id="bom" class="checkbox" type="checkbox" value="1">&nbsp;<label for="bom">[% 'Individual Items' | $T8 %]</label>
+        [% L.radio_button_tag('bom', id='bom_0', value=0, checked=1, label=LxERP.t8('Top Level Designation only')) %]
+        [% L.radio_button_tag('bom', id='bom_1', value=1,            label=LxERP.t8('Individual Items')) %]
        </td>
       </tr>
       [%- END %]
@@ -82,20 +82,14 @@
       <tr>
        <td></td>
        <td colspan="3">
-        <input name="itemstatus" id="itemstatus_active" class="radio" type="radio" value="active" checked>
-        <label for="itemstatus_active">[% 'Active' | $T8 %]</label>
-        <input name="itemstatus" id="itemstatus_onhand" class="radio" type="radio" value="onhand">
+        [%- L.radio_button_tag('itemstatus', value='active', id='itemstatus_active', label=LxERP.t8('Active'), checked=1) %]
       [%- UNLESS is_service %]
-        <label for="itemstatus_onhand">[% 'On Hand' | $T8 %]</label>
-        <input name="itemstatus" id="itemstatus_short" class="radio" type="radio" value="short">
-        <label for="itemstatus_short">[% 'Short' | $T8 %]</label>
-        <input name="itemstatus" id="itemstatus_obsolete" class="radio" type="radio" value="obsolete">
+        [%- L.radio_button_tag('itemstatus', value='onhand', id='itemstatus_onhand', label=LxERP.t8('On Hand')) %]
+        [%- L.radio_button_tag('itemstatus', value='short', id='itemstatus_short', label=LxERP.t8('Short')) %]
+        [%- L.radio_button_tag('itemstatus', value='obsolete', id='itemstatus_obsolete', label=LxERP.t8('Obsolete')) %]
       [%- END %]
-        <label for="itemstatus_obsolete">[% 'Obsolete' | $T8 %]</label>
-        <input name="itemstatus" id="itemstatus_orphaned" class="radio" type="radio" value="orphaned">
-        <label for="itemstatus_orphaned">[% 'Orphaned' | $T8 %]</label>
-        <input name="itemstatus" id="itemstatus_all" class="radio" type="radio" value="">
-        <label for="itemstatus_all">[% 'All' | $T8 %]</label>
+        [%- L.radio_button_tag('itemstatus', value='orphaned', id='itemstatus_orphaned', label=LxERP.t8('Orphaned')) %]
+        [%- L.radio_button_tag('itemstatus', value='', id='itemstatus_all', label=LxERP.t8('All')) %]
        </td>
       </tr>
 
@@ -108,37 +102,31 @@
            <table>
             <tr>
              [%- UNLESS is_assembly %]
-             <td><input name="bought" id="bought" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="bought">[% 'Bought' | $T8 %]</label></td>
+             <td>[%- L.checkbox_tag('bought', label=LxERP.t8('Bought')) %]</td>
              [%- END %]
-             <td><input name="sold" id="sold" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="sold">[% 'Sold' | $T8 %]</label></td>
+             <td>[%- L.checkbox_tag('sold', label=LxERP.t8('Sold')) %]</td>
             </tr>
 
             <tr>
-             <td colspan="4"><hr size="1" noshade></td>
+             <td colspan="2"><hr size="1" noshade></td>
             </tr>
 
             <tr>
              [%- UNLESS is_assembly %]
-             <td><input name="onorder" id="onorder" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="onorder">[% 'On Order' | $T8 %]</label></td>
+             <td>[%- L.checkbox_tag('onorder', label=LxERP.t8('On Order')) %]</td>
              [%- END %]
-             <td><input name="ordered" id="ordered" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="ordered">[% 'Ordered' | $T8 %]</label></td>
+             <td>[%- L.checkbox_tag('ordered', label=LxERP.t8('Ordered')) %]</td>
             </tr>
 
             <tr>
-             <td colspan="4"><hr size="1" noshade></td>
+             <td colspan="2"><hr size="1" noshade></td>
             </tr>
 
             <tr>
              [%- UNLESS is_assembly %]
-             <td><input name="rfq" id="rfq" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="rfq">[% 'RFQ' | $T8 %]</label></td>
+             <td>[%- L.checkbox_tag('rfq', label=LxERP.t8('RFQ')) %]</td>
              [%- END %]
-             <td><input name="quoted" id="quoted" class="checkbox" type="checkbox" value="1"></td>
-             <td nowrap><label for="quoted">[% 'Quoted' | $T8 %]</label></td>
+             <td>[%- L.checkbox_tag('quoted', label=LxERP.t8('Quoted')) %]</td>
             </tr>
            </table>
           </td>
@@ -149,9 +137,9 @@
            <table>
             <tr>
              <th>[% 'From' | $T8 %]</th>
-             <td>[% L.date_tag('transdatefrom') %]</td>
+             <td nowrap>[% L.date_tag('transdatefrom') %]</td>
              <th>[% 'To (time)' | $T8 %]</th>
-             <td>[% L.date_tag('transdateto') %]</td>
+             <td nowrap>[% L.date_tag('transdateto') %]</td>
             </tr>
            </table>
           </td>
@@ -171,133 +159,58 @@
        <th align="right" nowrap>[% 'Include in Report' | $T8 %]</th> <td colspan="3">
         <table>
          <tr>
-          <td>
-           <input name="l_partnumber" id="l_partnumber" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_partnumber">[% 'Part Number' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_description" id="l_description" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_description">[% 'Part Description' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_partnumber', label=LxERP.t8('Part Number'), checked=1, value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_description', label=LxERP.t8('Part Description'), checked=1, value='Y') %]</td>
       [%- UNLESS is_service %]
-          <td>
-           <input name="l_serialnumber" id="l_serialnumber" class="checkbox" type="checkbox" value="Y">
-           <label for="l_serialnumber">[% 'Serial Number' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_serialnumber', label=LxERP.t8('Serial Number'), value='Y') %]</td>
       [%- END %]
-          <td>
-           <input name="l_unit" id="l_unit" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_unit">[% 'Unit of measure' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_unit', label=LxERP.t8('Unit of measure'), value='Y', checked=1) %]</td>
          </tr>
 
          <tr>
-          <td>
-           <input name="l_listprice" id="l_listprice" class="checkbox" type="checkbox" value="Y">
-           <label for="l_listprice">[% 'List Price' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_sellprice" id="l_sellprice" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_sellprice">[% 'Sell Price' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_lastcost" id="l_lastcost" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_lastcost">[% 'Last Cost' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_linetotal" id="l_linetotal" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_linetotal">[% 'Line Total' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_listprice', label=LxERP.t8('List Price'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_sellprice', label=LxERP.t8('Sell Price'), value='Y', checked=1) %]</td>
+          <td>[%- L.checkbox_tag('l_lastcost', label=LxERP.t8('Last Cost'), value='Y', checked=1) %]</td>
+          <td>[%- L.checkbox_tag('l_linetotal', label=LxERP.t8('Line Total'), value='Y', checked=1) %]</td>
          </tr>
 
          <tr>
-          <td>
-           <input name="l_priceupdate" id="l_priceupdate" class="checkbox" type="checkbox" value="Y">
-           <label for="l_priceupdate">[% 'Updated' | $T8 %]</label>
-          </td>
-          <td>
+          <td>[%- L.checkbox_tag('l_priceupdate', label=LxERP.t8('Updated'), value='Y') %]</td>
           <!-- auskommentiert fuer bug nummer 852 - ggf. fuer einen standardlagerplatz verwertet jb 18.5.09-->
-           <!--input name="l_bin" id="l_bin" class="checkbox" type="checkbox" value="Y">
-           <label for="l_bin">[% 'Bin' | $T8 %]</label -->
-           <input name="l_deliverydate" id="l_deliverydate" class="checkbox" type="checkbox" value="Y">
-           <label for="l_deliverydate">[% 'deliverydate' | $T8 %]</label>
-          </td>
+          <!-- <td>[%#- L.checkbox_tag('l_bin', label=LxERP.t8('Bin'), value='Y') %]</td> -->
+          <td>[%- L.checkbox_tag('l_deliverydate', label=LxERP.t8('Delivery Date'), value='Y') %]</td>
       [%- UNLESS is_service %]
-          <td>
-           <input name="l_rop" id="l_rop" class="checkbox" type="checkbox" value="Y">
-           <label for="l_rop">[% 'ROP' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_weight" id="l_weight" class="checkbox" type="checkbox" value="Y">
-           <label for="l_weight">[% 'Weight' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_rop', label=LxERP.t8('ROP'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_weight', label=LxERP.t8('Weight'), value='Y') %]</td>
       [%- END %]
          </tr>
 
          <tr>
-          <td>
-           <input name="l_image" id="l_image" class="checkbox"[%- IF conf_parts_listing_images %] checked="checked"[% END %] type="checkbox" value="Y">
-           <label for="l_image">[% 'Image' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_drawing" id="l_drawing" class="checkbox" type="checkbox" value="Y">
-           <label for="l_drawing">[% 'Drawing' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_microfiche" id="l_microfiche" class="checkbox" type="checkbox" value="Y">
-           <label for="l_microfiche">[% 'Microfiche' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_partsgroup" id="l_partsgroup" class="checkbox" type="checkbox" value="Y">
-           <label for="l_partsgroup">[% 'Group' | $T8 %]</label>
+          <td>[%- L.checkbox_tag('l_image', label=LxERP.t8('Image'), value='Y', checked=(conf_parts_listing_images ? 1 : 0)) %]</td>
+          <td>[%- L.checkbox_tag('l_drawing', label=LxERP.t8('Drawing'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_microfiche', label=LxERP.t8('Microfiche'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_partsgroup', label=LxERP.t8('Group'), value='Y') %]</td>
           </td>
          </tr>
 
          <tr>
-          <td>
-           <input name="l_transdate" id="l_transdate" class="checkbox" type="checkbox" value="Y">
-           <label for="l_transdate">[% 'Transdate' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_subtotal" id="l_subtotal" class="checkbox" type="checkbox" value="Y">
-           <label for="l_subtotal">[% 'Subtotal' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_soldtotal" id="l_soldtotal" class="checkbox" type="checkbox" value="Y">
-           <label for="l_soldtotal">[% 'Qty in Selected Records' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_ean" id="l_ean" class="checkbox" type="checkbox" value="Y">
-           <label for="l_ean">[% 'EAN' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_transdate', label=LxERP.t8('Transdate'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_subtotal', label=LxERP.t8('Subtotal'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_soldtotal', label=LxERP.t8('Qty in Selected Records'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_ean', label=LxERP.t8('EAN'), value='Y') %]</td>
          </tr>
 
          <tr>
       [%- UNLESS is_service %]
-          <td>
-           <input name="l_onhand" id="l_onhand" class="checkbox" type="checkbox" value="Y">
-           <label for="l_onhand">[% 'Stocked Qty' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_onhand', label=LxERP.t8('Stocked Qty'), value='Y') %]</td>
       [%- END %]
-          <td>
-           <input name="l_projectnumber" id="l_projectnumber" class="checkbox" type="checkbox" value="Y">
-           <label for="l_projectnumber">[% 'Project Number' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_projectdescription" id="l_projectdescription" class="checkbox" type="checkbox" value="Y">
-           <label for="l_projectdescription">[% 'Project Description' | $T8 %]</label>
-          </td>
-          <td>
-           <input name="l_pricegroups" id="l_pricegroups" class="checkbox" type="checkbox" value="Y" checked>
-           <label for="l_pricegroups">[% 'Pricegroups' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_projectnumber', label=LxERP.t8('Project Number'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_projectdescription', label=LxERP.t8('Project Description'), value='Y') %]</td>
+          <td>[%- L.checkbox_tag('l_pricegroups', label=LxERP.t8('Pricegroups'), value='Y', checked=1) %]</td>
          </tr>
 
          <tr>
-          <td>
-           <input name="l_notes" id="l_notes" class="checkbox" type="checkbox" value="Y">
-           <label for="l_notes">[% 'Notes' | $T8 %]</label>
-          </td>
+          <td>[%- L.checkbox_tag('l_notes', label=LxERP.t8('Notes'), value='Y') %]</td>
          </tr>
 
          [% CUSTOM_VARIABLES_INCLUSION_CODE %]
