@@ -185,7 +185,6 @@ sub action_revert_to {
 
   my $versioned_copy = SL::DB::RequirementSpec->new(id => $::form->{versioned_copy_id})->load;
 
-  $self->requirement_spec->delete_items;
   $self->requirement_spec->copy_from(
     $versioned_copy,
     version_id => $versioned_copy->version_id,

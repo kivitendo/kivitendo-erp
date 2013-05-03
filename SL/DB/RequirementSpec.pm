@@ -156,29 +156,6 @@ sub copy_from {
   return $self;
 }
 
-sub delete_items {
-  my ($self) = @_;
-
-  my $worker = sub {
-    # First convert all items to sections so that deleting won't
-    # violate foreign key constraints on parent_id.
-    SL::DB::Manager::RequirementSpecItem->update_all(
-      set   => { parent_id => undef, item_type => 'section' },
-      where => [
-        requirement_spec_id => $self->id,
-        '!parent_id'        => undef,
-      ]);
-
-    # Now delete all items in one go.
-    SL::DB::Manager::RequirementSpecItem->delete_all(where => [ requirement_spec_id => $self->id ]);
-
-    # Last clear values in ourself.
-    $self->items([]);
-  };
-
-  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
-}
-
 sub previous_version {
   my ($self) = @_;
 
