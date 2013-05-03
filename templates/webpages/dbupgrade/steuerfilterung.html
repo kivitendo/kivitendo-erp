@@ -31,41 +31,12 @@
     <td align="right">[% HTML.escape(row.taxkey) %]</td>
     <td align="left"> [% HTML.escape(row.taxdescription) %]</a></td>
     <td align="right">[% HTML.escape(row.rate) %] %</td>
-    <td align="center">[% IF row.taxkey == 0 or row.taxkey == 1 %]
-                     [% L.checkbox_tag('asset_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]
-                     [% ELSE %]
-                     [% L.checkbox_tag('asset_' _ loop.count, value => 1, checked => 0, class => 'checkbox') %]
-                     [% END %]</td>
-
-    <td align="center">[% IF row.taxkey == 0 or row.taxkey == 1 %]
-                     [% L.checkbox_tag('liability_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]
-                     [% ELSE %]
-                     [% L.checkbox_tag('liability_' _ loop.count, value => 1, checked => 0, class => 'checkbox') %]
-                     [% END %]</td>
-
-    <td align="center">[% IF row.taxkey == 0 or row.taxkey == 1 %]
-                     [% L.checkbox_tag('equity_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]
-                     [% ELSE %]
-                     [% L.checkbox_tag('equity_' _ loop.count, value => 1, checked => 0, class => 'checkbox') %]
-                     [% END %]</td>
-
-    <td align="center">[% IF row.taxkey == 0 or row.taxkey == 1 %]
-                     [% L.checkbox_tag('costs_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]
-                     [% ELSE %]
-                     [% L.checkbox_tag('costs_' _ loop.count, value => 1, checked => 0, class => 'checkbox') %]
-                     [% END %]</td>
-
-    <td align="center">[% IF row.taxkey == 8 or row.taxkey == 9 or row.taxkey == 18 or row.taxkey == 19%]
-                     [% L.checkbox_tag('revenue_' _ loop.count, value => 1, checked => 0, class => 'checkbox') %]
-                     [% ELSE %]
-                     [% L.checkbox_tag('revenue_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]
-                     [% END %]</td>
-
-    <td align="center">[% IF row.taxkey == 2 or row.taxkey == 3 or row.taxkey == 10 or row.taxkey == 11 or row.taxkey == 12 or row.taxkey == 13 %]
-                     [% L.checkbox_tag('expense_' _ loop.count, value => 1, checked => 0, class => 'checkbox') %]
-                     [% ELSE %]
-                     [% L.checkbox_tag('expense_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]
-                     [% END %]</td>
+    <td align="center">[% L.checkbox_tag('asset_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]</td>
+    <td align="center">[% L.checkbox_tag('liability_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]</td>
+    <td align="center">[% L.checkbox_tag('equity_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]</td>
+    <td align="center">[% L.checkbox_tag('costs_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]</td>
+    <td align="center">[% L.checkbox_tag('revenue_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]</td>
+    <td align="center">[% L.checkbox_tag('expense_' _ loop.count, value => 1, checked => 1, class => 'checkbox') %]</td>
   </tr>
   <input type="hidden" name="tax_id_[% loop.count %]" value="[% row.tax_id %]">
   [% SET rowcount = loop.count %]

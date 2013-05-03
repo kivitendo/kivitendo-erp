@@ -5,17 +5,18 @@ package SL::DBUpgrade2::steuerfilterung;
 
 use strict;
 use utf8;
+use List::Util qw(first);
 
 use parent qw(SL::DBUpgrade2::Base);
 
 sub run {
   my ($self) = @_;
 
+  my $categories;
+  my $tax_id;
+
   if ( $::form->{'continued'} ) {
-    my $update_query = qq|ALTER TABLE tax ADD chart_categories TEXT|;
-    $self->db_query($update_query);
-    my $categories;
-    my $tax_id;
+    my $update_query;
     foreach my $i (1 .. $::form->{rowcount}) {
       $tax_id = $::form->{"tax_id_$i"};
       $categories = '';
@@ -25,7 +26,7 @@ sub run {
       $categories .= 'C' if $::form->{"costs_$i"};
       $categories .= 'I' if $::form->{"revenue_$i"};
       $categories .= 'E' if $::form->{"expense_$i"};
-      $update_query = qq|UPDATE tax SET chart_categories = '$categories' WHERE id=$tax_id|;
+      $update_query = qq|UPDATE tax SET chart_categories = '$categories' WHERE id=$tax_id;|;
       $self->db_query($update_query);
     }
     $update_query = qq|ALTER TABLE tax ALTER COLUMN chart_categories SET NOT NULL|;
@@ -34,19 +35,62 @@ sub run {
     return 1;
   }
 
-  my $query = qq|SELECT taxkey, taxdescription, rate, id AS tax_id FROM tax order by taxkey, rate|;
+  my $query = qq|ALTER TABLE tax ADD chart_categories TEXT|;
+  $self->db_query($query);
+  $self->dbh->commit();
+
+  my @well_known_taxes = (
+      { taxkey => 0,  rate => 0,    taxdescription => qr{keine.*steuer}i,                       categories => 'ALQCIE' },
+      { taxkey => 1,  rate => 0,    taxdescription => qr{frei}i,                                categories => 'ALQCIE' },
+      { taxkey => 2,  rate => 0.07, taxdescription => qr{umsatzsteuer}i,                        categories => 'I' },
+      { taxkey => 3,  rate => 0.16, taxdescription => qr{umsatzsteuer}i,                        categories => 'I' },
+      { taxkey => 3,  rate => 0.19, taxdescription => qr{umsatzsteuer}i,                        categories => 'I' },
+      { taxkey => 8,  rate => 0.07, taxdescription => qr{vorsteuer}i,                           categories => 'E' },
+      { taxkey => 9,  rate => 0.16, taxdescription => qr{vorsteuer}i,                           categories => 'E' },
+      { taxkey => 9,  rate => 0.19, taxdescription => qr{vorsteuer}i,                           categories => 'E' },
+      { taxkey => 10, rate => 0,    taxdescription => qr{andere.*steuerpflichtige.*lieferung}i, categories => 'I' },
+      { taxkey => 11, rate => 0,    taxdescription => qr{frei.*innergem.*mit}i,                 categories => 'I' },
+      { taxkey => 12, rate => 0.07, taxdescription => qr{steuerpflichtig.*lieferung.*erm}i,     categories => 'I' },
+      { taxkey => 13, rate => 0.16, taxdescription => qr{steuerpflichtig.*lieferung.*voll}i,    categories => 'I' },
+      { taxkey => 13, rate => 0.19, taxdescription => qr{steuerpflichtig.*lieferung.*voll}i,    categories => 'I' },
+      { taxkey => 18, rate => 0.07,  taxdescription => qr{innergem.*erwerb.*erm}i,              categories => 'E' },
+      { taxkey => 19, rate => 0.16, taxdescription => qr{innergem.*erwerb.*voll}i,              categories => 'E' },
+      { taxkey => 19, rate => 0.19, taxdescription => qr{innergem.*erwerb.*voll}i,              categories => 'E' },
+      );
+
+  $query = qq|SELECT taxkey, taxdescription, rate, id AS tax_id FROM tax order by taxkey, rate;|;
 
   my $sth = $self->dbh->prepare($query);
   $sth->execute || $::form->dberror($query);
 
+  my $well_known_tax;
+
   $::form->{PARTS} = [];
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    $ref->{rate} = $::form->format_amount(\%::myconfig, $::form->round_amount($ref->{rate} * 100));
-    push @{ $::form->{PARTS} }, $ref;
+    $well_known_tax = first {
+      ($ref->{taxkey} == $_->{taxkey})
+      && ($ref->{rate} == $_->{rate})
+      && ($ref->{taxdescription} =~ $_->{taxdescription})
+    } @well_known_taxes;
+    if ($well_known_tax) {
+      $categories = $well_known_tax->{categories};
+      $tax_id = $ref->{tax_id};
+      $query = qq|UPDATE tax SET chart_categories = '$categories' WHERE id=$tax_id;|;
+      $self->db_query($query);
+    } else {
+      $ref->{rate} = $::form->format_amount(\%::myconfig, $::form->round_amount($ref->{rate} * 100));
+      push @{ $::form->{PARTS} }, $ref;
+    }
   }
 
-  &print_message;
-  return 2;
+  if (scalar @{ $::form->{PARTS} } > 0){
+    &print_message;
+    return 2;
+  } else {
+    $query = qq|ALTER TABLE tax ALTER COLUMN chart_categories SET NOT NULL|;
+    $self->db_query($query);
+    return 1;
+  }
 } # end run
 
 sub print_message {
