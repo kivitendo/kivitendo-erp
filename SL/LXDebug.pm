@@ -16,25 +16,18 @@ use constant DEVEL              => INFO | DEBUG1 | QUERY | TRACE | BACKTRACE_ON_
 use constant FILE_TARGET   => 0;
 use constant STDERR_TARGET => 1;
 
+use Data::Dumper;
 use POSIX qw(strftime getppid);
 use Time::HiRes qw(gettimeofday tv_interval);
 use YAML;
 
 use strict;
 
-my ($data_dumper_available, $text_diff_available);
+my ($text_diff_available);
 
-our $global_level;
-our $watch_form;
+our $global_level = NONE();
+our $watch_form   = 0;
 our $file_name;
-
-BEGIN {
-  eval("use Data::Dumper");
-  $data_dumper_available = $@ ? 0 : 1;
-
-  $global_level      = NONE;
-  $watch_form        = 0;
-}
 
 sub new {
   my $type = shift;
@@ -159,7 +152,6 @@ sub warn {
 sub dump {
   my ($self, $level, $name, $variable, %options) = @_;
 
-  if ($data_dumper_available) {
     my $password;
     if ($variable && ('Form' eq ref $variable) && defined $variable->{password}) {
       $password             = $variable->{password};
@@ -183,14 +175,6 @@ sub dump {
     }
 
     return $output;
-
-  } else {
-    $self->message($level,
-                   "dumping ${name}: Data::Dumper not available; "
-                     . "variable cannot be dumped");
-
-    return undef;
-  }
 }
 
 sub dump_yaml {

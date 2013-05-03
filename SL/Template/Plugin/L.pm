@@ -2,6 +2,7 @@ package SL::Template::Plugin::L;
 
 use base qw( Template::Plugin );
 use Template::Plugin;
+use Data::Dumper;
 use List::MoreUtils qw(apply);
 use List::Util qw(max);
 use Scalar::Util qw(blessed);
@@ -439,7 +440,6 @@ sub online_help_tag {
 
 sub dump {
   my $self = shift;
-  require Data::Dumper;
   return '<pre>' . Data::Dumper::Dumper(@_) . '</pre>';
 }
 
