@@ -6,6 +6,7 @@ package SL::DB::CustomVariable;
 use strict;
 
 use SL::DB::MetaSetup::CustomVariable;
+use SL::DB::CustomVariableValidity;
 
 __PACKAGE__->meta->initialize;
 
@@ -20,6 +21,12 @@ sub value {
   goto &timestamp_value if $type eq 'timestamp';
   goto &number_value    if $type eq 'number';
   goto &text_value; # text and select
+}
+
+sub is_valid {
+  my ($self) = @_;
+
+  return SL::DB::Manager::CustomVariableValidity->get_all_count(config_id => $self->config_id, trans_id => $self->trans_id) == 0;
 }
 
 1;
