@@ -11,20 +11,12 @@ use strict;
 
 sub run {
   my ($self) = @_;
-  my $query = qq|UPDATE ar SET curr = RTRIM(LTRIM(curr))|;
-  $self->db_query($query);
-  $query = qq|UPDATE ap SET curr = RTRIM(LTRIM(curr))|;
-  $self->db_query($query);
-  $query = qq|UPDATE oe SET curr = RTRIM(LTRIM(curr))|;
-  $self->db_query($query);
-  $query = qq|UPDATE customer SET curr = RTRIM(LTRIM(curr))|;
-  $self->db_query($query);
-  $query = qq|UPDATE delivery_orders SET curr = RTRIM(LTRIM(curr))|;
-  $self->db_query($query);
-  $query = qq|UPDATE exchangerate SET curr = RTRIM(LTRIM(curr))|;
-  $self->db_query($query);
-  $query = qq|UPDATE vendor SET curr = RTRIM(LTRIM(curr))|;
-  $self->db_query($query);
+
+  my $query;
+
+  foreach my $table (qw(ar ap oe customer delivery_orders exchangerate vendor)){
+    $self->db_query(qq|UPDATE ${table} SET curr=BTRIM(curr)|)
+  }
 
   $query = qq|SELECT curr FROM defaults|;
   my ($curr)     = $self->dbh->selectrow_array($query);

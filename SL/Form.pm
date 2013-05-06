@@ -1490,7 +1490,7 @@ sub update_exchangerate {
     $main::lxdebug->leave_sub();
     return;
   }
-  $query = qq|SELECT curr FROM currencies WHERE id=(SELECT curr FROM defaults)|;
+  $query = qq|SELECT name AS curr FROM currencies WHERE id=(SELECT currency_id FROM defaults)|;
 
   my ($defaultcurrency) = selectrow_query($self, $dbh, $query);
 
@@ -1499,8 +1499,8 @@ sub update_exchangerate {
     return;
   }
 
-  $query = qq|SELECT e.curr FROM exchangerate e
-                 WHERE e.curr = (SELECT cu.id FROM currencies cu WHERE cu.curr=?) AND e.transdate = ?
+  $query = qq|SELECT e.currency_id FROM exchangerate e
+                 WHERE e.currency_id = (SELECT cu.id FROM currencies cu WHERE cu.name=?) AND e.transdate = ?
                  FOR UPDATE|;
   my $sth = prepare_execute_query($self, $dbh, $query, $curr, $transdate);
 
@@ -1526,12 +1526,12 @@ sub update_exchangerate {
   if ($sth->fetchrow_array) {
     $query = qq|UPDATE exchangerate
                 SET $set
-                WHERE curr = (SELECT id FROM currencies WHERE curr = ?)
+                WHERE currency_id = (SELECT id FROM currencies WHERE name = ?)
                 AND transdate = ?|;
 
   } else {
-    $query = qq|INSERT INTO exchangerate (curr, buy, sell, transdate)
-                VALUES ((SELECT id FROM currencies WHERE curr = ?), $buy, $sell, ?)|;
+    $query = qq|INSERT INTO exchangerate (currency_id, buy, sell, transdate)
+                VALUES ((SELECT id FROM currencies WHERE name = ?), $buy, $sell, ?)|;
   }
   $sth->finish;
   do_query($self, $dbh, $query, $curr, $transdate);
@@ -1571,7 +1571,7 @@ sub get_exchangerate {
     return 1;
   }
 
-  $query = qq|SELECT curr FROM currencies WHERE id = (SELECT curr FROM defaults)|;
+  $query = qq|SELECT name AS curr FROM currencies WHERE id = (SELECT currency_id FROM defaults)|;
 
   my ($defaultcurrency) = selectrow_query($self, $dbh, $query);
 
@@ -1581,7 +1581,7 @@ sub get_exchangerate {
   }
 
   $query = qq|SELECT e.$fld FROM exchangerate e
-                 WHERE e.curr = (SELECT id FROM currencies WHERE curr = ?) AND e.transdate = ?|;
+                 WHERE e.currency_id = (SELECT id FROM currencies WHERE name = ?) AND e.transdate = ?|;
   my ($exchangerate) = selectrow_query($self, $dbh, $query, $curr, $transdate);
 
 
@@ -1614,7 +1614,7 @@ sub check_exchangerate {
 
   my $dbh   = $self->get_standard_dbh($myconfig);
   my $query = qq|SELECT e.$fld FROM exchangerate e
-                 WHERE e.curr = (SELECT id FROM currencies WHERE curr = ?) AND e.transdate = ?|;
+                 WHERE e.currency_id = (SELECT id FROM currencies WHERE name = ?) AND e.transdate = ?|;
 
   my ($exchangerate) = selectrow_query($self, $dbh, $query, $currency, $transdate);
 
@@ -1631,7 +1631,7 @@ sub get_all_currencies {
   my $dbh      = $self->get_standard_dbh($myconfig);
   my @currencies =();
 
-  my $query = qq|SELECT curr FROM currencies|;
+  my $query = qq|SELECT name AS curr FROM currencies|;
 
   my $sth = prepare_execute_query($self, $dbh, $query);
 
@@ -1650,7 +1650,7 @@ sub get_default_currency {
 
   my ($self, $myconfig) = @_;
   my $dbh      = $self->get_standard_dbh($myconfig);
-  my $query = qq|SELECT curr FROM currencies WHERE id = (SELECT curr FROM defaults)|;
+  my $query = qq|SELECT name AS curr FROM currencies WHERE id = (SELECT currency_id FROM defaults)|;
 
   my ($defaultcurrency) = selectrow_query($self, $dbh, $query);
 
@@ -2707,7 +2707,7 @@ sub create_links {
     $query =
       qq|SELECT
            a.cp_id, a.invnumber, a.transdate, a.${table}_id, a.datepaid,
-           a.duedate, a.ordnumber, a.taxincluded, (SELECT cu.curr FROM currencies cu WHERE cu.id=a.curr) AS currency, a.notes,
+           a.duedate, a.ordnumber, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.notes,
            a.intnotes, a.department_id, a.amount AS oldinvtotal,
            a.paid AS oldtotalpaid, a.employee_id, a.gldate, a.type,
            a.globalproject_id, ${extra_columns}
@@ -2812,7 +2812,7 @@ sub create_links {
     $query =
       qq|SELECT
            d.closedto, d.revtrans,
-           (SELECT cu.curr FROM currencies cu WHERE cu.id=d.curr) AS defaultcurrency,
+           (SELECT cu.name FROM currencies cu WHERE cu.id=d.currency_id) AS defaultcurrency,
            (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
            (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
          FROM defaults d|;
@@ -2825,7 +2825,7 @@ sub create_links {
     $query =
        qq|SELECT
             current_date AS transdate, d.closedto, d.revtrans,
-            (SELECT cu.curr FROM currencies cu WHERE cu.id=d.curr) AS defaultcurrency,
+            (SELECT cu.name FROM currencies cu WHERE cu.id=d.currency_id) AS defaultcurrency,
             (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id) AS fxgain_accno,
             (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id) AS fxloss_accno
           FROM defaults d|;
@@ -2864,7 +2864,7 @@ sub lastname_used {
                     "a.department_id"         => "department_id",
                     "d.description"           => "department",
                     "ct.name"                 => $table,
-                    "cu.curr"                 => "currency",
+                    "cu.name AS curr"         => "currency",
                     "current_date + ct.terms" => "duedate",
     );
 
@@ -2899,7 +2899,7 @@ sub lastname_used {
                         FROM $arap a
                         LEFT JOIN $table     ct ON (a.${table}_id = ct.id)
                         LEFT JOIN department d  ON (a.department_id = d.id)
-                        LEFT JOIN currencies cu ON (cu.id=ct.curr)
+                        LEFT JOIN currencies cu ON (cu.id=ct.currency_id)
                         WHERE a.id = ?|;
   my $ref          = selectfirst_hashref_query($self, $dbh, $query, $trans_id);
 

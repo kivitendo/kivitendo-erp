@@ -149,10 +149,10 @@ sub get_openinvoices {
   my $arap = $form->{arap} eq "ar" ? "ar" : "ap";
 
   my $query =
-     qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, cu.curr | .
+     qq|SELECT a.id, a.invnumber, a.transdate, a.amount, a.paid, cu.name AS curr | .
      qq|FROM $arap a | .
-     qq|LEFT JOIN currencies cu ON (cu.id=a.curr)| .
-     qq|WHERE (a.${vc}_id = ?) AND cu.curr = ? AND NOT (a.amount = a.paid)| .
+     qq|LEFT JOIN currencies cu ON (cu.id=a.currency_id)| .
+     qq|WHERE (a.${vc}_id = ?) AND cu.name = ? AND NOT (a.amount = a.paid)| .
      qq|ORDER BY a.id|;
   my $sth = prepare_execute_query($form, $dbh, $query,
                                   conv_i($form->{"${vc}_id"}),
@@ -174,7 +174,7 @@ sub get_openinvoices {
     SELECT COUNT(*)
     FROM $arap
     WHERE (${vc}_id = ?)
-      AND ((SELECT cu.curr FROM currencies cu WHERE cu.id=${arap}.curr) <> ?)
+      AND ((SELECT cu.name FROM currencies cu WHERE cu.id=${arap}.currency_id) <> ?)
       AND (amount <> paid)
 SQL
   ($form->{openinvoices_other_currencies}) = selectfirst_array_query($form, $dbh, $query, conv_i($form->{"${vc}_id"}), "$form->{currency}");
@@ -250,7 +250,7 @@ sub process_payment {
         qq|SELECT $buysell | .
         qq|FROM exchangerate e | .
         qq|JOIN ${arap} a ON (a.transdate = e.transdate) | .
-        qq|WHERE (e.curr = (SELECT id FROM currencies WHERE curr = ?)) AND (a.id = ?)|;
+        qq|WHERE (e.currency_id = (SELECT id FROM currencies WHERE name = ?)) AND (a.id = ?)|;
       my ($exchangerate) =
         selectrow_query($form, $dbh, $query,
                         $form->{currency}, $form->{"id_$i"});

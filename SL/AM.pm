@@ -1103,13 +1103,13 @@ sub save_defaults {
 
   for my $i (1..$form->{rowcount}) {
     if ($form->{"curr_$i"} ne $form->{"old_curr_$i"}) {
-      $query = qq|UPDATE currencies SET curr = '| . $form->{"curr_$i"} . qq|' WHERE curr = '| . $form->{"old_curr_$i"} . qq|'|;
+      $query = qq|UPDATE currencies SET name = '| . $form->{"curr_$i"} . qq|' WHERE name = '| . $form->{"old_curr_$i"} . qq|'|;
       do_query($form, $dbh, $query);
     }
   }
 
   if (length($form->{new_curr}) > 0) {
-    $query = qq|INSERT INTO currencies (curr) VALUES ('| . $form->{new_curr} . qq|')|;
+    $query = qq|INSERT INTO currencies (name) VALUES ('| . $form->{new_curr} . qq|')|;
     do_query($form, $dbh, $query);
   }
 
@@ -1292,7 +1292,7 @@ sub defaultaccounts {
   $sth->finish;
 
   #Get currencies:
-  $query = qq|SELECT curr FROM currencies ORDER BY id|;
+  $query = qq|SELECT name AS curr FROM currencies ORDER BY id|;
 
   $form->{CURRENCIES} = [];
 
@@ -1304,7 +1304,7 @@ sub defaultaccounts {
   $sth->finish;
 
   #Which of them is the default currency?
-  $query = qq|SELECT curr AS defaultcurrency FROM currencies WHERE id = (SELECT curr FROM defaults LIMIT 1);|;
+  $query = qq|SELECT name AS defaultcurrency FROM currencies WHERE id = (SELECT currency_id FROM defaults LIMIT 1);|;
   $sth   = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 

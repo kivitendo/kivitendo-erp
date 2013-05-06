@@ -184,7 +184,7 @@ sub post_transaction {
     $query = qq|UPDATE ap SET
                 invnumber = ?, transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
                 amount = ?, duedate = ?, paid = ?, netamount = ?,
-                curr = (SELECT id FROM currencies WHERE curr = ?), notes = ?, department_id = ?, storno = ?, storno_id = ?,
+                currency_id = (SELECT id FROM currencies WHERE name = ?), notes = ?, department_id = ?, storno = ?, storno_id = ?,
                 globalproject_id = ?, direct_debit = ?
                WHERE id = ?|;
     @values = ($form->{invnumber}, conv_date($form->{transdate}),

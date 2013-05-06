@@ -458,7 +458,7 @@ sub customer_details {
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as customernotes,
          ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
-         (SELECT cu.curr FROM currencies cu WHERE cu.id=ct.curr) AS currency
+         (SELECT cu.name FROM currencies cu WHERE cu.id=ct.currency_id) AS currency
        FROM customer ct
        LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
        WHERE (ct.id = ?) $where
@@ -555,7 +555,7 @@ sub post_invoice {
       $query = qq|SELECT nextval('glid')|;
       ($form->{"id"}) = selectrow_query($form, $dbh, $query);
 
-      $query = qq|INSERT INTO ar (id, invnumber, curr) VALUES (?, ?, (SELECT id FROM currencies WHERE curr=?))|;
+      $query = qq|INSERT INTO ar (id, invnumber, currency_id) VALUES (?, ?, (SELECT id FROM currencies WHERE name=?))|;
       do_query($form, $dbh, $query, $form->{"id"}, $form->{"id"}, $form->{currency});
 
       if (!$form->{invnumber}) {
@@ -1081,7 +1081,7 @@ sub post_invoice {
                 amount      = ?, netamount     = ?, paid          = ?,
                 duedate     = ?, deliverydate  = ?, invoice       = ?, shippingpoint = ?,
                 shipvia     = ?, terms         = ?, notes         = ?, intnotes      = ?,
-                curr        = (SELECT id FROM currencies WHERE curr= ?),
+                currency_id = (SELECT id FROM currencies WHERE name = ?),
                 department_id = ?, payment_id    = ?, taxincluded   = ?,
                 type        = ?, language_id   = ?, taxzone_id    = ?, shipto_id     = ?,
                 employee_id = ?, salesman_id   = ?, storno_id     = ?, storno        = ?,
@@ -1574,7 +1574,7 @@ sub retrieve_invoice {
            a.orddate, a.quodate, a.globalproject_id,
            a.transdate AS invdate, a.deliverydate, a.paid, a.storno, a.gldate,
            a.shippingpoint, a.shipvia, a.terms, a.notes, a.intnotes, a.taxzone_id,
-           a.duedate, a.taxincluded, (SELECT cu.curr FROM currencies cu WHERE cu.id=a.curr) AS currency, a.shipto_id, a.cp_id,
+           a.duedate, a.taxincluded, (SELECT cu.name FROM currencies cu WHERE cu.id=a.currency_id) AS currency, a.shipto_id, a.cp_id,
            a.employee_id, a.salesman_id, a.payment_id,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
@@ -1750,7 +1750,7 @@ sub get_customer {
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit, c.terms,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id,
          c.street, c.zipcode, c.city, c.country,
-         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, (SELECT cu.curr FROM currencies cu WHERE cu.id=c.curr) AS curr,
+         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, (SELECT cu.name FROM currencies cu WHERE cu.id=c.currency_id) AS curr,
          c.taxincluded_checked, c.direct_debit,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.discount AS tradediscount, b.description AS business
@@ -1795,7 +1795,7 @@ sub get_customer {
   $query =
     qq|SELECT o.amount,
          (SELECT e.buy FROM exchangerate e
-          WHERE e.curr = o.curr
+          WHERE e.currency_id = o.currency_id
             AND e.transdate = o.transdate)
        FROM oe o
        WHERE o.customer_id = ?

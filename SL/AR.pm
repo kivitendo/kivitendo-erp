@@ -134,7 +134,7 @@ sub post_transaction {
     } else {
       $query = qq|SELECT nextval('glid')|;
       ($form->{id}) = selectrow_query($form, $dbh, $query);
-      $query = qq|INSERT INTO ar (id, invnumber, employee_id, curr) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE curr=?))|;
+      $query = qq|INSERT INTO ar (id, invnumber, employee_id, currency_id) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE name=?))|;
       do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{currency});
       $form->{invnumber} = $form->update_defaults($myconfig, "invnumber", $dbh) unless $form->{invnumber};
     }

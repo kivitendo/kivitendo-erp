@@ -71,7 +71,7 @@ sub get_tuple {
   $sth->finish;
 
   #get name of currency instead of id:
-  $query = qq|SELECT curr FROM currencies WHERE id=?|;
+  $query = qq|SELECT name AS curr FROM currencies WHERE id=?|;
   ($form->{curr}) = selectrow_query($form, $dbh, $query, conv_i($form->{curr}));
 
   if ( $form->{salesman_id} ) {
@@ -320,7 +320,7 @@ sub save_customer {
     qq|user_password = ?, | .
     qq|c_vendor_id = ?, | .
     qq|klass = ?, | .
-    qq|curr = (SELECT id FROM currencies WHERE curr = ?), | .
+    qq|currency_id = (SELECT id FROM currencies WHERE name = ?), | .
     qq|taxincluded_checked = ? | .
     qq|WHERE id = ?|;
   my @values = (
@@ -472,7 +472,7 @@ sub save_vendor {
     qq|  username = ?, | .
     qq|  user_password = ?, | .
     qq|  v_customer_id = ?, | .
-    qq|  curr = (SELECT id FROM currencies WHERE curr = ?) | .
+    qq|  currency_id = (SELECT id FROM currencies WHERE name = ?) | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{vendornumber},

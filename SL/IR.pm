@@ -77,7 +77,7 @@ sub post_invoice {
       &reverse_invoice($dbh, $form);
     } else {
       ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
-      do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber, curr) VALUES (?, '', (SELECT id FROM currencies WHERE curr=?))|, $form->{id}, $form->{currency});
+      do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber, currency_id) VALUES (?, '', (SELECT id FROM currencies WHERE name=?))|, $form->{id}, $form->{currency});
     }
   }
 
@@ -940,7 +940,7 @@ sub retrieve_invoice {
   $query = qq|SELECT cp_id, invnumber, transdate AS invdate, duedate,
                 orddate, quodate, globalproject_id,
                 ordnumber, quonumber, paid, taxincluded, notes, taxzone_id, storno, gldate,
-                intnotes, (SELECT cu.curr FROM currencies cu WHERE cu.id=ap.curr) AS currency, direct_debit
+                intnotes, (SELECT cu.name FROM currencies cu WHERE cu.id=ap.currency_id) AS currency, direct_debit
               FROM ap
               WHERE id = ?|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{id}));
@@ -1087,7 +1087,7 @@ sub get_vendor {
          v.id AS vendor_id, v.name AS vendor, v.discount as vendor_discount,
          v.creditlimit, v.terms, v.notes AS intnotes,
          v.email, v.cc, v.bcc, v.language_id, v.payment_id,
-         v.street, v.zipcode, v.city, v.country, v.taxzone_id, (SELECT cu.curr FROM currencies cu WHERE cu.id=v.curr) AS curr, v.direct_debit,
+         v.street, v.zipcode, v.city, v.country, v.taxzone_id, (SELECT cu.name FROM currencies cu WHERE cu.id=v.currency_id) AS curr, v.direct_debit,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.description AS business
        FROM vendor v
@@ -1109,7 +1109,7 @@ sub get_vendor {
   $query = qq|SELECT o.amount,
                 (SELECT e.sell
                  FROM exchangerate e
-                 WHERE (e.curr = o.curr)
+                 WHERE (e.currency_id = o.currency_id)
                    AND (e.transdate = o.transdate)) AS exch
               FROM oe o
               WHERE (o.vendor_id = ?) AND (o.quotation = '0') AND (o.closed = '0')|;
@@ -1384,7 +1384,7 @@ sub vendor_details {
   # fax and phone and email as vendor*
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as vendornotes, phone as vendorphone, fax as vendorfax, email as vendoremail,
-         (SELECT cu.curr FROM currencies cu WHERE cu.id=ct.curr) AS currency
+         (SELECT cu.name FROM currencies cu WHERE cu.id=ct.currency_id) AS currency
        FROM vendor ct
        LEFT JOIN contacts cp ON (ct.id = cp.cp_cv_id)
        WHERE (ct.id = ?) $contact

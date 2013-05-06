@@ -122,10 +122,11 @@ sub run {
 sub create_and_fill_table {
   my $self = shift;
   #Create an fill table currencies:
-  my $query = qq|CREATE TABLE currencies (id INTEGER DEFAULT nextval(('id'::text)::regclass) UNIQUE NOT NULL, curr TEXT PRIMARY KEY)|;
+  my $query = qq|CREATE TABLE currencies (id   SERIAL        PRIMARY KEY,
+                                          name TEXT NOT NULL UNIQUE)|;
   $self->db_query($query);
   foreach my $item ( @_ ) {
-    $query = qq|INSERT INTO currencies (curr) VALUES ('| . $item . qq|')|;
+    $query = qq|INSERT INTO currencies (name) VALUES ('| . $item . qq|')|;
     $self->db_query($query);
   }
 
@@ -148,26 +149,26 @@ sub create_and_fill_table {
     $self->db_query($query);
   }
 
-  #Create a new columns currency and update with curr.id:
-  $query = qq|ALTER TABLE ap ADD currency INTEGER;
-              ALTER TABLE ar ADD currency INTEGER;
-              ALTER TABLE oe ADD currency INTEGER;
-              ALTER TABLE customer ADD currency INTEGER;
-              ALTER TABLE delivery_orders ADD currency INTEGER;
-              ALTER TABLE exchangerate ADD currency INTEGER;
-              ALTER TABLE vendor ADD currency INTEGER;
-              ALTER TABLE defaults ADD currency INTEGER;|;
+  #Create a new columns currency_id and update with curr.id:
+  $query = qq|ALTER TABLE ap ADD currency_id INTEGER;
+              ALTER TABLE ar ADD currency_id INTEGER;
+              ALTER TABLE oe ADD currency_id INTEGER;
+              ALTER TABLE customer ADD currency_id INTEGER;
+              ALTER TABLE delivery_orders ADD currency_id INTEGER;
+              ALTER TABLE exchangerate ADD currency_id INTEGER;
+              ALTER TABLE vendor ADD currency_id INTEGER;
+              ALTER TABLE defaults ADD currency_id INTEGER;|;
   $self->db_query($query);
   #Set defaultcurrency:
-  $query = qq|UPDATE defaults SET currency= (SELECT id FROM currencies WHERE curr = '| . $main::form->{defaultcurrency} . qq|')|;
+  $query = qq|UPDATE defaults SET currency_id= (SELECT id FROM currencies WHERE name = '| . $main::form->{defaultcurrency} . qq|')|;
   $self->db_query($query);
-  $query = qq|UPDATE ap SET currency = (SELECT id FROM currencies c WHERE c.curr = ap.curr);
-              UPDATE ar SET currency = (SELECT id FROM currencies c WHERE c.curr = ar.curr);
-              UPDATE oe SET currency = (SELECT id FROM currencies c WHERE c.curr = oe.curr);
-              UPDATE customer SET currency = (SELECT id FROM currencies c WHERE c.curr = customer.curr);
-              UPDATE delivery_orders SET currency = (SELECT id FROM currencies c WHERE c.curr = delivery_orders.curr);
-              UPDATE exchangerate SET currency = (SELECT id FROM currencies c WHERE c.curr = exchangerate.curr);
-              UPDATE vendor SET currency = (SELECT id FROM currencies c WHERE c.curr = vendor.curr);|;
+  $query = qq|UPDATE ap SET currency_id = (SELECT id FROM currencies c WHERE c.name = ap.curr);
+              UPDATE ar SET currency_id = (SELECT id FROM currencies c WHERE c.name = ar.curr);
+              UPDATE oe SET currency_id = (SELECT id FROM currencies c WHERE c.name = oe.curr);
+              UPDATE customer SET currency_id = (SELECT id FROM currencies c WHERE c.name = customer.curr);
+              UPDATE delivery_orders SET currency_id = (SELECT id FROM currencies c WHERE c.name = delivery_orders.curr);
+              UPDATE exchangerate SET currency_id = (SELECT id FROM currencies c WHERE c.name = exchangerate.curr);
+              UPDATE vendor SET currency_id = (SELECT id FROM currencies c WHERE c.name = vendor.curr);|;
   $self->db_query($query);
 
   #Drop column 'curr':
@@ -181,37 +182,26 @@ sub create_and_fill_table {
               ALTER TABLE defaults DROP COLUMN curr;|;
   $self->db_query($query);
 
-  #Rename currency to curr:
-  $query = qq|ALTER TABLE defaults RENAME COLUMN currency TO curr;
-              ALTER TABLE ap RENAME COLUMN currency TO curr;
-              ALTER TABLE ar RENAME COLUMN currency TO curr;
-              ALTER TABLE oe RENAME COLUMN currency TO curr;
-              ALTER TABLE customer RENAME COLUMN currency TO curr;
-              ALTER TABLE delivery_orders RENAME COLUMN currency TO curr;
-              ALTER TABLE exchangerate RENAME COLUMN currency TO curr;
-              ALTER TABLE vendor RENAME COLUMN currency TO curr;|;
-  $self->db_query($query);
-
   #Set NOT NULL constraints:
-  $query = qq|ALTER TABLE ap ALTER COLUMN curr SET NOT NULL;
-              ALTER TABLE ar ALTER COLUMN curr SET NOT NULL;
-              ALTER TABLE oe ALTER COLUMN curr SET NOT NULL;
-              ALTER TABLE customer ALTER COLUMN curr SET NOT NULL;
-              ALTER TABLE delivery_orders ALTER COLUMN curr SET NOT NULL;
-              ALTER TABLE exchangerate ALTER COLUMN curr SET NOT NULL;
-              ALTER TABLE vendor ALTER COLUMN curr SET NOT NULL;
-              ALTER TABLE defaults ALTER COLUMN curr SET NOT NULL;|;
+  $query = qq|ALTER TABLE ap ALTER COLUMN currency_id SET NOT NULL;
+              ALTER TABLE ar ALTER COLUMN currency_id SET NOT NULL;
+              ALTER TABLE oe ALTER COLUMN currency_id SET NOT NULL;
+              ALTER TABLE customer ALTER COLUMN currency_id SET NOT NULL;
+              ALTER TABLE delivery_orders ALTER COLUMN currency_id SET NOT NULL;
+              ALTER TABLE exchangerate ALTER COLUMN currency_id SET NOT NULL;
+              ALTER TABLE vendor ALTER COLUMN currency_id SET NOT NULL;
+              ALTER TABLE defaults ALTER COLUMN currency_id SET NOT NULL;|;
   $self->db_query($query);
 
   #Set foreign keys:
-  $query = qq|ALTER TABLE ap ADD FOREIGN KEY (curr) REFERENCES currencies(id);
-              ALTER TABLE ar ADD FOREIGN KEY (curr) REFERENCES currencies(id);
-              ALTER TABLE oe ADD FOREIGN KEY (curr) REFERENCES currencies(id);
-              ALTER TABLE customer ADD FOREIGN KEY (curr) REFERENCES currencies(id);
-              ALTER TABLE delivery_orders ADD FOREIGN KEY (curr) REFERENCES currencies(id);
-              ALTER TABLE exchangerate ADD FOREIGN KEY (curr) REFERENCES currencies(id);
-              ALTER TABLE vendor ADD FOREIGN KEY (curr) REFERENCES currencies(id);
-              ALTER TABLE defaults ADD FOREIGN KEY (curr) REFERENCES currencies(id);|;
+  $query = qq|ALTER TABLE ap ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+              ALTER TABLE ar ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+              ALTER TABLE oe ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+              ALTER TABLE customer ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+              ALTER TABLE delivery_orders ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+              ALTER TABLE exchangerate ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+              ALTER TABLE vendor ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);
+              ALTER TABLE defaults ADD FOREIGN KEY (currency_id) REFERENCES currencies(id);|;
   $self->db_query($query);
 
 };
