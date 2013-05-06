@@ -9,15 +9,24 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('project');
 
 __PACKAGE__->meta->columns(
-  active          => { type => 'boolean', default => 'true' },
-  customer_id     => { type => 'integer' },
-  description     => { type => 'text' },
-  id              => { type => 'integer', not_null => 1, sequence => 'id' },
-  itime           => { type => 'timestamp', default => 'now()' },
-  mtime           => { type => 'timestamp' },
-  project_type_id => { type => 'integer', not_null => 1 },
-  projectnumber   => { type => 'text' },
-  valid           => { type => 'boolean', default => 'true' },
+  active               => { type => 'boolean', default => 'true' },
+  billable_customer_id => { type => 'integer' },
+  budget_cost          => { type => 'numeric', default => '0', not_null => 1, precision => 5, scale => 15 },
+  budget_minutes       => { type => 'integer', default => '0', not_null => 1 },
+  customer_id          => { type => 'integer' },
+  description          => { type => 'text' },
+  end_date             => { type => 'date' },
+  id                   => { type => 'integer', not_null => 1, sequence => 'id' },
+  itime                => { type => 'timestamp', default => 'now()' },
+  mtime                => { type => 'timestamp' },
+  order_value          => { type => 'numeric', default => '0', not_null => 1, precision => 5, scale => 15 },
+  project_status_id    => { type => 'integer' },
+  project_type_id      => { type => 'integer', not_null => 1 },
+  projectnumber        => { type => 'text' },
+  start_date           => { type => 'date' },
+  timeframe            => { type => 'boolean', default => 'false', not_null => 1 },
+  type                 => { type => 'text' },
+  valid                => { type => 'boolean', default => 'true' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -27,6 +36,21 @@ __PACKAGE__->meta->unique_keys([ 'projectnumber' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  customer => {
+    class       => 'SL::DB::Customer',
+    key_columns => { customer_id => 'id' },
+  },
+
+  project_type => {
+    class       => 'SL::DB::ProjectType',
+    key_columns => { project_type_id => 'id' },
+  },
+
+  billable_customer => {
+    class       => 'SL::DB::Customer',
+    key_columns => { billable_customer_id => 'id' },
+  },
+
   customer => {
     class       => 'SL::DB::Customer',
     key_columns => { customer_id => 'id' },

@@ -11,6 +11,7 @@ __PACKAGE__->meta->table('project_types');
 __PACKAGE__->meta->columns(
   description => { type => 'text' },
   id          => { type => 'serial', not_null => 1 },
+  internal    => { type => 'boolean', default => 'false', not_null => 1 },
   position    => { type => 'integer', not_null => 1 },
 );
 
