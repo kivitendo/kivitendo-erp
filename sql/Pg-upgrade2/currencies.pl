@@ -1,20 +1,33 @@
 # @tag: currencies
 # @description: Erstellt neue Tabelle currencies. Währungen können dann einfacher eingegeben und unkritisch geändert werden.
 # @depends: release_3_0_0 rm_whitespaces
-
-package SL::DBUpgrade2::currencies;
+# @charset: utf-8
 
 use utf8;
 use strict;
 
-use parent qw(SL::DBUpgrade2::Base);
+die("This script cannot be run from the command line.") unless ($main::form);
+
+sub mydberror {
+  my ($msg) = @_;
+  die($dbup_locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr);
+}
+
+sub do_query {
+  my ($query, $may_fail) = @_;
+
+  if (!$dbh->do($query)) {
+    mydberror($query) unless ($may_fail);
+    $dbh->rollback();
+    $dbh->begin_work();
+  }
+}
 
 
-sub run {
-  my ($self) = @_;
+sub do_update {
   #Check wheather default currency exists
   my $query = qq|SELECT curr FROM defaults|;
-  my ($currencies) = $self->dbh->selectrow_array($query);
+  my ($currencies) = $dbh->selectrow_array($query);
 
   if (length($currencies) == 0 and length($main::form->{defaultcurrency}) == 0){
     print_no_default_currency();
@@ -40,7 +53,7 @@ sub run {
               UNION
               SELECT DISTINCT curr FROM vendor|;
 
-  my $sth = $self->dbh->prepare($query);
+  my $sth = $dbh->prepare($query);
   $sth->execute || $self->dberror($query);
 
   $main::form->{ORPHANED_CURRENCIES} = [];
@@ -75,9 +88,9 @@ sub run {
 
   if ($main::form->{continue_options} eq 'insert') {
     for my $i (0..($rowcount-1)){
-      push @currency_array, $main::form->{"curr_$i"};
+      push @currency_array, $form->{"curr_$i"};
     }
-    create_and_fill_table($self, @currency_array);
+    create_and_fill_table(@currency_array);
     return 1;
   }
 
@@ -89,19 +102,19 @@ sub run {
         if ($main::form->{"curr_$i"} eq $item){
           $still_orphaned = 0;
           $query = qq|DELETE FROM exchangerate WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
+          do_query($query);
           $query = qq|UPDATE ap SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
+          do_query($query);
           $query = qq|UPDATE ar SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
+          do_query($query);
           $query = qq|UPDATE oe SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
+          do_query($query);
           $query = qq|UPDATE customer SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
+          do_query($query);
           $query = qq|UPDATE delivery_orders SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
+          do_query($query);
           $query = qq|UPDATE vendor SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
+          do_query($query);
           last;
         }
       }
@@ -110,23 +123,22 @@ sub run {
         return do_update();
       }
     }
-    create_and_fill_table($self, @currency_array);
+    create_and_fill_table(@currency_array);
     return 1;
   }
 
   #No orphaned currencies, so create table:
-  create_and_fill_table($self, @currency_array);
+  create_and_fill_table(@currency_array);
   return 1;
 }; # end do_update
 
 sub create_and_fill_table {
-  my $self = shift;
   #Create an fill table currencies:
   my $query = qq|CREATE TABLE currencies (id INTEGER DEFAULT nextval(('id'::text)::regclass) UNIQUE NOT NULL, curr TEXT PRIMARY KEY)|;
-  $self->db_query($query);
+  do_query($query);
   foreach my $item ( @_ ) {
     $query = qq|INSERT INTO currencies (curr) VALUES ('| . $item . qq|')|;
-    $self->db_query($query);
+    do_query($query);
   }
 
   #Set default currency if no currency was chosen:
@@ -137,15 +149,15 @@ sub create_and_fill_table {
   $query .= qq|UPDATE delivery_orders SET curr = '| . $main::form->{"defaultcurrency"} . qq|' WHERE curr IS NULL or curr='';|;
   $query .= qq|UPDATE vendor SET curr = '| . $main::form->{"defaultcurrency"} . qq|' WHERE curr IS NULL or curr='';|;
   $query .= qq|DELETE FROM exchangerate WHERE curr IS NULL or curr='';|;
-  $self->db_query($query);
+  do_query($query);
 
   #Check wheather defaultcurrency is already in table currencies:
   $query = qq|SELECT curr FROM currencies WHERE curr = '| . $main::form->{defaultcurrency} . qq|'|;
-  my ($insert_default) = $self->dbh->selectrow_array($query);
+  my ($insert_default) = $dbh->selectrow_array($query);
 
   if (!$insert_default) {
     $query = qq|INSERT INTO currencies (curr) VALUES ('| . $main::form->{defaultcurrency} . qq|')|;
-    $self->db_query($query);
+    do_query($query);
   }
 
   #Create a new columns currency and update with curr.id:
@@ -157,10 +169,10 @@ sub create_and_fill_table {
               ALTER TABLE exchangerate ADD currency INTEGER;
               ALTER TABLE vendor ADD currency INTEGER;
               ALTER TABLE defaults ADD currency INTEGER;|;
-  $self->db_query($query);
+  do_query($query);
   #Set defaultcurrency:
   $query = qq|UPDATE defaults SET currency= (SELECT id FROM currencies WHERE curr = '| . $main::form->{defaultcurrency} . qq|')|;
-  $self->db_query($query);
+  do_query($query);
   $query = qq|UPDATE ap SET currency = (SELECT id FROM currencies c WHERE c.curr = ap.curr);
               UPDATE ar SET currency = (SELECT id FROM currencies c WHERE c.curr = ar.curr);
               UPDATE oe SET currency = (SELECT id FROM currencies c WHERE c.curr = oe.curr);
@@ -168,7 +180,7 @@ sub create_and_fill_table {
               UPDATE delivery_orders SET currency = (SELECT id FROM currencies c WHERE c.curr = delivery_orders.curr);
               UPDATE exchangerate SET currency = (SELECT id FROM currencies c WHERE c.curr = exchangerate.curr);
               UPDATE vendor SET currency = (SELECT id FROM currencies c WHERE c.curr = vendor.curr);|;
-  $self->db_query($query);
+  do_query($query);
 
   #Drop column 'curr':
   $query = qq|ALTER TABLE ap DROP COLUMN curr;
@@ -179,7 +191,7 @@ sub create_and_fill_table {
               ALTER TABLE exchangerate DROP COLUMN curr;
               ALTER TABLE vendor DROP COLUMN curr;
               ALTER TABLE defaults DROP COLUMN curr;|;
-  $self->db_query($query);
+  do_query($query);
 
   #Rename currency to curr:
   $query = qq|ALTER TABLE defaults RENAME COLUMN currency TO curr;
@@ -190,7 +202,7 @@ sub create_and_fill_table {
               ALTER TABLE delivery_orders RENAME COLUMN currency TO curr;
               ALTER TABLE exchangerate RENAME COLUMN currency TO curr;
               ALTER TABLE vendor RENAME COLUMN currency TO curr;|;
-  $self->db_query($query);
+  do_query($query);
 
   #Set NOT NULL constraints:
   $query = qq|ALTER TABLE ap ALTER COLUMN curr SET NOT NULL;
@@ -201,7 +213,7 @@ sub create_and_fill_table {
               ALTER TABLE exchangerate ALTER COLUMN curr SET NOT NULL;
               ALTER TABLE vendor ALTER COLUMN curr SET NOT NULL;
               ALTER TABLE defaults ALTER COLUMN curr SET NOT NULL;|;
-  $self->db_query($query);
+  do_query($query);
 
   #Set foreign keys:
   $query = qq|ALTER TABLE ap ADD FOREIGN KEY (curr) REFERENCES currencies(id);
@@ -212,7 +224,7 @@ sub create_and_fill_table {
               ALTER TABLE exchangerate ADD FOREIGN KEY (curr) REFERENCES currencies(id);
               ALTER TABLE vendor ADD FOREIGN KEY (curr) REFERENCES currencies(id);
               ALTER TABLE defaults ADD FOREIGN KEY (curr) REFERENCES currencies(id);|;
-  $self->db_query($query);
+  do_query($query);
 
 };
 
@@ -224,4 +236,4 @@ sub print_orphaned_currencies {
   print $main::form->parse_html_template("dbupgrade/orphaned_currencies");
 };
 
-1;
+return do_update();
