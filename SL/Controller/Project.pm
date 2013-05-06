@@ -15,6 +15,8 @@ use SL::DB::DeliveryOrder;
 use SL::DB::Invoice;
 use SL::DB::Order;
 use SL::DB::Project;
+use SL::DB::ProjectType;
+use SL::DB::ProjectStatus;
 use SL::DB::PurchaseInvoice;
 use SL::DB::ProjectType;
 use SL::Helper::Flash;
@@ -27,7 +29,9 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('check_auth');
-__PACKAGE__->run_before('load_project',       only => [ qw(edit update destroy) ]);
+__PACKAGE__->run_before('load_project',        only => [ qw(edit update destroy) ]);
+__PACKAGE__->run_before('load_project_types',  only => [ qw(search edit new) ]);
+__PACKAGE__->run_before('load_project_status', only => [ qw(search edit new) ]);
 
 #
 # actions
@@ -38,7 +42,6 @@ sub action_search {
 
   my %params;
 
-  $params{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
   $params{CUSTOM_VARIABLES}  = CVar->get_configs(module => 'Projects');
   ($params{CUSTOM_VARIABLES_FILTER_CODE}, $params{CUSTOM_VARIABLES_INCLUSION_CODE})
     = CVar->render_search_options(variables      => $params{CUSTOM_VARIABLES},
@@ -116,7 +119,6 @@ sub display_form {
   my ($self, %params) = @_;
 
   $params{ALL_CUSTOMERS}     = SL::DB::Manager::Customer->get_all_sorted(where => [ or => [ obsolete => 0, obsolete => undef, id => $self->project->customer_id ]]);
-  $params{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
   $params{CUSTOM_VARIABLES}  = CVar->get_custom_variables(module => 'Projects', trans_id => $self->project->id);
 
   if ($params{keep_cvars}) {
@@ -202,13 +204,14 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(projectnumber description customer active valid project_type);
-  my @sortable    = qw(projectnumber description customer              project_type);
+  my @columns     = qw(projectnumber description customer active valid project_type project_status);
+  my @sortable    = qw(projectnumber description customer              project_type project_status);
 
   my %column_defs = (
     projectnumber => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
     description   => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
     project_type  => { sub  => sub { $_[0]->project_type->description } },
+    project_status => { sub  => sub { $_[0]->project_status->description }, text => t8('Project Status') },
     customer      => { sub  => sub { $_[0]->customer ? $_[0]->customer->name     : '' } },
     active        => { sub  => sub { $_[0]->active   ? $::locale->text('Active') : $::locale->text('Inactive') },
                        text => $::locale->text('Active') },
@@ -257,6 +260,14 @@ sub init_models {
     },
     with_objects => [ 'customer' ],
   );
+}
+
+sub load_project_types {
+  $_[0]{ALL_PROJECT_TYPES} = SL::DB::Manager::ProjectType->get_all_sorted;
+}
+
+sub load_project_status {
+  $_[0]{ALL_PROJECT_STATUS} = SL::DB::Manager::ProjectStatus->get_all_sorted;
 }
 
 1;

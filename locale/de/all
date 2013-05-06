@@ -1761,6 +1761,7 @@ $self->{texts} = {
   'Project Description'         => 'Projektbeschreibung',
   'Project Number'              => 'Projektnummer',
   'Project Numbers'             => 'Projektnummern',
+  'Project Status'              => 'Projektstatus',
   'Project Transactions'        => 'Projektbuchungen',
   'Project Type'                => 'Projekttyp',
   'Project Types'               => 'Projekttypen',
