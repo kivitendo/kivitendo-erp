@@ -124,12 +124,12 @@ sub invoice_transactions {
 
     &check_name('customer', no_select => 1);
 
-    # $form->{customer_id} wurde schon von check_name gesetzt
+    # $form->{customer_id} was already set by check_name
     $form->{customername} = $form->{customer};
   };
-  # ist $form->{customer} leer passiert hier nichts weiter
+  # if $form->{customer} is empty nothing further happens here
 
-  # decimalplaces überprüfen oder auf Default 2 setzen
+  # test for decimalplaces or set to default of 2
   $form->{decimalplaces} = 2 unless $form->{decimalplaces} > 0 && $form->{decimalplaces} < 6;
 
   my $cvar_configs_ct = CVar->get_configs('module' => 'CT');
@@ -286,9 +286,9 @@ sub invoice_transactions {
   $callback = $form->escape($href);
 
   my @subtotal_columns = qw(qty weight sellprice sellprice_total lastcost lastcost_total marge_total marge_percent discount);
-  # Gesamtsumme:
-  # Summe von sellprice_total, lastcost_total und marge_total
-  # Durchschnitt von marge_percent
+  # Total sum:
+  # sum of sellprice_total, lastcost_total and marge_total
+  # average of marge_percent
   my @total_columns = qw(sellprice_total lastcost_total marge_total marge_percent );
 
   my %totals     = map { $_ => 0 } @total_columns;
