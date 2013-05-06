@@ -104,6 +104,11 @@ sub invoice_transactions {
 
   # can't currently be configured from report, empty line between main sortings
   my $addemptylines = 1;
+  
+  # don't add empty lines between mainsort subtotals when only subtotal_mainsort is selected
+  if ($form->{l_subtotal_mainsort} eq "Y" and not defined $form->{l_headers_mainsort} and not defined $form->{l_headers_subsort} and not defined $form->{l_subtotal_subsort} ) {
+    $addemptylines = 0 
+  };
 
   if ( $form->{customer} =~ /--/ ) {
     # Felddaten kommen aus Dropdownbox
