@@ -407,6 +407,9 @@ sub invoice_transactions {
 
       $row{invnumber}->{link} = build_std_url("script=is.pl", 'action=edit') . "&id=" . E($ar->{id}) . "&callback=${callback}";
 
+      # use partdescription according to invoice in article mode
+      $row{description}->{data} = $ar->{invoice_description};
+
       $report->add_data(\%row);
     }
 
