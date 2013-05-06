@@ -56,6 +56,11 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { customer_id => 'id' },
   },
 
+  project_status => {
+    class       => 'SL::DB::ProjectStatus',
+    key_columns => { project_status_id => 'id' },
+  },
+
   project_type => {
     class       => 'SL::DB::ProjectType',
     key_columns => { project_type_id => 'id' },

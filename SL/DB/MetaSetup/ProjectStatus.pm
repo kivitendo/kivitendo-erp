@@ -19,14 +19,6 @@ __PACKAGE__->meta->setup(
   ],
 
   primary_key_columns => [ 'id' ],
-
-  relationships => [
-    project => {
-      class      => 'SL::DB::Project',
-      column_map => { id => 'project_status_id' },
-      type       => 'one to many',
-    },
-  ],
 );
 
 1;
