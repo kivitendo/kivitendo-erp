@@ -12,7 +12,7 @@ sub run {
   my ($self) = @_;
 
   # this query will fail if column already exist (new database)
-  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN payments_changeable integer NOT NULL DEFAULT 0|, 1);
+  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN payments_changeable integer NOT NULL DEFAULT 0|, may_fail => 1);
 
   # check current configuration and set default variables accordingly, so that
   # kivitendo behaviour isn't changed by this update

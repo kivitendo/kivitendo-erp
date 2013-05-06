@@ -12,7 +12,7 @@ sub run {
   my ($self) = @_;
 
   # this query will fail if column already exist (new database)
-  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN show_bestbefore boolean DEFAULT false|, 1);
+  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN show_bestbefore boolean DEFAULT false|, may_fail => 1);
 
   # check current configuration and set default variables accordingly, so that
   # kivitendo behaviour isn't changed by this update

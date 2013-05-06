@@ -19,8 +19,8 @@ sub run {
      "ALTER TABLE oe ADD COLUMN globalproject_id integer;",
      "ALTER TABLE oe ADD FOREIGN KEY (globalproject_id) REFERENCES project (id);");
 
-  $self->db_query("ALTER TABLE project ADD PRIMARY KEY (id);", 1);
-  map({ $self->db_query($_, 0); } @queries);
+  $self->db_query("ALTER TABLE project ADD PRIMARY KEY (id)", may_fail => 1);
+  $self->db_query($_) for @queries;
 
   return 1;
 }
