@@ -398,8 +398,6 @@ sub dbcreate {
   do_query($form, $dbh, $query, $form->{profit_determination});
   $query = "UPDATE defaults SET inventory_system = ?";
   do_query($form, $dbh, $query, $form->{inventory_system});
-  $query = "UPDATE defaults SET curr = ?";
-  do_query($form, $dbh, $query, $form->{defaultcurrency});
 
   $dbh->disconnect;
 
