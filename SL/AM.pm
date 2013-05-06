@@ -1286,28 +1286,6 @@ sub defaultaccounts {
   }
 
   $sth->finish;
-
-  #Get currencies:
-  $query = qq|SELECT curr FROM currencies ORDER BY id|;
-
-  $form->{CURRENCIES} = [];
-
-  $sth = prepare_execute_query($form, $dbh, $query);
-  $sth->execute || $form->dberror($query);
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    push @{ $form->{ CURRENCIES } } , $ref;
-  }
-  $sth->finish;
-
-  #Which of them is the default currency?
-  $query = qq|SELECT curr AS defaultcurrency FROM currencies WHERE id = (SELECT curr FROM defaults LIMIT 1);|;
-  $sth   = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  $form->{defaultcurrency}               = ($sth->fetchrow_hashref("NAME_lc"))->{defaultcurrency};
-
-  $sth->finish;
-
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
