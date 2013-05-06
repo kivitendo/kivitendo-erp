@@ -68,12 +68,11 @@ sub get_tuple {
   my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
+
+  # remove any trailing whitespace
+  $form->{curr} =~ s/\s*$//;
+
   $sth->finish;
-
-  #get name of currency instead of id:
-  $query = qq|SELECT curr FROM currencies WHERE id=?|;
-  ($form->{curr}) = selectrow_query($form, $dbh, $query, conv_i($form->{curr}));
-
   if ( $form->{salesman_id} ) {
     my $query =
       qq|SELECT ct.name AS salesman | .
@@ -320,7 +319,7 @@ sub save_customer {
     qq|user_password = ?, | .
     qq|c_vendor_id = ?, | .
     qq|klass = ?, | .
-    qq|curr = (SELECT id FROM currencies WHERE curr = ?), | .
+    qq|curr = ?, | .
     qq|taxincluded_checked = ? | .
     qq|WHERE id = ?|;
   my @values = (
@@ -363,7 +362,7 @@ sub save_customer {
     $form->{user_password},
     $form->{c_vendor_id},
     conv_i($form->{klass}),
-    $form->{currency},
+    substr($form->{currency}, 0, 3),
     $form->{taxincluded_checked} ne '' ? $form->{taxincluded_checked} : undef,
     $form->{id}
     );
@@ -472,7 +471,7 @@ sub save_vendor {
     qq|  username = ?, | .
     qq|  user_password = ?, | .
     qq|  v_customer_id = ?, | .
-    qq|  curr = (SELECT id FROM currencies WHERE curr = ?) | .
+    qq|  curr = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{vendornumber},
@@ -512,7 +511,7 @@ sub save_vendor {
     $form->{username},
     $form->{user_password},
     $form->{v_customer_id},
-    $form->{currency},
+    substr($form->{currency}, 0, 3),
     $form->{id}
     );
   do_query($form, $dbh, $query, @values);

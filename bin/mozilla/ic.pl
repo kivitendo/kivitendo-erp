@@ -1489,7 +1489,8 @@ sub link_part {
   IC->create_links("IC", \%myconfig, \%$form);
 
   # currencies
-  map({ $form->{selectcurrency} .= "<option>$_\n" } $::form->get_all_currencies());
+  map({ $form->{selectcurrency} .= "<option>$_\n" }
+      split(/:/, $form->{currencies}));
 
   # parts and assemblies have the same links
   my $item = $form->{item};

@@ -348,7 +348,7 @@ sub save {
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, closed = ?,
          delivered = ?, department_id = ?, language_id = ?, shipto_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?,
-         is_sales = ?, taxzone_id = ?, taxincluded = ?, terms = ?, curr = (SELECT id FROM currencies WHERE curr = ?)
+         is_sales = ?, taxzone_id = ?, taxincluded = ?, terms = ?, curr = ?
        WHERE id = ?|;
 
   @values = ($form->{donumber}, $form->{ordnumber},
@@ -616,7 +616,7 @@ sub retrieve {
          d.description AS department, dord.language_id,
          dord.shipto_id,
          dord.globalproject_id, dord.delivered, dord.transaction_description,
-         dord.taxzone_id, dord.taxincluded, dord.terms, (SELECT cu.curr FROM currencies cu WHERE cu.id=dord.curr) AS currency
+         dord.taxzone_id, dord.taxincluded, dord.terms, dord.curr AS currency
        FROM delivery_orders dord
        JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
@@ -637,6 +637,9 @@ sub retrieve {
     $form->{donumber_array} .= $form->{donumber} . ' ';
   }
   $sth->finish();
+
+  # remove any trailing whitespace
+  $form->{currency} =~ s/\s*$//;
 
   $form->{donumber_array} =~ s/\s*$//g;
 

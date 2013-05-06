@@ -55,6 +55,7 @@ sub post_transaction {
   my $exchangerate = 0;
 
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  delete $form->{currency} unless $form->{defaultcurrency};
 
   ($null, $form->{department_id}) = split(/--/, $form->{department});
 
@@ -184,7 +185,7 @@ sub post_transaction {
     $query = qq|UPDATE ap SET
                 invnumber = ?, transdate = ?, ordnumber = ?, vendor_id = ?, taxincluded = ?,
                 amount = ?, duedate = ?, paid = ?, netamount = ?,
-                curr = (SELECT id FROM currencies WHERE curr = ?), notes = ?, department_id = ?, storno = ?, storno_id = ?,
+                curr = ?, notes = ?, department_id = ?, storno = ?, storno_id = ?,
                 globalproject_id = ?, direct_debit = ?
                WHERE id = ?|;
     @values = ($form->{invnumber}, conv_date($form->{transdate}),
@@ -664,6 +665,7 @@ sub post_payment {
 
   $form->{exchangerate}    = $form->format_amount($myconfig, $form->{exchangerate});
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  delete $form->{currency} unless $form->{defaultcurrency};
 
   # Get the AP accno.
   $query =

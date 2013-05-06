@@ -150,7 +150,7 @@
      <input type="hidden" name="rowcount" value="[% CURRENCIES.size %]">
      <th align="right">[% 'Currencies' | $T8 %]</th>
      <td colspan="3">[% FOREACH row = CURRENCIES %]<input name="curr_[% loop.count %]" size="3" value="[% HTML.escape(row.curr) %]">
-                                                   <input type=hidden name="old_curr_[% loop.count %]" value="[% HTML.escape(row.curr) %]">
+                                                   <input type=hidden name="old_curr_[% loop.count %]" value="[% HTML.escape(defaults_curr) %]">
                      [% END %]
                      <input name="new_curr" size="3" value="">
      </td>
