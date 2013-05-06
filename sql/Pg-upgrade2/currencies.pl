@@ -141,11 +141,11 @@ sub create_and_fill_table {
   $self->db_query($query);
 
   #Check wheather defaultcurrency is already in table currencies:
-  $query = qq|SELECT curr FROM currencies WHERE curr = '| . $main::form->{defaultcurrency} . qq|'|;
+  $query = qq|SELECT name FROM currencies WHERE name = '| . $main::form->{defaultcurrency} . qq|'|;
   my ($insert_default) = $self->dbh->selectrow_array($query);
 
   if (!$insert_default) {
-    $query = qq|INSERT INTO currencies (curr) VALUES ('| . $main::form->{defaultcurrency} . qq|')|;
+    $query = qq|INSERT INTO currencies (name) VALUES ('| . $main::form->{defaultcurrency} . qq|')|;
     $self->db_query($query);
   }
 

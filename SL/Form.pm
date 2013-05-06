@@ -2864,7 +2864,7 @@ sub lastname_used {
                     "a.department_id"         => "department_id",
                     "d.description"           => "department",
                     "ct.name"                 => $table,
-                    "cu.name AS curr"         => "currency",
+                    "cu.name"                 => "currency",
                     "current_date + ct.terms" => "duedate",
     );
 

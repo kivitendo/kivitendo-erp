@@ -72,7 +72,7 @@ sub get_tuple {
 
   #get name of currency instead of id:
   $query = qq|SELECT name AS curr FROM currencies WHERE id=?|;
-  ($form->{curr}) = selectrow_query($form, $dbh, $query, conv_i($form->{curr}));
+  ($form->{curr}) = selectrow_query($form, $dbh, $query, conv_i($form->{currency_id}));
 
   if ( $form->{salesman_id} ) {
     my $query =
@@ -276,7 +276,7 @@ sub save_customer {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO customer (id, name) VALUES (?, '')|;
+    $query = qq|INSERT INTO customer (id, name, currency_id) VALUES (?, '', (SELECT currency_id FROM defaults))|;
     do_query($form, $dbh, $query, $form->{id});
   }
 
@@ -423,7 +423,7 @@ sub save_vendor {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO vendor (id, name) VALUES (?, '')|;
+    $query = qq|INSERT INTO vendor (id, name, currency_id) VALUES (?, '', (SELECT currency_id FROM defaults))|;
     do_query($form, $dbh, $query, $form->{id});
 
     my $vendornumber      = SL::TransNumber->new(type   => 'vendor',

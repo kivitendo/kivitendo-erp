@@ -227,7 +227,7 @@ sub save {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO delivery_orders (id, donumber, employee_id) VALUES (?, '', ?)|;
+    $query = qq|INSERT INTO delivery_orders (id, donumber, employee_id, currency_id) VALUES (?, '', ?, (SELECT currency_id FROM defaults LIMIT 1))|;
     do_query($form, $dbh, $query, $form->{id}, conv_i($form->{employee_id}));
   }
 
@@ -362,7 +362,7 @@ sub save {
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
              $form->{type} =~ /^sales/ ? 't' : 'f',
-             conv_i($form->{taxzone_id}), $form->{taxincluded} ? 't' : 'f', conv_i($form->{terms}), substr($form->{currency}, 0, 3),
+             conv_i($form->{taxzone_id}), $form->{taxincluded} ? 't' : 'f', conv_i($form->{terms}), $form->{currency},
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
