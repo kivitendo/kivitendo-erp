@@ -26,7 +26,6 @@ __PACKAGE__->meta->setup(
     shippingpoint             => { type => 'text' },
     terms                     => { type => 'integer', default => '0' },
     notes                     => { type => 'text' },
-    curr                      => { type => 'text' },
     ordnumber                 => { type => 'text' },
     employee_id               => { type => 'integer' },
     quonumber                 => { type => 'text' },
@@ -57,11 +56,10 @@ __PACKAGE__->meta->setup(
     donumber                  => { type => 'text' },
     invnumber_for_credit_note => { type => 'text' },
     direct_debit              => { type => 'boolean', default => 'false' },
+    currency_id               => { type => 'integer', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
-
-  allow_inline_column_values => 1,
 
   foreign_keys => [
     contact => {

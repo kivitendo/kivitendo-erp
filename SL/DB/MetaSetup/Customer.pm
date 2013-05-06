@@ -53,13 +53,11 @@ __PACKAGE__->meta->setup(
     iban                => { type => 'varchar', length => 100 },
     bic                 => { type => 'varchar', length => 100 },
     direct_debit        => { type => 'boolean', default => 'false' },
-    curr                => { type => 'text' },
     taxincluded_checked => { type => 'boolean' },
+    currency_id         => { type => 'integer', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
-
-  allow_inline_column_values => 1,
 
   foreign_keys => [
     business => {

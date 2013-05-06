@@ -23,7 +23,6 @@ __PACKAGE__->meta->setup(
     duedate                 => { type => 'date' },
     invoice                 => { type => 'boolean', default => 'false' },
     ordnumber               => { type => 'text' },
-    curr                    => { type => 'text' },
     notes                   => { type => 'text' },
     employee_id             => { type => 'integer' },
     quonumber               => { type => 'text' },
@@ -44,11 +43,10 @@ __PACKAGE__->meta->setup(
     transaction_description => { type => 'text' },
     storno_id               => { type => 'integer' },
     direct_debit            => { type => 'boolean', default => 'false' },
+    currency_id             => { type => 'integer', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
-
-  allow_inline_column_values => 1,
 
   foreign_keys => [
     contact => {

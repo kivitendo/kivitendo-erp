@@ -20,7 +20,6 @@ __PACKAGE__->meta->setup(
     weightunit                          => { type => 'varchar', length => 5 },
     businessnumber                      => { type => 'text' },
     version                             => { type => 'varchar', length => 8 },
-    curr                                => { type => 'text' },
     closedto                            => { type => 'date' },
     revtrans                            => { type => 'boolean', default => 'false' },
     ponumber                            => { type => 'text' },
@@ -68,6 +67,7 @@ __PACKAGE__->meta->setup(
     ar_show_mark_as_paid                => { type => 'boolean', default => 'true' },
     ap_show_mark_as_paid                => { type => 'boolean', default => 'true' },
     assemblynumber                      => { type => 'text' },
+    currency_id                         => { type => 'integer', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],

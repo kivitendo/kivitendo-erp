@@ -10,18 +10,16 @@ __PACKAGE__->meta->setup(
   table   => 'exchangerate',
 
   columns => [
-    curr      => { type => 'text' },
-    transdate => { type => 'date' },
-    buy       => { type => 'numeric', precision => 5, scale => 15 },
-    sell      => { type => 'numeric', precision => 5, scale => 15 },
-    itime     => { type => 'timestamp', default => 'now()' },
-    mtime     => { type => 'timestamp' },
-    id        => { type => 'serial', not_null => 1 },
+    transdate   => { type => 'date' },
+    buy         => { type => 'numeric', precision => 5, scale => 15 },
+    sell        => { type => 'numeric', precision => 5, scale => 15 },
+    itime       => { type => 'timestamp', default => 'now()' },
+    mtime       => { type => 'timestamp' },
+    id          => { type => 'serial', not_null => 1 },
+    currency_id => { type => 'integer', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
-
-  allow_inline_column_values => 1,
 );
 
 1;
