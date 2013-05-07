@@ -1156,7 +1156,6 @@ sub search_contacts {
   my %params    = @_;
 
   my $dbh       = $params{dbh} || $::form->get_standard_dbh;
-  my $vc        = $params{db} eq 'customer' ? 'customer' : 'vendor';
 
   my %sortspecs = (
     'cp_name'   => 'cp_name, cp_givenname',
