@@ -6,18 +6,13 @@
 <table>
  <tr>
   <th align="right">[% 'Number' | $T8 %]</th>
-  <td>[% L.input_tag("project.projectnumber", SELF.project.projectnumber, size=60, class="initial_focus") %]</td>
+  <td>[% L.input_tag("project.projectnumber", SELF.project.projectnumber, size=60, style='width: 300px', class="initial_focus") %]</td>
  </tr>
 
  <tr>
   <th align="right">[% 'Description' | $T8 %]</th>
   <td>
-   [%- SET rows = LxERP.numtextrows(SELF.project.description, 60) %]
-   [%- IF rows > 1 %]
-    [%- L.textarea_tag("project.description", SELF.project.description, rows=row, size=60, style="width: 100%", wrap="soft") %]
-   [%- ELSE %]
-    [%- L.input_tag("project.description", SELF.project.description, size=60) %]
-   [%- END %]
+    [%- L.areainput_tag("project.description", SELF.project.description, size=60, style="width: 300px", wrap="soft") %]
   </td>
  </tr>
 
