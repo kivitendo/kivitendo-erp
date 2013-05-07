@@ -204,15 +204,15 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(projectnumber description customer active valid project_type project_status);
+  my @columns     = qw(project_status customer projectnumber description active valid project_type);
   my @sortable    = qw(projectnumber description customer              project_type project_status);
 
   my %column_defs = (
     projectnumber => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
     description   => { obj_link => sub { $self->url_for(action => 'edit', id => $_[0]->id, callback => $callback) } },
     project_type  => { sub  => sub { $_[0]->project_type->description } },
-    project_status => { sub  => sub { $_[0]->project_status->description }, text => t8('Project Status') },
-    customer      => { sub  => sub { $_[0]->customer ? $_[0]->customer->name     : '' } },
+    project_status => { sub  => sub { $_[0]->project_status->description }, text => t8('Status') },
+    customer      => { raw_data  => sub { $self->presenter->customer($_[0]->customer, display => 'table-cell', callback => $callback) } },
     active        => { sub  => sub { $_[0]->active   ? $::locale->text('Active') : $::locale->text('Inactive') },
                        text => $::locale->text('Active') },
     valid         => { sub  => sub { $_[0]->valid    ? $::locale->text('Valid')  : $::locale->text('Invalid')  },
