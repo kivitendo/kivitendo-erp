@@ -30,8 +30,8 @@ use Rose::Object::MakeMethods::Generic
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_project',        only => [ qw(edit update destroy) ]);
-__PACKAGE__->run_before('load_project_types',  only => [ qw(search edit new) ]);
-__PACKAGE__->run_before('load_project_status', only => [ qw(search edit new) ]);
+__PACKAGE__->run_before('load_project_types',  only => [ qw(search edit new list) ]);
+__PACKAGE__->run_before('load_project_status', only => [ qw(search edit new list) ]);
 
 #
 # actions
@@ -54,7 +54,7 @@ sub action_search {
 sub action_list {
   my ($self) = @_;
 
-  # $self->make_filter_summary;
+  $self->make_filter_summary;
 
   my $projects = $self->models->get;
 
@@ -228,7 +228,8 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'Project',
     output_format         => 'HTML',
-    top_info_text         => $::locale->text('Projects'),
+    raw_top_info_text     => $self->render('project/report_top', { output => 0 }),
+    raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
     title                 => $::locale->text('Projects'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -260,6 +261,38 @@ sub init_models {
     },
     with_objects => [ 'customer' ],
   );
+}
+
+sub make_filter_summary {
+  my ($self) = @_;
+
+  my $filter = $::form->{filter} || {};
+  my @filter_strings;
+
+  my @filters = (
+    [ $filter->{"projectnumber:substr::ilike"},  t8('Project Number') ],
+    [ $filter->{"description:substr::ilike"},    t8('Description')    ],
+    [ $filter->{customer}{"name:substr::ilike"}, t8('Customer')       ],
+    [ $filter->{"project_type_id"},              t8('Project Type'),    sub { SL::DB::Manager::ProjectType->find_by(id => $filter->{"project_type_id"})->description }   ],
+    [ $filter->{"project_status_id"},            t8('Project Status'),  sub { SL::DB::Manager::ProjectStatus->find_by(id => $filter->{"project_status_id"})->description } ],
+  );
+
+  my @flags = (
+    [ $filter->{active} eq 'active',    $::locale->text('Active')      ],
+    [ $filter->{active} eq 'inactive',  $::locale->text('Inactive')    ],
+    [ $filter->{valid}  eq 'valid',     $::locale->text('Valid')       ],
+    [ $filter->{valid}  eq 'invalid',   $::locale->text('Invalid')     ],
+    [ $filter->{orphaned},              $::locale->text('Orphaned')    ],
+  );
+
+  for (@flags) {
+    push @filter_strings, "$_->[1]" if $_->[0];
+  }
+  for (@filters) {
+    push @filter_strings, "$_->[1]: " . ($_->[2] ? $_->[2]->() : $_->[0]) if $_->[0];
+  }
+
+  $self->{filter_summary} = join ', ', @filter_strings;
 }
 
 sub load_project_types {
