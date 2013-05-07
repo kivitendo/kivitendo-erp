@@ -10,12 +10,12 @@ our @EXPORT = qw(customer vendor);
 use Carp;
 
 sub customer {
-  my ($self, $customer, $type, %params) = @_;
+  my ($self, $customer, %params) = @_;
   return _customer_vendor($self, $customer, 'customer', %params);
 }
 
 sub vendor {
-  my ($self, $vendor, $type, %params) = @_;
+  my ($self, $vendor, %params) = @_;
   return _customer_vendor($self, $vendor, 'vendor', %params);
 }
 
