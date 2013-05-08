@@ -358,7 +358,7 @@ sub prepare_report {
     status        => { sub      => sub { $_[0]->status->description } },
     type          => { sub      => sub { $_[0]->type->description } },
     version       => { sub      => sub { $_[0]->version_id ? $_[0]->version->version_number : t8('Working copy without version') } },
-    mtime         => { sub      => sub { $_[0]->mtime->to_kivitendo(precision => 'minute') } },
+    mtime         => { sub      => sub { ($_[0]->mtime || $_[0]->itime)->to_kivitendo(precision => 'minute') } },
   );
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
