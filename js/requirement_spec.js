@@ -79,7 +79,7 @@ ns.tree_node_moved = function(event) {
   // console.debug("controller: " + controller);
   // console.debug(data);
 
-  $.post("controller.pl", data, eval_json_result);
+  $.post("controller.pl", data, kivi.eval_json_result);
 
   return true;
 };
@@ -99,7 +99,7 @@ ns.tree_node_clicked = function(event) {
     current_content_id:   $('#current_content_id').val(),
     clicked_type:         type,
     clicked_id:           node.data('id')
-  }, eval_json_result);
+  }, kivi.eval_json_result);
 };
 
 // -------------------------------------------------------------------------
@@ -156,7 +156,7 @@ ns.standard_text_block_ajax_call = function(key, opt, other_data) {
     current_content_id:   $('#current_content_id').val()
   };
 
-  $.post("controller.pl", $.extend(data, other_data || {}), eval_json_result);
+  $.post("controller.pl", $.extend(data, other_data || {}), kivi.eval_json_result);
 
   return true;
 };
@@ -208,7 +208,7 @@ ns.standard_item_ajax_call = function(key, opt, other_data) {
 
   // console.log("I would normally POST the following now:");
   // console.log(data);
-  $.post("controller.pl", $.extend(data, other_data || {}), eval_json_result);
+  $.post("controller.pl", $.extend(data, other_data || {}), kivi.eval_json_result);
 
   return true;
 };
@@ -286,7 +286,7 @@ ns.standard_time_cost_estimate_ajax_call = function(key, opt) {
   else
     data += 'id=' + encodeURIComponent($('#requirement_spec_id').val());
 
-  $.post("controller.pl", data, eval_json_result);
+  $.post("controller.pl", data, kivi.eval_json_result);
 
   return true;
 };
@@ -363,7 +363,7 @@ ns.revert_to_versioned_copy_ajax_call = function(key, opt) {
     id:                $('#requirement_spec_id').val()
   };
 
-  $.post("controller.pl", data, eval_json_result);
+  $.post("controller.pl", data, kivi.eval_json_result);
 
   return true;
 };
