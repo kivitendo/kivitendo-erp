@@ -42,7 +42,7 @@
 
  <p>
   [%- L.ajax_submit_tag('controller.pl?action=RequirementSpecTextBlock/ajax_' _ (SELF.text_block.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
-  <a href="#" onclick="cancel_edit_text_block_form('[% id_base %]')">[%- LxERP.t8("Cancel") %]</a>
+  <a href="#" onclick="kivi.requirement_spec.cancel_edit_text_block_form('[% id_base %]')">[%- LxERP.t8("Cancel") %]</a>
  </p>
 
 [%- IF SELF.predefined_texts.size %]

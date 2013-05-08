@@ -87,7 +87,7 @@ $(function() {
     },
     crrm: {
       move: {
-        check_move: requirement_spec_tree_check_move,
+        check_move: kivi.requirement_spec.tree_check_move,
         open_move:  true
       }
     },
@@ -96,13 +96,13 @@ $(function() {
     },
     plugins: [ "themes", "json_data", "ui", "crrm", "dnd" ]
   })
-  .bind("move_node.jstree", requirement_spec_tree_node_moved)
-  .bind("click.jstree",     requirement_spec_tree_node_clicked);
+  .bind("move_node.jstree", kivi.requirement_spec.tree_node_moved)
+  .bind("click.jstree",     kivi.requirement_spec.tree_node_clicked);
 [% IF SELF.requirement_spec_item %]
   $.jstree._reference("#tree").select_node('#fb-[% SELF.requirement_spec_item.id %]', true);
 [% END %]
 
-  create_requirement_spec_context_menus();
+  kivi.requirement_spec.create_context_menus();
 });
 
   -->

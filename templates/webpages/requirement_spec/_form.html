@@ -24,7 +24,7 @@
   <tr>
    <td>[% LxERP.t8("Customer") %]</td>
    <td>[% L.select_tag("requirement_spec.customer_id",  SELF.customers, default=SELF.requirement_spec.customer_id, title_key="name", id=id_prefix _ '_customer_id',
-                       onchange="basic_settings_customer_changed('#" _ id_prefix _ "_customer_id', '#" _ id_prefix _ "_hourly_rate_as_number')") %]</td>
+                       onchange="kivi.requirement_spec.basic_settings_customer_changed('#" _ id_prefix _ "_customer_id', '#" _ id_prefix _ "_hourly_rate_as_number')") %]</td>
   </tr>
 
   <tr>

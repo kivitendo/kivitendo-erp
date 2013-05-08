@@ -1,22 +1,24 @@
 /* Functions used for the requirement specs */
 
+namespace("kivi.requirement_spec", function(ns) {
+
 // -----------------------------------------------------------------------------
 // ------------------------------ basic settings -------------------------------
 // -----------------------------------------------------------------------------
 
-function basic_settings_customer_changed(customer_ctrl, value_ctrl) {
+ns.basic_settings_customer_changed = function(customer_ctrl, value_ctrl) {
   $.get(
     'controller.pl?action=Customer/get_hourly_rate',
     { id: $(customer_ctrl).val() },
     function(data) { if (data.hourly_rate_formatted) $(value_ctrl).val(data.hourly_rate_formatted); }
   );
-}
+};
 
 // -----------------------------------------------------------------------------
 // ------------------------------ the tree itself ------------------------------
 // -----------------------------------------------------------------------------
 
-function requirement_spec_tree_check_move(data) {
+ns.tree_check_move = function(data) {
   var dragged_type = data.o.data('type');
   var dropped_type = data.r.data('type');
 
@@ -56,9 +58,9 @@ function requirement_spec_tree_check_move(data) {
   // console.debug("dropped_depth " + dropped_depth + " dragged_depth " + dragged_depth);
 
   return (2 <= dropped_depth) && ((dragged_depth + dropped_depth) <= 4);
-}
+};
 
-function requirement_spec_tree_node_moved(event) {
+ns.tree_node_moved = function(event) {
   // console.debug("node moved");
   var move_obj   = $.jstree._reference('#tree')._get_move();
   var dragged    = move_obj.o;
@@ -80,9 +82,9 @@ function requirement_spec_tree_node_moved(event) {
   $.post("controller.pl", data, eval_json_result);
 
   return true;
-}
+};
 
-function requirement_spec_tree_node_clicked(event) {
+ns.tree_node_clicked = function(event) {
   var node = $.jstree._reference('#tree')._get_node(event.target);
   var type = node ? node.data('type') : undefined;
 
@@ -98,13 +100,13 @@ function requirement_spec_tree_node_clicked(event) {
     clicked_type:         type,
     clicked_id:           node.data('id')
   }, eval_json_result);
-}
+};
 
 // -------------------------------------------------------------------------
 // ------------------------------ text blocks ------------------------------
 // -------------------------------------------------------------------------
 
-function find_text_block_id(clicked_elt) {
+ns.find_text_block_id = function(clicked_elt) {
   // console.log("id: " + $(clicked_elt).attr('id'));
   var id = $(clicked_elt).attr('id');
   if (/^text-block-\d+$/.test(id)) {
@@ -126,9 +128,9 @@ function find_text_block_id(clicked_elt) {
 
   // console.log("find_text_block_id: case undef");
   return undefined;
-}
+};
 
-function find_text_block_output_position(clicked_elt) {
+ns.find_text_block_output_position = function(clicked_elt) {
   var output_position = $(clicked_elt).closest('#text-block-list-container').find('#text_block_output_position').val();
   if (output_position)
     return output_position;
@@ -138,18 +140,18 @@ function find_text_block_output_position(clicked_elt) {
     return type == "text-blocks-front" ? 0 : 1;
 
   return undefined;
-}
+};
 
-function disable_edit_text_block_commands(key, opt) {
-  return find_text_block_id(opt.$trigger) == undefined;
-}
+ns.disable_edit_text_block_commands = function(key, opt) {
+  return ns.find_text_block_id(opt.$trigger) == undefined;
+};
 
-function standard_text_block_ajax_call(key, opt, other_data) {
+ns.standard_text_block_ajax_call = function(key, opt, other_data) {
   var data = {
     action:               "RequirementSpecTextBlock/ajax_" + key,
     requirement_spec_id:  $('#requirement_spec_id').val(),
-    id:                   find_text_block_id(opt.$trigger),
-    output_position:      find_text_block_output_position(opt.$trigger),
+    id:                   ns.find_text_block_id(opt.$trigger),
+    output_position:      ns.find_text_block_output_position(opt.$trigger),
     current_content_type: $('#current_content_type').val(),
     current_content_id:   $('#current_content_id').val()
   };
@@ -157,26 +159,26 @@ function standard_text_block_ajax_call(key, opt, other_data) {
   $.post("controller.pl", $.extend(data, other_data || {}), eval_json_result);
 
   return true;
-}
+};
 
-function cancel_edit_text_block_form(id_base) {
+ns.cancel_edit_text_block_form = function(id_base) {
   var id = $('#' + id_base + '_id').val();
   $('#' + id_base + '_form').remove();
   if (id)
     $('#text-block-' + id).show();
-}
+};
 
-function ask_delete_text_block(key, opt) {
+ns.ask_delete_text_block = function(key, opt) {
   if (confirm(kivi.t8("Are you sure?")))
-    standard_text_block_ajax_call(key, opt);
+    ns.standard_text_block_ajax_call(key, opt);
   return true;
-}
+};
 
 // --------------------------------------------------------------------------------
 // ------------------------------ sections and items ------------------------------
 // --------------------------------------------------------------------------------
 
-function find_item_id(clicked_elt) {
+ns.find_item_id = function(clicked_elt) {
   // console.log("clicked id: " + $(clicked_elt).attr('id'));
   var id     = $(clicked_elt).attr('id');
   var result = /^(function-block|function-block-content|sub-function-block|sub-function-block-content|section|section-header)-(\d+)$/.exec(id);
@@ -193,13 +195,13 @@ function find_item_id(clicked_elt) {
 
   // console.log("find_item_id: case undef");
   return undefined;
-}
+};
 
-function standard_item_ajax_call(key, opt, other_data) {
+ns.standard_item_ajax_call = function(key, opt, other_data) {
   var data = {
     action:               "RequirementSpecItem/ajax_" + key,
     requirement_spec_id:  $('#requirement_spec_id').val(),
-    id:                   find_item_id(opt.$trigger),
+    id:                   ns.find_item_id(opt.$trigger),
     current_content_type: $('#current_content_type').val(),
     current_content_id:   $('#current_content_id').val()
   };
@@ -209,19 +211,19 @@ function standard_item_ajax_call(key, opt, other_data) {
   $.post("controller.pl", $.extend(data, other_data || {}), eval_json_result);
 
   return true;
-}
+};
 
-function disable_edit_item_commands(key, opt) {
-  return find_item_id(opt.$trigger) == undefined;
-}
+ns.disable_edit_item_commands = function(key, opt) {
+  return ns.find_item_id(opt.$trigger) == undefined;
+};
 
-function disable_add_function_block_command(key, opt) {
-  if (find_item_id(opt.$trigger))
+ns.disable_add_function_block_command = function(key, opt) {
+  if (ns.find_item_id(opt.$trigger))
     return false;
   return opt.$trigger.attr('id') != "section-list-empty";
-}
+};
 
-function cancel_edit_item_form(form_id_base, options) {
+ns.cancel_edit_item_form = function(form_id_base, options) {
   $('#' + form_id_base + '_form').remove();
   if (!options)
     return;
@@ -229,49 +231,49 @@ function cancel_edit_item_form(form_id_base, options) {
     $(options.to_show).show();
   if (options.to_hide_if_empty && (1 == $(options.to_hide_if_empty).children().size()))
     $(options.to_hide_if_empty).hide();
-}
+};
 
-function ask_delete_item(key, opt) {
+ns.ask_delete_item = function(key, opt) {
   if (confirm(kivi.t8("Are you sure?")))
-    standard_item_ajax_call(key, opt);
+    ns.standard_item_ajax_call(key, opt);
   return true;
-}
+};
 
-function handle_text_block_popup_menu_markings(opt, add) {
-  var id = find_text_block_id(opt.$trigger);
+ns.handle_text_block_popup_menu_markings = function(opt, add) {
+  var id = ns.find_text_block_id(opt.$trigger);
   if (id)
     $('#text-block-' + id).toggleClass('selected', add);
   return true;
-}
+};
 
-function requirement_spec_text_block_popup_menu_shown(opt) {
-  return handle_text_block_popup_menu_markings(opt, true);
-}
+ns.text_block_popup_menu_shown = function(opt) {
+  return ns.handle_text_block_popup_menu_markings(opt, true);
+};
 
-function requirement_spec_text_block_popup_menu_hidden(opt) {
-  return handle_text_block_popup_menu_markings(opt, false);
-}
+ns.text_block_popup_menu_hidden = function(opt) {
+  return ns.handle_text_block_popup_menu_markings(opt, false);
+};
 
-function handle_item_popup_menu_markings(opt, add) {
-  var id = find_item_id(opt.$trigger);
+ns.handle_item_popup_menu_markings = function(opt, add) {
+  var id = ns.find_item_id(opt.$trigger);
   if (id)
     $('#section-' + id + ',#function-block-' + id + ',#sub-function-block-' + id).toggleClass('selected', add);
   return true;
-}
+};
 
-function requirement_spec_item_popup_menu_shown(opt) {
-  return handle_item_popup_menu_markings(opt, true);
-}
+ns.item_popup_menu_shown = function(opt) {
+  return ns.handle_item_popup_menu_markings(opt, true);
+};
 
-function requirement_spec_item_popup_menu_hidden(opt) {
-  return handle_item_popup_menu_markings(opt, false);
-}
+ns.item_popup_menu_hidden = function(opt) {
+  return ns.handle_item_popup_menu_markings(opt, false);
+};
 
 // -------------------------------------------------------------------------
 // -------------------------- time/cost estimate ---------------------------
 // -------------------------------------------------------------------------
 
-function standard_time_cost_estimate_ajax_call(key, opt) {
+ns.standard_time_cost_estimate_ajax_call = function(key, opt) {
   if ((key == 'cancel') && !confirm(kivi.t8('Do you really want to cancel?')))
     return true;
 
@@ -287,98 +289,98 @@ function standard_time_cost_estimate_ajax_call(key, opt) {
   $.post("controller.pl", data, eval_json_result);
 
   return true;
-}
+};
 
 // -------------------------------------------------------------------------
 // ---------------------------- general actions ----------------------------
 // -------------------------------------------------------------------------
 
-function create_reqspec_pdf(key, opt) {
+ns.create_reqspec_pdf = function(key, opt) {
   var data = {
     action: "RequirementSpec/create_pdf",
     id:     $('#requirement_spec_id').val()
   };
   $.download("controller.pl", data);
-}
+};
 
-function copy_reqspec(key, opt) {
+ns.copy_reqspec = function(key, opt) {
   window.location.href = "controller.pl?action=RequirementSpec/new&copy_source_id=" + encodeURIComponent($('#requirement_spec_id').val());
   return true;
-}
+};
 
-function delete_reqspec(key, opt) {
+ns.delete_reqspec = function(key, opt) {
   if (confirm(kivi.t8("Are you sure?")))
     window.location.href = "controller.pl?action=RequirementSpec/destroy&id=" + encodeURIComponent($('#requirement_spec_id').val());
   return true;
-}
+};
 
-function disable_requirement_spec_commands(key, opt) {
+ns.disable_commands = function(key, opt) {
   if (key === "create_version")
     return ($('#current_version_id').val() || '') == '' ? false : true;
   return false;
-}
+};
 
 // -------------------------------------------------------------------------
 // -------------------------------- versions -------------------------------
 // -------------------------------------------------------------------------
 
-function find_versioned_copy_id(clicked_elt) {
+ns.find_versioned_copy_id = function(clicked_elt) {
   var id = $(clicked_elt).find("[name=versioned_copy_id]");
   return id ? id.val() : undefined;
-}
+};
 
-function disable_versioned_copy_item_commands(key, opt) {
+ns.disable_versioned_copy_item_commands = function(key, opt) {
   if (key === "revert_to_version")
-    return !find_versioned_copy_id(opt.$trigger);
+    return !ns.find_versioned_copy_id(opt.$trigger);
   return false;
-}
+};
 
-function create_requirement_spec_version() {
+ns.create_version = function() {
   open_jqm_window({ url:  'controller.pl',
                     data: { action:              'RequirementSpecVersion/new',
                             requirement_spec_id: $('#requirement_spec_id').val() },
                     id:   'new_requirement_spec_version_window' });
   return true;
-}
+};
 
-function create_pdf_for_versioned_copy_ajax_call(key, opt) {
+ns.create_pdf_for_versioned_copy_ajax_call = function(key, opt) {
   var data = {
     action: "RequirementSpec/create_pdf",
-    id:     find_versioned_copy_id(opt.$trigger)
+    id:     ns.find_versioned_copy_id(opt.$trigger)
   };
   $.download("controller.pl", data);
 
   return true;
-}
+};
 
-function revert_to_versioned_copy_ajax_call(key, opt) {
+ns.revert_to_versioned_copy_ajax_call = function(key, opt) {
   if (!confirm(kivi.t8('Do you really want to revert to this version?')))
     return true;
 
   var data = {
     action:            'RequirementSpec/revert_to',
-    versioned_copy_id: find_versioned_copy_id(opt.$trigger),
+    versioned_copy_id: ns.find_versioned_copy_id(opt.$trigger),
     id:                $('#requirement_spec_id').val()
   };
 
   $.post("controller.pl", data, eval_json_result);
 
   return true;
-}
+};
 
 // -------------------------------------------------------------------------
 // ----------------------------- context menus -----------------------------
 // -------------------------------------------------------------------------
 
-function create_requirement_spec_context_menus() {
+ns.create_context_menus = function() {
   var general_actions = {
       sep98:           "---------"
     , general_actions: { name: kivi.t8('Requirement spec actions'), className: 'context-menu-heading' }
     // , sep99:           "---------"
-    , create_pdf:      { name: kivi.t8('Create PDF'),              icon: "pdf",    callback: create_reqspec_pdf }
-    , create_version:  { name: kivi.t8('Create new version'),      icon: "new",    callback: create_requirement_spec_version, disabled: disable_requirement_spec_commands }
-    , copy_reqspec:    { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: copy_reqspec   }
-    , delete_reqspec:  { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: delete_reqspec }
+    , create_pdf:      { name: kivi.t8('Create PDF'),              icon: "pdf",    callback: kivi.requirement_spec.create_reqspec_pdf }
+    , create_version:  { name: kivi.t8('Create new version'),      icon: "new",    callback: kivi.requirement_spec.create_version, disabled: kivi.requirement_spec.disable_commands }
+    , copy_reqspec:    { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: kivi.requirement_spec.copy_reqspec   }
+    , delete_reqspec:  { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
   };
 
   $.contextMenu({
@@ -387,32 +389,32 @@ function create_requirement_spec_context_menus() {
   });
 
   var events = {
-    show: requirement_spec_text_block_popup_menu_shown,
-    hide: requirement_spec_text_block_popup_menu_hidden
+      show: kivi.requirement_spec.text_block_popup_menu_shown
+    , hide: kivi.requirement_spec.text_block_popup_menu_hidden
   };
 
   $.contextMenu({
     selector: '.text-block-context-menu',
     events:   {
-        show: requirement_spec_text_block_popup_menu_shown
-      , hide: requirement_spec_text_block_popup_menu_hidden
+        show: kivi.requirement_spec.text_block_popup_menu_shown
+      , hide: kivi.requirement_spec.text_block_popup_menu_hidden
     },
     items:    $.extend({
         heading: { name: kivi.t8('Text block actions'),    className: 'context-menu-heading' }
-      , add:     { name: kivi.t8('Add text block'),        icon: "add",    callback: standard_text_block_ajax_call }
-      , edit:    { name: kivi.t8('Edit text block'),       icon: "edit",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
-      , delete:  { name: kivi.t8('Delete text block'),     icon: "delete", callback: ask_delete_text_block,         disabled: disable_edit_text_block_commands }
+      , add:     { name: kivi.t8('Add text block'),        icon: "add",    callback: kivi.requirement_spec.standard_text_block_ajax_call }
+      , edit:    { name: kivi.t8('Edit text block'),       icon: "edit",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
+      , delete:  { name: kivi.t8('Delete text block'),     icon: "delete", callback: kivi.requirement_spec.ask_delete_text_block,         disabled: kivi.requirement_spec.disable_edit_text_block_commands }
       , sep1:    "---------"
-      , flag:    { name: kivi.t8('Toggle marker'),         icon: "flag",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
+      , flag:    { name: kivi.t8('Toggle marker'),         icon: "flag",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
       , sep2:    "---------"
-      , copy:    { name: kivi.t8('Copy'),                  icon: "copy",   callback: standard_text_block_ajax_call, disabled: disable_edit_text_block_commands }
-      , paste:   { name: kivi.t8('Paste'),                 icon: "paste",  callback: standard_text_block_ajax_call  }
+      , copy:    { name: kivi.t8('Copy'),                  icon: "copy",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
+      , paste:   { name: kivi.t8('Paste'),                 icon: "paste",  callback: kivi.requirement_spec.standard_text_block_ajax_call  }
     }, general_actions)
   });
 
   events = {
-    show: requirement_spec_item_popup_menu_shown,
-    hide: requirement_spec_item_popup_menu_hidden
+      show: kivi.requirement_spec.item_popup_menu_shown
+    , hide: kivi.requirement_spec.item_popup_menu_hidden
   };
 
   $.contextMenu({
@@ -420,16 +422,16 @@ function create_requirement_spec_context_menus() {
     events:   events,
     items:    $.extend({
         heading:            { name: kivi.t8('Section/Function block actions'), className: 'context-menu-heading' }
-      , add_section:        { name: kivi.t8('Add section'),        icon: "add",    callback: standard_item_ajax_call }
-      , add_function_block: { name: kivi.t8('Add function block'), icon: "add",    callback: standard_item_ajax_call, disabled: disable_add_function_block_command }
+      , add_section:        { name: kivi.t8('Add section'),        icon: "add",    callback: kivi.requirement_spec.standard_item_ajax_call }
+      , add_function_block: { name: kivi.t8('Add function block'), icon: "add",    callback: kivi.requirement_spec.standard_item_ajax_call, disabled: kivi.requirement_spec.disable_add_function_block_command }
       , sep1:               "---------"
-      , edit:               { name: kivi.t8('Edit'),               icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
-      , delete:             { name: kivi.t8('Delete'),             icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands }
+      , edit:               { name: kivi.t8('Edit'),               icon: "edit",   callback: kivi.requirement_spec.standard_item_ajax_call, disabled: kivi.requirement_spec.disable_edit_item_commands }
+      , delete:             { name: kivi.t8('Delete'),             icon: "delete", callback: kivi.requirement_spec.ask_delete_item,         disabled: kivi.requirement_spec.disable_edit_item_commands }
       , sep2:               "---------"
-      , flag:               { name: kivi.t8('Toggle marker'),      icon: "flag",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
+      , flag:               { name: kivi.t8('Toggle marker'),      icon: "flag",   callback: kivi.requirement_spec.standard_item_ajax_call, disabled: kivi.requirement_spec.disable_edit_item_commands }
       , sep3:               "---------"
-      , copy:               { name: kivi.t8('Copy'),               icon: "copy",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
-      , paste:              { name: kivi.t8('Paste'),              icon: "paste",  callback: standard_item_ajax_call }
+      , copy:               { name: kivi.t8('Copy'),               icon: "copy",   callback: kivi.requirement_spec.standard_item_ajax_call, disabled: kivi.requirement_spec.disable_edit_item_commands }
+      , paste:              { name: kivi.t8('Paste'),              icon: "paste",  callback: kivi.requirement_spec.standard_item_ajax_call }
     }, general_actions)
   });
 
@@ -438,16 +440,16 @@ function create_requirement_spec_context_menus() {
     events:   events,
     items:    $.extend({
         heading:                { name: kivi.t8('Function block actions'), className: 'context-menu-heading' }
-      , add_function_block:     { name: kivi.t8('Add function block'),     icon: "add",    callback: standard_item_ajax_call }
-      , add_sub_function_block: { name: kivi.t8('Add sub function block'), icon: "add",    callback: standard_item_ajax_call }
+      , add_function_block:     { name: kivi.t8('Add function block'),     icon: "add",    callback: kivi.requirement_spec.standard_item_ajax_call }
+      , add_sub_function_block: { name: kivi.t8('Add sub function block'), icon: "add",    callback: kivi.requirement_spec.standard_item_ajax_call }
       , sep1:                   "---------"
-      , edit:                   { name: kivi.t8('Edit'),                   icon: "edit",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
-      , delete:                 { name: kivi.t8('Delete'),                 icon: "delete", callback: ask_delete_item,         disabled: disable_edit_item_commands }
+      , edit:                   { name: kivi.t8('Edit'),                   icon: "edit",   callback: kivi.requirement_spec.standard_item_ajax_call, disabled: kivi.requirement_spec.disable_edit_item_commands }
+      , delete:                 { name: kivi.t8('Delete'),                 icon: "delete", callback: kivi.requirement_spec.ask_delete_item,         disabled: kivi.requirement_spec.disable_edit_item_commands }
       , sep2:                   "---------"
-      , flag:                   { name: kivi.t8('Toggle marker'),          icon: "flag",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
+      , flag:                   { name: kivi.t8('Toggle marker'),          icon: "flag",   callback: kivi.requirement_spec.standard_item_ajax_call, disabled: kivi.requirement_spec.disable_edit_item_commands }
       , sep3:                   "---------"
-      , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",   callback: standard_item_ajax_call, disabled: disable_edit_item_commands }
-      , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",  callback: standard_item_ajax_call }
+      , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",   callback: kivi.requirement_spec.standard_item_ajax_call, disabled: kivi.requirement_spec.disable_edit_item_commands }
+      , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",  callback: kivi.requirement_spec.standard_item_ajax_call }
     }, general_actions)
   });
 
@@ -455,7 +457,7 @@ function create_requirement_spec_context_menus() {
     selector: '.time-cost-estimate-context-menu',
     items:    $.extend({
         heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
-      , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: standard_time_cost_estimate_ajax_call }
+      , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
     }, general_actions)
   });
 
@@ -463,8 +465,8 @@ function create_requirement_spec_context_menus() {
     selector: '.edit-time-cost-estimate-context-menu',
     items:    $.extend({
         heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
-      , save:    { name: kivi.t8('Save'),   icon: "save",  callback: standard_time_cost_estimate_ajax_call }
-      , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: standard_time_cost_estimate_ajax_call }
+      , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
+      , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
     }, general_actions)
   });
 
@@ -472,8 +474,10 @@ function create_requirement_spec_context_menus() {
     selector: '.versioned-copy-context-menu',
     items:    $.extend({
         heading:            { name: kivi.t8('Version actions'), className: 'context-menu-heading' }
-      , create_version_pdf: { name: kivi.t8('Create PDF'),        icon: "pdf",    callback: create_pdf_for_versioned_copy_ajax_call                                                }
-      , revert_to_version:  { name: kivi.t8('Revert to version'), icon: "revert", callback: revert_to_versioned_copy_ajax_call,     disabled: disable_versioned_copy_item_commands }
+      , create_version_pdf: { name: kivi.t8('Create PDF'),        icon: "pdf",    callback: kivi.requirement_spec.create_pdf_for_versioned_copy_ajax_call                                                                      }
+      , revert_to_version:  { name: kivi.t8('Revert to version'), icon: "revert", callback: kivi.requirement_spec.revert_to_versioned_copy_ajax_call,     disabled: kivi.requirement_spec.disable_versioned_copy_item_commands }
     }, general_actions)
   });
-}
+};
+
+});                             // end of namespace(...., function() {...
