@@ -4,17 +4,18 @@
 // "scripts/generate_client_js_actions.pl". See the documentation for
 // SL/ClientJS.pm for instructions.
 
-function display_flash(type, message) {
+namespace("kivi", function(ns) {
+ns.display_flash = function(type, message) {
   $('#flash_' + type + '_content').text(message);
   $('#flash_' + type).show();
-}
+};
 
-function eval_json_result(data) {
+ns.eval_json_result = function(data) {
   if (!data)
     return;
 
   if (data.error)
-    return display_flash('error', data.error);
+    return ns.display_flash('error', data.error);
 
   $(['info', 'warning', 'error']).each(function(idx, category) {
     $('#flash_' + category).hide();
@@ -32,13 +33,15 @@ function eval_json_result(data) {
     });
 
   // console.log("current_content_type " + $('#current_content_type').val() + ' ID ' + $('#current_content_id').val());
-}
+};
 
-function submit_ajax_form(url, form_selector, additional_data) {
+ns.submit_ajax_form = function(url, form_selector, additional_data) {
   var separator = /\?/.test(url) ? '&' : '?';
-  $.post(url + separator + $(form_selector).serialize(), additional_data, eval_json_result);
+  $.post(url + separator + $(form_selector).serialize(), additional_data, ns.eval_json_result);
   return true;
-}
+};
+
+});
 
 // Local Variables:
 // mode: js

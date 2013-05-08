@@ -14,7 +14,7 @@ use Rose::Object::MakeMethods::Generic
 
 my %supported_methods = (
   # ## Non-jQuery methods ##
-  flash        => 2,            # display_flash(<TARGET>, <ARGS>)
+  flash        => 2,            # kivi.display_flash(<TARGET>, <ARGS>)
 
   # ## jQuery basics ##
 
@@ -217,12 +217,12 @@ with jQuery
 First some JavaScript code:
 
   // In the client generate an AJAX request whose 'success' handler
-  // calls "eval_json_response(data)":
+  // calls "eval_json_result(data)":
   var data = {
     action: "SomeController/the_action",
     id:     $('#some_input_field').val()
   };
-  $.post("controller.pl", data, eval_json_response);
+  $.post("controller.pl", data, eval_json_result);
 
 Now some Perl code:
 
@@ -278,7 +278,7 @@ There are three things that need to be done for this to work:
 
 =item 1. The "client_js.js" has to be loaded before the AJAX request is started.
 
-=item 2. The client code needs to call C<eval_json_response()> with the result returned from the server.
+=item 2. The client code needs to call C<kivi.eval_json_result()> with the result returned from the server.
 
 =item 3. The server must use this module.
 

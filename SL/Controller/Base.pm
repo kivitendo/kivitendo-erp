@@ -512,7 +512,7 @@ the current request is an AJAX request as determined by
 L<SL::Request/is_ajax>. If it is a normal request then it outputs a
 standard HTTP redirect header (HTTP code 302). If it is an AJAX
 request then it outputs an AJAX response suitable for the
-C<eval_json_result> function from the L<SL::ClientJS> module.
+C<kivi.eval_json_result> function from the L<SL::ClientJS> module.
 
 =item C<run_before $sub, %params>
 
