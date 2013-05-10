@@ -1103,14 +1103,14 @@ sub save_defaults {
 
   for my $i (1..$form->{rowcount}) {
     if ($form->{"curr_$i"} ne $form->{"old_curr_$i"}) {
-      $query = qq|UPDATE currencies SET name = '| . $form->{"curr_$i"} . qq|' WHERE name = '| . $form->{"old_curr_$i"} . qq|'|;
-      do_query($form, $dbh, $query);
+      $query = qq|UPDATE currencies SET name = ? WHERE name = ?|;
+      do_query($form, $dbh, $query, $form->{"curr_$i"}, $form->{"old_curr_$i"});
     }
   }
 
   if (length($form->{new_curr}) > 0) {
-    $query = qq|INSERT INTO currencies (name) VALUES ('| . $form->{new_curr} . qq|')|;
-    do_query($form, $dbh, $query);
+    $query = qq|INSERT INTO currencies (name) VALUES (?)|;
+    do_query($form, $dbh, $query, $form->{new_curr});
   }
 
   $dbh->commit();
@@ -1292,25 +1292,12 @@ sub defaultaccounts {
   $sth->finish;
 
   #Get currencies:
-  $query = qq|SELECT name AS curr FROM currencies ORDER BY id|;
-
-  $form->{CURRENCIES} = [];
-
-  $sth = prepare_execute_query($form, $dbh, $query);
-  $sth->execute || $form->dberror($query);
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    push @{ $form->{ CURRENCIES } } , $ref;
-  }
-  $sth->finish;
+  $query              = qq|SELECT name AS curr FROM currencies ORDER BY id|;
+  $form->{CURRENCIES} = selectall_hashref_query($form, $dbh, $query);
 
   #Which of them is the default currency?
   $query = qq|SELECT name AS defaultcurrency FROM currencies WHERE id = (SELECT currency_id FROM defaults LIMIT 1);|;
-  $sth   = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  $form->{defaultcurrency}               = ($sth->fetchrow_hashref("NAME_lc"))->{defaultcurrency};
-
-  $sth->finish;
+  ($form->{defaultcurrency}) = selectrow_query($form, $dbh, $query);
 
   $dbh->disconnect;
 

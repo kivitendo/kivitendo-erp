@@ -458,9 +458,10 @@ sub customer_details {
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as customernotes,
          ct.phone AS customerphone, ct.fax AS customerfax, ct.email AS customeremail,
-         (SELECT cu.name FROM currencies cu WHERE cu.id=ct.currency_id) AS currency
+         cu.name AS currency
        FROM customer ct
        LEFT JOIN contacts cp on ct.id = cp.cp_cv_id
+       LEFT JOIN currencies cu ON (ct.currency_id = cu.id)
        WHERE (ct.id = ?) $where
        ORDER BY cp.cp_id
        LIMIT 1|;
@@ -1750,13 +1751,14 @@ sub get_customer {
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit, c.terms,
          c.email, c.cc, c.bcc, c.language_id, c.payment_id,
          c.street, c.zipcode, c.city, c.country,
-         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, (SELECT cu.name FROM currencies cu WHERE cu.id=c.currency_id) AS curr,
+         c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, cu.name AS curr,
          c.taxincluded_checked, c.direct_debit,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.discount AS tradediscount, b.description AS business
        FROM customer c
        LEFT JOIN business b ON (b.id = c.business_id)
        LEFT JOIN payment_terms pt ON ($payment_id (c.payment_id = pt.id))
+       LEFT JOIN currencies cu ON (c.currency_id=cu.id)
        WHERE c.id = ?|;
   push @values, $cid;
   $ref = selectfirst_hashref_query($form, $dbh, $query, @values);

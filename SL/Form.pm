@@ -1631,14 +1631,8 @@ sub get_all_currencies {
   my $dbh      = $self->get_standard_dbh($myconfig);
   my @currencies =();
 
-  my $query = qq|SELECT name AS curr FROM currencies|;
-
-  my $sth = prepare_execute_query($self, $dbh, $query);
-
-  while (my $ref = $sth->fetchrow_hashref()) {
-    push(@currencies, $ref->{curr});
-  }
-  $sth->finish;
+  my $query = qq|SELECT name FROM currencies|;
+  my @currencies = map { $_->{name} } selectall_hashref_query($self, $dbh, $query);
 
   $main::lxdebug->leave_sub();
 
