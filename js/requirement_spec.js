@@ -372,44 +372,82 @@ ns.revert_to_versioned_copy_ajax_call = function(key, opt) {
 // ----------------------------- context menus -----------------------------
 // -------------------------------------------------------------------------
 
-ns.create_context_menus = function() {
-  var general_actions = {
-      sep98:           "---------"
-    , general_actions: { name: kivi.t8('Requirement spec actions'), className: 'context-menu-heading' }
-    // , sep99:           "---------"
-    , create_pdf:      { name: kivi.t8('Create PDF'),              icon: "pdf",    callback: kivi.requirement_spec.create_reqspec_pdf }
-    , create_version:  { name: kivi.t8('Create new version'),      icon: "new",    callback: kivi.requirement_spec.create_version, disabled: kivi.requirement_spec.disable_commands }
-    , copy_reqspec:    { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: kivi.requirement_spec.copy_reqspec   }
-    , delete_reqspec:  { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
-  };
+ns.create_context_menus = function(is_template) {
+  if (is_template) {
+    var general_actions = {
+        sep98:           "---------"
+      , general_actions: { name: kivi.t8('Section template actions'), className: 'context-menu-heading' }
+      // , sep99:           "---------"
+      , copy_reqspec:    { name: kivi.t8('Copy section template'),   icon: "copy",   callback: kivi.requirement_spec.copy_reqspec   }
+      , delete_reqspec:  { name: kivi.t8('Delete section template'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
+    };
+    var events = {};
+
+  } else {                      // if (is_template)
+    var general_actions = {
+        sep98:           "---------"
+      , general_actions: { name: kivi.t8('Requirement spec actions'), className: 'context-menu-heading' }
+      // , sep99:           "---------"
+      , create_pdf:      { name: kivi.t8('Create PDF'),              icon: "pdf",    callback: kivi.requirement_spec.create_reqspec_pdf }
+      , create_version:  { name: kivi.t8('Create new version'),      icon: "new",    callback: kivi.requirement_spec.create_version, disabled: kivi.requirement_spec.disable_commands }
+      , copy_reqspec:    { name: kivi.t8('Copy requirement spec'),   icon: "copy",   callback: kivi.requirement_spec.copy_reqspec   }
+      , delete_reqspec:  { name: kivi.t8('Delete requirement spec'), icon: "delete", callback: kivi.requirement_spec.delete_reqspec }
+    };
+
+    var events = {
+        show: kivi.requirement_spec.text_block_popup_menu_shown
+      , hide: kivi.requirement_spec.text_block_popup_menu_hidden
+    };
+
+    $.contextMenu({
+      selector: '.text-block-context-menu',
+      events:   {
+          show: kivi.requirement_spec.text_block_popup_menu_shown
+        , hide: kivi.requirement_spec.text_block_popup_menu_hidden
+      },
+      items:    $.extend({
+          heading: { name: kivi.t8('Text block actions'),    className: 'context-menu-heading' }
+        , add:     { name: kivi.t8('Add text block'),        icon: "add",    callback: kivi.requirement_spec.standard_text_block_ajax_call }
+        , edit:    { name: kivi.t8('Edit text block'),       icon: "edit",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
+        , delete:  { name: kivi.t8('Delete text block'),     icon: "delete", callback: kivi.requirement_spec.ask_delete_text_block,         disabled: kivi.requirement_spec.disable_edit_text_block_commands }
+        , sep1:    "---------"
+        , flag:    { name: kivi.t8('Toggle marker'),         icon: "flag",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
+        , sep2:    "---------"
+        , copy:    { name: kivi.t8('Copy'),                  icon: "copy",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
+        , paste:   { name: kivi.t8('Paste'),                 icon: "paste",  callback: kivi.requirement_spec.standard_text_block_ajax_call  }
+      }, general_actions)
+    });
+
+    $.contextMenu({
+      selector: '.time-cost-estimate-context-menu',
+      items:    $.extend({
+          heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
+        , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
+      }, general_actions)
+    });
+
+    $.contextMenu({
+      selector: '.edit-time-cost-estimate-context-menu',
+      items:    $.extend({
+          heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
+        , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
+        , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
+      }, general_actions)
+    });
+
+    $.contextMenu({
+      selector: '.versioned-copy-context-menu',
+      items:    $.extend({
+          heading:            { name: kivi.t8('Version actions'), className: 'context-menu-heading' }
+        , create_version_pdf: { name: kivi.t8('Create PDF'),        icon: "pdf",    callback: kivi.requirement_spec.create_pdf_for_versioned_copy_ajax_call                                                                      }
+        , revert_to_version:  { name: kivi.t8('Revert to version'), icon: "revert", callback: kivi.requirement_spec.revert_to_versioned_copy_ajax_call,     disabled: kivi.requirement_spec.disable_versioned_copy_item_commands }
+      }, general_actions)
+    });
+  }                             // if (is_template) ... else ...
 
   $.contextMenu({
     selector: '#content',
     items:    general_actions
-  });
-
-  var events = {
-      show: kivi.requirement_spec.text_block_popup_menu_shown
-    , hide: kivi.requirement_spec.text_block_popup_menu_hidden
-  };
-
-  $.contextMenu({
-    selector: '.text-block-context-menu',
-    events:   {
-        show: kivi.requirement_spec.text_block_popup_menu_shown
-      , hide: kivi.requirement_spec.text_block_popup_menu_hidden
-    },
-    items:    $.extend({
-        heading: { name: kivi.t8('Text block actions'),    className: 'context-menu-heading' }
-      , add:     { name: kivi.t8('Add text block'),        icon: "add",    callback: kivi.requirement_spec.standard_text_block_ajax_call }
-      , edit:    { name: kivi.t8('Edit text block'),       icon: "edit",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
-      , delete:  { name: kivi.t8('Delete text block'),     icon: "delete", callback: kivi.requirement_spec.ask_delete_text_block,         disabled: kivi.requirement_spec.disable_edit_text_block_commands }
-      , sep1:    "---------"
-      , flag:    { name: kivi.t8('Toggle marker'),         icon: "flag",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
-      , sep2:    "---------"
-      , copy:    { name: kivi.t8('Copy'),                  icon: "copy",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
-      , paste:   { name: kivi.t8('Paste'),                 icon: "paste",  callback: kivi.requirement_spec.standard_text_block_ajax_call  }
-    }, general_actions)
   });
 
   events = {
@@ -450,32 +488,6 @@ ns.create_context_menus = function() {
       , sep3:                   "---------"
       , copy:                   { name: kivi.t8('Copy'),                   icon: "copy",   callback: kivi.requirement_spec.standard_item_ajax_call, disabled: kivi.requirement_spec.disable_edit_item_commands }
       , paste:                  { name: kivi.t8('Paste'),                  icon: "paste",  callback: kivi.requirement_spec.standard_item_ajax_call }
-    }, general_actions)
-  });
-
-  $.contextMenu({
-    selector: '.time-cost-estimate-context-menu',
-    items:    $.extend({
-        heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
-      , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
-    }, general_actions)
-  });
-
-  $.contextMenu({
-    selector: '.edit-time-cost-estimate-context-menu',
-    items:    $.extend({
-        heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
-      , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
-      , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
-    }, general_actions)
-  });
-
-  $.contextMenu({
-    selector: '.versioned-copy-context-menu',
-    items:    $.extend({
-        heading:            { name: kivi.t8('Version actions'), className: 'context-menu-heading' }
-      , create_version_pdf: { name: kivi.t8('Create PDF'),        icon: "pdf",    callback: kivi.requirement_spec.create_pdf_for_versioned_copy_ajax_call                                                                      }
-      , revert_to_version:  { name: kivi.t8('Revert to version'), icon: "revert", callback: kivi.requirement_spec.revert_to_versioned_copy_ajax_call,     disabled: kivi.requirement_spec.disable_versioned_copy_item_commands }
     }, general_actions)
   });
 };

@@ -25,7 +25,7 @@ use SL::Template::LaTeX;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(requirement_spec_item customers types statuses db_args flat_filter is_template visible_item visible_section) ],
+  scalar                  => [ qw(requirement_spec_item customers types statuses db_args flat_filter visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects copy_source js) ],
 );
 
@@ -77,13 +77,13 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  $self->requirement_spec(SL::DB::RequirementSpec->new);
+  $self->requirement_spec(SL::DB::RequirementSpec->new(is_template => $::form->{is_template}));
 
   if ($self->copy_source) {
     $self->requirement_spec->$_($self->copy_source->$_) for qw(type_id status_id customer_id title hourly_rate)
   }
 
-  $self->render('requirement_spec/new', title => t8('Create a new requirement spec'));
+  $self->render('requirement_spec/new', title => $self->requirement_spec->is_template ? t8('Create a new requirement spec section template') : t8('Create a new requirement spec'));
 }
 
 sub action_ajax_edit {
@@ -220,7 +220,6 @@ sub setup {
   $::auth->assert('sales_quotation_edit');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
   $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu client_js requirement_spec);
-  $self->is_template($::form->{is_template} ? 1 : 0);
   $self->init_visible_section;
 
   return 1;
@@ -275,9 +274,13 @@ sub create_or_update {
   my $self   = shift;
   my $is_new = !$self->requirement_spec->id;
   my $params = delete($::form->{requirement_spec}) || { };
-  my $title  = $is_new ? t8('Create a new requirement spec') : t8('Edit requirement spec');
 
   $self->requirement_spec->assign_attributes(%{ $params });
+
+  my $title  = $is_new && $self->requirement_spec->is_template ? t8('Create a new requirement spec section template')
+             : $is_new                                         ? t8('Create a new requirement spec')
+             :            $self->requirement_spec->is_template ? t8('Edit section template')
+             :                                                   t8('Edit requirement spec');
 
   my @errors = $self->requirement_spec->validate;
 
@@ -306,15 +309,17 @@ sub create_or_update {
     return $self->render('requirement_spec/new', title => $title);
   }
 
+  my $info = $self->requirement_spec->is_template ? t8('The section template has been saved.') : t8('The requirement spec has been saved.');
+
   if ($::request->is_ajax) {
     my $html = $self->render('requirement_spec/_header', { output => 0 });
     return $self->invalidate_version
       ->replaceWith('#requirement-spec-header', $html)
-      ->flash('info', t8('The requirement spec has been saved.'))
+      ->flash('info', $info)
       ->render($self);
   }
 
-  flash_later('info', $is_new ? t8('The requirement spec has been created.') : t8('The requirement spec has been saved.'));
+  flash_later('info', $info);
   $self->redirect_to(action => 'show', id => $self->requirement_spec->id);
 }
 
@@ -332,7 +337,7 @@ sub setup_db_args_from_filter {
     and => [
       @{ $args{where} || [] },
       working_copy_id => undef,
-      is_template     => $self->is_template
+      is_template     => $::form->{is_template} ? 1 : 0,
     ]];
 
   $self->db_args(\%args);
@@ -343,23 +348,30 @@ sub prepare_report {
 
   my $callback    = $self->get_callback;
 
+  my $is_template = $::form->{is_template};
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(title customer status type projectnumber mtime version);
-  my @sortable    = qw(title customer status type projectnumber mtime);
+  my @columns     = $is_template ? qw(title mtime) : qw(title customer status type projectnumber mtime version);
+  my @sortable    = $is_template ? qw(title mtime) : qw(title customer status type projectnumber mtime);
 
   my %column_defs = (
     title         => { obj_link => sub { $self->url_for(action => 'show', id => $_[0]->id, callback => $callback) } },
-    customer      => { raw_data => sub { $self->presenter->customer($_[0]->customer, display => 'table-cell', callback => $callback) },
-                       sub      => sub { $_[0]->customer->name } },
-    projectnumber => { raw_data => sub { $self->presenter->project($_[0]->project, display => 'table-cell', callback => $callback) },
-                       sub      => sub { $_[0]->project_id ? $_[0]->project->projectnumber : '' } },
-    status        => { sub      => sub { $_[0]->status->description } },
-    type          => { sub      => sub { $_[0]->type->description } },
-    version       => { sub      => sub { $_[0]->version_id ? $_[0]->version->version_number : t8('Working copy without version') } },
     mtime         => { sub      => sub { ($_[0]->mtime || $_[0]->itime)->to_kivitendo(precision => 'minute') } },
   );
+
+  if (!$is_template) {
+    %column_defs = (
+      %column_defs,
+      customer      => { raw_data => sub { $self->presenter->customer($_[0]->customer, display => 'table-cell', callback => $callback) },
+                         sub      => sub { $_[0]->customer->name } },
+      projectnumber => { raw_data => sub { $self->presenter->project($_[0]->project, display => 'table-cell', callback => $callback) },
+                         sub      => sub { $_[0]->project_id ? $_[0]->project->projectnumber : '' } },
+      status        => { sub      => sub { $_[0]->status->description } },
+      type          => { sub      => sub { $_[0]->type->description } },
+      version       => { sub      => sub { $_[0]->version_id ? $_[0]->version->version_number : t8('Working copy without version') } },
+    );
+  }
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
@@ -367,9 +379,9 @@ sub prepare_report {
     std_column_visibility => 1,
     controller_class      => 'RequirementSpec',
     output_format         => 'HTML',
-    raw_top_info_text     => $self->render('requirement_spec/report_top',    { output => 0 }),
+    raw_top_info_text     => $self->render('requirement_spec/report_top',    { output => 0 }, is_template => $is_template),
     raw_bottom_info_text  => $self->render('requirement_spec/report_bottom', { output => 0 }),
-    title                 => $::locale->text('Requirement Specs'),
+    title                 => $is_template ? t8('Requirement Spec Section Templates') : t8('Requirement Specs'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );
@@ -386,11 +398,12 @@ sub invalidate_version {
   my ($self) = @_;
 
   my $rspec  = SL::DB::RequirementSpec->new(id => $self->requirement_spec->id)->load;
+  return $self->js if $rspec->is_template;
+
   $rspec->invalidate_version;
 
   my $html = $self->render('requirement_spec/_version', { output => 0 }, requirement_spec => $rspec);
   return $self->js->html('#requirement_spec_version', $html);
 }
-
 
 1;

@@ -1,8 +1,12 @@
 [%- USE HTML -%][%- USE LxERP -%]
 <div id="requirement-spec-header">
  <h1>
-  [%- HTML.escape(SELF.requirement_spec.displayable_name('format', 'with_customer')) %]
-  [% LxERP.t8("for") %]
-  [% HTML.escape(SELF.requirement_spec.customer.displayable_name) -%]
+  [%- IF SELF.requirement_spec.is_template %]
+   [%- HTML.escape(LxERP.t8("Requirement spec section template '#1'", SELF.requirement_spec.title)) %]
+  [%- ELSE %]
+   [%- HTML.escape(SELF.requirement_spec.displayable_name('format', 'with_customer')) %]
+   [% LxERP.t8("for") %]
+   [% HTML.escape(SELF.requirement_spec.customer.displayable_name) -%]
+  [%- END %]
  </h1>
 </div>

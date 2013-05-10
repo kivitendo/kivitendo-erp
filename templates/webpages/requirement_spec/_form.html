@@ -4,12 +4,15 @@
 %]
 <form method="post" action="controller.pl" id="[% id_prefix %]">
  [% L.hidden_tag("id", SELF.requirement_spec.id, id=id_prefix _ '_id') %]
+ [% L.hidden_tag("requirement_spec.is_template", SELF.requirement_spec.is_template, id=id_prefix _ '_is_template') %]
 
  <table class="rs_input_field">
   <tr>
    <td>[% LxERP.t8("Title") %]</td>
    <td>[% L.input_tag("requirement_spec.title", SELF.requirement_spec.title, id=id_prefix _ '_title') %]</td>
   </tr>
+
+[%- UNLESS SELF.requirement_spec.is_template %]
 
   <tr>
    <td>[% LxERP.t8("Requirement Spec Type") %]</td>
@@ -32,6 +35,8 @@
    <td>[% L.input_tag("requirement_spec.hourly_rate_as_number", SELF.requirement_spec.hourly_rate_as_number, id=id_prefix _ '_hourly_rate_as_number') %]</td>
   </tr>
 
+[%- END %]
+
  </table>
 
 [%- IF SELF.copy_source %]
@@ -46,7 +51,7 @@
 [% IF submit_as == 'post' %]
   [% L.hidden_tag("action", "RequirementSpec/dispatch", id=id_prefix _ '_action') %]
   [% L.submit_tag("action_" _ (SELF.requirement_spec.id ? "update" : "create"), LxERP.t8('Save'), id=id_prefix _ '_action_update') %]
-  <a href="[% SELF.url_for(action="list") %]">[% LxERP.t8('Abort') %]</a>
+  <a href="[% SELF.url_for(action="list", is_template=SELF.requirement_spec.is_template) %]">[% LxERP.t8('Abort') %]</a>
 [% ELSE %]
   [% L.ajax_submit_tag("controller.pl?action=RequirementSpec/update",  "#" _ id_prefix, LxERP.t8("Save")) %]
 [% END %]

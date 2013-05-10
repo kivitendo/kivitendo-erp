@@ -11,10 +11,10 @@ __PACKAGE__->meta->setup(
 
   columns => [
     id                      => { type => 'serial', not_null => 1 },
-    type_id                 => { type => 'integer', not_null => 1 },
-    status_id               => { type => 'integer', not_null => 1 },
+    type_id                 => { type => 'integer' },
+    status_id               => { type => 'integer' },
     version_id              => { type => 'integer' },
-    customer_id             => { type => 'integer', not_null => 1 },
+    customer_id             => { type => 'integer' },
     project_id              => { type => 'integer' },
     title                   => { type => 'text', not_null => 1 },
     hourly_rate             => { type => 'numeric', default => '0', not_null => 1, precision => 2, scale => 8 },

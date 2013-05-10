@@ -8,6 +8,7 @@
  <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8("Hide Filter") %]</a>
 
  <form method="post" action="controller.pl">
+  [%- L.hidden_tag("is_template", is_template) %]
 
   <p>
    <table class="rs_input_field">
@@ -16,6 +17,7 @@
      <td>[% L.input_tag('filter.title:substr::ilike', filter.title_substr__ilike) %]</td>
     </tr>
 
+[%- UNLESS is_template %]
     <tr>
      <th align="right">[% LxERP.t8("Customer") %]</th>
      <td>[% L.input_tag('filter.customer.name:substr::ilike', filter.customer.name_substr__ilike) %]</td>
@@ -40,6 +42,7 @@
      <th align="right">[% LxERP.t8("Project") %]</th>
      <td>[% L.select_tag('filter.project_id', SELF.projects, default=filter.project_id, title_key="full_description", with_empty=1) %]</td>
     </tr>
+[%- END %]
    </table>
   </p>
 
