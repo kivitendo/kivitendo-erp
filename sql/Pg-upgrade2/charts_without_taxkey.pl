@@ -1,6 +1,6 @@
 # @tag: charts_without_taxkey
 # @description: Fügt für jedes Konto, was keinen Steuerschlüssel hat, den Steuerschlüssel 0 hinzu
-# @depends:
+# @depends: release_3_0_0
 package SL::DBUpgrade2::charts_without_taxkey;
 
 use strict;
