@@ -83,7 +83,7 @@ sub action_new {
     $self->requirement_spec->$_($self->copy_source->$_) for qw(type_id status_id customer_id title hourly_rate)
   }
 
-  $self->render('requirement_spec/new', title => $self->requirement_spec->is_template ? t8('Create a new requirement spec section template') : t8('Create a new requirement spec'));
+  $self->render('requirement_spec/new', title => $self->requirement_spec->is_template ? t8('Create a new requirement spec template') : t8('Create a new requirement spec'));
 }
 
 sub action_ajax_edit {
@@ -277,9 +277,9 @@ sub create_or_update {
 
   $self->requirement_spec->assign_attributes(%{ $params });
 
-  my $title  = $is_new && $self->requirement_spec->is_template ? t8('Create a new requirement spec section template')
+  my $title  = $is_new && $self->requirement_spec->is_template ? t8('Create a new requirement spec template')
              : $is_new                                         ? t8('Create a new requirement spec')
-             :            $self->requirement_spec->is_template ? t8('Edit section template')
+             :            $self->requirement_spec->is_template ? t8('Edit requirement spec template')
              :                                                   t8('Edit requirement spec');
 
   my @errors = $self->requirement_spec->validate;
@@ -309,7 +309,7 @@ sub create_or_update {
     return $self->render('requirement_spec/new', title => $title);
   }
 
-  my $info = $self->requirement_spec->is_template ? t8('The section template has been saved.') : t8('The requirement spec has been saved.');
+  my $info = $self->requirement_spec->is_template ? t8('The requirement spec template has been saved.') : t8('The requirement spec has been saved.');
 
   if ($::request->is_ajax) {
     my $html = $self->render('requirement_spec/_header', { output => 0 });
@@ -381,7 +381,7 @@ sub prepare_report {
     output_format         => 'HTML',
     raw_top_info_text     => $self->render('requirement_spec/report_top',    { output => 0 }, is_template => $is_template),
     raw_bottom_info_text  => $self->render('requirement_spec/report_bottom', { output => 0 }),
-    title                 => $is_template ? t8('Requirement Spec Section Templates') : t8('Requirement Specs'),
+    title                 => $is_template ? t8('Requirement Spec Templates') : t8('Requirement Specs'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
   );

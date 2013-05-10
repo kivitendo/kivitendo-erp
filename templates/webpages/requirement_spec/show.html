@@ -47,7 +47,36 @@
 <script type="text/javascript">
  <!--
 $(function() {
-  var initially_open = ['sections'
+  var tree_data = [
+    { data:     [% JSON.json(LxERP.t8("Text blocks front")) %],
+      metadata: { type: "text-blocks-front" },
+      attr:     { id: "tb-front", class: "text-block-context-menu" },
+      children: [
+[% FOREACH tb = SELF.requirement_spec.text_blocks_sorted(output_position=0) %]
+ [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
+[% END %]
+      ]},
+
+    { data:     [% JSON.json(LxERP.t8("Sections")) %],
+      metadata: { type: "sections" },
+      attr:     { id: "sections", class: "section-context-menu" },
+      children: [
+[% FOREACH section = SELF.requirement_spec.sections %]
+ [% P.requirement_spec_item_jstree_data(section).json %][% IF !loop.last %],[% END %]
+[% END %]
+      ]},
+
+    { data:     [% JSON.json(LxERP.t8("Text blocks back")) %],
+      metadata: { type: "text-blocks-back" },
+      attr:     { id: "tb-back", class: "text-block-context-menu" },
+      children: [
+[% FOREACH tb = SELF.requirement_spec.text_blocks_sorted(output_position=1) %]
+ [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
+[% END %]
+      ]}
+  ];
+
+  var initially_open = ['tb-front', 'tb-back', 'sections'
 [%- FOREACH section = SELF.requirement_spec.sections -%]
         , "fb-[% section.id %]"
  [%- FOREACH function_block = section.children -%]
@@ -55,40 +84,6 @@ $(function() {
  [%- END -%]
 [%- END -%]
   ];
-
-  var tree_data = [{
-      data:     [% JSON.json(LxERP.t8("Sections")) %],
-      metadata: { type: "sections" },
-      attr:     { id: "sections", class: "section-context-menu" },
-      children: [
-[% FOREACH section = SELF.requirement_spec.sections %]
- [% P.requirement_spec_item_jstree_data(section).json %][% IF !loop.last %],[% END %]
-[% END %]
-      ]}];
-
-[% UNLESS SELF.requirement_spec.is_template %]
-  tree_data.unshift({
-      data:     [% JSON.json(LxERP.t8("Text blocks front")) %],
-      metadata: { type: "text-blocks-front" },
-      attr:     { id: "tb-front", class: "text-block-context-menu" },
-      children: [
-[% FOREACH tb = SELF.requirement_spec.text_blocks_sorted(output_position=0) %]
- [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
-[% END %]
-      ]});
-
-  tree_data.push({
-      data:     [% JSON.json(LxERP.t8("Text blocks back")) %],
-      metadata: { type: "text-blocks-back" },
-      attr:     { id: "tb-back", class: "text-block-context-menu" },
-      children: [
-[% FOREACH tb = SELF.requirement_spec.text_blocks_sorted(output_position=1) %]
- [% P.requirement_spec_text_block_jstree_data(tb).json %][% IF !loop.last %],[% END %]
-[% END %]
-      ]});
-
-  initially_open = initially_open.concat(['tb-front', 'tb-back']);
-[% END %]
 
   $('#tree').jstree({
     core: {

@@ -2,7 +2,7 @@
 <div id="requirement-spec-header">
  <h1>
   [%- IF SELF.requirement_spec.is_template %]
-   [%- HTML.escape(LxERP.t8("Requirement spec section template '#1'", SELF.requirement_spec.title)) %]
+   [%- HTML.escape(LxERP.t8("Requirement spec template '#1'", SELF.requirement_spec.title)) %]
   [%- ELSE %]
    [%- HTML.escape(SELF.requirement_spec.displayable_name('format', 'with_customer')) %]
    [% LxERP.t8("for") %]
