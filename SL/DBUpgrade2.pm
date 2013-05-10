@@ -242,6 +242,8 @@ sub process_perl_script {
 
   my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
+  my %form_values = map { $_ => $::form->{$_} } qw(dbconnect dbdefault dbdriver dbhost dbmbkiviunstable dbname dboptions dbpasswd dbport dbupdate dbuser login template_object version);
+
   $dbh->begin_work;
 
   # setup dbup_ export vars & run script
@@ -271,6 +273,13 @@ sub process_perl_script {
     $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
   }
   $dbh->commit();
+
+  # Clear $::form of values that may have been set so that following
+  # Perl upgrade scripts won't have to work with old data (think of
+  # the usual 'continued' mechanism that's used for determining
+  # whether or not the upgrade form must be displayed).
+  delete @{ $::form }{ keys %{ $::form } };
+  $::form->{$_} = $form_values{$_} for keys %form_values;
 
   $::lxdebug->leave_sub();
 }

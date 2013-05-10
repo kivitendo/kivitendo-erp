@@ -17,7 +17,7 @@ sub run {
     'ALTER TABLE contacts ADD COLUMN cp_city text;',
   );
 
-  $self->db_query($_, 1) for @queries;
+  $self->db_query($_, may_fail => 1) for @queries;
 
   return 1;
 }

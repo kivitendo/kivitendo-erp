@@ -20,7 +20,7 @@ sub run {
 
   foreach my $column (qw(accounting_method inventory_system profit_determination)) {
     # this query will fail if columns already exist (new database)
-    $self->db_query(qq|ALTER TABLE defaults ADD COLUMN ${column} TEXT|, 1);
+    $self->db_query(qq|ALTER TABLE defaults ADD COLUMN ${column} TEXT|, may_fail => 1);
   }
 
   my $accounting_method;

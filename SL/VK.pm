@@ -50,8 +50,12 @@ sub invoice_transactions {
 
   my @values;
 
+  # default usage: always use parts.description for (sub-)totalling and in header and subheader lines
+  # but use invoice.description in article mode
+  # so we extract both versions in our query and later overwrite the description in article mode
+
   my $query =
-    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight | .
+    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,p.description as description, pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as invoice_description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight | .
     qq|FROM invoice i | .
     qq|JOIN ar on (i.trans_id = ar.id) | .
     qq|JOIN parts p on (i.parts_id = p.id) | .
@@ -122,9 +126,12 @@ sub invoice_transactions {
     $where .= qq| AND (ct.country ILIKE ?)|;
     push(@values, '%' . $form->{country} . '%');
   }
-  # nimmt man description am Besten aus invoice oder parts?
+
+  # when filtering for parts by description we probably want to filter by the description of the part as per the master data
+  # invoice.description may differ due to manually changing the description in the invoice or because of translations of the description
+  # at least in the translation case we probably want the report to also include translated articles, so we have to filter via parts.description
   if ($form->{description}) {
-    $where .= qq| AND (i.description ILIKE ?)|;
+    $where .= qq| AND (p.description ILIKE ?)|;
     push(@values, '%' . $form->{description} . '%');
   }
   if ($form->{transdatefrom}) {

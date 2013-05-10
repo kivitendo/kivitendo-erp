@@ -48,7 +48,7 @@ sub clear_tables {
       q{ DELETE FROM tax.report_variables; },
   );
 
-  map({ $self->db_query("DELETE FROM $_ ;", 0); } @clear);
+  $self->db_query("DELETE FROM $_") for @clear;
 
   return 1;
 
@@ -303,11 +303,7 @@ sub do_insert_chart {
 
   );
 
-  for my $statement ( 0 .. $#copy_statements ) {
-    my $query = $copy_statements[$statement];
-      #print $query . "<br />";  # Diagnose only!
-      $self->db_query($query, 0);
-  }
+  $self->db_query($_) for @copy_statements;
 
   return 1;
 }

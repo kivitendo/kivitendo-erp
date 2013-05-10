@@ -12,11 +12,11 @@ sub run {
   my ($self) = @_;
 
   # this query will fail if column already exist (new database)
-  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_sales_invoice boolean    DEFAULT true|, 1);
-  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_purchase_invoice boolean DEFAULT true|, 1);
-  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_ar_transaction boolean   DEFAULT true|, 1);
-  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_ap_transaction boolean   DEFAULT true|, 1);
-  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_gl_transaction boolean   DEFAULT true|, 1);
+  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_sales_invoice boolean    DEFAULT true|, may_fail => 1);
+  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_purchase_invoice boolean DEFAULT true|, may_fail => 1);
+  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_ar_transaction boolean   DEFAULT true|, may_fail => 1);
+  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_ap_transaction boolean   DEFAULT true|, may_fail => 1);
+  $self->db_query(qq|ALTER TABLE defaults ADD COLUMN datev_check_on_gl_transaction boolean   DEFAULT true|, may_fail => 1);
 
   # check current configuration and set default variables accordingly, so that
   # kivitendo's behaviour isn't changed by this update

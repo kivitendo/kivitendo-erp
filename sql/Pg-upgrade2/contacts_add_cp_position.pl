@@ -11,7 +11,7 @@ use parent qw(SL::DBUpgrade2::Base);
 sub run {
   my ($self) = @_;
 
-  $self->db_query('ALTER TABLE contacts ADD COLUMN cp_position VARCHAR(75)', 1);
+  $self->db_query('ALTER TABLE contacts ADD COLUMN cp_position VARCHAR(75)', may_fail => 1);
 
   return 1;
 }

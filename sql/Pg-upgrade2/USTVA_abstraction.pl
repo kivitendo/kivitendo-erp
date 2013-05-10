@@ -47,8 +47,8 @@ sub create_tables {
       },
   );
 
-  $self->db_query("DROP SCHEMA tax CASCADE;", 1);
-  map({ $self->db_query($_, 0); } @queries);
+  $self->db_query("DROP SCHEMA tax CASCADE;", may_fail => 1);
+  $self->db_query($_) for @queries;
 
   return 1;
 

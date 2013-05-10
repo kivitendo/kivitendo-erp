@@ -33,7 +33,7 @@ SQL
     ))
 SQL
 
-  $self->db_query($query, 0);
+  $self->db_query($query);
 
   my %skipped_acc_trans_ids;
   foreach my $entry (@entries) {
@@ -50,7 +50,7 @@ SQL
           AND (mtime $mtime)
 SQL
 
-      $self->db_query($query, 0);
+      $self->db_query($query);
     }
   }
 

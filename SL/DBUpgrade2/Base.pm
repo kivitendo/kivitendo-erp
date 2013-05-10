@@ -41,11 +41,11 @@ sub db_error {
 }
 
 sub db_query {
-  my ($self, $query, $may_fail) = @_;
+  my ($self, $query, %params) = @_;
 
-  return if $self->dbh->do($query);
+  return if $self->dbh->do($query, undef, @{ $params{bind} || [] });
 
-  $self->db_error($query) unless $may_fail;
+  $self->db_error($query) unless $params{may_fail};
 
   $self->dbh->rollback;
   $self->dbh->begin_work;
@@ -204,13 +204,24 @@ C<$coa_name>.
 
 Outputs an error message C<$message> to the user and aborts execution.
 
-=item C<db_query $query, $may_fail>
+=item C<db_query $query, %params>
 
-Executes an SQL query. What the method does if the query fails depends
-on C<$may_fail>. If it is falsish then the method will simply die
-outputting the error message via L</db_error>. If C<$may_fail> is
-trueish then the current transaction will be rolled back, a new one
-will be started
+Executes an SQL query. The following parameters are supported:
+
+=over 2
+
+=item C<may_fail>
+
+What the method does if the query fails depends on this parameter. If
+it is falsish (the default) then the method will simply die outputting
+the error message via L</db_error>. If C<may_fail> is trueish then the
+current transaction will be rolled back, a new one will be started.
+
+=item C<bind>
+
+An optional array reference containing bind parameter for the query.
+
+=back
 
 =item C<execute_script>
 
