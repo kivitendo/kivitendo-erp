@@ -148,10 +148,11 @@ sub action_ajax_save_time_and_cost_estimate {
 sub action_show {
   my ($self) = @_;
 
-  my $item = $::form->{requirement_spec_item_id} ? SL::DB::RequirementSpecItem->new(id => $::form->{requirement_spec_item_id})->load : @{ $self->requirement_spec->sections }[0];
+  my $title  = $self->requirement_spec->is_template ? t8('Show requirement spec template') : t8('Show requirement spec');
+  my $item   = $::form->{requirement_spec_item_id} ? SL::DB::RequirementSpecItem->new(id => $::form->{requirement_spec_item_id})->load : @{ $self->requirement_spec->sections }[0];
   $self->requirement_spec_item($item);
 
-  $self->render('requirement_spec/show', title => t8('Show requirement spec'));
+  $self->render('requirement_spec/show', title => $title);
 }
 
 sub action_create {
@@ -208,6 +209,13 @@ sub action_create_pdf {
 
   $self->send_file($result{file_name}, type => 'application/pdf', name => $attachment_name);
   unlink $result{file_name};
+}
+
+sub action_select_template_to_paste {
+  my ($self) = @_;
+
+  my @templates = grep { @{ $_->sections } || @{ $_->text_blocks } } @{ SL::DB::Manager::RequirementSpec->get_all(where => [ is_template => 1 ], sort_by => 'lower(title)') };
+  $self->render('requirement_spec/select_template_to_paste', { layout => 0 }, TEMPLATES => \@templates);
 }
 
 #

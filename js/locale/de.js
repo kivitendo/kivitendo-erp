@@ -25,6 +25,7 @@ namespace("kivi").setupLocale({
 "Map":"Karte",
 "Part picker":"Artikelauswahl",
 "Paste":"Einfügen",
+"Paste template":"Vorlage einfügen",
 "Requirement spec actions":"Pflichtenheftaktionen",
 "Requirement spec template actions":"Pflichtenheftvorlagen-Aktionen",
 "Revert to version":"Auf Version zurücksetzen",

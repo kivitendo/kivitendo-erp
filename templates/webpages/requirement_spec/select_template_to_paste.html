@@ -1,0 +1,72 @@
+[%- USE LxERP -%][%- USE HTML -%][%- USE L -%]
+[%- BLOCK text_blocks %]
+ [%- IF blocks.size %]
+     <li>
+      [%- title %]:
+      <ol>
+       [%- FOREACH block = blocks %]
+        <li>[%- HTML.escape(block.title) %]</li>
+       [%- END %]
+      </ol>
+     </li>
+ [%- END %]
+[%- END %]
+
+<h1>[%- LxERP.t8("Select template to paste") %]</h1>
+
+[%- IF !TEMPLATES.size %]
+<p>[%- LxERP.t8("No requirement spec templates have been created yet.") %]</p>
+
+<p><a href="#" onclick="$('#jqm_popup_dialog').jqmClose();">[%- LxERP.t8("Abort") %]</a></p>
+
+[%- ELSE %]
+
+<table>
+ <tr class="listheading">
+  <th>[%- LxERP.t8("Detail view") %]</th>
+  <th>[%- LxERP.t8("Paste template") %]</th>
+  <th>[%- LxERP.t8("Title") %]</th>
+  <th>[%- LxERP.t8("Last modification") %]</th>
+ </tr>
+
+[%- FOREACH template = TEMPLATES %]
+ <tr class="listrow[% loop.count % 2 %]">
+  <td>
+   <a href="#" onclick="$('#select-template-details-row-[% template.id %]').toggle(); $(this).find('span').toggle();">
+    <span>[+]</span>
+    <span style="display: none;">[-]</span>
+   </a>
+  </td>
+  <td><a href="#" onclick="paste_selected_template([% template.id %]);">[%- LxERP.t8("Paste template") %]</a></td>
+  <td>[%- HTML.escape(template.title) %]</td>
+  <td>[% template.mtime ? template.mtime.to_kivitendo(precision='minute') : template.itime.to_kivitendo(precision='minute') %]</td>
+ </tr>
+
+ <tr class="listrow[% loop.count % 2 %]" style="display: none;" id="select-template-details-row-[% template.id %]">
+  [% SET front    = template.text_blocks_sorted(output_position=0) %]
+  [% SET sections = template.sections_sorted %]
+  [% SET back     = template.text_blocks_sorted(output_position=1) %]
+  <td colspan="4">
+   [%- LxERP.t8("What this template contains") %]:<br>
+   <ul>
+    [% PROCESS text_blocks blocks=front title=LxERP.t8("#1 text block(s) front", front.size) %]
+
+    [%- IF sections.size %]
+    <li>[%- LxERP.t8("#1 section(s)", sections.size) %]:
+     <ol>
+      [%- FOREACH section = sections %]
+       <li>[%- HTML.escape(section.fb_number) %]: [%- HTML.escape(section.title) %]</li>
+      [%- END %]
+     </ol>
+    </li>
+    [%- END %]
+
+    [% PROCESS text_blocks blocks=back  title=LxERP.t8("#1 text block(s) back",  back.size)  %]
+   </ul>
+  </td>
+ </tr>
+[%- END %]
+</table>
+
+<p><a href="#" onclick="$('#jqm_popup_dialog').jqmClose();">[%- LxERP.t8("Abort") %]</a></p>
+[%- END %]
