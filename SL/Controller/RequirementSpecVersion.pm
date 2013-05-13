@@ -38,7 +38,6 @@ sub action_new {
   $self->version(SL::DB::RequirementSpecVersion->new);
 
   my $previous_version = $self->requirement_spec->highest_version;
-  $::lxdebug->message(0, "vers num " . $previous_version->version->version_number . " id " . $previous_version->version_id);
 
   if (!$previous_version) {
     $self->version->description(t8('Initial version.'));
