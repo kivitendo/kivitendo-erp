@@ -58,7 +58,7 @@ sub text_blocks_sorted {
   @text_blocks    = grep { $_->output_position == $params{output_position} } @text_blocks if exists $params{output_position};
   @text_blocks    = sort { $a->position        <=> $b->position            } @text_blocks;
 
-  return wantarray ? @text_blocks : \@text_blocks;
+  return \@text_blocks;
 }
 
 sub sections_sorted {
@@ -66,8 +66,7 @@ sub sections_sorted {
 
   croak "This sub is not a writer" if @rest;
 
-  my @sections = sort { $a->position <=> $b->position } grep { !$_->parent_id } @{ $self->items };
-  return wantarray ? @sections : \@sections;
+  return [ sort { $a->position <=> $b->position } grep { !$_->parent_id } @{ $self->items } ];
 }
 
 sub sections { &sections_sorted; }
@@ -85,7 +84,7 @@ sub versioned_copies_sorted {
   @copies    = grep { $_->version->version_number <=  $params{max_version_number} } @copies if $params{max_version_number};
   @copies    = sort { $a->version->version_number <=> $b->version->version_number } @copies;
 
-  return wantarray ? @copies : \@copies;
+  return \@copies;
 }
 
 sub create_copy {
@@ -405,16 +404,17 @@ An alias for L</sections_sorted>.
 
 =item C<sections_sorted>
 
-Returns a list of requirement spec items that
+Returns an array reference of requirement spec items that do not have
+a parent -- meaning that are sections.
 
 This is not a writer. Use the C<items> relationship for that.
 
 =item C<text_blocks_sorted %params>
 
-Returns an array (or an array reference depending on context) of text
-blocks sorted by their positional column in ascending order. If the
-C<output_position> parameter is given then only the text blocks
-belonging to that C<output_position> are returned.
+Returns an array reference of text blocks sorted by their positional
+column in ascending order. If the C<output_position> parameter is
+given then only the text blocks belonging to that C<output_position>
+are returned.
 
 =item C<validate>
 
@@ -423,11 +423,10 @@ messages (if any).
 
 =item C<versioned_copies_sorted %params>
 
-Returns an array (or an array reference depending on context) of
-versioned copies sorted by their version number in ascending order. If
-the C<max_version_number> parameter is given then only the versioned
-copies whose version number is less than or equal to
-C<max_version_number> are returned.
+Returns an array reference of versioned copies sorted by their version
+number in ascending order. If the C<max_version_number> parameter is
+given then only the versioned copies whose version number is less than
+or equal to C<max_version_number> are returned.
 
 =back
 

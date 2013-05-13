@@ -104,8 +104,7 @@ sub children_sorted {
 
   croak "Not a writer" if @args;
 
-  my @children = sort { $a->position <=> $b->position } $self->children;
-  return wantarray ? @children : \@children;
+  return [ sort { $a->position <=> $b->position } $self->children ];
 }
 
 sub section {
@@ -150,9 +149,8 @@ Returns the C<item_type> for children of C<$self>.
 
 =item C<children_sorted>
 
-Returns an array (or an array reference depending on context) of
-direct children (not of grandchildren) for C<$self> ordered by their
-positional column in ascending order.
+Returns an array reference of direct children (not of grandchildren)
+for C<$self> ordered by their positional column in ascending order.
 
 =item C<section>
 
