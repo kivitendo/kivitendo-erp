@@ -79,10 +79,12 @@ sub action_create {
     return $self->js->error($::locale->text('Saving failed. Error message from the database: #1'), $db->error)->render($self);
   }
 
-  my $html = $self->render('requirement_spec/_version', { output => 0 }, requirement_spec => $self->requirement_spec);
+  my $version_info_html = $self->render('requirement_spec/_version',     { output => 0 }, requirement_spec => $self->requirement_spec);
+  my $version_list_html = $self->render('requirement_spec_version/list', { output => 0 });
 
   $self->js
-    ->html('#requirement_spec_version', $html)
+    ->html('#requirement_spec_version', $version_info_html)
+    ->html('#versioned_copies_list',    $version_list_html)
     ->jqmClose('.jqmWindow')
     ->render($self);
 }
