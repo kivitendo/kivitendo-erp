@@ -166,6 +166,14 @@ close($js_file);
 my @new_missing = grep { !$self->{texts}{$_} } sort keys %alllocales;
 
 if (@new_missing) {
+  if ($opt_c) {
+    my %existing_lc = map { (lc $_ => $_) } grep { $self->{texts}->{$_} } keys %{ $self->{texts} };
+    foreach my $entry (@new_missing) {
+      my $other = $existing_lc{lc $entry};
+      print "W: No entry for '${entry}' exists, but there is one with different case: '${other}'\n" if $other;
+    }
+  }
+
   generate_file(
     file      => "$locales_dir/missing",
     header    => $MISSING_HEADER,

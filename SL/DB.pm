@@ -129,7 +129,15 @@ sub _flatten_settings {
 sub with_transaction {
   my ($self, $code, @args) = @_;
 
-  return $self->in_transaction ? $code->(@args) : $self->do_transaction(sub { $code->(@args) });
+  return $code->(@args) if $self->in_transaction;
+  if (wantarray) {
+    my @result;
+    return $self->do_transaction(sub { @result = $code->(@args) }) ? @result : ();
+
+  } else {
+    my $result;
+    return $self->do_transaction(sub { $result = $code->(@args) }) ? $result : undef;
+  }
 }
 
 1;
@@ -162,20 +170,26 @@ configuration.
 
 =item C<with_transaction $code_ref, @args>
 
-Executes C<$code_ref> within a transaction, starting one if none is
-currently active. This is just a shortcut for the following code:
-
-  # Verbose code in caller (an RDBO instance):
-  my $worker = sub {
-    # do stuff with $self
-  };
-  return $self->db->in_transaction ? $worker->() : $self->db->do_transaction($worker);
-
-Now the version using C<with_transaction>:
+Executes C<$code_ref> with parameters C<@args> within a transaction,
+starting one if none is currently active. Example:
 
   return $self->db->with_transaction(sub {
     # do stuff with $self
   });
+
+One big difference to L<Rose::DB/do_transaction> is the return code
+handling. If a transaction is already active then C<with_transcation>
+simply returns the result of calling C<$code_ref> as-is.
+
+Otherwise the return value depends on the result of the underlying
+transaction. If the transaction fails then C<undef> is returned in
+scalar context and an empty list in list context. If the transaction
+succeeds then the return value of C<$code_ref> is returned preserving
+context.
+
+So if you want to differentiate between "transaction failed" and
+"succeeded" then your C<$code_ref> should never return C<undef>
+itself.
 
 =back
 
