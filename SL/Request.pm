@@ -312,7 +312,7 @@ sub flatten {
   for (ref $source) {
     /^HASH$/ && do {
       my $first = 1;
-      for my $key (keys %$source) {
+      for my $key (sort keys %$source) {
         flatten($source->{$key} => $target, (defined $prefix ? $prefix . $arr_prefix->($first) . '.' : '') . $key);
         $first = 0;
       };

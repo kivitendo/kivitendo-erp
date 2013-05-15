@@ -1,5 +1,5 @@
 use Test::More;
-use Test::Deep;
+use Test::Deep qw(cmp_deeply);
 use Data::Dumper;
 
 use_ok 'SL::Request', qw(flatten unflatten);
@@ -13,8 +13,8 @@ sub f ($$$) {
   my $unflat = unflatten($flat);
   print Dumper($unflat) if DEBUG;
 
-  cmp_deeply($flat, $_[1], $_[2]);
-  cmp_deeply($unflat, $_[0], $_[2]);
+  cmp_deeply($flat, $_[1], $_[2] . " flatten");
+  cmp_deeply($unflat, $_[0], $_[2] . " unflatten");
 }
 
 f {
@@ -55,12 +55,12 @@ f {
       'q' => 4
     },
   }
-}, bag(
+}, [
  [ 'x'     => 1, ],
  [ 'y.a'   => 2, ],
  [ 'y.b.p' => 3, ],
  [ 'y.b.q' => 4  ],
-), 'Hash::Flatten 1';
+], 'Hash::Flatten 1';
 
 
 f {
@@ -70,13 +70,13 @@ f {
   },
   'a' => [1,2,3],
 },
-bag (
- ['x'    => 1, ],
+[
  ['0.1'  => 2, ],
  ['a[]'  => 1, ],
  ['a[]'  => 2, ],
  ['a[]'  => 3, ],
-), 'Hash::Flatten 2 - weird keys and values';
+ ['x'    => 1, ],
+], 'Hash::Flatten 2 - weird keys and values';
 
 
 f {
@@ -95,15 +95,15 @@ f {
     },
   ]
 },
-bag(
+[
+  [ 'ay.a'    => 2,       ],
   [ 'ay.b.p'  => 3,       ],
   [ 'ay.b.q'  => 4,       ],
-  [ 'ay.a'    => 2,       ],
   [ 'x'       => 1,       ],
   [ 'y[]'     => 'a',    ],
   [ 'y[]'     => 2        ],
   [ 'y[+].baz' => 'bum',  ],
-), 'Hash::Flatten 3 - mixed';
+], 'Hash::Flatten 3 - mixed';
 
 f {
   'x' => 1,
@@ -117,17 +117,17 @@ f {
     'money',
   ]
 },
-bag(
+[
  [ 'x'        => 1,        ],
- [ 'y[][]'    => 'his',    ],
- [ 'y[][+][]' => 'parted', ],
- [ 'y[][][]'  => 'from',   ],
  [ 'y[+][]'   => 'a',      ],
- [ 'y[+][]'   => 'easily', ],
  [ 'y[][]'    => 'fool',   ],
  [ 'y[][]'    => 'is'      ],
+ [ 'y[+][]'   => 'easily', ],
+ [ 'y[][+][]' => 'parted', ],
+ [ 'y[][][]'  => 'from',   ],
+ [ 'y[][]'    => 'his',    ],
  [ 'y[]'      => 'money',  ],
-), 'Hash::Flatten 4 - array nesting';
+], 'Hash::Flatten 4 - array nesting';
 
 f {
   'x' => 1,
@@ -145,15 +145,15 @@ f {
     },
   ]
 },
-bag(
-  [ 'x'        => 1,     ],
-  [ 's'        => 'hey', ],
+[
   [ 'ay.a'     => 2,     ],
-  [ 'y[+].baz' => 'bum', ],
   [ 'ay.b.p'   => 3,     ],
-  [ 'y[]'      => 'a',   ],
   [ 'ay.b.q'   => 4,     ],
+  [ 's'        => 'hey', ],
+  [ 'x'        => 1,     ],
+  [ 'y[]'      => 'a',   ],
   [ 'y[]'      => 2      ],
-), 'Hash::Flatten 5 - deep mix';
+  [ 'y[+].baz' => 'bum', ],
+], 'Hash::Flatten 5 - deep mix';
 
 done_testing();
