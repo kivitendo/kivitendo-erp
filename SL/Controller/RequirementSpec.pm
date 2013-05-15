@@ -26,7 +26,7 @@ use SL::Template::LaTeX;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item customers types statuses db_args flat_filter visible_item visible_section) ],
-  'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects copy_source js) ],
+  'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects copy_source js current_text_block_output_position) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -218,6 +218,24 @@ sub action_select_template_to_paste {
   $self->render('requirement_spec/select_template_to_paste', { layout => 0 }, TEMPLATES => \@templates);
 }
 
+sub action_paste_template {
+  my ($self, %params) = @_;
+
+  my $template = SL::DB::RequirementSpec->new(id => $::form->{template_id})->load;
+  my %result   = $self->requirement_spec->paste_template($template);
+
+  return $self->js->error($self->requirement_spec->error)->render($self) if !%result;
+
+  $self->render_pasted_text_block($_) for sort { $a->position <=> $b->position } @{ $result{text_blocks} };
+  $self->render_pasted_section($_)    for sort { $a->position <=> $b->position } @{ $result{sections}    };
+
+  if (@{ $result{sections} } && (($::form->{current_content_type} || 'sections') eq 'sections') && !$::form->{current_content_id}) {
+    $self->render_first_pasted_section_as_list($result{sections}->[0]);
+  }
+
+  $self->invalidate_version->render($self);
+}
+
 #
 # filters
 #
@@ -261,6 +279,11 @@ sub init_copy_source {
 sub init_js {
   my ($self) = @_;
   $self->js(SL::ClientJS->new);
+}
+
+sub init_current_text_block_output_position {
+  my ($self) = @_;
+  $self->current_text_block_output_position($::form->{current_content_type} !~ m/^(?:text-blocks|tb)-(front|back)/ ? -1 : $1 eq 'front' ? 0 : 1);
 }
 
 sub load_select_options {
@@ -412,6 +435,45 @@ sub invalidate_version {
 
   my $html = $self->render('requirement_spec/_version', { output => 0 }, requirement_spec => $rspec);
   return $self->js->html('#requirement_spec_version', $html);
+}
+
+sub render_pasted_text_block {
+  my ($self, $text_block, %params) = @_;
+
+  if ($self->current_text_block_output_position == $text_block->output_position) {
+    my $html = $self->render('requirement_spec_text_block/_text_block', { output => 0 }, text_block => $text_block);
+    $self->js
+      ->appendTo($html, '#text-block-list')
+      ->hide('#text-block-list-empty');
+  }
+
+  my $node       = $self->presenter->requirement_spec_text_block_jstree_data($text_block);
+  my $front_back = $text_block->output_position == 0 ? 'front' : 'back';
+  $self->js
+    ->jstree->create_node('#tree', "#tb-${front_back}", 'last', $node)
+    ->jstree->open_node(  '#tree', "#tb-${front_back}");
+}
+
+sub render_pasted_section {
+  my ($self, $item, $parent_id) = @_;
+
+  my $node = $self->presenter->requirement_spec_item_jstree_data($item);
+  $self->js
+    ->jstree->create_node('#tree', $parent_id ? "#fb-${parent_id}" : '#sections', 'last', $node)
+    ->jstree->open_node(  '#tree', $parent_id ? "#fb-${parent_id}" : '#sections');
+
+  $self->render_pasted_section($_, $item->id) for @{ $item->children_sorted };
+}
+
+sub render_first_pasted_section_as_list {
+  my ($self, $section, %params) = @_;
+
+  my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $section);
+  $self->js
+    ->html('#column-content', $html)
+    ->val( '#current_content_type', $section->item_type)
+    ->val( '#current_content_id',   $section->id)
+    ->jstree->select_node('#tree', '#fb-' . $section->id);
 }
 
 1;

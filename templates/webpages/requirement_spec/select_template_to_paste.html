@@ -37,7 +37,7 @@
     <span style="display: none;">[-]</span>
    </a>
   </td>
-  <td><a href="#" onclick="paste_selected_template([% template.id %]);">[%- LxERP.t8("Paste template") %]</a></td>
+  <td><a href="#" onclick="kivi.requirement_spec.paste_selected_template([% template.id %]);">[%- LxERP.t8("Paste template") %]</a></td>
   <td>[%- HTML.escape(template.title) %]</td>
   <td>[% template.mtime ? template.mtime.to_kivitendo(precision='minute') : template.itime.to_kivitendo(precision='minute') %]</td>
  </tr>

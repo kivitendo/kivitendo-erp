@@ -111,16 +111,35 @@ sub _create_copy {
 }
 
 sub _copy_from {
-  my ($self, $source, %attributes) = @_;
+  my ($self, $params, %attributes) = @_;
+
+  my $source = $params->{source};
 
   croak "Missing parameter 'source'" unless $source;
 
   # Copy attributes.
-  $self->assign_attributes(map({ ($_ => $source->$_) } qw(type_id status_id customer_id project_id title hourly_rate net_sum previous_section_number previous_fb_number is_template)),
-                           %attributes);
+  if (!$params->{paste_template}) {
+    $self->assign_attributes(map({ ($_ => $source->$_) } qw(type_id status_id customer_id project_id title hourly_rate net_sum previous_section_number previous_fb_number is_template)),
+                             %attributes);
+  }
+
+  my %paste_template_result;
 
   # Clone text blocks.
-  $self->text_blocks(map { Rose::DB::Object::Helpers::clone_and_reset($_) } @{ $source->text_blocks });
+  my $clone_text_block = sub {
+    my ($text_block) = @_;
+    my $cloned       = Rose::DB::Object::Helpers::clone_and_reset($text_block);
+    $cloned->position(undef);
+    return $cloned;
+  };
+
+  $paste_template_result{text_blocks} = [ map { $clone_text_block->($_) } @{ $source->text_blocks_sorted } ];
+
+  if (!$params->{paste_template}) {
+    $self->text_blocks($paste_template_result{text_blocks});
+  } else {
+    $self->add_text_blocks($paste_template_result{text_blocks});
+  }
 
   # Save new object -- we need its ID for the items.
   $self->save;
@@ -133,6 +152,7 @@ sub _copy_from {
     my ($item) = @_;
     my $cloned = Rose::DB::Object::Helpers::clone_and_reset($item);
     $cloned->requirement_spec_id($self->id);
+    $cloned->position(undef);
     $cloned->children(map { $clone_item->($_) } @{ $item->children });
 
     $id_to_clone{ $item->id } = $cloned;
@@ -140,7 +160,13 @@ sub _copy_from {
     return $cloned;
   };
 
-  $self->items(map { $clone_item->($_) } @{ $source->sections });
+  $paste_template_result{sections} = [ map { $clone_item->($_) } @{ $source->sections_sorted } ];
+
+  if (!$params->{paste_template}) {
+    $self->items($paste_template_result{sections});
+  } else {
+    $self->add_items($paste_template_result{sections});
+  }
 
   # Save the items -- need to do that before setting dependencies.
   $self->save;
@@ -151,15 +177,21 @@ sub _copy_from {
     $id_to_clone{ $item->id }->update_attributes(dependencies => [ map { $id_to_clone{$_->id} } @{ $item->dependencies } ]);
   }
 
-  $self->update_attributes(%attributes);
+  $self->update_attributes(%attributes) unless $params->{paste_template};
 
-  return $self;
+  return %paste_template_result;
 }
 
 sub copy_from {
   my ($self, $source, %attributes) = @_;
 
-  $self->db->with_transaction(sub { $self->_copy_from($source, %attributes); });
+  $self->db->with_transaction(sub { $self->_copy_from({ source => $source, paste_template => 0 }, %attributes); });
+}
+
+sub paste_template {
+  my ($self, $template) = @_;
+
+  $self->db->with_transaction(sub { $self->_copy_from({ source => $template, paste_template => 1 }); });
 }
 
 sub highest_version {

@@ -269,8 +269,30 @@ ns.item_popup_menu_hidden = function(opt) {
   return ns.handle_item_popup_menu_markings(opt, false);
 };
 
+// -------------------------------------------------------------------------
+// ------------------------------- templates -------------------------------
+// -------------------------------------------------------------------------
+
 ns.paste_template = function(key, opt, other_data) {
   open_jqm_window({ url: 'controller.pl?action=RequirementSpec/select_template_to_paste' });
+};
+
+ns.paste_selected_template = function(template_id) {
+  $('#jqm_popup_dialog').jqmClose();
+
+  var data = {
+    action:               "RequirementSpec/paste_template",
+    id:                   $('#requirement_spec_id').val(),
+    template_id:          template_id,
+    current_content_type: $('#current_content_type').val(),
+    current_content_id:   $('#current_content_id').val()
+  };
+
+  // console.log("I would normally POST the following now:");
+  // console.log(data);
+  $.post("controller.pl", data, kivi.eval_json_result);
+
+  return true;
 };
 
 // -------------------------------------------------------------------------
