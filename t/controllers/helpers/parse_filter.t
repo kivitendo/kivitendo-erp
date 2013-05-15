@@ -35,10 +35,10 @@ test {
   name => 'Test',
   whut => 'moof',
 }, {
-  query => [ %{{
+  query => bag(
     name => 'Test',
     whut => 'moof'
-  }} ],
+  ),
 }, 'basic test';
 
 test {
@@ -96,10 +96,10 @@ test {
     },
   },
 }, {
-  'query' => [ %{{
+  'query' => bag(
                'invoice.customer.name'  => 'test',
                'customer.name'          => 'test',
-             }} ],
+            ),
   'with_objects' => bag( 'invoice.customer', 'customer', 'invoice' )
 }, 'object in more than one relationship';
 
