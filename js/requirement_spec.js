@@ -206,9 +206,9 @@ ns.standard_item_ajax_call = function(key, opt, other_data) {
     current_content_id:   $('#current_content_id').val()
   };
 
-  console.log("I would normally POST the following now:");
-  console.log(data);
-  // $.post("controller.pl", $.extend(data, other_data || {}), kivi.eval_json_result);
+  // console.log("I would normally POST the following now:");
+  // console.log(data);
+  $.post("controller.pl", $.extend(data, other_data || {}), kivi.eval_json_result);
 
   return true;
 };
