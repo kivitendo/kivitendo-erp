@@ -549,6 +549,7 @@ depends on. All other upgrades listed in C<depends> will be applied
 before the current one is applied.
 
 =item charset
+
 =item encoding
 
 The charset this file uses. Defaults to C<ISO-8859-15> if
