@@ -350,7 +350,7 @@ sub log_request {
 
   my $template = <<EOL;
 *************************************
- GET $ENV{SCRIPT_NAME}    $session_id ($::myconfig{login})
+ $ENV{REQUEST_METHOD} $ENV{SCRIPT_NAME}    $session_id ($::myconfig{login})
    routing: $type, controller: $controller, action: $action
 EOL
 
