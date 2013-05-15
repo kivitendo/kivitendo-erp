@@ -8,9 +8,10 @@ use constant QUERY              =>  1 << 3;
 use constant TRACE              =>  1 << 4;
 use constant BACKTRACE_ON_ERROR =>  1 << 5;
 use constant REQUEST_TIMER      =>  1 << 6;
-use constant WARN               =>  1 << 7;
-use constant TRACE2             =>  1 << 8;
-use constant ALL                => (1 << 9) - 1;
+use constant REQUEST            =>  1 << 7;
+use constant WARN               =>  1 << 8;
+use constant TRACE2             =>  1 << 9;
+use constant ALL                => (1 << 10) - 1;
 use constant DEVEL              => INFO | DEBUG1 | QUERY | TRACE | BACKTRACE_ON_ERROR | REQUEST_TIMER;
 
 use constant FILE_TARGET   => 0;
@@ -20,6 +21,7 @@ use Data::Dumper;
 use POSIX qw(strftime getppid);
 use Time::HiRes qw(gettimeofday tv_interval);
 use YAML;
+use SL::Request ();
 
 use strict;
 
@@ -251,14 +253,19 @@ sub _write {
   local *FILE;
 
   chomp($message);
+  $self->_write_raw("${date}${message}\n");
+}
 
+sub _write_raw {
+  my ($self, $message) = @_;
+  local *FILE;
   if ((FILE_TARGET == $self->{"target"})
       && open(FILE, ">>", $self->{"file"})) {
-    print(FILE "${date}${message}\n");
-    close(FILE);
+    print FILE $message;
+    close FILE;
 
   } elsif (STDERR_TARGET == $self->{"target"}) {
-    print(STDERR "${date}${message}\n");
+    print STDERR $message;
   }
 }
 
@@ -320,6 +327,44 @@ sub level_by_name {
     $global_level &= ~$self->_by_name($level) if !$val;
   }
   return $global_level & $self->_by_name($level);
+}
+
+sub is_request_logging_enabled {
+  my ($self) = @_;
+  return $global_level & REQUEST;
+}
+
+sub add_request_params {
+  my ($self, $key, $value) = @_;
+  return unless $self->is_request_logging_enabled;
+  return if $key =~ /password/;
+
+  push @{ $::request->{debug}{PARAMS} ||= [] }, [ $key => $value ];
+}
+
+sub log_request {
+  my ($self, $type, $controller, $action) = @_;
+  return unless $self->is_request_logging_enabled;
+
+  my $session_id = $::auth->create_or_refresh_session;
+
+  my $template = <<EOL;
+*************************************
+ GET $ENV{SCRIPT_NAME}    $session_id ($::myconfig{login})
+   routing: $type, controller: $controller, action: $action
+EOL
+
+  $self->_write('Request', $template);
+
+  my $params = join "\n   ", map {
+    "$_->[0] = $_->[1]"
+  } @{ $::request->{debug}{PARAMS} || [] };
+
+  $self->_write_raw(<<EOL);
+
+ Params
+   $params
+EOL
 }
 
 1;

@@ -260,6 +260,8 @@ dbix_log4perl_config = log4perl.logger = FATAL, LOGFILE
 #   TRACE              - Track function calls and returns
 #   BACKTRACE_ON_ERROR - Print a function call backtrace when $form->error() is called
 #   REQUEST_TIMER      - Log timing of HTTP requests
+#   REQUEST            - Log each request. Careful! Passwords get filtered, but
+#                        there may be confidential information being logged here
 #   WARN               - warnings
 #   ALL                - all possible debug messages
 #

@@ -70,19 +70,23 @@ sub _store_value {
 sub _input_to_hash {
   $::lxdebug->enter_sub(2);
 
-  my ($target, $input) = @_;
+  my ($target, $input, $log) = @_;
   my @pairs = split(/&/, $input);
 
   foreach (@pairs) {
     my ($key, $value) = split(/=/, $_, 2);
-    _store_value($target, uri_decode($key), uri_decode($value)) if ($key);
+    next unless $key;
+    _store_value($target, uri_decode($key), uri_decode($value));
+
+    # for debugging
+    $::lxdebug->add_request_params(uri_decode($key) => uri_decode($value)) if $log;
   }
 
   $::lxdebug->leave_sub(2);
 }
 
 sub _parse_multipart_formdata {
-  my ($target, $temp_target, $input) = @_;
+  my ($target, $temp_target, $input, $log) = @_;
   my ($name, $filename, $headers_done, $content_type, $boundary_found, $need_cr, $previous, $p_attachment, $encoding, $transfer_encoding);
   my $data_start = 0;
 
@@ -113,6 +117,7 @@ sub _parse_multipart_formdata {
       } else {
         ${ $previous } = $data;
       }
+      $::lxdebug->add_request_params($name, $$previous) if $log;
 
       undef $previous;
       undef $filename;
@@ -263,8 +268,8 @@ sub read_cgi_input {
 
   # since both of these can potentially bring their encoding in INPUT_ENCODING
   # they get dumped into temp_target
-  _input_to_hash($temp_target, $ENV{QUERY_STRING}) if $ENV{QUERY_STRING};
-  _input_to_hash($temp_target, $ARGV[0])           if @ARGV && $ARGV[0];
+  _input_to_hash($temp_target, $ENV{QUERY_STRING}, 1) if $ENV{QUERY_STRING};
+  _input_to_hash($temp_target, $ARGV[0],           1) if @ARGV && $ARGV[0];
 
   if ($ENV{CONTENT_LENGTH}) {
     my $content;
@@ -272,10 +277,10 @@ sub read_cgi_input {
     if ($ENV{'CONTENT_TYPE'} && $ENV{'CONTENT_TYPE'} =~ /multipart\/form-data/) {
       # multipart formdata can bring it's own encoding, so give it both
       # and let ti decide on it's own
-      _parse_multipart_formdata($target, $temp_target, $content);
+      _parse_multipart_formdata($target, $temp_target, $content, 1);
     } else {
       # normal encoding must be recoded
-      _input_to_hash($temp_target, $content);
+      _input_to_hash($temp_target, $content, 1);
     }
   }
 

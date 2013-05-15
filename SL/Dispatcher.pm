@@ -209,6 +209,7 @@ sub handle_request {
   my %routing;
   eval { %routing = _route_request($ENV{SCRIPT_NAME}); 1; } or return;
   ($routing_type, $script_name, $action) = @routing{qw(type controller action)};
+  $::lxdebug->log_request($routing_type, $script_name, $action);
 
   $::request->type(lc($routing{request_type} || 'html'));
 
