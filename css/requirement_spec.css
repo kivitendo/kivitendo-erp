@@ -157,3 +157,12 @@ table.rs_input_field input, table.rs_input_field select {
   border-left: 3px solid #cbb120;
   margin-left: 0;
 }
+
+/* ------------------------------------------------------------ */
+/* Time/cost estimation */
+/* ------------------------------------------------------------ */
+
+#time_cost_estimate p {
+  margin-top: 0;
+  margin-bottom: 0;
+}
