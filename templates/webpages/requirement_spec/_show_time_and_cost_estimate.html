@@ -17,7 +17,9 @@
       <th>[%- LxERP.t8("Complexity") %]</th>
       <th>[%- LxERP.t8("Risk") %]</th>
       <th align="right">[%- LxERP.t8("Time estimate") %]</th>
-      <th align="right">[%- LxERP.t8("Cost") %]</th>
+      [%- UNLESS SELF.requirement_spec.is_template %]
+       <th align="right">[%- LxERP.t8("Cost") %]</th>
+      [%- END %]
      </tr>
 
      <tr class="listrow section">
@@ -35,7 +37,9 @@
       <tr class="listrow subtotal">
        <td style="padding-left: 50px" colspan="3" class="sum">[%- LxERP.t8("Sum for section") -%]:</td>
        <td align="right" nowrap>[%- P.format_man_days(section.time_estimation, 'skip_zero'=1) -%]</td>
-       <td align="right" nowrap>[%- LxERP.format_amount(section.time_estimation * SELF.requirement_spec.hourly_rate, 2) -%] EUR</td>
+       [%- UNLESS SELF.requirement_spec.is_template %]
+        <td align="right" nowrap>[%- LxERP.format_amount(section.time_estimation * SELF.requirement_spec.hourly_rate, 2) -%] EUR</td>
+       [%- END %]
       </tr>
      [%- END -%]
     [%- END -%]
@@ -45,7 +49,9 @@
     <tr>
      <td colspan="3">[%- LxERP.t8("Sum for #1", SELF.requirement_spec.type.description) -%]:</td>
      <td align="right" nowrap>[%- P.format_man_days(SELF.requirement_spec.time_estimation) -%]</td>
-     <td align="right" nowrap>[%- LxERP.format_amount(SELF.requirement_spec.time_estimation * SELF.requirement_spec.hourly_rate, 2) -%] EUR</td>
+     [%- UNLESS SELF.requirement_spec.is_template %]
+      <td align="right" nowrap>[%- LxERP.format_amount(SELF.requirement_spec.time_estimation * SELF.requirement_spec.hourly_rate, 2) -%] EUR</td>
+     [%- END %]
     </tr>
    </tfoot>
   </table>

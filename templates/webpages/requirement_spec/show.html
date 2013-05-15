@@ -10,8 +10,8 @@
  <ul>
   <li><a href="#function-blocks-tab">[%- LxERP.t8("Content") %]</a></li>
   <li><a href="controller.pl?action=RequirementSpec/ajax_edit&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Basic settings") %]</a></li>
+  <li><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Time and cost estimate") %]</a></li>
   [%- UNLESS SELF.requirement_spec.is_template %]
-   <li><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Time and cost estimate") %]</a></li>
    <li><a href="controller.pl?action=RequirementSpecVersion/list&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Versions") %]</a></li>
   [%- END %]
  </ul>

@@ -399,15 +399,6 @@ ns.create_context_menus = function(is_template) {
     };
 
     $.contextMenu({
-      selector: '.edit-time-cost-estimate-context-menu',
-      items:    $.extend({
-          heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
-        , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
-        , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
-      }, general_actions)
-    });
-
-    $.contextMenu({
       selector: '.versioned-copy-context-menu',
       items:    $.extend({
           heading:            { name: kivi.t8('Version actions'), className: 'context-menu-heading' }
@@ -449,6 +440,15 @@ ns.create_context_menus = function(is_template) {
     items:    $.extend({
         heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
       , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.edit-time-cost-estimate-context-menu',
+    items:    $.extend({
+        heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
+      , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
+      , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
     }, general_actions)
   });
 

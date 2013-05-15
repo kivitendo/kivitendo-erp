@@ -7,7 +7,9 @@
  <td>[%- HTML.escape(item.risk.description) -%]</td>
  [%- IF !item.children.size -%]
   <td align="right" nowrap>[%- P.format_man_days(item.time_estimation, skip_zero=1) -%]</td>
-  <td align="right" nowrap>[%- LxERP.format_amount(item.time_estimation * SELF.requirement_spec.hourly_rate, 2) -%] EUR</td>
+  [%- UNLESS SELF.requirement_spec.is_template %]
+   <td align="right" nowrap>[%- LxERP.format_amount(item.time_estimation * SELF.requirement_spec.hourly_rate, 2) -%] EUR</td>
+  [%- END %]
  [%- ELSE -%]
   <td>&nbsp;</td>
   <td>&nbsp;</td>
@@ -24,6 +26,8 @@
  <tr class="listrow subtotal">
   <td style="padding-left: [%- (level + 1) * 50 -%]px" colspan="3">[%- LxERP.t8("Sum for #1", item.fb_number) -%]:</td>
   <td align="right" nowrap>[%- P.format_man_days(item.time_estimation, skip_zero=1) -%]</td>
-  <td align="right" nowrap>[%- LxERP.format_amount(item.time_estimation * SELF.requirement_spec.hourly_rate, 2) -%] EUR</td>
+  [%- UNLESS SELF.requirement_spec.is_template %]
+   <td align="right" nowrap>[%- LxERP.format_amount(item.time_estimation * SELF.requirement_spec.hourly_rate, 2) -%] EUR</td>
+  [%- END %]
  </tr>
 [%- END -%]
