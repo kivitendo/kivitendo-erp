@@ -171,10 +171,10 @@ sub post_transaction {
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate,
                                   source, memo, project_id, taxkey, tax_id, chart_link)
            VALUES (?, (SELECT chart_id FROM tax WHERE id = ?),
-                   ?, ?, ?, ?, ?, ?, ?, (SELECT link 
-                                         FROM chart 
-                                         WHERE id = (SELECT chart_id 
-                                                     FROM tax 
+                   ?, ?, ?, ?, ?, ?, ?, (SELECT link
+                                         FROM chart
+                                         WHERE id = (SELECT chart_id
+                                                     FROM tax
                                                      WHERE id = ?)))|;
       @values = (conv_i($form->{id}), conv_i($form->{"tax_id_$i"}),
                  $tax, conv_date($form->{transdate}), $form->{"source_$i"},

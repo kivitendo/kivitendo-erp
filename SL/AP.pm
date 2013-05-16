@@ -241,13 +241,13 @@ sub post_transaction {
     $query =
       qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, taxkey, tax_id, chart_link) | .
       qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, | .
-      qq|        (SELECT taxkey_id FROM chart WHERE accno = ?),| . 
-      qq|        (SELECT tax_id| . 
-      qq|         FROM taxkeys| . 
-      qq|         WHERE chart_id= (SELECT id | . 
-      qq|                          FROM chart| . 
-      qq|                          WHERE accno = ?)| . 
-      qq|         AND startdate <= ?| . 
+      qq|        (SELECT taxkey_id FROM chart WHERE accno = ?),| .
+      qq|        (SELECT tax_id| .
+      qq|         FROM taxkeys| .
+      qq|         WHERE chart_id= (SELECT id | .
+      qq|                          FROM chart| .
+      qq|                          WHERE accno = ?)| .
+      qq|         AND startdate <= ?| .
       qq|         ORDER BY startdate DESC LIMIT 1),| .
       qq|        (SELECT c.link FROM chart c WHERE c.accno = ?))|;
     @values = ($form->{id}, $form->{AP_amounts}{payables}, $form->{payables},
@@ -299,12 +299,12 @@ sub post_transaction {
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, project_id, taxkey, tax_id, chart_link) | .
           qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, | .
           qq|        (SELECT taxkey_id FROM chart WHERE accno = ?),| .
-          qq|        (SELECT tax_id| . 
-          qq|         FROM taxkeys| . 
-          qq|         WHERE chart_id= (SELECT id | . 
-          qq|                          FROM chart| . 
-          qq|                          WHERE accno = ?)| . 
-          qq|         AND startdate <= ?| . 
+          qq|        (SELECT tax_id| .
+          qq|         FROM taxkeys| .
+          qq|         WHERE chart_id= (SELECT id | .
+          qq|                          FROM chart| .
+          qq|                          WHERE accno = ?)| .
+          qq|         AND startdate <= ?| .
           qq|         ORDER BY startdate DESC LIMIT 1),| .
           qq|        (SELECT c.link FROM chart c WHERE c.accno = ?))|;
         @values = ($form->{id}, $form->{AP_payables}, $amount,
@@ -320,13 +320,13 @@ sub post_transaction {
       $query =
         qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, gldate, source, memo, project_id, taxkey, tax_id, chart_link) | .
         qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, ?, ?, ?, ?, | .
-        qq|        (SELECT taxkey_id FROM chart WHERE accno = ?), | . 
+        qq|        (SELECT taxkey_id FROM chart WHERE accno = ?), | .
         qq|        (SELECT tax_id| .
-        qq|         FROM taxkeys| . 
-        qq|         WHERE chart_id= (SELECT id | . 
-        qq|                          FROM chart| . 
-        qq|                          WHERE accno = ?)| . 
-        qq|         AND startdate <= ?| . 
+        qq|         FROM taxkeys| .
+        qq|         WHERE chart_id= (SELECT id | .
+        qq|                          FROM chart| .
+        qq|                          WHERE accno = ?)| .
+        qq|         AND startdate <= ?| .
         qq|         ORDER BY startdate DESC LIMIT 1),| .
         qq|        (SELECT c.link FROM chart c WHERE c.accno = ?))|;
       @values = ($form->{id}, $form->{"AP_paid_account_$i"}, $form->{"paid_$i"},
@@ -345,12 +345,12 @@ sub post_transaction {
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey, tax_id, chart_link) | .
           qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, | .
           qq|        (SELECT taxkey_id FROM chart WHERE accno = ?), | .
-          qq|        (SELECT tax_id| . 
-          qq|         FROM taxkeys| . 
-          qq|         WHERE chart_id= (SELECT id | . 
-          qq|                          FROM chart| . 
-          qq|                          WHERE accno = ?)| . 
-          qq|         AND startdate <= ?| . 
+          qq|        (SELECT tax_id| .
+          qq|         FROM taxkeys| .
+          qq|         WHERE chart_id= (SELECT id | .
+          qq|                          FROM chart| .
+          qq|                          WHERE accno = ?)| .
+          qq|         AND startdate <= ?| .
           qq|         ORDER BY startdate DESC LIMIT 1),| .
           qq|        (SELECT c.link FROM chart c WHERE c.accno = ?))|;
         @values = ($form->{id}, $form->{"AP_paid_account_$i"}, $amount,
@@ -372,15 +372,15 @@ sub post_transaction {
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey, tax_id, chart_link) | .
           qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, | .
           qq|        (SELECT taxkey_id FROM chart WHERE accno = ?)| .
-          qq|        (SELECT tax_id| . 
-          qq|         FROM taxkeys| . 
-          qq|         WHERE chart_id= (SELECT id | . 
-          qq|                          FROM chart| . 
-          qq|                          WHERE accno = ?)| . 
-          qq|         AND startdate <= ?| . 
+          qq|        (SELECT tax_id| .
+          qq|         FROM taxkeys| .
+          qq|         WHERE chart_id= (SELECT id | .
+          qq|                          FROM chart| .
+          qq|                          WHERE accno = ?)| .
+          qq|         AND startdate <= ?| .
           qq|         ORDER BY startdate DESC LIMIT 1),| .
           qq|        (SELECT c.link FROM chart c WHERE c.accno = ?))|;
-        @values = ($form->{id}, 
+        @values = ($form->{id},
                    ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno},
                    $amount, conv_date($form->{"datepaid_$i"}), $project_id,
                    ($amount > 0) ? $form->{fxgain_accno} : $form->{fxloss_accno},
