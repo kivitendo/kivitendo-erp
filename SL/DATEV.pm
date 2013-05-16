@@ -193,6 +193,16 @@ sub to {
  return $self->{to};
 }
 
+sub trans_id {
+  my $self = shift;
+
+  if (@_) {
+    $self->{trans_id} = $_[0];
+  }
+
+  return $self->{trans_id};
+}
+
 sub accnofrom {
  my $self = shift;
 
@@ -342,6 +352,10 @@ sub _get_transactions {
 
   my $form     =  $main::form;
 
+  my $trans_id_filter = '';
+
+  $trans_id_filter = 'AND ac.trans_id = ' . $self->trans_id if $self->trans_id;
+
   my ($notsplitindex);
 
   $fromto      =~ s/transdate/ac\.transdate/g;
@@ -363,6 +377,7 @@ sub _get_transactions {
        LEFT JOIN chart c     ON (ac.chart_id    = c.id)
        WHERE (ar.id IS NOT NULL)
          AND $fromto
+         $trans_id_filter
          $filter
 
        UNION ALL
@@ -378,6 +393,7 @@ sub _get_transactions {
        LEFT JOIN chart c   ON (ac.chart_id  = c.id)
        WHERE (ap.id IS NOT NULL)
          AND $fromto
+         $trans_id_filter
          $filter
 
        UNION ALL
@@ -392,6 +408,7 @@ sub _get_transactions {
        LEFT JOIN chart c ON (ac.chart_id  = c.id)
        WHERE (gl.id IS NOT NULL)
          AND $fromto
+         $trans_id_filter
          $filter
 
        ORDER BY trans_id, acc_trans_id|;

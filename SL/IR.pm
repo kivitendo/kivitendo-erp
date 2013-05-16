@@ -768,6 +768,7 @@ sub post_invoice {
       dbh        => $dbh,
       from       => $transdate,
       to         => $transdate,
+      trans_id   => $form->{id},
     );
 
     $datev->export;

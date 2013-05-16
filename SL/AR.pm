@@ -331,6 +331,7 @@ sub post_transaction {
       dbh        => $dbh,
       from       => $transdate,
       to         => $transdate,
+      trans_id   => $form->{id},
     );
 
     $datev->export;
