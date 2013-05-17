@@ -46,6 +46,17 @@
       <td>
        <table>
         <tr>
+         <th  align=left>[% 'Total weight' | $T8 %]</th>
+         <td>
+          [% LxERP.format_amount(totalweight) %] [% HTML.escape(weightunit) %]
+          <input type=hidden name="totalweight" value="[% marge_total %]">
+         </td>
+        </tr>
+       </table>
+      </td>
+      <td>
+       <table>
+        <tr>
          <th  align=left>[% 'Ertrag' | $T8 %]</th>
          <td>
           [% LxERP.format_amount(marge_total, 2, 0) %]

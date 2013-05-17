@@ -1949,7 +1949,7 @@ sub retrieve_item {
          p.unit, p.assembly, p.bin, p.onhand,
          p.notes AS partnotes, p.notes AS longdescription,
          p.not_discountable, p.formel, p.payment_id AS part_payment_id,
-         p.price_factor_id,
+         p.price_factor_id, p.weight,
 
          pfac.factor AS price_factor,
 
