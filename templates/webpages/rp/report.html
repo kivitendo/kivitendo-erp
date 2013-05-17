@@ -67,6 +67,12 @@
     </td>
   </tr>
 [%- END %]
+[%- BLOCK customer %]
+  <tr>
+    <th align=right nowrap>[% 'Customer' | $T8 %]</th>
+    <td colspan=3>[% L.customer_picker('customer_id') %]</td>
+  </tr>
+[%- END %]
 [%- BLOCK projectnumber %]
   <tr>
     <th align=right nowrap>[% 'Project' | $T8 %]</th>
@@ -162,6 +168,7 @@
 [%- END %]
 
 [%- IF is_trial_balance %]
+[%- PROCESS customer %]
 [%- PROCESS projectnumber %]
   <input type=hidden name=nextsub value=generate_trial_balance>
 </table>

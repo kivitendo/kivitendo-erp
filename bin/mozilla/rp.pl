@@ -39,6 +39,7 @@ use POSIX qw(strftime);
 
 use SL::DB::Default;
 use SL::DB::Project;
+use SL::DB::Customer;
 use SL::PE;
 use SL::RP;
 use SL::Iconv;
@@ -140,6 +141,7 @@ sub report {
   );
 
   $::form->{title} = $title{$::form->{report}};
+  $::request->{layout}->add_javascripts('autocomplete_customer.js');
 
   # get departments
   $::form->all_departments(\%::myconfig);
@@ -629,6 +631,11 @@ sub generate_trial_balance {
 
   $form->{company} = $locale->text('Company') . " " . $defaults->company;
   push (@options, $form->{company});
+
+  if ($::form->{customer_id}) {
+    my $customer = SL::DB::Manager::Customer->find_by(id => $::form->{customer_id});
+    push @options, $::locale->text('Customer') . ' ' . $customer->displayable_name;
+  }
 
 
   $form->{template_to} = $locale->date(\%myconfig, $form->{todate}, 0);

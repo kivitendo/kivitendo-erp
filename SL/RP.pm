@@ -748,6 +748,7 @@ sub trial_balance {
   my @headingaccounts = ();
   my $dpt_where;
   my $dpt_where_without_arapgl;
+  my ($customer_where, $customer_join, $customer_no_union);
   my $project;
 
   my $where    = "1 = 1";
@@ -758,6 +759,11 @@ sub trial_balance {
     $dpt_where_without_arapgl = qq| AND COALESCE((SELECT department_id FROM ar WHERE ar.id=ac.trans_id),
                                                  (SELECT department_id FROM gl WHERE gl.id=ac.trans_id),
                                                  (SELECT department_id FROM ap WHERE ap.id=ac.trans_id)) = | . conv_i($department_id);
+  }
+  if ($form->{customer_id}) {
+    $customer_join     = qq| JOIN ar a ON (ac.trans_id = a.id) |;
+    $customer_where    = qq| AND (a.customer_id = | . conv_i($form->{customer_id}, 'NULL') . qq|) |;
+    $customer_no_union = qq| AND 1=0 |;
   }
 
   # project_id only applies to getting transactions
@@ -805,8 +811,11 @@ sub trial_balance {
       my $min_max = $prefix eq 'from' ? 'min' : 'max';
       $query      = qq|SELECT ${min_max}(transdate)
                        FROM acc_trans ac
+                       $customer_join
                        WHERE (1 = 1)
                          $dpt_where_without_arapgl
+                         $dpt_where
+                         $customer_where
                          $project|;
       ($form->{"${prefix}date"}) = selectfirst_array_query($form, $dbh, $query);
     }
@@ -816,8 +825,11 @@ sub trial_balance {
       qq|SELECT c.accno, c.category, SUM(ac.amount) AS amount, c.description
           FROM acc_trans ac
           LEFT JOIN chart c ON (ac.chart_id = c.id)
+          $customer_join
           WHERE ((select date_trunc('year', ac.transdate::date)) = (select date_trunc('year', ?::date))) AND ac.ob_transaction
             $dpt_where_without_arapgl
+            $dpt_where
+            $customer_where
             $project
           GROUP BY c.accno, c.category, c.description |;
 
@@ -915,6 +927,7 @@ sub trial_balance {
        SELECT c.accno, c.description, c.category, SUM(ac.amount) AS amount
        FROM acc_trans ac
        JOIN chart c ON (c.id = ac.chart_id)
+       $customer_join
        WHERE $where
          $dpt_where_without_arapgl
          $project
@@ -933,6 +946,7 @@ sub trial_balance {
       JOIN chart c ON (p.income_accno_id = c.id)
       WHERE $invwhere
         $dpt_where
+        $customer_where
         $project
       GROUP BY c.accno, c.description, c.category
 
@@ -945,6 +959,7 @@ sub trial_balance {
       JOIN chart c ON (p.expense_accno_id = c.id)
       WHERE $invwhere
         $dpt_where
+        $customer_no_union
         $project
       GROUP BY c.accno, c.description, c.category
       |;
@@ -971,8 +986,11 @@ sub trial_balance {
          (SELECT SUM(ac.amount) * -1
           FROM acc_trans ac
           JOIN chart c ON (c.id = ac.chart_id)
+          $customer_join
           WHERE $where
             $dpt_where_without_arapgl
+            $dpt_where
+            $customer_where
             $project
           AND (ac.amount < 0)
           AND (c.accno = ?)) AS debit,
@@ -980,41 +998,56 @@ sub trial_balance {
          (SELECT SUM(ac.amount)
           FROM acc_trans ac
           JOIN chart c ON (c.id = ac.chart_id)
+          $customer_join
           WHERE $where
             $dpt_where_without_arapgl
+            $dpt_where
+            $customer_where
             $project
           AND ac.amount > 0
           AND c.accno = ?) AS credit,
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
+         $customer_join
          WHERE $saldowhere
            $dpt_where_without_arapgl
+           $dpt_where
+           $customer_where
            $project
          AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)) AS saldo,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
+         $customer_join
          WHERE $sumwhere
            $dpt_where_without_arapgl
+           $dpt_where
+           $customer_where
            $project
-         AND amount > 0
+         AND ac.amount > 0
          AND c.accno = ?) AS sum_credit,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
+         $customer_join
          WHERE $sumwhere
            $dpt_where_without_arapgl
+           $dpt_where
+           $customer_where
            $project
-         AND amount < 0
+         AND ac.amount < 0
          AND c.accno = ?) AS sum_debit,
 
         (SELECT max(ac.transdate) FROM acc_trans ac
         JOIN chart c ON (ac.chart_id = c.id)
+        $customer_join
         WHERE $where
           $dpt_where_without_arapgl
+          $dpt_where
+          $customer_where
           $project
         AND c.accno = ?) AS last_transaction
 
@@ -1034,6 +1067,7 @@ sub trial_balance {
            JOIN chart c ON (p.expense_accno_id = c.id)
            WHERE $invwhere
              $dpt_where
+             $customer_no_union
              $project
            AND c.accno = ?) AS debit,
 
@@ -1044,40 +1078,53 @@ sub trial_balance {
            JOIN chart c ON (p.income_accno_id = c.id)
            WHERE $invwhere
              $dpt_where
+             $customer_where
              $project
            AND c.accno = ?) AS credit,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
+         $customer_join
          WHERE $saldowhere
            $dpt_where_without_arapgl
+           $dpt_where
+           $customer_where
            $project
          AND c.accno = ? AND (NOT ac.ob_transaction OR ac.ob_transaction IS NULL)) AS saldo,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
+         $customer_join
          WHERE $sumwhere
            $dpt_where_without_arapgl
+           $dpt_where
+           $customer_where
            $project
-         AND amount > 0
+         AND ac.amount > 0
          AND c.accno = ?) AS sum_credit,
 
         (SELECT SUM(ac.amount)
          FROM acc_trans ac
          JOIN chart c ON (ac.chart_id = c.id)
+         $customer_join
          WHERE $sumwhere
+           $dpt_where
            $dpt_where_without_arapgl
+           $customer_where
            $project
-         AND amount < 0
+         AND ac.amount < 0
          AND c.accno = ?) AS sum_debit,
 
 
         (SELECT max(ac.transdate) FROM acc_trans ac
         JOIN chart c ON (ac.chart_id = c.id)
+        $customer_join
         WHERE $where
           $dpt_where_without_arapgl
+          $dpt_where
+          $customer_where
           $project
         AND c.accno = ?) AS last_transaction
  |;
