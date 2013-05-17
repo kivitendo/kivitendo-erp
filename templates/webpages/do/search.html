@@ -163,7 +163,13 @@
          <input name="l_transdate" id="l_transdate" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_transdate">[% 'Date' | $T8 %]</label>
         </td>
+        <td>
+         <input name="l_reqdate" id="l_reqdate" class="checkbox" type="checkbox" value="Y" checked>
+         <label for="l_reqdate">[% 'Reqdate' | $T8 %]</label>
+        </td>
+       </tr>
 
+       <tr>
         <td>
          <input name="l_name" id="l_name" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_name">[% IF is_customer %][% 'Customer' | $T8 %][% ELSE %][% 'Vendor' | $T8 %][% END %]</label>

@@ -489,7 +489,7 @@ sub orders {
   $form->{rowcount} = scalar @{ $form->{DO} };
 
   my @columns = qw(
-    ids                     transdate
+    ids                     transdate               reqdate
     id                      donumber
     ordnumber               customernumber
     name                    employee  salesman
@@ -516,6 +516,7 @@ sub orders {
   my %column_defs = (
     'ids'                     => { 'text' => '', },
     'transdate'               => { 'text' => $locale->text('Date'), },
+    'reqdate'                 => { 'text' => $locale->text('Reqdate'), },
     'id'                      => { 'text' => $locale->text('ID'), },
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
     'ordnumber'               => { 'text' => $locale->text('Order'), },
@@ -531,7 +532,7 @@ sub orders {
     'department'              => { 'text' => $locale->text('Department'), },
   );
 
-  foreach my $name (qw(id transdate donumber ordnumber name employee salesman shipvia transaction_description department)) {
+  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }

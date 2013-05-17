@@ -61,7 +61,8 @@ sub transactions {
   my $vc = $form->{vc} eq "customer" ? "customer" : "vendor";
 
   my $query =
-    qq|SELECT dord.id, dord.donumber, dord.ordnumber, dord.transdate,
+    qq|SELECT dord.id, dord.donumber, dord.ordnumber,
+         dord.transdate, dord.reqdate,
          ct.${vc}number, ct.name, dord.${vc}_id, dord.globalproject_id,
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
          dord.transaction_description,
@@ -143,6 +144,7 @@ sub transactions {
 
   my %allowed_sort_columns = (
     "transdate"               => "dord.transdate",
+    "reqdate"                 => "dord.reqdate",
     "id"                      => "dord.id",
     "donumber"                => "dord.donumber",
     "ordnumber"               => "dord.ordnumber",
