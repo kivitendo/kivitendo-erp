@@ -1422,6 +1422,7 @@ $self->{texts} = {
   'Part Notes'                  => 'Bemerkungen',
   'Part Number'                 => 'Artikelnummer',
   'Part Number missing!'        => 'Artikelnummer fehlt!',
+  'Part picker'                 => 'Artikelauswahl',
   'Partnumber'                  => 'Artikelnummer',
   'Partnumber must not be set to empty!' => 'Die Artikelnummer darf nicht auf leer ge&auml;ndert werden.',
   'Partnumber not unique!'      => 'Artikelnummer bereits vorhanden!',

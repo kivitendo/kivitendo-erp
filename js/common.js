@@ -185,6 +185,14 @@ function open_jqm_window(params) {
   return true;
 }
 
+function close_jqm_window(params) {
+  params = params || { };
+  var url = params.url;
+  var id  = params.id ? params.id : 'jqm_popup_dialog';
+
+  $('#' + id).jqmClose()();
+}
+
 $(document).ready(function () {
   // initialize all jQuery UI tab elements:
   $(".tabwidget").each(function(idx, element) { $(element).tabs(); });
