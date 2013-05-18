@@ -194,7 +194,7 @@ sub send {
   $self->{contenttype} ||=  "text/plain";
   $self->{headers}       =  [
     Subject              => $self->{subject},
-    'Message-ID'         => $self->_create_message_id,
+    'Message-ID'         => '<' . $self->_create_message_id . '>',
     'X-Mailer'           => "kivitendo $self->{version}",
   ];
 
