@@ -61,10 +61,17 @@ __PACKAGE__->meta->setup(
 
   primary_key_columns => [ 'id' ],
 
+  allow_inline_column_values => 1,
+
   foreign_keys => [
     contact => {
       class       => 'SL::DB::Contact',
       key_columns => { cp_id => 'cp_id' },
+    },
+
+    currency => {
+      class       => 'SL::DB::Currency',
+      key_columns => { currency_id => 'id' },
     },
 
     customer => {

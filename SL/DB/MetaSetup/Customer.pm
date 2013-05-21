@@ -59,10 +59,17 @@ __PACKAGE__->meta->setup(
 
   primary_key_columns => [ 'id' ],
 
+  allow_inline_column_values => 1,
+
   foreign_keys => [
     business => {
       class       => 'SL::DB::Business',
       key_columns => { business_id => 'id' },
+    },
+
+    currency => {
+      class       => 'SL::DB::Currency',
+      key_columns => { currency_id => 'id' },
     },
 
     language_obj => {
