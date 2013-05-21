@@ -43,6 +43,7 @@ __PACKAGE__->meta->setup(
     transaction_description => { type => 'text' },
     storno_id               => { type => 'integer' },
     direct_debit            => { type => 'boolean', default => 'false' },
+    deliverydate            => { type => 'date' },
     currency_id             => { type => 'integer', not_null => 1 },
   ],
 
