@@ -1,6 +1,6 @@
 # @tag: steuerfilterung
 # @description: Steuern in Dialogbuchungen filtern.
-# @depends: release_3_0_0
+# @depends: release_3_0_0 tax_constraints
 package SL::DBUpgrade2::steuerfilterung;
 
 use strict;
