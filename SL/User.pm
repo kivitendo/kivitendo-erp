@@ -105,7 +105,7 @@ sub login {
     my %myconfig = $main::auth->read_user(login => $self->{login});
 
     # check if database is down
-    my $dbh = SL::DBConnect->connect($myconfig{dbconnect}, $myconfig{dbuser}, $myconfig{dbpasswd})
+    my $dbh = SL::DBConnect->connect($myconfig{dbconnect}, $myconfig{dbuser}, $myconfig{dbpasswd}, SL::DBConnect->get_options)
       or $self->error($DBI::errstr);
 
     # we got a connection, check the version
@@ -245,7 +245,7 @@ sub dbsources {
   $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
 
-  my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+  my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
 
   if ($form->{dbdriver} eq 'Pg') {
@@ -262,7 +262,7 @@ sub dbsources {
         next if ($db =~ /^template/);
 
         &dbconnect_vars($form, $db);
-        my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+        my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
           or $form->dberror;
 
         $query =
@@ -317,7 +317,7 @@ sub dbclusterencoding {
 
   dbconnect_vars($form, $form->{dbdefault});
 
-  my $dbh                = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) || $form->dberror();
+  my $dbh                = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options) || $form->dberror();
   my $query              = qq|SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = 'template0'|;
   my ($cluster_encoding) = $dbh->selectrow_array($query);
   $dbh->disconnect();
@@ -335,7 +335,7 @@ sub dbcreate {
   $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
   my $dbh =
-    SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
   $form->{db} =~ s/\"//g;
   my %dbcreate = (
@@ -377,7 +377,7 @@ sub dbcreate {
 
   &dbconnect_vars($form, $form->{db});
 
-  $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+  $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
 
   my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
@@ -414,7 +414,7 @@ sub dbdelete {
 
   $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
-  my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+  my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
   my $query = $dbdelete{$form->{dbdriver}};
   do_query($form, $dbh, $query);
@@ -460,7 +460,7 @@ sub dbneedsupdate {
     map { $form->{$_} = $member->{$_} } qw(dbname dbuser dbpasswd dbhost dbport);
     dbconnect_vars($form, $form->{dbname});
 
-    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd});
+    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options);
 
     next unless $dbh;
 
@@ -590,7 +590,7 @@ sub dbupdate {
     $db =~ s/^db//;
     &dbconnect_vars($form, $db);
 
-    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd})
+    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
       or $form->dberror;
 
     $dbh->do($form->{dboptions}) if ($form->{dboptions});
@@ -654,7 +654,7 @@ sub dbupdate2 {
     $db =~ s/^db//;
     &dbconnect_vars($form, $db);
 
-    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}) or $form->dberror;
+    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options) or $form->dberror;
 
     $dbh->do($form->{dboptions}) if ($form->{dboptions});
 
@@ -694,7 +694,7 @@ sub save_member {
 
   $main::auth->save_user($self->{login}, map { $_, $self->{$_} } config_vars());
 
-  my $dbh = SL::DBConnect->connect($self->{dbconnect}, $self->{dbuser}, $self->{dbpasswd});
+  my $dbh = SL::DBConnect->connect($self->{dbconnect}, $self->{dbuser}, $self->{dbpasswd}, SL::DBConnect->get_options);
   if ($dbh) {
     $self->create_employee_entry($::form, $dbh, $self, 1);
     $dbh->disconnect();
