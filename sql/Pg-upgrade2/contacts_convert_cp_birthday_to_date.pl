@@ -11,10 +11,10 @@ use parent qw(SL::DBUpgrade2::Base);
 sub convert_to_date {
   my ($self, $str) = @_;
 
-  return '' if !$str;
+  return '' if !$str || ($str =~ m/00.*00.*00.*00/); # 0000-00-00 may be present in old databases.
 
   my $sth = $self->dbh->prepare('SELECT ?::date AS date') or return undef;
-  $sth->execute($str)                               or return undef;
+  $sth->execute($str)                                     or return undef;
 
   return $sth->fetchrow_hashref->{date};
 }
