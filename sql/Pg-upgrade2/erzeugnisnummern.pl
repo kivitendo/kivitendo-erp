@@ -8,6 +8,8 @@ use utf8;
 
 use parent qw(SL::DBUpgrade2::Base);
 
+use SL::DBUtils;
+
 sub run {
   my ($self) = @_;
 
@@ -21,7 +23,7 @@ sub run {
     $self->dbh->commit();
   }
 
-  my $query = qq|SELECT id, partnumber, description, unit, notes, assembly, ean, inventory_accno_id
+  my $query = qq|SELECT id, partnumber, description, unit, notes, assembly, ean, inventory_accno_id, obsolete
                    FROM parts pa
                    WHERE (SELECT COUNT(*)
                           FROM parts p
@@ -29,14 +31,7 @@ sub run {
                           > 1
                    ORDER BY partnumber;|;
 
-  my $sth = $self->dbh->prepare($query);
-  $sth->execute || $::form->dberror($query);
-
-  $::form->{PARTS} = [];
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    map {$ref->{$_} = $::locale->{iconv_utf8}->convert($ref->{$_})} keys %$ref;
-    push @{ $::form->{PARTS} }, $ref;
-  }
+  $::form->{PARTS} = [ selectall_hashref_query($::form, $self->dbh, $query) ];
 
   if ( scalar @{ $::form->{PARTS} } > 0 ) {
     &print_error_message;

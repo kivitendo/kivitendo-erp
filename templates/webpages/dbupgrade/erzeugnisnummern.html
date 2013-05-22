@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %]<div class="listtop">[% 'Double partnumbers' | $T8 %]</div>
+[% USE HTML %][%- USE LxERP -%]<div class="listtop">[% 'Double partnumbers' | $T8 %]</div>
 
 <form name="Form" method="post" action="login.pl">
 <input type="hidden" name="action" value="login">
@@ -19,6 +19,7 @@
     <th class="listheading">[% 'Notes' | $T8 %]</th>
     <th class="listheading">[% 'EAN' | $T8 %]</th>
     <th class="listheading">[% 'Service, assembly or part' | $T8 %]</th>
+    <th class="listheading">[% 'Obsolete' | $T8 %]</th>
   </tr>
 
   [% SET row_odd = '1' %][% FOREACH row = PARTS %]
@@ -30,6 +31,7 @@
     <td align="right">[% HTML.escape(row.notes) %]</td>
     <td align="right">[% HTML.escape(row.ean) %]</td>
     <td align="right">[% IF row.assembly %] [% 'assembly' | $T8 %] [% ELSE %] [% IF row.inventory_accno_id %] [% 'part' | $T8 %] [% ELSE %] [% 'service' | $T8 %] [% END %] [% END %]</td>
+    <td>[% IF row.obsolete %][%- LxERP.t8("Obsolete") %][%- ELSE %][%- LxERP.t8("Not obsolete") %][%- END %]</td>
   </tr>
   [% SET rowcount = loop.count %]
   [% END %]
