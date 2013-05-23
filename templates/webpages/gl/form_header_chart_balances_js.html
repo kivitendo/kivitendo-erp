@@ -12,7 +12,7 @@ chart_balances[[% loop.count - 1 %]] = '[% JavaScript.escape(LxERP.format_amount
 
 function show_chart_balance(obj) {
   var row = $(obj).attr('name').replace(/.*_/, '');
-  var idx = $('#accno_' + row).attr('selectedIndex');
+  var idx = $('#accno_' + row).prop('selectedIndex');
   $('#chart_balance_' + row).html(chart_balances[idx]);
 }
 
