@@ -2165,6 +2165,7 @@ $self->{texts} = {
   'Total Fees'                  => 'Kumulierte Gebühren',
   'Total stock value'           => 'Gesamter Bestandswert',
   'Total sum'                   => 'Gesamtsumme',
+  'Total weight'                => 'Gesamtgewicht',
   'Totals'                      => 'Summen',
   'Trade Discount'              => 'Rabatt',
   'Trans Id'                    => 'Trans-ID',

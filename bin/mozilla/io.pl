@@ -209,6 +209,8 @@ sub display_row {
 
   my $totalweight = 0;
   my $defaults = AM->get_defaults();
+
+  $form->{weightunit} = $defaults->{weightunit};
   # rows
 
   my @ROWS;
@@ -232,7 +234,6 @@ sub display_row {
     if ((!$form->{"prices_$i"}) || ($form->{"new_pricegroup_$i"} == $form->{"old_pricegroup_$i"})) {
         $form->{"sellprice_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
         $form->{"lastcost_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
-        $form->{"weight_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"unit_old_$i"}, $all_units) || 1;
         $form->{"unit_old_$i"}   = $form->{"selected_unit_$i"};
     }
     my $this_unit = $form->{"unit_$i"};
@@ -251,6 +252,7 @@ sub display_row {
     } else {
       $column_data{price_factor} = '&nbsp;';
     }
+    $form->{"weight_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"partunit_$i"}, $all_units) || 1;
 
     $column_data{"unit"} = AM->unit_select_html($all_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
 # / unit ending
@@ -331,6 +333,8 @@ sub display_row {
     $column_data{bin}         = $form->{"bin_$i"};
 
     $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit};
+    #To add the hidden variable lineweight:
+    $form->{"lineweight_$i"}       = $column_data{weight};
 
     if ($is_delivery_order) {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
@@ -426,7 +430,7 @@ sub display_row {
           map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
                 income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
-                longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
+                longdescription basefactor marge_absolut marge_percent marge_price_factor weight lineweight), @hidden_vars)
     );
 
     map { $form->{"${_}_base"} += $linetotal } (split(/ /, $form->{"taxaccounts_$i"}));
