@@ -207,7 +207,7 @@ sub save_account {
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  for (qw(AR_include_in_dropdown AP_include_in_dropdown)) {
+  for (qw(AR_include_in_dropdown AP_include_in_dropdown summary_account)) {
     $form->{$form->{$_}} = $form->{$_} if $form->{$_};
   }
 
