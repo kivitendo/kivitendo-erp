@@ -1088,6 +1088,7 @@ $self->{texts} = {
   'Invoices, Credit Notes & AR Transactions' => 'Rechnungen, Gutschriften & Debitorenbuchungen',
   'Is Searchable'               => 'Durchsuchbar',
   'Is this a summary account to record' => 'Sammelkonto für',
+  'It is not allowed that a summary account occurs in a drop-down menu!' => 'Ein Sammelkonto darf nicht in Aufklappmenüs aufgenommen werden!',
   'It is possible that even after such a correction there is something wrong with this transaction (e.g. taxes that don\'t match the selected taxkey). Therefore you should re-run the general ledger analysis.' => 'Auch nach einer Korrektur kann es mit dieser Buchung noch weitere Probleme geben (z.B. nicht zum Steuerschlüssel passende Steuern), weshalb ein erneutes Ausführen der Hauptbuchanalyse empfohlen wird.',
   'It is possible to do this automatically for some Buchungsgruppen, but not for all.' => 'Es ist m&ouml;glich, dies f&uuml;r einige, aber nicht f&uuml;r alle Buchungsgruppen automatisch zu erledigen.',
   'It is possible to do this automatically for some units, but for others the user has to chose the new unit.' => 'Das ist f&uuml;r einige Einheiten automatisch m&ouml;glich, aber bei anderen muss der Benutzer die neue Einheit ausw&auml;hlen.',

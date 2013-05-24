@@ -207,14 +207,15 @@ sub save_account {
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  # sanity check, can't have AR with AR_...
-  if ($form->{AR} || $form->{AP} || $form->{IC}) {
-    map { delete $form->{$_} }
-      qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice);
-  }
-
   for (qw(AR_include_in_dropdown AP_include_in_dropdown)) {
     $form->{$form->{$_}} = $form->{$_} if $form->{$_};
+  }
+
+  # sanity check, can't have AR with AR_...
+  if ($form->{AR} || $form->{AP} || $form->{IC}) {
+    for (qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice)) {
+      $form->error($::locale->text('It is not allowed that a summary account occurs in a drop-down menu!')) if $form->{$_};
+    }
   }
 
   $form->{link} = "";
