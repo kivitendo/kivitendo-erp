@@ -40,6 +40,7 @@ package AM;
 use Carp;
 use Data::Dumper;
 use Encode;
+use List::MoreUtils qw(any);
 use SL::DBUtils;
 
 use strict;
@@ -213,8 +214,8 @@ sub save_account {
 
   # sanity check, can't have AR with AR_...
   if ($form->{AR} || $form->{AP} || $form->{IC}) {
-    for (qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice)) {
-      $form->error($::locale->text('It is not allowed that a summary account occurs in a drop-down menu!')) if $form->{$_};
+    if (any { $form->{$_} } qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice)) {
+      $form->error($::locale->text('It is not allowed that a summary account occurs in a drop-down menu!'));
     }
   }
 
