@@ -376,3 +376,7 @@ label {
   margin-left: 6px;
   margin-right: 6px;
 }
+
+.small-text {
+  font-size: 0.75em;
+}

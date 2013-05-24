@@ -6,9 +6,21 @@ package SL::DB::CustomVariableConfig;
 use strict;
 
 use SL::DB::MetaSetup::CustomVariableConfig;
+use SL::DB::Manager::CustomVariableConfig;
 use SL::DB::Helper::ActsAsList;
 
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
+__PACKAGE__->configure_acts_as_list(group_by => [qw(module)]);
+
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The name is missing.')        if !$self->name;
+  push @errors, $::locale->text('The description is missing.') if !$self->description;
+  push @errors, $::locale->text('The type is missing.')        if !$self->type;
+  push @errors, $::locale->text('The option field is empty.')  if (($self->type || '') eq 'select') && !$self->options;
+
+  return @errors;
+}
 
 1;

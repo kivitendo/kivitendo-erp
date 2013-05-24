@@ -64,30 +64,6 @@ SQL
   return $::form->{CVAR_CONFIGS}->{$params{module}};
 }
 
-sub get_config {
-  $main::lxdebug->enter_sub();
-
-  my $self     = shift;
-  my %params   = @_;
-
-  Common::check_params(\%params, qw(id));
-
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
-
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
-
-  my $query    = qq|SELECT * FROM custom_variable_configs WHERE id = ?|;
-
-  my $config   = selectfirst_hashref_query($form, $dbh, $query, conv_i($params{id})) || { };
-
-  $self->_unpack_flags($config);
-
-  $main::lxdebug->leave_sub();
-
-  return $config;
-}
-
 sub _unpack_flags {
   $main::lxdebug->enter_sub();
 
@@ -101,96 +77,6 @@ sub _unpack_flags {
       $config->{"flag_${flag}"} = 1;
     }
   }
-
-  $main::lxdebug->leave_sub();
-}
-
-sub save_config {
-  $main::lxdebug->enter_sub();
-
-  my $self     = shift;
-  my %params   = @_;
-
-  Common::check_params(\%params, qw(module config));
-
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
-
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
-
-  my $q_id     = qq|SELECT nextval('custom_variable_configs_id')|;
-  my $h_id     = prepare_query($form, $dbh, $q_id);
-
-  my $q_new    =
-    qq|INSERT INTO custom_variable_configs (name, description, type, default_value, options, searchable, includeable, included_by_default, module, flags, id, sortkey)
-       VALUES                              (?,    ?,           ?,    ?,             ?,       ?,          ?,           ?,                   ?,      ?,     ?,
-         (SELECT COALESCE(MAX(sortkey) + 1, 1) FROM custom_variable_configs))|;
-  my $h_new    = prepare_query($form, $dbh, $q_new);
-
-  my $q_update =
-    qq|UPDATE custom_variable_configs SET
-         name        = ?, description         = ?,
-         type        = ?, default_value       = ?,
-         options     = ?, searchable          = ?,
-         includeable = ?, included_by_default = ?,
-         module      = ?, flags               = ?
-       WHERE id  = ?|;
-  my $h_update = prepare_query($form, $dbh, $q_update);
-
-  my @configs;
-  if ('ARRAY' eq ref $params{config}) {
-    @configs = @{ $params{config} };
-  } else {
-    @configs = ($params{config});
-  }
-
-  foreach my $config (@configs) {
-    my ($h_actual, $q_actual);
-
-    if (!$config->{id}) {
-      do_statement($form, $h_id, $q_id);
-      ($config->{id}) = $h_id->fetchrow_array();
-
-      $h_actual       = $h_new;
-      $q_actual       = $q_new;
-
-    } else {
-      $h_actual       = $h_update;
-      $q_actual       = $q_update;
-    }
-
-    do_statement($form, $h_actual, $q_actual, @{$config}{qw(name description type default_value options)},
-                 $config->{searchable} ? 't' : 'f', $config->{includeable} ? 't' : 'f', $config->{included_by_default} ? 't' : 'f',
-                 $params{module}, $config->{flags}, conv_i($config->{id}));
-  }
-
-  $h_id->finish();
-  $h_new->finish();
-  $h_update->finish();
-
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
-}
-
-sub delete_config {
-  $main::lxdebug->enter_sub();
-
-  my $self     = shift;
-  my %params   = @_;
-
-  Common::check_params(\%params, qw(id));
-
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
-
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
-
-  do_query($form, $dbh, qq|DELETE FROM custom_variables          WHERE config_id = ?|, conv_i($params{id}));
-  do_query($form, $dbh, qq|DELETE FROM custom_variables_validity WHERE config_id = ?|, conv_i($params{id}));
-  do_query($form, $dbh, qq|DELETE FROM custom_variable_configs   WHERE id        = ?|, conv_i($params{id}));
-
-  $dbh->commit();
 
   $main::lxdebug->leave_sub();
 }
@@ -768,10 +654,6 @@ SL::CVar.pm - Custom Variables module
   # dealing with configs
 
   my $all_configs = CVar->get_configs()
-  my $config      = CVar->get_config(id => '1234')
-
-  CVar->save_config($config);
-  CVar->delete->config($config)
 
   # dealing with custom vars
 
