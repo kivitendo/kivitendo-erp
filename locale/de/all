@@ -2466,6 +2466,7 @@ $self->{texts} = {
   'The project type has been deleted.' => 'Der Projekttyp wurde gelöscht.',
   'The project type has been saved.' => 'Der Projekttyp wurde gespeichert.',
   'The project type is in use and cannot be deleted.' => 'Der Projekttyp wird verwendet und kann nicht gelöscht werden.',
+  'The recipient, subject or body is missing.' => 'Der Empfäger, der Betreff oder der Text ist leer.',
   'The required information consists of the IBAN and the BIC.' => 'Die benötigten Informationen bestehen aus der IBAN und der BIC.',
   'The required information consists of the IBAN, the BIC, the mandator ID and the mandate\'s date of signature.' => 'Die benötigten Informationen bestehen aus IBAN, BIC, Mandanten-ID und dem Unterschriftsdatum des Mandates.',
   'The requirement spec has been deleted.' => 'Das Pflichtenheft wurde gelöscht.',
