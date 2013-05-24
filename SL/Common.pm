@@ -501,6 +501,8 @@ sub save_email_status {
   } elsif ($form->{script} eq 'ir.pl') {
     $table = 'ap';
 
+  } elsif ($form->{script} eq 'do.pl') {
+    $table = 'delivery_orders';
   }
 
   return $main::lxdebug->leave_sub() if (!$form->{id} || !$table || !$form->{formname});
