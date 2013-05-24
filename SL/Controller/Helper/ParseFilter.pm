@@ -90,21 +90,48 @@ sub _parse_filter {
 
   return () unless 'ARRAY' eq ref $flattened;
 
-  my %sorted = ( @$flattened );
+  $flattened = _collapse_indirect_filters($flattened);
 
-  my @keys = sort { length($b) <=> length($a) } keys %sorted;
-  for my $key (@keys) {
-    next unless $key =~ /^(.*\b)::$/;
-    $sorted{$1 . '::' . delete $sorted{$key} } = delete $sorted{$1} if $sorted{$1} && $sorted{$key};
-  }
-
-  my %result;
-  while (my ($key, $value) = each %sorted) {
+  my @result;
+  for (my $i = 0; $i < scalar @$flattened; $i += 2) {
+    my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
     ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
     ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
-    $result{$key} = $value;
+    push @result, $key, $value;
   }
-  return [ %result ];
+  return \@result;
+}
+
+sub _collapse_indirect_filters {
+  my ($flattened) = @_;
+
+  die 'flattened filter array length is uneven, should be possible to use as hash' if @$flattened % 2;
+
+  my (%keys_to_delete, %keys_to_move, @collapsed);
+
+  # search keys matching /::$/;
+  for (my $i = 0; $i < scalar @$flattened; $i += 2) {
+    my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
+
+    next unless $key =~ /^(.*\b)::$/;
+
+    $keys_to_delete{$key}++;
+    $keys_to_move{$1} = $1 . '::' . $value;
+  }
+
+  for (my $i = 0; $i < scalar @$flattened; $i += 2) {
+    my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
+
+    if ($keys_to_move{$key}) {
+      push @collapsed, $keys_to_move{$key}, $value;
+      next;
+    }
+    if (!$keys_to_delete{$key}) {
+      push @collapsed, $key, $value;
+    }
+  }
+
+  return \@collapsed;
 }
 
 sub _prefix {
