@@ -12,7 +12,7 @@ function part_selection_window(input_partnumber, input_description, input_partsi
     input_partnotes = input_partnumber;
     input_partnotes = input_partnotes.replace(/partnumber/, "partnotes");
     if (input_partnotes == input_partnumber)
-      input_partnoes = "";
+      input_partnotes = "";
   }
 
   if (filter)
