@@ -95,11 +95,44 @@ sub _parse_filter {
   my @result;
   for (my $i = 0; $i < scalar @$flattened; $i += 2) {
     my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
+
     ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
     ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
+    ($key, $value) = _dispatch_custom_filters($params{class}, $key, $value) if $params{class};
+
     push @result, $key, $value;
   }
   return \@result;
+}
+
+sub _dispatch_custom_filters {
+  my ($class, $key, $value) = @_;
+
+  # the key should by now have no filters left
+  # if it has, catch it here:
+  die 'unrecognized filters' if $key =~ /:/;
+
+  my @tokens     = split /\./, $key;
+  my $last_token = pop @tokens;
+  my $curr_class = $class->object_class;
+
+  for my $token (@tokens) {
+    eval {
+      $curr_class = $curr_class->meta->relationship($token)->class;
+      1;
+    } or do {
+      require Carp;
+      Carp::croak("Could not resolve the relationship '$token' in '$key' while building the filter request");
+    }
+  }
+
+  my $manager = $curr_class->meta->convention_manager->auto_manager_class_name;
+
+  if ($manager->can('filter')) {
+    ($key, $value) = $manager->filter($last_token, $value, join '.', @tokens, '');
+  }
+
+  return ($key, $value);
 }
 
 sub _collapse_indirect_filters {
@@ -227,19 +260,6 @@ As a rule all value filters require a single colon and must be placed before
 match method suffixes, which are appended with 2 colons. See below for a full
 list of modifiers.
 
-The reason for the method being last is that it is possible to specify the
-method in another input. Suppose you want a date input and a separate
-before/after/equal select, you can use the following:
-
-  [% L.date_tag('filter.appointed_date:date', ... ) %]
-
-and later
-
-  [% L.select_tag('filter.appointed_date::', ... ) %]
-
-The special empty method will be used to set the method for the previous
-method-less input.
-
 =back
 
 =head1 LAUNDERING
@@ -272,6 +292,42 @@ like this:
     'price_number__lt' => '2,30',
     'closed            => '1',
   }
+
+=head1 INDIRECT FILTER METHODS
+
+The reason for the method being last is that it is possible to specify the
+method in another input. Suppose you want a date input and a separate
+before/after/equal select, you can use the following:
+
+  [% L.date_tag('filter.appointed_date:date', ... ) %]
+
+and later
+
+  [% L.select_tag('filter.appointed_date:date::', ... ) %]
+
+The special empty method will be used to set the method for the previous
+method-less input.
+
+=head1 CUSTOM FILTERS FROM OBJECTS
+
+If the L<parse_filter> call contains a parameter C<class>, custom filters will
+be honored. Suppose you have added a custom filter 'all' for parts which
+expands to search both description and partnumber, the following
+
+  $filter = {
+    'part.all:substr::ilike' => 'A1',
+  }
+
+will expand to:
+
+  query => [
+    or => [
+      part.description => { ilike => '%A1%' },
+      part.partnumber  => { ilike => '%A1%' },
+    ]
+  ]
+
+For more abuot custom filters, see L<SL::DB::Helper::Filtered>.
 
 =head1 FILTERS (leading with :)
 
@@ -334,7 +390,7 @@ following will not work as you expect:
   L.input_tag('customer.name:substr::ilike', ...)
   L.input_tag('invoice.customer.name:substr::ilike', ...)
 
-This will sarch for orders whoe invoice has the _same_ customer, which matches
+This will sarch for orders whose invoice has the _same_ customer, which matches
 both inputs. This is because tables are aliased by their name and not by their
 position in with_objects.
 

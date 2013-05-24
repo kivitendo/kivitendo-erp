@@ -1,11 +1,13 @@
 use lib 't';
 
-use Test::More tests => 18;
+use Test::More tests => 23;
 use Test::Deep;
 use Data::Dumper;
 
 use_ok 'Support::TestSetup';
 use_ok 'SL::Controller::Helper::ParseFilter';
+
+use SL::DB::OrderItem;
 
 undef *::any; # Test::Deep exports any (for junctions) and MoreCommon exports any (like in List::Moreutils)
 
@@ -190,3 +192,58 @@ test {
   with_objects => bag('order.customer', 'order'),
 }, 'sub objects have to retain their prefix';
 
+### class filter dispatch
+#
+test {
+  name => 'Test',
+  whut => 'moof',
+}, {
+  query => bag(
+    name => 'Test',
+    whut => 'moof'
+  ),
+}, 'object test simple', class => 'SL::DB::Manager::Part';
+
+test {
+  'type' => 'assembly',
+}, {
+  query => [
+    'assembly' => 1
+  ],
+}, 'object test without prefix', class => 'SL::DB::Manager::Part';
+
+test {
+  'part.type' => 'assembly',
+}, {
+  query => [
+    'part.assembly' => 1
+  ],
+}, 'object test with prefix', class => 'SL::DB::Manager::OrderItem';
+
+test {
+  'type' => [ 'part', 'assembly' ],
+}, {
+  query => [
+    or => [
+     and => [ or => [ assembly => 0, assembly => undef ],
+              "!inventory_accno_id" => 0,
+              "!inventory_accno_id" => undef,
+     ],
+     assembly => 1,
+    ]
+  ],
+}, 'object test without prefix but complex value', class => 'SL::DB::Manager::Part';
+
+test {
+  'part.type' => [ 'part', 'assembly' ],
+}, {
+  query => [
+    or => [
+     and => [ or => [ 'part.assembly' => 0, 'part.assembly' => undef ],
+              "!part.inventory_accno_id" => 0,
+              "!part.inventory_accno_id" => undef,
+     ],
+     'part.assembly' => 1,
+    ]
+  ],
+}, 'object test with prefix but complex value', class => 'SL::DB::Manager::OrderItem';
