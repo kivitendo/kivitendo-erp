@@ -9,8 +9,8 @@ __PACKAGE__->meta->make_manager_class;
 
 sub get_default_currency {
   my $self = shift->get;
-  my @currencies = grep { $_ } split(/:/, $self->curr || '');
-  return $currencies[0] || '';
+  return $self->currency->name || '' if $self->currency_id;
+  return '';
 }
 
 sub get {

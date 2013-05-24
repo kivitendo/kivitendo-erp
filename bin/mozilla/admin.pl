@@ -780,6 +780,7 @@ sub dbcreate {
   my $locale = $main::locale;
 
   $form->isblank("db", $locale->text('Dataset missing!'));
+  $form->isblank("defaultcurrency", $locale->text('Default currency missing!'));
 
   User->dbcreate(\%$form);
 

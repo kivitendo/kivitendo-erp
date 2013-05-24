@@ -1238,7 +1238,7 @@ sub aging {
       "duedate", invoice, ${arap}.id, date_part('days', now() - duedate) as overduedays,
       (SELECT $buysell
        FROM exchangerate
-       WHERE (${arap}.curr = exchangerate.curr)
+       WHERE (${arap}.currency_id = exchangerate.currency_id)
          AND (exchangerate.transdate = ${arap}.transdate)) AS exchangerate
     FROM ${arap}, ${ct}
     WHERE ((paid != amount) OR (datepaid > (date $todate) AND datepaid is not null))

@@ -57,6 +57,7 @@ sub post_invoice {
   # connect to database, turn off autocommit
   my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
+  my $defaultcurrency = $form->{defaultcurrency};
 
   my $ic_cvar_configs = CVar->get_configs(module => 'IC',
                                           dbh    => $dbh);
@@ -70,17 +71,15 @@ sub post_invoice {
 
   my $all_units = AM->retrieve_units($myconfig, $form);
 
+#markierung
   if (!$payments_only) {
     if ($form->{id}) {
       &reverse_invoice($dbh, $form);
     } else {
       ($form->{id}) = selectrow_query($form, $dbh, qq|SELECT nextval('glid')|);
-      do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber) VALUES (?, '')|, $form->{id});
+      do_query($form, $dbh, qq|INSERT INTO ap (id, invnumber, currency_id) VALUES (?, '', (SELECT id FROM currencies WHERE name=?))|, $form->{id}, $form->{currency});
     }
   }
-
-  my ($currencies)    = selectfirst_array_query($form, $dbh, qq|SELECT curr FROM defaults|);
-  my $defaultcurrency = (split m/:/, $currencies)[0];
 
   if ($form->{currency} eq $defaultcurrency) {
     $form->{exchangerate} = 1;
@@ -686,7 +685,7 @@ sub post_invoice {
                 orddate      = ?, quodate     = ?, vendor_id     = ?, amount      = ?,
                 netamount    = ?, paid        = ?, duedate       = ?,
                 invoice      = ?, taxzone_id  = ?, notes         = ?, taxincluded = ?,
-                intnotes     = ?, curr        = ?, storno_id     = ?, storno      = ?,
+                intnotes     = ?, storno_id   = ?, storno        = ?,
                 cp_id        = ?, employee_id = ?, department_id = ?,
                 globalproject_id = ?, direct_debit = ?
               WHERE id = ?|;
@@ -695,7 +694,7 @@ sub post_invoice {
       conv_date($form->{orddate}), conv_date($form->{quodate}),     conv_i($form->{vendor_id}),               $amount,
                 $netamount,                  $form->{paid},      conv_date($form->{duedate}),
             '1',                             $taxzone_id,                  $form->{notes},          $form->{taxincluded} ? 't' : 'f',
-                $form->{intnotes},           $form->{currency},     conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
+                $form->{intnotes},           conv_i($form->{storno_id}),     $form->{storno}      ? 't' : 'f',
          conv_i($form->{cp_id}),      conv_i($form->{employee_id}), conv_i($form->{department_id}),
          conv_i($form->{globalproject_id}),
                 $form->{direct_debit} ? 't' : 'f',
@@ -925,8 +924,7 @@ sub retrieve_invoice {
                (SELECT c.accno FROM chart c WHERE d.income_accno_id = c.id)    AS income_accno,
                (SELECT c.accno FROM chart c WHERE d.expense_accno_id = c.id)   AS expense_accno,
                (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id = c.id)    AS fxgain_accno,
-               (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno,
-               d.curr AS currencies
+               (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id = c.id)    AS fxloss_accno
                $q_invdate
                FROM defaults d|;
   $ref = selectfirst_hashref_query($form, $dbh, $query);
@@ -943,14 +941,11 @@ sub retrieve_invoice {
   $query = qq|SELECT cp_id, invnumber, transdate AS invdate, duedate,
                 orddate, quodate, globalproject_id,
                 ordnumber, quonumber, paid, taxincluded, notes, taxzone_id, storno, gldate,
-                intnotes, curr AS currency, direct_debit
+                intnotes, (SELECT cu.name FROM currencies cu WHERE cu.id=ap.currency_id) AS currency, direct_debit
               FROM ap
               WHERE id = ?|;
   $ref = selectfirst_hashref_query($form, $dbh, $query, conv_i($form->{id}));
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  # remove any trailing whitespace
-  $form->{currency} =~ s/\s*$//;
 
   $form->{exchangerate}  = $form->get_exchangerate($dbh, $form->{currency}, $form->{invdate}, "sell");
 
@@ -1093,21 +1088,19 @@ sub get_vendor {
          v.id AS vendor_id, v.name AS vendor, v.discount as vendor_discount,
          v.creditlimit, v.terms, v.notes AS intnotes,
          v.email, v.cc, v.bcc, v.language_id, v.payment_id,
-         v.street, v.zipcode, v.city, v.country, v.taxzone_id, v.curr, v.direct_debit,
+         v.street, v.zipcode, v.city, v.country, v.taxzone_id, cu.name AS curr, v.direct_debit,
          $duedate + COALESCE(pt.terms_netto, 0) AS duedate,
          b.description AS business
        FROM vendor v
        LEFT JOIN business b       ON (b.id = v.business_id)
        LEFT JOIN payment_terms pt ON (v.payment_id = pt.id)
+       LEFT JOIN currencies cu    ON (v.currency_id = cu.id)
        WHERE 1=1 $where|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, @values);
   map { $params->{$_} = $ref->{$_} } keys %$ref;
 
-  # remove any trailing whitespace
-  $form->{curr} =~ s/\s*$//;
-
-  # use vendor currency if not empty
-  $form->{currency} = $form->{curr} if $form->{curr};
+  # use vendor currency
+  $form->{currency} = $form->{curr};
 
   $params->{creditremaining} = $params->{creditlimit};
 
@@ -1118,7 +1111,7 @@ sub get_vendor {
   $query = qq|SELECT o.amount,
                 (SELECT e.sell
                  FROM exchangerate e
-                 WHERE (e.curr = o.curr)
+                 WHERE (e.currency_id = o.currency_id)
                    AND (e.transdate = o.transdate)) AS exch
               FROM oe o
               WHERE (o.vendor_id = ?) AND (o.quotation = '0') AND (o.closed = '0')|;
@@ -1393,9 +1386,10 @@ sub vendor_details {
   # fax and phone and email as vendor*
   my $query =
     qq|SELECT ct.*, cp.*, ct.notes as vendornotes, phone as vendorphone, fax as vendorfax, email as vendoremail,
-         ct.curr AS currency
+         cu.name AS currency
        FROM vendor ct
        LEFT JOIN contacts cp ON (ct.id = cp.cp_cv_id)
+       LEFT JOIN currencies cu ON (ct.currency_id = cu.id)
        WHERE (ct.id = ?) $contact
        ORDER BY cp.cp_id
        LIMIT 1|;
@@ -1412,8 +1406,6 @@ sub vendor_details {
   }
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-  # remove any trailing whitespace
-  $form->{currency} =~ s/\s*$// if ($form->{currency});
 
   my $custom_variables = CVar->get_custom_variables('dbh'      => $dbh,
                                                     'module'   => 'CT',

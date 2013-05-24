@@ -68,11 +68,12 @@ sub get_tuple {
   my $ref = $sth->fetchrow_hashref("NAME_lc");
 
   map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-  # remove any trailing whitespace
-  $form->{curr} =~ s/\s*$//;
-
   $sth->finish;
+
+  #get name of currency instead of id:
+  $query = qq|SELECT name AS curr FROM currencies WHERE id=?|;
+  ($form->{curr}) = selectrow_query($form, $dbh, $query, conv_i($form->{currency_id}));
+
   if ( $form->{salesman_id} ) {
     my $query =
       qq|SELECT ct.name AS salesman | .
@@ -275,7 +276,7 @@ sub save_customer {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO customer (id, name) VALUES (?, '')|;
+    $query = qq|INSERT INTO customer (id, name, currency_id) VALUES (?, '', (SELECT currency_id FROM defaults))|;
     do_query($form, $dbh, $query, $form->{id});
   }
 
@@ -319,7 +320,7 @@ sub save_customer {
     qq|user_password = ?, | .
     qq|c_vendor_id = ?, | .
     qq|klass = ?, | .
-    qq|curr = ?, | .
+    qq|currency_id = (SELECT id FROM currencies WHERE name = ?), | .
     qq|taxincluded_checked = ? | .
     qq|WHERE id = ?|;
   my @values = (
@@ -362,7 +363,7 @@ sub save_customer {
     $form->{user_password},
     $form->{c_vendor_id},
     conv_i($form->{klass}),
-    substr($form->{currency}, 0, 3),
+    $form->{currency},
     $form->{taxincluded_checked} ne '' ? $form->{taxincluded_checked} : undef,
     $form->{id}
     );
@@ -422,7 +423,7 @@ sub save_vendor {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO vendor (id, name) VALUES (?, '')|;
+    $query = qq|INSERT INTO vendor (id, name, currency_id) VALUES (?, '', (SELECT currency_id FROM defaults))|;
     do_query($form, $dbh, $query, $form->{id});
 
     my $vendornumber      = SL::TransNumber->new(type   => 'vendor',
@@ -471,7 +472,7 @@ sub save_vendor {
     qq|  username = ?, | .
     qq|  user_password = ?, | .
     qq|  v_customer_id = ?, | .
-    qq|  curr = ? | .
+    qq|  currency_id = (SELECT id FROM currencies WHERE name = ?) | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{vendornumber},
@@ -511,7 +512,7 @@ sub save_vendor {
     $form->{username},
     $form->{user_password},
     $form->{v_customer_id},
-    substr($form->{currency}, 0, 3),
+    $form->{currency},
     $form->{id}
     );
   do_query($form, $dbh, $query, @values);

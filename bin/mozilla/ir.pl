@@ -149,7 +149,7 @@ sub invoice_links {
     $form->{currency} = $currency;
   }
 
-  my @curr = split(/:/, $form->{currencies}); #seems to be missing
+  my @curr = $form->get_all_currencies();
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
 
   $form->{oldvendor} = "$form->{vendor}--$form->{vendor_id}";
