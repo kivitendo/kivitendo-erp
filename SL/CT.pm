@@ -615,24 +615,24 @@ sub search {
   my @values;
 
   my %allowed_sort_columns = (
-      "id" => "id",
-      "customernumber" => "customernumber",
-      "vendornumber" => "vendornumber",
-      "name" => "ct.name",
-      "contact" => "contact",
-      "phone" => "phone",
-      "fax" => "fax",
-      "email" => "email",
-      "street" => "street",
-      "taxnumber" => "taxnumber",
-      "business" => "business",
-      "invnumber" => "invnumber",
-      "ordnumber" => "ordnumber",
-      "quonumber" => "quonumber",
-      "zipcode" => "zipcode",
-      "city" => "city",
-      "country" => "country",
-      "salesman" => "e.name"
+      "id"                 => "ct.id",
+      "customernumber"     => "ct.customernumber",
+      "vendornumber"       => "ct.vendornumber",
+      "name"               => "ct.name",
+      "contact"            => "ct.contact",
+      "phone"              => "ct.phone",
+      "fax"                => "ct.fax",
+      "email"              => "ct.email",
+      "street"             => "ct.street",
+      "taxnumber"          => "ct.taxnumber",
+      "business"           => "ct.business",
+      "invnumber"          => "ct.invnumber",
+      "ordnumber"          => "ct.ordnumber",
+      "quonumber"          => "ct.quonumber",
+      "zipcode"            => "ct.zipcode",
+      "city"               => "ct.city",
+      "country"            => "ct.country",
+      "salesman"           => "e.name"
     );
 
   $form->{sort} ||= "name";
@@ -674,10 +674,10 @@ sub search {
     $where .= " AND ((lower(ct.city) LIKE lower(?))
                      OR
                      (ct.id IN (
-                        SELECT trans_id
-                        FROM shipto
-                        WHERE (module = 'CT')
-                          AND (lower(shiptocity) LIKE lower(?))
+                        SELECT sc.trans_id
+                        FROM shipto sc
+                        WHERE (sc.module = 'CT')
+                          AND (lower(sc.shiptocity) LIKE lower(?))
                       ))
                      )";
     push @values, ('%' . $form->{addr_city} . '%') x 2;
@@ -687,10 +687,10 @@ sub search {
     $where .= " AND ((lower(ct.country) LIKE lower(?))
                      OR
                      (ct.id IN (
-                        SELECT trans_id
-                        FROM shipto
-                        WHERE (module = 'CT')
-                          AND (lower(shiptocountry) LIKE lower(?))
+                        SELECT so.trans_id
+                        FROM shipto so
+                        WHERE (so.module = 'CT')
+                          AND (lower(so.shiptocountry) LIKE lower(?))
                       ))
                      )";
     push @values, ('%' . $form->{addr_country} . '%') x 2;
@@ -716,20 +716,20 @@ sub search {
   }
 
   if ($form->{obsolete} eq "Y") {
-    $where .= qq| AND obsolete|;
+    $where .= qq| AND ct.obsolete|;
   } elsif ($form->{obsolete} eq "N") {
-    $where .= qq| AND NOT obsolete|;
+    $where .= qq| AND NOT ct.obsolete|;
   }
 
   if ($form->{business_id}) {
-    $where .= qq| AND (business_id = ?)|;
+    $where .= qq| AND (ct.business_id = ?)|;
     push(@values, conv_i($form->{business_id}));
   }
 
   # Nur Kunden finden, bei denen ich selber der Verkäufer bin
   # Gilt nicht für Lieferanten
   if ($cv eq 'customer' &&   !$main::auth->assert('customer_vendor_all_edit', 1)) {
-    $where .= qq| AND ct.salesman_id = (select id from employee where login= ?)|;
+    $where .= qq| AND ct.salesman_id = (select em.id from employee em where em.login = ?)|;
     push(@values, $form->{login});
   }
 
@@ -743,12 +743,12 @@ sub search {
   }
 
   if ($form->{addr_street}) {
-    $where .= qq| AND (street ILIKE ?)|;
+    $where .= qq| AND (ct.street ILIKE ?)|;
     push @values, '%' . $form->{addr_street} . '%';
   }
 
   if ($form->{addr_zipcode}) {
-    $where .= qq| AND (zipcode ILIKE ?)|;
+    $where .= qq| AND (ct.zipcode ILIKE ?)|;
     push @values, $form->{addr_zipcode} . '%';
   }
 

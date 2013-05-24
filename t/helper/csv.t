@@ -299,7 +299,7 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive hea
 #####
 
 $csv = SL::Helper::Csv->new(
-  file   => \"\x{FEFF}description\nKaffee",
+  file   => \"\x{EF}\x{BB}\x{BF}description\nKaffee",
   class  => 'SL::DB::Part',
   encoding => 'utf8',
 );

@@ -20,4 +20,14 @@ sub connect {
   return DBIx::Log4perl->connect(@_);
 }
 
+sub get_options {
+  my $self    = shift;
+  my $options = {
+    pg_enable_utf8 => $::locale->is_utf8,
+    @_
+  };
+
+  return $options;
+}
+
 1;
