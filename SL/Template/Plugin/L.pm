@@ -390,8 +390,10 @@ JAVASCRIPT
     my $filter  = ".filter(function(idx) { return this.substr(0, " . length($params{with}) . ") == '$params{with}'; })";
     $filter    .= ".map(function(idx, str) { return str.replace('$params{with}_', ''); })";
 
+    my $params_js = $params{params} ? qq| + ($params{params})| : '';
+
     $stop_event = <<JAVASCRIPT;
-        \$.post('$params{url}', { '${as}[]': \$(\$('${selector}').sortable('toArray'))${filter}.toArray() });
+        \$.post('$params{url}'${params_js}, { '${as}[]': \$(\$('${selector}').sortable('toArray'))${filter}.toArray() });
 JAVASCRIPT
   }
 
@@ -732,6 +734,11 @@ not work.
 If trueish then the children will not be recolored. The default is to
 recolor the children by setting the class C<listrow0> on odd and
 C<listrow1> on even entries.
+
+=item C<params>
+
+An optional JavaScript string that is evaluated before sending the
+POST request. The result must be a string that is appended to the URL.
 
 =back
 
