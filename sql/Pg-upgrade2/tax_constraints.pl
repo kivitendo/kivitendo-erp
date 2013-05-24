@@ -193,20 +193,19 @@ SQL
   $sth->finish;
 
   for my $i (0 .. $rowcount-1){
-    $query= qq|
+    $query= <<SQL;
       DELETE FROM taxkeys tk1
-      WHERE (SELECT count(*)
-            FROM taxkeys tk2
-            WHERE tk2.chart_id  = tk1.chart_id
-            AND   tk2.startdate = tk1.startdate) > 1
-      AND NOT tk1.id = (SELECT id
-                        FROM taxkeys
-                        WHERE chart_id  = | . $::form->{TAXKEYS}[$i]->{chart_id} . qq|
-                        AND   startdate = '| . $::form->{TAXKEYS}[$i]->{startdate} . qq|'
-                        LIMIT 1)
-|;
+      WHERE (tk1.chart_id  = ?)
+        AND (tk1.startdate = ?)
+        AND (tk1.id <> (
+          SELECT id
+          FROM taxkeys
+          WHERE (chart_id  = ?)
+          AND   (startdate = ?)
+          LIMIT 1))
+SQL
 
-    $self->db_query($query);
+    $self->db_query($query, bind => [ ($::form->{TAXKEYS}[$i]->{chart_id}, $::form->{TAXKEYS}[$i]->{startdate}) x 2 ]);
   }
 
   #END CHECK OF taxkeys
