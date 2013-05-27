@@ -322,7 +322,8 @@ sub save_customer {
     qq|c_vendor_id = ?, | .
     qq|klass = ?, | .
     qq|currency_id = (SELECT id FROM currencies WHERE name = ?), | .
-    qq|taxincluded_checked = ? | .
+    qq|taxincluded_checked = ?, | .
+    qq|delivery_term_id = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{customernumber},
@@ -366,6 +367,7 @@ sub save_customer {
     conv_i($form->{klass}),
     $form->{currency},
     $form->{taxincluded_checked} ne '' ? $form->{taxincluded_checked} : undef,
+    conv_i($form->{delivery_term_id}),
     $form->{id}
     );
   do_query( $form, $dbh, $query, @values );
@@ -473,7 +475,8 @@ sub save_vendor {
     qq|  username = ?, | .
     qq|  user_password = ?, | .
     qq|  v_customer_id = ?, | .
-    qq|  currency_id = (SELECT id FROM currencies WHERE name = ?) | .
+    qq|  currency_id = (SELECT id FROM currencies WHERE name = ?), | .
+    qq|  delivery_term_id = ? | .
     qq|WHERE id = ?|;
   my @values = (
     $form->{vendornumber},
@@ -514,6 +517,7 @@ sub save_vendor {
     $form->{user_password},
     $form->{v_customer_id},
     $form->{currency},
+    conv_i($form->{delivery_term_id}),
     $form->{id}
     );
   do_query($form, $dbh, $query, @values);

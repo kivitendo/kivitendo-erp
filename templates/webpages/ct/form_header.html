@@ -261,6 +261,15 @@
              label_key  = 'description',
        -%]
       </td>
+      <th align="right">[% 'Delivery Terms' | $T8 %]</th>
+      <td>[% L.select_tag('delivery_term_id', ALL_DELIVERY_TERMS, default = delivery_term_id, with_empty = 1, title_key = 'description') %]</td>
+     </tr>
+
+     <tr>
+      <td align="right"><label for="obsolete">[% 'Obsolete' | $T8 %]</label></td>
+      <td><input name="obsolete" id="obsolete" class="checkbox" type="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
+      <td align="right"><label for="direct_debit">[% 'direct debit' | $T8 %]</label></td>
+      <td><input name="direct_debit" id="direct_debit" class="checkbox" type="checkbox" value="1" [% IF direct_debit %]checked[% END %]></td>
 
       [%- IF is_customer %]
       <th align="right">[% 'Preisklasse' | $T8 %]</th>
@@ -274,13 +283,6 @@
        -%]
       </td>
       [%- END  %]
-     </tr>
-
-     <tr>
-      <td align="right"><label for="obsolete">[% 'Obsolete' | $T8 %]</label></td>
-      <td><input name="obsolete" id="obsolete" class="checkbox" type="checkbox" value="1" [% IF obsolete %]checked[% END %]></td>
-      <td align="right"><label for="direct_debit">[% 'direct debit' | $T8 %]</label></td>
-      <td><input name="direct_debit" id="direct_debit" class="checkbox" type="checkbox" value="1" [% IF direct_debit %]checked[% END %]></td>
      </tr>
 
      <tr>

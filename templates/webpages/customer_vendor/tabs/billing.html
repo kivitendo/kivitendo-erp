@@ -313,13 +313,12 @@
         [% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
       </td>
 
-      [% IF ( SELF.is_customer() ) %]
-        <th align="right">[% 'Preisklasse' | $T8 %]</th>
+      <th align="right">[% 'Delivery Terms' | $T8 %]</th>
 
-        <td>
-          [% L.select_tag('cv.klass', SELF.all_pricegroups, default = SELF.cv.klass, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
-        </td>
-      [% END  %]
+      <td>
+        [% L.select_tag('cv.delivery_term_id', SELF.all_delivery_terms, default = SELF.cv.delivery_term_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
+      </td>
+
     </tr>
 
     <tr>
@@ -339,6 +338,15 @@
       <td>
         [% L.checkbox_tag('cv.direct_debit', checked = SELF.cv.direct_debit, for_submit=1) %]
       </td>
+
+      [% IF ( SELF.is_customer() ) %]
+        <th align="right">[% 'Preisklasse' | $T8 %]</th>
+
+        <td>
+          [% L.select_tag('cv.klass', SELF.all_pricegroups, default = SELF.cv.klass, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
+        </td>
+      [% END  %]
+
     </tr>
 
     <tr>

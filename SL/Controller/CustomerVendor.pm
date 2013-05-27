@@ -810,6 +810,8 @@ sub _pre_render {
 
   $self->{all_payment_terms} = SL::DB::Manager::PaymentTerm->get_all();
 
+  $self->{all_delivery_terms} = SL::DB::Manager::DeliveryTerm->get_all();
+
   $self->{all_pricegroups} = SL::DB::Manager::Pricegroup->get_all();
 
   $query =

@@ -8,6 +8,7 @@ use SL::Helper::Csv;
 use SL::DB::Customer;
 use SL::DB::Language;
 use SL::DB::PaymentTerm;
+use SL::DB::DeliveryTerm;
 use SL::DB::Vendor;
 use SL::DB::Contact;
 use SL::DB::History;
@@ -17,7 +18,7 @@ use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv test_run save_with_cascade) ],
- 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by all_vc vc_by) ],
+ 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by delivery_terms_by all_vc vc_by) ],
 );
 
 sub run {
@@ -144,6 +145,13 @@ sub init_payment_terms_by {
 
   my $all_payment_terms = SL::DB::Manager::PaymentTerm->get_all;
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_payment_terms } } ) } qw(id description) };
+}
+
+sub init_delivery_terms_by {
+  my ($self) = @_;
+
+  my $all_delivery_terms = SL::DB::Manager::DeliveryTerm->get_all;
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_delivery_terms } } ) } qw(id description) };
 }
 
 sub init_all_vc {
@@ -377,6 +385,32 @@ sub check_payment {
     }
 
     $object->payment_id($terms->id);
+  }
+
+  return 1;
+}
+
+sub check_delivery_term {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not delivery term ID is valid.
+  if ($object->delivery_term_id && !$self->delivery_terms_by->{id}->{ $object->delivery_term_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid delivery terms');
+    return 0;
+  }
+
+  # Map name to ID if given.
+  if (!$object->delivery_term_id && $entry->{raw_data}->{delivery_term}) {
+    my $terms = $self->delivery_terms_by->{description}->{ $entry->{raw_data}->{delivery_term} };
+
+    if (!$terms) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid delivery terms');
+      return 0;
+    }
+
+    $object->delivery_term_id($terms->id);
   }
 
   return 1;

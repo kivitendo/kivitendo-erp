@@ -117,7 +117,7 @@ sub new_from {
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber quonumber
                                                 department_id cp_id language_id payment_id delivery_customer_id delivery_vendor_id taxzone_id shipto_id
-                                                globalproject_id transaction_description currency_id)),
+                                                globalproject_id transaction_description currency_id delivery_term_id)),
                transdate   => DateTime->today_local,
                gldate      => DateTime->today_local,
                duedate     => DateTime->today_local->add(days => $terms * 1),

@@ -52,6 +52,7 @@ use SL::CVar;
 use SL::Request qw(flatten);
 use SL::DB::Business;
 use SL::DB::Default;
+use SL::DB::DeliveryTerm;
 use SL::Helper::Flash;
 use SL::ReportGenerator;
 use SL::MoreCommon qw(uri_encode);
@@ -465,6 +466,8 @@ sub form_header {
   $form->{ALL_EMPLOYEES}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{FU_created_for_user},  deleted => 0 ] ]);
   $form->{ALL_SALESMEN}           = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $form->{USER}                   = SL::DB::Manager::Employee->current;
+
+  $form->{ALL_DELIVERY_TERMS}     = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   $form->{taxincluded}    = ($form->{taxincluded}) ? "checked" : "";
   $form->{is_customer}    = $form->{db}     eq 'customer';

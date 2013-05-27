@@ -172,7 +172,7 @@ sub order_links {
   DO->retrieve('vc'  => $form->{vc},
                'ids' => $form->{id});
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes currency));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes delivery_term_id currency));
   $form->{shipto} = 1 if $form->{id} || $form->{convert_from_oe_ids};
 
   # get customer / vendor
@@ -184,7 +184,7 @@ sub order_links {
     $form->{discount} = $form->{customer_discount};
   }
 
-  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id));
+  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id delivery_term_id));
   $form->restore_vars(qw(currency)) if ($form->{id} || $form->{convert_from_oe_ids});
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
@@ -335,6 +335,7 @@ sub form_footer {
   my $form     = $main::form;
 
   $form->{PRINT_OPTIONS} = print_options('inline' => 1);
+  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   print $form->parse_html_template('do/form_footer',
     {transfer_default         => ($::instance_conf->get_transfer_default)});

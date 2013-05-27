@@ -23,6 +23,7 @@ __PACKAGE__->meta->columns(
   creditlimit         => { type => 'numeric', default => '0', precision => 5, scale => 15 },
   currency_id         => { type => 'integer', not_null => 1 },
   customernumber      => { type => 'text' },
+  delivery_term_id    => { type => 'integer' },
   department_1        => { type => 'varchar', length => 75 },
   department_2        => { type => 'varchar', length => 75 },
   direct_debit        => { type => 'boolean', default => 'false' },
@@ -69,6 +70,11 @@ __PACKAGE__->meta->foreign_keys(
   currency => {
     class       => 'SL::DB::Currency',
     key_columns => { currency_id => 'id' },
+  },
+
+  delivery_term => {
+    class       => 'SL::DB::DeliveryTerm',
+    key_columns => { delivery_term_id => 'id' },
   },
 
   language_obj => {
