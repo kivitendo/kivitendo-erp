@@ -255,7 +255,7 @@ C<BackgroundJobHistory>).
 
 =item * C<FORM_PARAMS>
 
-Optional. Indicates a key in E<$::form> to be used as filter.
+Optional. Indicates a key in C<$::form> to be used as filter.
 
 Defaults to the values C<filter> if missing.
 
