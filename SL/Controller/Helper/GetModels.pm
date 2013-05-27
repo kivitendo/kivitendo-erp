@@ -48,9 +48,8 @@ sub get_callback {
 sub get_models {
   my ($self, %override_params) = @_;
 
-  my %default_params           = _run_handlers($self, 'get_models');
+  my %params                   = _run_handlers($self, 'get_models', %override_params);
 
-  my %params                   = (%default_params, %override_params);
   my $model                    = delete($params{model}) || die "No 'model' to work on";
 
   return "SL::DB::Manager::${model}"->get_all(%params);

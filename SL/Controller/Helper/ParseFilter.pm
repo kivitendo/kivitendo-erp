@@ -8,6 +8,7 @@ our @EXPORT = qw(parse_filter);
 use DateTime;
 use SL::Helper::DateTime;
 use List::MoreUtils qw(uniq);
+use SL::MoreCommon qw(listify);
 use Data::Dumper;
 
 my %filters = (
@@ -149,7 +150,7 @@ sub _add_uniq {
    my ($array, $what) = @_;
 
    $array //= [];
-   $array = [ uniq @$array, $what ];
+   $array = [ uniq @$array, listify($what) ];
 }
 
 sub _collapse_indirect_filters {
