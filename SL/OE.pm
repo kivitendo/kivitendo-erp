@@ -1120,7 +1120,7 @@ sub order_details {
        partnotes serialnumber reqdate sellprice listprice netprice
        discount p_discount discount_sub nodiscount_sub
        linetotal  nodiscount_linetotal tax_rate projectnumber projectdescription
-       price_factor price_factor_name partsgroup);
+       price_factor price_factor_name partsgroup weight lineweight);
 
   push @arrays, map { "ic_cvar_$_->{name}" } @{ $ic_cvar_configs };
 
@@ -1128,6 +1128,7 @@ sub order_details {
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays, @tax_arrays);
 
+  my $totalweight = 0;
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
     $i = $item->[0];
@@ -1242,6 +1243,13 @@ sub order_details {
       push(@{ $form->{TEMPLATE_ARRAYS}->{projectnumber} },              $projectnumbers{$form->{"project_id_$i"}});
       push(@{ $form->{TEMPLATE_ARRAYS}->{projectdescription} },         $projectdescriptions{$form->{"project_id_$i"}});
 
+      my $lineweight = $form->{"qty_$i"} * $form->{"weight_$i"};
+      $totalweight += $lineweight;
+      push @{ $form->{TEMPLATE_ARRAYS}->{weight} },            $form->format_amount($myconfig, $form->{"weight_$i"}, 3);
+      push @{ $form->{TEMPLATE_ARRAYS}->{weight_nofmt} },      $form->{"weight_$i"};
+      push @{ $form->{TEMPLATE_ARRAYS}->{lineweight} },        $form->format_amount($myconfig, $lineweight, 3);
+      push @{ $form->{TEMPLATE_ARRAYS}->{lineweight_nofmt} },  $lineweight;
+
       my ($taxamount, $taxbase);
       my $taxrate = 0;
 
@@ -1307,6 +1315,9 @@ sub order_details {
           for @{ $ic_cvar_configs };
     }
   }
+
+  $form->{totalweight}       = $form->format_amount($myconfig, $totalweight, 3);
+  $form->{totalweight_nofmt} = $totalweight;
 
   my $tax = 0;
   foreach $item (sort keys %taxaccounts) {

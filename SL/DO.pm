@@ -813,7 +813,7 @@ sub order_details {
     qw(runningnumber number description longdescription qty unit
        partnotes serialnumber reqdate projectnumber projectdescription
        si_runningnumber si_number si_description
-       si_warehouse si_bin si_chargenumber si_bestbefore si_qty si_unit);
+       si_warehouse si_bin si_chargenumber si_bestbefore si_qty si_unit weight lineweight);
 
   map { $form->{TEMPLATE_ARRAYS}->{$_} = [] } (@arrays);
 
@@ -822,6 +822,7 @@ sub order_details {
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS');
   my %price_factors = map { $_->{id} => $_->{factor} } @{ $form->{ALL_PRICE_FACTORS} };
 
+  my $totalweight = 0;
   my $sameitem = "";
   foreach $item (sort { $a->[1] cmp $b->[1] } @partsgroup) {
     $i = $item->[0];
@@ -856,6 +857,13 @@ sub order_details {
     push @{ $form->{TEMPLATE_ARRAYS}{projectnumber} },   $projectnumbers{$form->{"project_id_$i"}};
     push @{ $form->{TEMPLATE_ARRAYS}{projectdescription} },
       $projectdescriptions{$form->{"project_id_$i"}};
+
+    my $lineweight = $form->{"qty_$i"} * $form->{"weight_$i"};
+    $totalweight += $lineweight;
+    push @{ $form->{TEMPLATE_ARRAYS}->{weight} },            $form->format_amount($myconfig, $form->{"weight_$i"}, 3);
+    push @{ $form->{TEMPLATE_ARRAYS}->{weight_nofmt} },      $form->{"weight_$i"};
+    push @{ $form->{TEMPLATE_ARRAYS}->{lineweight} },        $form->format_amount($myconfig, $lineweight, 3);
+    push @{ $form->{TEMPLATE_ARRAYS}->{lineweight_nofmt} },  $lineweight;
 
     if ($form->{"assembly_$i"}) {
       $sameitem = "";
@@ -909,6 +917,9 @@ sub order_details {
       CVar->format_to_template(CVar->parse($form->{"ic_cvar_$_->{name}_$i"}, $_), $_)
         for @{ $ic_cvar_configs };
   }
+
+  $form->{totalweight}       = $form->format_amount($myconfig, $totalweight, 3);
+  $form->{totalweight_nofmt} = $totalweight;
 
   $h_pg->finish();
   $h_bin_wh->finish();
