@@ -142,7 +142,7 @@ test {
   ]
 }, {
   'sellprice:number' => [ '123,4', '2,34', '0,4' ],
-  'sellprice_number' => [ '123,4', '2,34', '0,4' ],
+  'sellprice_number' => { '123,4' => 1, '2,34' => 1, '0,4' => 1 },
 }, 'laundering with array', target => 'filter';
 
 my %args = (

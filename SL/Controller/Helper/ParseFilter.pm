@@ -33,10 +33,15 @@ sub parse_filter {
   my ($filter, %params) = @_;
 
   my $hint_objects = $params{with_objects} || [];
+  my $auto_objects = [];
 
-  my ($flattened, $objects) = _pre_parse($filter, $hint_objects, '', %params);
+  my ($flattened, $objects) = flatten($filter, $auto_objects, '', %params);
 
-  my $query = _parse_filter($flattened, %params);
+  if ($params{class}) {
+    $objects = $hint_objects;
+  }
+
+  my $query = _parse_filter($flattened, $objects, %params);
 
   _launder_keys($filter, $params{launder_to}) unless $params{no_launder};
 
@@ -55,7 +60,7 @@ sub _launder_keys {
     if ('' eq ref $filter->{$orig}) {
       $launder_to->{$key} = $filter->{$orig};
     } elsif ('ARRAY' eq ref $filter->{$orig}) {
-      $launder_to->{$key} = [ @{ $filter->{$orig} } ];
+      $launder_to->{"${key}_"} = { map { $_ => 1 } @{ $filter->{$orig} } };
     } else {
       $launder_to->{$key} ||= { };
       _launder_keys($filter->{$key}, $launder_to->{$key});
@@ -63,7 +68,7 @@ sub _launder_keys {
   };
 }
 
-sub _pre_parse {
+sub flatten {
   my ($filter, $with_objects, $prefix, %params) = @_;
 
   return (undef, $with_objects) unless 'HASH'  eq ref $filter;
@@ -74,7 +79,7 @@ sub _pre_parse {
   while (my ($key, $value) = each %$filter) {
     next if !defined $value || $value eq ''; # 0 is fine
     if ('HASH' eq ref $value) {
-      my ($query, $more_objects) = _pre_parse($value, $with_objects, _prefix($prefix, $key));
+      my ($query, $more_objects) = flatten($value, $with_objects, _prefix($prefix, $key));
       push @result,        @$query if $query;
       push @$with_objects, _prefix($prefix, $key), ($more_objects ? @$more_objects : ());
     } else {
@@ -86,7 +91,7 @@ sub _pre_parse {
 }
 
 sub _parse_filter {
-  my ($flattened, %params) = @_;
+  my ($flattened, $with_objects, %params) = @_;
 
   return () unless 'ARRAY' eq ref $flattened;
 
@@ -98,7 +103,7 @@ sub _parse_filter {
 
     ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
     ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
-    ($key, $value) = _dispatch_custom_filters($params{class}, $key, $value) if $params{class};
+    ($key, $value) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value) if $params{class};
 
     push @result, $key, $value;
   }
@@ -106,7 +111,7 @@ sub _parse_filter {
 }
 
 sub _dispatch_custom_filters {
-  my ($class, $key, $value) = @_;
+  my ($class, $with_objects, $key, $value) = @_;
 
   # the key should by now have no filters left
   # if it has, catch it here:
@@ -126,13 +131,25 @@ sub _dispatch_custom_filters {
     }
   }
 
-  my $manager = $curr_class->meta->convention_manager->auto_manager_class_name;
+  my $manager    = $curr_class->meta->convention_manager->auto_manager_class_name;
+  my $obj_path   = join '.', @tokens;
+  my $obj_prefix = join '.', @tokens, '';
 
   if ($manager->can('filter')) {
-    ($key, $value) = $manager->filter($last_token, $value, join '.', @tokens, '');
+    ($key, $value, my $obj) = $manager->filter($last_token, $value, $obj_prefix);
+    _add_uniq($with_objects, $obj);
+  } else {
+    _add_uniq($with_objects, $obj_path);
   }
 
   return ($key, $value);
+}
+
+sub _add_uniq {
+   my ($array, $what) = @_;
+
+   $array //= [];
+   $array = [ uniq @$array, $what ];
 }
 
 sub _collapse_indirect_filters {
@@ -270,15 +287,21 @@ default laundered into underscores, so you can use them like this:
 
   [% L.input_tag('filter.price:number::lt', filter.price_number__lt) %]
 
-All of your original entries will stay intactg. If you don't want this to
+Also Template has trouble when looking up the contents of arrays, so
+these will get copied into a _ suffixed version as hashes:
+
+  [% L.checkbox_tag('filter.ids[]', value=15, checked=filter.ids_.15) %]
+
+All of your original entries will stay intact. If you don't want this to
 happen pass C<< no_launder => 1 >> as a parameter.  Additionally you can pass a
 different target for the laundered values with the C<launder_to>  parameter. It
 takes an hashref and will deep copy all values in your filter to the target. So
-if you have a filter that looks liek this:
+if you have a filter that looks like this:
 
   $filter = {
     'price:number::lt' => '2,30',
-    'closed            => '1',
+    closed             => '1',
+    type               => [ 'part', 'assembly' ],
   }
 
 and parse it with
@@ -290,7 +313,8 @@ like this:
 
   $filter = {
     'price_number__lt' => '2,30',
-    'closed            => '1',
+     closed            => '1',
+    'type_'            => { part => 1, assembly => 1 },
   }
 
 =head1 INDIRECT FILTER METHODS
