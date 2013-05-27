@@ -68,6 +68,7 @@ __PACKAGE__->meta->setup(
     ar_show_mark_as_paid                => { type => 'boolean', default => 'true' },
     ap_show_mark_as_paid                => { type => 'boolean', default => 'true' },
     assemblynumber                      => { type => 'text' },
+    show_weight                         => { type => 'boolean', default => 'false', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],

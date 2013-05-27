@@ -123,6 +123,10 @@ sub display_row {
 
   my ($stock_in_out, $stock_in_out_title);
 
+  my $defaults = AM->get_defaults();
+  $form->{show_weight} = $defaults->{show_weight};
+  $form->{weightunit} = $defaults->{weightunit};
+
   my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
   my $show_min_order_qty =  first { $_ eq $form->{type} } qw(request_quotation purchase_order);
   my $is_delivery_order  = $form->{type} =~ /_delivery_order$/;
@@ -150,7 +154,7 @@ sub display_row {
     {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
     {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
     {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
-    {  id => 'weight',        width => 5,     value => $locale->text('Weight'),               display => 1, },
+    {  id => 'weight',        width => 5,     value => $locale->text('Weight'),               display => $defaults->{show_weight}, },
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
     {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
@@ -208,9 +212,7 @@ sub display_row {
   _update_custom_variables();
 
   my $totalweight = 0;
-  my $defaults = AM->get_defaults();
 
-  $form->{weightunit} = $defaults->{weightunit};
   # rows
 
   my @ROWS;
@@ -332,9 +334,7 @@ sub display_row {
     $column_data{linetotal}   = $form->format_amount(\%myconfig, $linetotal, 2);
     $column_data{bin}         = $form->{"bin_$i"};
 
-    $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit};
-    #To add the hidden variable lineweight:
-    $form->{"lineweight_$i"}       = $column_data{weight};
+    $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit} if $defaults->{show_weight};
 
     if ($is_delivery_order) {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
@@ -430,7 +430,7 @@ sub display_row {
           map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
                 income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
-                longdescription basefactor marge_absolut marge_percent marge_price_factor weight lineweight), @hidden_vars)
+                longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );
 
     map { $form->{"${_}_base"} += $linetotal } (split(/ /, $form->{"taxaccounts_$i"}));

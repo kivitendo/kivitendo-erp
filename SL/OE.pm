@@ -1318,6 +1318,8 @@ sub order_details {
 
   $form->{totalweight}       = $form->format_amount($myconfig, $totalweight, 3);
   $form->{totalweight_nofmt} = $totalweight;
+  my $defaults = AM->get_defaults();
+  $form->{weightunit}        = $defaults->{weightunit};
 
   my $tax = 0;
   foreach $item (sort keys %taxaccounts) {

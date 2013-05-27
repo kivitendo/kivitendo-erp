@@ -43,6 +43,8 @@ sub action_edit {
 
   map { $self->{$_} = SL::DB::Default->get->$_ } qw(sales_order_show_delete purchase_order_show_delete sales_delivery_order_show_delete purchase_delivery_order_show_delete);
 
+  $self->{show_weight} = SL::DB::Default->get->show_weight;
+
   $self->render('client_config/form', title => $::locale->text('Client Configuration'));
 }
 
@@ -63,6 +65,8 @@ sub action_save {
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(datev_check_on_sales_invoice datev_check_on_purchase_invoice datev_check_on_ar_transaction datev_check_on_ap_transaction datev_check_on_gl_transaction);
 
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(sales_order_show_delete purchase_order_show_delete sales_delivery_order_show_delete purchase_delivery_order_show_delete);
+
+  SL::DB::Default->get->update_attributes('show_weight'     => $::form->{show_weight});
 
   flash_later('info', $::locale->text('Client Configuration saved!'));
 

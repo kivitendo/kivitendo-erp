@@ -376,6 +376,8 @@ sub invoice_details {
 
   $form->{totalweight}       = $form->format_amount($myconfig, $totalweight, 3);
   $form->{totalweight_nofmt} = $totalweight;
+  my $defaults = AM->get_defaults();
+  $form->{weightunit}        = $defaults->{weightunit};
 
   foreach my $item (sort keys %taxaccounts) {
     $tax += $taxamount = $form->round_amount($taxaccounts{$item}, 2);
