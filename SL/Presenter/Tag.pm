@@ -19,6 +19,15 @@ sub _call_on {
   return $object->$method(@params);
 }
 
+{ # This will give you an id for identifying html tags and such.
+  # It's guaranteed to be unique unless you exceed 10 mio calls per request.
+  # Do not use these id's to store information across requests.
+my $_id_sequence = int rand 1e7;
+sub _id {
+  return ( $_id_sequence = ($_id_sequence + 1) % 1e7 );
+}
+}
+
 
 sub stringify_attributes {
   my ($self, %params) = @_;
@@ -68,6 +77,7 @@ sub man_days_tag {
 sub name_to_id {
   my ($self, $name) = @_;
 
+  $name =~ s/\[\+?\]/ _id() /ge; # give constructs with [] or [+] unique ids
   $name =~ s/[^\w_]/_/g;
   $name =~ s/_+/_/g;
 
