@@ -5,6 +5,7 @@ use strict;
 use List::MoreUtils qw(pairwise);
 
 use SL::Helper::Csv;
+use SL::DB::Currency;
 use SL::DB::Customer;
 use SL::DB::Language;
 use SL::DB::PaymentTerm;
@@ -16,7 +17,7 @@ use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic
 (
  scalar                  => [ qw(controller file csv test_run save_with_cascade) ],
- 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by all_vc vc_by) ],
+ 'scalar --get_set_init' => [ qw(profile displayable_columns existing_objects class manager_class cvar_columns all_cvar_configs all_languages payment_terms_by all_currencies default_currency_id all_vc vc_by) ],
 );
 
 sub run {
@@ -137,6 +138,18 @@ sub init_all_languages {
   my ($self) = @_;
 
   return SL::DB::Manager::Language->get_all;
+}
+
+sub init_all_currencies {
+  my ($self) = @_;
+
+  return SL::DB::Manager::Currency->get_all;
+}
+
+sub init_default_currency_id {
+  my ($self) = @_;
+
+  return SL::DB::Default->get->currency_id;
 }
 
 sub init_payment_terms_by {
