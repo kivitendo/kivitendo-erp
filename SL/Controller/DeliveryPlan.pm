@@ -18,7 +18,6 @@ use Rose::Object::MakeMethods::Generic (
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
 
-__PACKAGE__->get_models_url_params('flat_filter');
 __PACKAGE__->make_filtered(
   MODEL             => 'OrderItem',
   LAUNDER_TO        => 'filter'
