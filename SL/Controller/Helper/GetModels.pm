@@ -7,7 +7,7 @@ our @EXPORT = qw(get_models_url_params get_callback get_models);
 
 use constant PRIV => '__getmodelshelperpriv';
 
-my %registered_handlers = ( callback => [], get_models => [] );
+my $registered_handlers = {};
 
 sub register_get_models_handlers {
   my ($class, %additional_handlers) = @_;
@@ -18,7 +18,8 @@ sub register_get_models_handlers {
 
   $class->run_before(sub { $_[0]->{PRIV()} = { current_action => $_[1] }; }, %hook_params);
 
-  map { push @{ $registered_handlers{$_} }, $additional_handlers{$_} if $additional_handlers{$_} } keys %registered_handlers;
+  my $handlers    = _registered_handlers($class);
+  map { push @{ $handlers->{$_} }, $additional_handlers{$_} if $additional_handlers{$_} } keys %$handlers;
 }
 
 sub get_models_url_params {
@@ -34,7 +35,7 @@ sub get_models_url_params {
     );
   };
 
-  push @{ $registered_handlers{callback} }, $callback;
+  push @{ _registered_handlers($class)->{callback} }, $callback;
 }
 
 sub get_callback {
@@ -48,9 +49,8 @@ sub get_callback {
 sub get_models {
   my ($self, %override_params) = @_;
 
-  my %default_params           = _run_handlers($self, 'get_models');
+  my %params                   = _run_handlers($self, 'get_models', %override_params);
 
-  my %params                   = (%default_params, %override_params);
   my $model                    = delete($params{model}) || die "No 'model' to work on";
 
   return "SL::DB::Manager::${model}"->get_all(%params);
@@ -63,7 +63,7 @@ sub get_models {
 sub _run_handlers {
   my ($self, $handler_type, %params) = @_;
 
-  foreach my $sub (@{ $registered_handlers{$handler_type} }) {
+  foreach my $sub (@{ _registered_handlers(ref $self)->{$handler_type} }) {
     if (ref $sub eq 'CODE') {
       %params = $sub->($self, %params);
     } elsif ($self->can($sub)) {
@@ -74,6 +74,10 @@ sub _run_handlers {
   }
 
   return %params;
+}
+
+sub _registered_handlers {
+  $registered_handlers->{$_[0]} //= { callback => [], get_models => [] }
 }
 
 1;

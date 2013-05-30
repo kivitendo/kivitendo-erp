@@ -40,6 +40,7 @@ package AM;
 use Carp;
 use Data::Dumper;
 use Encode;
+use List::MoreUtils qw(any);
 use SL::DBUtils;
 
 use strict;
@@ -207,14 +208,15 @@ sub save_account {
   # connect to database, turn off AutoCommit
   my $dbh = $form->dbconnect_noauto($myconfig);
 
-  # sanity check, can't have AR with AR_...
-  if ($form->{AR} || $form->{AP} || $form->{IC}) {
-    map { delete $form->{$_} }
-      qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice);
+  for (qw(AR_include_in_dropdown AP_include_in_dropdown summary_account)) {
+    $form->{$form->{$_}} = $form->{$_} if $form->{$_};
   }
 
-  for (qw(AR_include_in_dropdown AP_include_in_dropdown)) {
-    $form->{$form->{$_}} = $form->{$_} if $form->{$_};
+  # sanity check, can't have AR with AR_...
+  if ($form->{AR} || $form->{AP} || $form->{IC}) {
+    if (any { $form->{$_} } qw(AR_amount AR_tax AR_paid AP_amount AP_tax AP_paid IC_sale IC_cogs IC_taxpart IC_income IC_expense IC_taxservice)) {
+      $form->error($::locale->text('It is not allowed that a summary account occurs in a drop-down menu!'));
+    }
   }
 
   $form->{link} = "";
@@ -1060,10 +1062,6 @@ sub save_defaults {
   my %accnos;
   map { ($accnos{$_}) = split(m/--/, $form->{$_}) } qw(inventory_accno income_accno expense_accno fxgain_accno fxloss_accno ar_paid_accno);
 
-  $form->{curr}  =~ s/ //g;
-  my @currencies =  grep { $_ ne '' } split m/:/, $form->{curr};
-  my $currency   =  join ':', @currencies;
-
   # these defaults are database wide
 
   my $query =
@@ -1087,7 +1085,6 @@ sub save_defaults {
         assemblynumber     = ?,
         sdonumber          = ?,
         pdonumber          = ?,
-        curr               = ?,
         businessnumber     = ?,
         weightunit         = ?,
         language_id        = ?|;
@@ -1100,10 +1097,23 @@ sub save_defaults {
                 $form->{articlenumber},   $form->{servicenumber},
                 $form->{assemblynumber},
                 $form->{sdonumber},       $form->{pdonumber},
-                $currency,
                 $form->{businessnumber},  $form->{weightunit},
                 conv_i($form->{language_id}));
   do_query($form, $dbh, $query, @values);
+
+  $main::lxdebug->message(0, "es gibt rowcount: " . $form->{rowcount});
+
+  for my $i (1..$form->{rowcount}) {
+    if ($form->{"curr_$i"} ne $form->{"old_curr_$i"}) {
+      $query = qq|UPDATE currencies SET name = ? WHERE name = ?|;
+      do_query($form, $dbh, $query, $form->{"curr_$i"}, $form->{"old_curr_$i"});
+    }
+  }
+
+  if (length($form->{new_curr}) > 0) {
+    $query = qq|INSERT INTO currencies (name) VALUES (?)|;
+    do_query($form, $dbh, $query, $form->{new_curr});
+  }
 
   $dbh->commit();
 
@@ -1118,17 +1128,13 @@ sub save_preferences {
 
   my $dbh = $form->get_standard_dbh($myconfig);
 
-  my ($currency, $businessnumber) = selectrow_query($form, $dbh, qq|SELECT curr, businessnumber FROM defaults|);
+  my ($businessnumber) = selectrow_query($form, $dbh, qq|SELECT businessnumber FROM defaults|);
 
   # update name
   my $query = qq|UPDATE employee SET name = ? WHERE login = ?|;
   do_query($form, $dbh, $query, $form->{name}, $form->{login});
 
   my $rc = $dbh->commit();
-
-  # save first currency in myconfig
-  $currency               =~ s/:.*//;
-  $form->{currency}       =  $currency;
 
   $form->{businessnumber} =  $businessnumber;
 
@@ -1286,6 +1292,15 @@ sub defaultaccounts {
   }
 
   $sth->finish;
+
+  #Get currencies:
+  $query              = qq|SELECT name AS curr FROM currencies ORDER BY id|;
+  $form->{CURRENCIES} = selectall_hashref_query($form, $dbh, $query);
+
+  #Which of them is the default currency?
+  $query = qq|SELECT name AS defaultcurrency FROM currencies WHERE id = (SELECT currency_id FROM defaults LIMIT 1);|;
+  ($form->{defaultcurrency}) = selectrow_query($form, $dbh, $query);
+
   $dbh->disconnect;
 
   $main::lxdebug->leave_sub();

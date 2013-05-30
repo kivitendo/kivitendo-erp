@@ -8,6 +8,7 @@ our @EXPORT = qw(parse_filter);
 use DateTime;
 use SL::Helper::DateTime;
 use List::MoreUtils qw(uniq);
+use SL::MoreCommon qw(listify);
 use Data::Dumper;
 
 my %filters = (
@@ -33,10 +34,15 @@ sub parse_filter {
   my ($filter, %params) = @_;
 
   my $hint_objects = $params{with_objects} || [];
+  my $auto_objects = [];
 
-  my ($flattened, $objects) = _pre_parse($filter, $hint_objects, '', %params);
+  my ($flattened, $objects) = flatten($filter, $auto_objects, '', %params);
 
-  my $query = _parse_filter($flattened, %params);
+  if ($params{class}) {
+    $objects = $hint_objects;
+  }
+
+  my $query = _parse_filter($flattened, $objects, %params);
 
   _launder_keys($filter, $params{launder_to}) unless $params{no_launder};
 
@@ -55,7 +61,7 @@ sub _launder_keys {
     if ('' eq ref $filter->{$orig}) {
       $launder_to->{$key} = $filter->{$orig};
     } elsif ('ARRAY' eq ref $filter->{$orig}) {
-      $launder_to->{$key} = [ @{ $filter->{$orig} } ];
+      $launder_to->{"${key}_"} = { map { $_ => 1 } @{ $filter->{$orig} } };
     } else {
       $launder_to->{$key} ||= { };
       _launder_keys($filter->{$key}, $launder_to->{$key});
@@ -63,7 +69,7 @@ sub _launder_keys {
   };
 }
 
-sub _pre_parse {
+sub flatten {
   my ($filter, $with_objects, $prefix, %params) = @_;
 
   return (undef, $with_objects) unless 'HASH'  eq ref $filter;
@@ -74,7 +80,7 @@ sub _pre_parse {
   while (my ($key, $value) = each %$filter) {
     next if !defined $value || $value eq ''; # 0 is fine
     if ('HASH' eq ref $value) {
-      my ($query, $more_objects) = _pre_parse($value, $with_objects, _prefix($prefix, $key));
+      my ($query, $more_objects) = flatten($value, $with_objects, _prefix($prefix, $key));
       push @result,        @$query if $query;
       push @$with_objects, _prefix($prefix, $key), ($more_objects ? @$more_objects : ());
     } else {
@@ -86,25 +92,97 @@ sub _pre_parse {
 }
 
 sub _parse_filter {
-  my ($flattened, %params) = @_;
+  my ($flattened, $with_objects, %params) = @_;
 
   return () unless 'ARRAY' eq ref $flattened;
 
-  my %sorted = ( @$flattened );
+  $flattened = _collapse_indirect_filters($flattened);
 
-  my @keys = sort { length($b) <=> length($a) } keys %sorted;
-  for my $key (@keys) {
-    next unless $key =~ /^(.*\b)::$/;
-    $sorted{$1 . '::' . delete $sorted{$key} } = delete $sorted{$1} if $sorted{$1} && $sorted{$key};
-  }
+  my @result;
+  for (my $i = 0; $i < scalar @$flattened; $i += 2) {
+    my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
 
-  my %result;
-  while (my ($key, $value) = each %sorted) {
     ($key, $value) = _apply_all($key, $value, qr/\b:(\w+)/,  { %filters, %{ $params{filters} || {} } });
     ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
-    $result{$key} = $value;
+    ($key, $value) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value) if $params{class};
+
+    push @result, $key, $value;
   }
-  return [ %result ];
+  return \@result;
+}
+
+sub _dispatch_custom_filters {
+  my ($class, $with_objects, $key, $value) = @_;
+
+  # the key should by now have no filters left
+  # if it has, catch it here:
+  die 'unrecognized filters' if $key =~ /:/;
+
+  my @tokens     = split /\./, $key;
+  my $last_token = pop @tokens;
+  my $curr_class = $class->object_class;
+
+  for my $token (@tokens) {
+    eval {
+      $curr_class = $curr_class->meta->relationship($token)->class;
+      1;
+    } or do {
+      require Carp;
+      Carp::croak("Could not resolve the relationship '$token' in '$key' while building the filter request");
+    }
+  }
+
+  my $manager    = $curr_class->meta->convention_manager->auto_manager_class_name;
+  my $obj_path   = join '.', @tokens;
+  my $obj_prefix = join '.', @tokens, '';
+
+  if ($manager->can('filter')) {
+    ($key, $value, my $obj) = $manager->filter($last_token, $value, $obj_prefix);
+    _add_uniq($with_objects, $obj);
+  } else {
+    _add_uniq($with_objects, $obj_path);
+  }
+
+  return ($key, $value);
+}
+
+sub _add_uniq {
+   my ($array, $what) = @_;
+
+   $array //= [];
+   $array = [ uniq @$array, listify($what) ];
+}
+
+sub _collapse_indirect_filters {
+  my ($flattened) = @_;
+
+  die 'flattened filter array length is uneven, should be possible to use as hash' if @$flattened % 2;
+
+  my (%keys_to_delete, %keys_to_move, @collapsed);
+
+  # search keys matching /::$/;
+  for (my $i = 0; $i < scalar @$flattened; $i += 2) {
+    my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
+
+    next unless $key =~ /^(.*\b)::$/;
+
+    $keys_to_delete{$key}++;
+    $keys_to_move{$1} = $1 . '::' . $value;
+  }
+
+  for (my $i = 0; $i < scalar @$flattened; $i += 2) {
+    my ($key, $value) = ($flattened->[$i], $flattened->[$i+1]);
+
+    if ($keys_to_move{$key}) {
+      push @collapsed, $keys_to_move{$key}, $value;
+      next;
+    }
+    if (!$keys_to_delete{$key}) {
+      push @collapsed, $key, $value;
+    }
+  }
+
+  return \@collapsed;
 }
 
 sub _prefix {
@@ -200,19 +278,6 @@ As a rule all value filters require a single colon and must be placed before
 match method suffixes, which are appended with 2 colons. See below for a full
 list of modifiers.
 
-The reason for the method being last is that it is possible to specify the
-method in another input. Suppose you want a date input and a separate
-before/after/equal select, you can use the following:
-
-  [% L.date_tag('filter.appointed_date:date', ... ) %]
-
-and later
-
-  [% L.select_tag('filter.appointed_date::', ... ) %]
-
-The special empty method will be used to set the method for the previous
-method-less input.
-
 =back
 
 =head1 LAUNDERING
@@ -223,15 +288,21 @@ default laundered into underscores, so you can use them like this:
 
   [% L.input_tag('filter.price:number::lt', filter.price_number__lt) %]
 
-All of your original entries will stay intactg. If you don't want this to
+Also Template has trouble when looking up the contents of arrays, so
+these will get copied into a _ suffixed version as hashes:
+
+  [% L.checkbox_tag('filter.ids[]', value=15, checked=filter.ids_.15) %]
+
+All of your original entries will stay intact. If you don't want this to
 happen pass C<< no_launder => 1 >> as a parameter.  Additionally you can pass a
 different target for the laundered values with the C<launder_to>  parameter. It
 takes an hashref and will deep copy all values in your filter to the target. So
-if you have a filter that looks liek this:
+if you have a filter that looks like this:
 
   $filter = {
     'price:number::lt' => '2,30',
-    'closed            => '1',
+    closed             => '1',
+    type               => [ 'part', 'assembly' ],
   }
 
 and parse it with
@@ -243,8 +314,45 @@ like this:
 
   $filter = {
     'price_number__lt' => '2,30',
-    'closed            => '1',
+     closed            => '1',
+    'type_'            => { part => 1, assembly => 1 },
   }
+
+=head1 INDIRECT FILTER METHODS
+
+The reason for the method being last is that it is possible to specify the
+method in another input. Suppose you want a date input and a separate
+before/after/equal select, you can use the following:
+
+  [% L.date_tag('filter.appointed_date:date', ... ) %]
+
+and later
+
+  [% L.select_tag('filter.appointed_date:date::', ... ) %]
+
+The special empty method will be used to set the method for the previous
+method-less input.
+
+=head1 CUSTOM FILTERS FROM OBJECTS
+
+If the L<parse_filter> call contains a parameter C<class>, custom filters will
+be honored. Suppose you have added a custom filter 'all' for parts which
+expands to search both description and partnumber, the following
+
+  $filter = {
+    'part.all:substr::ilike' => 'A1',
+  }
+
+will expand to:
+
+  query => [
+    or => [
+      part.description => { ilike => '%A1%' },
+      part.partnumber  => { ilike => '%A1%' },
+    ]
+  ]
+
+For more abuot custom filters, see L<SL::DB::Helper::Filtered>.
 
 =head1 FILTERS (leading with :)
 
@@ -307,7 +415,7 @@ following will not work as you expect:
   L.input_tag('customer.name:substr::ilike', ...)
   L.input_tag('invoice.customer.name:substr::ilike', ...)
 
-This will sarch for orders whoe invoice has the _same_ customer, which matches
+This will sarch for orders whose invoice has the _same_ customer, which matches
 both inputs. This is because tables are aliased by their name and not by their
 position in with_objects.
 

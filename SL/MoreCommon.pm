@@ -3,7 +3,7 @@ package SL::MoreCommon;
 require Exporter;
 our @ISA = qw(Exporter);
 
-our @EXPORT    = qw(save_form restore_form compare_numbers any cross);
+our @EXPORT    = qw(save_form restore_form compare_numbers cross);
 our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify ary_to_hash uri_encode uri_decode);
 
 use List::MoreUtils qw(zip);
@@ -74,15 +74,6 @@ sub compare_numbers {
   $main::lxdebug->leave_sub();
 
   return $a <=> $b;
-}
-
-sub any (&@) {
-  my $f = shift;
-  return if ! @_;
-  for (@_) {
-    return 1 if $f->();
-  }
-  return 0;
 }
 
 sub cross(&\@\@) {

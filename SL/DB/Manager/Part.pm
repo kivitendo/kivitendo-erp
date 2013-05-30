@@ -3,6 +3,9 @@ package SL::DB::Manager::Part;
 use strict;
 
 use SL::DB::Helper::Manager;
+use SL::DB::Helper::Sorted;
+use SL::DB::Helper::Paginated;
+use SL::DB::Helper::Filtered;
 use base qw(SL::DB::Helper::Manager);
 
 use Carp;
@@ -12,31 +15,49 @@ use SL::MoreCommon qw(listify);
 sub object_class { 'SL::DB::Part' }
 
 __PACKAGE__->make_manager_methods;
+__PACKAGE__->add_filter_specs(
+  type => sub {
+    my ($key, $value, $prefix) = @_;
+    return __PACKAGE__->type_filter($value, $prefix);
+  },
+  all => sub {
+    my ($key, $value, $prefix) = @_;
+    return or => [ map { $prefix . $_ => $value } qw(partnumber description) ]
+  }
+);
 
 sub type_filter {
-  my ($class, $type) = @_;
+  my ($class, $type, $prefix) = @_;
 
   return () unless $type;
+
+  $prefix //= '';
+
+  # this is to make selection like type => { part => 1, service => 1 } work
+  if ('HASH' eq ref $type) {
+    $type = grep { $type->{$_} } keys %$type;
+  }
 
   my @types = listify($type);
   my @filter;
 
   for my $type (@types) {
     if ($type =~ m/^part/) {
-      push @filter, (and => [ or                    => [ assembly => 0, assembly => undef ],
-                       '!inventory_accno_id' => 0,
-                       '!inventory_accno_id' => undef,
+      push @filter, (and => [ or                    => [ $prefix . assembly => 0, $prefix . assembly => undef ],
+                       "!${prefix}inventory_accno_id" => 0,
+                       "!${prefix}inventory_accno_id" => undef,
                      ]);
     } elsif ($type =~ m/^service/) {
-      push @filter, (and => [ or => [ assembly           => 0, assembly           => undef ],
-                       or => [ inventory_accno_id => 0, inventory_accno_id => undef ],
+      push @filter, (and => [ or => [ $prefix . assembly           => 0, $prefix . assembly           => undef ],
+                       or => [ $prefix . inventory_accno_id => 0, $prefix . inventory_accno_id => undef ],
                      ]);
     } elsif ($type =~ m/^assembl/) {
-      push @filter, (assembly => 1);
+      push @filter, ($prefix . assembly => 1);
     }
   }
 
-  return @filter ? (or => \@filter) : ();
+  return @filter > 2 ? (or => \@filter) :
+         @filter     ? @filter          : ();
 }
 
 sub get_ordered_qty {

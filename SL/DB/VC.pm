@@ -26,7 +26,7 @@ SQL
   $query = <<SQL;
     SELECT o.amount,
       (SELECT e.buy FROM exchangerate e
-       WHERE e.curr = o.curr
+       WHERE e.currency_id = o.currency_id
          AND e.transdate = o.transdate)
     FROM oe o
     WHERE (o.${type}_id = ?)

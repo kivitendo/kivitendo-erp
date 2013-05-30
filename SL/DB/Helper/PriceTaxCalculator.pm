@@ -53,8 +53,9 @@ sub calculate_prices_and_taxes {
 sub _get_exchangerate {
   my ($self, $data, %params) = @_;
 
-  if (($self->curr || '') ne SL::DB::Default->get_default_currency) {
-    $data->{exchangerate}   = $::form->check_exchangerate(\%::myconfig, $self->curr, $self->transdate, $data->{is_sales} ? 'buy' : 'sell');
+  my $currency = $self->currency_id ? $self->currency->name || '' : '';
+  if ($currency ne SL::DB::Default->get_default_currency) {
+    $data->{exchangerate}   = $::form->check_exchangerate(\%::myconfig, $currency, $self->transdate, $data->{is_sales} ? 'buy' : 'sell');
     $data->{exchangerate} ||= $params{exchangerate};
   }
   $data->{exchangerate} ||= 1;

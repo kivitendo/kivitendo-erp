@@ -233,7 +233,7 @@
       <td>[% L.input_tag('bic', bic, maxlength=100, size=30) %]</td>
       [%- IF ALL_CURRENCIES.size %]
         <th align="right">[% 'Currency' | $T8 %]</th>
-        <td>[% L.select_tag('currency', ALL_CURRENCIES, default = currency, with_empty = 1) %]</td>
+        <td>[% L.select_tag('currency', ALL_CURRENCIES, default = currency) %]</td>
       [%- END %]
      </tr>
 

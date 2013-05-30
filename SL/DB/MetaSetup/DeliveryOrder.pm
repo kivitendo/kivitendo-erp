@@ -39,7 +39,7 @@ __PACKAGE__->meta->setup(
     taxzone_id              => { type => 'integer' },
     taxincluded             => { type => 'boolean' },
     terms                   => { type => 'integer' },
-    curr                    => { type => 'text' },
+    currency_id             => { type => 'integer', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
@@ -50,6 +50,11 @@ __PACKAGE__->meta->setup(
     contact => {
       class       => 'SL::DB::Contact',
       key_columns => { cp_id => 'cp_id' },
+    },
+
+    currency => {
+      class       => 'SL::DB::Currency',
+      key_columns => { currency_id => 'id' },
     },
 
     customer => {

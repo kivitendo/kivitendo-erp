@@ -88,9 +88,25 @@ $(function() {
 [% IF ChartTypeIsAccount %]
 <fieldset class="DEPENDS ON charttype BEING A">
   <legend>[% 'Is this a summary account to record' | $T8 %]</legend>
-    [% L.checkbox_tag('AR', value => 'AR', checked => AR, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'AR' | $T8 %]
-    [% L.checkbox_tag('AP', value => 'AP', checked => AP, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'AP' | $T8 %]
-    [% L.checkbox_tag('IC', value => 'IC', checked => IC, class => 'checkbox', disabled => AccountIsPosted) %] &nbsp;[% 'Inventory' | $T8 %]
+        [% L.radio_button_tag('summary_account',
+          value => 'AR',
+          disabled => AccountIsPosted,
+          checked  => AR) %]
+        &nbsp;[% 'AR' | $T8 %]
+        [% L.radio_button_tag('summary_account',
+          value => 'AP',
+          disabled => AccountIsPosted,
+          checked  => AP) %]
+        &nbsp;[% 'AP' | $T8 %]
+        [% L.radio_button_tag('summary_account',
+          value => 'IC',
+          disabled => AccountIsPosted,
+          checked  => IC) %]
+        &nbsp;[% 'Inventory' | $T8 %]
+        [% L.radio_button_tag('summary_account',
+          value => '',
+          disabled => AccountIsPosted) %]
+        &nbsp;[% 'No summary account' | $T8 %]
 
 [% IF AccountIsPosted %]
     [% IF AR %] [% L.hidden_tag('AR', 'AR') %] [% END %]

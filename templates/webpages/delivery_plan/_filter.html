@@ -45,9 +45,9 @@
   <tr>
    <th align="right">[% 'Type' | $T8 %]</th>
    <td>
-     [% L.checkbox_tag('filter.part.type.part',     checked=filter.part.type.part,     label=LxERP.t8('Part')) %]
-     [% L.checkbox_tag('filter.part.type.service',  checked=filter.part.type.service,  label=LxERP.t8('Service')) %]
-     [% L.checkbox_tag('filter.part.type.assembly', checked=filter.part.type.assembly, label=LxERP.t8('Assembly')) %]
+     [% L.checkbox_tag('filter.part.type[]', checked=filter.part.type_.part,     value='part',     label=LxERP.t8('Part')) %]
+     [% L.checkbox_tag('filter.part.type[]', checked=filter.part.type_.service,  value='service',  label=LxERP.t8('Service')) %]
+     [% L.checkbox_tag('filter.part.type[]', checked=filter.part.type_.assembly, value='assembly', label=LxERP.t8('Assembly')) %]
    </td>
   </tr>
  </table>

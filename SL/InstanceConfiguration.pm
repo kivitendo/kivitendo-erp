@@ -15,9 +15,9 @@ sub init {
 
   $self->{data} = selectfirst_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT * FROM defaults|);
 
-  my $curr            =  $self->{data}->{curr} || '';
-  $curr               =~ s/\s+//g;
-  $self->{currencies} =  [ split m/:/, $curr ];
+  #To get all currencies and the default currency:
+  ($self->{data}->{curr}) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT name AS curr FROM currencies WHERE id = (SELECT currency_id FROM defaults)|);
+  $self->{currencies}     = [ map { $_->{name} } selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies ORDER BY id|) ];
 
   return $self;
 }
@@ -25,13 +25,13 @@ sub init {
 sub get_default_currency {
   my ($self) = @_;
 
-  return ($self->get_currencies)[0];
+  return $self->{data}->{curr};
 }
 
 sub get_currencies {
   my ($self) = @_;
 
-  return $self->{currencies} ? @{ $self->{currencies} } : ();
+  return @{ $self->{currencies} };
 }
 
 sub get_accounting_method {

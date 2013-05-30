@@ -3,6 +3,7 @@ package SL::Helper::Csv;
 use strict;
 use warnings;
 
+use version 0.77;
 use Carp;
 use IO::File;
 use Params::Validate qw(:all);
@@ -156,11 +157,19 @@ sub _parse_data {
       push @data, \%hr;
     } else {
       last if $self->_csv->eof;
-      push @errors, [
-        $self->_csv->error_input,
-        $self->_csv->error_diag,
-        $self->_io->input_line_number,
-      ];
+      # Text::CSV_XS 0.89 added record number to error_diag
+      if (qv(Text::CSV_XS->VERSION) >= qv('0.89')) {
+        push @errors, [
+          $self->_csv->error_input,
+          $self->_csv->error_diag,
+        ];
+      } else {
+        push @errors, [
+          $self->_csv->error_input,
+          $self->_csv->error_diag,
+          $self->_io->input_line_number,
+        ];
+      }
     }
     last if $self->_csv->eof;
   }

@@ -21,7 +21,6 @@ __PACKAGE__->meta->setup(
     taxincluded             => { type => 'boolean' },
     shippingpoint           => { type => 'text' },
     notes                   => { type => 'text' },
-    curr                    => { type => 'character', length => 3 },
     employee_id             => { type => 'integer' },
     closed                  => { type => 'boolean', default => 'false' },
     quotation               => { type => 'boolean', default => 'false' },
@@ -43,9 +42,10 @@ __PACKAGE__->meta->setup(
     delivered               => { type => 'boolean', default => 'false' },
     globalproject_id        => { type => 'integer' },
     salesman_id             => { type => 'integer' },
-    transaction_description => { type => 'text' },
     marge_total             => { type => 'numeric', precision => 5, scale => 15 },
     marge_percent           => { type => 'numeric', precision => 5, scale => 15 },
+    transaction_description => { type => 'text' },
+    currency_id             => { type => 'integer', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
@@ -56,6 +56,11 @@ __PACKAGE__->meta->setup(
     contact => {
       class       => 'SL::DB::Contact',
       key_columns => { cp_id => 'cp_id' },
+    },
+
+    currency => {
+      class       => 'SL::DB::Currency',
+      key_columns => { currency_id => 'id' },
     },
 
     customer => {

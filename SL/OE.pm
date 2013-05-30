@@ -91,7 +91,7 @@ sub transactions {
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
     qq|LEFT JOIN employee e ON (o.employee_id = e.id) | .
     qq|LEFT JOIN employee s ON (o.salesman_id = s.id) | .
-    qq|LEFT JOIN exchangerate ex ON (ex.curr = o.curr | .
+    qq|LEFT JOIN exchangerate ex ON (ex.currency_id = o.currency_id | .
     qq|  AND ex.transdate = o.transdate) | .
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
     qq|$periodic_invoices_joins | .
@@ -311,7 +311,7 @@ sub save {
     $query = qq|SELECT nextval('id')|;
     ($form->{id}) = selectrow_query($form, $dbh, $query);
 
-    $query = qq|INSERT INTO oe (id, ordnumber, employee_id) VALUES (?, '', ?)|;
+    $query = qq|INSERT INTO oe (id, ordnumber, employee_id, currency_id) VALUES (?, '', ?, (SELECT currency_id FROM defaults))|;
     do_query($form, $dbh, $query, $form->{id}, $form->{employee_id});
   }
 
@@ -494,7 +494,7 @@ sub save {
     qq|UPDATE oe SET
          ordnumber = ?, quonumber = ?, cusordnumber = ?, transdate = ?, vendor_id = ?,
          customer_id = ?, amount = ?, netamount = ?, reqdate = ?, taxincluded = ?,
-         shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, curr = ?, closed = ?,
+         shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, currency_id = (SELECT id FROM currencies WHERE name=?), closed = ?,
          delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
          taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
@@ -506,7 +506,7 @@ sub save {
              $amount, $netamount, conv_date($reqdate),
              $form->{taxincluded} ? 't' : 'f', $form->{shippingpoint},
              $form->{shipvia}, $form->{notes}, $form->{intnotes},
-             substr($form->{currency}, 0, 3), $form->{closed} ? 't' : 'f',
+             $form->{currency}, $form->{closed} ? 't' : 'f',
              $form->{delivered} ? "t" : "f", $form->{proforma} ? 't' : 'f',
              $quotation, conv_i($form->{department_id}),
              conv_i($form->{language_id}), conv_i($form->{taxzone_id}),
@@ -759,14 +759,13 @@ sub retrieve {
                      (SELECT c.accno FROM chart c WHERE d.income_accno_id    = c.id) AS income_accno,
                      (SELECT c.accno FROM chart c WHERE d.expense_accno_id   = c.id) AS expense_accno,
                      (SELECT c.accno FROM chart c WHERE d.fxgain_accno_id    = c.id) AS fxgain_accno,
-                     (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno,
-              d.curr AS currencies
+                     (SELECT c.accno FROM chart c WHERE d.fxloss_accno_id    = c.id) AS fxloss_accno
               $query_add
               FROM defaults d|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query);
   map { $form->{$_} = $ref->{$_} } keys %$ref;
 
-  ($form->{currency}) = split(/:/, $form->{currencies}) unless ($form->{currency});
+  $form->{currency} = $form->get_default_currency($myconfig);
 
   # set reqdate if this is an invoice->order conversion. If someone knows a better check to ensure
   # we come from invoices, feel free.
@@ -785,7 +784,7 @@ sub retrieve {
     $query =
       qq|SELECT o.cp_id, o.ordnumber, o.transdate, o.reqdate,
            o.taxincluded, o.shippingpoint, o.shipvia, o.notes, o.intnotes,
-           o.curr AS currency, e.name AS employee, o.employee_id, o.salesman_id,
+           (SELECT cu.name FROM currencies cu WHERE cu.id=o.currency_id) AS currency, e.name AS employee, o.employee_id, o.salesman_id,
            o.${vc}_id, cv.name AS ${vc}, o.amount AS invtotal,
            o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
@@ -806,9 +805,6 @@ sub retrieve {
 
     if ($ref) {
       map { $form->{$_} = $ref->{$_} } keys %$ref;
-
-      # remove any trailing whitespace
-      $form->{currency} =~ s/\s*$//;
 
       $form->{saved_xyznumber} = $form->{$form->{type} =~ /_quotation$/ ? "quonumber" : "ordnumber"};
 

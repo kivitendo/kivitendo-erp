@@ -8,7 +8,7 @@ use SL::DB::OrderItem;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
-use SL::Controller::Helper::ParseFilter;
+use SL::Controller::Helper::Filtered;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
@@ -18,10 +18,12 @@ use Rose::Object::MakeMethods::Generic (
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
 
-__PACKAGE__->get_models_url_params('flat_filter');
+__PACKAGE__->make_filtered(
+  MODEL             => 'OrderItem',
+  LAUNDER_TO        => 'filter'
+);
 __PACKAGE__->make_paginated(
   MODEL         => 'OrderItem',
-  PAGINATE_ARGS => 'db_args',
   ONLY          => [ qw(list) ],
 );
 
@@ -42,110 +44,91 @@ __PACKAGE__->make_sorted(
   customer          => t8('Customer'),
 );
 
-sub action_list {
-  my ($self) = @_;
+my $delivery_plan_query = [
+  'order.customer_id' => { gt => 0 },
+  'order.closed' => 0,
+  or => [ 'order.quotation' => 0, 'order.quotation' => undef ],
 
-  $self->db_args($self->setup_for_list(filter => $::form->{filter}));
-  $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });
-  $self->make_filter_summary;
-
-  $self->prepare_report;
-
-  my $orderitems = $self->get_models(%{ $self->db_args });
-
-  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
-}
-
-# private functions
-
-sub setup_for_list {
-  my ($self, %params) = @_;
-  $self->{filter} = {};
-  my %args = (
-    parse_filter(
-      $self->_pre_parse_filter($::form->{filter}, $self->{filter}),
-      with_objects => [ 'order', 'order.customer', 'part' ],
-      launder_to => $self->{filter},
-    ),
-  );
-
-  $args{query} = [ @{ $args{query} || [] },
-    (
-      'order.customer_id' => { gt => 0 },
-      'order.closed' => 0,
-      or => [ 'order.quotation' => 0, 'order.quotation' => undef ],
-
-      # filter by shipped_qty < qty, read from innermost to outermost
-      'id' => [ \"
-        -- 3. resolve the desired information about those
-        SELECT oi.id FROM (
-          -- 2. slice only part, orderitem and both quantities from it
-          SELECT parts_id, trans_id, qty, SUM(doi_qty) AS doi_qty FROM (
-            -- 1. join orderitems and deliverorder items via record_links.
-            --    also add customer data to filter for sales_orders
-            SELECT oi.parts_id, oi.trans_id, oi.id, oi.qty, doi.qty AS doi_qty
-            FROM orderitems oi, oe, record_links rl, delivery_order_items doi
-            WHERE
-              oe.id = oi.trans_id AND
-              oe.customer_id IS NOT NULL AND
-              (oe.quotation = 'f' OR oe.quotation IS NULL) AND
-              NOT oe.closed AND
-              rl.from_id = oe.id AND
-              rl.from_id = oi.trans_id AND
-              oe.id = oi.trans_id AND
-              rl.from_table = 'oe' AND
-              rl.to_table = 'delivery_orders' AND
-              rl.to_id = doi.delivery_order_id AND
-              oi.parts_id = doi.parts_id
-          ) tuples GROUP BY parts_id, trans_id, qty
-        ) partials
-        LEFT JOIN orderitems oi ON partials.parts_id = oi.parts_id AND partials.trans_id = oi.trans_id
-        WHERE oi.qty > doi_qty
-
-        UNION ALL
-
-        -- 4. since the join over record_links fails for sales_orders wihtout any delivery order
-        --    retrieve those without record_links at all
-        SELECT oi.id FROM orderitems oi, oe
+  # filter by shipped_qty < qty, read from innermost to outermost
+  'id' => [ \"
+    -- 3. resolve the desired information about those
+    SELECT oi.id FROM (
+      -- 2. slice only part, orderitem and both quantities from it
+      SELECT parts_id, trans_id, qty, SUM(doi_qty) AS doi_qty FROM (
+        -- 1. join orderitems and deliverorder items via record_links.
+        --    also add customer data to filter for sales_orders
+        SELECT oi.parts_id, oi.trans_id, oi.id, oi.qty, doi.qty AS doi_qty
+        FROM orderitems oi, oe, record_links rl, delivery_order_items doi
         WHERE
           oe.id = oi.trans_id AND
           oe.customer_id IS NOT NULL AND
           (oe.quotation = 'f' OR oe.quotation IS NULL) AND
           NOT oe.closed AND
-          oi.trans_id NOT IN (
-            SELECT from_id
-            FROM record_links rl
-            WHERE
-              rl.from_table ='oe' AND
-              rl.to_table = 'delivery_orders'
-          )
-
-        UNION ALL
-
-        -- 5. In case someone deleted a line of the delivery_order there will be a record_link (4 fails)
-        --    but there won't be a delivery_order_items to find (3 fails too). Search for orphaned orderitems this way
-        SELECT oi.id FROM orderitems AS oi, oe, record_links AS rl
-        WHERE
+          rl.from_id = oe.id AND
+          rl.from_id = oi.trans_id AND
+          oe.id = oi.trans_id AND
           rl.from_table = 'oe' AND
           rl.to_table = 'delivery_orders' AND
+          rl.to_id = doi.delivery_order_id AND
+          oi.parts_id = doi.parts_id
+      ) tuples GROUP BY parts_id, trans_id, qty
+    ) partials
+    LEFT JOIN orderitems oi ON partials.parts_id = oi.parts_id AND partials.trans_id = oi.trans_id
+    WHERE oi.qty > doi_qty
 
-          oi.trans_id = rl.from_id AND
-          oi.parts_id NOT IN (
-            SELECT doi.parts_id FROM delivery_order_items AS doi WHERE doi.delivery_order_id = rl.to_id
-          ) AND
+    UNION ALL
 
-          oe.id = oi.trans_id AND
+    -- 4. since the join over record_links fails for sales_orders wihtout any delivery order
+    --    retrieve those without record_links at all
+    SELECT oi.id FROM orderitems oi, oe
+    WHERE
+      oe.id = oi.trans_id AND
+      oe.customer_id IS NOT NULL AND
+      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+      NOT oe.closed AND
+      oi.trans_id NOT IN (
+        SELECT from_id
+        FROM record_links rl
+        WHERE
+          rl.from_table ='oe' AND
+          rl.to_table = 'delivery_orders'
+      )
 
-          oe.customer_id IS NOT NULL AND
-          (oe.quotation = 'f' OR oe.quotation IS NULL) AND
-          NOT oe.closed
-      " ],
-    )
-  ];
+    UNION ALL
 
-  return \%args;
+    -- 5. In case someone deleted a line of the delivery_order there will be a record_link (4 fails)
+    --    but there won't be a delivery_order_items to find (3 fails too). Search for orphaned orderitems this way
+    SELECT oi.id FROM orderitems AS oi, oe, record_links AS rl
+    WHERE
+      rl.from_table = 'oe' AND
+      rl.to_table = 'delivery_orders' AND
+
+      oi.trans_id = rl.from_id AND
+      oi.parts_id NOT IN (
+        SELECT doi.parts_id FROM delivery_order_items AS doi WHERE doi.delivery_order_id = rl.to_id
+      ) AND
+
+      oe.id = oi.trans_id AND
+
+      oe.customer_id IS NOT NULL AND
+      (oe.quotation = 'f' OR oe.quotation IS NULL) AND
+      NOT oe.closed
+  " ],
+];
+
+sub action_list {
+  my ($self) = @_;
+
+  $self->make_filter_summary;
+
+  my $orderitems = $self->get_models(query => $delivery_plan_query, with_objects => [ 'order', 'order.customer', 'part' ]);
+
+  $self->prepare_report;
+  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
 
+# private functions
+#
 sub prepare_report {
   my ($self)      = @_;
 
@@ -209,14 +192,15 @@ sub make_filter_summary {
     [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number')                                    ],
   );
 
-  my @flags = (
-    [ $filter->{part}{type}{part},     $::locale->text('Parts')      ],
-    [ $filter->{part}{type}{service},  $::locale->text('Services')   ],
-    [ $filter->{part}{type}{assembly}, $::locale->text('Assemblies') ],
+  my %flags = (
+    part     => $::locale->text('Parts'),
+    service  => $::locale->text('Services'),
+    assembly => $::locale->text('Assemblies'),
   );
+  my @flags = map { $flags{$_} } @{ $filter->{part}{type} || [] };
 
   for (@flags) {
-    push @filter_strings, "$_->[1]" if $_->[0];
+    push @filter_strings, $_ if $_;
   }
   for (@filters) {
     push @filter_strings, "$_->[1]: $_->[0]" if $_->[0];
@@ -246,47 +230,6 @@ sub link_to {
     my $id     = $object->id;
     return "ct.pl?action=$action&id=$id&db=customer";
   }
-}
-
-# unfortunately ParseFilter can't handle compount filters.
-# so we clone the original filter (still need that for serializing)
-# rip out the options we know an replace them with the compound options.
-# ParseFilter will take care of the prefixing then.
-sub _pre_parse_filter {
-  my ($self, $orig_filter, $launder_to) = @_;
-
-  return undef unless $orig_filter;
-
-  my $filter = clone($orig_filter);
-  if ($filter->{part} && $filter->{part}{type}) {
-    $launder_to->{part}{type} = delete $filter->{part}{type};
-    my @part_filters = grep $_, map {
-      $launder_to->{part}{type}{$_} ? SL::DB::Manager::Part->type_filter($_) : ()
-    } qw(part service assembly);
-
-    push @{ $filter->{and} }, or => [ @part_filters ] if @part_filters;
-  }
-
-  for my $op (qw(le ge)) {
-    if ($filter->{"reqdate:date::$op"}) {
-      $launder_to->{"reqdate_date__$op"} = delete $filter->{"reqdate:date::$op"};
-      my $parsed_date = DateTime->from_lxoffice($launder_to->{"reqdate_date__$op"});
-      push @{ $filter->{and} }, or => [
-        'reqdate' => { $op => $parsed_date },
-        and => [
-          'reqdate' => undef,
-          'order.reqdate' => { $op => $parsed_date },
-        ]
-      ] if $parsed_date;
-    }
-  }
-
-  if (my $style = delete $filter->{searchstyle}) {
-    $self->{searchstyle}       = $style;
-    $launder_to->{searchstyle} = $style;
-  }
-
-  return $filter;
 }
 
 1;

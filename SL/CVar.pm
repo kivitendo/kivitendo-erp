@@ -2,12 +2,13 @@ package CVar;
 
 use strict;
 
+use List::MoreUtils qw(any);
 use List::Util qw(first);
 use Scalar::Util qw(blessed);
 use Data::Dumper;
 
 use SL::DBUtils;
-use SL::MoreCommon qw(any listify);
+use SL::MoreCommon qw(listify);
 
 sub get_configs {
   $main::lxdebug->enter_sub();

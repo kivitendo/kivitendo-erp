@@ -56,7 +56,6 @@ sub post_transaction {
 
   my $dbh = $provided_dbh ? $provided_dbh : $form->dbconnect_noauto($myconfig);
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
-  delete $form->{currency} unless $form->{defaultcurrency};
 
   # set exchangerate
   $form->{exchangerate} = ($form->{currency} eq $form->{defaultcurrency}) ? 1 :
@@ -135,8 +134,8 @@ sub post_transaction {
     } else {
       $query = qq|SELECT nextval('glid')|;
       ($form->{id}) = selectrow_query($form, $dbh, $query);
-      $query = qq|INSERT INTO ar (id, invnumber, employee_id) VALUES (?, 'dummy', ?)|;
-      do_query($form, $dbh, $query, $form->{id}, $form->{employee_id});
+      $query = qq|INSERT INTO ar (id, invnumber, employee_id, currency_id) VALUES (?, 'dummy', ?, (SELECT id FROM currencies WHERE name=?))|;
+      do_query($form, $dbh, $query, $form->{id}, $form->{employee_id}, $form->{currency});
       $form->{invnumber} = $form->update_defaults($myconfig, "invnumber", $dbh) unless $form->{invnumber};
     }
   }
@@ -156,12 +155,12 @@ sub post_transaction {
       qq|UPDATE ar set
            invnumber = ?, ordnumber = ?, transdate = ?, customer_id = ?,
            taxincluded = ?, amount = ?, duedate = ?, paid = ?,
-           netamount = ?, curr = ?, notes = ?, department_id = ?,
+           netamount = ?, notes = ?, department_id = ?,
            employee_id = ?, storno = ?, storno_id = ?, globalproject_id = ?,
            direct_debit = ?
          WHERE id = ?|;
     my @values = ($form->{invnumber}, $form->{ordnumber}, conv_date($form->{transdate}), conv_i($form->{customer_id}), $form->{taxincluded} ? 't' : 'f', $form->{amount},
-                  conv_date($form->{duedate}), $form->{paid}, $form->{netamount}, $form->{currency}, $form->{notes}, conv_i($form->{department_id}),
+                  conv_date($form->{duedate}), $form->{paid}, $form->{netamount}, $form->{notes}, conv_i($form->{department_id}),
                   conv_i($form->{employee_id}), $form->{storno} ? 't' : 'f', $form->{storno_id},
                   conv_i($form->{globalproject_id}), $form->{direct_debit} ? 't' : 'f', conv_i($form->{id}));
     do_query($form, $dbh, $query, @values);
@@ -427,7 +426,6 @@ sub post_payment {
 
   $form->{exchangerate}    = $form->format_amount($myconfig, $form->{exchangerate});
   $form->{defaultcurrency} = $form->get_default_currency($myconfig);
-  delete $form->{currency} unless $form->{defaultcurrency};
 
   # Get the AR accno (which is normally done by Form::create_links()).
   $query =

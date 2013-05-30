@@ -18,6 +18,7 @@ sub make_paginated {
   $specs{MODEL}             =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
   $specs{PER_PAGE}        ||= "SL::DB::Manager::$specs{MODEL}"->default_objects_per_page;
   $specs{FORM_PARAMS}     ||= [ qw(page per_page) ];
+  $specs{PAGINATE_ARGS}   ||= '__FILTER__';
   $specs{ONLY}            ||= [];
   $specs{ONLY}              = [ $specs{ONLY} ] if !ref $specs{ONLY};
   $specs{ONLY_MAP}          = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
@@ -57,9 +58,13 @@ sub get_current_paginate_params {
     per_page            => ($params{per_page} * 1) || $spec->{PER_PAGE},
   );
 
-  my %paginate_args     = ref($spec->{PAGINATE_ARGS}) eq 'CODE' ? %{ $spec->{PAGINATE_ARGS}->($self) }
-                        :     $spec->{PAGINATE_ARGS}            ? do { my $sub = $spec->{PAGINATE_ARGS}; %{ $self->$sub() } }
-                        :                                         ();
+  # try to use Filtered if available and nothing else is configured, but don't
+  # blow up if the controller does not use Filtered
+  my %paginate_args     = ref($spec->{PAGINATE_ARGS}) eq 'CODE'       ? %{ $spec->{PAGINATE_ARGS}->($self) }
+                        :     $spec->{PAGINATE_ARGS}  eq '__FILTER__'
+                           && $self->can('get_current_filter_params') ? $self->get_current_filter_params
+                        :     $spec->{PAGINATE_ARGS}  ne '__FILTER__' ? do { my $sub = $spec->{PAGINATE_ARGS}; %{ $self->$sub() } }
+                        :                                               ();
   my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => \%paginate_args);
 
   # $::lxdebug->dump(0, "get_current_paginate_params: ", $calculated_params);

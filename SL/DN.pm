@@ -208,7 +208,7 @@ sub create_invoice_for_fees {
   $query =
     qq|INSERT INTO ar (id,          invnumber, transdate, gldate, customer_id,
                        taxincluded, amount,    netamount, paid,   duedate,
-                       invoice,     curr,      notes,
+                       invoice,     currency_id,      notes,
                        employee_id)
        VALUES (
          ?,                     -- id
@@ -228,7 +228,7 @@ sub create_invoice_for_fees {
          -- duedate:
          (SELECT duedate FROM dunning WHERE dunning_id = ? LIMIT 1),
          'f',                   -- invoice
-         ?,                     -- curr
+         (SELECT id FROM currencies WHERE name = ?), -- curr
          ?,                     -- notes
          -- employee_id:
          (SELECT id FROM employee WHERE login = ?)
@@ -761,7 +761,7 @@ sub print_dunning {
          ar.transdate,       ar.duedate,      ar.customer_id,
          ar.invnumber,       ar.ordnumber,    ar.cp_id,
          ar.amount,          ar.netamount,    ar.paid,
-         ar.curr,
+         (SELECT cu.name FROM currencies cu WHERE cu.id=ar.currency_id) AS curr,
          ar.amount - ar.paid AS open_amount,
          ar.amount - ar.paid + da.fee + da.interest AS linetotal
 
