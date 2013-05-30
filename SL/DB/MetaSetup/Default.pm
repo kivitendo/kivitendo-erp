@@ -85,7 +85,7 @@ __PACKAGE__->meta->setup(
     warehouse => {
       class       => 'SL::DB::Warehouse',
       key_columns => { warehouse_id => 'id' },
-
+    },
     currency => {
       class       => 'SL::DB::Currency',
       key_columns => { currency_id => 'id' },
