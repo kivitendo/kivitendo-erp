@@ -975,7 +975,7 @@ sub retrieve_invoice {
         i.id AS invoice_id,
         i.description, i.longdescription, i.qty, i.fxsellprice AS sellprice, i.parts_id AS id, i.unit, i.deliverydate, i.project_id, i.serialnumber,
         i.price_factor_id, i.price_factor, i.marge_price_factor, i.discount,
-        p.partnumber, p.inventory_accno_id AS part_inventory_accno_id, p.bin, pr.projectnumber, pg.partsgroup
+        p.partnumber, p.inventory_accno_id AS part_inventory_accno_id,  pr.projectnumber, pg.partsgroup
 
         FROM invoice i
         JOIN parts p ON (i.parts_id = p.id)
@@ -1234,7 +1234,7 @@ sub retrieve_item {
   my $query =
     qq|SELECT
          p.id, p.partnumber, p.description, p.lastcost AS sellprice, p.listprice,
-         p.unit, p.assembly, p.bin, p.onhand, p.formel,
+         p.unit, p.assembly, p.onhand, p.formel,
          p.notes AS partnotes, p.notes AS longdescription, p.not_discountable,
          p.inventory_accno_id, p.price_factor_id,
 

@@ -26,7 +26,6 @@ __PACKAGE__->meta->setup(
     inventory_accno_id => { type => 'integer' },
     income_accno_id    => { type => 'integer' },
     expense_accno_id   => { type => 'integer' },
-    bin                => { type => 'text' },
     shop               => { type => 'boolean', default => 'false' },
     obsolete           => { type => 'boolean', default => 'false' },
     bom                => { type => 'boolean', default => 'false' },
@@ -48,6 +47,8 @@ __PACKAGE__->meta->setup(
     onhand             => { type => 'numeric', default => '0', precision => 5, scale => 25 },
     stockable          => { type => 'boolean', default => 'false' },
     has_sernumber      => { type => 'boolean', default => 'false' },
+    warehouse_id       => { type => 'integer' },
+    bin_id             => { type => 'integer' },
   ],
 
   primary_key_columns => [ 'id' ],
@@ -55,6 +56,11 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
+    bin => {
+      class       => 'SL::DB::Bin',
+      key_columns => { bin_id => 'id' },
+    },
+
     buchungsgruppen => {
       class       => 'SL::DB::Buchungsgruppe',
       key_columns => { buchungsgruppen_id => 'id' },
@@ -78,6 +84,11 @@ __PACKAGE__->meta->setup(
     unit_obj => {
       class       => 'SL::DB::Unit',
       key_columns => { unit => 'name' },
+    },
+
+    warehouse => {
+      class       => 'SL::DB::Warehouse',
+      key_columns => { warehouse_id => 'id' },
     },
   ],
 );

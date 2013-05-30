@@ -1,9 +1,7 @@
-[%- USE T8 %]
+[[%- USE T8 %]
 [%- USE HTML %]
 [%- USE LxERP %]
- <script type="text/javascript" src="js/common.js"></script>
- <script type="text/javascript" src="js/parts_language_selection.js"></script>
-
+[% PROCESS 'common/select_warehouse_bin.html' %]
  <p><div class="listtop">[% title %]  [% HTML.escape(partnumber) %]  [% HTML.escape(description) %]</div></p>
 
 [% PROCESS 'common/flash.html' %]
@@ -233,8 +231,18 @@
            <td><input name="rop" size="10" value="[% LxERP.format_amount(rop) %]"></td>
           </tr>
           <tr>
-           <th align="right" nowrap="true">[% 'Bin' | $T8 %]</th>
-           <td><input name="bin" size="10" value="[% HTML.escape(bin) %]"></td>
+           <th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %] [% HTML.escape(bin_id) %]</th>
+           <td>
+            <select name="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
+             [%- FOREACH warehouse = WAREHOUSES %]
+               <option value="[% HTML.escape(warehouse.id) %]"[% IF warehouse_id == warehouse.id %] selected[% END %]>[% warehouse.description %]</option>
+             [%- END %]
+            </select>
+          </td>
+          </tr>
+          <tr>
+           <th align="right" nowrap="true">[% 'Default Bin' | $T8 %]</th>
+           <td><select id="bin_id" name="bin_id"></select></td>
           </tr>
         [%- END %]
           <tr>

@@ -1586,7 +1586,20 @@ sub form_header {
 
   $form->get_lists('price_factors' => 'ALL_PRICE_FACTORS',
                    'partsgroup'    => 'all_partsgroup',
-                   'vendors'       => 'ALL_VENDORS',);
+                   'vendors'       => 'ALL_VENDORS',
+                   'warehouses'    => { 'key'    => 'WAREHOUSES',
+                                        'bins'   => 'BINS', });
+  # leerer wert für Lager und Lagerplatz korrekt einstellt
+  # ID 0 sollte in Ordnung sein, da der Zähler sowieso höher ist
+  my $no_default_bin_entry = { 'id' => '0', description => '--', 'BINS' => [ { id => '0', description => ''} ] };
+  push @ { $form->{WAREHOUSES} }, $no_default_bin_entry;
+  if (my $max = scalar @{ $form->{WAREHOUSES} }) {
+
+    my $default_warehouse_id = $::instance_conf->get_default_warehouse_id;
+    my $default_bin_id       = $::instance_conf->get_default_bin_id;
+    $form->{warehouse_id} ||= $default_warehouse_id || $form->{WAREHOUSES}->[$max -1]->{id};
+    $form->{bin_id}       ||= $default_bin_id       ||  $form->{WAREHOUSES}->[$max -1]->{BINS}->[0]->{id};
+  }
 
 
   IC->retrieve_buchungsgruppen(\%myconfig, $form);
@@ -1847,6 +1860,11 @@ sub save {
   $form->error($locale->text('Description must not be empty!')) unless $form->{description};
   $form->error($locale->text('Partnumber must not be set to empty!')) if $form->{id} && !$form->{partnumber};
 
+  # undef warehouse_id if the empty value is selected
+  if ( ($form->{warehouse_id} == 0) && ($form->{bin_id} == 0) ) {
+    undef $form->{warehouse_id};
+    undef $form->{bin_id};
+  }
   # save part
   if (IC->save(\%myconfig, \%$form) == 3) {
     $form->error($locale->text('Partnumber not unique!'));

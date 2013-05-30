@@ -68,9 +68,23 @@ __PACKAGE__->meta->setup(
     ar_show_mark_as_paid                => { type => 'boolean', default => 'true' },
     ap_show_mark_as_paid                => { type => 'boolean', default => 'true' },
     assemblynumber                      => { type => 'text' },
+    warehouse_id                        => { type => 'integer' },
+    bin_id                              => { type => 'integer' },
   ],
 
   primary_key_columns => [ 'id' ],
+
+  foreign_keys => [
+    bin => {
+      class       => 'SL::DB::Bin',
+      key_columns => { bin_id => 'id' },
+    },
+
+    warehouse => {
+      class       => 'SL::DB::Warehouse',
+      key_columns => { warehouse_id => 'id' },
+    },
+  ],
 );
 
 1;

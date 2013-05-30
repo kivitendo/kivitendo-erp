@@ -144,6 +144,16 @@ sub get_purchase_delivery_order_show_delete {
   return $self->{data}->{purchase_delivery_order_show_delete};
 }
 
+sub get_default_warehouse_id {
+  my ($self) = @_;
+  return ($self->{data}->{warehouse_id});
+}
+
+sub get_default_bin_id {
+  my ($self) = @_;
+  return ($self->{data}->{bin_id});
+}
+
 1;
 
 __END__
@@ -255,6 +265,14 @@ corresponding record type (true or false).
 
 Returns the default behavior for showing the delete button for the
 corresponding record type (true or false).
+
+=item C<get_default_warehouse_id>
+
+Returns the default warehouse_id
+
+=item C<get_default_bin_id>
+
+Returns the default bin_id
 
 =back
 

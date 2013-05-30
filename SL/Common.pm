@@ -85,7 +85,7 @@ sub retrieve_parts {
   }
 
   if ($form->{no_services}) {
-    $filter .= qq| AND (inventory_accno_id is not NULL or assembly=TRUE)|; # @mb hier nochmal optimieren ... nach kurzer ruecksprache alles i.o.
+    $filter .= qq| AND (inventory_accno_id is not NULL or assembly=TRUE)|;
   }
 
   substr($filter, 1, 3) = "WHERE" if ($filter);
@@ -94,7 +94,8 @@ sub retrieve_parts {
   $order_dir = $order_dir ? "ASC" : "DESC";
 
   my $query =
-    qq|SELECT id, partnumber, description, ean | .
+    qq|SELECT id, partnumber, description, ean, | .
+    qq|       warehouse_id, bin_id | .
     qq|FROM parts $filter | .
     qq|ORDER BY $order_by $order_dir|;
   my $sth = $dbh->prepare($query);

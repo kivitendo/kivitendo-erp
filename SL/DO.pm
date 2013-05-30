@@ -684,7 +684,7 @@ sub retrieve {
   $query =
     qq|SELECT doi.id AS delivery_order_items_id,
          p.partnumber, p.assembly, p.listprice, doi.description, doi.qty,
-         doi.sellprice, doi.parts_id AS id, doi.unit, doi.discount, p.bin, p.notes AS partnotes,
+         doi.sellprice, doi.parts_id AS id, doi.unit, doi.discount, p.notes AS partnotes,
          doi.reqdate, doi.project_id, doi.serialnumber, doi.lastcost,
          doi.ordnumber, doi.transdate, doi.cusordnumber, doi.longdescription,
          doi.price_factor_id, doi.price_factor, doi.marge_price_factor, doi.pricegroup_id,

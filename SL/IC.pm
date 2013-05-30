@@ -346,7 +346,8 @@ sub save {
          notes = ?,
          formel = ?,
          rop = ?,
-         bin = ?,
+         warehouse_id = ?,
+         bin_id = ?,
          buchungsgruppen_id = ?,
          payment_id = ?,
          inventory_accno_id = $subq_inventory,
@@ -378,7 +379,8 @@ sub save {
              $form->{notes},
              $form->{formel},
              $form->{rop},
-             $form->{bin},
+             conv_i($form->{warehouse_id}),
+             conv_i($form->{bin_id}),
              conv_i($form->{buchungsgruppen_id}),
              conv_i($form->{payment_id}),
              conv_i($form->{buchungsgruppen_id}),
@@ -567,7 +569,7 @@ sub retrieve_assemblies {
   # retrieve assembly items
   my $query =
     qq|SELECT p.id, p.partnumber, p.description,
-         p.bin, p.onhand, p.rop,
+              p.onhand, p.rop,
          (SELECT sum(p2.inventory_accno_id)
           FROM parts p2, assembly a
           WHERE (p2.id = a.parts_id) AND (a.id = p.id)) AS inventory
@@ -671,7 +673,7 @@ sub assembly_item {
 #   partnumber ean description partsgroup microfiche drawing
 #
 # column flags:
-#   l_partnumber l_description l_listprice l_sellprice l_lastcost l_priceupdate l_weight l_unit l_bin l_rop l_image l_drawing l_microfiche l_partsgroup
+#   l_partnumber l_description l_listprice l_sellprice l_lastcost l_priceupdate l_weight l_unit l_rop l_image l_drawing l_microfiche l_partsgroup
 #
 # exclusives:
 #   itemstatus  = active | onhand | short | obsolete | orphaned
@@ -721,7 +723,7 @@ sub all_parts {
   my @apoe_filters         = qw(transdate);
   my @like_filters         = (@simple_filters, @invoice_oi_filters);
   my @all_columns          = (@simple_filters, @makemodel_filters, @apoe_filters, @project_filters, qw(serialnumber));
-  my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit bin rop image));
+  my @simple_l_switches    = (@all_columns, qw(notes listprice sellprice lastcost priceupdate weight unit rop image));
   my @oe_flags             = qw(bought sold onorder ordered rfq quoted);
   my @qsooqr_flags         = qw(invnumber ordnumber quonumber trans_id name module qty);
   my @deliverydate_flags   = qw(deliverydate);
@@ -964,7 +966,7 @@ sub all_parts {
 
   my $token_builder = $make_token_builder->(\%joins_needed);
 
-  my @sort_cols    = (@simple_filters, qw(id bin priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
+  my @sort_cols    = (@simple_filters, qw(id priceupdate onhand invnumber ordnumber quonumber name serialnumber soldtotal deliverydate));
      $form->{sort} = 'id' unless grep { $form->{"l_$_"} } grep { $form->{sort} eq $_ } @sort_cols; # sort by id if unknown or invisible column
   my $sort_order   = ($form->{revers} ? ' DESC' : ' ASC');
   my $order_clause = " ORDER BY " . $token_builder->($form->{sort}) . ($form->{revers} ? ' DESC' : ' ASC');
@@ -1022,7 +1024,7 @@ sub all_parts {
   if ($form->{searchitems} eq 'assembly' && $form->{bom}) {
     $query =
       qq|SELECT p.id, p.partnumber, p.description, a.qty AS onhand,
-           p.unit, p.bin, p.notes,
+           p.unit, p.notes,
            p.sellprice, p.listprice, p.lastcost,
            p.rop, p.weight, p.priceupdate,
            p.image, p.drawing, p.microfiche,
@@ -1496,7 +1498,7 @@ sub retrieve_accounts {
       $transdate = $form->{deliverydate};
     }
   } elsif ($form->{script} eq 'ir.pl') {
-    # when a purchase invoice is opened from the report of purchase invoices 
+    # when a purchase invoice is opened from the report of purchase invoices
     # $form->{type} isn't set, but $form->{script} is, not sure why this is or
     # whether this distinction matters in some other scenario. Otherwise one
     # could probably take out this elsif and add a
