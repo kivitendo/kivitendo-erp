@@ -231,7 +231,7 @@
            <td><input name="rop" size="10" value="[% LxERP.format_amount(rop) %]"></td>
           </tr>
           <tr>
-           <th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %] [% HTML.escape(bin_id) %]</th>
+           <th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %]</th>
            <td>
             <select name="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
              [%- FOREACH warehouse = WAREHOUSES %]
