@@ -1,6 +1,6 @@
 [%- USE T8 %][%- USE L %][% USE LxERP %]
 
-[% PROCESS 'common/select_warehouse_bin.html' warehouses=FORM.warehouses %]
+[% PROCESS 'common/select_warehouse_bin.html'  WAREHOUSES=SELF.WAREHOUSES warehouse_id=SELF.warehouse_id bin_id=SELF.bin_id %]
 <h1>[% title | html %]</h1>
 
 [% PROCESS 'common/flash.html' %]
