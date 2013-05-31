@@ -331,7 +331,7 @@ sub transfer_stock_update_part {
     if (!scalar @{ $parts }) {
       new_item(action => "transfer_stock_update_part");
     } elsif (scalar @{ $parts } == 1) {
-      @{$form}{qw(parts_id partnumber description ean)} = @{$parts->[0]}{qw(id partnumber description ean)};
+      @{$form}{qw(parts_id partnumber description ean warehouse_id bin_id)} = @{$parts->[0]}{qw(id partnumber description ean warehouse_id bin_id)};
       transfer_stock_get_partunit();
       transfer_warehouse_selection();
 
@@ -398,7 +398,7 @@ sub transfer_stock_part_selected {
 
   my $form     = $main::form;
 
-  @{$form}{qw(parts_id partnumber description ean)} = @{$part}{qw(id partnumber description ean)};
+  @{$form}{qw(parts_id partnumber description ean warehouse_id bin_id)} = @{$part}{qw(id partnumber description ean warehouse_id bin_id)};
 
   transfer_stock_get_partunit();
   transfer_warehouse_selection();
