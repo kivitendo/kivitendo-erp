@@ -282,6 +282,7 @@ sub transfer_parts {
     }
 
     $transfer->{comment} = $form->{comment};
+    $transfer->{change_default_bin} = $form->{change_default_bin};
 
     push @transfers, $transfer;
 

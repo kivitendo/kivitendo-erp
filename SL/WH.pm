@@ -132,7 +132,13 @@ sub transfer {
           bin       => $dst_bin->id,
           qty       => $qty,
         )->save;
-      }
+        # Standardlagerplatz in Stammdaten gleich mitverschieben
+        if (defined($transfer->{change_default_bin})){
+          my $part = SL::DB::Part->new(id        => conv_i($transfer->{parts_id}))->load;
+          $part->update_attributes(warehouse_id  => conv_i($transfer->{dst_warehouse_id}));
+          $part->update_attributes(bin_id        => conv_i($transfer->{dst_bin_id}));
+        }
+     }
 
       push @trans_ids, $trans_id;
     }
