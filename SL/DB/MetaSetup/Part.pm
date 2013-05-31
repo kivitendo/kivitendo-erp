@@ -54,6 +54,7 @@ __PACKAGE__->meta->setup(
   primary_key_columns => [ 'id' ],
 
   allow_inline_column_values => 1,
+  unique_key => [ 'partnumber' ],
 
   foreign_keys => [
     bin => {
