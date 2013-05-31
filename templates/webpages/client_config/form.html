@@ -1,5 +1,6 @@
 [%- USE T8 %][%- USE L %][% USE LxERP %]
 
+[% PROCESS 'common/select_warehouse_bin.html' warehouses=FORM.warehouses %]
 <h1>[% title | html %]</h1>
 
 [% PROCESS 'common/flash.html' %]
@@ -176,6 +177,26 @@
      [% 'Any stock contents containing a best before date will be impossible to stock out otherwise.' | $T8 %]
    </td>
  </tr>
+ <tr> </tr>
+ <tr> </tr>
+ <tr>
+  <th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %]</th>
+  <td>
+   <select name="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
+    [%- FOREACH warehouse = SELF.WAREHOUSES %]
+      <option value="[% HTML.escape(warehouse.id) %]"[% IF SELF.warehouse_id == warehouse.id %] selected[% END %]>[% warehouse.description %]</option>
+    [%- END %]
+   </select>
+ </td>
+  <td>
+     [% 'This is the default bin for parts' | $T8 %]<br>
+  </td>
+ </tr>
+ <tr>
+  <th align="right" nowrap="true">[% 'Default Bin' | $T8 %]</th>
+  <td><select id="bin_id" name="bin_id"></select></td>
+ </tr>
+
 
 </table>
 
