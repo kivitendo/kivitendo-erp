@@ -29,13 +29,21 @@
       }
 
       $(function(){
+        var bin_id_index       = 0;
+        var warehouse_id_index = 0;
         [%- USE STOCK_INFO_it = Iterator(STOCK_INFO) %][%- FOREACH si = STOCK_INFO_it %]
           // new si for wh [% si.warehouse_id %] bin [% si.bin_id %]
           [%- SET warehouse_selected = '0' %]
           [%- USE WAREHOUSES_it = Iterator(WAREHOUSES) %][%- FOREACH wh = WAREHOUSES_it %]
             // wh [% wh.id %]
+            [% IF HTML.escape(PART_INFO.warehouse_id) == wh.id %]
+              warehouse_id_index = [% WAREHOUSES_it.count - 1%];
+            [% END %]
             [%- USE BINS_it = Iterator(wh.BINS) %][%- FOREACH bin = BINS_it %]
               // bin [% bin.id %]
+              [% IF HTML.escape(PART_INFO.bin_id) == bin.id %]
+                bin_id_index = [% BINS_it.count - 1%];
+              [% END %]
               [%- IF bin.id == si.bin_id %]
                 warehouse_selected([% STOCK_INFO_it.count %], [% WAREHOUSES_it.count - 1 %], [% BINS_it.count - 1%]);
                 [%- SET warehouse_selected = '1' %]
@@ -43,7 +51,7 @@
             [%- END %]
           [%- END %]
           [%- UNLESS warehouse_selected %]
-          warehouse_selected([% STOCK_INFO_it.count %], 0);
+            warehouse_selected([% STOCK_INFO_it.count %], warehouse_id_index, bin_id_index);
           [%- END %]
         [%- END %]
       });
@@ -120,7 +128,7 @@
      <td>
       <select name="warehouse_id_[% loop.count %]" onchange="warehouse_selected([% loop.count %], this.selectedIndex)">
        [%- FOREACH wh = WAREHOUSES %]
-       <option value="[% HTML.escape(wh.id) %]"[% IF wh.id == row.warehouse_id %] selected[% END %]>[% HTML.escape(wh.description) %]</option>
+     <option value="[% HTML.escape(wh.id) %]"[% IF wh.id == row.warehouse_id %] selected[% END %] [% IF wh.id == PART_INFO.warehouse_id %] selected[% END %]>[% HTML.escape(wh.description) %]</option>
        [%- END %]
       </select>
      </td>
