@@ -20,6 +20,26 @@
 
      </td>
     </tr>
+[%- IF show_weight %]
+  <tr>
+    <td>
+      <table width="100%">
+        <tr valign="bottom">
+          <td align="right">
+            <table>
+            <tr>
+              <th  align="left">[% 'Total weight' | $T8 %]</th>
+              <td align="right">
+                [% LxERP.format_amount(totalweight, 3) %] [% HTML.escape(weightunit) %]
+              </td>
+            </tr>
+            </table>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+[%- END %]
    </table>
   </p>
 

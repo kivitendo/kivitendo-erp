@@ -33,6 +33,18 @@
 [%- END %]
        </table>
       </td>
+[%- IF show_weight %]
+      <td>
+       <table>
+        <tr>
+         <th  align=left>[% 'Total weight' | $T8 %]</th>
+         <td>
+          [% LxERP.format_amount(totalweight) %] [% HTML.escape(weightunit) %]
+         </td>
+        </tr>
+       </table>
+      </td>
+[%- END %]
       <td align="right">
   [%- IF taxaccounts %]
        <input name="taxincluded" class="checkbox" type="checkbox" [% IF taxincluded %]checked[% END %]>

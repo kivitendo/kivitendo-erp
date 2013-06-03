@@ -123,6 +123,10 @@ sub display_row {
 
   my ($stock_in_out, $stock_in_out_title);
 
+  my $defaults = AM->get_defaults();
+  $form->{show_weight} = $defaults->{show_weight};
+  $form->{weightunit} = $defaults->{weightunit};
+
   my $is_purchase        = (first { $_ eq $form->{type} } qw(request_quotation purchase_order purchase_delivery_order)) || ($form->{script} eq 'ir.pl');
   my $show_min_order_qty =  first { $_ eq $form->{type} } qw(request_quotation purchase_order);
   my $is_delivery_order  = $form->{type} =~ /_delivery_order$/;
@@ -141,7 +145,7 @@ sub display_row {
   }
 
   # column_index
-  my @header_sort = qw(runningnumber partnumber description ship qty unit sellprice_pg sellprice discount linetotal);
+  my @header_sort = qw(runningnumber partnumber description ship qty unit weight sellprice_pg sellprice discount linetotal);
   my @HEADER = (
     {  id => 'runningnumber', width => 5,     value => $locale->text('No.'),                  display => 1, },
     {  id => 'partnumber',    width => 8,     value => $locale->text('Number'),               display => 1, },
@@ -150,6 +154,7 @@ sub display_row {
     {  id => 'qty',           width => 5,     value => $locale->text('Qty'),                  display => 1, },
     {  id => 'price_factor',  width => 5,     value => $locale->text('Price Factor'),         display => !$is_delivery_order, },
     {  id => 'unit',          width => 5,     value => $locale->text('Unit'),                 display => 1, },
+    {  id => 'weight',        width => 5,     value => $locale->text('Weight'),               display => $defaults->{show_weight}, },
     {  id => 'serialnr',      width => 10,    value => $locale->text('Serial No.'),           display => 0, },
     {  id => 'projectnr',     width => 10,    value => $locale->text('Project'),              display => 0, },
     {  id => 'sellprice',     width => 15,    value => $locale->text('Price'),                display => !$is_delivery_order, },
@@ -187,12 +192,13 @@ sub display_row {
   my $deliverydate  = $locale->text('Required by');
 
   # special alignings
-  my %align  = map { $_ => 'right' } qw(qty ship right sellprice_pg discount linetotal stock_in_out);
+  my %align  = map { $_ => 'right' } qw(qty ship right sellprice_pg discount linetotal stock_in_out weight);
   my %nowrap = map { $_ => 1 }       qw(description unit);
 
   $form->{marge_total}           = 0;
   $form->{sellprice_total}       = 0;
   $form->{lastcost_total}        = 0;
+  $form->{totalweight}           = 0;
   my %projectnumber_labels = ();
   my @projectnumber_values = ("");
 
@@ -204,6 +210,8 @@ sub display_row {
   _update_part_information();
   _update_ship() if ($is_s_p_order);
   _update_custom_variables();
+
+  my $totalweight = 0;
 
   # rows
 
@@ -246,6 +254,7 @@ sub display_row {
     } else {
       $column_data{price_factor} = '&nbsp;';
     }
+    $form->{"weight_$i"} *= AM->convert_unit($form->{"selected_unit_$i"}, $form->{"partunit_$i"}, $all_units) || 1;
 
     $column_data{"unit"} = AM->unit_select_html($all_units, "unit_$i", $this_unit, $form->{"id_$i"} ? $form->{"unit_$i"} : undef);
 # / unit ending
@@ -325,6 +334,8 @@ sub display_row {
     $column_data{linetotal}   = $form->format_amount(\%myconfig, $linetotal, 2);
     $column_data{bin}         = $form->{"bin_$i"};
 
+    $column_data{weight}      = $form->format_amount(\%myconfig, $form->{"qty_$i"} * $form->{"weight_$i"}, 3) . ' ' . $defaults->{weightunit} if $defaults->{show_weight};
+
     if ($is_delivery_order) {
       $column_data{stock_in_out} =  calculate_stock_in_out($i);
     }
@@ -389,6 +400,9 @@ sub display_row {
       if $form->{"id_$i"} && ($form->{type} =~ /^sales_/ ||  $form->{type} =~ /invoice/) ;
 # / marge calculations ending
 
+# Calculate total weight
+    $totalweight += ($form->{"qty_$i"} * $form->{"weight_$i"});
+
 # calculate onhand
     if ($form->{"id_$i"}) {
       my $part         = IC->get_basic_part_info(id => $form->{"id_$i"});
@@ -416,7 +430,7 @@ sub display_row {
           map { ($cgi->hidden("-name" => $_, "-value" => $form->{$_})); } map { $_."_$i" }
             (qw(orderitems_id bo pricegroup_old price_old id inventory_accno bin partsgroup partnotes
                 income_accno expense_accno listprice assembly taxaccounts ordnumber transdate cusordnumber
-                longdescription basefactor marge_absolut marge_percent marge_price_factor), @hidden_vars)
+                longdescription basefactor marge_absolut marge_percent marge_price_factor weight), @hidden_vars)
     );
 
     map { $form->{"${_}_base"} += $linetotal } (split(/ /, $form->{"taxaccounts_$i"}));
@@ -428,6 +442,8 @@ sub display_row {
 
     push @ROWS, { ROW1 => \@ROW1, ROW2 => \@ROW2, HIDDENS => \@HIDDENS, colspan => $colspan, error => $form->{"row_error_$i"}, };
   }
+
+  $form->{totalweight} = $totalweight;
 
   print $form->parse_html_template('oe/sales_order', { ROWS   => \@ROWS,
                                                        HEADER => \@HEADER,
@@ -1789,6 +1805,7 @@ sub _update_part_information {
 
     my $info                 = $form->{PART_INFORMATION}->{$form->{"id_${i}"}} || { };
     $form->{"partunit_${i}"} = $info->{unit};
+    $form->{"weight_$i"}     = $info->{weight};
   }
 
   $main::lxdebug->leave_sub();

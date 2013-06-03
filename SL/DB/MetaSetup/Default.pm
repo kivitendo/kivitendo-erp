@@ -70,6 +70,7 @@ __PACKAGE__->meta->setup(
     warehouse_id                        => { type => 'integer' },
     bin_id                              => { type => 'integer' },
     currency_id                         => { type => 'integer', not_null => 1 },
+    show_weight                         => { type => 'boolean', default => 'false', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],

@@ -55,6 +55,9 @@ sub action_edit {
     $self->{warehouse_id} ||= $self->{WAREHOUSES}->[$max -1]->{id};
     $self->{bin_id}       ||= $self->{WAREHOUSES}->[$max -1]->{BINS}->[0]->{id};
   }
+
+  $self->{show_weight} = SL::DB::Default->get->show_weight;
+
   $self->render('client_config/form', title => $::locale->text('Client Configuration'));
 }
 
@@ -76,12 +79,16 @@ sub action_save {
 
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(sales_order_show_delete purchase_order_show_delete sales_delivery_order_show_delete purchase_delivery_order_show_delete);
 
+<<<<<<< HEAD
   # undef warehouse_id if the empty value is selected
   if ( ($::form->{warehouse_id} == 0) && ($::form->{bin_id} == 0) ) {
     undef $::form->{warehouse_id};
     undef $::form->{bin_id};
   }
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(warehouse_id bin_id);
+=======
+  SL::DB::Default->get->update_attributes('show_weight'     => $::form->{show_weight});
+>>>>>>> gewicht
 
   flash_later('info', $::locale->text('Client Configuration saved!'));
 

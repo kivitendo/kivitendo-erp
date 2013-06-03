@@ -47,6 +47,18 @@
       [%- END %]
       </table>
           </td>
+      [%- IF show_weight %]
+          <td>
+            <table>
+            <tr>
+              <th  align="left">[% 'Total weight' | $T8 %]</th>
+              <td align="right">
+                [% LxERP.format_amount(totalweight, 3) %] [% HTML.escape(weightunit) %]
+              </td>
+            </tr>
+            </table>
+          </td>
+      [%- END %]
 [%- IF is_sales %]
           <td>
             <table>
