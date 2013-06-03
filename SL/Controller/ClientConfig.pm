@@ -79,16 +79,14 @@ sub action_save {
 
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(sales_order_show_delete purchase_order_show_delete sales_delivery_order_show_delete purchase_delivery_order_show_delete);
 
-<<<<<<< HEAD
   # undef warehouse_id if the empty value is selected
   if ( ($::form->{warehouse_id} == 0) && ($::form->{bin_id} == 0) ) {
     undef $::form->{warehouse_id};
     undef $::form->{bin_id};
   }
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(warehouse_id bin_id);
-=======
+
   SL::DB::Default->get->update_attributes('show_weight'     => $::form->{show_weight});
->>>>>>> gewicht
 
   flash_later('info', $::locale->text('Client Configuration saved!'));
 
