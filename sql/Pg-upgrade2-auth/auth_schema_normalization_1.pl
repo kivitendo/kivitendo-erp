@@ -15,7 +15,7 @@ sub run {
                   qq|ALTER TABLE auth.user_config  ADD PRIMARY KEY (user_id,  cfg_key);|,
                   qq|ALTER TABLE auth.user_group   ADD PRIMARY KEY (user_id,  group_id);|);
 
-  $self->db_query($_, 1) for @queries;
+  $self->db_query($_, may_fail => 1) for @queries;
 
   return 1;
 }
