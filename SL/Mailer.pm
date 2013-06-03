@@ -83,16 +83,23 @@ sub _create_message_id {
 sub _create_address_headers {
   my ($self) = @_;
 
+  # $self->{addresses} collects the recipients for use in e.g. the
+  # SMTP 'RCPT TO:' envelope command. $self->{headers} collects the
+  # headers that make up the actual email. 'BCC' should not be
+  # included there for certain transportation methods (SMTP).
+
   $self->{addresses} = {};
 
   foreach my $item (qw(from to cc bcc)) {
     $self->{addresses}->{$item} = [];
-    next if !$self->{$item} || $self->{driver}->keep_from_header($item);
+    next if !$self->{$item};
 
     my @header_addresses;
 
     foreach my $addr_obj (Email::Address->parse($self->{$item})) {
       push @{ $self->{addresses}->{$item} }, $addr_obj->address;
+      next if $self->{driver}->keep_from_header($item);
+
       my $phrase = $addr_obj->phrase();
       if ($phrase) {
         $phrase =~ s/^\"//;
