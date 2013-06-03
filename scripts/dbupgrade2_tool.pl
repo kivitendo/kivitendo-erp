@@ -44,9 +44,20 @@ use SL::Dispatcher;
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
 my ($opt_user, $opt_apply, $opt_applied, $opt_unapplied, $opt_format, $opt_test_utf8);
 my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword, $opt_create, $opt_type);
-my ($opt_description, $opt_encoding, @opt_depends);
+my ($opt_description, $opt_encoding, @opt_depends, $opt_auth_db);
 
 our (%myconfig, $form, $user, $auth, $locale, $controls, $dbupgrader);
+
+sub connect_auth {
+  return $auth if $auth;
+
+  $auth = SL::Auth->new;
+  if (!$auth->session_tables_present) {
+    $form->error("The session and user management tables are not present in the authentication database. Please use the administration web interface to create them.");
+  }
+
+  return $auth;
+}
 
 sub show_help {
   my $help_text = <<"END_HELP"
@@ -94,6 +105,8 @@ dbupgrade2_tool.pl [options]
   General Options:
     --user=name          The name of the user configuration to use for
                          database connectivity.
+    --auth-db            Work on the authentication database instead of a
+                         user database.
     --dbname=name        Database connection options for the UTF-8
     --dbhost=host        handling test.
     --dbport=port
@@ -310,7 +323,8 @@ sub apply_upgrade {
 
   my @upgradescripts = map { $controls->{$_}->{applied} = 0; $controls->{$_} } @order;
 
-  my $dbh = $form->dbconnect_noauto(\%myconfig);
+  my $dbh            = $opt_auth_db ? connect_auth()->dbconnect : $form->dbconnect_noauto(\%myconfig);
+  $dbh->{AutoCommit} = 0;
 
   $dbh->{PrintWarn}  = 0;
   $dbh->{PrintError} = 0;
@@ -348,7 +362,7 @@ sub apply_upgrade {
     }
   }
 
-  $dbh->disconnect();
+  $dbh->disconnect unless $opt_auth_db;
 }
 
 sub dump_sql_result {
@@ -381,7 +395,8 @@ sub dump_sql_result {
 sub dump_applied {
   my @results;
 
-  my $dbh = $form->dbconnect_noauto(\%myconfig);
+  my $dbh            = $opt_auth_db ? connect_auth()->dbconnect : $form->dbconnect_noauto(\%myconfig);
+  $dbh->{AutoCommit} = 0;
 
   $dbh->{PrintWarn}  = 0;
   $dbh->{PrintError} = 0;
@@ -396,7 +411,7 @@ sub dump_applied {
   }
   $sth->finish();
 
-  $dbh->disconnect();
+  $dbh->disconnect unless $opt_auth_db;
 
   if (!scalar @results) {
     print "No database upgrades have been applied yet.\n";
@@ -408,14 +423,14 @@ sub dump_applied {
 sub dump_unapplied {
   my @results;
 
-  my $dbh = $form->dbconnect_noauto(\%myconfig);
+  my $dbh = $opt_auth_db ? connect_auth()->dbconnect : $form->dbconnect_noauto(\%myconfig);
 
   $dbh->{PrintWarn}  = 0;
   $dbh->{PrintError} = 0;
 
   my @unapplied = $dbupgrader->unapplied_upgrade_scripts($dbh);
 
-  $dbh->disconnect;
+  $dbh->disconnect unless $opt_auth_db;
 
   if (!scalar @unapplied) {
     print "All database upgrades have been applied.\n";
@@ -473,12 +488,13 @@ GetOptions("list"         => \$opt_list,
            "dbname:s"     => \$opt_dbname,
            "dbuser:s"     => \$opt_dbuser,
            "dbpassword:s" => \$opt_dbpassword,
+           "auth-db"      => \$opt_auth_db,
            "help"         => \$opt_help,
   );
 
 show_help() if ($opt_help);
 
-$dbupgrader = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg');
+$dbupgrader = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg', auth => $opt_auth_db);
 $controls   = $dbupgrader->parse_dbupdate_controls->{all_controls};
 
 dump_list()                                 if ($opt_list);
@@ -495,14 +511,7 @@ create_upgrade(filename   => $opt_create,
                depends     => \@opt_depends) if ($opt_create);
 
 if ($opt_user) {
-  $auth = SL::Auth->new();
-  if (!$auth->session_tables_present()) {
-    $form->error("The session and user management tables are not present in the " .
-                 "authentication database. Please use the administration web interface " .
-                 "and to create them.");
-  }
-
-  %myconfig = $auth->read_user(login => $opt_user);
+  %myconfig = connect_auth()->read_user(login => $opt_user);
 
   if (!$myconfig{login}) {
     $form->error($form->format_string("The user '#1' does not exist.", $opt_user));
@@ -515,17 +524,17 @@ if ($opt_user) {
 }
 
 if ($opt_apply) {
-  $form->error("--apply used but no user name given with --user.") if (!$user);
+  $form->error("--apply used but no user name given with --user.") if !$user && !$opt_auth_db;
   apply_upgrade($opt_apply);
 }
 
 if ($opt_applied) {
-  $form->error("--applied used but no user name given with --user.") if (!$user);
+  $form->error("--applied used but no user name given with --user.") if !$user && !$opt_auth_db;
   dump_applied();
 }
 
 if ($opt_unapplied) {
-  $form->error("--unapplied used but no user name given with --user.") if (!$user);
+  $form->error("--unapplied used but no user name given with --user.") if !$user && !$opt_auth_db;
   dump_unapplied();
 }
 
