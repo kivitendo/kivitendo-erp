@@ -35,8 +35,6 @@ my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
 my @progdirs     = ( "$basedir/SL" );
-my $dbupdir      = "$basedir/sql/Pg-upgrade";
-my $dbupdir2     = "$basedir/sql/Pg-upgrade2";
 my $menufile     = "menu.ini";
 my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages');
 my $javascript_output_dir = $basedir .'/js';
@@ -98,11 +96,12 @@ if ($opt_n) {
   unshift @menufiles, "$basedir/$menufile";
 }
 
-tie %dir_h, 'IO::Dir', $dbupdir;
-my @dbplfiles = grep { /\.pl$/ } keys %dir_h;
-
-tie %dir_h, 'IO::Dir', $dbupdir2;
-my @dbplfiles2 = grep { /\.pl$/ } keys %dir_h;
+my @dbplfiles;
+foreach my $sub_dir ("Pg-upgrade", "Pg-upgrade2", "Pg-upgrade2-auth") {
+  my $dir = "$basedir/sql/$sub_dir";
+  tie %dir_h, 'IO::Dir', $dir;
+  push @dbplfiles, map { [ $_, $dir ] } grep { /\.pl$/ } keys %dir_h;
+}
 
 # slurp the translations in
 if (-f "$locales_dir/all") {
@@ -123,8 +122,7 @@ chomp $charset;
 my %old_texts = %{ $self->{texts} || {} };
 
 handle_file(@{ $_ })       for @progfiles;
-handle_file($_, $dbupdir)  for @dbplfiles;
-handle_file($_, $dbupdir2) for @dbplfiles2;
+handle_file(@{ $_ })       for @dbplfiles;
 scanmenu($_)               for @menufiles;
 
 for my $file_name (map({find_files($_)} @javascript_dirs)) {
