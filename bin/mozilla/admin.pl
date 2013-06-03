@@ -55,6 +55,7 @@ use SL::Common;
 use SL::Inifile;
 use SL::DBUpgrade2;
 use SL::DBUtils;
+use SL::Template;
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/admin_groups.pl";
@@ -1168,24 +1169,9 @@ sub _nologin_file_name {
 }
 
 sub _search_templates {
-  # is there a templates basedir
-  if (!-d $::lx_office_conf{paths}->{templates}) {
-    $::form->error(sprintf($::locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
-  }
+  my %templates = SL::Template->available_templates;
 
-  tie my %dir_h, 'IO::Dir', $::lx_office_conf{paths}->{templates};
-
-  my @alldir  = sort grep {
-       -d ($::lx_office_conf{paths}->{templates} . "/$_")
-    && !/^\.\.?$/
-    && !m/\.(?:html|tex|sty|odt|xml|txb)$/
-    && !m/^(?:webpages$|print$|mail$|\.)/
-  } keys %dir_h;
-
-  tie %dir_h, 'IO::Dir', "$::lx_office_conf{paths}->{templates}/print";
-  my @allmaster = ('Standard', sort grep { -d ("$::lx_office_conf{paths}->{templates}/print" . "/$_") && !/^\.\.?$/ && !/^Standard$/ } keys %dir_h);
-
-  return \@alldir, \@allmaster;
+  return ($templates{print_templates}, $templates{master_templates});
 }
 
 1;
