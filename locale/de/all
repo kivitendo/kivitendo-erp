@@ -619,7 +619,6 @@ $self->{texts} = {
   'Default Bin'                 => 'Standard-Lagerplatz',
   'Default Customer/Vendor Language' => 'Standard-Kunden-/Lieferantensprache',
   'Default Warehouse'           => 'Standard-Lager',
-  'Default Customer/Vendor Language' => 'Standard-Kunden-/Lieferantensprache',
   'Default buchungsgruppe'      => 'Standardbuchungsgruppe',
   'Default currency'            => 'Standardwährung',
   'Default currency missing!'   => 'Standardwährung fehlt!',
