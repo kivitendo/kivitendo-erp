@@ -2496,7 +2496,7 @@ sub all_vc {
   my $query = qq|SELECT count(*) FROM $table $obsolete|;
   my ($count) = selectrow_query($self, $dbh, $query);
 
-  if ($count < $myconfig->{vclimit}) {
+  if ($count <= $myconfig->{vclimit}) {
     $query = qq|SELECT id, name, salesman_id
                 FROM $table $obsolete
                 ORDER BY name|;
