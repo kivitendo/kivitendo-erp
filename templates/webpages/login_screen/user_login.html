@@ -23,7 +23,7 @@
           <table>
            <tr>
             <th align="right">[% 'Login Name' | $T8 %]</th>
-            <td><input id='login' class="login" name="{AUTH}login" size="30" tabindex="1"></td>
+            <td><input id='input_login' class="login" name="{AUTH}login" size="30" tabindex="1"></td>
            </tr>
            <tr>
             <th align="right">[% 'Password' | $T8 %]</th>
@@ -45,5 +45,5 @@
    </tr>
   </table>
   <script type='text/javascript'>
-    $(function(){ $('#login').focus() })
+    $(function(){ $('#input_login').focus() })
   </script>
