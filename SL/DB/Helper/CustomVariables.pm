@@ -78,7 +78,19 @@ sub make_cvar_by_configs {
     my $cvars       = $self->custom_variables;
     my %cvars_by_config = map { $_->config_id => $_ } @$cvars;
 
-    my @return  = map { $cvars_by_config{$_->id} || _new_cvar($self, %params, config => $_) } @$configs;
+    my @return = map(
+      {
+        if ( $cvars_by_config{$_->id} ) {
+          $cvars_by_config{$_->id};
+        }
+        else {
+          my $cvar = _new_cvar($self, %params, config => $_);
+          $self->add_custom_variables($cvar);
+          $cvar;
+        }
+      }
+      @$configs
+    );
 
     return \@return;
   }
