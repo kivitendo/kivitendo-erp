@@ -5,6 +5,7 @@ use strict;
 use parent qw(Rose::Object);
 
 use Carp;
+use Encode;
 use English qw(-no_match_vars);
 use File::Basename ();
 use File::Copy ();
@@ -37,18 +38,28 @@ sub execute_script {
 sub db_error {
   my ($self, $msg) = @_;
 
-  die $::locale->text("Database update error:") . "<br>$msg<br>" . $DBI::errstr;
+  die $::locale->text("Database update error:") . "<br>$msg<br>" . $self->db_errstr('DBI');
 }
 
 sub db_query {
   my ($self, $query, %params) = @_;
 
-  return if $self->dbh->do($query, undef, @{ $params{bind} || [] });
+  my $dbh = $params{dbh} || $self->dbh;
+
+  return if $dbh->do($query, undef, @{ $params{bind} || [] });
 
   $self->db_error($query) unless $params{may_fail};
 
-  $self->dbh->rollback;
-  $self->dbh->begin_work;
+  $dbh->rollback;
+  $dbh->begin_work;
+}
+
+sub db_errstr {
+  my ($self, $handle) = @_;
+
+  my $error = $handle ? $handle->errstr : $self->dbh->errstr;
+
+  return $::locale->is_utf8 ? Encode::decode('utf-8', $error) : $error;
 }
 
 sub check_coa {
@@ -220,6 +231,31 @@ current transaction will be rolled back, a new one will be started.
 =item C<bind>
 
 An optional array reference containing bind parameter for the query.
+
+=item C<dbh>
+
+The database handle to use. If undefined then C<$self-E<gt>dbh> will
+be used.
+
+=back
+
+=item C<db_errstr [$handle]>
+
+Returns the last database from C<$handle> error message encoded in
+Perl's internal encoding. The PostgreSQL DBD leaves the UTF-8 flag off
+for error messages even if the C<pg_enable_utf8> attribute is set.
+
+C<$handle> is optional and can be one of three things:
+
+=over 2
+
+=item 1. A database or statement handle. In that case
+C<$handle-E<gt>errstr> is used.
+
+=item 2. The string 'DBI'. In that case C<$DBI::errstr> is used.
+
+=item 3. If it is undefined then C<$self-E<gt>dbh-E<gt>errstr> is
+used.
 
 =back
 
