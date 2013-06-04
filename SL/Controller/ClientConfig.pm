@@ -101,6 +101,7 @@ sub action_save {
 
   # All warehouse / transfer default values
   map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(transfer_default transfer_default_use_master_default_bin transfer_default_ignore_onhand
+                                                                            warehouse_id_ignore_onhand bin_id_ignore_onhand warehouse_id bin_id);
 
   SL::DB::Default->get->update_attributes('show_weight'     => $::form->{show_weight});
 
