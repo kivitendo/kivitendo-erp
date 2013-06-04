@@ -468,7 +468,7 @@ sub sortable_table_header {
 }
 
 sub paginate_controls {
-  my ($self)          = @_;
+  my ($self, %params) = _hashify(1, @_);
 
   my $controller      = $self->{CONTEXT}->stash->get('SELF');
   my $paginate_spec   = $controller->get_paginate_spec;
@@ -483,6 +483,7 @@ sub paginate_controls {
 
       return $controller->get_callback(%url_params);
     },
+    %params,
   );
 
   return SL::Presenter->get->render('common/paginate', %template_params);
