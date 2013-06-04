@@ -914,7 +914,50 @@ $main::lxdebug->enter_sub();
 
   return $part_description;
 }
+#
+# Eingabe:  Teilenummer, Lagerplatz_Id (bin_id)
+# Ausgabe:  Die maximale Anzahl der Teile in diesem Lagerplatz
+#           Bzw. Fehler, falls Chargen oder bestbefore
+#           bei eingelagerten Teilen definiert sind.
+#
+sub get_max_qty_parts_bin {
+$main::lxdebug->enter_sub();
 
+  my $self     = shift;
+  my %params   = @_;
+
+  Common::check_params(\%params, qw(parts_id bin_id)); #die brauchen wir
+
+  my $myconfig = \%main::myconfig;
+  my $form     = $main::form;
+
+  my $dbh      = $params{dbh} || $form->get_standard_dbh();
+
+  my $query = qq| SELECT SUM(qty), chargenumber, bestbefore  FROM inventory where parts_id = ?
+                            AND bin_id = ? GROUP BY chargenumber, bestbefore|;
+
+  my $sth_QTY      = prepare_execute_query($form, $dbh, $query, ,$params{parts_id}, $params{bin_id}); #info: aufruf an DBUtils.pm
+
+  my $max_qty_parts = 0; #Initialisierung mit 0
+  # falls derselbe artikel mehrmals eingelagert ist
+  # chargennummer, muss entsprechend händisch agiert werden
+  my $i = 0;
+  my $error;
+  while (my $ref = $sth_QTY->fetchrow_hashref()) {  # wir laufen über alle Haltbarkeiten und Chargen(s.a. SQL-Query oben)
+    $max_qty_parts += $ref->{sum};
+    $i++;
+    if ($ref->{chargenumber} || $ref->{bestbefore}){
+      $error=1;
+    }
+  }
+  #if ($i < 1){
+  #  $error = 2;
+  #}
+
+  $main::lxdebug->leave_sub();
+
+  return ($max_qty_parts, $error);
+}
 
 1;
 

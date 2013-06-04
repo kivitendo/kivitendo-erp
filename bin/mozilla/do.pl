@@ -340,7 +340,8 @@ sub form_footer {
 
   $form->{PRINT_OPTIONS} = print_options('inline' => 1);
 
-  print $form->parse_html_template('do/form_footer');
+  print $form->parse_html_template('do/form_footer',
+    {transfer_default         => ($::instance_conf->get_transfer_default)});
 
   $main::lxdebug->leave_sub();
 }
@@ -1520,7 +1521,8 @@ sub dispatcher {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  foreach my $action (qw(update ship_to print e_mail save transfer_out transfer_in mark_closed save_as_new invoice delete)) {
+  foreach my $action (qw(update ship_to print e_mail save transfer_out transfer_out_default
+                         transfer_in transfer_in_default mark_closed save_as_new invoice delete)) {
     if ($form->{"action_${action}"}) {
       call_sub($action);
       return;
@@ -1528,4 +1530,165 @@ sub dispatcher {
   }
 
   $form->error($locale->text('No action defined.'));
+}
+
+sub transfer_out_default {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+
+  transfer_in_out_default('direction' => 'out');
+
+  $main::lxdebug->leave_sub();
+}
+
+sub transfer_in_default {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+
+  transfer_in_out_default('direction' => 'in');
+
+  $main::lxdebug->leave_sub();
+}
+
+# Falls das Standardlagerverfahren aktiv ist, wird
+# geprüft, ob alle Standardlagerplätze für die Auslager-
+# artikel vorhanden sind UND ob die Warenmenge ausreicht zum
+# Auslagern. Falls nicht wird entsprechend eine Fehlermeldung
+# generiert. Offen Chargennummer / bestbefore wird nicht berücksichtigt
+sub transfer_in_out_default {
+  $main::lxdebug->enter_sub();
+
+  my $form     = $main::form;
+  my %myconfig = %main::myconfig;
+  my $locale   = $main::locale;
+  my %params   = @_;
+
+  my (%missing_default_bins, %qty_parts, @all_requests, %part_info_map, $default_warehouse_id, $default_bin_id);
+
+  Common::check_params(\%params, qw(direction));
+
+  # entsprechende defaults holen, falls standardlagerplatz verwendet werden soll
+  if ($::instance_conf->get_transfer_default_use_master_default_bin) {
+    $default_warehouse_id = $::instance_conf->get_default_warehouse_id;
+    $default_bin_id       = $::instance_conf->get_default_bin_id;
+  }
+
+
+  my @part_ids = map { $form->{"id_${_}"} } (1 .. $form->{rowcount});
+  if (@part_ids) {
+    my $units         = AM->retrieve_units(\%myconfig, $form);
+    %part_info_map = IC->get_basic_part_info('id' => \@part_ids);
+    foreach my $i (1 .. $form->{rowcount}) {
+      next unless ($form->{"id_$i"});
+      my $base_unit_factor = $units->{ $part_info_map{$form->{"id_$i"}}->{unit} }->{factor} || 1;
+      my $qty =   $form->parse_amount(\%myconfig, $form->{"qty_$i"}) * $units->{$form->{"unit_$i"}}->{factor} / $base_unit_factor;
+      $qty_parts{$form->{"id_$i"}} += $qty;
+
+
+      $part_info_map{$form->{"id_$i"}}{bin_id}       ||= $default_bin_id;
+      $part_info_map{$form->{"id_$i"}}{warehouse_id} ||= $default_warehouse_id;
+
+      push @all_requests, {
+                        'chargenumber' => '',  #?? die müsste entsprechend geholt werden
+                        #'bestbefore' => undef, # TODO wird nicht berücksichtigt
+                        'bin_id' => $part_info_map{$form->{"id_$i"}}{bin_id},
+                        'qty' => $qty,
+                        'parts_id' => $form->{"id_$i"},
+                        'comment' => 'Default transfer DO',
+                        'ok' => 1,
+                        'unit' => $part_info_map{$form->{"id_$i"}}{unit},
+                        'warehouse_id' => $part_info_map{$form->{"id_$i"}}{warehouse_id},
+                        'oe_id' => $form->{id},
+                        'project_id' => $form->{"project_id_$i"} ? $form->{"project_id_$i"} : $form->{globalproject_id}
+                      };
+    }
+
+    # jetzt wird erst überprüft, ob die Stückzahl entsprechend stimmt.
+    if ($params{direction} eq 'out') {  # wird nur für ausgehende Mengen benötigit
+      foreach my $key (keys %qty_parts) {
+
+        $missing_default_bins{$key}{missing_bin} = 1 unless ($part_info_map{$key}{bin_id});
+        next unless ($part_info_map{$key}{bin_id}); # abbruch
+
+        my ($max_qty, $error) = WH->get_max_qty_parts_bin(parts_id => $key, bin_id => $part_info_map{$key}{bin_id});
+        if ($error == 1) {
+          # wir können nicht entscheiden, welche charge oder mhd (bestbefore) ausgewählt sein soll
+          # deshalb rückmeldung nach oben geben, manuell auszulagern
+          # TODO Bei nur einem Treffer mit Charge oder bestbefore wäre das noch möglich
+          $missing_default_bins{$key}{chargenumber} = 1;
+        }
+        if ($max_qty < $qty_parts{$key}){
+          $missing_default_bins{$key}{missing_qty} = $max_qty - $qty_parts{$key};
+        }
+      }
+    }
+  } # if @parts_id
+
+  # Abfrage für Fehlerbehandlung (nur bei direction == out)
+  if (scalar (keys %missing_default_bins)) {
+    my $fehlertext;
+    foreach my $fehler (keys %missing_default_bins) {
+
+      my $ware = WH->get_part_description(parts_id => $fehler);
+      if ($missing_default_bins{$fehler}{missing_bin}){
+        $fehlertext .= "Kein Standardlagerplatz definiert bei $ware <br>";
+      }
+      if ($missing_default_bins{$fehler}{missing_qty}) {  # missing_qty
+        $fehlertext .= "Es fehlen " . $missing_default_bins{$fehler}{missing_qty}*-1 .
+                       " von $ware auf dem Standard-Lagerplatz " . $part_info_map{$fehler}{bin} .   " zum Auslagern<br>";
+      }
+      if ($missing_default_bins{$fehler}{chargenumber}){
+        $fehlertext .= "Die Ware hat eine Chargennummer oder eine Mindesthaltbarkeit definiert.
+                        Hier kann man nicht automatisch entscheiden.
+                        Bitte diesen Lieferschein manuell auslagern.
+                        Bei: $ware";
+      }
+      # auslagern soll immer gehen, auch wenn nicht genügend auf lager ist.
+      # der lagerplatz ist hier extra konfigurierbar, bspw. Lager-Korrektur mit
+      # Lagerplatz Lagerplatz-Korrektur
+      my $default_warehouse_id_ignore_onhand = $::instance_conf->get_default_warehouse_id_ignore_onhand;
+      my $default_bin_id_ignore_onhand       = $::instance_conf->get_default_bin_id_ignore_onhand;
+      if ($::instance_conf->get_transfer_default_ignore_onhand && $default_bin_id_ignore_onhand) {
+        # entsprechende defaults holen
+        # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen
+        # lagerplatz wegbuchen!
+        foreach (@all_requests) {
+          if ($_->{parts_id} eq $fehler){
+          $_->{bin_id}        = $default_bin_id_ignore_onhand;
+          $_->{warehouse_id}  = $default_warehouse_id_ignore_onhand;
+          }
+        }
+      } else {
+        #$main::lxdebug->message(0, 'Fehlertext: ' . $fehlertext);
+        $form->show_generic_error($locale->text("Cannot transfer. <br> Reason:<br>#1", $fehlertext ), 'back_button' => 1);
+      }
+    }
+  }
+
+
+  # hier der eigentliche fallunterschied für in oder out
+  my $prefix   = $params{direction} eq 'in' ? 'in' : 'out';
+
+  # dieser array_ref ist für DO->save da:
+  # einmal die all_requests in YAML verwandeln, damit delivery_order_items_stock
+  # gefüllt werden kann.
+  my $i = 1;
+  foreach (@all_requests){
+    $form->{"stock_${prefix}_$i"} = YAML::Dump([$_]);
+    $i++;
+  }
+
+  save(no_redirect => 1); # Wir können auslagern, deshalb beleg speichern
+                          # und in delivery_order_items_stock speichern
+  DO->transfer_in_out('direction' => $prefix,
+                      'requests'  => \@all_requests);
+
+  SL::DB::DeliveryOrder->new(id => $form->{id})->load->update_attributes(delivered => 1);
+
+  $form->{callback} = 'do.pl?action=edit&type=sales_delivery_order&id=' . $form->escape($form->{id}) if $params{direction} eq 'out';
+  $form->{callback} = 'do.pl?action=edit&type=purchase_delivery_order&id=' . $form->escape($form->{id}) if $params{direction} eq 'in';
+  $form->redirect;
+
 }

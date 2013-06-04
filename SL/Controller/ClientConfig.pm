@@ -43,6 +43,12 @@ sub action_edit {
 
   map { $self->{$_} = SL::DB::Default->get->$_ } qw(sales_order_show_delete purchase_order_show_delete sales_delivery_order_show_delete purchase_delivery_order_show_delete);
 
+  # All warehouse / transfer default values
+  map { $self->{$_} = SL::DB::Default->get->$_ } qw(transfer_default transfer_default_use_master_default_bin transfer_default_ignore_onhand
+                                                    warehouse_id_ignore_onhand bin_id_ignore_onhand warehouse_id bin_id);
+
+  # for the default warehouse and bin we get the list and
+  # set a empty value with warehouse_id and bin_id = 0
   map { $self->{$_} = SL::DB::Default->get->$_ } qw(warehouse_id bin_id);
   $::form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
                                        'bins'   => 'BINS', });
@@ -51,9 +57,12 @@ sub action_edit {
   my $no_default_bin_entry = { 'id' => '0', description => '--', 'BINS' => [ { id => '0', description => ''} ] };
   push @ { $self->{WAREHOUSES} }, $no_default_bin_entry;
 
+  # set defaults to empty
   if (my $max = scalar @{ $self->{WAREHOUSES} }) {
     $self->{warehouse_id} ||= $self->{WAREHOUSES}->[$max -1]->{id};
     $self->{bin_id}       ||= $self->{WAREHOUSES}->[$max -1]->{BINS}->[0]->{id};
+    $self->{warehouse_id_ignore_onhand} ||= $self->{WAREHOUSES}->[$max -1]->{id};
+    $self->{bin_id_ignore_onhand}       ||= $self->{WAREHOUSES}->[$max -1]->{BINS}->[0]->{id};
   }
 
   $self->{show_weight} = SL::DB::Default->get->show_weight;
@@ -84,7 +93,14 @@ sub action_save {
     undef $::form->{warehouse_id};
     undef $::form->{bin_id};
   }
-  map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(warehouse_id bin_id);
+  # undef warehouse_id_ignore_onhand if the empty value is selected
+  if ( ($::form->{warehouse_id_ignore_onhand} == 0) && ($::form->{bin_id_ignore_onhand} == 0) ) {
+    undef $::form->{warehouse_id_ignore_onhand};
+    undef $::form->{bin_id_ignore_onhand};
+  }
+
+  # All warehouse / transfer default values
+  map { SL::DB::Default->get->update_attributes($_ => $::form->{$_}); } qw(transfer_default transfer_default_use_master_default_bin transfer_default_ignore_onhand
 
   SL::DB::Default->get->update_attributes('show_weight'     => $::form->{show_weight});
 

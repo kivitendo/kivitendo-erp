@@ -153,6 +153,32 @@ sub get_default_bin_id {
   my ($self) = @_;
   return ($self->{data}->{bin_id});
 }
+sub get_default_warehouse_id_ignore_onhand {
+  my ($self) = @_;
+  return ($self->{data}->{warehouse_id_ignore_onhand});
+}
+
+sub get_default_bin_id_ignore_onhand {
+  my ($self) = @_;
+  return ($self->{data}->{bin_id_ignore_onhand});
+}
+
+
+sub get_transfer_default {
+  my ($self) = @_;
+  return ($self->{data}->{transfer_default});
+}
+
+sub get_transfer_default_use_master_default_bin {
+  my ($self) = @_;
+  return ($self->{data}->{transfer_default_use_master_default_bin});
+}
+
+sub get_transfer_default_ignore_onhand {
+  my ($self) = @_;
+  return ($self->{data}->{transfer_default_ignore_onhand});
+}
+
 
 1;
 
@@ -273,6 +299,27 @@ Returns the default warehouse_id
 =item C<get_default_bin_id>
 
 Returns the default bin_id
+
+=item C<get_default_warehouse_id_ignore_onhand>
+
+Returns the default warehouse_id for transfers without checking the
+current stock quantity
+
+=item C<get_default_bin_id_ignore_onhand>
+
+Returns the default bin_id for transfers without checking the.
+current stock quantity
+
+
+
+=item C<get_transfer_default>
+
+=item C<get_transfer_default_use_master_default_bin>
+
+=item C<get_transfer_default_ignore_onhand>
+
+Returns the default behavior for the transfer out default feature (true or false)
+
 
 =back
 

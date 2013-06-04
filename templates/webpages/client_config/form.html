@@ -1,6 +1,63 @@
 [%- USE T8 %][%- USE L %][% USE LxERP %][% USE HTML %]
+[%- USE JavaScript -%]
+ <script type="text/javascript" src="js/common.js"></script>
+ <script type="text/javascript" src="js/parts_language_selection.js"></script>
+ <script type="text/javascript">
+  <!--
+      warehouses = new Array();
+      [%- USE WAREHOUSES_it = Iterator(SELF.WAREHOUSES) %][%- FOREACH warehouse = WAREHOUSES_it %]
+      warehouses[[% WAREHOUSES_it.count - 1 %]] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['id'] = [% warehouse.id %];
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'] = new Array();
+      [% USE BINS_it = Iterator(warehouse.BINS) %][% FOREACH bin = BINS_it %]
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]] = new Array();
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]]['description'] = "[% JavaScript.escape(bin.description) %]";
+      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]]['id'] = [% bin.id %];
+      [% END %]
+      [% END %]
 
-[% PROCESS 'common/select_warehouse_bin.html'  WAREHOUSES=SELF.WAREHOUSES warehouse_id=SELF.warehouse_id bin_id=SELF.bin_id %]
+      function warehouse_selected(warehouse_id, bin_id, bin_id_name) {
+
+        // bin_id_name is optional and only used in client_config.html
+        var bin_id_name = bin_id_name || 'bin_id';
+
+        var control = document.getElementById(bin_id_name);
+
+        for (var i = control.options.length - 1; i >= 0; i--) {
+          control.options[i] = null;
+        }
+
+        var warehouse_index = 0;
+
+        for (i = 0; i < warehouses.length; i++)
+          if (warehouses[i]['id'] == warehouse_id) {
+            warehouse_index = i;
+            break;
+          }
+
+        var warehouse = warehouses[warehouse_index];
+        var bin_index = 0;
+
+        for (i = 0; i < warehouse['bins'].length; i++)
+          if (warehouse['bins'][i]['id'] == bin_id) {
+            bin_index = i;
+            break;
+          }
+
+        for (i = 0; i < warehouse['bins'].length; i++) {
+          control.options[i] = new Option(warehouse['bins'][i]['description'], warehouse['bins'][i]['id']);
+        }
+
+
+        control.options[bin_index].selected = true;
+      }
+
+      $(function() {
+        warehouse_selected([% SELF.warehouse_id %], [% SELF.bin_id %], 'bin_id');
+        warehouse_selected([% SELF.warehouse_id_ignore_onhand %], [% SELF.bin_id_ignore_onhand %], 'bin_id_ignore_onhand');
+      })
+    -->
+ </script>
 <h1>[% title | html %]</h1>
 
 [% PROCESS 'common/flash.html' %]
@@ -163,6 +220,71 @@
    <th colspan="3">[% 'Warehouse' | $T8 %]</th>
  </tr>
  <tr>
+   <td align="right">[% 'Default Transfer' | $T8 %]</td>
+   <td>
+     [% L.yes_no_tag('transfer_default', SELF.transfer_default) %]
+   </td>
+   <td>
+     [% 'Show Transfer via default' | $T8 %]<br>
+  </td>
+  </tr>
+  <tr>
+   <td align="right">[% 'Default Transfer with Master Bin' | $T8 %]</td>
+   <td>
+     [% L.yes_no_tag('transfer_default_use_master_default_bin', SELF.transfer_default_use_master_default_bin) %]
+   </td>
+   <td>
+     [% 'Use master default bin for Default Transfer, if no default bin for the part is configured' | $T8 %]<br>
+  </td>
+  </tr>
+  <tr>
+   <td align="right">[% 'Default Transfer Out with negative inventory' | $T8 %]</td>
+   <td>
+     [% L.yes_no_tag('transfer_default_ignore_onhand', SELF.transfer_default_ignore_onhand) %]
+   </td>
+   <td>
+     [% 'Default Transfer Out always succeed. The current part onhand is ignored and the inventory can have negative stocks (not recommended).' | $T8 %]<br>
+  </td>
+  </tr>
+
+ <tr> </tr>
+<tr>
+<th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %]</th>
+<td>
+ <select name="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
+  [%- FOREACH warehouse = SELF.WAREHOUSES %]
+    <option value="[% HTML.escape(warehouse.id) %]"[% IF SELF.warehouse_id == warehouse.id %] selected[% END %]>[% warehouse.description %]</option>
+  [%- END %]
+ </select>
+</td>
+<td>
+   [% 'This is the default bin for parts' | $T8 %]<br>
+   [% 'If configured this bin will be preselected for all new parts. Also this bin will be used as the master default bin, if default transfer out with master bin is activated.' | $T8 %]<br>
+</td>
+</tr>
+<tr>
+<th align="right" nowrap="true">[% 'Default Bin' | $T8 %]</th>
+<td><select id="bin_id" name="bin_id"></select></td>
+</tr>
+<tr>
+<th align="right" nowrap="true">[% 'Default Warehouse with ignoring on hand' | $T8 %]</th>
+<td>
+ <select name="warehouse_id_ignore_onhand" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0, 'bin_id_ignore_onhand')">
+  [%- FOREACH warehouse = SELF.WAREHOUSES %]
+    <option value="[% HTML.escape(warehouse.id) %]"[% IF SELF.warehouse_id_ignore_onhand == warehouse.id %] selected[% END %]>[% warehouse.description %]</option>
+  [%- END %]
+ </select>
+</td>
+<td>
+   [% 'This is the default bin for ignoring onhand' | $T8 %]<br>
+   [% 'If the default transfer out always succeed use this bin for negative stock quantity.' | $T8 %]<br>
+</td>
+</tr>
+<tr>
+<th align="right" nowrap="true">[% 'Default Bin with ignoring onhand' | $T8 %]</th>
+<td><select id="bin_id_ignore_onhand" name="bin_id_ignore_onhand"></select></td>
+</tr>
+<tr>
    <td align="right">[% 'Show Bestbefore' | $T8 %]</td>
    <td>
      [% L.yes_no_tag('show_bestbefore', SELF.show_bestbefore) %]
@@ -177,27 +299,6 @@
      [% 'Any stock contents containing a best before date will be impossible to stock out otherwise.' | $T8 %]
    </td>
  </tr>
- <tr> </tr>
- <tr> </tr>
- <tr>
-  <th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %]</th>
-  <td>
-   <select name="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
-    [%- FOREACH warehouse = SELF.WAREHOUSES %]
-      <option value="[% HTML.escape(warehouse.id) %]"[% IF SELF.warehouse_id == warehouse.id %] selected[% END %]>[% warehouse.description %]</option>
-    [%- END %]
-   </select>
- </td>
-  <td>
-     [% 'This is the default bin for parts' | $T8 %]<br>
-  </td>
- </tr>
- <tr>
-  <th align="right" nowrap="true">[% 'Default Bin' | $T8 %]</th>
-  <td><select id="bin_id" name="bin_id"></select></td>
- </tr>
-
-
  <tr class='listheading'>
    <th colspan="3">[% 'Weight' | $T8 %]</th>
  </tr>

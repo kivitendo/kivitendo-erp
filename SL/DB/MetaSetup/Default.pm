@@ -71,25 +71,40 @@ __PACKAGE__->meta->setup(
     bin_id                              => { type => 'integer' },
     currency_id                         => { type => 'integer', not_null => 1 },
     show_weight                         => { type => 'boolean', default => 'false', not_null => 1 },
-  ],
+    transfer_default                        => { type => 'boolean', default => 'true' },
+    transfer_default_use_master_default_bin => { type => 'boolean', default => 'false' },
+    transfer_default_ignore_onhand          => { type => 'boolean', default => 'false' },
+    warehouse_id_ignore_onhand              => { type => 'integer' },
+    bin_id_ignore_onhand                    => { type => 'integer' },
+ ],
 
   primary_key_columns => [ 'id' ],
 
   allow_inline_column_values => 1,
-
   foreign_keys => [
     bin => {
       class       => 'SL::DB::Bin',
       key_columns => { bin_id => 'id' },
     },
 
+    bin_obj => {
+      class       => 'SL::DB::Bin',
+      key_columns => { bin_id_ignore_onhand => 'id' },
+    },
+
+    currency => {
+      class       => 'SL::DB::Currency',
+      key_columns => { currency_id => 'id' },
+    },
+
     warehouse => {
       class       => 'SL::DB::Warehouse',
       key_columns => { warehouse_id => 'id' },
     },
-    currency => {
-      class       => 'SL::DB::Currency',
-      key_columns => { currency_id => 'id' },
+
+    warehouse_obj => {
+      class       => 'SL::DB::Warehouse',
+      key_columns => { warehouse_id_ignore_onhand => 'id' },
     },
   ],
 );

@@ -4,6 +4,28 @@
 
 
 
+Größere neue Features:
+
+- Lagerverwaltung sinnvoller mit Stammdaten verknüpft
+  Freitextfeld-Lagerplatz in Stammdaten durch Lager und Lagerplatz ersetzt.
+  Entsprechende Vorauswahl beim Einkaufslieferschein. Der Standardlagerplatz wird
+  schon direkt vorausgewählt.
+  Ferner wird der Standardlagerplatz unter Lager -> Einlagern entsprechend auch
+  vorausgewählt.
+  Den Standardlagerplatz kann man unter Mandantenkonfiguration voreinstellen.
+  Der voreingestellte Standardlagerplatz ist dann die Vorauswahl für neu angelegte
+  Waren.
+  Sowohl Einkaufs- als auch Verkaufslieferschein haben einen neue Funktion,
+  Ein- / Auslagern über Standardlagerplatz. Diese Funktion ist an- bzw.
+  abschaltbar in der Mandatenkonfiguration (standardmässig an).
+  Die Funktion lässt sich noch wie folgt konfigurieren:
+  - Falls kein Standardlagerplatz in den Stammdaten hinterlegt ist, verwende den
+    vorkonfigurierten Standardlagerplatz.
+  - Falls der Bestand nicht ausreicht zum Auslagern oder eine Mindesthaltbarkeit, bzw.
+    Chargennummer vergeben (welches ein Abbruchkriterium beim Auslagern ist), lager dennoch
+    aus und verwende hierfür den vorkonfigurierte Fehlbestands-, bzw. Fehlbuchungslagerplatz.
+
+
 
 
 Kleinere neue Features und Detailverbesserungen:
@@ -14,8 +36,6 @@ Kleinere neue Features und Detailverbesserungen:
   da hier die Code-Anpassungen vergessen wurde.
 - Offene Forderungen / Verbindlichkeiten
   Stichtagsbezogene Auswahl korrekt mit Fälligkeit verrechnet
-
-
 2012-12-10 - Release 3.0.0
 
 Größere neue Features:
