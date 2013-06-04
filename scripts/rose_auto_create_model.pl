@@ -93,7 +93,7 @@ sub process_table {
   my $file       =  "SL/DB/${package}.pm";
 
   $schema        = <<CODE if $schema;
-    __PACKAGE__->meta->schema('$schema');
+__PACKAGE__->meta->schema('$schema');
 CODE
 
   my $definition =  eval <<CODE;
@@ -102,7 +102,7 @@ CODE
     use base qw(SL::DB::Object);
 
     __PACKAGE__->meta->table('$table');
-$schema
+    $schema
     __PACKAGE__->meta->auto_initialize;
 
     __PACKAGE__->meta->perl_class_definition(indent => 2); # , braces => 'bsd'
@@ -137,6 +137,7 @@ use strict;
 use SL::DB::MetaSetup::${package};
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
+$schema
 __PACKAGE__->meta->make_manager_class;
 
 1;
