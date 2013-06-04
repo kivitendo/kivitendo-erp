@@ -741,15 +741,8 @@ sub create_employee_entry {
 sub config_vars {
   $main::lxdebug->enter_sub();
 
-  my @conf = qw(address admin businessnumber company countrycode
-    currency dateformat dbconnect dbdriver dbhost dbport dboptions
-    dbname dbuser dbpasswd email fax name numberformat password
-    printer sid signature stylesheet tel templates vclimit angebote
-    bestellungen rechnungen anfragen lieferantenbestellungen einkaufsrechnungen
-    taxnumber co_ustid duns menustyle template_format default_media
-    default_printer_id copies show_form_details favorites
-    pdonumber sdonumber hide_cvar_search_options mandatory_departments
-    sepa_creditor_id taxincluded_checked);
+  my @conf = qw(copies countrycode dateformat default_media default_printer_id email favorites fax hide_cvar_search_options mandatory_departments menustyle name
+                numberformat show_form_details signature stylesheet taxincluded_checked tel template_format vclimit);
 
   $main::lxdebug->leave_sub();
 
