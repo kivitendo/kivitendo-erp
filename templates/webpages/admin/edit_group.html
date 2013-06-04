@@ -1,5 +1,4 @@
 [% USE T8 %][% USE HTML %][% USE L %][% USE LxERP -%]
- [% L.stylesheet_tag('jquery.multiselect2side') %]
  [% L.javascript_tag('jquery.selectboxes', 'jquery.multiselect2side') %]
 
 <h1>[% 'Edit group ' | $T8 %]:  [% HTML.escape(name) %]</h1>
@@ -16,7 +15,7 @@
   <h3 class="listheading">[%- LxERP.t8('Edit membership') %]</h3>
 
   <div class="clearfix">
-   [% L.select_tag('user_ids[]', ALL_USERS, value_key = 'id', title_key = 'login', default = USER_IDS_IN_GROUP, multiple = 1) %]
+   [% L.select_tag('user_ids[]', ALL_USERS, id='user_ids', value_key = 'id', title_key = 'login', default = USER_IDS_IN_GROUP, multiple = 1) %]
   </div>
 
   <h3 class="listheading">[% 'Edit rights' | $T8 %]</h3>
@@ -56,4 +55,4 @@
   </p>
  </form>
 
- [% L.multiselect2side('user_ids_', labelsx => LxERP.t8('All users'), labeldx => LxERP.t8('Users in this group')) %]
+ [% L.multiselect2side('user_ids', labelsx => LxERP.t8('All users'), labeldx => LxERP.t8('Users in this group')) %]
