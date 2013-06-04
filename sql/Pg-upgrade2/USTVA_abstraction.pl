@@ -147,7 +147,7 @@ sub do_copy {
 
 sub run {
   my ($self) = @_;
-  return $self->create_tables && $self->do_copy;
+  return $self->create_tables && $self->do_copy ? 1 : undef;
 }
 
 1;

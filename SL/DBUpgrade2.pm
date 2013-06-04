@@ -1,5 +1,6 @@
 package SL::DBUpgrade2;
 
+use English qw(-no_match_vars);
 use IO::File;
 use List::MoreUtils qw(any);
 
@@ -248,19 +249,21 @@ sub process_perl_script {
 
   # setup dbup_ export vars & run script
   my %dbup_myconfig = map { ($_ => $::form->{$_}) } qw(dbname dbuser dbpasswd dbhost dbport dbconnect);
-  my $result        = SL::DBUpgrade2::Base::execute_script(
-    file_name => $filename,
-    tag       => $version_or_control->{tag},
-    dbh       => $dbh,
-    myconfig  => \%dbup_myconfig,
-  );
+  my $result        = eval {
+    SL::DBUpgrade2::Base::execute_script(
+      file_name => $filename,
+      tag       => $version_or_control->{tag},
+      dbh       => $dbh,
+      myconfig  => \%dbup_myconfig,
+    );
+  };
 
-  if (1 != ($result // 1)) {
-    $dbh->rollback();
-  }
+  my $error = $EVAL_ERROR;
+
+  $dbh->rollback if 1 != ($result // -1);
 
   if (!defined($result)) {
-    print $::form->parse_html_template("dbupgrade/error", { file  => $filename, error => $@ });
+    print $::form->parse_html_template("dbupgrade/error", { file  => $filename, error => $error });
     ::end_of_request();
   } elsif (1 != $result) {
     unlink("users/nologin") if (2 == $result);

@@ -36,7 +36,7 @@ sub run {
     && $self->do_insert_tax()
     && $self->do_insert_taxkeys()
     && $self->do_insert_buchungsgruppen()
-      ;
+    ? 1 : 0;
 }
 
 sub clear_tables {

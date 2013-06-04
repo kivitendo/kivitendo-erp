@@ -110,6 +110,7 @@ SQL
   $sth_query->finish;
   $sth_insert->finish;
 
+  return 1;
 } # end run
 
 sub print_past_booking_warning {
