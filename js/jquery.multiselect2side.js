@@ -35,17 +35,19 @@
     return this.each(function () {
       var el = $(this);
 
-      var hiddenName   = $(this).attr("name");
-      var originalName = $(this).attr("name");
-      if (originalName.indexOf('[') != -1)
-        originalName = originalName.substring(0, originalName.indexOf('['));
+      var hiddenName = $(this).attr("name");
+      var originalID = $(this).attr("id");
+      if (!originalID)
+        originalID = hiddenName;
+      if (originalID.indexOf('[') != -1)
+        originalID = originalID.substring(0, originalID.indexOf('['));
 
-      var nameDx   = originalName + "ms2side__dx";
-      var idDx     = originalName + "ms2side__dx";
-      var nameSx   = originalName + "ms2side__sx";
-      var hiddenId = originalName + "ms2side_hidden";
+      var nameDx   = originalID + "ms2side__dx";
+      var idDx     = originalID + "ms2side__dx";
+      var nameSx   = originalID + "ms2side__sx";
+      var hiddenId = originalID + "ms2side_hidden";
       var size     = $(this).attr("size");
-      $(this).attr("name", originalName + "ms2side__orig");
+      $(this).attr("name", originalID + "ms2side__orig");
       // SIZE MIN
       if (size < 6) {
         $(this).attr("size", "6");
