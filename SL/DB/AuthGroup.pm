@@ -25,6 +25,12 @@ __PACKAGE__->meta->add_relationship(
     class      => 'SL::DB::AuthGroupRight',
     column_map => { id => 'group_id' },
   },
+  clients => {
+    type      => 'many to many',
+    map_class => 'SL::DB::AuthClient',
+    map_from  => 'group',
+    map_to    => 'client',
+  },
 );
 
 __PACKAGE__->meta->initialize;

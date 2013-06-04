@@ -27,6 +27,12 @@ __PACKAGE__->meta->add_relationship(
     class      => 'SL::DB::AuthUserConfig',
     column_map => { id => 'user_id' },
   },
+  clients => {
+    type      => 'many to many',
+    map_class => 'SL::DB::AuthClient',
+    map_from  => 'user',
+    map_to    => 'client',
+  },
 );
 
 __PACKAGE__->meta->initialize;
