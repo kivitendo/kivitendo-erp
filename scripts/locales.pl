@@ -444,8 +444,11 @@ sub scanfile {
           }
         }
 
-        my ($found) = / (?: locale->text | \b t8 ) \b .*? \(/x;
-        $postmatch = "$'";
+        my $found;
+        if (/ (?: locale->text | \b t8 ) \b .*? \(/x) {
+          $found     = 1;
+          $postmatch = "$'";
+        }
 
         if ($found) {
           my $string;
