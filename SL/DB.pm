@@ -83,7 +83,7 @@ sub _register_db {
   my %flattened_settings = _flatten_settings(%connect_settings);
 
   $domain = 'LXOFFICE' if $type =~ m/^LXOFFICE/;
-  $type  .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_} || '') } sort keys %flattened_settings);
+  $type  .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_} || '') } sort grep { $_ ne 'dbpasswd' } keys %flattened_settings);
   my $idx = "${domain}::${type}";
 
   if (!$_db_registered{$idx}) {
