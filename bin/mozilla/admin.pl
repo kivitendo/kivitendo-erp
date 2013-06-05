@@ -47,6 +47,8 @@ use Sys::Hostname;
 
 use SL::Auth;
 use SL::Auth::PasswordPolicy;
+use SL::DB::AuthClient;
+use SL::DB::AuthUser;
 use SL::Form;
 use SL::Iconv;
 use SL::Mailer;
@@ -105,7 +107,6 @@ sub run {
     } else {
       if ($auth->session_tables_present()) {
         delete $::form->{'{AUTH}admin_password'};
-        _apply_dbupgrade_scripts();
       }
 
       call_sub($locale->findsub($form->{action}));
@@ -128,99 +129,6 @@ sub adminlogin {
 
   $form->header();
   print $form->parse_html_template('admin/adminlogin');
-}
-
-sub login {
-  check_auth_db_and_tables();
-  list_users();
-}
-
-sub logout {
-  $main::auth->destroy_session();
-  adminlogin();
-}
-
-sub check_auth_db_and_tables {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  my %params;
-
-  map { $params{"db_${_}"} = $main::auth->{DB_config}->{$_} } keys %{ $auth->{DB_config} };
-
-  $params{admin_password} = $::lx_office_conf{authentication}->{admin_password};
-
-  if (!$main::auth->check_database()) {
-    $form->{title} = $locale->text('Authentification database creation');
-    $form->header();
-    print $form->parse_html_template('admin/check_auth_database', \%params);
-
-    ::end_of_request();
-  }
-
-  if (!$main::auth->check_tables()) {
-    $form->{title} = $locale->text('Authentification tables creation');
-    $form->header();
-    print $form->parse_html_template('admin/check_auth_tables', \%params);
-
-    ::end_of_request();
-  }
-}
-
-sub create_auth_db {
-  my $form = $main::form;
-
-  $main::auth->create_database('superuser'          => $form->{db_superuser},
-                               'superuser_password' => $form->{db_superuser_password},
-                               'template'           => $form->{db_template});
-  login();
-}
-
-sub create_auth_tables {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  $main::auth->create_tables();
-  $main::auth->set_session_value('admin_password', $form->{'{AUTH}admin_password'});
-  $main::auth->create_or_refresh_session();
-
-  my $memberfile = $::lx_office_conf{paths}->{memberfile};
-  if (!-f $memberfile) {
-    # New installation -- create a standard group with full access
-    my %members;
-    my $group = {
-      'name'        => $locale->text('Full Access'),
-      'description' => $locale->text('Full access to all functions'),
-      'rights'      => { map { $_ => 1 } SL::Auth::all_rights() },
-      'members'     => [ map { $_->{id} } values %members ],
-    };
-
-    $main::auth->save_group($group);
-  }
-
-  _apply_dbupgrade_scripts();
-  login();
-}
-
-sub list_users {
-  my $form    = $main::form;
-  my $locale  = $main::locale;
-
-  my %members = $main::auth->read_all_users();
-
-  delete $members{"root login"};
-
-  for (values %members) {
-    $_->{templates} =~ s|.*/||;
-    $_->{login_url} =  $::locale->is_utf8 ? Encode::encode('utf-8-strict', $_->{login}) : $_->{login_url};
-  }
-
-  $form->{title}   = "kivitendo " . $locale->text('Administration');
-  $form->{LOCKED}  = -e _nologin_file_name();
-  $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
-
-  $form->header();
-  print $form->parse_html_template("admin/list_users");
 }
 
 sub add_user {
@@ -248,9 +156,6 @@ sub edit_user {
 
   # get user
   my $user = User->new(id => $::form->{user}{id});
-
-  # strip basedir from templates directory
-  $user->{templates} =~ s|.*/||;
 
   edit_user_form($user);
 }
@@ -923,32 +828,6 @@ sub restore_dataset_start {
   rmdir $tmpdir;
 }
 
-sub unlock_system {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  unlink _nologin_file_name();;
-
-  $form->{callback} = "admin.pl?action=list_users";
-
-  $form->redirect($locale->text('Lockfile removed!'));
-
-}
-
-sub lock_system {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  open(FH, ">", _nologin_file_name())
-    or $form->error($locale->text('Cannot create Lock!'));
-  close(FH);
-
-  $form->{callback} = "admin.pl?action=list_users";
-
-  $form->redirect($locale->text('Lockfile created!'));
-
-}
-
 sub yes {
   call_sub($main::form->{yes_nextsub});
 }
@@ -1004,14 +883,6 @@ sub dispatcher {
   call_sub($form->{default_action}) if ($form->{default_action});
 
   $form->error($locale->text('No action defined.'));
-}
-
-sub _apply_dbupgrade_scripts {
-  ::end_of_request() if SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(1);
-}
-
-sub _nologin_file_name {
-  return $::lx_office_conf{paths}->{userspath} . '/nologin';
 }
 
 sub _search_templates {

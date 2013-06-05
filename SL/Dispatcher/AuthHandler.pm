@@ -1,4 +1,4 @@
-  package SL::Dispatcher::AuthHandler;
+package SL::Dispatcher::AuthHandler;
 
 use strict;
 
@@ -18,7 +18,7 @@ sub handle {
   my $handler_name                     = "SL::Dispatcher::AuthHandler::" . ucfirst($auth_level);
   $self->{handlers}                  ||= {};
   $self->{handlers}->{$handler_name} ||= $handler_name->new;
-  my $ok = $self->{handlers}->{$handler_name}->handle;
+  my $ok = $self->{handlers}->{$handler_name}->handle(%param);
 
   return (
     auth_level     => $auth_level,
@@ -40,7 +40,7 @@ sub get_auth_level {
 sub get_keep_auth_vars {
   my ($self, %param) = @_;
 
-  return $param{routing_type} eq 'controller' ? "SL::Controller::$param{controller}"->keep_auth_vars_in_form : 0;
+  return $param{routing_type} eq 'controller' ? "SL::Controller::$param{controller}"->keep_auth_vars_in_form(action => $param{action}) : 0;
 }
 
 1;

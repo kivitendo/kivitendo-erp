@@ -8,10 +8,8 @@ use strict;
 use List::Util qw(first);
 
 use SL::DB::MetaSetup::AuthUser;
+use SL::DB::Manager::AuthUser;
 use SL::DB::AuthUserGroup;
-
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
 
 __PACKAGE__->meta->schema('auth');
 
@@ -42,6 +40,17 @@ sub get_config_value {
 
   my $cfg = first { $_->cfg_key eq $key } @{ $self->configs };
   return $cfg ? $cfg->cfg_value : undef;
+}
+
+sub config_values {
+  my $self = shift;
+
+  if (0 != scalar(@_)) {
+    my %settings = (ref($_[0]) || '') eq 'HASH' ? %{ $_[0] } : @_;
+    $self->configs([ map { SL::DB::AuthUserConfig->new(cfg_key => $_, cfg_value => $settings{$_}) } keys %settings ]);
+  }
+
+  return { map { ($_->cfg_key => $_->cfg_value) } @{ $self->configs } };
 }
 
 1;

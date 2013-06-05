@@ -566,7 +566,7 @@ sub restore_session {
 
   if (!$session_id) {
     $main::lxdebug->leave_sub();
-    return SESSION_NONE;
+    return $self->session_restore_result(SESSION_NONE());
   }
 
   my ($dbh, $query, $sth, $cookie, $ref, $form);
@@ -576,7 +576,7 @@ sub restore_session {
   # Don't fail if the auth DB doesn't yet.
   if (!( $dbh = $self->dbconnect(1) )) {
     $::lxdebug->leave_sub;
-    return SESSION_NONE;
+    return $self->session_restore_result(SESSION_NONE());
   }
 
   # Don't fail if the "auth" schema doesn't exist yet, e.g. if the
@@ -586,7 +586,7 @@ sub restore_session {
   if (!($sth = $dbh->prepare($query)) || !$sth->execute($session_id)) {
     $sth->finish if $sth;
     $::lxdebug->leave_sub;
-    return SESSION_NONE;
+    return $self->session_restore_result(SESSION_NONE());
   }
 
   $cookie = $sth->fetchrow_hashref;
@@ -605,7 +605,7 @@ sub restore_session {
   if ($cookie_is_bad) {
     $self->destroy_session();
     $main::lxdebug->leave_sub();
-    return $cookie ? SESSION_EXPIRED : SESSION_NONE;
+    return $self->session_restore_result($cookie ? SESSION_EXPIRED() : SESSION_NONE());
   }
 
   if ($self->{column_information}->has('auto_restore')) {
@@ -616,7 +616,15 @@ sub restore_session {
 
   $main::lxdebug->leave_sub();
 
-  return SESSION_OK;
+  return $self->session_restore_result(SESSION_OK());
+}
+
+sub session_restore_result {
+  my $self = shift;
+  if (@_) {
+    $self->{session_restore_result} = $_[0];
+  }
+  return $self->{session_restore_result};
 }
 
 sub _load_without_auto_restore_column {

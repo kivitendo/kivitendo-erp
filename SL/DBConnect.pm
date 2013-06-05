@@ -7,6 +7,13 @@ use DBI;
 sub connect {
   shift;
 
+  # print STDERR "Starting full caller dump:\n";
+  # my $level = 0;
+  # while (my ($dummy, $filename, $line, $subroutine) = caller $level) {
+  #   print STDERR "  ${subroutine} from ${filename}:${line}\n";
+  #   $level++;
+  # }
+
   return DBI->connect(@_) unless $::lx_office_conf{debug} && $::lx_office_conf{debug}->{dbix_log4perl};
 
   require Log::Log4perl;

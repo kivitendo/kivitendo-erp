@@ -423,3 +423,8 @@ label {
   color: #aaa;
   font-style: italic;
 }
+
+.link_separator {
+  margin-left: 6px;
+  margin-right: 6px;
+}

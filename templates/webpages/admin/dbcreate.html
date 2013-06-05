@@ -1,14 +1,8 @@
 [%- USE T8 %]
 [%- USE HTML %]
-[%- USE LxERP %]
+[%- USE LxERP %][%- USE L -%]
   <h1>[% title %]</h1>
 
-  <form method="post" action="admin.pl">
+  <p>[% LxERP.t8('The dataset #1 has been successfully created.', db) | html %]</p>
 
-   <p>[% LxERP.t8('The dataset #1 has been successfully created.', db) | html %]</p>
-
-   <input type="hidden" name="nextsub" value="list_users">
-
-   <p><input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]"></p>
-
-  </form>
+  <p>[% L.link("controller.pl?action=Admin/list_clients_and_users", LxERP.t8("Continue")) %]</p>

@@ -6,10 +6,8 @@ package SL::DB::AuthGroup;
 use strict;
 
 use SL::DB::MetaSetup::AuthGroup;
+use SL::DB::Manager::AuthGroup;
 use SL::DB::AuthGroupRight;
-
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
 
 __PACKAGE__->meta->schema('auth');
 
