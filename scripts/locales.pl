@@ -43,6 +43,10 @@ our $self        = {};
 our $missing     = {};
 our @lost        = ();
 
+my %ignore_unused_templates = (
+  map { $_ => 1 } qw(common/help_overlay.html ct/testpage.html generic/autocomplete.html oe/periodic_invoices_email.txt part/testpage.html t/render.html t/render.js)
+);
+
 my (%referenced_html_files, %locale, %htmllocale, %alllocales, %cached, %submit, %jslocale);
 my ($ALL_HEADER, $MISSING_HEADER, $LOST_HEADER);
 
@@ -655,7 +659,7 @@ sub search_unused_htmlfiles {
       if (-d $entry) {
         push @unscanned_dirs, $entry;
 
-      } elsif (($entry =~ /_master.html$/) && -f $entry && !$referenced_html_files{$entry}) {
+      } elsif (!$ignore_unused_templates{strip_base($entry)} && -f $entry && !$referenced_html_files{$entry}) {
         print "W: unused HTML template: " . strip_base($entry) . "\n";
 
       }
