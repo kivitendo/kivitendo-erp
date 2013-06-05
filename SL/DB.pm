@@ -49,12 +49,8 @@ sub _register_db {
   my %connect_settings;
   my $initial_sql;
 
-  if (!%::myconfig) {
-    $type = 'KIVITENDO_EMPTY';
-    %connect_settings = ( driver => 'Pg' );
-
-  } elsif ($type eq 'KIVITENDO_AUTH') {
-    %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
+  if ($type eq 'KIVITENDO_AUTH') {
+    %connect_settings = ( driver          => 'Pg',
                           database        => $::auth->{DB_config}->{db},
                           host            => $::auth->{DB_config}->{host} || 'localhost',
                           port            => $::auth->{DB_config}->{port} || 5432,
@@ -62,6 +58,10 @@ sub _register_db {
                           password        => $::auth->{DB_config}->{password},
                           connect_options => { pg_enable_utf8 => $::locale && $::locale->is_utf8,
                                              });
+  } elsif (!%::myconfig) {
+    $type = 'KIVITENDO_EMPTY';
+    %connect_settings = ( driver => 'Pg' );
+
   } else {
     my $european_dates = 0;
     if ($::myconfig{dateformat}) {
