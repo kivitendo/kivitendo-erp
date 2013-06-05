@@ -301,3 +301,6 @@ keep_installation_unlocked = 0
 # be made unique by appending a random GET parameter. This will cause
 # the web browser to always reload the resources.
 auto_reload_resources = 0
+
+# If set to 1 each exception will include a full stack backtrace.
+backtrace_on_die = 0

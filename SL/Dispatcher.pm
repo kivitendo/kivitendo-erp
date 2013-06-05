@@ -16,6 +16,7 @@ BEGIN {
   unshift @INC, $exe_dir;
 }
 
+use Carp;
 use CGI qw( -no_xhtml);
 use Config::Std;
 use DateTime;
@@ -127,6 +128,8 @@ sub pre_startup_setup {
   $SIG{__WARN__} = sub {
     $::lxdebug->warn(@_);
   };
+
+  $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
 
   $self->_cache_file_modification_times;
 }
