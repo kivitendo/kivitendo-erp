@@ -222,10 +222,10 @@ sub usage {
 sub make_tables {
   my @tables;
   if ($config{all}) {
-    my $db  = SL::DB::create(undef, 'LXOFFICE');
+    my $db  = SL::DB::create(undef, 'KIVITENDO');
     @tables =
-      map { $package_names{LXOFFICE}->{$_} ? "$_=" . $package_names{LXOFFICE}->{$_} : $_ }
-      grep { my $table = $_; !any { $_ eq $table } @{ $blacklist{LXOFFICE} } }
+      map { $package_names{KIVITENDO}->{$_} ? "$_=" . $package_names{KIVITENDO}->{$_} : $_ }
+      grep { my $table = $_; !any { $_ eq $table } @{ $blacklist{KIVITENDO} } }
       $db->list_tables;
   } elsif (@ARGV) {
     @tables = @ARGV;
@@ -251,7 +251,7 @@ my @tables = make_tables();
 
 for my $table (@tables) {
   # add default model name unless model name is given or no defaults exists
-  $table .= '=' . $package_names{LXOFFICE}->{lc $table} if $table !~ /=/ && $package_names{LXOFFICE}->{lc $table};
+  $table .= '=' . $package_names{KIVITENDO}->{lc $table} if $table !~ /=/ && $package_names{KIVITENDO}->{lc $table};
 
   process_table($table);
 }

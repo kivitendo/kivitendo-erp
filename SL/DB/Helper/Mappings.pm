@@ -11,13 +11,13 @@ our @EXPORT_OK = qw(get_table_for_package get_package_for_table get_package_name
 
 # these will not be managed as Rose::DB models, because they are not normalized,
 # significant changes are needed to get them done, or they were done by CRM.
-my @lxoffice_blacklist_permanent = qw(
+my @kivitendo_blacklist_permanent = qw(
   leads
 );
 
 # these are not managed _yet_, but will hopefully at some point.
 # if you are confident that one of these works, remove it here.
-my @lxoffice_blacklist_temp = qw(
+my @kivitendo_blacklist_temp = qw(
 );
 
 # tables created by crm module
@@ -29,12 +29,12 @@ my @cash_register_blacklist = qw(
 ekartikel ekbon ekkunde ektext erptasten
 );
 
-my @lxoffice_blacklist = (@lxoffice_blacklist_permanent, @lxoffice_blacklist_temp, @crm_blacklist, @cash_register_blacklist);
+my @kivitendo_blacklist = (@kivitendo_blacklist_permanent, @kivitendo_blacklist_temp, @crm_blacklist, @cash_register_blacklist);
 
 # map table names to their models.
 # unlike rails we have no singular<->plural magic.
 # remeber: tables should be named as the plural of the model name.
-my %lxoffice_package_names = (
+my %kivitendo_package_names = (
   acc_trans                      => 'acc_transaction',
   audittrail                     => 'audit_trail',
   'auth.clients'                 => 'auth_client',
@@ -112,42 +112,42 @@ my %lxoffice_package_names = (
   vendor                         => 'vendor',
 );
 
-my (%lxoffice_tables_to_packages, %lxoffice_tables_to_manager_packages, %lxoffice_packages_to_tables);
+my (%kivitendo_tables_to_packages, %kivitendo_tables_to_manager_packages, %kivitendo_packages_to_tables);
 
 sub get_blacklist {
-  return LXOFFICE => \@lxoffice_blacklist;
+  return KIVITENDO => \@kivitendo_blacklist;
 }
 
 sub get_package_names {
-  return LXOFFICE => \%lxoffice_package_names;
+  return KIVITENDO => \%kivitendo_package_names;
 }
 
 sub get_package_for_table {
-  %lxoffice_tables_to_packages = map { ($_ => "SL::DB::" . camelify($lxoffice_package_names{$_})) } keys %lxoffice_package_names
-    unless %lxoffice_tables_to_packages;
+  %kivitendo_tables_to_packages = map { ($_ => "SL::DB::" . camelify($kivitendo_package_names{$_})) } keys %kivitendo_package_names
+    unless %kivitendo_tables_to_packages;
 
-  return $lxoffice_tables_to_packages{ $_[0] };
+  return $kivitendo_tables_to_packages{ $_[0] };
 }
 
 sub get_manager_package_for_table {
-  %lxoffice_tables_to_manager_packages = map { ($_ => "SL::DB::Manager::" . camelify($lxoffice_package_names{$_})) } keys %lxoffice_package_names
-    unless %lxoffice_tables_to_manager_packages;
+  %kivitendo_tables_to_manager_packages = map { ($_ => "SL::DB::Manager::" . camelify($kivitendo_package_names{$_})) } keys %kivitendo_package_names
+    unless %kivitendo_tables_to_manager_packages;
 
-  return $lxoffice_tables_to_manager_packages{ $_[0] };
+  return $kivitendo_tables_to_manager_packages{ $_[0] };
 }
 
 sub get_table_for_package {
-  get_package_for_table('dummy') if !%lxoffice_tables_to_packages;
-  %lxoffice_packages_to_tables = reverse %lxoffice_tables_to_packages unless %lxoffice_packages_to_tables;
+  get_package_for_table('dummy') if !%kivitendo_tables_to_packages;
+  %kivitendo_packages_to_tables = reverse %kivitendo_tables_to_packages unless %kivitendo_packages_to_tables;
 
   my $package = $_[0] =~ m/^SL::DB::/ ? $_[0] : "SL::DB::" . $_[0];
-  return $lxoffice_packages_to_tables{ $package };
+  return $kivitendo_packages_to_tables{ $package };
 }
 
 sub db {
   my $string = $_[0];
-  my $lookup = $lxoffice_package_names{$_[0]} ||
-      plurify($lxoffice_package_names{singlify($_[0])});
+  my $lookup = $kivitendo_package_names{$_[0]} ||
+      plurify($kivitendo_package_names{singlify($_[0])});
 
   for my $thing ($string, $lookup) {
 

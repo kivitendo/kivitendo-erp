@@ -50,10 +50,10 @@ sub _register_db {
   my $initial_sql;
 
   if (!%::myconfig) {
-    $type = 'LXOFFICE_EMPTY';
+    $type = 'KIVITENDO_EMPTY';
     %connect_settings = ( driver => 'Pg' );
 
-  } elsif ($type eq 'LXOFFICE_AUTH') {
+  } elsif ($type eq 'KIVITENDO_AUTH') {
     %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
                           database        => $::auth->{DB_config}->{db},
                           host            => $::auth->{DB_config}->{host} || 'localhost',
@@ -82,7 +82,7 @@ sub _register_db {
 
   my %flattened_settings = _flatten_settings(%connect_settings);
 
-  $domain = 'LXOFFICE' if $type =~ m/^LXOFFICE/;
+  $domain = 'KIVITENDO' if $type =~ m/^KIVITENDO/;
   $type  .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_} || '') } sort grep { $_ ne 'dbpasswd' } keys %flattened_settings);
   my $idx = "${domain}::${type}";
 
