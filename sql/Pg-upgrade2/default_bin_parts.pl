@@ -66,7 +66,9 @@ sub run {
     foreach my $i (1 .. $::form->{rowcount}) {
 
       # Best Case: Lagerplatz aus Liste gewählt
-      if ($::form->{"bin_id_$i"}) {
+      # bei zurückspringen auf leeres lager, wird der lagerplatz nicht zurückgesetzt
+      # erstmal an dieser stelle abfangen, damit nichts angelegt wird
+      if ($::form->{"bin_id_$i"} && $::form->{"warehouse_id_$i"}) {
         $prepared_update_query->execute($::form->{"warehouse_id_$i"}, $::form->{"bin_id_$i"}, $::form->{"partid_$i"}) || $self->db_error($update_query);
       } elsif ($CREATE_BINS) {
         # Lager vorhanden, bzw. vorher erstellt.  alte bins automatisch hinzufügen und zum Standardlagerplatz verdrahten

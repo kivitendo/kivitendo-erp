@@ -830,6 +830,7 @@ $self->{texts} = {
   'Employee'                    => 'Bearbeiter',
   'Employee #1 saved!'          => 'Benutzer #1 gespeichert!',
   'Employees'                   => 'Benutzer',
+  'Empty selection for warehouse will not be added, even if the old bin is still visible (use back and forth to edit again).' => '',
   'Empty transaction!'          => 'Buchung ist leer!',
   'End date'                    => 'Enddatum',
   'Enter a description for this new draft.' => 'Geben Sie eine Beschreibung f&uuml;r diesen Entwurf ein.',

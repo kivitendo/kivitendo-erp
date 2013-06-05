@@ -50,22 +50,25 @@
 
         control.options[bin_index].selected = true;
       }
+
       function bin_match(rowcount) {
-        for (i = 1; i < rowcount + 1; i++) {              // über alle parts_id
+        for (i = 1; i <= rowcount + 1; i++) {              // über alle parts_id
           var lagerplatz = document.getElementById("bin_" + i).value;
           var control = document.getElementById("bin_id_" + i);
           var bin_index = 0;
-          //alert(lagerplatz);
           for (j = 0; j < warehouses.length; j++) {       // über alle lager
             var warehouse = warehouses[j];
 
             for (k = 0; k < warehouse['bins'].length; k++) {       // über alle lagerplätze
 
               if (lagerplatz == warehouse['bins'][k]['description']) {
-                //alert('ware ' + warehouse['bins'][k]['description']);
                 var lager = document.getElementById("warehouse_id_" + i);
                 lager.selectedIndex = j;
                 bin_index = k;
+                for (bin_i = 0; bin_i < warehouse['bins'].length; bin_i++) {
+                  control.options[bin_i] = new Option(warehouse['bins'][bin_i]['description'], warehouse['bins'][bin_i]['id']);
+                }
+                control.options[bin_index].selected = true;
                 break;
                 /*var lagerplatz = document.getElementById("bin_id_" + i);
                 alert('lagerplatz ' + lagerplatz.value);
@@ -75,11 +78,6 @@
             }
           }
         }
-        for (i = 0; i < warehouse['bins'].length; i++) {
-                control.options[i] = new Option(warehouse['bins'][i]['description'], warehouse['bins'][i]['id']);
-              }
-              control.options[bin_index].selected = true;
-
 
       }
 
@@ -104,6 +102,7 @@
 <p>[% 'This has been changed in this version, therefore please change the "old" bins to some real warehouse bins.' | $T8 %]</p>
 <p>[% 'If your old bins match exactly Bins in the Warehouse CLICK on <b>AUTOMATICALLY MATCH BINS</b>.' | $T8 %]</p>
 <p>[% 'Otherwise you can simply check create warehouse and bins and define a name for the warehouse (Bins will be created automatically) and then continue'  | $T8 %]</p>
+<p>[% 'Empty selection for warehouse will not be added, even if the old bin is still visible (use back and forth to edit again).'  | $T8 %]</p>
 
 <table>
   <tr>
