@@ -208,7 +208,10 @@ email_subject  = kivitendo self test report
 email_template = templates/mail/self_test/status_mail.txt
 
 [console]
-# autologin to use if none is given
+# Automatic login will only work if both "client" and "login" are
+# given.  "client" can be a client's database ID or its name. "login"
+# is simply a user's login name.
+client =
 login =
 
 # autorun lines will be executed after autologin.
@@ -226,9 +229,11 @@ history_file = users/console_history
 log_file = /tmp/kivitendo_console_debug.log
 
 [testing]
-
-# autologin to use if none is given
-login = myxplace_standard
+# Automatic login will only work if both "client" and "login" are
+# given.  "client" can be a client's database ID or its name. "login"
+# is simply a user's login name.
+client =
+login =
 
 [devel]
 # Several settings related to the development of kivitendo.
