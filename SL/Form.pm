@@ -1373,8 +1373,7 @@ sub dbconnect {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh = SL::DBConnect->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, SL::DBConnect->get_options)
-    or $self->dberror;
+  my $dbh = SL::DBConnect->connect or $self->dberror;
 
   # set db options
   if ($myconfig->{dboptions}) {
@@ -1392,8 +1391,7 @@ sub dbconnect_noauto {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh = SL::DBConnect->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, SL::DBConnect->get_options(AutoCommit => 0))
-    or $self->dberror;
+  my $dbh = SL::DBConnect->connect(SL::DBConnect->get_connect_args(AutoCommit => 0)) or $self->dberror;
 
   # set db options
   if ($myconfig->{dboptions}) {
