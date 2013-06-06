@@ -18,14 +18,14 @@ __PACKAGE__->meta->setup(
   primary_key_columns => [ 'user_id', 'group_id' ],
 
   foreign_keys => [
-    user => {
-      class       => 'SL::DB::AuthUser',
-      key_columns => { user_id => 'id' },
-    },
-
     group => {
       class       => 'SL::DB::AuthGroup',
       key_columns => { group_id => 'id' },
+    },
+
+    user => {
+      class       => 'SL::DB::AuthUser',
+      key_columns => { user_id => 'id' },
     },
   ],
 );

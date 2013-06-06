@@ -17,6 +17,13 @@ __PACKAGE__->meta->setup(
   ],
 
   primary_key_columns => [ 'user_id', 'cfg_key' ],
+
+  foreign_keys => [
+    user => {
+      class       => 'SL::DB::AuthUser',
+      key_columns => { user_id => 'id' },
+    },
+  ],
 );
 
 1;
