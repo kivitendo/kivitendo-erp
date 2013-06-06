@@ -46,48 +46,56 @@ sub _register_db {
   my $domain = shift;
   my $type   = shift;
 
-  my %connect_settings;
-  my $initial_sql;
+  my %specific_connect_settings;
+  my %common_connect_settings = (
+    driver           => 'Pg',
+    connect_options  => {
+      pg_enable_utf8 => $::locale && $::locale->is_utf8,
+    },
+  );
+
+  if ($::myconfig{dateformat}) {
+    $common_connect_settings{european_dates} = 1 if ($_dateformats{ $::myconfig{dateformat} } || '') =~ m/european/i;
+  }
 
   if (($type eq 'KIVITENDO_AUTH') && $::auth && $::auth->{DB_config} && $::auth->session_tables_present) {
-    %connect_settings = ( driver          => 'Pg',
-                          database        => $::auth->{DB_config}->{db},
-                          host            => $::auth->{DB_config}->{host} || 'localhost',
-                          port            => $::auth->{DB_config}->{port} || 5432,
-                          username        => $::auth->{DB_config}->{user},
-                          password        => $::auth->{DB_config}->{password},
-                          connect_options => { pg_enable_utf8 => $::locale && $::locale->is_utf8,
-                                             });
-  }
+    %specific_connect_settings = (
+      database        => $::auth->{DB_config}->{db},
+      host            => $::auth->{DB_config}->{host} || 'localhost',
+      port            => $::auth->{DB_config}->{port} || 5432,
+      username        => $::auth->{DB_config}->{user},
+      password        => $::auth->{DB_config}->{password},
+    );
 
-  if (!%connect_settings && %::myconfig) {
-    my $european_dates = 0;
-    if ($::myconfig{dateformat}) {
-      $european_dates = 1 if $_dateformats{ $::myconfig{dateformat} }
-                          && $_dateformats{ $::myconfig{dateformat} } =~ m/european/i;
-    }
+  } elsif ($::auth && $::auth->client) {
+    my $client        = $::auth->client;
+    %specific_connect_settings = (
+      database        => $client->{dbname},
+      host            => $client->{dbhost} || 'localhost',
+      port            => $client->{dbport} || 5432,
+      username        => $client->{dbuser},
+      password        => $client->{dbpasswd},
+    );
 
-    %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
-                          database        => $::myconfig{dbname},
-                          host            => $::myconfig{dbhost} || 'localhost',
-                          port            => $::myconfig{dbport} || 5432,
-                          username        => $::myconfig{dbuser},
-                          password        => $::myconfig{dbpasswd},
-                          connect_options => { pg_enable_utf8 => $::locale && $::locale->is_utf8,
-                                             },
-                          european_dates  => $european_dates);
-  }
+  } elsif (%::myconfig && $::myconfig{dbname}) {
+    %specific_connect_settings = (
+      database        => $::myconfig{dbname},
+      host            => $::myconfig{dbhost} || 'localhost',
+      port            => $::myconfig{dbport} || 5432,
+      username        => $::myconfig{dbuser},
+      password        => $::myconfig{dbpasswd},
+    );
 
-  if (!%connect_settings) {
+  } else {
     $type = 'KIVITENDO_EMPTY';
-    %connect_settings = ( driver => 'Pg' );
   }
 
+  my %connect_settings   = (%common_connect_settings, %specific_connect_settings);
   my %flattened_settings = _flatten_settings(%connect_settings);
 
-  $domain = 'KIVITENDO' if $type =~ m/^KIVITENDO/;
-  $type  .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_} || '') } sort grep { $_ ne 'dbpasswd' } keys %flattened_settings);
-  my $idx = "${domain}::${type}";
+  $domain                = 'KIVITENDO' if $type =~ m/^KIVITENDO/;
+  $type                 .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_} || '') } sort grep { $_ ne 'dbpasswd' } keys %flattened_settings);
+  my $idx                = "${domain}::${type}";
 
   if (!$_db_registered{$idx}) {
     $_db_registered{$idx} = 1;
