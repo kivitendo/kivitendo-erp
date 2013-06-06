@@ -1,6 +1,3 @@
-# This file has been auto-generated only because it didn't exist.
-# Feel free to modify it at will; it will not be overwritten automatically.
-
 package SL::DB::AuthUser;
 
 use strict;
@@ -9,9 +6,9 @@ use List::Util qw(first);
 
 use SL::DB::MetaSetup::AuthUser;
 use SL::DB::Manager::AuthUser;
+use SL::DB::AuthClient;
 use SL::DB::AuthUserGroup;
-
-__PACKAGE__->meta->schema('auth');
+use SL::DB::Helper::Util;
 
 __PACKAGE__->meta->add_relationship(
   groups => {
@@ -27,13 +24,24 @@ __PACKAGE__->meta->add_relationship(
   },
   clients => {
     type      => 'many to many',
-    map_class => 'SL::DB::AuthClient',
+    map_class => 'SL::DB::AuthUserClient',
     map_from  => 'user',
     map_to    => 'client',
   },
 );
 
 __PACKAGE__->meta->initialize;
+
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The login is missing.')          if !$self->login;
+  push @errors, $::locale->text('The login is not unique.')          if !SL::DB::Helper::Util::is_unique($self, 'login');
+  push @errors, "chunky bacon";
+
+  return @errors;
+}
 
 sub get_config_value {
   my ($self, $key) = @_;

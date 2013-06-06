@@ -1,6 +1,3 @@
-# This file has been auto-generated only because it didn't exist.
-# Feel free to modify it at will; it will not be overwritten automatically.
-
 package SL::DB::AuthGroup;
 
 use strict;
@@ -8,8 +5,6 @@ use strict;
 use SL::DB::MetaSetup::AuthGroup;
 use SL::DB::Manager::AuthGroup;
 use SL::DB::AuthGroupRight;
-
-__PACKAGE__->meta->schema('auth');
 
 __PACKAGE__->meta->add_relationship(
   users => {
@@ -25,7 +20,7 @@ __PACKAGE__->meta->add_relationship(
   },
   clients => {
     type      => 'many to many',
-    map_class => 'SL::DB::AuthClient',
+    map_class => 'SL::DB::AuthClientGroup',
     map_from  => 'group',
     map_to    => 'client',
   },

@@ -8,6 +8,7 @@ use base qw(SL::DB::Object);
 
 __PACKAGE__->meta->setup(
   table   => 'clients_users',
+  schema  => 'auth',
 
   columns => [
     client_id => { type => 'integer', not_null => 1 },
