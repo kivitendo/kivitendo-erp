@@ -238,14 +238,19 @@ EOL
 sub parse_args {
   my ($help, $man);
 
+  my ($opt_no_c, $ignore_for_compatiblity);
+
   GetOptions(
     'no-custom-files' => \$opt_n,
-    'check-files'     => \$opt_c,
+    'check-files'     => \$ignore_for_compatiblity,
+    'no-check-files'  => \$opt_no_c,
     'verbose'         => \$opt_v,
     'help'            => \$help,
     'man'             => \$man,
     'debug'           => \$debug,
   );
+
+  $opt_c = !$opt_no_c;
 
   if ($help) {
     pod2usage(1);
