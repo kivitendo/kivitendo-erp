@@ -26,6 +26,11 @@ use strict;
 use constant SESSION_KEY_ROOT_AUTH => 'session_auth_status_root';
 use constant SESSION_KEY_USER_AUTH => 'session_auth_status_user';
 
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(client) ],
+);
+
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -51,6 +56,23 @@ sub reset {
   $self->{unique_counter}     = 0;
   $self->{column_information} = SL::Auth::ColumnInformation->new(auth => $self);
   $self->{authenticator}->reset;
+
+  $self->client(undef);
+}
+
+sub set_client {
+  my ($self, $id_or_name) = @_;
+
+  $self->client(undef);
+
+  my $column = $id_or_name =~ m/^\d+$/ ? 'id' : 'name';
+  my $dbh    = $self->dbconnect;
+
+  return undef unless $dbh;
+
+  $self->client($dbh->selectrow_hashref(qq|SELECT * FROM auth.clients WHERE ${column} = ?|, undef, $id_or_name));
+
+  return $self->client;
 }
 
 sub get_user_dbh {
