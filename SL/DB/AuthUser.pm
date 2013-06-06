@@ -24,7 +24,7 @@ __PACKAGE__->meta->add_relationship(
   },
   clients => {
     type      => 'many to many',
-    map_class => 'SL::DB::AuthUserClient',
+    map_class => 'SL::DB::AuthClientUser',
     map_from  => 'user',
     map_to    => 'client',
   },
