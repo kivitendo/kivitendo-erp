@@ -1209,6 +1209,7 @@ sub save {
 
   }
 
+  # value of $ordnumber is ordnumber or quonumber
   $form->{$ordnumber} = $form->update_defaults(\%myconfig, $numberfld)
     unless $form->{$ordnumber};
 
@@ -1218,7 +1219,12 @@ sub save {
 
   # saving the history
   if(!exists $form->{addition}) {
-    $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
+    if ( $form->{formname} eq 'sales_quotation' or  $form->{formname} eq 'request_quotation' ) {
+        $form->{snumbers} = qq|quonumber_| . $form->{quonumber};
+    } elsif ( $form->{formname} eq 'sales_order' or $form->{formname} eq 'purchase_order') {
+        $form->{snumbers} = qq|ordnumber_| . $form->{ordnumber};
+    };
+    $form->{what_done} = $form->{formname};
     $form->{addition} = "SAVED";
     $form->save_history;
   }
