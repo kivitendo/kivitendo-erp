@@ -286,7 +286,7 @@ sub handle_request {
 
     1;
   } or do {
-    if ($EVAL_ERROR ne END_OF_REQUEST) {
+    if (substr($EVAL_ERROR, 0, length(END_OF_REQUEST())) ne END_OF_REQUEST()) {
       my $error = $EVAL_ERROR;
       print STDERR $error;
 
