@@ -35,16 +35,17 @@ my @kivitendo_blacklist = (@kivitendo_blacklist_permanent, @kivitendo_blacklist_
 # unlike rails we have no singular<->plural magic.
 # remeber: tables should be named as the plural of the model name.
 my %kivitendo_package_names = (
+  # TABLE                           # MODEL (given in C style)
   acc_trans                      => 'acc_transaction',
   audittrail                     => 'audit_trail',
   'auth.clients'                 => 'auth_client',
   'auth.clients_users'           => 'auth_client_user',
   'auth.clients_groups'          => 'auth_client_group',
-  'auth.group'                   => 'auth_groups',
-  'auth.group_right'             => 'auth_group_rights',
-  'auth.user'                    => 'auth_users',
-  'auth.user_config'             => 'auth_user_configs',
-  'auth.user_group'              => 'auth_user_groups',
+  'auth.group'                   => 'auth_group',
+  'auth.group_rights'            => 'auth_group_right',
+  'auth.user'                    => 'auth_user',
+  'auth.user_config'             => 'auth_user_config',
+  'auth.user_group'              => 'auth_user_group',
   ar                             => 'invoice',
   ap                             => 'purchase_invoice',
   background_jobs                => 'background_job',
