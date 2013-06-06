@@ -230,6 +230,14 @@ log_file = /tmp/kivitendo_console_debug.log
 # autologin to use if none is given
 login = myxplace_standard
 
+[devel]
+# Several settings related to the development of kivitendo.
+
+# "client" is used by several scripts (e.g. rose_auto_create_model.pl)
+# when they need access to the database. It can be either a client's
+# database ID or its name.
+client =
+
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE
 # will be replaced by the file name configured for $::lxdebug.

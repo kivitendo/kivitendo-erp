@@ -60,24 +60,23 @@ sub setup {
 
   SL::LxOfficeConf->read;
 
-  my $login     = $config{login} || $::lx_office_conf{devel}{login};
+  my $client = $config{client} || $::lx_office_conf{devel}{client};
 
-  if (!$login) {
-    error("No login found in config. Please provide a login:");
+  if (!$client) {
+    error("No client found in config. Please provide a client:");
     usage();
   }
 
   $::lxdebug      = LXDebug->new();
   $::locale       = Locale->new("de");
   $::form         = new Form;
-  $::auth         = SL::Auth->new();
-  $::user         = User->new(login => $login);
-  %::myconfig     = $auth->read_user(login => $login);
-  $::request      = { cgi => CGI->new({}) };
   $form->{script} = 'rose_meta_data.pl';
-  $form->{login}  = $login;
+  $::auth         = SL::Auth->new();
 
-  map { $form->{$_} = $::myconfig{$_} } qw(stylesheet charset);
+  if (!$::auth->set_client($client)) {
+    error("No client with ID or name '$client' found in config. Please provide a client:");
+    usage();
+  }
 
   mkdir $meta_path unless -d $meta_path;
 }
@@ -92,7 +91,7 @@ sub process_table {
   my $meta_file  =  "${meta_path}/${package}.pm";
   my $file       =  "SL/DB/${package}.pm";
 
-  $schema        = <<CODE if $schema;
+  my $schema_str = $schema ? <<CODE : '';
 __PACKAGE__->meta->schema('$schema');
 CODE
 
@@ -102,7 +101,7 @@ CODE
     use base qw(SL::DB::Object);
 
     __PACKAGE__->meta->table('$table');
-    $schema
+    $schema_str
     __PACKAGE__->meta->auto_initialize;
 
     __PACKAGE__->meta->perl_class_definition(indent => 2); # , braces => 'bsd'
@@ -110,7 +109,7 @@ CODE
 
   if ($EVAL_ERROR) {
     error("Error in execution for table '$table'");
-    error("'$EVAL_ERROR'") if $config{verbose};
+    error("'$EVAL_ERROR'") unless $config{quiet};
     return;
   }
 
@@ -119,6 +118,8 @@ CODE
   while (my ($auto_generated_name, $desired_name) = each %{ $foreign_key_name_map{$table} || {} }) {
     $definition =~ s/( foreign_keys \s*=> \s*\[ .* ^\s+ ) ${auto_generated_name} \b/${1}${desired_name}/msx;
   }
+
+  $definition =~ s/(table\s*=>.*?\n)/$1  schema  => '${schema}',\n/ if $schema;
 
   my $full_definition = <<CODE;
 # This file has been auto-generated. Do not modify it; it will be overwritten
@@ -137,7 +138,6 @@ use strict;
 use SL::DB::MetaSetup::${package};
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-$schema
 __PACKAGE__->meta->make_manager_class;
 
 1;
@@ -151,7 +151,7 @@ CODE
     my $new_size    = length $full_definition;
     my $new_md5     = md5_hex($full_definition);
     if ($old_size == $new_size && $old_md5 == $new_md5) {
-      notice("No changes in $meta_file, skipping.") if $config{verbose};
+      notice("No changes in $meta_file, skipping.") unless $config{quiet};
       return;
     }
 
@@ -178,18 +178,18 @@ CODE
 sub parse_args {
   my ($options) = @_;
   GetOptions(
-    'login|user=s'      => \ my $login,
+    'client=s'          => \ my $client,
     all                 => \ my $all,
     'no-commit|dry-run' => \ my $nocommit,
     help                => sub { pod2usage(verbose => 99, sections => 'NAME|SYNOPSIS|OPTIONS') },
-    verbose             => \ my $verbose,
+    quiet               => \ my $quiet,
     diff                => \ my $diff,
   );
 
-  $options->{login}    = $login if $login;
+  $options->{client}   = $client;
   $options->{all}      = $all;
   $options->{nocommit} = $nocommit;
-  $options->{verbose}  = $verbose;
+  $options->{quiet}    = $quiet;
 
   if ($diff) {
     if (eval { require Text::Diff; 1 }) {
@@ -268,11 +268,11 @@ rose_auto_create_model - mana Rose::DB::Object classes for kivitendo
 
 =head1 SYNOPSIS
 
-  scripts/rose_create_model.pl --login login table1[=package1] [table2[=package2] ...]
-  scripts/rose_create_model.pl --login login [--all|-a]
+  scripts/rose_create_model.pl --client name-or-id table1[=package1] [table2[=package2] ...]
+  scripts/rose_create_model.pl --client name-or-id [--all|-a]
 
   # updates all models
-  scripts/rose_create_model.pl --login login --all
+  scripts/rose_create_model.pl --client name-or-id --all
 
   # updates only customer table, login taken from config
   scripts/rose_create_model.pl customer
@@ -281,7 +281,7 @@ rose_auto_create_model - mana Rose::DB::Object classes for kivitendo
   scripts/rose_create_model.pl parts=Part
 
   # try to update parts, but don't do it. tell what would happen in detail
-  scripts/rose_create_model.pl --no-commit --verbose parts
+  scripts/rose_create_model.pl --no-commit parts
 
 =head1 DESCRIPTION
 
@@ -327,12 +327,13 @@ created if it does not exist.
 
 =over 4
 
-=item C<--login, -l LOGIN>
+=item C<--client, -c CLIENT>
 
-=item C<--user, -u LOGIN>
+Provide a client whose database settings are used. If not present the
+client is loaded from the config key C<devel/client>. If that too is
+not found, an error is thrown.
 
-Provide a login. If not present the login is loaded from the config key
-C<devel/login>. If that too is not found, an error is thrown.
+Note that C<CLIENT> can be either a database ID or a client's name.
 
 =item C<--all, -a>
 
@@ -355,10 +356,10 @@ different. Beware, does not imply C<--no-commit>.
 
 Print this help.
 
-=item C<--verbose, -v>
+=item C<--quiet, -q>
 
-Prints extra information, such as skipped files that were not changed and
-errors where the auto initialization failed.
+Does not print extra information, such as skipped files that were not
+changed and errors where the auto initialization failed.
 
 =back
 
