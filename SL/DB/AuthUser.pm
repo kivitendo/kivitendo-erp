@@ -36,9 +36,8 @@ sub validate {
   my ($self) = @_;
 
   my @errors;
-  push @errors, $::locale->text('The login is missing.')          if !$self->login;
-  push @errors, $::locale->text('The login is not unique.')          if !SL::DB::Helper::Util::is_unique($self, 'login');
-  push @errors, "chunky bacon";
+  push @errors, $::locale->text('The login is missing.')    if !$self->login;
+  push @errors, $::locale->text('The login is not unique.') if !SL::DB::Helper::Util::is_unique($self, 'login');
 
   return @errors;
 }
@@ -46,7 +45,7 @@ sub validate {
 sub get_config_value {
   my ($self, $key) = @_;
 
-  my $cfg = first { $_->cfg_key eq $key } @{ $self->configs };
+  my $cfg = first { $_->cfg_key eq $key } @{ $self->configs || [] };
   return $cfg ? $cfg->cfg_value : undef;
 }
 
@@ -58,7 +57,7 @@ sub config_values {
     $self->configs([ map { SL::DB::AuthUserConfig->new(cfg_key => $_, cfg_value => $settings{$_}) } keys %settings ]);
   }
 
-  return { map { ($_->cfg_key => $_->cfg_value) } @{ $self->configs } };
+  return { map { ($_->cfg_key => $_->cfg_value) } @{ $self->configs || [] } };
 }
 
 1;

@@ -1,0 +1,95 @@
+[%- USE HTML %][%- USE LxERP -%][%- USE L -%]
+
+[% INCLUDE 'common/flash.html' %]
+
+<h1>[% title %]</h1>
+
+<div>
+ [% LxERP.t8("Actions") %]:
+ <span class="link_separator"></span>
+ [% L.link(SELF.url_for(action="new_client"), LxERP.t8("Add Client")) %]
+ <span class="link_separator">|</span>
+ [% L.link(SELF.url_for(action="new_user"), LxERP.t8("Add User")) %]
+ <span class="link_separator">|</span>
+ [% L.link(SELF.url_for(action="edit_groups"), LxERP.t8("Edit groups")) %]
+ <span class="link_separator">|</span>
+ [% L.link(SELF.url_for(action="pg_database_administration", controller="admin.pl"), LxERP.t8("Pg Database Administration")) %]
+ <span class="link_separator">|</span>
+ [% L.link(SELF.url_for(action="printer_management", controller="admin.pl"), LxERP.t8("Printer Management")) %]
+ <span class="link_separator">|</span>
+ [% IF LOCKED %]
+  [% L.link(SELF.url_for(action="unlock_system"), LxERP.t8("Unlock System")) %]
+ [% ELSE %]
+  [% L.link(SELF.url_for(action="lock_system"), LxERP.t8("Lock System")) %]
+ [% END %]
+ <span class="link_separator">|</span>
+ [% L.link(SELF.url_for(action="logout"), LxERP.t8("Logout")) %]
+ <span class="link_separator">|</span>
+ [% L.link(SELF.url_for(controller="LoginScreen", action="user_login"), LxERP.t8("To user login")) %]
+</div>
+
+<hr>
+
+<div class="tabwidget">
+ <ul>
+  <li><a href="#user_list">[%- LxERP.t8("User list") %]</a></li>
+  <li><a href="#client_list">[%- LxERP.t8("Client list") %]</a></li>
+ </ul>
+
+ <div id="user_list">
+[%- IF !USERS.size %]
+  <p>
+   [% LxERP.t8("No users have been created yet.") %]
+   [% LxERP.t8("In order to use kivitendo you have to create at least one client, one user, and grant that user access to the client.") %]
+  </p>
+
+[%- ELSE %]
+  <table width="100%">
+   <tr>
+    <th class="listtop">[% LxERP.t8('Login Name') %]</th>
+    <th class="listtop">[% LxERP.t8('Name') %]</th>
+    <th class="listtop">[% LxERP.t8('Language') %]</th>
+   </tr>
+
+[% FOREACH user = USERS %]
+[%- SET config = user.config_values %]
+   <tr class="listrow">
+    <td>[% L.link(SELF.url_for(action="edit_user", id=user.id), HTML.escape(user.login)) %]</td>
+    <td>[% HTML.escape(config.name) %]</td>
+    <td>[% HTML.escape(config.countrycode) %]</td>
+   </tr>
+[% END %]
+  </table>
+[%- END %]
+ </div>
+
+ <div id="client_list">
+[%- IF !CLIENTS.size %]
+  <p>
+   [% LxERP.t8("No clients have been created yet.") %]
+   [% LxERP.t8("In order to use kivitendo you have to create at least one client, one user, and grant that user access to the client.") %]
+  </p>
+
+[%- ELSE %]
+  <table width="100%">
+   <tr>
+    <th class="listtop">[% LxERP.t8('Client name') %]</th>
+    <th class="listtop">[% LxERP.t8('Database ID') %]</th>
+    <th class="listtop">[% LxERP.t8('Database name') %]</th>
+    <th class="listtop">[% LxERP.t8('Database Host') %]</th>
+    <th class="listtop">[% LxERP.t8('Database User') %]</th>
+   </tr>
+
+[%- FOREACH client = CLIENTS %]
+   <tr class="listrow">
+    <td>[% L.link(SELF.url_for(action="edit_client", client_id=client.id), HTML.escape(client.name)) %]</td>
+    <td>[% HTML.escape(client.id) %]</td>
+    <td>[% HTML.escape(client.dbname) %]</td>
+    <td>[% HTML.escape(client.dbhost) %][% IF client.dbport %]:[%- HTML.escape(client.dbport) %][%- END %]</td>
+    <td>[% HTML.escape(client.dbuser) %]</td>
+   </tr>
+[%- END %]
+  </table>
+[%- END %]
+ </div>
+</div>

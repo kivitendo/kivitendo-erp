@@ -3,7 +3,7 @@
   <h1>[% title %]</h1>
 
   <form method="post" action="admin.pl">
-   <a href="controller.pl?action=Admin/list_clients_and_users">[% 'Back' | $T8 %]</a>
+   <a href="controller.pl?action=Admin/show">[% 'Back' | $T8 %]</a>
 
    <table>
     <tr>
@@ -48,7 +48,7 @@
        </tr>
       </table>
 
-      <input name="callback" type="hidden" value="controller.pl?action=Admin/list_clients_and_users">
+      <input name="callback" type="hidden" value="controller.pl?action=Admin/show">
 
       <br>
       <input type="submit" class="submit" name="action" value="[% 'Create Dataset' | $T8 %]">
