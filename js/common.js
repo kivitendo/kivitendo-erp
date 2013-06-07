@@ -162,23 +162,24 @@ function focus_by_name(name){
 
 function open_jqm_window(params) {
   params = params || { };
-  var url = params.url;
-  var id  = params.id ? params.id : 'jqm_popup_dialog';
-
-  if (params.data) {
-    var data  = typeof params.data === "string" ? params.data : $.param(params.data);
-    url      += (/\?/.exec(url) ? "&" : "?") + data;
-  }
+  var id = params.id ? params.id : 'jqm_popup_dialog';
 
   $('#' + id).remove();
   var div     = $('<div id="' + id + '" class="jqmWindow jqModal_overlay ' + (params.class || '') + '"></div>').hide().appendTo('body');
   var close   = $('<div class="close"></div>').appendTo(div);
   var content = $('<div class="overlay_content"></div>').appendTo(div);
+
   div.jqm({ modal: true });
   div.jqmShow();
-  $.ajax({ url: url, success: function(new_html) { $(content).html(new_html); } });
   $(close).click(function() {
     div.jqmClose();
+  });
+
+  $.ajax({
+    url:     params.url,
+    data:    params.data,
+    type:    params.type,
+    success: function(new_html) { $(content).html(new_html); }
   });
 
   return true;
