@@ -135,7 +135,7 @@ sub new_from {
                                     base_qty subtotal longdescription lastcost price_factor_id)),
                             deliverydate => $source_item->reqdate,
                             fxsellprice  => $source_item->sellprice,);
-  } @{ $source->items };
+  } @{ $source->items_sorted };
 
   $invoice->invoiceitems(\@items);
 

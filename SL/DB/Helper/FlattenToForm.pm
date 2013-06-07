@@ -52,7 +52,7 @@ sub flatten_to_form {
   my $idx = 0;
   my $format_amounts = $params{format_amounts} ? 1 : 0;
   my $format_notnull = $params{format_amounts} ? 2 : 0;
-  foreach my $item (@{ $self->items }) {
+  foreach my $item (@{ $self->items_sorted }) {
     next if _has($item, 'assemblyitem');
 
     $idx++;
