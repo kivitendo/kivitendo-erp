@@ -1,0 +1,27 @@
+# @tag: productivity_rights
+# @description: Setzt das Recht die Produktivität einzusehen und das Recht den Link zum Admin-Menü anzuzeigen wieder wie vorher
+# @depends: release_3_0_0
+package SL::DBUpgrade2::productivity_rights;
+
+use strict;
+use utf8;
+
+use parent qw(SL::DBUpgrade2::Base);
+
+use SL::DBUtils;
+
+sub run {
+  my ($self) = @_;
+
+  my $groups = $main::auth->read_groups();
+
+  foreach my $group (values %{$groups}) {
+    $group->{rights}->{productivity}       = 1 unless defined $group->{rights}->{productivity};
+    $group->{rights}->{display_admin_link} = 1 unless defined $group->{rights}->{display_admin_link};
+    $main::auth->save_group($group);
+  }
+
+  return 1;
+} # end run
+
+1;
