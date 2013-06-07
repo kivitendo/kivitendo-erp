@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::AuthClient;
 use SL::DB::Manager::AuthClient;
+use SL::DB::Helper::Util;
 
 __PACKAGE__->meta->add_relationship(
   users => {
@@ -21,5 +22,20 @@ __PACKAGE__->meta->add_relationship(
 );
 
 __PACKAGE__->meta->initialize;
+
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The name is missing.')                                           if !$self->name;
+  push @errors, $::locale->text('The database name is missing.')                                  if !$self->dbname;
+  push @errors, $::locale->text('The database host is missing.')                                  if !$self->dbhost;
+  push @errors, $::locale->text('The database port is missing.')                                  if !$self->dbport;
+  push @errors, $::locale->text('The database user is missing.')                                  if !$self->dbuser;
+  push @errors, $::locale->text('The name is not unique.')                                        if !SL::DB::Helper::Util::is_unique($self, 'name');
+  push @errors, $::locale->text('The combination of database host, port and name is not unique.') if !SL::DB::Helper::Util::is_unique($self, 'dbhost', 'dbport', 'dbname');
+
+  return @errors;
+}
 
 1;

@@ -14,7 +14,7 @@ use SL::User;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(client user nologin_file_name db_cfg all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups) ],
+  'scalar --get_set_init' => [ qw(client user nologin_file_name db_cfg all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users) ],
 );
 
 __PACKAGE__->run_before(\&setup_layout);
@@ -166,6 +166,83 @@ sub action_delete_user {
 }
 
 #
+# actions: clients
+#
+
+sub action_new_client {
+  my ($self) = @_;
+
+  $self->client(SL::DB::AuthClient->new(
+    dbhost   => $::auth->{DB_config}->{host},
+    dbport   => $::auth->{DB_config}->{port},
+    dbuser   => $::auth->{DB_config}->{user},
+    dbpasswd => $::auth->{DB_config}->{password},
+  ));
+
+  $self->edit_client_form(title => t8('Create a new client'));
+}
+
+sub action_edit_client {
+  my ($self) = @_;
+  $self->edit_client_form(title => t8('Edit Client'));
+}
+
+sub action_save_client {
+  my ($self) = @_;
+  my $params = delete($::form->{client}) || { };
+  my $is_new = !$params->{id};
+
+  $self->client($is_new ? SL::DB::AuthClient->new : SL::DB::AuthClient->new(id => $params->{id})->load)->assign_attributes(%{ $params });
+
+  my @errors = $self->client->validate;
+
+  if (@errors) {
+    flash('error', @errors);
+    $self->edit_client_form(title => $is_new ? t8('Create a new client') : t8('Edit Client'));
+    return;
+  }
+
+  $self->client->save;
+  if ($self->client->is_default) {
+    SL::DB::Manager::AuthClient->update_all(set => { is_default => 0 }, where => [ '!id' => $self->client->id ]);
+  }
+
+  flash_later('info', $is_new ? t8('The client has been created.') : t8('The client has been saved.'));
+  $self->redirect_to(action => 'show');
+}
+
+sub action_delete_client {
+  my ($self) = @_;
+
+  if (!$self->client->delete) {
+    flash('error', t8('The client could not be deleted.'));
+    $self->edit_client_form(title => t8('Edit Client'));
+    return;
+  }
+
+  flash_later('info', t8('The client has been deleted.'));
+  $self->redirect_to(action => 'show');
+}
+
+sub action_test_database_connectivity {
+  my ($self)    = @_;
+
+  my %cfg       = %{ $::form->{client} || {} };
+  my $dbconnect = 'dbi:Pg:dbname=' . $cfg{dbname} . ';host=' . $cfg{dbhost} . ';port=' . $cfg{dbport};
+  my $dbh       = DBI->connect($dbconnect, $cfg{dbuser}, $cfg{dbpasswd});
+
+  my $ok        = !!$dbh;
+  my $error     = $DBI::errstr;
+
+  $dbh->disconnect if $dbh;
+
+  $self->render('admin/test_db_connection',
+                title => t8('Database Connection Test'),
+                ok    => $ok,
+                error => $error);
+}
+
+#
 # actions: locking, unlocking
 #
 
@@ -199,6 +276,7 @@ sub init_nologin_file_name { $::lx_office_conf{paths}->{userspath} . '/nologin';
 sub init_client            { SL::DB::AuthClient->new(id => ($::form->{id} || ($::form->{client} || {})->{id}))->load }
 sub init_user              { SL::DB::AuthUser  ->new(id => ($::form->{id} || ($::form->{user}   || {})->{id}))->load }
 sub init_all_clients       { SL::DB::Manager::AuthClient->get_all_sorted                                             }
+sub init_all_users         { SL::DB::Manager::AuthUser->get_all_sorted                                               }
 sub init_all_groups        { SL::DB::Manager::AuthGroup->get_all_sorted                                              }
 sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                      }
 sub init_all_numberformats { [ qw(1,000.00 1000.00 1.000,00 1000,00)          ]                                      }
@@ -243,6 +321,13 @@ sub edit_user_form {
 
   $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
   $self->render('admin/edit_user', %params);
+}
+
+sub edit_client_form {
+  my ($self, %params) = @_;
+
+  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
+  $self->render('admin/edit_client', %params);
 }
 
 #

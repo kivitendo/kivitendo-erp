@@ -1,25 +1,21 @@
-[%- USE T8 %]
-[%- USE HTML %]
+[%- USE HTML %][%- USE LxERP -%][%- USE L -%]
+<h1>[% HTML.escape(title) %]</h1>
 
- <h1>[% title %]</h1>
+[%- IF ok %]
 
- [%- IF connection_ok %]
+ <p class="message_ok">[% LxERP.t8('The connection was established successfully.') %]</p>
 
- <p class="message_ok">[% 'The connection was established successfully.' | $T8 %]</p>
-
- [%- ELSE %]
+[%- ELSE %]
 
  <p class="message_error">
-  [% 'The connection to the database could not be established.' | $T8 %]
-  [% 'Error message from the database driver:' | $T8 %]
+  [% LxERP.t8('The connection to the database could not be established.') %]
+  [% LxERP.t8('Error message from the database driver:') %]
  </p>
 
- <p>[% HTML.escape(errstr) %]</p>
+ <p>[% HTML.escape(error) %]</p>
 
- [%- END %]
+[%- END %]
 
- <p>
-  <form>
-   <input type="button" class="submit" onclick="window.close()" value="[% 'Close Window' | $T8 %]">
-  </form>
- </p>
+<div>
+ [% L.button_tag("\$('#jqm_popup_dialog .close').trigger('click');", LxERP.t8("Close Window")) %]
+</div>
