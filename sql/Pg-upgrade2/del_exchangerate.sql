@@ -6,4 +6,6 @@
 DROP TRIGGER IF EXISTS del_exchangerate ON ar;
 DROP TRIGGER IF EXISTS del_exchangerate ON ap;
 DROP TRIGGER IF EXISTS del_exchangerate ON oe;
+DROP TRIGGER IF EXISTS del_exchangerate ON delivery_orders;
 
+DROP FUNCTION IF EXISTS del_exchangerate();
