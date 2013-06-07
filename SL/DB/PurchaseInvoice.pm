@@ -29,6 +29,13 @@ __PACKAGE__->meta->initialize;
 
 sub items { goto &invoiceitems; }
 
+sub items_sorted {
+  my ($self) = @_;
+
+  my @sorted =  sort {$a->id <=> $b->id } @{ $self->items };
+  return wantarray ? @sorted : \@sorted;
+}
+
 sub is_sales {
   # For compatibility with Order, DeliveryOrder
   croak 'not an accessor' if @_ > 1;
