@@ -716,6 +716,8 @@ sub post {
   my $closedto = $form->datetonum($form->{closedto}, \%myconfig);
   my $invdate  = $form->datetonum($form->{invdate},  \%myconfig);
 
+  $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+    if ($form->date_max_future($invdate, \%myconfig));
   $form->error($locale->text('Cannot post invoice for a closed period!'))
     if ($invdate <= $closedto);
 

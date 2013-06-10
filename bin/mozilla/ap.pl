@@ -621,6 +621,9 @@ sub post {
 
   my $closedto  = $form->datetonum($form->{closedto},  \%myconfig);
   my $transdate = $form->datetonum($form->{transdate}, \%myconfig);
+
+  $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+    if ($form->date_max_future($form->{"transdate"}, \%myconfig));
   $form->error($locale->text('Cannot post transaction for a closed period!')) if ($form->date_closed($form->{"transdate"}, \%myconfig));
 
   my $zero_amount_posting = 1;
