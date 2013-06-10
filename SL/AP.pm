@@ -170,9 +170,10 @@ sub post_transaction {
       $uid = substr($uid, 2, 75);
 
       $query =
-        qq|INSERT INTO ap (invnumber, employee_id) | .
-        qq|VALUES (?, (SELECT e.id FROM employee e WHERE e.login = ?))|;
-      do_query($form, $dbh, $query, $uid, $form->{login});
+        qq|INSERT INTO ap (invnumber, employee_id,currency_id) | .
+        qq|VALUES (?, (SELECT e.id FROM employee e WHERE e.login = ?),
+                      (SELECT id FROM currencies WHERE name = ?) )|;
+      do_query($form, $dbh, $query, $uid, $form->{login}, $form->{currency});
 
       $query = qq|SELECT a.id FROM ap a
                   WHERE a.invnumber = ?|;
