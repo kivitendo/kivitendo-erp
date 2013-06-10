@@ -120,11 +120,11 @@
     <input type="button" class="submit" onclick="follow_up_window()" value="[% 'Follow-Up' | $T8 %]">
 
  [% ELSE # no id %]
-   [% UNLESS locked %]
       <input class="submit" type="submit" name="action" id="update_button" value="[% 'Update' | $T8 %]">
+   [% UNLESS locked %]
       <input class="submit" type="submit" name="action" value="[% 'Post' | $T8 %]">
-      <input class="submit" type="submit" name="action" value="[% 'Save Draft' | $T8 %]">
    [%- END %]
+      <input class="submit" type="submit" name="action" value="[% 'Save Draft' | $T8 %]">
  [% END # id %]
 
   [% IF id %]

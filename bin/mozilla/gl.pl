@@ -1115,6 +1115,9 @@ sub post_transaction {
   $form->{taxincluded} = 0 if !$taxtotal;
 
   # this is just for the wise guys
+
+  $form->error($locale->text('Cannot post transaction above the maximum future booking date!'))
+    if ($form->date_max_future($form->{"transdate"}, \%myconfig));
   $form->error($locale->text('Cannot post transaction for a closed period!'))
     if ($form->date_closed($form->{"transdate"}, \%myconfig));
   if ($form->round_amount($debit, 2) != $form->round_amount($credit, 2)) {

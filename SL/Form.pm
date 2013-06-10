@@ -1,4 +1,4 @@
-#====================================================================
+#========= ===========================================================
 # LX-Office ERP
 # Copyright (C) 2004
 # Based on SQL-Ledger Version 2.1.9
@@ -1454,6 +1454,24 @@ sub date_closed {
 
   return $closed;
 }
+
+# prevents bookings to the to far away future
+sub date_max_future {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $date, $myconfig) = @_;
+  my $dbh = $self->dbconnect($myconfig);
+
+  my $query = "SELECT 1 FROM defaults WHERE ? - current_date > max_future_booking_interval";
+  my $sth = prepare_execute_query($self, $dbh, $query, conv_date($date));
+
+  my ($max_future_booking_interval) = $sth->fetchrow_array;
+
+  $main::lxdebug->leave_sub();
+
+  return $max_future_booking_interval;
+}
+
 
 sub update_balance {
   $main::lxdebug->enter_sub();

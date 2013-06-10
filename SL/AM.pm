@@ -1313,11 +1313,11 @@ sub closedto {
 
   my $dbh = $form->dbconnect($myconfig);
 
-  my $query = qq|SELECT closedto, revtrans FROM defaults|;
+  my $query = qq|SELECT closedto, max_future_booking_interval, revtrans FROM defaults|;
   my $sth   = $dbh->prepare($query);
   $sth->execute || $form->dberror($query);
 
-  ($form->{closedto}, $form->{revtrans}) = $sth->fetchrow_array;
+  ($form->{closedto}, $form->{max_future_booking_interval}, $form->{revtrans}) = $sth->fetchrow_array;
 
   $sth->finish;
 
@@ -1339,8 +1339,8 @@ sub closebooks {
     $query = qq|UPDATE defaults SET closedto = NULL, revtrans = '1'|;
 
   } elsif ($form->{closedto}) {
-    $query = qq|UPDATE defaults SET closedto = ?, revtrans = '0'|;
-    @values = (conv_date($form->{closedto}));
+    $query = qq|UPDATE defaults SET closedto = ?, max_future_booking_interval = ?, revtrans = '0'|;
+    @values = (conv_date($form->{closedto}), conv_date($form->{max_future_booking_interval}));
 
   } else {
     $query = qq|UPDATE defaults SET closedto = NULL, revtrans = '0'|;
