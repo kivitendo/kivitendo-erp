@@ -31,7 +31,8 @@ sub flatten_to_form {
 
   my @vc_fields          = (qw(account_number bank bank_code bic business city contact country creditlimit discount
                                email fax homepage iban language name payment_terms phone street taxnumber zipcode),
-                            "${vc}number");
+                            "${vc}number",
+                            ($vc eq 'customer')? 'c_vendor_id': 'v_customer_id');
   my @vc_prefixed_fields = qw(email fax notes number phone);
 
   _copy($self,                          $form, '',              '', 1, qw(amount netamount marge_total marge_percent container_remaining_weight container_remaining_volume paid));
