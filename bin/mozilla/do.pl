@@ -669,17 +669,7 @@ sub save {
   }
 
   $form->{id} = 0 if $form->{saveasnew};
-  # best case fix für bug 1079. Einkaufsrabatt wird nicht richtig
-  # aus Lieferantenauftrag -> Lieferschein -> Rechnung übernommen
-  # Tritt nur auf, wenn man direkt über Lieferschein -> speichern ->
-  # Workflow Rechnung geht (beim Aufruf über edit() i.O.)
-  # Gut. DO-save() speichert den Discount im DB-Format 0.12 für
-  # 12%, die Konvertierung wird leider in $form gemacht und daher
-  # wird die Maske mit dem falschen Rabatt wieder aufgebaut.
-  # Wie immer: backup_vars verwenden um nichts anderes kaputt zu
-  # machen. jan 03.03.2010
-  # nicht mehr notwendig da für bug 1284 der backend aufruf entsprechend
-  # geändert wurde
+
   DO->save();
   # saving the history
   if(!exists $form->{addition}) {
@@ -1140,6 +1130,12 @@ sub display_stock_in_form {
   $form->{title} = $locale->text('Stock');
 
   my $part_info  = IC->get_basic_part_info('id' => $form->{parts_id});
+
+  # Standardlagerplatz für Standard-Auslagern verwenden, falls keiner für die Ware explizit definiert wurde
+  if ($::instance_conf->get_transfer_default_use_master_default_bin) {
+    $part_info->{warehouse_id} ||= $::instance_conf->get_default_warehouse_id;
+    $part_info->{bin_id}       ||= $::instance_conf->get_default_bin_id;
+  }
 
   my $units      = AM->retrieve_units(\%myconfig, $form);
   # der zweite Parameter von unit_select_data gibt den default-Namen (selected) vor
