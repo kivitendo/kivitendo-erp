@@ -70,7 +70,7 @@ Alias       /url/for/kivitendo-erp/          /path/to/kivitendo-erp/
 &lt;DirectoryMatch /path/to/kivitendo-erp/users&gt;
   Order Deny,Allow
   Deny from All
-&lt;/DirectoryMatch&gt;</pre><p>Seit mod_fcgid-Version 2.6.3 gelten sehr kleine Grenzen für
+&lt;/DirectoryMatch&gt;</pre><p>Seit mod_fcgid-Version 2.3.6 gelten sehr kleine Grenzen für
           die maximale Größe eines Requests. Diese sollte wie folgt
           hochgesetzt werden:</p><pre class="programlisting">FcgidMaxRequestLen 10485760</pre><p>Das ganze sollte dann so aussehen:</p><pre class="programlisting">AddHandler fcgid-script .fpl
 AliasMatch ^/url/for/kivitendo-erp/[^/]+\.pl /path/to/kivitendo-erp/dispatcher.fpl
