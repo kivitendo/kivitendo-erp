@@ -178,6 +178,12 @@ sub get_transfer_default_ignore_onhand {
   my ($self) = @_;
   return ($self->{data}->{transfer_default_ignore_onhand});
 }
+# currently unused - value is set via audit_control (Bücherkontrolle)
+sub get_max_future_booking_interval {
+  my ($self) = @_;
+  return ($self->{data}->{max_future_booking_interval});
+}
+
 
 
 1;
@@ -320,6 +326,9 @@ current stock quantity
 
 Returns the default behavior for the transfer out default feature (true or false)
 
+=item C<get_max_future_booking_interval>
+
+Returns the maximum interval value for future bookings
 
 =back
 
