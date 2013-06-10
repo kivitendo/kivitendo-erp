@@ -13,6 +13,10 @@ use SL::DBUtils;
 sub run {
   my ($self) = @_;
 
+  if ($::form->{upgrade_action} eq 'filter_parts') {
+    return $self->filter_parts($self);
+  }
+
   if ( $::form->{'continued'} ) {
     my $update_query;
     foreach my $i (1 .. $::form->{rowcount}) {
@@ -48,6 +52,64 @@ sub run {
 
 sub print_error_message {
   print $::form->parse_html_template("dbupgrade/erzeugnisnummern");
+}
+
+sub filter_parts {
+  my $self = shift;
+
+  my $where = 'TRUE';
+  my @values;
+
+  if ( $::form->{filter_partnumber} ) {
+    $where .= ' AND partnumber ILIKE ?';
+    push(@values, $::form->like( $::form->{filter_partnumber} ));
+  }
+
+  if ($::form->{filter_description}) {
+    $where .= ' AND description ILIKE ?';
+    push(@values, $::form->like($::form->{filter_description}));
+  }
+
+  if ($::form->{filter_notes}) {
+    $where .= ' AND notes ILIKE ?';
+    push(@values, $::form->like($::form->{filter_notes}));
+  }
+
+  if ($::form->{filter_ean}) {
+    $where .= ' AND ean ILIKE ?';
+    push(@values, $::form->like($::form->{filter_ean}));
+  }
+
+  if ($::form->{filter_type} eq 'assembly') {
+    $where .= ' AND assembly';
+  }
+
+  if ($::form->{filter_type} eq 'service') {
+    $where .= ' AND inventory_accno_id IS NULL AND NOT assembly';
+  }
+
+  if ($::form->{filter_type} eq 'part') {
+    $where .= ' AND inventory_accno_id IS NOT NULL';
+    $where .= ' AND NOT assembly';
+  }
+
+  if ($::form->{filter_obsolete} eq 'obsolete') {
+    $where .= ' AND obsolete';
+  }
+
+  if ($::form->{filter_obsolete} eq 'valid') {
+    $where .= ' AND NOT obsolete';
+  }
+
+  my $query = qq|SELECT id, partnumber, description, unit, notes, assembly, ean, inventory_accno_id, obsolete
+                 FROM parts
+                 WHERE $where
+                 ORDER BY partnumber|;
+
+  $::form->{ALL_PARTS} = [ selectall_hashref_query($::form, $self->dbh, $query, @values) ];
+
+  print $::form->parse_html_template("dbupgrade/show_partlist");
+  return 2;
 }
 
 1;

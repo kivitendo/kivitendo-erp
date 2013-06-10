@@ -1,5 +1,17 @@
 [%- USE T8 %]
 [% USE HTML %][%- USE LxERP -%]<div class="listtop">[% 'Double partnumbers' | $T8 %]</div>
+<script type="text/javascript">
+<!--
+function show_parts(vc) {
+  var width = 750;
+  var height = 550;
+  var parm = centerParms(width, height) + ",width=" + width + ",height=" + height + ",status=yes,scrollbars=yes";
+  url = "controller.pl?action=LoginScreen/login&upgrade_action=filter_parts&no_layout=1"
+  //alert(url);
+  window.open(url, "_new_generic", parm);
+}
+//-->
+</script>
 
 <form name="Form" method="post" action="login.pl">
 <input type="hidden" name="action" value="login">
@@ -38,6 +50,9 @@
   <input type="hidden" name="rowcount" value="[% rowcount %]">
 </table>
 
+<input type="button" value="[% 'Show all parts' | $T8 %]" onclick="show_parts('customer')">
+<br>
+<br>
 <input type="submit" value="[% 'Continue' | $T8 %]">
 
 </form>
