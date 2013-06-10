@@ -3,7 +3,7 @@
 
 [%- INCLUDE 'common/flash.html' %]
 
-<h1>[% title %]</h1>
+<h1>[% HTML.escape(title) %]</h1>
 
 <p>[% L.link(SELF.url_for(action="show"), LxERP.t8("Back")) %]</p>
 

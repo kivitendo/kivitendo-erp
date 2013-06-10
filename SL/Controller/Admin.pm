@@ -14,7 +14,7 @@ use SL::User;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(client user nologin_file_name db_cfg all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users) ],
+  'scalar --get_set_init' => [ qw(client user group nologin_file_name db_cfg all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights is_locked) ],
 );
 
 __PACKAGE__->run_before(\&setup_layout);
@@ -95,10 +95,7 @@ sub action_show {
 
   $self->render(
     "admin/show",
-    CLIENTS => SL::DB::Manager::AuthClient->get_all_sorted,
-    USERS   => SL::DB::Manager::AuthUser->get_all_sorted,
-    LOCKED  => (-e $self->nologin_file_name),
-    title   => "kivitendo " . t8('Administration'),
+    title => "kivitendo " . t8('Administration'),
   );
 }
 
@@ -243,6 +240,57 @@ sub action_test_database_connectivity {
 }
 
 #
+# actions: groups
+#
+
+sub action_new_group {
+  my ($self) = @_;
+
+  $self->group(SL::DB::AuthGroup->new);
+  $self->edit_group_form(title => t8('Create a new group'));
+}
+
+sub action_edit_group {
+  my ($self) = @_;
+  $self->edit_group_form(title => t8('Edit User Group'));
+}
+
+sub action_save_group {
+  my ($self) = @_;
+
+  my $params = delete($::form->{group}) || { };
+  my $is_new = !$params->{id};
+
+  $self->group($is_new ? SL::DB::AuthGroup->new : SL::DB::AuthGroup->new(id => $params->{id})->load)->assign_attributes(%{ $params });
+
+  my @errors = $self->group->validate;
+
+  if (@errors) {
+    flash('error', @errors);
+    $self->edit_group_form(title => $is_new ? t8('Create a new user group') : t8('Edit User Group'));
+    return;
+  }
+
+  $self->group->save;
+
+  flash_later('info', $is_new ? t8('The user group has been created.') : t8('The user group has been saved.'));
+  $self->redirect_to(action => 'show');
+}
+
+sub action_delete_group {
+  my ($self) = @_;
+
+  if (!$self->group->delete) {
+    flash('error', t8('The user group could not be deleted.'));
+    $self->edit_group_form(title => t8('Edit User Group'));
+    return;
+  }
+
+  flash_later('info', t8('The user group has been deleted.'));
+  $self->redirect_to(action => 'show');
+}
+
+#
 # actions: locking, unlocking
 #
 
@@ -273,8 +321,10 @@ sub action_lock_system {
 
 sub init_db_cfg            { $::lx_office_conf{'authentication/database'}                                            }
 sub init_nologin_file_name { $::lx_office_conf{paths}->{userspath} . '/nologin';                                     }
+sub init_is_locked         { -e $_[0]->nologin_file_name                                                             }
 sub init_client            { SL::DB::AuthClient->new(id => ($::form->{id} || ($::form->{client} || {})->{id}))->load }
 sub init_user              { SL::DB::AuthUser  ->new(id => ($::form->{id} || ($::form->{user}   || {})->{id}))->load }
+sub init_group             { SL::DB::AuthGroup ->new(id => ($::form->{id} || ($::form->{group}  || {})->{id}))->load }
 sub init_all_clients       { SL::DB::Manager::AuthClient->get_all_sorted                                             }
 sub init_all_users         { SL::DB::Manager::AuthUser->get_all_sorted                                               }
 sub init_all_groups        { SL::DB::Manager::AuthGroup->get_all_sorted                                              }
@@ -287,6 +337,27 @@ sub init_all_menustyles    {
     { id => 'v3',  title => $::locale->text('Top (CSS)') },
     { id => 'neu', title => $::locale->text('Top (Javascript)') },
   ];
+}
+
+sub init_all_rights {
+  my (@sections, $current_section);
+
+  foreach my $entry ($::auth->all_rights_full) {
+    if ($entry->[0] =~ m/^--/) {
+      push @sections, { description => $entry->[1], rights => [] };
+
+    } elsif (@sections) {
+      push @{ $sections[-1]->{rights} }, {
+        name        => $entry->[0],
+        description => $entry->[1],
+      };
+
+    } else {
+      die "Right without sections: " . join('::', @{ $entry });
+    }
+  }
+
+  return \@sections;
 }
 
 sub init_all_countrycodes {
@@ -310,6 +381,13 @@ sub setup_layout {
 # displaying forms
 #
 
+sub use_multiselect_js {
+  my ($self) = @_;
+
+  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
+  return $self;
+}
+
 sub login_form {
   my ($self, %params) = @_;
   $::request->layout->focus('#admin_password');
@@ -318,16 +396,17 @@ sub login_form {
 
 sub edit_user_form {
   my ($self, %params) = @_;
-
-  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
-  $self->render('admin/edit_user', %params);
+  $self->use_multiselect_js->render('admin/edit_user', %params);
 }
 
 sub edit_client_form {
   my ($self, %params) = @_;
+  $self->use_multiselect_js->render('admin/edit_client', %params);
+}
 
-  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
-  $self->render('admin/edit_client', %params);
+sub edit_group_form {
+  my ($self, %params) = @_;
+  $self->use_multiselect_js->render('admin/edit_group', %params);
 }
 
 #
