@@ -1060,8 +1060,6 @@ sub all_rights_full {
     ["email_bcc",                      $locale->text("May set the BCC field when sending emails")],
     ["config",                         $locale->text("Change kivitendo installation settings (all menu entries beneath 'System')")],
     ["admin",                          $locale->text("Administration (Used to access instance administration from user logins)")],
-    ["productivity",                   $locale->text("Productivity")],
-    ["display_admin_link",             $locale->text("Show administration link")],
     );
 
   return @all_rights;

@@ -30,14 +30,6 @@ Größere neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
-- Recht für Produktivität und für Anzeige des Links zum Administrationsmenü
-  Man kann den gesamten Produktivitätsbereich jetzt nur noch nutzen, wenn man die entsprechenden Rechte hat.
-  Auch der Link Unter dem Menü-Punkt Programm zum Administrationsmenü wird jetzt nur noch
-  angezeigt, wenn man entsprechendes Recht hat.
-  Durch ein Upgrade wird allerdings bei schon bestehenden Benutzern automatisch die oben genannten beiden Rechte
-  gesetzt, so dass alle die Produktivität vorher nutzen durften auch weiterhin nutzen dürfen, bzw. so dass
-  bei allen, bei denen der Link auf das Admin-Menü angezeigt wurde, er auch weiterhin angezeigt wird.
-
 - Stückliste für Lieferschein ausdrucken
   Stücklisten-Details (Haken bei Warenliste) für Erzeugnisse wurden seit 2009
   (TEMPLATE_ARRAY Änderung) nicht mehr ausgedruckt,

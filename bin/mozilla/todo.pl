@@ -34,8 +34,6 @@ use strict;
 sub create_todo_list {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $form     = $main::form;
 
   my %params   = @_;
@@ -64,8 +62,6 @@ sub create_todo_list {
 sub show_todo_list {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $form     = $main::form;
   my $locale   = $main::locale;
 
@@ -81,8 +77,6 @@ sub show_todo_list {
 sub todo_list_follow_ups {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   require "bin/mozilla/fu.pl";
 
   my $content = report_for_todo_list();
@@ -94,8 +88,6 @@ sub todo_list_follow_ups {
 
 sub todo_list_overdue_sales_quotations {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('productivity');
 
   require "bin/mozilla/oe.pl";
 

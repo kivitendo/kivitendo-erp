@@ -1810,7 +1810,6 @@ $self->{texts} = {
   'Show Salesman'               => 'Verkäufer anzeigen',
   'Show TODO list'              => 'Aufgabenliste anzeigen',
   'Show Transfer via default'   => 'Ein- / Auslagern über Standardlagerplatz anzeigen',
-  'Show administration link'    => 'Link zur Administration anzeigen',
   'Show by default'             => 'Standardm&auml;&szlig;ig anzeigen',
   'Show custom variable search inputs' => 'Suchoptionen für Benutzerdefinierte Variablen verstecken',
   'Show delete button in purchase delivery orders?' => 'Soll der "Löschen"-Knopf bei Einkaufslieferscheinen angezeigt werden?',

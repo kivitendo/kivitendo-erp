@@ -10,8 +10,6 @@ use strict;
 sub _collect_links {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $dest = shift;
 
   my $form     = $main::form;
@@ -29,8 +27,6 @@ sub _collect_links {
 
 sub add {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('productivity');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -61,8 +57,6 @@ sub add {
 sub edit {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $form     = $main::form;
   my $locale   = $main::locale;
 
@@ -88,8 +82,6 @@ sub edit {
 sub display_form {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $form     = $main::form;
 
   $form->get_lists("employees" => "EMPLOYEES");
@@ -109,8 +101,6 @@ sub display_form {
 
 sub save_follow_up {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('productivity');
 
   my $form     = $main::form;
   my $locale   = $main::locale;
@@ -149,8 +139,6 @@ sub save_follow_up {
 sub finish {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $form     = $main::form;
   my $locale   = $main::locale;
 
@@ -186,8 +174,6 @@ sub finish {
 
 sub delete {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('productivity');
 
   my $form     = $main::form;
   my $locale   = $main::locale;
@@ -225,8 +211,6 @@ sub delete {
 sub search {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $form     = $main::form;
   my $locale   = $main::locale;
 
@@ -243,8 +227,6 @@ sub search {
 
 sub report {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('productivity');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -358,8 +340,6 @@ sub report {
 sub report_for_todo_list {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $form     = $main::form;
 
   my @report_params = qw(created_for subject body reference follow_up_date_from follow_up_date_to itime_from itime_to due_only all_users done not_done);
@@ -399,8 +379,6 @@ sub report_for_todo_list {
 sub edit_access_rights {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('productivity');
-
   my $form     = $main::form;
   my $locale   = $main::locale;
 
@@ -420,8 +398,6 @@ sub edit_access_rights {
 
 sub save_access_rights {
   $main::lxdebug->enter_sub();
-
-  $main::auth->assert('productivity');
 
   my $form     = $main::form;
   my $locale   = $main::locale;
@@ -451,8 +427,6 @@ sub continue {
 }
 
 sub save {
-  $main::auth->assert('productivity');
-
   if ($main::form->{save_nextsub}) {
     call_sub($main::form->{save_nextsub});
   } else {
