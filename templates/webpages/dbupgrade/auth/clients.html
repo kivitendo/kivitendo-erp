@@ -25,7 +25,7 @@
  [% LxERP.t8("It can be changed later but must be unique within the installation.") %]
 </p>
 
-<form method="post" action="admin.pl">
+<form method="post" action="controller.pl">
  [%- FOREACH client = SELF.clients %]
  [%- L.hidden_tag("clients[+].dummy", 1) %]
 
@@ -118,7 +118,7 @@
  [%- END %]
 
  <p>
-  [%- L.hidden_tag('action', 'list_users') %]
+  [%- L.hidden_tag('action', 'Admin/apply_dbupgrade_scripts') %]
   [% L.submit_tag('dummy', LxERP.t8('Continue')) %]
  </p>
 </form>

@@ -20,7 +20,7 @@ sub get_login_form {
 }
 
 sub printer_dispatcher {
-  for my $action (qw(get_login_form list_printers add_printer edit_printer save_printer delete_printer list_users)) {
+  for my $action (qw(get_login_form list_printers add_printer edit_printer save_printer delete_printer)) {
     if ($::form->{$action}) {
       ::call_sub($::locale->findsub($action));
       ::end_of_request()
