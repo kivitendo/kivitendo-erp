@@ -11,6 +11,7 @@ package Common;
 use utf8;
 use strict;
 
+use Carp;
 use Time::HiRes qw(gettimeofday);
 use Data::Dumper;
 
@@ -354,6 +355,8 @@ sub webdav_folder {
   return $main::lxdebug->leave_sub()
     unless ($::lx_office_conf{features}->{webdav} && $form->{id});
 
+  croak "No client set in \$::auth" unless $::auth->client;
+
   my ($path, $number);
 
   $form->{WEBDAV} = [];
@@ -382,7 +385,7 @@ sub webdav_folder {
 
   $number =~ s|[/\\]|_|g;
 
-  $path = "webdav/${path}/${number}";
+  $path = "webdav/" . $::auth->client->{id} . "/${path}/${number}";
 
   if (!-d $path) {
     mkdir_with_parents($path);
@@ -390,7 +393,6 @@ sub webdav_folder {
   } else {
     my $base_path = $ENV{'SCRIPT_NAME'};
     $base_path =~ s|[^/]+$||;
-    # wo kommt der wert für dir her? es wird doch gar nichts übergeben? fix für strict my $dir jb 21.2.
     if (opendir my $dir, $path) {
       foreach my $file (sort { lc $a cmp lc $b } readdir $dir) {
         next if (($file eq '.') || ($file eq '..'));
