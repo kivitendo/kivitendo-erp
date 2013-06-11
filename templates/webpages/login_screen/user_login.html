@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[%- USE HTML %]
+[%- USE HTML %][%- USE L -%][%- USE LxERP -%]
  <center>
   <table class="login" border="3" cellpadding="20">
    <tr>
@@ -11,8 +11,8 @@
      <p><span class="message_error_login">[% error %]</span></p>
      [% END %]
 
-     <p>
-
+[% IF SELF.clients.size %]
+[%- SET style="width: 250px" %]
       <form method="post" name="loginscreen" action="controller.pl" target="_top">
 
        <input type="hidden" name="show_dbupdate_warning" value="1">
@@ -23,11 +23,15 @@
           <table>
            <tr>
             <th align="right">[% 'Login Name' | $T8 %]</th>
-            <td><input id='input_login' class="login" name="{AUTH}login" size="30" tabindex="1"></td>
+            <td>[% L.input_tag('{AUTH}login', '', style=style) %]</td>
            </tr>
            <tr>
             <th align="right">[% 'Password' | $T8 %]</th>
-            <td><input class="login" type="password" name="{AUTH}password" size="30" tabindex="2"></td>
+            <td>[% L.input_tag('{AUTH}password', '', type='password', style=style) %]</td>
+           </tr>
+           <tr>
+            <th align="right">[% 'Client' | $T8 %]</th>
+            <td>[% L.select_tag('{AUTH}client_id', SELF.clients, title_key='name', default=SELF.default_client_id, style=style) %]</td>
            </tr>
           </table>
 
@@ -40,6 +44,16 @@
        </table>
 
       </form>
+[%- ELSE %]
+      <p>
+       [% LxERP.t8("No clients have been created yet.") %]
+       [% LxERP.t8("Please do so in the administration area.") %]
+      </p>
+
+      <p>
+       <a href="controller.pl?action=Admin/login">[% LxERP.t8("Administration area") %]</a>
+      </p>
+[%- END %]
 
     </td>
    </tr>

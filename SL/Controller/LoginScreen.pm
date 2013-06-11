@@ -4,10 +4,20 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use List::Util qw(first);
+
 use SL::Dispatcher::AuthHandler::User;
+use SL::DB::AuthClient;
+use SL::DB::AuthGroup;
+use SL::DB::AuthUser;
 use SL::User;
 
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(clients default_client_id) ],
+);
+
 __PACKAGE__->run_before('set_layout');
+
 #
 # actions
 #
@@ -120,6 +130,16 @@ sub error_state {
 
 sub set_layout {
   $::request->{layout} = SL::Layout::Dispatcher->new(style => 'login');
+}
+
+sub init_clients {
+  return SL::DB::Manager::AuthClient->get_all_sorted;
+}
+
+sub init_default_client_id {
+  my ($self)         = @_;
+  my $default_client = first { $_->is_default } @{ $self->clients };
+  return $default_client ? $default_client->id : undef;
 }
 
 1;
