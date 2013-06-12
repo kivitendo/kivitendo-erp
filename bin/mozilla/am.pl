@@ -42,7 +42,7 @@ use SL::User;
 use SL::USTVA;
 use SL::Iconv;
 use SL::TODO;
-use SL::Printer;
+use SL::DB::Printer;
 use CGI;
 
 require "bin/mozilla/common.pl";
@@ -1059,7 +1059,7 @@ sub config {
     { 'name' => $locale->text('Queue'),   'value' => 'queue',   'selected' => $selected{queue}, },
     ];
 
-  $form->{PRINTERS} = [ SL::Printer->all_printers(%::myconfig) ];
+  $form->{PRINTERS} = SL::DB::Manager::Printer->get_all_sorted;
 
   my %countrycodes = User->country_codes;
 
