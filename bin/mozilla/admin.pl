@@ -221,11 +221,8 @@ sub dbupdate {
 
     print $form->parse_html_template("admin/dbupgrade_header");
 
-    $form->{dbupdate}        = $form->{dbname};
-    $form->{$form->{dbname}} = 1;
-
     User->dbupdate($form);
-    User->dbupdate2($form, SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls);
+    User->dbupdate2(form => $form, updater => SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls, database => $form->{dbname});
 
     print $form->parse_html_template("admin/dbupgrade_footer");
   }

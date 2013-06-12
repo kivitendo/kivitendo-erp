@@ -115,20 +115,19 @@ sub login {
 
   my $dbupdater = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
 
-  $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
-  $form->{$_} = $myconfig{$_}         for qw(dateformat);
-
-  dbconnect_vars($form, $form->{dbname});
-
   my $update_available = $dbupdater->update_available($dbversion) || $dbupdater->update2_available($dbh);
   $dbh->disconnect;
 
   return 0 if !$update_available;
+
+  $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
+  $form->{$_} = $myconfig{$_}         for qw(datestyle);
+
   $form->{"title"} = $main::locale->text("Dataset upgrade");
   $form->header(no_layout => $form->{no_layout});
   print $form->parse_html_template("dbupgrade/header");
 
-  $form->{dbupdate} = "db" . $form->{dbname};
+  $form->{dbupdate} = "db" . $::auth->client->{dbname};
 
   if ($form->{"show_dbupdate_warning"}) {
     print $form->parse_html_template("dbupgrade/warning");
@@ -143,7 +142,7 @@ sub login {
   $SIG{QUIT} = 'IGNORE';
 
   $self->dbupdate($form);
-  $self->dbupdate2($form, $dbupdater);
+  $self->dbupdate2(form => $form, updater => $dbupdater, database => $::auth->client->{dbname});
   SL::DBUpgrade2->new(form => $::form, auth => 1)->apply_admin_dbupgrade_scripts(0);
 
   SL::System::InstallationLock->unlock;
@@ -534,42 +533,38 @@ sub dbupdate {
 sub dbupdate2 {
   $main::lxdebug->enter_sub();
 
-  my ($self, $form, $dbupdater) = @_;
+  my ($self, %params) = @_;
 
-  my $rc         = -2;
-  my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
+  my $form            = $params{form};
+  my $dbupdater       = $params{updater};
+  my $db              = $params{database};
+  my $rc              = -2;
+  my $db_charset      = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
 
   map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $dbupdater->{all_controls} };
 
-  foreach my $db (split / /, $form->{dbupdate}) {
-    next unless $form->{$db};
+  &dbconnect_vars($form, $db);
 
-    # strip db from dataset
-    $db =~ s/^db//;
-    &dbconnect_vars($form, $db);
+  my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options) or $form->dberror;
 
-    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options) or $form->dberror;
+  $dbh->do($form->{dboptions}) if ($form->{dboptions});
 
-    $dbh->do($form->{dboptions}) if ($form->{dboptions});
+  $self->create_schema_info_table($form, $dbh);
 
-    $self->create_schema_info_table($form, $dbh);
+  my @upgradescripts = $dbupdater->unapplied_upgrade_scripts($dbh);
 
-    my @upgradescripts = $dbupdater->unapplied_upgrade_scripts($dbh);
+  $dbh->disconnect and next if !@upgradescripts;
 
-    $dbh->disconnect and next if !@upgradescripts;
+  foreach my $control (@upgradescripts) {
+    # apply upgrade
+    $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
+    print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-    foreach my $control (@upgradescripts) {
-      # apply upgrade
-      $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
-      print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
-
-      $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
-    }
-
-    $rc = 0;
-    $dbh->disconnect;
-
+    $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
   }
+
+  $rc = 0;
+  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
