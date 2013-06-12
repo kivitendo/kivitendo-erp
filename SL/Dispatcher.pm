@@ -251,6 +251,9 @@ sub handle_request {
     if (($script eq 'login') && !$action) {
       print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login');
 
+    } elsif ($script eq 'admin') {
+      ::run($session_result);
+
     } else {
       $self->redirect_to_login($script) if SL::Auth::SESSION_EXPIRED == $session_result;
 
