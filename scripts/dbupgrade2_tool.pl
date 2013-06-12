@@ -360,9 +360,9 @@ sub apply_upgrade {
     print "Applying upgrade $control->{file}\n";
 
     if ($file_type eq "sql") {
-      $dbupgrader->process_query($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control, $db_charset);
+      $dbupgrader->process_query($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
     } else {
-      $dbupgrader->process_perl_script($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control, $db_charset);
+      $dbupgrader->process_perl_script($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
     }
   }
 
@@ -499,7 +499,7 @@ GetOptions("list"         => \$opt_list,
 
 show_help() if ($opt_help);
 
-$dbupgrader = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg', auth => $opt_auth_db);
+$dbupgrader = SL::DBUpgrade2->new(form => $form, auth => $opt_auth_db);
 $controls   = $dbupgrader->parse_dbupdate_controls->{all_controls};
 
 dump_list()                                 if ($opt_list);

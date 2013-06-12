@@ -101,10 +101,6 @@ sub run {
       call_sub($locale->findsub($form->{action}));
     }
   } else {
-    # if there are no drivers bail out
-    $form->error($locale->text('No Database Drivers available!'))
-      unless (User->dbdrivers);
-
     adminlogin();
   }
   $::lxdebug->leave_sub;
@@ -143,10 +139,7 @@ sub get_value {
 
 sub pg_database_administration {
   my $form = $main::form;
-
-  $form->{dbdriver} = 'Pg';
   dbselect_source();
-
 }
 
 sub dbselect_source {
@@ -171,7 +164,6 @@ sub test_db_connection {
   my $form   = $main::form;
   my $locale = $main::locale;
 
-  $form->{dbdriver} = 'Pg';
   User::dbconnect_vars($form, $form->{dbname});
 
   my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd});
@@ -225,7 +217,7 @@ sub dbupdate {
     restore_form($saved_form);
 
     %::myconfig = ();
-    map { $form->{$_} = $::myconfig{$_} = $form->{"${_}_${i}"} } qw(dbname dbdriver dbhost dbport dbuser dbpasswd);
+    map { $form->{$_} = $::myconfig{$_} = $form->{"${_}_${i}"} } qw(dbname dbhost dbport dbuser dbpasswd);
 
     print $form->parse_html_template("admin/dbupgrade_header");
 
@@ -233,7 +225,7 @@ sub dbupdate {
     $form->{$form->{dbname}} = 1;
 
     User->dbupdate($form);
-    User->dbupdate2($form, SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls);
+    User->dbupdate2($form, SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls);
 
     print $form->parse_html_template("admin/dbupgrade_footer");
   }

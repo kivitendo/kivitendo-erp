@@ -504,7 +504,7 @@ sub check_auth_db_and_tables {
 }
 
 sub apply_dbupgrade_scripts {
-  return SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(1);
+  return SL::DBUpgrade2->new(form => $::form, auth => 1)->apply_admin_dbupgrade_scripts(1);
 }
 
 sub authenticate_root {

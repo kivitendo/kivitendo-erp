@@ -93,7 +93,6 @@ sub country_codes {
 
 sub login {
   my ($self, $form) = @_;
-  our $sid;
 
   return -3 if !$self->{login} || !$::auth->client;
 
@@ -103,22 +102,17 @@ sub login {
   my $dbh = $form->dbconnect_noauto;
 
   # we got a connection, check the version
-  my $query = qq|SELECT version FROM defaults|;
-  my $sth   = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  my ($dbversion) = $sth->fetchrow_array;
-  $sth->finish;
+  my ($dbversion) = $dbh->selectrow_array(qq|SELECT version FROM defaults|);
 
   $self->create_employee_entry($form, $dbh, \%myconfig);
 
   $self->create_schema_info_table($form, $dbh);
 
   # Auth DB upgrades available?
-  my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg', auth => 1)->parse_dbupdate_controls;
+  my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, auth => 1)->parse_dbupdate_controls;
   return -3 if $dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect);
 
-  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $myconfig{dbdriver})->parse_dbupdate_controls;
+  my $dbupdater = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
 
   $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
   $form->{$_} = $myconfig{$_}         for qw(dateformat);
@@ -155,7 +149,7 @@ sub login {
 
   $self->dbupdate($form);
   $self->dbupdate2($form, $dbupdater);
-  SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(0);
+  SL::DBUpgrade2->new(form => $::form, auth => 1)->apply_admin_dbupgrade_scripts(0);
 
   close($fh);
 
@@ -173,48 +167,17 @@ sub dbconnect_vars {
   my ($form, $db) = @_;
 
   my %dboptions = (
-        'Pg' => { 'yy-mm-dd'   => 'set DateStyle to \'ISO\'',
-                  'yyyy-mm-dd' => 'set DateStyle to \'ISO\'',
-                  'mm/dd/yy'   => 'set DateStyle to \'SQL, US\'',
-                  'dd/mm/yy'   => 'set DateStyle to \'SQL, EUROPEAN\'',
-                  'dd.mm.yy'   => 'set DateStyle to \'GERMAN\''
-        },
-        'Oracle' => {
-          'yy-mm-dd'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'YY-MM-DD\'',
-          'yyyy-mm-dd' => 'ALTER SESSION SET NLS_DATE_FORMAT = \'YYYY-MM-DD\'',
-          'mm/dd/yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'MM/DD/YY\'',
-          'dd/mm/yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD/MM/YY\'',
-          'dd.mm.yy'   => 'ALTER SESSION SET NLS_DATE_FORMAT = \'DD.MM.YY\'',
-        });
+    'yy-mm-dd'   => 'set DateStyle to \'ISO\'',
+    'yyyy-mm-dd' => 'set DateStyle to \'ISO\'',
+    'mm/dd/yy'   => 'set DateStyle to \'SQL, US\'',
+    'dd/mm/yy'   => 'set DateStyle to \'SQL, EUROPEAN\'',
+    'dd.mm.yy'   => 'set DateStyle to \'GERMAN\''
+  );
 
-  $form->{dboptions} = $dboptions{ $form->{dbdriver} }{ $form->{dateformat} };
-
-  if ($form->{dbdriver} eq 'Pg') {
-    $form->{dbconnect} = "dbi:Pg:dbname=$db";
-  }
-
-  if ($form->{dbdriver} eq 'Oracle') {
-    $form->{dbconnect} = "dbi:Oracle:sid=$form->{sid}";
-  }
-
-  if ($form->{dbhost}) {
-    $form->{dbconnect} .= ";host=$form->{dbhost}";
-  }
-  if ($form->{dbport}) {
-    $form->{dbconnect} .= ";port=$form->{dbport}";
-  }
+  $form->{dboptions} = $dboptions{ $form->{dateformat} };
+  $form->{dbconnect} = "dbi:Pg:dbname=${db};host=" . ($form->{dbhost} || 'localhost') . ";port=" . ($form->{dbport} || 5432);
 
   $main::lxdebug->leave_sub();
-}
-
-sub dbdrivers {
-  $main::lxdebug->enter_sub();
-
-  my @drivers = DBI->available_drivers();
-
-  $main::lxdebug->leave_sub();
-
-  return (grep { /(Pg|Oracle)/ } @drivers);
 }
 
 sub dbsources {
@@ -226,62 +189,42 @@ sub dbsources {
   my ($sth, $query);
 
   $form->{dbdefault} = $form->{dbuser} unless $form->{dbdefault};
-  $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
 
   my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
 
-  if ($form->{dbdriver} eq 'Pg') {
-    $query =
-      qq|SELECT datname FROM pg_database | .
-      qq|WHERE NOT datname IN ('template0', 'template1')|;
-    $sth = $dbh->prepare($query);
-    $sth->execute() || $form->dberror($query);
+  $query =
+    qq|SELECT datname FROM pg_database | .
+    qq|WHERE NOT datname IN ('template0', 'template1')|;
+  $sth = $dbh->prepare($query);
+  $sth->execute() || $form->dberror($query);
 
-    while (my ($db) = $sth->fetchrow_array) {
+  while (my ($db) = $sth->fetchrow_array) {
 
-      if ($form->{only_acc_db}) {
-
-        next if ($db =~ /^template/);
-
-        &dbconnect_vars($form, $db);
-        my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
-          or $form->dberror;
-
-        $query =
-          qq|SELECT tablename FROM pg_tables | .
-          qq|WHERE (tablename = 'defaults') AND (tableowner = ?)|;
-        my $sth = $dbh->prepare($query);
-        $sth->execute($form->{dbuser}) ||
-          $form->dberror($query . " ($form->{dbuser})");
-
-        if ($sth->fetchrow_array) {
-          push(@dbsources, $db);
-        }
-        $sth->finish;
-        $dbh->disconnect;
-        next;
-      }
-      push(@dbsources, $db);
-    }
-  }
-
-  if ($form->{dbdriver} eq 'Oracle') {
     if ($form->{only_acc_db}) {
+
+      next if ($db =~ /^template/);
+
+      &dbconnect_vars($form, $db);
+      my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
+        or $form->dberror;
+
       $query =
-        qq|SELECT owner FROM dba_objects | .
-        qq|WHERE object_name = 'DEFAULTS' AND object_type = 'TABLE'|;
-    } else {
-      $query = qq|SELECT username FROM dba_users|;
-    }
+        qq|SELECT tablename FROM pg_tables | .
+        qq|WHERE (tablename = 'defaults') AND (tableowner = ?)|;
+      my $sth = $dbh->prepare($query);
+      $sth->execute($form->{dbuser}) ||
+        $form->dberror($query . " ($form->{dbuser})");
 
-    $sth = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
-
-    while (my ($db) = $sth->fetchrow_array) {
-      push(@dbsources, $db);
+      if ($sth->fetchrow_array) {
+        push(@dbsources, $db);
+      }
+      $sth->finish;
+      $dbh->disconnect;
+      next;
     }
+    push(@dbsources, $db);
   }
 
   $sth->finish;
@@ -316,48 +259,28 @@ sub dbcreate {
 
   my ($self, $form) = @_;
 
-  $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
   my $dbh =
     SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
   $form->{db} =~ s/\"//g;
-  my %dbcreate = (
-    'Pg'     => qq|CREATE DATABASE "$form->{db}"|,
-    'Oracle' =>
-    qq|CREATE USER "$form->{db}" DEFAULT TABLESPACE USERS | .
-    qq|TEMPORARY TABLESPACE TEMP IDENTIFIED BY "$form->{db}"|
-  );
 
-  my %dboptions = (
-    'Pg' => [],
-  );
+  my @dboptions;
 
-  push(@{$dboptions{"Pg"}}, "ENCODING = " . $dbh->quote($form->{"encoding"}))
-    if ($form->{"encoding"});
+  push @dboptions, "ENCODING = " . $dbh->quote($form->{"encoding"}) if $form->{"encoding"};
   if ($form->{"dbdefault"}) {
     my $dbdefault = $form->{"dbdefault"};
     $dbdefault =~ s/[^a-zA-Z0-9_\-]//g;
-    push(@{$dboptions{"Pg"}}, "TEMPLATE = $dbdefault");
+    push @dboptions, "TEMPLATE = $dbdefault";
   }
 
-  my $query = $dbcreate{$form->{dbdriver}};
-  $query .= " WITH " . join(" ", @{$dboptions{"Pg"}}) if (@{$dboptions{"Pg"}});
+  my $query = qq|CREATE DATABASE "$form->{db}"|;
+  $query   .= " WITH " . join(" ", @dboptions) if @dboptions;
 
   # Ignore errors if the database exists.
   $dbh->do($query);
 
-  if ($form->{dbdriver} eq 'Oracle') {
-    $query = qq|GRANT CONNECT, RESOURCE TO "$form->{db}"|;
-    do_query($form, $dbh, $query);
-  }
   $dbh->disconnect;
-
-  # setup variables for the new database
-  if ($form->{dbdriver} eq 'Oracle') {
-    $form->{dbuser}   = $form->{db};
-    $form->{dbpasswd} = $form->{db};
-  }
 
   &dbconnect_vars($form, $form->{db});
 
@@ -367,7 +290,7 @@ sub dbcreate {
   my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
   $db_charset ||= Common::DEFAULT_CHARSET;
 
-  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver});
+  my $dbupdater = SL::DBUpgrade2->new(form => $form);
   # create the tables
   $dbupdater->process_query($dbh, "sql/lx-office.sql", undef, $db_charset);
 
@@ -395,14 +318,11 @@ sub dbdelete {
 
   my ($self, $form) = @_;
   $form->{db} =~ s/\"//g;
-  my %dbdelete = ('Pg'     => qq|DROP DATABASE "$form->{db}"|,
-                  'Oracle' => qq|DROP USER "$form->{db}" CASCADE|);
 
-  $form->{sid} = $form->{dbdefault};
   &dbconnect_vars($form, $form->{dbdefault});
   my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
-  my $query = $dbdelete{$form->{dbdriver}};
+  my $query = qq|DROP DATABASE "$form->{db}"|;
   do_query($form, $dbh, $query);
 
   $dbh->disconnect;
@@ -436,7 +356,7 @@ sub dbneedsupdate {
   my ($self, $form) = @_;
 
   my %members   = $main::auth->read_all_users();
-  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls;
+  my $dbupdater = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
 
   my ($query, $sth, %dbs_needing_updates);
 
@@ -545,8 +465,6 @@ sub dbupdate {
 
   local *SQLDIR;
 
-  $form->{sid} = $form->{dbdefault};
-
   my @upgradescripts = ();
   my $query;
   my $rc = -2;
@@ -554,11 +472,11 @@ sub dbupdate {
   if ($form->{dbupdate}) {
 
     # read update scripts into memory
-    opendir(SQLDIR, "sql/" . $form->{dbdriver} . "-upgrade")
-      or &error("", "sql/" . $form->{dbdriver} . "-upgrade : $!");
+    opendir(SQLDIR, "sql/Pg-upgrade")
+      or &error("", "sql/Pg-upgrade : $!");
     @upgradescripts =
       sort(cmp_script_version
-           grep(/$form->{dbdriver}-upgrade-.*?\.(sql|pl)$/,
+           grep(/Pg-upgrade-.*?\.(sql|pl)$/,
                 readdir(SQLDIR)));
     closedir(SQLDIR);
   }
@@ -566,7 +484,7 @@ sub dbupdate {
   my $db_charset = $::lx_office_conf{system}->{dbcharset};
   $db_charset ||= Common::DEFAULT_CHARSET;
 
-  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver});
+  my $dbupdater = SL::DBUpgrade2->new(form => $form);
 
   foreach my $db (split(/ /, $form->{dbupdate})) {
 
@@ -591,7 +509,7 @@ sub dbupdate {
 
     foreach my $upgradescript (@upgradescripts) {
       my $a = $upgradescript;
-      $a =~ s/^\Q$form->{dbdriver}\E-upgrade-|\.(sql|pl)$//g;
+      $a =~ s/^Pg-upgrade-|\.(sql|pl)$//g;
 
       my ($mindb, $maxdb) = split /-/, $a;
       my $str_maxdb = $maxdb;
@@ -605,7 +523,7 @@ sub dbupdate {
 
       # apply upgrade
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $upgradescript");
-      $dbupdater->process_file($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade/$upgradescript", $str_maxdb, $db_charset);
+      $dbupdater->process_file($dbh, "sql/Pg-upgrade/$upgradescript", $str_maxdb, $db_charset);
 
       $version = $maxdb;
 
@@ -625,8 +543,6 @@ sub dbupdate2 {
   $main::lxdebug->enter_sub();
 
   my ($self, $form, $dbupdater) = @_;
-
-  $form->{sid} = $form->{dbdefault};
 
   my $rc         = -2;
   my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
@@ -655,7 +571,7 @@ sub dbupdate2 {
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
       print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-      $dbupdater->process_file($dbh, "sql/" . $form->{"dbdriver"} . "-upgrade2/$control->{file}", $control, $db_charset);
+      $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
     }
 
     $rc = 0;

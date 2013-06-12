@@ -354,8 +354,6 @@ sub all_transactions {
     }
   }
 
-  my $false = ($myconfig->{dbdriver} eq 'Pg') ? "FALSE" : q|'0'|;
-
   my %sort_columns =  (
     'id'           => [ qw(id)                   ],
     'transdate'    => [ qw(transdate id)         ],
@@ -385,7 +383,7 @@ sub all_transactions {
 
   $query =
     qq|SELECT
-        ac.acc_trans_id, g.id, 'gl' AS type, $false AS invoice, g.reference, ac.taxkey, c.link,
+        ac.acc_trans_id, g.id, 'gl' AS type, FALSE AS invoice, g.reference, ac.taxkey, c.link,
         g.description, ac.transdate, ac.gldate, ac.source, ac.trans_id,
         ac.amount, c.accno, g.notes, t.chart_id,
         CASE WHEN (COALESCE(e.name, '') = '') THEN e.login ELSE e.name END AS employee

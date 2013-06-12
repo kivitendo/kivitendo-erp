@@ -27,7 +27,7 @@ sub init {
 
   $params{path_suffix} ||= '';
   $params{schema}      ||= '';
-  $params{path}          = "sql/" . $params{dbdriver} . "-upgrade2" . $params{path_suffix};
+  $params{path}          = "sql/Pg-upgrade2" . $params{path_suffix};
 
   map { $self->{$_} = $params{$_} } keys %params;
 
@@ -243,7 +243,7 @@ sub process_perl_script {
 
   my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
-  my %form_values = map { $_ => $::form->{$_} } qw(dbconnect dbdefault dbdriver dbhost dbmbkiviunstable dbname dboptions dbpasswd dbport dbupdate dbuser login template_object version);
+  my %form_values = map { $_ => $::form->{$_} } qw(dbconnect dbdefault dbhost dbmbkiviunstable dbname dboptions dbpasswd dbport dbupdate dbuser login template_object version);
 
   $dbh->begin_work;
 
@@ -302,9 +302,8 @@ sub update_available {
 
   local *SQLDIR;
 
-  my $dbdriver = $self->{dbdriver};
-  opendir SQLDIR, "sql/${dbdriver}-upgrade" || error("", "sql/${dbdriver}-upgrade: $!");
-  my @upgradescripts = grep /${dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
+  opendir SQLDIR, "sql/Pg-upgrade" || error("", "sql/Pg-upgrade: $!");
+  my @upgradescripts = grep /Pg-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
   closedir SQLDIR;
 
   return ($#upgradescripts > -1);
@@ -374,7 +373,7 @@ sub apply_admin_dbupgrade_scripts {
     $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
     print $self->{form}->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-    $self->process_file($dbh, "sql/$self->{dbdriver}-upgrade2-auth/$control->{file}", $control, $db_charset);
+    $self->process_file($dbh, "sql/Pg-upgrade2-auth/$control->{file}", $control, $db_charset);
   }
 
   print $self->{form}->parse_html_template("dbupgrade/footer", { is_admin => 1 }) if $called_from_admin;
@@ -461,7 +460,6 @@ C<SQL/Pg-upgrade>)
   # Apply outstanding updates to the authentication database
   my $scripts = SL::DBUpgrade2->new(
     form     => $::form,
-    dbdriver => 'Pg',
     auth     => 1
   );
   $scripts->apply_admin_dbupgrade_scripts(1);
@@ -469,7 +467,6 @@ C<SQL/Pg-upgrade>)
   # Apply updates to a user database
   my $scripts = SL::DBUpgrade2->new(
     form     => $::form,
-    dbdriver => $::form->{dbdriver},
     auth     => 1
   );
   User->dbupdate2($form, $scripts->parse_dbupdate_controls);
@@ -602,11 +599,6 @@ Path to the upgrade files to parse. Required.
 =item form
 
 C<SL::Form> object to use. Required.
-
-=item dbdriver
-
-Name of the database driver. Currently only C<Pg> for PostgreSQL is
-supported.
 
 =item auth
 

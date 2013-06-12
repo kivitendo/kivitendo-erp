@@ -182,13 +182,6 @@ sub all_transactions {
 
   my $sortorder = join ', ',
     $form->sort_columns(qw(transdate reference description));
-  my $false = ($myconfig->{dbdriver} eq 'Pg') ? "FALSE" : q|'0'|;
-
-  # Oracle workaround, use ordinal positions
-  my %ordinal = (transdate   => 4,
-                 reference   => 2,
-                 description => 3);
-  map { $sortorder =~ s/$_/$ordinal{$_}/ } keys %ordinal;
 
   my ($null, $department_id) = split(/--/, $form->{department});
   my ($dpt_where, $dpt_join, @department_values);
@@ -272,7 +265,7 @@ sub all_transactions {
     # get all transactions
     $query =
       qq|SELECT a.id, a.reference, a.description, ac.transdate, ac.chart_id, | .
-      qq|  $false AS invoice, ac.amount, 'gl' as module, | .
+      qq|  FALSE AS invoice, ac.amount, 'gl' as module, | .
       qq§(SELECT accno||'--'||rate FROM tax LEFT JOIN chart ON (tax.chart_id=chart.id) WHERE tax.id = (SELECT tax_id FROM taxkeys WHERE taxkey_id = ac.taxkey AND taxkeys.startdate <= ac.transdate ORDER BY taxkeys.startdate DESC LIMIT 1)) AS taxinfo, ac.source || ' ' || ac.memo AS memo § .
       qq|FROM acc_trans ac, gl a | .
       $dpt_join .

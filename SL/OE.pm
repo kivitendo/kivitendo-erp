@@ -853,9 +853,6 @@ sub retrieve {
       map { $form->{$_} =~ s/ +$//g } qw(printed emailed queued);
     }    # if !@ids
 
-    my %oid = ('Pg'     => 'oid',
-               'Oracle' => 'rowid');
-
     my $transdate = $form->{transdate} ? $dbh->quote($form->{transdate}) : "current_date";
 
     $form->{taxzone_id} = 0 unless ($form->{taxzone_id});
@@ -887,7 +884,7 @@ sub retrieve {
       ($form->{id}
        ? qq|WHERE o.trans_id = ?|
        : qq|WHERE o.trans_id IN (| . join(", ", map("?", @ids)) . qq|)|) .
-      qq|ORDER BY o.$oid{$myconfig->{dbdriver}}|;
+      qq|ORDER BY o.oid|;
 
     @ids = $form->{id} ? ($form->{id}) : @ids;
     $sth = prepare_execute_query($form, $dbh, $query, @values);
@@ -1054,10 +1051,6 @@ sub order_details {
   my %taxbase;
   my $tax_rate;
   my $taxamount;
-
-
-  my %oid = ('Pg'     => 'oid',
-             'Oracle' => 'rowid');
 
   my (@project_ids, %projectnumbers, %projectdescriptions);
 
@@ -1277,9 +1270,9 @@ sub order_details {
         # get parts and push them onto the stack
         my $sortorder = "";
         if ($form->{groupitems}) {
-          $sortorder = qq|ORDER BY pg.partsgroup, a.$oid{$myconfig->{dbdriver}}|;
+          $sortorder = qq|ORDER BY pg.partsgroup, a.oid|;
         } else {
-          $sortorder = qq|ORDER BY a.$oid{$myconfig->{dbdriver}}|;
+          $sortorder = qq|ORDER BY a.oid|;
         }
 
         $query = qq|SELECT p.partnumber, p.description, p.unit, a.qty, | .

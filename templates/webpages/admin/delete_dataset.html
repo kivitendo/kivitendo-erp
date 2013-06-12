@@ -11,7 +11,6 @@
    <select name="db">[% FOREACH row = DBSOURCES %]<option>[% HTML.escape(row.name) %]</option>[% END %]</select>
   </p>
 
-  <input type="hidden" name="dbdriver"  value="[% HTML.escape(dbdriver) %]">
   <input type="hidden" name="dbuser"    value="[% HTML.escape(dbuser) %]">
   <input type="hidden" name="dbhost"    value="[% HTML.escape(dbhost) %]">
   <input type="hidden" name="dbport"    value="[% HTML.escape(dbport) %]">

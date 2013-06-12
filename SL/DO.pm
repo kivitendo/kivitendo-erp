@@ -672,9 +672,6 @@ sub retrieve {
     delete $form->{id};
   }
 
-  my %oid = ('Pg'     => 'oid',
-             'Oracle' => 'rowid');
-
   # retrieve individual items
   # this query looks up all information about the items
   # stuff different from the whole will not be overwritten, but saved with a suffix.
@@ -693,7 +690,7 @@ sub retrieve {
        LEFT JOIN project pr ON (doi.project_id = pr.id)
        LEFT JOIN partsgroup pg ON (p.partsgroup_id = pg.id)
        WHERE doi.delivery_order_id IN ($do_ids_placeholders)
-       ORDER BY doi.$oid{$myconfig->{dbdriver}}|;
+       ORDER BY doi.oid|;
 
   $form->{form_details} = selectall_hashref_query($form, $dbh, $query, @do_ids);
 
@@ -751,9 +748,6 @@ sub order_details {
   my @partsgroup = ();
   my $partsgroup;
   my $position = 0;
-
-  my %oid = ('Pg'     => 'oid',
-             'Oracle' => 'rowid');
 
   my (@project_ids, %projectnumbers, %projectdescriptions);
 
@@ -869,9 +863,9 @@ sub order_details {
       my $sortorder = "";
       if ($form->{groupitems}) {
         $sortorder =
-          qq|ORDER BY pg.partsgroup, a.$oid{$myconfig->{dbdriver}}|;
+          qq|ORDER BY pg.partsgroup, a.oid|;
       } else {
-        $sortorder = qq|ORDER BY a.$oid{$myconfig->{dbdriver}}|;
+        $sortorder = qq|ORDER BY a.oid|;
       }
 
       do_statement($form, $h_pg, $q_pg, conv_i($form->{"id_$i"}));
