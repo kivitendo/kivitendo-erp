@@ -86,6 +86,17 @@ sub disconnect_standard_dbh {
   undef $standard_dbh;
 }
 
+sub read_version {
+  my ($self) = @_;
+
+  open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
+  my $version =  <VERSION_FILE>;
+  $version    =~ s/[^0-9A-Za-z\.\_\-]//g; # only allow numbers, letters, points, underscores and dashes. Prevents injecting of malicious code.
+  close VERSION_FILE;
+
+  return $version;
+}
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -101,10 +112,7 @@ sub new {
 
   bless $self, $type;
 
-  open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
-  $self->{version} =  <VERSION_FILE>;
-  close VERSION_FILE;
-  $self->{version}  =~ s/[^0-9A-Za-z\.\_\-]//g; # only allow numbers, letters, points, underscores and dashes. Prevents injecting of malicious code.
+  $self->{version} = $self->read_version;
 
   $main::lxdebug->leave_sub();
 
