@@ -30,7 +30,7 @@ sub action_user_login {
   return if $self->_redirect_to_main_script_if_already_logged_in;
 
   # Otherwise show the login form.
-  $self->render('login_screen/user_login', error => error_state($::form->{error}));
+  $self->show_login_form(error => error_state($::form->{error}));
 }
 
 sub action_logout {
@@ -38,13 +38,21 @@ sub action_logout {
 
   $::auth->destroy_session;
   $::auth->create_or_refresh_session;
-  $self->render('login_screen/user_login', error => $::locale->text('You are logged out!'));
+  $self->show_login_form(error => $::locale->text('You are logged out!'));
 }
 
 sub action_login {
   my ($self) = @_;
 
-  my $login        = $::form->{'{AUTH}login'} || $::auth->get_session_value('login');
+  my $login     = $::form->{'{AUTH}login'}     || $::auth->get_session_value('login');
+  my $client_id = $::form->{'{AUTH}client_id'} || $::auth->get_session_value('client_id');
+  my $error     = t8('Incorrect username or password or no access to selected client!');
+
+  if (!$::auth->set_client($client_id)) {
+    $::auth->punish_wrong_login;
+    return $self->show_login_form(error => $error);
+  }
+
   %::myconfig      = $login ? $::auth->read_user(login => $login) : ();
   SL::Dispatcher::AuthHandler::User->new->handle(countrycode => $::myconfig{countrycode});
   $::form->{login} = $::myconfig{login};
@@ -67,11 +75,14 @@ sub action_login {
   # Other login errors.
   if (0 > $result) {
     $::auth->punish_wrong_login;
-    return $self->render('login_screen/user_login', error => $::locale->text('Incorrect username or password!'));
+    return $self->show_login_form(error => $error);
   }
 
   # Everything is fine.
   $::auth->set_cookie_environment_variable();
+
+  # TODO: Employees anlegen/checken
+  # $self->_ensure_employees_for_authorized_users_exist;
 
   $self->_redirect_to_main_script($user);
 }
@@ -140,6 +151,13 @@ sub init_default_client_id {
   my ($self)         = @_;
   my $default_client = first { $_->is_default } @{ $self->clients };
   return $default_client ? $default_client->id : undef;
+}
+
+sub show_login_form {
+  my ($self, %params) = @_;
+
+  $::request->layout->focus('#auth_login');
+  $self->render('login_screen/user_login', %params);
 }
 
 1;

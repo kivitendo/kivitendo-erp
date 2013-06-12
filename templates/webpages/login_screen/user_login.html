@@ -23,7 +23,7 @@
           <table>
            <tr>
             <th align="right">[% 'Login Name' | $T8 %]</th>
-            <td>[% L.input_tag('{AUTH}login', '', style=style) %]</td>
+            <td>[% L.input_tag('{AUTH}login', '', id='auth_login', style=style) %]</td>
            </tr>
            <tr>
             <th align="right">[% 'Password' | $T8 %]</th>
@@ -37,7 +37,7 @@
 
           <br>
           <input type="hidden" name="action" value="LoginScreen/login">
-          <input type="submit" value="[% 'Login' | $T8 %]" tabindex="3">
+          <input type="submit" value="[% 'Login' | $T8 %]">
 
          </td>
         </tr>
@@ -58,6 +58,3 @@
     </td>
    </tr>
   </table>
-  <script type='text/javascript'>
-    $(function(){ $('#input_login').focus() })
-  </script>
