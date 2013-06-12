@@ -60,7 +60,6 @@ use SL::DBUtils;
 use SL::Template;
 
 require "bin/mozilla/common.pl";
-require "bin/mozilla/admin_printer.pl";
 
 use strict;
 

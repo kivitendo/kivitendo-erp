@@ -5,19 +5,23 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use IO::File;
+use List::Util qw(first);
 
 use SL::DB::AuthUser;
 use SL::DB::AuthGroup;
+use SL::DB::Printer;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::User;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(client user group nologin_file_name db_cfg all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights is_locked) ],
+  'scalar --get_set_init' => [ qw(client user group printer nologin_file_name db_cfg is_locked
+                                  all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers) ],
 );
 
 __PACKAGE__->run_before(\&setup_layout);
+__PACKAGE__->run_before(\&setup_client, only => [ qw(list_printers new_printer edit_printer save_printer delete_printer) ]);
 
 sub get_auth_level { "admin" };
 sub keep_auth_vars {
@@ -291,6 +295,61 @@ sub action_delete_group {
 }
 
 #
+# actions: printers
+#
+
+sub action_list_printers {
+  my ($self) = @_;
+  $self->render('admin/list_printers', title => t8('Printer management'));
+}
+
+sub action_new_printer {
+  my ($self) = @_;
+
+  $self->printer(SL::DB::Printer->new);
+  $self->edit_printer_form(title => t8('Create a new printer'));
+}
+
+sub action_edit_printer {
+  my ($self) = @_;
+  $self->edit_printer_form(title => t8('Edit Printer'));
+}
+
+sub action_save_printer {
+  my ($self) = @_;
+  my $params = delete($::form->{printer}) || { };
+  my $is_new = !$params->{id};
+
+  $self->printer($is_new ? SL::DB::Printer->new : SL::DB::Printer->new(id => $params->{id})->load)->assign_attributes(%{ $params });
+
+  my @errors = $self->printer->validate;
+
+  if (@errors) {
+    flash('error', @errors);
+    $self->edit_printer_form(title => $is_new ? t8('Create a new printer') : t8('Edit Printer'));
+    return;
+  }
+
+  $self->printer->save;
+
+  flash_later('info', $is_new ? t8('The printer has been created.') : t8('The printer has been saved.'));
+  $self->redirect_to(action => 'list_printers', 'client.id' => $self->client->id);
+}
+
+sub action_delete_printer {
+  my ($self) = @_;
+
+  if (!$self->printer->delete) {
+    flash('error', t8('The printer could not be deleted.'));
+    $self->edit_printer_form(title => t8('Edit Printer'));
+    return;
+  }
+
+  flash_later('info', t8('The printer has been deleted.'));
+  $self->redirect_to(action => 'list_printers', 'client.id' => $self->client->id);
+}
+
+#
 # actions: locking, unlocking
 #
 
@@ -319,18 +378,20 @@ sub action_lock_system {
 # initializers
 #
 
-sub init_db_cfg            { $::lx_office_conf{'authentication/database'}                                            }
-sub init_nologin_file_name { $::lx_office_conf{paths}->{userspath} . '/nologin';                                     }
-sub init_is_locked         { -e $_[0]->nologin_file_name                                                             }
-sub init_client            { SL::DB::AuthClient->new(id => ($::form->{id} || ($::form->{client} || {})->{id}))->load }
-sub init_user              { SL::DB::AuthUser  ->new(id => ($::form->{id} || ($::form->{user}   || {})->{id}))->load }
-sub init_group             { SL::DB::AuthGroup ->new(id => ($::form->{id} || ($::form->{group}  || {})->{id}))->load }
-sub init_all_clients       { SL::DB::Manager::AuthClient->get_all_sorted                                             }
-sub init_all_users         { SL::DB::Manager::AuthUser->get_all_sorted                                               }
-sub init_all_groups        { SL::DB::Manager::AuthGroup->get_all_sorted                                              }
-sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                      }
-sub init_all_numberformats { [ qw(1,000.00 1000.00 1.000,00 1000,00)          ]                                      }
-sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css) ]                                      }
+sub init_db_cfg            { $::lx_office_conf{'authentication/database'}                                                    }
+sub init_nologin_file_name { $::lx_office_conf{paths}->{userspath} . '/nologin';                                             }
+sub init_is_locked         { -e $_[0]->nologin_file_name                                                                     }
+sub init_client            { SL::DB::Manager::AuthClient->find_by(id => ($::form->{id} || ($::form->{client}  || {})->{id})) }
+sub init_user              { SL::DB::AuthUser  ->new(id => ($::form->{id} || ($::form->{user}    || {})->{id}))->load        }
+sub init_group             { SL::DB::AuthGroup ->new(id => ($::form->{id} || ($::form->{group}   || {})->{id}))->load        }
+sub init_printer           { SL::DB::Printer   ->new(id => ($::form->{id} || ($::form->{printer} || {})->{id}))->load        }
+sub init_all_clients       { SL::DB::Manager::AuthClient->get_all_sorted                                                     }
+sub init_all_users         { SL::DB::Manager::AuthUser  ->get_all_sorted                                                     }
+sub init_all_groups        { SL::DB::Manager::AuthGroup ->get_all_sorted                                                     }
+sub init_all_printers      { SL::DB::Manager::Printer   ->get_all_sorted                                                     }
+sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                              }
+sub init_all_numberformats { [ qw(1,000.00 1000.00 1.000,00 1000,00)          ]                                              }
+sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css) ]                                              }
 sub init_all_menustyles    {
   return [
     { id => 'old', title => $::locale->text('Old (on the side)') },
@@ -377,6 +438,14 @@ sub setup_layout {
   $::form->{favicon} = "favicon.ico";
 }
 
+sub setup_client {
+  my ($self) = @_;
+
+  $self->client((first { $_->is_default } @{ $self->all_clients }) || $self->all_clients->[0]) if !$self->client;
+  $::auth->set_client($self->client->id);
+}
+
+
 #
 # displaying forms
 #
@@ -407,6 +476,11 @@ sub edit_client_form {
 sub edit_group_form {
   my ($self, %params) = @_;
   $self->use_multiselect_js->render('admin/edit_group', %params);
+}
+
+sub edit_printer_form {
+  my ($self, %params) = @_;
+  $self->render('admin/edit_printer', %params);
 }
 
 #
