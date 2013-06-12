@@ -43,6 +43,7 @@ use SL::DBUpgrade2;
 use SL::DBUtils;
 use SL::Iconv;
 use SL::Inifile;
+use SL::System::InstallationLock;
 
 use strict;
 
@@ -135,13 +136,7 @@ sub login {
   }
 
   # update the tables
-  my $fh;
-  if (!$::lx_office_conf{debug}->{keep_installation_unlocked} && !open($fh, ">", $::lx_office_conf{paths}->{userspath} . "/nologin")) {
-    $form->show_generic_error($main::locale->text('A temporary file could not be created. ' .
-                                                  'Please verify that the directory "#1" is writeable by the webserver.',
-                                                  $::lx_office_conf{paths}->{userspath}),
-                              'back_button' => 1);
-  }
+  SL::System::InstallationLock->lock;
 
   # ignore HUP, QUIT in case the webserver times out
   $SIG{HUP}  = 'IGNORE';
@@ -151,10 +146,7 @@ sub login {
   $self->dbupdate2($form, $dbupdater);
   SL::DBUpgrade2->new(form => $::form, auth => 1)->apply_admin_dbupgrade_scripts(0);
 
-  close($fh);
-
-  # remove lock file
-  unlink($::lx_office_conf{paths}->{userspath} . "/nologin");
+  SL::System::InstallationLock->unlock;
 
   print $form->parse_html_template("dbupgrade/footer");
 

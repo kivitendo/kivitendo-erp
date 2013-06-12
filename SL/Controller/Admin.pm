@@ -12,11 +12,12 @@ use SL::DB::AuthGroup;
 use SL::DB::Printer;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
+use SL::System::InstallationLock;
 use SL::User;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(client user group printer nologin_file_name db_cfg is_locked
+  'scalar --get_set_init' => [ qw(client user group printer db_cfg is_locked
                                   all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers) ],
 );
 
@@ -355,7 +356,8 @@ sub action_delete_printer {
 
 sub action_unlock_system {
   my ($self) = @_;
-  unlink $self->nologin_file_name;
+
+  SL::System::InstallationLock->unlock;
   flash_later('info', t8('Lockfile removed!'));
   $self->redirect_to(action => 'show');
 }
@@ -363,15 +365,9 @@ sub action_unlock_system {
 sub action_lock_system {
   my ($self) = @_;
 
-  my $fh = IO::File->new($self->nologin_file_name, "w");
-  if (!$fh) {
-    $::form->error(t8('Cannot create Lock!'));
-
-  } else {
-    $fh->close;
-    flash_later('info', t8('Lockfile created!'));
-    $self->redirect_to(action => 'show');
-  }
+  SL::System::InstallationLock->unlock;
+  flash_later('info', t8('Lockfile created!'));
+  $self->redirect_to(action => 'show');
 }
 
 #
@@ -379,8 +375,7 @@ sub action_lock_system {
 #
 
 sub init_db_cfg            { $::lx_office_conf{'authentication/database'}                                                    }
-sub init_nologin_file_name { $::lx_office_conf{paths}->{userspath} . '/nologin';                                             }
-sub init_is_locked         { -e $_[0]->nologin_file_name                                                                     }
+sub init_is_locked         { SL::System::InstallationLock->is_locked                                                         }
 sub init_client            { SL::DB::Manager::AuthClient->find_by(id => ($::form->{id} || ($::form->{client}  || {})->{id})) }
 sub init_user              { SL::DB::AuthUser  ->new(id => ($::form->{id} || ($::form->{user}    || {})->{id}))->load        }
 sub init_group             { SL::DB::AuthGroup ->new(id => ($::form->{id} || ($::form->{group}   || {})->{id}))->load        }

@@ -235,8 +235,8 @@ sub process_query {
 
 # Process a Perl script which updates the database.
 # If the script returns 1 then the update was successful.
-# Return code "2" means "needs more interaction; remove
-# users/nologin and end current request".
+# Return code "2" means "needs more interaction; unlock
+# the system and end current request".
 # All other return codes are fatal errors.
 sub process_perl_script {
   $::lxdebug->enter_sub();
@@ -266,7 +266,7 @@ sub process_perl_script {
     print $::form->parse_html_template("dbupgrade/error", { file  => $filename, error => $error });
     ::end_of_request();
   } elsif (1 != $result) {
-    unlink("users/nologin") if (2 == $result);
+    SL::System::InstallationLock->unlock if 2 == $result;
     ::end_of_request();
   }
 
@@ -469,7 +469,9 @@ C<SQL/Pg-upgrade>)
     form     => $::form,
     auth     => 1
   );
-  User->dbupdate2($form, $scripts->parse_dbupdate_controls);
+  User->dbupdate2(form     => $form,
+                  updater  => $scripts->parse_dbupdate_controls,
+                  database => $dbname);
 
 =head1 OVERVIEW
 
@@ -638,7 +640,7 @@ charset recoding of the script if required, C<$db_charset>).
 Perl scripts are executed via L<eval>. If L<eval> returns falsish then
 an error is expected. There are two special return values: If the
 script returns C<1> then the update was successful. Return code C<2>
-means "needs more interaction from the user; remove users/nologin and
+means "needs more interaction from the user; unlock the system and
 end current upgrade process". All other return codes are fatal errors.
 
 Inside the Perl script several local variables exist that can be used:

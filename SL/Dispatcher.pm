@@ -235,7 +235,7 @@ sub handle_request {
   eval {
     pre_request_checks(script => $script, action => $action, routing_type => $routing_type, script_name => $script_name);
 
-    if (   (-e ($::lx_office_conf{paths}->{userspath} . "/nologin"))
+    if (   SL::System::InstallationLock->is_locked
         && !is_admin_request(script => $script, script_name => $script_name, routing_type => $routing_type)) {
       $::form->error($::locale->text('System currently down for maintenance!'));
     }
