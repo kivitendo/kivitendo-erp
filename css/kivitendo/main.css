@@ -110,6 +110,7 @@ body.login {
 table.login {
 	background-color: #FFFFE0;
 	padding: 20px;
+  width: 500px;
 }
 td.login {
 	text-align: center;

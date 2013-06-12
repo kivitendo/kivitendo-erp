@@ -7,9 +7,12 @@
      <a href="http://www.kivitendo.de" target="_top"><img src="image/kivitendo.png" border="0"></a>
      <h1>[% 'kivitendo' | $T8 %] [% version %]</h1>
 
-     [% IF error %]
-     <p><span class="message_error_login">[% error %]</span></p>
-     [% END %]
+[% IF error %]
+     <div class="message_error_login">[% HTML.escape(error) %]</div>
+[% END %]
+[% IF info %]
+     <div class="message_ok">[% HTML.escape(info) %]</div>
+[% END %]
 
 [% IF SELF.clients.size %]
 [%- SET style="width: 250px" %]

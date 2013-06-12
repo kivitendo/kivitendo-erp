@@ -39,7 +39,7 @@ sub action_logout {
 
   $::auth->destroy_session;
   $::auth->create_or_refresh_session;
-  $self->show_login_form(error => $::locale->text('You are logged out!'));
+  $self->show_login_form(info => $::locale->text('You are logged out!'));
 }
 
 sub action_login {
