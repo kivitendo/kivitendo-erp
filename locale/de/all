@@ -1077,7 +1077,6 @@ $self->{texts} = {
   'Incoming Payments'           => 'Zahlungseingänge',
   'Incoming invoice number'     => 'Eingangsrechnungsnummer',
   'Inconsistency in database'   => 'Unstimmigkeiten in der Datenbank',
-  'Incorrect Password!'         => 'Ungültiges Passwort!',
   'Incorrect password!'         => 'Ungültiges Passwort!',
   'Incorrect username or password or no access to selected client!' => 'Ungültiger Benutzername oder Passwort oder kein Zugriff auf den ausgewählten Mandanten!',
   'Increase'                    => 'Erhöhen',

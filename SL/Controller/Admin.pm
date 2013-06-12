@@ -515,7 +515,7 @@ sub authenticate_root {
   $::auth->punish_wrong_login;
   $::auth->delete_session_value('admin_password');
 
-  $self->login_form(error => t8('Incorrect Password!'));
+  $self->login_form(error => t8('Incorrect password!'));
 
   return undef;
 }

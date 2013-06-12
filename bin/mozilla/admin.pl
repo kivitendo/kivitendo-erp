@@ -90,7 +90,7 @@ sub run {
   if ($form->{action}) {
     if ($auth->authenticate_root($form->{'{AUTH}admin_password'}) != $auth->OK()) {
       $auth->punish_wrong_login;
-      $form->{error} = $locale->text('Incorrect Password!');
+      $form->{error} = $locale->text('Incorrect password!');
       $auth->delete_session_value('admin_password');
       adminlogin();
     } else {
