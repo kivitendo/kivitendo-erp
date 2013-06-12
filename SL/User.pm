@@ -137,7 +137,7 @@ sub login {
 
     if ($update_available) {
       $form->{"title"} = $main::locale->text("Dataset upgrade");
-      $form->header();
+      $form->header(no_layout => $form->{no_layout});
       print $form->parse_html_template("dbupgrade/header");
 
       $form->{dbupdate} = "db$myconfig{dbname}";
