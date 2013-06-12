@@ -92,95 +92,79 @@ sub country_codes {
 }
 
 sub login {
-  $main::lxdebug->enter_sub();
-
   my ($self, $form) = @_;
   our $sid;
 
-  local *FH;
+  return -3 if !$self->{login} || !$::auth->client;
 
-  my $rc = -3;
+  my %myconfig = $main::auth->read_user(login => $self->{login});
 
-  if ($self->{login}) {
-    my %myconfig = $main::auth->read_user(login => $self->{login});
+  # check if database is down
+  my $dbh = $form->dbconnect_noauto;
 
-    # check if database is down
-    my $dbh = SL::DBConnect->connect($myconfig{dbconnect}, $myconfig{dbuser}, $myconfig{dbpasswd}, SL::DBConnect->get_options)
-      or $self->error($DBI::errstr);
+  # we got a connection, check the version
+  my $query = qq|SELECT version FROM defaults|;
+  my $sth   = $dbh->prepare($query);
+  $sth->execute || $form->dberror($query);
 
-    # we got a connection, check the version
-    my $query = qq|SELECT version FROM defaults|;
-    my $sth   = $dbh->prepare($query);
-    $sth->execute || $form->dberror($query);
+  my ($dbversion) = $sth->fetchrow_array;
+  $sth->finish;
 
-    my ($dbversion) = $sth->fetchrow_array;
-    $sth->finish;
+  $self->create_employee_entry($form, $dbh, \%myconfig);
 
-    $self->create_employee_entry($form, $dbh, \%myconfig);
+  $self->create_schema_info_table($form, $dbh);
 
-    $self->create_schema_info_table($form, $dbh);
+  # Auth DB upgrades available?
+  my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg', auth => 1)->parse_dbupdate_controls;
+  return -3 if $dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect);
 
-    my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg', auth => 1)->parse_dbupdate_controls;
-    if ($dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect)) {
-      $::lxdebug->leave_sub;
-      return -3;
-    }
+  my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $myconfig{dbdriver})->parse_dbupdate_controls;
 
-    $rc = 0;
+  $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
+  $form->{$_} = $myconfig{$_}         for qw(dateformat);
 
-    my $dbupdater = SL::DBUpgrade2->new(form => $form, dbdriver => $myconfig{dbdriver})->parse_dbupdate_controls;
+  dbconnect_vars($form, $form->{dbname});
 
-    map({ $form->{$_} = $myconfig{$_} } qw(dbname dbhost dbport dbdriver dbuser dbpasswd dbconnect dateformat));
-    dbconnect_vars($form, $form->{dbname});
-    my $update_available = $dbupdater->update_available($dbversion) || $dbupdater->update2_available($dbh);
-    $dbh->disconnect;
+  my $update_available = $dbupdater->update_available($dbversion) || $dbupdater->update2_available($dbh);
+  $dbh->disconnect;
 
-    if ($update_available) {
-      $form->{"title"} = $main::locale->text("Dataset upgrade");
-      $form->header(no_layout => $form->{no_layout});
-      print $form->parse_html_template("dbupgrade/header");
+  return 0 if !$update_available;
+  $form->{"title"} = $main::locale->text("Dataset upgrade");
+  $form->header(no_layout => $form->{no_layout});
+  print $form->parse_html_template("dbupgrade/header");
 
-      $form->{dbupdate} = "db$myconfig{dbname}";
-      $form->{ $form->{dbupdate} } = 1;
+  $form->{dbupdate} = "db" . $form->{dbname};
 
-      if ($form->{"show_dbupdate_warning"}) {
-        print $form->parse_html_template("dbupgrade/warning");
-        ::end_of_request();
-      }
-
-      # update the tables
-      if (!$::lx_office_conf{debug}->{keep_installation_unlocked} && !open(FH, ">", $::lx_office_conf{paths}->{userspath} . "/nologin")) {
-        $form->show_generic_error($main::locale->text('A temporary file could not be created. ' .
-                                                      'Please verify that the directory "#1" is writeable by the webserver.',
-                                                      $::lx_office_conf{paths}->{userspath}),
-                                  'back_button' => 1);
-      }
-
-      # required for Oracle
-      $form->{dbdefault} = $sid;
-
-      # ignore HUP, QUIT in case the webserver times out
-      $SIG{HUP}  = 'IGNORE';
-      $SIG{QUIT} = 'IGNORE';
-
-      $self->dbupdate($form);
-      $self->dbupdate2($form, $dbupdater);
-      SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(0);
-
-      close(FH);
-
-      # remove lock file
-      unlink($::lx_office_conf{paths}->{userspath} . "/nologin");
-
-      print $form->parse_html_template("dbupgrade/footer");
-
-      $rc = -2;
-    }
+  if ($form->{"show_dbupdate_warning"}) {
+    print $form->parse_html_template("dbupgrade/warning");
+    ::end_of_request();
   }
 
-  $main::lxdebug->leave_sub();
+  # update the tables
+  my $fh;
+  if (!$::lx_office_conf{debug}->{keep_installation_unlocked} && !open($fh, ">", $::lx_office_conf{paths}->{userspath} . "/nologin")) {
+    $form->show_generic_error($main::locale->text('A temporary file could not be created. ' .
+                                                  'Please verify that the directory "#1" is writeable by the webserver.',
+                                                  $::lx_office_conf{paths}->{userspath}),
+                              'back_button' => 1);
+  }
 
-  return $rc;
+  # ignore HUP, QUIT in case the webserver times out
+  $SIG{HUP}  = 'IGNORE';
+  $SIG{QUIT} = 'IGNORE';
+
+  $self->dbupdate($form);
+  $self->dbupdate2($form, $dbupdater);
+  SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(0);
+
+  close($fh);
+
+  # remove lock file
+  unlink($::lx_office_conf{paths}->{userspath} . "/nologin");
+
+  print $form->parse_html_template("dbupgrade/footer");
+
+  return -2;
 }
 
 sub dbconnect_vars {
@@ -747,30 +731,6 @@ sub config_vars {
   $main::lxdebug->leave_sub();
 
   return @conf;
-}
-
-sub error {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $msg) = @_;
-
-  $main::lxdebug->show_backtrace();
-
-  if ($ENV{HTTP_USER_AGENT}) {
-    print qq|Content-Type: text/html
-
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0//EN">
-
-<body bgcolor=ffffff>
-
-<h2><font color=red>Error!</font></h2>
-<p><b>$msg</b>|;
-
-  }
-
-  die "Error: $msg\n";
-
-  $main::lxdebug->leave_sub();
 }
 
 sub data {

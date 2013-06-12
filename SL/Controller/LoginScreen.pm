@@ -10,6 +10,7 @@ use SL::Dispatcher::AuthHandler::User;
 use SL::DB::AuthClient;
 use SL::DB::AuthGroup;
 use SL::DB::AuthUser;
+use SL::Locale::String qw(t8);
 use SL::User;
 
 use Rose::Object::MakeMethods::Generic (
@@ -54,14 +55,14 @@ sub action_login {
   }
 
   %::myconfig      = $login ? $::auth->read_user(login => $login) : ();
-  SL::Dispatcher::AuthHandler::User->new->handle(countrycode => $::myconfig{countrycode});
-  $::form->{login} = $::myconfig{login};
+  $::form->{login} = $login;
   $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
-  my $user         = User->new(login => $::myconfig{login});
-  $::request->{layout} = SL::Layout::Dispatcher->new(style => $user->{menustyle});
+  SL::Dispatcher::AuthHandler::User->new->handle(countrycode => $::myconfig{countrycode});
+
+  $::request->layout(SL::Layout::Dispatcher->new(style => $::myconfig{menustyle}));
 
   # if we get an error back, bale out
-  my $result = $user->login($::form);
+  my $result = User->new(login => $::myconfig{login})->login($::form);
 
   # Database update available?
   ::end_of_request() if -2 == $result;
@@ -84,7 +85,7 @@ sub action_login {
   # TODO: Employees anlegen/checken
   # $self->_ensure_employees_for_authorized_users_exist;
 
-  $self->_redirect_to_main_script($user);
+  $self->_redirect_to_main_script;
 }
 
 #
@@ -103,7 +104,7 @@ sub keep_auth_vars_in_form {
 #
 
 sub _redirect_to_main_script {
-  my ($self, $user) = @_;
+  my ($self) = @_;
 
   return $self->redirect_to($::form->{callback}) if $::form->{callback};
 
@@ -135,7 +136,7 @@ sub _redirect_to_main_script_if_already_logged_in {
 sub error_state {
   return {
     session  => $::locale->text('The session is invalid or has expired.'),
-    password => $::locale->text('Incorrect password!'),
+    password => $::locale->text('Incorrect username or password or no access to selected client!'),
   }->{$_[0]};
 }
 

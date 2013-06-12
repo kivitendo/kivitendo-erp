@@ -11,6 +11,9 @@ sub handle {
   my $login = $::form->{'{AUTH}login'} || $::auth->get_session_value('login');
   return $self->_error(%param) if !defined $login;
 
+  my $client_id = $::form->{'{AUTH}client_id'} || $::auth->get_session_value('client_id');
+  return $self->_error(%param) if !$client_id || !$::auth->set_client($client_id);
+
   %::myconfig = $::auth->read_user(login => $login);
 
   return $self->_error(%param) unless $::myconfig{login};

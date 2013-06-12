@@ -65,6 +65,8 @@ sub set_client {
 
   $self->client(undef);
 
+  return undef unless $id_or_name;
+
   my $column = $id_or_name =~ m/^\d+$/ ? 'id' : 'name';
   my $dbh    = $self->dbconnect;
 
@@ -73,32 +75,6 @@ sub set_client {
   $self->client($dbh->selectrow_hashref(qq|SELECT * FROM auth.clients WHERE ${column} = ?|, undef, $id_or_name));
 
   return $self->client;
-}
-
-sub get_user_dbh {
-  my ($self, $login, %params) = @_;
-  my $may_fail = delete $params{may_fail};
-
-  my %user = $self->read_user(login => $login);
-  my $dbh  = SL::DBConnect->connect(
-    $user{dbconnect},
-    $user{dbuser},
-    $user{dbpasswd},
-    {
-      pg_enable_utf8 => $::locale->is_utf8,
-      AutoCommit     => 0
-    }
-  );
-
-  if (!$may_fail && !$dbh) {
-    $::form->error($::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
-  }
-
-  if ($user{dboptions} && $dbh) {
-    $dbh->do($user{dboptions}) or $::form->dberror($user{dboptions});
-  }
-
-  return $dbh;
 }
 
 sub DESTROY {
@@ -166,6 +142,23 @@ sub _read_auth_config {
   $main::lxdebug->leave_sub();
 }
 
+sub has_access_to_client {
+  my ($self, $login) = @_;
+
+  return 0 if !$self->client || !$self->client->{id};
+
+  my $sql = <<SQL;
+    SELECT cu.client_id
+    FROM auth.clients_users cu
+    LEFT JOIN auth."user" u ON (cu.user_id = u.id)
+    WHERE (u.login      = ?)
+      AND (cu.client_id = ?)
+SQL
+
+  my ($has_access) = $self->dbconnect->selectrow_array($sql, undef, $login, $self->client->{id});
+  return $has_access;
+}
+
 sub authenticate_root {
   $main::lxdebug->enter_sub();
 
@@ -197,6 +190,11 @@ sub authenticate {
 
   my ($self, $login, $password) = @_;
 
+  if (!$self->client || !$self->has_access_to_client($login)) {
+    $::lxdebug->leave_sub;
+    return ERR_PASSWORD;
+  }
+
   my $session_auth = $self->get_session_value(SESSION_KEY_USER_AUTH());
   if (defined $session_auth && $session_auth == OK) {
     $::lxdebug->leave_sub;
@@ -209,7 +207,7 @@ sub authenticate {
   }
 
   my $result = $login ? $self->{authenticator}->authenticate($login, $password) : ERR_USER;
-  $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login);
+  $self->set_session_value(SESSION_KEY_USER_AUTH() => $result, login => $login, client_id => $self->client->{id});
 
   $::lxdebug->leave_sub;
   return $result;
@@ -550,24 +548,19 @@ sub delete_user {
 
   my $dbh   = $self->dbconnect;
   my $id    = $self->get_user_id($login);
-  my $user_db_exists;
 
   $dbh->rollback and return $::lxdebug->leave_sub if (!$id);
-
-  my $u_dbh = $self->get_user_dbh($login, may_fail => 1);
-  $user_db_exists = $self->check_tables($u_dbh) if $u_dbh;
-
-  $u_dbh->begin_work if $u_dbh && $user_db_exists;
 
   $dbh->begin_work;
 
   do_query($::form, $dbh, qq|DELETE FROM auth.user_group WHERE user_id = ?|, $id);
   do_query($::form, $dbh, qq|DELETE FROM auth.user_config WHERE user_id = ?|, $id);
   do_query($::form, $dbh, qq|DELETE FROM auth.user WHERE id = ?|, $id);
-  do_query($::form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login) if $u_dbh && $user_db_exists;
+
+  # TODO: SL::Auth::delete_user
+  # do_query($::form, $u_dbh, qq|UPDATE employee SET deleted = 't' WHERE login = ?|, $login) if $u_dbh && $user_db_exists;
 
   $dbh->commit;
-  $u_dbh->commit if $u_dbh && $user_db_exists;
 
   $::lxdebug->leave_sub;
 }
