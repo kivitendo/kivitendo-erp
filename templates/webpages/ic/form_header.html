@@ -222,6 +222,7 @@
             [% HTML.escape(defaults.weightunit) %]
            </td>
           </tr>
+        [%- END %]
           <tr>
            <th align="right" nowrap>[% 'On Hand' | $T8 %]</th>
            <th align="left" nowrap class="plus[% IF onhand > 0 %]1[% ELSE %]0[% END %]">&nbsp;[% LxERP.format_amount(onhand) %]</th>
@@ -244,7 +245,6 @@
            <th align="right" nowrap="true">[% 'Default Bin' | $T8 %]</th>
            <td><select id="bin_id" name="bin_id"></select></td>
           </tr>
-        [%- END %]
           <tr>
            <th align="right" nowrap="true">[% 'Verrechnungseinheit' | $T8 %]</th>
            <td><input name="ve" size="10" value="[% HTML.escape(ve) %]"></td>
