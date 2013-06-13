@@ -157,10 +157,19 @@ sub action_save_user {
 sub action_delete_user {
   my ($self) = @_;
 
+  my @clients = @{ $self->user->clients || [] };
+
   if (!$self->user->delete) {
     flash('error', t8('The user could not be deleted.'));
     $self->edit_user_form(title => t8('Edit User'));
     return;
+  }
+
+  # Flag corresponding entries in 'employee' as deleted.
+  foreach my $client (@clients) {
+    my $dbh = $client->dbconnect(AutoCommit => 1) || next;
+    $dbh->do(qq|UPDATE employee SET deleted = TRUE WHERE login = ?|, undef, $self->user->login);
+    $dbh->disconnect;
   }
 
   flash_later('info', t8('The user has been deleted.'));
