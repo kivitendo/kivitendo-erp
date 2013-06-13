@@ -107,34 +107,7 @@ sub run {
 }
 
 sub adminlogin {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  $form->{title} = qq|kivitendo $form->{version} | . $locale->text('Administration');
-
-  $form->header();
-  print $form->parse_html_template('admin/adminlogin');
-}
-
-sub login_name {
-  my $login = shift;
-
-  $login =~ s/\[\]//g;
-  return ($login) ? $login : undef;
-
-}
-
-sub get_value {
-  my $line           = shift;
-  my ($null, $value) = split(/=/, $line, 2);
-
-  # remove comments
-  $value =~ s/\s#.*//g;
-
-  # remove any trailing whitespace
-  $value =~ s/^\s*(.*?)\s*$/$1/;
-
-  $value;
+  print $::request->cgi->redirect('controller.pl?action=Admin/login');
 }
 
 sub pg_database_administration {
@@ -158,24 +131,6 @@ sub dbselect_source {
 
   $form->header();
   print $form->parse_html_template("admin/dbadmin");
-}
-
-sub test_db_connection {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  User::dbconnect_vars($form, $form->{dbname});
-
-  my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd});
-
-  $form->{connection_ok} = $dbh ? 1 : 0;
-  $form->{errstr}        = $DBI::errstr;
-
-  $dbh->disconnect() if ($dbh);
-
-  $form->{title} = $locale->text('Database Connection Test');
-  $form->header();
-  print $form->parse_html_template("admin/test_db_connection");
 }
 
 sub continue {
@@ -569,69 +524,6 @@ sub restore_dataset_start {
 
   unlink "${tmpdir}/.pgpass", $tmp;
   rmdir $tmpdir;
-}
-
-sub yes {
-  call_sub($main::form->{yes_nextsub});
-}
-
-sub no {
-  call_sub($main::form->{no_nextsub});
-}
-
-sub add {
-  call_sub($main::form->{add_nextsub});
-}
-
-sub edit {
-  my $form = $main::form;
-
-  $form->{edit_nextsub} ||= 'edit_user';
-
-  call_sub($form->{edit_nextsub});
-}
-
-sub delete {
-  my $form     = $main::form;
-
-  $form->{delete_nextsub} ||= 'delete_user';
-
-  call_sub($form->{delete_nextsub});
-}
-
-sub save {
-  my $form = $main::form;
-
-  $form->{save_nextsub} ||= 'save_user';
-
-  call_sub($form->{save_nextsub});
-}
-
-sub back {
-  call_sub($main::form->{back_nextsub});
-}
-
-sub dispatcher {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  foreach my $action (qw(create_standard_group dont_create_standard_group
-                         save_user delete_user save_user_as_new)) {
-    if ($form->{"action_${action}"}) {
-      call_sub($action);
-      return;
-    }
-  }
-
-  call_sub($form->{default_action}) if ($form->{default_action});
-
-  $form->error($locale->text('No action defined.'));
-}
-
-sub _search_templates {
-  my %templates = SL::Template->available_templates;
-
-  return ($templates{print_templates}, $templates{master_templates});
 }
 
 1;
