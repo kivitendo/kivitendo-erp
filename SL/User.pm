@@ -614,11 +614,11 @@ sub create_employee_entry {
      ($can_delete) = selectrow_query($form, $dbh, qq|SELECT tag FROM schema_info WHERE tag = ?|, 'employee_deleted') if $good_db;
 
   if (!$id) {
-    my $query = qq|INSERT INTO employee (login, name, workphone, role) VALUES (?, ?, ?, ?)|;
-    do_query($form, $dbh, $query, ($self->{login}, $myconfig->{name}, $myconfig->{tel}, "user"));
+    my $query = qq|INSERT INTO employee (login, name, workphone) VALUES (?, ?, ?)|;
+    do_query($form, $dbh, $query, ($self->{login}, $myconfig->{name}, $myconfig->{tel}));
 
   } elsif ($update_existing && $can_delete) {
-    my $query = qq|UPDATE employee SET name = ?, workphone = ?, role = 'user', deleted = 'f' WHERE id = ?|;
+    my $query = qq|UPDATE employee SET name = ?, workphone = ?, deleted = 'f' WHERE id = ?|;
     do_query($form, $dbh, $query, $myconfig->{name}, $myconfig->{tel}, $id);
   }
 
