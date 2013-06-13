@@ -5,6 +5,7 @@ use strict;
 use Carp;
 use File::Path ();
 
+use SL::DBConnect;
 use SL::DB::MetaSetup::AuthClient;
 use SL::DB::Manager::AuthClient;
 use SL::DB::Helper::Util;
@@ -108,4 +109,87 @@ sub ensure_webdav_symlink_correctness {
   symlink '../' . $self->id, "${base_path}/${new_symlink}";
 }
 
+sub get_dbconnect_args {
+  my ($self, %params) = @_;
+
+  return (
+    'dbi:Pg:dbname=' . $self->dbname . ';host=' . ($self->dbhost || 'localhost') . ';port=' . ($self->dbport || 5432),
+    $self->dbuser,
+    $self->dbpasswd,
+    SL::DBConnect->get_options(%params),
+  );
+}
+
+sub dbconnect {
+  my ($self, %params) = @_;
+  return SL::DBConnect->connect($self->get_dbconnect_args(%params));
+}
+
 1;
+__END__
+
+=pod
+
+=encoding utf8
+
+=head1 NAME
+
+SL::DB::AuthClient - RDBO model for the auth.clients table
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<dbconnect [%params]>
+
+Establishes a new database connection to the database configured for
+C<$self>. Returns a database handle as returned by
+L<SL::DBConnect/connect> (which is either a normal L<DBI> handle or
+one handled by L<DBIx::Log4perl>).
+
+C<%params> are optional parameters passed as the fourth argument to
+L<SL::DBConnect/connect>. They're first filtered through
+L<SL::DBConnect/get_options> so the UTF-8 flag will be set properly.
+
+=item C<ensure_webdav_symlink_correctness>
+
+Handles the symlink creation/deletion for the WebDAV folder. Does
+nothing if WebDAV is not enabled in the configuration.
+
+For each existing client a symbolic link should exist in the directory
+C<webdav/links> pointing to the actual WebDAV directory which is the
+client's database ID.
+
+The symbolic link's name is the client's name sanitized a bit. It's
+calculated by L</webdav_symlink_basename>.
+
+=item C<get_dbconnect_args [%params]>
+
+Returns an array of database connection parameters suitable for
+passing to L<SL::DBConnect/connect>.
+
+C<%params> are optional parameters passed as the fourth argument to
+L<SL::DBConnect/connect>. They're first filtered through
+L<SL::DBConnect/get_options> so the UTF-8 flag will be set properly.
+
+=item C<validate>
+
+Returns an array of human-readable error message if the object must
+not be saved and an empty list if nothing's wrong.
+
+=item C<webdav_symlink_basename>
+
+Returns the base name of the symbolic link for the WebDAV C<links>
+sub-folder.
+
+=back
+
+=head1 BUGS
+
+Nothing here yet.
+
+=head1 AUTHOR
+
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+=cut
