@@ -1,0 +1,17 @@
+[%- USE LxERP -%][%- USE L -%]
+<div id="miscellaneous">
+ <div class='listheading'>[% LxERP.t8('Weight') %]</div>
+
+ <table>
+  <tr>
+   <td align="right">[% LxERP.t8('Show weights') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.show_weight', SELF.defaults.show_weight) %]
+   </td>
+   <td>
+    [% LxERP.t8('Show the weights of articles and the total weight in orders, invoices and delivery notes?') %]<br>
+   </td>
+  </tr>
+ </table>
+</div>
+</div>
