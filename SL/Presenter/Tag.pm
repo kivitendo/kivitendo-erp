@@ -92,7 +92,8 @@ sub select_tag {
   my $value_key       = delete($attributes{value_key})   || 'id';
   my $title_key       = delete($attributes{title_key})   || $value_key;
   my $default_key     = delete($attributes{default_key}) || 'selected';
-
+  my $default_val_key = delete($attributes{default_value_key});
+  my $default_coll    = delete($attributes{default});
 
   my $value_title_sub = delete($attributes{value_title_sub});
 
@@ -105,18 +106,7 @@ sub select_tag {
 
   my $with_optgroups  = delete($attributes{with_optgroups});
 
-  my %selected;
-
-  if ( ref($attributes{default}) eq 'ARRAY' ) {
-
-    foreach my $entry (@{$attributes{default}}) {
-      $selected{$entry} = 1;
-    }
-  } elsif ( defined($attributes{default}) ) {
-    $selected{$attributes{default}} = 1;
-  }
-
-  delete($attributes{default});
+  undef $default_key if $default_sub || $default_val_key;
 
   my $normalize_entry = sub {
     my ($type, $entry, $sub, $key) = @_;
@@ -139,6 +129,20 @@ sub select_tag {
     return undef;
   };
 
+  my %selected;
+  if (defined($default_coll) && !ref $default_coll) {
+    %selected = ($default_coll => 1);
+
+  } elsif (ref($default_coll) eq 'HASH') {
+    %selected = %{ $default_coll };
+
+  } elsif ($default_coll) {
+    $default_coll = [ $default_coll ] unless 'ARRAY' eq ref $default_coll;
+
+    %selected = $default_val_key ? map({ ($normalize_entry->('value', $_, undef, $default_val_key) => 1) } @{ $default_coll })
+              :                    map({ ($_                                                       => 1) } @{ $default_coll });
+  }
+
   my $list_to_code = sub {
     my ($sub_collection) = @_;
 
@@ -155,13 +159,9 @@ sub select_tag {
         $title = $normalize_entry->('title', $entry, $title_sub, $title_key);
       }
 
-      my $default = $normalize_entry->('default', $entry, $default_sub, $default_key);
+      my $default = $default_key ? $normalize_entry->('default', $entry, $default_sub, $default_key) : 0;
 
-      push(@options, [$value, $title, $default]);
-    }
-
-    foreach my $entry (@options) {
-      $entry->[2] = 1 if $selected{$entry->[0]};
+      push(@options, [$value, $title, $selected{$value} || $default]);
     }
 
     return join '', map { $self->html_tag('option', $self->escape($_->[1]), value => $_->[0], selected => $_->[2]) } @options;
@@ -217,6 +217,14 @@ Usage from a template:
   [% P.select_tag('direction', [ { direction => 'left',  display => 'To the left'  },
                                  { direction => 'right', display => 'To the right', selected => 1 } ],
                                value_key => 'direction', title_key => 'display')) %]
+
+  # Use an RDBO object and it's n:m relatioship as the default
+  # values. For example, a user can be a member in many groups. "All
+  # groups" is therefore the full collection and "$user->groups" is a
+  # list of RDBO AuthGroup objects whose IDs must match the ones in
+  # "All groups". This could look like the following:
+  [% P.select_tag('user.groups[]', SELF.all_groups, multiple=1,
+                  default=SELF.user.groups, default_value_key='id' ) %]
 
 =head1 DESCRIPTION
 
@@ -312,8 +320,10 @@ respectively.
 =back
 
 For cases 3 and 4 C<$attributes{value_key}> defaults to C<id>,
-C<$attributes{title_key}> defaults to C<$attributes{value_key}>
-and C<$attributes{default_key}> defaults to C<selected>.
+C<$attributes{title_key}> defaults to C<$attributes{value_key}> and
+C<$attributes{default_key}> defaults to C<selected>. Note that
+C<$attributes{default_key}> is set to C<undef> if
+C<$attributes{default_value_key}> is used as well (see below).
 
 In addition to pure keys/method you can also provide coderefs as I<value_sub>
 and/or I<title_sub> and/or I<default_sub>. If present, these take precedence over keys or methods,
@@ -328,11 +338,37 @@ C<undef>) will be used as the first element. The title to display for
 this element can be set with the option C<empty_title> and defaults to
 an empty string.
 
-The option C<default> can be either a scalar or an array reference
-containing the values of the options which should be set to be
-selected.
-
 The tag's C<id> defaults to C<name_to_id($name)>.
+
+The option C<default> can be quite a lot of things:
+
+=over 4
+
+=item 1. A scalar value. This is the value of the entry that's
+selected by default.
+
+=item 2. A hash reference for C<multiple=1>. Whether or not an entry
+is selected by default is looked up in this hash.
+
+=item 3. An array reference containing scalar values. Same as 1., just
+for the case of C<multiple=1>.
+
+=item 4. If C<default_value_key> is given: an array reference of hash
+references. For each hash reference the value belonging to the key
+C<default_value_key> is treated as one value to select by
+default. Constructs a hash that's treated like 3.
+
+=item 5. If C<default_value_key> is given: an array reference of
+blessed objects. For each object the value returne from calling the
+function named C<default_value_key> on the object is treated as one
+value to select by default. Constructs a hash that's treated like 3.
+
+=back
+
+5. also applies for single RDBO instances (due to 'wantarray'
+shenanigangs assigning RDBO's relationships to a hash key will result
+in a single RDBO object being assigned instead of an array reference
+containing that single RDBO object).
 
 If the option C<with_optgroups> is set then this function expects
 C<\@collection> to be one level deeper. The upper-most level is
