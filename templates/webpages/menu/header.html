@@ -10,9 +10,9 @@
  </span>
 [%- END %]
  <span class="frame-header-element frame-header-right">
-  [% 'User' | $T8 %]:
-  [% MYCONFIG.login | html %]
-  [<a href="controller.pl?action=LoginScreen/logout" target="_top" title="[% 'Logout now' | $T8 %]">[% 'Logout' | $T8 %]</a>]
+  [[% 'User' | $T8 %]: [% MYCONFIG.login | html %] -
+   [% 'Client' | $T8 %]: [% AUTH.client.name | html %] -
+   <a href="controller.pl?action=LoginScreen/logout" target="_top" title="[% 'Logout now' | $T8 %]">[% 'Logout' | $T8 %]</a>]
   [% now.to_lxoffice %] -
   [% now.hms %]
  </span>
