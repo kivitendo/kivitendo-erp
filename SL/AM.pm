@@ -42,6 +42,8 @@ use Data::Dumper;
 use Encode;
 use List::MoreUtils qw(any);
 use SL::DBUtils;
+use SL::DB::AuthUser;
+use SL::DB::Employee;
 
 use strict;
 
@@ -1120,37 +1122,24 @@ sub save_defaults {
   $main::lxdebug->leave_sub();
 }
 
-
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $form) = @_;
 
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $employee = SL::DB::Manager::Employee->find_by(login => $form->{login});
+  $employee->update_attributes(name => $form->{name});
 
-  my ($businessnumber) = selectrow_query($form, $dbh, qq|SELECT businessnumber FROM defaults|);
-
-  # update name
-  my $query = qq|UPDATE employee SET name = ? WHERE login = ?|;
-  do_query($form, $dbh, $query, $form->{name}, $form->{login});
-
-  my $rc = $dbh->commit();
-
-  $form->{businessnumber} =  $businessnumber;
-
-  $myconfig = User->new(login => $form->{login});
-
-  foreach my $item (keys %$form) {
-    $myconfig->{$item} = $form->{$item};
-  }
-
-  $myconfig->save_member;
-
-  my $auth = $main::auth;
+  my $user = SL::DB::Manager::AuthUser->find_by(login => $form->{login});
+  $user->update_attributes(
+    config_values => {
+      map({ ($_ => $form->{$_})                                   } SL::DB::AuthUser::CONFIG_VARS()),
+      map({ ($_ => do { my $v = $form->{$_}; $v =~ s/\r//g; $v }) } qw(address signature)),
+    });
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return 1;
 }
 
 sub get_defaults {

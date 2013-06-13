@@ -1104,7 +1104,7 @@ sub save_preferences {
 
   TODO->save_user_config('login' => $form->{login}, %{ $form->{todo_cfg} || { } });
 
-  if (AM->save_preferences(\%myconfig, $form)) {
+  if (AM->save_preferences($form)) {
     if ($::auth->can_change_password()
         && defined $form->{new_password}
         && ($form->{new_password} ne '********')) {
@@ -1116,10 +1116,6 @@ sub save_preferences {
       }
 
       $::auth->change_password($form->{login}, $form->{new_password});
-
-      $form->{password} = $form->{new_password};
-      $::auth->set_session_value('password', $form->{password});
-      $::auth->create_or_refresh_session();
     }
 
     $form->redirect($locale->text('Preferences saved!'));

@@ -105,8 +105,6 @@ sub login {
   # we got a connection, check the version
   my ($dbversion) = $dbh->selectrow_array(qq|SELECT version FROM defaults|);
 
-  $self->create_employee_entry($form, $dbh, \%myconfig);
-
   $self->create_schema_info_table($form, $dbh);
 
   # Auth DB upgrades available?
@@ -569,71 +567,6 @@ sub dbupdate2 {
   $main::lxdebug->leave_sub();
 
   return $rc;
-}
-
-sub save_member {
-  $main::lxdebug->enter_sub();
-
-  my ($self) = @_;
-
-  # format dbconnect and dboptions string
-  dbconnect_vars($self, $self->{dbname});
-
-  map { $self->{$_} =~ s/\r//g; } qw(address signature);
-
-  $main::auth->save_user($self->{login}, map { $_, $self->{$_} } config_vars());
-
-  my $dbh = SL::DBConnect->connect($self->{dbconnect}, $self->{dbuser}, $self->{dbpasswd}, SL::DBConnect->get_options);
-  if ($dbh) {
-    $self->create_employee_entry($::form, $dbh, $self, 1);
-    $dbh->disconnect();
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
-sub create_employee_entry {
-  $main::lxdebug->enter_sub();
-
-  my $self            = shift;
-  my $form            = shift;
-  my $dbh             = shift;
-  my $myconfig        = shift;
-  my $update_existing = shift;
-
-  if (!does_table_exist($dbh, 'employee')) {
-    $main::lxdebug->leave_sub();
-    return;
-  }
-
-  # add login to employee table if it does not exist
-  # no error check for employee table, ignore if it does not exist
-  my ($id)         = selectrow_query($form, $dbh, qq|SELECT id FROM employee WHERE login = ?|, $self->{login});
-  my ($good_db)    = selectrow_query($form, $dbh, qq|select * from pg_tables where tablename = ? and schemaname = ?|, 'schema_info', 'public');
-  my  $can_delete;
-     ($can_delete) = selectrow_query($form, $dbh, qq|SELECT tag FROM schema_info WHERE tag = ?|, 'employee_deleted') if $good_db;
-
-  if (!$id) {
-    my $query = qq|INSERT INTO employee (login, name, workphone) VALUES (?, ?, ?)|;
-    do_query($form, $dbh, $query, ($self->{login}, $myconfig->{name}, $myconfig->{tel}));
-
-  } elsif ($update_existing && $can_delete) {
-    my $query = qq|UPDATE employee SET name = ?, workphone = ?, deleted = 'f' WHERE id = ?|;
-    do_query($form, $dbh, $query, $myconfig->{name}, $myconfig->{tel}, $id);
-  }
-
-  $main::lxdebug->leave_sub();
-}
-
-sub config_vars {
-  $main::lxdebug->enter_sub();
-
-  my @conf = qw(copies countrycode dateformat default_media default_printer_id email favorites fax hide_cvar_search_options mandatory_departments menustyle name
-                numberformat show_form_details signature stylesheet taxincluded_checked tel template_format vclimit);
-
-  $main::lxdebug->leave_sub();
-
-  return @conf;
 }
 
 sub data {
