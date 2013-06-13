@@ -315,35 +315,13 @@ sub info {
   my ($self, $msg) = @_;
 
   if ($ENV{HTTP_USER_AGENT}) {
-    $msg =~ s/\n/<br>/g;
+    $self->header;
+    print $self->parse_html_template('generic/form_info', { message => $msg });
 
-    if (!$self->{header}) {
-      $self->header;
-      print qq|<body>|;
-    }
-
-    print qq|
-    <p class="message_ok"><b>$msg</b></p>
-
-    <script type="text/javascript">
-    <!--
-    // If JavaScript is enabled, the whole thing will be reloaded.
-    // The reason is: When one changes his menu setup (HTML / CSS ...)
-    // it now loads the correct code into the browser instead of do nothing.
-    setTimeout("top.frames.location.href='login.pl'",500);
-    //-->
-    </script>
-
-</body>
-    |;
-
+  } elsif ($self->{info_function}) {
+    &{ $self->{info_function} }($msg);
   } else {
-
-    if ($self->{info_function}) {
-      &{ $self->{info_function} }($msg);
-    } else {
-      print "$msg\n";
-    }
+    print "$msg\n";
   }
 
   $main::lxdebug->leave_sub();
