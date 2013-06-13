@@ -607,7 +607,6 @@ $self->{texts} = {
   'Database template'           => 'Datenbankvorlage',
   'Database update error:'      => 'Fehler beim Datenbankupgrade:',
   'Database user and password'  => 'Datebankbenutzer und -passwort',
-  'Dataset'                     => 'Datenbank',
   'Dataset missing!'            => 'Datenbank fehlt!',
   'Dataset name'                => 'Datenbankname',
   'Dataset upgrade'             => 'Datenbankaktualisierung',
