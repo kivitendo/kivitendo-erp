@@ -5,7 +5,15 @@ use strict;
 use DBI;
 use SL::DB;
 
-sub connect {
+my %dateformat_to_datestyle = (
+  'yy-mm-dd'   => 'ISO',
+  'yyyy-mm-dd' => 'ISO',
+  'mm/dd/yy'   => 'SQL, US',
+  'dd/mm/yy'   => 'SQL, EUROPEAN',
+  'dd.mm.yy'   => 'GERMAN'
+);
+
+sub _connect {
   my ($self, @args) = @_;
   @args = $self->get_connect_args if !@args;
 
@@ -20,6 +28,32 @@ sub connect {
 
   Log::Log4perl->init(\$config);
   return DBIx::Log4perl->connect(@args);
+}
+
+sub connect {
+  my ($self, @args) = @_;
+
+  my $dbh = $self->_connect(@args);
+  return undef if !$dbh;
+
+  my $initial_sql = $self->get_initial_sql;
+  $dbh->do($initial_sql) if $initial_sql;
+
+  return $dbh;
+}
+
+sub get_datestyle {
+  my ($self, $dateformat) = @_;
+  return $dateformat_to_datestyle{ $dateformat || $::myconfig{dateformat} };
+}
+
+sub get_initial_sql {
+  my ($self) = @_;
+
+  return undef if !%::myconfig || !$::myconfig{dateformat};
+
+  my $datestyle = $self->get_datestyle;
+  return $datestyle ? qq|SET DateStyle to '${datestyle}'| : '';
 }
 
 sub get_connect_args {
@@ -96,6 +130,19 @@ connection settings.
 C<%options> are optional database options like C<AutoCommit> (fourth
 parameter to L<DBI/connect>). They're merged with default settings by
 filtering them through L/get_options>.
+
+=item C<get_datestyle [$dateformat]>
+
+Returns the appropriate value for the C<SET DateStyle to...> SQL call
+depending on C<$dateformat> (e.g. C<SQL, EUROPEAN> if C<$dateformat>
+equals C<dd.mm.yy>). If C<$dateformat> is not given then it defaults
+to C<$::myconfig{dateformat}>.
+
+=item C<get_initial_sql>
+
+Returns SQL commands that should be executed right after a connection
+has been established. This is usually the call to configure the
+C<DateStyle> format used by the database.
 
 =item C<get_options [%options]>
 
