@@ -44,6 +44,10 @@ Kleinere neue Features und Detailverbesserungen:
   da hier die Code-Anpassungen vergessen wurde.
 - Offene Forderungen / Verbindlichkeiten
   Stichtagsbezogene Auswahl korrekt mit Fälligkeit verrechnet
+
+- #1897 implementiert. Zukunfts-Buchungen verhindern, durch einen konfigurierbaren
+  maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage)
+
 2012-12-10 - Release 3.0.0
 
 Größere neue Features:
