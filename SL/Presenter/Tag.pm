@@ -105,7 +105,18 @@ sub select_tag {
 
   my $with_optgroups  = delete($attributes{with_optgroups});
 
-  my $default         = delete($attributes{default});
+  my %selected;
+
+  if ( ref($attributes{default}) eq 'ARRAY' ) {
+
+    foreach my $entry (@{$attributes{default}}) {
+      $selected{$entry} = 1;
+    }
+  } elsif ( defined($attributes{default}) ) {
+    $selected{$attributes{default}} = 1;
+  }
+
+  delete($attributes{default});
 
   my $normalize_entry = sub {
     my ($type, $entry, $sub, $key) = @_;
@@ -128,9 +139,6 @@ sub select_tag {
     return undef;
   };
 
-  my %selected = map { ( $normalize_entry->('value', $_, $default_sub, $default_key) => 1 ) }
-                     (@{ ref($default) eq 'ARRAY' ? $default : [ $default ]});
-
   my $list_to_code = sub {
     my ($sub_collection) = @_;
 
@@ -149,7 +157,11 @@ sub select_tag {
 
       my $default = $normalize_entry->('default', $entry, $default_sub, $default_key);
 
-      push(@options, [$value, $title, !!$selected{$value}]);
+      push(@options, [$value, $title, $default]);
+    }
+
+    foreach my $entry (@options) {
+      $entry->[2] = 1 if $selected{$entry->[0]};
     }
 
     return join '', map { $self->html_tag('option', $self->escape($_->[1]), value => $_->[0], selected => $_->[2]) } @options;
@@ -205,12 +217,6 @@ Usage from a template:
   [% P.select_tag('direction', [ { direction => 'left',  display => 'To the left'  },
                                  { direction => 'right', display => 'To the right', selected => 1 } ],
                                value_key => 'direction', title_key => 'display')) %]
-
-  # With Rose::DB::Object instances. For example a group membership
-  # (SL::DB::AuthGroup) for a user (SL::DB::AuthUser) via the user's
-  # "groups" relationship:
-  [% P.select_tag('direction', SELF.all_groups, default=SELF.user.groups,
-                               title_key='name', default_key='id', multiple=1) %]
 
 =head1 DESCRIPTION
 
@@ -324,29 +330,7 @@ an empty string.
 
 The option C<default> can be either a scalar or an array reference
 containing the values of the options which should be set to be
-selected. How the value from the elements is derived depends on three
-things: the parameters C<default_sub> (unset by default) and
-C<default_key> (default: "selected") as well as the element's type.
-
-=over 4
-
-=item * If C<default_sub> is a code reference then that reference is
-called with the element as its only parameter. The return value is the
-value compared to the value from the elements in C<\@collection>.
-
-=item * If the element in question is a scalar then its value is used.
-
-=item * If the element is a hash then C<default_key> names the index
-into the hash used as the value to select by default.
-
-=item * If the element is a blessed object then C<default_key> names
-the method to call on the object. That method's return value is used
-as the value to select by default.
-
-=back
-
-See the synopsis for an example using C<default> with Rose::DB::Object
-instances.
+selected.
 
 The tag's C<id> defaults to C<name_to_id($name)>.
 
