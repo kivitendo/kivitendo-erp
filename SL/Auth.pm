@@ -1360,9 +1360,13 @@ sub load_rights_for_user {
          (SELECT ug.group_id
           FROM auth.user_group ug
           LEFT JOIN auth."user" u ON (ug.user_id = u.id)
-          WHERE u.login = ?)|;
+          WHERE u.login = ?)
+       AND group_id IN
+         (SELECT cg.group_id
+          FROM auth.clients_groups cg
+          WHERE cg.client_id = ?)|;
 
-  $sth = prepare_execute_query($::form, $dbh, $query, $login);
+  $sth = prepare_execute_query($::form, $dbh, $query, $login, $self->client->{id});
 
   while ($row = $sth->fetchrow_hashref()) {
     $rights->{$row->{right}} |= $row->{granted};
