@@ -10,6 +10,7 @@ use SL::Dispatcher::AuthHandler::User;
 use SL::DB::AuthClient;
 use SL::DB::AuthGroup;
 use SL::DB::AuthUser;
+use SL::DB::Employee;
 use SL::Locale::String qw(t8);
 use SL::User;
 
@@ -82,9 +83,6 @@ sub action_login {
   # Everything is fine.
   $::auth->set_cookie_environment_variable();
 
-  # TODO: Employees anlegen/checken
-  # $self->_ensure_employees_for_authorized_users_exist;
-
   $self->_redirect_to_main_script;
 }
 
@@ -105,6 +103,8 @@ sub keep_auth_vars_in_form {
 
 sub _redirect_to_main_script {
   my ($self) = @_;
+
+  $self->_ensure_employees_for_authorized_users_exist;
 
   return $self->redirect_to($::form->{callback}) if $::form->{callback};
 
@@ -131,6 +131,23 @@ sub _redirect_to_main_script_if_already_logged_in {
   $self->_redirect_to_main_script(\%user);
 
   return 1;
+}
+
+sub _ensure_employees_for_authorized_users_exist {
+  my ($self) = @_;
+
+  my %employees_by_login = map { ($_->login => $_) } @{ SL::DB::Manager::Employee->get_all };
+
+  foreach my $user (@{ SL::DB::AuthClient->new(id => $::auth->client->{id})->load->users || [] }) {
+    my $user_config = $user->config_values;
+    my $employee    = $employees_by_login{$user->login} || SL::DB::Employee->new(login => $user->login);
+
+    $employee->update_attributes(
+      name      => $user_config->{name},
+      workphone => $user_config->{tel},
+      deleted   => 0,
+    );
+  }
 }
 
 sub error_state {
