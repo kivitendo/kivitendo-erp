@@ -109,7 +109,7 @@
  </p>
 
  <div class="clearfix">
-  [% L.select_tag("user.clients[]", SELF.all_clients, id="user_clients", title_key="name", default=SELF.user.clients, default_key='id', multiple=1) %]
+  [% L.select_tag("user.clients[]", SELF.all_clients, id="user_clients", title_key="name", default=SELF.user.clients, default_value_key='id', multiple=1) %]
   [% L.multiselect2side("user_clients", labelsx => LxERP.t8("All clients"), labeldx => LxERP.t8("Clients this user has access to")) %]
  </div>
 
@@ -127,7 +127,7 @@
  </p>
 
  <div class="clearfix">
-  [% L.select_tag("user.groups[]", SELF.all_groups, id="user_groups", title_key="name", default=SELF.user.groups, default_key='id', multiple=1) %]
+  [% L.select_tag("user.groups[]", SELF.all_groups, id="user_groups", title_key="name", default=SELF.user.groups, default_value_key='id', multiple=1) %]
   [% L.multiselect2side("user_groups", labelsx => LxERP.t8("All groups"), labeldx => LxERP.t8("Groups this user is a member in")) %]
  </div>
 

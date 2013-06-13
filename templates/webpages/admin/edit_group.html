@@ -52,7 +52,7 @@
  </p>
 
  <div class="clearfix">
-  [% L.select_tag("group.users[]", SELF.all_users, id="group_users", title_key="login", default=SELF.group.users, default_key='id', multiple=1) %]
+  [% L.select_tag("group.users[]", SELF.all_users, id="group_users", title_key="login", default=SELF.group.users, default_value_key='id', multiple=1) %]
   [% L.multiselect2side("group_users", labelsx => LxERP.t8("All users"), labeldx => LxERP.t8("Users that are a member in this group")) %]
  </div>
 
@@ -70,7 +70,7 @@
  </p>
 
  <div class="clearfix">
-  [% L.select_tag("group.clients[]", SELF.all_clients, id="group_clients", title_key="name", default=SELF.group.clients, default_key='id', multiple=1) %]
+  [% L.select_tag("group.clients[]", SELF.all_clients, id="group_clients", title_key="name", default=SELF.group.clients, default_value_key='id', multiple=1) %]
   [% L.multiselect2side("group_clients", labelsx => LxERP.t8("All clients"), labeldx => LxERP.t8("Clients this Group is valid for")) %]
  </div>
 
