@@ -531,13 +531,6 @@ sub get_accounts_g {
        FROM acc_trans ac
        LEFT JOIN chart c ON (c.id  = ac.chart_id)
        LEFT JOIN ar      ON (ar.id = ac.trans_id)
-       LEFT JOIN taxkeys tk ON (tk.id = (
-                                  SELECT id FROM taxkeys
-                                  WHERE chart_id = ac.chart_id
-                                  AND startdate <= COALESCE(ar.deliverydate,ar.transdate)
-                                  ORDER BY startdate DESC LIMIT 1
-                                  )
-                                )
       WHERE ac.trans_id IN (SELECT DISTINCT trans_id FROM acc_trans WHERE 1=1 $subwhere)
 
       GROUP BY c.$category
