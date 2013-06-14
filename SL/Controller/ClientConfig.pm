@@ -3,6 +3,7 @@ package SL::Controller::ClientConfig;
 use strict;
 use parent qw(SL::Controller::Base);
 
+use File::Copy::Recursive ();
 use List::Util qw(first);
 
 use SL::DB::Chart;
@@ -12,15 +13,18 @@ use SL::DB::Language;
 use SL::DB::Unit;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
+use SL::Template;
 
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies posting_options payment_options accounting_options inventory_options profit_options accounts) ],
+  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates posting_options payment_options accounting_options inventory_options profit_options accounts) ],
 );
 
 sub action_edit {
   my ($self, %params) = @_;
+
+  $::form->{use_templates} = $self->defaults->templates ? 'existing' : 'new';
   $self->edit_form;
 }
 
@@ -65,6 +69,25 @@ sub action_save {
 
   my @errors = map { $errors_idx{$_} } sort keys %errors_idx;
 
+  # Check templates
+  $::form->{new_templates}        =~ s:/::g;
+  $::form->{new_master_templates} =~ s:/::g;
+
+  if (($::form->{use_templates} eq 'existing') && ($self->defaults->templates !~ m:^templates/[^/]+$:)) {
+    push @errors, t8('You must select existing print templates or create a new set.');
+
+  } elsif ($::form->{use_templates} eq 'new') {
+    if (!$::form->{new_templates}) {
+      push @errors, t8('You must enter a name for your new print templates.');
+    } elsif (-d "templates/" . $::form->{new_templates}) {
+      push @errors, t8('A directory with the name for the new print templates exists already.');
+    } elsif (! -d "templates/print/" . $::form->{new_master_templates}) {
+      push @errors, t8('The master templates where not found.');
+    }
+  }
+
+  # Show form again if there were any errors. Nothing's been changed
+  # yet in the database.
   if (@errors) {
     flash('error', @errors);
     return $self->edit_form;
@@ -91,6 +114,14 @@ sub action_save {
     $self->defaults->currency_id($new_currency ? $new_currency->id : $original_currency_id);
   }
 
+  # Create new templates if requested.
+  if ($::form->{use_templates} eq 'new') {
+    local $File::Copy::Recursive::SkipFlop = 1;
+    File::Copy::Recursive::dircopy('templates/print/' . $::form->{new_master_templates}, 'templates/' . $::form->{new_templates});
+    $self->defaults->templates('templates/' . $::form->{new_templates});
+  }
+
+  # Finally save defaults.
   $self->defaults->save;
 
   flash_later('info', t8('Client Configuration saved!'));
@@ -107,6 +138,7 @@ sub init_all_warehouses  { SL::DB::Manager::Warehouse->get_all_sorted           
 sub init_all_languages   { SL::DB::Manager::Language->get_all_sorted                      }
 sub init_all_currencies  { SL::DB::Manager::Currency->get_all_sorted                      }
 sub init_all_weightunits { SL::DB::Manager::Unit->find_by(name => 'g')->convertible_units }
+sub init_all_templates   { +{ SL::Template->available_templates }                         }
 
 sub init_posting_options {
   [ { title => t8("never"),           value => 0           },
@@ -172,8 +204,11 @@ sub check_auth {
 
 sub edit_form {
   my ($self) = @_;
+
   $self->render('client_config/form', title => t8('Client Configuration'),
-                make_chart_title => sub { $_[0]->accno . '--' . $_[0]->description });
+                make_chart_title     => sub { $_[0]->accno . '--' . $_[0]->description },
+                make_templates_value => sub { 'templates/' . $_[0] },
+              );
 }
 
 1;

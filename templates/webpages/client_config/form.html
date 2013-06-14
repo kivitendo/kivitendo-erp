@@ -33,9 +33,18 @@ function warehouse_selected(warehouse_id, bin_id, bin_id_name) {
   });
 }
 
+function enable_template_controls() {
+  var existing = $('#use_templates_existing').prop('checked');
+  $('#defaults_templates').prop('disabled', !existing);
+  $('#new_templates,#new_master_templates').prop('disabled', existing);
+}
+
 $(function() {
   warehouse_selected([% SELF.defaults.warehouse_id || -1 %], [% SELF.defaults.bin_id || -1 %], 'bin_id');
   warehouse_selected([% SELF.defaults.warehouse_id_ignore_onhand || -1 %], [% SELF.defaults.bin_id_ignore_onhand || -1 %], 'bin_id_ignore_onhand');
+
+  enable_template_controls();
+  $('#use_templates_existing,#use_templates_new').change(enable_template_controls);
 })
     -->
  </script>
