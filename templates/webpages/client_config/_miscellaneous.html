@@ -1,39 +1,69 @@
 [%- USE LxERP -%][%- USE L -%][%- USE HTML -%]
-[% SET style="width: 200px" %]
+[% SET style="width: 400px" %]
 <div id="miscellaneous">
- <div class="listheading">[% LxERP.t8("Miscellaneous") %]</div>
-
  <table>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Company settings") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Company name") %]</td>
+   <td>[% L.input_tag('defaults.company', SELF.defaults.company, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Address") %]</td>
+   <td>[% L.textarea_tag('defaults.address', SELF.defaults.address, style=style, rows=4) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Tax number") %]</td>
+   <td>[% L.input_tag('defaults.taxnumber', SELF.defaults.taxnumber, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Tax ID number") %]</td>
+   <td>[% L.input_tag('defaults.co_ustid', SELF.defaults.co_ustid, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("SEPA creditor ID") %]</td>
+   <td>[% L.input_tag('defaults.sepa_creditor_id', SELF.defaults.sepa_creditor_id, style=style) %]</td>
+  </tr>
+
   <tr>
    <td align="right">[% LxERP.t8("Business Number") %]</td>
    <td>[% L.input_tag('defaults.businessnumber', SELF.defaults.businessnumber, style=style) %]</td>
   </tr>
 
   <tr>
+   <td align="right">[% LxERP.t8("DUNS number") %]</td>
+   <td>[% L.input_tag('defaults.duns', SELF.defaults.duns, style=style) %]</td>
+  </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Language settings") %]</td></tr>
+
+  <tr>
    <td align="right">[% LxERP.t8('Default Customer/Vendor Language') %]</td>
    <td>[% L.select_tag('defaults.language_id', SELF.all_languages, title_key='description', default=SELF.defaults.language_id, with_empty=1, style=style) %]</td>
   </tr>
- </table>
 
- <div class="listheading">[% LxERP.t8("Currencies") %]</div>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Currencies") %]</td></tr>
 
- <table>
   <tr>
    <th></th>
-   <th>[% LxERP.t8("Default currency") %]</th>
    <th>[% LxERP.t8("Currency name") %]</th>
+   <th>[% LxERP.t8("Default currency") %]</th>
    <th>[% LxERP.t8("Hints") %]</th>
   </tr>
 
 [% FOREACH currency = SELF.all_currencies %]
   <tr>
    <td align="right">[% IF loop.count == 1 %][% LxERP.t8("Currencies") %][% END %]</td>
+   <td>
+    [% L.input_tag("currencies[].name", currency.name, style=style) %]
+   </td>
    <td align="center">
     [% L.hidden_tag("currencies[+].id", currency.id) %]
     [% L.radio_button_tag('defaults.currency_id', value=currency.id, id='defaults.currency_id_' _ currency.id, checked=(SELF.defaults.currency_id == currency.id)) %]
-   </td>
-   <td>
-    [% L.input_tag("currencies[].name", currency.name, style=style) %]
    </td>
    <td>[% IF loop.count == 1 %][% LxERP.t8("Edit the currency names in order to rename them.") %][%- END %]</td>
   </tr>
@@ -41,14 +71,12 @@
 
   <tr>
    <td align="right">[% LxERP.t8("Add new currency") %]</td>
-   <td align="center">[% L.radio_button_tag('defaults.currency_id', value=-1, id='defaults.currency_id__1', checked=(SELF.defaults.currency_id == -1)) %]</td>
    <td>[% L.input_tag("new_currency", FORM.new_currency, style=style) %]</td>
+   <td align="center">[% L.radio_button_tag('defaults.currency_id', value=-1, id='defaults.currency_id__1', checked=(SELF.defaults.currency_id == -1)) %]</td>
   </tr>
- </table>
 
- <div class="listheading">[% LxERP.t8("Weight") %]</div>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Weight") %]</td></tr>
 
- <table>
   <tr>
    <td align="right">[% LxERP.t8("Weight unit") %]</td>
    <td>[% L.select_tag('defaults.weightunit', SELF.all_weightunits, default=SELF.defaults.weightunit, value_key='name', title_key='name', style=style) %]</td>
@@ -57,7 +85,7 @@
   <tr>
    <td align="right">[% LxERP.t8('Show weights') %]</td>
    <td>[% L.yes_no_tag('defaults.show_weight', SELF.defaults.show_weight, style=style) %]</td>
-   <td>[% LxERP.t8('Show the weights of articles and the total weight in orders, invoices and delivery notes?') %]</td>
+   <td colspan="2">[% LxERP.t8('Show the weights of articles and the total weight in orders, invoices and delivery notes?') %]</td>
   </tr>
  </table>
 </div>
