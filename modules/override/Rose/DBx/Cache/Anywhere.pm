@@ -43,8 +43,8 @@ sub prepare_db {
             return;
         }
 
-        # if this a dummy lx office dbh, don't try to actually prepare this.
-        if ($db->type =~ /LXOFFICE_EMPTY/) {
+        # if this a dummy kivitendo dbh, don't try to actually prepare this.
+        if ($db->type =~ /KIVITENDO_EMPTY/) {
           return;
         }
 

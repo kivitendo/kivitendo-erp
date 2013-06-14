@@ -1,0 +1,85 @@
+[%- USE L -%][%- USE LxERP -%]
+<div id="posting_configuration">
+ <table>
+  <tr>
+   <td align="right">[% LxERP.t8('Sales invoices changeable') %]</td>
+   <td>[% L.select_tag('defaults.is_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.is_changeable) %]</td>
+   <td>[% LxERP.t8('Should sales invoices be and when should they be changeable or deleteable after posting?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Purchase invoices changeable') %]</td>
+   <td>[% L.select_tag('defaults.ir_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ir_changeable) %]</td>
+   <td>[% LxERP.t8('Should purchase invoices be and when should they be deleteable after posting?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('AR transactions changeable') %]</td>
+   <td>[% L.select_tag('defaults.ar_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ar_changeable) %]</td>
+   <td>[% LxERP.t8('Should ar transactions be and when should they be changeable or deleteable after posting?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('AP transactions changeable') %]</td>
+   <td>[% L.select_tag('defaults.ap_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.ap_changeable) %]</td>
+   <td>[% LxERP.t8('Should ap transactions be and when should they be changeable or deleteable after posting?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('GL transactions changeable') %]</td>
+   <td>[% L.select_tag('defaults.gl_changeable', SELF.posting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.gl_changeable) %]</td>
+   <td>[% LxERP.t8('Should gl transactions be and when should they be changeable or deleteable after posting?') %]</td>
+  </tr>
+
+  <tr> </tr>
+  <tr> </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Payments Changeable') %]</td>
+   <td>[% L.select_tag('defaults.payments_changeable', SELF.payment_options, value_key = 'value', title_key = 'title', default = SELF.defaults.payments_changeable) %]</td>
+   <td>[% LxERP.t8('Should payments be and when should they be changeable after posting?') %]</td>
+  </tr>
+
+  <tr> </tr>
+  <tr> </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Show "mark as paid" in sales invoices') %]</td>
+   <td>[% L.yes_no_tag('defaults.is_show_mark_as_paid', SELF.defaults.is_show_mark_as_paid) %]</td>
+   <td>[% LxERP.t8('Should the "mark as paid" button showed on sales invoices?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Show "mark as paid" in purchase invoices') %]</td>
+   <td>[% L.yes_no_tag('defaults.ir_show_mark_as_paid', SELF.defaults.ir_show_mark_as_paid) %]</td>
+   <td>[% LxERP.t8('Should the "mark as paid" button showed in purchase invoices?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Show "mark as paid" in ar transactions') %]</td>
+   <td>[% L.yes_no_tag('defaults.ar_show_mark_as_paid', SELF.defaults.ar_show_mark_as_paid) %]</td>
+   <td>[% LxERP.t8('Should the "mark as paid" button showed in ar transactions?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Show "mark as paid" in ap transactions') %]</td>
+   <td>[% L.yes_no_tag('defaults.ap_show_mark_as_paid', SELF.defaults.ap_show_mark_as_paid) %]</td>
+   <td>[% LxERP.t8('Should the "mark as paid" button showed in ap transactions?') %]</td>
+  </tr>
+
+  <tr> </tr>
+  <tr> </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Accounting method') %]</td>
+   <td>[% L.select_tag('defaults.accounting_method', SELF.accounting_options, value_key = 'value', title_key = 'title', default = SELF.defaults.accounting_method) %]</td>
+   <td>[% LxERP.t8('This option controls the posting and calculation behavior for the accounting method.') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Inventory system') %]</td>
+   <td>[% L.select_tag('defaults.inventory_system', SELF.inventory_options, value_key = 'value', title_key = 'title', default = SELF.defaults.inventory_system) %]</td>
+   <td>
+    [% LxERP.t8('This option controls the inventory system.') %]<br>
+    [% LxERP.t8('ATTENTION! You can not simply change it from periodic to perpetual once you started posting.') %]
+   </td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Profit determination') %]</td>
+   <td>[% L.select_tag('defaults.profit_determination', SELF.profit_options, value_key = 'value', title_key = 'title', default = SELF.defaults.profit_determination) %]</td>
+   <td>[% LxERP.t8('This option controls the method used for profit determination.') %]</td>
+  </tr>
+ </table>
+</div>

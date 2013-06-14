@@ -8,6 +8,7 @@ use base qw(SL::DB::Object);
 
 __PACKAGE__->meta->setup(
   table   => 'group_rights',
+  schema  => 'auth',
 
   columns => [
     group_id => { type => 'integer', not_null => 1 },
@@ -16,6 +17,13 @@ __PACKAGE__->meta->setup(
   ],
 
   primary_key_columns => [ 'group_id', 'right' ],
+
+  foreign_keys => [
+    group => {
+      class       => 'SL::DB::AuthGroup',
+      key_columns => { group_id => 'id' },
+    },
+  ],
 );
 
 1;

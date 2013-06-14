@@ -42,7 +42,7 @@ use SL::Dispatcher;
 #######
 
 my ($opt_list, $opt_tree, $opt_rtree, $opt_nodeps, $opt_graphviz, $opt_help);
-my ($opt_user, $opt_apply, $opt_applied, $opt_unapplied, $opt_format, $opt_test_utf8);
+my ($opt_user, $opt_client, $opt_apply, $opt_applied, $opt_unapplied, $opt_format, $opt_test_utf8);
 my ($opt_dbhost, $opt_dbport, $opt_dbname, $opt_dbuser, $opt_dbpassword, $opt_create, $opt_type);
 my ($opt_description, $opt_encoding, @opt_depends, $opt_auth_db);
 
@@ -103,8 +103,12 @@ dbupgrade2_tool.pl [options]
     --help               Show this help and exit.
 
   General Options:
+    --client=id-or-name  The name (or database ID) of the client to use for
+                         database connectivity. You must provide both a client
+                         and a user.
     --user=name          The name of the user configuration to use for
-                         database connectivity.
+                         database connectivity. You must provide both a client
+                         and a user.
     --auth-db            Work on the authentication database instead of a
                          user database.
     --dbname=name        Database connection options for the UTF-8
@@ -356,9 +360,9 @@ sub apply_upgrade {
     print "Applying upgrade $control->{file}\n";
 
     if ($file_type eq "sql") {
-      $dbupgrader->process_query($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control, $db_charset);
+      $dbupgrader->process_query($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
     } else {
-      $dbupgrader->process_perl_script($dbh, "sql/$form->{dbdriver}-upgrade2/$control->{file}", $control, $db_charset);
+      $dbupgrader->process_perl_script($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
     }
   }
 
@@ -474,6 +478,7 @@ GetOptions("list"         => \$opt_list,
            "graphviz:s"   => \$opt_graphviz,
            "format:s"     => \$opt_format,
            "user=s"       => \$opt_user,
+           "client=s"     => \$opt_client,
            "apply=s"      => \$opt_apply,
            "applied"      => \$opt_applied,
            "create=s"     => \$opt_create,
@@ -494,7 +499,7 @@ GetOptions("list"         => \$opt_list,
 
 show_help() if ($opt_help);
 
-$dbupgrader = SL::DBUpgrade2->new(form => $form, dbdriver => 'Pg', auth => $opt_auth_db);
+$dbupgrader = SL::DBUpgrade2->new(form => $form, auth => $opt_auth_db);
 $controls   = $dbupgrader->parse_dbupdate_controls->{all_controls};
 
 dump_list()                                 if ($opt_list);
@@ -510,7 +515,13 @@ create_upgrade(filename   => $opt_create,
                encoding    => $opt_encoding,
                depends     => \@opt_depends) if ($opt_create);
 
+if ($opt_client && !connect_auth()->set_client($opt_client)) {
+  $form->error($form->format_string("The client '#1' does not exist.", $opt_client));
+}
+
 if ($opt_user) {
+  $form->error("Need a client, too.") if !$auth || !$auth->client;
+
   %myconfig = connect_auth()->read_user(login => $opt_user);
 
   if (!$myconfig{login}) {

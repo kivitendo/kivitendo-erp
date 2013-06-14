@@ -22,6 +22,7 @@ $(clockon);
  </span>
  <span class="frame-header-element frame-header-right">
     [[% 'User' | $T8 %]: [% MYCONFIG.login | html %] -
+     [% 'Client' | $T8 %]: [% AUTH.client.name | html %] -
     <a href="controller.pl?action=LoginScreen/logout" target="_top">[% 'logout' | $T8 %]</a>]
     [% date %] <span id='clock_id' style='position:relative'></span>&nbsp;
  </span>

@@ -1,0 +1,33 @@
+[%- USE LxERP -%][%- USE L -%]
+<div id="datev_check_configuration">
+ <table>
+  <tr>
+   <td colspan="3">[% LxERP.t8('It is possible to make a quick DATEV export everytime you post a record to ensure things work nicely with their data requirements. This will result in a slight overhead though you can enable this for each type of record independantly.') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Check on sales invoice') %]</td>
+   <td>[% L.yes_no_tag('defaults.datev_check_on_sales_invoice', SELF.defaults.datev_check_on_sales_invoice) %]</td>
+   <td>[% LxERP.t8('Perform check when a sales invoice or a payment for a sales invoice is posted?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Check on purchase invoice') %]</td>
+   <td>[% L.yes_no_tag('defaults.datev_check_on_purchase_invoice', SELF.defaults.datev_check_on_purchase_invoice) %]</td>
+   <td>[% LxERP.t8('Perform check when a purchase invoice or a payment for a purchase invoice is posted?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Check on ar transaction') %]</td>
+   <td>[% L.yes_no_tag('defaults.datev_check_on_ar_transaction', SELF.defaults.datev_check_on_ar_transaction) %]</td>
+   <td>[% LxERP.t8('Perform check when an ar transaction is posted?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Check on ap transaction') %]</td>
+   <td>[% L.yes_no_tag('defaults.datev_check_on_ap_transaction', SELF.defaults.datev_check_on_ap_transaction) %]</td>
+   <td>[% LxERP.t8('Perform check when an ap transaction is posted?') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Check on gl transaction') %]</td>
+   <td>[% L.yes_no_tag('defaults.datev_check_on_gl_transaction', SELF.defaults.datev_check_on_gl_transaction) %]</td>
+   <td>[% LxERP.t8('Perform check when a gl transaction is posted?') %]</td>
+  </tr>
+ </table>
+</div>

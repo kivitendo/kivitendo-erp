@@ -53,6 +53,7 @@ use SL::CVar;
 use SL::DB;
 use SL::DBConnect;
 use SL::DBUtils;
+use SL::DB::Default;
 use SL::DO;
 use SL::IC;
 use SL::IS;
@@ -86,6 +87,17 @@ sub disconnect_standard_dbh {
   undef $standard_dbh;
 }
 
+sub read_version {
+  my ($self) = @_;
+
+  open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
+  my $version =  <VERSION_FILE>;
+  $version    =~ s/[^0-9A-Za-z\.\_\-]//g; # only allow numbers, letters, points, underscores and dashes. Prevents injecting of malicious code.
+  close VERSION_FILE;
+
+  return $version;
+}
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -101,10 +113,7 @@ sub new {
 
   bless $self, $type;
 
-  open VERSION_FILE, "VERSION";                 # New but flexible code reads version from VERSION-file
-  $self->{version} =  <VERSION_FILE>;
-  close VERSION_FILE;
-  $self->{version}  =~ s/[^0-9A-Za-z\.\_\-]//g; # only allow numbers, letters, points, underscores and dashes. Prevents injecting of malicious code.
+  $self->{version} = $self->read_version;
 
   $main::lxdebug->leave_sub();
 
@@ -307,35 +316,13 @@ sub info {
   my ($self, $msg) = @_;
 
   if ($ENV{HTTP_USER_AGENT}) {
-    $msg =~ s/\n/<br>/g;
+    $self->header;
+    print $self->parse_html_template('generic/form_info', { message => $msg });
 
-    if (!$self->{header}) {
-      $self->header;
-      print qq|<body>|;
-    }
-
-    print qq|
-    <p class="message_ok"><b>$msg</b></p>
-
-    <script type="text/javascript">
-    <!--
-    // If JavaScript is enabled, the whole thing will be reloaded.
-    // The reason is: When one changes his menu setup (HTML / CSS ...)
-    // it now loads the correct code into the browser instead of do nothing.
-    setTimeout("top.frames.location.href='login.pl'",500);
-    //-->
-    </script>
-
-</body>
-    |;
-
+  } elsif ($self->{info_function}) {
+    &{ $self->{info_function} }($msg);
   } else {
-
-    if ($self->{info_function}) {
-      &{ $self->{info_function} }($msg);
-    } else {
-      print "$msg\n";
-    }
+    print "$msg\n";
   }
 
   $main::lxdebug->leave_sub();
@@ -991,6 +978,7 @@ sub parse_template {
 
   local (*IN, *OUT);
 
+  my $defaults  = SL::DB::Default->get;
   my $userspath = $::lx_office_conf{paths}->{userspath};
 
   $self->{"cwd"} = getcwd();
@@ -1042,11 +1030,13 @@ sub parse_template {
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
 
   if (!$self->{employee_id}) {
-    map { $self->{"employee_${_}"} = $myconfig->{$_}; } qw(email tel fax name signature company address businessnumber co_ustid taxnumber duns);
+    $self->{"employee_${_}"} = $myconfig->{$_} for qw(email tel fax name signature);
+    $self->{"employee_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
   }
 
-  map { $self->{"${_}"} = $myconfig->{$_}; } qw(co_ustid);
-  map { $self->{"myconfig_${_}"} = $myconfig->{$_} } grep { $_ ne 'dbpasswd' } keys %{ $myconfig };
+  $self->{"myconfig_${_}"} = $myconfig->{$_} for grep { $_ ne 'dbpasswd' } keys %{ $myconfig };
+  $self->{$_}              = $defaults->$_   for qw(co_ustid);
+  $self->{"myconfig_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
@@ -1373,8 +1363,7 @@ sub dbconnect {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh = SL::DBConnect->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, SL::DBConnect->get_options)
-    or $self->dberror;
+  my $dbh = SL::DBConnect->connect or $self->dberror;
 
   # set db options
   if ($myconfig->{dboptions}) {
@@ -1392,8 +1381,7 @@ sub dbconnect_noauto {
   my ($self, $myconfig) = @_;
 
   # connect to database
-  my $dbh = SL::DBConnect->connect($myconfig->{dbconnect}, $myconfig->{dbuser}, $myconfig->{dbpasswd}, SL::DBConnect->get_options(AutoCommit => 0))
-    or $self->dberror;
+  my $dbh = SL::DBConnect->connect(SL::DBConnect->get_connect_args(AutoCommit => 0)) or $self->dberror;
 
   # set db options
   if ($myconfig->{dboptions}) {
@@ -1912,6 +1900,7 @@ sub get_employee_data {
 
   my $self     = shift;
   my %params   = @_;
+  my $defaults = SL::DB::Default->get;
 
   Common::check_params(\%params, qw(prefix));
   Common::check_params_x(\%params, qw(id));
@@ -1928,7 +1917,8 @@ sub get_employee_data {
 
   if ($login) {
     my $user = User->new(login => $login);
-    map { $self->{$params{prefix} . "_${_}"} = $user->{$_}; } qw(address businessnumber co_ustid company duns email fax name signature taxnumber tel);
+    $self->{$params{prefix} . "_${_}"}    = $user->{$_}   for qw(email fax name signature tel);
+    $self->{$params{prefix} . "_${_}"}    = $defaults->$_ for qw(address businessnumber co_ustid company duns taxnumber);
 
     $self->{$params{prefix} . '_login'}   = $login;
     $self->{$params{prefix} . '_name'}  ||= $login;
@@ -3383,17 +3373,24 @@ sub restore_vars {
 sub prepare_for_printing {
   my ($self) = @_;
 
-  $self->{templates} ||= $::myconfig{templates};
+  my $defaults         = SL::DB::Default->get;
+
+  $self->{templates} ||= $defaults->templates;
   $self->{formname}  ||= $self->{type};
   $self->{media}     ||= 'email';
 
   die "'media' other than 'email', 'file', 'printer' is not supported yet" unless $self->{media} =~ m/^(?:email|file|printer)$/;
 
+  # Several fields that used to reside in %::myconfig (stored in
+  # auth.user_config) are now stored in defaults. Copy them over for
+  # compatibility.
+  $self->{$_} = $defaults->$_ for qw(company address taxnumber co_ustid duns sepa_creditor_id);
+
   # set shipto from billto unless set
   my $has_shipto = any { $self->{"shipto$_"} } qw(name street zipcode city country contact);
   if (!$has_shipto && ($self->{type} =~ m/^(?:purchase_order|request_quotation)$/)) {
-    $self->{shiptoname}   = $::myconfig{company};
-    $self->{shiptostreet} = $::myconfig{address};
+    $self->{shiptoname}   = $defaults->company;
+    $self->{shiptostreet} = $defaults->address;
   }
 
   my $language = $self->{language} ? '_' . $self->{language} : '';
@@ -3435,7 +3432,7 @@ sub prepare_for_printing {
   }
 
   my $printer_code    = $self->{printer_code} ? '_' . $self->{printer_code} : '';
-  my $email_extension = -f "$::myconfig{templates}/$self->{formname}_email${language}.${extension}" ? '_email' : '';
+  my $email_extension = -f ($defaults->templates . "/$self->{formname}_email${language}.${extension}") ? '_email' : '';
   $self->{IN}         = "$self->{formname}${email_extension}${language}${printer_code}.${extension}";
 
   # Format dates.

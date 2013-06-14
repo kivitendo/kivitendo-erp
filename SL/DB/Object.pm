@@ -26,7 +26,7 @@ sub new {
 sub init_db {
   my $class_or_self = shift;
   my $class         = ref($class_or_self) || $class_or_self;
-  my $type          = $class =~ m/::Auth/ ? 'LXOFFICE_AUTH' : 'LXOFFICE';
+  my $type          = $class =~ m/::Auth/ ? 'KIVITENDO_AUTH' : 'KIVITENDO';
 
   return SL::DB::create(undef, $type);
 }

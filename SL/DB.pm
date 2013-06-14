@@ -14,7 +14,7 @@ use base qw(Rose::DB);
 __PACKAGE__->db_cache_class('Rose::DBx::Cache::Anywhere');
 __PACKAGE__->use_private_registry;
 
-my (%_db_registered, %_initial_sql_executed);
+my (%_db_registered);
 
 sub dbi_connect {
   shift;
@@ -30,61 +30,60 @@ sub create {
 
   my $db = __PACKAGE__->new_or_cached(domain => $domain, type => $type);
 
-  _execute_initial_sql($db);
-
   return $db;
 }
-
-my %_dateformats = ( 'yy-mm-dd'   => 'ISO',
-                     'yyyy-mm-dd' => 'ISO',
-                     'mm/dd/yy'   => 'SQL, US',
-                     'dd/mm/yy'   => 'SQL, EUROPEAN',
-                     'dd.mm.yy'   => 'GERMAN'
-                   );
 
 sub _register_db {
   my $domain = shift;
   my $type   = shift;
 
-  my %connect_settings;
-  my $initial_sql;
+  my %specific_connect_settings;
+  my %common_connect_settings = (
+    driver           => 'Pg',
+    european_dates   => ((SL::DBConnect->get_datestyle || '') =~ m/european/i) ? 1 : 0,
+    connect_options  => {
+      pg_enable_utf8 => $::locale && $::locale->is_utf8,
+    },
+  );
 
-  if (!%::myconfig) {
-    $type = 'LXOFFICE_EMPTY';
-    %connect_settings = ( driver => 'Pg' );
+  if (($type eq 'KIVITENDO_AUTH') && $::auth && $::auth->{DB_config} && $::auth->session_tables_present) {
+    %specific_connect_settings = (
+      database        => $::auth->{DB_config}->{db},
+      host            => $::auth->{DB_config}->{host} || 'localhost',
+      port            => $::auth->{DB_config}->{port} || 5432,
+      username        => $::auth->{DB_config}->{user},
+      password        => $::auth->{DB_config}->{password},
+    );
 
-  } elsif ($type eq 'LXOFFICE_AUTH') {
-    %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
-                          database        => $::auth->{DB_config}->{db},
-                          host            => $::auth->{DB_config}->{host} || 'localhost',
-                          port            => $::auth->{DB_config}->{port} || 5432,
-                          username        => $::auth->{DB_config}->{user},
-                          password        => $::auth->{DB_config}->{password},
-                          connect_options => { pg_enable_utf8 => $::locale && $::locale->is_utf8,
-                                             });
+  } elsif ($::auth && $::auth->client) {
+    my $client        = $::auth->client;
+    %specific_connect_settings = (
+      database        => $client->{dbname},
+      host            => $client->{dbhost} || 'localhost',
+      port            => $client->{dbport} || 5432,
+      username        => $client->{dbuser},
+      password        => $client->{dbpasswd},
+    );
+
+  } elsif (%::myconfig && $::myconfig{dbname}) {
+    %specific_connect_settings = (
+      database        => $::myconfig{dbname},
+      host            => $::myconfig{dbhost} || 'localhost',
+      port            => $::myconfig{dbport} || 5432,
+      username        => $::myconfig{dbuser},
+      password        => $::myconfig{dbpasswd},
+    );
+
   } else {
-    my $european_dates = 0;
-    if ($::myconfig{dateformat}) {
-      $european_dates = 1 if $_dateformats{ $::myconfig{dateformat} }
-                          && $_dateformats{ $::myconfig{dateformat} } =~ m/european/i;
-    }
-
-    %connect_settings = ( driver          => $::myconfig{dbdriver} || 'Pg',
-                          database        => $::myconfig{dbname},
-                          host            => $::myconfig{dbhost} || 'localhost',
-                          port            => $::myconfig{dbport} || 5432,
-                          username        => $::myconfig{dbuser},
-                          password        => $::myconfig{dbpasswd},
-                          connect_options => { pg_enable_utf8 => $::locale && $::locale->is_utf8,
-                                             },
-                          european_dates  => $european_dates);
+    $type = 'KIVITENDO_EMPTY';
   }
 
+  my %connect_settings   = (%common_connect_settings, %specific_connect_settings);
   my %flattened_settings = _flatten_settings(%connect_settings);
 
-  $domain = 'LXOFFICE' if $type =~ m/^LXOFFICE/;
-  $type  .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_} || '') } sort keys %flattened_settings);
-  my $idx = "${domain}::${type}";
+  $domain                = 'KIVITENDO' if $type =~ m/^KIVITENDO/;
+  $type                 .= join($SUBSCRIPT_SEPARATOR, map { ($_, $flattened_settings{$_} || '') } sort grep { $_ ne 'dbpasswd' } keys %flattened_settings);
+  my $idx                = "${domain}::${type}";
 
   if (!$_db_registered{$idx}) {
     $_db_registered{$idx} = 1;
@@ -96,19 +95,6 @@ sub _register_db {
   }
 
   return ($domain, $type);
-}
-
-sub _execute_initial_sql {
-  my ($db) = @_;
-
-  return if $_initial_sql_executed{$db} || !%::myconfig || !$::myconfig{dateformat};
-
-  $_initial_sql_executed{$db} = 1;
-
-  # Don't rely on dboptions being set properly. Chose them from
-  # dateformat instead.
-  my $pg_dateformat = $_dateformats{ $::myconfig{dateformat} };
-  $db->dbh->do("set DateStyle to '${pg_dateformat}'") if $pg_dateformat;
 }
 
 sub _flatten_settings {

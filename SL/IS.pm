@@ -114,8 +114,6 @@ sub invoice_details {
   my $i;
   my @partsgroup = ();
   my $partsgroup;
-  my %oid = ('Pg'     => 'oid',
-             'Oracle' => 'rowid');
 
   # sort items by partsgroup
   for $i (1 .. $form->{rowcount}) {
@@ -336,9 +334,9 @@ sub invoice_details {
         my $sortorder = "";
         if ($form->{groupitems}) {
           $sortorder =
-            qq|ORDER BY pg.partsgroup, a.$oid{$myconfig->{dbdriver}}|;
+            qq|ORDER BY pg.partsgroup, a.oid|;
         } else {
-          $sortorder = qq|ORDER BY a.$oid{$myconfig->{dbdriver}}|;
+          $sortorder = qq|ORDER BY a.oid|;
         }
 
         $query =

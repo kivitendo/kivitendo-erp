@@ -70,6 +70,13 @@ __PACKAGE__->meta->setup(
     assemblynumber                          => { type => 'text' },
     warehouse_id                            => { type => 'integer' },
     bin_id                                  => { type => 'integer' },
+    company                                 => { type => 'text' },
+    address                                 => { type => 'text' },
+    taxnumber                               => { type => 'text' },
+    co_ustid                                => { type => 'text' },
+    duns                                    => { type => 'text' },
+    sepa_creditor_id                        => { type => 'text' },
+    templates                               => { type => 'text' },
     show_weight                             => { type => 'boolean', default => 'false', not_null => 1 },
     transfer_default                        => { type => 'boolean', default => 'true' },
     transfer_default_use_master_default_bin => { type => 'boolean', default => 'false' },
@@ -82,6 +89,7 @@ __PACKAGE__->meta->setup(
   primary_key_columns => [ 'id' ],
 
   allow_inline_column_values => 1,
+
   foreign_keys => [
     bin => {
       class       => 'SL::DB::Bin',

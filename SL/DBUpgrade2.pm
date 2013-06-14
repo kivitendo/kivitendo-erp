@@ -27,7 +27,7 @@ sub init {
 
   $params{path_suffix} ||= '';
   $params{schema}      ||= '';
-  $params{path}          = "sql/" . $params{dbdriver} . "-upgrade2" . $params{path_suffix};
+  $params{path}          = "sql/Pg-upgrade2" . $params{path_suffix};
 
   map { $self->{$_} = $params{$_} } keys %params;
 
@@ -235,15 +235,15 @@ sub process_query {
 
 # Process a Perl script which updates the database.
 # If the script returns 1 then the update was successful.
-# Return code "2" means "needs more interaction; remove
-# users/nologin and end current request".
+# Return code "2" means "needs more interaction; unlock
+# the system and end current request".
 # All other return codes are fatal errors.
 sub process_perl_script {
   $::lxdebug->enter_sub();
 
   my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
 
-  my %form_values = map { $_ => $::form->{$_} } qw(dbconnect dbdefault dbdriver dbhost dbmbkiviunstable dbname dboptions dbpasswd dbport dbupdate dbuser login template_object version);
+  my %form_values = map { $_ => $::form->{$_} } qw(dbconnect dbdefault dbhost dbmbkiviunstable dbname dboptions dbpasswd dbport dbupdate dbuser login template_object version);
 
   $dbh->begin_work;
 
@@ -266,7 +266,7 @@ sub process_perl_script {
     print $::form->parse_html_template("dbupgrade/error", { file  => $filename, error => $error });
     ::end_of_request();
   } elsif (1 != $result) {
-    unlink("users/nologin") if (2 == $result);
+    SL::System::InstallationLock->unlock if 2 == $result;
     ::end_of_request();
   }
 
@@ -302,9 +302,8 @@ sub update_available {
 
   local *SQLDIR;
 
-  my $dbdriver = $self->{dbdriver};
-  opendir SQLDIR, "sql/${dbdriver}-upgrade" || error("", "sql/${dbdriver}-upgrade: $!");
-  my @upgradescripts = grep /${dbdriver}-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
+  opendir SQLDIR, "sql/Pg-upgrade" || error("", "sql/Pg-upgrade: $!");
+  my @upgradescripts = grep /Pg-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
   closedir SQLDIR;
 
   return ($#upgradescripts > -1);
@@ -374,7 +373,7 @@ sub apply_admin_dbupgrade_scripts {
     $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
     print $self->{form}->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-    $self->process_file($dbh, "sql/$self->{dbdriver}-upgrade2-auth/$control->{file}", $control, $db_charset);
+    $self->process_file($dbh, "sql/Pg-upgrade2-auth/$control->{file}", $control, $db_charset);
   }
 
   print $self->{form}->parse_html_template("dbupgrade/footer", { is_admin => 1 }) if $called_from_admin;
@@ -461,7 +460,6 @@ C<SQL/Pg-upgrade>)
   # Apply outstanding updates to the authentication database
   my $scripts = SL::DBUpgrade2->new(
     form     => $::form,
-    dbdriver => 'Pg',
     auth     => 1
   );
   $scripts->apply_admin_dbupgrade_scripts(1);
@@ -469,10 +467,11 @@ C<SQL/Pg-upgrade>)
   # Apply updates to a user database
   my $scripts = SL::DBUpgrade2->new(
     form     => $::form,
-    dbdriver => $::form->{dbdriver},
     auth     => 1
   );
-  User->dbupdate2($form, $scripts->parse_dbupdate_controls);
+  User->dbupdate2(form     => $form,
+                  updater  => $scripts->parse_dbupdate_controls,
+                  database => $dbname);
 
 =head1 OVERVIEW
 
@@ -603,11 +602,6 @@ Path to the upgrade files to parse. Required.
 
 C<SL::Form> object to use. Required.
 
-=item dbdriver
-
-Name of the database driver. Currently only C<Pg> for PostgreSQL is
-supported.
-
 =item auth
 
 Optional parameter defaulting to 0. If trueish then the scripts read
@@ -646,7 +640,7 @@ charset recoding of the script if required, C<$db_charset>).
 Perl scripts are executed via L<eval>. If L<eval> returns falsish then
 an error is expected. There are two special return values: If the
 script returns C<1> then the update was successful. Return code C<2>
-means "needs more interaction from the user; remove users/nologin and
+means "needs more interaction from the user; unlock the system and
 end current upgrade process". All other return codes are fatal errors.
 
 Inside the Perl script several local variables exist that can be used:

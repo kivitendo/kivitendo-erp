@@ -59,16 +59,18 @@ sub interface_type {
   return $self->{interface} eq 'cgi' ? 'CGI' : 'FastCGI';
 }
 
+sub is_admin_request {
+  my %params = @_;
+  return ($params{script} eq 'admin.pl') || (($params{routing_type} eq 'controller') && ($params{script_name} eq 'Admin'));
+}
+
 sub pre_request_checks {
+  my (%params) = @_;
+
   _check_for_old_config_files();
 
-  if (!$::auth->session_tables_present) {
-    if ($::form->{script} eq 'admin.pl') {
-      ::run();
-      ::end_of_request();
-    } else {
-      show_error('login_screen/auth_db_unreachable');
-    }
+  if (!$::auth->session_tables_present && !is_admin_request(%params)) {
+    show_error('login_screen/auth_db_unreachable');
   }
 
   if ($::request->type !~ m/^ (?: html | js | json ) $/x) {
@@ -231,9 +233,12 @@ sub handle_request {
   }
 
   eval {
-    pre_request_checks();
+    pre_request_checks(script => $script, action => $action, routing_type => $routing_type, script_name => $script_name);
 
-    $::form->error($::locale->text('System currently down for maintenance!')) if -e ($::lx_office_conf{paths}->{userspath} . "/nologin") && $script ne 'admin';
+    if (   SL::System::InstallationLock->is_locked
+        && !is_admin_request(script => $script, script_name => $script_name, routing_type => $routing_type)) {
+      $::form->error($::locale->text('System currently down for maintenance!'));
+    }
 
     # For compatibility with a lot of database upgrade scripts etc:
     # Re-write request to old 'login.pl?action=login' to new
@@ -247,14 +252,10 @@ sub handle_request {
       print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login');
 
     } elsif ($script eq 'admin') {
-      $::form->{titlebar} = "kivitendo " . $::locale->text('Version') . " $::form->{version}";
       ::run($session_result);
 
     } else {
-      if (SL::Auth::SESSION_EXPIRED == $session_result) {
-        print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login&error=session');
-        ::end_of_request();
-      }
+      $self->redirect_to_login($script) if SL::Auth::SESSION_EXPIRED == $session_result;
 
       my %auth_result = $self->{auth_handler}->handle(
         routing_type => $routing_type,
@@ -318,6 +319,13 @@ sub handle_request {
   $self->_watch_for_changed_files;
 
   $::lxdebug->leave_sub;
+}
+
+sub redirect_to_login {
+  my ($self, $script) = @_;
+  my $action          = $script =~ m/^admin/i ? 'Admin/login' : 'LoginScreen/user_login&error=session';
+  print $::request->cgi->redirect("controller.pl?action=${action}");
+  ::end_of_request();
 }
 
 sub unrequire_bin_mozilla {

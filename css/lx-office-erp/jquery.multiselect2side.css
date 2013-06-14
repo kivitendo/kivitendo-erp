@@ -1,3 +1,4 @@
+/* multiselect2side plugin */
 .ms2side__div {
 	clear: left;
 	width: 100%;
@@ -51,6 +52,6 @@
 }
 
 .ms2side__div select {
-	width: 220px;
+	width: 400px;
 	float: left;
 }

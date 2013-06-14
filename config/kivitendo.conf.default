@@ -166,7 +166,11 @@ openofficeorg_daemon = 1
 openofficeorg_daemon_port = 2002
 
 [task_server]
-# User name to use for database access
+# kivitendo client (either its name or its database ID) for database
+# access (both 'client' and 'login' are required)
+client =
+# kivitendo user (login) name to use for certain jobs (both 'client'
+# and 'login' are required)
 login =
 # Set to 1 for debug messages in /tmp/kivitendo-debug.log
 debug = 0
@@ -208,7 +212,10 @@ email_subject  = kivitendo self test report
 email_template = templates/mail/self_test/status_mail.txt
 
 [console]
-# autologin to use if none is given
+# Automatic login will only work if both "client" and "login" are
+# given.  "client" can be a client's database ID or its name. "login"
+# is simply a user's login name.
+client =
 login =
 
 # autorun lines will be executed after autologin.
@@ -226,9 +233,19 @@ history_file = users/console_history
 log_file = /tmp/kivitendo_console_debug.log
 
 [testing]
+# Automatic login will only work if both "client" and "login" are
+# given.  "client" can be a client's database ID or its name. "login"
+# is simply a user's login name.
+client =
+login =
 
-# autologin to use if none is given
-login = myxplace_standard
+[devel]
+# Several settings related to the development of kivitendo.
+
+# "client" is used by several scripts (e.g. rose_auto_create_model.pl)
+# when they need access to the database. It can be either a client's
+# database ID or its name.
+client =
 
 [debug]
 # Use DBIx::Log4perl for logging DBI calls. The string LXDEBUGFILE

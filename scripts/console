@@ -19,6 +19,7 @@ use Term::ReadLine::Perl::Bind;     # use sane key binding for rxvt users
 use SL::LxOfficeConf;
 SL::LxOfficeConf->read;
 
+my $client       = $::lx_office_conf{console}{client};
 my $login        = $::lx_office_conf{console}{login}        || 'demo';
 my $history_file = $::lx_office_conf{console}{history_file} || '/tmp/kivitendo_console_history.log'; # fallback if users is not writable
 my $debug_file   = $::lx_office_conf{console}{log_file}     || '/tmp/kivitendo_console_debug.log';
@@ -27,6 +28,7 @@ my ($execute_code, $execute_file, $help, $man);
 
 my $result = GetOptions(
   "login|l=s"        => \$login,
+  "client|c=s"       => \$client,
   "history-file|i=s" => \$history_file,
   "log-file|o=s"     => \$debug_file,
   "execute|e=s"      => \$execute_code,
@@ -61,8 +63,8 @@ my $repl = Devel::REPL->new;
 $repl->load_plugin($_) for @plugins;
 $repl->load_history($history_file);
 $repl->eval('help');
-$repl->print("trying to auto login as '$login'...");
-$repl->print($repl->eval("lxinit '$login'"));
+$repl->print("trying to auto login into client '$client' with login '$login'...\n");
+execute_code($repl, "lxinit '$client', '$login'");
 
 my @code_to_execute = grep { $_ } ($autorun, $execute_code, $execute_file ? join('', read_file($execute_file)) : undef);
 execute_code($repl, $_) || exit 1 for @code_to_execute;
@@ -89,9 +91,9 @@ use List::Util qw(max);
 # it is assumed that anyone with physical access and execution rights on this script
 # won't be hindered by authentication anyway.
 sub lxinit {
-  my $login = shift;
+  my ($client, $login) = @_;
 
-  die 'need login' unless $login;
+  die 'need client and login' unless $client && $login;
 
   package main;
 
@@ -99,6 +101,8 @@ sub lxinit {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::auth          = SL::Auth->new;
+  die "Cannot find client with ID or name '$client'" if !$::auth->set_client($client);
+
   $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = SL::Request->new(
     cgi    => CGI->new({}),

@@ -1,13 +1,8 @@
 [%- USE T8 %]
 [%- USE LxERP %]
-[%- USE HTML %]
+[%- USE HTML %][%- USE L -%]
   <h1>[% title %]</h1>
 
-  <form method="post" action="admin.pl">
+  <p>[% LxERP.t8('The database #1 has been successfully deleted.', db) | html %]</p>
 
-   <p>[% LxERP.t8('The database #1 has been successfully deleted.', db) | html %]</p>
-
-   <input type="hidden" name="nextsub" value="list_users">
-
-   <p><input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]"></p>
-  </form>
+  <p>[% L.link("controller.pl?action=Admin/show", LxERP.t8("Continue")) %]</p>

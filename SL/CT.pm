@@ -42,6 +42,7 @@ use Data::Dumper;
 use SL::Common;
 use SL::CVar;
 use SL::DBUtils;
+use SL::DB::Default;
 use SL::FU;
 use SL::Notes;
 use SL::TransNumber;
@@ -1080,6 +1081,10 @@ sub parse_excel_file {
   my ($self, $myconfig, $form) = @_;
   my $locale = $main::locale;
 
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $form->{templates} = $defaults->templates;
+
   $form->{formname}   = 'sales_quotation';
   $form->{type}   = 'sales_quotation';
   $form->{format} = 'excel';
@@ -1121,8 +1126,6 @@ sub parse_excel_file {
   }
 
   $form->{notes} =~ s/^\s+//g;
-
-  $form->{templates} = $myconfig->{templates};
 
   delete $form->{printer_command};
 

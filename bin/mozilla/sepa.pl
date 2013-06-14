@@ -452,13 +452,14 @@ sub bank_transfer_download_sepa_xml {
   my $locale   =  $main::locale;
   my $cgi      =  $::request->{cgi};
   my $vc       = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
+  my $defaults = SL::DB::Default->get;
 
-  if (!$myconfig->{company}) {
-    $form->show_generic_error($locale->text('You have to enter a company name in your user preferences (see the "Program" menu, "Preferences").'), 'back_button' => 1);
+  if (!$defaults->company) {
+    $form->show_generic_error($locale->text('You have to enter a company name in the client configuration.'), 'back_button' => 1);
   }
 
-  if (($vc eq 'customer') && !$myconfig->{sepa_creditor_id}) {
-    $form->show_generic_error($locale->text('You have to enter the SEPA creditor ID in your user preferences (see the "Program" menu, "Preferences").'), 'back_button' => 1);
+  if (($vc eq 'customer') && !$defaults->sepa_creditor_id) {
+    $form->show_generic_error($locale->text('You have to enter the SEPA creditor ID in the client configuration.'), 'back_button' => 1);
   }
 
   my @ids;
@@ -486,8 +487,8 @@ sub bank_transfer_download_sepa_xml {
 
   my $message_id = strftime('MSG%Y%m%d%H%M%S', localtime) . sprintf('%06d', $$);
 
-  my $sepa_xml   = SL::SEPA::XML->new('company'     => $myconfig->{company},
-                                      'creditor_id' => $myconfig->{sepa_creditor_id},
+  my $sepa_xml   = SL::SEPA::XML->new('company'     => $defaults->company,
+                                      'creditor_id' => $defaults->sepa_creditor_id,
                                       'src_charset' => $::lx_office_conf{system}->{dbcharset} || 'ISO-8859-15',
                                       'message_id'  => $message_id,
                                       'grouped'     => 1,

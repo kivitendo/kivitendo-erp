@@ -1,58 +1,114 @@
-[% USE T8 %][% USE HTML %][% USE L %][% USE LxERP -%]
- [% L.javascript_tag('jquery.selectboxes', 'jquery.multiselect2side') %]
+[%- USE HTML %]
+[%- USE L %][%- USE LxERP -%]
 
-<h1>[% 'Edit group ' | $T8 %]:  [% HTML.escape(name) %]</h1>
+[%- INCLUDE 'common/flash.html' %]
 
- <form name="Form" method="post" action="admin.pl">
-  [% IF message %]
-  <p class="message_ok">[% message %]</p>
-  [% END %]
+<h1>[% HTML.escape(title) %]</h1>
 
-  <p><a href="admin.pl?action=edit_groups">[% 'Back' | $T8 %]</a></p>
+<p>[% L.link(SELF.url_for(action="show"), LxERP.t8("Back")) %]</p>
 
-   <hr>
+<form method="post" action="controller.pl" id="form">
+ [% L.hidden_tag("group.id", SELF.group.id) %]
+ [% L.hidden_tag("action", "") %]
 
-  <h3 class="listheading">[%- LxERP.t8('Edit membership') %]</h3>
+ <h2>[%- LxERP.t8("Settings") %]</h2>
+
+ <table>
+  <tr>
+   <th align="right">[% LxERP.t8('Name') %]</th>
+   <td>[% L.input_tag("group.name", SELF.group.name) %]</td>
+  </tr>
+
+  <tr>
+   <th align="right">[% LxERP.t8('Description') %]</th>
+   <td>[% L.input_tag("group.description", SELF.group.description) %]</td>
+  </tr>
+ </table>
+
+ <h2>[% LxERP.t8("Access rights") %]</h2>
+
+ [% SET granted_rights = SELF.group.rights_map %]
+
+ [%- FOREACH section = SELF.all_rights %]
+  [% SET section_number = loop.count %]
+  [% SET num_checked = 0 %]
+  [% FOREACH right = section.rights %][% SET name = right.name %][% IF granted_rights.$name %][% SET num_checked = num_checked + 1 %][% END %][% END %]
+  <h3>[% L.checkbox_tag('dummy' _ section_number, label=LxERP.t8('Section "#1"', section.description), checkall='[data-checkallgroup=' _ section_number _ ']', checked=(num_checked == section.rights.size)) %]</h3>
 
   <div class="clearfix">
-   [% L.select_tag('user_ids[]', ALL_USERS, id='user_ids', value_key = 'id', title_key = 'login', default = USER_IDS_IN_GROUP, multiple = 1) %]
+   [% FOREACH right = section.rights %]
+    [% SET name = right.name %]
+    [% L.checkbox_tag("group.rights_map." _ name, label=right.description, checked=granted_rights.$name, 'data-checkallgroup'=section_number) %]
+    <br>
+   [%- END %]
   </div>
+ [%- END %]
 
-  <h3 class="listheading">[% 'Edit rights' | $T8 %]</h3>
+ <h2>[%- LxERP.t8("Group membership") %]</h2>
 
-  <p>
-   [% FOREACH right = RIGHTS %]
-    [% IF right.is_section %]
-     <i>[% right.description %]</i><br>
-    [% ELSE %]
-     <input type="checkbox" name="[% HTML.escape(right.right) %]_granted" id="[% HTML.escape(right.right) %]_granted" [% IF right.granted %]checked[% END %]>
-     <label for="[% HTML.escape(right.right) %]_granted">[% IF right.description %][% right.description %][% ELSE %]<i>[% HTML.escape(right.right) %]</i>[% END %]</label>
-     <br>
-    [% END %]
-   [% END %]
-  </p>
+[% IF SELF.all_users.size %]
+ <p>
+  [%- LxERP.t8("The following users are a member of this group") %]:
+ </p>
 
-  <h3 class="listheading">[% LxERP.t8('Rename the group') %]</h3>
+ <div class="clearfix">
+  [% L.select_tag("group.users[]", SELF.all_users, id="group_users", title_key="login", default=SELF.group.users, default_value_key='id', multiple=1) %]
+  [% L.multiselect2side("group_users", labelsx => LxERP.t8("All users"), labeldx => LxERP.t8("Users that are a member in this group")) %]
+ </div>
 
-  <table>
-   <tr>
-    <td>[% 'Name' | $T8 %]:</td>
-    <td><input name="name" maxlength="50" value="[% HTML.escape(name) %]"></td>
-   </tr>
+[%- ELSE %]
+ <p>
+  [% LxERP.t8("No users have been created yet.") %]
+ </p>
+[%- END %]
 
-   <tr>
-    <td>[% 'Description' | $T8 %]:</td>
-    <td><input name="description" value="[% HTML.escape(description) %]"></td>
-   </tr>
-  </table>
+ <h2>[%- LxERP.t8("Group assignment") %]</h2>
 
-  <p>
-   <input type="hidden" name="group_id" value="[% HTML.escape(group_id) %]">
-   <input type="hidden" name="action" value="save_group">
-   <input type="submit" class="submit" value="[% 'Save' | $T8 %]">
-   &nbsp;
-   <a href="admin.pl?action=edit_groups">[% 'Back' | $T8 %]</a>
-  </p>
- </form>
+[% IF SELF.all_clients.size %]
+ <p>
+  [%- LxERP.t8("This group is valid for the following clients") %]:
+ </p>
 
- [% L.multiselect2side('user_ids', labelsx => LxERP.t8('All users'), labeldx => LxERP.t8('Users in this group')) %]
+ <div class="clearfix">
+  [% L.select_tag("group.clients[]", SELF.all_clients, id="group_clients", title_key="name", default=SELF.group.clients, default_value_key='id', multiple=1) %]
+  [% L.multiselect2side("group_clients", labelsx => LxERP.t8("All clients"), labeldx => LxERP.t8("Clients this Group is valid for")) %]
+ </div>
+
+[%- ELSE %]
+ <p>
+  [% LxERP.t8("No clients have been created yet.") %]
+ </p>
+[%- END %]
+
+<hr size="3" noshade>
+
+<p>
+ [% L.link(SELF.url_for(action="show"), LxERP.t8("Back")) %]
+
+ [% L.button_tag("submit_with_action('save_group')", LxERP.t8("Save")) %]
+ [% IF SELF.group.id %]
+  [% L.button_tag("save_as_new()", LxERP.t8("Save as new")) %]
+  [% L.button_tag("submit_with_action('delete_group')", LxERP.t8("Delete"), confirm=LxERP.t8("Are you sure?")) %]
+ [%- END %]
+</p>
+
+</form>
+
+<script type="text/javascript">
+ <!--
+  function submit_with_action(action) {
+    $("#action").val("Admin/" + action);
+    $("#form").submit();
+  }
+
+  function save_as_new() {
+    var new_group_name = prompt("[% LxERP.t8("Please enter the name for the new group.") %]", "");
+    if (!new_group_name)
+      return;
+
+    $("#group_name").val(new_group_name);
+    $("#group_id").val("");
+    submit_with_action("save_group");
+  }
+   -->
+</script>

@@ -1,9 +1,11 @@
 [%- USE T8 %]
-[%- USE HTML %]
+[%- USE HTML %][%- USE L -%][%- USE LxERP -%]
 
  <h1>[% title %]</h1>
 
- <form method="post" action="admin.pl">
+ <form method="post" action="controller.pl">
+  [%- L.hidden_tag("action", 'Admin/create_auth_db') %]
+  [%- L.hidden_tag("{AUTH}admin_password", LXCONFIG.authentication.admin_password) %]
 
   <p>
    [% 'The database for user management and authentication does not exist. You can create let kivitendo create it with the following parameters:' | $T8 %]
@@ -12,19 +14,19 @@
   <table border="0">
    <tr>
     <td>[% 'Host' | $T8 %]:</td>
-    <td>[% HTML.escape(db_host) %]</td>
+    <td>[% HTML.escape(SELF.db_cfg.host) %]</td>
    </tr>
    <tr>
     <td>[% 'Port' | $T8 %]:</td>
-    <td>[% HTML.escape(db_port) %]</td>
+    <td>[% HTML.escape(SELF.db_cfg.port) %]</td>
    </tr>
    <tr>
     <td>[% 'User name' | $T8 %]:</td>
-    <td>[% HTML.escape(db_user) %]</td>
+    <td>[% HTML.escape(SELF.db_cfg.user) %]</td>
    </tr>
    <tr>
     <td>[% 'Database name' | $T8 %]:</td>
-    <td>[% HTML.escape(db_db) %]</td>
+    <td>[% HTML.escape(SELF.db_cfg.db) %]</td>
    </tr>
   </table>
 
@@ -38,22 +40,18 @@
    [% 'If the database user listed above does not have the right to create a database then enter the name and password of the superuser below:' | $T8 %]
   </p>
 
-  <table border="0"
+  <table border="0">
    <tr>
     <td>[% 'Superuser name' | $T8 %]:</td>
-    <td><input name="db_superuser"></td>
+    <td>[% L.input_tag('db_superuser', '') %]</td>
    </tr>
 
    <tr>
     <td>[% 'Password' | $T8 %]:</td>
-    <td><input type="password" name="db_superuser_password"></td>
+    <td>[% L.input_tag('db_superuser_password', '', type='password') %]</td>
    </tr>
   </table>
 
-  <input type="hidden" name="{AUTH}admin_password" value="[% HTML.escape(admin_password) %]">
-  <input type="hidden" name="action" value="create_auth_db">
-
-  <input type="submit" class="submit" value="[% 'Create Dataset' | $T8 %]">
-  <input type="button" class="submit" onclick="history.back()" value="[% 'Back' | $T8 %]">
-
+  [% L.submit_tag("dummy", LxERP.t8("Create Dataset")) %]
+  [% L.button_tag("history.back()", LxERP.t8("Back")) %]
  </form>

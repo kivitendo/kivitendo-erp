@@ -47,6 +47,7 @@ use SL::CT;
 use SL::IC;
 use SL::IO;
 
+use SL::DB::Default;
 use SL::DB::Language;
 use SL::DB::Printer;
 use SL::Helper::Flash;
@@ -1224,6 +1225,10 @@ sub print_form {
 
   _check_io_auth();
 
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $form->{templates} = $defaults->templates;
+
   my ($old_form) = @_;
 
   my $inv       = "inv";
@@ -1438,16 +1443,14 @@ sub print_form {
   if ($shipto) {
     if (   $form->{formname} eq 'purchase_order'
         || $form->{formname} eq 'request_quotation') {
-      $form->{shiptoname}   = $myconfig{company};
-      $form->{shiptostreet} = $myconfig{address};
+      $form->{shiptoname}   = $defaults->company;
+      $form->{shiptostreet} = $defaults->address;
     } else {
       map { $form->{"shipto$_"} = $form->{$_} } @a;
     }
   }
 
   $form->{notes} =~ s/^\s+//g;
-
-  $form->{templates} = "$myconfig{templates}";
 
   delete $form->{printer_command};
 
@@ -1528,7 +1531,7 @@ sub print_form {
   push @template_files, "$form->{formname}.$extension";
   push @template_files, "default.$extension";
   @template_files = uniq @template_files;
-  $form->{IN}     = first { -f "$myconfig{templates}/$_" } @template_files;
+  $form->{IN}     = first { -f ($defaults->templates . "/$_") } @template_files;
 
   if (!defined $form->{IN}) {
     $::form->error($::locale->text('Cannot find matching template for this print request. Please contact your template maintainer. I tried these: #1.', join ', ', map { "'$_'"} @template_files));

@@ -4,10 +4,22 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use List::Util qw(first);
+
 use SL::Dispatcher::AuthHandler::User;
+use SL::DB::AuthClient;
+use SL::DB::AuthGroup;
+use SL::DB::AuthUser;
+use SL::DB::Employee;
+use SL::Locale::String qw(t8);
 use SL::User;
 
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(clients default_client_id) ],
+);
+
 __PACKAGE__->run_before('set_layout');
+
 #
 # actions
 #
@@ -20,7 +32,7 @@ sub action_user_login {
   return if $self->_redirect_to_main_script_if_already_logged_in;
 
   # Otherwise show the login form.
-  $self->render('login_screen/user_login', error => error_state($::form->{error}));
+  $self->show_login_form(error => error_state($::form->{error}));
 }
 
 sub action_logout {
@@ -28,22 +40,30 @@ sub action_logout {
 
   $::auth->destroy_session;
   $::auth->create_or_refresh_session;
-  $self->render('login_screen/user_login', error => $::locale->text('You are logged out!'));
+  $self->show_login_form(info => $::locale->text('You are logged out!'));
 }
 
 sub action_login {
   my ($self) = @_;
 
-  my $login        = $::form->{'{AUTH}login'} || $::auth->get_session_value('login');
+  my $login     = $::form->{'{AUTH}login'}     || $::auth->get_session_value('login');
+  my $client_id = $::form->{'{AUTH}client_id'} || $::auth->get_session_value('client_id');
+  my $error     = t8('Incorrect username or password or no access to selected client!');
+
+  if (!$::auth->set_client($client_id)) {
+    $::auth->punish_wrong_login;
+    return $self->show_login_form(error => $error);
+  }
+
   %::myconfig      = $login ? $::auth->read_user(login => $login) : ();
-  SL::Dispatcher::AuthHandler::User->new->handle(countrycode => $::myconfig{countrycode});
-  $::form->{login} = $::myconfig{login};
+  $::form->{login} = $login;
   $::locale        = Locale->new($::myconfig{countrycode}) if $::myconfig{countrycode};
-  my $user         = User->new(login => $::myconfig{login});
-  $::request->{layout} = SL::Layout::Dispatcher->new(style => $user->{menustyle});
+  SL::Dispatcher::AuthHandler::User->new->handle(countrycode => $::myconfig{countrycode});
+
+  $::request->layout(SL::Layout::Dispatcher->new(style => $::myconfig{menustyle}));
 
   # if we get an error back, bale out
-  my $result = $user->login($::form);
+  my $result = User->new(login => $::myconfig{login})->login($::form);
 
   # Database update available?
   ::end_of_request() if -2 == $result;
@@ -57,13 +77,13 @@ sub action_login {
   # Other login errors.
   if (0 > $result) {
     $::auth->punish_wrong_login;
-    return $self->render('login_screen/user_login', error => $::locale->text('Incorrect username or password!'));
+    return $self->show_login_form(error => $error);
   }
 
   # Everything is fine.
   $::auth->set_cookie_environment_variable();
 
-  $self->_redirect_to_main_script($user);
+  $self->_redirect_to_main_script;
 }
 
 #
@@ -82,7 +102,9 @@ sub keep_auth_vars_in_form {
 #
 
 sub _redirect_to_main_script {
-  my ($self, $user) = @_;
+  my ($self) = @_;
+
+  $self->_ensure_employees_for_authorized_users_exist;
 
   return $self->redirect_to($::form->{callback}) if $::form->{callback};
 
@@ -111,15 +133,49 @@ sub _redirect_to_main_script_if_already_logged_in {
   return 1;
 }
 
+sub _ensure_employees_for_authorized_users_exist {
+  my ($self) = @_;
+
+  my %employees_by_login = map { ($_->login => $_) } @{ SL::DB::Manager::Employee->get_all };
+
+  foreach my $user (@{ SL::DB::AuthClient->new(id => $::auth->client->{id})->load->users || [] }) {
+    my $user_config = $user->config_values;
+    my $employee    = $employees_by_login{$user->login} || SL::DB::Employee->new(login => $user->login);
+
+    $employee->update_attributes(
+      name      => $user_config->{name},
+      workphone => $user_config->{tel},
+      deleted   => 0,
+    );
+  }
+}
+
 sub error_state {
   return {
     session  => $::locale->text('The session is invalid or has expired.'),
-    password => $::locale->text('Incorrect password!'),
+    password => $::locale->text('Incorrect username or password or no access to selected client!'),
   }->{$_[0]};
 }
 
 sub set_layout {
   $::request->{layout} = SL::Layout::Dispatcher->new(style => 'login');
+}
+
+sub init_clients {
+  return SL::DB::Manager::AuthClient->get_all_sorted;
+}
+
+sub init_default_client_id {
+  my ($self)         = @_;
+  my $default_client = first { $_->is_default } @{ $self->clients };
+  return $default_client ? $default_client->id : undef;
+}
+
+sub show_login_form {
+  my ($self, %params) = @_;
+
+  $::request->layout->focus('#auth_login');
+  $self->render('login_screen/user_login', %params);
 }
 
 1;

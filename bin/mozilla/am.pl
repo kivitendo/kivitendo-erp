@@ -42,7 +42,7 @@ use SL::User;
 use SL::USTVA;
 use SL::Iconv;
 use SL::TODO;
-use SL::Printer;
+use SL::DB::Printer;
 use CGI;
 
 require "bin/mozilla/common.pl";
@@ -935,60 +935,6 @@ sub swap_buchungsgruppen {
   $main::lxdebug->leave_sub();
 }
 
-sub edit_defaults {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  # get defaults for account numbers and last numbers
-  AM->defaultaccounts(\%myconfig, \%$form);
-  $form->{ALL_UNITS} = AM->convertible_units(AM->retrieve_all_units(), 'g');
-
-  map { $form->{"defaults_${_}"} = $form->{defaults}->{$_} } keys %{ $form->{defaults} };
-
-  # default language
-  my $all_languages = SL::DB::Manager::Language->get_all;
-
-# cash = IST-Versteuerung, accrual = SOLL-Versteuerung
-
-  foreach my $key (keys %{ $form->{IC} }) {
-    foreach my $accno (sort keys %{ $form->{IC}->{$key} }) {
-      my $array = "ACCNOS_" . uc($key);
-      $form->{$array} ||= [];
-
-      my $value = "${accno}--" . $form->{IC}->{$key}->{$accno}->{description};
-      push @{ $form->{$array} }, {
-        'name'     => $value,
-        'value'    => $value,
-        'selected' => $form->{IC}->{$key}->{$accno}->{id} == $form->{defaults}->{$key},
-      };
-    }
-  }
-
-  $form->{title} = $locale->text('Ranges of numbers and default accounts');
-
-  $form->header();
-  print $form->parse_html_template('am/edit_defaults',
-                                   { ALL_LANGUAGES => $all_languages, });
-
-  $main::lxdebug->leave_sub();
-}
-
-sub save_defaults {
-  $main::lxdebug->enter_sub();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  AM->save_defaults();
-
-  $form->redirect($locale->text('Defaults saved.'));
-
-  $main::lxdebug->leave_sub();
-}
-
 sub _build_cfg_options {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -1059,7 +1005,7 @@ sub config {
     { 'name' => $locale->text('Queue'),   'value' => 'queue',   'selected' => $selected{queue}, },
     ];
 
-  $form->{PRINTERS} = [ SL::Printer->all_printers(%::myconfig) ];
+  $form->{PRINTERS} = SL::DB::Manager::Printer->get_all_sorted;
 
   my %countrycodes = User->country_codes;
 
@@ -1104,7 +1050,7 @@ sub save_preferences {
 
   TODO->save_user_config('login' => $form->{login}, %{ $form->{todo_cfg} || { } });
 
-  if (AM->save_preferences(\%myconfig, $form)) {
+  if (AM->save_preferences($form)) {
     if ($::auth->can_change_password()
         && defined $form->{new_password}
         && ($form->{new_password} ne '********')) {
@@ -1116,10 +1062,6 @@ sub save_preferences {
       }
 
       $::auth->change_password($form->{login}, $form->{new_password});
-
-      $form->{password} = $form->{new_password};
-      $::auth->set_session_value('password', $form->{password});
-      $::auth->create_or_refresh_session();
     }
 
     $form->redirect($locale->text('Preferences saved!'));

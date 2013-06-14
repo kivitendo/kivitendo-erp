@@ -33,6 +33,7 @@
 
 use File::Find;
 
+use SL::DB::Default;
 use SL::AM;
 use SL::Form;
 
@@ -114,6 +115,9 @@ sub display_template_form {
   my $locale   = $main::locale;
 
   $main::auth->assert('admin');
+
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
 
   if ($form->{"formname"} =~ m|\.\.| || $form->{"formname"} =~ m|^/|) {
     $form->{"formname"} =~ s|.*/||;
@@ -205,13 +209,13 @@ sub display_template_form {
 
           my $fname = $File::Find::name;
           # remove template dir from name
-          $fname =~ s|^$myconfig{templates}/||;
+          $fname =~ s|^templates/[^/+]/||;
           # remove .tex from name
           $fname =~ s|.tex$||;
 
           push(@all_files, $fname);
 
-          }, $myconfig{templates});
+          }, $defaults->templates);
 
       # filter all files already set up (i.e. not already in @values)
       my @other_files = grep { my $a=$_; not grep {$a eq $_->{value}} @values } @all_files;

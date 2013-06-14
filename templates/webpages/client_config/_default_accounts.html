@@ -1,0 +1,35 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+[% SET style="width: 600px" %]
+<div id="default_accounts">
+ <table>
+  <tr>
+   <td align="right">[% LxERP.t8("Inventory Account") %]</td>
+   <td>[% L.select_tag('defaults.inventory_accno_id', SELF.accounts.ic, default=SELF.defaults.inventory_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Revenue Account") %]</td>
+   <td>[% L.select_tag('defaults.income_accno_id', SELF.accounts.ic_income, default=SELF.defaults.income_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Expense Account") %]</td>
+   <td>[% L.select_tag('defaults.expense_accno_id', SELF.accounts.ic_expense, default=SELF.defaults.expense_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Foreign Exchange Gain") %]</td>
+   <td>[% L.select_tag('defaults.fxgain_accno_id', SELF.accounts.fx_gain, default=SELF.defaults.fxgain_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Foreign Exchange Loss") %]</td>
+   <td>[% L.select_tag('defaults.fxloss_accno_id', SELF.accounts.fx_loss, default=SELF.defaults.fxloss_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8("Current assets account") %]</td>
+   <td>[% L.select_tag('defaults.ar_paid_accno_id', SELF.accounts.ar_paid, default=SELF.defaults.ar_paid_accno_id, title_sub=\make_chart_title, style=style) %]</td>
+  </tr>
+ </table>
+</div>

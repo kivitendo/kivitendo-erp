@@ -110,6 +110,7 @@ body.login {
 table.login {
 	background-color: #FFFFE0;
 	padding: 20px;
+  width: 500px;
 }
 td.login {
 	text-align: center;
@@ -369,4 +370,9 @@ label {
 .dimmed-text {
   color: #ccc;
   font-style: italic;
+}
+
+.link_separator {
+  margin-left: 6px;
+  margin-right: 6px;
 }

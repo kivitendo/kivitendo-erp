@@ -41,7 +41,8 @@ use SL::System::TaskServer;
 our %lx_office_conf;
 
 sub lxinit {
-  my $login = $lx_office_conf{task_server}->{login};
+  my $login  = $lx_office_conf{task_server}->{login};
+  my $client = $lx_office_conf{task_server}->{client};
 
   package main;
 
@@ -49,6 +50,7 @@ sub lxinit {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::auth          = SL::Auth->new;
+  die "No client configured or no client found with the name/ID '$client'" unless $::auth->set_client($client);
   $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = { cgi => CGI->new({}) };
 
@@ -95,8 +97,9 @@ sub gd_preconfig {
 
   SL::LxOfficeConf->read($self->{configfile});
 
-  die "Missing section [task_server] in config file"                unless $lx_office_conf{task_server};
-  die "Missing key 'login' in section [task_server] in config file" unless $lx_office_conf{task_server}->{login};
+  die "Missing section [task_server] in config file"                 unless $lx_office_conf{task_server};
+  die "Missing key 'login' in section [task_server] in config file"  unless $lx_office_conf{task_server}->{login};
+  die "Missing key 'client' in section [task_server] in config file" unless $lx_office_conf{task_server}->{client};
 
   drop_privileges();
   lxinit();

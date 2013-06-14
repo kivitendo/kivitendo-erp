@@ -15,7 +15,6 @@ __PACKAGE__->meta->setup(
     startdate => { type => 'date', default => 'now' },
     enddate   => { type => 'date' },
     notes     => { type => 'text' },
-    role      => { type => 'text' },
     sales     => { type => 'boolean', default => 'true' },
     itime     => { type => 'timestamp', default => 'now()' },
     mtime     => { type => 'timestamp' },

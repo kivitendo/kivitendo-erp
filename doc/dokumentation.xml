@@ -140,6 +140,8 @@
 
           <listitem><para><literal>FCGI</literal> (nicht Versionen 0.68 bis 0.71 inklusive; siehe <xref linkend="Apache-Konfiguration.FCGI.WebserverUndPlugin"/>)</para></listitem>
 
+          <listitem><para><literal>File::Copy::Recursive</literal></para></listitem>
+
           <listitem><para><literal>JSON</literal></para></listitem>
 
           <listitem><para><literal>List::MoreUtils</literal></para></listitem>
@@ -211,7 +213,7 @@
   librose-db-perl librose-object-perl libsort-naturally-perl \
   libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
-  postgresql</programlisting>
+  libfile-copy-recursive-perl postgresql</programlisting>
         </sect3>
 
         <sect3>
@@ -221,7 +223,7 @@
 
           <programlisting>yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
-  perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
+  perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
   perl-PDF-API2 perl-Params-Validate perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
@@ -242,7 +244,7 @@ cpan Config::Std</programlisting>
 
           <programlisting>zypper install apache2 perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
-  perl-Email-MIME perl-FastCGI perl-JSON perl-List-MoreUtils \
+  perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils \
   perl-Net-SMTP-SSL perl-Net-SSLGlue perl-PDF-API2 perl-Params-Validate \
   perl-Sort-Naturally perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv \
   perl-URI perl-XML-Writer perl-YAML postgresql-server</programlisting>

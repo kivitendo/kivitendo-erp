@@ -1,0 +1,79 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%]
+<div id="warehouse">
+ <table>
+  <tr>
+   <td align="right">[% LxERP.t8('Default Transfer') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.transfer_default', SELF.defaults.transfer_default) %]
+   </td>
+   <td>
+    [% LxERP.t8('Show Transfer via default') %]<br>
+   </td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Default Transfer with Master Bin') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.transfer_default_use_master_default_bin', SELF.defaults.transfer_default_use_master_default_bin) %]
+   </td>
+   <td>
+    [% LxERP.t8('Use master default bin for Default Transfer, if no default bin for the part is configured') %]<br>
+   </td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Default Transfer Out with negative inventory') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.transfer_default_ignore_onhand', SELF.defaults.transfer_default_ignore_onhand) %]
+   </td>
+   <td>
+    [% LxERP.t8('Default Transfer Out always succeed. The current part onhand is ignored and the inventory can have negative stocks (not recommended).') %]<br>
+   </td>
+  </tr>
+
+  <tr> </tr>
+  <tr>
+   <td align="right" nowrap="true">[% LxERP.t8('Default Warehouse') %]</td>
+   <td>
+    [% L.select_tag('defaults.warehouse_id', SELF.all_warehouses, id='warehouse_id', with_empty=1, default=SELF.defaults.warehouse_id, title_key='description',
+                    onchange="warehouse_selected(this.selectedIndex == 0 ? -1 : warehouses[this.selectedIndex - 1].id, -1)") %]
+   </td>
+   <td>
+    [% LxERP.t8('This is the default bin for parts') %]<br>
+    [% LxERP.t8('If configured this bin will be preselected for all new parts. Also this bin will be used as the master default bin, if default transfer out with master bin is activated.') %]<br>
+   </td>
+  </tr>
+  <tr>
+   <td align="right" nowrap="true">[% LxERP.t8('Default Bin') %]</td>
+   <td>[% L.select_tag('defaults.bin_id', [], id='bin_id', with_empty=1) %]</td>
+  </tr>
+  <tr>
+   <td align="right" nowrap="true">[% LxERP.t8('Default Warehouse with ignoring on hand') %]</td>
+   <td>
+    [% L.select_tag('defaults.warehouse_id_ignore_onhand', SELF.all_warehouses, id='warehouse_id_ignore_onhand', with_empty=1, default=SELF.defaults.warehouse_id_ignore_onhand, title_key='description',
+                    onchange="warehouse_selected(this.selectedIndex == 0 ? -1 : warehouses[this.selectedIndex - 1].id, -1, 'bin_id_ignore_onhand')") %]
+   </td>
+   <td>
+    [% LxERP.t8('This is the default bin for ignoring onhand') %]<br>
+    [% LxERP.t8('If the default transfer out always succeed use this bin for negative stock quantity.') %]<br>
+   </td>
+  </tr>
+  <tr>
+   <td align="right" nowrap="true">[% LxERP.t8('Default Bin with ignoring onhand') %]</td>
+   <td>[% L.select_tag('defaults.bin_id_ignore_onhand', [], id='bin_id_ignore_onhand', with_empty=1) %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Show Bestbefore') %]</td>
+   <td>
+    [% L.yes_no_tag('defaults.show_bestbefore', SELF.defaults.show_bestbefore) %]
+   </td>
+   <td>
+    [% LxERP.t8('Show fields used for the best before date?') %]<br>
+    [% LxERP.t8('ATTENTION! If you enabled this feature you can not simply turn it off again without taking care that best_before fields are emptied in the database.') %]<br>
+    [% LxERP.t8('This can be done with the following query:') %]<br>
+    <br>
+    UPDATE inventory SET bestbefore = NULL; <br>
+    <br>
+    [% LxERP.t8('Any stock contents containing a best before date will be impossible to stock out otherwise.') %]
+   </td>
+  </tr>
+ </table>
+</div>

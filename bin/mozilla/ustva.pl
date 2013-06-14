@@ -38,6 +38,7 @@ require "bin/mozilla/common.pl";
 
 use List::Util qw(first);
 
+use SL::DB::Default;
 use SL::PE;
 use SL::RP;
 use SL::USTVA;
@@ -83,6 +84,7 @@ sub report {
 
   $::auth->assert('advance_turnover_tax_return');
 
+  my $defaults   = SL::DB::Default->get;
   $form->{title} = $locale->text('UStVA');
   $form->{kz10}  = '';                       #Berichtigte Anmeldung? Ja =1 Nein=0
 
@@ -100,19 +102,20 @@ sub report {
   # Hier Einlesen der user-config
   # steuernummer entfernt für prerelease
   my @a = qw(
-    signature      name          company       address        businessnumber
+    signature      name
     tel            fax           email         co_chief       co_department
     co_custom1     co_custom2    co_custom3    co_custom4     co_custom5
     co_name1       co_name2      co_street     co_street1     co_zip
     co_city        co_city1      co_country    co_tel         co_tel1
     co_tel2        co_fax        co_fax1       co_email       co_email1
-    co_url         co_url1       ustid         duns           co_bankname
+    co_url         co_url1       co_bankname
     co_bankname1   co_bankname2  co_bankname3  co_blz         co_blz1
     co_blz2        co_blz3       co_accountnr  co_accountnr1  co_accountnr2
     co_accountnr3
   );
 
-  map { $form->{$_} = $myconfig{$_} } @a;
+  $form->{$_} = $myconfig{$_} for @a;
+  $form->{$_} = $defaults->$_ for qw(company address co_ustid duns);
 
   my $openings = $form->{FA_Oeffnungszeiten};
   $openings =~ s/\\\\n/<br>/g;
@@ -199,7 +202,7 @@ sub report {
     company_given    => $company_given,
     address_given    => $address_given,
     taxnumber_given  => $taxnumber_given,
-    taxnumber        => $myconfig{taxnumber},
+    taxnumber        => $defaults->taxnumber,
     select_year      => $select_year,
     period_local     => $period_local,
     method_local     => $method_local,
@@ -225,14 +228,12 @@ sub help {
   $::auth->assert('advance_turnover_tax_return');
 
   # parse help documents under doc
-  my $tmp = $::form->{templates};
   $::form->{templates} = 'doc';
   $::form->{help}      = 'ustva';
   $::form->{type}      = 'help';
   $::form->{format}    = 'html';
   generate_ustva();
 
-  #$form->{templates} = $tmp;
   $::lxdebug->leave_sub();
 }
 
@@ -543,6 +544,10 @@ sub generate_ustva {
 
   $::auth->assert('advance_turnover_tax_return');
 
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $form->{templates} = $defaults->templates;
+
   # Aufruf von get_config zum Einlesen der Finanzamtdaten aus finanzamt.ini
 
   my $ustva = USTVA->new();
@@ -738,14 +743,15 @@ sub generate_ustva {
     $locale->date(\%myconfig, $form->current_date(\%myconfig), 0, 0, 0);
 
   # setup variables for the form
-  my @a = qw(company businessnumber tel fax email
+  my @a = qw(tel fax email
     co_chief co_department co_custom1 co_custom2 co_custom3 co_custom4 co_custom5
     co_name1 co_name2  co_street co_street1 co_zip co_city co_city1 co_country co_tel co_tel1 co_tel2
-    co_fax co_fax1 co_email co_email1 co_url co_url1 ustid duns
+    co_fax co_fax1 co_email co_email1 co_url co_url1
     co_bankname co_bankname1 co_bankname2 co_bankname3 co_blz co_blz1
     co_blz2 co_blz3 co_accountnr co_accountnr1 co_accountnr2 co_accountnr3);
 
-  map { $form->{$_} = $myconfig{$_} } @a;
+  $form->{$_} = $myconfig{$_} for @a;
+  $form->{$_} = $defaults->$_ for qw(company address co_ustid duns);
 
   if ($form->{address} ne '') {
     my $temp = $form->{address};
@@ -1060,7 +1066,6 @@ sub generate_ustva {
       . '!');
   }
 
-  $form->{templates} = $myconfig{templates};
   $form->{templates} = "doc" if ( $form->{type} eq 'help' );
 
   if ($form->{format} eq 'generic'){
@@ -1068,7 +1073,7 @@ sub generate_ustva {
     $form->header();
 
     my $template_ref = {
-        taxnumber => $myconfig{taxnumber},
+        taxnumber => $defaults->taxnumber,
     };
 
     print($form->parse_html_template('ustva/generic_taxreport', $template_ref));

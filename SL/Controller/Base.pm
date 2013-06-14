@@ -562,12 +562,15 @@ C<user> (authentication as a normal user suffices) with a possible
 future value C<none> (which would require no authentication but is not
 yet implemented).
 
-=item C<keep_auth_vars_in_form>
+=item C<keep_auth_vars_in_form %params>
 
 May be overridden by a controller. If falsish (the default) all form
 variables whose name starts with C<{AUTH}> are removed before the
 request is routed. Only controllers that handle login requests
 themselves should return trueish for this function.
+
+C<$params{action}> contains the action name that the request will be
+dispatched to.
 
 =item C<controller_name>
 

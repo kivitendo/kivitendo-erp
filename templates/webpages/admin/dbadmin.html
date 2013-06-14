@@ -3,15 +3,13 @@
   <h1>[% title %]</h1>
 
   <form method="post" action="admin.pl">
-   <a href="admin.pl?action=list_users">[% 'Back' | $T8 %]</a>
+   <a href="controller.pl?action=Admin/show">[% 'Back' | $T8 %]</a>
 
    <table>
     <tr>
      <td>
 
       <table>
-
-       <input type="hidden" name="dbdriver" value="[% HTML.escape(dbdriver) %]">
 
        <tr>
         <td>
@@ -48,7 +46,7 @@
        </tr>
       </table>
 
-      <input name="callback" type="hidden" value="admin.pl?action=list_users">
+      <input name="callback" type="hidden" value="controller.pl?action=Admin/show">
 
       <br>
       <input type="submit" class="submit" name="action" value="[% 'Create Dataset' | $T8 %]">

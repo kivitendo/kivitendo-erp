@@ -42,6 +42,9 @@ use Data::Dumper;
 use Encode;
 use List::MoreUtils qw(any);
 use SL::DBUtils;
+use SL::DB::AuthUser;
+use SL::DB::Default;
+use SL::DB::Employee;
 
 use strict;
 
@@ -992,7 +995,7 @@ sub prepare_template_filename {
       $filename =~ s|.*/||;
     }
     $display_filename = $filename;
-    $filename = "$myconfig->{templates}/$filename";
+    $filename = SL::DB::Default->get->templates . "/$filename";
   }
 
   $main::lxdebug->leave_sub();
@@ -1048,109 +1051,23 @@ sub save_template {
   return $error;
 }
 
-sub save_defaults {
-  $main::lxdebug->enter_sub();
-
-  my $self     = shift;
-  my %params   = @_;
-
-  my $myconfig = \%main::myconfig;
-  my $form     = $main::form;
-
-  my $dbh      = $params{dbh} || $form->get_standard_dbh($myconfig);
-
-  my %accnos;
-  map { ($accnos{$_}) = split(m/--/, $form->{$_}) } qw(inventory_accno income_accno expense_accno fxgain_accno fxloss_accno ar_paid_accno);
-
-  # these defaults are database wide
-
-  my $query =
-    qq|UPDATE defaults SET
-        inventory_accno_id = (SELECT c.id FROM chart c WHERE c.accno = ?),
-        income_accno_id    = (SELECT c.id FROM chart c WHERE c.accno = ?),
-        expense_accno_id   = (SELECT c.id FROM chart c WHERE c.accno = ?),
-        fxgain_accno_id    = (SELECT c.id FROM chart c WHERE c.accno = ?),
-        fxloss_accno_id    = (SELECT c.id FROM chart c WHERE c.accno = ?),
-        ar_paid_accno_id   = (SELECT c.id FROM chart c WHERE c.accno = ?),
-        invnumber          = ?,
-        cnnumber           = ?,
-        sonumber           = ?,
-        ponumber           = ?,
-        sqnumber           = ?,
-        rfqnumber          = ?,
-        customernumber     = ?,
-        vendornumber       = ?,
-        articlenumber      = ?,
-        servicenumber      = ?,
-        assemblynumber     = ?,
-        sdonumber          = ?,
-        pdonumber          = ?,
-        businessnumber     = ?,
-        weightunit         = ?,
-        language_id        = ?|;
-  my @values = ($accnos{inventory_accno}, $accnos{income_accno}, $accnos{expense_accno},
-                $accnos{fxgain_accno},    $accnos{fxloss_accno}, $accnos{ar_paid_accno},
-                $form->{invnumber},       $form->{cnnumber},
-                $form->{sonumber},        $form->{ponumber},
-                $form->{sqnumber},        $form->{rfqnumber},
-                $form->{customernumber},  $form->{vendornumber},
-                $form->{articlenumber},   $form->{servicenumber},
-                $form->{assemblynumber},
-                $form->{sdonumber},       $form->{pdonumber},
-                $form->{businessnumber},  $form->{weightunit},
-                conv_i($form->{language_id}));
-  do_query($form, $dbh, $query, @values);
-
-  $main::lxdebug->message(0, "es gibt rowcount: " . $form->{rowcount});
-
-  for my $i (1..$form->{rowcount}) {
-    if ($form->{"curr_$i"} ne $form->{"old_curr_$i"}) {
-      $query = qq|UPDATE currencies SET name = ? WHERE name = ?|;
-      do_query($form, $dbh, $query, $form->{"curr_$i"}, $form->{"old_curr_$i"});
-    }
-  }
-
-  if (length($form->{new_curr}) > 0) {
-    $query = qq|INSERT INTO currencies (name) VALUES (?)|;
-    do_query($form, $dbh, $query, $form->{new_curr});
-  }
-
-  $dbh->commit();
-
-  $main::lxdebug->leave_sub();
-}
-
-
 sub save_preferences {
   $main::lxdebug->enter_sub();
 
-  my ($self, $myconfig, $form) = @_;
+  my ($self, $form) = @_;
 
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $employee = SL::DB::Manager::Employee->find_by(login => $form->{login});
+  $employee->update_attributes(name => $form->{name});
 
-  my ($businessnumber) = selectrow_query($form, $dbh, qq|SELECT businessnumber FROM defaults|);
-
-  # update name
-  my $query = qq|UPDATE employee SET name = ? WHERE login = ?|;
-  do_query($form, $dbh, $query, $form->{name}, $form->{login});
-
-  my $rc = $dbh->commit();
-
-  $form->{businessnumber} =  $businessnumber;
-
-  $myconfig = User->new(login => $form->{login});
-
-  foreach my $item (keys %$form) {
-    $myconfig->{$item} = $form->{$item};
-  }
-
-  $myconfig->save_member;
-
-  my $auth = $main::auth;
+  my $user = SL::DB::Manager::AuthUser->find_by(login => $form->{login});
+  $user->update_attributes(
+    config_values => {
+      map { ($_ => $form->{$_}) } SL::DB::AuthUser::CONFIG_VARS(),
+    });
 
   $main::lxdebug->leave_sub();
 
-  return $rc;
+  return 1;
 }
 
 sub get_defaults {
@@ -1171,139 +1088,6 @@ sub get_defaults {
   $main::lxdebug->leave_sub();
 
   return $defaults;
-}
-
-sub defaultaccounts {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $myconfig, $form) = @_;
-
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-
-  # get defaults from defaults table
-  my $query = qq|SELECT * FROM defaults|;
-  my $sth   = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  $form->{defaults}               = $sth->fetchrow_hashref("NAME_lc");
-  $form->{defaults}{IC}           = $form->{defaults}{inventory_accno_id};
-  $form->{defaults}{IC_income}    = $form->{defaults}{income_accno_id};
-  $form->{defaults}{IC_expense}   = $form->{defaults}{expense_accno_id};
-  $form->{defaults}{FX_gain}      = $form->{defaults}{fxgain_accno_id};
-  $form->{defaults}{FX_loss}      = $form->{defaults}{fxloss_accno_id};
-  $form->{defaults}{AR_paid}      = $form->{defaults}{ar_paid_accno_id};
-
-  $form->{defaults}{weightunit} ||= 'kg';
-
-  $sth->finish;
-
-  $query = qq|SELECT c.id, c.accno, c.description, c.link
-              FROM chart c
-              WHERE c.link LIKE '%IC%'
-              ORDER BY c.accno|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    foreach my $key (split(/:/, $ref->{link})) {
-      if ($key =~ /IC/) {
-        my $nkey = $key;
-        if ($key =~ /cogs/) {
-          $nkey = "IC_expense";
-        }
-        if ($key =~ /sale/) {
-          $nkey = "IC_income";
-        }
-        %{ $form->{IC}{$nkey}{ $ref->{accno} } } = (
-                                             id          => $ref->{id},
-                                             description => $ref->{description}
-        );
-      }
-    }
-  }
-  $sth->finish;
-
-  $query = qq|SELECT c.id, c.accno, c.description
-              FROM chart c
-              WHERE c.category = 'I'
-              AND c.charttype = 'A'
-              ORDER BY c.accno|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    %{ $form->{IC}{FX_gain}{ $ref->{accno} } } = (
-                                             id          => $ref->{id},
-                                             description => $ref->{description}
-    );
-  }
-  $sth->finish;
-
-  $query = qq|SELECT c.id, c.accno, c.description
-              FROM chart c
-              WHERE c.category = 'E'
-              AND c.charttype = 'A'
-              ORDER BY c.accno|;
-  $sth = $dbh->prepare($query);
-  $sth->execute || $self->dberror($query);
-
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    %{ $form->{IC}{FX_loss}{ $ref->{accno} } } = (
-                                             id          => $ref->{id},
-                                             description => $ref->{description}
-    );
-  }
-  $sth->finish;
-
-  # now get the tax rates and numbers
-  $query = qq|SELECT c.id, c.accno, c.description,
-              t.rate * 100 AS rate, t.taxnumber
-              FROM chart c, tax t
-              WHERE c.id = t.chart_id|;
-
-  $sth = $dbh->prepare($query);
-  $sth->execute || $form->dberror($query);
-
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    $form->{taxrates}{ $ref->{accno} }{id}          = $ref->{id};
-    $form->{taxrates}{ $ref->{accno} }{description} = $ref->{description};
-    $form->{taxrates}{ $ref->{accno} }{taxnumber}   = $ref->{taxnumber}
-      if $ref->{taxnumber};
-    $form->{taxrates}{ $ref->{accno} }{rate} = $ref->{rate} if $ref->{rate};
-  }
-  # Abfrage für Standard Umlaufvermögenskonto
-  $query =
-    qq|SELECT id, accno, description, link | .
-    qq|FROM chart | .
-    qq|WHERE link LIKE ? |.
-    qq|ORDER BY accno|;
-  $sth = prepare_execute_query($form, $dbh, $query, '%AR%');
-  $sth->execute || $form->dberror($query);#
-  while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    foreach my $item (split(/:/, $ref->{link})) {
-      if ($item eq "AR_paid") {
-        %{ $form->{IC}{AR_paid}{ $ref->{accno} } } = (
-                                             id          => $ref->{id},
-                                             description => $ref->{description}
-          );
-      }
-    }
-  }
-
-  $sth->finish;
-
-  #Get currencies:
-  $query              = qq|SELECT name AS curr FROM currencies ORDER BY id|;
-  $form->{CURRENCIES} = selectall_hashref_query($form, $dbh, $query);
-
-  #Which of them is the default currency?
-  $query = qq|SELECT name AS defaultcurrency FROM currencies WHERE id = (SELECT currency_id FROM defaults LIMIT 1);|;
-  ($form->{defaultcurrency}) = selectrow_query($form, $dbh, $query);
-
-  $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
 }
 
 sub closedto {

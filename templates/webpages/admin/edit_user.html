@@ -1,254 +1,171 @@
-[%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %][%- USE LxERP -%]
- <script type="text/javascript">
-  <!--
-      function open_connection_test_window() {
-        // host name port user passwd
-        var url = "admin.pl?INPUT_ENCODING=UTF-8&action=test_db_connection&" +
-          "dbhost="   + encodeURIComponent(get_input_value("user.dbhost"))   + "&" +
-          "dbport="   + encodeURIComponent(get_input_value("user.dbport"))   + "&" +
-          "dbname="   + encodeURIComponent(get_input_value("user.dbname"))   + "&" +
-          "dbuser="   + encodeURIComponent(get_input_value("user.dbuser"))   + "&" +
-          "dbpasswd=" + encodeURIComponent(get_input_value("user.dbpasswd")) + "&";
 
-        var parm = centerParms(400,300) + ",width=400,height=300,status=yes,scrollbars=yes";
+[%- INCLUDE 'common/flash.html' %]
 
-        window.open(url, "_new_generic", parm);
-      }
-    -->
- </script>
+<h1>[% HTML.escape(title) %]</h1>
 
- <h1>[% title %]</h1>
+<p>[% L.link(SELF.url_for(action="show"), LxERP.t8("Back")) %]</p>
 
- <form name="Form" id="Form" method="post" action="admin.pl">
-  <p><a href="admin.pl?action=list_users">[% 'Back' | $T8 %]</a></p>
+<form method="post" action="controller.pl" id="form">
+ [% L.hidden_tag("user.id", SELF.user.id) %]
+ [% L.hidden_tag("action", "") %]
+ [%- SET props=SELF.user.config_values %]
 
-  <table width="100%">
-   <tr valign="top">
-    <td>
-     <table>
-      <tr>
-       <th align="right">[% 'Login Name' | $T8 %]</th>
-       <td>
-        [%- IF edit %]
-         <input type="hidden" id='user.id' name="user.id" value="[% HTML.escape(user.id) %]">[% HTML.escape(user.login) %]
-        [%- ELSE %]
-         <input name="user.login" value="[% HTML.escape(user.login) %]">
-        [%- END %]
-       </td>
-      </tr>
+ <h2>[%- LxERP.t8("Settings") %]</h2>
 
-      <tr>
-       <th align="right">[% 'Password' | $T8 %]</th>
-       <td>[% IF CAN_CHANGE_PASSWORD %]<input type="password" name="new_password" size="8" value="********">[% ELSE %]********[% END %]</td>
-      </tr>
+ <table>
+  <tr valign="top">
+   <td>
+    <table>
+     <tr>
+      <th align="right">[% LxERP.t8('Login Name') %]</th>
+      <td>[% L.input_tag("user.login", SELF.user.login) %]</td>
+     </tr>
 
-      <tr>
-       <th align="right">[% 'Name' | $T8 %]</th>
-       <td><input name="user.name" size="15" value="[% HTML.escape(user.name) %]"></td>
-      </tr>
+     [%- IF AUTH.can_change_password %]
+     <tr>
+      <th align="right">[% LxERP.t8("New Password") %]</th>
+      <td>[% L.input_tag("new_password", "", type="password") %]</td>
+     </tr>
+     [%- END %]
 
-      <tr>
-       <th align="right">[% 'E-mail' | $T8 %]</th>
-       <td><input name="user.email" size="30" value="[% HTML.escape(user.email) %]"></td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8("Name") %]</th>
+      <td>[% L.input_tag("user.config_values.name", props.name) %]</td>
+     </tr>
 
-      <tr valign="top">
-       <th align="right">[% 'Signature' | $T8 %]</th>
-       <td><textarea name="user.signature" rows="3" cols="35">[% HTML.escape(user.signature) %]</textarea></td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8('E-mail') %]</th>
+      <td>[% L.input_tag("user.config_values.email", props.email) %]</td>
+     </tr>
 
-      <tr>
-       <th align="right">[% 'Phone' | $T8 %]</th>
-       <td><input name="user.tel" size="14" value="[% HTML.escape(user.tel) %]"></td>
-      </tr>
+     <tr valign="top">
+      <th align="right">[% LxERP.t8('Signature') %]</th>
+      <td>[% L.textarea_tag("user.config_values.signature", props.signature, rows=3, cols=35) %]</td>
+     </tr>
 
-      <tr>
-       <th align="right">[% 'Fax' | $T8 %]</th>
-       <td><input name="user.fax" size="14" value="[% HTML.escape(user.fax) %]"></td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8('Phone') %]</th>
+      <td>[% L.input_tag("user.config_values.tel", props.tel) %]</td>
+     </tr>
 
-      <tr>
-       <th align="right">[% 'Company' | $T8 %]</th>
-       <td><input name="user.company" size="35" value="[% HTML.escape(user.company) %]"></td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8('Fax') %]</th>
+      <td>[% L.input_tag("user.config_values.fax", props.fax) %]</td>
+     </tr>
+    </table>
+   </td>
 
-      <tr valign="top">
-       <th align="right">[% 'Address' | $T8 %]</th>
-       <td><textarea name="user.address" rows="4" cols="35">[% HTML.escape(user.address) %]</textarea></td>
-      </tr>
+   <td>
+    <table>
+     <tr>
+      <th align="right">[% LxERP.t8("Date Format") %]</th>
+      <td>[% L.select_tag("user.config_values.dateformat", SELF.all_dateformats, default=props.dateformat) %]</td>
+     </tr>
 
-      <tr valign="top">
-       <th align="right">[% 'Tax number' | $T8 %]</th>
-       <td><input name="user.taxnumber" size="14" value="[% HTML.escape(user.taxnumber) %]"></td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8("Number Format") %]</th>
+      <td>[% L.select_tag("user.config_values.numberformat", SELF.all_numberformats, default=props.numberformat) %]</td>
+     </tr>
 
-      <tr valign="top">
-       <th align="right">[% 'Ust-IDNr' | $T8 %]</th>
-       <td><input name="user.co_ustid" size="14" value="[% HTML.escape(user.co_ustid) %]"></td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8("Dropdown Limit") %]</th>
+      <td>[% L.input_tag("user.config_values.vclimit", props.vclimit) %]</td>
+     </tr>
 
-      <tr valign="top">
-       <th align="right">[% 'DUNS-Nr' | $T8 %]</th>
-       <td><input name="user.duns" size="14" value="[% HTML.escape(user.duns) %]"></td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8("Language") %]</th>
+      <td>[% L.select_tag("user.config_values.countrycode", SELF.all_countrycodes, title_key="title", default=props.countrycode) %]</td>
+     </tr>
 
-      <tr>
-       <th align="right">[% 'SEPA creditor ID' | $T8 %]</th>
-       <td><input name="user.sepa_creditor_id" size="35" maxlength="35" value="[% HTML.escape(user.sepa_creditor_id) %]"></td>
-      </tr>
-     </table>
-    </td>
+     <tr>
+      <th align="right">[% LxERP.t8("Stylesheet") %]</th>
+      <td>[% L.select_tag("user.config_values.stylesheet", SELF.all_stylesheets, default=props.stylesheet) %]</td>
+     </tr>
 
-    <td>
-     <table>
-      <tr>
-       <th align="right">[% 'Date Format' | $T8 %]</th>
-       <td>[% L.select_tag('user.dateformat', all_dateformats, default = user.dateformat) %]</td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8("Setup Menu") %]</th>
+      <td>[% L.select_tag("user.config_values.menustyle", SELF.all_menustyles, title_key="title", default=props.menustyle) %]</td>
+     </tr>
 
-      <tr>
-       <th align="right">[% 'Number Format' | $T8 %]</th>
-       <td>[% L.select_tag('user.numberformat', all_numberformats, default = user.numberformat) %]</td>
-      </tr>
+     <tr>
+      <th align="right">[% LxERP.t8("Mandatory Departments") %]</th>
+      <td>
+       [% L.radio_button_tag('user.config_values.mandatory_departments', value='0', id='user.config_values.mandatory_departments_0', label=LxERP.t8('No'),  checked=!props.mandatory_departments) %]
+       [% L.radio_button_tag('user.config_values.mandatory_departments', value='1', id='user.config_values.mandatory_departments_1', label=LxERP.t8('Yes'), checked= props.mandatory_departments) %]
+      </td>
+     </tr>
+    </table>
+   </td>
+  </tr>
+ </table>
 
-      <tr>
-       <th align="right">[% 'Dropdown Limit' | $T8 %]</th>
-       <td><input name="user.vclimit" value="[% HTML.escape(user.vclimit) %]"></td>
-      </tr>
+ <h2>[%- LxERP.t8("Access to clients") %]</h2>
 
-      <tr>
-       <th align="right">[% 'Language' | $T8 %]</th>
-       <td>[% L.select_tag('user.countrycode', all_countrycodes, title_key = 'title', default = user.countrycode) %]</td>
-      </tr>
+[% IF SELF.all_clients.size %]
+ <p>
+  [%- LxERP.t8("This user will have access to the following clients") %]:
+ </p>
 
-      <tr>
-       <th align="right">[% 'Stylesheet' | $T8 %]</th>
-       <td>[% L.select_tag('user.stylesheet', all_stylesheets, default = user.stylesheet) %]</td>
-      </tr>
+ <div class="clearfix">
+  [% L.select_tag("user.clients[]", SELF.all_clients, id="user_clients", title_key="name", default=SELF.user.clients, default_value_key='id', multiple=1) %]
+  [% L.multiselect2side("user_clients", labelsx => LxERP.t8("All clients"), labeldx => LxERP.t8("Clients this user has access to")) %]
+ </div>
 
-      <tr>
-       <th align="right">[% 'Printer' | $T8 %]</th>
-       <td><input name="user.printer" size="20" value="[% HTML.escape(user.printer) %]"></td>
-      </tr>
-      <tr>
-       <th align="right">[% 'Use Templates' | $T8 %]</th>
-       <td>[% L.select_tag('usetemplates', all_templates, default = user.templates) %]</td>
-      </tr>
-      <tr>
-       <th align="right">[% 'New Templates' | $T8 %]</th>
-       <td><input name="newtemplates"></td>
-      </tr>
-      <tr>
-       <th align="right">[% 'Setup Templates' | $T8 %]</th>
-       <td>[% L.select_tag('mastertemplates', all_master_templates, default = 'Standard') %]</td>
-      </tr>
-      <tr>
-       <th align="right">[% 'Setup Menu' | $T8 %]</th>
-       <td>[% L.select_tag('user.menustyle', all_menustyles, title_key = 'title', default = user.menustyle) %]</td>
-      </tr>
-      <tr>
-       <th align='right'>[% 'Mandatory Departments' | $T8 %]</th>
-       <td>
-        <input type='radio' name='user.mandatory_departments' value='0' [% IF !user.mandatory_departments %] checked[% END %]> [% 'No' | $T8 %]
-        <input type='radio' name='user.mandatory_departments' value='1' [% IF  user.mandatory_departments %] checked[% END %]> [% 'Yes' | $T8 %]
-       </td>
-      </tr>
+[%- ELSE %]
+ <p>
+  [% LxERP.t8("No clients have been created yet.") %]
+ </p>
+[%- END %]
 
-      <input type="hidden" name="user.templates" value="[% HTML.escape(user.templates) %]">
-     </table>
-    </td>
-   </tr>
+ <h2>[%- LxERP.t8("Group membership") %]</h2>
 
-   <tr class="listheading">
-    <th colspan="2">[% 'Database' | $T8 %]</th>
-   </tr>
+[% IF SELF.all_groups.size %]
+ <p>
+  [%- LxERP.t8("This user is a member in the following groups") %]:
+ </p>
 
-   <tr>
-    <td colspan="2">
-     <table>
-      <tr>
-       <th align="right">[% 'Driver' | $T8 %]</th>
-       <td>PostgreSQL</td>
-       <th align="right">[% 'Host' | $T8 %]</th>
-       <td><input name="user.dbhost" size="30" value="[% HTML.escape(user.dbhost) %]"></td>
-      </tr>
+ <div class="clearfix">
+  [% L.select_tag("user.groups[]", SELF.all_groups, id="user_groups", title_key="name", default=SELF.user.groups, default_value_key='id', multiple=1) %]
+  [% L.multiselect2side("user_groups", labelsx => LxERP.t8("All groups"), labeldx => LxERP.t8("Groups this user is a member in")) %]
+ </div>
 
-      <tr>
-       <th align="right">[% 'Dataset' | $T8 %]</th>
-       <td><input name="user.dbname" size="15" value="[% HTML.escape(user.dbname) %]"></td>
-       <th align="right">[% 'Port' | $T8 %]</th>
-       <td><input name="user.dbport" size="4" value="[% HTML.escape(user.dbport) %]"></td>
-      </tr>
+[%- ELSE %]
+ <p>
+  [% LxERP.t8("No groups have been created yet.") %]
+ </p>
+[%- END %]
 
-      <tr>
-       <th align="right">[% 'Database User' | $T8 %]</th>
-       <td><input name="user.dbuser" size="15" value="[% HTML.escape(user.dbuser) %]"></td>
-       <th align="right">[% 'Password' | $T8 %]</th>
-       <td><input name="user.dbpasswd" type="password" size="10" value="[% HTML.escape(user.dbpasswd) %]"></td>
-      </tr>
+<hr size="3" noshade>
 
-      <tr>
-       <td colspan="2"><input type="button" class="submit" onclick="open_connection_test_window();" value="[% 'Test connection' | $T8 %]"></td>
-      </tr>
-     </table>
-    </td>
-   </tr>
+<p>
+ [% L.link(SELF.url_for(action="show"), LxERP.t8("Back")) %]
 
-   [% IF edit %]
-   <tr><td colspan="2"><hr size="3" noshade></td></tr>
+ [% L.button_tag("submit_with_action('save_user')", LxERP.t8("Save")) %]
+ [% IF SELF.user.id %]
+  [% L.button_tag("save_as_new()", LxERP.t8("Save as new")) %]
+  [% L.button_tag("submit_with_action('delete_user')", LxERP.t8("Delete"), confirm=LxERP.t8("Are you sure?")) %]
+ [%- END %]
+</p>
 
-   <tr class="listheading">
-    <th colspan="2">[% 'Group membership' | $T8 %]</th>
-   </tr>
+</form>
 
-   <tr>
-    <td colspan="2">[% 'The user is a member in the following group(s):' | $T8 %]</td>
-   </tr>
+<script type="text/javascript">
+ <!--
+  function submit_with_action(action) {
+    $("#action").val("Admin/" + action);
+    $("#form").submit();
+  }
 
-   <tr>
-    <td colspan="2">[% FOREACH row = GROUPS %]<a href="admin.pl?action=edit_group&group_id=[% HTML.url(row.id) %]">[% HTML.escape(row.name) %]</a>
-     [% UNLESS loop.last %] | [% END %][% END %]</td>
-   </tr>
-   [% END %]
+  function save_as_new() {
+    var new_user_login = prompt("[% LxERP.t8("Please enter the login for the new user.") %]", "");
+    if (!new_user_login)
+      return;
 
-   <tr><td colspan="2"><hr size="3" noshade></td></tr>
-
-  </table>
-
-  <input name="callback" type="hidden" value="admin.pl?action=list_users">
-
-  <a href="admin.pl?action=list_users">[% 'Back' | $T8 %]</a>
-  <input type="hidden" name="action" value="dispatcher">
-  <input type="submit" class="submit" name="action_save_user" value="[% 'Save' | $T8 %]">
-
-  [% IF edit %]
-   [% FOREACH row = GROUPS %]
-    <input type="hidden" name="new_user_group_ids[]" value="[% HTML.escape(row.id) %]">
-   [% END %]
-   <input type="hidden" name="new_user_login" id="new_user_login" value="">
-   <input type="hidden" name="action_save_user_as_new" id="action_save_user_as_new" value="">
-   <input type="button" class="submit" id="save_as_new_button" value="[% 'Save as new' | $T8 %]">
-   [% L.submit_tag("action_delete_user", LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
-   <input type="hidden" name="edit" value="1">
-  [% END %]
-
- </form>
-
- <script type="text/javascript">
-  <!--
-    $(document).ready(function() {
-      $("#save_as_new_button").click(function() {
-        var new_user_login = prompt('[% 'Please enter the login for the new user.' | $T8 %]', '');
-        if (!new_user_login || (new_user_login == ''))
-          return;
-
-        $("#action_save_user_as_new").val('1');
-        $("#new_user_login").val(new_user_login);
-        $("#user_id").val('');
-        $("#Form").submit();
-      });
-    });
-    -->
- </script>
+    $("#user_login").val(new_user_login);
+    $("#user_id").val("");
+    submit_with_action("save_user");
+  }
+   -->
+</script>

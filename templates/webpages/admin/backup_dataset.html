@@ -27,7 +27,6 @@
 
   <form name="Form" method="post" action="admin.pl">
 
-   <input type="hidden" name="dbdriver" value="Pg">
    <input type="hidden" name="dbhost" value="[% HTML.escape(dbhost) %]">
    <input type="hidden" name="dbport" value="[% HTML.escape(dbport) %]">
    <input type="hidden" name="dbuser" value="[% HTML.escape(dbuser) %]">
@@ -82,16 +81,15 @@
 
    </table>
 
-   <input name="callback" type="hidden" value="admin.pl?action=list_users">
+   <input name="callback" type="hidden" value="controller.pl?action=Admin/show">
    <input type="hidden" name="nextsub" value="backup_dataset_start">
-   <input type="hidden" name="back_nextsub" value="list_users">
 
    <hr size="3" noshade>
 
    <br>
 
    <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
-   <a href="admin.pl?action=pg_database_administration">[% 'Back' | $T8 %]</a>
+   <a href="controller.pl?action=Admin/show">[% 'Back' | $T8 %]</a>
 
   </form>
 

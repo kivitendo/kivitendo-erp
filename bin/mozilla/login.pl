@@ -27,9 +27,7 @@
 # Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 #######################################################################
 
-use DBI;
-use SL::Auth;
-use SL::User;
+use SL::DB::Default;
 use SL::Form;
 use SL::Git;
 
@@ -51,6 +49,8 @@ sub company_logo {
   $form->{stylesheet} =  $myconfig{stylesheet};
   $form->{title}      =  $::locale->text('kivitendo');
   $form->{interface}  = $::dispatcher->interface_type;
+  $form->{client}     = $::auth->client;
+  $form->{defaults}   = SL::DB::Default->get;
 
   my $git             = SL::Git->new;
   ($form->{git_head}) = $git->get_log(since => 'HEAD~1', until => 'HEAD') if $git->is_git_installation;

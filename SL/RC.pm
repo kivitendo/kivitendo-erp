@@ -93,13 +93,11 @@ sub payment_transactions {
   ($form->{beginningbalance}, $form->{category}) =
     selectrow_query($form, $dbh, $query, @values);
 
-  my %oid = ('Pg'     => 'ac.acc_trans_id',
-             'Oracle' => 'ac.rowid');
   @values = ();
   $query =
     qq|SELECT c.name, ac.source, ac.transdate, ac.cleared, | .
     qq|  ac.fx_transaction, ac.amount, a.id, | .
-    qq|  $oid{$myconfig->{dbdriver}} AS oid | .
+    qq|  ac.acc_trans_id AS oid | .
     qq|FROM customer c, acc_trans ac, ar a, chart ch | .
     qq|WHERE c.id = a.customer_id | .
     qq|  AND ac.cleared = '0' | .
@@ -123,7 +121,7 @@ sub payment_transactions {
 
     qq|SELECT v.name, ac.source, ac.transdate, ac.cleared, | .
     qq|  ac.fx_transaction, ac.amount, a.id, | .
-    qq|  $oid{$myconfig->{dbdriver}} AS oid | .
+    qq|  ac.acc_trans_id AS oid | .
     qq|FROM vendor v, acc_trans ac, ap a, chart ch | .
     qq|WHERE v.id = a.vendor_id | .
     qq|  AND ac.cleared = '0' | .
@@ -148,7 +146,7 @@ sub payment_transactions {
 
     qq|SELECT g.description, ac.source, ac.transdate, ac.cleared, | .
     qq|  ac.fx_transaction, ac.amount, g.id, | .
-    qq|  $oid{$myconfig->{dbdriver}} AS oid | .
+    qq|  ac.acc_trans_id AS oid | .
     qq|FROM gl g, acc_trans ac, chart ch | .
     qq|WHERE g.id = ac.trans_id | .
     qq|  AND ac.cleared = '0' | .
@@ -186,22 +184,20 @@ sub reconcile {
   my $dbh = $form->dbconnect($myconfig);
 
   my ($query, $i);
-  my %oid = ('Pg'     => 'acc_trans_id',
-             'Oracle' => 'rowid');
 
   # clear flags
   for $i (1 .. $form->{rowcount}) {
     if ($form->{"cleared_$i"}) {
       $query =
         qq|UPDATE acc_trans SET cleared = '1' | .
-        qq|WHERE $oid{$myconfig->{dbdriver}} = ?|;
+        qq|WHERE acc_trans_id = ?|;
       do_query($form, $dbh, $query, $form->{"oid_$i"});
 
       # clear fx_transaction
       if ($form->{"fxoid_$i"}) {
         $query =
           qq|UPDATE acc_trans SET cleared = '1' | .
-          qq|WHERE $oid{$myconfig->{dbdriver}} = ?|;
+          qq|WHERE acc_trans_id = ?|;
         do_query($form, $dbh, $query, $form->{"fxoid_$i"});
       }
     }

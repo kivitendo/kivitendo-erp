@@ -47,6 +47,8 @@ use Sys::Hostname;
 
 use SL::Auth;
 use SL::Auth::PasswordPolicy;
+use SL::DB::AuthClient;
+use SL::DB::AuthUser;
 use SL::Form;
 use SL::Iconv;
 use SL::Mailer;
@@ -58,8 +60,6 @@ use SL::DBUtils;
 use SL::Template;
 
 require "bin/mozilla/common.pl";
-require "bin/mozilla/admin_groups.pl";
-require "bin/mozilla/admin_printer.pl";
 
 use strict;
 
@@ -74,15 +74,6 @@ our $cgi;
 our $form;
 our $locale;
 our $auth;
-
-my @valid_dateformats = qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd);
-my @valid_numberformats = ('1,000.00', '1000.00', '1.000,00', '1000,00');
-my @all_stylesheets = qw(lx-office-erp.css Mobile.css kivitendo.css);
-my @all_menustyles = (
-  { id => 'old', title => $::locale->text('Old (on the side)') },
-  { id => 'v3',  title => $::locale->text('Top (CSS)') },
-  { id => 'neu', title => $::locale->text('Top (Javascript)') },
-);
 
 sub run {
   $::lxdebug->enter_sub;
@@ -99,395 +90,29 @@ sub run {
   if ($form->{action}) {
     if ($auth->authenticate_root($form->{'{AUTH}admin_password'}) != $auth->OK()) {
       $auth->punish_wrong_login;
-      $form->{error} = $locale->text('Incorrect Password!');
+      $form->{error} = $locale->text('Incorrect password!');
       $auth->delete_session_value('admin_password');
       adminlogin();
     } else {
       if ($auth->session_tables_present()) {
         delete $::form->{'{AUTH}admin_password'};
-        _apply_dbupgrade_scripts();
       }
 
       call_sub($locale->findsub($form->{action}));
     }
   } else {
-    # if there are no drivers bail out
-    $form->error($locale->text('No Database Drivers available!'))
-      unless (User->dbdrivers);
-
     adminlogin();
   }
   $::lxdebug->leave_sub;
 }
 
 sub adminlogin {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  $form->{title} = qq|kivitendo $form->{version} | . $locale->text('Administration');
-
-  $form->header();
-  print $form->parse_html_template('admin/adminlogin');
-}
-
-sub login {
-  check_auth_db_and_tables();
-  list_users();
-}
-
-sub logout {
-  $main::auth->destroy_session();
-  adminlogin();
-}
-
-sub check_auth_db_and_tables {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  my %params;
-
-  map { $params{"db_${_}"} = $main::auth->{DB_config}->{$_} } keys %{ $auth->{DB_config} };
-
-  $params{admin_password} = $::lx_office_conf{authentication}->{admin_password};
-
-  if (!$main::auth->check_database()) {
-    $form->{title} = $locale->text('Authentification database creation');
-    $form->header();
-    print $form->parse_html_template('admin/check_auth_database', \%params);
-
-    ::end_of_request();
-  }
-
-  if (!$main::auth->check_tables()) {
-    $form->{title} = $locale->text('Authentification tables creation');
-    $form->header();
-    print $form->parse_html_template('admin/check_auth_tables', \%params);
-
-    ::end_of_request();
-  }
-}
-
-sub create_auth_db {
-  my $form = $main::form;
-
-  $main::auth->create_database('superuser'          => $form->{db_superuser},
-                               'superuser_password' => $form->{db_superuser_password},
-                               'template'           => $form->{db_template});
-  login();
-}
-
-sub create_auth_tables {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  $main::auth->create_tables();
-  $main::auth->set_session_value('admin_password', $form->{'{AUTH}admin_password'});
-  $main::auth->create_or_refresh_session();
-
-  my $memberfile = $::lx_office_conf{paths}->{memberfile};
-  if (!-f $memberfile) {
-    # New installation -- create a standard group with full access
-    my %members;
-    my $group = {
-      'name'        => $locale->text('Full Access'),
-      'description' => $locale->text('Full access to all functions'),
-      'rights'      => { map { $_ => 1 } SL::Auth::all_rights() },
-      'members'     => [ map { $_->{id} } values %members ],
-    };
-
-    $main::auth->save_group($group);
-  }
-
-  _apply_dbupgrade_scripts();
-  login();
-}
-
-sub list_users {
-  my $form    = $main::form;
-  my $locale  = $main::locale;
-
-  my %members = $main::auth->read_all_users();
-
-  delete $members{"root login"};
-
-  for (values %members) {
-    $_->{templates} =~ s|.*/||;
-    $_->{login_url} =  $::locale->is_utf8 ? Encode::encode('utf-8-strict', $_->{login}) : $_->{login_url};
-  }
-
-  $form->{title}   = "kivitendo " . $locale->text('Administration');
-  $form->{LOCKED}  = -e _nologin_file_name();
-  $form->{MEMBERS} = [ @members{sort { lc $a cmp lc $b } keys %members} ];
-
-  $form->header();
-  print $form->parse_html_template("admin/list_users");
-}
-
-sub add_user {
-  $::form->{title}   = "kivitendo " . $::locale->text('Administration') . " / " . $::locale->text('Add User');
-
-  # User does not have a well behaved new constructor, so we'll just have to build one ourself
-  my $user     = bless {
-    "vclimit"      => 200,
-    "countrycode"  => "de",
-    "numberformat" => "1.000,00",
-    "dateformat"   => "dd.mm.yy",
-    "stylesheet"   => "kivitendo.css",
-    "menustyle"    => "neu",
-    dbport         => $::auth->{DB_config}->{port} || 5432,
-    dbuser         => $::auth->{DB_config}->{user} || 'lxoffice',
-    dbhost         => $::auth->{DB_config}->{host} || 'localhost',
-  }, 'User';
-
-  edit_user_form($user);
-}
-
-sub edit_user {
-  $::form->{title} = "kivitendo " . $::locale->text('Administration') . " / " . $::locale->text('Edit User');
-  $::form->{edit}  = 1;
-
-  # get user
-  my $user = User->new(id => $::form->{user}{id});
-
-  # strip basedir from templates directory
-  $user->{templates} =~ s|.*/||;
-
-  edit_user_form($user);
-}
-
-sub edit_user_form {
-  my ($user) = @_;
-
-  my %cc = $user->country_codes;
-  my @all_countrycodes = map { id => $_, title => $cc{$_} }, sort { $cc{$a} cmp $cc{$b} } keys %cc;
-  my ($all_dir, $all_master) = _search_templates();
-  my $groups = [];
-
-  if ($::form->{edit}) {
-    my $user_id    = $::auth->get_user_id($user->{login});
-    my $all_groups = $::auth->read_groups();
-
-    for my $group (values %{ $all_groups }) {
-      push @{ $groups }, $group if (grep { $user_id == $_ } @{ $group->{members} });
-    }
-
-    $groups = [ sort { lc $a->{name} cmp lc $b->{name} } @{ $groups } ];
-  }
-
-  $::form->header;
-  print $::form->parse_html_template("admin/edit_user", {
-    GROUPS               => $groups,
-    CAN_CHANGE_PASSWORD  => $::auth->can_change_password,
-    user                 => $user->data,
-    all_stylesheets      => \@all_stylesheets,
-    all_numberformats    => \@valid_numberformats,
-    all_dateformats      => \@valid_dateformats,
-    all_countrycodes     => \@all_countrycodes,
-    all_menustyles       => \@all_menustyles,
-    all_templates        => $all_dir,
-    all_master_templates => $all_master,
-  });
-}
-
-sub save_user {
-  my $form          = $main::form;
-  my $locale        = $main::locale;
-
-  my $user = $form->{user};
-
-  $user->{dbdriver} = 'Pg';
-
-  if (!$::form->{edit}) {
-    # no spaces allowed in login name
-    $user->{login} =~ s/\s//g;
-    $::form->show_generic_error($::locale->text('Login name missing!')) unless $user->{login};
-
-    # check for duplicates
-    my %members = $::auth->read_all_users;
-    if ($members{$user->{login}}) {
-      $::form->show_generic_error($locale->text('Another user with the login #1 does already exist.', $user->{login}), 'back_button' => 1);
-    }
-  }
-
-  # no spaces allowed in directories
-  ($::form->{newtemplates}) = split / /, $::form->{newtemplates};
-  $user->{templates} = $::form->{newtemplates} || $::form->{usetemplates} || $user->{login};
-
-  # is there a basedir
-  if (!-d $::lx_office_conf{paths}->{templates}) {
-    $::form->error(sprintf($::locale->text("The directory %s does not exist."), $::lx_office_conf{paths}->{templates}));
-  }
-
-  # add base directory to $form->{templates}
-  $user->{templates} =~ s|.*/||;
-  $user->{templates} =  $::lx_office_conf{paths}->{templates} . "/$user->{templates}";
-
-  my $myconfig = new User(id => $user->{id});
-
-  $::form->show_generic_error($::locale->text('Dataset missing!'))       unless $user->{dbname};
-  $::form->show_generic_error($::locale->text('Database User missing!')) unless $user->{dbuser};
-
-  foreach my $item (keys %{$user}) {
-    $myconfig->{$item} = $user->{$item};
-  }
-
-  $myconfig->save_member;
-
-  $user->{templates}       =~ s|.*/||;
-  $user->{templates}       =  $::lx_office_conf{paths}->{templates} . "/$user->{templates}";
-  $::form->{mastertemplates} =~ s|.*/||;
-
-  # create user template directory and copy master files
-  if (!-d "$user->{templates}") {
-    umask(002);
-
-    if (mkdir "$user->{templates}", oct("771")) {
-
-      umask(007);
-
-      # copy templates to the directory
-
-      my $oldcurrdir = getcwd();
-      if (!chdir("$::lx_office_conf{paths}->{templates}/print/$::form->{mastertemplates}")) {
-        $form->error("$ERRNO: chdir $::lx_office_conf{paths}->{templates}/print/$::form->{mastertemplates}");
-      }
-
-      my $newdir = File::Spec->catdir($oldcurrdir, $user->{templates});
-
-      find(
-        sub
-        {
-          next if ($_ eq ".");
-
-          if (-d $_) {
-            if (!mkdir (File::Spec->catdir($newdir, $File::Find::name))) {
-              chdir($oldcurrdir);
-              $form->error("$ERRNO: mkdir $File::Find::name");
-            }
-          } elsif (-l $_) {
-            if (!symlink (readlink($_),
-                          File::Spec->catfile($newdir, $File::Find::name))) {
-              chdir($oldcurrdir);
-              $form->error("$ERRNO: symlink $File::Find::name");
-            }
-          } elsif (-f $_) {
-            if (!copy($_, File::Spec->catfile($newdir, $File::Find::name))) {
-              chdir($oldcurrdir);
-              $form->error("$ERRNO: cp $File::Find::name");
-            }
-          }
-        }, "./");
-
-      chdir($oldcurrdir);
-
-    } else {
-      $form->error("$ERRNO: $user->{templates}");
-    }
-  }
-
-  # Add new user to his groups.
-  if (ref $form->{new_user_group_ids} eq 'ARRAY') {
-    my $all_groups = $main::auth->read_groups();
-    my %user       = $main::auth->read_user(login => $myconfig->{login});
-
-    foreach my $group_id (@{ $form->{new_user_group_ids} }) {
-      my $group = $all_groups->{$group_id};
-
-      next if !$group;
-
-      push @{ $group->{members} }, $user{id};
-      $main::auth->save_group($group);
-    }
-  }
-
-  if ($main::auth->can_change_password()
-      && defined $::form->{new_password}
-      && ($::form->{new_password} ne '********')) {
-    my $verifier = SL::Auth::PasswordPolicy->new;
-    my $result   = $verifier->verify($::form->{new_password}, 1);
-
-    if ($result != SL::Auth::PasswordPolicy->OK()) {
-      $form->error($::locale->text('The settings were saved, but the password was not changed.') . ' ' . join(' ', $verifier->errors($result)));
-    }
-
-    $main::auth->change_password($myconfig->{login}, $::form->{new_password});
-  }
-
-  $::form->redirect($::locale->text('User saved!'));
-}
-
-sub save_user_as_new {
-  my $form       = $main::form;
-
-  $form->{user}{login} = $::form->{new_user_login};
-  delete $form->{user}{id};
-  delete @{$form}{qw(id edit new_user_login)};
-
-  save_user();
-}
-
-sub delete_user {
-  my $form      = $main::form;
-  my $locale    = $main::locale;
-
-  my $user = $::form->{user} || {};
-
-  $::form->show_generic_error($::locale->text('Missing user id!')) unless $user->{id};
-
-  my $loaded_user = User->new(id => $user->{id});
-
-  my %members   = $main::auth->read_all_users();
-  my $templates = $members{$loaded_user->{login}}->{templates};
-
-  $main::auth->delete_user($loaded_user->{login});
-
-  if ($templates) {
-    my $templates_in_use = 0;
-
-    foreach my $login (keys %members) {
-      next if $loaded_user->{login} eq $login;
-      next if $members{$login}->{templates} ne $templates;
-      $templates_in_use = 1;
-      last;
-    }
-
-    if (!$templates_in_use && -d $templates) {
-      unlink <$templates/*>;
-      rmdir $templates;
-    }
-  }
-
-  $form->redirect($locale->text('User deleted!'));
-
-}
-
-sub login_name {
-  my $login = shift;
-
-  $login =~ s/\[\]//g;
-  return ($login) ? $login : undef;
-
-}
-
-sub get_value {
-  my $line           = shift;
-  my ($null, $value) = split(/=/, $line, 2);
-
-  # remove comments
-  $value =~ s/\s#.*//g;
-
-  # remove any trailing whitespace
-  $value =~ s/^\s*(.*?)\s*$/$1/;
-
-  $value;
+  print $::request->cgi->redirect('controller.pl?action=Admin/login');
 }
 
 sub pg_database_administration {
   my $form = $main::form;
-
-  $form->{dbdriver} = 'Pg';
   dbselect_source();
-
 }
 
 sub dbselect_source {
@@ -506,25 +131,6 @@ sub dbselect_source {
 
   $form->header();
   print $form->parse_html_template("admin/dbadmin");
-}
-
-sub test_db_connection {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  $form->{dbdriver} = 'Pg';
-  User::dbconnect_vars($form, $form->{dbname});
-
-  my $dbh = DBI->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd});
-
-  $form->{connection_ok} = $dbh ? 1 : 0;
-  $form->{errstr}        = $DBI::errstr;
-
-  $dbh->disconnect() if ($dbh);
-
-  $form->{title} = $locale->text('Database Connection Test');
-  $form->header();
-  print $form->parse_html_template("admin/test_db_connection");
 }
 
 sub continue {
@@ -566,15 +172,12 @@ sub dbupdate {
     restore_form($saved_form);
 
     %::myconfig = ();
-    map { $form->{$_} = $::myconfig{$_} = $form->{"${_}_${i}"} } qw(dbname dbdriver dbhost dbport dbuser dbpasswd);
+    map { $form->{$_} = $::myconfig{$_} = $form->{"${_}_${i}"} } qw(dbname dbhost dbport dbuser dbpasswd);
 
     print $form->parse_html_template("admin/dbupgrade_header");
 
-    $form->{dbupdate}        = $form->{dbname};
-    $form->{$form->{dbname}} = 1;
-
     User->dbupdate($form);
-    User->dbupdate2($form, SL::DBUpgrade2->new(form => $form, dbdriver => $form->{dbdriver})->parse_dbupdate_controls);
+    User->dbupdate2(form => $form, updater => SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls, database => $form->{dbname});
 
     print $form->parse_html_template("admin/dbupgrade_footer");
   }
@@ -921,103 +524,6 @@ sub restore_dataset_start {
 
   unlink "${tmpdir}/.pgpass", $tmp;
   rmdir $tmpdir;
-}
-
-sub unlock_system {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  unlink _nologin_file_name();;
-
-  $form->{callback} = "admin.pl?action=list_users";
-
-  $form->redirect($locale->text('Lockfile removed!'));
-
-}
-
-sub lock_system {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  open(FH, ">", _nologin_file_name())
-    or $form->error($locale->text('Cannot create Lock!'));
-  close(FH);
-
-  $form->{callback} = "admin.pl?action=list_users";
-
-  $form->redirect($locale->text('Lockfile created!'));
-
-}
-
-sub yes {
-  call_sub($main::form->{yes_nextsub});
-}
-
-sub no {
-  call_sub($main::form->{no_nextsub});
-}
-
-sub add {
-  call_sub($main::form->{add_nextsub});
-}
-
-sub edit {
-  my $form = $main::form;
-
-  $form->{edit_nextsub} ||= 'edit_user';
-
-  call_sub($form->{edit_nextsub});
-}
-
-sub delete {
-  my $form     = $main::form;
-
-  $form->{delete_nextsub} ||= 'delete_user';
-
-  call_sub($form->{delete_nextsub});
-}
-
-sub save {
-  my $form = $main::form;
-
-  $form->{save_nextsub} ||= 'save_user';
-
-  call_sub($form->{save_nextsub});
-}
-
-sub back {
-  call_sub($main::form->{back_nextsub});
-}
-
-sub dispatcher {
-  my $form   = $main::form;
-  my $locale = $main::locale;
-
-  foreach my $action (qw(create_standard_group dont_create_standard_group
-                         save_user delete_user save_user_as_new)) {
-    if ($form->{"action_${action}"}) {
-      call_sub($action);
-      return;
-    }
-  }
-
-  call_sub($form->{default_action}) if ($form->{default_action});
-
-  $form->error($locale->text('No action defined.'));
-}
-
-sub _apply_dbupgrade_scripts {
-  ::end_of_request() if SL::DBUpgrade2->new(form => $::form, dbdriver => 'Pg', auth => 1)->apply_admin_dbupgrade_scripts(1);
-}
-
-sub _nologin_file_name {
-  return $::lx_office_conf{paths}->{userspath} . '/nologin';
-}
-
-sub _search_templates {
-  my %templates = SL::Template->available_templates;
-
-  return ($templates{print_templates}, $templates{master_templates});
 }
 
 1;

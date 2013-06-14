@@ -1,61 +1,51 @@
-[%- USE T8 %][%- USE L %][% USE LxERP %][% USE HTML %]
-[%- USE JavaScript -%]
+[%- USE L %][% USE LxERP %][% USE HTML %][%- USE JavaScript -%]
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/parts_language_selection.js"></script>
  <script type="text/javascript">
   <!--
-      warehouses = new Array();
-      [%- USE WAREHOUSES_it = Iterator(SELF.WAREHOUSES) %][%- FOREACH warehouse = WAREHOUSES_it %]
-      warehouses[[% WAREHOUSES_it.count - 1 %]] = new Array();
-      warehouses[[% WAREHOUSES_it.count - 1 %]]['id'] = [% warehouse.id %];
-      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'] = new Array();
-      [% USE BINS_it = Iterator(warehouse.BINS) %][% FOREACH bin = BINS_it %]
-      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]] = new Array();
-      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]]['description'] = "[% JavaScript.escape(bin.description) %]";
-      warehouses[[% WAREHOUSES_it.count - 1 %]]['bins'][[% BINS_it.count - 1 %]]['id'] = [% bin.id %];
-      [% END %]
-      [% END %]
+var warehouses = [
+ [%- USE warehouses_it = Iterator(SELF.all_warehouses) %][%- FOREACH warehouse = warehouses_it %]
+  { id:   [% warehouse.id %],
+    bins: [
+     [% USE bins_it = Iterator(warehouse.bins_sorted) %][% FOREACH bin = bins_it %]
+      { id: [% bin.id %], description: "[% JavaScript.escape(bin.description) %]" }[% UNLESS bins_it.last %],[% END %]
+     [% END %]
+   ] }[% UNLESS warehouses_it.last %],[% END %]
+ [% END %]
+];
 
-      function warehouse_selected(warehouse_id, bin_id, bin_id_name) {
+function warehouse_selected(warehouse_id, bin_id, bin_id_name) {
+  // bin_id_name is optional and only used in client_config.html
+  bin_id_name = bin_id_name || 'bin_id';
 
-        // bin_id_name is optional and only used in client_config.html
-        var bin_id_name = bin_id_name || 'bin_id';
+  // Remove all bins safe for the empty entry
+  var bin_select = $('#' + bin_id_name);
+  bin_select.find('option').filter('[value!=""]').remove();
 
-        var control = document.getElementById(bin_id_name);
+  // Find selected warehouse
+  var warehouse = warehouses.filter(function(elt) { return elt.id == warehouse_id; })[0];
+  if (!warehouse)
+    return;
 
-        for (var i = control.options.length - 1; i >= 0; i--) {
-          control.options[i] = null;
-        }
+  // Add bins as options to select.
+  $(warehouse.bins).each(function(idx, bin) {
+    bin_select.append($('<option>', { value: bin.id, selected: bin.id == bin_id }).text(bin.description));
+  });
+}
 
-        var warehouse_index = 0;
+function enable_template_controls() {
+  var existing = $('#use_templates_existing').prop('checked');
+  $('#defaults_templates').prop('disabled', !existing);
+  $('#new_templates,#new_master_templates').prop('disabled', existing);
+}
 
-        for (i = 0; i < warehouses.length; i++)
-          if (warehouses[i]['id'] == warehouse_id) {
-            warehouse_index = i;
-            break;
-          }
+$(function() {
+  warehouse_selected([% SELF.defaults.warehouse_id || -1 %], [% SELF.defaults.bin_id || -1 %], 'bin_id');
+  warehouse_selected([% SELF.defaults.warehouse_id_ignore_onhand || -1 %], [% SELF.defaults.bin_id_ignore_onhand || -1 %], 'bin_id_ignore_onhand');
 
-        var warehouse = warehouses[warehouse_index];
-        var bin_index = 0;
-
-        for (i = 0; i < warehouse['bins'].length; i++)
-          if (warehouse['bins'][i]['id'] == bin_id) {
-            bin_index = i;
-            break;
-          }
-
-        for (i = 0; i < warehouse['bins'].length; i++) {
-          control.options[i] = new Option(warehouse['bins'][i]['description'], warehouse['bins'][i]['id']);
-        }
-
-
-        control.options[bin_index].selected = true;
-      }
-
-      $(function() {
-        warehouse_selected([% SELF.warehouse_id %], [% SELF.bin_id %], 'bin_id');
-        warehouse_selected([% SELF.warehouse_id_ignore_onhand %], [% SELF.bin_id_ignore_onhand %], 'bin_id_ignore_onhand');
-      })
+  enable_template_controls();
+  $('#use_templates_existing,#use_templates_new').change(enable_template_controls);
+})
     -->
  </script>
 <h1>[% title | html %]</h1>
@@ -63,261 +53,28 @@
 [% PROCESS 'common/flash.html' %]
 
 <form action='controller.pl' method='POST'>
+ <div class="tabwidget">
+  <ul>
+   <li><a href="#miscellaneous">[% LxERP.t8('Miscellaneous') %]</a></li>
+   <li><a href="#ranges_of_numbers">[% LxERP.t8('Ranges of numbers') %]</a></li>
+   <li><a href="#default_accounts">[% LxERP.t8('Default Accounts') %]</a></li>
+   <li><a href="#posting_configuration">[% LxERP.t8('Posting Configuration') %]</a></li>
+   <li><a href="#datev_check_configuration">[% LxERP.t8('DATEV check configuration') %]</a></li>
+   <li><a href="#orders_deleteable">[% LxERP.t8('Orders / Delivery Orders deleteable') %]</a></li>
+   <li><a href="#warehouse">[% LxERP.t8('Warehouse') %]</a></li>
+  </ul>
 
-<table>
+[% PROCESS 'client_config/_ranges_of_numbers.html' %]
+[% PROCESS 'client_config/_default_accounts.html' %]
+[% PROCESS 'client_config/_posting_configuration.html' %]
+[% PROCESS 'client_config/_datev_check_configuration.html' %]
+[% PROCESS 'client_config/_orders_deleteable.html' %]
+[% PROCESS 'client_config/_warehouse.html' %]
+[% PROCESS 'client_config/_miscellaneous.html' %]
 
- <tr class='listheading'>
-   <th colspan="3">[% 'Posting Configuration' | $T8 %]</th>
- </tr>
-
- <tr>
-   <td align="right">[% 'Sales invoices changeable' | $T8 %]</td>
-   <td>[% L.select_tag('is_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.is_changeable) %]</td>
-   <td>[% 'Should sales invoices be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Purchase invoices changeable' | $T8 %]</td>
-   <td>[% L.select_tag('ir_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ir_changeable) %]</td>
-   <td>[% 'Should purchase invoices be and when should they be deleteable after posting?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'AR transactions changeable' | $T8 %]</td>
-   <td>[% L.select_tag('ar_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ar_changeable) %]</td>
-   <td>[% 'Should ar transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'AP transactions changeable' | $T8 %]</td>
-   <td>[% L.select_tag('ap_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.ap_changeable) %]</td>
-   <td>[% 'Should ap transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'GL transactions changeable' | $T8 %]</td>
-   <td>[% L.select_tag('gl_changeable', SELF.posting_options, value_key => 'value', title_key => 'title', default => SELF.gl_changeable) %]</td>
-   <td>[% 'Should gl transactions be and when should they be changeable or deleteable after posting?' | $T8 %]</td>
- </tr>
-
- <tr> </tr>
- <tr> </tr>
-
- <tr>
-   <td align="right">[% 'Payments Changeable' | $T8 %]</td>
-   <td>[% L.select_tag('payments_changeable', SELF.payment_options, value_key => 'value', title_key => 'title', default => SELF.payments_changeable) %]</td>
-   <td>[% 'Should payments be and when should they be changeable after posting?' | $T8 %]</td>
- </tr>
-
- <tr> </tr>
- <tr> </tr>
-
- <tr>
-   <td align="right">[% 'Show "mark as paid" in sales invoices' | $T8 %]</td>
-   <td>[% L.yes_no_tag('is_show_mark_as_paid', SELF.is_show_mark_as_paid) %]</td>
-   <td>[% 'Should the "mark as paid" button showed on sales invoices?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Show "mark as paid" in purchase invoices' | $T8 %]</td>
-   <td>[% L.yes_no_tag('ir_show_mark_as_paid', SELF.ir_show_mark_as_paid) %]</td>
-   <td>[% 'Should the "mark as paid" button showed in purchase invoices?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Show "mark as paid" in ar transactions' | $T8 %]</td>
-   <td>[% L.yes_no_tag('ar_show_mark_as_paid', SELF.ar_show_mark_as_paid) %]</td>
-   <td>[% 'Should the "mark as paid" button showed in ar transactions?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Show "mark as paid" in ap transactions' | $T8 %]</td>
-   <td>[% L.yes_no_tag('ap_show_mark_as_paid', SELF.ap_show_mark_as_paid) %]</td>
-   <td>[% 'Should the "mark as paid" button showed in ap transactions?' | $T8 %]</td>
- </tr>
-
- <tr> </tr>
- <tr> </tr>
-
- <tr>
-   <td align="right">[% 'Accounting method' | $T8 %]</td>
-   <td>[% L.select_tag('accounting_method', SELF.accounting_options, value_key => 'value', title_key => 'title', default => SELF.accounting_method) %]</td>
-   <td>[% 'This option controls the posting and calculation behavior for the accounting method.' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Inventory system' | $T8 %]</td>
-   <td>[% L.select_tag('inventory_system', SELF.inventory_options, value_key => 'value', title_key => 'title', default => SELF.inventory_system) %]</td>
-   <td>
-     [% 'This option controls the inventory system.' | $T8 %]<br>
-     [% 'ATTENTION! You can not simply change it from periodic to perpetual once you started posting.' | $T8 %]
-   </td>
- </tr>
- <tr>
-   <td align="right">[% 'Profit determination' | $T8 %]</td>
-   <td>[% L.select_tag('profit_determination', SELF.profit_options, value_key => 'value', title_key => 'title', default => SELF.profit_determination) %]</td>
-   <td>[% 'This option controls the method used for profit determination.' | $T8 %]</td>
- </tr>
-
- <tr> </tr>
- <tr> </tr>
-
- <tr class='listheading'>
-   <th colspan="3">[% 'DATEV check configuration' | $T8 %]</th>
- </tr>
- <tr>
-   <td colspan="3">[% 'It is possible to make a quick DATEV export everytime you post a record to ensure things work nicely with their data requirements. This will result in a slight overhead though you can enable this for each type of record independantly.' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Check on sales invoice' | $T8 %]</td>
-   <td>[% L.yes_no_tag('datev_check_on_sales_invoice', SELF.datev_check_on_sales_invoice) %]</td>
-   <td>[% 'Perform check when a sales invoice or a payment for a sales invoice is posted?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Check on purchase invoice' | $T8 %]</td>
-   <td>[% L.yes_no_tag('datev_check_on_purchase_invoice', SELF.datev_check_on_purchase_invoice) %]</td>
-   <td>[% 'Perform check when a purchase invoice or a payment for a purchase invoice is posted?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Check on ar transaction' | $T8 %]</td>
-   <td>[% L.yes_no_tag('datev_check_on_ar_transaction', SELF.datev_check_on_ar_transaction) %]</td>
-   <td>[% 'Perform check when an ar transaction is posted?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Check on ap transaction' | $T8 %]</td>
-   <td>[% L.yes_no_tag('datev_check_on_ap_transaction', SELF.datev_check_on_ap_transaction) %]</td>
-   <td>[% 'Perform check when an ap transaction is posted?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Check on gl transaction' | $T8 %]</td>
-   <td>[% L.yes_no_tag('datev_check_on_gl_transaction', SELF.datev_check_on_gl_transaction) %]</td>
-   <td>[% 'Perform check when a gl transaction is posted?' | $T8 %]</td>
- </tr>
-
- <tr> </tr>
- <tr> </tr>
-
- <tr class='listheading'>
-   <th colspan="3">[% 'Orders / Delivery Orders deleteable' | $T8 %]</th>
- </tr>
- <tr>
-   <td align="right">[% 'Sales Orders deleteable' | $T8 %]</td>
-   <td>[% L.yes_no_tag('sales_order_show_delete', SELF.sales_order_show_delete) %]</td>
-   <td>[% 'Show delete button in sales orders?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Purchase Orders deleteable' | $T8 %]</td>
-   <td>[% L.yes_no_tag('purchase_order_show_delete', SELF.purchase_order_show_delete) %]</td>
-   <td>[% 'Show delete button in purchase orders?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Sales Delivery Orders deleteable' | $T8 %]</td>
-   <td>[% L.yes_no_tag('sales_delivery_order_show_delete', SELF.sales_delivery_order_show_delete) %]</td>
-   <td>[% 'Show delete button in sales delivery orders?' | $T8 %]</td>
- </tr>
- <tr>
-   <td align="right">[% 'Purchase Delivery Orders deleteable' | $T8 %]</td>
-   <td>[% L.yes_no_tag('purchase_delivery_order_show_delete', SELF.purchase_delivery_order_show_delete) %]</td>
-   <td>[% 'Show delete button in purchase delivery orders?' | $T8 %]</td>
- </tr>
-
- <tr> </tr>
- <tr> </tr>
-
- <tr class='listheading'>
-   <th colspan="3">[% 'Warehouse' | $T8 %]</th>
- </tr>
- <tr>
-   <td align="right">[% 'Default Transfer' | $T8 %]</td>
-   <td>
-     [% L.yes_no_tag('transfer_default', SELF.transfer_default) %]
-   </td>
-   <td>
-     [% 'Show Transfer via default' | $T8 %]<br>
-  </td>
-  </tr>
-  <tr>
-   <td align="right">[% 'Default Transfer with Master Bin' | $T8 %]</td>
-   <td>
-     [% L.yes_no_tag('transfer_default_use_master_default_bin', SELF.transfer_default_use_master_default_bin) %]
-   </td>
-   <td>
-     [% 'Use master default bin for Default Transfer, if no default bin for the part is configured' | $T8 %]<br>
-  </td>
-  </tr>
-  <tr>
-   <td align="right">[% 'Default Transfer Out with negative inventory' | $T8 %]</td>
-   <td>
-     [% L.yes_no_tag('transfer_default_ignore_onhand', SELF.transfer_default_ignore_onhand) %]
-   </td>
-   <td>
-     [% 'Default Transfer Out always succeed. The current part onhand is ignored and the inventory can have negative stocks (not recommended).' | $T8 %]<br>
-  </td>
-  </tr>
-
- <tr> </tr>
-<tr>
-<th align="right" nowrap="true">[% 'Default Warehouse' | $T8 %]</th>
-<td>
- <select name="warehouse_id" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0)">
-  [%- FOREACH warehouse = SELF.WAREHOUSES %]
-    <option value="[% HTML.escape(warehouse.id) %]"[% IF SELF.warehouse_id == warehouse.id %] selected[% END %]>[% warehouse.description %]</option>
-  [%- END %]
- </select>
-</td>
-<td>
-   [% 'This is the default bin for parts' | $T8 %]<br>
-   [% 'If configured this bin will be preselected for all new parts. Also this bin will be used as the master default bin, if default transfer out with master bin is activated.' | $T8 %]<br>
-</td>
-</tr>
-<tr>
-<th align="right" nowrap="true">[% 'Default Bin' | $T8 %]</th>
-<td><select id="bin_id" name="bin_id"></select></td>
-</tr>
-<tr>
-<th align="right" nowrap="true">[% 'Default Warehouse with ignoring on hand' | $T8 %]</th>
-<td>
- <select name="warehouse_id_ignore_onhand" onchange="warehouse_selected(warehouses[this.selectedIndex]['id'], 0, 'bin_id_ignore_onhand')">
-  [%- FOREACH warehouse = SELF.WAREHOUSES %]
-    <option value="[% HTML.escape(warehouse.id) %]"[% IF SELF.warehouse_id_ignore_onhand == warehouse.id %] selected[% END %]>[% warehouse.description %]</option>
-  [%- END %]
- </select>
-</td>
-<td>
-   [% 'This is the default bin for ignoring onhand' | $T8 %]<br>
-   [% 'If the default transfer out always succeed use this bin for negative stock quantity.' | $T8 %]<br>
-</td>
-</tr>
-<tr>
-<th align="right" nowrap="true">[% 'Default Bin with ignoring onhand' | $T8 %]</th>
-<td><select id="bin_id_ignore_onhand" name="bin_id_ignore_onhand"></select></td>
-</tr>
-<tr>
-   <td align="right">[% 'Show Bestbefore' | $T8 %]</td>
-   <td>
-     [% L.yes_no_tag('show_bestbefore', SELF.show_bestbefore) %]
-   </td>
-   <td>
-     [% 'Show fields used for the best before date?' | $T8 %]<br>
-     [% 'ATTENTION! If you enabled this feature you can not simply turn it off again without taking care that best_before fields are emptied in the database.' | $T8 %]<br>
-     [% 'This can be done with the following query:' | $T8 %]<br>
-     <br>
-     UPDATE inventory SET bestbefore = NULL; <br>
-     <br>
-     [% 'Any stock contents containing a best before date will be impossible to stock out otherwise.' | $T8 %]
-   </td>
- </tr>
- <tr class='listheading'>
-   <th colspan="3">[% 'Weight' | $T8 %]</th>
- </tr>
- <tr>
-   <td align="right">[% 'Show weights' | $T8 %]</td>
-   <td>
-     [% L.yes_no_tag('show_weight', SELF.show_weight) %]
-   </td>
-   <td>
-     [% 'Show the weights of articles and the total weight in orders, invoices and delivery notes?' | $T8 %]<br>
-   </td>
- </tr>
-</table>
-
-<br>
-
-[%- L.hidden_tag('action',  'ClientConfig/dispatch')  %]
-[%- L.submit_tag('action_save',  LxERP.t8('Save'))  %]
-
-<br><br>
+ <div>
+  [%- L.hidden_tag('action',  'ClientConfig/dispatch')  %]
+  [%- L.submit_tag('action_save',  LxERP.t8('Save'))  %]
+ </div>
 
 </form>
