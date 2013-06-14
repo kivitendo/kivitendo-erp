@@ -38,6 +38,7 @@ require "bin/mozilla/common.pl";
 
 use List::Util qw(first);
 
+use SL::DB::Default;
 use SL::PE;
 use SL::RP;
 use SL::USTVA;
@@ -225,14 +226,12 @@ sub help {
   $::auth->assert('advance_turnover_tax_return');
 
   # parse help documents under doc
-  my $tmp = $::form->{templates};
   $::form->{templates} = 'doc';
   $::form->{help}      = 'ustva';
   $::form->{type}      = 'help';
   $::form->{format}    = 'html';
   generate_ustva();
 
-  #$form->{templates} = $tmp;
   $::lxdebug->leave_sub();
 }
 
@@ -542,6 +541,10 @@ sub generate_ustva {
   my %myconfig = %::myconfig;
 
   $::auth->assert('advance_turnover_tax_return');
+
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $form->{templates} = $defaults->templates;
 
   # Aufruf von get_config zum Einlesen der Finanzamtdaten aus finanzamt.ini
 
@@ -1060,7 +1063,6 @@ sub generate_ustva {
       . '!');
   }
 
-  $form->{templates} = $myconfig{templates};
   $form->{templates} = "doc" if ( $form->{type} eq 'help' );
 
   if ($form->{format} eq 'generic'){

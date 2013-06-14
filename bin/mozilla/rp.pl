@@ -37,6 +37,7 @@
 
 use POSIX qw(strftime);
 
+use SL::DB::Default;
 use SL::DB::Project;
 use SL::PE;
 use SL::RP;
@@ -220,6 +221,10 @@ sub generate_income_statement {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $form->{templates} = $defaults->templates;
+
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
@@ -374,8 +379,6 @@ sub generate_income_statement {
   my @a = qw(company address businessnumber);
   map { $form->{$_} = $myconfig{$_} } @a;
 
-  $form->{templates} = $myconfig{templates};
-
   $form->{IN} = "income_statement.html";
 
   $form->parse_template;
@@ -387,6 +390,9 @@ sub generate_balance_sheet {
   $::lxdebug->enter_sub;
   $::auth->assert('report');
 
+  my $defaults = SL::DB::Default->get;
+  $::form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $::form->{templates}     = $defaults->templates;
   $::form->{decimalplaces} = $::form->{decimalplaces} * 1 || 2;
   $::form->{padding}       = "&nbsp;&nbsp;";
   $::form->{bold}          = "<b>";
@@ -411,8 +417,6 @@ sub generate_balance_sheet {
 
   # setup company variables for the form
   map { $::form->{$_} = $::myconfig{$_} } qw(company address businessnumber nativecurr);
-
-  $::form->{templates} = $::myconfig{templates};
 
   $::form->header;
   print $::form->parse_html_template('rp/balance_sheet', $data);
@@ -1195,9 +1199,11 @@ sub print_form {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->{statementdate} = $locale->date(\%myconfig, $form->{todate}, 1);
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $form->{templates} = $defaults->templates;
 
-  $form->{templates} = "$myconfig{templates}";
+  $form->{statementdate} = $locale->date(\%myconfig, $form->{todate}, 1);
 
   my $suffix = "html";
   my $attachment_suffix = "html";
@@ -1631,6 +1637,10 @@ sub generate_bwa {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $form->{templates} = $defaults->templates;
+
   $form->{padding} = "&nbsp;&nbsp;";
   $form->{bold}    = "<b>";
   $form->{endbold} = "</b>";
@@ -1821,7 +1831,6 @@ sub generate_bwa {
   # setup variables for the form
   my @a = qw(company address businessnumber);
   map { $form->{$_} = $myconfig{$_} } @a;
-  $form->{templates} = $myconfig{templates};
 
   $form->{IN} = "bwa.html";
 

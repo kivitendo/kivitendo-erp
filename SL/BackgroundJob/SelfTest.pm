@@ -11,6 +11,7 @@ use Sys::Hostname;
 use FindBin;
 
 use SL::DB::AuthUser;
+use SL::DB::Default;
 use SL::Common;
 
 use Rose::Object::MakeMethods::Generic (
@@ -145,7 +146,7 @@ sub _prepare_report {
 
   return unless $template;
   my $email_template = $self->config->{email_template};
-  my $filename       = $email_template || ( ($user->get_config_value('templates') || "templates/mails") . "/self_test/status_mail.txt" );
+  my $filename       = $email_template || ( (SL::DB::Default->get->templates || "templates/mails") . "/self_test/status_mail.txt" );
   my $content_type   = $filename =~ m/.html$/ ? 'text/html' : 'text/plain';
 
 

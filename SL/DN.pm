@@ -36,6 +36,7 @@ package DN;
 
 use SL::Common;
 use SL::DBUtils;
+use SL::DB::Default;
 use SL::GenericTranslations;
 use SL::IS;
 use SL::Mailer;
@@ -394,7 +395,9 @@ sub set_template_options {
 
   my ($self, $myconfig, $form) = @_;
 
-  $form->{templates}    = "$myconfig->{templates}";
+  my $defaults = SL::DB::Default->get;
+  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $form->{templates}    = $defaults->templates;
   $form->{language}     = $form->get_template_language($myconfig);
   $form->{printer_code} = $form->get_printer_code($myconfig);
 
@@ -433,7 +436,7 @@ sub set_template_options {
 
   $form->{IN} = undef;
   for my $filename (@template_files) {
-    if (-f "$form->{templates}/$filename") {
+    if (-f ($defaults->templates . "/$filename")) {
       $form->{IN} = $filename;
       last;
     }

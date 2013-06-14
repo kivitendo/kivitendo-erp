@@ -43,6 +43,7 @@ use Encode;
 use List::MoreUtils qw(any);
 use SL::DBUtils;
 use SL::DB::AuthUser;
+use SL::DB::Default;
 use SL::DB::Employee;
 
 use strict;
@@ -994,7 +995,7 @@ sub prepare_template_filename {
       $filename =~ s|.*/||;
     }
     $display_filename = $filename;
-    $filename = "$myconfig->{templates}/$filename";
+    $filename = SL::DB::Default->get->templates . "/$filename";
   }
 
   $main::lxdebug->leave_sub();

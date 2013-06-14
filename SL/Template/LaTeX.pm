@@ -12,6 +12,8 @@ use File::Temp;
 use List::MoreUtils qw(any);
 use Unicode::Normalize qw();
 
+use SL::DB::Default;
+
 sub new {
   my $type = shift;
 
@@ -516,7 +518,7 @@ sub parse_and_create_pdf {
   $local_form->{IN}        = $template_file_name;
   $local_form->{tmpdir}    = $::lx_office_conf{paths}->{userspath};
   $local_form->{tmpfile}   = $tex_file_name;
-  $local_form->{templates} = $::myconfig{templates};
+  $local_form->{templates} = SL::DB::Default->get->templates;
 
   foreach (keys %params) {
     croak "The parameter '$_' must not be used." if exists $local_form->{$_};

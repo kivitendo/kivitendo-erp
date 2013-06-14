@@ -53,6 +53,7 @@ use SL::CVar;
 use SL::DB;
 use SL::DBConnect;
 use SL::DBUtils;
+use SL::DB::Default;
 use SL::DO;
 use SL::IC;
 use SL::IS;
@@ -3368,7 +3369,9 @@ sub restore_vars {
 sub prepare_for_printing {
   my ($self) = @_;
 
-  $self->{templates} ||= $::myconfig{templates};
+  my $defaults         = SL::DB::Default->get;
+
+  $self->{templates} ||= $defaults->templates;
   $self->{formname}  ||= $self->{type};
   $self->{media}     ||= 'email';
 
@@ -3420,7 +3423,7 @@ sub prepare_for_printing {
   }
 
   my $printer_code    = $self->{printer_code} ? '_' . $self->{printer_code} : '';
-  my $email_extension = -f "$::myconfig{templates}/$self->{formname}_email${language}.${extension}" ? '_email' : '';
+  my $email_extension = -f ($defaults->templates . "/$self->{formname}_email${language}.${extension}") ? '_email' : '';
   $self->{IN}         = "$self->{formname}${email_extension}${language}${printer_code}.${extension}";
 
   # Format dates.
