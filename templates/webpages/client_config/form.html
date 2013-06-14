@@ -1,5 +1,4 @@
-[%- USE T8 %][%- USE L %][% USE LxERP %][% USE HTML %]
-[%- USE JavaScript -%]
+[%- USE L %][% USE LxERP %][% USE HTML %][%- USE JavaScript -%]
  <script type="text/javascript" src="js/common.js"></script>
  <script type="text/javascript" src="js/parts_language_selection.js"></script>
  <script type="text/javascript">
@@ -47,13 +46,17 @@ $(function() {
 <form action='controller.pl' method='POST'>
  <div class="tabwidget">
   <ul>
-   <li><a href="#posting_configuration">[% 'Posting Configuration' | $T8 %]</a></li>
-   <li><a href="#datev_check_configuration">[% 'DATEV check configuration' | $T8 %]</a></li>
-   <li><a href="#orders_deleteable">[% 'Orders / Delivery Orders deleteable' | $T8 %]</a></li>
-   <li><a href="#warehouse">[% 'Warehouse' | $T8 %]</a></li>
-   <li><a href="#miscellaneous">[% 'Miscellaneous' | $T8 %]</a></li>
+   <li><a href="#miscellaneous">[% LxERP.t8('Miscellaneous') %]</a></li>
+   <li><a href="#ranges_of_numbers">[% LxERP.t8('Ranges of numbers') %]</a></li>
+   <li><a href="#default_accounts">[% LxERP.t8('Default Accounts') %]</a></li>
+   <li><a href="#posting_configuration">[% LxERP.t8('Posting Configuration') %]</a></li>
+   <li><a href="#datev_check_configuration">[% LxERP.t8('DATEV check configuration') %]</a></li>
+   <li><a href="#orders_deleteable">[% LxERP.t8('Orders / Delivery Orders deleteable') %]</a></li>
+   <li><a href="#warehouse">[% LxERP.t8('Warehouse') %]</a></li>
   </ul>
 
+[% PROCESS 'client_config/_ranges_of_numbers.html' %]
+[% PROCESS 'client_config/_default_accounts.html' %]
 [% PROCESS 'client_config/_posting_configuration.html' %]
 [% PROCESS 'client_config/_datev_check_configuration.html' %]
 [% PROCESS 'client_config/_orders_deleteable.html' %]
