@@ -5,6 +5,44 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 ** BITTE FERTIGEN SIE VOR DEM UPGRADE EIN BACKUP IHRER DATENBANK(EN) AN! **
 
 
+Upgrade auf v3.x.0
+==================
+
+* Neue Abhängigkeiten
+
+  * File::Copy::Recursive
+
+  Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
+
+  $ scripts/installation_check.pl -ro
+
+* Perl v5.10.1 oder neuer wird zwingend vorausgesetzt.
+
+* Einführung von Mandanten. Früher war die Konfiguration der
+  Datenbanken für jeden Benutzer getrennt vorzunehmen. Mit diesem
+  Release wurden Mandanten eingeführt: ein Mandant bekommt einen Namen
+  sowie die Datenbankkonfiguration, und Benutzer bekommen
+  Zugriffsrechte auf einen oder mehrere Mandanten.
+
+  Um dieses Update durchzuführen, müssen Sie sich einmal im
+  Administrationsbereich anmelden. Vorher ist kein Login im
+  Benutzerbereich möglich.
+
+  Die neue Struktur bedingt, dass viele Scripte, die bisher zur
+  Konfiguration nur einen Benutzer verlangt haben, jetzt auch einen
+  Mandanten verlangen. Die Konfiguration dieser Scripte ist deshalb
+  manuell anzupassen. Dazu gehören:
+
+  - der Task-Server (config/kivitendo.conf)
+  - CSV-Import von der Shell aus (scripts/csv-import-from-shell.sh)
+
+  Die folgenden Scripte sind ebenfalls betroffen, allerdings nur für
+  Entwickler interessant:
+
+  - scripts/dbupgrade2_tool.pl
+  - scripts/rose_auto_create_model.pl
+
+
 Upgrade auf v3.0.0
 ==================
 
