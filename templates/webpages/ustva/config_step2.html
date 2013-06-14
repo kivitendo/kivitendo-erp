@@ -158,7 +158,7 @@
 [%- IF COA_Germany %]
            [% input_steuernummer %]
 [%- ELSE %]
-[% 'Please enter the taxnumber in the administration menu user preferences' | $T8 %]
+[% 'Please enter the taxnumber in the client configuration.' | $T8 %]
 [% 'Current value:' | $T8 %] [% HTML.escape(myconfig_taxnumber) %]
 [%- END %]
 

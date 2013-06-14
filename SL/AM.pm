@@ -1062,8 +1062,7 @@ sub save_preferences {
   my $user = SL::DB::Manager::AuthUser->find_by(login => $form->{login});
   $user->update_attributes(
     config_values => {
-      map({ ($_ => $form->{$_})                                   } SL::DB::AuthUser::CONFIG_VARS()),
-      map({ ($_ => do { my $v = $form->{$_}; $v =~ s/\r//g; $v }) } qw(address signature)),
+      map { ($_ => $form->{$_}) } SL::DB::AuthUser::CONFIG_VARS(),
     });
 
   $main::lxdebug->leave_sub();

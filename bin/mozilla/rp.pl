@@ -375,10 +375,6 @@ sub generate_income_statement {
       . qq| $longcomparetodate|;
   }
 
-  # setup variables for the form
-  my @a = qw(company address businessnumber);
-  map { $form->{$_} = $myconfig{$_} } @a;
-
   $form->{IN} = "income_statement.html";
 
   $form->parse_template;
@@ -414,9 +410,6 @@ sub generate_balance_sheet {
   $::form->{last_period} = $::locale->date(\%::myconfig, $::form->{compareasofdate}, 0);
 
 #  $::form->{IN} = "balance_sheet.html";
-
-  # setup company variables for the form
-  map { $::form->{$_} = $::myconfig{$_} } qw(company address businessnumber nativecurr);
 
   $::form->header;
   print $::form->parse_html_template('rp/balance_sheet', $data);
@@ -459,6 +452,7 @@ sub generate_trial_balance {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
+  my $defaults = SL::DB::Default->get;
 
   if ($form->{reporttype} eq "custom") {
 
@@ -620,7 +614,7 @@ sub generate_trial_balance {
   $form->{print_date} = $locale->text('Create Date') . " " . $locale->date(\%myconfig, $form->current_date(\%myconfig), 0);
   push (@options, $form->{print_date});
 
-  $form->{company} = $locale->text('Company') . " " . $myconfig{company};
+  $form->{company} = $locale->text('Company') . " " . $defaults->company;
   push (@options, $form->{company});
 
 
@@ -1827,10 +1821,6 @@ sub generate_bwa {
       . $locale->text('bis')
       . qq| $longtodate|;
   }
-
-  # setup variables for the form
-  my @a = qw(company address businessnumber);
-  map { $form->{$_} = $myconfig{$_} } @a;
 
   $form->{IN} = "bwa.html";
 

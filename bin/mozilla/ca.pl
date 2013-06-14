@@ -35,6 +35,7 @@
 use POSIX qw(strftime);
 
 use SL::CA;
+use SL::DB::Default;
 use SL::ReportGenerator;
 
 require "bin/mozilla/reportgenerator.pl";
@@ -186,6 +187,7 @@ sub list_transactions {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
+  my $defaults = SL::DB::Default->get;
 
   $main::auth->assert('report');
 
@@ -331,7 +333,7 @@ sub list_transactions {
   $form->{print_date} = $locale->text('Create Date') . " " . $locale->date(\%myconfig, $form->current_date(\%myconfig), 0);
   push (@options, $form->{print_date});
 
-  $form->{company} = $locale->text('Company') . " " . $myconfig{company};
+  $form->{company} = $locale->text('Company') . " " . $defaults->company;
   push (@options, $form->{company});
 
   my @columns     = qw(transdate reference description gegenkonto debit credit ustkonto ustrate balance);

@@ -978,6 +978,7 @@ sub parse_template {
 
   local (*IN, *OUT);
 
+  my $defaults  = SL::DB::Default->get;
   my $userspath = $::lx_office_conf{paths}->{userspath};
 
   $self->{"cwd"} = getcwd();
@@ -1029,11 +1030,13 @@ sub parse_template {
   $self->{"notes"} = $self->{ $self->{"formname"} . "notes" };
 
   if (!$self->{employee_id}) {
-    map { $self->{"employee_${_}"} = $myconfig->{$_}; } qw(email tel fax name signature company address businessnumber co_ustid taxnumber duns);
+    $self->{"employee_${_}"} = $myconfig->{$_} for qw(email tel fax name signature);
+    $self->{"employee_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
   }
 
-  map { $self->{"${_}"} = $myconfig->{$_}; } qw(co_ustid);
-  map { $self->{"myconfig_${_}"} = $myconfig->{$_} } grep { $_ ne 'dbpasswd' } keys %{ $myconfig };
+  $self->{"myconfig_${_}"} = $myconfig->{$_} for grep { $_ ne 'dbpasswd' } keys %{ $myconfig };
+  $self->{$_}              = $defaults->$_   for qw(co_ustid);
+  $self->{"myconfig_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
@@ -1898,6 +1901,7 @@ sub get_employee_data {
 
   my $self     = shift;
   my %params   = @_;
+  my $defaults = SL::DB::Default->get;
 
   Common::check_params(\%params, qw(prefix));
   Common::check_params_x(\%params, qw(id));
@@ -1914,7 +1918,8 @@ sub get_employee_data {
 
   if ($login) {
     my $user = User->new(login => $login);
-    map { $self->{$params{prefix} . "_${_}"} = $user->{$_}; } qw(address businessnumber co_ustid company duns email fax name signature taxnumber tel);
+    $self->{$params{prefix} . "_${_}"}    = $user->{$_}   for qw(email fax name signature tel);
+    $self->{$params{prefix} . "_${_}"}    = $defaults->$_ for qw(address businessnumber co_ustid company duns taxnumber);
 
     $self->{$params{prefix} . '_login'}   = $login;
     $self->{$params{prefix} . '_name'}  ||= $login;
@@ -3377,11 +3382,16 @@ sub prepare_for_printing {
 
   die "'media' other than 'email', 'file', 'printer' is not supported yet" unless $self->{media} =~ m/^(?:email|file|printer)$/;
 
+  # Several fields that used to reside in %::myconfig (stored in
+  # auth.user_config) are now stored in defaults. Copy them over for
+  # compatibility.
+  $self->{$_} = $defaults->$_ for qw(company address taxnumber co_ustid duns sepa_creditor_id);
+
   # set shipto from billto unless set
   my $has_shipto = any { $self->{"shipto$_"} } qw(name street zipcode city country contact);
   if (!$has_shipto && ($self->{type} =~ m/^(?:purchase_order|request_quotation)$/)) {
-    $self->{shiptoname}   = $::myconfig{company};
-    $self->{shiptostreet} = $::myconfig{address};
+    $self->{shiptoname}   = $defaults->company;
+    $self->{shiptostreet} = $defaults->address;
   }
 
   my $language = $self->{language} ? '_' . $self->{language} : '';

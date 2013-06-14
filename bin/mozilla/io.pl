@@ -1443,8 +1443,8 @@ sub print_form {
   if ($shipto) {
     if (   $form->{formname} eq 'purchase_order'
         || $form->{formname} eq 'request_quotation') {
-      $form->{shiptoname}   = $myconfig{company};
-      $form->{shiptostreet} = $myconfig{address};
+      $form->{shiptoname}   = $defaults->company;
+      $form->{shiptostreet} = $defaults->address;
     } else {
       map { $form->{"shipto$_"} = $form->{$_} } @a;
     }
