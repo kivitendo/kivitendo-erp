@@ -1645,7 +1645,6 @@ sub get_all_currencies {
   my $self     = shift;
   my $myconfig = shift || \%::myconfig;
   my $dbh      = $self->get_standard_dbh($myconfig);
-  my @currencies =();
 
   my $query = qq|SELECT name FROM currencies|;
   my @currencies = map { $_->{name} } selectall_hashref_query($self, $dbh, $query);
