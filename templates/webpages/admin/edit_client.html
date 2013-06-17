@@ -14,6 +14,13 @@
  <h2>[%- LxERP.t8("Settings") %]</h2>
 
  <table>
+[%- IF SELF.client.id %]
+  <tr>
+   <th align="right">[% LxERP.t8('Database ID') %]</th>
+   <td>[%- HTML.escape(SELF.client.id) %]</td>
+  </tr>
+[%- END %]
+
   <tr>
    <th align="right">[% LxERP.t8('Client name') %]</th>
    <td>[% L.input_tag("client.name", SELF.client.name) %]</td>

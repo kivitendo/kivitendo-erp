@@ -74,8 +74,8 @@
 [%- ELSE %]
   <table width="100%">
    <tr class="listheading">
-    <th>[% LxERP.t8('Client name') %]</th>
     <th>[% LxERP.t8('Database ID') %]</th>
+    <th>[% LxERP.t8('Client name') %]</th>
     <th>[% LxERP.t8('Database name') %]</th>
     <th>[% LxERP.t8('Database Host') %]</th>
     <th>[% LxERP.t8('Database User') %]</th>
@@ -84,8 +84,8 @@
 
 [%- FOREACH client = SELF.all_clients %]
    <tr class="listrow">
+    <td>[% L.link(SELF.url_for(action="edit_client", id=client.id), HTML.escape(client.id)) %]</td>
     <td>[% L.link(SELF.url_for(action="edit_client", id=client.id), HTML.escape(client.name)) %]</td>
-    <td>[% HTML.escape(client.id) %]</td>
     <td>[% HTML.escape(client.dbname) %]</td>
     <td>[% HTML.escape(client.dbhost) %][% IF client.dbport %]:[%- HTML.escape(client.dbport) %][%- END %]</td>
     <td>[% HTML.escape(client.dbuser) %]</td>
