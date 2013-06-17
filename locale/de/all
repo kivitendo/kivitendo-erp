@@ -2369,6 +2369,7 @@ $self->{texts} = {
   'Use master default bin for Default Transfer, if no default bin for the part is configured' => 'Standardlagerplatz für Ein- / Auslagern über Standard-Lagerplatz, falls für die Ware kein expliziter Lagerplatz konfiguriert ist',
   'User'                        => 'Benutzer',
   'User Config'                 => 'Einstellungen',
+  'User Preferences'            => 'Benutzereinstellungen',
   'User access'                 => 'Benutzerzugriff',
   'User list'                   => 'Benutzerliste',
   'User login'                  => 'Benutzeranmeldung',
