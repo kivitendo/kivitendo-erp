@@ -132,13 +132,6 @@ latex = pdflatex
 # into binaries located in different locations than the main Python
 # binary.
 python_uno = python
-# Location of the two executables "pg_dump" and "pg_restore" used for
-# database backup and restoration from the admin section.  If
-# "pg_dump" or "pg_restore" is set to "DISABLED" then the
-# corresponding option (backup/restoration) will be hidden from the
-# admin section.
-pg_dump = pg_dump
-pg_restore = pg_restore
 
 [environment]
 # Add the following paths to the PATH environment variable.
