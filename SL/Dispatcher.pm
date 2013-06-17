@@ -223,7 +223,7 @@ sub handle_request {
     $::form->{action}  =~ s/( |-|,|\#)/_/g;
 
    ($script, $path, $suffix) = fileparse($script_name, ".pl");
-    require_main_code($script, $suffix);
+    require_main_code($script, $suffix) unless $script eq 'admin';
 
     $::form->{script} = $script . $suffix;
 
@@ -248,11 +248,8 @@ sub handle_request {
       _require_controller('LoginScreen');
     }
 
-    if (($script eq 'login') && !$action) {
-      print $::request->{cgi}->redirect('controller.pl?action=LoginScreen/user_login');
-
-    } elsif ($script eq 'admin') {
-      ::run($session_result);
+    if ((($script eq 'login') && !$action) || ($script eq 'admin')) {
+      $self->redirect_to_login($script);
 
     } else {
       $self->redirect_to_login($script) if SL::Auth::SESSION_EXPIRED == $session_result;
