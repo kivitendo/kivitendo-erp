@@ -25,6 +25,15 @@ Größere neue Features:
     Chargennummer vergeben (welches ein Abbruchkriterium beim Auslagern ist), lager dennoch
     aus und verwende hierfür den vorkonfigurierte Fehlbestands-, bzw. Fehlbuchungslagerplatz.
 
+- Einführung von Mandanten. Früher war die Konfiguration der
+  Datenbanken für jeden Benutzer getrennt vorzunehmen. Mit diesem
+  Release wurden Mandanten eingeführt: ein Mandant bekommt einen Namen
+  sowie die Datenbankkonfiguration, und Benutzer bekommen
+  Zugriffsrechte auf einen oder mehrere Mandanten.
+
+  Mit dieser Änderung wurde auch eingeführt, dass es ein
+  WebDAV-Verzeichnis pro Mandant gibt. Die dafür notwendigen
+  Umstellungen werden zusammen mit dem Datenbankupgrade durchgeführt.
 
 
 
@@ -47,6 +56,18 @@ Kleinere neue Features und Detailverbesserungen:
 
 - #1897 implementiert. Zukunfts-Buchungen verhindern, durch einen konfigurierbaren
   maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage)
+
+
+Wichtige Änderungen:
+
+- Upgrades von alten kivitendo-Versionen, die Benutzer noch über die
+  Datei "users/members" verwaltet haben, werden nicht mehr
+  unterstützt. Falls Sie eine solche Installation haben sollten, so
+  müssen Sie zuerst kivitendo 3.0.0 installieren und damit updaten,
+  bevor Sie in einem zweiten Schritt auf die aktuelle
+  kivitendo-Version aktualisieren.
+
+
 
 2012-12-10 - Release 3.0.0
 
