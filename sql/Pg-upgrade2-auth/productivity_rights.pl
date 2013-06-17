@@ -16,8 +16,8 @@ sub run {
   my $groups = $main::auth->read_groups();
 
   foreach my $group (values %{$groups}) {
-    $group->{rights}->{productivity}       = 1 unless defined $group->{rights}->{productivity};
-    $group->{rights}->{display_admin_link} = 1 unless defined $group->{rights}->{display_admin_link};
+    $group->{rights}->{productivity}       = 1;
+    $group->{rights}->{display_admin_link} = 1;
     $main::auth->save_group($group);
   }
 
