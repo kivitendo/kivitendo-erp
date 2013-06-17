@@ -391,12 +391,13 @@ dbcharset = UTF-8</programlisting>
         angeben, der nach Erstellung der Rechnungen eine entsprechende E-Mail
         mit Informationen über die erstellten Rechnungen bekommt.</para>
 
-        <para>Nutzt man den <link
-        linkend="config.task-server">Taskserver</link> für <link
-        linkend="features.periodic-invoices">wiederkehrende Rechnungen</link>,
-        muss unter <varname>[task_server]</varname> ein Login eines Benutzers
-        angegeben werden, mit dem sich der Taskserver an kivitendo bei der
-        Datenbank anmeldet, die dem Benutzer zugewiesen ist.</para>
+        <para>kivitendo bringt eine eigene Komponente zur zeitgesteuerten Ausführung bestimmter Aufgaben mit, den <link
+        linkend="config.task-server">Taskserver</link>. Er wird u.a. für Features wie die <link
+        linkend="features.periodic-invoices">wiederkehrenden Rechnungen</link> benötigt, erledigt aber auch andere erforderliche Aufgaben
+        und muss daher in Betrieb genommen werden. Der Taskserver benötigt zwei Konfigurationseinstellungen, die unter
+        <varname>[task_server]</varname> anzugeben sind: ein Mandant (entweder der Mandantenname oder eine Datenbank-ID, Variable
+        <varname>client</varname>), aus dem die Datenbankkonfiguration entnommen wird, sowie ein Login (Variable <varname>login</varname>)
+        eines Benutzers, der für gewisse Dinge wie die Rechnungserstellung als Verkäufer eingetragen wird.</para>
 
         <para>Für Entwickler finden sich unter <varname>[debug]</varname>
         wichtige Funktionen, um die Fehlersuche zu erleichtern.</para>
@@ -730,12 +731,9 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
     <sect1 id="config.task-server">
       <title>Der Task-Server</title>
 
-      <para>Der Task-Server ist ein Prozess, der im Hintergrund läuft, in
-      regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und diese zu
-      festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser Prozess
-      wird bisher nur für die Erzeugung der wiederkehrenden Rechnungen
-      benutzt, wird aber in Zukunft deutlich mehr Aufgaben übertragen
-      bekommen.</para>
+      <para>Der Task-Server ist ein Prozess, der im Hintergrund läuft, in regelmäßigen Abständen nach abzuarbeitenden Aufgaben sucht und
+      diese zu festgelegten Zeitpunkten abarbeitet (ähnlich wie Cron). Dieser Prozess wird u.a. für die Erzeugung der wiederkehrenden
+      Rechnungen und weitere essenzielle Aufgaben benutzt.</para>
 
       <sect2 id="Konfiguration-des-Task-Servers">
         <title>Verfügbare und notwendige Konfigurationsoptionen</title>
@@ -747,13 +745,24 @@ Alias       /url/for/kivitendo-erp-fcgid/          /path/to/kivitendo-erp/</prog
 
         <variablelist>
           <varlistentry>
+            <term><varname>client</varname></term>
+
+            <listitem>
+              <para>Name oder Datenbank-ID eines vorhandenen kivitendo-Mandanten, der benutzt wird, um die zu verwendende
+              Datenbankverbindung auszulesen. Der Mandant muss in der Administration angelegt werden. Diese Option muss angegeben
+              werden.</para>
+
+              <para>Diese Option kam mit Release v3.x.0 hinzu und muss daher in Konfigurationen, die von älteren Versionen aktualisiert
+              wurden, ergänzt werden.</para>
+            </listitem>
+          </varlistentry>
+
+          <varlistentry>
             <term><varname>login</varname></term>
 
             <listitem>
-              <para>gültiger kivitendo-Benutzername, der benutzt wird, um die
-              zu verwendende Datenbankverbindung auszulesen. Der Benutzer muss
-              in der Administration angelegt werden. Diese Option muss
-              angegeben werden.</para>
+              <para>gültiger kivitendo-Benutzername, der z.B. als Verkäufer beim Erzeugen wiederkehrender Rechnungen benötigt wird. Der
+              Benutzer muss in der Administration angelegt werden. Diese Option muss angegeben werden.</para>
             </listitem>
           </varlistentry>
 
@@ -904,13 +913,11 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <sect2 id="Prozesskontrolle2">
         <title>Task-Server mit mehreren Mandanten</title>
 
-        <para>Beim Task-Server wird der Login-Name des Benutzers, unter dem der
-        Task-Server laufen soll, in die Konfigurationsdatei geschrieben. Hat
-        man mehrere Mandanten muß man auch mehrere Konfigurationsdateien
-        anlegen.</para>
+        <para>Beim Task-Server werden der zu verwendende Mandant und Login-Name des Benutzers, unter dem der Task-Server laufen soll, in die
+        Konfigurationsdatei geschrieben. Hat man mehrere Mandanten, muss man auch mehrere Konfigurationsdateien anlegen.</para>
 
-        <para>Die Konfigurationsdatei ist eine Kopie der Datei kivitendo.conf,
-        wo in der Kategorie [task_server] der gewünschte "login" steht.</para>
+        <para>Die Konfigurationsdatei ist eine Kopie der Datei kivitendo.conf, wo in der Kategorie <varname>[task_server]</varname> die
+        gewünschten Werte für <varname>client</varname> und <varname>login</varname> eingetragen werden.</para>
 
         <para>Der alternative Task-Server wird dann mit folgendem Befehl
         gestartet:</para>
@@ -1143,25 +1150,41 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         der folgenden URL erreichbar sein sollte:</para>
 
         <para><ulink
-        url="http://localhost/kivitendo-erp/admin.pl">http://localhost/kivitendo-erp/admin.pl</ulink></para>
+        url="http://localhost/kivitendo-erp/controller.pl?action=Admin/login">http://localhost/kivitendo-erp/controller.pl?action=Admin/login</ulink></para>
       </sect2>
     </sect1>
 
     <sect1 id="Benutzer--und-Gruppenverwaltung">
-      <title>Benutzer- und Gruppenverwaltung</title>
+      <title>Mandanten-, Benutzer- und Gruppenverwaltung</title>
 
-      <para>Nach der Installation müssen Benutzer, Gruppen und Datenbanken
-      angelegt werden. Dieses geschieht im Administrationsmenü, das Sie unter
-      folgender URL finden:</para>
+      <para>Nach der Installation müssen Mandanten, Benutzer, Gruppen und Datenbanken angelegt werden. Dieses geschieht im
+      Administrationsmenü, das Sie unter folgender URL finden:</para>
 
       <para><ulink
-      url="http://localhost/kivitendo-erp/admin.pl">http://localhost/kivitendo-erp/admin.pl</ulink></para>
+      url="http://localhost/kivitendo-erp/controller.pl?action=Admin/login">http://localhost/kivitendo-erp/controller.pl?action=Admin/login</ulink></para>
 
       <para>Verwenden Sie zur Anmeldung das Password, dass Sie in der Datei
       <filename>config/kivitendo.conf</filename> eingetragen haben.</para>
 
       <sect2 id="Zusammenhänge">
         <title>Zusammenhänge</title>
+
+        <para>kivitendo verwaltet zwei Sets von Daten, die je nach Einrichtung in einer oder zwei Datenbanken gespeichert werden.</para>
+
+        <para>Das erste Set besteht aus Anmeldeinformationen: welche Benutzer und Mandanten gibt es, welche Gruppen, welche BenutzerIn hat
+        Zugriff auf welche Mandanten, und welche Gruppe verfügt über welche Rechte. Diese Informationen werden in der
+        Authentifizierungsdatenbank gespeichert. Dies ist diejenige Datenbank, deren Verbindungsparameter in der Konfigurationsdatei
+        <filename>config/kivitendo.conf</filename> gespeichert werden.</para>
+
+        <para>Das zweite Set besteht aus den eigentlichen Verkehrsdaten eines Mandanten: Stammdaten (Kunden, Lieferanten, Waren), Belege
+        (Angebote, Liferscheine, Rechnungen), Einstellungen. Diese werden in einer Mandantendatenbank gespeichert. Die
+        Verbindungsinformationen einer solchen Mandantendatenbank werden im Administrationsbereich konfiguriert, indem man einen Mandanten
+        anlegt und dort die Parameter einträgt. Dabei hat jeder Mandant eine eigene Datenbank.</para>
+
+        <para>Aufgrund des Datenbankdesigns ist es für einfache Fälle möglich, die Authentifizierungsdatenbank und eine der
+        Mandantendatenbanken in ein und derselben Datenbank zu speichern. Arbeitet man hingegen mit mehr als einem Mandanten, wird
+        empfohlen, für die Authentifizierungsdatenbank eine eigene Datenbank zu verwenden, die nicht gleichzeitig für einen Mandanten
+        verwendet wird.</para>
 
         <para>kivitendo verwendet eine Datenbank zum Speichern all seiner
         Informationen wie Kundendaten, Artikel, Angebote, Rechnungen etc. Um
@@ -1171,30 +1194,29 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         möglich und normal, dass mehreren Benutzern die selbe Datenbank
         zugewiesen wird, sodass sie alle mit den selben Daten arbeiten
         können.</para>
+      </sect2>
 
-        <para>Die Basisdaten der Benutzer, die in der Administration
-        eingegeben werden können, werden in einer zweiten Datenbank
-        gespeichert, der bereits erwähnten Authentifizierungsdatenbank. Diese
-        ist also den Produktivdaten enthaltenden Datenbanken vorgeschaltet.
-        Pro kivitendo-Installation gibt es nur eine
-        Authentifizierungsdatenbank, aber beliebig viele Datenbanken mit
-        Firmendaten.</para>
+      <sect2 id="Mandanten-Benutzer-Gruppen">
+        <title>Mandanten, Benutzer und Gruppen</title>
 
-        <para>kivitendo kann seinen Benutzern Zugriff auf bestimmte
-        Funktionsbereiche erlauben oder verbieten. Wird der Zugriff nicht
-        gestattet, so werden der entsprechenden Menüpunkte auch nicht
-        angezeigt. Diese Rechte werden ebenfalls in der
-        Authentifizierungsdatenbank gespeichert.</para>
+        <para>kivitendos Administration kennt Mandanten, Benutzer und Gruppen, die sich frei zueinander zuordnen lassen.</para>
 
-        <para>Um Rechte verteilen zu können, verwendet kivitendo ein
-        Gruppen-Prinzip. Einer Gruppe kann der Zugriff auf bestimmte Bereiche
-        erlaubt werden. Ein Benutzer wiederum kann Mitglied in einer oder
-        mehrerer Gruppen sein. Der Benutzer hat Zugriff auf alle diejenigen
-        Funktionen, die mindestens einer Gruppe erlaubt sind, in der der
-        Benutzer Mitglied ist.</para>
+        <para>kivitendo kann mehrere Mandaten aus einer Installation heraus verwalten. Welcher Mandant benutzt wird, kann direkt beim Login
+        ausgewählt werden. Für jeden Mandanten wird ein eindeutiger Name vergeben, der beim Login angezeigt wird. Weiterhin benötigt der
+        Mandant Datenbankverbindungsparameter für seine Mandantendatenbank. Diese sollte über die <link
+        linkend="Datenbanken-anlegen">Datenbankverwaltung</link> geschehen.</para>
 
-        <para>Die allgemeine Reihenfolge, in der Datenbanken, Gruppen und
-        Benutzer angelegt werden sollten, lautet:</para>
+        <para>Ein Benutzer ist eine Person, die Zugriff auf kivitendo erhalten soll. Sie erhält einen Loginnamen sowie ein
+        Passwort. Weiterhin legt der Administrator fest, an welchen Mandanten sich ein Benutzer anmelden kann, was beim Login verifiziert
+        wird.</para>
+
+        <para>Gruppen dienen dazu, Benutzern innerhalb eines Mandanten Zugriff auf bestimmte Funktionen zu geben. Einer Gruppe werden dafür
+        vom Administrator gewisse Rechte zugeordnet. Weiterhin legt der Administrator fest, für welche Mandanten eine Gruppe gilt, und
+        welche Benutzer Mitglieder in dieser Gruppe sind. Meldet sich ein Benutzer dann an einem Mandanten an, so erhält er alle Rechte von
+        allen denjenigen Gruppen, die zum Einen dem Mandanten zugeordnet sind und in denen der Benutzer zum Anderen Mitglied ist, </para>
+
+        <para>Die Reihenfolge, in der Datenbanken, Mandanten, Gruppen und Benutzer angelegt werden, kann im Prinzip beliebig gewählt
+        werden. Die folgende Reihenfolge beinhaltet die wenigsten Arbeitsschritte:</para>
 
         <orderedlist numeration="arabic">
           <listitem>
@@ -1206,11 +1228,11 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
           </listitem>
 
           <listitem>
-            <para>Benutzer anlegen</para>
+            <para>Benutzer anlegen und Gruppen als Mitglied zuordnen</para>
           </listitem>
 
           <listitem>
-            <para>Benutzer den Gruppen zuordnen</para>
+            <para>Mandanten anlegen und Gruppen sowie Benutzer zuweisen</para>
           </listitem>
         </orderedlist>
       </sect2>
@@ -1241,72 +1263,45 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         Anlegen können Sie die verschiedenen Bereiche wählen, auf die
         Mitglieder dieser Gruppe Zugriff haben sollen.</para>
 
-        <para>Benutzergruppen sind unabhängig von Datenbanken, da sie in der
-        Authentifizierungsdatenbank gespeichert werden. Sie gelten für alle
-        Datenbanken, die in dieser Installation verwaltet werden.</para>
+        <para>Benutzergruppen werden zwar in der Authentifizierungsdatenbank gespeichert, gelten aber nicht automatisch für alle
+        Mandanten. Der Administrator legt vielmehr fest, für welche Mandanten eine Gruppe gültig ist. Dies kann entweder beim Bearbeiten der
+        Gruppe geschehen ("diese Gruppe ist gültig für Mandanten X, Y und Z"), oder aber wenn man einen Mandanten bearbeitet ("für diesen
+        Mandanten sind die Gruppen A, B und C gültig").</para>
+
+        <para>Wurden bereits Benutzer angelegt, so können hier die Mitglieder dieser Gruppe festgelegt werden ("in dieser Gruppe sind die
+        Benutzer X, Y und Z Mitglieder"). Dies kann auch nachträglich beim Bearbeiten eines Benutzers geschehen ("dieser Benutzer ist
+        Mitglied in den Gruppen A, B und C").</para>
       </sect2>
 
       <sect2 id="Benutzer-anlegen">
         <title>Benutzer anlegen</title>
 
-        <para>Beim Anlegen von Benutzern werden für viele Parameter
-        Standardeinstellungen vorgenommen, die den Gepflogenheiten des
-        deutschen Raumes entsprechen.</para>
+        <para>Beim Anlegen von Benutzern werden für viele Parameter Standardeinstellungen vorgenommen, die den Gepflogenheiten des deutschen
+        Raumes entsprechen.</para>
 
-        <para>Zwingend anzugeben sind der Loginname sowie die komplette
-        Datenbankkonfiguration. Wenn die Passwortauthentifizierung über die
-        Datenbank eingestellt ist, so kann hier auch das Benutzerpasswort
-        gesetzt bzw. geändert werden. Ist hingegen die LDAP-Authentifizierung
-        aktiv, so ist das Passwort-Feld deaktiviert.</para>
+        <para>Zwingend anzugeben ist der Loginname. Wenn die Passwortauthentifizierung über die Datenbank eingestellt ist, so kann hier auch
+        das Benutzerpasswort gesetzt bzw. geändert werden. Ist hingegen die LDAP-Authentifizierung aktiv, so ist das Passwort-Feld
+        deaktiviert.</para>
 
-        <para>In der Datenbankkonfiguration müssen die Zugriffsdaten einer der
-        eben angelegten Datenbanken eingetragen werden.</para>
+        <para>Hat man bereits Mandanten und Gruppen angelegt, so kann hier auch konfiguriert werden, auf welche Mandanten der Benutzer
+        Zugriff hat bzw. in welchen Gruppen er Mitglied ist. Beide Zuweisungen können sowohl beim Benutzer vorgenommen werden ("dieser
+        Benutzer hat Zugriff auf Mandanten X, Y, Z" bzw. "dieser Benutzer ist Mitglied in Gruppen X, Y und Z") als auch beim Mandanten ("auf
+        diesen Mandanten haben Benutzer A, B und C Zugriff") bzw. bei der Gruppe ("in dieser Gruppe sind Benutzer A, B und C
+        Mitglieder").</para>
       </sect2>
 
-      <sect2 id="Gruppenmitgliedschaften-verwalten">
-        <title>Gruppenmitgliedschaften verwalten</title>
+      <sect2 id="Mandanten-anlegen">
+        <title>Mandanten anlegen</title>
 
-        <para>Nach dem Anlegen von Benutzern und Gruppen müssen Benutzer den
-        Gruppen zugewiesen werden. Dazu gibt es zwei Möglichkeiten:</para>
+        <para>Ein Mandant besteht aus Administrationssicht primär aus einem eindeutigen Namen. Weiterhin wird hier hinterlegt, welche
+        Datenbank als Mandantendatenbank benutzt wird. Hier müssen die Zugriffsdaten einer der eben angelegten Datenbanken eingetragen
+        werden.</para>
 
-        <orderedlist numeration="arabic">
-          <listitem>
-            <para>In der Gruppenverwaltung wählt man eine Gruppe aus. Im
-            folgenden Dialog kann man dann einzeln die Benutzer der Gruppe
-            hinzufügen.</para>
-          </listitem>
-
-          <listitem>
-            <para>In der Gruppenverwaltung wählt man das Tool zur Verwaltung
-            der Gruppenmitgliedschaft. Hier wird eine Matrix angezeigt, die
-            alle im System angelegten Gruppen und Benutzer enthält. Durch
-            Setzen der Häkchen wird der Benutzer in der ausgewählten Zeile der
-            Gruppe in der ausgewählten Spalte hinzugefügt.</para>
-          </listitem>
-        </orderedlist>
-      </sect2>
-
-      <sect2 id="Migration-alter-Installationen">
-        <title>Migration alter Installationen</title>
-
-        <para>Wenn kivitendo 2.6.3 über eine ältere Version installiert wird,
-        in der die Benutzerdaten noch im Dateisystem im Verzeichnis
-        <literal>users</literal> verwaltet wurden, so bietet kivitendo die
-        Möglichkeit, diese Benutzerdaten automatisch in die
-        Authentifizierungsdatenbank zu übernehmen. Dies geschieht, wenn man
-        sich nach dem Update der Installation das erste Mal im
-        Administrationsbereich anmeldet. Findet kivitendo die Datei
-        <literal>users/members</literal>, so wird der Migrationsprozess
-        gestartet.</para>
-
-        <para>Der Migrationsprozess ist nahezu vollautomatisch. Alle
-        Benutzerdaten können übernommen werden. Nach den Benutzerdaten bietet
-        kivitendo noch die Möglichkeit an, dass automatisch eine
-        Benutzergruppe angelegt wird. Dieser Gruppe wird Zugriff auf alle
-        Funktionen von kivitendo gewährt. Alle migrierten Benutzern werden
-        Mitglied in dieser Gruppe. Damit wird das Verhalten von kivitendo bis
-        Version 2.4.3 inklusive wiederhergestellt, und die Benutzer können
-        sich sofort wieder anmelden und mit dem System arbeiten.</para>
+        <para>Hat man bereits Benutzer und Gruppen angelegt, so kann hier auch konfiguriert werden, welche Benutzer Zugriff auf den
+        Mandanten haben bzw. welche Gruppen für den Mandanten gültig sind. Beide Zuweisungen können sowohl beim Mandanten vorgenommen werden
+        ("auf diesen Mandanten haben Benutzer X, Y und Z Zugriff" bzw. "für diesen Mandanten sind die Gruppen X, Y und Z gültig") als auch
+        beim Benutzer ("dieser Benutzer hat Zugriff auf Mandanten A, B und C") bzw. bei der Gruppe ("diese Gruppe ist für Mandanten A, B und
+        C gültig").</para>
       </sect2>
     </sect1>
 
@@ -2043,7 +2038,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <para>Die Administrationsseite erreichen Sie unter:</para>
 
       <para><ulink
-      url="http://localhost/kivitendo-erp/admin.pl">http://localhost/kivitendo-erp/admin.pl</ulink></para>
+      url="http://localhost/kivitendo-erp/controller.pl?action=Admin/login">http://localhost/kivitendo-erp/controller.pl?action=Admin/login</ulink></para>
     </sect1>
   </chapter>
 
@@ -5104,7 +5099,7 @@ Beschreibung: &lt;%description%&gt;
           überwiegend die Daten, die sich unter <guimenu>Programm</guimenu>
           -&gt; <guimenuitem>Einstellungen</guimenuitem> befinden, bzw. die
           Informationen über den Benutzer die über die
-          Administrator-Schnittstelle (admin.pl) eingegeben wurden.</para>
+          Administrator-Schnittstelle eingegeben wurden.</para>
         </sect3>
 
         <sect3>
@@ -5193,6 +5188,10 @@ $main::lxdebug-&gt;message(0, 'Wer bin ich? Kunde oder Lieferant:' . $form-&gt;{
           vom aktuellen User abhängen wird das Objekt aus
           Geschwindigkeitsgründen nur einmal angelegt und dann nach jedem
           Request kurz resettet.</para>
+
+          <para>Dieses Objekt kapselt auch den gerade aktiven Mandanten. Dessen Einstellungen können über
+          <literal>$::auth-&gt;client</literal> abgefragt werden; Rückgabewert ist ein Hash mit den Werten aus der Tabelle
+          <literal>auth.clients</literal>.</para>
         </sect3>
 
         <sect3>
