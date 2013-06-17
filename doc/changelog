@@ -67,7 +67,8 @@ Wichtige Änderungen:
   Die alte URL wird weiterhin funktionieren und lediglich auf die neue
   URL umleiten.
 
-- Upgrades von alten kivitendo-Versionen, die Benutzer noch über die
+- Upgrades von alten SQL-Ledger-Versionen im Allgemeinen sowie
+  Upgrades von alten kivitendo-Versionen, die Benutzer noch über die
   Datei "users/members" verwaltet haben, werden nicht mehr
   unterstützt. Falls Sie eine solche Installation haben sollten, so
   müssen Sie zuerst kivitendo 3.0.0 installieren und damit updaten,
