@@ -119,6 +119,24 @@ sub add_print_templates {
   return 1;
 }
 
+sub drop_constraints {
+  my ($self, %params) = @_;
+
+  croak "Missing parameter 'table'" unless $params{table};
+  $params{type}   ||= 'FOREIGN KEY';
+  $params{schema} ||= 'public';
+
+  my $constraints = $self->dbh->selectall_arrayref(<<SQL, undef, $params{type}, $params{schema}, $params{table});
+    SELECT constraint_name
+    FROM information_schema.table_constraints
+    WHERE (constraint_type = ?)
+      AND (table_schema    = ?)
+      AND (table_name      = ?)
+SQL
+
+  $self->db_query(qq|ALTER TABLE auth."$params{table}" DROP CONSTRAINT "${_}"|) for map { $_->[0] } @{ $constraints };
+}
+
 1;
 __END__
 
@@ -256,6 +274,21 @@ C<$handle-E<gt>errstr> is used.
 
 =item 3. If it is undefined then C<$self-E<gt>dbh-E<gt>errstr> is
 used.
+
+=back
+
+=item C<drop_constraints %params>
+
+Drops all constraints of a type (e.g. foreign keys) on a table. One
+parameter is mandatory: C<table>. Optional parameters include:
+
+=over 2
+
+=item * C<schema> -- if missing defaults to C<public>
+
+=item * C<type> -- if missing defaults to C<FOREIGN KEY>. Must be one of
+the values contained in the C<information_schema.table_constraints>
+view in the C<constraint_type> column.
 
 =back
 
