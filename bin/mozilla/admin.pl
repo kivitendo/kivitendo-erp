@@ -134,53 +134,6 @@ sub continue {
   call_sub($main::form->{"nextsub"});
 }
 
-sub update_dataset {
-  my $form              = $main::form;
-  my $locale            = $main::locale;
-
-  $form->{title}        = "kivitendo " . $locale->text('Database Administration') . " / " . $locale->text('Update Dataset');
-
-  my @need_updates      = User->dbneedsupdate($form);
-  $form->{NEED_UPDATES} = \@need_updates;
-  $form->{ALL_UPDATED}  = !scalar @need_updates;
-
-  $form->header();
-  print $form->parse_html_template("admin/update_dataset");
-}
-
-sub dbupdate {
-  my $form            = $main::form;
-  my $locale          = $main::locale;
-
-  $::request->{layout}->use_stylesheet("lx-office-erp.css");
-  $form->{title}      = $locale->text("Dataset upgrade");
-  $form->header();
-
-  my $rowcount           = $form->{rowcount} * 1;
-  my @update_rows        = grep { $form->{"update_$_"} } (1 .. $rowcount);
-  $form->{NOTHING_TO_DO} = !scalar @update_rows;
-  my $saved_form         = save_form();
-
-  $| = 1;
-
-  print $form->parse_html_template("admin/dbupgrade_all_header");
-
-  foreach my $i (@update_rows) {
-    restore_form($saved_form);
-
-    %::myconfig = ();
-    map { $form->{$_} = $::myconfig{$_} = $form->{"${_}_${i}"} } qw(dbname dbhost dbport dbuser dbpasswd);
-
-    print $form->parse_html_template("admin/dbupgrade_header");
-
-    User->dbupdate($form);
-    User->dbupdate2(form => $form, updater => SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls, database => $form->{dbname});
-
-    print $form->parse_html_template("admin/dbupgrade_footer");
-  }
-
-  print $form->parse_html_template("admin/dbupgrade_all_done");
-}
 
 sub create_dataset {
   my $form           = $main::form;
