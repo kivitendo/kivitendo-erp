@@ -60,6 +60,13 @@ Kleinere neue Features und Detailverbesserungen:
 
 Wichtige Änderungen:
 
+- Der Administrationsbereich ist unter einer neuen URL erreichbar:
+
+  https://localhost/kivitendo-erp/controller.pl?action=Admin/login
+
+  Die alte URL wird weiterhin funktionieren und lediglich auf die neue
+  URL umleiten.
+
 - Upgrades von alten kivitendo-Versionen, die Benutzer noch über die
   Datei "users/members" verwaltet haben, werden nicht mehr
   unterstützt. Falls Sie eine solche Installation haben sollten, so
