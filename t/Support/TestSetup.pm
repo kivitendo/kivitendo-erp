@@ -15,9 +15,9 @@ use SL::InstanceConfiguration;
 use SL::Request;
 
 sub _login {
-  my $login = shift;
+  my ($client, $login) = @_;
 
-  die 'need login' unless $login;
+  die 'need client and login' unless $client && $login;
 
   package main;
 
@@ -26,6 +26,8 @@ sub _login {
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
   $::auth          = SL::Auth->new;
+  die "Cannot find client with ID or name '$client'" if !$::auth->set_client($client);
+
   $::instance_conf = SL::InstanceConfiguration->new;
   $::request       = SL::Request->new( cgi => CGI->new({}), layout => SL::Layout::None->new );
 
@@ -50,7 +52,8 @@ sub login {
   SL::LxOfficeConf->read;
 
   my $login        = shift || $::lx_office_conf{testing}{login}        || 'demo';
-  _login($login);
+  my $client        = shift || $::lx_office_conf{testing}{client}      || '';
+  _login($client, $login);
 }
 
 1;
