@@ -286,16 +286,8 @@ sub dbcreate {
   # load chart of accounts
   $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
 
-  $query = "UPDATE defaults SET coa = ?";
-  do_query($form, $dbh, $query, $form->{chart});
-  $query = "UPDATE defaults SET accounting_method = ?";
-  do_query($form, $dbh, $query, $form->{accounting_method});
-  $query = "UPDATE defaults SET profit_determination = ?";
-  do_query($form, $dbh, $query, $form->{profit_determination});
-  $query = "UPDATE defaults SET inventory_system = ?";
-  do_query($form, $dbh, $query, $form->{inventory_system});
-  $query = "UPDATE defaults SET curr = ?";
-  do_query($form, $dbh, $query, $form->{defaultcurrency});
+  my $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?|;
+  do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency));
 
   $dbh->disconnect;
 
