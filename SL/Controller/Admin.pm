@@ -37,11 +37,11 @@ sub keep_auth_vars {
 sub action_login {
   my ($self) = @_;
 
-  return $self->redirect_to(action => 'show') if  $::auth->authenticate_root == SL::Auth::OK();
-  return $self->login_form                    if !$::form->{do_login};
-  return                                      if !$self->authenticate_root;
-  return                                      if !$self->check_auth_db_and_tables;
-  return                                      if  $self->apply_dbupgrade_scripts;
+  return $self->login_form if !$::form->{do_login};
+  return                   if !$self->authenticate_root;
+  return                   if !$self->check_auth_db_and_tables;
+  return                   if  $self->apply_dbupgrade_scripts;
+
   $self->redirect_to(action => 'show');
 }
 
