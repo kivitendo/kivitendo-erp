@@ -248,38 +248,38 @@ sub handle_request {
       _require_controller('LoginScreen');
     }
 
-    if ((($script eq 'login') && !$action) || ($script eq 'admin')) {
+    if (   (($script eq 'login') && !$action)
+        || ($script eq 'admin')
+        || (SL::Auth::SESSION_EXPIRED() == $session_result)) {
       $self->redirect_to_login($script);
 
-    } else {
-      $self->redirect_to_login($script) if SL::Auth::SESSION_EXPIRED == $session_result;
+    }
 
-      my %auth_result = $self->{auth_handler}->handle(
-        routing_type => $routing_type,
-        script       => $script,
-        controller   => $script_name,
-        action       => $action,
-      );
+    my %auth_result = $self->{auth_handler}->handle(
+      routing_type => $routing_type,
+      script       => $script,
+      controller   => $script_name,
+      action       => $action,
+    );
 
-      ::end_of_request() unless $auth_result{auth_ok};
+    ::end_of_request() unless $auth_result{auth_ok};
 
-      delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } } unless $auth_result{keep_auth_vars};
+    delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } } unless $auth_result{keep_auth_vars};
 
-      if ($action) {
-        $::instance_conf->init if $auth_result{auth_level} eq 'user';
+    if ($action) {
+      $::instance_conf->init if $auth_result{auth_level} eq 'user';
 
-        map { $::form->{$_} = $::myconfig{$_} } qw(charset)
-          unless $action eq 'save' && $::form->{type} eq 'preferences';
+      map { $::form->{$_} = $::myconfig{$_} } qw(charset)
+        unless $action eq 'save' && $::form->{type} eq 'preferences';
 
-        $::form->set_standard_title;
-        if ($routing_type eq 'old') {
-          ::call_sub('::' . $::locale->findsub($action));
-        } else {
-          _run_controller($script_name, $action);
-        }
+      $::form->set_standard_title;
+      if ($routing_type eq 'old') {
+        ::call_sub('::' . $::locale->findsub($action));
       } else {
-        $::form->error($::locale->text('action= not defined!'));
+        _run_controller($script_name, $action);
       }
+    } else {
+      $::form->error($::locale->text('action= not defined!'));
     }
 
     1;
