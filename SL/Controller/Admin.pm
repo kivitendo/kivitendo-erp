@@ -58,7 +58,7 @@ sub action_apply_dbupgrade_scripts {
   my ($self) = @_;
 
   return if $self->apply_dbupgrade_scripts;
-  $self->action_show;
+  $self->redirect_to(action => 'show');
 }
 
 sub action_create_auth_db {
