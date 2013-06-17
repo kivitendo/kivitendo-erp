@@ -269,9 +269,6 @@ sub handle_request {
     if ($action) {
       $::instance_conf->init if $auth_result{auth_level} eq 'user';
 
-      map { $::form->{$_} = $::myconfig{$_} } qw(charset)
-        unless $action eq 'save' && $::form->{type} eq 'preferences';
-
       $::form->set_standard_title;
       if ($routing_type eq 'old') {
         ::call_sub('::' . $::locale->findsub($action));
