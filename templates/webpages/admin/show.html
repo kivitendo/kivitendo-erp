@@ -2,7 +2,7 @@
 
 [% INCLUDE 'common/flash.html' %]
 
-<h1>[% title %]</h1>
+<h1>[% HTML.escape(title) %]</h1>
 
 <div>
  [% LxERP.t8("Actions") %]:
@@ -13,7 +13,7 @@
  <span class="link_separator">|</span>
  [% L.link(SELF.url_for(action="new_group"), LxERP.t8("Add User Group")) %]
  <span class="link_separator">|</span>
- [% L.link(SELF.url_for(action="pg_database_administration", controller="admin.pl"), LxERP.t8("Pg Database Administration")) %]
+ [% L.link(SELF.url_for(action="database_administration"), LxERP.t8("Pg Database Administration")) %]
  <span class="link_separator">|</span>
  [% L.link(SELF.url_for(action="list_printers"), LxERP.t8("Printer Management")) %]
  <span class="link_separator">|</span>

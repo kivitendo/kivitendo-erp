@@ -4,9 +4,10 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
-use IO::File;
+use IO::Dir;
 use List::Util qw(first);
 
+use SL::Common ();
 use SL::DB::AuthUser;
 use SL::DB::AuthGroup;
 use SL::DB::Printer;
@@ -18,7 +19,8 @@ use SL::User;
 use Rose::Object::MakeMethods::Generic
 (
   'scalar --get_set_init' => [ qw(client user group printer db_cfg is_locked
-                                  all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers) ],
+                                  all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers
+                                  all_dbsources all_unused_dbsources all_accounting_methods all_inventory_systems all_profit_determinations all_charts) ],
 );
 
 __PACKAGE__->run_before(\&setup_layout);
@@ -361,6 +363,70 @@ sub action_delete_printer {
 }
 
 #
+# actions: database administration
+#
+
+sub action_database_administration {
+  my ($self) = @_;
+
+  $::form->{dbhost}    ||= $::auth->{DB_config}->{host} || 'localhost';
+  $::form->{dbport}    ||= $::auth->{DB_config}->{port} || 5432;
+  $::form->{dbuser}    ||= $::auth->{DB_config}->{user} || 'kivitendo';
+  $::form->{dbpasswd}  ||= $::auth->{DB_config}->{password};
+  $::form->{dbdefault} ||= 'template1';
+
+  $::request->layout->focus('#dbhost');
+
+  $self->render('admin/dbadmin', title => t8('Database Administration'));
+}
+
+sub action_create_dataset {
+  my ($self) = @_;
+  $self->create_dataset_form;
+}
+
+sub action_do_create_dataset {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, t8("Dataset missing!")          if !$::form->{db};
+  push @errors, t8("Default currency missing!") if !$::form->{defaultcurrency};
+
+  if (@errors) {
+    flash('error', @errors);
+    return $self->create_dataset_form;
+  }
+
+  $::form->{encoding} = 'UNICODE';
+  User->new->dbcreate($::form);
+
+  flash_later('info', t8("The dataset #1 has been created.", $::form->{db}));
+  $self->redirect_to(action => 'database_administration');
+}
+
+sub action_delete_dataset {
+  my ($self) = @_;
+  $self->delete_dataset_form;
+}
+
+sub action_do_delete_dataset {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, t8("Dataset missing!") if !$::form->{db};
+
+  if (@errors) {
+    flash('error', @errors);
+    return $self->create_dataset_form;
+  }
+
+  User->new->dbdelete($::form);
+
+  flash_later('info', t8("The dataset #1 has been deleted.", $::form->{db}));
+  $self->redirect_to(action => 'database_administration');
+}
+
+#
 # actions: locking, unlocking
 #
 
@@ -397,6 +463,23 @@ sub init_all_printers      { SL::DB::Manager::Printer   ->get_all_sorted        
 sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                              }
 sub init_all_numberformats { [ qw(1,000.00 1000.00 1.000,00 1000,00)          ]                                              }
 sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css) ]                                              }
+sub init_all_dbsources             { [ sort User->dbsources($::form)                               ] }
+sub init_all_unused_dbsources      { [ sort User->dbsources_unused($::form)                        ] }
+sub init_all_accounting_methods    { [ { id => 'accrual',   name => t8('Accrual accounting')  }, { id => 'cash',     name => t8('Cash accounting')       } ] }
+sub init_all_inventory_systems     { [ { id => 'perpetual', name => t8('Perpetual inventory') }, { id => 'periodic', name => t8('Periodic inventory')    } ] }
+sub init_all_profit_determinations { [ { id => 'balance',   name => t8('Balancing')           }, { id => 'income',   name => t8('Cash basis accounting') } ] }
+
+sub init_all_charts {
+  tie my %dir_h, 'IO::Dir', 'sql/';
+
+  return [
+    map { s/-chart\.sql$//; +{ id => $_ } }
+    sort
+    grep { /-chart\.sql\z/ && !/Default-chart.sql\z/ }
+    keys %dir_h
+  ];
+}
+
 sub init_all_menustyles    {
   return [
     { id => 'old', title => $::locale->text('Old (on the side)') },
@@ -486,6 +569,16 @@ sub edit_group_form {
 sub edit_printer_form {
   my ($self, %params) = @_;
   $self->render('admin/edit_printer', %params);
+}
+
+sub create_dataset_form {
+  my ($self, %params) = @_;
+  $self->render('admin/create_dataset', title => (t8('Database Administration') . " / " . t8('Create Dataset')));
+}
+
+sub delete_dataset_form {
+  my ($self, %params) = @_;
+  $self->render('admin/delete_dataset', title => (t8('Database Administration') . " / " . t8('Delete Dataset')));
 }
 
 #

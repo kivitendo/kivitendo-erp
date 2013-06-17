@@ -38,6 +38,7 @@ use IO::File;
 use Fcntl qw(:seek);
 
 #use SL::Auth;
+use SL::DB::AuthClient;
 use SL::DBConnect;
 use SL::DBUpgrade2;
 use SL::DBUtils;
@@ -224,25 +225,6 @@ sub dbsources {
   return @dbsources;
 }
 
-sub dbclusterencoding {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form) = @_;
-
-  $form->{dbdefault} ||= $form->{dbuser};
-
-  dbconnect_vars($form, $form->{dbdefault});
-
-  my $dbh                = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options) || $form->dberror();
-  my $query              = qq|SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = 'template0'|;
-  my ($cluster_encoding) = $dbh->selectrow_array($query);
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
-
-  return $cluster_encoding;
-}
-
 sub dbcreate {
   $main::lxdebug->enter_sub();
 
@@ -316,10 +298,11 @@ sub dbsources_unused {
 
   my ($self, $form) = @_;
 
-  $form->{only_acc_db} = 1;
+  my %dbexcl = map  { $_->dbname => 1 }
+               grep { ($_->dbhost eq $form->{dbhost}) && ($_->dbport eq $form->{dbport}) }
+                    @{ SL::DB::Manager::AuthClient->get_all };
 
-  my %members = $main::auth->read_all_users();
-  my %dbexcl  = map { $_ => 1 } grep { $_ } map { $_->{dbname} } values %members;
+  $form->{only_acc_db} = 1;
 
   $dbexcl{$form->{dbdefault}}             = 1;
   $dbexcl{$main::auth->{DB_config}->{db}} = 1;
@@ -329,52 +312,6 @@ sub dbsources_unused {
   $main::lxdebug->leave_sub();
 
   return @dbunused;
-}
-
-sub dbneedsupdate {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form) = @_;
-
-  my %members   = $main::auth->read_all_users();
-  my $dbupdater = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
-
-  my ($query, $sth, %dbs_needing_updates);
-
-  foreach my $login (grep /[a-z]/, keys %members) {
-    my $member = $members{$login};
-
-    map { $form->{$_} = $member->{$_} } qw(dbname dbuser dbpasswd dbhost dbport);
-    dbconnect_vars($form, $form->{dbname});
-
-    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options);
-
-    next unless $dbh;
-
-    my $version;
-
-    $query = qq|SELECT version FROM defaults|;
-    $sth = prepare_query($form, $dbh, $query);
-    if ($sth->execute()) {
-      ($version) = $sth->fetchrow_array();
-    }
-    $sth->finish();
-
-    $dbh->disconnect and next unless $version;
-
-    my $update_available = $dbupdater->update_available($version) || $dbupdater->update2_available($dbh);
-    $dbh->disconnect;
-
-   if ($update_available) {
-      my $dbinfo = {};
-      map { $dbinfo->{$_} = $member->{$_} } grep /^db/, keys %{ $member };
-      $dbs_needing_updates{$member->{dbhost} . "::" . $member->{dbname}} = $dbinfo;
-    }
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return values %dbs_needing_updates;
 }
 
 sub calc_version {
