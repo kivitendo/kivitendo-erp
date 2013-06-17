@@ -14,6 +14,7 @@
 # ---- Logindaten und URL anpassen: ----
 login=MyLxOfficeUserName
 password=MySecretPassword
+client_id=ClientDatabaseID
 url='https://localhost/kivitendo-erp/controller.pl'
 
 function fail {
@@ -133,6 +134,7 @@ function do_curl {
     -F 'settings.shoparticle_if_missing=0' \
     -F "{AUTH}login=${login}" \
     -F "{AUTH}password=${password}" \
+    -F "{AUTH}client_id=${client_id}" \
     -F "file=@${file}" \
     ${url}
 }
