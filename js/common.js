@@ -192,6 +192,11 @@ $(document).ready(function () {
   $('input').focus(function(){
     if (focussable(this)) window.focused_element = this;
   });
+
+  var initial_focus = $(".initial_focus").filter(':visible')[0];
+  if (initial_focus)
+    $(initial_focus).focus();
+
   // legacy. sone forms install these
   if (typeof fokus == 'function') { fokus(); return; }
   if (focus_by_name('cursor_fokus')) return;
