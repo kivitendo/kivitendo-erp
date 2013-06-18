@@ -128,7 +128,8 @@
     open_jqm_window({
       url:  'controller.pl?action=Admin/test_database_connectivity',
       data: $("INPUT[data-dbsettings=1]").serialize(),
-      type: 'POST'
+      type: 'POST',
+      id:   'test_db_connection_window'
     });
     return true;
   }
