@@ -48,6 +48,12 @@ use SL::System::InstallationLock;
 
 use strict;
 
+use constant LOGIN_OK                      =>  0;
+use constant LOGIN_BASIC_TABLES_MISSING    => -1;
+use constant LOGIN_DBUPDATE_AVAILABLE      => -2;
+use constant LOGIN_AUTH_DBUPDATE_AVAILABLE => -3;
+use constant LOGIN_GENERAL_ERROR           => -4;
+
 sub new {
   $main::lxdebug->enter_sub();
 
@@ -96,28 +102,31 @@ sub country_codes {
 sub login {
   my ($self, $form) = @_;
 
-  return -3 if !$self->{login} || !$::auth->client;
+  return LOGIN_GENERAL_ERROR() if !$self->{login} || !$::auth->client;
 
   my %myconfig = $main::auth->read_user(login => $self->{login});
+
+  # Auth DB upgrades available?
+  my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, auth => 1)->parse_dbupdate_controls;
+  return LOGIN_AUTH_DBUPDATE_AVAILABLE() if $dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect);
 
   # check if database is down
   my $dbh = $form->dbconnect_noauto;
 
   # we got a connection, check the version
   my ($dbversion) = $dbh->selectrow_array(qq|SELECT version FROM defaults|);
+  if (!$dbversion) {
+    $dbh->disconnect;
+    return LOGIN_BASIC_TABLES_MISSING();
+  }
 
   $self->create_schema_info_table($form, $dbh);
 
-  # Auth DB upgrades available?
-  my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, auth => 1)->parse_dbupdate_controls;
-  return -3 if $dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect);
-
-  my $dbupdater = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
-
+  my $dbupdater        = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
   my $update_available = $dbupdater->update2_available($dbh);
   $dbh->disconnect;
 
-  return 0 if !$update_available;
+  return LOGIN_OK() if !$update_available;
 
   $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
   $form->{$_} = $myconfig{$_}         for qw(datestyle);
@@ -147,7 +156,7 @@ sub login {
 
   print $form->parse_html_template("dbupgrade/footer");
 
-  return -2;
+  return LOGIN_DBUPDATE_AVAILABLE();
 }
 
 sub dbconnect_vars {
