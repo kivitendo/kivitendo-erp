@@ -545,7 +545,8 @@ sub use_multiselect_js {
 
 sub login_form {
   my ($self, %params) = @_;
-  $self->render('admin/adminlogin', title => t8('kivitendo v#1 administration', $::form->read_version), %params);
+  my $version         = $::form->read_version;
+  $self->render('admin/adminlogin', title => t8('kivitendo v#1 administration', $version), %params, version => $version);
 }
 
 sub edit_user_form {
