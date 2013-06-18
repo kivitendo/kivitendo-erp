@@ -101,7 +101,7 @@ if ($opt_n) {
 }
 
 my @dbplfiles;
-foreach my $sub_dir ("Pg-upgrade", "Pg-upgrade2", "Pg-upgrade2-auth") {
+foreach my $sub_dir ("Pg-upgrade2", "Pg-upgrade2-auth") {
   my $dir = "$basedir/sql/$sub_dir";
   tie %dir_h, 'IO::Dir', $dir;
   push @dbplfiles, map { [ $_, $dir ] } grep { /\.pl$/ } keys %dir_h;

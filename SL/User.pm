@@ -114,7 +114,7 @@ sub login {
 
   my $dbupdater = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
 
-  my $update_available = $dbupdater->update_available($dbversion) || $dbupdater->update2_available($dbh);
+  my $update_available = $dbupdater->update2_available($dbh);
   $dbh->disconnect;
 
   return 0 if !$update_available;
@@ -140,7 +140,6 @@ sub login {
   $SIG{HUP}  = 'IGNORE';
   $SIG{QUIT} = 'IGNORE';
 
-  $self->dbupdate($form);
   $self->dbupdate2(form => $form, updater => $dbupdater, database => $::auth->client->{dbname});
   SL::DBUpgrade2->new(form => $::form, auth => 1)->apply_admin_dbupgrade_scripts(0);
 
@@ -371,84 +370,6 @@ sub create_schema_info_table {
   }
 
   $main::lxdebug->leave_sub();
-}
-
-sub dbupdate {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form) = @_;
-
-  local *SQLDIR;
-
-  my @upgradescripts = ();
-  my $query;
-  my $rc = -2;
-
-  if ($form->{dbupdate}) {
-
-    # read update scripts into memory
-    opendir(SQLDIR, "sql/Pg-upgrade")
-      or &error("", "sql/Pg-upgrade : $!");
-    @upgradescripts =
-      sort(cmp_script_version
-           grep(/Pg-upgrade-.*?\.(sql|pl)$/,
-                readdir(SQLDIR)));
-    closedir(SQLDIR);
-  }
-
-  my $dbupdater = SL::DBUpgrade2->new(form => $form);
-
-  foreach my $db (split(/ /, $form->{dbupdate})) {
-
-    next unless $form->{$db};
-
-    # strip db from dataset
-    $db =~ s/^db//;
-    &dbconnect_vars($form, $db);
-
-    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
-      or $form->dberror;
-
-    $dbh->do($form->{dboptions}) if ($form->{dboptions});
-
-    # check version
-    $query = qq|SELECT version FROM defaults|;
-    my ($version) = selectrow_query($form, $dbh, $query);
-
-    next unless $version;
-
-    $version = calc_version($version);
-
-    foreach my $upgradescript (@upgradescripts) {
-      my $a = $upgradescript;
-      $a =~ s/^Pg-upgrade-|\.(sql|pl)$//g;
-
-      my ($mindb, $maxdb) = split /-/, $a;
-      my $str_maxdb = $maxdb;
-      $mindb = calc_version($mindb);
-      $maxdb = calc_version($maxdb);
-
-      next if ($version >= $maxdb);
-
-      # if there is no upgrade script exit
-      last if ($version < $mindb);
-
-      # apply upgrade
-      $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $upgradescript");
-      $dbupdater->process_file($dbh, "sql/Pg-upgrade/$upgradescript", $str_maxdb);
-
-      $version = $maxdb;
-
-    }
-
-    $rc = 0;
-    $dbh->disconnect;
-
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
 }
 
 sub dbupdate2 {

@@ -1,2 +1,0 @@
-ALTER TABLE parts DROP COLUMN adr_id;
-DROP TABLE adr;

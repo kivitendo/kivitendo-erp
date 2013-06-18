@@ -5458,29 +5458,17 @@ file = /tmp/kivitendo-debug.log</programlisting>
              xreflabel="Einführung in die Datenbank-Upgradedateien">
         <title>Einführung</title>
 
-        <para>Der alte Mechanismus für SQL-Upgradescripte, der auf einer
-        Versionsnummer beruht und dann in sql/Pg-upgrade nach einem Script für
-        diese Versionsnummer sucht, schränkt sehr ein, z.B. was die parallele
-        Entwicklung im stable- und unstable-Baum betrifft.</para>
+        <para>Datenbankupgrades werden über einzelne Upgrade-Scripte gesteuert, die sich im Verzeichnis <filename>sql/Pg-upgrade2</filename>
+        befinden. In diesem Verzeichnis muss pro Datenbankupgrade eine Datei existieren, die neben den eigentlich auszuführenden SQL- oder
+        Perl-Befehlen einige Kontrollinformationen enthält.</para>
 
-        <para>Dieser Mechanismus wurde für kivitendo 2.4.1 deutlich erweitert.
-        Es werden weiterhin alle Scripte aus sql/Pg-upgrade ausgeführt.
-        Zusätzlich gibt es aber ein zweites Verzeichnis, sql/Pg-upgrade2. In
-        diesem Verzeichnis muss pro Datenbankupgrade eine Datei existieren,
-        die neben den eigentlich auszuführenden SQL- oder Perl-Befehlen einige
-        Kontrollinformationen enthält.</para>
+        <para>Kontrollinformationen definieren Abhängigkeiten und Prioritäten, sodass Datenbankscripte zwar in einer sicheren Reihenfolge
+        ausgeführt werden (z.B. darf ein <literal>ALTER TABLE</literal> erst ausgeführt werden, wenn die Tabelle mit <literal>CREATE
+        TABLE</literal> angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man keine Versionsnummern braucht.</para>
 
-        <para>Neu sind die Kontrollinformationen, die Abhängigkeiten und
-        Prioritäten definieren können werden, sodass Datenbankscripte zwar in
-        einer sicheren Reihenfolge ausgeführt werden (z.B. darf ein "ALTER
-        TABLE" erst ausgeführt werden, wenn die Tabelle mit "CREATE TABLE"
-        angelegt wurde), diese Reihenfolge aber so flexibel ist, dass man
-        keine Versionsnummern mehr braucht.</para>
-
-        <para>kivitendo merkt sich dabei, welches der Upgradescripte in
-        sql/Pg-upgrade2 bereits durchgeführt wurde und führt diese nicht
-        erneut aus. Dazu dient die Tabelle "schema_info", die bei der
-        Anmeldung automatisch angelegt wird.</para>
+        <para>kivitendo merkt sich dabei, welches der Upgradescripte in <filename>sql/Pg-upgrade2</filename> bereits durchgeführt wurde und
+        führt diese nicht erneut aus. Dazu dient die Tabelle "<literal>schema_info</literal>", die bei der Anmeldung automatisch angelegt
+        wird.</para>
       </sect2>
 
       <sect2 id="db-upgrade-files.format"

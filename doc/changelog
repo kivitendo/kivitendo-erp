@@ -71,9 +71,7 @@ Wichtige Änderungen:
   mehr unterstützt. Die Konfigurationsvariable "system.dbcharset"
   wurde entfernt.
 
-- Upgrades von alten SQL-Ledger-Versionen im Allgemeinen sowie
-  Upgrades von alten kivitendo-Versionen, die Benutzer noch über die
-  Datei "users/members" verwaltet haben, werden nicht mehr
+- Direkte Upgrades von Lx-Office vor 2.6.0 werden nicht mehr
   unterstützt. Falls Sie eine solche Installation haben sollten, so
   müssen Sie zuerst kivitendo 3.0.0 installieren und damit updaten,
   bevor Sie in einem zweiten Schritt auf die aktuelle

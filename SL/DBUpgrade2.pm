@@ -283,18 +283,6 @@ sub process_file {
   }
 }
 
-sub update_available {
-  my ($self, $cur_version) = @_;
-
-  local *SQLDIR;
-
-  opendir SQLDIR, "sql/Pg-upgrade" || error("", "sql/Pg-upgrade: $!");
-  my @upgradescripts = grep /Pg-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
-  closedir SQLDIR;
-
-  return ($#upgradescripts > -1);
-}
-
 sub update2_available {
   $::lxdebug->enter_sub();
 
@@ -434,8 +422,7 @@ __END__
 =head1 NAME
 
 SL::DBUpgrade2 - Parse database upgrade files stored in
-C<sql/Pg-upgrade2> and C<sql/Pg-upgrade2-auth> (and also in
-C<SQL/Pg-upgrade>)
+C<sql/Pg-upgrade2> and C<sql/Pg-upgrade2-auth>
 
 =head1 SYNOPSIS
 
@@ -485,12 +472,6 @@ Database upgrade files come in two flavours: SQL files and Perl
 files. For both there are control fields that determine the order in
 which they're executed etc. The control fields are tag/value pairs
 contained in comments.
-
-=head1 OLD UPGRADE FILES
-
-The files in C<sql/Pg-upgrade> are so old that I don't bother
-documenting them. They're handled by this class, too, but new files
-are only created as C<Pg-upgrade2> files.
 
 =head1 CONTROL FIELDS
 
