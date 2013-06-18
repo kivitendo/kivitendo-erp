@@ -1,7 +1,6 @@
 -- @tag: csv_import_report_cache
 -- @description: Csv Import Cache
 -- @depends: csv_import_profiles_2
--- @encoding: utf-8
 
 CREATE TABLE csv_import_reports (
   id                   SERIAL PRIMARY KEY,

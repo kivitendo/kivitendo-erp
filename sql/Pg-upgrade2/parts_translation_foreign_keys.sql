@@ -1,7 +1,6 @@
 -- @tag: parts_translation_foreign_keys
 -- @description: Fremdschlüsseldefinitionen für parts, translation
 -- @depends: release_3_0_0
--- @charset: utf-8
 
 UPDATE parts SET partsgroup_id   = NULL WHERE (partsgroup_id   IS NOT NULL) AND (partsgroup_id   NOT IN (SELECT id FROM partsgroup));
 UPDATE parts SET payment_id      = NULL WHERE (payment_id      IS NOT NULL) AND (payment_id      NOT IN (SELECT id FROM payment_terms));

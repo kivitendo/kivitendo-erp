@@ -1,7 +1,6 @@
 -- @tag: drop_gifi
 -- @description: Entfernt Spalten gifi_accno und pos_ustva aus der Tabelle chart. Tabelle gifi wird gelöscht.
 -- @depends: release_3_0_0 
--- @charset: utf-8
 
   --Lösche Tabelle gifi:
   DROP TABLE gifi;

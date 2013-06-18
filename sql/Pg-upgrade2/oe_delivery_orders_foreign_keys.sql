@@ -1,7 +1,6 @@
 -- @tag: oe_delivery_orders_foreign_keys
 -- @description: Fremdschlüsseldefinitionen für oe und delivery_orders
 -- @depends: release_3_0_0
--- @charset: utf-8
 ALTER TABLE oe ALTER COLUMN department_id DROP DEFAULT;
 
 UPDATE oe              SET cp_id                = NULL WHERE (cp_id                IS NOT NULL) AND (cp_id                NOT IN (SELECT cp_id     FROM contacts));

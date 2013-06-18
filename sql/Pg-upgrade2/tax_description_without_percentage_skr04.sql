@@ -80,7 +80,7 @@ WHERE taxkey = '11'
 ;
 
 UPDATE tax SET
-  taxdescription = 'Steuerpflichtige EG-Lieferung zum erm‰ﬂigten Steuersatz'
+  taxdescription = 'Steuerpflichtige EG-Lieferung zum erm√§√üigten Steuersatz'
 WHERE taxkey = '12'
   AND
   EXISTS ( -- update only for SKR04
@@ -102,7 +102,7 @@ WHERE taxkey = '13'
 
 
 UPDATE tax SET
-  taxdescription = 'Steuerpflichtiger innergem. Erwerb zum erm‰ﬂigten Steuersatz'
+  taxdescription = 'Steuerpflichtiger innergem. Erwerb zum erm√§√üigten Steuersatz'
 WHERE taxkey = '18'
   AND
   EXISTS ( -- update only for SKR04

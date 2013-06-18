@@ -1,5 +1,5 @@
 -- @tag: bank_accounts
--- @description: Tabelle für Bankkonten (u.a. für SEPA-Export)
+-- @description: Tabelle fÃ¼r Bankkonten (u.a. fÃ¼r SEPA-Export)
 -- @depends: release_2_4_3
 CREATE TABLE bank_accounts (
   id integer NOT NULL DEFAULT nextval('id'),

@@ -1,5 +1,5 @@
 -- @tag: fix_taxdescription
--- @description: Durch das Update wurden in der Taxdescription die Prozentangabgen entfernt. Ist ung¸nstig f¸r die Druckausgabe
+-- @description: Durch das Update wurden in der Taxdescription die Prozentangabgen entfernt. Ist ung√ºnstig f√ºr die Druckausgabe
 -- @depends: ustva_setup_2007_update_chart_taxkeys_tax
 
 
@@ -101,7 +101,7 @@ WHERE taxkey = '11'
 ;
 
 UPDATE tax SET 
-  taxdescription = 'Steuerpflichtige EG-Lieferung zum erm‰ﬂigten Steuersatz 7%' 
+  taxdescription = 'Steuerpflichtige EG-Lieferung zum erm√§√üigten Steuersatz 7%' 
 WHERE taxkey = '12'
   AND
   EXISTS ( -- update only for SKR03
@@ -132,7 +132,7 @@ WHERE taxkey = '13' AND rate=0.19
 
 
 UPDATE tax SET 
-  taxdescription = 'Steuerpflichtiger innergem. Erwerb zum erm‰ﬂigten Steuersatz 7%' 
+  taxdescription = 'Steuerpflichtiger innergem. Erwerb zum erm√§√üigten Steuersatz 7%' 
 WHERE taxkey = '18'
   AND
   EXISTS ( -- update only for SKR03

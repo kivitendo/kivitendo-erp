@@ -1,5 +1,5 @@
 -- @tag: acc_trans_without_oid
--- @description: Einführen einer ID-Spalte in acc_trans
+-- @description: EinfÃ¼hren einer ID-Spalte in acc_trans
 -- @depends: release_2_4_3 cb_ob_transaction
 
 CREATE SEQUENCE acc_trans_id_seq;

@@ -1,7 +1,6 @@
 -- @tag: vendor_add_constraints
 -- @description: Zusätzliche Fremdschlüssel für Sprache, Lieferantentyp und Zahlungskonditionen
 -- @depends: release_2_6_3
--- @charset: utf-8
 -- @ignore: 0
 
 -- verwaiste Einträge vorher entfernen

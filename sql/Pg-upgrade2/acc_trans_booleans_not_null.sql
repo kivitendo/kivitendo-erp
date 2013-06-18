@@ -1,7 +1,6 @@
 -- @tag: acc_trans_booleans_not_null
 -- @description: Alte acc_trans boolean-Einträge mit NULL-Werten auf false setzen
 -- @depends: release_3_0_0
--- @charset: utf-8
 
 UPDATE acc_trans SET cleared        = 'f' where cleared        IS NULL;
 UPDATE acc_trans SET ob_transaction = 'f' where ob_transaction IS NULL;

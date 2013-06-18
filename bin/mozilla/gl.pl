@@ -257,16 +257,16 @@ sub generate_report {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  # generate_report wird beim ersten Aufruf per Weiter-Knopf und POST mit der hidden Variablen sort mit Wert "datesort" (früher "transdate" als Defaultsortiervariable) übertragen
+  # generate_report wird beim ersten Aufruf per Weiter-Knopf und POST mit der hidden Variablen sort mit Wert "datesort" (frÃ¼her "transdate" als Defaultsortiervariable) Ã¼bertragen
 
   # <form method=post action=gl.pl>
   # <input type=hidden name=sort value=datesort>    # form->{sort} setzen
   # <input type=hidden name=nextsub value=generate_report>
 
   # anhand von neuer Variable datesort wird jetzt $form->{sort} auf transdate oder gldate gesetzt
-  # damit ist die Hidden Variable "sort" wahrscheinlich sogar überflüssig
+  # damit ist die Hidden Variable "sort" wahrscheinlich sogar Ã¼berflÃ¼ssig
 
-  # ändert man die Sortierreihenfolge per Klick auf eine der Überschriften wird die Variable "sort" per GET übergeben, z.B. id,transdate, gldate, ...
+  # Ã¤ndert man die Sortierreihenfolge per Klick auf eine der Ãœberschriften wird die Variable "sort" per GET Ã¼bergeben, z.B. id,transdate, gldate, ...
   # gl.pl?action=generate_report&employee=18383--Jan%20B%c3%bcren&datesort=transdate&category=X&l_transdate=Y&l_gldate=Y&l_id=Y&l_reference=Y&l_description=Y&l_source=Y&l_debit=Y&l_credit=Y&sort=gldate&sortdir=0
 
   if ( $form->{sort} eq 'datesort' ) {   # sollte bei einem Post (Aufruf aus Suchmaske) immer wahr sein
@@ -673,8 +673,8 @@ sub display_rows {
   my %charts = ();
   my $taxchart_init;
   foreach my $item (@{ $form->{ALL_CHARTS} }) {
-    if ($item->{charttype} eq 'H'){ #falls Ã¼berschrift
-      next;                         #Ã¼berspringen (Bug 1150)
+    if ($item->{charttype} eq 'H'){ #falls ÃƒÅ’berschrift
+      next;                         #ÃƒÅ’berspringen (Bug 1150)
     }
     my $key = $item->{accno} . "--" . $item->{tax_id};
     $taxchart_init = $item->{tax_id} unless (@chart_values);

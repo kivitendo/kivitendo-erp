@@ -81,9 +81,6 @@ sub parse_dbupdate_controls {
 
     next if ($control->{ignore});
 
-    $control->{charset} = 'UTF-8' if $file =~ m/\.pl$/;
-    $control->{charset} = $control->{charset} || $control->{encoding} || 'UTF-8';
-
     if (!$control->{"tag"}) {
       _control_error($form, $file_name, $locale->text("Missing 'tag' field.")) ;
     }
@@ -141,19 +138,10 @@ sub process_query {
   my $sth;
   my @quote_chars;
 
-  my $file_charset = 'UTF-8';
-  while (<$fh>) {
-    last if !/^--/;
-    next if !/^--\s*\@(?:charset|encoding):\s*(.+)/;
-    $file_charset = $1;
-    last;
-  }
-  $fh->seek(0, SEEK_SET);
-
   $dbh->begin_work();
 
   while (<$fh>) {
-    $_ = SL::Iconv::convert($file_charset, 'UTF-8', $_);
+    $_ = SL::Iconv::convert('UTF-8', 'UTF-8', $_);
 
     # Remove DOS and Unix style line endings.
     chomp;
@@ -357,7 +345,7 @@ sub apply_admin_dbupgrade_scripts {
 
   $self->{form}->{login} ||= 'admin';
 
-  map { $_->{description} = SL::Iconv::convert($_->{charset}, 'UTF-8', $_->{description}) } values %{ $self->{all_controls} };
+  map { $_->{description} = SL::Iconv::convert('UTF-8', 'UTF-8', $_->{description}) } values %{ $self->{all_controls} };
 
   if ($called_from_admin) {
     $self->{form}->{title} = $::locale->text('Dataset upgrade');
@@ -495,8 +483,8 @@ applied.
 
 Database upgrade files come in two flavours: SQL files and Perl
 files. For both there are control fields that determine the order in
-which they're executed, what charset the scripts are written in
-etc. The control fields are tag/value pairs contained in comments.
+which they're executed etc. The control fields are tag/value pairs
+contained in comments.
 
 =head1 OLD UPGRADE FILES
 
@@ -546,13 +534,6 @@ This is mandatory.
 A space-separated list of tags of scripts this particular script
 depends on. All other upgrades listed in C<depends> will be applied
 before the current one is applied.
-
-=item charset
-
-=item encoding
-
-The charset this file uses. Defaults to C<ISO-8859-15> if
-missing. Both terms are recognized.
 
 =item priority
 

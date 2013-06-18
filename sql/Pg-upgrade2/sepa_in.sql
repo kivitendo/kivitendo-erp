@@ -1,7 +1,6 @@
 -- @tag: sepa_in
 -- @description: Erweiterung SEPA für Kontoeinzüge
 -- @depends: release_2_6_1
--- @charset: utf-8
 ALTER TABLE sepa_export ADD COLUMN vc varchar(10);
 UPDATE sepa_export SET vc = 'vendor';
 

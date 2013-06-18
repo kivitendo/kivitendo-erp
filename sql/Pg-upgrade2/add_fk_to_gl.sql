@@ -1,7 +1,6 @@
 -- @tag: add_fk_to_gl
 -- @description: Setzt Datenbank-Fremdschlüssel von gl.department_id auf department.id
 -- @depends: release_3_0_0
--- @charset: utf-8
 
 -- update all invalid departments in gl:
 UPDATE gl SET department_id = NULL WHERE department_id NOT IN (SELECT id FROM department);

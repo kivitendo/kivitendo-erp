@@ -1,5 +1,5 @@
 -- @tag: periodic_invoices
--- @description: Neue Tabellen und Spalten für Wiederkehrende Rechnungen
+-- @description: Neue Tabellen und Spalten fÃ¼r Wiederkehrende Rechnungen
 -- @depends: release_2_6_1
 CREATE TABLE periodic_invoices_configs (
        id                      integer     NOT NULL DEFAULT nextval('id'),

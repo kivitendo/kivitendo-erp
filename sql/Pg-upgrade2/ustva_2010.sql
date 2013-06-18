@@ -1,6 +1,5 @@
 -- @tag: ustva_2010
 -- @description: Zusätzliche UStVA Kennziffern.
--- @charset: utf-8
 -- @depends: release_2_6_1
 
 INSERT INTO tax.report_variables (id, position, heading_id, description, taxbase, dec_places, valid_from)

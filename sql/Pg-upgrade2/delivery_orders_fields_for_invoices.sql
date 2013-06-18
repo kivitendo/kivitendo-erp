@@ -1,5 +1,5 @@
 -- @tag: delivery_orders_fields_for_invoices
--- @description: Spalten in Lieferscheintabellen, um einige Werte von Aufträgen zu Rechnungen zu übernehmen
+-- @description: Spalten in Lieferscheintabellen, um einige Werte von AuftrÃ¤gen zu Rechnungen zu Ã¼bernehmen
 -- @depends: release_2_6_0
 ALTER TABLE delivery_orders ADD COLUMN taxzone_id integer;
 ALTER TABLE delivery_orders ADD COLUMN taxincluded boolean;
