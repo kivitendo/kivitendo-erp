@@ -77,7 +77,6 @@ sub _init {
   my $self     = shift;
   my $country  = shift;
 
-  $self->{charset}     = Common::DEFAULT_CHARSET;
   $self->{countrycode} = $country;
 
   if ($country && -d "locale/$country") {
@@ -87,29 +86,17 @@ sub _init {
       eval($code);
       close(IN);
     }
-
-    if (open IN, "<", "locale/$country/charset") {
-      $self->{charset} = <IN>;
-      close IN;
-
-      chomp $self->{charset};
-    }
   }
 
-  my $db_charset            = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
-  $self->{is_utf8}          = (any { lc($::lx_office_conf{system}->{dbcharset} || '') eq $_ } qw(utf8 utf-8 unicode)) ? 1 : 0;
+  binmode STDOUT, ":utf8";
+  binmode STDERR, ":utf8";
 
-  if ($self->{is_utf8}) {
-    binmode STDOUT, ":utf8";
-    binmode STDERR, ":utf8";
-  }
-
-  $self->{iconv}            = SL::Iconv->new($self->{charset}, $db_charset);
-  $self->{iconv_reverse}    = SL::Iconv->new($db_charset,      $self->{charset});
-  $self->{iconv_english}    = SL::Iconv->new('ASCII',          $db_charset);
-  $self->{iconv_iso8859}    = SL::Iconv->new('ISO-8859-15',    $db_charset);
-  $self->{iconv_to_iso8859} = SL::Iconv->new($db_charset,      'ISO-8859-15');
-  $self->{iconv_utf8}       = SL::Iconv->new('UTF-8',          $db_charset);
+  $self->{iconv}            = SL::Iconv->new('UTF-8',       'UTF-8');
+  $self->{iconv_reverse}    = SL::Iconv->new('UTF-8',       'UTF-8');
+  $self->{iconv_english}    = SL::Iconv->new('ASCII',       'UTF-8');
+  $self->{iconv_iso8859}    = SL::Iconv->new('ISO-8859-15', 'UTF-8');
+  $self->{iconv_to_iso8859} = SL::Iconv->new('UTF-8',       'ISO-8859-15');
+  $self->{iconv_utf8}       = SL::Iconv->new('UTF-8',       'UTF-8');
 
   $self->_read_special_chars_file($country);
 
@@ -119,12 +106,6 @@ sub _init {
      "September", "October",  "November", "December");
   push @{ $self->{SHORT_MONTH} },
     (qw(Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec));
-}
-
-sub is_utf8 {
-  my $self   = shift;
-  my $handle = shift;
-  return $self->{is_utf8} && (!$handle || $handle->is_utf8);
 }
 
 sub _handle_markup {
@@ -514,7 +495,7 @@ sub with_raw_io {
   $self->{raw_io_active} = 1;
   binmode $fh, ":raw";
   $code->();
-  binmode $fh, ":utf8" if $self->is_utf8;
+  binmode $fh, ":utf8";
   $self->{raw_io_active} = 0;
 }
 
@@ -622,10 +603,6 @@ Add hour:minute:second to the date.
 =item C<get_local_time_zone>
 
 TODO: Describe get_local_time_zone
-
-=item C<is_utf8>
-
-TODO: Describe is_utf8
 
 =item C<lang_to_locale>
 

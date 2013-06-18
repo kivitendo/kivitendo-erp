@@ -155,7 +155,7 @@ sub ary_to_hash {
 sub uri_encode {
   my ($str) = @_;
 
-  $str =  Encode::encode('utf-8-strict', $str) if $::locale->is_utf8;
+  $str =  Encode::encode('utf-8-strict', $str);
   $str =~ s/([^a-zA-Z0-9_.:-])/sprintf("%%%02x", ord($1))/ge;
 
   return $str;
@@ -168,7 +168,7 @@ sub uri_decode {
   $str =~ s/\\$//;
 
   $str =~ s/%([0-9a-fA-Z]{2})/pack("C",hex($1))/eg;
-  $str =  Encode::decode('utf-8-strict', $str) if $::locale->is_utf8;
+  $str =  Encode::decode('utf-8-strict', $str);
 
   return $str;
 }

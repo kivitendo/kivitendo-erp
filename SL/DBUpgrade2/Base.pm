@@ -59,7 +59,7 @@ sub db_errstr {
 
   my $error = $handle ? $handle->errstr : $self->dbh->errstr;
 
-  return $::locale->is_utf8 ? Encode::decode('utf-8', $error) : $error;
+  return Encode::decode('utf-8', $error);
 }
 
 sub check_coa {

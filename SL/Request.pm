@@ -126,7 +126,7 @@ sub _parse_multipart_formdata {
       $content_type   = "text/plain";
       $boundary_found = 1;
       $need_cr        = 0;
-      $encoding       = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
+      $encoding       = 'UTF-8';
       $transfer_encoding = undef;
       last if $last_boundary;
       next;
@@ -255,7 +255,6 @@ sub read_cgi_input {
   $::lxdebug->enter_sub;
 
   my ($target) = @_;
-  my $db_charset   = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
 
   # yes i know, copying all those values around isn't terribly efficient, but
   # the old version of dumping everything into form and then launching a
@@ -284,9 +283,9 @@ sub read_cgi_input {
     }
   }
 
-  my $encoding     = delete $temp_target->{INPUT_ENCODING} || $db_charset;
+  my $encoding     = delete $temp_target->{INPUT_ENCODING} || 'UTF-8';
 
-  _recode_recursively(SL::Iconv->new($encoding, $db_charset), $temp_target => $target) if keys %$target;
+  _recode_recursively(SL::Iconv->new($encoding, 'UTF-8'), $temp_target => $target) if keys %$target;
 
   if ($target->{RESTORE_FORM_FROM_SESSION_ID}) {
     my %temp_form;

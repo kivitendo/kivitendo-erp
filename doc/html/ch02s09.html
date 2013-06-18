@@ -30,13 +30,7 @@
         allen denjenigen Gruppen, die zum Einen dem Mandanten zugeordnet sind und in denen der Benutzer zum Anderen Mitglied ist, </p><p>Die Reihenfolge, in der Datenbanken, Mandanten, Gruppen und Benutzer angelegt werden, kann im Prinzip beliebig gewählt
         werden. Die folgende Reihenfolge beinhaltet die wenigsten Arbeitsschritte:</p><div class="orderedlist"><ol class="orderedlist" type="1"><li class="listitem"><p>Datenbank anlegen</p></li><li class="listitem"><p>Gruppen anlegen</p></li><li class="listitem"><p>Benutzer anlegen und Gruppen als Mitglied zuordnen</p></li><li class="listitem"><p>Mandanten anlegen und Gruppen sowie Benutzer zuweisen</p></li></ol></div></div><div class="sect2" title="2.9.3. Datenbanken anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Datenbanken-anlegen"></a>2.9.3. Datenbanken anlegen</h3></div></div></div><p>Zuerst muss eine Datenbank angelegt werden. Verwenden Sie für
         den Datenbankzugriff den vorhin angelegten Benutzer (in unseren
-        Beispielen ist dies ‘<code class="literal">kivitendo</code>’).</p><p>Wenn Sie für die kivitendo-Installation nicht Unicode (UTF-8) sondern den europäischen Schriftsatz ISO-8859-15 benutzen
-        wollen, so müssen Sie vor dem Anlegen der Datenbank in der Datei <code class="filename">config/kivitendo.conf</code> die Variable
-        <code class="literal">dbcharset</code> im Abschnitt <code class="literal">system</code> auf den Wert ‘<code class="literal">ISO-8859-15</code>’ setzen.</p><p>Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
-        verwenden müssen, da diese Einstellungen momentan global in kivitendo
-        vorgenommen wird und nicht nach Datenbank unterschieden werden kann.
-        Auch die Authentifizierungsdatenbank muss mit diesem Zeichensatz
-        angelegt worden sein.</p></div><div class="sect2" title="2.9.4. Gruppen anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Gruppen-anlegen"></a>2.9.4. Gruppen anlegen</h3></div></div></div><p>Eine Gruppe wird in der Gruppenverwaltung angelegt. Ihr muss ein
+        Beispielen ist dies ‘<code class="literal">kivitendo</code>’).</p></div><div class="sect2" title="2.9.4. Gruppen anlegen"><div class="titlepage"><div><div><h3 class="title"><a name="Gruppen-anlegen"></a>2.9.4. Gruppen anlegen</h3></div></div></div><p>Eine Gruppe wird in der Gruppenverwaltung angelegt. Ihr muss ein
         Name gegeben werden, eine Beschreibung ist hingegen optional. Nach dem
         Anlegen können Sie die verschiedenen Bereiche wählen, auf die
         Mitglieder dieser Gruppe Zugriff haben sollen.</p><p>Benutzergruppen werden zwar in der Authentifizierungsdatenbank gespeichert, gelten aber nicht automatisch für alle

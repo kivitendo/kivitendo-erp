@@ -18,6 +18,10 @@ Upgrade auf v3.x.0
 
 * Perl v5.10.1 oder neuer wird zwingend vorausgesetzt.
 
+* Die Datenbank muss zwingend Unicode als Encoding nutzen. Daher wird
+  auch die Konfigurationsvariable "system.dbcharset" nicht mehr
+  unterstützt.
+
 * Einführung von Mandanten. Früher war die Konfiguration der
   Datenbanken für jeden Benutzer getrennt vorzunehmen. Mit diesem
   Release wurden Mandanten eingeführt: ein Mandant bekommt einen Namen

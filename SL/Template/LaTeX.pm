@@ -338,7 +338,7 @@ sub parse {
     $self->{"error"} = "$form->{templates}/$form->{IN}: $!";
     return 0;
   }
-  binmode IN, ":utf8" if $::locale->is_utf8;
+  binmode IN, ":utf8";
   my @lines = <IN>;
   close(IN);
 
@@ -374,13 +374,8 @@ sub parse {
     return 0;
   }
 
-  if ($::locale->is_utf8) {
-    binmode OUT, ":utf8";
-    print OUT Unicode::Normalize::normalize('C', $new_contents);
-
-  } else {
-    print OUT $new_contents;
-  }
+  binmode OUT, ":utf8";
+  print OUT Unicode::Normalize::normalize('C', $new_contents);
 
   if ($form->{"format"} =~ /postscript/i) {
     return $self->convert_to_postscript();

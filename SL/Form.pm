@@ -447,7 +447,6 @@ sub header {
   $::lxdebug->enter_sub;
 
   my ($self, %params) = @_;
-  my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   my @header;
 
   $::lxdebug->leave_sub and return if !$ENV{HTTP_USER_AGENT} || $self->{header}++;
@@ -499,12 +498,12 @@ sub header {
   );
 
   # output
-  print $self->create_http_response(content_type => 'text/html', charset => $db_charset);
+  print $self->create_http_response(content_type => 'text/html', charset => 'UTF-8');
   print $doctypes{$params{doctype} || 'transitional'}, $/;
   print <<EOT;
 <html>
  <head>
-  <meta http-equiv="Content-Type" content="text/html; charset=$db_charset">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
   <title>$self->{titlebar}</title>
 EOT
   print "  $_\n" for @header;
@@ -543,8 +542,7 @@ sub ajax_response_header {
 
   my ($self) = @_;
 
-  my $db_charset = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
-  my $output     = $::request->{cgi}->header('-charset' => $db_charset);
+  my $output = $::request->{cgi}->header('-charset' => 'UTF-8');
 
   $main::lxdebug->leave_sub();
 
@@ -616,7 +614,6 @@ sub _prepare_html_template {
     map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
-  $additional_params->{"conf_dbcharset"}              = $::lx_office_conf{system}->{dbcharset};
   $additional_params->{"conf_webdav"}                 = $::lx_office_conf{features}->{webdav};
   $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
   $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
@@ -1100,7 +1097,6 @@ sub parse_template {
 
       map { $mail->{$_} = $self->{$_} }
         qw(cc bcc subject message version format);
-      $mail->{charset} = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
       $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
       $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
       $mail->{fileid} = time() . '.' . $$ . '.';

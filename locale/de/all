@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 # -*- coding: utf-8; -*-
-# vim: fenc=UTF-8
+# vim: fenc=utf-8
 
 use utf8;
 
@@ -2457,7 +2457,7 @@ $self->{texts} = {
   'You should create a backup of the database before proceeding because the backup might not be reversible.' => 'Sie sollten eine Sicherungskopie der Datenbank erstellen, bevor Sie fortfahren, da die Aktualisierung unter Umständen nicht umkehrbar ist.',
   'You\'re not editing a file.' => 'Sie bearbeiten momentan keine Datei.',
   'You\'ve already chosen the following limitations:' => 'Sie haben bereits die folgenden Einschr&auml;nkungen vorgenommen:',
-  'Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure kivitendo to use UTF-8 as well.' => 'Ihre PostgreSQL-Installation benutzt UTF-8 als Zeichensatz. Sie müssen deshalb kivitendo so konfigurieren, dass es ebenfalls UTF-8 als Zeichensatz benutzt.',
+  'Your PostgreSQL installationen does not use Unicode as its encoding. This is not supported anymore.' => 'Ihre PostgreSQL-Installation benutzt ein anderes Encoding als Unicode. Dies wird nicht mehr unterstützt.',
   'Your TODO list'              => 'Ihre Aufgabenliste',
   'Your account number'         => 'Ihre Kontonummer',
   'Your bank'                   => 'Der Name Ihrer Bank',

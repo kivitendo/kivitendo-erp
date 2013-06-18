@@ -381,10 +381,7 @@ host     = localhost
 port     = 5432
 db       = kivitendo_auth
 user     = postgres
-password =
-
-[system]
-dbcharset = UTF-8</programlisting>
+password =</programlisting>
 
         <para>Nutzt man wiederkehrende Rechnungen, kann man unter
         <varname>[periodic_invoices]</varname> den Login eines Benutzers
@@ -428,21 +425,20 @@ dbcharset = UTF-8</programlisting>
       <para>PostgreSQL muss auf verschiedene Weisen angepasst werden.</para>
 
       <sect2 id="Zeichensätze-die-Verwendung-von-UTF-8">
-        <title>Zeichensätze/die Verwendung von UTF-8</title>
+        <title>Zeichensätze/die Verwendung von Unicode/UTF-8</title>
 
-	<para>Bei aktuellen Serverinstallationen braucht man hier meist nicht
-	eingreifen</para>
+	      <para>kivitendo setzt zwingend voraus, dass die Datenbank Unicode/UTF-8 als Encoding einsetzt. Bei aktuellen Serverinstallationen
+	      braucht man hier meist nicht einzugreifen.</para>
 
-        <para>Dieses kann überprüft werden: ist das Encoding der Datenbank
-	“template1” “UTF8”, so braucht man nichts weiteres diesbezüglich
-	unternehmen. Zum Testen:
+        <para>Das Encoding des Datenbankservers kann überprüft werden. Ist das Encoding der Datenbank "template1" "Unicode" bzw. "UTF-8", so
+        braucht man nichts weiteres diesbezüglich unternehmen. Zum Testen:</para>
 
         <programlisting>su postgres
 echo '\l' | psql
 exit </programlisting>
 
-        Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
-        UTF-8-Encoding anzulegen und diesen zu verwenden. Unter Debian und
+        <para>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
+        Unicode-Encoding anzulegen und diesen zu verwenden. Unter Debian und
         Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl
         getan werden:</para>
 
@@ -452,10 +448,6 @@ exit </programlisting>
         Versionsnummer angepasst werden.</para>
 
         <para>Unter anderen Distributionen gibt es ähnliche Methoden.</para>
-
-        <para>Wurde PostgreSQL nicht mit UTF-8 als Encoding initialisiert und
-        ist ein Neuanlegen eines weiteren Clusters nicht möglich, so kann
-        kivitendo mit ISO-8859-15 als Encoding betrieben werden.</para>
 
         <para>Das Encoding einer Datenbank kann in <command>psql</command> mit
         <literal>\l</literal> geprüft werden.</para>
@@ -1243,16 +1235,6 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         <para>Zuerst muss eine Datenbank angelegt werden. Verwenden Sie für
         den Datenbankzugriff den vorhin angelegten Benutzer (in unseren
         Beispielen ist dies ‘<literal>kivitendo</literal>’).</para>
-
-        <para>Wenn Sie für die kivitendo-Installation nicht Unicode (UTF-8) sondern den europäischen Schriftsatz ISO-8859-15 benutzen
-        wollen, so müssen Sie vor dem Anlegen der Datenbank in der Datei <filename>config/kivitendo.conf</filename> die Variable
-        <literal>dbcharset</literal> im Abschnitt <literal>system</literal> auf den Wert ‘<literal>ISO-8859-15</literal>’ setzen.</para>
-
-        <para>Bitte beachten Sie, dass alle Datenbanken den selben Zeichensatz
-        verwenden müssen, da diese Einstellungen momentan global in kivitendo
-        vorgenommen wird und nicht nach Datenbank unterschieden werden kann.
-        Auch die Authentifizierungsdatenbank muss mit diesem Zeichensatz
-        angelegt worden sein.</para>
       </sect2>
 
       <sect2 id="Gruppen-anlegen">
@@ -1680,13 +1662,6 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
       <literal>opendocument</literal> im Abschnitt
       <literal>print_templates</literal> auf ‘<literal>1</literal>’ stehen.
       Dieses ist die Standardeinstellung.</para>
-
-      <para>Weiterhin muss in der Datei
-      <filename>config/kivitendo.conf</filename> die Variable
-      <literal>dbcharset</literal> im Abschnitt <literal>system</literal> auf
-      die Zeichenkodierung gesetzt werden, die auch bei der Speicherung der
-      Daten in der Datenbank verwendet wird. Diese ist in den meisten Fällen
-      "UTF-8".</para>
 
       <para>Während die Erzeugung von reinen OpenDocument-Dateien keinerlei
       weitere Software benötigt, wird zur Umwandlung dieser Dateien in PDF
@@ -5474,21 +5449,6 @@ file = /tmp/kivitendo-debug.log</programlisting>
         <para>Mit FastCGI ist die neuste Version auf 0,26 Sekunden selbst in
         den kritischen Pfaden, unter 0,15 sonst.</para>
       </sect2>
-
-      <sect2 id="devel.fcgi.known-issues">
-        <title>Bekannte Probleme</title>
-
-        <sect3 id="devel.fcgi.known-issues.encoding">
-          <title>Encoding Awareness</title>
-
-          <para>UTF-8 kodierte Installationen sind sehr anfällig gegen
-          fehlerhfate Encodings unter FCGI. latin9 Installationen behandeln
-          falsch kodierte Zeichen eher unwissend, und geben sie einfach
-          weiter. UTF-8 verweigert bei fehlerhaften Programmpfaden kurzerhand
-          das Ausliefern. Es wird noch daran gearbeitet, alle Fehler da zu
-          beseitigen.</para>
-        </sect3>
-      </sect2>
     </sect1>
 
     <sect1 id="db-upgrade-files" xreflabel="Datenbank-Upgradedateien">
@@ -5781,6 +5741,13 @@ sub run {
         point.</para>
       </sect2>
 
+      <sect2 id="translations-languages.character-set"
+             xreflabel="Character set">
+        <title>Character set</title>
+
+        <para>All files included in a language pack must use UTF-8 as their encoding.</para>
+      </sect2>
+
       <sect2 id="translations-languages.file-structure"
              xreflabel="File structure">
         <title>File structure</title>
@@ -5814,27 +5781,6 @@ sub run {
               after that. Example:</para>
 
               <programlisting>Deutsch (German)</programlisting>
-            </listitem>
-          </varlistentry>
-
-          <varlistentry>
-            <term>charset</term>
-
-            <listitem>
-              <para>This file should be present.</para>
-
-              <para>The <filename>charset</filename> file describes which
-              charset a language package is written in and applies to all
-              other language files in the package. It is possible to write
-              some language packages without an explicit charset, but it is
-              still strongly recommended. You'll never know in what
-              environment your language package will be used, and neither
-              UTF-8 nor Latin1 are guaranteed.</para>
-
-              <para>The whole content of this file is a string that can be
-              recognized as a valid charset encoding. Example:</para>
-
-              <programlisting>UTF-8</programlisting>
             </listitem>
           </varlistentry>
 

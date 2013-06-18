@@ -21,7 +21,7 @@ no warnings 'redefine';
 sub url {
     my ($self, $text) = @_;
     return undef unless defined $text;
-    $text =  Encode::encode('utf-8-strict', $text) if $::locale && $::locale->is_utf8;
+    $text =  Encode::encode('utf-8-strict', $text);
     $text =~ s/([^a-zA-Z0-9_.-])/uc sprintf("%%%02x",ord($1))/eg;
     return $text;
 }

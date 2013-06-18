@@ -190,7 +190,7 @@ sub send {
   }
 
   # Set defaults & headers
-  $self->{charset}     ||=  Common::DEFAULT_CHARSET;
+  $self->{charset}       =  'UTF-8';
   $self->{contenttype} ||=  "text/plain";
   $self->{headers}       =  [
     Subject              => $self->{subject},

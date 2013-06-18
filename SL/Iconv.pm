@@ -33,8 +33,8 @@ sub convert {
 
   my ($from_charset, $to_charset, $text) = @_;
 
-  $from_charset ||= Common::DEFAULT_CHARSET;
-  $to_charset   ||= Common::DEFAULT_CHARSET;
+  $from_charset ||= 'UTF-8';
+  $to_charset   ||= 'UTF-8';
 
   my $converter = _get_converter($from_charset, $to_charset);
   $text         = $converter->convert($text);

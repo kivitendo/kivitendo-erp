@@ -72,7 +72,7 @@ sub get_connect_args {
 sub get_options {
   my $self    = shift;
   my $options = {
-    pg_enable_utf8 => $::locale->is_utf8,
+    pg_enable_utf8 => 1,
     @_
   };
 

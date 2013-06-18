@@ -67,6 +67,10 @@ Wichtige Änderungen:
   Die alte URL wird weiterhin funktionieren und lediglich auf die neue
   URL umleiten.
 
+- Datenbanken, die nicht Unicode als Encoding nutzen, werden nicht
+  mehr unterstützt. Die Konfigurationsvariable "system.dbcharset"
+  wurde entfernt.
+
 - Upgrades von alten SQL-Ledger-Versionen im Allgemeinen sowie
   Upgrades von alten kivitendo-Versionen, die Benutzer noch über die
   Datei "users/members" verwaltet haben, werden nicht mehr

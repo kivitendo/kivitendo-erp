@@ -251,7 +251,7 @@ sub dbconnect {
 
   $main::lxdebug->message(LXDebug->DEBUG1, "Auth::dbconnect DSN: $dsn");
 
-  $self->{dbh} = SL::DBConnect->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => $::locale->is_utf8, AutoCommit => 1 });
+  $self->{dbh} = SL::DBConnect->connect($dsn, $cfg->{user}, $cfg->{password}, { pg_enable_utf8 => 1, AutoCommit => 1 });
 
   if (!$may_fail && !$self->{dbh}) {
     $main::form->error($main::locale->text('The connection to the authentication database failed:') . "\n" . $DBI::errstr);
@@ -326,18 +326,13 @@ sub create_database {
 
   $main::lxdebug->message(LXDebug->DEBUG1(), "Auth::create_database DSN: $dsn");
 
-  my $charset    = $::lx_office_conf{system}->{dbcharset};
-  $charset     ||= Common::DEFAULT_CHARSET;
-  my $encoding   = $Common::charset_to_db_encoding{$charset};
-  $encoding    ||= 'UNICODE';
-
-  my $dbh        = SL::DBConnect->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => scalar($charset =~ m/^utf-?8$/i) });
+  my $dbh = SL::DBConnect->connect($dsn, $params{superuser}, $params{superuser_password}, { pg_enable_utf8 => 1 });
 
   if (!$dbh) {
     $main::form->error($main::locale->text('The connection to the template database failed:') . "\n" . $DBI::errstr);
   }
 
-  my $query = qq|CREATE DATABASE "$cfg->{db}" OWNER "$cfg->{user}" TEMPLATE "$params{template}" ENCODING '$encoding'|;
+  my $query = qq|CREATE DATABASE "$cfg->{db}" OWNER "$cfg->{user}" TEMPLATE "$params{template}" ENCODING 'UNICODE'|;
 
   $main::lxdebug->message(LXDebug->DEBUG1(), "Auth::create_database query: $query");
 
@@ -349,8 +344,8 @@ sub create_database {
     $query                 = qq|SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = 'template0'|;
     my ($cluster_encoding) = $dbh->selectrow_array($query);
 
-    if ($cluster_encoding && ($cluster_encoding =~ m/^(?:UTF-?8|UNICODE)$/i) && ($encoding !~ m/^(?:UTF-?8|UNICODE)$/i)) {
-      $error = $main::locale->text('Your PostgreSQL installationen uses UTF-8 as its encoding. Therefore you have to configure kivitendo to use UTF-8 as well.');
+    if ($cluster_encoding && ($cluster_encoding !~ m/^(?:UTF-?8|UNICODE)$/i)) {
+      $error = $::locale->text('Your PostgreSQL installationen does not use Unicode as its encoding. This is not supported anymore.');
     }
 
     $dbh->disconnect();
@@ -369,11 +364,8 @@ sub create_tables {
   my $self = shift;
   my $dbh  = $self->dbconnect();
 
-  my $charset    = $::lx_office_conf{system}->{dbcharset};
-  $charset     ||= Common::DEFAULT_CHARSET;
-
   $dbh->rollback();
-  SL::DBUpgrade2->new(form => $::form)->process_query($dbh, 'sql/auth_db.sql', undef, $charset);
+  SL::DBUpgrade2->new(form => $::form)->process_query($dbh, 'sql/auth_db.sql');
 
   $main::lxdebug->leave_sub();
 }

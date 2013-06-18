@@ -258,15 +258,12 @@ sub dbcreate {
   $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
 
-  my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
   my $dbupdater = SL::DBUpgrade2->new(form => $form);
   # create the tables
-  $dbupdater->process_query($dbh, "sql/lx-office.sql", undef, $db_charset);
+  $dbupdater->process_query($dbh, "sql/lx-office.sql");
 
   # load chart of accounts
-  $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
+  $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql");
 
   my $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?|;
   do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency));
@@ -399,9 +396,6 @@ sub dbupdate {
     closedir(SQLDIR);
   }
 
-  my $db_charset = $::lx_office_conf{system}->{dbcharset};
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
   my $dbupdater = SL::DBUpgrade2->new(form => $form);
 
   foreach my $db (split(/ /, $form->{dbupdate})) {
@@ -441,7 +435,7 @@ sub dbupdate {
 
       # apply upgrade
       $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $upgradescript");
-      $dbupdater->process_file($dbh, "sql/Pg-upgrade/$upgradescript", $str_maxdb, $db_charset);
+      $dbupdater->process_file($dbh, "sql/Pg-upgrade/$upgradescript", $str_maxdb);
 
       $version = $maxdb;
 
@@ -466,9 +460,8 @@ sub dbupdate2 {
   my $dbupdater       = $params{updater};
   my $db              = $params{database};
   my $rc              = -2;
-  my $db_charset      = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
 
-  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $dbupdater->{all_controls} };
+  map { $_->{description} = SL::Iconv::convert($_->{charset}, 'UTF-8', $_->{description}) } values %{ $dbupdater->{all_controls} };
 
   &dbconnect_vars($form, $db);
 
@@ -487,7 +480,7 @@ sub dbupdate2 {
     $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
     print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-    $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
+    $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
   }
 
   $rc = 0;
