@@ -375,8 +375,6 @@ sub action_database_administration {
   $::form->{dbpasswd}  ||= $::auth->{DB_config}->{password};
   $::form->{dbdefault} ||= 'template1';
 
-  $::request->layout->focus('#dbhost');
-
   $self->render('admin/dbadmin', title => t8('Database Administration'));
 }
 
@@ -547,7 +545,6 @@ sub use_multiselect_js {
 
 sub login_form {
   my ($self, %params) = @_;
-  $::request->layout->focus('#admin_password');
   $self->render('admin/adminlogin', title => t8('kivitendo v#1 administration', $::form->read_version), %params);
 }
 

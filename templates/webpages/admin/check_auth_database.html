@@ -34,7 +34,7 @@
    [% 'Please enter the name of the database that will be used as the template for the new database:' | $T8 %]
   </p>
 
-  <p>[% 'Template database' | $T8 %]: <input name="db_template" value="template1"></p>
+  <p>[% 'Template database' | $T8 %]: [% L.input_tag('db_template', "template1") %]</p>
 
   <p>
    [% 'If the database user listed above does not have the right to create a database then enter the name and password of the superuser below:' | $T8 %]
@@ -43,12 +43,12 @@
   <table border="0">
    <tr>
     <td>[% 'Superuser name' | $T8 %]:</td>
-    <td>[% L.input_tag('db_superuser', '') %]</td>
+    <td>[% L.input_tag('db_superuser', AUTH.DB_config.user, class="initial_focus") %]</td>
    </tr>
 
    <tr>
     <td>[% 'Password' | $T8 %]:</td>
-    <td>[% L.input_tag('db_superuser_password', '', type='password') %]</td>
+    <td>[% L.input_tag('db_superuser_password', AUTH.DB_config.password, type='password') %]</td>
    </tr>
   </table>
 

@@ -23,7 +23,7 @@
 
   <tr>
    <th align="right">[% LxERP.t8('Client name') %]</th>
-   <td>[% L.input_tag("client.name", SELF.client.name) %]</td>
+   <td>[% L.input_tag("client.name", SELF.client.name, class="initial_focus") %]</td>
   </tr>
 
   <tr>
@@ -33,22 +33,22 @@
 
   <tr>
    <th align="right">[% LxERP.t8('Database name') %]</th>
-   <td>[% L.input_tag("client.dbname", SELF.client.dbname, 'data-dbsettings'=1) %]</td>
+   <td>[% L.input_tag("client.dbname", SELF.client.dbname, class="contains_dbsettings") %]</td>
   </tr>
 
   <tr>
    <th align="right">[% LxERP.t8('Database host and port') %]</th>
    <td>
-    [% L.input_tag("client.dbhost", SELF.client.dbhost, 'data-dbsettings'=1) %]
-    [% L.input_tag("client.dbport", SELF.client.dbport, 'data-dbsettings'=1, size=6) %]
+    [% L.input_tag("client.dbhost", SELF.client.dbhost, class="contains_dbsettings") %]
+    [% L.input_tag("client.dbport", SELF.client.dbport, class="contains_dbsettings", size=6) %]
    </td>
   </tr>
 
   <tr>
    <th align="right">[% LxERP.t8('Database user and password') %]</th>
    <td>
-    [% L.input_tag("client.dbuser",   SELF.client.dbuser, 'data-dbsettings'=1) %]
-    [% L.input_tag("client.dbpasswd", SELF.client.dbpasswd, 'data-dbsettings'=1) %]
+    [% L.input_tag("client.dbuser",   SELF.client.dbuser, class="contains_dbsettings") %]
+    [% L.input_tag("client.dbpasswd", SELF.client.dbpasswd, class="contains_dbsettings") %]
    </td>
   </tr>
  </table>
@@ -127,7 +127,7 @@
   function test_database_connectivity() {
     open_jqm_window({
       url:  'controller.pl?action=Admin/test_database_connectivity',
-      data: $("INPUT[data-dbsettings=1]").serialize(),
+      data: $(".contains_dbsettings]").serialize(),
       type: 'POST',
       id:   'test_db_connection_window'
     });

@@ -16,7 +16,7 @@
 <form method="post" action="controller.pl">
  <p>
   [% LxERP.t8('Please select the dataset you want to delete:') %]
-  [% L.select_tag('db', SELF.all_unused_dbsources) %]
+  [% L.select_tag('db', SELF.all_unused_dbsources, class="initial_focus") %]
  </p>
 
  [% L.hidden_tag("dbhost", FORM.dbhost) %]

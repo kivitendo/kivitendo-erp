@@ -16,7 +16,7 @@
  <table>
   <tr>
    <th align="right">[% LxERP.t8('Name') %]</th>
-   <td>[% L.input_tag("group.name", SELF.group.name) %]</td>
+   <td>[% L.input_tag("group.name", SELF.group.name, class="initial_focus") %]</td>
   </tr>
 
   <tr>
@@ -33,12 +33,12 @@
   [% SET section_number = loop.count %]
   [% SET num_checked = 0 %]
   [% FOREACH right = section.rights %][% SET name = right.name %][% IF granted_rights.$name %][% SET num_checked = num_checked + 1 %][% END %][% END %]
-  <h3>[% L.checkbox_tag('dummy' _ section_number, label=LxERP.t8('Section "#1"', section.description), checkall='[data-checkallgroup=' _ section_number _ ']', checked=(num_checked == section.rights.size)) %]</h3>
+  <h3>[% L.checkbox_tag('dummy' _ section_number, label=LxERP.t8('Section "#1"', section.description), checkall='[.checkallgroup' _ section_number _ ']', checked=(num_checked == section.rights.size)) %]</h3>
 
   <div class="clearfix">
    [% FOREACH right = section.rights %]
     [% SET name = right.name %]
-    [% L.checkbox_tag("group.rights_map." _ name, label=right.description, checked=granted_rights.$name, 'data-checkallgroup'=section_number) %]
+    [% L.checkbox_tag("group.rights_map." _ name, label=right.description, checked=granted_rights.$name, class="checkallgroup" _ section_number) %]
     <br>
    [%- END %]
   </div>
