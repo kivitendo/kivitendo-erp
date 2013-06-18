@@ -250,7 +250,7 @@ sub action_test_database_connectivity {
 
   $dbh->disconnect if $dbh;
 
-  $self->render('admin/test_db_connection',
+  $self->render('admin/test_db_connection', { layout => 0 },
                 title => t8('Database Connection Test'),
                 ok    => $ok,
                 error => $error);
