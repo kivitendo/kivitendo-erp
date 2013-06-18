@@ -1,8 +1,0 @@
-[%- USE T8 %]
-[%- USE LxERP %]
-[%- USE HTML %][%- USE L -%]
-  <h1>[% title %]</h1>
-
-  <p>[% LxERP.t8('The database #1 has been successfully deleted.', db) | html %]</p>
-
-  <p>[% L.link("controller.pl?action=Admin/show", LxERP.t8("Continue")) %]</p>
