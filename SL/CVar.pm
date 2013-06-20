@@ -562,8 +562,8 @@ sub save_custom_variables_validity {
   my $sth = prepare_query($form, $dbh, $query);
 
   unless ($params{validity}) {
-    foreach my $config_id (listify $params{config_id}) {
-      foreach my $trans_id (listify $params{trans_id}) {
+    foreach my $config_id (listify($params{config_id})) {
+      foreach my $trans_id (listify($params{trans_id})) {
         do_statement($form, $sth, $query, conv_i($config_id), conv_i($trans_id));
       }
     }
