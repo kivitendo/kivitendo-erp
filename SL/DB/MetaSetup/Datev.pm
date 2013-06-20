@@ -6,25 +6,25 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'datev',
+__PACKAGE__->meta->table('datev');
 
-  columns => [
-    beraternr      => { type => 'varchar', length => 7 },
-    beratername    => { type => 'varchar', length => 9 },
-    mandantennr    => { type => 'varchar', length => 5 },
-    dfvkz          => { type => 'varchar', length => 2 },
-    datentraegernr => { type => 'varchar', length => 3 },
-    abrechnungsnr  => { type => 'varchar', length => 6 },
-    itime          => { type => 'timestamp', default => 'now()' },
-    mtime          => { type => 'timestamp' },
-    id             => { type => 'serial', not_null => 1 },
-  ],
-
-  primary_key_columns => [ 'id' ],
-
-  allow_inline_column_values => 1,
+__PACKAGE__->meta->columns(
+  beraternr      => { type => 'varchar', length => 7 },
+  beratername    => { type => 'varchar', length => 9 },
+  mandantennr    => { type => 'varchar', length => 5 },
+  dfvkz          => { type => 'varchar', length => 2 },
+  datentraegernr => { type => 'varchar', length => 3 },
+  abrechnungsnr  => { type => 'varchar', length => 6 },
+  itime          => { type => 'timestamp', default => 'now()' },
+  mtime          => { type => 'timestamp' },
+  id             => { type => 'serial', not_null => 1 },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->allow_inline_column_values(1);
+
+# __PACKAGE__->meta->initialize;
 
 1;
 ;

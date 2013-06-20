@@ -6,29 +6,43 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'dunning_config',
+__PACKAGE__->meta->table('dunning_config');
 
-  columns => [
-    id                       => { type => 'integer', not_null => 1, sequence => 'id' },
-    dunning_level            => { type => 'integer' },
-    dunning_description      => { type => 'text' },
-    active                   => { type => 'boolean' },
-    auto                     => { type => 'boolean' },
-    email                    => { type => 'boolean' },
-    terms                    => { type => 'integer' },
-    payment_terms            => { type => 'integer' },
-    fee                      => { type => 'numeric', precision => 5, scale => 15 },
-    interest_rate            => { type => 'numeric', precision => 5, scale => 15 },
-    email_body               => { type => 'text' },
-    email_subject            => { type => 'text' },
-    email_attachment         => { type => 'boolean' },
-    template                 => { type => 'text' },
-    create_invoices_for_fees => { type => 'boolean', default => 'true' },
-  ],
-
-  primary_key_columns => [ 'id' ],
+__PACKAGE__->meta->columns(
+  id                       => { type => 'integer', not_null => 1, sequence => 'id' },
+  dunning_level            => { type => 'integer' },
+  dunning_description      => { type => 'text' },
+  active                   => { type => 'boolean' },
+  auto                     => { type => 'boolean' },
+  email                    => { type => 'boolean' },
+  terms                    => { type => 'integer' },
+  payment_terms            => { type => 'integer' },
+  fee                      => { type => 'numeric', precision => 5, scale => 15 },
+  interest_rate            => { type => 'numeric', precision => 5, scale => 15 },
+  email_body               => { type => 'text' },
+  email_subject            => { type => 'text' },
+  email_attachment         => { type => 'boolean' },
+  template                 => { type => 'text' },
+  create_invoices_for_fees => { type => 'boolean', default => 'true' },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->relationships(
+  ar => {
+    class      => 'SL::DB::Invoice',
+    column_map => { id => 'dunning_config_id' },
+    type       => 'one to many',
+  },
+
+  dunning => {
+    class      => 'SL::DB::Dunning',
+    column_map => { id => 'dunning_config_id' },
+    type       => 'one to many',
+  },
+);
+
+# __PACKAGE__->meta->initialize;
 
 1;
 ;

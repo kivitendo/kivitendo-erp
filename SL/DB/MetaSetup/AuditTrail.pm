@@ -6,22 +6,22 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'audittrail',
+__PACKAGE__->meta->table('audittrail');
 
-  columns => [
-    trans_id    => { type => 'integer' },
-    tablename   => { type => 'text' },
-    reference   => { type => 'text' },
-    formname    => { type => 'text' },
-    action      => { type => 'text' },
-    transdate   => { type => 'timestamp', default => 'now' },
-    employee_id => { type => 'integer' },
-    id          => { type => 'serial', not_null => 1 },
-  ],
-
-  primary_key_columns => [ 'id' ],
+__PACKAGE__->meta->columns(
+  trans_id    => { type => 'integer' },
+  tablename   => { type => 'text' },
+  reference   => { type => 'text' },
+  formname    => { type => 'text' },
+  action      => { type => 'text' },
+  transdate   => { type => 'timestamp', default => 'now' },
+  employee_id => { type => 'integer' },
+  id          => { type => 'serial', not_null => 1 },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+# __PACKAGE__->meta->initialize;
 
 1;
 ;

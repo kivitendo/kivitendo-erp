@@ -6,25 +6,25 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'group_rights',
-  schema  => 'auth',
+__PACKAGE__->meta->table('group_rights');
+__PACKAGE__->meta->schema('auth');
 
-  columns => [
-    group_id => { type => 'integer', not_null => 1 },
-    right    => { type => 'text', not_null => 1 },
-    granted  => { type => 'boolean', not_null => 1 },
-  ],
-
-  primary_key_columns => [ 'group_id', 'right' ],
-
-  foreign_keys => [
-    group => {
-      class       => 'SL::DB::AuthGroup',
-      key_columns => { group_id => 'id' },
-    },
-  ],
+__PACKAGE__->meta->columns(
+  group_id => { type => 'integer', not_null => 1 },
+  right    => { type => 'text', not_null => 1 },
+  granted  => { type => 'boolean', not_null => 1 },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'group_id', 'right' ]);
+
+__PACKAGE__->meta->foreign_keys(
+  group => {
+    class       => 'SL::DB::AuthGroup',
+    key_columns => { group_id => 'id' },
+  },
+);
+
+# __PACKAGE__->meta->initialize;
 
 1;
 ;

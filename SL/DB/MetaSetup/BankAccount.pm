@@ -6,28 +6,28 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'bank_accounts',
+__PACKAGE__->meta->table('bank_accounts');
 
-  columns => [
-    id             => { type => 'integer', not_null => 1, sequence => 'id' },
-    account_number => { type => 'varchar', length => 100 },
-    bank_code      => { type => 'varchar', length => 100 },
-    iban           => { type => 'varchar', length => 100 },
-    bic            => { type => 'varchar', length => 100 },
-    bank           => { type => 'text' },
-    chart_id       => { type => 'integer', not_null => 1 },
-  ],
-
-  primary_key_columns => [ 'id' ],
-
-  foreign_keys => [
-    chart => {
-      class       => 'SL::DB::Chart',
-      key_columns => { chart_id => 'id' },
-    },
-  ],
+__PACKAGE__->meta->columns(
+  id             => { type => 'integer', not_null => 1, sequence => 'id' },
+  account_number => { type => 'varchar', length => 100 },
+  bank_code      => { type => 'varchar', length => 100 },
+  iban           => { type => 'varchar', length => 100 },
+  bic            => { type => 'varchar', length => 100 },
+  bank           => { type => 'text' },
+  chart_id       => { type => 'integer', not_null => 1 },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->foreign_keys(
+  chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { chart_id => 'id' },
+  },
+);
+
+# __PACKAGE__->meta->initialize;
 
 1;
 ;
