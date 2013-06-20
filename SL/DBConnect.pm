@@ -44,7 +44,7 @@ sub connect {
 
 sub get_datestyle {
   my ($self, $dateformat) = @_;
-  return $dateformat_to_datestyle{ $dateformat || $::myconfig{dateformat} };
+  return $dateformat_to_datestyle{ $dateformat || $::myconfig{dateformat} // '' };
 }
 
 sub get_initial_sql {
