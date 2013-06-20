@@ -9,8 +9,6 @@ our @EXPORT_OK = qw(ary_union ary_intersect ary_diff listify ary_to_hash uri_enc
 use List::MoreUtils qw(zip);
 use YAML;
 
-use SL::AM;
-
 use strict;
 
 sub save_form {
@@ -60,7 +58,7 @@ sub compare_numbers {
   $main::lxdebug->enter_sub();
 
   my ($a, $a_unit, $b, $b_unit) = @_;
-
+  require SL::AM;
   my $units          = AM->retrieve_all_units;
 
   if (!$units->{$a_unit} || !$units->{$b_unit} || ($units->{$a_unit}->{base_unit} ne $units->{$b_unit}->{base_unit})) {
