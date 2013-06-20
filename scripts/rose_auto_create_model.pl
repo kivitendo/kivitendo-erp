@@ -95,7 +95,7 @@ sub process_table {
 __PACKAGE__->meta->schema('$schema');
 CODE
 
-  my $definition =  eval <<CODE;
+  eval <<CODE;
     package SL::DB::AUTO::$package;
     use SL::DB::Object;
     use base qw(SL::DB::Object);
@@ -104,7 +104,6 @@ CODE
     $schema_str
     __PACKAGE__->meta->auto_initialize;
 
-    __PACKAGE__->meta->perl_class_definition(indent => 2); # , braces => 'bsd'
 CODE
 
   if ($EVAL_ERROR) {
@@ -113,13 +112,26 @@ CODE
     return;
   }
 
+  my %args = (indent => 2, use_setup => 0);
+
+  my $definition =  "SL::DB::AUTO::$package"->meta->perl_class_definition(%args);
+  $definition =~ s/(__PACKAGE__->meta->initialize;)/# $1/;
   $definition =~ s/::AUTO::/::/g;
 
-  while (my ($auto_generated_name, $desired_name) = each %{ $foreign_key_name_map{$table} || {} }) {
-    $definition =~ s/( foreign_keys \s*=> \s*\[ .* ^\s+ ) ${auto_generated_name} \b/${1}${desired_name}/msx;
+  # patch foreign keys
+  my $foreign_key_definition = "SL::DB::AUTO::$package"->meta->perl_foreign_keys_definition(%args);
+
+  if ($definition =~ /\Q$foreign_key_definition\E/) {
+    my ($start, $end) = ($-[0], $+[0]);
+
+    while (my ($auto_generated_name, $desired_name) = each %{ $foreign_key_name_map{$table} || {} }) {
+      $foreign_key_definition =~ s/^ \s \s ${auto_generated_name} \b/  ${desired_name}/msx;
+    }
+
+    substr($definition, $start, $end - $start) = $foreign_key_definition;
   }
 
-  $definition =~ s/(table\s*=>.*?\n)/$1  schema  => '${schema}',\n/ if $schema;
+  $definition =~ s/(meta->table.*)\n/$1\n$schema_str/m if $schema;
 
   my $full_definition = <<CODE;
 # This file has been auto-generated. Do not modify it; it will be overwritten
@@ -136,6 +148,8 @@ package SL::DB::${package};
 use strict;
 
 use SL::DB::MetaSetup::${package};
+
+__PACKAGE__->meta->initialize;
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
 __PACKAGE__->meta->make_manager_class;
