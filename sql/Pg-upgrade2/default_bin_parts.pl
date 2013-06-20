@@ -105,7 +105,7 @@ sub run {
   }
   # das alte textfeld entfernen
   # hier nochmal, da oben schon ein return 1 gesetzt ist
-  my $query = qq|ALTER TABLE parts drop COLUMN bin|;
+  $query = qq|ALTER TABLE parts drop COLUMN bin|;
   $self->db_query($query);
   return 1;
 }
