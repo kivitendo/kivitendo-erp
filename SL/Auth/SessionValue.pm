@@ -37,6 +37,7 @@ sub get {
 
 sub get_dumped {
   my ($self) = @_;
+  no warnings 'once';
   local $YAML::Stringify = 1;
   return YAML::Dump($self->get);
 }
