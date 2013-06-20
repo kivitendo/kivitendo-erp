@@ -22,7 +22,6 @@ sub run {
     foreach my $i (1 .. $::form->{rowcount}) {
       $update_query = qq|UPDATE parts SET partnumber = '| . $::form->{"partnumber_$i"} . qq|' WHERE id = | . $::form->{"partid_$i"};
       $self->db_query($update_query);
-      print FH $i;
     }
     $self->dbh->commit();
   }
