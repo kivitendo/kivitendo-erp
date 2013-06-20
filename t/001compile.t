@@ -74,10 +74,7 @@ foreach my $file (@testitems) {
     if (-l $file) {
         ok(1, "$file is a symlink");
     } else {
-        local $TODO;
-        $TODO = 'schema updates are not required to be strict now' if $file =~ m{^sql/Pg-upgrade2};
-
-        my $command = "$perlapp -c$T -I modules/fallback -I modules/override $file 2>&1";
+        my $command = "$perlapp -w -c$T -Imodules/fallback -Imodules/override -It -MSupport::CanonialGlobals $file 2>&1";
         my $loginfo=`$command`;
 
         if ($loginfo =~ /syntax ok$/im) {
