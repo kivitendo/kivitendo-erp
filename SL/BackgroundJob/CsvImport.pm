@@ -5,7 +5,6 @@ use strict;
 use parent qw(SL::BackgroundJob::Base);
 
 use YAML ();
-use SL::Controller::CsvImport;
 use SL::DB::CsvImportProfile;
 use SL::SessionFile::Random;
 
@@ -56,6 +55,7 @@ sub run {
 sub do_import {
   my ($self) = @_;
 
+  require SL::Controller::CsvImport;
   my $c = SL::Controller::CsvImport->new;
   my $job = $self->{db_obj};
 
