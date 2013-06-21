@@ -8,7 +8,6 @@ use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::TransNumberGenerator;
-use SL::DB::Order;
 
 use List::Util qw(first);
 
@@ -35,6 +34,8 @@ sub sales_order {
   my $self   = shift;
   my %params = @_;
 
+
+  require SL::DB::Order;
   my $orders = SL::DB::Manager::Order->get_all(
     query => [
       ordnumber => $self->ordnumber,
