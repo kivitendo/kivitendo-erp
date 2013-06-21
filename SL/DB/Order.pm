@@ -9,7 +9,6 @@ use List::Util qw(max);
 
 use SL::DB::MetaSetup::Order;
 use SL::DB::Manager::Order;
-use SL::DB::Invoice;
 use SL::DB::Helper::FlattenToForm;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
@@ -84,6 +83,7 @@ sub invoices {
   if ($self->quotation) {
     return [];
   } else {
+    require SL::DB::Invoice;
     return SL::DB::Manager::Invoice->get_all(
       query => [
         ordnumber => $self->ordnumber,
