@@ -15,9 +15,6 @@ use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
-use SL::DB::AccTransaction;
-use SL::DB::Chart;
-use SL::DB::Employee;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -102,6 +99,8 @@ sub new_from {
   croak("Unsupported source object type '" . ref($source) . "'") unless ref($source) =~ m/^ SL::DB:: (?: Order | DeliveryOrder ) $/x;
   croak("Cannot create invoices for purchase records")           unless $source->customer_id;
 
+  require SL::DB::Employee;
+
   my $terms = $source->can('payment_id') && $source->payment_id ? $source->payment_terms->terms_netto : 0;
 
   my %args = ( map({ ( $_ => $source->$_ ) } qw(customer_id taxincluded shippingpoint shipvia notes intnotes salesman_id cusordnumber ordnumber quonumber
@@ -144,6 +143,7 @@ sub new_from {
 sub post {
   my ($self, %params) = @_;
 
+  require SL::DB::Chart;
   if (!$params{ar_id}) {
     my $chart = SL::DB::Manager::Chart->get_all(query   => [ SL::DB::Manager::Chart->link_filter('AR') ],
                                                 sort_by => 'id ASC',
@@ -184,6 +184,8 @@ sub _post_add_acctrans {
   my $default_tax_id = SL::DB::Manager::Tax->find_by(taxkey => 0)->id;
   my $chart_link;
 
+  require SL::DB::AccTransaction;
+  require SL::DB::Chart;
   while (my ($chart_id, $spec) = each %{ $entries }) {
     $spec = { taxkey => 0, tax_id => $default_tax_id, amount => $spec } unless ref $spec;
     $chart_link = SL::DB::Manager::Chart->find_by(id => $chart_id)->{'link'};
