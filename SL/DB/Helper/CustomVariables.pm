@@ -4,7 +4,6 @@ use strict;
 use Carp;
 use Data::Dumper;
 use List::Util qw(first);
-use SL::DB::CustomVariableConfig;
 
 use constant META_CVARS => 'cvars_config';
 
@@ -113,6 +112,9 @@ sub make_cvar_by_name {
 
 sub _all_configs {
   my (%params) = @_;
+
+  require SL::DB::CustomVariableConfig;
+
   $params{module}
     ? SL::DB::Manager::CustomVariableConfig->get_all(query => [ module => $params{module} ])
     : SL::DB::Manager::CustomVariableConfig->get_all;
@@ -122,8 +124,8 @@ sub _overload_by_module {
   my ($module, %params) = @_;
 
   keys %{ $params{overloads} }; # reset each iterator
-  while (my ($fk, $class) = each %{ $params{overloads} }) {
-    return ($fk, $class) if $class->meta->{META_CVARS()}->{module} eq $module;
+  while (my ($fk, $def) = each %{ $params{overloads} }) {
+    return ($fk, $def->{class}) if $def->{module} eq $module;
   }
 
   croak "unknown overload, cannot resolve module $module";
@@ -155,11 +157,8 @@ sub _calc_modules_from_overloads {
   my (%params) = @_;
   my %modules;
 
-  while (my ($fk, $class) = each %{ $params{overloads} }) {
-    eval "require $class"; # make sure the class is loaded
-    my $module = $class->meta->{META_CVARS()}->{module};
-    next if ref $module;
-    $modules{$module} = 1;
+  for my $def (values %{ $params{overloads} || {} }) {
+    $modules{$def->{module}} = 1;
   }
 
   return [ keys %modules ];
@@ -200,7 +199,10 @@ SL::DB::Helper::CustomVariables - Mixin to provide custom variables relations
     sub_module  => 'orderitems',
     cvars_alias => 1,
     overloads   => {
-      parts_id    => 'SL::DB::Part',
+      parts_id    => {
+        class => 'SL::DB::Part',
+        module => 'IC',
+      }
     }
   );
 

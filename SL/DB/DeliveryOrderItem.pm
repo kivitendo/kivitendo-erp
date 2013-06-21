@@ -7,7 +7,10 @@ use SL::DB::Helper::CustomVariables (
   sub_module  => 'delivery_order_item',
   cvars_alias => 1,
   overloads   => {
-    parts_id => 'SL::DB::Part',
+    parts_id => {
+      class => 'SL::DB::Part',
+      module => 'IC',
+    }
   },
 );
 
