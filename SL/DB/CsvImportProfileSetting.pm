@@ -9,6 +9,8 @@ use Rose::DB::Object::Helpers qw(clone);
 
 require SL::DB::MetaSetup::CsvImportProfileSetting;
 
+__PACKAGE__->meta->initialize;
+
 __PACKAGE__->meta->make_manager_class;
 
 # Helpers' clone_and_reset also kills compund keys like in this case kay+id

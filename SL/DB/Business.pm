@@ -5,6 +5,8 @@ use strict;
 use SL::DB::MetaSetup::Business;
 use SL::DB::Manager::Business;
 
+__PACKAGE__->meta->initialize;
+
 sub validate {
   my ($self) = @_;
 

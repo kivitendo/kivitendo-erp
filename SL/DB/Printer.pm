@@ -6,6 +6,8 @@ use SL::DB::MetaSetup::Printer;
 use SL::DB::Manager::Printer;
 use SL::DB::Helper::Util;
 
+__PACKAGE__->meta->initialize;
+
 sub description {
   goto &printer_description;
 }

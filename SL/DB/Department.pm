@@ -7,6 +7,8 @@ use SL::DB::Manager::Department;
 
 use SL::DB::DptTrans;
 
+__PACKAGE__->meta->initialize;
+
 sub validate {
   my ($self) = @_;
 

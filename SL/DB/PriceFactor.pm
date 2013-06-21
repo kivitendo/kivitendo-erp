@@ -5,6 +5,8 @@ use strict;
 use SL::DB::MetaSetup::PriceFactor;
 use SL::DB::Helper::ActsAsList;
 
+__PACKAGE__->meta->initialize;
+
 __PACKAGE__->meta->make_manager_class;
 
 1;

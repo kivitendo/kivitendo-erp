@@ -10,6 +10,8 @@ use SL::DB::Manager::BackgroundJob;
 
 use SL::System::Process;
 
+__PACKAGE__->meta->initialize;
+
 __PACKAGE__->before_save('_before_save_set_next_run_at');
 
 sub _before_save_set_next_run_at {

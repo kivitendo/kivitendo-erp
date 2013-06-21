@@ -8,4 +8,6 @@ use strict;
 use SL::DB::MetaSetup::BackgroundJobHistory;
 use SL::DB::Manager::BackgroundJobHistory;
 
+__PACKAGE__->meta->initialize;
+
 1;

@@ -7,6 +7,8 @@ use SL::DB::Manager::PaymentTerm;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::TranslatedAttributes;
 
+__PACKAGE__->meta->initialize;
+
 sub validate {
   my ($self) = @_;
 
