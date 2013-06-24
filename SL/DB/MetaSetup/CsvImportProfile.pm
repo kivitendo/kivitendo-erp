@@ -18,8 +18,6 @@ __PACKAGE__->meta->setup(
   ],
 
   primary_key_columns => [ 'id' ],
-
-  unique_key => [ 'name' ],
 );
 
 1;
