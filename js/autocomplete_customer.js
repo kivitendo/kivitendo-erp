@@ -4,7 +4,7 @@ $(function(){
     $(dummy).autocomplete({
       source: function(req, rsp) {
         $.ajax({
-          url: 'controller.pl?action=Customer/ajax_autocomplete',
+          url: 'controller.pl?action=CustomerVendor/ajaj_customer_autocomplete',
           dataType: "json",
           data: {
             term: req.term,
@@ -21,5 +21,5 @@ $(function(){
         $(dummy).val(ui.item.name);
       },
     });
-  })
-})
+  });
+});
