@@ -54,11 +54,11 @@ __PACKAGE__->run_before(
 __PACKAGE__->run_before(
   '_create_customer_vendor',
   only => [
-    'new',
+    'add',
   ]
 );
 
-sub action_new {
+sub action_add {
   my ($self) = @_;
 
   $self->_pre_render();
