@@ -184,12 +184,14 @@ sub parse_args {
     help                => sub { pod2usage(verbose => 99, sections => 'NAME|SYNOPSIS|OPTIONS') },
     quiet               => \ my $quiet,
     diff                => \ my $diff,
+    'color!'            => \ my $color,
   );
 
   $options->{client}   = $client;
   $options->{all}      = $all;
   $options->{nocommit} = $nocommit;
   $options->{quiet}    = $quiet;
+  $options->{color}    = defined $color ? $color : 1;
 
   if ($diff) {
     if (eval { require Text::Diff; 1 }) {
@@ -210,7 +212,11 @@ sub show_diff {
 
    Text::Diff::diff($text_a, $text_b, { OUTPUT => sub {
      for (split /\n/, $_[0]) {
-       print colored($_, $colors{substr($_, 0, 1)}), $/;
+       if ($config{color}) {
+         print colored($_, $colors{substr($_, 0, 1)}), $/;
+       } else {
+         print $_, $/;
+       }
      }
    }});
 }
