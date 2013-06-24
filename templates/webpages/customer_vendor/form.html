@@ -1,0 +1,993 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+
+[% cv_cvars = SELF.cv.cvars_by_config %]
+
+<form method="post" action="controller.pl">
+  <div class="listtop">[% FORM.title %]</div>
+
+  [% L.hidden_tag('db', FORM.db) %]
+  [% L.hidden_tag('callback', FORM.callback) %]
+  [% L.hidden_tag('cv.id', SELF.cv.id) %]
+
+  [%- INCLUDE 'common/flash.html' %]
+
+  <div class="tabwidget">
+    <ul>
+      <li><a href="#billing">[% 'Billing Address' | $T8 %]</a></li>
+      <li><a href="#shipto">[% 'Shipping Address' | $T8 %]</a></li>
+      <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
+      [% IF ( SELF.cv.id ) %]
+        <li><a href="#deliveries">[% 'Supplies' | $T8 %]</a></li>
+      [% END %]
+      <li><a href="#vcnotes">[% 'Notes' | $T8 %]</a></li>
+
+      [% IF ( cv_cvars.size ) %]
+        <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
+      [% END %]
+    </ul>
+
+    <div id="billing">
+      <table width="100%">
+
+        <tr height="5"></tr>
+
+        [% IF ( conf_vertreter ) %]<!-- == $::lx_office_conf{features}->{vertreter}; -->
+          <tr>
+            <th align="right">
+              [% IF SELF.is_vendor() %]
+                [% 'Type of Vendor' | $T8 %]
+              [% ELSE %]
+                [% 'Type of Customer' | $T8 %]
+              [% END %]
+            </th>
+
+            <td>
+              [% L.select_tag('cv.business_id', SELF.all_business, value_key = 'id', title_key = 'description', default = SELF.cv.business_id, with_empty = 1) %]
+            </td>
+          </tr>
+
+          <tr>
+            <th align="right">
+              [% 'Representative' | $T8 %]
+            </th>
+
+            <td>
+              <!-- TODO: ALL_SALESMAN_CUSTOMERS -->
+              [% L.select_tag('cv.salesman_id', SELF.all_employees, value_key = 'id', title_key = 'safe_name', with_empty = 1) %]
+            </td>
+          </tr>
+
+        [%- END %]
+
+        <tr>
+          [% IF SELF.is_vendor() %]
+            <th align="right" nowrap>[% 'Vendor Number' | $T8 %]</th>
+            <td>
+              [% L.input_tag('cv.vendornumber', SELF.cv.vendornumber) %]
+            </td>
+          [%- ELSE %]
+            <th align="right" nowrap>[% 'Customer Number' | $T8 %]</th>
+            <td>
+              [% L.input_tag('cv.customernumber', SELF.cv.customernumber) %]
+            </td>
+          [%- END %]
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Greeting' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.greeting', SELF.cv.greeting) %]
+            [% L.select_tag('cv_greeting_select', SELF.all_greetings, default = SELF.cv.greeting, with_empty = 1, onchange = '$("#cv_greeting").val(this.value);') %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>
+            [% IF SELF.is_vendor() %]
+              [% 'Vendor Name' | $T8 %]
+            [%- ELSE %]
+              [% 'Customer Name' | $T8 %]
+            [%- END %]
+          </th>
+
+          <td>
+            [% L.input_tag('cv.name', SELF.cv.name) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Department' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.department_1', SELF.cv.department_1, size = 16, maxlength = 75) %]
+            [% L.input_tag('cv.department_2', SELF.cv.department_2, size = 16, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Street' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.street', SELF.cv.street) %]
+            <a href="#" onclick="namespace('kivi.CustomerVendor').showMap('cv_');" title="[% 'Map' | $T8 %]">
+              <img src="image/map.png" alt="[% 'Map' | $T8 %]" />
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.zipcode', SELF.cv.zipcode, size = 5 maxlength = 10) %]
+            [% L.input_tag('cv.city', SELF.cv.city, size = 30 maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Country' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.country', SELF.cv.country, size = 30 maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.contact', SELF.cv.contact, size = 28 maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Phone' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.phone', SELF.cv.phone, size = 30) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.fax', SELF.cv.fax, size = 30 maxlength = 30) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.email', SELF.cv.email, size = 45) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>
+            [% IF homepage %]
+              <a href="[% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open this Website' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>
+            [% ELSE %]
+              [% 'Homepage' | $T8 %]
+            [% END %]
+          </th>
+
+          <td>
+            [% L.input_tag('cv.homepage', SELF.cv.homepage, size = 45, title = LxERP.t8('Example: http://kivitendo.de')) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Username' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.username', SELF.cv.username, size = 45) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Password' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.user_password', SELF.cv.user_password, size = 45) %]
+          </td>
+        </tr>
+      </table>
+
+
+      <table>
+
+        <tr>
+          <th align="right">[% 'Credit Limit' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.creditlimit', LxERP.format_amount(SELF.cv.creditlimit, 0), size = 9) %]
+          </td>
+
+
+          <th align="right">[% 'Payment Terms' | $T8 %]</th>
+
+          <td>
+            [% L.select_tag('cv.payment_id', SELF.all_payment_terms, value_key = 'id', title_key = 'description', default = SELF.cv.payment_id, with_empty = 1) %]
+          </td>
+
+
+          <th align="right">[% 'Discount' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.discount', SELF.cv.discount, size = 4) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right">[% 'Tax Number / SSN' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.taxnumber', SELF.cv.taxnumber, size = 20) %]
+          </td>
+
+
+          <!-- Anm.: R&B 15.11.2008     VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein -->
+          <th align="right">[% 'sales tax identification number' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.ustid', SELF.cv.ustid, maxlength = 14 size = 20 ) %]
+          </td>
+
+
+          [%- IF ( SELF.is_vendor() ) %]
+            <th align="right">[% 'Customer Number' | $T8 %]</th>
+            <td>
+              [% L.input_tag('cv.v_customer_id', SELF.cv.v_customer_id, size = 10) %]
+            </td>
+          [%- ELSE %]
+            <th align="right">[% 'our vendor number at customer' | $T8 %]</th>
+            <td>
+              [% L.input_tag('cv.c_vendor_id', SELF.cv.c_vendor_id, size = 10) %]
+            </td>
+          [%- END %]
+        </tr>
+
+        <tr>
+          <th align="right">[% 'Account Number' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.account_number', SELF.cv.account_number, size = 10, maxlength = 100) %]
+          </td>
+
+
+          <th align="right">[% 'Bank Code Number' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.bank_code', SELF.cv.bank_code, size = 10, maxlength = 100) %]
+          </td>
+
+
+          <th align="right">[% 'Bank' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.bank', SELF.cv.bank, size = 20) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right">[% 'IBAN' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.iban', SELF.cv.iban, size = 10, maxlength = 100) %]
+          </td>
+
+
+          <th align="right">[% 'BIC' | $T8 %]</th>
+          <td>
+            [% L.input_tag('cv.bic', SELF.cv.bic, size = 10, maxlength = 100) %]
+          </td>
+
+
+          [% IF ( SELF.all_currencies.size ) %]
+            <th align="right">[% 'Currency' | $T8 %]</th>
+
+            <td>
+              [% L.select_tag('cv.curr', SELF.all_currencies, default = SELF.cv.curr, with_empty = 1) %]
+            </td>
+          [% END %]
+        </tr>
+
+        <tr>
+          [% IF ( !conf_vertreter ) %]
+            <th align="right">
+              [% IF ( SELF.is_vendor() ) %]
+                [% 'Type of Vendor' | $T8 %]
+              [% ELSE %]
+                [% 'Type of Customer' | $T8 %]
+              [% END %]
+            </th>
+
+            <td>
+              [% L.select_tag('cv.business_id', SELF.all_business, default = SELF.cv.business_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
+            </td>
+          [% END %]
+
+
+          <th align="right">[% 'Language' | $T8 %]</th>
+
+          <td>
+            [% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
+          </td>
+
+
+          <th align="right">[% 'Bcc' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('cv.bcc', SELF.cv.bcc, size = 40) %]
+          </td>
+
+
+          [% IF ( SELF.is_customer() ) %]
+            <th align="right">[% 'Preisklasse' | $T8 %]</th>
+
+            <td>
+              [% L.select_tag('cv.klass', SELF.all_pricegroups, default = SELF.cv.klass, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
+            </td>
+          [% END  %]
+        </tr>
+
+        <tr>
+          <td align="right">
+            <label for="cv_obsolete">[% 'Obsolete' | $T8 %]</label>
+          </td>
+
+          <td>
+            [% L.checkbox_tag('cv.obsolete', checked = SELF.cv.obsolete) %]
+          </td>
+
+
+          <td align="right">
+            <label for="cv_direct_debit">[% 'direct debit' | $T8 %]</label>
+          </td>
+
+          <td>
+            [% L.checkbox_tag('cv.direct_debit', checked = SELF.cv.direct_debit) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right">[% 'Steuersatz' | $T8 %]</th>
+
+          <td>
+            [% L.select_tag('cv.taxzone_id', SELF.all_taxzones, default = SELF.cv.taxzone_id, value_key = 'id', title_key = 'description') %]
+          </td>
+
+
+          [% IF ( SELF.is_customer() && !conf_vertreter ) %]
+            <th align="right">[% 'Salesman' | $T8 %]</th>
+
+            <td>
+              <!-- TODO: ALL_SALESMAN -->
+              [% L.select_tag('cv.salesman_id', SELF.all_employees, default = salesman_id, value_key = 'id', title_key = 'safe_name', with_empty = 1) %]
+            </td>
+
+            <td>[% 'taxincluded checked' | $T8 %]</td>
+
+            <td>
+              [% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked) %]
+            </td>
+          [%- END %]
+        </tr>
+      </table>
+
+      <table>
+        <tr>
+          <th align="left" nowrap>[% 'Internal Notes' | $T8 %]</th>
+        </tr>
+
+        <tr>
+          <td>
+            [% L.textarea_tag('cv.notes', SELF.cv.notes, rows = 3 cols = 60 wrap = soft) %]
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div id="shipto">
+      <table width="100%" id="shipto_table">
+        <tr>
+          <th align="right">[% 'Shipping Address' | $T8 %]</th>
+
+          <td>
+            [% L.select_tag(
+                 'shipto.shipto_id',
+                 SELF.shiptos,
+                 default = SELF.shipto.shipto_id,
+                 value_key = 'shipto_id',
+                 title_key = 'displayable_id',
+                 with_empty = 1,
+                 empty_title = LxERP.t8('New shipto'),
+                 onchange = "namespace('kivi.CustomerVendor').selectShipto();"
+               )
+            %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Name' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptoname', SELF.shipto.shiptoname,  size = 35, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Abteilung' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptodepartment_1', SELF.shipto.shiptodepartment_1,  size = 16, maxlength = 75) %]
+            [% L.input_tag('shipto.shiptodepartment_2', SELF.shipto.shiptodepartment_2,  size = 16, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Street' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptostreet', SELF.shipto.shiptostreet,  size = 35, maxlength = 75) %]
+
+            <a href="#" onclick="namespace('kivi.CustomerVendor').showMap('shipto_shipto');" title="[% 'Map' | $T8 %]">
+              <img src="image/map.png" alt="[% 'Map' | $T8 %]" />
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptozipcode', SELF.shipto.shiptostreet,  size = 5, maxlength = 75) %]
+            [% L.input_tag('shipto.shiptocity', SELF.shipto.shiptocity,  size = 30, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Country' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptocountry', SELF.shipto.shiptocountry,  size = 35, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptocontact', SELF.shipto.shiptocontact,  size = 30, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Phone' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptophone', SELF.shipto.shiptophone,  size = 30, maxlength = 30) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptofax', SELF.shipto.shiptofax,  size = 30, maxlength = 30) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('shipto.shiptoemail', SELF.shipto.shiptoemail,  size = 45) %]
+          </td>
+        </tr>
+      </table>
+
+      [% L.button_tag('submitInputButton(this);', LxERP.t8('Delete Shipto'), name = 'action_delete_shipto', class = 'submit') %]
+      [% IF ( !SELF.shipto.shipto_id ) %]
+        <script type="text/javascript">
+          $('#action_delete_shipto').hide();
+        </script>
+      [% END %]
+    </div>
+
+    <div id="contacts">
+      <table>
+        <tr>
+          <th align="left">[% 'Contacts' | $T8 %]</th>
+
+          <td>
+            [%
+              L.select_tag(
+                'contact.cp_id',
+                SELF.contacts,
+                default = SELF.contact.cp_id,
+                with_empty = 1,
+                empty_title = LxERP.t8('New contact'),
+                value_key = 'cp_id',
+                title_key = 'full_name',
+                onchange = "namespace('kivi.CustomerVendor').selectContact();")
+            %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Gender' | $T8 %]</th>
+
+          <td>
+            [%
+              L.select_tag(
+                'contact.cp_gender',
+                [['m', LxERP.t8('male')], ['f', LxERP.t8('female')]],
+                default = SELF.contact.cp_gender
+              )
+            %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Title' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_title', SELF.contact.cp_title, size = 40 maxlength = 75) %]
+            [% L.select_tag('contact_cp_title_select', SELF.all_titles, with_empty = 1, onchange = '$("#contact_cp_title").val(this.value);') %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Department' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_abteilung', SELF.contact.cp_abteilung, size = 40) %]
+            [% L.select_tag('contact_cp_abteilung_select', SELF.all_departments, default = SELF.contact.cp_abteilung,  with_empty = 1, onchange = '$("#contact_cp_abteilung").val(this.value);') %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Function/position' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_position', SELF.contact.cp_position, size = 40, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Given Name' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_givenname', SELF.contact.cp_givenname, size = 40, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Name' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_name', SELF.contact.cp_name, size = 40, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'E-mail' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_email', SELF.contact.cp_email, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Phone1' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_phone1', SELF.contact.cp_phone1, size = 40, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Phone2' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_phone2', SELF.contact.cp_phone2, size = 40, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Fax' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_fax', SELF.contact.cp_fax, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Mobile1' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_mobile1', SELF.contact.cp_mobile1, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Mobile2' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_mobile2', SELF.contact.cp_mobile2, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Sat. Phone' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_satphone', SELF.contact.cp_satphone, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Sat. Fax' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_satfax', SELF.contact.cp_satfax, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Project' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_project', SELF.contact.cp_project, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Street' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_street', SELF.contact.cp_street, size = 40, maxlength = 75) %]
+
+            <a href="#" onclick="namespace('kivi.CustomerVendor').showMap('contact_cp_');" title="[% 'Map' | $T8 %]">
+              <img src="image/map.png" alt="[% 'Map' | $T8 %]" />
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Zip, City' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_zipcode', SELF.contact.cp_zipcode, size = 5, maxlength = 10) %]
+            [% L.input_tag('contact.cp_city', SELF.contact.cp_city, size = 25, maxlength = 75) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Private Phone' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_privatphone', SELF.contact.cp_privatphone, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Private E-mail' | $T8 %]</th>
+
+          <td>
+            [% L.input_tag('contact.cp_privatemail', SELF.contact.cp_privatemail, size = 40) %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="left" nowrap>[% 'Birthday' | $T8 %]</th>
+
+          <td>
+            [% L.date_tag('contact.cp_birthday', SELF.contact.cp_birthday) %]
+          </td>
+        </tr>
+
+        [% contact_cvars = SELF.contact.cvars_by_config %]
+
+        [% IF ( contact_cvars.size ) %]
+          <tr>
+            <td colspan="2">
+              <hr>
+            </td>
+          </tr>
+
+          [% FOREACH var = contact_cvars %]
+            <tr>
+              <th align="left" valign="top" nowrap>[% var.config.description | html %]</th>
+
+              <td valign="top">
+                [%
+                  INCLUDE 'customer_vendor/render_cvar_input.html'
+                          cvar_name_prefix = 'contact_cvars.'
+                %]
+              </td>
+            </tr>
+          [% END %]
+        [% END %]
+
+      </table>
+
+      [% L.button_tag('submitInputButton(this);', LxERP.t8('Delete Contact'), name = 'action_delete_contact', class = 'submit') %]
+      [% IF ( !SELF.contact.cp_id ) %]
+        <script type="text/javascript">
+          $('#action_delete_contact').hide();
+        </script>
+      [% END %]
+    </div>
+
+    <div id="deliveries">
+      <table>
+        <tr>
+          <th align="right">[% 'Shipping Address' | $T8 %]</th>
+          <td colspan="3">
+            [% temp = [{shipto_id = 'all', displayable_id = LxERP.t8('All')}] %]
+            [% temp = temp.merge(SELF.shiptos) %]
+            [%
+              L.select_tag(
+                'delivery_id',
+                temp,
+                value_key = 'shipto_id',
+                title_key = 'displayable_id',
+                with_empty = 1,
+                onchange = "namespace('kivi.CustomerVendor').selectDelivery();"
+              )
+            %]
+          </td>
+        </tr>
+
+        <tr>
+          <th align="right" nowrap>[% 'From' | $T8 %]</th>
+
+          <td>
+            [%
+              L.date_tag(
+                'delivery_from',
+                FORM.delivery_from,
+                onchange => "namespace('kivi.CustomerVendor').selectDelivery(this.form.delivery_from.value, this.form.delivery_to.value);"
+              )
+            %]
+          </td>
+
+
+          <th align="right" nowrap>[% 'To (time)' | $T8 %]</th>
+
+          <td>
+            [%
+              L.date_tag(
+                'delivery_to',
+                FORM.delivery_to,
+                onchange => "namespace('kivi.CustomerVendor').selectDelivery(this.form.delivery_from.value, this.form.delivery_to.value);"
+              )
+            %]
+           </td>
+         </tr>
+
+         <tr>
+           <td colspan="4">
+             <div id="delivery"></div>
+           </td>
+         </tr>
+       </table>
+     </div>
+
+
+     <div id="vcnotes">
+       [% IF ( NOTES && NOTES.size ) %]
+         <p>
+           <table>
+            <tr>
+              <th class="listheading">[% 'Delete' | $T8 %]</th>
+              <th class="listheading">[% 'Subject' | $T8 %]</th>
+              <th class="listheading">[% 'Created on' | $T8 %]</th>
+              <th class="listheading">[% 'Created by' | $T8 %]</th>
+              <th class="listheading">[% 'Follow-Up Date' | $T8 %]</th>
+              <th class="listheading">[% 'Follow-Up for' | $T8 %]</th>
+              <th class="listheading">[% 'Follow-Up done' | $T8 %]</th>
+            </tr>
+
+            [%- FOREACH row = SELF.notes %]
+              <tr class="listrow[% loop.count % 2 %]">
+                <td>
+                  [% L.hidden_tag('notes[+].id', row.id) %]
+                  [% IF ( !NOTE_id || (NOTE_id != row.id) ) %]
+                    [% L.checkbox_tag('notes[].delete', 0) %]
+                  [% END %]
+                </td>
+
+                <td>
+                  <a href="ct.pl?action=edit&db=[% HTML.url(db) %]&id=[% HTML.url(id) %]&edit_note_id=[% HTML.url(row.id) %]">[% HTML.escape(row.subject) %]</a>
+                </td>
+
+                <td>
+                  [% HTML.escape(row.created_on) %]
+                </td>
+
+                <td>
+                  [% IF ( row.created_by_name ) %]
+                    [% HTML.escape(row.created_by_name) %]
+                  [% ELSE %]
+                    [% HTML.escape(row.created_by_login) %]
+                  [% END %]
+                </td>
+
+                <td>
+                  [% HTML.escape(row.follow_up_date) %]
+                </td>
+
+                <td>
+                  [% IF ( row.created_for_name ) %]
+                    [% HTML.escape(row.created_for_name) %]
+                  [% ELSE %]
+                    [% HTML.escape(row.created_for_login) %]
+                  [% END %]
+                </td>
+
+                <td>
+                  [% IF ( row.follow_up_date ) %]
+                    [% IF ( row.follow_up_done ) %]
+                      [% 'Yes' | $T8 %]
+                    [% ELSE %]
+                      [% 'No' | $T8 %]
+                    [% END %]
+                  [% END %]
+                </td>
+              </tr>
+            [% END %]
+          </table>
+        </p>
+      [% END %]
+
+      <div class="listtop">
+        [% IF ( NOTE_id ) %]
+          [% 'Edit note' | $T8 %]
+        [% ELSE %]
+          [% 'Add note' | $T8 %]
+        [% END %]
+      </div>
+
+      [% L.hidden_tag('note.id', SELF.note.id) %]
+
+      <p>
+        <table>
+          <tr>
+            <td valign="right">[% 'Subject' | $T8 %]</td>
+
+            <td>
+              [% L.input_tag('note.subject', SELF.note.subject, size = 50) %]
+            </td>
+          </tr>
+
+          <tr>
+            <td valign="right" align="top">[% 'Body' | $T8 %]</td>
+
+            <td align="top">
+              [% L.textarea_tag('note.body', SELF.note.body, cols = 50 rows = 10) %]
+            </td>
+          </tr>
+
+          <tr>
+            <td valign="right">[% 'Follow-Up On' | $T8 %]</td>
+
+            <td>
+              [% L.date_tag('note_followup.follow_up_date', SELF.note_followup.follow_up_date) %]
+              [% 'for' | $T8 %]
+              [% L.select_tag(
+                   'note_followup.created_for_user',
+                   SELF.all_employees,
+                   default = SELF.note_followup.created_for_user,
+                   title_key = 'safe_name'
+                 )
+              %]
+            </td>
+          </tr>
+
+          <tr>
+            <td>&nbsp;</td>
+
+            <td>
+              [% L.checkbox_tag('note_followup.done', checked = SELF.note_followup.done) %]
+              <label for="note_followup_done">[% 'Follow-Up done' | $T8 %]</label>
+            </td>
+          </tr>
+
+        </table>
+      </p>
+    </div>
+
+    [% IF ( cv_cvars.size ) %]
+      <div id="custom_variables">
+        <p>
+          <table>
+            [% FOREACH var = cv_cvars %]
+              <tr>
+                <th align="left" valign="top" nowrap>[% var.config.description | html %]</th>
+
+                <td valign="top">
+                  [%
+                    INCLUDE 'customer_vendor/render_cvar_input.html'
+                            cvar_name_prefix = 'cv_cvars.'
+                  %]
+                </td>
+              </tr>
+            [% END %]
+          </table>
+        </p>
+      </div>
+    [% END %]
+  </div>
+
+  <br>
+
+  [% L.hidden_tag('action', 'CustomerVendor/dispatch') %]
+
+  [% L.submit_tag('action_save', LxERP.t8('Save'), onclick = "return check_taxzone_and_ustid()", accesskey = "s") %]
+  [% L.submit_tag('action_save_and_close', LxERP.t8('Save and Close'), onclick = "return check_taxzone_and_ustid()") %]
+
+  [%- IF ( SELF.is_vendor ) %]
+    [% L.submit_tag('action_save_and_ap_transaction', LxERP.t8('Save and AP Transaction'), onclick = "return check_taxzone_and_ustid()") %]
+  [%- ELSE %]
+    [% L.submit_tag('action_save_and_ar_transaction', LxERP.t8('Save and AR Transaction'), onclick = "return check_taxzone_and_ustid()") %]
+  [%- END %]
+
+  [% L.submit_tag('action_save_and_invoice', LxERP.t8('Save and Invoice'), onclick = "return check_taxzone_and_ustid()") %]
+  [% L.submit_tag('action_save_and_order', LxERP.t8('Save and Order'), onclick = "return check_taxzone_and_ustid()") %]
+
+  [%- IF ( SELF.is_vendor ) %]
+    [% L.submit_tag('action_save_and_rfq', LxERP.t8('Save and RFQ'), onclick = "return check_taxzone_and_ustid()") %]
+  [%- ELSE %]
+    [% L.submit_tag('action_save_and_quotation', LxERP.t8('Save and Quotation'), onclick = "return check_taxzone_and_ustid()") %]
+  [%- END %]
+
+  [%- IF ( SELF.cv.id && SELF.is_orphaned ) %]
+    [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm => LxERP.t8('Do you really want to delete this object?')) %]
+  [%- END %]
+
+  [%- IF ( SELF.cv.id ) %]
+    <input type="button" class="submit" onclick="namespace('kivi.CustomerVendor').showHistoryWindow([% SELF.cv.id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
+  [%- END %]
+
+</form>
+
+<script type="text/javascript">
+<!--
+  function submitInputButton(button)
+  {
+    var hidden = document.createElement("input");
+    hidden.setAttribute("type", "hidden");
+
+    if ( button.hasAttribute("name") )
+      hidden.setAttribute("name", button.getAttribute("name"));
+
+    if ( button.hasAttribute("value") )
+      hidden.setAttribute("value", button.getAttribute("value"));
+
+
+    button.form.appendChild(hidden);
+
+    button.disabled = true;
+
+    button.form.submit();
+  }
+
+  function check_taxzone_and_ustid() {
+    if ( ($('#cv_taxzone_id').val() == '1') && ($('#cv_ustid').val() == '') ) {
+      alert('[% LxERP.t8('Please enter the sales tax identification number.') %]');
+      return false;
+    }
+    return true;
+  }
+-->
+</script>
+
