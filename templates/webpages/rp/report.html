@@ -9,7 +9,7 @@
   </tr>
   <tr>
     <th colspan=1>[% 'Year' | $T8 %]</th>
-    <td><input name=year size=11 title="[% 'YYYY' | $T8 %]" value="[% year %]"></td>
+    <td><input name=year size=11 title="[% 'YYYY' | $T8 %]" value="[% year %]" class="initial_focus"></td>
   </tr>
   <tr>
     <td align=right> <b>[% 'Yearly' | $T8 %]</b> </td>
@@ -93,7 +93,7 @@
   <input type=hidden name=nextsub value=generate_projects>
   <tr>
     <th align=right>[% 'as at' | $T8 %]</th>
-    <td> [% L.date_tag('fromdate', fromdate) %]</td>
+    <td> [% L.date_tag('fromdate', fromdate, class='initial_focus') %]</td>
     <th align=right nowrap>[% 'Compare to' | $T8 %]</th>
     <td>[% L.date_tag('todate') %]</td>
   </tr>
@@ -136,7 +136,7 @@
   <input type=hidden name=nextsub value=generate_balance_sheet>
   <tr>
     <th align=right>[% 'as at' | $T8 %]</th>
-    <td> [% L.date_tag('asofdate', asofdate) %]</td>
+    <td> [% L.date_tag('asofdate', asofdate, class="initial_focus") %]</td>
     <td><input name=l_cb class=checkbox type=checkbox value=Y>&nbsp;[% 'CB Transactions' | $T8 %]</td>
     <td><input name=l_ob class=checkbox type=checkbox value=Y>&nbsp;[% 'only OB Transactions' | $T8 %]</td>
   </tr>
@@ -228,7 +228,7 @@
   </tr>
   <tr>
     <th align=right>[% 'Reference' | $T8 %]</th>
-    <td colspan=3><input name=reference></td>
+    <td colspan=3><input name=reference class="initial_focus"></td>
   </tr>
   <tr>
     <th align=right nowrap>[% 'Source' | $T8 %]</th>
