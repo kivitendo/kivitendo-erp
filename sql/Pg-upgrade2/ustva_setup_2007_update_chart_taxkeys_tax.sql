@@ -1,12 +1,12 @@
 -- @tag: ustva_setup_2007_update_chart_taxkeys_tax
--- @description: Aktualisierung des SKR03 für 2006/2007. Es werden bisher nur Inland Buchungen 16%/19% in 2006/2007 unterstützt.
+-- @description: Aktualisierung des SKR03 fÃ¼r 2006/2007. Es werden bisher nur Inland Buchungen 16%/19% in 2006/2007 unterstÃ¼tzt.
 -- @depends: ustva_setup_2007
 
 
 
 --#############################################################
 --#
---# Neue Konten einfügen
+--# Neue Konten einfÃ¼gen
 --#
 --#############################################################
 
@@ -188,7 +188,7 @@ WHERE taxkey = '11'
 ;
 
 UPDATE tax SET 
-  taxdescription = 'Steuerpflichtige EG-Lieferung zum ermäßigten Steuersatz' 
+  taxdescription = 'Steuerpflichtige EG-Lieferung zum ermÃ¤ÃŸigten Steuersatz' 
 WHERE taxkey = '12'
   AND
   EXISTS ( -- update only for SKR03
@@ -209,7 +209,7 @@ WHERE taxkey = '13'
 
 
 UPDATE tax SET 
-  taxdescription = 'Steuerpflichtiger innergem. Erwerb zum ermäßigten Steuersatz' 
+  taxdescription = 'Steuerpflichtiger innergem. Erwerb zum ermÃ¤ÃŸigten Steuersatz' 
 WHERE taxkey = '18'
   AND
   EXISTS ( -- update only for SKR03
@@ -228,7 +228,7 @@ WHERE taxkey = '19'
   )
 ;
 
--- Weitere Steuerschlüssel hinzufügen
+-- Weitere SteuerschlÃ¼ssel hinzufÃ¼gen
 
 INSERT INTO tax (
   chart_id, 

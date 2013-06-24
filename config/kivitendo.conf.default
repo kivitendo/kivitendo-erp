@@ -65,10 +65,6 @@ bind_password =
 # and "en" (English, not perfect) are available.
 language = de
 
-# The database charset. Must match the encoding of the database cluster you want to
-# connect to. (Used on the shell command to create a database "pg_createcluster". Option "-e <encoding>".)
-dbcharset = UTF-8
-
 [features]
 # Activate certain optional features and modules.
 webdav = 0

@@ -38,6 +38,7 @@ use IO::File;
 use Fcntl qw(:seek);
 
 #use SL::Auth;
+use SL::DB::AuthClient;
 use SL::DBConnect;
 use SL::DBUpgrade2;
 use SL::DBUtils;
@@ -46,6 +47,12 @@ use SL::Inifile;
 use SL::System::InstallationLock;
 
 use strict;
+
+use constant LOGIN_OK                      =>  0;
+use constant LOGIN_BASIC_TABLES_MISSING    => -1;
+use constant LOGIN_DBUPDATE_AVAILABLE      => -2;
+use constant LOGIN_AUTH_DBUPDATE_AVAILABLE => -3;
+use constant LOGIN_GENERAL_ERROR           => -4;
 
 sub new {
   $main::lxdebug->enter_sub();
@@ -95,28 +102,31 @@ sub country_codes {
 sub login {
   my ($self, $form) = @_;
 
-  return -3 if !$self->{login} || !$::auth->client;
+  return LOGIN_GENERAL_ERROR() if !$self->{login} || !$::auth->client;
 
   my %myconfig = $main::auth->read_user(login => $self->{login});
+
+  # Auth DB upgrades available?
+  my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, auth => 1)->parse_dbupdate_controls;
+  return LOGIN_AUTH_DBUPDATE_AVAILABLE() if $dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect);
 
   # check if database is down
   my $dbh = $form->dbconnect_noauto;
 
   # we got a connection, check the version
   my ($dbversion) = $dbh->selectrow_array(qq|SELECT version FROM defaults|);
+  if (!$dbversion) {
+    $dbh->disconnect;
+    return LOGIN_BASIC_TABLES_MISSING();
+  }
 
   $self->create_schema_info_table($form, $dbh);
 
-  # Auth DB upgrades available?
-  my $dbupdater_auth = SL::DBUpgrade2->new(form => $form, auth => 1)->parse_dbupdate_controls;
-  return -3 if $dbupdater_auth->unapplied_upgrade_scripts($::auth->dbconnect);
-
-  my $dbupdater = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
-
-  my $update_available = $dbupdater->update_available($dbversion) || $dbupdater->update2_available($dbh);
+  my $dbupdater        = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
+  my $update_available = $dbupdater->update2_available($dbh);
   $dbh->disconnect;
 
-  return 0 if !$update_available;
+  return LOGIN_OK() if !$update_available;
 
   $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
   $form->{$_} = $myconfig{$_}         for qw(datestyle);
@@ -139,7 +149,6 @@ sub login {
   $SIG{HUP}  = 'IGNORE';
   $SIG{QUIT} = 'IGNORE';
 
-  $self->dbupdate($form);
   $self->dbupdate2(form => $form, updater => $dbupdater, database => $::auth->client->{dbname});
   SL::DBUpgrade2->new(form => $::form, auth => 1)->apply_admin_dbupgrade_scripts(0);
 
@@ -147,7 +156,7 @@ sub login {
 
   print $form->parse_html_template("dbupgrade/footer");
 
-  return -2;
+  return LOGIN_DBUPDATE_AVAILABLE();
 }
 
 sub dbconnect_vars {
@@ -224,25 +233,6 @@ sub dbsources {
   return @dbsources;
 }
 
-sub dbclusterencoding {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form) = @_;
-
-  $form->{dbdefault} ||= $form->{dbuser};
-
-  dbconnect_vars($form, $form->{dbdefault});
-
-  my $dbh                = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options) || $form->dberror();
-  my $query              = qq|SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = 'template0'|;
-  my ($cluster_encoding) = $dbh->selectrow_array($query);
-  $dbh->disconnect();
-
-  $main::lxdebug->leave_sub();
-
-  return $cluster_encoding;
-}
-
 sub dbcreate {
   $main::lxdebug->enter_sub();
 
@@ -276,26 +266,15 @@ sub dbcreate {
   $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
     or $form->dberror;
 
-  my $db_charset = $Common::db_encoding_to_charset{$form->{encoding}};
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
   my $dbupdater = SL::DBUpgrade2->new(form => $form);
   # create the tables
-  $dbupdater->process_query($dbh, "sql/lx-office.sql", undef, $db_charset);
+  $dbupdater->process_query($dbh, "sql/lx-office.sql");
 
   # load chart of accounts
-  $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql", undef, $db_charset);
+  $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql");
 
-  $query = "UPDATE defaults SET coa = ?";
-  do_query($form, $dbh, $query, $form->{chart});
-  $query = "UPDATE defaults SET accounting_method = ?";
-  do_query($form, $dbh, $query, $form->{accounting_method});
-  $query = "UPDATE defaults SET profit_determination = ?";
-  do_query($form, $dbh, $query, $form->{profit_determination});
-  $query = "UPDATE defaults SET inventory_system = ?";
-  do_query($form, $dbh, $query, $form->{inventory_system});
-  $query = "UPDATE defaults SET curr = ?";
-  do_query($form, $dbh, $query, $form->{defaultcurrency});
+  my $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?|;
+  do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency));
 
   $dbh->disconnect;
 
@@ -324,10 +303,11 @@ sub dbsources_unused {
 
   my ($self, $form) = @_;
 
-  $form->{only_acc_db} = 1;
+  my %dbexcl = map  { $_->dbname => 1 }
+               grep { ($_->dbhost eq $form->{dbhost}) && ($_->dbport eq $form->{dbport}) }
+                    @{ SL::DB::Manager::AuthClient->get_all };
 
-  my %members = $main::auth->read_all_users();
-  my %dbexcl  = map { $_ => 1 } grep { $_ } map { $_->{dbname} } values %members;
+  $form->{only_acc_db} = 1;
 
   $dbexcl{$form->{dbdefault}}             = 1;
   $dbexcl{$main::auth->{DB_config}->{db}} = 1;
@@ -337,52 +317,6 @@ sub dbsources_unused {
   $main::lxdebug->leave_sub();
 
   return @dbunused;
-}
-
-sub dbneedsupdate {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form) = @_;
-
-  my %members   = $main::auth->read_all_users();
-  my $dbupdater = SL::DBUpgrade2->new(form => $form)->parse_dbupdate_controls;
-
-  my ($query, $sth, %dbs_needing_updates);
-
-  foreach my $login (grep /[a-z]/, keys %members) {
-    my $member = $members{$login};
-
-    map { $form->{$_} = $member->{$_} } qw(dbname dbuser dbpasswd dbhost dbport);
-    dbconnect_vars($form, $form->{dbname});
-
-    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options);
-
-    next unless $dbh;
-
-    my $version;
-
-    $query = qq|SELECT version FROM defaults|;
-    $sth = prepare_query($form, $dbh, $query);
-    if ($sth->execute()) {
-      ($version) = $sth->fetchrow_array();
-    }
-    $sth->finish();
-
-    $dbh->disconnect and next unless $version;
-
-    my $update_available = $dbupdater->update_available($version) || $dbupdater->update2_available($dbh);
-    $dbh->disconnect;
-
-   if ($update_available) {
-      my $dbinfo = {};
-      map { $dbinfo->{$_} = $member->{$_} } grep /^db/, keys %{ $member };
-      $dbs_needing_updates{$member->{dbhost} . "::" . $member->{dbname}} = $dbinfo;
-    }
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return values %dbs_needing_updates;
 }
 
 sub calc_version {
@@ -447,87 +381,6 @@ sub create_schema_info_table {
   $main::lxdebug->leave_sub();
 }
 
-sub dbupdate {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form) = @_;
-
-  local *SQLDIR;
-
-  my @upgradescripts = ();
-  my $query;
-  my $rc = -2;
-
-  if ($form->{dbupdate}) {
-
-    # read update scripts into memory
-    opendir(SQLDIR, "sql/Pg-upgrade")
-      or &error("", "sql/Pg-upgrade : $!");
-    @upgradescripts =
-      sort(cmp_script_version
-           grep(/Pg-upgrade-.*?\.(sql|pl)$/,
-                readdir(SQLDIR)));
-    closedir(SQLDIR);
-  }
-
-  my $db_charset = $::lx_office_conf{system}->{dbcharset};
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
-  my $dbupdater = SL::DBUpgrade2->new(form => $form);
-
-  foreach my $db (split(/ /, $form->{dbupdate})) {
-
-    next unless $form->{$db};
-
-    # strip db from dataset
-    $db =~ s/^db//;
-    &dbconnect_vars($form, $db);
-
-    my $dbh = SL::DBConnect->connect($form->{dbconnect}, $form->{dbuser}, $form->{dbpasswd}, SL::DBConnect->get_options)
-      or $form->dberror;
-
-    $dbh->do($form->{dboptions}) if ($form->{dboptions});
-
-    # check version
-    $query = qq|SELECT version FROM defaults|;
-    my ($version) = selectrow_query($form, $dbh, $query);
-
-    next unless $version;
-
-    $version = calc_version($version);
-
-    foreach my $upgradescript (@upgradescripts) {
-      my $a = $upgradescript;
-      $a =~ s/^Pg-upgrade-|\.(sql|pl)$//g;
-
-      my ($mindb, $maxdb) = split /-/, $a;
-      my $str_maxdb = $maxdb;
-      $mindb = calc_version($mindb);
-      $maxdb = calc_version($maxdb);
-
-      next if ($version >= $maxdb);
-
-      # if there is no upgrade script exit
-      last if ($version < $mindb);
-
-      # apply upgrade
-      $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $upgradescript");
-      $dbupdater->process_file($dbh, "sql/Pg-upgrade/$upgradescript", $str_maxdb, $db_charset);
-
-      $version = $maxdb;
-
-    }
-
-    $rc = 0;
-    $dbh->disconnect;
-
-  }
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
-}
-
 sub dbupdate2 {
   $main::lxdebug->enter_sub();
 
@@ -537,9 +390,8 @@ sub dbupdate2 {
   my $dbupdater       = $params{updater};
   my $db              = $params{database};
   my $rc              = -2;
-  my $db_charset      = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
 
-  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $dbupdater->{all_controls} };
+  map { $_->{description} = SL::Iconv::convert($_->{charset}, 'UTF-8', $_->{description}) } values %{ $dbupdater->{all_controls} };
 
   &dbconnect_vars($form, $db);
 
@@ -558,7 +410,7 @@ sub dbupdate2 {
     $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
     print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-    $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control, $db_charset);
+    $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
   }
 
   $rc = 0;

@@ -1,4 +1,3 @@
 -- @tag: release_3_0_0
 -- @description: Leeres Script, das alle Upgradescripte bis zum Release 3.0.0 voraussetzt, um ein fest definiertes Schema zu definieren.
--- @encoding: utf-8
 -- @depends: chart_type_skonto contacts_add_street_and_zipcode_and_city contacts_convert_cp_birthday_to_date convert_curr_to_text custom_variables_sub_module_not_null customer_add_taxincluded_checked_2 customer_vendor_phone_no_limits defaults_datev_check defaults_posting_config defaults_posting_records_config defaults_show_bestbefore defaults_show_delete_on_orders defaults_show_mark_as_paid_config finanzamt_update_fa_bufa_nr_hamburg record_links_post_delete_triggers2 rename_buchungsgruppe_16_19_to_19 self_test_background_job ustva_setup_2007_update_chart_taxkeys_tax_skr04

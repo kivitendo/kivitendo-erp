@@ -1,7 +1,6 @@
 -- @tag: orderitems_delivery_order_items_invoice_foreign_keys
 -- @description: Fremdschlüssel für Tabellen oderitems, delivery_order_items, invoice
 -- @depends: release_3_0_0
--- @charset: utf-8
 UPDATE orderitems           SET pricegroup_id = NULL WHERE pricegroup_id = 0;
 UPDATE delivery_order_items SET pricegroup_id = NULL WHERE pricegroup_id = 0;
 UPDATE invoice              SET pricegroup_id = NULL WHERE pricegroup_id = 0;

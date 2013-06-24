@@ -1,4 +1,3 @@
 -- @tag: release_2_7_0
 -- @description: Leeres Script, das alle Upgradescripte bis zum Release 2.7.0 voraussetzt, um ein fest definiertes Schema zu definieren.
--- @encoding: utf-8
 -- @depends: auth_enable_edit_prices umstellung_eur payment_terms_translation2 periodic_invoices_background_job customer_add_constraints delivery_order_items_add_pricegroup_id oe_customer_vendor_fkeys department_drop_role license_invoice_drop defaults_add_language_id customer_vendor_add_currency csv_import_profiles vendor_add_constraints warehouse_alter_chargenumber employee_deleted auth_enable_ct_all_edit ustva_2010_fixes drop_datevexport emmvee_background_jobs_2 ar_add_invnumber_for_credit_note parts_add_unit_foreign_key

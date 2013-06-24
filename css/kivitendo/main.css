@@ -91,12 +91,12 @@ th {
 	font-weight: bold;
 }
 /* login and admin */
-.login a, .login a:visited, .login a:hover {
+a.no-underlined-links, a.no-underlined-links:visited, a.no-underlined-links:hover {
 	text-decoration: none !important;
 	background-color:transparent !important;
 	border:none;
 }
-.login a:hover {
+a.no-underlined-links:hover {
 	background: none;
 }
 body.login {

@@ -1,133 +1,98 @@
-[%- USE T8 %]
-[%- USE HTML %]
-  <h1>[% title %]</h1>
+[%- USE HTML %][%- USE LxERP -%][%- USE T8 -%][%- USE L -%]
 
-  <form method="post" action="admin.pl">
-   <p><a href="admin.pl?action=pg_database_administration">[% 'Back' | $T8 %]</a></p>
-   <p>
-    [% 'You can either create a new database or chose an existing database.' | $T8 %]
-    [% 'In the latter case the tables needed by kivitendo will be created in that database.' | $T8 %]
-   </p>
+[% INCLUDE 'common/flash.html' %]
 
-   <table border="0">
-    <tr>
-     <th valign="top" align="right" nowrap>[% 'Existing Datasets' | $T8 %]</th>
-     <td valign="top">[% HTML.escape(dbsources) %]</td>
-    </tr>
+<h1>[% HTML.escape(title) %]</h1>
 
-    <tr>
-     <th align="right" nowrap>[% 'Create Dataset' | $T8 %]</th>
-     <td><input name="db"></td>
-    </tr>
+<p><a href="controller.pl?action=Admin/database_administration">[% LxERP.t8('Back') %]</a></p>
 
-    <tr>
-     <th align="right" nowrap>[% 'Multibyte Encoding' | $T8 %]</th>
-     <td>
-      [%- IF FORCE_DBENCODING %]
-      <input type="hidden" name="encoding" value="[% HTML.escape(FORCE_DBENCODING) %]">
-      [% HTML.escape(FORCE_DBENCODING) %]
-      [%- ELSE %]
-      <select name="encoding">
-       [% FOREACH row = DBENCODINGS %]<option value="[% HTML.escape(row.dbencoding) %]" [% IF row.selected %]selected[% END %]>[% HTML.escape(row.label) %]</option>[% END %]
-      </select>
-      [%- END %]
-     </td>
-    </tr>
+<form method="post" action="controller.pl">
+ <p>
+  [% LxERP.t8('You can either create a new database or chose an existing database.') %]
+  [% LxERP.t8('In the latter case the tables needed by kivitendo will be created in that database.') %]
+ </p>
 
-    <tr>
-     <th align="right" nowrap>[% 'Default currency' | $T8 %]</th>
-     <td><input name="defaultcurrency" value="EUR"></td>
-     </td>
-   </tr>
+ <table border="0">
+  <tr>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Existing Datasets') %]</th>
+   <td valign="top">[% FOREACH db = SELF.all_dbsources %][% UNLESS loop.first %] [% END %][[% HTML.escape(db) %]][% END %]</td>
+  </tr>
 
-    <tr>
-     <th valign="top" align="right" nowrap>[% 'Create Chart of Accounts' | $T8 %]</th>
-     <td>
-      <select name="chart" onChange="comment_selected_chart(this.value)">
-       [% FOREACH row = CHARTS %]<option [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) %]</option>[% END %]
-      </select>
-     </td>
-    </tr>
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8('Create Dataset') %]</th>
+   <td>[% L.input_tag('db', FORM.db, class="initial_focus") %]</td>
+  </tr>
 
-    <tr>
-     <th valign="top" align="right" nowrap>[% 'Accounting method' | $T8 %] *</th>
-     <td>
-      <select name="accounting_method">
-       [% FOREACH row = ACCOUNTING_METHODS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
-      </select>
-     </td>
-    </tr>
-    <tr>
-     <th valign="top" align="right" nowrap>[% 'Inventory system' | $T8 %] *</th>
-     <td>
-      <select name="inventory_system">
-       [% FOREACH row = INVENTORY_SYSTEMS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
-      </select>
-     [% '* there are restrictions for the perpetual method, look at chapter "Bemerkungen zu Bestandsmethode"  in' | $T8 %] <a href="doc/kivitendo-Dokumentation.pdf">kivitendo-Dokumentation.pdf</a>.
-     </td>
+  <tr>
+   <th align="right" nowrap>[% LxERP.t8('Default currency') %]</th>
+   <td>[% L.input_tag('defaultcurrency', FORM.defaultcurrency || 'EUR') %]</td>
+  </tr>
 
-    </tr>
+  <tr>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Create Chart of Accounts') %]</th>
+   <td>[% L.select_tag('chart', SELF.all_charts, onchange='comment_selected_chart(this.value)', default=(FORM.chart || 'Germany-DATEV-SKR03EU')) %]</td>
+  </tr>
 
-    <tr>
-     <th valign="top" align="right" nowrap>[% 'Profit determination' | $T8 %] *</th>
-     <td>
-      <select name="profit_determination">
-       [% FOREACH row = PROFIT_DETERMINATIONS %]<option value=[% HTML.escape(row.name) %] [% IF row.selected %]selected[% END %]>[% HTML.escape(row.name) | $T8 %]</option>[% END %]
-      </select>
-     </td>
-   </tr>
-    <tr>
-    <td colspan="2">
-    [% '*) Since version 2.7 these parameters ares set in the client database and not in the configuration file, details in chapter:' | $T8 %] <a href="doc/kivitendo-Dokumentation.pdf">Kapitel Konfiguration zur Einnahmen&uuml;berschussrechnung/ Bilanzierung: EUR</a>
-    </td>
-    </tr>
-   </table>
+  <tr>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Accounting method') %] *</th>
+   <td>[% L.select_tag('accounting_method', SELF.all_accounting_methods, title_key='name', default=(FORM.accounting_method || 'cash')) %]</td>
+  </tr>
 
-   <input type="hidden" name="dbuser"    value="[% HTML.escape(dbuser) %]">
-   <input type="hidden" name="dbhost"    value="[% HTML.escape(dbhost) %]">
-   <input type="hidden" name="dbport"    value="[% HTML.escape(dbport) %]">
-   <input type="hidden" name="dbpasswd"  value="[% HTML.escape(dbpasswd) %]">
-   <input type="hidden" name="dbdefault" value="[% HTML.escape(dbdefault) %]">
+  <tr>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Inventory system') %] *</th>
+   <td>[% L.select_tag('inventory_system', SELF.all_inventory_systems, title_key='name', default=(FORM.inventory_system || 'periodic')) %]</td>
+  </tr>
 
-   <input type="hidden" name="callback" value="controller.pl?action=Admin/show">
+  <tr>
+   <th valign="top" align="right" nowrap>[% LxERP.t8('Profit determination') %] *</th>
+   <td>[% L.select_tag('profit_determination', SELF.all_profit_determinations, title_key='name', default=(FORM.profit_determination || 'income')) %]</td>
+  </tr>
+ </table>
 
-   <input type="hidden" name="nextsub" value="dbcreate">
+ [% L.hidden_tag("dbhost", FORM.dbhost) %]
+ [% L.hidden_tag("dbport", FORM.dbport) %]
+ [% L.hidden_tag("dbuser", FORM.dbuser) %]
+ [% L.hidden_tag("dbpasswd", FORM.dbpasswd) %]
+ [% L.hidden_tag("dbdefault", FORM.dbdefault) %]
+ [% L.hidden_tag("action", "Admin/do_create_dataset") %]
 
-   <hr size="3" noshade>
+ <hr size="3" noshade>
 
-   <p><input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]"></p>
+ <div>
+  [% L.submit_tag('dummy', LxERP.t8('Create Dataset')) %]
+ </div>
 
-  </form>
+</form>
 
-  <script type="text/javascript">
-    <!--
+<script type="text/javascript">
+ <!--
 
-    function comment_selected_chart(s) {
-      if (s == 'Austria') {
-        alert("SKR07 Austria ist noch Stand 2002." +
-              "\n" +
-              "Die Buchungsgruppen sind nicht korrekt vorkonfiguriert" +
-              "\n" +
-              "fuer Kunden im Ausland." +
-              "\n" +
-              "Hinweis vom 20.09.2011");
-      }
-      if (s == 'Swiss-German') {
-        alert("Hinweis: Das ist weder ein Schweizer Kontorahmen nach Kaefer noch ein " +
-              "Schweizer KMU-Kontenrahmen, sondern ein angelehnter KMU-Kontenrahmen fuer " +
-              "ein EDV-Dienstleistungsunternehmen mit Stand 2006 (Bspw. 32001 Hardware, " +
-              "statt 3200 Warenertrag)." +
-              "\n" +
-              "Ferner sind keine Buchungsgruppe vorkonfiguriert, somit wird " +
-              "standardmaessig keine Rechnung mit Steuer ausgewiesen." +
-              "\n" +
-              "Zum schnellen Testen und Zusammenhaenge verstehen waehlen Sie lieber einen " +
-              "deutschen Kontenrahmen aus (SKR03 oder SKR04) und passen die Steuer an." +
-              "\n" +
-              "Hinweis vom 21.09.2011");
-      }
-    return true;
-    }
+function comment_selected_chart(s) {
+  if (s == 'Austria') {
+   alert("SKR07 Austria ist noch Stand 2002." +
+         "\n" +
+         "Die Buchungsgruppen sind nicht korrekt vorkonfiguriert" +
+         "\n" +
+         "fuer Kunden im Ausland." +
+         "\n" +
+         "Hinweis vom 20.09.2011");
 
-    -->
-  </script>
+  } else if (s == 'Swiss-German') {
+   alert("Hinweis: Das ist weder ein Schweizer Kontorahmen nach Kaefer noch ein " +
+         "Schweizer KMU-Kontenrahmen, sondern ein angelehnter KMU-Kontenrahmen fuer " +
+         "ein EDV-Dienstleistungsunternehmen mit Stand 2006 (Bspw. 32001 Hardware, " +
+         "statt 3200 Warenertrag)." +
+         "\n" +
+         "Ferner sind keine Buchungsgruppe vorkonfiguriert, somit wird " +
+         "standardmaessig keine Rechnung mit Steuer ausgewiesen." +
+         "\n" +
+         "Zum schnellen Testen und Zusammenhaenge verstehen waehlen Sie lieber einen " +
+         "deutschen Kontenrahmen aus (SKR03 oder SKR04) und passen die Steuer an." +
+         "\n" +
+         "Hinweis vom 21.09.2011");
+  }
+
+  return true;
+}
+   -->
+</script>

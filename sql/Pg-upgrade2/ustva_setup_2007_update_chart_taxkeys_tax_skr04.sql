@@ -1,10 +1,10 @@
 -- @tag: ustva_setup_2007_update_chart_taxkeys_tax_skr04
--- @description: Anpassung der UStVA-Schlüssel für Konten 3801, 3806, 3804 und 4400
+-- @description: Anpassung der UStVA-SchlÃ¼ssel fÃ¼r Konten 3801, 3806, 3804 und 4400
 -- @depends: release_2_7_0
 
 -- 3806 - neuer Eintrag pos_ustva 811 ab 2007 (falls noch nicht existiert)
 -- 3801 - neuer Eintrag pos_ustva 861 ab 2007 (falls noch nicht existiert)
--- 4400 - pos_ustva von 51 auf 81 für Eintrag 2007
+-- 4400 - pos_ustva von 51 auf 81 fÃ¼r Eintrag 2007
 -- 3804 - pos_ustva Eintrag 891 ab 2007
 
 INSERT INTO taxkeys (

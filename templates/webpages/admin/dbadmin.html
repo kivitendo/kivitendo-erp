@@ -1,66 +1,38 @@
-[%- USE T8 %]
-[%- USE HTML %]
-  <h1>[% title %]</h1>
+[%- USE HTML %][%- USE LxERP -%][%- USE L -%]
 
-  <form method="post" action="admin.pl">
-   <a href="controller.pl?action=Admin/show">[% 'Back' | $T8 %]</a>
+[% INCLUDE 'common/flash.html' %]
 
-   <table>
-    <tr>
-     <td>
+<h1>[% HTML.escape(title) %]</h1>
 
-      <table>
+<p><a href="controller.pl?action=Admin/show">[% LxERP.t8('Back') %]</a></p>
 
-       <tr>
-        <td>
-         <table>
+<form method="post" action="controller.pl">
+ <table>
+  <tr>
+   <th align="right">[% LxERP.t8('Host') %]</th>
+   <td>[% L.input_tag('dbhost', FORM.dbhost, size=30, class="initial_focus") %]</td>
+   <th align="right">[% LxERP.t8('Port') %]</th>
+   <td>[% L.input_tag('dbport', FORM.dbport, size=6) %]</td>
+  </tr>
 
-          <tr>
+  <tr>
+   <th align="right">[% LxERP.t8('Database User') %]</th>
+   <td>[% L.input_tag("dbuser", FORM.dbuser, size=30) %]</td>
+   <th align="right">[% LxERP.t8('Password') %]</th>
+   <td>[% L.input_tag("dbpasswd", FORM.dbpasswd, type='password', size=30) %]</td>
+  </tr>
 
-           <th align="right">[% 'Host' | $T8 %]</th>
-           <td><input name="dbhost" size="25" value="[% HTML.escape(dbhost) %]"></td>
-           <th align="right">[% 'Port' | $T8 %]</th>
-           <td><input name="dbport" size="5" value="[% HTML.escape(dbport) %]"></td>
+  <tr>
+   <th align="right">[% LxERP.t8('Database template') %]</th>
+   <td>[% L.input_tag("dbdefault", FORM.dbdefault, size=30) %]</td>
+  </tr>
+ </table>
 
-          </tr>
+ <div>
+  [% L.hidden_tag("action", 'Admin/dispatch') %]
+  [% L.submit_tag('action_create_dataset', LxERP.t8('Create Dataset')) %]
+  [% L.submit_tag('action_delete_dataset', LxERP.t8('Delete Dataset')) %]
+ </div>
+</form>
 
-          <tr>
-
-           <th align="right">[% 'Database User' | $T8 %]</th>
-           <td><input name="dbuser" size="10" value="[% HTML.escape(dbuser) %]"></td>
-           <th align="right">[% 'Password' | $T8 %]</th>
-           <td><input type="password" name="dbpasswd" size="10"></td>
-
-          </tr>
-
-          <tr>
-
-           <th align="right">[% 'Database template' | $T8 %]</th>
-           <td colspan="3"><input name="dbdefault" size="10" value="[% HTML.escape(dbdefault) %]"></td>
-
-          </tr>
-
-         </table>
-
-        </td>
-       </tr>
-      </table>
-
-      <input name="callback" type="hidden" value="controller.pl?action=Admin/show">
-
-      <br>
-      <input type="submit" class="submit" name="action" value="[% 'Create Dataset' | $T8 %]">
-      <input type="submit" class="submit" name="action" value="[% 'Update Dataset' | $T8 %]">
-      <input type="submit" class="submit" name="action" value="[% 'Delete Dataset' | $T8 %]">
-      [% IF ALLOW_DBBACKUP %]
-       <input type="submit" class="submit" name="action" value="[% 'Backup Dataset' | $T8 %]">
-       <input type="submit" class="submit" name="action" value="[% 'Restore Dataset' | $T8 %]">
-      [% END %]
-     </td>
-    </tr>
-   </table>
-  </form>
-
-  <p>[% 'This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!' | $T8 %]</p>
-
-  <p>[% 'Leave host and port field empty unless you want to make a remote connection.' | $T8 %]</p>
+<p>[% LxERP.t8('This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!') %]</p>

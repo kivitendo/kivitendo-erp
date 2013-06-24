@@ -1021,7 +1021,7 @@ sub load_template {
     close(TEMPLATE);
   }
 
-  $content = Encode::decode('utf-8-strict', $content) if $::locale->is_utf8;
+  $content = Encode::decode('utf-8-strict', $content);
 
   $main::lxdebug->leave_sub();
 
@@ -1038,7 +1038,7 @@ sub save_template {
   my $error = "";
 
   if (open(TEMPLATE, ">", $filename)) {
-    $content = Encode::encode('utf-8-strict', $content) if $::locale->is_utf8;
+    $content = Encode::encode('utf-8-strict', $content);
     $content =~ s/\r\n/\n/g;
     print(TEMPLATE $content);
     close(TEMPLATE);

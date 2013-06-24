@@ -1,5 +1,4 @@
 -- @tag: oe_customer_vendor_fkeys
--- @encoding: utf-8
 -- @description: Foreign Keys für customer und vendor in oe
 -- @depends: release_2_6_3
 -- @timestamp: 1317380460

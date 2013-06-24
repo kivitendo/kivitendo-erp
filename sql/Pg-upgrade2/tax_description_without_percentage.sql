@@ -1,5 +1,5 @@
 -- @tag: tax_description_without_percentage
--- @description: SKR03: Die Prozentangaben aus der tax.taxdescription entfernen. (Unter Ber¸cksichtigung der Druckausgabe.)
+-- @description: SKR03: Die Prozentangaben aus der tax.taxdescription entfernen. (Unter Ber√ºcksichtigung der Druckausgabe.)
 -- @depends: fix_taxdescription
 
 
@@ -82,7 +82,7 @@ WHERE taxkey = '11'
 ;
 
 UPDATE tax SET 
-  taxdescription = 'Steuerpflichtige EG-Lieferung zum erm‰ﬂigten Steuersatz' 
+  taxdescription = 'Steuerpflichtige EG-Lieferung zum erm√§√üigten Steuersatz' 
 WHERE taxkey = '12'
   AND
   EXISTS ( -- update only for SKR03
@@ -104,7 +104,7 @@ WHERE taxkey = '13'
 
 
 UPDATE tax SET 
-  taxdescription = 'Steuerpflichtiger innergem. Erwerb zum erm‰ﬂigten Steuersatz' 
+  taxdescription = 'Steuerpflichtiger innergem. Erwerb zum erm√§√üigten Steuersatz' 
 WHERE taxkey = '18'
   AND
   EXISTS ( -- update only for SKR03

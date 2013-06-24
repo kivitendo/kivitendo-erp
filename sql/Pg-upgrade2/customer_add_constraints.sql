@@ -1,7 +1,6 @@
 -- @tag: customer_add_constraints
 -- @description: Zusätzliche Fremdschlüssel für Sprache, Kundentyp und Zahlungskonditionen
 -- @depends: release_2_6_3
--- @charset: utf-8
 -- @ignore: 0
 
 -- verwaiste Einträge vorher entfernen

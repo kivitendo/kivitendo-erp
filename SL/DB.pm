@@ -42,7 +42,7 @@ sub _register_db {
     driver           => 'Pg',
     european_dates   => ((SL::DBConnect->get_datestyle || '') =~ m/european/i) ? 1 : 0,
     connect_options  => {
-      pg_enable_utf8 => $::locale && $::locale->is_utf8,
+      pg_enable_utf8 => 1,
     },
   );
 

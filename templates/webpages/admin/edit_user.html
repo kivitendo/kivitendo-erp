@@ -20,7 +20,7 @@
     <table>
      <tr>
       <th align="right">[% LxERP.t8('Login Name') %]</th>
-      <td>[% L.input_tag("user.login", SELF.user.login) %]</td>
+      <td>[% L.input_tag("user.login", SELF.user.login, class="initial_focus") %]</td>
      </tr>
 
      [%- IF AUTH.can_change_password %]

@@ -1,7 +1,6 @@
 -- @tag: skr03_04_bwa_zuordnung_konten_4250_4610
 -- @description: Fehler in der BWA-Zuordnung
 -- @depends: release_2_6_1
--- @charset: utf-8
 
 -- SKR03
 UPDATE chart

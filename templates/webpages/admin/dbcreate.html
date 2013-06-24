@@ -1,8 +1,0 @@
-[%- USE T8 %]
-[%- USE HTML %]
-[%- USE LxERP %][%- USE L -%]
-  <h1>[% title %]</h1>
-
-  <p>[% LxERP.t8('The dataset #1 has been successfully created.', db) | html %]</p>
-
-  <p>[% L.link("controller.pl?action=Admin/show", LxERP.t8("Continue")) %]</p>

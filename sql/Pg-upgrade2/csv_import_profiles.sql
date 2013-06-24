@@ -1,7 +1,6 @@
 -- @tag: csv_import_profiles
 -- @description: CSV-Import-Profile für Stammdaten
 -- @depends: release_2_6_1
--- @charset: utf-8
 CREATE TABLE csv_import_profiles (
        id SERIAL        NOT NULL,
        name text        NOT NULL,

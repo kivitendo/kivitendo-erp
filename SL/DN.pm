@@ -369,7 +369,6 @@ sub send_email {
 
   my $template     = SL::Template::create(type => 'PlainText', form => $form, myconfig => $myconfig);
   my $mail         = Mailer->new();
-  $mail->{charset} = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   $mail->{from}    = $myconfig->{email};
   $mail->{to}      = $ref->{recipient};
   $mail->{subject} = $template->parse_block($ref->{email_subject});

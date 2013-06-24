@@ -903,10 +903,6 @@ sub generate_ustva {
 
       $form->{attachment_filename} =~ s|.*/||;
 
-      # TODO: set Output to UTF-8 or system Preference
-      #$form->{"iconv"} = Text::Iconv->new($myconfig{dbcharset}, "UTF-8");
-      #my $iconv = $self->{"iconv"};
-      #$iconv->convert($variable);
       if ($form->{period} =~ /^[4]\d$/ ){
         my %periods = ( # Lx => taxbird
                      '41' => '12',

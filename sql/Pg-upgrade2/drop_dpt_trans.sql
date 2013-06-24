@@ -1,7 +1,6 @@
 -- @tag: drop_dpt_trans
 -- @description: Löscht nicht mehr benötigte Tabelle dpt_trans
 -- @depends: release_3_0_0
--- @charset: utf-8
 
 -- Drop table dpt_trans:
 DROP TABLE dpt_trans;

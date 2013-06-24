@@ -1,27 +1,35 @@
-[%- USE T8 %]
-[%- USE HTML %]
- <h1>[% title %]</h1>
- <p><a href="admin.pl?action=pg_database_administration">[% 'Back' | $T8 %]</a></p>
- <form method="post" action="admin.pl">
+[%- USE HTML %][%- USE LxERP -%][%- USE L -%]
 
-  <p>[% 'You can only delete datasets that are not in use.' | $T8 %]
-   [% 'If you want to delete such a dataset you have to edit the user(s) that are using the dataset in question and have them use another dataset.' | $T8 %]</p>
+[% INCLUDE 'common/flash.html' %]
 
-  <p>[% 'Please seletct the dataset you want to delete:' | $T8 %]
-   <select name="db">[% FOREACH row = DBSOURCES %]<option>[% HTML.escape(row.name) %]</option>[% END %]</select>
-  </p>
+<h1>[% HTML.escape(title) %]</h1>
 
-  <input type="hidden" name="dbuser"    value="[% HTML.escape(dbuser) %]">
-  <input type="hidden" name="dbhost"    value="[% HTML.escape(dbhost) %]">
-  <input type="hidden" name="dbport"    value="[% HTML.escape(dbport) %]">
-  <input type="hidden" name="dbpasswd"  value="[% HTML.escape(dbpasswd) %]">
-  <input type="hidden" name="dbdefault" value="[% HTML.escape(dbdefault) %]">
+<p><a href="controller.pl?action=Admin/database_administration">[% LxERP.t8('Back') %]</a></p>
 
-  <input name="callback" type="hidden" value="controller.pl?action=Admin/show">
+<p>
+ [% LxERP.t8('You can only delete datasets that are not in use.') %]
+ [% LxERP.t8('If you want to delete such a dataset you have to edit the client(s) that are using the dataset in question and have them use another dataset.') %]
+</p>
 
+[% IF SELF.all_unused_dbsources.size %]
 
-  <input type="hidden" name="nextsub" value="dbdelete">
+<form method="post" action="controller.pl">
+ <p>
+  [% LxERP.t8('Please select the dataset you want to delete:') %]
+  [% L.select_tag('db', SELF.all_unused_dbsources, class="initial_focus") %]
+ </p>
 
-  <p><input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]"></p>
+ [% L.hidden_tag("dbhost", FORM.dbhost) %]
+ [% L.hidden_tag("dbport", FORM.dbport) %]
+ [% L.hidden_tag("dbuser", FORM.dbuser) %]
+ [% L.hidden_tag("dbpasswd", FORM.dbpasswd) %]
+ [% L.hidden_tag("dbdefault", FORM.dbdefault) %]
+ [% L.hidden_tag("action", "Admin/do_delete_dataset") %]
 
- </form>
+ <div>
+  [% L.submit_tag('dummy', LxERP.t8('Delete Dataset'), confirm=LxERP.t8('Are you sure?')) %]
+ </div>
+
+</form>
+
+[% END %]

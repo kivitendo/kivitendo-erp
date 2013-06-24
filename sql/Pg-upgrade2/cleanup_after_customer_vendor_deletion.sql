@@ -1,7 +1,6 @@
 -- @tag: cleanup_after_customer_vendor_deletion
 -- @description: Nach Löschen von Kunden/Lieferanten via Trigger auch Ansprechpersonen/Lieferadressen löschen
 -- @depends: release_3_0_0
--- @charset: utf-8
 CREATE OR REPLACE FUNCTION clean_up_after_customer_vendor_delete() RETURNS trigger AS $$
   BEGIN
     DELETE FROM contacts

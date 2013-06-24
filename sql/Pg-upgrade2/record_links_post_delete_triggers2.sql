@@ -1,7 +1,6 @@
 -- @tag: record_links_post_delete_triggers2
 -- @description: PL/PgSQL Syntax Fix
 -- @depends: record_links_post_delete_triggers
--- @encoding: utf8
 
 CREATE OR REPLACE FUNCTION clean_up_record_links_before_oe_delete() RETURNS trigger AS $$
   BEGIN

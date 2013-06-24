@@ -18,7 +18,7 @@ sub init {
 
   Rose::Object::init(@_);
 
-  my $email         =  $::locale->is_utf8 ? Encode::encode('utf-8', $self->myconfig->{email}) : $self->myconfig->{email};
+  my $email         =  Encode::encode('utf-8', $self->myconfig->{email});
   $email            =~ s/[^\w\.\-\+=@]//ig;
 
   my %temp_form     = ( %{ $self->form }, myconfig_email => $email );
@@ -27,7 +27,7 @@ sub init {
   $sendmail         = $template->parse_block($sendmail);
 
   $self->{sendmail} = IO::File->new("|$sendmail") || die "sendmail($sendmail): $!";
-  $self->{sendmail}->binmode(':utf8') if $::locale->is_utf8;
+  $self->{sendmail}->binmode(':utf8');
 }
 
 sub start_mail {

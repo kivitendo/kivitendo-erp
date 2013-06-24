@@ -1,1 +1,0 @@
-insert into taxkeys (chart_id, tax_id, taxkey_id,startdate) SELECT 0, id, taxkey, '1970-01-01' FROM tax;

@@ -65,17 +65,24 @@ sub action_login {
   # if we get an error back, bale out
   my $result = User->new(login => $::myconfig{login})->login($::form);
 
-  # Database update available?
-  ::end_of_request() if -2 == $result;
-
   # Auth DB needs update? If so log the user out forcefully.
-  if (-3 == $result) {
+  if (User::LOGIN_AUTH_DBUPDATE_AVAILABLE() == $result) {
     $::auth->destroy_session;
     return $self->render('login_screen/auth_db_needs_update');
   }
 
+  # Basic client tables available? If not tell the user to create them
+  # and log the user out forcefully.
+  if (User::LOGIN_BASIC_TABLES_MISSING() == $result) {
+    $::auth->destroy_session;
+    return $self->render('login_screen/basic_tables_missing');
+  }
+
+  # Database update available?
+  ::end_of_request() if User::LOGIN_DBUPDATE_AVAILABLE() == $result;
+
   # Other login errors.
-  if (0 > $result) {
+  if (User::LOGIN_OK() != $result) {
     $::auth->punish_wrong_login;
     return $self->show_login_form(error => $error);
   }

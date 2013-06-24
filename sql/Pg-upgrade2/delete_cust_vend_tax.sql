@@ -1,7 +1,6 @@
 -- @tag: delete_cust_vend_tax
 -- @description: Alte Tabellen löschen
 -- @depends: delete_customertax_vendortax_partstax
--- @charset: utf-8
 
 CREATE OR REPLACE FUNCTION del_customer() RETURNS "trigger" AS
   'BEGIN

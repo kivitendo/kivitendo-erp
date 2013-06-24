@@ -1,5 +1,5 @@
 -- @tag: record_links
--- @description: Verknüpfungen zwischen Aufträgen, Lieferscheinen und Rechnungen
+-- @description: VerknÃ¼pfungen zwischen AuftrÃ¤gen, Lieferscheinen und Rechnungen
 -- @depends: delivery_orders
 CREATE TABLE record_links (
   from_table varchar(50) NOT NULL,

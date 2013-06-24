@@ -101,7 +101,7 @@ if ($opt_n) {
 }
 
 my @dbplfiles;
-foreach my $sub_dir ("Pg-upgrade", "Pg-upgrade2", "Pg-upgrade2-auth") {
+foreach my $sub_dir ("Pg-upgrade2", "Pg-upgrade2-auth") {
   my $dir = "$basedir/sql/$sub_dir";
   tie %dir_h, 'IO::Dir', $dir;
   push @dbplfiles, map { [ $_, $dir ] } grep { /\.pl$/ } keys %dir_h;
@@ -119,9 +119,6 @@ if (-f "$locales_dir/lost") {
   require "$locales_dir/lost";
   unlink "$locales_dir/lost";
 }
-
-my $charset = slurp("$locales_dir/charset") || 'utf-8';
-chomp $charset;
 
 my %old_texts = %{ $self->{texts} || {} };
 
@@ -717,10 +714,7 @@ sub generate_file {
 
   open my $fh, '>:encoding(utf8)', $file or die "$! : $file";
 
-  $charset =~ s/\r?\n//g;
-  my $emacs_charset = lc $charset;
-
-  print $fh "#!/usr/bin/perl\n# -*- coding: $emacs_charset; -*-\n# vim: fenc=$charset\n\nuse utf8;\n\n";
+  print $fh "#!/usr/bin/perl\n# -*- coding: utf-8; -*-\n# vim: fenc=utf-8\n\nuse utf8;\n\n";
   print $fh $header, "\n" if $header;
   print $fh "$data_name = $delim[0]\n" if $data_name;
 

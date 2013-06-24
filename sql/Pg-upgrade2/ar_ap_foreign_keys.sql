@@ -1,7 +1,6 @@
 -- @tag: ar_ap_foreign_keys
 -- @description: Fremdschlüsselverweise für diverse Spalten in ar und ap
 -- @depends: release_3_0_0
--- @charset: utf-8
 ALTER TABLE ar ALTER COLUMN department_id DROP DEFAULT;
 ALTER TABLE ap ALTER COLUMN department_id DROP DEFAULT;
 

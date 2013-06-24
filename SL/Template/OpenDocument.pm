@@ -22,7 +22,6 @@ sub new {
   my $self = $type->SUPER::new(@_);
 
   $self->{"rnd"}   = int(rand(1000000));
-  $self->{"iconv"} = SL::Iconv->new($::lx_office_conf{system}->{dbcharset}, "UTF-8");
 
   $self->set_tag_style('&lt;%', '%&gt;');
   $self->{quot_re} = '&quot;';
@@ -575,7 +574,6 @@ sub convert_to_pdf {
 sub format_string {
   my ($self, $variable) = @_;
   my $form = $self->{"form"};
-  my $iconv = $self->{"iconv"};
 
   $variable = $main::locale->quote_special_chars('Template/OpenDocument', $variable);
 
@@ -591,7 +589,7 @@ sub format_string {
     $variable =~ s|\&lt;/${key}\&gt;|</text:span>|gi;
   }
 
-  return $iconv->convert($variable);
+  return $variable;
 }
 
 sub get_mime_type() {

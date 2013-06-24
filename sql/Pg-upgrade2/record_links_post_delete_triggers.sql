@@ -1,7 +1,6 @@
 -- @tag: record_links_post_delete_triggers
 -- @description: Datenbankkonsistenz nach dem löschen von Belegen
 -- @depends: release_2_7_0
--- @encoding: utf8
 
 -- When deleting records record_links weren't cleaned up until now
 -- This wasn't rally a problem apart from the fact that record_links slowly grew

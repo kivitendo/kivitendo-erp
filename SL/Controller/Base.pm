@@ -116,7 +116,7 @@ sub render {
                         :                              'application/json';
 
       print $::form->create_http_response(content_type => $content_type,
-                                          charset      => $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET());
+                                          charset      => 'UTF-8');
     }
   }
 

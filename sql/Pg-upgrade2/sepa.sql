@@ -1,5 +1,5 @@
 -- @tag: sepa
--- @description: Tabellen für den SEPA-XML-Exportassistenten
+-- @description: Tabellen fÃ¼r den SEPA-XML-Exportassistenten
 -- @depends: release_2_6_0
 -- @ignore: 0
 --DROP TABLE sepa_export_items;

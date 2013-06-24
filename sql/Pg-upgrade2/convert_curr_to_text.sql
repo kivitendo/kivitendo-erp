@@ -1,7 +1,6 @@
 -- @tag: convert_curr_to_text
 -- @description: Spalte 'curr' von 'char(3)' nach 'text' konvertieren
 -- @depends: release_2_7_0
--- @charset: utf-8
 
 -- Zuerst alle Spaltentypen konvertieren.
 ALTER TABLE ap              ALTER COLUMN curr TYPE text;

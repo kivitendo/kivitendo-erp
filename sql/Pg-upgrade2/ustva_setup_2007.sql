@@ -1,5 +1,5 @@
 -- @tag: ustva_setup_2007
--- @description: Aktualisierung des SKR03 für 2006
+-- @description: Aktualisierung des SKR03 fÃ¼r 2006
 -- @depends: customer_vendor_taxzone_id  
 
 update taxkeys set pos_ustva='81' where startdate='2007-01-01' 

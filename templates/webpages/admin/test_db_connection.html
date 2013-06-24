@@ -1,5 +1,5 @@
 [%- USE HTML %][%- USE LxERP -%][%- USE L -%]
-<h1>[% HTML.escape(title) %]</h1>
+<div class="listtop">[% HTML.escape(title) %]</div>
 
 [%- IF ok %]
 
@@ -17,5 +17,5 @@
 [%- END %]
 
 <div>
- [% L.button_tag("\$('#jqm_popup_dialog .close').trigger('click');", LxERP.t8("Close Window")) %]
+ <a href="#" onclick="$('#test_db_connection_window').jqmClose();">[% LxERP.t8("Close Window") %]</a>
 </div>

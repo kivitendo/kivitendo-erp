@@ -81,9 +81,6 @@ sub parse_dbupdate_controls {
 
     next if ($control->{ignore});
 
-    $control->{charset} = 'UTF-8' if $file =~ m/\.pl$/;
-    $control->{charset} = $control->{charset} || $control->{encoding} || Common::DEFAULT_CHARSET;
-
     if (!$control->{"tag"}) {
       _control_error($form, $file_name, $locale->text("Missing 'tag' field.")) ;
     }
@@ -133,7 +130,7 @@ sub parse_dbupdate_controls {
 sub process_query {
   $::lxdebug->enter_sub();
 
-  my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
+  my ($self, $dbh, $filename, $version_or_control) = @_;
 
   my $form  = $self->{form};
   my $fh    = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
@@ -141,21 +138,10 @@ sub process_query {
   my $sth;
   my @quote_chars;
 
-  my $file_charset = Common::DEFAULT_CHARSET;
-  while (<$fh>) {
-    last if !/^--/;
-    next if !/^--\s*\@(?:charset|encoding):\s*(.+)/;
-    $file_charset = $1;
-    last;
-  }
-  $fh->seek(0, SEEK_SET);
-
-  $db_charset ||= Common::DEFAULT_CHARSET;
-
   $dbh->begin_work();
 
   while (<$fh>) {
-    $_ = SL::Iconv::convert($file_charset, $db_charset, $_);
+    $_ = SL::Iconv::convert('UTF-8', 'UTF-8', $_);
 
     # Remove DOS and Unix style line endings.
     chomp;
@@ -241,7 +227,7 @@ sub process_query {
 sub process_perl_script {
   $::lxdebug->enter_sub();
 
-  my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
+  my ($self, $dbh, $filename, $version_or_control) = @_;
 
   my %form_values = map { $_ => $::form->{$_} } qw(dbconnect dbdefault dbhost dbmbkiviunstable dbname dboptions dbpasswd dbport dbupdate dbuser login template_object version);
 
@@ -288,25 +274,13 @@ sub process_perl_script {
 }
 
 sub process_file {
-  my ($self, $dbh, $filename, $version_or_control, $db_charset) = @_;
+  my ($self, $dbh, $filename, $version_or_control) = @_;
 
   if ($filename =~ m/sql$/) {
-    $self->process_query($dbh, $filename, $version_or_control, $db_charset);
+    $self->process_query($dbh, $filename, $version_or_control);
   } else {
-    $self->process_perl_script($dbh, $filename, $version_or_control, $db_charset);
+    $self->process_perl_script($dbh, $filename, $version_or_control);
   }
-}
-
-sub update_available {
-  my ($self, $cur_version) = @_;
-
-  local *SQLDIR;
-
-  opendir SQLDIR, "sql/Pg-upgrade" || error("", "sql/Pg-upgrade: $!");
-  my @upgradescripts = grep /Pg-upgrade-\Q$cur_version\E.*\.(sql|pl)$/, readdir SQLDIR;
-  closedir SQLDIR;
-
-  return ($#upgradescripts > -1);
 }
 
 sub update2_available {
@@ -357,10 +331,9 @@ sub apply_admin_dbupgrade_scripts {
 
   return 0 if !@unapplied_scripts;
 
-  my $db_charset           = $::lx_office_conf{system}->{dbcharset} || Common::DEFAULT_CHARSET;
   $self->{form}->{login} ||= 'admin';
 
-  map { $_->{description} = SL::Iconv::convert($_->{charset}, $db_charset, $_->{description}) } values %{ $self->{all_controls} };
+  map { $_->{description} = SL::Iconv::convert('UTF-8', 'UTF-8', $_->{description}) } values %{ $self->{all_controls} };
 
   if ($called_from_admin) {
     $self->{form}->{title} = $::locale->text('Dataset upgrade');
@@ -373,7 +346,7 @@ sub apply_admin_dbupgrade_scripts {
     $::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
     print $self->{form}->parse_html_template("dbupgrade/upgrade_message2", $control);
 
-    $self->process_file($dbh, "sql/Pg-upgrade2-auth/$control->{file}", $control, $db_charset);
+    $self->process_file($dbh, "sql/Pg-upgrade2-auth/$control->{file}", $control);
   }
 
   print $self->{form}->parse_html_template("dbupgrade/footer", { is_admin => 1 }) if $called_from_admin;
@@ -449,8 +422,7 @@ __END__
 =head1 NAME
 
 SL::DBUpgrade2 - Parse database upgrade files stored in
-C<sql/Pg-upgrade2> and C<sql/Pg-upgrade2-auth> (and also in
-C<SQL/Pg-upgrade>)
+C<sql/Pg-upgrade2> and C<sql/Pg-upgrade2-auth>
 
 =head1 SYNOPSIS
 
@@ -498,14 +470,8 @@ applied.
 
 Database upgrade files come in two flavours: SQL files and Perl
 files. For both there are control fields that determine the order in
-which they're executed, what charset the scripts are written in
-etc. The control fields are tag/value pairs contained in comments.
-
-=head1 OLD UPGRADE FILES
-
-The files in C<sql/Pg-upgrade> are so old that I don't bother
-documenting them. They're handled by this class, too, but new files
-are only created as C<Pg-upgrade2> files.
+which they're executed etc. The control fields are tag/value pairs
+contained in comments.
 
 =head1 CONTROL FIELDS
 
@@ -549,13 +515,6 @@ This is mandatory.
 A space-separated list of tags of scripts this particular script
 depends on. All other upgrades listed in C<depends> will be applied
 before the current one is applied.
-
-=item charset
-
-=item encoding
-
-The charset this file uses. Defaults to C<ISO-8859-15> if
-missing. Both terms are recognized.
 
 =item priority
 
@@ -617,25 +576,22 @@ are missing/wrong (e.g. a tag name listed in C<depends> is not
 found). Sets C<$Self-&gt;{all_controls}> to the list of database
 scripts.
 
-=item C<process_file $dbh, $filename, $version_or_control, $db_charset>
+=item C<process_file $dbh, $filename, $version_or_control>
 
 Applies a single database upgrade file. Calls L<process_perl_script>
 for Perl update files and C<process_query> for SQL update
 files. Requires an open database handle(C<$dbh>), the file name
-(C<$filename>), a hash structure of the file's control fields as
-produced by L<parse_dbupdate_controls> (C<$version_or_control>) and
-the database charset (for on-the-fly charset recoding of the script if
-required, C<$db_charset>).
+(C<$filename>) and a hash structure of the file's control fields as
+produced by L<parse_dbupdate_controls> (C<$version_or_control>).
 
 Returns the result of the actual function called.
 
-=item C<process_perl_script $dbh, $filename, $version_or_control, $db_charset>
+=item C<process_perl_script $dbh, $filename, $version_or_control>
 
 Applies a single Perl database upgrade file. Requires an open database
-handle(C<$dbh>), the file name (C<$filename>), a hash structure of the
-file's control fields as produced by L<parse_dbupdate_controls>
-(C<$version_or_control>) and the database charset (for on-the-fly
-charset recoding of the script if required, C<$db_charset>).
+handle(C<$dbh>), the file name (C<$filename>) and a hash structure of
+the file's control fields as produced by L<parse_dbupdate_controls>
+(C<$version_or_control>).
 
 Perl scripts are executed via L<eval>. If L<eval> returns falsish then
 an error is expected. There are two special return values: If the
@@ -675,13 +631,12 @@ the following function:
     }
   }
 
-=item C<process_query $dbh, $filename, $version_or_control, $db_charset>
+=item C<process_query $dbh, $filename, $version_or_control>
 
 Applies a single SQL database upgrade file. Requires an open database
-handle(C<$dbh>), the file name (C<$filename>), a hash structure of the
-ofile's control fields as produced by L<parse_dbupdate_controls>
-(C<$version_or_control>) and the database charset (for on-the-fly
-charset recoding of the script if required, C<$db_charset>).
+handle(C<$dbh>), the file name (C<$filename>), and a hash structure of
+the file's control fields as produced by L<parse_dbupdate_controls>
+(C<$version_or_control>).
 
 =item C<sort_dbupdate_controls>
 

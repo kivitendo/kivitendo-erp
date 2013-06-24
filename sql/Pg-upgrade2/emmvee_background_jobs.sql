@@ -1,7 +1,6 @@
 -- @tag: emmvee_background_jobs
 -- @description: Tabellen für Hintergrundjobs
 -- @depends: release_2_6_1
--- @charset: utf-8
 
 CREATE TABLE background_jobs (
     id serial NOT NULL,

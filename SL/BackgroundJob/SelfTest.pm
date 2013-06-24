@@ -124,7 +124,7 @@ sub _send_email {
 
   my ($output, $content_type) = $self->_prepare_report;
 
-  my $mail              = Mailer->new(charset => $::locale->is_utf8 ? 'UTF-8' : Common->DEFAULT_CHARSET );
+  my $mail              = Mailer->new;
   $mail->{from}         = $self->config->{email_from};
   $mail->{to}           = $email;
   $mail->{subject}      = $self->config->{email_subject};
