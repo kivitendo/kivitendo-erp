@@ -15,7 +15,7 @@ __PACKAGE__->meta->setup(
     description    => { type => 'text' },
     charttype      => { type => 'character', default => 'A', length => 1 },
     category       => { type => 'character', length => 1 },
-    link           => { type => 'text' },
+    link           => { type => 'text', not_null => 1 },
     taxkey_id      => { type => 'integer' },
     pos_bwa        => { type => 'integer' },
     pos_bilanz     => { type => 'integer' },
