@@ -273,7 +273,7 @@ sub dbcreate {
   # load chart of accounts
   $dbupdater->process_query($dbh, "sql/$form->{chart}-chart.sql");
 
-  my $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?|;
+  $query = qq|UPDATE defaults SET coa = ?, accounting_method = ?, profit_determination = ?, inventory_system = ?, curr = ?|;
   do_query($form, $dbh, $query, map { $form->{$_} } qw(chart accounting_method profit_determination inventory_system defaultcurrency));
 
   $dbh->disconnect;
@@ -341,7 +341,7 @@ sub calc_version {
 sub cmp_script_version {
   my ($a_from, $a_to, $b_from, $b_to);
   my ($i, $res_a, $res_b);
-  my ($my_a, $my_b) = ($a, $b);
+  my ($my_a, $my_b) = do { no warnings 'once'; ($a, $b) };
 
   $my_a =~ s/.*-upgrade-//;
   $my_a =~ s/.sql$//;
