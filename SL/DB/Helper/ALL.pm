@@ -23,6 +23,8 @@ use SL::DB::Chart;
 use SL::DB::Contact;
 use SL::DB::CsvImportProfile;
 use SL::DB::CsvImportProfileSetting;
+use SL::DB::CsvImportReport;
+use SL::DB::CsvImportReportRow;
 use SL::DB::Currency;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
