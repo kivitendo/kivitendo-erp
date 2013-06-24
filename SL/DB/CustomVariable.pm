@@ -7,6 +7,7 @@ use strict;
 
 use SL::DB::MetaSetup::CustomVariable;
 use SL::DB::CustomVariableValidity;
+use SL::DB::Customer;
 
 __PACKAGE__->meta->initialize;
 
@@ -20,6 +21,15 @@ sub value {
   goto &bool_value      if $type eq 'boolean';
   goto &timestamp_value if $type eq 'timestamp';
   goto &number_value    if $type eq 'number';
+  if ( $type eq 'customer' ) {
+    if ( defined($_[1]) ) {
+      goto &number_value;
+    }
+    else {
+      my $id = int($self->number_value);
+      return $id ? SL::DB::Customer->new(id => $id)->load() : 0;
+    }
+  }
   goto &text_value; # text and select
 }
 
