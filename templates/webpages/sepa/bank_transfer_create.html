@@ -86,7 +86,7 @@
      <tr class="listrow[% loop.count % 2 %]">
       <td>
        [%- IF loop.first || (previous_vcname != bank_transfer.vcname) %]
-        <a href="ct.pl?action=edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
+        <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(bank_transfer.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
          [%- GET HTML.escape(bank_transfer.vcname);
              SET previous_vcname = bank_transfer.vcname; -%]
         </a>
