@@ -522,6 +522,11 @@ sub setup_layout {
   $::request->layout(SL::Layout::Dispatcher->new(style => 'admin'));
   $::request->layout->use_stylesheet("lx-office-erp.css");
   $::form->{favicon} = "favicon.ico";
+  %::myconfig        = (
+    countrycode      => 'de',
+    numberformat     => '1.000,00',
+    dateformat       => 'dd.mm.yy',
+  ) if !%::myconfig;
 }
 
 sub setup_client {
