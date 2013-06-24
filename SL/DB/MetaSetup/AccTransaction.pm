@@ -17,10 +17,10 @@ __PACKAGE__->meta->setup(
     transdate      => { type => 'date', default => 'now' },
     gldate         => { type => 'date', default => 'now' },
     source         => { type => 'text' },
-    cleared        => { type => 'boolean', default => 'false' },
-    fx_transaction => { type => 'boolean', default => 'false' },
-    ob_transaction => { type => 'boolean', default => 'false' },
-    cb_transaction => { type => 'boolean', default => 'false' },
+    cleared        => { type => 'boolean', default => 'false', not_null => 1 },
+    fx_transaction => { type => 'boolean', default => 'false', not_null => 1 },
+    ob_transaction => { type => 'boolean', default => 'false', not_null => 1 },
+    cb_transaction => { type => 'boolean', default => 'false', not_null => 1 },
     project_id     => { type => 'integer' },
     memo           => { type => 'text' },
     taxkey         => { type => 'integer' },
@@ -31,6 +31,8 @@ __PACKAGE__->meta->setup(
   ],
 
   primary_key_columns => [ 'acc_trans_id' ],
+
+  allow_inline_column_values => 1,
 
   foreign_keys => [
     chart => {
