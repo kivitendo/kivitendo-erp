@@ -11,16 +11,23 @@ __PACKAGE__->meta->setup(
 
   columns => [
     id        => { type => 'integer', not_null => 1, sequence => 'id' },
-    chart_id  => { type => 'integer' },
-    tax_id    => { type => 'integer' },
-    taxkey_id => { type => 'integer' },
+    chart_id  => { type => 'integer', not_null => 1 },
+    tax_id    => { type => 'integer', not_null => 1 },
+    taxkey_id => { type => 'integer', not_null => 1 },
     pos_ustva => { type => 'integer' },
-    startdate => { type => 'date' },
+    startdate => { type => 'date', not_null => 1 },
   ],
 
   primary_key_columns => [ 'id' ],
 
+  unique_key => [ 'chart_id', 'startdate' ],
+
   foreign_keys => [
+    chart => {
+      class       => 'SL::DB::Chart',
+      key_columns => { chart_id => 'id' },
+    },
+
     tax => {
       class       => 'SL::DB::Tax',
       key_columns => { tax_id => 'id' },
