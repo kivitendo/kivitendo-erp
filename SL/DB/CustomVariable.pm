@@ -22,7 +22,7 @@ sub value {
   goto &timestamp_value if $type eq 'timestamp';
   goto &number_value    if $type eq 'number';
   if ( $type eq 'customer' ) {
-    if ( defined($_[1]) ) {
+    if ( defined($_[1]) && $_[1] ) {
       goto &number_value;
     }
     else {
