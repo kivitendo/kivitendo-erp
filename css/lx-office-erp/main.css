@@ -209,7 +209,7 @@ div.admin {
     border-width:thin;
 }
 
-.listheading, .listheading th, h2 {
+.listheading, .listheading th, #content h2 {
     font-size: 9pt;
     padding:3px;
     background-color:

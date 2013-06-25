@@ -193,7 +193,7 @@ body.menu {
 	background-color: #8ee085;
 	color: #000000;
 } */
-.listheading, h2 {
+.listheading, #content h2 {
 	padding: 0.2em;
 	background-color: #EBEBEB;
 	color: #006400;
