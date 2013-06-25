@@ -17,7 +17,7 @@ Größere neue Features:
   Waren.
   Sowohl Einkaufs- als auch Verkaufslieferschein haben einen neue Funktion,
   Ein- / Auslagern über Standardlagerplatz. Diese Funktion ist an- bzw.
-  abschaltbar in der Mandatenkonfiguration (standardmässig an).
+  abschaltbar in der Mandantenkonfiguration (standardmässig an).
   Die Funktion lässt sich noch wie folgt konfigurieren:
   - Falls kein Standardlagerplatz in den Stammdaten hinterlegt ist, verwende den
     vorkonfigurierten Standardlagerplatz.

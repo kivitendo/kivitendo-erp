@@ -1,5 +1,5 @@
 # @tag: clients
-# @description: Einführung von Mandaten
+# @description: Einführung von Mandanten
 # @depends: release_3_0_0
 # @ignore: 0
 package SL::DBUpgrade2::clients;
