@@ -68,14 +68,54 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { cp_id => 'cp_id' },
   },
 
+  currency => {
+    class       => 'SL::DB::Currency',
+    key_columns => { currency_id => 'id' },
+  },
+
   customer => {
     class       => 'SL::DB::Customer',
     key_columns => { customer_id => 'id' },
   },
 
+  department => {
+    class       => 'SL::DB::Department',
+    key_columns => { department_id => 'id' },
+  },
+
+  dunning_config => {
+    class       => 'SL::DB::DunningConfig',
+    key_columns => { dunning_config_id => 'id' },
+  },
+
+  employee => {
+    class       => 'SL::DB::Employee',
+    key_columns => { employee_id => 'id' },
+  },
+
   globalproject => {
     class       => 'SL::DB::Project',
     key_columns => { globalproject_id => 'id' },
+  },
+
+  language => {
+    class       => 'SL::DB::Language',
+    key_columns => { language_id => 'id' },
+  },
+
+  payment_terms => {
+    class       => 'SL::DB::PaymentTerm',
+    key_columns => { payment_id => 'id' },
+  },
+
+  salesman => {
+    class       => 'SL::DB::Employee',
+    key_columns => { salesman_id => 'id' },
+  },
+
+  shipto => {
+    class       => 'SL::DB::Shipto',
+    key_columns => { shipto_id => 'shipto_id' },
   },
 
   storno_obj => {

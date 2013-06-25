@@ -17,14 +17,6 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
-__PACKAGE__->meta->relationships(
-  periodic_invoices_configs => {
-    class      => 'SL::DB::PeriodicInvoicesConfig',
-    column_map => { id => 'printer_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

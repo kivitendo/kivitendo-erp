@@ -21,14 +21,6 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
-__PACKAGE__->meta->relationships(
-  inventory => {
-    class      => 'SL::DB::Inventory',
-    column_map => { id => 'trans_type_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

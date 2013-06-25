@@ -44,9 +44,19 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { delivery_order_id => 'id' },
   },
 
-  parts => {
+  part => {
     class       => 'SL::DB::Part',
     key_columns => { parts_id => 'id' },
+  },
+
+  price_factor_obj => {
+    class       => 'SL::DB::PriceFactor',
+    key_columns => { price_factor_id => 'id' },
+  },
+
+  pricegroup => {
+    class       => 'SL::DB::Pricegroup',
+    key_columns => { pricegroup_id => 'id' },
   },
 
   project => {

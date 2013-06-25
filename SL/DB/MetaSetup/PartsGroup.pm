@@ -19,14 +19,6 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
-__PACKAGE__->meta->relationships(
-  parts => {
-    class      => 'SL::DB::Part',
-    column_map => { id => 'partsgroup_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

@@ -17,26 +17,6 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
-__PACKAGE__->meta->relationships(
-  invoice => {
-    class      => 'SL::DB::InvoiceItem',
-    column_map => { id => 'price_factor_id' },
-    type       => 'one to many',
-  },
-
-  orderitems => {
-    class      => 'SL::DB::OrderItem',
-    column_map => { id => 'price_factor_id' },
-    type       => 'one to many',
-  },
-
-  parts => {
-    class      => 'SL::DB::Part',
-    column_map => { id => 'price_factor_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

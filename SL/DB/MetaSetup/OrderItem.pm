@@ -43,7 +43,7 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
-  part => {
+  parts => {
     class       => 'SL::DB::Part',
     key_columns => { parts_id => 'id' },
   },
@@ -63,7 +63,7 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { project_id => 'id' },
   },
 
-  order => {
+  trans => {
     class       => 'SL::DB::Order',
     key_columns => { trans_id => 'id' },
   },

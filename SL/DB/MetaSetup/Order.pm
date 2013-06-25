@@ -97,9 +97,19 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { language_id => 'id' },
   },
 
+  payment => {
+    class       => 'SL::DB::PaymentTerm',
+    key_columns => { payment_id => 'id' },
+  },
+
   salesman => {
     class       => 'SL::DB::Employee',
     key_columns => { salesman_id => 'id' },
+  },
+
+  shipto => {
+    class       => 'SL::DB::Shipto',
+    key_columns => { shipto_id => 'shipto_id' },
   },
 
   vendor => {

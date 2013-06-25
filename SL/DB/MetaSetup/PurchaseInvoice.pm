@@ -56,9 +56,34 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { cp_id => 'cp_id' },
   },
 
+  currency => {
+    class       => 'SL::DB::Currency',
+    key_columns => { currency_id => 'id' },
+  },
+
+  department => {
+    class       => 'SL::DB::Department',
+    key_columns => { department_id => 'id' },
+  },
+
+  employee => {
+    class       => 'SL::DB::Employee',
+    key_columns => { employee_id => 'id' },
+  },
+
   globalproject => {
     class       => 'SL::DB::Project',
     key_columns => { globalproject_id => 'id' },
+  },
+
+  language => {
+    class       => 'SL::DB::Language',
+    key_columns => { language_id => 'id' },
+  },
+
+  payment_terms => {
+    class       => 'SL::DB::PaymentTerm',
+    key_columns => { payment_id => 'id' },
   },
 
   storno_obj => {

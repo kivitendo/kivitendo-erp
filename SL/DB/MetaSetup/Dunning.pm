@@ -28,6 +28,11 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
+  dunning_config => {
+    class       => 'SL::DB::DunningConfig',
+    key_columns => { dunning_config_id => 'id' },
+  },
+
   fee_interest_ar => {
     class       => 'SL::DB::Invoice',
     key_columns => { fee_interest_ar_id => 'id' },

@@ -25,6 +25,11 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Invoice',
     key_columns => { ar_id => 'id' },
   },
+
+  config => {
+    class       => 'SL::DB::PeriodicInvoicesConfig',
+    key_columns => { config_id => 'id' },
+  },
 );
 
 # __PACKAGE__->meta->initialize;

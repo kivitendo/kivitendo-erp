@@ -35,14 +35,10 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Order',
     key_columns => { oe_id => 'id' },
   },
-);
 
-__PACKAGE__->meta->relationships(
-  ars => {
-    map_class => 'SL::DB::PeriodicInvoice',
-    map_from  => 'config',
-    map_to    => 'ar',
-    type      => 'many to many',
+  printer => {
+    class       => 'SL::DB::Printer',
+    key_columns => { printer_id => 'id' },
   },
 );
 

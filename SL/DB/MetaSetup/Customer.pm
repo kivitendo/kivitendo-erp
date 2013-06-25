@@ -70,6 +70,16 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Currency',
     key_columns => { currency_id => 'id' },
   },
+
+  language_obj => {
+    class       => 'SL::DB::Language',
+    key_columns => { language_id => 'id' },
+  },
+
+  payment => {
+    class       => 'SL::DB::PaymentTerm',
+    key_columns => { payment_id => 'id' },
+  },
 );
 
 # __PACKAGE__->meta->initialize;

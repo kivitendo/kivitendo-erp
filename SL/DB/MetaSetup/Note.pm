@@ -30,14 +30,6 @@ __PACKAGE__->meta->foreign_keys(
   },
 );
 
-__PACKAGE__->meta->relationships(
-  follow_ups => {
-    class      => 'SL::DB::FollowUp',
-    column_map => { id => 'note_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

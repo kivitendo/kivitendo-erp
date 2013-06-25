@@ -33,32 +33,6 @@ __PACKAGE__->meta->unique_keys([ 'login' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
-__PACKAGE__->meta->relationships(
-  ap => {
-    class      => 'SL::DB::PurchaseInvoice',
-    column_map => { id => 'employee_id' },
-    type       => 'one to many',
-  },
-
-  ar => {
-    class      => 'SL::DB::Invoice',
-    column_map => { id => 'employee_id' },
-    type       => 'one to many',
-  },
-
-  ar_objs => {
-    class      => 'SL::DB::Invoice',
-    column_map => { id => 'salesman_id' },
-    type       => 'one to many',
-  },
-
-  drafts => {
-    class      => 'SL::DB::Draft',
-    column_map => { id => 'employee_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

@@ -43,14 +43,6 @@ __PACKAGE__->meta->foreign_keys(
   },
 );
 
-__PACKAGE__->meta->relationships(
-  gl => {
-    class      => 'SL::DB::GLTransaction',
-    column_map => { id => 'storno_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

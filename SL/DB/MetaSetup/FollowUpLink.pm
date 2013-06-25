@@ -22,6 +22,13 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
+__PACKAGE__->meta->foreign_keys(
+  follow_up => {
+    class       => 'SL::DB::FollowUp',
+    key_columns => { follow_up_id => 'id' },
+  },
+);
+
 # __PACKAGE__->meta->initialize;
 
 1;

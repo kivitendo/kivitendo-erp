@@ -32,26 +32,6 @@ __PACKAGE__->meta->primary_key_columns([ 'shipto_id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
-__PACKAGE__->meta->relationships(
-  ar => {
-    class      => 'SL::DB::Invoice',
-    column_map => { shipto_id => 'shipto_id' },
-    type       => 'one to many',
-  },
-
-  delivery_orders => {
-    class      => 'SL::DB::DeliveryOrder',
-    column_map => { shipto_id => 'shipto_id' },
-    type       => 'one to many',
-  },
-
-  oe => {
-    class      => 'SL::DB::Order',
-    column_map => { shipto_id => 'shipto_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

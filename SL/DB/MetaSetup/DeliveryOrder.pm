@@ -61,9 +61,34 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { customer_id => 'id' },
   },
 
+  department => {
+    class       => 'SL::DB::Department',
+    key_columns => { department_id => 'id' },
+  },
+
+  employee => {
+    class       => 'SL::DB::Employee',
+    key_columns => { employee_id => 'id' },
+  },
+
   globalproject => {
     class       => 'SL::DB::Project',
     key_columns => { globalproject_id => 'id' },
+  },
+
+  language => {
+    class       => 'SL::DB::Language',
+    key_columns => { language_id => 'id' },
+  },
+
+  salesman => {
+    class       => 'SL::DB::Employee',
+    key_columns => { salesman_id => 'id' },
+  },
+
+  shipto => {
+    class       => 'SL::DB::Shipto',
+    key_columns => { shipto_id => 'shipto_id' },
   },
 
   vendor => {

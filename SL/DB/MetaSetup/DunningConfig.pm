@@ -28,20 +28,6 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
-__PACKAGE__->meta->relationships(
-  ar => {
-    class      => 'SL::DB::Invoice',
-    column_map => { id => 'dunning_config_id' },
-    type       => 'one to many',
-  },
-
-  dunning => {
-    class      => 'SL::DB::Dunning',
-    column_map => { id => 'dunning_config_id' },
-    type       => 'one to many',
-  },
-);
-
 # __PACKAGE__->meta->initialize;
 
 1;

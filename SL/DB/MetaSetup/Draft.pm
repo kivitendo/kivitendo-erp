@@ -22,6 +22,13 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
 
+__PACKAGE__->meta->foreign_keys(
+  employee => {
+    class       => 'SL::DB::Employee',
+    key_columns => { employee_id => 'id' },
+  },
+);
+
 # __PACKAGE__->meta->initialize;
 
 1;

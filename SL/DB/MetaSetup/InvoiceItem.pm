@@ -45,9 +45,19 @@ __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
-  parts => {
+  part => {
     class       => 'SL::DB::Part',
     key_columns => { parts_id => 'id' },
+  },
+
+  price_factor_obj => {
+    class       => 'SL::DB::PriceFactor',
+    key_columns => { price_factor_id => 'id' },
+  },
+
+  pricegroup => {
+    class       => 'SL::DB::Pricegroup',
+    key_columns => { pricegroup_id => 'id' },
   },
 
   project => {

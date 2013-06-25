@@ -33,13 +33,10 @@ __PACKAGE__->meta->foreign_keys(
     class       => 'SL::DB::Employee',
     key_columns => { created_by => 'id' },
   },
-);
 
-__PACKAGE__->meta->relationships(
-  follow_up_links => {
-    class      => 'SL::DB::FollowUpLink',
-    column_map => { id => 'follow_up_id' },
-    type       => 'one to many',
+  note => {
+    class       => 'SL::DB::Note',
+    key_columns => { note_id => 'id' },
   },
 );
 
