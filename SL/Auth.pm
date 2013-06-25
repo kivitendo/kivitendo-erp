@@ -1071,10 +1071,11 @@ sub all_rights_full {
     ["advance_turnover_tax_return",    $locale->text('Advance turnover tax return')],
     ["--batch_printing",               $locale->text("Batch Printing")],
     ["batch_printing",                 $locale->text("Batch Printing")],
+    ["--configuration",                $locale->text("Configuration")],
+    ["config",                         $locale->text("Change kivitendo installation settings (most entries in the 'System' menu)")],
+    ["admin",                          $locale->text("Client administration: configuration, editing templates, task server control, background jobs (remaining entries in the 'System' menu)")],
     ["--others",                       $locale->text("Others")],
     ["email_bcc",                      $locale->text("May set the BCC field when sending emails")],
-    ["config",                         $locale->text("Change kivitendo installation settings (all menu entries beneath 'System')")],
-    ["admin",                          $locale->text("Administration (Used to access instance administration from user logins)")],
     ["productivity",                   $locale->text("Productivity")],
     ["display_admin_link",             $locale->text("Show administration link")],
     );
