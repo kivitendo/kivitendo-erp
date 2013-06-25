@@ -95,7 +95,6 @@ sub _group_into_clients {
 
     push @clients, {
       map({ $_ => $user->{$_} } @copy_fields),
-      name    => $::locale->text('Client #1', scalar(@clients) + 1),
       users   => [ $user->{id} ],
       groups  => [ map { $_->{id} } @{ $self->groups } ],
       enabled => 1,
@@ -113,6 +112,7 @@ sub _group_into_clients {
   my $num = 0;
   foreach my $client (@clients) {
     $num                += 1;
+    $client->{name}    ||= $::locale->text('Client #1', $num);
     $client->{dbhost}  ||= 'localhost';
     $client->{dbport}  ||= 5432;
     $client->{templates} =~ s:templates/::;
