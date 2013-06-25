@@ -11,46 +11,6 @@ __PACKAGE__->meta->add_relationship(
     class         => 'SL::DB::Chart',
     column_map    => { inventory_accno_id => 'id' },
   },
-  income_account_0 => {
-    type         => 'many to one',
-    class        => 'SL::DB::Chart',
-    column_map   => { income_accno_id_0 => 'id' },
-  },
-  income_account_1 => {
-    type         => 'many to one',
-    class        => 'SL::DB::Chart',
-    column_map   => { income_accno_id_1 => 'id' },
-  },
-  income_account_2 => {
-    type         => 'many to one',
-    class        => 'SL::DB::Chart',
-    column_map   => { income_accno_id_2 => 'id' },
-  },
-  income_account_3 => {
-    type         => 'many to one',
-    class        => 'SL::DB::Chart',
-    column_map   => { income_accno_id_3 => 'id' },
-  },
-  expense_account_0 => {
-    type         => 'many to one',
-    class        => 'SL::DB::Chart',
-    column_map   => { expense_accno_id_0 => 'id' },
-  },
-  expense_account_1 => {
-    type         => 'many to one',
-    class        => 'SL::DB::Chart',
-    column_map   => { expense_accno_id_1 => 'id' },
-  },
-  expense_account_2 => {
-    type         => 'many to one',
-    class        => 'SL::DB::Chart',
-    column_map   => { expense_accno_id_2 => 'id' },
-  },
-  expense_account_3 => {
-    type         => 'many to one',
-    class        => 'SL::DB::Chart',
-    column_map   => { expense_accno_id_3 => 'id' },
-  },
 );
 
 __PACKAGE__->meta->initialize;
@@ -59,33 +19,29 @@ __PACKAGE__->meta->initialize;
 sub income_accno_id {
   my ($self, $taxzone) = @_;
   my $taxzone_id = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
-  my $method = 'income_accno_id_' . $taxzone_id;
-
-  return $self->$method;
+  my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
+  return $taxzone_chart->income_accno_id if $taxzone_chart;
 }
 
 sub expense_accno_id {
   my ($self, $taxzone) = @_;
   my $taxzone_id = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
-  my $method = 'expense_accno_id_' . $taxzone_id;
-
-  return $self->$method;
+  my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
+  return $taxzone_chart->expense_accno_id if $taxzone_chart;
 }
 
 sub income_account {
   my ($self, $taxzone) = @_;
   my $taxzone_id       = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
-  my $method           = 'income_account_' . $taxzone_id;
-
-  return $self->$method;
+  my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
+  return $taxzone_chart->income_accno if $taxzone_chart;
 }
 
 sub expense_account {
   my ($self, $taxzone) = @_;
   my $taxzone_id       = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
-  my $method           = 'expense_account_' . $taxzone_id;
-
-  return $self->$method;
+  my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
+  return $taxzone_chart->expense_accno if $taxzone_chart;
 }
 
 1;

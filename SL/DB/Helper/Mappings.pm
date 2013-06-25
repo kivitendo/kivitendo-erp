@@ -178,6 +178,7 @@ my %kivitendo_package_names = (
   tax                            => 'tax',
   taxkeys                        => 'tax_key',
   tax_zones                      => 'tax_zone',
+  taxzone_charts                 => 'taxzone_chart',
   todo_user_config               => 'todo_user_config',
   transfer_type                  => 'transfer_type',
   translation                    => 'translation',

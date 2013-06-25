@@ -747,26 +747,10 @@ sub buchungsgruppe {
 
   # connect to database
   my $dbh = $form->dbconnect($myconfig);
-
+  # TODO: extract information about income/expense accounts from new table taxzone_chart
   my $query = qq|SELECT id, description,
                  inventory_accno_id,
-                 (SELECT accno FROM chart WHERE id = inventory_accno_id) AS inventory_accno,
-                 income_accno_id_0,
-                 (SELECT accno FROM chart WHERE id = income_accno_id_0) AS income_accno_0,
-                 expense_accno_id_0,
-                 (SELECT accno FROM chart WHERE id = expense_accno_id_0) AS expense_accno_0,
-                 income_accno_id_1,
-                 (SELECT accno FROM chart WHERE id = income_accno_id_1) AS income_accno_1,
-                 expense_accno_id_1,
-                 (SELECT accno FROM chart WHERE id = expense_accno_id_1) AS expense_accno_1,
-                 income_accno_id_2,
-                 (SELECT accno FROM chart WHERE id = income_accno_id_2) AS income_accno_2,
-                 expense_accno_id_2,
-                 (select accno FROM chart WHERE id = expense_accno_id_2) AS expense_accno_2,
-                 income_accno_id_3,
-                 (SELECT accno FROM chart WHERE id = income_accno_id_3) AS income_accno_3,
-                 expense_accno_id_3,
-                 (SELECT accno FROM chart WHERE id = expense_accno_id_3) AS expense_accno_3
+                 (SELECT accno FROM chart WHERE id = inventory_accno_id) AS inventory_accno
                  FROM buchungsgruppen
                  ORDER BY sortkey|;
 
@@ -794,25 +778,10 @@ sub get_buchungsgruppe {
   my $dbh = $form->dbconnect($myconfig);
 
   if ($form->{id}) {
+    # TODO: extract information about income/expense accounts from new table taxzone_chart
     $query =
       qq|SELECT description, inventory_accno_id,
-         (SELECT accno FROM chart WHERE id = inventory_accno_id) AS inventory_accno,
-         income_accno_id_0,
-         (SELECT accno FROM chart WHERE id = income_accno_id_0) AS income_accno_0,
-         expense_accno_id_0,
-         (SELECT accno FROM chart WHERE id = expense_accno_id_0) AS expense_accno_0,
-         income_accno_id_1,
-         (SELECT accno FROM chart WHERE id = income_accno_id_1) AS income_accno_1,
-         expense_accno_id_1,
-         (SELECT accno FROM chart WHERE id = expense_accno_id_1) AS expense_accno_1,
-         income_accno_id_2,
-         (SELECT accno FROM chart WHERE id = income_accno_id_2) AS income_accno_2,
-         expense_accno_id_2,
-         (select accno FROM chart WHERE id = expense_accno_id_2) AS expense_accno_2,
-         income_accno_id_3,
-         (SELECT accno FROM chart WHERE id = income_accno_id_3) AS income_accno_3,
-         expense_accno_id_3,
-         (SELECT accno FROM chart WHERE id = expense_accno_id_3) AS expense_accno_3
+         (SELECT accno FROM chart WHERE id = inventory_accno_id) AS inventory_accno
          FROM buchungsgruppen
          WHERE id = ?|;
     my $sth = $dbh->prepare($query);

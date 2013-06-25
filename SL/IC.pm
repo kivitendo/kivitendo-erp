@@ -319,9 +319,9 @@ sub save {
 
   if ($form->{"item"} ne "assembly") {
     $subq_expense =
-      qq|(SELECT bg.expense_accno_id_0
-          FROM buchungsgruppen bg
-          WHERE bg.id = | . conv_i($form->{"buchungsgruppen_id"}, 'NULL') . qq|)|;
+      qq|(SELECT tc.expense_accno_id
+          FROM taxzone_charts tc
+          WHERE tc.buchungsgruppen_id = | . conv_i($form->{"buchungsgruppen_id"}, 'NULL') . qq| and tc.taxzone_id = 0)|;
   } else {
     $subq_expense = "NULL";
   }
@@ -348,7 +348,7 @@ sub save {
          buchungsgruppen_id = ?,
          payment_id = ?,
          inventory_accno_id = $subq_inventory,
-         income_accno_id = (SELECT bg.income_accno_id_0 FROM buchungsgruppen bg WHERE bg.id = ?),
+         income_accno_id = (SELECT tc.income_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = 0 and tc.buchungsgruppen_id = ?),
          expense_accno_id = $subq_expense,
          obsolete = ?,
          image = ?,
@@ -1541,17 +1541,21 @@ sub retrieve_accounts {
     SELECT
       p.id, p.inventory_accno_id AS is_part,
       bg.inventory_accno_id,
-      bg.income_accno_id_$form->{taxzone_id} AS income_accno_id,
-      bg.expense_accno_id_$form->{taxzone_id} AS expense_accno_id,
+      tc.income_accno_id AS income_accno_id,
+      tc.expense_accno_id AS expense_accno_id,
       c1.accno AS inventory_accno,
       c2.accno AS income_accno,
       c3.accno AS expense_accno
     FROM parts p
     LEFT JOIN buchungsgruppen bg ON p.buchungsgruppen_id = bg.id
+    LEFT JOIN taxzone_charts tc on bg.id = tc.buchungsgruppen_id
     LEFT JOIN chart c1 ON bg.inventory_accno_id = c1.id
-    LEFT JOIN chart c2 ON bg.income_accno_id_$form->{taxzone_id} = c2.id
-    LEFT JOIN chart c3 ON bg.expense_accno_id_$form->{taxzone_id} = c3.id
-    WHERE p.id IN ($in)
+    LEFT JOIN chart c2 ON tc.income_accno_id = c2.id
+    LEFT JOIN chart c3 ON tc.expense_accno_id = c3.id
+    WHERE 
+    tc.taxzone_id = '$form->{taxzone_id}' 
+    and 
+    p.id IN ($in)
 SQL
 
   my $sth_tax = prepare_query($::form, $dbh, <<SQL);

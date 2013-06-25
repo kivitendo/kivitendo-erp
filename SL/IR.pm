@@ -221,13 +221,15 @@ sub post_invoice {
       my $taxzone = $form->{taxzone_id} * 1;
       $query =
         qq|SELECT i.id, i.qty, i.allocated, i.trans_id, i.base_qty,
-             bg.inventory_accno_id, bg.expense_accno_id_${taxzone} AS expense_accno_id, a.transdate
-           FROM invoice i, ar a, parts p, buchungsgruppen bg
+             bg.inventory_accno_id, tc.expense_accno_id AS expense_accno_id, a.transdate
+           FROM invoice i, ar a, parts p, buchungsgruppen bg, taxzone_charts tc
            WHERE (i.parts_id = p.id)
              AND (i.parts_id = ?)
              AND ((i.base_qty + i.allocated) > 0)
              AND (i.trans_id = a.id)
              AND (p.buchungsgruppen_id = bg.id)
+             AND (tc.buchungsgruppen_id = p.buchungsgruppen_id)
+             AND (tc.taxzone_id = ${taxzone})
            ORDER BY transdate|;
            # ORDER BY transdate guarantees FIFO
 
@@ -980,8 +982,8 @@ sub retrieve_invoice {
         FROM invoice i
         JOIN parts p ON (i.parts_id = p.id)
         LEFT JOIN chart c1 ON ((SELECT inventory_accno_id             FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c1.id)
-        LEFT JOIN chart c2 ON ((SELECT income_accno_id_${taxzone_id}  FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c2.id)
-        LEFT JOIN chart c3 ON ((SELECT expense_accno_id_${taxzone_id} FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c3.id)
+        LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id FROM taxzone_charts tc where tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
+        LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc where tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
         LEFT JOIN project pr    ON (i.project_id = pr.id)
         LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
 
@@ -1248,13 +1250,13 @@ sub retrieve_item {
            FROM buchungsgruppen
            WHERE id = p.buchungsgruppen_id) = c1.id)
        LEFT JOIN chart c2 ON
-         ((SELECT income_accno_id_${taxzone_id}
-           FROM buchungsgruppen
-           WHERE id = p.buchungsgruppen_id) = c2.id)
+         ((SELECT tc.income_accno_id
+           FROM taxzone_charts tc 
+           WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
        LEFT JOIN chart c3 ON
-         ((SELECT expense_accno_id_${taxzone_id}
-           FROM buchungsgruppen
-           WHERE id = p.buchungsgruppen_id) = c3.id)
+         ((SELECT tc.expense_accno_id
+           FROM taxzone_charts tc
+           WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
        LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
        LEFT JOIN price_factors pfac ON (pfac.id = p.price_factor_id)
        WHERE $where|;

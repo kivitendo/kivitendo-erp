@@ -1392,8 +1392,8 @@ sub cogs {
          c3.accno AS   expense_accno, c3.new_chart_id AS   expense_new_chart, date($transdate) - c3.valid_from AS   expense_valid
        FROM invoice i, parts p
        LEFT JOIN chart c1 ON ((SELECT inventory_accno_id FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c1.id)
-       LEFT JOIN chart c2 ON ((SELECT income_accno_id_${taxzone_id} FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c2.id)
-       LEFT JOIN chart c3 ON ((select expense_accno_id_${taxzone_id} FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c3.id)
+       LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
+       LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
        WHERE (i.parts_id = p.id)
          AND (i.parts_id = ?)
          AND ((i.base_qty + i.allocated) < 0)
@@ -1661,8 +1661,8 @@ sub retrieve_invoice {
          LEFT JOIN pricegroup prg ON (i.pricegroup_id = prg.id)
 
          LEFT JOIN chart c1 ON ((SELECT inventory_accno_id             FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c1.id)
-         LEFT JOIN chart c2 ON ((SELECT income_accno_id_${taxzone_id}  FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c2.id)
-         LEFT JOIN chart c3 ON ((SELECT expense_accno_id_${taxzone_id} FROM buchungsgruppen WHERE id = p.buchungsgruppen_id) = c3.id)
+         LEFT JOIN chart c2 ON ((SELECT tc.income_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c2.id)
+         LEFT JOIN chart c3 ON ((SELECT tc.expense_accno_id FROM taxzone_charts tc WHERE tc.taxzone_id = '$taxzone_id' and tc.buchungsgruppen_id = p.buchungsgruppen_id) = c3.id)
 
          WHERE (i.trans_id = ?) AND NOT (i.assemblyitem = '1') ORDER BY i.id|;
 
@@ -1959,13 +1959,13 @@ sub retrieve_item {
            FROM buchungsgruppen
            WHERE id = p.buchungsgruppen_id) = c1.id)
        LEFT JOIN chart c2 ON
-         ((SELECT income_accno_id_${taxzone_id}
-           FROM buchungsgruppen
-           WHERE id = p.buchungsgruppen_id) = c2.id)
+         ((SELECT tc.income_accno_id
+           FROM taxzone_charts tc
+           WHERE tc.buchungsgruppen_id = p.buchungsgruppen_id and tc.taxzone_id = ${taxzone_id}) = c2.id)
        LEFT JOIN chart c3 ON
-         ((SELECT expense_accno_id_${taxzone_id}
-           FROM buchungsgruppen
-           WHERE id = p.buchungsgruppen_id) = c3.id)
+         ((SELECT tc.expense_accno_id
+           FROM taxzone_charts tc
+           WHERE tc.buchungsgruppen_id = p.buchungsgruppen_id and tc.taxzone_id = ${taxzone_id}) = c3.id)
        LEFT JOIN partsgroup pg ON (pg.id = p.partsgroup_id)
        LEFT JOIN price_factors pfac ON (pfac.id = p.price_factor_id)
        WHERE $where|;

@@ -1,0 +1,69 @@
+# @tag: convert_taxzone
+# @description: Setzt Fremdschlüssel und andere constraints auf die Tabellen tax und taxkeys
+# @depends: taxzone_charts
+package SL::DBUpgrade2::convert_taxzone;
+
+use strict;
+use utf8;
+
+use parent qw(SL::DBUpgrade2::Base);
+
+sub run {
+  my ($self) = @_;
+
+    # extract all buchungsgruppen data
+    my $buchungsgruppen_query = <<SQL;
+      SELECT * from buchungsgruppen;
+SQL
+
+    my $sth = $self->dbh->prepare($buchungsgruppen_query);
+    $sth->execute || $::form->dberror($buchungsgruppen_query);
+
+    $::form->{buchungsgruppen} = [];
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+      push @{ $::form->{buchungsgruppen} }, $ref;
+    }
+    $sth->finish;
+
+    # extract all tax_zone data
+    my $taxzone_query = <<SQL;
+      SELECT * from tax_zones;
+SQL
+
+    $sth = $self->dbh->prepare($taxzone_query);
+    $sth->execute || $::form->dberror($taxzone_query);
+
+    $::form->{taxzones} = [];
+    while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
+      push @{ $::form->{taxzones} }, $ref;
+    }
+    $sth->finish;
+
+    my $taxzone_charts_update_query;
+    foreach my $taxzone (  @{$::form->{taxzones}} ) {
+        foreach my $buchungsgruppe (  @{$::form->{buchungsgruppen}} ) {
+            my $id = $taxzone->{id};
+            my $income_accno_id = $buchungsgruppe->{"income_accno_id_$id"};
+            my $expense_accno_id = $buchungsgruppe->{"expense_accno_id_$id"};
+            # TODO: check if the variables have a value
+            $taxzone_charts_update_query .= "INSERT INTO taxzone_charts (taxzone_id, buchungsgruppen_id, income_accno_id, expense_accno_id) VALUES ('$taxzone->{id}', '$buchungsgruppe->{id}', $income_accno_id, $expense_accno_id);\n";
+        };
+    };
+    $self->db_query($taxzone_charts_update_query);
+
+    my $clean_buchungsgruppen_query = <<SQL;
+alter table buchungsgruppen drop column income_accno_id_0;
+alter table buchungsgruppen drop column income_accno_id_1;
+alter table buchungsgruppen drop column income_accno_id_2;
+alter table buchungsgruppen drop column income_accno_id_3;
+alter table buchungsgruppen drop column expense_accno_id_0;
+alter table buchungsgruppen drop column expense_accno_id_1;
+alter table buchungsgruppen drop column expense_accno_id_2;
+alter table buchungsgruppen drop column expense_accno_id_3;
+SQL
+  $sth = $self->dbh->prepare($clean_buchungsgruppen_query);
+  $sth->execute || $::form->dberror($clean_buchungsgruppen_query);
+  return 1;
+} # end run
+
+1;

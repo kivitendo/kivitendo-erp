@@ -174,7 +174,7 @@ sub get_chart {
     require SL::DB::Buchungsgruppe;
     my $bugru    = SL::DB::Buchungsgruppe->load_cached($self->buchungsgruppen_id);
     my $chart_id = ($type eq 'inventory') ? ($self->inventory_accno_id ? $bugru->inventory_accno_id : undef)
-                 :                          $bugru->call_sub("${type}_accno_id_${taxzone}");
+                 :                          $bugru->call_sub("${type}_accno_id", $taxzone);
 
     if ($chart_id) {
       my $chart                    = $all_charts->{$chart_id} // SL::DB::Chart->load_cached($chart_id)->load;
