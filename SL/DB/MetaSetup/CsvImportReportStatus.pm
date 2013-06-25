@@ -18,6 +18,13 @@ __PACKAGE__->meta->setup(
   ],
 
   primary_key_columns => [ 'id' ],
+
+  foreign_keys => [
+    csv_import_report => {
+      class       => 'SL::DB::CsvImportReport',
+      key_columns => { csv_import_report_id => 'id' },
+    },
+  ],
 );
 
 1;
