@@ -17,7 +17,7 @@ __PACKAGE__->meta->setup(
     gldate         => { type => 'date', default => 'now' },
     employee_id    => { type => 'integer' },
     notes          => { type => 'text' },
-    department_id  => { type => 'integer', default => '0' },
+    department_id  => { type => 'integer' },
     taxincluded    => { type => 'boolean' },
     itime          => { type => 'timestamp', default => 'now()' },
     mtime          => { type => 'timestamp' },
@@ -33,6 +33,11 @@ __PACKAGE__->meta->setup(
   allow_inline_column_values => 1,
 
   foreign_keys => [
+    department => {
+      class       => 'SL::DB::Department',
+      key_columns => { department_id => 'id' },
+    },
+
     storno_obj => {
       class       => 'SL::DB::GLTransaction',
       key_columns => { storno_id => 'id' },
