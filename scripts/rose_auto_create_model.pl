@@ -120,6 +120,7 @@ CODE
 
   # patch foreign keys
   my $foreign_key_definition = "SL::DB::AUTO::$package"->meta->perl_foreign_keys_definition(%args);
+  $foreign_key_definition =~ s/::AUTO::/::/g;
 
   if ($definition =~ /\Q$foreign_key_definition\E/) {
     my ($start, $end) = ($-[0], $+[0]);
