@@ -1,0 +1,369 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+
+<div id="billing">
+  <table width="100%">
+
+    <tr height="5"></tr>
+
+    [% IF ( conf_vertreter ) %]<!-- == $::lx_office_conf{features}->{vertreter}; -->
+      <tr>
+        <th align="right">
+          [% IF SELF.is_vendor() %]
+            [% 'Type of Vendor' | $T8 %]
+          [% ELSE %]
+            [% 'Type of Customer' | $T8 %]
+          [% END %]
+        </th>
+
+        <td>
+          [% L.select_tag('cv.business_id', SELF.all_business, value_key = 'id', title_key = 'description', default = SELF.cv.business_id, with_empty = 1) %]
+        </td>
+      </tr>
+
+      <tr>
+        <th align="right">
+          [% 'Representative' | $T8 %]
+        </th>
+
+        <td>
+          <!-- TODO: ALL_SALESMAN_CUSTOMERS -->
+          [% L.select_tag('cv.salesman_id', SELF.all_employees, value_key = 'id', title_key = 'safe_name', with_empty = 1) %]
+        </td>
+      </tr>
+
+    [%- END %]
+
+    <tr>
+      [% IF SELF.is_vendor() %]
+        <th align="right" nowrap>[% 'Vendor Number' | $T8 %]</th>
+        <td>
+          [% L.input_tag('cv.vendornumber', SELF.cv.vendornumber) %]
+        </td>
+      [%- ELSE %]
+        <th align="right" nowrap>[% 'Customer Number' | $T8 %]</th>
+        <td>
+          [% L.input_tag('cv.customernumber', SELF.cv.customernumber) %]
+        </td>
+      [%- END %]
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Greeting' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.greeting', SELF.cv.greeting) %]
+        [% L.select_tag('cv_greeting_select', SELF.all_greetings, default = SELF.cv.greeting, with_empty = 1, onchange = '$("#cv_greeting").val(this.value);') %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>
+        [% IF SELF.is_vendor() %]
+          [% 'Vendor Name' | $T8 %]
+        [%- ELSE %]
+          [% 'Customer Name' | $T8 %]
+        [%- END %]
+      </th>
+
+      <td>
+        [% L.input_tag('cv.name', SELF.cv.name) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Department' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.department_1', SELF.cv.department_1, size = 16, maxlength = 75) %]
+        [% L.input_tag('cv.department_2', SELF.cv.department_2, size = 16, maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Street' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.street', SELF.cv.street) %]
+        <a href="#" onclick="namespace('kivi.CustomerVendor').showMap('cv_');" title="[% 'Map' | $T8 %]">
+          <img src="image/map.png" alt="[% 'Map' | $T8 %]" />
+        </a>
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.zipcode', SELF.cv.zipcode, size = 5 maxlength = 10) %]
+        [% L.input_tag('cv.city', SELF.cv.city, size = 30 maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Country' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.country', SELF.cv.country, size = 30 maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.contact', SELF.cv.contact, size = 28 maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Phone' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.phone', SELF.cv.phone, size = 30) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.fax', SELF.cv.fax, size = 30 maxlength = 30) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.email', SELF.cv.email, size = 45) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>
+        [% IF homepage %]
+          <a href="[% HTML.escape(SELF.cv.homepage) %]" title="[% 'Open this Website' | $T8 %]" target="_blank">[% 'Homepage' | $T8 %]</a>
+        [% ELSE %]
+          [% 'Homepage' | $T8 %]
+        [% END %]
+      </th>
+
+      <td>
+        [% L.input_tag('cv.homepage', SELF.cv.homepage, size = 45, title = LxERP.t8('Example: http://kivitendo.de')) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Username' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.username', SELF.cv.username, size = 45) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Password' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.user_password', SELF.cv.user_password, size = 45) %]
+      </td>
+    </tr>
+  </table>
+
+
+  <table>
+
+    <tr>
+      <th align="right">[% 'Credit Limit' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.creditlimit_as_number', SELF.cv.creditlimit_as_number, size = 9) %]
+      </td>
+
+
+      <th align="right">[% 'Payment Terms' | $T8 %]</th>
+
+      <td>
+        [% L.select_tag('cv.payment_id', SELF.all_payment_terms, value_key = 'id', title_key = 'description', default = SELF.cv.payment_id, with_empty = 1) %]
+      </td>
+
+
+      <th align="right">[% 'Discount' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.discount_as_percent', SELF.cv.discount_as_percent, size = 4) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right">[% 'Tax Number / SSN' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.taxnumber', SELF.cv.taxnumber, size = 20) %]
+      </td>
+
+
+      <!-- Anm.: R&B 15.11.2008     VAT Reg No ist Ust-ID in GB, aber generell sollte es laut Richardson die sales tax id sein -->
+      <th align="right">[% 'sales tax identification number' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.ustid', SELF.cv.ustid, maxlength = 14 size = 20 ) %]
+      </td>
+
+
+      [%- IF ( SELF.is_vendor() ) %]
+        <th align="right">[% 'Customer Number' | $T8 %]</th>
+        <td>
+          [% L.input_tag('cv.v_customer_id', SELF.cv.v_customer_id, size = 10) %]
+        </td>
+      [%- ELSE %]
+        <th align="right">[% 'our vendor number at customer' | $T8 %]</th>
+        <td>
+          [% L.input_tag('cv.c_vendor_id', SELF.cv.c_vendor_id, size = 10) %]
+        </td>
+      [%- END %]
+    </tr>
+
+    <tr>
+      <th align="right">[% 'Account Number' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.account_number', SELF.cv.account_number, size = 10, maxlength = 100) %]
+      </td>
+
+
+      <th align="right">[% 'Bank Code Number' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.bank_code', SELF.cv.bank_code, size = 10, maxlength = 100) %]
+      </td>
+
+
+      <th align="right">[% 'Bank' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.bank', SELF.cv.bank, size = 20) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right">[% 'IBAN' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.iban', SELF.cv.iban, size = 10, maxlength = 100) %]
+      </td>
+
+
+      <th align="right">[% 'BIC' | $T8 %]</th>
+      <td>
+        [% L.input_tag('cv.bic', SELF.cv.bic, size = 10, maxlength = 100) %]
+      </td>
+
+
+      [% IF ( SELF.all_currencies.size ) %]
+        <th align="right">[% 'Currency' | $T8 %]</th>
+
+        <td>
+          [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id, with_empty = 1) %]
+        </td>
+      [% END %]
+    </tr>
+
+    <tr>
+      [% IF ( !conf_vertreter ) %]
+        <th align="right">
+          [% IF ( SELF.is_vendor() ) %]
+            [% 'Type of Vendor' | $T8 %]
+          [% ELSE %]
+            [% 'Type of Customer' | $T8 %]
+          [% END %]
+        </th>
+
+        <td>
+          [% L.select_tag('cv.business_id', SELF.all_business, default = SELF.cv.business_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
+        </td>
+      [% END %]
+
+
+      <th align="right">[% 'Language' | $T8 %]</th>
+
+      <td>
+        [% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
+      </td>
+
+
+      <th align="right">[% 'Bcc' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.bcc', SELF.cv.bcc, size = 40) %]
+      </td>
+
+
+      [% IF ( SELF.is_customer() ) %]
+        <th align="right">[% 'Preisklasse' | $T8 %]</th>
+
+        <td>
+          [% L.select_tag('cv.klass', SELF.all_pricegroups, default = SELF.cv.klass, value_key = 'id', title_key = 'pricegroup', with_empty = 1) %]
+        </td>
+      [% END  %]
+    </tr>
+
+    <tr>
+      <td align="right">
+        <label for="cv_obsolete">[% 'Obsolete' | $T8 %]</label>
+      </td>
+
+      <td>
+        [% L.checkbox_tag('cv.obsolete', checked = SELF.cv.obsolete) %]
+      </td>
+
+
+      <td align="right">
+        <label for="cv_direct_debit">[% 'direct debit' | $T8 %]</label>
+      </td>
+
+      <td>
+        [% L.checkbox_tag('cv.direct_debit', checked = SELF.cv.direct_debit) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right">[% 'Steuersatz' | $T8 %]</th>
+
+      <td>
+        [% L.select_tag('cv.taxzone_id', SELF.all_taxzones, default = SELF.cv.taxzone_id, value_key = 'id', title_key = 'description') %]
+      </td>
+
+
+      [% IF ( SELF.is_customer() && !conf_vertreter ) %]
+        <th align="right">[% 'Salesman' | $T8 %]</th>
+
+        <td>
+          <!-- TODO: ALL_SALESMAN -->
+          [% L.select_tag('cv.salesman_id', SELF.all_employees, default = salesman_id, value_key = 'id', title_key = 'safe_name', with_empty = 1) %]
+        </td>
+
+        <td>[% 'taxincluded checked' | $T8 %]</td>
+
+        <td>
+          [% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked) %]
+        </td>
+      [%- END %]
+    </tr>
+  </table>
+
+  <table>
+    <tr>
+      <th align="left" nowrap>[% 'Internal Notes' | $T8 %]</th>
+    </tr>
+
+    <tr>
+      <td>
+        [% L.textarea_tag('cv.notes', SELF.cv.notes, rows = 3 cols = 60 wrap = soft) %]
+      </td>
+    </tr>
+  </table>
+</div>
