@@ -4,10 +4,7 @@
 package SL::DB::CustomVariable;
 
 use strict;
-
 use SL::DB::MetaSetup::CustomVariable;
-use SL::DB::CustomVariableValidity;
-use SL::DB::Customer;
 
 __PACKAGE__->meta->initialize;
 
@@ -26,6 +23,8 @@ sub value {
       goto &number_value;
     }
     else {
+      require SL::DB::Customer;
+
       my $id = int($self->number_value);
       return $id ? SL::DB::Customer->new(id => $id)->load() : 0;
     }
@@ -35,6 +34,8 @@ sub value {
 
 sub is_valid {
   my ($self) = @_;
+
+  require SL::DB::CustomVariableValidity;
 
   return SL::DB::Manager::CustomVariableValidity->get_all_count(config_id => $self->config_id, trans_id => $self->trans_id) == 0;
 }
