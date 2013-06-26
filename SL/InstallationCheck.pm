@@ -26,7 +26,7 @@ BEGIN {
   { name => "PDF::API2",       version => '2.000', url => "http://search.cpan.org/~areibens/",  debian => 'libpdf-api2-perl' },
   { name => "Rose::Object",                        url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-object-perl' },
   { name => "Rose::DB",                            url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-perl' },
-  { name => "Rose::DB::Object",                    url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
+  { name => "Rose::DB::Object", version => 0.788,  url => "http://search.cpan.org/~jsiracusa/", debian => 'librose-db-object-perl' },
   { name => "String::ShellQuote", version => 1.01, url => "http://search.cpan.org/~rosch/",     debian => 'libstring-shellquote-perl' },
   { name => "Sort::Naturally",                     url => "http://search.cpan.org/~sburke/",    debian => 'libsort-naturally-perl' },
   # Test::Harness is core, so no Debian packages. Test::Harness 3.00 was first packaged in 5.10.1

@@ -6,7 +6,7 @@
         bei der Auswahl der Pakete aber darauf Rücksicht genommen, dass es
         ohne große Probleme auf den derzeit aktuellen verbreiteten
         Distributionen läuft.</p><p>Mitte 2012 sind das folgende Systeme, von denen bekannt ist,
-        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version &gt;= 0.72 compiled werden)</p></li><li class="listitem"><p>7.0 "Wheezy"</p></li></ul></div></li><li class="listitem"><p>Ubuntu 10.04 LTS "Lucid Lynx", 12.04 LTS "Precise Pangolin" und 12.10 "Oneiric Ocelot"`</p></li><li class="listitem"><p>openSUSE 12.1 und 12.2</p></li><li class="listitem"><p>SuSE Linux Enterprice Server 11</p></li><li class="listitem"><p>Fedora 16 und 17</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
+        dass kivitendo auf ihnen läuft:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Debian</p><div class="itemizedlist"><ul class="itemizedlist" type="circle"><li class="listitem"><p>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version &gt;= 0.72 compiled werden, und <code class="literal">Rose::DB::Object</code> ist zu alt)</p></li><li class="listitem"><p>7.0 "Wheezy"</p></li></ul></div></li><li class="listitem"><p>Ubuntu 10.04 LTS "Lucid Lynx", 12.04 LTS "Precise Pangolin" und 12.10 "Oneiric Ocelot"`</p></li><li class="listitem"><p>openSUSE 12.2 und 12.3</p></li><li class="listitem"><p>SuSE Linux Enterprice Server 11</p></li><li class="listitem"><p>Fedora 16 und 17</p></li></ul></div></div><div class="sect2" title="2.2.2. Benötigte Perl-Pakete installieren"><div class="titlepage"><div><div><h3 class="title"><a name="Pakete"></a>2.2.2. Benötigte Perl-Pakete installieren</h3></div></div></div><p>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
         Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
         benötigt.</p><p>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind. Um zu
         überprüfen, ob die erforderlichen Pakete installiert und aktuell genug sind, wird ein Script mitgeliefert, das wie folgt aufgerufen
@@ -43,8 +43,7 @@
                   </p></li><li class="listitem"><p>
                      <code class="literal">Rose::DB</code>
                   </p></li><li class="listitem"><p>
-                     <code class="literal">Rose::DB::Object</code>
-                  </p></li><li class="listitem"><p>
+                     <code class="literal">Rose::DB::Object</code> Version 0.788 oder neuer</p></li><li class="listitem"><p>
                      <code class="literal">Template</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">Text::CSV_XS</code>
@@ -56,7 +55,7 @@
                      <code class="literal">XML::Writer</code>
                   </p></li><li class="listitem"><p>
                      <code class="literal">YAML</code>
-                  </p></li></ul></div><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
+                  </p></li></ul></div><p>Seit v3.0.0 sind die folgenden Pakete hinzugekommen: <code class="literal">File::Copy::Recursive</code>.</p><p>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <code class="literal">Email::MIME</code>, <code class="literal">Net::SMTP::SSL</code>,
         <code class="literal">Net::SSLGlue</code>.</p><p>Gegenüber Version 2.6.0 sind zu dieser Liste 2 Pakete
         hinzugekommen, <code class="literal">URI</code> und
         <code class="literal">XML::Writer</code> sind notwendig. Ohne startet kivitendo
@@ -71,7 +70,7 @@
         sind auch in 2.6.1 weiterhin mit ausgeliefert, wurden in einer
         zukünftigen Version aber aus dem Paket entfernt werden. Es wird
         empfohlen diese Module zusammen mit den anderen als Bibliotheken zu
-        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e332"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Alle benötigten Perl-Pakete stehen für Debian und Ubuntu als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl
+        installieren.</p><div class="sect3" title="2.2.2.1. Debian und Ubuntu"><div class="titlepage"><div><div><h4 class="title"><a name="d0e340"></a>2.2.2.1. Debian und Ubuntu</h4></div></div></div><p>Alle benötigten Perl-Pakete stehen für Debian und Ubuntu als Debian-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">apt-get install apache2 libarchive-zip-perl libclone-perl \
   libconfig-std-perl libdatetime-perl libdbd-pg-perl libdbi-perl \
   libemail-address-perl  libemail-mime-perl libfcgi-perl libjson-perl \
@@ -80,14 +79,14 @@
   librose-db-perl librose-object-perl libsort-naturally-perl \
   libstring-shellquote-perl libtemplate-perl libtext-csv-xs-perl \
   libtext-iconv-perl liburi-perl libxml-writer-perl libyaml-perl \
-  libfile-copy-recursive-perl postgresql</pre></div><div class="sect3" title="2.2.2.2. Fedora Core"><div class="titlepage"><div><div><h4 class="title"><a name="d0e339"></a>2.2.2.2. Fedora Core</h4></div></div></div><p>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installeirt werden:</p><pre class="programlisting">yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
+  libfile-copy-recursive-perl postgresql</pre></div><div class="sect3" title="2.2.2.2. Fedora Core"><div class="titlepage"><div><div><h4 class="title"><a name="d0e347"></a>2.2.2.2. Fedora Core</h4></div></div></div><p>Für Fedora Core stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl installeirt werden:</p><pre class="programlisting">yum install httpd perl-Archive-Zip perl-Clone perl-DBD-Pg \
   perl-DBI perl-DateTime perl-Email-Address perl-Email-MIME perl-FCGI \
   perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils perl-Net-SMTP-SSL perl-Net-SSLGlue \
   perl-PDF-API2 perl-Params-Validate perl-Rose-DB perl-Rose-DB-Object \
   perl-Rose-Object perl-Sort-Naturally perl-String-ShellQuote \
   perl-Template-Toolkit perl-Text-CSV_XS perl-Text-Iconv perl-URI \
   perl-XML-Writer perl-YAML perl-parent postgresql-server</pre><p>Zusätzlich müssen einige Pakete aus dem CPAN installiert werden. Dazu können Sie die folgenden Befehle nutzen:</p><pre class="programlisting">yum install perl-CPAN
-cpan Config::Std</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e350"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
+cpan Config::Std</pre></div><div class="sect3" title="2.2.2.3. openSUSE"><div class="titlepage"><div><div><h4 class="title"><a name="d0e358"></a>2.2.2.3. openSUSE</h4></div></div></div><p>Für openSUSE stehen die meisten der benötigten Perl-Pakete als RPM-Pakete zur Verfügung. Sie können mit folgendem Befehl
           installiert werden:</p><pre class="programlisting">zypper install apache2 perl-Archive-Zip perl-Clone \
   perl-Config-Std perl-DBD-Pg perl-DBI perl-DateTime perl-Email-Address \
   perl-Email-MIME perl-FastCGI perl-File-Copy-Recursive perl-JSON perl-List-MoreUtils \

@@ -80,7 +80,7 @@
             <para>Debian</para>
             <itemizedlist>
                <listitem>
-                 <para>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version >= 0.72 compiled werden)</para>
+                 <para>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version >= 0.72 compiled werden, und <literal>Rose::DB::Object</literal> ist zu alt)</para>
                </listitem>
                <listitem>
                  <para>7.0 "Wheezy"</para>
@@ -93,7 +93,7 @@
           </listitem>
 
           <listitem>
-            <para>openSUSE 12.1 und 12.2</para>
+            <para>openSUSE 12.2 und 12.3</para>
           </listitem>
 
           <listitem>
@@ -160,7 +160,7 @@
 
           <listitem><para><literal>Rose::DB</literal></para></listitem>
 
-          <listitem><para><literal>Rose::DB::Object</literal></para></listitem>
+          <listitem><para><literal>Rose::DB::Object</literal> Version 0.788 oder neuer</para></listitem>
 
           <listitem><para><literal>Template</literal></para></listitem>
 
@@ -174,6 +174,8 @@
 
           <listitem><para><literal>YAML</literal></para></listitem>
         </itemizedlist>
+
+        <para>Seit v3.0.0 sind die folgenden Pakete hinzugekommen: <literal>File::Copy::Recursive</literal>.</para>
 
         <para>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <literal>Email::MIME</literal>, <literal>Net::SMTP::SSL</literal>,
         <literal>Net::SSLGlue</literal>.</para>
