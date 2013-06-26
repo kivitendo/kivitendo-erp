@@ -97,7 +97,7 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { language_id => 'id' },
   },
 
-  payment => {
+  payment_terms => {
     class       => 'SL::DB::PaymentTerm',
     key_columns => { payment_id => 'id' },
   },
