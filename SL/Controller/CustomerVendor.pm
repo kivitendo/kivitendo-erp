@@ -18,6 +18,7 @@ use SL::DB::PaymentTerm;
 use SL::DB::Pricegroup;
 use SL::DB::Contact;
 use SL::DB::FollowUp;
+use SL::DB::History;
 
 # safety
 __PACKAGE__->run_before(
@@ -125,7 +126,13 @@ sub _save {
     $self->{shipto}->save();
   }
 
-  #TODO: history
+  my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
+  SL::DB::History->new(
+    trans_id => $self->{cv}->id,
+    snumbers => $snumbers,
+    employee_id => SL::DB::Manager::Employee->current->id,
+    addition => 'SAVED',
+  )->save();
 }
 
 sub action_save {
@@ -240,7 +247,13 @@ sub action_delete {
   else {
     $self->{cv}->delete();
 
-    #TODO: history
+    my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
+    SL::DB::History->new(
+      trans_id => $self->{cv}->id,
+      snumbers => $snumbers,
+      employee_id => SL::DB::Manager::Employee->current->id,
+      addition => 'DELETED',
+    )->save();
 
     my $msg = $self->is_vendor() ? $::locale->text('Vendor deleted!') : $::locale->text('Customer deleted!');
     $::form->redirect($msg);
