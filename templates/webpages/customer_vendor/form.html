@@ -206,7 +206,7 @@
           <th align="right">[% 'Credit Limit' | $T8 %]</th>
 
           <td>
-            [% L.input_tag('cv.creditlimit', LxERP.format_amount(SELF.cv.creditlimit, 0), size = 9) %]
+            [% L.input_tag('cv.creditlimit_as_number', SELF.cv.creditlimit_as_number, size = 9) %]
           </td>
 
 
@@ -220,7 +220,7 @@
           <th align="right">[% 'Discount' | $T8 %]</th>
 
           <td>
-            [% L.input_tag('cv.discount', SELF.cv.discount, size = 4) %]
+            [% L.input_tag('cv.discount_as_percent', SELF.cv.discount_as_percent, size = 4) %]
           </td>
         </tr>
 

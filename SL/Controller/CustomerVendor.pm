@@ -533,12 +533,6 @@ sub _instantiate_args {
 
   my $curr_employee = SL::DB::Manager::Employee->current;
 
-  foreach ( 'cv.creditlimit', 'cv.discount' ) {
-    my ($namespace, $varname) = split('.', $_, 2);
-    $::form->{$namespace}->{$varname} = $::form->parse_amount(\%::myconfig, $::form->{$namespace}->{$varname});
-  }
-  $::form->{cv}->{discount} /= 100;
-
   if ( $::form->{cv}->{id} ) {
     if ( $self->is_vendor() ) {
       $self->{cv} = SL::DB::Vendor->new(id => $::form->{cv}->{id})->load();
@@ -764,9 +758,6 @@ sub _pre_render {
   $self->{shiptos} ||= [];
 
   $self->{template_args} = {};
-
-  $self->{cv}->discount($self->{cv}->discount * 100);
-
 
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
 }
