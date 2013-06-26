@@ -293,7 +293,7 @@
             <th align="right">[% 'Currency' | $T8 %]</th>
 
             <td>
-              [% L.select_tag('cv.curr', SELF.all_currencies, default = SELF.cv.curr, with_empty = 1) %]
+              [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id, with_empty = 1) %]
             </td>
           [% END %]
         </tr>

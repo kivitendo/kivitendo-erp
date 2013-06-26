@@ -19,6 +19,7 @@ use SL::DB::Pricegroup;
 use SL::DB::Contact;
 use SL::DB::FollowUp;
 use SL::DB::History;
+use SL::DB::Currency;
 
 # safety
 __PACKAGE__->run_before(
@@ -727,18 +728,7 @@ sub _pre_render {
     )
   ];
 
-  $query =
-    'SELECT curr
-     FROM defaults';
-  my $curr = selectall_hashref_query($::form, $dbh, $query)->[0]->{curr};
-  my @currencies = grep(
-    { $_; }
-    map(
-      { s/\s//g; $_; }
-      split(m/:/, $curr)
-    )
-  );
-  $self->{all_currencies} = \@currencies;
+  $self->{all_currencies} = SL::DB::Manager::Currency->get_all();
 
   $self->{all_languages} = SL::DB::Manager::Language->get_all();
 
