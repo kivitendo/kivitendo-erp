@@ -54,9 +54,9 @@ button:focus {
   background-color: whitesmoke;
 }
 
-button:hover,
-input[type="button"]:hover,
-input[type="submit"]:hover {
+button:hover:enabled,
+input[type="button"]:hover:enabled,
+input[type="submit"]:hover:enabled {
   border: 1px;
   background-color: lightgray;
   border-color: gray;
