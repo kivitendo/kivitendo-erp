@@ -20,7 +20,7 @@ use Rose::Object::MakeMethods::Generic
 (
   'scalar --get_set_init' => [ qw(client user group printer db_cfg is_locked
                                   all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers
-                                  all_dbsources all_unused_dbsources all_accounting_methods all_inventory_systems all_profit_determinations all_charts) ],
+                                  all_dbsources all_used_dbsources all_accounting_methods all_inventory_systems all_profit_determinations all_charts) ],
 );
 
 __PACKAGE__->run_before(\&setup_layout);
@@ -462,7 +462,7 @@ sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ] 
 sub init_all_numberformats { [ '1,000.00', '1000.00', '1.000,00', '1000,00'   ]                                              }
 sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css) ]                                              }
 sub init_all_dbsources             { [ sort User->dbsources($::form)                               ] }
-sub init_all_unused_dbsources      { [ sort User->dbsources_unused($::form)                        ] }
+sub init_all_used_dbsources        { { map { (join(':', $_->dbhost || 'localhost', $_->dbport || 5432, $_->dbname) => $_->name) } @{ $_[0]->all_clients }  } }
 sub init_all_accounting_methods    { [ { id => 'accrual',   name => t8('Accrual accounting')  }, { id => 'cash',     name => t8('Cash accounting')       } ] }
 sub init_all_inventory_systems     { [ { id => 'perpetual', name => t8('Perpetual inventory') }, { id => 'periodic', name => t8('Periodic inventory')    } ] }
 sub init_all_profit_determinations { [ { id => 'balance',   name => t8('Balancing')           }, { id => 'income',   name => t8('Cash basis accounting') } ] }

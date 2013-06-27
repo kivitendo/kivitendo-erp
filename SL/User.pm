@@ -298,27 +298,6 @@ sub dbdelete {
   $main::lxdebug->leave_sub();
 }
 
-sub dbsources_unused {
-  $main::lxdebug->enter_sub();
-
-  my ($self, $form) = @_;
-
-  my %dbexcl = map  { $_->dbname => 1 }
-               grep { ($_->dbhost eq $form->{dbhost}) && ($_->dbport eq $form->{dbport}) }
-                    @{ SL::DB::Manager::AuthClient->get_all };
-
-  $form->{only_acc_db} = 1;
-
-  $dbexcl{$form->{dbdefault}}             = 1;
-  $dbexcl{$main::auth->{DB_config}->{db}} = 1;
-
-  my @dbunused = grep { !$dbexcl{$_} } dbsources("", $form);
-
-  $main::lxdebug->leave_sub();
-
-  return @dbunused;
-}
-
 sub calc_version {
   $main::lxdebug->enter_sub(2);
 

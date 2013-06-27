@@ -2093,6 +2093,7 @@ $self->{texts} = {
   'The selected bank account does not exist anymore.' => 'Das ausgewählte Bankkonto existiert nicht mehr.',
   'The selected bin does not exist.' => 'Der ausgew&auml;hlte Lagerplatz existiert nicht.',
   'The selected currency'       => 'Die ausgewählte Währung',
+  'The selected database is still configured for client "#1". If you delete the database that client will stop working until you re-configure it. Do you still want to delete the database?' => 'Die auswählte Datenbank ist noch für Mandant "#1" konfiguriert. Wenn Sie die Datenbank löschen, wird der Mandanten nicht mehr funktionieren, bis er anders konfiguriert wurde. Wollen Sie die Datenbank trotzdem löschen?',
   'The selected exports have been closed.' => 'Die ausgewählten Exporte wurden abgeschlossen.',
   'The selected warehouse does not exist.' => 'Das ausgew&auml;hlte Lager existiert nicht.',
   'The selected warehouse is empty, or no stocked items where found that match the filter settings.' => 'Das ausgewählte Lager ist leer, oder in ihm wurden keine zu den Sucheinstellungen passenden eingelagerten Artikel gefunden.',
