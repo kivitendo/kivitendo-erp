@@ -1,46 +1,63 @@
-$(function(){
-  $('input.part_autocomplete').each(function(i,real){
-    var $dummy  = $('#' + real.id + '_name');
-    var $type   = $('#' + real.id + '_type');
-    var $column = $('#' + real.id + '_column');
-    $dummy.autocomplete({
-      source: function(req, rsp) {
-        $.ajax({
-          url: 'controller.pl?action=Part/ajax_autocomplete',
-          dataType: "json",
-          data: {
-            term: req.term,
-            type: function() { return $type.val() },
-            column: function() { return $column.val()===undefined ? '' : $column.val() },
-            current: function() { return real.value },
-            obsolete: 0,
-          },
-          success: function (data){ rsp(data) }
-        });
-      },
+namespace('kivi', function(k){
+  k.part_picker = function($real, options) {
+    o = $.extend({
       limit: 20,
       delay: 50,
-      select: function(event, ui) {
-        $(real).val(ui.item.id);
-        $dummy.val(ui.item.name);
-      },
-    });
+    }, options);
 
+    var real_id = $real.attr('id');
+    var $dummy  = $('#' + real_id + '_name');
+    var $type   = $('#' + real_id + '_type');
+    var $column = $('#' + real_id + '_column');
     var open_dialog = function(){
       open_jqm_window({
         url: 'controller.pl',
         data: {
           action: 'Part/part_picker_search',
-          real_id: function() { return $(real).attr('id') },
+          real_id: real_id,
           'filter.all:substr::ilike': function(){ return $dummy.val() },
-          'filter.type': function(){ return $type.val() },
-          'column': function(){ return $column.val() },
-          'real_id': function() { return real.id },
+          'filter.type':              function(){ return $type.val() },
+          'column':                   function(){ return $column.val() },
         },
         id: 'part_selection',
       });
       return true;
     };
+
+    var ajax_data = function(term) {
+      return {
+        term:     term,
+        type:     function() { return $type.val() },
+        column:   function() { return $column.val()===undefined ? '' : $column.val() },
+        current:  function() { return $real.val() },
+        obsolete: 0,
+      }
+    }
+
+    var set_item = function (item) {
+      if (item.id) {
+        $real.val(item.id);
+        // autocomplete ui has name, ajax items have description
+        $dummy.val(item.name ? item.name : item.description);
+      } else {
+        $real.val('');
+        $dummy.val('');
+      }
+    }
+
+    $dummy.autocomplete({
+      source: function(req, rsp) {
+        $.ajax($.extend(o, {
+          url:      'controller.pl?action=Part/ajax_autocomplete',
+          dataType: "json",
+          data:     ajax_data(req.term),
+          success:  function (data){ rsp(data) }
+        }));
+      },
+      select: function(event, ui) {
+        set_item(ui.item);
+      },
+    });
     /*  In case users are impatient and want to skip ahead:
      *  Capture <enter> key events and check if it's a unique hit.
      *  If it is, go ahead and assume it was selected. If it wasn't don't do
@@ -51,30 +68,25 @@ $(function(){
      */
     $dummy.keypress(function(event){
       if (event.keyCode == 13 || event.keyCode == 9) { // enter or tab or tab
-        // if string is empty asume they want to delete
+        // if string is empty assume they want to delete
         if ($dummy.val() == '') {
-          $(real).val('');
+          set_item({});
           return true;
         }
         $.ajax({
           url: 'controller.pl?action=Part/ajax_autocomplete',
           dataType: "json",
-          data: {
-            term: $dummy.val(),
-            type: function() { return $type.val() },
-            column: function() { return $column.val()===undefined ? '' : $column.val() },
-            current: function() { return real.value },
-            obsolete: 0,
-          },
+          data: ajax_data($dummy.val()),
           success: function (data){
-            // only one
             if (data.length == 1) {
-              $(real).val(data[0].id);
-              $dummy.val(data[0].description);
+              set_item(data[0]);
               if (event.keyCode == 13)
                 $('#update_button').click();
             } else {
-              open_dialog();
+              if (event.keyCode == 13)
+                open_dialog();
+              else
+                set_item({});
             }
           }
         });
@@ -85,7 +97,7 @@ $(function(){
 
     $dummy.blur(function(){
       if ($dummy.val() == '')
-        $(real).val('');
+        $real.val('');
     });
 
     // now add a picker div after the original input
@@ -94,5 +106,11 @@ $(function(){
     $dummy.after(pcont);
     pcont.append(picker);
     picker.addClass('icon16 CRM--Schnellsuche').click(open_dialog);
-  });
-})
+  }
+});
+
+$(function(){
+  $('input.part_autocomplete').each(function(i,real){
+    kivi.part_picker($(real));
+  })
+});
