@@ -6,6 +6,7 @@ crm
 /users/pid/
 /users/.cache/
 /users/kivitendo-print*
+users/.openoffice.org2/
 /config/lx_office.conf
 /config/kivitendo.conf
 /doc/online/*/*.html
