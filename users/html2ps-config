@@ -1,0 +1,27 @@
+@html2ps {
+  option {
+    titlepage: 0
+    hyphenate: 0
+    colour: 1
+  }
+  break-table: 1
+}
+
+@page {
+  margin-top: 1.5cm
+  margin-left: 1.5cm
+  margin-bottom: 1.5cm
+  margin-right: 1.5cm
+}
+
+BODY {
+  font-family: Helvetica
+  font-size: 8pt
+}
+
+H1 { font-size: 10pt }
+H2 { font-size: 10pt }
+H3 { font-size: 10pt }
+H4 { font-size: 10pt }
+H5 { font-size: 10pt }
+H6 { font-size: 10pt }
