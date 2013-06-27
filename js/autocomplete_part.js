@@ -25,6 +25,22 @@ $(function(){
         $dummy.val(ui.item.name);
       },
     });
+
+    var open_dialog = function(){
+      open_jqm_window({
+        url: 'controller.pl',
+        data: {
+          action: 'Part/part_picker_search',
+          real_id: function() { return $(real).attr('id') },
+          'filter.all:substr::ilike': function(){ return $dummy.val() },
+          'filter.type': function(){ return $type.val() },
+          'column': function(){ return $column.val() },
+          'real_id': function() { return real.id },
+        },
+        id: 'part_selection',
+      });
+      return true;
+    };
     /*  In case users are impatient and want to skip ahead:
      *  Capture <enter> key events and check if it's a unique hit.
      *  If it is, go ahead and assume it was selected. If it wasn't don't do
@@ -57,6 +73,8 @@ $(function(){
               $dummy.val(data[0].description);
               if (event.keyCode == 13)
                 $('#update_button').click();
+            } else {
+              open_dialog();
             }
           }
         });
@@ -68,27 +86,13 @@ $(function(){
     $dummy.blur(function(){
       if ($dummy.val() == '')
         $(real).val('');
-    })
+    });
 
     // now add a picker div after the original input
     var pcont  = $('<span>').addClass('position-absolute');
     var picker = $('<div>');
     $dummy.after(pcont);
     pcont.append(picker);
-    picker.addClass('icon16 CRM--Schnellsuche').click(function(){
-      open_jqm_window({
-        url: 'controller.pl',
-        data: {
-          action: 'Part/part_picker_search',
-          real_id: function() { return $(real).attr('id') },
-          'filter.all:substr::ilike': function(){ return $dummy.val() },
-          'filter.type': function(){ return $type.val() },
-          'column': function(){ return $column.val() },
-          'real_id': function() { return real.id },
-        },
-        id: 'part_selection',
-      });
-      return true;
-    });
+    picker.addClass('icon16 CRM--Schnellsuche').click(open_dialog);
   });
 })
