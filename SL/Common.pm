@@ -329,12 +329,6 @@ sub mkdir_with_parents {
   $main::lxdebug->leave_sub();
 }
 
-#
-# Legt ein entsprechendes Webdav-Verzeichnis an, falls
-# Webdav als Option konfiguriert ist. Falls schon ein
-# Ordner vorhanden ist, werden alle Dateien alphabetisch
-# sortiert ausgelesen und an der Oberfläche angezeigt
-#
 sub webdav_folder {
   $main::lxdebug->enter_sub();
 
@@ -347,7 +341,7 @@ sub webdav_folder {
 
   $form->{WEBDAV} = [];
 
-  my ($path, $number) = get_webdav_folder($form);     # ausgelagert
+  my ($path, $number) = get_webdav_folder($form);
   return $main::lxdebug->leave_sub() unless ($path && $number);
 
   if (!-d $path) {
@@ -357,7 +351,6 @@ sub webdav_folder {
     my $base_path = $ENV{'SCRIPT_NAME'};
     $base_path =~ s|[^/]+$||;
     if (opendir my $dir, $path) {
-      # alphabetisch sortiert.
       foreach my $file (sort { lc $a cmp lc $b } readdir $dir) {
         next if (($file eq '.') || ($file eq '..'));
 
@@ -559,14 +552,6 @@ sub check_params_x {
   }
 }
 
-#
-# Diese Routine baut aus dem Masken-Typ und der
-# Beleg-Nummer, das entsprechende Webdav-Verzeichnis zusammen
-# Nimmt leider noch die ganze Form entgegen und den if-elsif-Block
-# sollte man schöner "dispatchen"
-# Ergänzung 6.5.2011, den else-Zweig defensiver gestaltet und mit
-# -1 als n.i.O. Rückgabewert versehen
-#
 sub get_webdav_folder {
   $main::lxdebug->enter_sub();
 
@@ -596,9 +581,6 @@ sub get_webdav_folder {
   } elsif ($form->{vc} eq "vendor") {
     ($path, $number) = ("einkaufsrechnungen", $form->{invnumber});
   } else {
-    # wir befinden uns nicht in einer belegmaske
-    # scheinbar wird diese routine auch bspw. bei waren
-    # aufgerufen - naja, steuerung über die $form halt ...
     $main::lxdebug->leave_sub();
     return undef;
   }
@@ -612,11 +594,6 @@ sub get_webdav_folder {
   return ($path, $number);
 }
 
-#
-# Falls Webdav aktiviert ist, auch den generierten Beleg in das
-# Webdav-Verzeichnis kopieren
-#
-#
 sub copy_file_to_webdav_folder {
   $main::lxdebug->enter_sub();
 
@@ -631,16 +608,14 @@ sub copy_file_to_webdav_folder {
     }
   }
 
-  # Den Webdav-Ordner ÜBER exakt denselben Mechanismus wie beim
-  # Anlegen des Ordners bestimmen
   my ($webdav_folder, $document_name) =  get_webdav_folder($form);
 
   if (! $webdav_folder){
     $main::lxdebug->leave_sub();
     $main::form->error($main::locale->text("Cannot check correct webdav folder"));
-    return undef; # s.o. erstmal so ...
+    return undef;
   }
-  # kompletter pfad
+
   $complete_path =  join('/', $form->{cwd},  $webdav_folder);
   opendir my $dh, $complete_path or die "Could not open $complete_path: $!";
 
@@ -654,18 +629,16 @@ sub copy_file_to_webdav_folder {
   $latest_file_name = $complete_path .'/' . $newest_name;
   my $filesize = stat($latest_file_name)->size;
 
-  # prüfung auf identisch oder nicht
   my ($ext) = $form->{tmpfile} =~ /(\.[^.]+)$/;
   my $current_file = join('/', $form->{tmpdir}, $form->{tmpfile});
   my $current_filesize = stat($current_file)->size;
-  if ($current_filesize == $filesize) { # bei gleicher größe copy deaktivieren
+  if ($current_filesize == $filesize) {
     $main::lxdebug->leave_sub();
     return;
   }
-  # zeitstempel und dateinamen holen
+
   my $timestamp = get_current_formatted_time();
   my $myfilename = $form->generate_attachment_filename();
-  # entsprechend vor der endung hinzufügen
   $myfilename =~ s/\./$timestamp\./;
 
   if (!copy(join('/', $form->{tmpdir}, $form->{tmpfile}), join('/', $form->{cwd}, $webdav_folder, $myfilename))) {
