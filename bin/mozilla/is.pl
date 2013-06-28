@@ -76,8 +76,6 @@ sub add {
 
   $form->{callback} = "$form->{script}?action=add&type=$form->{type}" unless $form->{callback};
 
-  $form->{jsscript} = "date";
-
   &invoice_links;
   &prepare_invoice;
   &display_form;
@@ -353,8 +351,6 @@ sub form_header {
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
-  $::request->{layout}->focus('#customer');
-
   my $follow_up_vc         =  $form->{customer};
   $follow_up_vc            =~ s/--\d*\s*$//;
   $TMPL_VAR{customer_name} = $follow_up_vc;
@@ -381,7 +377,6 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
-  $form->{jsscript} = 1;
   $form->header();
 
   print $form->parse_html_template("is/form_header", \%TMPL_VAR);

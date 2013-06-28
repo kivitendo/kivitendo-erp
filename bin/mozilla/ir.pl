@@ -102,7 +102,6 @@ sub invoice_links {
 
   # create links
   $form->{webdav}   = $::instance_conf->get_webdav;
-  $form->{jsscript} = 1;
 
   $form->create_links("AP", \%myconfig, "vendor");
 
@@ -329,8 +328,6 @@ sub form_header {
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
-  $::request->{layout}->focus('#vendor');
-
   my $follow_up_vc         =  $form->{vendor};
   $follow_up_vc            =~ s/--\d*\s*$//;
   $TMPL_VAR{vendor_name} = $follow_up_vc;
@@ -357,7 +354,6 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
-  $form->{jsscript} = 1;
   $form->header();
 
   print $form->parse_html_template("ir/form_header", \%TMPL_VAR);

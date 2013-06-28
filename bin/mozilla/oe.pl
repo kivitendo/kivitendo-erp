@@ -230,7 +230,6 @@ sub order_links {
 
   # retrieve order/quotation
   $form->{webdav}   = $::instance_conf->get_webdav;
-  $form->{jsscript} = 1;
 
   my $editing = $form->{id};
 
@@ -317,9 +316,6 @@ sub form_header {
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
 
   # openclosed checkboxes
   my @tmp;
@@ -725,7 +721,6 @@ sub search {
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   # constants and subs for template
-  $form->{jsscript}        = 1;
   $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
 
   $form->header();

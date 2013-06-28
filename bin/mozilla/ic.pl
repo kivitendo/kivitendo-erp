@@ -106,8 +106,6 @@ sub search {
   $form->{title} = $locale->text($form->{title});
   $form->{title} = $locale->text('Assemblies') if ($is_xyz{is_assembly});
 
-  $form->{jsscript} = 1;
-
   $form->{CUSTOM_VARIABLES}                  = CVar->get_configs('module' => 'IC');
   ($form->{CUSTOM_VARIABLES_FILTER_CODE},
    $form->{CUSTOM_VARIABLES_INCLUSION_CODE}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES},
@@ -1610,15 +1608,10 @@ sub form_header {
     flash('info', $::locale->text('This partnumber is not unique. You should change it.'));
   }
 
-  # use JavaScript Calendar or not (yes!)
-  $form->{jsscript} = 1;
-
   my $units = AM->retrieve_units(\%myconfig, $form);
   $form->{ALL_UNITS} = [ map +{ name => $_ }, sort { $units->{$a}{sortkey} <=> $units->{$b}{sortkey} } keys %$units ];
 
   $form->{defaults} = AM->get_defaults();
-
-  $::request->{layout}->focus("#partnumber");
 
   $form->{CUSTOM_VARIABLES} = CVar->get_custom_variables('module' => 'IC', 'trans_id' => $form->{id});
 

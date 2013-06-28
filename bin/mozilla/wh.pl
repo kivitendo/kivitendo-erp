@@ -105,8 +105,6 @@ sub transfer_warehouse_selection {
 
   my $content;
 
-  $form->{jsscript} = 1;
-
   if ($form->{trans_type} eq 'removal') {
     $form->{nextsub} = "removal_parts_selection";
     $form->{title}   = $locale->text('Removal from Warehouse');
@@ -657,8 +655,6 @@ sub journal {
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
-  $form->{jsscript} = 1;
-
   $form->header();
   print $form->parse_html_template("wh/journal_filter", { "UNITS" => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)) });
 
@@ -802,8 +798,6 @@ sub report {
                                      'bins'   => 'BINS', });
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
-
-  $form->{jsscript} = 1;
 
   $form->{title}   = $locale->text("Report about warehouse contents");
 

@@ -166,7 +166,6 @@ sub order_links {
 
   # retrieve order/quotation
   $form->{webdav}   = $::instance_conf->get_webdav;
-  $form->{jsscript} = 1;
 
   my $editing = $form->{id};
 
@@ -254,9 +253,6 @@ sub form_header {
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
 
   my @old_project_ids = ($form->{"globalproject_id"});
   map({ push(@old_project_ids, $form->{"project_id_$_"})
@@ -460,7 +456,6 @@ sub search {
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
-  $form->{jsscript}          = 1;
   $form->{title}             = $locale->text('Delivery Orders');
 
   $form->header();
@@ -1124,8 +1119,6 @@ sub display_stock_in_form {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
-
-  $form->{jsscript} = 1;
 
   $form->{title} = $locale->text('Stock');
 

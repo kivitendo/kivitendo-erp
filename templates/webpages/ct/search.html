@@ -15,7 +15,7 @@
 
    <tr>
     <th align="right" nowrap>[% IF IS_CUSTOMER %][% 'Customer Name' | $T8 %][%- ELSE %][% 'Vendor Name' | $T8 %][%- END %]</th>
-    <td><input id="name" name="name" size="35"></td>
+    <td><input id="name" name="name" size="35" class="initial_focus"></td>
    </tr>
 
    <tr>
@@ -174,4 +174,3 @@
 
   <input type="submit" class="submit" name="action" value="[% 'Continue' | $T8 %]">
  </form>
-

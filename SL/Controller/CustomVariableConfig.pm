@@ -64,7 +64,6 @@ sub show_form {
     split m/;/, ($self->config->flags || '')
   ]);
 
-  $::request->layout->focus('#config_name');
   $self->render('custom_variable_config/form', %params);
 }
 

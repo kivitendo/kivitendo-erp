@@ -32,7 +32,7 @@ sub action_user_login {
   return if $self->_redirect_to_main_script_if_already_logged_in;
 
   # Otherwise show the login form.
-  $self->show_login_form(error => error_state($::form->{error}));
+  $self->show_login_form(error_state($::form->{error}));
 }
 
 sub action_logout {
@@ -158,10 +158,12 @@ sub _ensure_employees_for_authorized_users_exist {
 }
 
 sub error_state {
-  return {
-    session  => $::locale->text('The session is invalid or has expired.'),
-    password => $::locale->text('Incorrect username or password or no access to selected client!'),
-  }->{$_[0]};
+  my %states = (
+    session  => { warning => t8('The session has expired. Please log in again.')                   },
+    password => { error   => t8('Incorrect username or password or no access to selected client!') },
+  );
+
+  return %{ $states{$_[0]} || {} };
 }
 
 sub set_layout {
@@ -181,7 +183,6 @@ sub init_default_client_id {
 sub show_login_form {
   my ($self, %params) = @_;
 
-  $::request->layout->focus('#auth_login');
   $self->render('login_screen/user_login', %params);
 }
 

@@ -275,10 +275,7 @@ sub display_template_form {
 
     $options{"CAN_EDIT"} = $form->{"edit"};
 
-    if ($form->{edit}) {
-      $::request->{layout}->focus("#edit_content");
-
-    } else {
+    if (!$form->{edit}) {
       $options{"content"}                 = "\n\n" if (!$options{"content"});
       $options{"SHOW_SECOND_EDIT_BUTTON"} = $options{"lines"} > 25;
     }

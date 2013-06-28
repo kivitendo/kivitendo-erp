@@ -105,8 +105,6 @@ sub add {
   $form->{SHOW_DEPARTMENT_SELECTION}    = $form->{all_departments} && scalar @{ $form->{all_departments} || [] };
 
   $form->{title}    = $locale->text('Start Dunning Process');
-  $form->{jsscript} = 1;
-  $::request->{layout}->focus('#customer');
   $form->header();
 
   print $form->parse_html_template("dunning/add");
@@ -144,7 +142,6 @@ sub show_invoices {
 
   $form->{type}           = 'dunning';
   $form->{rowcount}       = scalar @{ $form->{DUNNINGS} };
-  $form->{jsscript}       = 1;
   $form->{callback}     ||= build_std_url("action=show_invoices", qw(customer invnumber ordnumber groupinvoices minamount dunning_level notes));
 
   $form->{PRINT_OPTIONS}  = print_options('inline'          => 1,
@@ -308,9 +305,7 @@ sub search {
   $form->{SHOW_DEPARTMENT_DDBOX} = scalar @{ $form->{ALL_CUSTOMERS} };
   $form->{SHOW_DUNNING_LEVELS}   = scalar @{ $form->{DUNNING} };
 
-  $form->{jsscript} = 1;
   $form->{title}    = $locale->text('Dunnings');
-  $::request->{layout}->focus('#customer');
 
   $form->header();
 

@@ -996,7 +996,6 @@ sub edit_e_mail {
   my $attachment_filename = $form->generate_attachment_filename();
   my $subject             = $form->{subject} || $form->generate_email_subject();
 
-  $::request->{layout}->focus($form->{"email"} ? "#subject" : "#email");
   $form->header;
 
   my (@dont_hide_key_list, %dont_hide_key, @hidden_keys);
