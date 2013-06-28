@@ -39,6 +39,10 @@ sub inventory_accno_description {
 
 sub income_accno_id {
   my ($self, $taxzone) = @_;
+
+  require SL::DB::TaxZone;
+  require SL::DB::TaxzoneChart;
+
   my $taxzone_id = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
   my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
   return $taxzone_chart->income_accno_id if $taxzone_chart;
@@ -46,6 +50,9 @@ sub income_accno_id {
 
 sub expense_accno_id {
   my ($self, $taxzone) = @_;
+  require SL::DB::TaxZone;
+  require SL::DB::TaxzoneChart;
+
   my $taxzone_id = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
   my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
   return $taxzone_chart->expense_accno_id if $taxzone_chart;
@@ -53,6 +60,10 @@ sub expense_accno_id {
 
 sub income_account {
   my ($self, $taxzone) = @_;
+
+  require SL::DB::TaxZone;
+  require SL::DB::TaxzoneChart;
+
   my $taxzone_id       = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
   my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
   return $taxzone_chart->income_accno if $taxzone_chart;
@@ -60,6 +71,10 @@ sub income_account {
 
 sub expense_account {
   my ($self, $taxzone) = @_;
+
+  require SL::DB::TaxZone;
+  require SL::DB::TaxzoneChart;
+
   my $taxzone_id       = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
   my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
   return $taxzone_chart->expense_accno if $taxzone_chart;
