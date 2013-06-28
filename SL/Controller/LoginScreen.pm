@@ -183,7 +183,7 @@ sub init_default_client_id {
 sub show_login_form {
   my ($self, %params) = @_;
 
-  $self->render('login_screen/user_login', %params);
+  $self->render('login_screen/user_login', %params, version => $::form->read_version);
 }
 
 1;

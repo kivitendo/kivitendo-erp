@@ -2525,6 +2525,7 @@ $self->{texts} = {
   'kivitendo is about to update the database [ #1 ].' => 'kivitendo wird gleich die Datenbank [ #1 ] aktualisieren.',
   'kivitendo is now able to manage warehouses instead of just tracking the amount of goods in your system.' => 'kivitendo enth&auml;lt jetzt auch echte Lagerverwaultung anstatt reiner Mengenz&auml;hlung.',
   'kivitendo needs to update the authentication database before you can proceed.' => 'kivitendo muss die Authentifizierungsdatenbank aktualisieren, bevor Sie fortfahren können.',
+  'kivitendo v#1'               => 'kivitendo v#1',
   'kivitendo v#1 administration' => 'kivitendo v#1 Administration',
   'kivitendo website (external)' => 'kivitendo-Webseite (extern)',
   'kivitendo will then update the database automatically.' => 'kivitendo wird die Datenbank daraufhin automatisch aktualisieren.',
