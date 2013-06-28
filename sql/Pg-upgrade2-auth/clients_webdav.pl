@@ -9,6 +9,7 @@ use utf8;
 
 use parent qw(SL::DBUpgrade2::Base);
 
+use File::Find ();
 use File::Path qw(make_path);
 use IO::Dir;
 use List::MoreUtils qw(any all);
@@ -81,11 +82,24 @@ sub _create_symlink {
   symlink '../' . $client->{id}, "webdav/links/${name}";
 }
 
+sub _webdav_folders_used {
+  my ($self, %params) = @_;
+
+  my $contains_files  = 0;
+  my $wanted          = sub {
+    $contains_files   = 1 if -f && !m{/(?:\.gitignore|.dummy|webdav-user)$};
+  };
+
+  File::Find::find({ wanted => $wanted, no_chdir => 1 }, 'webdav');
+
+  return $contains_files;
+}
+
 sub run {
   my ($self) = @_;
 
-  # WebDAV not activated? Remove old folders, and we're done.
-  return $self->_unlink_old_folders if !$::lx_office_conf{features}->{webdav};
+  # WebDAV not used? Remove old folders, and we're done.
+  return $self->_unlink_old_folders if !$self->_webdav_folders_used;
 
   # Ensure at least one client exists.
   $self->_ensure_one_client_exists;
