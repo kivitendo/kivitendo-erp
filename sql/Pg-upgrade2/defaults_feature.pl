@@ -21,14 +21,17 @@ sub run {
 
   # check current configuration and set default variables accordingly, so that
   # kivitendo's behaviour isn't changed by this update
-  # if checks are not set in config leave it to the default value
+  my %old_defaults = ( parts_show_image => 1 );
+
   foreach my $check (qw(webdav vertreter parts_show_image parts_listing_image)) {
-    my $check_set = $::lx_office_conf{features}->{$check} ? 1 : 0;
-    $self->db_query("UPDATE defaults SET $check = ?", bind => [ $check_set ]) if $check_set;
+    my $check_set = exists $::lx_office_conf{features}->{$check} ? $::lx_office_conf{features}->{$check} : $old_defaults{$check};
+    $self->db_query("UPDATE defaults SET $check = ?", bind => [ $check_set ? 1 : 0 ]);
   }
 
-  my $update_column = "UPDATE defaults SET parts_image_css = ?";
-  $self->db_query($update_column, bind => [ $::lx_office_conf{features}->{parts_image_css} ]);
+  if (exists $::lx_office_conf{features}->{parts_image_css}) {
+    my $update_column = "UPDATE defaults SET parts_image_css = ?";
+    $self->db_query($update_column, bind => [ $::lx_office_conf{features}->{parts_image_css} ]);
+  }
 
   return 1;
 }
