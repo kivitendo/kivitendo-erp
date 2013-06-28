@@ -2097,6 +2097,7 @@ $self->{texts} = {
   'The selected exports have been closed.' => 'Die ausgewählten Exporte wurden abgeschlossen.',
   'The selected warehouse does not exist.' => 'Das ausgew&auml;hlte Lager existiert nicht.',
   'The selected warehouse is empty, or no stocked items where found that match the filter settings.' => 'Das ausgewählte Lager ist leer, oder in ihm wurden keine zu den Sucheinstellungen passenden eingelagerten Artikel gefunden.',
+  'The session has expired. Please log in again.' => 'Die Sitzung ist abgelaufen. Bitte melden Sie sich erneut an.',
   'The session is invalid or has expired.' => 'Sie sind von kivitendo abgemeldet.',
   'The settings were saved, but the password was not changed.' => 'Die Einstellungen wurden gespeichert, aber das Passwort wurde nicht geändert.',
   'The source warehouse does not contain any bins.' => 'Das Quelllager enth&auml;lt keine Lagerpl&auml;tze.',
