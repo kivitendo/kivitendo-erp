@@ -834,14 +834,10 @@ sub search {
   my $locale   = $main::locale;
   my $cgi      = $::request->{cgi};
 
-  my ($customer, $department);
-  my ($jsscript, $button1, $button2);
-
   # setup customer selection
   $form->all_vc(\%myconfig, "customer", "AR");
 
   $form->{title}    = $locale->text('AR Transactions');
-  $form->{jsscript} = 1;
 
   # Auch in Rechnungsübersicht nach Kundentyp filtern - jan
   $form->get_lists("projects"       => { "key" => "ALL_PROJECTS", "all" => 1 },
@@ -852,7 +848,6 @@ sub search {
   $form->{SHOW_BUSINESS_TYPES} = scalar @{ $form->{ALL_BUSINESS_TYPES} } > 0;
 
   # constants and subs for template
-  $form->{jsscript}  = 1;
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
 
   $form->header;

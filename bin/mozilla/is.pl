@@ -76,8 +76,6 @@ sub add {
 
   $form->{callback} = "$form->{script}?action=add&type=$form->{type}" unless $form->{callback};
 
-  $form->{jsscript} = "date";
-
   &invoice_links;
   &prepare_invoice;
   &display_form;
@@ -379,7 +377,6 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
-  $form->{jsscript} = 1;
   $form->header();
 
   print $form->parse_html_template("is/form_header", \%TMPL_VAR);

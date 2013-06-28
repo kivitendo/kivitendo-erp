@@ -14,7 +14,6 @@ sub analyze_filter {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  $form->{jsscript} = 1;
   $form->{title}    = $locale->text('General ledger corrections');
   $form->header();
   print $form->parse_html_template('acctranscorrections/analyze_filter');

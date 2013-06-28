@@ -102,7 +102,6 @@ sub invoice_links {
 
   # create links
   $form->{webdav}   = $::lx_office_conf{features}->{webdav};
-  $form->{jsscript} = 1;
 
   $form->create_links("AP", \%myconfig, "vendor");
 
@@ -355,7 +354,6 @@ sub form_header {
   ), @custom_hiddens,
   map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts}];
 
-  $form->{jsscript} = 1;
   $form->header();
 
   print $form->parse_html_template("ir/form_header", \%TMPL_VAR);

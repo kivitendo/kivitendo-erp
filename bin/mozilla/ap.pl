@@ -296,8 +296,6 @@ sub form_header {
     $taxcharts{$item->{id}} = $item;
   }
 
-  $form->{jsscript} = 1;
-
   my $follow_up_vc         =  $form->{vendor};
   $follow_up_vc            =~ s/--.*?//;
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";
@@ -807,14 +805,12 @@ sub search {
   $form->all_vc(\%myconfig, "vendor", "AP");
 
   $form->{title}    = $locale->text('AP Transactions');
-  $form->{jsscript} = 1;
 
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
                    "departments"  => "ALL_DEPARTMENTS",
                    "vendors"      => "ALL_VC");
 
   # constants and subs for template
-  $form->{jsscript}  = 1;
   $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
 
   $form->header;

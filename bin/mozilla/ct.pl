@@ -101,7 +101,6 @@ sub search {
                                                                            'include_prefix' => 'l_',
                                                                            'include_value'  => 'Y');
 
-  $form->{jsscript} = 1;
   $form->{title}    = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
 
   $form->header();
@@ -474,7 +473,6 @@ sub form_header {
   $form->{shipto_label}   = \&_shipto_label;
   $form->{contacts_label} = \&_contacts_label;
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
-  $form->{jsscript}       = 1;
   $form->{SHIPTO_ALL}     = [ +{ shipto_id => '0', shiptoname => $::locale->text('All') }, @{ $form->{SHIPTO} } ];
 
   $form->{title} = $form->{title_save}

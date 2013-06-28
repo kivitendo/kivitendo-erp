@@ -99,8 +99,6 @@ sub display_form {
   $params{trans_id}   = $form->{LINKS}->[0]->{trans_id} if (@{ $form->{LINKS} });
   $form->{FOLLOW_UPS} = FU->follow_ups(%params);
 
-  $form->{jsscript}   = 1;
-
   $form->header(no_layout => $::form->{POPUP_MODE});
   print $form->parse_html_template('fu/add_edit');
 
@@ -232,7 +230,6 @@ sub search {
 
   $form->get_lists("employees" => "EMPLOYEES");
 
-  $form->{jsscript} = 1;
   $form->{title}    = $locale->text('Follow-Ups');
 
   $form->header();
