@@ -619,7 +619,7 @@ sub _prepare_html_template {
   $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
   $additional_params->{"conf_vertreter"}              = $::instance_conf->get_vertreter;
   $additional_params->{"conf_parts_image_css"}        = $::instance_conf->get_parts_image_css;
-  $additional_params->{"conf_parts_listing_images"}   = $::instance_conf->get_parts_listing_images;
+  $additional_params->{"conf_parts_listing_image"}    = $::instance_conf->get_parts_listing_image;
   $additional_params->{"conf_parts_show_image"}       = $::instance_conf->get_parts_show_image;
   $additional_params->{"INSTANCE_CONF"}               = $::instance_conf;
 

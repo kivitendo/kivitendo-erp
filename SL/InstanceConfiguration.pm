@@ -2,218 +2,55 @@ package SL::InstanceConfiguration;
 
 use strict;
 
-use SL::DBUtils;
+use Carp;
+use SL::DB::Currency;
+use SL::DB::Default;
 
-sub new {
-  my ($class) = @_;
+use parent qw(Rose::Object);
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(data currencies) ],
+);
 
-  return bless {}, $class;
+sub init_data {
+  my $default               = SL::DB::Default->get;
+  my $data                  = { map { $_ => $default->$_ } $default->meta->columns };
+  $data->{default_currency} = $default->currency ? $default->currency->name : undef;
+
+  return $data;
 }
 
-sub init {
-  my ($self) = @_;
+sub init_currencies {
+  return [ map { $_->name } @{ SL::DB::Manager::Currency->get_all_sorted } ];
+}
 
-  $self->{data} = selectfirst_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT * FROM defaults|);
-
-  #To get all currencies and the default currency:
-  ($self->{data}->{curr}) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT name AS curr FROM currencies WHERE id = (SELECT currency_id FROM defaults)|);
-  $self->{currencies}     = [ map { $_->{name} } selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies ORDER BY id|) ];
-
+sub reload {
+  my ($self)          = @_;
+  $self->{data}       = $self->init_data;
+  $self->{currencies} = $self->init_currencies;
   return $self;
-}
-
-sub get_default_currency {
-  my ($self) = @_;
-
-  return $self->{data}->{curr};
 }
 
 sub get_currencies {
   my ($self) = @_;
-
-  return @{ $self->{currencies} };
+  return @{ $self->currencies };
 }
 
-sub get_accounting_method {
-  my ($self) = @_;
-  return $self->{data}->{accounting_method};
-}
+sub AUTOLOAD {
+  our $AUTOLOAD;
 
-sub get_inventory_system {
-  my ($self) = @_;
-  return $self->{data}->{inventory_system};
-}
+  my $self   =  shift;
+  my $method =  $AUTOLOAD;
+  $method    =~ s/.*:://;
 
-sub get_profit_determination {
-  my ($self) = @_;
-  return $self->{data}->{profit_determination};
-}
+  if ($method =~ m/^get_/) {
+    $method = substr $method, 4;
+    return $self->data->{$method} if exists $self->data->{$method};
+    croak "Invalid method 'get_${method}'";
+  }
 
-sub get_is_changeable {
-  my ($self) = @_;
-  return $self->{data}->{is_changeable};
+  croak "Invalid method '${method}'" if !$self->can($method);
+  return $self->$method(@_);
 }
-
-sub get_ir_changeable {
-  my ($self) = @_;
-  return $self->{data}->{ir_changeable};
-}
-
-sub get_ar_changeable {
-  my ($self) = @_;
-  return $self->{data}->{ar_changeable};
-}
-
-sub get_ap_changeable {
-  my ($self) = @_;
-  return $self->{data}->{ap_changeable};
-}
-
-sub get_gl_changeable {
-  my ($self) = @_;
-  return $self->{data}->{gl_changeable};
-}
-
-sub get_datev_check_on_sales_invoice {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_sales_invoice};
-}
-
-sub get_datev_check_on_purchase_invoice {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_purchase_invoice};
-}
-
-sub get_datev_check_on_ar_transaction {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_ar_transaction};
-}
-
-sub get_datev_check_on_ap_transaction {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_ap_transaction};
-}
-
-sub get_datev_check_on_gl_transaction {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_gl_transaction};
-}
-
-sub get_show_bestbefore {
-  my ($self) = @_;
-  return $self->{data}->{show_bestbefore};
-}
-
-sub get_is_show_mark_as_paid {
-  my ($self) = @_;
-  return $self->{data}->{is_show_mark_as_paid};
-}
-
-sub get_ir_show_mark_as_paid {
-  my ($self) = @_;
-  return $self->{data}->{ir_show_mark_as_paid};
-}
-
-sub get_ar_show_mark_as_paid {
-  my ($self) = @_;
-  return $self->{data}->{ar_show_mark_as_paid};
-}
-
-sub get_ap_show_mark_as_paid {
-  my ($self) = @_;
-  return $self->{data}->{ap_show_mark_as_paid};
-}
-
-sub get_sales_order_show_delete {
-  my ($self) = @_;
-  return $self->{data}->{sales_order_show_delete};
-}
-
-sub get_purchase_order_show_delete {
-  my ($self) = @_;
-  return $self->{data}->{purchase_order_show_delete};
-}
-
-sub get_sales_delivery_order_show_delete {
-  my ($self) = @_;
-  return $self->{data}->{sales_delivery_order_show_delete};
-}
-
-sub get_purchase_delivery_order_show_delete {
-  my ($self) = @_;
-  return $self->{data}->{purchase_delivery_order_show_delete};
-}
-
-sub get_default_warehouse_id {
-  my ($self) = @_;
-  return ($self->{data}->{warehouse_id});
-}
-
-sub get_default_bin_id {
-  my ($self) = @_;
-  return ($self->{data}->{bin_id});
-}
-sub get_default_warehouse_id_ignore_onhand {
-  my ($self) = @_;
-  return ($self->{data}->{warehouse_id_ignore_onhand});
-}
-
-sub get_default_bin_id_ignore_onhand {
-  my ($self) = @_;
-  return ($self->{data}->{bin_id_ignore_onhand});
-}
-
-
-sub get_transfer_default {
-  my ($self) = @_;
-  return ($self->{data}->{transfer_default});
-}
-
-sub get_transfer_default_use_master_default_bin {
-  my ($self) = @_;
-  return ($self->{data}->{transfer_default_use_master_default_bin});
-}
-
-sub get_transfer_default_ignore_onhand {
-  my ($self) = @_;
-  return ($self->{data}->{transfer_default_ignore_onhand});
-}
-# currently unused - value is set via audit_control (Bücherkontrolle)
-sub get_max_future_booking_interval {
-  my ($self) = @_;
-  return ($self->{data}->{max_future_booking_interval});
-}
-
-sub get_webdav {
-  my ($self) = @_;
-  return ($self->{data}->{webdav});
-}
-
-sub get_webdav_documents {
-  my ($self) = @_;
-  return ($self->{data}->{webdav_documents});
-}
-
-sub get_vertreter {
-  my ($self) = @_;
-  return ($self->{data}->{vertreter});
-}
-
-sub get_parts_show_image {
-  my ($self) = @_;
-  return ($self->{data}->{parts_show_image});
-}
-
-sub get_parts_listing_images{
-  my ($self) = @_;
-  return ($self->{data}->{parts_listing_image});
-}
-
-sub get_parts_image_css {
-  my ($self) = @_;
-  return ($self->{data}->{parts_image_css});
-}
-
 
 1;
 
