@@ -65,19 +65,6 @@ bind_password =
 # and "en" (English, not perfect) are available.
 language = de
 
-[features]
-# Activate certain optional features and modules.
-webdav = 0
-vertreter = 0
-
-## Pictures for parts
-# Show the picture in the part form
-parts_show_image = 1
-# Style the picture with the following CSS code:
-parts_image_css = border:0;float:left;max-width:250px;margin-top:20px:margin-right:10px;margin-left:10px;
-# Show the picture in the results when you search for parts
-parts_listing_images = 0
-
 [paths]
 # path to temporary files (must be writeable by the web server)
 userspath = users

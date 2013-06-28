@@ -614,13 +614,13 @@ sub _prepare_html_template {
     map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
-  $additional_params->{"conf_webdav"}                 = $::lx_office_conf{features}->{webdav};
+  $additional_params->{"conf_webdav"}                 = $::instance_conf->get_webdav;
   $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
   $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
-  $additional_params->{"conf_vertreter"}              = $::lx_office_conf{features}->{vertreter};
-  $additional_params->{"conf_parts_image_css"}        = $::lx_office_conf{features}->{parts_image_css};
-  $additional_params->{"conf_parts_listing_images"}   = $::lx_office_conf{features}->{parts_listing_images};
-  $additional_params->{"conf_parts_show_image"}       = $::lx_office_conf{features}->{parts_show_image};
+  $additional_params->{"conf_vertreter"}              = $::instance_conf->get_vertreter;
+  $additional_params->{"conf_parts_image_css"}        = $::instance_conf->get_parts_image_css;
+  $additional_params->{"conf_parts_listing_images"}   = $::instance_conf->get_parts_listing_images;
+  $additional_params->{"conf_parts_show_image"}       = $::instance_conf->get_parts_show_image;
   $additional_params->{"INSTANCE_CONF"}               = $::instance_conf;
 
   if (my $debug_options = $::lx_office_conf{debug}{options}) {
@@ -1076,7 +1076,8 @@ sub parse_template {
     $self->cleanup();
     $self->error("$self->{IN} : " . $template->get_error());
   }
-
+  Common::copy_file_to_webdav_folder($self) if ($::instance_conf->get_webdav
+                                                and $::instance_conf->get_webdav_documents and not $self->{preview});
   close OUT if $self->{OUT};
 
   if ($self->{media} eq 'file') {

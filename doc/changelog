@@ -57,6 +57,8 @@ Kleinere neue Features und Detailverbesserungen:
 - #1897 implementiert. Zukunfts-Buchungen verhindern, durch einen konfigurierbaren
   maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage)
 
+- #2300 Alle Feature-Konfigurationen sind jetzt in der Mandantenkonfiguration eingestellt
+- #2301 Dokumentenbelege optional in webdav-Ordner speichern
 
 Wichtige Änderungen:
 

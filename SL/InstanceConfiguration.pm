@@ -184,6 +184,35 @@ sub get_max_future_booking_interval {
   return ($self->{data}->{max_future_booking_interval});
 }
 
+sub get_webdav {
+  my ($self) = @_;
+  return ($self->{data}->{webdav});
+}
+
+sub get_webdav_documents {
+  my ($self) = @_;
+  return ($self->{data}->{webdav_documents});
+}
+
+sub get_vertreter {
+  my ($self) = @_;
+  return ($self->{data}->{vertreter});
+}
+
+sub get_parts_show_image {
+  my ($self) = @_;
+  return ($self->{data}->{parts_show_image});
+}
+
+sub get_parts_listing_images{
+  my ($self) = @_;
+  return ($self->{data}->{parts_listing_image});
+}
+
+sub get_parts_image_css {
+  my ($self) = @_;
+  return ($self->{data}->{parts_image_css});
+}
 
 
 1;
@@ -329,6 +358,30 @@ Returns the default behavior for the transfer out default feature (true or false
 =item C<get_max_future_booking_interval>
 
 Returns the maximum interval value for future bookings
+
+=item C<get_webdav>
+
+Returns the configuration for webdav
+
+=item C<get_webdav_documents>
+
+Returns the configuration for storing documents in the corresponding webdav folder
+
+=item C<get_vertreter>
+
+Returns the configuration for "vertreter"
+
+=item C<get_parts_show_image>
+
+Returns the configuarion for show image in parts
+
+=item C<get_parts_image_css>
+
+Returns the css format string for images shown in parts
+
+=item C<get_parts_listing_image>
+
+Returns the configuartion for showing the picture in the results when you search for parts
 
 =back
 

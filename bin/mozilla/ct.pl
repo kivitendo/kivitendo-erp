@@ -174,7 +174,7 @@ sub list_names {
   my @columns = (
     'id',        'name',      "$form->{db}number",   'contact',   'phone',
     'fax',       'email',     'taxnumber',           'street',    'zipcode' , 'city',
-    'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country' 
+    'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -465,7 +465,7 @@ sub form_header {
                    currencies => "ALL_CURRENCIES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
-  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::lx_office_conf{features}->{vertreter};
+  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::instance_conf->get_vertreter;
   $form->{ALL_EMPLOYEES}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{FU_created_for_user},  deleted => 0 ] ]);
   $form->{ALL_SALESMEN}           = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $form->{USER}                   = SL::DB::Manager::Employee->current;
@@ -536,7 +536,7 @@ sub _do_save {
 
   $::form->isblank("name", $::locale->text("Name missing!"));
 
-  if ($::form->{new_salesman_id} && $::lx_office_conf{features}->{vertreter}) {
+  if ($::form->{new_salesman_id} && $::instance_conf->get_vertreter) {
     $::form->{salesman_id} = $::form->{new_salesman_id};
     delete $::form->{new_salesman_id};
   }

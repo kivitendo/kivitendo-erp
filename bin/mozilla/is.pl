@@ -138,7 +138,7 @@ sub invoice_links {
   $form->{vc} = 'customer';
 
   # create links
-  $form->{webdav}   = $::lx_office_conf{features}->{webdav};
+  $form->{webdav}   = $::instance_conf->get_webdav;
 
   $form->create_links("AR", \%myconfig, "customer");
 
