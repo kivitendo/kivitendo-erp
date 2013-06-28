@@ -329,8 +329,6 @@ sub form_header {
   $TMPL_VAR{creditwarning} = ($form->{creditlimit} != 0) && ($form->{creditremaining} < 0) && !$form->{update};
   $TMPL_VAR{is_credit_remaining_negativ} = $form->{creditremaining} =~ /-/;
 
-  $::request->{layout}->focus('#vendor');
-
   my $follow_up_vc         =  $form->{vendor};
   $follow_up_vc            =~ s/--\d*\s*$//;
   $TMPL_VAR{vendor_name} = $follow_up_vc;

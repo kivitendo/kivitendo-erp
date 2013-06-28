@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[%- USE HTML %]
+[%- USE HTML %][%- USE L -%]
 <form name="Form" method="post" action="[% script %]">
 
 <table width="100%">
@@ -14,7 +14,7 @@
         <tr>
           <th align="right" nowrap>[% 'To' | $T8 %]</th>
 
-          <td><input id="email" name="email" size="30" value="[% HTML.escape(email) %]"></td>
+          <td>[% L.input_tag('email', email, size=30, class=(email ? '' : 'initial_focus')) %]</td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Cc' | $T8 %]</th>
@@ -28,7 +28,7 @@
         <tr>
           <th align="right" nowrap>[% 'Subject' | $T8 %]</th>
 
-          <td><input id="subject" name="subject" size="30" value="[% HTML.escape(subject) %]"></td>
+          <td>[% L.input_tag('subject', subject, size=30, class=(email ? 'initial_focus' : '')) %]</td>
         </tr>
         <tr>
           <th align="right" nowrap>[% 'Attachment name' | $T8 %]</th>
@@ -70,4 +70,3 @@
 <br>
 <input name="action" class="submit" type="submit" value="[% 'Continue' | $T8 %]">
 </form>
-

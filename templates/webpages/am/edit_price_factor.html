@@ -11,7 +11,7 @@
    <table border="0">
     <tr>
      <td align="right">[% 'Description' | $T8 %]</td>
-     <td><input id="description" name="description" value="[% HTML.escape(description) %]"></td>
+     <td><input id="description" name="description" value="[% HTML.escape(description) %]" class="initial_focus"></td>
     </tr>
 
     <tr>
@@ -31,4 +31,3 @@
    [% IF id %][% IF orphaned %]<input type="submit" name="action" value="[% 'Delete' | $T8 %]">[% END %][% END %]
   </p>
  </form>
-

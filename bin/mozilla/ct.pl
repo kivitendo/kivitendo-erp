@@ -103,7 +103,6 @@ sub search {
 
   $form->{jsscript} = 1;
   $form->{title}    = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
-  $::request->{layout}->focus('#name');
 
   $form->header();
   print $form->parse_html_template('ct/search');
@@ -174,7 +173,7 @@ sub list_names {
   my @columns = (
     'id',        'name',      "$form->{db}number",   'contact',   'phone',
     'fax',       'email',     'taxnumber',           'street',    'zipcode' , 'city',
-    'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country' 
+    'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -477,7 +476,6 @@ sub form_header {
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
   $form->{jsscript}       = 1;
   $form->{SHIPTO_ALL}     = [ +{ shipto_id => '0', shiptoname => $::locale->text('All') }, @{ $form->{SHIPTO} } ];
-  $::request->{layout}->focus("#greeting");
 
   $form->{title} = $form->{title_save}
                 || $locale->text("$form->{title} " . ucfirst $form->{db}) . ($form->{title} eq "Edit" ? " $form->{name}" : '');

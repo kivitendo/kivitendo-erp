@@ -315,8 +315,6 @@ sub form_header {
     $taxcharts{$item->{id}} = $item;
   }
 
-  $::request->{layout}->focus("#customer");
-
   my $follow_up_vc         =  $form->{customer};
   $follow_up_vc            =~ s/--.*?//;
   my $follow_up_trans_info =  "$form->{invnumber} ($follow_up_vc)";

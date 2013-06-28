@@ -183,7 +183,6 @@ sub init_default_client_id {
 sub show_login_form {
   my ($self, %params) = @_;
 
-  $::request->layout->focus('#auth_login');
   $self->render('login_screen/user_login', %params);
 }
 

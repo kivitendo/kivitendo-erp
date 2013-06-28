@@ -149,8 +149,6 @@ sub display_form {
   $params{CUSTOM_VARIABLES} = CVar->get_custom_variables(module => 'Projects', trans_id => $self->project->id);
   CVar->render_inputs(variables => $params{CUSTOM_VARIABLES}) if @{ $params{CUSTOM_VARIABLES} };
 
-  $::request->{layout}->focus('#projectnumber');
-
   $self->render('project/form', %params);
 }
 

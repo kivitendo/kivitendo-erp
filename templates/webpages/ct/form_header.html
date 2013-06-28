@@ -80,7 +80,7 @@
      <tr>
       <th align="right" nowrap>[% 'Greeting' | $T8 %]</th>
       <td>
-       <input id="greeting" name="greeting" size="30" value="[% HTML.escape(greeting) %]">&nbsp;
+       <input id="greeting" name="greeting" size="30" value="[% HTML.escape(greeting) %]" class="initial_focus">&nbsp;
        [%- INCLUDE generic/multibox.html
              name       = 'selected_company_greeting',
              DATA       = MB_COMPANY_GREETINGS,
