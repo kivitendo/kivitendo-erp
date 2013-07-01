@@ -8,9 +8,8 @@
           <th align="left" valign="top" nowrap>[% var.config.description | html %]</th>
 
           <td valign="top">
-            [%
-              INCLUDE 'customer_vendor/render_cvar_input.html'
-                      cvar_name_prefix = 'cv_cvars.'
+            [% PROCESS 'customer_vendor/render_cvar_input.html'
+                        cvar_name_prefix = 'cv_cvars.'
             %]
           </td>
         </tr>
