@@ -199,14 +199,13 @@ sub parse_args {
     help                => sub { pod2usage(verbose => 99, sections => 'NAME|SYNOPSIS|OPTIONS') },
     quiet               => \ my $quiet,
     diff                => \ my $diff,
-    'color!'            => \ my $color,
   );
 
   $options->{client}   = $client;
   $options->{all}      = $all;
   $options->{nocommit} = $nocommit;
   $options->{quiet}    = $quiet;
-  $options->{color}    = defined $color ? $color : 1;
+  $options->{color}    = -t STDOUT ? 1 : 0;
 
   if ($diff) {
     if (eval { require Text::Diff; 1 }) {
