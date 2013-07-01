@@ -14,7 +14,7 @@ __PACKAGE__->meta->columns(
   profile_id => { type => 'integer', not_null => 1 },
   type       => { type => 'text', not_null => 1 },
   file       => { type => 'text', not_null => 1 },
-  numrows    => { type => 'integer' },
+  numrows    => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
