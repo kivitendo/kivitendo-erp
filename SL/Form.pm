@@ -614,14 +614,7 @@ sub _prepare_html_template {
     map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
-  $additional_params->{"conf_webdav"}                 = $::instance_conf->get_webdav;
-  $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
-  $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
-  $additional_params->{"conf_vertreter"}              = $::instance_conf->get_vertreter;
-  $additional_params->{"conf_parts_image_css"}        = $::instance_conf->get_parts_image_css;
-  $additional_params->{"conf_parts_listing_image"}    = $::instance_conf->get_parts_listing_image;
-  $additional_params->{"conf_parts_show_image"}       = $::instance_conf->get_parts_show_image;
-  $additional_params->{"INSTANCE_CONF"}               = $::instance_conf;
+  $additional_params->{INSTANCE_CONF} = $::instance_conf;
 
   if (my $debug_options = $::lx_office_conf{debug}{options}) {
     map { $additional_params->{'DEBUG_' . uc($_)} = $debug_options->{$_} } keys %$debug_options;

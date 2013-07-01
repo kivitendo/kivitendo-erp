@@ -26,7 +26,7 @@
 
     <table width="100%">
      <tr height="5"></tr>
-     [% IF conf_vertreter %]
+     [% IF INSTANCE_CONF.get_vertreter %]
       <tr>
        <th align="right">[% IF is_customer %][% 'Type of Customer' | $T8 %][%- ELSE %][% 'Type of Vendor' | $T8 %][%- END %]</th>
        <td>
@@ -238,7 +238,7 @@
      </tr>
 
      <tr>
-      [% UNLESS conf_vertreter %]
+      [% UNLESS INSTANCE_CONF.get_vertreter %]
        <th align="right">[% IF is_customer %][% 'Type of Customer' | $T8 %][% ELSE %][% 'Type of Vendor' | $T8 %][%- END %]</th>
        <td>
         [%- INCLUDE generic/multibox.html
@@ -295,7 +295,7 @@
              label_key  = 'description',
        -%]
       </td>
-      [%- IF is_customer && !conf_vertreter %]
+      [%- IF is_customer && !INSTANCE_CONF.get_vertreter %]
       <th align="right">[% 'Salesman' | $T8 %]</th>
       <td>[% L.select_tag('salesman_id', ALL_SALESMEN, default = salesman_id, with_empty = 1, title_key = 'safe_name') %]</td>
       [%- END %]

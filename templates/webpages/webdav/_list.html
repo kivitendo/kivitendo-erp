@@ -1,6 +1,6 @@
 [% USE HTML %][% USE T8 %]
 
-[%- IF conf_webdav %]
+[%- IF INSTANCE_CONF.get_webdav %]
 <div id="ui-tabs-webdav">
 
  <div class="listtop" align="left">[% 'Documents in the WebDAV repository' | $T8 %]</div>
