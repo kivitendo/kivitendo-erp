@@ -45,14 +45,13 @@ sub _before_save_remember_old_name {
 sub _after_save_ensure_webdav_symlink_correctness {
   my ($self) = @_;
 
-  $self->ensure_webdav_symlink_correctness($self->{__before_save_remember_old_name}) if $self->id && $::instance_conf->get_webdav;
+  $self->ensure_webdav_symlink_correctness($self->{__before_save_remember_old_name}) if $self->id;
   return 1;
 }
 
 sub _after_delete_delete_webdav_symlink {
   my ($self) = @_;
 
-  return 1 if !$::instance_conf->get_webdav;
   my $name = $self->webdav_symlink_basename;
   unlink "webdav/links/${name}";
   return 1;
@@ -84,8 +83,6 @@ sub webdav_symlink_basename {
 
 sub ensure_webdav_symlink_correctness {
   my ($self, $old_name) = @_;
-
-  return unless $::instance_conf->get_webdav;
 
   croak "Need object ID" unless $self->id;
 
