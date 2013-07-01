@@ -40,6 +40,11 @@ use SL::System::TaskServer;
 
 our %lx_office_conf;
 
+sub debug {
+  return if !$lx_office_conf{task_server}->{debug};
+  $::lxdebug->message(0, @_);
+}
+
 sub lxinit {
   my $login  = $lx_office_conf{task_server}->{login};
   my $client = $lx_office_conf{task_server}->{client};
@@ -110,11 +115,11 @@ sub gd_preconfig {
 sub gd_run {
   while (1) {
     my $ok = eval {
-      $::lxdebug->message(0, "Retrieving jobs") if $lx_office_conf{task_server}->{debug};
+      debug("Retrieving jobs");
 
       my $jobs = SL::DB::Manager::BackgroundJob->get_all_need_to_run;
 
-      $::lxdebug->message(0, "  Found: " . join(' ', map { $_->package_name } @{ $jobs })) if $lx_office_conf{task_server}->{debug} && @{ $jobs };
+      debug("  Found: " . join(' ', map { $_->package_name } @{ $jobs })) if @{ $jobs };
 
       foreach my $job (@{ $jobs }) {
         # Provide fresh global variables in case legacy code modifies
@@ -130,15 +135,13 @@ sub gd_run {
       1;
     };
 
-    if ($lx_office_conf{task_server}->{debug}) {
-      $::lxdebug->message(0, "Exception during execution: ${EVAL_ERROR}") if !$ok;
-      $::lxdebug->message(0, "Sleeping");
-    }
+    debug("Exception during execution: ${EVAL_ERROR}") if !$ok;
+    debug("Sleeping");
 
     my $seconds = 60 - (localtime)[0];
     if (!eval {
       local $SIG{'ALRM'} = sub {
-        $::lxdebug->message(0, "Got woken up by SIGALRM") if $lx_office_conf{task_server}->{debug};
+        debug("Got woken up by SIGALRM");
         die "Alarm!\n"
       };
       sleep($seconds < 30 ? $seconds + 60 : $seconds);
