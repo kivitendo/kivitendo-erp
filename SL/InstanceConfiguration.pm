@@ -11,6 +11,8 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 sub init_data {
+  return {} if !$::auth->client;
+
   my $dbh                   = $::form->get_standard_dbh;
   my $data                  = SL::DBUtils::selectfirst_hashref_query($::form, $dbh, qq|SELECT * FROM defaults|);
   $data->{default_currency} = (SL::DBUtils::selectfirst_array_query($::form, $dbh, qq|SELECT name FROM currencies WHERE id = ?|, $data->{currency_id}))[0] if $data->{currency_id};
@@ -19,6 +21,7 @@ sub init_data {
 }
 
 sub init_currencies {
+  return [] if !$::auth->client;
   return [ map { $_->{name} } SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies ORDER BY id ASC|) ];
 }
 
