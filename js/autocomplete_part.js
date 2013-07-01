@@ -1,14 +1,20 @@
 namespace('kivi', function(k){
   k.part_picker = function($real, options) {
-    o = $.extend({
+    var o = $.extend({
       limit: 20,
       delay: 50,
     }, options);
-
+    var STATES = {
+      UNIQUE: 1,
+      UNDEFINED: 0,
+    }
     var real_id = $real.attr('id');
     var $dummy  = $('#' + real_id + '_name');
     var $type   = $('#' + real_id + '_type');
     var $column = $('#' + real_id + '_column');
+    var state   = STATES.PICKED;
+    var last_real = $real.val();
+    var last_dummy = $dummy.val();
     var open_dialog = function(){
       open_jqm_window({
         url: 'controller.pl',
@@ -24,7 +30,7 @@ namespace('kivi', function(k){
       return true;
     };
 
-    var ajax_data = function(term) {
+    function ajax_data(term) {
       return {
         term:     term,
         type:     function() { return $type.val() },
@@ -34,7 +40,7 @@ namespace('kivi', function(k){
       }
     }
 
-    var set_item = function (item) {
+    function set_item (item) {
       if (item.id) {
         $real.val(item.id);
         // autocomplete ui has name, ajax items have description
@@ -43,6 +49,19 @@ namespace('kivi', function(k){
         $real.val('');
         $dummy.val('');
       }
+      state = STATES.PICKED;
+      last_real = $real.val();
+      last_dummy = $dummy.val();
+      console.log('last:' + last_real + ' dummy:' + last_dummy);
+    }
+
+    function make_defined_state () {
+      if (state == STATES.PICKED)
+        return true
+      else if (state == STATES.UNDEFINED && $dummy.val() == '')
+        set_item({})
+      else
+        set_item({ id: last_real, name: last_dummy })
     }
 
     $dummy.autocomplete({
@@ -72,6 +91,8 @@ namespace('kivi', function(k){
         if ($dummy.val() == '') {
           set_item({});
           return true;
+        } else if (state == STATES.PICKED) {
+          return true;
         }
         $.ajax({
           url: 'controller.pl?action=Part/ajax_autocomplete',
@@ -83,22 +104,21 @@ namespace('kivi', function(k){
               if (event.keyCode == 13)
                 $('#update_button').click();
             } else {
-              if (event.keyCode == 13)
+             if (event.keyCode == 13)
                 open_dialog();
               else
-                set_item({});
+                make_defined_state();
             }
           }
         });
         if (event.keyCode == 13)
           return false;
-      };
+      } else {
+        state = STATES.UNDEFINED;
+      }
     });
 
-    $dummy.blur(function(){
-      if ($dummy.val() == '')
-        $real.val('');
-    });
+//    $dummy.blur(make_defined_state);  // blur triggers also on open_jqm_dialog
 
     // now add a picker div after the original input
     var pcont  = $('<span>').addClass('position-absolute');
