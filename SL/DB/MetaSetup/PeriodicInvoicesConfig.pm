@@ -9,18 +9,18 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('periodic_invoices_configs');
 
 __PACKAGE__->meta->columns(
+  active                  => { type => 'boolean', default => 'true' },
+  ar_chart_id             => { type => 'integer', not_null => 1 },
+  copies                  => { type => 'integer' },
+  end_date                => { type => 'date' },
+  extend_automatically_by => { type => 'integer' },
   id                      => { type => 'integer', not_null => 1, sequence => 'id' },
   oe_id                   => { type => 'integer', not_null => 1 },
   periodicity             => { type => 'varchar', length => 10, not_null => 1 },
   print                   => { type => 'boolean', default => 'false' },
   printer_id              => { type => 'integer' },
-  copies                  => { type => 'integer' },
-  active                  => { type => 'boolean', default => 'true' },
-  terminated              => { type => 'boolean', default => 'false' },
   start_date              => { type => 'date' },
-  end_date                => { type => 'date' },
-  ar_chart_id             => { type => 'integer', not_null => 1 },
-  extend_automatically_by => { type => 'integer' },
+  terminated              => { type => 'boolean', default => 'false' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -41,8 +41,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { printer_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

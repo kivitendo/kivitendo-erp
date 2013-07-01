@@ -9,29 +9,29 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('delivery_order_items');
 
 __PACKAGE__->meta->columns(
-  id                 => { type => 'integer', not_null => 1, sequence => 'delivery_order_items_id' },
-  delivery_order_id  => { type => 'integer', not_null => 1 },
-  parts_id           => { type => 'integer', not_null => 1 },
-  description        => { type => 'text' },
-  qty                => { type => 'numeric', precision => 5, scale => 25 },
-  sellprice          => { type => 'numeric', precision => 5, scale => 15 },
-  discount           => { type => 'float', precision => 4 },
-  project_id         => { type => 'integer' },
-  reqdate            => { type => 'date' },
-  serialnumber       => { type => 'text' },
-  ordnumber          => { type => 'text' },
-  transdate          => { type => 'text' },
-  cusordnumber       => { type => 'text' },
-  unit               => { type => 'varchar', length => 20 },
   base_qty           => { type => 'float', precision => 4 },
-  longdescription    => { type => 'text' },
-  lastcost           => { type => 'numeric', precision => 5, scale => 15 },
-  price_factor_id    => { type => 'integer' },
-  price_factor       => { type => 'numeric', default => 1, precision => 5, scale => 15 },
-  marge_price_factor => { type => 'numeric', default => 1, precision => 5, scale => 15 },
+  cusordnumber       => { type => 'text' },
+  delivery_order_id  => { type => 'integer', not_null => 1 },
+  description        => { type => 'text' },
+  discount           => { type => 'float', precision => 4 },
+  id                 => { type => 'integer', not_null => 1, sequence => 'delivery_order_items_id' },
   itime              => { type => 'timestamp', default => 'now()' },
+  lastcost           => { type => 'numeric', precision => 5, scale => 15 },
+  longdescription    => { type => 'text' },
+  marge_price_factor => { type => 'numeric', default => 1, precision => 5, scale => 15 },
   mtime              => { type => 'timestamp' },
+  ordnumber          => { type => 'text' },
+  parts_id           => { type => 'integer', not_null => 1 },
+  price_factor       => { type => 'numeric', default => 1, precision => 5, scale => 15 },
+  price_factor_id    => { type => 'integer' },
   pricegroup_id      => { type => 'integer' },
+  project_id         => { type => 'integer' },
+  qty                => { type => 'numeric', precision => 5, scale => 25 },
+  reqdate            => { type => 'date' },
+  sellprice          => { type => 'numeric', precision => 5, scale => 15 },
+  serialnumber       => { type => 'text' },
+  transdate          => { type => 'text' },
+  unit               => { type => 'varchar', length => 20 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -64,8 +64,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { project_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

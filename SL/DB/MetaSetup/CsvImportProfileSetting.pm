@@ -9,8 +9,8 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('csv_import_profile_settings');
 
 __PACKAGE__->meta->columns(
-  id                    => { type => 'serial', not_null => 1 },
   csv_import_profile_id => { type => 'integer', not_null => 1 },
+  id                    => { type => 'serial', not_null => 1 },
   key                   => { type => 'text', not_null => 1 },
   value                 => { type => 'text' },
 );
@@ -25,8 +25,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { csv_import_profile_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

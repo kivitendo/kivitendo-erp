@@ -15,7 +15,5 @@ __PACKAGE__->meta->columns(
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
-# __PACKAGE__->meta->initialize;
-
 1;
 ;

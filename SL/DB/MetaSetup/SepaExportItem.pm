@@ -9,21 +9,21 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('sepa_export_items');
 
 __PACKAGE__->meta->columns(
-  id                       => { type => 'integer', not_null => 1, sequence => 'id' },
-  sepa_export_id           => { type => 'integer', not_null => 1 },
-  ap_id                    => { type => 'integer' },
-  chart_id                 => { type => 'integer', not_null => 1 },
   amount                   => { type => 'numeric', precision => 5, scale => 25 },
-  reference                => { type => 'varchar', length => 35 },
-  requested_execution_date => { type => 'date' },
+  ap_id                    => { type => 'integer' },
+  ar_id                    => { type => 'integer' },
+  chart_id                 => { type => 'integer', not_null => 1 },
+  end_to_end_id            => { type => 'varchar', length => 35 },
   executed                 => { type => 'boolean', default => 'false' },
   execution_date           => { type => 'date' },
-  our_iban                 => { type => 'varchar', length => 100 },
+  id                       => { type => 'integer', not_null => 1, sequence => 'id' },
   our_bic                  => { type => 'varchar', length => 100 },
-  vc_iban                  => { type => 'varchar', length => 100 },
+  our_iban                 => { type => 'varchar', length => 100 },
+  reference                => { type => 'varchar', length => 35 },
+  requested_execution_date => { type => 'date' },
+  sepa_export_id           => { type => 'integer', not_null => 1 },
   vc_bic                   => { type => 'varchar', length => 100 },
-  end_to_end_id            => { type => 'varchar', length => 35 },
-  ar_id                    => { type => 'integer' },
+  vc_iban                  => { type => 'varchar', length => 100 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -49,8 +49,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { sepa_export_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

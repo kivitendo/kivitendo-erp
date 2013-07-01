@@ -9,12 +9,12 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('taxkeys');
 
 __PACKAGE__->meta->columns(
-  id        => { type => 'integer', not_null => 1, sequence => 'id' },
   chart_id  => { type => 'integer', not_null => 1 },
-  tax_id    => { type => 'integer', not_null => 1 },
-  taxkey_id => { type => 'integer', not_null => 1 },
+  id        => { type => 'integer', not_null => 1, sequence => 'id' },
   pos_ustva => { type => 'integer' },
   startdate => { type => 'date', not_null => 1 },
+  tax_id    => { type => 'integer', not_null => 1 },
+  taxkey_id => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -32,8 +32,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { tax_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

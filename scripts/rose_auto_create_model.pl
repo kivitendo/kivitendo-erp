@@ -115,18 +115,35 @@ CODE
   my %args = (indent => 2, use_setup => 0);
 
   my $definition =  "SL::DB::AUTO::$package"->meta->perl_class_definition(%args);
-  $definition =~ s/(__PACKAGE__->meta->initialize;)/# $1/;
+  $definition =~ s/\n+__PACKAGE__->meta->initialize;\n+/\n\n/;
   $definition =~ s/::AUTO::/::/g;
+
+
+  # Sort column definitions alphabetically
+  if ($definition =~ m/__PACKAGE__->meta->columns\( \n (.+?) \n \);/msx) {
+    my ($start, $end)  = ($-[1], $+[1]);
+    my $sorted_columns = join "\n", sort split m/\n/, $1;
+    substr $definition, $start, $end - $start, $sorted_columns;
+  }
 
   # patch foreign keys
   my $foreign_key_definition = "SL::DB::AUTO::$package"->meta->perl_foreign_keys_definition(%args);
   $foreign_key_definition =~ s/::AUTO::/::/g;
 
-  if ($definition =~ /\Q$foreign_key_definition\E/) {
+  if ($foreign_key_definition && ($definition =~ /\Q$foreign_key_definition\E/)) {
     my ($start, $end) = ($-[0], $+[0]);
 
     while (my ($auto_generated_name, $desired_name) = each %{ $foreign_key_name_map{$table} || {} }) {
       $foreign_key_definition =~ s/^ \s \s ${auto_generated_name} \b/  ${desired_name}/msx;
+    }
+
+    # Sort foreign key definitions alphabetically
+    if ($foreign_key_definition =~ m/\(\n(.+)\n\)/s) {
+      my ($list_start, $list_end) = ($-[0], $+[0]);
+      my @foreign_keys            = split m/\n\n/m, $1;
+      my $sorted_foreign_keys     = "(\n" . join("\n\n", sort @foreign_keys) . "\n)";
+
+      substr $foreign_key_definition, $list_start, $list_end - $list_start, $sorted_foreign_keys;;
     }
 
     substr($definition, $start, $end - $start) = $foreign_key_definition;

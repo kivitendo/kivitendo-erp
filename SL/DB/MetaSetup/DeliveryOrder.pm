@@ -9,36 +9,36 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('delivery_orders');
 
 __PACKAGE__->meta->columns(
-  id                      => { type => 'integer', not_null => 1, sequence => 'id' },
-  donumber                => { type => 'text', not_null => 1 },
-  ordnumber               => { type => 'text' },
-  transdate               => { type => 'date', default => 'now()' },
-  vendor_id               => { type => 'integer' },
-  customer_id             => { type => 'integer' },
-  reqdate                 => { type => 'date' },
-  shippingpoint           => { type => 'text' },
-  notes                   => { type => 'text' },
-  intnotes                => { type => 'text' },
-  employee_id             => { type => 'integer' },
   closed                  => { type => 'boolean', default => 'false' },
-  delivered               => { type => 'boolean', default => 'false' },
-  cusordnumber            => { type => 'text' },
-  oreqnumber              => { type => 'text' },
-  department_id           => { type => 'integer' },
-  shipvia                 => { type => 'text' },
   cp_id                   => { type => 'integer' },
-  language_id             => { type => 'integer' },
-  shipto_id               => { type => 'integer' },
+  currency_id             => { type => 'integer', not_null => 1 },
+  cusordnumber            => { type => 'text' },
+  customer_id             => { type => 'integer' },
+  delivered               => { type => 'boolean', default => 'false' },
+  department_id           => { type => 'integer' },
+  donumber                => { type => 'text', not_null => 1 },
+  employee_id             => { type => 'integer' },
   globalproject_id        => { type => 'integer' },
-  salesman_id             => { type => 'integer' },
-  transaction_description => { type => 'text' },
+  id                      => { type => 'integer', not_null => 1, sequence => 'id' },
+  intnotes                => { type => 'text' },
   is_sales                => { type => 'boolean' },
   itime                   => { type => 'timestamp', default => 'now()' },
+  language_id             => { type => 'integer' },
   mtime                   => { type => 'timestamp' },
-  taxzone_id              => { type => 'integer' },
+  notes                   => { type => 'text' },
+  ordnumber               => { type => 'text' },
+  oreqnumber              => { type => 'text' },
+  reqdate                 => { type => 'date' },
+  salesman_id             => { type => 'integer' },
+  shippingpoint           => { type => 'text' },
+  shipto_id               => { type => 'integer' },
+  shipvia                 => { type => 'text' },
   taxincluded             => { type => 'boolean' },
+  taxzone_id              => { type => 'integer' },
   terms                   => { type => 'integer' },
-  currency_id             => { type => 'integer', not_null => 1 },
+  transaction_description => { type => 'text' },
+  transdate               => { type => 'date', default => 'now()' },
+  vendor_id               => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -96,8 +96,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { vendor_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

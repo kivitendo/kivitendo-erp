@@ -10,23 +10,23 @@ __PACKAGE__->meta->table('acc_trans');
 
 __PACKAGE__->meta->columns(
   acc_trans_id   => { type => 'bigint', not_null => 1, sequence => 'acc_trans_id_seq' },
-  trans_id       => { type => 'integer', not_null => 1 },
-  chart_id       => { type => 'integer', not_null => 1 },
   amount         => { type => 'numeric', precision => 5, scale => 15 },
-  transdate      => { type => 'date', default => 'now' },
-  gldate         => { type => 'date', default => 'now' },
-  source         => { type => 'text' },
+  cb_transaction => { type => 'boolean', default => 'false', not_null => 1 },
+  chart_id       => { type => 'integer', not_null => 1 },
+  chart_link     => { type => 'text', not_null => 1 },
   cleared        => { type => 'boolean', default => 'false', not_null => 1 },
   fx_transaction => { type => 'boolean', default => 'false', not_null => 1 },
-  ob_transaction => { type => 'boolean', default => 'false', not_null => 1 },
-  cb_transaction => { type => 'boolean', default => 'false', not_null => 1 },
-  project_id     => { type => 'integer' },
-  memo           => { type => 'text' },
-  taxkey         => { type => 'integer' },
+  gldate         => { type => 'date', default => 'now' },
   itime          => { type => 'timestamp', default => 'now()' },
+  memo           => { type => 'text' },
   mtime          => { type => 'timestamp' },
+  ob_transaction => { type => 'boolean', default => 'false', not_null => 1 },
+  project_id     => { type => 'integer' },
+  source         => { type => 'text' },
   tax_id         => { type => 'integer', not_null => 1 },
-  chart_link     => { type => 'text', not_null => 1 },
+  taxkey         => { type => 'integer' },
+  trans_id       => { type => 'integer', not_null => 1 },
+  transdate      => { type => 'date', default => 'now' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'acc_trans_id' ]);
@@ -49,8 +49,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { tax_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

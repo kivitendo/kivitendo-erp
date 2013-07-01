@@ -9,26 +9,24 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('dunning_config');
 
 __PACKAGE__->meta->columns(
-  id                       => { type => 'integer', not_null => 1, sequence => 'id' },
-  dunning_level            => { type => 'integer' },
-  dunning_description      => { type => 'text' },
   active                   => { type => 'boolean' },
   auto                     => { type => 'boolean' },
+  create_invoices_for_fees => { type => 'boolean', default => 'true' },
+  dunning_description      => { type => 'text' },
+  dunning_level            => { type => 'integer' },
   email                    => { type => 'boolean' },
-  terms                    => { type => 'integer' },
-  payment_terms            => { type => 'integer' },
-  fee                      => { type => 'numeric', precision => 5, scale => 15 },
-  interest_rate            => { type => 'numeric', precision => 5, scale => 15 },
+  email_attachment         => { type => 'boolean' },
   email_body               => { type => 'text' },
   email_subject            => { type => 'text' },
-  email_attachment         => { type => 'boolean' },
+  fee                      => { type => 'numeric', precision => 5, scale => 15 },
+  id                       => { type => 'integer', not_null => 1, sequence => 'id' },
+  interest_rate            => { type => 'numeric', precision => 5, scale => 15 },
+  payment_terms            => { type => 'integer' },
   template                 => { type => 'text' },
-  create_invoices_for_fees => { type => 'boolean', default => 'true' },
+  terms                    => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

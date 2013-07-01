@@ -9,13 +9,13 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('exchangerate');
 
 __PACKAGE__->meta->columns(
-  transdate   => { type => 'date' },
   buy         => { type => 'numeric', precision => 5, scale => 15 },
-  sell        => { type => 'numeric', precision => 5, scale => 15 },
+  currency_id => { type => 'integer', not_null => 1 },
+  id          => { type => 'serial', not_null => 1 },
   itime       => { type => 'timestamp', default => 'now()' },
   mtime       => { type => 'timestamp' },
-  id          => { type => 'serial', not_null => 1 },
-  currency_id => { type => 'integer', not_null => 1 },
+  sell        => { type => 'numeric', precision => 5, scale => 15 },
+  transdate   => { type => 'date' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -28,8 +28,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { currency_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

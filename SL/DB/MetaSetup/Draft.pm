@@ -9,13 +9,13 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('drafts');
 
 __PACKAGE__->meta->columns(
+  description => { type => 'text' },
+  employee_id => { type => 'integer' },
+  form        => { type => 'text' },
   id          => { type => 'varchar', length => 50, not_null => 1 },
+  itime       => { type => 'timestamp', default => 'now()' },
   module      => { type => 'varchar', length => 50, not_null => 1 },
   submodule   => { type => 'varchar', length => 50, not_null => 1 },
-  description => { type => 'text' },
-  itime       => { type => 'timestamp', default => 'now()' },
-  form        => { type => 'text' },
-  employee_id => { type => 'integer' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -28,8 +28,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { employee_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

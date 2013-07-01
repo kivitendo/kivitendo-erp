@@ -10,14 +10,12 @@ __PACKAGE__->meta->table('printers');
 
 __PACKAGE__->meta->columns(
   id                  => { type => 'integer', not_null => 1, sequence => 'id' },
-  printer_description => { type => 'text', not_null => 1 },
   printer_command     => { type => 'text' },
+  printer_description => { type => 'text', not_null => 1 },
   template_code       => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

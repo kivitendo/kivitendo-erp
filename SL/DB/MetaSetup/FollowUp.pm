@@ -9,14 +9,14 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('follow_ups');
 
 __PACKAGE__->meta->columns(
-  id               => { type => 'integer', not_null => 1, sequence => 'follow_up_id' },
-  follow_up_date   => { type => 'date', not_null => 1 },
+  created_by       => { type => 'integer', not_null => 1 },
   created_for_user => { type => 'integer', not_null => 1 },
   done             => { type => 'boolean', default => 'false' },
-  note_id          => { type => 'integer', not_null => 1 },
-  created_by       => { type => 'integer', not_null => 1 },
+  follow_up_date   => { type => 'date', not_null => 1 },
+  id               => { type => 'integer', not_null => 1, sequence => 'follow_up_id' },
   itime            => { type => 'timestamp', default => 'now()' },
   mtime            => { type => 'timestamp' },
+  note_id          => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -26,12 +26,12 @@ __PACKAGE__->meta->allow_inline_column_values(1);
 __PACKAGE__->meta->foreign_keys(
   employee => {
     class       => 'SL::DB::Employee',
-    key_columns => { created_for_user => 'id' },
+    key_columns => { created_by => 'id' },
   },
 
   employee_obj => {
     class       => 'SL::DB::Employee',
-    key_columns => { created_by => 'id' },
+    key_columns => { created_for_user => 'id' },
   },
 
   note => {
@@ -39,8 +39,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { note_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

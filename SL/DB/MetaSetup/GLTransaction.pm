@@ -9,22 +9,22 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('gl');
 
 __PACKAGE__->meta->columns(
-  id             => { type => 'integer', not_null => 1, sequence => 'glid' },
-  reference      => { type => 'text' },
-  description    => { type => 'text' },
-  transdate      => { type => 'date', default => 'now' },
-  gldate         => { type => 'date', default => 'now' },
-  employee_id    => { type => 'integer' },
-  notes          => { type => 'text' },
+  cb_transaction => { type => 'boolean' },
   department_id  => { type => 'integer' },
-  taxincluded    => { type => 'boolean' },
+  description    => { type => 'text' },
+  employee_id    => { type => 'integer' },
+  gldate         => { type => 'date', default => 'now' },
+  id             => { type => 'integer', not_null => 1, sequence => 'glid' },
   itime          => { type => 'timestamp', default => 'now()' },
   mtime          => { type => 'timestamp' },
-  type           => { type => 'text' },
+  notes          => { type => 'text' },
+  ob_transaction => { type => 'boolean' },
+  reference      => { type => 'text' },
   storno         => { type => 'boolean', default => 'false' },
   storno_id      => { type => 'integer' },
-  ob_transaction => { type => 'boolean' },
-  cb_transaction => { type => 'boolean' },
+  taxincluded    => { type => 'boolean' },
+  transdate      => { type => 'date', default => 'now' },
+  type           => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -42,8 +42,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { storno_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

@@ -9,13 +9,13 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('project');
 
 __PACKAGE__->meta->columns(
-  id            => { type => 'integer', not_null => 1, sequence => 'id' },
-  projectnumber => { type => 'text' },
-  description   => { type => 'text' },
-  itime         => { type => 'timestamp', default => 'now()' },
-  mtime         => { type => 'timestamp' },
   active        => { type => 'boolean', default => 'true' },
   customer_id   => { type => 'integer' },
+  description   => { type => 'text' },
+  id            => { type => 'integer', not_null => 1, sequence => 'id' },
+  itime         => { type => 'timestamp', default => 'now()' },
+  mtime         => { type => 'timestamp' },
+  projectnumber => { type => 'text' },
   type          => { type => 'text' },
   valid         => { type => 'boolean', default => 'true' },
 );
@@ -32,8 +32,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { customer_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

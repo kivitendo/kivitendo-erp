@@ -11,9 +11,9 @@ __PACKAGE__->meta->table('generic_translations');
 __PACKAGE__->meta->columns(
   id               => { type => 'serial', not_null => 1 },
   language_id      => { type => 'integer' },
-  translation_type => { type => 'varchar', length => 100, not_null => 1 },
-  translation_id   => { type => 'integer' },
   translation      => { type => 'text' },
+  translation_id   => { type => 'integer' },
+  translation_type => { type => 'varchar', length => 100, not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -24,8 +24,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { language_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

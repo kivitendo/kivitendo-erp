@@ -9,16 +9,16 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('delivery_order_items_stock');
 
 __PACKAGE__->meta->columns(
-  id                     => { type => 'integer', not_null => 1, sequence => 'id' },
+  bestbefore             => { type => 'date' },
+  bin_id                 => { type => 'integer', not_null => 1 },
+  chargenumber           => { type => 'text' },
   delivery_order_item_id => { type => 'integer', not_null => 1 },
+  id                     => { type => 'integer', not_null => 1, sequence => 'id' },
+  itime                  => { type => 'timestamp', default => 'now()' },
+  mtime                  => { type => 'timestamp' },
   qty                    => { type => 'numeric', not_null => 1, precision => 5, scale => 15 },
   unit                   => { type => 'varchar', length => 20, not_null => 1 },
   warehouse_id           => { type => 'integer', not_null => 1 },
-  bin_id                 => { type => 'integer', not_null => 1 },
-  chargenumber           => { type => 'text' },
-  itime                  => { type => 'timestamp', default => 'now()' },
-  mtime                  => { type => 'timestamp' },
-  bestbefore             => { type => 'date' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
@@ -41,8 +41,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { warehouse_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

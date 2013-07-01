@@ -9,16 +9,14 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('schema_info');
 
 __PACKAGE__->meta->columns(
-  tag   => { type => 'text', not_null => 1 },
-  login => { type => 'text' },
   itime => { type => 'timestamp', default => 'now()' },
+  login => { type => 'text' },
+  tag   => { type => 'text', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'tag' ]);
 
 __PACKAGE__->meta->allow_inline_column_values(1);
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;

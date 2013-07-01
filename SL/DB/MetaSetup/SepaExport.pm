@@ -9,10 +9,10 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('sepa_export');
 
 __PACKAGE__->meta->columns(
-  id          => { type => 'serial', not_null => 1 },
+  closed      => { type => 'boolean', default => 'false' },
   employee_id => { type => 'integer', not_null => 1 },
   executed    => { type => 'boolean', default => 'false' },
-  closed      => { type => 'boolean', default => 'false' },
+  id          => { type => 'serial', not_null => 1 },
   itime       => { type => 'timestamp', default => 'now()' },
   vc          => { type => 'varchar', length => 10 },
 );
@@ -27,8 +27,6 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { employee_id => 'id' },
   },
 );
-
-# __PACKAGE__->meta->initialize;
 
 1;
 ;
