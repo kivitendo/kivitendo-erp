@@ -3,8 +3,7 @@ package SL::InstanceConfiguration;
 use strict;
 
 use Carp;
-use SL::DB::Currency;
-use SL::DB::Default;
+use SL::DBUtils ();
 
 use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic (
@@ -12,15 +11,15 @@ use Rose::Object::MakeMethods::Generic (
 );
 
 sub init_data {
-  my $default               = SL::DB::Default->get;
-  my $data                  = { map { $_ => $default->$_ } $default->meta->columns };
-  $data->{default_currency} = $default->currency ? $default->currency->name : undef;
+  my $dbh                   = $::form->get_standard_dbh;
+  my $data                  = SL::DBUtils::selectfirst_hashref_query($::form, $dbh, qq|SELECT * FROM defaults|);
+  $data->{default_currency} = (SL::DBUtils::selectfirst_array_query($::form, $dbh, qq|SELECT name FROM currencies WHERE id = ?|, $data->{currency_id}))[0] if $data->{currency_id};
 
   return $data;
 }
 
 sub init_currencies {
-  return [ map { $_->name } @{ SL::DB::Manager::Currency->get_all_sorted } ];
+  return [ map { $_->{name} } SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies ORDER BY id ASC|) ];
 }
 
 sub reload {
