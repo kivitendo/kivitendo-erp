@@ -18,7 +18,8 @@
             empty_title = LxERP.t8('New contact'),
             value_key = 'cp_id',
             title_key = 'full_name',
-            onchange = "namespace('kivi.CustomerVendor').selectContact();")
+            onchange = "namespace('kivi.CustomerVendor').selectContact({onFormSet: function(){contactsMapWidget.testInputs();}});",
+          )
         %]
       </td>
     </tr>
@@ -156,10 +157,10 @@
 
       <td>
         [% L.input_tag('contact.cp_street', SELF.contact.cp_street, size = 40, maxlength = 75) %]
-
-        <a href="#" onclick="namespace('kivi.CustomerVendor').showMap('contact_cp_');" title="[% 'Map' | $T8 %]">
-          <img src="image/map.png" alt="[% 'Map' | $T8 %]" />
-        </a>
+        <span id="contact_map"></span>
+        <script type="text/javascript">
+        var contactsMapWidget = namespace('kivi.CustomerVendor').showMapWidget('contact_cp_', $('#contact_map'));
+        </script>
       </td>
     </tr>
 

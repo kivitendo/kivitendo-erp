@@ -87,9 +87,10 @@
 
       <td>
         [% L.input_tag('cv.street', SELF.cv.street) %]
-        <a href="#" onclick="namespace('kivi.CustomerVendor').showMap('cv_');" title="[% 'Map' | $T8 %]">
-          <img src="image/map.png" alt="[% 'Map' | $T8 %]" />
-        </a>
+        <span id="billing_map"></span>
+        <script type="text/javascript">
+          namespace('kivi.CustomerVendor').showMapWidget('cv_', $('#billing_map'));
+        </script>
       </td>
     </tr>
 
