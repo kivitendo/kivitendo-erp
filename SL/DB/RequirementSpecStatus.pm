@@ -9,6 +9,8 @@ use SL::DB::Manager::RequirementSpecStatus;
 use SL::DB::Helper::ActsAsList;
 use SL::Locale::String;
 
+__PACKAGE__->meta->initialize;
+
 our @valid_names = qw(planning running done);
 
 sub validate {

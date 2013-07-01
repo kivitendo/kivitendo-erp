@@ -25,7 +25,6 @@ __PACKAGE__->meta->columns(
   projectnumber        => { type => 'text' },
   start_date           => { type => 'date' },
   timeframe            => { type => 'boolean', default => 'false', not_null => 1 },
-  type                 => { type => 'text' },
   valid                => { type => 'boolean', default => 'true' },
 );
 
@@ -36,16 +35,6 @@ __PACKAGE__->meta->unique_keys([ 'projectnumber' ]);
 __PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
-  customer => {
-    class       => 'SL::DB::Customer',
-    key_columns => { customer_id => 'id' },
-  },
-
-  project_type => {
-    class       => 'SL::DB::ProjectType',
-    key_columns => { project_type_id => 'id' },
-  },
-
   billable_customer => {
     class       => 'SL::DB::Customer',
     key_columns => { billable_customer_id => 'id' },

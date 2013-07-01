@@ -6,20 +6,18 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'project_status',
+__PACKAGE__->meta->table('project_status');
 
-  columns => [
-    id          => { type => 'serial', not_null => 1 },
-    name        => { type => 'text', not_null => 1 },
-    description => { type => 'text', not_null => 1 },
-    position    => { type => 'integer', not_null => 1 },
-    itime       => { type => 'timestamp', default => '06.05.2013 14:26:18.81159' },
-    mtime       => { type => 'timestamp' },
-  ],
-
-  primary_key_columns => [ 'id' ],
+__PACKAGE__->meta->columns(
+  description => { type => 'text', not_null => 1 },
+  id          => { type => 'serial', not_null => 1 },
+  itime       => { type => 'timestamp', default => '2013-05-08 09:11:09.704126' },
+  mtime       => { type => 'timestamp' },
+  name        => { type => 'text', not_null => 1 },
+  position    => { type => 'integer', not_null => 1 },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 1;
 ;

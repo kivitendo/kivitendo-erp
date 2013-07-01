@@ -7,6 +7,8 @@ use SL::DB::Manager::RequirementSpecType;
 use SL::DB::Helper::ActsAsList;
 use SL::Locale::String;
 
+__PACKAGE__->meta->initialize;
+
 sub validate {
   my ($self) = @_;
 

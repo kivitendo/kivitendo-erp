@@ -1,11 +1,11 @@
 # This file has been auto-generated only because it didn't exist.
 # Feel free to modify it at will; it will not be overwritten automatically.
 
-package SL::DB::ProjectPhaseParticipant;
+package SL::DB::ProjectPhase;
 
 use strict;
 
-use SL::DB::MetaSetup::ProjectPhaseParticipant;
+use SL::DB::MetaSetup::ProjectPhase;
 
 __PACKAGE__->meta->initialize;
 

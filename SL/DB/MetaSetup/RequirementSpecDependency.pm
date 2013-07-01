@@ -6,27 +6,25 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'requirement_spec_item_dependencies',
+__PACKAGE__->meta->table('requirement_spec_item_dependencies');
 
-  columns => [
-    depending_item_id => { type => 'integer', not_null => 1 },
-    depended_item_id  => { type => 'integer', not_null => 1 },
-  ],
+__PACKAGE__->meta->columns(
+  depended_item_id  => { type => 'integer', not_null => 1 },
+  depending_item_id => { type => 'integer', not_null => 1 },
+);
 
-  primary_key_columns => [ 'depending_item_id', 'depended_item_id' ],
+__PACKAGE__->meta->primary_key_columns([ 'depending_item_id', 'depended_item_id' ]);
 
-  foreign_keys => [
-    depended_item => {
-      class       => 'SL::DB::RequirementSpecItem',
-      key_columns => { depended_item_id => 'id' },
-    },
+__PACKAGE__->meta->foreign_keys(
+  depended_item => {
+    class       => 'SL::DB::RequirementSpecItem',
+    key_columns => { depended_item_id => 'id' },
+  },
 
-    depending_item => {
-      class       => 'SL::DB::RequirementSpecItem',
-      key_columns => { depending_item_id => 'id' },
-    },
-  ],
+  depending_item => {
+    class       => 'SL::DB::RequirementSpecItem',
+    key_columns => { depending_item_id => 'id' },
+  },
 );
 
 1;
