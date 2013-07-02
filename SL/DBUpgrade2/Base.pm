@@ -90,30 +90,28 @@ sub add_print_templates {
     croak "File '${src_dir}/$_' does not exist" unless -f "${src_dir}/$_";
   }
 
-  my %users         = $::auth->read_all_users;
-  my @template_dirs = uniq map { $_ = $_->{templates}; s:/+$::; $_ } values %users;
+  my $template_dir = $::instance_conf->reload->get_templates;
+  $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: template_dir $template_dir");
 
-  $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: template_dirs " . join('  ', @template_dirs));
+  return 1 if !$template_dir;
 
   foreach my $src_file (@files) {
-    foreach my $template_dir (@template_dirs) {
-      my $dest_file = $template_dir . '/' . $src_file;
+    my $dest_file = $template_dir . '/' . $src_file;
 
-      if (-f $dest_file) {
-        $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: dest_file exists, skipping: ${dest_file}");
-        next;
-      }
-
-      my $dest_dir = File::Basename::dirname($dest_file);
-
-      if ($dest_dir && !-d $dest_dir) {
-        File::Path::make_path($dest_dir) or die "Cannot create directory '${dest_dir}': $!";
-      }
-
-      File::Copy::copy($src_dir . '/' . $src_file, $dest_file) or die "Cannot copy '${src_dir}/${src_file}' to '${dest_file}': $!";
-
-      $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: copied '${src_dir}/${src_file}' to '${dest_file}'");
+    if (-f $dest_file) {
+      $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: dest_file exists, skipping: ${dest_file}");
+      next;
     }
+
+    my $dest_dir = File::Basename::dirname($dest_file);
+
+    if ($dest_dir && !-d $dest_dir) {
+      File::Path::make_path($dest_dir) or die "Cannot create directory '${dest_dir}': $!";
+    }
+
+    File::Copy::copy($src_dir . '/' . $src_file, $dest_file) or die "Cannot copy '${src_dir}/${src_file}' to '${dest_file}': $!";
+
+    $::lxdebug->message(LXDebug::DEBUG1(), "add_print_templates: copied '${src_dir}/${src_file}' to '${dest_file}'");
   }
 
   return 1;
