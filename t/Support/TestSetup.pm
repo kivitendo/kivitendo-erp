@@ -46,6 +46,8 @@ sub _login {
 
   $::instance_conf->init;
 
+  $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
+
   return 1;
 }
 
