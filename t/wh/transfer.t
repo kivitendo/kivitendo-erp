@@ -4,28 +4,43 @@ use Test::More;
 use lib 't';
 
 use_ok 'Support::TestSetup';
+use_ok 'SL::DB::Bin';
 use_ok 'SL::DB::Part';
 use_ok 'SL::DB::Warehouse';
 use_ok 'SL::WH';
 
 use_ok('SL::DB::Inventory');
 
+use constant NAME => 'UnitTestObject';
 
 Support::TestSetup::login();
 
-my $part = SL::DB::Part->new(unit => 'mg', description => 'TestObject');
+# Clean up: remove test objects for part, warehouse, bin
+my $part = SL::DB::Manager::Part->get_first(partnumber => NAME(), description => NAME());
+if ($part) {
+  SL::DB::Manager::Inventory->delete_all(where => [ parts_id => $part->id ]);
+  $part->delete;
+}
+
+SL::DB::Manager::Bin      ->delete_all(where => [ or => [ description => NAME() . "1", description => NAME() . "2" ] ]);
+SL::DB::Manager::Warehouse->delete_all(where => [ description => NAME() ]);
+
+# Create test data
+$part = SL::DB::Part->new(unit => 'mg', description => NAME(), partnumber => NAME());
 $part->save();
 
 is(ref($part), 'SL::DB::Part', 'loading a part to test with id ' . $part->id);
 
-
-my $wh = SL::DB::Manager::Warehouse->get_first;
+my $wh = SL::DB::Warehouse->new(description => NAME(), invalid => 0);
+$wh->save;
 is(ref $wh, 'SL::DB::Warehouse', 'loading a warehouse to test with id ' . $wh->id);
 
-my $bin1 = $wh->bins->[0];
+my $bin1 = SL::DB::Bin->new(description => NAME() . "1", warehouse_id => $wh->id);
+$bin1->save;
 is(ref $bin1, 'SL::DB::Bin', 'getting first bin to test with id ' . $bin1->id);
 
-my $bin2 = $wh->bins->[1];
+my $bin2 = SL::DB::Bin->new(description => NAME() . "2", warehouse_id => $wh->id);
+$bin2->save;
 is(ref $bin2, 'SL::DB::Bin', 'getting another bin to test with id ' . $bin2->id);
 
 my $report = sub {
@@ -160,7 +175,10 @@ test { shift->{qty}, shift->{qty}, 'warehouse reduced interface' } {
 
 SL::DB::Manager::Inventory->delete_objects(where => [parts_id => $part->id]);
 
-$part->delete();
+$bin1->delete;
+$bin2->delete;
+$wh->delete;
+$part->delete;
 
 done_testing;
 
