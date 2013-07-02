@@ -361,7 +361,7 @@ saved. Creating the copy happens within a transaction.
 
 =item C<create_version %attributes>
 
-Prerequisites: C<$self> must be a working copy (see L</working_copy>),
+Prerequisites: C<$self> must be a working copy (see the overview),
 not a versioned copy.
 
 This function creates a new version for C<$self>. This involves
@@ -408,7 +408,7 @@ copy and the last version created for it.
 
 =item C<invalidate_version>
 
-Prerequisites: C<$self> must be a working copy (see L</working_copy>),
+Prerequisites: C<$self> must be a working copy (see the overview),
 not a versioned copy.
 
 Sets the C<version_id> field to C<undef> and saves C<$self>.
