@@ -4,6 +4,7 @@ use strict;
 
 use Data::Dumper;
 use CGI qw( -no_xhtml);
+use IO::File;
 use SL::Auth;
 use SL::Form;
 use SL::Locale;
@@ -54,6 +55,21 @@ sub login {
   my $login        = shift || $::lx_office_conf{testing}{login}        || 'demo';
   my $client        = shift || $::lx_office_conf{testing}{client}      || '';
   _login($client, $login);
+}
+
+sub templates_cache_writable {
+  my $dir = $::lx_office_conf{paths}->{userspath} . '/templates-cache';
+  return 1 if -w $dir;
+
+  # Try actually creating a file. Due to ACLs this might be possible
+  # even if the basic Unix permissions and Perl's -w test say
+  # otherwise.
+  my $file = "${dir}/.writetest";
+  my $out  = IO::File->new($file, "w") || return 0;
+  $out->close;
+  unlink $file;
+
+  return 1;
 }
 
 1;
