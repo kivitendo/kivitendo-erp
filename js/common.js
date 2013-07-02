@@ -187,7 +187,17 @@ function open_jqm_window(params) {
 
 $(document).ready(function () {
   // initialize all jQuery UI tab elements:
-  $(".tabwidget").each(function(idx, element) { $(element).tabs(); });
+  $(".tabwidget").each(function(idx, element) {
+    element = $(element);
+    var cookieName = 'jquery_ui_tab_'+ element.attr('id');
+    element.tabs({
+      active: $.cookie(cookieName),
+      activate: function(event, ui) {
+        var i = ui.newTab.parent().children().index(ui.newTab);
+        $.cookie(cookieName, i);
+      },
+    });
+  });
 
   $('input').focus(function(){
     if (focussable(this)) window.focused_element = this;
