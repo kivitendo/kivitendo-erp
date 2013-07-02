@@ -133,10 +133,15 @@ sub process_query {
   my ($self, $dbh, $filename, $version_or_control) = @_;
 
   my $form  = $self->{form};
-  my $fh    = IO::File->new($filename, "r") or $form->error("$filename : $!\n");
+  my $fh    = IO::File->new($filename, "r");
   my $query = "";
   my $sth;
   my @quote_chars;
+
+  if (!$fh) {
+    return "No such file: $filename" if $self->{return_on_error};
+    $form->error("$filename : $!\n");
+  }
 
   $dbh->begin_work();
 
@@ -182,6 +187,7 @@ sub process_query {
           $sth = $dbh->prepare($query);
           if (!$sth->execute()) {
             my $errstr = $dbh->errstr;
+            return $errstr // '<unknown database error>' if $self->{return_on_error};
             $sth->finish();
             $dbh->rollback();
             $form->dberror("The database update/creation did not succeed. " .
@@ -217,6 +223,9 @@ sub process_query {
   $fh->close();
 
   $::lxdebug->leave_sub();
+
+  # Signal "no error"
+  return undef;
 }
 
 # Process a Perl script which updates the database.
@@ -248,6 +257,8 @@ sub process_perl_script {
 
   $dbh->rollback if 1 != ($result // -1);
 
+  return $error if $self->{return_on_error} && (1 != ($result // -1));
+
   if (!defined($result)) {
     print $::form->parse_html_template("dbupgrade/error", { file  => $filename, error => $error });
     ::end_of_request();
@@ -261,7 +272,8 @@ sub process_perl_script {
   } elsif ($version_or_control) {
     $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
   }
-  $dbh->commit();
+
+  $dbh->commit if $dbh->{AutoCommit} && $dbh->{BegunWork};
 
   # Clear $::form of values that may have been set so that following
   # Perl upgrade scripts won't have to work with old data (think of
@@ -271,16 +283,15 @@ sub process_perl_script {
   $::form->{$_} = $form_values{$_} for keys %form_values;
 
   $::lxdebug->leave_sub();
+
+  return undef;
 }
 
 sub process_file {
   my ($self, $dbh, $filename, $version_or_control) = @_;
 
-  if ($filename =~ m/sql$/) {
-    $self->process_query($dbh, $filename, $version_or_control);
-  } else {
-    $self->process_perl_script($dbh, $filename, $version_or_control);
-  }
+  return $filename =~ m/sql$/ ? $self->process_query(      $dbh, $filename, $version_or_control)
+                              : $self->process_perl_script($dbh, $filename, $version_or_control);
 }
 
 sub update2_available {
