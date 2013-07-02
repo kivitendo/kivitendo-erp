@@ -1,6 +1,6 @@
 # @tag: requirement_specs_print_templates
 # @description: requirement_specs_print_templates
-# @depends: requirement_specs
+# @depends: requirement_specs clients
 package SL::DBUpgrade2::requirement_specs_print_templates;
 
 use strict;
