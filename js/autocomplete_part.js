@@ -52,7 +52,7 @@ namespace('kivi', function(k){
       state = STATES.PICKED;
       last_real = $real.val();
       last_dummy = $dummy.val();
-      console.log('last:' + last_real + ' dummy:' + last_dummy);
+      $real.trigger('change');
     }
 
     function make_defined_state () {
