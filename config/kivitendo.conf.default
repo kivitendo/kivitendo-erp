@@ -209,11 +209,17 @@ history_file = users/console_history
 log_file = /tmp/kivitendo_console_debug.log
 
 [testing]
-# Automatic login will only work if both "client" and "login" are
-# given.  "client" can be a client's database ID or its name. "login"
-# is simply a user's login name.
-client =
-login =
+
+# Several tests need a database they can alter data in freely. This
+# database will be dropped & created before any other test is run. The
+# following parameters must be given:
+[testing/database]
+host     = localhost
+port     = 5432
+db       =
+user     = postgres
+password =
+template = template1
 
 [devel]
 # Several settings related to the development of kivitendo.
