@@ -15,10 +15,11 @@ use SL::LxOfficeConf;
 use SL::InstanceConfiguration;
 use SL::Request;
 
-sub _login {
-  my ($client, $login) = @_;
+sub login {
+  SL::LxOfficeConf->read;
 
-  die 'need client and login' unless $client && $login;
+  my $client = 'Unit-Tests';
+  my $login  = 'unittests';
 
   package main;
 
@@ -49,14 +50,6 @@ sub _login {
   $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
 
   return 1;
-}
-
-sub login {
-  SL::LxOfficeConf->read;
-
-  my $login        = shift || $::lx_office_conf{testing}{login}        || 'demo';
-  my $client        = shift || $::lx_office_conf{testing}{client}      || '';
-  _login($client, $login);
 }
 
 sub templates_cache_writable {
