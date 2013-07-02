@@ -57,7 +57,7 @@ sub get_next_trans_number {
   require SL::DB::Default;
   my $defaults       = SL::DB::Default->get;
   $number_range_column = 'articlenumber' if $number_range_column eq 'assemblynumber' and length($defaults->$number_range_column) < 1;
-  my $sequence       = SL::PrefixedNumber->new(number => $defaults->$number_range_column);
+  my $sequence       = SL::PrefixedNumber->new(number => ($defaults->$number_range_column || 1));
 
   $sequence->set_to_max(@numbers) if !$fill_holes_in_range;
 
