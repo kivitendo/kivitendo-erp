@@ -12,11 +12,13 @@ use utf8;
 use strict;
 
 use Carp;
+use English qw(-no_match_vars);
 use Time::HiRes qw(gettimeofday);
 use Data::Dumper;
 use File::Copy;
 use File::stat;
 use File::Slurp;
+use POSIX ();
 
 use SL::DBUtils;
 
@@ -652,15 +654,9 @@ sub copy_file_to_webdav_folder {
 
   $::lxdebug->leave_sub();
 }
+
 sub get_current_formatted_time {
-  $main::lxdebug->enter_sub();
-
-  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
-  my $formatted_current_time = sprintf ( "_%04d%02d%02d_%02d%02d%02d",
-                                   $year+1900,$mon+1,$mday,$hour,$min,$sec);
-
-  $main::lxdebug->leave_sub();
-  return $formatted_current_time;
+  return POSIX::strftime('_%Y%m%d_%H%M%S', localtime());
 }
 
 1;
