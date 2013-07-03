@@ -273,7 +273,7 @@ sub process_perl_script {
     $dbh->do("UPDATE defaults SET version = " . $dbh->quote($version_or_control));
   }
 
-  $dbh->commit if $dbh->{AutoCommit} && $dbh->{BegunWork};
+  $dbh->commit if !$dbh->{AutoCommit} || $dbh->{BegunWork};
 
   # Clear $::form of values that may have been set so that following
   # Perl upgrade scripts won't have to work with old data (think of
