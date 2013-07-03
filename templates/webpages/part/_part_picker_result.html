@@ -34,6 +34,7 @@
 
       $dummy.val($(this).children('input.part_picker_description').val());
       $real.val($(this).children('input.part_picker_id').val());
+      $real.trigger('change');
 
       $('#part_selection').jqmClose();
 
