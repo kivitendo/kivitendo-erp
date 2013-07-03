@@ -1069,9 +1069,11 @@ sub parse_template {
     $self->cleanup();
     $self->error("$self->{IN} : " . $template->get_error());
   }
+
+  close OUT if $self->{OUT};
+
   Common::copy_file_to_webdav_folder($self) if ($::instance_conf->get_webdav
                                                 and $::instance_conf->get_webdav_documents and not $self->{preview});
-  close OUT if $self->{OUT};
 
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
