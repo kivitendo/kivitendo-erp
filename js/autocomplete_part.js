@@ -78,6 +78,10 @@ namespace('kivi', function(k){
       });
     };
 
+    function close_popup() {
+      $('#part_selection').jqmClose()
+    };
+
     $dummy.autocomplete({
       source: function(req, rsp) {
         $.ajax($.extend(o, {
@@ -145,13 +149,31 @@ namespace('kivi', function(k){
     picker.addClass('icon16 CRM--Schnellsuche').click(open_dialog);
 
     return {
-      real:     function() { return $real },
-      dummy:    function() { return $dummy },
-      type:     function() { return $type },
-      column:   function() { return $column },
+      real:           function() { return $real },
+      dummy:          function() { return $dummy },
+      type:           function() { return $type },
+      column:         function() { return $column },
       update_results: update_results,
-      set_item: set_item,
-      reset:    make_defined_state,
+      set_item:       set_item,
+      reset:          make_defined_state,
+      init_results:    function () {
+        $('div.part_picker_part').each(function(){
+          $(this).click(function(){
+            set_item({
+              name: $(this).children('input.part_picker_description').val(),
+              id:   $(this).children('input.part_picker_id').val(),
+            });
+            close_popup();
+            return true;
+          });
+        });
+        $('#part_selection').keypress(function(e){
+           if (e.keyCode == 27) { // escape
+             close_popup();
+             $dummy.focus();
+           }
+        });
+      }
     }
   }
 });
