@@ -32,13 +32,5 @@ __PACKAGE__->meta->foreign_keys(
   },
 );
 
-__PACKAGE__->meta->relationships(
-  project_phase_participants => {
-    class      => 'SL::DB::ProjectPhaseParticipant',
-    column_map => { id => 'project_phase_id' },
-    type       => 'one to many',
-  },
-);
-
 1;
 ;

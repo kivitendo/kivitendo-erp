@@ -27,6 +27,11 @@ __PACKAGE__->meta->foreign_keys(
     key_columns => { employee_id => 'id' },
   },
 
+  project_phase => {
+    class       => 'SL::DB::ProjectPhase',
+    key_columns => { project_phase_id => 'id' },
+  },
+
   project_role => {
     class       => 'SL::DB::ProjectRole',
     key_columns => { project_role_id => 'id' },
