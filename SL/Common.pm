@@ -19,6 +19,7 @@ use File::Copy ();
 use File::stat;
 use File::Slurp;
 use File::Spec;
+use List::MoreUtils qw(apply);
 use POSIX ();
 
 use SL::DBUtils;
@@ -633,8 +634,7 @@ sub copy_file_to_webdav_folder {
   $latest_file_name    = File::Spec->catfile($complete_path, $newest_name);
   my $filesize         = stat($latest_file_name)->size;
 
-  my ($ext)            = $form->{tmpfile} =~ /(\.[^.]+)$/;
-  my $current_file     = File::Spec->catfile($form->{tmpdir}, $form->{tmpfile});
+  my $current_file     = File::Spec->catfile($form->{tmpdir}, apply { s:.*/:: } $form->{tmpfile});
   my $current_filesize = -f $current_file ? stat($current_file)->size : 0;
 
   if ($current_filesize == $filesize) {
