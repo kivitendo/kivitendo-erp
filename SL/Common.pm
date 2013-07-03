@@ -632,7 +632,7 @@ sub copy_file_to_webdav_folder {
 
   my ($ext)            = $form->{tmpfile} =~ /(\.[^.]+)$/;
   my $current_file     = join('/', $form->{tmpdir}, $form->{tmpfile});
-  my $current_filesize = stat($current_file)->size;
+  my $current_filesize = -f $current_file ? stat($current_file)->size : 0;
 
   if ($current_filesize == $filesize) {
     $::lxdebug->leave_sub();
