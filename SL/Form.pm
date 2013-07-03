@@ -1044,12 +1044,10 @@ sub parse_template {
   close $temp_fh;
   (undef, undef, $self->{template_meta}{tmpfile}) = File::Spec->splitpath( $self->{tmpfile} );
 
-  if ($template->uses_temp_file() || $self->{media} eq 'email') {
-    $out              = $self->{OUT};
-    $out_mode         = $self->{OUT_MODE} || '>';
-    $self->{OUT}      = "$self->{tmpfile}";
-    $self->{OUT_MODE} = '>';
-  }
+  $out              = $self->{OUT};
+  $out_mode         = $self->{OUT_MODE} || '>';
+  $self->{OUT}      = "$self->{tmpfile}";
+  $self->{OUT_MODE} = '>';
 
   my $result;
   my $command_formatter = sub {
@@ -1085,92 +1083,88 @@ sub parse_template {
     return;
   }
 
-  if ($template->uses_temp_file() || $self->{media} eq 'email') {
+  if ($self->{media} eq 'email') {
 
-    if ($self->{media} eq 'email') {
+    my $mail = new Mailer;
 
-      my $mail = new Mailer;
+    map { $mail->{$_} = $self->{$_} }
+      qw(cc bcc subject message version format);
+    $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
+    $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
+    $mail->{fileid} = time() . '.' . $$ . '.';
+    $myconfig->{signature} =~ s/\r//g;
 
-      map { $mail->{$_} = $self->{$_} }
-        qw(cc bcc subject message version format);
-      $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
-      $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
-      $mail->{fileid} = time() . '.' . $$ . '.';
-      $myconfig->{signature} =~ s/\r//g;
+    # if we send html or plain text inline
+    if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
+      $mail->{contenttype}    =  "text/html";
+      $mail->{message}        =~ s/\r//g;
+      $mail->{message}        =~ s/\n/<br>\n/g;
+      $myconfig->{signature}  =~ s/\n/<br>\n/g;
+      $mail->{message}       .=  "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
 
-      # if we send html or plain text inline
-      if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
-        $mail->{contenttype}    =  "text/html";
-        $mail->{message}        =~ s/\r//g;
-        $mail->{message}        =~ s/\n/<br>\n/g;
-        $myconfig->{signature}  =~ s/\n/<br>\n/g;
-        $mail->{message}       .=  "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
-
-        open(IN, "<", $self->{tmpfile})
-          or $self->error($self->cleanup . "$self->{tmpfile} : $!");
-        $mail->{message} .= $_ while <IN>;
-        close(IN);
-
-      } else {
-
-        if (!$self->{"do_not_attach"}) {
-          my $attachment_name  =  $self->{attachment_filename} || $self->{tmpfile};
-          $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
-          $mail->{attachments} =  [{ "filename" => $self->{tmpfile},
-                                     "name"     => $attachment_name }];
-        }
-
-        $mail->{message}  =~ s/\r//g;
-        $mail->{message} .=  "\n-- \n$myconfig->{signature}";
-
-      }
-
-      my $err = $mail->send();
-      $self->error($self->cleanup . "$err") if ($err);
+      open(IN, "<", $self->{tmpfile})
+        or $self->error($self->cleanup . "$self->{tmpfile} : $!");
+      $mail->{message} .= $_ while <IN>;
+      close(IN);
 
     } else {
 
-      $self->{OUT}      = $out;
-      $self->{OUT_MODE} = $out_mode;
+      if (!$self->{"do_not_attach"}) {
+        my $attachment_name  =  $self->{attachment_filename} || $self->{tmpfile};
+        $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
+        $mail->{attachments} =  [{ "filename" => $self->{tmpfile},
+                                   "name"     => $attachment_name }];
+      }
 
-      my $numbytes = (-s $self->{tmpfile});
-      open(IN, "<", $self->{tmpfile})
-        or $self->error($self->cleanup . "$self->{tmpfile} : $!");
-      binmode IN;
+      $mail->{message}  =~ s/\r//g;
+      $mail->{message} .=  "\n-- \n$myconfig->{signature}";
 
-      $self->{copies} = 1 unless $self->{media} eq 'printer';
+    }
 
-      chdir("$self->{cwd}");
-      #print(STDERR "Kopien $self->{copies}\n");
-      #print(STDERR "OUT $self->{OUT}\n");
-      for my $i (1 .. $self->{copies}) {
-        if ($self->{OUT}) {
-          $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
+    my $err = $mail->send();
+    $self->error($self->cleanup . "$err") if ($err);
 
-          open  OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
-          print OUT $_ while <IN>;
-          close OUT;
-          seek  IN, 0, 0;
+  } else {
 
-        } else {
-          $self->{attachment_filename} = ($self->{attachment_filename})
-                                       ? $self->{attachment_filename}
-                                       : $self->generate_attachment_filename();
+    $self->{OUT}      = $out;
+    $self->{OUT_MODE} = $out_mode;
 
-          # launch application
-          print qq|Content-Type: | . $template->get_mime_type() . qq|
+    my $numbytes = (-s $self->{tmpfile});
+    open(IN, "<", $self->{tmpfile})
+      or $self->error($self->cleanup . "$self->{tmpfile} : $!");
+    binmode IN;
+
+    $self->{copies} = 1 unless $self->{media} eq 'printer';
+
+    chdir("$self->{cwd}");
+    #print(STDERR "Kopien $self->{copies}\n");
+    #print(STDERR "OUT $self->{OUT}\n");
+    for my $i (1 .. $self->{copies}) {
+      if ($self->{OUT}) {
+        $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
+
+        open  OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
+        print OUT $_ while <IN>;
+        close OUT;
+        seek  IN, 0, 0;
+
+      } else {
+        $self->{attachment_filename} = ($self->{attachment_filename})
+                                     ? $self->{attachment_filename}
+                                     : $self->generate_attachment_filename();
+
+        # launch application
+        print qq|Content-Type: | . $template->get_mime_type() . qq|
 Content-Disposition: attachment; filename="$self->{attachment_filename}"
 Content-Length: $numbytes
 
 |;
 
-          $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
-        }
+        $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
       }
-
-      close(IN);
     }
 
+    close(IN);
   }
 
   $self->cleanup;
