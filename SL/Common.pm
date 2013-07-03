@@ -595,24 +595,23 @@ sub get_webdav_folder {
 }
 
 sub copy_file_to_webdav_folder {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
   my ($form) = @_;
   my ($last_mod_time, $latest_file_name, $complete_path);
 
   # checks
   foreach my $item (qw(tmpdir tmpfile type)){
-    if (!$form->{$item}){
-      $main::lxdebug->message(0, 'Missing parameter');
-      $main::form->error($main::locale->text("Missing parameter for webdav file copy"));
-    }
+    next if $form->{$item};
+    $::lxdebug->message(LXDebug::WARN(), 'Missing parameter');
+    $::form->error($::locale->text("Missing parameter for webdav file copy"));
   }
 
   my ($webdav_folder, $document_name) =  get_webdav_folder($form);
 
   if (! $webdav_folder){
-    $main::lxdebug->leave_sub();
-    $main::form->error($main::locale->text("Cannot check correct webdav folder"));
+    $::lxdebug->leave_sub();
+    $::form->error($::locale->text("Cannot check correct webdav folder"));
     return undef;
   }
 
@@ -623,32 +622,35 @@ sub copy_file_to_webdav_folder {
   while ( defined( my $file = readdir( $dh ) ) ) {
     my $path = File::Spec->catfile( $complete_path, $file );
     next if -d $path; # skip directories, or anything else you like
-    ( $newest_name, $newest_time ) = ( $file, -M _ )
-        if( ! defined $newest_time or -M $path < $newest_time );
-    }
-  $latest_file_name = $complete_path .'/' . $newest_name;
-  my $filesize = stat($latest_file_name)->size;
+    ( $newest_name, $newest_time ) = ( $file, -M _ ) if( ! defined $newest_time or -M $path < $newest_time );
+  }
 
-  my ($ext) = $form->{tmpfile} =~ /(\.[^.]+)$/;
-  my $current_file = join('/', $form->{tmpdir}, $form->{tmpfile});
+  closedir $dh;
+
+  $latest_file_name    = $complete_path .'/' . $newest_name;
+  my $filesize         = stat($latest_file_name)->size;
+
+  my ($ext)            = $form->{tmpfile} =~ /(\.[^.]+)$/;
+  my $current_file     = join('/', $form->{tmpdir}, $form->{tmpfile});
   my $current_filesize = stat($current_file)->size;
+
   if ($current_filesize == $filesize) {
-    $main::lxdebug->leave_sub();
+    $::lxdebug->leave_sub();
     return;
   }
 
-  my $timestamp = get_current_formatted_time();
-  my $myfilename = $form->generate_attachment_filename();
-  $myfilename =~ s/\./$timestamp\./;
+  my $timestamp  =  get_current_formatted_time();
+  my $myfilename =  $form->generate_attachment_filename();
+  $myfilename    =~ s/\./$timestamp\./;
 
   if (!copy(join('/', $form->{tmpdir}, $form->{tmpfile}), join('/', $form->{cwd}, $webdav_folder, $myfilename))) {
-    my $j = join('/', $form->{tmpdir}, $form->{tmpfile});
-    my $k = join('/', $form->{cwd},  $webdav_folder);
-    $main::lxdebug->message(0, "Copy file from $j to $k failed");
-    $main::form->error($main::locale->text("Copy file from #1 to #2 failed", $j, $k));
+    my $from = join('/', $form->{tmpdir}, $form->{tmpfile});
+    my $to   = join('/', $form->{cwd},    $webdav_folder);
+    $::lxdebug->message(LXDebug::WARN(), "Copy file from $from to $to failed");
+    $::form->error($::locale->text("Copy file from #1 to #2 failed", $from, $to));
   }
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
 sub get_current_formatted_time {
   $main::lxdebug->enter_sub();
