@@ -1070,11 +1070,11 @@ sub parse_template {
 
   close OUT if $self->{OUT};
 
-  Common::copy_file_to_webdav_folder($self) if ($::instance_conf->get_webdav
-                                                and $::instance_conf->get_webdav_documents and not $self->{preview});
+  my $copy_to_webdav = $::instance_conf->get_webdav && $::instance_conf->get_webdav_documents && !$self->{preview};
 
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
+    Common::copy_file_to_webdav_folder($self)                                                                         if $copy_to_webdav;
     $self->cleanup;
     chdir("$self->{cwd}");
 
@@ -1082,6 +1082,8 @@ sub parse_template {
 
     return;
   }
+
+  Common::copy_file_to_webdav_folder($self) if $copy_to_webdav;
 
   if ($self->{media} eq 'email') {
 
