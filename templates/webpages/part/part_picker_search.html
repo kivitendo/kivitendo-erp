@@ -15,26 +15,13 @@
 
 <script type='text/javascript'>
   var timer;
-  var update_results = function(){
-    var $type   = $('#[% FORM.real_id %]_type');
-    var $column = $('#[% FORM.real_id %]_column');
-    $.ajax({
-      url: 'controller.pl?action=Part/part_picker_result',
-      data: {
-        'filter.all:substr::ilike': function(){ var val = $('#part_picker_filter').val(); return val === undefined ? '' : val },
-        'filter.type': function(){ return $type.val() },
-        'column': function(){ return $column.val() },
-        'real_id': [% FORM.real_id.json %],
-      },
-      success: function(data){ $('#part_picker_result').html(data) }
-    });
-  };
+  var pp = kivi.PartPickerCache['[% FORM.real_id %]'];
   $(function(){
     $('#part_picker_filter').focus();
-    update_results();
+    pp.update_results();
   });
   $('#part_picker_filter').keypress(function (event){
     window.clearTimeout(timer);
-    timer = window.setTimeout(update_results, 100);
+    timer = window.setTimeout(pp.update_results, 100);
   });
 </script>

@@ -1,5 +1,6 @@
 namespace('kivi', function(k){
-  k.part_picker = function($real, options) {
+  k.PartPickerCache = { }
+  k.PartPicker = function($real, options) {
     var o = $.extend({
       limit: 20,
       delay: 50,
@@ -63,6 +64,19 @@ namespace('kivi', function(k){
       else
         set_item({ id: last_real, name: last_dummy })
     }
+
+    function update_results () {
+      $.ajax({
+        url: 'controller.pl?action=Part/part_picker_result',
+        data: {
+          'filter.all:substr::ilike': function(){ var val = $('#part_picker_filter').val(); return val === undefined ? '' : val },
+          'filter.type': $type.val(),
+          'column': $column.val(),
+          'real_id': $real.val,
+        },
+        success: function(data){ $('#part_picker_result').html(data) }
+      });
+    };
 
     $dummy.autocomplete({
       source: function(req, rsp) {
@@ -129,11 +143,21 @@ namespace('kivi', function(k){
     $dummy.after(pcont);
     pcont.append(picker);
     picker.addClass('icon16 CRM--Schnellsuche').click(open_dialog);
+
+    return {
+      real:     function() { return $real },
+      dummy:    function() { return $dummy },
+      type:     function() { return $type },
+      column:   function() { return $column },
+      update_results: update_results,
+      set_item: set_item,
+      reset:    make_defined_state,
+    }
   }
 });
 
 $(function(){
   $('input.part_autocomplete').each(function(i,real){
-    kivi.part_picker($(real));
+    kivi.PartPickerCache[real.id] = new kivi.PartPicker($(real));
   })
 });
