@@ -15,9 +15,10 @@ use Carp;
 use English qw(-no_match_vars);
 use Time::HiRes qw(gettimeofday);
 use Data::Dumper;
-use File::Copy;
+use File::Copy ();
 use File::stat;
 use File::Slurp;
+use File::Spec;
 use POSIX ();
 
 use SL::DBUtils;
@@ -617,7 +618,7 @@ sub copy_file_to_webdav_folder {
     return undef;
   }
 
-  $complete_path =  join('/', $form->{cwd},  $webdav_folder);
+  $complete_path =  File::Spec->catfile($form->{cwd},  $webdav_folder);
   opendir my $dh, $complete_path or die "Could not open $complete_path: $!";
 
   my ($newest_name, $newest_time);
@@ -629,11 +630,11 @@ sub copy_file_to_webdav_folder {
 
   closedir $dh;
 
-  $latest_file_name    = $complete_path .'/' . $newest_name;
+  $latest_file_name    = File::Spec->catfile($complete_path, $newest_name);
   my $filesize         = stat($latest_file_name)->size;
 
   my ($ext)            = $form->{tmpfile} =~ /(\.[^.]+)$/;
-  my $current_file     = join('/', $form->{tmpdir}, $form->{tmpfile});
+  my $current_file     = File::Spec->catfile($form->{tmpdir}, $form->{tmpfile});
   my $current_filesize = -f $current_file ? stat($current_file)->size : 0;
 
   if ($current_filesize == $filesize) {
@@ -641,15 +642,13 @@ sub copy_file_to_webdav_folder {
     return;
   }
 
-  my $timestamp  =  get_current_formatted_time();
-  my $myfilename =  $form->generate_attachment_filename();
-  $myfilename    =~ s/\./$timestamp\./;
+  my $timestamp =  get_current_formatted_time();
+  my $new_file  =  File::Spec->catfile($form->{cwd}, $webdav_folder, $form->generate_attachment_filename());
+  $new_file     =~ s/\./$timestamp\./;
 
-  if (!copy(join('/', $form->{tmpdir}, $form->{tmpfile}), join('/', $form->{cwd}, $webdav_folder, $myfilename))) {
-    my $from = join('/', $form->{tmpdir}, $form->{tmpfile});
-    my $to   = join('/', $form->{cwd},    $webdav_folder);
-    $::lxdebug->message(LXDebug::WARN(), "Copy file from $from to $to failed");
-    $::form->error($::locale->text("Copy file from #1 to #2 failed", $from, $to));
+  if (!File::Copy::copy($current_file, $new_file)) {
+    $::lxdebug->message(LXDebug::WARN(), "Copy file from $current_file to $new_file failed: $ERRNO");
+    $::form->error($::locale->text("Copy file from #1 to #2 failed: #3", $current_file, $new_file, $ERRNO));
   }
 
   $::lxdebug->leave_sub();
