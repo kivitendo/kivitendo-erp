@@ -103,10 +103,13 @@ namespace('kivi', function(k){
               set_item(data[0]);
               if (event.keyCode == 13)
                 $('#update_button').click();
-            } else {
+            } else if (data.length > 1) {
              if (event.keyCode == 13)
                 open_dialog();
               else
+                make_defined_state();
+            } else {
+              if (event.keyCode == 9)
                 make_defined_state();
             }
           }
