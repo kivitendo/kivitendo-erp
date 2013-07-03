@@ -1,7 +1,6 @@
 -- @tag: requirement_specs_section_templates
 -- @description: requirement_specs_section_templates
 -- @depends: release_3_0_0 requirement_specs
--- @charset: utf-8
 
 ALTER TABLE requirement_specs ALTER COLUMN type_id     DROP NOT NULL;
 ALTER TABLE requirement_specs ALTER COLUMN status_id   DROP NOT NULL;

@@ -1,7 +1,6 @@
 -- @tag: project_types
 -- @description: Tabelle für Projekttypen
 -- @depends: release_3_0_0
--- @charset: utf-8
 CREATE TABLE project_types (
        id                       SERIAL,
        position                 INTEGER NOT NULL,

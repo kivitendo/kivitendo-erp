@@ -1,7 +1,6 @@
 -- @tag: requirement_specs
 -- @description: Pflichtenhefte
 -- @depends: release_3_0_0
--- @charset: utf-8
 
 -- Nur für Entwicklungszwecke:
 

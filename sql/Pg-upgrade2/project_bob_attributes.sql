@@ -1,7 +1,6 @@
 -- @tag: project_bob_attributes
 -- @description: Projekte: Zusätzliche Tabellen und Spalten
 -- @depends:  project_customer_type_valid
--- @charset: utf-8
 
 -- changes over bob:
 -- no scon/support_contract values here
@@ -89,4 +88,3 @@ CREATE TRIGGER mtime_project_phases            BEFORE UPDATE ON project_phases  
 CREATE TRIGGER mtime_project_roles             BEFORE UPDATE ON project_roles              FOR EACH ROW EXECUTE PROCEDURE set_mtime();
 CREATE TRIGGER mtime_project_participants      BEFORE UPDATE ON project_participants       FOR EACH ROW EXECUTE PROCEDURE set_mtime();
 CREATE TRIGGER mtime_project_phase_paticipants BEFORE UPDATE ON project_phase_participants FOR EACH ROW EXECUTE PROCEDURE set_mtime();
-
