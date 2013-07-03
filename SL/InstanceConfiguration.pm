@@ -44,6 +44,8 @@ sub AUTOLOAD {
   my $method =  $AUTOLOAD;
   $method    =~ s/.*:://;
 
+  return if $method eq 'DESTROY';
+
   if ($method =~ m/^get_/) {
     $method = substr $method, 4;
     return $self->data->{$method} if exists $self->data->{$method};
