@@ -12,11 +12,15 @@ use utf8;
 use strict;
 
 use Carp;
+use English qw(-no_match_vars);
 use Time::HiRes qw(gettimeofday);
 use Data::Dumper;
-use File::Copy;
+use File::Copy ();
 use File::stat;
 use File::Slurp;
+use File::Spec;
+use List::MoreUtils qw(apply);
+use POSIX ();
 
 use SL::DBUtils;
 
@@ -595,70 +599,63 @@ sub get_webdav_folder {
 }
 
 sub copy_file_to_webdav_folder {
-  $main::lxdebug->enter_sub();
+  $::lxdebug->enter_sub();
 
   my ($form) = @_;
   my ($last_mod_time, $latest_file_name, $complete_path);
 
   # checks
   foreach my $item (qw(tmpdir tmpfile type)){
-    if (!$form->{$item}){
-      $main::lxdebug->message(0, 'Missing parameter');
-      $main::form->error($main::locale->text("Missing parameter for webdav file copy"));
-    }
+    next if $form->{$item};
+    $::lxdebug->message(LXDebug::WARN(), 'Missing parameter');
+    $::form->error($::locale->text("Missing parameter for webdav file copy"));
   }
 
   my ($webdav_folder, $document_name) =  get_webdav_folder($form);
 
   if (! $webdav_folder){
-    $main::lxdebug->leave_sub();
-    $main::form->error($main::locale->text("Cannot check correct webdav folder"));
+    $::lxdebug->leave_sub();
+    $::form->error($::locale->text("Cannot check correct webdav folder"));
     return undef;
   }
 
-  $complete_path =  join('/', $form->{cwd},  $webdav_folder);
+  $complete_path =  File::Spec->catfile($form->{cwd},  $webdav_folder);
   opendir my $dh, $complete_path or die "Could not open $complete_path: $!";
 
   my ($newest_name, $newest_time);
   while ( defined( my $file = readdir( $dh ) ) ) {
     my $path = File::Spec->catfile( $complete_path, $file );
     next if -d $path; # skip directories, or anything else you like
-    ( $newest_name, $newest_time ) = ( $file, -M _ )
-        if( ! defined $newest_time or -M $path < $newest_time );
-    }
-  $latest_file_name = $complete_path .'/' . $newest_name;
-  my $filesize = stat($latest_file_name)->size;
+    ( $newest_name, $newest_time ) = ( $file, -M _ ) if( ! defined $newest_time or -M $path < $newest_time );
+  }
 
-  my ($ext) = $form->{tmpfile} =~ /(\.[^.]+)$/;
-  my $current_file = join('/', $form->{tmpdir}, $form->{tmpfile});
-  my $current_filesize = stat($current_file)->size;
+  closedir $dh;
+
+  $latest_file_name    = File::Spec->catfile($complete_path, $newest_name);
+  my $filesize         = stat($latest_file_name)->size;
+
+  my $current_file     = File::Spec->catfile($form->{tmpdir}, apply { s:.*/:: } $form->{tmpfile});
+  my $current_filesize = -f $current_file ? stat($current_file)->size : 0;
+
   if ($current_filesize == $filesize) {
-    $main::lxdebug->leave_sub();
+    $::lxdebug->leave_sub();
     return;
   }
 
-  my $timestamp = get_current_formatted_time();
-  my $myfilename = $form->generate_attachment_filename();
-  $myfilename =~ s/\./$timestamp\./;
+  my $timestamp =  get_current_formatted_time();
+  my $new_file  =  File::Spec->catfile($form->{cwd}, $webdav_folder, $form->generate_attachment_filename());
+  $new_file     =~ s/\./$timestamp\./;
 
-  if (!copy(join('/', $form->{tmpdir}, $form->{tmpfile}), join('/', $form->{cwd}, $webdav_folder, $myfilename))) {
-    my $j = join('/', $form->{tmpdir}, $form->{tmpfile});
-    my $k = join('/', $form->{cwd},  $webdav_folder);
-    $main::lxdebug->message(0, "Copy file from $j to $k failed");
-    $main::form->error($main::locale->text("Copy file from #1 to #2 failed", $j, $k));
+  if (!File::Copy::copy($current_file, $new_file)) {
+    $::lxdebug->message(LXDebug::WARN(), "Copy file from $current_file to $new_file failed: $ERRNO");
+    $::form->error($::locale->text("Copy file from #1 to #2 failed: #3", $current_file, $new_file, $ERRNO));
   }
 
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub();
 }
+
 sub get_current_formatted_time {
-  $main::lxdebug->enter_sub();
-
-  my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst)=localtime(time);
-  my $formatted_current_time = sprintf ( "_%04d%02d%02d_%02d%02d%02d",
-                                   $year+1900,$mon+1,$mday,$hour,$min,$sec);
-
-  $main::lxdebug->leave_sub();
-  return $formatted_current_time;
+  return POSIX::strftime('_%Y%m%d_%H%M%S', localtime());
 }
 
 1;
