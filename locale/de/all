@@ -2655,7 +2655,6 @@ $self->{texts} = {
   'Version number'              => 'Versionsnummer',
   'Version'                     => 'Version',
   'Versions'                    => 'Versionen',
-  'Vertreter'                   => 'Vertreter',
   'View SEPA export'            => 'SEPA-Export-Details ansehen',
   'View background job execution result' => 'Verlauf der Hintergrund-Job-Ausführungen anzeigen',
   'View background job history' => 'Hintergrund-Job-Verlauf anzeigen',
