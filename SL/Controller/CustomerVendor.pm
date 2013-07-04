@@ -641,7 +641,7 @@ sub _instantiate_args {
     $self->{cv}->taxincluded_checked(undef);
   }
 
-  $self->{cv}->hourly_rate($::lx_office_conf{'features/customer'}->{default_hourly_rate}) if $self->is_customer && !$self->{cv}->hourly_rate;
+  $self->{cv}->hourly_rate($::instance_conf->get_customer_hourly_rate) if $self->is_customer && !$self->{cv}->hourly_rate;
 
   foreach my $cvar (@{$self->{cv}->cvars_by_config()}) {
     my $value = $::form->{cv_cvars}->{$cvar->config->name};

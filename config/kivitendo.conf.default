@@ -65,13 +65,6 @@ bind_password =
 # and "en" (English, not perfect) are available.
 language = de
 
-[features]
-
-[features/customer]
-# Default for the 'hourly rate' input in the customer master data
-# dialog.
-default_hourly_rate = 100
-
 [paths]
 # path to temporary files (must be writeable by the web server)
 userspath = users
