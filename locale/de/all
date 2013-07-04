@@ -716,6 +716,7 @@ $self->{texts} = {
   'Default client'              => 'Standardmandant',
   'Default currency'            => 'Standardwährung',
   'Default currency missing!'   => 'Standardwährung fehlt!',
+  'Default hourly rate for new customers' => '',
   'Default output medium'       => 'Standardausgabekanal',
   'Default printer'             => 'Standarddrucker',
   'Default template format'     => 'Standardvorlagenformat',

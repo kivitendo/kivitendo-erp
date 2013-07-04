@@ -27,6 +27,12 @@
    <td>[% LxERP.t8('Automatic deletion of leading, trailing and excessive (repetitive) spaces in customer or vendor names') %]</td>
   </tr>
 
+  <tr>
+   <td align="right">[% LxERP.t8('Hourly Rate') %]</td>
+   <td>[% L.input_tag('defaults.customer_hourly_rate', LxERP.format_amount(SELF.defaults.customer_hourly_rate, 2), style=style) %]</td>
+   <td>[% LxERP.t8('Default hourly rate for new customers') %]</td>
+  </tr>
+
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Parts Master Data") %]</td></tr>
 
   <tr>
