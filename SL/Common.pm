@@ -608,14 +608,14 @@ sub copy_file_to_webdav_folder {
   foreach my $item (qw(tmpdir tmpfile type)){
     next if $form->{$item};
     $::lxdebug->message(LXDebug::WARN(), 'Missing parameter');
-    $::form->error($::locale->text("Missing parameter for webdav file copy"));
+    $::form->error($::locale->text("Missing parameter for WebDAV file copy"));
   }
 
   my ($webdav_folder, $document_name) =  get_webdav_folder($form);
 
   if (! $webdav_folder){
     $::lxdebug->leave_sub();
-    $::form->error($::locale->text("Cannot check correct webdav folder"));
+    $::form->error($::locale->text("Cannot check correct WebDAV folder"));
     return undef;
   }
 

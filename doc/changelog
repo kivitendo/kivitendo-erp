@@ -58,7 +58,7 @@ Kleinere neue Features und Detailverbesserungen:
   maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage)
 
 - #2300 Alle Feature-Konfigurationen sind jetzt in der Mandantenkonfiguration eingestellt
-- #2301 Dokumentenbelege optional in webdav-Ordner speichern
+- #2301 Dokumentenbelege optional in WebDAV-Ordner speichern
 
 Wichtige Änderungen:
 
@@ -715,7 +715,7 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1621: Stammdaten -> Bestehende Waren: Historie laesst sich nicht anzeigen, wirft Fehler
   - Bugfix 1622: Steuerübersetzungen verschwunden ...
   - Bugfix 1623: Verkauf -> Berichte -> Suche mit Filter Bearbeiter -> CSV-Export -> Filter wird nicht übergeben ...
-  - Bugfix 1624: Schalter fuer Webdav in config funktioniert nicht
+  - Bugfix 1624: Schalter fuer WebDAV in config funktioniert nicht
   - Bugfix 1625: Lieferscheinnummer in Rechnungsmaske verschwunden (in 2.6.1 noch dort)
   - Bugfix 1626: Beim Festlegen der Standardkonten kann beim Warenbestand eine Überschrift ausgewählt werden.
   - Bugfix 1627: System -> Kontenübersicht -> Konto -> als neu speichern nimmt nicht die taxkey_id mit
@@ -1132,7 +1132,7 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1021: Falscher Steuersatz von 16 Prozent steht noch bei EG-Lieferungen
   - Bugfix 1022: Nach Datenbankupdate von 2.4.3 auf 2.6.0 unstable erscheint In der Rechnungsmaske im Feld Kunde neben dem KundInnenname mit zwei Bindestrichen angehängt die Buchungsnummer dieses Kunden / dieser Kundin
   - Bugfix 1023: CSV-Import wirft Fehlermeldungen wg falschem Pfad zur tmp
-  - Bugfix 1024: BEnutzerdaten bearbeiten: Auswahl von "Rechnung" bei Webdav-Zugriff wird ignoriert!
+  - Bugfix 1024: BEnutzerdaten bearbeiten: Auswahl von "Rechnung" bei WebDAV-Zugriff wird ignoriert!
   - Bugfix 1025: BenutzerInneneigenschaften für neue BenutzerInnen übernehmen nicht möglich
   - Bugfix 1028: Fehlerhafter workflow von Bestellung in Lieferschein
   - Bugfix 1030: Rechteverwaltungsfehler: Mitarbeiter mit Rechten fuer Lieferscheine darf diese nicht einsehen
@@ -1249,7 +1249,7 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1261: EAN Auswahl
   - Bugfix 1262: Bericht verkaufte Artikel + Storno
   - Bugfix 1264: Suchenach Lieferantenauftrag/anfrage
-  - Bugfix 1265: Webdav-Zeile nicht mehr aktiv, Ordner wird auch nicht mehr angelegt
+  - Bugfix 1265: WebDAV-Zeile nicht mehr aktiv, Ordner wird auch nicht mehr angelegt
   - Bugfix 1266: Beim sortieren nach Kriterien in Mahnungsberichten gehen Selektionskriterien verloren und alles wird angezeigt.
   - Bugfix 1270: In Einkaufsmasken ist oftmals von "Verkäufer" statt "Einkäufer" die Rede
   - Bugfix 1271: Übersetzungsfehler 'Gruppenzugehörigkeit' im Adminbereich
@@ -1269,12 +1269,12 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 1314: Ueberschreiben der internen Bemerkung bei (Angebot|Auftrag|Lieferschein|Rechnung)
   - Bugfix 1317: Usability: Feld fuer Kommentare bei Lagerein- und Ausbuchungen in der Praxis zu kurz
   - Bugfix 1322: Berichte / Kontoübersicht = leer
-  - Bugfix 1326: webdav-user Dateien enthalten Dublikate.
+  - Bugfix 1326: WebDAV-user Dateien enthalten Dublikate.
   - Bugfix 1328: ap.amount und acc_trans.amount sind verschieden
   - Bugfix 1329: AJAX-Suche: autom. erste Zeile aktiviert, "Enter" loest Auswahl aus
   - Bugfix 1330: AJAX: Abschaltbarkeit erwünscht
   - Bugfix 1331: Rechnungsbutton "Drucken & Buchen" bucht nur noch, loest keinen Druck mehr aus
-  - Bugfix 1332: Webdav-Links in aktueller Unstable kaputt
+  - Bugfix 1332: WebDAV-Links in aktueller Unstable kaputt
   - Bugfix 1333: fehlerhafter Preis eines geänderten Artikels in einer Rechnung
   - Bugfix 1334: Zusätzliches Ubuntu-Paket benötigt: libxml-writer-perl
   - Bugfix 1335: Verkauf/Lieferschein: Button "Lieferadresse" -> dort eingetragene Adresse wird nicht übernommen
@@ -1938,7 +1938,7 @@ Liste gefixter Bugs aus dem Bugtracker:
     Aufträgen.
   - Es wurde verhindert, dass durch Manipulation von $form->{callback}
     beliebiger Code ausgeführt werden kann.
-  - Webdav: Wenn eine Pfadkomponente Leerzeichen enthielt
+  - WebDAV: Wenn eine Pfadkomponente Leerzeichen enthielt
     (z.B. "Storno zu ..."), dann wurden komplett falsche Links erzeugt.
   - Bei Einkaufsrechnungen wurde das falsche Datumsfeld zur Berechnung
     der Steuern herangezogen, sodass für 2006 19% benutzt wurde.
@@ -1946,7 +1946,7 @@ Liste gefixter Bugs aus dem Bugtracker:
     Drop-Down-Box für die Zahlungskonditionen nicht erneut aufgebaut.
   - Beim Aufrufen bestehender Dialogbuchungen wurde das Feld 'Beleg'
     nicht aus der Datenbank geholt.
-  - Webdav: Beim Erstellen der Ordner werden Pfadtrennzeichen (also
+  - WebDAV: Beim Erstellen der Ordner werden Pfadtrennzeichen (also
     '/' und '\') durch Unterstriche ersetzt.
   - In der Buchungsliste wurden Buchungen zusammengefasst, wenn ihre
     Beschreibungsfelder identisch waren, auch wenn sie aus
@@ -2217,7 +2217,7 @@ Liste gefixter Bugs aus dem Bugtracker:
     Nach Projektnummern kann gefiltert werden, und sie können in der Liste
     mit angezeigt werden (auch in der Finanzbuchhaltung). Projektnummern
     werden als Drop-Down-Box angezeigt.
-  - Bugfixes und Code-Reorganisierung beim "Webdav"-Feature. Beim
+  - Bugfixes und Code-Reorganisierung beim "WebDAV"-Feature. Beim
     Anlegen von Verzeichnissen werden auch eventuell fehlende
     Elternverzeichnisse angelegt. Bei jedem Neuaufbau der Maske wird
     die Liste der vorhandenen Dateien aktualisiert, nicht nur beim
@@ -2285,8 +2285,8 @@ Liste gefixter Bugs aus dem Bugtracker:
   - Bugfix 471 - voreingestellter Ausgabekanal wird nicht übernommen
   - Bugfix 455 - fehlerhafte Anzeige im Buchungsjournal bei unterschiedl.
     Rechn.- und Bezahldaten
-  - Bugfix 361 - webdav Ansicht
-  - Bugfix 181 - Webdav Fehler bei Detailansicht einer Einkaufsrechnung
+  - Bugfix 361 - WebDAV Ansicht
+  - Bugfix 181 - WebDAV Fehler bei Detailansicht einer Einkaufsrechnung
 
 2007-01-19 - Version 2.4.1
   - CSV-Import auf Verwendung von Buchungsgruppen angepasst

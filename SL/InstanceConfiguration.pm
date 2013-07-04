@@ -202,11 +202,11 @@ Returns the maximum interval value for future bookings
 
 =item C<get_webdav>
 
-Returns the configuration for webdav
+Returns the configuration for WebDAV
 
 =item C<get_webdav_documents>
 
-Returns the configuration for storing documents in the corresponding webdav folder
+Returns the configuration for storing documents in the corresponding WebDAV folder
 
 =item C<get_vertreter>
 
