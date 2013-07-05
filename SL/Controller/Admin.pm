@@ -135,6 +135,10 @@ sub action_save_user {
   my $props  = delete($params->{config_values}) || { };
   my $is_new = !$params->{id};
 
+  # Assign empty arrays if the browser doesn't send those controls.
+  $params->{clients} ||= [];
+  $params->{groups}  ||= [];
+
   $self->user($is_new ? SL::DB::AuthUser->new : SL::DB::AuthUser->new(id => $params->{id})->load)
     ->assign_attributes(%{ $params })
     ->config_values({ %{ $self->user->config_values }, %{ $props } });
@@ -205,6 +209,10 @@ sub action_save_client {
   my ($self) = @_;
   my $params = delete($::form->{client}) || { };
   my $is_new = !$params->{id};
+
+  # Assign empty arrays if the browser doesn't send those controls.
+  $params->{groups} ||= [];
+  $params->{users}  ||= [];
 
   $self->client($is_new ? SL::DB::AuthClient->new : SL::DB::AuthClient->new(id => $params->{id})->load)->assign_attributes(%{ $params });
 
@@ -277,6 +285,10 @@ sub action_save_group {
 
   my $params = delete($::form->{group}) || { };
   my $is_new = !$params->{id};
+
+  # Assign empty arrays if the browser doesn't send those controls.
+  $params->{clients} ||= [];
+  $params->{users}   ||= [];
 
   $self->group($is_new ? SL::DB::AuthGroup->new : SL::DB::AuthGroup->new(id => $params->{id})->load)->assign_attributes(%{ $params });
 
