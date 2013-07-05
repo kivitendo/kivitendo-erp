@@ -133,12 +133,12 @@ sub action_save {
 # initializers
 #
 
-sub init_defaults        { SL::DB::Default->get                                           }
-sub init_all_warehouses  { SL::DB::Manager::Warehouse->get_all_sorted                     }
-sub init_all_languages   { SL::DB::Manager::Language->get_all_sorted                      }
-sub init_all_currencies  { SL::DB::Manager::Currency->get_all_sorted                      }
-sub init_all_weightunits { SL::DB::Manager::Unit->find_by(name => 'g')->convertible_units }
-sub init_all_templates   { +{ SL::Template->available_templates }                         }
+sub init_defaults        { SL::DB::Default->get                                                                          }
+sub init_all_warehouses  { SL::DB::Manager::Warehouse->get_all_sorted                                                    }
+sub init_all_languages   { SL::DB::Manager::Language->get_all_sorted                                                     }
+sub init_all_currencies  { SL::DB::Manager::Currency->get_all_sorted                                                     }
+sub init_all_weightunits { my $unit = SL::DB::Manager::Unit->find_by(name => 'g'); $unit ? $unit->convertible_units : [] }
+sub init_all_templates   { +{ SL::Template->available_templates }                                                        }
 
 sub init_posting_options {
   [ { title => t8("never"),           value => 0           },

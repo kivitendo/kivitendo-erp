@@ -95,6 +95,7 @@
    <td align="center">[% L.radio_button_tag('defaults.currency_id', value=-1, id='defaults.currency_id__1', checked=(SELF.defaults.currency_id == -1)) %]</td>
   </tr>
 
+[% IF SELF.all_weightunits.size %]
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Weight") %]</td></tr>
 
   <tr>
@@ -107,6 +108,7 @@
    <td>[% L.yes_no_tag('defaults.show_weight', SELF.defaults.show_weight, style=style) %]</td>
    <td colspan="2">[% LxERP.t8('Show the weights of articles and the total weight in orders, invoices and delivery notes?') %]</td>
   </tr>
+[% END %]
  </table>
 </div>
 </div>

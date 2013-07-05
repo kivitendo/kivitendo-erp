@@ -27,7 +27,7 @@ sub login {
   $::lxdebug->disable_sub_tracing;
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
-  $::auth          = SL::Auth->new;
+  $::auth          = SL::Auth->new(unit_tests_database => 1);
   die "Cannot find client with ID or name '$client'" if !$::auth->set_client($client);
 
   $::instance_conf = SL::InstanceConfiguration->new;
