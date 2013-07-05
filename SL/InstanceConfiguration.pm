@@ -168,20 +168,20 @@ corresponding record type (true or false).
 Returns the default behavior for showing the delete button for the
 corresponding record type (true or false).
 
-=item C<get_default_warehouse_id>
+=item C<get_warehouse_id>
 
 Returns the default warehouse_id
 
-=item C<get_default_bin_id>
+=item C<get_bin_id>
 
 Returns the default bin_id
 
-=item C<get_default_warehouse_id_ignore_onhand>
+=item C<get_warehouse_id_ignore_onhand>
 
 Returns the default warehouse_id for transfers without checking the
 current stock quantity
 
-=item C<get_default_bin_id_ignore_onhand>
+=item C<get_bin_id_ignore_onhand>
 
 Returns the default bin_id for transfers without checking the.
 current stock quantity

@@ -1126,8 +1126,8 @@ sub display_stock_in_form {
 
   # Standardlagerplatz für Standard-Auslagern verwenden, falls keiner für die Ware explizit definiert wurde
   if ($::instance_conf->get_transfer_default_use_master_default_bin) {
-    $part_info->{warehouse_id} ||= $::instance_conf->get_default_warehouse_id;
-    $part_info->{bin_id}       ||= $::instance_conf->get_default_bin_id;
+    $part_info->{warehouse_id} ||= $::instance_conf->get_warehouse_id;
+    $part_info->{bin_id}       ||= $::instance_conf->get_bin_id;
   }
 
   my $units      = AM->retrieve_units(\%myconfig, $form);
@@ -1560,8 +1560,8 @@ sub transfer_in_out_default {
 
   # entsprechende defaults holen, falls standardlagerplatz verwendet werden soll
   if ($::instance_conf->get_transfer_default_use_master_default_bin) {
-    $default_warehouse_id = $::instance_conf->get_default_warehouse_id;
-    $default_bin_id       = $::instance_conf->get_default_bin_id;
+    $default_warehouse_id = $::instance_conf->get_warehouse_id;
+    $default_bin_id       = $::instance_conf->get_bin_id;
   }
 
 
@@ -1637,8 +1637,8 @@ sub transfer_in_out_default {
       # auslagern soll immer gehen, auch wenn nicht genügend auf lager ist.
       # der lagerplatz ist hier extra konfigurierbar, bspw. Lager-Korrektur mit
       # Lagerplatz Lagerplatz-Korrektur
-      my $default_warehouse_id_ignore_onhand = $::instance_conf->get_default_warehouse_id_ignore_onhand;
-      my $default_bin_id_ignore_onhand       = $::instance_conf->get_default_bin_id_ignore_onhand;
+      my $default_warehouse_id_ignore_onhand = $::instance_conf->get_warehouse_id_ignore_onhand;
+      my $default_bin_id_ignore_onhand       = $::instance_conf->get_bin_id_ignore_onhand;
       if ($::instance_conf->get_transfer_default_ignore_onhand && $default_bin_id_ignore_onhand) {
         # entsprechende defaults holen
         # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen

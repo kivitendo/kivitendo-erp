@@ -1593,8 +1593,8 @@ sub form_header {
   if (my $max = scalar @{ $form->{WAREHOUSES} }) {
     my ($default_warehouse_id, $default_bin_id);
     if ($form->{action} eq 'add') { # default only for new entries
-      $default_warehouse_id = $::instance_conf->get_default_warehouse_id;
-      $default_bin_id       = $::instance_conf->get_default_bin_id;
+      $default_warehouse_id = $::instance_conf->get_warehouse_id;
+      $default_bin_id       = $::instance_conf->get_bin_id;
     }
     $form->{warehouse_id} ||= $default_warehouse_id || $form->{WAREHOUSES}->[$max -1]->{id};
     $form->{bin_id}       ||= $default_bin_id       ||  $form->{WAREHOUSES}->[$max -1]->{BINS}->[0]->{id};
