@@ -141,7 +141,7 @@ sub action_save {
 
   $self->_save();
 
-  $self->action_edit();
+  $self->redirect_to(action => 'edit', id => $self->{cv}->id);
 }
 
 sub action_save_and_close {
