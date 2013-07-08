@@ -93,8 +93,7 @@ sub _save {
       if ( $self->{cv}->vendornumber ) {
         $cvs_by_nr = SL::DB::Manager::Vendor->get_all(query => [vendornumber => $self->{cv}->vendornumber]);
       }
-    }
-    else {
+    } else {
       if ( $self->{cv}->customernumber ) {
         $cvs_by_nr = SL::DB::Manager::Customer->get_all(query => [customernumber => $self->{cv}->customernumber]);
       }
@@ -249,8 +248,7 @@ sub action_delete {
 
   if( !$self->is_orphaned() ) {
     $self->action_edit();
-  }
-  else {
+  } else {
 
     $db->do_transaction(sub {
       $self->{cv}->delete(cascade => 1);
@@ -360,8 +358,7 @@ sub action_get_delivery {
     $arap = 'ap';
     $db = 'vendor';
     $qty_sign = ' * -1 AS qty';
-  }
-  else {
+  } else {
     $arap = 'ar';
     $db = 'customer';
     $qty_sign = '';
@@ -448,8 +445,7 @@ sub action_ajaj_get_contact {
 
         if ( $_ eq 'birthday' && $self->{contact}->$name ) {
           $name => $self->{contact}->$name->to_lxoffice;
-        }
-        else {
+        } else {
           $name => $self->{contact}->$name;
         }
       }
@@ -465,8 +461,7 @@ sub action_ajaj_get_contact {
       {
         if ( $_->config->type eq 'number' ) {
           $_->config->name => $::form->format_amount(\%::myconfig, $_->value, -2);
-        }
-        else {
+        } else {
           $_->config->name => $_->value;
         }
       }
@@ -568,16 +563,13 @@ sub _instantiate_args {
   if ( $::form->{cv}->{id} ) {
     if ( $self->is_vendor() ) {
       $self->{cv} = SL::DB::Vendor->new(id => $::form->{cv}->{id})->load();
-    }
-    else {
+    } else {
       $self->{cv} = SL::DB::Customer->new(id => $::form->{cv}->{id})->load();
     }
-  }
-  else {
+  } else {
     if ( $self->is_vendor() ) {
       $self->{cv} = SL::DB::Vendor->new();
-    }
-    else {
+    } else {
       $self->{cv} = SL::DB::Customer->new();
     }
   }
@@ -601,8 +593,7 @@ sub _instantiate_args {
 
   if ( $::form->{note}->{id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note}->{id})->load();
-  }
-  else {
+  } else {
     $self->{note} = SL::DB::Note->new();
   }
   $self->{note}->assign_attributes(%{$::form->{note}});
@@ -620,8 +611,7 @@ sub _instantiate_args {
 
   if ( $::form->{shipto}->{shipto_id} ) {
     $self->{shipto} = SL::DB::Shipto->new(shipto_id => $::form->{shipto}->{shipto_id})->load();
-  }
-  else {
+  } else {
     $self->{shipto} = SL::DB::Shipto->new();
   }
   $self->{shipto}->assign_attributes(%{$::form->{shipto}});
@@ -632,8 +622,7 @@ sub _instantiate_args {
 
   if ( $::form->{contact}->{cp_id} ) {
     $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact}->{cp_id})->load();
-  }
-  else {
+  } else {
     $self->{contact} = SL::DB::Contact->new();
   }
   $self->{contact}->assign_attributes(%{$::form->{contact}});
@@ -657,8 +646,7 @@ sub _load_customer_vendor {
 
   if ( $self->is_vendor() ) {
     $self->{cv} = SL::DB::Vendor->new(id => $::form->{id})->load();
-  }
-  else {
+  } else {
     $self->{cv} = SL::DB::Customer->new(id => $::form->{id})->load();
   }
 
@@ -671,8 +659,7 @@ sub _load_customer_vendor {
     if ( $self->{shipto}->trans_id != $self->{cv}->id ) {
       die($::locale->text('Error'));
     }
-  }
-  else {
+  } else {
     $self->{shipto} = SL::DB::Shipto->new();
   }
 
@@ -682,8 +669,7 @@ sub _load_customer_vendor {
     if ( $self->{contact}->cp_cv_id != $self->{cv}->id ) {
       die($::locale->text('Error'));
     }
-  }
-  else {
+  } else {
     $self->{contact} = SL::DB::Contact->new();
   }
 }
@@ -693,8 +679,7 @@ sub _create_customer_vendor {
 
   if ( $self->is_vendor() ) {
     $self->{cv} = SL::DB::Vendor->new();
-  }
-  else {
+  } else {
     $self->{cv} = SL::DB::Customer->new();
   }
 
