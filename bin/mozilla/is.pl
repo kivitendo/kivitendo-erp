@@ -547,7 +547,10 @@ sub update {
     }
 
     if ($rows) {
-      $form->{"qty_$i"} = ($form->{"qty_$i"} * 1) ? $form->{"qty_$i"} : 1;
+      $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
+      if( !$form->{"qty_$i"} ) {
+        $form->{"qty_$i"} = 1;
+      }
 
       if ($rows > 1) {
 

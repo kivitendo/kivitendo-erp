@@ -597,7 +597,11 @@ sub update {
     $form->{"lastcost_$i"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$i"});
 
     if ($rows) {
-      $form->{"qty_$i"} = 1 unless ($form->parse_amount(\%myconfig, $form->{"qty_$i"}));
+
+      $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
+      if( !$form->{"qty_$i"} ) {
+        $form->{"qty_$i"} = 1;
+      }
 
       if ($rows > 1) {
 
