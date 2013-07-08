@@ -241,8 +241,6 @@ sub action_delete {
   my ($self) = @_;
 
   if( !$self->is_orphaned() ) {
-    SL::Helper::Flash::flash('error', $::locale->text('blaabla'));
-
     $self->action_edit();
   }
   else {
