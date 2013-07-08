@@ -253,7 +253,7 @@ sub action_delete {
   else {
 
     $db->do_transaction(sub {
-      $self->{cv}->delete();
+      $self->{cv}->delete(cascade => 1);
 
       my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
       SL::DB::History->new(
@@ -286,7 +286,7 @@ sub action_delete_contact {
         $self->{contact}->save();
         SL::Helper::Flash::flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
       } else {
-        $self->{contact}->delete();
+        $self->{contact}->delete(cascade => 1);
         SL::Helper::Flash::flash('info', $::locale->text('Contact deleted.'));
       }
     }) || die($db->error);
@@ -309,10 +309,10 @@ sub action_delete_shipto {
     $db->do_transaction(sub {
       if ( $self->{shipto}->used ) {
         $self->{shipto}->detach();
-        $self->{shipto}->save();
+        $self->{shipto}->save(cascade => 1);
         SL::Helper::Flash::flash('info', $::locale->text('Shipto is in use and was flagged invalid.'));
       } else {
-        $self->{shipto}->delete();
+        $self->{shipto}->delete(cascade => 1);
         SL::Helper::Flash::flash('info', $::locale->text('Shipto deleted.'));
       }
     }) || die($db->error);
