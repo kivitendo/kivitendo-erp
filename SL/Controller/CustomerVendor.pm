@@ -85,55 +85,60 @@ sub action_edit {
 sub _save {
   my ($self) = @_;
 
-  my $cvs_by_nr;
-  if ( $self->is_vendor() ) {
-    if ( $self->{cv}->vendornumber ) {
-      $cvs_by_nr = SL::DB::Manager::Vendor->get_all(query => [vendornumber => $self->{cv}->vendornumber]);
+  my $db = $self->{cv}->db;
+
+  $db->do_transaction(sub {
+    my $cvs_by_nr;
+    if ( $self->is_vendor() ) {
+      if ( $self->{cv}->vendornumber ) {
+        $cvs_by_nr = SL::DB::Manager::Vendor->get_all(query => [vendornumber => $self->{cv}->vendornumber]);
+      }
     }
-  }
-  else {
-    if ( $self->{cv}->customernumber ) {
-      $cvs_by_nr = SL::DB::Manager::Customer->get_all(query => [customernumber => $self->{cv}->customernumber]);
+    else {
+      if ( $self->{cv}->customernumber ) {
+        $cvs_by_nr = SL::DB::Manager::Customer->get_all(query => [customernumber => $self->{cv}->customernumber]);
+      }
     }
-  }
 
-  foreach my $entry (@{$cvs_by_nr}) {
-    if( $entry->id != $self->{cv}->id ) {
-      my $msg =
-        $self->is_vendor() ? $::locale->text('This vendor number is already in use.') : $::locale->text('This customer number is already in use.');
+    foreach my $entry (@{$cvs_by_nr}) {
+      if( $entry->id != $self->{cv}->id ) {
+        my $msg =
+          $self->is_vendor() ? $::locale->text('This vendor number is already in use.') : $::locale->text('This customer number is already in use.');
 
-      $::form->error($msg);
+        $::form->error($msg);
+      }
     }
-  }
 
-  $self->{cv}->save(cascade => 1);
+    $self->{cv}->save(cascade => 1);
 
-  $self->{contact}->cp_cv_id($self->{cv}->id);
-  if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
-    $self->{contact}->save();
-  }
+    $self->{contact}->cp_cv_id($self->{cv}->id);
+    if( $self->{contact}->cp_name ne '' || $self->{contact}->cp_givenname ne '' ) {
+      $self->{contact}->save();
+    }
 
-  if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
-    $self->{note}->trans_id($self->{cv}->id);
-    $self->{note}->save();
-    $self->{note_followup}->save();
+    if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
+      $self->{note}->trans_id($self->{cv}->id);
+      $self->{note}->save();
+      $self->{note_followup}->save();
 
-    $self->{note} = SL::DB::Note->new();
-    $self->{note_followup} = SL::DB::FollowUp->new();
-  }
+      $self->{note} = SL::DB::Note->new();
+      $self->{note_followup} = SL::DB::FollowUp->new();
+    }
 
-  $self->{shipto}->trans_id($self->{cv}->id);
-  if( $self->{shipto}->shiptoname ne '' ) {
-    $self->{shipto}->save();
-  }
+    $self->{shipto}->trans_id($self->{cv}->id);
+    if( $self->{shipto}->shiptoname ne '' ) {
+      $self->{shipto}->save();
+    }
 
-  my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
-  SL::DB::History->new(
-    trans_id => $self->{cv}->id,
-    snumbers => $snumbers,
-    employee_id => SL::DB::Manager::Employee->current->id,
-    addition => 'SAVED',
-  )->save();
+    my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
+    SL::DB::History->new(
+      trans_id => $self->{cv}->id,
+      snumbers => $snumbers,
+      employee_id => SL::DB::Manager::Employee->current->id,
+      addition => 'SAVED',
+    )->save();
+  }) || die($db->error);
+
 }
 
 sub action_save {
@@ -240,19 +245,24 @@ sub action_save_and_quotation {
 sub action_delete {
   my ($self) = @_;
 
+  my $db = $self->{cv}->db;
+
   if( !$self->is_orphaned() ) {
     $self->action_edit();
   }
   else {
-    $self->{cv}->delete();
 
-    my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
-    SL::DB::History->new(
-      trans_id => $self->{cv}->id,
-      snumbers => $snumbers,
-      employee_id => SL::DB::Manager::Employee->current->id,
-      addition => 'DELETED',
-    )->save();
+    $db->do_transaction(sub {
+      $self->{cv}->delete();
+
+      my $snumbers = $self->is_vendor() ? 'vendornumber_'. $self->{cv}->vendornumber : 'customernumber_'. $self->{cv}->customernumber;
+      SL::DB::History->new(
+        trans_id => $self->{cv}->id,
+        snumbers => $snumbers,
+        employee_id => SL::DB::Manager::Employee->current->id,
+        addition => 'DELETED',
+      )->save();
+    }) || die($db->error);
 
     my $msg = $self->is_vendor() ? $::locale->text('Vendor deleted!') : $::locale->text('Customer deleted!');
     $::form->redirect($msg);
@@ -264,17 +274,22 @@ sub action_delete {
 sub action_delete_contact {
   my ($self) = @_;
 
+  my $db = $self->{contact}->db;
+
   if ( !$self->{contact}->cp_id ) {
     SL::Helper::Flash::flash('error', $::locale->text('No contact selected to delete'));
   } else {
-    if ( $self->{contact}->used ) {
-      $self->{contact}->detach();
-      $self->{contact}->save();
-      SL::Helper::Flash::flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
-    } else {
-      $self->{contact}->delete();
-      SL::Helper::Flash::flash('info', $::locale->text('Contact deleted.'));
-    }
+
+    $db->do_transaction(sub {
+      if ( $self->{contact}->used ) {
+        $self->{contact}->detach();
+        $self->{contact}->save();
+        SL::Helper::Flash::flash('info', $::locale->text('Contact is in use and was flagged invalid.'));
+      } else {
+        $self->{contact}->delete();
+        SL::Helper::Flash::flash('info', $::locale->text('Contact deleted.'));
+      }
+    }) || die($db->error);
 
     $self->{contact} = SL::DB::Contact->new();
   }
@@ -285,17 +300,22 @@ sub action_delete_contact {
 sub action_delete_shipto {
   my ($self) = @_;
 
+  my $db = $self->{shipto}->db;
+
   if ( !$self->{shipto}->shipto_id ) {
     SL::Helper::Flash::flash('error', $::locale->text('No shipto selected to delete'));
   } else {
-    if ( $self->{shipto}->used ) {
-      $self->{shipto}->detach();
-      $self->{shipto}->save();
-      SL::Helper::Flash::flash('info', $::locale->text('Shipto is in use and was flagged invalid.'));
-    } else {
-      $self->{shipto}->delete();
-      SL::Helper::Flash::flash('info', $::locale->text('Shipto deleted.'));
-    }
+
+    $db->do_transaction(sub {
+      if ( $self->{shipto}->used ) {
+        $self->{shipto}->detach();
+        $self->{shipto}->save();
+        SL::Helper::Flash::flash('info', $::locale->text('Shipto is in use and was flagged invalid.'));
+      } else {
+        $self->{shipto}->delete();
+        SL::Helper::Flash::flash('info', $::locale->text('Shipto deleted.'));
+      }
+    }) || die($db->error);
 
     $self->{shipto} = SL::DB::Shipto->new();
   }
