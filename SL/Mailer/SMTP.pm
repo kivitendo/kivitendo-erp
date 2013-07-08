@@ -31,9 +31,13 @@ sub init {
 
   $self->{smtp}->starttls(SSL_verify_mode => 0) || die if $self->{security} eq 'tls';
 
-  return 1 unless $cfg->{login};
+  # Backwards compatibility: older Versions used 'user' instead of the
+  # intended 'login'. Support both.
+  my $login = $cfg->{login} || $cfg->{user};
 
-  $self->{smtp}->auth($cfg->{user}, $cfg->{password}) or die;
+  return 1 unless $login;
+
+  $self->{smtp}->auth($login, $cfg->{password}) or die;
 }
 
 sub start_mail {
