@@ -56,5 +56,13 @@
    <td>[% LxERP.t8('Automatic deletion of leading, trailing and excessive (repetitive) spaces in part description and part notes. Affects the CSV import as well.') %]</td>
   </tr>
 </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Requirement Specs") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Default article for converting into quotations and orders') %]</td>
+   <td>[% L.select_tag('defaults.requirement_spec_section_order_part_id', SELF.all_parts, default=SELF.defaults.requirement_spec_section_order_part_id, with_empty=1, title_sub=\make_part_title) %]</td>
+   <td>[% LxERP.t8('When converting a requirement spec into a quotation or an oder each section gets converted into a line position in the new record. This is the article used by default for this conversion.') %]</td>
+  </tr>
  </table>
 </div>
