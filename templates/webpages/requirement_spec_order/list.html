@@ -50,8 +50,9 @@
      <th>[% LxERP.t8("Type") %]</th>
      <th>[% LxERP.t8("Requirement Spec Version") %]</th>
      <th>[% LxERP.t8("Record number") %]</th>
-     <th>[% LxERP.t8("Transaction Description") %]</th>
-     <th>[% LxERP.t8("Date") %]</th>
+     <th>[% LxERP.t8("Transaction description") %]</th>
+     <th>[% LxERP.t8("Quotation/Order Date") %]</th>
+     <th>[% LxERP.t8("Creation Date") %]</th>
     </tr>
    </thead>
 
@@ -59,7 +60,7 @@
     [% FOREACH rs_order = orders %]
     <tr class="listrow quotations-and-orders-order-context-menu">
      [% L.hidden_tag('order_id', rs_order.id, no_id=1) %]
-     <td>[% rs_order.order.type == 'sales_quotation' ? LxERP.t8('Sales quotation') : LxERP.t8('Sales order') %]</td>
+     <td>[% rs_order.order.type == 'sales_quotation' ? LxERP.t8('Sales quotation') : LxERP.t8('Sales Order') %]</td>
      <td>
       [% IF rs_order.version %]
        [% HTML.escape(rs_order.version.version_number) %]
@@ -69,6 +70,7 @@
      </td>
      <td>[% HTML.escape(rs_order.order.quotation ? rs_order.order.quonumber : rs_order.order.ordnumber) %]</td>
      <td>[% HTML.escape(rs_order.order.transaction_description) %]</td>
+     <td>[% rs_order.order.transdate.to_kivitendo(precision='day') %]</td>
      <td>[% rs_order.itime.to_kivitendo(precision='day') %]</td>
     </tr>
     [%- END %]

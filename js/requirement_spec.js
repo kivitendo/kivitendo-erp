@@ -519,7 +519,7 @@ ns.create_context_menus = function(is_template) {
   $.contextMenu({
     selector: '.quotations-and-orders-context-menu,.quotations-and-orders-order-context-menu',
     items:    $.extend({
-        heading:            { name: kivi.t8('Orders/Quotations actions'), className: 'context-menu-heading'                                                                                            }
+        heading:            { name: kivi.t8('Quotations/Orders actions'), className: 'context-menu-heading'                                                                                            }
       , edit_assignment:    { name: kivi.t8('Edit article/section assignments'), icon: "edit",   callback: ns.standard_quotation_order_ajax_call                                                       }
       , sep1:               "---------"
       , new:                { name: kivi.t8('Create new qutoation/order'),       icon: "add",    callback: ns.standard_quotation_order_ajax_call, disabled: ns.disable_create_quotation_order_commands }
