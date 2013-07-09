@@ -40,7 +40,8 @@ $script     =~ s:.*/::;
 $OUTPUT_AUTOFLUSH       = 1;
 $Data::Dumper::Sortkeys = 1;
 
-our $meta_path = "SL/DB/MetaSetup";
+our $meta_path    = "SL/DB/MetaSetup";
+our $manager_path = "SL/DB/Manager";
 
 my %config;
 
@@ -78,7 +79,9 @@ sub setup {
     usage();
   }
 
-  mkdir $meta_path unless -d $meta_path;
+  foreach (($meta_path, $manager_path)) {
+    mkdir $_ unless -d;
+  }
 }
 
 sub process_table {
@@ -89,6 +92,7 @@ sub process_table {
   my $package    =  ucfirst($spec[1] || $spec[0]);
   $package       =~ s/_+(.)/uc($1)/ge;
   my $meta_file  =  "${meta_path}/${package}.pm";
+  my $mngr_file  =  "${manager_path}/${package}.pm";
   my $file       =  "SL/DB/${package}.pm";
 
   my $schema_str = $schema ? <<CODE : '';
@@ -166,11 +170,9 @@ package SL::DB::${package};
 use strict;
 
 use SL::DB::MetaSetup::${package};
+use SL::DB::Manager::${package};
 
 __PACKAGE__->meta->initialize;
-
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
 
 1;
 CODE
@@ -197,14 +199,39 @@ CODE
 
   notice("File '$meta_file' " . ($file_exists ? 'updated' : 'created') . " for table '$table'");
 
-  if (! -f $file) {
-    if (!$config{nocommit}) {
-      open my $out, ">", $file || die;
-      print $out $meta_definition;
-    }
+  return if -f $file;
 
-    notice("File '$file' created as well.");
+  if (!$config{nocommit}) {
+    open my $out, ">", $file || die;
+    print $out $meta_definition;
   }
+
+  notice("File '$file' created as well.");
+
+  return if -f $mngr_file;
+
+  if (!$config{nocommit}) {
+    open my $out, ">", $mngr_file || die;
+    print $out <<EOT;
+# This file has been auto-generated only because it didn't exist.
+# Feel free to modify it at will; it will not be overwritten automatically.
+
+package SL::DB::Manager::${package};
+
+use strict;
+
+use SL::DB::Helper::Manager;
+use base qw(SL::DB::Helper::Manager);
+
+sub object_class { 'SL::DB::${package}' }
+
+__PACKAGE__->make_manager_methods;
+
+1;
+EOT
+  }
+
+  notice("File '$mngr_file' created as well.");
 }
 
 sub parse_args {
