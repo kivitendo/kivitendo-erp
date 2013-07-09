@@ -318,6 +318,36 @@ ns.standard_time_cost_estimate_ajax_call = function(key, opt) {
 };
 
 // -------------------------------------------------------------------------
+// --------------------------- quotations/orders ---------------------------
+// -------------------------------------------------------------------------
+
+ns.find_quotation_order_id = function(clicked_elt) {
+  return $(clicked_elt).find('>[name=order_id]').val();
+};
+
+ns.standard_quotation_order_ajax_call = function(key, opt, other_data) {
+  var data = {
+    action:              "RequirementSpecOrder/" + key,
+    requirement_spec_id: $('#requirement_spec_id').val(),
+    id:                  ns.find_quotation_order_id(opt.$trigger)
+  };
+
+  // console.log("I would normally POST the following now:");
+  // console.log(data);
+  $.post("controller.pl", $.extend(data, other_data || {}), kivi.eval_json_result);
+
+  return true;
+};
+
+ns.disable_edit_quotation_order_commands = function(key, opt) {
+  return ns.find_quotation_order_id(opt.$trigger) == undefined;
+};
+
+ns.disable_create_quotation_order_commands = function(key, opt) {
+  return !$('#quotations_and_orders_sections');
+};
+
+// -------------------------------------------------------------------------
 // ---------------------------- general actions ----------------------------
 // -------------------------------------------------------------------------
 
@@ -471,6 +501,19 @@ ns.create_context_menus = function(is_template) {
         heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
       , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
       , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.quotations-and-orders-context-menu,.quotations-and-orders-order-context-menu',
+    items:    $.extend({
+        heading:            { name: kivi.t8('Orders/Quotations actions'), className: 'context-menu-heading' }
+      , edit:               { name: kivi.t8('Edit article/section assignments'), icon: "edit",   callback: ns.standard_quotation_order_ajax_call }
+      , sep1:               "---------"
+      , new:                { name: kivi.t8('Create new qutoation/order'),       icon: "add",    callback: ns.standard_quotation_order_ajax_call, disabled: ns.disable_create_quotation_order_commands}
+      , update:             { name: kivi.t8('Update quotation/order'),           icon: "update", callback: ns.standard_quotation_order_ajax_call, disabled: ns.disable_edit_quotation_order_commands }
+      , sep2:               "---------"
+      , delete:             { name: kivi.t8('Delete quotation/order'),           icon: "delete", callback: ns.ask_delete_quotation_order,         disabled: ns.disable_edit_quotation_order_commands }
     }, general_actions)
   });
 

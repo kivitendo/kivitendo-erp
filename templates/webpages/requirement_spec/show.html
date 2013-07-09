@@ -13,6 +13,7 @@
   <li><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Time and cost estimate") %]</a></li>
   [%- UNLESS SELF.requirement_spec.is_template %]
    <li><a href="controller.pl?action=RequirementSpecVersion/list&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Versions") %]</a></li>
+   <li><a href="[% SELF.url_for(controller='RequirementSpecOrder', action='list', requirement_spec_id=SELF.requirement_spec.id) %]">[%- LxERP.t8("Quotations and orders") %]</a></li>
   [%- END %]
  </ul>
 

@@ -27,6 +27,11 @@ __PACKAGE__->meta->add_relationship(
     class          => 'SL::DB::RequirementSpec',
     column_map     => { id => 'working_copy_id' },
   },
+  orders           => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpecOrder',
+    column_map     => { id => 'requirement_spec_id' },
+  },
 );
 
 __PACKAGE__->meta->initialize;
@@ -70,6 +75,13 @@ sub sections_sorted {
 }
 
 sub sections { &sections_sorted; }
+
+sub orders_sorted {
+  my ($self, %params) = _hashify(1, @_);
+  my $by              = $params{by} || 'itime';
+
+  return [ sort { $a->$by cmp $b->$by } @{ $self->orders } ];
+}
 
 sub displayable_name {
   my ($self) = @_;
