@@ -172,6 +172,10 @@ sub action_ajax_create {
   my $attributes      = $::form->{$prefix}     || die "Missing parameter group '${prefix}'";
   my $insert_after    = delete $attributes->{insert_after};
 
+  if (!$attributes->{parent_id}) {
+    $attributes->{order_part_id} ||= $::instance_conf->get_requirement_spec_section_order_part_id;
+  }
+
   my @errors = $self->item(SL::DB::RequirementSpecItem->new(%{ $attributes }))->validate;
   return $self->js->error(@errors)->render($self) if @errors;
 
