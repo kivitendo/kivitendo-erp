@@ -161,6 +161,7 @@ my %kivitendo_package_names = (
   requirement_spec_complexities        => 'RequirementSpecComplexity',
   requirement_spec_item_dependencies   => 'RequirementSpecDependency',
   requirement_spec_items               => 'RequirementSpecItem',
+  requirement_spec_orders              => 'RequirementSpecOrder',
   requirement_spec_predefined_texts    => 'RequirementSpecPredefinedText',
   requirement_spec_risks               => 'RequirementSpecRisk',
   requirement_spec_statuses            => 'RequirementSpecStatus',

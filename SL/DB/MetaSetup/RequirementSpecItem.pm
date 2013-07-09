@@ -19,6 +19,7 @@ __PACKAGE__->meta->columns(
   item_type            => { type => 'text', not_null => 1 },
   itime                => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime                => { type => 'timestamp' },
+  order_part_id        => { type => 'integer' },
   parent_id            => { type => 'integer' },
   position             => { type => 'integer', not_null => 1 },
   requirement_spec_id  => { type => 'integer', not_null => 1 },
@@ -40,6 +41,11 @@ __PACKAGE__->meta->foreign_keys(
   complexity => {
     class       => 'SL::DB::RequirementSpecComplexity',
     key_columns => { complexity_id => 'id' },
+  },
+
+  order_part => {
+    class       => 'SL::DB::Part',
+    key_columns => { order_part_id => 'id' },
   },
 
   parent => {

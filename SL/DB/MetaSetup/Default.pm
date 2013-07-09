@@ -69,6 +69,7 @@ __PACKAGE__->meta->columns(
   purchase_order_show_delete                    => { type => 'boolean', default => 'true' },
   requirement_spec_function_block_number_format => { type => 'text', default => 'FB000', not_null => 1 },
   requirement_spec_section_number_format        => { type => 'text', default => 'A00', not_null => 1 },
+  requirement_spec_section_order_part_id        => { type => 'integer' },
   revtrans                                      => { type => 'boolean', default => 'false' },
   rfqnumber                                     => { type => 'text' },
   rmanumber                                     => { type => 'text' },
@@ -115,6 +116,11 @@ __PACKAGE__->meta->foreign_keys(
   currency => {
     class       => 'SL::DB::Currency',
     key_columns => { currency_id => 'id' },
+  },
+
+  requirement_spec_section_order_part => {
+    class       => 'SL::DB::Part',
+    key_columns => { requirement_spec_section_order_part_id => 'id' },
   },
 
   warehouse => {
