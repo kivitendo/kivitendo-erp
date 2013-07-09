@@ -179,6 +179,7 @@ my %kivitendo_package_names = (
   todo_user_config               => 'todo_user_config',
   transfer_type                  => 'transfer_type',
   translation                    => 'translation',
+  trigger_information            => 'trigger_information',
   units                          => 'unit',
   units_language                 => 'units_language',
   vendor                         => 'vendor',

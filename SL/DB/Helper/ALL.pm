@@ -99,6 +99,7 @@ use SL::DB::TaxZone;
 use SL::DB::TodoUserConfig;
 use SL::DB::TransferType;
 use SL::DB::Translation;
+use SL::DB::TriggerInformation;
 use SL::DB::Unit;
 use SL::DB::UnitsLanguage;
 use SL::DB::VC;
