@@ -1,0 +1,31 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE P -%]
+<div>
+ [% LxERP.t8("Assign the following article to all sections") %]:
+ [% L.select_tag('quotations_and_orders_dummy', SELF.all_parts, default=INSTANCE_CONF.get_requirement_spec_section_order_part_id, title_sub=\make_part_title, id='quoations_and_orders_order_id') %]
+ [% L.button_tag('kivi.requirement_spec.assign_order_part_id_to_all()', LxERP.t8('Assign article')) %]
+</div>
+
+<form id="quotations_and_orders_article_assignment_form">
+ <table style="width: 100%">
+  <thead>
+   <tr class="listheading">
+    <th>[% LxERP.t8("Number") %]</th>
+    <th>[% LxERP.t8("Title") %]</th>
+    <th>[% LxERP.t8("Description") %]</th>
+    <th>[% LxERP.t8("Article") %]</th>
+   </tr>
+  </thead>
+
+  <tbody>
+   [% FOREACH section = SELF.requirement_spec.sections_sorted %]
+   <tr class="listrow">
+    [% L.hidden_tag("sections[+].id", section.id, no_id=1) %]
+    <td>[% HTML.escape(section.fb_number) %]</td>
+    <td>[% HTML.escape(section.title) %]</td>
+    <td>[% HTML.escape(P.truncate(section.description)) %]</td>
+    <td>[% L.select_tag('sections[].order_part_id', SELF.all_parts, default=section.order_part_id, with_empty=1, title_sub=\make_part_title, no_id=1) %]</td>
+   </tr>
+   [% END %]
+  </tbody>
+ </table>
+</form>

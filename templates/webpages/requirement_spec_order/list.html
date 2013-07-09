@@ -1,6 +1,7 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE P -%]
 <div id="quotations_and_orders" class="quotations-and-orders-context-menu">
  <h2>[% LxERP.t8("Assignment of articles to sections") %]</h2>
+
  [% SET sections = SELF.requirement_spec.sections_sorted %]
  [% IF !sections.size %]
  <div>

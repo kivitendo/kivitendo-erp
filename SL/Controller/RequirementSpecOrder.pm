@@ -6,6 +6,7 @@ use utf8;
 use parent qw(SL::Controller::Base);
 
 use SL::ClientJS;
+use SL::DB::Part;
 use SL::DB::RequirementSpec;
 use SL::DB::RequirementSpecOrder;
 use SL::Helper::Flash;
@@ -13,7 +14,7 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(requirement_spec js) ],
+  'scalar --get_set_init' => [ qw(requirement_spec js all_parts) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -26,8 +27,33 @@ __PACKAGE__->run_before('setup');
 sub action_list {
   my ($self) = @_;
 
-  $::lxdebug->dump(0, "hmm", $self->requirement_spec->sections_sorted);
   $self->render('requirement_spec_order/list', { layout => 0 });
+}
+
+sub action_edit_assignment {
+  my ($self) = @_;
+
+  my $html   = $self->render('requirement_spec_order/edit_assignment', { output => 0 }, make_part_title => sub { $_[0]->partnumber . ' ' . $_[0]->description });
+  $self->js->html('#ui-tabs-4', $html)
+           ->render($self);
+}
+
+sub action_save_assignment {
+  my ($self)   = @_;
+  my $sections = $::form->{sections} || [];
+  SL::DB::RequirementSpecItem->new(id => $_->{id})->load->update_attributes(order_part_id => ($_->{order_part_id} || undef)) for @{ $sections };
+
+  my $html = $self->render('requirement_spec_order/list', { output => 0 });
+  $self->js->html('#ui-tabs-4', $html)
+           ->render($self);
+}
+
+sub action_cancel {
+  my ($self) = @_;
+
+  my $html = $self->render('requirement_spec_order/list', { output => 0 });
+  $self->js->html('#ui-tabs-4', $html)
+           ->render($self);
 }
 
 #
@@ -57,5 +83,7 @@ sub init_js {
 #
 # helpers
 #
+
+sub init_all_parts { SL::DB::Manager::Part->get_all_sorted }
 
 1;

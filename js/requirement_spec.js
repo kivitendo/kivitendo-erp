@@ -325,16 +325,21 @@ ns.find_quotation_order_id = function(clicked_elt) {
   return $(clicked_elt).find('>[name=order_id]').val();
 };
 
-ns.standard_quotation_order_ajax_call = function(key, opt, other_data) {
-  var data = {
-    action:              "RequirementSpecOrder/" + key,
-    requirement_spec_id: $('#requirement_spec_id').val(),
-    id:                  ns.find_quotation_order_id(opt.$trigger)
-  };
+ns.standard_quotation_order_ajax_call = function(key, opt) {
+  if ((key == 'cancel') && !confirm(kivi.t8('Do you really want to cancel?')))
+    return true;
+
+  var data = 'action=RequirementSpecOrder/' + key
+           + '&' + $('#requirement_spec_id').serialize();
+
+  if (key == 'save_assignment')
+    data += '&' + $('#quotations_and_orders_article_assignment_form').serialize();
+  else
+    data += '&id=' + encodeURIComponent(ns.find_quotation_order_id(opt.$trigger));
 
   // console.log("I would normally POST the following now:");
   // console.log(data);
-  $.post("controller.pl", $.extend(data, other_data || {}), kivi.eval_json_result);
+  $.post("controller.pl", data, kivi.eval_json_result);
 
   return true;
 };
@@ -345,6 +350,13 @@ ns.disable_edit_quotation_order_commands = function(key, opt) {
 
 ns.disable_create_quotation_order_commands = function(key, opt) {
   return !$('#quotations_and_orders_sections');
+};
+
+ns.assign_order_part_id_to_all = function() {
+  var order_part_id = $('#quoations_and_orders_order_id').val();
+  $('#quotations_and_orders_article_assignment_form SELECT[name="sections[].order_part_id"]').each(function(idx, elt) {
+    $(elt).val(order_part_id);
+  });
 };
 
 // -------------------------------------------------------------------------
@@ -507,13 +519,22 @@ ns.create_context_menus = function(is_template) {
   $.contextMenu({
     selector: '.quotations-and-orders-context-menu,.quotations-and-orders-order-context-menu',
     items:    $.extend({
-        heading:            { name: kivi.t8('Orders/Quotations actions'), className: 'context-menu-heading' }
-      , edit:               { name: kivi.t8('Edit article/section assignments'), icon: "edit",   callback: ns.standard_quotation_order_ajax_call }
+        heading:            { name: kivi.t8('Orders/Quotations actions'), className: 'context-menu-heading'                                                                                            }
+      , edit_assignment:    { name: kivi.t8('Edit article/section assignments'), icon: "edit",   callback: ns.standard_quotation_order_ajax_call                                                       }
       , sep1:               "---------"
-      , new:                { name: kivi.t8('Create new qutoation/order'),       icon: "add",    callback: ns.standard_quotation_order_ajax_call, disabled: ns.disable_create_quotation_order_commands}
-      , update:             { name: kivi.t8('Update quotation/order'),           icon: "update", callback: ns.standard_quotation_order_ajax_call, disabled: ns.disable_edit_quotation_order_commands }
+      , new:                { name: kivi.t8('Create new qutoation/order'),       icon: "add",    callback: ns.standard_quotation_order_ajax_call, disabled: ns.disable_create_quotation_order_commands }
+      , update:             { name: kivi.t8('Update quotation/order'),           icon: "update", callback: ns.standard_quotation_order_ajax_call, disabled: ns.disable_edit_quotation_order_commands   }
       , sep2:               "---------"
-      , delete:             { name: kivi.t8('Delete quotation/order'),           icon: "delete", callback: ns.ask_delete_quotation_order,         disabled: ns.disable_edit_quotation_order_commands }
+      , delete:             { name: kivi.t8('Delete quotation/order'),           icon: "delete", callback: ns.ask_delete_quotation_order,         disabled: ns.disable_edit_quotation_order_commands   }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.quotations-and-orders-edit-assignment-context-menu',
+    items:    $.extend({
+        heading:         { name: kivi.t8('Edit article/section assignments'), className: 'context-menu-heading'    }
+      , save_assignment: { name: kivi.t8('Save'),   icon: "edit",  callback: ns.standard_quotation_order_ajax_call }
+      , cancel:          { name: kivi.t8('Cancel'), icon: "close", callback: ns.standard_quotation_order_ajax_call }
     }, general_actions)
   });
 

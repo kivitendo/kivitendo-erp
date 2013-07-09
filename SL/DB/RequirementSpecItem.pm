@@ -41,7 +41,7 @@ __PACKAGE__->configure_acts_as_list(group_by => [qw(requirement_spec_id parent_i
 __PACKAGE__->attr_duration(qw(time_estimation));
 
 __PACKAGE__->before_save(\&_before_save_create_fb_number);
-__PACKAGE__->before_save(\  &_before_save_invalidate_requirement_spec_version);
+__PACKAGE__->before_save(\&_before_save_invalidate_requirement_spec_version);
 __PACKAGE__->before_delete(\&_before_delete_invalidate_requirement_spec_version);
 
 sub _before_save_create_fb_number {
