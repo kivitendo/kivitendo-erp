@@ -1,6 +1,6 @@
 use lib 't';
 
-use Test::More tests => 23;
+use Test::More tests => 27;
 use Test::Deep;
 use Data::Dumper;
 
@@ -247,3 +247,37 @@ test {
     ]
   ],
 }, 'object test with prefix but complex value', class => 'SL::DB::Manager::OrderItem';
+
+test {
+  description => 'test'
+}, {
+  query => [ description => 'test' ],
+  with_objects => [ 'order' ]
+}, 'with_objects don\'t get clobbered', with_objects => [ 'order' ];
+
+test {
+  customer => {
+    description => 'test'
+  }
+}, {
+  query => [ 'customer.description' => 'test' ],
+  with_objects => [ 'order', 'customer' ]
+}, 'with_objects get extended with auto infered objects', with_objects => [ 'order' ];
+
+test {
+  customer => {
+    description => 'test'
+  }
+}, {
+  query => [ 'customer.description' => 'test' ],
+  with_objects => [ 'order', 'customer' ]
+}, 'with_objects get extended with auto infered objects with classes', class => 'SL::DB::Manager::Order',  with_objects => [ 'order' ];
+
+test {
+  customer => {
+    description => 'test'
+  }
+}, {
+  query => [ 'customer.description' => 'test' ],
+  with_objects => [ 'customer' ]
+}, 'with_objects: no duplicates', with_objects => [ 'customer' ];
