@@ -179,6 +179,10 @@ sub get_chart {
   return $charts->{$taxzone}->{$type};
 }
 
+sub long_description {
+  join ' ', grep $_, map $_[0]->$_, qw(partnumber description);
+}
+
 1;
 
 __END__

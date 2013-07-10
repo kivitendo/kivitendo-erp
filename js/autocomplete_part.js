@@ -18,14 +18,10 @@ namespace('kivi', function(k){
     var last_dummy = $dummy.val();
     var open_dialog = function(){
       open_jqm_window({
-        url: 'controller.pl',
-        data: {
-          action: 'Part/part_picker_search',
+        url: 'controller.pl?action=Part/part_picker_search',
+        data: $.extend({
           real_id: real_id,
-          'filter.all:substr::ilike': function(){ return $dummy.val() },
-          'filter.type':              function(){ return $type.val() },
-          'column':                   function(){ return $column.val() },
-        },
+        }, ajax_data($dummy.val())),
         id: 'part_selection',
       });
       return true;
@@ -33,11 +29,11 @@ namespace('kivi', function(k){
 
     function ajax_data(term) {
       return {
-        term:     term,
-        type:     function() { return $type.val() },
+        'filter.all:substr::ilike':     term,
+        'filter.type':     function() { return $type.val() },
+        'filter.obsolete': 0,
         column:   function() { return $column.val()===undefined ? '' : $column.val() },
         current:  function() { return $real.val() },
-        obsolete: 0,
       }
     }
 
@@ -68,12 +64,9 @@ namespace('kivi', function(k){
     function update_results () {
       $.ajax({
         url: 'controller.pl?action=Part/part_picker_result',
-        data: {
-          'filter.all:substr::ilike': function(){ var val = $('#part_picker_filter').val(); return val === undefined ? '' : val },
-          'filter.type': $type.val(),
-          'column': $column.val(),
-          'real_id': $real.val,
-        },
+        data: $.extend({
+            'real_id': $real.val(),
+        }, ajax_data(function(){ var val = $('#part_picker_filter').val(); return val === undefined ? '' : val })),
         success: function(data){ $('#part_picker_result').html(data) }
       });
     };
