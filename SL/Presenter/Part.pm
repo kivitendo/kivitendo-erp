@@ -49,10 +49,14 @@ section C<PART PICKER SPECIFICATION>.
 
 C<VALUE> can be an id or C<Rose::DB:Object> instance.
 
-If C<PARAMS> contains C<type> only parts of this type will be used for autocompletion.
+If C<PARAMS> contains C<type> only parts of this type will be used for
+autocompletion. Currently only one type may be specified.
 
 Obsolete parts will by default not displayed for selection. However they are
-accepted as default values and can persist during updates.
+accepted as default values and can persist during updates. As with other
+selectors though, they are not selecatble once overridden.
+
+
 
 =back
 

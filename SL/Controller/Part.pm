@@ -44,8 +44,23 @@ sub action_ajax_autocomplete {
 
   # if someone types something, and hits enter, assume he entered the full name.
   # if something matches, treat that as sole match
+  # unfortunately get_models can't do more than one per package atm, so we d it
+  # the oldfashioned way.
   if ($::form->{prefer_exact}) {
-    # TODO!
+    my $exact_matches;
+    if (1 == scalar @{ $exact_matches = SL::DB::Manager::Part->get_all(
+      query => [
+        obsolete => 0,
+        SL::DB::Manager::Part->type_filter($::form->{filter}{type}),
+        or => [
+          description => { ilike => $::form->{filter}{'all:substr::ilike'} },
+          partnumber  => { ilike => $::form->{filter}{'all:substr::ilike'} },
+        ]
+      ],
+      limit => 2,
+    ) }) {
+      $self->parts($exact_matches);
+    }
   }
 
   my @hashes = map {
@@ -57,7 +72,7 @@ sub action_ajax_autocomplete {
      description => $_->description,
      type        => $_->type,
     }
-  } @{ $self->parts };
+  } @{ $self->parts }; # neato: if exact match triggers we don't even need the init_parts
 
   $self->render(\ SL::JSON::to_json(\@hashes), { layout => 0, type => 'json', process => 0 });
 }
