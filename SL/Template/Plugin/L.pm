@@ -66,6 +66,7 @@ sub select_tag    { return _call_presenter('select_tag',    @_); }
 sub input_tag     { return _call_presenter('input_tag',     @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
+sub part_picker   { return _call_presenter('part_picker',   @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name) = @_;
@@ -489,18 +490,6 @@ sub paginate_controls {
   );
 
   return SL::Presenter->get->render('common/paginate', %template_params);
-}
-
-sub part_picker {
-  my ($self, $name, $value, %params) = _hashify(3, @_);
-  my $name_e    = _H($name);
-
-  my $ret = $self->hidden_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => 'part_autocomplete') .
-  $self->hidden_tag("", delete $params{type}, id => $self->name_to_id("$name_e\_type")) .
-  $self->input_tag("", (ref $value && $value->can('description')) ? $value->description : '', id => $self->name_to_id("$name_e\_name"), %params) .
-  $self->hidden_tag("", delete $params{column}, id => $self->name_to_id("$name_e\_column"));
-
-  $self->html_tag('span', $ret, class => 'part_picker');
 }
 
 1;

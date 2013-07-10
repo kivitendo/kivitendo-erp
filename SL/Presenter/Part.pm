@@ -19,3 +19,47 @@ sub part_picker {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Presenter::Part - Part lelated presenter stuff
+
+=head1 SYNOPSIS
+
+see L<SL::Presenter>
+
+=head1 DESCRIPTION
+
+see L<SL::Presenter>
+
+=head1 FUNCTIONS
+
+=over 4
+
+=item C<part_picker NAME, VALUE, PARAMS>
+
+All-in-one picker widget for parts. The name will be both id and name of the
+resulting hidden C<id> input field. An additional dummy input will be generated
+which is used to find parts. For a detailed description of it's behaviour, see
+section C<PART PICKER SPECIFICATION>.
+
+C<VALUE> can be an id or C<Rose::DB:Object> instance.
+
+If C<PARAMS> contains C<type> only parts of this type will be used for autocompletion.
+
+
+=back
+
+=head1 BUGS
+
+None yet :)
+
+=head1 AUTHOR
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
+
+=cut
