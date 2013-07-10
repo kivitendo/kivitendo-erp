@@ -51,6 +51,18 @@ sub action_ajax_autocomplete {
   $self->{parts} = SL::DB::Manager::Part->get_all(query => [ @filter ], limit => $limit);
   $self->{value} = $::form->{column} || 'description';
 
+  # if someone types something, and hits enter, assume he entered the full name.
+  # if something matches, treat that as sole match
+  if ($::form->{prefer_exact}) {
+    for my $part (@{ $self->{parts} }) {
+      if (   lc $part->description eq lc $::form->{term}
+          || lc $part->partnumber  eq lc $::form->{term}) {
+        $self->{parts} = [ $part ];
+        last;
+      }
+    }
+  }
+
   $self->render('part/ajax_autocomplete', { layout => 0, type => 'json' });
 }
 

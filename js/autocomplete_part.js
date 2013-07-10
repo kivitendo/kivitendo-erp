@@ -115,7 +115,7 @@ namespace('kivi', function(k){
         $.ajax({
           url: 'controller.pl?action=Part/ajax_autocomplete',
           dataType: "json",
-          data: ajax_data($dummy.val()),
+          data: $.extend( ajax_data($dummy.val()), { prefer_exact: 1 } ),
           success: function (data){
             if (data.length == 1) {
               set_item(data[0]);
