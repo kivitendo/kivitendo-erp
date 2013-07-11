@@ -332,10 +332,10 @@ ns.standard_quotation_order_ajax_call = function(key, opt) {
   var data = 'action=RequirementSpecOrder/' + key
            + '&' + $('#requirement_spec_id').serialize();
 
-  if ((key == 'save_assignment') || (key == 'create'))
-    data += '&' + $('#quotations_and_orders_article_assignment_form').serialize();
-  else
-    data += '&id=' + encodeURIComponent(ns.find_quotation_order_id(opt.$trigger));
+  if ((key == 'save_assignment') || (key == 'create') || (key == 'do_update'))
+    data += '&' + $('#quotations_and_orders_form').serialize();
+  else if ((key == 'update') || (key == 'delete'))
+    data += '&rs_order_id=' + encodeURIComponent(ns.find_quotation_order_id(opt.$trigger));
 
   // console.log("I would normally POST the following now:");
   // console.log(data);
@@ -354,7 +354,7 @@ ns.disable_create_quotation_order_commands = function(key, opt) {
 
 ns.assign_order_part_id_to_all = function() {
   var order_part_id = $('#quoations_and_orders_order_id').val();
-  $('#quotations_and_orders_article_assignment_form SELECT[name="sections[].order_part_id"]').each(function(idx, elt) {
+  $('#quotations_and_orders_form SELECT[name="sections[].order_part_id"]').each(function(idx, elt) {
     $(elt).val(order_part_id);
   });
 };
@@ -541,9 +541,18 @@ ns.create_context_menus = function(is_template) {
   $.contextMenu({
     selector: '.quotations-and-orders-new-context-menu',
     items:    $.extend({
-        heading: { name: kivi.t8('Create new quotation/order'), className: 'context-menu-heading'    }
+        heading: { name: kivi.t8('Create new quotation/order'), className: 'context-menu-heading'          }
       , create:  { name: kivi.t8('Create'), icon: "edit",  callback: ns.standard_quotation_order_ajax_call }
       , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: ns.standard_quotation_order_ajax_call }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.quotations-and-orders-update-context-menu',
+    items:    $.extend({
+        heading:   { name: kivi.t8('Update quotation/order'), className: 'context-menu-heading'               }
+      , do_update: { name: kivi.t8('Update'), icon: "update", callback: ns.standard_quotation_order_ajax_call }
+      , cancel:    { name: kivi.t8('Cancel'), icon: "close",  callback: ns.standard_quotation_order_ajax_call }
     }, general_actions)
   });
 

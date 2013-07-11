@@ -22,7 +22,7 @@ use constant TAB_ID => 'ui-tabs-4';
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(parts) ],
-  'scalar --get_set_init' => [ qw(requirement_spec js h_unit_name all_customers all_parts) ],
+  'scalar --get_set_init' => [ qw(requirement_spec rs_order js h_unit_name all_customers all_parts) ],
 );
 
 __PACKAGE__->run_before('setup');
@@ -70,6 +70,69 @@ sub action_create {
   my $html = $self->render('requirement_spec_order/list', { output => 0 });
   $self->js->html('#' . TAB_ID(), $html)
            ->flash('info', $::form->{quotation} ? t8('Sales quotation #1 has been created.', $order->quonumber) : t8('Sales order #1 has been created.', $order->ordnumber))
+           ->render($self);
+}
+
+sub action_update {
+  my ($self)   = @_;
+
+  my $order    = $self->rs_order->order;
+  my $sections = $self->requirement_spec->sections_sorted;
+
+  my (@orderitems, %sections_seen);
+  foreach my $item (@{ $order->items_sorted }) {
+    my $section = first { my $num = $_->fb_number; $item->description =~ m{\b\Q${num}\E\b} && !$sections_seen{ $_->id } } @{ $sections };
+
+    $sections_seen{ $section->id } = 1 if $section;
+
+    push @orderitems, { item => $item, section => $section };
+  }
+
+  my $html = $self->render(
+    'requirement_spec_order/update', { output => 0 },
+    orderitems         => \@orderitems,
+    sections           => $sections,
+    make_section_title => sub { $_[0]->fb_number . ' ' . $_[0]->title },
+  );
+
+  $self->js->html('#' . TAB_ID(), $html)
+           ->render($self);
+}
+
+sub action_do_update {
+  my ($self)           = @_;
+
+  my $order            = $self->rs_order->order;
+  my $sections         = $self->requirement_spec->sections_sorted;
+  my %orderitems_by_id = map { ($_->id => $_) } @{ $order->orderitems };
+  my %sections_by_id   = map { ($_->id => $_) } @{ $sections };
+  $self->{parts}       = { map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->order_part_id } @{ $sections } ] ]) } };
+
+  my %sections_seen;
+
+  foreach my $attributes (@{ $::form->{orderitems} || [] }) {
+    my $orderitem = $orderitems_by_id{ $attributes->{id}         };
+    my $section   = $sections_by_id{   $attributes->{section_id} };
+    next unless $orderitem && $section;
+
+    $self->create_order_item(section => $section, item => $orderitem)->save;
+    $sections_seen{ $section->id } = 1;
+  }
+
+  my @new_orderitems = map  { $self->create_order_item(section => $_) }
+                       grep { !$sections_seen{ $_->id } }
+                       @{ $sections };
+
+  $order->orderitems([ @{ $order->orderitems }, @new_orderitems ]) if @new_orderitems;
+
+  $order->calculate_prices_and_taxes;
+  $order->save;
+
+  $self->init_requirement_spec;
+
+  my $html = $self->render('requirement_spec_order/list', { output => 0 });
+  $self->js->html('#' . TAB_ID(), $html)
+           ->flash('info', $::form->{quotation} ? t8('Sales quotation #1 has been updated.', $order->quonumber) : t8('Sales order #1 has been updated.', $order->ordnumber))
            ->render($self);
 }
 
@@ -123,18 +186,18 @@ sub init_js {
   $self->js(SL::ClientJS->new);
 }
 
+sub init_all_customers { SL::DB::Manager::Customer->get_all_sorted }
+sub init_all_parts     { SL::DB::Manager::Part->get_all_sorted     }
+sub init_h_unit_name   { first { SL::DB::Manager::Unit->find_by(name => $_) } qw(Std h Stunde) };
+sub init_rs_order      { SL::DB::RequirementSpecOrder->new(id => $::form->{rs_order_id})->load };
+
 #
 # helpers
 #
 
-sub init_all_customers { SL::DB::Manager::Customer->get_all_sorted }
-sub init_all_parts     { SL::DB::Manager::Part->get_all_sorted     }
-sub init_h_unit_name   { first { SL::DB::Manager::Unit->find_by(name => $_) } qw(Std h Stunde) };
-
 sub load_parts_for_sections {
   my ($self, %params) = @_;
 
-  $self->parts({ map { ($_->{id} => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->{order_part_id} } @{ $params{sections} } ] ]) } });
 }
 
 sub create_order_item {
@@ -156,6 +219,7 @@ sub create_order_item {
     qty         => $section->time_estimation * 1,
     unit        => $self->h_unit_name,
     sellprice   => $::form->round_amount($self->requirement_spec->hourly_rate, 2),
+    lastcost    => $part->lastcost,
     discount    => 0,
     project_id  => $self->requirement_spec->project_id,
   );
@@ -166,7 +230,7 @@ sub create_order_item {
 sub create_order {
   my ($self, %params) = @_;
 
-  $self->load_parts_for_sections(%params);
+  $self->{parts} = { map { ($_->{id} => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->{order_part_id} } @{ $params{sections} } ] ]) } };
 
   my @orderitems = map { $self->create_order_item(section => $_) } @{ $params{sections} };
   my $employee   = SL::DB::Manager::Employee->current;

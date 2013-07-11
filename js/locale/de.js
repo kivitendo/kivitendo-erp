@@ -46,6 +46,7 @@ namespace("kivi").setupLocale({
 "The selected database is still configured for client \"#1\". If you delete the database that client will stop working until you re-configure it. Do you still want to delete the database?":"Die auswählte Datenbank ist noch für Mandant \"#1\" konfiguriert. Wenn Sie die Datenbank löschen, wird der Mandanten nicht mehr funktionieren, bis er anders konfiguriert wurde. Wollen Sie die Datenbank trotzdem löschen?",
 "Time/cost estimate actions":"Aktionen für Kosten-/Zeitabschätzung",
 "Toggle marker":"Markierung umschalten",
+"Update":"Erneuern",
 "Update quotation/order":"Auftrag/Angebot aktualisieren",
 "Version actions":"Aktionen für Versionen"
 });
