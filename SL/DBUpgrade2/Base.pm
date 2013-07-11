@@ -132,7 +132,7 @@ sub drop_constraints {
       AND (table_name      = ?)
 SQL
 
-  $self->db_query(qq|ALTER TABLE auth."$params{table}" DROP CONSTRAINT "${_}"|) for map { $_->[0] } @{ $constraints };
+  $self->db_query(qq|ALTER TABLE $params{schema}."$params{table}" DROP CONSTRAINT "${_}"|) for map { $_->[0] } @{ $constraints };
 }
 
 1;
