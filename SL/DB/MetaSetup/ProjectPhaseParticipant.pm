@@ -12,7 +12,7 @@ __PACKAGE__->meta->columns(
   cost_per_hour    => { type => 'numeric', precision => 5, scale => 15 },
   employee_id      => { type => 'integer', not_null => 1 },
   id               => { type => 'serial', not_null => 1 },
-  itime            => { type => 'timestamp', default => '2013-05-08 09:11:09.704126' },
+  itime            => { type => 'timestamp', default => 'now()' },
   minutes          => { type => 'integer', default => '0', not_null => 1 },
   mtime            => { type => 'timestamp' },
   project_phase_id => { type => 'integer', not_null => 1 },
@@ -20,6 +20,8 @@ __PACKAGE__->meta->columns(
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->allow_inline_column_values(1);
 
 __PACKAGE__->meta->foreign_keys(
   employee => {

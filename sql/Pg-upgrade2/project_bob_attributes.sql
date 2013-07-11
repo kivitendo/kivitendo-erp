@@ -22,7 +22,7 @@ CREATE TABLE project_status (
   name        TEXT      NOT NULL,
   description TEXT      NOT NULL,
   position    INTEGER   NOT NULL,
-  itime       TIMESTAMP DEFAULT 'now()',
+  itime       TIMESTAMP DEFAULT now(),
   mtime       TIMESTAMP
 );
 
@@ -48,7 +48,7 @@ CREATE TABLE project_phases (
   budget_cost     NUMERIC (15,5)       NOT NULL DEFAULT 0,
   general_minutes INTEGER              NOT NULL DEFAULT 0,
   general_cost_per_hour NUMERIC (15,5) NOT NULL DEFAULT 0,
-  itime           TIMESTAMP DEFAULT 'now()',
+  itime           TIMESTAMP DEFAULT now(),
   mtime           TIMESTAMP
 );
 
@@ -57,7 +57,7 @@ CREATE TABLE project_roles (
   name         TEXT    NOT NULL,
   description  TEXT    NOT NULL,
   position     INTEGER NOT NULL,
-  itime        TIMESTAMP DEFAULT 'now()',
+  itime        TIMESTAMP DEFAULT now(),
   mtime        TIMESTAMP
 );
 
@@ -68,7 +68,7 @@ CREATE TABLE project_participants (
   project_role_id INTEGER NOT NULL REFERENCES project_roles(id),
   minutes         INTEGER NOT NULL DEFAULT 0,
   cost_per_hour   NUMERIC (15,5),
-  itime           TIMESTAMP DEFAULT 'now()',
+  itime           TIMESTAMP DEFAULT now(),
   mtime           TIMESTAMP
 );
 
@@ -79,7 +79,7 @@ CREATE TABLE project_phase_participants (
   project_role_id  INTEGER NOT NULL REFERENCES project_roles(id),
   minutes          INTEGER NOT NULL DEFAULT 0,
   cost_per_hour    NUMERIC (15,5),
-  itime            TIMESTAMP DEFAULT 'now()',
+  itime            TIMESTAMP DEFAULT now(),
   mtime            TIMESTAMP
 );
 

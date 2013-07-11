@@ -11,13 +11,15 @@ __PACKAGE__->meta->table('project_roles');
 __PACKAGE__->meta->columns(
   description => { type => 'text', not_null => 1 },
   id          => { type => 'serial', not_null => 1 },
-  itime       => { type => 'timestamp', default => '2013-05-08 09:11:09.704126' },
+  itime       => { type => 'timestamp', default => 'now()' },
   mtime       => { type => 'timestamp' },
   name        => { type => 'text', not_null => 1 },
   position    => { type => 'integer', not_null => 1 },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->allow_inline_column_values(1);
 
 1;
 ;
