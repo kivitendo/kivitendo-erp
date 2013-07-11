@@ -64,7 +64,7 @@ sub set_to {
 sub set_to_max {
   my ($self, @numbers) = @_;
 
-  return $self->set_to(max map { SL::PrefixedNumber->new(number => $_)->_state->{ref_number} } @numbers);
+  return $self->set_to(max map { SL::PrefixedNumber->new(number => $_ // 0)->_state->{ref_number} } @numbers);
 }
 
 1;
