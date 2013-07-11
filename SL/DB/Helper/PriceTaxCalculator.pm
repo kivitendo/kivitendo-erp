@@ -90,13 +90,14 @@ sub _calculate_item {
     $item->marge_percent(0);
 
   } else {
-    my $lastcost = ! ($item->lastcost * 1) ? ($item->part->lastcost || 0) : $item->lastcost;
+    my $lastcost       = ! ($item->lastcost * 1) ? ($item->part->lastcost || 0) : $item->lastcost;
+    my $linetotal_cost = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
 
-    $item->marge_total(  $linetotal - $lastcost / $item->marge_price_factor);
+    $item->marge_total(  $linetotal - $linetotal_cost);
     $item->marge_percent($item->marge_total * 100 / $linetotal);
 
     $self->marge_total(  $self->marge_total + $item->marge_total);
-    $data->{lastcost_total} += $lastcost;
+    $data->{lastcost_total} += $linetotal_cost;
   }
 
   my $taxkey     = $item->part->get_taxkey(date => $self->transdate, is_sales => $data->{is_sales}, taxzone => $self->taxzone_id);
