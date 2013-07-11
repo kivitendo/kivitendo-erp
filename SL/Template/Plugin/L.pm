@@ -66,6 +66,7 @@ sub select_tag    { return _call_presenter('select_tag',    @_); }
 sub input_tag     { return _call_presenter('input_tag',     @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
+sub part_picker   { return _call_presenter('part_picker',   @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name) = @_;

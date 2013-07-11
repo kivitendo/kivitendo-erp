@@ -692,25 +692,6 @@ sub delete {
   check_do_access();
 
   my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  map { delete $form->{$_} } qw(action header login password);
-  my @variables = map { { 'key' => $_, 'value' => $form->{$_} } } grep { '' eq ref $form->{$_} } keys %{ $form };
-
-  $form->{title} = $locale->text('Delete delivery order');
-  $form->header();
-
-  print $form->parse_html_template('do/delete', { 'VARIABLES' => \@variables });
-
-  $main::lxdebug->leave_sub();
-}
-
-sub delete_delivery_order {
-  $main::lxdebug->enter_sub();
-
-  check_do_access();
-
-  my $form     = $main::form;
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 

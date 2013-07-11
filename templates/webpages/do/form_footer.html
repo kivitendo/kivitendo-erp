@@ -1,5 +1,5 @@
 [%- USE T8 %]
-[% USE HTML %][% USE LxERP %]
+[% USE HTML %][% USE LxERP %][%- USE L -%]
  [%- IF delivered %]
  [%- SET RO = ' readonly' %]
  [%- END %]
@@ -93,7 +93,7 @@
    [% 'Workflow Delivery Order' | $T8 %]<br>
    <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]">
    [% UNLESS delivered || (vc == 'customer' && !INSTANCE_CONF.get_sales_delivery_order_show_delete) || (vc == 'vendor' && !INSTANCE_CONF.get_purchase_delivery_order_show_delete) %]
-     <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
+    [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
    [% END %]
    <input class="submit" type="submit" name="action_invoice" value="[% 'Invoice' | $T8 %]">
   </p>

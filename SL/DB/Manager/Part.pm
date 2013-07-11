@@ -85,6 +85,16 @@ SQL
   return %qty_by_id;
 }
 
+sub _sort_spec {
+  (
+    default  => [ 'partnumber', 1 ],
+    columns  => {
+      SIMPLE => 'ALL',
+    },
+    nulls    => {},
+  );
+}
+
 1;
 __END__
 

@@ -20,6 +20,18 @@ __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many
 
 __PACKAGE__->meta->initialize;
 
+__PACKAGE__->before_save('_before_save_set_donumber');
+
+# hooks
+
+sub _before_save_set_donumber {
+  my ($self) = @_;
+
+  $self->create_trans_number if !$self->donumber;
+
+  return 1;
+}
+
 # methods
 
 sub items { goto &orderitems; }

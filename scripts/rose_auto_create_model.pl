@@ -13,7 +13,7 @@ use Data::Dumper;
 use Digest::MD5 qw(md5_hex);
 use English qw( -no_match_vars );
 use Getopt::Long;
-use List::MoreUtils qw(any);
+use List::MoreUtils qw(none);
 use Pod::Usage;
 use Term::ANSIColor;
 
@@ -40,7 +40,8 @@ $script     =~ s:.*/::;
 $OUTPUT_AUTOFLUSH       = 1;
 $Data::Dumper::Sortkeys = 1;
 
-our $meta_path = "SL/DB/MetaSetup";
+our $meta_path    = "SL/DB/MetaSetup";
+our $manager_path = "SL/DB/Manager";
 
 my %config;
 
@@ -78,17 +79,20 @@ sub setup {
     usage();
   }
 
-  mkdir $meta_path unless -d $meta_path;
+  foreach (($meta_path, $manager_path)) {
+    mkdir $_ unless -d;
+  }
 }
 
 sub process_table {
-  my @spec       =  split(/=/, shift, 2);
+  my @spec       =  @_;
   my $table      =  $spec[0];
   my $schema     = '';
   ($schema, $table) = split(m/\./, $table) if $table =~ m/\./;
   my $package    =  ucfirst($spec[1] || $spec[0]);
   $package       =~ s/_+(.)/uc($1)/ge;
   my $meta_file  =  "${meta_path}/${package}.pm";
+  my $mngr_file  =  "${manager_path}/${package}.pm";
   my $file       =  "SL/DB/${package}.pm";
 
   my $schema_str = $schema ? <<CODE : '';
@@ -166,11 +170,9 @@ package SL::DB::${package};
 use strict;
 
 use SL::DB::MetaSetup::${package};
+use SL::DB::Manager::${package};
 
 __PACKAGE__->meta->initialize;
-
-# Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
-__PACKAGE__->meta->make_manager_class;
 
 1;
 CODE
@@ -197,14 +199,39 @@ CODE
 
   notice("File '$meta_file' " . ($file_exists ? 'updated' : 'created') . " for table '$table'");
 
-  if (! -f $file) {
-    if (!$config{nocommit}) {
-      open my $out, ">", $file || die;
-      print $out $meta_definition;
-    }
+  return if -f $file;
 
-    notice("File '$file' created as well.");
+  if (!$config{nocommit}) {
+    open my $out, ">", $file || die;
+    print $out $meta_definition;
   }
+
+  notice("File '$file' created as well.");
+
+  return if -f $mngr_file;
+
+  if (!$config{nocommit}) {
+    open my $out, ">", $mngr_file || die;
+    print $out <<EOT;
+# This file has been auto-generated only because it didn't exist.
+# Feel free to modify it at will; it will not be overwritten automatically.
+
+package SL::DB::Manager::${package};
+
+use strict;
+
+use SL::DB::Helper::Manager;
+use base qw(SL::DB::Helper::Manager);
+
+sub object_class { 'SL::DB::${package}' }
+
+__PACKAGE__->make_manager_methods;
+
+1;
+EOT
+  }
+
+  notice("File '$mngr_file' created as well.");
 }
 
 sub parse_args {
@@ -260,10 +287,8 @@ sub make_tables {
   my @tables;
   if ($config{all}) {
     my $db  = SL::DB::create(undef, 'KIVITENDO');
-    @tables =
-      map { $package_names{KIVITENDO}->{$_} ? "$_=" . $package_names{KIVITENDO}->{$_} : $_ }
-      grep { my $table = $_; !any { $_ eq $table } @{ $blacklist{KIVITENDO} } }
-      $db->list_tables;
+    @tables = grep { my $table = $_; none { $_ eq $table } @{ $blacklist{KIVITENDO} } } $db->list_tables;
+
   } elsif (@ARGV) {
     @tables = @ARGV;
   } else {
@@ -286,12 +311,13 @@ parse_args(\%config);
 setup();
 my @tables = make_tables();
 
-for my $table (@tables) {
-  # add default model name unless model name is given or no defaults exists
-  $table .= '=' . $package_names{KIVITENDO}->{lc $table} if $table !~ /=/ && $package_names{KIVITENDO}->{lc $table};
-
-  process_table($table);
+my @unknown_tables = grep { !$package_names{KIVITENDO}->{$_} } @tables;
+if (@unknown_tables) {
+  error("The following tables do not have entries in \%SL::DB::Helper::Mappings::kivitendo_package_names: " . join(' ', sort @unknown_tables));
+  exit 1;
 }
+
+process_table($_, $package_names{KIVITENDO}->{$_}) for @tables;
 
 1;
 
@@ -305,7 +331,7 @@ rose_auto_create_model - mana Rose::DB::Object classes for kivitendo
 
 =head1 SYNOPSIS
 
-  scripts/rose_create_model.pl --client name-or-id table1[=package1] [table2[=package2] ...]
+  scripts/rose_create_model.pl --client name-or-id table1 [table2 ...]
   scripts/rose_create_model.pl --client name-or-id [--all|-a]
 
   # updates all models
@@ -355,10 +381,11 @@ In the most basic version, just give it a login and a table name, and it will
 load the schema information for this table and create the appropriate class
 files, or update them if already present.
 
-Each table has two associated files. A C<SL::DB::MetaSetup::*> class, which is
-a perl version of the schema definition, and a C<SL::DB::*> class file. The
-first one will be updated if the schema changes, the second one will only be
-created if it does not exist.
+Each table has three associated files. A C<SL::DB::MetaSetup::*>
+class, which is a perl version of the schema definition, a
+C<SL::DB::*> class file and a C<SL::DB::Manager::*> manager class
+file. The first one will be updated if the schema changes, the second
+and third ones will only be created if it they do not exist.
 
 =head1 OPTIONS
 
@@ -406,6 +433,7 @@ None yet.
 
 =head1 AUTHOR
 
+Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>,
 Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut

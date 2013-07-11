@@ -1239,31 +1239,6 @@ sub save {
 }
 
 sub delete {
-  $::lxdebug->enter_sub;
-
-  check_oe_access();
-
-  $::form->header;
-
-  # delete action variable
-  delete $::form->{$_} for qw(action header);
-
-  my @hiddens;
-  for my $key (keys %$::form) {
-    next if $key eq 'login' || $key eq 'password' || '' ne ref $::form->{$key};
-    push @hiddens, { key => $key, value => $::form->{$key} };
-  }
-
-  print $::form->parse_html_template('oe/delete', {
-    hiddens => \@hiddens,
-    is_order => scalar($::form->{type} =~ /_order$/),
-  });
-
-
-  $::lxdebug->leave_sub;
-}
-
-sub delete_order_quotation {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;

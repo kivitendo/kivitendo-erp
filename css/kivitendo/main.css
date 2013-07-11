@@ -380,3 +380,40 @@ label {
 .small-text {
   font-size: 0.75em;
 }
+
+.float-left {
+  float: left;
+}
+
+.block-context {
+  overflow: hidden;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+div.part_picker_part {
+  float:left; width: 350px;
+  padding: 5px;
+  margin: 5px;
+  overflow:hidden;
+  border: 1px;
+  border-color: darkgray;
+  border-style: solid;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  background-color: whitesmoke;
+  cursor: pointer;
+}
+
+div.part_picker_part:hover {
+  background-color: #CCCCCC;
+  color: #FE5F14;
+  border-color: gray;
+}

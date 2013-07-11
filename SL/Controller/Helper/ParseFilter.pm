@@ -33,13 +33,12 @@ my %methods = (
 sub parse_filter {
   my ($filter, %params) = @_;
 
-  my $hint_objects = $params{with_objects} || [];
-  my $auto_objects = [];
+  my $objects      = $params{with_objects} || [];
 
-  my ($flattened, $objects) = flatten($filter, $auto_objects, '', %params);
+  my ($flattened, $auto_objects) = flatten($filter, '', %params);
 
-  if ($params{class}) {
-    $objects = $hint_objects;
+  if (!$params{class}) {
+    _add_uniq($objects, $_) for @$auto_objects;
   }
 
   my $query = _parse_filter($flattened, $objects, %params);
@@ -70,19 +69,19 @@ sub _launder_keys {
 }
 
 sub flatten {
-  my ($filter, $with_objects, $prefix, %params) = @_;
+  my ($filter, $prefix, %params) = @_;
 
-  return (undef, $with_objects) unless 'HASH'  eq ref $filter;
-  $with_objects ||= [];
+  return (undef, []) unless 'HASH'  eq ref $filter;
+  my $with_objects = [];
 
   my @result;
 
   while (my ($key, $value) = each %$filter) {
     next if !defined $value || $value eq ''; # 0 is fine
     if ('HASH' eq ref $value) {
-      my ($query, $more_objects) = flatten($value, $with_objects, _prefix($prefix, $key));
+      my ($query, $more_objects) = flatten($value, _prefix($prefix, $key));
       push @result,        @$query if $query;
-      push @$with_objects, _prefix($prefix, $key), ($more_objects ? @$more_objects : ());
+      _add_uniq($with_objects, $_) for _prefix($prefix, $key), @$more_objects;
     } else {
       push @result, _prefix($prefix, $key) => $value;
     }
@@ -138,9 +137,9 @@ sub _dispatch_custom_filters {
 
   if ($manager->can('filter')) {
     ($key, $value, my $obj) = $manager->filter($last_token, $value, $obj_prefix);
-    _add_uniq($with_objects, $obj);
+    _add_uniq($with_objects, $obj) if $obj;
   } else {
-    _add_uniq($with_objects, $obj_path);
+    _add_uniq($with_objects, $obj_path) if $obj_path;
   }
 
   return ($key, $value);
@@ -150,7 +149,7 @@ sub _add_uniq {
    my ($array, $what) = @_;
 
    $array //= [];
-   $array = [ uniq @$array, listify($what) ];
+   @$array = (uniq @$array, listify($what));
 }
 
 sub _collapse_indirect_filters {
