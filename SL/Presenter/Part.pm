@@ -50,19 +50,26 @@ section C<PART PICKER SPECIFICATION>.
 C<VALUE> can be an id or C<Rose::DB:Object> instance.
 
 If C<PARAMS> contains C<type> only parts of this type will be used for
-autocompletion. Currently only one type may be specified.
+autocompletion. You may comma separate multiple types as in C<part,assembly>.
 
 Obsolete parts will by default not displayed for selection. However they are
 accepted as default values and can persist during updates. As with other
-selectors though, they are not selecatble once overridden.
+selectors though, they are not selectable once overridden.
 
-
+Currently you must include C<js/autocomplete_part.js> in your controller, the
+presenter can not do this from the template.
 
 =back
 
 =head1 BUGS
 
-None yet :)
+=over 4
+
+=item *
+
+Picker icons aren't displayed with css menu, because the spritemap is not loaded.
+
+=back
 
 =head1 AUTHOR
 
