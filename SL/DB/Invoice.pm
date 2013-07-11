@@ -40,6 +40,18 @@ __PACKAGE__->meta->add_relationship(
 
 __PACKAGE__->meta->initialize;
 
+__PACKAGE__->before_save('_before_save_set_invnumber');
+
+# hooks
+
+sub _before_save_set_invnumber {
+  my ($self) = @_;
+
+  $self->create_trans_number if !$self->invnumber;
+
+  return 1;
+}
+
 # methods
 
 sub items { goto &invoiceitems; }
@@ -156,7 +168,6 @@ sub post {
     my %data = $self->calculate_prices_and_taxes;
 
     $self->_post_create_assemblyitem_entries($data{assembly_items});
-    $self->create_trans_number;
     $self->save;
 
     $self->_post_add_acctrans($data{amounts_cogs});
