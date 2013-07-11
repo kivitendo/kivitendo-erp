@@ -332,7 +332,7 @@ ns.standard_quotation_order_ajax_call = function(key, opt) {
   var data = 'action=RequirementSpecOrder/' + key
            + '&' + $('#requirement_spec_id').serialize();
 
-  if (key == 'save_assignment')
+  if ((key == 'save_assignment') || (key == 'create'))
     data += '&' + $('#quotations_and_orders_article_assignment_form').serialize();
   else
     data += '&id=' + encodeURIComponent(ns.find_quotation_order_id(opt.$trigger));
@@ -535,6 +535,15 @@ ns.create_context_menus = function(is_template) {
         heading:         { name: kivi.t8('Edit article/section assignments'), className: 'context-menu-heading'    }
       , save_assignment: { name: kivi.t8('Save'),   icon: "edit",  callback: ns.standard_quotation_order_ajax_call }
       , cancel:          { name: kivi.t8('Cancel'), icon: "close", callback: ns.standard_quotation_order_ajax_call }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.quotations-and-orders-new-context-menu',
+    items:    $.extend({
+        heading: { name: kivi.t8('Create new quotation/order'), className: 'context-menu-heading'    }
+      , create:  { name: kivi.t8('Create'), icon: "edit",  callback: ns.standard_quotation_order_ajax_call }
+      , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: ns.standard_quotation_order_ajax_call }
     }, general_actions)
   });
 

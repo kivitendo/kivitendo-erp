@@ -1,29 +1,29 @@
 [%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE P -%]
 [% SET style="width: 400px" %]
 
-<table>
-[% IF for_new %]
- <tr>
-  <td>[% LxERP.t8("Record type to create") %]:</td>
-  <td>[% L.select_tag('quotation', [ [ 1, LxERP.t8('Sales quotation') ], [ 0, LxERP.t8('Sales Order') ] ], style=style, no_id=1) %]</td>
- </tr>
-
- <tr>
-  <td>[% LxERP.t8("Customer") %]:</td>
-  <td>[% L.select_tag('customer_id', SELF.all_customers, default=SELF.requirement_spec.customer_id, title_key='name', style=style, no_id=1) %]</td>
- </tr>
-[% END %]
-
- <tr>
-  <td>[% LxERP.t8("Assign the following article to all sections") %]:</td>
-  <td>
-   [% L.select_tag('quotations_and_orders_dummy', SELF.all_parts, default=INSTANCE_CONF.get_requirement_spec_section_order_part_id, title_sub=\make_part_title, id='quoations_and_orders_order_id', style=style) %]
-   [% L.button_tag('kivi.requirement_spec.assign_order_part_id_to_all()', LxERP.t8('Assign article')) %]
-  </td>
- </tr>
-</table>
-
 <form id="quotations_and_orders_article_assignment_form">
+ <table>
+  [% IF for_new %]
+  <tr>
+   <td>[% LxERP.t8("Record type to create") %]:</td>
+   <td>[% L.select_tag('quotation', [ [ 1, LxERP.t8('Sales quotation') ], [ 0, LxERP.t8('Sales Order') ] ], style=style, no_id=1) %]</td>
+  </tr>
+
+  <tr>
+   <td>[% LxERP.t8("Customer") %]:</td>
+   <td>[% L.select_tag('customer_id', SELF.all_customers, default=SELF.requirement_spec.customer_id, title_key='name', style=style, no_id=1) %]</td>
+  </tr>
+  [% END %]
+
+  <tr>
+   <td>[% LxERP.t8("Assign the following article to all sections") %]:</td>
+   <td>
+    [% L.select_tag('quotations_and_orders_dummy', SELF.all_parts, default=INSTANCE_CONF.get_requirement_spec_section_order_part_id, title_sub=\make_part_title, id='quoations_and_orders_order_id', style=style) %]
+    [% L.button_tag('kivi.requirement_spec.assign_order_part_id_to_all()', LxERP.t8('Assign article')) %]
+   </td>
+  </tr>
+ </table>
+
  <table style="width: 100%">
   <thead>
    <tr class="listheading">

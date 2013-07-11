@@ -68,7 +68,11 @@
        [% LxERP.t8("working copy") %]
       [% END %]
      </td>
-     <td>[% HTML.escape(rs_order.order.quotation ? rs_order.order.quonumber : rs_order.order.ordnumber) %]</td>
+     <td>
+      <a href="oe.pl?action=edit&id=[% HTML.url(rs_order.order_id) %]&type=[% HTML.url(rs_order.order.type) %]">
+       [% HTML.escape(rs_order.order.quotation ? rs_order.order.quonumber : rs_order.order.ordnumber) %]
+      </a>
+     </td>
      <td>[% HTML.escape(rs_order.order.transaction_description) %]</td>
      <td>[% rs_order.order.transdate.to_kivitendo(precision='day') %]</td>
      <td>[% rs_order.itime.to_kivitendo(precision='day') %]</td>
