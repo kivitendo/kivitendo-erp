@@ -29,11 +29,12 @@ namespace('kivi', function(k){
 
     function ajax_data(term) {
       return {
-        'filter.all:substr::ilike':     term,
-        'filter.type':     function() { return $type.val() },
+        'filter.all:substr::ilike': term,
+        // due to a bug in $.param functions returning arrays don't get serialized correctly, so call it manually
+        'filter.type':  $type.val().split(','),
         'filter.obsolete': 0,
-        column:   function() { return $column.val()===undefined ? '' : $column.val() },
-        current:  function() { return $real.val() },
+        column:   $column.val()===undefined ? '' : $column.val(),
+        current:  $real.val(),
       }
     }
 
