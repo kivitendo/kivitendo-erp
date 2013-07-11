@@ -34,6 +34,23 @@ __PACKAGE__->meta->add_relationship(
 
 __PACKAGE__->meta->initialize;
 
+__PACKAGE__->before_save('_before_save_set_ord_quo_number');
+
+# hooks
+
+sub _before_save_set_ord_quo_number {
+  my ($self) = @_;
+
+  # ordnumber is 'NOT NULL'. Therefore make sure it's always set to at
+  # least an empty string, even if we're saving a quotation.
+  $self->ordnumber('') if !$self->ordnumber;
+
+  my $field = $self->quotation ? 'quonumber' : 'ordnumber';
+  $self->create_trans_number if !$self->$field;
+
+  return 1;
+}
+
 # methods
 
 sub items { goto &orderitems; }
