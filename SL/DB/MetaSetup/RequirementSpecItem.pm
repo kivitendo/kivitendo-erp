@@ -19,7 +19,6 @@ __PACKAGE__->meta->columns(
   item_type            => { type => 'text', not_null => 1 },
   itime                => { type => 'timestamp', default => 'now()', not_null => 1 },
   mtime                => { type => 'timestamp' },
-  net_sum              => { type => 'numeric', default => '0', not_null => 1, precision => 2, scale => 12 },
   parent_id            => { type => 'integer' },
   position             => { type => 'integer', not_null => 1 },
   requirement_spec_id  => { type => 'integer', not_null => 1 },

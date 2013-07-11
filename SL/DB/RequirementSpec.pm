@@ -119,7 +119,7 @@ sub _copy_from {
 
   # Copy attributes.
   if (!$params->{paste_template}) {
-    $self->assign_attributes(map({ ($_ => $source->$_) } qw(type_id status_id customer_id project_id title hourly_rate net_sum previous_section_number previous_fb_number is_template)),
+    $self->assign_attributes(map({ ($_ => $source->$_) } qw(type_id status_id customer_id project_id title hourly_rate time_estimation previous_section_number previous_fb_number is_template)),
                              %attributes);
   }
 

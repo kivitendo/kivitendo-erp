@@ -279,9 +279,9 @@ CREATE OR REPLACE FUNCTION update_requirement_spec_item_time_estimation(item_id 
     SELECT * INTO item FROM requirement_spec_items WHERE id = item_id;
     RAISE DEBUG 'updateRSIE: item_id % item_type %', item_id, item.item_type;
 
-    IF (item.item_type = 'section') OR (item.item_type = 'sub-function-block') THEN
-      -- Don't do anything for sections and sub-function-blocks.
-      RAISE DEBUG 'updateRSIE: this is a section/sub-function-block, not updating.';
+    IF (item.item_type = 'sub-function-block') THEN
+      -- Don't do anything for sub-function-blocks.
+      RAISE DEBUG 'updateRSIE: this is a sub-function-block, not updating.';
       RETURN FALSE;
     END IF;
 
