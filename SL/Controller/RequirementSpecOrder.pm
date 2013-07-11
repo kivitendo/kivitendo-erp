@@ -154,6 +154,20 @@ sub action_save_assignment {
            ->render($self);
 }
 
+sub action_delete {
+  my ($self) = @_;
+
+  my $order  = $self->rs_order->order;
+
+  $order->delete;
+  $self->init_requirement_spec;
+
+  my $html = $self->render('requirement_spec_order/list', { output => 0 });
+  $self->js->html('#' . TAB_ID(), $html)
+           ->flash('info', $order->quotation ? t8('Sales quotation #1 has been deleted.', $order->quonumber) : t8('Sales order #1 has been deleted.', $order->ordnumber))
+           ->render($self);
+}
+
 sub action_cancel {
   my ($self) = @_;
 

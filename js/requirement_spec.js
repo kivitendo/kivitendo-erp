@@ -344,6 +344,12 @@ ns.standard_quotation_order_ajax_call = function(key, opt) {
   return true;
 };
 
+ns.ask_delete_quotation_order = function(key, opt) {
+  if (confirm(kivi.t8("Are you sure?")))
+    ns.standard_quotation_order_ajax_call(key, opt);
+  return true;
+};
+
 ns.disable_edit_quotation_order_commands = function(key, opt) {
   return ns.find_quotation_order_id(opt.$trigger) == undefined;
 };
