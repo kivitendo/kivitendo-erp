@@ -10,7 +10,7 @@ our @EXPORT = qw(part_picker);
 sub part_picker {
   my ($self, $name, $value, %params) = @_;
 
-  $value = SL::DB::Manager::Part->find_by(id => $value) if !ref $value;
+  $value = SL::DB::Manager::Part->find_by(id => $value) if $value && !ref $value;
   my $id = delete($params{id}) || $self->name_to_id($name);
 
   my $ret =
