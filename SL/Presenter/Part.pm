@@ -15,9 +15,8 @@ sub part_picker {
 
   my $ret =
     $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => 'part_autocomplete', type => 'hidden', id => $id) .
-    $self->input_tag("", delete $params{type}, id => "${id}_type", type => 'hidden') .
-    $self->input_tag("", (ref $value && $value->can('description')) ? $value->description : '', id => "${id}_name", %params) .
-    $self->input_tag("", delete $params{column}, id => "${id}_column", type => 'hidden');
+    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(column type unit)) .
+    $self->input_tag("", (ref $value && $value->can('description')) ? $value->description : '', id => "${id}_name", %params);
 
   $self->html_tag('span', $ret, class => 'part_picker');
 }
@@ -59,6 +58,10 @@ C<$value> can be a parts id or a C<Rose::DB:Object> instance.
 If C<%params> contains C<type> only parts of this type will be used
 for autocompletion. You may comma separate multiple types as in
 C<part,assembly>.
+
+If C<%params> contains C<unit> only parts with this unit will be used
+for autocompletion. You may comma separate multiple units as in
+C<h,min>.
 
 Obsolete parts will by default not displayed for selection. However they are
 accepted as default values and can persist during updates. As with other

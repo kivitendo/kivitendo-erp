@@ -12,6 +12,7 @@ namespace('kivi', function(k){
     var real_id = $real.attr('id');
     var $dummy  = $('#' + real_id + '_name');
     var $type   = $('#' + real_id + '_type');
+    var $unit   = $('#' + real_id + '_unit');
     var $column = $('#' + real_id + '_column');
     var state   = STATES.PICKED;
     var last_real = $real.val();
@@ -35,9 +36,11 @@ namespace('kivi', function(k){
         current:  $real.val(),
       };
 
-      var type = $type.val();
-      if (type !== '')
-        data['filter.type'] = type.split(',');
+      if ($type && $type.val())
+        data['filter.type'] = $type.val().split(',');
+
+      if ($unit && $unit.val())
+        data['filter.unit'] = $unit.val().split(',');
 
       return data;
     }
@@ -150,6 +153,7 @@ namespace('kivi', function(k){
       real:           function() { return $real },
       dummy:          function() { return $dummy },
       type:           function() { return $type },
+      unit:           function() { return $unit },
       column:         function() { return $column },
       update_results: update_results,
       set_item:       set_item,
