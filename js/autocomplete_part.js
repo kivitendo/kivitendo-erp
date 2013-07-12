@@ -28,13 +28,18 @@ namespace('kivi', function(k){
     };
 
     function ajax_data(term) {
-      return {
+      var data = {
         'filter.all:substr::ilike': term,
-        'filter.type':  $type.val().split(','),
         'filter.obsolete': 0,
         column:   $column.val()===undefined ? '' : $column.val(),
         current:  $real.val(),
-      }
+      };
+
+      var type = $type.val();
+      if (type !== '')
+        data['filter.type'] = type.split(',');
+
+      return data;
     }
 
     function set_item (item) {
