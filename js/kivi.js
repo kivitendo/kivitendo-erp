@@ -26,6 +26,17 @@ namespace("kivi", function(ns) {
   ns.setupLocale = function(locale) {
     ns._locale = locale;
   };
+
+  ns.reinit_widgets = function() {
+    $('.datepicker').each(function() {
+      $(this).datepicker();
+    });
+
+    if (ns.PartPicker)
+      $('input.part_autocomplete').each(function(idx, elt){
+        kivi.PartPicker($(elt));
+      });
+  };
 });
 
 kivi = namespace('kivi');

@@ -226,6 +226,8 @@ sub date_tag {
   push @classes, delete($params{class}) if $params{class};
   my %class    = @classes ? (class => join(' ', @classes)) : ();
 
+  $::request->presenter->need_reinit_widgets($params{id});
+
   return $self->input_tag(
     $name, blessed($value) ? $value->to_lxoffice : $value,
     size   => 11,

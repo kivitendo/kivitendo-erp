@@ -19,6 +19,10 @@ use SL::Presenter::SepaExport;
 use SL::Presenter::Text;
 use SL::Presenter::Tag;
 
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(need_reinit_widgets) ],
+);
+
 sub get {
   return $::request->presenter;
 }

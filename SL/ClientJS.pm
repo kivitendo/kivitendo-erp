@@ -103,6 +103,8 @@ my %supported_methods = (
 
   # ## other stuff ##
   redirect_to            => 1,  # window.location.href = <TARGET>
+
+  reinit_widgets         => 0,  # kivi.reinit_widgets()
 );
 
 sub AUTOLOAD {
@@ -168,6 +170,7 @@ sub to_array {
 
 sub render {
   my ($self, $controller) = @_;
+  $self->reinit_widgets if $::request->presenter->need_reinit_widgets;
   return $controller->render(\$self->to_json, { type => 'json' });
 }
 

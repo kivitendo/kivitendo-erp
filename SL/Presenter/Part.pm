@@ -18,6 +18,8 @@ sub part_picker {
     join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(column type unit convertible_unit)) .
     $self->input_tag("", (ref $value && $value->can('description')) ? $value->description : '', id => "${id}_name", %params);
 
+  $::request->presenter->need_reinit_widgets($id);
+
   $self->html_tag('span', $ret, class => 'part_picker');
 }
 
