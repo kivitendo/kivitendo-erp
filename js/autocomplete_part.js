@@ -4,6 +4,11 @@ namespace('kivi', function(k){
     if ($real.data("part_picker"))
       return $real.data("part_picker");
 
+    var KEY = {
+      ESCAPE: 27,
+      ENTER:  13,
+      TAB:    9,
+    };
     var o = $.extend({
       limit: 20,
       delay: 50,
@@ -109,8 +114,14 @@ namespace('kivi', function(k){
      *  to fire a tab event later on, so we'd have to reimplement the "find
      *  next active element in tabindex order and focus it".
      */
-    $dummy.keypress(function(event){
-      if (event.keyCode == 13 || event.keyCode == 9) { // enter or tab or tab
+    /* note:
+     *  event.which does not contain tab events in keypressed in firefox but will report 0
+     *  chrome does not fire keypressed at all on tab or escape
+     *  TODO: users expect tab to work on keydown but enter to trigger on keyup,
+     *        should be handled seperately
+     */
+    $dummy.keydown(function(event){
+      if (event.which == KEY.ENTER || event.which == KEY.TAB) { // enter or tab or tab
         // if string is empty assume they want to delete
         if ($dummy.val() == '') {
           set_item({});
@@ -125,20 +136,20 @@ namespace('kivi', function(k){
           success: function (data){
             if (data.length == 1) {
               set_item(data[0]);
-              if (event.keyCode == 13)
+              if (event.which == KEY.ENTER)
                 $('#update_button').click();
             } else if (data.length > 1) {
-             if (event.keyCode == 13)
+             if (event.which == KEY.ENTER)
                 open_dialog();
               else
                 make_defined_state();
             } else {
-              if (event.keyCode == 9)
+              if (event.which == KEY.TAB)
                 make_defined_state();
             }
           }
         });
-        if (event.keyCode == 13)
+        if (event.which == KEY.ENTER)
           return false;
       } else {
         state = STATES.UNDEFINED;
@@ -175,8 +186,8 @@ namespace('kivi', function(k){
             return true;
           });
         });
-        $('#part_selection').keypress(function(e){
-           if (e.keyCode == 27) { // escape
+        $('#part_selection').keydown(function(e){
+           if (e.which == KEY.ESCAPE) {
              close_popup();
              $dummy.focus();
            }
