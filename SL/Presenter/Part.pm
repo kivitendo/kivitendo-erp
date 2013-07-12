@@ -57,11 +57,6 @@ C<PART PICKER SPECIFICATION>.
 
 C<$value> can be a parts id or a C<Rose::DB:Object> instance.
 
-All-in-one picker widget for parts. The name will be both id and name of the
-resulting hidden C<id> input field. An additional dummy input will be generated
-which is used to find parts. For a detailed description of it's behaviour, see
-section L</PART PICKER SPECIFICATION>.
-
 If C<%params> contains C<type> only parts of this type will be used
 for autocompletion. You may comma separate multiple types as in
 C<part,assembly>.
