@@ -15,7 +15,7 @@ sub part_picker {
 
   my $ret =
     $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => 'part_autocomplete', type => 'hidden', id => $id) .
-    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(column type unit)) .
+    join('', map { $params{$_} ? $self->input_tag("", delete $params{$_}, id => "${id}_${_}", type => 'hidden') : '' } qw(column type unit convertible_unit)) .
     $self->input_tag("", (ref $value && $value->can('description')) ? $value->description : '', id => "${id}_name", %params);
 
   $self->html_tag('span', $ret, class => 'part_picker');
@@ -62,6 +62,9 @@ C<part,assembly>.
 If C<%params> contains C<unit> only parts with this unit will be used
 for autocompletion. You may comma separate multiple units as in
 C<h,min>.
+
+If C<%params> contains C<convertible_unit> only parts with a unit
+that's convertible to unit will be used for autocompletion.
 
 Obsolete parts will by default not displayed for selection. However they are
 accepted as default values and can persist during updates. As with other

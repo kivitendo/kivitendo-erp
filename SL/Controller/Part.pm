@@ -92,7 +92,7 @@ sub action_part_picker_result {
 }
 
 sub init_parts {
-  $_[0]->get_models;
+  $_[0]->get_models(with_objects => [ qw(unit_obj) ]);
 }
 
 1;

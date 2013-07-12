@@ -13,6 +13,7 @@ namespace('kivi', function(k){
     var $dummy  = $('#' + real_id + '_name');
     var $type   = $('#' + real_id + '_type');
     var $unit   = $('#' + real_id + '_unit');
+    var $convertible_unit = $('#' + real_id + '_convertible_unit');
     var $column = $('#' + real_id + '_column');
     var state   = STATES.PICKED;
     var last_real = $real.val();
@@ -32,7 +33,8 @@ namespace('kivi', function(k){
       var data = {
         'filter.all:substr::ilike': term,
         'filter.obsolete': 0,
-        column:   $column.val()===undefined ? '' : $column.val(),
+        'filter.unit_obj.convertible_to': $convertible_unit && $convertible_unit.val() ? $convertible_unit.val() : '',
+        column:   $column && $column.val() ? $column.val() : '',
         current:  $real.val(),
       };
 
@@ -154,6 +156,7 @@ namespace('kivi', function(k){
       dummy:          function() { return $dummy },
       type:           function() { return $type },
       unit:           function() { return $unit },
+      convertible_unit: function() { return $convertible_unit },
       column:         function() { return $column },
       update_results: update_results,
       set_item:       set_item,
