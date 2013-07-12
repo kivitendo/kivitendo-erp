@@ -43,21 +43,20 @@ sub type_filter {
 
   for my $type (@types) {
     if ($type =~ m/^part/) {
-      push @filter, (and => [ or                    => [ $prefix . assembly => 0, $prefix . assembly => undef ],
-                       "!${prefix}inventory_accno_id" => 0,
-                       "!${prefix}inventory_accno_id" => undef,
+      push @filter, (and => [ or                             => [ $prefix . assembly => 0, $prefix . assembly => undef ],
+                              "!${prefix}inventory_accno_id" => 0,
+                              "!${prefix}inventory_accno_id" => undef,
                      ]);
     } elsif ($type =~ m/^service/) {
       push @filter, (and => [ or => [ $prefix . assembly           => 0, $prefix . assembly           => undef ],
-                       or => [ $prefix . inventory_accno_id => 0, $prefix . inventory_accno_id => undef ],
+                              or => [ $prefix . inventory_accno_id => 0, $prefix . inventory_accno_id => undef ],
                      ]);
     } elsif ($type =~ m/^assembl/) {
       push @filter, ($prefix . assembly => 1);
     }
   }
 
-  return @filter > 2 ? (or => \@filter) :
-         @filter     ? @filter          : ();
+  return @filter > 2 ? (or => \@filter) : @filter;
 }
 
 sub get_ordered_qty {
