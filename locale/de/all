@@ -993,6 +993,7 @@ $self->{texts} = {
   'Error: Name missing'         => 'Fehler: Name fehlt',
   'Error: Part not found'       => 'Fehler: Artikel nicht gefunden',
   'Error: Unit missing or invalid' => 'Fehler: Einheit fehlt oder ungültig',
+  'Error: this feature requires that articles with a time-based unit (e.g. \'h\' or \'min\') exist.' => 'Fehler: dieses Feature setzt voraus, dass Artikel mit einer Zeit-basierenden Einheit (z.B. "Std") existieren.',
   'Errors'                      => 'Fehler',
   'Ertrag'                      => 'Ertrag',
   'Ertrag prozentual'           => 'Ertrag prozentual',
