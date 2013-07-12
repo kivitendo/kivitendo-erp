@@ -1,6 +1,9 @@
 namespace('kivi', function(k){
-  k.PartPickerCache = { }
   k.PartPicker = function($real, options) {
+    // short circuit in case someone double inits us
+    if ($real.data("part_picker"))
+      return $real.data("part_picker");
+
     var o = $.extend({
       limit: 20,
       delay: 50,
@@ -151,7 +154,7 @@ namespace('kivi', function(k){
     pcont.append(picker);
     picker.addClass('icon16 CRM--Schnellsuche').click(open_dialog);
 
-    return {
+    var pp = {
       real:           function() { return $real },
       dummy:          function() { return $dummy },
       type:           function() { return $type },
@@ -180,11 +183,13 @@ namespace('kivi', function(k){
         });
       }
     }
+    $real.data('part_picker', pp);
+    return pp;
   }
 });
 
 $(function(){
   $('input.part_autocomplete').each(function(i,real){
-    kivi.PartPickerCache[real.id] = new kivi.PartPicker($(real));
+    kivi.PartPicker($(real));
   })
 });
