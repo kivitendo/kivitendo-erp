@@ -38,7 +38,7 @@ sub type_filter {
     $type = [ grep { $type->{$_} } keys %$type ];
   }
 
-  my @types = listify($type);
+  my @types = grep { $_ } listify($type);
   my @filter;
 
   for my $type (@types) {
