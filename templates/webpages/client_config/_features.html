@@ -61,7 +61,7 @@
 
   <tr>
    <td align="right">[% LxERP.t8('Default article for converting into quotations and orders') %]</td>
-   <td>[% L.select_tag('defaults.requirement_spec_section_order_part_id', SELF.all_parts, default=SELF.defaults.requirement_spec_section_order_part_id, with_empty=1, title_sub=\make_part_title) %]</td>
+   <td>[% L.select_tag('defaults.requirement_spec_section_order_part_id', SELF.all_parts_time_unit, default=SELF.defaults.requirement_spec_section_order_part_id, with_empty=1, title_sub=\make_part_title) %]</td>
    <td>[% LxERP.t8('When converting a requirement spec into a quotation or an oder each section gets converted into a line position in the new record. This is the article used by default for this conversion.') %]</td>
   </tr>
  </table>

@@ -19,7 +19,8 @@ use SL::Template;
 __PACKAGE__->run_before('check_auth');
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_parts posting_options payment_options accounting_options inventory_options profit_options accounts balance_startdate_method_options) ],
+  'scalar --get_set_init' => [ qw(defaults all_warehouses all_weightunits all_languages all_currencies all_templates all_parts_time_unit
+                                  posting_options payment_options accounting_options inventory_options profit_options accounts balance_startdate_method_options) ],
 );
 
 sub action_edit {
@@ -140,9 +141,17 @@ sub init_defaults        { SL::DB::Default->get                                 
 sub init_all_warehouses  { SL::DB::Manager::Warehouse->get_all_sorted                                                    }
 sub init_all_languages   { SL::DB::Manager::Language->get_all_sorted                                                     }
 sub init_all_currencies  { SL::DB::Manager::Currency->get_all_sorted                                                     }
-sub init_all_parts       { SL::DB::Manager::Part->get_all_sorted                                                         }
 sub init_all_weightunits { my $unit = SL::DB::Manager::Unit->find_by(name => 'kg'); $unit ? $unit->convertible_units : [] }
 sub init_all_templates   { +{ SL::Template->available_templates }                                                        }
+
+sub init_all_parts_time_unit {
+  my $h_unit = first { $_ } map { SL::DB::Manager::Unit->find_by(name => $_) } qw(Std h Stunde);
+  return [] unless $h_unit;
+
+  my @convertible_unit_names = map { $_->name } @{ $h_unit->convertible_units };
+
+  return SL::DB::Manager::Part->get_all_sorted(where => [ unit => \@convertible_unit_names ]);
+}
 
 sub init_posting_options {
   [ { title => t8("never"),           value => 0           },
