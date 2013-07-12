@@ -35,7 +35,7 @@ sub type_filter {
 
   # this is to make selection like type => { part => 1, service => 1 } work
   if ('HASH' eq ref $type) {
-    $type = grep { $type->{$_} } keys %$type;
+    $type = [ grep { $type->{$_} } keys %$type ];
   }
 
   my @types = listify($type);
