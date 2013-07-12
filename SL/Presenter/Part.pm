@@ -9,15 +9,15 @@ our @EXPORT = qw(part_picker);
 
 sub part_picker {
   my ($self, $name, $value, %params) = @_;
-  my $name_e    = $self->escape($name);
 
   $value = SL::DB::Manager::Part->find_by(id => $value) if !ref $value;
+  my $id = delete($params{id}) || $self->name_to_id($name);
 
   my $ret =
-    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => 'part_autocomplete', type => 'hidden') .
-    $self->input_tag("", delete $params{type}, id => $self->name_to_id("$name_e\_type"), type => 'hidden') .
-    $self->input_tag("", (ref $value && $value->can('description')) ? $value->description : '', id => $self->name_to_id("$name_e\_name"), %params) .
-    $self->input_tag("", delete $params{column}, id => $self->name_to_id("$name_e\_column"), type => 'hidden');
+    $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => 'part_autocomplete', type => 'hidden', id => $id) .
+    $self->input_tag("", delete $params{type}, id => "${id}_type", type => 'hidden') .
+    $self->input_tag("", (ref $value && $value->can('description')) ? $value->description : '', id => "${id}_name", %params) .
+    $self->input_tag("", delete $params{column}, id => "${id}_column", type => 'hidden');
 
   $self->html_tag('span', $ret, class => 'part_picker');
 }
@@ -44,17 +44,21 @@ see L<SL::Presenter>
 
 =over 4
 
-=item C<part_picker NAME, VALUE, PARAMS>
+=item C<part_picker $name, $value, %params>
 
-All-in-one picker widget for parts. The name will be both id and name of the
-resulting hidden C<id> input field. An additional dummy input will be generated
-which is used to find parts. For a detailed description of it's behaviour, see
-section C<PART PICKER SPECIFICATION>.
+All-in-one picker widget for parts. The name will be both id and name
+of the resulting hidden C<id> input field (but the ID can be
+overwritten with C<$params{id}>).
 
-C<VALUE> can be an id or C<Rose::DB:Object> instance.
+An additional dummy input will be generated which is used to find
+parts. For a detailed description of it's behaviour, see section
+C<PART PICKER SPECIFICATION>.
 
-If C<PARAMS> contains C<type> only parts of this type will be used for
-autocompletion. You may comma separate multiple types as in C<part,assembly>.
+C<$value> can be a parts id or a C<Rose::DB:Object> instance.
+
+If C<%params> contains C<type> only parts of this type will be used
+for autocompletion. You may comma separate multiple types as in
+C<part,assembly>.
 
 Obsolete parts will by default not displayed for selection. However they are
 accepted as default values and can persist during updates. As with other
