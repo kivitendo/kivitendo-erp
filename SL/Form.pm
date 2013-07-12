@@ -37,6 +37,7 @@
 
 package Form;
 
+use Carp;
 use Data::Dumper;
 
 use CGI;
@@ -53,7 +54,10 @@ use SL::CVar;
 use SL::DB;
 use SL::DBConnect;
 use SL::DBUtils;
+use SL::DB::Customer;
 use SL::DB::Default;
+use SL::DB::PaymentTerm;
+use SL::DB::Vendor;
 use SL::DO;
 use SL::IC;
 use SL::IS;
@@ -1920,22 +1924,12 @@ sub get_duedate {
 
   my ($self, $myconfig, $reference_date) = @_;
 
-  $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
+  my $terms   = $self->{payment_id}  ? SL::DB::PaymentTerm->new(id => $self->{payment_id}) ->load
+              : $self->{customer_id} ? SL::DB::Customer   ->new(id => $self->{customer_id})->load->payment
+              : $self->{vendor_id}   ? SL::DB::Vendor     ->new(id => $self->{vendor_id})  ->load->payment
+              :                        croak("Missing field in \$::form: payment_id, customer_id or vendor_id");
 
-  my $dbh         = $self->get_standard_dbh($myconfig);
-  my ($payment_id, $duedate);
-
-  if($self->{payment_id}) {
-    $payment_id = $self->{payment_id};
-  } elsif($self->{vendor_id}) {
-    my $query = 'SELECT payment_id FROM vendor WHERE id = ?';
-    ($payment_id) = selectrow_query($self, $dbh, $query, $self->{vendor_id});
-  }
-
-  if ($payment_id) {
-    my $query  = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
-    ($duedate) = selectrow_query($self, $dbh, $query, $payment_id);
-  }
+  my $duedate = $terms->calc_date(reference_date => $reference_date)->to_kivitendo;
 
   $main::lxdebug->leave_sub();
 

@@ -12,6 +12,8 @@ namespace('kivi', function(k){
     var real_id = $real.attr('id');
     var $dummy  = $('#' + real_id + '_name');
     var $type   = $('#' + real_id + '_type');
+    var $unit   = $('#' + real_id + '_unit');
+    var $convertible_unit = $('#' + real_id + '_convertible_unit');
     var $column = $('#' + real_id + '_column');
     var state   = STATES.PICKED;
     var last_real = $real.val();
@@ -28,13 +30,21 @@ namespace('kivi', function(k){
     };
 
     function ajax_data(term) {
-      return {
+      var data = {
         'filter.all:substr::ilike': term,
-        'filter.type':  $type.val().split(','),
         'filter.obsolete': 0,
-        column:   $column.val()===undefined ? '' : $column.val(),
+        'filter.unit_obj.convertible_to': $convertible_unit && $convertible_unit.val() ? $convertible_unit.val() : '',
+        column:   $column && $column.val() ? $column.val() : '',
         current:  $real.val(),
-      }
+      };
+
+      if ($type && $type.val())
+        data['filter.type'] = $type.val().split(',');
+
+      if ($unit && $unit.val())
+        data['filter.unit'] = $unit.val().split(',');
+
+      return data;
     }
 
     function set_item (item) {
@@ -145,6 +155,8 @@ namespace('kivi', function(k){
       real:           function() { return $real },
       dummy:          function() { return $dummy },
       type:           function() { return $type },
+      unit:           function() { return $unit },
+      convertible_unit: function() { return $convertible_unit },
       column:         function() { return $column },
       update_results: update_results,
       set_item:       set_item,

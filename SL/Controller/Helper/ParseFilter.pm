@@ -80,7 +80,7 @@ sub flatten {
     next if !defined $value || $value eq ''; # 0 is fine
     if ('HASH' eq ref $value) {
       my ($query, $more_objects) = flatten($value, _prefix($prefix, $key));
-      push @result,        @$query if $query;
+      push @result, @$query        if  $query;
       _add_uniq($with_objects, $_) for _prefix($prefix, $key), @$more_objects;
     } else {
       push @result, _prefix($prefix, $key) => $value;

@@ -40,7 +40,9 @@ use YAML;
 use SL::AM;
 use SL::Common;
 use SL::CVar;
+use SL::DB::Order;
 use SL::DB::PeriodicInvoicesConfig;
+use SL::DB::Status;
 use SL::DBUtils;
 use SL::IC;
 
@@ -660,59 +662,16 @@ sub delete {
 
   my ($self, $myconfig, $form) = @_;
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh;
-  $dbh->begin_work;
+  my $rc = SL::DB::Order->new->db->with_transaction(sub {
+    my @spoolfiles = grep { $_ } map { $_->spoolfile } @{ SL::DB::Manager::Status->get_all(where => [ trans_id => $form->{id} ]) };
 
-  # delete spool files
-  my $query = qq|SELECT s.spoolfile FROM status s | .
-              qq|WHERE s.trans_id = ?|;
-  my @values = (conv_i($form->{id}));
-  my $sth = $dbh->prepare($query);
-  $sth->execute(@values) || $self->dberror($query);
+    SL::DB::Order->new(id => $form->{id})->delete;
 
-  my $spoolfile;
-  my @spoolfiles = ();
-
-  while (($spoolfile) = $sth->fetchrow_array) {
-    push @spoolfiles, $spoolfile;
-  }
-  $sth->finish;
-
-  # delete-values
-  @values = (conv_i($form->{id}));
-
-  # periodic invoices and their configuration
-  do_query($form, $dbh, qq|DELETE FROM periodic_invoices         WHERE config_id IN (SELECT id FROM periodic_invoices_configs WHERE oe_id = ?)|, @values);
-  do_query($form, $dbh, qq|DELETE FROM periodic_invoices_configs WHERE oe_id = ?|, @values);
-
-  # delete status entries
-  $query = qq|DELETE FROM status | .
-           qq|WHERE trans_id = ?|;
-  do_query($form, $dbh, $query, @values);
-
-  # delete individual entries
-  $query = qq|DELETE FROM orderitems | .
-           qq|WHERE trans_id = ?|;
-  do_query($form, $dbh, $query, @values);
-
-  $query = qq|DELETE FROM shipto | .
-           qq|WHERE trans_id = ? AND module = 'OE'|;
-  do_query($form, $dbh, $query, @values);
-
-  # delete OE record
-  $query = qq|DELETE FROM oe | .
-           qq|WHERE id = ?|;
-  do_query($form, $dbh, $query, @values);
-
-  my $rc = $dbh->commit;
-
-  if ($rc) {
     my $spool = $::lx_office_conf{paths}->{spool};
-    foreach $spoolfile (@spoolfiles) {
-      unlink "$spool/$spoolfile" if $spoolfile;
-    }
-  }
+    unlink map { "$spool/$_" } @spoolfiles if $spool;
+
+    1;
+  });
 
   $main::lxdebug->leave_sub();
 

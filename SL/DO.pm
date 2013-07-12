@@ -39,6 +39,8 @@ use YAML;
 use SL::AM;
 use SL::Common;
 use SL::CVar;
+use SL::DB::DeliveryOrder;
+use SL::DB::Status;
 use SL::DBUtils;
 use SL::RecordLinks;
 use SL::IC;
@@ -507,59 +509,16 @@ sub delete {
   my $form     = $main::form;
   my $spool    = $::lx_office_conf{paths}->{spool};
 
-  # connect to database
-  my $dbh = $form->get_standard_dbh($myconfig);
+  my $rc = SL::DB::Order->new->db->with_transaction(sub {
+    my @spoolfiles = grep { $_ } map { $_->spoolfile } @{ SL::DB::Manager::Status->get_all(where => [ trans_id => $form->{id} ]) };
 
-  # delete spool files
-  my $query = qq|SELECT s.spoolfile FROM status s WHERE s.trans_id = ?|;
-  my $sth   = prepare_execute_query($form, $dbh, $query, conv_i($form->{id}));
+    SL::DB::DeliveryOrder->new(id => $form->{id})->delete;
 
-  my $spoolfile;
-  my @spoolfiles = ();
-  my @values;
+    my $spool = $::lx_office_conf{paths}->{spool};
+    unlink map { "$spool/$_" } @spoolfiles if $spool;
 
-  while (($spoolfile) = $sth->fetchrow_array) {
-    push @spoolfiles, $spoolfile;
-  }
-  $sth->finish();
-
-  # delete-values
-  @values = (conv_i($form->{id}));
-
-  # delete status entries
-  $query = qq|DELETE FROM status
-              WHERE trans_id = ?|;
-  do_query($form, $dbh, $query, @values);
-
-  # delete individual entries
-  $query = qq|DELETE FROM delivery_order_items_stock
-              WHERE delivery_order_item_id IN (
-                SELECT id FROM delivery_order_items
-                WHERE delivery_order_id = ?
-              )|;
-  do_query($form, $dbh, $query, @values);
-
-  # delete individual entries
-  $query = qq|DELETE FROM delivery_order_items
-              WHERE delivery_order_id = ?|;
-  do_query($form, $dbh, $query, @values);
-
-  # delete DO record
-  $query = qq|DELETE FROM delivery_orders
-              WHERE id = ?|;
-  do_query($form, $dbh, $query, @values);
-
-  $query = qq|DELETE FROM shipto
-              WHERE trans_id = ? AND module = 'DO'|;
-  do_query($form, $dbh, $query, @values);
-
-  my $rc = $dbh->commit();
-
-  if ($rc) {
-    foreach $spoolfile (@spoolfiles) {
-      unlink "$spool/$spoolfile" if $spoolfile;
-    }
-  }
+    1;
+  });
 
   $main::lxdebug->leave_sub();
 
