@@ -2,12 +2,16 @@ package SL::Presenter::Part;
 
 use strict;
 
+use SL::DB::Part;
+
 use Exporter qw(import);
 our @EXPORT = qw(part_picker);
 
 sub part_picker {
   my ($self, $name, $value, %params) = @_;
   my $name_e    = $self->escape($name);
+
+  $value = SL::DB::Manager::Part->find_by(id => $value) if !ref $value;
 
   my $ret =
     $self->input_tag($name, (ref $value && $value->can('id') ? $value->id : ''), class => 'part_autocomplete', type => 'hidden') .
