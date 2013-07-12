@@ -449,6 +449,10 @@ label {
   position: absolute;
 }
 
+.part_picker {
+  padding-right: 16px;
+}
+
 div.part_picker_part {
   float:left; width: 350px;
   padding: 5px;
