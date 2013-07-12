@@ -157,13 +157,7 @@ A clickable icon (popup trigger) attached to the dummy input, which triggers the
 
 =head1 BUGS
 
-=over 4
-
-=item *
-
-Popup triggers are not displayed with css menu, because the spritemap is not loaded.
-
-=back
+None atm :)
 
 =head1 AUTHOR
 
