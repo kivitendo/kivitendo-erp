@@ -12,19 +12,19 @@ use constant PRIV => '__filteredhelper_priv';
 my %controller_filter_spec;
 
 sub make_filtered {
-  my ($class, %specs)       = @_;
+  my ($class, %specs)             = @_;
 
-  $specs{MODEL}           //=  $class->controller_name;
-  $specs{MODEL}             =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
-  $specs{FORM_PARAMS}     //= 'filter';
-  $specs{LAUNDER_TO}        = '__INPLACE__' unless exists $specs{LAUNDER_TO};
-  $specs{ONLY}            //= [];
-  $specs{ONLY}              = [ $specs{ONLY} ] if !ref $specs{ONLY};
-  $specs{ONLY_MAP}          = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
+  $specs{MODEL}                 //=  $class->controller_name;
+  $specs{MODEL}                   =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
+  $specs{FORM_PARAMS}           //= 'filter';
+  $specs{LAUNDER_TO}              = '__INPLACE__' unless exists $specs{LAUNDER_TO};
+  $specs{ONLY}                  //= [];
+  $specs{ONLY}                    = [ $specs{ONLY} ] if !ref $specs{ONLY};
+  $specs{ONLY_MAP}                = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
 
   $controller_filter_spec{$class} = \%specs;
 
-  my %hook_params           = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
+  my %hook_params                 = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
   $class->run_before('_save_current_filter_params', %hook_params);
 
   SL::Controller::Helper::GetModels::register_get_models_handlers(
@@ -76,15 +76,15 @@ sub _make_current_filter_params {
 
   $calculated_params{query} = [
     @{ $calculated_params{query} || [] },
-    @{ $filter_args{query} || [] },
-    @{ $params{query} || [] },
+    @{ $filter_args{      query} || [] },
+    @{ $params{           query} || [] },
   ];
 
   $calculated_params{with_objects} = [
     uniq
     @{ $calculated_params{with_objects} || [] },
-    @{ $filter_args{with_objects} || [] },
-    @{ $params{with_objects} || [] },
+    @{ $filter_args{      with_objects} || [] },
+    @{ $params{           with_objects} || [] },
   ];
 
   if ($laundered) {
@@ -114,11 +114,11 @@ sub disable_filtering {
 sub _get_filter_args {
   my ($self, $spec) = @_;
 
-  $spec ||= $self->get_filter_spec;
+  $spec           ||= $self->get_filter_spec;
 
-  my %filter_args       = ref($spec->{FILTER_ARGS}) eq 'CODE' ? %{ $spec->{FILTER_ARGS}->($self) }
-                        :     $spec->{FILTER_ARGS}            ? do { my $sub = $spec->{FILTER_ARGS}; %{ $self->$sub() } }
-                        :                                       ();
+  my %filter_args   = ref($spec->{FILTER_ARGS}) eq 'CODE' ? %{ $spec->{FILTER_ARGS}->($self) }
+                    :     $spec->{FILTER_ARGS}            ? do { my $sub = $spec->{FILTER_ARGS}; %{ $self->$sub() } }
+                    :                                       ();
 }
 
 sub _save_current_filter_params {
@@ -137,9 +137,9 @@ sub _callback_handler_for_filtered {
   my $priv            = _priv($self);
 
   if (_is_enabled($self) && $priv->{filter}) {
-    my $filter_spec                             = $self->get_filter_spec;
+    my $filter_spec = $self->get_filter_spec;
     my ($flattened) = SL::Controller::Helper::ParseFilter::flatten($priv->{filter}, undef, $filter_spec->{FORM_PARAMS});
-    %params = (%params, @$flattened);
+    %params         = (%params, @$flattened);
   }
 
   # $::lxdebug->dump(0, "CB handler for filtered; params after flatten:", \%params);
@@ -171,7 +171,6 @@ sub _is_enabled {
   my ($self) = @_;
   return !_priv($self)->{disabled} && ($self->get_filter_spec->{ONLY_MAP}->{$self->action_name} || $self->get_filter_spec->{ONLY_MAP}->{'__ALL__'});
 }
-
 
 1;
 

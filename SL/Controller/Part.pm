@@ -21,20 +21,20 @@ use Rose::Object::MakeMethods::Generic (
 __PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') });
 
 __PACKAGE__->make_filtered(
-  ONLY          => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
-  LAUNDER_TO    => 'filter',
+  ONLY        => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
+  LAUNDER_TO  => 'filter',
 );
 __PACKAGE__->make_paginated(
-  ONLY          => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
+  ONLY        => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
 );
 
 __PACKAGE__->make_sorted(
-  ONLY              => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
+  ONLY        => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
 
-  DEFAULT_BY        => 'partnumber',
-  DEFAULT_DIR       => 1,
+  DEFAULT_BY  => 'partnumber',
+  DEFAULT_DIR => 1,
 
-  partnumber        => t8('Partnumber'),
+  partnumber  => t8('Partnumber'),
 );
 
 sub action_ajax_autocomplete {
@@ -92,7 +92,7 @@ sub action_part_picker_result {
 }
 
 sub init_parts {
-  $_[0]->get_models;
+  $_[0]->get_models(with_objects => [ qw(unit_obj) ]);
 }
 
 1;

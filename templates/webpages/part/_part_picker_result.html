@@ -26,6 +26,5 @@
 [% L.paginate_controls(target='#part_picker_result', selector='#part_picker_result') %]
 
 <script type='text/javascript'>
-  var pp = kivi.PartPickerCache[$('#part_picker_real_id').val()];
-  pp.init_results();
+  kivi.PartPicker($('#'+$('#part_picker_real_id').val())).init_results()
 </script>
