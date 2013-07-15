@@ -225,8 +225,8 @@ sub display_form {
       $subroutine = "makemodel_row";
 
       # assemblies are built from components, they aren't purchased from a vendor
-      # also the lastcost_$i from makemodel conflicted with the component lastcost_$i 
-      # so we don't need the makemodel rows for assemblies 
+      # also the lastcost_$i from makemodel conflicted with the component lastcost_$i
+      # so we don't need the makemodel rows for assemblies
       # create makemodel rows
       # &{$subroutine}($numrows);
 
