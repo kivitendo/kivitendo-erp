@@ -146,7 +146,7 @@ sub action_save {
 
   $self->_save();
 
-  $self->redirect_to(action => 'edit', id => $self->{cv}->id);
+  $self->redirect_to(action => 'edit', id => $self->{cv}->id, db => $self->is_vendor() ? 'vendor' : 'customer');
 }
 
 sub action_save_and_close {
