@@ -241,7 +241,7 @@ sub create_order_item {
 
   if (!$section->{keep_description}) {
     $description =  '<%fb_number%> <%title%>' unless $description =~ m{<%};
-    $description =~ s{<% (.+?) %>}{$section->$1}egx;
+    $description =~ s{<% (.+?) %>}{ $section->can($1) ? $section->$1 : '<' . t8('Invalid variable #1', $1) . '>' }egx;
   }
 
   $item->assign_attributes(

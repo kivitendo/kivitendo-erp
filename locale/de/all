@@ -1235,6 +1235,7 @@ $self->{texts} = {
   'Invalid quantity.'           => 'Die Mengenangabe ist ung&uuml;ltig.',
   'Invalid request type \'#1\'' => 'Ungültiger Request-Typ \'#1\'',
   'Invalid transactions'        => 'Ungültige Buchungen',
+  'Invalid variable #1'         => 'Ungültige Variable #1',
   'Invdate'                     => 'Rechnungsdatum',
   'Invdate from'                => 'Rechnungen von',
   'Inventory'                   => 'Inventar',
