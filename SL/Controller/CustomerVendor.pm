@@ -687,7 +687,7 @@ sub _pre_render {
 
   $self->{all_business} = SL::DB::Manager::Business->get_all();
 
-  $self->{all_employees} = SL::DB::Manager::Employee->get_all();
+  $self->{all_employees} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   $query =
     'SELECT DISTINCT(greeting)
