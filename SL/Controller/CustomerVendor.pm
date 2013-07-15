@@ -39,6 +39,7 @@ __PACKAGE__->run_before(
     'save_and_order',
     'save_and_quotation',
     'save_and_rfq',
+    'delete',
     'delete_contact',
     'delete_shipto',
   ]
