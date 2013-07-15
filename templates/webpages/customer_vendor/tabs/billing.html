@@ -8,7 +8,7 @@
 
     <tr height="5"></tr>
 
-    [% IF ( conf_vertreter ) %]<!-- == $::lx_office_conf{features}->{vertreter}; -->
+    [% IF ( conf_vertreter ) %]
       <tr>
         <th align="right">
           [% IF SELF.is_vendor() %]
@@ -29,8 +29,7 @@
         </th>
 
         <td>
-          <!-- TODO: ALL_SALESMAN_CUSTOMERS -->
-          [% L.select_tag('cv.salesman_id', SELF.all_employees, value_key = 'id', title_key = 'safe_name', with_empty = 1) %]
+          [% L.select_tag('cv.salesman_id', SELF.all_salesman_customers, default = SELF.cv.salesman_id, value_key = 'id', title_key = 'name', with_empty = 1) %]
         </td>
       </tr>
 
@@ -343,16 +342,16 @@
         <th align="right">[% 'Salesman' | $T8 %]</th>
 
         <td>
-          <!-- TODO: ALL_SALESMAN -->
-          [% L.select_tag('cv.salesman_id', SELF.all_employees, default = salesman_id, value_key = 'id', title_key = 'safe_name', with_empty = 1) %]
-        </td>
-
-        <td>[% 'taxincluded checked' | $T8 %]</td>
-
-        <td>
-          [% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked) %]
+          [% L.select_tag('cv.salesman_id', SELF.all_salesmen, default = SELF.cv.salesman_id, value_key = 'id', title_key = 'safe_name', with_empty = 1) %]
         </td>
       [%- END %]
+
+      <td>[% 'taxincluded checked' | $T8 %]</td>
+
+      <td>
+        [% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked) %]
+      </td>
+
     </tr>
   </table>
 

@@ -681,6 +681,8 @@ sub _create_customer_vendor {
 sub _pre_render {
   my ($self) = @_;
 
+  $self->{template_args}->{conf_vertreter} = $::instance_conf->get_vertreter();
+
   my $dbh = $::form->get_standard_dbh();
 
   my $query;
@@ -723,9 +725,26 @@ sub _pre_render {
 
   $self->{all_taxzones} = SL::DB::Manager::TaxZone->get_all();
 
-  #Employee:
-  #TODO: ALL_SALESMAN
-  #TODO: ALL_SALESMAN_CUSTOMERS
+  if ( $::instance_conf->get_vertreter() ) {
+    $query =
+      'SELECT id
+       FROM business
+       WHERE salesman';
+    my $business_ids = [
+      map(
+        { $_->{id} }
+        selectall_hashref_query($::form, $dbh, $query)
+      )
+    ];
+
+    if ( $business_ids->[0] ) {
+      $self->{all_salesman_customers} = SL::DB::Manager::Customer->get_all(query => [business_id => $business_ids]);
+    } else {
+      $self->{all_salesman_customers} = [];
+    }
+  } else {
+    $self->{all_salesmen} = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $self->{cv}->salesman_id,  deleted => 0 ] ]);
+  }
 
   $self->{all_payment_terms} = SL::DB::Manager::PaymentTerm->get_all();
 
@@ -749,7 +768,7 @@ sub _pre_render {
   $self->{shiptos} = $self->{cv}->shipto;
   $self->{shiptos} ||= [];
 
-  $self->{template_args} = {};
+  $self->{template_args} ||= {};
 
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
 }
