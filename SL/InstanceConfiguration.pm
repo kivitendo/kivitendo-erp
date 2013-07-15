@@ -7,28 +7,38 @@ use SL::DBUtils ();
 
 use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(data currencies) ],
+  'scalar --get_set_init' => [ qw(data currencies default_currency _table_currencies_exists) ],
 );
 
 sub init_data {
   return {} if !$::auth->client;
+  return SL::DBUtils::selectfirst_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT * FROM defaults|);
+}
 
-  my $dbh                   = $::form->get_standard_dbh;
-  my $data                  = SL::DBUtils::selectfirst_hashref_query($::form, $dbh, qq|SELECT * FROM defaults|);
-  $data->{default_currency} = (SL::DBUtils::selectfirst_array_query($::form, $dbh, qq|SELECT name FROM currencies WHERE id = ?|, $data->{currency_id}))[0] if $data->{currency_id};
-
-  return $data;
+sub init__table_currencies_exists {
+  return 0 if !$::auth->client;
+  return !!(SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT tablename FROM pg_tables WHERE (schemaname = 'public') AND (tablename = 'currencies')|))[0];
 }
 
 sub init_currencies {
-  return [] if !$::auth->client;
+  my ($self) = @_;
+
+  return [] if !$self->_table_currencies_exists;
   return [ map { $_->{name} } SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies ORDER BY id ASC|) ];
 }
 
+sub init_default_currency {
+  my ($self) = @_;
+
+  return undef if !$self->_table_currencies_exists || !$self->data->{currency_id};
+  return (SL::DBUtils::selectfirst_array_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies WHERE id = ?|, $self->data->{currency_id}))[0];
+}
+
 sub reload {
-  my ($self)          = @_;
-  $self->{data}       = $self->init_data;
-  $self->{currencies} = $self->init_currencies;
+  my ($self) = @_;
+
+  delete @{ $self }{qw(data currencies default_currency)};
+
   return $self;
 }
 
