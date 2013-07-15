@@ -85,7 +85,7 @@
       <th align="right" nowrap>[% 'Street' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('cv.street', SELF.cv.street) %]
+        [% L.input_tag('cv.street', SELF.cv.street, size = 35, maxlength = 75) %]
         <span id="billing_map"></span>
         <script type="text/javascript">
           namespace('kivi.CustomerVendor').showMapWidget('cv_', $('#billing_map'));
@@ -139,6 +139,22 @@
 
       <td>
         [% L.input_tag('cv.email', SELF.cv.email, size = 45) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right">[% 'Cc E-mail' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.cc', SELF.cv.bcc, size = 45) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right">[% 'Bcc E-mail' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('cv.bcc', SELF.cv.bcc, size = 45) %]
       </td>
     </tr>
 
@@ -293,14 +309,6 @@
       <td>
         [% L.select_tag('cv.language_id', SELF.all_languages, default = SELF.cv.language_id, value_key = 'id', title_key = 'description', with_empty = 1) %]
       </td>
-
-
-      <th align="right">[% 'Bcc' | $T8 %]</th>
-
-      <td>
-        [% L.input_tag('cv.bcc', SELF.cv.bcc, size = 40) %]
-      </td>
-
 
       [% IF ( SELF.is_customer() ) %]
         <th align="right">[% 'Preisklasse' | $T8 %]</th>
