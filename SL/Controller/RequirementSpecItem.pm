@@ -407,7 +407,7 @@ sub determine_paste_position {
 sub assign_requirement_spec_id_rec {
   my ($self, $item) = @_;
 
-  $item->requirement_spec_id($::form->{requirement_spec_id});
+  $item->assign_attributes(requirement_spec_id => $::form->{requirement_spec_id}, fb_number => undef);
   $self->assign_requirement_spec_id_rec($_) for @{ $item->children || [] };
 
   return $item;
@@ -448,7 +448,7 @@ sub action_ajax_paste {
   my ($new_parent_id, $insert_after) = $self->determine_paste_position;
 
   # Store result in database.
-  $self->item->update_attributes(requirement_spec_id => $::form->{requirement_spec_id}, parent_id => $new_parent_id);
+  $self->item->update_attributes(parent_id => $new_parent_id);
   $self->item->add_to_list(position => 'after', reference => $insert_after) if $insert_after;
 
   # Update the tree: create the node for all pasted objects.
