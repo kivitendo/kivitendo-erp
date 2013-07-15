@@ -146,7 +146,7 @@ sub display_form {
 
   $main::auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | '.
-                'purchase_delivery_order_edit | sales_delivery_order_edit');
+                'purchase_delivery_order_edit | sales_delivery_order_edit | part_service_assembly_details');
 
   relink_accounts();
   retrieve_partunits() if ($form->{type} =~ /_delivery_order$/);

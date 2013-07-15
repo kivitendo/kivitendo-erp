@@ -1822,6 +1822,7 @@ $self->{texts} = {
   'Show delete button in sales delivery orders?' => 'Soll der "Löschen"-Knopf bei Verkaufslieferscheinen angezeigt werden?',
   'Show delete button in sales orders?' => 'Soll der "Löschen"-Knopf bei Kundenaufträgen angezeigt werden?',
   'Show details'                => 'Detailsanzeige',
+  'Show details and reports of parts, services, assemblies' => 'Details und Berichte von Waren, Dienstleistungen und Erzeugnissen anzeigen',
   'Show fields used for the best before date?' => 'Felder zur Eingabe des Mindesthaltbarkeitsdatums anzeigen?',
   'Show follow ups...'          => 'Zeige Wiedervorlagen...',
   'Show help text'              => 'Hilfetext anzeigen',

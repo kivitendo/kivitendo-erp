@@ -1050,6 +1050,7 @@ sub all_rights_full {
     ["customer_vendor_edit",           $locale->text("Create customers and vendors. Edit all vendors. Edit only customers where salesman equals employee (login)")],
     ["customer_vendor_all_edit",       $locale->text("Create customers and vendors. Edit all vendors. Edit all customers")],
     ["part_service_assembly_edit",     $locale->text("Create and edit parts, services, assemblies")],
+    ["part_service_assembly_details",  $locale->text("Show details and reports of parts, services, assemblies")],
     ["project_edit",                   $locale->text("Create and edit projects")],
     ["--ar",                           $locale->text("AR")],
     ["sales_quotation_edit",           $locale->text("Create and edit sales quotations")],
