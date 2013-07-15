@@ -170,14 +170,15 @@ sub _transaction {
   my $name = $::form->escape($self->{cv}->name, 1);
   my $db = $self->is_vendor() ? 'vendor' : 'customer';
 
-  my $url =
-    $script .'?'.
-    'action=add&'.
-    'vc='. $db .'&'.
-    $db .'_id=' . $self->{cv}->id .'&'.
-    $db .'='. $name .'&'.
-    'type='. $::form->{type} .'&'.
-    'callback='. $callback;
+  my $url = $self->url_for(
+    controller => $script,
+    action     => 'add',
+    vc         => $db,
+    $db .'_id' => $self->{cv}->id,
+    $db        => $name,
+    type       => $::form->{type},
+    callback   => $callback,
+  );
 
   print $::form->redirect_header($url);
 }
