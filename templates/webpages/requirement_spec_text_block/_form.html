@@ -67,9 +67,9 @@ function insert_selected_predefined_text() {
 
   var title_ctrl = $('#[% id_base %]_title');
 
-  if (   ((title_ctrl.val() || '') != '')
-      && ((pt.title         || '') != '')
-      && confirm('[%- LxERP.t8("Do you want to overwrite your current title?") %]'))
+  if (   ((pt.title         || '') != '')
+      && (   ((title_ctrl.val() || '') == '')
+          || confirm('[%- LxERP.t8("Do you want to overwrite your current title?") %]')))
     title_ctrl.val(pt.title);
 
   if ((pt.text || '') != '') {
