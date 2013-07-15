@@ -18,7 +18,7 @@
   <tr>
    <td>[% LxERP.t8("Assign the following article to all sections") %]:</td>
    <td>
-    [% L.select_tag('quotations_and_orders_dummy', SELF.all_parts_time_unit, default=INSTANCE_CONF.get_requirement_spec_section_order_part_id, title_sub=\make_part_title, id='quoations_and_orders_order_id', style=style) %]
+    [% P.part_picker('quotations_and_orders_dummy', INSTANCE_CONF.get_requirement_spec_section_order_part_id, convertible_unit=SELF.h_unit_name, id='quoations_and_orders_order_id', style=style) %]
     [% L.button_tag('kivi.requirement_spec.assign_order_part_id_to_all()', LxERP.t8('Assign article')) %]
    </td>
   </tr>
@@ -41,7 +41,7 @@
     <td>[% HTML.escape(section.fb_number) %]</td>
     <td>[% HTML.escape(section.title) %]</td>
     <td>[% HTML.escape(P.truncate(section.description)) %]</td>
-    <td>[% L.select_tag('sections[].order_part_id', SELF.all_parts_time_unit, default=section.order_part_id, with_empty=!for_new, title_sub=\make_part_title, style=style, no_id=1) %]</td>
+    <td>[% P.part_picker('sections[].order_part_id', section.order_part_id, convertible_unit=SELF.h_unit_name, id='quoations_and_orders_sections_order_pard_id_' _ loop.count, style=style) %]</td>
    </tr>
    [% END %]
   </tbody>
