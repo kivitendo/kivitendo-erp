@@ -1403,6 +1403,14 @@ sub get_standard_dbh {
   return $standard_dbh;
 }
 
+sub set_standard_dbh {
+  my ($self, $dbh) = @_;
+  my $old_dbh      = $standard_dbh;
+  $standard_dbh    = $dbh;
+
+  return $old_dbh;
+}
+
 sub date_closed {
   $main::lxdebug->enter_sub();
 
