@@ -586,12 +586,6 @@ sub _instantiate_args {
     $cvar->value($value);
   }
 
-#  foreach my $cvar_key (keys(%{$::form->{cv_cvars}})) {
-#    my $cvar_value = $::form->{cv_cvars}->{$cvar_key};
-#    my $cvar = $self->{cv}->cvar_by_name($cvar_key);
-#    $cvar->value($cvar_value);
-#  }
-
   if ( $::form->{note}->{id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note}->{id})->load();
   } else {
@@ -600,10 +594,6 @@ sub _instantiate_args {
   $self->{note}->assign_attributes(%{$::form->{note}});
   $self->{note}->created_by($curr_employee->id);
   $self->{note}->trans_module('ct');
-  #  if ( $self->{note}->trans_id != $self->{cv}->id ) {
-  #    die($::locale->text('Error'));
-  #  }
-
 
   $self->{note_followup} = SL::DB::FollowUp->new();
   $self->{note_followup}->assign_attributes(%{$::form->{note_followup}});
@@ -617,9 +607,6 @@ sub _instantiate_args {
   }
   $self->{shipto}->assign_attributes(%{$::form->{shipto}});
   $self->{shipto}->module('CT');
-#  if ( $self->{shipto}->trans_id != $self->{cv}->id ) {
-#    die($::locale->text('Error'));
-#  }
 
   if ( $::form->{contact}->{cp_id} ) {
     $self->{contact} = SL::DB::Contact->new(cp_id => $::form->{contact}->{cp_id})->load();
@@ -627,9 +614,6 @@ sub _instantiate_args {
     $self->{contact} = SL::DB::Contact->new();
   }
   $self->{contact}->assign_attributes(%{$::form->{contact}});
-#  if ( $self->{contact}->cp_cv_id != $self->{cv}->id ) {
-#    die($::locale->text('Error'));
-#  }
 
   foreach my $cvar (@{$self->{contact}->cvars_by_config()}) {
     my $value = $::form->{contact_cvars}->{$cvar->config->name};
