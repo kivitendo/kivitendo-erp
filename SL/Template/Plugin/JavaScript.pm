@@ -17,14 +17,23 @@ sub new {
 # public interface
 #
 
+# see ecmascript spec section 7.8.4
+my @escape_chars = ('\\', '\'', '"');
+my %control_chars = (
+  "\n"   => 'n',
+  "\t"   => 't',
+  "\r"   => 'r',
+  "\f"   => 'f',
+  "\x08" => 'b',
+  "\x0B" => 'v', # noone uses vertical tab anyway...
+);
+my $re = join '', map { qr/($_)/s } join '|', keys(%control_chars), map { "\Q$_\E" } @escape_chars;
+
 sub escape {
   my $self = shift;
   my $text = shift;
 
-  $text =~ s|\\|\\\\|g;
-  $text =~ s|\"|\\\"|g;
-  $text =~ s|\n|\\n|g;
-  $text =~ s|\r|\\r|g;
+  $text =~ s/$re/'\\' . ($control_chars{$1} || $1)/egs;
 
   return $text;
 }
