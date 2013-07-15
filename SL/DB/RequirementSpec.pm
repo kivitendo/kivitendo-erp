@@ -165,6 +165,7 @@ sub _copy_from {
     my $cloned = Rose::DB::Object::Helpers::clone_and_reset($item);
     $cloned->requirement_spec_id($self->id);
     $cloned->position(undef);
+    $cloned->fb_number(undef) if $params->{paste_template};
     $cloned->children(map { $clone_item->($_) } @{ $item->children });
 
     $id_to_clone{ $item->id } = $cloned;
