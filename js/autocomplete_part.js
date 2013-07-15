@@ -26,7 +26,9 @@ namespace('kivi', function(k){
     var state   = STATES.PICKED;
     var last_real = $real.val();
     var last_dummy = $dummy.val();
-    var open_dialog = function(){
+    var timer;
+
+    function open_dialog () {
       open_jqm_window({
         url: 'controller.pl?action=Part/part_picker_search',
         data: $.extend({
@@ -34,8 +36,9 @@ namespace('kivi', function(k){
         }, ajax_data($dummy.val())),
         id: 'part_selection',
       });
+      window.clearTimeout(timer);
       return true;
-    };
+    }
 
     function ajax_data(term) {
       var data = {
@@ -88,6 +91,11 @@ namespace('kivi', function(k){
         success: function(data){ $('#part_picker_result').html(data) }
       });
     };
+
+    function result_timer (event) {
+      window.clearTimeout(timer);
+      timer = window.setTimeout(update_results, 100);
+    }
 
     function close_popup() {
       $('#part_selection').jqmClose()
@@ -156,7 +164,10 @@ namespace('kivi', function(k){
       }
     });
 
-//    $dummy.blur(make_defined_state);  // blur triggers also on open_jqm_dialog
+    $dummy.blur(function(){
+      window.clearTimeout(timer);
+      timer = window.setTimeout(make_defined_state, 100);
+    });
 
     // now add a picker div after the original input
     var pcont  = $('<span>').addClass('position-absolute');
@@ -173,6 +184,7 @@ namespace('kivi', function(k){
       convertible_unit: function() { return $convertible_unit },
       column:         function() { return $column },
       update_results: update_results,
+      result_timer:   result_timer,
       set_item:       set_item,
       reset:          make_defined_state,
       init_results:    function () {
