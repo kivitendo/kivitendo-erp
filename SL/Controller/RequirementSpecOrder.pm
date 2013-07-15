@@ -111,6 +111,7 @@ sub action_do_update {
   my %orderitems_by_id = map { ($_->id => $_) } @{ $order->orderitems };
   my %sections_by_id   = map { ($_->id => $_) } @{ $sections };
   $self->{parts}       = { map { ($_->id => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->order_part_id } @{ $sections } ] ]) } };
+  my $language_id      = $self->requirement_spec->customer->language_id;
 
   my %sections_seen;
 
@@ -119,11 +120,11 @@ sub action_do_update {
     my $section   = $sections_by_id{   $attributes->{section_id} };
     next unless $orderitem && $section;
 
-    $self->create_order_item(section => $section, item => $orderitem)->save;
+    $self->create_order_item(section => $section, item => $orderitem, language_id => $language_id)->save;
     $sections_seen{ $section->id } = 1;
   }
 
-  my @new_orderitems = map  { $self->create_order_item(section => $_) }
+  my @new_orderitems = map  { $self->create_order_item(section => $_, language_id => $language_id) }
                        grep { !$sections_seen{ $_->id } }
                        @{ $sections };
 
@@ -237,22 +238,27 @@ sub create_order_item {
   my $section         = $params{section};
   my $item            = $params{item} || SL::DB::OrderItem->new;
   my $part            = $self->parts->{ $section->order_part_id };
-  my $description     = $section->{keep_description} ? $item->description : $part->description;
+  my $translation     = $params{language_id} ? first { $params{language_id} == $_->language_id } @{ $part->translations } : {};
+  my $description     = $section->{keep_description} ? $item->description : ($translation->{translation} || $part->description);
+  my $longdescription = $translation->{longdescription} || $part->notes;
 
   if (!$section->{keep_description}) {
-    $description =  '<%fb_number%> <%title%>' unless $description =~ m{<%};
-    $description =~ s{<% (.+?) %>}{ $section->can($1) ? $section->$1 : '<' . t8('Invalid variable #1', $1) . '>' }egx;
+    foreach my $field (\$description, \$longdescription) {
+      $$field =  '<%fb_number%> <%title%>' unless $$field =~ m{<%};
+      $$field =~ s{<% (.+?) %>}{ $section->can($1) ? $section->$1 : '<' . t8('Invalid variable #1', $1) . '>' }egx;
+    }
   }
 
   $item->assign_attributes(
-    parts_id    => $part->id,
-    description => $description,
-    qty         => $section->time_estimation * 1,
-    unit        => $self->h_unit_name,
-    sellprice   => $::form->round_amount($self->requirement_spec->hourly_rate, 2),
-    lastcost    => $part->lastcost,
-    discount    => 0,
-    project_id  => $self->requirement_spec->project_id,
+    parts_id        => $part->id,
+    description     => $description,
+    longdescription => $longdescription,
+    qty             => $section->time_estimation * 1,
+    unit            => $self->h_unit_name,
+    sellprice       => $::form->round_amount($self->requirement_spec->hourly_rate, 2),
+    lastcost        => $part->lastcost,
+    discount        => 0,
+    project_id      => $self->requirement_spec->project_id,
   );
 
   return $item;
@@ -263,9 +269,9 @@ sub create_order {
 
   $self->{parts} = { map { ($_->{id} => $_) } @{ SL::DB::Manager::Part->get_all(where => [ id => [ uniq map { $_->{order_part_id} } @{ $params{sections} } ] ]) } };
 
-  my @orderitems = map { $self->create_order_item(section => $_) } @{ $params{sections} };
-  my $employee   = SL::DB::Manager::Employee->current;
   my $customer   = SL::DB::Customer->new(id => $::form->{customer_id})->load;
+  my @orderitems = map { $self->create_order_item(section => $_, language_id => $customer->language_id) } @{ $params{sections} };
+  my $employee   = SL::DB::Manager::Employee->current;
   my $order      = SL::DB::Order->new(
     globalproject_id        => $self->requirement_spec->project_id,
     transdate               => DateTime->today_local,
