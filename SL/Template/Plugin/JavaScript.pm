@@ -24,6 +24,7 @@ sub escape {
   $text =~ s|\\|\\\\|g;
   $text =~ s|\"|\\\"|g;
   $text =~ s|\n|\\n|g;
+  $text =~ s|\r|\\r|g;
 
   return $text;
 }
