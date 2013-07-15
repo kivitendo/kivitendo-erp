@@ -39,6 +39,13 @@ Größere neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Recht für die Anzeige von Details und Berichte von Waren, Dienstleistungen und Erzeugnissen
+  Statt nur ein Recht für die Bearbeitung von Artikeln zu haben, das gleichzeitig auch das Recht
+  für die Anzeige von Details und Berichten über Artikel umfasst, wurde nun ein neues Recht eingeführt.
+  Das alte Recht "Artikel, Dienstleistungen, Erzeugnisse erfassen und bearbeiten" wurde also in zwei
+  Rechte aufgeteilt, nämlich "Artikel, Dienstleistungen, Erzeugnisse erfassen und bearbeiten" und
+  "Details und Berichte von Waren, Dienstleistungen und Erzeugnissen anzeigen".
+
 - Recht für Produktivität und für Anzeige des Links zum Administrationsmenü
   Man kann den gesamten Produktivitätsbereich jetzt nur noch nutzen, wenn man die entsprechenden Rechte hat.
   Auch der Link Unter dem Menü-Punkt Programm zum Administrationsmenü wird jetzt nur noch
