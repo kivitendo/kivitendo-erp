@@ -2,37 +2,35 @@
 
 [% INCLUDE 'common/flash.html' %]
 
-<h1>[% HTML.escape(title) %]</h1>
+<h1>[% LxERP.t8("Database login (#1)", title) %]</h1>
 
-<p><a href="controller.pl?action=Admin/show">[% LxERP.t8('Back') %]</a></p>
+<p>[% LxERP.t8('Here you only provide the credentials for logging into the database.') %] [% LxERP.t8('Nothing will be created or deleted at this stage!') %]</p>
 
 <form method="post" action="controller.pl">
  <table>
   <tr>
    <th align="right">[% LxERP.t8('Host') %]</th>
-   <td>[% L.input_tag('dbhost', FORM.dbhost, size=30, class="initial_focus") %]</td>
+   <td>[% L.input_tag('dbhost', dbhost, size=30, class="initial_focus") %]</td>
    <th align="right">[% LxERP.t8('Port') %]</th>
-   <td>[% L.input_tag('dbport', FORM.dbport, size=6) %]</td>
+   <td>[% L.input_tag('dbport', dbport, size=6) %]</td>
   </tr>
 
   <tr>
    <th align="right">[% LxERP.t8('Database User') %]</th>
-   <td>[% L.input_tag("dbuser", FORM.dbuser, size=30) %]</td>
+   <td>[% L.input_tag("dbuser", dbuser, size=30) %]</td>
    <th align="right">[% LxERP.t8('Password') %]</th>
-   <td>[% L.input_tag("dbpasswd", FORM.dbpasswd, type='password', size=30) %]</td>
+   <td>[% L.input_tag("dbpasswd", dbpasswd, type='password', size=30) %]</td>
   </tr>
 
   <tr>
    <th align="right">[% LxERP.t8('Database template') %]</th>
-   <td>[% L.input_tag("dbdefault", FORM.dbdefault, size=30) %]</td>
+   <td>[% L.input_tag("dbdefault", dbdefault, size=30) %]</td>
   </tr>
  </table>
 
- <div>
-  [% L.hidden_tag("action", 'Admin/dispatch') %]
-  [% L.submit_tag('action_create_dataset', LxERP.t8('Create Dataset')) %]
-  [% L.submit_tag('action_delete_dataset', LxERP.t8('Delete Dataset')) %]
- </div>
-</form>
+ [% L.hidden_tag("action", 'Admin/dispatch') %]
 
-<p>[% LxERP.t8('This is a preliminary check for existing sources. Nothing will be created or deleted at this stage!') %]</p>
+ <p>
+  [% L.submit_tag('action_' _ next_action, LxERP.t8('Login')) %]
+ </p>
+</form>
