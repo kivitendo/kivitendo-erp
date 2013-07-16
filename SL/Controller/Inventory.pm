@@ -215,7 +215,8 @@ sub mini_journal {
   my $query = 'SELECT trans_id, max(itime) FROM inventory GROUP BY trans_id ORDER BY max(itime) DESC LIMIT 10';
   my @ids = selectall_array_query($::form, $::form->get_standard_dbh, $query);
 
-  my $objs = SL::DB::Manager::Inventory->get_all(query => [ trans_id => \@ids ]);
+  my $objs;
+  $obj = SL::DB::Manager::Inventory->get_all(query => [ trans_id => \@ids ]) if @ids;
 
   # at most 2 of them belong to a transaction and the qty determins in or out.
   # sort them for display
