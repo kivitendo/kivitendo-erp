@@ -28,6 +28,7 @@ __PACKAGE__->run_before('load_unit_from_form',   only => [ qw(stock_in part_chan
 __PACKAGE__->run_before('load_wh_from_form',     only => [ qw(stock_in warehouse_changed stock) ]);
 __PACKAGE__->run_before('load_bin_from_form',    only => [ qw(stock_in stock) ]);
 __PACKAGE__->run_before('set_target_from_part',  only => [ qw(part_changed) ]);
+__PACKAGE__->run_before('mini_stock',            only => [ qw(stock_in mini_stock) ]);
 __PACKAGE__->run_before('sanitize_target',       only => [ qw(stock_in warehouse_changed part_changed) ]);
 __PACKAGE__->run_before('set_layout');
 
@@ -104,12 +105,8 @@ sub action_warehouse_changed {
 sub action_mini_stock {
   my ($self) = @_;
 
-  my $stock        = $self->part->get_simple_stock;
-  my $stock_by_bin = { map { $_->{bin_id} => $_ } @$stock };
-  my $stock_empty  = ! grep { $_->{sum} * 1 } @$stock;
-
   $self->js
-    ->html('#stock', $self->render('inventory/_stock', { output => 0 }, stock => $stock_by_bin, stock_empty => $stock_empty ))
+    ->html('#stock', $self->render('inventory/_stock', { output => 0 }))
     ->render($self);
 }
 
@@ -222,6 +219,14 @@ sub mini_journal {
   my @sorted = map { $transactions{$_} } @ids;
 
   return \@sorted;
+}
+
+sub mini_stock {
+  my ($self) = @_;
+
+  my $stock             = $self->part->get_simple_stock;
+  $self->{stock_by_bin} = { map { $_->{bin_id} => $_ } @$stock };
+  $self->{stock_empty}  = ! grep { $_->{sum} * 1 } @$stock;
 }
 
 sub show_no_warehouse_error {
