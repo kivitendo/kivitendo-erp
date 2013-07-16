@@ -188,15 +188,21 @@ function open_jqm_window(params) {
 $(document).ready(function () {
   // initialize all jQuery UI tab elements:
   $(".tabwidget").each(function(idx, element) {
-    element = $(element);
-    var cookieName = 'jquery_ui_tab_'+ element.attr('id');
-    element.tabs({
-      active: $.cookie(cookieName),
-      activate: function(event, ui) {
+    var $element = $(element);
+    var tabsParams = {};
+
+    var elementId = $element.attr('id');
+    if( elementId ) {
+      var cookieName = 'jquery_ui_tab_'+ elementId;
+
+      tabsParams.active = $.cookie(cookieName);
+      tabsParams.activate = function(event, ui) {
         var i = ui.newTab.parent().children().index(ui.newTab);
         $.cookie(cookieName, i);
-      },
-    });
+      };
+    }
+
+    $element.tabs(tabsParams);
   });
 
   $('input').focus(function(){
