@@ -88,7 +88,10 @@
         [% L.input_tag('cv.street', SELF.cv.street, size = 35, maxlength = 75) %]
         <span id="billing_map"></span>
         <script type="text/javascript">
-          kivi.CustomerVendor.showMapWidget('cv_', $('#billing_map'));
+          billingMapWidget = new kivi.CustomerVendor.MapWidget('cv_');
+          $(function() {
+            billingMapWidget.render($('#billing_map'));
+          });
         </script>
       </td>
     </tr>

@@ -47,7 +47,10 @@
 
         <span id="shipto_map"></span>
         <script type="text/javascript">
-          var shiptoMapWidget = kivi.CustomerVendor.showMapWidget('shipto_shipto', $('#shipto_map'));
+          shiptoMapWidget = new kivi.CustomerVendor.MapWidget('shipto_shipto');
+          $(function() {
+            shiptoMapWidget.render($('#shipto_map'));
+          });
         </script>
       </td>
     </tr>
