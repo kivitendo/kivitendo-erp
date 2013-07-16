@@ -113,13 +113,6 @@ sub action_mini_stock {
     ->render($self);
 }
 
-sub action_last_journal {
-  my ($self) = @_;
-
-#  my $jounal = $self->journal;
-
-}
-
 #================================================================
 
 sub _check_auth {
