@@ -732,7 +732,7 @@ sub _pre_render {
        WHERE salesman';
     my $business_ids = [
       map(
-        { $_->{id} }
+        { $_->{id}; }
         selectall_hashref_query($::form, $dbh, $query)
       )
     ];
@@ -771,6 +771,7 @@ sub _pre_render {
   $self->{template_args} ||= {};
 
   $::request->{layout}->add_javascripts('autocomplete_customer.js');
+  $::request->{layout}->add_javascripts('kivi.CustomerVendor.js');
 }
 
 1;
