@@ -216,7 +216,7 @@ sub mini_journal {
   my @ids = selectall_array_query($::form, $::form->get_standard_dbh, $query);
 
   my $objs;
-  $obj = SL::DB::Manager::Inventory->get_all(query => [ trans_id => \@ids ]) if @ids;
+  $objs = SL::DB::Manager::Inventory->get_all(query => [ trans_id => \@ids ]) if @ids;
 
   # at most 2 of them belong to a transaction and the qty determins in or out.
   # sort them for display
