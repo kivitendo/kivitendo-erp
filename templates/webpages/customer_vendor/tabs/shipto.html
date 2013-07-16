@@ -16,7 +16,7 @@
              title_key = 'displayable_id',
              with_empty = 1,
              empty_title = LxERP.t8('New shipto'),
-             onchange = "namespace('kivi.CustomerVendor').selectShipto({onFormSet: function(){shiptoMapWidget.testInputs();}});",
+             onchange = "kivi.CustomerVendor.selectShipto({onFormSet: function(){shiptoMapWidget.testInputs();}});",
            )
         %]
       </td>
@@ -47,7 +47,7 @@
 
         <span id="shipto_map"></span>
         <script type="text/javascript">
-          var shiptoMapWidget = namespace('kivi.CustomerVendor').showMapWidget('shipto_shipto', $('#shipto_map'));
+          var shiptoMapWidget = kivi.CustomerVendor.showMapWidget('shipto_shipto', $('#shipto_map'));
         </script>
       </td>
     </tr>

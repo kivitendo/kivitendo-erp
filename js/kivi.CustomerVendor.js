@@ -1,7 +1,5 @@
 namespace('kivi.CustomerVendor', function(ns) {
 
-  var kivi = namespace('kivi');
-
   this.selectShipto = function(params) {
     var shiptoId = $('#shipto_shipto_id').val();
 

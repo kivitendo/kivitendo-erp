@@ -67,7 +67,7 @@
   [%- END %]
 
   [%- IF ( SELF.cv.id ) %]
-    <input type="button" class="submit" onclick="namespace('kivi.CustomerVendor').showHistoryWindow([% SELF.cv.id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
+    <input type="button" class="submit" onclick="kivi.CustomerVendor.showHistoryWindow([% SELF.cv.id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
   [%- END %]
 
 </form>
