@@ -5,7 +5,7 @@
 [%- IF SELF.part.id %]
 <h3>[% LxERP.t8('Stock for part #1', SELF.part.long_description) %]</h3>
 
-[%- IF stock_empty && !SELF.part.bin_id  %]
+[%- IF SELF.stock_empty && !SELF.part.bin_id  %]
 <p>[% 'Nothing stocked yet.' | $T8 %]</p>
 [%- ELSE %]
 <table>
@@ -17,7 +17,7 @@
 [%- FOREACH wh = SELF.warehouses -%]
 [%- FOREACH bin = wh.bins -%]
   [%#- display any bins with stock and default bin -%]
-  [%- SET stock__set = stock.${bin.id} -%]
+  [%- SET stock__set = SELF.stock_by_bin.${bin.id} -%]
   [%- IF stock__set.sum > 0 || SELF.part.bin_id == bin.id -%]
   <tr class='listrow'>
     <td>[% bin.warehouse.description %]</td>
