@@ -159,7 +159,10 @@
         [% L.input_tag('contact.cp_street', SELF.contact.cp_street, size = 40, maxlength = 75) %]
         <span id="contact_map"></span>
         <script type="text/javascript">
-        var contactsMapWidget = kivi.CustomerVendor.showMapWidget('contact_cp_', $('#contact_map'));
+          var contactsMapWidget = new kivi.CustomerVendor.MapWidget('contact_cp_');
+          $(function() {
+            contactsMapWidget.render($('#contact_map'));
+          });
         </script>
       </td>
     </tr>

@@ -84,78 +84,80 @@ namespace('kivi.CustomerVendor', function(ns) {
     '#country'
   ];
 
-  this.showMapWidget = function(prefix, widgetWrapper) {
-    var result = {
-    };
+  this.MapWidget = function(prefix)
+  {
+    var $mapSearchElements = [];
+    var $widgetWrapper;
 
-    $(function(){
+    var init = function() {
+      if( $mapSearchElements.length > 0 )
+        return;
 
-      widgetWrapper = $(widgetWrapper);
-
-      var mapSearchElements = [];
       for(var i in mapSearchStmts) {
         var stmt = mapSearchStmts[i];
         if( stmt.charAt(0) == '#' ) {
-          var elem = $('#'+ prefix + stmt.substring(1));
-          if( elem )
-            mapSearchElements.push(elem);
+          var $elem = $('#'+ prefix + stmt.substring(1));
+          if( $elem )
+            $mapSearchElements.push($elem);
         }
       }
+    };
 
-      var isNotEmpty = function() {
-        for(var i in mapSearchElements)
-          if( mapSearchElements[i].val() == '' )
-            return false;
-        return true;
-      };
+    var isNotEmpty = function() {
+      for(var i in $mapSearchElements)
+        if( $mapSearchElements[i].val() == '' )
+          return false;
+      return true;
+    };
 
-      widgetWrapper
-        .html('<img src="image/map.png" alt="'+ kivi.t8("Map") +'" title="'+ kivi.t8("Map") +'" />')
-        .click(function(){
-          ns.showMap(prefix);
-        });
+    var showMap = function() {
+      var searchString = "";
 
-      var testInputs = function() {
-        if( isNotEmpty() )
-          widgetWrapper.show();
+      for(var i in mapSearchStmts) {
+        var stmt = mapSearchStmts[i];
+        if( stmt.charAt(0) == '#' ) {
+          var val = $('#'+ prefix + stmt.substring(1)).val();
+          if( val )
+            searchString += val;
+        }
         else
-          widgetWrapper.hide();
-      };
-
-      result.testInputs = testInputs;
-
-      $(mapSearchElements)
-        .map(function() {
-          return this.toArray();
-        })
-        .keyup(testInputs)
-
-      if( !isNotEmpty() )
-        widgetWrapper.hide();
-
-    });
-
-    return result;
-  };
-
-  this.showMap = function(prefix) {
-    var searchString = "";
-
-    for(var i in mapSearchStmts) {
-      var stmt = mapSearchStmts[i];
-      if( stmt.charAt(0) == '#' ) {
-        var val = $('#'+ prefix + stmt.substring(1)).val();
-        if( val )
-          searchString += val;
+          searchString += stmt;
       }
+
+      var url = 'https://maps.google.com/maps?q='+ encodeURIComponent(searchString);
+
+      window.open(url, '_blank');
+      window.focus();
+    };
+
+    var render = function(widgetWrapper) {
+      init();
+
+      $widgetWrapper = $(widgetWrapper);
+
+      $widgetWrapper
+        .html('<img src="image/map.png" alt="'+ kivi.t8("Map") +'" title="'+ kivi.t8("Map") +'" />')
+        .click(function() {
+          showMap();
+        });
+      for(var i in $mapSearchElements)
+        $mapSearchElements[i].keyup(function() {
+          testInputs();
+        });
+      this.testInputs();
+    };
+
+    var testInputs = function() {
+      init();
+
+      if( isNotEmpty() )
+        $widgetWrapper.show();
       else
-        searchString += stmt;
-    }
+        $widgetWrapper.hide();
+    };
 
-    var url = 'https://maps.google.com/maps?q='+ encodeURIComponent(searchString);
-
-    window.open(url, '_blank');
-    window.focus();
+    this.render = render;
+    this.testInputs = testInputs;
   };
 
   this.showHistoryWindow = function(id) {
