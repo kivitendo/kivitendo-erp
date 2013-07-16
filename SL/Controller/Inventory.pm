@@ -71,6 +71,7 @@ sub action_stock {
     part_id      => $self->part->id,
     bin_id       => $self->bin->id,
     warehouse_id => $self->warehouse->id,
+    unit_id      => $self->unit->id,
   );
 }
 
