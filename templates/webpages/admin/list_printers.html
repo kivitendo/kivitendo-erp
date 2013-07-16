@@ -10,21 +10,7 @@
  [% LxERP.t8("No clients have been created yet.") %]
 </div>
 
-<div>
- <a href="[% SELF.url_for(action='show') %]">[% LxERP.t8("Back") %]</a>
-</div>
-
 [%- ELSE %]
-
- <div>
-  [% LxERP.t8("Actions") %]:
-  <span class="link_separator"></span>
-  <a href="[% SELF.url_for(action='show') %]">[% LxERP.t8("Back") %]</a>
-  <span class="link_separator">|</span>
-  <a href="[% SELF.url_for(action='new_printer', 'client.id'=SELF.client.id) %]">[% LxERP.t8("Add printer") %]</a>
- </div>
-
- <hr>
 
  <p>
   [% LxERP.t8("Client to configure the printers for") %]:

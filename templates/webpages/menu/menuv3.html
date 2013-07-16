@@ -1,5 +1,6 @@
 [%- USE T8 %]
 [% USE HTML %][%- USE LxERP -%]
+[% UNLESS skip_frame_header %]
  <script type="text/javascript" src="js/quicksearch_input.js"></script>
  <script type="text/javascript">
  <!--
@@ -30,6 +31,7 @@ $(clockon);
   <img src="image/[% IF MYCONFIG.stylesheet == 'lx-office-erp.css' %]spinner-blue.gif[% ELSE %]spinner-white.gif[% END %]" alt="[% LxERP.t8('Loading...') %]">
  </span>
 </div>
+[% END %]
  <div id="menuv3">
 
   [% menu %]
