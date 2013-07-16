@@ -29,7 +29,7 @@ sub new {
 }
 
 sub init_menu {
-  Menu->new('menu.ini');
+  Menu->new('crm/update/menu.ini', 'menu.ini');
 }
 
 sub init_auto_reload_resources_param {
