@@ -12,12 +12,10 @@ sub run {
   my ($self) = @_;
 
   # 1. Überprüfen ob Kontenrahmen SKR04 ist, wenn nicht alles überspringen
-  my ($kontenrahmen) = $self->dbh->selectrow_array("select coa from defaults");
-
-  unless ( $kontenrahmen eq 'Germany-DATEV-SKR04EU' ) {
-    print "Kontenrahmen ist nicht SKR04, &uuml;berspringen<br>";
+  if (!$self->check_coa('Germany-DATEV-SKR04EU')) {
+    print qq|Nichts zu tun in diesem Kontenrahmen.|;
     return 1;
-  };
+  }
 
   # Mandant hat SKR04, erst prüfen wir, ob in der Vergangenheit Buchungen mit
   # taxkey 13 erfolgt sind (Fall "EU ohne USt. ID), diese sind wahrscheinlich

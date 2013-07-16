@@ -371,7 +371,7 @@ sub post_transaction {
         $query =
           qq|INSERT INTO acc_trans (trans_id, chart_id, amount, transdate, fx_transaction, cleared, project_id, taxkey, tax_id, chart_link) | .
           qq|VALUES (?, (SELECT id FROM chart WHERE accno = ?), ?, ?, 't', 'f', ?, | .
-          qq|        (SELECT taxkey_id FROM chart WHERE accno = ?)| .
+          qq|        (SELECT taxkey_id FROM chart WHERE accno = ?),| .
           qq|        (SELECT tax_id| .
           qq|         FROM taxkeys| .
           qq|         WHERE chart_id= (SELECT id | .
@@ -878,4 +878,3 @@ sub storno {
 }
 
 1;
-

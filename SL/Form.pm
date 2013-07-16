@@ -465,7 +465,7 @@ sub header {
   # this should gradually move to the layouts that need it
   $layout->use_stylesheet("$_.css") for qw(
     main menu list_accounts jquery.autocomplete
-    jquery.multiselect2side frame_header/header
+    jquery.multiselect2side
     ui-lightness/jquery-ui
     jquery-ui.custom jqModal
   );
@@ -1401,6 +1401,14 @@ sub get_standard_dbh {
   $main::lxdebug->leave_sub(2);
 
   return $standard_dbh;
+}
+
+sub set_standard_dbh {
+  my ($self, $dbh) = @_;
+  my $old_dbh      = $standard_dbh;
+  $standard_dbh    = $dbh;
+
+  return $old_dbh;
 }
 
 sub date_closed {

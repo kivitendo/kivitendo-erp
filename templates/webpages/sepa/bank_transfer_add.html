@@ -52,7 +52,7 @@
       </td>
       <td>
        [%- IF loop.first || (previous_vcname != invoice.vcname) %]
-        <a href="ct.pl?action=edit&db=[% vc %]&id=[% HTML.url(invoice.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
+        <a href="controller.pl?action=CustomerVendor/edit&db=[% vc %]&id=[% HTML.url(invoice.vc_id) %]&callback=[% HTML.url('sepa.pl?action=bank_transfer_add&vc=' _ vc) %]">
          [%- GET HTML.escape(invoice.vcname);
              SET previous_vcname = invoice.vcname;
              IF !invoice.vc_bank_info_ok;

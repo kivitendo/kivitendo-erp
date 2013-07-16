@@ -150,7 +150,6 @@ sub login {
   $SIG{QUIT} = 'IGNORE';
 
   $self->dbupdate2(form => $form, updater => $dbupdater, database => $::auth->client->{dbname});
-  SL::DBUpgrade2->new(form => $::form, auth => 1)->apply_admin_dbupgrade_scripts(0);
 
   SL::System::InstallationLock->unlock;
 

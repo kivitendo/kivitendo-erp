@@ -17,4 +17,8 @@ sub _sort_spec {
            columns => { SIMPLE => 'ALL' } );
 }
 
+sub get_default {
+  return $_[0]->get_first(where => [ is_default => 1 ]);
+}
+
 1;

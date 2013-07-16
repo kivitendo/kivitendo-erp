@@ -14,14 +14,10 @@
 </div>
 
 <script type='text/javascript'>
-  var timer;
   var pp = kivi.PartPicker($('#[% FORM.real_id %]'));
   $(function(){
     $('#part_picker_filter').focus();
     pp.update_results();
   });
-  $('#part_picker_filter').keypress(function (event){
-    window.clearTimeout(timer);
-    timer = window.setTimeout(pp.update_results, 100);
-  });
+  $('#part_picker_filter').keypress(pp.update_results);
 </script>
