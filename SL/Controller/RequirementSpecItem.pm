@@ -192,9 +192,11 @@ sub action_ajax_create {
   if ($type eq 'section') {
     my $node = $self->presenter->requirement_spec_item_jstree_data($self->item);
     $self->invalidate_version;
-    return $self->render_list($self->item)
+    $self->render_list($self->item)
+      ->hide('#section-list-empty')
       ->jstree->create_node('#tree', $insert_after ? ('#fb-' . $insert_after, 'after') : ('#sections', 'last'), $node)
-      ->jstree->select_node('#tree', '#fb-' . $self->item->id)
+      ->jstree->select_node('#tree', '#fb-' . $self->item->id);
+    return $self->add_new_item_form_after_create
       ->render($self);
   }
 
@@ -210,7 +212,7 @@ sub action_ajax_create {
 
   $self->replace_bottom($self->item->parent) if $type eq 'sub-function-block';
 
-  $self->add_new_item_form_after_create if $type =~ m/function-block/;
+  $self->add_new_item_form_after_create;
 
   $self->invalidate_version->render($self);
 }
@@ -601,13 +603,19 @@ sub add_new_item_form {
 sub add_new_item_form_after_create {
   my ($self, %params) = @_;
 
-  my $created_item = $self->item;
-  $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $created_item->requirement_spec_id, parent_id => $created_item->parent_id, item_type => $created_item->item_type));
+  my $created_item    = $self->item;
+  my $is_section      = $created_item->item_type eq 'section';
+
+  $self->item(SL::DB::RequirementSpecItem->new(
+    requirement_spec_id => $created_item->requirement_spec_id,
+    parent_id           => $is_section ? $created_item->id : $created_item->parent_id,
+    item_type           => $is_section ? 'function-block'  : $created_item->item_type,
+  ));
 
   $self->add_new_item_form(
-    insert_position   => 'insertAfter',
     insert_reference  => $created_item->id,
-    display_reference => '#' . $created_item->item_type . '-' . $created_item->id,
+    insert_position   => $is_section ? 'appendTo'      : 'insertAfter',
+    display_reference => $is_section ? '#section-list' : '#' . $created_item->item_type . '-' . $created_item->id,
   );
 }
 
