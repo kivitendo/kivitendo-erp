@@ -205,6 +205,8 @@ sub action_ajax_create {
 
   $self->replace_bottom($self->item->parent) if $type eq 'sub-function-block';
 
+  $self->add_new_item_form_after_create if $type =~ m/function-block/;
+
   $self->invalidate_version->render($self);
 }
 
@@ -589,6 +591,19 @@ sub add_new_item_form {
   return $self->js
     ->action($params{insert_position}, $html, $params{display_reference})
     ->focus("#${id_base}_description");
+}
+
+sub add_new_item_form_after_create {
+  my ($self, %params) = @_;
+
+  my $created_item = $self->item;
+  $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $created_item->requirement_spec_id, parent_id => $created_item->parent_id, item_type => $created_item->item_type));
+
+  $self->add_new_item_form(
+    insert_position   => 'insertAfter',
+    insert_reference  => $created_item->id,
+    display_reference => '#' . $created_item->item_type . '-' . $created_item->id,
+  );
 }
 
 sub add_function_block {
