@@ -648,9 +648,8 @@ sub add_function_block {
   $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id}, parent_id => $parent_id, item_type => $new_type));
 
   $self->ensure_section_is_shown;
-  $self->add_new_item_form(insert_position => $insert_position, insert_reference => $insert_reference, display_reference => $display_reference);
-
   $self->js->show('#sub-function-block-container-' . $parent_id) if $new_type eq 'sub-function-block';
+  $self->add_new_item_form(insert_position => $insert_position, insert_reference => $insert_reference, display_reference => $display_reference);
 
   $self->js->render($self);
 }
