@@ -551,6 +551,46 @@ sub create_dependencies {
              } @{ $self->item->requirement_spec->sections };
 }
 
+sub ensure_section_is_shown {
+  my ($self, %params) = @_;
+
+  return $self->js if $self->is_item_visible;
+
+  # Show section/item to edit if it is not visible.
+  my $new_section = $self->item->section;
+  my $html        = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $new_section);
+
+  return $self->js
+    ->html('#column-content', $html)
+    ->val('#current_content_type', 'section')
+    ->val('#current_content_id',   $new_section->id)
+    ->jstree->select_node('#tree', '#fb-' . $new_section->id);
+}
+
+sub add_new_item_form {
+  my ($self, %params) = @_;
+
+  for (qw(insert_position display_reference)) {
+    croak "Missing parameter $_" if !$params{$_};
+  }
+  croak "Missing parameter insert_reference" if ($params{insert_position} eq 'insertAfter') && !$params{insert_reference};
+
+  my $id_base = join('_', 'new_function_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  my $html    = $self->render(
+    'requirement_spec_item/_function_block_form',
+    { output => 0 },
+    DEPENDENCIES          => [ $self->create_dependencies ],
+    SELECTED_DEPENDENCIES => [],
+    requirement_spec_item => $self->item,
+    id_base               => $id_base,
+    insert_after          => $params{insert_position} eq 'insertAfter' ? $params{insert_reference} : undef,
+  );
+
+  return $self->js
+    ->action($params{insert_position}, $html, $params{display_reference})
+    ->focus("#${id_base}_description");
+}
+
 sub add_function_block {
   my ($self, $new_type) = @_;
 
@@ -575,36 +615,12 @@ sub add_function_block {
     : $case eq 'sub-function-block:sub-function-block' ? ( 'insertAfter', $clicked_item->id,        $clicked_item->parent_id,         '#sub-function-block-'           )
     :                                                    die "Invalid combination of 'clicked_type (section)/new_type ($new_type)'";
 
+  $display_reference .= $insert_reference if $display_reference =~ m/-$/;
+
   $self->item(SL::DB::RequirementSpecItem->new(requirement_spec_id => $::form->{requirement_spec_id}, parent_id => $parent_id, item_type => $new_type));
 
-  $display_reference .= $insert_reference if $display_reference =~ m/-$/;
-  my $id_base         = join('_', 'new_function_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  my $html            = $self->render(
-    'requirement_spec_item/_function_block_form',
-    { output => 0 },
-    DEPENDENCIES          => [ $self->create_dependencies ],
-    SELECTED_DEPENDENCIES => [],
-    requirement_spec_item => $self->item,
-    id_base               => $id_base,
-    insert_after          => $insert_position eq 'insertAfter' ? $insert_reference : undef,
-  );
-
-  my $new_section = $self->item->section;
-  if (!$self->is_item_visible) {
-    # Show section/item to edit if it is not visible.
-
-    $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $new_section);
-    $self->js
-      ->html('#column-content', $html)
-      ->val('#current_content_type', 'section')
-      ->val('#current_content_id',   $new_section->id)
-      ->jstree->select_node('#tree', '#fb-' . $new_section->id);
-  }
-
-  # $::lxdebug->message(0, "alright! clicked ID " . $::form->{id} . " type $clicked_type new_type $new_type insert_pos $insert_position ref " . ($insert_reference // '<undef>') . " parent $parent_id display_ref $display_reference");
-
-  $self->js->action($insert_position, $html, $display_reference)
-           ->focus("#${id_base}_description");
+  $self->ensure_section_is_shown;
+  $self->add_new_item_form(insert_position => $insert_position, insert_reference => $insert_reference, display_reference => $display_reference);
 
   $self->js->show('#sub-function-block-container-' . $parent_id) if $new_type eq 'sub-function-block';
 
