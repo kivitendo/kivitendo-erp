@@ -29,7 +29,7 @@ sub new {
 }
 
 sub init_menu {
-  Menu->new('crm/update/menu.ini', 'menu.ini');
+  Menu->new('crm/update/menu.ini', 'menus/erp.ini');
 }
 
 sub init_auto_reload_resources_param {
@@ -327,4 +327,3 @@ None yet, if you don't count the horrible stylesheet/javascript interface.
 Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
-
