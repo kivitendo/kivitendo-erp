@@ -34,7 +34,7 @@ my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
 my @progdirs     = ( "$basedir/SL" );
-my @menufiles    = ("${basedir}/menu.ini", "${basedir}/admin-menu.ini");
+my @menufiles    = <${basedir}/menus/*.ini>;
 my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages');
 my $javascript_output_dir = $basedir .'/js';
 my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
