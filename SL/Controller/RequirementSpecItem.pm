@@ -84,16 +84,17 @@ sub action_dragged_and_dropped {
   my $old_visible_section = $self->visible_section ? $self->visible_section : undef;
   my $old_parent_id       = $self->item->parent_id;
   my $old_type            = $self->item->item_type;
+  my $new_type            = $position =~ m/before|after/ ? $dropped_item->item_type : $dropped_item->child_type;
 
   $self->item->db->do_transaction(sub {
     $self->item->remove_from_list;
     $self->item->parent_id($position =~ m/before|after/ ? $dropped_item->parent_id : $dropped_item->id);
+    $self->item->item_type($new_type);
     $self->item->add_to_list(position => $position, reference => $::form->{dropped_id} || undef);
   });
 
   $self->item(SL::DB::RequirementSpecItem->new(id => $self->item->id)->load);
   my $new_section         = $self->item->section;
-  my $new_type            = $self->item->item_type;
   my $new_visible_section = SL::DB::RequirementSpecItem->new(id => $self->visible_item->id)->load->section;
 
   return $self->invalidate_version->render($self) if !$old_visible_section || ($new_type eq 'section');
@@ -103,8 +104,12 @@ sub action_dragged_and_dropped {
   my $old_parent  = SL::DB::RequirementSpecItem->new(id => $old_parent_id)->load;
   my $old_section = $old_parent->section;
 
+  # Section debug info:
   # $::lxdebug->message(0, "old sec ID " . $old_section->id . " new " . $new_section->id . " old visible " . $old_visible_section->id . " new visible " . $new_visible_section->id
   #                       . " PARENT: old " . $old_parent->id . " new " . $self->item->parent_id . '/' . $self->item->parent->id);
+
+  # Item debug info:
+  # $::lxdebug->message(0, 'item id: ' . $self->item->id . " new type: $new_type old type: $old_type #old children: " . scalar(@{ $old_parent->children }));
 
   if ($old_visible_section->id != $new_visible_section->id) {
     # The currently visible item has been dragged to a different section.
