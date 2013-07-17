@@ -829,6 +829,22 @@ sub generate_report {
   # filter stuff
   map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
 
+  # show filter stuff also in report
+  my @options;
+  # dispatch all options
+  my $dispatch_options = {
+   partnumber     => sub { push @options, $locale->text('Partnumber') . " : $form->{partnumber}"},
+   description    => sub { push @options, $locale->text('Description') . " : $form->{description}"},
+   chargenumber   => sub { push @options, $locale->text('Charge Number') . " : $form->{chargenumber}"},
+   bestbefore     => sub { push @options, $locale->text('Best Before') . " : $form->{bestbefore}"},
+   date           => sub { push @options, $locale->text('Date') . " : $form->{date}"},
+   include_invalid_warehouses    => sub { push @options, $locale->text('Include invalid warehouses ')},
+  };
+  foreach (keys %filter) {
+    defined $dispatch_options->{$_}  && $dispatch_options->{$_}->();
+  }
+  # / end show filter stuff also in report
+
   $filter{qty_op} = WH->convert_qty_op($form->{qty_op});
   if ($filter{qty_op}) {
     $form->isblank("qty",      $locale->text('Quantity missing.'));
@@ -872,7 +888,8 @@ sub generate_report {
 
   $report->set_sort_indicator($sort_col, $form->{order});
 
-  $report->set_options('output_format'        => 'HTML',
+  $report->set_options('top_info_text'        => join("\n", @options),
+                       'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => strftime($locale->text('warehouse_report_list') . '_%Y%m%d', localtime time));
   $report->set_options_from_form();

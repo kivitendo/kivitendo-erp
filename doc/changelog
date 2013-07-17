@@ -54,6 +54,8 @@ Kleinere neue Features und Detailverbesserungen:
 - Offene Forderungen / Verbindlichkeiten
   Stichtagsbezogene Auswahl korrekt mit Fälligkeit verrechnet
 
+- Lagerbestand anzeigen, zeigt auch die Filteroptionen an
+
 - #1897 implementiert. Zukunfts-Buchungen verhindern, durch einen konfigurierbaren
   maximalen Zeitraum in dem in die Zukunft gebucht werden darf (default 360 Tage)
 
