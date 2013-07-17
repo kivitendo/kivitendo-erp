@@ -69,7 +69,7 @@ sub action_ajax_add {
     $self->js->html('#column-content', $html);
   }
 
-  $self->add_new_text_block_form(output_position => $new_where, insert_after_id => $::form->{id});
+  $self->add_new_text_block_form(output_position => $new_where, insert_after_id => $::form->{id}, requirement_spec_id => $::form->{requirement_spec_id});
 
   $self->invalidate_version->render($self);
 }
@@ -117,7 +117,8 @@ sub action_ajax_create {
   $self->invalidate_version
     ->replaceWith('#' . $::form->{form_prefix} . '_form', $html)
     ->jstree->create_node('#tree', $insert_after ? ('#tb-' . $insert_after, 'after') : ('#tb-' . ($attributes->{output_position} == 0 ? 'front' : 'back'), 'last'), $node)
-    ->jstree->select_node('#tree', '#tb-' . $self->text_block->id)
+    ->jstree->select_node('#tree', '#tb-' . $self->text_block->id);
+  $self->add_new_text_block_form(output_position => $self->text_block->output_position, insert_after_id => $self->text_block->id, requirement_spec_id => $self->text_block->requirement_spec_id)
     ->render($self);
 }
 
@@ -324,10 +325,11 @@ sub invalidate_version {
 sub add_new_text_block_form {
   my ($self, %params) = @_;
 
-  croak "Missing parameter output_position" unless defined($params{output_position}) && ($params{output_position} ne '');
+  croak "Missing parameter output_position"     unless defined($params{output_position}) && ($params{output_position} ne '');
+  croak "Missing parameter requirement_spec_id" unless $params{requirement_spec_id};
 
   $self->text_block(SL::DB::RequirementSpecTextBlock->new(
-    requirement_spec_id => $::form->{requirement_spec_id},
+    requirement_spec_id => $params{requirement_spec_id},
     output_position     => $params{output_position},
   ));
 
