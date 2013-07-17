@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use Carp;
 use Time::HiRes ();
 
 use SL::ClientJS;
@@ -68,18 +69,9 @@ sub action_ajax_add {
     $self->js->html('#column-content', $html);
   }
 
-  $self->text_block(SL::DB::RequirementSpecTextBlock->new(
-    requirement_spec_id => $::form->{requirement_spec_id},
-    output_position     => $::form->{output_position},
-  ));
+  $self->add_new_text_block_form(output_position => $new_where, insert_after_id => $::form->{id});
 
-  my $id_base = join('_', 'new_text_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
-  my $html    = $self->render('requirement_spec_text_block/_form', { output => 0 }, id_base => $id_base, insert_after => $::form->{id});
-
-  $self->invalidate_version
-     ->action($::form->{id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($::form->{id} || 'list'))
-     ->focus('#' . $id_base . '_title')
-     ->render($self);
+  $self->invalidate_version->render($self);
 }
 
 sub action_ajax_edit {
@@ -327,6 +319,24 @@ sub invalidate_version {
   my $html   = $self->render('requirement_spec/_version', { output => 0 },
                              requirement_spec => SL::DB::RequirementSpec->new(id => $::form->{requirement_spec_id} || $self->text_block->requirement_spec_id)->load);
   return $self->js->html('#requirement_spec_version', $html);
+}
+
+sub add_new_text_block_form {
+  my ($self, %params) = @_;
+
+  croak "Missing parameter output_position" unless defined($params{output_position}) && ($params{output_position} ne '');
+
+  $self->text_block(SL::DB::RequirementSpecTextBlock->new(
+    requirement_spec_id => $::form->{requirement_spec_id},
+    output_position     => $params{output_position},
+  ));
+
+  my $id_base = join('_', 'new_text_block', Time::HiRes::gettimeofday(), int rand 1000000000000);
+  my $html    = $self->render('requirement_spec_text_block/_form', { output => 0 }, id_base => $id_base, insert_after => $params{insert_after_id});
+
+  $self->js
+     ->action($params{insert_after_id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($params{insert_after_id} || 'list'))
+     ->focus('#' . $id_base . '_title');
 }
 
 1;
