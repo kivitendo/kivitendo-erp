@@ -1,0 +1,51 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]<h1>[% HTML.escape(title) %]</h1>
+
+<form action="controller.pl" method="post">
+[%- L.hidden_tag("id", SELF.config.id) %]
+
+<table>
+  <tr>
+    <th align="right">[% 'Description' | $T8 %]</th>
+    <td>[%- L.input_tag("config.description", SELF.config.description) %]</td>
+  </tr>
+[%- FOREACH bg = BUCHUNGSGRUPPEN %]
+  <tr>
+    <th align="right">[% 'Revenue' | $T8 %] [% HTML.escape(bg.description) %]</th>
+    [%- IF SELF.config.id %]
+    <td>[% CHARTLIST.${bg.id}.income_accno %] -- [% CHARTLIST.${bg.id}.income_accno_description %]</td>
+    [%- ELSE %]
+    <td>[%- L.select_tag('income_accno_id_' _ bg.id, ACCOUNTS.ic_income, title_sub=\account_label, default=CHARTLIST.${bg.id}.income_accno_id) %]</td>
+    [%- END %]
+  </tr>
+  <tr>
+    <th align="right">[% 'Expense' | $T8 %] [% HTML.escape(bg.description) %]</th>
+    [%- IF SELF.config.id %]
+    <td>[% CHARTLIST.${bg.id}.expense_accno %] -- [% CHARTLIST.${bg.id}.expense_accno_description %]</td>
+    [%- ELSE %]
+    <td>[%- L.select_tag('expense_accno_id_' _ bg.id, ACCOUNTS.ic_expense, title_sub=\account_label, default=CHARTLIST.${bg.id}.expense_accno_id) %]</td>
+    [%- END %]
+  </tr>
+[%- END %]
+</table>
+
+ <p>
+  [% L.hidden_tag("action", "Taxzones/dispatch") %]
+  [% L.submit_tag("action_" _  (SELF.config.id ? "update" : "create"), LxERP.t8('Save'), onclick="return check_prerequisites();") %]
+  <a href="[% SELF.url_for(action='list') %]">[%- LxERP.t8("Cancel") %]</a>
+ </p>
+
+ <hr>
+
+<script type="text/javascript">
+<!--
+function check_prerequisites() {
+  if ($('#config_description').val() === "") {
+    alert(kivi.t8('The description is missing.'));
+    return false;
+  }
+
+  return true;
+}
+-->
+</script>
+</form>

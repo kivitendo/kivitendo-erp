@@ -9,6 +9,7 @@ use List::Util qw(first);
 use SL::DB::CustomVariableConfig;
 use SL::Helper::Flash;
 use SL::Locale::String;
+use Data::Dumper;
 
 use Rose::Object::MakeMethods::Generic (
   scalar                  => [ qw(config module module_description flags) ],

@@ -4,6 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::Buchungsgruppe;
 use SL::DB::Manager::Buchungsgruppe;
+use SL::DB::Helper::ActsAsList;
 
 __PACKAGE__->meta->add_relationship(
   inventory_account => {
@@ -15,6 +16,26 @@ __PACKAGE__->meta->add_relationship(
 
 __PACKAGE__->meta->initialize;
 
+sub validate {
+  my ($self) = @_;
+
+  my @errors;
+  push @errors, $::locale->text('The description is missing.') if !$self->description;
+
+  return @errors;
+}
+
+sub inventory_accno {
+  my ($self) = @_;
+  require SL::DB::Manager::Chart;
+  return SL::DB::Manager::Chart->find_by(id => $self->inventory_accno_id) ? SL::DB::Manager::Chart->find_by(id => $self->inventory_accno_id)->accno() : undef;
+}
+
+sub inventory_accno_description {
+  my ($self) = @_;
+  require SL::DB::Manager::Chart;
+  return SL::DB::Manager::Chart->find_by(id => $self->inventory_accno_id) ? SL::DB::Manager::Chart->find_by(id => $self->inventory_accno_id)->description() : undef;
+}
 
 sub income_accno_id {
   my ($self, $taxzone) = @_;
@@ -42,6 +63,11 @@ sub expense_account {
   my $taxzone_id       = ref $taxzone && $taxzone->isa('SL::DB::TaxZone') ? $taxzone->id : $taxzone;
   my $taxzone_chart = SL::DB::Manager::TaxzoneChart->find_by(taxzone_id => $taxzone_id, buchungsgruppen_id => $self->id);
   return $taxzone_chart->expense_accno if $taxzone_chart;
+}
+
+sub taxzonecharts {
+  my ($self) = @_;
+  return SL::DB::Manager::TaxzoneChart->get_all(where => [ buchungsgruppen_id => $self->id ]);
 }
 
 1;

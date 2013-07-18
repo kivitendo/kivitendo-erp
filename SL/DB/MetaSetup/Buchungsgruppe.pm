@@ -10,6 +10,7 @@ __PACKAGE__->meta->table('buchungsgruppen');
 
 __PACKAGE__->meta->columns(
   description        => { type => 'text' },
+  id                 => { type => 'integer', not_null => 1, sequence => 'id' },
   inventory_accno_id => { type => 'integer' },
   sortkey            => { type => 'integer', not_null => 1 },
 );
