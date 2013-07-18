@@ -226,7 +226,8 @@ sub action_ajax_edit {
     # Show section/item to edit if it is not visible.
 
     my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item->section);
-    $self->js->html('#column-content', $html);
+    $self->set_function_blocks_tab_menu_class(class => 'section-context-menu')
+      ->html('#column-content', $html);
   }
 
   if ($self->item->item_type =~ m/section/) {
@@ -329,7 +330,7 @@ sub action_ajax_delete {
 
     } else {
       my $html = $self->render('requirement_spec_item/_no_section', { output => 0 });
-      $self->js
+      $self->set_function_blocks_tab_menu_class(class => 'section-context-menu')
         ->html('#column-content',      $html)
         ->val('#current_content_type', '')
         ->val('#current_content_id',   '')
@@ -466,8 +467,9 @@ sub action_ajax_paste {
   # Pasting the very first section?
   if (!@{ $self->sections }) {
     my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->item);
-    $self->js->html('#column-content', $html)
-             ->jstree->select_node('#tree', '#fb-' . $self->item->id)
+    $self->set_function_blocks_tab_menu_class(class => 'section-context-menu')
+         ->html('#column-content', $html)
+         ->jstree->select_node('#tree', '#fb-' . $self->item->id)
   }
 
   # Update the current view if required.
@@ -532,7 +534,8 @@ sub render_list {
   my ($self, $item, $item_to_select) = @_;
 
   my $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $item);
-  $self->js->html('#column-content', $html);
+  $self->set_function_blocks_tab_menu_class(class => 'section-context-menu')
+       ->html('#column-content', $html);
   $self->select_node($item_to_select || $item);
 }
 
@@ -569,7 +572,7 @@ sub ensure_section_is_shown {
   my $new_section = $self->item->section;
   my $html        = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $new_section);
 
-  return $self->js
+  return $self->set_function_blocks_tab_menu_class(class => 'section-context-menu')
     ->html('#column-content', $html)
     ->val('#current_content_type', 'section')
     ->val('#current_content_id',   $new_section->id)

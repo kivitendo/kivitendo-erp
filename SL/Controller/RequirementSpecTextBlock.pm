@@ -10,6 +10,7 @@ use Time::HiRes ();
 
 use SL::ClientJS;
 use SL::Clipboard;
+use SL::Controller::Helper::RequirementSpec;
 use SL::DB::RequirementSpec;
 use SL::DB::RequirementSpecPredefinedText;
 use SL::DB::RequirementSpecTextBlock;
@@ -337,7 +338,7 @@ sub show_list {
      ->val('#current_content_id',   $params{id});
   }
 
-  return $self->js;
+  return $self->set_function_blocks_tab_menu_class(class => 'text-block-context-menu');
 }
 
 1;
