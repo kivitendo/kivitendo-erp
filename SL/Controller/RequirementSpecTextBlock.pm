@@ -5,6 +5,7 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use Carp;
+use Params::Validate ();
 use Time::HiRes ();
 
 use SL::ClientJS;
@@ -43,15 +44,7 @@ sub action_ajax_list {
 
   # $::lxdebug->message(0, "cur $current_where new $new_where");
 
-  if (!defined($current_where) || ($new_where != $current_where)) {
-    my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where, requirement_spec_id => $::form->{requirement_spec_id} ]);
-    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
-
-    $self->js
-       ->html('#column-content', $html)
-       ->val('#current_content_type', 'text-blocks-' . (0 == $new_where ? 'front' : 'back'))
-       ->val('#current_content_id',   $::form->{clicked_id});
-  }
+  $self->show_list(output_position => $new_where, id => $::form->{clicked_id}) if ($new_where != ($current_where // -1));
 
   $self->render($self->js);
 }
@@ -62,12 +55,7 @@ sub action_ajax_add {
   my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
   my $new_where     = $self->output_position_from_id($::form->{id})                                                  // $::form->{output_position};
 
-  if ($new_where != $current_where) {
-    my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where, requirement_spec_id => $::form->{requirement_spec_id} ]);
-    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
-
-    $self->js->html('#column-content', $html);
-  }
+  $self->show_list(output_position => $new_where) if $new_where != $current_where;
 
   $self->add_new_text_block_form(output_position => $new_where, insert_after_id => $::form->{id}, requirement_spec_id => $::form->{requirement_spec_id});
 
@@ -78,14 +66,9 @@ sub action_ajax_edit {
   my ($self) = @_;
 
   my $current_where = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type}) // -1;
-  if ($self->text_block->output_position != $current_where) {
-    my $text_blocks = $self->text_block->get_full_list;
-    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $self->text_block->output_position);
 
-    $self->js
-       ->html('#column-content', $html)
-       ->val('#current_content_type', 'text-block')
-       ->val('#current_content_id',   $self->text_block->id);
+  if ($self->text_block->output_position != $current_where) {
+    $self->show_list(output_position => $self->text_block->output_position, id => $self->text_block->id, requirement_spec_id => $self->text_block->requirement_spec_id);
   }
 
   my $html = $self->render('requirement_spec_text_block/_form', { output => 0 });
@@ -209,12 +192,7 @@ sub action_dragged_and_dropped {
   if (($old_where != $new_where) && ($::form->{current_content_id} == $self->text_block->id)) {
     # The currently selected text block is dragged to the opposite
     # text block location. Re-render the whole content column.
-    my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $new_where ]);
-    my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $new_where);
-
-    $self->js
-       ->val('#current_content_type', 'text-blocks-' . ($new_where == 0 ? 'front' : 'back'))
-       ->html('#column-content', $html);
+    $self->show_list(output_position => $new_where, id => $id);
 
   } else {
     if ($old_where == $current_where) {
@@ -339,6 +317,27 @@ sub add_new_text_block_form {
   $self->js
      ->action($params{insert_after_id} ? 'insertAfter' : 'appendTo', $html, '#text-block-' . ($params{insert_after_id} || 'list'))
      ->focus('#' . $id_base . '_title');
+}
+
+sub show_list {
+  my $self   = shift;
+  my %params = Params::Validate::validate(@_, { output_position => 1, id => 0, requirement_spec_id => 0, });
+
+  $params{requirement_spec_id} ||= $::form->{requirement_spec_id};
+  croak "Unknown requirement_spec_id" if !$params{requirement_spec_id};
+
+  my $text_blocks = SL::DB::Manager::RequirementSpecTextBlock->get_all_sorted(where => [ output_position => $params{output_position}, requirement_spec_id => $params{requirement_spec_id} ]);
+  my $html        = $self->render('requirement_spec_text_block/ajax_list', { output => 0 }, TEXT_BLOCKS => $text_blocks, output_position => $params{output_position});
+
+  $self->js->html('#column-content', $html);
+
+  if ($params{id}) {
+    $self->js
+     ->val('#current_content_type', 'text-blocks-' . (0 == $params{output_position} ? 'front' : 'back'))
+     ->val('#current_content_id',   $params{id});
+  }
+
+  return $self->js;
 }
 
 1;
