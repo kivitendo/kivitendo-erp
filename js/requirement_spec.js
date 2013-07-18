@@ -218,9 +218,7 @@ ns.disable_edit_item_commands = function(key, opt) {
 };
 
 ns.disable_add_function_block_command = function(key, opt) {
-  if (ns.find_item_id(opt.$trigger))
-    return false;
-  return opt.$trigger.attr('id') != "section-list-empty";
+  return opt.$trigger.attr('id') == "sections";
 };
 
 ns.cancel_edit_item_form = function(form_id_base, options) {
