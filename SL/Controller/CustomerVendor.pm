@@ -682,7 +682,7 @@ sub _create_customer_vendor {
 sub _pre_render {
   my ($self) = @_;
 
-  $self->{template_args}->{conf_vertreter} = $::instance_conf->get_vertreter();
+  $self->{template_args}->{instance_conf} = $::instance_conf;
 
   my $dbh = $::form->get_standard_dbh();
 
