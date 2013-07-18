@@ -270,7 +270,7 @@ sub list_names {
       $previous_id = $ref->{id};
       map { $row->{$_}->{data} = $ref->{$_} } @columns;
 
-      $row->{name}->{link}  = build_std_url('action=edit', 'id=' . E($ref->{id}), 'callback', @hidden_nondefault);
+      $row->{name}->{link}  = build_std_url('script=controller.pl', 'action=CustomerVendor/edit', 'id=' . E($ref->{id}), 'callback', @hidden_nondefault);
       $row->{email}->{link} = 'mailto:' . E($ref->{email});
     }
 

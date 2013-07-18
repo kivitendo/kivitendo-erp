@@ -4,7 +4,6 @@
 package SL::DB::CustomVariable;
 
 use strict;
-
 use SL::DB::MetaSetup::CustomVariable;
 
 __PACKAGE__->meta->initialize;
@@ -19,7 +18,27 @@ sub value {
   goto &bool_value      if $type eq 'boolean';
   goto &timestamp_value if $type eq 'timestamp';
   goto &number_value    if $type eq 'number';
+  if ( $type eq 'customer' ) {
+    if ( defined($_[1]) && $_[1] ) {
+      goto &number_value;
+    }
+    else {
+      require SL::DB::Customer;
+
+      my $id = int($self->number_value);
+      return $id ? SL::DB::Customer->new(id => $id)->load() : 0;
+    }
+  }
   goto &text_value; # text and select
+}
+
+sub is_valid {
+  my ($self) = @_;
+
+  require SL::DB::CustomVariableValidity;
+
+  my $query = [config_id => $self->config_id, trans_id => $self->trans_id];
+  return SL::DB::Manager::CustomVariableValidity->get_all_count(query => $query) == 0;
 }
 
 1;

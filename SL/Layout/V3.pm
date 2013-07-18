@@ -146,7 +146,7 @@ sub use_javascript {
 }
 
 sub pre_content {
-  &render;
+  $_[0]->render;
 }
 
 sub start_content {

@@ -129,6 +129,19 @@ sub _redirect_to_main_script_if_already_logged_in {
   my %user = $::auth->read_user(login => $login);
   return if ($user{login} || '') ne $login;
 
+  # Check if there's a client set in the session -- and whether or not
+  # the user still has access to the client.
+  my $client_id = $::auth->get_session_value('client_id');
+  return if !$client_id;
+
+  if (!$::auth->set_client($client_id)) {
+    $::auth->punish_wrong_login;
+    $::auth->destroy_session;
+    $::auth->create_or_refresh_session;
+    $self->show_login_form(error => t8('Incorrect username or password or no access to selected client!'));
+    return 1;
+  }
+
   # Check if the session is logged in correctly.
   return if SL::Auth::OK() != $::auth->authenticate($login, undef);
 

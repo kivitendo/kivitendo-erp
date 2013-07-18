@@ -4,10 +4,11 @@ use strict;
 
 use Carp;
 use SL::DBUtils ();
+use SL::System::Process;
 
 use parent qw(Rose::Object);
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(data currencies default_currency _table_currencies_exists) ],
+  'scalar --get_set_init' => [ qw(data currencies default_currency _table_currencies_exists crm_installed) ],
 );
 
 sub init_data {
@@ -32,6 +33,10 @@ sub init_default_currency {
 
   return undef if !$self->_table_currencies_exists || !$self->data->{currency_id};
   return (SL::DBUtils::selectfirst_array_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies WHERE id = ?|, $self->data->{currency_id}))[0];
+}
+
+sub crm_installed {
+  return -f (SL::System::Process->exe_dir . '/crm/Changelog');
 }
 
 sub reload {
@@ -93,9 +98,9 @@ C<$::instance_conf>.
 
 Creates a new instance. Does not read the configuration.
 
-=item C<init>
+=item C<crm_installed>
 
-Reads the configuration from the database. Returns C<$self>.
+Returns trueish if the CRM component is installed.
 
 =item C<get_currencies>
 

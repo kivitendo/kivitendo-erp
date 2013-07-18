@@ -378,16 +378,13 @@ sub action_delete_printer {
 # actions: database administration
 #
 
-sub action_database_administration {
+sub action_create_dataset_login {
   my ($self) = @_;
 
-  $::form->{dbhost}    ||= $::auth->{DB_config}->{host} || 'localhost';
-  $::form->{dbport}    ||= $::auth->{DB_config}->{port} || 5432;
-  $::form->{dbuser}    ||= $::auth->{DB_config}->{user} || 'kivitendo';
-  $::form->{dbpasswd}  ||= $::auth->{DB_config}->{password};
-  $::form->{dbdefault} ||= 'template1';
-
-  $self->render('admin/dbadmin', title => t8('Database Administration'));
+  $self->database_administration_login_form(
+    title       => t8('Create Dataset'),
+    next_action => 'create_dataset',
+  );
 }
 
 sub action_create_dataset {
@@ -412,6 +409,15 @@ sub action_do_create_dataset {
 
   flash_later('info', t8("The dataset #1 has been created.", $::form->{db}));
   $self->redirect_to(action => 'database_administration');
+}
+
+sub action_delete_dataset_login {
+  my ($self) = @_;
+
+  $self->database_administration_login_form(
+    title       => t8('Delete Dataset'),
+    next_action => 'delete_dataset',
+  );
 }
 
 sub action_delete_dataset {
@@ -440,6 +446,15 @@ sub action_do_delete_dataset {
 # actions: locking, unlocking
 #
 
+sub action_show_lock {
+  my ($self) = @_;
+
+  $self->render(
+    "admin/show_lock",
+    title => "kivitendo " . t8('Administration'),
+  );
+}
+
 sub action_unlock_system {
   my ($self) = @_;
 
@@ -451,7 +466,7 @@ sub action_unlock_system {
 sub action_lock_system {
   my ($self) = @_;
 
-  SL::System::InstallationLock->unlock;
+  SL::System::InstallationLock->lock;
   flash_later('info', t8('Lockfile created!'));
   $self->redirect_to(action => 'show');
 }
@@ -532,7 +547,6 @@ sub setup_layout {
   my ($self, $action) = @_;
 
   $::request->layout(SL::Layout::Dispatcher->new(style => 'admin'));
-  $::request->layout->use_stylesheet("lx-office-erp.css");
   $::form->{favicon} = "favicon.ico";
   %::myconfig        = (
     countrycode      => 'de',
@@ -544,10 +558,9 @@ sub setup_layout {
 sub setup_client {
   my ($self) = @_;
 
-  $self->client((first { $_->is_default } @{ $self->all_clients }) || $self->all_clients->[0]) if !$self->client;
+  $self->client(SL::DB::Manager::AuthClient->get_default || $self->all_clients->[0]) if !$self->client;
   $::auth->set_client($self->client->id);
 }
-
 
 #
 # displaying forms
@@ -563,6 +576,7 @@ sub use_multiselect_js {
 sub login_form {
   my ($self, %params) = @_;
   my $version         = $::form->read_version;
+  $::request->layout->no_menu(1);
   $self->render('admin/adminlogin', title => t8('kivitendo v#1 administration', $version), %params, version => $version);
 }
 
@@ -584,6 +598,20 @@ sub edit_group_form {
 sub edit_printer_form {
   my ($self, %params) = @_;
   $self->render('admin/edit_printer', %params);
+}
+
+sub database_administration_login_form {
+  my ($self, %params) = @_;
+
+  $self->render(
+    'admin/dbadmin',
+    dbhost    => $::form->{dbhost}    || $::auth->{DB_config}->{host} || 'localhost',
+    dbport    => $::form->{dbport}    || $::auth->{DB_config}->{port} || 5432,
+    dbuser    => $::form->{dbuser}    || $::auth->{DB_config}->{user} || 'kivitendo',
+    dbpasswd  => $::form->{dbpasswd}  || $::auth->{DB_config}->{password},
+    dbdefault => $::form->{dbdefault} || 'template1',
+    %params,
+  );
 }
 
 sub create_dataset_form {

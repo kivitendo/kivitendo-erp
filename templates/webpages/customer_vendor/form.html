@@ -1,0 +1,105 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE L %]
+
+[% cv_cvars = SELF.cv.cvars_by_config %]
+
+<form method="post" action="controller.pl">
+  <div class="listtop">[% FORM.title %]</div>
+
+  [% L.hidden_tag('db', FORM.db) %]
+  [% L.hidden_tag('callback', FORM.callback) %]
+  [% L.hidden_tag('cv.id', SELF.cv.id) %]
+
+  [%- INCLUDE 'common/flash.html' %]
+
+  <div class="tabwidget" id="customer_vendor_tabs">
+    <ul>
+      <li><a href="#billing">[% 'Billing Address' | $T8 %]</a></li>
+      <li><a href="#shipto">[% 'Shipping Address' | $T8 %]</a></li>
+      <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
+      [% IF ( SELF.cv.id ) %]
+        <li><a href="#deliveries">[% 'Supplies' | $T8 %]</a></li>
+      [% END %]
+      <li><a href="#vcnotes">[% 'Notes' | $T8 %]</a></li>
+
+      [% IF ( cv_cvars.size ) %]
+        <li><a href="#custom_variables">[% 'Custom Variables' | $T8 %]</a></li>
+      [% END %]
+    </ul>
+
+    [% PROCESS "customer_vendor/tabs/billing.html" %]
+    [% PROCESS "customer_vendor/tabs/shipto.html" %]
+    [% PROCESS "customer_vendor/tabs/contacts.html" %]
+    [% IF ( SELF.cv.id ) %]
+      [% PROCESS "customer_vendor/tabs/deliveries.html" %]
+    [% END %]
+    [% PROCESS "customer_vendor/tabs/vcnotes.html" %]
+    [% IF ( cv_cvars.size ) %]
+      [% PROCESS "customer_vendor/tabs/custom_variables.html" %]
+    [% END %]
+  </div>
+
+  <br>
+
+  [% L.hidden_tag('action', 'CustomerVendor/dispatch') %]
+
+  [% L.submit_tag('action_save', LxERP.t8('Save'), onclick = "return check_taxzone_and_ustid()", accesskey = "s") %]
+  [% L.submit_tag('action_save_and_close', LxERP.t8('Save and Close'), onclick = "return check_taxzone_and_ustid()") %]
+
+  [%- IF ( SELF.is_vendor ) %]
+    [% L.submit_tag('action_save_and_ap_transaction', LxERP.t8('Save and AP Transaction'), onclick = "return check_taxzone_and_ustid()") %]
+  [%- ELSE %]
+    [% L.submit_tag('action_save_and_ar_transaction', LxERP.t8('Save and AR Transaction'), onclick = "return check_taxzone_and_ustid()") %]
+  [%- END %]
+
+  [% L.submit_tag('action_save_and_invoice', LxERP.t8('Save and Invoice'), onclick = "return check_taxzone_and_ustid()") %]
+  [% L.submit_tag('action_save_and_order', LxERP.t8('Save and Order'), onclick = "return check_taxzone_and_ustid()") %]
+
+  [%- IF ( SELF.is_vendor ) %]
+    [% L.submit_tag('action_save_and_rfq', LxERP.t8('Save and RFQ'), onclick = "return check_taxzone_and_ustid()") %]
+  [%- ELSE %]
+    [% L.submit_tag('action_save_and_quotation', LxERP.t8('Save and Quotation'), onclick = "return check_taxzone_and_ustid()") %]
+  [%- END %]
+
+  [%- IF ( SELF.cv.id && SELF.is_orphaned ) %]
+    [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm => LxERP.t8('Do you really want to delete this object?')) %]
+  [%- END %]
+
+  [%- IF ( SELF.cv.id ) %]
+    <input type="button" class="submit" onclick="kivi.CustomerVendor.showHistoryWindow([% SELF.cv.id %]);" name="history" id="history" value="[% 'history' | $T8 %]">
+  [%- END %]
+
+</form>
+
+<script type="text/javascript">
+<!--
+  function submitInputButton(button)
+  {
+    var hidden = document.createElement("input");
+    hidden.setAttribute("type", "hidden");
+
+    if ( button.hasAttribute("name") )
+      hidden.setAttribute("name", button.getAttribute("name"));
+
+    if ( button.hasAttribute("value") )
+      hidden.setAttribute("value", button.getAttribute("value"));
+
+
+    button.form.appendChild(hidden);
+
+    button.disabled = true;
+
+    button.form.submit();
+  }
+
+  function check_taxzone_and_ustid() {
+    if ( ($('#cv_taxzone_id').val() == '1') && ($('#cv_ustid').val() == '') ) {
+      alert('[% LxERP.t8('Please enter the sales tax identification number.') %]');
+      return false;
+    }
+    return true;
+  }
+-->
+</script>
+
