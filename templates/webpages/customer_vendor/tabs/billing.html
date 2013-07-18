@@ -8,7 +8,7 @@
 
     <tr height="5"></tr>
 
-    [% IF ( instance_conf.get_vertreter ) %]
+    [% IF ( INSTANCE_CONF.get_vertreter ) %]
       <tr>
         <th align="right">
           [% IF SELF.is_vendor() %]
@@ -292,7 +292,7 @@
     </tr>
 
     <tr>
-      [% IF ( !instance_conf.get_vertreter ) %]
+      [% IF ( !INSTANCE_CONF.get_vertreter ) %]
         <th align="right">
           [% IF ( SELF.is_vendor() ) %]
             [% 'Type of Vendor' | $T8 %]
@@ -349,7 +349,7 @@
       </td>
 
 
-      [% IF ( SELF.is_customer() && !instance_conf.get_vertreter ) %]
+      [% IF ( SELF.is_customer() && !INSTANCE_CONF.get_vertreter ) %]
         <th align="right">[% 'Salesman' | $T8 %]</th>
 
         <td>
