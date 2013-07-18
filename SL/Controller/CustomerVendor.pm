@@ -668,6 +668,7 @@ sub _create_customer_vendor {
   } else {
     $self->{cv} = SL::DB::Customer->new();
   }
+  $self->{cv}->currency_id($::instance_conf->get_currency_id());
 
   $self->{note} = SL::DB::Note->new();
 
