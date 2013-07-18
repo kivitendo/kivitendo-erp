@@ -45,7 +45,7 @@ sub action_ajax_list {
 
   # $::lxdebug->message(0, "cur $current_where new $new_where");
 
-  $self->show_list(output_position => $new_where, id => $::form->{clicked_id}) if ($new_where != ($current_where // -1));
+  $self->show_list(output_position => $new_where, id => $::form->{clicked_id}, set_type => 1) if ($new_where != ($current_where // -1));
 
   $self->render($self->js);
 }
@@ -322,7 +322,7 @@ sub add_new_text_block_form {
 
 sub show_list {
   my $self   = shift;
-  my %params = Params::Validate::validate(@_, { output_position => 1, id => 0, requirement_spec_id => 0, });
+  my %params = Params::Validate::validate(@_, { output_position => 1, id => 0, requirement_spec_id => 0, set_type => 0, });
 
   $params{requirement_spec_id} ||= $::form->{requirement_spec_id};
   croak "Unknown requirement_spec_id" if !$params{requirement_spec_id};
@@ -332,11 +332,8 @@ sub show_list {
 
   $self->js->html('#column-content', $html);
 
-  if ($params{id}) {
-    $self->js
-     ->val('#current_content_type', 'text-blocks-' . (0 == $params{output_position} ? 'front' : 'back'))
-     ->val('#current_content_id',   $params{id});
-  }
+  $self->js->val('#current_content_type', 'text-blocks-' . (0 == $params{output_position} ? 'front' : 'back')) if $params{id} || $params{set_type};
+  $self->js->val('#current_content_id',   $params{id})                                                         if $params{id};
 
   return $self->set_function_blocks_tab_menu_class(class => 'text-block-context-menu');
 }

@@ -107,8 +107,8 @@ ns.tree_node_clicked = function(event) {
 // -------------------------------------------------------------------------
 
 ns.find_text_block_id = function(clicked_elt) {
-  // console.log("id: " + $(clicked_elt).attr('id'));
   var id = $(clicked_elt).attr('id');
+  // console.log("id: " + id);
   if (/^text-block-\d+$/.test(id)) {
     // console.log("find_text_block_id: case 1: " + id.substr(11));
     return id.substr(11) * 1;
@@ -126,7 +126,7 @@ ns.find_text_block_id = function(clicked_elt) {
     return id.substr(3) * 1;
   }
 
-  // console.log("find_text_block_id: case undef");
+  // console.log("find_text_block_id: case undef, id: " + id);
   return undefined;
 };
 
@@ -135,7 +135,7 @@ ns.find_text_block_output_position = function(clicked_elt) {
   if (output_position)
     return output_position;
 
-  var type = $(clicked_elt).closest('#tb-back,#tb-front').data('type');
+  var type = $(clicked_elt).closest('#tb-back,#tb-front').data('type') || $('#current_content_type').val();
   if (/^text-blocks-(front|back)/.test(type))
     return type == "text-blocks-front" ? 0 : 1;
 
