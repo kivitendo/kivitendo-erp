@@ -134,6 +134,8 @@ sub action_ajax_save_time_and_cost_estimate {
     1;
   });
 
+  $self->requirement_spec(SL::DB::RequirementSpec->new(id => $self->requirement_spec->id)->load);
+
   my $html = $self->render('requirement_spec/_show_time_and_cost_estimate', { output => 0 });
   $self->js->replaceWith('#time_cost_estimate', $html);
 
