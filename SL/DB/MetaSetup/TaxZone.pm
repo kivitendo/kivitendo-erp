@@ -6,16 +6,14 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'tax_zones',
+__PACKAGE__->meta->table('tax_zones');
 
-  columns => [
-    id          => { type => 'integer', not_null => 1 },
-    description => { type => 'text' },
-  ],
-
-  primary_key_columns => [ 'id' ],
+__PACKAGE__->meta->columns(
+  description => { type => 'text' },
+  id          => { type => 'integer', not_null => 1 },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 1;
 ;

@@ -66,6 +66,7 @@ sub select_tag    { return _call_presenter('select_tag',    @_); }
 sub input_tag     { return _call_presenter('input_tag',     @_); }
 sub truncate      { return _call_presenter('truncate',      @_); }
 sub simple_format { return _call_presenter('simple_format', @_); }
+sub part_picker   { return _call_presenter('part_picker',   @_); }
 
 sub _set_id_attribute {
   my ($attributes, $name) = @_;
@@ -221,14 +222,18 @@ sub date_tag {
 
   _set_id_attribute(\%params, $name);
   my @onchange = $params{onchange} ? (onChange => delete $params{onchange}) : ();
-  my @class    = $params{no_cal} || $params{readonly} ? () : (class => 'datepicker');
+  my @classes  = $params{no_cal} || $params{readonly} ? () : ('datepicker');
+  push @classes, delete($params{class}) if $params{class};
+  my %class    = @classes ? (class => join(' ', @classes)) : ();
+
+  $::request->presenter->need_reinit_widgets($params{id});
 
   return $self->input_tag(
     $name, blessed($value) ? $value->to_lxoffice : $value,
     size   => 11,
     onblur => "check_right_date_format(this);",
     %params,
-    @class, @onchange,
+    %class, @onchange,
   );
 }
 

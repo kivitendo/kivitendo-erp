@@ -165,8 +165,7 @@ sub order_links {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $::lx_office_conf{features}->{webdav};
-  $form->{jsscript} = 1;
+  $form->{webdav}   = $::instance_conf->get_webdav;
 
   my $editing = $form->{id};
 
@@ -254,9 +253,6 @@ sub form_header {
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
 
   my @old_project_ids = ($form->{"globalproject_id"});
   map({ push(@old_project_ids, $form->{"project_id_$_"})
@@ -400,7 +396,10 @@ sub update_delivery_order {
     my $rows = scalar @{ $form->{item_list} };
 
     if ($rows) {
-      $form->{"qty_$i"} = 1 unless $form->parse_amount(\%myconfig, $form->{"qty_$i"});
+      $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
+      if( !$form->{"qty_$i"} ) {
+        $form->{"qty_$i"} = 1;
+      }
 
       if ($rows > 1) {
 
@@ -460,7 +459,6 @@ sub search {
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   $form->{SHOW_VC_DROP_DOWN} =  $myconfig{vclimit} > scalar @{ $form->{ALL_VC} };
-  $form->{jsscript}          = 1;
   $form->{title}             = $locale->text('Delivery Orders');
 
   $form->header();
@@ -689,25 +687,6 @@ sub save {
 }
 
 sub delete {
-  $main::lxdebug->enter_sub();
-
-  check_do_access();
-
-  my $form     = $main::form;
-  my $locale   = $main::locale;
-
-  map { delete $form->{$_} } qw(action header login password);
-  my @variables = map { { 'key' => $_, 'value' => $form->{$_} } } grep { '' eq ref $form->{$_} } keys %{ $form };
-
-  $form->{title} = $locale->text('Delete delivery order');
-  $form->header();
-
-  print $form->parse_html_template('do/delete', { 'VARIABLES' => \@variables });
-
-  $main::lxdebug->leave_sub();
-}
-
-sub delete_delivery_order {
   $main::lxdebug->enter_sub();
 
   check_do_access();
@@ -1125,16 +1104,14 @@ sub display_stock_in_form {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $form->{jsscript} = 1;
-
   $form->{title} = $locale->text('Stock');
 
   my $part_info  = IC->get_basic_part_info('id' => $form->{parts_id});
 
   # Standardlagerplatz für Standard-Auslagern verwenden, falls keiner für die Ware explizit definiert wurde
   if ($::instance_conf->get_transfer_default_use_master_default_bin) {
-    $part_info->{warehouse_id} ||= $::instance_conf->get_default_warehouse_id;
-    $part_info->{bin_id}       ||= $::instance_conf->get_default_bin_id;
+    $part_info->{warehouse_id} ||= $::instance_conf->get_warehouse_id;
+    $part_info->{bin_id}       ||= $::instance_conf->get_bin_id;
   }
 
   my $units      = AM->retrieve_units(\%myconfig, $form);
@@ -1567,8 +1544,8 @@ sub transfer_in_out_default {
 
   # entsprechende defaults holen, falls standardlagerplatz verwendet werden soll
   if ($::instance_conf->get_transfer_default_use_master_default_bin) {
-    $default_warehouse_id = $::instance_conf->get_default_warehouse_id;
-    $default_bin_id       = $::instance_conf->get_default_bin_id;
+    $default_warehouse_id = $::instance_conf->get_warehouse_id;
+    $default_bin_id       = $::instance_conf->get_bin_id;
   }
 
 
@@ -1644,8 +1621,8 @@ sub transfer_in_out_default {
       # auslagern soll immer gehen, auch wenn nicht genügend auf lager ist.
       # der lagerplatz ist hier extra konfigurierbar, bspw. Lager-Korrektur mit
       # Lagerplatz Lagerplatz-Korrektur
-      my $default_warehouse_id_ignore_onhand = $::instance_conf->get_default_warehouse_id_ignore_onhand;
-      my $default_bin_id_ignore_onhand       = $::instance_conf->get_default_bin_id_ignore_onhand;
+      my $default_warehouse_id_ignore_onhand = $::instance_conf->get_warehouse_id_ignore_onhand;
+      my $default_bin_id_ignore_onhand       = $::instance_conf->get_bin_id_ignore_onhand;
       if ($::instance_conf->get_transfer_default_ignore_onhand && $default_bin_id_ignore_onhand) {
         # entsprechende defaults holen
         # falls chargenumber, bestbefore oder anzahl nicht stimmt, auf automatischen

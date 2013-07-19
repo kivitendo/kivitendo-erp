@@ -101,9 +101,7 @@ sub search {
                                                                            'include_prefix' => 'l_',
                                                                            'include_value'  => 'Y');
 
-  $form->{jsscript} = 1;
   $form->{title}    = $form->{IS_CUSTOMER} ? $locale->text('Customers') : $locale->text('Vendors');
-  $::request->{layout}->focus('#name');
 
   $form->header();
   print $form->parse_html_template('ct/search');
@@ -174,7 +172,7 @@ sub list_names {
   my @columns = (
     'id',        'name',      "$form->{db}number",   'contact',   'phone',
     'fax',       'email',     'taxnumber',           'street',    'zipcode' , 'city',
-    'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country' 
+    'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -272,7 +270,7 @@ sub list_names {
       $previous_id = $ref->{id};
       map { $row->{$_}->{data} = $ref->{$_} } @columns;
 
-      $row->{name}->{link}  = build_std_url('action=edit', 'id=' . E($ref->{id}), 'callback', @hidden_nondefault);
+      $row->{name}->{link}  = build_std_url('script=controller.pl', 'action=CustomerVendor/edit', 'id=' . E($ref->{id}), 'callback', @hidden_nondefault);
       $row->{email}->{link} = 'mailto:' . E($ref->{email});
     }
 
@@ -465,7 +463,7 @@ sub form_header {
                    currencies => "ALL_CURRENCIES");
   $form->get_pricegroup(\%myconfig, { all => 1 });
 
-  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::lx_office_conf{features}->{vertreter};
+  $form->get_lists(customers => { key => "ALL_SALESMAN_CUSTOMERS", business_is_salesman => 1 }) if $::instance_conf->get_vertreter;
   $form->{ALL_EMPLOYEES}          = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{FU_created_for_user},  deleted => 0 ] ]);
   $form->{ALL_SALESMEN}           = SL::DB::Manager::Employee->get_all(query => [ or => [ id => $::form->{salesman_id},  deleted => 0 ] ]);
   $form->{USER}                   = SL::DB::Manager::Employee->current;
@@ -475,9 +473,7 @@ sub form_header {
   $form->{shipto_label}   = \&_shipto_label;
   $form->{contacts_label} = \&_contacts_label;
   $form->{taxzone_id}     = 0                                                               if !$form->{id};
-  $form->{jsscript}       = 1;
   $form->{SHIPTO_ALL}     = [ +{ shipto_id => '0', shiptoname => $::locale->text('All') }, @{ $form->{SHIPTO} } ];
-  $::request->{layout}->focus("#greeting");
 
   $form->{title} = $form->{title_save}
                 || $locale->text("$form->{title} " . ucfirst $form->{db}) . ($form->{title} eq "Edit" ? " $form->{name}" : '');
@@ -536,7 +532,7 @@ sub _do_save {
 
   $::form->isblank("name", $::locale->text("Name missing!"));
 
-  if ($::form->{new_salesman_id} && $::lx_office_conf{features}->{vertreter}) {
+  if ($::form->{new_salesman_id} && $::instance_conf->get_vertreter) {
     $::form->{salesman_id} = $::form->{new_salesman_id};
     delete $::form->{new_salesman_id};
   }

@@ -5,12 +5,12 @@ use strict;
 use DateTime::Event::Cron;
 use English qw(-no_match_vars);
 
-require SL::DB::MetaSetup::BackgroundJob;
-require SL::DB::Manager::BackgroundJob;
-
-require SL::DB::BackgroundJobHistory;
+use SL::DB::MetaSetup::BackgroundJob;
+use SL::DB::Manager::BackgroundJob;
 
 use SL::System::Process;
+
+__PACKAGE__->meta->initialize;
 
 __PACKAGE__->before_save('_before_save_set_next_run_at');
 
@@ -35,6 +35,8 @@ sub run {
   my $package = "SL::BackgroundJob::" . $self->package_name;
   my $run_at  = DateTime->now_local;
   my $history;
+
+  require SL::DB::BackgroundJobHistory;
 
   my $ok = eval {
     eval "require $package" or die $@;

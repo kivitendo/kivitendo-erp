@@ -2,189 +2,69 @@ package SL::InstanceConfiguration;
 
 use strict;
 
-use SL::DBUtils;
+use Carp;
+use SL::DBUtils ();
 
-sub new {
-  my ($class) = @_;
+use parent qw(Rose::Object);
+use Rose::Object::MakeMethods::Generic (
+  'scalar --get_set_init' => [ qw(data currencies default_currency _table_currencies_exists) ],
+);
 
-  return bless {}, $class;
+sub init_data {
+  return {} if !$::auth->client;
+  return SL::DBUtils::selectfirst_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT * FROM defaults|);
 }
 
-sub init {
+sub init__table_currencies_exists {
+  return 0 if !$::auth->client;
+  return !!(SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT tablename FROM pg_tables WHERE (schemaname = 'public') AND (tablename = 'currencies')|))[0];
+}
+
+sub init_currencies {
   my ($self) = @_;
 
-  $self->{data} = selectfirst_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT * FROM defaults|);
+  return [] if !$self->_table_currencies_exists;
+  return [ map { $_->{name} } SL::DBUtils::selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies ORDER BY id ASC|) ];
+}
 
-  #To get all currencies and the default currency:
-  ($self->{data}->{curr}) = selectrow_query($::form, $::form->get_standard_dbh, qq|SELECT name AS curr FROM currencies WHERE id = (SELECT currency_id FROM defaults)|);
-  $self->{currencies}     = [ map { $_->{name} } selectall_hashref_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies ORDER BY id|) ];
+sub init_default_currency {
+  my ($self) = @_;
+
+  return undef if !$self->_table_currencies_exists || !$self->data->{currency_id};
+  return (SL::DBUtils::selectfirst_array_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies WHERE id = ?|, $self->data->{currency_id}))[0];
+}
+
+sub reload {
+  my ($self) = @_;
+
+  delete @{ $self }{qw(data currencies default_currency)};
 
   return $self;
 }
 
-sub get_default_currency {
-  my ($self) = @_;
-
-  return $self->{data}->{curr};
-}
-
 sub get_currencies {
   my ($self) = @_;
-
-  return @{ $self->{currencies} };
+  return @{ $self->currencies };
 }
 
-sub get_accounting_method {
-  my ($self) = @_;
-  return $self->{data}->{accounting_method};
-}
+sub AUTOLOAD {
+  our $AUTOLOAD;
 
-sub get_inventory_system {
-  my ($self) = @_;
-  return $self->{data}->{inventory_system};
-}
+  my $self   =  shift;
+  my $method =  $AUTOLOAD;
+  $method    =~ s/.*:://;
 
-sub get_profit_determination {
-  my ($self) = @_;
-  return $self->{data}->{profit_determination};
-}
+  return if $method eq 'DESTROY';
 
-sub get_is_changeable {
-  my ($self) = @_;
-  return $self->{data}->{is_changeable};
-}
+  if ($method =~ m/^get_/) {
+    $method = substr $method, 4;
+    return $self->data->{$method} if exists $self->data->{$method};
+    croak "Invalid method 'get_${method}'";
+  }
 
-sub get_ir_changeable {
-  my ($self) = @_;
-  return $self->{data}->{ir_changeable};
+  croak "Invalid method '${method}'" if !$self->can($method);
+  return $self->$method(@_);
 }
-
-sub get_ar_changeable {
-  my ($self) = @_;
-  return $self->{data}->{ar_changeable};
-}
-
-sub get_ap_changeable {
-  my ($self) = @_;
-  return $self->{data}->{ap_changeable};
-}
-
-sub get_gl_changeable {
-  my ($self) = @_;
-  return $self->{data}->{gl_changeable};
-}
-
-sub get_datev_check_on_sales_invoice {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_sales_invoice};
-}
-
-sub get_datev_check_on_purchase_invoice {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_purchase_invoice};
-}
-
-sub get_datev_check_on_ar_transaction {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_ar_transaction};
-}
-
-sub get_datev_check_on_ap_transaction {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_ap_transaction};
-}
-
-sub get_datev_check_on_gl_transaction {
-  my ($self) = @_;
-  return $self->{data}->{datev_check_on_gl_transaction};
-}
-
-sub get_show_bestbefore {
-  my ($self) = @_;
-  return $self->{data}->{show_bestbefore};
-}
-
-sub get_is_show_mark_as_paid {
-  my ($self) = @_;
-  return $self->{data}->{is_show_mark_as_paid};
-}
-
-sub get_ir_show_mark_as_paid {
-  my ($self) = @_;
-  return $self->{data}->{ir_show_mark_as_paid};
-}
-
-sub get_ar_show_mark_as_paid {
-  my ($self) = @_;
-  return $self->{data}->{ar_show_mark_as_paid};
-}
-
-sub get_ap_show_mark_as_paid {
-  my ($self) = @_;
-  return $self->{data}->{ap_show_mark_as_paid};
-}
-
-sub get_sales_order_show_delete {
-  my ($self) = @_;
-  return $self->{data}->{sales_order_show_delete};
-}
-
-sub get_purchase_order_show_delete {
-  my ($self) = @_;
-  return $self->{data}->{purchase_order_show_delete};
-}
-
-sub get_sales_delivery_order_show_delete {
-  my ($self) = @_;
-  return $self->{data}->{sales_delivery_order_show_delete};
-}
-
-sub get_purchase_delivery_order_show_delete {
-  my ($self) = @_;
-  return $self->{data}->{purchase_delivery_order_show_delete};
-}
-
-sub get_default_warehouse_id {
-  my ($self) = @_;
-  return ($self->{data}->{warehouse_id});
-}
-
-sub get_default_bin_id {
-  my ($self) = @_;
-  return ($self->{data}->{bin_id});
-}
-sub get_default_warehouse_id_ignore_onhand {
-  my ($self) = @_;
-  return ($self->{data}->{warehouse_id_ignore_onhand});
-}
-
-sub get_default_bin_id_ignore_onhand {
-  my ($self) = @_;
-  return ($self->{data}->{bin_id_ignore_onhand});
-}
-
-
-sub get_transfer_default {
-  my ($self) = @_;
-  return ($self->{data}->{transfer_default});
-}
-
-sub get_transfer_default_use_master_default_bin {
-  my ($self) = @_;
-  return ($self->{data}->{transfer_default_use_master_default_bin});
-}
-
-sub get_transfer_default_ignore_onhand {
-  my ($self) = @_;
-  return ($self->{data}->{transfer_default_ignore_onhand});
-}
-# currently unused - value is set via audit_control (Bücherkontrolle)
-sub get_max_future_booking_interval {
-  my ($self) = @_;
-  return ($self->{data}->{max_future_booking_interval});
-}
-
-
 
 1;
 
@@ -298,20 +178,20 @@ corresponding record type (true or false).
 Returns the default behavior for showing the delete button for the
 corresponding record type (true or false).
 
-=item C<get_default_warehouse_id>
+=item C<get_warehouse_id>
 
 Returns the default warehouse_id
 
-=item C<get_default_bin_id>
+=item C<get_bin_id>
 
 Returns the default bin_id
 
-=item C<get_default_warehouse_id_ignore_onhand>
+=item C<get_warehouse_id_ignore_onhand>
 
 Returns the default warehouse_id for transfers without checking the
 current stock quantity
 
-=item C<get_default_bin_id_ignore_onhand>
+=item C<get_bin_id_ignore_onhand>
 
 Returns the default bin_id for transfers without checking the.
 current stock quantity
@@ -329,6 +209,30 @@ Returns the default behavior for the transfer out default feature (true or false
 =item C<get_max_future_booking_interval>
 
 Returns the maximum interval value for future bookings
+
+=item C<get_webdav>
+
+Returns the configuration for WebDAV
+
+=item C<get_webdav_documents>
+
+Returns the configuration for storing documents in the corresponding WebDAV folder
+
+=item C<get_vertreter>
+
+Returns the configuration for "vertreter"
+
+=item C<get_parts_show_image>
+
+Returns the configuarion for show image in parts
+
+=item C<get_parts_image_css>
+
+Returns the css format string for images shown in parts
+
+=item C<get_parts_listing_image>
+
+Returns the configuartion for showing the picture in the results when you search for parts
 
 =back
 

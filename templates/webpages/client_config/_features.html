@@ -1,0 +1,43 @@
+[%- USE LxERP -%][%- USE L -%]
+<div id="features">
+ <table>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("WebDAV") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('WebDAV') %]</td>
+   <td>[% L.yes_no_tag('defaults.webdav', SELF.defaults.webdav) %]</td>
+   <td>[% LxERP.t8('Use WebDAV Repository') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('WebDAV save documents') %]</td>
+   <td>[% L.yes_no_tag('defaults.webdav_documents', SELF.defaults.webdav_documents) %]</td>
+   <td>[% LxERP.t8('Save document in WebDAV repository') %]</td>
+  </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Customer Master Data") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Representative') %]</td>
+   <td>[% L.yes_no_tag('defaults.vertreter', SELF.defaults.vertreter) %]</td>
+   <td>[% LxERP.t8('Representative for Customer') %]</td>
+  </tr>
+
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Parts Master Data") %]</td></tr>
+
+  <tr>
+   <td align="right">[% LxERP.t8('Pictures for parts') %]</td>
+   <td>[% L.yes_no_tag('defaults.parts_show_image', SELF.defaults.parts_show_image) %]</td>
+   <td>[% LxERP.t8('Show the picture in the part form') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Pictures for search parts') %]</td>
+   <td>[% L.yes_no_tag('defaults.parts_listing_image', SELF.defaults.parts_listing_image) %]</td>
+   <td>[% LxERP.t8('Show the pictures in the result for search parts') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('CSS style for pictures') %]</td>
+   <td>   [% L.input_tag('defaults.parts_image_css', SELF.defaults.parts_image_css, style=style) %]</td>
+   <td>[% LxERP.t8('Style the picture with the following CSS code') %]</td>
+  </tr>
+ </table>
+</div>

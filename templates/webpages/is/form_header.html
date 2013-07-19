@@ -29,7 +29,7 @@
 <div class="tabwidget">
  <ul>
   <li><a href="#ui-tabs-basic-data">[% 'Basic Data' | $T8 %]</a></li>
-[%- IF conf_webdav %]
+[%- IF INSTANCE_CONF.get_webdav %]
   <li><a href="#ui-tabs-webdav">[% 'WebDAV' | $T8 %]</a></li>
 [%- END %]
 [%- IF id %]
@@ -49,6 +49,7 @@
                  id            = 'customer',
                  name          = 'customer',
                  style         = 'width: 250px',
+                 class         = 'initial_focus',
                  DATA          = ALL_CUSTOMERS,
                  id_sub        = 'vc_keys',
                  label_key     = 'name',

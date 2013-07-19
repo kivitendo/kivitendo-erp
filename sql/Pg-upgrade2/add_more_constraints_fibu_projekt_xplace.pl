@@ -28,8 +28,8 @@ sub run {
     }
   }
   $sth_all_groups->finish();
-  my $query = qq|select count(*) from acc_trans where trans_id is NULL|;
-  my $sth_all_groups = prepare_execute_query($::form, $self->dbh, $query);
+  $query = qq|select count(*) from acc_trans where trans_id is NULL|;
+  $sth_all_groups = prepare_execute_query($::form, $self->dbh, $query);
   while (my $hash_ref = $sth_all_groups->fetchrow_hashref()) {  # Schleife
     if ($hash_ref->{count} eq 0){
       # Falls wir keine alte buggy Installation haben, ist es super die

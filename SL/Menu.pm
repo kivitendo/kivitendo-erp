@@ -42,14 +42,19 @@ use strict;
 sub new {
   $main::lxdebug->enter_sub();
 
-  my ($type, $menufile) = @_;
+  my ($type, @menufiles) = @_;
+  my $self               = bless {}, $type;
 
-  my $self    = {};
-  my $inifile = Inifile->new($menufile);
+  my @order;
 
-  map { $self->{$_} = $inifile->{$_} } keys %{ $inifile };
+  foreach my $menufile (grep { -f } @menufiles) {
+    my $inifile = Inifile->new($menufile);
 
-  bless $self, $type;
+    push @order, @{ delete($inifile->{ORDER}) || [] };
+    $self->{$_} = $inifile->{$_} for keys %{ $inifile };
+  }
+
+  $self->{ORDER} = \@order;
 
   $self->set_access();
 

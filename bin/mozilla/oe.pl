@@ -229,8 +229,7 @@ sub order_links {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
 
   # retrieve order/quotation
-  $form->{webdav}   = $::lx_office_conf{features}->{webdav};
-  $form->{jsscript} = 1;
+  $form->{webdav}   = $::instance_conf->get_webdav;
 
   my $editing = $form->{id};
 
@@ -317,9 +316,6 @@ sub form_header {
 
   $form->{employee_id} = $form->{old_employee_id} if $form->{old_employee_id};
   $form->{salesman_id} = $form->{old_salesman_id} if $form->{old_salesman_id};
-
-  # use JavaScript Calendar or not
-  $form->{jsscript} = 1;
 
   # openclosed checkboxes
   my @tmp;
@@ -528,7 +524,7 @@ sub form_footer {
 
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,
-     webdav          => $::lx_office_conf{features}->{webdav},
+     webdav          => $::instance_conf->get_webdav,
      print_options   => print_options(inline => 1),
      label_edit      => $locale->text("Edit the $form->{type}"),
      label_workflow  => $locale->text("Workflow $form->{type}"),
@@ -601,7 +597,11 @@ sub update {
     $form->{"lastcost_$i"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$i"});
 
     if ($rows) {
-      $form->{"qty_$i"} = 1 unless ($form->parse_amount(\%myconfig, $form->{"qty_$i"}));
+
+      $form->{"qty_$i"} = $form->parse_amount(\%myconfig, $form->{"qty_$i"});
+      if( !$form->{"qty_$i"} ) {
+        $form->{"qty_$i"} = 1;
+      }
 
       if ($rows > 1) {
 
@@ -725,7 +725,6 @@ sub search {
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   # constants and subs for template
-  $form->{jsscript}        = 1;
   $form->{vc_keys}         = sub { "$_[0]->{name}--$_[0]->{id}" };
 
   $form->header();
@@ -1240,31 +1239,6 @@ sub save {
 }
 
 sub delete {
-  $::lxdebug->enter_sub;
-
-  check_oe_access();
-
-  $::form->header;
-
-  # delete action variable
-  delete $::form->{$_} for qw(action header);
-
-  my @hiddens;
-  for my $key (keys %$::form) {
-    next if $key eq 'login' || $key eq 'password' || '' ne ref $::form->{$key};
-    push @hiddens, { key => $key, value => $::form->{$key} };
-  }
-
-  print $::form->parse_html_template('oe/delete', {
-    hiddens => \@hiddens,
-    is_order => scalar($::form->{type} =~ /_order$/),
-  });
-
-
-  $::lxdebug->leave_sub;
-}
-
-sub delete_order_quotation {
   $main::lxdebug->enter_sub();
 
   my $form     = $main::form;

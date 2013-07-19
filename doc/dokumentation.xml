@@ -80,7 +80,7 @@
             <para>Debian</para>
             <itemizedlist>
                <listitem>
-                 <para>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version >= 0.72 compiled werden)</para>
+                 <para>6.0 "Squeeze" (hier muss allerdings das Modul FCGI in der Version >= 0.72 compiled werden, und <literal>Rose::DB::Object</literal> ist zu alt)</para>
                </listitem>
                <listitem>
                  <para>7.0 "Wheezy"</para>
@@ -93,7 +93,7 @@
           </listitem>
 
           <listitem>
-            <para>openSUSE 12.1 und 12.2</para>
+            <para>openSUSE 12.2 und 12.3</para>
           </listitem>
 
           <listitem>
@@ -160,7 +160,7 @@
 
           <listitem><para><literal>Rose::DB</literal></para></listitem>
 
-          <listitem><para><literal>Rose::DB::Object</literal></para></listitem>
+          <listitem><para><literal>Rose::DB::Object</literal> Version 0.788 oder neuer</para></listitem>
 
           <listitem><para><literal>Template</literal></para></listitem>
 
@@ -174,6 +174,8 @@
 
           <listitem><para><literal>YAML</literal></para></listitem>
         </itemizedlist>
+
+        <para>Seit v3.0.0 sind die folgenden Pakete hinzugekommen: <literal>File::Copy::Recursive</literal>.</para>
 
         <para>Seit v2.7.0 sind die folgenden Pakete hinzugekommen: <literal>Email::MIME</literal>, <literal>Net::SMTP::SSL</literal>,
         <literal>Net::SSLGlue</literal>.</para>
@@ -5942,6 +5944,10 @@ filenames</programlisting>
           Perl-Distribution und kann für frühere Versionen aus dem <ulink url="http://www.cpan.org">CPAN</ulink> bezogen
           werden.</para></listitem>
         </itemizedlist>
+
+        <para>Weitere Voraussetzung ist, dass die Testsuite ihre eigene Datenbank anlegen kann, um Produktivdaten nicht zu gefährden. Dazu
+        müssen in der Konfigurationsdatei im Abschnit <literal>testing/database</literal> Datenbankverbindungsparameter angegeben
+        werden. Der hier angegebene Benutzer muss weiterhin das Recht haben, Datenbanken anzulegen und zu löschen.</para>
       </sect2>
 
       <sect2 id="devel.testsuite.execution">
@@ -5950,14 +5956,14 @@ filenames</programlisting>
         </title>
 
         <para>Es gibt mehrere Möglichkeiten zum Ausführen der Tests: entweder, man lässt alle Tests auf einmal ausführen, oder man führt
-        gezielt einzelne Scripte aus. Für beide Fälle gibt es das Helferscript <filename>t/test.sh</filename>.</para>
+        gezielt einzelne Scripte aus. Für beide Fälle gibt es das Helferscript <filename>t/test.pl</filename>.</para>
 
-        <para>Will man die komplette Test-Suite ausführen, so muss man einfach nur <filename>t/test.sh</filename> ohne weitere Parameter aus
+        <para>Will man die komplette Test-Suite ausführen, so muss man einfach nur <filename>t/test.pl</filename> ohne weitere Parameter aus
         dem kivitendo-Basisverzeichnis heraus ausführen.</para>
 
-        <para>Um einzelne Test-Scripte auszuführen, übergibt man deren Namen an <filename>t/test.sh</filename>. Beispielsweise:</para>
+        <para>Um einzelne Test-Scripte auszuführen, übergibt man deren Namen an <filename>t/test.pl</filename>. Beispielsweise:</para>
 
-        <programlisting>t/test.sh t/form/format_amount.t t/background_job/known_jobs.t</programlisting>
+        <programlisting>t/test.pl t/form/format_amount.t t/background_job/known_jobs.t</programlisting>
       </sect2>
 
 

@@ -137,7 +137,7 @@
   <input class="submit" type="submit" name="action_save_as_new" value="[% 'Save as new' | $T8 %]">
 
   [%- UNLESS (is_sales_ord && !INSTANCE_CONF.get_sales_order_show_delete) || (is_pur_ord && !INSTANCE_CONF.get_purchase_order_show_delete) %]
-    <input class="submit" type="submit" name="action_delete" value="[% 'Delete' | $T8 %]">
+    [% L.submit_tag('action_delete', LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
   [%- END %]
 
   [%- IF is_sales_quo %]
@@ -148,7 +148,7 @@
     <input class="submit" type="submit" name="action_purchase_order" value="[% 'Purchase Order' | $T8 %]">
   [%- END %]
 
-  [%- IF is_sales_ord || is_pur_ord  && !delivered%]
+  [%- IF is_sales_ord || is_pur_ord %]
     <input class="submit" type="submit" name="action_delivery_order" value="[% 'Delivery Order' | $T8 %]">
   [%- END %]
 

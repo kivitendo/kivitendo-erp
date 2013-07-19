@@ -3,11 +3,12 @@
 use strict;
 use lib 't';
 use Support::Files;
+use Support::CanonialGlobals ();
 
 my (@globals, $testcount);
 
 BEGIN {
-  @globals = qw(lxdebug auth myconfig form lx_office_conf locale dispatcher instance_conf request);
+  @globals = map { s/[^a-z_]//; $_ } @Support::CanonialGlobals::globals;
   $testcount = scalar(@Support::Files::testitems);
 }
 

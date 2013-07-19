@@ -1,0 +1,114 @@
+[%- USE T8 %]
+[%- USE LxERP %]
+[%- USE L %]
+
+<div id="shipto">
+  <table width="100%" id="shipto_table">
+    <tr>
+      <th align="right">[% 'Shipping Address' | $T8 %]</th>
+
+      <td>
+        [% L.select_tag(
+             'shipto.shipto_id',
+             SELF.shiptos,
+             default = SELF.shipto.shipto_id,
+             value_key = 'shipto_id',
+             title_key = 'displayable_id',
+             with_empty = 1,
+             empty_title = LxERP.t8('New shipto'),
+             onchange = "kivi.CustomerVendor.selectShipto({onFormSet: function(){shiptoMapWidget.testInputs();}});",
+           )
+        %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Name' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptoname', SELF.shipto.shiptoname,  size = 35, maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Abteilung' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptodepartment_1', SELF.shipto.shiptodepartment_1,  size = 16, maxlength = 75) %]
+        [% L.input_tag('shipto.shiptodepartment_2', SELF.shipto.shiptodepartment_2,  size = 16, maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Street' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptostreet', SELF.shipto.shiptostreet,  size = 35, maxlength = 75) %]
+
+        <span id="shipto_map"></span>
+        <script type="text/javascript">
+          shiptoMapWidget = new kivi.CustomerVendor.MapWidget('shipto_shipto');
+          $(function() {
+            shiptoMapWidget.render($('#shipto_map'));
+          });
+        </script>
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptozipcode', SELF.shipto.shiptostreet,  size = 5, maxlength = 75) %]
+        [% L.input_tag('shipto.shiptocity', SELF.shipto.shiptocity,  size = 30, maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Country' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptocountry', SELF.shipto.shiptocountry,  size = 35, maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Contact' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptocontact', SELF.shipto.shiptocontact,  size = 30, maxlength = 75) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Phone' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptophone', SELF.shipto.shiptophone,  size = 30, maxlength = 30) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'Fax' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptofax', SELF.shipto.shiptofax,  size = 30, maxlength = 30) %]
+      </td>
+    </tr>
+
+    <tr>
+      <th align="right" nowrap>[% 'E-mail' | $T8 %]</th>
+
+      <td>
+        [% L.input_tag('shipto.shiptoemail', SELF.shipto.shiptoemail,  size = 45) %]
+      </td>
+    </tr>
+  </table>
+
+  [% L.button_tag('submitInputButton(this);', LxERP.t8('Delete Shipto'), name = 'action_delete_shipto', class = 'submit') %]
+  [% IF ( !SELF.shipto.shipto_id ) %]
+    <script type="text/javascript">
+      $('#action_delete_shipto').hide();
+    </script>
+  [% END %]
+</div>

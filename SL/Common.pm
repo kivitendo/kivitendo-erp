@@ -12,8 +12,15 @@ use utf8;
 use strict;
 
 use Carp;
+use English qw(-no_match_vars);
 use Time::HiRes qw(gettimeofday);
 use Data::Dumper;
+use File::Copy ();
+use File::stat;
+use File::Slurp;
+use File::Spec;
+use List::MoreUtils qw(apply);
+use POSIX ();
 
 use SL::DBUtils;
 
@@ -332,39 +339,14 @@ sub webdav_folder {
   my ($form) = @_;
 
   return $main::lxdebug->leave_sub()
-    unless ($::lx_office_conf{features}->{webdav} && $form->{id});
+    unless ($::instance_conf->get_webdav && $form->{id});
 
-  croak "No client set in \$::auth" unless $::auth->client;
 
-  my ($path, $number);
 
   $form->{WEBDAV} = [];
 
-  if ($form->{type} eq "sales_quotation") {
-    ($path, $number) = ("angebote", $form->{quonumber});
-  } elsif ($form->{type} eq "sales_order") {
-    ($path, $number) = ("bestellungen", $form->{ordnumber});
-  } elsif ($form->{type} eq "request_quotation") {
-    ($path, $number) = ("anfragen", $form->{quonumber});
-  } elsif ($form->{type} eq "purchase_order") {
-    ($path, $number) = ("lieferantenbestellungen", $form->{ordnumber});
-  } elsif ($form->{type} eq "sales_delivery_order") {
-    ($path, $number) = ("verkaufslieferscheine", $form->{donumber});
-  } elsif ($form->{type} eq "purchase_delivery_order") {
-    ($path, $number) = ("einkaufslieferscheine", $form->{donumber});
-  } elsif ($form->{type} eq "credit_note") {
-    ($path, $number) = ("gutschriften", $form->{invnumber});
-  } elsif ($form->{vc} eq "customer") {
-    ($path, $number) = ("rechnungen", $form->{invnumber});
-  } else {
-    ($path, $number) = ("einkaufsrechnungen", $form->{invnumber});
-  }
-
+  my ($path, $number) = get_webdav_folder($form);
   return $main::lxdebug->leave_sub() unless ($path && $number);
-
-  $number =~ s|[/\\]|_|g;
-
-  $path = "webdav/" . $::auth->client->{id} . "/${path}/${number}";
 
   if (!-d $path) {
     mkdir_with_parents($path);
@@ -572,6 +554,108 @@ sub check_params_x {
       }
     }
   }
+}
+
+sub get_webdav_folder {
+  $main::lxdebug->enter_sub();
+
+  my ($form) = @_;
+
+  croak "No client set in \$::auth" unless $::auth->client;
+
+  my ($path, $number);
+
+  # dispatch table
+  if ($form->{type} eq "sales_quotation") {
+    ($path, $number) = ("angebote", $form->{quonumber});
+  } elsif ($form->{type} eq "sales_order") {
+    ($path, $number) = ("bestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "request_quotation") {
+    ($path, $number) = ("anfragen", $form->{quonumber});
+  } elsif ($form->{type} eq "purchase_order") {
+    ($path, $number) = ("lieferantenbestellungen", $form->{ordnumber});
+  } elsif ($form->{type} eq "sales_delivery_order") {
+    ($path, $number) = ("verkaufslieferscheine", $form->{donumber});
+  } elsif ($form->{type} eq "purchase_delivery_order") {
+    ($path, $number) = ("einkaufslieferscheine", $form->{donumber});
+  } elsif ($form->{type} eq "credit_note") {
+    ($path, $number) = ("gutschriften", $form->{invnumber});
+  } elsif ($form->{vc} eq "customer") {
+    ($path, $number) = ("rechnungen", $form->{invnumber});
+  } elsif ($form->{vc} eq "vendor") {
+    ($path, $number) = ("einkaufsrechnungen", $form->{invnumber});
+  } else {
+    $main::lxdebug->leave_sub();
+    return undef;
+  }
+
+  $number =~ s|[/\\]|_|g;
+
+  $path = "webdav/" . $::auth->client->{id} . "/${path}/${number}";
+
+  $main::lxdebug->leave_sub();
+
+  return ($path, $number);
+}
+
+sub copy_file_to_webdav_folder {
+  $::lxdebug->enter_sub();
+
+  my ($form) = @_;
+  my ($last_mod_time, $latest_file_name, $complete_path);
+
+  # checks
+  foreach my $item (qw(tmpdir tmpfile type)){
+    next if $form->{$item};
+    $::lxdebug->message(LXDebug::WARN(), 'Missing parameter');
+    $::form->error($::locale->text("Missing parameter for WebDAV file copy"));
+  }
+
+  my ($webdav_folder, $document_name) =  get_webdav_folder($form);
+
+  if (! $webdav_folder){
+    $::lxdebug->leave_sub();
+    $::form->error($::locale->text("Cannot check correct WebDAV folder"));
+    return undef;
+  }
+
+  $complete_path =  File::Spec->catfile($form->{cwd},  $webdav_folder);
+  opendir my $dh, $complete_path or die "Could not open $complete_path: $!";
+
+  my ($newest_name, $newest_time);
+  while ( defined( my $file = readdir( $dh ) ) ) {
+    my $path = File::Spec->catfile( $complete_path, $file );
+    next if -d $path; # skip directories, or anything else you like
+    ( $newest_name, $newest_time ) = ( $file, -M _ ) if( ! defined $newest_time or -M $path < $newest_time );
+  }
+
+  closedir $dh;
+
+  $latest_file_name    = File::Spec->catfile($complete_path, $newest_name);
+  my $filesize         = stat($latest_file_name)->size;
+
+  my $current_file     = File::Spec->catfile($form->{tmpdir}, apply { s:.*/:: } $form->{tmpfile});
+  my $current_filesize = -f $current_file ? stat($current_file)->size : 0;
+
+  if ($current_filesize == $filesize) {
+    $::lxdebug->leave_sub();
+    return;
+  }
+
+  my $timestamp =  get_current_formatted_time();
+  my $new_file  =  File::Spec->catfile($form->{cwd}, $webdav_folder, $form->generate_attachment_filename());
+  $new_file     =~ s/\./$timestamp\./;
+
+  if (!File::Copy::copy($current_file, $new_file)) {
+    $::lxdebug->message(LXDebug::WARN(), "Copy file from $current_file to $new_file failed: $ERRNO");
+    $::form->error($::locale->text("Copy file from #1 to #2 failed: #3", $current_file, $new_file, $ERRNO));
+  }
+
+  $::lxdebug->leave_sub();
+}
+
+sub get_current_formatted_time {
+  return POSIX::strftime('_%Y%m%d_%H%M%S', localtime());
 }
 
 1;

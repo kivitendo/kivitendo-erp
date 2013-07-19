@@ -6,21 +6,17 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'csv_import_profiles',
+__PACKAGE__->meta->table('csv_import_profiles');
 
-  columns => [
-    id         => { type => 'serial', not_null => 1 },
-    name       => { type => 'text', not_null => 1 },
-    type       => { type => 'varchar', length => 20, not_null => 1 },
-    is_default => { type => 'boolean', default => 'false' },
-    login      => { type => 'text' },
-  ],
-
-  primary_key_columns => [ 'id' ],
-
-  unique_key => [ 'name' ],
+__PACKAGE__->meta->columns(
+  id         => { type => 'serial', not_null => 1 },
+  is_default => { type => 'boolean', default => 'false' },
+  login      => { type => 'text' },
+  name       => { type => 'text', not_null => 1 },
+  type       => { type => 'varchar', length => 20, not_null => 1 },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 1;
 ;

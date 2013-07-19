@@ -6,8 +6,6 @@ use List::Util qw(first);
 
 use SL::DB::MetaSetup::AuthUser;
 use SL::DB::Manager::AuthUser;
-use SL::DB::AuthClient;
-use SL::DB::AuthUserGroup;
 use SL::DB::Helper::Util;
 
 use constant CONFIG_VARS => qw(copies countrycode dateformat default_media default_printer_id email favorites fax hide_cvar_search_options mandatory_departments menustyle name

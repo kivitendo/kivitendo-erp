@@ -4,7 +4,6 @@ use strict;
 
 use Carp;
 use Data::Dumper;
-use SL::DBConnect;
 use English qw(-no_match_vars);
 use Rose::DB;
 use Rose::DBx::Cache::Anywhere;
@@ -19,6 +18,8 @@ my (%_db_registered);
 sub dbi_connect {
   shift;
 
+  # runtime require to break circular include
+  require SL::DBConnect;
   return SL::DBConnect->connect(@_);
 }
 
@@ -37,6 +38,7 @@ sub _register_db {
   my $domain = shift;
   my $type   = shift;
 
+  require SL::DBConnect;
   my %specific_connect_settings;
   my %common_connect_settings = (
     driver           => 'Pg',

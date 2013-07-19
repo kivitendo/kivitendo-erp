@@ -11,6 +11,8 @@ Upgrade auf v3.x.0
 * Neue Abhängigkeiten
 
   * File::Copy::Recursive
+  * Rose::DB::Object muss v0.788 oder neuer sein (aufgrund eines Bugs
+    in besagtem Modul im Zusammenspiel mit PostgreSQL)
 
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 

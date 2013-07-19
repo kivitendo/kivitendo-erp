@@ -5,7 +5,7 @@ use strict;
 use SL::DB::MetaSetup::Department;
 use SL::DB::Manager::Department;
 
-use SL::DB::DptTrans;
+__PACKAGE__->meta->initialize;
 
 sub validate {
   my ($self) = @_;
@@ -19,9 +19,9 @@ sub validate {
 sub is_used {
   my ($self) = @_;
 
+  # Since the removal of table dpt_trans no check is required here anymore.
   return undef if !$self->id;
-  my $is_used = SL::DB::Manager::DptTrans->find_by(department_id => $self->id);
-  return !!$is_used;
+  return 0;
 }
 
 1;

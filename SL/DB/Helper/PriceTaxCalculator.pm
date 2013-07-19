@@ -7,12 +7,12 @@ our @EXPORT = qw(calculate_prices_and_taxes);
 
 use Carp;
 use List::Util qw(sum min);
-use SL::DB::Default;
-use SL::DB::PriceFactor;
-use SL::DB::Unit;
 
 sub calculate_prices_and_taxes {
   my ($self, %params) = @_;
+
+  require SL::DB::PriceFactor;
+  require SL::DB::Unit;
 
   my %units_by_name       = map { ( $_->name => $_ ) } @{ SL::DB::Manager::Unit->get_all        };
   my %price_factors_by_id = map { ( $_->id   => $_ ) } @{ SL::DB::Manager::PriceFactor->get_all };
@@ -52,6 +52,7 @@ sub calculate_prices_and_taxes {
 
 sub _get_exchangerate {
   my ($self, $data, %params) = @_;
+  require SL::DB::Default;
 
   my $currency = $self->currency_id ? $self->currency->name || '' : '';
   if ($currency ne SL::DB::Default->get_default_currency) {
@@ -89,13 +90,14 @@ sub _calculate_item {
     $item->marge_percent(0);
 
   } else {
-    my $lastcost = ! ($item->lastcost * 1) ? ($item->part->lastcost || 0) : $item->lastcost;
+    my $lastcost       = ! ($item->lastcost * 1) ? ($item->part->lastcost || 0) : $item->lastcost;
+    my $linetotal_cost = _round($lastcost * $item->qty / $item->marge_price_factor, 2);
 
-    $item->marge_total(  $linetotal - $lastcost / $item->marge_price_factor);
+    $item->marge_total(  $linetotal - $linetotal_cost);
     $item->marge_percent($item->marge_total * 100 / $linetotal);
 
     $self->marge_total(  $self->marge_total + $item->marge_total);
-    $data->{lastcost_total} += $lastcost;
+    $data->{lastcost_total} += $linetotal_cost;
   }
 
   my $taxkey     = $item->part->get_taxkey(date => $self->transdate, is_sales => $data->{is_sales}, taxzone => $self->taxzone_id);

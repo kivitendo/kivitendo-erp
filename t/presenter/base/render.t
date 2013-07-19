@@ -9,6 +9,12 @@ use SL::Presenter;
 
 Support::TestSetup::login();
 
+if (!Support::TestSetup::templates_cache_writable()) {
+  plan skip_all => 'Cache dir not writable for this test';
+} else {
+  plan tests => 11;
+}
+
 my $pr = SL::Presenter->get;
 
 # Passing invalid parameters:

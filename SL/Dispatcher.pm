@@ -267,8 +267,6 @@ sub handle_request {
     delete @{ $::form }{ grep { m/^\{AUTH\}/ } keys %{ $::form } } unless $auth_result{keep_auth_vars};
 
     if ($action) {
-      $::instance_conf->init if $auth_result{auth_level} eq 'user';
-
       $::form->set_standard_title;
       if ($routing_type eq 'old') {
         ::call_sub('::' . $::locale->findsub($action));

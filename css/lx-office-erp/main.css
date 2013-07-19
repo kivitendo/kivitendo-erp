@@ -54,9 +54,9 @@ button:focus {
   background-color: whitesmoke;
 }
 
-button:hover,
-input[type="button"]:hover,
-input[type="submit"]:hover {
+button:hover:enabled,
+input[type="button"]:hover:enabled,
+input[type="submit"]:hover:enabled {
   border: 1px;
   background-color: lightgray;
   border-color: gray;
@@ -209,7 +209,7 @@ div.admin {
     border-width:thin;
 }
 
-.listheading, .listheading th, h2 {
+.listheading, .listheading th, #content h2 {
     font-size: 9pt;
     padding:3px;
     background-color:
@@ -427,4 +427,48 @@ label {
 .link_separator {
   margin-left: 6px;
   margin-right: 6px;
+}
+
+.small-text {
+  font-size: 0.75em;
+}
+
+.float-left {
+  float: left;
+}
+
+.block-context {
+  overflow: hidden;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.part_picker {
+  padding-right: 16px;
+}
+
+div.part_picker_part {
+  float:left; width: 350px;
+  padding: 5px;
+  margin: 5px;
+  overflow:hidden;
+  border: 1px;
+  border-color: darkgray;
+  border-style: solid;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+  background-color: whitesmoke;
+  cursor: pointer;
+}
+
+div.part_picker_part:hover {
+  background-color: lightgray;
+  border-color: gray;
 }

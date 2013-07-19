@@ -1,0 +1,30 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE L %]
+[%- USE LxERP %]
+
+[%# L.dump(SELF.parts) %]
+
+[% FOREACH part = SELF.parts %]
+  [% PROCESS part_block %]
+[% END %]
+
+[%- BLOCK part_block %]
+<div class='part_picker_part'>
+  <input type='hidden' class='part_picker_id' value='[% part.id %]'>
+  <input type='hidden' class='part_picker_partnumber' value='[% part.partnumber %]'>
+  <input type='hidden' class='part_picker_description' value='[% part.description %]'>
+  <span style='float:left'>[% part.partnumber | html %]</span>
+  <span style='float:right; font-weight:bold'>[% part.description | html %]</span>
+  <div style='clear:both;'></div>
+  [% 'Sellprice' | $T8 %]: [% part.sellprice_as_number | html %]
+</div>
+[%- END %]
+
+<div style='clear:both'></div>
+
+[% L.paginate_controls(target='#part_picker_result', selector='#part_picker_result') %]
+
+<script type='text/javascript'>
+  kivi.PartPicker($('#'+$('#part_picker_real_id').val())).init_results()
+</script>

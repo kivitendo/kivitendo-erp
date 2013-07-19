@@ -5,10 +5,13 @@
    <tr>
     <td class="login" align="center">
      <a href="http://www.kivitendo.de" target="_top" class="no-underlined-links"><img src="image/kivitendo.png" border="0"></a>
-     <h1>[% 'kivitendo' | $T8 %] [% version %]</h1>
+     <h1>[% LxERP.t8('kivitendo v#1', version) %]</h1>
 
 [% IF error %]
      <div class="message_error_login">[% HTML.escape(error) %]</div>
+[% END %]
+[% IF warning %]
+     <div class="message_hint">[% HTML.escape(warning) %]</div>
 [% END %]
 [% IF info %]
      <div class="message_ok">[% HTML.escape(info) %]</div>
@@ -26,7 +29,7 @@
           <table>
            <tr>
             <th align="right">[% 'Login Name' | $T8 %]</th>
-            <td>[% L.input_tag('{AUTH}login', '', id='auth_login', style=style) %]</td>
+            <td>[% L.input_tag('{AUTH}login', '', id='auth_login', style=style, class='initial_focus') %]</td>
            </tr>
            <tr>
             <th align="right">[% 'Password' | $T8 %]</th>

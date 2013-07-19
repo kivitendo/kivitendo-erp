@@ -34,12 +34,10 @@ use Rose::Object::MakeMethods::Generic (
 sub new {
   $main::lxdebug->enter_sub();
 
-  my $type = shift;
-  my $self = {};
+  my ($type, %params) = @_;
+  my $self            = bless {}, $type;
 
-  bless $self, $type;
-
-  $self->_read_auth_config();
+  $self->_read_auth_config(%params);
   $self->reset;
 
   $main::lxdebug->leave_sub();
@@ -50,6 +48,7 @@ sub new {
 sub reset {
   my ($self, %params) = @_;
 
+  delete $self->{dbh};
   $self->{SESSION}            = { };
   $self->{FULL_RIGHTS}        = { };
   $self->{RIGHTS}             = { };
@@ -100,15 +99,21 @@ sub mini_error {
 sub _read_auth_config {
   $main::lxdebug->enter_sub();
 
-  my $self = shift;
+  my ($self, %params) = @_;
 
   map { $self->{$_} = $::lx_office_conf{authentication}->{$_} } keys %{ $::lx_office_conf{authentication} };
 
   # Prevent password leakage to log files when dumping Auth instances.
   $self->{admin_password} = sub { $::lx_office_conf{authentication}->{admin_password} };
 
-  $self->{DB_config}   = $::lx_office_conf{'authentication/database'};
-  $self->{LDAP_config} = $::lx_office_conf{'authentication/ldap'};
+  if ($params{unit_tests_database}) {
+    $self->{DB_config}   = $::lx_office_conf{'testing/database'};
+    $self->{module}      = 'DB';
+
+  } else {
+    $self->{DB_config}   = $::lx_office_conf{'authentication/database'};
+    $self->{LDAP_config} = $::lx_office_conf{'authentication/ldap'};
+  }
 
   if ($self->{module} eq 'DB') {
     $self->{authenticator} = SL::Auth::DB->new($self);
@@ -1071,10 +1076,11 @@ sub all_rights_full {
     ["advance_turnover_tax_return",    $locale->text('Advance turnover tax return')],
     ["--batch_printing",               $locale->text("Batch Printing")],
     ["batch_printing",                 $locale->text("Batch Printing")],
+    ["--configuration",                $locale->text("Configuration")],
+    ["config",                         $locale->text("Change kivitendo installation settings (most entries in the 'System' menu)")],
+    ["admin",                          $locale->text("Client administration: configuration, editing templates, task server control, background jobs (remaining entries in the 'System' menu)")],
     ["--others",                       $locale->text("Others")],
     ["email_bcc",                      $locale->text("May set the BCC field when sending emails")],
-    ["config",                         $locale->text("Change kivitendo installation settings (all menu entries beneath 'System')")],
-    ["admin",                          $locale->text("Administration (Used to access instance administration from user logins)")],
     ["productivity",                   $locale->text("Productivity")],
     ["display_admin_link",             $locale->text("Show administration link")],
     );

@@ -6,18 +6,16 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'price_factors',
+__PACKAGE__->meta->table('price_factors');
 
-  columns => [
-    id          => { type => 'integer', not_null => 1, sequence => 'id' },
-    description => { type => 'text' },
-    factor      => { type => 'numeric', precision => 5, scale => 15 },
-    sortkey     => { type => 'integer' },
-  ],
-
-  primary_key_columns => [ 'id' ],
+__PACKAGE__->meta->columns(
+  description => { type => 'text' },
+  factor      => { type => 'numeric', precision => 5, scale => 15 },
+  id          => { type => 'integer', not_null => 1, sequence => 'id' },
+  sortkey     => { type => 'integer' },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 1;
 ;

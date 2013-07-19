@@ -20,7 +20,7 @@ use Rose::Object::MakeMethods::Generic
 (
   'scalar --get_set_init' => [ qw(client user group printer db_cfg is_locked
                                   all_dateformats all_numberformats all_countrycodes all_stylesheets all_menustyles all_clients all_groups all_users all_rights all_printers
-                                  all_dbsources all_unused_dbsources all_accounting_methods all_inventory_systems all_profit_determinations all_charts) ],
+                                  all_dbsources all_used_dbsources all_accounting_methods all_inventory_systems all_profit_determinations all_charts) ],
 );
 
 __PACKAGE__->run_before(\&setup_layout);
@@ -135,6 +135,10 @@ sub action_save_user {
   my $props  = delete($params->{config_values}) || { };
   my $is_new = !$params->{id};
 
+  # Assign empty arrays if the browser doesn't send those controls.
+  $params->{clients} ||= [];
+  $params->{groups}  ||= [];
+
   $self->user($is_new ? SL::DB::AuthUser->new : SL::DB::AuthUser->new(id => $params->{id})->load)
     ->assign_attributes(%{ $params })
     ->config_values({ %{ $self->user->config_values }, %{ $props } });
@@ -205,6 +209,10 @@ sub action_save_client {
   my ($self) = @_;
   my $params = delete($::form->{client}) || { };
   my $is_new = !$params->{id};
+
+  # Assign empty arrays if the browser doesn't send those controls.
+  $params->{groups} ||= [];
+  $params->{users}  ||= [];
 
   $self->client($is_new ? SL::DB::AuthClient->new : SL::DB::AuthClient->new(id => $params->{id})->load)->assign_attributes(%{ $params });
 
@@ -277,6 +285,10 @@ sub action_save_group {
 
   my $params = delete($::form->{group}) || { };
   my $is_new = !$params->{id};
+
+  # Assign empty arrays if the browser doesn't send those controls.
+  $params->{clients} ||= [];
+  $params->{users}   ||= [];
 
   $self->group($is_new ? SL::DB::AuthGroup->new : SL::DB::AuthGroup->new(id => $params->{id})->load)->assign_attributes(%{ $params });
 
@@ -366,16 +378,13 @@ sub action_delete_printer {
 # actions: database administration
 #
 
-sub action_database_administration {
+sub action_create_dataset_login {
   my ($self) = @_;
 
-  $::form->{dbhost}    ||= $::auth->{DB_config}->{host} || 'localhost';
-  $::form->{dbport}    ||= $::auth->{DB_config}->{port} || 5432;
-  $::form->{dbuser}    ||= $::auth->{DB_config}->{user} || 'kivitendo';
-  $::form->{dbpasswd}  ||= $::auth->{DB_config}->{password};
-  $::form->{dbdefault} ||= 'template1';
-
-  $self->render('admin/dbadmin', title => t8('Database Administration'));
+  $self->database_administration_login_form(
+    title       => t8('Create Dataset'),
+    next_action => 'create_dataset',
+  );
 }
 
 sub action_create_dataset {
@@ -400,6 +409,15 @@ sub action_do_create_dataset {
 
   flash_later('info', t8("The dataset #1 has been created.", $::form->{db}));
   $self->redirect_to(action => 'database_administration');
+}
+
+sub action_delete_dataset_login {
+  my ($self) = @_;
+
+  $self->database_administration_login_form(
+    title       => t8('Delete Dataset'),
+    next_action => 'delete_dataset',
+  );
 }
 
 sub action_delete_dataset {
@@ -428,6 +446,15 @@ sub action_do_delete_dataset {
 # actions: locking, unlocking
 #
 
+sub action_show_lock {
+  my ($self) = @_;
+
+  $self->render(
+    "admin/show_lock",
+    title => "kivitendo " . t8('Administration'),
+  );
+}
+
 sub action_unlock_system {
   my ($self) = @_;
 
@@ -439,7 +466,7 @@ sub action_unlock_system {
 sub action_lock_system {
   my ($self) = @_;
 
-  SL::System::InstallationLock->unlock;
+  SL::System::InstallationLock->lock;
   flash_later('info', t8('Lockfile created!'));
   $self->redirect_to(action => 'show');
 }
@@ -459,10 +486,10 @@ sub init_all_users         { SL::DB::Manager::AuthUser  ->get_all_sorted        
 sub init_all_groups        { SL::DB::Manager::AuthGroup ->get_all_sorted                                                     }
 sub init_all_printers      { SL::DB::Manager::Printer   ->get_all_sorted                                                     }
 sub init_all_dateformats   { [ qw(mm/dd/yy dd/mm/yy dd.mm.yy yyyy-mm-dd)      ]                                              }
-sub init_all_numberformats { [ qw(1,000.00 1000.00 1.000,00 1000,00 1'000.00) ]                                              }
+sub init_all_numberformats { [ '1,000.00', '1000.00', '1.000,00', '1000,00', "1'000.00" ]                                    }
 sub init_all_stylesheets   { [ qw(lx-office-erp.css Mobile.css kivitendo.css) ]                                              }
 sub init_all_dbsources             { [ sort User->dbsources($::form)                               ] }
-sub init_all_unused_dbsources      { [ sort User->dbsources_unused($::form)                        ] }
+sub init_all_used_dbsources        { { map { (join(':', $_->dbhost || 'localhost', $_->dbport || 5432, $_->dbname) => $_->name) } @{ $_[0]->all_clients }  } }
 sub init_all_accounting_methods    { [ { id => 'accrual',   name => t8('Accrual accounting')  }, { id => 'cash',     name => t8('Cash accounting')       } ] }
 sub init_all_inventory_systems     { [ { id => 'perpetual', name => t8('Perpetual inventory') }, { id => 'periodic', name => t8('Periodic inventory')    } ] }
 sub init_all_profit_determinations { [ { id => 'balance',   name => t8('Balancing')           }, { id => 'income',   name => t8('Cash basis accounting') } ] }
@@ -520,17 +547,20 @@ sub setup_layout {
   my ($self, $action) = @_;
 
   $::request->layout(SL::Layout::Dispatcher->new(style => 'admin'));
-  $::request->layout->use_stylesheet("lx-office-erp.css");
   $::form->{favicon} = "favicon.ico";
+  %::myconfig        = (
+    countrycode      => 'de',
+    numberformat     => '1.000,00',
+    dateformat       => 'dd.mm.yy',
+  ) if !%::myconfig;
 }
 
 sub setup_client {
   my ($self) = @_;
 
-  $self->client((first { $_->is_default } @{ $self->all_clients }) || $self->all_clients->[0]) if !$self->client;
+  $self->client(SL::DB::Manager::AuthClient->get_default || $self->all_clients->[0]) if !$self->client;
   $::auth->set_client($self->client->id);
 }
-
 
 #
 # displaying forms
@@ -546,6 +576,7 @@ sub use_multiselect_js {
 sub login_form {
   my ($self, %params) = @_;
   my $version         = $::form->read_version;
+  $::request->layout->no_menu(1);
   $self->render('admin/adminlogin', title => t8('kivitendo v#1 administration', $version), %params, version => $version);
 }
 
@@ -567,6 +598,20 @@ sub edit_group_form {
 sub edit_printer_form {
   my ($self, %params) = @_;
   $self->render('admin/edit_printer', %params);
+}
+
+sub database_administration_login_form {
+  my ($self, %params) = @_;
+
+  $self->render(
+    'admin/dbadmin',
+    dbhost    => $::form->{dbhost}    || $::auth->{DB_config}->{host} || 'localhost',
+    dbport    => $::form->{dbport}    || $::auth->{DB_config}->{port} || 5432,
+    dbuser    => $::form->{dbuser}    || $::auth->{DB_config}->{user} || 'kivitendo',
+    dbpasswd  => $::form->{dbpasswd}  || $::auth->{DB_config}->{password},
+    dbdefault => $::form->{dbdefault} || 'template1',
+    %params,
+  );
 }
 
 sub create_dataset_form {

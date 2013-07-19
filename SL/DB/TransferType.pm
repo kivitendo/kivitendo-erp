@@ -8,6 +8,8 @@ use strict;
 use SL::DB::MetaSetup::TransferType;
 use SL::DB::Manager::TransferType;
 
+__PACKAGE__->meta->initialize;
+
 # methods
 
 sub description_t8 {

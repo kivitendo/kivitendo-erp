@@ -8,7 +8,6 @@ use SL::DB::MetaSetup::DeliveryOrder;
 use SL::DB::Manager::DeliveryOrder;
 use SL::DB::Helper::LinkedRecords;
 use SL::DB::Helper::TransNumberGenerator;
-use SL::DB::Order;
 
 use List::Util qw(first);
 
@@ -20,6 +19,18 @@ __PACKAGE__->meta->add_relationship(orderitems => { type         => 'one to many
                                    );
 
 __PACKAGE__->meta->initialize;
+
+__PACKAGE__->before_save('_before_save_set_donumber');
+
+# hooks
+
+sub _before_save_set_donumber {
+  my ($self) = @_;
+
+  $self->create_trans_number if !$self->donumber;
+
+  return 1;
+}
 
 # methods
 
@@ -35,6 +46,8 @@ sub sales_order {
   my $self   = shift;
   my %params = @_;
 
+
+  require SL::DB::Order;
   my $orders = SL::DB::Manager::Order->get_all(
     query => [
       ordnumber => $self->ordnumber,

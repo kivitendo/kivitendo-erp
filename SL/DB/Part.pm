@@ -179,6 +179,29 @@ sub get_chart {
   return $charts->{$taxzone}->{$type};
 }
 
+# this is designed to ignore chargenumbers, expiration dates and just give a list of how much <-> where
+sub get_simple_stock {
+  my ($self, %params) = @_;
+
+  return [] unless $self->id;
+
+  my $query = <<'';
+    SELECT sum(qty), warehouse_id, bin_id FROM inventory WHERE parts_id = ?
+    GROUP BY warehouse_id, bin_id
+
+  my $stock_info = selectall_hashref_query($::form, $::form->get_standard_dbh, $query, $self->id);
+  [ map { bless $_, 'SL::DB::Part::SimpleStock'} @$stock_info ];
+}
+# helper class to have bin/warehouse accessors in stock result
+{ package SL::DB::Part::SimpleStock;
+  sub warehouse { require SL::DB::Warehouse; SL::DB::Manager::Warehouse->find_by_or_create(id => $_[0]->{warehouse_id}) }
+  sub bin       { require SL::DB::Bin;       SL::DB::Manager::Bin      ->find_by_or_create(id => $_[0]->{bin_id}) }
+}
+
+sub long_description {
+  join ' ', grep $_, map $_[0]->$_, qw(partnumber description);
+}
+
 1;
 
 __END__

@@ -193,7 +193,7 @@ body.menu {
 	background-color: #8ee085;
 	color: #000000;
 } */
-.listheading, h2 {
+.listheading, #content h2 {
 	padding: 0.2em;
 	background-color: #EBEBEB;
 	color: #006400;
@@ -375,4 +375,49 @@ label {
 .link_separator {
   margin-left: 6px;
   margin-right: 6px;
+}
+
+.small-text {
+  font-size: 0.75em;
+}
+
+.float-left {
+  float: left;
+}
+
+.block-context {
+  overflow: hidden;
+}
+
+.position-relative {
+  position: relative;
+}
+
+.position-absolute {
+  position: absolute;
+}
+
+.part_picker {
+  padding-right: 16px;
+}
+
+div.part_picker_part {
+  float:left; width: 350px;
+  padding: 5px;
+  margin: 5px;
+  overflow:hidden;
+  border: 1px;
+  border-color: darkgray;
+  border-style: solid;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  background-color: whitesmoke;
+  cursor: pointer;
+}
+
+div.part_picker_part:hover {
+  background-color: #CCCCCC;
+  color: #FE5F14;
+  border-color: gray;
 }

@@ -50,7 +50,7 @@ sub get_part {
   my ($self, $myconfig, $form) = @_;
 
   # connect to db
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $sth;
 
@@ -176,7 +176,7 @@ SQL
 
   $form->{"unit_changeable"} = $form->{orphaned};
 
-  $dbh->disconnect;
+  Common::webdav_folder($form) if $::lx_office_conf{features}{webdav};
 
   $main::lxdebug->leave_sub();
 }
@@ -186,7 +186,7 @@ sub get_pricegroups {
 
   my ($self, $myconfig, $form) = @_;
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   # get pricegroups
   my $query = qq|SELECT id, pricegroup FROM pricegroup ORDER BY lower(pricegroup)|;
@@ -204,8 +204,6 @@ sub get_pricegroups {
   #correct rows
   $form->{price_rows} = $i - 1;
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 
   return $pricegroups;
@@ -218,7 +216,7 @@ sub retrieve_buchungsgruppen {
 
   my ($query, $sth);
 
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   # get buchungsgruppen
   $query = qq|SELECT id, description FROM buchungsgruppen ORDER BY sortkey|;
@@ -551,7 +549,7 @@ sub retrieve_assemblies {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $where = qq|NOT p.obsolete|;
   my @values;
@@ -578,8 +576,6 @@ sub retrieve_assemblies {
 
   $form->{assembly_items} = selectall_hashref_query($form, $dbh, $query, @values);
 
-  $dbh->disconnect;
-
   $main::lxdebug->leave_sub();
 }
 
@@ -589,7 +585,7 @@ sub delete {
   my ($self, $myconfig, $form) = @_;
   my @values = (conv_i($form->{id}));
   # connect to database, turn off AutoCommit
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my %columns = ( "assembly" => "id", "parts" => "id" );
 
@@ -600,7 +596,6 @@ sub delete {
 
   # commit
   my $rc = $dbh->commit;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
@@ -643,7 +638,7 @@ sub assembly_item {
   }
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my $query =
     qq|SELECT p.id, p.partnumber, p.description, p.sellprice,
@@ -654,8 +649,6 @@ sub assembly_item {
        LEFT JOIN price_factors pfac ON pfac.id = p.price_factor_id
        WHERE $where|;
   $form->{item_list} = selectall_hashref_query($form, $dbh, $query, @values);
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 }
@@ -1203,7 +1196,7 @@ sub update_prices {
   my $num_updated = 0;
 
   # connect to database
-  my $dbh = $form->dbconnect_noauto($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   for my $column (qw(sellprice listprice)) {
     next if ($form->{$column} eq "");
@@ -1264,7 +1257,6 @@ sub update_prices {
   $sth_multiply->finish();
 
   my $rc= $dbh->commit;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
@@ -1277,7 +1269,7 @@ sub create_links {
   my ($self, $module, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my @values = ('%' . $module . '%');
   my $query;
@@ -1333,7 +1325,6 @@ sub create_links {
     ($form->{priceupdate}) = selectrow_query($form, $dbh, qq|SELECT current_date|);
   }
 
-  $dbh->disconnect;
   $main::lxdebug->leave_sub();
 }
 
@@ -1342,7 +1333,7 @@ sub get_parts {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form, $sortorder) = @_;
-  my $dbh   = $form->dbconnect($myconfig);
+  my $dbh   = $form->get_standard_dbh;
   my $order = qq| p.partnumber|;
   my $where = qq|1 = 1|;
   my @values;
@@ -1385,7 +1376,6 @@ sub get_parts {
   }    #while
   $form->{rows} = $j;
   $sth->finish;
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 
@@ -1413,7 +1403,7 @@ sub retrieve_languages {
   my ($self, $myconfig, $form) = @_;
 
   # connect to database
-  my $dbh = $form->dbconnect($myconfig);
+  my $dbh = $form->get_standard_dbh;
 
   my @values;
   my $where;
@@ -1434,8 +1424,6 @@ sub retrieve_languages {
   }
 
   my $languages = selectall_hashref_query($form, $dbh, $query, @values);
-
-  $dbh->disconnect;
 
   $main::lxdebug->leave_sub();
 

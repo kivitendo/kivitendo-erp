@@ -1,0 +1,23 @@
+[%- USE HTML %]
+[%- USE L %]
+[%- USE LxERP %]
+[%- USE T8 %]
+
+<h1>[% 'Part picker' | $T8 %]</h1>
+<div style='overflow:hidden'>
+
+[% L.input_tag('part_picker_filter', SELF.filter.all_substr__ilike, class='part_picker_filter') %]
+[% L.hidden_tag('part_picker_real_id', FORM.real_id) %]
+
+<div style='clear:both'></div>
+<div id='part_picker_result'></div>
+</div>
+
+<script type='text/javascript'>
+  var pp = kivi.PartPicker($('#[% FORM.real_id %]'));
+  $(function(){
+    $('#part_picker_filter').focus();
+    pp.update_results();
+  });
+  $('#part_picker_filter').keypress(pp.update_results);
+</script>

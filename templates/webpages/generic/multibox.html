@@ -25,6 +25,7 @@
     limit         : defines the limit of entries, after which a textbox is generated. defaults to vclimit, or, failing to find that, 200.
     select_name   : if a select is displayed, use a different name. ex.: department for textinput, but department_id for selects
     readonly      : softly prevents modification
+    class         : CSS class names (optional)
 -%]
 [%-
   Multibox__limit      = limit   != '' ? limit   : vclimit != '' ? vclimit : 200
@@ -39,6 +40,7 @@
  [%- IF Multibox__id       %] id="[%    Multibox__id      | html %]"[% END -%]
  [%- IF Multibox__default  %] value="[% Multibox__default | html %]"[% END -%]
  [%- IF style              %] style="[% style             | html %]"[% END -%]
+ [%- IF class              %] class="[% class             | html %]"[% END -%]
  [%- IF readonly           %] readonly[% END -%]
 [%- -%]>
 [%- IF select -%]
@@ -49,6 +51,7 @@
  [%- IF Multibox__name     %] name="[%     Multibox__name     | html %]"[% END -%]
  [%- IF Multibox__id       %] id="[%       Multibox__id       | html %]"[% END -%]
  [%- IF style              %] style="[%    style              | html %]"[% END -%]
+ [%- IF class              %] class="[%     class             | html %]"[% END -%]
  [%- IF onChange           %] onChange="[% onChange           | html %]"[% END -%]
  [%- IF readonly           %] disabled[% END -%]
 [%- -%]>

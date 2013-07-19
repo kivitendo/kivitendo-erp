@@ -12,20 +12,20 @@ use List::Util qw(min);
 my %controller_paginate_spec;
 
 sub make_paginated {
-  my ($class, %specs)       = @_;
+  my ($class, %specs)               = @_;
 
-  $specs{MODEL}           ||=  $class->controller_name;
-  $specs{MODEL}             =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
-  $specs{PER_PAGE}        ||= "SL::DB::Manager::$specs{MODEL}"->default_objects_per_page;
-  $specs{FORM_PARAMS}     ||= [ qw(page per_page) ];
-  $specs{PAGINATE_ARGS}   ||= '__FILTER__';
-  $specs{ONLY}            ||= [];
-  $specs{ONLY}              = [ $specs{ONLY} ] if !ref $specs{ONLY};
-  $specs{ONLY_MAP}          = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
+  $specs{MODEL}                   ||=  $class->controller_name;
+  $specs{MODEL}                     =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
+  $specs{PER_PAGE}                ||= "SL::DB::Manager::$specs{MODEL}"->default_objects_per_page;
+  $specs{FORM_PARAMS}             ||= [ qw(page per_page) ];
+  $specs{PAGINATE_ARGS}           ||= '__FILTER__';
+  $specs{ONLY}                    ||= [];
+  $specs{ONLY}                      = [ $specs{ONLY} ] if !ref $specs{ONLY};
+  $specs{ONLY_MAP}                  = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
 
   $controller_paginate_spec{$class} = \%specs;
 
-  my %hook_params           = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
+  my %hook_params                   = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
   $class->run_before('_save_current_paginate_params', %hook_params);
 
   SL::Controller::Helper::GetModels::register_get_models_handlers(

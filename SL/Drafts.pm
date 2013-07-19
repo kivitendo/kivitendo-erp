@@ -38,6 +38,10 @@ sub get_module {
 
 my @dont_save = qw(login password action);
 
+sub dont_save {
+  return @dont_save;
+}
+
 sub save {
   $main::lxdebug->enter_sub();
 

@@ -6,22 +6,20 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'transfer_type',
+__PACKAGE__->meta->table('transfer_type');
 
-  columns => [
-    id          => { type => 'integer', not_null => 1, sequence => 'id' },
-    direction   => { type => 'varchar', length => 10, not_null => 1 },
-    description => { type => 'text' },
-    sortkey     => { type => 'integer' },
-    itime       => { type => 'timestamp', default => 'now()' },
-    mtime       => { type => 'timestamp' },
-  ],
-
-  primary_key_columns => [ 'id' ],
-
-  allow_inline_column_values => 1,
+__PACKAGE__->meta->columns(
+  description => { type => 'text' },
+  direction   => { type => 'varchar', length => 10, not_null => 1 },
+  id          => { type => 'integer', not_null => 1, sequence => 'id' },
+  itime       => { type => 'timestamp', default => 'now()' },
+  mtime       => { type => 'timestamp' },
+  sortkey     => { type => 'integer' },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
+
+__PACKAGE__->meta->allow_inline_column_values(1);
 
 1;
 ;

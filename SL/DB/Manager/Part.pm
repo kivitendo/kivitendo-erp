@@ -35,29 +35,28 @@ sub type_filter {
 
   # this is to make selection like type => { part => 1, service => 1 } work
   if ('HASH' eq ref $type) {
-    $type = grep { $type->{$_} } keys %$type;
+    $type = [ grep { $type->{$_} } keys %$type ];
   }
 
-  my @types = listify($type);
+  my @types = grep { $_ } listify($type);
   my @filter;
 
   for my $type (@types) {
     if ($type =~ m/^part/) {
-      push @filter, (and => [ or                    => [ $prefix . assembly => 0, $prefix . assembly => undef ],
-                       "!${prefix}inventory_accno_id" => 0,
-                       "!${prefix}inventory_accno_id" => undef,
+      push @filter, (and => [ or                             => [ $prefix . assembly => 0, $prefix . assembly => undef ],
+                              "!${prefix}inventory_accno_id" => 0,
+                              "!${prefix}inventory_accno_id" => undef,
                      ]);
     } elsif ($type =~ m/^service/) {
       push @filter, (and => [ or => [ $prefix . assembly           => 0, $prefix . assembly           => undef ],
-                       or => [ $prefix . inventory_accno_id => 0, $prefix . inventory_accno_id => undef ],
+                              or => [ $prefix . inventory_accno_id => 0, $prefix . inventory_accno_id => undef ],
                      ]);
     } elsif ($type =~ m/^assembl/) {
       push @filter, ($prefix . assembly => 1);
     }
   }
 
-  return @filter > 2 ? (or => \@filter) :
-         @filter     ? @filter          : ();
+  return @filter > 2 ? (or => \@filter) : @filter;
 }
 
 sub get_ordered_qty {
@@ -83,6 +82,16 @@ SQL
   map { $qty_by_id{$_} ||= 0 } @part_ids;
 
   return %qty_by_id;
+}
+
+sub _sort_spec {
+  (
+    default  => [ 'partnumber', 1 ],
+    columns  => {
+      SIMPLE => 'ALL',
+    },
+    nulls    => {},
+  );
 }
 
 1;

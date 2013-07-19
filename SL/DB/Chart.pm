@@ -4,7 +4,6 @@ use strict;
 
 use SL::DB::MetaSetup::Chart;
 use SL::DB::Manager::Chart;
-use SL::DB::TaxKey;
 
 __PACKAGE__->meta->add_relationships(taxkeys => { type         => 'one to many',
                                                   class        => 'SL::DB::TaxKey',
@@ -17,6 +16,7 @@ __PACKAGE__->meta->initialize;
 sub get_active_taxkey {
   my ($self, $date) = @_;
   $date ||= DateTime->today_local;
+  require SL::DB::TaxKey;
   return SL::DB::Manager::TaxKey->get_all(query   => [ and => [ chart_id  => $self->id,
                                                                 startdate => { le => $date } ] ],
                                           sort_by => "startdate DESC")->[0];

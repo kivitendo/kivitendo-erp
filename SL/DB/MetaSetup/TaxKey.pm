@@ -6,26 +6,31 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'taxkeys',
+__PACKAGE__->meta->table('taxkeys');
 
-  columns => [
-    id        => { type => 'integer', not_null => 1, sequence => 'id' },
-    chart_id  => { type => 'integer' },
-    tax_id    => { type => 'integer' },
-    taxkey_id => { type => 'integer' },
-    pos_ustva => { type => 'integer' },
-    startdate => { type => 'date' },
-  ],
+__PACKAGE__->meta->columns(
+  chart_id  => { type => 'integer', not_null => 1 },
+  id        => { type => 'integer', not_null => 1, sequence => 'id' },
+  pos_ustva => { type => 'integer' },
+  startdate => { type => 'date', not_null => 1 },
+  tax_id    => { type => 'integer', not_null => 1 },
+  taxkey_id => { type => 'integer', not_null => 1 },
+);
 
-  primary_key_columns => [ 'id' ],
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
-  foreign_keys => [
-    tax => {
-      class       => 'SL::DB::Tax',
-      key_columns => { tax_id => 'id' },
-    },
-  ],
+__PACKAGE__->meta->unique_keys([ 'chart_id', 'startdate' ]);
+
+__PACKAGE__->meta->foreign_keys(
+  chart => {
+    class       => 'SL::DB::Chart',
+    key_columns => { chart_id => 'id' },
+  },
+
+  tax => {
+    class       => 'SL::DB::Tax',
+    key_columns => { tax_id => 'id' },
+  },
 );
 
 1;

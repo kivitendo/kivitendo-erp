@@ -12,11 +12,16 @@ use SL::Presenter::DeliveryOrder;
 use SL::Presenter::EscapedText;
 use SL::Presenter::Invoice;
 use SL::Presenter::Order;
+use SL::Presenter::Part;
 use SL::Presenter::Project;
 use SL::Presenter::Record;
 use SL::Presenter::SepaExport;
 use SL::Presenter::Text;
 use SL::Presenter::Tag;
+
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(need_reinit_widgets) ],
+);
 
 sub get {
   return $::request->presenter;

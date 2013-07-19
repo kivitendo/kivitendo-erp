@@ -1,0 +1,18 @@
+[% USE L %]
+
+<h1>Waren Picker Testpage</h1>
+
+<br>
+Alle: <br>
+[% L.part_picker('part_id') %] text<br>
+Nur Waren: <br>
+[% L.part_picker('part_id2', undef, type='part') %]<br>
+Nur Dienstleistungen: <br>
+[% L.part_picker('part_id3', undef, type='service') %]<br>
+Waren und Dienstleistungen: <br>
+[% L.part_picker('part_id4', undef, type='part,service') %]<br>
+
+
+[%# FOREACH i IN 1..50 %]
+[%# L.part_picker('part_id_' _ i) %] <br>
+[%# END %]

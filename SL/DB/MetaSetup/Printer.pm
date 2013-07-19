@@ -6,18 +6,16 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'printers',
+__PACKAGE__->meta->table('printers');
 
-  columns => [
-    id                  => { type => 'integer', not_null => 1, sequence => 'id' },
-    printer_description => { type => 'text', not_null => 1 },
-    printer_command     => { type => 'text' },
-    template_code       => { type => 'text' },
-  ],
-
-  primary_key_columns => [ 'id' ],
+__PACKAGE__->meta->columns(
+  id                  => { type => 'integer', not_null => 1, sequence => 'id' },
+  printer_command     => { type => 'text' },
+  printer_description => { type => 'text', not_null => 1 },
+  template_code       => { type => 'text' },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 1;
 ;

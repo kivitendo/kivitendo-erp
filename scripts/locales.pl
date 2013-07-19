@@ -18,7 +18,6 @@ use FileHandle;
 use Getopt::Long;
 use IO::Dir;
 use List::Util qw(first);
-use POSIX;
 use Pod::Usage;
 
 $OUTPUT_AUTOFLUSH = 1;
@@ -35,7 +34,7 @@ my $basedir      = "../..";
 my $locales_dir  = ".";
 my $bindir       = "$basedir/bin/mozilla";
 my @progdirs     = ( "$basedir/SL" );
-my $menufile     = "menu.ini";
+my @menufiles    = ("${basedir}/menu.ini", "${basedir}/admin-menu.ini");
 my @javascript_dirs = ($basedir .'/js', $basedir .'/templates/webpages');
 my $javascript_output_dir = $basedir .'/js';
 my $submitsearch = qr/type\s*=\s*[\"\']?submit/i;
@@ -89,15 +88,13 @@ my @customfiles  = grep /_custom/, @bindir_files;
 push @progfiles, map { m:^(.+)/([^/]+)$:; [ $2, $1 ] } grep { /\.pm$/ } map { find_files($_) } @progdirs;
 
 # put customized files into @customfiles
-my (@menufiles, %dir_h);
+my %dir_h;
 
 if ($opt_n) {
   @customfiles = ();
-  @menufiles   = ($menufile);
 } else {
   tie %dir_h, 'IO::Dir', $basedir;
-  @menufiles = map { "$basedir/$_" } grep { /.*?_$menufile$/ } keys %dir_h;
-  unshift @menufiles, "$basedir/$menufile";
+  push @menufiles, map { "$basedir/$_" } grep { /.*_menu.ini$/ } keys %dir_h;
 }
 
 my @dbplfiles;
@@ -722,11 +719,6 @@ sub generate_file {
 
   print $fh qq|$delim[1];\n\n1;\n|;
   close $fh;
-}
-
-sub slurp {
-  my $file = shift;
-  do { local ( @ARGV, $/ ) = $file; <> }
 }
 
 __END__

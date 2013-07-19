@@ -37,6 +37,7 @@
 
 package Form;
 
+use Carp;
 use Data::Dumper;
 
 use CGI;
@@ -53,7 +54,10 @@ use SL::CVar;
 use SL::DB;
 use SL::DBConnect;
 use SL::DBUtils;
+use SL::DB::Customer;
 use SL::DB::Default;
+use SL::DB::PaymentTerm;
+use SL::DB::Vendor;
 use SL::DO;
 use SL::IC;
 use SL::IS;
@@ -461,14 +465,14 @@ sub header {
   # this should gradually move to the layouts that need it
   $layout->use_stylesheet("$_.css") for qw(
     main menu list_accounts jquery.autocomplete
-    jquery.multiselect2side frame_header/header
+    jquery.multiselect2side
     ui-lightness/jquery-ui
     jquery-ui.custom jqModal
   );
 
   $layout->use_javascript("$_.js") for (qw(
     jquery jquery-ui jquery.cookie jqModal jquery.checkall jquery.download
-    common part_selection switchmenuframe
+    common part_selection switchmenuframe autocomplete_part
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
   $self->{favicon} ||= "favicon.ico";
@@ -614,14 +618,7 @@ sub _prepare_html_template {
     map { $additional_params->{"myconfig_${_}"} = $main::myconfig{$_}; } keys %::myconfig;
   }
 
-  $additional_params->{"conf_webdav"}                 = $::lx_office_conf{features}->{webdav};
-  $additional_params->{"conf_latex_templates"}        = $::lx_office_conf{print_templates}->{latex};
-  $additional_params->{"conf_opendocument_templates"} = $::lx_office_conf{print_templates}->{opendocument};
-  $additional_params->{"conf_vertreter"}              = $::lx_office_conf{features}->{vertreter};
-  $additional_params->{"conf_parts_image_css"}        = $::lx_office_conf{features}->{parts_image_css};
-  $additional_params->{"conf_parts_listing_images"}   = $::lx_office_conf{features}->{parts_listing_images};
-  $additional_params->{"conf_parts_show_image"}       = $::lx_office_conf{features}->{parts_show_image};
-  $additional_params->{"INSTANCE_CONF"}               = $::instance_conf;
+  $additional_params->{INSTANCE_CONF} = $::instance_conf;
 
   if (my $debug_options = $::lx_office_conf{debug}{options}) {
     map { $additional_params->{'DEBUG_' . uc($_)} = $debug_options->{$_} } keys %$debug_options;
@@ -1049,12 +1046,10 @@ sub parse_template {
   close $temp_fh;
   (undef, undef, $self->{template_meta}{tmpfile}) = File::Spec->splitpath( $self->{tmpfile} );
 
-  if ($template->uses_temp_file() || $self->{media} eq 'email') {
-    $out              = $self->{OUT};
-    $out_mode         = $self->{OUT_MODE} || '>';
-    $self->{OUT}      = "$self->{tmpfile}";
-    $self->{OUT_MODE} = '>';
-  }
+  $out              = $self->{OUT};
+  $out_mode         = $self->{OUT_MODE} || '>';
+  $self->{OUT}      = "$self->{tmpfile}";
+  $self->{OUT_MODE} = '>';
 
   my $result;
   my $command_formatter = sub {
@@ -1077,8 +1072,11 @@ sub parse_template {
 
   close OUT if $self->{OUT};
 
+  my $copy_to_webdav = $::instance_conf->get_webdav && $::instance_conf->get_webdav_documents && !$self->{preview};
+
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
+    Common::copy_file_to_webdav_folder($self)                                                                         if $copy_to_webdav;
     $self->cleanup;
     chdir("$self->{cwd}");
 
@@ -1087,92 +1085,90 @@ sub parse_template {
     return;
   }
 
-  if ($template->uses_temp_file() || $self->{media} eq 'email') {
+  Common::copy_file_to_webdav_folder($self) if $copy_to_webdav;
 
-    if ($self->{media} eq 'email') {
+  if ($self->{media} eq 'email') {
 
-      my $mail = new Mailer;
+    my $mail = new Mailer;
 
-      map { $mail->{$_} = $self->{$_} }
-        qw(cc bcc subject message version format);
-      $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
-      $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
-      $mail->{fileid} = time() . '.' . $$ . '.';
-      $myconfig->{signature} =~ s/\r//g;
+    map { $mail->{$_} = $self->{$_} }
+      qw(cc bcc subject message version format);
+    $mail->{to} = $self->{EMAIL_RECIPIENT} ? $self->{EMAIL_RECIPIENT} : $self->{email};
+    $mail->{from}   = qq|"$myconfig->{name}" <$myconfig->{email}>|;
+    $mail->{fileid} = time() . '.' . $$ . '.';
+    $myconfig->{signature} =~ s/\r//g;
 
-      # if we send html or plain text inline
-      if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
-        $mail->{contenttype}    =  "text/html";
-        $mail->{message}        =~ s/\r//g;
-        $mail->{message}        =~ s/\n/<br>\n/g;
-        $myconfig->{signature}  =~ s/\n/<br>\n/g;
-        $mail->{message}       .=  "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
+    # if we send html or plain text inline
+    if (($self->{format} eq 'html') && ($self->{sendmode} eq 'inline')) {
+      $mail->{contenttype}    =  "text/html";
+      $mail->{message}        =~ s/\r//g;
+      $mail->{message}        =~ s/\n/<br>\n/g;
+      $myconfig->{signature}  =~ s/\n/<br>\n/g;
+      $mail->{message}       .=  "<br>\n-- <br>\n$myconfig->{signature}\n<br>";
 
-        open(IN, "<", $self->{tmpfile})
-          or $self->error($self->cleanup . "$self->{tmpfile} : $!");
-        $mail->{message} .= $_ while <IN>;
-        close(IN);
-
-      } else {
-
-        if (!$self->{"do_not_attach"}) {
-          my $attachment_name  =  $self->{attachment_filename} || $self->{tmpfile};
-          $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
-          $mail->{attachments} =  [{ "filename" => $self->{tmpfile},
-                                     "name"     => $attachment_name }];
-        }
-
-        $mail->{message}  =~ s/\r//g;
-        $mail->{message} .=  "\n-- \n$myconfig->{signature}";
-
-      }
-
-      my $err = $mail->send();
-      $self->error($self->cleanup . "$err") if ($err);
+      open(IN, "<", $self->{tmpfile})
+        or $self->error($self->cleanup . "$self->{tmpfile} : $!");
+      $mail->{message} .= $_ while <IN>;
+      close(IN);
 
     } else {
 
-      $self->{OUT}      = $out;
-      $self->{OUT_MODE} = $out_mode;
+      if (!$self->{"do_not_attach"}) {
+        my $attachment_name  =  $self->{attachment_filename} || $self->{tmpfile};
+        $attachment_name     =~ s/\.(.+?)$/.${ext_for_format}/ if ($ext_for_format);
+        $mail->{attachments} =  [{ "filename" => $self->{tmpfile},
+                                   "name"     => $attachment_name }];
+      }
 
-      my $numbytes = (-s $self->{tmpfile});
-      open(IN, "<", $self->{tmpfile})
-        or $self->error($self->cleanup . "$self->{tmpfile} : $!");
-      binmode IN;
+      $mail->{message}  =~ s/\r//g;
+      $mail->{message} .=  "\n-- \n$myconfig->{signature}";
 
-      $self->{copies} = 1 unless $self->{media} eq 'printer';
+    }
 
-      chdir("$self->{cwd}");
-      #print(STDERR "Kopien $self->{copies}\n");
-      #print(STDERR "OUT $self->{OUT}\n");
-      for my $i (1 .. $self->{copies}) {
-        if ($self->{OUT}) {
-          $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
+    my $err = $mail->send();
+    $self->error($self->cleanup . "$err") if ($err);
 
-          open  OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
-          print OUT $_ while <IN>;
-          close OUT;
-          seek  IN, 0, 0;
+  } else {
 
-        } else {
-          $self->{attachment_filename} = ($self->{attachment_filename})
-                                       ? $self->{attachment_filename}
-                                       : $self->generate_attachment_filename();
+    $self->{OUT}      = $out;
+    $self->{OUT_MODE} = $out_mode;
 
-          # launch application
-          print qq|Content-Type: | . $template->get_mime_type() . qq|
+    my $numbytes = (-s $self->{tmpfile});
+    open(IN, "<", $self->{tmpfile})
+      or $self->error($self->cleanup . "$self->{tmpfile} : $!");
+    binmode IN;
+
+    $self->{copies} = 1 unless $self->{media} eq 'printer';
+
+    chdir("$self->{cwd}");
+    #print(STDERR "Kopien $self->{copies}\n");
+    #print(STDERR "OUT $self->{OUT}\n");
+    for my $i (1 .. $self->{copies}) {
+      if ($self->{OUT}) {
+        $self->{OUT} = $command_formatter->($self->{OUT_MODE}, $self->{OUT});
+
+        open  OUT, $self->{OUT_MODE}, $self->{OUT} or $self->error($self->cleanup . "$self->{OUT} : $!");
+        print OUT $_ while <IN>;
+        close OUT;
+        seek  IN, 0, 0;
+
+      } else {
+        $self->{attachment_filename} = ($self->{attachment_filename})
+                                     ? $self->{attachment_filename}
+                                     : $self->generate_attachment_filename();
+
+        # launch application
+        print qq|Content-Type: | . $template->get_mime_type() . qq|
 Content-Disposition: attachment; filename="$self->{attachment_filename}"
 Content-Length: $numbytes
 
 |;
 
-          $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
-        }
+        $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
       }
-
-      close(IN);
     }
 
+    close(IN);
   }
 
   $self->cleanup;
@@ -1403,6 +1399,14 @@ sub get_standard_dbh {
   $main::lxdebug->leave_sub(2);
 
   return $standard_dbh;
+}
+
+sub set_standard_dbh {
+  my ($self, $dbh) = @_;
+  my $old_dbh      = $standard_dbh;
+  $standard_dbh    = $dbh;
+
+  return $old_dbh;
 }
 
 sub date_closed {
@@ -1926,22 +1930,12 @@ sub get_duedate {
 
   my ($self, $myconfig, $reference_date) = @_;
 
-  $reference_date = $reference_date ? conv_dateq($reference_date) . '::DATE' : 'current_date';
+  my $terms   = $self->{payment_id}  ? SL::DB::PaymentTerm->new(id => $self->{payment_id}) ->load
+              : $self->{customer_id} ? SL::DB::Customer   ->new(id => $self->{customer_id})->load->payment
+              : $self->{vendor_id}   ? SL::DB::Vendor     ->new(id => $self->{vendor_id})  ->load->payment
+              :                        croak("Missing field in \$::form: payment_id, customer_id or vendor_id");
 
-  my $dbh         = $self->get_standard_dbh($myconfig);
-  my ($payment_id, $duedate);
-
-  if($self->{payment_id}) {
-    $payment_id = $self->{payment_id};
-  } elsif($self->{vendor_id}) {
-    my $query = 'SELECT payment_id FROM vendor WHERE id = ?';
-    ($payment_id) = selectrow_query($self, $dbh, $query, $self->{vendor_id});
-  }
-
-  if ($payment_id) {
-    my $query  = qq|SELECT ${reference_date} + terms_netto FROM payment_terms WHERE id = ?|;
-    ($duedate) = selectrow_query($self, $dbh, $query, $payment_id);
-  }
+  my $duedate = $terms->calc_date(reference_date => $reference_date)->to_kivitendo;
 
   $main::lxdebug->leave_sub();
 

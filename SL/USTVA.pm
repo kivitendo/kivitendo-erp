@@ -518,9 +518,7 @@ sub query_finanzamt {
   my $filename = "sql/$table.sql";
 
   my $tst = $dbh->prepare("SELECT * FROM $table");
-  $tst->execute;
-  if ($DBI::err) {
-
+  $tst->execute || do {
     #There is no table, read the table from sql/finanzamt.sql
     print qq|<p>Bitte warten, Tabelle $table wird einmalig in Datenbank:
     $myconfig->{dbname} als Benutzer: $myconfig->{dbuser} hinzugefügt...</p>|;
@@ -529,7 +527,7 @@ sub query_finanzamt {
     #execute second last call
     my $dbh = $form->dbconnect($myconfig) or $self->error(DBI->errstr);
     $dbh->disconnect();
-  }
+  };
   $tst->finish();
 
   #$dbh->disconnect();

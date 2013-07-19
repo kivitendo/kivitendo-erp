@@ -1,0 +1,165 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]<h1>[% HTML.escape(title) %]</h1>
+
+<form action="controller.pl" method="post">
+ [%- L.hidden_tag("id", SELF.config.id) %]
+
+ <p>
+  <table>
+   <tr>
+    <td align="right">[% 'Module' | $T8 %]</td>
+    <td>[%- L.select_tag('module', SELF.modules, value_key='module', title_key='description', default=SELF.module, onchange="update_ic_rows();") %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Variable Name' | $T8 %]<sup><span class="small-text">(1)</span></sup></td>
+    <td>[%- L.input_tag("config.name", SELF.config.name, class='initial_focus') %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Variable Description' | $T8 %]<sup><span class="small-text">(2)</span></sup></td>
+    <td>[%- L.input_tag("config.description", SELF.config.description) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Type' | $T8 %]<sup><span class="small-text">(3)</span></sup></td>
+    <td>[% L.select_tag("config.type", SELF.translated_types, value_key='type', title_key='translation', default=SELF.config.type) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Default value' | $T8 %]<sup><span class="small-text">(4)</span></sup></td>
+    <td>[%- L.input_tag("config.default_value", SELF.config.type == 'number' ? LxERP.format_amount(SELF.config.default_value, 2) : SELF.config.default_value) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Options' | $T8 %]<sup><span class="small-text">(5)</span></sup></td>
+    <td>[%- L.input_tag("config.options", SELF.config.options) %]</td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Is Searchable' | $T8 %]</td>
+    <td>
+     [% L.radio_button_tag('config.searchable', value='1', id='config_searchable_1', label=LxERP.t8('Yes'), checked=(SELF.config.searchable ?  1 : '')) %]
+     [% L.radio_button_tag('config.searchable', value='0', id='config_searchable_0', label=LxERP.t8('No'),  checked=(SELF.config.searchable ? '' :  1)) %]
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Includeable in reports' | $T8 %]</td>
+    <td>
+     [% L.radio_button_tag('config.includeable', value='1', id='config_includeable_1', label=LxERP.t8('Yes'), checked=(SELF.config.includeable ?  1 : ''), onclick='update_included_by_default()') %]
+     [% L.radio_button_tag('config.includeable', value='0', id='config_includeable_0', label=LxERP.t8('No'),  checked=(SELF.config.includeable ? '' :  1), onclick='update_included_by_default()') %]
+    </td>
+   </tr>
+
+   <tr>
+    <td align="right">[% 'Included in reports by default' | $T8 %]</td>
+    <td>
+     [% SET disabled = SELF.config.includeable ? '' : 'disabled' %]
+     [% L.radio_button_tag('config.included_by_default', value='1', id='config_included_by_default_1', label=LxERP.t8('Yes'), checked=(SELF.config.included_by_default ?  1 : ''), disabled=disabled) %]
+     [% L.radio_button_tag('config.included_by_default', value='0', id='config_included_by_default_0', label=LxERP.t8('No'),  checked=(SELF.config.included_by_default ? '' :  1), disabled=disabled) %]
+    </td>
+   </tr>
+
+   <tr data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+    <td align="right">[% 'Editable' | $T8 %]<sup><span class="small-text">(6)</span></sup></td>
+    <td>
+     [% L.radio_button_tag('config.flag_editable', value='1', id='config.flag_editable_1', label=LxERP.t8('Yes'), checked=(SELF.flags.editable ?  1 : '')) %]
+     [% L.radio_button_tag('config.flag_editable', value='0', id='config.flag_editable_0', label=LxERP.t8('No'),  checked=(SELF.flags.editable ? '' :  1)) %]
+    </td>
+   </tr>
+  </table>
+ </p>
+
+ <p>
+  [% L.hidden_tag("action", "CustomVariableConfig/dispatch") %]
+  [% L.submit_tag("action_" _  (SELF.config.id ? "update" : "create"), LxERP.t8('Save'), onclick="return check_prerequisites();") %]
+  [%- IF SELF.config.id %]
+   [% L.submit_tag("action_create", LxERP.t8('Save as new'), onclick="return check_prerequisites();") %]
+   [% L.submit_tag("action_destroy", LxERP.t8('Delete'), confirm=LxERP.t8('Are you sure?')) %]
+  [%- END %]
+  <a href="[% SELF.url_for(action='list', module=SELF.module) %]">[%- LxERP.t8("Cancel") %]</a>
+ </p>
+
+ <hr>
+
+ <h3>[% 'Annotations' | $T8 %]</h3>
+
+ <p>
+  (1) [% 'The variable name must only consist of letters, numbers and underscores. It must begin with a letter. Example: send_christmas_present' | $T8 %]
+ </p>
+
+ <p>
+  (2) [% 'The description is shown on the form. Chose something short and descriptive.' | $T8 %]
+ </p>
+ <p>
+  (3) [% 'For type "customer" the perl module JSON is required. Please check this on system level: $ ./scripts/installation_check.pl' | $T8 %]
+ </p>
+
+ <p>
+  (4) [% 'The default value depends on the variable type:' | $T8 %]
+  <br>
+  <ul>
+   <li>[%- 'Text, text field and number variables: The default value will be used as-is.' | $T8 %]</li>
+   <li>[%- 'Boolean variables: If the default value is non-empty then the checkbox will be checked by default and unchecked otherwise.' | $T8 %]</li>
+   <li>[%- 'Date and timestamp variables: If the default value equals \'NOW\' then the current date/current timestamp will be used. Otherwise the default value is copied as-is.' | $T8 %]</li>
+  </ul>
+ </p>
+
+ <p>
+  (5) [% 'The available options depend on the varibale type:' | $T8 %]
+  <br>
+  <ul>
+   <li>[%- 'Text variables: \'MAXLENGTH=n\' sets the maximum entry length to \'n\'.' | $T8 %]</li>
+   <li>[%- 'Text field variables: \'WIDTH=w HEIGHT=h\' sets the width and height of the text field. They default to 30 and 5 respectively.' | $T8 %]</li>
+   <li>[%- 'Number variables: \'PRECISION=n\' forces numbers to be shown with exactly n decimal places.' | $T8 %]</li>
+   <li>[%- 'Selection fields: The option field must contain the available options for the selection. Options are separated by \'##\', for example \'Early##Normal##Late\'.' | $T8 %]</li>
+  </ul>
+  <br>
+  [% 'Other values are ignored.' | $T8 %]
+ </p>
+
+ <p data-show-for="IC"[% UNLESS SELF.module == 'IC' %] style="display: none;"[% END %]>
+  (6)
+
+  [%- 'A variable marked as \'editable\' can be changed in each quotation, order, invoice etc.' | $T8 %]
+
+  [% 'Otherwise the variable is only available for printing.' | $T8 %]
+ </p>
+
+</form>
+
+<script type="text/javascript">
+<!--
+function update_included_by_default() {
+  $('INPUT[name="config.included_by_default"]').prop('disabled', !$('#config_includeable_1').prop('checked'));
+}
+
+function update_ic_rows() {
+  $('[data-show-for="IC"]').toggle($('#module').val() === "IC");
+}
+
+function check_prerequisites() {
+  if (($('#config_type').val() === "select") && ($('#config_options').val() === "")) {
+    alert(kivi.t8('The option field is empty.'));
+    return false;
+  }
+
+  if ($('#config_name').val() === "") {
+    alert(kivi.t8('The name is missing.'));
+    return false;
+  }
+
+  if (!$('#config_name').val().match(/^[a-z][a-z0-9_]*$/i)) {
+    alert(kivi.t8('The name must only consist of letters, numbers and underscores and start with a letter.'));
+    return false;
+  }
+
+  if ($('#config_description').val() === "") {
+    alert(kivi.t8('The description is missing.'));
+    return false;
+  }
+
+  return true;
+}
+-->
+</script>

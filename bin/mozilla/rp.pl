@@ -170,8 +170,8 @@ sub report {
     $::form->all_vc(\%::myconfig, $::form->{vc}, $is_sales ? "AR" : "AP");
     $vc .= "<option>$_->{name}--$_->{id}\n" for @{ $::form->{"all_$::form->{vc}"} };
     $vc = ($vc)
-        ? qq|<select name=$::form->{vc}><option>\n$vc</select>|
-        : qq|<input name=$::form->{vc} size=35>|;
+        ? qq|<select name=$::form->{vc} class="initial_focus"><option>\n$vc</select>|
+        : qq|<input name=$::form->{vc} size=35 class="initial_focus">|;
   }
 
   my ($selection, $paymentaccounts);

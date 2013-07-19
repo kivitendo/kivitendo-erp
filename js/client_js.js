@@ -119,6 +119,7 @@ ns.eval_json_result = function(data) {
 
       // ## other stuff ##
       else if (action[0] == 'redirect_to')          window.location.href = action[1];
+      else if (action[0] == 'reinit_widgets')       kivi.reinit_widgets();
 
       else                                          console.log('Unknown action: ' + action[0]);
 

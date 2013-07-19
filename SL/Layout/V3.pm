@@ -132,7 +132,7 @@ sub init_sub_layouts {
 sub use_stylesheet {
   my $self = shift;
   qw(
-    frame_header/header.css
+   icons16.css frame_header/header.css
   ),
   $self->SUPER::use_stylesheet(@_);
 }
@@ -146,7 +146,7 @@ sub use_javascript {
 }
 
 sub pre_content {
-  &render;
+  $_[0]->render;
 }
 
 sub start_content {

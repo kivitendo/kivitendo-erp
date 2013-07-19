@@ -127,8 +127,6 @@ sub bank_transfer_create {
 
     my $bank_account_label_sub = sub { $locale->text('Account number #1, bank code #2, #3', $_[0]->{account_number}, $_[0]->{bank_code}, $_[0]->{bank}) };
 
-    $form->{jsscript}          = 1;
-
     $form->header();
     print $form->parse_html_template('sepa/bank_transfer_create',
                                      { 'BANK_TRANSFERS'     => \@bank_transfers,
@@ -169,7 +167,6 @@ sub bank_transfer_search {
   my $vc     = $form->{vc} eq 'customer' ? 'customer' : 'vendor';
 
   $form->{title}    = $vc eq 'customer' ? $::locale->text('List of bank collections') : $locale->text('List of bank transfers');
-  $form->{jsscript} = 1;
 
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_search', { vc => $vc });
@@ -330,7 +327,6 @@ sub bank_transfer_edit {
     $form->error($locale->text('That export does not exist.'));
   }
 
-  $form->{jsscript} = 1;
   $form->{title}    = $locale->text('View SEPA export');
   $form->header();
   print $form->parse_html_template('sepa/bank_transfer_edit',

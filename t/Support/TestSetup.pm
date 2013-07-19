@@ -4,6 +4,7 @@ use strict;
 
 use Data::Dumper;
 use CGI qw( -no_xhtml);
+use IO::File;
 use SL::Auth;
 use SL::Form;
 use SL::Locale;
@@ -14,10 +15,11 @@ use SL::LxOfficeConf;
 use SL::InstanceConfiguration;
 use SL::Request;
 
-sub _login {
-  my ($client, $login) = @_;
+sub login {
+  SL::LxOfficeConf->read;
 
-  die 'need client and login' unless $client && $login;
+  my $client = 'Unit-Tests';
+  my $login  = 'unittests';
 
   package main;
 
@@ -25,7 +27,7 @@ sub _login {
   $::lxdebug->disable_sub_tracing;
   $::locale        = Locale->new($::lx_office_conf{system}->{language});
   $::form          = Form->new;
-  $::auth          = SL::Auth->new;
+  $::auth          = SL::Auth->new(unit_tests_database => 1);
   die "Cannot find client with ID or name '$client'" if !$::auth->set_client($client);
 
   $::instance_conf = SL::InstanceConfiguration->new;
@@ -45,15 +47,24 @@ sub _login {
 
   $::instance_conf->init;
 
+  $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
+
   return 1;
 }
 
-sub login {
-  SL::LxOfficeConf->read;
+sub templates_cache_writable {
+  my $dir = $::lx_office_conf{paths}->{userspath} . '/templates-cache';
+  return 1 if -w $dir;
 
-  my $login        = shift || $::lx_office_conf{testing}{login}        || 'demo';
-  my $client        = shift || $::lx_office_conf{testing}{client}      || '';
-  _login($client, $login);
+  # Try actually creating a file. Due to ACLs this might be possible
+  # even if the basic Unix permissions and Perl's -w test say
+  # otherwise.
+  my $file = "${dir}/.writetest";
+  my $out  = IO::File->new($file, "w") || return 0;
+  $out->close;
+  unlink $file;
+
+  return 1;
 }
 
 1;

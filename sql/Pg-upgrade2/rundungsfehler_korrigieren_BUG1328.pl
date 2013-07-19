@@ -25,9 +25,9 @@ ap.id) where ac.chart_id IN (select id from chart where link ='AP' OR link like 
   $sth_all_groups->finish();
 
 
-  my $query = qq|select distinct id,acamount from (select ar.id, ar.amount as aramount, ac.amount*-1 as acamount from ar left join acc_trans ac on (ac.trans_id =
+  $query = qq|select distinct id,acamount from (select ar.id, ar.amount as aramount, ac.amount*-1 as acamount from ar left join acc_trans ac on (ac.trans_id =
 ar.id) where ac.chart_id IN (select id from chart where link ='AR' OR link like '%:AR' OR link like 'AR:%')) as foo where  aramount + 0.01 = abs(acamount)|;
-  my $sth_all_groups = prepare_execute_query($::form, $self->dbh, $query);
+  $sth_all_groups = prepare_execute_query($::form, $self->dbh, $query);
   while (my $hash_ref = $sth_all_groups->fetchrow_hashref()) {  # Schleife
       # Falls wir keine alte buggy Installation haben, ist es super die
       # Gewissheit zu haben, dass kein acc_trans-Eintrag ohne trans_id vorhanden ist
