@@ -833,15 +833,19 @@ sub generate_report {
   my @options;
   # dispatch all options
   my $dispatch_options = {
-   partnumber     => sub { push @options, $locale->text('Partnumber') . " : $form->{partnumber}"},
-   description    => sub { push @options, $locale->text('Description') . " : $form->{description}"},
-   chargenumber   => sub { push @options, $locale->text('Charge Number') . " : $form->{chargenumber}"},
-   bestbefore     => sub { push @options, $locale->text('Best Before') . " : $form->{bestbefore}"},
-   date           => sub { push @options, $locale->text('Date') . " : $form->{date}"},
+   warehouse_id   => sub { push @options, $locale->text('Warehouse') . " : " .
+                                            SL::DB::Manager::Warehouse->find_by(id => $form->{warehouse_id})->description},
+   bin_id         => sub { push @options, $locale->text('Bin') . " : " .
+                                            SL::DB::Manager::Bin->find_by(id => $form->{bin_id})->description},
+   partnumber     => sub { push @options, $locale->text('Partnumber')     . " : $form->{partnumber}"},
+   description    => sub { push @options, $locale->text('Description')    . " : $form->{description}"},
+   chargenumber   => sub { push @options, $locale->text('Charge Number')  . " : $form->{chargenumber}"},
+   bestbefore     => sub { push @options, $locale->text('Best Before')    . " : $form->{bestbefore}"},
+   date           => sub { push @options, $locale->text('Date')           . " : $form->{date}"},
    include_invalid_warehouses    => sub { push @options, $locale->text('Include invalid warehouses ')},
   };
   foreach (keys %filter) {
-    defined $dispatch_options->{$_}  && $dispatch_options->{$_}->();
+   $dispatch_options->{$_}->() if $dispatch_options->{$_};
   }
   # / end show filter stuff also in report
 
