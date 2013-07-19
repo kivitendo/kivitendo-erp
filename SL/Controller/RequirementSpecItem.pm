@@ -84,11 +84,11 @@ sub action_dragged_and_dropped {
   my $old_visible_section = $self->visible_section ? $self->visible_section : undef;
   my $old_parent_id       = $self->item->parent_id;
   my $old_type            = $self->item->item_type;
-  my $new_type            = $position =~ m/before|after/ ? $dropped_item->item_type : $dropped_item->child_type;
+  my $new_type            = !$dropped_item ? 'section' : $position =~ m/before|after/ ? $dropped_item->item_type : $dropped_item->child_type;
 
   $self->item->db->do_transaction(sub {
     $self->item->remove_from_list;
-    $self->item->parent_id($position =~ m/before|after/ ? $dropped_item->parent_id : $dropped_item->id);
+    $self->item->parent_id($position =~ m/before|after/ ? $dropped_item->parent_id : $dropped_item->id) if $dropped_item;
     $self->item->item_type($new_type);
     $self->item->add_to_list(position => $position, reference => $::form->{dropped_id} || undef);
   });
