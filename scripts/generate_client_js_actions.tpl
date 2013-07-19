@@ -36,8 +36,15 @@ ns.eval_json_result = function(data) {
 };
 
 ns.submit_ajax_form = function(url, form_selector, additional_data) {
-  var separator = /\?/.test(url) ? '&' : '?';
-  $.post(url + separator + $(form_selector).serialize(), additional_data, ns.eval_json_result);
+  var data = $(form_selector).serialize();
+  if (additional_data) {
+    if (data)
+      data += '&';
+    data += typeof additional_data == "string" ? additional_data : $(additional_data).serialize();
+  }
+
+  $.post(url, data, ns.eval_json_result);
+
   return true;
 };
 
