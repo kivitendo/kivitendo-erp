@@ -607,8 +607,8 @@ sub restore_session {
   # The session ID provided is valid in the following cases:
   #  1. session ID exists in the database
   #  2. hasn't expired yet
-  #  3. if form field '{AUTH}api_token' is given: form field must equal database column 'auth.session.api_token' for the session ID
-  #  4. if form field '{AUTH}api_token' is NOT given then: the requestee's IP address must match the stored IP address
+  #  3. if cookie for the API token is given: the cookie's value equal database column 'auth.session.api_token' for the session ID
+  #  4. if cookie for the API token is NOT given then: the requestee's IP address must match the stored IP address
   $self->{api_token}   = $cookie->{api_token} if $cookie;
   my $api_token_cookie = $self->get_api_token_cookie;
   my $cookie_is_bad    = !$cookie || $cookie->{is_expired};
@@ -990,6 +990,12 @@ sub get_api_token_cookie {
   my ($self) = @_;
 
   $::request->{cgi}->cookie($self->get_session_cookie_name(type => 'api_token'));
+}
+
+sub is_api_token_cookie_valid {
+  my ($self)             = @_;
+  my $provided_api_token = $self->get_api_token_cookie;
+  return $self->{api_token} && $provided_api_token && ($self->{api_token} eq $provided_api_token);
 }
 
 sub session_tables_present {

@@ -21,7 +21,7 @@ sub handle {
   $::locale = Locale->new($::myconfig{countrycode});
   $::request->{layout} = SL::Layout::Dispatcher->new(style => $::myconfig{menustyle});
 
-  my $ok   =  $::auth->get_api_token_cookie ? 1 : 0;
+  my $ok   =  $::auth->is_api_token_cookie_valid;
   $ok    ||=  $::form->{'{AUTH}login'} && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, $::form->{'{AUTH}password'}));
   $ok    ||= !$::form->{'{AUTH}login'} && (SL::Auth::OK() == $::auth->authenticate($::myconfig{login}, undef));
 
