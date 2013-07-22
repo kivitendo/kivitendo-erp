@@ -230,7 +230,7 @@ sub mini_stock {
   $self->{stock_empty}  = ! grep { $_->{sum} * 1 } @$stock;
 }
 
-sub show_no_warehouse_error {
+sub show_no_warehouses_error {
   my ($self) = @_;
 
   my $msg = t8('No warehouse has been created yet or the quantity of the bins is not configured yet.') . ' ';
