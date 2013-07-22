@@ -357,11 +357,13 @@
         </td>
       [%- END %]
 
-      <td>[% 'taxincluded checked' | $T8 %]</td>
+      [% IF ( SELF.is_customer() ) %]
+        <td>[% 'taxincluded checked' | $T8 %]</td>
 
-      <td>
-        [% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked) %]
-      </td>
+        <td>
+          [% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked) %]
+        </td>
+      [% END %]
 
     </tr>
   </table>
