@@ -58,6 +58,7 @@ sub action_stock {
   });
 
   if ($::form->{write_default_bin}) {
+    $self->part->load;   # onhand is calculated in between. don't mess that up
     $self->part->bin($self->bin);
     $self->part->warehouse($self->warehouse);
     $self->part->save;
