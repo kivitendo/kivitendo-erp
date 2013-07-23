@@ -408,7 +408,7 @@ sub action_do_create_dataset {
   User->new->dbcreate($::form);
 
   flash_later('info', t8("The dataset #1 has been created.", $::form->{db}));
-  $self->redirect_to(action => 'database_administration');
+  $self->redirect_to(action => 'show');
 }
 
 sub action_delete_dataset_login {
@@ -439,7 +439,7 @@ sub action_do_delete_dataset {
   User->new->dbdelete($::form);
 
   flash_later('info', t8("The dataset #1 has been deleted.", $::form->{db}));
-  $self->redirect_to(action => 'database_administration');
+  $self->redirect_to(action => 'show');
 }
 
 #

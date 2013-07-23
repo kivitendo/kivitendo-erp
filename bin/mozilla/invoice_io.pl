@@ -146,7 +146,7 @@ sub display_form {
 
   $main::auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | '.
-                'purchase_delivery_order_edit | sales_delivery_order_edit');
+                'purchase_delivery_order_edit | sales_delivery_order_edit | part_service_assembly_details');
 
   relink_accounts();
   retrieve_partunits() if ($form->{type} =~ /_delivery_order$/);
@@ -225,8 +225,8 @@ sub display_form {
       $subroutine = "makemodel_row";
 
       # assemblies are built from components, they aren't purchased from a vendor
-      # also the lastcost_$i from makemodel conflicted with the component lastcost_$i 
-      # so we don't need the makemodel rows for assemblies 
+      # also the lastcost_$i from makemodel conflicted with the component lastcost_$i
+      # so we don't need the makemodel rows for assemblies
       # create makemodel rows
       # &{$subroutine}($numrows);
 

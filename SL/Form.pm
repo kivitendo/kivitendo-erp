@@ -2762,14 +2762,7 @@ sub create_links {
          FROM acc_trans a
          LEFT JOIN chart c ON (c.id = a.chart_id)
          LEFT JOIN project p ON (p.id = a.project_id)
-         LEFT JOIN tax t ON (t.id= (SELECT tk.tax_id FROM taxkeys tk
-                                    WHERE (tk.taxkey_id=a.taxkey) AND
-                                      ((CASE WHEN a.chart_id IN (SELECT chart_id FROM taxkeys WHERE taxkey_id = a.taxkey)
-                                        THEN tk.chart_id = a.chart_id
-                                        ELSE 1 = 1
-                                        END)
-                                       OR (c.link='%tax%')) AND
-                                      (startdate <= a.transdate) ORDER BY startdate DESC LIMIT 1))
+         LEFT JOIN tax t ON (t.id= a.tax_id)
          WHERE a.trans_id = ?
          AND a.fx_transaction = '0'
          ORDER BY a.acc_trans_id, a.transdate|;

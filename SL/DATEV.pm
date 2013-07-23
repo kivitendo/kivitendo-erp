@@ -31,7 +31,6 @@ use strict;
 
 use SL::DBUtils;
 use SL::DATEV::KNEFile;
-use SL::Taxkeys;
 
 use Data::Dumper;
 use DateTime;
@@ -360,7 +359,6 @@ sub _get_transactions {
 
   $fromto      =~ s/transdate/ac\.transdate/g;
 
-  my $taxkeys  = Taxkeys->new();
   my $filter   = '';            # Useful for debugging purposes
 
   my %all_taxchart_ids = selectall_as_map($form, $self->dbh, qq|SELECT DISTINCT chart_id, TRUE AS is_set FROM tax|, 'chart_id', 'is_set');
@@ -370,11 +368,13 @@ sub _get_transactions {
          ar.invnumber, ar.duedate, ar.amount as umsatz, ar.deliverydate,
          ct.name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
-         ar.invoice
+         ar.invoice,
+         t.rate AS taxrate
        FROM acc_trans ac
        LEFT JOIN ar          ON (ac.trans_id    = ar.id)
        LEFT JOIN customer ct ON (ar.customer_id = ct.id)
        LEFT JOIN chart c     ON (ac.chart_id    = c.id)
+       LEFT JOIN tax t       ON (ac.tax_id      = t.id)
        WHERE (ar.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -386,11 +386,13 @@ sub _get_transactions {
          ap.invnumber, ap.duedate, ap.amount as umsatz, ap.deliverydate,
          ct.name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
-         ap.invoice
+         ap.invoice,
+         t.rate AS taxrate
        FROM acc_trans ac
        LEFT JOIN ap        ON (ac.trans_id  = ap.id)
        LEFT JOIN vendor ct ON (ap.vendor_id = ct.id)
        LEFT JOIN chart c   ON (ac.chart_id  = c.id)
+       LEFT JOIN tax t     ON (ac.tax_id    = t.id)
        WHERE (ap.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -402,10 +404,12 @@ sub _get_transactions {
          gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz, NULL as deliverydate,
          gl.description AS name,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
-         FALSE AS invoice
+         FALSE AS invoice,
+         t.rate AS taxrate
        FROM acc_trans ac
        LEFT JOIN gl      ON (ac.trans_id  = gl.id)
        LEFT JOIN chart c ON (ac.chart_id  = c.id)
+       LEFT JOIN tax t   ON (ac.tax_id    = t.id)
        WHERE (gl.id IS NOT NULL)
          AND $fromto
          $trans_id_filter
@@ -475,7 +479,6 @@ sub _get_transactions {
       }
     }
 
-    my %taxid_taxkeys = ();
     my $absumsatz     = 0;
     if (scalar(@{$trans}) <= 2) {
       push @{ $self->{DATEV} }, $trans;
@@ -545,13 +548,11 @@ sub _get_transactions {
         push @{ $self->{DATEV} }, [ \%new_trans, $trans->[$j] ];
 
       } elsif (($j != $notsplitindex) && !$trans->[$j]->{is_tax}) {
-        my %tax_info = $taxkeys->get_full_tax_info('transdate' => $trans->[$j]->{transdate},
-                                                   'deliverydate' => $trans->[$j]->{deliverydate});
 
         my %new_trans = ();
         map { $new_trans{$_} = $trans->[$notsplitindex]->{$_}; } keys %{ $trans->[$notsplitindex] };
 
-        my $tax_rate              = $tax_info{taxkeys}->{ $trans->[$j]->{'taxkey'} }->{taxrate};
+        my $tax_rate              = $trans->[$j]->{'taxrate'};
         $new_trans{'net_amount'}  = $trans->[$j]->{'amount'} * -1;
         $new_trans{'tax_rate'}    = 1 + $tax_rate;
 

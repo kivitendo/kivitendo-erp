@@ -577,6 +577,11 @@ sub _instantiate_args {
   }
   $self->{cv}->assign_attributes(%{$::form->{cv}});
 
+  if ( $self->is_customer() && $::form->{cv}->{taxincluded_checked} eq '' ) {
+    $self->{cv}->taxincluded_checked(undef);
+  }
+
+
   foreach my $cvar (@{$self->{cv}->cvars_by_config()}) {
     my $value = $::form->{cv_cvars}->{$cvar->config->name};
 
@@ -668,6 +673,7 @@ sub _create_customer_vendor {
   } else {
     $self->{cv} = SL::DB::Customer->new();
   }
+  $self->{cv}->currency_id($::instance_conf->get_currency_id());
 
   $self->{note} = SL::DB::Note->new();
 
@@ -680,8 +686,6 @@ sub _create_customer_vendor {
 
 sub _pre_render {
   my ($self) = @_;
-
-  $self->{template_args}->{conf_vertreter} = $::instance_conf->get_vertreter();
 
   my $dbh = $::form->get_standard_dbh();
 
