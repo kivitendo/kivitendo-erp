@@ -577,6 +577,11 @@ sub _instantiate_args {
   }
   $self->{cv}->assign_attributes(%{$::form->{cv}});
 
+  if ( $self->is_customer() && $::form->{cv}->{taxincluded_checked} eq '' ) {
+    $self->{cv}->taxincluded_checked(undef);
+  }
+
+
   foreach my $cvar (@{$self->{cv}->cvars_by_config()}) {
     my $value = $::form->{cv_cvars}->{$cvar->config->name};
 
