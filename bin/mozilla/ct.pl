@@ -170,7 +170,7 @@ sub list_names {
     'id',        'name',    "$form->{db}number",   'contact',   'phone',    'discount',
     'fax',       'email',   'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'payment', 'invnumber', 'ordnumber',           'quonumber', 'salesman',
-    'country',   'insertdate'
+    'country',   'insertdate',           'pricegroup'
   );
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs };
@@ -201,6 +201,7 @@ sub list_names {
     'discount'          => { 'text' => $locale->text('Discount'), },
     'payment'           => { 'text' => $locale->text('Payment Terms'), },
     'insertdate'        => { 'text' => $locale->text('Insert Date'), },
+    'pricegroup'        => { 'text' => $locale->text('Pricegroup'), },
     %column_defs_cvars,
   );
 

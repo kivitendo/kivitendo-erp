@@ -78,7 +78,8 @@ sub search {
       "discount"           => "ct.discount",
       "insertdate"         => "ct.itime",
       "salesman"           => "e.name",
-      "payment"            => "pt.description"
+      "payment"            => "pt.description",
+      "pricegroup"         => "pg.pricegroup",
     );
 
   $form->{sort} ||= "name";
@@ -213,14 +214,18 @@ sub search {
     push @values, $form->{addr_zipcode} . '%';
   }
 
+  my $pg_select = $form->{l_pricegroup} ? qq|, pg.pricegroup as pricegroup | : '';
+  my $pg_join   = $form->{l_pricegroup} ? qq|LEFT JOIN pricegroup pg ON (ct.klass = pg.id) | : '';
   my $query =
     qq|SELECT ct.*, ct.itime::DATE AS insertdate, b.description AS business, e.name as salesman, | .
     qq|  pt.description as payment | .
+    $pg_select .
     (qq|, NULL AS invnumber, NULL AS ordnumber, NULL AS quonumber, NULL AS invid, NULL AS module, NULL AS formtype, NULL AS closed | x!! $join_records) .
     qq|FROM $cv ct | .
     qq|LEFT JOIN business b ON (ct.business_id = b.id) | .
     qq|LEFT JOIN employee e ON (ct.salesman_id = e.id) | .
     qq|LEFT JOIN payment_terms pt ON (ct.payment_id = pt.id) | .
+    $pg_join .
     qq|WHERE $where|;
 
   my @saved_values = @values;
