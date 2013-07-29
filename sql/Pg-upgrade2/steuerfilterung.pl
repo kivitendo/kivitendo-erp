@@ -30,6 +30,7 @@ sub run {
       $categories .= 'E' if $::form->{"expense_$i"};
       $self->db_query(qq|UPDATE tax SET chart_categories = ? WHERE id = ?|, bind => [ $categories, $tax_id ]);
     }
+    $self->db_query(qq|UPDATE tax SET chart_categories = 'ALQCIE' WHERE chart_categories IS NULL|);
     $self->db_query(qq|ALTER TABLE tax ALTER COLUMN chart_categories SET NOT NULL|);
     return 1;
   }
