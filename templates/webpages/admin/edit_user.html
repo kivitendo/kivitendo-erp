@@ -157,11 +157,6 @@
   }
 
   function save_as_new() {
-    var new_user_login = prompt("[% LxERP.t8("Please enter the login for the new user.") %]", "");
-    if (!new_user_login)
-      return;
-
-    $("#user_login").val(new_user_login);
     $("#user_id").val("");
     submit_with_action("save_user");
   }

@@ -5,7 +5,7 @@
 <form action='controller.pl' method='post'>
 <div class='filter_toggle'>
 <a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Show Filter' | $T8 %]</a>
-  [% SELF.filter_summary %]
+  [% SELF.filter_summary | html %]
 </div>
 <div class='filter_toggle' style='display:none'>
 <a href='#' onClick='javascript:$(".filter_toggle").toggle()'>[% 'Hide Filter' | $T8 %]</a>

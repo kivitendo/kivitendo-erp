@@ -1,6 +1,6 @@
 # @tag: oe_do_delete_via_trigger
 # @description: Aus oe/delivery_orders via Trigger löschen können
-# @depends: release_3_0_0
+# @depends: orderitems_delivery_order_items_invoice_foreign_keys
 
 package SL::DBUpgrade2::oe_do_delete_via_trigger;
 
