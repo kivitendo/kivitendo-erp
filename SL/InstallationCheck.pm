@@ -8,6 +8,13 @@ use vars qw(@required_modules @optional_modules @developer_modules);
 use strict;
 
 BEGIN {
+#   name:     the name of the module if you install it with cpan
+#   version:  the minimum version required to run. optional
+#   url:      web path to the author page of the module
+#   debian:   dpkg package name for debianoid distos
+#             note: (suse) (fedora) (redhat) entries welcome if you
+#             are willing to maintain them
+#   distname: name of the package in cpan if it differs from name (ex.: LWP != libwww-perl)
 @required_modules = (
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
   { name => "Archive::Zip",    version => '1.16',  url => "http://search.cpan.org/~adamk/",     debian => 'libarchive-zip-perl' },
