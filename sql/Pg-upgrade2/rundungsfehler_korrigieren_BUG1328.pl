@@ -41,7 +41,6 @@ ar.id) where ac.chart_id IN (select id from chart where link ='AR' OR link like 
     do_statement($::form,$sth,$query);
     $sth->finish();
   }
-  $self->dbh ->commit();
   return 1;
 }
 
