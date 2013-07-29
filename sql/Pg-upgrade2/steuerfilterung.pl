@@ -15,6 +15,9 @@ sub run {
   my $categories;
   my $tax_id;
 
+  my $query = qq|ALTER TABLE tax ADD chart_categories TEXT|;
+  $self->db_query($query);
+
   if ( $::form->{continued_tax} ) {
     my $update_query;
     foreach my $i (1 .. $::form->{rowcount}) {
@@ -31,13 +34,8 @@ sub run {
     }
     $update_query = qq|ALTER TABLE tax ALTER COLUMN chart_categories SET NOT NULL|;
     $self->db_query($update_query);
-    $self->dbh->commit();
     return 1;
   }
-
-  my $query = qq|ALTER TABLE tax ADD chart_categories TEXT|;
-  $self->db_query($query);
-  $self->dbh->commit();
 
   my @well_known_taxes = (
       { taxkey => 0,  rate => 0,    taxdescription => qr{keine.*steuer}i,                       categories => 'ALQCIE' },
