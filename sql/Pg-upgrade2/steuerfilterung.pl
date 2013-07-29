@@ -80,7 +80,7 @@ sub run {
       $query = qq|UPDATE tax SET chart_categories = '$categories' WHERE id=$tax_id;|;
       $self->db_query($query);
     } else {
-      $ref->{rate} = $::form->format_amount(\%::myconfig, $::form->round_amount($ref->{rate} * 100));
+      $ref->{rate} = $::form->format_amount(\%::myconfig, $ref->{rate} * 100);
       push @{ $::form->{PARTS} }, $ref;
     }
   }
