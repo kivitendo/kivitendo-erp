@@ -5943,6 +5943,11 @@ filenames</programlisting>
           <listitem><para><literal>Test::Harness</literal> 3.0.0 oder höher. Dieses Modul ist ab Perl 5.10.1 Bestandteil der
           Perl-Distribution und kann für frühere Versionen aus dem <ulink url="http://www.cpan.org">CPAN</ulink> bezogen
           werden.</para></listitem>
+          <listitem><para><literal>LWP::Simple</literal> aus dem Paket <literal>libwww-perl</literal> (Debian-Panetname:
+          <literal>libwww-perl</literal>; Fedora Core: <literal>perl-libwww-perl</literal>; openSUSE:
+          <literal>perl-libwww-perl</literal>)</para></listitem>
+          <listitem><para><literal>URI::Find</literal> (Debian-Panetname: <literal>liburi-find-perl</literal>; Fedora Core:
+          <literal>perl-URI-Find</literal>; openSUSE: <literal>perl-URI-Find</literal>)</para></listitem>
         </itemizedlist>
 
         <para>Weitere Voraussetzung ist, dass die Testsuite ihre eigene Datenbank anlegen kann, um Produktivdaten nicht zu gefährden. Dazu
