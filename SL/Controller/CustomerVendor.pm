@@ -146,7 +146,21 @@ sub action_save {
 
   $self->_save();
 
-  $self->redirect_to(action => 'edit', id => $self->{cv}->id, db => $self->is_vendor() ? 'vendor' : 'customer');
+  my @redirect_params = (
+    action => 'edit',
+    id     => $self->{cv}->id,
+    db     => ($self->is_vendor() ? 'vendor' : 'customer'),
+  );
+
+  if ( $self->{contact}->cp_id ) {
+    push(@redirect_params, contact_id => $self->{contact}->cp_id);
+  }
+
+  if ( $self->{shipto}->shipto_id ) {
+    push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
+  }
+
+  $self->redirect_to(@redirect_params);
 }
 
 sub action_save_and_close {
