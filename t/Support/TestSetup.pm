@@ -16,6 +16,9 @@ use SL::InstanceConfiguration;
 use SL::Request;
 
 sub login {
+  $Data::Dumper::Sortkeys = 1;
+  $Data::Dumper::Indent   = 2;
+
   SL::LxOfficeConf->read;
 
   my $client = 'Unit-Tests';
