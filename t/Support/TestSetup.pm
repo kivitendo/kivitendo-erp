@@ -48,8 +48,6 @@ sub login {
 
   die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode});
 
-  $::instance_conf->init;
-
   $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
 
   return 1;
