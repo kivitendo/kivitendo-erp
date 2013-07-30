@@ -155,6 +155,7 @@ sub check_module {
   my ($module, %role) = @_;
 
   my $line = "Looking for $module->{fullname}";
+  $line   .= " (from $module->{dist_name})" if $module->{dist_name};
   my ($res, $ver) = SL::InstallationCheck::module_available($module->{"name"}, $module->{version});
   if ($res) {
     my $ver_string = ref $ver && $ver->can('numify') ? $ver->numify : $ver ? $ver : 'no version';

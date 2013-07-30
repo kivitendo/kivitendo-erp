@@ -35,7 +35,7 @@ sub init_default_currency {
   return (SL::DBUtils::selectfirst_array_query($::form, $::form->get_standard_dbh, qq|SELECT name FROM currencies WHERE id = ?|, $self->data->{currency_id}))[0];
 }
 
-sub crm_installed {
+sub init_crm_installed {
   return -f (SL::System::Process->exe_dir . '/crm/Changelog');
 }
 

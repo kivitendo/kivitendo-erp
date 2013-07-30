@@ -88,6 +88,9 @@ Wichtige Änderungen:
   bevor Sie in einem zweiten Schritt auf die aktuelle
   kivitendo-Version aktualisieren.
 
+- Perl v5.10.1 oder neuer und PostgreSQL v8.4 oder neuer werden
+  zwingend vorausgesetzt.
+
 
 
 2012-12-10 - Release 3.0.0
