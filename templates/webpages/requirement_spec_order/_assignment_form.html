@@ -46,4 +46,8 @@
    [% END %]
   </tbody>
  </table>
+
+ <p>
+  [% L.button_tag("kivi.requirement_spec.standard_quotation_order_ajax_call('" _ (for_new ? 'create' : 'save_assignment') _ "')", for_new ? LxERP.t8('Create') : LxERP.t8('Save')) %]
+ </p>
 </form>
