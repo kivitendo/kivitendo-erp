@@ -115,6 +115,7 @@ sub action_ajax_edit_time_and_cost_estimate {
 
   $self->js
    ->replaceWith('#time_cost_estimate', $html)
+   ->on('#time_cost_estimate INPUT[type=text]', 'keydown', 'kivi.requirement_spec.time_cost_estimate_input_key_down')
    ->render($self);
 }
 

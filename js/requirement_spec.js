@@ -324,6 +324,14 @@ ns.standard_time_cost_estimate_ajax_call = function(key, opt) {
   return true;
 };
 
+ns.time_cost_estimate_input_key_down = function(event) {
+  if(event.keyCode == 13) {
+    event.preventDefault();
+    ns.standard_time_cost_estimate_ajax_call('save');
+    return false;
+  }
+};
+
 // -------------------------------------------------------------------------
 // --------------------------- quotations/orders ---------------------------
 // -------------------------------------------------------------------------
