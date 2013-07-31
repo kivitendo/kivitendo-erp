@@ -1,7 +1,7 @@
 [%- USE LxERP -%][%- USE L -%][%- USE HTML -%][%- USE P -%]
 [%- DEFAULT id_prefix = 'time_and_cost_estimate_form' %]
 
-<div id="time_cost_estimate" class="edit-time-cost-estimate-context-menu">
+<div id="time_cost_estimate_form_container" class="edit-time-cost-estimate-context-menu">
  [%- IF !SELF.requirement_spec.sections.size %]
   <p>[%- LxERP.t8("Neither sections nor function blocks have been created yet.") %]</p>
 

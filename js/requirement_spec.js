@@ -326,8 +326,13 @@ ns.standard_basic_settings_ajax_call = function(key, opt) {
 // -------------------------------------------------------------------------
 
 ns.standard_time_cost_estimate_ajax_call = function(key, opt) {
-  if ((key == 'cancel') && !confirm(kivi.t8('Do you really want to cancel?')))
+  if (key == 'cancel') {
+    if (confirm(kivi.t8('Do you really want to cancel?'))) {
+      $('#time_cost_estimate').show();
+      $('#time_cost_estimate_form_container').remove();
+    }
     return true;
+  }
 
   var data = "action=RequirementSpec/ajax_" + key + "_time_and_cost_estimate&";
 

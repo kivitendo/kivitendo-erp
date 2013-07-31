@@ -109,23 +109,14 @@ sub action_ajax_show_time_and_cost_estimate {
   $self->render('requirement_spec/_show_time_and_cost_estimate', { layout => 0 });
 }
 
-sub action_ajax_cancel_time_and_cost_estimate {
-  my ($self) = @_;
-
-  my $html   = $self->render('requirement_spec/_show_time_and_cost_estimate', { output => 0 });
-
-  $self->js
-   ->replaceWith('#time_cost_estimate', $html)
-   ->render($self);
-}
-
 sub action_ajax_edit_time_and_cost_estimate {
   my ($self) = @_;
 
   my $html   = $self->render('requirement_spec/_edit_time_and_cost_estimate', { output => 0 });
 
   $self->js
-   ->replaceWith('#time_cost_estimate', $html)
+   ->hide('#time_cost_estimate')
+   ->after('#time_cost_estimate', $html)
    ->on('#time_cost_estimate INPUT[type=text]', 'keydown', 'kivi.requirement_spec.time_cost_estimate_input_key_down')
    ->render($self);
 }
