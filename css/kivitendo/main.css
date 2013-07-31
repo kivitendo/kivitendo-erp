@@ -226,12 +226,12 @@ body.menu {
 	border-width: 1px;
 	background: #FFFFE0;
 }
-.listrow1, .listrow:nth-child(odd) {
+.listrow1, .listrow:nth-child(even) {
 	background-color: #FFFFFF;
 	color: black;
 	vertical-align: top;
 }
-.listrow0, .listrow:nth-child(even) {
+.listrow0, .listrow:nth-child(odd) {
 	background-color: #FFFF99;
 	color: black;
 	vertical-align: top;

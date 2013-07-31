@@ -11,7 +11,7 @@ use Rose::Object::MakeMethods::Generic (
 
 
 sub init_menu {
-  Menu->new('admin-menu.ini');
+  Menu->new('menus/admin.ini');
 }
 
 sub start_content {

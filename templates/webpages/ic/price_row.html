@@ -10,7 +10,7 @@
           <th class="listheading">[% 'Preis' | $T8 %]</th>
         </tr>
 [%- FOREACH row = PRICES %]
-        <tr>
+        <tr class="listrow[% loop.count % 2 %]">
           <td width=50%><input type=hidden name="pricegroup_[% loop.count %]" size=30  value="[% HTML.escape(row.pricegroup) %]">[% HTML.escape(row.pricegroup) %]</td>
           <td width=50%><input name="price_[% loop.count %]" size=11 value="[% LxERP.format_amount(row.price, 2) %]"></td>
           <input type="hidden" name="pricegroup_id_[% loop.count %]" value="[% HTML.escape(row.pricegroup_id) %]">

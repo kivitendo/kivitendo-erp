@@ -14,6 +14,11 @@ use SL::DB::Object::Hooks;
 
 use base qw(Rose::DB::Object);
 
+my @rose_reserved_methods = qw(
+  db dbh delete DESTROY error init_db _init_db insert load meta meta_class
+  not_found save_ update import
+);
+
 sub new {
   my $class = shift;
   my $self  = $class->SUPER::new();
@@ -50,6 +55,7 @@ sub assign_attributes {
 
   my $pk         = ref($self)->meta->primary_key;
   delete @attributes{$pk->column_names} if $pk;
+  delete @attributes{@rose_reserved_methods};
 
   return $self->_assign_attributes(%attributes);
 }

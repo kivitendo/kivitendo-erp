@@ -23,7 +23,6 @@ sub run {
       $update_query = qq|UPDATE parts SET partnumber = '| . $::form->{"partnumber_$i"} . qq|' WHERE id = | . $::form->{"partid_$i"};
       $self->db_query($update_query);
     }
-    $self->dbh->commit();
   }
 
   my $query = qq|SELECT id, partnumber, description, unit, notes, assembly, ean, inventory_accno_id, obsolete

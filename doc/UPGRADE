@@ -8,7 +8,11 @@ Wichtige Hinweise zum Upgrade von älteren Versionen
 Upgrade auf v3.x.0
 ==================
 
-* Neue Abhängigkeiten
+* Neue Softwarevoraussetzungen: Perl v5.10.1 oder neuer sowie
+  PostgreSQL 8.4 oder neuer werden zwingend vorausgesetzt. Ein Betrieb
+  mit älteren Versionen ist nicht mehr möglich.
+
+* Neue Perl-Modul-Abhängigkeiten:
 
   * File::Copy::Recursive
   * Rose::DB::Object muss v0.788 oder neuer sein (aufgrund eines Bugs
@@ -17,8 +21,6 @@ Upgrade auf v3.x.0
   Wie immer bitte vor dem ersten Aufrufen einmal die Pakete überprüfen:
 
   $ scripts/installation_check.pl -ro
-
-* Perl v5.10.1 oder neuer wird zwingend vorausgesetzt.
 
 * Die Datenbank muss zwingend Unicode als Encoding nutzen. Daher wird
   auch die Konfigurationsvariable "system.dbcharset" nicht mehr

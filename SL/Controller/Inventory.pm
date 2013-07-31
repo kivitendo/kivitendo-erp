@@ -58,6 +58,7 @@ sub action_stock {
   });
 
   if ($::form->{write_default_bin}) {
+    $self->part->load;   # onhand is calculated in between. don't mess that up
     $self->part->bin($self->bin);
     $self->part->warehouse($self->warehouse);
     $self->part->save;
@@ -230,7 +231,7 @@ sub mini_stock {
   $self->{stock_empty}  = ! grep { $_->{sum} * 1 } @$stock;
 }
 
-sub show_no_warehouse_error {
+sub show_no_warehouses_error {
   my ($self) = @_;
 
   my $msg = t8('No warehouse has been created yet or the quantity of the bins is not configured yet.') . ' ';

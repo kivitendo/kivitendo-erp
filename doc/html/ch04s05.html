@@ -10,7 +10,12 @@
           <code class="literal">perl-Test-Output</code>; openSUSE: <code class="literal">perl-Test-Output</code>)</p></li><li class="listitem"><p>
                      <code class="literal">Test::Harness</code> 3.0.0 oder höher. Dieses Modul ist ab Perl 5.10.1 Bestandteil der
           Perl-Distribution und kann für frühere Versionen aus dem <a class="ulink" href="http://www.cpan.org" target="_top">CPAN</a> bezogen
-          werden.</p></li></ul></div><p>Weitere Voraussetzung ist, dass die Testsuite ihre eigene Datenbank anlegen kann, um Produktivdaten nicht zu gefährden. Dazu
+          werden.</p></li><li class="listitem"><p>
+                     <code class="literal">LWP::Simple</code> aus dem Paket <code class="literal">libwww-perl</code> (Debian-Panetname:
+          <code class="literal">libwww-perl</code>; Fedora Core: <code class="literal">perl-libwww-perl</code>; openSUSE:
+          <code class="literal">perl-libwww-perl</code>)</p></li><li class="listitem"><p>
+                     <code class="literal">URI::Find</code> (Debian-Panetname: <code class="literal">liburi-find-perl</code>; Fedora Core:
+          <code class="literal">perl-URI-Find</code>; openSUSE: <code class="literal">perl-URI-Find</code>)</p></li></ul></div><p>Weitere Voraussetzung ist, dass die Testsuite ihre eigene Datenbank anlegen kann, um Produktivdaten nicht zu gefährden. Dazu
         müssen in der Konfigurationsdatei im Abschnit <code class="literal">testing/database</code> Datenbankverbindungsparameter angegeben
         werden. Der hier angegebene Benutzer muss weiterhin das Recht haben, Datenbanken anzulegen und zu löschen.</p></div><div class="sect2" title="4.5.3. Existierende Tests ausführen"><div class="titlepage"><div><div><h3 class="title"><a name="devel.testsuite.execution"></a>4.5.3. 
           Existierende Tests ausführen

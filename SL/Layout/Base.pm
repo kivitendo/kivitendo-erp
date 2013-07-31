@@ -29,7 +29,9 @@ sub new {
 }
 
 sub init_menu {
-  Menu->new('crm/update/menu.ini', 'menu.ini');
+  my @menu_files = qw(menus/erp.ini);
+  unshift @menu_files, 'menus/crm.ini' if $::instance_conf->crm_installed;
+  Menu->new(@menu_files);
 }
 
 sub init_auto_reload_resources_param {
@@ -327,4 +329,3 @@ None yet, if you don't count the horrible stylesheet/javascript interface.
 Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
-

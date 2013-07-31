@@ -1785,11 +1785,12 @@ sub save_warehouse {
            $form->{description}, $form->{invalid} ? 't' : 'f', conv_i($form->{id}));
 
   if (0 < $form->{number_of_new_bins}) {
+    my ($num_existing_bins) = selectfirst_array_query($form, $dbh, qq|SELECT COUNT(*) FROM bin WHERE warehouse_id = ?|, $form->{id});
     $query = qq|INSERT INTO bin (warehouse_id, description) VALUES (?, ?)|;
     $sth   = prepare_query($form, $dbh, $query);
 
     foreach my $i (1..$form->{number_of_new_bins}) {
-      do_statement($form, $sth, $query, conv_i($form->{id}), "$form->{prefix}${i}");
+      do_statement($form, $sth, $query, conv_i($form->{id}), "$form->{prefix}" . ($i + $num_existing_bins));
     }
 
     $sth->finish();
