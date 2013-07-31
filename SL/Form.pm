@@ -924,17 +924,15 @@ sub parse_amount {
     return 0;
   }
 
-  if (   ($myconfig->{numberformat} eq '1.000,00')
-      || ($myconfig->{numberformat} eq '1000,00')) {
+  if ($myconfig->{numberformat} eq '1,000.00') {
+    $amount =~ s/,//g;
+  } elsif ($myconfig->{numberformat} eq '1.000,00') {
     $amount =~ s/\.//g;
-    $amount =~ s/,/\./g;
-  }
-
-  if ($myconfig->{numberformat} eq "1'000.00") {
+  } elsif ($myconfig->{numberformat} eq "1'000.00") {
     $amount =~ s/\'//g;
   }
 
-  $amount =~ s/,//g;
+  $amount =~ s/,/\./g;
 
   $main::lxdebug->leave_sub(2);
 

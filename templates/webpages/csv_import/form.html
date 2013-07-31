@@ -118,7 +118,7 @@
    <tr>
     <th align="right">[%- LxERP.t8('Number Format') %]:</th>
     <td colspan="10">
-     [% L.select_tag('settings.numberformat', ['1.000,00', '1000,00', '1,000.00', '1000.00'], default = SELF.profile.get('numberformat'), style = 'width: 300px') %]
+     [% L.select_tag('settings.numberformat', ['1.000,00', '1000,00', '1,000.00', '1000.00', "1'000.00"], default = SELF.profile.get('numberformat'), style = 'width: 300px') %]
     </td>
    </tr>
 
