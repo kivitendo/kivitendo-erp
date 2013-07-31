@@ -19,12 +19,25 @@
  [% END %]
 
  <div>
-  <div style="width: 19%; float: right;">
-   [%- LxERP.t8("Dependencies") %]:<br>
-   [%- L.select_tag(id_base _ '.dependencies[]', DEPENDENCIES, default=SELECTED_DEPENDENCIES, with_optgroups=1, multiple=1, size=8, style="width: 100%") %]
+  <div style="width: 58%; float: left">
+   <div>
+[%- IF SELF.item.id -%]
+    [% LxERP.t8("Description of #1", SELF.item.fb_number) %]
+[%- ELSIF SELF.item.item_type == 'function-block' -%]
+    [%- LxERP.t8("Add function block") %]
+[%- ELSE -%]
+    [%- LxERP.t8("Add sub function block") %]
+[%- END -%]:<br>
+    [% L.textarea_tag(id_base _ '.description', SELF.item.description, rows=8, style="width: 100%") %]
+   </div>
+
+   <div style="margin-top: 10px">
+    [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save'), id=id_base _ '_submit') %]
+    <a href="#" onclick="kivi.requirement_spec.cancel_edit_item_form('[% id_base %]', { [% a_options %] })">[%- LxERP.t8("Cancel") %]</a>
+   </div>
   </div>
 
-  <div style="width: 19%; float: right; margin-right: 5px">
+  <div style="width: 19%; float: left; margin-left: 20px">
    [%- LxERP.t8("Complexity") %]:<br>
    [%- L.select_tag(id_base _ '.complexity_id', SELF.complexities, title_key='description', default=SELF.item.complexity_id, style="width: 100%") %]<br>
 
@@ -37,20 +50,14 @@
 [%- END %]
   </div>
 
-  <div style="width: 59%">
-[%- IF SELF.item.id -%]
-   [% LxERP.t8("Description of #1", SELF.item.fb_number) %]
-[%- ELSIF SELF.item.item_type == 'function-block' -%]
-   [%- LxERP.t8("Add function block") %]
-[%- ELSE -%]
-   [%- LxERP.t8("Add sub function block") %]
-[%- END -%]:<br>
-   [% L.textarea_tag(id_base _ '.description', SELF.item.description, rows=8, style="width: 100%") %]
+  <div style="width: 19%; float: left; margin-left: 10px">
+   [%- LxERP.t8("Dependencies") %]:<br>
+   [%- L.select_tag(id_base _ '.dependencies[]', DEPENDENCIES, default=SELECTED_DEPENDENCIES, with_optgroups=1, multiple=1, size=8, style="width: 100%") %]
   </div>
+
+  <div style="clear: both"></div>
  </div>
 
  <p>
-  [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save'), id=id_base _ '_submit') %]
-  <a href="#" onclick="kivi.requirement_spec.cancel_edit_item_form('[% id_base %]', { [% a_options %] })">[%- LxERP.t8("Cancel") %]</a>
  </p>
 </form>
