@@ -1,0 +1,44 @@
+[%- USE HTML -%][%- USE LxERP -%]
+<div id="basic_settings" class="basic-settings-context-menu">
+ <table>
+  <tr class="listheading">
+   <th colspan="2">
+    [% IF SELF.requirement_spec.is_template %]
+     [% LxERP.t8("Basic Settings for the Requirement Spec Template") %]
+    [% ELSE %]
+     [% LxERP.t8("Basic Settings for the Requirement Spec") %]
+    [% END %]
+   </th>
+  </tr>
+
+  <tr class="listrow">
+   <td>[% LxERP.t8("Title") %]:</td>
+   <td>[% HTML.escape(SELF.requirement_spec.title) %]</td>
+  </tr>
+
+[%- UNLESS SELF.requirement_spec.is_template %]
+
+  <tr class="listrow">
+   <td>[% LxERP.t8("Requirement Spec Type") %]:</td>
+   <td>[% HTML.escape(SELF.requirement_spec.type.description) %]</td>
+  </tr>
+
+  <tr class="listrow">
+   <td>[% LxERP.t8("Requirement Spec Status") %]:</td>
+   <td>[% HTML.escape(SELF.requirement_spec.status.description) %]</td>
+  </tr>
+
+  <tr class="listrow">
+   <td>[% LxERP.t8("Customer") %]:</td>
+   <td>[% HTML.escape(SELF.requirement_spec.customer.name) %]</td>
+  </tr>
+
+  <tr class="listrow">
+   <td>[% LxERP.t8("Hourly Rate") %]:</td>
+   <td>[% HTML.escape(SELF.requirement_spec.hourly_rate_as_number) %]</td>
+  </tr>
+
+[%- END %]
+
+ </table>
+</div>

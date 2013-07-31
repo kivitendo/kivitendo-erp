@@ -303,6 +303,25 @@ ns.paste_selected_template = function(template_id) {
 };
 
 // -------------------------------------------------------------------------
+// ---------------------------- basic settings -----------------------------
+// -------------------------------------------------------------------------
+ns.standard_basic_settings_ajax_call = function(key, opt) {
+  if (key == 'cancel') {
+    if (confirm(kivi.t8('Do you really want to cancel?'))) {
+      $('#basic_settings').show();
+      $('#basic_settings_form').remove();
+    }
+    return true;
+  }
+
+  var data = 'action=RequirementSpec/ajax_' + key + '&id=' + encodeURIComponent($('#requirement_spec_id').val());
+
+  $.post("controller.pl", data, kivi.eval_json_result);
+
+  return true;
+};
+
+// -------------------------------------------------------------------------
 // -------------------------- time/cost estimate ---------------------------
 // -------------------------------------------------------------------------
 
@@ -522,6 +541,23 @@ ns.create_context_menus = function(is_template) {
       , sep2:    "---------"
       , copy:    { name: kivi.t8('Copy'),                  icon: "copy",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
       , paste:   { name: kivi.t8('Paste'),                 icon: "paste",  callback: kivi.requirement_spec.standard_text_block_ajax_call  }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.basic-settings-context-menu',
+    items:    $.extend({
+        heading: { name: kivi.t8('Basic settings actions'), className: 'context-menu-heading' }
+      , edit:    { name: kivi.t8('Edit'), icon: "edit", callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.edit-basic-settings-context-menu',
+    items:    $.extend({
+        heading: { name: kivi.t8('Basic settings actions'), className: 'context-menu-heading' }
+      , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
+      , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_basic_settings_ajax_call }
     }, general_actions)
   });
 

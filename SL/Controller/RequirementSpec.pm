@@ -86,10 +86,21 @@ sub action_new {
   $self->render('requirement_spec/new', title => $self->requirement_spec->is_template ? t8('Create a new requirement spec template') : t8('Create a new requirement spec'));
 }
 
+sub action_ajax_show_basic_settings {
+  my ($self) = @_;
+
+  $self->render('requirement_spec/_show_basic_settings', { layout => 0 });
+}
+
 sub action_ajax_edit {
   my ($self) = @_;
 
-  $self->render('requirement_spec/_form', { layout => 0 }, submit_as => 'ajax');
+  my $html   = $self->render('requirement_spec/_form', { output => 0 }, submit_as => 'ajax');
+
+  $self->js
+    ->hide('#basic_settings')
+    ->after('#basic_settings', $html)
+    ->render($self);
 }
 
 sub action_ajax_show_time_and_cost_estimate {
@@ -346,9 +357,12 @@ sub create_or_update {
   my $info = $self->requirement_spec->is_template ? t8('The requirement spec template has been saved.') : t8('The requirement spec has been saved.');
 
   if ($::request->is_ajax) {
-    my $html = $self->render('requirement_spec/_header', { output => 0 });
+    my $header_html = $self->render('requirement_spec/_header', { output => 0 });
+    my $basics_html = $self->render('requirement_spec/_show_basic_settings', { output => 0 });
     return $self->invalidate_version
-      ->replaceWith('#requirement-spec-header', $html)
+      ->replaceWith('#requirement-spec-header', $header_html)
+      ->replaceWith('#basic_settings',          $basics_html)
+      ->remove('#basic_settings_form')
       ->flash('info', $info)
       ->render($self);
   }

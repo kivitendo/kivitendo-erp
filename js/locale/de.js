@@ -44,6 +44,7 @@ namespace("kivi").setupLocale({
 "The name must only consist of letters, numbers and underscores and start with a letter.":"Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.",
 "The option field is empty.":"Das Optionsfeld ist leer.",
 "The selected database is still configured for client \"#1\". If you delete the database that client will stop working until you re-configure it. Do you still want to delete the database?":"Die auswählte Datenbank ist noch für Mandant \"#1\" konfiguriert. Wenn Sie die Datenbank löschen, wird der Mandanten nicht mehr funktionieren, bis er anders konfiguriert wurde. Wollen Sie die Datenbank trotzdem löschen?",
+"There is one or more sections for which no part has been assigned yet; therefore creating the new record is not possible yet.":"Es gibt einen oder mehrere Abschnitte ohne Artikelzuweisung; daher kann der neue Beleg noch nicht erstellt werden.",
 "Time/cost estimate actions":"Aktionen für Kosten-/Zeitabschätzung",
 "Toggle marker":"Markierung umschalten",
 "Update":"Erneuern",
