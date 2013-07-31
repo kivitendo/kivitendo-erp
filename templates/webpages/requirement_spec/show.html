@@ -6,14 +6,14 @@
 
 [%- L.hidden_tag('requirement_spec_id', SELF.requirement_spec.id, 'data-is-template'=(SELF.requirement_spec.is_template ? 1 : 0)) -%]
 
-<div class="tabwidget">
+<div id="requirement_spec_tabs" class="tabwidget">
  <ul>
-  <li><a href="#function-blocks-tab">[%- LxERP.t8("Content") %]</a></li>
-  <li><a href="controller.pl?action=RequirementSpec/ajax_show_basic_settings&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Basic settings") %]</a></li>
-  <li><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Time and cost estimate") %]</a></li>
+  <li id="tab-header-function-block"><a href="#function-blocks-tab">[%- LxERP.t8("Content") %]</a></li>
+  <li id="tab-header-basic-settings"><a href="controller.pl?action=RequirementSpec/ajax_show_basic_settings&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Basic settings") %]</a></li>
+  <li id="tab-header-time-cost-estimate"><a href="controller.pl?action=RequirementSpec/ajax_show_time_and_cost_estimate&id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Time and cost estimate") %]</a></li>
   [%- UNLESS SELF.requirement_spec.is_template %]
-   <li><a href="controller.pl?action=RequirementSpecVersion/list&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Versions") %]</a></li>
-   <li><a href="[% SELF.url_for(controller='RequirementSpecOrder', action='list', requirement_spec_id=SELF.requirement_spec.id) %]">[%- LxERP.t8("Quotations and orders") %]</a></li>
+   <li id="tab-header-versions"><a href="controller.pl?action=RequirementSpecVersion/list&requirement_spec_id=[% HTML.url(SELF.requirement_spec.id) %]">[%- LxERP.t8("Versions") %]</a></li>
+   <li id="tab-header-quotations-orders"><a href="[% SELF.url_for(controller='RequirementSpecOrder', action='list', requirement_spec_id=SELF.requirement_spec.id) %]">[%- LxERP.t8("Quotations and orders") %]</a></li>
   [%- END %]
  </ul>
 
@@ -112,6 +112,7 @@ $(function() {
 [% END %]
 
   kivi.requirement_spec.create_context_menus([% SELF.requirement_spec.is_template ? 'true' : 'false' %]);
+  $('#requirement_spec_tabs').on("tabsbeforeactivate", kivi.requirement_spec.tabs_before_activate);
 });
 
   -->

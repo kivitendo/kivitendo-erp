@@ -492,6 +492,36 @@ ns.revert_to_versioned_copy_ajax_call = function(key, opt) {
 };
 
 // -------------------------------------------------------------------------
+// ------------------------------- tab widget ------------------------------
+// -------------------------------------------------------------------------
+var content_div_ids_for_tab_headers = {
+    'tab-header-function-block':     'function-blocks-tab'
+  , 'tab-header-basic-settings':     'ui-tabs-1'
+  , 'tab-header-time-cost-estimate': 'ui-tabs-2'
+  , 'tab-header-versions':           'ui-tabs-3'
+  , 'tab-header-quotations-orders':  'ui-tabs-4'
+};
+
+ns.tabs_before_activate = function(event, ui) {
+  if (!ui.oldTab)
+    return true;
+
+  var content_div_id = content_div_ids_for_tab_headers[ $(ui.oldTab).attr('id') ];
+  if (!content_div_id || (content_div_id == 'function-blocks-tab'))
+    return true;
+
+  var inputs = $('#' + content_div_id).find('input,select,textarea').filter('[type!=hidden]');
+  if (!inputs.size() || confirm(kivi.t8("If you switch to a different tab without saving you will lose the data you've entered in the current tab.")))
+    return true;
+
+  var new_focus = $(inputs).filter(':focusable')[0];
+  if (new_focus)
+    $(new_focus).focus();
+
+  return false;
+};
+
+// -------------------------------------------------------------------------
 // ----------------------------- context menus -----------------------------
 // -------------------------------------------------------------------------
 
