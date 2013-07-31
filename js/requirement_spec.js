@@ -365,8 +365,13 @@ ns.find_quotation_order_id = function(clicked_elt) {
 };
 
 ns.standard_quotation_order_ajax_call = function(key, opt) {
-  if ((key == 'cancel') && !confirm(kivi.t8('Do you really want to cancel?')))
+  if (key == 'cancel') {
+    if (confirm(kivi.t8('Do you really want to cancel?'))) {
+      $('#quotations_and_orders').show();
+      $('#quotations_and_orders_article_assignment,#quotations_and_orders_new,#quotations_and_orders_update').remove();
+    }
     return true;
+  }
 
   else if ((key == 'create') && $('#quotations_and_orders_form INPUT[name="sections[].order_part_id"]').filter(function(idx, elt) { return ($(elt).val() || '') == '' }).size()) {
     alert(kivi.t8('There is one or more sections for which no part has been assigned yet; therefore creating the new record is not possible yet.'));

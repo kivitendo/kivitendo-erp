@@ -17,7 +17,8 @@ use SL::DB::RequirementSpecOrder;
 use SL::Helper::Flash;
 use SL::Locale::String;
 
-use constant TAB_ID => 'ui-tabs-4';
+use constant LIST_SELECTOR  => '#quotations_and_orders';
+use constant FORMS_SELECTOR => '#quotations_and_orders_article_assignment,#quotations_and_orders_new,#quotations_and_orders_update';
 
 use Rose::Object::MakeMethods::Generic
 (
@@ -44,8 +45,9 @@ sub action_new {
     return $self->js->flash('error', t8('This function requires the presence of articles with a time-based unit such as "h" or "min".'))->render($self);
   }
 
-  my $html   = $self->render('requirement_spec_order/new', { output => 0 }, make_part_title => sub { $_[0]->partnumber . ' ' . $_[0]->description });
-  $self->js->html('#' . TAB_ID(), $html)
+  my $html = $self->render('requirement_spec_order/new', { output => 0 }, make_part_title => sub { $_[0]->partnumber . ' ' . $_[0]->description });
+  $self->js->hide(LIST_SELECTOR())
+           ->after(LIST_SELECTOR(), $html)
            ->render($self);
 }
 
@@ -72,7 +74,8 @@ sub action_create {
 
   # 3. Notify the user and return to list.
   my $html = $self->render('requirement_spec_order/list', { output => 0 });
-  $self->js->html('#' . TAB_ID(), $html)
+  $self->js->replaceWith(LIST_SELECTOR(), $html)
+           ->remove(FORMS_SELECTOR())
            ->flash('info', $::form->{quotation} ? t8('Sales quotation #1 has been created.', $order->quonumber) : t8('Sales order #1 has been created.', $order->ordnumber))
            ->render($self);
 }
@@ -99,7 +102,8 @@ sub action_update {
     make_section_title => sub { $_[0]->fb_number . ' ' . $_[0]->title },
   );
 
-  $self->js->html('#' . TAB_ID(), $html)
+  $self->js->hide(LIST_SELECTOR())
+           ->after(LIST_SELECTOR(), $html)
            ->render($self);
 }
 
@@ -136,7 +140,8 @@ sub action_do_update {
   $self->init_requirement_spec;
 
   my $html = $self->render('requirement_spec_order/list', { output => 0 });
-  $self->js->html('#' . TAB_ID(), $html)
+  $self->js->replaceWith(LIST_SELECTOR(), $html)
+           ->remove(FORMS_SELECTOR())
            ->flash('info', $::form->{quotation} ? t8('Sales quotation #1 has been updated.', $order->quonumber) : t8('Sales order #1 has been updated.', $order->ordnumber))
            ->render($self);
 }
@@ -149,7 +154,8 @@ sub action_edit_assignment {
   }
 
   my $html   = $self->render('requirement_spec_order/edit_assignment', { output => 0 }, make_part_title => sub { $_[0]->partnumber . ' ' . $_[0]->description });
-  $self->js->html('#' . TAB_ID(), $html)
+  $self->js->hide(LIST_SELECTOR())
+           ->after(LIST_SELECTOR(), $html)
            ->render($self);
 }
 
@@ -159,7 +165,8 @@ sub action_save_assignment {
   SL::DB::RequirementSpecItem->new(id => $_->{id})->load->update_attributes(order_part_id => ($_->{order_part_id} || undef)) for @{ $sections };
 
   my $html = $self->render('requirement_spec_order/list', { output => 0 });
-  $self->js->html('#' . TAB_ID(), $html)
+  $self->js->replaceWith(LIST_SELECTOR(), $html)
+           ->remove(FORMS_SELECTOR())
            ->render($self);
 }
 
@@ -172,16 +179,8 @@ sub action_delete {
   $self->init_requirement_spec;
 
   my $html = $self->render('requirement_spec_order/list', { output => 0 });
-  $self->js->html('#' . TAB_ID(), $html)
+  $self->js->replaceWith(LIST_SELECTOR(), $html)
            ->flash('info', $order->quotation ? t8('Sales quotation #1 has been deleted.', $order->quonumber) : t8('Sales order #1 has been deleted.', $order->ordnumber))
-           ->render($self);
-}
-
-sub action_cancel {
-  my ($self) = @_;
-
-  my $html = $self->render('requirement_spec_order/list', { output => 0 });
-  $self->js->html('#' . TAB_ID(), $html)
            ->render($self);
 }
 
