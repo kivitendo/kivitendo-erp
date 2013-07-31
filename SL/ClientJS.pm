@@ -70,10 +70,15 @@ my %supported_methods = (
   # Form Events
   focus        => 1,
 
+  # Generic Event Handling ## pattern: $(<TARGET>).<FUNCTION>(<ARG1>, kivi.get_function_by_name(<ARG2>))
+  on           => 3,
+  off          => 3,
+  one          => 3,
+
   # ## jqModal plugin ##
 
   # Closing and removing the popup
-  jqmClose               => 1,
+  jqmClose               => 1, # $(<TARGET>).jqmClose()
 
   # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
 
@@ -463,6 +468,15 @@ C<data>, C<removeData>
 =item Form Events
 
 C<focus>
+
+=item Generic Event Handlers
+
+C<on>, C<off>, C<one>
+
+These attach/detach event listeners to specific selectors. The first
+argument is the selector, the second the name of the events and the
+third argument is the name of the handler function. That function must
+already exist when the handler is added.
 
 =back
 

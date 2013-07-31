@@ -86,6 +86,11 @@ ns.eval_json_result = function(data) {
       // Form Events
       else if (action[0] == 'focus')                $(action[1]).focus();
 
+      // Generic Event Handling ##
+      else if (action[0] == 'on')                   $(action[1]).on(action[2], kivi.get_function_by_name(action[3]));
+      else if (action[0] == 'off')                  $(action[1]).off(action[2], kivi.get_function_by_name(action[3]));
+      else if (action[0] == 'one')                  $(action[1]).one(action[2], kivi.get_function_by_name(action[3]));
+
       // ## jqModal plugin ##
 
       // Closing and removing the popup
