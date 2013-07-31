@@ -47,6 +47,7 @@ foreach my $action (@actions) {
     $call        =~ s/<TARGET>/'action[1]'/eg;
     $call        =~ s/<FUNCTION>/$function/eg;
     $call        =~ s/<ARGS>/$args/eg;
+    $call        =~ s/<ARG(\d+)>/'action[' . ($1 + 1) . ']'/eg;
 
     $output .= $call . ";\n";
     $first   = 0;
