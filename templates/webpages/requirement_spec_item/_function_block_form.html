@@ -50,7 +50,7 @@
  </div>
 
  <p>
-  [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save')) %]
+  [% L.ajax_submit_tag('controller.pl?action=RequirementSpecItem/ajax_' _ (SELF.item.id ? 'update' : 'create'), '#' _ id_base _ '_form', LxERP.t8('Save'), id=id_base _ '_submit') %]
   <a href="#" onclick="kivi.requirement_spec.cancel_edit_item_form('[% id_base %]', { [% a_options %] })">[%- LxERP.t8("Cancel") %]</a>
  </p>
 </form>

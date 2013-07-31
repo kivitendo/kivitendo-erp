@@ -174,6 +174,15 @@ ns.ask_delete_text_block = function(key, opt) {
   return true;
 };
 
+ns.text_block_input_key_down = function(event) {
+  if(event.keyCode == 13) {
+    event.preventDefault();
+    var prefix = $(this).attr('id').match("^edit_function_block_\\d+")[0];
+    $("#" + prefix + "_submit").click();
+    return false;
+  }
+};
+
 // --------------------------------------------------------------------------------
 // ------------------------------ sections and items ------------------------------
 // --------------------------------------------------------------------------------
