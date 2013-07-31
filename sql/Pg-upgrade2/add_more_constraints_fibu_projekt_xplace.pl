@@ -45,7 +45,6 @@ sub run {
     do_statement($::form,$sth,$query);
     $sth->finish();
   }
-  $self->dbh ->commit();
   return 1;
 }
 

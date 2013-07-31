@@ -250,7 +250,11 @@ the following variables:
 
 =item * C<AUTH> -- C<$::auth>
 
+=item * C<FLASH> -- the flash instance (C<$::form-E<gt>{FLASH}>)
+
 =item * C<FORM> -- C<$::form>
+
+=item * C<INSTANCE_CONF> -- C<$::instance_conf>
 
 =item * C<LOCALE> -- C<$::locale>
 
@@ -264,6 +268,9 @@ C<features.webdav> etc)
 =item * C<MYCONFIG> -- C<%::myconfig>
 
 =item * C<SELF> -- the controller instance
+
+=item * C<PRESENTER> -- the presenter instance the template is
+rendered with
 
 =item * All items from C<%locals>
 

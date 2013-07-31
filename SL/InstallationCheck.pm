@@ -8,6 +8,13 @@ use vars qw(@required_modules @optional_modules @developer_modules);
 use strict;
 
 BEGIN {
+#   name:     the name of the module if you install it with cpan
+#   version:  the minimum version required to run. optional
+#   url:      web path to the author page of the module
+#   debian:   dpkg package name for debianoid distos
+#             note: (suse) (fedora) (redhat) entries welcome if you
+#             are willing to maintain them
+#   distname: name of the package in cpan if it differs from name (ex.: LWP != libwww-perl)
 @required_modules = (
   { name => "parent",                              url => "http://search.cpan.org/~corion/",    debian => 'libparent-perl' },
   { name => "Archive::Zip",    version => '1.16',  url => "http://search.cpan.org/~adamk/",     debian => 'libarchive-zip-perl' },
@@ -50,11 +57,13 @@ BEGIN {
 
 @developer_modules = (
   { name => "Devel::REPL",                         url => "http://search.cpan.org/~doy/",       debian => 'libdevel-repl-perl' },
+  { name => "LWP::Simple",                         url => "http://search.cpan.org/~gaas/",      debian => 'libwww-perl', dist_name => 'libwww-perl' },
   { name => "Moose::Role",                         url => "http://search.cpan.org/~doy/",       debian => 'libmoose-role-perl' },
   { name => "Perl::Tags",                          url => "http://search.cpan.org/~osfameron/", debian => 'libperl-tags-perl' },
   { name => "Test::Deep",                          url => "http://search.cpan.org/~rjbs/",      debian => 'libtest-deep-perl' },
   { name => "Test::Exception",                     url => "http://search.cpan.org/~adie/",      debian => 'libtest-exception-perl' },
   { name => "Test::Output",                        url => "http://search.cpan.org/~bdfoy/",     debian => 'libtest-output-perl' },
+  { name => "URI::Find",                           url => "http://search.cpan.org/~mschwern/",  debian => 'liburi-find-perl' },
   { name => "GD",              version => '2.00',  url => "http://search.cpan.org/~lds/",       debian => 'libgd-perl' },
 );
 

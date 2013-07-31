@@ -10,7 +10,7 @@ sub handle {
 
   %::myconfig = ();
 
-  my $ok =  $::auth->get_api_token_cookie ? 1 : 0;
+  my $ok =  $::auth->is_api_token_cookie_valid;
   $ok  ||=  $::form->{'{AUTH}admin_password'} && ($::auth->authenticate_root($::form->{'{AUTH}admin_password'})            == $::auth->OK());
   $ok  ||= !$::form->{'{AUTH}admin_password'} && ($::auth->authenticate_root($::auth->get_session_value('admin_password')) == $::auth->OK());
   $ok  ||=  $params{action} eq 'login';
@@ -23,6 +23,7 @@ sub handle {
   }
 
   $::request->{layout} = SL::Layout::Dispatcher->new(style => 'admin');
+  $::request->layout->no_menu(1);
   $::auth->delete_session_value('admin_password');
   $::auth->punish_wrong_login;
   SL::Dispatcher::show_error('admin/adminlogin', 'password');

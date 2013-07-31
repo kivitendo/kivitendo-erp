@@ -94,7 +94,7 @@ sub add {
 sub search {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit');
+  $auth->assert('part_service_assembly_details');
 
   $form->{revers}       = 0;  # switch for backward sorting
   $form->{lastsort}     = ""; # memory for which table was sort at last time
@@ -1009,7 +1009,7 @@ sub addtop100 {
 sub generate_report {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit');
+  $auth->assert('part_service_assembly_details');
 
   my ($revers, $lastsort, $description);
 
@@ -1461,7 +1461,7 @@ sub parts_subtotal {
 sub edit {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit');
+  $auth->assert('part_service_assembly_details');
 
   # show history button
   $form->{javascript} = qq|<script type="text/javascript" src="js/show_history.js"></script>|;
@@ -1482,7 +1482,7 @@ sub edit {
 sub link_part {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit');
+  $auth->assert('part_service_assembly_details');
 
   IC->create_links("IC", \%myconfig, \%$form);
 
@@ -1572,7 +1572,7 @@ sub link_part {
 sub form_header {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit');
+  $auth->assert('part_service_assembly_details');
 
   $form->{pg_keys}          = sub { "$_[0]->{partsgroup}--$_[0]->{id}" };
   $form->{description_area} = ($form->{rows} = $form->numtextrows($form->{description}, 40)) > 1;
@@ -1624,6 +1624,9 @@ sub form_header {
   #                                                     BUCHUNGSGRUPPEN   => $form->{BUCHUNGSGRUPPEN},
   #                                                     payment_terms     => $form->{payment_terms},
   #                                                     all_partsgroup    => $form->{all_partsgroup}});
+
+  $form->{show_edit_buttons} = $main::auth->check_right($form->{login}, 'part_service_assembly_edit');
+
   print $form->parse_html_template('ic/form_header');
   $lxdebug->leave_sub();
 }
@@ -1631,7 +1634,7 @@ sub form_header {
 sub form_footer {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit');
+  $auth->assert('part_service_assembly_details');
 
   print $form->parse_html_template('ic/form_footer');
 
@@ -1766,16 +1769,22 @@ sub assembly_row {
 sub update {
   $lxdebug->enter_sub();
 
+  $auth->assert('part_service_assembly_edit');
+
   # parse pricegroups. and no, don't rely on check_form for this...
   map { $form->{"price_$_"} = $form->parse_amount(\%myconfig, $form->{"price_$_"}) } 1 .. $form->{price_rows};
-  $form->{sellprice} = $form->parse_amount(\%myconfig, $form->{sellprice});
+  $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) for qw(sellprice listprice ve gv);
+
+  if ($form->{item} eq 'part') {
+    $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) for qw(weight rop);
+  }
 
   # same for makemodel lastcosts
   # but parse_amount not necessary for assembly component lastcosts
   unless ($form->{item} eq "assembly") {
     map { $form->{"lastcost_$_"} = $form->parse_amount(\%myconfig, $form->{"lastcost_$_"}) } 1 .. $form->{"makemodel_rows"};
-  };
-  $form->{listprice} = $form->parse_amount(\%myconfig, $form->{listprice});
+    $form->{lastcost} = $form->parse_amount(\%myconfig, $form->{lastcost});
+  }
 
   if ($form->{item} eq "assembly") {
     my $i = $form->{assembly_rows};
@@ -2031,7 +2040,7 @@ sub delete {
 sub price_row {
   $lxdebug->enter_sub();
 
-  $auth->assert('part_service_assembly_edit');
+  $auth->assert('part_service_assembly_details');
 
   my ($numrows) = @_;
 

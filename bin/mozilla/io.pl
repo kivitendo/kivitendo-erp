@@ -103,7 +103,7 @@ use Data::Dumper;
 sub _check_io_auth {
   $main::auth->assert('part_service_assembly_edit   | vendor_invoice_edit       | sales_order_edit    | invoice_edit |' .
                 'request_quotation_edit       | sales_quotation_edit      | purchase_order_edit | ' .
-                'purchase_delivery_order_edit | sales_delivery_order_edit');
+                'purchase_delivery_order_edit | sales_delivery_order_edit | part_service_assembly_details');
 }
 
 ########################################
@@ -669,11 +669,7 @@ sub check_form {
   my $count = 0;
 
   # remove any makes or model rows
-  if ($form->{item} eq 'part') {
-    map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) }
-      qw(listprice sellprice lastcost weight rop);
-
-  } elsif ($form->{item} eq 'assembly') {
+  if ($form->{item} eq 'assembly') {
 
     # fuer assemblies auskommentiert. seiteneffekte? ;-) wird die woanders benoetigt?
     #$form->{sellprice} = 0;
@@ -706,10 +702,7 @@ sub check_form {
     $form->redo_rows(\@flds, \@a, $count, $form->{assembly_rows});
     $form->{assembly_rows} = $count;
 
-  } elsif ($form->{item} eq 'service') {
-    map { $form->{$_} = $form->parse_amount(\%myconfig, $form->{$_}) } qw(listprice sellprice lastcost);
-
-  } else {
+  } elsif ($form->{item} !~ m{^(?:part|service)$}) {
     remove_emptied_rows(1);
 
     $form->{creditremaining} -= &invoicetotal;

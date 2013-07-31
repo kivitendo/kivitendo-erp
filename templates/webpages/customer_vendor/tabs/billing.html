@@ -8,7 +8,7 @@
 
     <tr height="5"></tr>
 
-    [% IF ( conf_vertreter ) %]
+    [% IF ( INSTANCE_CONF.get_vertreter ) %]
       <tr>
         <th align="right">
           [% IF SELF.is_vendor() %]
@@ -286,13 +286,13 @@
         <th align="right">[% 'Currency' | $T8 %]</th>
 
         <td>
-          [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id, with_empty = 1) %]
+          [% L.select_tag('cv.currency_id', SELF.all_currencies, title_key = 'name', value_key = 'id', default = SELF.cv.currency_id) %]
         </td>
       [% END %]
     </tr>
 
     <tr>
-      [% IF ( !conf_vertreter ) %]
+      [% IF ( !INSTANCE_CONF.get_vertreter ) %]
         <th align="right">
           [% IF ( SELF.is_vendor() ) %]
             [% 'Type of Vendor' | $T8 %]
@@ -349,7 +349,7 @@
       </td>
 
 
-      [% IF ( SELF.is_customer() && !conf_vertreter ) %]
+      [% IF ( SELF.is_customer() && !INSTANCE_CONF.get_vertreter ) %]
         <th align="right">[% 'Salesman' | $T8 %]</th>
 
         <td>
@@ -357,11 +357,13 @@
         </td>
       [%- END %]
 
-      <td>[% 'taxincluded checked' | $T8 %]</td>
+      [% IF ( SELF.is_customer() ) %]
+        <td>[% 'taxincluded checked' | $T8 %]</td>
 
-      <td>
-        [% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked) %]
-      </td>
+        <td>
+          [% L.select_tag('cv.taxincluded_checked', [[undef, LxERP.t8('use user config')], ['1', LxERP.t8('Yes')], ['0', LxERP.t8('No')]], default = SELF.cv.taxincluded_checked) %]
+        </td>
+      [% END %]
 
     </tr>
   </table>

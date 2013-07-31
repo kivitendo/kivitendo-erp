@@ -11,6 +11,7 @@ use SL::Common ();
 use SL::DB::AuthUser;
 use SL::DB::AuthGroup;
 use SL::DB::Printer;
+use SL::DBUtils;
 use SL::Helper::Flash;
 use SL::Locale::String qw(t8);
 use SL::System::InstallationLock;
@@ -109,12 +110,11 @@ sub action_show {
 
 sub action_new_user {
   my ($self) = @_;
-
   $self->user(SL::DB::AuthUser->new(
     config_values => {
       vclimit      => 200,
       countrycode  => "de",
-      numberformat => "1.000,00",
+      numberformat => scalar(grep(/^Switzerland/, get_default_coa($self))) ? "1'000.00" : "1.000,00",
       dateformat   => "dd.mm.yy",
       stylesheet   => "kivitendo.css",
       menustyle    => "neu",
@@ -408,7 +408,7 @@ sub action_do_create_dataset {
   User->new->dbcreate($::form);
 
   flash_later('info', t8("The dataset #1 has been created.", $::form->{db}));
-  $self->redirect_to(action => 'database_administration');
+  $self->redirect_to(action => 'show');
 }
 
 sub action_delete_dataset_login {
@@ -439,7 +439,7 @@ sub action_do_delete_dataset {
   User->new->dbdelete($::form);
 
   flash_later('info', t8("The dataset #1 has been deleted.", $::form->{db}));
-  $self->redirect_to(action => 'database_administration');
+  $self->redirect_to(action => 'show');
 }
 
 #
@@ -659,6 +659,22 @@ sub authenticate_root {
   $self->login_form(error => t8('Incorrect password!'));
 
   return undef;
+}
+
+sub get_default_coa {
+  my ( $self ) = @_;
+  my $coa = undef;
+  eval {
+    my $client = first { $_->is_default } @{ $self->all_clients };
+    my $dbconnect = 'dbi:Pg:dbname=' . $client->dbname . ';host=' . $client->dbhost . ';port=' . $client->dbport;
+    my $dbh       = DBI->connect($dbconnect, $client->dbuser, $client->dbpasswd);
+    my $query = q{ SELECT coa FROM defaults };
+    (my $sth = $dbh->prepare($query))->execute;
+    ($coa) = selectrow_query($::form, $dbh, $query);
+    $sth->finish;
+    $dbh->disconnect;
+  };
+  return $coa;
 }
 
 1;

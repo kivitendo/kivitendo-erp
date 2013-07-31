@@ -89,7 +89,7 @@
           </listitem>
 
           <listitem>
-            <para>Ubuntu 10.04 LTS "Lucid Lynx", 12.04 LTS "Precise Pangolin" und 12.10 "Oneiric Ocelot"`</para>
+            <para>Ubuntu 12.04 LTS "Precise Pangolin", 12.10 "Quantal Quetzal" und 13.04 "Precise Pangolin"</para>
           </listitem>
 
           <listitem>
@@ -101,7 +101,7 @@
           </listitem>
 
           <listitem>
-            <para>Fedora 16 und 17</para>
+            <para>Fedora 16 bis 19</para>
           </listitem>
         </itemizedlist>
       </sect2>
@@ -110,7 +110,7 @@
         <title>Benötigte Perl-Pakete installieren</title>
 
         <para>Zum Betrieb von kivitendo werden zwingend ein Webserver (meist
-        Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.2)
+        Apache) und ein Datenbankserver (PostgreSQL, mindestens v8.4)
         benötigt.</para>
 
         <para>Zusätzlich benötigt kivitendo einige Perl-Pakete, die nicht Bestandteil einer Standard-Perl-Installation sind. Um zu
@@ -441,10 +441,10 @@ exit </programlisting>
 
         <para>Andernfalls ist es notwendig, einen neuen Datenbankcluster mit
         Unicode-Encoding anzulegen und diesen zu verwenden. Unter Debian und
-        Ubuntu kann dies z.B. für PostgreSQL 8.2 mit dem folgenden Befehl
+        Ubuntu kann dies z.B. für PostgreSQL 9.3 mit dem folgenden Befehl
         getan werden:</para>
 
-        <programlisting>pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 8.2 clustername</programlisting>
+        <programlisting>pg_createcluster --locale=de_DE.UTF-8 --encoding=UTF-8 9.3 clustername</programlisting>
 
         <para>Die Datenbankversionsnummer muss an die tatsächlich verwendete
         Versionsnummer angepasst werden.</para>
@@ -5943,6 +5943,11 @@ filenames</programlisting>
           <listitem><para><literal>Test::Harness</literal> 3.0.0 oder höher. Dieses Modul ist ab Perl 5.10.1 Bestandteil der
           Perl-Distribution und kann für frühere Versionen aus dem <ulink url="http://www.cpan.org">CPAN</ulink> bezogen
           werden.</para></listitem>
+          <listitem><para><literal>LWP::Simple</literal> aus dem Paket <literal>libwww-perl</literal> (Debian-Panetname:
+          <literal>libwww-perl</literal>; Fedora Core: <literal>perl-libwww-perl</literal>; openSUSE:
+          <literal>perl-libwww-perl</literal>)</para></listitem>
+          <listitem><para><literal>URI::Find</literal> (Debian-Panetname: <literal>liburi-find-perl</literal>; Fedora Core:
+          <literal>perl-URI-Find</literal>; openSUSE: <literal>perl-URI-Find</literal>)</para></listitem>
         </itemizedlist>
 
         <para>Weitere Voraussetzung ist, dass die Testsuite ihre eigene Datenbank anlegen kann, um Produktivdaten nicht zu gefährden. Dazu
