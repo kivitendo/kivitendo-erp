@@ -132,10 +132,10 @@ sub action {
   croak "Unsupported jQuery action: $method"                                                    unless defined $num_args;
   croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)" if     scalar(@args) != $num_args;
 
-  if ($num_args) {
+  foreach my $idx (1..$num_args) {
     # Force flattening from SL::Presenter::EscapedText: "" . $...
-    $args[0] =  "" . $args[0];
-    $args[0] =~ s/^\s+//;
+    $args[$idx - 1] =  "" . $args[$idx - 1];
+    $args[$idx - 1] =~ s/^\s+//;
   }
 
   push @{ $self->_actions }, [ $method, @args ];
