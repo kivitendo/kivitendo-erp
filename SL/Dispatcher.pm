@@ -350,7 +350,7 @@ sub _route_dispatcher_request {
   my ($script_name, $action);
 
   eval {
-    die "Unroutable request -- inavlid module name.\n" if !$::form->{M} || ($::form->{M} !~ m/^${name_re}$/);
+    die "Unroutable request -- invalid module name.\n" if !$::form->{M} || ($::form->{M} !~ m/^${name_re}$/);
     $script_name = $::form->{M} . '.pl';
 
     if ($::form->{A}) {
@@ -358,7 +358,7 @@ sub _route_dispatcher_request {
 
     } else {
       $action = first { m/^A_${name_re}$/ } keys %{ $::form };
-      die "Unroutable request -- inavlid action name.\n" if !$action;
+      die "Unroutable request -- invalid action name.\n" if !$action;
 
       delete $::form->{$action};
       $action = substr $action, 2;
@@ -379,7 +379,7 @@ sub _route_controller_request {
   my ($controller, $action, $request_type);
 
   eval {
-    $::form->{action}      =~ m|^ ( [A-Z] [A-Za-z0-9_]* ) / ( [a-z] [a-z0-9_]* ) ( \. [a-zA-Z]+ )? $|x || die "Unroutable request -- inavlid controller/action.\n";
+    $::form->{action}      =~ m|^ ( [A-Z] [A-Za-z0-9_]* ) / ( [a-z] [a-z0-9_]* ) ( \. [a-zA-Z]+ )? $|x || die "Unroutable request -- invalid controller/action.\n";
     ($controller, $action) =  ($1, $2);
     delete $::form->{action};
 
