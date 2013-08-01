@@ -75,10 +75,10 @@ my %supported_methods = (
   off          => 3,
   one          => 3,
 
-  # ## jqModal plugin ##
+  # ## jQuery UI dialog plugin ## pattern: $(<TARGET>).dialog('<FUNCTION>')
 
   # Closing and removing the popup
-  jqmClose               => 1, # $(<TARGET>).jqmClose()
+  'dialog:close'         => 1,
 
   # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
 
@@ -185,6 +185,12 @@ sub jstree {
   return $self;
 }
 
+sub dialog {
+  my ($self) = @_;
+  $self->{_prefix} = 'dialog:';
+  return $self;
+}
+
 sub flash {
   my ($self, $type, @messages) = @_;
 
@@ -262,6 +268,9 @@ Now some Perl code:
     $js->jstree->rename_node('#tb-' . $text_block->id, $text_block->title)
        ->jstree->select_node('#tb-' . $text_block->id);
 
+    # Close a popup opened by kivi.popup_dialog():
+    $js->dialog->close('#jqueryui_popup_dialog');
+
     # Finally render the JSON response:
     $self->render($js);
 
@@ -323,6 +332,14 @@ Renders C<$self> via the controller. Useful for chaining. Equivalent
 to the following:
 
   $controller->render(\$self->to_json, { type => 'json' });
+
+=item C<dialog>
+
+Tells C<$self> that the next action is to be called on a jQuery UI
+dialog instance, e.g. one opened by C<kivi.popup_dialog()>. For
+example:
+
+  $js->dialog->close('#jqueryui_popup_dialog');
 
 =item C<jstree>
 

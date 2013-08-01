@@ -467,11 +467,11 @@ sub header {
     main menu list_accounts jquery.autocomplete
     jquery.multiselect2side
     ui-lightness/jquery-ui
-    jquery-ui.custom jqModal
+    jquery-ui.custom
   );
 
   $layout->use_javascript("$_.js") for (qw(
-    jquery jquery-ui jquery.cookie jqModal jquery.checkall jquery.download
+    jquery jquery-ui jquery.cookie jquery.checkall jquery.download
     common part_selection switchmenuframe autocomplete_part
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 

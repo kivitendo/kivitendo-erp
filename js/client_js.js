@@ -91,10 +91,10 @@ ns.eval_json_result = function(data) {
       else if (action[0] == 'off')                  $(action[1]).off(action[2], kivi.get_function_by_name(action[3]));
       else if (action[0] == 'one')                  $(action[1]).one(action[2], kivi.get_function_by_name(action[3]));
 
-      // ## jqModal plugin ##
+      // ## jQuery UI dialog plugin ##
 
       // Closing and removing the popup
-      else if (action[0] == 'jqmClose')             $(action[1]).jqmClose();
+      else if (action[0] == 'dialog:close')         $(action[1]).dialog('close');
 
       // ## jstree plugin ##
 

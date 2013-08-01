@@ -1,6 +1,4 @@
 [%- USE HTML %][%- USE LxERP -%][%- USE L -%]
-<div class="listtop">[% HTML.escape(title) %]</div>
-
 [%- IF ok %]
 
  <p class="message_ok">[% LxERP.t8('The connection was established successfully.') %]</p>
@@ -17,5 +15,5 @@
 [%- END %]
 
 <div>
- <a href="#" onclick="$('#test_db_connection_window').jqmClose();">[% LxERP.t8("Close Window") %]</a>
+ <a href="#" onclick="$('#test_db_connection_window').dialog('close');">[% LxERP.t8("Close Window") %]</a>
 </div>
