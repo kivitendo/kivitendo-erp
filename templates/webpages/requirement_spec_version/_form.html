@@ -30,7 +30,7 @@
   <a href="[% SELF.url_for(action='list') %]">[%- LxERP.t8("Cancel") %]</a>
 [%- ELSE %]
   [% L.ajax_submit_tag("controller.pl?action=RequirementSpecVersion/create",  "#" _ id_prefix, LxERP.t8("Save")) %]
-  <a href="#" onclick="$('.jqmWindow').jqmClose();">[% LxERP.t8("Cancel") %]</a>
+  <a href="#" onclick="$('#jqueryui_popup_dialog').dialog('close');">[% LxERP.t8("Cancel") %]</a>
 [%- END %]
  </p>
 </form>

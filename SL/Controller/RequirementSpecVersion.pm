@@ -60,7 +60,7 @@ sub action_new {
     $self->version->description(@lines ? join("\n", @lines) : t8('No changes since previous version.'));
   }
 
-  $self->render('requirement_spec_version/new', { layout => 0 }, title => t8('Create a new version'));
+  $self->render('requirement_spec_version/new', { layout => 0 });
 }
 
 sub action_create {
@@ -85,7 +85,7 @@ sub action_create {
   $self->js
     ->html('#requirement_spec_version', $version_info_html)
     ->html('#versioned_copies_list',    $version_list_html)
-    ->jqmClose('.jqmWindow')
+    ->dialog->close('#jqueryui_popup_dialog')
     ->render($self);
 }
 

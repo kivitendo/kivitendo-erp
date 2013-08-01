@@ -281,11 +281,11 @@ ns.item_popup_menu_hidden = function(opt) {
 // -------------------------------------------------------------------------
 
 ns.paste_template = function(key, opt, other_data) {
-  open_jqm_window({ url: 'controller.pl?action=RequirementSpec/select_template_to_paste' });
+  kivi.popup_dialog({ url: 'controller.pl?action=RequirementSpec/select_template_to_paste', dialog: { title: kivi.t8("Select template to paste") } });
 };
 
 ns.paste_selected_template = function(template_id) {
-  $('#jqm_popup_dialog').jqmClose();
+  $('#jqueryui_popup_dialog').dialog("close");
 
   var data = {
     action:               "RequirementSpec/paste_template",
@@ -459,10 +459,10 @@ ns.disable_versioned_copy_item_commands = function(key, opt) {
 };
 
 ns.create_version = function() {
-  open_jqm_window({ url:  'controller.pl',
-                    data: { action:              'RequirementSpecVersion/new',
-                            requirement_spec_id: $('#requirement_spec_id').val() },
-                    id:   'new_requirement_spec_version_window' });
+  kivi.popup_dialog({ url:    'controller.pl',
+                      data:   { action:              'RequirementSpecVersion/new',
+                                requirement_spec_id: $('#requirement_spec_id').val() },
+                      dialog: { title: kivi.t8('Create a new version') }});
   return true;
 };
 
