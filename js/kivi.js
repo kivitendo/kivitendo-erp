@@ -48,6 +48,47 @@ namespace("kivi", function(ns) {
       return window[name];
     return namespace(parts[1])[ parts[2] ];
   };
+
+  // Open a modal jQuery UI popup dialog. The content is loaded via AJAX.
+  //
+  // Parameters:
+  // - id: dialog DIV ID (optional; defaults to 'jqueryui_popup_dialog')
+  // - url, data, type: passed as the first three arguments to the $.ajax() call
+  // - dialog: an optional object of options passed to the $.dialog() call
+  ns.popup_dialog = function(params) {
+    var dialog;
+
+    params            = params        || { };
+    var id            = params.id     || 'jqueryui_popup_dialog';
+    var dialog_params = $.extend(
+      { // kivitendo default parameters:
+          width:  800
+        , height: 500
+        , modal:  true
+      },
+        // User supplied options:
+      params.dialog || { },
+      { // Options that must not be changed:
+        close: function(event, ui) { dialog.remove(); }
+      });
+
+    $('#' + id).remove();
+
+    dialog = $('<div style="display:none" class="loading" id="' + id + '"></div>').appendTo('body');
+    dialog.dialog(dialog_params);
+
+    $.ajax({
+      url:     params.url,
+      data:    params.data,
+      type:    params.type,
+      success: function(new_html) {
+        dialog.html(new_html);
+        dialog.removeClass('loading');
+      }
+    });
+
+    return true;
+  };
 });
 
 kivi = namespace('kivi');

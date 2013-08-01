@@ -1,3 +1,11 @@
+/* UI widgets in general */
+.ui-widget-content {
+  background-image: url("../../image/fade.png");
+  background-repeat: repeat-x;
+  background-color: #fff;
+}
+
+/* Tab widget */
 .tabwidget {
   background: none;
   position: relative;
@@ -91,3 +99,22 @@
 }
 
 .ui-tabs .ui-tabs-nav li a { padding: .2em .7em; }
+
+/* Dialog */
+.ui-dialog {
+  border: 1px solid black;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+  background: rgb(236,233,216);
+  border-color: black;
+  border-style: dashed;
+  border-width: thin;
+  color: black;
+  font-size: 10pt;
+  font-weight: bolder;
+  margin: 5px;
+  padding: 5px;
+  position: relative;
+  text-align:left;
+}
