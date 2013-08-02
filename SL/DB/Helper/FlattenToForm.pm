@@ -59,10 +59,8 @@ sub flatten_to_form {
 
     $idx++;
 
-    $form->{"id_${idx}"}         = $item->parts_id;
-    $form->{"partnumber_${idx}"} = $item->part->partnumber;
-    $form->{"weight_${idx}"}     = $item->part->weight;
     $form->{"partsgroup_${idx}"} = $item->part->partsgroup->partsgroup if _has($item->part, 'partsgroup_id');
+    _copy($item->part,    $form, '',        "_${idx}", 0,               qw(id partnumber weight));
     _copy($item->part,    $form, '',        "_${idx}", $format_amounts, qw(listprice));
     _copy($item,          $form, '',        "_${idx}", 0,               qw(description project_id ship serialnumber pricegroup_id ordnumber cusordnumber unit
                                                                            subtotal longdescription price_factor_id marge_price_factor approved_sellprice reqdate transdate));
