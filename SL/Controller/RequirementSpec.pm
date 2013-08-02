@@ -141,7 +141,7 @@ sub action_ajax_save_time_and_cost_estimate {
 
   my $html = $self->render('requirement_spec/_show_time_and_cost_estimate', { output => 0 });
   $self->js->replaceWith('#time_cost_estimate', $html)
-           ->hide('#time_cost_estimate_form_container');
+           ->remove('#time_cost_estimate_form_container');
 
   if ($self->visible_section) {
     $html = $self->render('requirement_spec_item/_section', { output => 0 }, requirement_spec_item => $self->visible_section);
