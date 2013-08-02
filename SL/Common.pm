@@ -21,6 +21,7 @@ use File::Slurp;
 use File::Spec;
 use List::MoreUtils qw(apply);
 use POSIX ();
+use Encode qw(decode);
 
 use SL::DBUtils;
 
@@ -355,7 +356,7 @@ sub webdav_folder {
     my $base_path = $ENV{'SCRIPT_NAME'};
     $base_path =~ s|[^/]+$||;
     if (opendir my $dir, $path) {
-      foreach my $file (sort { lc $a cmp lc $b } readdir $dir) {
+      foreach my $file (sort { lc $a cmp lc $b } map { decode("UTF-8", $_) } readdir $dir) {
         next if (($file eq '.') || ($file eq '..'));
 
         my $fname = $file;
