@@ -408,9 +408,17 @@ ns.disable_create_quotation_order_commands = function(key, opt) {
 };
 
 ns.assign_order_part_id_to_all = function() {
-  var order_part_id = $('#quoations_and_orders_order_id').val();
-  $('#quotations_and_orders_form SELECT[name="sections[].order_part_id"]').each(function(idx, elt) {
+  var order_part_id   = $('#quotations_and_orders_order_id').val();
+  var order_part_name = $('#quotations_and_orders_order_id_name').val();
+
+  $('#quotations_and_orders_form INPUT[name="sections[].order_part_id"]').each(function(idx, elt) {
     $(elt).val(order_part_id);
+  });
+
+  $('#quotations_and_orders_form [id^=quotations_and_orders_sections_order_pard_id_]').filter(function() {
+    return $(this).attr('id') && $(this).attr('id').match("^quotations_and_orders_sections_order_pard_id_[0-9]+_name$");
+  }).each(function(idx, elt) {
+    $(elt).val(order_part_name);
   });
 };
 
