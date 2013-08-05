@@ -515,6 +515,11 @@ sub ar_transactions {
     qq|LEFT JOIN department d ON (d.id = a.department_id)|;
 
   my $where = "1 = 1";
+
+  unless ( $main::auth->check_right($form->{login}, 'show_ar_transactions') ) { 
+    $where .= " AND NOT invoice = 'f' ";  # remove ar transactions from Sales -> Reports -> Invoices
+  };
+
   if ($form->{customernumber}) {
     $where .= " AND c.customernumber = ?";
     push(@values, $form->{customernumber});
