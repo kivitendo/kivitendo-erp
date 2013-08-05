@@ -556,6 +556,7 @@ $self->{texts} = {
   'Current / Next Level'        => 'Aktuelles / Nächstes Mahnlevel',
   'Current Earnings'            => 'Gewinn',
   'Current assets account'      => 'Konto für Umlaufvermögen',
+  'Current filter'              => 'Aktueller Filter',
   'Current profile'             => 'Aktuelles Profil',
   'Current status'              => 'Aktueller Status',
   'Current value:'              => 'Aktueller Wert:',

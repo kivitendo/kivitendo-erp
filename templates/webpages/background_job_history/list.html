@@ -1,60 +1,60 @@
 [% USE HTML %][% USE L %][% USE LxERP %]
 
- <h1>[% FORM.title %]</h1>
+<h1>[% FORM.title %]</h1>
 
 [%- INCLUDE 'common/flash.html' %]
 
- <form method="post" action="controller.pl">
-  [% IF !ENTRIES.size %]
-   <p>
-    [%- LxERP.t8('There are no entries in the background job history.') %]
-   </p>
+[%- PROCESS 'background_job_history/_filter.html' filter=SELF.filter %]
 
-  [%- ELSE %]
-   <table id="background_job_history_list" class="background_job_list" width="100%">
-    <thead>
-     <tr class="listheading">
-      <th>[% L.sortable_table_header('package_name') %]</th>
-      <th>[% L.sortable_table_header('run_at') %]</th>
-      <th>[% L.sortable_table_header('status') %]</th>
-      <th>[% L.sortable_table_header('result') %]</th>
-      <th>[% L.sortable_table_header('error') %]</th>
-     </tr>
-    </thead>
+[% IF !ENTRIES.size %]
+ <p>
+  [%- LxERP.t8('There are no entries in the background job history.') %]
+ </p>
 
-    <tbody>
-    [%- FOREACH entry = ENTRIES %]
-    <tr class="listrow[% loop.count % 2 %]" id="background_job_history_id_[% entry.id %]">
-     <td>
-      <a href="[% SELF.url_for(action => 'show', id => entry.id, back_to => SELF.get_callback) %]">
-       [%- HTML.escape(entry.package_name) %]
-      </a>
-     </td>
-     <td>[%- HTML.escape(entry.run_at.to_lxoffice('precision' => 'second')) %]</td>
-     <td>
-      [%- IF entry.status == 'success' %]
-       [%- LxERP.t8('succeeded') %]
-      [%- ELSIF entry.status == 'failure' %]
-       [%- LxERP.t8('failed') %]
-      [%- ELSE %]
-       [%- HTML.escape(entry.status) %]
-      [%- END %]
-     </td>
-     <td>[%- HTML.escape(entry.result) %]</td>
-     <td>[% IF entry.error_col %]<pre>[%- HTML.escape(L.truncate(entry.error_col)) %]</pre>[%- END %]</td>
-    </tr>
+[%- ELSE %]
+ <table id="background_job_history_list" class="background_job_list" width="100%">
+  <thead>
+   <tr class="listheading">
+    <th>[% L.sortable_table_header('package_name') %]</th>
+    <th>[% L.sortable_table_header('run_at') %]</th>
+    <th>[% L.sortable_table_header('status') %]</th>
+    <th>[% L.sortable_table_header('result') %]</th>
+    <th>[% L.sortable_table_header('error') %]</th>
+   </tr>
+  </thead>
+
+  <tbody>
+  [%- FOREACH entry = ENTRIES %]
+  <tr class="listrow[% loop.count % 2 %]" id="background_job_history_id_[% entry.id %]">
+   <td>
+    <a href="[% SELF.url_for(action => 'show', id => entry.id, back_to => SELF.get_callback) %]">
+     [%- HTML.escape(entry.package_name) %]
+    </a>
+   </td>
+   <td>[%- HTML.escape(entry.run_at.to_lxoffice('precision' => 'second')) %]</td>
+   <td>
+    [%- IF entry.status == 'success' %]
+     [%- LxERP.t8('succeeded') %]
+    [%- ELSIF entry.status == 'failure' %]
+     [%- LxERP.t8('failed') %]
+    [%- ELSE %]
+     [%- HTML.escape(entry.status) %]
     [%- END %]
-    </tbody>
-   </table>
+   </td>
+   <td>[%- HTML.escape(entry.result) %]</td>
+   <td>[% IF entry.error_col %]<pre>[%- HTML.escape(L.truncate(entry.error_col)) %]</pre>[%- END %]</td>
+  </tr>
   [%- END %]
+  </tbody>
+ </table>
+[%- END %]
 
-  [% L.paginate_controls %]
+[% L.paginate_controls %]
 
-  <hr size="3" noshade>
+<hr size="3" noshade>
 
-  <p>
-   <a href="[% SELF.url_for(controller => 'BackgroundJob', action => 'list') %]">[%- LxERP.t8('View background jobs') %]</a>
-   |
-   <a href="[% SELF.url_for(controller => 'TaskServer', action => 'show') %]">[%- LxERP.t8('Task server control') %]</a>
-  </p>
- </form>
+<p>
+ <a href="[% SELF.url_for(controller => 'BackgroundJob', action => 'list') %]">[%- LxERP.t8('View background jobs') %]</a>
+ |
+ <a href="[% SELF.url_for(controller => 'TaskServer', action => 'show') %]">[%- LxERP.t8('Task server control') %]</a>
+</p>
