@@ -117,9 +117,16 @@ sub _save {
     }
 
     if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
+
+      if ( !$self->{note_followup}->follow_up_date ) {
+        $::form->error($::locale->text('Date missing!'));
+      }
+
       $self->{note}->trans_id($self->{cv}->id);
       $self->{note}->save();
       $self->{note_followup}->save();
+
+      SL::Helper::Flash::flash_later('info', $::locale->text('Follow-Up saved.'));
 
       $self->{note} = SL::DB::Note->new();
       $self->{note_followup} = SL::DB::FollowUp->new();
