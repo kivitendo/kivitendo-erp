@@ -39,6 +39,14 @@ Größere neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Rechte für die Anzeige von Debitoren- und Kreditorenbuchungen in Berichten
+__Es kann sinnvoll sein, den Standardeinkäufern und Verkäufern keinen Zugriff
+__auf Debitoren- oder Kreditorenbuchungen zu geben. Debitorenbuchungen werden 
+__meist nur für die Mahngebührenrechnungen verwendet, da ist das nicht so
+__interessant, aber bei Kreditorenbuchungen werden oft Sachen gebucht, die
+__nichts mit Wareneinkauf zu tun haben, und nicht jeder sehen soll. Für diesen
+__Fall kann man diese Buchungen also per neuem Recht herausfiltern.
+
 - Recht für die Anzeige von Details und Berichte von Waren, Dienstleistungen und Erzeugnissen
   Statt nur ein Recht für die Bearbeitung von Artikeln zu haben, das gleichzeitig auch das Recht
   für die Anzeige von Details und Berichten über Artikel umfasst, wurde nun ein neues Recht eingeführt.
