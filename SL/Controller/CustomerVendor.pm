@@ -18,6 +18,7 @@ use SL::DB::PaymentTerm;
 use SL::DB::Pricegroup;
 use SL::DB::Contact;
 use SL::DB::FollowUp;
+use SL::DB::FollowUpLink;
 use SL::DB::History;
 use SL::DB::Currency;
 
@@ -124,12 +125,18 @@ sub _save {
 
       $self->{note}->trans_id($self->{cv}->id);
       $self->{note}->save();
+
       $self->{note_followup}->save();
+
+      $self->{note_followup_link}->follow_up_id($self->{note_followup}->id);
+      $self->{note_followup_link}->trans_id($self->{cv}->id);
+      $self->{note_followup_link}->save();
 
       SL::Helper::Flash::flash_later('info', $::locale->text('Follow-Up saved.'));
 
       $self->{note} = SL::DB::Note->new();
       $self->{note_followup} = SL::DB::FollowUp->new();
+      $self->{note_followup_link} = SL::DB::FollowUpLink->new();
     }
 
     $self->{shipto}->trans_id($self->{cv}->id);
@@ -627,6 +634,11 @@ sub _instantiate_args {
   $self->{note_followup}->note($self->{note});
   $self->{note_followup}->created_by($curr_employee->id);
 
+  $self->{note_followup_link} = SL::DB::FollowUpLink->new(
+    trans_type => ($self->is_vendor() ? 'vendor' : 'customer'),
+    trans_info => $self->{cv}->name
+  );
+
   if ( $::form->{shipto}->{shipto_id} ) {
     $self->{shipto} = SL::DB::Shipto->new(shipto_id => $::form->{shipto}->{shipto_id})->load();
   } else {
@@ -664,6 +676,7 @@ sub _load_customer_vendor {
 
   $self->{note} = SL::DB::Note->new();
   $self->{note_followup} = SL::DB::FollowUp->new();
+  $self->{note_followup_link} = SL::DB::FollowUpLink->new();
 
   if ( $::form->{shipto_id} ) {
     $self->{shipto} = SL::DB::Shipto->new(shipto_id => $::form->{shipto_id})->load();
