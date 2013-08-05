@@ -204,7 +204,8 @@ sub action_revert_to {
 sub action_create_pdf {
   my ($self, %params) = @_;
 
-  my %result = SL::Template::LaTeX->parse_and_create_pdf('requirement_spec.tex', SELF => $self, rspec => $self->requirement_spec);
+  my $base_name       = $self->requirement_spec->type->template_file_name || 'requirement_spec';
+  my %result          = SL::Template::LaTeX->parse_and_create_pdf("${base_name}.tex", SELF => $self, rspec => $self->requirement_spec);
 
   $::form->error(t8('Conversion to PDF failed: #1', $result{error})) if $result{error};
 

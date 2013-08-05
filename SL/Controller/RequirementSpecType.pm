@@ -31,7 +31,7 @@ sub action_list {
 sub action_new {
   my ($self) = @_;
 
-  $self->{requirement_spec_type} = SL::DB::RequirementSpecType->new;
+  $self->{requirement_spec_type} = SL::DB::RequirementSpecType->new(template_file_name => 'requirement_spec');
   $self->render('requirement_spec_type/form', title => t8('Create a new requirement spec type'));
 }
 

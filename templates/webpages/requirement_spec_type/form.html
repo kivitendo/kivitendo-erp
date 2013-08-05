@@ -10,6 +10,11 @@
     <td>[% LxERP.t8('Description') %]</td>
     <td>[% L.input_tag("requirement_spec_type.description", SELF.requirement_spec_type.description) %]</td>
    </tr>
+
+   <tr>
+    <td>[% LxERP.t8('Print template base file name') %]<sup>(1)</sup></td>
+    <td>[% L.input_tag("requirement_spec_type.template_file_name", SELF.requirement_spec_type.template_file_name) %]</td>
+   </tr>
   </table>
 
   <p>
@@ -20,5 +25,9 @@
     [% L.submit_tag("action_destroy", LxERP.t8('Delete'), confirm=LxERP.t8('Do you really want to delete this object?')) %]
    [%- END %]
    <a href="[% SELF.url_for(action => 'list') %]">[%- LxERP.t8('Abort') %]</a>
+  </p>
+
+  <p>
+   <sup>(1)</sup>: [% LxERP.t8("The base file name without a path or an extension to be used for printing for this type of requirement spec.") %]
   </p>
  </form>
