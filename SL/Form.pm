@@ -3415,7 +3415,7 @@ sub prepare_for_printing {
   }
 
   my $printer_code    = $self->{printer_code} ? '_' . $self->{printer_code} : '';
-  my $email_extension = -f ($defaults->templates . "/$self->{formname}_email${language}.${extension}") ? '_email' : '';
+  my $email_extension = $self->{media} eq 'email' && -f ($defaults->templates . "/$self->{formname}_email${language}.${extension}") ? '_email' : '';
   $self->{IN}         = "$self->{formname}${email_extension}${language}${printer_code}.${extension}";
 
   # Format dates.
