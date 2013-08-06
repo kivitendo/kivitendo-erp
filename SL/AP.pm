@@ -492,7 +492,7 @@ sub ap_transactions {
 
   my $where = '';
 
-  unless ( $main::auth->check_right($form->{login}, 'show_ap_transactions') ) {
+  unless ( $::auth->assert('show_ap_transactions', 1) ) {
     $where .= " AND NOT invoice = 'f' ";  # remove ap transactions from Sales -> Reports -> Invoices
   };
 
