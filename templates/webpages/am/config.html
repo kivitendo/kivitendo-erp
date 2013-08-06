@@ -53,8 +53,8 @@
       <td><input name="fax" size="14" value="[% HTML.escape(myconfig_fax) %]"></td>
      </tr>
 
-       <tr>
-        <th align="right"q>[% 'taxincluded checked' | $T8 %]</th>
+      <tr>
+        <th align="right">[% 'taxincluded checked' | $T8 %]</th>
         <td>
           [% L.yes_no_tag('taxincluded_checked', myconfig_taxincluded_checked) %]
         </td>
@@ -71,6 +71,12 @@
       <td>
         [% L.select_tag('dateformat', DATEFORMATS, value_key = 'value', title_key = 'name') %]
       </td>
+     </tr>
+     <tr>
+       <th align="right">[% 'Time Format' | $T8 %]</th>
+       <td>
+         [% L.select_tag('timeformat', TIMEFORMATS, value_key = 'value', title_key = 'name') %]
+       </td>
      </tr>
      <tr>
       <th align="right">[% 'Output Number Format' | $T8 %]</th>

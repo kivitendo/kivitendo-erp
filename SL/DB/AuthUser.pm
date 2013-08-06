@@ -8,7 +8,7 @@ use SL::DB::MetaSetup::AuthUser;
 use SL::DB::Manager::AuthUser;
 use SL::DB::Helper::Util;
 
-use constant CONFIG_VARS => qw(copies countrycode dateformat default_media default_printer_id email favorites fax hide_cvar_search_options mandatory_departments menustyle name
+use constant CONFIG_VARS => qw(copies countrycode dateformat timeformat default_media default_printer_id email favorites fax hide_cvar_search_options mandatory_departments menustyle name
                                numberformat show_form_details signature stylesheet taxincluded_checked tel template_format vclimit);
 
 __PACKAGE__->meta->add_relationship(

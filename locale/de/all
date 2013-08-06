@@ -2238,6 +2238,7 @@ $self->{texts} = {
   'This user will have access to the following clients' => 'Dieser Benutzer wird Zugriff auf die folgenden Mandanten haben',
   'This vendor number is already in use.' => 'Diese Lieferantennummer wird bereits verwendet.',
   'Three Options:'              => 'Drei Optionen:',
+  'Time Format'                 => 'Uhrzeitformat',
   'Time Tracking'               => 'Zeiterfassung',
   'Time period for the analysis:' => 'Analysezeitraum:',
   'Timestamp'                   => 'Uhrzeit',

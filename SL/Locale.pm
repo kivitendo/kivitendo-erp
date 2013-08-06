@@ -383,7 +383,12 @@ sub parse_date_to_object {
 sub format_date_object_to_time {
   my ($self, $datetime, %params) = @_;
 
-  return $datetime->strftime('%H:%M');
+  my $format =  $::myconfig{timeformat} || 'hh:mm';
+  $format    =~ s/hh/\%H/;
+  $format    =~ s/mm/\%M/;
+  $format    =~ s/ss/\%S/;
+
+  return $datetime->strftime($format);
 }
 
 sub format_date_object {
