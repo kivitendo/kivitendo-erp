@@ -96,6 +96,9 @@ ns.eval_json_result = function(data) {
       // Closing and removing the popup
       else if (action[0] == 'dialog:close')         $(action[1]).dialog('close');
 
+      // ## jQuery Form plugin ##
+      else if (action[0] == 'ajaxForm')             pattern: $(action[1]).ajaxForm({ success: eval_json_result });
+
       // ## jstree plugin ##
 
       // Operations on the whole tree
@@ -131,19 +134,6 @@ ns.eval_json_result = function(data) {
     });
 
   // console.log("current_content_type " + $('#current_content_type').val() + ' ID ' + $('#current_content_id').val());
-};
-
-ns.submit_ajax_form = function(url, form_selector, additional_data) {
-  var data = $(form_selector).serialize();
-  if (additional_data) {
-    if (data)
-      data += '&';
-    data += typeof additional_data == "string" ? additional_data : $(additional_data).serialize();
-  }
-
-  $.post(url, data, ns.eval_json_result);
-
-  return true;
 };
 
 });

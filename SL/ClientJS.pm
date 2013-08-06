@@ -80,6 +80,9 @@ my %supported_methods = (
   # Closing and removing the popup
   'dialog:close'         => 1,
 
+  # ## jQuery Form plugin ##
+  'ajaxForm'             => 1, # pattern: $(<TARGET>).ajaxForm({ success: eval_json_result })
+
   # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
 
   # Operations on the whole tree

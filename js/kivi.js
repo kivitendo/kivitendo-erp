@@ -38,6 +38,16 @@ namespace("kivi", function(ns) {
       });
   };
 
+  ns.submit_ajax_form = function(url, form_selector, additional_data) {
+    $(form_selector).ajaxSubmit({
+      url:     url,
+      data:    additional_data,
+      success: ns.eval_json_result
+    });
+
+    return true;
+  };
+
   // Return a function object by its name (a string). Works both with
   // global functions (e.g. "check_right_date_format") and those in
   // namespaces (e.g. "kivi.t8").

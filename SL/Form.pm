@@ -472,6 +472,7 @@ sub header {
 
   $layout->use_javascript("$_.js") for (qw(
     jquery jquery-ui jquery.cookie jquery.checkall jquery.download
+    jquery/jquery.form client_js
     common part_selection switchmenuframe autocomplete_part
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
