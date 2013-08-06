@@ -213,6 +213,17 @@ sub dump_sql_result {
   $self->message($level, $prefix . sprintf('(%d row%s)', scalar @{ $results }, scalar @{ $results } > 1 ? 's' : ''));
 }
 
+sub dump_object {
+  my ($self, $level, $text, $object) = @_;
+
+  my $copy;
+  if ($object) {
+    $copy->{$_} = $object->$_ for $object->meta->columns;
+  }
+
+  $self->dump($level, $text, $copy);
+}
+
 sub show_diff {
   my ($self, $level, $item1, $item2, %params) = @_;
 
