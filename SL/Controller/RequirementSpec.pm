@@ -192,10 +192,9 @@ sub action_revert_to {
 
   my $versioned_copy = SL::DB::RequirementSpec->new(id => $::form->{versioned_copy_id})->load;
 
-  $self->requirement_spec->copy_from(
-    $versioned_copy,
-    version_id => $versioned_copy->version_id,
-  );
+  $self->requirement_spec->copy_from($versioned_copy);
+  my $version = $versioned_copy->versions->[0];
+  $version->update_attributes(working_copy_id => $self->requirement_spec->id);
 
   flash_later('info', t8('The requirement spec has been reverted to version #1.', $self->requirement_spec->version->version_number));
   $self->js->redirect_to($self->url_for(action => 'show', id => $self->requirement_spec->id))->render($self);
@@ -410,7 +409,7 @@ sub prepare_report {
                          sub      => sub { $_[0]->project_id ? $_[0]->project->projectnumber : '' } },
       status        => { sub      => sub { $_[0]->status->description } },
       type          => { sub      => sub { $_[0]->type->description } },
-      version       => { sub      => sub { $_[0]->version_id ? $_[0]->version->version_number : t8('Working copy without version') } },
+      version       => { sub      => sub { $_[0]->version ? $_[0]->version->version_number : t8('Working copy without version') } },
     );
   }
 

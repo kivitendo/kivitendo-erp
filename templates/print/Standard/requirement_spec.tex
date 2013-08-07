@@ -4,7 +4,7 @@ $( USE LxLatex )$
 $( USE P )$
 \documentclass{scrartcl}
 
-\usepackage[reqspeclogo,$( IF !rspec.version_id )$draftlogo$( ELSE )$secondpagelogo$( END )$]{kivitendo}
+\usepackage[reqspeclogo,$( IF !rspec.version )$draftlogo$( ELSE )$secondpagelogo$( END )$]{kivitendo}
 
 \kivitendobgsettings
 
@@ -15,7 +15,7 @@ $( USE P )$
   \parbox{12cm}{%
     \defaultfont\scriptsize%
     $( LxLatex.filter(rspec.displayable_name) )$\\
-    $( !rspec.version_id ? "Arbeitskopie ohne Version" : "Version " _ rspec.version.version_number _ " vom " _ rspec.version.itime.to_kivitendo(precision='minute') )$
+    $( !rspec.version ? "Arbeitskopie ohne Version" : "Version " _ rspec.version.version_number _ " vom " _ rspec.version.itime.to_kivitendo(precision='minute') )$
 
     \vspace*{0.2cm}%
     Seite \thepage%
@@ -44,7 +44,7 @@ $( USE P )$
       \Large
       $( LxLatex.filter(rspec.title) )$
       \normalsize
-%$( IF rspec.version_id )$
+%$( IF rspec.version )$
 
     Version $( LxLatex.filter(rspec.version.version_number) )$
 %$( END )$
@@ -66,7 +66,7 @@ $( USE P )$
 \vspace*{0.7cm}
 
 %$( SET working_copy     = rspec.working_copy_id ? rspec.working_copy : rspec )$
-%$( SET versioned_copies = rspec.version_id ? working_copy.versioned_copies_sorted(max_version_number = rspec.version.version_number) : working_copy.versioned_copies_sorted )$
+%$( SET versioned_copies = rspec.version ? working_copy.versioned_copies_sorted(max_version_number = rspec.version.version_number) : working_copy.versioned_copies_sorted )$
 %$( IF !versioned_copies.size )$
   Bisher wurden noch keine Versionen angelegt.
 %$( ELSE )$

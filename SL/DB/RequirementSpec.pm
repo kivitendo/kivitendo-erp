@@ -27,6 +27,16 @@ __PACKAGE__->meta->add_relationship(
     class          => 'SL::DB::RequirementSpec',
     column_map     => { id => 'working_copy_id' },
   },
+  versions         => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpecVersion',
+    column_map     => { id => 'requirement_spec_id' },
+  },
+  working_copy_versions => {
+    type           => 'one to many',
+    class          => 'SL::DB::RequirementSpecVersion',
+    column_map     => { id => 'working_copy_id' },
+  },
   orders           => {
     type           => 'one to many',
     class          => 'SL::DB::RequirementSpecOrder',
@@ -54,6 +64,14 @@ sub _before_save_initialize_not_null_columns {
   $self->previous_fb_number(0)      if !defined $self->previous_fb_number;
 
   return 1;
+}
+
+sub version {
+  my ($self) = @_;
+
+  croak "Not a writer" if scalar(@_) > 1;
+
+  return $self->is_working_copy ? $self->working_copy_versions->[0] : $self->versions->[0];
 }
 
 sub text_blocks_sorted {
@@ -222,7 +240,20 @@ sub is_working_copy {
 sub next_version_number {
   my ($self) = @_;
 
-  return max(0, map { $_->version->version_number } @{ $self->versioned_copies }) + 1;
+  return 1 if !$self->id;
+
+  my ($max_number) = $self->db->dbh->selectrow_array(<<SQL, {}, $self->id, $self->id);
+    SELECT MAX(v.version_number)
+    FROM requirement_spec_versions v
+    WHERE v.requirement_spec_id IN (
+      SELECT rs.id
+      FROM requirement_specs rs
+      WHERE (rs.id              = ?)
+         OR (rs.working_copy_id = ?)
+    )
+SQL
+
+  return ($max_number // 0) + 1;
 }
 
 sub create_version {
@@ -234,10 +265,13 @@ sub create_version {
   my $ok = $self->db->with_transaction(sub {
     delete $attributes{version_number};
 
-    $version = SL::DB::RequirementSpecVersion->new(%attributes, version_number => $self->next_version_number)->save;
-    $copy    = $self->create_copy;
-    $copy->update_attributes(version_id => $version->id, working_copy_id => $self->id);
-    $self->update_attributes(version_id => $version->id);
+    SL::DB::Manager::RequirementSpecVersion->update_all(
+      set   => [ working_copy_id     => undef     ],
+      where => [ requirement_spec_id => $self->id ],
+    );
+
+    $copy    = $self->create_copy(working_copy_id => $self->id);
+    $version = SL::DB::RequirementSpecVersion->new(%attributes, version_number => $self->next_version_number, requirement_spec_id => $copy->id, working_copy_id => $self->id)->save;
 
     1;
   });
@@ -250,8 +284,12 @@ sub invalidate_version {
 
   croak "Cannot work on a versioned copy" if $self->working_copy_id;
 
-  return if !$self->id || !$self->version_id;
-  $self->update_attributes(version_id => undef);
+  return if !$self->id;
+
+  SL::DB::Manager::RequirementSpecVersion->update_all(
+    set   => [ working_copy_id => undef     ],
+    where => [ working_copy_id => $self->id ],
+  );
 }
 
 1;
@@ -271,10 +309,17 @@ The database structure behind requirement specs is a bit involved. The
 important thing is how working copy/versions are handled.
 
 The table contains three important columns: C<id> (which is also the
-primary key), C<working_copy_id> and C<version_id>. C<working_copy_id>
-is a self-referencing column: it can be C<NULL>, but if it isn't then
-it contains another requirement spec C<id>. C<version_id> on the other
-hand references the table C<requirement_spec_versions>.
+primary key) and C<working_copy_id>. C<working_copy_id> is a
+self-referencing column: it can be C<NULL>, but if it isn't then it
+contains another requirement spec C<id>.
+
+Versions are represented similarly. The C<requirement_spec_versions>
+table has three important columns: C<id> (the primary key),
+C<requirement_spec_id> (references C<requirement_specs.id> and must
+not be C<NULL>) and C<working_copy_id> (references
+C<requirement_specs.id> as well but can be
+C<NULL>). C<working_copy_id> points to the working copy if and only if
+the working copy is currently equal to a versioned copy.
 
 The design is as follows:
 
@@ -289,17 +334,17 @@ copies>. A versioned copy is a copy of a working frozen at the moment
 in time it was created. Each versioned copy refers back to the working
 copy it belongs to: each has its C<working_copy_id> set.
 
-=item * Each versioned copy must reference an entry in the table
-C<requirement_spec_versions>. Meaning: for each versioned copy
-C<version_id> must not be C<NULL>.
+=item * Each versioned copy must be referenced from an entry in the
+table C<requirement_spec_versions> via
+C<requirement_spec_id>.
 
 =item * Directly after creating a versioned copy even the working copy
-itself points to a certain version via its C<version_id> column: to
-the same version that the versioned copy just created points
-to. However, any modification that will be visible to the customer
-(text, positioning etc but not internal things like time/cost
-estimation changes) will cause the working copy to be set to 'no
-version' again. This is achieved via before save hooks in Perl.
+itself is referenced from a version via that table's
+C<working_copy_id> column. However, any modification that will be
+visible to the customer (text, positioning etc but not internal things
+like time/cost estimation changes) will cause the version to be
+disassociated from the working copy. This is achieved via before save
+hooks in Perl.
 
 =back
 
@@ -359,13 +404,11 @@ the basic attributes from C<$source> have been assigned.
 This function can be used for resetting a working copy to a specific
 version. Example:
 
- my $requirement_spec = SL::DB::RequirementSpec->new(id => $::form->{id})->load;
- my $versioned_copy   = SL::DB::RequirementSpec->new(id => $::form->{versioned_copy_id})->load;
+  my $requirement_spec = SL::DB::RequirementSpec->new(id => $::form->{id})->load;
+  my $versioned_copy   = SL::DB::RequirementSpec->new(id => $::form->{versioned_copy_id})->load;
 
-  $requirement_spec->copy_from(
-    $versioned_copy,
-    version_id => $versioned_copy->version_id,
-  );
+  $requirement_spec->copy_from($versioned_copy);
+  $versioned_copy->version->update_attributes(working_copy_id => $requirement_spec->id);
 
 =item C<create_copy>
 
@@ -385,17 +428,15 @@ several steps:
 =item 1. The next version number is calculated using
 L</next_version_number>.
 
-=item 2. An instance of L<SL::DB::RequirementSpecVersion> is
+=item 2. A copy of C<$self> is created with L</create_copy>.
+
+=item 3. An instance of L<SL::DB::RequirementSpecVersion> is
 created. Its attributes are copied from C<%attributes> save for the
 version number which is taken from step 1.
 
-=item 3. A copy of C<$self> is created with L</create_copy>.
-
-=item 4. The version instance created in step is assigned to the copy
-from step 3.
-
-=item 5. The C<version_id> in C<$self> is set to the copy's ID from
-step 3.
+=item 4. The version instance created in step 3 is referenced to the
+the copy from step 2 via C<requirement_spec_id> and to the working
+copy for which the version was created via C<working_copy_id>.
 
 =back
 
@@ -424,7 +465,8 @@ copy and the last version created for it.
 Prerequisites: C<$self> must be a working copy (see the overview),
 not a versioned copy.
 
-Sets the C<version_id> field to C<undef> and saves C<$self>.
+Sets any C<working_copy_id> field in the C<requirement_spec_versions>
+table containing C<$self-E<gt>id> to C<undef>.
 
 =item C<is_working_copy>
 

@@ -17,7 +17,7 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  'scalar --get_set_init' => [ qw(requirement_spec version js versioned_copies) ],
+  'scalar --get_set_init' => [ qw(requirement_spec version js) ],
 );
 
 __PACKAGE__->run_before('check_auth');
@@ -115,13 +115,6 @@ sub init_version {
 sub init_js {
   my ($self, %params) = @_;
   $self->js(SL::ClientJS->new);
-}
-
-sub init_versioned_copies {
-  my ($self) = @_;
-  $self->versioned_copies([
-    sort { $b->mtime <=> $a->mtime } @{ $self->requirement_spec->versioned_copies }
-  ]);
 }
 
 sub has_item_changed {

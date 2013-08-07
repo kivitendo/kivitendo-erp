@@ -30,8 +30,7 @@ sub validate {
 sub _before_save_invalidate_requirement_spec_version {
   my ($self, %params) = @_;
 
-
-  return 1 if !$self->requirement_spec_id;
+  return 1 if !$self->requirement_spec_id || $self->requirement_spec->working_copy_id;
 
   my %changed_columns = map { $_ => 1 } (Rose::DB::Object::Helpers::dirty_columns($self));
 

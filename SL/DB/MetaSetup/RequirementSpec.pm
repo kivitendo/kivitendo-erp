@@ -22,7 +22,6 @@ __PACKAGE__->meta->columns(
   time_estimation         => { type => 'numeric', default => '0', not_null => 1, precision => 2, scale => 12 },
   title                   => { type => 'text', not_null => 1 },
   type_id                 => { type => 'integer' },
-  version_id              => { type => 'integer' },
   working_copy_id         => { type => 'integer' },
 );
 
@@ -49,11 +48,6 @@ __PACKAGE__->meta->foreign_keys(
   type => {
     class       => 'SL::DB::RequirementSpecType',
     key_columns => { type_id => 'id' },
-  },
-
-  version => {
-    class       => 'SL::DB::RequirementSpecVersion',
-    key_columns => { version_id => 'id' },
   },
 
   working_copy => {
