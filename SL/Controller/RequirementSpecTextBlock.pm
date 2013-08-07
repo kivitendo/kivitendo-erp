@@ -99,6 +99,7 @@ sub action_ajax_create {
   my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
 
   $self->invalidate_version
+    ->hide('#text-block-list-empty')
     ->replaceWith('#' . $::form->{form_prefix} . '_form', $html)
     ->jstree->create_node('#tree', $insert_after ? ('#tb-' . $insert_after, 'after') : ('#tb-' . ($attributes->{output_position} == 0 ? 'front' : 'back'), 'last'), $node)
     ->jstree->select_node('#tree', '#tb-' . $self->text_block->id);
