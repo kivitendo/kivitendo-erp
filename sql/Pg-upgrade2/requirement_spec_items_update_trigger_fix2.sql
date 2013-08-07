@@ -18,7 +18,7 @@ CREATE OR REPLACE FUNCTION update_requirement_spec_item_time_estimation(item_id 
          OR ((key = 'deleting_requirement_spec')      AND (value = CAST(item_requirement_spec_id AS TEXT)))
       LIMIT 1
     ) THEN
-      RAISE DEBUG 'updateRSIE: item_id % or requirement_spec_id % is about to be deleted; do not update', item_id, requirement_spec_id;
+      RAISE DEBUG 'updateRSIE: item_id % or requirement_spec_id % is about to be deleted; do not update', item_id, item_requirement_spec_id;
       RETURN FALSE;
     END IF;
 
