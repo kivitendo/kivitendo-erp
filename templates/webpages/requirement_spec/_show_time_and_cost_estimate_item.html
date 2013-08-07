@@ -17,7 +17,7 @@
 </tr>
 
 [%- IF item.children.size -%]
- [%- FOREACH child = item.children -%]
+ [%- FOREACH child = item.children_sorted -%]
   [%- INCLUDE 'requirement_spec/_show_time_and_cost_estimate_item.html'
               item  = child
               level = level + 1 -%]

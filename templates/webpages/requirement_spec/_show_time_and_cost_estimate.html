@@ -11,7 +11,7 @@
 
   <table class="time-cost-estimate time-cost-estimate-context-menu">
    <tbody>
-    [%- FOREACH section = SELF.requirement_spec.sections %]
+    [%- FOREACH section = SELF.requirement_spec.sections_sorted %]
      <tr class="listheading">
       <th>[%- LxERP.t8("Function block") %]</th>
       <th>[%- LxERP.t8("Complexity") %]</th>
@@ -28,7 +28,7 @@
 
      [%- IF section.children.size %]
       [%- SET at_least_one_function_block = 1 %]
-      [%- FOREACH child = section.children %]
+      [%- FOREACH child = section.children_sorted %]
        [%- INCLUDE 'requirement_spec/_show_time_and_cost_estimate_item.html'
                    item  = child
                    level = 1 %]
