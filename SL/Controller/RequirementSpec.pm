@@ -7,6 +7,7 @@ use parent qw(SL::Controller::Base);
 
 use SL::ClientJS;
 use SL::Controller::Helper::GetModels;
+use SL::Controller::Helper::Filtered;
 use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
 use SL::Controller::Helper::ParseFilter;
@@ -25,21 +26,21 @@ use SL::Template::LaTeX;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(requirement_spec_item customers types statuses db_args flat_filter visible_item visible_section) ],
+  scalar                  => [ qw(requirement_spec_item customers types statuses visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec complexities risks projects copy_source js current_text_block_output_position) ],
 );
 
 __PACKAGE__->run_before('setup');
 __PACKAGE__->run_before('load_select_options',  only => [ qw(new ajax_edit create update list) ]);
 
-
-__PACKAGE__->get_models_url_params('flat_filter');
-__PACKAGE__->make_paginated(
-  MODEL         => 'RequirementSpec',
-  PAGINATE_ARGS => 'db_args',
-  ONLY          => [ qw(list) ],
+__PACKAGE__->make_filtered(
+  MODEL      => 'RequirementSpec',
+  LAUNDER_TO => 'filter'
 );
-
+__PACKAGE__->make_paginated(
+  MODEL => 'RequirementSpec',
+  ONLY  => [ qw(list) ],
+);
 __PACKAGE__->make_sorted(
   MODEL         => 'RequirementSpec',
   ONLY          => [ qw(list) ],
@@ -64,13 +65,16 @@ __PACKAGE__->make_sorted(
 sub action_list {
   my ($self) = @_;
 
-  $self->setup_db_args_from_filter;
-  $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });
+  my $requirement_specs = $self->get_models(
+    query => [
+      and => [
+        working_copy_id => undef,
+        is_template     => $::form->{is_template} ? 1 : 0,
+      ]],
+    with_objects => [ 'customer', 'type', 'status', 'project' ],
+  );
 
   $self->prepare_report;
-
-  my $requirement_specs = $self->get_models(%{ $self->db_args });
-
   $self->report_generator_list_objects(report => $self->{report}, objects => $requirement_specs);
 }
 
@@ -361,26 +365,6 @@ sub create_or_update {
 
   flash_later('info', $info);
   $self->redirect_to(action => 'show', id => $self->requirement_spec->id);
-}
-
-sub setup_db_args_from_filter {
-  my ($self) = @_;
-
-  $self->{filter} = {};
-  my %args = parse_filter(
-    $::form->{filter},
-    with_objects => [ 'customer', 'type', 'status', 'project' ],
-    launder_to   => $self->{filter},
-  );
-
-  $args{where} = [
-    and => [
-      @{ $args{where} || [] },
-      working_copy_id => undef,
-      is_template     => $::form->{is_template} ? 1 : 0,
-    ]];
-
-  $self->db_args(\%args);
 }
 
 sub prepare_report {
