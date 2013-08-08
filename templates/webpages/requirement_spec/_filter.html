@@ -1,7 +1,7 @@
 [%- USE HTML %][%- USE L %][%- USE LxERP %]
 
 <div class="filter_toggle">
- <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8("Show Filter") %]</a>
+ <a href="#" onClick="$('.filter_toggle').toggle(); $('#filter_customer_name_substr_ilike').focus();">[% LxERP.t8("Show Filter") %]</a>
 </div>
 
 <div class="filter_toggle" style="display:none">
