@@ -85,6 +85,17 @@ $( USE P )$
 \end{longtable}
 %$( END )$
 
+%$( BLOCK picture_outputter )$
+%  $( SET width_cm = (picture.picture_width / 150.0) * 2.54 )$
+%  $( SET width_cm = width_cm < 16.4 ? width_cm : 16.4 )$
+\begin{figure}[h!]
+  \centering
+  \includegraphics[width=$( width_cm )$cm,keepaspectratio]{$( picture.print_file_name )$}
+
+\mbox{Abbildung $( picture.number )$: $( LxLatex.filter(picture.description ? picture.description : picture.picture_file_name) )$}
+\end{figure}
+%$( END )$
+
 %$( BLOCK text_block_outputter )$
 %  $( SET text_blocks = rspec.text_blocks_sorted(output_position=output_position) )$
 %  $( IF text_blocks.size )$
@@ -98,6 +109,10 @@ $( USE P )$
     \subsection{$( LxLatex.filter(text_block.title) )$}
 
 $( LxLatex.filter(text_block.text) )$
+
+%      $( FOREACH picture = text_block.pictures_sorted.as_list )$
+$( PROCESS picture_outputter picture=picture )$
+%      $( END )$
 
 %    $( END )$
 %  $( END )$

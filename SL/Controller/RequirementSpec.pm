@@ -5,7 +5,10 @@ use utf8;
 
 use parent qw(SL::Controller::Base);
 
+use File::Spec ();
+
 use SL::ClientJS;
+use SL::Common ();
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Filtered;
 use SL::Controller::Helper::Paginated;
@@ -208,7 +211,10 @@ sub action_create_pdf {
   my ($self, %params) = @_;
 
   my $base_name       = $self->requirement_spec->type->template_file_name || 'requirement_spec';
+  my @pictures        = $self->prepare_pictures_for_printing;
   my %result          = SL::Template::LaTeX->parse_and_create_pdf("${base_name}.tex", SELF => $self, rspec => $self->requirement_spec);
+
+  unlink @pictures unless ($::lx_office_conf{debug} || {})->{keep_temp_files};
 
   $::form->error(t8('Conversion to PDF failed: #1', $result{error})) if $result{error};
 
@@ -255,7 +261,7 @@ sub setup {
 
   $::auth->assert('sales_quotation_edit');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
-  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu client_js requirement_spec);
+  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu requirement_spec);
   $self->init_visible_section;
 
   return 1;
@@ -467,6 +473,27 @@ sub render_first_pasted_section_as_list {
     ->val( '#current_content_type', $section->item_type)
     ->val( '#current_content_id',   $section->id)
     ->jstree->select_node('#tree', '#fb-' . $section->id);
+}
+
+sub prepare_pictures_for_printing {
+  my ($self) = @_;
+
+  my @files;
+  my $userspath = File::Spec->rel2abs($::lx_office_conf{paths}->{userspath});
+  my $target    =  "${userspath}/kivitendo-print-requirement-spec-picture-" . Common::unique_id() . '-';
+
+  foreach my $picture (map { @{ $_->pictures } } @{ $self->requirement_spec->text_blocks }) {
+    my $output_file_name        = $target . $picture->id . '.' . $picture->get_default_file_name_extension;
+    $picture->{print_file_name} = File::Spec->abs2rel($output_file_name, $userspath);
+    my $out                     = IO::File->new($output_file_name, 'w') || die("Could not create file " . $output_file_name);
+    $out->binmode;
+    $out->print($picture->picture_content);
+    $out->close;
+
+    push @files, $output_file_name;
+  }
+
+  return @files;
 }
 
 1;

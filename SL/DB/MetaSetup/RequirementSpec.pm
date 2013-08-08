@@ -16,6 +16,7 @@ __PACKAGE__->meta->columns(
   itime                   => { type => 'timestamp', default => 'now()' },
   mtime                   => { type => 'timestamp' },
   previous_fb_number      => { type => 'integer', not_null => 1 },
+  previous_picture_number => { type => 'integer', default => '0', not_null => 1 },
   previous_section_number => { type => 'integer', not_null => 1 },
   project_id              => { type => 'integer' },
   status_id               => { type => 'integer' },

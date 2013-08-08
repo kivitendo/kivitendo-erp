@@ -60,8 +60,9 @@ sub validate {
 sub _before_save_initialize_not_null_columns {
   my ($self) = @_;
 
-  $self->previous_section_number(0) if !defined $self->previous_section_number;
-  $self->previous_fb_number(0)      if !defined $self->previous_fb_number;
+  for (qw(previous_section_number previous_fb_number previous_picture_number)) {
+    $self->$_(0) if !defined $self->$_;
+  }
 
   return 1;
 }
@@ -149,17 +150,25 @@ sub _copy_from {
 
   # Copy attributes.
   if (!$params->{paste_template}) {
-    $self->assign_attributes(map({ ($_ => $source->$_) } qw(type_id status_id customer_id project_id title hourly_rate time_estimation previous_section_number previous_fb_number is_template)),
+    $self->assign_attributes(map({ ($_ => $source->$_) } qw(type_id status_id customer_id project_id title hourly_rate time_estimation previous_section_number previous_fb_number previous_picture_number is_template)),
                              %attributes);
   }
 
   my %paste_template_result;
 
-  # Clone text blocks.
+  # Clone text blocks and pictures.
+  my $clone_picture = sub {
+    my ($picture) = @_;
+    my $cloned    = Rose::DB::Object::Helpers::clone_and_reset($picture);
+    $cloned->position(undef);
+    return $cloned;
+  };
+
   my $clone_text_block = sub {
     my ($text_block) = @_;
     my $cloned       = Rose::DB::Object::Helpers::clone_and_reset($text_block);
     $cloned->position(undef);
+    $cloned->pictures([ map { $clone_picture->($_) } @{ $text_block->pictures_sorted } ]);
     return $cloned;
   };
 

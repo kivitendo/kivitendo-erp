@@ -2,6 +2,7 @@ package SL::DB::RequirementSpecTextBlock;
 
 use strict;
 
+use Carp;
 use List::MoreUtils qw(any);
 use Rose::DB::Object::Helpers;
 use Rose::DB::Object::Util;
@@ -10,6 +11,14 @@ use SL::DB::MetaSetup::RequirementSpecTextBlock;
 use SL::DB::Manager::RequirementSpecTextBlock;
 use SL::DB::Helper::ActsAsList;
 use SL::Locale::String;
+
+__PACKAGE__->meta->add_relationship(
+  pictures => {
+    type         => 'one to many',
+    class        => 'SL::DB::RequirementSpecPicture',
+    column_map   => { id => 'text_block_id' },
+  },
+);
 
 __PACKAGE__->meta->initialize;
 
@@ -46,6 +55,14 @@ sub _before_delete_invalidate_requirement_spec_version {
   $self->requirement_spec->invalidate_version if $self->requirement_spec_id;
 
   return 1;
+}
+
+sub pictures_sorted {
+  my ($self, @args) = @_;
+
+  croak "Not a writer" if @args;
+
+  return [ sort { $a->position <=> $b->position } $self->pictures ];
 }
 
 1;

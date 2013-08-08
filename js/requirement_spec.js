@@ -108,6 +108,10 @@ ns.tree_node_clicked = function(event) {
 
 ns.find_text_block_id = function(clicked_elt) {
   var id = $(clicked_elt).attr('id');
+
+  if (/^text-block-picture-\d+$/.test(id))
+    id = $(clicked_elt).closest('.text-block-context-menu').attr('id');
+
   // console.log("id: " + id);
   if (/^text-block-\d+$/.test(id)) {
     // console.log("find_text_block_id: case 1: " + id.substr(11));
@@ -181,6 +185,62 @@ ns.text_block_input_key_down = function(event) {
     $("#" + prefix + "_submit").click();
     return false;
   }
+};
+
+ns.find_text_block_picture_id = function(clicked_elt) {
+  var id    = $(clicked_elt).attr('id');
+  var match = id.match(/^text-block-picture-(\d+)$/);
+  if (match)
+    return match[1] * 1;
+
+  return undefined;
+};
+
+ns.add_edit_text_block_picture_ajax_call = function(key, opt) {
+  var title = key == 'add_picture' ? kivi.t8('Add picture to text block') : kivi.t8('Edit picture');
+
+  kivi.popup_dialog({ url:    'controller.pl',
+                      data:   { action:     'RequirementSpecTextBlock/ajax_' + key,
+                                id:         ns.find_text_block_id(opt.$trigger),
+                                picture_id: ns.find_text_block_picture_id(opt.$trigger) },
+                      dialog: { title:      title }});
+
+  return true;
+};
+
+ns.standard_text_block_picture_ajax_call = function(key, opt) {
+  var data = {
+      action: "RequirementSpecTextBlock/ajax_" + key
+    , id:     ns.find_text_block_picture_id(opt.$trigger)
+  };
+
+  if (key == 'download_picture')
+    $.download("controller.pl", data);
+  else
+    $.post("controller.pl", data, kivi.eval_json_result);
+
+  return true;
+};
+
+ns.ask_delete_text_block_picture = function(key, opt) {
+  if (confirm(kivi.t8("Are you sure?")))
+    ns.standard_text_block_picture_ajax_call(key, opt);
+  return true;
+};
+
+ns.handle_text_block_picture_popup_menu_markings = function(opt, add) {
+  var id = ns.find_text_block_picture_id(opt.$trigger);
+  if (id)
+    $('#text-block-picture-' + id ).toggleClass('selected', add);
+  return true;
+};
+
+ns.text_block_picture_popup_menu_shown = function(opt) {
+  return ns.handle_text_block_picture_popup_menu_markings(opt, true);
+};
+
+ns.text_block_picture_popup_menu_hidden = function(opt) {
+  return ns.handle_text_block_picture_popup_menu_markings(opt, false);
 };
 
 // --------------------------------------------------------------------------------
@@ -568,11 +628,6 @@ ns.create_context_menus = function(is_template) {
     };
   }                             // if (is_template) ... else ...
 
-  var events = {
-      show: kivi.requirement_spec.text_block_popup_menu_shown
-    , hide: kivi.requirement_spec.text_block_popup_menu_hidden
-  };
-
   $.contextMenu({
     selector: '.text-block-context-menu',
     events:   {
@@ -584,11 +639,27 @@ ns.create_context_menus = function(is_template) {
       , add:     { name: kivi.t8('Add text block'),        icon: "add",    callback: kivi.requirement_spec.standard_text_block_ajax_call }
       , edit:    { name: kivi.t8('Edit text block'),       icon: "edit",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
       , delete:  { name: kivi.t8('Delete text block'),     icon: "delete", callback: kivi.requirement_spec.ask_delete_text_block,         disabled: kivi.requirement_spec.disable_edit_text_block_commands }
+      , add_picture: { name: kivi.t8('Add picture to text block'), icon: "add-picture", callback: kivi.requirement_spec.add_edit_text_block_picture_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
       , sep1:    "---------"
       , flag:    { name: kivi.t8('Toggle marker'),         icon: "flag",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
       , sep2:    "---------"
       , copy:    { name: kivi.t8('Copy'),                  icon: "copy",   callback: kivi.requirement_spec.standard_text_block_ajax_call, disabled: kivi.requirement_spec.disable_edit_text_block_commands }
       , paste:   { name: kivi.t8('Paste'),                 icon: "paste",  callback: kivi.requirement_spec.standard_text_block_ajax_call  }
+    }, general_actions)
+  });
+
+  $.contextMenu({
+    selector: '.text-block-picture-context-menu',
+    events:   {
+        show: kivi.requirement_spec.text_block_picture_popup_menu_shown
+      , hide: kivi.requirement_spec.text_block_picture_popup_menu_hidden
+    },
+    items:    $.extend({
+        heading:          { name: kivi.t8('Text block picture actions'), className: 'context-menu-heading'                                                 }
+      , add_picture:      { name: kivi.t8('Add picture'),      icon: "add-picture", callback: kivi.requirement_spec.add_edit_text_block_picture_ajax_call  }
+      , edit_picture:     { name: kivi.t8('Edit picture'),     icon: "edit",        callback: kivi.requirement_spec.add_edit_text_block_picture_ajax_call  }
+      , delete_picture:   { name: kivi.t8('Delete picture'),   icon: "delete",      callback: kivi.requirement_spec.ask_delete_text_block_picture          }
+      , download_picture: { name: kivi.t8('Download picture'), icon: "download",    callback: kivi.requirement_spec.standard_text_block_picture_ajax_call  }
     }, general_actions)
   });
 
@@ -671,7 +742,7 @@ ns.create_context_menus = function(is_template) {
     items:    general_actions
   });
 
-  events = {
+  var events = {
       show: kivi.requirement_spec.item_popup_menu_shown
     , hide: kivi.requirement_spec.item_popup_menu_hidden
   };

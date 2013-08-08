@@ -12,6 +12,7 @@ use SL::ClientJS;
 use SL::Clipboard;
 use SL::Controller::Helper::RequirementSpec;
 use SL::DB::RequirementSpec;
+use SL::DB::RequirementSpecPicture;
 use SL::DB::RequirementSpecPredefinedText;
 use SL::DB::RequirementSpecTextBlock;
 use SL::Helper::Flash;
@@ -19,11 +20,11 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(text_block) ],
+  scalar                  => [ qw(text_block picture) ],
   'scalar --get_set_init' => [ qw(predefined_texts js) ],
 );
 
-__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete ajax_flag dragged_and_dropped ajax_copy)]);
+__PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete ajax_flag dragged_and_dropped ajax_copy ajax_add_picture)]);
 
 #
 # actions
@@ -257,6 +258,95 @@ sub action_ajax_paste {
   $self->invalidate_version
     ->jstree->create_node('#tree', $::form->{id} ? ('#tb-' . $::form->{id}, 'after') : ("#tb-${front_back}", 'last'), $node)
     ->render($self);
+}
+
+#
+# actions for pictures
+#
+
+sub action_ajax_add_picture {
+  my ($self) = @_;
+
+  $self->picture(SL::DB::RequirementSpecPicture->new);
+  $self->render('requirement_spec_text_block/_picture_form', { layout => 0 });
+}
+
+sub action_ajax_edit_picture {
+  my ($self) = @_;
+
+  $self->picture(SL::DB::RequirementSpecPicture->new(id => $::form->{picture_id})->load);
+  $self->text_block($self->picture->text_block);
+  $self->render('requirement_spec_text_block/_picture_form', { layout => 0 });
+}
+
+sub action_ajax_create_picture {
+  my ($self, %params)              = @_;
+
+  my $attributes                   = $::form->{ $::form->{form_prefix} } || die "Missing attributes";
+  $attributes->{picture_file_name} = ((($::form->{ATTACHMENTS} || {})->{ $::form->{form_prefix} } || {})->{picture_content} || {})->{filename};
+  my @errors                       = $self->picture(SL::DB::RequirementSpecPicture->new(%{ $attributes }))->validate;
+
+  return $self->js->error(@errors)->render($self) if @errors;
+
+  $self->picture->save;
+
+  $self->text_block($self->picture->text_block);
+  my $html = $self->render('requirement_spec_text_block/_text_block_picture', { output => 0 }, picture => $self->picture);
+
+  $self->invalidate_version
+    ->dialog->close('#jqueryui_popup_dialog')
+    ->append('#text-block-' . $self->text_block->id . '-pictures', $html)
+    ->show('#text-block-' . $self->text_block->id . '-pictures')
+    ->render($self);
+}
+
+sub action_ajax_update_picture {
+  my ($self)     = @_;
+
+  my $attributes = $::form->{ $::form->{form_prefix} } || die "Missing attributes";
+  $self->picture(SL::DB::RequirementSpecPicture->new(id => $::form->{id})->load);
+
+  if (!$attributes->{picture_content}) {
+    delete $attributes->{picture_content};
+  } else {
+    $attributes->{picture_file_name} = ((($::form->{ATTACHMENTS} || {})->{ $::form->{form_prefix} } || {})->{picture_content} || {})->{filename};
+  }
+
+  $self->picture->assign_attributes(%{ $attributes });
+  my @errors = $self->picture->validate;
+
+  return $self->js->error(@errors)->render($self) if @errors;
+
+  $self->picture->save;
+
+  $self->text_block($self->picture->text_block);
+  my $html = $self->render('requirement_spec_text_block/_text_block_picture', { output => 0 }, picture => $self->picture);
+
+  $self->invalidate_version
+    ->dialog->close('#jqueryui_popup_dialog')
+    ->replaceWith('#text-block-picture-' . $self->picture->id, $html)
+    ->show('#text-block-' . $self->text_block->id . '-pictures')
+    ->render($self);
+}
+
+sub action_ajax_delete_picture {
+  my ($self) = @_;
+
+  $self->picture(SL::DB::RequirementSpecPicture->new(id => $::form->{id})->load);
+  $self->picture->delete;
+  $self->text_block(SL::DB::RequirementSpecTextBlock->new(id => $self->picture->text_block_id)->load);
+
+  $self->invalidate_version
+    ->remove('#text-block-picture-' . $self->picture->id)
+    ->action_if(!@{ $self->text_block->pictures }, 'hide', '#text-block-' . $self->text_block->id . '-pictures')
+    ->render($self);
+}
+
+sub action_ajax_download_picture {
+  my ($self) = @_;
+
+  $self->picture(SL::DB::RequirementSpecPicture->new(id => $::form->{id})->load);
+  $self->send_file(\$self->picture->{picture_content}, type => $self->picture->picture_content_type, name => $self->picture->picture_file_name);
 }
 
 #
