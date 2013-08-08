@@ -69,6 +69,7 @@ sub action_add {
   my ($self) = @_;
 
   $self->_pre_render();
+  $self->{cv}->assign_attributes(hourly_rate => $::instance_conf->get_customer_hourly_rate) if $self->{cv}->is_customer;
   $self->render(
     'customer_vendor/form',
     title => ($self->is_vendor() ? $::locale->text('Add Vendor') : $::locale->text('Add Customer')),
