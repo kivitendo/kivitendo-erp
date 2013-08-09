@@ -660,6 +660,9 @@ ns.create_context_menus = function(is_template) {
       , edit_picture:     { name: kivi.t8('Edit picture'),     icon: "edit",        callback: kivi.requirement_spec.add_edit_text_block_picture_ajax_call  }
       , delete_picture:   { name: kivi.t8('Delete picture'),   icon: "delete",      callback: kivi.requirement_spec.ask_delete_text_block_picture          }
       , download_picture: { name: kivi.t8('Download picture'), icon: "download",    callback: kivi.requirement_spec.standard_text_block_picture_ajax_call  }
+      , sep2:             "---------"
+      , copy_picture:     { name: kivi.t8('Copy'),             icon: "copy",        callback: kivi.requirement_spec.standard_text_block_picture_ajax_call  }
+      , paste_picture:    { name: kivi.t8('Paste'),            icon: "paste",       callback: kivi.requirement_spec.standard_text_block_picture_ajax_call  }
     }, general_actions)
   });
 

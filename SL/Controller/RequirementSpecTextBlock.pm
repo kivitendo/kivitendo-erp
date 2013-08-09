@@ -20,8 +20,8 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(text_block picture) ],
-  'scalar --get_set_init' => [ qw(predefined_texts js) ],
+  scalar                  => [ qw(text_block) ],
+  'scalar --get_set_init' => [ qw(predefined_texts js picture) ],
 );
 
 __PACKAGE__->run_before('load_requirement_spec_text_block', only => [qw(ajax_edit ajax_update ajax_delete ajax_flag dragged_and_dropped ajax_copy ajax_add_picture)]);
@@ -234,11 +234,16 @@ sub action_ajax_copy {
 sub action_ajax_paste {
   my ($self, %params) = @_;
 
-  my $copied = SL::Clipboard->new->get_entry(qr/^RequirementSpecTextBlock$/);
+  my $copied = SL::Clipboard->new->get_entry(qr/^RequirementSpec(?:TextBlock|Picture)$/);
   if (!$copied) {
     return SL::ClientJS->new
       ->error(t8("The clipboard does not contain anything that can be pasted here."))
       ->render($self);
+  }
+
+  if (ref($copied) =~ m/Picture$/) {
+    $self->load_requirement_spec_text_block;
+    return $self->paste_picture($copied);
   }
 
   my $current_output_position = $self->output_position_from_id($::form->{current_content_id}, $::form->{current_content_type});
@@ -274,7 +279,6 @@ sub action_ajax_add_picture {
 sub action_ajax_edit_picture {
   my ($self) = @_;
 
-  $self->picture(SL::DB::RequirementSpecPicture->new(id => $::form->{picture_id})->load);
   $self->text_block($self->picture->text_block);
   $self->render('requirement_spec_text_block/_picture_form', { layout => 0 });
 }
@@ -304,7 +308,6 @@ sub action_ajax_update_picture {
   my ($self)     = @_;
 
   my $attributes = $::form->{ $::form->{form_prefix} } || die "Missing attributes";
-  $self->picture(SL::DB::RequirementSpecPicture->new(id => $::form->{id})->load);
 
   if (!$attributes->{picture_content}) {
     delete $attributes->{picture_content};
@@ -332,7 +335,6 @@ sub action_ajax_update_picture {
 sub action_ajax_delete_picture {
   my ($self) = @_;
 
-  $self->picture(SL::DB::RequirementSpecPicture->new(id => $::form->{id})->load);
   $self->picture->delete;
   $self->text_block(SL::DB::RequirementSpecTextBlock->new(id => $self->picture->text_block_id)->load);
 
@@ -345,8 +347,29 @@ sub action_ajax_delete_picture {
 sub action_ajax_download_picture {
   my ($self) = @_;
 
-  $self->picture(SL::DB::RequirementSpecPicture->new(id => $::form->{id})->load);
   $self->send_file(\$self->picture->{picture_content}, type => $self->picture->picture_content_type, name => $self->picture->picture_file_name);
+}
+
+sub action_ajax_copy_picture {
+  my ($self, %params) = @_;
+
+  SL::Clipboard->new->copy($self->picture);
+  SL::ClientJS->new->render($self);
+}
+
+sub action_ajax_paste_picture {
+  my ($self, %params) = @_;
+
+  my $copied = SL::Clipboard->new->get_entry(qr/^RequirementSpecPicture$/);
+  if (!$copied) {
+    return SL::ClientJS->new
+      ->error(t8("The clipboard does not contain anything that can be pasted here."))
+      ->render($self);
+  }
+
+  $self->text_block($self->picture->text_block);   # Save text block via the picture the user clicked on
+
+  $self->paste_picture($copied);
 }
 
 #
@@ -377,6 +400,10 @@ sub output_position_from_id {
 
 sub init_predefined_texts {
   return SL::DB::Manager::RequirementSpecPredefinedText->get_all_sorted;
+}
+
+sub init_picture {
+  return SL::DB::RequirementSpecPicture->new(id => $::form->{picture_id} || $::form->{id})->load;
 }
 
 sub init_js {
@@ -427,6 +454,27 @@ sub show_list {
   $self->js->val('#current_content_id',   $params{id})                                                         if $params{id};
 
   return $self->set_function_blocks_tab_menu_class(class => 'text-block-context-menu');
+}
+
+sub paste_picture {
+  my ($self, $copied) = @_;
+
+  if (!$self->text_block->db->do_transaction(sub {
+    1;
+    $self->picture($copied->to_object)->save;        # Create new picture from copied data and save
+    $self->text_block->add_pictures($self->picture); # Add new picture to text block
+    $self->text_block->save;
+  })) {
+    $::lxdebug->message(LXDebug::WARN(), "Error: " . $self->text_block->db->error);
+    return $self->js->error($::locale->text('Saving failed. Error message from the database: #1', $self->text_block->db->error))->render($self);
+  }
+
+  my $html = $self->render('requirement_spec_text_block/_text_block_picture', { output => 0 }, picture => $self->picture);
+
+  $self->invalidate_version
+    ->append('#text-block-' . $self->text_block->id . '-pictures', $html)
+    ->show('#text-block-' . $self->text_block->id . '-pictures')
+    ->render($self);
 }
 
 1;
