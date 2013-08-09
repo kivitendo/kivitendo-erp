@@ -1918,6 +1918,7 @@ $self->{texts} = {
   'Requirement Specs'           => 'Pflichtenhefte',
   'Requirement spec actions'    => 'Pflichtenheftaktionen',
   'Requirement spec function block #1 with #2 sub function blocks; description: "#3"' => 'Pflichtenheft-Funktionsblock #1 mit #2 Unterfunktionsblöcken; Beschreibung: "#3"',
+  'Requirement spec picture "#1"' => 'Pflichtenheftbild "#1"',
   'Requirement spec section #1 "#2" with #3 function blocks and a total of #4 sub function blocks; preamble: "#5"' => 'Pflichtenheftabschnitt #1 "#2" mit #3 Funktionsblöcken und insgesamt #4 Unterfunktionsblöcken; Einleitung: "#5"',
   'Requirement spec sub function block #1; description: "#2"' => 'Pflichtenheft-Unterfunktionsblock #1; Beschreibung: "#2"',
   'Requirement spec template \'#1\'' => 'Pflichtenheftvorlage \'#1\'',

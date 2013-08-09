@@ -4,8 +4,20 @@ use strict;
 
 use parent qw(SL::Clipboard::Base);
 
+use SL::Clipboard::RequirementSpecPicture;
 use SL::Common;
 use SL::Locale::String;
+
+sub dump {
+  my ($self, $object) = @_;
+
+  $self->reload_object($object);
+
+  my $tree          = $self->as_tree($object, exclude => sub { ref($_[0]) !~ m/::RequirementSpecTextBlock$/ });
+  $tree->{pictures} = [ map { SL::Clipboard::RequirementSpecPicture->new->dump($_) } @{ $object->pictures } ];
+
+  return $tree;
+}
 
 sub describe {
   my ($self) = @_;
@@ -17,6 +29,8 @@ sub _fix_object {
   my ($self, $object) = @_;
 
   $object->$_(undef) for qw(output_position position requirement_spec_id);
+
+  SL::Clipboard::RequirementSpecPicture->new->_fix_object($_) for @{ $object->pictures || [] };
 
   return $object;
 }
@@ -42,9 +56,17 @@ SL::DB::RequirementSpecTextBlock
 Returns a human-readable description including the title and an
 excerpt of its content.
 
+=item C<dump $object>
+
+This specialization reloads C<$object> from the database, loads all of
+its pictures and dumps it. The pictures are dumped using the clipboard
+specialization for it, L<SL::Clipboard::RequirementSpecPicture/dump>.
+
 =item C<_fix_object $object>
 
-Fixes C<$object> by clearing certain columns like the position.
+Fixes C<$object> by clearing certain columns like the position. Lets
+pictures be fixed by the clipboard specialization for it,
+L<SL::Clipboard::RequirementSpecPicture/_fix_object>.
 
 =back
 

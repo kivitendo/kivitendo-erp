@@ -69,6 +69,13 @@ sub _fix_tree {
   }
 }
 
+sub _binary_column_names {
+  my ($self, $class) = @_;
+  return map  { $_->name }
+         grep { ref($_) =~ m/Pg::Bytea$/i }
+         @{ $class->meta->columns };
+}
+
 1;
 __END__
 
@@ -186,6 +193,12 @@ the newly created object before handing it back to the caller.
 
 Returns the actual clipped type (e.g. C<RequirementSpecItem>). This is
 derived from the actual class name of C<$self>.
+
+=item C<_binary_column_names $class>
+
+Returns an array of column names that have a binary type. Useful for
+sub-classes which need to encode binary content in Base64 during
+C<dump>.
 
 =item C<_fix_object $object>
 
