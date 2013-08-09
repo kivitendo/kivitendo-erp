@@ -348,7 +348,7 @@ sub create_or_update {
     }
   })) {
     $::lxdebug->message(LXDebug::WARN(), "Error: " . $db->error);
-    @errors = ($::locale->text('Saving failed. Error message from the database: #1'), $db->error);
+    @errors = ($::locale->text('Saving failed. Error message from the database: #1', $db->error));
     return $self->js->error(@errors)->render($self) if $::request->is_ajax;
 
     $self->requirement_spec->id(undef) if $is_new;
