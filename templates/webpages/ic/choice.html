@@ -5,7 +5,7 @@
  <form method="post" action="ic.pl">
 
   [%- FOREACH row = HIDDENS %]
-  <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" > 
+  <input type="hidden" name="[% HTML.escape(row.name) %]" value="[% HTML.escape(row.value) %]" >
   [%- END %]
 
   <p>
