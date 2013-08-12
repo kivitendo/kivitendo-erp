@@ -13,9 +13,6 @@ use Rose::Object::MakeMethods::Generic
 );
 
 my %supported_methods = (
-  # ## Non-jQuery methods ##
-  flash        => 2,            # kivi.display_flash(<TARGET>, <ARGS>)
-
   # ## jQuery basics ##
 
   # Basic effects
@@ -112,7 +109,10 @@ my %supported_methods = (
   # ## other stuff ##
   redirect_to            => 1,  # window.location.href = <TARGET>
 
+  flash                  => 2,  # kivi.display_flash(<TARGET>, <ARGS>)
   reinit_widgets         => 0,  # kivi.reinit_widgets()
+  run                    => -1, # kivi.run(<TARGET>, <ARGS>)
+  run_once_for           => 3,  # kivi.run_once_for(<TARGET>, <ARGS>)
 );
 
 sub AUTOLOAD {
@@ -133,7 +133,14 @@ sub action {
   my $num_args =  $supported_methods{$method};
 
   croak "Unsupported jQuery action: $method"                                                    unless defined $num_args;
-  croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)" if     scalar(@args) != $num_args;
+
+  if ($num_args > 0) {
+    croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)" if scalar(@args) != $num_args;
+  } else {
+    $num_args *= -1;
+    croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted at least: $num_args)" if scalar(@args) < $num_args;
+    $num_args  = scalar @args;
+  }
 
   foreach my $idx (0..$num_args - 1) {
     # Force flattening from SL::Presenter::EscapedText and trim leading whitespace for scalars
@@ -447,6 +454,26 @@ L<SL::Request/is_ajax>.
 
 =back
 
+=head2 KIVITENDO FUNCTIONS
+
+The following functions from the C<kivi> namespace are supported:
+
+=over 4
+
+=item Displaying stuff
+
+C<flash> (don't call directly, use L</flash> instead)
+
+=item Running functions
+
+C<run>, C<run_once_for>
+
+=item Widgets
+
+C<reinit_widgets>
+
+=back
+
 =head2 JQUERY FUNCTIONS
 
 The following jQuery functions are supported:
@@ -481,6 +508,10 @@ C<replaceAll>, C<replaceWith>
 
 C<attr>, C<prop>, C<removeAttr>, C<removeProp>, C<val>
 
+=item Class attributes
+
+C<addClass>, C<removeClass>, C<toggleClass>
+
 =item Data storage
 
 C<data>, C<removeData>
@@ -500,10 +531,42 @@ already exist when the handler is added.
 
 =back
 
+=head2 JQUERY POPUP DIALOG PLUGIN
+
+Supported functions of the C<popup dialog> plugin to jQuery. They are
+invoked by first calling C<dialog> in the ClientJS instance and then
+the function itself:
+
+  $js->dialog->close(...);
+
+=over 4
+
+=item Closing and removing the popup
+
+C<close>
+
+=back
+
+=head2 AJAXFORM JQUERY PLUGIN
+
+The following functions of the C<ajaxForm> plugin to jQuery are
+supported:
+
+=over 4
+
+=item All functions by the generic accessor function:
+
+C<ajaxForm>
+
+=back
+
 =head2 JSTREE JQUERY PLUGIN
 
-The following functions of the C<jstree> plugin to jQuery are
-supported:
+Supported functions of the C<jstree> plugin to jQuery. They are
+invoked by first calling C<jstree> in the ClientJS instance and then
+the function itself:
+
+  $js->jstree->open_node(...);
 
 =over 4
 
@@ -537,7 +600,10 @@ C<js/client_js.js> accordingly. The steps are:
 
 =item 1. Add lines in this file to the C<%supported_methods> hash. The
 key is the function name and the value is the number of expected
-parameters.
+parameters. The value can be negative to indicate that the function
+takes at least the absolute of this value as parameters and optionally
+more. In such a case the C<E<lt>ARGSE<gt>> format expands to an actual
+array (and the individual elements if the value is positive>.
 
 =item 2. Run C<scripts/generate_client_js_actions.pl>. It will
 generate C<js/client_js.js> automatically.

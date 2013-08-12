@@ -15,7 +15,7 @@ foreach (read_file("${rel_dir}/SL/ClientJS.pm")) {
 
   next unless (m/^my \%supported_methods/ .. m/^\);/);
 
-  push @actions, [ 'action',  $1, $2, $3 ] if m/^ \s+ '? ([a-zA-Z_:]+) '? \s*=>\s* (\d+) , (?: \s* \# \s+ (.+))? $/x;
+  push @actions, [ 'action',  $1, $2, $3 ] if m/^ \s+ '? ([a-zA-Z_:]+) '? \s*=>\s* (-? \d+) , (?: \s* \# \s+ (.+))? $/x;
   push @actions, [ 'comment', $1, $2     ] if m/^ \s+\# \s+ (.+?) (?: \s* pattern: \s+ (.+))? $/x;
 }
 
@@ -33,7 +33,9 @@ foreach my $action (@actions) {
     $pattern = $action->[2] eq '<DEFAULT>' ? $default_pattern : $action->[2] if $action->[2];
 
   } else {
-    my $args = $action->[2] == 1 ? '' : join(', ', map { "action[$_]" } (2..$action->[2]));
+    my $args = $action->[2] == 1 ? ''
+             : $action->[2] <  0 ? 'action.slice(2, action.length)'
+             :                     join(', ', map { "action[$_]" } (2..$action->[2]));
 
     $output .= sprintf('      %s if (action[0] == \'%s\')%s ',
                        $first ? '    ' : 'else',

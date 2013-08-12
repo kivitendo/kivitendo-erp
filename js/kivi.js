@@ -99,6 +99,52 @@ namespace("kivi", function(ns) {
 
     return true;
   };
+
+  // Run code only once for each matched element
+  //
+  // This allows running the function 'code' exactly once for each
+  // element that matches 'selector'. This is achieved by storing the
+  // state with jQuery's 'data' function. The 'identification' is
+  // required for differentiating unambiguously so that different code
+  // functions can still be run on the same elements.
+  //
+  // 'code' can be either a function or the name of one. It must
+  // resolve to a function that receives the jQueryfied element as its
+  // sole argument.
+  //
+  // Returns nothing.
+  ns.run_once_for = function(selector, identification, code) {
+    var attr_name = 'data-run-once-for-' + identification.toLowerCase().replace(/[^a-z]+/g, '-');
+    var fn        = typeof code === 'function' ? code : ns.get_function_by_name(code);
+    if (!fn) {
+      console.error('kivi.run_once_for(..., "' + code + '"): No function by that name found');
+      return;
+    }
+
+    $(selector).filter(function() { return $(this).data(attr_name) != true; }).each(function(idx, elt) {
+      var $elt = $(elt);
+      $elt.data(attr_name, true);
+      fn($elt);
+    });
+  };
+
+  // Run a function by its name passing it some arguments
+  //
+  // This is a function useful mainly for the ClientJS functionality.
+  // It finds a function by its name and then executes it on an empty
+  // object passing the elements in 'args' (an array) as the function
+  // parameters retuning its result.
+  //
+  // Logs an error to the console and returns 'undefined' if the
+  // function cannot be found.
+  ns.run = function(function_name, args) {
+    var fn = ns.get_function_by_name(function_name);
+    if (fn)
+      return fn.apply({}, args);
+
+    console.error('kivi.run("' + function_name + '"): No function by that name found');
+    return undefined;
+  };
 });
 
 kivi = namespace('kivi');
