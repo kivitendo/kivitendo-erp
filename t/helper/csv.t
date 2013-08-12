@@ -579,6 +579,7 @@ $csv = SL::Helper::Csv->new(
   file   => \"P;Kaffee\nC;Meier",          # " # make emacs happy
   header =>  [[ 'Datatype', 'Description' ], [ 'Datatype', 'Name']],
   case_insensitive_header => 1,
+  ignore_unknown_columns => 1,
   profile => [
     {
       profile   => { datatype => 'datatype', description => 'description' },
