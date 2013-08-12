@@ -71,7 +71,7 @@ sub action_reorder {
 
   SL::DB::RequirementSpecAcceptanceStatus->reorder_list(@{ $::form->{requirement_spec_acceptance_status_id} || [] });
 
-  $self->render(\'', { status => 'json' });
+  $self->render(\'', { type => 'json' });
 }
 
 #
