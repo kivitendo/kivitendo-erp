@@ -243,6 +243,20 @@ ns.text_block_picture_popup_menu_hidden = function(opt) {
   return ns.handle_text_block_picture_popup_menu_markings(opt, false);
 };
 
+ns.make_text_block_picture_lists_sortable = function() {
+  kivi.run_once_for(".requirement-spec-text-block-picture-list", 'make-text-block-picture-list-sortable', function($elt) {
+    $elt.sortable({
+      stop: function(event, ui) {
+        $.post('controller.pl?action=RequirementSpecTextBlock/reorder_pictures', {
+          'picture_id[]': $($elt.sortable('toArray')).map(function(idx, str) { return str.replace('text-block-picture-', ''); }).toArray()
+        });
+        return ui;
+      }
+      , distance: 5
+    });
+  });
+};
+
 // --------------------------------------------------------------------------------
 // ------------------------------ sections and items ------------------------------
 // --------------------------------------------------------------------------------

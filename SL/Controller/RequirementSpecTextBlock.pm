@@ -18,6 +18,8 @@ use SL::DB::RequirementSpecTextBlock;
 use SL::Helper::Flash;
 use SL::Locale::String;
 
+use constant SORTABLE_PICTURE_LIST => 'kivi.requirement_spec.make_text_block_picture_lists_sortable';
+
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(text_block) ],
@@ -48,7 +50,9 @@ sub action_ajax_list {
 
   $self->show_list(output_position => $new_where, id => $::form->{clicked_id}, set_type => 1) if ($new_where != ($current_where // -1));
 
-  $self->render($self->js);
+  $self->js
+    ->run(SORTABLE_PICTURE_LIST())
+    ->render($self);
 }
 
 sub action_ajax_add {
@@ -102,6 +106,7 @@ sub action_ajax_create {
   $self->invalidate_version
     ->hide('#text-block-list-empty')
     ->replaceWith('#' . $::form->{form_prefix} . '_form', $html)
+    ->run(SORTABLE_PICTURE_LIST())
     ->jstree->create_node('#tree', $insert_after ? ('#tb-' . $insert_after, 'after') : ('#tb-' . ($attributes->{output_position} == 0 ? 'front' : 'back'), 'last'), $node)
     ->jstree->select_node('#tree', '#tb-' . $self->text_block->id);
   $self->add_new_text_block_form(output_position => $self->text_block->output_position, insert_after_id => $self->text_block->id, requirement_spec_id => $self->text_block->requirement_spec_id)
@@ -128,6 +133,7 @@ sub action_ajax_update {
   $self->invalidate_version
     ->remove('#' . $prefix . '_form')
     ->replaceWith('#text-block-' . $self->text_block->id, $html)
+    ->run(SORTABLE_PICTURE_LIST())
     ->jstree->rename_node('#tree', '#tb-' . $self->text_block->id, $self->text_block->title)
     ->render($self);
 }
@@ -221,7 +227,9 @@ sub action_dragged_and_dropped {
     }
   }
 
-  $self->js->render($self);
+  $self->js
+    ->run(SORTABLE_PICTURE_LIST())
+    ->render($self);
 }
 
 sub action_ajax_copy {
@@ -261,6 +269,7 @@ sub action_ajax_paste {
 
   my $node = $self->presenter->requirement_spec_text_block_jstree_data($self->text_block);
   $self->invalidate_version
+    ->run(SORTABLE_PICTURE_LIST())
     ->jstree->create_node('#tree', $::form->{id} ? ('#tb-' . $::form->{id}, 'after') : ("#tb-${front_back}", 'last'), $node)
     ->render($self);
 }
@@ -370,6 +379,14 @@ sub action_ajax_paste_picture {
   $self->text_block($self->picture->text_block);   # Save text block via the picture the user clicked on
 
   $self->paste_picture($copied);
+}
+
+sub action_reorder_pictures {
+  my ($self) = @_;
+
+  SL::DB::RequirementSpecPicture->reorder_list(@{ $::form->{picture_id} || [] });
+
+  $self->render(\'', { type => 'json' });
 }
 
 #
