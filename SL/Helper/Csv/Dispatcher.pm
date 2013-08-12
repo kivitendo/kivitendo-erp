@@ -59,7 +59,7 @@ sub _specs_by_line {
 
   # initialize lookup hash if not already done
   if ($self->_csv->is_multiplexed && ! defined $self->_row_spec ) {
-    $self->_row_spec({ pairwise { $a->{row_ident} => $b } @{ $self->_csv->profile }, @{ $self->_specs } });
+    $self->_row_spec({ pairwise { no warnings 'once'; $a->{row_ident} => $b } @{ $self->_csv->profile }, @{ $self->_specs } });
   }
 
   if ($self->_csv->is_multiplexed) {

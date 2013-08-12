@@ -398,7 +398,7 @@ sub check_objects {
   }
 
   # If order has errors set error for orderitems as well
-  my $order_entry;
+  $order_entry = undef;
   foreach my $entry (@{ $self->controller->data }) {
     # Search first order
     if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'}) {

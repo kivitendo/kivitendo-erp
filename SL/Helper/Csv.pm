@@ -229,7 +229,7 @@ sub _header_by_row {
 
   # initialize lookup hash if not already done
   if ($self->is_multiplexed && ! defined $self->_row_header ) {
-    $self->_row_header({ pairwise { $a->{row_ident} => $b } @{ $self->profile }, @{ $self->header } });
+    $self->_row_header({ pairwise { no warnings 'once'; $a->{row_ident} => $b } @{ $self->profile }, @{ $self->header } });
   }
 
   if ($self->is_multiplexed) {
