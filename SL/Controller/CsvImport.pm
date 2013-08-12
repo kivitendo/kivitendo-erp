@@ -557,7 +557,7 @@ sub save_report_multi {
     my $row_ident = $self->worker->profile->[$i]->{row_ident};
     my $n_info_methods = $info_methods->{$row_ident} ? scalar @{ $info_methods->{$row_ident} } : 0;
     my $n_methods      = $methods->{$row_ident} ?      scalar @{ $methods->{$row_ident} }      : 0;
-    
+
     $off1->{$row_ident} = $n_info_methods;
     $off2->{$row_ident} = $off1->{$row_ident} + $n_methods;
   }
@@ -571,7 +571,7 @@ sub save_report_multi {
 
     my $o1 = $off1->{$row_ident};
     my $o2 = $off2->{$row_ident};
-    
+
     $sth->execute($report->id,       $_, $row + $n_header_rows, $data_row->{info_data}{ $info_methods->{$row_ident}->[$_] }) for 0 .. $#{ $info_methods->{$row_ident} };
     $sth->execute($report->id, $o1 + $_, $row + $n_header_rows, $data_row->{object}->${ \ $methods->{$row_ident}->[$_] })    for 0 .. $#{ $methods->{$row_ident} };
     $sth->execute($report->id, $o2 + $_, $row + $n_header_rows, $data_row->{raw_data}{ $raw_methods->{$row_ident}->[$_] })   for 0 .. $#{ $raw_methods->{$row_ident} };

@@ -231,7 +231,7 @@ sub _header_by_row {
   if ($self->is_multiplexed && ! defined $self->_row_header ) {
     $self->_row_header({ pairwise { $a->{row_ident} => $b } @{ $self->profile }, @{ $self->header } });
   }
-    
+
   if ($self->is_multiplexed) {
     return $self->_row_header->{$row->[0]}
   } else {

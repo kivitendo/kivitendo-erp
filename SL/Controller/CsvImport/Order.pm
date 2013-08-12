@@ -308,7 +308,6 @@ sub check_objects {
       $self->check_project($entry, global => 0);
       $self->check_price_factor($entry);
       $self->check_pricegroup($entry);
-      
     }
   }
 

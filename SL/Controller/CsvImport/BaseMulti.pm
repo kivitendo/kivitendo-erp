@@ -74,7 +74,6 @@ sub run {
   }
   $self->controller->raw_data_headers($raw_data_headers);
   $self->controller->info_headers($info_headers);
-    
 
   my @objects  = $self->csv->get_objects;
   $self->controller->track_progress(progress => 70);
@@ -101,7 +100,7 @@ sub run {
 
 sub add_columns {
   my ($self, $row_ident, @columns) = @_;
-  
+
   my $h = $self->controller->headers->{$row_ident};
 
   foreach my $column (grep { !$h->{used}->{$_} } @columns) {
