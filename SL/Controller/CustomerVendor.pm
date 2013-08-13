@@ -355,13 +355,17 @@ sub action_delete_shipto {
 sub action_search {
   my ($self) = @_;
 
-  my $url = 'ct.pl?action=search&db='. ($self->is_vendor() ? 'vendor' : 'customer');
+  my @url_params = (
+    controller => 'ct.pl',
+    action => 'search',
+    db => $self->is_vendor() ? 'vendor' : 'customer',
+  );
 
   if ( $::form->{callback} ) {
-    $url .= '&callback='. $::from->escape($::form->{callback});
+    push(@url_params, callback => $::form->{callback});
   }
 
-  print $::form->redirect_header($url);
+  $self->redirect_to(@url_params);
 }
 
 
