@@ -261,7 +261,7 @@ sub setup {
 
   $::auth->assert('sales_quotation_edit');
   $::request->{layout}->use_stylesheet("${_}.css") for qw(jquery.contextMenu requirement_spec);
-  $::request->{layout}->use_javascript("${_}.js") for qw(jquery.jstree jquery/jquery.contextMenu requirement_spec);
+  $::request->{layout}->use_javascript("${_}.js")  for qw(jquery.jstree jquery/jquery.contextMenu jquery/jquery.hotkeys requirement_spec);
   $self->init_visible_section;
 
   return 1;

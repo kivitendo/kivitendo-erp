@@ -258,7 +258,7 @@ sub action_ajax_edit {
     ->hide($content_top_id)
     ->remove("#${id_base}_form")
     ->insertAfter($html, $content_top_id)
-    ->on("#${id_base}_form INPUT[type=text]", "keydown", "kivi.requirement_spec.text_block_input_key_down")
+    ->run('kivi.requirement_spec.init_function_block_keypress_events', "${id_base}_form")
     ->jstree->select_node('#tree', '#fb-' . $self->item->id)
     ->focus("#${id_base}_description")
     ->val('#current_content_type', $self->item->item_type)
@@ -601,6 +601,7 @@ sub add_new_item_form {
 
   return $self->js
     ->action($params{insert_position}, $html, $params{display_reference})
+    ->run('kivi.requirement_spec.init_function_block_keypress_events', "${id_base}_form")
     ->focus("#${id_base}_description");
 }
 

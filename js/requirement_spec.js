@@ -178,15 +178,6 @@ ns.ask_delete_text_block = function(key, opt) {
   return true;
 };
 
-ns.text_block_input_key_down = function(event) {
-  if(event.keyCode == 13) {
-    event.preventDefault();
-    var prefix = $(this).attr('id').match("^edit_function_block_\\d+")[0];
-    $("#" + prefix + "_submit").click();
-    return false;
-  }
-};
-
 ns.find_text_block_picture_id = function(clicked_elt) {
   var id    = $(clicked_elt).attr('id');
   var match = id.match(/^text-block-picture-(\d+)$/);
@@ -348,6 +339,19 @@ ns.item_popup_menu_shown = function(opt) {
 
 ns.item_popup_menu_hidden = function(opt) {
   return ns.handle_item_popup_menu_markings(opt, false);
+};
+
+ns.submit_function_block = function(event) {
+  event.preventDefault();
+
+  var prefix = $(this).attr('id').match("^(?:edit|new)_function_block_[\\d_]+\\d")[0];
+  kivi.submit_ajax_form('controller.pl?action=RequirementSpecItem/ajax_update', '#' + prefix + '_form');
+
+  return false;
+};
+
+ns.init_function_block_keypress_events = function(form_id) {
+  $("#" + form_id + " INPUT[type=text]").bind("keypress", "return", ns.submit_function_block);
 };
 
 // -------------------------------------------------------------------------
