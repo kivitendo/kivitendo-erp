@@ -111,13 +111,31 @@ sub _check_multiplexed {
     if (scalar @profile > 1) {
       # Each profile needs a class and a row_ident
       my $info_ok = all { defined $_->{class} && defined $_->{row_ident} } @profile;
+      $self->_push_error([
+        0,
+        "missing class or row_ident in one of the profiles for multiplexed data",
+        0,
+        0]) unless $info_ok;
 
       # If header is given, there need to be a header for each profile
       # and no empty headers.
       if ($info_ok && $self->header) {
         my @header = @{ $self->header };
-        $info_ok = $info_ok && scalar @profile == scalar @header;
-        $info_ok = $info_ok && all { scalar @$_ > 0} @header;
+        my $t_ok = scalar @profile == scalar @header;
+        $self->_push_error([
+          0,
+          "number of headers and number of profiles must be the same for multiplexed data",
+          0,
+          0]) unless $t_ok;
+        $info_ok = $info_ok && $t_ok;
+
+        $t_ok = all { scalar @$_ > 0} @header;
+        $self->_push_error([
+          0,
+          "no empty headers are allowed for multiplexed data",
+          0,
+          0]) unless $t_ok;
+        $info_ok = $info_ok && $t_ok;
       }
       $self->is_multiplexed($info_ok);
       return $info_ok;
