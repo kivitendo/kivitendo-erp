@@ -28,12 +28,12 @@ namespace("kivi", function(ns) {
   };
 
   ns.reinit_widgets = function() {
-    $('.datepicker').each(function() {
-      $(this).datepicker();
+    ns.run_once_for('.datepicker', 'datepicker', function(elt) {
+      $(elt).datepicker();
     });
 
     if (ns.PartPicker)
-      $('input.part_autocomplete').each(function(idx, elt){
+      ns.run_once_for('input.part_autocomplete', 'part_picker', function(elt) {
         kivi.PartPicker($(elt));
       });
   };
