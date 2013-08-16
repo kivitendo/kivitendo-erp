@@ -106,19 +106,13 @@ sub is_known {
 sub parse_profile {
   my ($self, %params) = @_;
 
-  my $profile;
-  my $class;
   my @specs;
 
+  my $csv_profile = $self->_csv->profile;
   my $i = 0;
   foreach my $header (@{ $self->_csv->header }) {
-    if ($self->_csv->profile) {
-      $profile = $self->_csv->profile->[$i]->{profile};
-      $class   = $self->_csv->profile->[$i]->{class};
-    }
-
-    my $spec = $self->_parse_profile(profile => $profile,
-                                     class   => $class,
+    my $spec = $self->_parse_profile(profile => $csv_profile->[$i]->{profile},
+                                     class   => $csv_profile->[$i]->{class},
                                      header  => $header);
     push @specs, $spec;
     $i++;
