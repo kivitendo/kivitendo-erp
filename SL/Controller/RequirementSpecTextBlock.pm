@@ -136,7 +136,9 @@ sub action_ajax_update {
     ->replaceWith('#text-block-' . $self->text_block->id, $html)
     ->run(SORTABLE_PICTURE_LIST())
     ->jstree->rename_node('#tree', '#tb-' . $self->text_block->id, $self->text_block->title)
-    ->prop('#tb-' . $self->text_block->id, 'title', $self->text_block->content_excerpt)
+    ->prop('#tb-' . $self->text_block->id . ' a', 'title', $self->text_block->content_excerpt)
+    ->addClass('#tb-' . $self->text_block->id . ' a', 'tooltip')
+    ->reinit_widgets
     ->render($self);
 }
 

@@ -295,7 +295,9 @@ sub action_ajax_update {
       ->html('#section-header-' . $self->item->id, $html)
       ->show('#section-header-' . $self->item->id)
       ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item))
-      ->prop('#fb-' . $self->item->id, 'title', $self->item->content_excerpt)
+      ->prop('#fb-' . $self->item->id . ' a', 'title', $self->item->content_excerpt)
+      ->addClass('#fb-' . $self->item->id . ' a', 'tooltip')
+      ->reinit_widgets
       ->render($self);
   }
 
@@ -310,7 +312,9 @@ sub action_ajax_update {
   $self->js
     ->remove('#' . $prefix . '_form')
     ->replaceWith('#' . $id_prefix . 'top-' . $self->item->id, $html_top)
-    ->prop('#fb-' . $self->item->id, 'title', $self->item->content_excerpt)
+    ->prop('#fb-' . $self->item->id . ' a', 'title', $self->item->content_excerpt)
+    ->addClass('#fb-' . $self->item->id . ' a', 'tooltip')
+    ->reinit_widgets
     ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item));
 
   $self->replace_bottom($self->item, id_prefix => $id_prefix);

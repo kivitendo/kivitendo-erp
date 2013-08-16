@@ -102,6 +102,59 @@ ns.tree_node_clicked = function(event) {
   }, kivi.eval_json_result);
 };
 
+ns.setup_tooltip_for_tree_node = function(li) {
+  $(li).find('a').prop('title', $(li).prop('title')).tooltip();
+  $(li).prop('title', '');
+};
+
+ns.tree_loaded = function(event) {
+  var id = $('#tree').data('initially_selected_node');
+  if (id)
+    $.jstree._reference("#tree").select_node(id, true);
+
+  $('#tree li[title!=""]').each(function(idx, elt) {
+    ns.setup_tooltip_for_tree_node(elt);
+  });
+};
+
+ns.tree_node_created = function(event, data) {
+  console.info("created ", data);
+  if (data && data.rslt && data.rslt.obj)
+    ns.setup_tooltip_for_tree_node(data.rslt.obj);
+};
+
+ns.initialize_requirement_spec = function(data) {
+  $('#tree').data('initially_selected_node', data.initially_selected_node);
+
+  $('#tree')
+    .bind('create_node.jstree', ns.tree_node_created)
+    .bind('move_node.jstree',   ns.tree_node_moved)
+    .bind('click.jstree',       ns.tree_node_clicked)
+    .bind('loaded.jstree',      ns.tree_loaded)
+    .jstree({
+      core: {
+        animation: 0,
+        initially_open: data.initially_open,
+      },
+      json_data: {
+        data: data.tree_data
+      },
+      crrm: {
+        move: {
+          check_move: ns.tree_check_move,
+          open_move:  true
+        }
+      },
+      themes: {
+        theme: "requirement-spec"
+      },
+      plugins: [ "themes", "json_data", "ui", "crrm", "dnd" ]
+    });
+
+  ns.create_context_menus(data.is_template);
+  $('#requirement_spec_tabs').on("tabsbeforeactivate", ns.tabs_before_activate);
+};
+
 // -------------------------------------------------------------------------
 // ------------------------------ text blocks ------------------------------
 // -------------------------------------------------------------------------

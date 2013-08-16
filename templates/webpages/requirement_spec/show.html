@@ -86,37 +86,14 @@ $(function() {
 [%- END -%]
   ];
 
-  $('#tree')
-  .bind('loaded.jstree', function() {
-    kivi.reinit_widgets();
+  kivi.requirement_spec.initialize_requirement_spec({
+      initially_open:          initially_open
+    , tree_data:               tree_data
+    , is_template:             [% SELF.requirement_spec.is_template ? 'true' : 'false' %]
 [% IF SELF.requirement_spec_item %]
-    $.jstree._reference("#tree").select_node('#fb-[% SELF.requirement_spec_item.id %]', true);
+    , initially_selected_node: '#fb-[% SELF.requirement_spec_item.id %]'
 [% END %]
-  })
-  .jstree({
-    core: {
-      animation: 0,
-      initially_open: initially_open,
-    },
-    json_data: {
-      data: tree_data
-    },
-    crrm: {
-      move: {
-        check_move: kivi.requirement_spec.tree_check_move,
-        open_move:  true
-      }
-    },
-    themes: {
-      theme: "requirement-spec"
-    },
-    plugins: [ "themes", "json_data", "ui", "crrm", "dnd" ]
-  })
-  .bind("move_node.jstree", kivi.requirement_spec.tree_node_moved)
-  .bind("click.jstree",     kivi.requirement_spec.tree_node_clicked);
-
-  kivi.requirement_spec.create_context_menus([% SELF.requirement_spec.is_template ? 'true' : 'false' %]);
-  $('#requirement_spec_tabs').on("tabsbeforeactivate", kivi.requirement_spec.tabs_before_activate);
+  });
 });
 
   -->
