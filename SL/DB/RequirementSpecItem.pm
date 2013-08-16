@@ -7,6 +7,7 @@ use List::MoreUtils qw(any);
 use Rose::DB::Object::Helpers;
 use Rose::DB::Object::Util;
 
+use SL::Common ();
 use SL::DB::MetaSetup::RequirementSpecItem;
 use SL::DB::Manager::RequirementSpecItem;
 use SL::DB::Helper::ActsAsList;
@@ -123,6 +124,13 @@ sub child_type {
 
   return $self->item_type eq 'section' ? 'function-block' : 'sub-function-block';
 }
+
+sub content_excerpt {
+  my ($self) = @_;
+
+  return Common::truncate($self->description // '', at => 200);
+}
+
 
 1;
 __END__

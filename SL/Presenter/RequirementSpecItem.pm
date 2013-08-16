@@ -20,13 +20,13 @@ sub requirement_spec_item_jstree_data {
 
   my @children = map { $self->requirement_spec_item_jstree_data($_, %params) } @{ $item->children_sorted };
   my $type     = !$item->parent_id ? 'section' : 'function-block';
-  my $class    = $type . '-context-menu';
+  my $class    = $type . '-context-menu tooltip';
   $class      .= ' flagged' if $item->is_flagged;
 
   return {
     data     => $self->requirement_spec_item_tree_node_title($item),
     metadata => { id =>         $item->id, type => $type },
-    attr     => { id => "fb-" . $item->id, href => $params{href} || '#', class => $class },
+    attr     => { id => "fb-" . $item->id, href => $params{href} || '#', class => $class, title => $item->content_excerpt },
     children => \@children,
   };
 }

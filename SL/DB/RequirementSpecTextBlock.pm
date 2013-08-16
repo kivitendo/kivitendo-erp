@@ -7,6 +7,7 @@ use List::MoreUtils qw(any);
 use Rose::DB::Object::Helpers;
 use Rose::DB::Object::Util;
 
+use SL::Common ();
 use SL::DB::MetaSetup::RequirementSpecTextBlock;
 use SL::DB::Manager::RequirementSpecTextBlock;
 use SL::DB::Helper::ActsAsList;
@@ -63,6 +64,12 @@ sub pictures_sorted {
   croak "Not a writer" if @args;
 
   return [ sort { $a->position <=> $b->position } $self->pictures ];
+}
+
+sub content_excerpt {
+  my ($self) = @_;
+
+  return Common::truncate($self->text // '', at => 200);
 }
 
 1;

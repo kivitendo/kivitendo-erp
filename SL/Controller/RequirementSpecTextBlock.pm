@@ -110,6 +110,7 @@ sub action_ajax_create {
     ->jstree->create_node('#tree', $insert_after ? ('#tb-' . $insert_after, 'after') : ('#tb-' . ($attributes->{output_position} == 0 ? 'front' : 'back'), 'last'), $node)
     ->jstree->select_node('#tree', '#tb-' . $self->text_block->id);
   $self->add_new_text_block_form(output_position => $self->text_block->output_position, insert_after_id => $self->text_block->id, requirement_spec_id => $self->text_block->requirement_spec_id)
+    ->reinit_widgets
     ->render($self);
 }
 
@@ -135,6 +136,7 @@ sub action_ajax_update {
     ->replaceWith('#text-block-' . $self->text_block->id, $html)
     ->run(SORTABLE_PICTURE_LIST())
     ->jstree->rename_node('#tree', '#tb-' . $self->text_block->id, $self->text_block->title)
+    ->prop('#tb-' . $self->text_block->id, 'title', $self->text_block->content_excerpt)
     ->render($self);
 }
 

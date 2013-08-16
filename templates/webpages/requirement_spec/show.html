@@ -86,7 +86,14 @@ $(function() {
 [%- END -%]
   ];
 
-  $('#tree').jstree({
+  $('#tree')
+  .bind('loaded.jstree', function() {
+    kivi.reinit_widgets();
+[% IF SELF.requirement_spec_item %]
+    $.jstree._reference("#tree").select_node('#fb-[% SELF.requirement_spec_item.id %]', true);
+[% END %]
+  })
+  .jstree({
     core: {
       animation: 0,
       initially_open: initially_open,
@@ -107,9 +114,6 @@ $(function() {
   })
   .bind("move_node.jstree", kivi.requirement_spec.tree_node_moved)
   .bind("click.jstree",     kivi.requirement_spec.tree_node_clicked);
-[% IF SELF.requirement_spec_item %]
-  $.jstree._reference("#tree").select_node('#fb-[% SELF.requirement_spec_item.id %]', true);
-[% END %]
 
   kivi.requirement_spec.create_context_menus([% SELF.requirement_spec.is_template ? 'true' : 'false' %]);
   $('#requirement_spec_tabs').on("tabsbeforeactivate", kivi.requirement_spec.tabs_before_activate);

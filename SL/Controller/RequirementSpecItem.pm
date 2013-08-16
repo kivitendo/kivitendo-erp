@@ -197,6 +197,7 @@ sub action_ajax_create {
       ->jstree->create_node('#tree', $insert_after ? ('#fb-' . $insert_after, 'after') : ('#sections', 'last'), $node)
       ->jstree->select_node('#tree', '#fb-' . $self->item->id);
     return $self->add_new_item_form_after_create
+      ->reinit_widgets
       ->render($self);
   }
 
@@ -208,6 +209,7 @@ sub action_ajax_create {
     ->replaceWith('#' . $prefix . '_form', $html)
     ->hide('#section-list-empty')
     ->jstree->create_node('#tree', $insert_after ? ('#fb-' . $insert_after, 'after') : ('#fb-' . $self->item->parent_id, 'last'), $node)
+    ->reinit_widgets
     ->jstree->select_node('#tree', '#fb-' . $self->item->id);
 
   $self->replace_bottom($self->item->parent) if $type eq 'sub-function-block';
@@ -293,6 +295,7 @@ sub action_ajax_update {
       ->html('#section-header-' . $self->item->id, $html)
       ->show('#section-header-' . $self->item->id)
       ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item))
+      ->prop('#fb-' . $self->item->id, 'title', $self->item->content_excerpt)
       ->render($self);
   }
 
@@ -307,6 +310,7 @@ sub action_ajax_update {
   $self->js
     ->remove('#' . $prefix . '_form')
     ->replaceWith('#' . $id_prefix . 'top-' . $self->item->id, $html_top)
+    ->prop('#fb-' . $self->item->id, 'title', $self->item->content_excerpt)
     ->jstree->rename_node('#tree', '#fb-' . $self->item->id, $::request->presenter->requirement_spec_item_tree_node_title($self->item));
 
   $self->replace_bottom($self->item, id_prefix => $id_prefix);

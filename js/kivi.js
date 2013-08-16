@@ -40,6 +40,10 @@ namespace("kivi", function(ns) {
     var func = kivi.get_function_by_name('local_reinit_widgets');
     if (func)
       func();
+
+    ns.run_once_for('.tooltip', 'tooltip', function(elt) {
+      $(elt).tooltip();
+    });
   };
 
   ns.submit_ajax_form = function(url, form_selector, additional_data) {
