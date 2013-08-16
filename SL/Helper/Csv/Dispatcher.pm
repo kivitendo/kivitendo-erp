@@ -128,6 +128,8 @@ sub parse_profile {
 
   $self->_specs(\@specs);
 
+  $self->_csv->_push_error($self->errors);
+
   return ! $self->errors;
 }
 
@@ -156,8 +158,6 @@ sub _parse_profile {
       }
     }
   }
-
-  $self->_csv->_push_error($self->errors);
 
   return \@specs;
 }
