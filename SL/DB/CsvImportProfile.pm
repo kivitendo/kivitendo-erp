@@ -55,8 +55,8 @@ sub set_defaults {
                          apply_buchungsgruppe      => 'all',
                         );
   } elsif ($self->type eq 'orders') {
-    $self->_set_defaults(order_column    => 'Order',
-                         item_column     => 'OrderItem',
+    $self->_set_defaults(order_column    => $::locale->text('Order'),
+                         item_column     => $::locale->text('OrderItem'),
                          max_amount_diff => 0.02,
                         );
   } else {

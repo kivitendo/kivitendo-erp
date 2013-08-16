@@ -163,7 +163,7 @@ sub init_profile {
     $prof{ 'cvar_' . $_->name } = '' for @{ $self->all_cvar_configs };
 
     $class =~ m/^SL::DB::(.+)/;
-    push @profile, {'profile' => \%prof, 'class' => $class, 'row_ident' => $1};
+    push @profile, {'profile' => \%prof, 'class' => $class, 'row_ident' => $::locale->text($1)};
   }
 
   \@profile;

@@ -1413,6 +1413,7 @@ $self->{texts} = {
   'Options'                     => 'Optionen',
   'Or download the whole Installation Documentation as PDF (350kB) for off-line study (currently in German Language): ' => 'Oder laden Sie die komplette Installationsbeschreibung als PDF (350kB) herunter: ',
   'Order'                       => 'Auftrag',
+  'OrderItem'                   => 'Position',
   'Order Date'                  => 'Auftragsdatum',
   'Order Date missing!'         => 'Auftragsdatum fehlt!',
   'Order Number'                => 'Auftragsnummer',

@@ -1318,6 +1318,7 @@ $self->{texts} = {
   'Options'                     => '',
   'Or download the whole Installation Documentation as PDF (350kB) for off-line study (currently in German Language): ' => '',
   'Order'                       => '',
+  'OrderItem'                   => '',
   'Order Date'                  => '',
   'Order Date missing!'         => '',
   'Order Number'                => '',

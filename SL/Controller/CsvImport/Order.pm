@@ -46,13 +46,13 @@ sub init_profile {
 
   my $profile = $self->SUPER::init_profile;
 
-  # SUPER::init_profile sets row_ident to the class name
+  # SUPER::init_profile sets row_ident to the translated class name
   # overwrite it with the user specified settings
   foreach my $p (@{ $profile }) {
-    if ($p->{row_ident} eq 'Order') {
+    if ($p->{row_ident} eq $::locale->text('Order')) {
       $p->{row_ident} = $self->settings->{'order_column'};
     }
-    if ($p->{row_ident} eq 'OrderItem') {
+    if ($p->{row_ident} eq $::locale->text('OrderItem')) {
       $p->{row_ident} = $self->settings->{'item_column'};
     }
   }
@@ -79,7 +79,7 @@ sub setup_displayable_columns {
   $self->SUPER::setup_displayable_columns;
 
   $self->add_displayable_columns($self->settings->{'order_column'},
-                                 { name => 'datatype',         description => $::locale->text('Zeilenkennung')                  },
+                                 { name => 'datatype',         description => $self->settings->{'order_column'}                 },
                                  { name => 'closed',           description => $::locale->text('Closed')                         },
                                  { name => 'curr',             description => $::locale->text('Currency')                       },
                                  { name => 'cusordnumber',     description => $::locale->text('Customer Order Number')          },
@@ -123,7 +123,7 @@ sub setup_displayable_columns {
                                 );
 
   $self->add_displayable_columns($self->settings->{'item_column'},
-                                 { name => 'datatype',        description => $::locale->text('Zeilenkennung')              },
+                                 { name => 'datatype',        description => $self->settings->{'item_column'}              },
                                  { name => 'cusordnumber',    description => $::locale->text('Customer Order Number')      },
                                  { name => 'description',     description => $::locale->text('Description')                },
                                  { name => 'discount',        description => $::locale->text('Discount')                   },
