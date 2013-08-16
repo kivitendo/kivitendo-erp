@@ -314,13 +314,13 @@ sub link_details {
 
   if ($params{trans_type} eq 'customer') {
     $link = {
-      'url'   => 'controller.pl?action=CustomerVendor/edit&db=customer&id=' . $form->quote($params{trans_id}) . '&edit_note_id=' . $form->quote($params{note_id}),
+      'url'   => 'controller.pl?action=CustomerVendor/edit&db=customer&id=' . $form->quote($params{trans_id}) . '&note_id=' . $form->quote($params{note_id}),
       'title' => $locale->text('Customer') . " '$params{trans_info}'",
     };
 
   } elsif ($params{trans_type} eq 'vendor') {
     $link = {
-      'url'   => 'controller.pl?action=CustomerVendor/edit&type=sales_quotation&id=' . $params{trans_id} . '&edit_note_id=' . $form->quote($params{note_id}),
+      'url'   => 'controller.pl?action=CustomerVendor/edit&db=vendor&id=' . $params{trans_id} . '&note_id=' . $form->quote($params{note_id}),
       'title' => $locale->text('Vendor') . " '$params{trans_info}'",
     };
 

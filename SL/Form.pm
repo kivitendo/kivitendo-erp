@@ -467,11 +467,12 @@ sub header {
     main menu list_accounts jquery.autocomplete
     jquery.multiselect2side
     ui-lightness/jquery-ui
-    jquery-ui.custom jqModal
+    jquery-ui.custom
   );
 
   $layout->use_javascript("$_.js") for (qw(
-    jquery jquery-ui jquery.cookie jqModal jquery.checkall jquery.download
+    jquery jquery-ui jquery.cookie jquery.checkall jquery.download
+    jquery/jquery.form client_js
     common part_selection switchmenuframe autocomplete_part
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
@@ -3413,7 +3414,7 @@ sub prepare_for_printing {
   }
 
   my $printer_code    = $self->{printer_code} ? '_' . $self->{printer_code} : '';
-  my $email_extension = -f ($defaults->templates . "/$self->{formname}_email${language}.${extension}") ? '_email' : '';
+  my $email_extension = $self->{media} eq 'email' && -f ($defaults->templates . "/$self->{formname}_email${language}.${extension}") ? '_email' : '';
   $self->{IN}         = "$self->{formname}${email_extension}${language}${printer_code}.${extension}";
 
   # Format dates.

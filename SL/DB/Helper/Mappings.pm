@@ -22,6 +22,53 @@ my @kivitendo_blacklist_temp = qw(
 
 # tables created by crm module
 my @crm_blacklist = qw(
+  blz_data
+  bundesland
+  contmasch
+  contract
+  crm
+  crmdefaults
+  crmemployee
+  custmsg
+  docfelder
+  documents
+  documenttotc
+  docvorlage
+  extra_felder
+  geodb_changelog
+  geodb_coordinates
+  geodb_floatdata
+  geodb_hierarchies
+  geodb_intdata
+  geodb_locations
+  geodb_textdata
+  geodb_type_names
+  grpusr
+  gruppenname
+  history
+  labels
+  labeltxt
+  mailvorlage
+  maschine
+  maschmat
+  opport_status
+  opportunity
+  postit
+  repauftrag
+  telcall
+  telcallhistory
+  telnr
+  tempcsvdata
+  termdate
+  termincat
+  termine
+  terminmember
+  timetrack
+  tt_event
+  tt_parts
+  wiedervorlage
+  wissencategorie
+  wissencontent
 );
 
 # tables created by cash register

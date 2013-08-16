@@ -39,4 +39,7 @@ sub _before_save_set_vendornumber {
   return 1;
 }
 
+sub is_customer { 0 };
+sub is_vendor   { 1 };
+
 1;

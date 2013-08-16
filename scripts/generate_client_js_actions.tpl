@@ -35,12 +35,6 @@ ns.eval_json_result = function(data) {
   // console.log("current_content_type " + $('#current_content_type').val() + ' ID ' + $('#current_content_id').val());
 };
 
-ns.submit_ajax_form = function(url, form_selector, additional_data) {
-  var separator = /\?/.test(url) ? '&' : '?';
-  $.post(url + separator + $(form_selector).serialize(), additional_data, ns.eval_json_result);
-  return true;
-};
-
 });
 
 // Local Variables:

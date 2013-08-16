@@ -29,13 +29,9 @@ ns.eval_json_result = function(data) {
     $(data.eval_actions).each(function(idx, action) {
       // console.log("ACTION " + action[0] + " ON " + action[1]);
 
-      // ## Non-jQuery methods ##
-           if (action[0] == 'flash')                kivi.display_flash(action[1], action[2]);
-
       // ## jQuery basics ##
-
       // Basic effects
-      else if (action[0] == 'hide')                 $(action[1]).hide();
+           if (action[0] == 'hide')                 $(action[1]).hide();
       else if (action[0] == 'show')                 $(action[1]).show();
       else if (action[0] == 'toggle')               $(action[1]).toggle();
 
@@ -86,10 +82,18 @@ ns.eval_json_result = function(data) {
       // Form Events
       else if (action[0] == 'focus')                $(action[1]).focus();
 
-      // ## jqModal plugin ##
+      // Generic Event Handling ##
+      else if (action[0] == 'on')                   $(action[1]).on(action[2], kivi.get_function_by_name(action[3]));
+      else if (action[0] == 'off')                  $(action[1]).off(action[2], kivi.get_function_by_name(action[3]));
+      else if (action[0] == 'one')                  $(action[1]).one(action[2], kivi.get_function_by_name(action[3]));
+
+      // ## jQuery UI dialog plugin ##
 
       // Closing and removing the popup
-      else if (action[0] == 'jqmClose')             $(action[1]).jqmClose();
+      else if (action[0] == 'dialog:close')         $(action[1]).dialog('close');
+
+      // ## jQuery Form plugin ##
+      else if (action[0] == 'ajaxForm')             pattern: $(action[1]).ajaxForm({ success: eval_json_result });
 
       // ## jstree plugin ##
 
@@ -119,19 +123,16 @@ ns.eval_json_result = function(data) {
 
       // ## other stuff ##
       else if (action[0] == 'redirect_to')          window.location.href = action[1];
+      else if (action[0] == 'flash')                kivi.display_flash(action[1], action[2]);
       else if (action[0] == 'reinit_widgets')       kivi.reinit_widgets();
+      else if (action[0] == 'run')                  kivi.run(action[1], action.slice(2, action.length));
+      else if (action[0] == 'run_once_for')         kivi.run_once_for(action[1], action[2], action[3]);
 
       else                                          console.log('Unknown action: ' + action[0]);
 
     });
 
   // console.log("current_content_type " + $('#current_content_type').val() + ' ID ' + $('#current_content_id').val());
-};
-
-ns.submit_ajax_form = function(url, form_selector, additional_data) {
-  var separator = /\?/.test(url) ? '&' : '?';
-  $.post(url + separator + $(form_selector).serialize(), additional_data, ns.eval_json_result);
-  return true;
 };
 
 });

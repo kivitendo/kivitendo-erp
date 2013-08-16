@@ -51,4 +51,7 @@ sub displayable_name {
   return join ' ', grep $_, $self->customernumber, $self->name;
 }
 
+sub is_customer { 1 };
+sub is_vendor   { 0 };
+
 1;

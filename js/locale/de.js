@@ -1,6 +1,9 @@
 namespace("kivi").setupLocale({
+"Add linked record":"Verknüpften Beleg hinzufügen",
 "Are you sure?":"Sind Sie sicher?",
+"Database Connection Test":"Test der Datenbankverbindung",
 "Map":"Karte",
+"Part picker":"Artikelauswahl",
 "The description is missing.":"Die Beschreibung fehlt.",
 "The name is missing.":"Der Name fehlt.",
 "The name must only consist of letters, numbers and underscores and start with a letter.":"Der Name darf nur aus Buchstaben (keine Umlaute), Ziffern und Unterstrichen bestehen und muss mit einem Buchstaben beginnen.",

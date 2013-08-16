@@ -123,11 +123,12 @@
   }
 
   function test_database_connectivity() {
-    open_jqm_window({
-      url:  'controller.pl?action=Admin/test_database_connectivity',
-      data: $(".contains_dbsettings").serialize(),
-      type: 'POST',
-      id:   'test_db_connection_window'
+    kivi.popup_dialog({
+      url:    'controller.pl?action=Admin/test_database_connectivity',
+      data:   $(".contains_dbsettings").serialize(),
+      type:   'POST',
+      id:     'test_db_connection_window',
+      dialog: { title: kivi.t8('Database Connection Test') }
     });
     return true;
   }
