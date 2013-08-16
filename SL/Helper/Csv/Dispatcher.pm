@@ -108,12 +108,10 @@ sub parse_profile {
 
   my $profile;
   my $class;
-  my $header;
   my @specs;
 
   my $i = 0;
-  foreach my $h (@{ $self->_csv->header }) {
-    $header = $h;
+  foreach my $header (@{ $self->_csv->header }) {
     if ($self->_csv->profile) {
       $profile = $self->_csv->profile->[$i]->{profile};
       $class   = $self->_csv->profile->[$i]->{class};
