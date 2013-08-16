@@ -341,17 +341,21 @@ ns.item_popup_menu_hidden = function(opt) {
   return ns.handle_item_popup_menu_markings(opt, false);
 };
 
-ns.submit_function_block = function(event) {
+ns.submit_function_block = function(event, shift_in_out) {
   event.preventDefault();
 
   var prefix = $(this).attr('id').match("^(?:edit|new)_function_block_[\\d_]+\\d")[0];
-  kivi.submit_ajax_form('controller.pl?action=RequirementSpecItem/ajax_update', '#' + prefix + '_form');
+  var action = $('#' + prefix + '_id').val() ? 'update' : 'create';
+  kivi.submit_ajax_form('controller.pl?action=RequirementSpecItem/ajax_' + action, '#' + prefix + '_form', { shift_in_out: !!shift_in_out });
 
   return false;
 };
 
 ns.init_function_block_keypress_events = function(form_id) {
   $("#" + form_id + " INPUT[type=text]").bind("keypress", "return", ns.submit_function_block);
+
+  $('#' + form_id + ' INPUT[type=text],#' + form_id + ' TEXTAREA,#' + form_id + ' INPUT[type=button]')
+    .bind('keypress', 'shift+return', function(event) { return ns.submit_function_block.apply(this, [ event, true ]); });
 };
 
 // -------------------------------------------------------------------------

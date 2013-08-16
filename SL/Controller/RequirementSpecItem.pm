@@ -601,6 +601,7 @@ sub add_new_item_form {
 
   return $self->js
     ->action($params{insert_position}, $html, $params{display_reference})
+    ->action_if($self->item->item_type eq 'sub-function-block', 'show', '#sub-function-block-container-' . $self->item->parent_id)
     ->run('kivi.requirement_spec.init_function_block_keypress_events', "${id_base}_form")
     ->focus("#${id_base}_description");
 }
@@ -609,18 +610,53 @@ sub add_new_item_form_after_create {
   my ($self, %params) = @_;
 
   my $created_item    = $self->item;
-  my $is_section      = $created_item->item_type eq 'section';
+
+  my ($new_item_type, $new_parent_id, $insert_position, $insert_reference, $display_reference);
+  if ($created_item->item_type eq 'section') {
+    # $created_item is section, new one will be function-block
+    $new_item_type     = 'function-block';
+    $new_parent_id     = $created_item->id;
+    $insert_position   = 'appendTo';
+    $display_reference = '#section-list';
+
+  } elsif (!$::form->{shift_in_out}) {
+    # $created_item is function-block or sub-function-block, new one will be the same
+    $new_item_type     = $created_item->item_type;
+    $new_parent_id     = $created_item->parent_id;
+    $insert_position   = 'insertAfter';
+    $insert_reference  = $created_item->id;
+    $display_reference = '#' . $created_item->item_type . '-' . $created_item->id;
+
+  } elsif ($created_item->item_type eq 'function-block') {
+    # $created_item is function-block, new one will be sub-function-block
+    $new_item_type     = 'sub-function-block';
+    $new_parent_id     = $created_item->id;
+    $insert_position   = 'appendTo';
+    $display_reference = '#sub-function-block-container-' . $created_item->id;
+
+  } else {
+    # $created_item is sub-function-block, new one will be function-block
+    $new_item_type     = 'function-block';
+    $new_parent_id     = $created_item->parent->parent_id;
+    $insert_position   = 'insertAfter';
+    $insert_reference  = $created_item->parent_id;
+    $display_reference = '#function-block-' . $created_item->parent_id;
+  }
+
+  $::lxdebug->message(LXDebug::DEBUG1(),
+                      "OLD item_type " . $created_item->item_type . " ; NEW item_type $new_item_type ; parent_id $new_parent_id ; " .
+                      "insert_position $insert_position ; insert_reference $insert_reference ; display_reference $display_reference");
 
   $self->item(SL::DB::RequirementSpecItem->new(
     requirement_spec_id => $created_item->requirement_spec_id,
-    parent_id           => $is_section ? $created_item->id : $created_item->parent_id,
-    item_type           => $is_section ? 'function-block'  : $created_item->item_type,
+    parent_id           => $new_parent_id,
+    item_type           => $new_item_type,
   ));
 
   $self->add_new_item_form(
-    insert_reference  => $created_item->id,
-    insert_position   => $is_section ? 'appendTo'      : 'insertAfter',
-    display_reference => $is_section ? '#section-list' : '#' . $created_item->item_type . '-' . $created_item->id,
+    insert_reference  => $insert_reference,
+    insert_position   => $insert_position,
+    display_reference => $display_reference,
   );
 }
 
