@@ -1248,7 +1248,6 @@ sub post_payment {
 
   # connect to database, turn off autocommit
   my $dbh = $form->get_standard_dbh;
-  $dbh->begin_work;
 
   my (%payments, $old_form, $row, $item, $query, %keep_vars);
 
@@ -1507,7 +1506,6 @@ sub delete_invoice {
 
   # connect to database
   my $dbh = $form->get_standard_dbh;
-  $dbh->begin_work;
 
   &reverse_invoice($dbh, $form);
 

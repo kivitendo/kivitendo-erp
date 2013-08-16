@@ -827,7 +827,7 @@ sub yes {
 sub search {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger | invoice_edit');
+  $main::auth->assert('invoice_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -880,7 +880,7 @@ sub create_subtotal_row {
 sub ar_transactions {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger | invoice_edit');
+  $main::auth->assert('invoice_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;

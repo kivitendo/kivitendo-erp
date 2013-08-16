@@ -1,3 +1,9 @@
+/* UI widgets in general */
+.ui-widget-content {
+  background: white;
+}
+
+/* Tab widget */
 .tabwidget {
   background: white;
   position: relative;
@@ -89,3 +95,26 @@
 }
 
 .ui-tabs .ui-tabs-nav li a { padding: .2em .7em; }
+
+/* Dialog */
+.ui-dialog {
+  border: 1px solid black;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+  -khtml-border-radius:0.4em; /* Konqueror */
+  -moz-border-radius:0.4em; /* Firefox */
+  -webkit-border-radius:0.4em; /* Safari, Chrome */
+  background: #006400;
+  behavior:url(border-radius.htc);
+  border-radius:0.4em; /* CSS3 */
+  border-style: none;
+  border-width: thin;
+  color: #FFFFFF;
+  font-weight: bolder;
+  margin: 5px;
+  padding: 0.5em;
+  position: relative;
+  text-align: left;
+  font-size:125%;
+}

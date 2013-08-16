@@ -135,19 +135,31 @@ sub render {
 }
 
 sub send_file {
-  my ($self, $file_name, %params) = @_;
+  my ($self, $file_name_or_content, %params) = @_;
 
-  my $file            = IO::File->new($file_name, 'r') || croak("Cannot open file '${file_name}'");
+  my ($file, $size);
+
+  if (!ref $file_name_or_content) {
+    $file = IO::File->new($file_name_or_content, 'r') || croak("Cannot open file '${file_name_or_content}'");
+    $size = -s $file_name_or_content;
+  } else {
+    $size = length $$file_name_or_content;
+  }
+
   my $content_type    =  $params{type} || 'application/octet_stream';
-  my $attachment_name =  $params{name} || $file_name;
+  my $attachment_name =  $params{name} || (!ref($file_name_or_content) ? $file_name_or_content : '');
   $attachment_name    =~ s:.*//::g;
 
   print $::form->create_http_response(content_type        => $content_type,
                                       content_disposition => 'attachment; filename="' . $attachment_name . '"',
-                                      content_length      => -s $file);
+                                      content_length      => $size);
 
-  $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
-  $file->close;
+  if (!ref $file_name_or_content) {
+    $::locale->with_raw_io(\*STDOUT, sub { print while <$file> });
+    $file->close;
+  } else {
+    $::locale->with_raw_io(\*STDOUT, sub { print $$file_name_or_content });
+  }
 }
 
 sub presenter {
@@ -460,10 +472,15 @@ browser. Typical use for actions called via AJAX:
   $self->render('todo/single_item', { type => 'js' },
                 item => $employee->most_important_todo_item);
 
-=item C<send_file $file_name, [%params]>
+=item C<send_file $file_name_or_content, [%params]>
 
-Sends the file C<$file_name> to the browser including appropriate HTTP
-headers for a download. C<%params> can include the following:
+Sends the file C<$file_name_or_content> to the browser including
+appropriate HTTP headers for a download. If C<$file_name_or_content>
+is a scalar then it is interpreted as a file name which is opened and
+whose content is sent. Otherwise (C<$file_name_or_content> being a
+reference) the referenced scalar's data itself is sent.
+
+C<%params> can include the following:
 
 =over 2
 
@@ -471,7 +488,7 @@ headers for a download. C<%params> can include the following:
 'application/octet_stream'
 
 =item * C<name> -- the name presented to the browser; defaults to
-C<$file_name>
+C<$file_name>; mandatory if C<$file_name_or_content> is a reference
 
 =back
 

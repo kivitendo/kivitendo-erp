@@ -4,6 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
+use SL::Controller::Helper::Filtered;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
@@ -14,7 +15,7 @@ use SL::System::TaskServer;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(history) ],
+  scalar                  => [ qw(history db_args flat_filter filter_summary) ],
   'scalar --get_set_init' => [ qw(task_server) ],
 );
 
@@ -22,6 +23,10 @@ __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('add_stylesheet');
 __PACKAGE__->run_before('check_task_server');
 
+__PACKAGE__->make_filtered(
+  MODEL             => 'BackgroundJobHistory',
+  LAUNDER_TO        => 'filter'
+);
 __PACKAGE__->make_paginated(ONLY => [ qw(list) ]);
 
 __PACKAGE__->make_sorted(
@@ -40,6 +45,8 @@ __PACKAGE__->make_sorted(
 
 sub action_list {
   my ($self) = @_;
+
+  $self->make_filter_summary;
 
   $self->render('background_job_history/list',
                 title   => $::locale->text('Background job history'),
@@ -80,6 +87,31 @@ sub check_task_server {
 
 sub add_stylesheet {
   $::request->{layout}->use_stylesheet('lx-office-erp/background_jobs.css');
+}
+
+sub make_filter_summary {
+  my ($self)  = @_;
+
+  my $filter  = $::form->{filter} || {};
+  my @filters = (
+    [ "package_name:substr::ilike", $::locale->text('Package name')                                ],
+    [ "result:substr::ilike",       $::locale->text('Result')                                      ],
+    [ "error:substr::ilike",        $::locale->text('Error')                                       ],
+    [ "run_at:date::ge",            $::locale->text('Run at') . " " . $::locale->text('From Date') ],
+    [ "run_at:date::le",            $::locale->text('Run at') . " " . $::locale->text('To Date')   ],
+  );
+
+  my @filter_strings = grep { $_ }
+                       map  { $filter->{ $_->[0] } ? $_->[1] . ' ' . $filter->{ $_->[0] } : undef }
+                       @filters;
+
+  my %status = (
+    failed   => $::locale->text('failed'),
+    success  => $::locale->text('succeeded'),
+  );
+  push @filter_strings, $status{ $filter->{'status:eq_ignore_empty'} } if $filter->{'status:eq_ignore_empty'};
+
+  $self->filter_summary(join(', ', @filter_strings));
 }
 
 1;

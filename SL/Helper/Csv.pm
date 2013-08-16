@@ -280,7 +280,7 @@ it. You provide valid header columns and their mapping to the objects.
 =item You do NOT know if the csv provider yields to your expectations.
 
 Stuff that does not work with what you expect should not crash anything, but
-give you a hint what went wrong. As a result, if you remeber to check for
+give you a hint what went wrong. As a result, if you remember to check for
 errors after each step, you should be fine.
 
 =item Data does not make sense. It's just data.

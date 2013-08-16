@@ -55,6 +55,7 @@
                       [%- INCLUDE 'generic/multibox.html'
                            name          = vc,
                            style         = 'width: 250px',
+                           class         = 'initial_focus',
                            DATA          = vc == 'customer' ? ALL_CUSTOMERS : ALL_VENDORS,
                            id_sub        = 'vc_keys',
                            label_key     = 'name',

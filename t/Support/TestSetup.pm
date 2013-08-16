@@ -16,6 +16,9 @@ use SL::InstanceConfiguration;
 use SL::Request;
 
 sub login {
+  $Data::Dumper::Sortkeys = 1;
+  $Data::Dumper::Indent   = 2;
+
   SL::LxOfficeConf->read;
 
   my $client = 'Unit-Tests';
@@ -44,8 +47,6 @@ sub login {
   $::form->{login} = $login; # normaly implicit at login
 
   die "cannot find locale for user $login" unless $::locale   = Locale->new($::myconfig{countrycode});
-
-  $::instance_conf->init;
 
   $SIG{__DIE__} = sub { Carp::confess( @_ ) } if $::lx_office_conf{debug}->{backtrace_on_die};
 

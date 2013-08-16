@@ -92,6 +92,7 @@ sub action_destroy {
 sub action_save_and_execute {
   my ($self) = @_;
 
+  $self->background_job(SL::DB::BackgroundJob->new) if !$self->background_job;
   return unless $self->create_or_update;
   $self->action_execute;
 }
