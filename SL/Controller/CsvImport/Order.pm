@@ -24,7 +24,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by taxzones_by price_factors_by pricegroups_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by taxzones_by price_factors_by pricegroups_by currencies_by) ],
 );
 
 
@@ -81,7 +81,8 @@ sub setup_displayable_columns {
   $self->add_displayable_columns($self->settings->{'order_column'},
                                  { name => 'datatype',         description => $self->settings->{'order_column'}                 },
                                  { name => 'closed',           description => $::locale->text('Closed')                         },
-                                 { name => 'curr',             description => $::locale->text('Currency')                       },
+                                 { name => 'currency',         description => $::locale->text('Currency')                       },
+                                 { name => 'currency_id',      description => $::locale->text('Currency (database ID)')         },
                                  { name => 'cusordnumber',     description => $::locale->text('Customer Order Number')          },
                                  { name => 'delivered',        description => $::locale->text('Delivered')                      },
                                  { name => 'employee_id',      description => $::locale->text('Employee (database ID)')         },
@@ -225,6 +226,12 @@ sub init_pricegroups_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_pricegroups } } ) } qw(id pricegroup) };
 }
 
+sub init_currencies_by {
+  my ($self) = @_;
+
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_currencies } } ) } qw(id name) };
+}
+
 sub check_objects {
   my ($self) = @_;
 
@@ -255,10 +262,11 @@ sub check_objects {
       $self->check_project($entry, global => 1);
       $self->check_ct_shipto($entry);
       $self->check_taxzone($entry);
+      $self->check_currency($entry);
 
       if ($vc_obj) {
         # copy from customer if not given
-        foreach (qw(payment_id language_id taxzone_id)) {
+        foreach (qw(payment_id language_id taxzone_id currency_id)) {
           $entry->{object}->$_($vc_obj->$_) unless $entry->{object}->$_;
         }
       }
@@ -285,7 +293,7 @@ sub check_objects {
                           { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
   # Todo: access via ->[0] ok? Better: search first order column and use this
   $self->add_columns($self->settings->{'order_column'},
-                     map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone cp));
+                     map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone cp currency));
   $self->add_columns($self->settings->{'order_column'}, 'globalproject_id') if exists $self->controller->data->[0]->{raw_data}->{globalprojectnumber};
   $self->add_columns($self->settings->{'order_column'}, 'cp_id')            if exists $self->controller->data->[0]->{raw_data}->{contact};
 
@@ -615,7 +623,6 @@ sub check_taxzone {
   return 1;
 }
 
-
 sub check_price_factor {
   my ($self, $entry) = @_;
 
@@ -661,6 +668,31 @@ sub check_pricegroup {
     }
 
     $object->pricegroup_id($pricegroup->id);
+  }
+
+  return 1;
+}
+
+sub check_currency {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not currency ID is valid.
+  if ($object->currency_id && !$self->currencies_by->{id}->{ $object->currency_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid currency');
+    return 0;
+  }
+
+  # Map name to ID if given.
+  if (!$object->currency_id && $entry->{raw_data}->{currency}) {
+    my $currency = $self->currencies_by->{name}->{  $entry->{raw_data}->{currency} };
+    if (!$currency) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid currency');
+      return 0;
+    }
+
+    $object->currency_id($currency->id);
   }
 
   return 1;
