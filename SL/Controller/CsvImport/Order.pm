@@ -237,55 +237,13 @@ sub check_objects {
 
   $self->controller->track_progress(phase => 'building data', progress => 0);
 
-  my $i;
+  my $i = 0;
   my $num_data = scalar @{ $self->controller->data };
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
     if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
-
-      my $vc_obj;
-      if (any { $entry->{raw_data}->{$_} } qw(customer customernumber customer_id)) {
-        $self->check_vc($entry, 'customer_id');
-        $vc_obj = SL::DB::Customer->new(id => $entry->{object}->customer_id)->load if $entry->{object}->customer_id;
-      } elsif (any { $entry->{raw_data}->{$_} } qw(vendor vendornumber vendor_id)) {
-        $self->check_vc($entry, 'vendor_id');
-        $vc_obj = SL::DB::Vendor->new(id => $entry->{object}->vendor_id)->load if $entry->{object}->vendor_id;
-      } else {
-        push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor missing');
-      }
-
-      $self->check_contact($entry);
-      $self->check_language($entry);
-      $self->check_payment($entry);
-      $self->check_department($entry);
-      $self->check_project($entry, global => 1);
-      $self->check_ct_shipto($entry);
-      $self->check_taxzone($entry);
-      $self->check_currency($entry);
-
-      if ($vc_obj) {
-        # copy from customer if not given
-        foreach (qw(payment_id language_id taxzone_id currency_id)) {
-          $entry->{object}->$_($vc_obj->$_) unless $entry->{object}->$_;
-        }
-      }
-
-      # ToDo: salesman and emloyee by name
-      # salesman from customer or login if not given
-      if (!$entry->{object}->salesman) {
-        if ($vc_obj && $vc_obj->salesman_id) {
-          $entry->{object}->salesman(SL::DB::Manager::Employee->find_by(id => $vc_obj->salesman_id));
-        } else {
-          $entry->{object}->salesman(SL::DB::Manager::Employee->find_by(login => $::myconfig{login}));
-        }
-      }
-
-      # employee from login if not given
-      if (!$entry->{object}->employee_id) {
-        $entry->{object}->employee_id(SL::DB::Manager::Employee->find_by(login => $::myconfig{login})->id);
-      }
-
+      $self->handle_order($entry);
     }
   } continue {
     $i++;
@@ -301,23 +259,7 @@ sub check_objects {
 
   foreach my $entry (@{ $self->controller->data }) {
     if ($entry->{raw_data}->{datatype} eq $self->_item_column && $entry->{object}->can('part')) {
-
-      next if !$self->check_part($entry);
-
-      my $part_obj = SL::DB::Part->new(id => $entry->{object}->parts_id)->load;
-
-      # copy from part if not given
-      $entry->{object}->description($part_obj->description) unless $entry->{object}->description;
-      $entry->{object}->longdescription($part_obj->notes)   unless $entry->{object}->longdescription;
-      $entry->{object}->unit($part_obj->unit)               unless $entry->{object}->unit;
-
-      # set to 0 if not given
-      $entry->{object}->discount(0)      unless $entry->{object}->discount;
-      $entry->{object}->ship(0)          unless $entry->{object}->ship;
-
-      $self->check_project($entry, global => 0);
-      $self->check_price_factor($entry);
-      $self->check_pricegroup($entry);
+      $self->handle_item($entry);
     }
   }
 
@@ -422,6 +364,71 @@ sub check_objects {
 
 }
 
+sub handle_order {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  my $vc_obj;
+  if (any { $entry->{raw_data}->{$_} } qw(customer customernumber customer_id)) {
+    $self->check_vc($entry, 'customer_id');
+    $vc_obj = SL::DB::Customer->new(id => $object->customer_id)->load if $object->customer_id;
+  } elsif (any { $entry->{raw_data}->{$_} } qw(vendor vendornumber vendor_id)) {
+    $self->check_vc($entry, 'vendor_id');
+    $vc_obj = SL::DB::Vendor->new(id => $object->vendor_id)->load if $object->vendor_id;
+  } else {
+    push @{ $entry->{errors} }, $::locale->text('Error: Customer/vendor missing');
+  }
+
+  $self->check_contact($entry);
+  $self->check_language($entry);
+  $self->check_payment($entry);
+  $self->check_department($entry);
+  $self->check_project($entry, global => 1);
+  $self->check_ct_shipto($entry);
+  $self->check_taxzone($entry);
+  $self->check_currency($entry);
+
+  if ($vc_obj) {
+    # copy from customer if not given
+    foreach (qw(payment_id language_id taxzone_id currency_id)) {
+      $object->$_($vc_obj->$_) unless $object->$_;
+    }
+  }
+
+  $self->handle_salesman($entry);
+  $self->handle_employee($entry);
+}
+
+# ToDo: salesman by name
+sub handle_salesman {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+  my $vc_obj = SL::DB::Customer->new(id => $object->customer_id)->load if $object->customer_id;
+  $vc_obj    = SL::DB::Vendor->new(id   => $object->vendor_id)->load   if (!$vc_obj && $object->vendor_id);
+
+  # salesman from customer/vendor or login if not given
+  if (!$object->salesman) {
+    if ($vc_obj && $vc_obj->salesman_id) {
+      $object->salesman(SL::DB::Manager::Employee->find_by(id => $vc_obj->salesman_id));
+    } else {
+      $object->salesman(SL::DB::Manager::Employee->find_by(login => $::myconfig{login}));
+    }
+  }
+}
+
+# ToDo: employee by name
+sub handle_employee {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # employee from login if not given
+  if (!$object->employee_id) {
+    $object->employee_id(SL::DB::Manager::Employee->find_by(login => $::myconfig{login})->id);
+  }
+}
 
 sub check_language {
   my ($self, $entry) = @_;
@@ -452,6 +459,28 @@ sub check_language {
   }
 
   return 1;
+}
+
+sub handle_item {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+  return unless $self->check_part($entry);
+
+  my $part_obj = SL::DB::Part->new(id => $object->parts_id)->load;
+
+  # copy from part if not given
+  $object->description($part_obj->description) unless $object->description;
+  $object->longdescription($part_obj->notes)   unless $object->longdescription;
+  $object->unit($part_obj->unit)               unless $object->unit;
+
+  # set to 0 if not given
+  $object->discount(0) unless $object->discount;
+  $object->ship(0)     unless $object->ship;
+
+  $self->check_project($entry, global => 0);
+  $self->check_price_factor($entry);
+  $self->check_pricegroup($entry);
 }
 
 sub check_part {
