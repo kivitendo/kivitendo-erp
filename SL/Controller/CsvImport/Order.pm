@@ -49,10 +49,10 @@ sub init_profile {
   # SUPER::init_profile sets row_ident to the translated class name
   # overwrite it with the user specified settings
   foreach my $p (@{ $profile }) {
-    if ($p->{row_ident} eq $::locale->text('Order')) {
+    if ($p->{class} eq 'SL::DB::Order') {
       $p->{row_ident} = $self->_order_column;
     }
-    if ($p->{row_ident} eq $::locale->text('OrderItem')) {
+    if ($p->{class} eq 'SL::DB::OrderItem') {
       $p->{row_ident} = $self->_item_column;
     }
   }
