@@ -244,7 +244,10 @@ sub check_objects {
 
     if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
       $self->handle_order($entry);
+    } elsif ($entry->{raw_data}->{datatype} eq $self->_item_column && $entry->{object}->can('part')) {
+      $self->handle_item($entry);
     }
+
   } continue {
     $i++;
   }
@@ -256,12 +259,6 @@ sub check_objects {
                      map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone cp currency));
   $self->add_columns($self->_order_column, 'globalproject_id') if exists $self->controller->data->[0]->{raw_data}->{globalprojectnumber};
   $self->add_columns($self->_order_column, 'cp_id')            if exists $self->controller->data->[0]->{raw_data}->{contact};
-
-  foreach my $entry (@{ $self->controller->data }) {
-    if ($entry->{raw_data}->{datatype} eq $self->_item_column && $entry->{object}->can('part')) {
-      $self->handle_item($entry);
-    }
-  }
 
   $self->add_info_columns($self->_item_column,
                           { header => $::locale->text('Part Number'), method => 'partnumber' });
