@@ -1075,7 +1075,7 @@ sub parse_template {
 
   close OUT if $self->{OUT};
 
-  my $copy_to_webdav = $::instance_conf->get_webdav && $::instance_conf->get_webdav_documents && !$self->{preview};
+  my $copy_to_webdav = $::instance_conf->get_webdav && $::instance_conf->get_webdav_documents && !$self->{preview} && $self->{tmpdir} && $self->{tmpfile} && $self->{type};
 
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
