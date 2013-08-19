@@ -5,11 +5,6 @@ use strict;
 use List::MoreUtils qw(pairwise);
 
 use SL::Helper::Csv;
-use SL::DB::Customer;
-use SL::DB::Language;
-use SL::DB::PaymentTerm;
-use SL::DB::Vendor;
-use SL::DB::Contact;
 
 use parent qw(SL::Controller::CsvImport::Base);
 
@@ -76,6 +71,7 @@ sub run {
   $self->controller->info_headers($info_headers);
 
   my @objects  = $self->csv->get_objects;
+
   $self->controller->track_progress(progress => 70);
 
   my @raw_data = @{ $self->csv->get_data };
@@ -131,12 +127,6 @@ sub add_raw_data_columns {
     $h->{used}->{$column} = 1;
     push @{ $h->{headers} }, $column;
   }
-}
-
-sub add_cvar_raw_data_columns {
-  my ($self) = @_;
-
-  map { $self->add_raw_data_columns($_) if exists $self->controller->data->[0]->{raw_data}->{$_} } @{ $self->cvar_columns };
 }
 
 sub init_profile {
@@ -199,32 +189,6 @@ sub setup_displayable_columns {
   foreach my $p (@{ $self->profile }) {
     $self->add_displayable_columns($p->{row_ident}, map { { name => $_ } } keys %{ $p->{profile} });
   }
-}
-
-sub add_cvar_columns_to_displayable_columns {
-  my ($self) = @_;
-
-  $self->add_displayable_columns(map { { name        => 'cvar_' . $_->name,
-                                         description => $::locale->text('#1 (custom variable)', $_->description) } }
-                                     @{ $self->all_cvar_configs });
-}
-
-sub init_existing_objects {
-  my ($self) = @_;
-
-  eval "require " . $self->class;
-  $self->existing_objects($self->manager_class->get_all);
-}
-
-sub init_class {
-  die "class not set";
-}
-
-sub init_manager_class {
-  my ($self) = @_;
-
-  $self->class =~ m/^SL::DB::(.+)/;
-  $self->manager_class("SL::DB::Manager::" . $1);
 }
 
 sub is_multiplexed { 1 }
