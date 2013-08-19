@@ -35,11 +35,6 @@ sub run {
 
   $self->controller->track_progress(progress => 50);
 
-  # bb: make sanity-check of it?
-  #if ($self->csv->is_multiplexed != $self->is_multiplexed) {
-  #  die "multiplex controller on simplex data or vice versa";
-  #}
-
   $self->controller->errors([ $self->csv->errors ]) if $self->csv->errors;
 
   return if ( !$self->csv->header || $self->csv->errors );
