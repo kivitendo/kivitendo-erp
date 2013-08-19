@@ -50,20 +50,20 @@ sub init_profile {
   # overwrite it with the user specified settings
   foreach my $p (@{ $profile }) {
     if ($p->{row_ident} eq $::locale->text('Order')) {
-      $p->{row_ident} = $self->settings->{'order_column'};
+      $p->{row_ident} = $self->_order_column;
     }
     if ($p->{row_ident} eq $::locale->text('OrderItem')) {
-      $p->{row_ident} = $self->settings->{'item_column'};
+      $p->{row_ident} = $self->_item_column;
     }
   }
 
   foreach my $p (@{ $profile }) {
     my $prof = $p->{profile};
-    if ($p->{row_ident} eq $self->settings->{'order_column'}) {
+    if ($p->{row_ident} eq $self->_order_column) {
       # no need to handle
       delete @{$prof}{qw(delivery_customer_id delivery_vendor_id proforma quotation amount netamount)};
     }
-    if ($p->{row_ident} eq $self->settings->{'item_column'}) {
+    if ($p->{row_ident} eq $self->_item_column) {
       # no need to handle
       delete @{$prof}{qw(trans_id)};
     }
@@ -78,8 +78,8 @@ sub setup_displayable_columns {
 
   $self->SUPER::setup_displayable_columns;
 
-  $self->add_displayable_columns($self->settings->{'order_column'},
-                                 { name => 'datatype',         description => $self->settings->{'order_column'}                 },
+  $self->add_displayable_columns($self->_order_column,
+                                 { name => 'datatype',         description => $self->_order_column                              },
                                  { name => 'closed',           description => $::locale->text('Closed')                         },
                                  { name => 'currency',         description => $::locale->text('Currency')                       },
                                  { name => 'currency_id',      description => $::locale->text('Currency (database ID)')         },
@@ -123,8 +123,8 @@ sub setup_displayable_columns {
                                  { name => 'shipto_id',        description => $::locale->text('Ship to (database ID)')          },
                                 );
 
-  $self->add_displayable_columns($self->settings->{'item_column'},
-                                 { name => 'datatype',        description => $self->settings->{'item_column'}              },
+  $self->add_displayable_columns($self->_item_column,
+                                 { name => 'datatype',        description => $self->_item_column                           },
                                  { name => 'cusordnumber',    description => $::locale->text('Customer Order Number')      },
                                  { name => 'description',     description => $::locale->text('Description')                },
                                  { name => 'discount',        description => $::locale->text('Discount')                   },
@@ -242,7 +242,7 @@ sub check_objects {
   foreach my $entry (@{ $self->controller->data }) {
     $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
 
-    if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'}) {
+    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
 
       my $vc_obj;
       if (any { $entry->{raw_data}->{$_} } qw(customer customernumber customer_id)) {
@@ -289,16 +289,16 @@ sub check_objects {
     }
   }
 
-  $self->add_info_columns($self->settings->{'order_column'},
+  $self->add_info_columns($self->_order_column,
                           { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
   # Todo: access via ->[0] ok? Better: search first order column and use this
-  $self->add_columns($self->settings->{'order_column'},
+  $self->add_columns($self->_order_column,
                      map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone cp currency));
-  $self->add_columns($self->settings->{'order_column'}, 'globalproject_id') if exists $self->controller->data->[0]->{raw_data}->{globalprojectnumber};
-  $self->add_columns($self->settings->{'order_column'}, 'cp_id')            if exists $self->controller->data->[0]->{raw_data}->{contact};
+  $self->add_columns($self->_order_column, 'globalproject_id') if exists $self->controller->data->[0]->{raw_data}->{globalprojectnumber};
+  $self->add_columns($self->_order_column, 'cp_id')            if exists $self->controller->data->[0]->{raw_data}->{contact};
 
   foreach my $entry (@{ $self->controller->data }) {
-    if ($entry->{raw_data}->{datatype} eq $self->settings->{'item_column'} && $entry->{object}->can('part')) {
+    if ($entry->{raw_data}->{datatype} eq $self->_item_column && $entry->{object}->can('part')) {
 
       next if !$self->check_part($entry);
 
@@ -319,19 +319,19 @@ sub check_objects {
     }
   }
 
-  $self->add_info_columns($self->settings->{'item_column'},
+  $self->add_info_columns($self->_item_column,
                           { header => $::locale->text('Part Number'), method => 'partnumber' });
   # Todo: access via ->[1] ok? Better: search first item column and use this
-  $self->add_columns($self->settings->{'item_column'},
+  $self->add_columns($self->_item_column,
                      map { "${_}_id" } grep { exists $self->controller->data->[1]->{raw_data}->{$_} } qw(project price_factor pricegroup));
-  $self->add_columns($self->settings->{'item_column'}, 'project_id') if exists $self->controller->data->[1]->{raw_data}->{projectnumber};
+  $self->add_columns($self->_item_column, 'project_id') if exists $self->controller->data->[1]->{raw_data}->{projectnumber};
 
   # add orderitems to order
   my $order_entry;
   my @orderitems;
   foreach my $entry (@{ $self->controller->data }) {
     # search first Order
-    if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'}) {
+    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
 
       # new order entry: add collected orderitems to the last one
       if (defined $order_entry) {
@@ -341,7 +341,7 @@ sub check_objects {
 
       $order_entry = $entry;
 
-    } elsif ( defined $order_entry && $entry->{raw_data}->{datatype} eq $self->settings->{'item_column'} ) {
+    } elsif ( defined $order_entry && $entry->{raw_data}->{datatype} eq $self->_item_column ) {
       # collect orderitems to add to order (if they have no errors)
       # ( add_orderitems does not work here if we want to call
       #   calculate_prices_and_taxes afterwards ...
@@ -360,7 +360,7 @@ sub check_objects {
   foreach my $entry (@{ $self->controller->data }) {
     next if @{ $entry->{errors} };
 
-    if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'}) {
+    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
 
       $entry->{object}->calculate_prices_and_taxes;
 
@@ -387,15 +387,15 @@ sub check_objects {
   foreach my $tv (@to_verify) {
     # Todo: access via ->[0] ok? Better: search first order column and use this
     if (exists $self->controller->data->[0]->{raw_data}->{ $tv->{raw_column} }) {
-      $self->add_raw_data_columns($self->settings->{'order_column'}, $tv->{raw_column});
-      $self->add_info_columns($self->settings->{'order_column'},
+      $self->add_raw_data_columns($self->_order_column, $tv->{raw_column});
+      $self->add_info_columns($self->_order_column,
                               { header => $::locale->text($tv->{info_header}), method => $tv->{info_method} });
     }
 
     # check differences
     foreach my $entry (@{ $self->controller->data }) {
       next if @{ $entry->{errors} };
-      if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'}) {
+      if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
         next if !$entry->{raw_data}->{ $tv->{raw_column} };
         my $parsed_value = $::form->parse_amount(\%::myconfig, $entry->{raw_data}->{ $tv->{raw_column} });
         if (abs($entry->{object}->${ \$tv->{column} } - $parsed_value) > $self->settings->{'max_amount_diff'}) {
@@ -409,10 +409,10 @@ sub check_objects {
   $order_entry = undef;
   foreach my $entry (@{ $self->controller->data }) {
     # Search first order
-    if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'}) {
+    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
       $order_entry = $entry;
     } elsif ( defined $order_entry
-              && $entry->{raw_data}->{datatype} eq $self->settings->{'item_column'}
+              && $entry->{raw_data}->{datatype} eq $self->_item_column
               && scalar @{ $order_entry->{errors} } > 0 ) {
       push @{ $entry->{errors} }, $::locale->text('order not valid for this orderitem!');
     }
@@ -707,7 +707,7 @@ sub save_objects {
   foreach my $entry (@{ $self->controller->data }) {
     next if @{ $entry->{errors} };
 
-    if ($entry->{raw_data}->{datatype} eq $self->settings->{'order_column'} && !$entry->{object}->ordnumber) {
+    if ($entry->{raw_data}->{datatype} eq $self->_order_column && !$entry->{object}->ordnumber) {
       my $number = SL::TransNumber->new(type        => 'sales_order',
                                         save        => 1);
       $entry->{object}->ordnumber($number->create_unique());
@@ -719,5 +719,12 @@ sub save_objects {
   $self->SUPER::save_objects(data => $objects_to_save);
 }
 
+sub _order_column {
+  $_[0]->settings->{'order_column'}
+}
+
+sub _item_column {
+  $_[0]->settings->{'item_column'}
+}
 
 1;
