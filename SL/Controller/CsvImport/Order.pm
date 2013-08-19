@@ -287,6 +287,8 @@ sub check_objects {
       }
 
     }
+  } continue {
+    $i++;
   }
 
   $self->add_info_columns($self->_order_column,
