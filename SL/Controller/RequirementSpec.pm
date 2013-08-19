@@ -33,6 +33,7 @@ use Rose::Object::MakeMethods::Generic
 );
 
 __PACKAGE__->run_before('setup');
+__PACKAGE__->run_before('set_default_filter_args', only => [ qw(list) ]);
 
 my %sort_columns = (
   customer      => t8('Customer'),
@@ -444,6 +445,18 @@ sub render_pasted_text_block {
   $self->js
     ->jstree->create_node('#tree', "#tb-${front_back}", 'last', $node)
     ->jstree->open_node(  '#tree', "#tb-${front_back}");
+}
+
+sub set_default_filter_args {
+  my ($self) = @_;
+
+  if (!$::form->{filter}) {
+    $::form->{filter} = {
+      status_id => [ map { $_->{id} } grep { $_->name ne 'done' } @{ $self->statuses } ],
+    };
+  }
+
+  return 1;
 }
 
 sub render_pasted_section {
