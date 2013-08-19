@@ -227,5 +227,7 @@ sub init_manager_class {
   $self->manager_class("SL::DB::Manager::" . $1);
 }
 
+sub is_multiplexed { 1 }
+
 1;
 
