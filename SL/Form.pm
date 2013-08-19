@@ -1156,16 +1156,22 @@ sub parse_template {
         seek  IN, 0, 0;
 
       } else {
-        $self->{attachment_filename} = ($self->{attachment_filename})
-                                     ? $self->{attachment_filename}
-                                     : $self->generate_attachment_filename();
+        my %headers = ('-type'       => $template->get_mime_type,
+                       '-connection' => 'close',
+                       '-charset'    => 'UTF-8');
 
-        # launch application
-        print qq|Content-Type: | . $template->get_mime_type() . qq|
-Content-Disposition: attachment; filename="$self->{attachment_filename}"
-Content-Length: $numbytes
+        $self->{attachment_filename} ||= $self->generate_attachment_filename;
 
-|;
+        if ($self->{attachment_filename}) {
+          %headers = (
+            %headers,
+            '-attachment'     => $self->{attachment_filename},
+            '-content-length' => $numbytes,
+            '-charset'        => '',
+          );
+        }
+
+        print $::request->cgi->header(%headers);
 
         $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
       }
