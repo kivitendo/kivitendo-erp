@@ -267,87 +267,13 @@ sub check_objects {
                      map { "${_}_id" } grep { exists $self->controller->data->[1]->{raw_data}->{$_} } qw(project price_factor pricegroup));
   $self->add_columns($self->_item_column, 'project_id') if exists $self->controller->data->[1]->{raw_data}->{projectnumber};
 
-  # add orderitems to order
-  my $order_entry;
-  my @orderitems;
-  foreach my $entry (@{ $self->controller->data }) {
-    # search first Order
-    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
 
-      # new order entry: add collected orderitems to the last one
-      if (defined $order_entry) {
-        $order_entry->{object}->orderitems(@orderitems);
-        @orderitems = ();
-      }
+  $self->add_items_to_order();
+  $self->handle_prices_and_taxes();
 
-      $order_entry = $entry;
-
-    } elsif ( defined $order_entry && $entry->{raw_data}->{datatype} eq $self->_item_column ) {
-      # collect orderitems to add to order (if they have no errors)
-      # ( add_orderitems does not work here if we want to call
-      #   calculate_prices_and_taxes afterwards ...
-      #   so collect orderitems and add them at once)
-      if (scalar @{ $entry->{errors} } == 0) {
-        push @orderitems, $entry->{object};
-      }
-    }
-  }
-  # add last collected orderitems to last order
-  if ($order_entry) {
-    $order_entry->{object}->orderitems(@orderitems);
-  }
-
-  # calculate prices and taxes
-  foreach my $entry (@{ $self->controller->data }) {
-    next if @{ $entry->{errors} };
-
-    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
-
-      $entry->{object}->calculate_prices_and_taxes;
-
-      $entry->{info_data}->{calc_amount}    = $entry->{object}->amount_as_number;
-      $entry->{info_data}->{calc_netamount} = $entry->{object}->netamount_as_number;
-    }
-  }
-
-  # If amounts are given, show calculated amounts as info and given amounts (verify_xxx).
-  # And throw an error if the differences are too big.
-  my @to_verify = ( { column      => 'amount',
-                      raw_column  => 'verify_amount',
-                      info_header => 'Calc. Amount',
-                      info_method => 'calc_amount',
-                      err_msg     => 'Amounts differ too much',
-                    },
-                    { column      => 'netamount',
-                      raw_column  => 'verify_netamount',
-                      info_header => 'Calc. Net amount',
-                      info_method => 'calc_netamount',
-                      err_msg     => 'Net amounts differ too much',
-                    } );
-
-  foreach my $tv (@to_verify) {
-    # Todo: access via ->[0] ok? Better: search first order column and use this
-    if (exists $self->controller->data->[0]->{raw_data}->{ $tv->{raw_column} }) {
-      $self->add_raw_data_columns($self->_order_column, $tv->{raw_column});
-      $self->add_info_columns($self->_order_column,
-                              { header => $::locale->text($tv->{info_header}), method => $tv->{info_method} });
-    }
-
-    # check differences
-    foreach my $entry (@{ $self->controller->data }) {
-      next if @{ $entry->{errors} };
-      if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
-        next if !$entry->{raw_data}->{ $tv->{raw_column} };
-        my $parsed_value = $::form->parse_amount(\%::myconfig, $entry->{raw_data}->{ $tv->{raw_column} });
-        if (abs($entry->{object}->${ \$tv->{column} } - $parsed_value) > $self->settings->{'max_amount_diff'}) {
-          push @{ $entry->{errors} }, $::locale->text($tv->{err_msg});
-        }
-      }
-    }
-  }
 
   # If order has errors set error for orderitems as well
-  $order_entry = undef;
+  my $order_entry;
   foreach my $entry (@{ $self->controller->data }) {
     # Search first order
     if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
@@ -726,6 +652,89 @@ sub check_currency {
   return 1;
 }
 
+sub add_items_to_order {
+  my ($self) = @_;
+
+  # add orderitems to order
+  my $order_entry;
+  my @orderitems;
+  foreach my $entry (@{ $self->controller->data }) {
+    # search first order
+    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
+
+      # new order entry: add collected orderitems to the previous one
+      if (defined $order_entry) {
+        $order_entry->{object}->orderitems(@orderitems);
+        @orderitems = ();
+      }
+
+      $order_entry = $entry;
+
+    } elsif ( defined $order_entry && $entry->{raw_data}->{datatype} eq $self->_item_column ) {
+      # collect orderitems to add to order (if they have no errors)
+      # ( add_orderitems does not work here if we want to call
+      #   calculate_prices_and_taxes afterwards ...
+      #   so collect orderitems and add them at once )
+      push @orderitems, $entry->{object} if (scalar @{ $entry->{errors} } == 0);
+    }
+  }
+  # add last collected orderitems to last order
+  $order_entry->{object}->orderitems(@orderitems) if $order_entry;
+}
+
+sub handle_prices_and_taxes() {
+  my ($self) = @_;
+
+  # calculate prices and taxes
+  foreach my $entry (@{ $self->controller->data }) {
+    next if @{ $entry->{errors} };
+
+    if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
+
+      $entry->{object}->calculate_prices_and_taxes;
+
+      $entry->{info_data}->{calc_amount}    = $entry->{object}->amount_as_number;
+      $entry->{info_data}->{calc_netamount} = $entry->{object}->netamount_as_number;
+    }
+  }
+
+  # If amounts are given, show calculated amounts as info and given amounts (verify_xxx).
+  # And throw an error if the differences are too big.
+  my @to_verify = ( { column      => 'amount',
+                      raw_column  => 'verify_amount',
+                      info_header => 'Calc. Amount',
+                      info_method => 'calc_amount',
+                      err_msg     => 'Amounts differ too much',
+                    },
+                    { column      => 'netamount',
+                      raw_column  => 'verify_netamount',
+                      info_header => 'Calc. Net amount',
+                      info_method => 'calc_netamount',
+                      err_msg     => 'Net amounts differ too much',
+                    } );
+
+  foreach my $tv (@to_verify) {
+    # Todo: access via ->[0] ok? Better: search first order column and use this
+    if (exists $self->controller->data->[0]->{raw_data}->{ $tv->{raw_column} }) {
+      $self->add_raw_data_columns($self->_order_column, $tv->{raw_column});
+      $self->add_info_columns($self->_order_column,
+                              { header => $::locale->text($tv->{info_header}), method => $tv->{info_method} });
+    }
+
+    # check differences
+    foreach my $entry (@{ $self->controller->data }) {
+      next if @{ $entry->{errors} };
+      if ($entry->{raw_data}->{datatype} eq $self->_order_column) {
+        next if !$entry->{raw_data}->{ $tv->{raw_column} };
+        my $parsed_value = $::form->parse_amount(\%::myconfig, $entry->{raw_data}->{ $tv->{raw_column} });
+        if (abs($entry->{object}->${ \$tv->{column} } - $parsed_value) > $self->settings->{'max_amount_diff'}) {
+          push @{ $entry->{errors} }, $::locale->text($tv->{err_msg});
+        }
+      }
+    }
+  }
+
+}
 
 sub save_objects {
   my ($self, %params) = @_;
