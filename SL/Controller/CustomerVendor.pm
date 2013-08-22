@@ -375,7 +375,7 @@ sub action_search_contact {
   my $url = 'ct.pl?action=search_contact&db=customer';
 
   if ( $::form->{callback} ) {
-    $url .= '&callback='. $::from->escape($::form->{callback});
+    $url .= '&callback='. $::form->escape($::form->{callback});
   }
 
   print $::form->redirect_header($url);
