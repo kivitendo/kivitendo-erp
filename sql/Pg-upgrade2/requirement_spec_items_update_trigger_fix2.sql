@@ -6,7 +6,12 @@
 -- children. item_id is the ID of the item that needs to be updated
 -- (or NULL if the requirement spec itself must be updated/a section
 -- was changed).
-CREATE OR REPLACE FUNCTION update_requirement_spec_item_time_estimation(item_id INTEGER, item_requirement_spec_id INTEGER) RETURNS BOOLEAN AS $$
+
+-- This function must be dropped manually because PostgreSQL cannot
+-- rename function parameters with 'CREATE OR REPLACE FUNCTION ...'
+-- anymore.
+DROP FUNCTION update_requirement_spec_item_time_estimation(item_id INTEGER, requirement_spec_id INTEGER);
+CREATE FUNCTION update_requirement_spec_item_time_estimation(item_id INTEGER, item_requirement_spec_id INTEGER) RETURNS BOOLEAN AS $$
   DECLARE
     current_row RECORD;
     new_row     RECORD;
