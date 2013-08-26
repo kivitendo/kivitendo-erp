@@ -721,7 +721,8 @@ sub search {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
                    "departments"  => "ALL_DEPARTMENTS",
-                   "$form->{vc}s" => "ALL_VC");
+                   "$form->{vc}s" => "ALL_VC",
+                   "business_types" => "ALL_BUSINESS_TYPES");
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   # constants and subs for template
@@ -829,7 +830,8 @@ sub orders {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
-                                                        reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive);
+                                                        reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
+                                                        business_id);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -901,6 +903,11 @@ sub orders {
   push @options, $locale->text('Delivery Order created')                                                               if $form->{delivered};
   push @options, $locale->text('Not delivered')                                                           if $form->{notdelivered};
   push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_actibe};
+
+  if ($form->{business_id}) {
+    my $vc_type_label = $form->{vc} eq 'customer' ? $locale->text('Customer type') : $locale->text('Vendor type');
+    push @options, $vc_type_label . " : " . SL::DB::Business->new(id => $form->{business_id})->load->description;
+  }
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),

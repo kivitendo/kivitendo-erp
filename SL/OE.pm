@@ -87,7 +87,7 @@ sub transactions {
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
-    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid  | .
+    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id  | .
     $periodic_invoices_columns .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
@@ -124,6 +124,11 @@ sub transactions {
       ))
 SQL
     push @values, "%" . $form->{"projectnumber"} . "%", "%" . $form->{"projectnumber"} . "%" ;
+  }
+
+  if ($form->{"business_id"}) {
+    $query .= " AND ct.business_id = ?";
+    push(@values, $form->{"business_id"});
   }
 
   if ($form->{"${vc}_id"}) {
