@@ -1810,4 +1810,37 @@ sub income_statement {
   }
   $main::lxdebug->leave_sub();
 }
+
+sub income_statement_ch {
+
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  my $last_period  = 0;
+
+
+  # connect to database
+  my $dbh = $form->dbconnect($myconfig);
+  
+  get_accounts_ch($dbh, $last_period, $form->{fromdate}, $form->{todate}, $form);
+
+   $main::lxdebug->leave_sub();
+}
+
+
+ sub get_accounts_ch {
+
+  $main::lxdebug->enter_sub();
+  
+
+  my $query =
+    qq|SELECT c.accno, c.description
+       FROM chart c
+       ORDER BY c.accno|;
+
+
+   $main::lxdebug->leave_sub();
+}
+
 1;

@@ -119,6 +119,20 @@
   </tr>
 [%- END %]
 
+  [%- IF is_income_statement_ch %]
+[%- PROCESS projectnumber %]
+  <input type=hidden name=nextsub value=generate_income_statement_ch>
+</table>
+<table>
+[%- PROCESS customized_report %]
+[%- PROCESS cash_or_accrual %]
+  <tr>
+    <th align=left nowrap>[% 'Include in Report' | $T8 %]</th>
+    <td><input name=l_cb class=checkbox type=checkbox value=Y>&nbsp;[% 'CB Transactions' | $T8 %]</td>
+  </tr>
+[%- END %]
+
+
 [%- IF is_bwa %]
 [%- PROCESS projectnumber %]
   <input type=hidden name=nextsub value=generate_bwa>
