@@ -1900,15 +1900,14 @@ sub get_warehouse {
 
   map { $form->{$_} = $ref->{$_} } keys %{ $ref };
 
-  $query = qq|SELECT b.*, EXISTS
-                (SELECT i.warehouse_id, p.warehouse_id
-                 FROM inventory i, parts p
-                 WHERE i.bin_id = b.id
-                 OR    p.bin_id = b.id
-                 LIMIT 1)
-                AS in_use
-              FROM bin b
-              WHERE b.warehouse_id = ?|;
+  $query = <<SQL;
+    SELECT b.*,
+      (   EXISTS(SELECT i.bin_id FROM inventory i WHERE i.bin_id = b.id LIMIT 1)
+       OR EXISTS(SELECT p.bin_id FROM parts     p WHERE p.bin_id = b.id LIMIT 1))
+      AS in_use
+    FROM bin b
+    WHERE b.warehouse_id = ?
+SQL
 
   $form->{BINS} = selectall_hashref_query($form, $dbh, $query, conv_i($form->{id}));
 
