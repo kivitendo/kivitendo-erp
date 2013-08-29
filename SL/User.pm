@@ -374,14 +374,11 @@ sub create_schema_info_table {
 }
 
 sub dbupdate2 {
-  $main::lxdebug->enter_sub();
-
   my ($self, %params) = @_;
 
   my $form            = $params{form};
   my $dbupdater       = $params{updater};
   my $db              = $params{database};
-  my $rc              = -2;
 
   map { $_->{description} = SL::Iconv::convert($_->{charset}, 'UTF-8', $_->{description}) } values %{ $dbupdater->{all_controls} };
 
@@ -395,22 +392,17 @@ sub dbupdate2 {
 
   my @upgradescripts = $dbupdater->unapplied_upgrade_scripts($dbh);
 
-  $dbh->disconnect and next if !@upgradescripts;
-
   foreach my $control (@upgradescripts) {
-    # apply upgrade
+    # Apply upgrade. Control will only return to us if the upgrade has
+    # been applied correctly and if the update has not requested user
+    # interaction.
     $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
     print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
     $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
   }
 
-  $rc = 0;
   $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
 }
 
 sub data {
