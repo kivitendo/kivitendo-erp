@@ -39,6 +39,7 @@ use Fcntl qw(:seek);
 
 #use SL::Auth;
 use SL::DB::AuthClient;
+use SL::DB::Employee;
 use SL::DBConnect;
 use SL::DBUpgrade2;
 use SL::DBUtils;
@@ -126,7 +127,10 @@ sub login {
   my $update_available = $dbupdater->update2_available($dbh);
   $dbh->disconnect;
 
-  return LOGIN_OK() if !$update_available;
+  if (!$update_available) {
+    SL::DB::Manager::Employee->update_entries_for_authorized_users;
+    return LOGIN_OK();
+  }
 
   $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
   $form->{$_} = $myconfig{$_}         for qw(datestyle);
@@ -150,6 +154,16 @@ sub login {
   $SIG{QUIT} = 'IGNORE';
 
   $self->dbupdate2(form => $form, updater => $dbupdater, database => $::auth->client->{dbname});
+
+  # If $self->dbupdate2 returns than this means all upgrade scripts
+  # have been applied successfully, none required user
+  # interaction. Otherwise the deeper layers would have called
+  # ::end_of_request() already, and return would not have returned to
+  # us. Therefore we can now use RDBO instances because their supposed
+  # table structures do match the actual structures. So let's ensure
+  # that the "employee" table contains the appropriate entries for all
+  # users authorized for the current client.
+  SL::DB::Manager::Employee->update_entries_for_authorized_users;
 
   SL::System::InstallationLock->unlock;
 
