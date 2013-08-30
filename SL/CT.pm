@@ -634,6 +634,7 @@ sub search {
       "zipcode"            => "ct.zipcode",
       "city"               => "ct.city",
       "country"            => "ct.country",
+      "discount"           => "ct.discount",
       "salesman"           => "e.name"
     );
 
@@ -649,7 +650,7 @@ sub search {
   }
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
 
-  if ($sortorder !~ /(business|id)/ && !$join_records) {
+  if ($sortorder !~ /(business|id|discount)/ && !$join_records) {
     $sortorder  = "lower($sortorder) ${sortdir}";
   } else {
     $sortorder .= " ${sortdir}";
