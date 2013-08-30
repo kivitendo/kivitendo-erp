@@ -170,7 +170,7 @@ sub list_names {
   }
 
   my @columns = (
-    'id',        'name',      "$form->{db}number",   'contact',   'phone',
+    'id',        'name',      "$form->{db}number",   'contact',   'phone',    'discount',
     'fax',       'email',     'taxnumber',           'street',    'zipcode' , 'city',
     'business',  'invnumber', 'ordnumber',           'quonumber', 'salesman', 'country'
   );
@@ -200,6 +200,7 @@ sub list_names {
     'city'              => { 'text' => $locale->text('City'), },
     'country'           => { 'text' => $locale->text('Country'), },
     'salesman'          => { 'text' => $locale->text('Salesman'), },
+    'discount'          => { 'text' => $locale->text('Discount'), },
     %column_defs_cvars,
   );
 
@@ -268,6 +269,7 @@ sub list_names {
 
     if ($ref->{id} ne $previous_id) {
       $previous_id = $ref->{id};
+      $ref->{discount} = $form->format_amount(\%myconfig, $ref->{discount} * 100.0, 2);
       map { $row->{$_}->{data} = $ref->{$_} } @columns;
 
       $row->{name}->{link}  = build_std_url('script=controller.pl', 'action=CustomerVendor/edit', 'id=' . E($ref->{id}), 'callback', @hidden_nondefault);
