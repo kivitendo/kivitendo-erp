@@ -116,6 +116,21 @@ sub payment_transactions {
     push(@values, conv_date($form->{todate}));
   }
 
+  if($form->{additional_fromdate}) {
+    $query .= qq|  AND ac.transdate >= ? |;
+    push(@values, conv_date($form->{additional_fromdate}));
+  }
+
+  if($form->{additional_todate}){
+    $query .= qq|  AND ac.transdate <= ? |;
+    push(@values, conv_date($form->{additional_todate}));
+  }
+
+  if($form->{filter_amount}){
+    $query .= qq|  AND ac.amount = ? |;
+    push(@values, conv_i($form->{filter_amount}));
+  }
+
   $query .=
     qq|UNION | .
 
@@ -139,6 +154,21 @@ sub payment_transactions {
   if($form->{todate}){
     $query .= qq| AND ac.transdate <= ? |;
     push(@values, conv_date($form->{todate}));
+  }
+
+  if($form->{additional_fromdate}) {
+    $query .= qq| AND ac.transdate >= ? |;
+    push(@values, conv_date($form->{additional_fromdate}));
+  }
+
+  if($form->{additional_todate}){
+    $query .= qq| AND ac.transdate <= ? |;
+    push(@values, conv_date($form->{additional_todate}));
+  }
+
+  if($form->{filter_amount}){
+    $query .= qq| AND ac.amount = ? |;
+    push(@values, conv_i($form->{filter_amount}));
   }
 
   $query .=
@@ -166,7 +196,22 @@ sub payment_transactions {
     push(@values, conv_date($form->{todate}));
   }
 
-  $query .= " ORDER BY 3,7,8";
+  if($form->{additional_fromdate}) {
+    $query .= qq| AND ac.transdate >= ? |;
+    push(@values, conv_date($form->{additional_fromdate}));
+  }
+
+  if($form->{additional_todate}){
+    $query .= qq| AND ac.transdate <= ? |;
+    push(@values, conv_date($form->{additional_todate}));
+  }
+
+  if($form->{filter_amount}){
+    $query .= qq| AND ac.amount = ? |;
+    push(@values, conv_i($form->{filter_amount}));
+  }
+
+  $query .= " ORDER BY 3,7,8 LIMIT 6";
 
   $form->{PR} = selectall_hashref_query($form, $dbh, $query, @values);
 
@@ -202,6 +247,35 @@ sub reconcile {
       }
     }
   }
+
+  $dbh->disconnect;
+
+  $main::lxdebug->leave_sub();
+}
+
+sub get_statement_balance {
+  $main::lxdebug->enter_sub();
+
+  my ($self, $myconfig, $form) = @_;
+
+  # connect to database, turn AutoCommit off
+  my $dbh = $form->dbconnect_noauto($myconfig);
+
+  my ($query, @values);
+
+  $query = qq|SELECT sum(amount) FROM acc_trans where chart_id=45 AND cleared='1'|;
+
+  if($form->{fromdate}) {
+    $query .= qq| AND transdate >= ? |;
+    push(@values, conv_date($form->{fromdate}));
+  }
+
+  if($form->{todate}){
+    $query .= qq| AND transdate <= ? |;
+    push(@values, conv_date($form->{todate}));
+  }
+
+  ($form->{statement_balance}) = selectrow_query($form, $dbh, $query, @values);
 
   $dbh->disconnect;
 

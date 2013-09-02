@@ -19,6 +19,8 @@ use SL::DB::Helper::PriceTaxCalculator;
 use SL::DB::Helper::PriceUpdater;
 use SL::DB::Helper::TransNumberGenerator;
 use SL::Locale::String qw(t8);
+use SL::DB::CustomVariable;
+use SL::DB::AccTransaction;
 
 __PACKAGE__->meta->add_relationship(
   invoiceitems => {
@@ -366,6 +368,59 @@ sub customervendor {
   goto &customer;
 }
 
+sub pay_invoice {
+  my ($self, %params) = @_;
+
+  #Mark invoice as paid
+  $self->paid($self->paid+$params{amount});
+  $self->save;
+
+  Common::check_params(\%params, qw(chart_id trans_id amount transdate));
+
+  #account of bank account or cash
+  my $account_bank = SL::DB::Manager::Chart->find_by(id => $params{chart_id});
+
+  #Search the contra account
+  my $acc_trans = SL::DB::Manager::AccTransaction->find_by(trans_id   => $params{trans_id},
+                                                           or => [ chart_link => { like => "%:AR" },
+                                                                   chart_link => { like => "AR:%" },
+                                                                   chart_link => "AR" ]);
+  my $contra_account = SL::DB::Manager::Chart->find_by(id => $acc_trans->chart_id);
+
+  #Two new transfers in acc_trans (for bank account and for contra account)
+  my $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $params{trans_id},
+                                                  chart_id   => $account_bank->id,
+                                                  chart_link => $account_bank->link,
+                                                  amount     => (-1 * $params{amount}),
+                                                  transdate  => $params{transdate},
+                                                  source     => $params{source},
+                                                  memo       => '',
+                                                  taxkey     => 0,
+                                                  tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+  $new_acc_trans->save;
+  $new_acc_trans = SL::DB::AccTransaction->new(trans_id   => $params{trans_id},
+                                               chart_id   => $contra_account->id,
+                                               chart_link => $contra_account->link,
+                                               amount     => $params{amount},
+                                               transdate  => $params{transdate},
+                                               source     => $params{source},
+                                               memo       => '',
+                                               taxkey     => 0,
+                                               tax_id     => SL::DB::Manager::Tax->find_by(taxkey => 0)->id);
+  $new_acc_trans->save;
+}
+
+sub link {
+  my ($self) = @_;
+
+  my $html;
+  $html   = SL::Presenter->get->sales_invoice($self, display => 'inline') if $self->invoice;
+  $html   = SL::Presenter->get->ar_transaction($self, display => 'inline') if !$self->invoice;
+
+  return $html;
+}
+
+>>>>>>> Test: Bank-Commit zusammengefasst
 1;
 
 __END__

@@ -115,6 +115,16 @@ sub load_draft {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
+  # check and store certain form parameters that might have been passed as get, so we can later overwrite the values from the draft
+  # the overwrite happens at the end of this function
+  my @valid_overwrite_vars = qw(remove_draft amount_1 invnumber ordnumber transdate duedate notes datepaid_1 paid_1 callback AP_paid_1 currency);  # reference description
+  my $overwrite_hash;
+  # my @valid_fields;
+  foreach ( @valid_overwrite_vars ) {
+    $overwrite_hash->{$_} = $form->{$_} if exists $form->{$_};  # variant 1
+    # push(@valid_fields, $_) if exists $form->{$_}; # variant 2
+  };
+
   my ($old_form, $id, $description) = Drafts->load(\%myconfig, $form, $form->{id});
 
   if ($old_form) {
@@ -133,6 +143,14 @@ sub load_draft {
   # ungültige Belege. Vielleicht geht es anderen ähnlich jan 19.2.2011
   $form->{invdate} = $form->current_date(\%myconfig); # Aktuelles Rechnungsdatum  ...
   $form->{duedate} = $form->current_date(\%myconfig); # Aktuelles Fälligkeitsdatum  ...
+
+  if ( $overwrite_hash ) {
+    foreach ( keys $overwrite_hash ) {
+      $form->{$_} = $overwrite_hash->{$_};  # variante 1
+    };
+  };
+  # @{$form}{@valid_fields} = @{$overwrite_hash}{@valid_fields};  # variante 2
+
   update();
 
   $main::lxdebug->leave_sub();

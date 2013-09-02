@@ -1,0 +1,123 @@
+[%- USE T8 %]
+[%- USE HTML %]
+[%- USE LxERP %]
+[%- USE L %]
+
+<style type="text/css">
+<!--
+html, body {
+  height: 100%;
+}
+.top_border {
+  border-top: solid black;
+  border-width: 4px;
+}
+.bottom_border {
+  border-bottom: solid black;
+  border-width: 4px;
+}
+#content.html-menu { height: 100%; }
+.out_of_balance {
+  color: #888888;
+}
+-->
+</style>
+
+<div class="listtop">[% title %]</div>
+
+[%- INCLUDE 'common/flash.html' %]
+
+<form id="reconciliation_form" method="post" action="controller.pl" style="height:100%">
+  <table>
+    <tr>
+     <th align="right">[% 'Bank account' | $T8 %]</th>
+     <td>[% L.select_tag('filter.local_bank_account_id:number',
+                          SELF.BANK_ACCOUNTS,
+                          default=FORM.filter.local_bank_account_id_number,
+                          title_sub=\label_sub, with_empty=0,
+                          style='width:450px',
+                          onchange='filter_table();') %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'From' | $T8 %]</th>
+     <td>[% L.date_tag('filter.fromdate:date::ge', FORM.filter.fromdate_date__ge, onchange='filter_table();') %]</td>
+     <th align="right">[% 'to (date)' | $T8 %]</th>
+     <td>[% L.date_tag('filter.todate:date::le', FORM.filter.todate_date__le, onchange='filter_table();') %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Cleared/uncleared only' | $T8 %]</th>
+     <td>[% L.select_tag('filter.cleared:eq_ignore_empty', SELF.cleared, value_key = 'value', title_key = 'title', default=FORM.filter.cleared_eq_ignore_empty, onchange='filter_table();') %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Show Stornos' | $T8 %]</th>
+     <td>[% L.checkbox_tag('filter.show_stornos', checked=FORM.filter.show_stornos, value='1', onchange='filter_table();') %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Absolute BT Balance' | $T8 %]</th>
+     <td class='absolut_bt_balance'>[% LxERP.format_amount(SELF.absolut_bt_balance, 2) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Absolute BB Balance' | $T8 %]</th>
+     <td class='absolut_bb_balance'>[% LxERP.format_amount(-1 * SELF.absolut_bb_balance, 2) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'BT Balance' | $T8 %]</th>
+     <td class='bt_balance'>[% LxERP.format_amount(SELF.bt_balance, 2) %]</td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'BB Balance' | $T8 %]</th>
+     <td class='bb_balance'>[% LxERP.format_amount(-1 * SELF.bb_balance, 2) %]</td>
+    </tr>
+  </table>
+
+  [% L.submit_tag('submit_filter', LxERP.t8("Filter"), onclick='filter_table();return false;', style='display: none') %]
+
+  <div class="tabwidget" style="height:100%">
+    <ul>
+      <li><a href="#overview" onclick="load_overview();">[% 'Overview' | $T8 %]</a></li>
+      <li><a href="#automatic" onclick="load_proposals();">[% 'Proposals' | $T8 %]</a></li>
+    </ul>
+
+    <div id="overview" style="height:calc(100% - 60px);overflow: auto;">[% PROCESS "reconciliation/tabs/overview.html" %]</div>
+    <div id="automatic" style="height:calc(100% - 60px);overflow: auto;"></div>
+  </div>
+
+</form>
+
+<script type="text/javascript">
+<!--
+
+function load_proposals () {
+  var url="controller.pl?action=Reconciliation/load_proposals&" + $('#reconciliation_form') . serialize();
+  $.ajax({
+    url: url,
+    success: function(new_data) {
+      $('#overview').html('');
+      $('#automatic').html(new_data['html']);
+      $('#set_cleared').html('');
+    }
+  });
+}
+
+function load_overview () {
+  var url="controller.pl?action=Reconciliation/load_overview&" + $('#reconciliation_form') . serialize();
+  $.ajax({
+    url: url,
+    success: function(new_data) {
+      $('#overview').html(new_data['html']);
+      $('#automatic').html('');
+      $('#set_cleared').html('');
+    }
+  });
+}
+
+//-->
+</script>
+

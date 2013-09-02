@@ -1,0 +1,136 @@
+package SL::Controller::CsvImport::BankTransaction;
+
+use strict;
+
+use SL::Helper::Csv;
+use SL::Controller::CsvImport::Helper::Consistency;
+use SL::DB::BankTransaction;
+
+use Data::Dumper;
+
+use parent qw(SL::Controller::CsvImport::Base);
+
+use Rose::Object::MakeMethods::Generic
+(
+ 'scalar --get_set_init' => [ qw(table bank_accounts_by) ],
+);
+
+sub init_class {
+  my ($self) = @_;
+  $self->class('SL::DB::BankTransaction');
+}
+
+sub init_bank_accounts_by {
+  my ($self) = @_;
+
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_bank_accounts } } ) } qw(id account_number) };
+}
+
+sub check_objects {
+  my ($self) = @_;
+
+  $self->controller->track_progress(phase => 'building data', progress => 0);
+
+  my $i;
+  my $num_data = scalar @{ $self->controller->data };
+  foreach my $entry (@{ $self->controller->data }) {
+    $self->controller->track_progress(progress => $i/$num_data * 100) if $i % 100 == 0;
+
+    $self->check_bank_account($entry);
+    $self->check_currency($entry, take_default => 1);
+
+    $self->join_purposes($entry);
+    #TODO: adde checks für die Variablen
+  } continue {
+    $i++;
+  }
+
+  $self->add_cvar_raw_data_columns;
+}
+
+sub setup_displayable_columns {
+  my ($self) = @_;
+
+  $self->SUPER::setup_displayable_columns;
+
+  $self->add_displayable_columns({ name => 'transaction_id',   description => $::locale->text('Transaction ID') },
+                                 { name => 'local_bank_code',   description => $::locale->text('Own bank code') },
+                                 { name => 'local_account_number',   description => $::locale->text('Own bank account number') },
+                                 { name => 'local_bank_account_id',   description => $::locale->text('ID of own bank account') },
+                                 { name => 'remote_bank_code',   description => $::locale->text('Bank code of the goal/source') },
+                                 { name => 'remote_account_number',   description => $::locale->text('Account number of the goal/source') },
+                                 { name => 'transdate',   description => $::locale->text('Date of transaction') },
+                                 { name => 'valutadate',   description => $::locale->text('Valuta') },
+                                 { name => 'amount',   description => $::locale->text('Amount') },
+                                 { name => 'currency',   description => $::locale->text('Currency') },
+                                 { name => 'currency_id',       description => $::locale->text('Currency (database ID)')          },
+                                 { name => 'remote_name',   description => $::locale->text('Name of the goal/source') },
+                                 { name => 'remote_name_1',   description => $::locale->text('Name of the goal/source') },
+                                 { name => 'purpose',   description => $::locale->text('Purpose') },
+                                );
+}
+
+sub check_bank_account {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  # Check whether or not local_bank_account ID is valid.
+  if ($object->local_bank_account_id && !$self->bank_accounts_by->{id}->{ $object->local_bank_account_id }) {
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+    return 0;
+  }
+
+  # Check whether or not local_bank_account ID, local_account_number and local_bank_code are consistent.
+  if ($object->local_bank_account_id && $entry->{raw_data}->{local_account_number}) {
+    my $bank_account = $self->bank_accounts_by->{id}->{ $object->local_bank_account_id };
+    if ($bank_account->account_number ne $entry->{raw_data}->{local_account_number}) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+      return 0;
+    }
+    if ($entry->{raw_data}->{local_bank_code} && $entry->{raw_data}->{local_bank_code} ne $bank_account->bank_code) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+      return 0;
+    }
+
+  }
+
+  # Map account information to ID if given.
+  if (!$object->local_bank_account_id && $entry->{raw_data}->{local_account_number}) {
+    my $bank_account = $self->bank_accounts_by->{account_number}->{ $entry->{raw_data}->{local_account_number} };
+    if (!$bank_account) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+      return 0;
+    }
+    if ($entry->{raw_data}->{local_bank_code} && $entry->{raw_data}->{local_bank_code} ne $bank_account->bank_code) {
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid local bank account');
+      return 0;
+    }
+
+    $object->local_bank_account_id($bank_account->id);
+  }
+
+  return $object->local_bank_account_id ? 1 : 0;
+}
+
+sub join_purposes {
+  my ($self, $entry) = @_;
+
+  my $object = $entry->{object};
+
+  my $purpose = join('', $entry->{raw_data}->{purpose},
+                        $entry->{raw_data}->{purpose1},
+                        $entry->{raw_data}->{purpose2},
+                        $entry->{raw_data}->{purpose3},
+                        $entry->{raw_data}->{purpose4},
+                        $entry->{raw_data}->{purpose5},
+                        $entry->{raw_data}->{purpose6},
+                        $entry->{raw_data}->{purpose7},
+                        $entry->{raw_data}->{purpose8},
+                        $entry->{raw_data}->{purpose9},
+                        $entry->{raw_data}->{purpose10},
+                        $entry->{raw_data}->{purpose11} );
+  $object->purpose($purpose);
+}
+
+1;

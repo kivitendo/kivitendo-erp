@@ -977,6 +977,7 @@ sub all_rights_full {
     ["general_ledger",                 $locale->text("Transactions, AR transactions, AP transactions")],
     ["datev_export",                   $locale->text("DATEV Export")],
     ["cash",                           $locale->text("Receipt, payment, reconciliation")],
+    ["bank_transaction",               $locale->text("Bank transactions")],
     ["--reports",                      $locale->text('Reports')],
     ["report",                         $locale->text('All reports')],
     ["advance_turnover_tax_return",    $locale->text('Advance turnover tax return')],

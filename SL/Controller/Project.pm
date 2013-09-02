@@ -22,6 +22,8 @@ use SL::DB::ProjectType;
 use SL::Helper::Flash;
 use SL::Locale::String;
 
+use Data::Dumper;
+
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(project linked_records) ],
@@ -41,6 +43,7 @@ sub action_search {
   my %params;
 
   $params{CUSTOM_VARIABLES}  = CVar->get_configs(module => 'Projects');
+
   ($params{CUSTOM_VARIABLES_FILTER_CODE}, $params{CUSTOM_VARIABLES_INCLUSION_CODE})
     = CVar->render_search_options(variables      => $params{CUSTOM_VARIABLES},
                                   include_prefix => 'l_',

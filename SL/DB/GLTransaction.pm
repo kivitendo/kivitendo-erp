@@ -28,7 +28,19 @@ sub abbreviation {
   my $abbreviation = $::locale->text('GL Transaction (abbreviation)');
   $abbreviation   .= "(" . $::locale->text('Storno (one letter abbreviation)') . ")" if $self->storno;
   return $abbreviation;
+}
 
+sub link {
+  my ($self) = @_;
+
+  my $html;
+  $html   = SL::Presenter->get->gl_transaction($self, display => 'inline');
+
+  return $html;
+}
+
+sub invnumber {
+  return $_[0]->reference;
 }
 
 1;

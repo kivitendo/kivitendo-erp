@@ -20,6 +20,7 @@ sub type_filter {
   return (and => [ invoice => 1, amount  => { lt => 0 }, or => [ storno => 0, storno => undef ] ]) if $type eq 'credit_note';
   return (and => [ invoice => 1, amount  => { lt => 0 },         storno => 1                    ]) if $type =~ m/(?:invoice_)?storno/;
   return (and => [ invoice => 1, amount  => { ge => 0 },         storno => 1                    ]) if $type eq 'credit_note_storno';
+  return (amount => {gt => 'paid'}) if $type eq 'open';
 
   die "Unknown type $type";
 }

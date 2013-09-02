@@ -5,7 +5,7 @@ use strict;
 use parent qw(Exporter);
 
 use Exporter qw(import);
-our @EXPORT = qw(sales_invoice ar_transaction purchase_invoice ap_transaction);
+our @EXPORT = qw(sales_invoice ar_transaction purchase_invoice ap_transaction gl_transaction);
 
 use Carp;
 
@@ -31,6 +31,12 @@ sub ap_transaction {
   my ($self, $invoice, %params) = @_;
 
   return _is_ir_record($self, $invoice, 'ap', %params);
+}
+
+sub gl_transaction {
+  my ($self, $invoice, %params) = @_;
+
+  return _is_ir_record($self, $invoice, 'gl', %params);
 }
 
 sub _is_ir_record {

@@ -1,0 +1,104 @@
+[%- USE HTML -%][%- USE LxERP -%][%- USE L -%][%- USE T8 -%]
+
+<script type="text/javascript" src="js/wz_tooltip.js"></script>
+
+<h1>[% title %]</h1>
+
+[%- INCLUDE 'common/flash.html' %]
+
+<p>[% 'Account number' | $T8 %] [% bank_account.account_number %], [% 'Bank code' | $T8 %] [% bank_account.bank_code %], [% 'Bank' | $T8 %] [% bank_account.bank %]</p>
+<p>
+[% IF FORM.filter.fromdate %] [% 'From' | $T8 %] [% FORM.filter.fromdate %] [% END %]
+[% IF FORM.filter.todate %]   [% 'to (date)' | $T8 %] [% FORM.filter.todate %][% END %]
+</p>
+
+<form id="list_form">
+[% L.hidden_tag('filter.bank_account', FORM.filter.bank_account) %]
+[% L.hidden_tag('filter.fromdate', FORM.filter.fromdate) %]
+[% L.hidden_tag('filter.todate',   FORM.filter.todate) %]
+
+<div class="tabwidget">
+  <ul>
+    <li><a href="#all" onclick="show_invoice_button();">[% 'All transactions' | $T8 %]</a></li>
+    <li><a href="#automatic" onclick="show_proposal_button();">[% 'Proposals' | $T8 %]</a></li>
+  </ul>
+
+  <div id="all">[% PROCESS "bank_transactions/tabs/all.html" %]</div>
+  <div id="automatic">[% PROCESS "bank_transactions/tabs/automatic.html" %]</div>
+</div>
+
+[% L.hidden_tag('action', 'BankTransaction/dispatch') %]
+[% L.submit_tag('action_save_invoices', LxERP.t8('Save invoices')) %]
+[% L.submit_tag('action_save_proposals', LxERP.t8('Save proposals'), style='display: none') %]
+
+</form>
+
+<script type="text/javascript">
+<!--
+
+$(function() {
+  $('#check_all').checkall('INPUT[name^="proposal_ids"]');
+});
+
+$(function() {
+  $('.sort_link').each(function() {
+    var _href = $(this).attr("href");
+    $(this).attr("href", _href + "&filter.fromdate=" + "[% FORM.filter.fromdate %]" + "&filter.todate=" + "[% FORM.filter.todate %]");
+  });
+});
+
+function show_invoice_button () {
+  $("#action_save_proposals").hide();
+  $("#action_save_invoices").show();
+}
+
+function show_proposal_button () {
+  $("#action_save_invoices").hide();
+  $("#action_save_proposals").show();
+}
+
+function assign_invoice(bt_id) {
+  kivi.popup_dialog({
+    url:    'controller.pl?action=BankTransaction/assign_invoice',
+    data:   '&bt_id=' + bt_id,
+    type:   'POST',
+    id:     'assign_invoice_window',
+    dialog: { title: kivi.t8('Assign invoice') }
+  });
+  return true;
+}
+
+function add_invoices(bt_id, prop_id, prop_invnumber) {
+  //prop_id is a proposed invoice_id
+  var number_of_elements = document.getElementsByName(prop_id).length;
+  for( var i = 0; i < number_of_elements; i++ ) {
+    var node = document.getElementsByName(prop_id)[0];
+    node.parentNode.removeChild(node);
+  }
+  UnTip();
+  var invoices = document.getElementById('assigned_invoices_' + bt_id);
+  var div_element = '<div id="' + bt_id + '.' + prop_id + '">';
+  var hidden_element = '<input type="hidden" name="invoice_ids.' + bt_id + '[]" value="' + prop_id + '">' + prop_invnumber;
+  var link_element   = '<a href=# onclick="delete_invoice(' + bt_id + ',' + prop_id + ');">x</a>';
+  var new_html = div_element + hidden_element + link_element + '</div>';
+  invoices.innerHTML += new_html;
+}
+
+function delete_invoice(bt_id, prop_id) {
+  $( "#" + bt_id + "\\." + prop_id ).remove();
+}
+
+function create_invoice(bt_id) {
+  kivi.popup_dialog({
+    url:    'controller.pl?action=BankTransaction/create_invoice',
+    data:   '&bt_id=' + bt_id + "&filter.bank_account=[% FORM.filter.bank_account %]&filter.todate=[% FORM.filter.todate %]&filter.fromdate=[% FORM.filter.fromdate %]",
+    type:   'POST',
+    id:     'create_invoice_window',
+    dialog: { title: kivi.t8('Create invoice') }
+  });
+  return true;
+}
+
+//-->
+</script>
+

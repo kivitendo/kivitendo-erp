@@ -7,6 +7,28 @@ use strict;
 
 use SL::DB::MetaSetup::AccTransaction;
 
+use SL::DB::GLTransaction;
+require SL::DB::Invoice;
+require SL::DB::PurchaseInvoice;
+
+__PACKAGE__->meta->add_relationship(
+  ar => {
+    type         => 'many to one',
+    class        => 'SL::DB::Invoice',
+    column_map   => { trans_id => 'id' },
+  },
+  ap => {
+    type         => 'many to one',
+    class        => 'SL::DB::PurchaseInvoice',
+    column_map   => { trans_id => 'id' },
+  },
+  gl => {
+    type         => 'many to one',
+    class        => 'SL::DB::GLTransaction',
+    column_map   => { trans_id => 'id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.
@@ -24,6 +46,17 @@ sub record {
   };
 
 };
+
+sub get_transaction {
+  my ($self) = @_;
+
+  my $transaction = SL::DB::Manager::GLTransaction->find_by(id => $self->trans_id);
+  $transaction = SL::DB::Manager::Invoice->find_by(id => $self->trans_id)         if not defined $transaction;
+  $transaction = SL::DB::Manager::PurchaseInvoice->find_by(id => $self->trans_id) if not defined $transaction;
+
+  return $transaction;
+}
+
 1;
 __END__
 

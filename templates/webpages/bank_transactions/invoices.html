@@ -1,0 +1,8 @@
+[% USE L %]
+[% FOREACH invoice = INVOICES %]
+  <div id="[% bt_id %].[% invoice.id %]">
+    [% L.hidden_tag('invoice_ids.' _ bt_id _'[]', invoice.id) %]
+    [% invoice.invnumber %]
+    <a href=# onclick="delete_invoice([% bt_id %], [% invoice.id %])">x</a>
+  </div>
+[% END %]

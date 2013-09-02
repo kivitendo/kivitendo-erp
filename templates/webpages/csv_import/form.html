@@ -260,6 +260,8 @@
  [%- INCLUDE 'csv_import/_form_inventories.html' %]
 [%- ELSIF SELF.type == 'orders' %]
  [%- INCLUDE 'csv_import/_form_orders.html' %]
+[%- ELSIF SELF.type == 'mt940' %]
+ [%- INCLUDE 'csv_import/_form_mt940.html' %]
 [%- END %]
 
    <tr>

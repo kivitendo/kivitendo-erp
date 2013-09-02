@@ -1,0 +1,102 @@
+[%- USE HTML %][%- USE L %][%- USE LxERP %][%- USE T8 %]
+
+<form method="post" action="javascript:filter_invoices();">
+  <b>Transaction</b>
+  <table>
+   <tr class="listheading">
+    <td>[%- LxERP.t8("ID") %]:</td>
+    <td>[%- LxERP.t8("Amount") %]:</td>
+    <td>[%- LxERP.t8("Remote bank code") %]:</td>
+    <td>[%- LxERP.t8("Remote account number") %]:</td>
+    <td>[%- LxERP.t8("Remote name") %]:</td>
+    <td>[%- LxERP.t8("Purpose") %]:</td>
+    <td>[%- LxERP.t8("Transdate") %]:</td>
+   </tr>
+
+   <tr class="listrow">
+    <td>[% SELF.transaction.id %]</td>
+    <td>[% LxERP.format_amount(SELF.transaction.amount, 2) %]</td>
+    <td>[% SELF.transaction.remote_bank_code %]</td>
+    <td>[% SELF.transaction.remote_account_number %]</td>
+    <td>[% SELF.transaction.remote_name %]</td>
+    <td>[% SELF.transaction.purpose %]</td>
+    <td>[% SELF.transaction.transdate_as_date %]</td>
+   </tr>
+  </table>
+
+  <b>Filter</b>
+  <table>
+   <tr>
+    <th align="right">[%- LxERP.t8("Invoice number") %]</th>
+    <td>[% L.input_tag('invnumber', '', style=style) %]</td>
+
+    <th align="right">[%- LxERP.t8("Customer/Vendor name") %]</th>
+    <td>[% L.input_tag('vcname', '', style=style) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right">[%- LxERP.t8("Amount") %]</th>
+    <td>[% L.input_tag('amount', '', style=style) %]</td>
+
+    <th align="right">[%- LxERP.t8("Customer/Vendor number") %]</th>
+    <td>[% L.input_tag('vcnumber', '', style=style) %]</td>
+   </tr>
+
+   <tr>
+    <th align="right">[%- LxERP.t8("Transdate from") %]</th>
+    <td>[% L.date_tag('transdatefrom') %]</td>
+
+    <th align="right">[%- LxERP.t8("to (date)") %]</th>
+    <td>[% L.date_tag('transdateto') %]</td>
+   </tr>
+  </table>
+
+  <p>
+   [% L.submit_tag('', LxERP.t8("Search")) %]
+   [% L.button_tag('add_selected_invoices()', LxERP.t8("Add invoices"), id='add_selected_record_links_button') %]
+   <a href="#" onclick="assign_invoice_reset_form();">[%- LxERP.t8("Reset") %]</a>
+   <a href="#" onclick="$('#assign_invoice_window').dialog('close');">[% LxERP.t8("Cancel") %]</a>
+  </p>
+
+  <hr>
+
+  <div id="record_list_filtered_list"></div>
+
+</form>
+
+<script type="text/javascript">
+<!--
+
+function filter_invoices() {
+  var url="controller.pl?action=BankTransaction/ajax_add_list&" + $("#assign_invoice_window form").serialize();
+  $.ajax({
+    url: url,
+    success: function(new_data) {
+      $("#record_list_filtered_list").html(new_data['html']);
+    }
+  });
+}
+
+function add_selected_invoices() {
+  var url="controller.pl?action=BankTransaction/ajax_accept_invoices&" + 'bt_id=[% SELF.transaction.id %]&' + $("#assign_invoice_window form").serialize();
+  $.ajax({
+    url: url,
+    success: function(new_html) {
+      var invoices = document.getElementById('assigned_invoices_[% SELF.transaction.id %]');
+      if (invoices.innerHTML == '') {
+        invoices.innerHTML = new_html;
+      } else {
+        invoices.innerHTML += '<br />' + new_html;
+      }
+      $('#assign_invoice_window').dialog('close');
+    }
+  });
+}
+
+function assign_invoice_reset_form() {
+  $('#assign_invoice_window form input[type=text]').val('');
+}
+
+//-->
+</script>
+
