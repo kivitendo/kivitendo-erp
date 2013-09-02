@@ -120,11 +120,14 @@ sub action_ajax_edit_time_and_cost_estimate {
   my ($self) = @_;
 
   my $html   = $self->render('requirement_spec/_edit_time_and_cost_estimate', { output => 0 });
+  my $first  = ($self->requirement_spec->sections_sorted || [])->[0];
+  $first     = ($first->children_sorted || [])->[0] if $first;
 
   $self->js
    ->hide('#time_cost_estimate')
    ->after('#time_cost_estimate', $html)
    ->on('#time_cost_estimate INPUT[type=text]', 'keydown', 'kivi.requirement_spec.time_cost_estimate_input_key_down')
+   ->action_if($first && $first->id, 'focus', '#time_and_cost_estimate_form_complexity_id_' . $first->id)
    ->render($self);
 }
 

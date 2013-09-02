@@ -6,10 +6,10 @@
   [%- P.simple_format(item.fb_number _ ": " _ item.description) -%]
  </td>
  <td>
-  [%- L.select_tag('requirement_spec_items[].complexity_id', SELF.complexities, id=id_prefix _ '_complexity_id', title_key='description', default=item.complexity_id, style="width: 100%") %]<br>
+  [%- L.select_tag('requirement_spec_items[].complexity_id', SELF.complexities, id=id_prefix _ '_complexity_id_' _ item.id, title_key='description', default=item.complexity_id, style="width: 100%") %]<br>
  </td>
  <td>
-  [%- L.select_tag('requirement_spec_items[].risk_id', SELF.risks, id=id_prefix _ '_risk_id', title_key='description', default=item.risk_id, style="width: 100%") %]<br>
+  [%- L.select_tag('requirement_spec_items[].risk_id', SELF.risks, id=id_prefix _ '_risk_id_' _ item.id, title_key='description', default=item.risk_id, style="width: 100%") %]<br>
  </td>
  [%- IF !item.children.size -%]
   <td align="right" nowrap>[%- P.man_days_tag('requirement_spec_items[].time_estimation', item, id=id_prefix _ '_time_estimation') %]</td>
