@@ -469,7 +469,13 @@ ns.standard_time_cost_estimate_ajax_call = function(key, opt) {
     return true;
   }
 
-  var data = "action=RequirementSpec/ajax_" + key + "_time_and_cost_estimate&";
+  var add_data = '';
+  if (key == 'save_keep_open') {
+    key      = 'save';
+    add_data = 'keep_open=1&';
+  }
+
+  var data = "action=RequirementSpec/ajax_" + key + "_time_and_cost_estimate&" + add_data;
 
   if (key == 'save')
     data += $('#edit_time_cost_estimate_form').serialize()
@@ -771,6 +777,7 @@ ns.create_context_menus = function(is_template) {
     items:    $.extend({
         heading: { name: kivi.t8('Time/cost estimate actions'), className: 'context-menu-heading' }
       , save:    { name: kivi.t8('Save'),   icon: "save",  callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
+      , save_keep_open: { name: kivi.t8('Save and keep open'), icon: "save", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
       , cancel:  { name: kivi.t8('Cancel'), icon: "close", callback: kivi.requirement_spec.standard_time_cost_estimate_ajax_call }
     }, general_actions)
   });

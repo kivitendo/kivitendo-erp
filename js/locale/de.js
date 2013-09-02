@@ -45,6 +45,7 @@ namespace("kivi").setupLocale({
 "Requirement spec template actions":"Pflichtenheftvorlagen-Aktionen",
 "Revert to version":"Auf Version zurücksetzen",
 "Save":"Speichern",
+"Save and keep open":"Speichern und geöffnet lassen",
 "Section/Function block actions":"Abschnitts-/Funktionsblockaktionen",
 "Select template to paste":"Einzufügende Vorlage auswählen",
 "Text block actions":"Textblockaktionen",

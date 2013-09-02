@@ -2000,6 +2000,7 @@ $self->{texts} = {
   'Save and RFQ'                => 'Speichern und Lieferantenanfrage',
   'Save and close'              => 'Speichern und schlie&szlig;en',
   'Save and execute'            => 'Speichern und ausführen',
+  'Save and keep open'          => 'Speichern und geöffnet lassen',
   'Save as new'                 => 'als neu speichern',
   'Save document in WebDAV repository' => 'Dokument in WebDAV-Ablage speichern',
   'Save draft'                  => 'Entwurf speichern',
