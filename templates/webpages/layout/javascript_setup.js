@@ -15,9 +15,7 @@ $(function() {
       buttonImageOnly: true
   }));
 
-  $('.datepicker').each(function() {
-    $(this).datepicker();
-  });
+  kivi.reinit_widgets();
 [% END %]
 
 [% IF ajax_spinner %]

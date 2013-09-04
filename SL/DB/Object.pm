@@ -16,7 +16,7 @@ use base qw(Rose::DB::Object);
 
 my @rose_reserved_methods = qw(
   db dbh delete DESTROY error init_db _init_db insert load meta meta_class
-  not_found save_ update import
+  not_found save update import
 );
 
 sub new {

@@ -43,7 +43,7 @@ our $missing     = {};
 our @lost        = ();
 
 my %ignore_unused_templates = (
-  map { $_ => 1 } qw(common/help_overlay.html ct/testpage.html generic/autocomplete.html oe/periodic_invoices_email.txt part/testpage.html t/render.html t/render.js)
+  map { $_ => 1 } qw(ct/testpage.html generic/autocomplete.html oe/periodic_invoices_email.txt part/testpage.html t/render.html t/render.js)
 );
 
 my (%referenced_html_files, %locale, %htmllocale, %alllocales, %cached, %submit, %jslocale);
@@ -633,7 +633,7 @@ sub scan_javascript_file {
 
   while( my $line = readline($fh) ) {
     while( $line =~ m/
-                    kivi.t8
+                    \bk(?:ivi)?.t8
                     \s*
                     \(
                     \s*

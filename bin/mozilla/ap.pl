@@ -795,7 +795,7 @@ sub yes {
 sub search {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('general_ledger | vendor_invoice_edit');
+  $main::auth->assert('vendor_invoice_edit');
 
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
@@ -847,7 +847,7 @@ sub ap_transactions {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger | vendor_invoice_edit');
+  $main::auth->assert('vendor_invoice_edit');
 
   ($form->{vendor}, $form->{vendor_id}) = split(/--/, $form->{vendor});
 

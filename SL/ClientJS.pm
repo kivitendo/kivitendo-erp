@@ -13,9 +13,6 @@ use Rose::Object::MakeMethods::Generic
 );
 
 my %supported_methods = (
-  # ## Non-jQuery methods ##
-  flash        => 2,            # kivi.display_flash(<TARGET>, <ARGS>)
-
   # ## jQuery basics ##
 
   # Basic effects
@@ -70,10 +67,18 @@ my %supported_methods = (
   # Form Events
   focus        => 1,
 
-  # ## jqModal plugin ##
+  # Generic Event Handling ## pattern: $(<TARGET>).<FUNCTION>(<ARG1>, kivi.get_function_by_name(<ARG2>))
+  on           => 3,
+  off          => 3,
+  one          => 3,
+
+  # ## jQuery UI dialog plugin ## pattern: $(<TARGET>).dialog('<FUNCTION>')
 
   # Closing and removing the popup
-  jqmClose               => 1,
+  'dialog:close'         => 1,
+
+  # ## jQuery Form plugin ##
+  'ajaxForm'             => 1, # pattern: $(<TARGET>).ajaxForm({ success: eval_json_result })
 
   # ## jstree plugin ## pattern: $.jstree._reference($(<TARGET>)).<FUNCTION>(<ARGS>)
 
@@ -104,7 +109,10 @@ my %supported_methods = (
   # ## other stuff ##
   redirect_to            => 1,  # window.location.href = <TARGET>
 
+  flash                  => 2,  # kivi.display_flash(<TARGET>, <ARGS>)
   reinit_widgets         => 0,  # kivi.reinit_widgets()
+  run                    => -1, # kivi.run(<TARGET>, <ARGS>)
+  run_once_for           => 3,  # kivi.run_once_for(<TARGET>, <ARGS>)
 );
 
 sub AUTOLOAD {
@@ -125,12 +133,19 @@ sub action {
   my $num_args =  $supported_methods{$method};
 
   croak "Unsupported jQuery action: $method"                                                    unless defined $num_args;
-  croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)" if     scalar(@args) != $num_args;
 
-  if ($num_args) {
-    # Force flattening from SL::Presenter::EscapedText: "" . $...
-    $args[0] =  "" . $args[0];
-    $args[0] =~ s/^\s+//;
+  if ($num_args > 0) {
+    croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted: $num_args)" if scalar(@args) != $num_args;
+  } else {
+    $num_args *= -1;
+    croak "Parameter count mismatch for $method(actual: " . scalar(@args) . " wanted at least: $num_args)" if scalar(@args) < $num_args;
+    $num_args  = scalar @args;
+  }
+
+  foreach my $idx (0..$num_args - 1) {
+    # Force flattening from SL::Presenter::EscapedText and trim leading whitespace for scalars
+    $args[$idx] =  "" . $args[$idx] if  ref($args[$idx]) eq 'SL::Presenter::EscapedText';
+    $args[$idx] =~ s/^\s+//         if !ref($args[$idx]);
   }
 
   push @{ $self->_actions }, [ $method, @args ];
@@ -177,6 +192,12 @@ sub render {
 sub jstree {
   my ($self) = @_;
   $self->{_prefix} = 'jstree:';
+  return $self;
+}
+
+sub dialog {
+  my ($self) = @_;
+  $self->{_prefix} = 'dialog:';
   return $self;
 }
 
@@ -257,6 +278,9 @@ Now some Perl code:
     $js->jstree->rename_node('#tb-' . $text_block->id, $text_block->title)
        ->jstree->select_node('#tb-' . $text_block->id);
 
+    # Close a popup opened by kivi.popup_dialog():
+    $js->dialog->close('#jqueryui_popup_dialog');
+
     # Finally render the JSON response:
     $self->render($js);
 
@@ -318,6 +342,14 @@ Renders C<$self> via the controller. Useful for chaining. Equivalent
 to the following:
 
   $controller->render(\$self->to_json, { type => 'json' });
+
+=item C<dialog>
+
+Tells C<$self> that the next action is to be called on a jQuery UI
+dialog instance, e.g. one opened by C<kivi.popup_dialog()>. For
+example:
+
+  $js->dialog->close('#jqueryui_popup_dialog');
 
 =item C<jstree>
 
@@ -422,6 +454,26 @@ L<SL::Request/is_ajax>.
 
 =back
 
+=head2 KIVITENDO FUNCTIONS
+
+The following functions from the C<kivi> namespace are supported:
+
+=over 4
+
+=item Displaying stuff
+
+C<flash> (don't call directly, use L</flash> instead)
+
+=item Running functions
+
+C<run>, C<run_once_for>
+
+=item Widgets
+
+C<reinit_widgets>
+
+=back
+
 =head2 JQUERY FUNCTIONS
 
 The following jQuery functions are supported:
@@ -456,6 +508,10 @@ C<replaceAll>, C<replaceWith>
 
 C<attr>, C<prop>, C<removeAttr>, C<removeProp>, C<val>
 
+=item Class attributes
+
+C<addClass>, C<removeClass>, C<toggleClass>
+
 =item Data storage
 
 C<data>, C<removeData>
@@ -464,12 +520,53 @@ C<data>, C<removeData>
 
 C<focus>
 
+=item Generic Event Handlers
+
+C<on>, C<off>, C<one>
+
+These attach/detach event listeners to specific selectors. The first
+argument is the selector, the second the name of the events and the
+third argument is the name of the handler function. That function must
+already exist when the handler is added.
+
+=back
+
+=head2 JQUERY POPUP DIALOG PLUGIN
+
+Supported functions of the C<popup dialog> plugin to jQuery. They are
+invoked by first calling C<dialog> in the ClientJS instance and then
+the function itself:
+
+  $js->dialog->close(...);
+
+=over 4
+
+=item Closing and removing the popup
+
+C<close>
+
+=back
+
+=head2 AJAXFORM JQUERY PLUGIN
+
+The following functions of the C<ajaxForm> plugin to jQuery are
+supported:
+
+=over 4
+
+=item All functions by the generic accessor function:
+
+C<ajaxForm>
+
 =back
 
 =head2 JSTREE JQUERY PLUGIN
 
-The following functions of the C<jstree> plugin to jQuery are
-supported:
+Supported functions of the C<jstree> plugin to jQuery. They are
+invoked by first calling C<jstree> in the ClientJS instance and then
+the function itself:
+
+  $js->jstree->open_node(...);
 
 =over 4
 
@@ -503,7 +600,10 @@ C<js/client_js.js> accordingly. The steps are:
 
 =item 1. Add lines in this file to the C<%supported_methods> hash. The
 key is the function name and the value is the number of expected
-parameters.
+parameters. The value can be negative to indicate that the function
+takes at least the absolute of this value as parameters and optionally
+more. In such a case the C<E<lt>ARGSE<gt>> format expands to an actual
+array (and the individual elements if the value is positive>.
 
 =item 2. Run C<scripts/generate_client_js_actions.pl>. It will
 generate C<js/client_js.js> automatically.

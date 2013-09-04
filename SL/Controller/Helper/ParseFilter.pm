@@ -22,6 +22,7 @@ my %filters = (
 
 my %methods = (
   enable => sub { ;;;; },
+  eq_ignore_empty => sub { ($_[0] // '') eq '' ? () : +{ eq => $_[0] } },
   map {
     # since $_ is an alias it can't be used in a closure. even "".$_ or "$_"
     # does not work, we need a real copy.
@@ -382,6 +383,11 @@ Adds "%" at the end of the string.
 =item substr
 
 Adds "% .. %" around the search string.
+
+=item eq_ignore_empty
+
+Ignores this item if it's empty. Otherwise compares it with the
+standard SQL C<=> operator.
 
 =back
 

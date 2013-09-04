@@ -1,0 +1,47 @@
+[%- USE L %][%- USE LxERP %][%- USE HTML %]
+<form action="controller.pl" method="post">
+ <div class="filter_toggle">
+  <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8('Show Filter') %]</a>
+  [% IF SELF.filter_summary %]([% LxERP.t8("Current filter") %]: [% SELF.filter_summary %])[% END %]
+ </div>
+
+ <div class="filter_toggle" style="display:none">
+  <a href="#" onClick="javascript:$('.filter_toggle').toggle()">[% LxERP.t8('Hide Filter') %]</a>
+  <table id="filter_table">
+   <tr>
+    <th align="right">[% LxERP.t8('Package name') %]</th>
+    <td>[% L.input_tag('filter.package_name:substr::ilike', filter.package_name_substr__ilike, size = 20) %]</td>
+   </tr>
+   <tr>
+    <th align="right">[% LxERP.t8('Result') %]</th>
+    <td>[% L.input_tag('filter.result:substr::ilike', filter.result_substr__ilike, size = 20) %]</td>
+   </tr>
+   <tr>
+    <th align="right">[% LxERP.t8('Error') %]</th>
+    <td>[% L.input_tag('filter.error:substr::ilike', filter.error_substr__ilike, size = 20) %]</td>
+   </tr>
+   <tr>
+    <th align="right">[% LxERP.t8('Status') %]</th>
+    <td>[% L.select_tag('filter.status:eq_ignore_empty', [ [ '', '' ], [ 'failed', LxERP.t8('failed') ], [ 'success', LxERP.t8('succeeded') ] ], default=filter.status_eq_ignore_empty) %]</td>
+   </tr>
+   <tr>
+    <th align="right">[% LxERP.t8('Run at') %] [% LxERP.t8('From Date') %]</th>
+    <td>[% L.date_tag('filter.run_at:date::ge', filter.run_at_date__ge) %]</td>
+   </tr>
+   <tr>
+    <th align="right">[% LxERP.t8('Run at') %] [% LxERP.t8('To Date') %]</th>
+    <td>[% L.date_tag('filter.run_at:date::le', filter.run_at_date__le) %]</td>
+   </tr>
+  </table>
+
+  [% L.hidden_tag('action', 'BackgroundJobHistory/dispatch') %]
+  [% L.hidden_tag('sort_by', FORM.sort_by) %]
+  [% L.hidden_tag('sort_dir', FORM.sort_dir) %]
+  [% L.hidden_tag('page', FORM.page) %]
+  [% L.submit_tag('action_list', LxERP.t8('Continue'))%]
+
+  <a href="#" onClick="javascript:$('#filter_table input,#filter_table select').val('');">[% LxERP.t8('Reset') %]</a>
+
+ </div>
+
+</form>

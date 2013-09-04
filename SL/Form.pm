@@ -467,11 +467,12 @@ sub header {
     main menu list_accounts jquery.autocomplete
     jquery.multiselect2side
     ui-lightness/jquery-ui
-    jquery-ui.custom jqModal
+    jquery-ui.custom
   );
 
   $layout->use_javascript("$_.js") for (qw(
-    jquery jquery-ui jquery.cookie jqModal jquery.checkall jquery.download
+    jquery jquery-ui jquery.cookie jquery.checkall jquery.download
+    jquery/jquery.form client_js
     common part_selection switchmenuframe autocomplete_part
   ), "jquery/ui/i18n/jquery.ui.datepicker-$::myconfig{countrycode}");
 
@@ -1072,7 +1073,7 @@ sub parse_template {
 
   close OUT if $self->{OUT};
 
-  my $copy_to_webdav = $::instance_conf->get_webdav && $::instance_conf->get_webdav_documents && !$self->{preview};
+  my $copy_to_webdav = $::instance_conf->get_webdav && $::instance_conf->get_webdav_documents && !$self->{preview} && $self->{tmpdir} && $self->{tmpfile} && $self->{type};
 
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
@@ -1153,16 +1154,22 @@ sub parse_template {
         seek  IN, 0, 0;
 
       } else {
-        $self->{attachment_filename} = ($self->{attachment_filename})
-                                     ? $self->{attachment_filename}
-                                     : $self->generate_attachment_filename();
+        my %headers = ('-type'       => $template->get_mime_type,
+                       '-connection' => 'close',
+                       '-charset'    => 'UTF-8');
 
-        # launch application
-        print qq|Content-Type: | . $template->get_mime_type() . qq|
-Content-Disposition: attachment; filename="$self->{attachment_filename}"
-Content-Length: $numbytes
+        $self->{attachment_filename} ||= $self->generate_attachment_filename;
 
-|;
+        if ($self->{attachment_filename}) {
+          %headers = (
+            %headers,
+            '-attachment'     => $self->{attachment_filename},
+            '-content-length' => $numbytes,
+            '-charset'        => '',
+          );
+        }
+
+        print $::request->cgi->header(%headers);
 
         $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
       }
@@ -3413,7 +3420,7 @@ sub prepare_for_printing {
   }
 
   my $printer_code    = $self->{printer_code} ? '_' . $self->{printer_code} : '';
-  my $email_extension = -f ($defaults->templates . "/$self->{formname}_email${language}.${extension}") ? '_email' : '';
+  my $email_extension = $self->{media} eq 'email' && -f ($defaults->templates . "/$self->{formname}_email${language}.${extension}") ? '_email' : '';
   $self->{IN}         = "$self->{formname}${email_extension}${language}${printer_code}.${extension}";
 
   # Format dates.

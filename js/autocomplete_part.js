@@ -29,12 +29,13 @@ namespace('kivi', function(k){
     var timer;
 
     function open_dialog () {
-      open_jqm_window({
+      k.popup_dialog({
         url: 'controller.pl?action=Part/part_picker_search',
         data: $.extend({
           real_id: real_id,
         }, ajax_data($dummy.val())),
         id: 'part_selection',
+        dialog: { title: k.t8('Part picker') }
       });
       window.clearTimeout(timer);
       return true;
@@ -98,7 +99,7 @@ namespace('kivi', function(k){
     }
 
     function close_popup() {
-      $('#part_selection').jqmClose()
+      $('#part_selection').dialog('close');
     };
 
     $dummy.autocomplete({

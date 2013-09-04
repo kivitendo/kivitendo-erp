@@ -10,6 +10,7 @@ use Test::More;
 use SL::Auth;
 use SL::DBConnect;
 use SL::Form;
+use SL::InstanceConfiguration;
 use SL::LXDebug;
 use SL::Layout::None;
 use SL::LxOfficeConf;
@@ -53,6 +54,7 @@ sub setup {
   $::form          = Form->new;
   $::auth          = SL::Auth->new(unit_tests_database => 1);
   $::locale        = Locale->new('de');
+  $::instance_conf = SL::InstanceConfiguration->new;
   $db_cfg          = $::lx_office_conf{'testing/database'};
 }
 

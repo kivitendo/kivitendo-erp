@@ -398,7 +398,7 @@ sub list_contacts {
   foreach my $ref (@contacts) {
     my $row = { map { $_ => { 'data' => $ref->{$_} } } @columns };
 
-    $row->{vcname}->{link}   = build_std_url('action=edit', 'id=' . E($ref->{vcid}), 'db=' . E($ref->{db}), 'callback', @hidden_nondefault);
+    $row->{vcname}->{link}   = build_std_url('script=controller.pl', 'action=CustomerVendor/edit', 'id=' . E($ref->{vcid}), 'db=' . E($ref->{db}), 'callback', @hidden_nondefault);
     $row->{vcnumber}->{link} = $row->{vcname}->{link};
 
     for (qw(cp_email cp_privatemail)) {

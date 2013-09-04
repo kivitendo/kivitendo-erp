@@ -46,7 +46,7 @@
   [% L.button_tag('filter_record_links()', LxERP.t8("Search")) %]
   [% L.button_tag('add_selected_record_links()', LxERP.t8("Add links"), id='add_selected_record_links_button', disabled=1) %]
   <a href="#" onclick="record_links_reset_form();">[%- LxERP.t8("Reset") %]</a>
-  <a href="#" onclick="$('#record_links_add').jqmClose();">[% LxERP.t8("Cancel") %]</a>
+  <a href="#" onclick="$('#record_links_add').dialog('close');">[% LxERP.t8("Cancel") %]</a>
  </p>
 
  <hr>
@@ -58,16 +58,16 @@
 <script type="text/javascript">
 <!--
 $(function() {
-  $('.jqmWindow input[name=vc_name]').focus();
+  $('#record_links_add input[name=vc_name]').focus();
 });
 
 function record_links_reset_form() {
-  $('.jqmWindow form input[type=text]').val('');
-  $('.jqmWindow form select').prop('selectedIndex', 0);
+  $('#record_links_add form input[type=text]').val('');
+  $('#record_links_add form select').prop('selectedIndex', 0);
 }
 
 function filter_record_links() {
-  var url="controller.pl?action=RecordLinks/ajax_add_list&" + $(".jqmWindow form").serialize();
+  var url="controller.pl?action=RecordLinks/ajax_add_list&" + $("#record_links_add form").serialize();
   $.ajax({
     url: url,
     success: function(new_data) {
@@ -78,12 +78,12 @@ function filter_record_links() {
 }
 
 function add_selected_record_links() {
-  var url="controller.pl?action=RecordLinks/ajax_add_do&" + $(".jqmWindow form").serialize();
+  var url="controller.pl?action=RecordLinks/ajax_add_do&" + $("#record_links_add form").serialize();
   $.ajax({
     url: url,
     success: function(new_html) {
       $('#record_links_list').replaceWith(new_html);
-      $('#record_links_add').jqmClose();
+      $('#record_links_add').dialog('close');
     }
   });
 }

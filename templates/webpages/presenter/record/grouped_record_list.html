@@ -18,12 +18,13 @@
  <script type="text/javascript">
   <!--
 function record_links_add() {
-  open_jqm_window({ url:  'controller.pl',
-                    data: { action: 'RecordLinks/ajax_add_filter',
-                            object_model: '[% JavaScript.escape(object_model) %]',
-                            object_id: '[% JavaScript.escape(object_id) %]'
-                          },
-                    id:  'record_links_add' });
+  kivi.popup_dialog({ url:     'controller.pl',
+                      data:    { action: 'RecordLinks/ajax_add_filter',
+                                 object_model: '[% JavaScript.escape(object_model) %]',
+                                 object_id: '[% JavaScript.escape(object_id) %]'
+                               },
+                      id:     'record_links_add',
+                      dialog: { title: kivi.t8("Add linked record") } });
   return true;
 }
 

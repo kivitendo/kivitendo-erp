@@ -34,6 +34,7 @@ sub stylesheets {
   $_[0]->add_stylesheets(qw(
     dhtmlsuite/menu-item.css
     dhtmlsuite/menu-bar.css
+    icons16.css
     frame_header/header.css
     menu.css
   ));

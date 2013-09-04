@@ -491,6 +491,11 @@ sub ap_transactions {
     qq|LEFT JOIN payment_terms pt ON (pt.id = v.payment_id)|;
 
   my $where = '';
+
+  unless ( $::auth->assert('show_ap_transactions', 1) ) {
+    $where .= " AND NOT invoice = 'f' ";  # remove ap transactions from Sales -> Reports -> Invoices
+  };
+
   my @values;
 
   if ($form->{vendor_id}) {

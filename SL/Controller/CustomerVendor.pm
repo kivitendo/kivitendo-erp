@@ -18,6 +18,7 @@ use SL::DB::PaymentTerm;
 use SL::DB::Pricegroup;
 use SL::DB::Contact;
 use SL::DB::FollowUp;
+use SL::DB::FollowUpLink;
 use SL::DB::History;
 use SL::DB::Currency;
 
@@ -117,12 +118,21 @@ sub _save {
     }
 
     if( $self->{note}->subject ne '' && $self->{note}->body ne '' ) {
+
+      if ( !$self->{note_followup}->follow_up_date ) {
+        $::form->error($::locale->text('Date missing!'));
+      }
+
       $self->{note}->trans_id($self->{cv}->id);
       $self->{note}->save();
+
       $self->{note_followup}->save();
 
-      $self->{note} = SL::DB::Note->new();
-      $self->{note_followup} = SL::DB::FollowUp->new();
+      $self->{note_followup_link}->follow_up_id($self->{note_followup}->id);
+      $self->{note_followup_link}->trans_id($self->{cv}->id);
+      $self->{note_followup_link}->save();
+
+      SL::Helper::Flash::flash_later('info', $::locale->text('Follow-Up saved.'));
     }
 
     $self->{shipto}->trans_id($self->{cv}->id);
@@ -146,7 +156,25 @@ sub action_save {
 
   $self->_save();
 
-  $self->redirect_to(action => 'edit', id => $self->{cv}->id, db => $self->is_vendor() ? 'vendor' : 'customer');
+  my @redirect_params = (
+    action => 'edit',
+    id     => $self->{cv}->id,
+    db     => ($self->is_vendor() ? 'vendor' : 'customer'),
+  );
+
+  if ( $self->{contact}->cp_id ) {
+    push(@redirect_params, contact_id => $self->{contact}->cp_id);
+  }
+
+  if ( $self->{shipto}->shipto_id ) {
+    push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
+  }
+
+  if ( $self->{note}->id ) {
+    push(@redirect_params, note_id => $self->{note}->id);
+  }
+
+  $self->redirect_to(@redirect_params);
 }
 
 sub action_save_and_close {
@@ -327,13 +355,17 @@ sub action_delete_shipto {
 sub action_search {
   my ($self) = @_;
 
-  my $url = 'ct.pl?action=search&db='. ($self->is_vendor() ? 'vendor' : 'customer');
+  my @url_params = (
+    controller => 'ct.pl',
+    action => 'search',
+    db => $self->is_vendor() ? 'vendor' : 'customer',
+  );
 
   if ( $::form->{callback} ) {
-    $url .= '&callback='. $::from->escape($::form->{callback});
+    push(@url_params, callback => $::form->{callback});
   }
 
-  print $::form->redirect_header($url);
+  $self->redirect_to(@url_params);
 }
 
 
@@ -343,7 +375,7 @@ sub action_search_contact {
   my $url = 'ct.pl?action=search_contact&db=customer';
 
   if ( $::form->{callback} ) {
-    $url .= '&callback='. $::from->escape($::form->{callback});
+    $url .= '&callback='. $::form->escape($::form->{callback});
   }
 
   print $::form->redirect_header($url);
@@ -594,17 +626,33 @@ sub _instantiate_args {
 
   if ( $::form->{note}->{id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note}->{id})->load();
+
+    $self->{note_followup_link} = SL::DB::Manager::FollowUpLink->get_all(
+      query => [
+        'follow_up.note_id' => $self->{note}->id,
+        trans_id => $self->{cv}->id,
+        trans_type => ($self->is_vendor() ? 'vendor' : 'customer'),
+      ],
+      with_objects => ['follow_up'],
+    )->[0];
+
+    $self->{note_followup} = $self->{note_followup_link}->follow_up;
   } else {
     $self->{note} = SL::DB::Note->new();
+    $self->{note_followup} = SL::DB::FollowUp->new();
+    $self->{note_followup_link} = SL::DB::FollowUpLink->new();
   }
+
   $self->{note}->assign_attributes(%{$::form->{note}});
   $self->{note}->created_by($curr_employee->id);
   $self->{note}->trans_module('ct');
 
-  $self->{note_followup} = SL::DB::FollowUp->new();
   $self->{note_followup}->assign_attributes(%{$::form->{note_followup}});
   $self->{note_followup}->note($self->{note});
   $self->{note_followup}->created_by($curr_employee->id);
+
+  $self->{note_followup_link}->trans_type($self->is_vendor() ? 'vendor' : 'customer');
+  $self->{note_followup_link}->trans_info($self->{cv}->name);
 
   if ( $::form->{shipto}->{shipto_id} ) {
     $self->{shipto} = SL::DB::Shipto->new(shipto_id => $::form->{shipto}->{shipto_id})->load();
@@ -641,8 +689,24 @@ sub _load_customer_vendor {
     $self->{cv} = SL::DB::Customer->new(id => $::form->{id})->load();
   }
 
-  $self->{note} = SL::DB::Note->new();
-  $self->{note_followup} = SL::DB::FollowUp->new();
+  if ( $::form->{note_id} ) {
+    $self->{note} = SL::DB::Note->new(id => $::form->{note_id})->load();
+
+    $self->{note_followup_link} = SL::DB::Manager::FollowUpLink->get_all(
+      query => [
+        'follow_up.note_id' => $self->{note}->id,
+        trans_id => $self->{cv}->id,
+        trans_type => ($self->is_vendor() ? 'vendor' : 'customer'),
+      ],
+      with_objects => ['follow_up'],
+    )->[0];
+
+    $self->{note_followup} = $self->{note_followup_link}->follow_up;
+  } else {
+    $self->{note} = SL::DB::Note->new();
+    $self->{note_followup} = SL::DB::FollowUp->new();
+    $self->{note_followup_link} = SL::DB::FollowUpLink->new();
+  }
 
   if ( $::form->{shipto_id} ) {
     $self->{shipto} = SL::DB::Shipto->new(shipto_id => $::form->{shipto_id})->load();

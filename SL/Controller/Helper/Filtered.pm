@@ -138,7 +138,7 @@ sub _callback_handler_for_filtered {
 
   if (_is_enabled($self) && $priv->{filter}) {
     my $filter_spec = $self->get_filter_spec;
-    my ($flattened) = SL::Controller::Helper::ParseFilter::flatten($priv->{filter}, undef, $filter_spec->{FORM_PARAMS});
+    my ($flattened) = SL::Controller::Helper::ParseFilter::flatten($priv->{filter}, $filter_spec->{FORM_PARAMS});
     %params         = (%params, @$flattened);
   }
 
