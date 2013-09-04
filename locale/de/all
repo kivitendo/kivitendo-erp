@@ -1545,6 +1545,7 @@ $self->{texts} = {
   'Posting Configuration'       => 'Buchungskonfiguration',
   'Postscript'                  => 'Postscript',
   'Posustva_coa'                => 'USTVA Kennz.',
+  'Precision'                   => 'Genauigkeit',
   'Preferences'                 => 'Einstellungen',
   'Preferences saved!'          => 'Einstellungen gespeichert!',
   'Prefix for the new bins\' names' => 'Namenspr&auml;fix f&uuml;r die neuen Lagerpl&auml;tze',
