@@ -2146,7 +2146,7 @@ sub _get_taxzones {
 
   $key = "all_taxzones" unless ($key);
 
-  my $query = qq|SELECT * FROM tax_zones ORDER BY id|;
+  my $query = qq|SELECT * FROM tax_zones ORDER BY sortkey|;
 
   $self->{$key} = selectall_hashref_query($self, $dbh, $query);
 
