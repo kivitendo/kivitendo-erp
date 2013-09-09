@@ -20,7 +20,7 @@ sub action_list {
   );
 
   my $db_args = $self->setup_for_list(%list_params);
-  $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args, per_page => 10);
+  $self->{pages} = SL::DB::Manager::OrderItem->paginate(%list_params, args => $db_args, per_page => 5);
 
   my $bottom = $::form->parse_html_template('price_information/report_bottom', { SELF => $self });
 
@@ -34,7 +34,7 @@ sub action_list {
 
   my $orderitems = SL::DB::Manager::OrderItem->get_all(%$db_args);
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems, options => { no_layout => 1 });
+  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems, layout => 0, header => 0);
 }
 
 # private functions
