@@ -9,6 +9,7 @@ use Clone qw(clone);
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
+use SL::Controller::Helper::Filtered;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
 use SL::CVar;
@@ -23,16 +24,20 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(project db_args flat_filter linked_records) ],
+ scalar => [ qw(project linked_records) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_project', only => [ qw(edit update destroy) ]);
 
-__PACKAGE__->get_models_url_params('flat_filter');
+__PACKAGE__->make_filtered(
+  MODEL         => 'Project',
+  LAUNDER_TO    => 'filter',
+  ONLY          => [ qw(list) ],
+);
 __PACKAGE__->make_paginated(
   MODEL         => 'Project',
-  PAGINATE_ARGS => 'db_args',
+#  PAGINATE_ARGS => 'db_args',
   ONLY          => [ qw(list) ],
 );
 
@@ -71,13 +76,13 @@ sub action_search {
 sub action_list {
   my ($self) = @_;
 
-  $self->setup_db_args_from_filter;
-  $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });
   # $self->make_filter_summary;
 
-  $self->prepare_report;
+  my $projects = $self->get_models(
+    with_objects => [ 'customer' ],
+  );
 
-  my $projects = $self->get_models(%{ $self->db_args });
+  $self->prepare_report;
 
   $self->report_generator_list_objects(report => $self->{report}, objects => $projects);
 }
@@ -200,35 +205,6 @@ sub setup_db_args_from_filter {
   );
 
   $self->db_args(\%args);
-}
-
-# unfortunately ParseFilter can't handle compount filters.
-# so we clone the original filter (still need that for serializing)
-# rip out the options we know an replace them with the compound options.
-# ParseFilter will take care of the prefixing then.
-sub _pre_parse_filter {
-  my ($self, $orig_filter, $launder_to) = @_;
-
-  return undef unless $orig_filter;
-
-  my $filter = clone($orig_filter);
-
-  $launder_to->{active} = delete $filter->{active};
-  if ($orig_filter->{active} ne 'both') {
-    push @{ $filter->{and} }, $orig_filter->{active} eq 'active' ? (active => 1) : (or => [ active => 0, active => undef ]);
-  }
-
-  $launder_to->{valid} = delete $filter->{valid};
-  if ($orig_filter->{valid} ne 'both') {
-    push @{ $filter->{and} }, $orig_filter->{valid} eq 'valid' ? (valid => 1) : (or => [ valid => 0, valid => undef ]);
-  }
-
-  $launder_to->{status} = delete $filter->{status};
-  if ($orig_filter->{status} ne 'all') {
-    push @{ $filter->{and} }, SL::DB::Manager::Project->is_not_used_filter;
-  }
-
-  return $filter;
 }
 
 sub prepare_report {
