@@ -16,8 +16,6 @@ sub register_get_models_handlers {
   $only           = [ $only ] if !ref $only;
   my %hook_params = @{ $only } ? ( only => $only ) : ();
 
-  $class->run_before(sub { $_[0]->{PRIV()} = { current_action => $_[1] }; }, %hook_params);
-
   my $handlers    = _registered_handlers($class);
   map { push @{ $handlers->{$_} }, $additional_handlers{$_} if $additional_handlers{$_} } keys %$handlers;
 }
@@ -41,7 +39,7 @@ sub get_models_url_params {
 sub get_callback {
   my ($self, %override_params) = @_;
 
-  my %default_params = _run_handlers($self, 'callback', action => ($self->{PRIV()} || {})->{current_action});
+  my %default_params = _run_handlers($self, 'callback', action => $self->action_name);
 
   return $self->url_for(%default_params, %override_params);
 }
