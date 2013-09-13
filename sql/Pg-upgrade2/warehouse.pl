@@ -140,7 +140,7 @@ SQL
     print_question();
     return 2;
   } else {
-    if ($::form->{do_migrate} eq 'Y') {
+    if (defined $::form->{do_migrate} && $::form->{do_migrate} eq 'Y') {
       # if yes, both warehouse and bin must be given
       if (!$::form->{import_warehouse} || !$::form->{bin_default}) {
         print_question();
@@ -150,8 +150,8 @@ SQL
       $do_sql_migration = 1;
     }
   }
-  my $warehouse = $::form->{import_warehouse} ne '' ? $::form->{import_warehouse} : "Transfer";
-  my $bin       = $::form->{bin_default}      ne '' ? $::form->{bin_default}      : "1";
+  my $warehouse = defined $::form->{import_warehouse} && $::form->{import_warehouse} ne '' ? $::form->{import_warehouse} : "Transfer";
+  my $bin       = defined $::form->{bin_default}      && $::form->{bin_default}      ne '' ? $::form->{bin_default}      : "1";
 
   $warehouse    = $self->dbh->quote($warehouse);
   $bin          = $self->dbh->quote($bin);
