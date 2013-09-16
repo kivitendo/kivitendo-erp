@@ -465,17 +465,19 @@ sub paginate_controls {
   my ($self, %params) = _hashify(1, @_);
 
   my $controller      = $self->{CONTEXT}->stash->get('SELF');
-  my $paginate_spec   = $controller->get_paginate_spec;
-  my %paginate_params = $controller->get_current_paginate_params;
+  my $pager           = $params{models}->paginated;
+#  my $paginate_spec   = $controller->get_paginate_spec;
+
+  my %paginate_params = $params{models}->get_paginate_args;
 
   my %template_params = (
     pages             => \%paginate_params,
     url_maker         => sub {
       my %url_params                                    = _hashify(0, @_);
-      $url_params{ $paginate_spec->{FORM_PARAMS}->[0] } = delete $url_params{page};
-      $url_params{ $paginate_spec->{FORM_PARAMS}->[1] } = delete $url_params{per_page} if exists $url_params{per_page};
+      $url_params{ $pager->form_params->[0] } = delete $url_params{page};
+      $url_params{ $pager->form_params->[1] } = delete $url_params{per_page} if exists $url_params{per_page};
 
-      return $controller->get_callback(%url_params);
+      return $params{models}->get_callback(%url_params);
     },
     %params,
   );

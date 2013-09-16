@@ -2,21 +2,48 @@ package SL::Controller::Helper::GetModels;
 
 use strict;
 
-use Exporter qw(import);
-our @EXPORT = qw(get_models_url_params get_callback get_models);
+use parent 'Rose::Object';
+use SL::Controller::Helper::GetModels::Filtered;
+use SL::Controller::Helper::GetModels::Sorted;
+use SL::Controller::Helper::GetModels::Paginated;
+
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(controller model query with_objects filtered sorted paginated) ],
+  'scalar --get_set_init' => [ qw(handlers) ],
+);
 
 use constant PRIV => '__getmodelshelperpriv';
 
-my $registered_handlers = {};
+#my $registered_handlers = {};
 
-sub register_get_models_handlers {
-  my ($class, %additional_handlers) = @_;
+sub init {
+  my ($self, %params) = @_;
 
-  my $only        = delete($additional_handlers{ONLY}) || [];
-  $only           = [ $only ] if !ref $only;
-  my %hook_params = @{ $only } ? ( only => $only ) : ();
+#  for my $plugin (qw(filtered sorted paginated)) {
+#    next unless $params{$plugin};
+#    $self->${ \"make_$plugin" }(%{ delete $params{$plugin} || {} });
+#  }
+#
+  # TODO: default model
+  $self->model(delete $params{model});
 
-  my $handlers    = _registered_handlers($class);
+  for my $plugin (qw(filtered sorted paginated)) {
+    next unless my $spec = delete $params{$plugin} // {};
+    my $plugin_class = "SL::Controller::Helper::GetModels::" . ucfirst $plugin;
+    $self->$plugin($plugin_class->new(%$spec, get_models => $self));
+  }
+
+  $self->SUPER::init(%params);
+}
+
+sub register_handlers {
+  my ($self, %additional_handlers) = @_;
+
+#  my $only        = delete($additional_handlers{ONLY}) || [];
+#  $only           = [ $only ] if !ref $only;
+#  my %hook_params = @{ $only } ? ( only => $only ) : ();
+
+  my $handlers    = $self->handlers;
   map { push @{ $handlers->{$_} }, $additional_handlers{$_} if $additional_handlers{$_} } keys %$handlers;
 }
 
@@ -39,19 +66,34 @@ sub get_models_url_params {
 sub get_callback {
   my ($self, %override_params) = @_;
 
-  my %default_params = _run_handlers($self, 'callback', action => $self->action_name);
+  my %default_params = $self->_run_handlers('callback', action => $self->controller->action_name);
 
-  return $self->url_for(%default_params, %override_params);
+  return $self->controller->url_for(%default_params, %override_params);
 }
 
-sub get_models {
-  my ($self, %override_params) = @_;
+sub get {
+  my ($self, %params) = @_;
 
-  my %params                   = _run_handlers($self, 'get_models', %override_params);
+  push @{ $params{query}        ||= [] }, @{ $self->query || [] };
+  push @{ $params{with_objects} ||= [] }, @{ $self->with_objects || [] };
 
-  my $model                    = delete($params{model}) || die "No 'model' to work on";
+  %params                      = $self->_run_handlers('get_models', %params);
 
-  return "SL::DB::Manager::${model}"->get_all(%params);
+  return $self->manager->get_all(%params);
+}
+
+sub get_paginate_args {
+  my ($self, %params) = @_;
+
+  push @{ $params{query}        ||= [] }, @{ $self->query || [] };
+  push @{ $params{with_objects} ||= [] }, @{ $self->with_objects || [] };
+
+  $self->paginated->get_current_paginate_params(%params);
+}
+
+sub manager {
+  die "No 'model' to work on" unless $_[0]->model;
+  "SL::DB::Manager::" . $_[0]->model;
 }
 
 #
@@ -61,7 +103,7 @@ sub get_models {
 sub _run_handlers {
   my ($self, $handler_type, %params) = @_;
 
-  foreach my $sub (@{ _registered_handlers(ref $self)->{$handler_type} }) {
+  foreach my $sub (@{ $self->handlers->{$handler_type} }) {
     if (ref $sub eq 'CODE') {
       %params = $sub->($self, %params);
     } elsif ($self->can($sub)) {
@@ -74,8 +116,11 @@ sub _run_handlers {
   return %params;
 }
 
-sub _registered_handlers {
-  $registered_handlers->{$_[0]} //= { callback => [], get_models => [] }
+sub init_handlers {
+  {
+    callback => [],
+    get_models => [],
+  }
 }
 
 1;

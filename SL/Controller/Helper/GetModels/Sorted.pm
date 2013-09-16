@@ -1,77 +1,67 @@
-package SL::Controller::Helper::Sorted;
+package SL::Controller::Helper::GetModels::Sorted;
 
 use strict;
+use parent 'SL::Controller::Helper::GetModels::Base';
 
 use Carp;
 use List::MoreUtils qw(uniq);
 
-use Exporter qw(import);
-our @EXPORT = qw(make_sorted get_sort_spec get_current_sort_params set_report_generator_sort_options
-                 _save_current_sort_params _get_models_handler_for_sorted _callback_handler_for_sorted);
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(by dir specs) ],
+  'scalar --get_set_init' => [ qw(form_params) ],
+);
 
-use constant PRIV => '__sortedhelperpriv';
+sub init {
+  my ($self, %specs) = @_;
 
-my %controller_sort_spec;
+  $self->set_get_models(delete $specs{get_models});
+  my %model_sort_spec   = $self->get_models->manager->_sort_spec;
 
-sub make_sorted {
-  my ($class, %specs) = @_;
-
-  $specs{MODEL} ||=  $class->controller_name;
-  $specs{MODEL}   =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
+  if (my $default = delete $specs{_default}) {
+    $self->by ($default->{by});
+    $self->dir($default->{dir});
+  } else {
+    $self->by ($model_sort_spec{default}[0]);
+    $self->dir($model_sort_spec{default}[1]);
+  }
 
   while (my ($column, $spec) = each %specs) {
     next if $column =~ m/^[A-Z_]+$/;
 
     $spec = $specs{$column} = { title => $spec } if (ref($spec) || '') ne 'HASH';
 
-    $spec->{model}        ||= $specs{MODEL};
+    $spec->{model}        ||= $self->get_models->model;
     $spec->{model_column} ||= $column;
   }
+  $self->specs(\%specs);
 
-  my %model_sort_spec   = "SL::DB::Manager::$specs{MODEL}"->_sort_spec;
-  $specs{DEFAULT_DIR}   = $specs{DEFAULT_DIR} ? 1 : defined($specs{DEFAULT_DIR}) ? $specs{DEFAULT_DIR} * 1 : $model_sort_spec{default}->[1];
-  $specs{DEFAULT_BY}  ||= $model_sort_spec{default}->[0];
-  $specs{FORM_PARAMS} ||= [ qw(sort_by sort_dir) ];
-  $specs{ONLY}        ||= [];
-  $specs{ONLY}          = [ $specs{ONLY} ] if !ref $specs{ONLY};
-
-  $controller_sort_spec{$class} = \%specs;
-
-  my %hook_params = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
-  $class->run_before('_save_current_sort_params', %hook_params);
-
-  SL::Controller::Helper::GetModels::register_get_models_handlers(
-    $class,
-    callback   => '_callback_handler_for_sorted',
-    get_models => '_get_models_handler_for_sorted',
-    ONLY       => $specs{ONLY},
+  $self->get_models->register_handlers(
+    callback   => sub { shift; $self->_callback_handler_for_sorted(@_) },
+    get_models => sub { shift; $self->_get_models_handler_for_sorted(@_) },
   );
 
-  # $::lxdebug->dump(0, "CONSPEC", \%specs);
-}
-
-sub get_sort_spec {
-  my ($class_or_self) = @_;
-
-  return $controller_sort_spec{ref($class_or_self) || $class_or_self};
+#   $::lxdebug->dump(0, "CONSPEC", \%specs);
 }
 
 sub get_current_sort_params {
   my ($self, %params) = @_;
 
-  my $sort_spec = $self->get_sort_spec;
+  my %sort_params;
+  my ($by, $dir) = @{ $self->form_params };
 
-  if (!$params{sort_by}) {
-    my $priv          = $self->{PRIV()} || {};
-    $params{sort_by}  = $priv->{by};
-    $params{sort_dir} = $priv->{dir};
+  if ($::form->{ $by }) {
+    %sort_params = (
+      sort_by  => $::form->{$by},
+      sort_dir => defined($::form->{$dir}) ? $::form->{$dir} * 1 : undef,
+    );
+  } elsif (!$self->by) {
+    %sort_params = %params;
+  } else {
+    %sort_params = (
+      sort_by  => $self->by,
+      sort_dir => $self->dir,
+    );
   }
-
-  my $by          = $params{sort_by} || $sort_spec->{DEFAULT_BY};
-  my %sort_params = (
-    dir => defined($params{sort_dir}) ? $params{sort_dir} * 1 : $sort_spec->{DEFAULT_DIR},
-    by  => $sort_spec->{$by} ? $by : $sort_spec->{DEFAULT_BY},
-  );
 
   return %sort_params;
 }
@@ -84,18 +74,18 @@ sub set_report_generator_sort_options {
   my %current_sort_params = $self->get_current_sort_params;
 
   foreach my $col (@{ $params{sortable_columns} }) {
-    $params{report}->{columns}->{$col}->{link} = $self->get_callback(
+    $params{report}->{columns}->{$col}->{link} = $self->get_models->get_callback(
       sort_by  => $col,
-      sort_dir => ($current_sort_params{by} eq $col ? 1 - $current_sort_params{dir} : $current_sort_params{dir}),
+      sort_dir => ($current_sort_params{sort_by} eq $col ? 1 - $current_sort_params{sort_dir} : $current_sort_params{sort_dir}),
     );
   }
 
-  $params{report}->set_sort_indicator($current_sort_params{by}, 1 - $current_sort_params{dir});
+  $params{report}->set_sort_indicator($current_sort_params{sort_by}, 1 - $current_sort_params{sort_dir});
 
   if ($params{report}->{export}) {
     $params{report}->{export}->{variable_list} = [ uniq(
       @{ $params{report}->{export}->{variable_list} },
-      @{ $self->get_sort_spec->{FORM_PARAMS} }
+      @{ $self->form_params }
     )];
   }
 }
@@ -104,27 +94,13 @@ sub set_report_generator_sort_options {
 # private functions
 #
 
-sub _save_current_sort_params {
-  my ($self)      = @_;
-
-  my $sort_spec   = $self->get_sort_spec;
-  my $dir_idx     = $sort_spec->{FORM_PARAMS}->[1];
-  $self->{PRIV()} = {
-    by            =>   $::form->{ $sort_spec->{FORM_PARAMS}->[0] },
-    dir           => defined($::form->{$dir_idx}) ? $::form->{$dir_idx} * 1 : undef,
-  };
-
-  # $::lxdebug->message(0, "saving current sort params to " . $self->{PRIV()}->{by} . ' / ' . $self->{PRIV()}->{dir});
-}
-
 sub _callback_handler_for_sorted {
   my ($self, %params) = @_;
+  my %spec = $self->get_current_sort_params;
 
-  my $priv = $self->{PRIV()} || {};
-  if ($priv->{by}) {
-    my $sort_spec                             = $self->get_sort_spec;
-    $params{ $sort_spec->{FORM_PARAMS}->[0] } = $priv->{by};
-    $params{ $sort_spec->{FORM_PARAMS}->[1] } = $priv->{dir};
+  if ($spec{sort_by}) {
+    $params{ $self->form_params->[0] } = $spec{sort_by};
+    $params{ $self->form_params->[1] } = $spec{sort_dir};
   }
 
   # $::lxdebug->dump(0, "CB handler for sorted; params nach modif:", \%params);
@@ -136,14 +112,18 @@ sub _get_models_handler_for_sorted {
   my ($self, %params) = @_;
 
   my %sort_params     = $self->get_current_sort_params;
-  my $sort_spec       = $self->get_sort_spec->{ $sort_params{by} };
+  my $sort_spec       = $self->specs->{ $sort_params{sort_by} };
 
-  $params{model}      = $sort_spec->{model};
-  $params{sort_by}    = "SL::DB::Manager::$params{model}"->make_sort_string(sort_by => $sort_spec->{model_column}, sort_dir => $sort_params{dir});
+  $params{sort_by}    = "SL::DB::Manager::$sort_spec->{model}"->make_sort_string(sort_by => $sort_spec->{model_column}, sort_dir => $sort_params{sort_dir});
 
   # $::lxdebug->dump(0, "GM handler for sorted; params nach modif:", \%params);
 
   return %params;
+}
+
+
+sub init_form_params {
+  [ qw(sort_by sort_dir) ]
 }
 
 1;

@@ -1,71 +1,48 @@
-package SL::Controller::Helper::Paginated;
+package SL::Controller::Helper::GetModels::Paginated;
 
 use strict;
-
-use Exporter qw(import);
-our @EXPORT = qw(make_paginated get_paginate_spec get_current_paginate_params _save_current_paginate_params _get_models_handler_for_paginated _callback_handler_for_paginated disable_pagination);
-
-use constant PRIV => '__paginatedhelper_priv';
+use parent 'SL::Controller::Helper::GetModels::Base';
 
 use List::Util qw(min);
 
-my %controller_paginate_spec;
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(disabled per_page) ],
+  'scalar --get_set_init' => [ qw(form_params paginate_args) ],
+);
 
-sub make_paginated {
-  my ($class, %specs)               = @_;
+sub init {
+  my ($self, %specs)               = @_;
 
-  $specs{MODEL}                   ||=  $class->controller_name;
-  $specs{MODEL}                     =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
-  $specs{PER_PAGE}                ||= "SL::DB::Manager::$specs{MODEL}"->default_objects_per_page;
-  $specs{FORM_PARAMS}             ||= [ qw(page per_page) ];
-  $specs{PAGINATE_ARGS}           ||= '__FILTER__';
-  $specs{ONLY}                    ||= [];
-  $specs{ONLY}                      = [ $specs{ONLY} ] if !ref $specs{ONLY};
-  $specs{ONLY_MAP}                  = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
+  $self->set_get_models(delete $specs{get_models});
+  $self->SUPER::init(%specs);
 
-  $controller_paginate_spec{$class} = \%specs;
+  $self->per_page($self->get_models->manager->default_objects_per_page) unless $self->per_page;
 
-  my %hook_params                   = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
-  $class->run_before('_save_current_paginate_params', %hook_params);
-
-  SL::Controller::Helper::GetModels::register_get_models_handlers(
-    $class,
-    callback   => '_callback_handler_for_paginated',
-    get_models => '_get_models_handler_for_paginated',
-    ONLY       => $specs{ONLY},
+  $self->get_models->register_handlers(
+    callback   => sub { shift; $self->_callback_handler_for_paginated(@_) },
+    get_models => sub { shift; $self->_get_models_handler_for_paginated(@_) },
   );
 
   # $::lxdebug->dump(0, "CONSPEC", \%specs);
 }
 
-sub get_paginate_spec {
-  my ($class_or_self) = @_;
-
-  return $controller_paginate_spec{ref($class_or_self) || $class_or_self};
-}
-
 sub get_current_paginate_params {
-  my ($self, %params)   = @_;
+  my ($self, %args)   = @_;
+  return () unless $self->is_enabled;
 
-  my $spec              = $self->get_paginate_spec;
-
-  my $priv              = _priv($self);
-  $params{page}         = $priv->{page}     unless defined $params{page};
-  $params{per_page}     = $priv->{per_page} unless defined $params{per_page};
-
-  my %paginate_params   =  (
-    page                => ($params{page}     * 1) || 1,
-    per_page            => ($params{per_page} * 1) || $spec->{PER_PAGE},
-  );
+  my %paginate_params = $self->final_params(%args);
 
   # try to use Filtered if available and nothing else is configured, but don't
   # blow up if the controller does not use Filtered
-  my %paginate_args     = ref($spec->{PAGINATE_ARGS}) eq 'CODE'       ? %{ $spec->{PAGINATE_ARGS}->($self) }
-                        :     $spec->{PAGINATE_ARGS}  eq '__FILTER__'
-                           && $self->can('get_current_filter_params') ? $self->get_current_filter_params
-                        :     $spec->{PAGINATE_ARGS}  ne '__FILTER__' ? do { my $sub = $spec->{PAGINATE_ARGS}; %{ $self->$sub() } }
+  my %paginate_args     = ref($self->paginate_args) eq 'CODE'       ? %{ $self->paginate_args->($self) }
+                        :     $self->paginate_args  eq '__FILTER__'
+                           && $self->get_models->filtered ? %{ $self->get_models->filtered->get_current_filter_params }
+                        :     $self->paginate_args  ne '__FILTER__' ? do { my $sub = $self->paginate_args; %{ $self->get_models->controller->$sub() } }
                         :                                               ();
-  my $calculated_params = "SL::DB::Manager::$spec->{MODEL}"->paginate(%paginate_params, args => \%paginate_args);
+
+  %args = $self->merge_args(\%args, \%paginate_args);
+
+  my $calculated_params = $self->get_models->manager->paginate(%paginate_params, args => \%args);
 
   # $::lxdebug->dump(0, "get_current_paginate_params: ", $calculated_params);
 
@@ -74,35 +51,47 @@ sub get_current_paginate_params {
 
 sub disable_pagination {
   my ($self)               = @_;
-  _priv($self)->{disabled} = 1;
+  $self->disabled(1);
+}
+
+sub final_params {
+  my ($self, %params)      = @_;
+
+  my $from_form = {
+    page            => $::form->{ $self->form_params->[0] } || 1,
+    per_page        => $::form->{ $self->form_params->[1] } * 1,
+  };
+
+#  my $priv              = _priv($self);
+  $params{page}         = $from_form->{page}     unless defined $params{page};
+  $params{per_page}     = $from_form->{per_page} unless defined $params{per_page};
+
+  $params{page}         = ($params{page} * 1) || 1;
+  $params{per_page}     = ($params{per_page} * 1) || $self->per_page;
+
+  %params;
 }
 
 #
 # private functions
 #
 
-sub _save_current_paginate_params {
-  my ($self)        = @_;
+sub init_form_params {
+  [ qw(page per_page) ]
+}
 
-  return if !_is_enabled($self);
-
-  my $paginate_spec = $self->get_paginate_spec;
-  $self->{PRIV()}   = {
-    page            => $::form->{ $paginate_spec->{FORM_PARAMS}->[0] } || 1,
-    per_page        => $::form->{ $paginate_spec->{FORM_PARAMS}->[1] } * 1,
-  };
-
-  # $::lxdebug->message(0, "saving current paginate params to " . $self->{PRIV()}->{page} . ' / ' . $self->{PRIV()}->{per_page});
+sub init_paginate_args {
+  '__FILTER__'
 }
 
 sub _callback_handler_for_paginated {
   my ($self, %params) = @_;
-  my $priv            = _priv($self);
+  my %form_params = $self->final_params;
+#  my $priv            = _priv($self);
 
-  if (_is_enabled($self) && $priv->{page}) {
-    my $paginate_spec                             = $self->get_paginate_spec;
-    $params{ $paginate_spec->{FORM_PARAMS}->[0] } = $priv->{page};
-    $params{ $paginate_spec->{FORM_PARAMS}->[1] } = $priv->{per_page} if $priv->{per_page};
+  if ($self->is_enabled && $form_params{page}) {
+    $params{ $self->form_params->[0] } = $form_params{page};
+    $params{ $self->form_params->[1] } = $form_params{per_page} if $form_params{per_page};
   }
 
   # $::lxdebug->dump(0, "CB handler for paginated; params nach modif:", \%params);
@@ -112,25 +101,17 @@ sub _callback_handler_for_paginated {
 
 sub _get_models_handler_for_paginated {
   my ($self, %params)    = @_;
-  my $spec               = $self->get_paginate_spec;
-  $params{model}       ||= $spec->{MODEL};
 
-  "SL::DB::Manager::$params{model}"->paginate($self->get_current_paginate_params, args => \%params) if _is_enabled($self);
+  $self->get_models->manager->paginate($self->final_params, args => \%params) if $self->is_enabled;
 
   # $::lxdebug->dump(0, "GM handler for paginated; params nach modif (is_enabled? " . _is_enabled($self) . ")", \%params);
 
   return %params;
 }
 
-sub _priv {
-  my ($self)        = @_;
-  $self->{PRIV()} ||= {};
-  return $self->{PRIV()};
-}
-
-sub _is_enabled {
+sub is_enabled {
   my ($self) = @_;
-  return !_priv($self)->{disabled} && ($self->get_paginate_spec->{ONLY_MAP}->{$self->action_name} || $self->get_paginate_spec->{ONLY_MAP}->{'__ALL__'});
+  return !$self->disabled;
 }
 
 1;

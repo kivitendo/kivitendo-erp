@@ -1,52 +1,35 @@
-package SL::Controller::Helper::Filtered;
+package SL::Controller::Helper::GetModels::Filtered;
 
 use strict;
+use parent 'SL::Controller::Helper::GetModels::Base';
 
 use Exporter qw(import);
 use SL::Controller::Helper::ParseFilter ();
 use List::MoreUtils qw(uniq);
-our @EXPORT = qw(make_filtered get_filter_spec get_current_filter_params disable_filtering _save_current_filter_params _callback_handler_for_filtered _get_models_handler_for_filtered);
 
-use constant PRIV => '__filteredhelper_priv';
+use Rose::Object::MakeMethods::Generic (
+  scalar => [ qw(disabled filter_args filter_params) ],
+  'scalar --get_set_init' => [ qw(form_params launder_to) ],
+);
 
-my %controller_filter_spec;
+sub init {
+  my ($self, %specs)             = @_;
 
-sub make_filtered {
-  my ($class, %specs)             = @_;
+  $self->set_get_models(delete $specs{get_models});
+  $self->SUPER::init(%specs);
 
-  $specs{MODEL}                 //=  $class->controller_name;
-  $specs{MODEL}                   =~ s{ ^ SL::DB:: (?: .* :: )? }{}x;
-  $specs{FORM_PARAMS}           //= 'filter';
-  $specs{LAUNDER_TO}              = '__INPLACE__' unless exists $specs{LAUNDER_TO};
-  $specs{ONLY}                  //= [];
-  $specs{ONLY}                    = [ $specs{ONLY} ] if !ref $specs{ONLY};
-  $specs{ONLY_MAP}                = @{ $specs{ONLY} } ? { map { ($_ => 1) } @{ $specs{ONLY} } } : { '__ALL__' => 1 };
-
-  $controller_filter_spec{$class} = \%specs;
-
-  my %hook_params                 = @{ $specs{ONLY} } ? ( only => $specs{ONLY} ) : ();
-  $class->run_before('_save_current_filter_params', %hook_params);
-
-  SL::Controller::Helper::GetModels::register_get_models_handlers(
-    $class,
-    callback   => '_callback_handler_for_filtered',
-    get_models => '_get_models_handler_for_filtered',
-    ONLY       => $specs{ONLY},
+  $self->get_models->register_handlers(
+    callback   => sub { shift; $self->_callback_handler_for_filtered(@_) },
+    get_models => sub { shift; $self->_get_models_handler_for_filtered(@_) },
   );
 
   # $::lxdebug->dump(0, "CONSPEC", \%specs);
 }
 
-sub get_filter_spec {
-  my ($class_or_self) = @_;
-
-  return $controller_filter_spec{ref($class_or_self) || $class_or_self};
-}
-
 sub get_current_filter_params {
   my ($self)   = @_;
 
-  return %{ _priv($self)->{filter_params} } if _priv($self)->{filter_params};
+  return $self->filter_params if $self->filter_params;
 
   require Carp;
   Carp::confess('It seems a GetModels plugin tries to access filter params before they got calculated. Make sure your make_filtered call comes first.');
@@ -55,17 +38,17 @@ sub get_current_filter_params {
 sub _make_current_filter_params {
   my ($self, %params)   = @_;
 
-  my $spec              = $self->get_filter_spec;
-  my $filter            = $params{filter} // _priv($self)->{filter} // {},
-  my %filter_args       = _get_filter_args($self, $spec);
+#  my $spec              = $self->get_filter_spec;
+  my $filter            = $params{filter} // $::form->{ $self->form_params } // {},
+  my %filter_args       = $self->_get_filter_args;
   my %parse_filter_args = (
-    class        => "SL::DB::Manager::$spec->{MODEL}",
+    class        => $self->get_models->manager,
     with_objects => $params{with_objects},
   );
   my $laundered;
-  if ($spec->{LAUNDER_TO} eq '__INPLACE__') {
-
-  } elsif ($spec->{LAUNDER_TO}) {
+  if ($self->launder_to eq '__INPLACE__') {
+    # nothing to do
+  } elsif ($self->launder_to) {
     $laundered = {};
     $parse_filter_args{launder_to} = $laundered;
   } else {
@@ -73,38 +56,39 @@ sub _make_current_filter_params {
   }
 
   my %calculated_params = SL::Controller::Helper::ParseFilter::parse_filter($filter, %parse_filter_args);
+  %calculated_params = $self->merge_args(\%calculated_params, \%filter_args, \%params);
 
-  $calculated_params{query} = [
-    @{ $calculated_params{query} || [] },
-    @{ $filter_args{      query} || [] },
-    @{ $params{           query} || [] },
-  ];
-
-  $calculated_params{with_objects} = [
-    uniq
-    @{ $calculated_params{with_objects} || [] },
-    @{ $filter_args{      with_objects} || [] },
-    @{ $params{           with_objects} || [] },
-  ];
+#  $calculated_params{query} = [
+#    @{ $calculated_params{query} || [] },
+#    @{ $filter_args{      query} || [] },
+#    @{ $params{           query} || [] },
+#  ];
+#
+#  $calculated_params{with_objects} = [
+#    uniq
+#    @{ $calculated_params{with_objects} || [] },
+#    @{ $filter_args{      with_objects} || [] },
+#    @{ $params{           with_objects} || [] },
+#  ];
 
   if ($laundered) {
-    if ($self->can($spec->{LAUNDER_TO})) {
-      $self->${\ $spec->{LAUNDER_TO} }($laundered);
+    if ($self->get_models->controller->can($self->launder_to)) {
+      $self->get_models->controller->${\ $self->launder_to }($laundered);
     } else {
-      $self->{$spec->{LAUNDER_TO}} = $laundered;
+      $self->get_models->controller->{$self->launder_to} = $laundered;
     }
   }
 
   # $::lxdebug->dump(0, "get_current_filter_params: ", \%calculated_params);
 
-  _priv($self)->{filter_params} = \%calculated_params;
+  $self->filter_params(\%calculated_params);
 
   return %calculated_params;
 }
 
 sub disable_filtering {
   my ($self)               = @_;
-  _priv($self)->{disabled} = 1;
+  $self->disabled(1);
 }
 
 #
@@ -114,32 +98,17 @@ sub disable_filtering {
 sub _get_filter_args {
   my ($self, $spec) = @_;
 
-  $spec           ||= $self->get_filter_spec;
-
-  my %filter_args   = ref($spec->{FILTER_ARGS}) eq 'CODE' ? %{ $spec->{FILTER_ARGS}->($self) }
-                    :     $spec->{FILTER_ARGS}            ? do { my $sub = $spec->{FILTER_ARGS}; %{ $self->$sub() } }
+  my %filter_args   = ref($self->filter_args) eq 'CODE' ? %{ $self->filter_args->($self) }
+                    :     $self->filter_args            ? do { my $sub = $self->filter_args; %{ $self->get_models->controller->$sub() } }
                     :                                       ();
-}
-
-sub _save_current_filter_params {
-  my ($self)        = @_;
-
-  return if !_is_enabled($self);
-
-  my $filter_spec = $self->get_filter_spec;
-  $self->{PRIV()}{filter} = $::form->{ $filter_spec->{FORM_PARAMS} };
-
-  # $::lxdebug->message(0, "saving current filter params to " . $self->{PRIV()}->{page} . ' / ' . $self->{PRIV()}->{per_page});
 }
 
 sub _callback_handler_for_filtered {
   my ($self, %params) = @_;
-  my $priv            = _priv($self);
 
-  if (_is_enabled($self) && $priv->{filter}) {
-    my $filter_spec = $self->get_filter_spec;
-    my ($flattened) = SL::Controller::Helper::ParseFilter::flatten($priv->{filter}, $filter_spec->{FORM_PARAMS});
-    %params         = (%params, @$flattened);
+  if ($self->is_enabled) {
+    my ($flattened) = SL::Controller::Helper::ParseFilter::flatten($::form->{ $self->form_params }, $self->form_params);
+    %params         = (%params, @{ $flattened || [] });
   }
 
   # $::lxdebug->dump(0, "CB handler for filtered; params after flatten:", \%params);
@@ -149,28 +118,29 @@ sub _callback_handler_for_filtered {
 
 sub _get_models_handler_for_filtered {
   my ($self, %params)    = @_;
-  my $spec               = $self->get_filter_spec;
 
   # $::lxdebug->dump(0,  "params in get_models_for_filtered", \%params);
 
   my %filter_params;
-  %filter_params = _make_current_filter_params($self, %params)  if _is_enabled($self);
+  %filter_params = $self->_make_current_filter_params(%params)  if $self->is_enabled;
 
-  # $::lxdebug->dump(0, "GM handler for filtered; params nach modif (is_enabled? " . _is_enabled($self) . ")", \%params);
+  # $::lxdebug->dump(0, "GM handler for filtered; params nach modif (is_enabled? " . $self->is_enabled . ")", \%params);
 
   return (%params, %filter_params);
 }
 
-sub _priv {
-  my ($self)        = @_;
-  $self->{PRIV()} ||= {};
-  return $self->{PRIV()};
+sub is_enabled {
+  !$_[0]->disabled;
 }
 
-sub _is_enabled {
-  my ($self) = @_;
-  return !_priv($self)->{disabled} && ($self->get_filter_spec->{ONLY_MAP}->{$self->action_name} || $self->get_filter_spec->{ONLY_MAP}->{'__ALL__'});
+sub init_form_params {
+  'filter'
 }
+
+sub init_launder_to {
+  'filter'
+}
+
 
 1;
 
