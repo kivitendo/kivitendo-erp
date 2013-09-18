@@ -70,7 +70,13 @@ sub read_params {
 
 sub finalize {
   my ($self, %params) = @_;
-  %params;
+
+  my %filter_params;
+  %filter_params = $self->read_params(%params)  if $self->is_enabled;
+
+  # $::lxdebug->dump(0, "GM handler for filtered; params nach modif (is_enabled? " . $self->is_enabled . ")", \%params);
+
+  return $self->merge_args(\%params, \%filter_params);
 }
 
 #
@@ -96,19 +102,6 @@ sub _callback_handler_for_filtered {
   # $::lxdebug->dump(0, "CB handler for filtered; params after flatten:", \%params);
 
   return %params;
-}
-
-sub _get_models_handler_for_filtered {
-  my ($self, %params)    = @_;
-
-  # $::lxdebug->dump(0,  "params in get_models_for_filtered", \%params);
-
-  my %filter_params;
-  %filter_params = $self->read_params(%params)  if $self->is_enabled;
-
-  # $::lxdebug->dump(0, "GM handler for filtered; params nach modif (is_enabled? " . $self->is_enabled . ")", \%params);
-
-  return $self->merge_args(\%params, \%filter_params);
 }
 
 sub init_form_params {

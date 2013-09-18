@@ -23,7 +23,6 @@ use constant PRIV => '__getmodelshelperpriv';
 sub get {
   my ($self) = @_;
   my %params = $self->finalize;
-  %params = $self->_run_handlers('get_models', %params);
 
   return $self->manager->get_all(%params);
 }
@@ -160,7 +159,6 @@ sub _run_handlers {
 sub init_handlers {
   {
     callback => [],
-    get_models => [],
   }
 }
 

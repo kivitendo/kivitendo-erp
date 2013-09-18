@@ -27,10 +27,10 @@ sub merge_args {
     $final_args->{$field} = [ map { @{ $_->{$field} || [] } } @args ];
   }
 
-  for my $field (qw(page per_page sort_by sort_dir )) {
+  for my $field (qw(page per_page sort_by)) {
     for my $arg (@args) {
-      next unless defined $_->{$field};
-      $final_args->{$field} //= $_->{$field};
+      next unless defined $arg->{$field};
+      $final_args->{$field} //= $arg->{$field};
     }
   }
 

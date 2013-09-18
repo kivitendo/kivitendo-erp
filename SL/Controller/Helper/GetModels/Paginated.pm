@@ -96,15 +96,6 @@ sub _callback_handler_for_paginated {
   return %params;
 }
 
-sub _get_models_handler_for_paginated {
-  my ($self, %params)    = @_;
-
-  $self->get_models->manager->paginate(%{ $self->calculated_params }, args => \%params) if $self->is_enabled;
-
-  # $::lxdebug->dump(0, "GM handler for paginated; params nach modif (is_enabled? " . _is_enabled($self) . ")", \%params);
-  return %params;
-}
-
 sub init_form_params {
   [ qw(page per_page) ]
 }

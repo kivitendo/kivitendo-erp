@@ -73,6 +73,12 @@ sub read_params {
 
 sub finalize {
   my ($self, %params) = @_;
+
+  my %sort_params     = $self->read_params;
+  my $sort_spec       = $self->specs->{ $sort_params{sort_by} };
+
+  $params{sort_by}    = "SL::DB::Manager::$sort_spec->{model}"->make_sort_string(sort_by => $sort_spec->{model_column}, sort_dir => $sort_params{sort_dir});
+
   %params;
 }
 
@@ -118,18 +124,15 @@ sub _callback_handler_for_sorted {
   return %params;
 }
 
-sub _get_models_handler_for_sorted {
-  my ($self, %params) = @_;
-
-  my %sort_params     = $self->read_params;
-  my $sort_spec       = $self->specs->{ $sort_params{sort_by} };
-
-  $params{sort_by}    = "SL::DB::Manager::$sort_spec->{model}"->make_sort_string(sort_by => $sort_spec->{model_column}, sort_dir => $sort_params{sort_dir});
-
-  # $::lxdebug->dump(0, "GM handler for sorted; params nach modif:", \%params);
-
-  return %params;
-}
+#sub _get_models_handler_for_sorted {
+#  my ($self, %params) = @_;
+#
+#
+#
+#  # $::lxdebug->dump(0, "GM handler for sorted; params nach modif:", \%params);
+#
+#  return %params;
+#}
 
 
 sub init_form_params {
