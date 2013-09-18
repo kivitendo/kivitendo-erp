@@ -20,7 +20,6 @@ sub init {
 
   $self->get_models->register_handlers(
     callback   => sub { shift; $self->_callback_handler_for_paginated(@_) },
-    get_models => sub { shift; $self->_get_models_handler_for_paginated(@_) },
   );
 
   # $::lxdebug->dump(0, "CONSPEC", \%specs);
