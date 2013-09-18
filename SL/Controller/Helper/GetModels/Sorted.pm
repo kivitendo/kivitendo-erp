@@ -7,7 +7,7 @@ use Carp;
 use List::MoreUtils qw(uniq);
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(by dir specs) ],
+  scalar => [ qw(by dir specs form_data) ],
   'scalar --get_set_init' => [ qw(form_params) ],
 );
 
@@ -43,16 +43,19 @@ sub init {
 #   $::lxdebug->dump(0, "CONSPEC", \%specs);
 }
 
-sub get_current_sort_params {
+sub read_params {
   my ($self, %params) = @_;
+
+  return %{ $self->form_data } if $self->form_data;
 
   my %sort_params;
   my ($by, $dir) = @{ $self->form_params };
+  my $source = $self->get_models->source;
 
-  if ($::form->{ $by }) {
+  if ($source->{ $by }) {
     %sort_params = (
-      sort_by  => $::form->{$by},
-      sort_dir => defined($::form->{$dir}) ? $::form->{$dir} * 1 : undef,
+      sort_by  => $source->{$by},
+      sort_dir => defined($source->{$dir}) ? $source->{$dir} * 1 : undef,
     );
   } elsif (!$self->by) {
     %sort_params = %params;
@@ -63,7 +66,14 @@ sub get_current_sort_params {
     );
   }
 
+  $self->form_data(\%sort_params);
+
   return %sort_params;
+}
+
+sub finalize {
+  my ($self, %params) = @_;
+  %params;
 }
 
 sub set_report_generator_sort_options {
@@ -71,7 +81,7 @@ sub set_report_generator_sort_options {
 
   $params{$_} or croak("Missing parameter '$_'") for qw(report sortable_columns);
 
-  my %current_sort_params = $self->get_current_sort_params;
+  my %current_sort_params = $self->read_params;
 
   foreach my $col (@{ $params{sortable_columns} }) {
     $params{report}->{columns}->{$col}->{link} = $self->get_models->get_callback(
@@ -96,7 +106,7 @@ sub set_report_generator_sort_options {
 
 sub _callback_handler_for_sorted {
   my ($self, %params) = @_;
-  my %spec = $self->get_current_sort_params;
+  my %spec = $self->read_params;
 
   if ($spec{sort_by}) {
     $params{ $self->form_params->[0] } = $spec{sort_by};
@@ -111,7 +121,7 @@ sub _callback_handler_for_sorted {
 sub _get_models_handler_for_sorted {
   my ($self, %params) = @_;
 
-  my %sort_params     = $self->get_current_sort_params;
+  my %sort_params     = $self->read_params;
   my $sort_spec       = $self->specs->{ $sort_params{sort_by} };
 
   $params{sort_by}    = "SL::DB::Manager::$sort_spec->{model}"->make_sort_string(sort_by => $sort_spec->{model_column}, sort_dir => $sort_params{sort_dir});

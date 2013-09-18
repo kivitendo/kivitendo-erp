@@ -6,7 +6,7 @@ use parent 'SL::Controller::Helper::GetModels::Base';
 use List::Util qw(min);
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(disabled per_page) ],
+  scalar => [ qw(per_page form_data paginated_args calculated_params) ],
   'scalar --get_set_init' => [ qw(form_params paginate_args) ],
 );
 
@@ -26,40 +26,15 @@ sub init {
   # $::lxdebug->dump(0, "CONSPEC", \%specs);
 }
 
-sub get_current_paginate_params {
-  my ($self, %args)   = @_;
-  return () unless $self->is_enabled;
-
-  my %paginate_params = $self->final_params(%args);
-
-  # try to use Filtered if available and nothing else is configured, but don't
-  # blow up if the controller does not use Filtered
-  my %paginate_args     = ref($self->paginate_args) eq 'CODE'       ? %{ $self->paginate_args->($self) }
-                        :     $self->paginate_args  eq '__FILTER__'
-                           && $self->get_models->filtered ? %{ $self->get_models->filtered->get_current_filter_params }
-                        :     $self->paginate_args  ne '__FILTER__' ? do { my $sub = $self->paginate_args; %{ $self->get_models->controller->$sub() } }
-                        :                                               ();
-
-  %args = $self->merge_args(\%args, \%paginate_args);
-
-  my $calculated_params = $self->get_models->manager->paginate(%paginate_params, args => \%args);
-
-  # $::lxdebug->dump(0, "get_current_paginate_params: ", $calculated_params);
-
-  return %{ $calculated_params };
-}
-
-sub disable_pagination {
-  my ($self)               = @_;
-  $self->disabled(1);
-}
-
-sub final_params {
+sub read_params {
   my ($self, %params)      = @_;
 
+  return %{ $self->form_data } if $self->form_data;
+  my $source = $self->get_models->source;
+
   my $from_form = {
-    page            => $::form->{ $self->form_params->[0] } || 1,
-    per_page        => $::form->{ $self->form_params->[1] } * 1,
+    page            => $source->{ $self->form_params->[0] } || 1,
+    per_page        => $source->{ $self->form_params->[1] } * 1,
   };
 
 #  my $priv              = _priv($self);
@@ -69,25 +44,47 @@ sub final_params {
   $params{page}         = ($params{page} * 1) || 1;
   $params{per_page}     = ($params{per_page} * 1) || $self->per_page;
 
+  $self->form_data(\%params);
+
   %params;
+}
+
+sub finalize {
+  my ($self, %args)   = @_;
+#  return () unless $self->is_enabled;
+  my %paginate_params = $self->read_params;
+
+  # try to use Filtered if available and nothing else is configured, but don't
+  # blow up if the controller does not use Filtered
+  my %paginate_args     = ref($self->paginate_args) eq 'CODE'       ? %{ $self->paginate_args->($self) }
+                        :     $self->paginate_args  eq '__FILTER__'
+                           && $self->get_models->filtered ? $self->get_models->filtered->read_params
+                        :     $self->paginate_args  ne '__FILTER__' ? do { my $sub = $self->paginate_args; %{ $self->get_models->controller->$sub() } }
+                        :                                               ();
+
+  %args = $self->merge_args(\%args, \%paginate_args);
+
+  my $calculated_params = $self->get_models->manager->paginate(%paginate_params, args => \%args);
+
+  $self->paginated_args(\%args);
+  $self->calculated_params($calculated_params);
+
+  return %args;
+}
+
+sub get_current_paginate_params {
+  my ($self, %args)   = @_;
+  return () unless $self->is_enabled;
+  %{ $self->calculated_params };
 }
 
 #
 # private functions
 #
 
-sub init_form_params {
-  [ qw(page per_page) ]
-}
-
-sub init_paginate_args {
-  '__FILTER__'
-}
-
 sub _callback_handler_for_paginated {
   my ($self, %params) = @_;
-  my %form_params = $self->final_params;
-#  my $priv            = _priv($self);
+  my %form_params = $self->read_params;
 
   if ($self->is_enabled && $form_params{page}) {
     $params{ $self->form_params->[0] } = $form_params{page};
@@ -102,16 +99,18 @@ sub _callback_handler_for_paginated {
 sub _get_models_handler_for_paginated {
   my ($self, %params)    = @_;
 
-  $self->get_models->manager->paginate($self->final_params, args => \%params) if $self->is_enabled;
+  $self->get_models->manager->paginate(%{ $self->calculated_params }, args => \%params) if $self->is_enabled;
 
   # $::lxdebug->dump(0, "GM handler for paginated; params nach modif (is_enabled? " . _is_enabled($self) . ")", \%params);
-
   return %params;
 }
 
-sub is_enabled {
-  my ($self) = @_;
-  return !$self->disabled;
+sub init_form_params {
+  [ qw(page per_page) ]
+}
+
+sub init_paginate_args {
+  '__FILTER__'
 }
 
 1;

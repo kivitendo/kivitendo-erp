@@ -8,7 +8,7 @@ use SL::Controller::Helper::ParseFilter ();
 use List::MoreUtils qw(uniq);
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(disabled filter_args filter_params) ],
+  scalar => [ qw(filter_args filter_params orig_filter) ],
   'scalar --get_set_init' => [ qw(form_params launder_to) ],
 );
 
@@ -26,20 +26,15 @@ sub init {
   # $::lxdebug->dump(0, "CONSPEC", \%specs);
 }
 
-sub get_current_filter_params {
-  my ($self)   = @_;
-
-  return $self->filter_params if $self->filter_params;
-
-  require Carp;
-  Carp::confess('It seems a GetModels plugin tries to access filter params before they got calculated. Make sure your make_filtered call comes first.');
-}
-
-sub _make_current_filter_params {
+sub read_params {
   my ($self, %params)   = @_;
 
-#  my $spec              = $self->get_filter_spec;
-  my $filter            = $params{filter} // $::form->{ $self->form_params } // {},
+  return %{ $self->filter_params } if $self->filter_params;
+  my $source = $self->get_models->source;
+
+  my $filter            = $params{filter} // $source->{ $self->form_params } // {};
+  $self->orig_filter($filter);
+
   my %filter_args       = $self->_get_filter_args;
   my %parse_filter_args = (
     class        => $self->get_models->manager,
@@ -58,19 +53,6 @@ sub _make_current_filter_params {
   my %calculated_params = SL::Controller::Helper::ParseFilter::parse_filter($filter, %parse_filter_args);
   %calculated_params = $self->merge_args(\%calculated_params, \%filter_args, \%params);
 
-#  $calculated_params{query} = [
-#    @{ $calculated_params{query} || [] },
-#    @{ $filter_args{      query} || [] },
-#    @{ $params{           query} || [] },
-#  ];
-#
-#  $calculated_params{with_objects} = [
-#    uniq
-#    @{ $calculated_params{with_objects} || [] },
-#    @{ $filter_args{      with_objects} || [] },
-#    @{ $params{           with_objects} || [] },
-#  ];
-
   if ($laundered) {
     if ($self->get_models->controller->can($self->launder_to)) {
       $self->get_models->controller->${\ $self->launder_to }($laundered);
@@ -86,9 +68,9 @@ sub _make_current_filter_params {
   return %calculated_params;
 }
 
-sub disable_filtering {
-  my ($self)               = @_;
-  $self->disabled(1);
+sub finalize {
+  my ($self, %params) = @_;
+  %params;
 }
 
 #
@@ -107,7 +89,7 @@ sub _callback_handler_for_filtered {
   my ($self, %params) = @_;
 
   if ($self->is_enabled) {
-    my ($flattened) = SL::Controller::Helper::ParseFilter::flatten($::form->{ $self->form_params }, $self->form_params);
+    my ($flattened) = SL::Controller::Helper::ParseFilter::flatten($self->orig_filter, $self->form_params);
     %params         = (%params, @{ $flattened || [] });
   }
 
@@ -122,15 +104,11 @@ sub _get_models_handler_for_filtered {
   # $::lxdebug->dump(0,  "params in get_models_for_filtered", \%params);
 
   my %filter_params;
-  %filter_params = $self->_make_current_filter_params(%params)  if $self->is_enabled;
+  %filter_params = $self->read_params(%params)  if $self->is_enabled;
 
   # $::lxdebug->dump(0, "GM handler for filtered; params nach modif (is_enabled? " . $self->is_enabled . ")", \%params);
 
-  return (%params, %filter_params);
-}
-
-sub is_enabled {
-  !$_[0]->disabled;
+  return $self->merge_args(\%params, \%filter_params);
 }
 
 sub init_form_params {

@@ -7,46 +7,107 @@ use SL::Controller::Helper::GetModels::Filtered;
 use SL::Controller::Helper::GetModels::Sorted;
 use SL::Controller::Helper::GetModels::Paginated;
 
+use Scalar::Util qw(weaken);
+
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(controller model query with_objects filtered sorted paginated) ],
-  'scalar --get_set_init' => [ qw(handlers) ],
+  scalar => [ qw(controller model query with_objects filtered sorted paginated finalized final_params) ],
+  'scalar --get_set_init' => [ qw(handlers source) ],
+  array => [ qw(plugins) ],
 );
 
 use constant PRIV => '__getmodelshelperpriv';
 
-#my $registered_handlers = {};
+
+# official interface
+
+sub get {
+  my ($self) = @_;
+  my %params = $self->finalize;
+  %params = $self->_run_handlers('get_models', %params);
+
+  return $self->manager->get_all(%params);
+}
+
+sub disable_plugin {
+  my ($self, $plugin) = @_;
+  die 'cannot change internal state after finalize was called' if $self->finalized;
+  die 'unsupported plugin' unless $self->can($plugin) && $self->$plugin && $self->$plugin->isa('SL::Controller::Helper::GetModels::Base');
+  $self->$plugin->disabled(1);
+}
+
+sub enable_plugin {
+  my ($self, $plugin) = @_;
+  die 'cannot change internal state after finalize was called' if $self->finalized;
+  die 'unsupported plugin' unless $self->can($plugin) && $self->$plugin && $self->$plugin->isa('SL::Controller::Helper::GetModels::Base');
+  $self->$plugin->disabled(0);
+}
+
+sub is_enabled_plugin {
+  my ($self, $plugin) = @_;
+  die 'unsupported plugin' unless $self->can($plugin) && $self->$plugin && $self->$plugin->isa('SL::Controller::Helper::GetModels::Base');
+  $self->$plugin->is_enabled;
+}
+
+# TODO: get better delegation
+sub set_report_generator_sort_options {
+  my ($self, %params) = @_;
+  $self->finalize;
+
+  $self->sorted->set_report_generator_sort_options(%params);
+}
+
+sub get_paginate_args {
+  my ($self) = @_;
+  my %params = $self->finalize;
+
+  $self->paginated->get_current_paginate_params(%params);
+}
 
 sub init {
   my ($self, %params) = @_;
 
-#  for my $plugin (qw(filtered sorted paginated)) {
-#    next unless $params{$plugin};
-#    $self->${ \"make_$plugin" }(%{ delete $params{$plugin} || {} });
-#  }
-#
   # TODO: default model
   $self->model(delete $params{model});
 
+  my @plugins;
   for my $plugin (qw(filtered sorted paginated)) {
     next unless my $spec = delete $params{$plugin} // {};
     my $plugin_class = "SL::Controller::Helper::GetModels::" . ucfirst $plugin;
-    $self->$plugin($plugin_class->new(%$spec, get_models => $self));
+    push @plugins, $self->$plugin($plugin_class->new(%$spec, get_models => $self));
   }
+  $self->plugins(@plugins);
 
   $self->SUPER::init(%params);
+
+  $_->read_params for $self->plugins;
+
+  weaken $self->controller if $self->controller;
+}
+
+sub finalize {
+  my ($self, %params) = @_;
+
+  return %{ $self->final_params } if $self->finalized;
+
+  push @{ $params{query}        ||= [] }, @{ $self->query || [] };
+  push @{ $params{with_objects} ||= [] }, @{ $self->with_objects || [] };
+
+  %params = $_->finalize(%params) for $self->plugins;
+
+  $self->finalized(1);
+  $self->final_params(\%params);
+
+  return %params;
 }
 
 sub register_handlers {
   my ($self, %additional_handlers) = @_;
 
-#  my $only        = delete($additional_handlers{ONLY}) || [];
-#  $only           = [ $only ] if !ref $only;
-#  my %hook_params = @{ $only } ? ( only => $only ) : ();
-
   my $handlers    = $self->handlers;
   map { push @{ $handlers->{$_} }, $additional_handlers{$_} if $additional_handlers{$_} } keys %$handlers;
 }
 
+# TODO fix this
 sub get_models_url_params {
   my ($class, $sub_name_or_code) = @_;
 
@@ -69,26 +130,6 @@ sub get_callback {
   my %default_params = $self->_run_handlers('callback', action => $self->controller->action_name);
 
   return $self->controller->url_for(%default_params, %override_params);
-}
-
-sub get {
-  my ($self, %params) = @_;
-
-  push @{ $params{query}        ||= [] }, @{ $self->query || [] };
-  push @{ $params{with_objects} ||= [] }, @{ $self->with_objects || [] };
-
-  %params                      = $self->_run_handlers('get_models', %params);
-
-  return $self->manager->get_all(%params);
-}
-
-sub get_paginate_args {
-  my ($self, %params) = @_;
-
-  push @{ $params{query}        ||= [] }, @{ $self->query || [] };
-  push @{ $params{with_objects} ||= [] }, @{ $self->with_objects || [] };
-
-  $self->paginated->get_current_paginate_params(%params);
 }
 
 sub manager {
@@ -121,6 +162,10 @@ sub init_handlers {
     callback => [],
     get_models => [],
   }
+}
+
+sub init_source {
+  $::form
 }
 
 1;

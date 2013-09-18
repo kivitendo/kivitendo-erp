@@ -16,32 +16,6 @@ use Rose::Object::MakeMethods::Generic (
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
 
-#__PACKAGE__->make_filtered(
-#  MODEL             => 'OrderItem',
-#  LAUNDER_TO        => 'filter'
-#);
-#__PACKAGE__->make_paginated(
-#  MODEL         => 'OrderItem',
-#  ONLY          => [ qw(list) ],
-#);
-#
-#__PACKAGE__->make_sorted(
-#  MODEL             => 'OrderItem',
-#  ONLY              => [ qw(list) ],
-#
-#  DEFAULT_BY        => 'reqdate',
-#  DEFAULT_DIR       => 1,
-#
-#  reqdate           => t8('Reqdate'),
-#  description       => t8('Description'),
-#  partnumber        => t8('Part Number'),
-#  qty               => t8('Qty'),
-#  shipped_qty       => t8('shipped'),
-#  not_shipped_qty   => t8('not shipped'),
-#  ordnumber         => t8('Order'),
-#  customer          => t8('Customer'),
-#);
-
 my %sort_columns = (
   reqdate           => t8('Reqdate'),
   description       => t8('Description'),
@@ -129,10 +103,10 @@ sub action_list {
   my ($self) = @_;
 
   $self->make_filter_summary;
+  $self->prepare_report;
 
   my $orderitems = $self->models->get;
 
-  $self->prepare_report;
   $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
 
@@ -164,6 +138,8 @@ sub prepare_report {
 
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
 
+  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->finalize; # for filter laundering
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'DeliveryPlan',
@@ -179,9 +155,7 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
-  $self->models->sorted->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
-
-  $self->models->paginated->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 }
 
 sub make_filter_summary {
@@ -223,7 +197,7 @@ sub init_models {
 
   SL::Controller::Helper::GetModels->new(
     controller => $self,
-    model  => 'OrderItem', # defaults to controller
+    model  => 'OrderItem',
     filtered => {
       launder_to => 'filter',
     },
