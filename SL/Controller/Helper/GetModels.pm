@@ -31,6 +31,7 @@ sub disable_plugin {
   my ($self, $plugin) = @_;
   die 'cannot change internal state after finalize was called' if $self->finalized;
   die 'unsupported plugin' unless $self->can($plugin) && $self->$plugin && $self->$plugin->isa('SL::Controller::Helper::GetModels::Base');
+
   $self->$plugin->disabled(1);
 }
 

@@ -138,15 +138,11 @@ sub prepare_report {
 
   $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
 
-  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
-  $self->models->finalize; # for filter laundering
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'DeliveryPlan',
     output_format         => 'HTML',
     top_info_text         => $::locale->text('Delivery Plan for currently outstanding sales orders'),
-    raw_top_info_text     => $self->render('delivery_plan/report_top',    { output => 0 }),
-    raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { output => 0 }, models => $self->models),
     title                 => $::locale->text('Delivery Plan'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -155,7 +151,13 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
+  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->finalize; # for filter laundering
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $report->set_options(
+    raw_top_info_text     => $self->render('delivery_plan/report_top',    { output => 0 }),
+    raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { output => 0 }, models => $self->models),
+  );
 }
 
 sub make_filter_summary {

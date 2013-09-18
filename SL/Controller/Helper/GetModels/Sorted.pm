@@ -123,17 +123,6 @@ sub _callback_handler_for_sorted {
   return %params;
 }
 
-#sub _get_models_handler_for_sorted {
-#  my ($self, %params) = @_;
-#
-#
-#
-#  # $::lxdebug->dump(0, "GM handler for sorted; params nach modif:", \%params);
-#
-#  return %params;
-#}
-
-
 sub init_form_params {
   [ qw(sort_by sort_dir) ]
 }

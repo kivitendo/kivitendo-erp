@@ -50,23 +50,26 @@ sub read_params {
 
 sub finalize {
   my ($self, %args)   = @_;
-#  return () unless $self->is_enabled;
-  my %paginate_params = $self->read_params;
 
-  # try to use Filtered if available and nothing else is configured, but don't
-  # blow up if the controller does not use Filtered
-  my %paginate_args     = ref($self->paginate_args) eq 'CODE'       ? %{ $self->paginate_args->($self) }
-                        :     $self->paginate_args  eq '__FILTER__'
-                           && $self->get_models->filtered ? $self->get_models->filtered->read_params
-                        :     $self->paginate_args  ne '__FILTER__' ? do { my $sub = $self->paginate_args; %{ $self->get_models->controller->$sub() } }
-                        :                                               ();
+  if ($self->is_enabled) {
+    my %paginate_params = $self->read_params;
 
-  %args = $self->merge_args(\%args, \%paginate_args);
+    # try to use Filtered if available and nothing else is configured, but don't
+    # blow up if the controller does not use Filtered
+    my %paginate_args     = ref($self->paginate_args) eq 'CODE'       ? %{ $self->paginate_args->($self) }
+                          :     $self->paginate_args  eq '__FILTER__'
+                             && $self->get_models->filtered ? $self->get_models->filtered->read_params
+                          :     $self->paginate_args  ne '__FILTER__' ? do { my $sub = $self->paginate_args; %{ $self->get_models->controller->$sub() } }
+                          :                                               ();
 
-  my $calculated_params = $self->get_models->manager->paginate(%paginate_params, args => \%args);
+    %args = $self->merge_args(\%args, \%paginate_args);
+
+    my $calculated_params = $self->get_models->manager->paginate(%paginate_params, args => \%args);
+
+    $self->calculated_params($calculated_params);
+  }
 
   $self->paginated_args(\%args);
-  $self->calculated_params($calculated_params);
 
   return %args;
 }
