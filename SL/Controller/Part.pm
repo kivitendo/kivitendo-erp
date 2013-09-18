@@ -71,7 +71,7 @@ sub action_part_picker_result {
 }
 
 sub init_parts {
-  $_[0]->models->get (with_objects => [ qw(unit_obj) ]);
+  $_[0]->models->get;
 }
 
 sub init_models {
@@ -86,7 +86,8 @@ sub init_models {
         dir  => 1,
       },
       partnumber  => t8('Partnumber'),
-    }
+    },
+    with_objects => [ qw(unit_obj) ],
   );
 }
 

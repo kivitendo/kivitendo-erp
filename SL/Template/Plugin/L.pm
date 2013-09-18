@@ -479,7 +479,7 @@ sub paginate_controls {
       $url_params{ $pager->form_params->[0] } = delete $url_params{page};
       $url_params{ $pager->form_params->[1] } = delete $url_params{per_page} if exists $url_params{per_page};
 
-      return $params{models}->get_callback(%url_params);
+      return $models->get_callback(%url_params);
     },
     %params,
   );
