@@ -63,6 +63,18 @@ sub get_paginate_args {
   $self->paginated->get_current_paginate_params(%params);
 }
 
+sub get_sort_spec {
+  my ($self) = @_;
+
+  $self->sorted->specs;
+}
+
+sub get_current_sort_params {
+  my ($self) = @_;
+
+  $self->sorted->read_params;
+}
+
 sub init {
   my ($self, %params) = @_;
 

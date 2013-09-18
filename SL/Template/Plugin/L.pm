@@ -443,32 +443,34 @@ sub sortable_table_header {
   my ($self, $by, %params) = _hashify(2, @_);
 
   my $controller          = $self->{CONTEXT}->stash->get('SELF');
-  my $sort_spec           = $controller->get_sort_spec;
+  my $models              = $params{models} || $self->{CONTEXT}->stash->get('MODELS');
+  my $sort_spec           = $models->get_sort_spec;
   my $by_spec             = $sort_spec->{$by};
-  my %current_sort_params = $controller->get_current_sort_params;
+  my %current_sort_params = $models->get_current_sort_params;
   my ($image, $new_dir)   = ('', $current_sort_params{dir});
   my $title               = delete($params{title}) || $::locale->text($by_spec->{title});
 
-  if ($current_sort_params{by} eq $by) {
-    my $current_dir = $current_sort_params{dir} ? 'up' : 'down';
+  if ($current_sort_params{sort_by} eq $by) {
+    my $current_dir = $current_sort_params{sort_dir} ? 'up' : 'down';
     $image          = '<img border="0" src="image/' . $current_dir . '.png">';
-    $new_dir        = 1 - ($current_sort_params{dir} || 0);
+    $new_dir        = 1 - ($current_sort_params{sort_dir} || 0);
   }
 
-  $params{ $sort_spec->{FORM_PARAMS}->[0] } = $by;
-  $params{ $sort_spec->{FORM_PARAMS}->[1] } = ($new_dir ? '1' : '0');
+  $params{ $models->sorted->form_params->[0] } = $by;
+  $params{ $models->sorted->form_params->[1] } = ($new_dir ? '1' : '0');
 
-  return '<a href="' . $controller->get_callback(%params) . '">' . _H($title) . $image . '</a>';
+  return '<a href="' . $models->get_callback(%params) . '">' . _H($title) . $image . '</a>';
 }
 
 sub paginate_controls {
   my ($self, %params) = _hashify(1, @_);
 
   my $controller      = $self->{CONTEXT}->stash->get('SELF');
-  my $pager           = $params{models}->paginated;
+  my $models          = $params{models} || $self->{CONTEXT}->stash->get('MODELS');
+  my $pager           = $models->paginated;
 #  my $paginate_spec   = $controller->get_paginate_spec;
 
-  my %paginate_params = $params{models}->get_paginate_args;
+  my %paginate_params = $models->get_paginate_args;
 
   my %template_params = (
     pages             => \%paginate_params,
