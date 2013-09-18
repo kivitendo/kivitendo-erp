@@ -7,9 +7,6 @@ use parent qw(SL::Controller::Base);
 use Clone qw(clone);
 
 use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::Paginated;
-use SL::Controller::Helper::Sorted;
-use SL::Controller::Helper::Filtered;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
 use SL::CVar;
@@ -25,35 +22,11 @@ use SL::Locale::String;
 use Rose::Object::MakeMethods::Generic
 (
  scalar => [ qw(project linked_records) ],
+ 'scalar --get_set_init' => [ qw(models) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_project', only => [ qw(edit update destroy) ]);
-
-__PACKAGE__->make_filtered(
-  MODEL         => 'Project',
-  LAUNDER_TO    => 'filter',
-  ONLY          => [ qw(list) ],
-);
-__PACKAGE__->make_paginated(
-  MODEL         => 'Project',
-#  PAGINATE_ARGS => 'db_args',
-  ONLY          => [ qw(list) ],
-);
-
-__PACKAGE__->make_sorted(
-  MODEL         => 'Project',
-  ONLY          => [ qw(list) ],
-
-  DEFAULT_BY    => 'projectnumber',
-  DEFAULT_DIR   => 1,
-
-  customer      => t8('Customer'),
-  description   => t8('Description'),
-  projectnumber => t8('Project Number'),
-  type          => t8('Type'),
-);
-
 
 #
 # actions
@@ -78,9 +51,7 @@ sub action_list {
 
   # $self->make_filter_summary;
 
-  my $projects = $self->get_models(
-    with_objects => [ 'customer' ],
-  );
+  my $projects = $self->models->get;
 
   $self->prepare_report;
 
@@ -210,7 +181,7 @@ sub setup_db_args_from_filter {
 sub prepare_report {
   my ($self)      = @_;
 
-  my $callback    = $self->get_callback;
+  my $callback    = $self->models->get_callback;
 
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
@@ -229,7 +200,7 @@ sub prepare_report {
                        text => $::locale->text('Valid')  },
   );
 
-  map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
   $report->set_options(
     std_column_visibility => 1,
@@ -245,9 +216,32 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
-  $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $self->models->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $report->set_options(
+    top_info_text         => $::locale->text('Projects'),
+    raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
+  );
+}
 
-  $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+sub init_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller => $self,
+    model  => 'Project',
+    sorted => {
+      _default => {
+        by    => 'projectnumber',
+        dir   => 1,
+      },
+      customer      => t8('Customer'),
+      description   => t8('Description'),
+      projectnumber => t8('Project Number'),
+      type          => t8('Type'),
+    },
+    with_objects => [ 'customer' ],
+  );
 }
 
 1;
