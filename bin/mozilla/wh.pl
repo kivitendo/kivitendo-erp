@@ -811,7 +811,8 @@ sub report {
   my $locale   = $main::locale;
 
   $form->get_lists('warehouses' => { 'key'    => 'WAREHOUSES',
-                                     'bins'   => 'BINS', });
+                                     'bins'   => 'BINS', },
+                   'partsgroup' => 'PARTSGROUPS');
 
   show_no_warehouses_error() if (!scalar @{ $form->{WAREHOUSES} });
 
@@ -827,8 +828,9 @@ sub report {
 
   $form->header();
   print $form->parse_html_template("wh/report_filter",
-                                   { "WAREHOUSES" => $form->{WAREHOUSES},
-                                     "UNITS"      => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)),
+                                   { "WAREHOUSES"  => $form->{WAREHOUSES},
+                                     "PARTSGROUPS" => $form->{PARTSGROUPS},
+                                     "UNITS"       => AM->unit_select_data(AM->retrieve_units(\%myconfig, $form)),
                                    });
 
   $main::lxdebug->leave_sub();
@@ -851,7 +853,7 @@ sub generate_report {
   my @columns = qw(warehousedescription bindescription partnumber type_and_classific partdescription chargenumber bestbefore comment qty partunit list_price purchase_price stock_value);
 
   # filter stuff
-  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description chargenumber bestbefore date include_invalid_warehouses);
+  map { $filter{$_} = $form->{$_} if ($form->{$_}) } qw(warehouse_id bin_id classification_id partnumber description partsgroup_id chargenumber bestbefore date include_invalid_warehouses);
 
   # show filter stuff also in report
   my @options;
@@ -868,6 +870,8 @@ sub generate_report {
    classification_id => sub { push @options, $locale->text('Parts Classification'). " : ".
                                                SL::DB::Manager::PartClassification->get_first(where => [ id => $form->{classification_id} ] )->description; },
    description    => sub { push @options, $locale->text('Description')    . " : $form->{description}"},
+   partsgroup_id  => sub { push @options, $locale->text('Partsgroup')     . " : " .
+                                            SL::DB::PartsGroup->new(id => $form->{partsgroup_id})->load->partsgroup},
    chargenumber   => sub { push @options, $locale->text('Charge Number')  . " : $form->{chargenumber}"},
    bestbefore     => sub { push @options, $locale->text('Best Before')    . " : $form->{bestbefore}"},
    include_invalid_warehouses    => sub { push @options, $locale->text('Include invalid warehouses ')},
@@ -924,7 +928,7 @@ sub generate_report {
   push @columns, map { "cvar_$_->{name}" } @includeable_custom_variables;
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description chargenumber bestbefore qty_op qty qty_unit partunit l_warehousedescription l_bindescription);
+  push @hidden_variables, qw(warehouse_id bin_id partnumber partstypes_id description partsgroup_id chargenumber bestbefore qty_op qty qty_unit partunit l_warehousedescription l_bindescription);
   push @hidden_variables, qw(include_empty_bins subtotal include_invalid_warehouses date);
   push @hidden_variables, qw(classification_id stock_value_basis allrows);
   push @hidden_variables, map({'cvar_'. $_->{name}}                                         @searchable_custom_variables);

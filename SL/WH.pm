@@ -554,6 +554,11 @@ sub get_warehouse_report {
     push @filter_vars, $filter{partsid};
   }
 
+  if ($filter{partsgroup_id}) {
+    push @filter_ary,  "p.partsgroup_id = ?";
+    push @filter_vars, $filter{partsgroup_id};
+  }
+
   if ($filter{chargenumber}) {
     push @filter_ary,  "i.chargenumber ILIKE ?";
     push @filter_vars, like($filter{chargenumber});
