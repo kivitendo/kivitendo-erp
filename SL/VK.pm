@@ -53,15 +53,9 @@ sub invoice_transactions {
   # default usage: always use parts.description for (sub-)totalling and in header and subheader lines
   # but use invoice.description in article mode
   # so we extract both versions in our query and later overwrite the description in article mode
-#    qq| , (SELECT sum(invoice.qty*invoice.sellprice/CASE WHEN price_factor IS NOT NULL THEN price_factor ELSE 1.0 END) FROM invoice where invoice.parts_id = i.parts_id) as "sellpricelinetotal2" | .
 
   my $query =
-    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,p.description as description, pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as invoice_description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight |; 
-
-  # debug modus for comparing linetotal according to database and perl
-  $query .= qq| , (i.qty*i.sellprice/CASE WHEN price_factor IS NOT NULL THEN i.price_factor ELSE 1.0 END) as sellpricelinetotal | if $form->{"l_sellpricelinetotal"};  
-
-  $query .=
+    qq|SELECT ct.id as customerid, ct.name as customername,ct.customernumber,ct.country,ar.invnumber,ar.id,ar.transdate,p.partnumber,p.description as description, pg.partsgroup,i.parts_id,i.qty,i.price_factor,i.discount,i.description as invoice_description,i.lastcost,i.sellprice,i.fxsellprice,i.marge_total,i.marge_percent,i.unit,b.description as business,e.name as employee,e2.name as salesman, to_char(ar.transdate,'Month') as month, to_char(ar.transdate, 'YYYYMM') as nummonth, p.unit as parts_unit, p.weight | .
     qq|FROM invoice i | .
     qq|JOIN ar on (i.trans_id = ar.id) | .
     qq|JOIN parts p on (i.parts_id = p.id) | .

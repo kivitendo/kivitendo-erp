@@ -31,9 +31,6 @@
 #
 #======================================================================
 
-# TODO
-# if qty or weight is shown add unit
-
 use POSIX qw(strftime);
 use List::Util qw(sum first);
 
@@ -93,49 +90,6 @@ sub search_invoice {
   $main::lxdebug->leave_sub();
 }
 
-sub search_invoice_top {
-  $main::lxdebug->enter_sub();
-  $main::auth->assert('general_ledger | invoice_edit');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
-
-  my ($customer, $department);
-
-  # setup customer selection
-  $form->all_vc(\%myconfig, "customer", "AR");
-
-  $form->{title}    = $locale->text('Sales Report Top');
-
-  $form->get_lists("projects"        => { "key" => "ALL_PROJECTS", "all" => 1 },
-                   "departments"     => "ALL_DEPARTMENTS",
-                   "business_types"  => "ALL_BUSINESS_TYPES",
-                   "salesmen"        => "ALL_SALESMEN",
-                   'employees'       => 'ALL_EMPLOYEES',
-                   'partsgroup'      => 'ALL_PARTSGROUPS',
-                   "customers"       => "ALL_VC");
-  $form->{CUSTOM_VARIABLES_IC}                  = CVar->get_configs('module' => 'IC');
-  ($form->{CUSTOM_VARIABLES_FILTER_CODE_IC},
-   $form->{CUSTOM_VARIABLES_INCLUSION_CODE_IC}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES_IC},
-                                                                           'include_prefix' => 'l_',
-                                                                           'include_value'  => 'Y');
-
-  $form->{CUSTOM_VARIABLES_CT}                  = CVar->get_configs('module' => 'CT');
-  ($form->{CUSTOM_VARIABLES_FILTER_CODE_CT},
-   $form->{CUSTOM_VARIABLES_INCLUSION_CODE_CT}) = CVar->render_search_options('variables'      => $form->{CUSTOM_VARIABLES_CT},
-                                                                           'include_prefix' => 'l_',
-                                                                           'include_value'  => 'Y');
-  $form->{vc_keys}   = sub { "$_[0]->{name}--$_[0]->{id}" };
-  $form->{employee_labels} = sub { $_[0]->{"name"} || $_[0]->{"login"} };
-  $form->{salesman_labels} = $form->{employee_labels};
-
-  $form->header;
-  print $form->parse_html_template('vk/search_invoice_top', { %myconfig });
-
-  $main::lxdebug->leave_sub();
-}
-
 sub invoice_transactions {
   $main::lxdebug->enter_sub();
 
@@ -145,25 +99,7 @@ sub invoice_transactions {
   my %myconfig = %main::myconfig;
   my $locale   = $main::locale;
 
-  my @data_to_be_sorted;
-  # debug mode for finding differences in Umsatz as calculated by database and perl
-  # set to "Y" to turn on
-  $form->{"l_sellpricelinetotal"} = "";
-
   my ($callback, $href, @columns);
-
-  # sort_by_total mode
-  if ( $form->{l_sort_by_total} ) {
-    # uncheck Mainheadings
-    # check both subheadings
-    # set subsort = mainsort
-    $form->{l_headers_mainsort}  = '';
-    $form->{l_subtotal_mainsort} = "Y";
-    $form->{l_headers_subsort} = ''; 
-    $form->{l_subtotal_subsort} = "Y";
-    $form->{mainsort} = $form->{topsortgroup};
-    $form->{subsort} = $form->{mainsort};   # trigger subsort = mainsort
-  };
 
   # can't currently be configured from report, empty line between main sortings
   my $addemptylines = 1;
@@ -203,8 +139,6 @@ sub invoice_transactions {
   VK->invoice_transactions(\%myconfig, \%$form);
 
 
-
-
   if ( $form->{mainsort} eq 'month' or $form->{subsort} eq 'month' ) {
 
     # Data already comes out of SELECT statement in correct month order, but
@@ -221,9 +155,6 @@ sub invoice_transactions {
 
   @columns =
     qw(description invnumber transdate customernumber customername partnumber partsgroup country business transdate qty parts_unit weight sellprice sellprice_total discount lastcost lastcost_total marge_total marge_percent employee salesman);
-  push(@columns, "sellpricelinetotal") if $form->{"l_sellpricelinetotal"};
-  
-# sellpricelinetotal is qty*sellprice as calculated by database
 
   my @includeable_custom_variables = grep { $_->{includeable} } @{ $cvar_configs_ic }, @{ $cvar_configs_ct };
   my @searchable_custom_variables  = grep { $_->{searchable} }  @{ $cvar_configs_ic }, @{ $cvar_configs_ct };
@@ -238,10 +169,8 @@ sub invoice_transactions {
   my @hidden_variables  = (qw(l_headers_mainsort l_headers_subsort l_subtotal_mainsort l_subtotal_subsort l_total l_parts l_customername l_customernumber transdatefrom transdateto decimalplaces customer customername customer_id department partnumber partsgroup country business description project_id customernumber salesman employee salesman_id employee_id business_id partsgroup_id mainsort subsort),
       "$form->{db}number",
       map({ "cvar_$_->{name}" } @searchable_custom_variables),
-      map { "l_$_" } @columns,
+      map { "l_$_" } @columns
       );
-  push(@hidden_variables, qw(topsortgroup topsorttype l_sort_by_total));  # hidden variables for top
-
   my @hidden_nondefault = grep({ $form->{$_} } @hidden_variables);
   # Variablen werden dann als Hidden Variable mitgegeben, z.B.
   # <input type="hidden" name="report_generator_hidden_transdateto" value="21.05.2010">
@@ -271,7 +200,6 @@ sub invoice_transactions {
     'marge_percent'           => { 'text' => $locale->text('Sales margin %'), },
     'customernumber'          => { 'text' => $locale->text('Customer Number'), },
     'customername'            => { 'text' => $locale->text('Customer Name'), },
-    'sellpricelinetotal'      => { 'text' => $locale->text('sellpricelinetotal'), }, # debug control
 # add 3 more column_defs so we have a translation for top_info_text
     'customer'                => { 'text' => $locale->text('Customer'), },
     'part'                    => { 'text' => $locale->text('Part'), },
@@ -279,19 +207,14 @@ sub invoice_transactions {
     %column_defs_cvars,
   );
 
-  if ( not defined $form->{"l_parts"} ) {
-    # the columns for sellprice, lastcost and marge_percent will be averages in subtotal and total lines
-    map { $column_defs{$_}->{text} = $locale->text('Average symbol') . " " . $column_defs{$_}->{text} } qw(sellprice lastcost marge_percent);
-  };
-
   map { $column_defs{$_}->{visible} = $form->{"l_$_"} eq 'Y' } @columns;
 
-  my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total parts_unit discount marge_total marge_percent qty weight sellpricelinetotal );
+  my %column_alignment = map { $_ => 'right' } qw(lastcost sellprice sellprice_total lastcost_total parts_unit discount marge_total marge_percent qty weight);
+
 
   # so now the check-box "Description" is only used as switch for part description in invoice-mode
   # always fill the column "Description" if we are in Zwischensummenmode
-  $form->{"l_description"} = "Y" if not defined $form->{"l_parts"};
-
+  $form->{"l_description"} = "Y" if not defined $form->{"l_parts"};;
   map { $column_defs{$_}->{visible} = $form->{"l_${_}"} ? 1 : 0 } @columns;
 
   my @options;
@@ -317,20 +240,11 @@ sub invoice_transactions {
 
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
-  if ( not $form->{l_sort_by_total} ) {
   $report->set_options('top_info_text'        => join("\n", $locale->text('Main sorting') . ' : ' . $column_defs{$form->{mainsort}}->{text} , $locale->text('Secondary sorting') . ' : ' . $column_defs{$form->{'subsort'}}->{text}, @options),
                        'output_format'        => 'HTML',
                        'title'                => $form->{title},
                        'attachment_basename'  => $locale->text('Sales Report') . strftime('_%Y%m%d', localtime time),
     );
-  } else {
-  $report->set_options('top_info_text'        => join("\n", $locale->text('Grouping') . ' : ' . $column_defs{$form->{topsortgroup}}->{text} , $locale->text('Sort By') . ' : ' . $column_defs{$form->{'topsorttype'}}->{text}, @options),
-                       'output_format'        => 'HTML',
-                       'title'                => $form->{title},
-                       'attachment_basename'  => $locale->text('Sales Report') . strftime('_%Y%m%d', localtime time),
-    );
-  };
-
   $report->set_options_from_form();
   $locale->set_numberformat_wo_thousands_separator(\%myconfig) if lc($report->{options}->{output_format}) eq 'csv';
 
@@ -339,8 +253,7 @@ sub invoice_transactions {
 
   $report->set_export_options('invoice_transactions', @hidden_variables, qw(mainsort sortdir));
 
-  $report->set_sort_indicator($form->{mainsort}, $form->{sortdir}) unless $form->{"l_sort_by_total"};
-  
+  $report->set_sort_indicator($form->{mainsort}, $form->{sortdir});
 
   CVar->add_custom_variables_to_report('module'         => 'CT',
       'trans_id_field' => 'customerid',
@@ -371,13 +284,11 @@ sub invoice_transactions {
   # escape callback for href
   $callback = $form->escape($href);
 
-  my @subtotal_columns = qw(qty weight sellprice sellprice_total lastcost lastcost_total marge_total marge_percent discount sellpricelinetotal);
+  my @subtotal_columns = qw(qty weight sellprice sellprice_total lastcost lastcost_total marge_total marge_percent discount);
   # Total sum:
   # sum of sellprice_total, lastcost_total and marge_total
   # average of marge_percent
-# absolutes: qty, weight, sellprice_total, lastcost_total, marge_total
-# averages: sellprice, lastcost, marge_percent
-  my @total_columns = qw(sellprice_total lastcost_total marge_total marge_percent sellpricelinetotal);
+  my @total_columns = qw(sellprice_total lastcost_total marge_total marge_percent );
 
   my %totals     = map { $_ => 0 } @total_columns;
   my %subtotals1 = map { $_ => 0 } @subtotal_columns;
@@ -485,12 +396,9 @@ sub invoice_transactions {
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 2) } qw(marge_percent qty);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, 3) } qw(weight);
     map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(lastcost sellprice sellprice_total lastcost_total marge_total);
-    map { $ar->{$_} = $form->format_amount(\%myconfig, $ar->{$_}, $form->{"decimalplaces"} )} qw(sellpricelinetotal) if $form->{"l_sellpricelinetotal"};
 
     # Einzelzeilen nur zeigen wenn l_parts gesetzt ist, nützlich, wenn man nur
     # Subtotals und Totals sehen möchte
-    # these lines are only added to report in individual mode
-    
     if ($form->{l_parts}) {
       my %row = (
         map { ($_ => { data => $ar->{$_}, align => $column_alignment{$_} }) } @columns
@@ -506,7 +414,6 @@ sub invoice_transactions {
 
     # hier wird bei l_subtotal nicht differenziert zwischen mainsort und subsort
     # macht man l_subtotal_mainsort aus wird l_subtotal_subsort auch nicht ausgeführt
-    # create a subtotal line if we are at the last element or either the subsort or mainsort element has changed
     if (   ($form->{l_subtotal_mainsort} eq 'Y')
         && ($form->{l_subtotal_subsort}  eq 'Y')
         && (($idx == (scalar @{ $form->{AR} } - 1))   # last element always has a subtotal
@@ -514,20 +421,9 @@ sub invoice_transactions {
           || ($ar->{ $form->{'mainsort'} } ne $form->{AR}->[$idx + 1]->{ $form->{'mainsort'} })
           )) {   # if value that is sorted by changes, print subtotal
 
-
-      # stick subtotal_row_invoice in temporary variable
-      # if TOP mode store it in @data_to_be_sorted so we can sort the lines after all lines have been added
-      # otherwise just add to $report to be shown in defualt
-      my $tmpobject = create_subtotal_row_invoice(\%subtotals2, \@columns, \%column_alignment, \@subtotal_columns, $form->{l_parts} ? 'listsubtotal' : undef, $ar->{ $form->{'subsort'} }); 
-      if ( $form->{l_sort_by_total} and not $form->{l_parts} ) {
-        # add subtotal data to temporary array that can later be sorted
-        push(@data_to_be_sorted, $tmpobject);
-      } else {
-        $report->add_data( $tmpobject);
-      };
-     $report->add_data({ %empty_row }) if $form->{l_parts} and $addemptylines;
-   
-    };
+      $report->add_data(create_subtotal_row_invoice(\%subtotals2, \@columns, \%column_alignment, \@subtotal_columns, $form->{l_parts} ? 'listsubtotal' : undef, $ar->{ $form->{'subsort'} }));
+      $report->add_data({ %empty_row }) if $form->{l_parts} and $addemptylines;
+    }
 
     # if last mainsort is reached or mainsort has changed, add mainsort subtotal and empty row
     if (   ($form->{l_subtotal_mainsort} eq 'Y')
@@ -544,34 +440,12 @@ sub invoice_transactions {
 
     $idx++;
   }
-
-
-  if ( $form->{l_sort_by_total} ) {
-    # filter allowed parameters for sorttype
-    my @allowed_fields = qw(sellprice_total marge_total qty weight);
-    my ($sorttype) = grep { /^$form->{topsorttype}$/ } @allowed_fields;
-    die "illegal parameter for topsorttype" unless $sorttype;
-  
-    # add marker to column being sorted
-    $report->set_sort_indicator($sorttype);
-  
-    # add subtotal lines to report in numerical order of sorttype
-    @data_to_be_sorted = reverse sort { $a->{$sorttype}{unformatted} <=> $b->{$sorttype}{unformatted} } @data_to_be_sorted;
-    foreach( @data_to_be_sorted ) {
-      # to limit output, e.g. top 100, one could add a counter here
-      # that only adds a certain number of entries
-      # the total at the end would still be over all entries though 
-      $report->add_data( $_ );
-    };
-  };
-
   if ( $form->{l_total} eq "Y" ) {
     $report->add_separator();
     $report->add_data(create_subtotal_row_invoice(\%totals, \@columns, \%column_alignment, \@total_columns, 'listtotal', 'l_total'))
   };
-  
-  $report->generate_with_headers();
 
+  $report->generate_with_headers();
   $main::lxdebug->leave_sub();
 }
 
@@ -596,10 +470,10 @@ sub create_subtotal_row_invoice {
     $row->{description}->{data} = $locale->text('Total') . ' ' . $name;
   };
 
-  map { $row->{$_}->{unformatted} = $totals->{$_} } qw(sellprice_total lastcost_total marge_total qty weight);
   map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 2) } qw(marge_total marge_percent qty);
   map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, 3) } qw(weight);
-  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, $form->{decimalplaces}) } qw(lastcost sellprice sellprice_total lastcost_total sellpricelinetotal);
+  map { $row->{$_}->{data} = $form->format_amount(\%myconfig, $totals->{$_}, $form->{decimalplaces}) } qw(lastcost sellprice sellprice_total lastcost_total);
+
 
   map { $totals->{$_} = 0 } @{ $subtotal_columns };
 
