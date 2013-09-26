@@ -4,7 +4,7 @@ use strict;
 
 use SL::DB::MetaSetup::DeliveryOrderItem;
 use SL::DB::Helper::CustomVariables (
-  sub_module  => 'delivery_order_item',
+  sub_module  => 'delivery_order_items',
   cvars_alias => 1,
   overloads   => {
     parts_id => {

@@ -20,9 +20,12 @@
     get_report(target, event.target + '', {});
   }
 
-  $(document).ready(function(){
-    get_report('#sales_price_information_sales_order', 'controller.pl', { action: 'SellPriceInformation/list', 'filter.part.id': [% id %], 'filter.order.type': 'sales_order' });
-    get_report('#sales_price_information_sales_quotation', 'controller.pl', { action: 'SellPriceInformation/list', 'filter.part.id': [% id %], 'filter.order.type': 'sales_quotation' });
+  $('.tabwidget').on('tabsbeforeactivate', function(event, ui){
+    if (ui.newPanel.attr('id') == 'sales_price_information') {
+      get_report('#sales_price_information_sales_order', 'controller.pl', { action: 'SellPriceInformation/list', 'filter.part.id': [% id %], 'filter.order.type': 'sales_order' });
+      get_report('#sales_price_information_sales_quotation', 'controller.pl', { action: 'SellPriceInformation/list', 'filter.part.id': [% id %], 'filter.order.type': 'sales_quotation' });
+    }
+    return 1;
   });
 
 

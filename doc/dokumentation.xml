@@ -5919,11 +5919,11 @@ filenames</programlisting>
         <itemizedlist>
           <listitem><para>Alle Tests liegen im Unterverzeichnis <filename>t/</filename>.</para></listitem>
 
-          <listitem><para>Ein Script (bzw. ein Test) in <filename>f/</filename> enthält einen oder mehrere Testfälle.</para></listitem>
+          <listitem><para>Ein Script (bzw. ein Test) in <filename>t/</filename> enthält einen oder mehrere Testfälle.</para></listitem>
 
           <listitem><para>Alle Dateinamen von Tests enden auf <literal>.t</literal>. Es sind selbstständig ausführbare Perl-Scripte.</para></listitem>
 
-          <listitem><para>Die Test-Suite besteht aus der Gesamtheit aller Tests, sprich aller Scripte in <filename>f/</filename>, deren
+          <listitem><para>Die Test-Suite besteht aus der Gesamtheit aller Tests, sprich aller Scripte in <filename>t/</filename>, deren
           Dateiname auf <literal>.t</literal> endet.</para></listitem>
         </itemizedlist>
       </sect2>
@@ -6005,7 +6005,7 @@ filenames</programlisting>
             Ideen für neue Test-Scripte, die keine konkreten Funktionen testen
           </title>
 
-          <para> Ideen, die abgesehen von Funktions noch nicht umgesetzt wurden:</para>
+          <para> Ideen, die abgesehen von Funktionen noch nicht umgesetzt wurden:</para>
 
           <itemizedlist>
             <listitem><para>Überprüfung auf fehlende symbolische Links</para></listitem>
@@ -6030,7 +6030,7 @@ filenames</programlisting>
             <listitem><para>Namen sind englisch, komplett klein geschrieben und einzelne Wörter mit Unterstrichten getrennt (beispielsweise
             <filename>bad_function_params.t</filename>).</para></listitem>
 
-            <listitem><para>Unterverzeichnisse sollten grob nach dem Themenbereich benannt sind, mit dem sich die Scripte darin befassen
+            <listitem><para>Unterverzeichnisse sollten grob nach dem Themenbereich benannt sein, mit dem sich die Scripte darin befassen
             (beispielsweise <filename>background_jobs</filename> für Tests rund um Hintergrund-Jobs).</para></listitem>
 
             <listitem><para>Test-Scripte sollten einen überschaubaren Bereich von Funktionalität testen, der logisch zusammenhängend ist
