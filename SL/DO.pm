@@ -130,6 +130,11 @@ sub transactions {
     push @where, ($form->{delivered} ? "" : "NOT ") . "COALESCE(dord.delivered, FALSE)";
   }
 
+  if ($form->{serialnumber}) {
+    push @where, 'dord.id IN (SELECT doi.delivery_order_id FROM delivery_order_items doi WHERE doi.serialnumber LIKE ?)';
+    push @values, '%' . $form->{serialnumber} . '%';
+  }
+
   if($form->{transdatefrom}) {
     push @where,  qq|dord.transdate >= ?|;
     push @values, conv_date($form->{transdatefrom});

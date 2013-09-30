@@ -507,7 +507,7 @@ sub orders {
   my $report = SL::ReportGenerator->new(\%myconfig, $form);
 
   my @hidden_variables = map { "l_${_}" } @columns;
-  push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber
+  push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber chargenumber
                                           transaction_description transdatefrom transdateto type vc employee_id salesman_id project_id);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
@@ -565,6 +565,7 @@ sub orders {
   if ($form->{ordnumber}) {
     push @options, $locale->text('Order Number') . " : $form->{ordnumber}";
   }
+  push @options, $locale->text('Serial Number') . " : $form->{serialnumber}" if $form->{serialnumber};
   if ($form->{transaction_description}) {
     push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
   }
