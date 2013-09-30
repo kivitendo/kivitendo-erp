@@ -109,6 +109,7 @@ sub transactions {
     qq|  o.closed, o.delivered, o.quonumber, o.cusordnumber, o.shippingpoint, o.shipvia, | .
     qq|  o.transaction_description, | .
     qq|  o.marge_total, o.marge_percent, | .
+    qq|  o.itime::DATE AS insertdate, | .
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
@@ -230,6 +231,16 @@ SQL
     push(@values, conv_date($form->{reqdateto}));
   }
 
+  if($form->{insertdatefrom}) {
+    $query .= qq| AND o.itime::DATE >= ?|;
+    push(@values, conv_date($form->{insertdatefrom}));
+  }
+
+  if($form->{insertdateto}) {
+    $query .= qq| AND o.itime::DATE <= ?|;
+    push(@values, conv_date($form->{insertdateto}));
+  }
+
   if ($form->{shippingpoint}) {
     $query .= qq| AND o.shippingpoint ILIKE ?|;
     push(@values, '%' . $form->{shippingpoint} . '%');
@@ -285,6 +296,7 @@ SQL
     "shipvia"                 => "o.shipvia",
     "transaction_description" => "o.transaction_description",
     "shippingpoint"           => "o.shippingpoint",
+    "insertdate"              => "o.itime",
     "taxzone"                 => "tz.description",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
@@ -889,8 +901,8 @@ sub retrieve {
            o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
            o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
-           o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id
-           , o.order_probability, o.expected_billing_date
+           o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id,
+           o.itime::DATE AS insertdate, o.order_probability, o.expected_billing_date
          FROM oe o
          JOIN ${vc} cv ON (o.${vc}_id = cv.id)
          LEFT JOIN employee e ON (o.employee_id = e.id)

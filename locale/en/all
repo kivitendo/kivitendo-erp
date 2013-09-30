@@ -1142,6 +1142,7 @@ $self->{texts} = {
   'Increase'                    => '',
   'Individual Items'            => '',
   'Information'                 => '',
+  'Insert Date'                 => '',
   'Insert with new customer/vendor number' => '',
   'Insert with new database ID' => '',
   'Insert with new part number' => '',

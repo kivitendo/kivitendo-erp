@@ -1348,6 +1348,7 @@ $self->{texts} = {
   'Information'                 => 'Information',
   'Initial version.'            => 'Initiale Version.',
   'Insert'                      => 'Einfügen',
+  'Insert Date'                 => 'Erfassungsdatum',
   'Insert with new customer/vendor number' => 'Mit neuer Kunden-/Lieferantennummer anlegen',
   'Insert with new database ID' => 'Neu anlegen mit neuer Datenbank-ID',
   'Insert with new part number' => 'Mit neuer Artikelnummer einfügen',

@@ -233,6 +233,12 @@
                       [% L.date_tag('reqdate', reqdate, id='reqdate') %]
                     </td>
                   </tr>
+                  [%- IF is_sales_ord %]
+                  <tr>
+                    <th align="right" nowrap>[% 'Insert Date' | $T8 %]</th>
+                    <td>[% insertdate %]</td>
+                  </tr>
+                  [%- END %]
                   <tr>
                     <th width="70%" align="right" nowrap>[% 'Project Number' | $T8 %]</th>
                     <td>

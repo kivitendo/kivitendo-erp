@@ -126,6 +126,20 @@
        [% L.date_tag('reqdateto') %]
      </td>
     </tr>
+
+    [%- IF type == 'sales_order' %]
+    <tr>
+     <th align="right">[% 'Insert Date' | $T8 %] [% 'From' | $T8 %]</th>
+     <td>
+       [% L.date_tag('insertdatefrom') %]
+     </td>
+     <th align="right">[% 'Bis' | $T8 %]</th>
+     <td>
+       [% L.date_tag('insertdateto') %]
+     </td>
+    </tr>
+    [%- END %]
+
 [%- IF type == 'sales_quotation' %]
     <tr>
      <th align="right">[% 'Expected billing date' | $T8 %] [% 'From' | $T8 %]</th>
@@ -206,6 +220,12 @@
          <input name="l_reqdate" id="l_reqdate" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_reqdate">[% IF is_order %][% 'Required by' | $T8 %][% ELSE %][% 'Valid until' | $T8 %][% END %]</label>
         </td>
+        [%- IF type == 'sales_order' %]
+        <td>
+          <input name="l_insertdate" id="l_insertdate" class="checkbox" type="checkbox" value="Y">
+          <label for="l_insertdate">[% 'Insert Date' | $T8 %]</label>
+        </td>
+        [%- END %]
        </tr>
        <tr>
         <td>

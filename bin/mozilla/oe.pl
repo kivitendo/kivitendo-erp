@@ -847,7 +847,7 @@ sub orders {
     "marge_total",             "marge_percent",
     "vcnumber",                "ustid",
     "country",                 "shippingpoint",
-    "taxzone",
+    "taxzone",                 "insertdate",
     "order_probability",       "expected_billing_date", "expected_netamount",
   );
 
@@ -889,7 +889,7 @@ sub orders {
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber cusordnumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
                                                         reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
-                                                        business_id shippingpoint taxzone_id reqdate_unset_or_old
+                                                        business_id shippingpoint taxzone_id reqdate_unset_or_old insertdatefrom insertdateto
                                                         order_probability_op order_probability_value expected_billing_date_from expected_billing_date_to);
 
   my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
@@ -928,12 +928,13 @@ sub orders {
     'periodic_invoices'       => { 'text' => $locale->text('Per. Inv.'), },
     'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
     'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
+    'insertdate'              => { 'text' => $locale->text('Insert Date'), },
     'order_probability'       => { 'text' => $locale->text('Order probability'), },
     'expected_billing_date'   => { 'text' => $locale->text('Exp. bill. date'), },
     'expected_netamount'      => { 'text' => $locale->text('Exp. netamount'), },
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber cusordnumber name employee salesman shipvia transaction_description shippingpoint taxzone insertdate)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -970,6 +971,11 @@ sub orders {
     push @options, $locale->text('Delivery Date');
     push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{reqdatefrom}, 1)       if $form->{reqdatefrom};
     push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{reqdateto},   1)       if $form->{reqdateto};
+  };
+  if ( $form->{insertdatefrom} or $form->{insertdateto} ) {
+    push @options, $locale->text('Insert Date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{insertdatefrom}, 1)    if $form->{insertdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{insertdateto},   1)    if $form->{insertdateto};
   };
   push @options, $locale->text('Open')                                                                    if $form->{open};
   push @options, $locale->text('Closed')                                                                  if $form->{closed};
