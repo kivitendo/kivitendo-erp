@@ -146,7 +146,7 @@ In a controller:
   use SL::Controller::Helper::GetModels;
   use SL::Controller::Helper::Sorted;
 
-  __PACKAGE__->make_sorted(
+  __PACKAGE__->make_sorted(                                     # update this
     DEFAULT_BY   => 'run_at',
     DEFAULT_DIR  => 1,
     MODEL        => 'BackgroundJobHistory',
@@ -170,7 +170,7 @@ In said template:
 
   <table>
    <tr>
-    <th>[% L.sortable_table_header('package_name') %]</th>
+    <th>[% L.sortable_table_header('package_name') %]</th>         # models
     <th>[% L.sortable_table_header('run_at') %]</th>
     <th>[% L.sortable_table_header('error') %]</th>
    </tr>
@@ -190,7 +190,7 @@ This specialized helper module enables controllers to display a
 sortable list of database models with as few lines as possible.
 
 For this to work the controller has to provide the information which
-indexes are eligible for sorting etc. by a call to L<make_sorted> at
+indexes are eligible for sorting etc. by a call to L<make_sorted> at  #not compiletime
 compile time.
 
 The underlying functionality that enables the use of more than just
@@ -214,7 +214,7 @@ parameters that were used in the current view.
 
 =over 4
 
-=item C<make_sorted %sort_spec>
+=item C<make_sorted %sort_spec>                                         # meh complete rewrite
 
 This function must be called by a controller at compile time. It is
 uesd to set the various parameters required for this helper to do its

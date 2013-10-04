@@ -43,3 +43,42 @@ sub is_enabled {
 }
 
 1;
+
+__END__
+
+=encoding utf-8
+
+=head1 NAME
+
+SL::Controller::Helper::GetModels::Base - base class for GetModels plugins
+
+=head1 SYNOPSIS
+
+  package SL::Controller::Helper::Getmodels::...;
+  use parent 'SL::Controller::Helper::Getmodels::Base'
+
+  sub read_params { ... }
+
+  sub finalize { ... }
+
+=head1 DESCRIPTION
+
+This is a base class for plugins of the GetModels framework for controllers. It
+provides some common ground.
+
+=head1 FUNCTIONS
+
+=over 4
+
+=back
+
+=head1 BUGS AND CAVEATS
+
+None yet :)
+
+=head1 AUTHOR
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
+
+=cut
+

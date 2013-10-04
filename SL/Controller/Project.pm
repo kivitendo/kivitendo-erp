@@ -207,7 +207,6 @@ sub prepare_report {
     controller_class      => 'Project',
     output_format         => 'HTML',
     top_info_text         => $::locale->text('Projects'),
-    raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
     title                 => $::locale->text('Projects'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -219,7 +218,6 @@ sub prepare_report {
   $self->models->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
   $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
   $report->set_options(
-    top_info_text         => $::locale->text('Projects'),
     raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
   );
 }

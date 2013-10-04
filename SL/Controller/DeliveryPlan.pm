@@ -198,19 +198,16 @@ sub init_models {
   my ($self) = @_;
 
   SL::Controller::Helper::GetModels->new(
-    controller => $self,
-    model  => 'OrderItem',
-    filtered => {
-      launder_to => 'filter',
-    },
-    sorted => {
-      _default => {
-        by        => 'reqdate',
-        dir       => 1,
+    controller   => $self,
+    model        => 'OrderItem',
+    sorted       => {
+      _default     => {
+        by           => 'reqdate',
+        dir          => 1,
       },
       %sort_columns,
     },
-    query => $delivery_plan_query,
+    query        => $delivery_plan_query,
     with_objects => [ 'order', 'order.customer', 'part' ],
   );
 }
