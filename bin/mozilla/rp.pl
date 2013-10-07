@@ -107,7 +107,7 @@ my $rp_access_map = {
   'payments'           => 'cash',
   'trial_balance'      => 'report',
   'income_statement'   => 'report',
-  'income_statement_ch'=> 'report',
+  'erfolgsrechnung'    => 'report',
   'bwa'                => 'report',
   'balance_sheet'      => 'report',
 };
@@ -129,7 +129,7 @@ sub report {
   my %title = (
     balance_sheet        => $::locale->text('Balance Sheet'),
     income_statement     => $::locale->text('Income Statement'),
-    income_statement_ch     => ('Erfolgsrechnung'),
+    erfolgsrechnung      => ('Erfolgsrechnung'),
     trial_balance        => $::locale->text('Trial Balance'),
     ar_aging             => $::locale->text('Search AR Aging'),
     ap_aging             => $::locale->text('Search AP Aging'),
@@ -142,8 +142,13 @@ sub report {
   );
 
   $::form->{title} = $title{$::form->{report}};
+  $::form->{dateformat} = $::myconfig{dateformat};
+  my $year = DateTime->today->year;
+  $::form->{fromdate} = $::locale->reformat_date(\%::myconfig, '01.01.'.$year, $::myconfig{dateformat});
+  $::form->{todate} = $::locale->reformat_date(\%::myconfig, '31.01.'.$year, $::myconfig{dateformat});
 
   # get departments
+
   $::form->all_departments(\%::myconfig);
   if (@{ $::form->{all_departments} || [] }) {
     $::form->{selectdepartment} = "<option>\n";
@@ -154,7 +159,7 @@ sub report {
 
   my $is_projects            = $::form->{report} eq "projects";
   my $is_income_statement    = $::form->{report} eq "income_statement";
-  my $is_income_statement_ch = $::form->{report} eq "income_statement_ch";
+  my $is_erfolgsrechnung     = $::form->{report} eq "erfolgsrechnung";
   my $is_bwa                 = $::form->{report} eq "bwa";
   my $is_balance_sheet       = $::form->{report} eq "balance_sheet";
   my $is_trial_balance       = $::form->{report} eq "trial_balance";
@@ -207,7 +212,7 @@ sub report {
     is_balance_sheet       => $is_balance_sheet,
     is_bwa                 => $is_bwa,
     is_income_statement    => $is_income_statement,
-    is_income_statement_ch => $is_income_statement_ch,
+    is_erfolgsrechnung     => $is_erfolgsrechnung,
     is_projects            => $is_projects,
   });
 
@@ -386,172 +391,25 @@ sub generate_income_statement {
   $main::lxdebug->leave_sub();
 }
 
-sub generate_income_statement_ch {
-  $main::lxdebug->enter_sub();
-
-  $main::auth->assert('report');
-
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
-  my $locale   = $main::locale;
+sub generate_erfolgsrechnung {
+  $::lxdebug->enter_sub;
+  $::auth->assert('report');
 
   my $defaults = SL::DB::Default->get;
-  $form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
-  $form->{templates} = $defaults->templates;
+  $::form->error($::locale->text('No print templates have been created for this client yet. Please do so in the client configuration.')) if !$defaults->templates;
+  $::form->{templates}     = $defaults->templates;
+  $::form->{decimalplaces} = $::form->{decimalplaces} * 1 || 2;
+  $::form->{padding}       = "&emsp;";
+  $::form->{bold}          = "<b>";
+  $::form->{endbold}       = "</b>";
+  $::form->{br}            = "<br>";
 
-  $form->{padding} = "&nbsp;&nbsp;";
-  $form->{bold}    = "<b>";
-  $form->{endbold} = "</b>";
-  $form->{br}      = "<br>";
+  my $data = RP->erfolgsrechnung(\%::myconfig, $::form);
 
-  if ($form->{reporttype} eq "custom") {
+  $::form->header();
+  print $::form->parse_html_template('rp/erfolgsrechnung', $data);
 
-    #forgotten the year --> thisyear
-    if ($form->{year} !~ m/^\d\d\d\d$/) {
-      $locale->date(\%myconfig, $form->current_date(\%myconfig), 0) =~
-        /(\d\d\d\d)/;
-      $form->{year} = $1;
-    }
-
-    #yearly report
-    if ($form->{duetyp} eq "13") {
-      $form->{fromdate} = "1.1.$form->{year}";
-      $form->{todate}   = "31.12.$form->{year}";
-    }
-   #Quater reports
-    if ($form->{duetyp} eq "A") {
-      $form->{fromdate} = "1.1.$form->{year}";
-      $form->{todate}   = "31.3.$form->{year}";
-    }
-    if ($form->{duetyp} eq "B") {
-      $form->{fromdate} = "1.4.$form->{year}";
-      $form->{todate}   = "30.6.$form->{year}";
-    }
-    if ($form->{duetyp} eq "C") {
-      $form->{fromdate} = "1.7.$form->{year}";
-      $form->{todate}   = "30.9.$form->{year}";
-    }
-    if ($form->{duetyp} eq "D") {
-      $form->{fromdate} = "1.10.$form->{year}";
-      $form->{todate}   = "31.12.$form->{year}";
-    }
-  #Monthly reports
-  SWITCH: {
-      $form->{duetyp} eq "1" && do {
-        $form->{fromdate} = "1.1.$form->{year}";
-        $form->{todate}   = "31.1.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "2" && do {
-        $form->{fromdate} = "1.2.$form->{year}";
-
-        #this works from 1901 to 2099, 1900 and 2100 fail.
-        my $leap = ($form->{year} % 4 == 0) ? "29" : "28";
-        $form->{todate} = "$leap.2.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "3" && do {
-        $form->{fromdate} = "1.3.$form->{year}";
-        $form->{todate}   = "31.3.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "4" && do {
-        $form->{fromdate} = "1.4.$form->{year}";
-        $form->{todate}   = "30.4.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "5" && do {
-        $form->{fromdate} = "1.5.$form->{year}";
-        $form->{todate}   = "31.5.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "6" && do {
-        $form->{fromdate} = "1.6.$form->{year}";
-        $form->{todate}   = "30.6.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "7" && do {
-        $form->{fromdate} = "1.7.$form->{year}";
-        $form->{todate}   = "31.7.$form->{year}";
-        last SWITCH;
-      };
-    $form->{duetyp} eq "8" && do {
-        $form->{fromdate} = "1.8.$form->{year}";
-        $form->{todate}   = "31.8.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "9" && do {
-        $form->{fromdate} = "1.9.$form->{year}";
-        $form->{todate}   = "30.9.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "10" && do {
-        $form->{fromdate} = "1.10.$form->{year}";
-        $form->{todate}   = "31.10.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "11" && do {
-        $form->{fromdate} = "1.11.$form->{year}";
-        $form->{todate}   = "30.11.$form->{year}";
-        last SWITCH;
-      };
-      $form->{duetyp} eq "12" && do {
-        $form->{fromdate} = "1.12.$form->{year}";
-        $form->{todate}   = "31.12.$form->{year}";
-        last SWITCH;
-      };
-    }
-    hotfix_reformat_date();
-  } # Ende Bericht für vorgewählten Zeitraum (warum auch immer die Prüfung (custom eq true) ist ...
-  
-   RP->income_statement_ch(\%myconfig, \%$form);
-
-  ($form->{department}) = split /--/, $form->{department};
-
-  $form->{period} =
-    $locale->date(\%myconfig, $form->current_date(\%myconfig), 1);
-  $form->{todate} = $form->current_date(\%myconfig) unless $form->{todate};
-
-  # if there are any dates construct a where
-  if ($form->{fromdate} || $form->{todate}) {
-
-    unless ($form->{todate}) {
-      $form->{todate} = $form->current_date(\%myconfig);
-    }
-
-    my $longtodate  = $locale->date(\%myconfig, $form->{todate}, 1);
-    my $shorttodate = $locale->date(\%myconfig, $form->{todate}, 0);
-
-    my $longfromdate  = $locale->date(\%myconfig, $form->{fromdate}, 1);
-    my $shortfromdate = $locale->date(\%myconfig, $form->{fromdate}, 0);
-
-    $form->{this_period} = "$shortfromdate\n$shorttodate";
-    $form->{period}      =
-        $locale->text('for Period')
-      . qq|\n$longfromdate |
-      . $locale->text('Bis')
-      . qq| $longtodate|;
-  }
-
-  if ($form->{comparefromdate} || $form->{comparetodate}) {
-    my $longcomparefromdate = $locale->date(\%myconfig, $form->{comparefromdate}, 1);
-    my $shortcomparefromdate = $locale->date(\%myconfig, $form->{comparefromdate}, 0);
-
-    my $longcomparetodate  = $locale->date(\%myconfig, $form->{comparetodate}, 1);
-    my $shortcomparetodate = $locale->date(\%myconfig, $form->{comparetodate}, 0);
-
-    $form->{last_period} = "$shortcomparefromdate\n$shortcomparetodate";
-    $form->{period} .=
-        "\n$longcomparefromdate "
-      . $locale->text('Bis')
-      . qq| $longcomparetodate|;
-  }
-  
-   $form->{IN} = "erfolgsrechnung.html";
-
-  $form->parse_template;
-
-  $main::lxdebug->leave_sub();
+  $::lxdebug->leave_sub;
 }
 
 
@@ -581,8 +439,6 @@ sub generate_balance_sheet {
 
   $::form->{this_period} = $::locale->date(\%::myconfig, $::form->{asofdate}, 0);
   $::form->{last_period} = $::locale->date(\%::myconfig, $::form->{compareasofdate}, 0);
-
-#  $::form->{IN} = "balance_sheet.html";
 
   $::form->header;
   print $::form->parse_html_template('rp/balance_sheet', $data);

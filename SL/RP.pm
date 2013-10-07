@@ -1811,36 +1811,89 @@ sub income_statement {
   $main::lxdebug->leave_sub();
 }
 
-sub income_statement_ch {
-
+sub erfolgsrechnung {
   $main::lxdebug->enter_sub();
 
   my ($self, $myconfig, $form) = @_;
+  ($form->{company}, $form->{adress}) = get_defaults_ch();
 
-  my $last_period  = 0;
+  # wrong user inputs should be handled during users input
+  # e.g.  spaces, tabs, wrong format or wrong dates
+  $form->{fromdate} = "01.01.2000" if ! $form->{fromdate};
+  $form->{todate} = $form->current_date(%{$myconfig}) if ! $form->{todate};
 
+  my %categories = (I => "ERTRAG", E => "AUFWAND");
+  my $fromdate = conv_dateq($form->{fromdate});
+  my $todate = conv_dateq($form->{todate});
 
-  # connect to database
-  my $dbh = $form->dbconnect($myconfig);
-  
-  get_accounts_ch($dbh, $last_period, $form->{fromdate}, $form->{todate}, $form);
+  $form->{total} = 0;
+  foreach my $category (keys %categories) {
+    my %category = (
+      name => $categories{$category},
+      total => 0,
+      accounts => get_accounts_ch($category),
+    );
+    foreach my $account (@{$category{accounts}}) {
+      $account->{total} = 0;
+      $account->{total} += ($account->{category} eq $category ? 1 : -1) * $_ foreach (@{get_amounts_ch($account->{id}, $fromdate, $todate)});
+      $category{total} = $account->{total};
+    }
+    $form->{total} += $category{total};
+    push(@{$form->{categories}}, \%category);
+  }
 
-   $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
+  return {};
 }
 
+sub get_defaults_ch {
+  $main::lxdebug->enter_sub();
 
- sub get_accounts_ch {
+  my $query = q|SELECT company, address FROM defaults|;
+  my $row = @{_query($query)}[0];
+  my ($company, $adress) = ($row->{company}, $row->{address}); 
 
+  $main::lxdebug->leave_sub();
+  return ($company, $adress);
+}
+
+sub get_accounts_ch {
   $main::lxdebug->enter_sub();
   
+  my ($category) = @_;
+  my ($query, $inclusion);
+  if ($category eq 'I') {$inclusion = "AND pos_eur = NULL OR pos_eur > '0' AND pos_eur <= '5'";}
+  elsif ($category eq 'E') {$inclusion = "AND pos_eur = NUll OR pos_eur >= '6' AND pos_eur < '100'";}
+  else {$inclusion = "";}
+  $query = qq|
+    SELECT id, accno, description, category
+    FROM chart
+    WHERE category = '$category' $inclusion
+    ORDER BY accno
+  |;
+  my $accounts = _query($query);
 
-  my $query =
-    qq|SELECT c.accno, c.description
-       FROM chart c
-       ORDER BY c.accno|;
-
-
-   $main::lxdebug->leave_sub();
+  $main::lxdebug->leave_sub();
+  return $accounts;
 }
+
+sub get_amounts_ch {
+  $main::lxdebug->enter_sub();
+
+  my ($chart_id, $fromdate, $todate) = @_;
+  my $query = qq|
+    SELECT amount
+    FROM acc_trans
+    WHERE chart_id = '$chart_id'
+      AND transdate >= $fromdate
+      AND transdate <= $todate
+  |;
+  my $amounts = _query($query);
+
+  $main::lxdebug->leave_sub();
+  return $amounts;
+}
+
+sub _query {return selectall_hashref_query($::form, $::form->get_standard_dbh, $_[0]);}
 
 1;
