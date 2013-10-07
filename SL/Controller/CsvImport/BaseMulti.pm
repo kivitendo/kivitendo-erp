@@ -8,6 +8,11 @@ use SL::Helper::Csv;
 
 use parent qw(SL::Controller::CsvImport::Base);
 
+use Rose::Object::MakeMethods::Generic
+(
+'scalar --get_set_init' => [ qw(cvar_configs_by cvar_columns_by) ],
+);
+
 sub run {
   my ($self, %params) = @_;
 
@@ -124,6 +129,56 @@ sub add_raw_data_columns {
   }
 }
 
+sub add_cvar_raw_data_columns {
+  my ($self) = @_;
+
+  foreach my $data (@{ $self->controller->data }) {
+    my $ri = $data->{raw_data}->{datatype};
+    map { $self->add_raw_data_columns($ri, $_) if exists $data->{raw_data}->{$_} } @{ $self->cvar_columns_by->{row_ident}->{$ri} };
+  }
+}
+
+sub init_cvar_configs_by {
+  # Must be overridden by derived specialized importer classes.
+  return {};
+}
+
+sub init_cvar_columns_by {
+  my ($self) = @_;
+
+  my $ccb;
+  foreach my $p (@{ $self->profile }) {
+    my $ri = $p->{row_ident};
+    $ccb->{row_ident}->{$ri} = [ map { "cvar_" . $_->name } (@{ $self->cvar_configs_by->{row_ident}->{$ri} }) ];
+  }
+    
+  return $ccb;
+}
+
+sub handle_cvars {
+  my ($self, $entry, %params) = @_;
+
+  my %type_to_column = ( text      => 'text_value',
+                         textfield => 'text_value',
+                         select    => 'text_value',
+                         date      => 'timestamp_value_as_date',
+                         timestamp => 'timestamp_value_as_date',
+                         number    => 'number_value_as_number',
+                         bool      => 'bool_value' );
+
+  $params{sub_module} ||= '';
+  my @cvars;
+  foreach my $config (@{ $self->cvar_configs_by->{row_ident}->{$entry->{raw_data}->{datatype}} }) {
+    next unless exists $entry->{raw_data}->{ "cvar_" . $config->name };
+    my $value  = $entry->{raw_data}->{ "cvar_" . $config->name };
+    my $column = $type_to_column{ $config->type } || die "Program logic error: unknown custom variable storage type";
+
+    push @cvars, SL::DB::CustomVariable->new(config_id => $config->id, $column => $value, sub_module => $params{sub_module});
+  }
+
+  $entry->{object}->custom_variables(\@cvars) if @cvars;
+}
+
 sub init_profile {
   my ($self) = @_;
 
@@ -145,7 +200,7 @@ sub init_profile {
       $prof{$col} = $name;
     }
 
-    $prof{ 'cvar_' . $_->name } = '' for @{ $self->all_cvar_configs };
+    $prof{ 'cvar_' . $_->name } = '' for @{ $self->cvar_configs_by->{class}->{$class} };
 
     $class =~ m/^SL::DB::(.+)/;
     push @profile, {'profile' => \%prof, 'class' => $class, 'row_ident' => $::locale->text($1)};
@@ -184,6 +239,15 @@ sub setup_displayable_columns {
   foreach my $p (@{ $self->profile }) {
     $self->add_displayable_columns($p->{row_ident}, map { { name => $_ } } keys %{ $p->{profile} });
   }
+}
+
+sub add_cvar_columns_to_displayable_columns {
+  my ($self, $row_ident) = @_;
+
+  $self->add_displayable_columns($row_ident,
+                                 map { { name        => 'cvar_' . $_->name,
+                                         description => $::locale->text('#1 (custom variable)', $_->description) } }
+                                     @{ $self->cvar_configs_by->{row_ident}->{$row_ident} });
 }
 
 sub is_multiplexed { 1 }

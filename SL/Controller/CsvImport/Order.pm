@@ -41,6 +41,22 @@ sub init_settings {
 }
 
 
+sub init_cvar_configs_by {
+  my ($self) = @_;
+
+  my $item_cvar_configs = SL::DB::Manager::CustomVariableConfig->get_all(where => [ module => 'IC' ]);
+  $item_cvar_configs = [grep { $_->has_flag('editable') } @{ $item_cvar_configs }];
+
+  my $ccb;
+  $ccb->{class}->{'SL::DB::Order'}          = [];
+  $ccb->{class}->{'SL::DB::OrderItem'}      = $item_cvar_configs;
+  $ccb->{row_ident}->{$self->_order_column} = [];
+  $ccb->{row_ident}->{$self->_item_column}  = $item_cvar_configs;
+
+  return $ccb;
+}
+
+
 sub init_profile {
   my ($self) = @_;
 
@@ -122,6 +138,8 @@ sub setup_displayable_columns {
                                  { name => 'globalproject',    description => $::locale->text('Document Project (description)') },
                                  { name => 'shipto_id',        description => $::locale->text('Ship to (database ID)')          },
                                 );
+
+  $self->add_cvar_columns_to_displayable_columns($self->_item_column);
 
   $self->add_displayable_columns($self->_item_column,
                                  { name => 'datatype',        description => $self->_item_column                           },
@@ -247,6 +265,7 @@ sub check_objects {
     } elsif ($entry->{raw_data}->{datatype} eq $self->_item_column && $entry->{object}->can('part')) {
       $self->handle_item($entry);
     }
+    $self->handle_cvars($entry, sub_module => 'orderitems');
 
   } continue {
     $i++;
@@ -267,6 +286,7 @@ sub check_objects {
                      map { "${_}_id" } grep { exists $self->controller->data->[1]->{raw_data}->{$_} } qw(project price_factor pricegroup));
   $self->add_columns($self->_item_column, 'project_id') if exists $self->controller->data->[1]->{raw_data}->{projectnumber};
 
+  $self->add_cvar_raw_data_columns();
 
   $self->add_items_to_order();
   $self->handle_prices_and_taxes();
