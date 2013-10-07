@@ -32,6 +32,11 @@
   </tr>
 
   <tr>
+   <th align="right" nowrap>[% LxERP.t8('Precision') %]</th>
+   <td>[% L.input_tag('precision', FORM.precision || '0.01') %]</td>
+  </tr>
+
+  <tr>
    <th valign="top" align="right" nowrap>[% LxERP.t8('Accounting method') %] *</th>
    <td>[% L.select_tag('accounting_method', SELF.all_accounting_methods, title_key='name', default=(FORM.accounting_method || 'cash')) %]</td>
   </tr>
@@ -76,11 +81,13 @@ function comment_selected_chart(s) {
          "Hinweis vom 20.09.2011");
   } else if (/^Switzerland/.test(s)) {
     document.getElementById('defaultcurrency').value='CHF';
+    document.getElementById('precision').value='0.05';
     document.getElementById('accounting_method').value='accrual';
     document.getElementById('inventory_system').value='periodic';
     document.getElementById('profit_determination').value='balance';
   } else {
     document.getElementById("defaultcurrency").value="EUR";
+    document.getElementById('precision').value='0.01';
     document.getElementById('accounting_method').value='cash';
     document.getElementById('inventory_system').value='periodic';
     document.getElementById('profit_determination').value='income';

@@ -830,7 +830,7 @@ sub format_amount {
   return $amount;
 }
 
-sub format_amount_units {
+sub format_amount_unit {
   $main::lxdebug->enter_sub();
 
   my $self             = shift;
@@ -945,21 +945,21 @@ sub parse_amount {
 sub round_amount {
   $main::lxdebug->enter_sub(2);
 
-  my ($self, $amount, $places) = @_;
-  my $round_amount;
+  my ($self, $amount, $places, $adjust) = @_;
+  my $precision = 0.01;
 
   # Rounding like "Kaufmannsrunden" (see http://de.wikipedia.org/wiki/Rundung )
 
   # Round amounts to eight places before rounding to the requested
   # number of places. This gets rid of errors due to internal floating
   # point representation.
-  $amount       = $self->round_amount($amount, 8) if $places < 8;
-  $amount       = $amount * (10**($places));
-  $round_amount = int($amount + .5 * ($amount <=> 0)) / (10**($places));
+  $amount = int($amount * 10**8 + .5 * ($amount <=> 0)) / 10**8  if $places < 8;
+  $amount = int($amount / ($precision = _get_precision()) + ($amount <=> 0) * .5) * $precision if $adjust;
+  $amount = int($amount * 10**$places + .5 * ($amount <=> 0)) / 10**$places;
 
   $main::lxdebug->leave_sub(2);
 
-  return $round_amount;
+  return $amount;
 
 }
 
@@ -1073,7 +1073,7 @@ sub parse_template {
 
   close OUT if $self->{OUT};
 
-  my $copy_to_webdav = $::instance_conf->get_webdav && $::instance_conf->get_webdav_documents && !$self->{preview};
+  my $copy_to_webdav = $::instance_conf->get_webdav && $::instance_conf->get_webdav_documents && !$self->{preview} && $self->{tmpdir} && $self->{tmpfile} && $self->{type};
 
   if ($self->{media} eq 'file') {
     copy(join('/', $self->{cwd}, $userspath, $self->{tmpfile}), $out =~ m|^/| ? $out : join('/', $self->{cwd}, $out)) if $template->uses_temp_file;
@@ -1154,16 +1154,22 @@ sub parse_template {
         seek  IN, 0, 0;
 
       } else {
-        $self->{attachment_filename} = ($self->{attachment_filename})
-                                     ? $self->{attachment_filename}
-                                     : $self->generate_attachment_filename();
+        my %headers = ('-type'       => $template->get_mime_type,
+                       '-connection' => 'close',
+                       '-charset'    => 'UTF-8');
 
-        # launch application
-        print qq|Content-Type: | . $template->get_mime_type() . qq|
-Content-Disposition: attachment; filename="$self->{attachment_filename}"
-Content-Length: $numbytes
+        $self->{attachment_filename} ||= $self->generate_attachment_filename;
 
-|;
+        if ($self->{attachment_filename}) {
+          %headers = (
+            %headers,
+            '-attachment'     => $self->{attachment_filename},
+            '-content-length' => $numbytes,
+            '-charset'        => '',
+          );
+        }
+
+        print $::request->cgi->header(%headers);
 
         $::locale->with_raw_io(\*STDOUT, sub { print while <IN> });
       }
@@ -3537,6 +3543,22 @@ sub layout {
 
   $::lxdebug->leave_sub;
   return $layout;
+}
+
+sub _get_precision {
+  my ( $self ) = @_;
+  my $precision = 0.01;
+  eval {
+    my $client = $::auth->{client};
+    my $dbconnect = 'dbi:Pg:dbname=' . $client->{dbname} . ';host=' . $client->{dbhost} . ';port=' . $client->{dbport};
+    my $dbh       = DBI->connect($dbconnect, $client->{dbuser}, $client->{dbpasswd});
+    my $query = q{ SELECT precision FROM defaults };
+    (my $sth = $dbh->prepare($query))->execute;
+    ($precision) = selectrow_query($::form, $dbh, $query);
+    $sth->finish;
+    $dbh->disconnect;
+  };
+  return $precision;
 }
 
 1;
