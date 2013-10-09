@@ -1798,7 +1798,7 @@ sub poso {
   # also reset discounts
   if ( $form->{sales_order_to_purchase_order} ) {
     for my $i (1 .. $form->{rowcount}) {
-      $form->{"sellprice_${i}"} = $form->format_amount(\%myconfig,$form->{"lastcost_${i}"});
+      $form->{"sellprice_${i}"} = $form->{"lastcost_${i}"};
       $form->{"discount_${i}"}  = 0;
     };
   };
