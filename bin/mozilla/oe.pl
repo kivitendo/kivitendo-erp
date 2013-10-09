@@ -1804,7 +1804,7 @@ sub poso {
   };
 
   for my $i (1 .. $form->{rowcount}) {
-    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount);
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount lastcost);
   }
 
   my %saved_vars = map { $_ => $form->{$_} } grep { $form->{$_} } qw(currency);
