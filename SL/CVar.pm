@@ -402,7 +402,7 @@ sub build_filter_query {
 
       $not = 'NOT' if ($params{filter}->{$name} eq 'no');
       push @sub_where,  qq|COALESCE(cvar.bool_value, false) = TRUE|;
-    } elsif (any { $config->{type} eq $_ } qw(customer vendor part)) {
+    } elsif (any { $config->{type} eq $_ } qw(customer vendor)) {
       next unless $params{filter}->{$name};
 
       my $table = $config->{type};
