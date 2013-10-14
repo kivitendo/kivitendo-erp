@@ -1936,7 +1936,7 @@ sub edit_periodic_invoices_config {
                };
   }
 
-  $config->{periodicity} = 'm' if none { $_ eq $config->{periodicity} } qw(m q y);
+  $config->{periodicity} = 'm' if none { $_ eq $config->{periodicity} } qw(m q b y);
 
   $::form->get_lists(printers => "ALL_PRINTERS",
                      charts   => { key       => 'ALL_CHARTS',
@@ -1962,7 +1962,7 @@ sub save_periodic_invoices_config {
 
   my $config = { active                  => $::form->{active}     ? 1 : 0,
                  terminated              => $::form->{terminated} ? 1 : 0,
-                 periodicity             => (any { $_ eq $::form->{periodicity} } qw(m q y)) ? $::form->{periodicity} : 'm',
+                 periodicity             => (any { $_ eq $::form->{periodicity} } qw(m q b y)) ? $::form->{periodicity} : 'm',
                  start_date_as_date      => $::form->{start_date_as_date},
                  end_date_as_date        => $::form->{end_date_as_date},
                  print                   => $::form->{print} ? 1 : 0,
