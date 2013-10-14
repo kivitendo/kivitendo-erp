@@ -173,7 +173,7 @@ sub _create_periodic_invoice {
 sub _calculate_dates {
   my $config     = shift;
 
-  my $cur_date   = $config->start_date;
+  my $cur_date   = $config->first_billing_date        || $config->start_date;
   my $start_date = $config->get_previous_invoice_date || DateTime->new(year => 1970, month => 1, day => 1);
   my $end_date   = $config->end_date                  || DateTime->new(year => 2100, month => 1, day => 1);
   my $tomorrow   = DateTime->today_local->add(days => 1);
