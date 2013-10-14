@@ -21,6 +21,7 @@ BEGIN {
   { name => "Clone",                               url => "http://search.cpan.org/~rdf/",       debian => 'libclone-perl' },
   { name => "Config::Std",                         url => "http://search.cpan.org/~dconway/",   debian => 'libconfig-std-perl' },
   { name => "DateTime",                            url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-perl' },
+  { name => "DateTime::Format::Strptime",          url => "http://search.cpan.org/~drolsky/",   debian => 'libdatetime-format-strptime-perl' },
   { name => "DBI",             version => '1.50',  url => "http://search.cpan.org/~timb/",      debian => 'libdbi-perl' },
   { name => "DBD::Pg",         version => '1.49',  url => "http://search.cpan.org/~dbdpg/",     debian => 'libdbd-pg-perl' },
   { name => "Email::Address",                      url => "http://search.cpan.org/~rjbs/",      debian => 'libemail-address-perl' },
