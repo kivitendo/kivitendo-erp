@@ -48,6 +48,13 @@
     </tr>
 
     <tr>
+     <th align="right">[%- LxERP.t8('Create first invoice on') %]<sup>(2)</sup></th>
+     <td valign="top">
+      [% L.date_tag("first_billing_date_as_date", first_billing_date_as_date) %]
+     </td>
+    </tr>
+
+    <tr>
      <th align="right">[% LxERP.t8('Extend automatically by n months') %]</th>
      <td valign="top">
       [% L.input_tag("extend_automatically_by", extend_automatically_by, size => 10) %]
@@ -85,6 +92,7 @@
   <hr>
 
   <p>(1): [%- LxERP.t8('The end date is the last day for which invoices will possibly be created.') %]</p>
+  <p>(2): [% LxERP.t8("If missing then the start date will be used.") %]</p>
 
   [% L.hidden_tag('action', 'save_periodic_invoices_config') %]
 

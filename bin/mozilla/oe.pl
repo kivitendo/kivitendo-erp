@@ -1930,7 +1930,7 @@ sub edit_periodic_invoices_config {
 
   if ('HASH' ne ref $config) {
     $config =  { periodicity             => 'y',
-                 start_date_as_date      => $::form->{transdate},
+                 start_date_as_date      => $::form->{transdate} || $::form->current_date,
                  extend_automatically_by => 12,
                  active                  => 1,
                };
@@ -1965,6 +1965,7 @@ sub save_periodic_invoices_config {
                  periodicity             => (any { $_ eq $::form->{periodicity} } qw(m q b y)) ? $::form->{periodicity} : 'm',
                  start_date_as_date      => $::form->{start_date_as_date},
                  end_date_as_date        => $::form->{end_date_as_date},
+                 first_billing_date_as_date => $::form->{first_billing_date_as_date},
                  print                   => $::form->{print} ? 1 : 0,
                  printer_id              => $::form->{print} ? $::form->{printer_id} * 1 : undef,
                  copies                  => $::form->{copies} * 1 ? $::form->{copies} : 1,
