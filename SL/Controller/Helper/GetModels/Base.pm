@@ -70,6 +70,20 @@ provides some common ground.
 
 =over 4
 
+=item read_params
+
+This will be called when GetModels transitions to C<Init> phase.
+Make sure that you don't need anything from source after that.
+
+=item finalize
+
+This will be called when GetModels transitions to C<finalized> phase. Make sure
+that no internal state or configuration gets changed after this.
+
+=item merge_args
+
+Common function to merge the output of various callbacks.
+
 =back
 
 =head1 BUGS AND CAVEATS
