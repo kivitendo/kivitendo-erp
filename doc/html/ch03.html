@@ -43,6 +43,10 @@
           formatierte Variablen durch für die jeweils aktuelle Abrechnungsperiode gültigen Werte ersetzt. Damit ist es möglich, z.B. den
           Abrechnungszeitraum explizit auszuweisen. Eine Variable hat dabei die Syntax <code class="literal">&lt;%variablenname%&gt;</code>.
         </p><p>
+         Sofern es sich um eine Datumsvariable handelt, kann das Ausgabeformat weiter bestimmt werden, indem an den Variablennamen
+         Formatoptionen angehängt werden. Die Syntax sieht dabei wie folgt aus: <code class="literal">&lt;%variablenname
+         FORMAT=Formatinformation%&gt;</code>. Die zur verfügung stehenden Formatinformationen werden unten genauer beschrieben.
+        </p><p>
           Diese Variablen werden in den folgenden Elementen des Auftrags ersetzt:
         </p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p>Bemerkungen</p></li><li class="listitem"><p>Interne Bemerkungen</p></li><li class="listitem"><p>Vorgangsbezeichnung</p></li><li class="listitem"><p>In den Beschreibungs- und Langtextfeldern aller Positionen</p></li></ul></div><p>Die zur Verfügung stehenden Variablen sind die Folgenden:</p><div class="variablelist"><dl><dt><span class="term">
                      <code class="varname">&lt;%current_quarter%&gt;</code>, <code class="varname">&lt;%previous_quarter%&gt;</code>, <code class="varname">&lt;%next_quarter%&gt;</code>
@@ -65,7 +69,53 @@
                   </span></dt><dd><p>
                 Formatiertes Datum des ersten und letzten Tages im Abrechnungszeitraum (z.B. bei quartalsweiser Abrechnung und im ersten
                 Quartal von 2013 wären dies der <code class="literal">01.01.2013</code> und <code class="literal">31.03.2013</code>).
-              </p></dd></dl></div></div><div class="sect2" title="3.1.4. Auflisten"><div class="titlepage"><div><div><h3 class="title"><a name="features.periodic-invoices.reports"></a>3.1.4. Auflisten</h3></div></div></div><p>Unter Verkauf-&gt;Berichte-&gt;Aufträge finden sich zwei neue
+              </p></dd></dl></div><p>
+         Die invidiuellen Formatinformationen bestehen aus Paaren von Prozentzeichen und einem Buchstaben, welche beide zusammen durch den
+         dazugehörigen Wert ersetzt werden. So wird z.B. <code class="literal">%Y</code> durch das viertstellige Jahr ersetzt. Alle möglichen
+         Platzhalter sind:
+        </p><div class="variablelist"><dl><dt><span class="term">
+                     <code class="varname">%a</code>
+                  </span></dt><dd><p>Der abgekürzte Wochentagsname.</p></dd><dt><span class="term">
+                     <code class="varname">%A</code>
+                  </span></dt><dd><p>Der ausgeschriebene Wochentagsname.</p></dd><dt><span class="term">
+                     <code class="varname">%b</code>
+                  </span></dt><dd><p>Der abgekürzte Monatsname.</p></dd><dt><span class="term">
+                     <code class="varname">%B</code>
+                  </span></dt><dd><p>Der ausgeschriebene Monatsname.</p></dd><dt><span class="term">
+                     <code class="varname">%C</code>
+                  </span></dt><dd><p>Das Jahrhundert (Jahr/100) als eine zweistellige Zahl.</p></dd><dt><span class="term">
+                     <code class="varname">%d</code>
+                  </span></dt><dd><p>Der Monatstag als Zahl zwischen 01 und 31.</p></dd><dt><span class="term">
+                     <code class="varname">%D</code>
+                  </span></dt><dd><p>Entspricht %m/%d/%y (amerikanisches Datumsformat).</p></dd><dt><span class="term">
+                     <code class="varname">%e</code>
+                  </span></dt><dd><p>Wie %d (Monatstag als Zahl zwischen 1 und 31), allerdings werden führende Nullen durch Leerzeichen ersetzt.</p></dd><dt><span class="term">
+                     <code class="varname">%F</code>
+                  </span></dt><dd><p>Entspricht %Y-%m-%d (das ISO-8601-Datumsformat).</p></dd><dt><span class="term">
+                     <code class="varname">%j</code>
+                  </span></dt><dd><p>Der Tag im Jahr als Zahl zwischen 001 und 366 inklusive.</p></dd><dt><span class="term">
+                     <code class="varname">%m</code>
+                  </span></dt><dd><p>Der Monat als Zahl zwischen 01 und 12 inklusive.</p></dd><dt><span class="term">
+                     <code class="varname">%u</code>
+                  </span></dt><dd><p>Der Wochentag als Zahl zwischen 1 und 7 inklusive, wobei die 1 dem Montag entspricht.</p></dd><dt><span class="term">
+                     <code class="varname">%U</code>
+                  </span></dt><dd><p>Die Wochennummer als Zahl zwischen 00 und 53 inklusive, wobei der erste Sonntag im Jahr das Startdatum von Woche 01 ist.</p></dd><dt><span class="term">
+                     <code class="varname">%V</code>
+                  </span></dt><dd><p>Die ISO-8601:1988-Wochennummer als Zahl zwischen 01 und 53 inklusive, wobei Woche 01 die erste Woche, von der mindestens vier Tage im Jahr liegen; Montag ist erster Tag der Woche.</p></dd><dt><span class="term">
+                     <code class="varname">%w</code>
+                  </span></dt><dd><p>Der Wochentag als Zahl zwischen 0 und 6 inklusive, wobei die 0 dem Sonntag entspricht.</p></dd><dt><span class="term">
+                     <code class="varname">%W</code>
+                  </span></dt><dd><p>Die Wochennummer als Zahl zwischen 00 und 53 inklusive, wobei der erste Montag im Jahr das Startdatum von Woche 01 ist.</p></dd><dt><span class="term">
+                     <code class="varname">%y</code>
+                  </span></dt><dd><p>Das Jahr als zweistellige Zahl zwischen 00 und 99 inklusive.</p></dd><dt><span class="term">
+                     <code class="varname">%Y</code>
+                  </span></dt><dd><p>Das Jahr als vierstellige Zahl.</p></dd><dt><span class="term">
+                     <code class="varname">%%</code>
+                  </span></dt><dd><p>Das Prozentzeichen selber.</p></dd></dl></div><p>
+         Anwendungsbeispiel für die Ausgabe, von welchem Monat und Jahr bis zu welchem Monat und Jahr die aktuelle Abrechnungsperiode
+         dauert: <code class="literal">Abrechnungszeitrum: &lt;%period_start_date FORMAT=%m/%Y%&gt; bis &lt;%period_end_date FORMAT=%m/%Y%&gt;</code>
+        
+            </p></div><div class="sect2" title="3.1.4. Auflisten"><div class="titlepage"><div><div><h3 class="title"><a name="features.periodic-invoices.reports"></a>3.1.4. Auflisten</h3></div></div></div><p>Unter Verkauf-&gt;Berichte-&gt;Aufträge finden sich zwei neue
         Checkboxen, "Wiederkehrende Rechnungen aktiv" und "Wiederkehrende
         Rechnungen inaktiv", mit denen man sich einen Überglick über die
         wiederkehrenden Rechnungen verschaffen kann.</p></div><div class="sect2" title="3.1.5. Erzeugung der eigentlichen Rechnungen"><div class="titlepage"><div><div><h3 class="title"><a name="features.periodic-invoices.task-server"></a>3.1.5. Erzeugung der eigentlichen Rechnungen</h3></div></div></div><p>Die zeitliche und periodische Überprüfung, ob eine
