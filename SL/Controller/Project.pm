@@ -227,7 +227,6 @@ sub init_models {
 
   SL::Controller::Helper::GetModels->new(
     controller => $self,
-    model  => 'Project',
     sorted => {
       _default => {
         by    => 'projectnumber',
