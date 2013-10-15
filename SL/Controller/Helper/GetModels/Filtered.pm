@@ -140,7 +140,6 @@ In a controller:
     filtered => 0,
   );
 
-
 =head1 OVERVIEW
 
 This C<GetModels> plugin enables use of the

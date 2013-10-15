@@ -122,59 +122,30 @@ of paginating lists of database models in a controller
 
 In a controller:
 
-  use SL::Controller::Helper::GetModels;
-  use SL::Controller::Helper::Paginated;
-
-  __PACKAGE__->make_paginated(
-    MODEL       => 'BackgroundJobHistory',
-    ONLY        => [ qw(list) ],
-    FORM_PARAMS => [ qw(page per_page) ],
+  SL::Controller::Helper::GetModels->new(
+    ..
+    paginated => {
+      form_params => [ qw(page per_page) ],
+      per_page    => 20,
+    }
   );
 
-  sub action_list {
-    my ($self) = @_;
-
-    my $paginated_models = $self->get_models;
-    $self->render('controller/list', ENTRIES => $paginated_models);
-  }
-
 In said template:
-
-  [% USE L %]
-
-  <table>
-   <thead>
-    <tr>
-     ...
-    </tr>
-   </thead>
-
-   <tbody>
-    [% FOREACH entry = ENTRIES %]
-     <tr>
-      ...
-     </tr>
-    [% END %]
-   </tbody>
-  </table>
 
   [% L.paginate_controls %]
 
 =head1 OVERVIEW
 
-This specialized helper module enables controllers to display a
-paginatable list of database models with as few lines as possible. It
-can also be combined trivially with the L<SL::Controller::Sorted>
-helper for sortable lists.
+This C<GetModels> plugin enables controllers to display a
+paginatable list of database models with as few lines as possible.
 
 For this to work the controller has to provide the information which
-indexes are eligible for paginateing etc. by a call to
-L<make_paginated> at compile time.
+indexes are eligible for paginateing etc. during C<GetModels> creation.
 
 The underlying functionality that enables the use of more than just
 the paginate helper is provided by the controller helper
-C<GetModels>. See the documentation for L<SL::Controller::Sorted> for
-more information on it.
+C<GetModels>. See the documentation for L<SL::Controller::Helper::GetModels>
+for more information on it.
 
 A template can use the method C<paginate_controls> from the layout
 helper module C<L> which renders the links for navigation between the
@@ -183,53 +154,18 @@ pages.
 This module requires that the Rose model managers use their C<Paginated>
 helper.
 
-The C<Paginated> helper hooks into the controller call to the action via
-a C<run_before> hook. This is done so that it can remember the paginate
-parameters that were used in the current view.
-
-=head1 PACKAGE FUNCTIONS
+=head1 OPTIONS
 
 =over 4
 
-=item C<make_paginated %paginate_spec>
+=item * C<per_page>
 
-This function must be called by a controller at compile time. It is
-uesd to set the various parameters required for this helper to do its
-magic.
-
-The hash C<%paginate_spec> can include the following parameters:
-
-=over 4
-
-=item * C<MODEL>
-
-Optional. A string: the name of the Rose database model that is used
-as a default in certain cases. If this parameter is missing then it is
-derived from the controller's package (e.g. for the controller
-C<SL::Controller::BackgroundJobHistory> the C<MODEL> would default to
-C<BackgroundJobHistory>).
-
-=item * C<PAGINATE_ARGS>
-
-Optional. Either a code reference or the name of function to be called
-on the controller importing this helper.
-
-If this funciton is given then the paginate helper calls it whenever
-it has to count the total number of models for calculating the number
-of pages to display. The function must return a hash reference with
-elements suitable for passing to a Rose model manager's C<get_all>
-function.
-
-This can be used e.g. when filtering is used.
-
-=item * C<PER_PAGE>
-
-Optional. An integer: the number of models to return per page.
+Optional. The number of models to return per page.
 
 Defaults to the underlying database model's default number of models
 per page.
 
-=item * C<FORM_PARAMS>
+=item * C<form_params>
 
 Optional. An array reference with exactly two strings that name the
 indexes in C<$::form> in which the current page's number (the first
@@ -238,19 +174,11 @@ element in the array) are stored.
 
 Defaults to the values C<page> and C<per_page> if missing.
 
-=item * C<ONLY>
-
-Optional. An array reference containing a list of action names for
-which the paginate parameters should be saved. If missing or empty then
-all actions invoked on the controller are monitored.
-
-=back
-
 =back
 
 =head1 INSTANCE FUNCTIONS
 
-These functions are called on a controller instance.
+These functions are called on a C<GetModels> instance and delegated here.
 
 =over 4
 
@@ -285,24 +213,26 @@ displayed).
 
 =item C<get_current_paginate_params>
 
-Returns a hash reference to the paginate spec structure given in the call
-to L<make_paginated> after normalization (hash reference construction,
+Returns a hash reference to the paginate spec structure given in the
+configuration after normalization (hash reference construction,
 applying default parameters etc).
-
-=item C<disable_pagination>
-
-Disable pagination for the duration of the current action. Can be used
-when using the attribute C<ONLY> to L<make_paginated> does not
-cover all cases.
 
 =back
 
 =head1 BUGS
 
-Nothing here yet.
+C<common_pages> generates an array with an entry for every page, which gets
+slow if there are a lot of entries. Current observation holds that up to about
+1000 pages there is no noticable slowdown, but at about 10000 it gets
+noticable. At 100k-500k pages it's takes way too long and should be remodelled.
+
+This case currently only applies for databases with very large amounts of parts
+that get paginated, but BackgroundJobHistory can also accumulate.
 
 =head1 AUTHOR
 
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut

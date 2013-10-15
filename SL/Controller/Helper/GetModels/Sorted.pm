@@ -143,34 +143,26 @@ of sorting lists of database models in a controller
 
 In a controller:
 
-  use SL::Controller::Helper::GetModels;
-  use SL::Controller::Helper::Sorted;
-
-  __PACKAGE__->make_sorted(                                     # update this
-    DEFAULT_BY   => 'run_at',
-    DEFAULT_DIR  => 1,
-    MODEL        => 'BackgroundJobHistory',
-    ONLY         => [ qw(list) ],
-
-    error        => $::locale->text('Error'),
-    package_name => $::locale->text('Package name'),
-    run_at       => $::locale->text('Run at'),
+  SL::Controller::Helper::GetModels->new(
+    ...
+    sorted => {
+      _default => {
+        by  => 'run_at',
+        dir => 1,
+      },
+      error        => $::locale->text('Error'),
+      package_name => $::locale->text('Package name'),
+      run_at       => $::locale->text('Run at'),
+    },
   );
 
-  sub action_list {
-    my ($self) = @_;
-
-    my $sorted_models = $self->get_models;
-    $self->render('controller/list', ENTRIES => $sorted_models);
-  }
-
-In said template:
+In template:
 
   [% USE L %]
 
   <table>
    <tr>
-    <th>[% L.sortable_table_header('package_name') %]</th>         # models
+    <th>[% L.sortable_table_header('package_name') %]</th>
     <th>[% L.sortable_table_header('run_at') %]</th>
     <th>[% L.sortable_table_header('error') %]</th>
    </tr>
@@ -186,95 +178,44 @@ In said template:
 
 =head1 OVERVIEW
 
-This specialized helper module enables controllers to display a
+This C<GetModels> plugin enables controllers to display a
 sortable list of database models with as few lines as possible.
 
 For this to work the controller has to provide the information which
-indexes are eligible for sorting etc. by a call to L<make_sorted> at  #not compiletime
-compile time.
+indexes are eligible for sorting etc. through it's configuration of
+C<GetModels>.
 
-The underlying functionality that enables the use of more than just
-the sort helper is provided by the controller helper C<GetModels>. It
-provides mechanisms for helpers like this one to hook into certain
-calls made by the controller (C<get_callback> and C<get_models>) so
-that the specialized helpers can inject their parameters into the
-calls to e.g. C<SL::DB::Manager::SomeModel::get_all>.
+A template can then use the method C<sortable_table_header> from the layout
+helper module C<L>.
 
-A template on the other hand can use the method
-C<sortable_table_header> from the layout helper module C<L>.
+This module requires that the Rose model managers use their
+C<SL::DB::Helper::Sorted> helper.
 
-This module requires that the Rose model managers use their C<Sorted>
-helper.
-
-The C<Sorted> helper hooks into the controller call to the action via
-a C<run_before> hook. This is done so that it can remember the sort
-parameters that were used in the current view.
-
-=head1 PACKAGE FUNCTIONS
+=head1 OPTIONS
 
 =over 4
 
-=item C<make_sorted %sort_spec>                                         # meh complete rewrite
+=item * C<_default HASHREF>
 
-This function must be called by a controller at compile time. It is
-uesd to set the various parameters required for this helper to do its
-magic.
+Optional. If it exists, it is expected to contain the keys C<by> and C<dir> and
+will be used to set the default sorting if nothing is found in C<source>.
 
-There are two sorts of keys in the hash C<%sort_spec>. The first kind
-is written in all upper-case. Those parameters are control
-parameters. The second kind are all lower-case and represent indexes
-that can be used for sorting (similar to database column names). The
-second kind are also the indexes you use in a template when calling
-C<[% L.sorted_table_header(...) %]>.
+Defaults to the underlying database model's default.
 
-Control parameters include the following:
-
-=over 4
-
-=item * C<MODEL>
-
-Optional. A string: the name of the Rose database model that is used
-as a default in certain cases. If this parameter is missing then it is
-derived from the controller's package (e.g. for the controller
-C<SL::Controller::BackgroundJobHistory> the C<MODEL> would default to
-C<BackgroundJobHistory>).
-
-=item * C<DEFAULT_BY>
-
-Optional. A string: the index to sort by if the user hasn't clicked on
-any column yet (meaning: if the C<$::form> parameters for sorting do
-not contain a valid index).
-
-Defaults to the underlying database model's default sort column name.
-
-=item * C<DEFAULT_DIR>
-
-Optional. Default sort direction (ascending for trueish values,
-descrending for falsish values).
-
-Defaults to the underlying database model's default sort direction.
-
-=item * C<FORM_PARAMS>
+=item * C<form_params>
 
 Optional. An array reference with exactly two strings that name the
-indexes in C<$::form> in which the sort index (the first element in
+indexes in C<source> in which the sort index (the first element in
 the array) and sort direction (the second element in the array) are
 stored.
 
 Defaults to the values C<sort_by> and C<sort_dir> if missing.
 
-=item * C<ONLY>
-
-Optional. An array reference containing a list of action names for
-which the sort parameters should be saved. If missing or empty then
-all actions invoked on the controller are monitored.
-
 =back
 
-All keys that are written in all lower-case name indexes that can be
-used for sorting. Each value to such a key can be either a string or a
-hash reference containing certain elements. If the value is only a
-string then such a hash reference is constructed, and the string is
+All other keys can be used for sorting. Each value to such a key can be either
+a string or a hash reference containing certain elements. If the value is only
+a string then such a hash reference is constructed, and the string is
 used as the value for the C<title> key.
 
 These possible elements are:
@@ -311,7 +252,7 @@ reference is the value.
 
 =head1 INSTANCE FUNCTIONS
 
-These functions are called on a controller instance.
+These functions are called on a C<GetModels> instance and delegating to this plugin.
 
 =over 4
 
@@ -320,15 +261,15 @@ These functions are called on a controller instance.
 Returns a hash containing the currently active sort parameters.
 
 The key C<by> contains the active sort index referring to the
-C<%sort_spec> given to L<make_sorted>.
+C<%sort_spec> given by the configuration.
 
 The key C<dir> is either C<1> or C<0>.
 
 =item C<get_current_sort_params>
 
-Returns a hash reference to the sort spec structure given in the call
-to L<make_sorted> after normalization (hash reference construction,
-applying default parameters etc).
+Returns a hash reference to the sort spec structure given in the configuration
+after normalization (hash reference construction, applying default parameters
+etc).
 
 =item C<set_report_generator_sort_options %params>
 
@@ -342,7 +283,7 @@ L<SL::ReportGenerator>:
 =item 2. it sets the the links for those column headers that are
 sortable and
 
-=item 3. it adds the C<FORM_PARAMS> fields to the list of variables in
+=item 3. it adds the C<form_params> fields to the list of variables in
 the report generator's export options.
 
 =back
@@ -364,5 +305,7 @@ Nothing here yet.
 =head1 AUTHOR
 
 Moritz Bunkus E<lt>m.bunkus@linet-services.deE<gt>
+
+Sven Schöling E<lt>s.schoeling@linet-services.deE<gt>
 
 =cut
