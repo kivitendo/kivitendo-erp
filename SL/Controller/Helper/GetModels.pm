@@ -220,13 +220,13 @@ paginating footers.
 
 Information about the requested data query can be stored into the object up to
 a certain point, from which on the object becomes locked and can only be
-accessed for information. (Seee TODO STAGES).
+accessed for information. (See C<STATES>).
 
 =head1 INTERFACE METHODS
 
 =over 4
 
-=item new PARMAS
+=item new PARAMS
 
 Create a new GetModels object. Params must have at least an entry
 C<controller>, other than that, see C<CONFIGURATION> for options.
@@ -293,6 +293,8 @@ certain plugin methods.
 
 =head1 DELEGATION METHODS
 
+All of these finalize.
+
 Methods delegating to C<Sorted>:
 
 =over 4
@@ -336,16 +338,16 @@ This is the state after creating a new object.
 
 =item Init
 
-In this state every information needed from the source ($::form) has beed read
+In this state every information needed from the source ($::form) has been read
 and subsequent changes to the source have no effect. In the current
-implementation this will called immediately during creation, so that the return
-value of C<new> is already in state C<Init>.
+implementation this will happen during creation, so that the return value of
+C<new> is already in state C<Init>.
 
 =item Finalized
 
 In this state no new configuration will be accepted so that information gotten
 through the various methods is consistent. Every information retrieval method
-will trigger finalizing.
+will trigger finalize.
 
 =back
 
@@ -376,7 +378,7 @@ Configuration for plugins. If the option for any plugin is omitted, it defaults
 to enabled and configured by default. Giving a falsish value as first argument
 will disable the plugin.
 
-If the value is a hashref, it will be passed to the plugin C<init> method.
+If the value is a hashref, it will be passed to the plugin's C<init> method.
 
 =item query
 
