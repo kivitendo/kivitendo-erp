@@ -101,7 +101,6 @@ sub init_models {
 
   SL::Controller::Helper::GetModels->new(
     controller => $self,
-    model  => 'BackgroundJobHistory',
     sorted => {
       package_name => t8('Package name'),
       run_at       => t8('Run at'),

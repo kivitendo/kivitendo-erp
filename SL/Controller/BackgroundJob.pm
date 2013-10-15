@@ -158,7 +158,6 @@ sub init_back_to {
 sub init_models {
   SL::Controller::Helper::GetModels->new(
     controller => $_[0],
-    model  => 'BackgroundJob',
     filtered => 0,
     sorted => {
       package_name => t8('Package name'),

@@ -79,7 +79,6 @@ sub init_models {
 
   SL::Controller::Helper::GetModels->new(
     controller => $self,
-    model  => 'Part',
     sorted => {
       _default  => {
         by => 'partnumber',
