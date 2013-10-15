@@ -122,125 +122,77 @@ __END__
 
 =head1 NAME
 
-SL::Controller::Helper::Filtered - A helper for semi-automatic handling
-of filtered lists of database models in a controller
+SL::Controller::Helper::GetModels::Filtered - Filter handling plugin for GetModels
 
 =head1 SYNOPSIS
 
 In a controller:
 
-  use SL::Controller::Helper::GetModels;
-  use SL::Controller::Helper::Filtered;
+  SL::Controller::Helper::GetModels->new(
+    ...
+    filtered => {
+      filter      => HASHREF,
+      launder_to  => HASHREF | SUBNAME | '__INPLACE__',
+    }
 
-  __PACKAGE__->make_filter(
-    MODEL       => 'Part',
-    ONLY        => [ qw(list) ],
-    FORM_PARAMS => [ qw(filter) ],
+    OR
+
+    filtered => 0,
   );
-
-  sub action_list {
-    my ($self) = @_;
-
-    my $filtered_models = $self->get_models(%addition_filters);
-    $self->render('controller/list', ENTRIES => $filtered_models);
-  }
 
 
 =head1 OVERVIEW
 
-This helper module enables use of the L<SL::Controller::Helper::ParseFilter>
-methods in conjunction with the L<SL::Controller::Helper::GetModels> style of
-plugins. Additional filters can be defined in the database models and filtering
-can be reduced to a minimum of work.
-
-This plugin can be combined with L<SL::Controller::Sorted> and
-L<SL::Controller::Paginated> for filtered, sorted and paginated lists.
-
-The controller has to provive information where to look for filter information
-at compile time. This call is L<make_filtered>.
+This C<GetModels> plugin enables use of the
+L<SL::Controller::Helper::ParseFilter> methods. Additional filters can be
+defined in the database models and filtering can be reduced to a minimum of
+work.
 
 The underlying functionality that enables the use of more than just
 the paginate helper is provided by the controller helper
-C<GetModels>. See the documentation for L<SL::Controller::Sorted> for
+C<GetModels>. See the documentation for L<SL::Controller::Helper::GetModels> for
 more information on it.
 
-=head1 PACKAGE FUNCTIONS
+=head1 OPTIONS
 
 =over 4
 
-=item C<make_filtered %filter_spec>
+=item * C<filter>
 
-This function must be called by a controller at compile time. It is
-uesd to set the various parameters required for this helper to do its
-magic.
+Optional. Indicates a key in C<source> to be used as filter.
 
-Careful: If you want to use this in conjunction with
-L<SL:Controller::Helper::Paginated>, you need to call C<make_filtered> first,
-or the paginating will not get all the relevant information to estimate the
-number of pages correctly. To ensure this does not happen, this module will
-croak when it detects such a scenario.
+Defaults to the value C<filter> if missing.
 
-The hash C<%filter_spec> can include the following parameters:
+=item * C<launder_to>
 
-=over 4
-
-=item * C<MODEL>
-
-Optional. A string: the name of the Rose database model that is used
-as a default in certain cases. If this parameter is missing then it is
-derived from the controller's package (e.g. for the controller
-C<SL::Controller::BackgroundJobHistory> the C<MODEL> would default to
-C<BackgroundJobHistory>).
-
-=item * C<FORM_PARAMS>
-
-Optional. Indicates a key in C<$::form> to be used as filter.
-
-Defaults to the values C<filter> if missing.
-
-=item * C<LAUNDER_TO>
-
-Option. Indicates a target for laundered filter arguments in the controller.
+Optional. Indicates a target for laundered filter arguments in the controller.
 Can be set to C<undef> to disable laundering, and can be set to method named or
 hash keys of the controller. In the latter case the laundered structure will be
 put there.
 
-Defaults to inplace laundering which is not normally settable.
+Defaults to the controller. Laundered values will end up in C<SELF.filter> for
+template purposes.
 
-=item * C<ONLY>
-
-Optional. An array reference containing a list of action names for
-which the paginate parameters should be saved. If missing or empty then
-all actions invoked on the controller are monitored.
+Setting this to the special value C<__INPLACE__> will cause inplace laundering.
 
 =back
 
-=back
+=head1 FILTER FORMAT
 
-=head1 INSTANCE FUNCTIONS
+See L<SL::Controller::Helper::ParseFilter> for a description of the filter format.
 
-These functions are called on a controller instance.
+=head1 CUSTOM FILTERS
 
-=over 4
-
-=item C<get_current_filter_params>
-
-Returns a hash to be used in manager C<get_all> calls or to be passed on to
-GetModels. Will only work if the get_models chain has been called at least
-once, because only then the full parameters can get parsed and stored. Will
-croak otherwise.
-
-=item C<disable_filtering>
-
-Disable filtering for the duration of the current action. Can be used
-when using the attribute C<ONLY> to L<make_filtered> does not
-cover all cases.
-
-=back
+C<Filtered> will honor custom filters defined in RDBO managers. See
+L<SL::DB::Helper::Filtered> for an explanation fo those.
 
 =head1 BUGS
 
-Nothing here yet.
+=over 4
+
+=item * There is currently no easy way to filter for CVars.
+
+=back
 
 =head1 AUTHOR
 
