@@ -248,8 +248,6 @@ reference is the value.
 
 =back
 
-=back
-
 =head1 INSTANCE FUNCTIONS
 
 These functions are called on a C<GetModels> instance and delegating to this plugin.
