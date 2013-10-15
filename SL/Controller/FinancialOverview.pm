@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use List::MoreUtils qw(none);
 
+use SL::DB::Employee;
 use SL::DB::Invoice;
 use SL::DB::Order;
 use SL::DB::PurchaseInvoice;
@@ -12,7 +13,8 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(report number_columns year current_year types objects data subtotals_per_quarter) ],
+  scalar                  => [ qw(report number_columns year current_year types objects data subtotals_per_quarter salesman_id) ],
+  'scalar --get_set_init' => [ qw(employees) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('report'); });
@@ -20,7 +22,7 @@ __PACKAGE__->run_before(sub { $::auth->assert('report'); });
 sub action_list {
   my ($self) = @_;
 
-  $self->subtotals_per_quarter($::form->{subtotals_per_quarter});
+  $self->$_($::form->{$_}) for qw(subtotals_per_quarter salesman_id);
 
   $self->get_objects;
   $self->calculate_data;
@@ -64,7 +66,7 @@ sub prepare_report {
   );
   $self->report->set_columns(%column_defs);
   $self->report->set_column_order(@columns);
-  $self->report->set_export_options(qw(list year subtotals_per_quarter));
+  $self->report->set_export_options(qw(list year subtotals_per_quarter salesman_id));
   $self->report->set_options_from_form;
 }
 
@@ -77,15 +79,16 @@ sub get_objects {
   my $start       = DateTime->new(year => $self->year, month => 1, day => 1);
   my $end         = DateTime->new(year => $self->year, month => 12, day => 31);
 
-  my @date_filter = (and => [ transdate => { ge => $start }, transdate => { le => $end } ]);
+  my @f_date      = (transdate => { ge => $start }, transdate => { le => $end });
+  my @f_salesman  = $self->salesman_id ? (salesman_id => $self->salesman_id) : ();
 
   $self->objects({
-    sales_quotations       => SL::DB::Manager::Order->get_all(          where => [ and => [ @date_filter, SL::DB::Manager::Order->type_filter('sales_quotation')   ]]),
-    sales_orders           => SL::DB::Manager::Order->get_all(          where => [ and => [ @date_filter, SL::DB::Manager::Order->type_filter('sales_order')       ]]),
-    requests_for_quotation => SL::DB::Manager::Order->get_all(          where => [ and => [ @date_filter, SL::DB::Manager::Order->type_filter('request_quotation') ]]),
-    purchase_orders        => SL::DB::Manager::Order->get_all(          where => [ and => [ @date_filter, SL::DB::Manager::Order->type_filter('purchase_order')    ]]),
-    sales_invoices         => SL::DB::Manager::Invoice->get_all(        where => \@date_filter),
-    purchase_invoices      => SL::DB::Manager::PurchaseInvoice->get_all(where => \@date_filter),
+    sales_quotations       => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('sales_quotation')   ]]),
+    sales_orders           => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('sales_order')       ]]),
+    requests_for_quotation => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('request_quotation') ]]),
+    purchase_orders        => SL::DB::Manager::Order->get_all(          where => [ and => [ @f_date, @f_salesman, SL::DB::Manager::Order->type_filter('purchase_order')    ]]),
+    sales_invoices         => SL::DB::Manager::Invoice->get_all(        where => [ and => [ @f_date, @f_salesman, ]]),
+    purchase_invoices      => SL::DB::Manager::PurchaseInvoice->get_all(where => [ and =>  \@f_date ]),
   });
 }
 
@@ -161,5 +164,7 @@ sub list_data {
 
   return $self->report->generate_with_headers;
 }
+
+sub init_employees { SL::DB::Manager::Employee->get_all_sorted }
 
 1;
