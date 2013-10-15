@@ -35,6 +35,7 @@
 use Carp;
 use POSIX qw(strftime);
 
+use SL::DB::Order;
 use SL::DO;
 use SL::FU;
 use SL::OE;
@@ -312,6 +313,18 @@ sub form_header {
   # Container for template variables. Unfortunately this has to be
   # visible in form_footer too, so package local level and not my here.
   %TMPL_VAR = ();
+  if ($form->{id}) {
+    my $obj = SL::DB::Order->new(id => $form->{id})->load;
+    $TMPL_VAR{warn_save_active_periodic_invoice} =
+         $obj->is_type('sales_order')
+      && $obj->periodic_invoices_config
+      && $obj->periodic_invoices_config->active
+      && (   !$obj->periodic_invoices_config->end_date
+          || ($obj->periodic_invoices_config->end_date > DateTime->today_local))
+      && $obj->periodic_invoices_config->get_previous_invoice_date;
+
+    $TMPL_VAR{oe_obj} = $obj;
+  }
 
   $form->{defaultcurrency} = $form->get_default_currency(\%myconfig);
 

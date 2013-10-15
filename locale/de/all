@@ -2346,6 +2346,7 @@ $self->{texts} = {
   'This option controls the posting and calculation behavior for the accounting method.' => 'Dieser Parameter steuert die Buchungs- und Berechnungsmethoden für die Versteuerungsart.',
   'This partnumber is not unique. You should change it.' => 'Diese Artikelnummer ist nicht eindeutig. Bitte wählen Sie eine andere.',
   'This requires you to manually correct entries for which an automatic conversion failed and to check those for which it succeeded.' => 'Dies erfordert, dass Sie diejenigen Einträge manuell korrigieren, für die die automatische Umstellung fehlschlug, sowie dass Sie diejenigen überprüfen, für die die Umstellung erfolgreich war.',
+  'This sales order has an active configuration for periodic invoices. If you save then all subsequently created invoices will contain those changes as well, but not those that have already been created. Do you want to continue?' => 'Dieser Auftrag besitzt eine aktive Konfiguration für wiederkehrende Rechnungen. Wenn Sie jetzt speichern, so werden alle zukünftig hieraus erzeugten Rechnungen die Änderungen enthalten, nicht aber die bereits erzeugten Rechnungen. Wollen Sie speichern?',
   'This transaction has to be split into several transactions manually.' => 'Diese Buchung muss manuell in mehrere Buchungen aufgeteilt werden.',
   'This update will change the nature the onhand of goods is tracked.' => 'Dieses update &auml;ndert die Art und Weise wie Lagermengen gez&auml;lt werden.',
   'This user is a member in the following groups' => 'Dieser Benutzer ist Mitglied in den folgenden Gruppen',

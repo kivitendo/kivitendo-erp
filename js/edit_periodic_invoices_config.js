@@ -14,3 +14,7 @@ function edit_periodic_invoices_config() {
   // alert(url);
   window.open(url, "_new_generic", parm);
 }
+
+function warn_save_active_periodic_invoice() {
+  return confirm(kivi.t8('This sales order has an active configuration for periodic invoices. If you save then all subsequently created invoices will contain those changes as well, but not those that have already been created. Do you want to continue?'));
+}
