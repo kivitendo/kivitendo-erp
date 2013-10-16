@@ -24,7 +24,6 @@ my %sort_columns = (
   transaction_description => t8('Transaction description'),
   globalprojectnumber     => t8('Project'),
   globalproject_type      => t8('Project Type'),
-  netamount               => t8('Order amount'),
 );
 
 sub action_list {
@@ -51,13 +50,13 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(customer globalprojectnumber globalproject_type ordnumber netamount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
+  my @columns     = qw(customer globalprojectnumber globalproject_type ordnumber net_amount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
                        billable_amount billable_amount_p other_amount);
-  my @sortable    = qw(ordnumber transdate customer netamount globalprojectnumber globalproject_type);
-  $self->{number_columns} = [ qw(netamount billed_amount billed_amount_p delivered_amount delivered_amount_p paid_amount paid_amount_p other_amount billable_amount billable_amount_p) ];
+  my @sortable    = qw(ordnumber transdate customer globalprojectnumber globalproject_type);
+  $self->{number_columns} = [ qw(net_amount billed_amount billed_amount_p delivered_amount delivered_amount_p paid_amount paid_amount_p other_amount billable_amount billable_amount_p) ];
 
   my %column_defs           = (
-    netamount               => {                                                                                         },
+    net_amount              => { text     => $::locale->text('Order amount')                                             },
     billed_amount           => { text     => $::locale->text('Billed amount')                                            },
     billed_amount_p         => { text     => $::locale->text('%')                                                        },
     delivered_amount        => { text     => $::locale->text('Delivered amount')                                         },
@@ -120,8 +119,16 @@ sub calculate_data {
     $order->{other_amount}      = $billed_amount             - $order->{billed_amount};
     $order->{billable_amount}   = $order->{delivered_amount} - $order->{billed_amount};
 
+    if ($order->periodic_invoices_config) {
+      my @dates = $order->periodic_invoices_config->calculate_invoice_dates(past_dates => 1, end_date => $order->periodic_invoices_config->end_date || DateTime->today_local);
+      $order->{net_amount} = $order->netamount * scalar(@dates);
+
+    } else {
+      $order->{net_amount} = $order->netamount;
+    }
+
     foreach (qw(delivered billed paid billable)) {
-      $order->{"${_}_amount_p"} = $order->netamount * 1 ? $order->{"${_}_amount"} * 100 / $order->netamount : undef;
+      $order->{"${_}_amount_p"} = $order->{net_amount} * 1 ? $order->{"${_}_amount"} * 100 / $order->{net_amount} : undef;
     }
   }
 }
@@ -219,6 +226,18 @@ sub init_models {
           'globalproject.active' => 1,
           'globalproject.valid'  => 1,
         ]],
+      # keine WR
+      # oder aber (WR aktiv und (kein enddatum oder enddatum noch nicht überschritten))
+      or => [
+        'periodic_invoices_config.id' => undef,
+        # and => [
+          'periodic_invoices_config.active' => 1,
+        #   or => [
+        #     'periodic_invoices_config.end_date' => undef,
+        #     'periodic_invoices_config.end_date' => { le => DateTime->today_local },
+        # ]
+        # ]
+      ],
     ],
     with_objects => [ 'customer', 'globalproject', 'globalproject.project_type' ],
   );
