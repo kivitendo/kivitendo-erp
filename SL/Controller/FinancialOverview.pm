@@ -145,7 +145,7 @@ sub calculate_periodic_invoices {
 sub calculate_one_periodic_invoice {
   my ($self, %params) = @_;
 
-  my @dates           = $params{config}->calculate_invoice_dates(start_date => $params{start_date}, end_date => $params{end_date});
+  my @dates           = $params{config}->calculate_invoice_dates(start_date => $params{start_date}, end_date => $params{end_date}, past_dates => 1);
   my $first_date      = $dates[0];
 
   return if !$first_date;
