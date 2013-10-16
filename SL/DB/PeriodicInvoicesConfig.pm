@@ -60,20 +60,19 @@ sub handle_automatic_extension {
   return $end_date;
 }
 
-sub get_previous_invoice_date {
+sub get_previous_billed_period_start_date {
   my $self  = shift;
 
   my $query = <<SQL;
-    SELECT MAX(ar.transdate)
+    SELECT MAX(period_start_date)
     FROM periodic_invoices
-    LEFT JOIN ar ON (ar.id = periodic_invoices.ar_id)
-    WHERE periodic_invoices.config_id = ?
+    WHERE config_id = ?
 SQL
 
-  my ($max_transdate) = $self->dbh->selectrow_array($query, undef, $self->id);
+  my ($date) = $self->dbh->selectrow_array($query, undef, $self->id);
 
-  return undef unless $max_transdate;
-  return ref $max_transdate ? $max_transdate : $self->db->parse_date($max_transdate);
+  return undef unless $date;
+  return ref $date ? $date : $self->db->parse_date($date);
 }
 
 sub calculate_invoice_dates {
@@ -82,8 +81,8 @@ sub calculate_invoice_dates {
   my $period_len = $self->get_period_length;
   my $cur_date   = $self->first_billing_date || $self->start_date;
   my $end_date   = $self->end_date           || DateTime->today_local->add(years => 10);
-  my $start_date = $params{past_dates} ? undef : $self->get_previous_invoice_date;
-  $start_date    = $start_date         ? $start_date->subtract(days => 1) : $cur_date->clone;
+  my $start_date = $params{past_dates} ? undef                       : $self->get_previous_billed_period_start_date;
+  $start_date    = $start_date         ? $start_date->add(days => 1) : $cur_date->clone;
 
   $start_date    = max($start_date, $params{start_date}) if $params{start_date};
   $end_date      = min($end_date,   $params{end_date})   if $params{end_date};

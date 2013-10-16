@@ -321,7 +321,7 @@ sub form_header {
       && $obj->periodic_invoices_config->active
       && (   !$obj->periodic_invoices_config->end_date
           || ($obj->periodic_invoices_config->end_date > DateTime->today_local))
-      && $obj->periodic_invoices_config->get_previous_invoice_date;
+      && $obj->periodic_invoices_config->get_previous_billed_period_start_date;
 
     $TMPL_VAR{oe_obj} = $obj;
   }
