@@ -9,7 +9,7 @@ function edit_periodic_invoices_config() {
   var url       = "oe.pl?" +
     "action=edit_periodic_invoices_config&" +
     "periodic_invoices_config=" + encodeURIComponent(config) + "&" +
-    "transdate="                + encodeURIComponent(transdate);
+    "transdate="                + encodeURIComponent(transdate || '');
 
   // alert(url);
   window.open(url, "_new_generic", parm);
