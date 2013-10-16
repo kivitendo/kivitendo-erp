@@ -83,7 +83,7 @@ sub calculate_invoice_dates {
   my $cur_date   = $self->first_billing_date        || $self->start_date;
   my $end_date   = $self->end_date                  || DateTime->today_local->add(years => 10);
   my $start_date = $params{past_dates} ? undef : $self->get_previous_invoice_date;
-  $start_date  ||= $cur_date->clone->subtract(days => 1);
+  $start_date    = $start_date         ? $start_date->subtract(days => 1) : $cur_date->clone;
 
   $start_date    = max($start_date, $params{start_date}) if $params{start_date};
   $end_date      = min($end_date,   $params{end_date})   if $params{end_date};
@@ -91,7 +91,7 @@ sub calculate_invoice_dates {
   my @dates;
 
   while ($cur_date <= $end_date) {
-    push @dates, $cur_date->clone if $cur_date > $start_date;
+    push @dates, $cur_date->clone if $cur_date >= $start_date;
 
     $cur_date->add(months => $period_len);
   }
