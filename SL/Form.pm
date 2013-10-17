@@ -1944,7 +1944,7 @@ sub get_duedate {
               : $self->{vendor_id}   ? SL::DB::Vendor     ->new(id => $self->{vendor_id})  ->load->payment
               :                        croak("Missing field in \$::form: payment_id, customer_id or vendor_id");
 
-  my $duedate = $terms->calc_date(reference_date => $reference_date)->to_kivitendo;
+  my $duedate = $terms ? $terms->calc_date(reference_date => $reference_date)->to_kivitendo : undef;
 
   $main::lxdebug->leave_sub();
 
