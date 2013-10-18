@@ -49,7 +49,7 @@ sub action_stock {
     parts         => $self->part,
     dst_bin       => $self->bin,
     dst_wh        => $self->warehouse,
-    qty           => $::form->format_amount(\%::myconfig, $::form->{qty}),
+    qty           => $::form->parse_amount(\%::myconfig, $::form->{qty}),
     unit          => $self->unit,
     transfer_type => 'stock',
     chargenumber  => $::form->{chargenumber},
