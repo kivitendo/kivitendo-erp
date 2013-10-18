@@ -2,7 +2,7 @@ package SL::Controller::CsvImport::Base;
 
 use strict;
 
-use List::MoreUtils qw(pairwise);
+use List::MoreUtils qw(pairwise any);
 
 use SL::Helper::Csv;
 use SL::DB::Currency;
@@ -11,6 +11,7 @@ use SL::DB::Language;
 use SL::DB::PaymentTerm;
 use SL::DB::Vendor;
 use SL::DB::Contact;
+use SL::DB::History;
 
 use parent qw(Rose::Object);
 
@@ -415,6 +416,7 @@ sub save_objects {
     if ( !$object->save(cascade => !!$self->save_with_cascade()) ) {
       push @{ $entry->{errors} }, $::locale->text('Error when saving: #1', $entry->{object}->db->error);
     } else {
+      $self->_save_history($object);
       $self->controller->num_imported($self->controller->num_imported + 1);
     }
   } continue {
@@ -455,6 +457,24 @@ sub clean_fields {
   }
 
   return @cleaned_fields;
+}
+
+sub _save_history {
+  my ($self, $object) = @_;
+
+  if (any { $_ eq $self->controller->{type} } qw(parts customers_vendors)) {
+    my $snumbers = $self->controller->{type} eq 'parts'             ? 'partnumber_' . $object->partnumber
+                 : $self->controller->{type} eq 'customers_vendors' ?
+                     ($self->table eq 'customer' ? 'customernumber_' . $object->customernumber : 'vendornumber_' . $object->vendornumber)
+                 : '';
+
+    SL::DB::History->new(
+      trans_id    => $object->id,
+      snumbers    => $snumbers,
+      employee_id => $self->controller->{employee_id},
+      addition    => 'SAVED',
+    )->save();
+  }
 }
 
 1;

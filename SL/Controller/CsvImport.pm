@@ -272,10 +272,11 @@ sub test_and_import_deferred {
   }
 
   $self->{background_job} = SL::BackgroundJob::CsvImport->create_job(
-    file    => $self->csv_file_name,
-    profile => $self->profile,
-    type    => $self->profile->type,
-    test    => $params{test},
+    file        => $self->csv_file_name,
+    profile     => $self->profile,
+    type        => $self->profile->type,
+    test        => $params{test},
+    employee_id => SL::DB::Manager::Employee->current->id,
   )->save;
 
   if ($self->task_server->is_running) {

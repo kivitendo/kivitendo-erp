@@ -18,18 +18,29 @@ sub value {
   goto &bool_value      if $type eq 'boolean';
   goto &timestamp_value if $type eq 'timestamp';
   goto &number_value    if $type eq 'number';
-  if ( $type eq 'customer' ) {
-    if ( defined($_[1]) && $_[1] ) {
-      goto &number_value;
-    }
-    else {
-      require SL::DB::Customer;
 
-      my $id = int($self->number_value);
-      return $id ? SL::DB::Customer->new(id => $id)->load() : 0;
-    }
+  if ( $_[1] && ($type eq 'customer' || $type eq 'vendor' || $type eq 'part') ) {
+    $self->number_value($_[1]);
   }
-  goto &text_value; # text and select
+
+  if ( $type eq 'customer' ) {
+    require SL::DB::Customer;
+
+    my $id = int($self->number_value);
+    return $id ? SL::DB::Customer->new(id => $id)->load() : 0;
+  } elsif ( $type eq 'vendor' ) {
+    require SL::DB::Vendor;
+
+    my $id = int($self->number_value);
+    return $id ? SL::DB::Vendor->new(id => $id)->load() : 0;
+  } elsif ( $type eq 'part' ) {
+    require SL::DB::Part;
+
+    my $id = int($self->number_value);
+    return $id ? SL::DB::Part->new(id => $id)->load() : 0;
+  }
+
+  goto &text_value; # text, textfield, date and select
 }
 
 sub is_valid {
