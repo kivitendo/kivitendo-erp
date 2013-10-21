@@ -127,8 +127,8 @@ sub setup_displayable_columns {
                                  { name => 'language',         description => $::locale->text('Language (name)')                },
                                  { name => 'payment_id',       description => $::locale->text('Payment terms (database ID)')    },
                                  { name => 'payment',          description => $::locale->text('Payment terms (name)')           },
-                                 { name => 'taxzone_id',       description => $::locale->text('Steuersatz (database ID')        },
-                                 { name => 'taxzone',          description => $::locale->text('Steuersatz (description)')       },
+                                 { name => 'taxzone_id',       description => $::locale->text('Tax zone (database ID)')         },
+                                 { name => 'taxzone',          description => $::locale->text('Tax zone (description)')         },
                                  { name => 'cp_id',            description => $::locale->text('Contact Person (database ID)')   },
                                  { name => 'contact',          description => $::locale->text('Contact Person (name)')          },
                                  { name => 'department_id',    description => $::locale->text('Department (database ID)')       },
@@ -579,7 +579,7 @@ sub check_taxzone {
 
   # Check wether or not taxzone ID is valid.
   if ($object->taxzone_id && !$self->taxzones_by->{id}->{ $object->taxzone_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid taxzone');
+    push @{ $entry->{errors} }, $::locale->text('Error: Invalid tax zone');
     return 0;
   }
 
@@ -587,7 +587,7 @@ sub check_taxzone {
   if (!$object->taxzone_id && $entry->{raw_data}->{taxzone}) {
     my $taxzone = $self->taxzones_by->{description}->{ $entry->{raw_data}->{taxzone} };
     if (!$taxzone) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid taxzone');
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid tax zone');
       return 0;
     }
 
