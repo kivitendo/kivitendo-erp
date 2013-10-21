@@ -109,8 +109,9 @@ sub parse_profile {
   my @specs;
 
   my $csv_profile = $self->_csv->profile;
+  my $h_aref = ($self->_csv->is_multiplexed)? $self->_csv->header : [ $self->_csv->header ];
   my $i = 0;
-  foreach my $header (@{ $self->_csv->header }) {
+  foreach my $header (@{ $h_aref }) {
     my $spec = $self->_parse_profile(profile => $csv_profile->[$i]->{profile},
                                      class   => $csv_profile->[$i]->{class},
                                      header  => $header);

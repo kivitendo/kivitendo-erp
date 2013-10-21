@@ -51,7 +51,7 @@ sub run {
 
   return if ( !$self->csv->header || $self->csv->errors );
 
-  my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header->[0] } ] };
+  my $headers         = { headers => [ grep { $profile->{$_} } @{ $self->csv->header } ] };
   $headers->{methods} = [ map { $profile->{$_} } @{ $headers->{headers} } ];
   $headers->{used}    = { map { ($_ => 1) }      @{ $headers->{headers} } };
   $self->controller->headers($headers);

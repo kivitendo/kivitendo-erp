@@ -162,7 +162,11 @@ sub _check_header {
         0,
       ]) unless $h;
 
-      push @{ $header }, $h;
+      if ($self->is_multiplexed) {
+        push @{ $header }, $h;
+      } else {
+        $header = $h;
+      }
     }
   }
 
@@ -171,14 +175,19 @@ sub _check_header {
   # data with a discouraged but valid byte order mark
   # if not removed, the first header field will not be recognized
   if ($header) {
-    my $h = $header->[0];
+    my $h = ($self->is_multiplexed)? $header->[0] : $header;
+
     if ($h && $h->[0] && $self->encoding =~ /utf-?8/i) {
       $h->[0] =~ s/^\x{FEFF}//;
     }
   }
 
   # check, if all header fields are parsed well
-  return unless $header && all { $_ } @$header;
+  if ($self->is_multiplexed) {
+    return unless $header && all { $_ } @$header;
+  } else {
+    return unless $header;
+  }
 
   # Special case: human stupidity
   # people insist that case sensitivity doesn't exist and try to enter all
@@ -188,8 +197,9 @@ sub _check_header {
   if ($self->case_insensitive_header) {
     die 'case_insensitive_header is only possible with profile' unless $self->profile;
     if ($header) {
-      my $p_num = 0;
-      foreach my $h (@{ $header }) {
+      my $h_aref = ($self->is_multiplexed)? $header : [ $header ];
+      my $p_num  = 0;
+      foreach my $h (@{ $h_aref }) {
         my @names = (
           keys %{ $self->profile->[$p_num]->{profile} || {} },
         );
@@ -253,7 +263,7 @@ sub _header_by_row {
   if ($self->is_multiplexed) {
     return $self->_row_header->{$row->[0]}
   } else {
-    return $self->header->[0];
+    return $self->header;
   }
 }
 
@@ -322,7 +332,7 @@ SL::Helper::Csv - take care of csv file uploads
     sep_char    => ',',     # default ';'
     quote_char  => '\'',    # default '"'
     escape_char => '"',     # default '"'
-    header      => [ [qw(id text sellprice word)] ], # see later
+    header      => [ qw(id text sellprice word) ], # see later
     profile     => [ { profile => { sellprice => 'sellprice_as_number'},
                        class   => 'SL::DB::Part' } ],
   );
@@ -427,10 +437,11 @@ Same as in L<Text::CSV>
 
 =item C<header> \@HEADERS
 
-If given, it contains an ARRAYREF for each different class type (i.e. one
-ARRAYREF if the data is only of one class type). These ARRAYREFS are the header
-fields which are an array of columns. In this case the first lines are not used
-as a header. Empty header fields will be ignored in objects.
+If given, it contains an ARRAY of the header fields for not multiplexed data.
+Or an ARRAYREF for each different class type for multiplexed data. These
+ARRAYREFS are the header fields which are an array of columns. In this case
+the first lines are not used as a header. Empty header fields will be ignored
+in objects.
 
 If not given, headers are taken from the first n lines of data, where n is the
 number of different class types.
@@ -438,7 +449,7 @@ number of different class types.
 Examples:
 
   classic data of one type:
-  [ [ 'name', 'street', 'zipcode', 'city' ] ]
+  [ 'name', 'street', 'zipcode', 'city' ]
 
   multiplexed data with two different types
   [ [ 'ordernumber', 'customer', 'transdate' ], [ 'partnumber', 'qty', 'sellprice' ] ]

@@ -12,7 +12,7 @@ Support::TestSetup::login();
 
 my $csv = SL::Helper::Csv->new(
   file    => \"Kaffee\n",       # " # make emacs happy
-  header  => [[ 'description' ]],
+  header  => [ 'description' ],
   profile => [{ class  => 'SL::DB::Part', }],
 );
 
@@ -29,7 +29,7 @@ $::myconfig{dateformat} = 'dd.mm.yyyy';
 
 $csv = SL::Helper::Csv->new(
   file    => \"Kaffee;0.12;12,2;1,5234\n",            # " # make emacs happy
-  header  => [[ 'description', 'sellprice', 'lastcost_as_number', 'listprice' ]],
+  header  => [ 'description', 'sellprice', 'lastcost_as_number', 'listprice' ],
   profile => [{profile => { listprice => 'listprice_as_number' },
                class   => 'SL::DB::Part',}],
 );
@@ -273,7 +273,7 @@ is_deeply( ($csv->errors)[0], [ 'description', undef, 'header field \'descriptio
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",       # " # make emacs happy
-  header =>  [[ 'description' ]],
+  header =>  [ 'description' ],
   profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
@@ -296,7 +296,7 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'case insensitive hea
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",          # " # make emacs happy
-  header =>  [[ 'Description' ]],
+  header =>  [ 'Description' ],
   case_insensitive_header => 1,
   profile => [{
     profile => { description => 'description' },
@@ -320,7 +320,7 @@ is_deeply $csv->get_data, [ { description => 'Kaffee' } ], 'utf8 BOM works (bug 
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",            # " # make emacs happy
-  header => [[ 'Description' ]],
+  header => [ 'Description' ],
   profile => [{class  => 'SL::DB::Part'}],
 );
 $csv->parse;
@@ -330,7 +330,7 @@ is_deeply $csv->get_data, undef, 'case insensitive header without flag ignores';
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",            # " # make emacs happy
-  header => [[ 'foo' ]],
+  header => [ 'foo' ],
   profile => [{
     profile => { foo => '' },
     class  => 'SL::DB::Part',
@@ -345,7 +345,7 @@ ok $csv->get_objects->[0], 'empty path gets ignored in object creation';
 
 $csv = SL::Helper::Csv->new(
   file   => \"Kaffee",            # " # make emacs happy
-  header => [[ 'foo' ]],
+  header => [ 'foo' ],
   strict_profile => 1,
   profile => [{
     profile => { foo => '' },
@@ -359,7 +359,7 @@ ok $csv->get_objects->[0], 'empty path gets ignored in object creation (strict p
 
 $csv = SL::Helper::Csv->new(
   file   => \"Phil",            # " # make emacs happy
-  header => [[ 'CVAR_grOUnDHog' ]],
+  header => [ 'CVAR_grOUnDHog' ],
   strict_profile => 1,
   case_insensitive_header => 1,
   profile => [{
