@@ -132,7 +132,7 @@ sub prepare_report {
     not_shipped_qty   => {      sub => sub { $::form->format_amount(\%::myconfig, $_[0]->qty - $_[0]->shipped_qty, 2) . ' ' . $_[0]->unit } },
     ordnumber         => {      sub => sub { $_[0]->order->ordnumber                                                         },
                            obj_link => sub { $self->link_to($_[0]->order)                                                    } },
-    customer          => {      sub => sub { return ''; $_[0]->order->customer->name                                                    },
+    customer          => {      sub => sub { $_[0]->order->customer->name                                                    },
                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
   );
 
