@@ -301,7 +301,7 @@ sub check_objects {
     } elsif ( defined $order_entry
               && $entry->{raw_data}->{datatype} eq $self->_item_column
               && scalar @{ $order_entry->{errors} } > 0 ) {
-      push @{ $entry->{errors} }, $::locale->text('order not valid for this orderitem!');
+      push @{ $entry->{errors} }, $::locale->text('Error: Invalid order for this order item');
     }
   }
 
