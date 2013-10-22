@@ -328,7 +328,7 @@
       </td>
 
       <td>
-        [% L.checkbox_tag('cv.obsolete', checked = SELF.cv.obsolete) %]
+        [% L.checkbox_tag('cv.obsolete', checked = SELF.cv.obsolete, for_submit=1) %]
       </td>
 
 
@@ -337,7 +337,7 @@
       </td>
 
       <td>
-        [% L.checkbox_tag('cv.direct_debit', checked = SELF.cv.direct_debit) %]
+        [% L.checkbox_tag('cv.direct_debit', checked = SELF.cv.direct_debit, for_submit=1) %]
       </td>
     </tr>
 

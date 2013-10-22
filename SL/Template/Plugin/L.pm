@@ -99,6 +99,7 @@ sub checkbox_tag {
   $attributes{value}   = 1 unless defined $attributes{value};
   my $label            = delete $attributes{label};
   my $checkall         = delete $attributes{checkall};
+  my $for_submit       = delete $attributes{for_submit};
 
   if ($attributes{checked}) {
     $attributes{checked} = 'checked';
@@ -106,7 +107,9 @@ sub checkbox_tag {
     delete $attributes{checked};
   }
 
-  my $code  = $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
+  my $code  = '';
+  $code    .= $self->hidden_tag($name, 0, %attributes, id => $attributes{id} . '_hidden') if $for_submit;
+  $code    .= $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
   $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
   $code    .= $self->javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
 
