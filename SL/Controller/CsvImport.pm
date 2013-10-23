@@ -127,12 +127,12 @@ sub action_download_sample {
   my $csv       = Text::CSV_XS->new({ binary => 1, map { ( $_ => $self->profile->get($_) ) } qw(sep_char escape_char quote_char),});
 
   if ($self->worker->is_multiplexed) {
-    foreach my $ri (keys %{ $self->displayable_columns }) {
-      $csv->print($file->fh, [ map { $_->{name}        } @{ $self->displayable_columns->{$ri} } ]);
+    foreach my $p (@{ $self->worker->profile }) {
+      $csv->print($file->fh, [ map { $_->{name}        } @{ $self->displayable_columns->{$p->{row_ident}} } ]);
       $file->fh->print("\r\n");
     }
-    foreach my $ri (keys %{ $self->displayable_columns }) {
-      $csv->print($file->fh, [ map { $_->{description} } @{ $self->displayable_columns->{$ri} } ]);
+    foreach my $p (@{ $self->worker->profile }) {
+      $csv->print($file->fh, [ map { $_->{description} } @{ $self->displayable_columns->{$p->{row_ident}} } ]);
       $file->fh->print("\r\n");
     }
   } else {

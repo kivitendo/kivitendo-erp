@@ -60,12 +60,13 @@
    [%- IF SELF.worker.is_multiplexed %]
      <table>
        <tr class="listheading">
-         [%- FOREACH ri = SELF.displayable_columns.keys %]
-           <th>[%- ri %]</th>
+         [%- FOREACH p = SELF.worker.profile %]
+           <th>[%- p.row_ident %]</th>
          [%- END %]
        </tr>
        <tr class="listrow[% loop.count % 2 %]">
-         [%- FOREACH ri = SELF.displayable_columns.keys %]
+         [%- FOREACH p = SELF.worker.profile %]
+           [% SET ri = p.row_ident %]
          <td>
            <table>
              <tr class="listheading">
