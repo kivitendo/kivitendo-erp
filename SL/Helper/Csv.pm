@@ -446,13 +446,17 @@ in objects.
 If not given, headers are taken from the first n lines of data, where n is the
 number of different class types.
 
+In case of multiplexed data the first column must be named 'datatype'. This
+name must be given in the header.
+
 Examples:
 
   classic data of one type:
   [ 'name', 'street', 'zipcode', 'city' ]
 
   multiplexed data with two different types
-  [ [ 'ordernumber', 'customer', 'transdate' ], [ 'partnumber', 'qty', 'sellprice' ] ]
+  [ [ 'datatype', 'ordernumber', 'customer', 'transdate' ],
+    [ 'datatype', 'partnumber', 'qty', 'sellprice' ] ]
 
 =item C<profile> [{profile => \%ACCESSORS, class => class, row_ident => ri},]
 
@@ -493,7 +497,8 @@ If C<class> is present, the line will be handed to the new sub of this class,
 and the return value used instead of the line itself.
 
 C<row_ident> is a string to recognize the right profile and class for each data
-line in multiplexed data.
+line in multiplexed data. It must match the value in the column 'dataype' for
+each class.
 
 In case of multiplexed data, C<class> and C<row_ident> must be given.
 Example:
