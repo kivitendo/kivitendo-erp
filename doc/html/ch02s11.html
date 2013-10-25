@@ -88,7 +88,7 @@
         Prüfen Sie den Namen in der Konfiguration (Standard:
         <code class="literal">pdflatex</code>), und stellen Sie sicher, dass pdflatex
         (oder das von Ihnen verwendete System) vom Webserver ausgeführt werden
-        darf.</p><p>Wenn sich das Problem nicht auf Grund der ausgabe im Webbrowser verifizieren lässt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_tmp_files" auf 1</p><p>
+        darf.</p><p>Wenn sich das Problem nicht auf Grund der ausgabe im Webbrowser verifizieren lässt:</p><div class="itemizedlist"><ul class="itemizedlist" type="disc"><li class="listitem"><p> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_temp_files" auf 1</p><p>
                      </p><pre class="programlisting">keep_temp_files = 1;</pre><p>
                   </p></li><li class="listitem"><p>bei fastcgi oder mod_perl den Webserver neu Starten</p></li><li class="listitem"><p>Nochmal einen Druckversuch im Webfrontend auslösen</p></li><li class="listitem"><p>wechsele in das users Verzeichnis von kivitendo</p><p>
                      </p><pre class="programlisting">cd [kivitendo-home]/users</pre><p>

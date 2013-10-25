@@ -1621,7 +1621,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         <para>Wenn sich das Problem nicht auf Grund der ausgabe im Webbrowser verifizieren lässt:</para>
         <itemizedlist>
           <listitem>
-             <para> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_tmp_files" auf 1</para>
+             <para> editiere [kivitendo-home]/config/kivitendo.conf und ändere "keep_temp_files" auf 1</para>
              <para><programlisting>keep_temp_files = 1;</programlisting></para>
           </listitem>
           <listitem>
