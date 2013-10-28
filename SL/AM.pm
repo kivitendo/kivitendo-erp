@@ -45,6 +45,7 @@ use SL::DBUtils;
 use SL::DB::AuthUser;
 use SL::DB::Default;
 use SL::DB::Employee;
+use SL::GenericTranslations;
 
 use strict;
 
@@ -1652,21 +1653,31 @@ sub save_tax {
                   taxnumber      = (SELECT accno FROM chart WHERE id= ? ),
                   chart_categories = ?
                 WHERE id = ?|;
-    push(@values, $form->{id});
 
   } else {
     #ok
+    ($form->{id}) = selectfirst_array_query($form, $dbh, qq|SELECT nextval('id')|);
     $query = qq|INSERT INTO tax (
                   taxkey,
                   taxdescription,
                   rate,
                   chart_id,
                   taxnumber,
-                  chart_categories
+                  chart_categories,
+                  id
                 )
-                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?), ? )|;
+                VALUES (?, ?, ?, ?, (SELECT accno FROM chart WHERE id = ?), ?, ?)|;
   }
+  push(@values, $form->{id});
   do_query($form, $dbh, $query, @values);
+  
+  foreach my $language_id (keys %{ $form->{translations} }) {
+    GenericTranslations->save('dbh'              => $dbh,
+                              'translation_type' => 'SL::DB::Tax/taxdescription',
+                              'translation_id'   => $form->{id},
+                              'language_id'      => $language_id,
+                              'translation'      => $form->{translations}->{$language_id});
+  }
 
   $dbh->commit();
 

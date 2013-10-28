@@ -3,6 +3,7 @@ package SL::DB::Tax;
 use strict;
 
 use SL::DB::MetaSetup::Tax;
+use SL::DB::Helper::TranslatedAttributes;
 
 __PACKAGE__->meta->initialize;
 

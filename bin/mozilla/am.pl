@@ -43,6 +43,8 @@ use SL::USTVA;
 use SL::Iconv;
 use SL::TODO;
 use SL::DB::Printer;
+use SL::DB::Tax;
+use SL::DB::Language;
 use CGI;
 
 require "bin/mozilla/common.pl";
@@ -1415,6 +1417,7 @@ sub add_tax {
 
   my $parameters_ref = {
 #    ChartTypeIsAccount         => $ChartTypeIsAccount,
+    LANGUAGES => SL::DB::Manager::Language->get_all_sorted,
   };
 
   # Ausgabe des Templates
@@ -1450,6 +1453,8 @@ sub edit_tax {
   $form->header();
 
   my $parameters_ref = {
+    LANGUAGES => SL::DB::Manager::Language->get_all_sorted,
+    TAX       => SL::DB::Manager::Tax->find_by(id => $form->{id}),
   };
 
   # Ausgabe des Templates
@@ -1527,6 +1532,9 @@ sub save_tax {
   if ( $form->{rate} <= 0.99 && $form->{rate} > 0 ) {
     $form->error($locale->text('Tax Percent is a number between 0 and 100'));
   }
+
+  my @translation_keys  =  grep { $_ =~ '^translation_\d+' } keys %$form;
+  $form->{translations} = { map { $_ =~ '^translation_(\d+)'; $1 => $form->{$_} } @translation_keys };
 
   AM->save_tax(\%myconfig, \%$form);
   $form->redirect($locale->text('Tax saved!'));

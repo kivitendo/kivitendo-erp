@@ -442,7 +442,7 @@ sub form_header {
         shiptodepartment_1 shiptodepartment_2 shiptoemail shiptocp_gender
         message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus),
         @custom_hiddens,
-        map { $_.'_rate', $_.'_description' } split / /, $form->{taxaccounts} ];  # deleted: discount
+        map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} ];  # deleted: discount
 
   %TMPL_VAR = (
      %TMPL_VAR,

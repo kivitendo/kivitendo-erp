@@ -49,6 +49,7 @@ use SL::IC;
 use SL::IO;
 use SL::TransNumber;
 use SL::DB::Default;
+use SL::DB::Tax;
 use Data::Dumper;
 
 use strict;
@@ -386,8 +387,11 @@ sub invoice_details {
     push(@{ $form->{TEMPLATE_ARRAYS}->{tax_nofmt} },      $taxamount );
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate} },        $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate_nofmt} },  $form->{"${item}_rate"} * 100);
-    push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $form->{"${item}_description"} . q{ } . 100 * $form->{"${item}_rate"} . q{%});
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxnumber} },      $form->{"${item}_taxnumber"});
+
+    my $tax_obj     = SL::DB::Manager::Tax->find_by(taxnumber => $form->{"${item}_taxnumber"});
+    my $description = $tax_obj->translated_attribute('taxdescription',  $form->{language_id}, 0) if $tax_obj;
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $description . q{ } . 100 * $form->{"${item}_rate"} . q{%});
   }
 
   for my $i (1 .. $form->{paidaccounts}) {

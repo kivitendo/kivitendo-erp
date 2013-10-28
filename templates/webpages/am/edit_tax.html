@@ -1,6 +1,7 @@
 [%- USE T8 %]
 [%- USE HTML %]
 [%- USE L %]
+[%- USE LxERP %]
  <form method="post" action="am.pl">
   <input type="hidden" name="id" value="[% HTML.escape(id) %]">
   <input type="hidden" name="type" value="tax">
@@ -20,6 +21,15 @@
     <td>[% 'tax_taxdescription' | $T8 %]</td>
     <td><input name="taxdescription" size="60" value="[% HTML.escape(taxdescription) %]"></td>
    </tr>
+
+   [%- FOREACH language = LANGUAGES %]
+    <tr>
+     <td>[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</td>
+     <td>
+      <input name="translation_[% language.id %]" value="[%- HTML.escape(TAX.translated_attribute('taxdescription', language, 1)) %]" size="60">
+     </td>
+    </tr>
+   [%- END %]
 
    <tr>
     <td>[% 'tax_percent' | $T8 %]</td>
