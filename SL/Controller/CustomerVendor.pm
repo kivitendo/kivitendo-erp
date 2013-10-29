@@ -170,10 +170,6 @@ sub action_save {
     push(@redirect_params, shipto_id => $self->{shipto}->shipto_id);
   }
 
-  if ( $self->{note}->id ) {
-    push(@redirect_params, note_id => $self->{note}->id);
-  }
-
   $self->redirect_to(@redirect_params);
 }
 
