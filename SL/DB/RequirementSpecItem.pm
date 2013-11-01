@@ -56,8 +56,8 @@ sub _before_save_create_fb_number {
 
   $self->requirement_spec->update_attributes($method => $next_number) || return 0;
 
-  $method    = 'requirement_spec_' . ($self->parent_id ? 'function_block' : 'section') . '_number_format';
-  my $format = SL::DB::Default->get->$method;
+  $method    = ($self->parent_id ? 'function_block' : 'section') . '_number_format';
+  my $format = $self->requirement_spec->type->$method;
 
   $self->fb_number(SL::PrefixedNumber->new(number => $format || 0)->set_to($next_number));
 

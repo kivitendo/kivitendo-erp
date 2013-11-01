@@ -9,12 +9,14 @@ use base qw(SL::DB::Object);
 __PACKAGE__->meta->table('requirement_spec_types');
 
 __PACKAGE__->meta->columns(
-  description        => { type => 'text', not_null => 1 },
-  id                 => { type => 'serial', not_null => 1 },
-  itime              => { type => 'timestamp', default => 'now()' },
-  mtime              => { type => 'timestamp' },
-  position           => { type => 'integer', not_null => 1 },
-  template_file_name => { type => 'text' },
+  description                  => { type => 'text', not_null => 1 },
+  function_block_number_format => { type => 'text', default => 'FB000', not_null => 1 },
+  id                           => { type => 'serial', not_null => 1 },
+  itime                        => { type => 'timestamp', default => 'now()' },
+  mtime                        => { type => 'timestamp' },
+  position                     => { type => 'integer', not_null => 1 },
+  section_number_format        => { type => 'text', default => 'A00', not_null => 1 },
+  template_file_name           => { type => 'text' },
 );
 
 __PACKAGE__->meta->primary_key_columns([ 'id' ]);

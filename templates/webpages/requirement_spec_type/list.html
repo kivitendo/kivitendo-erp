@@ -16,6 +16,8 @@
     <tr class="listheading">
      <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
      <th>[%- LxERP.t8('Description') %]</th>
+     <th>[%- LxERP.t8('Section number format') %]</th>
+     <th>[%- LxERP.t8('Function block number format') %]</th>
     </tr>
     </thead>
 
@@ -28,6 +30,9 @@
        [%- HTML.escape(requirement_spec_type.description) %]
       </a>
      </td>
+
+     <td>[% HTML.escape(requirement_spec_type.section_number_format) %]</td>
+     <td>[% HTML.escape(requirement_spec_type.function_block_number_format) %]</td>
     </tr>
     [%- END %]
     </tbody>
