@@ -62,6 +62,14 @@
      <td>[% L.select_tag('salesman_id', ALL_EMPLOYEES, title_key='safe_name', with_empty=1, style='width:250px') %]</td>
     </tr>
     <tr>
+     <th align="right">[% 'Steuersatz' | $T8 %]</th>
+     <td>[% L.select_tag('taxzone_id', ALL_TAXZONES, with_empty=1, title_key='description', style='width: 250px') %]</td>
+    </tr>
+    <tr>
+     <th align="right">[% 'Shipping Point' | $T8 %]</th>
+     <td colspan="3">[% L.input_tag('shippingpoint', '', style='width:250px') %]</td>
+    </tr>
+    <tr>
      <th align="right">[% 'Transaction description' | $T8 %]</th>
      <td colspan="3"><input name="transaction_description" style="width: 250px"></td>
     </tr>
@@ -183,6 +191,8 @@
          <input name="l_customernumber" id="l_customernumber" class="checkbox" type="checkbox" value="Y">
          <label for="l_customernumber">[% 'Customer Number' | $T8 %]</label>
         </td>
+        <td>[%- L.checkbox_tag('l_taxzone',       label => LxERP.t8('Steuersatz'))     %]</td>
+        <td>[%- L.checkbox_tag('l_shippingpoint', label => LxERP.t8('Shipping Point')) %]</td>
        </tr>
        <tr>
         <td>
