@@ -902,7 +902,7 @@ sub orders {
   push @options, $locale->text('Closed')                                                                  if $form->{closed};
   push @options, $locale->text('Delivery Order created')                                                               if $form->{delivered};
   push @options, $locale->text('Not delivered')                                                           if $form->{notdelivered};
-  push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_actibe};
+  push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_active};
 
   if ($form->{business_id}) {
     my $vc_type_label = $form->{vc} eq 'customer' ? $locale->text('Customer type') : $locale->text('Vendor type');
