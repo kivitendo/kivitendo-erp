@@ -369,6 +369,8 @@ sub update_delivery_order {
 
   set_headings($form->{"id"} ? "edit" : "add");
 
+  $form->{insertdate} = SL::DB::DeliveryOrder->new(id => $form->{id})->load->itime_as_date if $form->{id};
+
   $form->{update} = 1;
 
   my $payment_id;
@@ -532,6 +534,7 @@ sub orders {
     shipvia                 globalprojectnumber
     transaction_description department
     open                    delivered
+    insertdate
   );
 
   $form->{l_open}      = $form->{l_closed} = "Y" if ($form->{open}      && $form->{closed});
@@ -546,7 +549,8 @@ sub orders {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber cusordnumber
                                           transaction_description transdatefrom transdateto reqdatefrom reqdateto
-                                          type vc employee_id salesman_id project_id);
+                                          type vc employee_id salesman_id project_id
+                                          insertdatefrom insertdateto);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
@@ -568,9 +572,10 @@ sub orders {
     'open'                    => { 'text' => $locale->text('Open'), },
     'delivered'               => { 'text' => $locale->text('Delivered'), },
     'department'              => { 'text' => $locale->text('Department'), },
+    'insertdate'              => { 'text' => $locale->text('Insert Date'), },
   );
 
-  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department)) {
+  foreach my $name (qw(id transdate reqdate donumber ordnumber name employee salesman shipvia transaction_description department insertdate)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -620,6 +625,11 @@ sub orders {
     push @options, $locale->text('Reqdate');
     push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{reqdatefrom}, 1)       if $form->{reqdatefrom};
     push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{reqdateto},   1)       if $form->{reqdateto};
+  };
+  if ( $form->{insertdatefrom} or $form->{insertdateto} ) {
+    push @options, $locale->text('Insert Date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{insertdatefrom}, 1)    if $form->{insertdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{insertdateto},   1)    if $form->{insertdateto};
   };
   if ($form->{open}) {
     push @options, $locale->text('Open');

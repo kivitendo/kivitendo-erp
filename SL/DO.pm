@@ -69,7 +69,7 @@ sub transactions {
          dord.transdate, dord.reqdate,
          ct.${vc}number, ct.name, dord.${vc}_id, dord.globalproject_id,
          dord.closed, dord.delivered, dord.shippingpoint, dord.shipvia,
-         dord.transaction_description,
+         dord.transaction_description, dord.itime::DATE AS insertdate,
          pr.projectnumber AS globalprojectnumber,
          dep.description AS department,
          e.name AS employee,
@@ -163,6 +163,16 @@ sub transactions {
     push @values, conv_date($form->{reqdateto});
   }
 
+  if($form->{insertdatefrom}) {
+    push @where, qq|dord.itime::DATE >= ?|;
+    push@values, conv_date($form->{insertdatefrom});
+  }
+
+  if($form->{insertdateto}) {
+    push @where, qq|dord.itime::DATE <= ?|;
+    push @values, conv_date($form->{insertdateto});
+  }
+
   if (@where) {
     $query .= " WHERE " . join(" AND ", map { "($_)" } @where);
   }
@@ -179,6 +189,7 @@ sub transactions {
     "shipvia"                 => "dord.shipvia",
     "transaction_description" => "dord.transaction_description",
     "department"              => "lower(dep.description)",
+    "insertdate"              => "dord.itime",
   );
 
   my $sortdir   = !defined $form->{sortdir} ? 'ASC' : $form->{sortdir} ? 'ASC' : 'DESC';
@@ -673,7 +684,7 @@ sub retrieve {
          dord.shipto_id,
          dord.globalproject_id, dord.delivered, dord.transaction_description,
          dord.taxzone_id, dord.taxincluded, dord.terms, (SELECT cu.name FROM currencies cu WHERE cu.id=dord.currency_id) AS currency,
-         dord.delivery_term_id
+         dord.delivery_term_id, dord.itime::DATE AS insertdate
        FROM delivery_orders dord
        JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)

@@ -130,6 +130,19 @@
      </td>
     </tr>
 
+    [%- IF is_customer %]
+    <tr>
+     <th align="right">[% 'Insert Date' | $T8 %] [% 'From' | $T8 %]</th>
+     <td>
+       [% L.date_tag('insertdatefrom') %]
+     </td>
+     <th align="right">[% 'Bis' | $T8 %]</th>
+     <td>
+       [% L.date_tag('insertdateto') %]
+     </td>
+    </tr>
+    [%- END %]
+
     <tr>
      <th align="right">[% 'Include in Report' | $T8 %]</th>
      <td colspan="5">
@@ -188,6 +201,12 @@
          <input name="l_reqdate" id="l_reqdate" class="checkbox" type="checkbox" value="Y" checked>
          <label for="l_reqdate">[% 'Reqdate' | $T8 %]</label>
         </td>
+        [% IF is_customer %]
+        <td>
+         <input name="l_insertdate" id="l_insertdate" class="checkbox" type="checkbox" value="Y">
+         <label for="l_insertdate">[% 'Insert Date' | $T8 %]</label>
+        </td>
+        [%- END %]
        </tr>
 
        <tr>
