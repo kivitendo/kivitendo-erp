@@ -147,6 +147,19 @@ sub _save {
       employee_id => SL::DB::Manager::Employee->current->id,
       addition => 'SAVED',
     )->save();
+
+    if ( $::form->{delete_notes} ) {
+      foreach my $note_id (@{ $::form->{delete_notes} }) {
+        my $note = SL::DB::Note->new(id => $note_id)->load();
+        if ( $note->follow_up ) {
+          if ( $note->follow_up->follow_up_link ) {
+            $note->follow_up->follow_up_link->delete(cascade => 'delete');
+          }
+          $note->follow_up->delete(cascade => 'delete');
+        }
+        $note->delete(cascade => 'delete');
+      }
+    }
   }) || die($db->error);
 
 }
@@ -622,17 +635,8 @@ sub _instantiate_args {
 
   if ( $::form->{note}->{id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note}->{id})->load();
-
-    $self->{note_followup_link} = SL::DB::Manager::FollowUpLink->get_all(
-      query => [
-        'follow_up.note_id' => $self->{note}->id,
-        trans_id => $self->{cv}->id,
-        trans_type => ($self->is_vendor() ? 'vendor' : 'customer'),
-      ],
-      with_objects => ['follow_up'],
-    )->[0];
-
-    $self->{note_followup} = $self->{note_followup_link}->follow_up;
+    $self->{note_followup} = $self->{note}->follow_up;
+    $self->{note_followup_link} = $self->{note_followup}->follow_up_link;
   } else {
     $self->{note} = SL::DB::Note->new();
     $self->{note_followup} = SL::DB::FollowUp->new();
@@ -687,17 +691,8 @@ sub _load_customer_vendor {
 
   if ( $::form->{note_id} ) {
     $self->{note} = SL::DB::Note->new(id => $::form->{note_id})->load();
-
-    $self->{note_followup_link} = SL::DB::Manager::FollowUpLink->get_all(
-      query => [
-        'follow_up.note_id' => $self->{note}->id,
-        trans_id => $self->{cv}->id,
-        trans_type => ($self->is_vendor() ? 'vendor' : 'customer'),
-      ],
-      with_objects => ['follow_up'],
-    )->[0];
-
-    $self->{note_followup} = $self->{note_followup_link}->follow_up;
+    $self->{note_followup} = $self->{note}->follow_up;
+    $self->{note_followup_link} = $self->{note_followup}->follow_up_link;
   } else {
     $self->{note} = SL::DB::Note->new();
     $self->{note_followup} = SL::DB::FollowUp->new();
@@ -831,6 +826,14 @@ sub _pre_render {
 
   $self->{shiptos} = $self->{cv}->shipto;
   $self->{shiptos} ||= [];
+
+  $self->{notes} = SL::DB::Manager::Note->get_all(
+    query => [
+      trans_id => $self->{cv}->id,
+      trans_module => 'ct',
+    ],
+    with_objects => ['follow_up'],
+  );
 
   $self->{template_args} ||= {};
 
