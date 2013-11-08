@@ -508,13 +508,14 @@ sub orders {
 
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered donumber ordnumber serialnumber
-                                          transaction_description transdatefrom transdateto type vc employee_id salesman_id project_id);
+                                          transaction_description transdatefrom transdateto reqdatefrom reqdateto
+                                          type vc employee_id salesman_id project_id);
 
   my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
 
   my %column_defs = (
     'ids'                     => { 'text' => '', },
-    'transdate'               => { 'text' => $locale->text('Date'), },
+    'transdate'               => { 'text' => $locale->text('Delivery Order Date'), },
     'reqdate'                 => { 'text' => $locale->text('Reqdate'), },
     'id'                      => { 'text' => $locale->text('ID'), },
     'donumber'                => { 'text' => $locale->text('Delivery Order'), },
@@ -569,12 +570,16 @@ sub orders {
   if ($form->{transaction_description}) {
     push @options, $locale->text('Transaction description') . " : $form->{transaction_description}";
   }
-  if ($form->{transdatefrom}) {
-    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1);
-  }
-  if ($form->{transdateto}) {
-    push @options, $locale->text('Bis') . " " . $locale->date(\%myconfig, $form->{transdateto}, 1);
-  }
+  if ( $form->{transdatefrom} or $form->{transdateto} ) {
+    push @options, $locale->text('Delivery Order Date');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)     if $form->{transdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{transdateto},   1)     if $form->{transdateto};
+  };
+  if ( $form->{reqdatefrom} or $form->{reqdateto} ) {
+    push @options, $locale->text('Reqdate');
+    push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{reqdatefrom}, 1)       if $form->{reqdatefrom};
+    push @options, $locale->text('Bis')  . " " . $locale->date(\%myconfig, $form->{reqdateto},   1)       if $form->{reqdateto};
+  };
   if ($form->{open}) {
     push @options, $locale->text('Open');
   }

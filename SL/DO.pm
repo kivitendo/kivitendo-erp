@@ -145,6 +145,16 @@ sub transactions {
     push @values, conv_date($form->{transdateto});
   }
 
+  if($form->{reqdatefrom}) {
+    push @where,  qq|dord.reqdate >= ?|;
+    push @values, conv_date($form->{reqdatefrom});
+  }
+
+  if($form->{reqdateto}) {
+    push @where,  qq|dord.reqdate <= ?|;
+    push @values, conv_date($form->{reqdateto});
+  }
+
   if (@where) {
     $query .= " WHERE " . join(" AND ", map { "($_)" } @where);
   }
