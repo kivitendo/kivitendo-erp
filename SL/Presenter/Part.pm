@@ -5,7 +5,24 @@ use strict;
 use SL::DB::Part;
 
 use Exporter qw(import);
-our @EXPORT = qw(part_picker);
+our @EXPORT = qw(part_picker part);
+
+use Carp;
+
+sub part {
+  my ($self, $part, %params) = @_;
+
+  $params{display} ||= 'inline';
+
+  croak "Unknown display type '$params{display}'" unless $params{display} =~ m/^(?:inline|table-cell)$/;
+
+  my $text = join '', (
+    $params{no_link} ? '' : '<a href="ic.pl?action=edit&id=' . $self->escape($part->id) . '">',
+    $self->escape($part->partnumber),
+    $params{no_link} ? '' : '</a>',
+  );
+  return $self->escaped_text($text);
+}
 
 sub part_picker {
   my ($self, $name, $value, %params) = @_;
@@ -31,11 +48,15 @@ __END__
 
 =head1 NAME
 
-SL::Presenter::Part - Part lelated presenter stuff
+SL::Presenter::Part - Part related presenter stuff
 
 =head1 SYNOPSIS
 
-see L<SL::Presenter>
+  # Create an html link for editing/opening a part/service/assembly
+  my $object = my $object = SL::DB::Manager::Part->get_first;
+  my $html   = SL::Presenter->get->part($object, display => 'inline');
+
+see also L<SL::Presenter>
 
 =head1 DESCRIPTION
 
@@ -43,7 +64,28 @@ see L<SL::Presenter>
 
 =head1 FUNCTIONS
 
+=over 2
+
+=item C<part, $object, %params>
+
+Returns a rendered version (actually an instance of
+L<SL::Presenter::EscapedText>) of the part object C<$object>
+
+C<%params> can include:
+
 =over 4
+
+=item * display
+
+Either C<inline> (the default) or C<table-cell>. At the moment both
+representations are identical and produce the part's name linked
+to the corresponding 'edit' action.
+
+=back
+
+=back 
+
+=over 2
 
 =item C<part_picker $name, $value, %params>
 
