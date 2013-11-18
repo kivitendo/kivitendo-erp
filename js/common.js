@@ -150,25 +150,6 @@ function focus_by_name(name){
 }
 
 $(document).ready(function () {
-  // initialize all jQuery UI tab elements:
-  $(".tabwidget").each(function(idx, element) {
-    var $element = $(element);
-    var tabsParams = {};
-
-    var elementId = $element.attr('id');
-    if( elementId ) {
-      var cookieName = 'jquery_ui_tab_'+ elementId;
-
-      tabsParams.active = $.cookie(cookieName);
-      tabsParams.activate = function(event, ui) {
-        var i = ui.newTab.parent().children().index(ui.newTab);
-        $.cookie(cookieName, i);
-      };
-    }
-
-    $element.tabs(tabsParams);
-  });
-
   $('input').focus(function(){
     if (focussable(this)) window.focused_element = this;
   });

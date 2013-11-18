@@ -27,6 +27,23 @@ namespace("kivi", function(ns) {
     ns._locale = locale;
   };
 
+  ns.init_tabwidget = function(element) {
+    var $element   = $(element);
+    var tabsParams = {};
+    var elementId  = $element.attr('id');
+
+    if (elementId) {
+      var cookieName      = 'jquery_ui_tab_'+ elementId;
+      tabsParams.active   = $.cookie(cookieName);
+      tabsParams.activate = function(event, ui) {
+        var i = ui.newTab.parent().children().index(ui.newTab);
+        $.cookie(cookieName, i);
+      };
+    }
+
+    $element.tabs(tabsParams);
+  };
+
   ns.reinit_widgets = function() {
     ns.run_once_for('.datepicker', 'datepicker', function(elt) {
       $(elt).datepicker();
@@ -44,6 +61,8 @@ namespace("kivi", function(ns) {
     ns.run_once_for('.tooltip', 'tooltip', function(elt) {
       $(elt).tooltip();
     });
+
+    ns.run_once_for('.tabwidget', 'tabwidget', kivi.init_tabwidget);
   };
 
   ns.submit_ajax_form = function(url, form_selector, additional_data) {
