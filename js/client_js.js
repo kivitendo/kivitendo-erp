@@ -80,7 +80,7 @@ ns.eval_json_result = function(data) {
       else if (action[0] == 'removeData')           $(action[1]).removeData(action[2]);
 
       // Form Events
-      else if (action[0] == 'focus')                $(action[1]).focus();
+      else if (action[0] == 'focus')                kivi.set_focus(action[1]);
 
       // Generic Event Handling ##
       else if (action[0] == 'on')                   $(action[1]).on(action[2], kivi.get_function_by_name(action[3]));
@@ -120,6 +120,9 @@ ns.eval_json_result = function(data) {
       else if (action[0] == 'jstree:select_node')   $.jstree._reference($(action[1])).select_node(action[2], true);
       else if (action[0] == 'jstree:deselect_node') $.jstree._reference($(action[1])).deselect_node(action[2]);
       else if (action[0] == 'jstree:deselect_all')  $.jstree._reference($(action[1])).deselect_all();
+
+      // ## ckeditor stuff ##
+      else if (action[0] == 'focus_ckeditor')       kivi.focus_ckeditor_when_ready(action[1]);
 
       // ## other stuff ##
       else if (action[0] == 'redirect_to')          window.location.href = action[1];
