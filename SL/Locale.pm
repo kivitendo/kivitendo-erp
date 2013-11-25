@@ -380,6 +380,17 @@ sub parse_date_to_object {
   return $yy && $mm && $dd ? DateTime->new(year => $yy, month => $mm, day => $dd) : undef;
 }
 
+sub format_date_object_to_time {
+  my ($self, $datetime, %params) = @_;
+
+  my $format =  $::myconfig{timeformat} || 'hh:mm';
+  $format    =~ s/hh/\%H/;
+  $format    =~ s/mm/\%M/;
+  $format    =~ s/ss/\%S/;
+
+  return $datetime->strftime($format);
+}
+
 sub format_date_object {
   my ($self, $datetime, %params)    = @_;
 

@@ -69,49 +69,51 @@ sub run {
     return 2;
   }
 
-  if ($main::form->{continue_options} eq 'break_up') {
-    return 0;
-  }
-
-  if ($main::form->{continue_options} eq 'insert') {
-    for my $i (0..($rowcount-1)){
-      push @currency_array, $main::form->{"curr_$i"};
+  if (defined $::form->{continue_options}) {
+    if ($::form->{continue_options} eq 'break_up') {
+      return 0;
     }
-    create_and_fill_table($self, @currency_array);
-    return 1;
-  }
 
-  my $still_orphaned;
-  if ($main::form->{continue_options} eq 'replace') {
-    for my $i (0..($rowcount - 1)){
-      $still_orphaned = 1;
-      for my $item (@currency_array){
-        if ($main::form->{"curr_$i"} eq $item){
-          $still_orphaned = 0;
-          $query = qq|DELETE FROM exchangerate WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
-          $query = qq|UPDATE ap SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
-          $query = qq|UPDATE ar SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
-          $query = qq|UPDATE oe SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
-          $query = qq|UPDATE customer SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
-          $query = qq|UPDATE delivery_orders SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
-          $query = qq|UPDATE vendor SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
-          $self->db_query($query);
-          last;
+    if ($::form->{continue_options} eq 'insert') {
+      for my $i (0..($rowcount-1)){
+        push @currency_array, $main::form->{"curr_$i"};
+      }
+      create_and_fill_table($self, @currency_array);
+      return 1;
+    }
+
+    my $still_orphaned;
+    if ($::form->{continue_options} eq 'replace') {
+      for my $i (0..($rowcount - 1)){
+        $still_orphaned = 1;
+        for my $item (@currency_array){
+          if ($main::form->{"curr_$i"} eq $item){
+            $still_orphaned = 0;
+            $query = qq|DELETE FROM exchangerate WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
+            $self->db_query($query);
+            $query = qq|UPDATE ap SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
+            $self->db_query($query);
+            $query = qq|UPDATE ar SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
+            $self->db_query($query);
+            $query = qq|UPDATE oe SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
+            $self->db_query($query);
+            $query = qq|UPDATE customer SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
+            $self->db_query($query);
+            $query = qq|UPDATE delivery_orders SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
+            $self->db_query($query);
+            $query = qq|UPDATE vendor SET curr = '| . $main::form->{"curr_$i"} . qq|' WHERE curr = '| . $main::form->{"old_curr_$i"} . qq|'|;
+            $self->db_query($query);
+            last;
+          }
+        }
+        if ($still_orphaned){
+          $main::form->{continue_options} = '';
+          return do_update();
         }
       }
-      if ($still_orphaned){
-        $main::form->{continue_options} = '';
-        return do_update();
-      }
+      create_and_fill_table($self, @currency_array);
+      return 1;
     }
-    create_and_fill_table($self, @currency_array);
-    return 1;
   }
 
   #No orphaned currencies, so create table:

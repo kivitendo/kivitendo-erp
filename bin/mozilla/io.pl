@@ -944,7 +944,7 @@ sub quotation {
     map({ $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig,
                                                      $form->{"${_}_${i}"})
             if ($form->{"${_}_${i}"}) }
-        qw(ship qty sellprice listprice basefactor discount));
+        qw(ship qty sellprice listprice basefactor discount lastcost));
   }
 
   &prepare_order;

@@ -146,6 +146,10 @@ sub select_tag {
   my $list_to_code = sub {
     my ($sub_collection) = @_;
 
+    if ('ARRAY' ne ref $sub_collection) {
+      $sub_collection = [ $sub_collection ];
+    }
+
     my @options;
     foreach my $entry ( @{ $sub_collection } ) {
       my $value;

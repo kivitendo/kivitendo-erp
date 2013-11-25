@@ -6,8 +6,6 @@ use parent qw(SL::Controller::Base);
 
 use SL::BackgroundJob::Base;
 use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::Paginated;
-use SL::Controller::Helper::Sorted;
 use SL::DB::BackgroundJob;
 use SL::Helper::Flash;
 use SL::Locale::String;
@@ -16,25 +14,12 @@ use SL::System::TaskServer;
 use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(background_job) ],
-  'scalar --get_set_init' => [ qw(task_server back_to) ],
+  'scalar --get_set_init' => [ qw(task_server back_to models) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('check_task_server');
 __PACKAGE__->run_before('load_background_job', only => [ qw(edit update destroy execute) ]);
-
-__PACKAGE__->make_paginated(ONLY => [ qw(list) ]);
-
-__PACKAGE__->make_sorted(
-  ONLY         => [ qw(list) ],
-
-  package_name => t8('Package name'),
-  type         => t8('Execution type'),
-  active       => t8('Active'),
-  cron_spec    => t8('Execution schedule'),
-  last_run_at  => t8('Last run at'),
-  next_run_at  => t8('Next run at'),
-);
 
 #
 # actions
@@ -45,7 +30,8 @@ sub action_list {
 
   $self->render('background_job/list',
                 title           => $::locale->text('Background jobs'),
-                BACKGROUND_JOBS => $self->get_models);
+                BACKGROUND_JOBS => $self->models->get,
+                MODELS          => $self->models);
 }
 
 sub action_new {
@@ -167,6 +153,21 @@ sub check_task_server {
 sub init_back_to {
   my ($self) = @_;
   return $::form->{back_to} || $self->url_for(action => 'list');
+}
+
+sub init_models {
+  SL::Controller::Helper::GetModels->new(
+    controller => $_[0],
+    filtered => 0,
+    sorted => {
+      package_name => t8('Package name'),
+      type         => t8('Execution type'),
+      active       => t8('Active'),
+      cron_spec    => t8('Execution schedule'),
+      last_run_at  => t8('Last run at'),
+      next_run_at  => t8('Next run at'),
+    },
+  );
 }
 
 1;

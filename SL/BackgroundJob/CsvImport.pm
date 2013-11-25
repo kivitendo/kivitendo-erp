@@ -61,6 +61,7 @@ sub do_import {
 
   $c->profile($self->profile);
   $c->type($job->data_as_hash->{type});
+  $c->{employee_id} = $job->data_as_hash->{employee_id};
 
   my $test = $job->data_as_hash->{test};
 

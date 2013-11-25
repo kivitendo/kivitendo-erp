@@ -13,7 +13,7 @@ use SL::DBUtils;
 sub run {
   my ($self) = @_;
 
-  if ($::form->{upgrade_action} eq 'filter_parts') {
+  if (defined $::form->{upgrade_action} && $::form->{upgrade_action} eq 'filter_parts') {
     return $self->filter_parts($self);
   }
 

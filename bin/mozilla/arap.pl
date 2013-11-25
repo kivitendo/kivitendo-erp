@@ -148,7 +148,7 @@ sub select_name {
   my $form     = $main::form;
   my $locale   = $main::locale;
 
-  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit | sales_delivery_order_edit |' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash');
 
   my ($table) = @_;
@@ -258,7 +258,7 @@ sub name_selected {
   my $form     = $main::form;
   my %myconfig = %main::myconfig;
 
-  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit |' .
+  $main::auth->assert('general_ledger         | vendor_invoice_edit  | sales_order_edit    | invoice_edit | sales_delivery_order_edit | ' .
                 'request_quotation_edit | sales_quotation_edit | purchase_order_edit | cash');
 
   # replace the variable with the one checked

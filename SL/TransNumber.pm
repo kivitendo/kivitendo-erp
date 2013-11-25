@@ -113,8 +113,6 @@ sub create_unique {
   my %filters = $self->_get_filters();
 
   $self->dbh->begin_work if $self->dbh->{AutoCommit};
-  do_query($form, $self->dbh, qq|LOCK TABLE defaults|);
-  do_query($form, $self->dbh, qq|LOCK TABLE business|) if $self->business_id;
 
   my $where = $filters{where} ? ' WHERE ' . $filters{where} : '';
   my $query = <<SQL;
@@ -126,12 +124,12 @@ SQL
   my %numbers_in_use = selectall_as_map($form, $self->dbh, $query, $filters{trans_number}, 'in_use');
 
   my $business_number;
-  ($business_number) = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ?|, $self->business_id) if $self->business_id;
+  ($business_number) = selectfirst_array_query($form, $self->dbh, qq|SELECT customernumberinit FROM business WHERE id = ? FOR UPDATE|, $self->business_id) if $self->business_id;
   my $number         = $business_number;
-  ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
+  ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults FOR UPDATE|)                               if !$number;
   if ($filters{numberfield} eq 'assemblynumber' and length($number) < 1) {
     $filters{numberfield} = 'articlenumber';
-    ($number)          = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults|)                               if !$number;
+    ($number)        = selectfirst_array_query($form, $self->dbh, qq|SELECT $filters{numberfield} FROM defaults FOR UPDATE|)                               if !$number;
   }
   $number          ||= '';
   my $sequence       = SL::PrefixedNumber->new(number => $number);

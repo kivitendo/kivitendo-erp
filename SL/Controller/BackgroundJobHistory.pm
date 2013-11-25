@@ -4,10 +4,7 @@ use strict;
 
 use parent qw(SL::Controller::Base);
 
-use SL::Controller::Helper::Filtered;
 use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::Paginated;
-use SL::Controller::Helper::Sorted;
 use SL::DB::BackgroundJobHistory;
 use SL::Helper::Flash;
 use SL::Locale::String;
@@ -15,29 +12,13 @@ use SL::System::TaskServer;
 
 use Rose::Object::MakeMethods::Generic
 (
-  scalar                  => [ qw(history db_args flat_filter filter_summary) ],
-  'scalar --get_set_init' => [ qw(task_server) ],
+  scalar                  => [ qw(history filter_summary) ],
+  'scalar --get_set_init' => [ qw(task_server models) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('add_stylesheet');
 __PACKAGE__->run_before('check_task_server');
-
-__PACKAGE__->make_filtered(
-  MODEL             => 'BackgroundJobHistory',
-  LAUNDER_TO        => 'filter'
-);
-__PACKAGE__->make_paginated(ONLY => [ qw(list) ]);
-
-__PACKAGE__->make_sorted(
-  ONLY         => [ qw(list) ],
-
-  package_name => t8('Package name'),
-  run_at       => t8('Run at'),
-  status       => t8('Execution status'),
-  result       => t8('Result'),
-  error        => t8('Error'),
-);
 
 #
 # actions
@@ -50,7 +31,8 @@ sub action_list {
 
   $self->render('background_job_history/list',
                 title   => $::locale->text('Background job history'),
-                ENTRIES => $self->get_models);
+                ENTRIES => $self->models->get,
+                MODELS  => $self->models);
 }
 
 sub action_show {
@@ -112,6 +94,21 @@ sub make_filter_summary {
   push @filter_strings, $status{ $filter->{'status:eq_ignore_empty'} } if $filter->{'status:eq_ignore_empty'};
 
   $self->filter_summary(join(', ', @filter_strings));
+}
+
+sub init_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller => $self,
+    sorted => {
+      package_name => t8('Package name'),
+      run_at       => t8('Run at'),
+      status       => t8('Execution status'),
+      result       => t8('Result'),
+      error        => t8('Error'),
+    },
+  );
 }
 
 1;

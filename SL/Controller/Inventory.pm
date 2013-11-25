@@ -49,7 +49,7 @@ sub action_stock {
     parts         => $self->part,
     dst_bin       => $self->bin,
     dst_wh        => $self->warehouse,
-    qty           => $::form->format_amount(\%::myconfig, $::form->{qty}),
+    qty           => $::form->parse_amount(\%::myconfig, $::form->{qty}),
     unit          => $self->unit,
     transfer_type => 'stock',
     chargenumber  => $::form->{chargenumber},
@@ -123,7 +123,7 @@ sub _check_warehouses {
 }
 
 sub init_warehouses {
-  SL::DB::Manager::Warehouse->get_all;
+  SL::DB::Manager::Warehouse->get_all(query => [ or => [ invalid => 0, invalid => undef ]]);
 }
 
 sub init_units {
@@ -150,8 +150,8 @@ sub set_target_from_part {
 sub sanitize_target {
   my ($self) = @_;
 
-  $self->warehouse(SL::DB::Manager::Warehouse->get_first) if !$self->warehouse || !$self->warehouse->id;
-  $self->bin      ($self->warehouse->bins->[0])           if !$self->bin       || !$self->bin->id;
+  $self->warehouse($self->warehouses->[0])       if !$self->warehouse || !$self->warehouse->id;
+  $self->bin      ($self->warehouse->bins->[0])  if !$self->bin       || !$self->bin->id;
 }
 
 sub load_part_from_form {

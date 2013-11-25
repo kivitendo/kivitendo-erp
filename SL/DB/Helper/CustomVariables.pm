@@ -42,8 +42,11 @@ sub save_meta_info {
 sub make_cvar_accessor {
   my ($caller_package, %params) = @_;
 
-  my @module_filter = $params{module} ?
-    ("config_id" => [ \"(SELECT custom_variable_configs.id FROM custom_variable_configs WHERE custom_variable_configs.module = '$params{module}')" ]) :
+  my $modules = ('ARRAY' eq ref $params{module}) ?
+      join ',', @{ $params{module} } :
+      $params{module};
+  my @module_filter = $modules ?
+    ("config_id" => [ \"(SELECT custom_variable_configs.id FROM custom_variable_configs WHERE custom_variable_configs.module IN ( '$modules' ))" ]) : # " make emacs happy
     ();
 
   $caller_package->meta->add_relationships(

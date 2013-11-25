@@ -179,7 +179,7 @@ sub create_client_user_and_employee {
   dbh_do($dbh, $sth, bind => [ $_, $config{$_} ]) for sort keys %config;
   $sth->finish;
 
-  my $sth = $dbh->prepare(qq|INSERT INTO auth.group_rights (group_id, "right", granted) VALUES (1, ?, TRUE)|) || BAIL_OUT($dbh->errstr);
+  $sth = $dbh->prepare(qq|INSERT INTO auth.group_rights (group_id, "right", granted) VALUES (1, ?, TRUE)|) || BAIL_OUT($dbh->errstr);
   dbh_do($dbh, $sth, bind => [ $_ ]) for sort $::auth->all_rights;
   $sth->finish;
 

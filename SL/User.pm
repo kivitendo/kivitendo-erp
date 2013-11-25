@@ -39,6 +39,7 @@ use Fcntl qw(:seek);
 
 #use SL::Auth;
 use SL::DB::AuthClient;
+use SL::DB::Employee;
 use SL::DBConnect;
 use SL::DBUpgrade2;
 use SL::DBUtils;
@@ -126,7 +127,10 @@ sub login {
   my $update_available = $dbupdater->update2_available($dbh);
   $dbh->disconnect;
 
-  return LOGIN_OK() if !$update_available;
+  if (!$update_available) {
+    SL::DB::Manager::Employee->update_entries_for_authorized_users;
+    return LOGIN_OK();
+  }
 
   $form->{$_} = $::auth->client->{$_} for qw(dbname dbhost dbport dbuser dbpasswd);
   $form->{$_} = $myconfig{$_}         for qw(datestyle);
@@ -150,6 +154,16 @@ sub login {
   $SIG{QUIT} = 'IGNORE';
 
   $self->dbupdate2(form => $form, updater => $dbupdater, database => $::auth->client->{dbname});
+
+  # If $self->dbupdate2 returns than this means all upgrade scripts
+  # have been applied successfully, none required user
+  # interaction. Otherwise the deeper layers would have called
+  # ::end_of_request() already, and return would not have returned to
+  # us. Therefore we can now use RDBO instances because their supposed
+  # table structures do match the actual structures. So let's ensure
+  # that the "employee" table contains the appropriate entries for all
+  # users authorized for the current client.
+  SL::DB::Manager::Employee->update_entries_for_authorized_users;
 
   SL::System::InstallationLock->unlock;
 
@@ -365,14 +379,11 @@ sub create_schema_info_table {
 }
 
 sub dbupdate2 {
-  $main::lxdebug->enter_sub();
-
   my ($self, %params) = @_;
 
   my $form            = $params{form};
   my $dbupdater       = $params{updater};
   my $db              = $params{database};
-  my $rc              = -2;
 
   map { $_->{description} = SL::Iconv::convert($_->{charset}, 'UTF-8', $_->{description}) } values %{ $dbupdater->{all_controls} };
 
@@ -386,22 +397,17 @@ sub dbupdate2 {
 
   my @upgradescripts = $dbupdater->unapplied_upgrade_scripts($dbh);
 
-  $dbh->disconnect and next if !@upgradescripts;
-
   foreach my $control (@upgradescripts) {
-    # apply upgrade
+    # Apply upgrade. Control will only return to us if the upgrade has
+    # been applied correctly and if the update has not requested user
+    # interaction.
     $main::lxdebug->message(LXDebug->DEBUG2(), "Applying Update $control->{file}");
     print $form->parse_html_template("dbupgrade/upgrade_message2", $control);
 
     $dbupdater->process_file($dbh, "sql/Pg-upgrade2/$control->{file}", $control);
   }
 
-  $rc = 0;
   $dbh->disconnect;
-
-  $main::lxdebug->leave_sub();
-
-  return $rc;
 }
 
 sub data {

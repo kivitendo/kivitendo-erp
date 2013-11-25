@@ -6,10 +6,31 @@ use parent qw(SL::DB::Helper::Manager);
 
 use SL::DB::Helper::Paginated;
 use SL::DB::Helper::Sorted;
+use SL::DB::Helper::Filtered;
 
 sub object_class { 'SL::DB::Project' }
 
 __PACKAGE__->make_manager_methods;
+__PACKAGE__->add_filter_specs(
+  active => sub {
+    my ($key, $value, $prefix) = @_;
+    # TODO add boolean context
+    return ()                        if $value eq 'both';
+    return ($prefix . "active" => 1) if $value eq 'active';
+    return (or => [ $prefix . "active" => 0, $prefix . "active" => undef ]) if $value eq 'inactive';
+  },
+  valid => sub {
+    my ($key, $value, $prefix) = @_;
+    return ()                       if $value eq 'both';
+    return ($prefix . "valid" => 1) if $value eq 'valid';
+    return (or => [ $prefix . "valid" => 0, $prefix . "valid" => undef ]) if $value eq 'invalid';
+  },
+  status => sub {
+    my ($key, $value, $prefix) = @_;
+    return () if $value eq 'all';
+    return __PACKAGE__->is_not_used_filter($prefix);
+  },
+);
 
 our %project_id_column_prefixes = (
   ar              => 'global',
@@ -38,6 +59,10 @@ sub is_not_used_filter {
   } @tables_with_project_id_cols;
 
   return ("!${prefix}id" => [ \"(${query})" ]);
+}
+
+sub default_objects_per_page {
+  20;
 }
 
 1;

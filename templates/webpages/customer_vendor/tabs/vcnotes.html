@@ -3,7 +3,7 @@
 [%- USE L %]
 
 <div id="vcnotes">
-   [% IF ( NOTES && NOTES.size ) %]
+  [% IF ( SELF.notes && SELF.notes.size ) %]
      <p>
        <table>
         <tr>
@@ -19,43 +19,34 @@
         [%- FOREACH row = SELF.notes %]
           <tr class="listrow[% loop.count % 2 %]">
             <td>
-              [% L.hidden_tag('notes[+].id', row.id) %]
-              [% IF ( !NOTE_id || (NOTE_id != row.id) ) %]
-                [% L.checkbox_tag('notes[].delete', 0) %]
+              [% IF ( !SELF.note || SELF.note.id != row.id ) %]
+                [% L.checkbox_tag('delete_notes[]', value = row.id) %]
               [% END %]
             </td>
 
             <td>
-              <a href="ct.pl?action=edit&db=[% HTML.url(db) %]&id=[% HTML.url(id) %]&edit_note_id=[% HTML.url(row.id) %]">[% HTML.escape(row.subject) %]</a>
+              <a href="controller.pl?action=CustomerVendor/edit&db=[% SELF.is_vendor() ? 'vendor' : 'customer' %]&id=[% HTML.url(SELF.cv.id) %]&note_id=[% HTML.url(row.id) %]">[% HTML.escape(row.subject) %]</a>
             </td>
 
             <td>
-              [% HTML.escape(row.created_on) %]
+              [% row.itime.to_kivitendo | html %]
             </td>
 
             <td>
-              [% IF ( row.created_by_name ) %]
-                [% HTML.escape(row.created_by_name) %]
-              [% ELSE %]
-                [% HTML.escape(row.created_by_login) %]
-              [% END %]
+              [% row.employee.safe_name | html %]
             </td>
 
             <td>
-              [% HTML.escape(row.follow_up_date) %]
+              [% row.follow_up.follow_up_date.to_kivitendo | html %]
             </td>
 
             <td>
-              [% IF ( row.created_for_name ) %]
-                [% HTML.escape(row.created_for_name) %]
-              [% ELSE %]
-                [% HTML.escape(row.created_for_login) %]
-              [% END %]
+              [% row.follow_up.created_for.safe_name | html %]
             </td>
 
             <td>
-              [% IF ( row.follow_up_date ) %]
-                [% IF ( row.follow_up_done ) %]
+              [% IF ( row.follow_up.follow_up_date ) %]
+                [% IF ( row.follow_up.done ) %]
                   [% 'Yes' | $T8 %]
                 [% ELSE %]
                   [% 'No' | $T8 %]
@@ -68,8 +59,9 @@
     </p>
   [% END %]
 
+
   <div class="listtop">
-    [% IF ( NOTE_id ) %]
+    [% IF ( SELF.note.id ) %]
       [% 'Edit note' | $T8 %]
     [% ELSE %]
       [% 'Add note' | $T8 %]

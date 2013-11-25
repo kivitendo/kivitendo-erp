@@ -7,8 +7,6 @@ use parent qw(SL::Controller::Base);
 use Clone qw(clone);
 
 use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::Paginated;
-use SL::Controller::Helper::Sorted;
 use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
 use SL::CVar;
@@ -23,32 +21,12 @@ use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(project db_args flat_filter linked_records) ],
+ scalar => [ qw(project linked_records) ],
+ 'scalar --get_set_init' => [ qw(models) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_project', only => [ qw(edit update destroy) ]);
-
-__PACKAGE__->get_models_url_params('flat_filter');
-__PACKAGE__->make_paginated(
-  MODEL         => 'Project',
-  PAGINATE_ARGS => 'db_args',
-  ONLY          => [ qw(list) ],
-);
-
-__PACKAGE__->make_sorted(
-  MODEL         => 'Project',
-  ONLY          => [ qw(list) ],
-
-  DEFAULT_BY    => 'projectnumber',
-  DEFAULT_DIR   => 1,
-
-  customer      => t8('Customer'),
-  description   => t8('Description'),
-  projectnumber => t8('Project Number'),
-  type          => t8('Type'),
-);
-
 
 #
 # actions
@@ -71,13 +49,11 @@ sub action_search {
 sub action_list {
   my ($self) = @_;
 
-  $self->setup_db_args_from_filter;
-  $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });
   # $self->make_filter_summary;
 
-  $self->prepare_report;
+  my $projects = $self->models->get;
 
-  my $projects = $self->get_models(%{ $self->db_args });
+  $self->prepare_report;
 
   $self->report_generator_list_objects(report => $self->{report}, objects => $projects);
 }
@@ -202,39 +178,10 @@ sub setup_db_args_from_filter {
   $self->db_args(\%args);
 }
 
-# unfortunately ParseFilter can't handle compount filters.
-# so we clone the original filter (still need that for serializing)
-# rip out the options we know an replace them with the compound options.
-# ParseFilter will take care of the prefixing then.
-sub _pre_parse_filter {
-  my ($self, $orig_filter, $launder_to) = @_;
-
-  return undef unless $orig_filter;
-
-  my $filter = clone($orig_filter);
-
-  $launder_to->{active} = delete $filter->{active};
-  if ($orig_filter->{active} ne 'both') {
-    push @{ $filter->{and} }, $orig_filter->{active} eq 'active' ? (active => 1) : (or => [ active => 0, active => undef ]);
-  }
-
-  $launder_to->{valid} = delete $filter->{valid};
-  if ($orig_filter->{valid} ne 'both') {
-    push @{ $filter->{and} }, $orig_filter->{valid} eq 'valid' ? (valid => 1) : (or => [ valid => 0, valid => undef ]);
-  }
-
-  $launder_to->{status} = delete $filter->{status};
-  if ($orig_filter->{status} ne 'all') {
-    push @{ $filter->{and} }, SL::DB::Manager::Project->is_not_used_filter;
-  }
-
-  return $filter;
-}
-
 sub prepare_report {
   my ($self)      = @_;
 
-  my $callback    = $self->get_callback;
+  my $callback    = $self->models->get_callback;
 
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
@@ -253,14 +200,13 @@ sub prepare_report {
                        text => $::locale->text('Valid')  },
   );
 
-  map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'Project',
     output_format         => 'HTML',
     top_info_text         => $::locale->text('Projects'),
-    raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
     title                 => $::locale->text('Projects'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -269,9 +215,30 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
-  $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $self->models->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $report->set_options(
+    raw_bottom_info_text  => $self->render('project/report_bottom', { output => 0 }),
+  );
+}
 
-  $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+sub init_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller => $self,
+    sorted => {
+      _default => {
+        by    => 'projectnumber',
+        dir   => 1,
+      },
+      customer      => t8('Customer'),
+      description   => t8('Description'),
+      projectnumber => t8('Project Number'),
+      type          => t8('Type'),
+    },
+    with_objects => [ 'customer' ],
+  );
 }
 
 1;

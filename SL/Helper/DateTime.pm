@@ -12,6 +12,11 @@ sub today_local {
   return shift->now(time_zone => $::locale->get_local_time_zone)->truncate(to => 'day');
 }
 
+sub to_kivitendo_time {
+  my ($self, %params) = _hashify(1, @_);
+  return $::locale->format_date_object_to_time($self, %params);
+}
+
 sub to_kivitendo {
   my ($self, %params) = _hashify(1, @_);
   return $::locale->format_date_object($self, %params);

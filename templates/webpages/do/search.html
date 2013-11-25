@@ -99,13 +99,29 @@
     </tr>
 
     <tr>
-     <th align="right">[% 'From' | $T8 %]</th>
+     <th align="right">[% 'Serial Number' | $T8 %]</th>
+     <td colspan="3"><input name="serialnumber" class="fixed_width"></td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Delivery Order Date' | $T8 %] [% 'From' | $T8 %]</th>
      <td>
       [% L.date_tag('transdatefrom') %]
      </td>
      <th align="right">[% 'Bis' | $T8 %]</th>
      <td>
       [% L.date_tag('transdateto') %]
+     </td>
+    </tr>
+
+    <tr>
+     <th align="right">[% 'Reqdate' | $T8 %] [% 'From' | $T8 %]</th>
+     <td>
+      [% L.date_tag('reqdatefrom') %]
+     </td>
+     <th align="right">[% 'Bis' | $T8 %]</th>
+     <td>
+      [% L.date_tag('reqdateto') %]
      </td>
     </tr>
 
@@ -161,7 +177,7 @@
        <tr>
         <td>
          <input name="l_transdate" id="l_transdate" class="checkbox" type="checkbox" value="Y" checked>
-         <label for="l_transdate">[% 'Date' | $T8 %]</label>
+         <label for="l_transdate">[% 'Delivery Order Date' | $T8 %]</label>
         </td>
         <td>
          <input name="l_reqdate" id="l_reqdate" class="checkbox" type="checkbox" value="Y" checked>

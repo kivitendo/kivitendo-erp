@@ -48,6 +48,7 @@ use List::Util qw(min max reduce sum);
 use Data::Dumper;
 
 use SL::DB::Customer;
+use SL::DB::TaxZone;
 
 require "bin/mozilla/io.pl";
 require "bin/mozilla/arap.pl";
@@ -442,7 +443,7 @@ sub form_header {
         shiptodepartment_1 shiptodepartment_2 shiptoemail shiptocp_gender
         message email subject cc bcc taxpart taxservice taxaccounts cursor_fokus),
         @custom_hiddens,
-        map { $_.'_rate', $_.'_description' } split / /, $form->{taxaccounts} ];  # deleted: discount
+        map { $_.'_rate', $_.'_description', $_.'_taxnumber' } split / /, $form->{taxaccounts} ];  # deleted: discount
 
   %TMPL_VAR = (
      %TMPL_VAR,
@@ -721,7 +722,9 @@ sub search {
   $form->all_vc(\%myconfig, $form->{vc}, ($form->{vc} eq 'customer') ? "AR" : "AP");
   $form->get_lists("projects"     => { "key" => "ALL_PROJECTS", "all" => 1 },
                    "departments"  => "ALL_DEPARTMENTS",
-                   "$form->{vc}s" => "ALL_VC");
+                   "$form->{vc}s" => "ALL_VC",
+                   "taxzones"     => "ALL_TAXZONES",
+                   "business_types" => "ALL_BUSINESS_TYPES",);
   $form->{ALL_EMPLOYEES} = SL::DB::Manager::Employee->get_all(query => [ deleted => 0 ]);
 
   # constants and subs for template
@@ -791,7 +794,8 @@ sub orders {
     "delivered",               "periodic_invoices",
     "marge_total",             "marge_percent",
     "vcnumber",                "ustid",
-    "country",
+    "country",                 "shippingpoint",
+    "taxzone",
   );
 
   # only show checkboxes if gotten here via sales_order form.
@@ -829,9 +833,13 @@ sub orders {
   my @hidden_variables = map { "l_${_}" } @columns;
   push @hidden_variables, "l_subtotal", $form->{vc}, qw(l_closed l_notdelivered open closed delivered notdelivered ordnumber quonumber
                                                         transaction_description transdatefrom transdateto type vc employee_id salesman_id
-                                                        reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive);
+                                                        reqdatefrom reqdateto projectnumber project_id periodic_invoices_active periodic_invoices_inactive
+                                                        business_id shippingpoint taxzone_id);
 
-  my $href = build_std_url('action=orders', grep { $form->{$_} } @hidden_variables);
+  my   @keys_for_url = grep { $form->{$_} } @hidden_variables;
+  push @keys_for_url, 'taxzone_id' if $form->{taxzone_id} ne ''; # taxzone_id could be 0
+
+  my $href = build_std_url('action=orders', @keys_for_url);
 
   my %column_defs = (
     'ids'                     => { 'text' => '', },
@@ -859,9 +867,11 @@ sub orders {
     'country'                 => { 'text' => $locale->text('Country'), },
     'ustid'                   => { 'text' => $locale->text('USt-IdNr.'), },
     'periodic_invoices'       => { 'text' => $locale->text('Per. Inv.'), },
+    'shippingpoint'           => { 'text' => $locale->text('Shipping Point'), },
+    'taxzone'                 => { 'text' => $locale->text('Steuersatz'), },
   );
 
-  foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia transaction_description)) {
+  foreach my $name (qw(id transdate reqdate quonumber ordnumber name employee salesman shipvia transaction_description shippingpoint taxzone)) {
     my $sortdir                 = $form->{sort} eq $name ? 1 - $form->{sortdir} : $form->{sortdir};
     $column_defs{$name}->{link} = $href . "&sort=$name&sortdir=$sortdir";
   }
@@ -886,6 +896,7 @@ sub orders {
   push @options, $locale->text('Order Number')            . " : $form->{ordnumber}"                       if $form->{ordnumber};
   push @options, $locale->text('Notes')                   . " : $form->{notes}"                           if $form->{notes};
   push @options, $locale->text('Transaction description') . " : $form->{transaction_description}"         if $form->{transaction_description};
+  push @options, $locale->text('Shipping Point')          . " : $form->{shippingpoint}"                   if $form->{shippingpoint};
   if ( $form->{transdatefrom} or $form->{transdateto} ) {
     push @options, $locale->text('Order Date');
     push @options, $locale->text('From') . " " . $locale->date(\%myconfig, $form->{transdatefrom}, 1)     if $form->{transdatefrom};
@@ -900,7 +911,15 @@ sub orders {
   push @options, $locale->text('Closed')                                                                  if $form->{closed};
   push @options, $locale->text('Delivery Order created')                                                               if $form->{delivered};
   push @options, $locale->text('Not delivered')                                                           if $form->{notdelivered};
-  push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_actibe};
+  push @options, $locale->text('Periodic invoices active')                                                if $form->{periodic_invoices_active};
+
+  if ($form->{business_id}) {
+    my $vc_type_label = $form->{vc} eq 'customer' ? $locale->text('Customer type') : $locale->text('Vendor type');
+    push @options, $vc_type_label . " : " . SL::DB::Business->new(id => $form->{business_id})->load->description;
+  }
+  if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
+    push @options, $locale->text('Steuersatz') . " : " . SL::DB::TaxZone->new(id => $form->{taxzone_id})->load->description;
+  }
 
   $report->set_options('top_info_text'        => join("\n", @options),
                        'raw_top_info_text'    => $form->parse_html_template('oe/orders_top'),
@@ -1791,13 +1810,13 @@ sub poso {
   # also reset discounts
   if ( $form->{sales_order_to_purchase_order} ) {
     for my $i (1 .. $form->{rowcount}) {
-      $form->{"sellprice_${i}"} = $form->format_amount(\%myconfig,$form->{"lastcost_${i}"});
+      $form->{"sellprice_${i}"} = $form->{"lastcost_${i}"};
       $form->{"discount_${i}"}  = 0;
     };
   };
 
   for my $i (1 .. $form->{rowcount}) {
-    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount);
+    map { $form->{"${_}_${i}"} = $form->parse_amount(\%myconfig, $form->{"${_}_${i}"}) if ($form->{"${_}_${i}"}) } qw(ship qty sellprice listprice basefactor discount lastcost);
   }
 
   my %saved_vars = map { $_ => $form->{$_} } grep { $form->{$_} } qw(currency);

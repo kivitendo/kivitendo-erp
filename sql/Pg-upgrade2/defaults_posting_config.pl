@@ -18,10 +18,12 @@ sub run {
   # kivitendo behaviour isn't changed by this update
   # if payments_changeable is not set in config set it to 0
   my $payments_changeable = 0;
-  if ($::lx_office_conf{features}->{payments_changeable} == 1 ) {
-    $payments_changeable = 1;
-  } elsif ($::lx_office_conf{features}->{payments_changeable} == 2 ) {
-    $payments_changeable = 2;
+  if (defined $::lx_office_conf{features}{payments_changeable}) {
+    if ($::lx_office_conf{features}->{payments_changeable} == 1 ) {
+      $payments_changeable = 1;
+    } elsif ($::lx_office_conf{features}->{payments_changeable} == 2 ) {
+      $payments_changeable = 2;
+    }
   }
 
   my $update_column = "UPDATE defaults SET payments_changeable = '$payments_changeable';";

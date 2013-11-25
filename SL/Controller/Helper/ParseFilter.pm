@@ -106,7 +106,7 @@ sub _parse_filter {
     ($key, $value) = _apply_all($key, $value, qr/\b::(\w+)/, { %methods, %{ $params{methods} || {} } });
     ($key, $value) = _dispatch_custom_filters($params{class}, $with_objects, $key, $value) if $params{class};
 
-    push @result, $key, $value;
+    push @result, $key, $value if defined $key;
   }
   return \@result;
 }

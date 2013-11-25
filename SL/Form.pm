@@ -1420,7 +1420,7 @@ sub date_closed {
   $main::lxdebug->enter_sub();
 
   my ($self, $date, $myconfig) = @_;
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh;
 
   my $query = "SELECT 1 FROM defaults WHERE ? < closedto";
   my $sth = prepare_execute_query($self, $dbh, $query, conv_date($date));
@@ -1453,7 +1453,7 @@ sub date_max_future {
   $main::lxdebug->enter_sub();
 
   my ($self, $date, $myconfig) = @_;
-  my $dbh = $self->dbconnect($myconfig);
+  my $dbh = $self->get_standard_dbh;
 
   my $query = "SELECT 1 FROM defaults WHERE ? - current_date > max_future_booking_interval";
   my $sth = prepare_execute_query($self, $dbh, $query, conv_date($date));
@@ -1942,7 +1942,7 @@ sub get_duedate {
               : $self->{vendor_id}   ? SL::DB::Vendor     ->new(id => $self->{vendor_id})  ->load->payment
               :                        croak("Missing field in \$::form: payment_id, customer_id or vendor_id");
 
-  my $duedate = $terms->calc_date(reference_date => $reference_date)->to_kivitendo;
+  my $duedate = $terms ? $terms->calc_date(reference_date => $reference_date)->to_kivitendo : undef;
 
   $main::lxdebug->leave_sub();
 

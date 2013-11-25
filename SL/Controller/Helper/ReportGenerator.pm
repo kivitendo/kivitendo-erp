@@ -89,6 +89,7 @@ sub report_generator_list_objects {
   croak "Parameter 'objects' must exist and be an array reference"                if                      ref($params{objects}) ne 'ARRAY';
   croak "Parameter 'report' must exist and be an instance of SL::ReportGenerator" if                      ref($params{report})  ne 'SL::ReportGenerator';
   croak "Parameter 'options', if exists, must be a hash reference"                if $params{options} && (ref($params{options}) ne 'HASH');
+  $params{layout} //= 1;
 
   my $column_defs = $params{report}->{columns};
   my @columns     = $params{report}->get_visible_columns;
@@ -110,7 +111,12 @@ sub report_generator_list_objects {
     $params{report}->add_data(\%data);
   }
 
-  return $params{report}->generate_with_headers(%{ $params{options} || {}});
+  if ($params{layout}) {
+    return $params{report}->generate_with_headers(%{ $params{options} || {}});
+  } else {
+    my $html = $params{report}->generate_html_content(%{ $params{options} || {}});
+    $self->render(\$html , { layout => 0, process => 0 });
+  }
 }
 
 1;

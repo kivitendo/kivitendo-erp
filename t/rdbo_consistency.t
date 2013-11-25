@@ -49,6 +49,7 @@ sub test_db_included_in_all {
 
 sub test_use_in_all_exists_as_db {
   foreach my $package (map { m/^use\s+(.+?);/; $1 } grep { '^use SL::DB::' } split m/\n/, $all_content) {
+    next unless $package;
     next unless $package =~ m/^SL::DB::(.+)/;
     my $file = $1;
     $file    =~ s{::}{/}g;

@@ -43,6 +43,7 @@ use SL::CVar;
 use SL::DB::Order;
 use SL::DB::PeriodicInvoicesConfig;
 use SL::DB::Status;
+use SL::DB::Tax;
 use SL::DBUtils;
 use SL::IC;
 
@@ -87,7 +88,8 @@ sub transactions {
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
-    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid  | .
+    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
+    qq|  tz.description AS taxzone | .
     $periodic_invoices_columns .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
@@ -96,6 +98,7 @@ sub transactions {
     qq|LEFT JOIN exchangerate ex ON (ex.currency_id = o.currency_id | .
     qq|  AND ex.transdate = o.transdate) | .
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
+    qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
     qq|$periodic_invoices_joins | .
     qq|WHERE (o.quotation = ?) |;
   push(@values, $quotation);
@@ -124,6 +127,11 @@ sub transactions {
       ))
 SQL
     push @values, "%" . $form->{"projectnumber"} . "%", "%" . $form->{"projectnumber"} . "%" ;
+  }
+
+  if ($form->{"business_id"}) {
+    $query .= " AND ct.business_id = ?";
+    push(@values, $form->{"business_id"});
   }
 
   if ($form->{"${vc}_id"}) {
@@ -186,6 +194,16 @@ SQL
     push(@values, conv_date($form->{reqdateto}));
   }
 
+  if ($form->{shippingpoint}) {
+    $query .= qq| AND o.shippingpoint ILIKE ?|;
+    push(@values, '%' . $form->{shippingpoint} . '%');
+  }
+
+  if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
+    $query .= qq| AND tz.id = ?|;
+    push(@values, $form->{taxzone_id});
+  }
+
   if ($form->{transaction_description}) {
     $query .= qq| AND o.transaction_description ILIKE ?|;
     push(@values, '%' . $form->{transaction_description} . '%');
@@ -208,7 +226,9 @@ SQL
     "employee"                => "e.name",
     "salesman"                => "s.name",
     "shipvia"                 => "o.shipvia",
-    "transaction_description" => "o.transaction_description"
+    "transaction_description" => "o.transaction_description",
+    "shippingpoint"           => "o.shippingpoint",
+    "taxzone"                 => "tz.description",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}";
@@ -1279,8 +1299,11 @@ sub order_details {
     push(@{ $form->{TEMPLATE_ARRAYS}->{tax_nofmt} },      $taxamount);
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate} },        $form->format_amount($myconfig, $form->{"${item}_rate"} * 100));
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxrate_nofmt} },  $form->{"${item}_rate"} * 100);
-    push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $form->{"${item}_description"} . q{ } . 100 * $form->{"${item}_rate"} . q{%});
     push(@{ $form->{TEMPLATE_ARRAYS}->{taxnumber} },      $form->{"${item}_taxnumber"});
+
+    my $tax_obj     = SL::DB::Manager::Tax->find_by(taxnumber => $form->{"${item}_taxnumber"});
+    my $description = $tax_obj->translated_attribute('taxdescription',  $form->{language_id}, 0) if $tax_obj;
+    push(@{ $form->{TEMPLATE_ARRAYS}->{taxdescription} }, $description . q{ } . 100 * $form->{"${item}_rate"} . q{%});
   }
 
   $form->{nodiscount_subtotal} = $form->format_amount($myconfig, $form->{nodiscount_total}, 2);

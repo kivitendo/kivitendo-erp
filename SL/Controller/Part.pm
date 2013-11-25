@@ -6,36 +6,15 @@ use parent qw(SL::Controller::Base);
 use Clone qw(clone);
 use SL::DB::Part;
 use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::Filtered;
-use SL::Controller::Helper::Sorted;
-use SL::Controller::Helper::Paginated;
-use SL::Controller::Helper::Filtered;
 use SL::Locale::String qw(t8);
 use SL::JSON;
 
 use Rose::Object::MakeMethods::Generic (
-  'scalar --get_set_init' => [ qw(parts) ],
+  'scalar --get_set_init' => [ qw(parts models) ],
 );
 
 # safety
 __PACKAGE__->run_before(sub { $::auth->assert('part_service_assembly_edit') });
-
-__PACKAGE__->make_filtered(
-  ONLY        => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
-  LAUNDER_TO  => 'filter',
-);
-__PACKAGE__->make_paginated(
-  ONLY        => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
-);
-
-__PACKAGE__->make_sorted(
-  ONLY        => [ qw(part_picker_search part_picker_result ajax_autocomplete) ],
-
-  DEFAULT_BY  => 'partnumber',
-  DEFAULT_DIR => 1,
-
-  partnumber  => t8('Partnumber'),
-);
 
 sub action_ajax_autocomplete {
   my ($self, %params) = @_;
@@ -92,7 +71,23 @@ sub action_part_picker_result {
 }
 
 sub init_parts {
-  $_[0]->get_models(with_objects => [ qw(unit_obj) ]);
+  $_[0]->models->get;
+}
+
+sub init_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller => $self,
+    sorted => {
+      _default  => {
+        by => 'partnumber',
+        dir  => 1,
+      },
+      partnumber  => t8('Partnumber'),
+    },
+    with_objects => [ qw(unit_obj) ],
+  );
 }
 
 1;

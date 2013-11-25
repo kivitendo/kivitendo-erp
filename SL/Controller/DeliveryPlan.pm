@@ -6,34 +6,17 @@ use parent qw(SL::Controller::Base);
 use Clone qw(clone);
 use SL::DB::OrderItem;
 use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::Paginated;
-use SL::Controller::Helper::Sorted;
-use SL::Controller::Helper::Filtered;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
   scalar => [ qw(db_args flat_filter) ],
+  'scalar --get_set_init' => [ qw(models) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
 
-__PACKAGE__->make_filtered(
-  MODEL             => 'OrderItem',
-  LAUNDER_TO        => 'filter'
-);
-__PACKAGE__->make_paginated(
-  MODEL         => 'OrderItem',
-  ONLY          => [ qw(list) ],
-);
-
-__PACKAGE__->make_sorted(
-  MODEL             => 'OrderItem',
-  ONLY              => [ qw(list) ],
-
-  DEFAULT_BY        => 'reqdate',
-  DEFAULT_DIR       => 1,
-
+my %sort_columns = (
   reqdate           => t8('Reqdate'),
   description       => t8('Description'),
   partnumber        => t8('Part Number'),
@@ -120,10 +103,10 @@ sub action_list {
   my ($self) = @_;
 
   $self->make_filter_summary;
-
-  my $orderitems = $self->get_models(query => $delivery_plan_query, with_objects => [ 'order', 'order.customer', 'part' ]);
-
   $self->prepare_report;
+
+  my $orderitems = $self->models->get;
+
   $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
 
@@ -153,15 +136,13 @@ sub prepare_report {
                            obj_link => sub { $self->link_to($_[0]->order->customer)                                          } },
   );
 
-  map { $column_defs{$_}->{text} = $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+  $column_defs{$_}->{text} = $sort_columns{$_} for keys %column_defs;
 
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'DeliveryPlan',
     output_format         => 'HTML',
     top_info_text         => $::locale->text('Delivery Plan for currently outstanding sales orders'),
-    raw_top_info_text     => $self->render('delivery_plan/report_top',    { output => 0 }),
-    raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { output => 0 }),
     title                 => $::locale->text('Delivery Plan'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -170,9 +151,13 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
-  $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
-
-  $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->finalize; # for filter laundering
+  $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $report->set_options(
+    raw_top_info_text     => $self->render('delivery_plan/report_top',    { output => 0 }),
+    raw_bottom_info_text  => $self->render('delivery_plan/report_bottom', { output => 0 }, models => $self->models),
+  );
 }
 
 sub make_filter_summary {
@@ -207,6 +192,24 @@ sub make_filter_summary {
   }
 
   $self->{filter_summary} = join ', ', @filter_strings;
+}
+
+sub init_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller   => $self,
+    model        => 'OrderItem',
+    sorted       => {
+      _default     => {
+        by           => 'reqdate',
+        dir          => 1,
+      },
+      %sort_columns,
+    },
+    query        => $delivery_plan_query,
+    with_objects => [ 'order', 'order.customer', 'part' ],
+  );
 }
 
 sub link_to {

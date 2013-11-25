@@ -99,6 +99,7 @@ sub checkbox_tag {
   $attributes{value}   = 1 unless defined $attributes{value};
   my $label            = delete $attributes{label};
   my $checkall         = delete $attributes{checkall};
+  my $for_submit       = delete $attributes{for_submit};
 
   if ($attributes{checked}) {
     $attributes{checked} = 'checked';
@@ -106,7 +107,9 @@ sub checkbox_tag {
     delete $attributes{checked};
   }
 
-  my $code  = $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
+  my $code  = '';
+  $code    .= $self->hidden_tag($name, 0, %attributes, id => $attributes{id} . '_hidden') if $for_submit;
+  $code    .= $self->html_tag('input', undef,  %attributes, name => $name, type => 'checkbox');
   $code    .= $self->html_tag('label', $label, for => $attributes{id}) if $label;
   $code    .= $self->javascript(qq|\$('#$attributes{id}').checkall('$checkall');|) if $checkall;
 
@@ -443,39 +446,43 @@ sub sortable_table_header {
   my ($self, $by, %params) = _hashify(2, @_);
 
   my $controller          = $self->{CONTEXT}->stash->get('SELF');
-  my $sort_spec           = $controller->get_sort_spec;
+  my $models              = $params{models} || $self->{CONTEXT}->stash->get('MODELS');
+  my $sort_spec           = $models->get_sort_spec;
   my $by_spec             = $sort_spec->{$by};
-  my %current_sort_params = $controller->get_current_sort_params;
+  my %current_sort_params = $models->get_current_sort_params;
   my ($image, $new_dir)   = ('', $current_sort_params{dir});
   my $title               = delete($params{title}) || $::locale->text($by_spec->{title});
 
-  if ($current_sort_params{by} eq $by) {
-    my $current_dir = $current_sort_params{dir} ? 'up' : 'down';
+  if ($current_sort_params{sort_by} eq $by) {
+    my $current_dir = $current_sort_params{sort_dir} ? 'up' : 'down';
     $image          = '<img border="0" src="image/' . $current_dir . '.png">';
-    $new_dir        = 1 - ($current_sort_params{dir} || 0);
+    $new_dir        = 1 - ($current_sort_params{sort_dir} || 0);
   }
 
-  $params{ $sort_spec->{FORM_PARAMS}->[0] } = $by;
-  $params{ $sort_spec->{FORM_PARAMS}->[1] } = ($new_dir ? '1' : '0');
+  $params{ $models->sorted->form_params->[0] } = $by;
+  $params{ $models->sorted->form_params->[1] } = ($new_dir ? '1' : '0');
 
-  return '<a href="' . $controller->get_callback(%params) . '">' . _H($title) . $image . '</a>';
+  return '<a href="' . $models->get_callback(%params) . '">' . _H($title) . $image . '</a>';
 }
 
 sub paginate_controls {
   my ($self, %params) = _hashify(1, @_);
 
   my $controller      = $self->{CONTEXT}->stash->get('SELF');
-  my $paginate_spec   = $controller->get_paginate_spec;
-  my %paginate_params = $controller->get_current_paginate_params;
+  my $models          = $params{models} || $self->{CONTEXT}->stash->get('MODELS');
+  my $pager           = $models->paginated;
+#  my $paginate_spec   = $controller->get_paginate_spec;
+
+  my %paginate_params = $models->get_paginate_args;
 
   my %template_params = (
     pages             => \%paginate_params,
     url_maker         => sub {
       my %url_params                                    = _hashify(0, @_);
-      $url_params{ $paginate_spec->{FORM_PARAMS}->[0] } = delete $url_params{page};
-      $url_params{ $paginate_spec->{FORM_PARAMS}->[1] } = delete $url_params{per_page} if exists $url_params{per_page};
+      $url_params{ $pager->form_params->[0] } = delete $url_params{page};
+      $url_params{ $pager->form_params->[1] } = delete $url_params{per_page} if exists $url_params{per_page};
 
-      return $controller->get_callback(%url_params);
+      return $models->get_callback(%url_params);
     },
     %params,
   );
