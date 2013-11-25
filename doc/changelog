@@ -35,7 +35,7 @@ Größere neue Features:
   WebDAV-Verzeichnis pro Mandant gibt. Die dafür notwendigen
   Umstellungen werden zusammen mit dem Datenbankupgrade durchgeführt.
 
-
+- CSV-Import von Aufträgen
 
 Kleinere neue Features und Detailverbesserungen:
 
