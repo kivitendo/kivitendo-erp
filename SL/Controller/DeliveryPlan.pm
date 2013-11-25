@@ -5,6 +5,7 @@ use parent qw(SL::Controller::Base);
 
 use Clone qw(clone);
 use SL::DB::OrderItem;
+use SL::DB::Business;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
@@ -39,8 +40,9 @@ sub action_list {
   $self->prepare_report;
 
   my $orderitems = $self->models->get;
+  $self->{all_businesses} = SL::DB::Manager::Business->get_all_sorted;
 
-  $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
+    $self->report_generator_list_objects(report => $self->{report}, objects => $orderitems);
 }
 
 # private functions
@@ -122,17 +124,20 @@ sub make_filter_summary {
   my $filter = $::form->{filter} || {};
   my @filter_strings;
 
+  my $business = SL::DB::Business->new(id => $filter->{order}{customer}{"business_id"})->load->description if $filter->{order}{customer}{"business_id"};
   my @filters = (
-    [ $filter->{order}{"ordnumber:substr::ilike"},                $::locale->text('Number')                                             ],
-    [ $filter->{part}{"partnumber:substr::ilike"},                $::locale->text('Part Number')                                        ],
-    [ $filter->{"description:substr::ilike"},                     $::locale->text('Part Description')                                   ],
-    [ $filter->{"reqdate:date::ge"},                              $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
-    [ $filter->{"reqdate:date::le"},                              $::locale->text('Delivery Date') . " " . $::locale->text('To Date')   ],
-    [ $filter->{"qty:number"},                                    $::locale->text('Quantity')                                           ],
-    [ $filter->{order}{vendor}{"name:substr::ilike"},             $::locale->text('Vendor')                                             ],
-    [ $filter->{order}{vendor}{"vendornumber:substr::ilike"},     $::locale->text('Vendor Number')                                      ],
-    [ $filter->{order}{customer}{"name:substr::ilike"},           $::locale->text('Customer')                                           ],
-    [ $filter->{order}{customer}{"customernumber:substr::ilike"}, $::locale->text('Customer Number')                                    ],
+    [ $filter->{order}{"ordnumber:substr::ilike"},                    $::locale->text('Number')                                             ],
+    [ $filter->{order}{globalproject}{"projectnumber:substr::ilike"}, $::locale->text('Document Project Number')                            ],
+    [ $filter->{part}{"partnumber:substr::ilike"},                    $::locale->text('Part Number')                                        ],
+    [ $filter->{"description:substr::ilike"},                         $::locale->text('Part Description')                                   ],
+    [ $filter->{"reqdate:date::ge"},                                  $::locale->text('Delivery Date') . " " . $::locale->text('From Date') ],
+    [ $filter->{"reqdate:date::le"},                                  $::locale->text('Delivery Date') . " " . $::locale->text('To Date')   ],
+    [ $filter->{"qty:number"},                                        $::locale->text('Quantity')                                           ],
+    [ $filter->{order}{vendor}{"name:substr::ilike"},                 $::locale->text('Vendor')                                             ],
+    [ $filter->{order}{vendor}{"vendornumber:substr::ilike"},         $::locale->text('Vendor Number')                                      ],
+    [ $filter->{order}{customer}{"name:substr::ilike"},               $::locale->text('Customer')                                           ],
+    [ $filter->{order}{customer}{"customernumber:substr::ilike"},     $::locale->text('Customer Number')                                    ],
+    [ $business,                                                      $::locale->text('Customer type')                                      ],
   );
 
   my %flags = (

@@ -15,6 +15,10 @@
    <td>[% L.input_tag('filter.order.ordnumber:substr::ilike', filter.order.ordnumber_substr__ilike, size = 20) %]</td>
   </tr>
   <tr>
+   <th align="right">[% 'Document Project Number' | $T8 %]</th>
+   <td>[% L.input_tag('filter.order.globalproject.projectnumber:substr::ilike', filter.order.globalproject.projectnumber_substr__ilike, size = 20) %]</td>
+  </tr>
+  <tr>
    <th align="right">[% 'Part Number' | $T8 %]</th>
    <td>[% L.input_tag('filter.part.partnumber:substr::ilike', filter.part.partnumber_substr__ilike, size = 20) %]</td>
   </tr>
@@ -52,6 +56,17 @@
     <td>[% L.input_tag('filter.order.vendor.vendornumber:substr::ilike', filter.order.vendor.vendornumber_substr__ilike, size = 20) %]</td>
    </tr>
 [% END %]
+  <tr>
+   <th align="right">[% 'Customer type' | $T8 %]</th>
+   <td>
+     [% L.select_tag('filter.order.customer.business_id', SELF.all_businesses,
+                     default    => filter.order.customer.business_id,
+                     title_key  => 'description',
+                     value_key  => 'id',
+                     with_empty => 1,
+                     style      => 'width: 200px') %]
+   </td>
+  </tr>
   <tr>
    <th align="right">[% 'Type' | $T8 %]</th>
    <td>
