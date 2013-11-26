@@ -407,21 +407,24 @@ sub action_get_delivery {
     $qty_sign = '';
   }
 
-  my $where = ' WHERE 1=1 ';
+  my $where = ' WHERE 1=1';
   my @values;
 
   if ( !$self->is_vendor() && $::form->{shipto_id} && $::form->{shipto_id} ne 'all' ) {
-    $where .= "AND ${arap}.shipto_id = ?";
+    $where .= " AND ${arap}.shipto_id = ?";
     push(@values, $::form->{shipto_id});
+  } else {
+    $where .= " AND ${arap}.${db}_id = ?";
+    push(@values, $::form->{id});
   }
 
   if ( $::form->{delivery_from} ) {
-    $where .= "AND ${arap}.transdate >= ?";
+    $where .= " AND ${arap}.transdate >= ?";
     push(@values, conv_date($::form->{delivery_from}));
   }
 
   if ( $::form->{delivery_to} ) {
-    $where .= "AND ${arap}.transdate <= ?";
+    $where .= " AND ${arap}.transdate <= ?";
     push(@values, conv_date($::form->{delivery_to}));
   }
 
