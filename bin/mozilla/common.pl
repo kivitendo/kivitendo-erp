@@ -455,6 +455,7 @@ sub show_vc_details {
                  $locale->text("No vendor has been selected yet."));
 
   Common->get_vc_details(\%myconfig, $form, $form->{vc}, $form->{vc_id});
+  $form->{discount_as_percent} = $form->format_amount(\%::myconfig, $form->parse_amount(\%::myconfig, $form->{discount}) * 100, 2);
 
   $form->{title} = $form->{vc} eq "customer" ?
     $locale->text("Customer details") : $locale->text("Vendor details");
