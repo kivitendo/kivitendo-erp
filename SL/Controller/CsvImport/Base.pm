@@ -466,17 +466,22 @@ sub clean_fields {
 sub _save_history {
   my ($self, $object) = @_;
 
-  if (any { $_ eq $self->controller->{type} } qw(parts customers_vendors)) {
+  if (any { $_ eq $self->controller->{type} } qw(parts customers_vendors orders)) {
     my $snumbers = $self->controller->{type} eq 'parts'             ? 'partnumber_' . $object->partnumber
                  : $self->controller->{type} eq 'customers_vendors' ?
                      ($self->table eq 'customer' ? 'customernumber_' . $object->customernumber : 'vendornumber_' . $object->vendornumber)
+                 : $self->controller->{type} eq 'orders'            ? 'ordnumber_' . $object->ordnumber
                  : '';
+
+    my $what_done = $self->controller->{type} eq 'orders' ? 'sales_order'
+                  : '';
 
     SL::DB::History->new(
       trans_id    => $object->id,
       snumbers    => $snumbers,
       employee_id => $self->controller->{employee_id},
       addition    => 'SAVED',
+      what_done   => $what_done,
     )->save();
   }
 }
