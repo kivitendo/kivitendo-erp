@@ -762,11 +762,12 @@ sub save_objects {
   # set order number and collect to save
   my $objects_to_save;
   foreach my $entry (@{ $self->controller->data }) {
+    next if $entry->{raw_data}->{datatype} ne $self->_order_column;
     next if @{ $entry->{errors} };
 
-    if ($entry->{raw_data}->{datatype} eq $self->_order_column && !$entry->{object}->ordnumber) {
-      my $number = SL::TransNumber->new(type        => 'sales_order',
-                                        save        => 1);
+    if (!$entry->{object}->ordnumber) {
+      my $number = SL::TransNumber->new(type => 'sales_order',
+                                        save => 1);
       $entry->{object}->ordnumber($number->create_unique());
     }
 
