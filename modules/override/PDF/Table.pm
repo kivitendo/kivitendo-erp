@@ -596,7 +596,7 @@ sub table {
         if ($remaining_header_rows) {
           $remaining_header_rows--;
         } else {
-          $row_cnt++;
+          $row_cnt++ unless $do_leftovers;
         }
       }# End of while(scalar(@{$data}) and $cur_y-$row_h > $bot_marg)
 
