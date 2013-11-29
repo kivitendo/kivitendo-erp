@@ -416,6 +416,8 @@ sub handle_item {
   $object->description($part_obj->description) unless $object->description;
   $object->longdescription($part_obj->notes)   unless $object->longdescription;
   $object->unit($part_obj->unit)               unless $object->unit;
+  $object->sellprice($part_obj->sellprice)     unless defined $object->sellprice;
+  $object->lastcost($part_obj->lastcost)       unless defined $object->lastcost;
 
   # set to 0 if not given
   $object->discount(0) unless $object->discount;
