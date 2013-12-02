@@ -54,6 +54,7 @@ use SL::DB::Business;
 use SL::DB::Default;
 use SL::Helper::Flash;
 use SL::ReportGenerator;
+use SL::MoreCommon qw(uri_encode);
 
 require "bin/mozilla/common.pl";
 require "bin/mozilla/reportgenerator.pl";
@@ -66,18 +67,13 @@ use strict;
 sub add {
   $main::lxdebug->enter_sub();
 
-  $main::auth->assert('customer_vendor_edit');
+  my $url = 'controller.pl?action=CustomerVendor/add&db='. ($::form->{db} eq 'vendor' ? 'vendor' : 'customer');
 
-  my $form     = $main::form;
-  my %myconfig = %main::myconfig;
+  if ( $::form->{callback} ) {
+    $url .= '&callback='. uri_encode($::form->{callback});
+  }
 
-  $form->{title}    = "Add";
-  $form->{callback} = "$form->{script}?action=add&db=$form->{db}" unless $form->{callback};
-
-  CT->populate_drop_down_boxes(\%myconfig, \%$form);
-
-  &form_header;
-  &form_footer;
+  print $::form->redirect_header($url);
 
   $main::lxdebug->leave_sub();
 }
