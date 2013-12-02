@@ -3,6 +3,7 @@ package SL::Controller::CsvImport::CustomerVendor;
 use strict;
 
 use SL::Helper::Csv;
+use SL::Helper::Csv::Consistency;
 use SL::DB::Business;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
@@ -13,7 +14,7 @@ use parent qw(SL::Controller::CsvImport::Base);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(table languages_by businesses_by currencies_by) ],
+ 'scalar --get_set_init' => [ qw(table languages_by businesses_by) ],
 );
 
 sub init_table {
@@ -44,12 +45,6 @@ sub init_languages_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_languages } } ) } qw(id description article_code) };
 }
 
-sub init_currencies_by {
-  my ($self) = @_;
-
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_currencies } } ) } qw(id name) };
-}
-
 sub check_objects {
   my ($self) = @_;
 
@@ -71,7 +66,7 @@ sub check_objects {
     $self->check_language($entry);
     $self->check_business($entry);
     $self->check_payment($entry);
-    $self->check_currency($entry);
+    SL::Helper::Csv::Consistency->check_currency($entry, take_default => 1);
     $self->handle_cvars($entry);
 
     next if @{ $entry->{errors} };
@@ -158,36 +153,6 @@ sub check_language {
 
     $object->language_id($language->id);
   }
-
-  return 1;
-}
-
-sub check_currency {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-
-  # Check whether or not currency ID is valid.
-  if ($object->currency_id && !$self->currencies_by->{id}->{ $object->currency_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid currency');
-    return 0;
-  }
-
-  # Map name to ID if given.
-  if (!$object->currency_id && $entry->{raw_data}->{currency}) {
-    my $currency = $self->currencies_by->{name}->{  $entry->{raw_data}->{currency} };
-    if (!$currency) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid currency');
-      return 0;
-    }
-
-    $object->currency_id($currency->id);
-  }
-
-  # Set default currency if none was given.
-  $object->currency_id($self->default_currency_id) if !$object->currency_id;
-
-  $entry->{raw_data}->{currency_id} = $object->currency_id;
 
   return 1;
 }

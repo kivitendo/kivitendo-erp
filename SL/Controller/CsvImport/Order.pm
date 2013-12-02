@@ -24,7 +24,7 @@ use parent qw(SL::Controller::CsvImport::BaseMulti);
 
 use Rose::Object::MakeMethods::Generic
 (
- 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by taxzones_by price_factors_by pricegroups_by currencies_by) ],
+ 'scalar --get_set_init' => [ qw(settings languages_by parts_by contacts_by departments_by projects_by ct_shiptos_by taxzones_by price_factors_by pricegroups_by) ],
 );
 
 
@@ -244,12 +244,6 @@ sub init_pricegroups_by {
   return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $all_pricegroups } } ) } qw(id pricegroup) };
 }
 
-sub init_currencies_by {
-  my ($self) = @_;
-
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->all_currencies } } ) } qw(id name) };
-}
-
 sub check_objects {
   my ($self) = @_;
 
@@ -330,7 +324,7 @@ sub handle_order {
   $self->check_project($entry, global => 1);
   $self->check_ct_shipto($entry);
   $self->check_taxzone($entry);
-  $self->check_currency($entry);
+  SL::Helper::Csv::Consistency->check_currency($entry, take_default => 0);
 
   if ($vc_obj) {
     # copy from customer if not given
@@ -644,31 +638,6 @@ sub check_pricegroup {
     }
 
     $object->pricegroup_id($pricegroup->id);
-  }
-
-  return 1;
-}
-
-sub check_currency {
-  my ($self, $entry) = @_;
-
-  my $object = $entry->{object};
-
-  # Check whether or not currency ID is valid.
-  if ($object->currency_id && !$self->currencies_by->{id}->{ $object->currency_id }) {
-    push @{ $entry->{errors} }, $::locale->text('Error: Invalid currency');
-    return 0;
-  }
-
-  # Map name to ID if given.
-  if (!$object->currency_id && $entry->{raw_data}->{currency}) {
-    my $currency = $self->currencies_by->{name}->{  $entry->{raw_data}->{currency} };
-    if (!$currency) {
-      push @{ $entry->{errors} }, $::locale->text('Error: Invalid currency');
-      return 0;
-    }
-
-    $object->currency_id($currency->id);
   }
 
   return 1;
