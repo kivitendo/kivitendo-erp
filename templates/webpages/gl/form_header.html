@@ -16,25 +16,15 @@ function updateTaxes(row)
   var taxkeyposition = taxkey.lastIndexOf(found[0]);
   var account = taxkey.substr(0, taxkeyposition);
 
-  var xmlhttp;
-  if (window.XMLHttpRequest)
-  {// code for IE7+, Firefox, Chrome, Opera, Safari
-    xmlhttp=new XMLHttpRequest();
-  }
-  else
-  {// code for IE6, IE5
-    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
-  }
-  xmlhttp.onreadystatechange=function()
-  {
-    if (xmlhttp.readyState==4 && xmlhttp.status==200)
-    {
-      var element = document.getElementById("taxchart_" + row);
-      element.innerHTML = xmlhttp.responseText;
-    }
-  }
-  xmlhttp.open("GET","gl.pl?action=get_tax_dropdown&accno=" + account + "&select_index=" + index,true);
-  xmlhttp.send();
+  $.ajax({
+    url: 'gl.pl?action=get_tax_dropdown',
+    data: { accno: account,
+            selected_index: index},
+    dataType: 'html',
+    success: function (new_html) {
+                                $("#taxchart_" + row).html(new_html);
+                              },
+  });
 };
 
   function copy_debit_to_credit() {
