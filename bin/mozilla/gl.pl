@@ -743,11 +743,11 @@ sub display_rows {
       . qq|</td>|;
     my $tax_ddbox = qq|<td>| .
       NTI($cgi->popup_menu('-name' => "taxchart_$i",
-                           '-id' => "taxchart_$i",
-                           '-style' => 'width:200px',
-                           '-values' => \@taxchart_values,
-                           '-labels' => \%taxchart_labels,
-                           '-default' => $selected_taxchart))
+            '-id' => "taxchart_$i",
+            '-style' => 'width:200px',
+            '-values' => \@taxchart_values,
+            '-labels' => \%taxchart_labels,
+            '-default' => $selected_taxchart))
       . qq|</td>|;
 
     my ($fx_transaction, $checked);
