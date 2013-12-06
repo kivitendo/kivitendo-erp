@@ -3,7 +3,7 @@ package SL::Controller::CsvImport::CustomerVendor;
 use strict;
 
 use SL::Helper::Csv;
-use SL::Helper::Csv::Consistency;
+use SL::Controller::CsvImport::Helper::Consistency;
 use SL::DB::Business;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
@@ -66,7 +66,7 @@ sub check_objects {
     $self->check_language($entry);
     $self->check_business($entry);
     $self->check_payment($entry);
-    SL::Helper::Csv::Consistency->check_currency($entry, take_default => 1);
+    $self->check_currency($entry, take_default => 1);
     $self->handle_cvars($entry);
 
     next if @{ $entry->{errors} };

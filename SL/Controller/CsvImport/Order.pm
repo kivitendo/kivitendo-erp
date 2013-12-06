@@ -6,6 +6,7 @@ use strict;
 use List::MoreUtils qw(any);
 
 use SL::Helper::Csv;
+use SL::Controller::CsvImport::Helper::Consistency;
 use SL::DB::Order;
 use SL::DB::OrderItem;
 use SL::DB::Part;
@@ -324,7 +325,7 @@ sub handle_order {
   $self->check_project($entry, global => 1);
   $self->check_ct_shipto($entry);
   $self->check_taxzone($entry);
-  SL::Helper::Csv::Consistency->check_currency($entry, take_default => 0);
+  $self->check_currency($entry, take_default => 0);
 
   if ($vc_obj) {
     # copy from customer if not given

@@ -1,4 +1,4 @@
-package SL::Helper::Csv::Consistency;
+package SL::Controller::CsvImport::Helper::Consistency;
 
 use strict;
 
@@ -6,6 +6,9 @@ use SL::DB::Default;
 use SL::DB::Currency;
 
 use SL::Helper::Csv::Error;
+
+use parent qw(Exporter);
+our @EXPORT = qw(check_currency);
 
 #
 # public functions
@@ -17,14 +20,14 @@ sub check_currency {
   my $object = $entry->{object};
 
   # Check whether or not currency ID is valid.
-  if ($object->currency_id && !$self->_currencies_by->{id}->{ $object->currency_id }) {
+  if ($object->currency_id && ! _currencies_by($self)->{id}->{ $object->currency_id }) {
     push @{ $entry->{errors} }, $::locale->text('Error: Invalid currency');
     return 0;
   }
 
   # Map name to ID if given.
   if (!$object->currency_id && $entry->{raw_data}->{currency}) {
-    my $currency = $self->_currencies_by->{name}->{  $entry->{raw_data}->{currency} };
+    my $currency = _currencies_by($self)->{name}->{  $entry->{raw_data}->{currency} };
     if (!$currency) {
       push @{ $entry->{errors} }, $::locale->text('Error: Invalid currency');
       return 0;
@@ -34,7 +37,7 @@ sub check_currency {
   }
 
   # Set default currency if none was given and take_default is true.
-  $object->currency_id($self->_default_currency_id) if !$object->currency_id and $params{take_default};
+  $object->currency_id(_default_currency_id($self)) if !$object->currency_id and $params{take_default};
 
   $entry->{raw_data}->{currency_id} = $object->currency_id;
 
@@ -48,7 +51,7 @@ sub check_currency {
 sub _currencies_by {
   my ($self) = @_;
 
-  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ $self->_all_currencies } } ) } qw(id name) };
+  return { map { my $col = $_; ( $col => { map { ( $_->$col => $_ ) } @{ _all_currencies($self) } } ) } qw(id name) };
 }
 
 sub _all_currencies {
