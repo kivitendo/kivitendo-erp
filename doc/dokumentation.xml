@@ -3219,7 +3219,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         </sect3>
 
         <sect3 id="dokumentenvorlagen-und-variablen.allgemein-verkaeufer">
-          <title>Informationen über den Bearbeiter</title>
+          <title>Informationen über den Verkäufer</title>
 
           <variablelist>
             <varlistentry>
