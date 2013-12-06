@@ -39,6 +39,10 @@ Größere neue Features:
 
 Kleinere neue Features und Detailverbesserungen:
 
+- Lieferbedingungen analog zu Zahlungsbedingungen eingeführt.
+  Sie können angelegt, beim Benutzer voreingestellt und in allen Ein- und Ver-
+  kaufsmasken gesetzt werden.
+
 - Rechte für die Anzeige von Debitoren- und Kreditorenbuchungen in Berichten
 __Es kann sinnvoll sein, den Standardeinkäufern und Verkäufern keinen Zugriff
 __auf Debitoren- oder Kreditorenbuchungen zu geben. Debitorenbuchungen werden 
