@@ -5,15 +5,17 @@ use strict;
 use parent qw(SL::Controller::Base);
 
 use SL::DB::DeliveryTerm;
+use SL::DB::Language;
 use SL::Helper::Flash;
 
 use Rose::Object::MakeMethods::Generic
 (
- scalar => [ qw(delivery_term) ],
+ scalar => [ qw(delivery_term languages) ],
 );
 
 __PACKAGE__->run_before('check_auth');
 __PACKAGE__->run_before('load_delivery_term', only => [ qw(edit update destroy) ]);
+__PACKAGE__->run_before('load_languages',     only => [ qw(new list edit create update) ]);
 
 
 #
@@ -111,6 +113,11 @@ sub create_or_update {
 sub load_delivery_term {
   my ($self) = @_;
   $self->{delivery_term} = SL::DB::DeliveryTerm->new(id => $::form->{id})->load;
+}
+
+sub load_languages {
+  my ($self) = @_;
+  $self->{languages} = SL::DB::Manager::Language->get_all_sorted;
 }
 
 1;

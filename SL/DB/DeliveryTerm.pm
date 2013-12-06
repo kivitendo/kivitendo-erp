@@ -8,6 +8,7 @@ use strict;
 use SL::DB::MetaSetup::DeliveryTerm;
 use SL::DB::Manager::DeliveryTerm;
 use SL::DB::Helper::ActsAsList;
+use SL::DB::Helper::TranslatedAttributes;
 
 
 sub validate {
