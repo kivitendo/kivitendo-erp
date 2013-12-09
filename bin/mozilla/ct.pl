@@ -65,20 +65,6 @@ use strict;
 
 # end of main
 
-sub add {
-  $main::lxdebug->enter_sub();
-
-  my $url = 'controller.pl?action=CustomerVendor/add&db='. ($::form->{db} eq 'vendor' ? 'vendor' : 'customer');
-
-  if ( $::form->{callback} ) {
-    $url .= '&callback='. uri_encode($::form->{callback});
-  }
-
-  print $::form->redirect_header($url);
-
-  $main::lxdebug->leave_sub();
-}
-
 sub search {
   $main::lxdebug->enter_sub();
 
