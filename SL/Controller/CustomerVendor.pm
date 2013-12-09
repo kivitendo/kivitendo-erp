@@ -394,6 +394,8 @@ sub action_search_contact {
 sub action_get_delivery {
   my ($self) = @_;
 
+  $::auth->assert('sales_all_edit');
+
   my $dbh = $::form->get_standard_dbh();
 
   my ($arap, $db, $qty_sign);
