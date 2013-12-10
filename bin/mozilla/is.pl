@@ -149,7 +149,9 @@ sub invoice_links {
 
   my $editing = $form->{id};
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded currency cp_id intnotes id shipto_id));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id
+                        taxincluded currency cp_id intnotes id shipto_id
+                        delivery_term_id));
 
   IS->get_customer(\%myconfig, \%$form);
 
@@ -161,7 +163,8 @@ sub invoice_links {
   $form->restore_vars(qw(id));
 
   IS->retrieve_invoice(\%myconfig, \%$form);
-  $form->restore_vars(qw(payment_id language_id taxzone_id currency intnotes cp_id shipto_id));
+  $form->restore_vars(qw(payment_id language_id taxzone_id currency intnotes
+                         cp_id shipto_id delivery_term_id));
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
 
@@ -459,6 +462,8 @@ sub form_footer {
   }
 
   $form->{oldinvtotal} = $form->{invtotal};
+
+  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   print $form->parse_html_template('is/form_footer', {
     is_type_credit_note => ($form->{type} eq "credit_note"),

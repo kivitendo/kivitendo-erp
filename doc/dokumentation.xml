@@ -3219,7 +3219,7 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
         </sect3>
 
         <sect3 id="dokumentenvorlagen-und-variablen.allgemein-verkaeufer">
-          <title>Informationen über den Bearbeiter</title>
+          <title>Informationen über den Verkäufer</title>
 
           <variablelist>
             <varlistentry>
@@ -3346,6 +3346,25 @@ ln -s $(pwd)/kivitendo-task-server.service /etc/systemd/system/</programlisting>
               <listitem>
                 <para>Steuersatz</para>
               </listitem>
+            </varlistentry>
+          </variablelist>
+        </sect3>
+
+        <sect3 id="dokumentenvorlagen-und-variablen.allgemein-lieferbedingungen">
+          <title>Variablen für Lieferbedingungen</title>
+
+          <variablelist>
+            <varlistentry>
+              <term><varname>delivery_term</varname></term>
+              <listitem><para>Datenbank-Objekt der Lieferbedingung</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><varname>delivery_term.description</varname></term>
+              <listitem><para>Beschreibung der Lieferbedingung</para></listitem>
+            </varlistentry>
+            <varlistentry>
+              <term><varname>delivery_term.long_description</varname></term>
+              <listitem><para>Langtext bzw. übersetzter Langtext der Lieferbedingung</para></listitem>
             </varlistentry>
           </variablelist>
         </sect3>

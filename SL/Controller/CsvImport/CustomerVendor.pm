@@ -3,7 +3,7 @@ package SL::Controller::CsvImport::CustomerVendor;
 use strict;
 
 use SL::Helper::Csv;
-use SL::Helper::Csv::Consistency;
+use SL::Controller::CsvImport::Helper::Consistency;
 use SL::DB::Business;
 use SL::DB::CustomVariable;
 use SL::DB::CustomVariableConfig;
@@ -66,7 +66,8 @@ sub check_objects {
     $self->check_language($entry);
     $self->check_business($entry);
     $self->check_payment($entry);
-    SL::Helper::Csv::Consistency->check_currency($entry, take_default => 1);
+    $self->check_delivery_term($entry);
+    $self->check_currency($entry, take_default => 1);
     $self->handle_cvars($entry);
 
     next if @{ $entry->{errors} };
@@ -99,7 +100,7 @@ sub check_objects {
     $i++;
   }
 
-  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(language business payment));
+  $self->add_columns(map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(language business payment delivery_term));
   $self->add_cvar_raw_data_columns;
 }
 
@@ -231,7 +232,7 @@ sub init_profile {
   my ($self) = @_;
 
   my $profile = $self->SUPER::init_profile;
-  delete @{$profile}{qw(business datevexport language payment salesman salesman_id taxincluded terms)};
+  delete @{$profile}{qw(business datevexport language payment delivery_term salesman salesman_id taxincluded terms)};
 
   return $profile;
 }
@@ -260,6 +261,8 @@ sub setup_displayable_columns {
                                  { name => 'customernumber',    description => $::locale->text('Customer Number')                 },
                                  { name => 'department_1',      description => $::locale->text('Department 1')                    },
                                  { name => 'department_2',      description => $::locale->text('Department 2')                    },
+                                 { name => 'delivery_term_id',  description => $::locale->text('Delivery terms (database ID)')    },
+                                 { name => 'delivery_term',     description => $::locale->text('Delivery terms (name)')           },
                                  { name => 'direct_debit',      description => $::locale->text('direct debit')                    },
                                  { name => 'discount',          description => $::locale->text('Discount')                        },
                                  { name => 'email',             description => $::locale->text('E-mail')                          },

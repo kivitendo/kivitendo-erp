@@ -394,6 +394,8 @@ sub action_search_contact {
 sub action_get_delivery {
   my ($self) = @_;
 
+  $::auth->assert('sales_all_edit');
+
   my $dbh = $::form->get_standard_dbh();
 
   my ($arap, $db, $qty_sign);
@@ -809,6 +811,8 @@ sub _pre_render {
   }
 
   $self->{all_payment_terms} = SL::DB::Manager::PaymentTerm->get_all();
+
+  $self->{all_delivery_terms} = SL::DB::Manager::DeliveryTerm->get_all();
 
   $self->{all_pricegroups} = SL::DB::Manager::Pricegroup->get_all();
 

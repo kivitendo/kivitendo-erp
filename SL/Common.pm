@@ -397,11 +397,13 @@ sub get_vc_details {
          vc.*,
          pt.description AS payment_terms,
          b.description AS business,
-         l.description AS language
+         l.description AS language,
+         dt.description AS delivery_terms
        FROM ${vc} vc
        LEFT JOIN payment_terms pt ON (vc.payment_id = pt.id)
        LEFT JOIN business b ON (vc.business_id = b.id)
        LEFT JOIN language l ON (vc.language_id = l.id)
+       LEFT JOIN delivery_terms dt ON (vc.delivery_term_id = dt.id)
        WHERE vc.id = ?|;
   my $ref = selectfirst_hashref_query($form, $dbh, $query, $vc_id);
 

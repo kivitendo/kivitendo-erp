@@ -147,6 +147,10 @@
   \zahlung ~<%payment_terms%>\\
 <%end payment_terms%>
 
+<%if delivery_term%>
+  \lieferung ~<%delivery_term.description_long%>\\
+<%end delivery_term%>
+
 <%if ustid%>\ihreustid ~<%ustid%>.\\<%end if%>
 
 \ifthenelse{\equal{<%taxzone_id%>}{1}}

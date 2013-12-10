@@ -11,7 +11,7 @@
         <tr>
          <th align="left">[% 'Notes' | $T8 %]</th>
          <th align="left">[% 'Internal Notes' | $T8 %]</th>
-         <th align="left">[% 'Payment Options' | $T8 %]</th>
+         <th align="right">[% 'Payment / Delivery Options' | $T8 %]</th>
         </tr>
         <tr valign="top">
          <td>
@@ -21,7 +21,20 @@
           <textarea name="intnotes" rows="[% rows %]" cols="35" wrap="soft">[% intnotes %]</textarea>
          </td>
          <td>
-          [%- L.checkbox_tag('direct_debit', 'checked', direct_debit, 'label', LxERP.t8('direct debit')) %]
+           <table>
+             <tr>
+               <th align="right">[% 'Delivery Terms' | $T8 %] </th>
+               <td>
+                 [% L.select_tag('delivery_term_id', ALL_DELIVERY_TERMS, default = delivery_term_id, with_empty = 1, title_key = 'description', style = 'width: 250px') %]
+               </td>
+             </tr>
+             <tr>
+               <th align="right">[% 'direct debit' | $T8 %]</th>
+               <td>
+                 [%- L.checkbox_tag('direct_debit', 'checked', direct_debit) %]
+               </td>
+             </tr>
+           </table>
          </td>
         </tr>
 [%- IF id && follow_ups.size %]

@@ -518,7 +518,7 @@ sub save {
          customer_id = ?, amount = ?, netamount = ?, reqdate = ?, taxincluded = ?,
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, currency_id = (SELECT id FROM currencies WHERE name=?), closed = ?,
          delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
-         taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,
+         taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,delivery_term_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
        WHERE id = ?|;
 
@@ -535,6 +535,7 @@ sub save {
              conv_i($form->{shipto_id}), conv_i($form->{payment_id}),
              conv_i($form->{delivery_vendor_id}),
              conv_i($form->{delivery_customer_id}),
+             conv_i($form->{delivery_term_id}),
              conv_i($form->{globalproject_id}), conv_i($form->{employee_id}),
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
@@ -768,7 +769,7 @@ sub retrieve {
            o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
            o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
-           o.globalproject_id, o.delivered, o.transaction_description
+           o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id
          FROM oe o
          JOIN ${vc} cv ON (o.${vc}_id = cv.id)
          LEFT JOIN employee e ON (o.employee_id = e.id)
@@ -1333,6 +1334,9 @@ sub order_details {
   $form->{username} = $myconfig->{name};
 
   $dbh->disconnect;
+
+  $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
+  $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
 
   $main::lxdebug->leave_sub();
 }

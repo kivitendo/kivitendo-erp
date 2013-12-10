@@ -367,7 +367,8 @@ sub save {
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, closed = ?,
          delivered = ?, department_id = ?, language_id = ?, shipto_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?,
-         is_sales = ?, taxzone_id = ?, taxincluded = ?, terms = ?, currency_id = (SELECT id FROM currencies WHERE name = ?)
+         is_sales = ?, taxzone_id = ?, taxincluded = ?, terms = ?, currency_id = (SELECT id FROM currencies WHERE name = ?),
+         delivery_term_id = ?
        WHERE id = ?|;
 
   @values = ($form->{donumber}, $form->{ordnumber},
@@ -382,6 +383,7 @@ sub save {
              $form->{transaction_description},
              $form->{type} =~ /^sales/ ? 't' : 'f',
              conv_i($form->{taxzone_id}), $form->{taxincluded} ? 't' : 'f', conv_i($form->{terms}), $form->{currency},
+             conv_i($form->{delivery_term_id}),
              conv_i($form->{id}));
   do_query($form, $dbh, $query, @values);
 
@@ -592,7 +594,8 @@ sub retrieve {
          d.description AS department, dord.language_id,
          dord.shipto_id,
          dord.globalproject_id, dord.delivered, dord.transaction_description,
-         dord.taxzone_id, dord.taxincluded, dord.terms, (SELECT cu.name FROM currencies cu WHERE cu.id=dord.currency_id) AS currency
+         dord.taxzone_id, dord.taxincluded, dord.terms, (SELECT cu.name FROM currencies cu WHERE cu.id=dord.currency_id) AS currency,
+         dord.delivery_term_id
        FROM delivery_orders dord
        JOIN ${vc} cv ON (dord.${vc}_id = cv.id)
        LEFT JOIN employee e ON (dord.employee_id = e.id)
@@ -890,6 +893,9 @@ sub order_details {
 
   $h_pg->finish();
   $h_bin_wh->finish();
+
+  $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
+  $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
 
   $form->{username} = $myconfig->{name};
 

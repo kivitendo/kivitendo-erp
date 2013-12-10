@@ -245,14 +245,14 @@ sub order_links {
 
   $form->{"$form->{vc}_id"} ||= $form->{"all_$form->{vc}"}->[0]->{id} if $form->{"all_$form->{vc}"};
 
-  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id currency));
+  $form->backup_vars(qw(payment_id language_id taxzone_id salesman_id taxincluded cp_id intnotes shipto_id delivery_term_id currency));
   $form->{shipto} = 1 if $form->{id} || $form->{convert_from_oe_ids};
 
   # get customer / vendor
   IR->get_vendor(\%myconfig, \%$form)   if $form->{type} =~ /(purchase_order|request_quotation)/;
   IS->get_customer(\%myconfig, \%$form) if $form->{type} =~ /sales_(order|quotation)/;
 
-  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id shipto_id));
+  $form->restore_vars(qw(payment_id language_id taxzone_id intnotes cp_id shipto_id delivery_term_id));
   $form->restore_vars(qw(currency))    if $form->{id};
   $form->restore_vars(qw(taxincluded)) if $form->{id};
   $form->restore_vars(qw(salesman_id)) if $editing;
@@ -522,6 +522,8 @@ sub form_footer {
   }
 
   $form->{oldinvtotal} = $form->{invtotal};
+
+  $TMPL_VAR{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   print $form->parse_html_template("oe/form_footer", {
      %TMPL_VAR,

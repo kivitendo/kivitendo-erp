@@ -36,6 +36,7 @@ use SL::DB::Default;
 use SL::DB::DeliveryOrder;
 use SL::DB::DeliveryOrderItem;
 use SL::DB::DeliveryOrderItemsStock;
+use SL::DB::DeliveryTerm;
 use SL::DB::Department;
 use SL::DB::Draft;
 use SL::DB::Dunning;

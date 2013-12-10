@@ -6,6 +6,7 @@ use strict;
 use List::MoreUtils qw(any);
 
 use SL::Helper::Csv;
+use SL::Controller::CsvImport::Helper::Consistency;
 use SL::DB::Order;
 use SL::DB::OrderItem;
 use SL::DB::Part;
@@ -101,6 +102,8 @@ sub setup_displayable_columns {
                                  { name => 'currency_id',             description => $::locale->text('Currency (database ID)')                },
                                  { name => 'cusordnumber',            description => $::locale->text('Customer Order Number')                 },
                                  { name => 'delivered',               description => $::locale->text('Delivered')                             },
+                                 { name => 'delivery_term_id',        description => $::locale->text('Delivery terms (database ID)')          },
+                                 { name => 'delivery_term',           description => $::locale->text('Delivery terms (name)')                 },
                                  { name => 'employee_id',             description => $::locale->text('Employee (database ID)')                },
                                  { name => 'intnotes',                description => $::locale->text('Internal Notes')                        },
                                  { name => 'marge_percent',           description => $::locale->text('Margepercent')                          },
@@ -269,7 +272,7 @@ sub check_objects {
                           { header => $::locale->text('Customer/Vendor'), method => 'vc_name' });
   # Todo: access via ->[0] ok? Better: search first order column and use this
   $self->add_columns($self->_order_column,
-                     map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment language department globalproject taxzone cp currency));
+                     map { "${_}_id" } grep { exists $self->controller->data->[0]->{raw_data}->{$_} } qw(payment delivery_term language department globalproject taxzone cp currency));
   $self->add_columns($self->_order_column, 'globalproject_id') if exists $self->controller->data->[0]->{raw_data}->{globalprojectnumber};
   $self->add_columns($self->_order_column, 'cp_id')            if exists $self->controller->data->[0]->{raw_data}->{contact};
 
@@ -320,11 +323,12 @@ sub handle_order {
   $self->check_contact($entry);
   $self->check_language($entry);
   $self->check_payment($entry);
+  $self->check_delivery_term($entry);
   $self->check_department($entry);
   $self->check_project($entry, global => 1);
   $self->check_ct_shipto($entry);
   $self->check_taxzone($entry);
-  SL::Helper::Csv::Consistency->check_currency($entry, take_default => 0);
+  $self->check_currency($entry, take_default => 0);
 
   if ($vc_obj) {
     # copy from customer if not given
