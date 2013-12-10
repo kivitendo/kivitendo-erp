@@ -11,7 +11,7 @@
  <table width="100%" id="cvarcfg_list">
   <thead>
    <tr class="listheading">
-    <th align="center"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></th>
+    <th align="center"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></th>
     <th width="20%">[% 'Name' | $T8 %]</th>
     <th width="20%">[% 'Description' | $T8 %]</th>
     <th width="20%">[% 'Type' | $T8 %]</th>
@@ -26,7 +26,7 @@
   <tbody>
    [%- FOREACH cfg = CONFIGS %]
     <tr class="listrow" id="cvarcfg_id_[% cfg.id %]">
-     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[ LxERP.t8('reorder item') %]"></td>
+     <td align="center" class="dragdrop"><img src="image/updown.png" alt="[%- LxERP.t8('reorder item') %]"></td>
 
      <td><a href="[% SELF.url_for(action='edit', module=SELF.module, id=cfg.id) %]">[% HTML.escape(cfg.name) %]</a></td>
 
