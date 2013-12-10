@@ -366,7 +366,7 @@ sub _get_transactions {
   my $query    =
     qq|SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ar.id, ac.amount, ac.taxkey,
          ar.invnumber, ar.duedate, ar.amount as umsatz, ar.deliverydate,
-         ct.name,
+         ct.name, ct.ustid,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ar.invoice,
          t.rate AS taxrate
@@ -384,7 +384,7 @@ sub _get_transactions {
 
        SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,ap.id, ac.amount, ac.taxkey,
          ap.invnumber, ap.duedate, ap.amount as umsatz, ap.deliverydate,
-         ct.name,
+         ct.name,ct.ustid,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          ap.invoice,
          t.rate AS taxrate
@@ -402,7 +402,7 @@ sub _get_transactions {
 
        SELECT ac.acc_trans_id, ac.transdate, ac.trans_id,gl.id, ac.amount, ac.taxkey,
          gl.reference AS invnumber, gl.transdate AS duedate, ac.amount as umsatz, NULL as deliverydate,
-         gl.description AS name,
+         gl.description AS name, NULL as ustid,
          c.accno, c.taxkey_id as charttax, c.datevautomatik, c.id, ac.chart_link AS link,
          FALSE AS invoice,
          t.rate AS taxrate
@@ -810,6 +810,7 @@ sub kne_buchungsexport {
       my $datevautomatik = 0;
       my $taxkey         = 0;
       my $charttax       = 0;
+      my $ustid          ="";
       my ($haben, $soll);
       my $iconv          = $::locale->{iconv_utf8};
       my %umlaute = ($iconv->convert('ä') => 'ae',
@@ -844,7 +845,6 @@ sub kne_buchungsexport {
           $soll = $i;
         }
       }
-
       # Umwandlung von Umlauten und Sonderzeichen in erlaubte Zeichen bei Textfeldern
       foreach my $umlaut (keys(%umlaute)) {
         $transaction->[$haben]->{'invnumber'} =~ s/${umlaut}/${umlaute{$umlaut}}/g;
@@ -871,6 +871,9 @@ sub kne_buchungsexport {
         $waehrung = "\xB3" . "EUR" . "\x1C";
         if ($transaction->[$haben]->{'name'} ne "") {
           $buchungstext = "\x1E" . $transaction->[$haben]->{'name'} . "\x1C";
+        }
+        if ($transaction->[$haben]->{'ustid'} ne "") {
+          $ustid = "\xBA" . $transaction->[$haben]->{'ustid'} . "\x1C";
         }
         if ($transaction->[$haben]->{'duedate'} ne "") {
           $belegfeld2 = "\xBE" . &datetofour($transaction->[$haben]->{'duedate'}, 1) . "\x1C";
@@ -903,6 +906,7 @@ sub kne_buchungsexport {
       $kne_file->add_block($datum);
       $kne_file->add_block($konto);
       $kne_file->add_block($buchungstext);
+      $kne_file->add_block($ustid);
       $kne_file->add_block($waehrung . "\x79");
     }
 
