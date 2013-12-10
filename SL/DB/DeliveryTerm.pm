@@ -1,6 +1,3 @@
-# This file has been auto-generated only because it didn't exist.
-# Feel free to modify it at will; it will not be overwritten automatically.
-
 package SL::DB::DeliveryTerm;
 
 use strict;
@@ -10,6 +7,7 @@ use SL::DB::Manager::DeliveryTerm;
 use SL::DB::Helper::ActsAsList;
 use SL::DB::Helper::TranslatedAttributes;
 
+__PACKAGE__->meta->initialize;
 
 sub validate {
   my ($self) = @_;
