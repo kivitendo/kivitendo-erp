@@ -17,7 +17,7 @@
  </form>
  <script type='text/javascript'>
    $(function() {
-     $("select[name='language_id']").prop('disabled', $('#force_lang').prop('checked'));
-     $('#force_lang').checkall('select[name="language_id"]', 'disabled');
+     $("select[name='language_id']").prop('disabled', !$('#force_lang').prop('checked'));
+     $('#force_lang').checkall('select[name="language_id"]', 'disabled', 'inverted');
    });
  </script>
