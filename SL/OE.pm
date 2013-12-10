@@ -88,7 +88,8 @@ sub transactions {
     qq|  ex.$rate AS exchangerate, | .
     qq|  pr.projectnumber AS globalprojectnumber, | .
     qq|  e.name AS employee, s.name AS salesman, | .
-    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id  | .
+    qq|  ct.${vc}number AS vcnumber, ct.country, ct.ustid, ct.business_id,  | .
+    qq|  tz.description AS taxzone | .
     $periodic_invoices_columns .
     qq|FROM oe o | .
     qq|JOIN $vc ct ON (o.${vc}_id = ct.id) | .
@@ -97,6 +98,7 @@ sub transactions {
     qq|LEFT JOIN exchangerate ex ON (ex.currency_id = o.currency_id | .
     qq|  AND ex.transdate = o.transdate) | .
     qq|LEFT JOIN project pr ON (o.globalproject_id = pr.id) | .
+    qq|LEFT JOIN tax_zones tz ON (o.taxzone_id = tz.id) | .
     qq|$periodic_invoices_joins | .
     qq|WHERE (o.quotation = ?) |;
   push(@values, $quotation);
@@ -192,6 +194,16 @@ SQL
     push(@values, conv_date($form->{reqdateto}));
   }
 
+  if ($form->{shippingpoint}) {
+    $query .= qq| AND o.shippingpoint ILIKE ?|;
+    push(@values, '%' . $form->{shippingpoint} . '%');
+  }
+
+  if ($form->{taxzone_id} ne '') { # taxzone_id could be 0
+    $query .= qq| AND tz.id = ?|;
+    push(@values, $form->{taxzone_id});
+  }
+
   if ($form->{transaction_description}) {
     $query .= qq| AND o.transaction_description ILIKE ?|;
     push(@values, '%' . $form->{transaction_description} . '%');
@@ -214,7 +226,9 @@ SQL
     "employee"                => "e.name",
     "salesman"                => "s.name",
     "shipvia"                 => "o.shipvia",
-    "transaction_description" => "o.transaction_description"
+    "transaction_description" => "o.transaction_description",
+    "shippingpoint"           => "o.shippingpoint",
+    "taxzone"                 => "tz.description",
   );
   if ($form->{sort} && grep($form->{sort}, keys(%allowed_sort_columns))) {
     $sortorder = $allowed_sort_columns{$form->{sort}} . " ${sortdir}";
@@ -504,7 +518,7 @@ sub save {
          customer_id = ?, amount = ?, netamount = ?, reqdate = ?, taxincluded = ?,
          shippingpoint = ?, shipvia = ?, notes = ?, intnotes = ?, currency_id = (SELECT id FROM currencies WHERE name=?), closed = ?,
          delivered = ?, proforma = ?, quotation = ?, department_id = ?, language_id = ?,
-         taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,
+         taxzone_id = ?, shipto_id = ?, payment_id = ?, delivery_vendor_id = ?, delivery_customer_id = ?,delivery_term_id = ?,
          globalproject_id = ?, employee_id = ?, salesman_id = ?, cp_id = ?, transaction_description = ?, marge_total = ?, marge_percent = ?
        WHERE id = ?|;
 
@@ -521,6 +535,7 @@ sub save {
              conv_i($form->{shipto_id}), conv_i($form->{payment_id}),
              conv_i($form->{delivery_vendor_id}),
              conv_i($form->{delivery_customer_id}),
+             conv_i($form->{delivery_term_id}),
              conv_i($form->{globalproject_id}), conv_i($form->{employee_id}),
              conv_i($form->{salesman_id}), conv_i($form->{cp_id}),
              $form->{transaction_description},
@@ -754,7 +769,7 @@ sub retrieve {
            o.closed, o.reqdate, o.quonumber, o.department_id, o.cusordnumber,
            d.description AS department, o.payment_id, o.language_id, o.taxzone_id,
            o.delivery_customer_id, o.delivery_vendor_id, o.proforma, o.shipto_id,
-           o.globalproject_id, o.delivered, o.transaction_description
+           o.globalproject_id, o.delivered, o.transaction_description, o.delivery_term_id
          FROM oe o
          JOIN ${vc} cv ON (o.${vc}_id = cv.id)
          LEFT JOIN employee e ON (o.employee_id = e.id)
@@ -1319,6 +1334,9 @@ sub order_details {
   $form->{username} = $myconfig->{name};
 
   $dbh->disconnect;
+
+  $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
+  $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
 
   $main::lxdebug->leave_sub();
 }

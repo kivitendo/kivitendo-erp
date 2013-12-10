@@ -27,7 +27,11 @@
                            label_key  = 'description',
                            show_empty = 1 -%]
                 </td>
-            </tr>
+              </tr>
+              <tr>
+                <th align="right">[% 'Delivery Terms' | $T8 %]</th>
+                <td>[% L.select_tag('delivery_term_id', ALL_DELIVERY_TERMS, default = delivery_term_id, with_empty = 1, title_key = 'description', style = 'width: 250px') %]</td>
+              </tr>
 
 [%- IF is_sales_ord %]
             <tr>

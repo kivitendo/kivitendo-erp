@@ -136,6 +136,10 @@
         \vspace{5mm}
 <%end if%>
 
+<%if delivery_term%>
+  \lieferung ~<%delivery_term.description_long%>\\
+<%end delivery_term%>
+
 <%if reqdate%>
 \lieferungErfolgtAm ~<%reqdate%>. \\
 <%end if%>

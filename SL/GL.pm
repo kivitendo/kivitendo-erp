@@ -789,23 +789,26 @@ sub get_chart_balances {
 }
 
 sub get_tax_dropdown {
+  my ($self, $accno) = @_;
+
   my $myconfig = \%main::myconfig;
   my $form = $main::form;
 
   my $dbh = $form->get_standard_dbh($myconfig);
 
   my $query = qq|SELECT category FROM chart WHERE accno = ?|;
-  my ($category) = selectrow_query($form, $dbh, $query, $form->{accno});
+  my ($category) = selectrow_query($form, $dbh, $query, $accno);
 
   $query = qq|SELECT * FROM tax WHERE chart_categories like '%$category%' order by taxkey, rate|;
 
   my $sth = prepare_execute_query($form, $dbh, $query);
 
-  $form->{TAX_ACCOUNTS} = [];
+  my @tax_accounts = ();
   while (my $ref = $sth->fetchrow_hashref("NAME_lc")) {
-    push(@{ $form->{TAX_ACCOUNTS} }, $ref);
+    push(@tax_accounts, $ref);
   }
 
+  return @tax_accounts;
 }
 
 1;

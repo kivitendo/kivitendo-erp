@@ -429,6 +429,9 @@ sub invoice_details {
 
   $form->set_payment_options($myconfig, $form->{invdate});
 
+  $form->{delivery_term} = SL::DB::Manager::DeliveryTerm->find_by(id => $form->{delivery_term_id} || undef);
+  $form->{delivery_term}->description_long($form->{delivery_term}->translated_attribute('description_long', $form->{language_id})) if $form->{delivery_term} && $form->{language_id};
+
   $form->{username} = $myconfig->{name};
 
   $main::lxdebug->leave_sub();
@@ -1104,7 +1107,8 @@ sub post_invoice {
                 cp_id       = ?, marge_total   = ?, marge_percent = ?,
                 globalproject_id               = ?, delivery_customer_id             = ?,
                 transaction_description        = ?, delivery_vendor_id               = ?,
-                donumber    = ?, invnumber_for_credit_note = ?,        direct_debit  = ?
+                donumber    = ?, invnumber_for_credit_note = ?,        direct_debit  = ?,
+                delivery_term_id = ?
               WHERE id = ?|;
   @values = (          $form->{"invnumber"},           $form->{"ordnumber"},             $form->{"quonumber"},          $form->{"cusordnumber"},
              conv_date($form->{"invdate"}),  conv_date($form->{"orddate"}),    conv_date($form->{"quodate"}),    conv_i($form->{"customer_id"}),
@@ -1118,6 +1122,7 @@ sub post_invoice {
                 conv_i($form->{"globalproject_id"}),                              conv_i($form->{"delivery_customer_id"}),
                        $form->{transaction_description},                          conv_i($form->{"delivery_vendor_id"}),
                        $form->{"donumber"}, $form->{"invnumber_for_credit_note"},        $form->{direct_debit} ? 't' : 'f',
+                conv_i($form->{delivery_term_id}),
                 conv_i($form->{"id"}));
   do_query($form, $dbh, $query, @values);
 
@@ -1593,7 +1598,7 @@ sub retrieve_invoice {
            a.employee_id, a.salesman_id, a.payment_id,
            a.language_id, a.delivery_customer_id, a.delivery_vendor_id, a.type,
            a.transaction_description, a.donumber, a.invnumber_for_credit_note,
-           a.marge_total, a.marge_percent, a.direct_debit,
+           a.marge_total, a.marge_percent, a.direct_debit, a.delivery_term_id,
            e.name AS employee
          FROM ar a
          LEFT JOIN employee e ON (e.id = a.employee_id)
@@ -1763,7 +1768,7 @@ sub get_customer {
   $query =
     qq|SELECT
          c.id AS customer_id, c.name AS customer, c.discount as customer_discount, c.creditlimit, c.terms,
-         c.email, c.cc, c.bcc, c.language_id, c.payment_id,
+         c.email, c.cc, c.bcc, c.language_id, c.payment_id, c.delivery_term_id,
          c.street, c.zipcode, c.city, c.country,
          c.notes AS intnotes, c.klass as customer_klass, c.taxzone_id, c.salesman_id, cu.name AS curr,
          c.taxincluded_checked, c.direct_debit,

@@ -5,8 +5,9 @@ use strict;
 use Data::Dumper;
 use Carp;
 use Scalar::Util qw(weaken);
+use List::MoreUtils qw(all pairwise);
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
-  _specs _errors
+  _specs _row_class _row_spec _errors
 ) ];
 
 use SL::Helper::Csv::Error;
@@ -22,12 +23,52 @@ sub new {
 }
 
 sub dispatch {
-  my ($self, $obj, $line) = @_;
+  my ($self, $line) = @_;
 
-  for my $spec (@{ $self->_specs }) {
+  my $class = $self->_class_by_line($line);
+  croak 'no class given' unless $class;
+
+  eval "require " . $class;
+  my $obj = $class->new;
+
+  my $specs = $self->_specs_by_line($line);
+  for my $spec (@{ $specs }) {
     $self->apply($obj, $spec, $line->{$spec->{key}});
   }
+
+  return $obj;
 }
+
+sub _class_by_line {
+  my ($self, $line) = @_;
+
+  # initialize lookup hash if not already done
+  if ($self->_csv->is_multiplexed && ! defined $self->_row_class ) {
+    $self->_row_class({ map { $_->{row_ident} => $_->{class} } @{ $self->_csv->profile } });
+  }
+
+  if ($self->_csv->is_multiplexed) {
+    return $self->_row_class->{$line->{datatype}};
+  } else {
+    return $self->_csv->profile->[0]->{class};
+  }
+}
+
+sub _specs_by_line {
+  my ($self, $line) = @_;
+
+  # initialize lookup hash if not already done
+  if ($self->_csv->is_multiplexed && ! defined $self->_row_spec ) {
+    $self->_row_spec({ pairwise { no warnings 'once'; $a->{row_ident} => $b } @{ $self->_csv->profile }, @{ $self->_specs } });
+  }
+
+  if ($self->_csv->is_multiplexed) {
+    return $self->_row_spec->{$line->{datatype}};
+  } else {
+    return $self->_specs->[0];
+  }
+}
+
 
 sub apply {
   my ($self, $obj, $spec, $value) = @_;
@@ -65,40 +106,61 @@ sub is_known {
 sub parse_profile {
   my ($self, %params) = @_;
 
-  my $header  = $self->_csv->header;
-  my $profile = $self->_csv->profile;
+  my @specs;
+
+  my $csv_profile = $self->_csv->profile;
+  my $h_aref = ($self->_csv->is_multiplexed)? $self->_csv->header : [ $self->_csv->header ];
+  my $i = 0;
+  foreach my $header (@{ $h_aref }) {
+    my $spec = $self->_parse_profile(profile => $csv_profile->[$i]->{profile},
+                                     class   => $csv_profile->[$i]->{class},
+                                     header  => $header);
+    push @specs, $spec;
+    $i++;
+  }
+
+  $self->_specs(\@specs);
+
+  $self->_csv->_push_error($self->errors);
+
+  return ! $self->errors;
+}
+
+sub _parse_profile {
+  my ($self, %params) = @_;
+
+  my $profile = $params{profile};
+  my $class   = $params{class};
+  my $header  = $params{header};
+
   my @specs;
 
   for my $col (@$header) {
     next unless $col;
     if ($self->_csv->strict_profile) {
       if (exists $profile->{$col}) {
-        push @specs, $self->make_spec($col, $profile->{$col});
+        push @specs, $self->make_spec($col, $profile->{$col}, $class);
       } else {
         $self->unknown_column($col, undef);
       }
     } else {
       if (exists $profile->{$col}) {
-        push @specs, $self->make_spec($col, $profile->{$col});
+        push @specs, $self->make_spec($col, $profile->{$col}, $class);
       } else {
-        push @specs, $self->make_spec($col, $col);
+        push @specs, $self->make_spec($col, $col, $class);
       }
     }
   }
 
-  $self->_specs(\@specs);
-  $self->_csv->_push_error($self->errors);
-  return ! $self->errors;
+  return \@specs;
 }
 
 sub make_spec {
-  my ($self, $col, $path) = @_;
+  my ($self, $col, $path, $cur_class) = @_;
 
   my $spec = { key => $col, steps => [] };
 
   return unless $path;
-
-  my $cur_class = $self->_csv->class;
 
   return unless $cur_class;
 

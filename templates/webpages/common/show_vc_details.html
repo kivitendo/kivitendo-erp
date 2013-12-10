@@ -102,7 +102,7 @@
 
   <tr>
    <td align="right">[% 'Discount' | $T8 %]</td>
-   <td>[% HTML.escape(discount) %]%</td>
+   <td>[% HTML.escape(discount_as_percent) %]%</td>
   </tr>
 
   [% IF is_customer %]
@@ -115,6 +115,11 @@
   <tr>
    <td align="right">[% 'Payment Terms' | $T8 %]</td>
    <td>[% HTML.escape(payment_terms) %]</td>
+  </tr>
+
+  <tr>
+   <td align="right">[% 'Delivery Terms' | $T8 %]</td>
+   <td>[% HTML.escape(delivery_terms) %]</td>
   </tr>
 
   <tr>

@@ -13,6 +13,7 @@ __PACKAGE__->meta->columns(
   cp_id                   => { type => 'integer' },
   currency_id             => { type => 'integer', not_null => 1 },
   datepaid                => { type => 'date' },
+  delivery_term_id        => { type => 'integer' },
   deliverydate            => { type => 'date' },
   department_id           => { type => 'integer' },
   direct_debit            => { type => 'boolean', default => 'false' },
@@ -59,6 +60,11 @@ __PACKAGE__->meta->foreign_keys(
   currency => {
     class       => 'SL::DB::Currency',
     key_columns => { currency_id => 'id' },
+  },
+
+  delivery_term => {
+    class       => 'SL::DB::DeliveryTerm',
+    key_columns => { delivery_term_id => 'id' },
   },
 
   department => {

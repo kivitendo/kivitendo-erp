@@ -53,6 +53,7 @@ our %foreign_key_name_map = (
   orderitems           => { parts => 'part', trans => 'order', },
   delivery_order_items => { parts => 'part' },
   invoice              => { parts => 'part' },
+  follow_ups           => { 'employee_obj' => 'created_for' },
 
   periodic_invoices_configs => { oe => 'order' },
 );

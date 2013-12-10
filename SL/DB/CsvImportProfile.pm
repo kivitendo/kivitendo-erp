@@ -54,6 +54,11 @@ sub set_defaults {
                          default_buchungsgruppe    => ($bugru ? $bugru->id : undef),
                          apply_buchungsgruppe      => 'all',
                         );
+  } elsif ($self->type eq 'orders') {
+    $self->_set_defaults(order_column    => $::locale->text('Order'),
+                         item_column     => $::locale->text('OrderItem'),
+                         max_amount_diff => 0.02,
+                        );
   } else {
     $self->_set_defaults(table => 'customer');
   }

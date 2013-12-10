@@ -1,0 +1,44 @@
+[% USE HTML %][% USE T8 %][% USE L %][% USE LxERP %]
+
+ <form method="post" action="controller.pl">
+  <div class="listtop">[% FORM.title %]</div>
+
+[%- INCLUDE 'common/flash.html' %]
+
+  <table>
+   <tr>
+    <td>[%- 'Description' | $T8 %]</td>
+    <td>
+     <input name="delivery_term.description" value="[%- HTML.escape(SELF.delivery_term.description) %]">
+    </td>
+   </tr>
+
+   <tr>
+    <td>[%- 'Long Description' | $T8 %]</td>
+    <td>
+     <input name="delivery_term.description_long" value="[%- HTML.escape(SELF.delivery_term.description_long) %]" size="60">
+    </td>
+   </tr>
+
+   [%- FOREACH language = SELF.languages %]
+    <tr>
+     <td>[%- HTML.escape(language.description) %] ([%- LxERP.t8('Translation') %])</td>
+     <td>
+      <input name="translation_[% language.id %]" value="[%- HTML.escape(SELF.delivery_term.translated_attribute('description_long', language, 1)) %]" size="60">
+     </td>
+    </tr>
+   [%- END %]
+
+  <p>
+   <input type="hidden" name="id" value="[% SELF.delivery_term.id %]">
+   <input type="hidden" name="action" value="DeliveryTerm/dispatch">
+   <input type="submit" class="submit" name="action_[% IF SELF.delivery_term.id %]update[% ELSE %]create[% END %]" value="[% 'Save' | $T8 %]">
+   [%- IF SELF.delivery_term.id %]
+    <input type="submit" class="submit" name="action_destroy" value="[% 'Delete' | $T8 %]"
+           onclick="if (confirm('[% 'Are you sure you want to delete this delivery term?' | $T8 %]')) return true; else return false;">
+   [%- END %]
+   <a href="[% SELF.url_for(action => 'list') %]">[%- 'Abort' | $T8 %]</a>
+  </p>
+
+ </form>
+

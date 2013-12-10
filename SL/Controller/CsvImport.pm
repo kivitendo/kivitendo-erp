@@ -15,6 +15,7 @@ use SL::Controller::CsvImport::CustomerVendor;
 use SL::Controller::CsvImport::Part;
 use SL::Controller::CsvImport::Shipto;
 use SL::Controller::CsvImport::Project;
+use SL::Controller::CsvImport::Order;
 use SL::BackgroundJob::CsvImport;
 use SL::System::TaskServer;
 
@@ -125,10 +126,21 @@ sub action_download_sample {
   my $file      = SL::SessionFile->new($file_name, mode => '>', encoding => $self->profile->get('charset'));
   my $csv       = Text::CSV_XS->new({ binary => 1, map { ( $_ => $self->profile->get($_) ) } qw(sep_char escape_char quote_char),});
 
-  $csv->print($file->fh, [ map { $_->{name}        } @{ $self->displayable_columns } ]);
-  $file->fh->print("\r\n");
-  $csv->print($file->fh, [ map { $_->{description} } @{ $self->displayable_columns } ]);
-  $file->fh->print("\r\n");
+  if ($self->worker->is_multiplexed) {
+    foreach my $p (@{ $self->worker->profile }) {
+      $csv->print($file->fh, [ map { $_->{name}        } @{ $self->displayable_columns->{$p->{row_ident}} } ]);
+      $file->fh->print("\r\n");
+    }
+    foreach my $p (@{ $self->worker->profile }) {
+      $csv->print($file->fh, [ map { $_->{description} } @{ $self->displayable_columns->{$p->{row_ident}} } ]);
+      $file->fh->print("\r\n");
+    }
+  } else {
+    $csv->print($file->fh, [ map { $_->{name}        } @{ $self->displayable_columns } ]);
+    $file->fh->print("\r\n");
+    $csv->print($file->fh, [ map { $_->{description} } @{ $self->displayable_columns } ]);
+    $file->fh->print("\r\n");
+  }
 
   $file->fh->close;
 
@@ -158,20 +170,30 @@ sub action_report {
                             : $page;
   $pages->{common}          = [ grep { $_->{visible} } @{ SL::DB::Helper::Paginated::make_common_pages($pages->{cur}, $pages->{max}) } ];
 
+  $self->{report_numheaders} = $self->{report}->numheaders;
+  my $first_row_header = 0;
+  my $last_row_header  = $self->{report_numheaders} - 1;
+  my $first_row_data   = $pages->{per_page} * ($pages->{cur}-1) + $self->{report_numheaders};
+  my $last_row_data    = min($pages->{per_page} * $pages->{cur}, $num_rows) + $self->{report_numheaders} - 1;
   $self->{display_rows} = [
-    0,
-    $pages->{per_page} * ($pages->{cur}-1) + 1
+    $first_row_header
       ..
-    min($pages->{per_page} * $pages->{cur}, $num_rows)
+    $last_row_header,
+    $first_row_data
+      ..
+    $last_row_data
   ];
 
   my @query = (
     csv_import_report_id => $report_id,
     or => [
-      row => 0,
       and => [
-        row => { gt => $pages->{per_page} * ($pages->{cur}-1) },
-        row => { le => $pages->{per_page} * $pages->{cur} },
+        row => { ge => $first_row_header },
+        row => { le => $last_row_header },
+      ],
+      and => [
+        row => { ge => $first_row_data },
+        row => { le => $last_row_data },
       ]
     ]
   );
@@ -199,7 +221,7 @@ sub check_auth {
 sub check_type {
   my ($self) = @_;
 
-  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts customers_vendors addresses contacts projects);
+  die "Invalid CSV import type" if none { $_ eq $::form->{profile}->{type} } qw(parts customers_vendors addresses contacts projects orders);
   $self->type($::form->{profile}->{type});
 }
 
@@ -242,6 +264,7 @@ sub render_inputs {
             : $self->type eq 'contacts'          ? $::locale->text('CSV import: contacts')
             : $self->type eq 'parts'             ? $::locale->text('CSV import: parts and services')
             : $self->type eq 'projects'          ? $::locale->text('CSV import: projects')
+            : $self->type eq 'orders'            ? $::locale->text('CSV import: orders')
             : die;
 
   if ($self->{type} eq 'parts') {
@@ -363,6 +386,10 @@ sub profile_from_form {
     $::form->{settings}->{sellprice_adjustment} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{sellprice_adjustment});
   }
 
+  if ($self->type eq 'orders') {
+    $::form->{settings}->{max_amount_diff} = $::form->parse_amount(\%::myconfig, $::form->{settings}->{max_amount_diff});
+  }
+
   delete $::form->{profile}->{id};
   $self->profile($existing_profile || SL::DB::CsvImportProfile->new(login => $::myconfig{login}));
   $self->profile->assign_attributes(%{ $::form->{profile} });
@@ -389,6 +416,16 @@ sub char_map {
 sub save_report {
   my ($self, $report_id) = @_;
 
+  if ($self->worker->is_multiplexed) {
+    return $self->save_report_multi($report_id);
+  } else {
+    return $self->save_report_single($report_id);
+  }
+}
+
+sub save_report_single {
+  my ($self, $report_id) = @_;
+
   $self->track_progress(phase => 'building report', progress => 0);
 
   my $clone_profile = $self->profile->clone_and_reset_deep;
@@ -400,6 +437,7 @@ sub save_report {
     type       => $self->type,
     file       => '',
     numrows    => scalar @{ $self->data },
+    numheaders => 1,
   );
 
   $report->save(cascade => 1) or die $report->db->error;
@@ -455,6 +493,98 @@ sub save_report {
   return $report->id;
 }
 
+sub save_report_multi {
+  my ($self, $report_id) = @_;
+
+  $self->track_progress(phase => 'building report', progress => 0);
+
+  my $clone_profile = $self->profile->clone_and_reset_deep;
+  $clone_profile->save; # weird bug. if this isn't saved before adding it to the report, it will default back to the last profile.
+
+  my $report = SL::DB::CsvImportReport->new(
+    session_id => $::auth->create_or_refresh_session,
+    profile    => $clone_profile,
+    type       => $self->type,
+    file       => '',
+    numrows    => scalar @{ $self->data },
+    numheaders => scalar @{ $self->worker->profile },
+  );
+
+  $report->save(cascade => 1) or die $report->db->error;
+
+  my $dbh = $::form->get_standard_dbh;
+  $dbh->begin_work;
+
+  my $query  = 'INSERT INTO csv_import_report_rows (csv_import_report_id, col, row, value) VALUES (?, ?, ?, ?)';
+  my $query2 = 'INSERT INTO csv_import_report_status (csv_import_report_id, row, type, value) VALUES (?, ?, ?, ?)';
+
+  my $sth = $dbh->prepare($query);
+  my $sth2 = $dbh->prepare($query2);
+
+  # save headers
+  my ($headers, $info_methods, $raw_methods, $methods);
+
+  for my $i (0 .. $#{ $self->worker->profile }) {
+    my $row_ident = $self->worker->profile->[$i]->{row_ident};
+
+    for my $i (0 .. $#{ $self->info_headers->{$row_ident}->{headers} }) {
+      next unless                            $self->info_headers->{$row_ident}->{used}->{ $self->info_headers->{$row_ident}->{methods}->[$i] };
+      push @{ $headers->{$row_ident} },      $self->info_headers->{$row_ident}->{headers}->[$i];
+      push @{ $info_methods->{$row_ident} }, $self->info_headers->{$row_ident}->{methods}->[$i];
+    }
+    for my $i (0 .. $#{ $self->headers->{$row_ident}->{headers} }) {
+      next unless                       $self->headers->{$row_ident}->{used}->{ $self->headers->{$row_ident}->{headers}->[$i] };
+      push @{ $headers->{$row_ident} }, $self->headers->{$row_ident}->{headers}->[$i];
+      push @{ $methods->{$row_ident} }, $self->headers->{$row_ident}->{methods}->[$i];
+    }
+
+    for my $i (0 .. $#{ $self->raw_data_headers->{$row_ident}->{headers} }) {
+    next unless                           $self->raw_data_headers->{$row_ident}->{used}->{ $self->raw_data_headers->{$row_ident}->{headers}->[$i] };
+    push @{ $headers->{$row_ident} },     $self->raw_data_headers->{$row_ident}->{headers}->[$i];
+    push @{ $raw_methods->{$row_ident} }, $self->raw_data_headers->{$row_ident}->{headers}->[$i];
+  }
+
+  }
+
+  for my $i (0 .. $#{ $self->worker->profile }) {
+    my $row_ident = $self->worker->profile->[$i]->{row_ident};
+    $sth->execute($report->id, $_, $i, $headers->{$row_ident}->[$_]) for 0 .. $#{ $headers->{$row_ident} };
+  }
+
+  # col offsets
+  my ($off1, $off2);
+  for my $i (0 .. $#{ $self->worker->profile }) {
+    my $row_ident = $self->worker->profile->[$i]->{row_ident};
+    my $n_info_methods = $info_methods->{$row_ident} ? scalar @{ $info_methods->{$row_ident} } : 0;
+    my $n_methods      = $methods->{$row_ident} ?      scalar @{ $methods->{$row_ident} }      : 0;
+
+    $off1->{$row_ident} = $n_info_methods;
+    $off2->{$row_ident} = $off1->{$row_ident} + $n_methods;
+  }
+
+  my $n_header_rows = scalar @{ $self->worker->profile };
+
+  for my $row (0 .. $#{ $self->data }) {
+    $self->track_progress(progress => $row / @{ $self->data } * 100) if $row % 1000 == 0;
+    my $data_row = $self->{data}[$row];
+    my $row_ident = $data_row->{raw_data}{datatype};
+
+    my $o1 = $off1->{$row_ident};
+    my $o2 = $off2->{$row_ident};
+
+    $sth->execute($report->id,       $_, $row + $n_header_rows, $data_row->{info_data}{ $info_methods->{$row_ident}->[$_] }) for 0 .. $#{ $info_methods->{$row_ident} };
+    $sth->execute($report->id, $o1 + $_, $row + $n_header_rows, $data_row->{object}->${ \ $methods->{$row_ident}->[$_] })    for 0 .. $#{ $methods->{$row_ident} };
+    $sth->execute($report->id, $o2 + $_, $row + $n_header_rows, $data_row->{raw_data}{ $raw_methods->{$row_ident}->[$_] })   for 0 .. $#{ $raw_methods->{$row_ident} };
+
+    $sth2->execute($report->id, $row + $n_header_rows, 'information', $_) for @{ $data_row->{information} || [] };
+    $sth2->execute($report->id, $row + $n_header_rows, 'errors', $_)      for @{ $data_row->{errors}      || [] };
+  }
+
+  $dbh->commit;
+
+  return $report->id;
+}
+
 sub csv_file_name {
   my ($self) = @_;
   return "csv-import-" . $self->type . ".csv";
@@ -474,6 +604,7 @@ sub init_worker {
        : $self->{type} eq 'addresses'         ? SL::Controller::CsvImport::Shipto->new(@args)
        : $self->{type} eq 'parts'             ? SL::Controller::CsvImport::Part->new(@args)
        : $self->{type} eq 'projects'          ? SL::Controller::CsvImport::Project->new(@args)
+       : $self->{type} eq 'orders'            ? SL::Controller::CsvImport::Order->new(@args)
        :                                        die "Program logic error";
 }
 

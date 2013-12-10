@@ -116,7 +116,7 @@ sub invoice_links {
     }
   }
 
-  my ($payment_id, $language_id, $taxzone_id, $currency);
+  my ($payment_id, $language_id, $taxzone_id, $currency, $delivery_term_id);
   if ($form->{payment_id}) {
     $payment_id = $form->{payment_id};
   }
@@ -128,6 +128,9 @@ sub invoice_links {
   }
   if ($form->{currency}) {
     $currency = $form->{currency};
+  }
+  if ($form->{delivery_term_id}) {
+    $delivery_term_id = $form->{delivery_term_id};
   }
 
   my $cp_id = $form->{cp_id};
@@ -146,6 +149,9 @@ sub invoice_links {
   }
   if ($currency) {
     $form->{currency} = $currency;
+  }
+  if ($delivery_term_id) {
+    $form->{delivery_term_id} = $delivery_term_id;
   }
 
   my @curr = $form->get_all_currencies();
@@ -430,6 +436,8 @@ sub form_footer {
 
     $totalpaid += $form->{"paid_$i"};
   }
+
+  $form->{ALL_DELIVERY_TERMS} = SL::DB::Manager::DeliveryTerm->get_all_sorted();
 
   print $form->parse_html_template('ir/form_footer', {
     is_type_credit_note => ($form->{type} eq "credit_note"),

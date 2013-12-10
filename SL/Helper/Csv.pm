@@ -7,11 +7,12 @@ use version 0.77;
 use Carp;
 use IO::File;
 use Params::Validate qw(:all);
+use List::MoreUtils qw(all pairwise);
 use Text::CSV_XS;
 use Rose::Object::MakeMethods::Generic scalar => [ qw(
-  file encoding sep_char quote_char escape_char header profile class
-  numberformat dateformat ignore_unknown_columns strict_profile _io _csv
-  _objects _parsed _data _errors all_cvar_configs case_insensitive_header
+  file encoding sep_char quote_char escape_char header profile
+  numberformat dateformat ignore_unknown_columns strict_profile is_multiplexed
+  _row_header _io _csv _objects _parsed _data _errors all_cvar_configs case_insensitive_header
 ) ];
 
 use SL::Helper::Csv::Dispatcher;
@@ -26,10 +27,9 @@ sub new {
     quote_char             => { default => '"' },
     escape_char            => { default => '"' },
     header                 => { type    => ARRAYREF, optional => 1 },
-    profile                => { type    => HASHREF,  optional => 1 },
+    profile                => { type    => ARRAYREF, optional => 1 },
     file                   => 1,
     encoding               => 0,
-    class                  => 0,
     numberformat           => 0,
     dateformat             => 0,
     ignore_unknown_columns => 0,
@@ -57,6 +57,7 @@ sub parse {
   my ($self, %params) = @_;
 
   $self->_open_file;
+  return if ! $self->_check_multiplexed;
   return if ! $self->_check_header;
   return if ! $self->dispatcher->parse_profile;
   return if ! $self->_parse_data;
@@ -71,7 +72,6 @@ sub get_data {
 
 sub get_objects {
   my ($self, %params) = @_;
-  croak 'no class given'   unless $self->class;
   croak 'must parse first' unless $self->_parsed;
 
   $self->_make_objects unless $self->_objects;
@@ -99,29 +99,95 @@ sub _open_file {
   return $self->_io;
 }
 
+# check, if data is multiplexed and if all nessesary infos are given
+sub _check_multiplexed {
+  my ($self, %params) = @_;
+
+  $self->is_multiplexed(0);
+
+  # If more than one profile is given, it is multiplexed.
+  if ($self->profile) {
+    my @profile = @{ $self->profile };
+    if (scalar @profile > 1) {
+      # Each profile needs a class and a row_ident
+      my $info_ok = all { defined $_->{class} && defined $_->{row_ident} } @profile;
+      $self->_push_error([
+        0,
+        "missing class or row_ident in one of the profiles for multiplexed data",
+        0,
+        0]) unless $info_ok;
+
+      # If header is given, there need to be a header for each profile
+      # and no empty headers.
+      if ($info_ok && $self->header) {
+        my @header = @{ $self->header };
+        my $t_ok = scalar @profile == scalar @header;
+        $self->_push_error([
+          0,
+          "number of headers and number of profiles must be the same for multiplexed data",
+          0,
+          0]) unless $t_ok;
+        $info_ok = $info_ok && $t_ok;
+
+        $t_ok = all { scalar @$_ > 0} @header;
+        $self->_push_error([
+          0,
+          "no empty headers are allowed for multiplexed data",
+          0,
+          0]) unless $t_ok;
+        $info_ok = $info_ok && $t_ok;
+      }
+      $self->is_multiplexed($info_ok);
+      return $info_ok;
+    }
+  }
+
+  # ok, if not multiplexed
+  return 1;
+}
+
 sub _check_header {
   my ($self, %params) = @_;
-  my $header = $self->header;
+  my $header;
 
-  if (! $header) {
-    $header = $self->_csv->getline($self->_io);
+  $header = $self->header;
+  if (!$header) {
+    my $n_header = ($self->is_multiplexed)? scalar @{ $self->profile } : 1;
+    foreach my $p_num (0..$n_header - 1) {
+      my $h = $self->_csv->getline($self->_io);
 
-    $self->_push_error([
-      $self->_csv->error_input,
-      $self->_csv->error_diag,
-      0,
-    ]) unless $header;
+      $self->_push_error([
+        $self->_csv->error_input,
+        $self->_csv->error_diag,
+        0,
+      ]) unless $h;
+
+      if ($self->is_multiplexed) {
+        push @{ $header }, $h;
+      } else {
+        $header = $h;
+      }
+    }
   }
 
   # Special case: utf8 BOM.
   # certain software (namely MS Office and notepad.exe insist on prefixing
   # data with a discouraged but valid byte order mark
   # if not removed, the first header field will not be recognized
-  if ($header && $header->[0] && $self->encoding =~ /utf-?8/i) {
-    $header->[0] =~ s/^\x{FEFF}//;
+  if ($header) {
+    my $h = ($self->is_multiplexed)? $header->[0] : $header;
+
+    if ($h && $h->[0] && $self->encoding =~ /utf-?8/i) {
+      $h->[0] =~ s/^\x{FEFF}//;
+    }
   }
 
-  return unless $header;
+  # check, if all header fields are parsed well
+  if ($self->is_multiplexed) {
+    return unless $header && all { $_ } @$header;
+  } else {
+    return unless $header;
+  }
 
   # Special case: human stupidity
   # people insist that case sensitivity doesn't exist and try to enter all
@@ -130,12 +196,19 @@ sub _check_header {
   # mopst likely meant that field, so rewrite the header
   if ($self->case_insensitive_header) {
     die 'case_insensitive_header is only possible with profile' unless $self->profile;
-    my @names = (
-      keys %{ $self->profile || {} },
-    );
-    for my $name (@names) {
-      for my $i (0..$#$header) {
-        $header->[$i] = $name if lc $header->[$i] eq lc $name;
+    if ($header) {
+      my $h_aref = ($self->is_multiplexed)? $header : [ $header ];
+      my $p_num  = 0;
+      foreach my $h (@{ $h_aref }) {
+        my @names = (
+          keys %{ $self->profile->[$p_num]->{profile} || {} },
+        );
+        for my $name (@names) {
+          for my $i (0..$#$h) {
+            $h->[$i] = $name if lc $h->[$i] eq lc $name;
+          }
+        }
+        $p_num++;
       }
     }
   }
@@ -147,13 +220,12 @@ sub _parse_data {
   my ($self, %params) = @_;
   my (@data, @errors);
 
-  $self->_csv->column_names(@{ $self->header });
-
   while (1) {
     my $row = $self->_csv->getline($self->_io);
     if ($row) {
+      my $header = $self->_header_by_row($row);
       my %hr;
-      @hr{@{ $self->header }} = @$row;
+      @hr{@{ $header }} = @$row;
       push @data, \%hr;
     } else {
       last if $self->_csv->eof;
@@ -180,6 +252,21 @@ sub _parse_data {
   return ! @errors;
 }
 
+sub _header_by_row {
+  my ($self, $row) = @_;
+
+  # initialize lookup hash if not already done
+  if ($self->is_multiplexed && ! defined $self->_row_header ) {
+    $self->_row_header({ pairwise { no warnings 'once'; $a->{row_ident} => $b } @{ $self->profile }, @{ $self->header } });
+  }
+
+  if ($self->is_multiplexed) {
+    return $self->_row_header->{$row->[0]}
+  } else {
+    return $self->header;
+  }
+}
+
 sub _encode_layer {
   ':encoding(' . $_[0]->encoding . ')';
 }
@@ -188,13 +275,11 @@ sub _make_objects {
   my ($self, %params) = @_;
   my @objs;
 
-  eval "require " . $self->class;
   local $::myconfig{numberformat} = $self->numberformat if $self->numberformat;
   local $::myconfig{dateformat}   = $self->dateformat   if $self->dateformat;
 
   for my $line (@{ $self->_data }) {
-    my $tmp_obj = $self->class->new;
-    $self->dispatcher->dispatch($tmp_obj, $line);
+    my $tmp_obj = $self->dispatcher->dispatch($line);
     push @objs, $tmp_obj;
   }
 
@@ -247,9 +332,9 @@ SL::Helper::Csv - take care of csv file uploads
     sep_char    => ',',     # default ';'
     quote_char  => '\'',    # default '"'
     escape_char => '"',     # default '"'
-    header      => [qw(id text sellprice word)], # see later
-    profile     => { sellprice => 'sellprice_as_number' },
-    class       => 'SL::DB::CsvLine',   # if present, map lines to this
+    header      => [ qw(id text sellprice word) ], # see later
+    profile     => [ { profile => { sellprice => 'sellprice_as_number'},
+                       class   => 'SL::DB::Part' } ],
   );
 
   my $status  = $csv->parse;
@@ -289,6 +374,13 @@ Almost all data imports have some type of constraints. Some data needs to be
 unique, other data needs to be connected to existing data sets. This will not
 happen here. You will receive a plain mapping of the data into the class tree,
 nothing more.
+
+=item Multiplex data
+
+This module can handle multiplexed data of different class types. In that case
+multiple profiles with classes and row identifiers must be given. Multiple
+headers may also be given or read from csv data. Data must contain the row
+identifier in the first column and it's field name must be 'datatype'.
 
 =back
 
@@ -343,16 +435,38 @@ guessing. Know what your data is. Defaults to utf-8.
 
 Same as in L<Text::CSV>
 
-=item C<header> \@FIELDS
+=item C<header> \@HEADERS
 
-Can be an array of columns, in this case the first line is not used as a
-header. Empty header fields will be ignored in objects.
+If given, it contains an ARRAY of the header fields for not multiplexed data.
+Or an ARRAYREF for each different class type for multiplexed data. These
+ARRAYREFS are the header fields which are an array of columns. In this case
+the first lines are not used as a header. Empty header fields will be ignored
+in objects.
 
-=item C<profile> \%ACCESSORS
+If not given, headers are taken from the first n lines of data, where n is the
+number of different class types.
 
-May be used to map header fields to custom accessors. Example:
+In case of multiplexed data the first column must be named 'datatype'. This
+name must be given in the header.
 
-  { listprice => listprice_as_number }
+Examples:
+
+  classic data of one type:
+  [ 'name', 'street', 'zipcode', 'city' ]
+
+  multiplexed data with two different types
+  [ [ 'datatype', 'ordernumber', 'customer', 'transdate' ],
+    [ 'datatype', 'partnumber', 'qty', 'sellprice' ] ]
+
+=item C<profile> [{profile => \%ACCESSORS, class => class, row_ident => ri},]
+
+This is an ARRAYREF to HASHREFs which may contain the keys C<profile>, C<class>
+and C<row_ident>.
+
+The C<profile> is a HASHREF which may be used to map header fields to custom
+accessors. Example:
+
+  [ {profile => { listprice => listprice_as_number }} ]
 
 In this case C<listprice_as_number> will be used to read in values from the
 C<listprice> column.
@@ -360,7 +474,7 @@ C<listprice> column.
 In case of a One-To-One relationsship these can also be set over
 relationsships by sparating the steps with a dot (C<.>). This will work:
 
-  { customer => 'customer.name' }
+  [ {profile => { customer => 'customer.name' }} ]
 
 And will result in something like this:
 
@@ -379,10 +493,24 @@ If the path in a profile entry is empty, the field will be subjected to
 C<strict_profile> and C<case_insensitive_header> checking, will be parsed into
 C<get_data>, but will not be attempted to be dispatched into objects.
 
-=item C<class>
-
-If present, the line will be handed to the new sub of this class,
+If C<class> is present, the line will be handed to the new sub of this class,
 and the return value used instead of the line itself.
+
+C<row_ident> is a string to recognize the right profile and class for each data
+line in multiplexed data. It must match the value in the column 'dataype' for
+each class.
+
+In case of multiplexed data, C<class> and C<row_ident> must be given.
+Example:
+  [ {
+      class     => 'SL::DB::Order',
+      row_ident => 'O'
+    },
+    {
+      class     => 'SL::DB::OrderItem',
+      row_ident => 'I',
+      profile   => {sellprice => sellprice_as_number}
+    } ]
 
 =item C<ignore_unknown_columns>
 
@@ -442,18 +570,20 @@ Encoding errors are not dealt with properly.
 Dispatch to child objects, like this:
 
  $csv = SL::Helper::Csv->new(
-   file  => ...
-   class => SL::DB::Part,
-   profile => [
-     makemodel => {
-       make_1  => make,
-       model_1 => model,
-     },
-     makemodel => {
-       make_2  => make,
-       model_2 => model,
-     },
-   ]
+   file    => ...
+   profile => [ {
+     profile => [
+       makemodel => {
+         make_1  => make,
+         model_1 => model,
+       },
+       makemodel => {
+         make_2  => make,
+         model_2 => model,
+       },
+     ],
+     class   => SL::DB::Part,
+   } ]
  );
 
 =head1 AUTHOR

@@ -57,19 +57,49 @@
   <div class="help_toggle" style="display:none">
    <p><a href="#" onClick="javascript:$('.help_toggle').toggle()">[% LxERP.t8("Hide help text") %]</a></p>
 
-   <table>
-    <tr class="listheading">
-     <th>[%- LxERP.t8('Column name') %]</th>
-     <th>[%- LxERP.t8('Meaning') %]</th>
-    </tr>
+   [%- IF SELF.worker.is_multiplexed %]
+     <table>
+       <tr class="listheading">
+         [%- FOREACH p = SELF.worker.profile %]
+           <th>[%- p.row_ident %]</th>
+         [%- END %]
+       </tr>
+       <tr class="listrow[% loop.count % 2 %]">
+         [%- FOREACH p = SELF.worker.profile %]
+           [% SET ri = p.row_ident %]
+         <td>
+           <table>
+             <tr class="listheading">
+               <th>[%- LxERP.t8('Column name') %]</th>
+               <th>[%- LxERP.t8('Meaning') %]</th>
+             </tr>
 
-    [%- FOREACH row = SELF.displayable_columns %]
-     <tr class="listrow[% loop.count % 2 %]">
-      <td>[%- HTML.escape(row.name) %]</td>
-      <td>[%- HTML.escape(row.description) %]</td>
-     </tr>
-    [%- END %]
-   </table>
+             [%- FOREACH row = SELF.displayable_columns.$ri %]
+             <tr class="listrow[% loop.count % 2 %]">
+               <td>[%- HTML.escape(row.name) %]</td>
+               <td>[%- HTML.escape(row.description) %]</td>
+             </tr>
+             [%- END %]
+           </table>
+         </td>
+         [%- END %]
+       </tr>
+     </table>
+   [%- ELSE %]
+     <table>
+       <tr class="listheading">
+         <th>[%- LxERP.t8('Column name') %]</th>
+         <th>[%- LxERP.t8('Meaning') %]</th>
+       </tr>
+
+       [%- FOREACH row = SELF.displayable_columns %]
+       <tr class="listrow[% loop.count % 2 %]">
+         <td>[%- HTML.escape(row.name) %]</td>
+         <td>[%- HTML.escape(row.description) %]</td>
+       </tr>
+       [%- END %]
+     </table>
+   [%- END %]
 
 [%- IF SELF.type == 'contacts' %]
    <p>
@@ -94,6 +124,17 @@
     [% LxERP.t8('The column triplets can occur multiple times with different numbers "X" each time (e.g. "make_1", "model_1", "lastcost_1", "make_2", "model_2", "lastcost_2", "make_3", "model_3", "lastcost_3" etc).') %]
     [% LxERP.t8('The items are imported accoring do their number "X" regardless of the column order inside the file.') %]
     [% LxERP.t8('The column "make_X" can contain either a vendor\'s database ID, a vendor number or a vendor\'s name.') %]
+   </p>
+
+[%- ELSIF SELF.type == 'orders' %]
+   <p>
+    [1]:
+    [% LxERP.t8('The column "datatype" must be present and must be the first column. The values must be the row names (see settings) for order and item data respectively.') %]
+   </p>
+   <p>
+    [2]:
+    [%- LxERP.t8('Amount and net amount are calculated by kivitendo. "verify_amount" and "verify_netamount" can be used for sanity checks.') %]<br>
+    [%- LxERP.t8('If amounts differ more than "Maximal amount difference" (see settings), this item is marked as invalid.') %]<br>
    </p>
 [%- END %]
 
@@ -206,6 +247,8 @@
  [%- INCLUDE 'csv_import/_form_customers_vendors.html' %]
 [%- ELSIF SELF.type == 'contacts' %]
  [%- INCLUDE 'csv_import/_form_contacts.html' %]
+[%- ELSIF SELF.type == 'orders' %]
+ [%- INCLUDE 'csv_import/_form_orders.html' %]
 [%- END %]
 
    <tr>

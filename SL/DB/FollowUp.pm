@@ -7,6 +7,14 @@ use strict;
 
 use SL::DB::MetaSetup::FollowUp;
 
+__PACKAGE__->meta->add_relationships(
+  follow_up_link => {
+    type         => 'one to one',
+    class        => 'SL::DB::FollowUpLink',
+    column_map   => { id => 'follow_up_id' },
+  },
+);
+
 __PACKAGE__->meta->initialize;
 
 # Creates get_all, get_all_count, get_all_iterator, delete_all and update_all.

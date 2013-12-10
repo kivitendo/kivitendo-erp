@@ -35,9 +35,13 @@ Größere neue Features:
   WebDAV-Verzeichnis pro Mandant gibt. Die dafür notwendigen
   Umstellungen werden zusammen mit dem Datenbankupgrade durchgeführt.
 
-
+- CSV-Import von Aufträgen
 
 Kleinere neue Features und Detailverbesserungen:
+
+- Lieferbedingungen analog zu Zahlungsbedingungen eingeführt.
+  Sie können angelegt, beim Benutzer voreingestellt und in allen Ein- und Ver-
+  kaufsmasken gesetzt werden.
 
 - Rechte für die Anzeige von Debitoren- und Kreditorenbuchungen in Berichten
 __Es kann sinnvoll sein, den Standardeinkäufern und Verkäufern keinen Zugriff

@@ -1365,6 +1365,7 @@ sub print_form {
 
   my $language_saved = $form->{language_id};
   my $payment_id_saved = $form->{payment_id};
+  my $delivery_term_id_saved = $form->{delivery_term_id};
   my $salesman_id_saved = $form->{salesman_id};
   my $cp_id_saved = $form->{cp_id};
   my $taxzone_id_saved = $form->{taxzone_id};
@@ -1374,6 +1375,7 @@ sub print_form {
 
   $form->{language_id} = $language_saved;
   $form->{payment_id} = $payment_id_saved;
+  $form->{delivery_term_id} = $delivery_term_id_saved;
   $form->{taxzone_id} = $taxzone_id_saved;
   $form->{currency} = $currency_saved;
 

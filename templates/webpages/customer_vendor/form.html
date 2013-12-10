@@ -18,7 +18,7 @@
       <li><a href="#billing">[% 'Billing Address' | $T8 %]</a></li>
       <li><a href="#shipto">[% 'Shipping Address' | $T8 %]</a></li>
       <li><a href="#contacts">[% 'Contacts' | $T8 %]</a></li>
-      [% IF ( SELF.cv.id ) %]
+      [% IF ( SELF.cv.id && AUTH.assert('sales_all_edit', 1) ) %]
         <li><a href="#deliveries">[% 'Supplies' | $T8 %]</a></li>
       [% END %]
       <li><a href="#vcnotes">[% 'Notes' | $T8 %]</a></li>
@@ -31,7 +31,7 @@
     [% PROCESS "customer_vendor/tabs/billing.html" %]
     [% PROCESS "customer_vendor/tabs/shipto.html" %]
     [% PROCESS "customer_vendor/tabs/contacts.html" %]
-    [% IF ( SELF.cv.id ) %]
+    [% IF ( SELF.cv.id && AUTH.assert('sales_all_edit', 1) ) %]
       [% PROCESS "customer_vendor/tabs/deliveries.html" %]
     [% END %]
     [% PROCESS "customer_vendor/tabs/vcnotes.html" %]
