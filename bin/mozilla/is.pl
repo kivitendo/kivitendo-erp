@@ -36,6 +36,7 @@ use SL::IS;
 use SL::PE;
 use SL::OE;
 use Data::Dumper;
+use DateTime;
 use List::Util qw(max sum);
 
 use SL::DB::Default;
@@ -857,6 +858,7 @@ sub storno {
   $form->{storno} = 1;
   $form->{id} = "";
   $form->{invnumber} = "Storno zu " . $form->{invnumber};
+  $form->{invdate}   = DateTime->today->to_lxoffice;
   $form->{rowcount}++;
 
   post();
