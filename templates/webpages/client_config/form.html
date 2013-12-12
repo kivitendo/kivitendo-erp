@@ -62,6 +62,9 @@ $(function() {
      <li><a href="#datev_check_configuration">[% LxERP.t8('DATEV check configuration') %]</a></li>
    [% END %]
    <li><a href="#orders_deleteable">[% LxERP.t8('Orders / Delivery Orders deleteable') %]</a></li>
+[%- IF INSTANCE_CONF.get_doc_storage %]
+   <li><a href="#attachments">[% LxERP.t8('Global Attachments') %]</a></li>
+[%- END %]
    <li><a href="#warehouse">[% LxERP.t8('Warehouse') %]</a></li>
    <li><a href="#features">[% LxERP.t8('Features') %]</a></li>
   </ul>
@@ -71,6 +74,9 @@ $(function() {
 [% PROCESS 'client_config/_posting_configuration.html' %]
 [% PROCESS 'client_config/_datev_check_configuration.html' %]
 [% PROCESS 'client_config/_orders_deleteable.html' %]
+[%- IF INSTANCE_CONF.get_doc_storage %]
+[% PROCESS 'client_config/_attachments.html' %]
+[%- END %]
 [% PROCESS 'client_config/_warehouse.html' %]
 [% PROCESS 'client_config/_features.html' %]
 [% PROCESS 'client_config/_miscellaneous.html' %]

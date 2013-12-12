@@ -135,6 +135,7 @@ my %kivitendo_package_names = (
   email_journal_attachments      => 'EmailJournalAttachment',
   employee                       => 'employee',
   exchangerate                   => 'exchangerate',
+  files                          => 'file',
   finanzamt                      => 'finanzamt',
   follow_up_access               => 'follow_up_access',
   follow_up_links                => 'follow_up_link',

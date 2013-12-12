@@ -1,4 +1,5 @@
 [%- USE LxERP -%][%- USE L -%][%- USE P -%][%- USE T8 %]
+[% SET style="width: 250px" %]
 <div id="features">
  <table>
   <tr><td class="listheading" colspan="4">[% LxERP.t8("DATEV") %]</td></tr>
@@ -17,8 +18,7 @@
    <td>[% LxERP.t8('Use UStVA') %]</td>
   </tr>
 
-  <tr><td class="listheading" colspan="4">[% LxERP.t8("WebDAV") %]</td></tr>
-
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("File Management") %]</td></tr>
   <tr>
    <td align="right">[% LxERP.t8('WebDAV') %]</td>
    <td>[% L.yes_no_tag('defaults.webdav', SELF.defaults.webdav) %]</td>
@@ -28,6 +28,63 @@
    <td align="right">[% LxERP.t8('WebDAV save documents') %]</td>
    <td>[% L.yes_no_tag('defaults.webdav_documents', SELF.defaults.webdav_documents) %]</td>
    <td>[% LxERP.t8('Save document in WebDAV repository') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Filemanagement') %]</td>
+   <td>[% L.yes_no_tag('defaults.doc_storage', SELF.defaults.doc_storage) %]</td>
+   <td>[% LxERP.t8('Use Filemanagement') %]</td>
+  </tr>
+  <tr>
+    <td align="right">[% LxERP.t8('Storage Type for generated/imported PDF Documents') %]</td>
+    <td>[% L.select_tag('defaults.doc_storage_for_documents',
+         [ [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
+                               default = SELF.defaults.doc_storage_for_documents) %]</td> 
+    <td>[% LxERP.t8('Use this storage backend for all generated PDF-Files') %]</td>
+  </tr>
+  <tr>
+    <td align="right">[% LxERP.t8('Storage Type for Attachments') %]</td>
+    <td>[% L.select_tag('defaults.doc_storage_for_attachments',
+         [ [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
+                               default = SELF.defaults.doc_storage_for_attachments) %]</td> 
+    <td>[% LxERP.t8('Use this storage backend for all uploaded attachments') %]</td>
+  </tr>
+  <tr>
+    <td align="right">[% LxERP.t8('Storage Type for images') %]</td>
+    <td>[% L.select_tag('defaults.doc_storage_for_images',
+         [ [ 'Filesystem', LxERP.t8('Files') ],[ 'Webdav', LxERP.t8('WebDAV') ],[ 'ExtDMS', LxERP.t8('ext.DMS') ],[ 'DB', LxERP.t8('Database') ]  ],
+                               default = SELF.defaults.doc_storage_for_images) %]</td> 
+    <td>[% LxERP.t8('Use this storage backend for uploaded images') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Delete printfiles') %]</td>
+   <td>[% L.yes_no_tag('defaults.doc_delete_printfiles', SELF.defaults.doc_delete_printfiles) %]</td>
+   <td>[% LxERP.t8('Allow to delete generated printfiles') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('max filesize') %]</td>
+   <td>[% L.input_tag('defaults.doc_max_filesize',SELF.defaults.doc_max_filesize, size=>10) %]</td>
+   <td>[% LxERP.t8('The maximum of uploadable filesize') %]</td>
+  </tr>
+  <tr><td class="listheading" colspan="4">[% LxERP.t8("Storage Backends") %]</td></tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Files') %]</td>
+   <td>[% L.yes_no_tag('defaults.doc_files', SELF.defaults.doc_files) %]</td>
+   <td>[% LxERP.t8('Use File Storage backend') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Root path for file storage') %]</td>
+   <td>[% L.input_tag('defaults.doc_files_rootpath',SELF.defaults.doc_files_rootpath, style=style) %]</td>
+   <td>[% LxERP.t8('This is the root directory for the File storage backend, must be writable for webserver') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('WebDAV') %]</td>
+   <td>[% L.yes_no_tag('defaults.doc_webdav', SELF.defaults.doc_webdav) %]</td>
+   <td>[% LxERP.t8('Use WebDAV Storage backend') %]</td>
+  </tr>
+  <tr>
+   <td align="right">[% LxERP.t8('Database') %]</td>
+   <td>[% L.yes_no_tag('defaults.doc_database', SELF.defaults.doc_database) %]</td>
+   <td>[% LxERP.t8('Use Database Storage backend (not implemented yet!)') %]</td>
   </tr>
 
   <tr><td class="listheading" colspan="4">[% LxERP.t8("Reports") %]</td></tr>
@@ -81,7 +138,7 @@
   </tr>
   <tr>
    <td align="right">[% LxERP.t8('CSS style for pictures') %]</td>
-   <td>   [% L.input_tag('defaults.parts_image_css', SELF.defaults.parts_image_css, style=style) %]</td>
+   <td>   [% L.input_tag('defaults.parts_image_css',SELF.defaults.parts_image_css, style=style) %]</td>
    <td>[% LxERP.t8('Style the picture with the following CSS code') %]</td>
   </tr>
   <tr>

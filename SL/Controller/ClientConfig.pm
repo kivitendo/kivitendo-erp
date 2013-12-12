@@ -212,7 +212,7 @@ sub check_auth {
 sub edit_form {
   my ($self) = @_;
 
-  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side);
+  $::request->layout->use_javascript("${_}.js") for qw(jquery.selectboxes jquery.multiselect2side kivi.File);
 
   $self->render('client_config/form', title => t8('Client Configuration'),
                 make_chart_title     => sub { $_[0]->accno . '--' . $_[0]->description },

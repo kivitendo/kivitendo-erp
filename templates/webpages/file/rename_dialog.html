@@ -1,0 +1,18 @@
+[%- USE LxERP -%][%- USE L -%]
+<div class="loading" id="rename_dialog" style="display:none" >
+ <div style="padding-bottom: 15px">
+  <div>
+    <table>
+  <tr><td colspan="2" id="rename_extra_text"></td></tr>
+  <tr><td colspan="2">[%- LxERP.t8("Please modify filename") %]:</td></tr>
+  <tr><td colspan="2"><input size='40'  name="newfilename" id="newfilename_id" value=""></td></tr>
+  <tr><td><input type="hidden"          name="next_ids"    id="next_ids_id"    value="">
+          <input type="hidden"          name="sessionfile" id="sessionfile_id" value="">
+          <input type="hidden"          name="rename_id"   id="rename_id_id"   value="">
+          <input type="hidden"          name="is_global"   id="is_global_id"   value="">
+          [% L.button_tag("return kivi.File.renameaction();", LxERP.t8('Continue'), id => "rename_cont_btn") %]</td>
+      <td>[% L.button_tag("return kivi.File.renameclose();" , LxERP.t8('Cancel')  , class => "submit") %]</td></tr>
+ </table>
+  </div>
+ </div>
+</div>

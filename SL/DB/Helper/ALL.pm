@@ -51,6 +51,7 @@ use SL::DB::EmailJournal;
 use SL::DB::EmailJournalAttachment;
 use SL::DB::Employee;
 use SL::DB::Exchangerate;
+use SL::DB::File;
 use SL::DB::Finanzamt;
 use SL::DB::FollowUp;
 use SL::DB::FollowUpAccess;
