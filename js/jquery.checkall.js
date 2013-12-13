@@ -7,11 +7,11 @@
 ;(function($) {
 
 $.fn.extend({
-  checkall: function(target, property) {
+  checkall: function(target, property, inverted) {
     if (property == null)
       property = 'checked';
     return $(this).click(function() {
-      $(target).prop(property, $(this).prop('checked'));
+      $(target).prop(property, inverted ? !$(this).prop('checked') : $(this).prop('checked'));
     });
   }
 });

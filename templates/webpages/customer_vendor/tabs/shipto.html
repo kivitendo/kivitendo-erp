@@ -59,7 +59,7 @@
       <th align="right" nowrap>[% 'Zipcode' | $T8 %]/[% 'City' | $T8 %]</th>
 
       <td>
-        [% L.input_tag('shipto.shiptozipcode', SELF.shipto.shiptostreet,  size = 5, maxlength = 75) %]
+        [% L.input_tag('shipto.shiptozipcode', SELF.shipto.shiptozipcode,  size = 5, maxlength = 75) %]
         [% L.input_tag('shipto.shiptocity', SELF.shipto.shiptocity,  size = 30, maxlength = 75) %]
       </td>
     </tr>

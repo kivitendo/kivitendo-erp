@@ -120,6 +120,7 @@ my %kivitendo_package_names = (
   delivery_orders                => 'delivery_order',
   delivery_order_items           => 'delivery_order_item',
   delivery_order_items_stock     => 'delivery_order_items_stock',
+  delivery_terms                 => 'delivery_term',
   department                     => 'department',
   drafts                         => 'draft',
   dunning                        => 'dunning',

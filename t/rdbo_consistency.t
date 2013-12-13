@@ -23,6 +23,7 @@ my %no_metasetup_ok   = map { ($_ => 1) } qw(Object.pm VC.pm);
 my @dbs               = find_pms('SL/DB');
 my @metasetups        = find_pms('SL/DB/MetaSetup');
 my %metasetup_content = map { ($_ => scalar(read_file("SL/DB/MetaSetup/$_"))) } @metasetups;
+my %db_content        = map { ($_ => scalar(read_file("SL/DB/$_")))           } @dbs;
 my $all_content       = read_file('SL/DB/Helper/ALL.pm');
 my $mapping_content   = read_file('SL/DB/Helper/Mappings.pm');
 
@@ -78,10 +79,17 @@ sub test_metasetup_has_table_to_class_mapping {
   }
 }
 
+sub test_db_contains_meta_initialize {
+  foreach my $pm (grep { !m{^(?:Object|VC)\.pm$} } @dbs) {
+    ok($db_content{$pm} =~ m/\n__PACKAGE__->meta->initialize;/, "$pm contains __PACKAGE__->meta->initialize;");
+  }
+}
+
 test_db_has_metasetup();
 test_metasetup_has_db();
 test_db_included_in_all();
 test_use_in_all_exists_as_db();
 test_metasetup_has_table_to_class_mapping();
+test_db_contains_meta_initialize();
 
 done_testing();

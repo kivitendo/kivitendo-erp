@@ -843,6 +843,9 @@ sub storno {
   if (IS->has_storno(\%myconfig, $form, "ar")) {
     $form->error($locale->text("Invoice has already been storno'd!"));
   }
+  if ($form->datetonum($form->{invdate},  \%myconfig) <= $form->datetonum($form->{closedto}, \%myconfig)) {
+    $form->error($locale->text('Cannot storno invoice for a closed period!'));
+  }
 
   map({ my $key = $_; delete($form->{$key}) unless (grep({ $key eq $_ } qw(id login password type))); } keys(%{ $form }));
 
