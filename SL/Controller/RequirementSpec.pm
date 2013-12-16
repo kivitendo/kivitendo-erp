@@ -10,10 +10,6 @@ use File::Spec ();
 use SL::ClientJS;
 use SL::Common ();
 use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::Filtered;
-use SL::Controller::Helper::Paginated;
-use SL::Controller::Helper::Sorted;
-use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Controller::Helper::RequirementSpec;
 use SL::DB::Customer;
@@ -33,26 +29,12 @@ use Rose::Object::MakeMethods::Generic
 (
   scalar                  => [ qw(requirement_spec_item visible_item visible_section) ],
   'scalar --get_set_init' => [ qw(requirement_spec customers types statuses complexities risks projects project_types project_statuses default_project_type default_project_status copy_source js
-                                  current_text_block_output_position) ],
+                                  current_text_block_output_position models) ],
 );
 
 __PACKAGE__->run_before('setup');
 
-__PACKAGE__->make_filtered(
-  MODEL      => 'RequirementSpec',
-  LAUNDER_TO => 'filter'
-);
-__PACKAGE__->make_paginated(
-  MODEL => 'RequirementSpec',
-  ONLY  => [ qw(list) ],
-);
-__PACKAGE__->make_sorted(
-  MODEL         => 'RequirementSpec',
-  ONLY          => [ qw(list) ],
-
-  DEFAULT_BY    => 'customer',
-  DEFAULT_DIR   => 1,
-
+my %sort_columns = (
   customer      => t8('Customer'),
   title         => t8('Title'),
   type          => t8('Requirement Spec Type'),
@@ -70,17 +52,8 @@ __PACKAGE__->make_sorted(
 sub action_list {
   my ($self) = @_;
 
-  my $requirement_specs = $self->get_models(
-    query => [
-      and => [
-        working_copy_id => undef,
-        is_template     => $::form->{is_template} ? 1 : 0,
-      ]],
-    with_objects => [ 'customer', 'type', 'status', 'project' ],
-  );
-
   $self->prepare_report;
-  $self->report_generator_list_objects(report => $self->{report}, objects => $requirement_specs);
+  $self->report_generator_list_objects(report => $self->{report}, objects => $self->models->get);
 }
 
 sub action_new {
@@ -395,10 +368,13 @@ sub create_or_update {
 sub prepare_report {
   my ($self)      = @_;
 
-  my $callback    = $self->get_callback;
-
   my $is_template = $::form->{is_template};
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
+
+  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->finalize; # for filter laundering
+  my $callback    = $self->models->get_callback;
+
   $self->{report} = $report;
 
   my @columns     = $is_template ? qw(title mtime) : qw(title customer status type projectnumber mtime version);
@@ -422,14 +398,14 @@ sub prepare_report {
     );
   }
 
-  map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
 
   $report->set_options(
     std_column_visibility => 1,
     controller_class      => 'RequirementSpec',
     output_format         => 'HTML',
     raw_top_info_text     => $self->render('requirement_spec/report_top',    { output => 0 }, is_template => $is_template),
-    raw_bottom_info_text  => $self->render('requirement_spec/report_bottom', { output => 0 }),
+    raw_bottom_info_text  => $self->render('requirement_spec/report_bottom', { output => 0 }, models => $self->models),
     title                 => $is_template ? t8('Requirement Spec Templates') : t8('Requirement Specs'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -438,9 +414,7 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
-  $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
-
-  $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
 }
 
 sub invalidate_version {
@@ -565,6 +539,28 @@ sub update_project_link_create {
     ->flash('info', t8('The project has been created.'))
     ->flash('info', t8('The project link has been updated.'))
     ->render($self);
+}
+
+sub init_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller   => $self,
+    sorted       => {
+      _default     => {
+        by           => 'customer',
+        dir          => 1,
+      },
+      %sort_columns,
+    },
+    query => [
+      and => [
+        working_copy_id => undef,
+        is_template     => $::form->{is_template} ? 1 : 0,
+      ],
+    ],
+    with_objects => [ 'customer', 'type', 'status', 'project' ],
+  );
 }
 
 1;
