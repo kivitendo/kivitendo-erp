@@ -14,7 +14,7 @@ sub filter {
 
   my $filters = _get_filters($class);
 
-  return ($key, $value) unless $filters->{$key};
+  return ($prefix . $key, $value) unless $filters->{$key};
 
   return $filters->{$key}->($key, $value, $prefix);
 }
