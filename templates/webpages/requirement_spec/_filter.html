@@ -39,8 +39,12 @@
     </tr>
 
     <tr>
-     <th align="right">[% LxERP.t8("Project") %]</th>
-     <td>[% L.select_tag('filter.project_id', SELF.projects, default=filter.project_id, title_key="full_description", with_empty=1) %]</td>
+     <th align="right">[% LxERP.t8("Project Number") %]</th>
+     <td>[% L.input_tag('filter.project.projectnumber:substr::ilike', filter.project.projectnumber_substr__ilike) %]</td>
+    </tr>
+    <tr>
+     <th align="right">[% LxERP.t8("Project Description") %]</th>
+     <td>[% L.input_tag('filter.project.description:substr::ilike', filter.project.description_substr__ilike) %]</td>
     </tr>
 [%- END %]
    </table>
