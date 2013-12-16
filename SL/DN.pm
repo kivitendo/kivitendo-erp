@@ -875,6 +875,8 @@ sub print_dunning {
   push @{ $form->{DUNNING_PDFS_EMAIL} }, { 'filename' => "${spool}/$filename",
                                            'name'     => $form->get_formname_translation('dunning') . "_${dunning_id}.pdf" };
 
+  $::lxdebug->dump(0,  "form", $::form);
+
   $form->parse_template($myconfig);
 
   $dbh->disconnect() unless $provided_dbh;
