@@ -17,7 +17,6 @@ __PACKAGE__->meta->columns(
   mtime           => { type => 'timestamp' },
   project_type_id => { type => 'integer', not_null => 1 },
   projectnumber   => { type => 'text' },
-  type            => { type => 'text' },
   valid           => { type => 'boolean', default => 'true' },
 );
 

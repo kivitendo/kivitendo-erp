@@ -6,17 +6,15 @@ use strict;
 
 use base qw(SL::DB::Object);
 
-__PACKAGE__->meta->setup(
-  table   => 'project_types',
+__PACKAGE__->meta->table('project_types');
 
-  columns => [
-    id          => { type => 'serial', not_null => 1 },
-    position    => { type => 'integer', not_null => 1 },
-    description => { type => 'text' },
-  ],
-
-  primary_key_columns => [ 'id' ],
+__PACKAGE__->meta->columns(
+  description => { type => 'text' },
+  id          => { type => 'serial', not_null => 1 },
+  position    => { type => 'integer', not_null => 1 },
 );
+
+__PACKAGE__->meta->primary_key_columns([ 'id' ]);
 
 1;
 ;

@@ -8,32 +8,17 @@ use List::Util qw(sum);
 use SL::DB::Order;
 use SL::DB::ProjectType;
 use SL::Controller::Helper::GetModels;
-use SL::Controller::Helper::Paginated;
-use SL::Controller::Helper::Sorted;
-use SL::Controller::Helper::ParseFilter;
 use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(db_args flat_filter project_types) ],
+  scalar => [ qw(project_types) ],
+  'scalar --get_set_init' => [ qw(models) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
 
-__PACKAGE__->get_models_url_params('flat_filter');
-__PACKAGE__->make_paginated(
-  MODEL         => 'Order',
-  PAGINATE_ARGS => 'db_args',
-  ONLY          => [ qw(list) ],
-);
-
-__PACKAGE__->make_sorted(
-  MODEL                   => 'Order',
-  ONLY                    => [ qw(list) ],
-
-  DEFAULT_BY              => 'globalprojectnumber',
-  DEFAULT_DIR             => 1,
-
+my %sort_columns = (
   ordnumber               => t8('Order'),
   customer                => t8('Customer'),
   transaction_description => t8('Transaction description'),
@@ -47,13 +32,11 @@ sub action_list {
 
   $self->project_types(SL::DB::Manager::ProjectType->get_all_sorted);
 
-  $self->db_args($self->setup_db_args_for_list(filter => $::form->{filter}));
-  $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });
   $self->make_filter_summary;
 
   $self->prepare_report;
 
-  $self->{orders} = $self->get_models(%{ $self->db_args });
+  $self->{orders} = $self->models->get;
 
   $self->calculate_data;
 
@@ -61,26 +44,6 @@ sub action_list {
 }
 
 # private functions
-
-sub setup_db_args_for_list {
-  my ($self) = @_;
-
-  $self->{filter} = {};
-  my %args     = ( parse_filter($::form->{filter}, with_objects => [ 'customer', 'globalproject', 'globalproject.project_type' ], launder_to => $self->{filter}));
-  $args{query} = [
-    @{ $args{query} || [] },
-    SL::DB::Manager::Order->type_filter('sales_order'),
-    '!closed' => 1,
-    or        => [
-      globalproject_id => undef,
-      and              => [
-        'globalproject.active' => 1,
-        'globalproject.valid'  => 1,
-      ]],
-  ];
-
-  return \%args;
-}
 
 sub prepare_report {
   my ($self)      = @_;
@@ -113,7 +76,7 @@ sub prepare_report {
                                  sub      => sub { $_[0]->globalproject_id ? $_[0]->globalproject->project_type->description : '' }  },
   );
 
-  map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;
+  map { $column_defs{$_}->{text} ||= $::locale->text( $self->models->get_sort_spec->{$_}->{title} ) } keys %column_defs;
   map { $column_defs{$_}->{align} = 'right' } @{ $self->{number_columns} };
 
   $report->set_options(
@@ -121,8 +84,6 @@ sub prepare_report {
     controller_class      => 'FinancialControllingReport',
     output_format         => 'HTML',
     top_info_text         => $::locale->text('Financial controlling report for open sales orders'),
-    raw_top_info_text     => $self->render('financial_controlling_report/report_top',    { output => 0 }),
-    raw_bottom_info_text  => $self->render('financial_controlling_report/report_bottom', { output => 0 }),
     title                 => $::locale->text('Financial Controlling Report'),
     allow_pdf_export      => 1,
     allow_csv_export      => 1,
@@ -131,9 +92,13 @@ sub prepare_report {
   $report->set_column_order(@columns);
   $report->set_export_options(qw(list filter));
   $report->set_options_from_form;
-  $self->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
-
-  $self->disable_pagination if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->disable_plugin('paginated') if $report->{options}{output_format} =~ /^(pdf|csv)$/i;
+  $self->models->finalize;
+  $self->models->set_report_generator_sort_options(report => $report, sortable_columns => \@sortable);
+  $report->set_options(
+    raw_top_info_text     => $self->render('financial_controlling_report/report_top',    { output => 0 }),
+    raw_bottom_info_text  => $self->render('financial_controlling_report/report_bottom', { output => 0 }, models => $self->models),
+  );
 }
 
 sub calculate_data {
@@ -230,6 +195,33 @@ sub make_filter_summary {
   );
 
   $self->{filter_summary} = join ', ', @filter_strings;
+}
+
+sub init_models {
+  my ($self) = @_;
+
+  SL::Controller::Helper::GetModels->new(
+    controller   => $self,
+    model        => 'Order',
+    sorted       => {
+      _default     => {
+        by           => 'globalprojectnumber',
+        dir          => 1,
+      },
+      %sort_columns,
+    },
+    query => [
+      SL::DB::Manager::Order->type_filter('sales_order'),
+      '!closed' => 1,
+      or        => [
+        globalproject_id => undef,
+        and              => [
+          'globalproject.active' => 1,
+          'globalproject.valid'  => 1,
+        ]],
+    ],
+    with_objects => [ 'customer', 'globalproject', 'globalproject.project_type' ],
+  );
 }
 
 sub link_to {
