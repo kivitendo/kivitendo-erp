@@ -1,0 +1,18 @@
+[%- USE L %][% USE LxERP %]
+<form method="post" id="form" action="controller.pl">
+ [% L.hidden_tag('action', 'FinancialOverview/list') %]
+ <a href="[% SELF.url_for(action='list', year=(SELF.year - 1), subtotals_per_quarter=SELF.subtotals_per_quarter) %]">&laquo; [%- LxERP.t8("Prior year") %]: [% SELF.year - 1 %]</a>
+ |
+
+ [% LxERP.t8("Current year") %]:
+ [% L.select_tag('year', YEARS_TO_LIST, default=SELF.year, onchange='$("#form").submit();') %]
+
+ [% IF SELF.year < SELF.current_year %]
+  |
+  <a href="[% SELF.url_for(action='list', year=(SELF.year + 1), subtotals_per_quarter=SELF.subtotals_per_quarter) %]">[%- LxERP.t8("Following year") %]: [% SELF.year + 1 %] &raquo;</a>
+ [% END %]
+
+ <br>
+ [% L.checkbox_tag('subtotals_per_quarter', checked=SELF.subtotals_per_quarter, label=LxERP.t8('Subtotals per quarter'), onchange='$("#form").submit();') %]
+</form>
+<hr>
