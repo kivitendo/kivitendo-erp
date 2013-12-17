@@ -182,11 +182,6 @@ sub sum_relevant_items {
     }
   }
 
-  if (!$params{by_order} && ($params{order}->ordnumber =~ m/4$/)) {
-    $::lxdebug->dump(0, "obj @ $total", $sums);
-    $::lxdebug->dump(0, "ord", $params{order}->{amounts_by_parts_id});
-  }
-
   return $total;
 }
 
