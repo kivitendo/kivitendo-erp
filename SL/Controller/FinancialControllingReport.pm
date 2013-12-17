@@ -15,7 +15,7 @@ use SL::Controller::Helper::ReportGenerator;
 use SL::Locale::String;
 
 use Rose::Object::MakeMethods::Generic (
-  scalar => [ qw(db_args flat_filter) ],
+  scalar => [ qw(db_args flat_filter project_types) ],
 );
 
 __PACKAGE__->run_before(sub { $::auth->assert('sales_order_edit'); });
@@ -44,6 +44,8 @@ __PACKAGE__->make_sorted(
 
 sub action_list {
   my ($self) = @_;
+
+  $self->project_types(SL::DB::Manager::ProjectType->get_all_sorted);
 
   $self->db_args($self->setup_db_args_for_list(filter => $::form->{filter}));
   $self->flat_filter({ map { $_->{key} => $_->{value} } $::form->flatten_variables('filter') });

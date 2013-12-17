@@ -27,6 +27,10 @@
    <td>[% L.input_tag('filter.globalproject.projectnumber:substr::ilike', filter.globalproject.projectnumber_substr__ilike, size = 20) %]</td>
   </tr>
   <tr>
+   <th align="right">[% 'Project Type' | $T8 %]</th>
+   <td>[% L.select_tag('filter.globalproject.project_type_id', SELF.project_types, default=filter.globalproject.project_type_id, title_key='description', with_empty=1) %]</td>
+  </tr>
+  <tr>
    <th align="right">[% 'Order Date' | $T8 %] [% 'From Date' | $T8 %]</th>
    <td>[% L.date_tag('filter.transdate:date::ge', filter.transdate_date__ge, cal_align = 'BR') %]</td>
   </tr>
