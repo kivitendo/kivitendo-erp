@@ -66,12 +66,7 @@ sub action_destroy {
 sub action_reorder {
   my ($self) = @_;
 
-  my @ids = @{ $::form->{project_type_id} || [] };
-  my $result = SL::DB::ProjectType->new->db->do_transaction(sub {
-    foreach my $idx (0 .. scalar(@ids) - 1) {
-      SL::DB::ProjectType->new(id => $ids[$idx])->load->update_attributes(position => $idx + 1);
-    }
-  });
+  SL::DB::ProjectType->reorder_list(@{ $::form->{project_type_id} || [] });
 
   $self->render('1;', { type => 'js', inline => 1 });
 }
