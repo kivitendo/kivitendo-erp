@@ -30,10 +30,9 @@ __PACKAGE__->make_sorted(
   MODEL                   => 'Order',
   ONLY                    => [ qw(list) ],
 
-  DEFAULT_BY              => 'transdate',
+  DEFAULT_BY              => 'globalprojectnumber',
   DEFAULT_DIR             => 1,
 
-  transdate               => t8('Order Date'),
   ordnumber               => t8('Order'),
   customer                => t8('Customer'),
   transaction_description => t8('Transaction description'),
@@ -78,13 +77,12 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(customer globalprojectnumber ordnumber transdate netamount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
-                       billable_amount billable_amount_p other_amount open_amount transaction_description);
+  my @columns     = qw(customer globalprojectnumber ordnumber netamount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
+                       billable_amount billable_amount_p other_amount);
   my @sortable    = qw(ordnumber transdate customer netamount globalprojectnumber);
-  $self->{number_columns} = [ qw(netamount billed_amount billed_amount_p delivered_amount delivered_amount_p paid_amount paid_amount_p open_amount other_amount billable_amount billable_amount_p) ];
+  $self->{number_columns} = [ qw(netamount billed_amount billed_amount_p delivered_amount delivered_amount_p paid_amount paid_amount_p other_amount billable_amount billable_amount_p) ];
 
   my %column_defs           = (
-    transdate               => {      sub => sub { $_[0]->transdate_as_date                                           }  },
     netamount               => {                                                                                         },
     billed_amount           => { text     => $::locale->text('Billed amount')                                            },
     billed_amount_p         => { text     => $::locale->text('%')                                                        },
@@ -94,9 +92,7 @@ sub prepare_report {
     paid_amount_p           => { text     => $::locale->text('%')                                                        },
     billable_amount         => { text     => $::locale->text('Billable amount')                                          },
     billable_amount_p       => { text     => $::locale->text('%')                                                        },
-    open_amount             => { text     => $::locale->text('Bills receivable')                                         },
     other_amount            => { text     => $::locale->text('Billed extra expenses')                                    },
-    transaction_description => {                                                                                         },
     ordnumber               => { obj_link => sub { $self->link_to($_[0])                                              }  },
     customer                => {      sub => sub { $_[0]->customer->name                                              },
                                  obj_link => sub { $self->link_to($_[0]->customer)                                    }  },
@@ -144,7 +140,6 @@ sub calculate_data {
     my $billed_amount           = sum map { $_->netamount                                                          } @{ $invoices        };
     $order->{other_amount}      = $billed_amount             - $order->{billed_amount};
     $order->{billable_amount}   = $order->{delivered_amount} - $order->{billed_amount};
-    $order->{open_amount}       = $billed_amount             - $order->{paid_amount  };
 
     foreach (qw(delivered billed paid billable)) {
       $order->{"${_}_amount_p"} = $order->netamount * 1 ? $order->{"${_}_amount"} * 100 / $order->netamount : undef;
