@@ -38,6 +38,13 @@ sub _sort_spec {
       customer                => 'customer.name',
       vendor                  => 'vendor.name',
       globalprojectnumber     => 'lower(globalproject.projectnumber)',
+
+      # Bug in Rose::DB::Object: the next should be
+      # "globalproject.project_type.description". This workaround will
+      # only work if no other table with "project_type" is visible in
+      # the current query
+      globalproject_type      => 'lower(project_type.description)',
+
       map { ( $_ => "lower(oe.$_)" ) } qw(ordnumber quonumber cusordnumber shippingpoint shipvia notes intnotes transaction_description),
     });
 }

@@ -43,10 +43,11 @@ our @tables_with_project_id_cols = qw(acc_trans ap ar delivery_order_items deliv
 
 sub _sort_spec {
   return (
-    default    => [ 'projectnumber', 1 ],
-    columns    => {
-      SIMPLE   => 'ALL',
-      customer => 'customer.name',
+    default        => [ 'projectnumber', 1 ],
+    columns        => {
+      SIMPLE       => 'ALL',
+      customer     => 'customer.name',
+      project_type => 'project_type.description',
     });
 }
 

@@ -6,6 +6,7 @@ use parent qw(SL::Controller::Base);
 use List::Util qw(sum);
 
 use SL::DB::Order;
+use SL::DB::ProjectType;
 use SL::Controller::Helper::GetModels;
 use SL::Controller::Helper::Paginated;
 use SL::Controller::Helper::Sorted;
@@ -37,6 +38,7 @@ __PACKAGE__->make_sorted(
   customer                => t8('Customer'),
   transaction_description => t8('Transaction description'),
   globalprojectnumber     => t8('Project'),
+  globalproject_type      => t8('Project Type'),
   netamount               => t8('Order amount'),
 );
 
@@ -62,7 +64,7 @@ sub setup_db_args_for_list {
   my ($self) = @_;
 
   $self->{filter} = {};
-  my %args     = ( parse_filter($::form->{filter}, with_objects => [ 'customer', 'globalproject' ], launder_to => $self->{filter}));
+  my %args     = ( parse_filter($::form->{filter}, with_objects => [ 'customer', 'globalproject', 'globalproject.project_type' ], launder_to => $self->{filter}));
   $args{query} = [
     @{ $args{query} || [] },
     SL::DB::Manager::Order->type_filter('sales_order'),
@@ -77,9 +79,9 @@ sub prepare_report {
   my $report      = SL::ReportGenerator->new(\%::myconfig, $::form);
   $self->{report} = $report;
 
-  my @columns     = qw(customer globalprojectnumber project_type ordnumber netamount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
+  my @columns     = qw(customer globalprojectnumber globalproject_type ordnumber netamount delivered_amount delivered_amount_p billed_amount billed_amount_p paid_amount paid_amount_p
                        billable_amount billable_amount_p other_amount);
-  my @sortable    = qw(ordnumber transdate customer netamount globalprojectnumber);
+  my @sortable    = qw(ordnumber transdate customer netamount globalprojectnumber globalproject_type);
   $self->{number_columns} = [ qw(netamount billed_amount billed_amount_p delivered_amount delivered_amount_p paid_amount paid_amount_p other_amount billable_amount billable_amount_p) ];
 
   my %column_defs           = (
@@ -97,8 +99,8 @@ sub prepare_report {
     customer                => {      sub => sub { $_[0]->customer->name                                              },
                                  obj_link => sub { $self->link_to($_[0]->customer)                                    }  },
     globalprojectnumber     => {      sub => sub { $_[0]->globalproject_id ? $_[0]->globalproject->projectnumber : '' }  },
-    project_type            => { text     => $::locale->text('Project type'),
-                                 sub      => sub { $_[0]->globalproject_id ? $_[0]->globalproject->type          : '' }  },
+    globalproject_type      => { text     => $::locale->text('Project type'),
+                                 sub      => sub { $_[0]->globalproject_id ? $_[0]->globalproject->project_type->description : '' }  },
   );
 
   map { $column_defs{$_}->{text} ||= $::locale->text( $self->get_sort_spec->{$_}->{title} ) } keys %column_defs;

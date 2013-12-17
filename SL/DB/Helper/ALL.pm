@@ -70,6 +70,7 @@ use SL::DB::Pricegroup;
 use SL::DB::Price;
 use SL::DB::Printer;
 use SL::DB::Project;
+use SL::DB::ProjectType;
 use SL::DB::PurchaseInvoice;
 use SL::DB::RecordLink;
 use SL::DB::SchemaInfo;
