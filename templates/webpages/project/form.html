@@ -42,8 +42,8 @@
      </tr>
 
      <tr>
-      <th align="right">[% 'Type' | $T8 %]</th>
-      <td>[% L.input_tag('project.type', SELF.project.type, size=60) %]</td>
+      <th align="right">[% 'Project Type' | $T8 %]</th>
+      <td>[% L.select_tag('project.project_type_id', ALL_PROJECT_TYPES, default=SELF.project.project_type_id, title_key='description', style='width: 300px') %]</td>
      </tr>
 
      <tr>

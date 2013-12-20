@@ -751,6 +751,16 @@ sub print_dunning {
 
   $dunning_id =~ s|[^\d]||g;
 
+  my ($language_tc, $output_numberformat, $output_dateformat, $output_longdates);
+  if ($form->{"language_id"}) {
+    ($language_tc, $output_numberformat, $output_dateformat, $output_longdates) =
+      AM->get_language_details($myconfig, $form, $form->{language_id});
+  } else {
+    $output_dateformat = $myconfig->{dateformat};
+    $output_numberformat = $myconfig->{numberformat};
+    $output_longdates = 1;
+  }
+
   my $query =
     qq|SELECT
          da.fee, da.interest,
@@ -836,6 +846,17 @@ sub print_dunning {
   $form->{total_interest}    = $form->format_amount($myconfig, $form->round_amount($ref->{total_interest}, 2), 2);
   $form->{total_open_amount} = $form->format_amount($myconfig, $form->round_amount($ref->{total_open_amount}, 2), 2);
   $form->{total_amount}      = $form->format_amount($myconfig, $form->round_amount($ref->{fee} + $ref->{total_interest} + $ref->{total_open_amount}, 2), 2);
+
+  $::form->format_dates($output_dateformat, $output_longdates,
+    qw(dn_dunning_date dn_dunning_duedate dn_transdate dn_duedate
+          dunning_date    dunning_duedate    transdate    duedate)
+  );
+  $::form->reformat_numbers($output_numberformat, 2, qw(
+    dn_amount dn_netamount dn_paid dn_open_amount dn_fee dn_interest dn_linetotal
+       amount    netamount    paid    open_amount    fee    interest    linetotal
+    total_interest total_open_interest total_amount total_open_amount
+  ));
+  $::form->reformat_numbers($output_numberformat, undef, qw(interest_rate));
 
   $self->set_customer_cvars($myconfig, $form);
   $self->set_template_options($myconfig, $form);

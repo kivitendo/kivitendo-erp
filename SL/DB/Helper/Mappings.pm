@@ -151,6 +151,7 @@ my %kivitendo_package_names = (
   pricegroup                     => 'pricegroup',
   printers                       => 'printer',
   project                        => 'project',
+  project_types                  => 'ProjectType',
   record_links                   => 'record_link',
   sepa_export                    => 'sepa_export',
   sepa_export_items              => 'sepa_export_item',
