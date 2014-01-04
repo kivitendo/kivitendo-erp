@@ -1,3 +1,4 @@
+[% USE L %]
 [% FOR row = TAX_ACCOUNTS %]
-<option value='[% row.id %]--[% row.rate %]' [% IF row.id == select_index %]selected[% END %]>[% row.taxdescription %] %</option>
+<option value='[% row.id %]--[% row.rate %]'[% IF row.id == selected_tax_id%] selected[% END %]>[% row.taxdescription %] %</option>
 [% END %]
