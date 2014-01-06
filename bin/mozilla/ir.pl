@@ -116,7 +116,7 @@ sub invoice_links {
     }
   }
 
-  my ($payment_id, $language_id, $taxzone_id, $currency, $delivery_term_id);
+  my ($payment_id, $language_id, $taxzone_id, $currency, $delivery_term_id, $intnotes);
   if ($form->{payment_id}) {
     $payment_id = $form->{payment_id};
   }
@@ -131,6 +131,9 @@ sub invoice_links {
   }
   if ($form->{delivery_term_id}) {
     $delivery_term_id = $form->{delivery_term_id};
+  }
+  if (exists $form->{intnotes}) {
+    $intnotes = $form->{intnotes};
   }
 
   my $cp_id = $form->{cp_id};
@@ -152,6 +155,9 @@ sub invoice_links {
   }
   if ($delivery_term_id) {
     $form->{delivery_term_id} = $delivery_term_id;
+  }
+  if (defined $intnotes) {
+    $form->{intnotes} = $intnotes;
   }
 
   my @curr = $form->get_all_currencies();
