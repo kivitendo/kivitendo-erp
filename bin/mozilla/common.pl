@@ -511,6 +511,10 @@ sub mark_as_paid_common {
       $referer =~ /^(.*)\?action\=[^\&]*(\&.*)$/;
       $script = $1;
       $callback = $2;
+    } elsif ($referer =~ /RESTORE_FORM_FROM_SESSION_ID/){
+      $referer =~ /^(.*)\?RESTORE_FORM_FROM_SESSION_ID\=(.*)$/;
+      $script = $1;
+      $callback = "";
     } else {
       $script = $referer;
       $callback = "";
