@@ -251,7 +251,8 @@ sub save_dunning {
 
   $form->{language_id} = $saved_language_id;
 
-  if($form->{DUNNING_PDFS}) {
+  if (scalar @{ $form->{DUNNING_PDFS} }) {
+    $form->{dunning_id} = strftime("%Y%m%d", localtime time) if scalar @{ $form->{DUNNING_PDFS}} > 1;
     DN->melt_pdfs(\%myconfig, $form, $form->{copies});
   }
 
@@ -498,6 +499,7 @@ sub print_multiple {
     if (!$form->{force_lang}) {
       $form->{language_id} = $language_ids[$i];
     }
+    $form->{dunning_id} = $dunning_id;
     DN->print_invoice_for_fees(\%myconfig, $form, $dunning_id);
     DN->print_dunning(\%myconfig, $form, $dunning_id);
     $i++;
@@ -505,7 +507,7 @@ sub print_multiple {
   $form->{language_id} = $saved_language_id;
 
   if (scalar @{ $form->{DUNNING_PDFS} }) {
-    $form->{dunning_id} = strftime("%Y%m%d", localtime time);
+    $form->{dunning_id} = strftime("%Y%m%d", localtime time) if scalar @{ $form->{DUNNING_PDFS}} > 1;
     DN->melt_pdfs(\%myconfig, $form, $form->{copies});
 
     if ($form->{media} eq 'printer') {
