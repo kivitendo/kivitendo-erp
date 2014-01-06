@@ -577,7 +577,7 @@ sub generate_trial_balance {
   my $attachment_basename = $locale->text('trial_balance');
   my $report              = SL::ReportGenerator->new(\%myconfig, $form);
 
-  my @hidden_variables    = qw(fromdate todate year cash);
+  my @hidden_variables    = qw(fromdate todate year method);
 
   my $href                = build_std_url('action=generate_trial_balance', grep { $form->{$_} } @hidden_variables);
 
