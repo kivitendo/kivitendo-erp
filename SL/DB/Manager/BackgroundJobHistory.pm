@@ -13,7 +13,7 @@ sub object_class { 'SL::DB::BackgroundJobHistory' }
 __PACKAGE__->make_manager_methods;
 
 sub _sort_spec {
-  return ( default => [ 'run_at', 1 ],
+  return ( default => [ 'run_at', 0 ],
            columns => { SIMPLE => 'ALL' } );
 }
 
