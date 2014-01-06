@@ -41,6 +41,14 @@
 
   <p><button type="button" onclick="window.close()">[% 'Close Window' | $T8 %]</button></p>
 
+  <script type="text/javascript">
+   <!--
+       $(function(){
+         $(window.opener.document.getElementsByName("stock_out_[% HTML.escape(row) %]")).val("");
+       });
+     -->
+  </script>
+
   [%- ELSE %]
 
   <input type="hidden" name="nextsub"   value="set_stock_out">
