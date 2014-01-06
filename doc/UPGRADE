@@ -56,6 +56,10 @@ Upgrade auf v3.x.0
   - Stammdaten -> Kunden und Lieferanten erfassen. Alle Lieferanten bearbeiten. Alle Kunden bearbeiten
   - Konfiguration -> Verändern der kivitendo-Installationseinstellungen (die meisten Menüpunkte unterhalb von 'System')
 
+* Die alten ungepflegten Druckvorlagenvarianten French und Service
+  wurden entfernt.
+
+
 
 Upgrade auf v3.0.0
 ==================
