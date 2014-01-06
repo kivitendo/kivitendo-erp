@@ -647,7 +647,7 @@ sub copy_file_to_webdav_folder {
 
   my $timestamp =  get_current_formatted_time();
   my $new_file  =  File::Spec->catfile($form->{cwd}, $webdav_folder, $form->generate_attachment_filename());
-  $new_file     =~ s/\./$timestamp\./;
+  $new_file =~ s{(.*)\.}{$1$timestamp\.};
 
   if (!File::Copy::copy($current_file, $new_file)) {
     $::lxdebug->message(LXDebug::WARN(), "Copy file from $current_file to $new_file failed: $ERRNO");
