@@ -116,49 +116,14 @@ sub invoice_links {
     }
   }
 
-  my ($payment_id, $language_id, $taxzone_id, $currency, $delivery_term_id, $intnotes);
-  if ($form->{payment_id}) {
-    $payment_id = $form->{payment_id};
-  }
-  if ($form->{language_id}) {
-    $language_id = $form->{language_id};
-  }
-  if ($form->{taxzone_id}) {
-    $taxzone_id = $form->{taxzone_id};
-  }
-  if ($form->{currency}) {
-    $currency = $form->{currency};
-  }
-  if ($form->{delivery_term_id}) {
-    $delivery_term_id = $form->{delivery_term_id};
-  }
-  if (exists $form->{intnotes}) {
-    $intnotes = $form->{intnotes};
-  }
+  $form->backup_vars(qw(payment_id language_id taxzone_id
+                        currency delivery_term_id intnotes cp_id));
 
-  my $cp_id = $form->{cp_id};
   IR->get_vendor(\%myconfig, \%$form);
   IR->retrieve_invoice(\%myconfig, \%$form);
-  $form->{cp_id} = $cp_id;
 
-  if ($payment_id) {
-    $form->{payment_id} = $payment_id;
-  }
-  if ($language_id) {
-    $form->{language_id} = $language_id;
-  }
-  if ($taxzone_id) {
-    $form->{taxzone_id} = $taxzone_id;
-  }
-  if ($currency) {
-    $form->{currency} = $currency;
-  }
-  if ($delivery_term_id) {
-    $form->{delivery_term_id} = $delivery_term_id;
-  }
-  if (defined $intnotes) {
-    $form->{intnotes} = $intnotes;
-  }
+  $form->restore_vars(qw(payment_id language_id taxzone_id
+                         currency delivery_term_id intnotes cp_id));
 
   my @curr = $form->get_all_currencies();
   map { $form->{selectcurrency} .= "<option>$_\n" } @curr;
