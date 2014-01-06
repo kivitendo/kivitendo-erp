@@ -105,7 +105,7 @@ namespace('kivi.CustomerVendor', function(ns) {
 
     var isNotEmpty = function() {
       for(var i in $mapSearchElements)
-        if( $mapSearchElements[i].val() == '' )
+        if( ($mapSearchElements[i].attr('id') != prefix + 'country') && ($mapSearchElements[i].val() == '') )
           return false;
       return true;
     };
