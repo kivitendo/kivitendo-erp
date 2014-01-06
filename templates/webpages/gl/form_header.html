@@ -8,18 +8,15 @@ function updateTaxes(row)
 {
   var accno  = document.getElementById('accno_' + row);
   var taxkey = accno.options[accno.selectedIndex].value;
-  var reg = /--([0-9]*)/;
+  var reg = /^(.*?)--(\d*)$/;
   var found = reg.exec(taxkey);
-  var index = found[1];
-  index = parseInt(index);
-  var tax = 'taxchart_' + row;
-  var taxkeyposition = taxkey.lastIndexOf(found[0]);
-  var account = taxkey.substr(0, taxkeyposition);
+  var account = found[1];
+  var default_tax_id = found[2];
 
   $.ajax({
     url: 'gl.pl?action=get_tax_dropdown',
     data: { accno: account,
-            selected_index: index},
+            selected_tax_id: default_tax_id},
     dataType: 'html',
     success: function (new_html) {
                                 $("#taxchart_" + row).html(new_html);

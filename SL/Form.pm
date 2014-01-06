@@ -1032,6 +1032,12 @@ sub parse_template {
   $self->{"myconfig_${_}"} = $myconfig->{$_} for grep { $_ ne 'dbpasswd' } keys %{ $myconfig };
   $self->{$_}              = $defaults->$_   for qw(co_ustid);
   $self->{"myconfig_${_}"} = $defaults->$_   for qw(address businessnumber co_ustid company duns sepa_creditor_id taxnumber);
+  $self->{AUTH}            = $::auth;
+  $self->{INSTANCE_CONF}   = $::instance_conf;
+  $self->{LOCALE}          = $::locale;
+  $self->{LXCONFIG}        = $::lx_office_conf;
+  $self->{LXDEBUG}         = $::lxdebug;
+  $self->{MYCONFIG}        = \%::myconfig;
 
   $self->{copies} = 1 if (($self->{copies} *= 1) <= 0);
 
